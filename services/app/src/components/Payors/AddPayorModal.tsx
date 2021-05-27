@@ -7,9 +7,14 @@ import {
   DialogTitle,
   makeStyles,
   Theme,
+  Typography,
 } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import RegisterThirdPartyForm from "components/ThirdParties/RegisterThirdPartyForm";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import {
   Companies,
   CompaniesInsertInput,
@@ -47,6 +52,7 @@ export default function AddPayorModal({ customerId, handleClose }: Props) {
   const {
     user: { role },
   } = useContext(CurrentUserContext);
+  const isBankUser = isRoleBankUser(role);
 
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -110,6 +116,16 @@ export default function AddPayorModal({ customerId, handleClose }: Props) {
       classes={{ paper: classes.dialog }}
     >
       <DialogTitle>Add Payor</DialogTitle>
+      {isBankUser && (
+        <Box mt={2} mb={4} mx={3}>
+          <Alert severity="warning">
+            <Typography variant="body1">
+              {`Warning: you are creating a payor partnership request on behalf of this
+                customer (only bank admins can do this).`}
+            </Typography>
+          </Alert>
+        </Box>
+      )}
       <RegisterThirdPartyForm
         companyType={CompanyTypeEnum.Payor}
         role={role}
