@@ -53,7 +53,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			session_maker=self.session_maker
 		)
 		customer_update, err = customer_balance.update(
-			today=date_util.load_date_str(test['today'])
+			today=date_util.load_date_str(test['today']),
+			include_debug_info=False
 		)
 		self.assertIsNone(err)
 

@@ -57,12 +57,15 @@ class RunCustomerBalancesView(MethodView):
 
 		cur_date = start_date
 		all_descriptive_errors = []
+		include_debug_info = form.get('include_debug_info')
+		date_to_company_updates_dict = {} 
 
 		while cur_date <= report_date:
-			descriptive_errors, fatal_error = reports_util.run_customer_balances_for_companies(
+			company_id_to_update_dict, descriptive_errors, fatal_error = reports_util.run_customer_balances_for_companies(
 				session_maker,
 				company_dicts,
-				cur_date
+				cur_date,
+				include_debug_info=include_debug_info
 			)
 
 			if fatal_error:
@@ -70,10 +73,13 @@ class RunCustomerBalancesView(MethodView):
 
 			all_descriptive_errors.extend(descriptive_errors)
 			cur_date = cur_date + timedelta(days=1)
+			if include_debug_info:
+				date_to_company_updates_dict[date_util.date_to_str(cur_date)] = company_id_to_update_dict
 
 		resp = {
 			'status': 'OK',
-			'errors': all_descriptive_errors
+			'errors': all_descriptive_errors,
+			'date_to_company_updates': date_to_company_updates_dict
 		}
 		return make_response(json.dumps(resp), 200)
 

@@ -7,7 +7,7 @@ import datetime
 import logging
 from collections import OrderedDict
 from datetime import timedelta
-from typing import Dict, List, NamedTuple, Tuple
+from typing import Dict, List, NamedTuple, Tuple, Union
 
 from bespoke import errors
 from bespoke.date import date_util
@@ -34,6 +34,15 @@ LoanUpdateDict = TypedDict('LoanUpdateDict', {
 	'outstanding_fees': float,
 	'interest_accrued_today': float,
 	'should_close_loan': bool
+})
+
+UpdateDebugStateDict = TypedDict('UpdateDebugStateDict', {
+	'row_info': List[Union[str, int, float]]
+})
+
+LoanUpdateDebugInfoDict = TypedDict('LoanUpdateDebugInfoDict', {
+	'column_names': List[str],
+	'update_states': List[UpdateDebugStateDict]
 })
 
 ThresholdInfoDict = TypedDict('ThresholdInfoDict', {
@@ -69,7 +78,8 @@ PaymentEffectDict = TypedDict('PaymentEffectDict', {
 
 CalculateResultDict = TypedDict('CalculateResultDict', {
 	'payment_effect': PaymentEffectDict,
-	'loan_update': LoanUpdateDict
+	'loan_update': LoanUpdateDict,
+	'debug_info': LoanUpdateDebugInfoDict
 })
 
 class ThresholdAccumulator(object):
@@ -513,7 +523,8 @@ class LoanCalculator(object):
 		augmented_transactions: List[models.AugmentedTransactionDict],
 		today: datetime.date,
 		should_round_output: bool = True,
-		payment_to_include: IncludedPaymentDict = None
+		payment_to_include: IncludedPaymentDict = None,
+		include_debug_info: bool = False
 	) -> Tuple[CalculateResultDict, List[errors.Error]]:
 		# Replay the history of the loan and all the expenses that are due as a result.
 		# Heres what you owe based on the transaction history applied to your loan.
@@ -583,6 +594,9 @@ class LoanCalculator(object):
 		def _is_after_repayment_deposit_date(cur_date: datetime.date) -> bool:
 			return payment_to_include and cur_date > payment_to_include['deposit_date'] and cur_date <= payment_to_include['settlement_date']
 
+		debug_update_states: List[UpdateDebugStateDict] = []
+		debug_column_names: List[str] = []
+
 		for i in range(days_out):
 			cur_date = loan['origination_date'] + timedelta(days=i)
 			# Check each transaction and the effect it had on this loan
@@ -641,6 +655,35 @@ class LoanCalculator(object):
 				interest_rate=interest_fee_info['interest_rate_used'],
 				fee_multiplier=interest_fee_info['fee_multiplier']
 			)
+
+			if include_debug_info:
+				debug_column_names = [
+					'Date', 
+					'Outstanding Principal', 
+					'Outstanding Principal For Interest', 
+					'Outstanding Interest', 
+					'Outstanding Fees',
+
+					'Interest Rate',
+					'Fee Multiplier',
+					'Interest Due for day',
+					'Fee for day'
+				]
+				debug_row_info: List[Union[str, int, float]] = [
+					date_util.date_to_str(cur_date),
+					outstanding_principal,
+					outstanding_principal_for_interest,
+					outstanding_interest,
+					outstanding_fees,
+
+					interest_fee_info['interest_rate_used'],
+					interest_fee_info['fee_multiplier'],
+					interest_due_for_day,
+					fee_due_for_day
+				]
+				debug_update_states.append(UpdateDebugStateDict(
+					row_info=debug_row_info
+				))
 
 			# Apply repayment transactions at the "end of the day"
 
@@ -810,5 +853,9 @@ class LoanCalculator(object):
 
 		return CalculateResultDict(
 			payment_effect=payment_effect_dict,
-			loan_update=l
+			loan_update=l,
+			debug_info=LoanUpdateDebugInfoDict(
+				column_names=debug_column_names,
+				update_states=debug_update_states
+			)
 		), None

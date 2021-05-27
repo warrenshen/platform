@@ -42,7 +42,10 @@ def main() -> None:
 		customer_balance = loan_balances.CustomerBalance(company_dict, session_maker)
 		customer_update_dict, err = customer_balance.update(
 			today=date_util.now_as_date(
-				timezone=date_util.DEFAULT_TIMEZONE))
+				timezone=date_util.DEFAULT_TIMEZONE
+			),
+			include_debug_info=False
+		)
 
 		if err:
 			logging.error('Error updating customer balance for company "{}". Error: {}'.format(

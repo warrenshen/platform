@@ -29,7 +29,7 @@ from bespoke.finance import contract_util, number_util
 from bespoke.finance.fetchers import per_customer_fetcher
 from bespoke.finance.loans import fee_util, loan_calculator
 from bespoke.finance.loans.fee_util import FeeDict
-from bespoke.finance.loans.loan_calculator import LoanUpdateDict
+from bespoke.finance.loans.loan_calculator import LoanUpdateDict, LoanUpdateDebugInfoDict
 from bespoke.finance.payments import payment_util
 from bespoke.finance.types import finance_types, per_customer_types
 from mypy_extensions import TypedDict
@@ -59,7 +59,8 @@ CustomerUpdateDict = TypedDict('CustomerUpdateDict', {
 	'today': datetime.date,
 	'loan_updates': List[LoanUpdateDict],
 	'active_ebba_application_update': EbbaApplicationUpdateDict,
-	'summary_update': SummaryUpdateDict
+	'summary_update': SummaryUpdateDict,
+	'loan_id_to_debug_info': Dict[str, LoanUpdateDebugInfoDict]
 })
 
 
@@ -218,7 +219,7 @@ class CustomerBalance(object):
 		self._company_id = company_dict['id']
 
 	@errors.return_error_tuple
-	def update(self, today: datetime.date) -> Tuple[CustomerUpdateDict, errors.Error]:
+	def update(self, today: datetime.date, include_debug_info: bool) -> Tuple[CustomerUpdateDict, errors.Error]:
 		"""
 		Returns None if company does not have any contracts.
 		"""
@@ -286,6 +287,8 @@ class CustomerBalance(object):
 		if err:
 			return None, err
 
+		loan_id_to_debug_info = {}
+
 		for loan in financials['loans']:
 			if not loan['origination_date']:
 				# If the loan hasn't been originated yet, nothing to calculate
@@ -306,6 +309,7 @@ class CustomerBalance(object):
 				transactions_for_loan,
 				today,
 				should_round_output=False,
+				include_debug_info=include_debug_info
 			)
 			if errors_list:
 				logging.error('Got these errors associated with loan {}'.format(loan['id']))
@@ -316,6 +320,7 @@ class CustomerBalance(object):
 			else:
 				loan_update_dict = calculate_result['loan_update']
 				loan_update_dicts.append(loan_update_dict)
+				loan_id_to_debug_info[loan['id']] = calculate_result['debug_info'] 
 
 		if all_errors:
 			raise errors.Error(
@@ -351,6 +356,7 @@ class CustomerBalance(object):
 			loan_updates=loan_update_dicts,
 			active_ebba_application_update=ebba_application_update,
 			summary_update=summary_update,
+			loan_id_to_debug_info=loan_id_to_debug_info
 		), None
 
 	@errors.return_error_tuple
