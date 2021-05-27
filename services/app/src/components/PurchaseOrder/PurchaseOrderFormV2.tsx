@@ -1,12 +1,4 @@
-import {
-  Box,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-  Typography,
-} from "@material-ui/core";
+import { Box, TextField, Typography } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import FileUploader from "components/Shared/File/FileUploader";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
@@ -58,6 +50,8 @@ export default function PurchaseOrderFormV2({
     [purchaseOrderFile]
   );
 
+  // TODO(warrenshen): once at least one Metrc transfer is selected, user should
+  // only be able to add additional Metrc transfers belonging to the same vendor.
   return (
     <Box display="flex" flexDirection="column">
       <Box display="flex" flexDirection="column">
@@ -91,6 +85,10 @@ export default function PurchaseOrderFormV2({
           )}
           onChange={(_event, metrcTransfer) => {
             if (metrcTransfer) {
+              setPurchaseOrder({
+                ...purchaseOrder,
+                vendor_id: metrcTransfer.vendor_id,
+              });
               setPurchaseOrderMetrcTransfers((purchaseOrderMetrcTransfers) => [
                 ...purchaseOrderMetrcTransfers,
                 {
@@ -101,45 +99,6 @@ export default function PurchaseOrderFormV2({
             }
           }}
         />
-      </Box>
-      <Box display="flex" flexDirection="column" mt={4}>
-        <FormControl>
-          <InputLabel id="vendor-select-label">Vendor</InputLabel>
-          <Select
-            data-cy={"purchase-order-form-input-vendor"}
-            disabled={selectableVendors.length <= 0}
-            labelId="vendor-select-label"
-            id="vendor-select"
-            value={
-              selectableVendors.length > 0 ? purchaseOrder.vendor_id || "" : ""
-            }
-            onChange={({ target: { value } }) =>
-              setPurchaseOrder({
-                ...purchaseOrder,
-                vendor_id: value || null,
-              })
-            }
-          >
-            <MenuItem value={""}>
-              <em>None</em>
-            </MenuItem>
-            {selectableVendors.map((vendor, index) => (
-              <MenuItem
-                data-cy={`purchase-order-form-input-vendor-menu-item-${
-                  index + 1
-                }`}
-                key={vendor.id}
-                value={vendor.id}
-              >
-                {`${vendor.name} ${
-                  vendor.company_vendor_partnerships[0]?.approved_at
-                    ? "(Approved)"
-                    : "(Not approved)"
-                }`}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <TextField

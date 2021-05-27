@@ -337,6 +337,8 @@ fragment MetrcTransfer on metrc_transfers {
   company_id
   license_id
   delivery_id
+  vendor_id
+  transfer_type
   created_date
   manifest_number
   transfer_payload

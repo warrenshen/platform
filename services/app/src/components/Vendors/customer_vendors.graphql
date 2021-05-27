@@ -12,7 +12,15 @@ query GetVendorsByPartnerCompany($companyId: uuid!) {
     metrc_api_keys(where: { is_functioning: { _eq: true } }) {
       id
     }
-    metrc_transfers(order_by: { created_date: desc }) {
+    metrc_transfers(
+      where: {
+        _and: [
+          { transfer_type: { _eq: "INCOMING_FROM_VENDOR" } }
+          { vendor_id: { _is_null: false } }
+        ]
+      }
+      order_by: { created_date: desc }
+    ) {
       id
       ...MetrcTransfer
     }

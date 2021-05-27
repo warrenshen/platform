@@ -2461,6 +2461,46 @@
       - id
       - transfer_id
       filter: {}
+  - role: company_admin
+    permission:
+      columns:
+      - id
+      - package_id
+      - transfer_id
+      - delivery_id
+      - label
+      - type
+      - product_name
+      - package_payload
+      - lab_results_payload
+      - lab_results_status
+      filter:
+        metrc_transfer:
+          _or:
+          - company_id:
+              _eq: X-Hasura-Company-Id
+          - vendor_id:
+              _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+      - id
+      - package_id
+      - transfer_id
+      - delivery_id
+      - label
+      - type
+      - product_name
+      - package_payload
+      - lab_results_payload
+      - lab_results_status
+      filter:
+        metrc_transfer:
+          _or:
+          - company_id:
+              _eq: X-Hasura-Company-Id
+          - vendor_id:
+              _eq: X-Hasura-Company-Id
 - table:
     schema: public
     name: metrc_transfers
@@ -2493,6 +2533,7 @@
       - license_id
       - manifest_number
       - transfer_payload
+      - transfer_type
       - vendor_id
       filter: {}
   - role: bank_read_only
@@ -2505,8 +2546,45 @@
       - license_id
       - manifest_number
       - transfer_payload
+      - transfer_type
       - vendor_id
       filter: {}
+  - role: company_admin
+    permission:
+      columns:
+      - company_id
+      - created_date
+      - delivery_id
+      - id
+      - license_id
+      - manifest_number
+      - transfer_payload
+      - transfer_type
+      - vendor_id
+      filter:
+        _or:
+        - company_id:
+            _eq: X-Hasura-Company-Id
+        - vendor_id:
+            _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+      - company_id
+      - created_date
+      - delivery_id
+      - id
+      - license_id
+      - manifest_number
+      - transfer_payload
+      - transfer_type
+      - vendor_id
+      filter:
+        _or:
+        - company_id:
+            _eq: X-Hasura-Company-Id
+        - vendor_id:
+            _eq: X-Hasura-Company-Id
 - table:
     schema: public
     name: payments

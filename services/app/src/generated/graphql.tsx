@@ -8761,6 +8761,10 @@ export type MetrcTransfers = {
   /** An aggregated array relationship */
   metrc_packages_aggregate: MetrcPackagesAggregate;
   transfer_payload: Scalars["json"];
+  transfer_type: Scalars["String"];
+  /** An object relationship */
+  vendor?: Maybe<Companies>;
+  vendor_id?: Maybe<Scalars["uuid"]>;
 };
 
 /**
@@ -8848,6 +8852,9 @@ export type MetrcTransfersBoolExp = {
   manifest_number?: Maybe<StringComparisonExp>;
   metrc_packages?: Maybe<MetrcPackagesBoolExp>;
   transfer_payload?: Maybe<JsonComparisonExp>;
+  transfer_type?: Maybe<StringComparisonExp>;
+  vendor?: Maybe<CompaniesBoolExp>;
+  vendor_id?: Maybe<UuidComparisonExp>;
 };
 
 /** unique or primary key constraints on table "metrc_transfers" */
@@ -8870,6 +8877,9 @@ export type MetrcTransfersInsertInput = {
   manifest_number?: Maybe<Scalars["String"]>;
   metrc_packages?: Maybe<MetrcPackagesArrRelInsertInput>;
   transfer_payload?: Maybe<Scalars["json"]>;
+  transfer_type?: Maybe<Scalars["String"]>;
+  vendor?: Maybe<CompaniesObjRelInsertInput>;
+  vendor_id?: Maybe<Scalars["uuid"]>;
 };
 
 /** aggregate max on columns */
@@ -8880,6 +8890,8 @@ export type MetrcTransfersMaxFields = {
   id?: Maybe<Scalars["uuid"]>;
   license_id?: Maybe<Scalars["uuid"]>;
   manifest_number?: Maybe<Scalars["String"]>;
+  transfer_type?: Maybe<Scalars["String"]>;
+  vendor_id?: Maybe<Scalars["uuid"]>;
 };
 
 /** order by max() on columns of table "metrc_transfers" */
@@ -8890,6 +8902,8 @@ export type MetrcTransfersMaxOrderBy = {
   id?: Maybe<OrderBy>;
   license_id?: Maybe<OrderBy>;
   manifest_number?: Maybe<OrderBy>;
+  transfer_type?: Maybe<OrderBy>;
+  vendor_id?: Maybe<OrderBy>;
 };
 
 /** aggregate min on columns */
@@ -8900,6 +8914,8 @@ export type MetrcTransfersMinFields = {
   id?: Maybe<Scalars["uuid"]>;
   license_id?: Maybe<Scalars["uuid"]>;
   manifest_number?: Maybe<Scalars["String"]>;
+  transfer_type?: Maybe<Scalars["String"]>;
+  vendor_id?: Maybe<Scalars["uuid"]>;
 };
 
 /** order by min() on columns of table "metrc_transfers" */
@@ -8910,6 +8926,8 @@ export type MetrcTransfersMinOrderBy = {
   id?: Maybe<OrderBy>;
   license_id?: Maybe<OrderBy>;
   manifest_number?: Maybe<OrderBy>;
+  transfer_type?: Maybe<OrderBy>;
+  vendor_id?: Maybe<OrderBy>;
 };
 
 /** response of any mutation on the table "metrc_transfers" */
@@ -8945,6 +8963,9 @@ export type MetrcTransfersOrderBy = {
   manifest_number?: Maybe<OrderBy>;
   metrc_packages_aggregate?: Maybe<MetrcPackagesAggregateOrderBy>;
   transfer_payload?: Maybe<OrderBy>;
+  transfer_type?: Maybe<OrderBy>;
+  vendor?: Maybe<CompaniesOrderBy>;
+  vendor_id?: Maybe<OrderBy>;
 };
 
 /** primary key columns input for table: "metrc_transfers" */
@@ -8968,6 +8989,10 @@ export enum MetrcTransfersSelectColumn {
   ManifestNumber = "manifest_number",
   /** column name */
   TransferPayload = "transfer_payload",
+  /** column name */
+  TransferType = "transfer_type",
+  /** column name */
+  VendorId = "vendor_id",
 }
 
 /** input type for updating data in table "metrc_transfers" */
@@ -8979,6 +9004,8 @@ export type MetrcTransfersSetInput = {
   license_id?: Maybe<Scalars["uuid"]>;
   manifest_number?: Maybe<Scalars["String"]>;
   transfer_payload?: Maybe<Scalars["json"]>;
+  transfer_type?: Maybe<Scalars["String"]>;
+  vendor_id?: Maybe<Scalars["uuid"]>;
 };
 
 /** update columns of table "metrc_transfers" */
@@ -8997,6 +9024,10 @@ export enum MetrcTransfersUpdateColumn {
   ManifestNumber = "manifest_number",
   /** column name */
   TransferPayload = "transfer_payload",
+  /** column name */
+  TransferType = "transfer_type",
+  /** column name */
+  VendorId = "vendor_id",
 }
 
 /** mutation root */
@@ -18672,6 +18703,8 @@ export type MetrcTransferFragment = Pick<
   | "company_id"
   | "license_id"
   | "delivery_id"
+  | "vendor_id"
+  | "transfer_type"
   | "created_date"
   | "manifest_number"
   | "transfer_payload"
@@ -19457,6 +19490,8 @@ export const MetrcTransferFragmentDoc = gql`
     company_id
     license_id
     delivery_id
+    vendor_id
+    transfer_type
     created_date
     manifest_number
     transfer_payload
@@ -26278,7 +26313,15 @@ export const GetVendorsByPartnerCompanyDocument = gql`
       metrc_api_keys(where: { is_functioning: { _eq: true } }) {
         id
       }
-      metrc_transfers(order_by: { created_date: desc }) {
+      metrc_transfers(
+        where: {
+          _and: [
+            { transfer_type: { _eq: "INCOMING_FROM_VENDOR" } }
+            { vendor_id: { _is_null: false } }
+          ]
+        }
+        order_by: { created_date: desc }
+      ) {
         id
         ...MetrcTransfer
       }
