@@ -12,7 +12,7 @@ from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.db_constants import CompanyType
 from bespoke.excel import excel_reader
-
+from sqlalchemy import or_
 
 def import_payors_vendors(
 	session: Session,
@@ -53,7 +53,7 @@ def import_payors_vendors(
 		customer = cast(
 			models.Company,
 			session.query(models.Company).filter(
-				models.Company.company_type == CompanyType.Customer
+				models.Company.is_customer == True
 			).filter(
 				models.Company.identifier == parsed_customer_identifier
 			).first())
@@ -66,7 +66,7 @@ def import_payors_vendors(
 		existing_company_by_name = cast(
 			models.Company,
 			session.query(models.Company).filter(
-				models.Company.company_type.in_([CompanyType.Payor, CompanyType.Vendor])
+				or_(models.Company.is_vendor == True, models.Company.is_payor == True)
 			).filter(
 				models.Company.name == company_name
 			).first())
@@ -96,7 +96,9 @@ def import_payors_vendors(
 
 			company = models.Company(
 				company_settings_id=company_settings_id,
-				company_type=company_type,
+				is_payor=company_type == 'payor',
+				is_vendor=company_type == 'vendor',
+				is_customer=company_type == 'customer',
 				name=company_name,
 				contract_name=company_contract_name,
 				dba_name=dba_name,

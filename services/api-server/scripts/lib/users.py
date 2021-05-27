@@ -11,7 +11,7 @@ from bespoke.db.db_constants import (CompanyType, RequestStatusEnum,
                                      TwoFactorMessageMethod)
 from bespoke.excel import excel_reader
 from sqlalchemy.orm.session import Session
-
+from sqlalchemy import or_
 
 def import_payor_vendor_users(
 	session: Session,
@@ -70,7 +70,7 @@ def import_payor_vendor_users(
 			return
 
 		payor_vendor = session.query(models.Company).filter(
-				models.Company.company_type.in_([CompanyType.Payor, CompanyType.Vendor])
+				or_(models.Company.is_vendor == True, models.Company.is_payor == True)
 			).filter(
 				models.Company.name == parsed_payor_vendor_name
 			).first()

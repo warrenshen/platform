@@ -41,7 +41,7 @@ def import_approved_ebba_applications(
 		customer = cast(
 			models.Company,
 			session.query(models.Company).filter(
-				models.Company.company_type == CompanyType.Customer
+				models.Company.is_customer == True
 			).filter(
 				models.Company.identifier == customer_identifier
 			).first())

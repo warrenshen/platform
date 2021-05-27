@@ -32,7 +32,7 @@ def import_line_of_credit_loans_icannic(session: Session) -> None:
 		customer = cast(
 			models.Company,
 			session.query(models.Company).filter(
-				models.Company.company_type == CompanyType.Customer
+				models.Company.is_customer == True
 			).filter(
 				models.Company.identifier == customer_identifier
 			).first())
@@ -92,7 +92,7 @@ def import_line_of_credit_loans_icannic(session: Session) -> None:
 			vendor = cast(
 				models.Company,
 				session.query(models.Company).filter(
-					models.Company.company_type == CompanyType.Vendor
+					models.Company.is_vendor == True
 				).filter(
 					models.Company.name == recipient_vendor_name
 				).first())

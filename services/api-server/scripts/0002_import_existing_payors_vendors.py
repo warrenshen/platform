@@ -251,7 +251,7 @@ def import_existing_payors_vendors(session: Session) -> None:
 		customer = cast(
 			models.Company,
 			session.query(models.Company).filter(
-				models.Company.company_type == CompanyType.Customer
+				models.Company.is_customer == True
 			).filter(
 				models.Company.identifier == customer_identifier
 			).first())
@@ -290,7 +290,9 @@ def import_existing_payors_vendors(session: Session) -> None:
 
 			company = models.Company(
 				company_settings_id=company_settings_id,
-				company_type=company_type,
+				is_payor=company_type == 'payor',
+				is_vendor=company_type == 'vendor',
+				is_customer=company_type == 'customer',
 				name=company_name,
 				contract_name=company_contract_name,
 				dba_name=dba_name,

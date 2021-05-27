@@ -58,7 +58,7 @@ def import_funded_purchase_orders(
 		customer = cast(
 			models.Company,
 			session.query(models.Company).filter(
-				models.Company.company_type == CompanyType.Customer
+				models.Company.is_customer == True
 			).filter(
 				models.Company.identifier == parsed_customer_identifier
 			).first())
@@ -71,7 +71,7 @@ def import_funded_purchase_orders(
 		vendor = cast(
 			models.Company,
 			session.query(models.Company).filter(
-				models.Company.company_type == CompanyType.Vendor
+				models.Company.is_vendor == True
 			).filter(
 				models.Company.name == parsed_vendor_name
 			).first())

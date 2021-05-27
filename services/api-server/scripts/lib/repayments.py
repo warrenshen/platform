@@ -94,7 +94,7 @@ def import_settled_repayments(
 		customer = cast(
 			models.Company,
 			session.query(models.Company).filter(
-				models.Company.company_type == CompanyType.Customer
+				models.Company.is_customer == True
 			).filter(
 				models.Company.identifier == parsed_customer_identifier
 			).first())
@@ -391,7 +391,7 @@ def import_settled_repayments_line_of_credit(
 			customer = cast(
 				models.Company,
 				session.query(models.Company).filter(
-					models.Company.company_type == CompanyType.Customer
+					models.Company.is_customer == True
 				).filter(
 					models.Company.identifier == parsed_customer_identifier
 				).first())

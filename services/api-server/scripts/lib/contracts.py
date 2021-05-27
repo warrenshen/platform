@@ -170,7 +170,7 @@ def import_contracts(
 		customer = cast(
 			models.Company,
 			session.query(models.Company).filter(
-				models.Company.company_type == CompanyType.Customer
+				models.Company.is_customer == True
 			).filter(
 				models.Company.identifier == parsed_customer_identifier
 			).first())
@@ -187,7 +187,7 @@ def import_contracts(
 
 			customer = models.Company(
 				company_settings_id=company_settings_id,
-				company_type=CompanyType.Customer,
+				is_customer=True,
 				name=parsed_customer_name,
 				identifier=parsed_customer_identifier,
 				contract_name=parsed_customer_name,

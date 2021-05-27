@@ -40,7 +40,7 @@ def reset_customers(
 
 		# Step 1: find customer.
 		customer = session.query(models.Company).filter(
-			models.Company.company_type == CompanyType.Customer
+			models.Company.is_customer == True
 		).filter(
 			models.Company.identifier == parsed_customer_identifier
 		).first()

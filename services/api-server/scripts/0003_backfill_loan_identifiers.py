@@ -15,7 +15,7 @@ def backfill_loan_identifiers(session: Session) -> None:
     customers = cast(
         List[models.Company],
         session.query(models.Company).filter(
-            models.Company.company_type == CompanyType.Customer
+            models.Company.is_customer == True
         ).all())
 
     customers_count = len(customers)

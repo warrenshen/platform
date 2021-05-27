@@ -82,7 +82,7 @@ def import_loans(session: Session, loan_tuples: List[List[str]]) -> None:
 		customer = cast(
 			models.Company,
 			session.query(models.Company).filter(
-				models.Company.company_type == CompanyType.Customer
+				models.Company.is_customer == True
 			).filter(
 				models.Company.identifier == parsed_customer_identifier
 			).first())
@@ -242,7 +242,7 @@ def import_line_of_credit_loans(session: Session, loan_tuples: List[List[str]]) 
 		customer = cast(
 			models.Company,
 			session.query(models.Company).filter(
-				models.Company.company_type == CompanyType.Customer
+				models.Company.is_customer == True
 			).filter(
 				models.Company.identifier == parsed_customer_identifier
 			).first())
@@ -291,7 +291,7 @@ def import_line_of_credit_loans(session: Session, loan_tuples: List[List[str]]) 
 			vendor = cast(
 				models.Company,
 				session.query(models.Company).filter(
-					models.Company.company_type == CompanyType.Vendor
+					models.Company.is_vendor == True
 				).filter(
 					models.Company.name == recipient_vendor_name
 				).first())

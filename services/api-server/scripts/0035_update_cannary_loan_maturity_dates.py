@@ -24,7 +24,7 @@ def main() -> None:
 		print(f'Running...')
 
 		customer = session.query(models.Company).filter(
-			models.Company.company_type == CompanyType.Customer
+			models.Company.is_customer == True
 		).filter(
 			models.Company.identifier == 'CAN'
 		).first()

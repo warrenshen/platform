@@ -119,8 +119,6 @@ class Company(Base):
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	company_settings_id = Column(GUID)
 	contract_id = Column(GUID)
-
-	company_type = Column(String, nullable=False, default=CompanyType.Customer)
 	name = Column(String)
 	identifier = Column(String)
 	contract_name = Column(String)
@@ -226,8 +224,8 @@ class CompanyPartnershipRequest(Base):
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	requesting_company_id = Column(GUID, nullable=False)
-	two_factor_message_method = Column(String, nullable=False)
 	company_type = Column(String, nullable=False)
+	two_factor_message_method = Column(String, nullable=False)
 	company_name = Column(String, nullable=False)
 	is_cannabis = Column(Boolean)
 	license_info = Column(JSON, nullable=False)

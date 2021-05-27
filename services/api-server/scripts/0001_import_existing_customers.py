@@ -66,7 +66,7 @@ def import_existing_customers(session: Session) -> None:
 
 		company = models.Company(
 			company_settings_id=company_settings_id,
-			company_type=CompanyType.Customer,
+			is_customer=True,
 			name=name,
 			identifier=identifier,
 			contract_name=contract_name,

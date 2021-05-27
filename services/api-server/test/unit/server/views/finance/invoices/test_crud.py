@@ -104,7 +104,7 @@ class InvoiceViewTest(db_unittest.TestCase):
 
 		with models.session_scope(self.session_maker) as session:
 			payor = session.query(models.Company).get(payor_id)
-			payor.company_type = db_constants.CompanyType.Payor
+			payor.is_payor = True
 
 			session.add(models.CompanyPayorPartnership( # type: ignore
 				company_id=customer_id,
