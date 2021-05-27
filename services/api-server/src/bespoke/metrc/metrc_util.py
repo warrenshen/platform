@@ -189,6 +189,7 @@ def _get_companies_with_metrc_keys(
 				name=company_name,
 				licenses=license_auths,
 				user_key=auth_provider.get_user_key(),
+				metrc_api_key_id=str(metrc_api_key.id)
 			))
 
 	return company_infos, None
@@ -215,21 +216,42 @@ def _download_data(
 	errs = []
 
 	for company_info in company_infos:
-		cur_date = start_date
-		while cur_date <= end_date:
-			with session_scope(session_maker) as session:
+		api_key_has_err = False # Assume 1 API key per customer
 
-					# Download transfers data for the particular day
+		for license in company_info.licenses:
+			cur_date = start_date
+
+			while cur_date <= end_date:
+				with session_scope(session_maker) as session:
+					# Download transfers data for the particular day and key
 					_, err = transfers_util.populate_transfers_table(
 						cur_date=cur_date,
 						company_info=company_info,
+						license=license,
 						session=session
 					)
 					if err:
 						session.rollback()
 						errs.append(err)
+						api_key_has_err = True
+						# If there was any error, dont keep fetching information
+						# for the rest of the days
+						break
 
-			cur_date = cur_date + timedelta(days=1)
+				cur_date = cur_date + timedelta(days=1)
+
+		# Update whether this metrc key worked
+		with session_scope(session_maker) as session:
+
+			metrc_api_key = cast(
+				models.MetrcApiKey,
+				session.query(models.MetrcApiKey).filter(
+					models.MetrcApiKey.id == company_info.metrc_api_key_id
+			).first())
+
+			if metrc_api_key:
+				metrc_api_key.is_functioning = not api_key_has_err
+				metrc_api_key.last_used_at = date_util.now()
 
 	if specific_company_id and errs:
 		return False, errs, errors.Error('{}'.format(errs))

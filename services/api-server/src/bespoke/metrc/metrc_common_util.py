@@ -20,11 +20,13 @@ LicenseAuthDict = TypedDict('LicenseAuthDict', {
 
 class CompanyInfo(object):
 
-	def __init__(self, company_id: str, name: str, licenses: List[LicenseAuthDict], user_key: str) -> None:
+	def __init__(self, company_id: str, name: str, licenses: List[LicenseAuthDict], 
+										 user_key: str, metrc_api_key_id: str) -> None:
 		self.company_id = company_id
 		self.name = name
 		self.licenses = licenses
 		self.user_key = user_key
+		self.metrc_api_key_id = metrc_api_key_id
 
 
 class REST(object):
@@ -60,7 +62,7 @@ class REST(object):
 		resp = requests.get(url, auth=self.auth)
 
 		if not resp.ok:
-			raise Exception('Code: {}. Reason: {}. Response: {}'.format(resp.status_code, resp.reason, resp.content.decode('utf-8')))
+			raise errors.Error('Code: {}. Reason: {}. Response: {}'.format(resp.status_code, resp.reason, resp.content.decode('utf-8')))
 
 		return resp
 

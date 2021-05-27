@@ -10,7 +10,7 @@ from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.metrc import metrc_common_util
-from bespoke.metrc.metrc_common_util import CompanyInfo
+from bespoke.metrc.metrc_common_util import CompanyInfo, LicenseAuthDict
 from dateutil import parser
 from sqlalchemy.orm.session import Session
 
@@ -176,96 +176,99 @@ def _match_and_add_licenses_to_transfers(
 
 
 @errors.return_error_tuple
-def populate_transfers_table(cur_date: datetime.date, company_info: CompanyInfo, session: Session) -> Tuple[bool, errors.Error]:
+def populate_transfers_table(
+	cur_date: datetime.date, 
+	company_info: CompanyInfo, 
+	license: LicenseAuthDict,
+	session: Session) -> Tuple[bool, errors.Error]:
 
-	for license in company_info.licenses:
-		logging.info('Downloading transfers for company "{}" on date: {}'.format(
-			company_info.name, cur_date
-		))
-		rest = metrc_common_util.REST(
-			metrc_common_util.AuthDict(
-				vendor_key=license['vendor_key'],
-				user_key=company_info.user_key
-			),
-			license_number=license['license_number'],
-			us_state=license['us_state']
+	logging.info('Downloading transfers for company "{}" on date: {} with license {}'.format(
+		company_info.name, cur_date, license['license_number']
+	))
+	rest = metrc_common_util.REST(
+		metrc_common_util.AuthDict(
+			vendor_key=license['vendor_key'],
+			user_key=company_info.user_key
+		),
+		license_number=license['license_number'],
+		us_state=license['us_state']
+	)
+
+	cur_date_str = cur_date.strftime('%m/%d/%Y')
+	resp = rest.get('/transfers/v1/incoming', time_range=[cur_date_str])
+	transfers = json.loads(resp.content)
+	metrc_transfers = Transfers.build(transfers).get_transfer_models(
+		company_id=company_info.company_id,
+		license_id=license['license_id']
+	)
+
+	all_metrc_packages = []
+	package_id_to_metrc_transfer = {}
+
+	# Look up company ids for vendors that might match, and use those licenses to
+	# determine what kind of transfer this is
+	_match_and_add_licenses_to_transfers(
+		metrc_transfers, 
+		transfer_type_prefix='INCOMING',
+		session=session
+	)
+
+	for metrc_transfer in metrc_transfers:
+		logging.info('Downloading data for metrc transfer delivery_id={}'.format(metrc_transfer.delivery_id))
+		delivery_id = metrc_transfer.delivery_id
+		resp = rest.get(f'/transfers/v1/delivery/{delivery_id}/packages')
+		t_packages_json = json.loads(resp.content)
+
+		packages = TransferPackages(delivery_id, t_packages_json)
+		package_ids = packages.get_package_ids()
+
+		lab_tests = []
+		for package_id in package_ids:
+			resp = rest.get(f'/labtests/v1/results?packageId={package_id}')
+			lab_test_json = json.loads(resp.content)
+			#lab_test_json = [] # Use an empty list if you want to speed things up
+			lab_tests.append(LabTest(lab_test_json))
+
+		metrc_packages = packages.get_package_models(
+			transfer_id=None,
+			lab_tests=lab_tests
 		)
+		for metrc_package in metrc_packages:
+			package_id_to_metrc_transfer[metrc_package.package_id] = metrc_transfer
+			all_metrc_packages.append(metrc_package)
 
-		cur_date_str = cur_date.strftime('%m/%d/%Y')
-		resp = rest.get('/transfers/v1/incoming', time_range=[cur_date_str])
-		transfers = json.loads(resp.content)
-		metrc_transfers = Transfers.build(transfers).get_transfer_models(
-			company_id=company_info.company_id,
-			license_id=license['license_id']
-		)
+	# Delete packages before writing them
+	package_ids = [pkg.package_id for pkg in all_metrc_packages]
+	prev_metrc_packages = session.query(models.MetrcPackage).filter(
+		models.MetrcPackage.package_id.in_(package_ids)
+	)
+	for prev_metrc_package in prev_metrc_packages:
+		cast(Callable, session.delete)(prev_metrc_package)
 
-		all_metrc_packages = []
-		package_id_to_metrc_transfer = {}
+	session.flush()
 
-		# Look up company ids for vendors that might match, and use those licenses to
-		# determine what kind of transfer this is
-		_match_and_add_licenses_to_transfers(
-			metrc_transfers, 
-			transfer_type_prefix='INCOMING',
-			session=session
-		)
+	# Delete previous transfers which might be in the DB and overlap
+	# with the delivery_ids that we are about to write to the DB
+	delivery_ids = [tr.delivery_id for tr in metrc_transfers]
+	prev_metrc_transfers = session.query(models.MetrcTransfer).filter(
+		models.MetrcTransfer.delivery_id.in_(delivery_ids)
+	)
+	for prev_metrc_transfer in prev_metrc_transfers:
+		cast(Callable, session.delete)(prev_metrc_transfer)
 
-		for metrc_transfer in metrc_transfers:
-			logging.info('Downloading data for metrc transfer delivery_id={}'.format(metrc_transfer.delivery_id))
-			delivery_id = metrc_transfer.delivery_id
-			resp = rest.get(f'/transfers/v1/delivery/{delivery_id}/packages')
-			t_packages_json = json.loads(resp.content)
+	session.flush()
 
-			packages = TransferPackages(delivery_id, t_packages_json)
-			package_ids = packages.get_package_ids()
+	# Write the transfers and write the packages
+	for metrc_transfer in metrc_transfers:
+		session.add(metrc_transfer)
 
-			lab_tests = []
-			for package_id in package_ids:
-				resp = rest.get(f'/labtests/v1/results?packageId={package_id}')
-				lab_test_json = json.loads(resp.content)
-				#lab_test_json = [] # Use an empty list if you want to speed things up
-				lab_tests.append(LabTest(lab_test_json))
+	session.flush()
 
-			metrc_packages = packages.get_package_models(
-				transfer_id=None,
-				lab_tests=lab_tests
-			)
-			for metrc_package in metrc_packages:
-				package_id_to_metrc_transfer[metrc_package.package_id] = metrc_transfer
-				all_metrc_packages.append(metrc_package)
-
-		# Delete packages before writing them
-		package_ids = [pkg.package_id for pkg in all_metrc_packages]
-		prev_metrc_packages = session.query(models.MetrcPackage).filter(
-			models.MetrcPackage.package_id.in_(package_ids)
-		)
-		for prev_metrc_package in prev_metrc_packages:
-			cast(Callable, session.delete)(prev_metrc_package)
-
-		session.flush()
-
-		# Delete previous transfers which might be in the DB and overlap
-		# with the delivery_ids that we are about to write to the DB
-		delivery_ids = [tr.delivery_id for tr in metrc_transfers]
-		prev_metrc_transfers = session.query(models.MetrcTransfer).filter(
-			models.MetrcTransfer.delivery_id.in_(delivery_ids)
-		)
-		for prev_metrc_transfer in prev_metrc_transfers:
-			cast(Callable, session.delete)(prev_metrc_transfer)
-
-		session.flush()
-
-		# Write the transfers and write the packages
-		for metrc_transfer in metrc_transfers:
-			session.add(metrc_transfer)
-
-		session.flush()
-
-		for metrc_package in all_metrc_packages:
-			cur_metrc_package = package_id_to_metrc_transfer[metrc_package.package_id]
-			transfer_id = cur_metrc_package.id
-			metrc_package.transfer_id = transfer_id
-			session.add(metrc_package)
+	for metrc_package in all_metrc_packages:
+		cur_metrc_package = package_id_to_metrc_transfer[metrc_package.package_id]
+		transfer_id = cur_metrc_package.id
+		metrc_package.transfer_id = transfer_id
+		session.add(metrc_package)
 
 	return True, None
 
