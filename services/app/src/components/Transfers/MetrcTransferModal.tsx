@@ -1,11 +1,13 @@
 import { Box, Typography } from "@material-ui/core";
 import Modal from "components/Shared/Modal/Modal";
+import RawJsonToggle from "components/Shared/RawJsonToggle";
 import MetrcPackagesDataGrid from "components/Transfers/MetrcPackagesDataGrid";
 import {
   CurrentUserContext,
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
 import { MetrcTransfers, useGetMetrcTransferQuery } from "generated/graphql";
+import { formatDatetimeString } from "lib/date";
 import { useContext } from "react";
 
 interface Props {
@@ -35,6 +37,8 @@ export default function MetrcTransferModal({
     return null;
   }
 
+  const metrcTransferPayload = metrcTransfer.transfer_payload;
+
   return (
     <Modal
       title={"Metrc Manifest / Transfer"}
@@ -43,28 +47,51 @@ export default function MetrcTransferModal({
       handleClose={handleClose}
     >
       <Box display="flex" flexDirection="column" mt={2}>
-        <Box mb={1}>
-          <Typography variant="body1">
-            Manifests, Packages, & Lab Test Results
-          </Typography>
-        </Box>
-        <Box display="flex" flexDirection="column" mt={2}>
-          <Typography variant="subtitle2" color="textSecondary">
-            Manifest #
-          </Typography>
-          <Typography variant="body1">
-            {metrcTransfer.manifest_number}
-          </Typography>
-          <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="subtitle2" color="textSecondary">
-              Packages
-            </Typography>
-            <MetrcPackagesDataGrid
-              isExcelExport={isBankUser}
-              metrcPackages={metrcTransfer.metrc_packages}
-            />
-          </Box>
-        </Box>
+        <Typography variant="subtitle2" color="textSecondary">
+          Manifest #
+        </Typography>
+        <Typography variant="body1">{metrcTransfer.manifest_number}</Typography>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2" color="textSecondary">
+          Estimated Departure Time
+        </Typography>
+        <Typography variant="body1">
+          {formatDatetimeString(
+            metrcTransferPayload.EstimatedDepartureDateTime
+          )}
+        </Typography>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2" color="textSecondary">
+          Estimated Arrival Time
+        </Typography>
+        <Typography variant="body1">
+          {formatDatetimeString(metrcTransferPayload.EstimatedArrivalDateTime)}
+        </Typography>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2" color="textSecondary">
+          Received Date Time
+        </Typography>
+        <Typography variant="body1">
+          {formatDatetimeString(metrcTransferPayload.ReceivedDateTime)}
+        </Typography>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2" color="textSecondary">
+          Raw Metrc JSON
+        </Typography>
+        <RawJsonToggle rawJson={metrcTransferPayload} />
+      </Box>
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2" color="textSecondary">
+          {`Packages (${metrcTransfer.metrc_packages.length})`}
+        </Typography>
+        <MetrcPackagesDataGrid
+          isExcelExport={isBankUser}
+          metrcPackages={metrcTransfer.metrc_packages}
+        />
       </Box>
       {isBankUser && (
         <Box

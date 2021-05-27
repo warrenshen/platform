@@ -3,7 +3,9 @@ import PurchaseOrderLoansDataGrid from "components/Loans/PurchaseOrderLoansDataG
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import Modal from "components/Shared/Modal/Modal";
+import ModalButton from "components/Shared/Modal/ModalButton";
 import MetrcPackagesDataGrid from "components/Transfers/MetrcPackagesDataGrid";
+import MetrcTransferModal from "components/Transfers/MetrcTransferModal";
 import {
   CurrentUserContext,
   isRoleBankUser,
@@ -65,6 +67,8 @@ export default function PurchaseOrderDrawer({
     return null;
   }
 
+  const isMetrcBased = !!purchaseOrder.is_metrc_based;
+
   return (
     <Modal
       title={"Purchase Order"}
@@ -111,6 +115,12 @@ export default function PurchaseOrderDrawer({
             </Typography>
           </Box>
         )}
+        <Box display="flex" flexDirection="column" mt={2}>
+          <FormControlLabel
+            control={<Checkbox disabled={true} checked={isMetrcBased} />}
+            label={"Order based on Metrc manifest(s)?"}
+          />
+        </Box>
         <Box display="flex" flexDirection="column" mt={2}>
           <Typography variant="subtitle2" color="textSecondary">
             Vendor
@@ -167,7 +177,7 @@ export default function PurchaseOrderDrawer({
             control={
               <Checkbox disabled={true} checked={!!purchaseOrder.is_cannabis} />
             }
-            label={"Order includes cannabis or derivatives"}
+            label={"Order includes cannabis or derivatives?"}
           />
         </Box>
         {!!purchaseOrder.is_cannabis && (
@@ -186,10 +196,10 @@ export default function PurchaseOrderDrawer({
             />
           </Box>
         )}
-        {!!purchaseOrder.is_metrc_based && (
+        {isMetrcBased && (
           <Box display="flex" flexDirection="column" mt={2}>
             <Box mb={1}>
-              <Typography variant="subtitle2" color="textSecondary">
+              <Typography variant="body1" color="textSecondary">
                 Metrc
               </Typography>
               <Typography variant="body2" color="textSecondary">
@@ -210,6 +220,20 @@ export default function PurchaseOrderDrawer({
                   <Typography variant="body1">
                     {purchaseOrderMetrcTransfer.metrc_transfer.manifest_number}
                   </Typography>
+                  <ModalButton
+                    label={"View"}
+                    color="default"
+                    size="small"
+                    variant="outlined"
+                    modal={({ handleClose }) => (
+                      <MetrcTransferModal
+                        metrcTransferId={
+                          purchaseOrderMetrcTransfer.metrc_transfer.id
+                        }
+                        handleClose={handleClose}
+                      />
+                    )}
+                  />
                   <Box display="flex" flexDirection="column" mt={2}>
                     <Typography variant="subtitle2" color="textSecondary">
                       Packages

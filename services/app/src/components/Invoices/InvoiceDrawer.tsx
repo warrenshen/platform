@@ -176,7 +176,7 @@ export default function InvoiceDrawer({ invoiceId, handleClose }: Props) {
                 control={
                   <Checkbox disabled={true} checked={!!invoice.is_cannabis} />
                 }
-                label={"Order includes cannabis or derivatives"}
+                label={"Order includes cannabis or derivatives?"}
               />
             </Box>
           )}

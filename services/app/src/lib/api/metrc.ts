@@ -56,7 +56,7 @@ export type MetrcTransferPayload = {
   ShipperFacilityName: string;
   PackageCount: number;
   ShipmentTransactionType: string;
-  EstimatedDepartureTime: string;
+  EstimatedDepartureDateTime: string;
   EstimatedArrivalDateTime: string;
   ReceivedDateTime: string;
 };
