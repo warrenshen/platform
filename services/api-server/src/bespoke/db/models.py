@@ -324,6 +324,7 @@ class MetrcTransfer(Base):
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	license_id = cast(GUID, Column(GUID, ForeignKey('company_licenses.id')))
 	vendor_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	transfer_type = Column(String)
 	created_date = Column(Date)
 	delivery_id = Column(String)
 	manifest_number = Column(String)

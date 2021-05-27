@@ -126,8 +126,12 @@ class Transfers(object):
 
 		return metrc_common_util.dicts_to_rows(self._transfers, col_specs, include_header)
 
-def _match_and_add_vendor_id_to_transfers(metrc_transfers: List[models.MetrcTransfer], session: Session) -> None:
+def _match_and_add_licenses_to_transfers(
+	metrc_transfers: List[models.MetrcTransfer], 
+	transfer_type_prefix: str,
+	session: Session) -> None:
 
+	# Vendor licenses lookup
 	shipper_license_numbers = []
 	for metrc_transfer in metrc_transfers:
 		shipper_license_number = '{}'.format(cast(Dict, metrc_transfer.transfer_payload)['ShipperFacilityLicenseNumber'])
@@ -138,13 +142,37 @@ def _match_and_add_vendor_id_to_transfers(metrc_transfers: List[models.MetrcTran
 	).all()
 	shipper_license_to_company_id = {}
 	for shipper_license in shipper_licenses:
-		shipper_license_to_company_id[str(shipper_license.company_id)] = shipper_license.license_number
+		shipper_license_to_company_id[shipper_license.license_number] = str(shipper_license.company_id)
 
+	# Recipient licenses lookup
+	recipient_license_numbers = []
+	for metrc_transfer in metrc_transfers:
+		recipient_license_number = '{}'.format(cast(Dict, metrc_transfer.transfer_payload)['RecipientFacilityLicenseNumber'])
+		recipient_license_numbers.append(recipient_license_number)
+
+	recipient_licenses = session.query(models.CompanyLicense).filter(
+		models.CompanyLicense.license_number.in_(recipient_license_numbers)
+	).all()
+	recipient_license_to_company_id = {}
+	for recipient_license in recipient_licenses:
+		recipient_license_to_company_id[recipient_license.license_number] = str(recipient_license.company_id)
+
+	# Match based on license number
 	for metrc_transfer in metrc_transfers:
 		shipper_license_number = '{}'.format(cast(Dict, metrc_transfer.transfer_payload)['ShipperFacilityLicenseNumber'])
-		vendor_id = shipper_license_to_company_id.get(shipper_license_number)		
-		if vendor_id:
-			metrc_transfer.vendor_id = cast(Any, vendor_id)
+		vendor_company_id = shipper_license_to_company_id.get(shipper_license_number)		
+		if vendor_company_id:
+			metrc_transfer.vendor_id = cast(Any, vendor_company_id)
+
+		recipient_license_number = '{}'.format(cast(Dict, metrc_transfer.transfer_payload)['RecipientFacilityLicenseNumber'])
+		recipient_company_id = recipient_license_to_company_id.get(recipient_license_number)
+
+		company_matches = vendor_company_id and recipient_company_id and vendor_company_id == recipient_company_id
+		if company_matches:
+			metrc_transfer.transfer_type = f'{transfer_type_prefix}_INTERNAL'
+		else:
+			metrc_transfer.transfer_type = f'{transfer_type_prefix}_FROM_VENDOR'
+
 
 @errors.return_error_tuple
 def populate_transfers_table(cur_date: datetime.date, company_info: CompanyInfo, session: Session) -> Tuple[bool, errors.Error]:
@@ -173,8 +201,13 @@ def populate_transfers_table(cur_date: datetime.date, company_info: CompanyInfo,
 		all_metrc_packages = []
 		package_id_to_metrc_transfer = {}
 
-		# Look up company ids for vendors that might match
-		_match_and_add_vendor_id_to_transfers(metrc_transfers, session)
+		# Look up company ids for vendors that might match, and use those licenses to
+		# determine what kind of transfer this is
+		_match_and_add_licenses_to_transfers(
+			metrc_transfers, 
+			transfer_type_prefix='INCOMING',
+			session=session
+		)
 
 		for metrc_transfer in metrc_transfers:
 			logging.info('Downloading data for metrc transfer delivery_id={}'.format(metrc_transfer.delivery_id))
