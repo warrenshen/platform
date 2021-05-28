@@ -2867,7 +2867,6 @@
       - identifier
       - latest_loan_identifier
       - needs_balance_recomputed
-      - company_type
       filter: {}
   - role: bank_read_only
     permission:
@@ -2876,7 +2875,6 @@
       - latest_loan_identifier
       - address
       - city
-      - company_type
       - country
       - dba_name
       - employer_identification_number
@@ -2935,7 +2933,6 @@
       - latest_loan_identifier
       - address
       - city
-      - company_type
       - country
       - dba_name
       - employer_identification_number
@@ -3498,7 +3495,6 @@
       - identifier
       - latest_loan_identifier
       - needs_balance_recomputed
-      - company_type
       filter: {}
   - role: bank_read_only
     permission:
@@ -3507,7 +3503,6 @@
       - latest_loan_identifier
       - address
       - city
-      - company_type
       - country
       - dba_name
       - employer_identification_number
@@ -3565,7 +3560,6 @@
       - latest_loan_identifier
       - address
       - city
-      - company_type
       - country
       - dba_name
       - employer_identification_number
