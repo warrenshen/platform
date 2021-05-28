@@ -1,4 +1,4 @@
-import { Box } from "@material-ui/core";
+import { Box, TextField } from "@material-ui/core";
 import ApprovePurchaseOrderModal from "components/PurchaseOrder/ApprovePurchaseOrderModal";
 import PurchaseOrdersDataGrid from "components/PurchaseOrder/PurchaseOrdersDataGrid";
 import RejectPurchaseOrderModal from "components/PurchaseOrder/RejectPurchaseOrderModal";
@@ -10,9 +10,10 @@ import {
   useGetNotConfirmedPurchaseOrdersSubscription,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
+import { filter } from "lodash";
 import { useMemo, useState } from "react";
 
-function BankPurchaseOrdersActiveTab() {
+export default function BankPurchaseOrdersActiveTab() {
   const { data, error } = useGetNotConfirmedPurchaseOrdersSubscription();
 
   if (error) {
@@ -20,9 +21,18 @@ function BankPurchaseOrdersActiveTab() {
     alert(`Error in query (details in console): ${error.message}`);
   }
 
-  const purchaseOrders = useMemo(() => data?.purchase_orders || [], [
-    data?.purchase_orders,
-  ]);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const purchaseOrders = useMemo(() => {
+    const filteredPurchaseOrders = filter(
+      data?.purchase_orders || [],
+      (purchaseOrder) =>
+        `${purchaseOrder.company.name} ${purchaseOrder.order_number}`
+          .toLowerCase()
+          .indexOf(searchQuery.toLowerCase()) >= 0
+    );
+    return filteredPurchaseOrders;
+  }, [searchQuery, data?.purchase_orders]);
 
   // Reverse Draft ACH - schedule section
   const [selectedPurchaseOrderIds, setSelectedPurchaseOrderIds] = useState<
@@ -50,45 +60,61 @@ function BankPurchaseOrdersActiveTab() {
 
   return (
     <Box mt={3}>
-      <Box display="flex" flexDirection="row-reverse" mb={2}>
-        <Can perform={Action.ApprovePurchaseOrders}>
-          <>
-            <Box>
-              <ModalButton
-                isDisabled={selectedPurchaseOrderIds.length !== 1}
-                label={"Approve PO"}
-                modal={({ handleClose }) =>
-                  selectedPurchaseOrder ? (
-                    <ApprovePurchaseOrderModal
-                      purchaseOrder={selectedPurchaseOrder}
-                      handleClose={() => {
-                        handleClose();
-                        setSelectedPurchaseOrderIds([]);
-                      }}
-                    />
-                  ) : null
-                }
-              />
-            </Box>
-            <Box mr={2}>
-              <ModalButton
-                isDisabled={selectedPurchaseOrderIds.length !== 1}
-                label={"Reject PO"}
-                modal={({ handleClose }) =>
-                  selectedPurchaseOrder ? (
-                    <RejectPurchaseOrderModal
-                      purchaseOrderId={selectedPurchaseOrder.id}
-                      handleClose={() => {
-                        handleClose();
-                        setSelectedPurchaseOrderIds([]);
-                      }}
-                    />
-                  ) : null
-                }
-              />
-            </Box>
-          </>
-        </Can>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="flex-end"
+        mb={2}
+      >
+        <Box display="flex">
+          <TextField
+            autoFocus
+            label="Search by PO number or customer name"
+            value={searchQuery}
+            onChange={({ target: { value } }) => setSearchQuery(value)}
+            style={{ width: 400 }}
+          />
+        </Box>
+        <Box display="flex" flexDirection="row-reverse">
+          <Can perform={Action.ApprovePurchaseOrders}>
+            <>
+              <Box>
+                <ModalButton
+                  isDisabled={selectedPurchaseOrderIds.length !== 1}
+                  label={"Approve PO"}
+                  modal={({ handleClose }) =>
+                    selectedPurchaseOrder ? (
+                      <ApprovePurchaseOrderModal
+                        purchaseOrder={selectedPurchaseOrder}
+                        handleClose={() => {
+                          handleClose();
+                          setSelectedPurchaseOrderIds([]);
+                        }}
+                      />
+                    ) : null
+                  }
+                />
+              </Box>
+              <Box mr={2}>
+                <ModalButton
+                  isDisabled={selectedPurchaseOrderIds.length !== 1}
+                  label={"Reject PO"}
+                  modal={({ handleClose }) =>
+                    selectedPurchaseOrder ? (
+                      <RejectPurchaseOrderModal
+                        purchaseOrderId={selectedPurchaseOrder.id}
+                        handleClose={() => {
+                          handleClose();
+                          setSelectedPurchaseOrderIds([]);
+                        }}
+                      />
+                    ) : null
+                  }
+                />
+              </Box>
+            </>
+          </Can>
+        </Box>
       </Box>
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
         <PurchaseOrdersDataGrid
@@ -102,5 +128,3 @@ function BankPurchaseOrdersActiveTab() {
     </Box>
   );
 }
-
-export default BankPurchaseOrdersActiveTab;

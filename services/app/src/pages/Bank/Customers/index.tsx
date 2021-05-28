@@ -22,15 +22,20 @@ import { filter, sortBy } from "lodash";
 import { useContext, useMemo, useState } from "react";
 import { useRouteMatch } from "react-router-dom";
 
-function BankCustomersPage() {
+export default function BankCustomersPage() {
   const {
     user: { role },
   } = useContext(CurrentUserContext);
 
   const { url } = useRouteMatch();
-  const { data, refetch } = useGetCustomersWithMetadataQuery({
+  const { data, refetch, error } = useGetCustomersWithMetadataQuery({
     fetchPolicy: "network-only",
   });
+
+  if (error) {
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
+  }
 
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -210,5 +215,3 @@ function BankCustomersPage() {
     </Page>
   );
 }
-
-export default BankCustomersPage;
