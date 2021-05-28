@@ -117,7 +117,7 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
           handleDataChange={refetch}
         />
         <Typography variant="h6">Bank Information</Typography>
-        {isVendorBankAccountValid && (
+        {!isVendorBankAccountValid && (
           <Typography variant="body2" color="secondary">
             Warning: vendor bank account NOT configured yet.
           </Typography>

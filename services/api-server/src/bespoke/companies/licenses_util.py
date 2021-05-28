@@ -81,6 +81,8 @@ def create_update_licenses(
 		if not license_number:
 			raise errors.Error('License number is required')
 
+		license_number = license_number.strip()
+
 		if company_license_id:
 			existing_company_license = cast(
 				models.CompanyLicense,
