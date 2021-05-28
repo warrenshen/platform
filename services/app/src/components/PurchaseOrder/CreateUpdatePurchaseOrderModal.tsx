@@ -116,7 +116,10 @@ export default function CreateUpdatePurchaseOrderModal({
     setPurchaseOrderMetrcTransfers,
   ] = useState<PurchaseOrderMetrcTransferFragment[]>([]);
 
-  const { loading: isExistingPurchaseOrderLoading } = usePurchaseOrderQuery({
+  const {
+    loading: isExistingPurchaseOrderLoading,
+    error,
+  } = usePurchaseOrderQuery({
     skip: actionType === ActionType.New,
     fetchPolicy: "network-only",
     variables: {
@@ -149,6 +152,11 @@ export default function CreateUpdatePurchaseOrderModal({
       }
     },
   });
+
+  if (error) {
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
+  }
 
   const {
     data,
@@ -365,99 +373,99 @@ export default function CreateUpdatePurchaseOrderModal({
           </Alert>
         </Box>
       )}
-      {isMetrcEnabled && purchaseOrder.is_metrc_based === null ? (
-        <Box display="flex" flexDirection="column" mb={4}>
-          <Box mb={2}>
-            <Typography variant="body2" color="textSecondary">
-              How would you like to enter in purchase order information?
-            </Typography>
+      {isMetrcEnabled &&
+        (purchaseOrder.is_metrc_based === null ? (
+          <Box display="flex" flexDirection="column" mb={4}>
+            <Box mb={2}>
+              <Typography variant="body1" color="textSecondary">
+                How would you like to enter in purchase order information?
+              </Typography>
+            </Box>
+            <Buttons>
+              <StyledButton
+                onClick={() =>
+                  setPurchaseOrder({ ...purchaseOrder, is_metrc_based: false })
+                }
+              >
+                <Box display="flex" flexDirection="column" alignItems="center">
+                  <Box mb={0.5}>
+                    <KeyboardIcon
+                      width={36}
+                      height={36}
+                      fill={false ? "rgba(203, 166, 121, 1.0)" : "#2c3e50"}
+                      stroke={false ? "rgba(203, 166, 121, 1.0)" : "#2c3e50"}
+                    />
+                  </Box>
+                  <Typography variant="body1">Create from scratch</Typography>
+                  <Typography variant="body2" color="textPrimary">
+                    (slower, more data entry)
+                  </Typography>
+                </Box>
+              </StyledButton>
+              <Box mr={2} />
+              <StyledButton
+                onClick={() =>
+                  setPurchaseOrder({ ...purchaseOrder, is_metrc_based: true })
+                }
+              >
+                <Box display="flex" flexDirection="column" alignItems="center">
+                  <Box mb={0.5}>
+                    <CloudDownloadIcon
+                      width={36}
+                      height={36}
+                      fill={false ? "rgba(203, 166, 121, 1.0)" : "#2c3e50"}
+                      stroke={false ? "rgba(203, 166, 121, 1.0)" : "#2c3e50"}
+                    />
+                  </Box>
+                  <Typography variant="body1">
+                    Create from Metrc manifest(s)
+                  </Typography>
+                  <Typography variant="body2" color="textPrimary">
+                    (faster, recommended)
+                  </Typography>
+                </Box>
+              </StyledButton>
+            </Buttons>
           </Box>
-          <Buttons>
-            <StyledButton
-              onClick={() =>
-                setPurchaseOrder({ ...purchaseOrder, is_metrc_based: false })
-              }
-            >
-              <Box display="flex" flexDirection="column" alignItems="center">
-                <Box mb={0.5}>
-                  <KeyboardIcon
-                    width={36}
-                    height={36}
-                    fill={false ? "rgba(203, 166, 121, 1.0)" : "#2c3e50"}
-                    stroke={false ? "rgba(203, 166, 121, 1.0)" : "#2c3e50"}
-                  />
-                </Box>
-                <Typography variant="body1">Create from scratch</Typography>
-                <Typography variant="body2" color="textPrimary">
-                  (slower, more data entry)
-                </Typography>
-              </Box>
-            </StyledButton>
-            <Box mr={2} />
-            <StyledButton
-              onClick={() =>
-                setPurchaseOrder({ ...purchaseOrder, is_metrc_based: true })
-              }
-            >
-              <Box display="flex" flexDirection="column" alignItems="center">
-                <Box mb={0.5}>
-                  <CloudDownloadIcon
-                    width={36}
-                    height={36}
-                    fill={false ? "rgba(203, 166, 121, 1.0)" : "#2c3e50"}
-                    stroke={false ? "rgba(203, 166, 121, 1.0)" : "#2c3e50"}
-                  />
-                </Box>
-                <Typography variant="body1">
-                  Create from Metrc manifest(s)
-                </Typography>
-                <Typography variant="body2" color="textPrimary">
-                  (faster, recommended)
-                </Typography>
-              </Box>
-            </StyledButton>
-          </Buttons>
-        </Box>
-      ) : (
-        <Box display="flex" flexDirection="column" mb={4}>
-          <Banner>
-            <Typography variant="body2" color="textSecondary">
-              {purchaseOrder.is_metrc_based
-                ? "Create purchase order from Metrc manifest(s)"
-                : "Create purchase order from scratch"}
-            </Typography>
-            <Button onClick={() => setPurchaseOrder({ ...newPurchaseOrder })}>
-              Change
-            </Button>
-          </Banner>
-        </Box>
-      )}
+        ) : (
+          <Box display="flex" flexDirection="column" mb={4}>
+            <Banner>
+              <Typography variant="body2" color="textSecondary">
+                {purchaseOrder.is_metrc_based
+                  ? '"Create purchase order from Metrc manifest(s)" selected'
+                  : '"Create purchase order from scratch" selected'}
+              </Typography>
+              <Button onClick={() => setPurchaseOrder({ ...newPurchaseOrder })}>
+                Change
+              </Button>
+            </Banner>
+          </Box>
+        ))}
       {isMetrcEnabled ? (
-        purchaseOrder.is_metrc_based !== null ? (
-          !!purchaseOrder.is_metrc_based ? (
-            <PurchaseOrderFormV2
-              companyId={companyId}
-              purchaseOrder={purchaseOrder}
-              purchaseOrderFile={purchaseOrderFile}
-              selectableMetrcTransfers={selectableMetrcTransfers}
-              selectedMetrcTransfers={selectedMetrcTransfers}
-              setPurchaseOrder={setPurchaseOrder}
-              setPurchaseOrderFile={setPurchaseOrderFile}
-              setPurchaseOrderMetrcTransfers={setPurchaseOrderMetrcTransfers}
-            />
-          ) : (
-            <PurchaseOrderForm
-              companyId={companyId}
-              purchaseOrder={purchaseOrder}
-              purchaseOrderFile={purchaseOrderFile}
-              purchaseOrderCannabisFiles={purchaseOrderCannabisFiles}
-              selectableVendors={selectableVendors}
-              setPurchaseOrder={setPurchaseOrder}
-              setPurchaseOrderFile={setPurchaseOrderFile}
-              setPurchaseOrderCannabisFiles={setPurchaseOrderCannabisFiles}
-            />
-          )
-        ) : null
+        purchaseOrder.is_metrc_based !== null &&
+        (!!purchaseOrder.is_metrc_based ? (
+          <PurchaseOrderFormV2
+            companyId={companyId}
+            purchaseOrder={purchaseOrder}
+            purchaseOrderFile={purchaseOrderFile}
+            selectableMetrcTransfers={selectableMetrcTransfers}
+            selectedMetrcTransfers={selectedMetrcTransfers}
+            setPurchaseOrder={setPurchaseOrder}
+            setPurchaseOrderFile={setPurchaseOrderFile}
+            setPurchaseOrderMetrcTransfers={setPurchaseOrderMetrcTransfers}
+          />
+        ) : (
+          <PurchaseOrderForm
+            companyId={companyId}
+            purchaseOrder={purchaseOrder}
+            purchaseOrderFile={purchaseOrderFile}
+            purchaseOrderCannabisFiles={purchaseOrderCannabisFiles}
+            selectableVendors={selectableVendors}
+            setPurchaseOrder={setPurchaseOrder}
+            setPurchaseOrderFile={setPurchaseOrderFile}
+            setPurchaseOrderCannabisFiles={setPurchaseOrderCannabisFiles}
+          />
+        ))
       ) : (
         <PurchaseOrderForm
           companyId={companyId}

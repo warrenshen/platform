@@ -59,6 +59,7 @@ export default function PurchaseOrderFormV2({
       <Box display="flex" flexDirection="column">
         <Autocomplete
           autoHighlight
+          blurOnSelect // Majority case: only one Metrc manifest for the purchase order
           id="auto-complete-transfers"
           options={selectableMetrcTransfers}
           inputValue={autocompleteInputValue}

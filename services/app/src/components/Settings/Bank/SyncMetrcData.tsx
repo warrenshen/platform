@@ -53,7 +53,7 @@ export default function SyncMetrcData(props: Props) {
     });
 
     if (response.status !== "OK") {
-      console.log({ response });
+      console.error({ response });
       snackbar.showError("Syncing data failed");
     } else {
       snackbar.showSuccess("Metrc data synced");
@@ -102,12 +102,7 @@ export default function SyncMetrcData(props: Props) {
             </Button>
           </Box>
         </Box>
-        <Box
-          flex={1}
-          display="flex"
-          flexDirection="column"
-          overflow="scroll"
-        ></Box>
+        <Box flex={1} display="flex" flexDirection="column" overflow="scroll" />
       </Box>
     </Box>
   );

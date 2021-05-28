@@ -37,7 +37,8 @@ export default function CreateUpdatePurchaseOrderLoanModal({
   );
 
   if (error) {
-    alert(`Error: ${error}`);
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
   }
 
   const purchaseOrders = data?.purchase_orders || [];
