@@ -12,15 +12,15 @@ INSERT INTO company_settings (id) VALUES ('b7f3fa9f-86b1-4e6b-9046-5d0c9f9b27c2'
 INSERT INTO company_settings (id) VALUES ('b7f3fa9f-86b1-4e6b-9046-5d0c9f9b27c3');
 INSERT INTO company_settings (id) VALUES ('b7f3fa9f-86b1-4e6b-9046-5d0c9f9b27c4');
 
-INSERT INTO public.companies (id, name, employer_identification_number, address, country, state, city, zip_code, created_at, updated_at, dba_name, phone_number, company_type, company_settings_id)
-  VALUES ('84b3cdd9-6764-43e6-bade-2701b824f1f0', 'Cannabis Cantina', NULL, '1002 Redwood Road', 'United States', 'California', 'San Francisco', '94114', '2020-12-15 04:49:46.347155+00', '2020-12-15 04:51:04.747642+00', NULL, '738-393-3939', 'vendor', 'b7f3fa9f-86b1-4e6b-9046-5d0c9f9b27c1');
-INSERT INTO public.companies (id, name, employer_identification_number, address, country, state, city, zip_code, created_at, updated_at, dba_name, phone_number, company_type, company_settings_id)
-  VALUES ('6c5e8e17-b807-4488-9e79-832106c36055', 'Kanna Kingdom', NULL, '342 Waller Street', 'United States', 'New York', 'New York', '92828', '2020-12-15 04:49:03.341418+00', '2020-12-15 04:51:16.588408+00', NULL, '219-202-2020', 'vendor', 'b7f3fa9f-86b1-4e6b-9046-5d0c9f9b27c2');
-INSERT INTO public.companies (id, name, employer_identification_number, address, country, state, city, zip_code, created_at, updated_at, dba_name, phone_number, company_type, company_settings_id)
-  VALUES ('8203c413-c93b-402a-8574-1bec9d30abea', 'Hemp Heaven', NULL, '420 Joint Street', 'United States', 'California', 'Los Angeles', '90045', '2020-12-16 04:49:03.341418+00', '2020-12-16 04:51:16.588408+00', NULL, '650-420-2021', 'vendor', 'b7f3fa9f-86b1-4e6b-9046-5d0c9f9b27c3');
+INSERT INTO public.companies (id, name, employer_identification_number, address, country, state, city, zip_code, created_at, updated_at, dba_name, phone_number, is_vendor, company_settings_id)
+  VALUES ('84b3cdd9-6764-43e6-bade-2701b824f1f0', 'Cannabis Cantina', NULL, '1002 Redwood Road', 'United States', 'California', 'San Francisco', '94114', '2020-12-15 04:49:46.347155+00', '2020-12-15 04:51:04.747642+00', NULL, '738-393-3939', TRUE, 'b7f3fa9f-86b1-4e6b-9046-5d0c9f9b27c1');
+INSERT INTO public.companies (id, name, employer_identification_number, address, country, state, city, zip_code, created_at, updated_at, dba_name, phone_number, is_vendor, company_settings_id)
+  VALUES ('6c5e8e17-b807-4488-9e79-832106c36055', 'Kanna Kingdom', NULL, '342 Waller Street', 'United States', 'New York', 'New York', '92828', '2020-12-15 04:49:03.341418+00', '2020-12-15 04:51:16.588408+00', NULL, '219-202-2020', TRUE, 'b7f3fa9f-86b1-4e6b-9046-5d0c9f9b27c2');
+INSERT INTO public.companies (id, name, employer_identification_number, address, country, state, city, zip_code, created_at, updated_at, dba_name, phone_number, is_vendor, company_settings_id)
+  VALUES ('8203c413-c93b-402a-8574-1bec9d30abea', 'Hemp Heaven', NULL, '420 Joint Street', 'United States', 'California', 'Los Angeles', '90045', '2020-12-16 04:49:03.341418+00', '2020-12-16 04:51:16.588408+00', NULL, '650-420-2021', TRUE, 'b7f3fa9f-86b1-4e6b-9046-5d0c9f9b27c3');
 
-INSERT INTO public.companies (id, identifier, name, employer_identification_number, address, country, state, city, zip_code, created_at, updated_at, dba_name, phone_number, company_type, company_settings_id)
-  VALUES ('57ee8797-1d5b-4a90-83c9-84c740590e42', 'DIZ', 'Distributor, Inc.', '123123123', '30943 Townsend Street', 'United States', 'California', NULL, NULL, '2020-12-10 19:15:09.138557+00', '2020-12-23 22:58:29.707887+00', 'Distributorz', '839-939-3939', 'customer', 'b7f3fa9f-86b1-4e6b-9046-5d0c9f9b27c4');
+INSERT INTO public.companies (id, identifier, name, employer_identification_number, address, country, state, city, zip_code, created_at, updated_at, dba_name, phone_number, is_customer, company_settings_id)
+  VALUES ('57ee8797-1d5b-4a90-83c9-84c740590e42', 'DIZ', 'Distributor, Inc.', '123123123', '30943 Townsend Street', 'United States', 'California', NULL, NULL, '2020-12-10 19:15:09.138557+00', '2020-12-23 22:58:29.707887+00', 'Distributorz', '839-939-3939', TRUE, 'b7f3fa9f-86b1-4e6b-9046-5d0c9f9b27c4');
 
 UPDATE company_settings SET
   company_id = '84b3cdd9-6764-43e6-bade-2701b824f1f0',
