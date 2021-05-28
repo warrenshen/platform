@@ -28,10 +28,10 @@ By default, `docker-compose up` will run any new migrations. You may encounter a
 
 1. Remove the config `- ./migrations:/hasura-migrations` from `volumes:` in `docker-compose.yaml`. Do not remove `- ./metadata:/hasura-metadata`. This will leave you with:
 
-```
+   ```
     volumes:
       - ./metadata:/hasura-metadata
-```
+   ```
 
 2. Run the following:
 
@@ -73,7 +73,7 @@ yarn gql-gen --watch
 
 ## FAQ
 
-### Reset my local DB?
+### Reset my local database?
 
 Stop your docker containers, then:
 
@@ -82,10 +82,32 @@ docker-compose down --volumes
 docker-compose up
 ```
 
-### Connect to my local DB w/psql?
+### Connect to my local database w/ psql?
 
 Install [psql](https://www.postgresql.org/docs/9.3/app-psql.html) or [Postico](https://eggerapps.at/postico/), or your favorite postgres client.
 
 ```bash
 psql postgres://postgres:postgrespassword@localhost:5432/postgres
 ```
+
+### Copy database from staging / production to local?
+
+Capture a backup of database on Heroku (example `$APP_NAME` is `bespoke-graphql-staging`):
+
+```bash
+heroku pg:backups:capture -a $APP_NAME
+```
+
+Download backup of database:
+
+```bash
+heroku pg:backups:download -a $APP_NAME
+```
+
+Copy backup of database into local database:
+
+```bash
+pg_restore --verbose --clean --no-acl --no-owner -h localhost -U postgres -d postgres latest.dump
+```
+
+Note: you will have to reset the password for any user you want to log in as.
