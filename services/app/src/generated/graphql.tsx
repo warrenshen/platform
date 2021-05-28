@@ -1274,7 +1274,6 @@ export type Companies = {
   /** An aggregated array relationship */
   company_payor_partnerships_by_payor_aggregate: CompanyPayorPartnershipsAggregate;
   company_settings_id?: Maybe<Scalars["uuid"]>;
-  company_type: CompanyTypeEnum;
   /** An array relationship */
   company_vendor_partnerships: Array<CompanyVendorPartnerships>;
   /** An aggregated array relationship */
@@ -1780,7 +1779,6 @@ export type CompaniesBoolExp = {
   company_payor_partnerships?: Maybe<CompanyPayorPartnershipsBoolExp>;
   company_payor_partnerships_by_payor?: Maybe<CompanyPayorPartnershipsBoolExp>;
   company_settings_id?: Maybe<UuidComparisonExp>;
-  company_type?: Maybe<CompanyTypeEnumComparisonExp>;
   company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsBoolExp>;
   company_vendor_partnerships_by_vendor?: Maybe<CompanyVendorPartnershipsBoolExp>;
   contract?: Maybe<ContractsBoolExp>;
@@ -1845,7 +1843,6 @@ export type CompaniesInsertInput = {
   company_payor_partnerships?: Maybe<CompanyPayorPartnershipsArrRelInsertInput>;
   company_payor_partnerships_by_payor?: Maybe<CompanyPayorPartnershipsArrRelInsertInput>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
-  company_type?: Maybe<CompanyTypeEnum>;
   company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsArrRelInsertInput>;
   company_vendor_partnerships_by_vendor?: Maybe<CompanyVendorPartnershipsArrRelInsertInput>;
   contract?: Maybe<ContractsObjRelInsertInput>;
@@ -2008,7 +2005,6 @@ export type CompaniesOrderBy = {
   company_payor_partnerships_aggregate?: Maybe<CompanyPayorPartnershipsAggregateOrderBy>;
   company_payor_partnerships_by_payor_aggregate?: Maybe<CompanyPayorPartnershipsAggregateOrderBy>;
   company_settings_id?: Maybe<OrderBy>;
-  company_type?: Maybe<OrderBy>;
   company_vendor_partnerships_aggregate?: Maybe<CompanyVendorPartnershipsAggregateOrderBy>;
   company_vendor_partnerships_by_vendor_aggregate?: Maybe<CompanyVendorPartnershipsAggregateOrderBy>;
   contract?: Maybe<ContractsOrderBy>;
@@ -2063,8 +2059,6 @@ export enum CompaniesSelectColumn {
   /** column name */
   CompanySettingsId = "company_settings_id",
   /** column name */
-  CompanyType = "company_type",
-  /** column name */
   ContractId = "contract_id",
   /** column name */
   ContractName = "contract_name",
@@ -2113,7 +2107,6 @@ export type CompaniesSetInput = {
   address?: Maybe<Scalars["String"]>;
   city?: Maybe<Scalars["String"]>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
-  company_type?: Maybe<CompanyTypeEnum>;
   contract_id?: Maybe<Scalars["uuid"]>;
   contract_name?: Maybe<Scalars["String"]>;
   country?: Maybe<Scalars["String"]>;
@@ -2201,8 +2194,6 @@ export enum CompaniesUpdateColumn {
   City = "city",
   /** column name */
   CompanySettingsId = "company_settings_id",
-  /** column name */
-  CompanyType = "company_type",
   /** column name */
   ContractId = "contract_id",
   /** column name */
@@ -2709,7 +2700,7 @@ export enum CompanyLicensesUpdateColumn {
 /** columns and relationships of "company_partnership_requests" */
 export type CompanyPartnershipRequests = {
   company_name: Scalars["String"];
-  company_type: Scalars["String"];
+  company_type: CompanyTypeEnum;
   created_at: Scalars["timestamptz"];
   id: Scalars["uuid"];
   is_cannabis?: Maybe<Scalars["Boolean"]>;
@@ -2775,7 +2766,7 @@ export type CompanyPartnershipRequestsBoolExp = {
   _not?: Maybe<CompanyPartnershipRequestsBoolExp>;
   _or?: Maybe<Array<Maybe<CompanyPartnershipRequestsBoolExp>>>;
   company_name?: Maybe<StringComparisonExp>;
-  company_type?: Maybe<StringComparisonExp>;
+  company_type?: Maybe<CompanyTypeEnumComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   is_cannabis?: Maybe<BooleanComparisonExp>;
@@ -2800,7 +2791,7 @@ export enum CompanyPartnershipRequestsConstraint {
 /** input type for inserting data into table "company_partnership_requests" */
 export type CompanyPartnershipRequestsInsertInput = {
   company_name?: Maybe<Scalars["String"]>;
-  company_type?: Maybe<Scalars["String"]>;
+  company_type?: Maybe<CompanyTypeEnum>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   is_cannabis?: Maybe<Scalars["Boolean"]>;
@@ -2819,7 +2810,6 @@ export type CompanyPartnershipRequestsInsertInput = {
 /** aggregate max on columns */
 export type CompanyPartnershipRequestsMaxFields = {
   company_name?: Maybe<Scalars["String"]>;
-  company_type?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -2832,7 +2822,6 @@ export type CompanyPartnershipRequestsMaxFields = {
 /** order by max() on columns of table "company_partnership_requests" */
 export type CompanyPartnershipRequestsMaxOrderBy = {
   company_name?: Maybe<OrderBy>;
-  company_type?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   requested_by_user_id?: Maybe<OrderBy>;
@@ -2845,7 +2834,6 @@ export type CompanyPartnershipRequestsMaxOrderBy = {
 /** aggregate min on columns */
 export type CompanyPartnershipRequestsMinFields = {
   company_name?: Maybe<Scalars["String"]>;
-  company_type?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -2858,7 +2846,6 @@ export type CompanyPartnershipRequestsMinFields = {
 /** order by min() on columns of table "company_partnership_requests" */
 export type CompanyPartnershipRequestsMinOrderBy = {
   company_name?: Maybe<OrderBy>;
-  company_type?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   requested_by_user_id?: Maybe<OrderBy>;
@@ -2946,7 +2933,7 @@ export enum CompanyPartnershipRequestsSelectColumn {
 /** input type for updating data in table "company_partnership_requests" */
 export type CompanyPartnershipRequestsSetInput = {
   company_name?: Maybe<Scalars["String"]>;
-  company_type?: Maybe<Scalars["String"]>;
+  company_type?: Maybe<CompanyTypeEnum>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   is_cannabis?: Maybe<Scalars["Boolean"]>;
@@ -11663,7 +11650,6 @@ export type Payors = {
   /** An aggregated array relationship */
   company_payor_partnerships_aggregate: CompanyPayorPartnershipsAggregate;
   company_settings_id?: Maybe<Scalars["uuid"]>;
-  company_type?: Maybe<Scalars["String"]>;
   contract_id?: Maybe<Scalars["uuid"]>;
   country?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
@@ -11766,7 +11752,6 @@ export type PayorsBoolExp = {
   city?: Maybe<StringComparisonExp>;
   company_payor_partnerships?: Maybe<CompanyPayorPartnershipsBoolExp>;
   company_settings_id?: Maybe<UuidComparisonExp>;
-  company_type?: Maybe<StringComparisonExp>;
   contract_id?: Maybe<UuidComparisonExp>;
   country?: Maybe<StringComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
@@ -11795,7 +11780,6 @@ export type PayorsInsertInput = {
   city?: Maybe<Scalars["String"]>;
   company_payor_partnerships?: Maybe<CompanyPayorPartnershipsArrRelInsertInput>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
-  company_type?: Maybe<Scalars["String"]>;
   contract_id?: Maybe<Scalars["uuid"]>;
   country?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
@@ -11818,7 +11802,6 @@ export type PayorsMaxFields = {
   address?: Maybe<Scalars["String"]>;
   city?: Maybe<Scalars["String"]>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
-  company_type?: Maybe<Scalars["String"]>;
   contract_id?: Maybe<Scalars["uuid"]>;
   country?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
@@ -11839,7 +11822,6 @@ export type PayorsMaxOrderBy = {
   address?: Maybe<OrderBy>;
   city?: Maybe<OrderBy>;
   company_settings_id?: Maybe<OrderBy>;
-  company_type?: Maybe<OrderBy>;
   contract_id?: Maybe<OrderBy>;
   country?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
@@ -11860,7 +11842,6 @@ export type PayorsMinFields = {
   address?: Maybe<Scalars["String"]>;
   city?: Maybe<Scalars["String"]>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
-  company_type?: Maybe<Scalars["String"]>;
   contract_id?: Maybe<Scalars["uuid"]>;
   country?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
@@ -11881,7 +11862,6 @@ export type PayorsMinOrderBy = {
   address?: Maybe<OrderBy>;
   city?: Maybe<OrderBy>;
   company_settings_id?: Maybe<OrderBy>;
-  company_type?: Maybe<OrderBy>;
   contract_id?: Maybe<OrderBy>;
   country?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
@@ -11916,7 +11896,6 @@ export type PayorsOrderBy = {
   city?: Maybe<OrderBy>;
   company_payor_partnerships_aggregate?: Maybe<CompanyPayorPartnershipsAggregateOrderBy>;
   company_settings_id?: Maybe<OrderBy>;
-  company_type?: Maybe<OrderBy>;
   contract_id?: Maybe<OrderBy>;
   country?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
@@ -11942,8 +11921,6 @@ export enum PayorsSelectColumn {
   City = "city",
   /** column name */
   CompanySettingsId = "company_settings_id",
-  /** column name */
-  CompanyType = "company_type",
   /** column name */
   ContractId = "contract_id",
   /** column name */
@@ -11979,7 +11956,6 @@ export type PayorsSetInput = {
   address?: Maybe<Scalars["String"]>;
   city?: Maybe<Scalars["String"]>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
-  company_type?: Maybe<Scalars["String"]>;
   contract_id?: Maybe<Scalars["uuid"]>;
   country?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
@@ -17027,7 +17003,6 @@ export type Vendors = {
   address?: Maybe<Scalars["String"]>;
   city?: Maybe<Scalars["String"]>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
-  company_type?: Maybe<Scalars["String"]>;
   /** An array relationship */
   company_vendor_partnerships: Array<CompanyVendorPartnerships>;
   /** An aggregated array relationship */
@@ -17131,7 +17106,6 @@ export type VendorsBoolExp = {
   address?: Maybe<StringComparisonExp>;
   city?: Maybe<StringComparisonExp>;
   company_settings_id?: Maybe<UuidComparisonExp>;
-  company_type?: Maybe<StringComparisonExp>;
   company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsBoolExp>;
   contract_id?: Maybe<UuidComparisonExp>;
   country?: Maybe<StringComparisonExp>;
@@ -17159,7 +17133,6 @@ export type VendorsInsertInput = {
   address?: Maybe<Scalars["String"]>;
   city?: Maybe<Scalars["String"]>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
-  company_type?: Maybe<Scalars["String"]>;
   company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsArrRelInsertInput>;
   contract_id?: Maybe<Scalars["uuid"]>;
   country?: Maybe<Scalars["String"]>;
@@ -17182,7 +17155,6 @@ export type VendorsMaxFields = {
   address?: Maybe<Scalars["String"]>;
   city?: Maybe<Scalars["String"]>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
-  company_type?: Maybe<Scalars["String"]>;
   contract_id?: Maybe<Scalars["uuid"]>;
   country?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
@@ -17203,7 +17175,6 @@ export type VendorsMaxOrderBy = {
   address?: Maybe<OrderBy>;
   city?: Maybe<OrderBy>;
   company_settings_id?: Maybe<OrderBy>;
-  company_type?: Maybe<OrderBy>;
   contract_id?: Maybe<OrderBy>;
   country?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
@@ -17224,7 +17195,6 @@ export type VendorsMinFields = {
   address?: Maybe<Scalars["String"]>;
   city?: Maybe<Scalars["String"]>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
-  company_type?: Maybe<Scalars["String"]>;
   contract_id?: Maybe<Scalars["uuid"]>;
   country?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
@@ -17245,7 +17215,6 @@ export type VendorsMinOrderBy = {
   address?: Maybe<OrderBy>;
   city?: Maybe<OrderBy>;
   company_settings_id?: Maybe<OrderBy>;
-  company_type?: Maybe<OrderBy>;
   contract_id?: Maybe<OrderBy>;
   country?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
@@ -17279,7 +17248,6 @@ export type VendorsOrderBy = {
   address?: Maybe<OrderBy>;
   city?: Maybe<OrderBy>;
   company_settings_id?: Maybe<OrderBy>;
-  company_type?: Maybe<OrderBy>;
   company_vendor_partnerships_aggregate?: Maybe<CompanyVendorPartnershipsAggregateOrderBy>;
   contract_id?: Maybe<OrderBy>;
   country?: Maybe<OrderBy>;
@@ -17305,8 +17273,6 @@ export enum VendorsSelectColumn {
   City = "city",
   /** column name */
   CompanySettingsId = "company_settings_id",
-  /** column name */
-  CompanyType = "company_type",
   /** column name */
   ContractId = "contract_id",
   /** column name */
@@ -17342,7 +17308,6 @@ export type VendorsSetInput = {
   address?: Maybe<Scalars["String"]>;
   city?: Maybe<Scalars["String"]>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
-  company_type?: Maybe<Scalars["String"]>;
   contract_id?: Maybe<Scalars["uuid"]>;
   country?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;

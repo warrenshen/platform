@@ -9778,22 +9778,6 @@
             "deprecationReason": null
           },
           {
-            "name": "company_type",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "ENUM",
-                "name": "company_type_enum",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "company_vendor_partnerships",
             "description": "An array relationship",
             "args": [
@@ -13303,16 +13287,6 @@
             "defaultValue": null
           },
           {
-            "name": "company_type",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "company_type_enum_comparison_exp",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "company_vendor_partnerships",
             "description": null,
             "type": {
@@ -13833,16 +13807,6 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "company_type",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "company_type_enum",
               "ofType": null
             },
             "defaultValue": null
@@ -15332,16 +15296,6 @@
             "defaultValue": null
           },
           {
-            "name": "company_type",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "company_vendor_partnerships_aggregate",
             "description": null,
             "type": {
@@ -15778,12 +15732,6 @@
             "deprecationReason": null
           },
           {
-            "name": "company_type",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "contract_id",
             "description": "column name",
             "isDeprecated": false,
@@ -15944,16 +15892,6 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "company_type",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "company_type_enum",
               "ofType": null
             },
             "defaultValue": null
@@ -16547,12 +16485,6 @@
           },
           {
             "name": "company_settings_id",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "company_type",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -19467,8 +19399,8 @@
               "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "SCALAR",
-                "name": "String",
+                "kind": "ENUM",
+                "name": "company_type_enum",
                 "ofType": null
               }
             },
@@ -19957,7 +19889,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "String_comparison_exp",
+              "name": "company_type_enum_comparison_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -20134,8 +20066,8 @@
             "name": "company_type",
             "description": null,
             "type": {
-              "kind": "SCALAR",
-              "name": "String",
+              "kind": "ENUM",
+              "name": "company_type_enum",
               "ofType": null
             },
             "defaultValue": null
@@ -20293,18 +20225,6 @@
             "deprecationReason": null
           },
           {
-            "name": "company_type",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "created_at",
             "description": null,
             "args": [],
@@ -20411,16 +20331,6 @@
             "defaultValue": null
           },
           {
-            "name": "company_type",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "created_at",
             "description": null,
             "type": {
@@ -20502,18 +20412,6 @@
         "fields": [
           {
             "name": "company_name",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "company_type",
             "description": null,
             "args": [],
             "type": {
@@ -20622,16 +20520,6 @@
         "inputFields": [
           {
             "name": "company_name",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "company_type",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -21153,8 +21041,8 @@
             "name": "company_type",
             "description": null,
             "type": {
-              "kind": "SCALAR",
-              "name": "String",
+              "kind": "ENUM",
+              "name": "company_type_enum",
               "ofType": null
             },
             "defaultValue": null
@@ -76495,18 +76383,6 @@
             "deprecationReason": null
           },
           {
-            "name": "company_type",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "contract_id",
             "description": null,
             "args": [],
@@ -77194,16 +77070,6 @@
             "defaultValue": null
           },
           {
-            "name": "company_type",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "String_comparison_exp",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "contract_id",
             "description": null,
             "type": {
@@ -77426,16 +77292,6 @@
             "defaultValue": null
           },
           {
-            "name": "company_type",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "contract_id",
             "description": null,
             "type": {
@@ -77626,18 +77482,6 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "company_type",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
               "ofType": null
             },
             "isDeprecated": false,
@@ -77842,16 +77686,6 @@
             "defaultValue": null
           },
           {
-            "name": "company_type",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "contract_id",
             "description": null,
             "type": {
@@ -78022,18 +77856,6 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "company_type",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
               "ofType": null
             },
             "isDeprecated": false,
@@ -78229,16 +78051,6 @@
           },
           {
             "name": "company_settings_id",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "company_type",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -78505,16 +78317,6 @@
             "defaultValue": null
           },
           {
-            "name": "company_type",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "contract_id",
             "description": null,
             "type": {
@@ -78696,12 +78498,6 @@
             "deprecationReason": null
           },
           {
-            "name": "company_type",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "contract_id",
             "description": "column name",
             "isDeprecated": false,
@@ -78820,16 +78616,6 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "company_type",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
               "ofType": null
             },
             "defaultValue": null
@@ -112469,18 +112255,6 @@
             "deprecationReason": null
           },
           {
-            "name": "company_type",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "company_vendor_partnerships",
             "description": "An array relationship",
             "args": [
@@ -113320,16 +113094,6 @@
             "defaultValue": null
           },
           {
-            "name": "company_type",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "String_comparison_exp",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "company_vendor_partnerships",
             "description": null,
             "type": {
@@ -113542,16 +113306,6 @@
             "defaultValue": null
           },
           {
-            "name": "company_type",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "company_vendor_partnerships",
             "description": null,
             "type": {
@@ -113742,18 +113496,6 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "company_type",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
               "ofType": null
             },
             "isDeprecated": false,
@@ -113958,16 +113700,6 @@
             "defaultValue": null
           },
           {
-            "name": "company_type",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "contract_id",
             "description": null,
             "type": {
@@ -114138,18 +113870,6 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "company_type",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
               "ofType": null
             },
             "isDeprecated": false,
@@ -114345,16 +114065,6 @@
           },
           {
             "name": "company_settings_id",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "company_type",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -114611,16 +114321,6 @@
             "defaultValue": null
           },
           {
-            "name": "company_type",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "company_vendor_partnerships_aggregate",
             "description": null,
             "type": {
@@ -114802,12 +114502,6 @@
             "deprecationReason": null
           },
           {
-            "name": "company_type",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "contract_id",
             "description": "column name",
             "isDeprecated": false,
@@ -114926,16 +114620,6 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "company_type",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
               "ofType": null
             },
             "defaultValue": null
