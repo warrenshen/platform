@@ -93,7 +93,7 @@ function ActionRequiredTab() {
           </Box>
         </Can>
       </Box>
-      <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
+      <Box display="flex" flexDirection="column">
         <PartnershipsDataGrid
           isClosedTab={false}
           isExcelExport

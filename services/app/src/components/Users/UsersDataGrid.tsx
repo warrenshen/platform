@@ -1,4 +1,3 @@
-import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DataGridActionMenu, {
@@ -83,17 +82,15 @@ function UsersDataGrid({
   );
 
   return (
-    <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-      <ControlledDataGrid
-        pager
-        select={isMultiSelectEnabled}
-        dataSource={rows}
-        columns={columns}
-        selectedRowKeys={selectedUserIds}
-        onSelectionChanged={handleSelectionChanged}
-        isExcelExport={isExcelExport}
-      />
-    </Box>
+    <ControlledDataGrid
+      pager
+      select={isMultiSelectEnabled}
+      dataSource={rows}
+      columns={columns}
+      selectedRowKeys={selectedUserIds}
+      onSelectionChanged={handleSelectionChanged}
+      isExcelExport={isExcelExport}
+    />
   );
 }
 

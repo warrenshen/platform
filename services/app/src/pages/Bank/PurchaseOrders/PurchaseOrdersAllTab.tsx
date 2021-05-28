@@ -32,13 +32,7 @@ export default function BankPurchaseOrdersAllTab() {
   }, [searchQuery, data?.purchase_orders]);
 
   return (
-    <Box
-      flex={1}
-      display="flex"
-      flexDirection="column"
-      overflow="scroll"
-      mt={3}
-    >
+    <Box mt={3}>
       <Box
         display="flex"
         justifyContent="space-between"
@@ -55,12 +49,16 @@ export default function BankPurchaseOrdersAllTab() {
           />
         </Box>
       </Box>
-      <PurchaseOrdersDataGrid
-        isCompanyVisible
-        isExcelExport
-        purchaseOrders={purchaseOrders}
-        actionItems={check(role, Action.ViewPurchaseOrdersActionMenu) ? [] : []}
-      />
+      <Box display="flex" flexDirection="column">
+        <PurchaseOrdersDataGrid
+          isCompanyVisible
+          isExcelExport
+          purchaseOrders={purchaseOrders}
+          actionItems={
+            check(role, Action.ViewPurchaseOrdersActionMenu) ? [] : []
+          }
+        />
+      </Box>
     </Box>
   );
 }

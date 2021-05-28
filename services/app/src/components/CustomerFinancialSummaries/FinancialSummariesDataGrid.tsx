@@ -1,4 +1,3 @@
-import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
@@ -19,7 +18,7 @@ interface Props {
   onClickCustomerName?: (customerId: Companies["id"]) => void;
 }
 
-function FinancialSummariesDataGrid({
+export default function FinancialSummariesDataGrid({
   isCustomerNameFixed = false,
   isExcelExport = false,
   financialSummaries,
@@ -180,15 +179,11 @@ function FinancialSummariesDataGrid({
   );
 
   return (
-    <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-      <ControlledDataGrid
-        isExcelExport={isExcelExport}
-        isSortingDisabled
-        dataSource={rows}
-        columns={columns}
-      />
-    </Box>
+    <ControlledDataGrid
+      isExcelExport={isExcelExport}
+      isSortingDisabled
+      dataSource={rows}
+      columns={columns}
+    />
   );
 }
-
-export default FinancialSummariesDataGrid;

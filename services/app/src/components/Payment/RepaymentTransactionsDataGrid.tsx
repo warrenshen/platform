@@ -239,16 +239,14 @@ export default function RepaymentTransactionsDataGrid({
   );
 
   return (
-    <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-      <ControlledDataGrid
-        pager
-        select={isMultiSelectEnabled}
-        isExcelExport={isExcelExport}
-        dataSource={rows}
-        columns={columns}
-        selectedRowKeys={selectedPaymentIds}
-        onSelectionChanged={handleSelectionChanged}
-      />
-    </Box>
+    <ControlledDataGrid
+      pager
+      select={isMultiSelectEnabled}
+      isExcelExport={isExcelExport}
+      dataSource={rows}
+      columns={columns}
+      selectedRowKeys={selectedPaymentIds}
+      onSelectionChanged={handleSelectionChanged}
+    />
   );
 }

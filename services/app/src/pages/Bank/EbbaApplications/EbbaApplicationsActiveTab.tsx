@@ -77,7 +77,7 @@ export default function EbbaApplicationsActiveTab() {
           />
         )}
       </Box>
-      <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
+      <Box display="flex" flexDirection="column">
         <EbbaApplicationsDataGrid
           isExcelExport
           isMultiSelectEnabled

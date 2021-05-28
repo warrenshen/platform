@@ -14,7 +14,6 @@ const Container = styled.div`
   flex: 1;
 
   padding: 64px 96px;
-  overflow: scroll;
 `;
 
 const Header = styled.div`

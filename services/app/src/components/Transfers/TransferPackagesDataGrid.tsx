@@ -1,4 +1,3 @@
-import { Box } from "@material-ui/core";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import { TransferPackage } from "lib/api/metrc";
 import { ColumnWidths } from "lib/tables";
@@ -132,13 +131,11 @@ export default function TransferPackagesDataGrid({
   );
 
   return (
-    <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-      <ControlledDataGrid
-        isExcelExport={isExcelExport}
-        isSortingDisabled
-        dataSource={rows}
-        columns={columns}
-      />
-    </Box>
+    <ControlledDataGrid
+      isExcelExport={isExcelExport}
+      isSortingDisabled
+      dataSource={rows}
+      columns={columns}
+    />
   );
 }

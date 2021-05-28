@@ -1,4 +1,3 @@
-import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
@@ -86,14 +85,12 @@ function BankFinancialSummariesDataGrid({ bankFinancialSummaries }: Props) {
   );
 
   return (
-    <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-      <ControlledDataGrid
-        isSortingDisabled
-        isExcelExport
-        dataSource={rows}
-        columns={columns}
-      />
-    </Box>
+    <ControlledDataGrid
+      isSortingDisabled
+      isExcelExport
+      dataSource={rows}
+      columns={columns}
+    />
   );
 }
 

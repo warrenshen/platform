@@ -1,4 +1,3 @@
-import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import ContractDrawerLauncher from "components/Contract/ContractDrawerLauncher";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
@@ -78,14 +77,12 @@ function ContractsDataGrid({
   );
 
   return (
-    <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-      <ControlledDataGrid
-        dataSource={rows}
-        columns={columns}
-        isExcelExport={isExcelExport}
-        pager
-      />
-    </Box>
+    <ControlledDataGrid
+      dataSource={rows}
+      columns={columns}
+      isExcelExport={isExcelExport}
+      pager
+    />
   );
 }
 

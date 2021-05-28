@@ -1,4 +1,3 @@
-import { Box } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
@@ -132,17 +131,15 @@ export default function FeesDataGrid({
   );
 
   return (
-    <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-      <ControlledDataGrid
-        pager
-        select={isMultiSelectEnabled}
-        isExcelExport={isExcelExport}
-        dataSource={rows}
-        columns={columns}
-        ref={(ref) => setDataGrid(ref)}
-        selectedRowKeys={selectedPaymentIds}
-        onSelectionChanged={handleSelectionChanged}
-      />
-    </Box>
+    <ControlledDataGrid
+      pager
+      select={isMultiSelectEnabled}
+      isExcelExport={isExcelExport}
+      dataSource={rows}
+      columns={columns}
+      ref={(ref) => setDataGrid(ref)}
+      selectedRowKeys={selectedPaymentIds}
+      onSelectionChanged={handleSelectionChanged}
+    />
   );
 }

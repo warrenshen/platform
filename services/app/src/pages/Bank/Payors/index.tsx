@@ -45,7 +45,7 @@ export default function BankPayorsPage() {
             />
           </Box>
         </Box>
-        <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
+        <Box display="flex" flexDirection="column">
           <PayorPartnershipsDataGrid
             isBankAccount
             isExcelExport

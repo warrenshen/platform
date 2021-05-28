@@ -6,11 +6,11 @@ import {
   CurrentUserContext,
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
-import { useGetPaymentsForCompanyQuery } from "generated/graphql";
+import { Companies, useGetPaymentsForCompanyQuery } from "generated/graphql";
 import { useContext, useMemo } from "react";
 
 interface Props {
-  companyId: string;
+  companyId: Companies["id"];
 }
 
 export default function CustomerPaymentsPageContent({ companyId }: Props) {

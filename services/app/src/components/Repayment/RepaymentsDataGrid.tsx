@@ -247,18 +247,16 @@ function RepaymentsDataGrid({
   );
 
   return (
-    <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-      <ControlledDataGrid
-        pager
-        select={isMultiSelectEnabled}
-        isExcelExport={isExcelExport}
-        dataSource={rows}
-        columns={columns}
-        ref={(ref) => setDataGrid(ref)}
-        selectedRowKeys={selectedPaymentIds}
-        onSelectionChanged={handleSelectionChanged}
-      />
-    </Box>
+    <ControlledDataGrid
+      pager
+      select={isMultiSelectEnabled}
+      isExcelExport={isExcelExport}
+      dataSource={rows}
+      columns={columns}
+      ref={(ref) => setDataGrid(ref)}
+      selectedRowKeys={selectedPaymentIds}
+      onSelectionChanged={handleSelectionChanged}
+    />
   );
 }
 

@@ -1,4 +1,3 @@
-import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import InvoiceDrawerLauncher from "components/Invoices/InvoiceDrawerLauncher";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
@@ -147,16 +146,14 @@ export default function InvoicesDataGrid({
   );
 
   return (
-    <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-      <ControlledDataGrid
-        pager
-        select={isMultiSelectEnabled}
-        dataSource={rows}
-        columns={columns}
-        selectedRowKeys={selectedInvoiceIds}
-        onSelectionChanged={handleSelectionChanged}
-        isExcelExport={isExcelExport}
-      />
-    </Box>
+    <ControlledDataGrid
+      pager
+      select={isMultiSelectEnabled}
+      dataSource={rows}
+      columns={columns}
+      selectedRowKeys={selectedInvoiceIds}
+      onSelectionChanged={handleSelectionChanged}
+      isExcelExport={isExcelExport}
+    />
   );
 }

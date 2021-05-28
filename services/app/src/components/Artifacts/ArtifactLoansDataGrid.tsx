@@ -256,17 +256,15 @@ export default function ArtifactLoansDataGrid({
   );
 
   return (
-    <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-      <ControlledDataGrid
-        isExcelExport={isExcelExport}
-        pager={pager}
-        pageSize={isMiniTable ? 10 : 10}
-        select={isMultiSelectEnabled && !isMiniTable}
-        dataSource={rows}
-        columns={columns}
-        selectedRowKeys={selectedLoanIds}
-        onSelectionChanged={handleSelectionChanged}
-      />
-    </Box>
+    <ControlledDataGrid
+      isExcelExport={isExcelExport}
+      pager={pager}
+      pageSize={isMiniTable ? 10 : 10}
+      select={isMultiSelectEnabled && !isMiniTable}
+      dataSource={rows}
+      columns={columns}
+      selectedRowKeys={selectedLoanIds}
+      onSelectionChanged={handleSelectionChanged}
+    />
   );
 }

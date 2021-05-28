@@ -171,7 +171,7 @@ export default function BankTransfersTab() {
             </Button>
           </Box>
         </Box>
-        <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
+        <Box display="flex" flexDirection="column">
           <TransferPackagesDataGrid
             isExcelExport
             transferPackages={transferPackages}

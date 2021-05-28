@@ -171,7 +171,7 @@ function BankLoansActionRequiredTab() {
           </Can>
         )}
       </Box>
-      <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
+      <Box display="flex" flexDirection="column">
         <LoansDataGrid
           isArtifactVisible
           isCompanyVisible

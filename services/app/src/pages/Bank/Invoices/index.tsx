@@ -26,7 +26,7 @@ export default function BankInvoicesPage() {
   return (
     <Page appBarTitle="Invoices">
       <PageContent title={"Invoices"}>
-        <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
+        <Box display="flex" flexDirection="column">
           <InvoicesDataGrid
             isCompanyVisible
             isExcelExport

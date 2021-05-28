@@ -1,4 +1,3 @@
-import { Box } from "@material-ui/core";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import VendorDrawer from "components/Vendors/VendorDrawer";
@@ -120,16 +119,14 @@ function VendorPartnershipsDataGrid({
           onClose={() => setOpen(false)}
         />
       )}
-      <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-        <ControlledDataGrid
-          isExcelExport={isExcelExport}
-          pager
-          dataSource={rows}
-          onSortingChanged={onSortingChanged}
-          onFilteringChanged={onFilteringChanged}
-          columns={columns}
-        />
-      </Box>
+      <ControlledDataGrid
+        isExcelExport={isExcelExport}
+        pager
+        dataSource={rows}
+        onSortingChanged={onSortingChanged}
+        onFilteringChanged={onFilteringChanged}
+        columns={columns}
+      />
     </>
   );
 }

@@ -1,4 +1,3 @@
-import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
@@ -95,15 +94,13 @@ export default function PayorPartnershipsDataGrid({
           handleClose={() => setOpen(false)}
         />
       )}
-      <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-        <ControlledDataGrid
-          pager
-          dataSource={data}
-          columns={columns}
-          filtering={{ enable: true, filterBy: { index: 0, value: "" } }}
-          isExcelExport={isExcelExport}
-        />
-      </Box>
+      <ControlledDataGrid
+        pager
+        dataSource={data}
+        columns={columns}
+        filtering={{ enable: true, filterBy: { index: 0, value: "" } }}
+        isExcelExport={isExcelExport}
+      />
     </>
   );
 }

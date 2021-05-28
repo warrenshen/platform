@@ -68,7 +68,7 @@ export default function BankReportsFinancialsByDateTab() {
             }
           />
         </Box>
-        <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
+        <Box display="flex" flexDirection="column">
           <FinancialSummariesDataGrid
             isCustomerNameFixed
             isExcelExport

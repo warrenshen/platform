@@ -1,10 +1,4 @@
-import {
-  Box,
-  createStyles,
-  makeStyles,
-  Theme,
-  Typography,
-} from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import ContractTermsForm from "components/Contract/ContractTermsForm";
 import Modal from "components/Shared/Modal/Modal";
@@ -29,42 +23,6 @@ import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useEffect, useState } from "react";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    section: {
-      fontWeight: 400,
-      fontSize: "18px",
-      marginTop: "1.5rem",
-      "&:first-of-type": {
-        marginTop: 0,
-      },
-    },
-    sectionName: {
-      marginBottom: "1.5rem",
-    },
-    inputField: {
-      width: 300,
-    },
-    datePicker: {
-      width: 300,
-      marginTop: 0,
-      marginBottom: 0,
-    },
-    dialogTitle: {
-      borderBottom: "1px solid #c7c7c7",
-      marginBottom: "1rem",
-    },
-    dialogActions: {
-      margin: theme.spacing(2),
-    },
-    errorBox: {
-      color: "red",
-      position: "absolute",
-      bottom: "1rem",
-    },
-  })
-);
-
 interface Props {
   actionType: ActionType;
   companyId: Companies["id"];
@@ -79,7 +37,6 @@ export default function CreateUpdateContractModal({
   handleClose,
 }: Props) {
   const snackbar = useSnackbar();
-  const classes = useStyles();
 
   // Default Contract while existing one is loading.
   const newContract = {
@@ -217,11 +174,6 @@ export default function CreateUpdateContractModal({
           setContract={setContract}
           setCurrentJSONConfig={setCurrentJSONConfig}
         />
-        {errMsg && (
-          <Box className={classes.errorBox} mt={3}>
-            {errMsg}
-          </Box>
-        )}
       </Box>
     </Modal>
   ) : null;

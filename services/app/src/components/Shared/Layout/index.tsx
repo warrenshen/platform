@@ -40,8 +40,8 @@ import styled from "styled-components";
 
 const Wrapper = styled.div`
   display: flex;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
 `;
 
 const Logo = styled.a`
@@ -57,18 +57,17 @@ const SidebarItems = styled.div`
 
   flex: 1;
 
-  overflow: scroll;
+  overflow-y: scroll;
 `;
 
 const Content = styled.main`
   display: flex;
-  flexdirection: column;
-  alignitems: stretch;
+  flex-direction: column;
+  align-items: stretch;
 
-  flex: 1;
-
+  width: calc(100% - 260px);
   background-color: #f6f5f3;
-  overflow: scroll;
+  overflow-y: scroll;
 `;
 
 const Footer = styled.div`
@@ -80,37 +79,13 @@ const DRAWER_WIDTH = 260;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    root: {
-      display: "flex",
-      width: "100vw",
-      height: "100vh",
-    },
-    appBar: {
-      width: `calc(100% - ${DRAWER_WIDTH}px)`,
-      marginLeft: DRAWER_WIDTH,
-    },
     drawer: {
       width: DRAWER_WIDTH,
+      height: "100%",
     },
     drawerPaper: {
       width: DRAWER_WIDTH,
       border: "0px",
-    },
-    // necessary for content to be below app bar
-    toolbar: {
-      ...theme.mixins.toolbar,
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      paddingRight: "12px",
-    },
-    content: {
-      flex: 1,
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "stretch",
-      backgroundColor: theme.palette.background.default,
-      overflow: "scroll",
     },
     list: {
       padding: 0,

@@ -28,7 +28,7 @@ function ClosedTab() {
 
   return (
     <Container>
-      <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
+      <Box display="flex" flexDirection="column">
         <PartnershipsDataGrid
           isClosedTab
           isExcelExport

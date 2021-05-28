@@ -1,4 +1,3 @@
-import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
@@ -115,14 +114,12 @@ function TransactionsDataGrid({
   );
 
   return (
-    <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-      <ControlledDataGrid
-        pager
-        dataSource={rows}
-        columns={columns}
-        isExcelExport={isExcelExport}
-      />
-    </Box>
+    <ControlledDataGrid
+      pager
+      dataSource={rows}
+      columns={columns}
+      isExcelExport={isExcelExport}
+    />
   );
 }
 

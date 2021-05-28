@@ -1,4 +1,3 @@
-import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
@@ -130,17 +129,15 @@ function PurchaseOrdersDataGrid({
   );
 
   return (
-    <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-      <ControlledDataGrid
-        pager
-        select={isMultiSelectEnabled}
-        isExcelExport={isExcelExport}
-        dataSource={rows}
-        columns={columns}
-        selectedRowKeys={selectedPurchaseOrderIds}
-        onSelectionChanged={handleSelectionChanged}
-      />
-    </Box>
+    <ControlledDataGrid
+      pager
+      select={isMultiSelectEnabled}
+      isExcelExport={isExcelExport}
+      dataSource={rows}
+      columns={columns}
+      selectedRowKeys={selectedPurchaseOrderIds}
+      onSelectionChanged={handleSelectionChanged}
+    />
   );
 }
 export default PurchaseOrdersDataGrid;

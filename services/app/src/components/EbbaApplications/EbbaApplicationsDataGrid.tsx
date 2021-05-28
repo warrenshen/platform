@@ -1,4 +1,3 @@
-import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import EbbaApplicationDrawerLauncher from "components/EbbaApplication/EbbaApplicationDrawerLauncher";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
@@ -147,16 +146,14 @@ export default function EbbaApplicationsDataGrid({
   );
 
   return (
-    <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-      <ControlledDataGrid
-        isExcelExport={isExcelExport}
-        pager
-        select={isMultiSelectEnabled}
-        dataSource={rows}
-        columns={columns}
-        selectedRowKeys={selectedEbbaApplicationIds}
-        onSelectionChanged={handleSelectionChanged}
-      />
-    </Box>
+    <ControlledDataGrid
+      isExcelExport={isExcelExport}
+      pager
+      select={isMultiSelectEnabled}
+      dataSource={rows}
+      columns={columns}
+      selectedRowKeys={selectedEbbaApplicationIds}
+      onSelectionChanged={handleSelectionChanged}
+    />
   );
 }

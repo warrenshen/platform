@@ -105,7 +105,7 @@ export default function BankReportsFinancialsByCustomerTab() {
             </Select>
           </FormControl>
         </Box>
-        <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
+        <Box display="flex" flexDirection="column">
           <FinancialSummariesDataGrid
             isExcelExport
             financialSummaries={financialSummariesByCompanyId}

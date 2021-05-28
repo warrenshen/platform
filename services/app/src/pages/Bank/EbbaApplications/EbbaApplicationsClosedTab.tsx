@@ -32,7 +32,7 @@ function EbbaApplicationsClosedTab() {
   return (
     <Box>
       <Box display="flex" flexDirection="row-reverse" mb={2} />
-      <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
+      <Box display="flex" flexDirection="column">
         <EbbaApplicationsDataGrid
           isExcelExport
           ebbaApplications={ebbaApplications}

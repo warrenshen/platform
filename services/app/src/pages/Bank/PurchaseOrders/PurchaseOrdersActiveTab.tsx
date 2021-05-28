@@ -116,7 +116,7 @@ export default function BankPurchaseOrdersActiveTab() {
           </Can>
         </Box>
       </Box>
-      <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
+      <Box display="flex" flexDirection="column">
         <PurchaseOrdersDataGrid
           isCompanyVisible
           isMultiSelectEnabled

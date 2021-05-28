@@ -49,7 +49,6 @@ const useStyles = makeStyles((theme: Theme) =>
       height: "100%",
       paddingTop: 64,
       marginLeft: 32,
-      overflow: "scroll",
     },
     content: {
       display: "flex",
@@ -57,7 +56,6 @@ const useStyles = makeStyles((theme: Theme) =>
 
       width: `calc(100% - ${DRAWER_WIDTH}px)`,
       height: "100%",
-      overflow: "scroll",
     },
     list: {
       padding: 0,
