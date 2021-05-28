@@ -41,21 +41,6 @@ const useStyles = makeStyles((theme: Theme) =>
       paddingLeft: theme.spacing(2),
       paddingRight: theme.spacing(2),
     },
-    dialogTitle: {
-      borderBottom: "1px solid #c7c7c7",
-    },
-    buttonClass: {
-      marginLeft: theme.spacing(1),
-    },
-    propertyLabel: {
-      flexGrow: 1,
-    },
-    constLabels: {
-      minWidth: 150,
-    },
-    dialogActions: {
-      margin: theme.spacing(2),
-    },
   })
 );
 
@@ -63,7 +48,7 @@ interface Props {
   location: any;
 }
 
-function ReviewPurchaseOrderPage({ location }: Props) {
+export default function ReviewPurchaseOrderPage({ location }: Props) {
   const classes = useStyles();
 
   const payload = location.state?.payload;
@@ -115,7 +100,13 @@ function ReviewPurchaseOrderPage({ location }: Props) {
 
   const isDataReady = !isPurchaseOrderLoading;
 
-  return isDataReady && purchaseOrder ? (
+  if (!isDataReady || !purchaseOrder) {
+    return null;
+  }
+
+  const isMetrcBased = !!purchaseOrder.is_metrc_based;
+
+  return (
     <Box className={classes.wrapper}>
       <Box className={classes.container}>
         <Box display="flex" flexDirection="column">
@@ -161,14 +152,16 @@ function ReviewPurchaseOrderPage({ location }: Props) {
             {formatDateString(purchaseOrder.order_date)}
           </Typography>
         </Box>
-        <Box display="flex" flexDirection="column" mt={2}>
-          <Typography variant="subtitle2" color="textSecondary">
-            Delivery Date
-          </Typography>
-          <Typography variant={"body1"}>
-            {formatDateString(purchaseOrder.delivery_date)}
-          </Typography>
-        </Box>
+        {!isMetrcBased && (
+          <Box display="flex" flexDirection="column" mt={2}>
+            <Typography variant="subtitle2" color="textSecondary">
+              Delivery Date
+            </Typography>
+            <Typography variant={"body1"}>
+              {formatDateString(purchaseOrder.delivery_date)}
+            </Typography>
+          </Box>
+        )}
         <Box display="flex" flexDirection="column" mt={2}>
           <Typography variant="subtitle2" color="textSecondary">
             Purchase Order File
@@ -178,7 +171,7 @@ function ReviewPurchaseOrderPage({ location }: Props) {
             fileType={FileTypeEnum.PURCHASE_ORDER}
           />
         </Box>
-        {purchaseOrder?.is_cannabis && (
+        {!isMetrcBased && purchaseOrder.is_cannabis && (
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">
               Cannabis or Derivatives File(s)
@@ -204,7 +197,7 @@ function ReviewPurchaseOrderPage({ location }: Props) {
           )}
           {isRejectModalOpen && (
             <ReviewPurchaseOrderRejectModal
-              purchaseOrderId={purchaseOrder?.id}
+              purchaseOrderId={purchaseOrder.id}
               linkVal={linkVal}
               handleClose={() => setIsRejectModalOpen(false)}
               handleRejectSuccess={() =>
@@ -237,7 +230,5 @@ function ReviewPurchaseOrderPage({ location }: Props) {
         </Box>
       </Box>
     </Box>
-  ) : null;
+  );
 }
-
-export default ReviewPurchaseOrderPage;

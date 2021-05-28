@@ -1,11 +1,9 @@
-import { Box, Button, TextField, Typography } from "@material-ui/core";
+import { Box, TextField, Typography } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import FileUploader from "components/Shared/File/FileUploader";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DateInput from "components/Shared/FormInputs/DateInput";
-import { ReactComponent as CloseIcon } from "components/Shared/Layout/Icons/Close.svg";
-import ModalButton from "components/Shared/Modal/ModalButton";
-import MetrcTransferModal from "components/Transfers/MetrcTransferModal";
+import MetrcTransferInfoCard from "components/Transfers/MetrcTransferInfoCard";
 import {
   Companies,
   GetVendorsByPartnerCompanyQuery,
@@ -19,21 +17,6 @@ import { MetrcTransferPayload } from "lib/api/metrc";
 import { formatDateString, formatDatetimeString } from "lib/date";
 import { FileTypeEnum } from "lib/enum";
 import { useMemo, useState } from "react";
-import styled from "styled-components";
-
-const Manifest = styled.div`
-  display: flex;
-
-  padding: 12px 12px;
-  border: 1px solid rgba(95, 90, 84, 0.1);
-  border-radius: 3px;
-`;
-
-const CloseButton = styled(Button)`
-  width: 36px;
-  min-width: 36px;
-  height: 36px;
-`;
 
 interface Props {
   companyId: Companies["id"];
@@ -145,70 +128,23 @@ export default function PurchaseOrderFormV2({
         />
         {selectedMetrcTransfers.length > 0 && (
           <Box display="flex" flexDirection="column">
-            {selectedMetrcTransfers.map((selectedMetrcTransfer) => {
-              const metrcTransferPayload = selectedMetrcTransfer.transfer_payload as MetrcTransferPayload;
-              return (
-                <Box key={selectedMetrcTransfer.id} mt={2}>
-                  <Manifest>
-                    <Box display="flex" flexDirection="column" flex={1}>
-                      <Typography variant="body1">
-                        {`Manifest #${selectedMetrcTransfer.manifest_number}`}
-                      </Typography>
-                      <Typography variant="body2">
-                        {`Vendor: ${
-                          selectedMetrcTransfer.vendor?.name || "Unknown"
-                        }`}
-                      </Typography>
-                      <Typography variant="body2">
-                        {`Received at: ${formatDatetimeString(
-                          metrcTransferPayload.ReceivedDateTime
-                        )}`}
-                      </Typography>
-                      <Typography variant="body2">
-                        {`Package(s) count: ${
-                          metrcTransferPayload.PackageCount != null
-                            ? metrcTransferPayload.PackageCount
-                            : "Unknown"
-                        }`}
-                      </Typography>
-                    </Box>
-                    <Box
-                      display="flex"
-                      flexDirection="column"
-                      justifyContent="space-between"
-                      alignItems="flex-end"
-                    >
-                      <CloseButton
-                        onClick={() =>
-                          setPurchaseOrderMetrcTransfers(
-                            (purchaseOrderMetrcTransfers) =>
-                              purchaseOrderMetrcTransfers.filter(
-                                (purchaseOrderMetrcTransfer) =>
-                                  purchaseOrderMetrcTransfer.metrc_transfer_id !==
-                                  selectedMetrcTransfer.id
-                              )
-                          )
-                        }
-                      >
-                        <CloseIcon />
-                      </CloseButton>
-                      <ModalButton
-                        label={"View"}
-                        color="default"
-                        size="small"
-                        variant="outlined"
-                        modal={({ handleClose }) => (
-                          <MetrcTransferModal
-                            metrcTransferId={selectedMetrcTransfer.id}
-                            handleClose={handleClose}
-                          />
-                        )}
-                      />
-                    </Box>
-                  </Manifest>
-                </Box>
-              );
-            })}
+            {selectedMetrcTransfers.map((selectedMetrcTransfer) => (
+              <Box key={selectedMetrcTransfer.id} mt={2}>
+                <MetrcTransferInfoCard
+                  metrcTransfer={selectedMetrcTransfer}
+                  handleClickClose={() =>
+                    setPurchaseOrderMetrcTransfers(
+                      (purchaseOrderMetrcTransfers) =>
+                        purchaseOrderMetrcTransfers.filter(
+                          (purchaseOrderMetrcTransfer) =>
+                            purchaseOrderMetrcTransfer.metrc_transfer_id !==
+                            selectedMetrcTransfer.id
+                        )
+                    )
+                  }
+                />
+              </Box>
+            ))}
           </Box>
         )}
       </Box>

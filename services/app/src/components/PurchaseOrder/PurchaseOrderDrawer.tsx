@@ -3,9 +3,7 @@ import PurchaseOrderLoansDataGrid from "components/Loans/PurchaseOrderLoansDataG
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import Modal from "components/Shared/Modal/Modal";
-import ModalButton from "components/Shared/Modal/ModalButton";
-import MetrcPackagesDataGrid from "components/Transfers/MetrcPackagesDataGrid";
-import MetrcTransferModal from "components/Transfers/MetrcTransferModal";
+import MetrcTransferInfoCard from "components/Transfers/MetrcTransferInfoCard";
 import {
   CurrentUserContext,
   isRoleBankUser,
@@ -73,78 +71,87 @@ export default function PurchaseOrderDrawer({
     <Modal
       title={"Purchase Order"}
       subtitle={purchaseOrder.order_number}
-      contentWidth={1000}
+      contentWidth={800}
       handleClose={handleClose}
     >
-      <Box display="flex" flexDirection="column">
-        <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="flex-start"
-          mt={2}
-        >
+      <Box display="flex" flexDirection="column" alignItems="flex-start" mt={2}>
+        <Typography variant="subtitle2" color="textSecondary">
+          Status
+        </Typography>
+        <RequestStatusChip requestStatus={purchaseOrder.status} />
+      </Box>
+      {purchaseOrder.status === RequestStatusEnum.Rejected && (
+        <Box display="flex" flexDirection="column" mt={2}>
           <Typography variant="subtitle2" color="textSecondary">
-            Status
+            Rejection Reason
           </Typography>
-          <RequestStatusChip requestStatus={purchaseOrder.status} />
-        </Box>
-        {purchaseOrder.status === RequestStatusEnum.Rejected && (
-          <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="subtitle2" color="textSecondary">
-              Rejection Reason
-            </Typography>
-            {!!purchaseOrder.rejection_note && (
-              <Typography variant={"body1"}>
-                {purchaseOrder.rejection_note}
-              </Typography>
-            )}
-            {!!purchaseOrder.bank_rejection_note && (
-              <Typography variant={"body1"}>
-                {purchaseOrder.bank_rejection_note}
-              </Typography>
-            )}
-          </Box>
-        )}
-        {isBankUser && (
-          <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="subtitle2" color="textSecondary">
-              Customer Name
-            </Typography>
+          {!!purchaseOrder.rejection_note && (
             <Typography variant={"body1"}>
-              {purchaseOrder.company?.name}
+              {purchaseOrder.rejection_note}
+            </Typography>
+          )}
+          {!!purchaseOrder.bank_rejection_note && (
+            <Typography variant={"body1"}>
+              {purchaseOrder.bank_rejection_note}
+            </Typography>
+          )}
+        </Box>
+      )}
+      {isBankUser && (
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Typography variant="subtitle2" color="textSecondary">
+            Customer Name
+          </Typography>
+          <Typography variant={"body1"}>
+            {purchaseOrder.company?.name}
+          </Typography>
+        </Box>
+      )}
+      <Box display="flex" flexDirection="column" mt={2}>
+        <FormControlLabel
+          control={<Checkbox disabled={true} checked={isMetrcBased} />}
+          label={"Order based on Metrc manifest(s)?"}
+        />
+      </Box>
+      {isMetrcBased && (
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Box>
+            <Typography variant="body2" color="textSecondary">
+              Metrc Manifest(s)
             </Typography>
           </Box>
-        )}
-        <Box display="flex" flexDirection="column" mt={2}>
-          <FormControlLabel
-            control={<Checkbox disabled={true} checked={isMetrcBased} />}
-            label={"Order based on Metrc manifest(s)?"}
-          />
+          {purchaseOrder.purchase_order_metrc_transfers.map(
+            (purchaseOrderMetrcTransfer) => (
+              <Box key={purchaseOrderMetrcTransfer.metrc_transfer_id} mt={2}>
+                <MetrcTransferInfoCard
+                  metrcTransfer={purchaseOrderMetrcTransfer.metrc_transfer}
+                />
+              </Box>
+            )
+          )}
         </Box>
-        <Box display="flex" flexDirection="column" mt={2}>
-          <Typography variant="subtitle2" color="textSecondary">
-            Vendor
-          </Typography>
-          <Typography variant={"body1"}>
-            {purchaseOrder.vendor?.name}
-          </Typography>
-        </Box>
-        <Box display="flex" flexDirection="column" mt={2}>
-          <Typography variant="subtitle2" color="textSecondary">
-            PO Number
-          </Typography>
-          <Typography variant={"body1"}>
-            {purchaseOrder.order_number}
-          </Typography>
-        </Box>
-        <Box display="flex" flexDirection="column" mt={2}>
-          <Typography variant="subtitle2" color="textSecondary">
-            PO Date
-          </Typography>
-          <Typography variant={"body1"}>
-            {formatDateString(purchaseOrder.order_date)}
-          </Typography>
-        </Box>
+      )}
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2" color="textSecondary">
+          Vendor
+        </Typography>
+        <Typography variant={"body1"}>{purchaseOrder.vendor?.name}</Typography>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2" color="textSecondary">
+          PO Number
+        </Typography>
+        <Typography variant={"body1"}>{purchaseOrder.order_number}</Typography>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2" color="textSecondary">
+          PO Date
+        </Typography>
+        <Typography variant={"body1"}>
+          {formatDateString(purchaseOrder.order_date)}
+        </Typography>
+      </Box>
+      {!isMetrcBased && (
         <Box display="flex" flexDirection="column" mt={2}>
           <Typography variant="subtitle2" color="textSecondary">
             Delivery Date
@@ -153,104 +160,57 @@ export default function PurchaseOrderDrawer({
             {formatDateString(purchaseOrder.delivery_date)}
           </Typography>
         </Box>
-        <Box display="flex" flexDirection="column" mt={2}>
+      )}
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2" color="textSecondary">
+          Amount
+        </Typography>
+        <Typography variant={"body1"}>
+          {formatCurrency(purchaseOrder.amount)}
+        </Typography>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Box mb={1}>
           <Typography variant="subtitle2" color="textSecondary">
-            Amount
-          </Typography>
-          <Typography variant={"body1"}>
-            {formatCurrency(purchaseOrder.amount)}
+            Purchase Order File Attachment
           </Typography>
         </Box>
-        <Box display="flex" flexDirection="column" mt={2}>
-          <Box mb={1}>
-            <Typography variant="subtitle2" color="textSecondary">
-              Purchase Order File Attachment
-            </Typography>
-          </Box>
-          <DownloadThumbnail
-            fileIds={purchaseOrderFileIds}
-            fileType={FileTypeEnum.PURCHASE_ORDER}
-          />
-        </Box>
-        <Box display="flex" flexDirection="column" mt={2}>
-          <FormControlLabel
-            control={
-              <Checkbox disabled={true} checked={!!purchaseOrder.is_cannabis} />
-            }
-            label={"Order includes cannabis or derivatives?"}
-          />
-        </Box>
-        {!!purchaseOrder.is_cannabis && (
+        <DownloadThumbnail
+          fileIds={purchaseOrderFileIds}
+          fileType={FileTypeEnum.PURCHASE_ORDER}
+        />
+      </Box>
+      {!isMetrcBased && (
+        <>
           <Box display="flex" flexDirection="column" mt={2}>
-            <Box mb={1}>
-              <Typography variant="subtitle2" color="textSecondary">
-                Cannabis File Attachments
-              </Typography>
-              <Typography variant="body2" color="textSecondary">
-                Shipping Manifest, Certificate of Analysis
-              </Typography>
-            </Box>
-            <DownloadThumbnail
-              fileIds={purchaseOrderCannabisFileIds}
-              fileType={FileTypeEnum.PURCHASE_ORDER}
+            <FormControlLabel
+              control={
+                <Checkbox
+                  disabled={true}
+                  checked={!!purchaseOrder.is_cannabis}
+                />
+              }
+              label={"Order includes cannabis or derivatives?"}
             />
           </Box>
-        )}
-        {isMetrcBased && (
-          <Box display="flex" flexDirection="column" mt={2}>
-            <Box mb={1}>
-              <Typography variant="body1" color="textSecondary">
-                Metrc
-              </Typography>
-              <Typography variant="body2" color="textSecondary">
-                Manifests, Packages, & Lab Test Results
-              </Typography>
+          {!!purchaseOrder.is_cannabis && (
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Box mb={1}>
+                <Typography variant="subtitle2" color="textSecondary">
+                  Cannabis File Attachments
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  Shipping Manifest, Certificate of Analysis
+                </Typography>
+              </Box>
+              <DownloadThumbnail
+                fileIds={purchaseOrderCannabisFileIds}
+                fileType={FileTypeEnum.PURCHASE_ORDER}
+              />
             </Box>
-            {purchaseOrder.purchase_order_metrc_transfers.map(
-              (purchaseOrderMetrcTransfer) => (
-                <Box
-                  key={purchaseOrderMetrcTransfer.id}
-                  display="flex"
-                  flexDirection="column"
-                  mt={2}
-                >
-                  <Typography variant="subtitle2" color="textSecondary">
-                    Manifest #
-                  </Typography>
-                  <Typography variant="body1">
-                    {purchaseOrderMetrcTransfer.metrc_transfer.manifest_number}
-                  </Typography>
-                  <ModalButton
-                    label={"View"}
-                    color="default"
-                    size="small"
-                    variant="outlined"
-                    modal={({ handleClose }) => (
-                      <MetrcTransferModal
-                        metrcTransferId={
-                          purchaseOrderMetrcTransfer.metrc_transfer.id
-                        }
-                        handleClose={handleClose}
-                      />
-                    )}
-                  />
-                  <Box display="flex" flexDirection="column" mt={2}>
-                    <Typography variant="subtitle2" color="textSecondary">
-                      Packages
-                    </Typography>
-                    <MetrcPackagesDataGrid
-                      isExcelExport={isBankUser}
-                      metrcPackages={
-                        purchaseOrderMetrcTransfer.metrc_transfer.metrc_packages
-                      }
-                    />
-                  </Box>
-                </Box>
-              )
-            )}
-          </Box>
-        )}
-      </Box>
+          )}
+        </>
+      )}
       <Box display="flex" flexDirection="column" mt={2}>
         <Typography variant="subtitle2" color="textSecondary">
           Loans

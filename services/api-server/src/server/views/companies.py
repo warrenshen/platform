@@ -96,7 +96,7 @@ class CreatePartnershipView(MethodView):
 				models.User).filter_by(company_id=resp['company_id']).all())
 
 			if not company_users:
-				raise errors.Error('There are no users configured for this customer')
+				raise errors.Error('There are no users configured for this company')
 			company_emails = [user.email for user in company_users]
 
 			customer_name = customer.name
@@ -222,11 +222,11 @@ class CreatePartnershipRequestView(MethodView):
 			template_data = {
 				'customer_name': customer_name,
 				'partner_name': partner_name,
-				'partnership_type': partnership_type 
+				'partnership_type': partnership_type
 			}
 			recipients = sendgrid_client.get_bank_notify_email_addresses()
 			_, err = sendgrid_client.send(
-				sendgrid_util.TemplateNames.USER_REQUESTS_PARTNER_ON_PLATFORM, 
+				sendgrid_util.TemplateNames.USER_REQUESTS_PARTNER_ON_PLATFORM,
 				template_data, recipients)
 			if err:
 				raise err

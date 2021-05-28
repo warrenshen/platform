@@ -45,21 +45,6 @@ const useStyles = makeStyles((theme: Theme) =>
       paddingLeft: theme.spacing(2),
       paddingRight: theme.spacing(2),
     },
-    dialogTitle: {
-      borderBottom: "1px solid #c7c7c7",
-    },
-    buttonClass: {
-      marginLeft: theme.spacing(1),
-    },
-    propertyLabel: {
-      flexGrow: 1,
-    },
-    constLabels: {
-      minWidth: 150,
-    },
-    dialogActions: {
-      margin: theme.spacing(2),
-    },
   })
 );
 

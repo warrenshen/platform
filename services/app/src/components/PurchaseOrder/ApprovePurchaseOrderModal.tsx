@@ -77,9 +77,7 @@ function ApprovePurchaseOrderModal({ purchaseOrder, handleClose }: Props) {
       },
     });
     if (response.status !== "OK") {
-      snackbar.showError(
-        `Error! Something went wrong. Reason: ${response.msg}`
-      );
+      snackbar.showError(`Something went wrong. Error: ${response.msg}`);
     } else {
       snackbar.showSuccess("Purchase order approved.");
       handleClose();

@@ -94,6 +94,8 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
   const companyLicenses = vendor.licenses || [];
 
   const notifier = new InventoryNotifier();
+  const isVendorBankAccountValid = !!data.company_vendor_partnerships_by_pk
+    .vendor_bank_account;
   const hasNoContactsSetup =
     !vendor.users ||
     vendor.users.length === 0 ||
@@ -115,9 +117,11 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
           handleDataChange={refetch}
         />
         <Typography variant="h6">Bank Information</Typography>
-        <Typography variant="body2" color="secondary">
-          Warning: bank account NOT configured yet.
-        </Typography>
+        {isVendorBankAccountValid && (
+          <Typography variant="body2" color="secondary">
+            Warning: vendor bank account NOT configured yet.
+          </Typography>
+        )}
         <Typography variant="subtitle2">
           Specify which bank account Bespoke Financial will send advances to:
         </Typography>

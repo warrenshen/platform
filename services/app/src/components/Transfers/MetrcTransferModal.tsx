@@ -54,6 +54,14 @@ export default function MetrcTransferModal({
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>
         <Typography variant="subtitle2" color="textSecondary">
+          Vendor
+        </Typography>
+        <Typography variant="body1">
+          {metrcTransfer.vendor?.name || "Unknown"}
+        </Typography>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2" color="textSecondary">
           Estimated Departure Time
         </Typography>
         <Typography variant="body1">
@@ -80,18 +88,18 @@ export default function MetrcTransferModal({
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>
         <Typography variant="subtitle2" color="textSecondary">
-          Raw Metrc JSON
-        </Typography>
-        <RawJsonToggle rawJson={metrcTransferPayload} />
-      </Box>
-      <Box display="flex" flexDirection="column" mt={2}>
-        <Typography variant="subtitle2" color="textSecondary">
           {`Packages (${metrcTransfer.metrc_packages.length})`}
         </Typography>
         <MetrcPackagesDataGrid
           isExcelExport={isBankUser}
           metrcPackages={metrcTransfer.metrc_packages}
         />
+      </Box>
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2" color="textSecondary">
+          Raw Metrc JSON
+        </Typography>
+        <RawJsonToggle rawJson={metrcTransferPayload} />
       </Box>
       {isBankUser && (
         <Box
