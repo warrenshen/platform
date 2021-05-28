@@ -39,6 +39,7 @@ export enum ContractTermNames {
   PrecedingBusinessDay = "preceeding_business_day",
   ClearanceDaysStructure = "repayment_type_settlement_timeline",
   Timezone = "timezone",
+  UsState = "us_state",
 }
 
 const ContractTermNameToConfigs = {
@@ -169,6 +170,12 @@ const ContractTermNameToConfigs = {
     [ContractTermConfigs.BankDescription]: "",
     [ContractTermConfigs.CustomerDescription]:
       "Used to determine submission cut-off times for financing requests",
+    [ContractTermConfigs.IsHiddenIfNull]: false,
+  },
+  [ContractTermNames.UsState]: {
+    [ContractTermConfigs.DataCy]: "us-state",
+    [ContractTermConfigs.BankDescription]: "",
+    [ContractTermConfigs.CustomerDescription]: "",
     [ContractTermConfigs.IsHiddenIfNull]: false,
   },
 };

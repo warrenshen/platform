@@ -90,6 +90,9 @@ describe("Create inventory financing customer", () => {
       cy.dataCySelector("contract-terms-form-input-timezone", "input").type(
         "-7.00{enter}"
       );
+      cy.dataCySelector("contract-terms-form-input-us-state", "input").type(
+        "CA"
+      );
       // Clearance Days
       cy.dataCy(
         "contract-terms-form-input-clearance-days-structure-0-0"
