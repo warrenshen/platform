@@ -907,7 +907,7 @@ def settle_repayment(
 		if len(effective_dates):
 			max_transaction_effective_date = max(effective_dates)
 			if settlement_date < max_transaction_effective_date:
-				raise errors.Error('Cannot settle a new payment for loans since the settlement date is prior to the effective_date of one or more existing transaction(s) of loans')
+				raise errors.Error('Cannot settle new payment since the settlement date of new payment is prior to the settlement date of one or more existing payments(s)')
 
 		payment = cast(
 			models.Payment,
