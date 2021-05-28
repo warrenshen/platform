@@ -231,6 +231,10 @@ def create_partnership(
 	session: Session,
 	bank_admin_user_id: str,
 ) -> Tuple[CreatePartnershipRespDict, errors.Error]:
+	should_create_company = req['should_create_company']
+
+	if should_create_company is None:
+		raise errors.Error('should_create_company must be True or False')
 
 	partnership_req = cast(
 		models.CompanyPartnershipRequest,
@@ -242,7 +246,7 @@ def create_partnership(
 
 	customer_id = str(partnership_req.requesting_company_id)
 
-	if req['should_create_company']:
+	if should_create_company:
 		company_id = _create_partner_company_and_its_first_user(
 			partnership_req, session
 		)
@@ -251,10 +255,14 @@ def create_partnership(
 		if not company_id:
 			raise errors.Error('partner_company_id must be specified because the partnership is based on a pre-existing company')
 
+	company = cast(
+		models.Company,
+		session.query(models.Company).get(company_id)
+	)
+
 	company_type = partnership_req.company_type
 
 	if company_type == CompanyType.Payor:
-
 		prev_partnership = cast(
 			models.CompanyPayorPartnership,
 			session.query(models.CompanyPayorPartnership).filter(
@@ -270,8 +278,13 @@ def create_partnership(
 			payor_id=company_id,
 		)
 		session.add(company_payor_partnership)
-	elif company_type == CompanyType.Vendor:
 
+		# Existing company may not have is_payor set to True yet,
+		# for example it may only have is_customer set to True.
+		if not should_create_company:
+			company.is_payor = True
+
+	elif company_type == CompanyType.Vendor:
 		prev_vendor_partnership = cast(
 			models.CompanyVendorPartnership,
 			session.query(models.CompanyVendorPartnership).filter(
@@ -287,10 +300,16 @@ def create_partnership(
 			vendor_id=company_id,
 		)
 		session.add(company_vendor_partnership)
+
+		# Existing company may not have is_vendor set to True yet,
+		# for example it may only have is_customer set to True.
+		if not should_create_company:
+			company.is_vendor = True
+
 	else:
 		raise errors.Error('Unexpected company_type {}'.format(company_type))
 
-	# Weve fulfilled the partnership request so we can delete it now
+	# Weve fulfilled the partnership request so we can mark it as "settled" now.
 	partnership_req.settled_at = date_util.now()
 	partnership_req.settled_by_user_id = bank_admin_user_id
 
