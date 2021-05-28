@@ -1,17 +1,11 @@
 import base64
+import datetime
+import logging
 import os
+from datetime import timedelta
 from typing import Callable, Dict, List, Tuple, cast
 
-import  datetime
-import logging
 import requests
-from dateutil import parser
-from datetime import timedelta
-from dotenv import load_dotenv
-from mypy_extensions import TypedDict
-from requests.auth import HTTPBasicAuth
-from sqlalchemy.orm.session import Session
-
 from bespoke import errors
 from bespoke.config.config_util import MetrcAuthProvider
 from bespoke.date import date_util
@@ -21,12 +15,18 @@ from bespoke.finance import contract_util
 from bespoke.metrc import transfers_util
 from bespoke.metrc.metrc_common_util import CompanyInfo, LicenseAuthDict
 from bespoke.security import security_util
+from dateutil import parser
+from dotenv import load_dotenv
+from mypy_extensions import TypedDict
+from requests.auth import HTTPBasicAuth
+from sqlalchemy.orm.session import Session
+
 
 @errors.return_error_tuple
 def add_api_key(
-	api_key: str, 
-	company_settings_id: str, 
-	security_cfg: security_util.ConfigDict, 
+	api_key: str,
+	company_settings_id: str,
+	security_cfg: security_util.ConfigDict,
 	session: Session
 ) -> Tuple[bool, errors.Error]:
 	company_settings = cast(
@@ -52,8 +52,8 @@ def add_api_key(
 
 @errors.return_error_tuple
 def view_api_key(
-	metrc_api_key_id: str, 
-	security_cfg: security_util.ConfigDict, 
+	metrc_api_key_id: str,
+	security_cfg: security_util.ConfigDict,
 	session: Session
 ) -> Tuple[str, errors.Error]:
 	metrc_api_key = cast(
@@ -68,19 +68,19 @@ def view_api_key(
 	api_key = security_util.decode_secret_string(
 		security_cfg, metrc_api_key.encrypted_api_key
 	)
-	
+
 	return api_key, None
 
 ### Download logic
 
 def _get_companies_with_metrc_keys(
-	auth_provider: MetrcAuthProvider, 
+	auth_provider: MetrcAuthProvider,
 	security_cfg: security_util.ConfigDict,
 	specific_company_id: str,
 	session_maker: Callable) -> Tuple[List[CompanyInfo], errors.Error]:
 	company_infos = []
 
-	# Find all customers that have a metrc key 
+	# Find all customers that have a metrc key
 	with session_scope(session_maker) as session:
 		if specific_company_id:
 			companies = cast(
@@ -196,7 +196,7 @@ def _get_companies_with_metrc_keys(
 
 def _download_data(
 	specific_company_id: str,
-	auth_provider: MetrcAuthProvider, 
+	auth_provider: MetrcAuthProvider,
 	security_cfg: security_util.ConfigDict,
 	start_date: datetime.date,
 	end_date: datetime.date,
@@ -261,16 +261,16 @@ def _download_data(
 @errors.return_error_tuple
 def download_data_for_one_customer(
 	company_id: str,
-	auth_provider: MetrcAuthProvider, 
+	auth_provider: MetrcAuthProvider,
 	security_cfg: security_util.ConfigDict,
 	start_date: datetime.date,
 	end_date: datetime.date,
 	session_maker: Callable
 ) -> Tuple[bool, List[errors.Error], errors.Error]:
-	
+
 	return _download_data(
 		specific_company_id=company_id,
-		auth_provider=auth_provider, 
+		auth_provider=auth_provider,
 		security_cfg=security_cfg,
 		start_date=start_date,
 		end_date=end_date,
@@ -279,16 +279,16 @@ def download_data_for_one_customer(
 
 @errors.return_error_tuple
 def download_data_for_all_customers(
-	auth_provider: MetrcAuthProvider, 
+	auth_provider: MetrcAuthProvider,
 	security_cfg: security_util.ConfigDict,
 	start_date: datetime.date,
 	end_date: datetime.date,
 	session_maker: Callable
 ) -> Tuple[bool, List[errors.Error], errors.Error]:
-	
+
 	return _download_data(
 		specific_company_id=None,
-		auth_provider=auth_provider, 
+		auth_provider=auth_provider,
 		security_cfg=security_cfg,
 		start_date=start_date,
 		end_date=end_date,

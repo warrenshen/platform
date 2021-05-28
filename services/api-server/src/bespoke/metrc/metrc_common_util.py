@@ -20,7 +20,7 @@ LicenseAuthDict = TypedDict('LicenseAuthDict', {
 
 class CompanyInfo(object):
 
-	def __init__(self, company_id: str, name: str, licenses: List[LicenseAuthDict], 
+	def __init__(self, company_id: str, name: str, licenses: List[LicenseAuthDict],
 										 user_key: str, metrc_api_key_id: str) -> None:
 		self.company_id = company_id
 		self.name = name

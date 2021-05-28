@@ -2,8 +2,6 @@ import datetime
 import json
 import logging
 from datetime import timedelta
-from dateutil import parser
-from sqlalchemy.orm.session import Session
 from typing import Any, Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
@@ -13,6 +11,7 @@ from bespoke.metrc import metrc_common_util
 from bespoke.metrc.metrc_common_util import CompanyInfo, LicenseAuthDict
 from dateutil import parser
 from sqlalchemy.orm.session import Session
+
 
 class LabTest(object):
 
@@ -127,7 +126,7 @@ class Transfers(object):
 		return metrc_common_util.dicts_to_rows(self._transfers, col_specs, include_header)
 
 def _match_and_add_licenses_to_transfers(
-	metrc_transfers: List[models.MetrcTransfer], 
+	metrc_transfers: List[models.MetrcTransfer],
 	transfer_type_prefix: str,
 	session: Session) -> None:
 
@@ -160,7 +159,7 @@ def _match_and_add_licenses_to_transfers(
 	# Match based on license number
 	for metrc_transfer in metrc_transfers:
 		shipper_license_number = '{}'.format(cast(Dict, metrc_transfer.transfer_payload)['ShipperFacilityLicenseNumber'])
-		vendor_company_id = shipper_license_to_company_id.get(shipper_license_number)		
+		vendor_company_id = shipper_license_to_company_id.get(shipper_license_number)
 		if vendor_company_id:
 			metrc_transfer.vendor_id = cast(Any, vendor_company_id)
 
@@ -168,7 +167,7 @@ def _match_and_add_licenses_to_transfers(
 		recipient_company_id = recipient_license_to_company_id.get(recipient_license_number)
 
 		company_matches_via_licenses = vendor_company_id and recipient_company_id and vendor_company_id == recipient_company_id
-		company_matches_via_ids = vendor_company_id and vendor_company_id == metrc_transfer.company_id 
+		company_matches_via_ids = vendor_company_id and vendor_company_id == metrc_transfer.company_id
 		if company_matches_via_licenses or company_matches_via_ids:
 			metrc_transfer.transfer_type = f'{transfer_type_prefix}_INTERNAL'
 		else:
@@ -177,14 +176,15 @@ def _match_and_add_licenses_to_transfers(
 
 @errors.return_error_tuple
 def populate_transfers_table(
-	cur_date: datetime.date, 
-	company_info: CompanyInfo, 
+	cur_date: datetime.date,
+	company_info: CompanyInfo,
 	license: LicenseAuthDict,
 	session: Session) -> Tuple[bool, errors.Error]:
 
 	logging.info('Downloading transfers for company "{}" on date: {} with license {}'.format(
 		company_info.name, cur_date, license['license_number']
 	))
+
 	rest = metrc_common_util.REST(
 		metrc_common_util.AuthDict(
 			vendor_key=license['vendor_key'],
@@ -208,7 +208,7 @@ def populate_transfers_table(
 	# Look up company ids for vendors that might match, and use those licenses to
 	# determine what kind of transfer this is
 	_match_and_add_licenses_to_transfers(
-		metrc_transfers, 
+		metrc_transfers,
 		transfer_type_prefix='INCOMING',
 		session=session
 	)
@@ -224,9 +224,12 @@ def populate_transfers_table(
 
 		lab_tests = []
 		for package_id in package_ids:
-			resp = rest.get(f'/labtests/v1/results?packageId={package_id}')
-			lab_test_json = json.loads(resp.content)
-			#lab_test_json = [] # Use an empty list if you want to speed things up
+			try:
+				resp = rest.get(f'/labtests/v1/results?packageId={package_id}')
+				lab_test_json = json.loads(resp.content)
+			except errors.Error as e:
+				lab_test_json = [] # If fetch fails, we set to empty array and continue.
+				logging.error(f'Could not fetch lab results for company {company_info.name} for package {package_id}')
 			lab_tests.append(LabTest(lab_test_json))
 
 		metrc_packages = packages.get_package_models(
