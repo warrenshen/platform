@@ -3,8 +3,9 @@ import logging
 import traceback
 
 from bespoke import errors
-from flask import Response
+from flask import Response, current_app
 from typing import Callable, Union, Tuple, Any, cast
+from server.views.common.session_util import UserSession
 
 def get_exception_message(e: Exception) -> Tuple[bool, str]:
 	return True, '{}'.format(e)
@@ -24,9 +25,23 @@ def make_error_response(error: Union[str, errors.Error], status_code: int = None
 		# Set the status code of this HTTP response by giving the errors.Error precedence
 		status_code = error_obj.http_code
 
+	user_session = UserSession.from_session()
+	cfg = current_app.app_config
+	show_stack_trace = user_session.is_bank_admin() or cfg.is_not_prod_env()
+
+	if show_stack_trace:
+		logging.error(error_obj.traceback)
+	else:
+		error_obj.traceback = ''
+
 	return Response(
 		response=json.dumps(
-		dict(status='ERROR', msg=error_obj.msg, err_details=error_obj.details)),
+		dict(
+			status='ERROR', 
+			msg=error_obj.msg, 
+			err_details=error_obj.details,
+			traceback=error_obj.traceback
+		)),
 		headers={'Content-Type': 'application/json; charset=utf-8'},
 		mimetype='application/json',
 		status=status_code)
@@ -37,6 +52,7 @@ def catch_bad_json_request(f: Callable[..., Response]) -> Callable[..., Response
 		try:
 			return f(*args, **kwargs)
 		except errors.Error as e:
+			e.traceback = traceback.format_exc()
 			return make_error_response(e)
 		except Exception as e:
 			# TODO(dlluncor): Log to sentry
@@ -48,6 +64,8 @@ def catch_bad_json_request(f: Callable[..., Response]) -> Callable[..., Response
 			if not known:
 				msg = u'An unexpected error occurred.'
 
-		return make_error_response(errors.Error(msg))
+			err = errors.Error(msg)
+			err.traceback = traceback.format_exc()
+			return make_error_response(err)
 
 	return inner_func

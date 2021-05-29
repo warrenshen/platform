@@ -80,6 +80,7 @@ export default function CreateRepaymentModal({
       requested_to_principal: null,
       requested_to_interest: null,
       requested_to_account_fees: null,
+      payment_option: "",
     },
     company_bank_account_id: null,
   });
@@ -195,6 +196,7 @@ export default function CreateRepaymentModal({
               payment.items_covered.requested_to_interest || 0.0, // If user leaves this blank, coerce to zero.
             requested_to_account_fees:
               payment.items_covered.requested_to_account_fees || 0.0, // If user leaves this blank, coerce to zero.
+            payment_option: paymentOption,
           },
           company_bank_account_id: payment.company_bank_account_id,
         },

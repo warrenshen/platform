@@ -96,6 +96,9 @@ class Config(object):
 			}
 		)
 
+	def is_not_prod_env(self) -> bool:
+		return self.FLASK_ENV != 'prod'
+
 	def is_development_env(self) -> bool:
 		return is_development_env(self.FLASK_ENV)
 

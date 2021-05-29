@@ -574,6 +574,12 @@ class LoanCalculator(object):
 		if err:
 			return None, [err]
 
+		if payment_to_include and not payment_to_include.get('deposit_date'):
+			return None, [errors.Error('Deposit date missing from payment to include')]
+
+		if payment_to_include and not payment_to_include.get('settlement_date'):
+			return None, [errors.Error('Settlement date missing from payment to include')]
+
 		def _reduce_custom_amount_remaining(tx: TransactionInputDict) -> None:
 			if not payment_to_include:
 				return
@@ -777,6 +783,7 @@ class LoanCalculator(object):
 					# means they owe the additional fees accrued due to the settlement days
 					loan_state_before_payment['outstanding_fees'] += additional_fees
 
+
 				inserted_repayment_transaction = _determine_transaction(
 					loan, loan_state_before_payment, payment_to_include
 				)
@@ -809,6 +816,11 @@ class LoanCalculator(object):
 			if payment_to_include and payment_to_include['settlement_date'] == cur_date:
 				# Since it is the settlement date, whatever got applied to principal on this date
 				# reduces their outstanding_principal_for_interest
+				if not inserted_repayment_transaction:
+					errors_list.append(errors.Error(
+						'There is no inserted repayment transaction, therefore an error must have occurred while determining details about the repayment on the deposit date. Likely you chose a deposit date outside the range of when the loan originated or matured.'))
+					continue
+
 				outstanding_principal_for_interest -= inserted_repayment_transaction['to_principal']
 				amount_paid_back_on_loan += inserted_repayment_transaction['amount']
 

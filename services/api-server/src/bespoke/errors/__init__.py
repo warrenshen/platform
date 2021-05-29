@@ -1,5 +1,6 @@
 
 from typing import cast, Any, Callable, Dict, Tuple, TypeVar
+import traceback
 
 class Error(Exception):
 
@@ -7,6 +8,7 @@ class Error(Exception):
 		self.msg = msg
 		self.details = details
 		self.http_code = http_code
+		self.traceback = ''
 
 	def __str__(self) -> str:
 		if self.details:
@@ -26,8 +28,11 @@ def return_error_tuple(f: FError) -> FError:
 		try:
 			return f(*args, **kwargs)
 		except Error as e:
+			e.traceback = traceback.format_exc()
 			return None, e
-		except Exception as e:
-			return None, Error('{}'.format(e))
+		except Exception as exc:
+			err = Error('{}'.format(exc))
+			err.traceback = traceback.format_exc()
+			return None, err
 
 	return cast(FError, inner_func)
