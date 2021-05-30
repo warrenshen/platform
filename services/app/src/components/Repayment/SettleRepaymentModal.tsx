@@ -60,6 +60,8 @@ export default function SettleRepaymentModal({
               : null,
           items_covered: {
             loan_ids: existingPayment.items_covered.loan_ids || [],
+            payment_option:
+              existingPayment.items_covered.payment_option || "unknown",
             requested_to_principal:
               existingPayment.items_covered.requested_to_principal,
             requested_to_interest:

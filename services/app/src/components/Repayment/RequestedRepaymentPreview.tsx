@@ -3,13 +3,20 @@ import { Alert } from "@material-ui/lab";
 import { PaymentsInsertInput } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
-import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
+import {
+  PaymentMethodEnum,
+  PaymentMethodToLabel,
+  PaymentOptionEnum,
+  PaymentOptionToLabel,
+} from "lib/enum";
 
 interface Props {
   payment: PaymentsInsertInput;
 }
 
 function RequestedRepaymentPreview({ payment }: Props) {
+  const paymentOption = payment.items_covered.payment_option;
+
   return (
     <Alert severity="info">
       <Box display="flex" flexDirection="column">
@@ -32,6 +39,12 @@ function RequestedRepaymentPreview({ payment }: Props) {
             {`Requested Payment Amount: ${formatCurrency(
               payment.requested_amount
             )}`}
+          </Typography>
+          <Typography variant="body1">
+            Payment Option:&nbsp;
+            {paymentOption !== "unknown"
+              ? PaymentOptionToLabel[paymentOption as PaymentOptionEnum]
+              : "unknown"}
           </Typography>
           {!!(
             payment.items_covered.requested_to_principal ||
