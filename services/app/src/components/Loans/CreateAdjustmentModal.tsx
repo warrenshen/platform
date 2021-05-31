@@ -3,31 +3,26 @@ import Modal from "components/Shared/Modal/Modal";
 import {
   Companies,
   PaymentsInsertInput,
-  ProductTypeEnum,
   TransactionsInsertInput,
   useGetAllLoansForCompanyQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { PaymentTypeEnum, ProductTypeToLoanType } from "lib/enum";
+import { PaymentTypeEnum } from "lib/enum";
 import { createAdjustmentMutation } from "lib/finance/payments/adjustment";
 import { useState } from "react";
 
 interface Props {
   companyId: Companies["id"];
-  productType: ProductTypeEnum;
   handleClose: () => void;
 }
 
 // Only bank users can create an adjustment.
 export default function CreateAdjustmentModal({
   companyId,
-  productType,
   handleClose,
 }: Props) {
   const snackbar = useSnackbar();
-
-  const loanType = ProductTypeToLoanType[productType];
 
   const [payment, setPayment] = useState<PaymentsInsertInput>({
     company_id: companyId,
@@ -51,10 +46,9 @@ export default function CreateAdjustmentModal({
     fetchPolicy: "network-only",
     variables: {
       companyId,
-      loanType,
     },
   });
-  const loans = data?.companies_by_pk?.loans || [];
+  const loans = data?.loans || [];
 
   const [
     createAdjustment,

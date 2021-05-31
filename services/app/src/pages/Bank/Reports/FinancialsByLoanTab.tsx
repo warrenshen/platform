@@ -8,14 +8,13 @@ import {
   Select,
   Theme,
 } from "@material-ui/core";
-import FinancialSummariesDataGrid from "components/CustomerFinancialSummaries/FinancialSummariesDataGrid";
 import {
   Companies,
   useGetCustomersWithMetadataQuery,
-  useGetFinancialSummariesByCompanyIdQuery,
+  Loans,
+  useGetAllLoansForCompanyQuery,
 } from "generated/graphql";
 import { useState } from "react";
-import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -40,9 +39,9 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function BankReportsFinancialsByCustomerTab() {
   const classes = useStyles();
-  const history = useHistory();
 
   const [companyId, setCompanyId] = useState<Companies["id"]>("");
+  const [loanId, setLoanId] = useState<Loans["id"]>("");
 
   const {
     data: customersData,
@@ -51,14 +50,11 @@ export default function BankReportsFinancialsByCustomerTab() {
     fetchPolicy: "network-only",
   });
 
-  const {
-    data: financialSummariesByCompanyIdData,
-    error: financialSummariesByCompanyIdError,
-  } = useGetFinancialSummariesByCompanyIdQuery({
-    fetchPolicy: "network-only",
+  const { data: loansData, error: loansError } = useGetAllLoansForCompanyQuery({
     skip: !companyId,
+    fetchPolicy: "network-only",
     variables: {
-      companyId: companyId,
+      companyId,
     },
   });
 
@@ -67,53 +63,68 @@ export default function BankReportsFinancialsByCustomerTab() {
     alert(`Error in query (details in console): ${customersError.message}`);
   }
 
-  if (financialSummariesByCompanyIdError) {
-    console.error({ error: financialSummariesByCompanyIdError });
-    alert(
-      `Error in query (details in console): ${financialSummariesByCompanyIdError.message}`
-    );
+  if (loansError) {
+    console.error({ error: loansError });
+    alert(`Error in query (details in console): ${loansError.message}`);
   }
 
   const customers = customersData?.customers || [];
-
-  const financialSummariesByCompanyId =
-    financialSummariesByCompanyIdData?.financial_summaries || [];
+  const loans = loansData?.loans || [];
 
   return (
     <Box className={classes.container}>
       <Box className={classes.section} mt={4}>
-        <Box mb={2}>
-          <FormControl className={classes.inputField}>
-            <InputLabel id="vendor-select-label">Customer</InputLabel>
-            <Select
-              disabled={customers.length <= 0}
-              labelId="customer-select-label"
-              id="customer-select"
-              value={companyId}
-              onChange={({ target: { value } }) =>
-                setCompanyId(value as string)
-              }
-            >
-              <MenuItem value="">
-                <em>None</em>
-              </MenuItem>
-              {customers.map((customer) => (
-                <MenuItem key={customer.id} value={customer.id}>
-                  {customer.name}
+        <Box display="flex" mb={2}>
+          <Box mr={2}>
+            <FormControl className={classes.inputField}>
+              <InputLabel id="customer-select-label">Customer</InputLabel>
+              <Select
+                disabled={customers.length <= 0}
+                labelId="customer-select-label"
+                id="customer-select"
+                value={companyId}
+                onChange={({ target: { value } }) =>
+                  setCompanyId(value as string)
+                }
+              >
+                <MenuItem value="">
+                  <em>None</em>
                 </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+                {customers.map((customer) => (
+                  <MenuItem key={customer.id} value={customer.id}>
+                    {customer.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+          {!!companyId && (
+            <Box>
+              <FormControl className={classes.inputField}>
+                <InputLabel id="loan-select-label">Loan</InputLabel>
+                <Select
+                  disabled={customers.length <= 0}
+                  labelId="loan-select-label"
+                  id="loan-select"
+                  value={loanId}
+                  onChange={({ target: { value } }) =>
+                    setLoanId(value as string)
+                  }
+                >
+                  <MenuItem value="">
+                    <em>None</em>
+                  </MenuItem>
+                  {loans.map((loan) => (
+                    <MenuItem key={loan.id} value={loan.id}>
+                      {loan.id}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+          )}
         </Box>
-        <Box display="flex" flexDirection="column">
-          <FinancialSummariesDataGrid
-            isExcelExport
-            financialSummaries={financialSummariesByCompanyId}
-            onClickCustomerName={(customerId) =>
-              history.push(`/customers/${customerId}/overview`)
-            }
-          />
-        </Box>
+        <Box display="flex" flexDirection="column"></Box>
       </Box>
     </Box>
   );

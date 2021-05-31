@@ -84,7 +84,7 @@ export default function BankReportsFinancialsByCustomerTab() {
       <Box className={classes.section} mt={4}>
         <Box mb={2}>
           <FormControl className={classes.inputField}>
-            <InputLabel id="vendor-select-label">Customer</InputLabel>
+            <InputLabel id="customer-select-label">Customer</InputLabel>
             <Select
               disabled={customers.length <= 0}
               labelId="customer-select-label"

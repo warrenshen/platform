@@ -17906,16 +17906,11 @@ export type GetClosedLoansForCompanyQuery = {
 
 export type GetAllLoansForCompanyQueryVariables = Exact<{
   companyId: Scalars["uuid"];
-  loanType?: Maybe<LoanTypeEnum>;
 }>;
 
 export type GetAllLoansForCompanyQuery = {
-  companies_by_pk?: Maybe<
-    Pick<Companies, "id"> & {
-      loans: Array<
-        Pick<Loans, "id"> & LoanLimitedFragment & LoanArtifactLimitedFragment
-      >;
-    }
+  loans: Array<
+    Pick<Loans, "id"> & LoanLimitedFragment & LoanArtifactLimitedFragment
   >;
 };
 
@@ -22645,32 +22640,29 @@ export type GetClosedLoansForCompanyQueryResult = Apollo.QueryResult<
   GetClosedLoansForCompanyQueryVariables
 >;
 export const GetAllLoansForCompanyDocument = gql`
-  query GetAllLoansForCompany($companyId: uuid!, $loanType: loan_type_enum) {
-    companies_by_pk(id: $companyId) {
-      id
-      loans(
-        where: {
-          _and: [
-            {
-              _or: [
-                { is_deleted: { _is_null: true } }
-                { is_deleted: { _eq: false } }
-              ]
-            }
-            { loan_type: { _eq: $loanType } }
-          ]
-        }
-        order_by: [
-          { adjusted_maturity_date: asc }
-          { origination_date: asc }
-          { created_at: asc }
-          { amount: asc }
+  query GetAllLoansForCompany($companyId: uuid!) {
+    loans(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { company_id: { _eq: $companyId } }
         ]
-      ) {
-        id
-        ...LoanLimited
-        ...LoanArtifactLimited
       }
+      order_by: [
+        { adjusted_maturity_date: asc }
+        { origination_date: asc }
+        { created_at: asc }
+        { amount: asc }
+      ]
+    ) {
+      id
+      ...LoanLimited
+      ...LoanArtifactLimited
     }
   }
   ${LoanLimitedFragmentDoc}
@@ -22690,7 +22682,6 @@ export const GetAllLoansForCompanyDocument = gql`
  * const { data, loading, error } = useGetAllLoansForCompanyQuery({
  *   variables: {
  *      companyId: // value for 'companyId'
- *      loanType: // value for 'loanType'
  *   },
  * });
  */

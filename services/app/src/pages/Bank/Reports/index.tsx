@@ -5,6 +5,7 @@ import BankReportAdvancesTab from "pages/Bank/Reports/AdvancesTab";
 import BankReportFinancialsByCustomerTab from "pages/Bank/Reports/FinancialsByCustomerTab";
 import BankReportFinancialsByDateTab from "pages/Bank/Reports/FinancialsByDateTab";
 import BankReportTransactionsTab from "pages/Bank/Reports/TransactionsTab";
+import BankReportFinancialsByLoanTab from "pages/Bank/Reports/FinancialsByLoanTab";
 import { useState } from "react";
 
 export default function BankReportsPage() {
@@ -21,6 +22,7 @@ export default function BankReportsPage() {
         >
           <Tab label="Financials - For Customer" />
           <Tab label="Financials - For Date" />
+          <Tab label="Financials - For Loan" />
           <Tab label="Advances" />
           <Tab label="Transactions" />
         </Tabs>
@@ -29,6 +31,8 @@ export default function BankReportsPage() {
         ) : selectedTabIndex === 1 ? (
           <BankReportFinancialsByDateTab />
         ) : selectedTabIndex === 2 ? (
+          <BankReportFinancialsByLoanTab />
+        ) : selectedTabIndex === 3 ? (
           <BankReportAdvancesTab />
         ) : (
           <BankReportTransactionsTab />

@@ -146,7 +146,6 @@ function CustomerOverviewPageContent({ companyId, productType }: Props) {
                 modal={({ handleClose }) => (
                   <CreateAdjustmentModal
                     companyId={companyId}
-                    productType={productType}
                     handleClose={() => {
                       refetch();
                       handleClose();
