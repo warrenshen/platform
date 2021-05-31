@@ -121,7 +121,7 @@ export default function DeleteEbbaApplicationModal({
             </Box>
             <Box display="flex" flexDirection="column" mt={2}>
               <Typography variant="subtitle2" color="textSecondary">
-                Monthly Inventory
+                Current Month Inventory
               </Typography>
               <Typography variant={"body1"}>
                 {formatCurrency(ebbaApplication.monthly_inventory)}
@@ -129,7 +129,7 @@ export default function DeleteEbbaApplicationModal({
             </Box>
             <Box display="flex" flexDirection="column" mt={2}>
               <Typography variant="subtitle2" color="textSecondary">
-                Monthly Cash
+                Current Month Cash
               </Typography>
               <Typography variant={"body1"}>
                 {formatCurrency(ebbaApplication.monthly_cash)}
@@ -137,7 +137,7 @@ export default function DeleteEbbaApplicationModal({
             </Box>
             <Box display="flex" flexDirection="column" mt={2}>
               <Typography variant="subtitle2" color="textSecondary">
-                Monthly Cash in DACA
+                Current Month Cash in DACA
               </Typography>
               <Typography variant={"body1"}>
                 {formatCurrency(ebbaApplication.amount_cash_in_daca)}

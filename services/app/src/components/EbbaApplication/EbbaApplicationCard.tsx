@@ -61,27 +61,29 @@ function EbbaApplicationCard({ ebbaApplication }: Props) {
         </Box>
         <Box display="flex" mb={0.5}>
           <Typography className={classes.label}>
-            Monthly Accounts Receivable
+            Current Month Accounts Receivable
           </Typography>
           <Typography>
             {formatCurrency(ebbaApplication.monthly_accounts_receivable)}
           </Typography>
         </Box>
         <Box display="flex" mb={0.5}>
-          <Typography className={classes.label}>Monthly Inventory</Typography>
+          <Typography className={classes.label}>
+            Current Month Inventory
+          </Typography>
           <Typography>
             {formatCurrency(ebbaApplication.monthly_inventory)}
           </Typography>
         </Box>
         <Box display="flex" mb={0.5}>
-          <Typography className={classes.label}>Monthly Cash</Typography>
+          <Typography className={classes.label}>Current Month Cash</Typography>
           <Typography>
             {formatCurrency(ebbaApplication.monthly_cash)}
           </Typography>
         </Box>
         <Box display="flex" mb={0.5}>
           <Typography className={classes.label}>
-            Monthly Cash in DACA
+            Current Month Cash in DACA
           </Typography>
           <Typography>
             {formatCurrency(ebbaApplication.amount_cash_in_daca)}
