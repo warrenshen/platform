@@ -7,6 +7,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
+import MetrcTransferInfoCardForVendor from "components/Transfers/MetrcTransferInfoCardForVendor";
 import {
   PurchaseOrderFileTypeEnum,
   RequestStatusEnum,
@@ -20,6 +21,23 @@ import { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 import ReviewPurchaseOrderApproveModal from "./ReviewPurchaseOrderApproveModal";
 import ReviewPurchaseOrderRejectModal from "./ReviewPurchaseOrderRejectModal";
+import styled from "styled-components";
+
+const Buttons = styled.div`
+  display: flex;
+
+  width: 100%;
+`;
+
+const StyledButton = styled(Button)`
+  flex: 1;
+
+  padding: 8px 0px;
+`;
+
+const ButtonSpace = styled.div`
+  width: 12px;
+`;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -105,6 +123,9 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
   }
 
   const isMetrcBased = !!purchaseOrder.is_metrc_based;
+  const metrcTransfers = purchaseOrder.purchase_order_metrc_transfers.map(
+    (purchaseOrderMetrcTransfer) => purchaseOrderMetrcTransfer.metrc_transfer
+  );
 
   return (
     <Box className={classes.wrapper}>
@@ -113,13 +134,29 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
           <Typography variant="h5">{`${purchaseOrder.vendor?.name}, your approval is requested`}</Typography>
           <Box mt={1}>
             <Typography variant="body2">
-              The purchase order shown below requires your approval before
-              Bespoke Financial can finance it. Please review the info and press
-              either approve or reject. If you press reject, you will be
-              prompted to enter in a reason.
+              This purchase order requires your approval before Bespoke
+              Financial can finance it. Please review the information and select
+              either approve or reject.
             </Typography>
           </Box>
         </Box>
+        {isMetrcBased && (
+          <Box display="flex" flexDirection="column" mt={2}>
+            <Typography variant="body2" color="textSecondary">
+              Related manifest(s) from Metrc
+            </Typography>
+            {metrcTransfers.map((metrcTransfer) => (
+              <Box
+                key={metrcTransfer.id}
+                display="flex"
+                flexDirection="column"
+                mt={1}
+              >
+                <MetrcTransferInfoCardForVendor metrcTransfer={metrcTransfer} />
+              </Box>
+            ))}
+          </Box>
+        )}
         <Box display="flex" flexDirection="column" mt={2}>
           <Typography variant="subtitle2" color="textSecondary">
             Buyer
@@ -182,7 +219,7 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
             />
           </Box>
         )}
-        <Box display="flex" justifyContent="center" mt={4}>
+        <Box display="flex" justifyContent="center" mt={6}>
           {isApproveModalOpen && (
             <ReviewPurchaseOrderApproveModal
               purchaseOrder={purchaseOrder}
@@ -207,26 +244,25 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
               }
             />
           )}
-          <Box mr={2}>
-            <Button
+          <Buttons>
+            <StyledButton
               disabled={false}
               onClick={() => setIsRejectModalOpen(true)}
-              variant={"contained"}
+              variant={"outlined"}
               color={"default"}
             >
               Reject
-            </Button>
-          </Box>
-          <Box>
-            <Button
+            </StyledButton>
+            <ButtonSpace />
+            <StyledButton
               disabled={false}
               onClick={() => setIsApproveModalOpen(true)}
               variant={"contained"}
               color={"primary"}
             >
               Approve
-            </Button>
-          </Box>
+            </StyledButton>
+          </Buttons>
         </Box>
       </Box>
     </Box>

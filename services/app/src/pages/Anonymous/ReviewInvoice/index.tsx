@@ -20,6 +20,23 @@ import { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 import ReviewInvoiceApproveModal from "./ReviewInvoiceApproveModal";
 import ReviewInvoiceRejectModal from "./ReviewInvoiceRejectModal";
+import styled from "styled-components";
+
+const Buttons = styled.div`
+  display: flex;
+
+  width: 100%;
+`;
+
+const StyledButton = styled(Button)`
+  flex: 1;
+
+  padding: 8px 0px;
+`;
+
+const ButtonSpace = styled.div`
+  width: 12px;
+`;
 
 interface Props {
   location: any;
@@ -98,7 +115,11 @@ export default function ReviewInvoicePage(props: Props) {
 
   const isDataReady = !isInvoiceLoading;
 
-  return isDataReady && invoice ? (
+  if (!isDataReady || !invoice) {
+    return null;
+  }
+
+  return (
     <Box className={classes.wrapper}>
       <Box className={classes.container}>
         <Box display="flex" flexDirection="column">
@@ -208,28 +229,27 @@ export default function ReviewInvoicePage(props: Props) {
               }
             />
           )}
-          <Box mr={2}>
-            <Button
+          <Buttons>
+            <StyledButton
               disabled={false}
               onClick={() => setIsRejectModalOpen(true)}
-              variant={"contained"}
+              variant={"outlined"}
               color={"default"}
             >
               Reject
-            </Button>
-          </Box>
-          <Box>
-            <Button
+            </StyledButton>
+            <ButtonSpace />
+            <StyledButton
               disabled={false}
               onClick={() => setIsApproveModalOpen(true)}
               variant={"contained"}
               color={"primary"}
             >
               Approve
-            </Button>
-          </Box>
+            </StyledButton>
+          </Buttons>
         </Box>
       </Box>
     </Box>
-  ) : null;
+  );
 }

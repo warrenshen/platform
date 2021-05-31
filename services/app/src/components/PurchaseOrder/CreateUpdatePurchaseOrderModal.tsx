@@ -147,7 +147,7 @@ export default function CreateUpdatePurchaseOrderModal({
           )
         );
         setPurchaseOrderMetrcTransfers(
-          existingPurchaseOrder.purchase_order_metrc_transfers
+          existingPurchaseOrder.purchase_order_metrc_transfers || []
         );
       }
     },
@@ -196,8 +196,8 @@ export default function CreateUpdatePurchaseOrderModal({
     [allMetrcTransfers, selectedMetrcTransfers]
   );
   const metrcApiKeys = data?.companies_by_pk?.metrc_api_keys || [];
-
   const isMetrcEnabled = metrcApiKeys.length > 0;
+  const isMetrcBased = purchaseOrder.is_metrc_based;
 
   const [
     createUpdatePurchaseOrderAsDraft,
@@ -224,7 +224,7 @@ export default function CreateUpdatePurchaseOrderModal({
       delivery_date: purchaseOrder.delivery_date,
       amount: purchaseOrder.amount,
       is_cannabis: purchaseOrder.is_cannabis,
-      is_metrc_based: purchaseOrder.is_metrc_based,
+      is_metrc_based: isMetrcBased,
       status: RequestStatusEnum.Drafted,
     };
   };
@@ -319,28 +319,36 @@ export default function CreateUpdatePurchaseOrderModal({
   // The minimum amount of information to save as draft is:
   // If Metrc based: Metrc manifest(s) and order number
   // If not Metrc based: vendor and order number
+  const isFormValidMetrcBased =
+    purchaseOrderMetrcTransfers.length > 0 && !!purchaseOrder.order_number;
+  const isFormValidManual =
+    !!purchaseOrder.vendor_id && !!purchaseOrder.order_number;
   const isFormValid =
-    (purchaseOrder.is_metrc_based && !!purchaseOrder.order_number) ||
-    (!purchaseOrder.is_metrc_based &&
-      !!purchaseOrder.vendor_id &&
-      !!purchaseOrder.order_number);
+    (isMetrcBased && isFormValidMetrcBased) ||
+    (!isMetrcBased && isFormValidManual);
+
   const isFormLoading =
     isCreateUpdatePurchaseOrderAsDraftLoading ||
     isCreateUpdatePurchaseOrderAndSubmitLoading ||
     isUpdatePurchaseOrderLoading;
-  const isSecondaryActionDisabled =
-    !isFormValid || isFormLoading || !purchaseOrder.order_number;
+
+  const isSecondaryActionDisabled = !isFormValid || isFormLoading;
+
+  const isPrimaryActionDisabledMetrcBased =
+    !purchaseOrder.order_date || !purchaseOrder.amount || !purchaseOrderFile;
+  const isPrimaryActionDisabledManual =
+    !selectableVendors?.find((vendor) => vendor.id === purchaseOrder.vendor_id)
+      ?.company_vendor_partnerships[0].approved_at ||
+    !purchaseOrder.order_date ||
+    !purchaseOrder.delivery_date ||
+    !purchaseOrder.amount ||
+    !purchaseOrderFile ||
+    (!!purchaseOrder.is_cannabis && purchaseOrderCannabisFiles.length <= 0);
   const isPrimaryActionDisabled = isActionTypeUpdate
     ? isSecondaryActionDisabled
     : isSecondaryActionDisabled ||
-      !selectableVendors?.find(
-        (vendor) => vendor.id === purchaseOrder.vendor_id
-      )?.company_vendor_partnerships[0].approved_at ||
-      !purchaseOrder.order_date ||
-      !purchaseOrder.delivery_date ||
-      !purchaseOrder.amount ||
-      !purchaseOrderFile ||
-      (!!purchaseOrder.is_cannabis && purchaseOrderCannabisFiles.length <= 0);
+      (isMetrcBased && isPrimaryActionDisabledMetrcBased) ||
+      (!isMetrcBased && isPrimaryActionDisabledManual);
 
   if (!isDialogReady) {
     return null;
@@ -374,7 +382,7 @@ export default function CreateUpdatePurchaseOrderModal({
         </Box>
       )}
       {isMetrcEnabled &&
-        (purchaseOrder.is_metrc_based === null ? (
+        (isMetrcBased === null ? (
           <Box display="flex" flexDirection="column" mb={4}>
             <Box mb={2}>
               <Typography variant="body1" color="textSecondary">
@@ -431,7 +439,7 @@ export default function CreateUpdatePurchaseOrderModal({
           <Box display="flex" flexDirection="column" mb={4}>
             <Banner>
               <Typography variant="body2" color="textSecondary">
-                {purchaseOrder.is_metrc_based
+                {isMetrcBased
                   ? '"Create purchase order from Metrc manifest(s)" selected'
                   : '"Create purchase order from scratch" selected'}
               </Typography>
@@ -442,8 +450,8 @@ export default function CreateUpdatePurchaseOrderModal({
           </Box>
         ))}
       {isMetrcEnabled ? (
-        purchaseOrder.is_metrc_based !== null &&
-        (!!purchaseOrder.is_metrc_based ? (
+        isMetrcBased !== null &&
+        (!!isMetrcBased ? (
           <PurchaseOrderFormV2
             companyId={companyId}
             purchaseOrder={purchaseOrder}

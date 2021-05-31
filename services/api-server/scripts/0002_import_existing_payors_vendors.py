@@ -267,12 +267,8 @@ def import_existing_payors_vendors(session: Session) -> None:
 				models.Company.name == company_name
 			).first())
 		if existing_company_by_name:
-			if existing_company_by_name.company_type != company_type:
-				print(f'[{index + 1} of {payors_vendors_count}] Company with name {company_name} exists, but is not the correct company type')
-				continue
-			else:
-				print(f'[{index + 1} of {payors_vendors_count}] Company with name {company_name} already exists')
-				company = existing_company_by_name
+			print(f'[{index + 1} of {payors_vendors_count}] Company with name {company_name} already exists')
+			company = existing_company_by_name
 		else:
 			print(f'[{index + 1} of {payors_vendors_count}] Company with name {company_name} does not exist, creating it...')
 
@@ -304,7 +300,7 @@ def import_existing_payors_vendors(session: Session) -> None:
 			company_settings.company_id = company_id
 			session.flush()
 
-			print(f'[{index + 1} of {payors_vendors_count}] Created company {company.name} ({company.company_type})')
+			print(f'[{index + 1} of {payors_vendors_count}] Created company {company.name} ({company_type})')
 
 		if company_type == CompanyType.Payor:
 			existing_company_payor_partnership = cast(

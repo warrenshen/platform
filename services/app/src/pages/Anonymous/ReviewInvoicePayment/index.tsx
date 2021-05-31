@@ -19,6 +19,19 @@ import ReviewInvoicePaymentConfirmModal from "pages/Anonymous/ReviewInvoicePayme
 import ReviewInvoicePaymentRejectModal from "pages/Anonymous/ReviewInvoicePayment/ReviewInvoicePaymentRejectModal";
 import { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
+import styled from "styled-components";
+
+const Buttons = styled.div`
+  display: flex;
+
+  width: 100%;
+`;
+
+const StyledButton = styled(Button)`
+  flex: 1;
+
+  padding: 8px 0px;
+`;
 
 interface Props {
   location: any;
@@ -115,7 +128,11 @@ export default function ReviewInvoicePaymentPage(props: Props) {
 
   const isDataReady = !isInvoiceLoading;
 
-  return isDataReady && invoice ? (
+  if (!isDataReady || !invoice) {
+    return null;
+  }
+
+  return (
     <Box className={classes.wrapper}>
       <Box className={classes.container}>
         <Box display="flex" flexDirection="column">
@@ -265,17 +282,18 @@ export default function ReviewInvoicePaymentPage(props: Props) {
               }
             />
           )}
-          <Box display="flex">
-            <Button
+          <Buttons>
+            <StyledButton
+              disabled={false}
               onClick={() => setIsConfirmModalOpen(true)}
               variant={"contained"}
               color={"primary"}
             >
               Notify Bespoke Financial of Payment
-            </Button>
-          </Box>
+            </StyledButton>
+          </Buttons>
         </Box>
       </Box>
     </Box>
-  ) : null;
+  );
 }
