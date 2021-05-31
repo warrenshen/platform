@@ -11,11 +11,11 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import { CompanySettings } from "generated/graphql";
+import { CompanySettings, MetrcApiKeyFragment } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { addApiKeyMutation } from "lib/api/metrc";
-import { useState } from "react";
+import { upsertApiKeyMutation, viewApiKey } from "lib/api/metrc";
+import { useEffect, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -30,25 +30,49 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   companySettingsId: CompanySettings["id"];
+  metrcApiKey: MetrcApiKeyFragment;
   handleClose: () => void;
 }
 
-function AddMetrcKeyModal({ companySettingsId, handleClose }: Props) {
+function UpsertMetrcKeyModal({
+  companySettingsId,
+  metrcApiKey,
+  handleClose,
+}: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
 
   const [errorMessage, setErrorMessage] = useState("");
 
   const [apiKey, setApiKey] = useState<string>("");
+  const hasKey = !!metrcApiKey;
 
-  const [addApiKey, { loading: isAddKeyLoading }] = useCustomMutation(
-    addApiKeyMutation
+  const [upsertApiKey, { loading: isUpsertKeyLoading }] = useCustomMutation(
+    upsertApiKeyMutation
   );
 
+  useEffect(() => {
+    async function viewKey() {
+      const resp = await viewApiKey({
+        variables: {
+          metrc_api_key_id: metrcApiKey.id,
+        },
+      });
+      if (resp.status === "OK") {
+        setApiKey(resp.api_key);
+      }
+    }
+
+    if (metrcApiKey) {
+      viewKey();
+    }
+  }, [metrcApiKey]);
+
   const handleRegisterClick = async () => {
-    const response = await addApiKey({
+    const response = await upsertApiKey({
       variables: {
         company_settings_id: companySettingsId,
+        metrc_api_key_id: metrcApiKey ? metrcApiKey.id : null,
         api_key: apiKey.trim(),
       },
     });
@@ -62,7 +86,7 @@ function AddMetrcKeyModal({ companySettingsId, handleClose }: Props) {
     }
   };
 
-  const isSubmitDisabled = !apiKey || isAddKeyLoading;
+  const isSubmitDisabled = !apiKey || isUpsertKeyLoading;
 
   return (
     <Dialog
@@ -71,7 +95,7 @@ function AddMetrcKeyModal({ companySettingsId, handleClose }: Props) {
       maxWidth="md"
       classes={{ paper: classes.dialog }}
     >
-      <DialogTitle>Add Metrc Key</DialogTitle>
+      <DialogTitle>{hasKey ? "Edit Metrc Key" : "Add Metrc Key"}</DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="column">
           <Typography color="error" gutterBottom={true}>
@@ -101,7 +125,7 @@ function AddMetrcKeyModal({ companySettingsId, handleClose }: Props) {
             color="primary"
             onClick={handleRegisterClick}
           >
-            Add
+            {hasKey ? "Edit" : "Add"}
           </Button>
         </Box>
       </DialogActions>
@@ -109,4 +133,4 @@ function AddMetrcKeyModal({ companySettingsId, handleClose }: Props) {
   );
 }
 
-export default AddMetrcKeyModal;
+export default UpsertMetrcKeyModal;

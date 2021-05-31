@@ -173,14 +173,15 @@ export async function getTransfersMutation(
     );
 }
 
-export async function addApiKeyMutation(req: {
+export async function upsertApiKeyMutation(req: {
   variables: {
     company_settings_id: string;
+    metrc_api_key_id: string;
     api_key: string;
   };
 }): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(metrcRoutes.addApiKey, req.variables)
+    .post(metrcRoutes.upsertApiKey, req.variables)
     .then((res) => res.data)
     .then(
       (res) => res,

@@ -23,12 +23,14 @@ from sqlalchemy.orm.session import Session
 
 
 @errors.return_error_tuple
-def add_api_key(
+def upsert_api_key(
 	api_key: str,
 	company_settings_id: str,
+	metrc_api_key_id: str,
 	security_cfg: security_util.ConfigDict,
 	session: Session
 ) -> Tuple[bool, errors.Error]:
+
 	company_settings = cast(
 		models.CompanySettings,
 		session.query(models.CompanySettings).filter(
@@ -38,15 +40,33 @@ def add_api_key(
 	if not company_settings:
 		raise errors.Error('No company settings found, so we could not save the Metrc API key')
 
-	metrc_api_key = models.MetrcApiKey()
-	metrc_api_key.encrypted_api_key = security_util.encode_secret_string(
-		security_cfg, api_key
-	)
-	metrc_api_key.company_id = company_settings.company_id
-	session.add(metrc_api_key)
-	session.flush()
+	if metrc_api_key_id:
+		# The "edit" case
+		if metrc_api_key_id != str(company_settings.metrc_api_key_id):
+			raise errors.Error('Metrc API Key ID to update does not match the one from the company settings')
 
-	company_settings.metrc_api_key_id = metrc_api_key.id
+		metrc_api_key = cast(
+			models.MetrcApiKey,
+			session.query(models.MetrcApiKey).filter(
+				models.MetrcApiKey.id == metrc_api_key_id
+			).first())
+		if not metrc_api_key:
+			raise errors.Error('Previously existing Metrc API Key does not exist in the database')
+		
+		metrc_api_key.encrypted_api_key = security_util.encode_secret_string(
+			security_cfg, api_key
+		)
+	else:
+		# The "add" case
+		metrc_api_key = models.MetrcApiKey()
+		metrc_api_key.encrypted_api_key = security_util.encode_secret_string(
+			security_cfg, api_key
+		)
+		metrc_api_key.company_id = company_settings.company_id
+		session.add(metrc_api_key)
+		session.flush()
+
+		company_settings.metrc_api_key_id = metrc_api_key.id
 
 	return True, None
 

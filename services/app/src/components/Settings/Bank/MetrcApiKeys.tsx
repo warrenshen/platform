@@ -1,9 +1,8 @@
-import { Box, Button } from "@material-ui/core";
+import { Box } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
-import AddMetrcKeyModal from "components/Settings/Bank/AddMetrcKeyModal";
+import UpsertMetrcKeyModal from "components/Settings/Bank/UpsertMetrcKeyModal";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import { CompanySettings, MetrcApiKeyFragment } from "generated/graphql";
-import { viewApiKey } from "lib/api/metrc";
 import { useState } from "react";
 
 interface Props {
@@ -19,51 +18,30 @@ export default function MetrcApiKeys({
 }: Props) {
   const [apiKeyValue, setApiKeyValue] = useState<string>("");
 
-  if (metrcApiKey) {
-    return (
-      <Box>
-        <Box>Metrc API key is setup</Box>
-        <Button
-          color="default"
-          size="small"
-          variant="outlined"
-          onClick={async () => {
-            const resp = await viewApiKey({
-              variables: {
-                metrc_api_key_id: metrcApiKey.id,
-              },
-            });
-            if (resp.status === "OK") {
-              setApiKeyValue(resp.api_key);
-            }
-          }}
-        >
-          View Key
-        </Button>
-        {apiKeyValue.length > 0 && <Box>{apiKeyValue}</Box>}
-      </Box>
-    );
-  } else {
-    return (
-      <Box>
+  const hasKey = !!metrcApiKey;
+
+  return (
+    <Box>
+      {!hasKey && (
         <Box mb={1}>
           <Alert severity="warning">No Metrc API key setup yet</Alert>
         </Box>
-        <Box>
-          <ModalButton
-            label={"Add API Key"}
-            modal={({ handleClose }) => (
-              <AddMetrcKeyModal
-                companySettingsId={companySettingsId}
-                handleClose={() => {
-                  handleDataChange();
-                  handleClose();
-                }}
-              />
-            )}
-          />
-        </Box>
+      )}
+      <Box>
+        <ModalButton
+          label={hasKey ? "Edit API Key" : "Add API Key"}
+          modal={({ handleClose }) => (
+            <UpsertMetrcKeyModal
+              metrcApiKey={metrcApiKey}
+              companySettingsId={companySettingsId}
+              handleClose={() => {
+                handleDataChange();
+                handleClose();
+              }}
+            />
+          )}
+        />
       </Box>
-    );
-  }
+    </Box>
+  );
 }

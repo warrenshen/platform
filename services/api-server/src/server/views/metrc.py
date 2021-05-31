@@ -104,7 +104,7 @@ class GetTransfersView(MethodView):
 			},
 		}), 200)
 
-class AddApiKeyView(MethodView):
+class UpsertApiKeyView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
 	@handler_util.catch_bad_json_request
@@ -117,7 +117,7 @@ class AddApiKeyView(MethodView):
 			return handler_util.make_error_response('No data provided')
 
 		required_keys = [
-			'api_key', 'company_settings_id'
+			'api_key', 'company_settings_id', 'metrc_api_key_id'
 		]
 		for key in required_keys:
 			if key not in form:
@@ -126,9 +126,10 @@ class AddApiKeyView(MethodView):
 
 		with session_scope(current_app.session_maker) as session:
 
-			_, err = metrc_util.add_api_key(
+			_, err = metrc_util.upsert_api_key(
 				api_key=form['api_key'], 
 				company_settings_id=form['company_settings_id'],
+				metrc_api_key_id=form['metrc_api_key_id'],
 				security_cfg=cfg.get_security_config(),
 				session=session
 			)
@@ -239,7 +240,7 @@ handler.add_url_rule(
 	'/get_transfers', view_func=GetTransfersView.as_view(name='get_transfers_view'))
 
 handler.add_url_rule(
-	'/add_api_key', view_func=AddApiKeyView.as_view(name='add_api_key_view'))
+	'/upsert_api_key', view_func=UpsertApiKeyView.as_view(name='upsert_api_key_view'))
 
 handler.add_url_rule(
 	'/view_api_key', view_func=ViewApiKeyView.as_view(name='view_api_key_view'))
