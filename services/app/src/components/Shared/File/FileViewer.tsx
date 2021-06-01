@@ -11,21 +11,12 @@ import { Box, Typography } from "@material-ui/core";
 import { Files } from "generated/graphql";
 import "pure-react-carousel/dist/react-carousel.es.css";
 import { useEffect, useState } from "react";
-import { Document, Page, pdfjs } from "react-pdf";
 import { FileWithSignedURL, downloadFilesWithSignedUrls } from "lib/api/files";
 import styled from "styled-components";
-
-pdfjs.GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL}/scripts/pdf.worker.js`;
+import PdfViewer from "components/Shared/File/PdfViewer";
 
 const Container = styled.div`
   background-color: rgb(246, 245, 243);
-`;
-
-const PDFDocumentWrapper = styled.div`
-  canvas {
-    width: 100% !important;
-    height: auto !important;
-  }
 `;
 
 interface Props {
@@ -33,27 +24,18 @@ interface Props {
   fileType: string;
 }
 
-export default function FilesViewer({ fileIds, fileType }: Props) {
+export default function FileViewer({ fileIds, fileType }: Props) {
   const [filesWithSignedUrls, setFilesWithSignedUrls] = useState<
     FileWithSignedURL[]
   >([]);
 
   useEffect(() => {
-    const getFilesWithSignedUrls = async () => {
-      if (fileIds.length > 0) {
-        const response = await downloadFilesWithSignedUrls({
-          file_ids: fileIds,
-          file_type: fileType,
-        });
-        if (response.status !== "OK") {
-          console.log({ response });
-          alert(response.msg);
-        } else {
-          setFilesWithSignedUrls(response.files);
-        }
-      }
-    };
-    getFilesWithSignedUrls();
+    downloadFilesWithSignedUrls(
+      fileType,
+      fileIds,
+      (files) => setFilesWithSignedUrls(files),
+      (response) => alert(response.msg)
+    );
   }, [fileIds, fileType, setFilesWithSignedUrls]);
 
   return (
@@ -61,7 +43,7 @@ export default function FilesViewer({ fileIds, fileType }: Props) {
       <CarouselProvider
         dragEnabled={false}
         naturalSlideWidth={64}
-        naturalSlideHeight={72}
+        naturalSlideHeight={96}
         totalSlides={filesWithSignedUrls.length}
       >
         <ButtonBack>Previous File</ButtonBack>
@@ -81,15 +63,7 @@ export default function FilesViewer({ fileIds, fileType }: Props) {
                     style={{ height: "auto" }}
                   />
                 ) : (
-                  <PDFDocumentWrapper>
-                    <Document
-                      file={fileWithSignedUrl.url}
-                      onLoadError={(error) => console.error({ error })}
-                      onLoadSuccess={() => console.log("success")}
-                    >
-                      <Page pageNumber={1} />
-                    </Document>
-                  </PDFDocumentWrapper>
+                  <PdfViewer fileUrl={fileWithSignedUrl.url} />
                 )}
               </Slide>
             ))}

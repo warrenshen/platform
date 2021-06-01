@@ -1,9 +1,5 @@
 import { authenticatedApi, fileRoutes } from "lib/api";
-
-type DownloadSignedURLReq = {
-  file_type: string;
-  file_ids: string[];
-};
+import { Files } from "generated/graphql";
 
 export type FileWithSignedURL = {
   id: string;
@@ -18,21 +14,32 @@ type DownloadSignedURLResponse = {
   files: FileWithSignedURL[];
 };
 
-export async function downloadFilesWithSignedUrls(
-  reqData: DownloadSignedURLReq
-): Promise<DownloadSignedURLResponse> {
-  return authenticatedApi
-    .post(fileRoutes.downloadSignedUrl, reqData)
+export function downloadFilesWithSignedUrls(
+  fileType: string,
+  fileIds: Files["id"][],
+  handleSuccess: (files: FileWithSignedURL[]) => void,
+  handleError: (response: DownloadSignedURLResponse) => void
+): void {
+  const params = {
+    file_type: fileType,
+    file_ids: fileIds,
+  };
+  authenticatedApi
+    .post(fileRoutes.downloadSignedUrl, params)
     .then((res) => {
       return res.data;
     })
     .then(
       (response) => {
-        return response;
+        handleSuccess(response.files);
       },
       (error) => {
-        console.log("error", error);
-        return { status: "ERROR", msg: "Could not get download url" };
+        console.error({ error });
+        handleError({
+          status: "ERROR",
+          msg: "Could not download files",
+          files: [],
+        });
       }
     );
 }

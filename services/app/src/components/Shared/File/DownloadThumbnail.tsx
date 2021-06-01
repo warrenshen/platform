@@ -59,21 +59,12 @@ export default function DownloadThumbnail({
   >([]);
 
   useEffect(() => {
-    const getFilesWithSignedUrls = async () => {
-      if (fileIds.length > 0) {
-        const response = await downloadFilesWithSignedUrls({
-          file_ids: fileIds,
-          file_type: fileType,
-        });
-        if (response.status !== "OK") {
-          console.log({ response });
-          alert(response.msg);
-        } else {
-          setFilesWithSignedUrls(response.files);
-        }
-      }
-    };
-    getFilesWithSignedUrls();
+    downloadFilesWithSignedUrls(
+      fileType,
+      fileIds,
+      (files) => setFilesWithSignedUrls(files),
+      (response) => alert(response.msg)
+    );
   }, [fileIds, fileType, setFilesWithSignedUrls]);
 
   return (
