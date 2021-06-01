@@ -113,7 +113,7 @@ export default function DeleteEbbaApplicationModal({
             </Box>
             <Box display="flex" flexDirection="column" mt={2}>
               <Typography variant="subtitle2" color="textSecondary">
-                Montly Accounts Receivable
+                Current Month Accounts Receivable
               </Typography>
               <Typography variant={"body1"}>
                 {formatCurrency(ebbaApplication.monthly_accounts_receivable)}
