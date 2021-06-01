@@ -28,12 +28,17 @@ export default function PrivateRoute(props: Props & RouteProps) {
 
   const shouldRender = isSignedIn && canVisitRoute;
 
-  const { data } = useGetCompanyWithDetailsByCompanyIdQuery({
+  const { data, error } = useGetCompanyWithDetailsByCompanyIdQuery({
     skip: companyId === null,
     variables: {
       companyId,
     },
   });
+
+  if (error) {
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
+  }
 
   const company = data?.companies_by_pk;
 

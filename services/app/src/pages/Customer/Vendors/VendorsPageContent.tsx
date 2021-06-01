@@ -2,6 +2,8 @@ import { Box } from "@material-ui/core";
 import PageContent from "components/Shared/Page/PageContent";
 import AddVendorButton from "components/Vendors/AddVendorButton";
 import VendorPartnershipsDataGrid from "components/Vendors/VendorPartnershipsDataGrid";
+import Can from "components/Shared/Can";
+import { Action } from "lib/auth/rbac-rules";
 import {
   Companies,
   useGetVendorPartnershipsByCompanyIdQuery,
@@ -31,10 +33,12 @@ export default function CustomerVendorsPageContent({ companyId }: Props) {
 
   return (
     <PageContent title={"Vendors"}>
-      <Box display="flex" flexDirection="row-reverse">
-        <AddVendorButton customerId={companyId} handleDataChange={refetch} />
-      </Box>
-      <Box display="flex" mt={3}>
+      <Can perform={Action.AddVendor}>
+        <Box display="flex" flexDirection="row-reverse" mb={2}>
+          <AddVendorButton customerId={companyId} handleDataChange={refetch} />
+        </Box>
+      </Can>
+      <Box display="flex">
         <VendorPartnershipsDataGrid vendorPartnerships={vendorPartnerships} />
       </Box>
     </PageContent>

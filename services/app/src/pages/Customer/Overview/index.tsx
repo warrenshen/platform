@@ -3,7 +3,7 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import CustomerOverviewPageContent from "pages/Customer/Overview/OverviewPageContent";
 import { useContext } from "react";
 
-function CustomerOverviewPage() {
+export default function CustomerOverviewPage() {
   const {
     user: { companyId, productType },
   } = useContext(CurrentUserContext);
@@ -19,5 +19,3 @@ function CustomerOverviewPage() {
     </Page>
   );
 }
-
-export default CustomerOverviewPage;

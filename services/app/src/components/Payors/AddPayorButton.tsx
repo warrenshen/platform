@@ -7,7 +7,10 @@ interface Props {
   handleDataChange: () => void;
 }
 
-function AddPayorButton({ customerId, handleDataChange }: Props) {
+export default function AddPayorButton({
+  customerId,
+  handleDataChange,
+}: Props) {
   return (
     <ModalButton
       label={"Add Payor"}
@@ -23,5 +26,3 @@ function AddPayorButton({ customerId, handleDataChange }: Props) {
     />
   );
 }
-
-export default AddPayorButton;

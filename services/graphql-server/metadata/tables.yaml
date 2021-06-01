@@ -1190,6 +1190,7 @@
   - role: company_read_only
     permission:
       columns:
+      - adjusted_end_date
       - company_id
       - end_date
       - id

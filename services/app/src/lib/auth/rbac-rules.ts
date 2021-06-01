@@ -54,6 +54,9 @@ export enum Action {
   // Line of credit
   EditLineOfCredit = "line-of-credit:edit",
 
+  // Borrowing base
+  AddBorrowingBase = "borrowing-base:add",
+
   // Vendor
   AddVendor = "vendor:add",
   EditVendor = "vendor:edit",
@@ -134,6 +137,22 @@ export const check = (
 const rules: Rules = {
   [UserRolesEnum.BankAdmin]: {
     static: [
+      Action.AddVendor,
+      Action.EditVendor,
+      Action.ApproveVendor,
+      Action.AddVendorContact,
+      Action.EditVendorContact,
+      Action.SendVendorAgreements,
+
+      Action.AddPayor,
+      Action.EditPayor,
+      Action.ApprovePayor,
+      Action.AddPayorContact,
+      Action.EditPayorContact,
+      Action.SendPayorAgreements,
+
+      Action.AddBorrowingBase,
+
       // Bank on-behalf-of customer actions - bank performs on behalf of customer.
       Action.AddPurchaseOrders,
       Action.EditPurchaseOrders,
@@ -178,20 +197,6 @@ const rules: Rules = {
 
       Action.EditUserAccountSettings,
 
-      Action.AddVendor,
-      Action.EditVendor,
-      Action.ApproveVendor,
-      Action.AddVendorContact,
-      Action.EditVendorContact,
-      Action.SendVendorAgreements,
-
-      Action.AddPayor,
-      Action.EditPayor,
-      Action.ApprovePayor,
-      Action.AddPayorContact,
-      Action.EditPayorContact,
-      Action.SendPayorAgreements,
-
       Action.ManipulateUser,
 
       Action.IsBankAdmin,
@@ -206,6 +211,11 @@ const rules: Rules = {
     static: [
       Action.AddBankAccount,
       Action.EditBankAccount,
+
+      Action.AddPayor,
+      Action.AddVendor,
+
+      Action.AddBorrowingBase,
 
       Action.AddPurchaseOrders,
       Action.EditPurchaseOrders,

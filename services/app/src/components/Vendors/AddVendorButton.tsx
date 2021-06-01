@@ -7,7 +7,10 @@ interface Props {
   handleDataChange: () => void;
 }
 
-function AddVendorButton({ customerId, handleDataChange }: Props) {
+export default function AddVendorButton({
+  customerId,
+  handleDataChange,
+}: Props) {
   return (
     <ModalButton
       label={"Add Vendor"}
@@ -23,5 +26,3 @@ function AddVendorButton({ customerId, handleDataChange }: Props) {
     />
   );
 }
-
-export default AddVendorButton;

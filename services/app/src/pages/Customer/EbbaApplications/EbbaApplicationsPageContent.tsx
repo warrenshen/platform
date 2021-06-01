@@ -6,6 +6,8 @@ import EbbaApplicationCard from "components/EbbaApplication/EbbaApplicationCard"
 import EbbaApplicationsDataGrid from "components/EbbaApplications/EbbaApplicationsDataGrid";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import PageContent from "components/Shared/Page/PageContent";
+import Can from "components/Shared/Can";
+import { Action } from "lib/auth/rbac-rules";
 import {
   Companies,
   EbbaApplicationFragment,
@@ -76,22 +78,24 @@ export default function CustomerEbbaApplicationsPageContent({
         "Review your current borrowing base, submit a new certification, and view historical certifications."
       }
     >
-      <Box mt={2}>
-        <ModalButton
-          label={"Create Borrowing Base Certification"}
-          modal={({ handleClose }) => (
-            <CreateUpdateEbbaApplicationModal
-              actionType={ActionType.New}
-              companyId={companyId}
-              ebbaApplicationId={null}
-              handleClose={() => {
-                refetch();
-                handleClose();
-              }}
-            />
-          )}
-        />
-      </Box>
+      <Can perform={Action.AddBorrowingBase}>
+        <Box mt={2}>
+          <ModalButton
+            label={"Create Borrowing Base Certification"}
+            modal={({ handleClose }) => (
+              <CreateUpdateEbbaApplicationModal
+                actionType={ActionType.New}
+                companyId={companyId}
+                ebbaApplicationId={null}
+                handleClose={() => {
+                  refetch();
+                  handleClose();
+                }}
+              />
+            )}
+          />
+        </Box>
+      </Can>
       <Box mt={3}>
         <Box>
           <Box mb={1}>
@@ -101,9 +105,8 @@ export default function CustomerEbbaApplicationsPageContent({
             <Box width="50%">
               <Typography variant="body2">
                 Your active borrowing base certification determines your max
-                borrowing limit with Bespoke Financial. The financial
-                information you provide is used to calculate your max borrowing
-                limit.
+                borrowing limit. The financial information you provide is used
+                to calculate your max borrowing limit.
               </Typography>
             </Box>
           </Box>
@@ -129,9 +132,8 @@ export default function CustomerEbbaApplicationsPageContent({
                 <Alert severity="warning" style={{ alignSelf: "flex-start" }}>
                   <Box maxWidth={600}>
                     You do not have an up-to-date borrowing base certification.
-                    Please submit a new borrowing base certification for
-                    approval to establish your borrowing base. Otherwise, you
-                    will not be able to request new ebbaApplications.
+                    Please submit a new certification for approval, otherwise
+                    you will not be able to receive financing.
                   </Box>
                 </Alert>
               ))}

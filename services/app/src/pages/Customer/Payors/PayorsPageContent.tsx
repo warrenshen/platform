@@ -2,6 +2,8 @@ import { Box } from "@material-ui/core";
 import AddPayorButton from "components/Payors/AddPayorButton";
 import PayorPartnershipsDataGrid from "components/Payors/PayorPartnershipsDataGrid";
 import PageContent from "components/Shared/Page/PageContent";
+import Can from "components/Shared/Can";
+import { Action } from "lib/auth/rbac-rules";
 import {
   Companies,
   useListPayorPartnershipsByCompanyIdQuery,
@@ -29,10 +31,12 @@ export default function CustomerPayorsPageContent({ companyId }: Props) {
 
   return (
     <PageContent title={"Payors"}>
-      <Box display="flex" flexDirection="row-reverse">
-        <AddPayorButton customerId={companyId} handleDataChange={refetch} />
-      </Box>
-      <Box display="flex" mt={3}>
+      <Can perform={Action.AddPayor}>
+        <Box display="flex" flexDirection="row-reverse" mb={2}>
+          <AddPayorButton customerId={companyId} handleDataChange={refetch} />
+        </Box>
+      </Can>
+      <Box display="flex">
         <PayorPartnershipsDataGrid data={payorPartnerships} />
       </Box>
     </PageContent>

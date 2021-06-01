@@ -56,7 +56,10 @@ interface Props {
   productType: ProductTypeEnum;
 }
 
-function CustomerOverviewPageContent({ companyId, productType }: Props) {
+export default function CustomerOverviewPageContent({
+  companyId,
+  productType,
+}: Props) {
   const classes = useStyles();
 
   const {
@@ -343,5 +346,3 @@ function CustomerOverviewPageContent({ companyId, productType }: Props) {
     </PageContent>
   );
 }
-
-export default CustomerOverviewPageContent;
