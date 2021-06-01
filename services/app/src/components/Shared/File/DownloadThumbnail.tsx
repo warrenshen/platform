@@ -1,9 +1,9 @@
 import { Box, Button, Link, Typography } from "@material-ui/core";
 import InsertDriveFileIcon from "@material-ui/icons/InsertDriveFile";
 import { ReactComponent as CloseIcon } from "components/Shared/Layout/Icons/Close.svg";
-import { authenticatedApi, fileRoutes } from "lib/api";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
+import { FileWithSignedURL, downloadFilesWithSignedUrls } from "lib/api/files";
 
 const File = styled.div`
   display: flex;
@@ -40,43 +40,6 @@ const CloseButton = styled(Button)`
   min-width: 36px;
   height: 36px;
 `;
-
-type DownloadSignedURLReq = {
-  file_type: string;
-  file_ids: string[];
-};
-
-type FileWithSignedURL = {
-  id: string;
-  name: string;
-  path: string;
-  url: string;
-};
-
-type DownloadSignedURLResponse = {
-  status: string;
-  msg?: string;
-  files: FileWithSignedURL[];
-};
-
-async function downloadFilesWithSignedUrls(
-  reqData: DownloadSignedURLReq
-): Promise<DownloadSignedURLResponse> {
-  return authenticatedApi
-    .post(fileRoutes.downloadSignedUrl, reqData)
-    .then((res) => {
-      return res.data;
-    })
-    .then(
-      (response) => {
-        return response;
-      },
-      (error) => {
-        console.log("error", error);
-        return { status: "ERROR", msg: "Could not get download url" };
-      }
-    );
-}
 
 interface Props {
   isCountVisible?: boolean;

@@ -1,4 +1,10 @@
-import { Box, Checkbox, FormControlLabel, Typography } from "@material-ui/core";
+import {
+  Box,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  Typography,
+} from "@material-ui/core";
 import PurchaseOrderLoansDataGrid from "components/Loans/PurchaseOrderLoansDataGrid";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
@@ -18,7 +24,8 @@ import { Action, check } from "lib/auth/rbac-rules";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
 import { FileTypeEnum } from "lib/enum";
-import { useContext, useMemo } from "react";
+import { useContext, useMemo, useState } from "react";
+import FileViewer from "components/Shared/File/FileViewer";
 
 interface Props {
   purchaseOrderId: PurchaseOrders["id"];
@@ -33,6 +40,8 @@ export default function PurchaseOrderDrawer({
     user: { role },
   } = useContext(CurrentUserContext);
   const isBankUser = isRoleBankUser(role);
+
+  const [isFileViewerOpen, setIsFileViewerOpen] = useState(false);
 
   const { data } = usePurchaseOrderQuery({
     fetchPolicy: "network-only",
@@ -207,6 +216,22 @@ export default function PurchaseOrderDrawer({
                 fileIds={purchaseOrderCannabisFileIds}
                 fileType={FileTypeEnum.PURCHASE_ORDER}
               />
+              <Button
+                style={{ alignSelf: "flex-start" }}
+                variant="outlined"
+                size="small"
+                onClick={() => setIsFileViewerOpen(!isFileViewerOpen)}
+              >
+                {isFileViewerOpen ? "Hide File(s)" : "Show File(s)"}
+              </Button>
+              {isFileViewerOpen && (
+                <Box mt={1}>
+                  <FileViewer
+                    fileIds={purchaseOrderCannabisFileIds}
+                    fileType={FileTypeEnum.PURCHASE_ORDER}
+                  />
+                </Box>
+              )}
             </Box>
           )}
         </>
