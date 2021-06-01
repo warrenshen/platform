@@ -20,7 +20,7 @@ import {
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
 import {
-  AllPaymentOptions,
+  CustomerPaymentOptions,
   PaymentOptionToLabel,
   ProductTypeToLoanType,
 } from "lib/enum";
@@ -141,7 +141,7 @@ export default function CreateRepaymentDefaultSection({
                 })
               }
             >
-              {AllPaymentOptions.map((paymentOption) => (
+              {CustomerPaymentOptions.map((paymentOption) => (
                 <MenuItem key={paymentOption} value={paymentOption}>
                   {PaymentOptionToLabel[paymentOption]}
                 </MenuItem>

@@ -92,6 +92,24 @@ export function addBizDays(dateString: string, days: number) {
   return format(resultDate, DateFormatServer);
 }
 
+export function subtractBizDays(dateString: string, days: number) {
+  if (!dateString) {
+    return "Invalid Date";
+  }
+  // Subtract days from given date, skipping non-business days.
+  // Non-business days are weekends and bank holidays.
+  const inputDate = parse(dateString, DateFormatServer, new Date());
+  let resultDate = inputDate;
+  while (days > 0) {
+    resultDate = addBusinessDays(resultDate, -1);
+    while (isBankHoliday(resultDate)) {
+      resultDate = addBusinessDays(resultDate, -1);
+    }
+    days -= 1;
+  }
+  return format(resultDate, DateFormatServer);
+}
+
 export function computeEbbaApplicationExpiresAt(dateString: string): string {
   if (!dateString) {
     return "Invalid Date";

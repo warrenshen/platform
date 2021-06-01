@@ -152,11 +152,10 @@ export enum PaymentOptionEnum {
   Unknown = "unknown",
 }
 
-export const AllPaymentOptions = [
+export const CustomerPaymentOptions = [
   PaymentOptionEnum.InFull,
   PaymentOptionEnum.MinimumDue,
   PaymentOptionEnum.CustomAmount,
-  PaymentOptionEnum.Unknown,
 ];
 
 export const PaymentOptionToLabel = {

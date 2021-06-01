@@ -14,7 +14,7 @@ import {
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { scheduleAccountLevelFeeRepaymentMutation } from "lib/api/payments";
-import { addBizDays } from "lib/date";
+import { addBizDays, subtractBizDays } from "lib/date";
 import { PaymentTypeEnum, PaymentOptionEnum } from "lib/enum";
 import {
   computeSettlementDateForPayment,
@@ -71,9 +71,9 @@ export default function ScheduleRepaymentModal({
           amount: existingPayment.requested_amount,
           // requested_payment_date: the date customer requests payment to LEAVE their bank account.
           requested_payment_date: existingPayment.requested_payment_date,
-          // payment_date: the date payment is submitted to bank. We default payment_date to requested_payment_date - 1 day.
+          // payment_date: the date payment is submitted to bank. Default payment_date is requested_payment_date - 1 day.
           payment_date: existingPayment.requested_payment_date
-            ? addBizDays(existingPayment.requested_payment_date, -1)
+            ? subtractBizDays(existingPayment.requested_payment_date, 1)
             : null,
           items_covered: {
             loan_ids: existingPayment.items_covered.loan_ids,
