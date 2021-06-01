@@ -14,7 +14,7 @@ interface Props {
   payment: PaymentsInsertInput;
 }
 
-function RequestedRepaymentPreview({ payment }: Props) {
+export default function RequestedRepaymentPreview({ payment }: Props) {
   const paymentOption = payment.items_covered.payment_option;
 
   return (
@@ -22,7 +22,7 @@ function RequestedRepaymentPreview({ payment }: Props) {
       <Box display="flex" flexDirection="column">
         <Box>
           <Typography variant="body1">
-            {`Payment Method: ${
+            {`Requested Payment Method: ${
               PaymentMethodToLabel[payment.method as PaymentMethodEnum]
             }`}
           </Typography>
@@ -36,15 +36,17 @@ function RequestedRepaymentPreview({ payment }: Props) {
         </Box>
         <Box mt={1}>
           <Typography variant="body1">
-            {`Requested Payment Amount: ${formatCurrency(
-              payment.requested_amount
-            )}`}
-          </Typography>
-          <Typography variant="body1">
             Payment Option:&nbsp;
             {paymentOption !== "unknown"
               ? PaymentOptionToLabel[paymentOption as PaymentOptionEnum]
               : "unknown"}
+          </Typography>
+        </Box>
+        <Box mt={1}>
+          <Typography variant="body1">
+            {`Requested Payment Amount: ${formatCurrency(
+              payment.requested_amount
+            )}`}
           </Typography>
           {!!(
             payment.items_covered.requested_to_principal ||
@@ -52,12 +54,12 @@ function RequestedRepaymentPreview({ payment }: Props) {
           ) && (
             <>
               <Typography variant="subtitle2">
-                {`Amount to Principal: ${formatCurrency(
+                {`- Requested Amount to Principal: ${formatCurrency(
                   payment.items_covered.requested_to_principal
                 )}`}
               </Typography>
               <Typography variant="subtitle2">
-                {`Amount to Interest: ${formatCurrency(
+                {`- Requested Amount to Interest: ${formatCurrency(
                   payment.items_covered.requested_to_interest
                 )}`}
               </Typography>
@@ -68,5 +70,3 @@ function RequestedRepaymentPreview({ payment }: Props) {
     </Alert>
   );
 }
-
-export default RequestedRepaymentPreview;
