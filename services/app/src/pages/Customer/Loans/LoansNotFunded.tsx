@@ -155,7 +155,6 @@ function LoansNotFunded({
         <PolymorphicLoansDataGrid
           isApprovalStatusVisible
           isDisbursementIdentifierVisible={isBankUser}
-          isExcelExport={isBankUser}
           isMaturityVisible={false}
           isMultiSelectEnabled={check(role, Action.SelectLoan)}
           isOriginationDateVisible={false}

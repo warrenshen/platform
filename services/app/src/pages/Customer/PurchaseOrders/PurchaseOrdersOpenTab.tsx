@@ -14,10 +14,6 @@ import PurchaseOrdersDataGrid from "components/PurchaseOrder/PurchaseOrdersDataG
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
-import {
   Companies,
   ProductTypeEnum,
   PurchaseOrderFragment,
@@ -29,7 +25,7 @@ import useSnackbar from "hooks/useSnackbar";
 import { submitPurchaseOrderMutation } from "lib/api/purchaseOrders";
 import { Action } from "lib/auth/rbac-rules";
 import { ActionType } from "lib/enum";
-import { useContext, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -60,11 +56,6 @@ export default function CustomerPurchaseOrdersOpenTab({
 }: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
-
-  const {
-    user: { role },
-  } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
 
   const { data, error, refetch } = useGetOpenPurchaseOrdersByCompanyIdQuery({
     fetchPolicy: "network-only",
@@ -260,7 +251,6 @@ export default function CustomerPurchaseOrdersOpenTab({
         <Box>
           <PurchaseOrdersDataGrid
             isCompanyVisible={false}
-            isExcelExport={isBankUser}
             purchaseOrders={notApprovedPurchaseOrders}
             selectedPurchaseOrderIds={selectedNotApprovedPurchaseOrderIds}
             handleSelectPurchaseOrders={handleSelectPurchaseOrders}
@@ -326,7 +316,6 @@ export default function CustomerPurchaseOrdersOpenTab({
           </Box>
           <PurchaseOrdersDataGrid
             isCompanyVisible={false}
-            isExcelExport={isBankUser}
             purchaseOrders={approvedPurchaseOrders}
             selectedPurchaseOrderIds={selectedApprovedPurchaseOrderIds}
             handleSelectPurchaseOrders={handleSelectApprovedPurchaseOrders}

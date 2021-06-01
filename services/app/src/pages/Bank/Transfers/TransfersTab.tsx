@@ -172,10 +172,7 @@ export default function BankTransfersTab() {
           </Box>
         </Box>
         <Box display="flex" flexDirection="column">
-          <TransferPackagesDataGrid
-            isExcelExport
-            transferPackages={transferPackages}
-          />
+          <TransferPackagesDataGrid transferPackages={transferPackages} />
         </Box>
       </Box>
     </Box>

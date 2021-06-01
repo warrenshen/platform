@@ -14,17 +14,13 @@ import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import PageContent from "components/Shared/Page/PageContent";
 import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
-import {
   Payments,
   ProductTypeEnum,
   useGetCustomerAccountQuery,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { formatCurrency } from "lib/currency";
-import { useContext, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -55,11 +51,6 @@ export default function CustomerAccountPageContent({
   productType,
 }: Props) {
   const classes = useStyles();
-
-  const {
-    user: { role },
-  } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
 
   const { data, refetch, error } = useGetCustomerAccountQuery({
     fetchPolicy: "network-only",
@@ -218,7 +209,7 @@ export default function CustomerAccountPageContent({
             <Box display="flex" flexDirection="column" width="100%">
               <Box display="flex" flex={1}>
                 {fees.length > 0 ? (
-                  <FeesDataGrid isExcelExport={isBankUser} fees={fees} />
+                  <FeesDataGrid fees={fees} />
                 ) : (
                   <Typography variant="body1">No pending payments</Typography>
                 )}

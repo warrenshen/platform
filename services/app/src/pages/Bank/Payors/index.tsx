@@ -46,11 +46,7 @@ export default function BankPayorsPage() {
           </Box>
         </Box>
         <Box display="flex" flexDirection="column">
-          <PayorPartnershipsDataGrid
-            isBankAccount
-            isExcelExport
-            data={payorPartnerships}
-          />
+          <PayorPartnershipsDataGrid isBankAccount data={payorPartnerships} />
         </Box>
       </PageContent>
     </Page>

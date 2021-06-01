@@ -40,7 +40,6 @@ function BankLoansPastDueTab() {
           isCompanyVisible
           isDaysPastDueVisible
           isDisbursementIdentifierVisible
-          isExcelExport
           isFilteringEnabled
           isMaturityVisible
           loans={pastDueLoans}

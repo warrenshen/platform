@@ -107,7 +107,6 @@ export default function BankReportsFinancialsByCustomerTab() {
         </Box>
         <Box display="flex" flexDirection="column">
           <FinancialSummariesDataGrid
-            isExcelExport
             financialSummaries={financialSummariesByCompanyId}
             onClickCustomerName={(customerId) =>
               history.push(`/customers/${customerId}/overview`)

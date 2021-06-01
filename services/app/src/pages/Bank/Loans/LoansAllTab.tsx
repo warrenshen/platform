@@ -29,7 +29,6 @@ function BankLoansAllTab() {
           isArtifactVisible
           isCompanyVisible
           isDisbursementIdentifierVisible
-          isExcelExport
           isFilteringEnabled
           isMaturityVisible
           loans={loans}

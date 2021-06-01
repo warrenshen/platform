@@ -33,7 +33,7 @@ function getRows(requests: any[]): RowsProp {
 }
 
 export default function PartnershipsDataGrid({
-  isExcelExport = false,
+  isExcelExport = true,
   isFilteringEnabled = false,
   isMultiSelectEnabled = false,
   isSortingDisabled = false,

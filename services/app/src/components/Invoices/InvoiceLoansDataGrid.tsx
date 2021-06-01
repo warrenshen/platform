@@ -6,7 +6,7 @@ import ArtifactLoansDataGrid, {
 export default function InvoiceLoansDataGrid({
   isApprovalStatusVisible = false,
   isDisbursementIdentifierVisible = false,
-  isExcelExport = false,
+  isExcelExport = true,
   isMaturityVisible = true,
   isMiniTable = false,
   isMultiSelectEnabled = false,

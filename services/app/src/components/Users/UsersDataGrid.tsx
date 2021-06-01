@@ -21,7 +21,7 @@ interface Props {
 function UsersDataGrid({
   isMultiSelectEnabled = false,
   isCompanyVisible = false,
-  isExcelExport = false,
+  isExcelExport = true,
   users,
   selectedUserIds,
   handleSelectUsers,

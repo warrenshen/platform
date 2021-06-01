@@ -151,7 +151,6 @@ function BankOverviewPage() {
                 isArtifactVisible
                 isCompanyVisible
                 isDisbursementIdentifierVisible
-                isExcelExport
                 isMaturityVisible
                 matureDays={14}
                 loans={maturingLoans}
@@ -184,7 +183,6 @@ function BankOverviewPage() {
                 isCompanyVisible
                 isDaysPastDueVisible
                 isDisbursementIdentifierVisible
-                isExcelExport
                 isMaturityVisible
                 loans={pastDueLoans}
               />

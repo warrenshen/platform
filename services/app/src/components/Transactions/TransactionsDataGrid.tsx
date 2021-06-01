@@ -17,7 +17,7 @@ interface Props {
 function TransactionsDataGrid({
   transactions,
   isMiniTable = false,
-  isExcelExport = false,
+  isExcelExport = true,
 }: Props) {
   const rows = transactions;
 

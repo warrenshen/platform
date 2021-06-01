@@ -96,7 +96,6 @@ function ActionRequiredTab() {
       <Box display="flex" flexDirection="column">
         <PartnershipsDataGrid
           isClosedTab={false}
-          isExcelExport
           isFilteringEnabled={false}
           isMultiSelectEnabled
           partnershipRequests={partnershipRequests}

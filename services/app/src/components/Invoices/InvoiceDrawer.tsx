@@ -213,7 +213,6 @@ export default function InvoiceDrawer({ invoiceId, handleClose }: Props) {
             Loans
           </Typography>
           <InvoiceLoansDataGrid
-            isExcelExport={isBankUser}
             pager={false}
             isMiniTable
             loans={loans}

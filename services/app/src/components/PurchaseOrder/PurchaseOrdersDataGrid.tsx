@@ -30,7 +30,7 @@ interface Props {
 function PurchaseOrdersDataGrid({
   isCompanyVisible,
   isMultiSelectEnabled = true,
-  isExcelExport = false,
+  isExcelExport = true,
   purchaseOrders,
   actionItems,
   selectedPurchaseOrderIds,

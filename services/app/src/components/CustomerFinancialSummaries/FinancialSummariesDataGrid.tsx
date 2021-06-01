@@ -20,7 +20,7 @@ interface Props {
 
 export default function FinancialSummariesDataGrid({
   isCustomerNameFixed = false,
-  isExcelExport = false,
+  isExcelExport = true,
   financialSummaries,
   onClickCustomerName,
 }: Props) {

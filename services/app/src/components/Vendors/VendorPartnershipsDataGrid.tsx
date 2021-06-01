@@ -15,7 +15,7 @@ interface Props {
 
 function VendorPartnershipsDataGrid({
   isBankUserRole,
-  isExcelExport = false,
+  isExcelExport = true,
   isDrilldownByCustomer,
   vendorPartnerships,
 }: Props) {

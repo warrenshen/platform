@@ -20,7 +20,6 @@ function BankAdvancesPage() {
   return (
     <Container>
       <AdvancesDataGrid
-        isExcelExport
         payments={payments}
         customerSearchQuery={""}
         onClickCustomerName={() => {}}

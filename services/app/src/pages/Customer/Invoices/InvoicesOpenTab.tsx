@@ -13,10 +13,6 @@ import RequestPaymentOnInvoiceModal from "components/Invoices/RequestPaymentOnIn
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
-import {
   Companies,
   InvoiceFragment,
   Invoices,
@@ -25,7 +21,7 @@ import {
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { ActionType } from "lib/enum";
-import { useContext, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -59,11 +55,6 @@ export default function CustomerInvoicesOpenTab({
   productType,
 }: Props) {
   const classes = useStyles();
-
-  const {
-    user: { role },
-  } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
 
   const { data, refetch, error } = useGetOpenInvoicesByCompanyIdQuery({
     fetchPolicy: "network-only",
@@ -206,7 +197,6 @@ export default function CustomerInvoicesOpenTab({
       <Box>
         <InvoicesDataGrid
           isCompanyVisible={false}
-          isExcelExport={isBankUser}
           invoices={notApprovedInvoices}
           selectedInvoiceIds={selectedNotApprovedInvoiceIds}
           handleSelectedInvoices={handleSelectNotApprovedInvoices}
@@ -263,7 +253,6 @@ export default function CustomerInvoicesOpenTab({
         </Box>
         <InvoicesDataGrid
           isCompanyVisible={false}
-          isExcelExport={isBankUser}
           isMultiSelectEnabled={true}
           invoices={approvedInvoices}
           selectedInvoiceIds={selectedApprovedInvoiceIds}

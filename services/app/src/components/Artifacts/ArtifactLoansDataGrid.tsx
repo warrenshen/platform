@@ -65,7 +65,7 @@ function getRows(
 export default function ArtifactLoansDataGrid({
   isApprovalStatusVisible = false,
   isDisbursementIdentifierVisible = false,
-  isExcelExport = false,
+  isExcelExport = true,
   isMaturityVisible = true,
   isMiniTable = false,
   isMultiSelectEnabled = false,

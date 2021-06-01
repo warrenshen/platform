@@ -12,7 +12,7 @@ const verificationCellRenderer = (params: ValueFormatterParams) => (
 
 export default function PayorPartnershipsDataGrid({
   isBankAccount,
-  isExcelExport = false,
+  isExcelExport = true,
   isDrilldownByCustomer,
   data,
 }: {

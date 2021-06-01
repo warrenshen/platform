@@ -1,14 +1,10 @@
 import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
 import InvoicesDataGrid from "components/Invoices/InvoicesDataGrid";
 import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
-import {
   Companies,
   useGetClosedInvoicesByCompanyIdQuery,
 } from "generated/graphql";
-import { useContext, useMemo } from "react";
+import { useMemo } from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -39,11 +35,6 @@ interface Props {
 export default function CustomerInvoicesClosedTab({ companyId }: Props) {
   const classes = useStyles();
 
-  const {
-    user: { role },
-  } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
-
   const { data, error } = useGetClosedInvoicesByCompanyIdQuery({
     fetchPolicy: "network-only",
     variables: {
@@ -70,7 +61,6 @@ export default function CustomerInvoicesClosedTab({ companyId }: Props) {
         <Box className={classes.section}>
           <InvoicesDataGrid
             isCompanyVisible={false}
-            isExcelExport={isBankUser}
             isMultiSelectEnabled={false}
             invoices={invoices}
           />

@@ -9,7 +9,7 @@ interface Props {
 }
 
 export default function TransferPackagesDataGrid({
-  isExcelExport = false,
+  isExcelExport = true,
   transferPackages,
 }: Props) {
   const rows = useMemo(

@@ -26,7 +26,7 @@ interface Props {
 
 export default function EbbaApplicationsDataGrid({
   isCompanyVisible = true,
-  isExcelExport = false,
+  isExcelExport = true,
   isMultiSelectEnabled = false,
   ebbaApplications,
   selectedEbbaApplicationIds,

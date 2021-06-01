@@ -79,7 +79,6 @@ export default function EbbaApplicationsActiveTab() {
       </Box>
       <Box display="flex" flexDirection="column">
         <EbbaApplicationsDataGrid
-          isExcelExport
           isMultiSelectEnabled
           ebbaApplications={ebbaApplications}
           selectedEbbaApplicationIds={selectedEbbaApplicationIds}

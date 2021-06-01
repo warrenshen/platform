@@ -56,7 +56,7 @@ interface Props {
 }
 
 export default function RepaymentTransactionsDataGrid({
-  isExcelExport = false,
+  isExcelExport = true,
   isMultiSelectEnabled = false,
   payments,
   selectedPaymentIds,

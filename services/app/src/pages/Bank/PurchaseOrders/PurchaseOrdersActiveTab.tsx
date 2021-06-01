@@ -120,7 +120,6 @@ export default function BankPurchaseOrdersActiveTab() {
         <PurchaseOrdersDataGrid
           isCompanyVisible
           isMultiSelectEnabled
-          isExcelExport
           purchaseOrders={purchaseOrders}
           handleSelectPurchaseOrders={handleSelectPurchaseOrders}
         />

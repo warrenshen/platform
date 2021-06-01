@@ -38,7 +38,7 @@ interface Props {
 
 function RepaymentsDataGrid({
   isCompanyVisible = false,
-  isExcelExport = false,
+  isExcelExport = true,
   isMethodVisible = true,
   isMultiSelectEnabled = false,
   repaymentType = RepaymentTypeEnum.Other,

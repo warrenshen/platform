@@ -62,7 +62,7 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
       onPageChanged,
       onSortingChanged,
       onFilteringChanged,
-      isExcelExport = false,
+      isExcelExport = true,
     }: DataGridProps,
     ref
   ) => {

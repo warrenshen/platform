@@ -14,7 +14,7 @@ interface Props {
 function PolymorphicLoansDataGrid({
   isApprovalStatusVisible = false,
   isDisbursementIdentifierVisible = false,
-  isExcelExport = false,
+  isExcelExport = true,
   isMaturityVisible = true,
   isMultiSelectEnabled,
   isOriginationDateVisible = true,

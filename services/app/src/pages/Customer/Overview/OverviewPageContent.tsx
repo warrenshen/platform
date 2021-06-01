@@ -272,7 +272,6 @@ export default function CustomerOverviewPageContent({
               <Box display="flex" flex={1}>
                 {payments.length > 0 ? (
                   <RepaymentsDataGrid
-                    isExcelExport={isBankUser}
                     isMultiSelectEnabled
                     payments={payments}
                     selectedPaymentIds={selectedPaymentIds}
@@ -320,7 +319,6 @@ export default function CustomerOverviewPageContent({
                     <Box display="flex" flex={1}>
                       <PolymorphicLoansDataGrid
                         isDisbursementIdentifierVisible={isBankUser}
-                        isExcelExport={isBankUser}
                         isMultiSelectEnabled={check(role, Action.SelectLoan)}
                         isViewNotesEnabled={check(
                           role,

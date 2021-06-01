@@ -32,7 +32,7 @@ export default function InvoicesDataGrid({
   actionItems,
   selectedInvoiceIds,
   handleSelectedInvoices,
-  isExcelExport = false,
+  isExcelExport = true,
 }: Props) {
   const rows = useMemo(
     () =>

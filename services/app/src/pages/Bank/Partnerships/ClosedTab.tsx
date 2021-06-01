@@ -31,7 +31,6 @@ function ClosedTab() {
       <Box display="flex" flexDirection="column">
         <PartnershipsDataGrid
           isClosedTab
-          isExcelExport
           isFilteringEnabled={false}
           partnershipRequests={partnershipRequests}
         />

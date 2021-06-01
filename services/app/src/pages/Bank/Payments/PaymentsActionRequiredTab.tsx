@@ -163,7 +163,6 @@ export default function BankPaymentsActionRequiredTab() {
           </Box>
           <RepaymentsDataGrid
             isCompanyVisible
-            isExcelExport
             isMultiSelectEnabled
             repaymentType={RepaymentTypeEnum.RequestedReverseDraftACH}
             payments={notScheduledPayments}
@@ -218,7 +217,6 @@ export default function BankPaymentsActionRequiredTab() {
           </Box>
           <RepaymentsDataGrid
             isCompanyVisible
-            isExcelExport
             isMultiSelectEnabled
             repaymentType={RepaymentTypeEnum.ReverseDraftACH}
             payments={pendingReverseDraftPayments}
@@ -273,7 +271,6 @@ export default function BankPaymentsActionRequiredTab() {
           </Box>
           <RepaymentsDataGrid
             isCompanyVisible
-            isExcelExport
             isMultiSelectEnabled
             repaymentType={RepaymentTypeEnum.Other}
             payments={notifyPayments}

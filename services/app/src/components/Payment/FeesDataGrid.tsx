@@ -48,7 +48,7 @@ function getRows(
 
 export default function FeesDataGrid({
   isCompanyVisible = false,
-  isExcelExport = false,
+  isExcelExport = true,
   isMultiSelectEnabled = false,
   fees,
   selectedPaymentIds,

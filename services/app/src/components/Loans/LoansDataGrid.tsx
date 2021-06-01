@@ -82,7 +82,7 @@ export default function LoansDataGrid({
   isCompanyVisible = false,
   isDaysPastDueVisible = false,
   isDisbursementIdentifierVisible = false,
-  isExcelExport = false,
+  isExcelExport = true,
   isFilteringEnabled = false,
   isMaturityVisible = false,
   isMultiSelectEnabled = false,

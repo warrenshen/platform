@@ -47,7 +47,6 @@ function BankVendorsPage() {
         <Box display="flex" flexDirection="column">
           <VendorPartnershipsDataGrid
             isBankUserRole
-            isExcelExport
             vendorPartnerships={vendorPartnerships}
           />
         </Box>

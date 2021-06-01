@@ -71,7 +71,6 @@ export default function BankReportsFinancialsByDateTab() {
         <Box display="flex" flexDirection="column">
           <FinancialSummariesDataGrid
             isCustomerNameFixed
-            isExcelExport
             financialSummaries={financialSummariesByDate}
             onClickCustomerName={(customerId) =>
               history.push(`/customers/${customerId}/overview`)

@@ -16,7 +16,7 @@ interface Props {
 
 function ContractsDataGrid({
   isCompanyVisible = true,
-  isExcelExport = false,
+  isExcelExport = true,
   contracts,
 }: Props) {
   const rows = contracts;

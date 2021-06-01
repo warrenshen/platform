@@ -20,7 +20,6 @@ function BankPaymentsAllTab() {
     <Container>
       <RepaymentsDataGrid
         isCompanyVisible
-        isExcelExport
         payments={payments}
         customerSearchQuery={""}
         onClickCustomerName={() => {}}

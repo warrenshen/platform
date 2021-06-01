@@ -86,8 +86,8 @@ function BankFinancialSummariesDataGrid({ bankFinancialSummaries }: Props) {
 
   return (
     <ControlledDataGrid
-      isSortingDisabled
       isExcelExport
+      isSortingDisabled
       dataSource={rows}
       columns={columns}
     />

@@ -2,23 +2,14 @@ import { Box } from "@material-ui/core";
 import PaymentBlock from "components/Payment/PaymentBlock";
 import RepaymentTransactionsDataGrid from "components/Payment/RepaymentTransactionsDataGrid";
 import PageContent from "components/Shared/Page/PageContent";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
 import { Companies, useGetPaymentsForCompanyQuery } from "generated/graphql";
-import { useContext, useMemo } from "react";
+import { useMemo } from "react";
 
 interface Props {
   companyId: Companies["id"];
 }
 
 export default function CustomerPaymentsPageContent({ companyId }: Props) {
-  const {
-    user: { role },
-  } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
-
   const { data, error } = useGetPaymentsForCompanyQuery({
     fetchPolicy: "network-only",
     variables: {
@@ -40,10 +31,7 @@ export default function CustomerPaymentsPageContent({ companyId }: Props) {
       subtitle={"Review your historical payments to Bespoke Financial."}
     >
       <Box mt={4}>
-        <RepaymentTransactionsDataGrid
-          isExcelExport={isBankUser}
-          payments={payments}
-        />
+        <RepaymentTransactionsDataGrid payments={payments} />
       </Box>
       <Box mt={4}>
         {payments.map((payment, index) => (

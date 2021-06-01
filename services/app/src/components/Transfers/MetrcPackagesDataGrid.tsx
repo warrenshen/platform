@@ -10,7 +10,7 @@ interface Props {
 }
 
 export default function MetrcPackagesDataGrid({
-  isExcelExport = false,
+  isExcelExport = true,
   metrcPackages,
 }: Props) {
   const rows = useMemo(

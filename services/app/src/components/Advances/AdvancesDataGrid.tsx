@@ -26,7 +26,7 @@ function AdvancesDataGrid({
   payments,
   customerSearchQuery,
   onClickCustomerName,
-  isExcelExport = false,
+  isExcelExport = true,
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = getRows(payments);
