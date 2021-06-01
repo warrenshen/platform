@@ -29,18 +29,14 @@ interface Props {
   productType: ProductTypeEnum;
   financialSummary: FinancialSummaryFragment | null;
   payment: PaymentsInsertInput;
-  paymentOption: string;
   setPayment: (payment: PaymentsInsertInput) => void;
-  setPaymentOption: (paymentOption: string) => void;
 }
 
 function CreateRepaymentSelectLoans({
   productType,
   financialSummary,
   payment,
-  paymentOption,
   setPayment,
-  setPaymentOption,
 }: Props) {
   const isReverseDraftACH =
     payment.method === PaymentMethodEnum.ReverseDraftACH;
@@ -61,9 +57,7 @@ function CreateRepaymentSelectLoans({
           <CreateRepaymentDefaultSection
             productType={productType}
             payment={payment}
-            paymentOption={paymentOption}
             setPayment={setPayment}
-            setPaymentOption={setPaymentOption}
           />
         )}
       </Box>

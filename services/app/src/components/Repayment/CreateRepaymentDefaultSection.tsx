@@ -30,17 +30,13 @@ import { useMemo } from "react";
 interface Props {
   productType: ProductTypeEnum;
   payment: PaymentsInsertInput;
-  paymentOption: string;
   setPayment: (payment: PaymentsInsertInput) => void;
-  setPaymentOption: (paymentOption: string) => void;
 }
 
 export default function CreateRepaymentDefaultSection({
   productType,
   payment,
-  paymentOption,
   setPayment,
-  setPaymentOption,
 }: Props) {
   const loanType = ProductTypeToLoanType[productType];
 
@@ -134,9 +130,15 @@ export default function CreateRepaymentDefaultSection({
             <Select
               id="select-payment-option"
               labelId="select-payment-option-label"
-              value={paymentOption}
+              value={payment.items_covered.payment_option}
               onChange={({ target: { value } }) =>
-                setPaymentOption(value as string)
+                setPayment({
+                  ...payment,
+                  items_covered: {
+                    ...payment.items_covered,
+                    payment_option: value as string,
+                  },
+                })
               }
             >
               {AllPaymentOptions.map((paymentOption) => (
@@ -147,15 +149,15 @@ export default function CreateRepaymentDefaultSection({
             </Select>
           </FormControl>
         </Box>
-        {paymentOption === "custom_amount" && (
+        {payment.items_covered.payment_option === "custom_amount" && (
           <Box display="flex" flexDirection="column" mt={4}>
             <FormControl>
               <CurrencyInput
                 label={"Amount"}
                 value={payment.requested_amount}
-                handleChange={(value) => {
-                  setPayment({ ...payment, requested_amount: value });
-                }}
+                handleChange={(value) =>
+                  setPayment({ ...payment, requested_amount: value })
+                }
               />
             </FormControl>
           </Box>

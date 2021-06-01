@@ -90,10 +90,7 @@ export default function MetrcTransferModal({
         <Typography variant="subtitle2" color="textSecondary">
           {`Packages (${metrcTransfer.metrc_packages.length})`}
         </Typography>
-        <MetrcPackagesDataGrid
-          isExcelExport={isBankUser}
-          metrcPackages={metrcTransfer.metrc_packages}
-        />
+        <MetrcPackagesDataGrid metrcPackages={metrcTransfer.metrc_packages} />
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>
         <Typography variant="subtitle2" color="textSecondary">

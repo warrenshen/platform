@@ -36,10 +36,9 @@ export default function RequestedRepaymentPreview({ payment }: Props) {
         </Box>
         <Box mt={1}>
           <Typography variant="body1">
-            Payment Option:&nbsp;
-            {paymentOption !== "unknown"
-              ? PaymentOptionToLabel[paymentOption as PaymentOptionEnum]
-              : "unknown"}
+            {`Requested Payment Option: ${
+              PaymentOptionToLabel[paymentOption as PaymentOptionEnum]
+            }`}
           </Typography>
         </Box>
         <Box mt={1}>

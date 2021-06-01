@@ -15,7 +15,7 @@ import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { scheduleAccountLevelFeeRepaymentMutation } from "lib/api/payments";
 import { addBizDays } from "lib/date";
-import { PaymentTypeEnum } from "lib/enum";
+import { PaymentTypeEnum, PaymentOptionEnum } from "lib/enum";
 import {
   computeSettlementDateForPayment,
   getSettlementTimelineConfigFromContract,
@@ -83,6 +83,9 @@ export default function ScheduleRepaymentModal({
               existingPayment.items_covered.requested_to_interest,
             requested_to_account_fees:
               existingPayment.items_covered.requested_to_account_fees,
+            payment_option:
+              existingPayment.items_covered.payment_option ||
+              PaymentOptionEnum.Unknown,
           },
         } as PaymentsInsertInput);
       } else {

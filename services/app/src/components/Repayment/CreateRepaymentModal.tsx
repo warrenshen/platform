@@ -80,20 +80,20 @@ export default function CreateRepaymentModal({
       requested_to_principal: null,
       requested_to_interest: null,
       requested_to_account_fees: null,
-      payment_option: "",
+      // A payment option is the user's choice to pay the remaining balances on
+      // the loan, to pay the minimum amount required, or to pay a custom amount.
+      payment_option: null,
     },
     company_bank_account_id: null,
   });
-  // A payment option is the user's choice to payment the remaining balances on the loan, to
-  // pay the minimum amount required, or to pay a custom amount.
-  const [paymentOption, setPaymentOption] = useState("");
-
   const [repaymentEffectData, setRepaymentEffectData] = useState<
     CalculateRepaymentEffectResp["data"] | null
   >(null);
   const [loansBeforeAfterPayment, setLoansBeforeAfterPayment] = useState<
     LoanBeforeAfterPayment[]
   >([]);
+
+  const paymentOption = payment.items_covered.payment_option;
 
   useEffect(() => {
     if (payment.method && payment.requested_payment_date) {
@@ -263,9 +263,7 @@ export default function CreateRepaymentModal({
             productType={productType}
             financialSummary={financialSummary}
             payment={payment}
-            paymentOption={paymentOption}
             setPayment={setPayment}
-            setPaymentOption={setPaymentOption}
           />
         ) : (
           <CreateRepaymentConfirmEffect

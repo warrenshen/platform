@@ -8,7 +8,11 @@ import {
   useGetPaymentForSettlementQuery,
 } from "generated/graphql";
 import { addBizDays } from "lib/date";
-import { PaymentMethodEnum, PaymentTypeEnum } from "lib/enum";
+import {
+  PaymentMethodEnum,
+  PaymentTypeEnum,
+  PaymentOptionEnum,
+} from "lib/enum";
 import { useState } from "react";
 
 interface Props {
@@ -61,7 +65,8 @@ export default function SettleRepaymentModal({
           items_covered: {
             loan_ids: existingPayment.items_covered.loan_ids || [],
             payment_option:
-              existingPayment.items_covered.payment_option || "unknown",
+              existingPayment.items_covered.payment_option ||
+              PaymentOptionEnum.Unknown,
             requested_to_principal:
               existingPayment.items_covered.requested_to_principal,
             requested_to_interest:

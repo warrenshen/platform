@@ -149,18 +149,21 @@ export enum PaymentOptionEnum {
   InFull = "pay_in_full",
   MinimumDue = "pay_minimum_due",
   CustomAmount = "custom_amount",
+  Unknown = "unknown",
 }
 
 export const AllPaymentOptions = [
   PaymentOptionEnum.InFull,
   PaymentOptionEnum.MinimumDue,
   PaymentOptionEnum.CustomAmount,
+  PaymentOptionEnum.Unknown,
 ];
 
 export const PaymentOptionToLabel = {
   [PaymentOptionEnum.InFull]: "Pay in full",
   [PaymentOptionEnum.MinimumDue]: "Pay minimum due",
   [PaymentOptionEnum.CustomAmount]: "Pay custom amount",
+  [PaymentMethodEnum.Unknown]: "Unknown",
 };
 
 // Product Type enum related.

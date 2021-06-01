@@ -241,7 +241,6 @@ export default function PurchaseOrderDrawer({
           Loans
         </Typography>
         <PurchaseOrderLoansDataGrid
-          isExcelExport={isBankUser}
           isMiniTable
           pager={false}
           loans={loans}
