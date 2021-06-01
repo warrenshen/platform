@@ -33,7 +33,9 @@ class RunCustomerBalancesView(MethodView):
 
 		company_dicts = []
 
-		if not form.get('company_id'):
+		no_company_id_specified = not form.get('company_id')
+
+		if no_company_id_specified:
 			company_dicts = reports_util.list_all_companies(session_maker)
 		else:
 			with session_scope(session_maker) as session:
@@ -58,7 +60,11 @@ class RunCustomerBalancesView(MethodView):
 		cur_date = start_date
 		all_descriptive_errors = []
 		include_debug_info = form.get('include_debug_info')
-		date_to_company_updates_dict = {} 
+
+		if include_debug_info and no_company_id_specified:
+			return handler_util.make_error_response('Cannot provide debug information when running reports for all companies')
+
+		loan_id_to_debug_info = None
 
 		while cur_date <= report_date:
 			company_id_to_update_dict, descriptive_errors, fatal_error = reports_util.run_customer_balances_for_companies(
@@ -74,12 +80,15 @@ class RunCustomerBalancesView(MethodView):
 			all_descriptive_errors.extend(descriptive_errors)
 			cur_date = cur_date + timedelta(days=1)
 			if include_debug_info:
-				date_to_company_updates_dict[date_util.date_to_str(cur_date)] = company_id_to_update_dict
+				# When we get debug information, we only allow it for one customer
+				# at a time.
+				update_dict = list(company_id_to_update_dict.values())[0]
+				loan_id_to_debug_info = update_dict['loan_id_to_debug_info'] 
 
 		resp = {
 			'status': 'OK',
 			'errors': all_descriptive_errors,
-			'date_to_company_updates': date_to_company_updates_dict
+			'loan_id_to_debug_info': loan_id_to_debug_info
 		}
 		return make_response(json.dumps(resp), 200)
 

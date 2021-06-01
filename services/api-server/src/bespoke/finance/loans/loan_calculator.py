@@ -664,16 +664,16 @@ class LoanCalculator(object):
 
 			if include_debug_info:
 				debug_column_names = [
-					'Date', 
-					'Outstanding Principal', 
-					'Outstanding Principal For Interest', 
-					'Outstanding Interest', 
-					'Outstanding Fees',
+					'date', 
+					'outstanding_principal', 
+					'outstanding_principal_for_interest', 
+					'outstanding_interest', 
+					'outstanding_fees',
 
-					'Interest Rate',
-					'Fee Multiplier',
-					'Interest Due for day',
-					'Fee for day'
+					'interest_rate',
+					'fee_multiplier',
+					'interest_due_for_day',
+					'fee_for_day'
 				]
 				debug_row_info: List[Union[str, int, float]] = [
 					date_util.date_to_str(cur_date),
