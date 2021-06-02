@@ -2,16 +2,23 @@ import datetime
 import json
 import logging
 from datetime import timedelta
+from mypy_extensions import TypedDict
 from typing import Any, Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.metrc import metrc_common_util
-from bespoke.metrc.metrc_common_util import CompanyInfo, LicenseAuthDict
+from bespoke.metrc.metrc_common_util import (
+	CompanyInfo, LicenseAuthDict, UNKNOWN_STATUS_CODE)
 from dateutil import parser
 from sqlalchemy.orm.session import Session
 
+RequestStatusesDict = TypedDict('RequestStatusesDict', {
+	'transfers_api': int,
+	'packages_api': int,
+	'lab_results_api': int
+})
 
 class LabTest(object):
 
@@ -179,11 +186,17 @@ def populate_transfers_table(
 	cur_date: datetime.date,
 	company_info: CompanyInfo,
 	license: LicenseAuthDict,
-	session: Session) -> Tuple[bool, errors.Error]:
+	session: Session) -> Tuple[RequestStatusesDict, errors.Error]:
 
 	logging.info('Downloading transfers for company "{}" on date: {} with license {}'.format(
 		company_info.name, cur_date, license['license_number']
 	))
+
+	request_status = RequestStatusesDict(
+		transfers_api=UNKNOWN_STATUS_CODE,
+		packages_api=UNKNOWN_STATUS_CODE,
+		lab_results_api=UNKNOWN_STATUS_CODE
+	)
 
 	rest = metrc_common_util.REST(
 		metrc_common_util.AuthDict(
@@ -195,8 +208,14 @@ def populate_transfers_table(
 	)
 
 	cur_date_str = cur_date.strftime('%m/%d/%Y')
-	resp = rest.get('/transfers/v1/incoming', time_range=[cur_date_str])
-	transfers = json.loads(resp.content)
+	try:
+		resp = rest.get('/transfers/v1/incoming', time_range=[cur_date_str])
+		transfers = json.loads(resp.content)
+		request_status['transfers_api'] = 200
+	except errors.Error as e:
+		request_status['transfers_api'] = e.details.get('status_code')
+		return request_status, e
+
 	metrc_transfers = Transfers.build(transfers).get_transfer_models(
 		company_id=company_info.company_id,
 		license_id=license['license_id']
@@ -216,8 +235,13 @@ def populate_transfers_table(
 	for metrc_transfer in metrc_transfers:
 		logging.info('Downloading data for metrc transfer delivery_id={}'.format(metrc_transfer.delivery_id))
 		delivery_id = metrc_transfer.delivery_id
-		resp = rest.get(f'/transfers/v1/delivery/{delivery_id}/packages')
-		t_packages_json = json.loads(resp.content)
+		try:
+			resp = rest.get(f'/transfers/v1/delivery/{delivery_id}/packages')
+			t_packages_json = json.loads(resp.content)
+			request_status['packages_api'] = 200
+		except errors.Error as e:
+			request_status['packages_api'] = e.details.get('status_code')
+			return request_status, e
 
 		packages = TransferPackages(delivery_id, t_packages_json)
 		package_ids = packages.get_package_ids()
@@ -227,9 +251,12 @@ def populate_transfers_table(
 			try:
 				resp = rest.get(f'/labtests/v1/results?packageId={package_id}')
 				lab_test_json = json.loads(resp.content)
+				request_status['lab_results_api'] = 200
 			except errors.Error as e:
 				lab_test_json = [] # If fetch fails, we set to empty array and continue.
 				logging.error(f'Could not fetch lab results for company {company_info.name} for package {package_id}')
+				request_status['lab_results_api'] = e.details.get('status_code')
+
 			lab_tests.append(LabTest(lab_test_json))
 
 		metrc_packages = packages.get_package_models(
@@ -273,5 +300,5 @@ def populate_transfers_table(
 		metrc_package.transfer_id = transfer_id
 		session.add(metrc_package)
 
-	return True, None
+	return request_status, None
 

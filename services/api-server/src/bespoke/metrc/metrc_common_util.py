@@ -28,6 +28,8 @@ class CompanyInfo(object):
 		self.user_key = user_key
 		self.metrc_api_key_id = metrc_api_key_id
 
+UNKNOWN_STATUS_CODE = -1
+UNAUTHORIZED_ERROR_STATUSES = set([401, 403])
 
 class REST(object):
 
@@ -62,7 +64,9 @@ class REST(object):
 		resp = requests.get(url, auth=self.auth)
 
 		if not resp.ok:
-			raise errors.Error('Code: {}. Reason: {}. Response: {}'.format(resp.status_code, resp.reason, resp.content.decode('utf-8')))
+			raise errors.Error('Code: {}. Reason: {}. Response: {}'.format(
+				resp.status_code, resp.reason, resp.content.decode('utf-8')),
+				details={'status_code': resp.status_code})
 
 		return resp
 

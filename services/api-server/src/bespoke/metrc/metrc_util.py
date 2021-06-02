@@ -13,7 +13,7 @@ from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util
 from bespoke.metrc import transfers_util
-from bespoke.metrc.metrc_common_util import CompanyInfo, LicenseAuthDict
+from bespoke.metrc.metrc_common_util import CompanyInfo, LicenseAuthDict, UNKNOWN_STATUS_CODE
 from bespoke.security import security_util
 from dateutil import parser
 from dotenv import load_dotenv
@@ -241,15 +241,30 @@ def _download_data(
 		for license in company_info.licenses:
 			cur_date = start_date
 
+			transfers_status_code = UNKNOWN_STATUS_CODE
+			packages_status_code = UNKNOWN_STATUS_CODE
+			lab_results_status_code = UNKNOWN_STATUS_CODE
+
 			while cur_date <= end_date:
 				with session_scope(session_maker) as session:
 					# Download transfers data for the particular day and key
-					_, err = transfers_util.populate_transfers_table(
+					statuses, err = transfers_util.populate_transfers_table(
 						cur_date=cur_date,
 						company_info=company_info,
 						license=license,
 						session=session
 					)
+					if statuses:
+						if statuses['transfers_api'] != UNKNOWN_STATUS_CODE:
+							# Only overwrite the status if we actually got a status code
+							transfers_status_code = statuses['transfers_api']
+
+						if statuses['packages_api'] != UNKNOWN_STATUS_CODE:
+							packages_status_code = statuses['packages_api']
+
+						if statuses['lab_results_api'] != UNKNOWN_STATUS_CODE:
+							lab_results_status_code = statuses['lab_results_api']
+
 					if err:
 						session.rollback()
 						errs.append(err)
@@ -272,6 +287,11 @@ def _download_data(
 			if metrc_api_key:
 				metrc_api_key.is_functioning = not api_key_has_err
 				metrc_api_key.last_used_at = date_util.now()
+				metrc_api_key.status_codes_payload = {
+					'transfers_api': transfers_status_code,
+					'packages_api': packages_status_code,
+					'lab_results_api': lab_results_status_code
+				}
 
 	if specific_company_id and errs:
 		return False, errs, errors.Error('{}'.format(errs))

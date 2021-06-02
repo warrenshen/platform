@@ -314,6 +314,7 @@ class MetrcApiKey(Base):
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	last_used_at = Column(DateTime)
 	is_functioning = Column(Boolean)
+	status_codes_payload = Column(JSON)
 
 class MetrcTransfer(Base):
 	__tablename__ = 'metrc_transfers'
