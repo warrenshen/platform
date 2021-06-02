@@ -4,7 +4,6 @@ import UpsertMetrcKeyModal from "components/Settings/Bank/UpsertMetrcKeyModal";
 import APIStatusChip from "components/Shared/Chip/APIStatusChip";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import { CompanySettings, MetrcApiKeyFragment } from "generated/graphql";
-import { useState } from "react";
 
 interface Props {
   companySettingsId: CompanySettings["id"];
@@ -50,8 +49,6 @@ export default function MetrcApiKeys({
   metrcApiKey,
   handleDataChange,
 }: Props) {
-  const [apiKeyValue, setApiKeyValue] = useState<string>("");
-
   const hasKey = !!metrcApiKey;
 
   return (

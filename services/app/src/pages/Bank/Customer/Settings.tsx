@@ -21,12 +21,17 @@ interface Props {
 }
 
 function BankCustomerSettingsSubpage({ companyId }: Props) {
-  const { data, refetch } = useCompanyQuery({
+  const { data, refetch, error } = useCompanyQuery({
     fetchPolicy: "network-only",
     variables: {
       companyId,
     },
   });
+
+  if (error) {
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
+  }
 
   const company = data?.companies_by_pk;
   const settings = data?.companies_by_pk?.settings as CompanySettingsFragment;
