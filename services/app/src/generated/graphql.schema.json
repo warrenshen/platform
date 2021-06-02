@@ -57478,6 +57478,29 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "status_codes_payload",
+            "description": null,
+            "args": [
+              {
+                "name": "path",
+                "description": "JSON select path",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                },
+                "defaultValue": null
+              }
+            ],
+            "type": {
+              "kind": "SCALAR",
+              "name": "json",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -57795,6 +57818,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "status_codes_payload",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "json_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -57880,6 +57913,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "timestamptz",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "status_codes_payload",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "json",
               "ofType": null
             },
             "defaultValue": null
@@ -58361,6 +58404,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "status_codes_payload",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -58435,6 +58488,12 @@
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "status_codes_payload",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "possibleTypes": null
@@ -58504,6 +58563,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "status_codes_payload",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "json",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -58550,6 +58619,12 @@
           },
           {
             "name": "last_used_at",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "status_codes_payload",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null

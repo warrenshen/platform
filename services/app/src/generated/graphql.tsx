@@ -8294,6 +8294,17 @@ export type MetrcApiKeys = {
   id: Scalars["uuid"];
   is_functioning?: Maybe<Scalars["Boolean"]>;
   last_used_at?: Maybe<Scalars["timestamptz"]>;
+  status_codes_payload?: Maybe<Scalars["json"]>;
+};
+
+/**
+ * List of API keys we use to connect to Metrc
+ *
+ *
+ * columns and relationships of "metrc_api_keys"
+ */
+export type MetrcApiKeysStatusCodesPayloadArgs = {
+  path?: Maybe<Scalars["String"]>;
 };
 
 /** aggregated selection of "metrc_api_keys" */
@@ -8339,6 +8350,7 @@ export type MetrcApiKeysBoolExp = {
   id?: Maybe<UuidComparisonExp>;
   is_functioning?: Maybe<BooleanComparisonExp>;
   last_used_at?: Maybe<TimestamptzComparisonExp>;
+  status_codes_payload?: Maybe<JsonComparisonExp>;
 };
 
 /** unique or primary key constraints on table "metrc_api_keys" */
@@ -8355,6 +8367,7 @@ export type MetrcApiKeysInsertInput = {
   id?: Maybe<Scalars["uuid"]>;
   is_functioning?: Maybe<Scalars["Boolean"]>;
   last_used_at?: Maybe<Scalars["timestamptz"]>;
+  status_codes_payload?: Maybe<Scalars["json"]>;
 };
 
 /** aggregate max on columns */
@@ -8422,6 +8435,7 @@ export type MetrcApiKeysOrderBy = {
   id?: Maybe<OrderBy>;
   is_functioning?: Maybe<OrderBy>;
   last_used_at?: Maybe<OrderBy>;
+  status_codes_payload?: Maybe<OrderBy>;
 };
 
 /** primary key columns input for table: "metrc_api_keys" */
@@ -8443,6 +8457,8 @@ export enum MetrcApiKeysSelectColumn {
   IsFunctioning = "is_functioning",
   /** column name */
   LastUsedAt = "last_used_at",
+  /** column name */
+  StatusCodesPayload = "status_codes_payload",
 }
 
 /** input type for updating data in table "metrc_api_keys" */
@@ -8453,6 +8469,7 @@ export type MetrcApiKeysSetInput = {
   id?: Maybe<Scalars["uuid"]>;
   is_functioning?: Maybe<Scalars["Boolean"]>;
   last_used_at?: Maybe<Scalars["timestamptz"]>;
+  status_codes_payload?: Maybe<Scalars["json"]>;
 };
 
 /** update columns of table "metrc_api_keys" */
@@ -8469,6 +8486,8 @@ export enum MetrcApiKeysUpdateColumn {
   IsFunctioning = "is_functioning",
   /** column name */
   LastUsedAt = "last_used_at",
+  /** column name */
+  StatusCodesPayload = "status_codes_payload",
 }
 
 /** columns and relationships of "metrc_packages" */
@@ -19025,7 +19044,11 @@ export type CompanySettingsFragment = Pick<
 
 export type MetrcApiKeyFragment = Pick<
   MetrcApiKeys,
-  "id" | "created_at" | "last_used_at" | "is_functioning"
+  | "id"
+  | "created_at"
+  | "last_used_at"
+  | "is_functioning"
+  | "status_codes_payload"
 >;
 
 export type VendorFragment = Pick<
@@ -19622,6 +19645,7 @@ export const MetrcApiKeyFragmentDoc = gql`
     created_at
     last_used_at
     is_functioning
+    status_codes_payload
   }
 `;
 export const VendorFragmentDoc = gql`

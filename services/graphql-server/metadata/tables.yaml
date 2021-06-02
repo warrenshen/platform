@@ -2406,6 +2406,7 @@
       - id
       - is_functioning
       - last_used_at
+      - status_codes_payload
       filter: {}
   - role: bank_read_only
     permission:
@@ -2415,6 +2416,7 @@
       - id
       - is_functioning
       - last_used_at
+      - status_codes_payload
       filter: {}
   - role: company_admin
     permission:

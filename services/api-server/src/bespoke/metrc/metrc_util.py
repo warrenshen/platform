@@ -203,7 +203,7 @@ def _get_companies_with_metrc_keys(
 				# For now, one customer has one vendor key
 				license_auth['vendor_key'] = api_key
 
-			logging.info('Company name: {} has metrc key {}'.format(company_name, api_key))
+			logging.info('Company name: {} has a metrc key'.format(company_name))
 			company_infos.append(CompanyInfo(
 				company_id=company_id,
 				name=company_name,
@@ -287,11 +287,27 @@ def _download_data(
 			if metrc_api_key:
 				metrc_api_key.is_functioning = not api_key_has_err
 				metrc_api_key.last_used_at = date_util.now()
-				metrc_api_key.status_codes_payload = {
-					'transfers_api': transfers_status_code,
-					'packages_api': packages_status_code,
-					'lab_results_api': lab_results_status_code
-				}
+
+				# Only overwrite status codes if we have a known status code, not UNKNOWN
+				if metrc_api_key.status_codes_payload:
+					new_status_code_payload = dict(metrc_api_key.status_codes_payload)
+				else:
+					new_status_code_payload = {
+						'transfers_api': UNKNOWN_STATUS_CODE,
+						'packages_api': UNKNOWN_STATUS_CODE,
+						'lab_results_api': UNKNOWN_STATUS_CODE
+					}
+
+				if transfers_status_code != UNKNOWN_STATUS_CODE:
+					new_status_code_payload['transfers_api'] = transfers_status_code
+
+				if packages_status_code != UNKNOWN_STATUS_CODE:
+					new_status_code_payload['packages_api'] = packages_status_code
+
+				if lab_results_status_code != UNKNOWN_STATUS_CODE:
+					new_status_code_payload['lab_results_api'] = lab_results_status_code
+
+				metrc_api_key.status_codes_payload = new_status_code_payload
 
 	if specific_company_id and errs:
 		return False, errs, errors.Error('{}'.format(errs))
