@@ -242,6 +242,7 @@ class CompanyVendorPartnership(Base):
 	company_id = Column(GUID, nullable=False)
 	vendor_id = Column(GUID, nullable=False)
 	vendor_bank_id = Column(GUID)
+	vendor_agreement_id = cast(GUID, Column(GUID, ForeignKey('company_agreements.id'), nullable=True))
 	approved_at = Column(DateTime)
 
 
