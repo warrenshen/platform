@@ -253,7 +253,7 @@ class DownloadSignedUrlView(MethodView):
 			file_orms = cast(
 				List[models.File], session.query(models.File).filter(models.File.id.in_(file_ids)).all())
 			if not file_orms:
-				raise errors.Error('No file ids found that match these file ids')
+				raise errors.Error(f'No files found for given file ids: {file_ids}')
 
 			if len(file_orms) != len(file_ids):
 				raise errors.Error('Some file ids requested are not available in the database')

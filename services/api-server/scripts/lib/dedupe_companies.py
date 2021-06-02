@@ -70,13 +70,18 @@ def dedupe(session: Session, path: str) -> None:
 	row_tuples = sheet['rows']
 	filtered_row_tuples = list(filter(lambda tup: tup[0] is not '', row_tuples[1:]))
 
-	for row in filtered_row_tuples:
+	print(f'Beginning dedupe...')
+	rows_count = len(filtered_row_tuples)
+	
+	for index, row in enumerate(filtered_row_tuples):
+		print(f'[{index + 1} of {rows_count}]')
+
 		# (replace_company_id, to_delete_company_id, partnership_type)
 		replacing_company_id = row[0]
 		to_delete_company_id = row[1]
 		partnership_type = row[2]
 
-		print('Deduping data from row {}'.format(row))
+		print(f'[{index + 1} of {rows_count}] Deduping: merge company {to_delete_company_id} into company {replacing_company_id} for partnership type {partnership_type}')
 
 		existing_replacing_company = cast(
 			models.Company,
@@ -100,7 +105,7 @@ def dedupe(session: Session, path: str) -> None:
 
 		if partnership_type == 'vendor':
 			# (1) Change PurchaseOrder vendor_id
-			# (2) Change vendor agreements
+			# (2) Change vendor agreements (and files)
 			# (3) Change vendor partnership
 			# (3) Change LineOfCredit recipient_vendor_id
 			# (4) Transfer bank account of previous vendor
@@ -117,6 +122,10 @@ def dedupe(session: Session, path: str) -> None:
 				models.CompanyAgreement.company_id == to_delete_company_id
 			).all()
 			for company_agreement in company_agreements:
+				# Change files.company_id
+				company_agreement_file = session.query(models.File).get(company_agreement.file_id)
+				company_agreement_file.company_id = replacing_company_id
+				# Change company_agreements.company_id
 				company_agreement.company_id = replacing_company_id
 
 			# 3
@@ -124,7 +133,17 @@ def dedupe(session: Session, path: str) -> None:
 				models.CompanyVendorPartnership.vendor_id == to_delete_company_id
 			).all()
 			for partnership in company_vendor_partnerships:
-				partnership.vendor_id = replacing_company_id
+				existing_company_vendor_partnership = session.query(
+					models.CompanyVendorPartnership
+				).filter_by(
+					company_id=partnership.company_id,
+					vendor_id=replacing_company_id,
+				).first()
+
+				if existing_company_vendor_partnership:
+					session.delete(partnership)
+				else:
+					partnership.vendor_id = replacing_company_id
 
 			# 4
 			line_of_credits = session.query(models.LineOfCredit).filter(
@@ -140,8 +159,11 @@ def dedupe(session: Session, path: str) -> None:
 			for bank_account in bank_accounts:
 				bank_account.company_id = replacing_company_id
 
+			if existing_replacing_company.is_vendor != True:
+				existing_replacing_company.is_vendor = True
+
 		elif partnership_type == 'payor':
-			# (1) Change payor agreements
+			# (1) Change payor agreements (and files)
 			# (2) Change payor partnership
 			# (3) Change Invoice payor_id
 
@@ -150,6 +172,10 @@ def dedupe(session: Session, path: str) -> None:
 				models.CompanyAgreement.company_id == to_delete_company_id
 			).all()
 			for company_agreement in company_agreements:
+				# Change files.company_id
+				company_agreement_file = session.query(models.File).get(company_agreement.file_id)
+				company_agreement_file.company_id = replacing_company_id
+				# Change company_agreements.company_id
 				company_agreement.company_id = replacing_company_id
 
 			# 2
@@ -158,7 +184,17 @@ def dedupe(session: Session, path: str) -> None:
 			).all()
 
 			for partnership in company_payor_partnerships:
-				partnership.payor_id = replacing_company_id
+				existing_company_payor_partnership = session.query(
+					models.CompanyPayorPartnership
+				).filter_by(
+					company_id=partnership.company_id,
+					payor_id=replacing_company_id,
+				).first()
+
+				if existing_company_payor_partnership:
+					session.delete(partnership)
+				else:
+					partnership.payor_id = replacing_company_id
 
 			# 3
 			invoices = session.query(models.Invoice).filter(
@@ -167,8 +203,13 @@ def dedupe(session: Session, path: str) -> None:
 			for invoice in invoices:
 				invoice.payor_id = replacing_company_id
 
+			if existing_replacing_company.is_payor != True:
+				existing_replacing_company.is_payor = True
+
 		else:
 			raise errors.Error('Unexpected partnership_type {}'.format(partnership_type))
+
+		print(f'[{index + 1} of {rows_count}] Successfully deduped partnership type {partnership_type}')
 
 		# Delete everything about the company ID to delete
 		_delete_company(to_delete_company_id, session)

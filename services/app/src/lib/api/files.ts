@@ -30,9 +30,7 @@ export function downloadFilesWithSignedUrls(
       return res.data;
     })
     .then(
-      (response) => {
-        handleSuccess(response.files);
-      },
+      (response) => handleSuccess(response.files || []),
       (error) => {
         console.error({ error });
         handleError({
