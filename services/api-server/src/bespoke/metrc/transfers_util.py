@@ -210,16 +210,35 @@ def populate_transfers_table(
 	cur_date_str = cur_date.strftime('%m/%d/%Y')
 
 	# Reference for when we want to fetch sales, plants, and plant batches info in the future.
-	#
+	#===
 	# try:
 	# 	resp = rest.get('/sales/v1/receipts/active', time_range=[cur_date_str])
-	# 	# resp = rest.get('/plants/v1/vegetative', time_range=[cur_date_str])
-	# 	# resp = rest.get('/plantbatches/v1/active', time_range=[cur_date_str])
 	# 	content = json.loads(resp.content)
-	# 	print(content)
-	# 	# request_status['sales_api'] = 200
+	# 	print('success', 'sales')
+	# 	# request_status['receipts_api'] = 200
 	# except errors.Error as e:
-	# 	# request_status['sales_api'] = e.details.get('status_code')
+	# 	print('failure', 'sales')
+	# 	# request_status['receipts_api'] = e.details.get('status_code')
+	# 	return request_status, e
+
+	# try:
+	# 	resp = rest.get('/plants/v1/vegetative', time_range=[cur_date_str])
+	# 	content = json.loads(resp.content)
+	# 	print('success', 'plants')
+	# 	# request_status['plants_api'] = 200
+	# except errors.Error as e:
+	# 	print('failure', 'plants')
+	# 	# request_status['plants_api'] = e.details.get('status_code')
+	# 	return request_status, e
+
+	# try:
+	# 	resp = rest.get('/plantbatches/v1/active', time_range=[cur_date_str])
+	# 	content = json.loads(resp.content)
+	# 	print('success', 'plantbatches')
+	# 	# request_status['plant_batches_api'] = 200
+	# except errors.Error as e:
+	# 	print('failure', 'plantbatches')
+	# 	# request_status['plant_batches_api'] = e.details.get('status_code')
 	# 	return request_status, e
 
 	try:
