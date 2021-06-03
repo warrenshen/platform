@@ -208,6 +208,20 @@ def populate_transfers_table(
 	)
 
 	cur_date_str = cur_date.strftime('%m/%d/%Y')
+
+	# Reference for when we want to fetch sales, plants, and plant batches info in the future.
+	#
+	# try:
+	# 	resp = rest.get('/sales/v1/receipts/active', time_range=[cur_date_str])
+	# 	# resp = rest.get('/plants/v1/vegetative', time_range=[cur_date_str])
+	# 	# resp = rest.get('/plantbatches/v1/active', time_range=[cur_date_str])
+	# 	content = json.loads(resp.content)
+	# 	print(content)
+	# 	# request_status['sales_api'] = 200
+	# except errors.Error as e:
+	# 	# request_status['sales_api'] = e.details.get('status_code')
+	# 	return request_status, e
+
 	try:
 		resp = rest.get('/transfers/v1/incoming', time_range=[cur_date_str])
 		transfers = json.loads(resp.content)

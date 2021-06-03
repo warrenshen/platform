@@ -162,8 +162,8 @@ def _get_companies_with_metrc_keys(
 			session.query(models.CompanyLicense).filter(
 				models.CompanyLicense.company_id.in_(company_ids_with_metrc_keys)
 			).filter(
-   					cast(Callable, models.CompanyLicense.is_deleted.isnot)(True)
-    	).all())
+				cast(Callable, models.CompanyLicense.is_deleted.isnot)(True)
+		).all())
 
 		company_id_to_licenses: Dict[str, List[LicenseAuthDict]] = {}
 		for license in all_licenses:
