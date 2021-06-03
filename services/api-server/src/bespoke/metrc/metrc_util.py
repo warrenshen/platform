@@ -179,11 +179,14 @@ def _get_companies_with_metrc_keys(
 			if err:
 				return None, err
 
+			vendor_key, err = auth_provider.get_vendor_key_by_state(us_state)
+
 			company_id_to_licenses[company_id].append(LicenseAuthDict(
 				license_id=str(license.id),
 				license_number=license.license_number,
 				us_state=us_state,
-				vendor_key=None
+				vendor_key=vendor_key,
+				user_key=None
 			))
 
 		for metrc_api_key in metrc_api_keys:
@@ -200,15 +203,14 @@ def _get_companies_with_metrc_keys(
 
 			license_auths = company_id_to_licenses[company_id]
 			for license_auth in license_auths:
-				# For now, one customer has one vendor key
-				license_auth['vendor_key'] = api_key
+				# For now, one customer has one user key
+				license_auth['user_key'] = api_key
 
 			logging.info('Company name: {} has a metrc key'.format(company_name))
 			company_infos.append(CompanyInfo(
 				company_id=company_id,
 				name=company_name,
 				licenses=license_auths,
-				user_key=auth_provider.get_user_key(),
 				metrc_api_key_id=str(metrc_api_key.id)
 			))
 

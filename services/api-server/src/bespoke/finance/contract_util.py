@@ -642,7 +642,7 @@ def get_active_contracts_by_company_ids(
 			models.Company.id.in_(company_ids)
 		).all())
 	if not companies or len(companies) != len(company_ids):
-		return None, errors.Error('Could not find all the companies associated with all the loans provided', details=err_details)
+		return None, errors.Error('Could not find all the companies associated with the request', details=err_details)
 
 	contract_ids = []
 	companies_with_missing_contracts = []
@@ -653,7 +653,7 @@ def get_active_contracts_by_company_ids(
 			contract_ids.append(str(company.contract_id))
 
 	if companies_with_missing_contracts:
-		return None, errors.Error('{} have missing contracts, cannot proceed with the advances process'.format(companies_with_missing_contracts), details=err_details)
+		return None, errors.Error('{} have missing contracts, cannot proceed with the current function'.format(companies_with_missing_contracts), details=err_details)
 
 	contracts = cast(
 		List[models.Contract],
@@ -661,7 +661,7 @@ def get_active_contracts_by_company_ids(
 			models.Contract.id.in_(contract_ids)
 		).all())
 	if not contracts or len(contracts) != len(contract_ids):
-		return None, errors.Error('Could not find all the contracts associated with all companies associated with the loans provided', details=err_details)
+		return None, errors.Error('Could not find all the contracts associated with all companies provided', details=err_details)
 
 	company_id_to_contract = {}
 	for contract in contracts:

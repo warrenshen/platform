@@ -18,7 +18,7 @@ class MetrcAuthProvider(object):
 		self._user_key = user_key
 		self._state_to_vendor_key = state_to_vendor_key
 
-	def get_user_key(self) -> str:
+	def get_default_user_key(self) -> str:
 		return self._user_key
 
 	def get_vendor_key_by_state(self, us_state: str) -> Tuple[str, errors.Error]:

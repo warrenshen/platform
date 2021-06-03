@@ -50,7 +50,7 @@ class GetTransfersView(MethodView):
 
 		auth_dict = metrc_common_util.AuthDict(
 			vendor_key=vendor_key,
-			user_key=auth_provider.get_user_key()
+			user_key=auth_provider.get_default_user_key()
 		)
 		rest = metrc_common_util.REST(
 			auth_dict,

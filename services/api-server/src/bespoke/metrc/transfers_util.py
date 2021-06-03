@@ -201,7 +201,7 @@ def populate_transfers_table(
 	rest = metrc_common_util.REST(
 		metrc_common_util.AuthDict(
 			vendor_key=license['vendor_key'],
-			user_key=company_info.user_key
+			user_key=license['user_key']
 		),
 		license_number=license['license_number'],
 		us_state=license['us_state']
@@ -254,7 +254,7 @@ def populate_transfers_table(
 				request_status['lab_results_api'] = 200
 			except errors.Error as e:
 				lab_test_json = [] # If fetch fails, we set to empty array and continue.
-				logging.error(f'Could not fetch lab results for company {company_info.name} for package {package_id}')
+				logging.error(f'Could not fetch lab results for company {company_info.name} for package {package_id}. {e}')
 				request_status['lab_results_api'] = e.details.get('status_code')
 
 			lab_tests.append(LabTest(lab_test_json))
