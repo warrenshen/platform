@@ -23,6 +23,9 @@ subscription GetSettledPartnershipRequestsForBank {
       id
       name
     }
+    requested_by_user {
+      full_name
+    }
   }
 }
 
@@ -39,6 +42,9 @@ subscription GetPartnershipRequestsForBank {
     requesting_company {
       id
       name
+    }
+    requested_by_user {
+      full_name
     }
   }
 }

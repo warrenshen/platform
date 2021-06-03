@@ -19254,6 +19254,7 @@ export type GetSettledPartnershipRequestsForBankSubscription = {
   company_partnership_requests: Array<
     Pick<CompanyPartnershipRequests, "id"> & {
       requesting_company: Pick<Companies, "id" | "name">;
+      requested_by_user: Pick<Users, "full_name">;
     } & PartnershipRequestFragment
   >;
 };
@@ -19266,6 +19267,7 @@ export type GetPartnershipRequestsForBankSubscription = {
   company_partnership_requests: Array<
     Pick<CompanyPartnershipRequests, "id"> & {
       requesting_company: Pick<Companies, "id" | "name">;
+      requested_by_user: Pick<Users, "full_name">;
     } & PartnershipRequestFragment
   >;
 };
@@ -26815,6 +26817,9 @@ export const GetSettledPartnershipRequestsForBankDocument = gql`
         id
         name
       }
+      requested_by_user {
+        full_name
+      }
     }
   }
   ${PartnershipRequestFragmentDoc}
@@ -26867,6 +26872,9 @@ export const GetPartnershipRequestsForBankDocument = gql`
       requesting_company {
         id
         name
+      }
+      requested_by_user {
+        full_name
       }
     }
   }

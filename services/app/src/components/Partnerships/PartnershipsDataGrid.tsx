@@ -29,6 +29,9 @@ function getRows(requests: any[]): RowsProp {
     requesting_company: {
       ...request.requesting_company,
     },
+    requested_by_user: {
+      ...request.requested_by_user,
+    },
   }));
 }
 
@@ -65,6 +68,12 @@ export default function PartnershipsDataGrid({
       {
         caption: "Requesting Company",
         dataField: "requesting_company.name",
+        width: ColumnWidths.Type,
+        alignment: "center",
+      },
+      {
+        caption: "Submitted By",
+        dataField: "requested_by_user.full_name",
         width: ColumnWidths.Type,
         alignment: "center",
       },
