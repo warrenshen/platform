@@ -21,24 +21,33 @@ function StatusOfKey({ metrcKey }: StatusProps) {
       <h4>API Key Status</h4>
       <Grid>
         <Box>Last used: {metrcKey.last_used_at}</Box>
-        <Box>
-          Transfers API:{" "}
-          <APIStatusChip
-            statusCode={metrcKey.status_codes_payload?.transfers_api}
-          ></APIStatusChip>
-        </Box>
-        <Box>
-          Packages API:{" "}
-          <APIStatusChip
-            statusCode={metrcKey.status_codes_payload?.packages_api}
-          ></APIStatusChip>
-        </Box>
-        <Box>
-          Lab Results API:{" "}
-          <APIStatusChip
-            statusCode={metrcKey.status_codes_payload?.lab_results_api}
-          ></APIStatusChip>
-        </Box>
+        {metrcKey.status_codes_payload &&
+          Object.keys(metrcKey.status_codes_payload).map((licenseNum) => {
+            const statusesObj = metrcKey.status_codes_payload[licenseNum];
+            return (
+              <Box key={licenseNum} mt={2}>
+                <Box>License number: {licenseNum}</Box>
+                <Box>
+                  Transfers API:{" "}
+                  <APIStatusChip
+                    statusCode={statusesObj.transfers_api}
+                  ></APIStatusChip>
+                </Box>
+                <Box>
+                  Packages API:{" "}
+                  <APIStatusChip
+                    statusCode={statusesObj.packages_api}
+                  ></APIStatusChip>
+                </Box>
+                <Box>
+                  Lab Results API:{" "}
+                  <APIStatusChip
+                    statusCode={statusesObj.lab_results_api}
+                  ></APIStatusChip>
+                </Box>
+              </Box>
+            );
+          })}
       </Grid>
     </>
   );

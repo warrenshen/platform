@@ -240,6 +240,8 @@ def _download_data(
 	for company_info in company_infos:
 		api_key_has_err = False # Assume 1 API key per customer
 
+		license_to_statuses = {}
+
 		for license in company_info.licenses:
 			cur_date = start_date
 
@@ -277,6 +279,12 @@ def _download_data(
 
 				cur_date = cur_date + timedelta(days=1)
 
+			license_to_statuses[license['license_number']] = {
+				'transfers_api': transfers_status_code,
+				'packages_api': packages_status_code,
+				'lab_results_api': lab_results_status_code
+			}
+
 		# Update whether this metrc key worked
 		with session_scope(session_maker) as session:
 
@@ -289,27 +297,7 @@ def _download_data(
 			if metrc_api_key:
 				metrc_api_key.is_functioning = not api_key_has_err
 				metrc_api_key.last_used_at = date_util.now()
-
-				# Only overwrite status codes if we have a known status code, not UNKNOWN
-				if metrc_api_key.status_codes_payload:
-					new_status_code_payload = dict(metrc_api_key.status_codes_payload)
-				else:
-					new_status_code_payload = {
-						'transfers_api': UNKNOWN_STATUS_CODE,
-						'packages_api': UNKNOWN_STATUS_CODE,
-						'lab_results_api': UNKNOWN_STATUS_CODE
-					}
-
-				if transfers_status_code != UNKNOWN_STATUS_CODE:
-					new_status_code_payload['transfers_api'] = transfers_status_code
-
-				if packages_status_code != UNKNOWN_STATUS_CODE:
-					new_status_code_payload['packages_api'] = packages_status_code
-
-				if lab_results_status_code != UNKNOWN_STATUS_CODE:
-					new_status_code_payload['lab_results_api'] = lab_results_status_code
-
-				metrc_api_key.status_codes_payload = new_status_code_payload
+				metrc_api_key.status_codes_payload = license_to_statuses
 
 	if specific_company_id and errs:
 		return False, errs, errors.Error('{}'.format(errs))
