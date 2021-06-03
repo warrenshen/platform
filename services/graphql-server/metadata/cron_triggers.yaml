@@ -24,3 +24,8 @@
   headers:
   - name: x-api-key
     value_from_env: ASYNC_SERVER_API_KEY
+- name: download_all_metrc_data
+  webhook: '{{ASYNC_SERVER_BASE_URL}}/triggers/download-metrc-data'
+  schedule: 15 3 * * *
+  include_in_metadata: true
+  payload: {}

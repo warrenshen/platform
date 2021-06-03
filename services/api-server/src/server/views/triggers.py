@@ -1,6 +1,7 @@
 import json
 import logging
 import typing
+from datetime import timedelta
 from typing import Callable, Tuple, cast
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
@@ -207,14 +208,11 @@ class DownloadMetrcDataView(MethodView):
 
 		data = json.loads(request.data)
 
+		TIME_WINDOW_IN_DAYS = 2
 		todays_date = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
-		start_date = todays_date
-		end_date = todays_date
 
-		if data.get('start_date'):
-			start_date = date_util.load_date_str(data['start_date'])
-		if data.get('end_date'):
-			end_date = date_util.load_date_str(data['end_date'])
+		start_date = todays_date - timedelta(days=TIME_WINDOW_IN_DAYS)
+		end_date = todays_date
 
 		success, errs, fatal_err = metrc_util.download_data_for_all_customers(
 			auth_provider=cfg.get_metrc_auth_provider(),
