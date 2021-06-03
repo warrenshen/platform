@@ -59,7 +59,7 @@ function UpsertMetrcKeyModal({
         },
       });
       if (resp.status === "OK") {
-        setApiKey(resp.api_key);
+        setApiKey(resp.data?.api_key || "Invalid");
       }
     }
 

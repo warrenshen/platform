@@ -54,7 +54,7 @@ export default function SyncMetrcData(props: Props) {
 
     if (response.status !== "OK") {
       console.error({ response });
-      snackbar.showError("Syncing data failed");
+      snackbar.showError(`Syncing data failed. Error: ${response.msg}`);
     } else {
       snackbar.showSuccess("Metrc data synced");
     }

@@ -199,10 +199,7 @@ export async function viewApiKey(req: {
   variables: {
     metrc_api_key_id: string;
   };
-}): Promise<{
-  status: string;
-  api_key: string;
-}> {
+}): Promise<CustomMutationResponse> {
   return authenticatedApi
     .post(metrcRoutes.viewApiKey, req.variables)
     .then((res) => res.data)
@@ -224,9 +221,7 @@ export async function syncMetrcDataPerCustomer(req: {
     end_date: string;
     company_id: string;
   };
-}): Promise<{
-  status: string;
-}> {
+}): Promise<CustomMutationResponse> {
   return authenticatedApi
     .post(metrcRoutes.syncMetrcDataPerCustomer, req.variables)
     .then((res) => res.data)
@@ -246,9 +241,7 @@ export async function syncMetrcData(req: {
   variables: {
     cur_date: string;
   };
-}): Promise<{
-  status: string;
-}> {
+}): Promise<CustomMutationResponse> {
   return authenticatedApi
     .post(metrcRoutes.syncMetrcData, req.variables)
     .then((res) => res.data)

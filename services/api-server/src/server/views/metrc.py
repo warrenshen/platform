@@ -172,8 +172,10 @@ class ViewApiKeyView(MethodView):
 
 		return make_response(json.dumps({
 			'status': 'OK',
-			'api_key': api_key
-		}), 200)		
+			'data': {
+				'api_key': api_key,
+			},
+		}), 200)
 
 class SyncMetrcDataPerCustomerView(MethodView):
 	decorators = [auth_util.bank_admin_required]
