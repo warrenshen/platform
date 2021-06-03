@@ -3,14 +3,19 @@ import { MetrcPackageFragment } from "generated/graphql";
 import { MetrcPackagePayload } from "lib/api/metrc";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
+import MetrcPackageModal from "components/Transfers/MetrcPackageModal";
+import { ValueFormatterParams } from "@material-ui/data-grid";
+import ModalButton from "components/Shared/Modal/ModalButton";
 
 interface Props {
   isExcelExport?: boolean;
+  isViewActionAvailable?: boolean;
   metrcPackages: MetrcPackageFragment[];
 }
 
 export default function MetrcPackagesDataGrid({
   isExcelExport = true,
+  isViewActionAvailable = false,
   metrcPackages,
 }: Props) {
   const rows = useMemo(
@@ -50,9 +55,24 @@ export default function MetrcPackagesDataGrid({
         width: ColumnWidths.MetrcId,
       },
       {
-        dataField: "label",
-        caption: "Label",
-        minWidth: ColumnWidths.MinWidth,
+        visible: isViewActionAvailable,
+        dataField: undefined,
+        caption: "",
+        width: 90,
+        cellRender: (params: ValueFormatterParams) => (
+          <ModalButton
+            label={"View"}
+            color="default"
+            size="small"
+            variant="outlined"
+            modal={({ handleClose }) => (
+              <MetrcPackageModal
+                metrcPackageId={params.row.data.id}
+                handleClose={handleClose}
+              />
+            )}
+          />
+        ),
       },
       {
         dataField: "type",
@@ -72,6 +92,11 @@ export default function MetrcPackagesDataGrid({
       {
         dataField: "lab_results_status",
         caption: "Lab Results Status",
+        minWidth: ColumnWidths.MinWidth,
+      },
+      {
+        dataField: "label",
+        caption: "Label",
         minWidth: ColumnWidths.MinWidth,
       },
       {
@@ -120,7 +145,7 @@ export default function MetrcPackagesDataGrid({
         minWidth: ColumnWidths.MinWidth,
       },
     ],
-    []
+    [isViewActionAvailable]
   );
 
   return (

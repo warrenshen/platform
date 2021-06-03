@@ -319,6 +319,9 @@ def submit_purchase_order_for_approval(
 		customer = purchase_order.company
 
 		# Validation 1: validations for all POs.
+		if not vendor:
+			raise errors.Error('Vendor is required')
+
 		if not purchase_order:
 			raise errors.Error('Could not find purchase order')
 

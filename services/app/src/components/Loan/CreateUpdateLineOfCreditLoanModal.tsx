@@ -17,7 +17,7 @@ import {
   useAddLoanMutation,
   useGetCompanyNextLoanIdentifierMutation,
   useGetLoanWithArtifactForCustomerQuery,
-  useGetVendorsByPartnerCompanyQuery,
+  useGetArtifactRelationsByCompanyIdQuery,
   useUpdateLineOfCreditAndLoanMutation,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -94,7 +94,7 @@ function CreateUpdateLineOfCreditLoanModal({
   const {
     data,
     loading: isApprovedVendorsLoading,
-  } = useGetVendorsByPartnerCompanyQuery({
+  } = useGetArtifactRelationsByCompanyIdQuery({
     fetchPolicy: "network-only",
     variables: {
       companyId,

@@ -37,7 +37,7 @@ export default function MetrcTransferModal({
     return null;
   }
 
-  const metrcTransferPayload = metrcTransfer.transfer_payload;
+  const transferPayload = metrcTransfer.transfer_payload;
 
   return (
     <Modal
@@ -65,9 +65,7 @@ export default function MetrcTransferModal({
           Estimated Departure Time
         </Typography>
         <Typography variant="body1">
-          {formatDatetimeString(
-            metrcTransferPayload.EstimatedDepartureDateTime
-          )}
+          {formatDatetimeString(transferPayload.EstimatedDepartureDateTime)}
         </Typography>
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>
@@ -75,7 +73,7 @@ export default function MetrcTransferModal({
           Estimated Arrival Time
         </Typography>
         <Typography variant="body1">
-          {formatDatetimeString(metrcTransferPayload.EstimatedArrivalDateTime)}
+          {formatDatetimeString(transferPayload.EstimatedArrivalDateTime)}
         </Typography>
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>
@@ -83,20 +81,23 @@ export default function MetrcTransferModal({
           Received Date Time
         </Typography>
         <Typography variant="body1">
-          {formatDatetimeString(metrcTransferPayload.ReceivedDateTime)}
+          {formatDatetimeString(transferPayload.ReceivedDateTime)}
         </Typography>
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>
         <Typography variant="subtitle2" color="textSecondary">
           {`Packages (${metrcTransfer.metrc_packages.length})`}
         </Typography>
-        <MetrcPackagesDataGrid metrcPackages={metrcTransfer.metrc_packages} />
+        <MetrcPackagesDataGrid
+          isViewActionAvailable={isBankUser}
+          metrcPackages={metrcTransfer.metrc_packages}
+        />
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>
         <Typography variant="subtitle2" color="textSecondary">
-          Raw Metrc JSON
+          Raw Transfer JSON
         </Typography>
-        <RawJsonToggle rawJson={metrcTransferPayload} />
+        <RawJsonToggle rawJson={transferPayload} />
       </Box>
       {isBankUser && (
         <Box

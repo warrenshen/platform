@@ -11,7 +11,7 @@ import {
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import {
-  GetVendorsByPartnerCompanyQuery,
+  GetArtifactRelationsByCompanyIdQuery,
   LineOfCreditsInsertInput,
   LoansInsertInput,
 } from "generated/graphql";
@@ -20,7 +20,7 @@ import { ChangeEvent } from "react";
 interface Props {
   lineOfCredit: LineOfCreditsInsertInput;
   loan: LoansInsertInput;
-  vendors: GetVendorsByPartnerCompanyQuery["vendors"];
+  vendors: GetArtifactRelationsByCompanyIdQuery["vendors"];
   setLineOfCredit: (lineOfCredit: LineOfCreditsInsertInput) => void;
   setLoan: (loan: LoansInsertInput) => void;
 }

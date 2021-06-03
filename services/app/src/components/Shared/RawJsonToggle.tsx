@@ -19,11 +19,7 @@ export default function RawJsonToggle({ rawJson }: Props) {
           {isOpen ? "Hide JSON" : "View JSON"}
         </Button>
       </Box>
-      {isOpen && (
-        <Typography variant="body2">
-          <pre>{JSON.stringify(rawJson, null, 2)}</pre>
-        </Typography>
-      )}
+      {isOpen && <pre>{JSON.stringify(rawJson, null, 2)}</pre>}
     </Box>
   );
 }

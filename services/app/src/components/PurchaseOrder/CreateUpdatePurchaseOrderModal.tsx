@@ -18,7 +18,7 @@ import {
   PurchaseOrders,
   PurchaseOrdersInsertInput,
   RequestStatusEnum,
-  useGetVendorsByPartnerCompanyQuery,
+  useGetArtifactRelationsByCompanyIdQuery,
   usePurchaseOrderQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -118,7 +118,7 @@ export default function CreateUpdatePurchaseOrderModal({
 
   const {
     loading: isExistingPurchaseOrderLoading,
-    error,
+    error: existingPurchaseOrderError,
   } = usePurchaseOrderQuery({
     skip: actionType === ActionType.New,
     fetchPolicy: "network-only",
@@ -153,25 +153,37 @@ export default function CreateUpdatePurchaseOrderModal({
     },
   });
 
-  if (error) {
-    console.error({ error });
-    alert(`Error in query (details in console): ${error.message}`);
+  if (existingPurchaseOrderError) {
+    console.error({ existingPurchaseOrderError });
+    alert(
+      `Error in query (details in console): ${existingPurchaseOrderError.message}`
+    );
   }
 
   const {
     data,
     loading: isSelectableVendorsLoading,
-  } = useGetVendorsByPartnerCompanyQuery({
+    error: selectableVendorsError,
+  } = useGetArtifactRelationsByCompanyIdQuery({
     fetchPolicy: "network-only",
     variables: {
       companyId,
     },
   });
+
+  if (selectableVendorsError) {
+    console.error({ selectableVendorsError });
+    alert(
+      `Error in query (details in console): ${selectableVendorsError.message}`
+    );
+  }
+
   const selectableVendors = data?.vendors || [];
   const allMetrcTransfers = useMemo(
     () => data?.companies_by_pk?.metrc_transfers || [],
     [data?.companies_by_pk]
   );
+
   const selectedMetrcTransfers = useMemo(
     () =>
       purchaseOrderMetrcTransfers

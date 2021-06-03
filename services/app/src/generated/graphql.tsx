@@ -18793,7 +18793,7 @@ export type MetrcPackageFragment = Pick<
   | "package_payload"
   | "lab_results_payload"
   | "lab_results_status"
->;
+> & { metrc_transfer: Pick<MetrcTransfers, "id" | "manifest_number"> };
 
 export type PurchaseOrderMetrcTransferFragment = Pick<
   PurchaseOrderMetrcTransfers,
@@ -18830,6 +18830,16 @@ export type GetMetrcTransferQuery = {
     Pick<MetrcTransfers, "id"> & {
       metrc_packages: Array<Pick<MetrcPackages, "id"> & MetrcPackageFragment>;
     } & MetrcTransferFragment
+  >;
+};
+
+export type GetMetrcPackageQueryVariables = Exact<{
+  id: Scalars["uuid"];
+}>;
+
+export type GetMetrcPackageQuery = {
+  metrc_packages_by_pk?: Maybe<
+    Pick<MetrcPackages, "id"> & MetrcPackageFragment
   >;
 };
 
@@ -18981,11 +18991,11 @@ export type GetVendorPartnershipsByCompanyIdQuery = {
   >;
 };
 
-export type GetVendorsByPartnerCompanyQueryVariables = Exact<{
+export type GetArtifactRelationsByCompanyIdQueryVariables = Exact<{
   companyId: Scalars["uuid"];
 }>;
 
-export type GetVendorsByPartnerCompanyQuery = {
+export type GetArtifactRelationsByCompanyIdQuery = {
   companies_by_pk?: Maybe<{
     metrc_api_keys: Array<Pick<MetrcApiKeys, "id">>;
     metrc_transfers: Array<Pick<MetrcTransfers, "id"> & MetrcTransferFragment>;
@@ -19602,6 +19612,10 @@ export const MetrcPackageFragmentDoc = gql`
     package_payload
     lab_results_payload
     lab_results_status
+    metrc_transfer {
+      id
+      manifest_number
+    }
   }
 `;
 export const PurchaseOrderMetrcTransferFragmentDoc = gql`
@@ -25751,6 +25765,64 @@ export type GetMetrcTransferQueryResult = Apollo.QueryResult<
   GetMetrcTransferQuery,
   GetMetrcTransferQueryVariables
 >;
+export const GetMetrcPackageDocument = gql`
+  query GetMetrcPackage($id: uuid!) {
+    metrc_packages_by_pk(id: $id) {
+      id
+      ...MetrcPackage
+    }
+  }
+  ${MetrcPackageFragmentDoc}
+`;
+
+/**
+ * __useGetMetrcPackageQuery__
+ *
+ * To run a query within a React component, call `useGetMetrcPackageQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMetrcPackageQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMetrcPackageQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetMetrcPackageQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetMetrcPackageQuery,
+    GetMetrcPackageQueryVariables
+  >
+) {
+  return Apollo.useQuery<GetMetrcPackageQuery, GetMetrcPackageQueryVariables>(
+    GetMetrcPackageDocument,
+    baseOptions
+  );
+}
+export function useGetMetrcPackageLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetMetrcPackageQuery,
+    GetMetrcPackageQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetMetrcPackageQuery,
+    GetMetrcPackageQueryVariables
+  >(GetMetrcPackageDocument, baseOptions);
+}
+export type GetMetrcPackageQueryHookResult = ReturnType<
+  typeof useGetMetrcPackageQuery
+>;
+export type GetMetrcPackageLazyQueryHookResult = ReturnType<
+  typeof useGetMetrcPackageLazyQuery
+>;
+export type GetMetrcPackageQueryResult = Apollo.QueryResult<
+  GetMetrcPackageQuery,
+  GetMetrcPackageQueryVariables
+>;
 export const GetVendorCompanyFileAttachmentsDocument = gql`
   query GetVendorCompanyFileAttachments($company_id: uuid!) {
     companies_by_pk(id: $company_id) {
@@ -26500,8 +26572,8 @@ export type GetVendorPartnershipsByCompanyIdQueryResult = Apollo.QueryResult<
   GetVendorPartnershipsByCompanyIdQuery,
   GetVendorPartnershipsByCompanyIdQueryVariables
 >;
-export const GetVendorsByPartnerCompanyDocument = gql`
-  query GetVendorsByPartnerCompany($companyId: uuid!) {
+export const GetArtifactRelationsByCompanyIdDocument = gql`
+  query GetArtifactRelationsByCompanyId($companyId: uuid!) {
     companies_by_pk(id: $companyId) {
       metrc_api_keys(where: { is_functioning: { _eq: true } }) {
         id
@@ -26538,52 +26610,52 @@ export const GetVendorsByPartnerCompanyDocument = gql`
 `;
 
 /**
- * __useGetVendorsByPartnerCompanyQuery__
+ * __useGetArtifactRelationsByCompanyIdQuery__
  *
- * To run a query within a React component, call `useGetVendorsByPartnerCompanyQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetVendorsByPartnerCompanyQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetArtifactRelationsByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetArtifactRelationsByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetVendorsByPartnerCompanyQuery({
+ * const { data, loading, error } = useGetArtifactRelationsByCompanyIdQuery({
  *   variables: {
  *      companyId: // value for 'companyId'
  *   },
  * });
  */
-export function useGetVendorsByPartnerCompanyQuery(
+export function useGetArtifactRelationsByCompanyIdQuery(
   baseOptions: Apollo.QueryHookOptions<
-    GetVendorsByPartnerCompanyQuery,
-    GetVendorsByPartnerCompanyQueryVariables
+    GetArtifactRelationsByCompanyIdQuery,
+    GetArtifactRelationsByCompanyIdQueryVariables
   >
 ) {
   return Apollo.useQuery<
-    GetVendorsByPartnerCompanyQuery,
-    GetVendorsByPartnerCompanyQueryVariables
-  >(GetVendorsByPartnerCompanyDocument, baseOptions);
+    GetArtifactRelationsByCompanyIdQuery,
+    GetArtifactRelationsByCompanyIdQueryVariables
+  >(GetArtifactRelationsByCompanyIdDocument, baseOptions);
 }
-export function useGetVendorsByPartnerCompanyLazyQuery(
+export function useGetArtifactRelationsByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    GetVendorsByPartnerCompanyQuery,
-    GetVendorsByPartnerCompanyQueryVariables
+    GetArtifactRelationsByCompanyIdQuery,
+    GetArtifactRelationsByCompanyIdQueryVariables
   >
 ) {
   return Apollo.useLazyQuery<
-    GetVendorsByPartnerCompanyQuery,
-    GetVendorsByPartnerCompanyQueryVariables
-  >(GetVendorsByPartnerCompanyDocument, baseOptions);
+    GetArtifactRelationsByCompanyIdQuery,
+    GetArtifactRelationsByCompanyIdQueryVariables
+  >(GetArtifactRelationsByCompanyIdDocument, baseOptions);
 }
-export type GetVendorsByPartnerCompanyQueryHookResult = ReturnType<
-  typeof useGetVendorsByPartnerCompanyQuery
+export type GetArtifactRelationsByCompanyIdQueryHookResult = ReturnType<
+  typeof useGetArtifactRelationsByCompanyIdQuery
 >;
-export type GetVendorsByPartnerCompanyLazyQueryHookResult = ReturnType<
-  typeof useGetVendorsByPartnerCompanyLazyQuery
+export type GetArtifactRelationsByCompanyIdLazyQueryHookResult = ReturnType<
+  typeof useGetArtifactRelationsByCompanyIdLazyQuery
 >;
-export type GetVendorsByPartnerCompanyQueryResult = Apollo.QueryResult<
-  GetVendorsByPartnerCompanyQuery,
-  GetVendorsByPartnerCompanyQueryVariables
+export type GetArtifactRelationsByCompanyIdQueryResult = Apollo.QueryResult<
+  GetArtifactRelationsByCompanyIdQuery,
+  GetArtifactRelationsByCompanyIdQueryVariables
 >;
 export const CompanyVendorPartnershipForVendorDocument = gql`
   query CompanyVendorPartnershipForVendor($companyId: uuid!, $vendorId: uuid!) {

@@ -6,7 +6,7 @@ import DateInput from "components/Shared/FormInputs/DateInput";
 import MetrcTransferInfoCard from "components/Transfers/MetrcTransferInfoCard";
 import {
   Companies,
-  GetVendorsByPartnerCompanyQuery,
+  GetArtifactRelationsByCompanyIdQuery,
   MetrcTransferFragment,
   PurchaseOrderFileFragment,
   PurchaseOrderFileTypeEnum,
@@ -23,7 +23,7 @@ interface Props {
   purchaseOrder: PurchaseOrdersInsertInput;
   purchaseOrderFile: PurchaseOrderFileFragment | null;
   selectableMetrcTransfers: NonNullable<
-    GetVendorsByPartnerCompanyQuery["companies_by_pk"]
+    GetArtifactRelationsByCompanyIdQuery["companies_by_pk"]
   >["metrc_transfers"];
   selectedMetrcTransfers: MetrcTransferFragment[];
   setPurchaseOrder: (purchaseOrder: PurchaseOrdersInsertInput) => void;

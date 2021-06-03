@@ -7,7 +7,7 @@ query GetVendorPartnershipsByCompanyId($companyId: uuid!) {
   }
 }
 
-query GetVendorsByPartnerCompany($companyId: uuid!) {
+query GetArtifactRelationsByCompanyId($companyId: uuid!) {
   companies_by_pk(id: $companyId) {
     metrc_api_keys(where: { is_functioning: { _eq: true } }) {
       id

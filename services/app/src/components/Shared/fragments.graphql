@@ -359,6 +359,10 @@ fragment MetrcPackage on metrc_packages {
   package_payload
   lab_results_payload
   lab_results_status
+  metrc_transfer {
+    id
+    manifest_number
+  }
 }
 
 fragment PurchaseOrderMetrcTransfer on purchase_order_metrc_transfers {

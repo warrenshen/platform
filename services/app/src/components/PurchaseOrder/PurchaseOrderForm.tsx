@@ -14,7 +14,7 @@ import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import {
   Companies,
-  GetVendorsByPartnerCompanyQuery,
+  GetArtifactRelationsByCompanyIdQuery,
   PurchaseOrderFileFragment,
   PurchaseOrderFileTypeEnum,
   PurchaseOrdersInsertInput,
@@ -27,7 +27,7 @@ interface Props {
   purchaseOrder: PurchaseOrdersInsertInput;
   purchaseOrderFile: PurchaseOrderFileFragment | null;
   purchaseOrderCannabisFiles: PurchaseOrderFileFragment[];
-  selectableVendors: GetVendorsByPartnerCompanyQuery["vendors"];
+  selectableVendors: GetArtifactRelationsByCompanyIdQuery["vendors"];
   setPurchaseOrder: (purchaseOrder: PurchaseOrdersInsertInput) => void;
   setPurchaseOrderFile: (file: PurchaseOrderFileFragment | null) => void;
   setPurchaseOrderCannabisFiles: (files: PurchaseOrderFileFragment[]) => void;
