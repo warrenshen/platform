@@ -16757,6 +16757,7 @@ export type Users = {
   first_name: Scalars["String"];
   full_name: Scalars["String"];
   id: Scalars["uuid"];
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   last_name: Scalars["String"];
   password?: Maybe<Scalars["String"]>;
   phone_number?: Maybe<Scalars["String"]>;
@@ -16808,6 +16809,7 @@ export type UsersBoolExp = {
   first_name?: Maybe<StringComparisonExp>;
   full_name?: Maybe<StringComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  is_deleted?: Maybe<BooleanComparisonExp>;
   last_name?: Maybe<StringComparisonExp>;
   password?: Maybe<StringComparisonExp>;
   phone_number?: Maybe<StringComparisonExp>;
@@ -16832,6 +16834,7 @@ export type UsersInsertInput = {
   first_name?: Maybe<Scalars["String"]>;
   full_name?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   last_name?: Maybe<Scalars["String"]>;
   password?: Maybe<Scalars["String"]>;
   phone_number?: Maybe<Scalars["String"]>;
@@ -16925,6 +16928,7 @@ export type UsersOrderBy = {
   first_name?: Maybe<OrderBy>;
   full_name?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  is_deleted?: Maybe<OrderBy>;
   last_name?: Maybe<OrderBy>;
   password?: Maybe<OrderBy>;
   phone_number?: Maybe<OrderBy>;
@@ -16952,6 +16956,8 @@ export enum UsersSelectColumn {
   /** column name */
   Id = "id",
   /** column name */
+  IsDeleted = "is_deleted",
+  /** column name */
   LastName = "last_name",
   /** column name */
   Password = "password",
@@ -16971,6 +16977,7 @@ export type UsersSetInput = {
   first_name?: Maybe<Scalars["String"]>;
   full_name?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   last_name?: Maybe<Scalars["String"]>;
   password?: Maybe<Scalars["String"]>;
   phone_number?: Maybe<Scalars["String"]>;
@@ -16992,6 +16999,8 @@ export enum UsersUpdateColumn {
   FullName = "full_name",
   /** column name */
   Id = "id",
+  /** column name */
+  IsDeleted = "is_deleted",
   /** column name */
   LastName = "last_name",
   /** column name */
@@ -24545,7 +24554,19 @@ export type GetUserQueryResult = Apollo.QueryResult<
 >;
 export const GetUsersByRolesDocument = gql`
   query GetUsersByRoles($roles: [user_roles_enum!]!) {
-    users(where: { role: { _in: $roles } }) {
+    users(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { role: { _in: $roles } }
+        ]
+      }
+    ) {
       id
       ...User
     }
@@ -24603,7 +24624,19 @@ export type GetUsersByRolesQueryResult = Apollo.QueryResult<
 >;
 export const ListUsersByCompanyIdDocument = gql`
   query ListUsersByCompanyId($companyId: uuid!) {
-    users(where: { company_id: { _eq: $companyId } }) {
+    users(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { company_id: { _eq: $companyId } }
+        ]
+      }
+    ) {
       ...User
     }
   }

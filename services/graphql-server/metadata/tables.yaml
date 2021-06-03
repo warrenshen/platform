@@ -3397,6 +3397,7 @@
       - first_name
       - full_name
       - id
+      - is_deleted
       - last_name
       - phone_number
       - role
@@ -3410,6 +3411,7 @@
       - first_name
       - full_name
       - id
+      - is_deleted
       - last_name
       - phone_number
       - role
@@ -3423,6 +3425,7 @@
       - first_name
       - full_name
       - id
+      - is_deleted
       - last_name
       - phone_number
       - role
@@ -3438,6 +3441,7 @@
       - first_name
       - full_name
       - id
+      - is_deleted
       - last_name
       - phone_number
       - role

@@ -89,6 +89,7 @@ class User(Base):
 	first_name = Column(Text, nullable=False)
 	last_name = Column(Text, nullable=False)
 	phone_number = Column(Text)
+	is_deleted = Column(Boolean)
 
 
 class UserRole(Base):

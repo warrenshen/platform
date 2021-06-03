@@ -6,14 +6,38 @@ query GetUser($id: uuid!) {
 }
 
 query GetUsersByRoles($roles: [user_roles_enum!]!) {
-  users(where: { role: { _in: $roles } }) {
+  users(
+    where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { role: { _in: $roles } }
+        ]
+      }
+  ) {
     id
     ...User
   }
 }
 
 query ListUsersByCompanyId($companyId: uuid!) {
-  users(where: { company_id: { _eq: $companyId } }) {
+  users(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { company_id: { _eq: $companyId } }
+      ]
+    }
+  ) {
     ...User
   }
 }
