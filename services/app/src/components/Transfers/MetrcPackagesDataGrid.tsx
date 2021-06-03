@@ -24,6 +24,7 @@ export default function MetrcPackagesDataGrid({
         const packagePayload = metrcPackage.package_payload as MetrcPackagePayload;
         return {
           ...metrcPackage,
+          manifest_number: metrcPackage.metrc_transfer.manifest_number,
           source_harvest_names: packagePayload["SourceHarvestNames"],
           source_package_labels: packagePayload["SourcePackageLabels"],
           product_category_name: packagePayload["ProductCategoryName"],
@@ -45,11 +46,16 @@ export default function MetrcPackagesDataGrid({
       {
         fixed: true,
         dataField: "package_id",
-        caption: "Pacakage ID",
+        caption: "Package ID",
         width: ColumnWidths.MetrcId,
       },
       {
         fixed: true,
+        dataField: "manifest_number",
+        caption: "Manifest #",
+        width: ColumnWidths.MetrcId,
+      },
+      {
         dataField: "delivery_id",
         caption: "Delivery ID",
         width: ColumnWidths.MetrcId,

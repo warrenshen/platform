@@ -15,3 +15,17 @@ query GetMetrcPackage($id: uuid!) {
     ...MetrcPackage
   }
 }
+
+query GetMetrcTransfersByCompanyId($company_id: uuid!) {
+  metrc_transfers(where: { company_id: { _eq: $company_id } }) {
+    id
+    ...MetrcTransfer
+  }
+}
+
+query GetMetrcPackagesByCompanyId($company_id: uuid!) {
+  metrc_packages(where: { metrc_transfer: { company_id: { _eq: $company_id } } }) {
+    id
+    ...MetrcPackage
+  }
+}

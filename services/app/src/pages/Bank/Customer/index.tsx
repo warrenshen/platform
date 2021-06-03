@@ -30,6 +30,7 @@ import BankCustomerPayorsSubpage from "./Payors";
 import BankCustomerPurchaseOrdersSubpage from "./PurchaseOrders";
 import BankCustomerSettingsSubpage from "./Settings";
 import BankCustomerVendorsSubpage from "./Vendors";
+import BankCustomerMetrcSubpage from "./Metrc";
 
 const DRAWER_WIDTH = 200;
 
@@ -122,6 +123,11 @@ const getCustomerPaths = (productType: ProductTypeEnum | null) => [
     path: bankRoutes.customer.payors,
     component: BankCustomerPayorsSubpage,
     label: "Payors",
+  },
+  {
+    path: bankRoutes.customer.metrc,
+    component: BankCustomerMetrcSubpage,
+    label: "Metrc",
   },
   {
     path: bankRoutes.customer.contract,
