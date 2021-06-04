@@ -14,7 +14,7 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 get_jwt_identity, get_raw_jwt,
                                 jwt_refresh_token_required)
 from server.config import Config
-from server.views.common import auth_util, handler_util
+from server.views.common import auth_util, handler_util, session_util
 
 handler = Blueprint('auth', __name__)
 
@@ -199,6 +199,19 @@ class TokenRefreshView(MethodView):
 	@jwt_refresh_token_required
 	def post(self) -> Response:
 		cur_user = get_jwt_identity()
+		user_session = session_util.UserSession(cur_user)
+		
+		with session_scope(current_app.session_maker) as session:
+			existing_user = session.query(models.User).filter(
+				models.User.id == user_session.get_user_id()
+			).first()
+
+			if not existing_user:
+				return handler_util.make_error_response('No user found')
+
+			if existing_user.is_deleted:
+				return handler_util.make_error_response('Access Denied')
+
 		access_token = create_access_token(identity=cur_user)
 		return make_response(json.dumps({
 			'status': 'OK',
