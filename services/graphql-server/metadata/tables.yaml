@@ -2562,31 +2562,33 @@
   - role: bank_admin
     permission:
       columns:
-      - id
       - company_id
-      - license_id
+      - created_at
       - created_date
       - delivery_id
+      - id
+      - lab_results_status
+      - license_id
       - manifest_number
       - transfer_payload
-      - vendor_id
       - transfer_type
-      - created_at
       - updated_at
+      - vendor_id
       filter: {}
   - role: bank_read_only
     permission:
       columns:
-      - created_date
-      - transfer_payload
-      - delivery_id
-      - manifest_number
-      - transfer_type
-      - created_at
-      - updated_at
       - company_id
+      - created_at
+      - created_date
+      - delivery_id
       - id
+      - lab_results_status
       - license_id
+      - manifest_number
+      - transfer_payload
+      - transfer_type
+      - updated_at
       - vendor_id
       filter: {}
   - role: company_admin
@@ -2596,6 +2598,7 @@
       - created_date
       - delivery_id
       - id
+      - lab_results_status
       - license_id
       - manifest_number
       - transfer_payload
@@ -2614,6 +2617,7 @@
       - created_date
       - delivery_id
       - id
+      - lab_results_status
       - license_id
       - manifest_number
       - transfer_payload

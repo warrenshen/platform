@@ -8782,6 +8782,7 @@ export type MetrcTransfers = {
   created_date: Scalars["date"];
   delivery_id: Scalars["String"];
   id: Scalars["uuid"];
+  lab_results_status?: Maybe<Scalars["String"]>;
   license_id: Scalars["uuid"];
   manifest_number: Scalars["String"];
   /** An array relationship */
@@ -8878,6 +8879,7 @@ export type MetrcTransfersBoolExp = {
   created_date?: Maybe<DateComparisonExp>;
   delivery_id?: Maybe<StringComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  lab_results_status?: Maybe<StringComparisonExp>;
   license_id?: Maybe<UuidComparisonExp>;
   manifest_number?: Maybe<StringComparisonExp>;
   metrc_packages?: Maybe<MetrcPackagesBoolExp>;
@@ -8905,6 +8907,7 @@ export type MetrcTransfersInsertInput = {
   created_date?: Maybe<Scalars["date"]>;
   delivery_id?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
+  lab_results_status?: Maybe<Scalars["String"]>;
   license_id?: Maybe<Scalars["uuid"]>;
   manifest_number?: Maybe<Scalars["String"]>;
   metrc_packages?: Maybe<MetrcPackagesArrRelInsertInput>;
@@ -8922,6 +8925,7 @@ export type MetrcTransfersMaxFields = {
   created_date?: Maybe<Scalars["date"]>;
   delivery_id?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
+  lab_results_status?: Maybe<Scalars["String"]>;
   license_id?: Maybe<Scalars["uuid"]>;
   manifest_number?: Maybe<Scalars["String"]>;
   transfer_type?: Maybe<Scalars["String"]>;
@@ -8936,6 +8940,7 @@ export type MetrcTransfersMaxOrderBy = {
   created_date?: Maybe<OrderBy>;
   delivery_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  lab_results_status?: Maybe<OrderBy>;
   license_id?: Maybe<OrderBy>;
   manifest_number?: Maybe<OrderBy>;
   transfer_type?: Maybe<OrderBy>;
@@ -8950,6 +8955,7 @@ export type MetrcTransfersMinFields = {
   created_date?: Maybe<Scalars["date"]>;
   delivery_id?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
+  lab_results_status?: Maybe<Scalars["String"]>;
   license_id?: Maybe<Scalars["uuid"]>;
   manifest_number?: Maybe<Scalars["String"]>;
   transfer_type?: Maybe<Scalars["String"]>;
@@ -8964,6 +8970,7 @@ export type MetrcTransfersMinOrderBy = {
   created_date?: Maybe<OrderBy>;
   delivery_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  lab_results_status?: Maybe<OrderBy>;
   license_id?: Maybe<OrderBy>;
   manifest_number?: Maybe<OrderBy>;
   transfer_type?: Maybe<OrderBy>;
@@ -9001,6 +9008,7 @@ export type MetrcTransfersOrderBy = {
   created_date?: Maybe<OrderBy>;
   delivery_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  lab_results_status?: Maybe<OrderBy>;
   license_id?: Maybe<OrderBy>;
   manifest_number?: Maybe<OrderBy>;
   metrc_packages_aggregate?: Maybe<MetrcPackagesAggregateOrderBy>;
@@ -9029,6 +9037,8 @@ export enum MetrcTransfersSelectColumn {
   /** column name */
   Id = "id",
   /** column name */
+  LabResultsStatus = "lab_results_status",
+  /** column name */
   LicenseId = "license_id",
   /** column name */
   ManifestNumber = "manifest_number",
@@ -9049,6 +9059,7 @@ export type MetrcTransfersSetInput = {
   created_date?: Maybe<Scalars["date"]>;
   delivery_id?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
+  lab_results_status?: Maybe<Scalars["String"]>;
   license_id?: Maybe<Scalars["uuid"]>;
   manifest_number?: Maybe<Scalars["String"]>;
   transfer_payload?: Maybe<Scalars["json"]>;
@@ -9069,6 +9080,8 @@ export enum MetrcTransfersUpdateColumn {
   DeliveryId = "delivery_id",
   /** column name */
   Id = "id",
+  /** column name */
+  LabResultsStatus = "lab_results_status",
   /** column name */
   LicenseId = "license_id",
   /** column name */
@@ -18779,6 +18792,7 @@ export type MetrcTransferFragment = Pick<
   | "created_date"
   | "manifest_number"
   | "transfer_payload"
+  | "lab_results_status"
 > & { vendor?: Maybe<Pick<Companies, "id" | "name">> };
 
 export type MetrcPackageFragment = Pick<
@@ -19610,6 +19624,7 @@ export const MetrcTransferFragmentDoc = gql`
     created_date
     manifest_number
     transfer_payload
+    lab_results_status
     vendor {
       id
       name
@@ -25841,7 +25856,10 @@ export type GetMetrcPackageQueryResult = Apollo.QueryResult<
 >;
 export const GetMetrcTransfersByCompanyIdDocument = gql`
   query GetMetrcTransfersByCompanyId($company_id: uuid!) {
-    metrc_transfers(where: { company_id: { _eq: $company_id } }) {
+    metrc_transfers(
+      where: { company_id: { _eq: $company_id } }
+      order_by: { manifest_number: desc }
+    ) {
       id
       ...MetrcTransfer
     }
@@ -25901,6 +25919,10 @@ export const GetMetrcPackagesByCompanyIdDocument = gql`
   query GetMetrcPackagesByCompanyId($company_id: uuid!) {
     metrc_packages(
       where: { metrc_transfer: { company_id: { _eq: $company_id } } }
+      order_by: [
+        { metrc_transfer: { manifest_number: desc } }
+        { package_id: asc }
+      ]
     ) {
       id
       ...MetrcPackage
@@ -26719,7 +26741,7 @@ export const GetArtifactRelationsByCompanyIdDocument = gql`
             { vendor_id: { _is_null: false } }
           ]
         }
-        order_by: { created_date: desc }
+        order_by: { manifest_number: desc }
       ) {
         id
         ...MetrcTransfer

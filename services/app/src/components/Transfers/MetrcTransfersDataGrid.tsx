@@ -56,6 +56,16 @@ export default function MetrcTransfersDataGrid({
         minWidth: ColumnWidths.MinWidth,
       },
       {
+        dataField: "transfer_type",
+        caption: "Transfer Type",
+        width: 230,
+      },
+      {
+        dataField: "lab_results_status",
+        caption: "Lab Results Status",
+        minWidth: ColumnWidths.MinWidth,
+      },
+      {
         dataField: "origin_license",
         caption: "Origin License",
         minWidth: ColumnWidths.MinWidth,

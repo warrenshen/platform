@@ -17,14 +17,23 @@ query GetMetrcPackage($id: uuid!) {
 }
 
 query GetMetrcTransfersByCompanyId($company_id: uuid!) {
-  metrc_transfers(where: { company_id: { _eq: $company_id } }) {
+  metrc_transfers(
+    where: { company_id: { _eq: $company_id } }
+    order_by: { manifest_number: desc }
+  ) {
     id
     ...MetrcTransfer
   }
 }
 
 query GetMetrcPackagesByCompanyId($company_id: uuid!) {
-  metrc_packages(where: { metrc_transfer: { company_id: { _eq: $company_id } } }) {
+  metrc_packages(
+    where: { metrc_transfer: { company_id: { _eq: $company_id } } }
+    order_by: [
+      { metrc_transfer: { manifest_number: desc } }
+      { package_id: asc }
+    ]
+  ) {
     id
     ...MetrcPackage
   }

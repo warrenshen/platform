@@ -342,6 +342,7 @@ fragment MetrcTransfer on metrc_transfers {
   created_date
   manifest_number
   transfer_payload
+  lab_results_status
   vendor {
     id
     name

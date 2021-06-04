@@ -49,8 +49,16 @@ class TransferPackages(object):
 	def get_package_ids(self) -> List[str]:
 		return [t['PackageId'] for t in self._packages]
 
-	def get_package_models(self, transfer_id: str, lab_tests: List[LabTest]) -> List[models.MetrcPackage]:
+	def get_package_models(
+		self,
+		transfer_id: str,
+		lab_tests: List[LabTest],
+	) -> Tuple[List[models.MetrcPackage], str]:
+		# Return list of MetrcPackage models and lab results status
+		# of the Transfer that all these packages belong to.
 		metrc_packages = []
+		transfer_lab_results_status = "unknown"
+
 		for i in range(len(self._packages)):
 			package = self._packages[i]
 
@@ -68,7 +76,12 @@ class TransferPackages(object):
 			p.lab_results_status = lab_tests[i].get_status()
 			metrc_packages.append(p)
 
-		return metrc_packages
+			if p.lab_results_status == "failed" and transfer_lab_results_status != "failed":
+				transfer_lab_results_status = "failed"
+			elif p.lab_results_status == "passed" and transfer_lab_results_status == "unknown":
+				transfer_lab_results_status = "passed"
+
+		return metrc_packages, transfer_lab_results_status
 
 	def to_rows(self, include_header: bool) -> List[List[str]]:
 		col_specs = [
@@ -188,7 +201,7 @@ def populate_transfers_table(
 	license: LicenseAuthDict,
 	session: Session) -> Tuple[RequestStatusesDict, errors.Error]:
 
-	logging.info('Downloading transfers for company "{}" on date: {} with license {}'.format(
+	logging.info('Downloading transfers for company "{}" for date {} with license {}'.format(
 		company_info.name, cur_date, license['license_number']
 	))
 
@@ -257,8 +270,8 @@ def populate_transfers_table(
 	all_metrc_packages = []
 	package_id_to_metrc_transfer = {}
 
-	# Look up company ids for vendors that might match, and use those licenses to
-	# determine what kind of transfer this is
+	# Look up company ids for vendors that might match, and use those
+	# licenses to determine what kind of transfer this is
 	_match_and_add_licenses_to_transfers(
 		metrc_transfers,
 		transfer_type_prefix='INCOMING',
@@ -266,7 +279,7 @@ def populate_transfers_table(
 	)
 
 	for metrc_transfer in metrc_transfers:
-		logging.info('Downloading data for metrc transfer delivery_id={}'.format(metrc_transfer.delivery_id))
+		logging.info(f'Downloading packages for metrc transfer delivery_id={metrc_transfer.delivery_id}')
 		delivery_id = metrc_transfer.delivery_id
 		try:
 			resp = rest.get(f'/transfers/v1/delivery/{delivery_id}/packages')
@@ -281,6 +294,7 @@ def populate_transfers_table(
 
 		lab_tests = []
 		for package_id in package_ids:
+			logging.info(f'Downloading lab results for metrc package package_id={package_id}')
 			try:
 				resp = rest.get(f'/labtests/v1/results?packageId={package_id}')
 				lab_test_json = json.loads(resp.content)
@@ -292,10 +306,11 @@ def populate_transfers_table(
 
 			lab_tests.append(LabTest(lab_test_json))
 
-		metrc_packages = packages.get_package_models(
+		metrc_packages, transfer_lab_results_status = packages.get_package_models(
 			transfer_id=None,
 			lab_tests=lab_tests
 		)
+		metrc_transfer.lab_results_status = transfer_lab_results_status
 		for metrc_package in metrc_packages:
 			package_id_to_metrc_transfer[metrc_package.package_id] = metrc_transfer
 			all_metrc_packages.append(metrc_package)

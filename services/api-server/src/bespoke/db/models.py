@@ -330,6 +330,8 @@ class MetrcTransfer(Base):
 	delivery_id = Column(String)
 	manifest_number = Column(String)
 	transfer_payload = Column(JSON)
+	lab_results_status = Column(String)
+
 
 class MetrcPackage(Base):
 	__tablename__ = 'metrc_packages'

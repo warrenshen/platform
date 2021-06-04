@@ -60619,6 +60619,18 @@
             "deprecationReason": null
           },
           {
+            "name": "lab_results_status",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "license_id",
             "description": null,
             "args": [],
@@ -61231,6 +61243,16 @@
             "defaultValue": null
           },
           {
+            "name": "lab_results_status",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "String_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "license_id",
             "description": null,
             "type": {
@@ -61415,6 +61437,16 @@
             "defaultValue": null
           },
           {
+            "name": "lab_results_status",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "license_id",
             "description": null,
             "type": {
@@ -61565,6 +61597,18 @@
             "deprecationReason": null
           },
           {
+            "name": "lab_results_status",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "license_id",
             "description": null,
             "args": [],
@@ -61678,6 +61722,16 @@
           },
           {
             "name": "id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "lab_results_status",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -61807,6 +61861,18 @@
             "deprecationReason": null
           },
           {
+            "name": "lab_results_status",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "license_id",
             "description": null,
             "args": [],
@@ -61920,6 +61986,16 @@
           },
           {
             "name": "id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "lab_results_status",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -62203,6 +62279,16 @@
             "defaultValue": null
           },
           {
+            "name": "lab_results_status",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "license_id",
             "description": null,
             "type": {
@@ -62351,6 +62437,12 @@
             "deprecationReason": null
           },
           {
+            "name": "lab_results_status",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "license_id",
             "description": "column name",
             "isDeprecated": false,
@@ -62441,6 +62533,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "lab_results_status",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "defaultValue": null
@@ -62544,6 +62646,12 @@
           },
           {
             "name": "id",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "lab_results_status",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
