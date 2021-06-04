@@ -1,5 +1,6 @@
 import json
 import logging
+import time
 import typing
 from datetime import timedelta
 from typing import Callable, Tuple, cast
@@ -29,18 +30,21 @@ NotificationTemplateData = TypedDict('NotificationTemplateData', {
 	'outcome': str,
 	'fatal_error': str,
 	'descriptive_errors': typing.List[str],
+	'additional_info': str
 }, total=False)
 
 
 def _prepare_notification_data(
 	trigger_name: str,
 	fatal_error: errors.Error,
-	descriptive_errors: typing.List[str]) -> NotificationTemplateData:
+	descriptive_errors: typing.List[str],
+	additional_info: str) -> NotificationTemplateData:
 
 	data = NotificationTemplateData(
 		trigger_name=trigger_name,
 		domain=current_app.app_config.BESPOKE_DOMAIN,
 		outcome='FAILED' if fatal_error else 'SUCCEEDED',
+		additional_info=additional_info
 	)
 
 	if fatal_error:
@@ -97,6 +101,7 @@ class UpdateAllCompanyBalancesView(MethodView):
 	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
 		logging.info("Received request to update all company balances")
+		before = time.time()
 
 		descriptive_errors, fatal_error = reports_util.run_customer_balances_for_all_companies(
 			current_app.session_maker,
@@ -106,12 +111,16 @@ class UpdateAllCompanyBalancesView(MethodView):
 			logging.error(f"Got fatal error while recomputing balances for all companies: '{fatal_error}'")
 			return handler_util.make_error_response(fatal_error)
 
+		after = time.time()
 		logging.info("Finished updating all company balances")
+
+		additional_info = 'Took {:.2f} seconds'.format(after - before)
 
 		err = _send_ops_notification(_prepare_notification_data(
 			'update_all_customer_balances',
 			fatal_error,
-			descriptive_errors))
+			descriptive_errors,
+			additional_info))
 		if err:
 			return handler_util.make_error_response(
 				f"Failed sending update_all_customer_balances trigger notification. Error: '{err}'")
@@ -214,6 +223,7 @@ class DownloadMetrcDataView(MethodView):
 		start_date = todays_date - timedelta(days=TIME_WINDOW_IN_DAYS)
 		end_date = todays_date
 
+		before = time.time()
 		resp, fatal_err = metrc_util.download_data_for_all_customers(
 			auth_provider=cfg.get_metrc_auth_provider(),
 			security_cfg=cfg.get_security_config(),
@@ -224,11 +234,25 @@ class DownloadMetrcDataView(MethodView):
 		if fatal_err:
 			raise errors.Error('{}'.format(fatal_err), http_code=500)
 
+		descriptive_errors = ['{}'.format(err) for err in resp['all_errs']]
+		after = time.time()
+		additional_info = 'Took {:.2f} seconds'.format(after - before)
+
+		err = _send_ops_notification(_prepare_notification_data(
+			'download_metrc_data',
+			fatal_err,
+			descriptive_errors,
+			additional_info
+		))
+		if err:
+			return handler_util.make_error_response(
+				f"Failed sending download_metrc_data trigger notification. Error: '{err}'")
+
 		logging.info(f"Finished downloading metrc data for all customers")
 
 		return make_response(json.dumps({
 			'status': 'OK',
-			'errors': ['{}'.format(err) for err in resp['all_errs']]
+			'errors': descriptive_errors
 		}))
 
 
