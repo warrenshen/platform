@@ -6,6 +6,8 @@ import { useMemo } from "react";
 import MetrcPackageModal from "components/Transfers/MetrcPackageModal";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import ModalButton from "components/Shared/Modal/ModalButton";
+import MetrcPackageDrawerLauncher from "components/Transfers/MetrcPackageDrawerLauncher";
+import MetrcTransferDrawerLauncher from "components/Transfers/MetrcTransferDrawerLauncher";
 
 interface Props {
   isExcelExport?: boolean;
@@ -48,12 +50,24 @@ export default function MetrcPackagesDataGrid({
         dataField: "package_id",
         caption: "Package ID",
         width: ColumnWidths.MetrcId,
+        cellRender: (params: ValueFormatterParams) => (
+          <MetrcPackageDrawerLauncher
+            label={params.row.data.package_id}
+            metrcPackageId={params.row.data.id}
+          />
+        ),
       },
       {
         fixed: true,
         dataField: "manifest_number",
         caption: "Manifest #",
         width: ColumnWidths.MetrcId,
+        cellRender: (params: ValueFormatterParams) => (
+          <MetrcTransferDrawerLauncher
+            label={params.row.data.manifest_number}
+            metrcTransferId={params.row.data.transfer_id}
+          />
+        ),
       },
       {
         dataField: "delivery_id",

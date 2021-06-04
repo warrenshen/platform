@@ -2,6 +2,8 @@ import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 import { MetrcTransferFragment } from "generated/graphql";
+import { ValueFormatterParams } from "@material-ui/data-grid";
+import MetrcTransferDrawerLauncher from "components/Transfers/MetrcTransferDrawerLauncher";
 
 interface Props {
   isExcelExport?: boolean;
@@ -18,10 +20,12 @@ export default function MetrcTransfersDataGrid({
         const transferPayload = metrcTransfer.transfer_payload;
         return {
           ...metrcTransfer,
+          vendor_name: metrcTransfer.vendor?.name || "UNKNOWN",
           origin_license: transferPayload.ShipperFacilityLicenseNumber,
           origin_facility: transferPayload.ShipperFacilityName,
           destination_license: transferPayload.RecipientFacilityLicenseNumber,
           destination_facility: transferPayload.RecipientFacilityName,
+          type: transferPayload.ShipmentTypeName,
         };
       }),
     [metrcTransfers]
@@ -33,13 +37,23 @@ export default function MetrcTransfersDataGrid({
         fixed: true,
         dataField: "manifest_number",
         caption: "Manifest #",
-        width: ColumnWidths.Date,
+        width: ColumnWidths.MetrcId,
+        cellRender: (params: ValueFormatterParams) => (
+          <MetrcTransferDrawerLauncher
+            label={params.row.data.manifest_number}
+            metrcTransferId={params.row.data.id}
+          />
+        ),
       },
       {
-        fixed: true,
         dataField: "delivery_id",
         caption: "Delivery ID",
-        width: ColumnWidths.Date,
+        width: ColumnWidths.MetrcId,
+      },
+      {
+        dataField: "vendor_name",
+        caption: "Vendor Name",
+        minWidth: ColumnWidths.MinWidth,
       },
       {
         dataField: "origin_license",

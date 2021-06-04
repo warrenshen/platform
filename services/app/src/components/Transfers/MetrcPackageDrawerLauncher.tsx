@@ -1,25 +1,25 @@
 import { Box } from "@material-ui/core";
-import PurchaseOrderDrawer from "components/PurchaseOrder/PurchaseOrderDrawer";
+import MetrcPackageModal from "components/Transfers/MetrcPackageModal";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
-import { PurchaseOrders } from "generated/graphql";
+import { MetrcPackages } from "generated/graphql";
 import { useState } from "react";
 
 interface Props {
   label: string;
-  purchaseOrderId: PurchaseOrders["id"];
+  metrcPackageId: MetrcPackages["id"];
 }
 
-export default function PurchaseOrderDrawerLauncher({
+export default function MetrcTransferDrawerLauncher({
   label,
-  purchaseOrderId,
+  metrcPackageId,
 }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <Box>
       {isOpen && (
-        <PurchaseOrderDrawer
-          purchaseOrderId={purchaseOrderId}
+        <MetrcPackageModal
+          metrcPackageId={metrcPackageId}
           handleClose={() => setIsOpen(false)}
         />
       )}
