@@ -47,9 +47,41 @@ export default function MetrcPackageModal({
     >
       <Box display="flex" flexDirection="column" mt={2}>
         <Typography variant="subtitle2" color="textSecondary">
+          Metrc ID
+        </Typography>
+        <Typography variant="body1">{metrcPackage.package_id}</Typography>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2" color="textSecondary">
           Label
         </Typography>
         <Typography variant="body1">{metrcPackage.label}</Typography>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2" color="textSecondary">
+          Product Name
+        </Typography>
+        <Typography variant="body1">{packagePayload.ProductName}</Typography>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2" color="textSecondary">
+          Product Category
+        </Typography>
+        <Typography variant="body1">
+          {packagePayload.ProductCategoryName}
+        </Typography>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2" color="textSecondary">
+          Shipped Quantity
+        </Typography>
+        <Typography variant="body1">{`${packagePayload.ShippedQuantity} (${packagePayload.ShippedUnitOfMeasureName})`}</Typography>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2" color="textSecondary">
+          Received Quantity
+        </Typography>
+        <Typography variant="body1">{`${packagePayload.ReceivedQuantity} (${packagePayload.ReceivedUnitOfMeasureName})`}</Typography>
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>
         <Typography variant="subtitle2" color="textSecondary">

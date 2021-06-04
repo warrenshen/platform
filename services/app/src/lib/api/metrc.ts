@@ -110,12 +110,16 @@ export type MetrcTransferPayload = {
 export type MetrcPackagePayload = {
   SourceHarvestNames: string;
   SourcePackageLabels: string;
+  ProductName: string;
   ProductCategoryName: string;
   LabTestingState: string;
   ItemCategory: string;
   ItemStrainName: string;
   ItemState: string;
+  ShippedQuantity: string;
+  ShippedUnitOfMeasureName: string;
   ReceivedQuantity: string;
+  ReceivedUnitOfMeasureName: string;
   ItemUnitQuantity: string;
   ItemUnitWeight: string;
   IsTestingSample: string;

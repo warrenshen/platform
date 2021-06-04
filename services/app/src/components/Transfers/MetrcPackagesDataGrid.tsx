@@ -34,7 +34,8 @@ export default function MetrcPackagesDataGrid({
           item_category: packagePayload["ItemCategory"],
           item_strain_name: packagePayload["ItemStrainName"],
           item_state: packagePayload["ItemState"],
-          received_quantity: packagePayload["ReceivedQuantity"],
+          shipped_quantity: `${packagePayload["ShippedQuantity"]} (${packagePayload["ShippedUnitOfMeasureName"]})`,
+          received_quantity: `${packagePayload["ReceivedQuantity"]} (${packagePayload["ReceivedUnitOfMeasureName"]})`,
           item_unit_quantity: packagePayload["ItemUnitQuantity"],
           item_unit_weight: packagePayload["ItemUnitWeight"],
           is_testing_sample: packagePayload["IsTestingSample"],
@@ -48,7 +49,7 @@ export default function MetrcPackagesDataGrid({
       {
         fixed: true,
         dataField: "package_id",
-        caption: "Package ID",
+        caption: "Metrc ID",
         width: ColumnWidths.MetrcId,
         cellRender: (params: ValueFormatterParams) => (
           <MetrcPackageDrawerLauncher
@@ -137,6 +138,11 @@ export default function MetrcPackagesDataGrid({
       {
         dataField: "item_state",
         caption: "Item State",
+        minWidth: ColumnWidths.MinWidth,
+      },
+      {
+        dataField: "shipped_quantity",
+        caption: "Shipped Quantity",
         minWidth: ColumnWidths.MinWidth,
       },
       {
