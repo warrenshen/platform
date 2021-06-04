@@ -41,6 +41,9 @@ class SignInView(MethodView):
 			if not user:
 				return handler_util.make_error_response('User {} does not exist'.format(email), 401)
 
+			if user.is_deleted:
+				return handler_util.make_error_response('User {} does not exist'.format(email), 401)
+
 			if not security_util.verify_password(cfg.PASSWORD_SALT, password_guess, user.password):
 				return handler_util.make_error_response(f'Invalid password provided', 401)
 
@@ -76,6 +79,9 @@ class ForgotPasswordView(MethodView):
 			user = session.query(models.User).filter(
 				models.User.email == email.lower()).first()
 			if not user or not user.role:
+				raise errors.Error(f'An account with email "{email}" does not exist', http_code=401)
+
+			if user.is_deleted:
 				raise errors.Error(f'An account with email "{email}" does not exist', http_code=401)
 
 		sendgrid_client.send(
@@ -130,6 +136,9 @@ class ResetPasswordView(MethodView):
 			user = session.query(models.User).filter(
 				models.User.email == email.lower()).first()
 			if not user:
+				raise errors.Error('User {} does not exist'.format(email), http_code=401)
+
+			if user.is_deleted:
 				raise errors.Error('User {} does not exist'.format(email), http_code=401)
 
 			# The user has sent back their password and a valid signed link value associated
