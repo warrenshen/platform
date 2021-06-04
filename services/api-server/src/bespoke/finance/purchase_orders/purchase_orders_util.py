@@ -368,7 +368,7 @@ def submit_purchase_order_for_approval(
 		if not vendor_users:
 			raise errors.Error('There are no users configured for this vendor')
 
-		# Validation 2: validations for purchase_orders.is_metrc_based = True POs.
+		# Validation 2: validations for POs of which purchase_orders.is_metrc_based is True.
 		if purchase_order.is_metrc_based:
 			purchase_order_metrc_transfers = cast(
 				List[models.PurchaseOrderMetrcTransfer],
@@ -381,7 +381,10 @@ def submit_purchase_order_for_approval(
 			if len(purchase_order_metrc_transfers) <= 0:
 				raise errors.Error('Purchase order Metrc manifest(s) are required')
 
-		# Validation 3: validations for purchase_orders.is_metrc_based = False POs.
+			# TODO(warrenshen): separate validations based on whether
+			# metrc_transfer.lab_results_status is equal to "passed" or not.
+
+		# Validation 3: validations for POs of which purchase_orders.is_metrc_based is False.
 		if not purchase_order.is_metrc_based:
 			if not purchase_order.delivery_date:
 				raise errors.Error('Delivery date is required')

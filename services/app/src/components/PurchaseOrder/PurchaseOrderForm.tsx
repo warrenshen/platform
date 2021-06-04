@@ -198,8 +198,8 @@ export default function PurchaseOrderForm({
               Cannabis File Attachments
             </Typography>
             <Typography variant="body2" color="textSecondary">
-              Please upload the following: Shipping Manifest, Certificate of
-              Analysis.
+              Please upload the following types of files: Shipping Manifest,
+              Certificate of Analysis.
             </Typography>
           </Box>
           <FileUploader

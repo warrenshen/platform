@@ -52,6 +52,9 @@ export default function MetrcTransferInfoCard({
               : "Unknown"
           }`}
         </Typography>
+        <Typography variant="body2">
+          {`Lab results: ${metrcTransfer.lab_results_status || "Unknown"}`}
+        </Typography>
       </Box>
       <Box
         display="flex"

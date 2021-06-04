@@ -1,4 +1,5 @@
 import { Box, TextField, Typography } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import FileUploader from "components/Shared/File/FileUploader";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
@@ -22,12 +23,14 @@ interface Props {
   companyId: Companies["id"];
   purchaseOrder: PurchaseOrdersInsertInput;
   purchaseOrderFile: PurchaseOrderFileFragment | null;
+  purchaseOrderCannabisFiles: PurchaseOrderFileFragment[];
   selectableMetrcTransfers: NonNullable<
     GetArtifactRelationsByCompanyIdQuery["companies_by_pk"]
   >["metrc_transfers"];
   selectedMetrcTransfers: MetrcTransferFragment[];
   setPurchaseOrder: (purchaseOrder: PurchaseOrdersInsertInput) => void;
   setPurchaseOrderFile: (file: PurchaseOrderFileFragment | null) => void;
+  setPurchaseOrderCannabisFiles: (files: PurchaseOrderFileFragment[]) => void;
   setPurchaseOrderMetrcTransfers: React.Dispatch<
     React.SetStateAction<PurchaseOrderMetrcTransferFragment[]>
   >;
@@ -39,18 +42,32 @@ export default function PurchaseOrderFormV2({
   companyId,
   purchaseOrder,
   purchaseOrderFile,
+  purchaseOrderCannabisFiles,
   selectableMetrcTransfers,
   selectedMetrcTransfers,
   setPurchaseOrder,
   setPurchaseOrderFile,
+  setPurchaseOrderCannabisFiles,
   setPurchaseOrderMetrcTransfers,
 }: Props) {
   const purchaseOrderFileIds = useMemo(
     () => (purchaseOrderFile ? [purchaseOrderFile.file_id] : []),
     [purchaseOrderFile]
   );
+  const purchaseOrderCannabisFileIds = useMemo(
+    () =>
+      purchaseOrderCannabisFiles.map(
+        (purchaseOrderFile) => purchaseOrderFile.file_id
+      ),
+    [purchaseOrderCannabisFiles]
+  );
 
   const [autocompleteInputValue, setAutocompleteInputValue] = useState("");
+
+  // True if a metrc transfer is selected and its lab results status is "passed".
+  const isLabResultsPassed =
+    selectedMetrcTransfers.length > 0 &&
+    selectedMetrcTransfers[0].lab_results_status === "passed";
 
   // TODO(warrenshen): once at least one Metrc transfer is selected, user should
   // only be able to add additional Metrc transfers belonging to the same vendor.
@@ -106,6 +123,11 @@ export default function PurchaseOrderFormV2({
                       : "Unknown"
                   }`}
                 </Typography>
+                <Typography variant="body2">
+                  {`Lab results: ${
+                    metrcTransfer.lab_results_status || "Unknown"
+                  }`}
+                </Typography>
               </Box>
             );
           }}
@@ -149,6 +171,17 @@ export default function PurchaseOrderFormV2({
           </Box>
         )}
       </Box>
+      {isLabResultsPassed && (
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Alert severity="success">
+            <Typography variant="body2">
+              Since the selected Metrc manifest(s) passed lab tests, you do not
+              have to upload Certificate of Analysis (COA) files for this
+              purchase order.
+            </Typography>
+          </Alert>
+        </Box>
+      )}
       <Box display="flex" flexDirection="column" mt={4}>
         <TextField
           data-cy={"purchase-order-form-input-order-number"}
@@ -212,6 +245,42 @@ export default function PurchaseOrderFormV2({
           }
         />
       </Box>
+      {!isLabResultsPassed && (
+        <Box display="flex" flexDirection="column" mt={4}>
+          <Box mb={1}>
+            <Typography variant="subtitle1" color="textSecondary">
+              Cannabis File Attachments
+            </Typography>
+            <Typography variant="body2" color="textSecondary">
+              Please upload the following types of file(s): Certificate of
+              Analysis.
+            </Typography>
+          </Box>
+          <FileUploader
+            companyId={companyId}
+            fileType={FileTypeEnum.PURCHASE_ORDER}
+            fileIds={purchaseOrderCannabisFileIds}
+            handleDeleteFileById={(fileId) =>
+              setPurchaseOrderCannabisFiles(
+                purchaseOrderCannabisFiles.filter(
+                  (purchaseOrderFile) => purchaseOrderFile.file_id !== fileId
+                )
+              )
+            }
+            handleNewFiles={(files) =>
+              setPurchaseOrderCannabisFiles([
+                ...purchaseOrderCannabisFiles,
+                ...files.map((file) => ({
+                  purchase_order_id: purchaseOrder.id,
+                  file_id: file.id,
+                  file_type: PurchaseOrderFileTypeEnum.Cannabis,
+                  file: file,
+                })),
+              ])
+            }
+          />
+        </Box>
+      )}
     </Box>
   );
 }

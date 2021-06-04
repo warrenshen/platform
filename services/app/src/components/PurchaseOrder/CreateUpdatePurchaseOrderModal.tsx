@@ -468,10 +468,12 @@ export default function CreateUpdatePurchaseOrderModal({
             companyId={companyId}
             purchaseOrder={purchaseOrder}
             purchaseOrderFile={purchaseOrderFile}
+            purchaseOrderCannabisFiles={purchaseOrderCannabisFiles}
             selectableMetrcTransfers={selectableMetrcTransfers}
             selectedMetrcTransfers={selectedMetrcTransfers}
             setPurchaseOrder={setPurchaseOrder}
             setPurchaseOrderFile={setPurchaseOrderFile}
+            setPurchaseOrderCannabisFiles={setPurchaseOrderCannabisFiles}
             setPurchaseOrderMetrcTransfers={setPurchaseOrderMetrcTransfers}
           />
         ) : (
