@@ -175,3 +175,55 @@ def load_into_db_from_excel(session: Session, path: str) -> None:
 	filtered_payor_vendor_tuples = list(filter(lambda payor_vendor_tuple: payor_vendor_tuple[0] is not '', payor_vendor_tuples[1:]))
 	import_payors_vendors(session, filtered_payor_vendor_tuples)
 	print(f'Finished import')
+
+def import_company_licenses(
+	session: Session,
+	company_license_tuples,
+) -> None:
+	company_licenses_count = len(company_license_tuples)
+	print(f'Importing {company_licenses_count} licenses...')
+
+	for index, company_license_tuple in enumerate(company_license_tuples):
+		(
+			company_name,
+			license_number,
+		) = company_license_tuple
+
+		parsed_company_name = company_name.strip()
+		parsed_license_number = license_number.strip()
+
+		if (
+			not parsed_company_name or
+			not parsed_license_number
+		):
+			print(f'[{index + 1} of {company_licenses_count}] Invalid row')
+			continue
+
+		companies = cast(
+			models.Company,
+			session.query(models.Company).filter(
+				models.Company.name == parsed_company_name
+			).all())
+		if not companies:
+			print(f'[{index + 1} of {company_licenses_count}] Company with name {parsed_company_name} does not exist, skipping...')
+			continue
+
+		for company in companies:
+			print(f'[{index + 1} of {company_licenses_count}] Creating licenses for company {parsed_company_name} ({str(company.id)})...')
+			existing_company_license = cast(
+				models.CompanyLicense,
+				session.query(models.CompanyLicense).filter_by(
+					company_id=company.id,
+					license_number=parsed_license_number,
+				).first())
+
+			if existing_company_license:
+				print(f'[{index + 1} of {company_licenses_count}] Company license {parsed_license_number} for {parsed_company_name} ({str(company.id)}) already exists, skipping...')
+				continue
+
+			new_company_license = models.CompanyLicense(
+				company_id=company.id,
+				license_number=parsed_license_number
+			)
+			session.add(new_company_license)
+			print(f'[{index + 1} of {company_licenses_count}] Created company license {parsed_license_number} for {parsed_company_name} ({str(company.id)})')
