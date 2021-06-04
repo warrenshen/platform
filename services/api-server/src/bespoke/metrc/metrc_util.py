@@ -21,6 +21,10 @@ from mypy_extensions import TypedDict
 from requests.auth import HTTPBasicAuth
 from sqlalchemy.orm.session import Session
 
+DownloadDataRespDict = TypedDict('DownloadDataRespDict', {
+	'success': bool,
+	'all_errs': List[errors.Error]
+})
 
 @errors.return_error_tuple
 def upsert_api_key(
@@ -223,7 +227,7 @@ def _download_data(
 	start_date: datetime.date,
 	end_date: datetime.date,
 	session_maker: Callable
-) -> Tuple[bool, List[errors.Error], errors.Error]:
+) -> Tuple[DownloadDataRespDict, errors.Error]:
 	# Return: success, all_errs, fatal_error
 
 	company_infos, err = _get_companies_with_metrc_keys(
@@ -233,7 +237,10 @@ def _download_data(
 			session_maker=session_maker
 		)
 	if err:
-		return None, [], err
+		return DownloadDataRespDict(
+			success=False, 
+			all_errs=[]
+		), err
 
 	errs = []
 
@@ -300,9 +307,14 @@ def _download_data(
 				metrc_api_key.status_codes_payload = license_to_statuses
 
 	if specific_company_id and errs:
-		return False, errs, errors.Error('{}'.format(errs))
+		return DownloadDataRespDict(
+			success=False, 
+			all_errs=errs
+		), errors.Error('{}'.format(errs))
 
-	return True, errs, None
+	return DownloadDataRespDict(
+		success=True, all_errs=errs
+	), None
 
 @errors.return_error_tuple
 def download_data_for_one_customer(
@@ -312,7 +324,7 @@ def download_data_for_one_customer(
 	start_date: datetime.date,
 	end_date: datetime.date,
 	session_maker: Callable
-) -> Tuple[bool, List[errors.Error], errors.Error]:
+) -> Tuple[DownloadDataRespDict, errors.Error]:
 
 	return _download_data(
 		specific_company_id=company_id,
@@ -330,7 +342,7 @@ def download_data_for_all_customers(
 	start_date: datetime.date,
 	end_date: datetime.date,
 	session_maker: Callable
-) -> Tuple[bool, List[errors.Error], errors.Error]:
+) -> Tuple[DownloadDataRespDict, errors.Error]:
 
 	return _download_data(
 		specific_company_id=None,

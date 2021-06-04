@@ -190,7 +190,7 @@ class SyncMetrcDataPerCustomerView(MethodView):
 		start_date = date_util.load_date_str(data['start_date'])
 		end_date = date_util.load_date_str(data['end_date'])
 
-		success, errs, fatal_err = metrc_util.download_data_for_one_customer(
+		resp, fatal_err = metrc_util.download_data_for_one_customer(
 			company_id=data['company_id'],
 			auth_provider=cfg.get_metrc_auth_provider(),
 			security_cfg=cfg.get_security_config(),
@@ -205,7 +205,7 @@ class SyncMetrcDataPerCustomerView(MethodView):
 
 		return make_response(json.dumps({
 			'status': 'OK',
-			'errors': ['{}'.format(err) for err in errs]
+			'errors': ['{}'.format(err) for err in resp['all_errs']]
 		}))
 
 class SyncMetrcDataView(MethodView):
@@ -221,7 +221,7 @@ class SyncMetrcDataView(MethodView):
 		start_date = date_util.load_date_str(data['cur_date'])
 		end_date = start_date
 
-		success, errs, fatal_err = metrc_util.download_data_for_all_customers(
+		resp, fatal_err = metrc_util.download_data_for_all_customers(
 			auth_provider=cfg.get_metrc_auth_provider(),
 			security_cfg=cfg.get_security_config(),
 			start_date=start_date,
@@ -235,7 +235,7 @@ class SyncMetrcDataView(MethodView):
 
 		return make_response(json.dumps({
 			'status': 'OK',
-			'errors': ['{}'.format(err) for err in errs]
+			'errors': ['{}'.format(err) for err in resp['all_errs']]
 		}))
 
 handler.add_url_rule(

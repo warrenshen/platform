@@ -214,7 +214,7 @@ class DownloadMetrcDataView(MethodView):
 		start_date = todays_date - timedelta(days=TIME_WINDOW_IN_DAYS)
 		end_date = todays_date
 
-		success, errs, fatal_err = metrc_util.download_data_for_all_customers(
+		resp, fatal_err = metrc_util.download_data_for_all_customers(
 			auth_provider=cfg.get_metrc_auth_provider(),
 			security_cfg=cfg.get_security_config(),
 			start_date=start_date,
@@ -228,7 +228,7 @@ class DownloadMetrcDataView(MethodView):
 
 		return make_response(json.dumps({
 			'status': 'OK',
-			'errors': ['{}'.format(err) for err in errs]
+			'errors': ['{}'.format(err) for err in resp['all_errs']]
 		}))
 
 
