@@ -58,6 +58,7 @@ function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
 
   const handleClickSubmit = async () => {
     if (!reportDate) {
+      console.error("Developer error!");
     } else {
       // Note: companyId below may be undefined. This is valid in the case
       // that we want to run balances for all customers.
@@ -66,6 +67,7 @@ function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
           company_id: companyId,
           start_date: startDate,
           report_date: reportDate,
+          include_debug_info: false,
         },
       });
 
@@ -89,7 +91,7 @@ function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
 
   const isFormLoading = isRunCustomerBalancesLoading;
   const isCancelDisabled = isFormLoading;
-  const isSaveDisabled = isFormLoading || !startDate || !reportDate;
+  const isSubmitDisabled = isFormLoading || !startDate || !reportDate;
 
   return (
     <Dialog
@@ -134,7 +136,7 @@ function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
           </Button>
           <Button
             className={classes.submitButton}
-            disabled={isSaveDisabled}
+            disabled={isSubmitDisabled}
             onClick={handleClickSubmit}
             variant="contained"
             color="primary"

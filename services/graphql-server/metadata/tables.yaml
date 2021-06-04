@@ -2632,15 +2632,16 @@
   - role: purchase_order_reviewer
     permission:
       columns:
-      - id
       - company_id
-      - license_id
       - created_date
       - delivery_id
+      - id
+      - lab_results_status
+      - license_id
       - manifest_number
       - transfer_payload
-      - vendor_id
       - transfer_type
+      - vendor_id
       filter:
         vendor_id:
           _eq: X-Hasura-Company-Id

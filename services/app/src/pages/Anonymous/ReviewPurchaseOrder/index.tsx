@@ -80,11 +80,17 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
   const {
     data,
     loading: isPurchaseOrderLoading,
+    error,
   } = useGetPurchaseOrderForReviewQuery({
     variables: {
       id: purchaseOrderId,
     },
   });
+
+  if (error) {
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
+  }
 
   const purchaseOrder = data?.purchase_orders_by_pk;
   const purchaseOrderFileIds = useMemo(() => {

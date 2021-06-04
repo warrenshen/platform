@@ -77,11 +77,20 @@ export default function ReviewInvoicePage(props: Props) {
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
 
-  const { data, loading: isInvoiceLoading } = useGetInvoiceForReviewQuery({
+  const {
+    data,
+    loading: isInvoiceLoading,
+    error,
+  } = useGetInvoiceForReviewQuery({
     variables: {
       id: invoiceId,
     },
   });
+
+  if (error) {
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
+  }
 
   const invoice = data?.invoices_by_pk;
 
