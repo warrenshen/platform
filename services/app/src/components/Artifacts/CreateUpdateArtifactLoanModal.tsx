@@ -178,7 +178,8 @@ export default function CreateUpdateArtifactLoanModal({
   };
 
   const upsertArtifactLoan = async () => {
-    if (actionType === ActionType.Update) {
+    if (loan.id) {
+      // If the loan already has a UUID, then it exists in the DB already.
       const response = await updateLoan({
         variables: {
           id: loan.id,
@@ -228,6 +229,14 @@ export default function CreateUpdateArtifactLoanModal({
     } else {
       // Since this is a SAVE AND SUBMIT action,
       // hit the SubmitForApproval endpoint.
+
+      // Make sure to save the loan ID so we remember that this loan already exists
+      // in the DB.
+      setLoan({
+        ...loan,
+        id: savedLoan.id,
+      });
+
       const response = await submitLoan({
         variables: {
           loan_id: savedLoan.id,
