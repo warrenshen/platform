@@ -133,8 +133,7 @@ function CreateUpdateLineOfCreditLoanModal({
   };
 
   const upsertLineOfCreditLoan = async () => {
-    // TODO(dlluncor): Use loan ID instead of actionType for duplicate
-    if (actionType === ActionType.Update) {
+    if (loan.id) {
       const response = await updateLineOfCreditAndLoan({
         variables: {
           lineOfCreditId: lineOfCredit.id,
@@ -205,6 +204,14 @@ function CreateUpdateLineOfCreditLoanModal({
     } else {
       // Since this is a SAVE AND SUBMIT action,
       // hit the PurchaseOrderLoans.SubmitForApproval endpoint.
+
+      // Make sure to save the loan ID so we remember that this loan already exists
+      // in the DB.
+      setLoan({
+        ...loan,
+        id: savedLoan.id,
+      });
+
       const response = await submitLoan({
         variables: {
           loan_id: savedLoan.id,
