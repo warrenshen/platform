@@ -35,9 +35,11 @@ class CreateUpdateAsDraftView(MethodView):
 		if not user_session.is_bank_or_this_company_admin(data.purchase_order.company_id):
 			return handler_util.make_error_response("Access Denied", status_code=403)
 
-		purchase_order_id, err = purchase_orders_util.create_update_purchase_order(current_app.session_maker, data)
-		if err:
-			return handler_util.make_error_response(err)
+		with session_scope(current_app.session_maker) as session:
+			purchase_order_id, err = purchase_orders_util.create_update_purchase_order(
+				data, session)
+			if err:
+				raise err
 
 		return make_response(json.dumps({
 			'status': 'OK',
@@ -66,9 +68,11 @@ class UpdateView(MethodView):
 		if not data.purchase_order.id:
 			return handler_util.make_error_response("Purchase Order ID is required", status_code=400)
 
-		purchase_order_id, err = purchase_orders_util.create_update_purchase_order(current_app.session_maker, data)
-		if err:
-			return handler_util.make_error_response(err)
+		with session_scope(current_app.session_maker) as session:
+			purchase_order_id, err = purchase_orders_util.create_update_purchase_order(
+				data, session)
+			if err:
+				raise err
 
 		return make_response(json.dumps({
 			'status': 'OK',
@@ -97,12 +101,11 @@ class SubmitView(MethodView):
 		if not data.purchase_order.id:
 			return handler_util.make_error_response("Purchase Order ID is required", status_code=400)
 
-		purchase_order_id, err = purchase_orders_util.submit_purchase_order_for_approval(
-			current_app.session_maker,
-			data.purchase_order.id,
-		)
-		if err:
-			return handler_util.make_error_response(err)
+		with session_scope(current_app.session_maker) as session:
+			purchase_order_id, err = purchase_orders_util.submit_purchase_order_for_approval(
+				data.purchase_order.id, session)
+			if err:
+				raise err
 
 		return make_response(json.dumps({
 			'status': 'OK',
@@ -128,19 +131,20 @@ class CreateUpdateAndSubmitView(MethodView):
 		if not user_session.is_bank_or_this_company_admin(data.purchase_order.company_id):
 			return handler_util.make_error_response("Access Denied", status_code=403)
 
-		purchase_order_id, err = purchase_orders_util.create_update_purchase_order(
-			current_app.session_maker,
-			data,
-		)
-		if err:
-			return handler_util.make_error_response(err)
+		with session_scope(current_app.session_maker) as session:
+			purchase_order_id, err = purchase_orders_util.create_update_purchase_order(
+				data,
+				session
+			)
+			if err:
+				raise err
 
-		purchase_order_id, err = purchase_orders_util.submit_purchase_order_for_approval(
-			current_app.session_maker,
-			purchase_order_id,
-		)
-		if err:
-			return handler_util.make_error_response(err)
+			purchase_order_id, err = purchase_orders_util.submit_purchase_order_for_approval(
+				purchase_order_id,
+				session
+			)
+			if err:
+				raise err
 
 		return make_response(json.dumps({
 			'status': 'OK',
