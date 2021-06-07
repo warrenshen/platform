@@ -1,14 +1,13 @@
 import {
   Box,
-  Button,
-  createStyles,
   FormControl,
   InputLabel,
-  makeStyles,
   MenuItem,
   Select,
-  Theme,
+  TextField,
+  Typography,
 } from "@material-ui/core";
+import Autocomplete from "@material-ui/lab/Autocomplete";
 import {
   Companies,
   useGetCustomersWithMetadataQuery,
@@ -25,29 +24,7 @@ import { orderBy, zipObject } from "lodash";
 import { createLoanDisbursementIdentifier } from "lib/loans";
 import { useMemo } from "react";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    container: {
-      display: "flex",
-      flexDirection: "column",
-
-      width: "100%",
-    },
-    section: {
-      display: "flex",
-      flexDirection: "column",
-    },
-    sectionSpace: {
-      marginBottom: theme.spacing(4),
-    },
-    inputField: {
-      width: 300,
-    },
-  })
-);
-
 export default function BankReportsFinancialsByCustomerTab() {
-  const classes = useStyles();
   const snackbar = useSnackbar();
 
   const [companyId, setCompanyId] = useState<Companies["id"]>("");
@@ -85,59 +62,52 @@ export default function BankReportsFinancialsByCustomerTab() {
   const customers = customersData?.customers || [];
   const loans = loansData?.loans || [];
 
-  const reportDate = todayAsDateStringServer();
-  // const [reportDate, setReportDate] = useState<string | null>(
-  //   todayAsDateStringServer()
-  // );
-
   const [
     runCustomerBalances,
     { loading: isRunCustomerBalancesLoading },
   ] = useCustomMutation(runCustomerBalancesMutation);
 
-  const handleClickSubmit = async () => {
-    if (!reportDate || !companyId) {
-      console.error("Developer error!");
+  const fetchFinancials = async function (newCompanyId: Companies["id"]) {
+    const reportDate = todayAsDateStringServer();
+    const response = await runCustomerBalances({
+      variables: {
+        company_id: newCompanyId,
+        start_date: reportDate,
+        report_date: reportDate,
+        include_debug_info: true,
+      },
+    });
+
+    console.log({ type: "runCustomerBalances", response });
+
+    if (response.status !== "OK") {
+      snackbar.showError(`Error: ${response.msg}`);
+    } else if (response.errors && response.errors.length > 0) {
+      snackbar.showWarning(`Error: ${response.errors}`);
     } else {
-      const response = await runCustomerBalances({
-        variables: {
-          company_id: companyId,
-          start_date: reportDate,
-          report_date: reportDate,
-          include_debug_info: true,
-        },
-      });
-
-      console.log({ type: "runCustomerBalances", response });
-
-      if (response.status !== "OK") {
-        snackbar.showError(`Error: ${response.msg}`);
-      } else if (response.errors && response.errors.length > 0) {
-        snackbar.showWarning(`Error: ${response.errors}`);
-      } else {
-        const loanIdToDebugInfo = response.data?.loan_id_to_debug_info;
-        if (!loanIdToDebugInfo) {
-          console.error("Developer error!");
-        }
-
-        const loanIdToFinancialSummaries = Object.keys(loanIdToDebugInfo).map(
-          (loanId) => {
-            const loanDebugInfo = loanIdToDebugInfo[loanId];
-            const updateStates: any[] = loanDebugInfo.update_states;
-            const loanFinancialSummaries = updateStates.map(
-              (updateState: any) => updateState.row_info
-            );
-            return {
-              loanId: loanId,
-              financialSummaries: loanFinancialSummaries,
-            };
-          }
-        );
-        setLoanIdToFinancialSummaries(loanIdToFinancialSummaries);
-        snackbar.showSuccess(
-          "Financials calculated: select a loan to view its financial history."
-        );
+      const loanIdToDebugInfo = response.data?.loan_id_to_debug_info;
+      if (!loanIdToDebugInfo) {
+        console.error("Developer error!");
       }
+
+      const loanIdToFinancialSummaries = Object.keys(loanIdToDebugInfo).map(
+        (loanId) => {
+          const loanDebugInfo = loanIdToDebugInfo[loanId];
+          const updateStates: any[] = loanDebugInfo.update_states;
+          const loanFinancialSummaries = updateStates.map(
+            (updateState: any) => updateState.row_info
+          );
+          return {
+            loanId: loanId,
+            financialSummaries: loanFinancialSummaries,
+          };
+        }
+      );
+      setLoanIdToFinancialSummaries(loanIdToFinancialSummaries);
+
+      snackbar.showSuccess(
+        "Financials calculated: select a loan to view its financial history."
+      );
     }
   };
 
@@ -177,69 +147,72 @@ export default function BankReportsFinancialsByCustomerTab() {
   }, [loanId, loanIdToFinancialSummaries]);
 
   return (
-    <Box className={classes.container}>
-      <Box className={classes.section} mt={4}>
-        <Box display="flex" alignItems="flex-end" mb={2}>
-          <Box mr={2}>
-            <FormControl className={classes.inputField}>
-              <InputLabel id="customer-select-label">Customer</InputLabel>
-              <Select
-                disabled={customers.length <= 0}
-                labelId="customer-select-label"
-                id="customer-select"
-                value={companyId}
-                onChange={({ target: { value } }) =>
-                  setCompanyId(value as string)
-                }
-              >
-                <MenuItem value="">
-                  <em>None</em>
-                </MenuItem>
-                {customers.map((customer) => (
-                  <MenuItem key={customer.id} value={customer.id}>
-                    {customer.name}
-                  </MenuItem>
-                ))}
-              </Select>
+    <Box display="flex" flexDirection="column">
+      <Box display="flex" flexDirection="column" mt={4}>
+        <Box display="flex" alignItems="center" mb={2}>
+          <Box display="flex" flexDirection="column" width={400} mr={2}>
+            <FormControl>
+              <Autocomplete
+                autoHighlight
+                blurOnSelect
+                disabled={customers.length <= 0 || isRunCustomerBalancesLoading}
+                options={customers}
+                getOptionLabel={(customer) => customer.name}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Select customer"
+                    variant="outlined"
+                  />
+                )}
+                onChange={(_event, customer) => {
+                  const newCompanyId = customer?.id || null;
+                  setCompanyId(newCompanyId);
+                  setLoanId(null);
+                  setLoanIdToFinancialSummaries(null);
+
+                  if (newCompanyId) {
+                    fetchFinancials(newCompanyId);
+                  }
+                }}
+              />
             </FormControl>
           </Box>
-          <Box mr={2}>
-            <Button
-              disabled={!companyId || isRunCustomerBalancesLoading}
-              variant="contained"
-              color="default"
-              onClick={handleClickSubmit}
-            >
-              Submit
-            </Button>
-          </Box>
+          {isRunCustomerBalancesLoading && (
+            <Typography variant="body1">Loading...</Typography>
+          )}
         </Box>
         {!!isResultsFetched && (
-          <Box display="flex" alignItems="flex-end" mb={2}>
-            <Box>
-              <FormControl className={classes.inputField}>
-                <InputLabel id="loan-select-label">Loan</InputLabel>
-                <Select
-                  disabled={customers.length <= 0}
-                  labelId="loan-select-label"
-                  id="loan-select"
-                  value={loanId}
-                  onChange={({ target: { value } }) =>
-                    setLoanId(value as string)
-                  }
-                >
-                  <MenuItem value="">
-                    <em>None</em>
-                  </MenuItem>
-                  {loans.map((loan) => (
-                    <MenuItem key={loan.id} value={loan.id}>
-                      {`${createLoanDisbursementIdentifier(loan)} (${loan.id})`}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+          <>
+            <Box mb={2}>
+              <Typography variant="body1">
+                {`${loans.length} loan(s) available`}
+              </Typography>
             </Box>
-          </Box>
+            <Box display="flex" alignItems="flex-end" mb={2}>
+              <Box display="flex" flexDirection="column" width={400}>
+                <FormControl>
+                  <Autocomplete
+                    autoHighlight
+                    blurOnSelect
+                    disabled={loans.length <= 0}
+                    options={loans}
+                    getOptionLabel={(loan) =>
+                      `${createLoanDisbursementIdentifier(loan)} (${loan.id})`
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select loan"
+                        variant="outlined"
+                      />
+                    )}
+                    onChange={(_event, loan) => setLoanId(loan?.id || null)}
+                  />
+                </FormControl>
+              </Box>
+            </Box>
+          </>
         )}
         <Box display="flex" flexDirection="column">
           {financialSummaries && (

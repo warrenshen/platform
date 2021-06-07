@@ -275,6 +275,7 @@ export default function CreateUpdatePurchaseOrderModal({
       purchase_order_metrc_transfers: preparePurchaseOrderMetrcTransfers(),
     };
   };
+
   const handleClickSaveDraft = async () => {
     const response = await createUpdatePurchaseOrderAsDraft({
       variables: prepareMutationVariables(),

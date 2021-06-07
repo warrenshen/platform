@@ -1,13 +1,5 @@
-import {
-  Box,
-  createStyles,
-  FormControl,
-  InputLabel,
-  makeStyles,
-  MenuItem,
-  Select,
-  Theme,
-} from "@material-ui/core";
+import { Box, FormControl, TextField } from "@material-ui/core";
+import Autocomplete from "@material-ui/lab/Autocomplete";
 import FinancialSummariesDataGrid from "components/CustomerFinancialSummaries/FinancialSummariesDataGrid";
 import {
   Companies,
@@ -17,29 +9,7 @@ import {
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    container: {
-      display: "flex",
-      flexDirection: "column",
-
-      width: "100%",
-    },
-    section: {
-      display: "flex",
-      flexDirection: "column",
-    },
-    sectionSpace: {
-      marginBottom: theme.spacing(4),
-    },
-    inputField: {
-      width: 300,
-    },
-  })
-);
-
 export default function BankReportsFinancialsByCustomerTab() {
-  const classes = useStyles();
   const history = useHistory();
 
   const [companyId, setCompanyId] = useState<Companies["id"]>("");
@@ -80,29 +50,27 @@ export default function BankReportsFinancialsByCustomerTab() {
     financialSummariesByCompanyIdData?.financial_summaries || [];
 
   return (
-    <Box className={classes.container}>
-      <Box className={classes.section} mt={4}>
-        <Box mb={2}>
-          <FormControl className={classes.inputField}>
-            <InputLabel id="customer-select-label">Customer</InputLabel>
-            <Select
+    <Box display="flex" flexDirection="column">
+      <Box display="flex" flexDirection="column" mt={4}>
+        <Box display="flex" flexDirection="column" width={400} mb={2}>
+          <FormControl>
+            <Autocomplete
+              autoHighlight
+              blurOnSelect
               disabled={customers.length <= 0}
-              labelId="customer-select-label"
-              id="customer-select"
-              value={companyId}
-              onChange={({ target: { value } }) =>
-                setCompanyId(value as string)
+              options={customers}
+              getOptionLabel={(customer) => customer.name}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Select customer"
+                  variant="outlined"
+                />
+              )}
+              onChange={(_event, customer) =>
+                setCompanyId(customer?.id || null)
               }
-            >
-              <MenuItem value="">
-                <em>None</em>
-              </MenuItem>
-              {customers.map((customer) => (
-                <MenuItem key={customer.id} value={customer.id}>
-                  {customer.name}
-                </MenuItem>
-              ))}
-            </Select>
+            />
           </FormControl>
         </Box>
         <Box display="flex" flexDirection="column">
