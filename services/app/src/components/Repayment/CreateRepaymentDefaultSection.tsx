@@ -15,7 +15,7 @@ import {
   LoanTypeEnum,
   PaymentsInsertInput,
   ProductTypeEnum,
-  useGetLoansByCompanyAndLoanTypeQuery,
+  useGetFundedLoansByCompanyAndLoanTypeQuery,
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
@@ -25,7 +25,7 @@ import {
   ProductTypeToLoanType,
 } from "lib/enum";
 import { createLoanCustomerIdentifier } from "lib/loans";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 interface Props {
   productType: ProductTypeEnum;
@@ -40,7 +40,7 @@ export default function CreateRepaymentDefaultSection({
 }: Props) {
   const loanType = ProductTypeToLoanType[productType];
 
-  const { data } = useGetLoansByCompanyAndLoanTypeQuery({
+  const { data } = useGetFundedLoansByCompanyAndLoanTypeQuery({
     skip: !payment || !loanType,
     fetchPolicy: "network-only",
     variables: {
@@ -64,6 +64,8 @@ export default function CreateRepaymentDefaultSection({
     [data?.loans, payment.items_covered.loan_ids]
   );
 
+  const [autocompleteInputValue, setAutocompleteInputValue] = useState("");
+
   return (
     <Box display="flex" flexDirection="column">
       <Box>
@@ -82,8 +84,9 @@ export default function CreateRepaymentDefaultSection({
             <Autocomplete
               autoHighlight
               id="combo-box-demo"
-              style={{ width: "100%" }}
               options={notSelectedLoans}
+              inputValue={autocompleteInputValue}
+              value={null}
               getOptionLabel={(loan) =>
                 `${createLoanCustomerIdentifier(
                   loan
@@ -109,8 +112,12 @@ export default function CreateRepaymentDefaultSection({
                       loan_ids: [...payment.items_covered.loan_ids, loan.id],
                     },
                   });
+                  setAutocompleteInputValue("");
                 }
               }}
+              onInputChange={(_event, value) =>
+                setAutocompleteInputValue(value)
+              }
             />
           </FormControl>
         </Box>
@@ -153,7 +160,7 @@ export default function CreateRepaymentDefaultSection({
           <Box display="flex" flexDirection="column" mt={4}>
             <FormControl>
               <CurrencyInput
-                label={"Amount"}
+                label={"Custom Amount"}
                 value={payment.requested_amount}
                 handleChange={(value) =>
                   setPayment({ ...payment, requested_amount: value })

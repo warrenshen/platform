@@ -1,12 +1,4 @@
-import {
-  Box,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-  Typography,
-} from "@material-ui/core";
+import { Box, FormControl, TextField, Typography } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import {
   Companies,

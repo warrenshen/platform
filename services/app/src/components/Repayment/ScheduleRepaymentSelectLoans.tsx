@@ -14,7 +14,6 @@ import DateInput from "components/Shared/FormInputs/DateInput";
 import {
   BankAccounts,
   Companies,
-  GetLoansByLoanIdsQuery,
   PaymentsInsertInput,
 } from "generated/graphql";
 
@@ -30,14 +29,13 @@ interface Props {
   payment: PaymentsInsertInput;
   customer: Companies;
   customerBankAccount: BankAccounts | null;
-  selectedLoans: GetLoansByLoanIdsQuery["loans"];
   setPayment: (payment: PaymentsInsertInput) => void;
 }
-function ScheduleRepaymentSelectLoans({
+
+export default function ScheduleRepaymentSelectLoans({
   payment,
   customer,
   customerBankAccount,
-  selectedLoans,
   setPayment,
 }: Props) {
   const classes = useStyles();
@@ -60,7 +58,7 @@ function ScheduleRepaymentSelectLoans({
         </Box>
         <FormControl className={classes.inputField}>
           <CurrencyInput
-            label={"Amount"}
+            label={"Payment Total Amount"}
             value={payment.amount}
             handleChange={(value) =>
               setPayment({
@@ -154,5 +152,3 @@ function ScheduleRepaymentSelectLoans({
     </Box>
   ) : null;
 }
-
-export default ScheduleRepaymentSelectLoans;

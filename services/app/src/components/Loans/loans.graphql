@@ -163,7 +163,7 @@ query GetAllLoansForCompany($companyId: uuid!) {
   }
 }
 
-query GetLoansByCompanyAndLoanType(
+query GetFundedLoansByCompanyAndLoanType(
   $companyId: uuid!
   $loanType: loan_type_enum!
 ) {
@@ -178,6 +178,7 @@ query GetLoansByCompanyAndLoanType(
         }
         { company_id: { _eq: $companyId } }
         { loan_type: { _eq: $loanType } }
+        { origination_date: { _is_null: false } }
       ]
     }
     order_by: [

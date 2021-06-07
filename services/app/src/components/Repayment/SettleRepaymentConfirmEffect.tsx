@@ -78,7 +78,7 @@ export default function SettleRepaymentConfirmEffect({
             </Alert>
             <Box mt={1}>
               <Typography variant="body1">
-                {`Payment Amount: ${formatCurrency(payment.amount)}`}
+                {`Payment Total Amount: ${formatCurrency(payment.amount)}`}
               </Typography>
             </Box>
             <Box display="flex" flexDirection="column" mt={1}>
@@ -118,9 +118,14 @@ export default function SettleRepaymentConfirmEffect({
           </Box>
         ) : (
           <Box display="flex" flexDirection="column" mt={4}>
+            <Box mb={2}>
+              <Typography variant="body1">
+                {`Payment Total Amount: ${formatCurrency(payment.amount)}`}
+              </Typography>
+            </Box>
             <Box display="flex" flexDirection="column" mb={1}>
               <Typography variant="body1">
-                {`Before payment balances are as of the settlement date, ${formatDateString(
+                {`"Loans before payment" balances are as of the settlement date, ${formatDateString(
                   payment.settlement_date
                 )}.`}
               </Typography>

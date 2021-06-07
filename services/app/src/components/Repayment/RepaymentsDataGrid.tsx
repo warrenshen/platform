@@ -157,7 +157,7 @@ function RepaymentsDataGrid({
       {
         visible: isRequestedReverseDraftACH,
         dataField: "requested_amount",
-        caption: "Requested Amount",
+        caption: "Requested Total Amount",
         width: ColumnWidths.Currency,
         alignment: "right",
         calculateCellValue: ({ requested_amount }: any) => requested_amount,
@@ -168,7 +168,7 @@ function RepaymentsDataGrid({
       {
         visible: !isRequestedReverseDraftACH,
         dataField: "amount",
-        caption: "Expected Amount",
+        caption: "Expected Total Amount",
         width: ColumnWidths.Currency,
         alignment: "right",
         calculateCellValue: ({ amount }: PaymentLimitedFragment) => amount,

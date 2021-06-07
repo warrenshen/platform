@@ -4,11 +4,9 @@ import Modal from "components/Shared/Modal/Modal";
 import {
   BankAccounts,
   Companies,
-  GetLoansByLoanIdsQuery,
   Payments,
   PaymentsInsertInput,
   ProductTypeEnum,
-  useGetLoansByLoanIdsQuery,
   useGetPaymentForSettlementQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -42,10 +40,6 @@ export default function ScheduleRepaymentModal({
     customerBankAccount,
     setCustomerBankAccount,
   ] = useState<BankAccounts | null>(null);
-
-  const [selectedLoans, setSelectedLoans] = useState<
-    GetLoansByLoanIdsQuery["loans"]
-  >([]);
 
   const contract = customer?.contract || null;
   const productType = customer?.contract?.product_type || null;
@@ -114,20 +108,6 @@ export default function ScheduleRepaymentModal({
       }));
     }
   }, [contract, payment?.method, payment?.payment_date, setPayment]);
-
-  const { data: selectedLoansData } = useGetLoansByLoanIdsQuery({
-    skip: !payment?.items_covered?.loan_ids,
-    variables: {
-      loan_ids: payment?.items_covered?.loan_ids || [],
-    },
-  });
-
-  useEffect(() => {
-    if (selectedLoansData) {
-      const selectedLoans = selectedLoansData.loans || [];
-      setSelectedLoans(selectedLoans);
-    }
-  }, [selectedLoansData]);
 
   const [
     scheduleRepayment,
@@ -200,7 +180,6 @@ export default function ScheduleRepaymentModal({
         payment={payment}
         customer={customer}
         customerBankAccount={customerBankAccount}
-        selectedLoans={selectedLoans}
         setPayment={setPayment}
       />
       {errMsg && (

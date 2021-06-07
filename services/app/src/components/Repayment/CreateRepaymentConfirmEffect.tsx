@@ -105,7 +105,9 @@ function CreateRepaymentConfirmEffect({
           <Box>
             <Box mb={2}>
               <Typography variant="body1">
-                {`Payment Amount: ${formatCurrency(payment.requested_amount)}`}
+                {`Payment Total Amount: ${formatCurrency(
+                  payment.requested_amount
+                )}`}
               </Typography>
             </Box>
             <Typography variant="body2">
@@ -125,7 +127,7 @@ function CreateRepaymentConfirmEffect({
             <Box>
               <Box mb={2}>
                 <Typography variant="body1">
-                  {`Payment Amount: ${formatCurrency(
+                  {`Payment Total Amount: ${formatCurrency(
                     payment.requested_amount
                   )}`}
                 </Typography>

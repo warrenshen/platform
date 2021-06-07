@@ -20,7 +20,7 @@ import {
   LoanTypeEnum,
   PaymentsInsertInput,
   ProductTypeEnum,
-  useGetLoansByCompanyAndLoanTypeQuery,
+  useGetFundedLoansByCompanyAndLoanTypeQuery,
 } from "generated/graphql";
 import { ProductTypeToLoanType } from "lib/enum";
 import { useMemo } from "react";
@@ -42,7 +42,7 @@ interface Props {
   setShouldPayPrincipalFirst: (shouldPayPrincipalFirst: boolean) => void;
 }
 
-function SettleRepaymentSelectLoans({
+export default function SettleRepaymentSelectLoans({
   shouldPayPrincipalFirst,
   payment,
   customer,
@@ -58,7 +58,7 @@ function SettleRepaymentSelectLoans({
       ? ProductTypeToLoanType[productType]
       : null;
 
-  const { data } = useGetLoansByCompanyAndLoanTypeQuery({
+  const { data } = useGetFundedLoansByCompanyAndLoanTypeQuery({
     skip: !payment || !loanType,
     fetchPolicy: "network-only",
     variables: {
@@ -141,12 +141,12 @@ function SettleRepaymentSelectLoans({
         <Box display="flex" flexDirection="column">
           <Box mb={1}>
             <Typography variant="subtitle2">
-              Specify actual amount of this payment.
+              Specify actual total amount of this payment.
             </Typography>
           </Box>
           <FormControl className={classes.inputField}>
             <CurrencyInput
-              label={"Amount"}
+              label={"Payment Total Amount"}
               value={payment.amount}
               handleChange={(value) =>
                 setPayment({ ...payment, amount: value })
@@ -266,5 +266,3 @@ function SettleRepaymentSelectLoans({
     </Box>
   ) : null;
 }
-
-export default SettleRepaymentSelectLoans;
