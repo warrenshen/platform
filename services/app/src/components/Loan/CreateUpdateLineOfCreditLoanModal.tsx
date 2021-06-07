@@ -15,9 +15,9 @@ import {
   Scalars,
   useAddLineOfCreditMutation,
   useAddLoanMutation,
+  useGetArtifactRelationsByCompanyIdQuery,
   useGetCompanyNextLoanIdentifierMutation,
   useGetLoanWithArtifactForCustomerQuery,
-  useGetArtifactRelationsByCompanyIdQuery,
   useUpdateLineOfCreditAndLoanMutation,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -133,6 +133,7 @@ function CreateUpdateLineOfCreditLoanModal({
   };
 
   const upsertLineOfCreditLoan = async () => {
+    // TODO(dlluncor): Use loan ID instead of actionType for duplicate
     if (actionType === ActionType.Update) {
       const response = await updateLineOfCreditAndLoan({
         variables: {

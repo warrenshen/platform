@@ -229,10 +229,10 @@ class SubmitForApprovalView(MethodView):
 			if err:
 				raise err
 
-		success, err = approval_util.send_loan_approval_requested_email(
-			sendgrid_client, resp)
-		if err:
-			raise err
+			success, err = approval_util.send_loan_approval_requested_email(
+				sendgrid_client, resp)
+			if err:
+				raise err
 
 		return make_response(json.dumps({
 			'status': 'OK',

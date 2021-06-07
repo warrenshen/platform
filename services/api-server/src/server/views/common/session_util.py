@@ -17,9 +17,14 @@ class UserSession(object):
 		self.payload = payload
 
 	def _user_roles(self) -> List[str]:
+		if not self.payload:
+			return []
 		return self.payload['X-Hasura-Allowed-Roles']
 
 	def get_company_id(self) -> str:
+		if not self.payload:
+			return None
+
 		company_id = self.payload['X-Hasura-Company-Id']
 		if company_id and company_id == 'None':
 			return None
@@ -27,6 +32,9 @@ class UserSession(object):
 		return company_id
 
 	def get_user_id(self) -> str:
+		if not self.payload:
+			return None
+
 		return self.payload['X-Hasura-User-Id']
 
 	def has_bank_reader_permission(self) -> bool:

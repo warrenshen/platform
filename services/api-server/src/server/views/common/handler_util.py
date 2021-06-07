@@ -27,12 +27,14 @@ def make_error_response(error: Union[str, errors.Error], status_code: int = None
 
 	user_session = UserSession.from_session()
 	cfg = current_app.app_config
-	show_stack_trace = user_session.is_bank_admin() or cfg.is_not_prod_env()
 
-	if show_stack_trace:
+	if error_obj.traceback:
 		logging.error(error_obj.traceback)
-	else:
-		error_obj.traceback = ''
+
+	traceback_str = ''
+	show_stack_trace = user_session.is_bank_admin() or cfg.is_not_prod_env()
+	if show_stack_trace:
+		traceback_str = error_obj.traceback
 
 	return Response(
 		response=json.dumps(
@@ -40,7 +42,7 @@ def make_error_response(error: Union[str, errors.Error], status_code: int = None
 			status='ERROR', 
 			msg=error_obj.msg, 
 			err_details=error_obj.details,
-			traceback=error_obj.traceback
+			traceback=traceback_str
 		)),
 		headers={'Content-Type': 'application/json; charset=utf-8'},
 		mimetype='application/json',
