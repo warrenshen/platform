@@ -9,6 +9,7 @@ export type RunCustomerBalancesReq = {
     company_id?: Companies["id"];
     start_date: string;
     report_date: string;
+    include_debug_info: boolean;
   };
 };
 
@@ -17,13 +18,9 @@ export async function runCustomerBalancesMutation(
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
     .post(loansRoutes.runCustomerBalances, req.variables)
-    .then((res) => {
-      return res.data;
-    })
+    .then((response) => response.data)
     .then(
-      (response) => {
-        return response;
-      },
+      (response) => response,
       (error) => {
         console.log("error", error);
         return {

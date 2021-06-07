@@ -88,7 +88,9 @@ class RunCustomerBalancesView(MethodView):
 		resp = {
 			'status': 'OK',
 			'errors': all_descriptive_errors,
-			'loan_id_to_debug_info': loan_id_to_debug_info
+			'data': {
+				'loan_id_to_debug_info': loan_id_to_debug_info
+			}
 		}
 		return make_response(json.dumps(resp), 200)
 

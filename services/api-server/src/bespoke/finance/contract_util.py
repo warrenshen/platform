@@ -704,7 +704,7 @@ class ContractHelper(object):
 			if cur_date >= cur_contract['start_date'] and cur_date <= cur_contract['adjusted_end_date']:
 				return Contract.build(cur_contract, validate=False)
 
-		return None, errors.Error('No contract found in effect for date {}'.format(cur_date))
+		return None, errors.Error(f'There is no contract configured for the date {cur_date}')
 
 	@staticmethod
 	def build(company_id: str, contract_dicts: List[models.ContractDict]) -> Tuple['ContractHelper', errors.Error]:

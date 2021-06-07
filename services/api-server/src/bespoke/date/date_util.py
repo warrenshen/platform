@@ -71,6 +71,9 @@ def get_earliest_requested_payment_date(timezone: str) -> datetime.date:
 def datetime_to_str(dt: datetime.datetime) -> str:
 	return dt.isoformat()
 
+def date_to_db_str(date: datetime.date) -> str:
+	return date.strftime('%Y-%m-%d')
+
 def date_to_str(date: datetime.date) -> str:
 	return date.strftime('%m/%d/%Y')
 

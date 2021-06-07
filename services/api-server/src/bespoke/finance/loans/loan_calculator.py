@@ -670,22 +670,22 @@ class LoanCalculator(object):
 					'outstanding_interest', 
 					'outstanding_fees',
 
+					'interest_due_for_day',
+					'fee_for_day',
 					'interest_rate',
 					'fee_multiplier',
-					'interest_due_for_day',
-					'fee_for_day'
 				]
 				debug_row_info: List[Union[str, int, float]] = [
-					date_util.date_to_str(cur_date),
+					date_util.date_to_db_str(cur_date),
 					outstanding_principal,
 					outstanding_principal_for_interest,
 					outstanding_interest,
 					outstanding_fees,
 
+					interest_due_for_day,
+					fee_due_for_day,
 					interest_fee_info['interest_rate_used'],
 					interest_fee_info['fee_multiplier'],
-					interest_due_for_day,
-					fee_due_for_day
 				]
 				debug_update_states.append(UpdateDebugStateDict(
 					row_info=debug_row_info
