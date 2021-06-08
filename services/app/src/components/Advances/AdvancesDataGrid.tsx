@@ -17,14 +17,12 @@ function getRows(payments: PaymentFragment[]): RowsProp {
 
 interface Props {
   payments: PaymentFragment[];
-  customerSearchQuery: string;
   handleClickCustomer: (value: string) => void;
   isExcelExport?: boolean;
 }
 
 function AdvancesDataGrid({
   payments,
-  customerSearchQuery,
   handleClickCustomer,
   isExcelExport = true,
 }: Props) {

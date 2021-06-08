@@ -135,32 +135,37 @@ fragment PartnershipRequest on company_partnership_requests {
   settled_at
 }
 
+fragment VendorPartnership on company_vendor_partnerships {
+  id
+  vendor_bank_id
+  ...VendorPartnershipLimited
+}
+
+fragment PayorPartnership on company_payor_partnerships {
+  id
+  company_id
+  payor_id
+  payor_agreement_id
+  approved_at
+  company {
+    id
+    name
+  }
+  payor {
+    id
+    name
+  }
+}
+
 ## Finance
 
 fragment Payment on payments {
   id
-  company_id
   created_at
-  submitted_at
-  settled_at
-  reversed_at
-  type
-  method
-  requested_amount
-  amount
-  requested_payment_date
-  payment_date
-  deposit_date
-  settlement_date
-  items_covered
-  is_deleted
   company_bank_account {
     ...BankAccount
   }
-  submitted_by_user {
-    id
-    full_name
-  }
+  ...PaymentLimited
 }
 
 fragment Transaction on transactions {

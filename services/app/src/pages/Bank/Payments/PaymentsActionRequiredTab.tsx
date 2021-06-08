@@ -166,7 +166,6 @@ export default function BankPaymentsActionRequiredTab() {
             isMultiSelectEnabled
             repaymentType={RepaymentTypeEnum.RequestedReverseDraftACH}
             payments={notScheduledPayments}
-            customerSearchQuery={""}
             selectedPaymentIds={selectedSchedulePaymentIds}
             handleClickCustomer={(customerId) =>
               history.push(`/customers/${customerId}/overview`)
@@ -220,7 +219,6 @@ export default function BankPaymentsActionRequiredTab() {
             isMultiSelectEnabled
             repaymentType={RepaymentTypeEnum.ReverseDraftACH}
             payments={pendingReverseDraftPayments}
-            customerSearchQuery={""}
             selectedPaymentIds={selectedSettlePaymentIds}
             handleClickCustomer={(customerId) =>
               history.push(`/customers/${customerId}/overview`)
@@ -274,7 +272,6 @@ export default function BankPaymentsActionRequiredTab() {
             isMultiSelectEnabled
             repaymentType={RepaymentTypeEnum.Other}
             payments={notifyPayments}
-            customerSearchQuery={""}
             selectedPaymentIds={selectedNotifyPaymentIds}
             handleClickCustomer={(customerId) =>
               history.push(`/customers/${customerId}/overview`)

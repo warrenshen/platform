@@ -21,7 +21,6 @@ function BankPaymentsAllTab() {
       <RepaymentsDataGrid
         isCompanyVisible
         payments={payments}
-        customerSearchQuery={""}
         handleClickCustomer={() => {}}
       />
     </Container>

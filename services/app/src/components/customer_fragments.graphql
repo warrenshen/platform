@@ -137,6 +137,17 @@ fragment PaymentLimited on payments {
   settlement_date
   items_covered
   is_deleted
+  company {
+    id
+    name
+  }
+  invoice {
+    id
+    payor {
+      id
+      name
+    }
+  }
   submitted_by_user {
     id
     full_name

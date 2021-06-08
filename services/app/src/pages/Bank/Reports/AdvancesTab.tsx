@@ -19,11 +19,7 @@ function BankAdvancesPage() {
 
   return (
     <Container>
-      <AdvancesDataGrid
-        payments={payments}
-        customerSearchQuery={""}
-        handleClickCustomer={() => {}}
-      />
+      <AdvancesDataGrid payments={payments} handleClickCustomer={() => {}} />
     </Container>
   );
 }

@@ -207,39 +207,6 @@ fragment Invoice on invoices {
   }
 }
 
-fragment VendorPartnership on company_vendor_partnerships {
-  id
-  company_id
-  vendor_id
-  vendor_bank_id
-  vendor_agreement_id
-  approved_at
-  company {
-    id
-    name
-  }
-  vendor {
-    id
-    name
-  }
-}
-
-fragment PayorPartnership on company_payor_partnerships {
-  id
-  company_id
-  payor_id
-  payor_agreement_id
-  approved_at
-  company {
-    id
-    name
-  }
-  payor {
-    id
-    name
-  }
-}
-
 fragment MetrcTransfer on metrc_transfers {
   id
   company_id

@@ -18710,16 +18710,9 @@ export type InvoiceFragment = Pick<
 
 export type VendorPartnershipFragment = Pick<
   CompanyVendorPartnerships,
-  | "id"
-  | "company_id"
-  | "vendor_id"
-  | "vendor_bank_id"
-  | "vendor_agreement_id"
-  | "approved_at"
-> & {
-  company: Pick<Companies, "id" | "name">;
-  vendor: Pick<Companies, "id" | "name">;
-};
+  "id" | "vendor_bank_id"
+> &
+  VendorPartnershipLimitedFragment;
 
 export type PayorPartnershipFragment = Pick<
   CompanyPayorPartnerships,
@@ -19115,28 +19108,9 @@ export type PartnershipRequestFragment = Pick<
   | "settled_at"
 >;
 
-export type PaymentFragment = Pick<
-  Payments,
-  | "id"
-  | "company_id"
-  | "created_at"
-  | "submitted_at"
-  | "settled_at"
-  | "reversed_at"
-  | "type"
-  | "method"
-  | "requested_amount"
-  | "amount"
-  | "requested_payment_date"
-  | "payment_date"
-  | "deposit_date"
-  | "settlement_date"
-  | "items_covered"
-  | "is_deleted"
-> & {
+export type PaymentFragment = Pick<Payments, "id" | "created_at"> & {
   company_bank_account?: Maybe<BankAccountFragment>;
-  submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
-};
+} & PaymentLimitedFragment;
 
 export type TransactionFragment = Pick<
   Transactions,
@@ -19271,7 +19245,13 @@ export type PaymentLimitedFragment = Pick<
   | "settlement_date"
   | "items_covered"
   | "is_deleted"
-> & { submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">> };
+> & {
+  company: Pick<Companies, "id" | "name">;
+  invoice?: Maybe<
+    Pick<Invoices, "id"> & { payor?: Maybe<Pick<Payors, "id" | "name">> }
+  >;
+  submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
+};
 
 export type GetCustomersWithMetadataQueryVariables = Exact<{
   [key: string]: never;
@@ -19522,12 +19502,11 @@ export const InvoiceFileFragmentDoc = gql`
   }
   ${FileFragmentDoc}
 `;
-export const VendorPartnershipFragmentDoc = gql`
-  fragment VendorPartnership on company_vendor_partnerships {
+export const VendorPartnershipLimitedFragmentDoc = gql`
+  fragment VendorPartnershipLimited on company_vendor_partnerships {
     id
     company_id
     vendor_id
-    vendor_bank_id
     vendor_agreement_id
     approved_at
     company {
@@ -19539,6 +19518,14 @@ export const VendorPartnershipFragmentDoc = gql`
       name
     }
   }
+`;
+export const VendorPartnershipFragmentDoc = gql`
+  fragment VendorPartnership on company_vendor_partnerships {
+    id
+    vendor_bank_id
+    ...VendorPartnershipLimited
+  }
+  ${VendorPartnershipLimitedFragmentDoc}
 `;
 export const PayorPartnershipFragmentDoc = gql`
   fragment PayorPartnership on company_payor_partnerships {
@@ -19887,11 +19874,11 @@ export const BankAccountFragmentDoc = gql`
     is_cannabis_compliant
   }
 `;
-export const PaymentFragmentDoc = gql`
-  fragment Payment on payments {
+export const PaymentLimitedFragmentDoc = gql`
+  fragment PaymentLimited on payments {
     id
     company_id
-    created_at
+    settlement_identifier
     submitted_at
     settled_at
     reversed_at
@@ -19905,15 +19892,34 @@ export const PaymentFragmentDoc = gql`
     settlement_date
     items_covered
     is_deleted
-    company_bank_account {
-      ...BankAccount
+    company {
+      id
+      name
+    }
+    invoice {
+      id
+      payor {
+        id
+        name
+      }
     }
     submitted_by_user {
       id
       full_name
     }
   }
+`;
+export const PaymentFragmentDoc = gql`
+  fragment Payment on payments {
+    id
+    created_at
+    company_bank_account {
+      ...BankAccount
+    }
+    ...PaymentLimited
+  }
   ${BankAccountFragmentDoc}
+  ${PaymentLimitedFragmentDoc}
 `;
 export const TransactionFragmentDoc = gql`
   fragment Transaction on transactions {
@@ -19965,47 +19971,6 @@ export const PayorLimitedFragmentDoc = gql`
   fragment PayorLimited on payors {
     id
     name
-  }
-`;
-export const VendorPartnershipLimitedFragmentDoc = gql`
-  fragment VendorPartnershipLimited on company_vendor_partnerships {
-    id
-    company_id
-    vendor_id
-    vendor_agreement_id
-    approved_at
-    company {
-      id
-      name
-    }
-    vendor {
-      id
-      name
-    }
-  }
-`;
-export const PaymentLimitedFragmentDoc = gql`
-  fragment PaymentLimited on payments {
-    id
-    company_id
-    settlement_identifier
-    submitted_at
-    settled_at
-    reversed_at
-    type
-    method
-    requested_amount
-    amount
-    requested_payment_date
-    payment_date
-    deposit_date
-    settlement_date
-    items_covered
-    is_deleted
-    submitted_by_user {
-      id
-      full_name
-    }
   }
 `;
 export const GetAdvancesDocument = gql`
