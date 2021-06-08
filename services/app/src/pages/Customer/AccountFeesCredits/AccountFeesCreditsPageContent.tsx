@@ -7,6 +7,7 @@ import {
 } from "@material-ui/core";
 import CreateAccountLevelFeeModal from "components/Fee/CreateAccountLevelFeeModal";
 import PayoutHoldingAccountModal from "components/Fee/PayoutHoldingAccountModal";
+import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal";
 import DeletePaymentModal from "components/Payment/DeletePaymentModal";
 import FeesDataGrid from "components/Payment/FeesDataGrid";
 import CreateAccountFeesRepaymentModal from "components/Repayment/CreateAccountFeesRepaymentModal";
@@ -96,6 +97,24 @@ export default function CustomerAccountPageContent({
       title={"Account Fees / Credits"}
       bankActions={
         <>
+          <Can perform={Action.RunBalances}>
+            <Box>
+              <ModalButton
+                label={"Run Balances"}
+                color={"default"}
+                variant={"outlined"}
+                modal={({ handleClose }) => (
+                  <RunCustomerBalancesModal
+                    companyId={companyId}
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                    }}
+                  />
+                )}
+              />
+            </Box>
+          </Can>
           <Can perform={Action.RunBalances}>
             <Box mr={2}>
               <ModalButton

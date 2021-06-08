@@ -800,7 +800,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'requested_amount': 12.03,
 					'requested_payment_date': date_util.load_date_str('10/01/2020'),
 					'payment_date': date_util.load_date_str('10/01/2020'),
-					'items_covered': {},
+					'items_covered': {
+						'requested_to_account_fees': 12.03
+					},
 					'company_bank_account_id': str(uuid.uuid4())
 				}),
 				created_by_user_id=seed.get_user_id('bank_admin'),
@@ -846,7 +848,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'requested_amount': 2.01,
 					'requested_payment_date': date_util.load_date_str('10/01/2020'),
 					'payment_date': date_util.load_date_str('10/01/2020'),
-					'items_covered': {},
+					'items_covered': {
+						'requested_to_account_fees': 2.01
+					},
 					'company_bank_account_id': str(uuid.uuid4())
 				}),
 				created_by_user_id=seed.get_user_id('bank_admin'),

@@ -78,7 +78,7 @@ export default function CreateAccountFeesRepaymentModal({
           method: payment.method,
           requested_payment_date: payment.requested_payment_date,
           items_covered: {
-            to_account_fees: payment.amount,
+            requested_to_account_fees: payment.requested_amount,
           },
           company_bank_account_id: payment.company_bank_account_id,
         },

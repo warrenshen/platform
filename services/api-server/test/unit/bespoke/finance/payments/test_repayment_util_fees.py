@@ -1,21 +1,12 @@
-import datetime
-import decimal
-import json
 import uuid
 from typing import Any, Dict, List, cast
 
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
-from bespoke.db.db_constants import (PaymentMethodEnum, PaymentStatusEnum,
-                                     ProductType)
 from bespoke.db.models import session_scope
-from bespoke.finance import number_util
-from bespoke.finance.payments import payment_util, repayment_util, repayment_util_fees
-from bespoke_test.contract import contract_test_helper
-from bespoke_test.contract.contract_test_helper import ContractInputDict
+from bespoke.finance.payments import payment_util, repayment_util_fees
 from bespoke_test.db import db_unittest, test_helper
 from bespoke_test.finance import finance_test_helper
-from bespoke_test.payments import payment_test_helper
 
 class TestRepaymentOfFees(db_unittest.TestCase):
 
@@ -30,7 +21,9 @@ class TestRepaymentOfFees(db_unittest.TestCase):
 		with session_scope(session_maker) as session:
 			user_id = seed.get_user_id('company_admin', index=0)
 			payment_input_amount = test['payment_amount']
-			items_covered: payment_util.PaymentItemsCoveredDict = {}
+			items_covered: payment_util.PaymentItemsCoveredDict = {
+				'requested_to_account_fees': payment_input_amount
+			}
 			payment_date = date_util.load_date_str(test['requested_payment_date'])
 
 			financial_summary = finance_test_helper.get_default_financial_summary(

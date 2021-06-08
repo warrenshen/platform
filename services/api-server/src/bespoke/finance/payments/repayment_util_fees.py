@@ -83,6 +83,12 @@ def create_and_add_account_level_fee_repayment(
 	created_by_user_id: str,
 	session: Session
 ) -> Tuple[str, errors.Error]:
+
+	items_covered = payment_input['items_covered']
+
+	if 'requested_to_account_fees' not in items_covered:
+		raise errors.Error('items_covered.requested_to_account_fees must be specified')
+
 	payment = payment_util.create_repayment_payment(
 		company_id=company_id,
 		payment_type=db_constants.PaymentType.REPAYMENT_OF_ACCOUNT_FEE,
@@ -104,6 +110,10 @@ def create_and_add_account_level_fee_repayment_with_account_credit(
 ) -> Tuple[str, errors.Error]:
 
 	payment_method = payment_input['payment_method']
+	items_covered = payment_input['items_covered']
+
+	if 'requested_to_account_fees' not in items_covered:
+		raise errors.Error('items_covered.requested_to_account_fees must be specified')
 
 	if payment_method == PaymentMethodEnum.REVERSE_DRAFT_ACH and not payment_input['company_bank_account_id']:
 		raise errors.Error('Bank account to trigger reverse from must be specified if payment method is Reverse Draft ACH', details={})
@@ -279,9 +289,8 @@ def settle_repayment_of_fee(
 	if not financial_summary:
 		raise errors.Error('No financial summary found for the customer')
 
-	if not number_util.float_eq(req['amount'], to_fees + to_user_credit):
-		raise errors.Error('Payment amount of ${} does not equal ${} + ${} (to_fees + to_user_credit)'.format(
-			req['amount'], to_fees, to_user_credit))
+	if not number_util.float_eq(payment_amount, to_fees + to_user_credit):
+		raise errors.Error(f'Payment total amount of ${payment_amount} does not equal sum of "to fees" (${to_fees}) and "to user credit" (${to_user_credit})')
 
 	account_balance_dict = cast(finance_types.AccountBalanceDict, financial_summary.account_level_balance_payload)
 	if to_fees > account_balance_dict['fees_total']:
