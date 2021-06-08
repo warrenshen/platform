@@ -382,6 +382,8 @@ class PurchaseOrder(Artifact):
 	is_cannabis = Column(Boolean)
 	is_deleted = Column(Boolean)
 	is_metrc_based = Column(Boolean)
+	customer_note = Column(Text)
+	bank_note = Column(Text)
 
 	vendor = relationship(
 		'Company',

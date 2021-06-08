@@ -12771,12 +12771,16 @@ export enum PurchaseOrderMetrcTransfersUpdateColumn {
 export type PurchaseOrders = {
   amount?: Maybe<Scalars["numeric"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  /** Comment left on purchase order by bank user for bank user */
+  bank_note?: Maybe<Scalars["String"]>;
   /** When bank rejects purchase order, this mandatory note explains the rejection */
   bank_rejection_note?: Maybe<Scalars["String"]>;
   /** An object relationship */
   company: Companies;
   company_id: Scalars["uuid"];
   created_at: Scalars["timestamptz"];
+  /** Comment left on purchase order by customer user for bank user */
+  customer_note?: Maybe<Scalars["String"]>;
   delivery_date?: Maybe<Scalars["date"]>;
   funded_at?: Maybe<Scalars["timestamptz"]>;
   id: Scalars["uuid"];
@@ -12929,10 +12933,12 @@ export type PurchaseOrdersBoolExp = {
   _or?: Maybe<Array<Maybe<PurchaseOrdersBoolExp>>>;
   amount?: Maybe<NumericComparisonExp>;
   approved_at?: Maybe<TimestamptzComparisonExp>;
+  bank_note?: Maybe<StringComparisonExp>;
   bank_rejection_note?: Maybe<StringComparisonExp>;
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
+  customer_note?: Maybe<StringComparisonExp>;
   delivery_date?: Maybe<DateComparisonExp>;
   funded_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
@@ -12968,10 +12974,12 @@ export type PurchaseOrdersIncInput = {
 export type PurchaseOrdersInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  bank_note?: Maybe<Scalars["String"]>;
   bank_rejection_note?: Maybe<Scalars["String"]>;
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  customer_note?: Maybe<Scalars["String"]>;
   delivery_date?: Maybe<Scalars["date"]>;
   funded_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -12996,9 +13004,11 @@ export type PurchaseOrdersInsertInput = {
 export type PurchaseOrdersMaxFields = {
   amount?: Maybe<Scalars["numeric"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  bank_note?: Maybe<Scalars["String"]>;
   bank_rejection_note?: Maybe<Scalars["String"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  customer_note?: Maybe<Scalars["String"]>;
   delivery_date?: Maybe<Scalars["date"]>;
   funded_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -13015,9 +13025,11 @@ export type PurchaseOrdersMaxFields = {
 export type PurchaseOrdersMaxOrderBy = {
   amount?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
+  bank_note?: Maybe<OrderBy>;
   bank_rejection_note?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  customer_note?: Maybe<OrderBy>;
   delivery_date?: Maybe<OrderBy>;
   funded_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
@@ -13034,9 +13046,11 @@ export type PurchaseOrdersMaxOrderBy = {
 export type PurchaseOrdersMinFields = {
   amount?: Maybe<Scalars["numeric"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  bank_note?: Maybe<Scalars["String"]>;
   bank_rejection_note?: Maybe<Scalars["String"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  customer_note?: Maybe<Scalars["String"]>;
   delivery_date?: Maybe<Scalars["date"]>;
   funded_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -13053,9 +13067,11 @@ export type PurchaseOrdersMinFields = {
 export type PurchaseOrdersMinOrderBy = {
   amount?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
+  bank_note?: Maybe<OrderBy>;
   bank_rejection_note?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  customer_note?: Maybe<OrderBy>;
   delivery_date?: Maybe<OrderBy>;
   funded_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
@@ -13093,10 +13109,12 @@ export type PurchaseOrdersOnConflict = {
 export type PurchaseOrdersOrderBy = {
   amount?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
+  bank_note?: Maybe<OrderBy>;
   bank_rejection_note?: Maybe<OrderBy>;
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  customer_note?: Maybe<OrderBy>;
   delivery_date?: Maybe<OrderBy>;
   funded_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
@@ -13129,11 +13147,15 @@ export enum PurchaseOrdersSelectColumn {
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
+  BankNote = "bank_note",
+  /** column name */
   BankRejectionNote = "bank_rejection_note",
   /** column name */
   CompanyId = "company_id",
   /** column name */
   CreatedAt = "created_at",
+  /** column name */
+  CustomerNote = "customer_note",
   /** column name */
   DeliveryDate = "delivery_date",
   /** column name */
@@ -13168,9 +13190,11 @@ export enum PurchaseOrdersSelectColumn {
 export type PurchaseOrdersSetInput = {
   amount?: Maybe<Scalars["numeric"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  bank_note?: Maybe<Scalars["String"]>;
   bank_rejection_note?: Maybe<Scalars["String"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  customer_note?: Maybe<Scalars["String"]>;
   delivery_date?: Maybe<Scalars["date"]>;
   funded_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -13234,11 +13258,15 @@ export enum PurchaseOrdersUpdateColumn {
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
+  BankNote = "bank_note",
+  /** column name */
   BankRejectionNote = "bank_rejection_note",
   /** column name */
   CompanyId = "company_id",
   /** column name */
   CreatedAt = "created_at",
+  /** column name */
+  CustomerNote = "customer_note",
   /** column name */
   DeliveryDate = "delivery_date",
   /** column name */
@@ -18581,6 +18609,7 @@ export type PurchaseOrderFragment = Pick<
   | "status"
   | "rejection_note"
   | "bank_rejection_note"
+  | "customer_note"
   | "created_at"
   | "requested_at"
   | "approved_at"
@@ -19830,6 +19859,7 @@ export const PurchaseOrderFragmentDoc = gql`
     status
     rejection_note
     bank_rejection_note
+    customer_note
     created_at
     requested_at
     approved_at

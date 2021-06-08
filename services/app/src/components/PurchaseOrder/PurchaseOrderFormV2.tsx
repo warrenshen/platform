@@ -281,6 +281,21 @@ export default function PurchaseOrderFormV2({
           />
         </Box>
       )}
+      <Box display="flex" flexDirection="column" mt={4}>
+        <TextField
+          data-cy={"purchase-order-form-input-customer-note"}
+          multiline
+          label={"Comments"}
+          placeholder={"Enter comments about this purchase order"}
+          value={purchaseOrder.customer_note || ""}
+          onChange={({ target: { value } }) =>
+            setPurchaseOrder({
+              ...purchaseOrder,
+              customer_note: value,
+            })
+          }
+        />
+      </Box>
     </Box>
   );
 }

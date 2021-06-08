@@ -60,6 +60,7 @@ class PurchaseOrderData:
 	amount: float
 	is_cannabis: bool
 	is_metrc_based: bool
+	customer_note: str
 
 	def to_model(self) -> models.PurchaseOrder:
 		return models.PurchaseOrder( # type: ignore
@@ -72,6 +73,7 @@ class PurchaseOrderData:
 			amount=decimal.Decimal(self.amount) if self.amount is not None else None,
 			is_cannabis=self.is_cannabis,
 			is_metrc_based=self.is_metrc_based,
+			customer_note=self.customer_note,
 			status=db_constants.RequestStatusEnum.DRAFTED,
 		)
 
@@ -104,6 +106,7 @@ class PurchaseOrderData:
 			amount=PurchaseOrderData.parse_numeric_safely(d, 'amount'),
 			is_cannabis=d.get('is_cannabis'),
 			is_metrc_based=d.get('is_metrc_based'),
+			customer_note=d.get('customer_note'),
 		), None
 
 	@staticmethod

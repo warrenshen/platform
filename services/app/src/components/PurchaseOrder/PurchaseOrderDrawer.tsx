@@ -238,6 +238,14 @@ export default function PurchaseOrderDrawer({
       )}
       <Box display="flex" flexDirection="column" mt={2}>
         <Typography variant="subtitle2" color="textSecondary">
+          Comments
+        </Typography>
+        <Typography variant={"body1"}>
+          {purchaseOrder.customer_note || "-"}
+        </Typography>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2" color="textSecondary">
           Loans
         </Typography>
         <PurchaseOrderLoansDataGrid

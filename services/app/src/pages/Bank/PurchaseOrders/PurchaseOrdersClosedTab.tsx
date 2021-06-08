@@ -52,6 +52,7 @@ export default function BankPurchaseOrdersClosedTab() {
       <Box display="flex" flexDirection="column">
         <PurchaseOrdersDataGrid
           isCompanyVisible
+          isCustomerNoteVisible={false}
           purchaseOrders={purchaseOrders}
           actionItems={
             check(role, Action.ViewPurchaseOrdersActionMenu) ? [] : []

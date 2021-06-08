@@ -6,7 +6,7 @@ import PurchaseOrdersAllTab from "pages/Bank/PurchaseOrders/PurchaseOrdersAllTab
 import PurchaseOrdersClosedTab from "pages/Bank/PurchaseOrders/PurchaseOrdersClosedTab";
 import { useState } from "react";
 
-function BankPurchaseOrdersPage() {
+export default function BankPurchaseOrdersPage() {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
   return (
@@ -37,5 +37,3 @@ function BankPurchaseOrdersPage() {
     </Page>
   );
 }
-
-export default BankPurchaseOrdersPage;

@@ -3155,9 +3155,11 @@
       columns:
       - amount
       - approved_at
+      - bank_note
       - bank_rejection_note
       - company_id
       - created_at
+      - customer_note
       - delivery_date
       - funded_at
       - id
@@ -3178,9 +3180,11 @@
       columns:
       - amount
       - approved_at
+      - bank_note
       - bank_rejection_note
       - company_id
       - created_at
+      - customer_note
       - delivery_date
       - funded_at
       - id
@@ -3204,6 +3208,7 @@
       - bank_rejection_note
       - company_id
       - created_at
+      - customer_note
       - delivery_date
       - funded_at
       - id
@@ -3231,6 +3236,7 @@
       - bank_rejection_note
       - company_id
       - created_at
+      - customer_note
       - delivery_date
       - funded_at
       - id

@@ -17,8 +17,10 @@ import { useMemo } from "react";
 
 interface Props {
   isCompanyVisible: boolean;
-  isMultiSelectEnabled?: boolean;
+  isCustomerNoteVisible?: boolean;
+  isDeliveryDateVisible?: boolean;
   isExcelExport?: boolean;
+  isMultiSelectEnabled?: boolean;
   purchaseOrders: PurchaseOrderFragment[];
   actionItems?: DataGridActionItem[];
   selectedPurchaseOrderIds?: PurchaseOrders["id"][];
@@ -29,8 +31,10 @@ interface Props {
 
 function PurchaseOrdersDataGrid({
   isCompanyVisible,
-  isMultiSelectEnabled = true,
+  isCustomerNoteVisible = true,
+  isDeliveryDateVisible = false,
   isExcelExport = true,
+  isMultiSelectEnabled = true,
   purchaseOrders,
   actionItems,
   selectedPurchaseOrderIds,
@@ -42,6 +46,11 @@ function PurchaseOrdersDataGrid({
         ...purchaseOrder,
         company_name: purchaseOrder.company?.name,
         vendor_name: purchaseOrder.vendor?.name,
+        customer_note: !!purchaseOrder.customer_note
+          ? purchaseOrder.customer_note.length > 32
+            ? `${purchaseOrder.customer_note.substring(0, 32)}...`
+            : purchaseOrder.customer_note
+          : "-",
       })),
     [purchaseOrders]
   );
@@ -109,6 +118,7 @@ function PurchaseOrdersDataGrid({
         ),
       },
       {
+        visible: isDeliveryDateVisible,
         caption: "Delivery Date",
         dataField: "delivery_date",
         width: ColumnWidths.Date,
@@ -117,8 +127,19 @@ function PurchaseOrdersDataGrid({
           <DateDataGridCell dateString={params.row.data.delivery_date} />
         ),
       },
+      {
+        visible: isCustomerNoteVisible,
+        caption: "Comments",
+        dataField: "customer_note",
+        width: ColumnWidths.Comment,
+      },
     ],
-    [isCompanyVisible, actionItems]
+    [
+      isCompanyVisible,
+      isCustomerNoteVisible,
+      isDeliveryDateVisible,
+      actionItems,
+    ]
   );
 
   const handleSelectionChanged = useMemo(

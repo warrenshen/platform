@@ -88,12 +88,13 @@ export default function CreateUpdatePurchaseOrderModal({
   // Default PurchaseOrder for CREATE case.
   const newPurchaseOrder = {
     vendor_id: null,
-    order_number: "",
+    order_number: null,
     order_date: null,
     delivery_date: null,
     amount: null,
     is_cannabis: true,
     is_metrc_based: null, // null = not known yet
+    customer_note: null,
     status: RequestStatusEnum.Drafted,
   } as PurchaseOrdersInsertInput;
 
@@ -237,6 +238,7 @@ export default function CreateUpdatePurchaseOrderModal({
       amount: purchaseOrder.amount,
       is_cannabis: purchaseOrder.is_cannabis,
       is_metrc_based: isMetrcBased,
+      customer_note: purchaseOrder.customer_note,
       status: RequestStatusEnum.Drafted,
     };
   };

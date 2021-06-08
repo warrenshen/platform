@@ -119,6 +119,7 @@ export default function BankPurchaseOrdersActiveTab() {
       <Box display="flex" flexDirection="column">
         <PurchaseOrdersDataGrid
           isCompanyVisible
+          isCustomerNoteVisible={false}
           isMultiSelectEnabled
           purchaseOrders={purchaseOrders}
           handleSelectPurchaseOrders={handleSelectPurchaseOrders}

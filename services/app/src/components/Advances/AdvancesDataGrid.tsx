@@ -56,7 +56,7 @@ function AdvancesDataGrid({
         ),
       },
       {
-        caption: "Amount",
+        caption: "Total Amount",
         dataField: "amount",
         width: ColumnWidths.Currency,
         alignment: "right",
