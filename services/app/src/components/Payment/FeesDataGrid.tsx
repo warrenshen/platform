@@ -31,7 +31,7 @@ interface Props {
     transactions: Array<Pick<Transactions, "id"> & TransactionFragment>;
   })[];
   selectedPaymentIds?: Payments["id"][];
-  onClickCustomerName?: (customerId: Companies["id"]) => void;
+  handleClickCustomer?: (customerId: Companies["id"]) => void;
   handleSelectPayments?: (payments: PaymentLimitedFragment[]) => void;
 }
 
@@ -52,7 +52,7 @@ export default function FeesDataGrid({
   isMultiSelectEnabled = false,
   fees,
   selectedPaymentIds,
-  onClickCustomerName,
+  handleClickCustomer,
   handleSelectPayments,
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
@@ -83,12 +83,12 @@ export default function FeesDataGrid({
         minWidth: ColumnWidths.MinWidth,
         calculateCellValue: ({ company }: any) => company?.name,
         cellRender: (params: ValueFormatterParams) =>
-          onClickCustomerName ? (
+          handleClickCustomer ? (
             <ClickableDataGridCell
               label={params.row.data.company.name}
               onClick={() => {
-                if (onClickCustomerName) {
-                  onClickCustomerName(params.row.data.company.id);
+                if (handleClickCustomer) {
+                  handleClickCustomer(params.row.data.company.id);
                   dataGrid?.instance.filter([
                     "company.name",
                     "=",
@@ -120,7 +120,7 @@ export default function FeesDataGrid({
         ),
       },
     ],
-    [dataGrid?.instance, isCompanyVisible, onClickCustomerName]
+    [dataGrid?.instance, isCompanyVisible, handleClickCustomer]
   );
 
   const handleSelectionChanged = useMemo(

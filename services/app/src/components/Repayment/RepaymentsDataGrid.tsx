@@ -32,7 +32,7 @@ interface Props {
   customerSearchQuery?: string;
   actionItems?: DataGridActionItem[];
   selectedPaymentIds?: Payments["id"][];
-  onClickCustomerName?: (customerId: Companies["id"]) => void;
+  handleClickCustomer?: (customerId: Companies["id"]) => void;
   handleSelectPayments?: (payments: PaymentLimitedFragment[]) => void;
 }
 
@@ -46,7 +46,7 @@ function RepaymentsDataGrid({
   customerSearchQuery = "",
   actionItems,
   selectedPaymentIds,
-  onClickCustomerName,
+  handleClickCustomer,
   handleSelectPayments,
 }: Props) {
   const isClosed = repaymentType === RepaymentTypeEnum.Closed;
@@ -116,12 +116,12 @@ function RepaymentsDataGrid({
         minWidth: ColumnWidths.MinWidth,
         calculateCellValue: ({ company }: any) => company?.name,
         cellRender: (params: ValueFormatterParams) =>
-          onClickCustomerName ? (
+          handleClickCustomer ? (
             <ClickableDataGridCell
               label={params.row.data.company.name}
               onClick={() => {
-                if (onClickCustomerName) {
-                  onClickCustomerName(params.row.data.company.id);
+                if (handleClickCustomer) {
+                  handleClickCustomer(params.row.data.company.id);
                   dataGrid?.instance.filter([
                     "company.name",
                     "=",
@@ -235,7 +235,7 @@ function RepaymentsDataGrid({
       isReverseDraftACH,
       isOther,
       actionItems,
-      onClickCustomerName,
+      handleClickCustomer,
     ]
   );
 

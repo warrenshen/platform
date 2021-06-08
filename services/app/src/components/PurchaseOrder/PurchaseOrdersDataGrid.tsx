@@ -16,6 +16,7 @@ import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
 interface Props {
+  isBankNoteVisible?: boolean;
   isCompanyVisible: boolean;
   isCustomerNoteVisible?: boolean;
   isDeliveryDateVisible?: boolean;
@@ -29,7 +30,8 @@ interface Props {
   ) => void;
 }
 
-function PurchaseOrdersDataGrid({
+export default function PurchaseOrdersDataGrid({
+  isBankNoteVisible = false,
   isCompanyVisible,
   isCustomerNoteVisible = true,
   isDeliveryDateVisible = false,
@@ -51,6 +53,7 @@ function PurchaseOrdersDataGrid({
             ? `${purchaseOrder.customer_note.substring(0, 32)}...`
             : purchaseOrder.customer_note
           : "-",
+        bank_note: purchaseOrder.bank_note || "-",
       })),
     [purchaseOrders]
   );
@@ -133,8 +136,15 @@ function PurchaseOrdersDataGrid({
         dataField: "customer_note",
         width: ColumnWidths.Comment,
       },
+      {
+        visible: isBankNoteVisible,
+        caption: "Bank Note",
+        dataField: "bank_note",
+        width: ColumnWidths.Comment,
+      },
     ],
     [
+      isBankNoteVisible,
       isCompanyVisible,
       isCustomerNoteVisible,
       isDeliveryDateVisible,
@@ -161,4 +171,3 @@ function PurchaseOrdersDataGrid({
     />
   );
 }
-export default PurchaseOrdersDataGrid;

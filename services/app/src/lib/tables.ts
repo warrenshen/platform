@@ -1,9 +1,10 @@
 export const ColumnWidths = {
   // Fixed width columns.
   Comment: 250,
-  Currency: 140,
+  Currency: 130,
   Date: 140,
   DateContract: 220,
+  Identifier: 100,
   PhoneNumber: 150,
   MetrcId: 120,
   Status: 170,
@@ -13,5 +14,5 @@ export const ColumnWidths = {
   Actions: 75,
 
   // Variable width columns (customer name, purchase order number, etc).
-  MinWidth: 170,
+  MinWidth: 150,
 };

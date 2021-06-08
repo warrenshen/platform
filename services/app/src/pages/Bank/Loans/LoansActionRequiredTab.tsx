@@ -12,6 +12,7 @@ import {
   LoanStatusEnum,
   useGetNotFundedLoansForBankSubscription,
 } from "generated/graphql";
+import { useHistory } from "react-router-dom";
 import useSnackbar from "hooks/useSnackbar";
 import { approveLoans } from "lib/api/loans";
 import { Action, check } from "lib/auth/rbac-rules";
@@ -27,8 +28,10 @@ const Container = styled.div`
   width: 100%;
 `;
 
-function BankLoansActionRequiredTab() {
+export default function BankLoansActionRequiredTab() {
+  const history = useHistory();
   const snackbar = useSnackbar();
+
   const {
     user: { role },
   } = useContext(CurrentUserContext);
@@ -180,11 +183,12 @@ function BankLoansActionRequiredTab() {
           isFilteringEnabled
           loans={loans}
           selectedLoanIds={selectedLoanIds}
+          handleClickCustomer={(customerId) =>
+            history.push(`/customers/${customerId}/loans`)
+          }
           handleSelectLoans={handleSelectLoans}
         />
       </Box>
     </Container>
   );
 }
-
-export default BankLoansActionRequiredTab;

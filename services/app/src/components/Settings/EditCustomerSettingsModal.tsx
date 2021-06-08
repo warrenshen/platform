@@ -13,7 +13,7 @@ import {
   Theme,
 } from "@material-ui/core";
 import {
-  CompanySettingsForCustomerFragment,
+  CompanySettingsLimitedFragment,
   CompanySettingsFragment,
   ContractFragment,
   useUpdateCustomerSettingsMutation,
@@ -50,9 +50,7 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
   contract: ContractFragment | null;
   companyId: string;
-  existingSettings:
-    | CompanySettingsFragment
-    | CompanySettingsForCustomerFragment;
+  existingSettings: CompanySettingsFragment | CompanySettingsLimitedFragment;
   handleClose: () => void;
 }
 
@@ -67,7 +65,7 @@ export default function EditCustomerSettingsModal({
 
   const [updateCustomerSettings] = useUpdateCustomerSettingsMutation();
   const [settings, setSettings] = useState<
-    CompanySettingsFragment | CompanySettingsForCustomerFragment
+    CompanySettingsFragment | CompanySettingsLimitedFragment
   >(existingSettings);
 
   const handleClickSave = async () => {

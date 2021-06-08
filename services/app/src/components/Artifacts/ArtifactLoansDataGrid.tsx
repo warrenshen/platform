@@ -87,7 +87,7 @@ export default function ArtifactLoansDataGrid({
       {
         dataField: "customer_identifier",
         caption: "Customer Identifier",
-        width: 120,
+        width: ColumnWidths.Identifier,
         cellRender: (params: ValueFormatterParams) => (
           <LoanDrawerLauncher
             label={params.row.data.customer_identifier}
@@ -99,7 +99,7 @@ export default function ArtifactLoansDataGrid({
         visible: isDisbursementIdentifierVisible,
         dataField: "disbursement_identifier",
         caption: "Disbursement Identifier",
-        width: 120,
+        width: ColumnWidths.Identifier,
         cellRender: (params: ValueFormatterParams) => (
           <LoanDrawerLauncher
             label={params.row.data.disbursement_identifier}

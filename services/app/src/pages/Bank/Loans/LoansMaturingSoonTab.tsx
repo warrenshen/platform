@@ -8,6 +8,7 @@ import {
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import { useGetFundedLoansForBankSubscription } from "generated/graphql";
 import { useMemo, useState } from "react";
+import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -21,7 +22,9 @@ const Container = styled.div`
 
 const matureDaysList = [7, 14, 30];
 
-function BankLoansMaturingSoonTab() {
+export default function BankLoansMaturingSoonTab() {
+  const history = useHistory();
+
   const [matureDays, setMatureDays] = useState(matureDaysList[1]);
 
   const { data, error } = useGetFundedLoansForBankSubscription();
@@ -80,10 +83,11 @@ function BankLoansMaturingSoonTab() {
           isMaturityVisible
           loans={maturingLoans}
           matureDays={matureDays}
+          handleClickCustomer={(customerId) =>
+            history.push(`/customers/${customerId}/loans`)
+          }
         />
       </Box>
     </Container>
   );
 }
-
-export default BankLoansMaturingSoonTab;

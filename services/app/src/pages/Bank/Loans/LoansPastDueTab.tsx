@@ -2,6 +2,7 @@ import { Box } from "@material-ui/core";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import { useGetFundedLoansForBankSubscription } from "generated/graphql";
 import { useMemo } from "react";
+import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -13,7 +14,9 @@ const Container = styled.div`
   width: 100%;
 `;
 
-function BankLoansPastDueTab() {
+export default function BankLoansPastDueTab() {
+  const history = useHistory();
+
   const { data, error } = useGetFundedLoansForBankSubscription();
 
   if (error) {
@@ -43,10 +46,11 @@ function BankLoansPastDueTab() {
           isFilteringEnabled
           isMaturityVisible
           loans={pastDueLoans}
+          handleClickCustomer={(customerId) =>
+            history.push(`/customers/${customerId}/loans`)
+          }
         />
       </Box>
     </Container>
   );
 }
-
-export default BankLoansPastDueTab;

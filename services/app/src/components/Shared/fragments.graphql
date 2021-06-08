@@ -61,85 +61,6 @@ fragment Contract on contracts {
   terminated_at
 }
 
-## Purchase Order Financing
-
-fragment PurchaseOrder on purchase_orders {
-  id
-  company_id
-  vendor_id
-  order_number
-  order_date
-  delivery_date
-  amount
-  is_cannabis
-  is_metrc_based
-  status
-  rejection_note
-  bank_rejection_note
-  customer_note
-  created_at
-  requested_at
-  approved_at
-  funded_at
-  company {
-    id
-    name
-  }
-  vendor {
-    id
-    name
-  }
-}
-
-fragment LoanLimited on loans {
-  id
-  loan_type
-  artifact_id
-  identifier
-  disbursement_identifier
-  status
-  rejection_note
-  payment_status
-  amount
-  requested_payment_date
-  origination_date
-  maturity_date
-  adjusted_maturity_date
-  outstanding_principal_balance
-  outstanding_interest
-  outstanding_fees
-  approved_at
-  funded_at
-  company {
-    id
-    identifier
-    name
-  }
-}
-
-fragment PaymentLimited on payments {
-  id
-  company_id
-  settlement_identifier
-  submitted_at
-  settled_at
-  reversed_at
-  type
-  method
-  requested_amount
-  amount
-  requested_payment_date
-  payment_date
-  deposit_date
-  settlement_date
-  items_covered
-  is_deleted
-  submitted_by_user {
-    id
-    full_name
-  }
-}
-
 ## Files
 
 fragment File on files {
@@ -245,20 +166,6 @@ fragment FinancialSummary on financial_summaries {
   minimum_monthly_payload
   account_level_balance_payload
   day_volume_threshold_met
-  interest_accrued_today
-}
-
-fragment BankFinancialSummary on bank_financial_summaries {
-  id
-  updated_at
-  date
-  product_type
-  adjusted_total_limit
-  total_outstanding_principal
-  total_outstanding_interest
-  total_outstanding_fees
-  total_principal_in_requested_state
-  available_limit
   interest_accrued_today
 }
 

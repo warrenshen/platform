@@ -46,7 +46,7 @@ export default function EbbaApplicationsDataGrid({
       {
         dataField: "id",
         caption: "Platform ID",
-        width: 120,
+        width: ColumnWidths.Identifier,
         cellRender: (params: ValueFormatterParams) => (
           <EbbaApplicationDrawerLauncher
             ebbaApplicationId={params.row.data.id}

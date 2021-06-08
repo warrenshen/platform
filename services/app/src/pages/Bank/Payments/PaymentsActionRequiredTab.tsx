@@ -168,7 +168,7 @@ export default function BankPaymentsActionRequiredTab() {
             payments={notScheduledPayments}
             customerSearchQuery={""}
             selectedPaymentIds={selectedSchedulePaymentIds}
-            onClickCustomerName={(customerId) =>
+            handleClickCustomer={(customerId) =>
               history.push(`/customers/${customerId}/overview`)
             }
             handleSelectPayments={handleSelectSchedulePayments}
@@ -222,7 +222,7 @@ export default function BankPaymentsActionRequiredTab() {
             payments={pendingReverseDraftPayments}
             customerSearchQuery={""}
             selectedPaymentIds={selectedSettlePaymentIds}
-            onClickCustomerName={(customerId) =>
+            handleClickCustomer={(customerId) =>
               history.push(`/customers/${customerId}/overview`)
             }
             handleSelectPayments={handleSelectSettlePayments}
@@ -276,7 +276,7 @@ export default function BankPaymentsActionRequiredTab() {
             payments={notifyPayments}
             customerSearchQuery={""}
             selectedPaymentIds={selectedNotifyPaymentIds}
-            onClickCustomerName={(customerId) =>
+            handleClickCustomer={(customerId) =>
               history.push(`/customers/${customerId}/overview`)
             }
             handleSelectPayments={handleSelectNotifyPayments}

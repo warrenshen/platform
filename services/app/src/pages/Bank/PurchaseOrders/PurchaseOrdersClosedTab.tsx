@@ -51,6 +51,7 @@ export default function BankPurchaseOrdersClosedTab() {
       </Box>
       <Box display="flex" flexDirection="column">
         <PurchaseOrdersDataGrid
+          isBankNoteVisible
           isCompanyVisible
           isCustomerNoteVisible={false}
           purchaseOrders={purchaseOrders}

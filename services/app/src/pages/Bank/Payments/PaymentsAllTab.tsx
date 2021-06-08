@@ -22,7 +22,7 @@ function BankPaymentsAllTab() {
         isCompanyVisible
         payments={payments}
         customerSearchQuery={""}
-        onClickCustomerName={() => {}}
+        handleClickCustomer={() => {}}
       />
     </Container>
   );

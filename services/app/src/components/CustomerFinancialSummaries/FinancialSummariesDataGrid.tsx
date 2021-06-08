@@ -15,14 +15,14 @@ interface Props {
   isCustomerNameFixed?: boolean;
   isExcelExport?: boolean;
   financialSummaries: GetFinancialSummariesByCompanyIdQuery["financial_summaries"];
-  onClickCustomerName?: (customerId: Companies["id"]) => void;
+  handleClickCustomer?: (customerId: Companies["id"]) => void;
 }
 
 export default function FinancialSummariesDataGrid({
   isCustomerNameFixed = false,
   isExcelExport = true,
   financialSummaries,
-  onClickCustomerName,
+  handleClickCustomer,
 }: Props) {
   const rows = financialSummaries;
   const columns = useMemo(
@@ -43,10 +43,10 @@ export default function FinancialSummariesDataGrid({
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) =>
-          onClickCustomerName ? (
+          handleClickCustomer ? (
             <ClickableDataGridCell
               label={params.row.data.company.name}
-              onClick={() => onClickCustomerName(params.row.data.company.id)}
+              onClick={() => handleClickCustomer(params.row.data.company.id)}
             />
           ) : (
             params.row.data.company?.name || "-"
@@ -175,7 +175,7 @@ export default function FinancialSummariesDataGrid({
         },
       },
     ],
-    [isCustomerNameFixed, onClickCustomerName]
+    [isCustomerNameFixed, handleClickCustomer]
   );
 
   return (

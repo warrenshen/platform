@@ -72,7 +72,7 @@ export default function BankReportsFinancialsByDateTab() {
           <FinancialSummariesDataGrid
             isCustomerNameFixed
             financialSummaries={financialSummariesByDate}
-            onClickCustomerName={(customerId) =>
+            handleClickCustomer={(customerId) =>
               history.push(`/customers/${customerId}/overview`)
             }
           />

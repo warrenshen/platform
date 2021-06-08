@@ -12,7 +12,7 @@ import {
 import { grey } from "@material-ui/core/colors";
 import Can from "components/Shared/Can";
 import {
-  CompanySettingsForCustomerFragment,
+  CompanySettingsLimitedFragment,
   CompanySettingsFragment,
   ContractFragment,
 } from "generated/graphql";
@@ -22,7 +22,7 @@ import { SettingsHelper } from "lib/settings";
 
 interface Props {
   contract: ContractFragment | null;
-  settings: CompanySettingsFragment | CompanySettingsForCustomerFragment;
+  settings: CompanySettingsFragment | CompanySettingsLimitedFragment;
   handleClick: () => void;
 }
 

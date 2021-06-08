@@ -63,68 +63,24 @@ fragment Vendor on companies {
   phone_number
 }
 
+fragment PurchaseOrder on purchase_orders {
+  id
+  bank_note
+  ...PurchaseOrderLimited
+}
+
 fragment Loan on loans {
   id
-  loan_type
-  artifact_id
-  identifier
-  disbursement_identifier
-  status
-  rejection_note
   notes
-  payment_status
-  amount
-  requested_payment_date
-  origination_date
-  maturity_date
-  adjusted_maturity_date
-  outstanding_principal_balance
-  outstanding_interest
-  outstanding_fees
   requested_at
   rejected_at
   funded_at
   closed_at
-  company {
-    id
-    identifier
-    name
-  }
-}
-
-# The core fields for when the artifact related to a loan is shown.
-fragment LoanArtifactLimited on loans {
-  id
-  loan_type
-  artifact_id
-  identifier
-  invoice {
-    id
-    invoice_number
-    payor {
-      id
-      name
-    }
-  }
-  line_of_credit {
-    id
-    ...LineOfCredit
-  }
-  purchase_order {
-    id
-    order_number
-    vendor {
-      id
-      name
-    }
-  }
+  ...LoanLimited
 }
 
 fragment LoanArtifact on loans {
   id
-  loan_type
-  artifact_id
-  identifier
   invoice {
     id
     ...Invoice
@@ -137,6 +93,7 @@ fragment LoanArtifact on loans {
     id
     ...PurchaseOrder
   }
+  ...LoanArtifactLimited
 }
 
 ## Invoices
@@ -218,4 +175,18 @@ fragment Transaction on transactions {
   to_principal
   to_interest
   to_fees
+}
+
+fragment BankFinancialSummary on bank_financial_summaries {
+  id
+  updated_at
+  date
+  product_type
+  adjusted_total_limit
+  total_outstanding_principal
+  total_outstanding_interest
+  total_outstanding_fees
+  total_principal_in_requested_state
+  available_limit
+  interest_accrued_today
 }

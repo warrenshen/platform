@@ -1,6 +1,6 @@
 import { Box } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
-import { FilterList } from "@material-ui/icons";
+import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import InvoiceDrawerLauncher from "components/Invoices/InvoiceDrawerLauncher";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
@@ -13,6 +13,8 @@ import DataGridActionMenu, {
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import {
+  Companies,
+  LoanArtifactFragment,
   LoanArtifactLimitedFragment,
   LoanFragment,
   Loans,
@@ -31,7 +33,6 @@ import {
 } from "lib/loans";
 import { ColumnWidths } from "lib/tables";
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 
 interface Props {
   isArtifactVisible?: boolean;
@@ -48,14 +49,16 @@ interface Props {
   matureDays?: number;
   pageSize?: number;
   filterByStatus?: RequestStatusEnum;
-  loans: (LoanFragment & LoanArtifactLimitedFragment)[];
+  loans: (LoanFragment &
+    (LoanArtifactFragment | LoanArtifactLimitedFragment))[];
   actionItems?: DataGridActionItem[];
   selectedLoanIds?: Loans["id"][];
+  handleClickCustomer?: (customerId: Companies["id"]) => void;
   handleSelectLoans?: (loans: LoanFragment[]) => void;
 }
 
 function getRows(
-  loans: (LoanFragment & LoanArtifactLimitedFragment)[]
+  loans: (LoanFragment & (LoanArtifactFragment | LoanArtifactLimitedFragment))[]
 ): RowsProp {
   return loans.map((loan) => ({
     ...loan,
@@ -66,6 +69,9 @@ function getRows(
       : loan.invoice
       ? loan.invoice.invoice_number
       : "N/A",
+    artifact_bank_note:
+      (loan as LoanFragment & LoanArtifactFragment).purchase_order?.bank_note ||
+      "-",
     vendor_name: loan.purchase_order
       ? loan.purchase_order.vendor?.name
       : loan.line_of_credit
@@ -96,6 +102,7 @@ export default function LoansDataGrid({
   actionItems,
   selectedLoanIds,
   handleSelectLoans,
+  handleClickCustomer,
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = useMemo(() => getRows(loans), [loans]);
@@ -156,7 +163,7 @@ export default function LoansDataGrid({
       {
         dataField: "customer_identifier",
         caption: "Customer Identifier",
-        width: 120,
+        width: ColumnWidths.Identifier,
         cellRender: (params: ValueFormatterParams) => (
           <LoanDrawerLauncher
             label={params.row.data.customer_identifier}
@@ -168,7 +175,7 @@ export default function LoansDataGrid({
         visible: isDisbursementIdentifierVisible,
         dataField: "disbursement_identifier",
         caption: "Disbursement Identifier",
-        width: 120,
+        width: ColumnWidths.Identifier,
         cellRender: (params: ValueFormatterParams) => (
           <LoanDrawerLauncher
             label={params.row.data.disbursement_identifier}
@@ -215,6 +222,44 @@ export default function LoansDataGrid({
       },
       {
         visible: isCompanyVisible,
+        dataField: "company.name",
+        caption: "Customer Name",
+        minWidth: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) =>
+          handleClickCustomer ? (
+            <ClickableDataGridCell
+              label={params.row.data.company.name}
+              onClick={() => handleClickCustomer(params.row.data.company.id)}
+            />
+          ) : (
+            params.row.data.company?.name || "-"
+          ),
+      },
+      {
+        caption: "Loan Amount",
+        dataField: "amount",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.amount} />
+        ),
+      },
+      {
+        visible: !isMaturityVisible,
+        caption: "Requested Payment Date",
+        dataField: "requested_payment_date",
+        width: ColumnWidths.Date,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <DateDataGridCell
+            dateString={params.row.data.requested_payment_date}
+          />
+        ),
+      },
+      {
+        // Temporarily hide this column. Consider a
+        // tool-tip UX to surface this information.
+        visible: false,
         caption: "Loan Type",
         dataField: "loan_type",
         width: ColumnWidths.Type,
@@ -222,22 +267,6 @@ export default function LoansDataGrid({
         cellRender: (params: ValueFormatterParams) => (
           <Box>
             {LoanTypeToLabel[params.row.data.loan_type as LoanTypeEnum]}
-          </Box>
-        ),
-      },
-      {
-        visible: isCompanyVisible,
-        dataField: "company.name",
-        caption: "Customer Name",
-        minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
-          <Box display="flex" alignItems="center">
-            <Link to={`/customers/${params.row.data.company.id}/loans`}>
-              <Box display="flex" alignItems="center" mr={1}>
-                <FilterList />
-              </Box>
-            </Link>
-            <Box>{params.row.data.company.name as string}</Box>
           </Box>
         ),
       },
@@ -270,25 +299,10 @@ export default function LoansDataGrid({
         minWidth: ColumnWidths.MinWidth,
       },
       {
-        caption: "Loan Amount",
-        dataField: "amount",
-        width: ColumnWidths.Currency,
-        alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.amount} />
-        ),
-      },
-      {
-        visible: !isMaturityVisible,
-        caption: "Requested Payment Date",
-        dataField: "requested_payment_date",
-        width: ColumnWidths.Date,
-        alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell
-            dateString={params.row.data.requested_payment_date}
-          />
-        ),
+        visible: isArtifactVisible,
+        dataField: "artifact_bank_note",
+        caption: "Bank Note",
+        minWidth: ColumnWidths.MinWidth,
       },
       {
         visible: isMaturityVisible,
@@ -367,6 +381,7 @@ export default function LoansDataGrid({
       isMaturityVisible,
       isStatusVisible,
       actionItems,
+      handleClickCustomer,
     ]
   );
 

@@ -18,14 +18,14 @@ function getRows(payments: PaymentFragment[]): RowsProp {
 interface Props {
   payments: PaymentFragment[];
   customerSearchQuery: string;
-  onClickCustomerName: (value: string) => void;
+  handleClickCustomer: (value: string) => void;
   isExcelExport?: boolean;
 }
 
 function AdvancesDataGrid({
   payments,
   customerSearchQuery,
-  onClickCustomerName,
+  handleClickCustomer,
   isExcelExport = true,
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
@@ -45,7 +45,7 @@ function AdvancesDataGrid({
           <ClickableDataGridCell
             label={params.row.data.company.name}
             onClick={() => {
-              onClickCustomerName(params.row.data.company.name);
+              handleClickCustomer(params.row.data.company.name);
               dataGrid?.instance.filter([
                 "company.name",
                 "=",
@@ -93,7 +93,7 @@ function AdvancesDataGrid({
         width: 90,
       },
     ],
-    [dataGrid?.instance, onClickCustomerName]
+    [dataGrid?.instance, handleClickCustomer]
   );
 
   return (

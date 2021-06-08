@@ -3,7 +3,7 @@ import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
-  CompanySettingsForCustomerFragment,
+  CompanySettingsLimitedFragment,
   ContractFragment,
   useCompanyForCustomerQuery,
 } from "generated/graphql";
@@ -23,7 +23,7 @@ function SettingsPage() {
 
   const company = data?.companies_by_pk;
   const settings = data?.companies_by_pk
-    ?.settings as CompanySettingsForCustomerFragment;
+    ?.settings as CompanySettingsLimitedFragment;
   const contract = data?.companies_by_pk?.contract as ContractFragment;
 
   return (

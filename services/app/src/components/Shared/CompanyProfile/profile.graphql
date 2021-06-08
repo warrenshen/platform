@@ -37,7 +37,7 @@ query CompanyForCustomer($companyId: uuid!) {
       ...BankAccount
     }
     settings {
-      ...CompanySettingsForCustomer
+      ...CompanySettingsLimited
       collections_bespoke_bank_account {
         ...BankAccount
       }

@@ -18511,7 +18511,7 @@ export type CompanyForCustomerQuery = {
       settings?: Maybe<
         {
           collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
-        } & CompanySettingsForCustomerFragment
+        } & CompanySettingsLimitedFragment
       >;
       contract?: Maybe<ContractFragment>;
     } & CompanyFragment
@@ -18595,72 +18595,6 @@ export type ContractFragment = Pick<
   | "terminated_at"
 >;
 
-export type PurchaseOrderFragment = Pick<
-  PurchaseOrders,
-  | "id"
-  | "company_id"
-  | "vendor_id"
-  | "order_number"
-  | "order_date"
-  | "delivery_date"
-  | "amount"
-  | "is_cannabis"
-  | "is_metrc_based"
-  | "status"
-  | "rejection_note"
-  | "bank_rejection_note"
-  | "customer_note"
-  | "created_at"
-  | "requested_at"
-  | "approved_at"
-  | "funded_at"
-> & {
-  company: Pick<Companies, "id" | "name">;
-  vendor?: Maybe<Pick<Vendors, "id" | "name">>;
-};
-
-export type LoanLimitedFragment = Pick<
-  Loans,
-  | "id"
-  | "loan_type"
-  | "artifact_id"
-  | "identifier"
-  | "disbursement_identifier"
-  | "status"
-  | "rejection_note"
-  | "payment_status"
-  | "amount"
-  | "requested_payment_date"
-  | "origination_date"
-  | "maturity_date"
-  | "adjusted_maturity_date"
-  | "outstanding_principal_balance"
-  | "outstanding_interest"
-  | "outstanding_fees"
-  | "approved_at"
-  | "funded_at"
-> & { company: Pick<Companies, "id" | "identifier" | "name"> };
-
-export type PaymentLimitedFragment = Pick<
-  Payments,
-  | "id"
-  | "company_id"
-  | "settlement_identifier"
-  | "submitted_at"
-  | "settled_at"
-  | "reversed_at"
-  | "type"
-  | "method"
-  | "requested_amount"
-  | "amount"
-  | "requested_payment_date"
-  | "payment_date"
-  | "deposit_date"
-  | "settlement_date"
-  | "items_covered"
-  | "is_deleted"
-> & { submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">> };
-
 export type FileFragment = Pick<Files, "id" | "name" | "path">;
 
 export type PurchaseOrderFileFragment = Pick<
@@ -18742,21 +18676,6 @@ export type FinancialSummaryFragment = Pick<
   | "minimum_monthly_payload"
   | "account_level_balance_payload"
   | "day_volume_threshold_met"
-  | "interest_accrued_today"
->;
-
-export type BankFinancialSummaryFragment = Pick<
-  BankFinancialSummaries,
-  | "id"
-  | "updated_at"
-  | "date"
-  | "product_type"
-  | "adjusted_total_limit"
-  | "total_outstanding_principal"
-  | "total_outstanding_interest"
-  | "total_outstanding_fees"
-  | "total_principal_in_requested_state"
-  | "available_limit"
   | "interest_accrued_today"
 >;
 
@@ -19141,56 +19060,20 @@ export type VendorFragment = Pick<
   | "phone_number"
 >;
 
+export type PurchaseOrderFragment = Pick<PurchaseOrders, "id" | "bank_note"> &
+  PurchaseOrderLimitedFragment;
+
 export type LoanFragment = Pick<
   Loans,
-  | "id"
-  | "loan_type"
-  | "artifact_id"
-  | "identifier"
-  | "disbursement_identifier"
-  | "status"
-  | "rejection_note"
-  | "notes"
-  | "payment_status"
-  | "amount"
-  | "requested_payment_date"
-  | "origination_date"
-  | "maturity_date"
-  | "adjusted_maturity_date"
-  | "outstanding_principal_balance"
-  | "outstanding_interest"
-  | "outstanding_fees"
-  | "requested_at"
-  | "rejected_at"
-  | "funded_at"
-  | "closed_at"
-> & { company: Pick<Companies, "id" | "identifier" | "name"> };
+  "id" | "notes" | "requested_at" | "rejected_at" | "funded_at" | "closed_at"
+> &
+  LoanLimitedFragment;
 
-export type LoanArtifactLimitedFragment = Pick<
-  Loans,
-  "id" | "loan_type" | "artifact_id" | "identifier"
-> & {
-  invoice?: Maybe<
-    Pick<Invoices, "id" | "invoice_number"> & {
-      payor?: Maybe<Pick<Payors, "id" | "name">>;
-    }
-  >;
-  line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
-  purchase_order?: Maybe<
-    Pick<PurchaseOrders, "id" | "order_number"> & {
-      vendor?: Maybe<Pick<Vendors, "id" | "name">>;
-    }
-  >;
-};
-
-export type LoanArtifactFragment = Pick<
-  Loans,
-  "id" | "loan_type" | "artifact_id" | "identifier"
-> & {
+export type LoanArtifactFragment = Pick<Loans, "id"> & {
   invoice?: Maybe<Pick<Invoices, "id"> & InvoiceFragment>;
   line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
   purchase_order?: Maybe<Pick<PurchaseOrders, "id"> & PurchaseOrderFragment>;
-};
+} & LoanArtifactLimitedFragment;
 
 export type ThirdPartyFragment = Pick<
   Companies,
@@ -19270,7 +19153,22 @@ export type TransactionFragment = Pick<
   | "to_fees"
 >;
 
-export type CompanySettingsForCustomerFragment = Pick<
+export type BankFinancialSummaryFragment = Pick<
+  BankFinancialSummaries,
+  | "id"
+  | "updated_at"
+  | "date"
+  | "product_type"
+  | "adjusted_total_limit"
+  | "total_outstanding_principal"
+  | "total_outstanding_interest"
+  | "total_outstanding_fees"
+  | "total_principal_in_requested_state"
+  | "available_limit"
+  | "interest_accrued_today"
+>;
+
+export type CompanySettingsLimitedFragment = Pick<
   CompanySettings,
   | "id"
   | "company_id"
@@ -19291,6 +19189,89 @@ export type VendorPartnershipLimitedFragment = Pick<
   company: Pick<Companies, "id" | "name">;
   vendor: Pick<Companies, "id" | "name">;
 };
+
+export type PurchaseOrderLimitedFragment = Pick<
+  PurchaseOrders,
+  | "id"
+  | "company_id"
+  | "vendor_id"
+  | "order_number"
+  | "order_date"
+  | "delivery_date"
+  | "amount"
+  | "is_cannabis"
+  | "is_metrc_based"
+  | "status"
+  | "rejection_note"
+  | "bank_rejection_note"
+  | "customer_note"
+  | "created_at"
+  | "requested_at"
+  | "approved_at"
+  | "funded_at"
+> & {
+  company: Pick<Companies, "id" | "name">;
+  vendor?: Maybe<Pick<Vendors, "id" | "name">>;
+};
+
+export type LoanLimitedFragment = Pick<
+  Loans,
+  | "id"
+  | "loan_type"
+  | "artifact_id"
+  | "identifier"
+  | "disbursement_identifier"
+  | "status"
+  | "rejection_note"
+  | "payment_status"
+  | "amount"
+  | "requested_payment_date"
+  | "origination_date"
+  | "maturity_date"
+  | "adjusted_maturity_date"
+  | "outstanding_principal_balance"
+  | "outstanding_interest"
+  | "outstanding_fees"
+  | "approved_at"
+  | "funded_at"
+> & { company: Pick<Companies, "id" | "identifier" | "name"> };
+
+export type LoanArtifactLimitedFragment = Pick<
+  Loans,
+  "id" | "loan_type" | "artifact_id" | "identifier"
+> & {
+  invoice?: Maybe<
+    Pick<Invoices, "id" | "invoice_number"> & {
+      payor?: Maybe<Pick<Payors, "id" | "name">>;
+    }
+  >;
+  line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
+  purchase_order?: Maybe<
+    Pick<PurchaseOrders, "id" | "order_number"> & {
+      vendor?: Maybe<Pick<Vendors, "id" | "name">>;
+    }
+  >;
+};
+
+export type PaymentLimitedFragment = Pick<
+  Payments,
+  | "id"
+  | "company_id"
+  | "settlement_identifier"
+  | "submitted_at"
+  | "settled_at"
+  | "reversed_at"
+  | "type"
+  | "method"
+  | "requested_amount"
+  | "amount"
+  | "requested_payment_date"
+  | "payment_date"
+  | "deposit_date"
+  | "settlement_date"
+  | "items_covered"
+  | "is_deleted"
+> & { submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">> };
 
 export type GetCustomersWithMetadataQueryVariables = Exact<{
   [key: string]: never;
@@ -19447,57 +19428,6 @@ export const ContractFragmentDoc = gql`
     terminated_at
   }
 `;
-export const LoanLimitedFragmentDoc = gql`
-  fragment LoanLimited on loans {
-    id
-    loan_type
-    artifact_id
-    identifier
-    disbursement_identifier
-    status
-    rejection_note
-    payment_status
-    amount
-    requested_payment_date
-    origination_date
-    maturity_date
-    adjusted_maturity_date
-    outstanding_principal_balance
-    outstanding_interest
-    outstanding_fees
-    approved_at
-    funded_at
-    company {
-      id
-      identifier
-      name
-    }
-  }
-`;
-export const PaymentLimitedFragmentDoc = gql`
-  fragment PaymentLimited on payments {
-    id
-    company_id
-    settlement_identifier
-    submitted_at
-    settled_at
-    reversed_at
-    type
-    method
-    requested_amount
-    amount
-    requested_payment_date
-    payment_date
-    deposit_date
-    settlement_date
-    items_covered
-    is_deleted
-    submitted_by_user {
-      id
-      full_name
-    }
-  }
-`;
 export const FileFragmentDoc = gql`
   fragment File on files {
     id
@@ -19577,21 +19507,6 @@ export const FinancialSummaryFragmentDoc = gql`
     minimum_monthly_payload
     account_level_balance_payload
     day_volume_threshold_met
-    interest_accrued_today
-  }
-`;
-export const BankFinancialSummaryFragmentDoc = gql`
-  fragment BankFinancialSummary on bank_financial_summaries {
-    id
-    updated_at
-    date
-    product_type
-    adjusted_total_limit
-    total_outstanding_principal
-    total_outstanding_interest
-    total_outstanding_fees
-    total_principal_in_requested_state
-    available_limit
     interest_accrued_today
   }
 `;
@@ -19745,8 +19660,8 @@ export const VendorFragmentDoc = gql`
     phone_number
   }
 `;
-export const LoanFragmentDoc = gql`
-  fragment Loan on loans {
+export const LoanLimitedFragmentDoc = gql`
+  fragment LoanLimited on loans {
     id
     loan_type
     artifact_id
@@ -19754,7 +19669,6 @@ export const LoanFragmentDoc = gql`
     disbursement_identifier
     status
     rejection_note
-    notes
     payment_status
     amount
     requested_payment_date
@@ -19764,10 +19678,8 @@ export const LoanFragmentDoc = gql`
     outstanding_principal_balance
     outstanding_interest
     outstanding_fees
-    requested_at
-    rejected_at
+    approved_at
     funded_at
-    closed_at
     company {
       id
       identifier
@@ -19775,46 +19687,17 @@ export const LoanFragmentDoc = gql`
     }
   }
 `;
-export const LineOfCreditFragmentDoc = gql`
-  fragment LineOfCredit on line_of_credits {
+export const LoanFragmentDoc = gql`
+  fragment Loan on loans {
     id
-    company_id
-    is_credit_for_vendor
-    recipient_vendor_id
-    recipient_vendor {
-      id
-      name
-    }
+    notes
+    requested_at
+    rejected_at
+    funded_at
+    closed_at
+    ...LoanLimited
   }
-`;
-export const LoanArtifactLimitedFragmentDoc = gql`
-  fragment LoanArtifactLimited on loans {
-    id
-    loan_type
-    artifact_id
-    identifier
-    invoice {
-      id
-      invoice_number
-      payor {
-        id
-        name
-      }
-    }
-    line_of_credit {
-      id
-      ...LineOfCredit
-    }
-    purchase_order {
-      id
-      order_number
-      vendor {
-        id
-        name
-      }
-    }
-  }
-  ${LineOfCreditFragmentDoc}
+  ${LoanLimitedFragmentDoc}
 `;
 export const InvoiceFragmentDoc = gql`
   fragment Invoice on invoices {
@@ -19845,8 +19728,20 @@ export const InvoiceFragmentDoc = gql`
     }
   }
 `;
-export const PurchaseOrderFragmentDoc = gql`
-  fragment PurchaseOrder on purchase_orders {
+export const LineOfCreditFragmentDoc = gql`
+  fragment LineOfCredit on line_of_credits {
+    id
+    company_id
+    is_credit_for_vendor
+    recipient_vendor_id
+    recipient_vendor {
+      id
+      name
+    }
+  }
+`;
+export const PurchaseOrderLimitedFragmentDoc = gql`
+  fragment PurchaseOrderLimited on purchase_orders {
     id
     company_id
     vendor_id
@@ -19874,12 +19769,46 @@ export const PurchaseOrderFragmentDoc = gql`
     }
   }
 `;
-export const LoanArtifactFragmentDoc = gql`
-  fragment LoanArtifact on loans {
+export const PurchaseOrderFragmentDoc = gql`
+  fragment PurchaseOrder on purchase_orders {
+    id
+    bank_note
+    ...PurchaseOrderLimited
+  }
+  ${PurchaseOrderLimitedFragmentDoc}
+`;
+export const LoanArtifactLimitedFragmentDoc = gql`
+  fragment LoanArtifactLimited on loans {
     id
     loan_type
     artifact_id
     identifier
+    invoice {
+      id
+      invoice_number
+      payor {
+        id
+        name
+      }
+    }
+    line_of_credit {
+      id
+      ...LineOfCredit
+    }
+    purchase_order {
+      id
+      order_number
+      vendor {
+        id
+        name
+      }
+    }
+  }
+  ${LineOfCreditFragmentDoc}
+`;
+export const LoanArtifactFragmentDoc = gql`
+  fragment LoanArtifact on loans {
+    id
     invoice {
       id
       ...Invoice
@@ -19892,10 +19821,12 @@ export const LoanArtifactFragmentDoc = gql`
       id
       ...PurchaseOrder
     }
+    ...LoanArtifactLimited
   }
   ${InvoiceFragmentDoc}
   ${LineOfCreditFragmentDoc}
   ${PurchaseOrderFragmentDoc}
+  ${LoanArtifactLimitedFragmentDoc}
 `;
 export const ThirdPartyFragmentDoc = gql`
   fragment ThirdParty on companies {
@@ -19999,8 +19930,23 @@ export const TransactionFragmentDoc = gql`
     to_fees
   }
 `;
-export const CompanySettingsForCustomerFragmentDoc = gql`
-  fragment CompanySettingsForCustomer on company_settings {
+export const BankFinancialSummaryFragmentDoc = gql`
+  fragment BankFinancialSummary on bank_financial_summaries {
+    id
+    updated_at
+    date
+    product_type
+    adjusted_total_limit
+    total_outstanding_principal
+    total_outstanding_interest
+    total_outstanding_fees
+    total_principal_in_requested_state
+    available_limit
+    interest_accrued_today
+  }
+`;
+export const CompanySettingsLimitedFragmentDoc = gql`
+  fragment CompanySettingsLimited on company_settings {
     id
     company_id
     vendor_agreement_docusign_template
@@ -20035,6 +19981,30 @@ export const VendorPartnershipLimitedFragmentDoc = gql`
     vendor {
       id
       name
+    }
+  }
+`;
+export const PaymentLimitedFragmentDoc = gql`
+  fragment PaymentLimited on payments {
+    id
+    company_id
+    settlement_identifier
+    submitted_at
+    settled_at
+    reversed_at
+    type
+    method
+    requested_amount
+    amount
+    requested_payment_date
+    payment_date
+    deposit_date
+    settlement_date
+    items_covered
+    is_deleted
+    submitted_by_user {
+      id
+      full_name
     }
   }
 `;
@@ -25434,7 +25404,7 @@ export const CompanyForCustomerDocument = gql`
         ...BankAccount
       }
       settings {
-        ...CompanySettingsForCustomer
+        ...CompanySettingsLimited
         collections_bespoke_bank_account {
           ...BankAccount
         }
@@ -25446,7 +25416,7 @@ export const CompanyForCustomerDocument = gql`
   }
   ${CompanyFragmentDoc}
   ${BankAccountFragmentDoc}
-  ${CompanySettingsForCustomerFragmentDoc}
+  ${CompanySettingsLimitedFragmentDoc}
   ${ContractFragmentDoc}
 `;
 

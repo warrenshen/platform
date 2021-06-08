@@ -22,7 +22,7 @@ function BankAdvancesPage() {
       <AdvancesDataGrid
         payments={payments}
         customerSearchQuery={""}
-        onClickCustomerName={() => {}}
+        handleClickCustomer={() => {}}
       />
     </Container>
   );

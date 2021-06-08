@@ -3,7 +3,7 @@
 #    - Generally speaking, the Customer can use / update a limited number of fields
 
 # Company settings that a customer can see
-fragment CompanySettingsForCustomer on company_settings {
+fragment CompanySettingsLimited on company_settings {
   id
   company_id
   vendor_agreement_docusign_template
@@ -35,5 +35,110 @@ fragment VendorPartnershipLimited on company_vendor_partnerships {
   vendor {
     id
     name
+  }
+}
+
+fragment PurchaseOrderLimited on purchase_orders {
+  id
+  company_id
+  vendor_id
+  order_number
+  order_date
+  delivery_date
+  amount
+  is_cannabis
+  is_metrc_based
+  status
+  rejection_note
+  bank_rejection_note
+  customer_note
+  created_at
+  requested_at
+  approved_at
+  funded_at
+  company {
+    id
+    name
+  }
+  vendor {
+    id
+    name
+  }
+}
+
+fragment LoanLimited on loans {
+  id
+  loan_type
+  artifact_id
+  identifier
+  disbursement_identifier
+  status
+  rejection_note
+  payment_status
+  amount
+  requested_payment_date
+  origination_date
+  maturity_date
+  adjusted_maturity_date
+  outstanding_principal_balance
+  outstanding_interest
+  outstanding_fees
+  approved_at
+  funded_at
+  company {
+    id
+    identifier
+    name
+  }
+}
+
+# The core fields for when the artifact related to a loan is shown.
+fragment LoanArtifactLimited on loans {
+  id
+  loan_type
+  artifact_id
+  identifier
+  invoice {
+    id
+    invoice_number
+    payor {
+      id
+      name
+    }
+  }
+  line_of_credit {
+    id
+    ...LineOfCredit
+  }
+  purchase_order {
+    id
+    order_number
+    vendor {
+      id
+      name
+    }
+  }
+}
+
+fragment PaymentLimited on payments {
+  id
+  company_id
+  settlement_identifier
+  submitted_at
+  settled_at
+  reversed_at
+  type
+  method
+  requested_amount
+  amount
+  requested_payment_date
+  payment_date
+  deposit_date
+  settlement_date
+  items_covered
+  is_deleted
+  submitted_by_user {
+    id
+    full_name
   }
 }

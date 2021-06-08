@@ -123,7 +123,7 @@ export default function RepaymentTransactionsDataGrid({
       {
         dataField: "transaction.loan.disbursement_identifier",
         caption: "Loan Disbursement Identifier",
-        width: 120,
+        width: ColumnWidths.Identifier,
         cellRender: (params: ValueFormatterParams) => (
           <Box>
             {params.row.data.transaction?.loan ? (

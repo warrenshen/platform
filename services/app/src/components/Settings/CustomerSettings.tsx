@@ -13,7 +13,7 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   BankAccountFragment,
   CompanyFragment,
-  CompanySettingsForCustomerFragment,
+  CompanySettingsLimitedFragment,
   CompanySettingsFragment,
   ContractFragment,
   useListUsersByCompanyIdQuery,
@@ -26,7 +26,7 @@ import { useContext, useMemo, useState } from "react";
 interface Props {
   companyId: string;
   company: CompanyFragment;
-  settings: CompanySettingsFragment | CompanySettingsForCustomerFragment;
+  settings: CompanySettingsFragment | CompanySettingsLimitedFragment;
   contract: ContractFragment | null;
   bankAccounts: BankAccountFragment[];
   handleDataChange: () => void;
