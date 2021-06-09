@@ -29,3 +29,6 @@
   schedule: 15 3 * * *
   include_in_metadata: true
   payload: {}
+  headers:
+  - name: x-api-key
+    value_from_env: ASYNC_SERVER_API_KEY
