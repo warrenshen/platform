@@ -17828,18 +17828,6 @@ export type GetApprovedInvoicesByCompanyIdQuery = {
   invoices: Array<InvoiceFragment>;
 };
 
-export type GetPurchaseOrdersForIdsQueryVariables = Exact<{
-  purchaseOrderIds?: Maybe<Array<Scalars["uuid"]>>;
-}>;
-
-export type GetPurchaseOrdersForIdsQuery = {
-  purchase_orders: Array<
-    Pick<PurchaseOrders, "id"> & {
-      loans: Array<Pick<Loans, "id"> & LoanFragment>;
-    } & PurchaseOrderFragment
-  >;
-};
-
 export type AddLineOfCreditMutationVariables = Exact<{
   lineOfCredit: LineOfCreditsInsertInput;
 }>;
@@ -17862,6 +17850,18 @@ export type UpdateLineOfCreditAndLoanMutation = {
     Pick<LineOfCredits, "id"> & LineOfCreditFragment
   >;
   update_loans_by_pk?: Maybe<Pick<Loans, "id"> & LoanLimitedFragment>;
+};
+
+export type GetPurchaseOrdersForIdsQueryVariables = Exact<{
+  purchaseOrderIds?: Maybe<Array<Scalars["uuid"]>>;
+}>;
+
+export type GetPurchaseOrdersForIdsQuery = {
+  purchase_orders: Array<
+    Pick<PurchaseOrders, "id"> & {
+      loans: Array<Pick<Loans, "id"> & LoanFragment>;
+    } & PurchaseOrderFragment
+  >;
 };
 
 export type GetLoanQueryVariables = Exact<{
@@ -18217,6 +18217,17 @@ export type GetFundablePurchaseOrdersByCompanyIdQueryVariables = Exact<{
 
 export type GetFundablePurchaseOrdersByCompanyIdQuery = {
   purchase_orders: Array<PurchaseOrderFragment>;
+};
+
+export type UpdatePurchaseOrderMutationVariables = Exact<{
+  id: Scalars["uuid"];
+  purchaseOrder: PurchaseOrdersSetInput;
+}>;
+
+export type UpdatePurchaseOrderMutation = {
+  update_purchase_orders_by_pk?: Maybe<
+    Pick<PurchaseOrders, "id"> & PurchaseOrderFragment
+  >;
 };
 
 export type GetPaymentQueryVariables = Exact<{
@@ -21777,76 +21788,6 @@ export type GetApprovedInvoicesByCompanyIdQueryResult = Apollo.QueryResult<
   GetApprovedInvoicesByCompanyIdQuery,
   GetApprovedInvoicesByCompanyIdQueryVariables
 >;
-export const GetPurchaseOrdersForIdsDocument = gql`
-  query GetPurchaseOrdersForIds($purchaseOrderIds: [uuid!]) {
-    purchase_orders(
-      where: {
-        _and: [
-          { id: { _in: $purchaseOrderIds } }
-          { status: { _eq: approved } }
-        ]
-      }
-    ) {
-      id
-      ...PurchaseOrder
-      loans {
-        id
-        ...Loan
-      }
-    }
-  }
-  ${PurchaseOrderFragmentDoc}
-  ${LoanFragmentDoc}
-`;
-
-/**
- * __useGetPurchaseOrdersForIdsQuery__
- *
- * To run a query within a React component, call `useGetPurchaseOrdersForIdsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetPurchaseOrdersForIdsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetPurchaseOrdersForIdsQuery({
- *   variables: {
- *      purchaseOrderIds: // value for 'purchaseOrderIds'
- *   },
- * });
- */
-export function useGetPurchaseOrdersForIdsQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    GetPurchaseOrdersForIdsQuery,
-    GetPurchaseOrdersForIdsQueryVariables
-  >
-) {
-  return Apollo.useQuery<
-    GetPurchaseOrdersForIdsQuery,
-    GetPurchaseOrdersForIdsQueryVariables
-  >(GetPurchaseOrdersForIdsDocument, baseOptions);
-}
-export function useGetPurchaseOrdersForIdsLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetPurchaseOrdersForIdsQuery,
-    GetPurchaseOrdersForIdsQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<
-    GetPurchaseOrdersForIdsQuery,
-    GetPurchaseOrdersForIdsQueryVariables
-  >(GetPurchaseOrdersForIdsDocument, baseOptions);
-}
-export type GetPurchaseOrdersForIdsQueryHookResult = ReturnType<
-  typeof useGetPurchaseOrdersForIdsQuery
->;
-export type GetPurchaseOrdersForIdsLazyQueryHookResult = ReturnType<
-  typeof useGetPurchaseOrdersForIdsLazyQuery
->;
-export type GetPurchaseOrdersForIdsQueryResult = Apollo.QueryResult<
-  GetPurchaseOrdersForIdsQuery,
-  GetPurchaseOrdersForIdsQueryVariables
->;
 export const AddLineOfCreditDocument = gql`
   mutation AddLineOfCredit($lineOfCredit: line_of_credits_insert_input!) {
     insert_line_of_credits_one(object: $lineOfCredit) {
@@ -21962,6 +21903,76 @@ export type UpdateLineOfCreditAndLoanMutationResult = Apollo.MutationResult<Upda
 export type UpdateLineOfCreditAndLoanMutationOptions = Apollo.BaseMutationOptions<
   UpdateLineOfCreditAndLoanMutation,
   UpdateLineOfCreditAndLoanMutationVariables
+>;
+export const GetPurchaseOrdersForIdsDocument = gql`
+  query GetPurchaseOrdersForIds($purchaseOrderIds: [uuid!]) {
+    purchase_orders(
+      where: {
+        _and: [
+          { id: { _in: $purchaseOrderIds } }
+          { status: { _eq: approved } }
+        ]
+      }
+    ) {
+      id
+      ...PurchaseOrder
+      loans {
+        id
+        ...Loan
+      }
+    }
+  }
+  ${PurchaseOrderFragmentDoc}
+  ${LoanFragmentDoc}
+`;
+
+/**
+ * __useGetPurchaseOrdersForIdsQuery__
+ *
+ * To run a query within a React component, call `useGetPurchaseOrdersForIdsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPurchaseOrdersForIdsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPurchaseOrdersForIdsQuery({
+ *   variables: {
+ *      purchaseOrderIds: // value for 'purchaseOrderIds'
+ *   },
+ * });
+ */
+export function useGetPurchaseOrdersForIdsQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetPurchaseOrdersForIdsQuery,
+    GetPurchaseOrdersForIdsQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetPurchaseOrdersForIdsQuery,
+    GetPurchaseOrdersForIdsQueryVariables
+  >(GetPurchaseOrdersForIdsDocument, baseOptions);
+}
+export function useGetPurchaseOrdersForIdsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetPurchaseOrdersForIdsQuery,
+    GetPurchaseOrdersForIdsQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetPurchaseOrdersForIdsQuery,
+    GetPurchaseOrdersForIdsQueryVariables
+  >(GetPurchaseOrdersForIdsDocument, baseOptions);
+}
+export type GetPurchaseOrdersForIdsQueryHookResult = ReturnType<
+  typeof useGetPurchaseOrdersForIdsQuery
+>;
+export type GetPurchaseOrdersForIdsLazyQueryHookResult = ReturnType<
+  typeof useGetPurchaseOrdersForIdsLazyQuery
+>;
+export type GetPurchaseOrdersForIdsQueryResult = Apollo.QueryResult<
+  GetPurchaseOrdersForIdsQuery,
+  GetPurchaseOrdersForIdsQueryVariables
 >;
 export const GetLoanDocument = gql`
   query GetLoan($id: uuid!) {
@@ -23912,6 +23923,63 @@ export type GetFundablePurchaseOrdersByCompanyIdLazyQueryHookResult = ReturnType
 export type GetFundablePurchaseOrdersByCompanyIdQueryResult = Apollo.QueryResult<
   GetFundablePurchaseOrdersByCompanyIdQuery,
   GetFundablePurchaseOrdersByCompanyIdQueryVariables
+>;
+export const UpdatePurchaseOrderDocument = gql`
+  mutation UpdatePurchaseOrder(
+    $id: uuid!
+    $purchaseOrder: purchase_orders_set_input!
+  ) {
+    update_purchase_orders_by_pk(
+      pk_columns: { id: $id }
+      _set: $purchaseOrder
+    ) {
+      id
+      ...PurchaseOrder
+    }
+  }
+  ${PurchaseOrderFragmentDoc}
+`;
+export type UpdatePurchaseOrderMutationFn = Apollo.MutationFunction<
+  UpdatePurchaseOrderMutation,
+  UpdatePurchaseOrderMutationVariables
+>;
+
+/**
+ * __useUpdatePurchaseOrderMutation__
+ *
+ * To run a mutation, you first call `useUpdatePurchaseOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePurchaseOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePurchaseOrderMutation, { data, loading, error }] = useUpdatePurchaseOrderMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      purchaseOrder: // value for 'purchaseOrder'
+ *   },
+ * });
+ */
+export function useUpdatePurchaseOrderMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdatePurchaseOrderMutation,
+    UpdatePurchaseOrderMutationVariables
+  >
+) {
+  return Apollo.useMutation<
+    UpdatePurchaseOrderMutation,
+    UpdatePurchaseOrderMutationVariables
+  >(UpdatePurchaseOrderDocument, baseOptions);
+}
+export type UpdatePurchaseOrderMutationHookResult = ReturnType<
+  typeof useUpdatePurchaseOrderMutation
+>;
+export type UpdatePurchaseOrderMutationResult = Apollo.MutationResult<UpdatePurchaseOrderMutation>;
+export type UpdatePurchaseOrderMutationOptions = Apollo.BaseMutationOptions<
+  UpdatePurchaseOrderMutation,
+  UpdatePurchaseOrderMutationVariables
 >;
 export const GetPaymentDocument = gql`
   query GetPayment($id: uuid!) {

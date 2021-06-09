@@ -3288,6 +3288,12 @@
         vendor_id:
           _eq: X-Hasura-Company-Id
   update_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - bank_note
+      filter: {}
+      check: null
   - role: purchase_order_reviewer
     permission:
       columns:

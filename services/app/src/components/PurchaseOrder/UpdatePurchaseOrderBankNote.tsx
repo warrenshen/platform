@@ -11,10 +11,12 @@ import {
   Theme,
 } from "@material-ui/core";
 import {
-  LoansInsertInput,
-  useGetLoanQuery,
-  useUpdateLoanMutation,
+  PurchaseOrders,
+  PurchaseOrdersInsertInput,
+  usePurchaseOrderQuery,
+  useUpdatePurchaseOrderMutation,
 } from "generated/graphql";
+import useSnackbar from "hooks/useSnackbar";
 import { isNull, mergeWith } from "lodash";
 import { useState } from "react";
 
@@ -39,81 +41,91 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
-  loanId: string;
+  purchaseOrderId: PurchaseOrders["id"];
   handleClose: () => void;
 }
 
-function UpdateLoanNotesModal({ loanId, handleClose }: Props) {
+export default function UpdatePurchaseOrderBankNote({
+  purchaseOrderId,
+  handleClose,
+}: Props) {
   const classes = useStyles();
+  const snackbar = useSnackbar();
 
   // Default Loan for initialization.
-  const newLoan = {
-    notes: "",
-  } as LoansInsertInput;
+  const newPurchaseOrder: PurchaseOrdersInsertInput = {
+    bank_note: "",
+  };
 
-  const [loan, setLoan] = useState(newLoan);
+  const [purchaseOrder, setPurchaseOrder] = useState(newPurchaseOrder);
 
-  const { loading: isExistingLoanLoading } = useGetLoanQuery({
+  const { loading: isExistingLoanLoading } = usePurchaseOrderQuery({
     fetchPolicy: "network-only",
     variables: {
-      id: loanId,
+      id: purchaseOrderId,
     },
     onCompleted: (data) => {
-      const existingLoan = data?.loans_by_pk;
-      if (existingLoan) {
-        setLoan(
-          mergeWith(newLoan, existingLoan, (a, b) => (isNull(b) ? a : b))
+      const existingPurchaseOrder = data?.purchase_orders_by_pk;
+      if (existingPurchaseOrder) {
+        setPurchaseOrder(
+          mergeWith(newPurchaseOrder, existingPurchaseOrder, (a, b) =>
+            isNull(b) ? a : b
+          )
         );
       }
     },
   });
 
   const [
-    updateLoan,
+    updatePurchaseOrder,
     { loading: isUpdateLoanLoading },
-  ] = useUpdateLoanMutation();
+  ] = useUpdatePurchaseOrderMutation();
 
   const handleClickSave = async () => {
-    const response = await updateLoan({
+    const response = await updatePurchaseOrder({
       variables: {
-        id: loan.id,
-        loan: {
-          notes: loan.notes,
+        id: purchaseOrder.id,
+        purchaseOrder: {
+          bank_note: purchaseOrder.bank_note,
         },
       },
     });
-    const savedLoan = response.data?.update_loans_by_pk;
-    if (!savedLoan) {
-      alert("Could not update loan");
+    if (!response.data?.update_purchase_orders_by_pk) {
+      snackbar.showError("Could not update purchase order.");
+    } else {
+      snackbar.showSuccess("Purchase order updated.");
+      handleClose();
     }
-    handleClose();
   };
 
   const isDialogReady = !isExistingLoanLoading;
   const isFormLoading = isUpdateLoanLoading;
   const isSaveDisabled = isFormLoading;
 
-  return isDialogReady ? (
+  if (!isDialogReady) {
+    return null;
+  }
+
+  return (
     <Dialog
       open
       onClose={handleClose}
       maxWidth="xl"
       classes={{ paper: classes.dialog }}
     >
-      <DialogTitle className={classes.dialogTitle}>
-        Edit Internal Note
-      </DialogTitle>
+      <DialogTitle className={classes.dialogTitle}>Edit Bank Note</DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="column">
           <TextField
+            autoFocus
             multiline
-            label={"Internal Note"}
-            placeholder={"Enter in internal note"}
-            value={loan.notes}
+            label={"Bank Note"}
+            helperText={"Only Bespoke Financial users can view this note"}
+            value={purchaseOrder.bank_note}
             onChange={({ target: { value } }) =>
-              setLoan({
-                ...loan,
-                notes: value,
+              setPurchaseOrder({
+                ...purchaseOrder,
+                bank_note: value,
               })
             }
           />
@@ -134,7 +146,5 @@ function UpdateLoanNotesModal({ loanId, handleClose }: Props) {
         </Box>
       </DialogActions>
     </Dialog>
-  ) : null;
+  );
 }
-
-export default UpdateLoanNotesModal;

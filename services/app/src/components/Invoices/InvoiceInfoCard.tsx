@@ -36,6 +36,16 @@ export default function InvoiceInfoCard({
     <Box width="fit-content">
       <Card>
         <CardContent>
+          {isApprovedStatusVisible && (
+            <Box display="flex" alignItems="center" pt={0.5} pb={1}>
+              <CheckCircle
+                color={invoice.status === "approved" ? "primary" : "disabled"}
+              />
+              <Box ml={0.5}>
+                <Typography variant="body1">Approved</Typography>
+              </Box>
+            </Box>
+          )}
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Payor</Box>
             <Box>{invoice.payor?.name}</Box>
@@ -64,16 +74,6 @@ export default function InvoiceInfoCard({
             <Box className={classes.label}>Total Amount</Box>
             <Box>{formatCurrency(invoice.total_amount)}</Box>
           </Box>
-          {isApprovedStatusVisible && (
-            <Box display="flex" alignItems="center" pt={0.5} pb={1}>
-              <CheckCircle
-                color={invoice.status === "approved" ? "primary" : "disabled"}
-              />
-              <Box ml={0.5}>
-                <Typography variant="body1">Approved</Typography>
-              </Box>
-            </Box>
-          )}
         </CardContent>
       </Card>
     </Box>

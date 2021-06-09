@@ -1,6 +1,6 @@
 import { Box, Typography } from "@material-ui/core";
 import InvoiceInfoCard from "components/Invoices/InvoiceInfoCard";
-import UpdateLoanNotesModal from "components/Loans/UpdateLoanNotesModal";
+import UpdateLoanNotesModal from "components/Loan/UpdateLoanNotesModal";
 import PurchaseOrderInfoCard from "components/PurchaseOrder/PurchaseOrderInfoCard";
 import LoanPaymentStatusChip from "components/Shared/Chip/LoanPaymentStatusChip";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
@@ -207,6 +207,14 @@ export default function LoanDrawer({ loanId, handleClose }: Props) {
                 : "N/A"}
             </Typography>
           </Box>
+          <Box display="flex" flexDirection="column" mt={2}>
+            <Typography variant="subtitle2" color="textSecondary">
+              Comments
+            </Typography>
+            <Typography variant={"body1"}>
+              {loan.line_of_credit?.customer_note || "-"}
+            </Typography>
+          </Box>
         </>
       )}
       {loan.loan_type === LoanTypeEnum.PurchaseOrder && (
@@ -301,7 +309,7 @@ export default function LoanDrawer({ loanId, handleClose }: Props) {
           {formatCurrency(loan.outstanding_fees)}
         </Typography>
       </Box>
-      {isBankUser && (
+      {false && isBankUser && (
         <>
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">

@@ -1,11 +1,15 @@
-import { ValueFormatterParams } from "@material-ui/data-grid";
+import { Box, Typography } from "@material-ui/core";
+import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
+import CommentIcon from "@material-ui/icons/Comment";
 import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
+import UpdatePurchaseOrderBankNote from "components/PurchaseOrder/UpdatePurchaseOrderBankNote";
+import ModalButton from "components/Shared/Modal/ModalButton";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import {
   PurchaseOrderFragment,
@@ -14,6 +18,24 @@ import {
 } from "generated/graphql";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
+
+function getRows(purchaseOrders: PurchaseOrderFragment[]): RowsProp {
+  return purchaseOrders.map((purchaseOrder) => ({
+    ...purchaseOrder,
+    company_name: purchaseOrder.company?.name,
+    vendor_name: purchaseOrder.vendor?.name,
+    customer_note: !!purchaseOrder.customer_note
+      ? purchaseOrder.customer_note.length > 32
+        ? `${purchaseOrder.customer_note.substring(0, 32)}...`
+        : purchaseOrder.customer_note
+      : "-",
+    bank_note: !!purchaseOrder.bank_note
+      ? purchaseOrder.bank_note.length > 32
+        ? `${purchaseOrder.bank_note.substring(0, 32)}...`
+        : purchaseOrder.bank_note
+      : "",
+  }));
+}
 
 interface Props {
   isBankNoteVisible?: boolean;
@@ -42,21 +64,8 @@ export default function PurchaseOrdersDataGrid({
   selectedPurchaseOrderIds,
   handleSelectPurchaseOrders,
 }: Props) {
-  const rows = useMemo(
-    () =>
-      purchaseOrders.map((purchaseOrder) => ({
-        ...purchaseOrder,
-        company_name: purchaseOrder.company?.name,
-        vendor_name: purchaseOrder.vendor?.name,
-        customer_note: !!purchaseOrder.customer_note
-          ? purchaseOrder.customer_note.length > 32
-            ? `${purchaseOrder.customer_note.substring(0, 32)}...`
-            : purchaseOrder.customer_note
-          : "-",
-        bank_note: purchaseOrder.bank_note || "-",
-      })),
-    [purchaseOrders]
-  );
+  const rows = getRows(purchaseOrders);
+  console.log({ rows });
   const columns = useMemo(
     () => [
       {
@@ -140,7 +149,32 @@ export default function PurchaseOrdersDataGrid({
         visible: isBankNoteVisible,
         caption: "Bank Note",
         dataField: "bank_note",
-        width: ColumnWidths.Comment,
+        width: 340,
+        cellRender: (params: ValueFormatterParams) => (
+          <ModalButton
+            label={
+              <Box display="flex" alignItems="center">
+                <CommentIcon />
+                {!!params.row.data.bank_note && (
+                  <Box ml={1}>
+                    <Typography variant="body2">
+                      {params.row.data.bank_note}
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
+            }
+            color="default"
+            textAlign="left"
+            variant="text"
+            modal={({ handleClose }) => (
+              <UpdatePurchaseOrderBankNote
+                purchaseOrderId={params.row.data.id}
+                handleClose={handleClose}
+              />
+            )}
+          />
+        ),
       },
     ],
     [

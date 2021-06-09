@@ -69,9 +69,10 @@ function getRows(
       : loan.invoice
       ? loan.invoice.invoice_number
       : "N/A",
-    artifact_bank_note:
-      (loan as LoanFragment & LoanArtifactFragment).purchase_order?.bank_note ||
-      "-",
+    artifact_bank_note: loan.purchase_order
+      ? (loan as LoanFragment & LoanArtifactFragment).purchase_order
+          ?.bank_note || "-"
+      : "N/A",
     vendor_name: loan.purchase_order
       ? loan.purchase_order.vendor?.name
       : loan.line_of_credit
@@ -301,7 +302,7 @@ export default function LoansDataGrid({
       {
         visible: isArtifactVisible,
         dataField: "artifact_bank_note",
-        caption: "Bank Note",
+        caption: "PO Bank Note",
         minWidth: ColumnWidths.MinWidth,
       },
       {

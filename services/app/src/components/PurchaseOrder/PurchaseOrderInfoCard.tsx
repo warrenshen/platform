@@ -12,9 +12,6 @@ import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
 
 const useStyles = makeStyles({
-  baseInput: {
-    width: 300,
-  },
   label: {
     width: 130,
     color: grey[600],
@@ -36,6 +33,18 @@ export default function PurchaseOrderInfoCard({
     <Box width="fit-content">
       <Card>
         <CardContent>
+          {isApprovedStatusVisible && (
+            <Box display="flex" alignItems="center" pt={0.5} pb={1}>
+              <CheckCircle
+                color={
+                  purchaseOrder.status === "approved" ? "primary" : "disabled"
+                }
+              />
+              <Box ml={0.5}>
+                <Typography variant="body1">Approved</Typography>
+              </Box>
+            </Box>
+          )}
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Vendor</Box>
             <Box>{purchaseOrder.vendor?.name}</Box>
@@ -56,18 +65,10 @@ export default function PurchaseOrderInfoCard({
             <Box className={classes.label}>Amount</Box>
             <Box>{formatCurrency(purchaseOrder.amount)}</Box>
           </Box>
-          {isApprovedStatusVisible && (
-            <Box display="flex" alignItems="center" pt={0.5} pb={1}>
-              <CheckCircle
-                color={
-                  purchaseOrder.status === "approved" ? "primary" : "disabled"
-                }
-              />
-              <Box ml={0.5}>
-                <Typography variant="body1">Approved</Typography>
-              </Box>
-            </Box>
-          )}
+          <Box display="flex" pb={0.25}>
+            <Box className={classes.label}>Comments</Box>
+            <Box>{purchaseOrder.customer_note || "-"}</Box>
+          </Box>
         </CardContent>
       </Card>
     </Box>
