@@ -88,7 +88,7 @@ function AdvancesDataGrid({
       {
         dataField: "submitted_by_user.full_name",
         caption: "Submitted By",
-        width: 90,
+        width: ColumnWidths.UserName,
       },
     ],
     [dataGrid?.instance, handleClickCustomer]

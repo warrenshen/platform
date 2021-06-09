@@ -86,7 +86,7 @@ export default function CreateUpdatePurchaseOrderModal({
   const isBankUser = isRoleBankUser(role);
 
   // Default PurchaseOrder for CREATE case.
-  const newPurchaseOrder = {
+  const newPurchaseOrder: PurchaseOrdersInsertInput = {
     vendor_id: null,
     order_number: null,
     order_date: null,
@@ -96,7 +96,7 @@ export default function CreateUpdatePurchaseOrderModal({
     is_metrc_based: null, // null = not known yet
     customer_note: null,
     status: RequestStatusEnum.Drafted,
-  } as PurchaseOrdersInsertInput;
+  };
 
   const [purchaseOrder, setPurchaseOrder] = useState(newPurchaseOrder);
 

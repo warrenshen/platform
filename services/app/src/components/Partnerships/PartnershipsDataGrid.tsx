@@ -74,8 +74,7 @@ export default function PartnershipsDataGrid({
       {
         caption: "Submitted By",
         dataField: "requested_by_user.full_name",
-        width: ColumnWidths.Type,
-        alignment: "center",
+        width: ColumnWidths.UserName,
       },
       {
         caption: "New Company Type",

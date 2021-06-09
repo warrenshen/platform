@@ -6,6 +6,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  TextField,
   Typography,
 } from "@material-ui/core";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
@@ -124,6 +125,20 @@ export default function LineOfCreditLoanForm({
             }}
           />
         </FormControl>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={4}>
+        <TextField
+          multiline
+          label={"Comments"}
+          helperText={"Any comments about this financing request"}
+          value={lineOfCredit.customer_note || ""}
+          onChange={({ target: { value } }) =>
+            setLineOfCredit({
+              ...lineOfCredit,
+              customer_note: value,
+            })
+          }
+        />
       </Box>
     </Box>
   );

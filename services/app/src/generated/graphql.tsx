@@ -7041,6 +7041,8 @@ export type LineOfCredits = {
   company: Companies;
   company_id: Scalars["uuid"];
   created_at?: Maybe<Scalars["timestamptz"]>;
+  /** Comment left on line of credit by customer user for bank user */
+  customer_note?: Maybe<Scalars["String"]>;
   id: Scalars["uuid"];
   is_credit_for_vendor: Scalars["Boolean"];
   /** An object relationship */
@@ -7089,6 +7091,7 @@ export type LineOfCreditsBoolExp = {
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
+  customer_note?: Maybe<StringComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   is_credit_for_vendor?: Maybe<BooleanComparisonExp>;
   recipient_vendor?: Maybe<CompaniesBoolExp>;
@@ -7107,6 +7110,7 @@ export type LineOfCreditsInsertInput = {
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  customer_note?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
   is_credit_for_vendor?: Maybe<Scalars["Boolean"]>;
   recipient_vendor?: Maybe<CompaniesObjRelInsertInput>;
@@ -7118,6 +7122,7 @@ export type LineOfCreditsInsertInput = {
 export type LineOfCreditsMaxFields = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  customer_note?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
   recipient_vendor_id?: Maybe<Scalars["uuid"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
@@ -7127,6 +7132,7 @@ export type LineOfCreditsMaxFields = {
 export type LineOfCreditsMaxOrderBy = {
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  customer_note?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   recipient_vendor_id?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
@@ -7136,6 +7142,7 @@ export type LineOfCreditsMaxOrderBy = {
 export type LineOfCreditsMinFields = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  customer_note?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
   recipient_vendor_id?: Maybe<Scalars["uuid"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
@@ -7145,6 +7152,7 @@ export type LineOfCreditsMinFields = {
 export type LineOfCreditsMinOrderBy = {
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  customer_note?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   recipient_vendor_id?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
@@ -7176,6 +7184,7 @@ export type LineOfCreditsOrderBy = {
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  customer_note?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   is_credit_for_vendor?: Maybe<OrderBy>;
   recipient_vendor?: Maybe<CompaniesOrderBy>;
@@ -7195,6 +7204,8 @@ export enum LineOfCreditsSelectColumn {
   /** column name */
   CreatedAt = "created_at",
   /** column name */
+  CustomerNote = "customer_note",
+  /** column name */
   Id = "id",
   /** column name */
   IsCreditForVendor = "is_credit_for_vendor",
@@ -7208,6 +7219,7 @@ export enum LineOfCreditsSelectColumn {
 export type LineOfCreditsSetInput = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  customer_note?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
   is_credit_for_vendor?: Maybe<Scalars["Boolean"]>;
   recipient_vendor_id?: Maybe<Scalars["uuid"]>;
@@ -7220,6 +7232,8 @@ export enum LineOfCreditsUpdateColumn {
   CompanyId = "company_id",
   /** column name */
   CreatedAt = "created_at",
+  /** column name */
+  CustomerNote = "customer_note",
   /** column name */
   Id = "id",
   /** column name */
@@ -18658,7 +18672,11 @@ export type EbbaApplicationFileFragment = Pick<
 
 export type LineOfCreditFragment = Pick<
   LineOfCredits,
-  "id" | "company_id" | "is_credit_for_vendor" | "recipient_vendor_id"
+  | "id"
+  | "company_id"
+  | "recipient_vendor_id"
+  | "is_credit_for_vendor"
+  | "customer_note"
 > & { recipient_vendor?: Maybe<Pick<Companies, "id" | "name">> };
 
 export type FinancialSummaryFragment = Pick<
@@ -18706,20 +18724,6 @@ export type InvoiceFragment = Pick<
 > & {
   company: Pick<Companies, "id" | "name">;
   payor?: Maybe<Pick<Payors, "id" | "name">>;
-};
-
-export type VendorPartnershipFragment = Pick<
-  CompanyVendorPartnerships,
-  "id" | "vendor_bank_id"
-> &
-  VendorPartnershipLimitedFragment;
-
-export type PayorPartnershipFragment = Pick<
-  CompanyPayorPartnerships,
-  "id" | "company_id" | "payor_id" | "payor_agreement_id" | "approved_at"
-> & {
-  company: Pick<Companies, "id" | "name">;
-  payor?: Maybe<Pick<Companies, "id" | "name">>;
 };
 
 export type MetrcTransferFragment = Pick<
@@ -19107,6 +19111,20 @@ export type PartnershipRequestFragment = Pick<
   | "settled_by_user_id"
   | "settled_at"
 >;
+
+export type VendorPartnershipFragment = Pick<
+  CompanyVendorPartnerships,
+  "id" | "vendor_bank_id"
+> &
+  VendorPartnershipLimitedFragment;
+
+export type PayorPartnershipFragment = Pick<
+  CompanyPayorPartnerships,
+  "id" | "company_id" | "payor_id" | "payor_agreement_id" | "approved_at"
+> & {
+  company: Pick<Companies, "id" | "name">;
+  payor?: Maybe<Pick<Companies, "id" | "name">>;
+};
 
 export type PaymentFragment = Pick<Payments, "id" | "created_at"> & {
   company_bank_account?: Maybe<BankAccountFragment>;
@@ -19502,48 +19520,6 @@ export const InvoiceFileFragmentDoc = gql`
   }
   ${FileFragmentDoc}
 `;
-export const VendorPartnershipLimitedFragmentDoc = gql`
-  fragment VendorPartnershipLimited on company_vendor_partnerships {
-    id
-    company_id
-    vendor_id
-    vendor_agreement_id
-    approved_at
-    company {
-      id
-      name
-    }
-    vendor {
-      id
-      name
-    }
-  }
-`;
-export const VendorPartnershipFragmentDoc = gql`
-  fragment VendorPartnership on company_vendor_partnerships {
-    id
-    vendor_bank_id
-    ...VendorPartnershipLimited
-  }
-  ${VendorPartnershipLimitedFragmentDoc}
-`;
-export const PayorPartnershipFragmentDoc = gql`
-  fragment PayorPartnership on company_payor_partnerships {
-    id
-    company_id
-    payor_id
-    payor_agreement_id
-    approved_at
-    company {
-      id
-      name
-    }
-    payor {
-      id
-      name
-    }
-  }
-`;
 export const MetrcTransferFragmentDoc = gql`
   fragment MetrcTransfer on metrc_transfers {
     id
@@ -19719,8 +19695,9 @@ export const LineOfCreditFragmentDoc = gql`
   fragment LineOfCredit on line_of_credits {
     id
     company_id
-    is_credit_for_vendor
     recipient_vendor_id
+    is_credit_for_vendor
+    customer_note
     recipient_vendor {
       id
       name
@@ -19853,6 +19830,48 @@ export const PartnershipRequestFragmentDoc = gql`
     requested_by_user_id
     settled_by_user_id
     settled_at
+  }
+`;
+export const VendorPartnershipLimitedFragmentDoc = gql`
+  fragment VendorPartnershipLimited on company_vendor_partnerships {
+    id
+    company_id
+    vendor_id
+    vendor_agreement_id
+    approved_at
+    company {
+      id
+      name
+    }
+    vendor {
+      id
+      name
+    }
+  }
+`;
+export const VendorPartnershipFragmentDoc = gql`
+  fragment VendorPartnership on company_vendor_partnerships {
+    id
+    vendor_bank_id
+    ...VendorPartnershipLimited
+  }
+  ${VendorPartnershipLimitedFragmentDoc}
+`;
+export const PayorPartnershipFragmentDoc = gql`
+  fragment PayorPartnership on company_payor_partnerships {
+    id
+    company_id
+    payor_id
+    payor_agreement_id
+    approved_at
+    company {
+      id
+      name
+    }
+    payor {
+      id
+      name
+    }
   }
 `;
 export const BankAccountFragmentDoc = gql`

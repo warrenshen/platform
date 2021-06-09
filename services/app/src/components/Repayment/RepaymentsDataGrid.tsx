@@ -172,7 +172,7 @@ export default function RepaymentsDataGrid({
       {
         dataField: "submitted_by_name",
         caption: "Submitted By",
-        minWidth: ColumnWidths.MinWidth,
+        width: ColumnWidths.UserName,
       },
       {
         dataField: "payor_name",

@@ -144,8 +144,9 @@ fragment EbbaApplicationFile on ebba_application_files {
 fragment LineOfCredit on line_of_credits {
   id
   company_id
-  is_credit_for_vendor
   recipient_vendor_id
+  is_credit_for_vendor
+  customer_note
   recipient_vendor {
     id
     name

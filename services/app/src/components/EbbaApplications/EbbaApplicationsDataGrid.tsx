@@ -67,7 +67,7 @@ export default function EbbaApplicationsDataGrid({
       {
         dataField: "submitted_by_name",
         caption: "Submitted By",
-        minWidth: ColumnWidths.MinWidth,
+        width: ColumnWidths.UserName,
       },
       {
         visible: isCompanyVisible,

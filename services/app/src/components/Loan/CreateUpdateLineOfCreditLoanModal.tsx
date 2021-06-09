@@ -34,7 +34,7 @@ interface Props {
   handleClose: () => void;
 }
 
-function CreateUpdateLineOfCreditLoanModal({
+export default function CreateUpdateLineOfCreditLoanModal({
   actionType,
   companyId,
   loanId = null,
@@ -49,8 +49,9 @@ function CreateUpdateLineOfCreditLoanModal({
 
   const newLineOfCredit: LineOfCreditsInsertInput = {
     company_id: companyId,
-    is_credit_for_vendor: false,
     recipient_vendor_id: null,
+    is_credit_for_vendor: false,
+    customer_note: null,
   };
 
   // Default Loan for CREATE case.
@@ -138,8 +139,9 @@ function CreateUpdateLineOfCreditLoanModal({
         variables: {
           lineOfCreditId: lineOfCredit.id,
           lineOfCredit: {
-            is_credit_for_vendor: lineOfCredit.is_credit_for_vendor,
             recipient_vendor_id: lineOfCredit.recipient_vendor_id,
+            is_credit_for_vendor: lineOfCredit.is_credit_for_vendor,
+            customer_note: lineOfCredit.customer_note,
           },
           loanId: loan.id,
           loan: {
@@ -158,8 +160,9 @@ function CreateUpdateLineOfCreditLoanModal({
           variables: {
             lineOfCredit: {
               company_id: isBankUser ? companyId : undefined,
-              is_credit_for_vendor: lineOfCredit.is_credit_for_vendor,
               recipient_vendor_id: lineOfCredit.recipient_vendor_id,
+              is_credit_for_vendor: lineOfCredit.is_credit_for_vendor,
+              customer_note: lineOfCredit.customer_note,
             },
           },
         });
@@ -287,5 +290,3 @@ function CreateUpdateLineOfCreditLoanModal({
     </Modal>
   ) : null;
 }
-
-export default CreateUpdateLineOfCreditLoanModal;

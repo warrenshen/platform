@@ -230,7 +230,7 @@ export default function ArtifactLoansDataGrid({
         ),
       },
       {
-        visible: !isMiniTable && isViewNotesEnabled,
+        visible: false && isViewNotesEnabled,
         dataField: "notes",
         caption: "Internal Note",
         minWidth: 300,

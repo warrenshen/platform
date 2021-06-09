@@ -2044,6 +2044,7 @@
       check: {}
       columns:
       - company_id
+      - customer_note
       - is_credit_for_vendor
       - recipient_vendor_id
       backend_only: false
@@ -2055,6 +2056,7 @@
       set:
         company_id: x-hasura-Company-Id
       columns:
+      - customer_note
       - is_credit_for_vendor
       - recipient_vendor_id
       backend_only: false
@@ -2062,27 +2064,30 @@
   - role: bank_admin
     permission:
       columns:
-      - id
-      - recipient_vendor_id
-      - is_credit_for_vendor
       - company_id
       - created_at
+      - customer_note
+      - id
+      - is_credit_for_vendor
+      - recipient_vendor_id
       - updated_at
       filter: {}
   - role: bank_read_only
     permission:
       columns:
-      - is_credit_for_vendor
-      - created_at
-      - updated_at
       - company_id
+      - created_at
+      - customer_note
       - id
+      - is_credit_for_vendor
       - recipient_vendor_id
+      - updated_at
       filter: {}
   - role: company_admin
     permission:
       columns:
       - company_id
+      - customer_note
       - id
       - is_credit_for_vendor
       - recipient_vendor_id
@@ -2093,6 +2098,7 @@
     permission:
       columns:
       - company_id
+      - customer_note
       - id
       - is_credit_for_vendor
       - recipient_vendor_id
@@ -2103,6 +2109,7 @@
   - role: bank_admin
     permission:
       columns:
+      - customer_note
       - is_credit_for_vendor
       - recipient_vendor_id
       filter: {}
@@ -2110,6 +2117,7 @@
   - role: company_admin
     permission:
       columns:
+      - customer_note
       - is_credit_for_vendor
       - recipient_vendor_id
       filter:

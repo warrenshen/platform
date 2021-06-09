@@ -232,7 +232,7 @@ export default function PurchaseOrderForm({
           data-cy={"purchase-order-form-input-customer-note"}
           multiline
           label={"Comments"}
-          placeholder={"Enter comments about this purchase order"}
+          helperText={"Any comments about this purchase order"}
           value={purchaseOrder.customer_note || ""}
           onChange={({ target: { value } }) =>
             setPurchaseOrder({

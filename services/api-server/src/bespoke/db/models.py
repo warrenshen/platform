@@ -415,6 +415,7 @@ class LineOfCredit(Base):
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	recipient_vendor_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	is_credit_for_vendor = Column(Boolean)
+	customer_note = Column(Text)
 
 	company = relationship(
 		'Company',
