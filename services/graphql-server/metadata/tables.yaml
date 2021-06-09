@@ -776,6 +776,9 @@
       filter: {}
 - table:
     schema: public
+    name: company_payor_contacts
+- table:
+    schema: public
     name: company_payor_partnerships
   object_relationships:
   - name: company
@@ -800,6 +803,14 @@
           name: payors
         column_mapping:
           payor_id: id
+  array_relationships:
+  - name: payor_contacts
+    using:
+      foreign_key_constraint_on:
+        column: partnership_id
+        table:
+          schema: public
+          name: company_payor_contacts
   insert_permissions:
   - role: bank_admin
     permission:
@@ -997,6 +1008,24 @@
   is_enum: true
 - table:
     schema: public
+    name: company_vendor_contacts
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - id
+      - partnership_id
+      - vendor_user_id
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - id
+      - partnership_id
+      - vendor_user_id
+      filter: {}
+- table:
+    schema: public
     name: company_vendor_partnerships
   object_relationships:
   - name: company
@@ -1019,6 +1048,14 @@
           name: vendors
         column_mapping:
           vendor_id: id
+  array_relationships:
+  - name: vendor_contacts
+    using:
+      foreign_key_constraint_on:
+        column: partnership_id
+        table:
+          schema: public
+          name: company_vendor_contacts
   insert_permissions:
   - role: bank_admin
     permission:
