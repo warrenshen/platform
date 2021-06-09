@@ -374,16 +374,6 @@ def calculate_repayment_effect(
 			)
 		))
 
-		amount_used = payment_effect['transaction']['amount']
-		amount_to_pay += amount_used
-
-	if payment_option == RepaymentOption.CUSTOM_AMOUNT:
-		amount_as_credit_to_user = amount - amount_to_pay
-		# in the custom_amount case, we always say the user will pay the amount
-		# they specified, even though only a portion of it may be going to pay off the
-		# loans, and some goes to credit
-		amount_to_pay = amount
-
 	loans_past_due_but_not_selected = []
 	fee_accumulator_past_due = fee_util.FeeAccumulator()
 	# List out the before balances for unselected, but overdue loans to show to the user.
@@ -446,10 +436,13 @@ def calculate_repayment_effect(
 		tx = cur_loan['transaction']
 		if not tx:
 			return
-		tx['amount'] = number_util.round_currency(tx['amount'])
 		tx['to_principal'] = number_util.round_currency(tx['to_principal'])
 		tx['to_interest'] = number_util.round_currency(tx['to_interest'])
 		tx['to_fees'] = number_util.round_currency(tx['to_fees'])
+
+		# Just in case rounding causes a 1 cent or two difference, we should have
+		# the transaction amount each the summed to_principal, to_interest, to_fees amount
+		tx['amount'] = number_util.round_currency(tx['to_principal'] + tx['to_interest'] + tx['to_fees'])
 
 		_round_balance(cur_loan['before_loan_balance'])
 		_round_balance(cur_loan['after_loan_balance'])
@@ -457,6 +450,15 @@ def calculate_repayment_effect(
 
 	for cur_loan in loans_to_show:
 		_round_loan(cur_loan)
+
+		# We want to count up the total someone should pay after each individual
+		# loan is rounded.
+		tx = cur_loan['transaction']
+		if not tx:
+			continue
+
+		amount_used = tx['amount']
+		amount_to_pay += amount_used
 
 	for cur_loan in loans_past_due_but_not_selected:
 		_round_loan(cur_loan)
@@ -472,6 +474,13 @@ def calculate_repayment_effect(
 
 		for loan_id in loan_ids:
 			ordered_loans_to_show.append(loan_id_to_loan_to_show[loan_id])
+
+	if payment_option == RepaymentOption.CUSTOM_AMOUNT:
+		amount_as_credit_to_user = amount - amount_to_pay
+		# in the custom_amount case, we always say the user will pay the amount
+		# they specified, even though only a portion of it may be going to pay off the
+		# loans, and some goes to credit
+		amount_to_pay = amount
 
 	return RepaymentEffectRespDict(
 		status='OK',
