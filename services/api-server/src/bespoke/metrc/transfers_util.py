@@ -159,6 +159,7 @@ def _match_and_add_licenses_to_transfers(
 	shipper_licenses = session.query(models.CompanyLicense).filter(
 		models.CompanyLicense.license_number.in_(shipper_license_numbers)
 	).all()
+
 	shipper_license_to_company_id = {}
 	for shipper_license in shipper_licenses:
 		shipper_license_to_company_id[shipper_license.license_number] = str(shipper_license.company_id)
@@ -344,9 +345,14 @@ def populate_transfers_table(
 			# company_id
 			# license_id
 			# delivery_id
+			# created_at
 			prev_transfer.created_date = metrc_transfer.created_date
 			prev_transfer.manifest_number = metrc_transfer.manifest_number
 			prev_transfer.transfer_payload = metrc_transfer.transfer_payload
+			prev_transfer.vendor_id = metrc_transfer.vendor_id
+			prev_transfer.transfer_type = metrc_transfer.transfer_type
+			prev_transfer.updated_at = metrc_transfer.updated_at
+			prev_transfer.lab_results_status = metrc_transfer.lab_results_status
 			delivery_id_to_transfer_id[metrc_transfer.delivery_id] = str(prev_transfer.id)
 		else:
 			# add
@@ -377,6 +383,7 @@ def populate_transfers_table(
 
 			prev_metrc_package = package_id_to_prev_package[metrc_package.package_id]
 			# package_id - no need to update
+			# created_at - no need to update
 			prev_metrc_package.transfer_id = cast(Any, transfer_id)
 			prev_metrc_package.delivery_id = metrc_package.delivery_id 
 			prev_metrc_package.label = metrc_package.label
@@ -385,6 +392,7 @@ def populate_transfers_table(
 			prev_metrc_package.package_payload = metrc_package.package_payload
 			prev_metrc_package.lab_results_payload = metrc_package.lab_results_payload
 			prev_metrc_package.lab_results_status = metrc_package.lab_results_status
+			prev_metrc_package.updated_at = metrc_package.updated_at
 		else:
 			# add
 			metrc_package.transfer_id = cast(Any, transfer_id)

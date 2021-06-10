@@ -331,6 +331,7 @@ class MetrcTransfer(Base):
 	manifest_number = Column(String)
 	transfer_payload = Column(JSON)
 	lab_results_status = Column(String)
+	updated_at = Column(DateTime)
 
 
 class MetrcPackage(Base):
@@ -346,6 +347,7 @@ class MetrcPackage(Base):
 	package_payload = Column(JSON)
 	lab_results_payload = Column(JSON)
 	lab_results_status = Column(String)
+	updated_at = Column(DateTime)
 
 
 ## End Metrc
