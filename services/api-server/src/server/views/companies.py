@@ -3,7 +3,7 @@ from typing import Any, List, cast
 
 from bespoke import errors
 from bespoke.audit import events
-from bespoke.companies import create_company_util
+from bespoke.companies import create_company_util, partnership_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
@@ -92,12 +92,17 @@ class CreatePartnershipView(MethodView):
 				).first())
 
 			# Payor or vendor users.
-			company_users = cast(List[models.User], session.query(
-				models.User).filter_by(company_id=resp['company_id']).all())
+			partner_contacts, err = partnership_util.get_partner_contacts(
+				partnership_id=resp['partnership_id'],
+				partnership_type=resp['partnership_type'],
+				session=session
+			)
+			if err:
+				raise err
 
-			if not company_users:
-				raise errors.Error('There are no users configured for this company')
-			company_emails = [user.email for user in company_users]
+			if not partner_contacts:
+				raise errors.Error('There are no users configured for this payor or vendor')
+			company_emails = [contact['email'] for contact in partner_contacts]
 
 			customer_name = customer.name
 

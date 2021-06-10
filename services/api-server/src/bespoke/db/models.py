@@ -255,6 +255,28 @@ class CompanyPayorPartnership(Base):
 	payor_id = Column(GUID, nullable=False)
 	approved_at = Column(DateTime)
 
+class CompanyVendorContact(Base):
+	__tablename__ = 'company_vendor_contacts'
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	partnership_id = cast(GUID, Column(GUID, ForeignKey('company_vendor_partnerships.id')))
+	vendor_user_id = cast(GUID, Column(GUID, ForeignKey('users.id')))
+
+	vendor_user = relationship(
+		'User',
+		foreign_keys=[vendor_user_id]
+	)
+
+class CompanyPayorContact(Base):
+	__tablename__ = 'company_payor_contacts'
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	partnership_id = cast(GUID, Column(GUID, ForeignKey('company_payor_partnerships.id')))
+	payor_user_id = cast(GUID, Column(GUID, ForeignKey('users.id')))
+
+	payor_user = relationship(
+		'User',
+		foreign_keys=[payor_user_id]
+	)
+
 
 PurchaseOrderFileDict = TypedDict('PurchaseOrderFileDict', {
 	'purchase_order_id': str,

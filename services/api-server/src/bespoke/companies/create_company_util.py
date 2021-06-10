@@ -6,7 +6,7 @@ from typing import Any, Callable, Dict, List, Tuple, cast
 from bespoke import errors
 from bespoke.companies import create_user_util
 from bespoke.date import date_util
-from bespoke.db import models
+from bespoke.db import models, db_constants
 from bespoke.db.db_constants import CompanyType, TwoFactorMessageMethod
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util
@@ -52,6 +52,8 @@ CreatePartnershipRespDict = TypedDict('CreatePartnershipRespDict', {
 	'company_id': str, # the company ID of the partner
 	'company_type': str, # the type of company of the partner
 	'customer_id': str, # the person who requested the partnership
+	'partnership_id': str,
+	'partnership_type': str # e.g., 'vendor' or 'payor'
 })
 
 LicenseInfoDict = TypedDict('LicenseInfoDict', {
@@ -271,6 +273,8 @@ def create_partnership(
 	)
 
 	company_type = partnership_req.company_type
+	partnership_id = None
+	partnership_type = None
 
 	if company_type == CompanyType.Payor:
 		prev_partnership = cast(
@@ -288,6 +292,9 @@ def create_partnership(
 			payor_id=company_id,
 		)
 		session.add(company_payor_partnership)
+		session.flush()
+		partnership_id = str(company_payor_partnership.id)
+		partnership_type = db_constants.CompanyType.Payor
 
 		# Existing company may not have is_payor set to True yet,
 		# for example it may only have is_customer set to True.
@@ -310,6 +317,9 @@ def create_partnership(
 			vendor_id=company_id,
 		)
 		session.add(company_vendor_partnership)
+		session.flush()
+		partnership_id = str(company_vendor_partnership.id)
+		partnership_type = db_constants.CompanyType.Vendor
 
 		# Existing company may not have is_vendor set to True yet,
 		# for example it may only have is_customer set to True.
@@ -326,6 +336,8 @@ def create_partnership(
 	return CreatePartnershipRespDict(
 		company_id=company_id,
 		customer_id=customer_id,
+		partnership_id=partnership_id,
+		partnership_type=partnership_type,
 		company_type=company_type
 	), None
 
