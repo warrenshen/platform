@@ -7,6 +7,7 @@ import {
 } from "@material-ui/core";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import useSnackbar from "hooks/useSnackbar";
+import { Companies } from "generated/graphql";
 import { syncMetrcDataPerCustomer } from "lib/api/metrc";
 import { todayAsDateStringServer } from "lib/date";
 import { useState } from "react";
@@ -33,7 +34,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
-  companyId: string;
+  companyId: Companies["id"];
 }
 
 export default function SyncMetrcData(props: Props) {
@@ -102,7 +103,6 @@ export default function SyncMetrcData(props: Props) {
             </Button>
           </Box>
         </Box>
-        <Box flex={1} display="flex" flexDirection="column" overflow="scroll" />
       </Box>
     </Box>
   );

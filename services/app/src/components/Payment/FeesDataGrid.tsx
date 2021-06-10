@@ -68,8 +68,7 @@ export default function FeesDataGrid({
       {
         visible: false,
         caption: "Submitted At",
-        minWidth: ColumnWidths.MinWidth,
-        alignment: "right",
+        width: ColumnWidths.Datetime,
         cellRender: (params: ValueFormatterParams) => (
           <DatetimeDataGridCell
             isTimeVisible

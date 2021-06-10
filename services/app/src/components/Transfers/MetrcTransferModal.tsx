@@ -54,6 +54,30 @@ export default function MetrcTransferModal({
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>
         <Typography variant="subtitle2" color="textSecondary">
+          Last Modified Date Time (in Metrc)
+        </Typography>
+        <Typography variant="body1">
+          {formatDatetimeString(transferPayload.LastModified)}
+        </Typography>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2" color="textSecondary">
+          Shipper Facility Name (License Number)
+        </Typography>
+        <Typography variant="body1">
+          {`${transferPayload.ShipperFacilityName} (${transferPayload.ShipperFacilityLicenseNumber})`}
+        </Typography>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2" color="textSecondary">
+          Recipient Facility Name (License Number)
+        </Typography>
+        <Typography variant="body1">
+          {`${transferPayload.RecipientFacilityName} (${transferPayload.RecipientFacilityLicenseNumber})`}
+        </Typography>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2" color="textSecondary">
           Vendor
         </Typography>
         <Typography variant="body1">

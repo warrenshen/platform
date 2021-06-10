@@ -46,14 +46,12 @@ import { authenticatedApi, CustomMutationResponse, metrcRoutes } from "lib/api";
 //    "EstimatedReturnArrivalDateTime":null,
 //    "ActualReturnArrivalDateTime":null
 // }
-
-//    "CreatedDateTime":"2021-05-24T23:05:36+00:00",
-//    "EstimatedDepartureDateTime":"2021-05-24T16:30:00.000",
-//    "EstimatedArrivalDateTime":"2021-05-24T19:30:00.000",
-//    "ReceivedDateTime":"2021-05-25T17:47:58+00:00",
 export type MetrcTransferPayload = {
+  LastModified: string;
   ShipperFacilityLicenseNumber: string;
   ShipperFacilityName: string;
+  RecipientFacilityLicenseNumber: string;
+  RecipientFacilityName: string;
   PackageCount: number;
   ShipmentTransactionType: string;
   EstimatedDepartureDateTime: string;

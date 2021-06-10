@@ -26,6 +26,7 @@ export default function MetrcTransfersDataGrid({
           destination_license: transferPayload.RecipientFacilityLicenseNumber,
           destination_facility: transferPayload.RecipientFacilityName,
           type: transferPayload.ShipmentTypeName,
+          last_modified_at: transferPayload.LastModified,
         };
       }),
     [metrcTransfers]
@@ -89,6 +90,11 @@ export default function MetrcTransfersDataGrid({
         dataField: "type",
         caption: "Type",
         minWidth: ColumnWidths.MinWidth,
+      },
+      {
+        dataField: "last_modified_at",
+        caption: "Last Modified At",
+        width: ColumnWidths.Datetime,
       },
     ],
     []
