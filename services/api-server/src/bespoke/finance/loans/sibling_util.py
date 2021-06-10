@@ -19,11 +19,13 @@ def _sum_contributing_loans(loans: List[models.Loan]) -> float:
 				loan.amount) if loan.amount else 0
 	return proposed_loans_total_amount
 
-# Using a SQL aggregation rathen than adding up floats in python gives a more
-# accurate sum here.
+# Using a SQL aggregation rathen than adding up
+# floats in python gives a more accurate sum here.
 def get_funded_loan_sum_on_artifact(session: Session, artifact_id: str) -> float:
 	result = session.query(func.sum(models.Loan.amount)).filter(
 			cast(Callable, models.Loan.is_deleted.isnot)(True)
+		).filter(
+			cast(Callable, models.Loan.is_frozen.isnot)(True)
 		).filter(
 			models.Loan.artifact_id == artifact_id
 		).filter(
@@ -44,6 +46,8 @@ def get_loan_sum_per_artifact(
 		List[models.Loan],
 		session.query(models.Loan).filter(
 			cast(Callable, models.Loan.is_deleted.isnot)(True)
+		).filter(
+			cast(Callable, models.Loan.is_frozen.isnot)(True)
 		).filter(
 			models.Loan.artifact_id.in_(artifact_ids)
 		).filter(

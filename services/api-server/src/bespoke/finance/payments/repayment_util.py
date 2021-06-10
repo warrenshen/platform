@@ -188,6 +188,10 @@ def calculate_repayment_effect(
 			loans = cast(
 				List[models.Loan],
 				session.query(models.Loan).filter(
+					cast(Callable, models.Loan.is_deleted.isnot)(True)
+				).filter(
+					cast(Callable, models.Loan.is_frozen.isnot)(True)
+				).filter(
 					models.Loan.company_id == company_id
 				).filter(
 					models.Loan.origination_date != None
@@ -232,6 +236,10 @@ def calculate_repayment_effect(
 		loans_past_due = cast(
 			List[models.Loan],
 			session.query(models.Loan).filter(
+				cast(Callable, models.Loan.is_deleted.isnot)(True)
+			).filter(
+				cast(Callable, models.Loan.is_frozen.isnot)(True)
+			).filter(
 				models.Loan.company_id == company_id
 			).filter(
 				models.Loan.closed_at == None
@@ -806,6 +814,10 @@ def settle_repayment(
 			loans = cast(
 				List[models.Loan],
 				session.query(models.Loan).filter(
+					cast(Callable, models.Loan.is_deleted.isnot)(True)
+				).filter(
+					cast(Callable, models.Loan.is_frozen.isnot)(True)
+				).filter(
 					models.Loan.company_id == company_id
 				).filter(
 					models.Loan.origination_date != None
