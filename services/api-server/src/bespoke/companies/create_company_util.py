@@ -1,7 +1,7 @@
 """
 	Logic to help create a company.
 """
-from typing import Callable, Dict, List, Tuple, cast
+from typing import Any, Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.companies import create_user_util
@@ -223,6 +223,16 @@ def _create_partner_company_and_its_first_user(
 	user.email = user_email
 	user.phone_number = user_phone_number
 	session.add(user)
+
+	if partnership_req.license_info:
+		# Add any licenses the user might have specified.
+		license_ids = cast(Dict, partnership_req.license_info)['license_ids']
+		for license_id in license_ids:
+			license = models.CompanyLicense()
+			license.company_id = cast(Any, company_id)
+			license.license_number = license_id
+			session.add(license)
+
 	return company_id
 
 @errors.return_error_tuple
