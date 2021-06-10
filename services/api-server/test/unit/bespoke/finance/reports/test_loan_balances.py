@@ -365,7 +365,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					{
 						'adjusted_maturity_date': date_util.load_date_str('11/05/2020'),
 						'outstanding_principal': 0.0,
-						'outstanding_principal_for_interest': 0.0,
+						'outstanding_principal_for_interest': 500.03,
 						'outstanding_interest': 0.0,
 						'outstanding_fees': 0.0,
 						'interest_accrued_today': number_util.round_currency(0.005 * 500.03),
@@ -543,7 +543,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/1/2020'),
 						'outstanding_principal': 100.00,
-						'outstanding_principal_for_interest': 100.00,
+						'outstanding_principal_for_interest': 500.03, # amount to pay interest on
 						'outstanding_interest': number_util.round_currency(3 * 0.05 * 500.03), # 3 days of interest
 						'outstanding_fees': 0.0,
 						'interest_accrued_today': number_util.round_currency(0.05 * 500.03),
@@ -577,7 +577,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/1/2020'),
 						'outstanding_principal': 0.0,
-						'outstanding_principal_for_interest': 0.0,
+						'outstanding_principal_for_interest': 100.0,
 						'outstanding_interest': number_util.round_currency((3 * 0.05 * 500.03) + (2 * 0.05 * 100.00)), # 5 days of interest
 						'outstanding_fees': 0.0,
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00),
@@ -586,7 +586,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/2/2020'),
 						'outstanding_principal': 100.0,
-						'outstanding_principal_for_interest': 100.0,
+						'outstanding_principal_for_interest': 600.03,
 						'outstanding_interest': number_util.round_currency(1 * 0.05 * 600.03), # 1 day of interest
 						'outstanding_fees': 0.0,
 						'interest_accrued_today': number_util.round_currency(0.05 * 600.03),
@@ -1006,7 +1006,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					{
 						'adjusted_maturity_date': date_util.load_date_str('10/05/2020'),
 						'outstanding_principal': 450.03,
-						'outstanding_principal_for_interest': 450.03,
+						'outstanding_principal_for_interest': 500.03,
 						'outstanding_interest': 0.0, # partial payment paid off interest
 						'outstanding_fees': 0.0,
 						'interest_accrued_today': number_util.round_currency(0.002 * 500.03), # The repayment takes effect after the 3rd
@@ -1134,7 +1134,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					{
 						'adjusted_maturity_date': date_util.load_date_str('10/05/2020'),
 						'outstanding_principal': 450.03,
-						'outstanding_principal_for_interest': 500.03,
+						'outstanding_principal_for_interest': 430.02,
 						'outstanding_interest': number_util.round_currency(430.02 * 0.002 * 2 - 1.1), # They owe 2 days of interest, but pay off 3, so its -1 day of interest
 						'outstanding_fees': 0.0,
 						'interest_accrued_today': number_util.round_currency(430.02 * 0.002),
@@ -1146,7 +1146,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_limit': 120000.01,
 					'adjusted_total_limit': 120000.01,
 					'total_outstanding_principal': 450.03,
-					'total_outstanding_principal_for_interest': 500.03,
+					'total_outstanding_principal_for_interest': 430.02,
 					'total_outstanding_interest': number_util.round_currency(430.02 * 0.002 * 2 - 1.1),
 					'total_outstanding_fees': 0.0,
 					'total_principal_in_requested_state': 0.0,
@@ -1172,7 +1172,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					{
 						'adjusted_maturity_date': date_util.load_date_str('10/05/2020'),
 						'outstanding_principal': 450.03,
-						'outstanding_principal_for_interest': 450.03,
+						'outstanding_principal_for_interest': 430.02,
 						# first_two_days_carryover + settlement day, which doesnt include repayment (because repayment influence happens at the end of the settlement day)
 						'outstanding_interest': number_util.round_currency((430.02 * 0.002 * 3 - 1.1)),
 						'outstanding_fees': 0.0,
@@ -1188,7 +1188,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					{
 						'adjusted_maturity_date': date_util.load_date_str('10/05/2020'),
 						'outstanding_principal': 450.03,
-						'outstanding_principal_for_interest': 450.03,
+						'outstanding_principal_for_interest': 430.02 - 51.1,
 						# 23 days of interest accrued on 450.03 after the first partial repayment
 						# - 4.2 is for the adjustment
 						# - 1.0 is adjustment from principal

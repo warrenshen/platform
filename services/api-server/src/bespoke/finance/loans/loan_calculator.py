@@ -359,6 +359,7 @@ def _format_output_value(value: float, should_round: bool) -> float:
 		return value
 
 InterestFeeInfoDict = TypedDict('InterestFeeInfoDict', {
+	'amount_to_pay_interest_on': float,
 	'interest_due_for_day': float,
 	'interest_rate_used': float,
 	'fee_due_for_day': float,
@@ -509,6 +510,7 @@ class LoanCalculator(object):
 			fee_due_for_day = 0.0 if loan_paid_by_maturity_date else fee_multiplier * interest_due_for_day
 
 			return InterestFeeInfoDict(
+				amount_to_pay_interest_on=amount_to_pay_interest_on,
 				interest_due_for_day=interest_due_for_day,
 				interest_rate_used=interest_rate_used,
 				fee_due_for_day=fee_due_for_day,
@@ -550,6 +552,7 @@ class LoanCalculator(object):
 		# and consider transactions along the way.
 		outstanding_principal = 0.0 # The customer sees this as their outstanding principal
 		outstanding_principal_for_interest = 0.0 # Amount of principal used for calculating interest and fees off of
+		amount_to_pay_interest_on = 0.0 # The exact amount on a given day that the person paid interest on
 		outstanding_interest = 0.0
 		outstanding_fees = 0.0
 		interest_accrued_today = 0.0
@@ -638,6 +641,7 @@ class LoanCalculator(object):
 				errors_list.append(err)
 				continue
 
+			amount_to_pay_interest_on = interest_fee_info['amount_to_pay_interest_on']
 			interest_due_for_day = interest_fee_info['interest_due_for_day']
 			fee_due_for_day = interest_fee_info['fee_due_for_day']
 
@@ -845,7 +849,7 @@ class LoanCalculator(object):
 			loan_id=loan['id'],
 			adjusted_maturity_date=loan['adjusted_maturity_date'],
 			outstanding_principal=_format_output_value(outstanding_principal, should_round_output),
-			outstanding_principal_for_interest=_format_output_value(outstanding_principal_for_interest, should_round_output),
+			outstanding_principal_for_interest=_format_output_value(amount_to_pay_interest_on, should_round_output),
 			outstanding_interest=_format_output_value(outstanding_interest, should_round_output),
 			outstanding_fees=_format_output_value(outstanding_fees, should_round_output),
 			interest_accrued_today=_format_output_value(interest_accrued_today, should_round_output),
