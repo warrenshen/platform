@@ -592,6 +592,10 @@ class Loan(Base):
 	outstanding_fees = Column(Numeric)
 
 	is_deleted = Column(Boolean)
+	# If frozen, loan financials are never updated; this is for loans
+	# imported from Bespoke Financial's legacy system in which loan
+	# financials were calculated based on rules no longer supported.
+	is_frozen = Column(Boolean)
 
 	def as_dict(self) -> LoanDict:
 		return LoanDict(

@@ -4,8 +4,8 @@
 from typing import Callable, List, Tuple, cast
 
 from bespoke import errors
-from bespoke.db import db_constants, models, models_util
-from bespoke.db.models import (CompanyDict, CompanySettingsDict, ContractDict,
+from bespoke.db import models, models_util
+from bespoke.db.models import (CompanySettingsDict, ContractDict,
                                EbbaApplicationDict, LoanDict, PaymentDict,
                                TransactionDict, session_scope)
 from bespoke.finance.types import per_customer_types
@@ -102,15 +102,16 @@ class Fetcher(object):
 
 		with session_scope(self._session_maker) as session:
 			query = session.query(models.Loan).filter(
-					models.Loan.company_id == self._company_id
-				).order_by(
-    				models.Loan.origination_date.asc()
-				)
+				models.Loan.company_id == self._company_id
+			).filter(
+				cast(Callable, models.Loan.is_frozen.isnot)(True)
+			).order_by(
+				models.Loan.origination_date.asc()
+			)
 
 			if self._ignore_deleted:
 				query = query.filter(cast(Callable, models.Loan.is_deleted.isnot)(True))
 
-			# Order by oldest loans to newest loans
 			loans = cast(List[models.Loan], query.all())
 			if not loans:
 				return True, None

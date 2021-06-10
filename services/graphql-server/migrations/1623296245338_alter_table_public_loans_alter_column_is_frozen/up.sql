@@ -1,0 +1,1 @@
+COMMENT ON COLUMN "public"."loans"."is_frozen" IS E'If frozen, loan financials are never updated; this is for loans imported from Bespoke Financial\'s legacy system in which loan financials were calculated based on rules no longer supported';

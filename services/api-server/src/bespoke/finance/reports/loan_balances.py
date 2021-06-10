@@ -224,10 +224,14 @@ class CustomerBalance(object):
 		Returns None if company does not have any contracts.
 		"""
 		# Get your contracts and loans
-		fetcher = per_customer_fetcher.Fetcher(per_customer_types.CompanyInfoDict(
-			id=self._company_id,
-			name=self._company_name
-		), self._session_maker, ignore_deleted=True)
+		fetcher = per_customer_fetcher.Fetcher(
+			per_customer_types.CompanyInfoDict(
+				id=self._company_id,
+				name=self._company_name
+			),
+			self._session_maker,
+			ignore_deleted=True,
+		)
 		_, err = fetcher.fetch()
 		if err:
 			raise err
