@@ -641,7 +641,6 @@ class LoanCalculator(object):
 				errors_list.append(err)
 				continue
 
-			amount_to_pay_interest_on = interest_fee_info['amount_to_pay_interest_on']
 			interest_due_for_day = interest_fee_info['interest_due_for_day']
 			fee_due_for_day = interest_fee_info['fee_due_for_day']
 
@@ -651,6 +650,7 @@ class LoanCalculator(object):
 
 			if cur_date == today:
 				interest_accrued_today = interest_due_for_day
+				amount_to_pay_interest_on = interest_fee_info['amount_to_pay_interest_on']
 
 			self._fee_accumulator.accumulate(
 				todays_contract_start_date=todays_contract_start_date,
