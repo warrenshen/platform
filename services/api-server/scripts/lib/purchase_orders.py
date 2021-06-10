@@ -9,6 +9,7 @@ from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.db_constants import CompanyType, RequestStatusEnum
 from bespoke.excel import excel_reader
+from bespoke.finance import number_util
 from sqlalchemy.orm.session import Session
 
 
@@ -34,6 +35,7 @@ def import_funded_purchase_orders(
 		parsed_vendor_name = vendor_name.strip()
 		parsed_order_date = date_util.load_date_str(order_date) if order_date else None
 		parsed_funded_at = datetime.combine(date_util.load_date_str(funded_date), time())
+		parsed_amount = number_util.round_currency(float(amount))
 
 		try:
 			# If order_number from XLSX is "25.0", convert it to 25.
@@ -48,7 +50,7 @@ def import_funded_purchase_orders(
 			not parsed_vendor_name or
 			not parsed_order_number or
 			# not parsed_order_date or
-			not amount or
+			not parsed_amount or
 			not parsed_funded_at
 		):
 			print(f'[{index + 1} of {purchase_orders_count}] Invalid purchase order field(s)')
@@ -117,7 +119,7 @@ def import_funded_purchase_orders(
 				order_number=parsed_order_number,
 				order_date=parsed_order_date,
 				delivery_date=None,
-				amount=amount,
+				amount=parsed_amount,
 				requested_at=parsed_funded_at, # Set requested_at to funded_at.
 				approved_at=parsed_funded_at, # Set approved_at to funded_at.
 				funded_at=parsed_funded_at,

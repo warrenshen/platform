@@ -52,11 +52,11 @@ def import_settled_repayments(
 		parsed_settlement_date = date_util.load_date_str(settlement_date)
 		parsed_submitted_at = datetime.datetime.combine(parsed_deposit_date, datetime.time())
 		parsed_settled_at = datetime.datetime.combine(parsed_settlement_date, datetime.time())
-		parsed_amount = float(amount)
-		parsed_to_principal = float(to_principal or 0) # Value may be ''.
-		parsed_to_interest = float(to_interest or 0)
-		parsed_to_late_fees = float(to_late_fees or 0)
-		parsed_to_wire_fee = float(to_wire_fee or 0)
+		parsed_amount = number_util.round_currency(float(amount))
+		parsed_to_principal = number_util.round_currency(float(to_principal or 0)) # Value may be ''.
+		parsed_to_interest = number_util.round_currency(float(to_interest or 0))
+		parsed_to_late_fees = number_util.round_currency(float(to_late_fees or 0))
+		parsed_to_wire_fee = number_util.round_currency(float(to_wire_fee or 0))
 
 		try:
 			# If loan_identifier from XLSX is "25.0", convert it to 25.
@@ -187,7 +187,7 @@ def import_settled_repayments(
 			to_account_transaction = models.Transaction(
 				payment_id=repayment.id,
 				loan_id=None,
-				type=PaymentType.REPAYMENT,
+				type=PaymentType.REPAYMENT_OF_ACCOUNT_FEE,
 				subtype=None,
 				amount=amount_to_account,
 				to_principal=decimal.Decimal(0.0),
@@ -200,6 +200,14 @@ def import_settled_repayments(
 
 		print(f'[{index + 1} of {repayments_count}] Created repayment on loan {parsed_loan_identifier} for {customer.name} ({customer.identifier})')
 		print(f'Customer {customer.name} latest_repayment_identifier is now "{customer.latest_repayment_identifier}"')
+
+		if loan.is_frozen:
+			print(f'[{index + 1} of {repayments_count}] Repayment is on a frozen loan, setting loan.closed_at...')
+			loan.outstanding_principal_balance = decimal.Decimal(0.0)
+			loan.outstanding_interest = decimal.Decimal(0.0)
+			loan.outstanding_fees = decimal.Decimal(0.0)
+			loan.closed_at = parsed_settled_at
+			continue
 
 		# Load up a LoanCalculator and check if loan is closed.
 		# If so, set loan.closed_at to parsed_settled_at. Otherwise, continue.

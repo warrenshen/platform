@@ -10,17 +10,17 @@ from sqlalchemy.orm.session import Session
 # Path hack before we try to import bespoke
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../src")))
 from bespoke.date import date_util
-from bespoke.db import models, models_util
-from bespoke.db.db_constants import (ALL_LOAN_TYPES, CompanyType,
-                                     LoanStatusEnum, LoanTypeEnum)
-from bespoke.db.models import session_scope
+from bespoke.db import models
+from bespoke.db.db_constants import (ALL_LOAN_TYPES, LoanStatusEnum, LoanTypeEnum)
 from bespoke.excel import excel_reader
 from bespoke.finance import contract_util, number_util
-from bespoke.finance.loans import loan_calculator
-from bespoke.finance.payments import repayment_util
 
 
-def import_loans(session: Session, loan_tuples: List[List[str]]) -> None:
+def import_loans(
+	session: Session, 
+	loan_tuples: List[List[str]],
+	is_frozen: bool = None,
+) -> None:
 	"""
 	Imports loans for all product types except for Line of Credit.
 	"""
@@ -41,7 +41,7 @@ def import_loans(session: Session, loan_tuples: List[List[str]]) -> None:
 		) = new_loan_tuple
 
 		parsed_customer_identifier = customer_identifier.strip()
-		parsed_amount = float(amount)
+		parsed_amount = number_util.round_currency(float(amount))
 		parsed_origination_date = date_util.load_date_str(origination_date)
 		parsed_maturity_date = date_util.load_date_str(maturity_date)
 		parsed_adjusted_maturity_date = date_util.load_date_str(adjusted_maturity_date)
@@ -165,6 +165,7 @@ def import_loans(session: Session, loan_tuples: List[List[str]]) -> None:
 			return
 
 		print(f'[{index + 1} of {loans_count}] Loan {parsed_loan_identifier} for {customer.name} ({customer.identifier}) does not exist, creating it...')
+
 		loan = models.Loan(
 			company_id=customer.id,
 			identifier=parsed_loan_identifier,
@@ -179,6 +180,7 @@ def import_loans(session: Session, loan_tuples: List[List[str]]) -> None:
 			approved_at=parsed_funded_at, # Set approved_at to funded_at.
 			funded_at=parsed_funded_at,
 			closed_at=None, # Note we leave closed_at to None; when payments are imported in, we will set this field.
+			is_frozen=is_frozen,
 		)
 		session.add(loan)
 
@@ -208,7 +210,7 @@ def import_line_of_credit_loans(session: Session, loan_tuples: List[List[str]]) 
 		) = new_loan_tuple
 
 		parsed_customer_identifier = customer_identifier.strip()
-		parsed_amount = float(amount)
+		parsed_amount = number_util.round_currency(float(amount))
 		parsed_origination_date = date_util.load_date_str(origination_date)
 		# Note we don't use the funded_date column from the XLSX.
 		parsed_funded_at = datetime.combine(parsed_origination_date, time())

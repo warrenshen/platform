@@ -11,9 +11,8 @@ from sqlalchemy.orm.session import Session
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../src")))
 from bespoke.date import date_util
 from bespoke.db import models
-from bespoke.db.db_constants import PRODUCT_TYPES, CompanyType, ProductType
+from bespoke.db.db_constants import PRODUCT_TYPES, ProductType
 from bespoke.excel import excel_reader
-from bespoke.finance import number_util
 from bespoke_test.contract.contract_test_helper import (ContractInputDict,
                                                         create_contract_config)
 
