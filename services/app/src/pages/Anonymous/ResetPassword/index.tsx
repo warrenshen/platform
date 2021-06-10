@@ -85,6 +85,7 @@ function ResetPassword(props: Props) {
               <Box display="flex" flexDirection="column" mt={2}>
                 <TextField
                   data-cy="reset-password-input"
+                  autoFocus
                   type="password"
                   label="New password"
                   required

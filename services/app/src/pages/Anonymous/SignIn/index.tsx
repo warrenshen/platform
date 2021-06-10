@@ -52,6 +52,7 @@ export default function SignInPage() {
           <Box display="flex" flexDirection="column" mt={2}>
             <TextField
               data-cy="sign-in-input-email"
+              autoFocus
               label="Email"
               value={email}
               onChange={({ target: { value } }) => setEmail(value)}

@@ -56,7 +56,7 @@ function getRows(
       ? loan.purchase_order.order_number
       : loan.invoice
       ? loan.invoice.invoice_number
-      : loan.line_of_credit?.is_credit_for_vendor
+      : !!loan.line_of_credit?.is_credit_for_vendor
       ? loan.line_of_credit.recipient_vendor?.name
       : "N/A",
   }));
@@ -132,29 +132,6 @@ export default function ArtifactLoansDataGrid({
         ),
       },
       {
-        visible: !isMiniTable,
-        dataField: "artifact_name",
-        caption: artifactCaption,
-        minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
-          <Box display="flex" alignItems="center">
-            {params.row.data.purchase_order && (
-              <PurchaseOrderDrawerLauncher
-                label={params.row.data.artifact_name as string}
-                purchaseOrderId={params.row.data.purchase_order.id as string}
-              />
-            )}
-            {params.row.data.invoice && (
-              <InvoiceDrawerLauncher
-                label={params.row.data.artifact_name as string}
-                invoiceId={params.row.data.invoice.id as string}
-              />
-            )}
-            {params.row.data.line_of_credit && "N/A"}
-          </Box>
-        ),
-      },
-      {
         caption: "Amount",
         dataField: "amount",
         width: ColumnWidths.Currency,
@@ -173,6 +150,29 @@ export default function ArtifactLoansDataGrid({
           <DateDataGridCell
             dateString={params.row.data.requested_payment_date}
           />
+        ),
+      },
+      {
+        visible: !isMiniTable,
+        dataField: "artifact_name",
+        caption: artifactCaption,
+        minWidth: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) => (
+          <Box display="flex" alignItems="center">
+            {params.row.data.purchase_order && (
+              <PurchaseOrderDrawerLauncher
+                label={params.row.data.artifact_name}
+                purchaseOrderId={params.row.data.purchase_order.id}
+              />
+            )}
+            {params.row.data.invoice && (
+              <InvoiceDrawerLauncher
+                label={params.row.data.artifact_name}
+                invoiceId={params.row.data.invoice.id}
+              />
+            )}
+            {params.row.data.line_of_credit && params.row.data.artifact_name}
+          </Box>
         ),
       },
       {

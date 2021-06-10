@@ -66,6 +66,7 @@ export default function ForgotPasswordPage(props: Props) {
               <Box display="flex" flexDirection="column" mt={2}>
                 <TextField
                   data-cy="email-input"
+                  autoFocus
                   label="Email"
                   value={email}
                   error={!!email.length && !correctEmail}
