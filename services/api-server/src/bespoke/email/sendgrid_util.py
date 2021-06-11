@@ -28,13 +28,13 @@ class TemplateNames(object):
 	VENDOR_REJECTED_PURCHASE_ORDER = 'vendor_rejected_purchase_order'
 	BANK_REJECTED_PURCHASE_ORDER = 'bank_rejected_purchase_order'
 
-	PAYOR_AGREEMENT_WITH_CUSTOMER = 'payor_agreement_with_customer'
-	PAYOR_APPROVED_NOTIFY_CUSTOMER = 'payor_approved_notify_customer'
-	PAYOR_APPROVED_NOTIFY_PAYOR = 'payor_approved_notify_payor'
+	PAYOR_AGREEMENT_WITH_CUSTOMER = 'payor_agreement_with_customer' # to payor
+	PAYOR_APPROVED_NOTIFY_CUSTOMER = 'payor_approved_notify_customer' 
+	PAYOR_APPROVED_NOTIFY_PAYOR = 'payor_approved_notify_payor' # to payor
 
-	PAYOR_TO_APPROVE_INVOICE = 'payor_to_approve_invoice'
+	PAYOR_TO_APPROVE_INVOICE = 'payor_to_approve_invoice' # to payor
 	PAYOR_APPROVES_OR_REJECTS_INVOICE = 'payor_approves_or_rejects_invoice'
-	PAYOR_TO_PAY_INVOICE = 'payor_to_pay_invoice'
+	PAYOR_TO_PAY_INVOICE = 'payor_to_pay_invoice' # to payor
 
 	CUSTOMER_SUBMITTED_EBBA_APPLICATION = 'customer_submitted_ebba_application'
 	# TODO(warrenshen): remove this template in the future.

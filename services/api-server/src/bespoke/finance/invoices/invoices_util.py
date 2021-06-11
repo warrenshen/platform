@@ -5,6 +5,7 @@ from dataclasses import dataclass, fields
 from typing import Callable, Dict, List, Optional, Tuple, cast
 
 from bespoke import errors
+from bespoke.companies import partnership_util
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.email import sendgrid_util
@@ -416,8 +417,20 @@ def handle_invoice_approval_request(
 			invoice = session.query(models.Invoice).get(invoice_id)
 			customer = session.query(models.Company).get(invoice.company_id)
 			payor = session.query(models.Company).get(invoice.payor_id)
-			users = session.query(models.User).filter_by(company_id=invoice.payor_id).all()
-			emails = [u.email for u in users]
+
+			payor_users, err = partnership_util.get_partner_contacts_using_company_ids(
+				customer_company_id=str(invoice.company_id),
+				partner_company_id=str(invoice.payor_id), 
+				partnership_type=db_constants.CompanyType.Payor, 
+				session=session)
+			
+			if err:
+				raise err
+
+			if not payor_users:
+				raise errors.Error('No payor users to send a notification to for invoice approval')
+			
+			emails = [u['email'] for u in payor_users]
 
 			template_data = {
 				'payor_name': payor.name,
@@ -465,10 +478,19 @@ def send_one_notification_for_payment(
 		'customer_name': customer.name
 	}
 
-	users = session.query(models.User) \
-		.filter(models.User.company_id == invoice.payor.id) \
-		.all()
-	emails = [u.email for u in users if u.email]
+	payor_users, err = partnership_util.get_partner_contacts_using_company_ids(
+		customer_company_id=str(customer.id),
+		partner_company_id=str(invoice.payor.id), 
+		partnership_type=db_constants.CompanyType.Payor, 
+		session=session)
+	
+	if err:
+		raise err
+
+	if not payor_users:
+		raise errors.Error('No payor users to send a notification to for payment')
+
+	emails = [u['email'] for u in payor_users if u['email']]
 
 	if len(emails):
 		_, err = client.send(
