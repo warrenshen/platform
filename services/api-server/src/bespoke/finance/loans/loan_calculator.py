@@ -705,7 +705,7 @@ class LoanCalculator(object):
 					outstanding_principal -= tx['to_principal']
 					outstanding_interest -= tx['to_interest']
 					outstanding_fees -= tx['to_fees']
-					if number_util.float_lte(outstanding_principal, 0.0) and cur_date <= loan['adjusted_maturity_date']:
+					if number_util.float_lte(number_util.round_currency(outstanding_principal), 0.0) and cur_date <= loan['adjusted_maturity_date']:
 						loan_paid_by_maturity_date = True
 
 			if payment_to_include and payment_to_include['deposit_date'] == cur_date:
@@ -775,8 +775,8 @@ class LoanCalculator(object):
 				)
 
 				has_enough_to_pay_principal_by_maturity_date = number_util.float_eq(
-					loan_state_before_payment['outstanding_principal'],
-					temp_transaction['to_principal']
+					number_util.round_currency(loan_state_before_payment['outstanding_principal']),
+					number_util.round_currency(temp_transaction['to_principal'])
 				) and cur_date <= loan['adjusted_maturity_date']
 
 				if has_enough_to_pay_principal_by_maturity_date:
@@ -800,7 +800,7 @@ class LoanCalculator(object):
 				outstanding_principal -= inserted_repayment_transaction['to_principal']
 				outstanding_interest -= inserted_repayment_transaction['to_interest']
 				outstanding_fees -= inserted_repayment_transaction['to_fees']
-				if number_util.float_lte(outstanding_principal, 0.0) and cur_date <= loan['adjusted_maturity_date']:
+				if number_util.float_lte(number_util.round_currency(outstanding_principal), 0.0) and cur_date <= loan['adjusted_maturity_date']:
 					loan_paid_by_maturity_date = True
 
 				payment_effect_dict = PaymentEffectDict(
