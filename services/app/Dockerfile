@@ -8,8 +8,8 @@ COPY . /app
 WORKDIR /app
 
 # Copies package.json and package-lock.json to Docker environment
-COPY package.json ./
-COPY yarn.lock ./
+COPY package.json .
+COPY yarn.lock .
 
 # Installs all node packages
 ENV NODE_ENV=development
