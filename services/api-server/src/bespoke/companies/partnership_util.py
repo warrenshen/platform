@@ -86,3 +86,38 @@ def get_partner_contacts(
 
 	return None, errors.Error('Unrecognized partnership type "{}"'.format(partnership_type))
 
+def get_partner_contacts_using_company_ids(
+	customer_company_id: str,
+	partner_company_id: str, 
+	partnership_type: str, 
+	session: Session) -> Tuple[List[ContactDict], errors.Error]:
+	"""
+	In this case, the partner is either the vendor or the payor. 
+	"""
+	if partnership_type == db_constants.CompanyType.Vendor:
+		vendor_partnership = cast(
+				models.CompanyVendorPartnership,
+				session.query(models.CompanyVendorPartnership).filter(
+					models.CompanyVendorPartnership.company_id == customer_company_id
+				).filter(
+					models.CompanyVendorPartnership.vendor_id == partner_company_id
+				).first())
+		if not vendor_partnership:
+			return None, errors.Error('Could not determine vendor contacts because the partnership was not found based on the provided company IDs')
+
+		return _get_vendor_contacts(str(vendor_partnership.id), session)
+
+	elif partnership_type == db_constants.CompanyType.Payor:
+		payor_partnership = cast(
+				models.CompanyPayorPartnership,
+				session.query(models.CompanyPayorPartnership).filter(
+					models.CompanyPayorPartnership.company_id == customer_company_id
+				).filter(
+					models.CompanyPayorPartnership.payor_id == partner_company_id
+				).first())
+		if not payor_partnership:
+			return None, errors.Error('Could not determine payor contacts because the partnership was not found based on the provided company IDs')
+
+		return _get_payor_contacts(str(payor_partnership.id), session)
+
+	return None, errors.Error('Unrecognized partnership type "{}"'.format(partnership_type))

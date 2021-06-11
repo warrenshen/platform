@@ -226,6 +226,8 @@ def _create_partner_company_and_its_first_user(
 	user.phone_number = user_phone_number
 	session.add(user)
 
+	# TODO(dlluncor): Also create a user specific to this partnership
+
 	if partnership_req.license_info:
 		# Add any licenses the user might have specified.
 		license_ids = cast(Dict, partnership_req.license_info)['license_ids']

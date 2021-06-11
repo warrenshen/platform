@@ -5,7 +5,8 @@ import logging
 from typing import Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
-from bespoke.db import models
+from bespoke.companies import partnership_util
+from bespoke.db import models, db_constants
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.email.sendgrid_util import TemplateNames
@@ -107,17 +108,23 @@ class NotifyHelper(object):
 				recipients=recipients
 			)
 
-	def _get_third_party_info(self, id_: str) -> ThirdPartyInfoDict:
+	def _get_third_party_info(self, 
+		customer_company_id: str, partner_id: str, partnership_type: str) -> Tuple[ThirdPartyInfoDict, errors.Error]:
 		with session_scope(self._session_maker) as session:
-			company = session.query(models.Company).get(id_)
-			users = session.query(models.User) \
-				.filter(models.User.company_id == company.id) \
-				.all()
-			recipients = [_user_to_recipient(u) for u in users] if users else []
+			company = session.query(models.Company).get(partner_id)
+			partner_users, err = partnership_util.get_partner_contacts_using_company_ids(
+				customer_company_id=customer_company_id,
+				partner_company_id=partner_id,
+				partnership_type=partnership_type,
+				session=session
+			)
+			if err:
+				return None, err
+
 			return ThirdPartyInfoDict(
 				name=company.name,
-				recipients=[_user_to_recipient(u) for u in users]
-			)
+				recipients=[RecipientDict(email=u['email']) for u in partner_users]
+			), err
 
 	def fetch(self) -> Tuple[List[SendPayload], errors.Error]:
 
@@ -130,11 +137,27 @@ class NotifyHelper(object):
 		payor_info = None
 		company_info = None
 
-		if 'vendor_id' in self._input_data:
-			vendor_info = self._get_third_party_info(self._input_data['vendor_id'])
+		if 'vendor_id' in self._input_data and 'company_id' in self._input_data:
+			# We assume the vendor is always being emailed due to their relationship to
+			# a customer.
+			vendor_info, err = self._get_third_party_info(
+				customer_company_id=self._input_data['company_id'],
+				partner_id=self._input_data['vendor_id'],
+				partnership_type=db_constants.CompanyType.Vendor
+			)
+			if err:
+				return None, err
 
-		if 'payor_id' in self._input_data:
-			payor_info = self._get_third_party_info(self._input_data['payor_id'])
+		if 'payor_id' in self._input_data and 'company_id' in self._input_data:
+			# We assume the payor is always being emailed due to their relationship to
+			# a customer.
+			payor_info, err = self._get_third_party_info(
+				customer_company_id=self._input_data['company_id'],
+				partner_id=self._input_data['payor_id'],
+				partnership_type=db_constants.CompanyType.Payor
+			)
+			if err:
+				return None, err
 
 		if 'company_id' in self._input_data:
 			company_info = self._get_company_info(

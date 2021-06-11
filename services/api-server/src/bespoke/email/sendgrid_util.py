@@ -15,10 +15,10 @@ from mypy_extensions import TypedDict
 
 
 class TemplateNames(object):
-	VENDOR_AGREEMENT_WITH_CUSTOMER = 'vendor_agreement_with_customer'
+	VENDOR_AGREEMENT_WITH_CUSTOMER = 'vendor_agreement_with_customer' # to vendor
 	VENDOR_APPROVED_NOTIFY_CUSTOMER = 'vendor_approved_notify_customer'
-	VENDOR_APPROVED_NOTIFY_VENDOR = 'vendor_approved_notify_vendor'
-	VENDOR_TO_APPROVE_PURCHASE_ORDER = 'vendor_to_approve_purchase_order'
+	VENDOR_APPROVED_NOTIFY_VENDOR = 'vendor_approved_notify_vendor' # to vendor
+	VENDOR_TO_APPROVE_PURCHASE_ORDER = 'vendor_to_approve_purchase_order' # to vendor
 
 	# Email sent to Bespoke when a customer requests approval from a vendor who does not have a bank account set up.
 	CUSTOMER_REQUESTED_APPROVAL_NO_VENDOR_BANK_ACCOUNT = 'customer_requested_approval_no_vendor_bank_account'

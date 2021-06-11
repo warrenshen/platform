@@ -11,6 +11,7 @@ from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.db_constants import RequestStatusEnum
 from bespoke.db.models import session_scope
+from bespoke.companies import partnership_util
 from bespoke.email import sendgrid_util
 from bespoke.finance import number_util
 from bespoke.finance.loans import approval_util
@@ -361,12 +362,14 @@ def submit_purchase_order_for_approval(
 	if not company_vendor_relationship or company_vendor_relationship.approved_at is None:
 		raise errors.Error('Vendor is not approved')
 
-	vendor_users = cast(
-		List[models.User],
-		session.query(models.User).filter_by(
-			company_id=purchase_order.vendor_id
-		).all())
-
+	vendor_users, err = partnership_util.get_partner_contacts(
+		partnership_id=str(company_vendor_relationship.id),
+		partnership_type=db_constants.CompanyType.Vendor,
+		session=session
+	)
+	if err:
+		raise err
+		
 	if not vendor_users:
 		raise errors.Error('There are no users configured for this vendor')
 
@@ -432,7 +435,7 @@ def submit_purchase_order_for_approval(
 	_, err = sendgrid_client.send(
 		template_name=sendgrid_util.TemplateNames.VENDOR_TO_APPROVE_PURCHASE_ORDER,
 		template_data=template_data,
-		recipients=[user.email for user in vendor_users],
+		recipients=[user['email'] for user in vendor_users],
 		two_factor_payload=two_factor_payload,
 	)
 	if err:
