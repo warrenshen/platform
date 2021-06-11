@@ -1,3 +1,4 @@
+# Bank users
 subscription GetPurchaseOrders {
   purchase_orders(
     where: {
@@ -50,6 +51,20 @@ subscription GetConfirmedPurchaseOrders {
   }
 }
 
+mutation UpdatePurchaseOrder(
+  $id: uuid!
+  $purchaseOrder: purchase_orders_set_input!
+) {
+  update_purchase_orders_by_pk(
+    pk_columns: { id: $id }
+    _set: $purchaseOrder
+  ) {
+    id
+    ...PurchaseOrder
+  }
+}
+
+# Customer users
 query GetOpenPurchaseOrdersByCompanyId($company_id: uuid!) {
   purchase_orders(
     where: {
@@ -65,7 +80,7 @@ query GetOpenPurchaseOrdersByCompanyId($company_id: uuid!) {
       ]
     }
   ) {
-    ...PurchaseOrder
+    ...PurchaseOrderLimited
   }
 }
 
@@ -84,7 +99,7 @@ query GetClosedPurchaseOrdersByCompanyId($company_id: uuid!) {
       ]
     }
   ) {
-    ...PurchaseOrder
+    ...PurchaseOrderLimited
   }
 }
 
@@ -104,19 +119,6 @@ query GetFundablePurchaseOrdersByCompanyId($company_id: uuid!) {
       ]
     }
   ) {
-    ...PurchaseOrder
-  }
-}
-
-mutation UpdatePurchaseOrder(
-  $id: uuid!
-  $purchaseOrder: purchase_orders_set_input!
-) {
-  update_purchase_orders_by_pk(
-    pk_columns: { id: $id }
-    _set: $purchaseOrder
-  ) {
-    id
-    ...PurchaseOrder
+    ...PurchaseOrderLimited
   }
 }

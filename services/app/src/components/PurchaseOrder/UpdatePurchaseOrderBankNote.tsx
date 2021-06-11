@@ -13,7 +13,7 @@ import {
 import {
   PurchaseOrders,
   PurchaseOrdersInsertInput,
-  usePurchaseOrderQuery,
+  useGetPurchaseOrderForBankQuery,
   useUpdatePurchaseOrderMutation,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
@@ -59,7 +59,7 @@ export default function UpdatePurchaseOrderBankNote({
 
   const [purchaseOrder, setPurchaseOrder] = useState(newPurchaseOrder);
 
-  const { loading: isExistingLoanLoading } = usePurchaseOrderQuery({
+  const { loading: isExistingLoanLoading } = useGetPurchaseOrderForBankQuery({
     fetchPolicy: "network-only",
     variables: {
       id: purchaseOrderId,

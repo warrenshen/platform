@@ -18,7 +18,7 @@ import {
   PurchaseOrderFileTypeEnum,
   PurchaseOrders,
   RequestStatusEnum,
-  usePurchaseOrderQuery,
+  useGetPurchaseOrderForCustomerQuery,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { formatCurrency } from "lib/currency";
@@ -43,7 +43,7 @@ export default function PurchaseOrderDrawer({
 
   const [isFileViewerOpen, setIsFileViewerOpen] = useState(false);
 
-  const { data } = usePurchaseOrderQuery({
+  const { data } = useGetPurchaseOrderForCustomerQuery({
     fetchPolicy: "network-only",
     variables: {
       id: purchaseOrderId,

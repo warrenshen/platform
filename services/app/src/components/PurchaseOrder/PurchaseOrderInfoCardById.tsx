@@ -1,9 +1,9 @@
 import { IdProps } from "components/Artifacts/interfaces";
 import PurchaseOrderInfoCard from "components/PurchaseOrder/PurchaseOrderInfoCard";
-import { usePurchaseOrderQuery } from "generated/graphql";
+import { useGetPurchaseOrderForCustomerQuery } from "generated/graphql";
 
 export default function PurchaseOrderInfoCardById({ id }: IdProps) {
-  const { data } = usePurchaseOrderQuery({
+  const { data } = useGetPurchaseOrderForCustomerQuery({
     variables: {
       id,
     },

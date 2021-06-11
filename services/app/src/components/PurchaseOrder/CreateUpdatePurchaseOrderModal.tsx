@@ -19,7 +19,7 @@ import {
   PurchaseOrdersInsertInput,
   RequestStatusEnum,
   useGetArtifactRelationsByCompanyIdQuery,
-  usePurchaseOrderQuery,
+  useGetPurchaseOrderForCustomerQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -120,7 +120,7 @@ export default function CreateUpdatePurchaseOrderModal({
   const {
     loading: isExistingPurchaseOrderLoading,
     error: existingPurchaseOrderError,
-  } = usePurchaseOrderQuery({
+  } = useGetPurchaseOrderForCustomerQuery({
     skip: actionType === ActionType.New,
     fetchPolicy: "network-only",
     variables: {

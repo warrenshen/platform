@@ -2977,6 +2977,156 @@ export enum CompanyPartnershipRequestsUpdateColumn {
   UserInfo = "user_info",
 }
 
+/** columns and relationships of "company_payor_contacts" */
+export type CompanyPayorContacts = {
+  id: Scalars["uuid"];
+  partnership_id: Scalars["uuid"];
+  payor_user_id: Scalars["uuid"];
+};
+
+/** aggregated selection of "company_payor_contacts" */
+export type CompanyPayorContactsAggregate = {
+  aggregate?: Maybe<CompanyPayorContactsAggregateFields>;
+  nodes: Array<CompanyPayorContacts>;
+};
+
+/** aggregate fields of "company_payor_contacts" */
+export type CompanyPayorContactsAggregateFields = {
+  count?: Maybe<Scalars["Int"]>;
+  max?: Maybe<CompanyPayorContactsMaxFields>;
+  min?: Maybe<CompanyPayorContactsMinFields>;
+};
+
+/** aggregate fields of "company_payor_contacts" */
+export type CompanyPayorContactsAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<CompanyPayorContactsSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** order by aggregate values of table "company_payor_contacts" */
+export type CompanyPayorContactsAggregateOrderBy = {
+  count?: Maybe<OrderBy>;
+  max?: Maybe<CompanyPayorContactsMaxOrderBy>;
+  min?: Maybe<CompanyPayorContactsMinOrderBy>;
+};
+
+/** input type for inserting array relation for remote table "company_payor_contacts" */
+export type CompanyPayorContactsArrRelInsertInput = {
+  data: Array<CompanyPayorContactsInsertInput>;
+  on_conflict?: Maybe<CompanyPayorContactsOnConflict>;
+};
+
+/** Boolean expression to filter rows from the table "company_payor_contacts". All fields are combined with a logical 'AND'. */
+export type CompanyPayorContactsBoolExp = {
+  _and?: Maybe<Array<Maybe<CompanyPayorContactsBoolExp>>>;
+  _not?: Maybe<CompanyPayorContactsBoolExp>;
+  _or?: Maybe<Array<Maybe<CompanyPayorContactsBoolExp>>>;
+  id?: Maybe<UuidComparisonExp>;
+  partnership_id?: Maybe<UuidComparisonExp>;
+  payor_user_id?: Maybe<UuidComparisonExp>;
+};
+
+/** unique or primary key constraints on table "company_payor_contacts" */
+export enum CompanyPayorContactsConstraint {
+  /** unique or primary key constraint */
+  CompanyPayorContactsPkey = "company_payor_contacts_pkey",
+}
+
+/** input type for inserting data into table "company_payor_contacts" */
+export type CompanyPayorContactsInsertInput = {
+  id?: Maybe<Scalars["uuid"]>;
+  partnership_id?: Maybe<Scalars["uuid"]>;
+  payor_user_id?: Maybe<Scalars["uuid"]>;
+};
+
+/** aggregate max on columns */
+export type CompanyPayorContactsMaxFields = {
+  id?: Maybe<Scalars["uuid"]>;
+  partnership_id?: Maybe<Scalars["uuid"]>;
+  payor_user_id?: Maybe<Scalars["uuid"]>;
+};
+
+/** order by max() on columns of table "company_payor_contacts" */
+export type CompanyPayorContactsMaxOrderBy = {
+  id?: Maybe<OrderBy>;
+  partnership_id?: Maybe<OrderBy>;
+  payor_user_id?: Maybe<OrderBy>;
+};
+
+/** aggregate min on columns */
+export type CompanyPayorContactsMinFields = {
+  id?: Maybe<Scalars["uuid"]>;
+  partnership_id?: Maybe<Scalars["uuid"]>;
+  payor_user_id?: Maybe<Scalars["uuid"]>;
+};
+
+/** order by min() on columns of table "company_payor_contacts" */
+export type CompanyPayorContactsMinOrderBy = {
+  id?: Maybe<OrderBy>;
+  partnership_id?: Maybe<OrderBy>;
+  payor_user_id?: Maybe<OrderBy>;
+};
+
+/** response of any mutation on the table "company_payor_contacts" */
+export type CompanyPayorContactsMutationResponse = {
+  /** number of affected rows by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data of the affected rows by the mutation */
+  returning: Array<CompanyPayorContacts>;
+};
+
+/** input type for inserting object relation for remote table "company_payor_contacts" */
+export type CompanyPayorContactsObjRelInsertInput = {
+  data: CompanyPayorContactsInsertInput;
+  on_conflict?: Maybe<CompanyPayorContactsOnConflict>;
+};
+
+/** on conflict condition type for table "company_payor_contacts" */
+export type CompanyPayorContactsOnConflict = {
+  constraint: CompanyPayorContactsConstraint;
+  update_columns: Array<CompanyPayorContactsUpdateColumn>;
+  where?: Maybe<CompanyPayorContactsBoolExp>;
+};
+
+/** ordering options when selecting data from "company_payor_contacts" */
+export type CompanyPayorContactsOrderBy = {
+  id?: Maybe<OrderBy>;
+  partnership_id?: Maybe<OrderBy>;
+  payor_user_id?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: "company_payor_contacts" */
+export type CompanyPayorContactsPkColumnsInput = {
+  id: Scalars["uuid"];
+};
+
+/** select columns of table "company_payor_contacts" */
+export enum CompanyPayorContactsSelectColumn {
+  /** column name */
+  Id = "id",
+  /** column name */
+  PartnershipId = "partnership_id",
+  /** column name */
+  PayorUserId = "payor_user_id",
+}
+
+/** input type for updating data in table "company_payor_contacts" */
+export type CompanyPayorContactsSetInput = {
+  id?: Maybe<Scalars["uuid"]>;
+  partnership_id?: Maybe<Scalars["uuid"]>;
+  payor_user_id?: Maybe<Scalars["uuid"]>;
+};
+
+/** update columns of table "company_payor_contacts" */
+export enum CompanyPayorContactsUpdateColumn {
+  /** column name */
+  Id = "id",
+  /** column name */
+  PartnershipId = "partnership_id",
+  /** column name */
+  PayorUserId = "payor_user_id",
+}
+
 /** columns and relationships of "company_payor_partnerships" */
 export type CompanyPayorPartnerships = {
   approved_at?: Maybe<Scalars["timestamptz"]>;
@@ -2990,12 +3140,34 @@ export type CompanyPayorPartnerships = {
   /** An object relationship */
   payor_agreement?: Maybe<CompanyAgreements>;
   payor_agreement_id?: Maybe<Scalars["uuid"]>;
+  /** An array relationship */
+  payor_contacts: Array<CompanyPayorContacts>;
+  /** An aggregated array relationship */
+  payor_contacts_aggregate: CompanyPayorContactsAggregate;
   payor_id: Scalars["uuid"];
   /** Currently not used */
   payor_license_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
   payor_limited?: Maybe<Payors>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** columns and relationships of "company_payor_partnerships" */
+export type CompanyPayorPartnershipsPayorContactsArgs = {
+  distinct_on?: Maybe<Array<CompanyPayorContactsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyPayorContactsOrderBy>>;
+  where?: Maybe<CompanyPayorContactsBoolExp>;
+};
+
+/** columns and relationships of "company_payor_partnerships" */
+export type CompanyPayorPartnershipsPayorContactsAggregateArgs = {
+  distinct_on?: Maybe<Array<CompanyPayorContactsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyPayorContactsOrderBy>>;
+  where?: Maybe<CompanyPayorContactsBoolExp>;
 };
 
 /** aggregated selection of "company_payor_partnerships" */
@@ -3043,6 +3215,7 @@ export type CompanyPayorPartnershipsBoolExp = {
   payor?: Maybe<CompaniesBoolExp>;
   payor_agreement?: Maybe<CompanyAgreementsBoolExp>;
   payor_agreement_id?: Maybe<UuidComparisonExp>;
+  payor_contacts?: Maybe<CompanyPayorContactsBoolExp>;
   payor_id?: Maybe<UuidComparisonExp>;
   payor_license_id?: Maybe<UuidComparisonExp>;
   payor_limited?: Maybe<PayorsBoolExp>;
@@ -3067,6 +3240,7 @@ export type CompanyPayorPartnershipsInsertInput = {
   payor?: Maybe<CompaniesObjRelInsertInput>;
   payor_agreement?: Maybe<CompanyAgreementsObjRelInsertInput>;
   payor_agreement_id?: Maybe<Scalars["uuid"]>;
+  payor_contacts?: Maybe<CompanyPayorContactsArrRelInsertInput>;
   payor_id?: Maybe<Scalars["uuid"]>;
   payor_license_id?: Maybe<Scalars["uuid"]>;
   payor_limited?: Maybe<PayorsObjRelInsertInput>;
@@ -3152,6 +3326,7 @@ export type CompanyPayorPartnershipsOrderBy = {
   payor?: Maybe<CompaniesOrderBy>;
   payor_agreement?: Maybe<CompanyAgreementsOrderBy>;
   payor_agreement_id?: Maybe<OrderBy>;
+  payor_contacts_aggregate?: Maybe<CompanyPayorContactsAggregateOrderBy>;
   payor_id?: Maybe<OrderBy>;
   payor_license_id?: Maybe<OrderBy>;
   payor_limited?: Maybe<PayorsOrderBy>;
@@ -3650,6 +3825,156 @@ export enum CompanyTypeUpdateColumn {
   Value = "value",
 }
 
+/** columns and relationships of "company_vendor_contacts" */
+export type CompanyVendorContacts = {
+  id: Scalars["uuid"];
+  partnership_id: Scalars["uuid"];
+  vendor_user_id: Scalars["uuid"];
+};
+
+/** aggregated selection of "company_vendor_contacts" */
+export type CompanyVendorContactsAggregate = {
+  aggregate?: Maybe<CompanyVendorContactsAggregateFields>;
+  nodes: Array<CompanyVendorContacts>;
+};
+
+/** aggregate fields of "company_vendor_contacts" */
+export type CompanyVendorContactsAggregateFields = {
+  count?: Maybe<Scalars["Int"]>;
+  max?: Maybe<CompanyVendorContactsMaxFields>;
+  min?: Maybe<CompanyVendorContactsMinFields>;
+};
+
+/** aggregate fields of "company_vendor_contacts" */
+export type CompanyVendorContactsAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<CompanyVendorContactsSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** order by aggregate values of table "company_vendor_contacts" */
+export type CompanyVendorContactsAggregateOrderBy = {
+  count?: Maybe<OrderBy>;
+  max?: Maybe<CompanyVendorContactsMaxOrderBy>;
+  min?: Maybe<CompanyVendorContactsMinOrderBy>;
+};
+
+/** input type for inserting array relation for remote table "company_vendor_contacts" */
+export type CompanyVendorContactsArrRelInsertInput = {
+  data: Array<CompanyVendorContactsInsertInput>;
+  on_conflict?: Maybe<CompanyVendorContactsOnConflict>;
+};
+
+/** Boolean expression to filter rows from the table "company_vendor_contacts". All fields are combined with a logical 'AND'. */
+export type CompanyVendorContactsBoolExp = {
+  _and?: Maybe<Array<Maybe<CompanyVendorContactsBoolExp>>>;
+  _not?: Maybe<CompanyVendorContactsBoolExp>;
+  _or?: Maybe<Array<Maybe<CompanyVendorContactsBoolExp>>>;
+  id?: Maybe<UuidComparisonExp>;
+  partnership_id?: Maybe<UuidComparisonExp>;
+  vendor_user_id?: Maybe<UuidComparisonExp>;
+};
+
+/** unique or primary key constraints on table "company_vendor_contacts" */
+export enum CompanyVendorContactsConstraint {
+  /** unique or primary key constraint */
+  CompanyVendorContactsPkey = "company_vendor_contacts_pkey",
+}
+
+/** input type for inserting data into table "company_vendor_contacts" */
+export type CompanyVendorContactsInsertInput = {
+  id?: Maybe<Scalars["uuid"]>;
+  partnership_id?: Maybe<Scalars["uuid"]>;
+  vendor_user_id?: Maybe<Scalars["uuid"]>;
+};
+
+/** aggregate max on columns */
+export type CompanyVendorContactsMaxFields = {
+  id?: Maybe<Scalars["uuid"]>;
+  partnership_id?: Maybe<Scalars["uuid"]>;
+  vendor_user_id?: Maybe<Scalars["uuid"]>;
+};
+
+/** order by max() on columns of table "company_vendor_contacts" */
+export type CompanyVendorContactsMaxOrderBy = {
+  id?: Maybe<OrderBy>;
+  partnership_id?: Maybe<OrderBy>;
+  vendor_user_id?: Maybe<OrderBy>;
+};
+
+/** aggregate min on columns */
+export type CompanyVendorContactsMinFields = {
+  id?: Maybe<Scalars["uuid"]>;
+  partnership_id?: Maybe<Scalars["uuid"]>;
+  vendor_user_id?: Maybe<Scalars["uuid"]>;
+};
+
+/** order by min() on columns of table "company_vendor_contacts" */
+export type CompanyVendorContactsMinOrderBy = {
+  id?: Maybe<OrderBy>;
+  partnership_id?: Maybe<OrderBy>;
+  vendor_user_id?: Maybe<OrderBy>;
+};
+
+/** response of any mutation on the table "company_vendor_contacts" */
+export type CompanyVendorContactsMutationResponse = {
+  /** number of affected rows by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data of the affected rows by the mutation */
+  returning: Array<CompanyVendorContacts>;
+};
+
+/** input type for inserting object relation for remote table "company_vendor_contacts" */
+export type CompanyVendorContactsObjRelInsertInput = {
+  data: CompanyVendorContactsInsertInput;
+  on_conflict?: Maybe<CompanyVendorContactsOnConflict>;
+};
+
+/** on conflict condition type for table "company_vendor_contacts" */
+export type CompanyVendorContactsOnConflict = {
+  constraint: CompanyVendorContactsConstraint;
+  update_columns: Array<CompanyVendorContactsUpdateColumn>;
+  where?: Maybe<CompanyVendorContactsBoolExp>;
+};
+
+/** ordering options when selecting data from "company_vendor_contacts" */
+export type CompanyVendorContactsOrderBy = {
+  id?: Maybe<OrderBy>;
+  partnership_id?: Maybe<OrderBy>;
+  vendor_user_id?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: "company_vendor_contacts" */
+export type CompanyVendorContactsPkColumnsInput = {
+  id: Scalars["uuid"];
+};
+
+/** select columns of table "company_vendor_contacts" */
+export enum CompanyVendorContactsSelectColumn {
+  /** column name */
+  Id = "id",
+  /** column name */
+  PartnershipId = "partnership_id",
+  /** column name */
+  VendorUserId = "vendor_user_id",
+}
+
+/** input type for updating data in table "company_vendor_contacts" */
+export type CompanyVendorContactsSetInput = {
+  id?: Maybe<Scalars["uuid"]>;
+  partnership_id?: Maybe<Scalars["uuid"]>;
+  vendor_user_id?: Maybe<Scalars["uuid"]>;
+};
+
+/** update columns of table "company_vendor_contacts" */
+export enum CompanyVendorContactsUpdateColumn {
+  /** column name */
+  Id = "id",
+  /** column name */
+  PartnershipId = "partnership_id",
+  /** column name */
+  VendorUserId = "vendor_user_id",
+}
+
 /** columns and relationships of "company_vendor_partnerships" */
 export type CompanyVendorPartnerships = {
   /** Serves dual purpose of telling us when the vendor was approved */
@@ -3669,11 +3994,33 @@ export type CompanyVendorPartnerships = {
   vendor_bank_account?: Maybe<BankAccounts>;
   /** Bank account which Bespoke Financial sends advances to */
   vendor_bank_id?: Maybe<Scalars["uuid"]>;
+  /** An array relationship */
+  vendor_contacts: Array<CompanyVendorContacts>;
+  /** An aggregated array relationship */
+  vendor_contacts_aggregate: CompanyVendorContactsAggregate;
   vendor_id: Scalars["uuid"];
   /** Currently not used */
   vendor_license_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
   vendor_limited?: Maybe<Vendors>;
+};
+
+/** columns and relationships of "company_vendor_partnerships" */
+export type CompanyVendorPartnershipsVendorContactsArgs = {
+  distinct_on?: Maybe<Array<CompanyVendorContactsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyVendorContactsOrderBy>>;
+  where?: Maybe<CompanyVendorContactsBoolExp>;
+};
+
+/** columns and relationships of "company_vendor_partnerships" */
+export type CompanyVendorPartnershipsVendorContactsAggregateArgs = {
+  distinct_on?: Maybe<Array<CompanyVendorContactsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyVendorContactsOrderBy>>;
+  where?: Maybe<CompanyVendorContactsBoolExp>;
 };
 
 /** aggregated selection of "company_vendor_partnerships" */
@@ -3724,6 +4071,7 @@ export type CompanyVendorPartnershipsBoolExp = {
   vendor_agreement_id?: Maybe<UuidComparisonExp>;
   vendor_bank_account?: Maybe<BankAccountsBoolExp>;
   vendor_bank_id?: Maybe<UuidComparisonExp>;
+  vendor_contacts?: Maybe<CompanyVendorContactsBoolExp>;
   vendor_id?: Maybe<UuidComparisonExp>;
   vendor_license_id?: Maybe<UuidComparisonExp>;
   vendor_limited?: Maybe<VendorsBoolExp>;
@@ -3750,6 +4098,7 @@ export type CompanyVendorPartnershipsInsertInput = {
   vendor_agreement_id?: Maybe<Scalars["uuid"]>;
   vendor_bank_account?: Maybe<BankAccountsObjRelInsertInput>;
   vendor_bank_id?: Maybe<Scalars["uuid"]>;
+  vendor_contacts?: Maybe<CompanyVendorContactsArrRelInsertInput>;
   vendor_id?: Maybe<Scalars["uuid"]>;
   vendor_license_id?: Maybe<Scalars["uuid"]>;
   vendor_limited?: Maybe<VendorsObjRelInsertInput>;
@@ -3841,6 +4190,7 @@ export type CompanyVendorPartnershipsOrderBy = {
   vendor_agreement_id?: Maybe<OrderBy>;
   vendor_bank_account?: Maybe<BankAccountsOrderBy>;
   vendor_bank_id?: Maybe<OrderBy>;
+  vendor_contacts_aggregate?: Maybe<CompanyVendorContactsAggregateOrderBy>;
   vendor_id?: Maybe<OrderBy>;
   vendor_license_id?: Maybe<OrderBy>;
   vendor_limited?: Maybe<VendorsOrderBy>;
@@ -7587,6 +7937,8 @@ export type Loans = {
   /** An object relationship */
   invoice?: Maybe<Invoices>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
+  /** If frozen, loan financials are never updated; this is for loans imported from Bespoke Financial's legacy system in which loan financials were calculated based on rules no longer supported */
+  is_frozen?: Maybe<Scalars["Boolean"]>;
   /** An object relationship */
   line_of_credit?: Maybe<LineOfCredits>;
   loan_type?: Maybe<LoanTypeEnum>;
@@ -7732,6 +8084,7 @@ export type LoansBoolExp = {
   identifier?: Maybe<StringComparisonExp>;
   invoice?: Maybe<InvoicesBoolExp>;
   is_deleted?: Maybe<BooleanComparisonExp>;
+  is_frozen?: Maybe<BooleanComparisonExp>;
   line_of_credit?: Maybe<LineOfCreditsBoolExp>;
   loan_type?: Maybe<LoanTypeEnumComparisonExp>;
   maturity_date?: Maybe<DateComparisonExp>;
@@ -7789,6 +8142,7 @@ export type LoansInsertInput = {
   identifier?: Maybe<Scalars["String"]>;
   invoice?: Maybe<InvoicesObjRelInsertInput>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
+  is_frozen?: Maybe<Scalars["Boolean"]>;
   line_of_credit?: Maybe<LineOfCreditsObjRelInsertInput>;
   loan_type?: Maybe<LoanTypeEnum>;
   maturity_date?: Maybe<Scalars["date"]>;
@@ -7983,6 +8337,7 @@ export type LoansOrderBy = {
   identifier?: Maybe<OrderBy>;
   invoice?: Maybe<InvoicesOrderBy>;
   is_deleted?: Maybe<OrderBy>;
+  is_frozen?: Maybe<OrderBy>;
   line_of_credit?: Maybe<LineOfCreditsOrderBy>;
   loan_type?: Maybe<OrderBy>;
   maturity_date?: Maybe<OrderBy>;
@@ -8042,6 +8397,8 @@ export enum LoansSelectColumn {
   /** column name */
   IsDeleted = "is_deleted",
   /** column name */
+  IsFrozen = "is_frozen",
+  /** column name */
   LoanType = "loan_type",
   /** column name */
   MaturityDate = "maturity_date",
@@ -8095,6 +8452,7 @@ export type LoansSetInput = {
   id?: Maybe<Scalars["uuid"]>;
   identifier?: Maybe<Scalars["String"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
+  is_frozen?: Maybe<Scalars["Boolean"]>;
   loan_type?: Maybe<LoanTypeEnum>;
   maturity_date?: Maybe<Scalars["date"]>;
   modified_at?: Maybe<Scalars["timestamptz"]>;
@@ -8209,6 +8567,8 @@ export enum LoansUpdateColumn {
   Identifier = "identifier",
   /** column name */
   IsDeleted = "is_deleted",
+  /** column name */
+  IsFrozen = "is_frozen",
   /** column name */
   LoanType = "loan_type",
   /** column name */
@@ -9140,6 +9500,10 @@ export type MutationRoot = {
   delete_company_partnership_requests?: Maybe<CompanyPartnershipRequestsMutationResponse>;
   /** delete single row from the table: "company_partnership_requests" */
   delete_company_partnership_requests_by_pk?: Maybe<CompanyPartnershipRequests>;
+  /** delete data from the table: "company_payor_contacts" */
+  delete_company_payor_contacts?: Maybe<CompanyPayorContactsMutationResponse>;
+  /** delete single row from the table: "company_payor_contacts" */
+  delete_company_payor_contacts_by_pk?: Maybe<CompanyPayorContacts>;
   /** delete data from the table: "company_payor_partnerships" */
   delete_company_payor_partnerships?: Maybe<CompanyPayorPartnershipsMutationResponse>;
   /** delete single row from the table: "company_payor_partnerships" */
@@ -9152,6 +9516,10 @@ export type MutationRoot = {
   delete_company_type?: Maybe<CompanyTypeMutationResponse>;
   /** delete single row from the table: "company_type" */
   delete_company_type_by_pk?: Maybe<CompanyType>;
+  /** delete data from the table: "company_vendor_contacts" */
+  delete_company_vendor_contacts?: Maybe<CompanyVendorContactsMutationResponse>;
+  /** delete single row from the table: "company_vendor_contacts" */
+  delete_company_vendor_contacts_by_pk?: Maybe<CompanyVendorContacts>;
   /** delete data from the table: "company_vendor_partnerships" */
   delete_company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsMutationResponse>;
   /** delete single row from the table: "company_vendor_partnerships" */
@@ -9296,6 +9664,10 @@ export type MutationRoot = {
   insert_company_partnership_requests?: Maybe<CompanyPartnershipRequestsMutationResponse>;
   /** insert a single row into the table: "company_partnership_requests" */
   insert_company_partnership_requests_one?: Maybe<CompanyPartnershipRequests>;
+  /** insert data into the table: "company_payor_contacts" */
+  insert_company_payor_contacts?: Maybe<CompanyPayorContactsMutationResponse>;
+  /** insert a single row into the table: "company_payor_contacts" */
+  insert_company_payor_contacts_one?: Maybe<CompanyPayorContacts>;
   /** insert data into the table: "company_payor_partnerships" */
   insert_company_payor_partnerships?: Maybe<CompanyPayorPartnershipsMutationResponse>;
   /** insert a single row into the table: "company_payor_partnerships" */
@@ -9308,6 +9680,10 @@ export type MutationRoot = {
   insert_company_type?: Maybe<CompanyTypeMutationResponse>;
   /** insert a single row into the table: "company_type" */
   insert_company_type_one?: Maybe<CompanyType>;
+  /** insert data into the table: "company_vendor_contacts" */
+  insert_company_vendor_contacts?: Maybe<CompanyVendorContactsMutationResponse>;
+  /** insert a single row into the table: "company_vendor_contacts" */
+  insert_company_vendor_contacts_one?: Maybe<CompanyVendorContacts>;
   /** insert data into the table: "company_vendor_partnerships" */
   insert_company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsMutationResponse>;
   /** insert a single row into the table: "company_vendor_partnerships" */
@@ -9456,6 +9832,10 @@ export type MutationRoot = {
   update_company_partnership_requests?: Maybe<CompanyPartnershipRequestsMutationResponse>;
   /** update single row of the table: "company_partnership_requests" */
   update_company_partnership_requests_by_pk?: Maybe<CompanyPartnershipRequests>;
+  /** update data of the table: "company_payor_contacts" */
+  update_company_payor_contacts?: Maybe<CompanyPayorContactsMutationResponse>;
+  /** update single row of the table: "company_payor_contacts" */
+  update_company_payor_contacts_by_pk?: Maybe<CompanyPayorContacts>;
   /** update data of the table: "company_payor_partnerships" */
   update_company_payor_partnerships?: Maybe<CompanyPayorPartnershipsMutationResponse>;
   /** update single row of the table: "company_payor_partnerships" */
@@ -9468,6 +9848,10 @@ export type MutationRoot = {
   update_company_type?: Maybe<CompanyTypeMutationResponse>;
   /** update single row of the table: "company_type" */
   update_company_type_by_pk?: Maybe<CompanyType>;
+  /** update data of the table: "company_vendor_contacts" */
+  update_company_vendor_contacts?: Maybe<CompanyVendorContactsMutationResponse>;
+  /** update single row of the table: "company_vendor_contacts" */
+  update_company_vendor_contacts_by_pk?: Maybe<CompanyVendorContacts>;
   /** update data of the table: "company_vendor_partnerships" */
   update_company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsMutationResponse>;
   /** update single row of the table: "company_vendor_partnerships" */
@@ -9657,6 +10041,16 @@ export type MutationRootDeleteCompanyPartnershipRequestsByPkArgs = {
 };
 
 /** mutation root */
+export type MutationRootDeleteCompanyPayorContactsArgs = {
+  where: CompanyPayorContactsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteCompanyPayorContactsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** mutation root */
 export type MutationRootDeleteCompanyPayorPartnershipsArgs = {
   where: CompanyPayorPartnershipsBoolExp;
 };
@@ -9684,6 +10078,16 @@ export type MutationRootDeleteCompanyTypeArgs = {
 /** mutation root */
 export type MutationRootDeleteCompanyTypeByPkArgs = {
   value: Scalars["String"];
+};
+
+/** mutation root */
+export type MutationRootDeleteCompanyVendorContactsArgs = {
+  where: CompanyVendorContactsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteCompanyVendorContactsByPkArgs = {
+  id: Scalars["uuid"];
 };
 
 /** mutation root */
@@ -10064,6 +10468,18 @@ export type MutationRootInsertCompanyPartnershipRequestsOneArgs = {
 };
 
 /** mutation root */
+export type MutationRootInsertCompanyPayorContactsArgs = {
+  objects: Array<CompanyPayorContactsInsertInput>;
+  on_conflict?: Maybe<CompanyPayorContactsOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertCompanyPayorContactsOneArgs = {
+  object: CompanyPayorContactsInsertInput;
+  on_conflict?: Maybe<CompanyPayorContactsOnConflict>;
+};
+
+/** mutation root */
 export type MutationRootInsertCompanyPayorPartnershipsArgs = {
   objects: Array<CompanyPayorPartnershipsInsertInput>;
   on_conflict?: Maybe<CompanyPayorPartnershipsOnConflict>;
@@ -10097,6 +10513,18 @@ export type MutationRootInsertCompanyTypeArgs = {
 export type MutationRootInsertCompanyTypeOneArgs = {
   object: CompanyTypeInsertInput;
   on_conflict?: Maybe<CompanyTypeOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertCompanyVendorContactsArgs = {
+  objects: Array<CompanyVendorContactsInsertInput>;
+  on_conflict?: Maybe<CompanyVendorContactsOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertCompanyVendorContactsOneArgs = {
+  object: CompanyVendorContactsInsertInput;
+  on_conflict?: Maybe<CompanyVendorContactsOnConflict>;
 };
 
 /** mutation root */
@@ -10554,6 +10982,18 @@ export type MutationRootUpdateCompanyPartnershipRequestsByPkArgs = {
 };
 
 /** mutation root */
+export type MutationRootUpdateCompanyPayorContactsArgs = {
+  _set?: Maybe<CompanyPayorContactsSetInput>;
+  where: CompanyPayorContactsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateCompanyPayorContactsByPkArgs = {
+  _set?: Maybe<CompanyPayorContactsSetInput>;
+  pk_columns: CompanyPayorContactsPkColumnsInput;
+};
+
+/** mutation root */
 export type MutationRootUpdateCompanyPayorPartnershipsArgs = {
   _set?: Maybe<CompanyPayorPartnershipsSetInput>;
   where: CompanyPayorPartnershipsBoolExp;
@@ -10587,6 +11027,18 @@ export type MutationRootUpdateCompanyTypeArgs = {
 export type MutationRootUpdateCompanyTypeByPkArgs = {
   _set?: Maybe<CompanyTypeSetInput>;
   pk_columns: CompanyTypePkColumnsInput;
+};
+
+/** mutation root */
+export type MutationRootUpdateCompanyVendorContactsArgs = {
+  _set?: Maybe<CompanyVendorContactsSetInput>;
+  where: CompanyVendorContactsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateCompanyVendorContactsByPkArgs = {
+  _set?: Maybe<CompanyVendorContactsSetInput>;
+  pk_columns: CompanyVendorContactsPkColumnsInput;
 };
 
 /** mutation root */
@@ -13385,6 +13837,12 @@ export type QueryRoot = {
   company_partnership_requests_aggregate: CompanyPartnershipRequestsAggregate;
   /** fetch data from the table: "company_partnership_requests" using primary key columns */
   company_partnership_requests_by_pk?: Maybe<CompanyPartnershipRequests>;
+  /** fetch data from the table: "company_payor_contacts" */
+  company_payor_contacts: Array<CompanyPayorContacts>;
+  /** fetch aggregated fields from the table: "company_payor_contacts" */
+  company_payor_contacts_aggregate: CompanyPayorContactsAggregate;
+  /** fetch data from the table: "company_payor_contacts" using primary key columns */
+  company_payor_contacts_by_pk?: Maybe<CompanyPayorContacts>;
   /** fetch data from the table: "company_payor_partnerships" */
   company_payor_partnerships: Array<CompanyPayorPartnerships>;
   /** fetch aggregated fields from the table: "company_payor_partnerships" */
@@ -13403,6 +13861,12 @@ export type QueryRoot = {
   company_type_aggregate: CompanyTypeAggregate;
   /** fetch data from the table: "company_type" using primary key columns */
   company_type_by_pk?: Maybe<CompanyType>;
+  /** fetch data from the table: "company_vendor_contacts" */
+  company_vendor_contacts: Array<CompanyVendorContacts>;
+  /** fetch aggregated fields from the table: "company_vendor_contacts" */
+  company_vendor_contacts_aggregate: CompanyVendorContactsAggregate;
+  /** fetch data from the table: "company_vendor_contacts" using primary key columns */
+  company_vendor_contacts_by_pk?: Maybe<CompanyVendorContacts>;
   /** fetch data from the table: "company_vendor_partnerships" */
   company_vendor_partnerships: Array<CompanyVendorPartnerships>;
   /** fetch aggregated fields from the table: "company_vendor_partnerships" */
@@ -13743,6 +14207,29 @@ export type QueryRootCompanyPartnershipRequestsByPkArgs = {
 };
 
 /** query root */
+export type QueryRootCompanyPayorContactsArgs = {
+  distinct_on?: Maybe<Array<CompanyPayorContactsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyPayorContactsOrderBy>>;
+  where?: Maybe<CompanyPayorContactsBoolExp>;
+};
+
+/** query root */
+export type QueryRootCompanyPayorContactsAggregateArgs = {
+  distinct_on?: Maybe<Array<CompanyPayorContactsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyPayorContactsOrderBy>>;
+  where?: Maybe<CompanyPayorContactsBoolExp>;
+};
+
+/** query root */
+export type QueryRootCompanyPayorContactsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** query root */
 export type QueryRootCompanyPayorPartnershipsArgs = {
   distinct_on?: Maybe<Array<CompanyPayorPartnershipsSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -13809,6 +14296,29 @@ export type QueryRootCompanyTypeAggregateArgs = {
 /** query root */
 export type QueryRootCompanyTypeByPkArgs = {
   value: Scalars["String"];
+};
+
+/** query root */
+export type QueryRootCompanyVendorContactsArgs = {
+  distinct_on?: Maybe<Array<CompanyVendorContactsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyVendorContactsOrderBy>>;
+  where?: Maybe<CompanyVendorContactsBoolExp>;
+};
+
+/** query root */
+export type QueryRootCompanyVendorContactsAggregateArgs = {
+  distinct_on?: Maybe<Array<CompanyVendorContactsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyVendorContactsOrderBy>>;
+  where?: Maybe<CompanyVendorContactsBoolExp>;
+};
+
+/** query root */
+export type QueryRootCompanyVendorContactsByPkArgs = {
+  id: Scalars["uuid"];
 };
 
 /** query root */
@@ -14858,6 +15368,12 @@ export type SubscriptionRoot = {
   company_partnership_requests_aggregate: CompanyPartnershipRequestsAggregate;
   /** fetch data from the table: "company_partnership_requests" using primary key columns */
   company_partnership_requests_by_pk?: Maybe<CompanyPartnershipRequests>;
+  /** fetch data from the table: "company_payor_contacts" */
+  company_payor_contacts: Array<CompanyPayorContacts>;
+  /** fetch aggregated fields from the table: "company_payor_contacts" */
+  company_payor_contacts_aggregate: CompanyPayorContactsAggregate;
+  /** fetch data from the table: "company_payor_contacts" using primary key columns */
+  company_payor_contacts_by_pk?: Maybe<CompanyPayorContacts>;
   /** fetch data from the table: "company_payor_partnerships" */
   company_payor_partnerships: Array<CompanyPayorPartnerships>;
   /** fetch aggregated fields from the table: "company_payor_partnerships" */
@@ -14876,6 +15392,12 @@ export type SubscriptionRoot = {
   company_type_aggregate: CompanyTypeAggregate;
   /** fetch data from the table: "company_type" using primary key columns */
   company_type_by_pk?: Maybe<CompanyType>;
+  /** fetch data from the table: "company_vendor_contacts" */
+  company_vendor_contacts: Array<CompanyVendorContacts>;
+  /** fetch aggregated fields from the table: "company_vendor_contacts" */
+  company_vendor_contacts_aggregate: CompanyVendorContactsAggregate;
+  /** fetch data from the table: "company_vendor_contacts" using primary key columns */
+  company_vendor_contacts_by_pk?: Maybe<CompanyVendorContacts>;
   /** fetch data from the table: "company_vendor_partnerships" */
   company_vendor_partnerships: Array<CompanyVendorPartnerships>;
   /** fetch aggregated fields from the table: "company_vendor_partnerships" */
@@ -15216,6 +15738,29 @@ export type SubscriptionRootCompanyPartnershipRequestsByPkArgs = {
 };
 
 /** subscription root */
+export type SubscriptionRootCompanyPayorContactsArgs = {
+  distinct_on?: Maybe<Array<CompanyPayorContactsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyPayorContactsOrderBy>>;
+  where?: Maybe<CompanyPayorContactsBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootCompanyPayorContactsAggregateArgs = {
+  distinct_on?: Maybe<Array<CompanyPayorContactsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyPayorContactsOrderBy>>;
+  where?: Maybe<CompanyPayorContactsBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootCompanyPayorContactsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** subscription root */
 export type SubscriptionRootCompanyPayorPartnershipsArgs = {
   distinct_on?: Maybe<Array<CompanyPayorPartnershipsSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -15282,6 +15827,29 @@ export type SubscriptionRootCompanyTypeAggregateArgs = {
 /** subscription root */
 export type SubscriptionRootCompanyTypeByPkArgs = {
   value: Scalars["String"];
+};
+
+/** subscription root */
+export type SubscriptionRootCompanyVendorContactsArgs = {
+  distinct_on?: Maybe<Array<CompanyVendorContactsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyVendorContactsOrderBy>>;
+  where?: Maybe<CompanyVendorContactsBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootCompanyVendorContactsAggregateArgs = {
+  distinct_on?: Maybe<Array<CompanyVendorContactsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyVendorContactsOrderBy>>;
+  where?: Maybe<CompanyVendorContactsBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootCompanyVendorContactsByPkArgs = {
+  id: Scalars["uuid"];
 };
 
 /** subscription root */
@@ -18110,13 +18678,13 @@ export type ListPayorPartnershipsByCompanyIdQuery = {
   >;
 };
 
-export type PurchaseOrderQueryVariables = Exact<{
+export type GetPurchaseOrderForBankQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
 
-export type PurchaseOrderQuery = {
+export type GetPurchaseOrderForBankQuery = {
   purchase_orders_by_pk?: Maybe<
-    {
+    Pick<PurchaseOrders, "id"> & {
       loans: Array<Pick<Loans, "id"> & LoanLimitedFragment>;
       purchase_order_files: Array<PurchaseOrderFileFragment>;
       purchase_order_metrc_transfers: Array<
@@ -18129,6 +18697,28 @@ export type PurchaseOrderQuery = {
         } & PurchaseOrderMetrcTransferFragment
       >;
     } & PurchaseOrderFragment
+  >;
+};
+
+export type GetPurchaseOrderForCustomerQueryVariables = Exact<{
+  id: Scalars["uuid"];
+}>;
+
+export type GetPurchaseOrderForCustomerQuery = {
+  purchase_orders_by_pk?: Maybe<
+    Pick<PurchaseOrders, "id"> & {
+      loans: Array<Pick<Loans, "id"> & LoanLimitedFragment>;
+      purchase_order_files: Array<PurchaseOrderFileFragment>;
+      purchase_order_metrc_transfers: Array<
+        Pick<PurchaseOrderMetrcTransfers, "id"> & {
+          metrc_transfer: Pick<MetrcTransfers, "id"> & {
+            metrc_packages: Array<
+              Pick<MetrcPackages, "id"> & MetrcPackageFragment
+            >;
+          } & MetrcTransferFragment;
+        } & PurchaseOrderMetrcTransferFragment
+      >;
+    } & PurchaseOrderLimitedFragment
   >;
 };
 
@@ -18195,30 +18785,6 @@ export type GetConfirmedPurchaseOrdersSubscription = {
   purchase_orders: Array<Pick<PurchaseOrders, "id"> & PurchaseOrderFragment>;
 };
 
-export type GetOpenPurchaseOrdersByCompanyIdQueryVariables = Exact<{
-  company_id: Scalars["uuid"];
-}>;
-
-export type GetOpenPurchaseOrdersByCompanyIdQuery = {
-  purchase_orders: Array<PurchaseOrderFragment>;
-};
-
-export type GetClosedPurchaseOrdersByCompanyIdQueryVariables = Exact<{
-  company_id: Scalars["uuid"];
-}>;
-
-export type GetClosedPurchaseOrdersByCompanyIdQuery = {
-  purchase_orders: Array<PurchaseOrderFragment>;
-};
-
-export type GetFundablePurchaseOrdersByCompanyIdQueryVariables = Exact<{
-  company_id: Scalars["uuid"];
-}>;
-
-export type GetFundablePurchaseOrdersByCompanyIdQuery = {
-  purchase_orders: Array<PurchaseOrderFragment>;
-};
-
 export type UpdatePurchaseOrderMutationVariables = Exact<{
   id: Scalars["uuid"];
   purchaseOrder: PurchaseOrdersSetInput;
@@ -18228,6 +18794,30 @@ export type UpdatePurchaseOrderMutation = {
   update_purchase_orders_by_pk?: Maybe<
     Pick<PurchaseOrders, "id"> & PurchaseOrderFragment
   >;
+};
+
+export type GetOpenPurchaseOrdersByCompanyIdQueryVariables = Exact<{
+  company_id: Scalars["uuid"];
+}>;
+
+export type GetOpenPurchaseOrdersByCompanyIdQuery = {
+  purchase_orders: Array<PurchaseOrderLimitedFragment>;
+};
+
+export type GetClosedPurchaseOrdersByCompanyIdQueryVariables = Exact<{
+  company_id: Scalars["uuid"];
+}>;
+
+export type GetClosedPurchaseOrdersByCompanyIdQuery = {
+  purchase_orders: Array<PurchaseOrderLimitedFragment>;
+};
+
+export type GetFundablePurchaseOrdersByCompanyIdQueryVariables = Exact<{
+  company_id: Scalars["uuid"];
+}>;
+
+export type GetFundablePurchaseOrdersByCompanyIdQuery = {
+  purchase_orders: Array<PurchaseOrderLimitedFragment>;
 };
 
 export type GetPaymentQueryVariables = Exact<{
@@ -23383,9 +23973,10 @@ export type ListPayorPartnershipsByCompanyIdQueryResult = Apollo.QueryResult<
   ListPayorPartnershipsByCompanyIdQuery,
   ListPayorPartnershipsByCompanyIdQueryVariables
 >;
-export const PurchaseOrderDocument = gql`
-  query PurchaseOrder($id: uuid!) {
+export const GetPurchaseOrderForBankDocument = gql`
+  query GetPurchaseOrderForBank($id: uuid!) {
     purchase_orders_by_pk(id: $id) {
+      id
       ...PurchaseOrder
       loans(where: { loan_type: { _eq: purchase_order } }) {
         id
@@ -23417,52 +24008,134 @@ export const PurchaseOrderDocument = gql`
 `;
 
 /**
- * __usePurchaseOrderQuery__
+ * __useGetPurchaseOrderForBankQuery__
  *
- * To run a query within a React component, call `usePurchaseOrderQuery` and pass it any options that fit your needs.
- * When your component renders, `usePurchaseOrderQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetPurchaseOrderForBankQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPurchaseOrderForBankQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = usePurchaseOrderQuery({
+ * const { data, loading, error } = useGetPurchaseOrderForBankQuery({
  *   variables: {
  *      id: // value for 'id'
  *   },
  * });
  */
-export function usePurchaseOrderQuery(
+export function useGetPurchaseOrderForBankQuery(
   baseOptions: Apollo.QueryHookOptions<
-    PurchaseOrderQuery,
-    PurchaseOrderQueryVariables
+    GetPurchaseOrderForBankQuery,
+    GetPurchaseOrderForBankQueryVariables
   >
 ) {
-  return Apollo.useQuery<PurchaseOrderQuery, PurchaseOrderQueryVariables>(
-    PurchaseOrderDocument,
-    baseOptions
-  );
+  return Apollo.useQuery<
+    GetPurchaseOrderForBankQuery,
+    GetPurchaseOrderForBankQueryVariables
+  >(GetPurchaseOrderForBankDocument, baseOptions);
 }
-export function usePurchaseOrderLazyQuery(
+export function useGetPurchaseOrderForBankLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    PurchaseOrderQuery,
-    PurchaseOrderQueryVariables
+    GetPurchaseOrderForBankQuery,
+    GetPurchaseOrderForBankQueryVariables
   >
 ) {
-  return Apollo.useLazyQuery<PurchaseOrderQuery, PurchaseOrderQueryVariables>(
-    PurchaseOrderDocument,
-    baseOptions
-  );
+  return Apollo.useLazyQuery<
+    GetPurchaseOrderForBankQuery,
+    GetPurchaseOrderForBankQueryVariables
+  >(GetPurchaseOrderForBankDocument, baseOptions);
 }
-export type PurchaseOrderQueryHookResult = ReturnType<
-  typeof usePurchaseOrderQuery
+export type GetPurchaseOrderForBankQueryHookResult = ReturnType<
+  typeof useGetPurchaseOrderForBankQuery
 >;
-export type PurchaseOrderLazyQueryHookResult = ReturnType<
-  typeof usePurchaseOrderLazyQuery
+export type GetPurchaseOrderForBankLazyQueryHookResult = ReturnType<
+  typeof useGetPurchaseOrderForBankLazyQuery
 >;
-export type PurchaseOrderQueryResult = Apollo.QueryResult<
-  PurchaseOrderQuery,
-  PurchaseOrderQueryVariables
+export type GetPurchaseOrderForBankQueryResult = Apollo.QueryResult<
+  GetPurchaseOrderForBankQuery,
+  GetPurchaseOrderForBankQueryVariables
+>;
+export const GetPurchaseOrderForCustomerDocument = gql`
+  query GetPurchaseOrderForCustomer($id: uuid!) {
+    purchase_orders_by_pk(id: $id) {
+      id
+      ...PurchaseOrderLimited
+      loans(where: { loan_type: { _eq: purchase_order } }) {
+        id
+        ...LoanLimited
+      }
+      purchase_order_files {
+        ...PurchaseOrderFile
+      }
+      purchase_order_metrc_transfers {
+        id
+        ...PurchaseOrderMetrcTransfer
+        metrc_transfer {
+          id
+          ...MetrcTransfer
+          metrc_packages {
+            id
+            ...MetrcPackage
+          }
+        }
+      }
+    }
+  }
+  ${PurchaseOrderLimitedFragmentDoc}
+  ${LoanLimitedFragmentDoc}
+  ${PurchaseOrderFileFragmentDoc}
+  ${PurchaseOrderMetrcTransferFragmentDoc}
+  ${MetrcTransferFragmentDoc}
+  ${MetrcPackageFragmentDoc}
+`;
+
+/**
+ * __useGetPurchaseOrderForCustomerQuery__
+ *
+ * To run a query within a React component, call `useGetPurchaseOrderForCustomerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPurchaseOrderForCustomerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPurchaseOrderForCustomerQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetPurchaseOrderForCustomerQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetPurchaseOrderForCustomerQuery,
+    GetPurchaseOrderForCustomerQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetPurchaseOrderForCustomerQuery,
+    GetPurchaseOrderForCustomerQueryVariables
+  >(GetPurchaseOrderForCustomerDocument, baseOptions);
+}
+export function useGetPurchaseOrderForCustomerLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetPurchaseOrderForCustomerQuery,
+    GetPurchaseOrderForCustomerQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetPurchaseOrderForCustomerQuery,
+    GetPurchaseOrderForCustomerQueryVariables
+  >(GetPurchaseOrderForCustomerDocument, baseOptions);
+}
+export type GetPurchaseOrderForCustomerQueryHookResult = ReturnType<
+  typeof useGetPurchaseOrderForCustomerQuery
+>;
+export type GetPurchaseOrderForCustomerLazyQueryHookResult = ReturnType<
+  typeof useGetPurchaseOrderForCustomerLazyQuery
+>;
+export type GetPurchaseOrderForCustomerQueryResult = Apollo.QueryResult<
+  GetPurchaseOrderForCustomerQuery,
+  GetPurchaseOrderForCustomerQueryVariables
 >;
 export const GetPurchaseOrderForReviewDocument = gql`
   query GetPurchaseOrderForReview($id: uuid!) {
@@ -23713,6 +24386,63 @@ export type GetConfirmedPurchaseOrdersSubscriptionHookResult = ReturnType<
   typeof useGetConfirmedPurchaseOrdersSubscription
 >;
 export type GetConfirmedPurchaseOrdersSubscriptionResult = Apollo.SubscriptionResult<GetConfirmedPurchaseOrdersSubscription>;
+export const UpdatePurchaseOrderDocument = gql`
+  mutation UpdatePurchaseOrder(
+    $id: uuid!
+    $purchaseOrder: purchase_orders_set_input!
+  ) {
+    update_purchase_orders_by_pk(
+      pk_columns: { id: $id }
+      _set: $purchaseOrder
+    ) {
+      id
+      ...PurchaseOrder
+    }
+  }
+  ${PurchaseOrderFragmentDoc}
+`;
+export type UpdatePurchaseOrderMutationFn = Apollo.MutationFunction<
+  UpdatePurchaseOrderMutation,
+  UpdatePurchaseOrderMutationVariables
+>;
+
+/**
+ * __useUpdatePurchaseOrderMutation__
+ *
+ * To run a mutation, you first call `useUpdatePurchaseOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePurchaseOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePurchaseOrderMutation, { data, loading, error }] = useUpdatePurchaseOrderMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      purchaseOrder: // value for 'purchaseOrder'
+ *   },
+ * });
+ */
+export function useUpdatePurchaseOrderMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdatePurchaseOrderMutation,
+    UpdatePurchaseOrderMutationVariables
+  >
+) {
+  return Apollo.useMutation<
+    UpdatePurchaseOrderMutation,
+    UpdatePurchaseOrderMutationVariables
+  >(UpdatePurchaseOrderDocument, baseOptions);
+}
+export type UpdatePurchaseOrderMutationHookResult = ReturnType<
+  typeof useUpdatePurchaseOrderMutation
+>;
+export type UpdatePurchaseOrderMutationResult = Apollo.MutationResult<UpdatePurchaseOrderMutation>;
+export type UpdatePurchaseOrderMutationOptions = Apollo.BaseMutationOptions<
+  UpdatePurchaseOrderMutation,
+  UpdatePurchaseOrderMutationVariables
+>;
 export const GetOpenPurchaseOrdersByCompanyIdDocument = gql`
   query GetOpenPurchaseOrdersByCompanyId($company_id: uuid!) {
     purchase_orders(
@@ -23729,10 +24459,10 @@ export const GetOpenPurchaseOrdersByCompanyIdDocument = gql`
         ]
       }
     ) {
-      ...PurchaseOrder
+      ...PurchaseOrderLimited
     }
   }
-  ${PurchaseOrderFragmentDoc}
+  ${PurchaseOrderLimitedFragmentDoc}
 `;
 
 /**
@@ -23799,10 +24529,10 @@ export const GetClosedPurchaseOrdersByCompanyIdDocument = gql`
         ]
       }
     ) {
-      ...PurchaseOrder
+      ...PurchaseOrderLimited
     }
   }
-  ${PurchaseOrderFragmentDoc}
+  ${PurchaseOrderLimitedFragmentDoc}
 `;
 
 /**
@@ -23870,10 +24600,10 @@ export const GetFundablePurchaseOrdersByCompanyIdDocument = gql`
         ]
       }
     ) {
-      ...PurchaseOrder
+      ...PurchaseOrderLimited
     }
   }
-  ${PurchaseOrderFragmentDoc}
+  ${PurchaseOrderLimitedFragmentDoc}
 `;
 
 /**
@@ -23923,63 +24653,6 @@ export type GetFundablePurchaseOrdersByCompanyIdLazyQueryHookResult = ReturnType
 export type GetFundablePurchaseOrdersByCompanyIdQueryResult = Apollo.QueryResult<
   GetFundablePurchaseOrdersByCompanyIdQuery,
   GetFundablePurchaseOrdersByCompanyIdQueryVariables
->;
-export const UpdatePurchaseOrderDocument = gql`
-  mutation UpdatePurchaseOrder(
-    $id: uuid!
-    $purchaseOrder: purchase_orders_set_input!
-  ) {
-    update_purchase_orders_by_pk(
-      pk_columns: { id: $id }
-      _set: $purchaseOrder
-    ) {
-      id
-      ...PurchaseOrder
-    }
-  }
-  ${PurchaseOrderFragmentDoc}
-`;
-export type UpdatePurchaseOrderMutationFn = Apollo.MutationFunction<
-  UpdatePurchaseOrderMutation,
-  UpdatePurchaseOrderMutationVariables
->;
-
-/**
- * __useUpdatePurchaseOrderMutation__
- *
- * To run a mutation, you first call `useUpdatePurchaseOrderMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdatePurchaseOrderMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updatePurchaseOrderMutation, { data, loading, error }] = useUpdatePurchaseOrderMutation({
- *   variables: {
- *      id: // value for 'id'
- *      purchaseOrder: // value for 'purchaseOrder'
- *   },
- * });
- */
-export function useUpdatePurchaseOrderMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UpdatePurchaseOrderMutation,
-    UpdatePurchaseOrderMutationVariables
-  >
-) {
-  return Apollo.useMutation<
-    UpdatePurchaseOrderMutation,
-    UpdatePurchaseOrderMutationVariables
-  >(UpdatePurchaseOrderDocument, baseOptions);
-}
-export type UpdatePurchaseOrderMutationHookResult = ReturnType<
-  typeof useUpdatePurchaseOrderMutation
->;
-export type UpdatePurchaseOrderMutationResult = Apollo.MutationResult<UpdatePurchaseOrderMutation>;
-export type UpdatePurchaseOrderMutationOptions = Apollo.BaseMutationOptions<
-  UpdatePurchaseOrderMutation,
-  UpdatePurchaseOrderMutationVariables
 >;
 export const GetPaymentDocument = gql`
   query GetPayment($id: uuid!) {

@@ -10,7 +10,10 @@ interface Props {
   productType: ProductTypeEnum;
 }
 
-function CustomerPurchaseOrdersPageContent({ companyId, productType }: Props) {
+export default function CustomerPurchaseOrdersPageContent({
+  companyId,
+  productType,
+}: Props) {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
   return (
@@ -40,5 +43,3 @@ function CustomerPurchaseOrdersPageContent({ companyId, productType }: Props) {
     </PageContent>
   );
 }
-
-export default CustomerPurchaseOrdersPageContent;

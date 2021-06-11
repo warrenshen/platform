@@ -1,5 +1,7 @@
-query PurchaseOrder($id: uuid!) {
+# Bank users
+query GetPurchaseOrderForBank($id: uuid!) {
   purchase_orders_by_pk(id: $id) {
+    id
     ...PurchaseOrder
     loans(where: { loan_type: { _eq: purchase_order } }) {
       id
@@ -23,6 +25,34 @@ query PurchaseOrder($id: uuid!) {
   }
 }
 
+# Customer users
+query GetPurchaseOrderForCustomer($id: uuid!) {
+  purchase_orders_by_pk(id: $id) {
+    id
+    ...PurchaseOrderLimited
+    loans(where: { loan_type: { _eq: purchase_order } }) {
+      id
+      ...LoanLimited
+    }
+    purchase_order_files {
+      ...PurchaseOrderFile
+    }
+    purchase_order_metrc_transfers {
+      id
+      ...PurchaseOrderMetrcTransfer
+      metrc_transfer {
+        id
+        ...MetrcTransfer
+        metrc_packages {
+          id
+          ...MetrcPackage
+        }
+      }
+    }
+  }
+}
+
+# Vendor users
 query GetPurchaseOrderForReview($id: uuid!) {
   purchase_orders_by_pk(id: $id) {
     id

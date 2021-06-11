@@ -6,7 +6,10 @@ import {
   CurrentUserContext,
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
-import { PurchaseOrders, usePurchaseOrderQuery } from "generated/graphql";
+import {
+  PurchaseOrders,
+  useGetPurchaseOrderForCustomerQuery,
+} from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { deletePurchaseOrderMutation } from "lib/api/purchaseOrders";
@@ -28,7 +31,7 @@ function DeletePurchaseOrderModal({ purchaseOrderId, handleClose }: Props) {
   const {
     data,
     loading: isExistingPurchaseOrderLoading,
-  } = usePurchaseOrderQuery({
+  } = useGetPurchaseOrderForCustomerQuery({
     fetchPolicy: "network-only",
     variables: {
       id: purchaseOrderId,

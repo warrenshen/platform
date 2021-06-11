@@ -25,13 +25,13 @@ function getRows(purchaseOrders: PurchaseOrderFragment[]): RowsProp {
     company_name: purchaseOrder.company?.name,
     vendor_name: purchaseOrder.vendor?.name,
     customer_note: !!purchaseOrder.customer_note
-      ? purchaseOrder.customer_note.length > 32
-        ? `${purchaseOrder.customer_note.substring(0, 32)}...`
+      ? purchaseOrder.customer_note.length > 64
+        ? `${purchaseOrder.customer_note.substring(0, 64)}...`
         : purchaseOrder.customer_note
       : "-",
     bank_note: !!purchaseOrder.bank_note
-      ? purchaseOrder.bank_note.length > 32
-        ? `${purchaseOrder.bank_note.substring(0, 32)}...`
+      ? purchaseOrder.bank_note.length > 64
+        ? `${purchaseOrder.bank_note.substring(0, 64)}...`
         : purchaseOrder.bank_note
       : "",
   }));
