@@ -67,7 +67,7 @@ def compute_loan_payment_status(loan: models.Loan, session: Session) -> str:
 	for pending_repayment in pending_repayments:
 		items_covered = cast(PaymentItemsCoveredDict, pending_repayment.items_covered)
 		if items_covered is not None:
-			selected_loan_ids = items_covered['loan_ids']
+			selected_loan_ids = items_covered['loan_ids'] if 'loan_ids' in items_covered else []
 			if str(loan.id) in selected_loan_ids:
 				return db_constants.PaymentStatusEnum.PENDING
 
