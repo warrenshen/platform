@@ -8,13 +8,13 @@ from typing import Any, Dict, List, Tuple, Union, cast
 from sqlalchemy.orm.session import Session
 
 # Path hack before we try to import bespoke
-sys.path.append(path.realpath(path.join(path.dirname(__file__), "../src")))
+sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.db_constants import PaymentMethodEnum, PaymentType
 from bespoke.excel import excel_reader
 from bespoke.finance import number_util
-from bespoke.finance.payments import payment_util
+from bespoke.finance.types import payment_types
 
 
 def import_settled_advances(
@@ -197,7 +197,7 @@ def import_settled_advances(
 				payment_util.create_and_add_adjustment(
 					company_id=str(customer.id),
 					loan_id=str(loan.id),
-					tx_amount_dict=payment_util.TransactionAmountDict(
+					tx_amount_dict=payment_types.TransactionAmountDict(
 						to_principal=0.0,
 						to_interest=48870.15,
 						to_fees=0.0,
@@ -211,7 +211,7 @@ def import_settled_advances(
 				payment_util.create_and_add_adjustment(
 					company_id=str(customer.id),
 					loan_id=str(loan.id),
-					tx_amount_dict=payment_util.TransactionAmountDict(
+					tx_amount_dict=payment_types.TransactionAmountDict(
 						to_principal=0.0,
 						to_interest=187982.54,
 						to_fees=0.0,

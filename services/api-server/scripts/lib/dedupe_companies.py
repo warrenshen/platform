@@ -5,7 +5,7 @@ from typing import Any, List, cast
 from sqlalchemy.orm.session import Session
 
 # Path hack before we try to import bespoke
-sys.path.append(path.realpath(path.join(path.dirname(__file__), "../src")))
+sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 
 from bespoke import errors
 from bespoke.db import models

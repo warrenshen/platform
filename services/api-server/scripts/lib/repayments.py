@@ -9,7 +9,7 @@ from typing import Any, Callable, Dict, List, Tuple, Union, cast
 from sqlalchemy.orm.session import Session
 
 # Path hack before we try to import bespoke
-sys.path.append(path.realpath(path.join(path.dirname(__file__), "../src")))
+sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 from bespoke.date import date_util
 from bespoke.db import models, models_util
 from bespoke.db.db_constants import (CompanyType, PaymentMethodEnum,
