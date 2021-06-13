@@ -16,6 +16,7 @@ from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest, test_helper
 from bespoke_test.payments import payment_test_helper
+from bespoke.finance.types import payment_types
 
 INTEREST_RATE = 0.002 # 0.2%
 
@@ -102,7 +103,7 @@ class TestDeleteLoan(db_unittest.TestCase):
 		resp, err = advance_util.fund_loans_with_advance(
 			req=advance_util.FundLoansReqDict(
 				loan_ids=loan_ids,
-				payment=payment_util.PaymentInsertInputDict(
+				payment=payment_types.PaymentInsertInputDict(
 					company_id='unused',
 					type='unused',
 					requested_amount=None,

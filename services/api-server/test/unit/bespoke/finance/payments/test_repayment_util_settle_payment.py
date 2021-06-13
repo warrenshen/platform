@@ -10,13 +10,11 @@ from bespoke.db.db_constants import PaymentStatusEnum, ProductType
 from bespoke.db.models import session_scope
 from bespoke.finance import number_util
 from bespoke.finance.payments import payment_util, repayment_util
-from bespoke.finance.payments.repayment_util import (LoanBalanceDict,
-                                                     LoanToShowDict,
-                                                     TransactionInputDict)
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest, test_helper
 from bespoke_test.payments import payment_test_helper
+from bespoke.finance.types import payment_types
 
 DEFAULT_INTEREST_RATE = 0.002 # 0.2%
 
@@ -175,7 +173,7 @@ def _run_test(self: db_unittest.TestCase, test: Dict) -> None:
 		# Make sure we have a payment already registered in the system that we are settling.
 		payment_id, err = repayment_util.create_repayment(
 			company_id=str(company_id),
-			payment_insert_input=payment_util.PaymentInsertInputDict(
+			payment_insert_input=payment_types.PaymentInsertInputDict(
 				company_id='unused',
 				type='unused',
 				method=payment_dict['payment_method'],

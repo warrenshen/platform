@@ -4,7 +4,7 @@ from typing import Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
-from bespoke.db import db_constants, models
+from bespoke.db import db_constants, models, models_util
 from bespoke.db.db_constants import (ALL_LOAN_TYPES, LoanStatusEnum,
                                      LoanTypeEnum, RequestStatusEnum)
 from bespoke.db.models import session_scope
@@ -130,12 +130,13 @@ def approve_loans(
 				if err:
 					raise err
 
-			loan.status = db_constants.LoanStatusEnum.APPROVED
 			loan.approved_at = approved_at
 			loan.approved_by_user_id = bank_admin_user_id
 			# When a loan gets approved, we clear out the rejected at status.
 			loan.rejected_at = None
 			loan.rejected_by_user_id = None
+			# Reset loan approval status.
+			loan.status = models_util.compute_loan_approval_status(loan)
 
 			# Draw down the limit for calculation purposes
 			company_id_to_available_limit[loan.company_id] -= loan.amount
@@ -272,8 +273,9 @@ def submit_for_approval(
 	if not customer_name or not loan_html:
 		raise errors.Error("Failed to generated HTML for loan")
 
-	loan.status = RequestStatusEnum.APPROVAL_REQUESTED
 	loan.requested_at = date_util.now()
+	# Reset loan approval status.
+	loan.status = models_util.compute_loan_approval_status(loan)
 
 	return SubmitForApprovalRespDict(
 		triggered_by_autofinancing=triggered_by_autofinancing,
@@ -350,7 +352,8 @@ def submit_for_approval_if_has_autofinancing(
 	loan.artifact_id = artifact_id
 	loan.requested_payment_date = requested_payment_date
 	loan.amount = decimal.Decimal(amount)
-	loan.status = LoanStatusEnum.DRAFTED
+	# Set loan approval status.
+	loan.status = models_util.compute_loan_approval_status(loan)
 
 	session.add(loan)
 	session.flush()

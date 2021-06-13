@@ -12,6 +12,7 @@ from bespoke.email import sendgrid_util
 from bespoke.finance.payments import payment_util
 from server.views.common import auth_util
 from sqlalchemy.orm import Session
+from bespoke.finance.types import payment_types
 
 REQUIRED_KEYS_FOR_APPROVAL = (
 	'invoice_number',
@@ -592,12 +593,12 @@ def respond_to_payment_request(
 	payment = payment_util.create_repayment_payment(
 		company_id=str(invoice.company_id),
 		payment_type=db_constants.PaymentType.REPAYMENT,
-		payment_input=payment_util.RepaymentPaymentInputDict(
+		payment_input=payment_types.RepaymentPaymentInputDict(
 			payment_method=str(data.payment_method),
 			requested_amount=data.amount,
 			requested_payment_date=data.anticipated_payment_date,
 			payment_date=data.anticipated_payment_date,
-			items_covered=payment_util.PaymentItemsCoveredDict(
+			items_covered=payment_types.PaymentItemsCoveredDict(
 				invoice_ids=[str(invoice.id)]
 			),
 			company_bank_account_id=None,

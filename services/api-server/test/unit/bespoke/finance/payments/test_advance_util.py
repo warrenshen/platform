@@ -5,11 +5,11 @@ from typing import Dict, List, cast
 
 from bespoke.date import date_util
 from bespoke.db import models
-from bespoke.db.db_constants import (LoanStatusEnum, LoanTypeEnum,
+from bespoke.db.db_constants import (LoanTypeEnum,
                                      PaymentMethodEnum, ProductType)
 from bespoke.db.models import session_scope
-from bespoke.finance import number_util
-from bespoke.finance.payments import advance_util, payment_util
+from bespoke.finance.payments import advance_util
+from bespoke.finance.types import payment_types
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest, test_helper
@@ -120,7 +120,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 
 			req = advance_util.FundLoansReqDict(
 				loan_ids=advance_loan_ids,
-				payment=payment_util.PaymentInsertInputDict(
+				payment=payment_types.PaymentInsertInputDict(
 					company_id='unused',
 					type='unused',
 					requested_amount=None,
@@ -565,7 +565,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		resp, err = advance_util.fund_loans_with_advance(
 			req=advance_util.FundLoansReqDict(
 				loan_ids=[],
-				payment=payment_util.PaymentInsertInputDict(
+				payment=payment_types.PaymentInsertInputDict(
 					company_id='unused',
 					type='unused',
 					method='ach',
@@ -605,7 +605,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		resp, err = advance_util.fund_loans_with_advance(
 			req=advance_util.FundLoansReqDict(
 				loan_ids=loan_ids,
-				payment=payment_util.PaymentInsertInputDict(
+				payment=payment_types.PaymentInsertInputDict(
 					company_id='unused',
 					type='unused',
 					method='ach',
@@ -645,7 +645,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		resp, err = advance_util.fund_loans_with_advance(
 			req=advance_util.FundLoansReqDict(
 				loan_ids=loan_ids,
-				payment=payment_util.PaymentInsertInputDict(
+				payment=payment_types.PaymentInsertInputDict(
 					company_id='unused',
 					type='unused',
 					method='ach',
@@ -683,7 +683,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		resp, err = advance_util.fund_loans_with_advance(
 			req=advance_util.FundLoansReqDict(
 				loan_ids=loan_ids,
-				payment=payment_util.PaymentInsertInputDict(
+				payment=payment_types.PaymentInsertInputDict(
 					company_id='unused',
 					type='unused',
 					method='ach',
@@ -723,7 +723,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 
 		resp, err = advance_util.fund_loans_with_advance(
 			req=advance_util.FundLoansReqDict(
-				payment=payment_util.PaymentInsertInputDict(
+				payment=payment_types.PaymentInsertInputDict(
 					company_id='unused',
 					type='unused',
 					method='ach',

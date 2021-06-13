@@ -7,6 +7,7 @@ from bespoke.db.models import session_scope
 from bespoke.finance.payments import payment_util, repayment_util_fees
 from bespoke_test.db import db_unittest, test_helper
 from bespoke_test.finance import finance_test_helper
+from bespoke.finance.types import payment_types
 
 class TestRepaymentOfFees(db_unittest.TestCase):
 
@@ -21,7 +22,7 @@ class TestRepaymentOfFees(db_unittest.TestCase):
 		with session_scope(session_maker) as session:
 			user_id = seed.get_user_id('company_admin', index=0)
 			payment_input_amount = test['payment_amount']
-			items_covered: payment_util.PaymentItemsCoveredDict = {
+			items_covered: payment_types.PaymentItemsCoveredDict = {
 				'requested_to_account_fees': payment_input_amount
 			}
 			payment_date = date_util.load_date_str(test['requested_payment_date'])
@@ -36,7 +37,7 @@ class TestRepaymentOfFees(db_unittest.TestCase):
 
 			payment_id, err = repayment_util_fees.create_and_add_account_level_fee_repayment(
 				company_id=company_id,
-				payment_input=payment_util.RepaymentPaymentInputDict(
+				payment_input=payment_types.RepaymentPaymentInputDict(
 					payment_method=test['payment_method'],
 					requested_amount=payment_input_amount,
 					requested_payment_date=payment_date,
@@ -79,7 +80,7 @@ class TestRepaymentOfFees(db_unittest.TestCase):
 					amount=settle['amount'],
 					deposit_date=settle['deposit_date'],
 					settlement_date=settle['settlement_date'],
-					items_covered=payment_util.PaymentItemsCoveredDict(
+					items_covered=payment_types.PaymentItemsCoveredDict(
 						to_account_fees=settle['to_account_fees'],
 						to_user_credit=settle['to_user_credit']
 					)

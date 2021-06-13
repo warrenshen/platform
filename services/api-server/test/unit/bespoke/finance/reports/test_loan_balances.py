@@ -17,7 +17,7 @@ from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest, test_helper
 from bespoke_test.finance import finance_test_helper
 from bespoke_test.payments import payment_test_helper
-
+from bespoke.finance.types import payment_types
 
 def _get_late_fee_structure() -> str:
 	return json.dumps({
@@ -795,7 +795,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			# Repay part of the fee
 			payment_id, err = repayment_util_fees.create_and_add_account_level_fee_repayment(
 				company_id=company_id,
-				payment_input=cast(payment_util.RepaymentPaymentInputDict, {
+				payment_input=cast(payment_types.RepaymentPaymentInputDict, {
 					'payment_method': 'ach',
 					'requested_amount': 12.03,
 					'requested_payment_date': date_util.load_date_str('10/01/2020'),
@@ -843,7 +843,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			# Repay a fee with a user credit
 			payment_id, err = repayment_util_fees.create_and_add_account_level_fee_repayment_with_account_credit(
 				company_id=company_id,
-				payment_input=cast(payment_util.RepaymentPaymentInputDict, {
+				payment_input=cast(payment_types.RepaymentPaymentInputDict, {
 					'payment_method': 'none',
 					'requested_amount': 2.01,
 					'requested_payment_date': date_util.load_date_str('10/01/2020'),
@@ -945,7 +945,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			payment_util.create_and_add_adjustment(
 				company_id=company_id,
 				loan_id=str(loan.id),
-				tx_amount_dict=payment_util.TransactionAmountDict(
+				tx_amount_dict=payment_util.payment_types.TransactionAmountDict(
 					to_principal=-1.0,
 					to_interest=-4.2,
 					to_fees=2.0

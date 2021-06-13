@@ -16,6 +16,7 @@ from bespoke.finance.types import finance_types, per_customer_types
 from dateutil import parser
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
+from bespoke.finance.types import payment_types
 
 # These inputs are seen by the Bank admin before sending them to the /settle_repayment
 # handler.
@@ -73,7 +74,7 @@ ScheduleRepaymentReqDict = TypedDict('ScheduleRepaymentReqDict', {
 	'payment_id': str,
 	'amount': float,
 	'payment_date': str, # When the payment was deposited into the bank
-	'items_covered': payment_util.PaymentItemsCoveredDict,
+	'items_covered': payment_types.PaymentItemsCoveredDict,
 })
 
 SettleRepaymentReqDict = TypedDict('SettleRepaymentReqDict', {
@@ -82,7 +83,7 @@ SettleRepaymentReqDict = TypedDict('SettleRepaymentReqDict', {
 	'amount': float,
 	'deposit_date': str, # When the payment was deposited into the bank
 	'settlement_date': str, # Effective date of all the transactions as well
-	'items_covered': payment_util.PaymentItemsCoveredDict,
+	'items_covered': payment_types.PaymentItemsCoveredDict,
 	'transaction_inputs': List[TransactionInputDict],
 })
 
@@ -505,7 +506,7 @@ def calculate_repayment_effect(
 @errors.return_error_tuple
 def create_repayment(
 	company_id: str,
-	payment_insert_input: payment_util.PaymentInsertInputDict,
+	payment_insert_input: payment_types.PaymentInsertInputDict,
 	user_id: str,
 	session_maker: Callable,
 	is_line_of_credit: bool,
@@ -597,7 +598,7 @@ def create_repayment(
 				requested_payment_date, meets_cutoff_err))
 
 		# Settlement date should not be set until the banker settles the payment.
-		payment_input = payment_util.RepaymentPaymentInputDict(
+		payment_input = payment_types.RepaymentPaymentInputDict(
 			payment_method=payment_method,
 			requested_amount=requested_amount,
 			requested_payment_date=requested_payment_date,
@@ -616,10 +617,8 @@ def create_repayment(
 		session.flush()
 		payment_id = str(payment.id)
 
-		payment_status = PaymentStatusEnum.SCHEDULED if is_scheduled else PaymentStatusEnum.PENDING
-
 		for loan in loans:
-			loan.payment_status = payment_status
+			loan.payment_status = PaymentStatusEnum.PENDING
 
 	return payment_id, None
 
@@ -670,8 +669,6 @@ def schedule_repayment(
 
 		payment.amount = decimal.Decimal(payment_amount)
 		payment.payment_date = payment_date
-		# TODO(warrenshen): look into these statuses, perhaps we need a "Requested"?
-		payment_status = PaymentStatusEnum.SCHEDULED
 
 		session.flush()
 		payment_id = str(payment.id)
@@ -1177,7 +1174,7 @@ def settle_repayment(
 			# 3. Custom amount covers only a subset of selected loans
 			# 4. Loan(s) not covered create transaction input(s) that are equivalent to zero.
 			if to_principal == 0.0 and to_interest == 0.0 and to_fees == 0.0:
-				# Set payment status to None, otherwise it would be left as PaymentStatusEnum.SCHEDULED.
+				# Set payment status to None, otherwise it would be left as PaymentStatusEnum.PENDING.
 				# It could be that payment status is supposed to be PARTIALLY_PAID... ignore that case for now.
 				cur_loan.payment_status = None
 				continue

@@ -19,12 +19,13 @@ from bespoke.finance.payments import payment_util
 from bespoke.finance.types import per_customer_types
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
+from bespoke.finance.types import payment_types
 
 ASCII_CHARACTERS = list(string.ascii_uppercase)
 
 FundLoansReqDict = TypedDict('FundLoansReqDict', {
 	'loan_ids': List[str],
-	'payment': payment_util.PaymentInsertInputDict,
+	'payment': payment_types.PaymentInsertInputDict,
 	'should_charge_wire_fee': bool
 })
 
@@ -166,7 +167,7 @@ def fund_loans_with_advance(
 			amount_to_company = sum([float(loan.amount) for loan in loans_for_company])
 			payment = payment_util.create_payment(
 				company_id,
-				payment_util.PaymentInputDict(
+				payment_util.payment_types.PaymentInputDict(
 					type=db_constants.PaymentType.ADVANCE,
 					amount=amount_to_company,
 					payment_method=payment_method,

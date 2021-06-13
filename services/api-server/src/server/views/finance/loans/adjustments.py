@@ -47,7 +47,7 @@ class MakeAdjustmentView(MethodView):
 			_, err = payment_util.create_and_add_adjustment(
 				company_id=form['company_id'],
 				loan_id=form['loan_id'],
-				tx_amount_dict=payment_util.TransactionAmountDict(
+				tx_amount_dict=payment_util.payment_types.TransactionAmountDict(
 					to_principal=form['to_principal'],
 					to_interest=form['to_interest'],
 					to_fees=form['to_fees']

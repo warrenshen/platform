@@ -1,11 +1,10 @@
-import datetime
 import json
 from typing import Any, Dict, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.audit import events
 from bespoke.date import date_util
-from bespoke.db import db_constants, models
+from bespoke.db import models, models_util
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.finance import number_util
@@ -158,12 +157,13 @@ class RejectLoanView(MethodView):
 			customer_id = loan.company_id
 			# When a loan gets rejected, we clear out
 			# any state about whether it was approved.
-			loan.status = db_constants.LoanStatusEnum.REJECTED
 			loan.rejection_note = rejection_note
 			loan.rejected_at = date_util.now()
 			loan.rejected_by_user_id = user_session.get_user_id()
 			loan.approved_at = None
 			loan.approved_by_user_id = None
+			# Reset loan approval status.
+			loan.status = models_util.compute_loan_approval_status(loan)
 
 			customer = cast(
 				models.Company,

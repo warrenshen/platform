@@ -3,10 +3,11 @@
 	common operations on models.py
 """
 
-from typing import List, Tuple
+from typing import Callable, List, Tuple, cast
 
 from bespoke import errors
-from bespoke.db import models
+from bespoke.db import db_constants, models
+from bespoke.finance.types.payment_types import PaymentItemsCoveredDict
 from sqlalchemy.orm.session import Session
 
 
@@ -38,3 +39,49 @@ def get_augmented_transactions(transactions: List[models.TransactionDict], payme
 			))
 
 		return augmented_transactions, None
+
+def compute_loan_approval_status(loan: models.Loan) -> str:
+	if loan.rejected_at is not None:
+		return db_constants.LoanStatusEnum.REJECTED
+	elif loan.approved_at is not None:
+		return db_constants.LoanStatusEnum.APPROVED
+	elif loan.requested_at is not None:
+		return db_constants.LoanStatusEnum.APPROVAL_REQUESTED
+	else:
+		return db_constants.LoanStatusEnum.DRAFTED
+
+def compute_loan_payment_status(loan: models.Loan, session: Session) -> str:
+	if loan.closed_at is not None:
+		return db_constants.PaymentStatusEnum.CLOSED
+
+	pending_repayments = cast(
+		List[models.Payment],
+		session.query(models.Payment).filter(
+			models.Payment.company_id == loan.company_id
+		).filter(
+			cast(Callable, models.Payment.settled_at.is_)(None)
+		).filter(
+			cast(Callable, models.Payment.is_deleted.isnot)(True)
+		).all())
+
+	for pending_repayment in pending_repayments:
+		items_covered = cast(PaymentItemsCoveredDict, pending_repayment.items_covered)
+		if items_covered is not None:
+			selected_loan_ids = items_covered['loan_ids']
+			if str(loan.id) in selected_loan_ids:
+				return db_constants.PaymentStatusEnum.PENDING
+
+	repayment_transaction = cast(
+		models.Transaction,
+		session.query(models.Transaction).filter(
+			models.Transaction.type == db_constants.PaymentType.REPAYMENT
+		).filter(
+			models.Transaction.loan_id == loan.id
+		).filter(
+			cast(Callable, models.Transaction.is_deleted.isnot)(True)
+		).first())
+
+	if repayment_transaction is not None:
+		return db_constants.PaymentStatusEnum.PARTIALLY_PAID
+
+	return None

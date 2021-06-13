@@ -5,7 +5,7 @@ import uuid
 from typing import Any, Dict, List, cast
 
 from bespoke.date import date_util
-from bespoke.db import db_constants, models
+from bespoke.db import models
 from bespoke.db.db_constants import PaymentStatusEnum, ProductType
 from bespoke.db.models import session_scope
 from bespoke.finance import number_util
@@ -14,6 +14,7 @@ from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest, test_helper
 from bespoke_test.payments import payment_test_helper
+from bespoke.finance.types import payment_types
 
 INTEREST_RATE = 0.002 # 0.2%
 
@@ -102,7 +103,7 @@ class TestUndoRepayment(db_unittest.TestCase):
 		user_id = seed.get_user_id('company_admin', index=0)
 
 
-		items_covered = payment_util.PaymentItemsCoveredDict(
+		items_covered = payment_types.PaymentItemsCoveredDict(
 			loan_ids=loan_ids,
 			requested_to_account_fees=0.0,
 			to_account_fees=0.0,
@@ -111,7 +112,7 @@ class TestUndoRepayment(db_unittest.TestCase):
 		# Make sure we have a payment already registered in the system that we are settling.
 		payment_id, err = repayment_util.create_repayment(
 			company_id=str(company_id),
-			payment_insert_input=payment_util.PaymentInsertInputDict(
+			payment_insert_input=payment_types.PaymentInsertInputDict(
 				company_id='unused',
 				type='unused',
 				method='ach',
@@ -191,7 +192,9 @@ class TestUndoRepayment(db_unittest.TestCase):
 					models.Loan.id.in_(loan_ids)
 				).all())
 			for loan in loans:
-				self.assertEqual(None, loan.payment_status)
+				# Loans now have payment status pending because the payment unsettled
+				# above is pending settlement (since it was just unsettled).
+				self.assertEqual(PaymentStatusEnum.PENDING, loan.payment_status)
 
 		_, err = repayment_util.settle_repayment(
 			req=req,
@@ -227,3 +230,14 @@ class TestUndoRepayment(db_unittest.TestCase):
 		)
 		# Now you can delete the repayment
 		self.assertIsNone(err)
+
+		with session_scope(self.session_maker) as session:
+			loans = cast(
+				List[models.Loan],
+				session.query(models.Loan).filter(
+					models.Loan.id.in_(loan_ids)
+				).all())
+			for loan in loans:
+				# Loans now have payment status None because there are no payments
+				# intending to pay for them.
+				self.assertEqual(None, loan.payment_status)

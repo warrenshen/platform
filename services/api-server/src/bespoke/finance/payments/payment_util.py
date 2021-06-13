@@ -8,11 +8,9 @@ from typing import Any, Callable, Dict, List, Tuple, Union, cast
 
 from bespoke import errors
 from bespoke.date import date_util
-from bespoke.db import db_constants, models
-from bespoke.db.models import session_scope
-from bespoke.finance import number_util, financial_summary_util
-from bespoke.finance.types import per_customer_types, finance_types
-from mypy_extensions import TypedDict
+from bespoke.db import db_constants, models, models_util
+from bespoke.finance import financial_summary_util
+from bespoke.finance.types import payment_types, finance_types
 from sqlalchemy.orm.session import Session
 
 
@@ -24,69 +22,9 @@ class RepaymentOption(object):
 	PAY_MINIMUM_DUE = 'pay_minimum_due'
 	PAY_IN_FULL = 'pay_in_full'
 
-################################
-# requested_to_principal: how much of payment customer wants to go to principal (relevant for Line of Credit payments only)
-# requested_to_interest: how much of payment customer wants to go to interest (relevant for Line of Credit payments only)
-# requested_to_account_fees: how much of payment customer wants to go to account-level fees (relevant for all payments)
-# "requested_to_" fields are set during the "create repayment" step.
-#
-# to_principal: how much of payment went to principal (relevant for Line of Credit payments only)
-# to_interest: how much of payment went to interest (relevant for Line of Credit payments only)
-# to_account_fees: how much of payment went to account fees (relevant for all payments)
-# to_user_credit: how much of payment went to user credit (relevant for all payments)
-# "to_" fields are set during the "settle repayment" step.
-################################
-PaymentItemsCoveredDict = TypedDict('PaymentItemsCoveredDict', {
-	'loan_ids': List[str],
-	'invoice_ids': List[str],
-	'requested_to_principal': float,
-	'requested_to_interest': float,
-	'requested_to_account_fees': float,
-	'to_principal': float,
-	'to_interest': float,
-	'to_account_fees': float,
-	'to_user_credit': float,
-}, total=False)
-
-PaymentInputDict = TypedDict('PaymentInputDict', {
-	'type': str,
-	'payment_method': str,
-	'amount': float,
-})
-
-TransactionAmountDict = TypedDict('TransactionAmountDict', {
-	'to_principal': float,
-	'to_interest': float,
-	'to_fees': float
-})
-
-RepaymentPaymentInputDict = TypedDict('RepaymentPaymentInputDict', {
-	'payment_method': str,
-	'requested_amount': float,
-	'requested_payment_date': datetime.date,
-	'payment_date': datetime.date,
-	'items_covered': PaymentItemsCoveredDict,
-	'company_bank_account_id': str,
-	'customer_note': str
-})
-
-PaymentInsertInputDict = TypedDict('PaymentInsertInputDict', {
-	'company_id': str,
-	'type': str,
-	'requested_amount': float,
-	'amount': float,
-	'method': str,
-	'requested_payment_date': str,
-	'payment_date': str,
-	'settlement_date': str,
-	'items_covered': PaymentItemsCoveredDict,
-	'company_bank_account_id': str,
-	'customer_note': str
-})
-
 def create_payment(
 	company_id: str,
-	payment_input: PaymentInputDict,
+	payment_input: payment_types.PaymentInputDict,
 	user_id: str) -> models.Payment:
 	payment = models.Payment()
 	payment.amount = decimal.Decimal(payment_input['amount'])
@@ -100,7 +38,7 @@ def create_payment(
 def create_repayment_payment(
 	company_id: str,
 	payment_type: str,
-	payment_input: RepaymentPaymentInputDict,
+	payment_input: payment_types.RepaymentPaymentInputDict,
 	created_by_user_id: str
 	) -> models.Payment:
 
@@ -221,7 +159,7 @@ def sum(vals: List[float]) -> float:
 def create_and_add_adjustment(
 	company_id: str,
 	loan_id: str,
-	tx_amount_dict: TransactionAmountDict,
+	tx_amount_dict: payment_types.TransactionAmountDict,
 	created_by_user_id: str,
 	deposit_date: datetime.date,
 	effective_date: datetime.date,
@@ -231,7 +169,7 @@ def create_and_add_adjustment(
 	amount = tx_input['to_principal'] + tx_input['to_interest'] + tx_input['to_fees']
 	payment = create_payment(
 		company_id=company_id,
-		payment_input=PaymentInputDict(
+		payment_input=payment_types.PaymentInputDict(
 			type=db_constants.PaymentType.ADJUSTMENT,
 			payment_method='', # Not needed since its an adjustment
 			amount=amount
@@ -286,7 +224,7 @@ def create_and_add_credit_payout_to_customer(
 
 	payment = create_payment(
 		company_id=company_id,
-		payment_input=PaymentInputDict(
+		payment_input=payment_types.PaymentInputDict(
 			type=db_constants.PaymentType.PAYOUT_USER_CREDIT_TO_CUSTOMER,
 			payment_method=payment_method,
 			amount=amount
@@ -349,7 +287,7 @@ def create_and_add_account_level_fee(
 
 	payment = create_payment(
 		company_id=company_id,
-		payment_input=PaymentInputDict(
+		payment_input=payment_types.PaymentInputDict(
 			type=db_constants.PaymentType.FEE,
 			payment_method='', # Not needed since its a fee, you can look up the originating payment_id
 			amount=amount
@@ -389,20 +327,7 @@ def _reset_payment_status_on_loans(loan_ids: List[str], session: Session) -> Non
 		).all())
 
 	for loan in loans:
-		# Check if there is a non-deleted repayment transaction, which indicates
-		# this original loan was partially paid
-		repayment_transaction = cast(
-			models.Transaction,
-			session.query(models.Transaction).filter(
-				models.Transaction.type == db_constants.PaymentType.REPAYMENT
-			).filter(models.Transaction.loan_id == str(loan.id)).filter(
-   			cast(Callable, models.Transaction.is_deleted.isnot)(True)
-    ).first())
-
-		if repayment_transaction:
-			loan.payment_status = db_constants.PaymentStatusEnum.PARTIALLY_PAID
-		else:
-			loan.payment_status = None
+		loan.payment_status = models_util.compute_loan_payment_status(loan, session)
 
 @errors.return_error_tuple
 def unsettle_payment(payment_type: str, payment_id: str, is_undo: bool, session: Session) -> Tuple[bool, errors.Error]:
@@ -545,7 +470,3 @@ def delete_payment(
 	_reset_payment_status_on_loans(loan_ids, session)
 
 	return True, None
-
-
-
-

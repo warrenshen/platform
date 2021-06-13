@@ -15,6 +15,7 @@ from bespoke.finance.types import finance_types, per_customer_types
 from dateutil import parser
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
+from bespoke.finance.types import payment_types
 
 ScheduleRepayFeeReqDict = TypedDict('ScheduleRepayFeeReqDict', {
 	'company_id': str,
@@ -29,7 +30,7 @@ SettleRepayFeeReqDict = TypedDict('SettleRepayFeeReqDict', {
 	'amount': float,
 	'deposit_date': str, # When the payment was deposited into the bank
 	'settlement_date': str, # Effective date of all the transactions as well
-	'items_covered': payment_util.PaymentItemsCoveredDict
+	'items_covered': payment_types.PaymentItemsCoveredDict
 })
 
 SettleRepayFeeWithAccountCreditReqDict = TypedDict('SettleRepayFeeWithAccountCreditReqDict', {
@@ -79,7 +80,7 @@ def create_and_add_repayment_of_account_fee_with_user_credit(
 
 def create_and_add_account_level_fee_repayment(
 	company_id: str,
-	payment_input: payment_util.RepaymentPaymentInputDict,
+	payment_input: payment_types.RepaymentPaymentInputDict,
 	created_by_user_id: str,
 	session: Session
 ) -> Tuple[str, errors.Error]:
@@ -104,7 +105,7 @@ def create_and_add_account_level_fee_repayment(
 
 def create_and_add_account_level_fee_repayment_with_account_credit(
 	company_id: str,
-	payment_input: payment_util.RepaymentPaymentInputDict,
+	payment_input: payment_types.RepaymentPaymentInputDict,
 	created_by_user_id: str,
 	session: Session
 ) -> Tuple[str, errors.Error]:

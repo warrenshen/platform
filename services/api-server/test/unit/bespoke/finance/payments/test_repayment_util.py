@@ -19,6 +19,7 @@ from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest, test_helper
 from bespoke_test.payments import payment_test_helper
 from dateutil import parser
+from bespoke.finance.types import payment_types
 
 INTEREST_RATE = 0.002 # 0.2%
 
@@ -1083,7 +1084,7 @@ class TestCreatePayment(db_unittest.TestCase):
 		payment_input_amount = test['payment_amount']
 		payment_id, err = repayment_util.create_repayment(
 			company_id=str(company_id),
-			payment_insert_input=payment_util.PaymentInsertInputDict(
+			payment_insert_input=payment_types.PaymentInsertInputDict(
 				company_id='unused',
 				type='unused',
 				requested_amount=payment_input_amount,
@@ -1157,11 +1158,11 @@ class TestCreatePayment(db_unittest.TestCase):
 				'expected_loans': [
 					models.Loan(
 						amount=decimal.Decimal(20.1),
-						payment_status=PaymentStatusEnum.SCHEDULED
+						payment_status=PaymentStatusEnum.PENDING
 					),
 					models.Loan(
 						amount=decimal.Decimal(30.1),
-						payment_status=PaymentStatusEnum.SCHEDULED
+						payment_status=PaymentStatusEnum.PENDING
 					)
 				]
 			}
@@ -1238,7 +1239,7 @@ class TestCreatePayment(db_unittest.TestCase):
 		user_id = seed.get_user_id('company_admin', index=0)
 		payment_id, err = repayment_util.create_repayment(
 			company_id=None,
-			payment_insert_input=payment_util.PaymentInsertInputDict(
+			payment_insert_input=payment_types.PaymentInsertInputDict(
 				company_id='unused',
 				type='unused',
 				requested_amount=10.0,
@@ -1278,7 +1279,7 @@ class TestCreatePayment(db_unittest.TestCase):
 
 		payment_id, err = repayment_util.create_repayment(
 			company_id=company_id,
-			payment_insert_input=payment_util.PaymentInsertInputDict(
+			payment_insert_input=payment_types.PaymentInsertInputDict(
 				company_id='unused',
 				type='unused',
 				requested_amount=10.0,

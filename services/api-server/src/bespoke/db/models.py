@@ -10,12 +10,11 @@ from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterator, List,
 
 import sqlalchemy
 from bespoke.date import date_util
-from bespoke.db.db_constants import CompanyType
+from bespoke.db import db_constants
 from fastapi_utils.guid_type import GUID, GUID_DEFAULT_SQLITE
 from mypy_extensions import TypedDict
-from server.config import is_test_env
 from sqlalchemy import (JSON, BigInteger, Boolean, Column, Date, DateTime,
-                        Float, ForeignKey, Integer, Numeric, String, Text)
+                        ForeignKey, Integer, Numeric, String, Text)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import OperationalError, StatementError, TimeoutError
@@ -638,7 +637,6 @@ class Loan(Base):
 			outstanding_fees=float_or_null(self.outstanding_fees),
 			closed_at=self.closed_at
 		)
-
 
 class BankFinancialSummary(Base):
 	__tablename__ = 'bank_financial_summaries'
