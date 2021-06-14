@@ -26,6 +26,15 @@ class TestSendGridClient(unittest.TestCase):
 				'expected_recipients': ['b@sweatequity.vc', 'no-reply@bespokefinancial.com']
 			},
 			{
+				'recipients': ['a@gmail.com', 'b@sweatequity.vc', 'c@bespokefinancial.com'],
+				'cfg': {
+					'flask_env': 'staging',
+					'no_reply_email_addr': 'no-reply@bespokefinancial.com'
+				},
+				'template_name': '',
+				'expected_recipients': ['b@sweatequity.vc', 'c@bespokefinancial.com', 'no-reply@bespokefinancial.com']
+			},
+			{
 				'recipients': ['a@gmail.com'],
 				'cfg': {
 					'flask_env': 'production',
