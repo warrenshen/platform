@@ -240,11 +240,22 @@ TwoFactorPayloadDict = TypedDict('TwoFactorPayloadDict', {
 	'expires_at': datetime.datetime
 })
 
-def _maybe_add_extra_recipients(
+def _maybe_add_or_remove_recipients(
 	recipients: List[str],
 	cfg: email_manager.EmailConfigDict,
 	template_name: str,
 ) -> List[str]:
+	if not is_prod_env(cfg['flask_env']):
+		# In non-prod environments, only send emails to people with @sweatequity.vc emails
+		# so we avoid sending emails to customers in those environments
+		new_recipients = []
+		for recipient in recipients:
+			if recipient.endswith('@sweatequity.vc'):
+				new_recipients.append(recipient)
+			else:
+				logging.info(f'Email "{template_name}" not sent to {recipient} due to non-prod environment')
+		recipients = new_recipients
+
 	if is_development_env(cfg['flask_env']):
 		return recipients
 
@@ -292,7 +303,7 @@ class Client(object):
 		template_data['defaults'] = _get_template_defaults(
 			template_name, self._cfg)
 
-		recipients = _maybe_add_extra_recipients(
+		recipients = _maybe_add_or_remove_recipients(
 			recipients, self._cfg, template_name)
 
 		if not recipients:

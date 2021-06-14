@@ -6,15 +6,24 @@ from bespoke.email import sendgrid_util
 
 class TestSendGridClient(unittest.TestCase):
 
-	def test_maybe_add_extra_recipients(self) -> None:
+	def test_maybe_add_or_remove_recipients(self) -> None:
 		tests: List[Dict] = [
 			{
-				'recipients': ['a@gmail.com'],
+				'recipients': ['a@gmail.com', 'b@sweatequity.vc'],
 				'cfg': {
 					'flask_env': 'development'
 				},
 				'template_name': '',
-				'expected_recipients': ['a@gmail.com']
+				'expected_recipients': ['b@sweatequity.vc']
+			},
+			{
+				'recipients': ['a@gmail.com', 'b@sweatequity.vc'],
+				'cfg': {
+					'flask_env': 'staging',
+					'no_reply_email_addr': 'no-reply@bespokefinancial.com'
+				},
+				'template_name': '',
+				'expected_recipients': ['b@sweatequity.vc', 'no-reply@bespokefinancial.com']
 			},
 			{
 				'recipients': ['a@gmail.com'],
@@ -39,7 +48,7 @@ class TestSendGridClient(unittest.TestCase):
 		for test in tests:
 			self.assertEqual(
 				test['expected_recipients'], 
-				sendgrid_util._maybe_add_extra_recipients(
+				sendgrid_util._maybe_add_or_remove_recipients(
 					test['recipients'],
 					test['cfg'],
 					test['template_name']
