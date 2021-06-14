@@ -5818,6 +5818,7 @@ export type FinancialSummaries = {
   id: Scalars["uuid"];
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
   minimum_monthly_payload?: Maybe<Scalars["jsonb"]>;
+  total_amount_to_pay_interest_on?: Maybe<Scalars["numeric"]>;
   total_limit: Scalars["numeric"];
   total_outstanding_fees: Scalars["numeric"];
   total_outstanding_interest: Scalars["numeric"];
@@ -5895,6 +5896,7 @@ export type FinancialSummariesAvgFields = {
   adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   interest_accrued_today?: Maybe<Scalars["Float"]>;
+  total_amount_to_pay_interest_on?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
@@ -5908,6 +5910,7 @@ export type FinancialSummariesAvgOrderBy = {
   adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   interest_accrued_today?: Maybe<OrderBy>;
+  total_amount_to_pay_interest_on?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
@@ -5931,6 +5934,7 @@ export type FinancialSummariesBoolExp = {
   id?: Maybe<UuidComparisonExp>;
   interest_accrued_today?: Maybe<NumericComparisonExp>;
   minimum_monthly_payload?: Maybe<JsonbComparisonExp>;
+  total_amount_to_pay_interest_on?: Maybe<NumericComparisonExp>;
   total_limit?: Maybe<NumericComparisonExp>;
   total_outstanding_fees?: Maybe<NumericComparisonExp>;
   total_outstanding_interest?: Maybe<NumericComparisonExp>;
@@ -5970,6 +5974,7 @@ export type FinancialSummariesIncInput = {
   adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit?: Maybe<Scalars["numeric"]>;
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
+  total_amount_to_pay_interest_on?: Maybe<Scalars["numeric"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
   total_outstanding_interest?: Maybe<Scalars["numeric"]>;
@@ -5990,6 +5995,7 @@ export type FinancialSummariesInsertInput = {
   id?: Maybe<Scalars["uuid"]>;
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
   minimum_monthly_payload?: Maybe<Scalars["jsonb"]>;
+  total_amount_to_pay_interest_on?: Maybe<Scalars["numeric"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
   total_outstanding_interest?: Maybe<Scalars["numeric"]>;
@@ -6007,6 +6013,7 @@ export type FinancialSummariesMaxFields = {
   day_volume_threshold_met?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
+  total_amount_to_pay_interest_on?: Maybe<Scalars["numeric"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
   total_outstanding_interest?: Maybe<Scalars["numeric"]>;
@@ -6024,6 +6031,7 @@ export type FinancialSummariesMaxOrderBy = {
   day_volume_threshold_met?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   interest_accrued_today?: Maybe<OrderBy>;
+  total_amount_to_pay_interest_on?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
@@ -6041,6 +6049,7 @@ export type FinancialSummariesMinFields = {
   day_volume_threshold_met?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
+  total_amount_to_pay_interest_on?: Maybe<Scalars["numeric"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
   total_outstanding_interest?: Maybe<Scalars["numeric"]>;
@@ -6058,6 +6067,7 @@ export type FinancialSummariesMinOrderBy = {
   day_volume_threshold_met?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   interest_accrued_today?: Maybe<OrderBy>;
+  total_amount_to_pay_interest_on?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
@@ -6099,6 +6109,7 @@ export type FinancialSummariesOrderBy = {
   id?: Maybe<OrderBy>;
   interest_accrued_today?: Maybe<OrderBy>;
   minimum_monthly_payload?: Maybe<OrderBy>;
+  total_amount_to_pay_interest_on?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
@@ -6139,6 +6150,8 @@ export enum FinancialSummariesSelectColumn {
   /** column name */
   MinimumMonthlyPayload = "minimum_monthly_payload",
   /** column name */
+  TotalAmountToPayInterestOn = "total_amount_to_pay_interest_on",
+  /** column name */
   TotalLimit = "total_limit",
   /** column name */
   TotalOutstandingFees = "total_outstanding_fees",
@@ -6163,6 +6176,7 @@ export type FinancialSummariesSetInput = {
   id?: Maybe<Scalars["uuid"]>;
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
   minimum_monthly_payload?: Maybe<Scalars["jsonb"]>;
+  total_amount_to_pay_interest_on?: Maybe<Scalars["numeric"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
   total_outstanding_interest?: Maybe<Scalars["numeric"]>;
@@ -6176,6 +6190,7 @@ export type FinancialSummariesStddevFields = {
   adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   interest_accrued_today?: Maybe<Scalars["Float"]>;
+  total_amount_to_pay_interest_on?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
@@ -6189,6 +6204,7 @@ export type FinancialSummariesStddevOrderBy = {
   adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   interest_accrued_today?: Maybe<OrderBy>;
+  total_amount_to_pay_interest_on?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
@@ -6202,6 +6218,7 @@ export type FinancialSummariesStddevPopFields = {
   adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   interest_accrued_today?: Maybe<Scalars["Float"]>;
+  total_amount_to_pay_interest_on?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
@@ -6215,6 +6232,7 @@ export type FinancialSummariesStddevPopOrderBy = {
   adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   interest_accrued_today?: Maybe<OrderBy>;
+  total_amount_to_pay_interest_on?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
@@ -6228,6 +6246,7 @@ export type FinancialSummariesStddevSampFields = {
   adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   interest_accrued_today?: Maybe<Scalars["Float"]>;
+  total_amount_to_pay_interest_on?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
@@ -6241,6 +6260,7 @@ export type FinancialSummariesStddevSampOrderBy = {
   adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   interest_accrued_today?: Maybe<OrderBy>;
+  total_amount_to_pay_interest_on?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
@@ -6254,6 +6274,7 @@ export type FinancialSummariesSumFields = {
   adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit?: Maybe<Scalars["numeric"]>;
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
+  total_amount_to_pay_interest_on?: Maybe<Scalars["numeric"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
   total_outstanding_interest?: Maybe<Scalars["numeric"]>;
@@ -6267,6 +6288,7 @@ export type FinancialSummariesSumOrderBy = {
   adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   interest_accrued_today?: Maybe<OrderBy>;
+  total_amount_to_pay_interest_on?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
@@ -6296,6 +6318,8 @@ export enum FinancialSummariesUpdateColumn {
   /** column name */
   MinimumMonthlyPayload = "minimum_monthly_payload",
   /** column name */
+  TotalAmountToPayInterestOn = "total_amount_to_pay_interest_on",
+  /** column name */
   TotalLimit = "total_limit",
   /** column name */
   TotalOutstandingFees = "total_outstanding_fees",
@@ -6314,6 +6338,7 @@ export type FinancialSummariesVarPopFields = {
   adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   interest_accrued_today?: Maybe<Scalars["Float"]>;
+  total_amount_to_pay_interest_on?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
@@ -6327,6 +6352,7 @@ export type FinancialSummariesVarPopOrderBy = {
   adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   interest_accrued_today?: Maybe<OrderBy>;
+  total_amount_to_pay_interest_on?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
@@ -6340,6 +6366,7 @@ export type FinancialSummariesVarSampFields = {
   adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   interest_accrued_today?: Maybe<Scalars["Float"]>;
+  total_amount_to_pay_interest_on?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
@@ -6353,6 +6380,7 @@ export type FinancialSummariesVarSampOrderBy = {
   adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   interest_accrued_today?: Maybe<OrderBy>;
+  total_amount_to_pay_interest_on?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
@@ -6366,6 +6394,7 @@ export type FinancialSummariesVarianceFields = {
   adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   interest_accrued_today?: Maybe<Scalars["Float"]>;
+  total_amount_to_pay_interest_on?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
@@ -6379,6 +6408,7 @@ export type FinancialSummariesVarianceOrderBy = {
   adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   interest_accrued_today?: Maybe<OrderBy>;
+  total_amount_to_pay_interest_on?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
@@ -19292,6 +19322,7 @@ export type FinancialSummaryFragment = Pick<
   | "total_outstanding_fees"
   | "total_principal_in_requested_state"
   | "total_outstanding_principal_for_interest"
+  | "total_amount_to_pay_interest_on"
   | "minimum_monthly_payload"
   | "account_level_balance_payload"
   | "day_volume_threshold_met"
@@ -20103,6 +20134,7 @@ export const FinancialSummaryFragmentDoc = gql`
     total_outstanding_fees
     total_principal_in_requested_state
     total_outstanding_principal_for_interest
+    total_amount_to_pay_interest_on
     minimum_monthly_payload
     account_level_balance_payload
     day_volume_threshold_met

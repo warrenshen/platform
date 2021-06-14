@@ -65,12 +65,23 @@ export default function FinancialSummariesDataGrid({
       },
       {
         dataField: "total_outstanding_principal_for_interest",
-        caption: "Interest Balance",
+        caption: "Principal Balance For Interest",
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell
             value={params.row.data.total_outstanding_principal_for_interest}
+          />
+        ),
+      },
+      {
+        dataField: "total_amount_to_pay_interest_on",
+        caption: "Amount To Pay Interest On",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell
+            value={params.row.data.total_amount_to_pay_interest_on}
           />
         ),
       },

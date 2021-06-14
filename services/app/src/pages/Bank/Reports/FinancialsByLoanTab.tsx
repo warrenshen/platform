@@ -127,6 +127,7 @@ export default function BankReportsFinancialsByCustomerTab() {
       "outstanding_principal_for_interest",
       "outstanding_interest",
       "outstanding_fees",
+      "amount_to_pay_interest_on",
       "interest_due_for_day",
       "fee_for_day",
       "interest_rate",

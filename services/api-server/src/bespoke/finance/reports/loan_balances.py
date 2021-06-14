@@ -17,11 +17,9 @@
 import datetime
 import decimal
 import logging
-from datetime import timedelta
 from typing import Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
-from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.db_constants import LoanStatusEnum, ProductType
 from bespoke.db.models import session_scope
@@ -43,6 +41,7 @@ SummaryUpdateDict = TypedDict('SummaryUpdateDict', {
 	'total_outstanding_interest': float,
 	'total_outstanding_fees': float,
 	'total_principal_in_requested_state': float,
+	'total_amount_to_pay_interest_on': float,
 	'total_interest_accrued_today': float,
 	'available_limit': float,
 	'minimum_monthly_payload': FeeDict,
@@ -175,6 +174,7 @@ def _get_summary_update(
 	total_outstanding_principal_for_interest = 0.0
 	total_outstanding_interest = 0.0
 	total_outstanding_fees = 0.0
+	total_amount_to_pay_interest_on = 0.0
 	total_interest_accrued_today = 0.0
 
 	for l in loan_updates:
@@ -182,6 +182,7 @@ def _get_summary_update(
 		total_outstanding_principal_for_interest += l['outstanding_principal_for_interest']
 		total_outstanding_interest += l['outstanding_interest']
 		total_outstanding_fees += l['outstanding_fees']
+		total_amount_to_pay_interest_on += l['amount_to_pay_interest_on']
 		total_interest_accrued_today += l['interest_accrued_today']
 
 	minimum_monthly_payload, err = fee_util.get_cur_minimum_fees(contract_helper, today, fee_accumulator)
@@ -201,6 +202,7 @@ def _get_summary_update(
 		total_outstanding_interest=total_outstanding_interest,
 		total_outstanding_fees=total_outstanding_fees,
 		total_principal_in_requested_state=0.0,
+		total_amount_to_pay_interest_on=total_amount_to_pay_interest_on,
 		total_interest_accrued_today=total_interest_accrued_today,
 		available_limit=max(0.0, adjusted_total_limit - total_outstanding_principal),
 		minimum_monthly_payload=minimum_monthly_payload,
@@ -417,6 +419,7 @@ class CustomerBalance(object):
 			financial_summary.total_outstanding_interest = decimal.Decimal(number_util.round_currency(summary_update['total_outstanding_interest']))
 			financial_summary.total_outstanding_fees = decimal.Decimal(number_util.round_currency(summary_update['total_outstanding_fees']))
 			financial_summary.total_principal_in_requested_state = decimal.Decimal(number_util.round_currency(summary_update['total_principal_in_requested_state']))
+			financial_summary.total_amount_to_pay_interest_on = decimal.Decimal(number_util.round_currency(summary_update['total_amount_to_pay_interest_on']))
 			financial_summary.interest_accrued_today = decimal.Decimal(number_util.round_currency(summary_update['total_interest_accrued_today']))
 			financial_summary.available_limit = decimal.Decimal(number_util.round_currency(summary_update['available_limit']))
 			financial_summary.minimum_monthly_payload = cast(Dict, summary_update['minimum_monthly_payload'])

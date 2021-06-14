@@ -40134,6 +40134,18 @@
             "deprecationReason": null
           },
           {
+            "name": "total_amount_to_pay_interest_on",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "args": [],
@@ -40687,6 +40699,18 @@
             "deprecationReason": null
           },
           {
+            "name": "total_amount_to_pay_interest_on",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "args": [],
@@ -40792,6 +40816,16 @@
           },
           {
             "name": "interest_accrued_today",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_amount_to_pay_interest_on",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -41005,6 +41039,16 @@
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "jsonb_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_amount_to_pay_interest_on",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "numeric_comparison_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -41235,6 +41279,16 @@
             "defaultValue": null
           },
           {
+            "name": "total_amount_to_pay_interest_on",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "type": {
@@ -41406,6 +41460,16 @@
             "defaultValue": null
           },
           {
+            "name": "total_amount_to_pay_interest_on",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "type": {
@@ -41549,6 +41613,18 @@
           },
           {
             "name": "interest_accrued_today",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "total_amount_to_pay_interest_on",
             "description": null,
             "args": [],
             "type": {
@@ -41714,6 +41790,16 @@
             "defaultValue": null
           },
           {
+            "name": "total_amount_to_pay_interest_on",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "type": {
@@ -41857,6 +41943,18 @@
           },
           {
             "name": "interest_accrued_today",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "total_amount_to_pay_interest_on",
             "description": null,
             "args": [],
             "type": {
@@ -42013,6 +42111,16 @@
           },
           {
             "name": "interest_accrued_today",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_amount_to_pay_interest_on",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -42336,6 +42444,16 @@
             "defaultValue": null
           },
           {
+            "name": "total_amount_to_pay_interest_on",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "type": {
@@ -42519,6 +42637,12 @@
             "deprecationReason": null
           },
           {
+            "name": "total_amount_to_pay_interest_on",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_limit",
             "description": "column name",
             "isDeprecated": false,
@@ -42654,6 +42778,16 @@
             "defaultValue": null
           },
           {
+            "name": "total_amount_to_pay_interest_on",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "type": {
@@ -42749,6 +42883,18 @@
           },
           {
             "name": "interest_accrued_today",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "total_amount_to_pay_interest_on",
             "description": null,
             "args": [],
             "type": {
@@ -42874,6 +43020,16 @@
             "defaultValue": null
           },
           {
+            "name": "total_amount_to_pay_interest_on",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "type": {
@@ -42969,6 +43125,18 @@
           },
           {
             "name": "interest_accrued_today",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "total_amount_to_pay_interest_on",
             "description": null,
             "args": [],
             "type": {
@@ -43094,6 +43262,16 @@
             "defaultValue": null
           },
           {
+            "name": "total_amount_to_pay_interest_on",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "type": {
@@ -43189,6 +43367,18 @@
           },
           {
             "name": "interest_accrued_today",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "total_amount_to_pay_interest_on",
             "description": null,
             "args": [],
             "type": {
@@ -43314,6 +43504,16 @@
             "defaultValue": null
           },
           {
+            "name": "total_amount_to_pay_interest_on",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "type": {
@@ -43409,6 +43609,18 @@
           },
           {
             "name": "interest_accrued_today",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "total_amount_to_pay_interest_on",
             "description": null,
             "args": [],
             "type": {
@@ -43525,6 +43737,16 @@
           },
           {
             "name": "interest_accrued_today",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_amount_to_pay_interest_on",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -43661,6 +43883,12 @@
             "deprecationReason": null
           },
           {
+            "name": "total_amount_to_pay_interest_on",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_limit",
             "description": "column name",
             "isDeprecated": false,
@@ -43730,6 +43958,18 @@
           },
           {
             "name": "interest_accrued_today",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "total_amount_to_pay_interest_on",
             "description": null,
             "args": [],
             "type": {
@@ -43855,6 +44095,16 @@
             "defaultValue": null
           },
           {
+            "name": "total_amount_to_pay_interest_on",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "type": {
@@ -43950,6 +44200,18 @@
           },
           {
             "name": "interest_accrued_today",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "total_amount_to_pay_interest_on",
             "description": null,
             "args": [],
             "type": {
@@ -44075,6 +44337,16 @@
             "defaultValue": null
           },
           {
+            "name": "total_amount_to_pay_interest_on",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "type": {
@@ -44170,6 +44442,18 @@
           },
           {
             "name": "interest_accrued_today",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "total_amount_to_pay_interest_on",
             "description": null,
             "args": [],
             "type": {
@@ -44286,6 +44570,16 @@
           },
           {
             "name": "interest_accrued_today",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_amount_to_pay_interest_on",
             "description": null,
             "type": {
               "kind": "ENUM",

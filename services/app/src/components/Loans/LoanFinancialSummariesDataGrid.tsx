@@ -75,6 +75,17 @@ export default function LoanFinancialSummariesDataGrid({
         ),
       },
       {
+        dataField: "amount_to_pay_interest_on",
+        caption: "Amount To Pay Interest On",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell
+            value={params.row.data.amount_to_pay_interest_on}
+          />
+        ),
+      },
+      {
         dataField: "interest_due_for_day",
         caption: "Interest Due For Day",
         width: ColumnWidths.Currency,

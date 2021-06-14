@@ -22,7 +22,8 @@ LoanFinancialStateDict = TypedDict('LoanFinancialStateDict', {
 	'outstanding_principal': float,
 	'outstanding_principal_for_interest': float,
 	'outstanding_interest': float,
-	'outstanding_fees': float
+	'outstanding_fees': float,
+	'amount_to_pay_interest_on': float
 })
 
 LoanUpdateDict = TypedDict('LoanUpdateDict', {
@@ -32,6 +33,7 @@ LoanUpdateDict = TypedDict('LoanUpdateDict', {
 	'outstanding_principal_for_interest': float,
 	'outstanding_interest': float,
 	'outstanding_fees': float,
+	'amount_to_pay_interest_on': float,
 	'interest_accrued_today': float,
 	'should_close_loan': bool
 })
@@ -665,12 +667,13 @@ class LoanCalculator(object):
 
 			if include_debug_info:
 				debug_column_names = [
-					'date', 
-					'outstanding_principal', 
+					'date',
+					'outstanding_principal',
 					'outstanding_principal_for_interest',
 					'outstanding_interest', 
 					'outstanding_fees',
 
+					'amount_to_pay_interest_on',
 					'interest_due_for_day',
 					'fee_for_day',
 					'interest_rate',
@@ -683,8 +686,9 @@ class LoanCalculator(object):
 					outstanding_interest,
 					outstanding_fees,
 
-					interest_due_for_day,
-					fee_due_for_day,
+					interest_fee_info['amount_to_pay_interest_on'],
+					interest_fee_info['interest_due_for_day'],
+					interest_fee_info['fee_due_for_day'],
 					interest_fee_info['interest_rate_used'],
 					interest_fee_info['fee_multiplier'],
 				]
@@ -715,7 +719,8 @@ class LoanCalculator(object):
 					outstanding_principal=outstanding_principal,
 					outstanding_principal_for_interest=outstanding_principal_for_interest,
 					outstanding_interest=outstanding_interest,
-					outstanding_fees=outstanding_fees
+					outstanding_fees=outstanding_fees,
+					amount_to_pay_interest_on=amount_to_pay_interest_on
 				)
 
 				# Calculate the fees and interest that will accrue in between the deposit
@@ -852,9 +857,10 @@ class LoanCalculator(object):
 			loan_id=loan['id'],
 			adjusted_maturity_date=loan['adjusted_maturity_date'],
 			outstanding_principal=_format_output_value(outstanding_principal, should_round_output),
-			outstanding_principal_for_interest=_format_output_value(amount_to_pay_interest_on, should_round_output),
+			outstanding_principal_for_interest=_format_output_value(outstanding_principal_for_interest, should_round_output),
 			outstanding_interest=_format_output_value(outstanding_interest, should_round_output),
 			outstanding_fees=_format_output_value(outstanding_fees, should_round_output),
+			amount_to_pay_interest_on=_format_output_value(amount_to_pay_interest_on, should_round_output),
 			interest_accrued_today=_format_output_value(interest_accrued_today, should_round_output),
 			should_close_loan=False,
 		)
