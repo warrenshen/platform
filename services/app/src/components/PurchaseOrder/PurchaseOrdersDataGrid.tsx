@@ -1,5 +1,6 @@
 import { Box, Typography } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
@@ -12,6 +13,7 @@ import UpdatePurchaseOrderBankNote from "components/PurchaseOrder/UpdatePurchase
 import ModalButton from "components/Shared/Modal/ModalButton";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import {
+  Companies,
   PurchaseOrderFragment,
   PurchaseOrders,
   RequestStatusEnum,
@@ -22,7 +24,7 @@ import { useMemo } from "react";
 function getRows(purchaseOrders: PurchaseOrderFragment[]): RowsProp {
   return purchaseOrders.map((purchaseOrder) => ({
     ...purchaseOrder,
-    company_name: purchaseOrder.company?.name,
+    company_name: purchaseOrder.company.name,
     vendor_name: purchaseOrder.vendor?.name,
     customer_note: !!purchaseOrder.customer_note
       ? purchaseOrder.customer_note.length > 64
@@ -47,6 +49,7 @@ interface Props {
   purchaseOrders: PurchaseOrderFragment[];
   actionItems?: DataGridActionItem[];
   selectedPurchaseOrderIds?: PurchaseOrders["id"][];
+  handleClickCustomer?: (customerId: Companies["id"]) => void;
   handleSelectPurchaseOrders?: (
     purchaseOrders: PurchaseOrderFragment[]
   ) => void;
@@ -62,6 +65,7 @@ export default function PurchaseOrdersDataGrid({
   purchaseOrders,
   actionItems,
   selectedPurchaseOrderIds,
+  handleClickCustomer,
   handleSelectPurchaseOrders,
 }: Props) {
   const rows = getRows(purchaseOrders);
@@ -105,6 +109,15 @@ export default function PurchaseOrdersDataGrid({
         dataField: "company_name",
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) =>
+          handleClickCustomer ? (
+            <ClickableDataGridCell
+              label={params.row.data.company_name}
+              onClick={() => handleClickCustomer(params.row.data.company.id)}
+            />
+          ) : (
+            params.row.data.company_name
+          ),
       },
       {
         dataField: "vendor_name",
@@ -183,6 +196,7 @@ export default function PurchaseOrdersDataGrid({
       isCustomerNoteVisible,
       isDeliveryDateVisible,
       actionItems,
+      handleClickCustomer,
     ]
   );
 

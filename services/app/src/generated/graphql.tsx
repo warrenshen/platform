@@ -18528,12 +18528,7 @@ export type GetLoansForBankSubscriptionVariables = Exact<{
 }>;
 
 export type GetLoansForBankSubscription = {
-  loans: Array<
-    Pick<Loans, "id"> & {
-      company: Pick<Companies, "id" | "name">;
-    } & LoanFragment &
-      LoanArtifactLimitedFragment
-  >;
+  loans: Array<Pick<Loans, "id"> & LoanFragment & LoanArtifactFragment>;
 };
 
 export type GetNotFundedLoansForBankSubscriptionVariables = Exact<{
@@ -18541,7 +18536,7 @@ export type GetNotFundedLoansForBankSubscriptionVariables = Exact<{
 }>;
 
 export type GetNotFundedLoansForBankSubscription = {
-  loans: Array<Pick<Loans, "id"> & LoanFragment & LoanArtifactLimitedFragment>;
+  loans: Array<Pick<Loans, "id"> & LoanFragment & LoanArtifactFragment>;
 };
 
 export type GetFundedLoansForBankSubscriptionVariables = Exact<{
@@ -18549,7 +18544,7 @@ export type GetFundedLoansForBankSubscriptionVariables = Exact<{
 }>;
 
 export type GetFundedLoansForBankSubscription = {
-  loans: Array<Pick<Loans, "id"> & LoanFragment & LoanArtifactLimitedFragment>;
+  loans: Array<Pick<Loans, "id"> & LoanFragment & LoanArtifactFragment>;
 };
 
 export type GetActiveLoansForCompanyQueryVariables = Exact<{
@@ -23003,15 +22998,11 @@ export const GetLoansForBankDocument = gql`
     ) {
       id
       ...Loan
-      ...LoanArtifactLimited
-      company {
-        id
-        name
-      }
+      ...LoanArtifact
     }
   }
   ${LoanFragmentDoc}
-  ${LoanArtifactLimitedFragmentDoc}
+  ${LoanArtifactFragmentDoc}
 `;
 
 /**
@@ -23063,11 +23054,11 @@ export const GetNotFundedLoansForBankDocument = gql`
     ) {
       id
       ...Loan
-      ...LoanArtifactLimited
+      ...LoanArtifact
     }
   }
   ${LoanFragmentDoc}
-  ${LoanArtifactLimitedFragmentDoc}
+  ${LoanArtifactFragmentDoc}
 `;
 
 /**
@@ -23124,11 +23115,11 @@ export const GetFundedLoansForBankDocument = gql`
     ) {
       id
       ...Loan
-      ...LoanArtifactLimited
+      ...LoanArtifact
     }
   }
   ${LoanFragmentDoc}
-  ${LoanArtifactLimitedFragmentDoc}
+  ${LoanArtifactFragmentDoc}
 `;
 
 /**

@@ -9,11 +9,14 @@ import {
   PurchaseOrders,
   useGetNotConfirmedPurchaseOrdersSubscription,
 } from "generated/graphql";
+import { useHistory } from "react-router-dom";
 import { Action } from "lib/auth/rbac-rules";
 import { filter } from "lodash";
 import { useMemo, useState } from "react";
 
 export default function BankPurchaseOrdersActiveTab() {
+  const history = useHistory();
+
   const { data, error } = useGetNotConfirmedPurchaseOrdersSubscription();
 
   if (error) {
@@ -123,6 +126,9 @@ export default function BankPurchaseOrdersActiveTab() {
           isCustomerNoteVisible={false}
           isMultiSelectEnabled
           purchaseOrders={purchaseOrders}
+          handleClickCustomer={(customerId) =>
+            history.push(`/customers/${customerId}/purchase-orders`)
+          }
           handleSelectPurchaseOrders={handleSelectPurchaseOrders}
         />
       </Box>

@@ -12,11 +12,7 @@ subscription GetLoansForBank {
   ) {
     id
     ...Loan
-    ...LoanArtifactLimited
-    company {
-      id
-      name
-    }
+    ...LoanArtifact
   }
 }
 
@@ -38,7 +34,7 @@ subscription GetNotFundedLoansForBank {
   ) {
     id
     ...Loan
-    ...LoanArtifactLimited
+    ...LoanArtifact
   }
 }
 
@@ -65,7 +61,7 @@ subscription GetFundedLoansForBank {
   ) {
     id
     ...Loan
-    ...LoanArtifactLimited
+    ...LoanArtifact
   }
 }
 

@@ -102,8 +102,8 @@ export default function LoansDataGrid({
   loans,
   actionItems,
   selectedLoanIds,
-  handleSelectLoans,
   handleClickCustomer,
+  handleSelectLoans,
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = useMemo(() => getRows(loans), [loans]);

@@ -1,15 +1,12 @@
 import { Box, TextField } from "@material-ui/core";
 import PurchaseOrdersDataGrid from "components/PurchaseOrder/PurchaseOrdersDataGrid";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { useGetConfirmedPurchaseOrdersSubscription } from "generated/graphql";
-import { Action, check } from "lib/auth/rbac-rules";
+import { useHistory } from "react-router-dom";
 import { filter } from "lodash";
-import { useContext, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 export default function BankPurchaseOrdersClosedTab() {
-  const {
-    user: { role },
-  } = useContext(CurrentUserContext);
+  const history = useHistory();
 
   const { data, error } = useGetConfirmedPurchaseOrdersSubscription();
 
@@ -55,8 +52,8 @@ export default function BankPurchaseOrdersClosedTab() {
           isCompanyVisible
           isCustomerNoteVisible={false}
           purchaseOrders={purchaseOrders}
-          actionItems={
-            check(role, Action.ViewPurchaseOrdersActionMenu) ? [] : []
+          handleClickCustomer={(customerId) =>
+            history.push(`/customers/${customerId}/purchase-orders`)
           }
         />
       </Box>
