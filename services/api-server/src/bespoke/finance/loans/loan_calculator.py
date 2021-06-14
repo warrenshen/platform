@@ -351,7 +351,7 @@ def _format_output_value(value: float, should_round: bool) -> float:
 	# This is exactly what we do to calculate financial summaries. If we do
 	# not squash "in currency terms equal to zero" values to zero, those
 	# sums we calculate end up including the values and end up incorrect.
-	if number_util.round_currency(value) == 0.0:
+	if number_util.is_currency_zero(value):
 		return 0.0
 	elif should_round:
 		return number_util.round_currency(value)
@@ -486,7 +486,7 @@ class LoanCalculator(object):
 				if not invoice:
 					return None, errors.Error('No invoice found associated with this loan, could not compute any financial details')
 
-				if number_util.float_eq(outstanding_principal_for_interest, 0.0):
+				if number_util.is_currency_zero(outstanding_principal_for_interest):
 					# If loan is fully paid, there is no amount to pay interest on.
 					amount_to_pay_interest_on = 0.0
 				else:
@@ -495,7 +495,7 @@ class LoanCalculator(object):
 			else:
 				amount_to_pay_interest_on = outstanding_principal_for_interest
 
-			if amount_to_pay_interest_on == 0:
+			if number_util.is_currency_zero(amount_to_pay_interest_on):
 				interest_rate_used = 0.0
 			elif number_util.round_currency(amount_to_pay_interest_on) < 0:
 				logging.warn(f'Amount to pay interest on ({amount_to_pay_interest_on}) is negative on {cur_date} for loan {loan["id"]}')
@@ -600,9 +600,6 @@ class LoanCalculator(object):
 				payment_to_include['custom_amount_split']['to_interest'] -= tx['to_interest']
 				payment_to_include['custom_amount_split']['to_fees'] -= tx['to_fees']
 
-		def _is_after_repayment_deposit_date(cur_date: datetime.date) -> bool:
-			return payment_to_include and cur_date > payment_to_include['deposit_date'] and cur_date <= payment_to_include['settlement_date']
-
 		debug_update_states: List[UpdateDebugStateDict] = []
 		debug_column_names: List[str] = []
 
@@ -670,7 +667,7 @@ class LoanCalculator(object):
 				debug_column_names = [
 					'date', 
 					'outstanding_principal', 
-					'outstanding_principal_for_interest', 
+					'outstanding_principal_for_interest',
 					'outstanding_interest', 
 					'outstanding_fees',
 
@@ -705,7 +702,10 @@ class LoanCalculator(object):
 					outstanding_principal -= tx['to_principal']
 					outstanding_interest -= tx['to_interest']
 					outstanding_fees -= tx['to_fees']
-					if number_util.float_lte(number_util.round_currency(outstanding_principal), 0.0) and cur_date <= loan['adjusted_maturity_date']:
+					if (
+						number_util.float_lte(number_util.round_currency(outstanding_principal), 0.0) and 
+						cur_date <= loan['adjusted_maturity_date']
+					):
 						loan_paid_by_maturity_date = True
 
 			if payment_to_include and payment_to_include['deposit_date'] == cur_date:
@@ -800,7 +800,10 @@ class LoanCalculator(object):
 				outstanding_principal -= inserted_repayment_transaction['to_principal']
 				outstanding_interest -= inserted_repayment_transaction['to_interest']
 				outstanding_fees -= inserted_repayment_transaction['to_fees']
-				if number_util.float_lte(number_util.round_currency(outstanding_principal), 0.0) and cur_date <= loan['adjusted_maturity_date']:
+				if (
+					number_util.float_lte(number_util.round_currency(outstanding_principal), 0.0) and
+					cur_date <= loan['adjusted_maturity_date']
+				):
 					loan_paid_by_maturity_date = True
 
 				payment_effect_dict = PaymentEffectDict(

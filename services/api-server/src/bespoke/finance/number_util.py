@@ -35,3 +35,8 @@ def is_number(val: Any) -> bool:
 
 	val_type = type(val)
 	return val_type == float or val_type == int
+
+# Returns whether the currency equivalent of given decimal is equal to zero.
+# Note: a currency value is a decimal rounded to two decimal places.
+def is_currency_zero(num: float) -> bool:
+	return float_eq(round_currency(num), 0.0)
