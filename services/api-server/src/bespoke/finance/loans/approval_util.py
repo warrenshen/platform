@@ -285,8 +285,8 @@ def submit_for_approval(
 	), None
 
 
-# NOTE: Keep in sync with addLoan in CreateUpdateArtifactLoanModal. Relevant
-# code is:
+# NOTE: Keep in sync with addLoan in CreateUpdateArtifactLoanModal.
+# Relevant code is:
 """
     company_id: isBankUser ? companyId : undefined,
     identifier: nextLoanIdentifier.toString(),
@@ -333,7 +333,7 @@ def submit_for_approval_if_has_autofinancing(
 
 	loan_type = db_constants.PRODUCT_TYPE_TO_LOAN_TYPE.get(contract.product_type)
 	if not loan_type:
-		raise errors.Error('No loan type associated with product type {}'.format(loan_type))
+		raise errors.Error(f'No loan type associated with product type {loan_type}')
 
 	contract_obj, err = contract_util.Contract.build(contract.as_dict(), validate=False)
 	if err:
