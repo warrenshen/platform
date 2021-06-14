@@ -123,6 +123,10 @@ def _get_companies_with_metrc_keys(
 		company_id_to_name = {}
 		for company in companies:
 			if not company.company_settings_id:
+				# Skip companies who do not have settings setup
+				continue
+			if not company.contract_id:
+				# Skip companies who do not have contracts setup
 				continue
 			company_settings_ids.append(str(company.company_settings_id))
 			company_id_to_name[str(company.id)] = company.name
@@ -154,7 +158,6 @@ def _get_companies_with_metrc_keys(
 			session.query(models.MetrcApiKey).filter(
 				models.MetrcApiKey.id.in_(metrc_api_key_ids)
 		).all())
-
 
 		company_ids_with_metrc_keys = set([])
 		for metrc_api_key in metrc_api_keys:
