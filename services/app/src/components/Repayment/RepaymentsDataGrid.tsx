@@ -66,6 +66,7 @@ export default function RepaymentsDataGrid({
   const columns = useMemo(
     () => [
       {
+        fixed: true,
         dataField: "id",
         caption: "Payment ID",
         width: 140,

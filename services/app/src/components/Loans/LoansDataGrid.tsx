@@ -162,6 +162,7 @@ export default function LoansDataGrid({
         ),
       },
       {
+        fixed: true,
         dataField: "customer_identifier",
         caption: "Customer Identifier",
         width: ColumnWidths.Identifier,
@@ -173,6 +174,7 @@ export default function LoansDataGrid({
         ),
       },
       {
+        fixed: true,
         visible: isDisbursementIdentifierVisible,
         dataField: "disbursement_identifier",
         caption: "Disbursement Identifier",

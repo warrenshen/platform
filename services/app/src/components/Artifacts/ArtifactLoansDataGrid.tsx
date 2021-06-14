@@ -85,6 +85,7 @@ export default function ArtifactLoansDataGrid({
   const columns = useMemo(
     () => [
       {
+        fixed: true,
         dataField: "customer_identifier",
         caption: "Customer Identifier",
         width: ColumnWidths.Identifier,
@@ -96,6 +97,7 @@ export default function ArtifactLoansDataGrid({
         ),
       },
       {
+        fixed: true,
         visible: isDisbursementIdentifierVisible,
         dataField: "disbursement_identifier",
         caption: "Disbursement Identifier",
