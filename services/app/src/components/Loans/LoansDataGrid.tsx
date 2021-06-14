@@ -136,7 +136,11 @@ export default function LoansDataGrid({
   const maturingInDaysRenderer = (value: any) => {
     const maturityTime = getMaturityDate(value.data).getTime();
     const nowTime = new Date(Date.now()).getTime();
-    return Math.floor((maturityTime - nowTime) / (24 * 60 * 60 * 1000));
+    const maturingInDays = Math.max(
+      0,
+      Math.floor((maturityTime - nowTime) / (24 * 60 * 60 * 1000))
+    );
+    return maturingInDays > 0 ? `${maturingInDays}` : "-";
   };
 
   const daysPastDueRenderer = (value: any) => {

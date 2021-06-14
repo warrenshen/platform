@@ -8,6 +8,10 @@ import {
 } from "generated/graphql";
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
+import Can from "components/Shared/Can";
+import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal";
+import ModalButton from "components/Shared/Modal/ModalButton";
+import { Action } from "lib/auth/rbac-rules";
 
 export default function BankReportsFinancialsByCustomerTab() {
   const history = useHistory();
@@ -24,6 +28,7 @@ export default function BankReportsFinancialsByCustomerTab() {
   const {
     data: financialSummariesByCompanyIdData,
     error: financialSummariesByCompanyIdError,
+    refetch: financialSummariesByCompanyIdRefetch,
   } = useGetFinancialSummariesByCompanyIdQuery({
     fetchPolicy: "network-only",
     skip: !companyId,
@@ -72,6 +77,26 @@ export default function BankReportsFinancialsByCustomerTab() {
               }
             />
           </FormControl>
+        </Box>
+        <Box display="flex" flexDirection="row-reverse" mb={2}>
+          <Can perform={Action.RunBalances}>
+            <Box>
+              <ModalButton
+                isDisabled={!companyId}
+                label={"Run Balances"}
+                color={"default"}
+                modal={({ handleClose }) => (
+                  <RunCustomerBalancesModal
+                    companyId={companyId}
+                    handleClose={() => {
+                      financialSummariesByCompanyIdRefetch();
+                      handleClose();
+                    }}
+                  />
+                )}
+              />
+            </Box>
+          </Can>
         </Box>
         <Box display="flex" flexDirection="column">
           <FinancialSummariesDataGrid
