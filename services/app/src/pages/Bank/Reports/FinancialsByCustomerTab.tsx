@@ -1,4 +1,5 @@
-import { Box, FormControl, TextField } from "@material-ui/core";
+import { Box, FormControl, TextField, Typography } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import FinancialSummariesDataGrid from "components/CustomerFinancialSummaries/FinancialSummariesDataGrid";
 import {
@@ -99,6 +100,38 @@ export default function BankReportsFinancialsByCustomerTab() {
           </Can>
         </Box>
         <Box display="flex" flexDirection="column">
+          <Box mb={2}>
+            <Alert severity="info">
+              <Box display="flex" flexDirection="column">
+                <Box>
+                  <Typography variant="body2">
+                    Principal Balance (PB): total outstanding principal with
+                    payments applied on <b>deposit date</b> as of{" "}
+                    <b>end of date</b>
+                  </Typography>
+                </Box>
+                <Box mt={1}>
+                  <Typography variant="body2">
+                    PB Including Clearance Days: total outstanding principal
+                    with payments applied on <b>settlement date</b> as of{" "}
+                    <b>end of date</b>
+                  </Typography>
+                </Box>
+                <Box mt={1}>
+                  <Typography variant="body2">
+                    Amount to Pay Interest On: total outstanding principal as of{" "}
+                    <b>start of date</b> (no payments applied yet)
+                  </Typography>
+                </Box>
+                <Box mt={1}>
+                  <Typography variant="body2">
+                    Interest Accrued Today = Amount to Pay Interest On *
+                    Interest Rate
+                  </Typography>
+                </Box>
+              </Box>
+            </Alert>
+          </Box>
           <FinancialSummariesDataGrid
             financialSummaries={financialSummariesByCompanyId}
             handleClickCustomer={(customerId) =>
