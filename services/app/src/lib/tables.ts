@@ -18,3 +18,8 @@ export const ColumnWidths = {
   // Variable width columns (customer name, purchase order number, etc).
   MinWidth: 150,
 };
+
+// Truncates given string to given character length (count).
+export function truncateString(value: string, count: number = 64) {
+  return value.length > count ? `${value.substring(0, count)}...` : value;
+}

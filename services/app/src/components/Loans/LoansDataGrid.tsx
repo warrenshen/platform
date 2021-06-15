@@ -1,4 +1,4 @@
-import { Box } from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import InvoiceDrawerLauncher from "components/Invoices/InvoiceDrawerLauncher";
@@ -11,6 +11,9 @@ import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCel
 import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
+import CommentIcon from "@material-ui/icons/Comment";
+import UpdatePurchaseOrderBankNote from "components/PurchaseOrder/UpdatePurchaseOrderBankNote";
+import ModalButton from "components/Shared/Modal/ModalButton";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import {
   Companies,
@@ -31,7 +34,7 @@ import {
   createLoanCustomerIdentifier,
   createLoanDisbursementIdentifier,
 } from "lib/loans";
-import { ColumnWidths } from "lib/tables";
+import { ColumnWidths, truncateString } from "lib/tables";
 import { useEffect, useMemo, useState } from "react";
 
 interface Props {
@@ -70,8 +73,9 @@ function getRows(
       ? loan.invoice.invoice_number
       : "N/A",
     artifact_bank_note: loan.purchase_order
-      ? (loan as LoanFragment & LoanArtifactFragment).purchase_order
-          ?.bank_note || "-"
+      ? truncateString(
+          (loan as LoanArtifactFragment).purchase_order?.bank_note || ""
+        )
       : "N/A",
     vendor_name: loan.purchase_order
       ? loan.purchase_order.vendor?.name
@@ -309,7 +313,35 @@ export default function LoansDataGrid({
         visible: isArtifactVisible,
         dataField: "artifact_bank_note",
         caption: "PO Bank Note",
-        minWidth: ColumnWidths.MinWidth,
+        width: 340,
+        cellRender: (params: ValueFormatterParams) =>
+          params.row.data.artifact_bank_note !== "N/A" ? (
+            <ModalButton
+              label={
+                <Box display="flex" alignItems="center">
+                  <CommentIcon />
+                  {!!params.row.data.artifact_bank_note && (
+                    <Box ml={1}>
+                      <Typography variant="body2">
+                        {params.row.data.artifact_bank_note}
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
+              }
+              color="default"
+              textAlign="left"
+              variant="text"
+              modal={({ handleClose }) => (
+                <UpdatePurchaseOrderBankNote
+                  purchaseOrderId={params.row.data.artifact_id}
+                  handleClose={handleClose}
+                />
+              )}
+            />
+          ) : (
+            params.row.data.artifact_bank_note
+          ),
       },
       {
         visible: isMaturityVisible,

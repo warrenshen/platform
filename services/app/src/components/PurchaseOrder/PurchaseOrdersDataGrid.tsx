@@ -18,7 +18,7 @@ import {
   PurchaseOrders,
   RequestStatusEnum,
 } from "generated/graphql";
-import { ColumnWidths } from "lib/tables";
+import { ColumnWidths, truncateString } from "lib/tables";
 import { useMemo } from "react";
 
 function getRows(purchaseOrders: PurchaseOrderFragment[]): RowsProp {
@@ -26,16 +26,8 @@ function getRows(purchaseOrders: PurchaseOrderFragment[]): RowsProp {
     ...purchaseOrder,
     company_name: purchaseOrder.company.name,
     vendor_name: purchaseOrder.vendor?.name,
-    customer_note: !!purchaseOrder.customer_note
-      ? purchaseOrder.customer_note.length > 64
-        ? `${purchaseOrder.customer_note.substring(0, 64)}...`
-        : purchaseOrder.customer_note
-      : "-",
-    bank_note: !!purchaseOrder.bank_note
-      ? purchaseOrder.bank_note.length > 64
-        ? `${purchaseOrder.bank_note.substring(0, 64)}...`
-        : purchaseOrder.bank_note
-      : "",
+    customer_note: truncateString(purchaseOrder?.customer_note || "-"),
+    bank_note: truncateString(purchaseOrder?.bank_note || ""),
   }));
 }
 
@@ -69,7 +61,6 @@ export default function PurchaseOrdersDataGrid({
   handleSelectPurchaseOrders,
 }: Props) {
   const rows = getRows(purchaseOrders);
-  console.log({ rows });
   const columns = useMemo(
     () => [
       {

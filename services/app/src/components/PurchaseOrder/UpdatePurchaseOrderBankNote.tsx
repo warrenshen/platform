@@ -9,6 +9,7 @@ import {
   makeStyles,
   TextField,
   Theme,
+  Typography,
 } from "@material-ui/core";
 import {
   PurchaseOrders,
@@ -59,7 +60,11 @@ export default function UpdatePurchaseOrderBankNote({
 
   const [purchaseOrder, setPurchaseOrder] = useState(newPurchaseOrder);
 
-  const { loading: isExistingLoanLoading } = useGetPurchaseOrderForBankQuery({
+  const {
+    data,
+    loading: isExistingLoanLoading,
+    error,
+  } = useGetPurchaseOrderForBankQuery({
     fetchPolicy: "network-only",
     variables: {
       id: purchaseOrderId,
@@ -75,6 +80,13 @@ export default function UpdatePurchaseOrderBankNote({
       }
     },
   });
+
+  if (error) {
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
+  }
+
+  const existingPurchaseOrder = data?.purchase_orders_by_pk || null;
 
   const [
     updatePurchaseOrder,
@@ -102,7 +114,7 @@ export default function UpdatePurchaseOrderBankNote({
   const isFormLoading = isUpdateLoanLoading;
   const isSaveDisabled = isFormLoading;
 
-  if (!isDialogReady) {
+  if (!isDialogReady || !existingPurchaseOrder) {
     return null;
   }
 
@@ -113,22 +125,38 @@ export default function UpdatePurchaseOrderBankNote({
       maxWidth="xl"
       classes={{ paper: classes.dialog }}
     >
-      <DialogTitle className={classes.dialogTitle}>Edit Bank Note</DialogTitle>
+      <DialogTitle className={classes.dialogTitle}>
+        Edit Purchase Order Bank Note
+      </DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="column">
-          <TextField
-            autoFocus
-            multiline
-            label={"Bank Note"}
-            helperText={"Only Bespoke Financial users can view this note"}
-            value={purchaseOrder.bank_note}
-            onChange={({ target: { value } }) =>
-              setPurchaseOrder({
-                ...purchaseOrder,
-                bank_note: value,
-              })
-            }
-          />
+          <Box display="flex" flexDirection="column">
+            <Box mt={2}>
+              <Typography variant="body1">
+                {`Customer: ${existingPurchaseOrder.company.name}`}
+              </Typography>
+            </Box>
+            <Box mt={1}>
+              <Typography variant="body1">
+                {`Purchase Order: ${existingPurchaseOrder.order_number}`}
+              </Typography>
+            </Box>
+          </Box>
+          <Box display="flex" flexDirection="column" mt={2}>
+            <TextField
+              autoFocus
+              multiline
+              label={"Bank Note"}
+              helperText={"Only Bespoke Financial users can view this note"}
+              value={purchaseOrder.bank_note}
+              onChange={({ target: { value } }) =>
+                setPurchaseOrder({
+                  ...purchaseOrder,
+                  bank_note: value,
+                })
+              }
+            />
+          </Box>
         </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
