@@ -65,7 +65,8 @@ def _update_loans_on_active_contract_updated(
 	session: Session,
 ) -> Tuple[bool, errors.Error]:
 	"""
-	For line of credit customers, we update maturity date of all active loans when active contract is updated.
+	Updates maturity date related columns of all active and funded loans
+	(NOT deleted, closed, nor unfunded loans).
 	"""
 	contract_obj, err = contract_util.Contract.build(contract.as_dict(), validate=True)
 
@@ -76,7 +77,11 @@ def _update_loans_on_active_contract_updated(
 	loans = cast(
 		List[models.Loan],
 		session.query(models.Loan).filter(
+			cast(Callable, models.Loan.is_deleted.isnot)(True)
+		).filter(
 			models.Loan.company_id == contract.company_id
+		).filter(
+			models.Loan.funded_at != None
 		).filter(
 			models.Loan.closed_at == None
 		).all())
@@ -96,9 +101,6 @@ def _update_loans_on_active_contract_updated(
 
 	else:
 		for loan in loans:
-			if not loan.origination_date:
-				continue
-
 			# In the non-line of credit case, the maturity date is determined by
 			# taking the origination_date and adding the financing terms to that
 			maturity_date, err = contract_obj.get_maturity_date(loan.origination_date)
@@ -111,7 +113,6 @@ def _update_loans_on_active_contract_updated(
 
 			loan.maturity_date = maturity_date
 			loan.adjusted_maturity_date = adjusted_maturity_date
-
 
 	return True, None
 
