@@ -1,17 +1,17 @@
 import { Box, Typography } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
-import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
+import CommentIcon from "@material-ui/icons/Comment";
 import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
+import UpdatePurchaseOrderBankNote from "components/PurchaseOrder/UpdatePurchaseOrderBankNote";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
+import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
-import CommentIcon from "@material-ui/icons/Comment";
 import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
-import UpdatePurchaseOrderBankNote from "components/PurchaseOrder/UpdatePurchaseOrderBankNote";
-import ModalButton from "components/Shared/Modal/ModalButton";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
+import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   Companies,
   PurchaseOrderFragment,
@@ -34,6 +34,7 @@ function getRows(purchaseOrders: PurchaseOrderFragment[]): RowsProp {
 interface Props {
   isBankNoteVisible?: boolean;
   isCompanyVisible: boolean;
+  isApprovedByVendor?: boolean;
   isCustomerNoteVisible?: boolean;
   isDeliveryDateVisible?: boolean;
   isExcelExport?: boolean;
@@ -50,6 +51,7 @@ interface Props {
 export default function PurchaseOrdersDataGrid({
   isBankNoteVisible = false,
   isCompanyVisible,
+  isApprovedByVendor = true,
   isCustomerNoteVisible = true,
   isDeliveryDateVisible = false,
   isExcelExport = true,
@@ -125,6 +127,16 @@ export default function PurchaseOrdersDataGrid({
         ),
       },
       {
+        visible: isApprovedByVendor,
+        caption: "Amount Funded",
+        dataField: "amount_funded",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.amount_funded} />
+        ),
+      },
+      {
         caption: "PO Date",
         dataField: "order_date",
         width: ColumnWidths.Date,
@@ -184,6 +196,7 @@ export default function PurchaseOrdersDataGrid({
     [
       isBankNoteVisible,
       isCompanyVisible,
+      isApprovedByVendor,
       isCustomerNoteVisible,
       isDeliveryDateVisible,
       actionItems,

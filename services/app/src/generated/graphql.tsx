@@ -13266,6 +13266,8 @@ export enum PurchaseOrderMetrcTransfersUpdateColumn {
 /** columns and relationships of "purchase_orders" */
 export type PurchaseOrders = {
   amount?: Maybe<Scalars["numeric"]>;
+  /** How much in dollars that this Purchase Order has been funded */
+  amount_funded?: Maybe<Scalars["numeric"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<Scalars["String"]>;
@@ -13415,11 +13417,13 @@ export type PurchaseOrdersArrRelInsertInput = {
 /** aggregate avg on columns */
 export type PurchaseOrdersAvgFields = {
   amount?: Maybe<Scalars["Float"]>;
+  amount_funded?: Maybe<Scalars["Float"]>;
 };
 
 /** order by avg() on columns of table "purchase_orders" */
 export type PurchaseOrdersAvgOrderBy = {
   amount?: Maybe<OrderBy>;
+  amount_funded?: Maybe<OrderBy>;
 };
 
 /** Boolean expression to filter rows from the table "purchase_orders". All fields are combined with a logical 'AND'. */
@@ -13428,6 +13432,7 @@ export type PurchaseOrdersBoolExp = {
   _not?: Maybe<PurchaseOrdersBoolExp>;
   _or?: Maybe<Array<Maybe<PurchaseOrdersBoolExp>>>;
   amount?: Maybe<NumericComparisonExp>;
+  amount_funded?: Maybe<NumericComparisonExp>;
   approved_at?: Maybe<TimestamptzComparisonExp>;
   bank_note?: Maybe<StringComparisonExp>;
   bank_rejection_note?: Maybe<StringComparisonExp>;
@@ -13464,11 +13469,13 @@ export enum PurchaseOrdersConstraint {
 /** input type for incrementing integer column in table "purchase_orders" */
 export type PurchaseOrdersIncInput = {
   amount?: Maybe<Scalars["numeric"]>;
+  amount_funded?: Maybe<Scalars["numeric"]>;
 };
 
 /** input type for inserting data into table "purchase_orders" */
 export type PurchaseOrdersInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
+  amount_funded?: Maybe<Scalars["numeric"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   bank_note?: Maybe<Scalars["String"]>;
   bank_rejection_note?: Maybe<Scalars["String"]>;
@@ -13499,6 +13506,7 @@ export type PurchaseOrdersInsertInput = {
 /** aggregate max on columns */
 export type PurchaseOrdersMaxFields = {
   amount?: Maybe<Scalars["numeric"]>;
+  amount_funded?: Maybe<Scalars["numeric"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   bank_note?: Maybe<Scalars["String"]>;
   bank_rejection_note?: Maybe<Scalars["String"]>;
@@ -13520,6 +13528,7 @@ export type PurchaseOrdersMaxFields = {
 /** order by max() on columns of table "purchase_orders" */
 export type PurchaseOrdersMaxOrderBy = {
   amount?: Maybe<OrderBy>;
+  amount_funded?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   bank_note?: Maybe<OrderBy>;
   bank_rejection_note?: Maybe<OrderBy>;
@@ -13541,6 +13550,7 @@ export type PurchaseOrdersMaxOrderBy = {
 /** aggregate min on columns */
 export type PurchaseOrdersMinFields = {
   amount?: Maybe<Scalars["numeric"]>;
+  amount_funded?: Maybe<Scalars["numeric"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   bank_note?: Maybe<Scalars["String"]>;
   bank_rejection_note?: Maybe<Scalars["String"]>;
@@ -13562,6 +13572,7 @@ export type PurchaseOrdersMinFields = {
 /** order by min() on columns of table "purchase_orders" */
 export type PurchaseOrdersMinOrderBy = {
   amount?: Maybe<OrderBy>;
+  amount_funded?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   bank_note?: Maybe<OrderBy>;
   bank_rejection_note?: Maybe<OrderBy>;
@@ -13604,6 +13615,7 @@ export type PurchaseOrdersOnConflict = {
 /** ordering options when selecting data from "purchase_orders" */
 export type PurchaseOrdersOrderBy = {
   amount?: Maybe<OrderBy>;
+  amount_funded?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   bank_note?: Maybe<OrderBy>;
   bank_rejection_note?: Maybe<OrderBy>;
@@ -13640,6 +13652,8 @@ export type PurchaseOrdersPkColumnsInput = {
 export enum PurchaseOrdersSelectColumn {
   /** column name */
   Amount = "amount",
+  /** column name */
+  AmountFunded = "amount_funded",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -13685,6 +13699,7 @@ export enum PurchaseOrdersSelectColumn {
 /** input type for updating data in table "purchase_orders" */
 export type PurchaseOrdersSetInput = {
   amount?: Maybe<Scalars["numeric"]>;
+  amount_funded?: Maybe<Scalars["numeric"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   bank_note?: Maybe<Scalars["String"]>;
   bank_rejection_note?: Maybe<Scalars["String"]>;
@@ -13710,47 +13725,57 @@ export type PurchaseOrdersSetInput = {
 /** aggregate stddev on columns */
 export type PurchaseOrdersStddevFields = {
   amount?: Maybe<Scalars["Float"]>;
+  amount_funded?: Maybe<Scalars["Float"]>;
 };
 
 /** order by stddev() on columns of table "purchase_orders" */
 export type PurchaseOrdersStddevOrderBy = {
   amount?: Maybe<OrderBy>;
+  amount_funded?: Maybe<OrderBy>;
 };
 
 /** aggregate stddev_pop on columns */
 export type PurchaseOrdersStddevPopFields = {
   amount?: Maybe<Scalars["Float"]>;
+  amount_funded?: Maybe<Scalars["Float"]>;
 };
 
 /** order by stddev_pop() on columns of table "purchase_orders" */
 export type PurchaseOrdersStddevPopOrderBy = {
   amount?: Maybe<OrderBy>;
+  amount_funded?: Maybe<OrderBy>;
 };
 
 /** aggregate stddev_samp on columns */
 export type PurchaseOrdersStddevSampFields = {
   amount?: Maybe<Scalars["Float"]>;
+  amount_funded?: Maybe<Scalars["Float"]>;
 };
 
 /** order by stddev_samp() on columns of table "purchase_orders" */
 export type PurchaseOrdersStddevSampOrderBy = {
   amount?: Maybe<OrderBy>;
+  amount_funded?: Maybe<OrderBy>;
 };
 
 /** aggregate sum on columns */
 export type PurchaseOrdersSumFields = {
   amount?: Maybe<Scalars["numeric"]>;
+  amount_funded?: Maybe<Scalars["numeric"]>;
 };
 
 /** order by sum() on columns of table "purchase_orders" */
 export type PurchaseOrdersSumOrderBy = {
   amount?: Maybe<OrderBy>;
+  amount_funded?: Maybe<OrderBy>;
 };
 
 /** update columns of table "purchase_orders" */
 export enum PurchaseOrdersUpdateColumn {
   /** column name */
   Amount = "amount",
+  /** column name */
+  AmountFunded = "amount_funded",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -13796,31 +13821,37 @@ export enum PurchaseOrdersUpdateColumn {
 /** aggregate var_pop on columns */
 export type PurchaseOrdersVarPopFields = {
   amount?: Maybe<Scalars["Float"]>;
+  amount_funded?: Maybe<Scalars["Float"]>;
 };
 
 /** order by var_pop() on columns of table "purchase_orders" */
 export type PurchaseOrdersVarPopOrderBy = {
   amount?: Maybe<OrderBy>;
+  amount_funded?: Maybe<OrderBy>;
 };
 
 /** aggregate var_samp on columns */
 export type PurchaseOrdersVarSampFields = {
   amount?: Maybe<Scalars["Float"]>;
+  amount_funded?: Maybe<Scalars["Float"]>;
 };
 
 /** order by var_samp() on columns of table "purchase_orders" */
 export type PurchaseOrdersVarSampOrderBy = {
   amount?: Maybe<OrderBy>;
+  amount_funded?: Maybe<OrderBy>;
 };
 
 /** aggregate variance on columns */
 export type PurchaseOrdersVarianceFields = {
   amount?: Maybe<Scalars["Float"]>;
+  amount_funded?: Maybe<Scalars["Float"]>;
 };
 
 /** order by variance() on columns of table "purchase_orders" */
 export type PurchaseOrdersVarianceOrderBy = {
   amount?: Maybe<OrderBy>;
+  amount_funded?: Maybe<OrderBy>;
 };
 
 /** query root */
@@ -19818,6 +19849,7 @@ export type PurchaseOrderLimitedFragment = Pick<
   | "order_date"
   | "delivery_date"
   | "amount"
+  | "amount_funded"
   | "is_cannabis"
   | "is_metrc_based"
   | "status"
@@ -20341,6 +20373,7 @@ export const PurchaseOrderLimitedFragmentDoc = gql`
     order_date
     delivery_date
     amount
+    amount_funded
     is_cannabis
     is_metrc_based
     status

@@ -86484,6 +86484,18 @@
             "deprecationReason": null
           },
           {
+            "name": "amount_funded",
+            "description": "How much in dollars that this Purchase Order has been funded",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "approved_at",
             "description": null,
             "args": [],
@@ -87706,6 +87718,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "amount_funded",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -87721,6 +87745,16 @@
         "inputFields": [
           {
             "name": "amount",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "amount_funded",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -87780,6 +87814,16 @@
           },
           {
             "name": "amount",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "numeric_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "amount_funded",
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
@@ -88075,6 +88119,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "amount_funded",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -88089,6 +88143,16 @@
         "inputFields": [
           {
             "name": "amount",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "amount_funded",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -88370,6 +88434,18 @@
             "deprecationReason": null
           },
           {
+            "name": "amount_funded",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "approved_at",
             "description": null,
             "args": [],
@@ -88584,6 +88660,16 @@
             "defaultValue": null
           },
           {
+            "name": "amount_funded",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "approved_at",
             "description": null,
             "type": {
@@ -88755,6 +88841,18 @@
         "fields": [
           {
             "name": "amount",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "amount_funded",
             "description": null,
             "args": [],
             "type": {
@@ -88971,6 +89069,16 @@
         "inputFields": [
           {
             "name": "amount",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "amount_funded",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -89304,6 +89412,16 @@
             "defaultValue": null
           },
           {
+            "name": "amount_funded",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "approved_at",
             "description": null,
             "type": {
@@ -89598,6 +89716,12 @@
             "deprecationReason": null
           },
           {
+            "name": "amount_funded",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "approved_at",
             "description": "column name",
             "isDeprecated": false,
@@ -89728,6 +89852,16 @@
         "inputFields": [
           {
             "name": "amount",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "amount_funded",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -89957,6 +90091,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "amount_funded",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -89979,6 +90125,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "amount_funded",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -89992,6 +90148,18 @@
         "fields": [
           {
             "name": "amount",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "amount_funded",
             "description": null,
             "args": [],
             "type": {
@@ -90023,6 +90191,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "amount_funded",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -90036,6 +90214,18 @@
         "fields": [
           {
             "name": "amount",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "amount_funded",
             "description": null,
             "args": [],
             "type": {
@@ -90067,6 +90257,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "amount_funded",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -90080,6 +90280,18 @@
         "fields": [
           {
             "name": "amount",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "amount_funded",
             "description": null,
             "args": [],
             "type": {
@@ -90111,6 +90323,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "amount_funded",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -90127,6 +90349,12 @@
         "enumValues": [
           {
             "name": "amount",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "amount_funded",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -90270,6 +90498,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "amount_funded",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -90292,6 +90532,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "amount_funded",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -90305,6 +90555,18 @@
         "fields": [
           {
             "name": "amount",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "amount_funded",
             "description": null,
             "args": [],
             "type": {
@@ -90336,6 +90598,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "amount_funded",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -90349,6 +90621,18 @@
         "fields": [
           {
             "name": "amount",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "amount_funded",
             "description": null,
             "args": [],
             "type": {
@@ -90373,6 +90657,16 @@
         "inputFields": [
           {
             "name": "amount",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "amount_funded",
             "description": null,
             "type": {
               "kind": "ENUM",
