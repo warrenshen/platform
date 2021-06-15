@@ -104,8 +104,6 @@ class Fetcher(object):
 		with session_scope(self._session_maker) as session:
 			query = session.query(models.Loan).filter(
 				models.Loan.company_id == self._company_id
-			).filter(
-				cast(Callable, models.Loan.is_frozen.isnot)(True)
 			).order_by(
 				models.Loan.origination_date.asc()
 			)

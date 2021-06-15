@@ -326,6 +326,13 @@ class CustomerBalance(object):
 				# then update details about the Purchase Order
 				po_update['amount_funded'] += loan['amount']
 
+			if loan['is_frozen']:
+				# We want to calculate details like how much a loan contributes to whether a 
+				# Purchase Order is fully funded, but we don't want to run any balances for it
+				# so we skip it after accounting for its contribution to Purchase Orders but
+				# before calculating any balances
+				continue
+
 			calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
 			calculate_result, errors_list = calculator.calculate_loan_balance(
 				threshold_info,
