@@ -9,6 +9,14 @@ class TestSendGridClient(unittest.TestCase):
 	def test_maybe_add_or_remove_recipients(self) -> None:
 		tests: List[Dict] = [
 			{
+				'recipients': ['b@sweatequity.vc', 'b@sweatequity.vc'],
+				'cfg': {
+					'flask_env': 'development'
+				},
+				'template_name': '',
+				'expected_recipients': ['b@sweatequity.vc']
+			},
+			{
 				'recipients': ['a@gmail.com', 'b@sweatequity.vc'],
 				'cfg': {
 					'flask_env': 'development'

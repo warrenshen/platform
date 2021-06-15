@@ -246,8 +246,8 @@ def _maybe_add_or_remove_recipients(
 	template_name: str,
 ) -> List[str]:
 	if not is_prod_env(cfg['flask_env']):
-		# In non-prod environments, only send emails to people with @sweatequity.vc emails
-		# so we avoid sending emails to customers in those environments
+		# In non-production environments, only send emails to people with @bespokefinancial.com
+		# and @sweatequity.vc emails so we avoid sending emails to customers in those environments
 		new_recipients = []
 		for recipient in recipients:
 			if recipient.endswith('@bespokefinancial.com') or recipient.endswith('@sweatequity.vc'):
@@ -256,19 +256,21 @@ def _maybe_add_or_remove_recipients(
 				logging.info(f'Email "{template_name}" not sent to {recipient} due to non-prod environment')
 		recipients = new_recipients
 
-	if is_development_env(cfg['flask_env']):
-		return recipients
+	# For staging and production environments, if email template is not
+	# in blacklist then we send a copy of email to the no_reply_email_addr.
+	if (
+		not is_development_env(cfg['flask_env']) and
+		template_name not in TEMPLATES_TO_EXCLUDE_FROM_BESPOKE_NOTIFICATIONS
+	):
+		no_reply_email_addr = cfg['no_reply_email_addr']
+		if no_reply_email_addr not in recipients:
+			# We use list concatenation and NOT .append() so
+			# that we do not mutate the given recipients parameter.
+			recipients = recipients + [no_reply_email_addr]
 
-	if template_name in TEMPLATES_TO_EXCLUDE_FROM_BESPOKE_NOTIFICATIONS:
-		return recipients
-
-	no_reply_email_addr = cfg['no_reply_email_addr']
-	if no_reply_email_addr not in recipients:
-		# We use list concatenation and NOT .append() so
-		# that we do not mutate the given recipients parameter.
-		return recipients + [no_reply_email_addr]
-	else:
-		return recipients
+	# De-duplicate the list of emails as a safety measure to prevent duplicates.
+	# This is because duplicate emails cause the request to SendGrid to fail.
+	return sorted(list(set(recipients)))
 
 class Client(object):
 
