@@ -119,17 +119,6 @@ export default function FinancialSummariesDataGrid({
         ),
       },
       {
-        dataField: "total_principal_in_requested_state",
-        caption: "Requested Principal Balance",
-        width: ColumnWidths.Currency,
-        alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell
-            value={params.row.data.total_principal_in_requested_state}
-          />
-        ),
-      },
-      {
         dataField: "available_limit",
         caption: "Available Limit",
         width: ColumnWidths.Currency,
