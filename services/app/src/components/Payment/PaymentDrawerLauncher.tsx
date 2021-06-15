@@ -2,7 +2,6 @@ import { Box } from "@material-ui/core";
 import PaymentDrawer from "components/Payment/PaymentDrawer";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import { PurchaseOrders } from "generated/graphql";
-import { truncateUuid } from "lib/uuid";
 import { useState } from "react";
 
 interface Props {
@@ -23,7 +22,7 @@ function Launcher({ label, paymentId }: Props) {
       )}
       <ClickableDataGridCell
         onClick={() => setIsOpen(true)}
-        label={label || truncateUuid(paymentId)}
+        label={label || paymentId}
       />
     </Box>
   );

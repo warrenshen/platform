@@ -5,6 +5,7 @@ import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal"
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
+import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
@@ -81,12 +82,18 @@ export default function BankCustomersPage() {
       {
         dataField: "contract_name",
         caption: "Contract Name",
-        width: ColumnWidths.Type,
+        minWidth: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) => (
+          <TextDataGridCell label={params.row.data.contract_name} />
+        ),
       },
       {
         dataField: "dba_name",
         caption: "DBA",
         minWidth: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) => (
+          <TextDataGridCell label={params.row.data.dba_name} />
+        ),
       },
       {
         dataField: "total_outstanding_principal",

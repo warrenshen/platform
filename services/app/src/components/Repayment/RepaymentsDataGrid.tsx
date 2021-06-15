@@ -5,6 +5,7 @@ import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
+import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import { Companies, PaymentLimitedFragment, Payments } from "generated/graphql";
 import { addBizDays } from "lib/date";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
@@ -78,6 +79,7 @@ export default function RepaymentsDataGrid({
       {
         visible: isCompanyVisible,
         caption: "Customer Name",
+        height: 40,
         minWidth: ColumnWidths.MinWidth,
         calculateCellValue: ({ company }: any) => company?.name,
         cellRender: (params: ValueFormatterParams) =>
@@ -178,7 +180,10 @@ export default function RepaymentsDataGrid({
       {
         dataField: "payor_name",
         caption: "Payor Name",
-        width: ColumnWidths.MinWidth,
+        minWidth: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) => (
+          <TextDataGridCell label={params.row.data.payor_name} />
+        ),
       },
       {
         visible: isClosed,

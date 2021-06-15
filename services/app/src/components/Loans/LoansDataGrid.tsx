@@ -8,6 +8,7 @@ import LoanPaymentStatusChip from "components/Shared/Chip/LoanPaymentStatusChip"
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
+import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
@@ -308,6 +309,9 @@ export default function LoansDataGrid({
         dataField: "vendor_name",
         caption: "Vendor Name",
         minWidth: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) => (
+          <TextDataGridCell label={params.row.data.payor_name} />
+        ),
       },
       {
         visible: isArtifactVisible,

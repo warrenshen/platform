@@ -1,4 +1,5 @@
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
+import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 import { MetrcTransferFragment } from "generated/graphql";
@@ -55,6 +56,9 @@ export default function MetrcTransfersDataGrid({
         dataField: "vendor_name",
         caption: "Vendor Name",
         minWidth: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) => (
+          <TextDataGridCell label={params.row.data.payor_name} />
+        ),
       },
       {
         dataField: "transfer_type",

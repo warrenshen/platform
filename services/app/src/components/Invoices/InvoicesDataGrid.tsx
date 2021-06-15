@@ -7,6 +7,7 @@ import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
+import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import {
   InvoiceFragment,
   Invoices,
@@ -83,11 +84,17 @@ export default function InvoicesDataGrid({
         dataField: "company_name",
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) => (
+          <TextDataGridCell label={params.row.data.company_name} />
+        ),
       },
       {
         dataField: "payor_name",
         caption: "Payor Name",
         minWidth: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) => (
+          <TextDataGridCell label={params.row.data.payor_name} />
+        ),
       },
       {
         caption: "Subtotal Amount",

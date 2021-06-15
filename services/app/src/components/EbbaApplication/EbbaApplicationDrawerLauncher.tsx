@@ -1,7 +1,6 @@
 import { Box, Button } from "@material-ui/core";
 import EbbaApplicationDrawer from "components/EbbaApplication/EbbaApplicationDrawer";
 import { EbbaApplications } from "generated/graphql";
-import { truncateUuid } from "lib/uuid";
 import { useState } from "react";
 
 interface Props {
@@ -20,7 +19,7 @@ function EbbaApplicationDrawerLauncher({ ebbaApplicationId }: Props) {
         />
       )}
       <Button color="primary" onClick={() => setIsOpen(true)}>
-        {truncateUuid(ebbaApplicationId)}
+        {ebbaApplicationId}
       </Button>
     </Box>
   );

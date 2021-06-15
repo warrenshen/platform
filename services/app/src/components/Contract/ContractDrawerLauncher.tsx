@@ -1,7 +1,6 @@
 import ContractDrawer from "components/Contract/ContractDrawer";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import { Contracts } from "generated/graphql";
-import { truncateUuid } from "lib/uuid";
 import { ReactNode, useState } from "react";
 
 interface Props {
@@ -25,7 +24,7 @@ function Launcher({ label, contractId, children }: Props) {
         children(() => setIsOpen(true))
       ) : (
         <ClickableDataGridCell
-          label={label || truncateUuid(contractId)}
+          label={label || contractId}
           onClick={() => setIsOpen(true)}
         />
       )}
