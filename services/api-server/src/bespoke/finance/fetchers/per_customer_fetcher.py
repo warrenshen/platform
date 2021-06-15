@@ -33,6 +33,7 @@ class Fetcher(object):
 		self._contracts: List[ContractDict] = []
 		self._loans: List[LoanDict] = []
 		self._payments: List[PaymentDict] = []
+		self._purchase_orders: List[models.PurchaseOrderDict] = []
 		self._invoices: List[models.InvoiceDict] = []
 		self._augmented_transactions: List[per_customer_types.AugmentedTransactionDict] = []
 		self._ebba_applications: List[EbbaApplicationDict] = []
@@ -139,12 +140,38 @@ class Fetcher(object):
 			if self._ignore_deleted:
 				query = query.filter(cast(Callable, models.Invoice.is_deleted.isnot)(True))
 
-			# Order by oldest loans to newest loans
 			invoices = cast(List[models.Invoice], query.all())
 			if not invoices:
 				return True, None
 
 			self._invoices = [inv.as_dict() for inv in invoices]
+
+		return True, None
+
+	def _fetch_purchase_orders(self, loans: List[models.LoanDict]) -> Tuple[bool, errors.Error]:
+		if not loans:
+			return True, None
+
+		artifact_ids = []
+		for loan in loans:
+			if loan['artifact_id']:
+				artifact_ids.append(loan['artifact_id'])
+
+		with session_scope(self._session_maker) as session:
+			query = session.query(models.PurchaseOrder).filter(
+					models.PurchaseOrder.company_id == self._company_id
+				).filter(
+					models.PurchaseOrder.id.in_(artifact_ids)
+				)
+
+			if self._ignore_deleted:
+				query = query.filter(cast(Callable, models.PurchaseOrder.is_deleted.isnot)(True))
+
+			purchase_orders = cast(List[models.PurchaseOrder], query.all())
+			if not purchase_orders:
+				return True, None
+
+			self._purchase_orders = [po.as_dict() for po in purchase_orders]
 
 		return True, None
 
@@ -205,6 +232,10 @@ class Fetcher(object):
 		if err:
 			raise err
 
+		_, err = self._fetch_purchase_orders(self._loans)
+		if err:
+			raise err
+
 		_, err = self._fetch_ebba_applications()
 		if err:
 			raise err
@@ -243,6 +274,7 @@ class Fetcher(object):
 				loans=self._loans,
 				payments=self._payments,
 				invoices=self._invoices,
+				purchase_orders=self._purchase_orders,
 				augmented_transactions=self._augmented_transactions,
 				ebba_applications=self._ebba_applications,
 				active_ebba_application=self._active_ebba_application

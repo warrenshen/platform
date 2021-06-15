@@ -3203,6 +3203,7 @@
     permission:
       columns:
       - amount
+      - amount_funded
       - approved_at
       - bank_note
       - bank_rejection_note
@@ -3228,6 +3229,7 @@
     permission:
       columns:
       - amount
+      - amount_funded
       - approved_at
       - bank_note
       - bank_rejection_note
@@ -3253,6 +3255,7 @@
     permission:
       columns:
       - amount
+      - amount_funded
       - approved_at
       - bank_rejection_note
       - company_id
@@ -3281,6 +3284,7 @@
     permission:
       columns:
       - amount
+      - amount_funded
       - approved_at
       - bank_rejection_note
       - company_id

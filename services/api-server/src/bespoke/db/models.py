@@ -395,6 +395,7 @@ class PurchaseOrder(Artifact):
 	order_date = Column(Date)
 	delivery_date = Column(Date)
 	amount = Column(Numeric)
+	amount_funded = Column(Numeric)
 	status = Column(String)
 	requested_at = Column(DateTime)
 	approved_at = Column(DateTime)
@@ -572,6 +573,7 @@ LoanDict = TypedDict('LoanDict', {
 	'outstanding_principal_balance': float,
 	'outstanding_interest': float,
 	'outstanding_fees': float,
+	'funded_at': datetime.datetime,
 	'closed_at': datetime.datetime
 })
 
@@ -635,6 +637,7 @@ class Loan(Base):
 			outstanding_principal_balance=float_or_null(self.outstanding_principal_balance),
 			outstanding_interest=float_or_null(self.outstanding_interest),
 			outstanding_fees=float_or_null(self.outstanding_fees),
+			funded_at=self.funded_at,
 			closed_at=self.closed_at
 		)
 

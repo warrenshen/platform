@@ -54,10 +54,19 @@ EbbaApplicationUpdateDict = TypedDict('EbbaApplicationUpdateDict', {
 	'calculated_borrowing_base': float,
 })
 
+POUpdateDict = TypedDict('POUpdateDict', {
+	'amount_funded': float
+})
+
+PurchaseOrdersUpdateDict = TypedDict('PurchaseOrdersUpdateDict', {
+	'purchase_order_id_to_update': Dict[str, POUpdateDict]
+})
+
 CustomerUpdateDict = TypedDict('CustomerUpdateDict', {
 	'today': datetime.date,
 	'loan_updates': List[LoanUpdateDict],
 	'active_ebba_application_update': EbbaApplicationUpdateDict,
+	'purchase_orders_update': PurchaseOrdersUpdateDict,
 	'summary_update': SummaryUpdateDict,
 	'loan_id_to_debug_info': Dict[str, LoanUpdateDebugInfoDict]
 })
@@ -293,8 +302,13 @@ class CustomerBalance(object):
 		if err:
 			return None, err
 
-		loan_id_to_debug_info = {}
+		purchase_order_id_to_update: Dict[str, POUpdateDict] = {}
+		for purchase_order in financials['purchase_orders']:
+			purchase_order_id_to_update[purchase_order['id']] = POUpdateDict(
+				amount_funded=0.0
+			)
 
+		loan_id_to_debug_info = {}
 		for loan in financials['loans']:
 			if not loan['origination_date']:
 				# If the loan hasn't been originated yet, nothing to calculate
@@ -306,6 +320,11 @@ class CustomerBalance(object):
 
 			transactions_for_loan = loan_id_to_transactions[loan['id']]
 			invoice = artifact_id_to_invoice.get(loan['artifact_id'])
+			po_update = purchase_order_id_to_update.get(loan['artifact_id'])
+			if po_update and loan['funded_at']:
+				# If the loan is funded and we found its corresponding purchase order
+				# then update details about the Purchase Order
+				po_update['amount_funded'] += loan['amount']
 
 			calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
 			calculate_result, errors_list = calculator.calculate_loan_balance(
@@ -361,6 +380,9 @@ class CustomerBalance(object):
 			today=today,
 			loan_updates=loan_update_dicts,
 			active_ebba_application_update=ebba_application_update,
+			purchase_orders_update=PurchaseOrdersUpdateDict(
+				purchase_order_id_to_update=purchase_order_id_to_update
+			),
 			summary_update=summary_update,
 			loan_id_to_debug_info=loan_id_to_debug_info
 		), None
@@ -397,6 +419,21 @@ class CustomerBalance(object):
 
 				if cur_loan_update['should_close_loan']:
 					payment_util.close_loan(loan)
+
+			purchase_order_id_to_update = customer_update['purchase_orders_update']['purchase_order_id_to_update']
+			purchase_order_ids = list(purchase_order_id_to_update.keys())
+			purchase_orders = cast(
+				List[models.PurchaseOrder],
+				session.query(models.PurchaseOrder).filter(
+					models.PurchaseOrder.id.in_(purchase_order_ids)
+				).all())
+
+			if not purchase_orders:
+				purchase_orders = []
+
+			for purchase_order in purchase_orders:
+				po_update = purchase_order_id_to_update[str(purchase_order.id)]
+				purchase_order.amount_funded = decimal.Decimal(po_update['amount_funded'])
 
 			financial_summary = cast(
 				models.FinancialSummary,
