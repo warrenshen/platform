@@ -54,7 +54,7 @@ export default function FinancialSummariesDataGrid({
       },
       {
         dataField: "total_outstanding_principal",
-        caption: "Principal Balance",
+        caption: "Principal Balance (PB)",
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
@@ -65,7 +65,7 @@ export default function FinancialSummariesDataGrid({
       },
       {
         dataField: "total_outstanding_principal_for_interest",
-        caption: "Principal Balance For Interest",
+        caption: "PB Including Clearance Days",
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
