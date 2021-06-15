@@ -933,11 +933,14 @@
       - advances_bespoke_bank_account_id
       - collections_bespoke_bank_account_id
       - company_id
+      - created_at
+      - feature_flags_payload
       - has_autofinancing
       - id
       - metrc_api_key_id
       - payor_agreement_docusign_template
       - two_factor_message_method
+      - updated_at
       - vendor_agreement_docusign_template
       filter: {}
   - role: bank_read_only
@@ -947,11 +950,14 @@
       - advances_bespoke_bank_account_id
       - collections_bespoke_bank_account_id
       - company_id
+      - created_at
+      - feature_flags_payload
       - has_autofinancing
       - id
       - metrc_api_key_id
       - payor_agreement_docusign_template
       - two_factor_message_method
+      - updated_at
       - vendor_agreement_docusign_template
       filter: {}
   - role: company_admin
@@ -960,6 +966,7 @@
       - active_ebba_application_id
       - collections_bespoke_bank_account_id
       - company_id
+      - feature_flags_payload
       - has_autofinancing
       - id
       - payor_agreement_docusign_template
@@ -974,6 +981,7 @@
       - active_ebba_application_id
       - collections_bespoke_bank_account_id
       - company_id
+      - feature_flags_payload
       - has_autofinancing
       - id
       - payor_agreement_docusign_template
