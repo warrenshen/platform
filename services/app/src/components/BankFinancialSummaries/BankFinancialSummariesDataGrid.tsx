@@ -13,7 +13,9 @@ interface Props {
   bankFinancialSummaries: GetLatestBankFinancialSummariesSubscription["bank_financial_summaries"];
 }
 
-function BankFinancialSummariesDataGrid({ bankFinancialSummaries }: Props) {
+export default function BankFinancialSummariesDataGrid({
+  bankFinancialSummaries,
+}: Props) {
   const rows = bankFinancialSummaries;
   const columns = useMemo(
     () => [
@@ -85,13 +87,6 @@ function BankFinancialSummariesDataGrid({ bankFinancialSummaries }: Props) {
   );
 
   return (
-    <ControlledDataGrid
-      isExcelExport
-      isSortingDisabled
-      dataSource={rows}
-      columns={columns}
-    />
+    <ControlledDataGrid isExcelExport dataSource={rows} columns={columns} />
   );
 }
-
-export default BankFinancialSummariesDataGrid;

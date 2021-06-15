@@ -14,6 +14,7 @@ import { useMemo } from "react";
 interface Props {
   isCustomerNameFixed?: boolean;
   isExcelExport?: boolean;
+  isSortingDisabled?: boolean;
   financialSummaries: GetFinancialSummariesByCompanyIdQuery["financial_summaries"];
   handleClickCustomer?: (customerId: Companies["id"]) => void;
 }
@@ -21,6 +22,7 @@ interface Props {
 export default function FinancialSummariesDataGrid({
   isCustomerNameFixed = false,
   isExcelExport = true,
+  isSortingDisabled = true,
   financialSummaries,
   handleClickCustomer,
 }: Props) {
@@ -181,7 +183,7 @@ export default function FinancialSummariesDataGrid({
   return (
     <ControlledDataGrid
       isExcelExport={isExcelExport}
-      isSortingDisabled
+      isSortingDisabled={isSortingDisabled}
       dataSource={rows}
       columns={columns}
     />
