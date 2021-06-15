@@ -33,7 +33,11 @@ export default function CustomerMetrcTransfersTab({ companyId }: Props) {
       filter(
         data?.metrc_transfers || [],
         (metrcTransfer) =>
-          `${metrcTransfer.manifest_number} ${metrcTransfer.vendor?.name || ""}`
+          `${metrcTransfer.manifest_number} ${
+            metrcTransfer.vendor?.name || ""
+          } ${
+            metrcTransfer.transfer_payload.ShipperFacilityLicenseNumber || ""
+          }`
             .toLowerCase()
             .indexOf(searchQuery.toLowerCase()) >= 0
       ),
@@ -51,10 +55,10 @@ export default function CustomerMetrcTransfersTab({ companyId }: Props) {
         <Box display="flex">
           <TextField
             autoFocus
-            label="Search by manifest number or vendor name"
+            label="Search by manifest number, vendor name, or vendor license"
             value={searchQuery}
             onChange={({ target: { value } }) => setSearchQuery(value)}
-            style={{ width: 400 }}
+            style={{ width: 500 }}
           />
         </Box>
       </Box>
