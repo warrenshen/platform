@@ -31,7 +31,7 @@ export default function EbbaApplicationsActiveTab() {
 
   if (error) {
     alert(`Error in query: ${error.message}`);
-    console.log({ error });
+    console.error({ error });
   }
 
   const ebbaApplications = useMemo(() => data?.ebba_applications || [], [data]);

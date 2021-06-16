@@ -21,7 +21,7 @@ export default function CustomerPayorsPageContent({ companyId }: Props) {
 
   if (error) {
     alert(`Error in query: ${error.message}`);
-    console.log({ error });
+    console.error({ error });
   }
 
   const payorPartnerships = sortBy(

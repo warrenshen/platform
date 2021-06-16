@@ -98,9 +98,11 @@ function UpsertMetrcKeyModal({
       <DialogTitle>{hasKey ? "Edit Metrc Key" : "Add Metrc Key"}</DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="column">
-          <Typography color="error" gutterBottom={true}>
-            {errorMessage}
-          </Typography>
+          {!!errorMessage && (
+            <Typography color="error" gutterBottom={true}>
+              {errorMessage}
+            </Typography>
+          )}
         </Box>
         <Box display="flex" flexDirection="column">
           <TextField

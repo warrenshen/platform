@@ -16,6 +16,7 @@ import {
   MetrcApiKeyFragment,
   useGetCompanyForBankQuery,
 } from "generated/graphql";
+import { getFeatureFlagName, getFeatureFlagDescription } from "lib/companies";
 import { FileTypeEnum, AllFeatureFlags } from "lib/enum";
 
 interface Props {
@@ -58,7 +59,7 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
           Note: the settings below are only visible by bank users (you are a
           bank user).
         </Alert>
-        <Box mt={2} mb={1}>
+        <Box mt={4}>
           <Typography variant="subtitle1">
             Bespoke Collections Account
           </Typography>
@@ -71,7 +72,7 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
             />
           </Box>
         </Box>
-        <Box mt={1} mb={1}>
+        <Box mt={4}>
           <Typography variant="subtitle1">Licenses</Typography>
           <Box mt={1} mb={1}>
             {companyLicenses.map((companyLicense) => (
@@ -104,7 +105,7 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
             )}
           />
         </Box>
-        <Box mt={3} mb={1}>
+        <Box mt={4}>
           <Typography variant="subtitle1">Supported Features</Typography>
           <Box mt={2}>
             <ModalButton
@@ -122,9 +123,9 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
               )}
             />
           </Box>
-          <Box mt={2}>
+          <Box display="flex" flexDirection="column">
             {AllFeatureFlags.map((featureFlag) => (
-              <Box key={featureFlag}>
+              <Box key={featureFlag} mt={2}>
                 <FormControlLabel
                   control={
                     <Checkbox
@@ -133,13 +134,18 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
                       color="primary"
                     />
                   }
-                  label={featureFlag}
+                  label={getFeatureFlagName(featureFlag)}
                 />
+                <Box pl={4}>
+                  <Typography variant="subtitle2" color="textSecondary">
+                    {getFeatureFlagDescription(featureFlag)}
+                  </Typography>
+                </Box>
               </Box>
             ))}
           </Box>
         </Box>
-        <Box mt={3} mb={1}>
+        <Box mt={4}>
           <Typography variant="subtitle1">Metrc API Keys</Typography>
           <Box display="flex">
             <MetrcApiKeys
@@ -149,7 +155,7 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
             />
           </Box>
         </Box>
-        <Box mt={3} mb={1}>
+        <Box mt={4}>
           <Typography variant="subtitle1">Sync Metrc Data</Typography>
           <Box display="flex">
             <SyncMetrcData companyId={company.id}></SyncMetrcData>

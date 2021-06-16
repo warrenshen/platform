@@ -13,6 +13,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import { CompanySettings } from "generated/graphql";
+import { getFeatureFlagName, getFeatureFlagDescription } from "lib/companies";
 import { FeatureFlagEnum, AllFeatureFlags } from "lib/enum";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -81,32 +82,37 @@ export default function UpsertFeatureFlagsModal({
       <DialogTitle>Edit Supported Features</DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="column">
-          <Typography color="error" gutterBottom={true}>
-            {errorMessage}
-          </Typography>
+          {!!errorMessage && (
+            <Typography color="error" gutterBottom={true}>
+              {errorMessage}
+            </Typography>
+          )}
         </Box>
         <Box display="flex" flexDirection="column">
-          <Box mt={2}>
-            {AllFeatureFlags.map((featureFlag) => (
-              <Box key={featureFlag}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={!!featureFlagsJson[featureFlag]}
-                      color="primary"
-                      onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                        setFeatureFlagsJson({
-                          ...featureFlagsJson,
-                          [featureFlag]: event.target.checked,
-                        })
-                      }
-                    />
-                  }
-                  label={featureFlag}
-                />
+          {AllFeatureFlags.map((featureFlag) => (
+            <Box key={featureFlag} mt={2}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={!!featureFlagsJson[featureFlag]}
+                    color="primary"
+                    onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                      setFeatureFlagsJson({
+                        ...featureFlagsJson,
+                        [featureFlag]: event.target.checked,
+                      })
+                    }
+                  />
+                }
+                label={getFeatureFlagName(featureFlag)}
+              />
+              <Box pl={4}>
+                <Typography variant="subtitle2" color="textSecondary">
+                  {getFeatureFlagDescription(featureFlag)}
+                </Typography>
               </Box>
-            ))}
-          </Box>
+            </Box>
+          ))}
         </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>

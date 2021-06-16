@@ -149,7 +149,7 @@ export default function UpdateCompanyLicensesModal({
 
   if (error) {
     alert(`Error in query: ${error.message}`);
-    console.log({ error });
+    console.error({ error });
   }
 
   const vendor = data?.companies_by_pk || null;
