@@ -239,6 +239,7 @@ fragment MetrcPackage on metrc_packages {
   lab_results_status
   metrc_transfer {
     id
+    company_id
     manifest_number
   }
 }

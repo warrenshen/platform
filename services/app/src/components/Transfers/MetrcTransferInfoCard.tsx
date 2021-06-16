@@ -2,7 +2,12 @@ import { Box, Button, Typography } from "@material-ui/core";
 import { ReactComponent as CloseIcon } from "components/Shared/Layout/Icons/Close.svg";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import MetrcTransferModal from "components/Transfers/MetrcTransferModal";
-import { MetrcTransferFragment } from "generated/graphql";
+import {
+  Companies,
+  MetrcTransfers,
+  useGetMetrcTransferQuery,
+} from "generated/graphql";
+import { getMetrcTransferVendorDescription } from "lib/api/metrc";
 import { formatDatetimeString } from "lib/date";
 import styled from "styled-components";
 
@@ -21,14 +26,35 @@ const CloseButton = styled(Button)`
 `;
 
 interface Props {
-  metrcTransfer: MetrcTransferFragment;
+  companyId: Companies["id"];
+  metrcTransferId: MetrcTransfers["id"];
   handleClickClose?: () => void;
 }
 
 export default function MetrcTransferInfoCard({
-  metrcTransfer,
+  companyId,
+  metrcTransferId,
   handleClickClose,
 }: Props) {
+  const { data, error } = useGetMetrcTransferQuery({
+    fetchPolicy: "network-only",
+    variables: {
+      id: metrcTransferId,
+      company_id: companyId,
+    },
+  });
+
+  if (error) {
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
+  }
+
+  const metrcTransfer = data?.metrc_transfers_by_pk;
+
+  if (!metrcTransfer) {
+    return null;
+  }
+
   const metrcTransferPayload = metrcTransfer.transfer_payload;
 
   return (
@@ -38,7 +64,7 @@ export default function MetrcTransferInfoCard({
           {`Manifest #${metrcTransfer.manifest_number}`}
         </Typography>
         <Typography variant="body2">
-          {`Vendor: ${metrcTransfer.vendor?.name || "Unknown"}`}
+          {`Vendor: ${getMetrcTransferVendorDescription(metrcTransfer)}`}
         </Typography>
         <Typography variant="body2">
           {`Received at: ${formatDatetimeString(
@@ -74,6 +100,7 @@ export default function MetrcTransferInfoCard({
           variant="outlined"
           modal={({ handleClose }) => (
             <MetrcTransferModal
+              companyId={companyId}
               metrcTransferId={metrcTransfer.id}
               handleClose={handleClose}
             />

@@ -23,6 +23,12 @@ query GetArtifactRelationsByCompanyId($companyId: uuid!) {
     ) {
       id
       ...MetrcTransfer
+      vendor {
+        id
+        company_vendor_partnerships(where: { company_id: { _eq: $companyId } }) {
+          id
+        }
+      }
     }
   }
   vendors(

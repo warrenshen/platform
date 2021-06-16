@@ -133,7 +133,10 @@ export default function PurchaseOrderDrawer({
             (purchaseOrderMetrcTransfer) => (
               <Box key={purchaseOrderMetrcTransfer.metrc_transfer_id} mt={2}>
                 <MetrcTransferInfoCard
-                  metrcTransfer={purchaseOrderMetrcTransfer.metrc_transfer}
+                  companyId={
+                    purchaseOrderMetrcTransfer.metrc_transfer.company_id
+                  }
+                  metrcTransferId={purchaseOrderMetrcTransfer.metrc_transfer.id}
                 />
               </Box>
             )

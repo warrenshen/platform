@@ -14,7 +14,10 @@ import {
   PurchaseOrderMetrcTransferFragment,
   PurchaseOrdersInsertInput,
 } from "generated/graphql";
-import { MetrcTransferPayload } from "lib/api/metrc";
+import {
+  MetrcTransferPayload,
+  getMetrcTransferVendorDescription,
+} from "lib/api/metrc";
 import { formatDateString, formatDatetimeString } from "lib/date";
 import { FileTypeEnum } from "lib/enum";
 import { useMemo, useState } from "react";
@@ -104,7 +107,9 @@ export default function PurchaseOrderFormV2({
                   {`Manifest #${metrcTransfer.manifest_number}`}
                 </Typography>
                 <Typography variant="body2">
-                  {`Vendor: ${metrcTransfer.vendor?.name || "Unknown"}`}
+                  {`Vendor: ${getMetrcTransferVendorDescription(
+                    metrcTransfer
+                  )}`}
                 </Typography>
                 <Typography variant="body2">
                   {`Received at: ${formatDatetimeString(
@@ -154,7 +159,8 @@ export default function PurchaseOrderFormV2({
             {selectedMetrcTransfers.map((selectedMetrcTransfer) => (
               <Box key={selectedMetrcTransfer.id} mt={2}>
                 <MetrcTransferInfoCard
-                  metrcTransfer={selectedMetrcTransfer}
+                  companyId={selectedMetrcTransfer.company_id}
+                  metrcTransferId={selectedMetrcTransfer.id}
                   handleClickClose={() =>
                     setPurchaseOrderMetrcTransfers(
                       (purchaseOrderMetrcTransfers) =>

@@ -26,6 +26,7 @@ export default function MetrcPackagesDataGrid({
         const packagePayload = metrcPackage.package_payload as MetrcPackagePayload;
         return {
           ...metrcPackage,
+          company_id: metrcPackage.metrc_transfer.company_id,
           manifest_number: metrcPackage.metrc_transfer.manifest_number,
           source_harvest_names: packagePayload["SourceHarvestNames"],
           source_package_labels: packagePayload["SourcePackageLabels"],
@@ -66,6 +67,7 @@ export default function MetrcPackagesDataGrid({
         cellRender: (params: ValueFormatterParams) => (
           <MetrcTransferDrawerLauncher
             label={params.row.data.manifest_number}
+            companyId={params.row.data.company_id}
             metrcTransferId={params.row.data.transfer_id}
           />
         ),

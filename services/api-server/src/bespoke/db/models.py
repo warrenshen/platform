@@ -171,12 +171,13 @@ class CompanySettings(Base):
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	company_id = Column(GUID)
+	active_ebba_application_id = cast(GUID, Column(GUID, ForeignKey('ebba_applications.id')))
+	metrc_api_key_id = cast(GUID, Column(GUID, ForeignKey('metrc_api_keys.id')))
 	vendor_agreement_docusign_template = Column(Text)
 	payor_agreement_docusign_template = Column(Text)
 	has_autofinancing = Column(Boolean)
 	two_factor_message_method = Column(Text)
-	active_ebba_application_id = cast(GUID, Column(GUID, ForeignKey('ebba_applications.id')))
-	metrc_api_key_id = cast(GUID, Column(GUID, ForeignKey('metrc_api_keys.id')))
+	feature_flags_payload = Column(JSON)
 
 	def as_dict(self) -> CompanySettingsDict:
 		return CompanySettingsDict(

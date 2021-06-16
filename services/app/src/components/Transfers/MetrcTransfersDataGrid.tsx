@@ -21,7 +21,7 @@ export default function MetrcTransfersDataGrid({
         const transferPayload = metrcTransfer.transfer_payload;
         return {
           ...metrcTransfer,
-          vendor_name: metrcTransfer.vendor?.name || "UNKNOWN",
+          vendor_name: metrcTransfer.vendor?.name || "Unknown",
           origin_license: transferPayload.ShipperFacilityLicenseNumber,
           origin_facility: transferPayload.ShipperFacilityName,
           destination_license: transferPayload.RecipientFacilityLicenseNumber,
@@ -43,6 +43,7 @@ export default function MetrcTransfersDataGrid({
         cellRender: (params: ValueFormatterParams) => (
           <MetrcTransferDrawerLauncher
             label={params.row.data.manifest_number}
+            companyId={params.row.data.company_id}
             metrcTransferId={params.row.data.id}
           />
         ),

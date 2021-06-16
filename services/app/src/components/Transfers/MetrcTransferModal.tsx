@@ -6,16 +6,22 @@ import {
   CurrentUserContext,
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
-import { MetrcTransfers, useGetMetrcTransferQuery } from "generated/graphql";
+import {
+  Companies,
+  MetrcTransfers,
+  useGetMetrcTransferQuery,
+} from "generated/graphql";
 import { formatDatetimeString } from "lib/date";
 import { useContext } from "react";
 
 interface Props {
+  companyId: Companies["id"];
   metrcTransferId: MetrcTransfers["id"];
   handleClose: () => void;
 }
 
 export default function MetrcTransferModal({
+  companyId,
   metrcTransferId,
   handleClose,
 }: Props) {
@@ -24,12 +30,18 @@ export default function MetrcTransferModal({
   } = useContext(CurrentUserContext);
   const isBankUser = isRoleBankUser(role);
 
-  const { data } = useGetMetrcTransferQuery({
+  const { data, error } = useGetMetrcTransferQuery({
     fetchPolicy: "network-only",
     variables: {
       id: metrcTransferId,
+      company_id: companyId,
     },
   });
+
+  if (error) {
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
+  }
 
   const metrcTransfer = data?.metrc_transfers_by_pk;
 

@@ -2606,7 +2606,12 @@
       foreign_key_constraint_on: license_id
   - name: vendor
     using:
-      foreign_key_constraint_on: vendor_id
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: vendors
+        column_mapping:
+          vendor_id: id
   array_relationships:
   - name: metrc_packages
     using:
@@ -3559,6 +3564,14 @@
           name: company_vendor_partnerships
         column_mapping:
           id: vendor_id
+  - name: metrc_transfers
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: metrc_transfers
+        column_mapping:
+          id: vendor_id
   select_permissions:
   - role: bank_admin
     permission:
@@ -3611,9 +3624,13 @@
       - name
       - phone_number
       filter:
-        company_vendor_partnerships:
-          company_id:
-            _eq: X-Hasura-Company-Id
+        _or:
+        - company_vendor_partnerships:
+            company_id:
+              _eq: X-Hasura-Company-Id
+        - metrc_transfers:
+            company_id:
+              _eq: X-Hasura-Company-Id
   - role: company_read_only
     permission:
       columns:
@@ -3623,9 +3640,13 @@
       - name
       - phone_number
       filter:
-        company_vendor_partnerships:
-          company_id:
-            _eq: X-Hasura-Company-Id
+        _or:
+        - company_vendor_partnerships:
+            company_id:
+              _eq: X-Hasura-Company-Id
+        - metrc_transfers:
+            vendor_id:
+              _eq: X-Hasura-Company-Id
   - role: purchase_order_reviewer
     permission:
       columns:

@@ -1,4 +1,5 @@
 import { authenticatedApi, CustomMutationResponse, metrcRoutes } from "lib/api";
+import { GetArtifactRelationsByCompanyIdQuery } from "generated/graphql";
 
 // {
 //    "Id":1977406,
@@ -257,4 +258,19 @@ export async function syncMetrcData(req: {
         };
       }
     );
+}
+
+export function getMetrcTransferVendorDescription(
+  metrcTransfer: NonNullable<
+    GetArtifactRelationsByCompanyIdQuery["companies_by_pk"]
+  >["metrc_transfers"][0]
+) {
+  const vendor = metrcTransfer.vendor || null;
+  if (!vendor) {
+    return "";
+  } else {
+    return `${vendor.name} ${
+      !!vendor.company_vendor_partnerships[0] ? "(Approved)" : "(Not Approved)"
+    }`;
+  }
 }

@@ -3413,6 +3413,7 @@ export type CompanySettings = {
   company?: Maybe<Companies>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at: Scalars["timestamptz"];
+  feature_flags_payload?: Maybe<Scalars["jsonb"]>;
   has_autofinancing?: Maybe<Scalars["Boolean"]>;
   id: Scalars["uuid"];
   /** An object relationship */
@@ -3422,6 +3423,16 @@ export type CompanySettings = {
   two_factor_message_method?: Maybe<Scalars["String"]>;
   updated_at: Scalars["timestamptz"];
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
+};
+
+/**
+ * Settings are configuration details associated with a company, but are not within a time range like contracts are
+ *
+ *
+ * columns and relationships of "company_settings"
+ */
+export type CompanySettingsFeatureFlagsPayloadArgs = {
+  path?: Maybe<Scalars["String"]>;
 };
 
 /** aggregated selection of "company_settings" */
@@ -3450,6 +3461,11 @@ export type CompanySettingsAggregateOrderBy = {
   min?: Maybe<CompanySettingsMinOrderBy>;
 };
 
+/** append existing jsonb value of filtered columns with new jsonb value */
+export type CompanySettingsAppendInput = {
+  feature_flags_payload?: Maybe<Scalars["jsonb"]>;
+};
+
 /** input type for inserting array relation for remote table "company_settings" */
 export type CompanySettingsArrRelInsertInput = {
   data: Array<CompanySettingsInsertInput>;
@@ -3470,6 +3486,7 @@ export type CompanySettingsBoolExp = {
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
+  feature_flags_payload?: Maybe<JsonbComparisonExp>;
   has_autofinancing?: Maybe<BooleanComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   metrc_api_key?: Maybe<MetrcApiKeysBoolExp>;
@@ -3486,6 +3503,21 @@ export enum CompanySettingsConstraint {
   CompanySettingsPkey = "company_settings_pkey",
 }
 
+/** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+export type CompanySettingsDeleteAtPathInput = {
+  feature_flags_payload?: Maybe<Array<Maybe<Scalars["String"]>>>;
+};
+
+/** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+export type CompanySettingsDeleteElemInput = {
+  feature_flags_payload?: Maybe<Scalars["Int"]>;
+};
+
+/** delete key/value pair or string element. key/value pairs are matched based on their key value */
+export type CompanySettingsDeleteKeyInput = {
+  feature_flags_payload?: Maybe<Scalars["String"]>;
+};
+
 /** input type for inserting data into table "company_settings" */
 export type CompanySettingsInsertInput = {
   active_ebba_application?: Maybe<EbbaApplicationsObjRelInsertInput>;
@@ -3497,6 +3529,7 @@ export type CompanySettingsInsertInput = {
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  feature_flags_payload?: Maybe<Scalars["jsonb"]>;
   has_autofinancing?: Maybe<Scalars["Boolean"]>;
   id?: Maybe<Scalars["uuid"]>;
   metrc_api_key?: Maybe<MetrcApiKeysObjRelInsertInput>;
@@ -3599,6 +3632,7 @@ export type CompanySettingsOrderBy = {
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  feature_flags_payload?: Maybe<OrderBy>;
   has_autofinancing?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   metrc_api_key?: Maybe<MetrcApiKeysOrderBy>;
@@ -3614,6 +3648,11 @@ export type CompanySettingsPkColumnsInput = {
   id: Scalars["uuid"];
 };
 
+/** prepend existing jsonb value of filtered columns with new jsonb value */
+export type CompanySettingsPrependInput = {
+  feature_flags_payload?: Maybe<Scalars["jsonb"]>;
+};
+
 /** select columns of table "company_settings" */
 export enum CompanySettingsSelectColumn {
   /** column name */
@@ -3626,6 +3665,8 @@ export enum CompanySettingsSelectColumn {
   CompanyId = "company_id",
   /** column name */
   CreatedAt = "created_at",
+  /** column name */
+  FeatureFlagsPayload = "feature_flags_payload",
   /** column name */
   HasAutofinancing = "has_autofinancing",
   /** column name */
@@ -3649,6 +3690,7 @@ export type CompanySettingsSetInput = {
   collections_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  feature_flags_payload?: Maybe<Scalars["jsonb"]>;
   has_autofinancing?: Maybe<Scalars["Boolean"]>;
   id?: Maybe<Scalars["uuid"]>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
@@ -3670,6 +3712,8 @@ export enum CompanySettingsUpdateColumn {
   CompanyId = "company_id",
   /** column name */
   CreatedAt = "created_at",
+  /** column name */
+  FeatureFlagsPayload = "feature_flags_payload",
   /** column name */
   HasAutofinancing = "has_autofinancing",
   /** column name */
@@ -9197,7 +9241,7 @@ export type MetrcTransfers = {
   transfer_type: Scalars["String"];
   updated_at?: Maybe<Scalars["timestamptz"]>;
   /** An object relationship */
-  vendor?: Maybe<Companies>;
+  vendor?: Maybe<Vendors>;
   vendor_id?: Maybe<Scalars["uuid"]>;
 };
 
@@ -9290,7 +9334,7 @@ export type MetrcTransfersBoolExp = {
   transfer_payload?: Maybe<JsonComparisonExp>;
   transfer_type?: Maybe<StringComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
-  vendor?: Maybe<CompaniesBoolExp>;
+  vendor?: Maybe<VendorsBoolExp>;
   vendor_id?: Maybe<UuidComparisonExp>;
 };
 
@@ -9318,7 +9362,7 @@ export type MetrcTransfersInsertInput = {
   transfer_payload?: Maybe<Scalars["json"]>;
   transfer_type?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
-  vendor?: Maybe<CompaniesObjRelInsertInput>;
+  vendor?: Maybe<VendorsObjRelInsertInput>;
   vendor_id?: Maybe<Scalars["uuid"]>;
 };
 
@@ -9419,7 +9463,7 @@ export type MetrcTransfersOrderBy = {
   transfer_payload?: Maybe<OrderBy>;
   transfer_type?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
-  vendor?: Maybe<CompaniesOrderBy>;
+  vendor?: Maybe<VendorsOrderBy>;
   vendor_id?: Maybe<OrderBy>;
 };
 
@@ -11037,12 +11081,22 @@ export type MutationRootUpdateCompanyPayorPartnershipsByPkArgs = {
 
 /** mutation root */
 export type MutationRootUpdateCompanySettingsArgs = {
+  _append?: Maybe<CompanySettingsAppendInput>;
+  _delete_at_path?: Maybe<CompanySettingsDeleteAtPathInput>;
+  _delete_elem?: Maybe<CompanySettingsDeleteElemInput>;
+  _delete_key?: Maybe<CompanySettingsDeleteKeyInput>;
+  _prepend?: Maybe<CompanySettingsPrependInput>;
   _set?: Maybe<CompanySettingsSetInput>;
   where: CompanySettingsBoolExp;
 };
 
 /** mutation root */
 export type MutationRootUpdateCompanySettingsByPkArgs = {
+  _append?: Maybe<CompanySettingsAppendInput>;
+  _delete_at_path?: Maybe<CompanySettingsDeleteAtPathInput>;
+  _delete_elem?: Maybe<CompanySettingsDeleteElemInput>;
+  _delete_key?: Maybe<CompanySettingsDeleteKeyInput>;
+  _prepend?: Maybe<CompanySettingsPrependInput>;
   _set?: Maybe<CompanySettingsSetInput>;
   pk_columns: CompanySettingsPkColumnsInput;
 };
@@ -17727,6 +17781,10 @@ export type Vendors = {
   id?: Maybe<Scalars["uuid"]>;
   identifier?: Maybe<Scalars["String"]>;
   latest_loan_identifier?: Maybe<Scalars["Int"]>;
+  /** An array relationship */
+  metrc_transfers: Array<MetrcTransfers>;
+  /** An aggregated array relationship */
+  metrc_transfers_aggregate: MetrcTransfersAggregate;
   name?: Maybe<Scalars["String"]>;
   needs_balance_recomputed?: Maybe<Scalars["Boolean"]>;
   phone_number?: Maybe<Scalars["String"]>;
@@ -17751,6 +17809,24 @@ export type VendorsCompanyVendorPartnershipsAggregateArgs = {
   offset?: Maybe<Scalars["Int"]>;
   order_by?: Maybe<Array<CompanyVendorPartnershipsOrderBy>>;
   where?: Maybe<CompanyVendorPartnershipsBoolExp>;
+};
+
+/** columns and relationships of "vendors" */
+export type VendorsMetrcTransfersArgs = {
+  distinct_on?: Maybe<Array<MetrcTransfersSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MetrcTransfersOrderBy>>;
+  where?: Maybe<MetrcTransfersBoolExp>;
+};
+
+/** columns and relationships of "vendors" */
+export type VendorsMetrcTransfersAggregateArgs = {
+  distinct_on?: Maybe<Array<MetrcTransfersSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MetrcTransfersOrderBy>>;
+  where?: Maybe<MetrcTransfersBoolExp>;
 };
 
 /** aggregated selection of "vendors" */
@@ -17827,6 +17903,7 @@ export type VendorsBoolExp = {
   id?: Maybe<UuidComparisonExp>;
   identifier?: Maybe<StringComparisonExp>;
   latest_loan_identifier?: Maybe<IntComparisonExp>;
+  metrc_transfers?: Maybe<MetrcTransfersBoolExp>;
   name?: Maybe<StringComparisonExp>;
   needs_balance_recomputed?: Maybe<BooleanComparisonExp>;
   phone_number?: Maybe<StringComparisonExp>;
@@ -17854,6 +17931,7 @@ export type VendorsInsertInput = {
   id?: Maybe<Scalars["uuid"]>;
   identifier?: Maybe<Scalars["String"]>;
   latest_loan_identifier?: Maybe<Scalars["Int"]>;
+  metrc_transfers?: Maybe<MetrcTransfersArrRelInsertInput>;
   name?: Maybe<Scalars["String"]>;
   needs_balance_recomputed?: Maybe<Scalars["Boolean"]>;
   phone_number?: Maybe<Scalars["String"]>;
@@ -17969,6 +18047,7 @@ export type VendorsOrderBy = {
   id?: Maybe<OrderBy>;
   identifier?: Maybe<OrderBy>;
   latest_loan_identifier?: Maybe<OrderBy>;
+  metrc_transfers_aggregate?: Maybe<MetrcTransfersAggregateOrderBy>;
   name?: Maybe<OrderBy>;
   needs_balance_recomputed?: Maybe<OrderBy>;
   phone_number?: Maybe<OrderBy>;
@@ -19396,7 +19475,7 @@ export type MetrcTransferFragment = Pick<
   | "manifest_number"
   | "transfer_payload"
   | "lab_results_status"
-> & { vendor?: Maybe<Pick<Companies, "id" | "name">> };
+> & { vendor?: Maybe<Pick<Vendors, "id" | "name">> };
 
 export type MetrcPackageFragment = Pick<
   MetrcPackages,
@@ -19410,7 +19489,9 @@ export type MetrcPackageFragment = Pick<
   | "package_payload"
   | "lab_results_payload"
   | "lab_results_status"
-> & { metrc_transfer: Pick<MetrcTransfers, "id" | "manifest_number"> };
+> & {
+  metrc_transfer: Pick<MetrcTransfers, "id" | "company_id" | "manifest_number">;
+};
 
 export type PurchaseOrderMetrcTransferFragment = Pick<
   PurchaseOrderMetrcTransfers,
@@ -19440,11 +19521,19 @@ export type GetTransactionsQuery = {
 
 export type GetMetrcTransferQueryVariables = Exact<{
   id: Scalars["uuid"];
+  company_id?: Maybe<Scalars["uuid"]>;
 }>;
 
 export type GetMetrcTransferQuery = {
   metrc_transfers_by_pk?: Maybe<
     Pick<MetrcTransfers, "id"> & {
+      vendor?: Maybe<
+        Pick<Vendors, "id"> & {
+          company_vendor_partnerships: Array<
+            Pick<CompanyVendorPartnerships, "id">
+          >;
+        }
+      >;
       metrc_packages: Array<Pick<MetrcPackages, "id"> & MetrcPackageFragment>;
     } & MetrcTransferFragment
   >;
@@ -19631,7 +19720,17 @@ export type GetArtifactRelationsByCompanyIdQueryVariables = Exact<{
 export type GetArtifactRelationsByCompanyIdQuery = {
   companies_by_pk?: Maybe<{
     metrc_api_keys: Array<Pick<MetrcApiKeys, "id">>;
-    metrc_transfers: Array<Pick<MetrcTransfers, "id"> & MetrcTransferFragment>;
+    metrc_transfers: Array<
+      Pick<MetrcTransfers, "id"> & {
+        vendor?: Maybe<
+          Pick<Vendors, "id"> & {
+            company_vendor_partnerships: Array<
+              Pick<CompanyVendorPartnerships, "id">
+            >;
+          }
+        >;
+      } & MetrcTransferFragment
+    >;
   }>;
   vendors: Array<
     Pick<Vendors, "id"> & {
@@ -20212,6 +20311,7 @@ export const MetrcPackageFragmentDoc = gql`
     lab_results_status
     metrc_transfer {
       id
+      company_id
       manifest_number
     }
   }
@@ -26516,9 +26616,17 @@ export type GetTransactionsQueryResult = Apollo.QueryResult<
   GetTransactionsQueryVariables
 >;
 export const GetMetrcTransferDocument = gql`
-  query GetMetrcTransfer($id: uuid!) {
+  query GetMetrcTransfer($id: uuid!, $company_id: uuid) {
     metrc_transfers_by_pk(id: $id) {
       id
+      vendor {
+        id
+        company_vendor_partnerships(
+          where: { company_id: { _eq: $company_id } }
+        ) {
+          id
+        }
+      }
       ...MetrcTransfer
       metrc_packages {
         id
@@ -26543,6 +26651,7 @@ export const GetMetrcTransferDocument = gql`
  * const { data, loading, error } = useGetMetrcTransferQuery({
  *   variables: {
  *      id: // value for 'id'
+ *      company_id: // value for 'company_id'
  *   },
  * });
  */
@@ -27527,6 +27636,14 @@ export const GetArtifactRelationsByCompanyIdDocument = gql`
       ) {
         id
         ...MetrcTransfer
+        vendor {
+          id
+          company_vendor_partnerships(
+            where: { company_id: { _eq: $companyId } }
+          ) {
+            id
+          }
+        }
       }
     }
     vendors(
