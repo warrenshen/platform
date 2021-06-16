@@ -1,4 +1,4 @@
-query Company($companyId: uuid!) {
+query GetCompanyForBank($companyId: uuid!) {
   companies_by_pk(id: $companyId) {
     ...Company
     bank_accounts {

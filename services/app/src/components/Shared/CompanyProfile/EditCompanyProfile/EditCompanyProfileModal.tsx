@@ -17,7 +17,6 @@ import {
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
 import {
-  CompanyDocument,
   CompanyFragment,
   useUpdateCompanyProfileMutation,
 } from "generated/graphql";
@@ -37,7 +36,7 @@ interface Props {
   handleClose: () => void;
 }
 
-function EditCompanyProfileModal({
+export default function EditCompanyProfileModal({
   company: companyToEdit,
   handleClose,
 }: Props) {
@@ -165,14 +164,6 @@ function EditCompanyProfileModal({
                       company.employer_identification_number,
                   },
                 },
-                refetchQueries: [
-                  {
-                    query: CompanyDocument,
-                    variables: {
-                      companyId: company.id,
-                    },
-                  },
-                ],
               });
               handleClose();
             }}
@@ -186,5 +177,3 @@ function EditCompanyProfileModal({
     </Dialog>
   );
 }
-
-export default EditCompanyProfileModal;

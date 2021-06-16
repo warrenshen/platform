@@ -277,3 +277,11 @@ export const AllFeeTypes = [
   FeeTypeEnum.WireFee,
   FeeTypeEnum.CustomFee,
 ];
+
+export enum FeatureFlagEnum {
+  CREATE_PURCHASE_ORDER_FROM_METRC_TRANSFERS = "create_purchase_order_from_metrc_transfers",
+}
+
+export const AllFeatureFlags = [
+  FeatureFlagEnum.CREATE_PURCHASE_ORDER_FROM_METRC_TRANSFERS,
+];

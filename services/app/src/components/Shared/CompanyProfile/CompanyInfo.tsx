@@ -21,11 +21,16 @@ const useStyles = makeStyles({
 });
 
 interface Props {
-  company: CompanyFragment;
   isEditAllowed?: boolean;
+  company: CompanyFragment;
+  handleDataChange: () => void;
 }
 
-function CompanyInfo({ company, isEditAllowed = true }: Props) {
+export default function CompanyInfo({
+  isEditAllowed = true,
+  company,
+  handleDataChange,
+}: Props) {
   const classes = useStyles();
   return (
     <Box display="flex">
@@ -59,12 +64,10 @@ function CompanyInfo({ company, isEditAllowed = true }: Props) {
         </CardContent>
         {isEditAllowed && (
           <CardActions>
-            <EditButton company={company} />
+            <EditButton company={company} handleDataChange={handleDataChange} />
           </CardActions>
         )}
       </Card>
     </Box>
   );
 }
-
-export default CompanyInfo;

@@ -168,6 +168,28 @@ def create_customer(
 		status='OK'
 	), None
 
+@errors.return_error_tuple
+def upsert_feature_flags_payload(
+	company_settings_id: str,
+	feature_flags_payload: Dict[str, bool],
+	session: Session,
+) -> Tuple[bool, errors.Error]:
+
+	settings = cast(
+		models.CompanySettings,
+		session.query(models.CompanySettings).get(company_settings_id))
+
+	if not settings:
+		return None, errors.Error('No settings found')
+
+	for feature_flag in feature_flags_payload.keys():
+		if feature_flag not in db_constants.ALL_FEATURE_FLAGS:
+			return None, errors.Error(f'Invalid feature flag: {feature_flag}')
+
+	settings.feature_flags_payload = feature_flags_payload
+
+	return True, None
+
 # We will have two methods:
 #
 # Create partnership and company

@@ -20,7 +20,10 @@ function StatusOfKey({ metrcKey }: StatusProps) {
     <>
       <h4>API Key Status</h4>
       <Grid>
-        <Box>Last used: {metrcKey.last_used_at}</Box>
+        <Box>{`Is Functioning?: ${
+          metrcKey.is_functioning ? "Yes" : "No"
+        }`}</Box>
+        <Box>{`Last used: ${metrcKey.last_used_at}`}</Box>
         {metrcKey.status_codes_payload &&
           Object.keys(metrcKey.status_codes_payload).map((licenseNum) => {
             const statusesObj = metrcKey.status_codes_payload[licenseNum];

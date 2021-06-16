@@ -47,8 +47,9 @@ export default function CustomerSettings({
         <h2>Customer Settings</h2>
         <Box mt={3}>
           <CompanyInfo
-            company={company}
             isEditAllowed={check(role, Action.EditBankAccount)}
+            company={company}
+            handleDataChange={handleDataChange}
           />
         </Box>
         <Box mt={3}>

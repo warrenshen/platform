@@ -19238,11 +19238,11 @@ export type GetCompanyNextLoanIdentifierMutation = {
   >;
 };
 
-export type CompanyQueryVariables = Exact<{
+export type GetCompanyForBankQueryVariables = Exact<{
   companyId: Scalars["uuid"];
 }>;
 
-export type CompanyQuery = {
+export type GetCompanyForBankQuery = {
   companies_by_pk?: Maybe<
     {
       bank_accounts: Array<BankAccountFragment>;
@@ -19579,7 +19579,7 @@ export type GetVendorCompanyFileAttachmentsQueryVariables = Exact<{
 
 export type GetVendorCompanyFileAttachmentsQuery = {
   companies_by_pk?: Maybe<
-    {
+    Pick<Companies, "id"> & {
       agreements: Array<CompanyAgreementFragment>;
       licenses: Array<CompanyLicenseFragment>;
     } & ThirdPartyFragment
@@ -19709,6 +19709,39 @@ export type AddCompanyVendorAgreementMutation = {
   insert_company_agreements_one?: Maybe<CompanyAgreementFragment>;
 };
 
+export type GetArtifactRelationsByCompanyIdQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+}>;
+
+export type GetArtifactRelationsByCompanyIdQuery = {
+  companies_by_pk?: Maybe<
+    Pick<Companies, "id"> & {
+      settings?: Maybe<
+        Pick<CompanySettings, "id"> & CompanySettingsLimitedFragment
+      >;
+      metrc_api_keys: Array<Pick<MetrcApiKeys, "id">>;
+      metrc_transfers: Array<
+        Pick<MetrcTransfers, "id"> & {
+          vendor?: Maybe<
+            Pick<Vendors, "id"> & {
+              company_vendor_partnerships: Array<
+                Pick<CompanyVendorPartnerships, "id">
+              >;
+            }
+          >;
+        } & MetrcTransferFragment
+      >;
+    }
+  >;
+  vendors: Array<
+    Pick<Vendors, "id"> & {
+      company_vendor_partnerships: Array<
+        Pick<CompanyVendorPartnerships, "id" | "approved_at">
+      >;
+    } & VendorLimitedFragment
+  >;
+};
+
 export type GetVendorPartnershipsByCompanyIdQueryVariables = Exact<{
   companyId: Scalars["uuid"];
 }>;
@@ -19718,34 +19751,6 @@ export type GetVendorPartnershipsByCompanyIdQuery = {
     {
       vendor_limited?: Maybe<VendorLimitedFragment>;
     } & VendorPartnershipLimitedFragment
-  >;
-};
-
-export type GetArtifactRelationsByCompanyIdQueryVariables = Exact<{
-  companyId: Scalars["uuid"];
-}>;
-
-export type GetArtifactRelationsByCompanyIdQuery = {
-  companies_by_pk?: Maybe<{
-    metrc_api_keys: Array<Pick<MetrcApiKeys, "id">>;
-    metrc_transfers: Array<
-      Pick<MetrcTransfers, "id"> & {
-        vendor?: Maybe<
-          Pick<Vendors, "id"> & {
-            company_vendor_partnerships: Array<
-              Pick<CompanyVendorPartnerships, "id">
-            >;
-          }
-        >;
-      } & MetrcTransferFragment
-    >;
-  }>;
-  vendors: Array<
-    Pick<Vendors, "id"> & {
-      company_vendor_partnerships: Array<
-        Pick<CompanyVendorPartnerships, "id" | "approved_at">
-      >;
-    } & VendorLimitedFragment
   >;
 };
 
@@ -19792,14 +19797,9 @@ export type CustomerForBankFragment = Pick<
 
 export type CompanySettingsFragment = Pick<
   CompanySettings,
-  | "id"
-  | "company_id"
-  | "vendor_agreement_docusign_template"
-  | "payor_agreement_docusign_template"
-  | "collections_bespoke_bank_account_id"
-  | "has_autofinancing"
-  | "two_factor_message_method"
->;
+  "id" | "two_factor_message_method"
+> &
+  CompanySettingsLimitedFragment;
 
 export type MetrcApiKeyFragment = Pick<
   MetrcApiKeys,
@@ -19932,6 +19932,7 @@ export type CompanySettingsLimitedFragment = Pick<
   | "vendor_agreement_docusign_template"
   | "payor_agreement_docusign_template"
   | "collections_bespoke_bank_account_id"
+  | "feature_flags_payload"
   | "has_autofinancing"
 >;
 
@@ -20359,16 +20360,24 @@ export const CustomerForBankFragmentDoc = gql`
     phone_number
   }
 `;
-export const CompanySettingsFragmentDoc = gql`
-  fragment CompanySettings on company_settings {
+export const CompanySettingsLimitedFragmentDoc = gql`
+  fragment CompanySettingsLimited on company_settings {
     id
     company_id
     vendor_agreement_docusign_template
     payor_agreement_docusign_template
     collections_bespoke_bank_account_id
+    feature_flags_payload
     has_autofinancing
-    two_factor_message_method
   }
+`;
+export const CompanySettingsFragmentDoc = gql`
+  fragment CompanySettings on company_settings {
+    id
+    two_factor_message_method
+    ...CompanySettingsLimited
+  }
+  ${CompanySettingsLimitedFragmentDoc}
 `;
 export const MetrcApiKeyFragmentDoc = gql`
   fragment MetrcApiKey on metrc_api_keys {
@@ -20737,16 +20746,6 @@ export const BankFinancialSummaryFragmentDoc = gql`
     total_principal_in_requested_state
     available_limit
     interest_accrued_today
-  }
-`;
-export const CompanySettingsLimitedFragmentDoc = gql`
-  fragment CompanySettingsLimited on company_settings {
-    id
-    company_id
-    vendor_agreement_docusign_template
-    payor_agreement_docusign_template
-    collections_bespoke_bank_account_id
-    has_autofinancing
   }
 `;
 export const VendorLimitedFragmentDoc = gql`
@@ -26271,8 +26270,8 @@ export type GetCompanyNextLoanIdentifierMutationOptions = Apollo.BaseMutationOpt
   GetCompanyNextLoanIdentifierMutation,
   GetCompanyNextLoanIdentifierMutationVariables
 >;
-export const CompanyDocument = gql`
-  query Company($companyId: uuid!) {
+export const GetCompanyForBankDocument = gql`
+  query GetCompanyForBank($companyId: uuid!) {
     companies_by_pk(id: $companyId) {
       ...Company
       bank_accounts {
@@ -26311,42 +26310,52 @@ export const CompanyDocument = gql`
 `;
 
 /**
- * __useCompanyQuery__
+ * __useGetCompanyForBankQuery__
  *
- * To run a query within a React component, call `useCompanyQuery` and pass it any options that fit your needs.
- * When your component renders, `useCompanyQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetCompanyForBankQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCompanyForBankQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useCompanyQuery({
+ * const { data, loading, error } = useGetCompanyForBankQuery({
  *   variables: {
  *      companyId: // value for 'companyId'
  *   },
  * });
  */
-export function useCompanyQuery(
-  baseOptions: Apollo.QueryHookOptions<CompanyQuery, CompanyQueryVariables>
+export function useGetCompanyForBankQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetCompanyForBankQuery,
+    GetCompanyForBankQueryVariables
+  >
 ) {
-  return Apollo.useQuery<CompanyQuery, CompanyQueryVariables>(
-    CompanyDocument,
-    baseOptions
-  );
+  return Apollo.useQuery<
+    GetCompanyForBankQuery,
+    GetCompanyForBankQueryVariables
+  >(GetCompanyForBankDocument, baseOptions);
 }
-export function useCompanyLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<CompanyQuery, CompanyQueryVariables>
+export function useGetCompanyForBankLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetCompanyForBankQuery,
+    GetCompanyForBankQueryVariables
+  >
 ) {
-  return Apollo.useLazyQuery<CompanyQuery, CompanyQueryVariables>(
-    CompanyDocument,
-    baseOptions
-  );
+  return Apollo.useLazyQuery<
+    GetCompanyForBankQuery,
+    GetCompanyForBankQueryVariables
+  >(GetCompanyForBankDocument, baseOptions);
 }
-export type CompanyQueryHookResult = ReturnType<typeof useCompanyQuery>;
-export type CompanyLazyQueryHookResult = ReturnType<typeof useCompanyLazyQuery>;
-export type CompanyQueryResult = Apollo.QueryResult<
-  CompanyQuery,
-  CompanyQueryVariables
+export type GetCompanyForBankQueryHookResult = ReturnType<
+  typeof useGetCompanyForBankQuery
+>;
+export type GetCompanyForBankLazyQueryHookResult = ReturnType<
+  typeof useGetCompanyForBankLazyQuery
+>;
+export type GetCompanyForBankQueryResult = Apollo.QueryResult<
+  GetCompanyForBankQuery,
+  GetCompanyForBankQueryVariables
 >;
 export const CompanyForCustomerDocument = gql`
   query CompanyForCustomer($companyId: uuid!) {
@@ -26945,6 +26954,7 @@ export type GetMetrcPackagesByCompanyIdQueryResult = Apollo.QueryResult<
 export const GetVendorCompanyFileAttachmentsDocument = gql`
   query GetVendorCompanyFileAttachments($company_id: uuid!) {
     companies_by_pk(id: $company_id) {
+      id
       ...ThirdParty
       agreements {
         ...CompanyAgreement
@@ -27630,6 +27640,105 @@ export type AddCompanyVendorAgreementMutationOptions = Apollo.BaseMutationOption
   AddCompanyVendorAgreementMutation,
   AddCompanyVendorAgreementMutationVariables
 >;
+export const GetArtifactRelationsByCompanyIdDocument = gql`
+  query GetArtifactRelationsByCompanyId($companyId: uuid!) {
+    companies_by_pk(id: $companyId) {
+      id
+      settings {
+        id
+        ...CompanySettingsLimited
+      }
+      metrc_api_keys(where: { is_functioning: { _eq: true } }) {
+        id
+      }
+      metrc_transfers(
+        where: {
+          _and: [
+            { transfer_type: { _eq: "INCOMING_FROM_VENDOR" } }
+            { vendor_id: { _is_null: false } }
+          ]
+        }
+        order_by: { manifest_number: desc }
+      ) {
+        id
+        ...MetrcTransfer
+        vendor {
+          id
+          company_vendor_partnerships(
+            where: { company_id: { _eq: $companyId } }
+          ) {
+            id
+          }
+        }
+      }
+    }
+    vendors(
+      where: {
+        company_vendor_partnerships: { company_id: { _eq: $companyId } }
+      }
+      order_by: { name: asc }
+    ) {
+      id
+      ...VendorLimited
+      company_vendor_partnerships {
+        id
+        approved_at
+      }
+    }
+  }
+  ${CompanySettingsLimitedFragmentDoc}
+  ${MetrcTransferFragmentDoc}
+  ${VendorLimitedFragmentDoc}
+`;
+
+/**
+ * __useGetArtifactRelationsByCompanyIdQuery__
+ *
+ * To run a query within a React component, call `useGetArtifactRelationsByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetArtifactRelationsByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetArtifactRelationsByCompanyIdQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useGetArtifactRelationsByCompanyIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetArtifactRelationsByCompanyIdQuery,
+    GetArtifactRelationsByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetArtifactRelationsByCompanyIdQuery,
+    GetArtifactRelationsByCompanyIdQueryVariables
+  >(GetArtifactRelationsByCompanyIdDocument, baseOptions);
+}
+export function useGetArtifactRelationsByCompanyIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetArtifactRelationsByCompanyIdQuery,
+    GetArtifactRelationsByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetArtifactRelationsByCompanyIdQuery,
+    GetArtifactRelationsByCompanyIdQueryVariables
+  >(GetArtifactRelationsByCompanyIdDocument, baseOptions);
+}
+export type GetArtifactRelationsByCompanyIdQueryHookResult = ReturnType<
+  typeof useGetArtifactRelationsByCompanyIdQuery
+>;
+export type GetArtifactRelationsByCompanyIdLazyQueryHookResult = ReturnType<
+  typeof useGetArtifactRelationsByCompanyIdLazyQuery
+>;
+export type GetArtifactRelationsByCompanyIdQueryResult = Apollo.QueryResult<
+  GetArtifactRelationsByCompanyIdQuery,
+  GetArtifactRelationsByCompanyIdQueryVariables
+>;
 export const GetVendorPartnershipsByCompanyIdDocument = gql`
   query GetVendorPartnershipsByCompanyId($companyId: uuid!) {
     company_vendor_partnerships(where: { company_id: { _eq: $companyId } }) {
@@ -27690,99 +27799,6 @@ export type GetVendorPartnershipsByCompanyIdLazyQueryHookResult = ReturnType<
 export type GetVendorPartnershipsByCompanyIdQueryResult = Apollo.QueryResult<
   GetVendorPartnershipsByCompanyIdQuery,
   GetVendorPartnershipsByCompanyIdQueryVariables
->;
-export const GetArtifactRelationsByCompanyIdDocument = gql`
-  query GetArtifactRelationsByCompanyId($companyId: uuid!) {
-    companies_by_pk(id: $companyId) {
-      metrc_api_keys(where: { is_functioning: { _eq: true } }) {
-        id
-      }
-      metrc_transfers(
-        where: {
-          _and: [
-            { transfer_type: { _eq: "INCOMING_FROM_VENDOR" } }
-            { vendor_id: { _is_null: false } }
-          ]
-        }
-        order_by: { manifest_number: desc }
-      ) {
-        id
-        ...MetrcTransfer
-        vendor {
-          id
-          company_vendor_partnerships(
-            where: { company_id: { _eq: $companyId } }
-          ) {
-            id
-          }
-        }
-      }
-    }
-    vendors(
-      where: {
-        company_vendor_partnerships: { company_id: { _eq: $companyId } }
-      }
-      order_by: { name: asc }
-    ) {
-      id
-      ...VendorLimited
-      company_vendor_partnerships {
-        id
-        approved_at
-      }
-    }
-  }
-  ${MetrcTransferFragmentDoc}
-  ${VendorLimitedFragmentDoc}
-`;
-
-/**
- * __useGetArtifactRelationsByCompanyIdQuery__
- *
- * To run a query within a React component, call `useGetArtifactRelationsByCompanyIdQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetArtifactRelationsByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetArtifactRelationsByCompanyIdQuery({
- *   variables: {
- *      companyId: // value for 'companyId'
- *   },
- * });
- */
-export function useGetArtifactRelationsByCompanyIdQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    GetArtifactRelationsByCompanyIdQuery,
-    GetArtifactRelationsByCompanyIdQueryVariables
-  >
-) {
-  return Apollo.useQuery<
-    GetArtifactRelationsByCompanyIdQuery,
-    GetArtifactRelationsByCompanyIdQueryVariables
-  >(GetArtifactRelationsByCompanyIdDocument, baseOptions);
-}
-export function useGetArtifactRelationsByCompanyIdLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetArtifactRelationsByCompanyIdQuery,
-    GetArtifactRelationsByCompanyIdQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<
-    GetArtifactRelationsByCompanyIdQuery,
-    GetArtifactRelationsByCompanyIdQueryVariables
-  >(GetArtifactRelationsByCompanyIdDocument, baseOptions);
-}
-export type GetArtifactRelationsByCompanyIdQueryHookResult = ReturnType<
-  typeof useGetArtifactRelationsByCompanyIdQuery
->;
-export type GetArtifactRelationsByCompanyIdLazyQueryHookResult = ReturnType<
-  typeof useGetArtifactRelationsByCompanyIdLazyQuery
->;
-export type GetArtifactRelationsByCompanyIdQueryResult = Apollo.QueryResult<
-  GetArtifactRelationsByCompanyIdQuery,
-  GetArtifactRelationsByCompanyIdQueryVariables
 >;
 export const CompanyVendorPartnershipForVendorDocument = gql`
   query CompanyVendorPartnershipForVendor($companyId: uuid!, $vendorId: uuid!) {

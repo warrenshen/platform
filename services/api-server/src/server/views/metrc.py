@@ -138,7 +138,7 @@ class UpsertApiKeyView(MethodView):
 
 		return make_response(json.dumps({
 			'status': 'OK'
-		}), 200)		
+		}), 200)
 
 class ViewApiKeyView(MethodView):
 	decorators = [auth_util.bank_admin_required]

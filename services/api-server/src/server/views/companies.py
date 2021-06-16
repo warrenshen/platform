@@ -44,6 +44,42 @@ class CreateCustomerView(MethodView):
 
 		return make_response(json.dumps(resp), 200)
 
+class UpsertFeatureFlagsView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		user_session = auth_util.UserSession.from_session()
+
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'company_settings_id',
+			'feature_flags_payload'
+		]
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(
+					'Missing key {} in request'.format(key))
+
+		if not user_session.is_bank_admin():
+			return handler_util.make_error_response('Access Denied')
+
+		with session_scope(current_app.session_maker) as session:
+			_, err = create_company_util.upsert_feature_flags_payload(
+				company_settings_id=form['company_settings_id'],
+				feature_flags_payload=form['feature_flags_payload'],
+				session=session
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
+
 class CreatePartnershipView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
@@ -74,8 +110,10 @@ class CreatePartnershipView(MethodView):
 			if err:
 				raise err
 
-			sendgrid_client = cast(sendgrid_util.Client,
-								   current_app.sendgrid_client)
+			sendgrid_client = cast(
+				sendgrid_util.Client,
+				current_app.sendgrid_client,
+			)
 			cfg = cast(Config, current_app.app_config)
 
 			customer_id = resp['customer_id']
@@ -204,8 +242,10 @@ class CreatePartnershipRequestView(MethodView):
 			if err:
 				raise err
 
-			sendgrid_client = cast(sendgrid_util.Client,
-								   current_app.sendgrid_client)
+			sendgrid_client = cast(
+				sendgrid_util.Client,
+				current_app.sendgrid_client,
+			)
 			cfg = cast(Config, current_app.app_config)
 
 			customer = cast(
@@ -244,6 +284,9 @@ class CreatePartnershipRequestView(MethodView):
 
 handler.add_url_rule(
 	'/create_customer', view_func=CreateCustomerView.as_view(name='create_customer_view'))
+
+handler.add_url_rule(
+	'/upsert_feature_flags', view_func=UpsertFeatureFlagsView.as_view(name='upsert_feature_flags_view'))
 
 handler.add_url_rule(
 	'/create_partnership', view_func=CreatePartnershipView.as_view(name='create_partnership_view'))

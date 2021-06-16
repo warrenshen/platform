@@ -9,6 +9,7 @@ fragment CompanySettingsLimited on company_settings {
   vendor_agreement_docusign_template
   payor_agreement_docusign_template
   collections_bespoke_bank_account_id
+  feature_flags_payload
   has_autofinancing
 }
 

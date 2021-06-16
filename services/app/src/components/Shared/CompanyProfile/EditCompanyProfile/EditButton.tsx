@@ -13,9 +13,10 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   company: CompanyFragment;
+  handleDataChange: () => void;
 }
 
-function EditButton({ company }: Props) {
+function EditButton({ company, handleDataChange }: Props) {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
 
@@ -24,7 +25,10 @@ function EditButton({ company }: Props) {
       {open && (
         <EditCompanyProfileModal
           company={company}
-          handleClose={() => setOpen(false)}
+          handleClose={() => {
+            setOpen(false);
+            handleDataChange();
+          }}
         />
       )}
       <Button

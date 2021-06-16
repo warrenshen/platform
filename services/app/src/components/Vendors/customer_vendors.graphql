@@ -1,14 +1,10 @@
-query GetVendorPartnershipsByCompanyId($companyId: uuid!) {
-  company_vendor_partnerships(where: { company_id: { _eq: $companyId } }) {
-    ...VendorPartnershipLimited
-    vendor_limited {
-      ...VendorLimited
-    }
-  }
-}
-
 query GetArtifactRelationsByCompanyId($companyId: uuid!) {
   companies_by_pk(id: $companyId) {
+    id
+    settings {
+      id
+      ...CompanySettingsLimited
+    }
     metrc_api_keys(where: { is_functioning: { _eq: true } }) {
       id
     }
@@ -40,6 +36,15 @@ query GetArtifactRelationsByCompanyId($companyId: uuid!) {
     company_vendor_partnerships {
       id
       approved_at
+    }
+  }
+}
+
+query GetVendorPartnershipsByCompanyId($companyId: uuid!) {
+  company_vendor_partnerships(where: { company_id: { _eq: $companyId } }) {
+    ...VendorPartnershipLimited
+    vendor_limited {
+      ...VendorLimited
     }
   }
 }

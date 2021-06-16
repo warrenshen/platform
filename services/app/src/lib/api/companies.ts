@@ -2,6 +2,7 @@ import {
   Companies,
   CompaniesInsertInput,
   CompanyPartnershipRequests,
+  CompanySettings,
   CompanySettingsInsertInput,
   ContractsInsertInput,
   UsersInsertInput,
@@ -11,6 +12,7 @@ import {
   companyRoutes,
   CustomMutationResponse,
 } from "lib/api";
+import { FeatureFlagEnum } from "lib/enum";
 
 export type CreateCustomerReq = {
   company: CompaniesInsertInput;
@@ -18,14 +20,9 @@ export type CreateCustomerReq = {
   contract: ContractsInsertInput;
 };
 
-export type CreateCustomerResp = {
-  status: string;
-  msg: string;
-};
-
 export async function createCustomer(
   req: CreateCustomerReq
-): Promise<CreateCustomerResp> {
+): Promise<CustomMutationResponse> {
   return authenticatedApi
     .post(companyRoutes.createCustomer, req)
     .then((res) => {
@@ -40,6 +37,35 @@ export async function createCustomer(
         return {
           status: "ERROR",
           msg: "Could not create company",
+        };
+      }
+    );
+}
+
+export type UpsertFeatureFlagsMutationReq = {
+  variables: {
+    company_settings_id: CompanySettings["id"];
+    feature_flags_payload: { [key in FeatureFlagEnum]: boolean | null };
+  };
+};
+
+export async function upsertFeatureFlagsMutation(
+  req: UpsertFeatureFlagsMutationReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(companyRoutes.upsertFeatureFlags, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not update company features",
         };
       }
     );

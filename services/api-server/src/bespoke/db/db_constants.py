@@ -77,6 +77,13 @@ COMPANY_TYPES = (
 	CompanyType.Payor
 )
 
+class FeatureFlagEnum(object):
+	CREATE_PURCHASE_ORDER_FROM_METRC_TRANSFERS = 'create_purchase_order_from_metrc_transfers'
+
+ALL_FEATURE_FLAGS = [
+	FeatureFlagEnum.CREATE_PURCHASE_ORDER_FROM_METRC_TRANSFERS,
+]
+
 # Artifacts
 
 class RequestStatusEnum(object):

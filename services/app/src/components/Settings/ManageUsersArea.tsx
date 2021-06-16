@@ -1,4 +1,4 @@
-import { Box, Container, Tab, Tabs, Typography } from "@material-ui/core";
+import { Box, Tab, Tabs, Typography } from "@material-ui/core";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import DeactivateUserModal from "components/Users/DeactivateUserModal";
@@ -189,23 +189,21 @@ export default function ManageUsersArea({ companyId }: Props) {
   return (
     <Box>
       <h2>Users</h2>
-      <Container>
-        <Tabs
-          value={selectedTabIndex}
-          indicatorColor="primary"
-          textColor="primary"
-          onChange={(_event: any, value: number) => setSelectedTabIndex(value)}
-        >
-          <Tab label="Active Users" />
-          <Tab label="Deactivated Users" />
-        </Tabs>
-        <br />
-        {selectedTabIndex === 0 ? (
-          <ActiveUsersTab companyId={companyId} />
-        ) : (
-          <DeactivatedUsersTab companyId={companyId} />
-        )}
-      </Container>
+      <Tabs
+        value={selectedTabIndex}
+        indicatorColor="primary"
+        textColor="primary"
+        onChange={(_event: any, value: number) => setSelectedTabIndex(value)}
+      >
+        <Tab label="Active Users" />
+        <Tab label="Deactivated Users" />
+      </Tabs>
+      <br />
+      {selectedTabIndex === 0 ? (
+        <ActiveUsersTab companyId={companyId} />
+      ) : (
+        <DeactivatedUsersTab companyId={companyId} />
+      )}
     </Box>
   );
 }

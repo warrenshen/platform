@@ -28,7 +28,8 @@ import {
   createUpdatePurchaseOrderAsDraftMutation,
   updatePurchaseOrderMutation,
 } from "lib/api/purchaseOrders";
-import { ActionType } from "lib/enum";
+import { ActionType, FeatureFlagEnum } from "lib/enum";
+import { isFeatureFlagEnabled } from "lib/companies";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useMemo, useState } from "react";
 import styled from "styled-components";
@@ -179,7 +180,9 @@ export default function CreateUpdatePurchaseOrderModal({
     );
   }
 
+  const companySettings = data?.companies_by_pk?.settings;
   const selectableVendors = data?.vendors || [];
+
   const allMetrcTransfers = useMemo(
     () => data?.companies_by_pk?.metrc_transfers || [],
     [data?.companies_by_pk]
@@ -197,6 +200,7 @@ export default function CreateUpdatePurchaseOrderModal({
         .filter((selectedMetrcTransfer) => !!selectedMetrcTransfer),
     [allMetrcTransfers, purchaseOrderMetrcTransfers]
   ) as MetrcTransferFragment[];
+
   const selectableMetrcTransfers = useMemo(
     () =>
       allMetrcTransfers.filter(
@@ -208,8 +212,15 @@ export default function CreateUpdatePurchaseOrderModal({
       ),
     [allMetrcTransfers, selectedMetrcTransfers]
   );
+
   const metrcApiKeys = data?.companies_by_pk?.metrc_api_keys || [];
-  const isMetrcEnabled = metrcApiKeys.length > 0;
+  const isMetrcEnabled =
+    companySettings &&
+    isFeatureFlagEnabled(
+      companySettings,
+      FeatureFlagEnum.CREATE_PURCHASE_ORDER_FROM_METRC_TRANSFERS
+    ) &&
+    metrcApiKeys.length > 0;
   const isMetrcBased = purchaseOrder.is_metrc_based;
 
   const [

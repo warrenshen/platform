@@ -21,6 +21,7 @@ export const companyRoutes = {
   createPartnershipRequest: "/companies/create_partnership_request",
   deletePartnershipRequest: "/companies/delete_partnership_request",
   createPartnership: "/companies/create_partnership",
+  upsertFeatureFlags: "/companies/upsert_feature_flags",
 };
 
 export const licenseRoutes = {

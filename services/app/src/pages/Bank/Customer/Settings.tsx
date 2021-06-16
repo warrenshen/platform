@@ -1,4 +1,4 @@
-import { Box, Typography } from "@material-ui/core";
+import { Box, Checkbox, FormControlLabel, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import MetrcApiKeys from "components/Settings/Bank/MetrcApiKeys";
 import SyncMetrcData from "components/Settings/Bank/SyncMetrcData";
@@ -8,20 +8,22 @@ import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import PageContent from "components/Shared/Page/PageContent";
 import UpdateCompanyLicensesModal from "components/ThirdParties/UpdateCompanyLicensesModal";
+import UpsertFeatureFlagsModal from "components/Settings/Bank/UpsertFeatureFlagsModal";
 import {
+  Companies,
   CompanySettingsFragment,
   ContractFragment,
   MetrcApiKeyFragment,
-  useCompanyQuery,
+  useGetCompanyForBankQuery,
 } from "generated/graphql";
-import { FileTypeEnum } from "lib/enum";
+import { FileTypeEnum, AllFeatureFlags } from "lib/enum";
 
 interface Props {
-  companyId: string;
+  companyId: Companies["id"];
 }
 
-function BankCustomerSettingsSubpage({ companyId }: Props) {
-  const { data, refetch, error } = useCompanyQuery({
+export default function BankCustomerSettingsSubpage({ companyId }: Props) {
+  const { data, refetch, error } = useGetCompanyForBankQuery({
     fetchPolicy: "network-only",
     variables: {
       companyId,
@@ -34,14 +36,11 @@ function BankCustomerSettingsSubpage({ companyId }: Props) {
   }
 
   const company = data?.companies_by_pk;
-  const settings = data?.companies_by_pk?.settings as CompanySettingsFragment;
-  const contract = data?.companies_by_pk?.contract as ContractFragment;
-  const metrcApiKey = data?.companies_by_pk?.settings
-    ?.metrc_api_key as MetrcApiKeyFragment;
-  let companyLicenses = data?.companies_by_pk?.licenses;
-  if (!companyLicenses) {
-    companyLicenses = [];
-  }
+  const settings = company?.settings as CompanySettingsFragment;
+  const contract = company?.contract as ContractFragment;
+  const metrcApiKey = company?.settings?.metrc_api_key as MetrcApiKeyFragment;
+  const companyLicenses = company?.licenses || [];
+  const featureFlagsPayload = settings?.feature_flags_payload || {};
 
   return company ? (
     <PageContent title={"Settings"}>
@@ -50,7 +49,7 @@ function BankCustomerSettingsSubpage({ companyId }: Props) {
         company={company}
         settings={settings}
         contract={contract}
-        bankAccounts={data?.companies_by_pk?.bank_accounts || []}
+        bankAccounts={company?.bank_accounts || []}
         handleDataChange={() => refetch()}
       />
       <Box mt={8} mb={16}>
@@ -106,6 +105,41 @@ function BankCustomerSettingsSubpage({ companyId }: Props) {
           />
         </Box>
         <Box mt={3} mb={1}>
+          <Typography variant="subtitle1">Supported Features</Typography>
+          <Box mt={2}>
+            <ModalButton
+              label={"Edit Features"}
+              color={"primary"}
+              modal={({ handleClose }) => (
+                <UpsertFeatureFlagsModal
+                  companySettingsId={settings.id}
+                  featureFlagsPayload={featureFlagsPayload}
+                  handleClose={() => {
+                    refetch();
+                    handleClose();
+                  }}
+                />
+              )}
+            />
+          </Box>
+          <Box mt={2}>
+            {AllFeatureFlags.map((featureFlag) => (
+              <Box key={featureFlag}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      disabled
+                      checked={!!featureFlagsPayload[featureFlag]}
+                      color="primary"
+                    />
+                  }
+                  label={featureFlag}
+                />
+              </Box>
+            ))}
+          </Box>
+        </Box>
+        <Box mt={3} mb={1}>
           <Typography variant="subtitle1">Metrc API Keys</Typography>
           <Box display="flex">
             <MetrcApiKeys
@@ -115,7 +149,6 @@ function BankCustomerSettingsSubpage({ companyId }: Props) {
             />
           </Box>
         </Box>
-
         <Box mt={3} mb={1}>
           <Typography variant="subtitle1">Sync Metrc Data</Typography>
           <Box display="flex">
@@ -126,5 +159,3 @@ function BankCustomerSettingsSubpage({ companyId }: Props) {
     </PageContent>
   ) : null;
 }
-
-export default BankCustomerSettingsSubpage;
