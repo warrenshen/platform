@@ -1,6 +1,7 @@
 import json
 from typing import Any, Dict, cast
 
+from bespoke import errors
 from bespoke.audit import events
 from bespoke.companies import create_user_util
 from bespoke.db import db_constants, models
@@ -254,6 +255,78 @@ class UpdatePayorVendorUserView(MethodView):
 		create_user_resp['status'] = 'OK'
 		return make_response(json.dumps(create_user_resp))
 
+
+class DeactivateCustomerUserView(MethodView):
+	decorators = [auth_util.login_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'user_id',
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in request')
+
+		user_session = UserSession.from_session()
+
+		if form['user_id'] == user_session.get_user_id():
+			raise errors.Error('Cannot deactivate one\'s own account')
+
+		with session_scope(current_app.session_maker) as session:
+			user = session.query(models.User).filter(
+				models.User.id == form['user_id']).first()
+			if not user:
+				return handler_util.make_error_response('No user found associated with this user_id')
+
+			if not user_session.is_bank_or_this_company_admin(str(user.company_id)):
+				raise errors.Error('Access Denied')
+
+			user.is_deleted = True
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
+
+class ReactivateCustomerUserView(MethodView):
+	decorators = [auth_util.login_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'user_id',
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in request')
+
+		user_session = UserSession.from_session()
+
+		with session_scope(current_app.session_maker) as session:
+			user = session.query(models.User).filter(
+				models.User.id == form['user_id']).first()
+			if not user:
+				return handler_util.make_error_response('No user found associated with this user_id')
+
+			if not user_session.is_bank_or_this_company_admin(str(user.company_id)):
+				raise errors.Error('Access Denied')
+
+			user.is_deleted = False
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
+
 handler.add_url_rule(
 	'/create_login', view_func=CreateLoginView.as_view(name='create_login_view'))
 
@@ -265,3 +338,9 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/update_payor_vendor_user', view_func=UpdatePayorVendorUserView.as_view(name='update_payor_vendor_user_view'))
+
+handler.add_url_rule(
+	'/deactivate_customer_user', view_func=DeactivateCustomerUserView.as_view(name='deactivate_customer_user_view'))
+
+handler.add_url_rule(
+	'/reactivate_customer_user', view_func=ReactivateCustomerUserView.as_view(name='reactivate_customer_user_view'))

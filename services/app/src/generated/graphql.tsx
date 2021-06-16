@@ -19109,6 +19109,14 @@ export type ListUsersByCompanyIdQueryVariables = Exact<{
 
 export type ListUsersByCompanyIdQuery = { users: Array<UserFragment> };
 
+export type ListDeactivatedUsersByCompanyIdQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+}>;
+
+export type ListDeactivatedUsersByCompanyIdQuery = {
+  users: Array<UserFragment>;
+};
+
 export type AssignCollectionsBespokeBankAccountMutationVariables = Exact<{
   companySettingsId: Scalars["uuid"];
   bankAccountId?: Maybe<Scalars["uuid"]>;
@@ -25617,6 +25625,70 @@ export type ListUsersByCompanyIdLazyQueryHookResult = ReturnType<
 export type ListUsersByCompanyIdQueryResult = Apollo.QueryResult<
   ListUsersByCompanyIdQuery,
   ListUsersByCompanyIdQueryVariables
+>;
+export const ListDeactivatedUsersByCompanyIdDocument = gql`
+  query ListDeactivatedUsersByCompanyId($companyId: uuid!) {
+    users(
+      where: {
+        _and: [
+          { is_deleted: { _eq: true } }
+          { company_id: { _eq: $companyId } }
+        ]
+      }
+    ) {
+      ...User
+    }
+  }
+  ${UserFragmentDoc}
+`;
+
+/**
+ * __useListDeactivatedUsersByCompanyIdQuery__
+ *
+ * To run a query within a React component, call `useListDeactivatedUsersByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListDeactivatedUsersByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListDeactivatedUsersByCompanyIdQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useListDeactivatedUsersByCompanyIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    ListDeactivatedUsersByCompanyIdQuery,
+    ListDeactivatedUsersByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    ListDeactivatedUsersByCompanyIdQuery,
+    ListDeactivatedUsersByCompanyIdQueryVariables
+  >(ListDeactivatedUsersByCompanyIdDocument, baseOptions);
+}
+export function useListDeactivatedUsersByCompanyIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    ListDeactivatedUsersByCompanyIdQuery,
+    ListDeactivatedUsersByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    ListDeactivatedUsersByCompanyIdQuery,
+    ListDeactivatedUsersByCompanyIdQueryVariables
+  >(ListDeactivatedUsersByCompanyIdDocument, baseOptions);
+}
+export type ListDeactivatedUsersByCompanyIdQueryHookResult = ReturnType<
+  typeof useListDeactivatedUsersByCompanyIdQuery
+>;
+export type ListDeactivatedUsersByCompanyIdLazyQueryHookResult = ReturnType<
+  typeof useListDeactivatedUsersByCompanyIdLazyQuery
+>;
+export type ListDeactivatedUsersByCompanyIdQueryResult = Apollo.QueryResult<
+  ListDeactivatedUsersByCompanyIdQuery,
+  ListDeactivatedUsersByCompanyIdQueryVariables
 >;
 export const AssignCollectionsBespokeBankAccountDocument = gql`
   mutation AssignCollectionsBespokeBankAccount(

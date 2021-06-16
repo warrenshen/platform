@@ -26,6 +26,46 @@ export async function createBankCustomerUserMutation(
     );
 }
 
+export async function deactivateCustomerUserMutation(req: {
+  variables: {
+    user_id: Users["id"];
+  };
+}): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(userRoutes.deactivateCustomerUser, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not deactivate user",
+        };
+      }
+    );
+}
+
+export async function reactivateCustomerUserMutation(req: {
+  variables: {
+    user_id: Users["id"];
+  };
+}): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(userRoutes.reactivateCustomerUser, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not re-activate user",
+        };
+      }
+    );
+}
+
 type CreatePayorVendorUserRequest = {
   variables: {
     is_payor: boolean;

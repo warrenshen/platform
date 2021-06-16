@@ -3,25 +3,20 @@ import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import CreateUpdateBankAccountModal from "components/BankAccount/CreateUpdateBankAccountModal";
 import CompanySettingsCard from "components/Settings/CompanySettingsCard";
 import EditCustomerSettingsModal from "components/Settings/EditCustomerSettingsModal";
+import ManageUsersArea from "components/Settings/ManageUsersArea";
 import Can from "components/Shared/Can";
 import CompanyInfo from "components/Shared/CompanyProfile/CompanyInfo";
 import ModalButton from "components/Shared/Modal/ModalButton";
-import EditUserProfileModal from "components/Users/EditUserProfileModal";
-import InviteUserModal from "components/Users/InviteUserModal";
-import UsersDataGrid from "components/Users/UsersDataGrid";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   BankAccountFragment,
   CompanyFragment,
-  CompanySettingsLimitedFragment,
   CompanySettingsFragment,
+  CompanySettingsLimitedFragment,
   ContractFragment,
-  useListUsersByCompanyIdQuery,
-  Users,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
-import { CompanyUserRoles } from "lib/enum";
-import { useContext, useMemo, useState } from "react";
+import { useContext, useState } from "react";
 
 interface Props {
   companyId: string;
@@ -45,27 +40,6 @@ export default function CustomerSettings({
   } = useContext(CurrentUserContext);
 
   const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
-
-  const { data, refetch } = useListUsersByCompanyIdQuery({
-    variables: {
-      companyId,
-    },
-  });
-
-  const users = data?.users || [];
-
-  const [selectedUsers, setSelectedUsers] = useState<Users[]>([]);
-
-  const selectedUserIds = useMemo(() => selectedUsers.map((user) => user.id), [
-    selectedUsers,
-  ]);
-
-  const handleSelectUsers = useMemo(
-    () => (users: Users[]) => {
-      setSelectedUsers(users);
-    },
-    [setSelectedUsers]
-  );
 
   return (
     <Box>
@@ -132,59 +106,7 @@ export default function CustomerSettings({
           )}
         </Box>
       </Box>
-      <Box>
-        <h2>Users</h2>
-        <Box display="flex" flexDirection="row-reverse">
-          <Can perform={Action.ManipulateUser}>
-            <ModalButton
-              isDisabled={selectedUsers.length > 0}
-              label={"Invite User"}
-              modal={({ handleClose }) => (
-                <InviteUserModal
-                  companyId={companyId}
-                  userRoles={CompanyUserRoles}
-                  handleClose={() => {
-                    refetch();
-                    handleClose();
-                  }}
-                />
-              )}
-            />
-          </Can>
-          <Can perform={Action.ManipulateUser}>
-            <Box mr={2}>
-              <ModalButton
-                isDisabled={selectedUsers.length !== 1}
-                label={"Edit User"}
-                modal={({ handleClose }) => (
-                  <EditUserProfileModal
-                    userId={selectedUsers[0].id}
-                    userRoles={CompanyUserRoles}
-                    originalUserProfile={selectedUsers[0]}
-                    handleClose={() => {
-                      refetch();
-                      handleClose();
-                      setSelectedUsers([]);
-                    }}
-                  />
-                )}
-              />
-            </Box>
-          </Can>
-        </Box>
-        <Box display="flex" mt={3}>
-          {users.length > 0 ? (
-            <UsersDataGrid
-              isMultiSelectEnabled
-              users={users}
-              selectedUserIds={selectedUserIds}
-              handleSelectUsers={handleSelectUsers}
-            />
-          ) : (
-            <Typography variant="body2">No users set up yet</Typography>
-          )}
-        </Box>
-      </Box>
+      <ManageUsersArea companyId={companyId}></ManageUsersArea>
     </Box>
   );
 }
