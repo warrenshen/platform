@@ -248,11 +248,12 @@ def _download_data(
 	errs = []
 
 	for company_info in company_infos:
-		api_key_has_err = False # Assume 1 API key per customer
-
+		functioning_licenses_count = 0 # How many licenses is the API key functioning for
 		license_to_statuses = {}
 
 		for license in company_info.licenses:
+			api_key_has_err = False # Assume 1 API key per customer
+
 			cur_date = start_date
 
 			transfers_status_code = UNKNOWN_STATUS_CODE
@@ -289,7 +290,9 @@ def _download_data(
 
 				cur_date = cur_date + timedelta(days=1)
 
+			functioning_licenses_count += 1 if not api_key_has_err else 0
 			license_to_statuses[license['license_number']] = {
+				'api_key_has_err': api_key_has_err, # Record whether there was an error with the Metrc API for this license
 				'transfers_api': transfers_status_code,
 				'packages_api': packages_status_code,
 				'lab_results_api': lab_results_status_code
@@ -305,7 +308,7 @@ def _download_data(
 			).first())
 
 			if metrc_api_key:
-				metrc_api_key.is_functioning = not api_key_has_err
+				metrc_api_key.is_functioning = functioning_licenses_count > 0 # Metrc API key is "functioning" if at least one license is functioning
 				metrc_api_key.last_used_at = date_util.now()
 				metrc_api_key.status_codes_payload = license_to_statuses
 
