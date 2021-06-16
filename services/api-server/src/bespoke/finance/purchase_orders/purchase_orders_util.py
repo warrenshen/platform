@@ -356,12 +356,12 @@ def submit_purchase_order_for_approval(
 	if not purchase_order_file:
 		raise errors.Error('Purchase order file attachment is required')
 
-	if not company_vendor_relationship.vendor_bank_id:
-		is_vendor_missing_bank_account = True
-
 	if not company_vendor_relationship or company_vendor_relationship.approved_at is None:
 		raise errors.Error('Vendor is not approved')
 
+	if not company_vendor_relationship.vendor_bank_id:
+		is_vendor_missing_bank_account = True
+		
 	vendor_users, err = partnership_util.get_partner_contacts(
 		partnership_id=str(company_vendor_relationship.id),
 		partnership_type=db_constants.CompanyType.Vendor,
