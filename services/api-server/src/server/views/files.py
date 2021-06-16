@@ -55,9 +55,7 @@ def _save_file_to_db(
 		)
 
 def _check_file_permission(
-	check_file_permissions: bool, file_type: str, file_id: str, user_session: UserSession, session: Session) -> Tuple[bool, errors.Error]:
-	if not check_file_permissions:
-		return True, None
+	file_type: str, file_id: str, user_session: UserSession, session: Session) -> Tuple[bool, errors.Error]:
 
 	company_id = user_session.get_company_id()
 
@@ -246,7 +244,7 @@ class DownloadSignedUrlView(MethodView):
 		with session_scope(current_app.session_maker) as session:
 			for file_id in file_ids:
 				success, err = _check_file_permission(
-					cfg.CHECK_FILE_PERMISSIONS, form.get('file_type'), file_id, user_session, session)
+					form.get('file_type'), file_id, user_session, session)
 				if err:
 					raise err
 
