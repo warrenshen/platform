@@ -36,5 +36,9 @@ export function isFeatureFlagEnabled(
   companySettings: CompanySettingsLimitedFragment,
   featureFlag: FeatureFlagEnum
 ) {
-  return !!companySettings.feature_flags_payload[featureFlag];
+  // Note: feature_flags_payload attribute (JSON type) may be null.
+  return (
+    !!companySettings.feature_flags_payload &&
+    !!companySettings.feature_flags_payload[featureFlag]
+  );
 }
