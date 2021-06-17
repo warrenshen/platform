@@ -11,7 +11,6 @@ from bespoke_test.contract.contract_test_helper import ContractInputDict
 
 def _get_default_contract_config(product_type: str, overrides: Dict) -> Dict:
 	contract_dict = ContractInputDict(
-		interest_rate=0.05,
 		maximum_principal_amount=120000.01,
 		max_days_until_repayment=30,
 		late_fee_structure='', # unused
@@ -44,7 +43,8 @@ class TestContractHelper(unittest.TestCase):
 	def test_missing_start_date(self) -> None:
 		config = _get_default_contract_config(ProductType.INVENTORY_FINANCING, {
 			'late_fee_structure': json.dumps(
-				{'1-3': 0.5, '4-9': 0.4, '10+': 0.3})
+				{'1-3': 0.5, '4-9': 0.4, '10+': 0.3}),
+			'interest_rate': 0.05,
 		})
 		company_id = 'unused_for_debug_msg'
 		contract_dicts = [
@@ -64,7 +64,8 @@ class TestContractHelper(unittest.TestCase):
 	def test_missing_end_date(self) -> None:
 		config = _get_default_contract_config(ProductType.INVENTORY_FINANCING, {
 			'late_fee_structure': json.dumps(
-				{'1-3': 0.5, '4-9': 0.4, '10+': 0.3})
+				{'1-3': 0.5, '4-9': 0.4, '10+': 0.3}),
+			'interest_rate': 0.05,
 		})
 		company_id = 'unused_for_debug_msg'
 		contract_dicts = [
@@ -84,7 +85,8 @@ class TestContractHelper(unittest.TestCase):
 	def test_overlapping_date_ranges(self) -> None:
 		config = _get_default_contract_config(ProductType.INVENTORY_FINANCING, {
 			'late_fee_structure': json.dumps(
-				{'1-3': 0.5, '4-9': 0.4, '10+': 0.3})
+				{'1-3': 0.5, '4-9': 0.4, '10+': 0.3}),
+			'interest_rate': 0.05,
 		})
 		company_id = 'unused_for_debug_msg'
 		contract_dicts = [
@@ -123,7 +125,8 @@ class TestContractHelper(unittest.TestCase):
 
 		config = _get_default_contract_config(ProductType.INVENTORY_FINANCING, {
 			'late_fee_structure': json.dumps(
-				{'1-3': 0.5, '4-9': 0.4, '10+': 0.3})
+				{'1-3': 0.5, '4-9': 0.4, '10+': 0.3}),
+			'interest_rate': 0.05,
 		})
 		company_id = 'unused_for_debug_msg'
 		contract_dicts = [
@@ -154,7 +157,8 @@ class TestContractHelper(unittest.TestCase):
 				id='unused',
 				product_type=ProductType.INVENTORY_FINANCING,
 				product_config=_get_default_contract_config(ProductType.INVENTORY_FINANCING, {
-					'late_fee_structure': json.dumps({'1-3': 0.5, '4-9': 0.4, '10+': 0.3})
+					'late_fee_structure': json.dumps({'1-3': 0.5, '4-9': 0.4, '10+': 0.3}),
+					'interest_rate': 0.05,
 				}),
 				start_date=date_util.load_date_str('2/11/2020'),
 				end_date=None,
@@ -164,7 +168,8 @@ class TestContractHelper(unittest.TestCase):
 				id='unused2',
 				product_type=ProductType.INVENTORY_FINANCING,
 				product_config=_get_default_contract_config(ProductType.INVENTORY_FINANCING, {
-					'late_fee_structure': json.dumps({'1-3': 0.1, '4-9': 0.2, '10+': 0.5})
+					'late_fee_structure': json.dumps({'1-3': 0.1, '4-9': 0.2, '10+': 0.5}),
+					'interest_rate': 0.05,
 				}),
 				start_date=date_util.load_date_str('2/16/2020'),
 				end_date=None,
@@ -186,6 +191,155 @@ class TestContractHelper(unittest.TestCase):
 		# Not contract specified for this time range
 		contract, err = contract_helper.get_contract(date_util.load_date_str('1/1/2020'))
 		self.assertIsNotNone(err)
+
+class TestDynamicInterestRate(unittest.TestCase):
+
+	def test_missing_start_date(self) -> None:
+		config = _get_default_contract_config(ProductType.INVENTORY_FINANCING, {
+			'dynamic_interest_rate': json.dumps(
+				{'-3': 0.01})
+		})
+		company_id = 'unused_for_debug_msg'
+		contract_dict = models.ContractDict(
+				id='unused',
+				product_type=ProductType.INVENTORY_FINANCING,
+				product_config=config,
+				start_date=date_util.load_date_str('2/10/2020'),
+				end_date=date_util.load_date_str('2/11/2020'),
+				adjusted_end_date=date_util.load_date_str('2/11/2020'),
+		)
+
+		contract, _ = contract_util.Contract.build(contract_dict, validate=False)
+		success, err = contract._validate_dynamic_interest_rate()
+		self.assertIn('missing a start', err.msg)
+
+	def test_missing_end_date(self) -> None:
+		config = _get_default_contract_config(ProductType.INVENTORY_FINANCING, {
+			'dynamic_interest_rate': json.dumps(
+				{'1-': 0.5})
+		})
+		company_id = 'unused_for_debug_msg'
+		contract_dict = models.ContractDict(
+				id='unused',
+				product_type=ProductType.INVENTORY_FINANCING,
+				product_config=config,
+				start_date=date_util.load_date_str('2/10/2020'),
+				end_date=date_util.load_date_str('2/11/2020'),
+				adjusted_end_date=date_util.load_date_str('2/11/2020'),
+		)
+
+		contract, _ = contract_util.Contract.build(contract_dict, validate=False)
+		success, err = contract._validate_dynamic_interest_rate()
+		self.assertIn('end date', err.msg)
+
+	def test_overlapping_date_ranges(self) -> None:
+		config = _get_default_contract_config(ProductType.INVENTORY_FINANCING, {
+			'dynamic_interest_rate': json.dumps(
+				{'10/01/2020-10/30/2020': 0.5, '10/29/2020-11/05/2020': 0.2})
+		})
+		company_id = 'unused_for_debug_msg'
+		contract_dict = models.ContractDict(
+				id='unused',
+				product_type=ProductType.INVENTORY_FINANCING,
+				product_config=config,
+				start_date=date_util.load_date_str('2/10/2020'),
+				end_date=date_util.load_date_str('2/11/2020'),
+				adjusted_end_date=date_util.load_date_str('2/11/2020'),
+		)
+
+		contract, _ = contract_util.Contract.build(contract_dict, validate=False)
+		success, err = contract._validate_dynamic_interest_rate()
+		self.assertIn('which overlaps', err.msg)
+
+	def test_multiple_contracts_with_invalid_date_ranges(self) -> None:
+		company_id = 'unused_for_debug_msg'
+
+		tests: List[Dict] = [
+			{
+				'contract': models.ContractDict(
+					id='unused',
+					product_type=ProductType.INVENTORY_FINANCING,
+					product_config=_get_default_contract_config(ProductType.INVENTORY_FINANCING, {
+						'dynamic_interest_rate': json.dumps(
+							{'2/12/2020-10/30/2020': 0.5}
+						)
+					}),
+					start_date=date_util.load_date_str('2/11/2020'),
+					end_date=None,
+					adjusted_end_date=date_util.load_date_str('2/15/2020'),
+				),
+				'in_err_msg': 'first dynamic interest rate'
+			},
+			{
+				'contract': models.ContractDict(
+					id='unused2',
+					product_type=ProductType.INVENTORY_FINANCING,
+					product_config=_get_default_contract_config(ProductType.INVENTORY_FINANCING, {
+						'dynamic_interest_rate': json.dumps(
+							{'2/16/2020-10/30/2020': 0.5, '11/01/2020-11/05/2020': 0.2}
+						)
+					}),
+					start_date=date_util.load_date_str('2/16/2020'),
+					end_date=None,
+					adjusted_end_date=date_util.load_date_str('2/28/2020'),
+				),
+				'in_err_msg': 'one day after the previous'
+			},
+			{
+				'contract': models.ContractDict(
+					id='unused2',
+					product_type=ProductType.INVENTORY_FINANCING,
+					product_config=_get_default_contract_config(ProductType.INVENTORY_FINANCING, {
+						'dynamic_interest_rate': json.dumps(
+							{'2/16/2020-10/30/2020': 0.5, '10/31/2020-12/26/2020': 0.2}
+						)
+					}),
+					start_date=date_util.load_date_str('2/16/2020'),
+					end_date=None,
+					adjusted_end_date=date_util.load_date_str('12/28/2020'),
+				),
+				'in_err_msg': 'last dynamic interest rate'
+			}
+		]
+
+		for test in tests:
+			contract, _ = contract_util.Contract.build(test['contract'], validate=False)
+			success, err = contract._validate_dynamic_interest_rate()
+			self.assertIn(test['in_err_msg'], err.msg)
+
+	def test_multiple_valid_interest_rates_on_different_days(self) -> None:
+		company_id = 'unused_for_debug_msg'
+
+		contract_dict = models.ContractDict(
+					id='unused',
+					product_type=ProductType.INVENTORY_FINANCING,
+					product_config=_get_default_contract_config(ProductType.INVENTORY_FINANCING, {
+						'dynamic_interest_rate': json.dumps(
+							{'2/16/2020-10/30/2020': 0.5, '10/31/2020-12/26/2020': 0.2}
+						)
+					}),
+					start_date=date_util.load_date_str('2/16/2020'),
+					end_date=None,
+					adjusted_end_date=date_util.load_date_str('12/26/2020'),
+		)
+		
+		contract, _ = contract_util.Contract.build(contract_dict, validate=False)
+		success, err = contract._validate_dynamic_interest_rate()
+		self.assertIsNone(err)
+
+		self.assertEqual((0.5, None), contract.get_interest_rate(
+			date_util.load_date_str('2/16/2020')))
+		self.assertEqual((0.5, None), contract.get_interest_rate(
+			date_util.load_date_str('2/20/2020')))
+		self.assertEqual((0.2, None), contract.get_interest_rate(
+			date_util.load_date_str('10/31/2020')))
+		self.assertEqual((0.2, None), contract.get_interest_rate(
+			date_util.load_date_str('12/26/2020')))
+
+		interest_rate, err = contract.get_interest_rate(
+			date_util.load_date_str('12/26/2021'))
+		self.assertIn('no interest rate configured', err.msg)
+
 
 class TestContractMethods(unittest.TestCase):
 
@@ -251,7 +405,8 @@ class TestLateFeeStructure(unittest.TestCase):
 	def test_success_get_fee_multiplier(self) -> None:
 		config = _get_default_contract_config(ProductType.INVENTORY_FINANCING, {
 			'late_fee_structure': json.dumps(
-				{'1-3': 0.5, '4-9': 0.4, '10+': 0.3})
+				{'1-3': 0.5, '4-9': 0.4, '10+': 0.3}),
+			'interest_rate': 0.05,
 		})
 		contract, err = contract_util.Contract.build(models.Contract(
 					product_type=ProductType.INVENTORY_FINANCING,
@@ -335,7 +490,8 @@ class TestLateFeeStructure(unittest.TestCase):
 		for i in range(len(tests)):
 			test = tests[i]
 			config = _get_default_contract_config(ProductType.INVENTORY_FINANCING, {
-				'late_fee_structure': json.dumps(test['late_fee_structure'])
+				'late_fee_structure': json.dumps(test['late_fee_structure']),
+				'interest_rate': 0.05,
 			})
 			contract, err = contract_util.Contract.build(models.Contract(
 						product_type=ProductType.INVENTORY_FINANCING,
@@ -346,7 +502,8 @@ class TestLateFeeStructure(unittest.TestCase):
 		for i in range(len(tests)):
 			test = tests[i]
 			config = _get_default_contract_config(ProductType.INVENTORY_FINANCING, {
-				'late_fee_structure': json.dumps(test['late_fee_structure'])
+				'late_fee_structure': json.dumps(test['late_fee_structure']),
+				'interest_rate': 0.05,
 			})
 			contract, err = contract_util.Contract.build(models.Contract(
 						product_type=ProductType.INVENTORY_FINANCING,

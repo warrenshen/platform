@@ -15,6 +15,7 @@ ContractInputDict = TypedDict('ContractInputDict', {
 	'maximum_principal_amount': float,
 	'max_days_until_repayment': int,
 	'late_fee_structure': str,
+	'dynamic_interest_rate': str,
 	'preceeding_business_day': bool,
 	'minimum_monthly_amount': float,
 	'minimum_quarterly_amount': float,
@@ -42,7 +43,11 @@ def create_contract_config(
 	fields = [
 		{
 			'internal_name': 'factoring_fee_percentage',
-			'value': input_dict['interest_rate']
+			'value': input_dict.get('interest_rate', None)
+		},
+		{
+			'internal_name': 'dynamic_interest_rate',
+			'value': input_dict.get('dynamic_interest_rate', None)
 		},
 		{
 			'internal_name': 'maximum_amount',

@@ -68,6 +68,32 @@
       },
       {
         "section": "Financing Terms",
+        "type": "json",
+        "fields": [
+          {
+            "internal_name": "start_date",
+            "display_name": "Start Date",
+            "nullable": false
+          },
+          {
+            "internal_name": "end_date",
+            "display_name": "End Date",
+            "nullable": false
+          },
+          {
+            "internal_name": "daily_interest_rate",
+            "display_name": "Daily Interest Rate",
+            "nullable": false,
+            "type": "float",
+            "format": "percentage"
+          }
+        ],
+        "internal_name": "dynamic_interest_rate",
+        "display_name": "Dynamic Interest Rate",
+        "value": null
+      },
+      {
+        "section": "Financing Terms",
         "type": "float",
         "format": "currency",
         "internal_name": "factoring_fee_threshold",

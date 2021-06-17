@@ -151,8 +151,8 @@ class DynamicInterestRateHelper(object):
 			key = keys[i]
 			interest_rate = dynamic_interest_rate_dict[key]
 			parts = key.split('-')
-			if len(parts) != 2:
-				return None, errors.Error('Dynamic interest rate is missing a start and end date. Got {}'.format(key))
+			if len(parts) != 2 or not parts[0] or not parts[1]:
+				return None, errors.Error('Dynamic interest rate is missing a start or end date. Got {}'.format(key))
 
 			start_date_str = parts[0]
 			end_date_str = parts[1]
@@ -444,8 +444,8 @@ class Contract(object):
 		return self._get_float_value('factoring_fee_percentage')
 
 	def _get_dynamic_interest_rate_dict(self) -> Dict[str, float]:
-		dynamic_interest_rate_field = self._internal_name_to_field.get('dynamic_interest_rate')
-		dynamic_interest_rate_dict = dynamic_interest_rate_field['value'] if dynamic_interest_rate_field else {}
+		dynamic_interest_rate_field, err = self._get_field('dynamic_interest_rate')
+		dynamic_interest_rate_dict = json.loads(dynamic_interest_rate_field['value']) if dynamic_interest_rate_field.get('value') else {}
 		is_dynamic_interest_rate_set = dynamic_interest_rate_dict and \
 			len(list(dynamic_interest_rate_dict.keys())) > 0
 
