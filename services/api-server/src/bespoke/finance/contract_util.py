@@ -446,8 +446,12 @@ class Contract(object):
 	def _get_dynamic_interest_rate_dict(self) -> Dict[str, float]:
 		dynamic_interest_rate_field, err = self._get_field('dynamic_interest_rate')
 		dynamic_interest_rate_dict = json.loads(dynamic_interest_rate_field['value']) if dynamic_interest_rate_field.get('value') else {}
-		is_dynamic_interest_rate_set = dynamic_interest_rate_dict and \
-			len(list(dynamic_interest_rate_dict.keys())) > 0
+
+		# The dynamic interest rate dict is sent up as {'-': None} by the frontend right now.
+		# This fix handles this to allow the majority use case (no dynamic interest rate).
+		dynamic_interest_rate_keys = list(dynamic_interest_rate_dict.keys()) if dynamic_interest_rate_dict else []
+		filtered_dynamic_interest_rate_keys = list(filter(lambda key: key != "-", dynamic_interest_rate_keys))
+		is_dynamic_interest_rate_set = len(filtered_dynamic_interest_rate_keys) > 0
 
 		return dynamic_interest_rate_dict if is_dynamic_interest_rate_set else None
 
