@@ -44,7 +44,7 @@ export default function CustomerSettings({
   return (
     <Box>
       <Box>
-        <h2>Customer Settings</h2>
+        <h2>General</h2>
         <Box mt={3}>
           <CompanyInfo
             isEditAllowed={check(role, Action.EditBankAccount)}
@@ -73,7 +73,7 @@ export default function CustomerSettings({
           />
         </Box>
       </Box>
-      <Box>
+      <Box mt={4}>
         <h2>Bank Accounts</h2>
         <Can perform={Action.AddBankAccount}>
           <ModalButton
@@ -107,7 +107,9 @@ export default function CustomerSettings({
           )}
         </Box>
       </Box>
-      <ManageUsersArea companyId={companyId}></ManageUsersArea>
+      <Box mt={4}>
+        <ManageUsersArea companyId={companyId}></ManageUsersArea>
+      </Box>
     </Box>
   );
 }

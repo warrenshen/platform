@@ -43,7 +43,11 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
   const companyLicenses = company?.licenses || [];
   const featureFlagsPayload = settings?.feature_flags_payload || {};
 
-  return company ? (
+  if (!company) {
+    return null;
+  }
+
+  return (
     <PageContent title={"Settings"}>
       <CustomerSettings
         companyId={companyId}
@@ -54,7 +58,7 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
         handleDataChange={() => refetch()}
       />
       <Box mt={8} mb={16}>
-        <h2>Additional Settings</h2>
+        <h2>Additional Settings (Bank User Only)</h2>
         <Alert severity="info">
           Note: the settings below are only visible by bank users (you are a
           bank user).
@@ -163,5 +167,5 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
         </Box>
       </Box>
     </PageContent>
-  ) : null;
+  );
 }

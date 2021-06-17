@@ -34,7 +34,7 @@ interface Props {
   handleClose: () => void;
 }
 
-function UpsertMetrcKeyModal({
+export default function UpsertMetrcKeyModal({
   companySettingsId,
   metrcApiKey,
   handleClose,
@@ -127,12 +127,10 @@ function UpsertMetrcKeyModal({
             color="primary"
             onClick={handleRegisterClick}
           >
-            {hasKey ? "Edit" : "Add"}
+            Save
           </Button>
         </Box>
       </DialogActions>
     </Dialog>
   );
 }
-
-export default UpsertMetrcKeyModal;
