@@ -77,7 +77,7 @@ export default function EbbaApplicationsDataGrid({
       },
       {
         dataField: "application_date",
-        caption: "Application Date",
+        caption: "Certification Date",
         width: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
@@ -86,7 +86,7 @@ export default function EbbaApplicationsDataGrid({
       },
       {
         dataField: "monthly_accounts_receivable",
-        caption: "Accounts Receivable",
+        caption: "Accounts Receivable Balance",
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (

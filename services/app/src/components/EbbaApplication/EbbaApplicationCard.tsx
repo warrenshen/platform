@@ -46,7 +46,7 @@ function EbbaApplicationCard({ ebbaApplication }: Props) {
           <RequestStatusChip requestStatus={ebbaApplication.status} />
         </Box>
         <Box display="flex" mb={0.5}>
-          <Typography className={classes.label}>Application Date</Typography>
+          <Typography className={classes.label}>Certification Date</Typography>
           <Typography>
             {formatDateString(ebbaApplication.application_date)}
           </Typography>
@@ -61,30 +61,28 @@ function EbbaApplicationCard({ ebbaApplication }: Props) {
         </Box>
         <Box display="flex" mb={0.5}>
           <Typography className={classes.label}>
-            Current Month Accounts Receivable
+            Accounts Receivable Balance
           </Typography>
           <Typography>
             {formatCurrency(ebbaApplication.monthly_accounts_receivable)}
           </Typography>
         </Box>
         <Box display="flex" mb={0.5}>
-          <Typography className={classes.label}>
-            Current Month Inventory
-          </Typography>
+          <Typography className={classes.label}>Inventory Balance</Typography>
           <Typography>
             {formatCurrency(ebbaApplication.monthly_inventory)}
           </Typography>
         </Box>
         <Box display="flex" mb={0.5}>
-          <Typography className={classes.label}>Current Month Cash</Typography>
+          <Typography className={classes.label}>
+            Cash in Deposit Accounts
+          </Typography>
           <Typography>
             {formatCurrency(ebbaApplication.monthly_cash)}
           </Typography>
         </Box>
         <Box display="flex" mb={0.5}>
-          <Typography className={classes.label}>
-            Current Month Cash in DACA
-          </Typography>
+          <Typography className={classes.label}>Cash in DACA</Typography>
           <Typography>
             {formatCurrency(ebbaApplication.amount_cash_in_daca)}
           </Typography>

@@ -6,6 +6,7 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import FileUploader from "components/Shared/File/FileUploader";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DateInput from "components/Shared/FormInputs/DateInput";
@@ -67,7 +68,8 @@ export default function EbbaApplicationForm({
     <Box display="flex" flexDirection="column">
       <Box display="flex" flexDirection="column" mt={4}>
         <Typography variant="subtitle2">
-          What date would you like to submit a certification for?
+          What date would you like to submit a certification for (certification
+          date)?
         </Typography>
         <Box mt={1}>
           <DateInput
@@ -87,17 +89,24 @@ export default function EbbaApplicationForm({
           />
         </Box>
       </Box>
+      <Box mt={4}>
+        <Alert severity="info">
+          <Typography variant="body1">
+            {`Important: please provide financials AS OF the certification date specified above.`}
+          </Typography>
+        </Alert>
+      </Box>
       {isAccountsReceivableVisible && (
         <Box display="flex" flexDirection="column" mt={4}>
           <Typography variant="subtitle2">
-            For the month of the date you specified above, how much accounts
+            As of the certification date specified above, how much accounts
             receivable do you have?
           </Typography>
           <Box mt={1}>
             <FormControl className={classes.inputField}>
               <CurrencyInput
                 isRequired
-                label={"Accounts Receivable ($)"}
+                label={"Accounts Receivable Balance"}
                 value={ebbaApplication.monthly_accounts_receivable}
                 handleChange={(value) =>
                   setEbbaApplication({
@@ -113,14 +122,14 @@ export default function EbbaApplicationForm({
       {isInventoryVisible && (
         <Box display="flex" flexDirection="column" mt={4}>
           <Typography variant="subtitle2">
-            For the month of the date you specified above, how much inventory do
+            As of the certification date specified above, how much inventory do
             you have?
           </Typography>
           <Box mt={1}>
             <FormControl className={classes.inputField}>
               <CurrencyInput
                 isRequired
-                label={"Inventory ($)"}
+                label={"Inventory Balance"}
                 value={ebbaApplication.monthly_inventory}
                 handleChange={(value) =>
                   setEbbaApplication({
@@ -136,14 +145,14 @@ export default function EbbaApplicationForm({
       {isCashVisible && (
         <Box display="flex" flexDirection="column" mt={4}>
           <Typography variant="subtitle2">
-            As of the date you specified above, how much cash do you have in
-            Deposit Accounts(s)?
+            As of the certification date specified above, how much cash do you
+            have in deposit accounts?
           </Typography>
           <Box mt={1}>
             <FormControl className={classes.inputField}>
               <CurrencyInput
                 isRequired
-                label={"Cash in Deposit Account(s)"}
+                label={"Cash in Deposit Accounts"}
                 value={ebbaApplication.monthly_cash}
                 handleChange={(value) =>
                   setEbbaApplication({
@@ -159,14 +168,14 @@ export default function EbbaApplicationForm({
       {isCashInDacaVisible && (
         <Box display="flex" flexDirection="column" mt={4}>
           <Typography variant="subtitle2">
-            As of the date you specified above, how much cash do you have in
-            DACA Deposit Account(s)?
+            As of the certification date specified above, how much cash do you
+            have in DACA?
           </Typography>
           <Box mt={1}>
             <FormControl className={classes.inputField}>
               <CurrencyInput
                 isRequired
-                label={"Cash in DACA Deposit Account(s)"}
+                label={"Cash in DACA "}
                 value={ebbaApplication.amount_cash_in_daca}
                 handleChange={(value) =>
                   setEbbaApplication({

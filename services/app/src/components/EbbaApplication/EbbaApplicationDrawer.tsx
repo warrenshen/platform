@@ -1,16 +1,9 @@
-import {
-  Box,
-  Button,
-  createStyles,
-  Drawer,
-  makeStyles,
-  Theme,
-  Typography,
-} from "@material-ui/core";
+import { Box, Button, Typography } from "@material-ui/core";
 import CreateUpdateEbbaApplicationModal from "components/EbbaApplication/CreateUpdateEbbaApplicationModal";
 import ReviewEbbaApplicationRejectModal from "components/EbbaApplication/ReviewEbbaApplicationRejectModal";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
+import Modal from "components/Shared/Modal/Modal";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   CurrentUserContext,
@@ -27,22 +20,15 @@ import { formatCurrency } from "lib/currency";
 import { ActionType, FileTypeEnum } from "lib/enum";
 import { useContext, useMemo } from "react";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    drawerContent: {
-      width: 600,
-      paddingBottom: theme.spacing(16),
-    },
-  })
-);
-
 interface Props {
   ebbaApplicationId: EbbaApplications["id"];
   handleClose: () => void;
 }
 
-function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
-  const classes = useStyles();
+export default function EbbaApplicationDrawer({
+  ebbaApplicationId,
+  handleClose,
+}: Props) {
   const snackbar = useSnackbar();
 
   const {
@@ -87,11 +73,114 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
     }
   };
 
-  return ebbaApplication ? (
-    <Drawer open anchor="right" onClose={handleClose}>
-      <Box className={classes.drawerContent} p={4}>
-        <Typography variant="h5">Borrowing Base</Typography>
-        <Box display="flex" flexDirection="column">
+  if (!ebbaApplication) {
+    return null;
+  }
+
+  return (
+    <Modal
+      title={"Borrowing Base Certification"}
+      contentWidth={700}
+      handleClose={handleClose}
+    >
+      <Box display="flex" flexDirection="column">
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="flex-start"
+          mt={2}
+        >
+          <Typography variant="subtitle2" color="textSecondary">
+            Status
+          </Typography>
+          <RequestStatusChip requestStatus={ebbaApplication.status} />
+        </Box>
+        {ebbaApplication.status === RequestStatusEnum.Rejected && (
+          <Box display="flex" flexDirection="column" mt={2}>
+            <Typography variant="subtitle2" color="textSecondary">
+              Rejection Reason
+            </Typography>
+            <Typography variant={"body1"}>
+              {ebbaApplication.rejection_note}
+            </Typography>
+          </Box>
+        )}
+        {isBankUser && (
+          <Box display="flex" flexDirection="column" mt={2}>
+            <Typography variant="subtitle2" color="textSecondary">
+              Customer
+            </Typography>
+            <Typography variant={"body1"}>
+              {ebbaApplication.company?.name}
+            </Typography>
+          </Box>
+        )}
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Typography variant="subtitle2" color="textSecondary">
+            Certification Date
+          </Typography>
+          <Typography variant={"body1"}>
+            {ebbaApplication.application_date}
+          </Typography>
+        </Box>
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Typography variant="subtitle2" color="textSecondary">
+            Accounts Receivable Balance
+          </Typography>
+          <Typography variant={"body1"}>
+            {formatCurrency(ebbaApplication.monthly_accounts_receivable)}
+          </Typography>
+        </Box>
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Typography variant="subtitle2" color="textSecondary">
+            Inventory Balance
+          </Typography>
+          <Typography variant={"body1"}>
+            {formatCurrency(ebbaApplication.monthly_inventory)}
+          </Typography>
+        </Box>
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Typography variant="subtitle2" color="textSecondary">
+            Cash in Deposit Accounts
+          </Typography>
+          <Typography variant={"body1"}>
+            {formatCurrency(ebbaApplication.monthly_cash)}
+          </Typography>
+        </Box>
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Typography variant="subtitle2" color="textSecondary">
+            Cash in DACA
+          </Typography>
+          <Typography variant={"body1"}>
+            {formatCurrency(ebbaApplication.amount_cash_in_daca)}
+          </Typography>
+        </Box>
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Typography variant="subtitle2" color="textSecondary">
+            Calculated Borrowing Base
+          </Typography>
+          <Typography variant={"body1"}>
+            {formatCurrency(ebbaApplication.calculated_borrowing_base)}
+          </Typography>
+        </Box>
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Typography variant="subtitle2" color="textSecondary">
+            File Attachments
+          </Typography>
+          <DownloadThumbnail
+            fileIds={ebbaApplicationFileIds}
+            fileType={FileTypeEnum.EBBA_APPLICATION}
+          />
+        </Box>
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Typography variant="subtitle2" color="textSecondary">
+            Submitted By
+          </Typography>
+          <Typography variant={"body1"}>
+            {ebbaApplication.submitted_by_user?.full_name || "-"}
+          </Typography>
+        </Box>
+        {isBankUser && (
           <Box
             display="flex"
             flexDirection="column"
@@ -99,128 +188,61 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
             mt={2}
           >
             <Typography variant="subtitle2" color="textSecondary">
-              Status
+              Platform ID
             </Typography>
-            <RequestStatusChip requestStatus={ebbaApplication.status} />
+            <Typography variant={"body1"}>{ebbaApplication.id}</Typography>
           </Box>
-          {ebbaApplication.status === RequestStatusEnum.Rejected && (
-            <Box display="flex" flexDirection="column" mt={2}>
-              <Typography variant="subtitle2" color="textSecondary">
-                Rejection Reason
-              </Typography>
-              <Typography variant={"body1"}>
-                {ebbaApplication.rejection_note}
-              </Typography>
+        )}
+        {isBankUser && (
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="flex-start"
+            mt={2}
+          >
+            <Typography variant="subtitle2" color="textSecondary">
+              Actions
+            </Typography>
+            <Box mt={1}>
+              <ModalButton
+                label={"Edit"}
+                color={"default"}
+                modal={({ handleClose }) => (
+                  <CreateUpdateEbbaApplicationModal
+                    actionType={ActionType.Update}
+                    companyId={ebbaApplication.company_id}
+                    ebbaApplicationId={ebbaApplication.id}
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                    }}
+                  />
+                )}
+              />
             </Box>
-          )}
-          {isBankUser && (
-            <Box display="flex" flexDirection="column" mt={2}>
-              <Typography variant="subtitle2" color="textSecondary">
-                Customer
-              </Typography>
-              <Typography variant={"body1"}>
-                {ebbaApplication.company?.name}
-              </Typography>
-            </Box>
-          )}
-          <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="subtitle2" color="textSecondary">
-              Application Date
-            </Typography>
-            <Typography variant={"body1"}>
-              {ebbaApplication.application_date}
-            </Typography>
-          </Box>
-          <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="subtitle2" color="textSecondary">
-              Current Month Accounts Receivable
-            </Typography>
-            <Typography variant={"body1"}>
-              {formatCurrency(ebbaApplication.monthly_accounts_receivable)}
-            </Typography>
-          </Box>
-          <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="subtitle2" color="textSecondary">
-              Current Month Inventory
-            </Typography>
-            <Typography variant={"body1"}>
-              {formatCurrency(ebbaApplication.monthly_inventory)}
-            </Typography>
-          </Box>
-          <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="subtitle2" color="textSecondary">
-              Current Month Cash
-            </Typography>
-            <Typography variant={"body1"}>
-              {formatCurrency(ebbaApplication.monthly_cash)}
-            </Typography>
-          </Box>
-          <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="subtitle2" color="textSecondary">
-              Current Month Cash in DACA
-            </Typography>
-            <Typography variant={"body1"}>
-              {formatCurrency(ebbaApplication.amount_cash_in_daca)}
-            </Typography>
-          </Box>
-          <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="subtitle2" color="textSecondary">
-              Calculated Borrowing Base
-            </Typography>
-            <Typography variant={"body1"}>
-              {formatCurrency(ebbaApplication.calculated_borrowing_base)}
-            </Typography>
-          </Box>
-          <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="subtitle2" color="textSecondary">
-              File Attachments
-            </Typography>
-            <DownloadThumbnail
-              fileIds={ebbaApplicationFileIds}
-              fileType={FileTypeEnum.EBBA_APPLICATION}
-            />
-          </Box>
-          <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="subtitle2" color="textSecondary">
-              Submitted By
-            </Typography>
-            <Typography variant={"body1"}>
-              {ebbaApplication.submitted_by_user?.full_name || "-"}
-            </Typography>
-          </Box>
-          {isBankUser && (
-            <Box
-              display="flex"
-              flexDirection="column"
-              alignItems="flex-start"
-              mt={2}
-            >
-              <Typography variant="subtitle2" color="textSecondary">
-                Platform ID
-              </Typography>
-              <Typography variant={"body1"}>{ebbaApplication.id}</Typography>
-            </Box>
-          )}
-          {isBankUser && (
-            <Box
-              display="flex"
-              flexDirection="column"
-              alignItems="flex-start"
-              mt={2}
-            >
-              <Typography variant="subtitle2" color="textSecondary">
-                Actions
-              </Typography>
+            {ebbaApplication.status !== RequestStatusEnum.Approved && (
+              <Box mt={1}>
+                <Button
+                  disabled={isApproveDisabled}
+                  onClick={handleClickApprove}
+                  variant={"contained"}
+                  color={"primary"}
+                >
+                  Approve
+                </Button>
+              </Box>
+            )}
+            {ebbaApplication.status !== RequestStatusEnum.Rejected && (
               <Box mt={1}>
                 <ModalButton
-                  label={"Edit"}
+                  isDisabled={isRejectDisabled}
+                  label={"Reject"}
                   color={"default"}
                   modal={({ handleClose }) => (
-                    <CreateUpdateEbbaApplicationModal
-                      actionType={ActionType.Update}
-                      companyId={ebbaApplication.company_id}
+                    <ReviewEbbaApplicationRejectModal
                       ebbaApplicationId={ebbaApplication.id}
-                      handleClose={() => {
+                      handleClose={handleClose}
+                      handleRejectSuccess={() => {
                         refetch();
                         handleClose();
                       }}
@@ -228,43 +250,10 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
                   )}
                 />
               </Box>
-              {ebbaApplication.status !== RequestStatusEnum.Approved && (
-                <Box mt={1}>
-                  <Button
-                    disabled={isApproveDisabled}
-                    onClick={handleClickApprove}
-                    variant={"contained"}
-                    color={"primary"}
-                  >
-                    Approve
-                  </Button>
-                </Box>
-              )}
-              {ebbaApplication.status !== RequestStatusEnum.Rejected && (
-                <Box mt={1}>
-                  <ModalButton
-                    isDisabled={isRejectDisabled}
-                    label={"Reject"}
-                    color={"default"}
-                    modal={({ handleClose }) => (
-                      <ReviewEbbaApplicationRejectModal
-                        ebbaApplicationId={ebbaApplication.id}
-                        handleClose={handleClose}
-                        handleRejectSuccess={() => {
-                          refetch();
-                          handleClose();
-                        }}
-                      />
-                    )}
-                  />
-                </Box>
-              )}
-            </Box>
-          )}
-        </Box>
+            )}
+          </Box>
+        )}
       </Box>
-    </Drawer>
-  ) : null;
+    </Modal>
+  );
 }
-
-export default EbbaApplicationDrawer;

@@ -255,14 +255,18 @@ export default function CreateUpdateEbbaApplicationModal({
     (isCashInDacaVisible && ebbaApplication.amount_cash_in_daca === null) ||
     ebbaApplicationFiles.length <= 0;
 
-  return isDialogReady ? (
+  if (!isDialogReady) {
+    return null;
+  }
+
+  return (
     <Modal
       dataCy={"create-purchase-order-modal"}
       isPrimaryActionDisabled={isSubmitDisabled}
       title={`${
         isActionTypeUpdate ? "Edit" : "Create"
       } Borrowing Base Certification`}
-      contentWidth={800}
+      contentWidth={700}
       primaryActionText={"Submit"}
       handleClose={handleClose}
       handlePrimaryAction={handleClickSubmit}
@@ -292,5 +296,5 @@ export default function CreateUpdateEbbaApplicationModal({
         setEbbaApplicationFiles={setEbbaApplicationFiles}
       />
     </Modal>
-  ) : null;
+  );
 }

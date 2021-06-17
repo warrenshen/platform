@@ -105,7 +105,7 @@ export default function DeleteEbbaApplicationModal({
             )}
             <Box display="flex" flexDirection="column" mt={2}>
               <Typography variant="subtitle2" color="textSecondary">
-                Application Date
+                Certification Date
               </Typography>
               <Typography variant={"body1"}>
                 {ebbaApplication.application_date}
@@ -113,7 +113,7 @@ export default function DeleteEbbaApplicationModal({
             </Box>
             <Box display="flex" flexDirection="column" mt={2}>
               <Typography variant="subtitle2" color="textSecondary">
-                Current Month Accounts Receivable
+                Accounts Receivable Balance
               </Typography>
               <Typography variant={"body1"}>
                 {formatCurrency(ebbaApplication.monthly_accounts_receivable)}
@@ -121,7 +121,7 @@ export default function DeleteEbbaApplicationModal({
             </Box>
             <Box display="flex" flexDirection="column" mt={2}>
               <Typography variant="subtitle2" color="textSecondary">
-                Current Month Inventory
+                Inventory Balance
               </Typography>
               <Typography variant={"body1"}>
                 {formatCurrency(ebbaApplication.monthly_inventory)}
@@ -129,7 +129,7 @@ export default function DeleteEbbaApplicationModal({
             </Box>
             <Box display="flex" flexDirection="column" mt={2}>
               <Typography variant="subtitle2" color="textSecondary">
-                Current Month Cash
+                Cash in Deposit Accounts
               </Typography>
               <Typography variant={"body1"}>
                 {formatCurrency(ebbaApplication.monthly_cash)}
@@ -137,7 +137,7 @@ export default function DeleteEbbaApplicationModal({
             </Box>
             <Box display="flex" flexDirection="column" mt={2}>
               <Typography variant="subtitle2" color="textSecondary">
-                Current Month Cash in DACA
+                Cash in DACA
               </Typography>
               <Typography variant={"body1"}>
                 {formatCurrency(ebbaApplication.amount_cash_in_daca)}

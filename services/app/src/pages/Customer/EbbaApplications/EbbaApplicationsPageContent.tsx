@@ -75,7 +75,7 @@ export default function CustomerEbbaApplicationsPageContent({
     <PageContent
       title={"Borrowing Base"}
       subtitle={
-        "Review your current borrowing base, submit a new certification, and view historical certifications."
+        "Review your current certification, submit a new certification, and view historical certifications."
       }
     >
       <Can perform={Action.AddBorrowingBase}>
