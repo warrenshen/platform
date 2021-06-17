@@ -1,4 +1,10 @@
-import { Box, Checkbox, FormControlLabel, Typography } from "@material-ui/core";
+import {
+  Box,
+  Checkbox,
+  Divider,
+  FormControlLabel,
+  Typography,
+} from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import MetrcApiKeys from "components/Settings/Bank/MetrcApiKeys";
 import SyncMetrcData from "components/Settings/Bank/SyncMetrcData";
@@ -57,15 +63,24 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
         bankAccounts={company?.bank_accounts || []}
         handleDataChange={() => refetch()}
       />
-      <Box mt={8} mb={16}>
-        <h2>Additional Settings (Bank User Only)</h2>
-        <Alert severity="info">
-          Note: the settings below are only visible by bank users (you are a
-          bank user).
-        </Alert>
+      <Box my={8}>
+        <Divider />
+      </Box>
+      <Box mb={16}>
+        <Box>
+          <Typography variant="h5">
+            Additional Settings (Bank User Only)
+          </Typography>
+          <Box mt={2}>
+            <Alert severity="info">
+              Note: the settings below are only visible by bank users (you are a
+              bank user).
+            </Alert>
+          </Box>
+        </Box>
         <Box mt={4}>
-          <Typography variant="subtitle1">
-            Bespoke Collections Account
+          <Typography variant="h6">
+            <b>Bespoke Collections Account</b>
           </Typography>
           <Box display="flex">
             <CollectionsBank
@@ -77,7 +92,9 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
           </Box>
         </Box>
         <Box mt={4}>
-          <Typography variant="subtitle1">Licenses</Typography>
+          <Typography variant="h6">
+            <b>Licenses</b>
+          </Typography>
           <Box mt={1} mb={1}>
             {companyLicenses.map((companyLicense) => (
               <Box key={companyLicense.id}>
@@ -110,7 +127,9 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
           />
         </Box>
         <Box mt={4}>
-          <Typography variant="subtitle1">Supported Features</Typography>
+          <Typography variant="h6">
+            <b>Supported Features</b>
+          </Typography>
           <Box mt={2}>
             <ModalButton
               label={"Edit Features"}
@@ -150,19 +169,22 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
           </Box>
         </Box>
         <Box mt={4}>
-          <Typography variant="subtitle1">Metrc API Keys</Typography>
-          <Box display="flex">
+          <Typography variant="h6">
+            <b>Metrc</b>
+          </Typography>
+          <Box display="flex" flexDirection="column" mt={2}>
+            <Typography variant="subtitle1">API Key</Typography>
             <MetrcApiKeys
               metrcApiKey={metrcApiKey}
               companySettingsId={settings?.id}
               handleDataChange={refetch}
             />
           </Box>
-        </Box>
-        <Box mt={4}>
-          <Typography variant="subtitle1">Sync Metrc Data</Typography>
-          <Box display="flex">
-            <SyncMetrcData companyId={company.id}></SyncMetrcData>
+          <Box mt={2}>
+            <Typography variant="subtitle1">Sync Metrc Data</Typography>
+            <Box display="flex">
+              <SyncMetrcData companyId={company.id}></SyncMetrcData>
+            </Box>
           </Box>
         </Box>
       </Box>
