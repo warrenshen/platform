@@ -1,5 +1,12 @@
 mutation UpdateCompanyInfo($id: uuid!, $company: companies_set_input!) {
   update_companies_by_pk(pk_columns: { id: $id }, _set: $company) {
-    ...ThirdParty
+    id
+    name
+    address
+    country
+    state
+    city
+    zip_code
+    phone_number
   }
 }

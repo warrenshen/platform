@@ -47,10 +47,11 @@ interface Props {
   handleClose: () => void;
 }
 
-function PayorDrawer({ partnershipId, handleClose }: Props) {
+export default function PayorDrawer({ partnershipId, handleClose }: Props) {
   const classes = useStyles();
 
   const { data, loading, refetch, error } = useGetBankPayorPartnershipQuery({
+    fetchPolicy: "network-only",
     variables: {
       id: partnershipId,
     },
@@ -223,7 +224,7 @@ function PayorDrawer({ partnershipId, handleClose }: Props) {
               hasNoCollectionsBankAccount={hasNoCollectionsBankAccount}
               hasNoContactsSetup={hasNoContactsSetup}
               payorId={payor.id}
-              payorName={payor.name}
+              payorName={payor?.name || ""}
               customerId={customer.id}
               customerName={customerName}
               payorPartnershipId={partnershipId}
@@ -235,5 +236,3 @@ function PayorDrawer({ partnershipId, handleClose }: Props) {
     </Drawer>
   );
 }
-
-export default PayorDrawer;

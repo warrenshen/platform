@@ -2,7 +2,6 @@
 query GetVendorCompanyFileAttachments($company_id: uuid!) {
   companies_by_pk(id: $company_id) {
     id
-    ...ThirdParty
     agreements {
       ...CompanyAgreement
     }
@@ -23,7 +22,7 @@ query GetVendorPartnershipForBank($id: uuid!) {
   company_vendor_partnerships_by_pk(id: $id) {
     ...VendorPartnership
     vendor {
-      ...ThirdParty
+      id
       licenses(
         where: {
           _or: [
@@ -72,20 +71,11 @@ query GetVendorPartnershipsForBank {
       name
     }
     vendor {
-      ...ThirdParty
-      settings {
-        id
-      }
+      id
+      ...Vendor
       users {
         ...Contact
       }
-      licenses {
-        ...CompanyLicense
-      }
-    }
-    vendor_bank_account {
-      id
-      verified_at
     }
   }
 }
@@ -143,7 +133,14 @@ mutation UpdateCompanyVendorPartnershipApprovedAt(
 
 mutation UpdateVendorInfo($id: uuid!, $company: companies_set_input!) {
   update_companies_by_pk(pk_columns: { id: $id }, _set: $company) {
-    ...ThirdParty
+    id
+    name
+    address
+    country
+    state
+    city
+    zip_code
+    phone_number
   }
 }
 

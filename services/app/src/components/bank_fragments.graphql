@@ -48,15 +48,15 @@ fragment MetrcApiKey on metrc_api_keys {
 
 ## Purchase Order Financing
 
-fragment Vendor on companies {
+fragment Vendor on vendors {
   id
-  name
   address
   country
   state
   city
   zip_code
   phone_number
+  ...VendorLimited
 }
 
 fragment PurchaseOrder on purchase_orders {
@@ -93,27 +93,15 @@ fragment LoanArtifact on loans {
 }
 
 ## Invoices
-
-fragment ThirdParty on companies {
+fragment Payor on payors {
   id
-  name
   address
   country
   state
   city
   zip_code
   phone_number
-}
-
-fragment BankPayor on payors {
-  id
-  name
-  address
-  country
-  state
-  city
-  zip_code
-  phone_number
+  ...PayorLimited
 }
 
 fragment PartnershipRequest on company_partnership_requests {
@@ -134,23 +122,16 @@ fragment PartnershipRequest on company_partnership_requests {
 fragment VendorPartnership on company_vendor_partnerships {
   id
   vendor_bank_id
+  vendor_bank_account {
+    id
+    verified_at
+  }
   ...VendorPartnershipLimited
 }
 
 fragment PayorPartnership on company_payor_partnerships {
   id
-  company_id
-  payor_id
-  payor_agreement_id
-  approved_at
-  company {
-    id
-    name
-  }
-  payor {
-    id
-    name
-  }
+  ...PayorPartnershipLimited
 }
 
 ## Finance

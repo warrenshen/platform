@@ -33,9 +33,9 @@ function getRows(purchaseOrders: PurchaseOrderFragment[]): RowsProp {
 }
 
 interface Props {
+  isApprovedByVendor?: boolean;
   isBankNoteVisible?: boolean;
   isCompanyVisible: boolean;
-  isApprovedByVendor?: boolean;
   isCustomerNoteVisible?: boolean;
   isDeliveryDateVisible?: boolean;
   isExcelExport?: boolean;
@@ -50,9 +50,9 @@ interface Props {
 }
 
 export default function PurchaseOrdersDataGrid({
+  isApprovedByVendor = true,
   isBankNoteVisible = false,
   isCompanyVisible,
-  isApprovedByVendor = true,
   isCustomerNoteVisible = true,
   isDeliveryDateVisible = false,
   isExcelExport = true,

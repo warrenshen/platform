@@ -66,7 +66,7 @@ function ApproveVendor(props: Props) {
   }
 
   const areVendorDetailsValid = () => {
-    if (vendor.users.length <= 0) {
+    if (!vendor?.users || vendor.users.length <= 0) {
       snackbar.showError("Vendor does not have any users setup");
       return false;
     }

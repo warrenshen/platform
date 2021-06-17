@@ -121,6 +121,7 @@ export default function BankPurchaseOrdersActiveTab() {
       </Box>
       <Box display="flex" flexDirection="column">
         <PurchaseOrdersDataGrid
+          isApprovedByVendor={false}
           isBankNoteVisible
           isCompanyVisible
           isCustomerNoteVisible={false}

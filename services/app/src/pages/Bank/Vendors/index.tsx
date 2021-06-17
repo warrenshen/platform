@@ -6,7 +6,7 @@ import { useGetVendorPartnershipsForBankQuery } from "generated/graphql";
 import { filter, sortBy } from "lodash";
 import { useMemo, useState } from "react";
 
-function BankVendorsPage() {
+export default function BankVendorsPage() {
   const { data } = useGetVendorPartnershipsForBankQuery({
     fetchPolicy: "network-only",
   });
@@ -17,13 +17,13 @@ function BankVendorsPage() {
     const filteredVendorPartnerships = filter(
       data?.company_vendor_partnerships || [],
       (vendorPartnership) =>
-        vendorPartnership.vendor.name
+        (vendorPartnership.vendor?.name || "")
           .toLowerCase()
           .indexOf(searchQuery.toLowerCase()) >= 0
     );
     return sortBy(
       filteredVendorPartnerships,
-      (vendorPartnership) => vendorPartnership.vendor.name
+      (vendorPartnership) => vendorPartnership.vendor?.name || null
     );
   }, [searchQuery, data?.company_vendor_partnerships]);
 
@@ -54,5 +54,3 @@ function BankVendorsPage() {
     </Page>
   );
 }
-
-export default BankVendorsPage;

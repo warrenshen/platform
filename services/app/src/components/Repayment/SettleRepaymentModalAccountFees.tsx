@@ -3,7 +3,7 @@ import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import Modal from "components/Shared/Modal/Modal";
 import {
-  BankPayorFragment,
+  PayorFragment,
   Companies,
   PaymentsInsertInput,
 } from "generated/graphql";
@@ -16,7 +16,7 @@ import { useState } from "react";
 
 interface Props {
   customer: Companies;
-  payor: BankPayorFragment;
+  payor: PayorFragment;
   payment: PaymentsInsertInput;
   setPayment: React.Dispatch<React.SetStateAction<PaymentsInsertInput>>;
   handleClose: () => void;

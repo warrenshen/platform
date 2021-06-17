@@ -3136,7 +3136,7 @@ export type CompanyPayorPartnerships = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   id: Scalars["uuid"];
   /** An object relationship */
-  payor?: Maybe<Companies>;
+  payor?: Maybe<Payors>;
   /** An object relationship */
   payor_agreement?: Maybe<CompanyAgreements>;
   payor_agreement_id?: Maybe<Scalars["uuid"]>;
@@ -3212,7 +3212,7 @@ export type CompanyPayorPartnershipsBoolExp = {
   company_id?: Maybe<UuidComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
-  payor?: Maybe<CompaniesBoolExp>;
+  payor?: Maybe<PayorsBoolExp>;
   payor_agreement?: Maybe<CompanyAgreementsBoolExp>;
   payor_agreement_id?: Maybe<UuidComparisonExp>;
   payor_contacts?: Maybe<CompanyPayorContactsBoolExp>;
@@ -3237,7 +3237,7 @@ export type CompanyPayorPartnershipsInsertInput = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
-  payor?: Maybe<CompaniesObjRelInsertInput>;
+  payor?: Maybe<PayorsObjRelInsertInput>;
   payor_agreement?: Maybe<CompanyAgreementsObjRelInsertInput>;
   payor_agreement_id?: Maybe<Scalars["uuid"]>;
   payor_contacts?: Maybe<CompanyPayorContactsArrRelInsertInput>;
@@ -3323,7 +3323,7 @@ export type CompanyPayorPartnershipsOrderBy = {
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
-  payor?: Maybe<CompaniesOrderBy>;
+  payor?: Maybe<PayorsOrderBy>;
   payor_agreement?: Maybe<CompanyAgreementsOrderBy>;
   payor_agreement_id?: Maybe<OrderBy>;
   payor_contacts_aggregate?: Maybe<CompanyPayorContactsAggregateOrderBy>;
@@ -4030,7 +4030,7 @@ export type CompanyVendorPartnerships = {
   id: Scalars["uuid"];
   updated_at: Scalars["timestamptz"];
   /** An object relationship */
-  vendor: Companies;
+  vendor?: Maybe<Vendors>;
   /** An object relationship */
   vendor_agreement?: Maybe<CompanyAgreements>;
   vendor_agreement_id?: Maybe<Scalars["uuid"]>;
@@ -4110,7 +4110,7 @@ export type CompanyVendorPartnershipsBoolExp = {
   created_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
-  vendor?: Maybe<CompaniesBoolExp>;
+  vendor?: Maybe<VendorsBoolExp>;
   vendor_agreement?: Maybe<CompanyAgreementsBoolExp>;
   vendor_agreement_id?: Maybe<UuidComparisonExp>;
   vendor_bank_account?: Maybe<BankAccountsBoolExp>;
@@ -4137,7 +4137,7 @@ export type CompanyVendorPartnershipsInsertInput = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
-  vendor?: Maybe<CompaniesObjRelInsertInput>;
+  vendor?: Maybe<VendorsObjRelInsertInput>;
   vendor_agreement?: Maybe<CompanyAgreementsObjRelInsertInput>;
   vendor_agreement_id?: Maybe<Scalars["uuid"]>;
   vendor_bank_account?: Maybe<BankAccountsObjRelInsertInput>;
@@ -4229,7 +4229,7 @@ export type CompanyVendorPartnershipsOrderBy = {
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
-  vendor?: Maybe<CompaniesOrderBy>;
+  vendor?: Maybe<VendorsOrderBy>;
   vendor_agreement?: Maybe<CompanyAgreementsOrderBy>;
   vendor_agreement_id?: Maybe<OrderBy>;
   vendor_bank_account?: Maybe<BankAccountsOrderBy>;
@@ -12240,6 +12240,10 @@ export type Payors = {
   id?: Maybe<Scalars["uuid"]>;
   identifier?: Maybe<Scalars["String"]>;
   latest_loan_identifier?: Maybe<Scalars["Int"]>;
+  /** An array relationship */
+  licenses: Array<CompanyLicenses>;
+  /** An aggregated array relationship */
+  licenses_aggregate: CompanyLicensesAggregate;
   name?: Maybe<Scalars["String"]>;
   needs_balance_recomputed?: Maybe<Scalars["Boolean"]>;
   phone_number?: Maybe<Scalars["String"]>;
@@ -12247,6 +12251,10 @@ export type Payors = {
   settings?: Maybe<CompanySettings>;
   state?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
+  /** An array relationship */
+  users: Array<Users>;
+  /** An aggregated array relationship */
+  users_aggregate: UsersAggregate;
   zip_code?: Maybe<Scalars["String"]>;
 };
 
@@ -12266,6 +12274,42 @@ export type PayorsCompanyPayorPartnershipsAggregateArgs = {
   offset?: Maybe<Scalars["Int"]>;
   order_by?: Maybe<Array<CompanyPayorPartnershipsOrderBy>>;
   where?: Maybe<CompanyPayorPartnershipsBoolExp>;
+};
+
+/** columns and relationships of "payors" */
+export type PayorsLicensesArgs = {
+  distinct_on?: Maybe<Array<CompanyLicensesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyLicensesOrderBy>>;
+  where?: Maybe<CompanyLicensesBoolExp>;
+};
+
+/** columns and relationships of "payors" */
+export type PayorsLicensesAggregateArgs = {
+  distinct_on?: Maybe<Array<CompanyLicensesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyLicensesOrderBy>>;
+  where?: Maybe<CompanyLicensesBoolExp>;
+};
+
+/** columns and relationships of "payors" */
+export type PayorsUsersArgs = {
+  distinct_on?: Maybe<Array<UsersSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<UsersOrderBy>>;
+  where?: Maybe<UsersBoolExp>;
+};
+
+/** columns and relationships of "payors" */
+export type PayorsUsersAggregateArgs = {
+  distinct_on?: Maybe<Array<UsersSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<UsersOrderBy>>;
+  where?: Maybe<UsersBoolExp>;
 };
 
 /** aggregated selection of "payors" */
@@ -12342,12 +12386,14 @@ export type PayorsBoolExp = {
   id?: Maybe<UuidComparisonExp>;
   identifier?: Maybe<StringComparisonExp>;
   latest_loan_identifier?: Maybe<IntComparisonExp>;
+  licenses?: Maybe<CompanyLicensesBoolExp>;
   name?: Maybe<StringComparisonExp>;
   needs_balance_recomputed?: Maybe<BooleanComparisonExp>;
   phone_number?: Maybe<StringComparisonExp>;
   settings?: Maybe<CompanySettingsBoolExp>;
   state?: Maybe<StringComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
+  users?: Maybe<UsersBoolExp>;
   zip_code?: Maybe<StringComparisonExp>;
 };
 
@@ -12370,12 +12416,14 @@ export type PayorsInsertInput = {
   id?: Maybe<Scalars["uuid"]>;
   identifier?: Maybe<Scalars["String"]>;
   latest_loan_identifier?: Maybe<Scalars["Int"]>;
+  licenses?: Maybe<CompanyLicensesArrRelInsertInput>;
   name?: Maybe<Scalars["String"]>;
   needs_balance_recomputed?: Maybe<Scalars["Boolean"]>;
   phone_number?: Maybe<Scalars["String"]>;
   settings?: Maybe<CompanySettingsObjRelInsertInput>;
   state?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
+  users?: Maybe<UsersArrRelInsertInput>;
   zip_code?: Maybe<Scalars["String"]>;
 };
 
@@ -12486,12 +12534,14 @@ export type PayorsOrderBy = {
   id?: Maybe<OrderBy>;
   identifier?: Maybe<OrderBy>;
   latest_loan_identifier?: Maybe<OrderBy>;
+  licenses_aggregate?: Maybe<CompanyLicensesAggregateOrderBy>;
   name?: Maybe<OrderBy>;
   needs_balance_recomputed?: Maybe<OrderBy>;
   phone_number?: Maybe<OrderBy>;
   settings?: Maybe<CompanySettingsOrderBy>;
   state?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
+  users_aggregate?: Maybe<UsersAggregateOrderBy>;
   zip_code?: Maybe<OrderBy>;
 };
 
@@ -17782,14 +17832,24 @@ export type Vendors = {
   identifier?: Maybe<Scalars["String"]>;
   latest_loan_identifier?: Maybe<Scalars["Int"]>;
   /** An array relationship */
+  licenses: Array<CompanyLicenses>;
+  /** An aggregated array relationship */
+  licenses_aggregate: CompanyLicensesAggregate;
+  /** An array relationship */
   metrc_transfers: Array<MetrcTransfers>;
   /** An aggregated array relationship */
   metrc_transfers_aggregate: MetrcTransfersAggregate;
   name?: Maybe<Scalars["String"]>;
   needs_balance_recomputed?: Maybe<Scalars["Boolean"]>;
   phone_number?: Maybe<Scalars["String"]>;
+  /** An object relationship */
+  settings?: Maybe<CompanySettings>;
   state?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
+  /** An array relationship */
+  users: Array<Users>;
+  /** An aggregated array relationship */
+  users_aggregate: UsersAggregate;
   zip_code?: Maybe<Scalars["String"]>;
 };
 
@@ -17812,6 +17872,24 @@ export type VendorsCompanyVendorPartnershipsAggregateArgs = {
 };
 
 /** columns and relationships of "vendors" */
+export type VendorsLicensesArgs = {
+  distinct_on?: Maybe<Array<CompanyLicensesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyLicensesOrderBy>>;
+  where?: Maybe<CompanyLicensesBoolExp>;
+};
+
+/** columns and relationships of "vendors" */
+export type VendorsLicensesAggregateArgs = {
+  distinct_on?: Maybe<Array<CompanyLicensesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyLicensesOrderBy>>;
+  where?: Maybe<CompanyLicensesBoolExp>;
+};
+
+/** columns and relationships of "vendors" */
 export type VendorsMetrcTransfersArgs = {
   distinct_on?: Maybe<Array<MetrcTransfersSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -17827,6 +17905,24 @@ export type VendorsMetrcTransfersAggregateArgs = {
   offset?: Maybe<Scalars["Int"]>;
   order_by?: Maybe<Array<MetrcTransfersOrderBy>>;
   where?: Maybe<MetrcTransfersBoolExp>;
+};
+
+/** columns and relationships of "vendors" */
+export type VendorsUsersArgs = {
+  distinct_on?: Maybe<Array<UsersSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<UsersOrderBy>>;
+  where?: Maybe<UsersBoolExp>;
+};
+
+/** columns and relationships of "vendors" */
+export type VendorsUsersAggregateArgs = {
+  distinct_on?: Maybe<Array<UsersSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<UsersOrderBy>>;
+  where?: Maybe<UsersBoolExp>;
 };
 
 /** aggregated selection of "vendors" */
@@ -17903,12 +17999,15 @@ export type VendorsBoolExp = {
   id?: Maybe<UuidComparisonExp>;
   identifier?: Maybe<StringComparisonExp>;
   latest_loan_identifier?: Maybe<IntComparisonExp>;
+  licenses?: Maybe<CompanyLicensesBoolExp>;
   metrc_transfers?: Maybe<MetrcTransfersBoolExp>;
   name?: Maybe<StringComparisonExp>;
   needs_balance_recomputed?: Maybe<BooleanComparisonExp>;
   phone_number?: Maybe<StringComparisonExp>;
+  settings?: Maybe<CompanySettingsBoolExp>;
   state?: Maybe<StringComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
+  users?: Maybe<UsersBoolExp>;
   zip_code?: Maybe<StringComparisonExp>;
 };
 
@@ -17931,12 +18030,15 @@ export type VendorsInsertInput = {
   id?: Maybe<Scalars["uuid"]>;
   identifier?: Maybe<Scalars["String"]>;
   latest_loan_identifier?: Maybe<Scalars["Int"]>;
+  licenses?: Maybe<CompanyLicensesArrRelInsertInput>;
   metrc_transfers?: Maybe<MetrcTransfersArrRelInsertInput>;
   name?: Maybe<Scalars["String"]>;
   needs_balance_recomputed?: Maybe<Scalars["Boolean"]>;
   phone_number?: Maybe<Scalars["String"]>;
+  settings?: Maybe<CompanySettingsObjRelInsertInput>;
   state?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
+  users?: Maybe<UsersArrRelInsertInput>;
   zip_code?: Maybe<Scalars["String"]>;
 };
 
@@ -18047,12 +18149,15 @@ export type VendorsOrderBy = {
   id?: Maybe<OrderBy>;
   identifier?: Maybe<OrderBy>;
   latest_loan_identifier?: Maybe<OrderBy>;
+  licenses_aggregate?: Maybe<CompanyLicensesAggregateOrderBy>;
   metrc_transfers_aggregate?: Maybe<MetrcTransfersAggregateOrderBy>;
   name?: Maybe<OrderBy>;
   needs_balance_recomputed?: Maybe<OrderBy>;
   phone_number?: Maybe<OrderBy>;
+  settings?: Maybe<CompanySettingsOrderBy>;
   state?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
+  users_aggregate?: Maybe<UsersAggregateOrderBy>;
   zip_code?: Maybe<OrderBy>;
 };
 
@@ -18276,22 +18381,6 @@ export type GetCustomerForBankQuery = {
     Pick<Companies, "id"> & {
       contract?: Maybe<Pick<Contracts, "id" | "product_type">>;
     } & CustomerForBankFragment
-  >;
-};
-
-export type BankCustomerListPayorPartnershipsQueryVariables = Exact<{
-  companyId: Scalars["uuid"];
-}>;
-
-export type BankCustomerListPayorPartnershipsQuery = {
-  company_payor_partnerships: Array<
-    {
-      payor?: Maybe<
-        Pick<Companies, "id"> & {
-          users: Array<Pick<Users, "id"> & ContactFragment>;
-        } & ThirdPartyFragment
-      >;
-    } & PayorPartnershipFragment
   >;
 };
 
@@ -18725,7 +18814,7 @@ export type GetBankPayorPartnershipQuery = {
   company_payor_partnerships_by_pk?: Maybe<
     {
       payor?: Maybe<
-        {
+        Pick<Payors, "id"> & {
           licenses: Array<CompanyLicenseFragment>;
           settings?: Maybe<
             Pick<CompanySettings, "id"> & {
@@ -18733,7 +18822,7 @@ export type GetBankPayorPartnershipQuery = {
             }
           >;
           users: Array<ContactFragment>;
-        } & ThirdPartyFragment
+        }
       >;
       company: {
         users: Array<ContactFragment>;
@@ -18753,10 +18842,7 @@ export type GetPayorPartnershipsForBankQuery = {
     {
       company: Pick<Companies, "id" | "name">;
       payor?: Maybe<
-        {
-          settings?: Maybe<Pick<CompanySettings, "id">>;
-          users: Array<ContactFragment>;
-        } & ThirdPartyFragment
+        Pick<Payors, "id"> & { users: Array<ContactFragment> } & PayorFragment
       >;
     } & PayorPartnershipFragment
   >;
@@ -18769,15 +18855,6 @@ export type UpdateCompanyPayorPartnershipApprovedAtMutationVariables = Exact<{
 
 export type UpdateCompanyPayorPartnershipApprovedAtMutation = {
   update_company_payor_partnerships_by_pk?: Maybe<PayorPartnershipFragment>;
-};
-
-export type UpdatePayorInfoMutationVariables = Exact<{
-  id: Scalars["uuid"];
-  company: CompaniesSetInput;
-}>;
-
-export type UpdatePayorInfoMutation = {
-  update_companies_by_pk?: Maybe<ThirdPartyFragment>;
 };
 
 export type UpdatePayorAgreementIdMutationVariables = Exact<{
@@ -18986,7 +19063,7 @@ export type GetPaymentForSettlementQuery = {
       >;
       invoice?: Maybe<
         Pick<Invoices, "id"> & {
-          payor?: Maybe<Pick<Payors, "id"> & BankPayorFragment>;
+          payor?: Maybe<Pick<Payors, "id"> & PayorFragment>;
         }
       >;
     } & PaymentFragment
@@ -19512,7 +19589,19 @@ export type UpdateCompanyInfoMutationVariables = Exact<{
 }>;
 
 export type UpdateCompanyInfoMutation = {
-  update_companies_by_pk?: Maybe<ThirdPartyFragment>;
+  update_companies_by_pk?: Maybe<
+    Pick<
+      Companies,
+      | "id"
+      | "name"
+      | "address"
+      | "country"
+      | "state"
+      | "city"
+      | "zip_code"
+      | "phone_number"
+    >
+  >;
 };
 
 export type GetTransactionsQueryVariables = Exact<{ [key: string]: never }>;
@@ -19582,7 +19671,7 @@ export type GetVendorCompanyFileAttachmentsQuery = {
     Pick<Companies, "id"> & {
       agreements: Array<CompanyAgreementFragment>;
       licenses: Array<CompanyLicenseFragment>;
-    } & ThirdPartyFragment
+    }
   >;
 };
 
@@ -19593,15 +19682,17 @@ export type GetVendorPartnershipForBankQueryVariables = Exact<{
 export type GetVendorPartnershipForBankQuery = {
   company_vendor_partnerships_by_pk?: Maybe<
     {
-      vendor: {
-        licenses: Array<CompanyLicenseFragment>;
-        settings?: Maybe<
-          Pick<CompanySettings, "id"> & {
-            collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
-          } & CompanySettingsFragment
-        >;
-        users: Array<ContactFragment>;
-      } & ThirdPartyFragment;
+      vendor?: Maybe<
+        Pick<Vendors, "id"> & {
+          licenses: Array<CompanyLicenseFragment>;
+          settings?: Maybe<
+            Pick<CompanySettings, "id"> & {
+              collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
+            } & CompanySettingsFragment
+          >;
+          users: Array<ContactFragment>;
+        }
+      >;
       company: {
         users: Array<ContactFragment>;
         settings?: Maybe<CompanySettingsFragment>;
@@ -19622,11 +19713,9 @@ export type GetVendorPartnershipsForBankQuery = {
   company_vendor_partnerships: Array<
     {
       company: Pick<Companies, "id" | "name">;
-      vendor: {
-        settings?: Maybe<Pick<CompanySettings, "id">>;
-        users: Array<ContactFragment>;
-        licenses: Array<CompanyLicenseFragment>;
-      } & ThirdPartyFragment;
+      vendor?: Maybe<
+        Pick<Vendors, "id"> & { users: Array<ContactFragment> } & VendorFragment
+      >;
       vendor_bank_account?: Maybe<Pick<BankAccounts, "id" | "verified_at">>;
     } & VendorPartnershipFragment
   >;
@@ -19685,7 +19774,19 @@ export type UpdateVendorInfoMutationVariables = Exact<{
 }>;
 
 export type UpdateVendorInfoMutation = {
-  update_companies_by_pk?: Maybe<ThirdPartyFragment>;
+  update_companies_by_pk?: Maybe<
+    Pick<
+      Companies,
+      | "id"
+      | "name"
+      | "address"
+      | "country"
+      | "state"
+      | "city"
+      | "zip_code"
+      | "phone_number"
+    >
+  >;
 };
 
 export type UpdateVendorAgreementIdMutationVariables = Exact<{
@@ -19747,11 +19848,7 @@ export type GetVendorPartnershipsByCompanyIdQueryVariables = Exact<{
 }>;
 
 export type GetVendorPartnershipsByCompanyIdQuery = {
-  company_vendor_partnerships: Array<
-    {
-      vendor_limited?: Maybe<VendorLimitedFragment>;
-    } & VendorPartnershipLimitedFragment
-  >;
+  company_vendor_partnerships: Array<VendorPartnershipLimitedFragment>;
 };
 
 export type CompanyVendorPartnershipForVendorQueryVariables = Exact<{
@@ -19811,16 +19908,10 @@ export type MetrcApiKeyFragment = Pick<
 >;
 
 export type VendorFragment = Pick<
-  Companies,
-  | "id"
-  | "name"
-  | "address"
-  | "country"
-  | "state"
-  | "city"
-  | "zip_code"
-  | "phone_number"
->;
+  Vendors,
+  "id" | "address" | "country" | "state" | "city" | "zip_code" | "phone_number"
+> &
+  VendorLimitedFragment;
 
 export type PurchaseOrderFragment = Pick<PurchaseOrders, "id" | "bank_note"> &
   PurchaseOrderLimitedFragment;
@@ -19837,29 +19928,11 @@ export type LoanArtifactFragment = Pick<Loans, "id"> & {
   purchase_order?: Maybe<Pick<PurchaseOrders, "id"> & PurchaseOrderFragment>;
 } & LoanArtifactLimitedFragment;
 
-export type ThirdPartyFragment = Pick<
-  Companies,
-  | "id"
-  | "name"
-  | "address"
-  | "country"
-  | "state"
-  | "city"
-  | "zip_code"
-  | "phone_number"
->;
-
-export type BankPayorFragment = Pick<
+export type PayorFragment = Pick<
   Payors,
-  | "id"
-  | "name"
-  | "address"
-  | "country"
-  | "state"
-  | "city"
-  | "zip_code"
-  | "phone_number"
->;
+  "id" | "address" | "country" | "state" | "city" | "zip_code" | "phone_number"
+> &
+  PayorLimitedFragment;
 
 export type PartnershipRequestFragment = Pick<
   CompanyPartnershipRequests,
@@ -19880,16 +19953,12 @@ export type PartnershipRequestFragment = Pick<
 export type VendorPartnershipFragment = Pick<
   CompanyVendorPartnerships,
   "id" | "vendor_bank_id"
-> &
-  VendorPartnershipLimitedFragment;
-
-export type PayorPartnershipFragment = Pick<
-  CompanyPayorPartnerships,
-  "id" | "company_id" | "payor_id" | "payor_agreement_id" | "approved_at"
 > & {
-  company: Pick<Companies, "id" | "name">;
-  payor?: Maybe<Pick<Companies, "id" | "name">>;
-};
+  vendor_bank_account?: Maybe<Pick<BankAccounts, "id" | "verified_at">>;
+} & VendorPartnershipLimitedFragment;
+
+export type PayorPartnershipFragment = Pick<CompanyPayorPartnerships, "id"> &
+  PayorPartnershipLimitedFragment;
 
 export type PaymentFragment = Pick<Payments, "id" | "created_at"> & {
   company_bank_account?: Maybe<BankAccountFragment>;
@@ -19936,16 +20005,28 @@ export type CompanySettingsLimitedFragment = Pick<
   | "has_autofinancing"
 >;
 
-export type VendorLimitedFragment = Pick<Vendors, "id" | "name">;
+export type VendorLimitedFragment = Pick<Vendors, "id" | "name"> & {
+  licenses: Array<CompanyLicenseFragment>;
+};
 
-export type PayorLimitedFragment = Pick<Payors, "id" | "name">;
+export type PayorLimitedFragment = Pick<Payors, "id" | "name"> & {
+  licenses: Array<CompanyLicenseFragment>;
+};
 
 export type VendorPartnershipLimitedFragment = Pick<
   CompanyVendorPartnerships,
   "id" | "company_id" | "vendor_id" | "vendor_agreement_id" | "approved_at"
 > & {
   company: Pick<Companies, "id" | "name">;
-  vendor: Pick<Companies, "id" | "name">;
+  vendor?: Maybe<Pick<Vendors, "id"> & VendorLimitedFragment>;
+};
+
+export type PayorPartnershipLimitedFragment = Pick<
+  CompanyPayorPartnerships,
+  "id" | "company_id" | "payor_id" | "payor_agreement_id" | "approved_at"
+> & {
+  company: Pick<Companies, "id" | "name">;
+  payor?: Maybe<Pick<Payors, "id"> & PayorLimitedFragment>;
 };
 
 export type PurchaseOrderLimitedFragment = Pick<
@@ -20059,7 +20140,7 @@ export type CompanyVendorsQueryVariables = Exact<{
 }>;
 
 export type CompanyVendorsQuery = {
-  company_vendor_partnerships: Array<{ vendor: Pick<Companies, "name"> }>;
+  company_vendor_partnerships: Array<{ vendor?: Maybe<Pick<Vendors, "name">> }>;
 };
 
 export type GetPartnershipRequestsCountForBankSubscriptionVariables = Exact<{
@@ -20152,14 +20233,6 @@ export const CompanyAgreementFragmentDoc = gql`
     id
     company_id
     file_id
-  }
-`;
-export const CompanyLicenseFragmentDoc = gql`
-  fragment CompanyLicense on company_licenses {
-    id
-    company_id
-    file_id
-    license_number
   }
 `;
 export const CompanyMinimalFragmentDoc = gql`
@@ -20388,17 +20461,43 @@ export const MetrcApiKeyFragmentDoc = gql`
     status_codes_payload
   }
 `;
-export const VendorFragmentDoc = gql`
-  fragment Vendor on companies {
+export const CompanyLicenseFragmentDoc = gql`
+  fragment CompanyLicense on company_licenses {
+    id
+    company_id
+    file_id
+    license_number
+  }
+`;
+export const VendorLimitedFragmentDoc = gql`
+  fragment VendorLimited on vendors {
     id
     name
+    licenses(
+      where: {
+        _or: [
+          { is_deleted: { _is_null: true } }
+          { is_deleted: { _eq: false } }
+        ]
+      }
+    ) {
+      ...CompanyLicense
+    }
+  }
+  ${CompanyLicenseFragmentDoc}
+`;
+export const VendorFragmentDoc = gql`
+  fragment Vendor on vendors {
+    id
     address
     country
     state
     city
     zip_code
     phone_number
+    ...VendorLimited
   }
+  ${VendorLimitedFragmentDoc}
 `;
 export const LoanLimitedFragmentDoc = gql`
   fragment LoanLimited on loans {
@@ -20570,29 +20669,35 @@ export const LoanArtifactFragmentDoc = gql`
   ${PurchaseOrderFragmentDoc}
   ${LoanArtifactLimitedFragmentDoc}
 `;
-export const ThirdPartyFragmentDoc = gql`
-  fragment ThirdParty on companies {
+export const PayorLimitedFragmentDoc = gql`
+  fragment PayorLimited on payors {
     id
     name
-    address
-    country
-    state
-    city
-    zip_code
-    phone_number
+    licenses(
+      where: {
+        _or: [
+          { is_deleted: { _is_null: true } }
+          { is_deleted: { _eq: false } }
+        ]
+      }
+    ) {
+      ...CompanyLicense
+    }
   }
+  ${CompanyLicenseFragmentDoc}
 `;
-export const BankPayorFragmentDoc = gql`
-  fragment BankPayor on payors {
+export const PayorFragmentDoc = gql`
+  fragment Payor on payors {
     id
-    name
     address
     country
     state
     city
     zip_code
     phone_number
+    ...PayorLimited
   }
+  ${PayorLimitedFragmentDoc}
 `;
 export const PartnershipRequestFragmentDoc = gql`
   fragment PartnershipRequest on company_partnership_requests {
@@ -20623,20 +20728,25 @@ export const VendorPartnershipLimitedFragmentDoc = gql`
     }
     vendor {
       id
-      name
+      ...VendorLimited
     }
   }
+  ${VendorLimitedFragmentDoc}
 `;
 export const VendorPartnershipFragmentDoc = gql`
   fragment VendorPartnership on company_vendor_partnerships {
     id
     vendor_bank_id
+    vendor_bank_account {
+      id
+      verified_at
+    }
     ...VendorPartnershipLimited
   }
   ${VendorPartnershipLimitedFragmentDoc}
 `;
-export const PayorPartnershipFragmentDoc = gql`
-  fragment PayorPartnership on company_payor_partnerships {
+export const PayorPartnershipLimitedFragmentDoc = gql`
+  fragment PayorPartnershipLimited on company_payor_partnerships {
     id
     company_id
     payor_id
@@ -20648,9 +20758,17 @@ export const PayorPartnershipFragmentDoc = gql`
     }
     payor {
       id
-      name
+      ...PayorLimited
     }
   }
+  ${PayorLimitedFragmentDoc}
+`;
+export const PayorPartnershipFragmentDoc = gql`
+  fragment PayorPartnership on company_payor_partnerships {
+    id
+    ...PayorPartnershipLimited
+  }
+  ${PayorPartnershipLimitedFragmentDoc}
 `;
 export const BankAccountFragmentDoc = gql`
   fragment BankAccount on bank_accounts {
@@ -20746,18 +20864,6 @@ export const BankFinancialSummaryFragmentDoc = gql`
     total_principal_in_requested_state
     available_limit
     interest_accrued_today
-  }
-`;
-export const VendorLimitedFragmentDoc = gql`
-  fragment VendorLimited on vendors {
-    id
-    name
-  }
-`;
-export const PayorLimitedFragmentDoc = gql`
-  fragment PayorLimited on payors {
-    id
-    name
   }
 `;
 export const GetAdvancesDocument = gql`
@@ -21280,73 +21386,6 @@ export type GetCustomerForBankLazyQueryHookResult = ReturnType<
 export type GetCustomerForBankQueryResult = Apollo.QueryResult<
   GetCustomerForBankQuery,
   GetCustomerForBankQueryVariables
->;
-export const BankCustomerListPayorPartnershipsDocument = gql`
-  query BankCustomerListPayorPartnerships($companyId: uuid!) {
-    company_payor_partnerships(where: { company_id: { _eq: $companyId } }) {
-      ...PayorPartnership
-      payor {
-        id
-        ...ThirdParty
-        users {
-          id
-          ...Contact
-        }
-      }
-    }
-  }
-  ${PayorPartnershipFragmentDoc}
-  ${ThirdPartyFragmentDoc}
-  ${ContactFragmentDoc}
-`;
-
-/**
- * __useBankCustomerListPayorPartnershipsQuery__
- *
- * To run a query within a React component, call `useBankCustomerListPayorPartnershipsQuery` and pass it any options that fit your needs.
- * When your component renders, `useBankCustomerListPayorPartnershipsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useBankCustomerListPayorPartnershipsQuery({
- *   variables: {
- *      companyId: // value for 'companyId'
- *   },
- * });
- */
-export function useBankCustomerListPayorPartnershipsQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    BankCustomerListPayorPartnershipsQuery,
-    BankCustomerListPayorPartnershipsQueryVariables
-  >
-) {
-  return Apollo.useQuery<
-    BankCustomerListPayorPartnershipsQuery,
-    BankCustomerListPayorPartnershipsQueryVariables
-  >(BankCustomerListPayorPartnershipsDocument, baseOptions);
-}
-export function useBankCustomerListPayorPartnershipsLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    BankCustomerListPayorPartnershipsQuery,
-    BankCustomerListPayorPartnershipsQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<
-    BankCustomerListPayorPartnershipsQuery,
-    BankCustomerListPayorPartnershipsQueryVariables
-  >(BankCustomerListPayorPartnershipsDocument, baseOptions);
-}
-export type BankCustomerListPayorPartnershipsQueryHookResult = ReturnType<
-  typeof useBankCustomerListPayorPartnershipsQuery
->;
-export type BankCustomerListPayorPartnershipsLazyQueryHookResult = ReturnType<
-  typeof useBankCustomerListPayorPartnershipsLazyQuery
->;
-export type BankCustomerListPayorPartnershipsQueryResult = Apollo.QueryResult<
-  BankCustomerListPayorPartnershipsQuery,
-  BankCustomerListPayorPartnershipsQueryVariables
 >;
 export const GetFinancialSummariesByCompanyIdDocument = gql`
   query GetFinancialSummariesByCompanyId($companyId: uuid!) {
@@ -23694,7 +23733,7 @@ export const GetBankPayorPartnershipDocument = gql`
     company_payor_partnerships_by_pk(id: $id) {
       ...PayorPartnership
       payor {
-        ...ThirdParty
+        id
         licenses(
           where: {
             _or: [
@@ -23730,7 +23769,6 @@ export const GetBankPayorPartnershipDocument = gql`
     }
   }
   ${PayorPartnershipFragmentDoc}
-  ${ThirdPartyFragmentDoc}
   ${CompanyLicenseFragmentDoc}
   ${BankAccountFragmentDoc}
   ${ContactFragmentDoc}
@@ -23796,10 +23834,8 @@ export const GetPayorPartnershipsForBankDocument = gql`
         name
       }
       payor {
-        ...ThirdParty
-        settings {
-          id
-        }
+        id
+        ...Payor
         users {
           ...Contact
         }
@@ -23807,7 +23843,7 @@ export const GetPayorPartnershipsForBankDocument = gql`
     }
   }
   ${PayorPartnershipFragmentDoc}
-  ${ThirdPartyFragmentDoc}
+  ${PayorFragmentDoc}
   ${ContactFragmentDoc}
 `;
 
@@ -23913,56 +23949,6 @@ export type UpdateCompanyPayorPartnershipApprovedAtMutationResult = Apollo.Mutat
 export type UpdateCompanyPayorPartnershipApprovedAtMutationOptions = Apollo.BaseMutationOptions<
   UpdateCompanyPayorPartnershipApprovedAtMutation,
   UpdateCompanyPayorPartnershipApprovedAtMutationVariables
->;
-export const UpdatePayorInfoDocument = gql`
-  mutation UpdatePayorInfo($id: uuid!, $company: companies_set_input!) {
-    update_companies_by_pk(pk_columns: { id: $id }, _set: $company) {
-      ...ThirdParty
-    }
-  }
-  ${ThirdPartyFragmentDoc}
-`;
-export type UpdatePayorInfoMutationFn = Apollo.MutationFunction<
-  UpdatePayorInfoMutation,
-  UpdatePayorInfoMutationVariables
->;
-
-/**
- * __useUpdatePayorInfoMutation__
- *
- * To run a mutation, you first call `useUpdatePayorInfoMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdatePayorInfoMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updatePayorInfoMutation, { data, loading, error }] = useUpdatePayorInfoMutation({
- *   variables: {
- *      id: // value for 'id'
- *      company: // value for 'company'
- *   },
- * });
- */
-export function useUpdatePayorInfoMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UpdatePayorInfoMutation,
-    UpdatePayorInfoMutationVariables
-  >
-) {
-  return Apollo.useMutation<
-    UpdatePayorInfoMutation,
-    UpdatePayorInfoMutationVariables
-  >(UpdatePayorInfoDocument, baseOptions);
-}
-export type UpdatePayorInfoMutationHookResult = ReturnType<
-  typeof useUpdatePayorInfoMutation
->;
-export type UpdatePayorInfoMutationResult = Apollo.MutationResult<UpdatePayorInfoMutation>;
-export type UpdatePayorInfoMutationOptions = Apollo.BaseMutationOptions<
-  UpdatePayorInfoMutation,
-  UpdatePayorInfoMutationVariables
 >;
 export const UpdatePayorAgreementIdDocument = gql`
   mutation UpdatePayorAgreementId(
@@ -24906,7 +24892,7 @@ export const GetPaymentForSettlementDocument = gql`
         id
         payor {
           id
-          ...BankPayor
+          ...Payor
         }
       }
     }
@@ -24915,7 +24901,7 @@ export const GetPaymentForSettlementDocument = gql`
   ${ContractFragmentDoc}
   ${FinancialSummaryFragmentDoc}
   ${BankAccountFragmentDoc}
-  ${BankPayorFragmentDoc}
+  ${PayorFragmentDoc}
 `;
 
 /**
@@ -26585,10 +26571,16 @@ export type UpdateCompanyBankAccountMutationOptions = Apollo.BaseMutationOptions
 export const UpdateCompanyInfoDocument = gql`
   mutation UpdateCompanyInfo($id: uuid!, $company: companies_set_input!) {
     update_companies_by_pk(pk_columns: { id: $id }, _set: $company) {
-      ...ThirdParty
+      id
+      name
+      address
+      country
+      state
+      city
+      zip_code
+      phone_number
     }
   }
-  ${ThirdPartyFragmentDoc}
 `;
 export type UpdateCompanyInfoMutationFn = Apollo.MutationFunction<
   UpdateCompanyInfoMutation,
@@ -26955,7 +26947,6 @@ export const GetVendorCompanyFileAttachmentsDocument = gql`
   query GetVendorCompanyFileAttachments($company_id: uuid!) {
     companies_by_pk(id: $company_id) {
       id
-      ...ThirdParty
       agreements {
         ...CompanyAgreement
       }
@@ -26971,7 +26962,6 @@ export const GetVendorCompanyFileAttachmentsDocument = gql`
       }
     }
   }
-  ${ThirdPartyFragmentDoc}
   ${CompanyAgreementFragmentDoc}
   ${CompanyLicenseFragmentDoc}
 `;
@@ -27029,7 +27019,7 @@ export const GetVendorPartnershipForBankDocument = gql`
     company_vendor_partnerships_by_pk(id: $id) {
       ...VendorPartnership
       vendor {
-        ...ThirdParty
+        id
         licenses(
           where: {
             _or: [
@@ -27070,7 +27060,6 @@ export const GetVendorPartnershipForBankDocument = gql`
     }
   }
   ${VendorPartnershipFragmentDoc}
-  ${ThirdPartyFragmentDoc}
   ${CompanyLicenseFragmentDoc}
   ${CompanySettingsFragmentDoc}
   ${BankAccountFragmentDoc}
@@ -27136,15 +27125,10 @@ export const GetVendorPartnershipsForBankDocument = gql`
         name
       }
       vendor {
-        ...ThirdParty
-        settings {
-          id
-        }
+        id
+        ...Vendor
         users {
           ...Contact
-        }
-        licenses {
-          ...CompanyLicense
         }
       }
       vendor_bank_account {
@@ -27154,9 +27138,8 @@ export const GetVendorPartnershipsForBankDocument = gql`
     }
   }
   ${VendorPartnershipFragmentDoc}
-  ${ThirdPartyFragmentDoc}
+  ${VendorFragmentDoc}
   ${ContactFragmentDoc}
-  ${CompanyLicenseFragmentDoc}
 `;
 
 /**
@@ -27483,10 +27466,16 @@ export type UpdateCompanyVendorPartnershipApprovedAtMutationOptions = Apollo.Bas
 export const UpdateVendorInfoDocument = gql`
   mutation UpdateVendorInfo($id: uuid!, $company: companies_set_input!) {
     update_companies_by_pk(pk_columns: { id: $id }, _set: $company) {
-      ...ThirdParty
+      id
+      name
+      address
+      country
+      state
+      city
+      zip_code
+      phone_number
     }
   }
-  ${ThirdPartyFragmentDoc}
 `;
 export type UpdateVendorInfoMutationFn = Apollo.MutationFunction<
   UpdateVendorInfoMutation,
@@ -27743,13 +27732,9 @@ export const GetVendorPartnershipsByCompanyIdDocument = gql`
   query GetVendorPartnershipsByCompanyId($companyId: uuid!) {
     company_vendor_partnerships(where: { company_id: { _eq: $companyId } }) {
       ...VendorPartnershipLimited
-      vendor_limited {
-        ...VendorLimited
-      }
     }
   }
   ${VendorPartnershipLimitedFragmentDoc}
-  ${VendorLimitedFragmentDoc}
 `;
 
 /**

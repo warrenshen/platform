@@ -14,7 +14,7 @@ import RequestedRepaymentPreview from "components/Repayment/RequestedRepaymentPr
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import {
-  BankPayorFragment,
+  PayorFragment,
   Companies,
   Loans,
   LoanTypeEnum,
@@ -37,7 +37,7 @@ interface Props {
   shouldPayPrincipalFirst: boolean;
   payment: PaymentsInsertInput;
   customer: Companies;
-  payor: BankPayorFragment;
+  payor: PayorFragment;
   setPayment: React.Dispatch<React.SetStateAction<PaymentsInsertInput>>;
   setShouldPayPrincipalFirst: (shouldPayPrincipalFirst: boolean) => void;
 }

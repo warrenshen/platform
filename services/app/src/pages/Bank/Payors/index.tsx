@@ -17,14 +17,13 @@ export default function BankPayorsPage() {
     const filteredPayorPartnerships = filter(
       data?.company_payor_partnerships || [],
       (payorPartnership) =>
-        payorPartnership.payor
-          ? payorPartnership.payor.name
-              .toLowerCase()
-              .indexOf(searchQuery.toLowerCase()) >= 0
-          : false
+        (payorPartnership.payor?.name || "")
+          .toLowerCase()
+          .indexOf(searchQuery.toLowerCase()) >= 0
     );
-    return sortBy(filteredPayorPartnerships, (payorPartnership) =>
-      payorPartnership.payor ? payorPartnership.payor.name : null
+    return sortBy(
+      filteredPayorPartnerships,
+      (payorPartnership) => payorPartnership.payor?.name || null
     );
   }, [searchQuery, data?.company_payor_partnerships]);
 
@@ -46,7 +45,10 @@ export default function BankPayorsPage() {
           </Box>
         </Box>
         <Box display="flex" flexDirection="column">
-          <PayorPartnershipsDataGrid isBankAccount data={payorPartnerships} />
+          <PayorPartnershipsDataGrid
+            isBankAccount
+            payorPartnerships={payorPartnerships}
+          />
         </Box>
       </PageContent>
     </Page>

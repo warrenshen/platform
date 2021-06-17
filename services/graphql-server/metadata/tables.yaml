@@ -716,8 +716,17 @@
       - is_deleted
       - license_number
       filter:
-        company_id:
-          _eq: X-Hasura-Company-Id
+        _or:
+        - company_id:
+            _eq: X-Hasura-Company-Id
+        - company:
+            company_payor_partnerships_by_payor:
+              company_id:
+                _eq: X-Hasura-Company-Id
+        - company:
+            company_vendor_partnerships_by_vendor:
+              company_id:
+                _eq: X-Hasura-Company-Id
   - role: company_read_only
     permission:
       columns:
@@ -727,8 +736,17 @@
       - is_deleted
       - license_number
       filter:
-        company_id:
-          _eq: X-Hasura-Company-Id
+        _or:
+        - company_id:
+            _eq: X-Hasura-Company-Id
+        - company:
+            company_payor_partnerships_by_payor:
+              company_id:
+                _eq: X-Hasura-Company-Id
+        - company:
+            company_vendor_partnerships_by_vendor:
+              company_id:
+                _eq: X-Hasura-Company-Id
 - table:
     schema: public
     name: company_partnership_requests
@@ -789,7 +807,7 @@
       manual_configuration:
         remote_table:
           schema: public
-          name: companies
+          name: payors
         column_mapping:
           payor_id: id
   - name: payor_agreement
@@ -1041,7 +1059,12 @@
       foreign_key_constraint_on: company_id
   - name: vendor
     using:
-      foreign_key_constraint_on: vendor_id
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: vendors
+        column_mapping:
+          vendor_id: id
   - name: vendor_agreement
     using:
       foreign_key_constraint_on: vendor_agreement_id
@@ -2916,6 +2939,22 @@
           name: company_payor_partnerships
         column_mapping:
           id: payor_id
+  - name: licenses
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: company_licenses
+        column_mapping:
+          id: company_id
+  - name: users
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: users
+        column_mapping:
+          id: company_id
   select_permissions:
   - role: bank_admin
     permission:
@@ -3555,6 +3594,15 @@
 - table:
     schema: public
     name: vendors
+  object_relationships:
+  - name: settings
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: company_settings
+        column_mapping:
+          company_settings_id: id
   array_relationships:
   - name: company_vendor_partnerships
     using:
@@ -3564,6 +3612,14 @@
           name: company_vendor_partnerships
         column_mapping:
           id: vendor_id
+  - name: licenses
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: company_licenses
+        column_mapping:
+          id: company_id
   - name: metrc_transfers
     using:
       manual_configuration:
@@ -3572,6 +3628,14 @@
           name: metrc_transfers
         column_mapping:
           id: vendor_id
+  - name: users
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: users
+        column_mapping:
+          id: company_id
   select_permissions:
   - role: bank_admin
     permission:

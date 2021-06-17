@@ -43,9 +43,6 @@ query GetArtifactRelationsByCompanyId($companyId: uuid!) {
 query GetVendorPartnershipsByCompanyId($companyId: uuid!) {
   company_vendor_partnerships(where: { company_id: { _eq: $companyId } }) {
     ...VendorPartnershipLimited
-    vendor_limited {
-      ...VendorLimited
-    }
   }
 }
 

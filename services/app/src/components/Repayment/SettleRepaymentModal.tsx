@@ -1,7 +1,7 @@
 import SettleRepaymentModalAccountFees from "components/Repayment/SettleRepaymentModalAccountFees";
 import SettleRepaymentModalLoans from "components/Repayment/SettleRepaymentModalLoans";
 import {
-  BankPayorFragment,
+  PayorFragment,
   Companies,
   Payments,
   PaymentsInsertInput,
@@ -25,7 +25,7 @@ export default function SettleRepaymentModal({
   handleClose,
 }: Props) {
   const [customer, setCustomer] = useState<Companies | null>(null);
-  const [payor, setPayor] = useState<BankPayorFragment | null>(null);
+  const [payor, setPayor] = useState<PayorFragment | null>(null);
   const [payment, setPayment] = useState<PaymentsInsertInput>({});
 
   useGetPaymentForSettlementQuery({
@@ -39,7 +39,7 @@ export default function SettleRepaymentModal({
         setCustomer(existingPayment.company as Companies);
         setPayor(
           (existingPayment.invoice?.payor ||
-            existingPayment.company) as BankPayorFragment
+            existingPayment.company) as PayorFragment
         );
         const initialDepositDate = addBizDays(
           existingPayment.payment_date,

@@ -2,7 +2,7 @@ query GetBankPayorPartnership($id: uuid!) {
   company_payor_partnerships_by_pk(id: $id) {
     ...PayorPartnership
     payor {
-      ...ThirdParty
+      id
       licenses(
         where: {
           _or: [
@@ -46,10 +46,8 @@ query GetPayorPartnershipsForBank {
       name
     }
     payor {
-      ...ThirdParty
-      settings {
-        id
-      }
+      id
+      ...Payor
       users {
         ...Contact
       }
@@ -66,12 +64,6 @@ mutation UpdateCompanyPayorPartnershipApprovedAt(
     _set: { approved_at: $approvedAt }
   ) {
     ...PayorPartnership
-  }
-}
-
-mutation UpdatePayorInfo($id: uuid!, $company: companies_set_input!) {
-  update_companies_by_pk(pk_columns: { id: $id }, _set: $company) {
-    ...ThirdParty
   }
 }
 

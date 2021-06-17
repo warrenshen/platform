@@ -37,7 +37,7 @@ export default function CustomerPayorsPageContent({ companyId }: Props) {
         </Box>
       </Can>
       <Box display="flex">
-        <PayorPartnershipsDataGrid data={payorPartnerships} />
+        <PayorPartnershipsDataGrid payorPartnerships={payorPartnerships} />
       </Box>
     </PageContent>
   );

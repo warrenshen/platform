@@ -121,17 +121,3 @@ query GetCustomerForBank($id: uuid!) {
     }
   }
 }
-
-query BankCustomerListPayorPartnerships($companyId: uuid!) {
-  company_payor_partnerships(where: { company_id: { _eq: $companyId } }) {
-    ...PayorPartnership
-    payor {
-      id
-      ...ThirdParty
-      users {
-        id
-        ...Contact
-      }
-    }
-  }
-}

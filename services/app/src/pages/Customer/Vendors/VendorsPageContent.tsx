@@ -28,7 +28,7 @@ export default function CustomerVendorsPageContent({ companyId }: Props) {
 
   const vendorPartnerships = sortBy(
     data?.company_vendor_partnerships || [],
-    (companyVendorPartnership) => companyVendorPartnership.vendor_limited?.name
+    (companyVendorPartnership) => companyVendorPartnership.vendor?.name
   );
 
   return (

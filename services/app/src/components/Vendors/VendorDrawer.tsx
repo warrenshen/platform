@@ -63,6 +63,7 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
     error,
     refetch,
   } = useGetVendorPartnershipForBankQuery({
+    fetchPolicy: "network-only",
     variables: {
       id: vendorPartnershipId,
     },
@@ -90,7 +91,11 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
   const customer = data.company_vendor_partnerships_by_pk.company;
   const vendor = data.company_vendor_partnerships_by_pk.vendor;
 
-  const customerName = customer?.name;
+  if (!customer || !vendor) {
+    return null;
+  }
+
+  const customerName = customer.name;
   const companyLicenses = vendor.licenses || [];
 
   const notifier = new InventoryNotifier();
@@ -98,8 +103,8 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
     .vendor_bank_account;
   const hasNoContactsSetup =
     !vendor.users ||
-    vendor.users.length === 0 ||
-    !customer?.users ||
+    vendor?.users.length === 0 ||
+    !customer.users ||
     customer.users.length === 0;
 
   return (
@@ -231,7 +236,7 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
           <Box mt={1} mb={2}>
             <SendVendorAgreements
               vendorId={vendor.id}
-              vendorName={vendor.name}
+              vendorName={vendor.name || ""}
               customerName={customerName}
               customerId={customer.id}
               notifier={notifier}
@@ -247,7 +252,7 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
               customerId={customer.id}
               vendorPartnershipId={vendorPartnershipId}
               customerName={customerName}
-              vendorName={vendor.name}
+              vendorName={vendor.name || ""}
               notifier={notifier}
             />
           </Box>

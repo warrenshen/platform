@@ -113,11 +113,6 @@ function VendorInfo(props: Props) {
                     zip_code: editedVendor.zip_code,
                   },
                 },
-                optimisticResponse: {
-                  update_companies_by_pk: {
-                    ...editedVendor,
-                  },
-                },
               });
               setEditing(false);
             }}

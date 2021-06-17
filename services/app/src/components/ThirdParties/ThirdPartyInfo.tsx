@@ -2,14 +2,15 @@ import { Box, Button, makeStyles, TextField } from "@material-ui/core";
 import Can from "components/Shared/Can";
 import PhoneInput from "components/Shared/FormInputs/PhoneInput";
 import {
-  ThirdPartyFragment,
+  PayorFragment,
+  VendorFragment,
   useUpdateCompanyInfoMutation,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { useState } from "react";
 
 interface Props {
-  company: ThirdPartyFragment;
+  company: PayorFragment | VendorFragment;
   editAction: Action;
 }
 
@@ -28,9 +29,9 @@ const useStyles = makeStyles({
 export default function ThirdPartyInfo({ company, editAction }: Props) {
   const classes = useStyles();
   const [editing, setEditing] = useState(false);
-  const [editedCompany, setEditedCompany] = useState<ThirdPartyFragment>(
-    company
-  );
+  const [editedCompany, setEditedCompany] = useState<
+    PayorFragment | VendorFragment
+  >(company);
   const [updateCompanyInfo] = useUpdateCompanyInfoMutation();
 
   return editing ? (
@@ -113,11 +114,6 @@ export default function ThirdPartyInfo({ company, editAction }: Props) {
                     phone_number: editedCompany.phone_number,
                     state: editedCompany.state,
                     zip_code: editedCompany.zip_code,
-                  },
-                },
-                optimisticResponse: {
-                  update_companies_by_pk: {
-                    ...editedCompany,
                   },
                 },
               });

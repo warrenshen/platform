@@ -1,19 +1,45 @@
+import { RowsProp } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import VendorDrawer from "components/Vendors/VendorDrawer";
 import VerificationChip from "components/Vendors/VerificationChip";
-import { VendorPartnershipFragment } from "generated/graphql";
+import {
+  VendorPartnershipFragment,
+  VendorPartnershipLimitedFragment,
+} from "generated/graphql";
 import { ColumnWidths } from "lib/tables";
 import { useMemo, useState } from "react";
 
-interface Props {
-  isBankUserRole?: boolean;
-  isExcelExport?: boolean;
-  isDrilldownByCustomer?: boolean;
-  vendorPartnerships: VendorPartnershipFragment[];
+function getRows(
+  vendorPartnerships: (
+    | VendorPartnershipFragment
+    | VendorPartnershipLimitedFragment
+  )[]
+): RowsProp {
+  return vendorPartnerships.map((vendorPartnership) => {
+    return {
+      ...vendorPartnership,
+      vendor_name: vendorPartnership.vendor?.name,
+      is_verified_bank_account: !!(vendorPartnership as VendorPartnershipFragment)
+        .vendor_bank_account?.verified_at,
+      is_verified_license:
+        (vendorPartnership.vendor?.licenses || []).length > 0,
+      is_approved: !!vendorPartnership.approved_at,
+    };
+  });
 }
 
-function VendorPartnershipsDataGrid({
+interface Props {
+  isBankUserRole?: boolean;
+  isDrilldownByCustomer?: boolean;
+  isExcelExport?: boolean;
+  vendorPartnerships: (
+    | VendorPartnershipFragment
+    | VendorPartnershipLimitedFragment
+  )[];
+}
+
+export default function VendorPartnershipsDataGrid({
   isBankUserRole,
   isExcelExport = true,
   isDrilldownByCustomer,
@@ -38,19 +64,17 @@ function VendorPartnershipsDataGrid({
     []
   );
 
-  const rows = vendorPartnerships;
+  const rows = getRows(vendorPartnerships);
   const columns = useMemo(
     () => [
       {
-        dataField: "vendor.name",
+        dataField: "vendor_name",
         caption: "Vendor Name",
         minWidth: ColumnWidths.MinWidth,
         ...(isBankUserRole && {
           cellRender: ({ value, data }: { value: string; data: any }) => (
             <ClickableDataGridCell
-              onClick={() => {
-                onCellClick(data);
-              }}
+              onClick={() => onCellClick(data)}
               label={value}
             />
           ),
@@ -67,27 +91,23 @@ function VendorPartnershipsDataGrid({
         caption: "Signed Vendor Agreement",
         alignment: "center",
         width: isBankUserRole ? 195 : 225,
-        calculateCellValue: (data: any) =>
-          !!data.vendor_agreement_id ? "Yes" : "No",
         cellRender: verificationCellRenderer,
       },
       {
-        dataField: "vendor.licenses",
+        dataField: "is_verified_license",
         caption: "Verified License",
         alignment: "center",
-        calculateCellValue: (data: any) =>
-          data.vendor.licenses?.length > 0 ? "Yes" : "No",
         cellRender: verificationCellRenderer,
       },
       {
         visible: !!isBankUserRole,
-        dataField: "vendor_bank_account.verified_at",
+        dataField: "is_verified_bank_account",
         caption: "Verified Bank account",
         alignment: "center",
         cellRender: verificationCellRenderer,
       },
       {
-        dataField: "approved_at",
+        dataField: "is_approved",
         caption: "Approved",
         alignment: "center",
         cellRender: verificationCellRenderer,
@@ -130,5 +150,3 @@ function VendorPartnershipsDataGrid({
     </>
   );
 }
-
-export default VendorPartnershipsDataGrid;

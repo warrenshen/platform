@@ -3,7 +3,7 @@ import SettleRepaymentConfirmEffect from "components/Repayment/SettleRepaymentCo
 import SettleRepaymentSelectLoans from "components/Repayment/SettleRepaymentSelectLoans";
 import Modal from "components/Shared/Modal/Modal";
 import {
-  BankPayorFragment,
+  PayorFragment,
   Companies,
   Loans,
   PaymentsInsertInput,
@@ -33,7 +33,7 @@ import { useEffect, useMemo, useState } from "react";
 
 interface Props {
   customer: Companies;
-  payor: BankPayorFragment;
+  payor: PayorFragment;
   payment: PaymentsInsertInput;
   setPayment: React.Dispatch<React.SetStateAction<PaymentsInsertInput>>;
   handleClose: () => void;

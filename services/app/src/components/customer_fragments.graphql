@@ -16,11 +16,31 @@ fragment CompanySettingsLimited on company_settings {
 fragment VendorLimited on vendors {
   id
   name
+  licenses(
+    where: {
+      _or: [
+        { is_deleted: { _is_null: true } }
+        { is_deleted: { _eq: false } }
+      ]
+    }
+  ) {
+    ...CompanyLicense
+  }
 }
 
 fragment PayorLimited on payors {
   id
   name
+  licenses(
+    where: {
+      _or: [
+        { is_deleted: { _is_null: true } }
+        { is_deleted: { _eq: false } }
+      ]
+    }
+  ) {
+    ...CompanyLicense
+  }
 }
 
 fragment VendorPartnershipLimited on company_vendor_partnerships {
@@ -35,7 +55,23 @@ fragment VendorPartnershipLimited on company_vendor_partnerships {
   }
   vendor {
     id
+    ...VendorLimited
+  }
+}
+
+fragment PayorPartnershipLimited on company_payor_partnerships {
+  id
+  company_id
+  payor_id
+  payor_agreement_id
+  approved_at
+  company {
+    id
     name
+  }
+  payor {
+    id
+    ...PayorLimited
   }
 }
 

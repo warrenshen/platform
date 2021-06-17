@@ -10,32 +10,24 @@ const useStyles = makeStyles({
   },
 });
 
-function VerificationChip({ value }: { value: CellValue }) {
+export default function VerificationChip({ value }: { value: CellValue }) {
   const classes = useStyles({ color: "white" });
-  const parsedValue = (value === "Yes" || value === "No"
-    ? value
-    : value
-    ? "yes"
-    : "no"
-  ).toLowerCase();
+  const isVerified = !!value;
 
-  const background =
-    parsedValue === "yes" ? "var(--table-accent-color)" : "disabled";
+  const background = isVerified ? "var(--table-accent-color)" : "disabled";
 
-  const icon: JSX.Element =
-    parsedValue === "yes" ? (
-      <DoneIcon className={classes.icon} />
-    ) : (
-      <ClearIcon className={classes.icon} />
-    );
+  const icon: JSX.Element = isVerified ? (
+    <DoneIcon className={classes.icon} />
+  ) : (
+    <ClearIcon className={classes.icon} />
+  );
+
   return (
     <Chip
-      label={parsedValue}
+      label={isVerified ? "Y" : "N"}
       icon={icon}
       background={background}
       color={"white"}
     />
   );
 }
-
-export default VerificationChip;
