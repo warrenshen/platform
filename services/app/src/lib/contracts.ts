@@ -20,6 +20,7 @@ export enum ContractTermConfigs {
 }
 
 export enum ContractTermNames {
+  DynamicInterestRate = "dynamic_interest_rate",
   FinancingTerms = "contract_financing_terms",
   MaximumAmount = "maximum_amount",
   MinimumMonthlyAmount = "minimum_monthly_amount",
@@ -111,11 +112,17 @@ const ContractTermNameToConfigs = {
       "The maximum amount of a PO / Invoice that may be financed",
     [ContractTermConfigs.IsHiddenIfNull]: false,
   },
+  [ContractTermNames.DynamicInterestRate]: {
+    [ContractTermConfigs.DataCy]: "dynamic-interest-rate",
+    [ContractTermConfigs.BankDescription]: "",
+    [ContractTermConfigs.CustomerDescription]: "",
+    [ContractTermConfigs.IsHiddenIfNull]: true,
+  },
   [ContractTermNames.FactoringFeePercentage]: {
     [ContractTermConfigs.DataCy]: "interest-rate",
     [ContractTermConfigs.BankDescription]: "",
     [ContractTermConfigs.CustomerDescription]: "",
-    [ContractTermConfigs.IsHiddenIfNull]: false,
+    [ContractTermConfigs.IsHiddenIfNull]: true,
   },
   [ContractTermNames.FactoringFeeThreshold]: {
     [ContractTermConfigs.DataCy]: null,

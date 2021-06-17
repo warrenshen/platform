@@ -82,6 +82,54 @@ export default function ContractTermsForm({
     setCurrentJSONConfig([...currentJSONConfig]);
   };
 
+  // Dynamic interest rate parsing
+  const parseDynamicInterestRateFormValue = (item: any, value: any): void => {
+    const mappedValue = value.map((v: any) => {
+      const [start_date_key, end_date_key, interest_rate_key] = Object.keys(v);
+
+      const key =
+        v[start_date_key].toString() + "-" + v[end_date_key].toString();
+      return {
+        [key]: v[interest_rate_key] ? parseFloat(v[interest_rate_key]) : null,
+      };
+    });
+    const dynamicFormValue = Object.assign({}, ...mappedValue);
+    findAndReplaceInJSON(item, dynamicFormValue);
+  };
+
+  const getDynamicInterestRateFormInitialValues = (
+    item: any
+  ): any[][] | undefined => {
+    const { fields, value } = item;
+    let result;
+    if (value) {
+      result = [];
+      const [
+        start_date_display_key,
+        end_date_display_key,
+        interest_rate_display_key,
+      ] = fields.map((f: any) => f.display_name);
+      const keys = Object.keys(value);
+      keys.forEach((key) => {
+        if (!key) {
+          key = "";
+        }
+        const parts = key.split("-");
+        const startDate = parts[0];
+        const endDate = parts.length === 2 ? parts[1] : "";
+
+        result.push({
+          [start_date_display_key]: startDate,
+          [end_date_display_key]: endDate,
+          [interest_rate_display_key]: value[key] ? value[key].toString() : "",
+        });
+      });
+    }
+    return result;
+  };
+
+  // Late fee parsing
+
   const parseLateFeeDynamicFormValue = (item: any, value: any): void => {
     const mappedValue = value.map((v: any) => {
       const [days_past_due, interest] = Object.keys(v);
@@ -232,6 +280,19 @@ export default function ContractTermsForm({
             />
           }
           label={item.display_name}
+        />
+      );
+    } else if (item.internal_name === "dynamic_interest_rate") {
+      return (
+        <JsonFormInput
+          dataCy={dataCy}
+          fields={item.fields}
+          name={item.display_name}
+          initialValues={getDynamicInterestRateFormInitialValues(item)}
+          showValidationResult={errMsg.length > 0}
+          handleChange={(value: any) =>
+            parseDynamicInterestRateFormValue(item, value)
+          }
         />
       );
     } else if (item.internal_name === "late_fee_structure") {

@@ -437,7 +437,7 @@ class LoanCalculator(object):
 				return None, err
 
 			# Interest
-			cur_interest_rate, err = cur_contract.get_interest_rate()
+			cur_interest_rate, err = cur_contract.get_interest_rate(cur_date)
 			if err:
 				return None, err
 
@@ -475,7 +475,7 @@ class LoanCalculator(object):
 				# There was some day that the customer met the threshold
 				if cur_date > day_threshold_met:
 					# After the day we meet the threshold, everything is at the reduced interest rate
-					reduced_interest_rate, err = cur_contract.get_discounted_interest_rate_due_to_factoring_fee()
+					reduced_interest_rate, err = cur_contract.get_discounted_interest_rate_due_to_factoring_fee(cur_date)
 					if err:
 						return None, err
 

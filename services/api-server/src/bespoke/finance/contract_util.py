@@ -3,7 +3,7 @@ import json
 import logging
 import sys
 from datetime import timedelta
-from typing import Any, Callable, Dict, List, Tuple, cast
+from typing import Any, Callable, Dict, List, NamedTuple, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
@@ -118,6 +118,96 @@ def _parse_late_fee_structure(late_fee_field: FullFieldDict) -> Tuple[List[Tuple
 		return None, errors.Error('The first range must start with day 1')
 
 	return ranges, None
+
+DynamicInterestRate = NamedTuple('DynamicInterestRate', [
+	('start_date', datetime.date), 
+	('end_date', datetime.date), 
+	('interest_rate', float)
+])
+
+class DynamicInterestRateHelper(object):
+
+	def __init__(self, dynamic_interest_rates: List[DynamicInterestRate], private: bool) -> None:
+		self._dynamic_interest_rates = dynamic_interest_rates
+
+	def get_interest_rate(self, cur_date: datetime.date) -> Tuple[float, errors.Error]:
+		# Find the contract that fits in between the time range
+
+		for dynamic_rate in self._dynamic_interest_rates:
+			if cur_date >= dynamic_rate.start_date and cur_date <= dynamic_rate.end_date:
+				return dynamic_rate.interest_rate, None
+
+		return None, errors.Error(f'There is no interest rate configured for the date {cur_date}')
+
+	@staticmethod
+	def build(
+		dynamic_interest_rate_dict: Dict[str, float],
+		contract_start_date: datetime.date,
+		contract_end_date: datetime.date) -> Tuple['DynamicInterestRateHelper', errors.Error]:
+
+		sorted_dynamic_interest_rates = []
+		keys = list(dynamic_interest_rate_dict.keys())
+		for i in range(len(keys)):
+			key = keys[i]
+			interest_rate = dynamic_interest_rate_dict[key]
+			parts = key.split('-')
+			if len(parts) != 2:
+				return None, errors.Error('Dynamic interest rate is missing a start and end date. Got {}'.format(key))
+
+			start_date_str = parts[0]
+			end_date_str = parts[1]
+			try:
+				start_date = date_util.load_date_str(start_date_str)
+			except Exception as e:
+				return None, errors.Error('Invalid start date provided: {}'.format(start_date_str))
+
+			try:
+				end_date = date_util.load_date_str(end_date_str)
+			except Exception as e:
+				return None, errors.Error('Invalid end date provided: {}'.format(end_date_str))
+
+			rate = DynamicInterestRate(
+				start_date=start_date,
+				end_date=end_date,
+				interest_rate=interest_rate
+			)
+
+			sorted_dynamic_interest_rates.append(rate)
+
+		sorted_dynamic_interest_rates.sort(key=lambda c: c.start_date)
+
+		for i in range(len(sorted_dynamic_interest_rates)):
+			if i == 0:
+				continue
+
+			prev = sorted_dynamic_interest_rates[i - 1]
+			cur = sorted_dynamic_interest_rates[i]
+			if cur.start_date < prev.end_date:
+				return None, errors.Error(f'Interest rate #{(i - 1) + 1} has a start and end range ({prev.start_date}, {prev.end_date}) which overlaps in time with interest rate #{i + 1} ({cur.start_date}, {cur.end_date})')
+
+		validate_contract_range = contract_start_date and contract_end_date
+		if validate_contract_range:
+			for i in range(len(sorted_dynamic_interest_rates)):
+				cur = sorted_dynamic_interest_rates[i]
+
+				if i == 0:
+					if cur.start_date != contract_start_date:
+						return None, errors.Error('The first dynamic interest rate must be on the first day of the contract')
+
+				if cur.end_date < cur.start_date:
+					return None, errors.Error('Dynamic interest rate end date must come after the start date')
+
+				if i > 0:
+					prev = sorted_dynamic_interest_rates[i - 1]
+					if prev.end_date + timedelta(days=1) != cur.start_date:
+						return None, errors.Error('Dynamic interest rate ranges must come one day after the previous one, so there is no gap. Found a gap between {} and {}'.format(
+							prev.end_date, cur.start_date))
+
+				if i == len(sorted_dynamic_interest_rates) - 1:
+					if cur.end_date != contract_end_date:
+						return None, errors.Error('The last dynamic interest rate must be on the last day of the contract')
+
+		return DynamicInterestRateHelper(sorted_dynamic_interest_rates, private=True), None
 
 MinimumOwedDict = TypedDict('MinimumOwedDict', {
 	'duration': str,
@@ -337,7 +427,7 @@ class Contract(object):
 	def get_factoring_fee_threshold_starting_value(self) -> Tuple[float, errors.Error]:
 		return self._get_float_value('factoring_fee_threshold_starting_value')
 
-	def get_discounted_interest_rate_due_to_factoring_fee(self) -> Tuple[float, errors.Error]:
+	def get_discounted_interest_rate_due_to_factoring_fee(self, cur_date: datetime.date) -> Tuple[float, errors.Error]:
 		factoring_fee_threshold, err = self._get_float_value('factoring_fee_threshold', default_if_null=0.0)
 		if err:
 			return None, err
@@ -345,12 +435,36 @@ class Contract(object):
 		# If there is no Volume Discount (Factoring Fee) Threshold
 		# set, return the normal interest rate.
 		if factoring_fee_threshold <= 0.0:
-			return self.get_interest_rate()
+			return self.get_interest_rate(cur_date)
 		else:
 			return self._get_float_value('adjusted_factoring_fee_percentage', default_if_null=0.0)
 
-	def get_interest_rate(self) -> Tuple[float, errors.Error]:
+	def _get_fixed_interest_rate(self) -> Tuple[float, errors.Error]:
 		# Returns interest rate in decimal format (0.0 = 0%, 1.0 = 100%).
+		return self._get_float_value('factoring_fee_percentage')
+
+	def _get_dynamic_interest_rate_dict(self) -> Dict[str, float]:
+		dynamic_interest_rate_field = self._internal_name_to_field.get('dynamic_interest_rate')
+		dynamic_interest_rate_dict = dynamic_interest_rate_field['value'] if dynamic_interest_rate_field else {}
+		is_dynamic_interest_rate_set = dynamic_interest_rate_dict and \
+			len(list(dynamic_interest_rate_dict.keys())) > 0
+
+		return dynamic_interest_rate_dict if is_dynamic_interest_rate_set else None
+
+	def get_interest_rate(self, cur_date: datetime.date) -> Tuple[float, errors.Error]:
+		# Returns interest rate in decimal format (0.0 = 0%, 1.0 = 100%).
+		dynamic_interest_rate_dict = self._get_dynamic_interest_rate_dict()
+
+		if dynamic_interest_rate_dict:
+			dynamic_helper, err = DynamicInterestRateHelper.build(
+				dynamic_interest_rate_dict,
+				contract_start_date=None,
+				contract_end_date=None)
+			if err:
+				return None, err
+
+			return dynamic_helper.get_interest_rate(cur_date)
+
 		return self._get_float_value('factoring_fee_percentage')
 
 	def get_wire_fee(self) -> Tuple[float, errors.Error]:
@@ -453,6 +567,34 @@ class Contract(object):
 
 		return self._field_dicts
 
+	def _validate_dynamic_interest_rate(self) -> Tuple[bool, errors.Error]:
+		dynamic_interest_rate_dict = self._get_dynamic_interest_rate_dict()
+
+		fixed_interest_rate, err = self._get_fixed_interest_rate()
+		is_fixed_interest_rate_set = fixed_interest_rate is not None
+
+		if dynamic_interest_rate_dict and is_fixed_interest_rate_set:
+			return False, errors.Error('The dynamic and fixed interest rate may not both be set. Please fill in one or the other.')
+
+		if not dynamic_interest_rate_dict and not is_fixed_interest_rate_set:
+			return False, errors.Error('Either the dynamic or fixed interest rate must be set. Please fill in one or the other.')
+
+		if dynamic_interest_rate_dict:
+			contract_start_date, err = self.get_start_date()
+			if err:
+				return None, err
+
+			contract_end_date, err = self.get_adjusted_end_date()
+			if err:
+				return None, err
+
+			_, err = DynamicInterestRateHelper.build(
+				dynamic_interest_rate_dict, contract_start_date, contract_end_date)
+			if err:
+				return None, err
+
+		return True, None
+
 	def validate(self) -> errors.Error:
 		minimum_monthly_amount, err = self._get_minimum_monthly_amount()
 		minimum_quarterly_amount, err = self._get_minimum_quarterly_amount()
@@ -473,6 +615,10 @@ class Contract(object):
 		starting_value, starting_value_err = self.get_factoring_fee_threshold_starting_value()
 		if has_threshold_set and starting_value is None:
 			return errors.Error('Factoring Fee Threshold Starting Value must be set if the Factoring Fee Threshold is set')
+
+		_, err = self._validate_dynamic_interest_rate()
+		if err:
+			return err
 
 		return None
 
