@@ -220,7 +220,8 @@ export default function CreateUpdatePurchaseOrderModal({
       companySettings,
       FeatureFlagEnum.CREATE_PURCHASE_ORDER_FROM_METRC_TRANSFERS
     ) &&
-    metrcApiKeys.length > 0;
+    metrcApiKeys.length > 0 &&
+    selectableMetrcTransfers.length > 0;
   const isMetrcBased = purchaseOrder.is_metrc_based;
 
   const [
