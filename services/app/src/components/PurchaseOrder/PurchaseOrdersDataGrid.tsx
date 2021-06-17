@@ -118,7 +118,7 @@ export default function PurchaseOrdersDataGrid({
         caption: "Vendor Name",
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
-          <TextDataGridCell label={params.row.data.payor_name} />
+          <TextDataGridCell label={params.row.data.vendor_name} />
         ),
       },
       {
