@@ -445,7 +445,10 @@ class Contract(object):
 
 	def _get_dynamic_interest_rate_dict(self) -> Dict[str, float]:
 		dynamic_interest_rate_field, err = self._get_field('dynamic_interest_rate')
-		dynamic_interest_rate_dict = json.loads(dynamic_interest_rate_field['value']) if dynamic_interest_rate_field.get('value') else {}
+		if err:
+			# Dynamic interest rate field is not set, since it is a new field introduced on 06/17/21.
+			dynamic_interest_rate_field = None
+		dynamic_interest_rate_dict = json.loads(dynamic_interest_rate_field['value']) if dynamic_interest_rate_field and dynamic_interest_rate_field.get('value') else {}
 
 		# The dynamic interest rate dict is sent up as {'-': None} by the frontend right now.
 		# This fix handles this to allow the majority use case (no dynamic interest rate).
@@ -577,6 +580,8 @@ class Contract(object):
 		fixed_interest_rate, err = self._get_fixed_interest_rate()
 		is_fixed_interest_rate_set = fixed_interest_rate is not None
 
+		# TODO(warrenshen): this error is raised when user tries to save a contract
+		# with a valid dynamic interest rate and an empty normal interest rate.
 		if dynamic_interest_rate_dict and is_fixed_interest_rate_set:
 			return False, errors.Error('The dynamic and fixed interest rate may not both be set. Please fill in one or the other.')
 
