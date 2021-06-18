@@ -46,10 +46,6 @@ def create_contract_config(
 			'value': input_dict.get('interest_rate', None)
 		},
 		{
-			'internal_name': 'dynamic_interest_rate',
-			'value': input_dict.get('dynamic_interest_rate', None)
-		},
-		{
 			'internal_name': 'maximum_amount',
 			'value': input_dict['maximum_principal_amount']
 		},
@@ -94,6 +90,17 @@ def create_contract_config(
 			'value': input_dict.get('repayment_type_settlement_timeline', '{}')
 		}
 	]
+
+	# Note the internal_name must match the input_dict key for all these new fields
+	new_field_names = ['dynamic_interest_rate']
+	for new_field_name in new_field_names:
+		if new_field_name in input_dict:
+			fields.append(
+				{
+						'internal_name': new_field_name,
+						'value': cast(Dict, input_dict)[new_field_name]
+				}
+			)
 
 	if product_type != ProductType.LINE_OF_CREDIT:
 		# Non-LOC fields
