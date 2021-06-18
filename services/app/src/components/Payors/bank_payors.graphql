@@ -55,18 +55,6 @@ query GetPayorPartnershipsForBank {
   }
 }
 
-mutation UpdateCompanyPayorPartnershipApprovedAt(
-  $companyPayorPartnershipId: uuid!
-  $approvedAt: timestamptz
-) {
-  update_company_payor_partnerships_by_pk(
-    pk_columns: { id: $companyPayorPartnershipId }
-    _set: { approved_at: $approvedAt }
-  ) {
-    ...PayorPartnership
-  }
-}
-
 mutation UpdatePayorAgreementId(
   $companyPayorPartnershipId: uuid!
   $payorAgreementId: uuid

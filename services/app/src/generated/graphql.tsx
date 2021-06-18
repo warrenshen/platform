@@ -18848,15 +18848,6 @@ export type GetPayorPartnershipsForBankQuery = {
   >;
 };
 
-export type UpdateCompanyPayorPartnershipApprovedAtMutationVariables = Exact<{
-  companyPayorPartnershipId: Scalars["uuid"];
-  approvedAt?: Maybe<Scalars["timestamptz"]>;
-}>;
-
-export type UpdateCompanyPayorPartnershipApprovedAtMutation = {
-  update_company_payor_partnerships_by_pk?: Maybe<PayorPartnershipFragment>;
-};
-
 export type UpdatePayorAgreementIdMutationVariables = Exact<{
   companyPayorPartnershipId: Scalars["uuid"];
   payorAgreementId?: Maybe<Scalars["uuid"]>;
@@ -19756,15 +19747,6 @@ export type ChangeBankAccountMutation = {
       vendor_bank_account?: Maybe<BankAccountFragment>;
     }
   >;
-};
-
-export type UpdateCompanyVendorPartnershipApprovedAtMutationVariables = Exact<{
-  companyVendorPartnershipId: Scalars["uuid"];
-  approvedAt?: Maybe<Scalars["timestamptz"]>;
-}>;
-
-export type UpdateCompanyVendorPartnershipApprovedAtMutation = {
-  update_company_vendor_partnerships_by_pk?: Maybe<VendorPartnershipFragment>;
 };
 
 export type UpdateVendorInfoMutationVariables = Exact<{
@@ -23893,62 +23875,6 @@ export type GetPayorPartnershipsForBankQueryResult = Apollo.QueryResult<
   GetPayorPartnershipsForBankQuery,
   GetPayorPartnershipsForBankQueryVariables
 >;
-export const UpdateCompanyPayorPartnershipApprovedAtDocument = gql`
-  mutation UpdateCompanyPayorPartnershipApprovedAt(
-    $companyPayorPartnershipId: uuid!
-    $approvedAt: timestamptz
-  ) {
-    update_company_payor_partnerships_by_pk(
-      pk_columns: { id: $companyPayorPartnershipId }
-      _set: { approved_at: $approvedAt }
-    ) {
-      ...PayorPartnership
-    }
-  }
-  ${PayorPartnershipFragmentDoc}
-`;
-export type UpdateCompanyPayorPartnershipApprovedAtMutationFn = Apollo.MutationFunction<
-  UpdateCompanyPayorPartnershipApprovedAtMutation,
-  UpdateCompanyPayorPartnershipApprovedAtMutationVariables
->;
-
-/**
- * __useUpdateCompanyPayorPartnershipApprovedAtMutation__
- *
- * To run a mutation, you first call `useUpdateCompanyPayorPartnershipApprovedAtMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateCompanyPayorPartnershipApprovedAtMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateCompanyPayorPartnershipApprovedAtMutation, { data, loading, error }] = useUpdateCompanyPayorPartnershipApprovedAtMutation({
- *   variables: {
- *      companyPayorPartnershipId: // value for 'companyPayorPartnershipId'
- *      approvedAt: // value for 'approvedAt'
- *   },
- * });
- */
-export function useUpdateCompanyPayorPartnershipApprovedAtMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UpdateCompanyPayorPartnershipApprovedAtMutation,
-    UpdateCompanyPayorPartnershipApprovedAtMutationVariables
-  >
-) {
-  return Apollo.useMutation<
-    UpdateCompanyPayorPartnershipApprovedAtMutation,
-    UpdateCompanyPayorPartnershipApprovedAtMutationVariables
-  >(UpdateCompanyPayorPartnershipApprovedAtDocument, baseOptions);
-}
-export type UpdateCompanyPayorPartnershipApprovedAtMutationHookResult = ReturnType<
-  typeof useUpdateCompanyPayorPartnershipApprovedAtMutation
->;
-export type UpdateCompanyPayorPartnershipApprovedAtMutationResult = Apollo.MutationResult<UpdateCompanyPayorPartnershipApprovedAtMutation>;
-export type UpdateCompanyPayorPartnershipApprovedAtMutationOptions = Apollo.BaseMutationOptions<
-  UpdateCompanyPayorPartnershipApprovedAtMutation,
-  UpdateCompanyPayorPartnershipApprovedAtMutationVariables
->;
 export const UpdatePayorAgreementIdDocument = gql`
   mutation UpdatePayorAgreementId(
     $companyPayorPartnershipId: uuid!
@@ -27401,62 +27327,6 @@ export type ChangeBankAccountMutationResult = Apollo.MutationResult<ChangeBankAc
 export type ChangeBankAccountMutationOptions = Apollo.BaseMutationOptions<
   ChangeBankAccountMutation,
   ChangeBankAccountMutationVariables
->;
-export const UpdateCompanyVendorPartnershipApprovedAtDocument = gql`
-  mutation UpdateCompanyVendorPartnershipApprovedAt(
-    $companyVendorPartnershipId: uuid!
-    $approvedAt: timestamptz
-  ) {
-    update_company_vendor_partnerships_by_pk(
-      pk_columns: { id: $companyVendorPartnershipId }
-      _set: { approved_at: $approvedAt }
-    ) {
-      ...VendorPartnership
-    }
-  }
-  ${VendorPartnershipFragmentDoc}
-`;
-export type UpdateCompanyVendorPartnershipApprovedAtMutationFn = Apollo.MutationFunction<
-  UpdateCompanyVendorPartnershipApprovedAtMutation,
-  UpdateCompanyVendorPartnershipApprovedAtMutationVariables
->;
-
-/**
- * __useUpdateCompanyVendorPartnershipApprovedAtMutation__
- *
- * To run a mutation, you first call `useUpdateCompanyVendorPartnershipApprovedAtMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateCompanyVendorPartnershipApprovedAtMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateCompanyVendorPartnershipApprovedAtMutation, { data, loading, error }] = useUpdateCompanyVendorPartnershipApprovedAtMutation({
- *   variables: {
- *      companyVendorPartnershipId: // value for 'companyVendorPartnershipId'
- *      approvedAt: // value for 'approvedAt'
- *   },
- * });
- */
-export function useUpdateCompanyVendorPartnershipApprovedAtMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UpdateCompanyVendorPartnershipApprovedAtMutation,
-    UpdateCompanyVendorPartnershipApprovedAtMutationVariables
-  >
-) {
-  return Apollo.useMutation<
-    UpdateCompanyVendorPartnershipApprovedAtMutation,
-    UpdateCompanyVendorPartnershipApprovedAtMutationVariables
-  >(UpdateCompanyVendorPartnershipApprovedAtDocument, baseOptions);
-}
-export type UpdateCompanyVendorPartnershipApprovedAtMutationHookResult = ReturnType<
-  typeof useUpdateCompanyVendorPartnershipApprovedAtMutation
->;
-export type UpdateCompanyVendorPartnershipApprovedAtMutationResult = Apollo.MutationResult<UpdateCompanyVendorPartnershipApprovedAtMutation>;
-export type UpdateCompanyVendorPartnershipApprovedAtMutationOptions = Apollo.BaseMutationOptions<
-  UpdateCompanyVendorPartnershipApprovedAtMutation,
-  UpdateCompanyVendorPartnershipApprovedAtMutationVariables
 >;
 export const UpdateVendorInfoDocument = gql`
   mutation UpdateVendorInfo($id: uuid!, $company: companies_set_input!) {

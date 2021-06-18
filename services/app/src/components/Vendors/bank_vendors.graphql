@@ -115,20 +115,6 @@ mutation ChangeBankAccount(
   }
 }
 
-## Misc mutations on company_vendor_partnerships
-
-mutation UpdateCompanyVendorPartnershipApprovedAt(
-  $companyVendorPartnershipId: uuid!
-  $approvedAt: timestamptz
-) {
-  update_company_vendor_partnerships_by_pk(
-    pk_columns: { id: $companyVendorPartnershipId }
-    _set: { approved_at: $approvedAt }
-  ) {
-    ...VendorPartnership
-  }
-}
-
 ## Misc mutations on vendor
 
 mutation UpdateVendorInfo($id: uuid!, $company: companies_set_input!) {
