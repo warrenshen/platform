@@ -175,10 +175,12 @@ export default function PurchaseOrderDrawer({
       )}
       <Box display="flex" flexDirection="column" mt={2}>
         <Typography variant="subtitle2" color="textSecondary">
-          Amount
+          Amount (Amount Funded)
         </Typography>
         <Typography variant={"body1"}>
-          {formatCurrency(purchaseOrder.amount)}
+          {`${formatCurrency(purchaseOrder.amount)} (${formatCurrency(
+            purchaseOrder.amount_funded || 0.0
+          )} funded)`}
         </Typography>
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>
