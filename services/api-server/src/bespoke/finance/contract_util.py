@@ -580,8 +580,6 @@ class Contract(object):
 		fixed_interest_rate, err = self._get_fixed_interest_rate()
 		is_fixed_interest_rate_set = fixed_interest_rate is not None
 
-		# TODO(warrenshen): this error is raised when user tries to save a contract
-		# with a valid dynamic interest rate and an empty normal interest rate.
 		if dynamic_interest_rate_dict and is_fixed_interest_rate_set:
 			return False, errors.Error('The dynamic and fixed interest rate may not both be set. Please fill in one or the other.')
 

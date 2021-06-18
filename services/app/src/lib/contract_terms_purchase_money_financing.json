@@ -64,7 +64,7 @@
         "internal_name": "factoring_fee_percentage",
         "display_name": "Daily Interest Rate",
         "value": null,
-        "nullable": false
+        "nullable": true
       },
       {
         "section": "Financing Terms",
