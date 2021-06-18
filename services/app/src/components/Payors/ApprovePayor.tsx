@@ -1,7 +1,8 @@
 import { Button } from "@material-ui/core";
 import ConfirmModal from "components/Shared/Confirmations/ConfirmModal";
-import { useUpdateCompanyPayorPartnershipApprovedAtMutation } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
+import { approvePartnershipMutation } from "lib/api/companies";
 import { InventoryNotifier } from "lib/notifications/inventory";
 import { useState } from "react";
 
@@ -32,8 +33,9 @@ export default function ApprovePayor({
   const [errMsg, setErrMsg] = useState("");
 
   const [
-    updateApprovedAt,
-  ] = useUpdateCompanyPayorPartnershipApprovedAtMutation();
+    approvePartnership,
+    { loading: isApprovePartnershipLoading },
+  ] = useCustomMutation(approvePartnershipMutation);
 
   if (hasNoContactsSetup) {
     return (
@@ -66,14 +68,21 @@ export default function ApprovePayor({
       return;
     }
 
-    updateApprovedAt({
+    const response = await approvePartnership({
       variables: {
-        companyPayorPartnershipId: payorPartnershipId,
-        approvedAt: "now()",
+        partnership_id: payorPartnershipId,
+        is_payor: true,
       },
     });
 
-    let resp = await notifier.sendPayorApproved({
+    if (response.status !== "OK") {
+      snackbar.showError(
+        `Could not approve partnership. Error: ${response.msg}`
+      );
+      return;
+    }
+
+    const resp = await notifier.sendPayorApproved({
       payor_id: payorId,
       company_id: customerId,
     });
@@ -101,6 +110,7 @@ export default function ApprovePayor({
         />
       )}
       <Button
+        disabled={isApprovePartnershipLoading}
         size="small"
         variant="contained"
         color="primary"

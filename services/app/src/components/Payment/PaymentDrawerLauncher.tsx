@@ -9,7 +9,7 @@ interface Props {
   paymentId: PurchaseOrders["id"];
 }
 
-function Launcher({ label, paymentId }: Props) {
+export default function PaymentDrawerLauncher({ label, paymentId }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -27,5 +27,3 @@ function Launcher({ label, paymentId }: Props) {
     </Box>
   );
 }
-
-export default Launcher;

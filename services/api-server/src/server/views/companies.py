@@ -80,6 +80,119 @@ class UpsertFeatureFlagsView(MethodView):
 			'status': 'OK'
 		}), 200)
 
+class CreatePartnershipRequestView(MethodView):
+	decorators = [auth_util.login_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'is_payor',
+			'customer_id',
+			'company',
+			'user',
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in request')
+
+		user_session = UserSession.from_session()
+
+		if not user_session.is_bank_or_this_company_admin(form['customer_id']):
+			return handler_util.make_error_response('Access Denied')
+
+		customer_id = form['customer_id']
+		is_payor = form['is_payor']
+
+		partnership_type = 'payor' if is_payor else 'vendor'
+
+		req = cast(create_company_util.CreatePartnershipRequestInputDict, form)
+
+		with session_scope(current_app.session_maker) as session:
+
+			partnership_req_id, err = create_company_util.create_partnership_request(
+				req=req,
+				requested_user_id=user_session.get_user_id(),
+				session=session,
+				is_payor=is_payor,
+			)
+			if err:
+				raise err
+
+			sendgrid_client = cast(
+				sendgrid_util.Client,
+				current_app.sendgrid_client,
+			)
+			cfg = cast(Config, current_app.app_config)
+
+			customer = cast(
+				models.Company,
+				session.query(models.Company).filter(
+					models.Company.id == customer_id
+				).first())
+
+			customer_settings = cast(
+				models.CompanySettings,
+				session.query(models.CompanySettings).filter(
+					models.CompanySettings.company_id == customer_id
+				).first())
+
+			# Payor or vendor users.
+			customer_name = customer.name
+			partner_name = req['company']['name']
+
+			template_data = {
+				'customer_name': customer_name,
+				'partner_name': partner_name,
+				'partnership_type': partnership_type
+			}
+			recipients = sendgrid_client.get_bank_notify_email_addresses()
+			_, err = sendgrid_client.send(
+				sendgrid_util.TemplateNames.USER_REQUESTS_PARTNER_ON_PLATFORM,
+				template_data, recipients)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'partnership_request_id': partnership_req_id,
+		}))
+
+class DeletePartnershipRequestView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'partnership_request_id'
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in request')
+
+		user_session = UserSession.from_session()
+
+		with session_scope(current_app.session_maker) as session:
+			success, err = create_company_util.delete_partnership_request(
+				partnership_request_id=form['partnership_request_id'],
+				session=session
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}))
+
 class CreatePartnershipView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
@@ -168,7 +281,7 @@ class CreatePartnershipView(MethodView):
 			'company_id': resp['company_id'],
 		}))
 
-class DeletePartnershipRequestView(MethodView):
+class ApprovePartnershipView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
 	@handler_util.catch_bad_json_request
@@ -178,107 +291,28 @@ class DeletePartnershipRequestView(MethodView):
 			return handler_util.make_error_response('No data provided')
 
 		required_keys = [
-			'partnership_request_id'
-		]
-
-		for key in required_keys:
-			if key not in form:
-				return handler_util.make_error_response(f'Missing {key} in request')
-
-		user_session = UserSession.from_session()
-
-		with session_scope(current_app.session_maker) as session:
-			success, err = create_company_util.delete_partnership_request(
-				partnership_request_id=form['partnership_request_id'],
-				session=session
-			)
-			if err:
-				raise err
-
-		return make_response(json.dumps({
-			'status': 'OK'
-		}))
-
-class CreatePartnershipRequestView(MethodView):
-	decorators = [auth_util.login_required]
-
-	@handler_util.catch_bad_json_request
-	def post(self, **kwargs: Any) -> Response:
-		form = json.loads(request.data)
-		if not form:
-			return handler_util.make_error_response('No data provided')
-
-		required_keys = [
+			'partnership_id',
 			'is_payor',
-			'customer_id',
-			'company',
-			'user',
 		]
 
 		for key in required_keys:
 			if key not in form:
 				return handler_util.make_error_response(f'Missing {key} in request')
 
-		user_session = UserSession.from_session()
-
-		if not user_session.is_bank_or_this_company_admin(form['customer_id']):
-			return handler_util.make_error_response('Access Denied')
-
-		customer_id = form['customer_id']
+		partnership_id = form['partnership_id']
 		is_payor = form['is_payor']
 
-		partnership_type = 'payor' if is_payor else 'vendor'
-
-		req = cast(create_company_util.CreatePartnershipRequestInputDict, form)
-
 		with session_scope(current_app.session_maker) as session:
-
-			partnership_req_id, err = create_company_util.create_partnership_request(
-				req=req,
-				requested_user_id=user_session.get_user_id(),
-				session=session,
+			success, err = create_company_util.approve_partnership(
+				partnership_id=partnership_id,
 				is_payor=is_payor,
+				session=session,
 			)
-			if err:
-				raise err
-
-			sendgrid_client = cast(
-				sendgrid_util.Client,
-				current_app.sendgrid_client,
-			)
-			cfg = cast(Config, current_app.app_config)
-
-			customer = cast(
-				models.Company,
-				session.query(models.Company).filter(
-					models.Company.id == customer_id
-				).first())
-
-			customer_settings = cast(
-				models.CompanySettings,
-				session.query(models.CompanySettings).filter(
-					models.CompanySettings.company_id == customer_id
-				).first())
-
-			# Payor or vendor users.
-			customer_name = customer.name
-			partner_name = req['company']['name']
-
-			template_data = {
-				'customer_name': customer_name,
-				'partner_name': partner_name,
-				'partnership_type': partnership_type
-			}
-			recipients = sendgrid_client.get_bank_notify_email_addresses()
-			_, err = sendgrid_client.send(
-				sendgrid_util.TemplateNames.USER_REQUESTS_PARTNER_ON_PLATFORM,
-				template_data, recipients)
 			if err:
 				raise err
 
 		return make_response(json.dumps({
 			'status': 'OK',
-			'partnership_request_id': partnership_req_id,
 		}))
 
 
@@ -289,10 +323,13 @@ handler.add_url_rule(
 	'/upsert_feature_flags', view_func=UpsertFeatureFlagsView.as_view(name='upsert_feature_flags_view'))
 
 handler.add_url_rule(
-	'/create_partnership', view_func=CreatePartnershipView.as_view(name='create_partnership_view'))
-
-handler.add_url_rule(
 	'/create_partnership_request', view_func=CreatePartnershipRequestView.as_view(name='create_partnership_request_view'))
 
 handler.add_url_rule(
 	'/delete_partnership_request', view_func=DeletePartnershipRequestView.as_view(name='delete_partnership_request_view'))
+
+handler.add_url_rule(
+	'/create_partnership', view_func=CreatePartnershipView.as_view(name='create_partnership_view'))
+
+handler.add_url_rule(
+	'/approve_partnership', view_func=ApprovePartnershipView.as_view(name='approve_partnership_view'))

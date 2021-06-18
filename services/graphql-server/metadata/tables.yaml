@@ -829,20 +829,6 @@
         table:
           schema: public
           name: company_payor_contacts
-  insert_permissions:
-  - role: bank_admin
-    permission:
-      check: {}
-      columns:
-      - company_id
-      backend_only: false
-  - role: company_admin
-    permission:
-      check:
-        company_id:
-          _eq: X-Hasura-Company-Id
-      columns: []
-      backend_only: false
   select_permissions:
   - role: bank_admin
     permission:
@@ -901,7 +887,6 @@
   - role: bank_admin
     permission:
       columns:
-      - approved_at
       - payor_agreement_id
       - payor_license_id
       filter: {}
@@ -1087,22 +1072,6 @@
         table:
           schema: public
           name: company_vendor_contacts
-  insert_permissions:
-  - role: bank_admin
-    permission:
-      check: {}
-      columns:
-      - company_id
-      backend_only: false
-  - role: company_admin
-    permission:
-      check:
-        company_id:
-          _eq: X-Hasura-Company-Id
-      set:
-        company_id: x-hasura-Company-Id
-      columns: []
-      backend_only: false
   select_permissions:
   - role: bank_admin
     permission:
@@ -1172,7 +1141,6 @@
   - role: bank_admin
     permission:
       columns:
-      - approved_at
       - vendor_agreement_id
       - vendor_bank_id
       - vendor_license_id

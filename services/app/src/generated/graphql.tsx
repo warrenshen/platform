@@ -19716,7 +19716,6 @@ export type GetVendorPartnershipsForBankQuery = {
       vendor?: Maybe<
         Pick<Vendors, "id"> & { users: Array<ContactFragment> } & VendorFragment
       >;
-      vendor_bank_account?: Maybe<Pick<BankAccounts, "id" | "verified_at">>;
     } & VendorPartnershipFragment
   >;
 };
@@ -27130,10 +27129,6 @@ export const GetVendorPartnershipsForBankDocument = gql`
         users {
           ...Contact
         }
-      }
-      vendor_bank_account {
-        id
-        verified_at
       }
     }
   }

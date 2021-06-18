@@ -69,6 +69,8 @@ def _update_loans_on_active_contract_updated(
 	(NOT deleted, closed, nor unfunded loans).
 	"""
 	contract_obj, err = contract_util.Contract.build(contract.as_dict(), validate=True)
+	if err:
+		return False, err
 
 	product_type, err = contract_obj.get_product_type()
 	if err:

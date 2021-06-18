@@ -1,11 +1,10 @@
 import { Button } from "@material-ui/core";
 import * as Sentry from "@sentry/react";
 import ConfirmModal from "components/Shared/Confirmations/ConfirmModal";
-import {
-  useGetVendorPartnershipForBankQuery,
-  useUpdateCompanyVendorPartnershipApprovedAtMutation,
-} from "generated/graphql";
+import { useGetVendorPartnershipForBankQuery } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
+import { approvePartnershipMutation } from "lib/api/companies";
 import { InventoryNotifier } from "lib/notifications/inventory";
 import { useState } from "react";
 
@@ -19,15 +18,16 @@ interface Props {
   notifier: InventoryNotifier;
 }
 
-function ApproveVendor(props: Props) {
+export default function ApproveVendor(props: Props) {
   const snackbar = useSnackbar();
 
   const [open, setOpen] = useState(false);
   const [errMsg, setErrMsg] = useState("");
 
   const [
-    updateApprovedAt,
-  ] = useUpdateCompanyVendorPartnershipApprovedAtMutation();
+    approvePartnership,
+    { loading: isApprovePartnershipLoading },
+  ] = useCustomMutation(approvePartnershipMutation);
 
   const vendorPartnershipId = props.vendorPartnershipId;
 
@@ -87,16 +87,23 @@ function ApproveVendor(props: Props) {
       return;
     }
 
-    updateApprovedAt({
+    const response = await approvePartnership({
       variables: {
-        companyVendorPartnershipId: vendorPartnershipId,
-        approvedAt: "now()",
+        partnership_id: vendorPartnershipId,
+        is_payor: false,
       },
     });
 
+    if (response.status !== "OK") {
+      snackbar.showError(
+        `Could not approve partnership. Error: ${response.msg}`
+      );
+      return;
+    }
+
     refetch();
 
-    let resp = await props.notifier.sendVendorApproved({
+    const resp = await props.notifier.sendVendorApproved({
       vendor_id: props.vendorId,
       company_id: props.customerId,
     });
@@ -124,6 +131,7 @@ function ApproveVendor(props: Props) {
         />
       )}
       <Button
+        disabled={isApprovePartnershipLoading}
         size="small"
         variant="contained"
         color="primary"
@@ -136,5 +144,3 @@ function ApproveVendor(props: Props) {
     </>
   );
 }
-
-export default ApproveVendor;

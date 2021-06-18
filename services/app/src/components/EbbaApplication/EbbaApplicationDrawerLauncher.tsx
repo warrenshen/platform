@@ -1,5 +1,6 @@
-import { Box, Button } from "@material-ui/core";
+import { Box } from "@material-ui/core";
 import EbbaApplicationDrawer from "components/EbbaApplication/EbbaApplicationDrawer";
+import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import { EbbaApplications } from "generated/graphql";
 import { useState } from "react";
 
@@ -7,7 +8,9 @@ interface Props {
   ebbaApplicationId: EbbaApplications["id"];
 }
 
-function EbbaApplicationDrawerLauncher({ ebbaApplicationId }: Props) {
+export default function EbbaApplicationDrawerLauncher({
+  ebbaApplicationId,
+}: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -18,11 +21,10 @@ function EbbaApplicationDrawerLauncher({ ebbaApplicationId }: Props) {
           handleClose={() => setIsOpen(false)}
         />
       )}
-      <Button color="primary" onClick={() => setIsOpen(true)}>
-        {ebbaApplicationId}
-      </Button>
+      <ClickableDataGridCell
+        onClick={() => setIsOpen(true)}
+        label={ebbaApplicationId}
+      />
     </Box>
   );
 }
-
-export default EbbaApplicationDrawerLauncher;

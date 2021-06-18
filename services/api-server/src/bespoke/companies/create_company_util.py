@@ -434,3 +434,31 @@ def create_partnership_request(
 	partnership_req_id = str(partnership_req.id)
 
 	return partnership_req_id, None
+
+@errors.return_error_tuple
+def approve_partnership(
+	partnership_id: str,
+	is_payor: bool,
+	session: Session,
+) -> Tuple[bool, errors.Error]:
+	if is_payor:
+		company_payor_partnership = cast(
+			models.CompanyPayorPartnership,
+			session.query(models.CompanyPayorPartnership).get(partnership_id))
+
+		if not company_payor_partnership:
+			raise errors.Error('Partnership not found')
+
+		company_payor_partnership.approved_at = date_util.now()
+
+	else:
+		company_vendor_partnership = cast(
+			models.CompanyVendorPartnership,
+			session.query(models.CompanyVendorPartnership).get(partnership_id))
+
+		if not company_vendor_partnership:
+			raise errors.Error('Partnership not found')
+
+		company_vendor_partnership.approved_at = date_util.now()
+
+	return True, None

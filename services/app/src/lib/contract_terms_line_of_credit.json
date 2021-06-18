@@ -89,7 +89,7 @@
         "type": "float",
         "format": "percentage",
         "internal_name": "factoring_fee_percentage",
-        "display_name": "Daily Interest Rate",
+        "display_name": "Daily Interest Rate (%)",
         "value": null,
         "nullable": true
       },
@@ -109,7 +109,7 @@
           },
           {
             "internal_name": "daily_interest_rate",
-            "display_name": "Daily Interest Rate",
+            "display_name": "Daily Interest Rate (%)",
             "nullable": false,
             "type": "float",
             "format": "percentage"

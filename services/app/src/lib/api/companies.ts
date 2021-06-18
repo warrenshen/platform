@@ -160,3 +160,32 @@ export async function createPartnershipMutation(
       }
     );
 }
+
+type ApprovePartnershipMutationReq = {
+  variables: {
+    partnership_id: Companies["id"];
+    is_payor: boolean;
+  };
+};
+
+export async function approvePartnershipMutation(
+  req: ApprovePartnershipMutationReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(companyRoutes.approvePartnership, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not approve partnership",
+        };
+      }
+    );
+}
