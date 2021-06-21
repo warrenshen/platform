@@ -14,6 +14,7 @@ interface Props {
   id: string;
   label: string;
   value: string | null;
+  autoFocus?: boolean;
   error?: boolean;
   disabled?: boolean;
   disableFuture?: boolean;
@@ -30,10 +31,11 @@ export default function DateInput(props: Props) {
       <KeyboardDatePicker
         data-cy={props.dataCy}
         className={props.className || ""}
+        autoFocus={!!props.autoFocus}
+        autoOk
         disableToolbar
         disableFuture={props.disableFuture}
         disablePast={props.disablePast}
-        autoOk
         error={props.error}
         required={props.required}
         disabled={props.disabled}

@@ -77,7 +77,7 @@ export default function EbbaApplicationsDataGrid({
       },
       {
         dataField: "application_date",
-        caption: "Certification Date",
+        caption: "Borrowing Base Date",
         width: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (

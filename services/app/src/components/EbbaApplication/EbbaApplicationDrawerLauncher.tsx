@@ -6,10 +6,12 @@ import { useState } from "react";
 
 interface Props {
   ebbaApplicationId: EbbaApplications["id"];
+  label?: string;
 }
 
 export default function EbbaApplicationDrawerLauncher({
   ebbaApplicationId,
+  label,
 }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -23,7 +25,7 @@ export default function EbbaApplicationDrawerLauncher({
       )}
       <ClickableDataGridCell
         onClick={() => setIsOpen(true)}
-        label={ebbaApplicationId}
+        label={label || ebbaApplicationId}
       />
     </Box>
   );

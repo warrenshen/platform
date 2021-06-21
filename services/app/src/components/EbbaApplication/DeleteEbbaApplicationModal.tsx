@@ -105,7 +105,7 @@ export default function DeleteEbbaApplicationModal({
             )}
             <Box display="flex" flexDirection="column" mt={2}>
               <Typography variant="subtitle2" color="textSecondary">
-                Certification Date
+                Borrowing Base Date
               </Typography>
               <Typography variant={"body1"}>
                 {ebbaApplication.application_date}

@@ -18,6 +18,7 @@ import {
 import useSnackbar from "hooks/useSnackbar";
 import { authenticatedApi, ebbaApplicationsRoutes } from "lib/api";
 import { formatCurrency } from "lib/currency";
+import { formatDateString } from "lib/date";
 import { ActionType, FileTypeEnum } from "lib/enum";
 import { useContext, useMemo, useState } from "react";
 
@@ -120,10 +121,10 @@ export default function EbbaApplicationDrawer({
         )}
         <Box display="flex" flexDirection="column" mt={2}>
           <Typography variant="subtitle2" color="textSecondary">
-            Certification Date
+            Borrowing Base Date
           </Typography>
           <Typography variant={"body1"}>
-            {ebbaApplication.application_date}
+            {formatDateString(ebbaApplication.application_date)}
           </Typography>
         </Box>
         <Box display="flex" flexDirection="column" mt={2}>

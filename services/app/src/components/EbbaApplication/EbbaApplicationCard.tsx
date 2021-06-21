@@ -36,20 +36,18 @@ function EbbaApplicationCard({ ebbaApplication }: Props) {
     <Card className={classes.card}>
       <CardContent>
         <Box display="flex" alignItems="center" mb={0.5}>
-          <Typography className={classes.label}>Platform ID</Typography>
+          <Typography className={classes.label}>Borrowing Base Date</Typography>
           <EbbaApplicationDrawerLauncher
             ebbaApplicationId={ebbaApplication.id}
+            label={
+              formatDateString(ebbaApplication.application_date) ||
+              "Unknown date"
+            }
           />
         </Box>
         <Box display="flex" mb={0.5}>
           <Typography className={classes.label}>Status</Typography>
           <RequestStatusChip requestStatus={ebbaApplication.status} />
-        </Box>
-        <Box display="flex" mb={0.5}>
-          <Typography className={classes.label}>Certification Date</Typography>
-          <Typography>
-            {formatDateString(ebbaApplication.application_date)}
-          </Typography>
         </Box>
         <Box display="flex" mb={2.5}>
           <Typography className={classes.label}>

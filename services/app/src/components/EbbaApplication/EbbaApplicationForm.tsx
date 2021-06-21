@@ -68,16 +68,18 @@ export default function EbbaApplicationForm({
     <Box display="flex" flexDirection="column">
       <Box display="flex" flexDirection="column" mt={4}>
         <Typography variant="subtitle2">
-          What date would you like to submit a certification for (certification
-          date)?
+          What date would you like to submit a borrowing base certification for
+          (ex. month end or date of submission)? All financial values provided
+          below should be as of this date.
         </Typography>
         <Box mt={1}>
           <DateInput
+            autoFocus
             disableFuture
             required
             className={classes.inputField}
             id="application-month-date-picker"
-            label="Certification Date"
+            label="Borrowing Base Date"
             disablePast={false}
             value={ebbaApplication.application_date}
             onChange={(value) =>
@@ -92,14 +94,14 @@ export default function EbbaApplicationForm({
       <Box mt={4}>
         <Alert severity="info">
           <Typography variant="body1">
-            {`Important: please provide financials AS OF the certification date specified above.`}
+            {`Important: all financial values provided below should be AS OF the borrowing base date specified above.`}
           </Typography>
         </Alert>
       </Box>
       {isAccountsReceivableVisible && (
         <Box display="flex" flexDirection="column" mt={4}>
           <Typography variant="subtitle2">
-            As of the certification date specified above, how much accounts
+            As of the borrowing base date specified above, how much accounts
             receivable do you have?
           </Typography>
           <Box mt={1}>
@@ -122,7 +124,7 @@ export default function EbbaApplicationForm({
       {isInventoryVisible && (
         <Box display="flex" flexDirection="column" mt={4}>
           <Typography variant="subtitle2">
-            As of the certification date specified above, how much inventory do
+            As of the borrowing base date specified above, how much inventory do
             you have?
           </Typography>
           <Box mt={1}>
@@ -145,7 +147,7 @@ export default function EbbaApplicationForm({
       {isCashVisible && (
         <Box display="flex" flexDirection="column" mt={4}>
           <Typography variant="subtitle2">
-            As of the certification date specified above, how much cash do you
+            As of the borrowing base date specified above, how much cash do you
             have in deposit accounts?
           </Typography>
           <Box mt={1}>
@@ -168,7 +170,7 @@ export default function EbbaApplicationForm({
       {isCashInDacaVisible && (
         <Box display="flex" flexDirection="column" mt={4}>
           <Typography variant="subtitle2">
-            As of the certification date specified above, how much cash do you
+            As of the borrowing base date specified above, how much cash do you
             have in DACA?
           </Typography>
           <Box mt={1}>
