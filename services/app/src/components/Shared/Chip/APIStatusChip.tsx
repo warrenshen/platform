@@ -41,7 +41,7 @@ export default function APIStatusChip({ statusCode }: Props) {
   }
 
   return (
-    <Tooltip title={statusCode}>
+    <Tooltip arrow interactive title={statusCode}>
       <Chip backgroundColor={StatusToColor[statusCode.toString()]}>
         <Text>
           {statusCode === 200

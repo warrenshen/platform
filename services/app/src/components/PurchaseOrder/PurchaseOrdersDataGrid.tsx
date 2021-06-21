@@ -7,6 +7,7 @@ import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
+import ProgressBarDataGridCell from "components/Shared/DataGrid/ProgressBarDataGridCell";
 import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import DataGridActionMenu, {
   DataGridActionItem,
@@ -19,6 +20,7 @@ import {
   PurchaseOrders,
   RequestStatusEnum,
 } from "generated/graphql";
+import { formatCurrency } from "lib/currency";
 import { ColumnWidths, truncateString } from "lib/tables";
 import { useMemo } from "react";
 
@@ -27,6 +29,8 @@ function getRows(purchaseOrders: PurchaseOrderFragment[]): RowsProp {
     ...purchaseOrder,
     company_name: purchaseOrder.company.name,
     vendor_name: purchaseOrder.vendor?.name,
+    percent_funded:
+      ((purchaseOrder.amount_funded || 0) / (purchaseOrder.amount || 1)) * 100,
     customer_note: truncateString(purchaseOrder?.customer_note || "-"),
     bank_note: truncateString(purchaseOrder?.bank_note || ""),
   }));
@@ -137,7 +141,12 @@ export default function PurchaseOrdersDataGrid({
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.amount_funded} />
+          <ProgressBarDataGridCell
+            percentValue={params.row.data.percent_funded}
+            tooltipLabel={`${formatCurrency(
+              params.row.data.amount_funded || 0
+            )} funded`}
+          />
         ),
       },
       {
