@@ -3,6 +3,7 @@ import CreateUpdateEbbaApplicationModal from "components/EbbaApplication/CreateU
 import ReviewEbbaApplicationRejectModal from "components/EbbaApplication/ReviewEbbaApplicationRejectModal";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
+import FileViewer from "components/Shared/File/FileViewer";
 import Modal from "components/Shared/Modal/Modal";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
@@ -18,7 +19,7 @@ import useSnackbar from "hooks/useSnackbar";
 import { authenticatedApi, ebbaApplicationsRoutes } from "lib/api";
 import { formatCurrency } from "lib/currency";
 import { ActionType, FileTypeEnum } from "lib/enum";
-import { useContext, useMemo } from "react";
+import { useContext, useMemo, useState } from "react";
 
 interface Props {
   ebbaApplicationId: EbbaApplications["id"];
@@ -36,6 +37,8 @@ export default function EbbaApplicationDrawer({
   } = useContext(CurrentUserContext);
 
   const isBankUser = isRoleBankUser(role);
+
+  const [isFileViewerOpen, setIsFileViewerOpen] = useState(false);
 
   const { data, refetch } = useGetEbbaApplicationQuery({
     variables: {
@@ -171,6 +174,22 @@ export default function EbbaApplicationDrawer({
             fileIds={ebbaApplicationFileIds}
             fileType={FileTypeEnum.EBBA_APPLICATION}
           />
+          <Button
+            style={{ alignSelf: "flex-start" }}
+            variant="outlined"
+            size="small"
+            onClick={() => setIsFileViewerOpen(!isFileViewerOpen)}
+          >
+            {isFileViewerOpen ? "Hide File(s)" : "Show File(s)"}
+          </Button>
+          {isFileViewerOpen && (
+            <Box mt={1}>
+              <FileViewer
+                fileIds={ebbaApplicationFileIds}
+                fileType={FileTypeEnum.EBBA_APPLICATION}
+              />
+            </Box>
+          )}
         </Box>
         <Box display="flex" flexDirection="column" mt={2}>
           <Typography variant="subtitle2" color="textSecondary">
