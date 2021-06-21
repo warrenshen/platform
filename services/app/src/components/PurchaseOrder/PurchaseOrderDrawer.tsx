@@ -8,6 +8,7 @@ import {
 import PurchaseOrderLoansDataGrid from "components/Loans/PurchaseOrderLoansDataGrid";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
+import FileViewer from "components/Shared/File/FileViewer";
 import Modal from "components/Shared/Modal/Modal";
 import MetrcTransferInfoCard from "components/Transfers/MetrcTransferInfoCard";
 import {
@@ -25,7 +26,6 @@ import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
 import { FileTypeEnum } from "lib/enum";
 import { useContext, useMemo, useState } from "react";
-import FileViewer from "components/Shared/File/FileViewer";
 
 interface Props {
   purchaseOrderId: PurchaseOrders["id"];

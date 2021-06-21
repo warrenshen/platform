@@ -13,12 +13,10 @@ const Manifest = styled.div`
 
 interface Props {
   metrcTransfer: MetrcTransferFragment;
-  handleClickClose?: () => void;
 }
 
 export default function MetrcTransferInfoCardForVendor({
   metrcTransfer,
-  handleClickClose,
 }: Props) {
   const metrcTransferPayload = metrcTransfer.transfer_payload;
 
@@ -27,6 +25,9 @@ export default function MetrcTransferInfoCardForVendor({
       <Box display="flex" flexDirection="column" flex={1}>
         <Typography variant="body1">
           {`Manifest #${metrcTransfer.manifest_number}`}
+        </Typography>
+        <Typography variant="body2">
+          {`License from -> to: ${metrcTransferPayload.ShipperFacilityLicenseNumber} -> ${metrcTransferPayload.RecipientFacilityLicenseNumber}`}
         </Typography>
         <Typography variant="body2">
           {`Estimated Departure Date: ${formatDatetimeString(

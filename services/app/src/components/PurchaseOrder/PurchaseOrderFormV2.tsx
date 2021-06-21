@@ -107,6 +107,9 @@ export default function PurchaseOrderFormV2({
                   {`Manifest #${metrcTransfer.manifest_number}`}
                 </Typography>
                 <Typography variant="body2">
+                  {`License from -> to: ${metrcTransferPayload.ShipperFacilityLicenseNumber} -> ${metrcTransferPayload.RecipientFacilityLicenseNumber}`}
+                </Typography>
+                <Typography variant="body2">
                   {`Vendor: ${getMetrcTransferVendorDescription(
                     metrcTransfer
                   )}`}
