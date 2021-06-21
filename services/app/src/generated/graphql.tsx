@@ -3413,6 +3413,9 @@ export type CompanySettings = {
   company?: Maybe<Companies>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at: Scalars["timestamptz"];
+  /** JSON blob which records custom messages for a company (messages shown in various places in app) */
+  custom_messages_payload?: Maybe<Scalars["jsonb"]>;
+  /** JSON blob which records what features are on / off for a company */
   feature_flags_payload?: Maybe<Scalars["jsonb"]>;
   has_autofinancing?: Maybe<Scalars["Boolean"]>;
   id: Scalars["uuid"];
@@ -3423,6 +3426,16 @@ export type CompanySettings = {
   two_factor_message_method?: Maybe<Scalars["String"]>;
   updated_at: Scalars["timestamptz"];
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
+};
+
+/**
+ * Settings are configuration details associated with a company, but are not within a time range like contracts are
+ *
+ *
+ * columns and relationships of "company_settings"
+ */
+export type CompanySettingsCustomMessagesPayloadArgs = {
+  path?: Maybe<Scalars["String"]>;
 };
 
 /**
@@ -3463,6 +3476,7 @@ export type CompanySettingsAggregateOrderBy = {
 
 /** append existing jsonb value of filtered columns with new jsonb value */
 export type CompanySettingsAppendInput = {
+  custom_messages_payload?: Maybe<Scalars["jsonb"]>;
   feature_flags_payload?: Maybe<Scalars["jsonb"]>;
 };
 
@@ -3486,6 +3500,7 @@ export type CompanySettingsBoolExp = {
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
+  custom_messages_payload?: Maybe<JsonbComparisonExp>;
   feature_flags_payload?: Maybe<JsonbComparisonExp>;
   has_autofinancing?: Maybe<BooleanComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
@@ -3505,16 +3520,19 @@ export enum CompanySettingsConstraint {
 
 /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
 export type CompanySettingsDeleteAtPathInput = {
+  custom_messages_payload?: Maybe<Array<Maybe<Scalars["String"]>>>;
   feature_flags_payload?: Maybe<Array<Maybe<Scalars["String"]>>>;
 };
 
 /** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
 export type CompanySettingsDeleteElemInput = {
+  custom_messages_payload?: Maybe<Scalars["Int"]>;
   feature_flags_payload?: Maybe<Scalars["Int"]>;
 };
 
 /** delete key/value pair or string element. key/value pairs are matched based on their key value */
 export type CompanySettingsDeleteKeyInput = {
+  custom_messages_payload?: Maybe<Scalars["String"]>;
   feature_flags_payload?: Maybe<Scalars["String"]>;
 };
 
@@ -3529,6 +3547,7 @@ export type CompanySettingsInsertInput = {
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  custom_messages_payload?: Maybe<Scalars["jsonb"]>;
   feature_flags_payload?: Maybe<Scalars["jsonb"]>;
   has_autofinancing?: Maybe<Scalars["Boolean"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -3632,6 +3651,7 @@ export type CompanySettingsOrderBy = {
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  custom_messages_payload?: Maybe<OrderBy>;
   feature_flags_payload?: Maybe<OrderBy>;
   has_autofinancing?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
@@ -3650,6 +3670,7 @@ export type CompanySettingsPkColumnsInput = {
 
 /** prepend existing jsonb value of filtered columns with new jsonb value */
 export type CompanySettingsPrependInput = {
+  custom_messages_payload?: Maybe<Scalars["jsonb"]>;
   feature_flags_payload?: Maybe<Scalars["jsonb"]>;
 };
 
@@ -3665,6 +3686,8 @@ export enum CompanySettingsSelectColumn {
   CompanyId = "company_id",
   /** column name */
   CreatedAt = "created_at",
+  /** column name */
+  CustomMessagesPayload = "custom_messages_payload",
   /** column name */
   FeatureFlagsPayload = "feature_flags_payload",
   /** column name */
@@ -3690,6 +3713,7 @@ export type CompanySettingsSetInput = {
   collections_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  custom_messages_payload?: Maybe<Scalars["jsonb"]>;
   feature_flags_payload?: Maybe<Scalars["jsonb"]>;
   has_autofinancing?: Maybe<Scalars["Boolean"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -3712,6 +3736,8 @@ export enum CompanySettingsUpdateColumn {
   CompanyId = "company_id",
   /** column name */
   CreatedAt = "created_at",
+  /** column name */
+  CustomMessagesPayload = "custom_messages_payload",
   /** column name */
   FeatureFlagsPayload = "feature_flags_payload",
   /** column name */
@@ -18348,6 +18374,9 @@ export type GetCustomerOverviewQuery = {
         Pick<Loans, "id"> & LoanLimitedFragment & LoanArtifactLimitedFragment
       >;
       pending_payments: Array<Pick<Payments, "id"> & PaymentLimitedFragment>;
+      settings?: Maybe<
+        Pick<CompanySettings, "id"> & CompanySettingsLimitedFragment
+      >;
     }
   >;
 };
@@ -19983,6 +20012,7 @@ export type CompanySettingsLimitedFragment = Pick<
   | "payor_agreement_docusign_template"
   | "collections_bespoke_bank_account_id"
   | "feature_flags_payload"
+  | "custom_messages_payload"
   | "has_autofinancing"
 >;
 
@@ -20422,6 +20452,7 @@ export const CompanySettingsLimitedFragmentDoc = gql`
     payor_agreement_docusign_template
     collections_bespoke_bank_account_id
     feature_flags_payload
+    custom_messages_payload
     has_autofinancing
   }
 `;
@@ -21141,12 +21172,17 @@ export const GetCustomerOverviewDocument = gql`
         id
         ...PaymentLimited
       }
+      settings {
+        id
+        ...CompanySettingsLimited
+      }
     }
   }
   ${FinancialSummaryFragmentDoc}
   ${LoanLimitedFragmentDoc}
   ${LoanArtifactLimitedFragmentDoc}
   ${PaymentLimitedFragmentDoc}
+  ${CompanySettingsLimitedFragmentDoc}
 `;
 
 /**

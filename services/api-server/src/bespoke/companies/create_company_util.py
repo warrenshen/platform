@@ -190,6 +190,28 @@ def upsert_feature_flags_payload(
 
 	return True, None
 
+@errors.return_error_tuple
+def upsert_custom_messages_payload(
+	company_settings_id: str,
+	custom_messages_payload: Dict[str, bool],
+	session: Session,
+) -> Tuple[bool, errors.Error]:
+
+	settings = cast(
+		models.CompanySettings,
+		session.query(models.CompanySettings).get(company_settings_id))
+
+	if not settings:
+		return None, errors.Error('No settings found')
+
+	for custom_message in custom_messages_payload.keys():
+		if custom_message not in db_constants.ALL_CUSTOM_MESSAGES:
+			return None, errors.Error(f'Invalid custom message: {custom_message}')
+
+	settings.custom_messages_payload = custom_messages_payload
+
+	return True, None
+
 # We will have two methods:
 #
 # Create partnership and company

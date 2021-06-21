@@ -1,5 +1,5 @@
 import { CompanySettingsLimitedFragment } from "generated/graphql";
-import { FeatureFlagEnum } from "lib/enum";
+import { CustomMessageEnum, FeatureFlagEnum } from "lib/enum";
 
 export enum FeatureFlagConfigs {
   Name = "name",
@@ -41,4 +41,24 @@ export function isFeatureFlagEnabled(
     !!companySettings.feature_flags_payload &&
     !!companySettings.feature_flags_payload[featureFlag]
   );
+}
+
+export enum CustomMessageConfigs {
+  Name = "name",
+}
+
+const CustomMessageToConfigs = {
+  [CustomMessageEnum.OVERVIEW_PAGE]: {
+    [CustomMessageConfigs.Name]:
+      'Message for customer on "Overview" page banner ',
+  },
+};
+
+export function getCustomMessageName(customMessage: CustomMessageEnum) {
+  if (!CustomMessageToConfigs[customMessage]) {
+    console.error(`Unknown custom message "${customMessage}", returning "".`);
+    return "";
+  } else {
+    return CustomMessageToConfigs[customMessage][CustomMessageConfigs.Name];
+  }
 }

@@ -1,24 +1,23 @@
 import {
   Box,
   Button,
-  Checkbox,
   createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  FormControlLabel,
   makeStyles,
+  TextField,
   Theme,
   Typography,
 } from "@material-ui/core";
 import { CompanySettings } from "generated/graphql";
-import { getFeatureFlagName, getFeatureFlagDescription } from "lib/companies";
-import { FeatureFlagEnum, AllFeatureFlags } from "lib/enum";
+import { getCustomMessageName } from "lib/companies";
+import { CustomMessageEnum, AllCustomMessages } from "lib/enum";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { upsertFeatureFlagsMutation } from "lib/api/companies";
-import { ChangeEvent, useState } from "react";
+import { upsertCustomMessagesMutation } from "lib/api/companies";
+import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -33,46 +32,48 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   companySettingsId: CompanySettings["id"];
-  featureFlagsPayload: { [key in FeatureFlagEnum]: boolean | null };
+  customMessagesPayload: { [key in CustomMessageEnum]: string | null };
   handleClose: () => void;
 }
 
-export default function UpsertFeatureFlagsModal({
+export default function UpsertCustomMessagesModal({
   companySettingsId,
-  featureFlagsPayload,
+  customMessagesPayload,
   handleClose,
 }: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
 
-  const [featureFlagsJson, setFeatureFlagsJson] = useState(featureFlagsPayload);
+  const [customMessagesJson, setCustomMessagesJson] = useState(
+    customMessagesPayload
+  );
 
   const [errorMessage, setErrorMessage] = useState("");
 
   const [
-    upsertFeatureFlags,
-    { loading: isUpsertFeatureFlagsLoading },
-  ] = useCustomMutation(upsertFeatureFlagsMutation);
+    upsertCustomMessages,
+    { loading: isUpsertCustomMessagesLoading },
+  ] = useCustomMutation(upsertCustomMessagesMutation);
 
   const handleClickSubmit = async () => {
-    const response = await upsertFeatureFlags({
+    const response = await upsertCustomMessages({
       variables: {
         company_settings_id: companySettingsId,
-        feature_flags_payload: featureFlagsJson,
+        custom_messages_payload: customMessagesJson,
       },
     });
     if (response.status !== "OK") {
       setErrorMessage(response.msg);
       snackbar.showError(
-        `Could not update enabled feature. Error: ${response.msg}`
+        `Could not save custom messages. Error: ${response.msg}`
       );
     } else {
-      snackbar.showSuccess("Enabled features updated successfully");
+      snackbar.showSuccess("Custom messages updated successfully");
       handleClose();
     }
   };
 
-  const isSubmitDisabled = !featureFlagsJson || isUpsertFeatureFlagsLoading;
+  const isSubmitDisabled = !customMessagesJson || isUpsertCustomMessagesLoading;
 
   return (
     <Dialog
@@ -81,7 +82,7 @@ export default function UpsertFeatureFlagsModal({
       maxWidth="md"
       classes={{ paper: classes.dialog }}
     >
-      <DialogTitle>Edit Supported Features</DialogTitle>
+      <DialogTitle>Edit Custom Messages</DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="column">
           {!!errorMessage && (
@@ -91,27 +92,25 @@ export default function UpsertFeatureFlagsModal({
           )}
         </Box>
         <Box display="flex" flexDirection="column">
-          {AllFeatureFlags.map((featureFlag) => (
-            <Box key={featureFlag} mt={4}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={!!featureFlagsJson[featureFlag]}
-                    color="primary"
-                    onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                      setFeatureFlagsJson({
-                        ...featureFlagsJson,
-                        [featureFlag]: event.target.checked,
-                      })
-                    }
-                  />
-                }
-                label={getFeatureFlagName(featureFlag)}
-              />
-              <Box pl={2}>
+          {AllCustomMessages.map((customMessage) => (
+            <Box key={customMessage} mt={4}>
+              <Box>
                 <Typography variant="subtitle2" color="textSecondary">
-                  {getFeatureFlagDescription(featureFlag)}
+                  {getCustomMessageName(customMessage)}
                 </Typography>
+              </Box>
+              <Box display="flex" flexDirection="column" pl={2} mt={2}>
+                <TextField
+                  multiline
+                  label={"Message"}
+                  value={customMessagesJson[customMessage] || ""}
+                  onChange={({ target: { value } }) =>
+                    setCustomMessagesJson({
+                      ...customMessagesJson,
+                      [customMessage]: value,
+                    })
+                  }
+                />
               </Box>
             </Box>
           ))}

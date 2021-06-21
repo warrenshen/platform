@@ -24065,8 +24065,31 @@
             "deprecationReason": null
           },
           {
+            "name": "custom_messages_payload",
+            "description": "JSON blob which records custom messages for a company (messages shown in various places in app)",
+            "args": [
+              {
+                "name": "path",
+                "description": "JSON select path",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                },
+                "defaultValue": null
+              }
+            ],
+            "type": {
+              "kind": "SCALAR",
+              "name": "jsonb",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "feature_flags_payload",
-            "description": null,
+            "description": "JSON blob which records what features are on / off for a company",
             "args": [
               {
                 "name": "path",
@@ -24368,6 +24391,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "custom_messages_payload",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "jsonb",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "feature_flags_payload",
             "description": null,
             "type": {
@@ -24560,6 +24593,16 @@
             "defaultValue": null
           },
           {
+            "name": "custom_messages_payload",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "jsonb_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "feature_flags_payload",
             "description": null,
             "type": {
@@ -24678,6 +24721,20 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "custom_messages_payload",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "defaultValue": null
+          },
+          {
             "name": "feature_flags_payload",
             "description": null,
             "type": {
@@ -24703,6 +24760,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "custom_messages_payload",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "feature_flags_payload",
             "description": null,
             "type": {
@@ -24723,6 +24790,16 @@
         "description": "delete key/value pair or string element. key/value pairs are matched based on their key value",
         "fields": null,
         "inputFields": [
+          {
+            "name": "custom_messages_payload",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
           {
             "name": "feature_flags_payload",
             "description": null,
@@ -24830,6 +24907,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "timestamptz",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "custom_messages_payload",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "jsonb",
               "ofType": null
             },
             "defaultValue": null
@@ -25697,6 +25784,16 @@
             "defaultValue": null
           },
           {
+            "name": "custom_messages_payload",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "feature_flags_payload",
             "description": null,
             "type": {
@@ -25823,6 +25920,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "custom_messages_payload",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "jsonb",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "feature_flags_payload",
             "description": null,
             "type": {
@@ -25871,6 +25978,12 @@
           },
           {
             "name": "created_at",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "custom_messages_payload",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -25978,6 +26091,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "timestamptz",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "custom_messages_payload",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "jsonb",
               "ofType": null
             },
             "defaultValue": null
@@ -26101,6 +26224,12 @@
           },
           {
             "name": "created_at",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "custom_messages_payload",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null

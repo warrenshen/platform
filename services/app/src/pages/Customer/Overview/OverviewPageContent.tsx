@@ -5,6 +5,7 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import CustomerFinancialSummaryOverview from "components/CustomerFinancialSummary/CustomerFinancialSummaryOverview";
 import CreateUpdatePolymorphicLoanModal from "components/Loan/CreateUpdatePolymorphicLoanModal";
 import CreateAdjustmentModal from "components/Loans/CreateAdjustmentModal";
@@ -29,7 +30,7 @@ import {
   useGetCustomerOverviewQuery,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
-import { ActionType, ProductTypeToLoanType } from "lib/enum";
+import { ActionType, CustomMessageEnum, ProductTypeToLoanType } from "lib/enum";
 import { useContext, useMemo, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -89,12 +90,17 @@ export default function CustomerOverviewPageContent({
   const financialSummary = company?.financial_summaries[0] || null;
   const payments = company?.pending_payments || [];
   const loans = company?.outstanding_loans || [];
+  const settings = company?.settings || null;
+
   const canCreateUpdateNewLoan =
     financialSummary?.available_limit && financialSummary?.available_limit > 0;
   const canCreateRepaymentLoan =
     financialSummary?.total_outstanding_principal > 0 ||
     financialSummary?.total_outstanding_interest > 0 ||
     financialSummary?.total_outstanding_fees;
+  const customMessage = settings?.custom_messages_payload
+    ? settings?.custom_messages_payload[CustomMessageEnum.OVERVIEW_PAGE] || null
+    : null;
 
   const [selectedLoans, setSelectedLoans] = useState<LoanFragment[]>([]);
 
@@ -210,6 +216,13 @@ export default function CustomerOverviewPageContent({
       }
     >
       <Box className={classes.container}>
+        {!!customMessage && (
+          <Box mb={2}>
+            <Alert severity="error">
+              <Typography variant="h6">{customMessage}</Typography>
+            </Alert>
+          </Box>
+        )}
         <Box className={classes.section}>
           <CustomerFinancialSummaryOverview
             companyId={companyId}

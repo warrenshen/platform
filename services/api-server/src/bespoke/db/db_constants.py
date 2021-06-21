@@ -84,6 +84,13 @@ ALL_FEATURE_FLAGS = [
 	FeatureFlagEnum.CREATE_PURCHASE_ORDER_FROM_METRC_TRANSFERS,
 ]
 
+class CustomMessageEnum(object):
+	OVERVIEW_PAGE = 'overview_page'
+
+ALL_CUSTOM_MESSAGES = [
+	CustomMessageEnum.OVERVIEW_PAGE,
+]
+
 # Artifacts
 
 class RequestStatusEnum(object):

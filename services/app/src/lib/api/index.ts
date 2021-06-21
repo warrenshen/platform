@@ -22,6 +22,7 @@ export const companyRoutes = {
   deletePartnershipRequest: "/companies/delete_partnership_request",
   createPartnership: "/companies/create_partnership",
   approvePartnership: "/companies/approve_partnership",
+  upsertCustomMessages: "/companies/upsert_custom_messages",
   upsertFeatureFlags: "/companies/upsert_feature_flags",
 };
 

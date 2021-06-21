@@ -178,6 +178,7 @@ class CompanySettings(Base):
 	has_autofinancing = Column(Boolean)
 	two_factor_message_method = Column(Text)
 	feature_flags_payload = Column(JSON)
+	custom_messages_payload = Column(JSON)
 
 	def as_dict(self) -> CompanySettingsDict:
 		return CompanySettingsDict(

@@ -14,6 +14,7 @@ import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import PageContent from "components/Shared/Page/PageContent";
 import UpdateCompanyLicensesModal from "components/ThirdParties/UpdateCompanyLicensesModal";
+import UpsertCustomMessagesModal from "components/Settings/Bank/UpsertCustomMessagesModal";
 import UpsertFeatureFlagsModal from "components/Settings/Bank/UpsertFeatureFlagsModal";
 import {
   Companies,
@@ -22,8 +23,12 @@ import {
   MetrcApiKeyFragment,
   useGetCompanyForBankQuery,
 } from "generated/graphql";
-import { getFeatureFlagName, getFeatureFlagDescription } from "lib/companies";
-import { FileTypeEnum, AllFeatureFlags } from "lib/enum";
+import {
+  getCustomMessageName,
+  getFeatureFlagName,
+  getFeatureFlagDescription,
+} from "lib/companies";
+import { AllCustomMessages, AllFeatureFlags, FileTypeEnum } from "lib/enum";
 
 interface Props {
   companyId: Companies["id"];
@@ -48,6 +53,7 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
   const metrcApiKey = company?.settings?.metrc_api_key as MetrcApiKeyFragment;
   const companyLicenses = company?.licenses || [];
   const featureFlagsPayload = settings?.feature_flags_payload || {};
+  const customMessagesPayload = settings?.custom_messages_payload || {};
 
   if (!company) {
     return null;
@@ -159,7 +165,7 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
                   }
                   label={getFeatureFlagName(featureFlag)}
                 />
-                <Box pl={4}>
+                <Box pl={2}>
                   <Typography variant="subtitle2" color="textSecondary">
                     {getFeatureFlagDescription(featureFlag)}
                   </Typography>
@@ -185,6 +191,50 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
             <Box display="flex">
               <SyncMetrcData companyId={company.id}></SyncMetrcData>
             </Box>
+          </Box>
+        </Box>
+        <Box mt={4}>
+          <Typography variant="h6">
+            <b>Custom Messages</b>
+          </Typography>
+          <Typography variant="body2" color="textSecondary">
+            Custom messages are messages configured by a bank user that are
+            shown to the customer. The name / type of the custom message
+            indicates where the message will be shown. You may leave the value
+            of a custom message blank, in which case no message will be shown to
+            the customer.
+          </Typography>
+          <Box mt={2}>
+            <ModalButton
+              label={"Edit Custom Messages"}
+              color={"primary"}
+              modal={({ handleClose }) => (
+                <UpsertCustomMessagesModal
+                  companySettingsId={settings.id}
+                  customMessagesPayload={customMessagesPayload}
+                  handleClose={() => {
+                    refetch();
+                    handleClose();
+                  }}
+                />
+              )}
+            />
+          </Box>
+          <Box display="flex" flexDirection="column">
+            {AllCustomMessages.map((customMessage) => (
+              <Box key={customMessage} mt={2}>
+                <Box>
+                  <Typography variant="body2" color="textSecondary">
+                    <b>{getCustomMessageName(customMessage)}</b>
+                  </Typography>
+                </Box>
+                <Box pl={2} mt={1}>
+                  <Typography variant="subtitle2" color="textSecondary">
+                    {customMessagesPayload[customMessage] || "-"}
+                  </Typography>
+                </Box>
+              </Box>
+            ))}
           </Box>
         </Box>
       </Box>

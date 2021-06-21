@@ -44,6 +44,42 @@ class CreateCustomerView(MethodView):
 
 		return make_response(json.dumps(resp), 200)
 
+class UpsertCustomMessagesView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		user_session = auth_util.UserSession.from_session()
+
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'company_settings_id',
+			'custom_messages_payload'
+		]
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(
+					'Missing key {} in request'.format(key))
+
+		if not user_session.is_bank_admin():
+			return handler_util.make_error_response('Access Denied')
+
+		with session_scope(current_app.session_maker) as session:
+			_, err = create_company_util.upsert_custom_messages_payload(
+				company_settings_id=form['company_settings_id'],
+				custom_messages_payload=form['custom_messages_payload'],
+				session=session
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
+
 class UpsertFeatureFlagsView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
@@ -318,6 +354,9 @@ class ApprovePartnershipView(MethodView):
 
 handler.add_url_rule(
 	'/create_customer', view_func=CreateCustomerView.as_view(name='create_customer_view'))
+
+handler.add_url_rule(
+	'/upsert_custom_messages', view_func=UpsertCustomMessagesView.as_view(name='upsert_custom_messages_view'))
 
 handler.add_url_rule(
 	'/upsert_feature_flags', view_func=UpsertFeatureFlagsView.as_view(name='upsert_feature_flags_view'))

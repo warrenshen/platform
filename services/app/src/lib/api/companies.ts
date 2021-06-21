@@ -12,7 +12,7 @@ import {
   companyRoutes,
   CustomMutationResponse,
 } from "lib/api";
-import { FeatureFlagEnum } from "lib/enum";
+import { CustomMessageEnum, FeatureFlagEnum } from "lib/enum";
 
 export type CreateCustomerReq = {
   company: CompaniesInsertInput;
@@ -37,6 +37,35 @@ export async function createCustomer(
         return {
           status: "ERROR",
           msg: "Could not create company",
+        };
+      }
+    );
+}
+
+export type UpsertCustomMessagesMutationReq = {
+  variables: {
+    company_settings_id: CompanySettings["id"];
+    custom_messages_payload: { [key in CustomMessageEnum]: boolean | null };
+  };
+};
+
+export async function upsertCustomMessagesMutation(
+  req: UpsertCustomMessagesMutationReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(companyRoutes.upsertCustomMessages, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not update company custom messages",
         };
       }
     );

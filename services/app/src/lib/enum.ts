@@ -285,3 +285,9 @@ export enum FeatureFlagEnum {
 export const AllFeatureFlags = [
   FeatureFlagEnum.CREATE_PURCHASE_ORDER_FROM_METRC_TRANSFERS,
 ];
+
+export enum CustomMessageEnum {
+  OVERVIEW_PAGE = "overview_page",
+}
+
+export const AllCustomMessages = [CustomMessageEnum.OVERVIEW_PAGE];

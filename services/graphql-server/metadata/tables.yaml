@@ -937,6 +937,7 @@
       - collections_bespoke_bank_account_id
       - company_id
       - created_at
+      - custom_messages_payload
       - feature_flags_payload
       - has_autofinancing
       - id
@@ -954,6 +955,7 @@
       - collections_bespoke_bank_account_id
       - company_id
       - created_at
+      - custom_messages_payload
       - feature_flags_payload
       - has_autofinancing
       - id
@@ -969,6 +971,7 @@
       - active_ebba_application_id
       - collections_bespoke_bank_account_id
       - company_id
+      - custom_messages_payload
       - feature_flags_payload
       - has_autofinancing
       - id
@@ -984,6 +987,7 @@
       - active_ebba_application_id
       - collections_bespoke_bank_account_id
       - company_id
+      - custom_messages_payload
       - feature_flags_payload
       - has_autofinancing
       - id

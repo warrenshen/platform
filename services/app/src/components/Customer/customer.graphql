@@ -53,6 +53,10 @@ query GetCustomerOverview($companyId: uuid!, $loanType: loan_type_enum) {
       id
       ...PaymentLimited
     }
+    settings {
+      id
+      ...CompanySettingsLimited
+    }
   }
 }
 

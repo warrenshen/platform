@@ -10,6 +10,7 @@ fragment CompanySettingsLimited on company_settings {
   payor_agreement_docusign_template
   collections_bespoke_bank_account_id
   feature_flags_payload
+  custom_messages_payload
   has_autofinancing
 }
 
