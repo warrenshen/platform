@@ -229,7 +229,7 @@ export default function CreateRepaymentModal({
   const submitButtonText =
     payment.method === PaymentMethodEnum.ReverseDraftACH
       ? "Schedule payment"
-      : "Notify bank";
+      : "Notify Bespoke Financial";
 
   return (
     <Modal

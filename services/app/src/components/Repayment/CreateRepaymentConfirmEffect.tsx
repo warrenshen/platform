@@ -29,11 +29,11 @@ function getAlertText(payment: PaymentsInsertInput) {
   ) {
     return (
       <>
-        After you press "Notify bank", you must initiate a transfer for{" "}
-        <b>{formatCurrency(payment.requested_amount)}</b> from your bank
-        account. Upon receipt of this payment, Bespoke Financial will mark this
-        payment as "settled" and apply it towards outstanding loans and fees
-        accordingly.
+        After you press "Notify Bespoke Financial", you must initiate a transfer
+        for <b>{formatCurrency(payment.requested_amount)}</b> from your bank
+        account to Bespoke Financial. Upon receipt of this payment, Bespoke
+        Financial will mark this payment as "settled" and apply it towards
+        outstanding loans and fees accordingly.
       </>
     );
   } else if (payment.method === PaymentMethodEnum.ReverseDraftACH) {
@@ -52,8 +52,8 @@ function getAlertText(payment: PaymentsInsertInput) {
   } else if (payment.method === PaymentMethodEnum.Cash) {
     return (
       <>
-        After you press "Notify bank", Bespoke Financial will coordinate with
-        you on the collection of{" "}
+        After you press "Notify Bespoke Financial", Bespoke Financial will
+        coordinate with you on the collection of{" "}
         <b>{formatCurrency(payment.requested_amount)}</b>. This method of
         payment will incur a $100 fee.
       </>
@@ -61,8 +61,8 @@ function getAlertText(payment: PaymentsInsertInput) {
   } else {
     return (
       <>
-        After you press "Notify bank", Bespoke Financial will coordinate with
-        you on the collection of a check of{" "}
+        After you press "Notify Bespoke Financial", Bespoke Financial will
+        coordinate with you on the collection of a check of{" "}
         <b>{formatCurrency(payment.requested_amount)}</b>. Please make the check
         payable to Bespoke Financial.
       </>
