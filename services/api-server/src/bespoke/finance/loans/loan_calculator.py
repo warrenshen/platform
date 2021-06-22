@@ -3,11 +3,12 @@
 	and then calculates the outstanding principal, interest and fees that will
 	be associated with this loan at a particular date.
 """
+import copy
 import datetime
 import logging
 from collections import OrderedDict
 from datetime import timedelta
-from typing import Dict, List, NamedTuple, Tuple, Union
+from typing import Dict, List, NamedTuple, Tuple, Union, cast
 
 from bespoke import errors
 from bespoke.date import date_util
@@ -368,6 +369,65 @@ InterestFeeInfoDict = TypedDict('InterestFeeInfoDict', {
 	'fee_multiplier': float
 })
 
+CalculatorBalances = TypedDict('CalculatorBalances', {
+	'outstanding_principal': float, # The customer sees this as their outstanding principal
+	'outstanding_principal_for_interest': float, # Amount of principal used for calculating interest and fees off of
+	'outstanding_interest': float,
+	'outstanding_fees': float,
+	'has_been_funded': bool,
+	'amount_paid_back_on_loan': float,
+	'loan_paid_by_maturity_date': bool	
+})
+
+
+def _update_at_beginning_of_day(
+	transactions_by_settlement_date: List[models.AugmentedTransactionDict],
+	balances: CalculatorBalances
+) -> None:
+
+	for aug_tx in transactions_by_settlement_date:
+		tx = aug_tx['transaction']
+		is_advance_or_adjustment = payment_util.is_advance(tx) or payment_util.is_adjustment(tx)
+		if is_advance_or_adjustment:
+			# Adjustments and advances both get applied at the beginning of the day
+			balances['outstanding_principal'] += tx['to_principal']
+			balances['outstanding_principal_for_interest'] += tx['to_principal']
+			balances['outstanding_interest'] += tx['to_interest']
+			balances['outstanding_fees'] += tx['to_fees']
+
+		if payment_util.is_advance(tx):
+			balances['has_been_funded'] = True
+
+def _update_end_of_day_repayment_deposits(
+	transactions_by_deposit_date: List[models.AugmentedTransactionDict],
+	balances: CalculatorBalances,
+	cur_date: datetime.date,
+	loan: models.LoanDict
+) -> None:
+	for aug_tx in transactions_by_deposit_date:
+		tx = aug_tx['transaction']
+		if payment_util.is_repayment(tx):
+			# The outstanding principal for a payment gets reduced on the deposit date
+			balances['outstanding_principal'] -= tx['to_principal']
+			balances['outstanding_interest'] -= tx['to_interest']
+			balances['outstanding_fees'] -= tx['to_fees']
+			if (
+				number_util.float_lte(number_util.round_currency(balances['outstanding_principal']), 0.0) and 
+				cur_date <= loan['adjusted_maturity_date']
+			):
+				balances['loan_paid_by_maturity_date'] = True
+
+def _update_end_of_day_repayment_settlements(
+	transactions_by_settlement_date: List[models.AugmentedTransactionDict],
+	balances: CalculatorBalances,
+) -> None:
+	for aug_tx in transactions_by_settlement_date:
+		tx = aug_tx['transaction']
+		if payment_util.is_repayment(tx):
+			# The principal for interest calculations gets paid off on the settlement date
+			balances['outstanding_principal_for_interest'] -= tx['to_principal']
+			balances['amount_paid_back_on_loan'] += tx['amount']
+
 class LoanCalculator(object):
 	"""
 		Helps calculate and summarize the history of the loan with respect to
@@ -427,10 +487,7 @@ class LoanCalculator(object):
 			loan: models.LoanDict,
 			invoice: models.InvoiceDict,
 			threshold_info: ThresholdInfoDict,
-			outstanding_principal: float,
-			outstanding_principal_for_interest: float,
-			amount_paid_back_on_loan: float,
-			loan_paid_by_maturity_date: bool
+			balances: CalculatorBalances
 		) -> Tuple[InterestFeeInfoDict, errors.Error]:
 			cur_contract, err = self._contract_helper.get_contract(cur_date)
 			if err:
@@ -488,14 +545,14 @@ class LoanCalculator(object):
 				if not invoice:
 					return None, errors.Error('No invoice found associated with this loan, could not compute any financial details')
 
-				if number_util.is_currency_zero(outstanding_principal_for_interest):
+				if number_util.is_currency_zero(balances['outstanding_principal_for_interest']):
 					# If loan is fully paid, there is no amount to pay interest on.
 					amount_to_pay_interest_on = 0.0
 				else:
 					# If loan is not fully paid, amount to pay interest on is based on invoice subtotal and amount paid back.
-					amount_to_pay_interest_on = max(0.0, invoice['subtotal_amount'] - amount_paid_back_on_loan)
+					amount_to_pay_interest_on = max(0.0, invoice['subtotal_amount'] - balances['amount_paid_back_on_loan'])
 			else:
-				amount_to_pay_interest_on = outstanding_principal_for_interest
+				amount_to_pay_interest_on = balances['outstanding_principal_for_interest']
 
 			if number_util.is_currency_zero(amount_to_pay_interest_on):
 				interest_rate_used = 0.0
@@ -509,7 +566,7 @@ class LoanCalculator(object):
 			
 			# If the customer does not have any outstanding principal by the loan maturity date, 
 			# even though their principal for interest is accruing, dont charge any additional fees there.
-			fee_due_for_day = 0.0 if loan_paid_by_maturity_date else fee_multiplier * interest_due_for_day
+			fee_due_for_day = 0.0 if balances['loan_paid_by_maturity_date'] else fee_multiplier * interest_due_for_day
 
 			return InterestFeeInfoDict(
 				amount_to_pay_interest_on=amount_to_pay_interest_on,
@@ -552,15 +609,18 @@ class LoanCalculator(object):
 
 		# For each day between today and the origination date, you need to calculate interest and fees
 		# and consider transactions along the way.
-		outstanding_principal = 0.0 # The customer sees this as their outstanding principal
-		outstanding_principal_for_interest = 0.0 # Amount of principal used for calculating interest and fees off of
+		balances = CalculatorBalances(
+			outstanding_principal = 0.0, # The customer sees this as their outstanding principal
+			outstanding_principal_for_interest = 0.0, # Amount of principal used for calculating interest and fees off of
+			outstanding_interest = 0.0,
+			outstanding_fees = 0.0,
+			has_been_funded = False,
+			amount_paid_back_on_loan = 0.0,
+			loan_paid_by_maturity_date = False		
+		)
+
 		amount_to_pay_interest_on = 0.0 # The exact amount on a given day that the person paid interest on
-		outstanding_interest = 0.0
-		outstanding_fees = 0.0
 		interest_accrued_today = 0.0
-		has_been_funded = False
-		amount_paid_back_on_loan = 0.0
-		loan_paid_by_maturity_date= False
 
 		# Variables used to calculate the repayment effect
 		payment_effect_dict = None # Only filled in when payment_to_include is incorporated
@@ -608,33 +668,19 @@ class LoanCalculator(object):
 		for i in range(days_out):
 			cur_date = loan['origination_date'] + timedelta(days=i)
 			# Check each transaction and the effect it had on this loan
-			transactions_on_settlement_date = _get_transactions_on_settlement_date(cur_date, augmented_transactions)
+			transactions_by_settlement_date = _get_transactions_on_settlement_date(cur_date, augmented_transactions)
 
 			# Advances count against principal on the settlement date (which happens to be
 			# be the same as deposit date)
 
-			for aug_tx in transactions_on_settlement_date:
-				tx = aug_tx['transaction']
-				is_advance_or_adjustment = payment_util.is_advance(tx) or payment_util.is_adjustment(tx)
-				if is_advance_or_adjustment:
-					# Adjustments and advances both get applied at the beginning of the day
-					outstanding_principal += tx['to_principal']
-					outstanding_principal_for_interest += tx['to_principal']
-					outstanding_interest += tx['to_interest']
-					outstanding_fees += tx['to_fees']
-
-				if payment_util.is_advance(tx):
-					has_been_funded = True
+			_update_at_beginning_of_day(transactions_by_settlement_date, balances)
 
 			interest_fee_info, err = self._get_interest_and_fees_due_on_day(
 				cur_date,
 				loan,
 				invoice,
 				threshold_info,
-				outstanding_principal=outstanding_principal,
-				outstanding_principal_for_interest=outstanding_principal_for_interest,
-				amount_paid_back_on_loan=amount_paid_back_on_loan,
-				loan_paid_by_maturity_date=loan_paid_by_maturity_date
+				balances=balances
 			)
 			if err:
 				errors_list.append(err)
@@ -644,8 +690,8 @@ class LoanCalculator(object):
 			fee_due_for_day = interest_fee_info['fee_due_for_day']
 
 			# Update outstanding interest and fee state
-			outstanding_interest += interest_due_for_day
-			outstanding_fees += fee_due_for_day
+			balances['outstanding_interest'] += interest_due_for_day
+			balances['outstanding_fees'] += fee_due_for_day
 
 			if cur_date == today:
 				interest_accrued_today = interest_due_for_day
@@ -660,7 +706,7 @@ class LoanCalculator(object):
 
 			self._note_today(
 				cur_date=cur_date,
-				outstanding_principal=outstanding_principal,
+				outstanding_principal=balances['outstanding_principal'],
 				interest_rate=interest_fee_info['interest_rate_used'],
 				fee_multiplier=interest_fee_info['fee_multiplier']
 			)
@@ -681,10 +727,10 @@ class LoanCalculator(object):
 				]
 				debug_row_info: List[Union[str, int, float]] = [
 					date_util.date_to_db_str(cur_date),
-					outstanding_principal,
-					outstanding_principal_for_interest,
-					outstanding_interest,
-					outstanding_fees,
+					balances['outstanding_principal'],
+					balances['outstanding_principal_for_interest'],
+					balances['outstanding_interest'],
+					balances['outstanding_fees'],
 
 					interest_fee_info['amount_to_pay_interest_on'],
 					interest_fee_info['interest_due_for_day'],
@@ -698,28 +744,17 @@ class LoanCalculator(object):
 
 			# Apply repayment transactions at the "end of the day"
 
-			transactions_on_deposit_date = _get_transactions_on_deposit_date(cur_date, augmented_transactions)
-			for aug_tx in transactions_on_deposit_date:
-				tx = aug_tx['transaction']
-				if payment_util.is_repayment(tx):
-					# The outstanding principal for a payment gets reduced on the deposit date
-					outstanding_principal -= tx['to_principal']
-					outstanding_interest -= tx['to_interest']
-					outstanding_fees -= tx['to_fees']
-					if (
-						number_util.float_lte(number_util.round_currency(outstanding_principal), 0.0) and 
-						cur_date <= loan['adjusted_maturity_date']
-					):
-						loan_paid_by_maturity_date = True
+			transactions_by_deposit_date = _get_transactions_on_deposit_date(cur_date, augmented_transactions)
+			_update_end_of_day_repayment_deposits(transactions_by_deposit_date, balances, cur_date, loan)
 
 			if payment_to_include and payment_to_include['deposit_date'] == cur_date:
 				# Incorporate this payment and snapshot what the state of the balance was
 				# before this payment was incorporated
 				loan_state_before_payment = LoanFinancialStateDict(
-					outstanding_principal=outstanding_principal,
-					outstanding_principal_for_interest=outstanding_principal_for_interest,
-					outstanding_interest=outstanding_interest,
-					outstanding_fees=outstanding_fees,
+					outstanding_principal=balances['outstanding_principal'],
+					outstanding_principal_for_interest=balances['outstanding_principal_for_interest'],
+					outstanding_interest=balances['outstanding_interest'],
+					outstanding_fees=balances['outstanding_fees'],
 					amount_to_pay_interest_on=amount_to_pay_interest_on
 				)
 
@@ -730,23 +765,40 @@ class LoanCalculator(object):
 				additional_interest = 0.0
 				additional_fees = 0.0
 				inner_has_err = None
+				inner_balances = cast(CalculatorBalances, copy.deepcopy(cast(Dict, balances)))
+
+				_update_end_of_day_repayment_settlements(
+					_get_transactions_on_settlement_date(cur_date, augmented_transactions),
+					inner_balances
+				)
 
 				while inner_cur_date < inner_end_date:
 					inner_cur_date = inner_cur_date + timedelta(days=1)
+					inner_transactions_by_deposit_date = _get_transactions_on_deposit_date(
+						inner_cur_date, augmented_transactions
+					)
+					inner_transactions_by_settlement_date = _get_transactions_on_settlement_date(
+						inner_cur_date, augmented_transactions
+					)
+
+					_update_at_beginning_of_day(inner_transactions_by_settlement_date, inner_balances)
 
 					inner_interest_fee_info, err = self._get_interest_and_fees_due_on_day(
 						inner_cur_date,
 						loan,
 						invoice,
 						threshold_info,
-						outstanding_principal=outstanding_principal,
-						outstanding_principal_for_interest=outstanding_principal_for_interest,
-						amount_paid_back_on_loan=amount_paid_back_on_loan,
-						loan_paid_by_maturity_date=loan_paid_by_maturity_date
+						inner_balances
 					)
 					if err:
 						inner_has_err = err
 						break
+
+					_update_end_of_day_repayment_deposits(inner_transactions_by_deposit_date, inner_balances, inner_cur_date, loan)
+					_update_end_of_day_repayment_settlements(
+						inner_transactions_by_settlement_date,
+						inner_balances
+					)
 
 					additional_interest += inner_interest_fee_info['interest_due_for_day']
 					additional_fees += inner_interest_fee_info['fee_due_for_day']
@@ -802,28 +854,24 @@ class LoanCalculator(object):
 				# Only interest and fees get paid on this date because we need to wait until the
 				# settlement date to pay for interest and fees, and then pay off whatever we can
 				# to the principal.
-				outstanding_principal -= inserted_repayment_transaction['to_principal']
-				outstanding_interest -= inserted_repayment_transaction['to_interest']
-				outstanding_fees -= inserted_repayment_transaction['to_fees']
+				balances['outstanding_principal'] -= inserted_repayment_transaction['to_principal']
+				balances['outstanding_interest'] -= inserted_repayment_transaction['to_interest']
+				balances['outstanding_fees'] -= inserted_repayment_transaction['to_fees']
 				if (
-					number_util.float_lte(number_util.round_currency(outstanding_principal), 0.0) and
+					number_util.float_lte(number_util.round_currency(balances['outstanding_principal']), 0.0) and
 					cur_date <= loan['adjusted_maturity_date']
 				):
-					loan_paid_by_maturity_date = True
+					balances['loan_paid_by_maturity_date'] = True
 
 				payment_effect_dict = PaymentEffectDict(
 					loan_state_before_payment=loan_state_before_payment,
 					transaction=inserted_repayment_transaction
 				)
 
-			for aug_tx in transactions_on_settlement_date:
-				tx = aug_tx['transaction']
-				if payment_util.is_repayment(tx):
-					# The principal for interest calculations gets paid off on the settlement date
-					outstanding_principal_for_interest -= tx['to_principal']
-					amount_paid_back_on_loan += tx['amount']
-
-				# You also want to incorporate the interest and fees that will accumulate on the settlement date,
+			_update_end_of_day_repayment_settlements(
+				transactions_by_settlement_date,
+				balances
+			)
 
 			if payment_to_include and payment_to_include['settlement_date'] == cur_date:
 				# Since it is the settlement date, whatever got applied to principal on this date
@@ -833,8 +881,8 @@ class LoanCalculator(object):
 						'There is no inserted repayment transaction, therefore an error must have occurred while determining details about the repayment on the deposit date. Likely you chose a deposit date outside the range of when the loan originated or matured.'))
 					continue
 
-				outstanding_principal_for_interest -= inserted_repayment_transaction['to_principal']
-				amount_paid_back_on_loan += inserted_repayment_transaction['amount']
+				balances['outstanding_principal_for_interest'] -= inserted_repayment_transaction['to_principal']
+				balances['amount_paid_back_on_loan'] += inserted_repayment_transaction['amount']
 
 		if errors_list:
 			return None, errors_list
@@ -848,24 +896,19 @@ class LoanCalculator(object):
 		if self._balance_ranges:
 			self._balance_ranges[-1].add_end_date(cur_date)
 
-		# NOTE: This will be handy later when we want to show to the user how
-		# we calculated all the interest and fees.
-		# print(f'Identifier: {loan["identifier"]}')
-		# print(self.get_summary())
-
 		l = LoanUpdateDict(
 			loan_id=loan['id'],
 			adjusted_maturity_date=loan['adjusted_maturity_date'],
-			outstanding_principal=_format_output_value(outstanding_principal, should_round_output),
-			outstanding_principal_for_interest=_format_output_value(outstanding_principal_for_interest, should_round_output),
-			outstanding_interest=_format_output_value(outstanding_interest, should_round_output),
-			outstanding_fees=_format_output_value(outstanding_fees, should_round_output),
+			outstanding_principal=_format_output_value(balances['outstanding_principal'], should_round_output),
+			outstanding_principal_for_interest=_format_output_value(balances['outstanding_principal_for_interest'], should_round_output),
+			outstanding_interest=_format_output_value(balances['outstanding_interest'], should_round_output),
+			outstanding_fees=_format_output_value(balances['outstanding_fees'], should_round_output),
 			amount_to_pay_interest_on=_format_output_value(amount_to_pay_interest_on, should_round_output),
 			interest_accrued_today=_format_output_value(interest_accrued_today, should_round_output),
 			should_close_loan=False,
 		)
 
-		if not loan['closed_at'] and has_been_funded:
+		if not loan['closed_at'] and balances['has_been_funded']:
 			# If the loan hasn't been closed yet and is funded, then
 			# check whether it should be closed.
 			# If it already has been closed, then no need to close it again.

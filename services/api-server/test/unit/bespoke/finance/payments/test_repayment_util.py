@@ -311,6 +311,66 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 
 		self._run_test(test)
 
+	def test_custom_amount_repay_on_same_day_as_another_repayment_settles(self) -> None:
+		#credit_amount = 15.01 - 9.99 - 1.03 - 1.88 - 0.73
+		daily_interest1 = 0.04 # INTEREST_RATE * 20.00 == daily_interest_rate_pct * principal_owed
+		daily_interest2 = 0.06 # INTEREST_RATE * 30.00 == daily_interest_rate_pct * principal_owed
+
+		test: Dict = {
+			'comment': 'The user pays off multiple loans and have a credit remaining on their principal',
+			'loans': [
+				models.Loan(
+					amount=decimal.Decimal(20.00),
+					origination_date=date_util.load_date_str('8/20/2020'),
+					adjusted_maturity_date=date_util.load_date_str('9/15/2020')
+				)
+			],
+			'transaction_lists': [
+				# Transactions are parallel to the loans defined in the test.
+				# These will be advances or repayments made against their respective loans.
+				[
+					{'type': 'advance', 'amount': 20.00, 'payment_date': '8/20/2020', 'effective_date': '8/20/2020'},
+					{
+					  'type': 'repayment', 'to_principal': 3.00, 'to_interest': 0.02, 'to_fees': 0.0,
+					  'payment_date': '8/22/2020', 'effective_date': '8/23/2020'
+					}
+				]
+			],
+			'deposit_date': '8/23/2020',
+			'settlement_date': '8/30/2020', # late fees accrued on the 1st loan
+			'payment_option': 'custom_amount',
+			'payment_input_amount': 15.00,
+			'expected_amount_to_pay': 15.00,
+			'expected_amount_as_credit_to_user': 0.0,
+			'expected_loans_to_show': [
+				LoanToShowDict(
+					loan_id='filled in by test',
+					loan_identifier='filled in by test',
+					transaction=TransactionInputDict(
+						amount=15.00,
+						to_principal=14.62,
+						to_interest=0.38,
+						to_fees=0.0
+					),
+					before_loan_balance=LoanBalanceDict(
+						amount=20.00,
+						outstanding_principal_balance=17.00,
+						outstanding_interest=0.38, # 9 days of interest accrued
+						outstanding_fees=0.0
+					),
+					after_loan_balance=LoanBalanceDict(
+						amount=20.00,
+						outstanding_principal_balance=2.38,
+						outstanding_interest=0.0,
+						outstanding_fees=0.0
+					)
+				)
+			],
+			'expected_past_due_but_not_selected_indices': []
+		}
+
+		self._run_test(test)
+
 	def test_custom_amount_multiple_loans_cant_pay_off_everything_no_fees(self) -> None:
 		daily_interest1 = INTEREST_RATE * 10.00 # == 0.02
 		daily_interest2 = INTEREST_RATE * 30.00
