@@ -19821,7 +19821,8 @@ export type AddCompanyVendorAgreementMutation = {
 };
 
 export type GetArtifactRelationsByCompanyIdQueryVariables = Exact<{
-  companyId: Scalars["uuid"];
+  company_id: Scalars["uuid"];
+  start_created_date: Scalars["date"];
 }>;
 
 export type GetArtifactRelationsByCompanyIdQuery = {
@@ -27531,8 +27532,11 @@ export type AddCompanyVendorAgreementMutationOptions = Apollo.BaseMutationOption
   AddCompanyVendorAgreementMutationVariables
 >;
 export const GetArtifactRelationsByCompanyIdDocument = gql`
-  query GetArtifactRelationsByCompanyId($companyId: uuid!) {
-    companies_by_pk(id: $companyId) {
+  query GetArtifactRelationsByCompanyId(
+    $company_id: uuid!
+    $start_created_date: date!
+  ) {
+    companies_by_pk(id: $company_id) {
       id
       settings {
         id
@@ -27546,6 +27550,7 @@ export const GetArtifactRelationsByCompanyIdDocument = gql`
           _and: [
             { transfer_type: { _eq: "INCOMING_FROM_VENDOR" } }
             { vendor_id: { _is_null: false } }
+            { created_date: { _gte: $start_created_date } }
           ]
         }
         order_by: { manifest_number: desc }
@@ -27555,7 +27560,7 @@ export const GetArtifactRelationsByCompanyIdDocument = gql`
         vendor {
           id
           company_vendor_partnerships(
-            where: { company_id: { _eq: $companyId } }
+            where: { company_id: { _eq: $company_id } }
           ) {
             id
           }
@@ -27564,7 +27569,7 @@ export const GetArtifactRelationsByCompanyIdDocument = gql`
     }
     vendors(
       where: {
-        company_vendor_partnerships: { company_id: { _eq: $companyId } }
+        company_vendor_partnerships: { company_id: { _eq: $company_id } }
       }
       order_by: { name: asc }
     ) {
@@ -27593,7 +27598,8 @@ export const GetArtifactRelationsByCompanyIdDocument = gql`
  * @example
  * const { data, loading, error } = useGetArtifactRelationsByCompanyIdQuery({
  *   variables: {
- *      companyId: // value for 'companyId'
+ *      company_id: // value for 'company_id'
+ *      start_created_date: // value for 'start_created_date'
  *   },
  * });
  */

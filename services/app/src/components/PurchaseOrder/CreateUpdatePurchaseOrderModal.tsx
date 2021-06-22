@@ -30,6 +30,7 @@ import {
 } from "lib/api/purchaseOrders";
 import { ActionType, FeatureFlagEnum } from "lib/enum";
 import { isFeatureFlagEnabled } from "lib/companies";
+import { todayMinusXDaysDateStringServer } from "lib/date";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useMemo, useState } from "react";
 import styled from "styled-components";
@@ -169,7 +170,8 @@ export default function CreateUpdatePurchaseOrderModal({
   } = useGetArtifactRelationsByCompanyIdQuery({
     fetchPolicy: "network-only",
     variables: {
-      companyId,
+      company_id: companyId,
+      start_created_date: todayMinusXDaysDateStringServer(60), // Fetch Metrc transfers created in last 60 days.
     },
   });
 

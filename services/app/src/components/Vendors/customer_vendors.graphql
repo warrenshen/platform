@@ -1,5 +1,8 @@
-query GetArtifactRelationsByCompanyId($companyId: uuid!) {
-  companies_by_pk(id: $companyId) {
+query GetArtifactRelationsByCompanyId(
+  $company_id: uuid!,
+  $start_created_date: date!,
+) {
+  companies_by_pk(id: $company_id) {
     id
     settings {
       id
@@ -13,6 +16,7 @@ query GetArtifactRelationsByCompanyId($companyId: uuid!) {
         _and: [
           { transfer_type: { _eq: "INCOMING_FROM_VENDOR" } }
           { vendor_id: { _is_null: false } }
+          { created_date: { _gte: $start_created_date } }
         ]
       }
       order_by: { manifest_number: desc }
@@ -21,14 +25,14 @@ query GetArtifactRelationsByCompanyId($companyId: uuid!) {
       ...MetrcTransfer
       vendor {
         id
-        company_vendor_partnerships(where: { company_id: { _eq: $companyId } }) {
+        company_vendor_partnerships(where: { company_id: { _eq: $company_id } }) {
           id
         }
       }
     }
   }
   vendors(
-    where: { company_vendor_partnerships: { company_id: { _eq: $companyId } } }
+    where: { company_vendor_partnerships: { company_id: { _eq: $company_id } } }
     order_by: { name: asc }
   ) {
     id

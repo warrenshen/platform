@@ -1,5 +1,6 @@
 import {
   addBusinessDays,
+  addDays,
   addMonths,
   differenceInDays,
   format,
@@ -14,12 +15,16 @@ export const DateFormatClient = "MM/dd/yyyy";
 export const DateFormatServer = "yyyy-MM-dd";
 export const TimeFormatClient = "hh:mm:ss a";
 
-export function todayAsDateStringServer(): string {
+export function todayAsDateStringServer() {
   return format(new Date(), DateFormatServer);
 }
 
-export function todayAsDateStringClient(): string {
+export function todayAsDateStringClient() {
   return format(new Date(), DateFormatClient);
+}
+
+export function todayMinusXDaysDateStringServer(xDays: number) {
+  return format(addDays(new Date(), -1 * xDays), DateFormatServer);
 }
 
 export function formatDateString(dateString: string) {

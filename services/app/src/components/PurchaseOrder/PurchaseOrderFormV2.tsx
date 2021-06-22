@@ -157,7 +157,7 @@ export default function PurchaseOrderFormV2({
           }}
           onInputChange={(_event, value) => setAutocompleteInputValue(value)}
         />
-        {selectedMetrcTransfers.length > 0 && (
+        {selectedMetrcTransfers.length > 0 ? (
           <Box display="flex" flexDirection="column">
             {selectedMetrcTransfers.map((selectedMetrcTransfer) => (
               <Box key={selectedMetrcTransfer.id} mt={2}>
@@ -177,6 +177,13 @@ export default function PurchaseOrderFormV2({
                 />
               </Box>
             ))}
+          </Box>
+        ) : (
+          <Box mt={1}>
+            <Typography variant="body2" color="textSecondary">
+              Selectable manifests correspond to Metrc transfers from vendors
+              you are partnered with and created within the last 60 days
+            </Typography>
           </Box>
         )}
       </Box>
