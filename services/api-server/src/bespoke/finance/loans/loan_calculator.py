@@ -708,8 +708,29 @@ class LoanCalculator(object):
 			threshold_info=threshold_info
 		)
 
+		financing_day_limit = None
+
 		for i in range(days_out):
 			cur_date = loan['origination_date'] + timedelta(days=i)
+
+			# For frozen loans: if loan is closed, do not perform any calculations for this date.
+			# TODO(warrenshen): apply the same logic for non-frozen loans.
+			if loan['is_frozen'] and cur_date > loan['closed_at'].date():
+				continue
+
+			cur_date_contract, err = self._contract_helper.get_contract(cur_date)
+			if err:
+				return None, [err]
+
+			product_type, err = cur_date_contract.get_product_type()
+			if err:
+				return None, [err]
+
+			if product_type != db_constants.ProductType.LINE_OF_CREDIT:
+				financing_day_limit, err = cur_date_contract.get_contract_financing_terms()
+				if err:
+					return None, [err]
+
 			# Check each transaction and the effect it had on this loan
 			transactions_by_settlement_date = _get_transactions_on_settlement_date(cur_date, augmented_transactions)
 
@@ -932,17 +953,6 @@ class LoanCalculator(object):
 					date_util.now_as_date(date_util.DEFAULT_TIMEZONE),
 					loan['origination_date'],
 				)
-
-		product_type, err = todays_contract.get_product_type()
-		if err:
-			return None, [err]
-
-		if product_type == db_constants.ProductType.LINE_OF_CREDIT:
-			financing_day_limit = None
-		else:
-			financing_day_limit, err = todays_contract.get_contract_financing_terms()
-			if err:
-				return None, [err]
 
 		l = LoanUpdateDict(
 			loan_id=loan['id'],

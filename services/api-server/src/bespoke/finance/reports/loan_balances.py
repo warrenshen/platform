@@ -20,7 +20,6 @@ import logging
 from typing import Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
-from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.db_constants import LoanStatusEnum, ProductType
 from bespoke.db.models import session_scope
@@ -231,7 +230,12 @@ class CustomerBalance(object):
 		self._company_id = company_dict['id']
 
 	@errors.return_error_tuple
-	def update(self, today: datetime.date, include_debug_info: bool) -> Tuple[CustomerUpdateDict, errors.Error]:
+	def update(
+		self,
+		today: datetime.date,
+		include_debug_info: bool,
+		include_frozen: bool = False,
+	) -> Tuple[CustomerUpdateDict, errors.Error]:
 		"""
 		Returns None if company does not have any contracts.
 		"""
@@ -327,7 +331,7 @@ class CustomerBalance(object):
 				# then update details about the Purchase Order
 				po_update['amount_funded'] += loan['amount']
 
-			if loan['is_frozen']:
+			if not include_frozen and loan['is_frozen']:
 				# We want to calculate details like how much a loan contributes to whether a 
 				# Purchase Order is fully funded, but we don't want to run any balances for it
 				# so we skip it after accounting for its contribution to Purchase Orders but

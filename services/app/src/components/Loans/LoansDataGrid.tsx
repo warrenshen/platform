@@ -448,11 +448,13 @@ export default function LoansDataGrid({
         ),
       },
       {
+        visible: isReportingVisible,
         dataField: "financing_period",
         caption: "Financing Period",
         width: ColumnWidths.Currency,
       },
       {
+        visible: isReportingVisible,
         dataField: "financing_day_limit",
         caption: "Financing Day Limit",
         width: ColumnWidths.Currency,
