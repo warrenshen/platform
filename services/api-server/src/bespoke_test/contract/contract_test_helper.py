@@ -10,6 +10,7 @@ from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
 
 ContractInputDict = TypedDict('ContractInputDict', {
+	'contract_financing_terms': int,
 	'interest_rate': float,
 	'advance_rate': float,
 	'maximum_principal_amount': float,

@@ -13,6 +13,9 @@ subscription GetLoansForBank {
     id
     ...Loan
     ...LoanArtifact
+    loan_report {
+      ...LoanReport
+    }
   }
 }
 

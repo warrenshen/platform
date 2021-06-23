@@ -15,10 +15,10 @@ from bespoke_test.db import db_unittest, test_helper
 
 def _get_default_contract_config(overrides: Dict) -> Dict:
 	contract_dict = ContractInputDict(
-					interest_rate=0.05,
-					maximum_principal_amount=120000.01,
-					max_days_until_repayment=30,
-					late_fee_structure=json.dumps({"1-2": 0.25, "3+": 0.5}),
+		interest_rate=0.05,
+		maximum_principal_amount=120000.01,
+		max_days_until_repayment=30,
+		late_fee_structure=json.dumps({"1-2": 0.25, "3+": 0.5}),
 	)
 
 	d = cast(Dict, contract_dict)

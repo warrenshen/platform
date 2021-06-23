@@ -34,6 +34,7 @@ export default function BankLoansAllTab() {
           isDisbursementIdentifierVisible
           isFilteringEnabled
           isMaturityVisible
+          isReportingVisible
           loans={loans}
           handleClickCustomer={(customerId) =>
             history.push(`/customers/${customerId}/loans`)

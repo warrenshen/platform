@@ -53,6 +53,7 @@ def _get_contract(
 			product_config=contract_test_helper.create_contract_config(
 				product_type=ProductType.INVOICE_FINANCING,
 				input_dict=ContractInputDict(
+					contract_financing_terms=90,
 					interest_rate=interest_rate,
 					advance_rate=0.8,
 					maximum_principal_amount=120000.01,
@@ -70,6 +71,7 @@ def _get_contract(
 			product_config=contract_test_helper.create_contract_config(
 				product_type=ProductType.INVENTORY_FINANCING,
 				input_dict=ContractInputDict(
+					contract_financing_terms=90,
 					interest_rate=interest_rate,
 					maximum_principal_amount=120000.01,
 					max_days_until_repayment=0, # unused

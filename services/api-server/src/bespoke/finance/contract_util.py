@@ -312,7 +312,7 @@ class Contract(object):
 
 		return field['value'], None
 
-	def _get_int_value(self, internal_name: str) -> Tuple[float, errors.Error]:
+	def _get_int_value(self, internal_name: str) -> Tuple[int, errors.Error]:
 		field, err = self._get_field(internal_name)
 		if err:
 			return None, err
@@ -335,6 +335,9 @@ class Contract(object):
 				details={'contract_config': self._config})
 
 		return field['value'], None
+
+	def get_contract_financing_terms(self) -> Tuple[int, errors.Error]:
+		return self._get_int_value('contract_financing_terms')
 
 	def get_product_type(self) -> Tuple[str, errors.Error]:
 		if 'product_type' not in self._config:

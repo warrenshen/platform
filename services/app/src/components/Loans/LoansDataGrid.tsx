@@ -21,9 +21,11 @@ import {
   LoanArtifactFragment,
   LoanArtifactLimitedFragment,
   LoanFragment,
+  LoanReportFragment,
   Loans,
   LoanStatusEnum,
   LoanTypeEnum,
+  Maybe,
   RequestStatusEnum,
 } from "generated/graphql";
 import {
@@ -41,12 +43,13 @@ import { useEffect, useMemo, useState } from "react";
 interface Props {
   isArtifactVisible?: boolean;
   isCompanyVisible?: boolean;
+  isDaysPastDueVisible?: boolean;
   isDisbursementIdentifierVisible?: boolean;
   isExcelExport?: boolean;
-  isDaysPastDueVisible?: boolean;
   isFilteringEnabled?: boolean;
   isMaturityVisible?: boolean;
   isMultiSelectEnabled?: boolean;
+  isReportingVisible?: boolean;
   isSortingDisabled?: boolean;
   isStatusVisible?: boolean;
   pager?: boolean;
@@ -62,7 +65,9 @@ interface Props {
 }
 
 function getRows(
-  loans: (LoanFragment & (LoanArtifactFragment | LoanArtifactLimitedFragment))[]
+  loans: (LoanFragment & {
+    loan_report?: Maybe<LoanReportFragment>;
+  } & (LoanArtifactFragment | LoanArtifactLimitedFragment))[]
 ): RowsProp {
   return loans.map((loan) => ({
     ...loan,
@@ -83,6 +88,22 @@ function getRows(
       : loan.line_of_credit
       ? loan.line_of_credit.recipient_vendor?.name
       : "N/A",
+    repayment_date: !!loan.loan_report ? loan.loan_report.repayment_date : null,
+    financing_period: !!loan.loan_report
+      ? loan.loan_report.financing_period
+      : null,
+    financing_day_limit: !!loan.loan_report
+      ? loan.loan_report.financing_day_limit
+      : null,
+    total_principal_paid: !!loan.loan_report
+      ? loan.loan_report.total_principal_paid
+      : null,
+    total_interest_paid: !!loan.loan_report
+      ? loan.loan_report.total_interest_paid
+      : null,
+    total_fees_paid: !!loan.loan_report
+      ? loan.loan_report.total_fees_paid
+      : null,
   }));
 }
 
@@ -98,6 +119,7 @@ export default function LoansDataGrid({
   isFilteringEnabled = false,
   isMaturityVisible = false,
   isMultiSelectEnabled = false,
+  isReportingVisible = false,
   isSortingDisabled = false,
   isStatusVisible = true,
   pager = true,
@@ -415,6 +437,56 @@ export default function LoansDataGrid({
           <CurrencyDataGridCell value={params.row.data.outstanding_fees} />
         ),
       },
+      {
+        visible: isReportingVisible,
+        caption: "Repayment Date",
+        dataField: "repayment_date",
+        width: ColumnWidths.Date,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <DateDataGridCell dateString={params.row.data.repayment_date} />
+        ),
+      },
+      {
+        dataField: "financing_period",
+        caption: "Financing Period",
+        width: ColumnWidths.Currency,
+      },
+      {
+        dataField: "financing_day_limit",
+        caption: "Financing Day Limit",
+        width: ColumnWidths.Currency,
+      },
+      {
+        visible: isReportingVisible,
+        dataField: "total_principal_paid",
+        caption: "Total Principal Paid",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.total_principal_paid} />
+        ),
+      },
+      {
+        visible: isReportingVisible,
+        dataField: "total_interest_paid",
+        caption: "Total Interest Paid",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.total_interest_paid} />
+        ),
+      },
+      {
+        visible: isReportingVisible,
+        dataField: "total_fees_paid",
+        caption: "Total Fees Paid",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.total_fees_paid} />
+        ),
+      },
     ],
     [
       isArtifactVisible,
@@ -422,6 +494,7 @@ export default function LoansDataGrid({
       isDaysPastDueVisible,
       isDisbursementIdentifierVisible,
       isMaturityVisible,
+      isReportingVisible,
       isStatusVisible,
       actionItems,
       handleClickCustomer,

@@ -116,3 +116,6 @@ def get_nearest_business_day(reference_date: datetime.date, preceeding: bool) ->
 		cur_date = cur_date + timedelta(days=num_days_increment)
 
 	raise Exception('No nearest business day found within 30 attempts')
+
+def number_days_between_dates(later_date: datetime.date, earlier_date: datetime.date) -> int:
+	return (later_date - earlier_date).days

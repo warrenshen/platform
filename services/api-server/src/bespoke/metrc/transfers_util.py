@@ -297,6 +297,15 @@ def populate_transfers_table(
 			request_status['packages_api'] = e.details.get('status_code')
 			return request_status, e
 
+		try:
+			resp = rest.get(f'/transfers/v1/delivery/{delivery_id}/packages/wholesale')
+			t_packages_wholesale_json = json.loads(resp.content)
+			print(t_packages_wholesale_json)
+			# request_status['packages_wholesale_api'] = 200
+		except errors.Error as e:
+			# request_status['packages_wholesale_api'] = e.details.get('status_code')
+			return request_status, e
+
 		packages = TransferPackages(delivery_id, t_packages_json)
 		package_ids = packages.get_package_ids()
 

@@ -585,6 +585,7 @@ class Loan(Base):
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	company_id = Column(GUID, nullable=False)
+	loan_report_id = cast(GUID, Column(GUID, ForeignKey('loan_reports.id')))
 
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
@@ -644,6 +645,17 @@ class Loan(Base):
 			funded_at=self.funded_at,
 			closed_at=self.closed_at
 		)
+
+class LoanReport(Base):
+	__tablename__ = 'loan_reports'
+
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	repayment_date = Column(Date)
+	total_principal_paid = Column(Numeric)
+	total_interest_paid = Column(Numeric)
+	total_fees_paid = Column(Numeric)
+	financing_period = Column(Integer)
+	financing_day_limit = Column(Integer)
 
 class BankFinancialSummary(Base):
 	__tablename__ = 'bank_financial_summaries'

@@ -20,6 +20,7 @@ import logging
 from typing import Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
+from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.db_constants import LoanStatusEnum, ProductType
 from bespoke.db.models import session_scope
@@ -418,6 +419,17 @@ class CustomerBalance(object):
 			if not loans:
 				loans = []
 
+			loan_report_ids = [loan.loan_report_id for loan in loans]
+			loan_reports = cast(
+				List[models.LoanReport],
+				session.query(models.LoanReport).filter(
+					models.LoanReport.id.in_(loan_report_ids)
+				).all())
+
+			loan_report_id_to_loan_report = dict({})
+			for loan_report in loan_reports:
+				loan_report_id_to_loan_report[str(loan_report.id)] = loan_report
+
 			for loan in loans:
 				cur_loan_update = loan_id_to_update[str(loan.id)]
 				loan.outstanding_principal_balance = decimal.Decimal(number_util.round_currency(cur_loan_update['outstanding_principal']))
@@ -426,6 +438,20 @@ class CustomerBalance(object):
 
 				if cur_loan_update['should_close_loan']:
 					payment_util.close_loan(loan)
+
+				loan_report = loan_report_id_to_loan_report.get(str(loan.id), None)
+				if not loan_report:
+					loan_report = models.LoanReport()
+					session.add(loan_report)
+					session.flush()
+					loan.loan_report_id = loan_report.id
+
+				loan_report.repayment_date = cur_loan_update['repayment_date']
+				loan_report.financing_period = cur_loan_update['financing_period']
+				loan_report.financing_day_limit = cur_loan_update['financing_day_limit']
+				loan_report.total_principal_paid = decimal.Decimal(number_util.round_currency(cur_loan_update['total_principal_paid']))
+				loan_report.total_interest_paid = decimal.Decimal(number_util.round_currency(cur_loan_update['total_interest_paid']))
+				loan_report.total_fees_paid = decimal.Decimal(number_util.round_currency(cur_loan_update['total_fees_paid']))
 
 			purchase_order_id_to_update = customer_update['purchase_orders_update']['purchase_order_id_to_update']
 			purchase_order_ids = list(purchase_order_id_to_update.keys())
@@ -488,4 +514,3 @@ class CustomerBalance(object):
 			company.needs_balance_recomputed = False
 
 			return True, None
-
