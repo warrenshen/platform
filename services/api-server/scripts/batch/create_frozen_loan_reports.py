@@ -41,9 +41,13 @@ def main() -> None:
 			).all())
 
 		customer_dicts += [customer.as_dict() for customer in customers]
-		print(len(customer_dicts))
 
-	for customer_dict in customer_dicts:
+	customers_count = len(customer_dicts)
+
+	for index, customer_dict in enumerate(customer_dicts):
+		print(f'[{index + 1} of {customers_count}]')
+		print(f'[{index + 1} of {customers_count}] Updating frozen loans for customer {customer_dict["name"]}')
+
 		customer_balance = loan_balances.CustomerBalance(customer_dict, session_maker)
 		customer_update_dict, err = customer_balance.update(
 			today=date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE),
