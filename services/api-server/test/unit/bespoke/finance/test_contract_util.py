@@ -340,6 +340,65 @@ class TestDynamicInterestRate(unittest.TestCase):
 			date_util.load_date_str('12/26/2021'))
 		self.assertIn('no interest rate configured', err.msg)
 
+	def test_update_fields_on_contract_dates(self) -> None:
+		company_id = 'unused_for_debug_msg'
+		tests: List[Dict] = [
+			{
+				# multiple dates
+				'dynamic_interest_rate_dict': {
+					'02/16/2020-08/28/2020': 0.5, 
+					'08/29/2020-10/30/2020': 0.2,
+					'10/31/2020-12/26/2020': 0.1
+				},
+				'expected_interest_rate_dict': {
+					'01/02/2020-08/28/2020': 0.5, 
+					'08/29/2020-10/30/2020': 0.2,
+					'10/31/2020-12/02/2020': 0.1
+				}
+			},
+			{
+				# 2 dates
+				'dynamic_interest_rate_dict': {'2/16/2020-10/30/2020': 0.5, '10/31/2020-12/26/2020': 0.2},
+				'expected_interest_rate_dict': {'01/02/2020-10/30/2020': 0.5, '10/31/2020-12/02/2020': 0.2}
+			},
+			{
+				# 1 date
+				'dynamic_interest_rate_dict': {'2/16/2020-10/30/2020': 0.5},
+				'expected_interest_rate_dict': {'01/02/2020-12/02/2020': 0.5}
+			},
+		]
+
+		for test in tests:
+			contract_dict = models.ContractDict(
+						id='unused',
+						product_type=ProductType.INVENTORY_FINANCING,
+						product_config=_get_default_contract_config(ProductType.INVENTORY_FINANCING, {
+							'dynamic_interest_rate': json.dumps(test['dynamic_interest_rate_dict']),
+							'late_fee_structure': json.dumps({'1-3': 0.1, '4-9': 0.2, '10+': 0.5})
+						}),
+						start_date=date_util.load_date_str('2/16/2020'),
+						end_date=None,
+						adjusted_end_date=date_util.load_date_str('12/26/2020'),
+			)
+			
+			new_start_date = date_util.load_date_str('01/02/2020')
+			new_end_date = date_util.load_date_str('12/02/2020')
+			contract, _ = contract_util.Contract.build(contract_dict, validate=False)
+			success, err = contract.update_fields_dependent_on_contract_dates(
+				new_contract_start_date=new_start_date,
+				new_contract_end_date=new_end_date
+			)
+			self.assertIsNone(err)
+
+			interest_rate_dict = contract._get_dynamic_interest_rate_dict()
+			self.assertDictEqual(test['expected_interest_rate_dict'], interest_rate_dict)
+
+			contract_dict['product_config'] = contract.get_product_config()
+			contract_dict['start_date'] = new_start_date
+			contract_dict['end_date'] = new_end_date
+			contract_dict['adjusted_end_date'] = new_end_date
+			contract2, err = contract_util.Contract.build(contract_dict, validate=True)
+			self.assertIsNone(err)
 
 class TestContractMethods(unittest.TestCase):
 
