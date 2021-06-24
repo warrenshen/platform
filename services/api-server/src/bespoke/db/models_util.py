@@ -59,7 +59,11 @@ def compute_loan_payment_status(loan: models.Loan, session: Session) -> str:
 		session.query(models.Payment).filter(
 			models.Payment.company_id == loan.company_id
 		).filter(
+			models.Payment.type == db_constants.PaymentType.REPAYMENT
+		).filter(
 			cast(Callable, models.Payment.settled_at.is_)(None)
+		).filter(
+			cast(Callable, models.Payment.reversed_at.is_)(None)
 		).filter(
 			cast(Callable, models.Payment.is_deleted.isnot)(True)
 		).all())

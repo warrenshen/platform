@@ -385,6 +385,18 @@ def unsettle_payment(payment_type: str, payment_id: str, is_undo: bool, session:
 
 	loan_ids = list(loan_ids_set)
 
+	loans = cast(
+		List[models.Loan],
+		session.query(models.Loan).filter(
+			models.Loan.id.in_(loan_ids)
+		).all())
+
+	# For any closed loan related to one of the unsettled payments,
+	# by definition the loan is no longer closed.
+	for loan in loans:
+		if loan.closed_at:
+			loan.closed_at = None
+
 	session.flush()
 	_reset_payment_status_on_loans(loan_ids, session)
 
@@ -392,10 +404,6 @@ def unsettle_payment(payment_type: str, payment_id: str, is_undo: bool, session:
 
 @errors.return_error_tuple
 def reverse_payment(payment_type: str, payment_id: str, session: Session) -> Tuple[bool, errors.Error]:
-	success, err = unsettle_payment(payment_type, payment_id, is_undo=False, session=session)
-	if err:
-		raise err
-
 	payment = cast(
 		models.Payment,
 		session.query(models.Payment).filter(
@@ -406,6 +414,11 @@ def reverse_payment(payment_type: str, payment_id: str, session: Session) -> Tup
 		raise errors.Error(f'No payment found to reverse')
 
 	payment.reversed_at = date_util.now()
+
+	success, err = unsettle_payment(payment_type, payment_id, is_undo=False, session=session)
+	if err:
+		raise err
+
 	return True, None
 
 @errors.return_error_tuple
