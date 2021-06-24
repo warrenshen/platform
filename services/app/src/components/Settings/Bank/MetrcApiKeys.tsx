@@ -43,10 +43,15 @@ function StatusOfKey({ metrcKey }: StatusProps) {
                   {`License number: ${licenseNum}`}
                 </Typography>
               </Box>
-              <Box display="flex" flexDirection="column" width={300} pl={2}>
-                <Box display="flex" justifyContent="space-between" mt={1}>
+              <Box display="flex" flexDirection="column" width={400} pl={2}>
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  mt={1}
+                  mr={1}
+                >
                   <Typography color="textSecondary" variant="body1">
-                    Transfers API:{" "}
+                    Transfers API:
                   </Typography>
                   <Box>
                     <APIStatusChip
@@ -54,9 +59,14 @@ function StatusOfKey({ metrcKey }: StatusProps) {
                     ></APIStatusChip>
                   </Box>
                 </Box>
-                <Box display="flex" justifyContent="space-between" mt={1}>
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  mt={1}
+                  mr={1}
+                >
                   <Typography color="textSecondary" variant="body1">
-                    Packages API:{" "}
+                    Packages API:
                   </Typography>
                   <Box>
                     <APIStatusChip
@@ -64,10 +74,29 @@ function StatusOfKey({ metrcKey }: StatusProps) {
                     ></APIStatusChip>
                   </Box>
                 </Box>
-
-                <Box display="flex" justifyContent="space-between" mt={1}>
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  mt={1}
+                  mr={1}
+                >
                   <Typography color="textSecondary" variant="body1">
-                    Lab Results API:{" "}
+                    Packages Wholesale API:
+                  </Typography>
+                  <Box>
+                    <APIStatusChip
+                      statusCode={statusesObj.packages_api}
+                    ></APIStatusChip>
+                  </Box>
+                </Box>
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  mt={1}
+                  mr={1}
+                >
+                  <Typography color="textSecondary" variant="body1">
+                    Lab Results API:
                   </Typography>
                   <Box>
                     <APIStatusChip

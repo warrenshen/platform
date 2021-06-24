@@ -321,8 +321,9 @@ def populate_transfers_table(
 			t_packages_wholesale_json = json.loads(resp.content)
 			request_status['packages_wholesale_api'] = 200
 		except errors.Error as e:
+			t_packages_wholesale_json = [] # If fetch fails, we set to empty array and continue.
+			logging.error(f'Could not fetch packages wholesale for company {company_info.name} for transfer with delivery id {delivery_id}. {e}')
 			request_status['packages_wholesale_api'] = e.details.get('status_code')
-			return request_status, e
 
 		packages = TransferPackages(delivery_id, t_packages_json, t_packages_wholesale_json)
 		package_ids = packages.get_package_ids()
