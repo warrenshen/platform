@@ -1,4 +1,5 @@
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
+import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import { MetrcPackageFragment } from "generated/graphql";
 import { MetrcPackagePayload } from "lib/api/metrc";
 import { ColumnWidths } from "lib/tables";
@@ -30,7 +31,6 @@ export default function MetrcPackagesDataGrid({
           manifest_number: metrcPackage.metrc_transfer.manifest_number,
           source_harvest_names: packagePayload["SourceHarvestNames"],
           source_package_labels: packagePayload["SourcePackageLabels"],
-          product_category_name: packagePayload["ProductCategoryName"],
           lab_testing_state: packagePayload["LabTestingState"],
           item_category: packagePayload["ItemCategory"],
           item_strain_name: packagePayload["ItemStrainName"],
@@ -113,6 +113,22 @@ export default function MetrcPackagesDataGrid({
         minWidth: ColumnWidths.MinWidth,
       },
       {
+        dataField: "shipped_quantity",
+        caption: "Shipped Quantity",
+        width: ColumnWidths.Count,
+      },
+      {
+        dataField: "shipper_wholesale_price",
+        caption: "Shipper Wholesale Price",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell
+            value={params.row.data.shipper_wholesale_price}
+          />
+        ),
+      },
+      {
         dataField: "lab_results_status",
         caption: "Lab Results Status",
         minWidth: ColumnWidths.MinWidth,
@@ -140,11 +156,6 @@ export default function MetrcPackagesDataGrid({
       {
         dataField: "item_state",
         caption: "Item State",
-        minWidth: ColumnWidths.MinWidth,
-      },
-      {
-        dataField: "shipped_quantity",
-        caption: "Shipped Quantity",
         minWidth: ColumnWidths.MinWidth,
       },
       {

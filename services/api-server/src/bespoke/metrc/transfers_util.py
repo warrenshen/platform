@@ -17,6 +17,7 @@ from sqlalchemy.orm.session import Session
 RequestStatusesDict = TypedDict('RequestStatusesDict', {
 	'transfers_api': int,
 	'packages_api': int,
+	'packages_wholesale_api': int,
 	'lab_results_api': int
 })
 
@@ -40,9 +41,10 @@ class LabTest(object):
 
 class TransferPackages(object):
 
-	def __init__(self, delivery_id: str, transfer_packages: List[Dict]) -> None:
+	def __init__(self, delivery_id: str, transfer_packages: List[Dict], transfer_packages_wholesale: List[Dict]) -> None:
 		self.delivery_id = delivery_id
 		self._packages = transfer_packages
+		self._packages_wholesale = transfer_packages_wholesale
 		for package in self._packages:
 			package['DeliveryId'] = delivery_id
 
@@ -59,21 +61,37 @@ class TransferPackages(object):
 		metrc_packages = []
 		transfer_lab_results_status = "unknown"
 
+		package_id_to_package_wholesale = {}
+		for package_wholesale in self._packages_wholesale:
+			package_id_to_package_wholesale[package_wholesale['PackageId']] = package_wholesale
+
 		for i in range(len(self._packages)):
 			package = self._packages[i]
 
+			package_id = package['PackageId']
+			package_wholesale = package_id_to_package_wholesale.get(package_id)
+
 			p = models.MetrcPackage()
-			p.package_id = '{}'.format(package['PackageId'])
+			p.package_id = '{}'.format(package_id)
 			p.transfer_id = cast(Any, transfer_id)
 			p.delivery_id = '{}'.format(package['DeliveryId'])
 			p.label = package['PackageLabel']
 			p.type = package['PackageType']
 			p.product_name = package['ProductName']
-			p.package_payload = package
+			p.product_category_name = package['ProductCategoryName']
+			p.shipped_quantity = package['ShippedQuantity']
 			p.lab_results_payload = {
 				'lab_results': lab_tests[i].get_results_array()
 			}
 			p.lab_results_status = lab_tests[i].get_status()
+
+			if package_wholesale:
+				p.shipper_wholesale_price = package_wholesale.get('ShipperWholesalePrice')
+				package['ShipperWholesalePrice'] = package_wholesale.get('ShipperWholesalePrice')
+				package['ReceiverWholesalePrice'] = package_wholesale.get('ReceiverWholesalePrice')
+
+			p.package_payload = package
+
 			metrc_packages.append(p)
 
 			if p.lab_results_status == "failed" and transfer_lab_results_status != "failed":
@@ -211,6 +229,7 @@ def populate_transfers_table(
 	request_status = RequestStatusesDict(
 		transfers_api=UNKNOWN_STATUS_CODE,
 		packages_api=UNKNOWN_STATUS_CODE,
+		packages_wholesale_api=UNKNOWN_STATUS_CODE,
 		lab_results_api=UNKNOWN_STATUS_CODE
 	)
 
@@ -300,13 +319,12 @@ def populate_transfers_table(
 		try:
 			resp = rest.get(f'/transfers/v1/delivery/{delivery_id}/packages/wholesale')
 			t_packages_wholesale_json = json.loads(resp.content)
-			print(t_packages_wholesale_json)
-			# request_status['packages_wholesale_api'] = 200
+			request_status['packages_wholesale_api'] = 200
 		except errors.Error as e:
-			# request_status['packages_wholesale_api'] = e.details.get('status_code')
+			request_status['packages_wholesale_api'] = e.details.get('status_code')
 			return request_status, e
 
-		packages = TransferPackages(delivery_id, t_packages_json)
+		packages = TransferPackages(delivery_id, t_packages_json, t_packages_wholesale_json)
 		package_ids = packages.get_package_ids()
 
 		lab_tests = []
@@ -398,6 +416,9 @@ def populate_transfers_table(
 			prev_metrc_package.label = metrc_package.label
 			prev_metrc_package.type = metrc_package.type
 			prev_metrc_package.product_name = metrc_package.product_name
+			prev_metrc_package.product_category_name = metrc_package.product_category_name
+			prev_metrc_package.shipped_quantity = metrc_package.shipped_quantity
+			prev_metrc_package.shipper_wholesale_price = metrc_package.shipper_wholesale_price
 			prev_metrc_package.package_payload = metrc_package.package_payload
 			prev_metrc_package.lab_results_payload = metrc_package.lab_results_payload
 			prev_metrc_package.lab_results_status = metrc_package.lab_results_status

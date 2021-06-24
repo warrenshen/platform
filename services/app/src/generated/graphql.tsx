@@ -9365,7 +9365,10 @@ export type MetrcPackages = {
   metrc_transfer: MetrcTransfers;
   package_id: Scalars["String"];
   package_payload: Scalars["json"];
+  product_category_name?: Maybe<Scalars["String"]>;
   product_name: Scalars["String"];
+  shipped_quantity?: Maybe<Scalars["numeric"]>;
+  shipper_wholesale_price?: Maybe<Scalars["numeric"]>;
   transfer_id: Scalars["uuid"];
   type: Scalars["String"];
   updated_at?: Maybe<Scalars["timestamptz"]>;
@@ -9389,9 +9392,17 @@ export type MetrcPackagesAggregate = {
 
 /** aggregate fields of "metrc_packages" */
 export type MetrcPackagesAggregateFields = {
+  avg?: Maybe<MetrcPackagesAvgFields>;
   count?: Maybe<Scalars["Int"]>;
   max?: Maybe<MetrcPackagesMaxFields>;
   min?: Maybe<MetrcPackagesMinFields>;
+  stddev?: Maybe<MetrcPackagesStddevFields>;
+  stddev_pop?: Maybe<MetrcPackagesStddevPopFields>;
+  stddev_samp?: Maybe<MetrcPackagesStddevSampFields>;
+  sum?: Maybe<MetrcPackagesSumFields>;
+  var_pop?: Maybe<MetrcPackagesVarPopFields>;
+  var_samp?: Maybe<MetrcPackagesVarSampFields>;
+  variance?: Maybe<MetrcPackagesVarianceFields>;
 };
 
 /** aggregate fields of "metrc_packages" */
@@ -9402,15 +9413,35 @@ export type MetrcPackagesAggregateFieldsCountArgs = {
 
 /** order by aggregate values of table "metrc_packages" */
 export type MetrcPackagesAggregateOrderBy = {
+  avg?: Maybe<MetrcPackagesAvgOrderBy>;
   count?: Maybe<OrderBy>;
   max?: Maybe<MetrcPackagesMaxOrderBy>;
   min?: Maybe<MetrcPackagesMinOrderBy>;
+  stddev?: Maybe<MetrcPackagesStddevOrderBy>;
+  stddev_pop?: Maybe<MetrcPackagesStddevPopOrderBy>;
+  stddev_samp?: Maybe<MetrcPackagesStddevSampOrderBy>;
+  sum?: Maybe<MetrcPackagesSumOrderBy>;
+  var_pop?: Maybe<MetrcPackagesVarPopOrderBy>;
+  var_samp?: Maybe<MetrcPackagesVarSampOrderBy>;
+  variance?: Maybe<MetrcPackagesVarianceOrderBy>;
 };
 
 /** input type for inserting array relation for remote table "metrc_packages" */
 export type MetrcPackagesArrRelInsertInput = {
   data: Array<MetrcPackagesInsertInput>;
   on_conflict?: Maybe<MetrcPackagesOnConflict>;
+};
+
+/** aggregate avg on columns */
+export type MetrcPackagesAvgFields = {
+  shipped_quantity?: Maybe<Scalars["Float"]>;
+  shipper_wholesale_price?: Maybe<Scalars["Float"]>;
+};
+
+/** order by avg() on columns of table "metrc_packages" */
+export type MetrcPackagesAvgOrderBy = {
+  shipped_quantity?: Maybe<OrderBy>;
+  shipper_wholesale_price?: Maybe<OrderBy>;
 };
 
 /** Boolean expression to filter rows from the table "metrc_packages". All fields are combined with a logical 'AND'. */
@@ -9427,7 +9458,10 @@ export type MetrcPackagesBoolExp = {
   metrc_transfer?: Maybe<MetrcTransfersBoolExp>;
   package_id?: Maybe<StringComparisonExp>;
   package_payload?: Maybe<JsonComparisonExp>;
+  product_category_name?: Maybe<StringComparisonExp>;
   product_name?: Maybe<StringComparisonExp>;
+  shipped_quantity?: Maybe<NumericComparisonExp>;
+  shipper_wholesale_price?: Maybe<NumericComparisonExp>;
   transfer_id?: Maybe<UuidComparisonExp>;
   type?: Maybe<StringComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
@@ -9441,6 +9475,12 @@ export enum MetrcPackagesConstraint {
   MetrcPackagesPkey = "metrc_packages_pkey",
 }
 
+/** input type for incrementing integer column in table "metrc_packages" */
+export type MetrcPackagesIncInput = {
+  shipped_quantity?: Maybe<Scalars["numeric"]>;
+  shipper_wholesale_price?: Maybe<Scalars["numeric"]>;
+};
+
 /** input type for inserting data into table "metrc_packages" */
 export type MetrcPackagesInsertInput = {
   created_at?: Maybe<Scalars["timestamptz"]>;
@@ -9452,7 +9492,10 @@ export type MetrcPackagesInsertInput = {
   metrc_transfer?: Maybe<MetrcTransfersObjRelInsertInput>;
   package_id?: Maybe<Scalars["String"]>;
   package_payload?: Maybe<Scalars["json"]>;
+  product_category_name?: Maybe<Scalars["String"]>;
   product_name?: Maybe<Scalars["String"]>;
+  shipped_quantity?: Maybe<Scalars["numeric"]>;
+  shipper_wholesale_price?: Maybe<Scalars["numeric"]>;
   transfer_id?: Maybe<Scalars["uuid"]>;
   type?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
@@ -9466,7 +9509,10 @@ export type MetrcPackagesMaxFields = {
   lab_results_status?: Maybe<Scalars["String"]>;
   label?: Maybe<Scalars["String"]>;
   package_id?: Maybe<Scalars["String"]>;
+  product_category_name?: Maybe<Scalars["String"]>;
   product_name?: Maybe<Scalars["String"]>;
+  shipped_quantity?: Maybe<Scalars["numeric"]>;
+  shipper_wholesale_price?: Maybe<Scalars["numeric"]>;
   transfer_id?: Maybe<Scalars["uuid"]>;
   type?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
@@ -9480,7 +9526,10 @@ export type MetrcPackagesMaxOrderBy = {
   lab_results_status?: Maybe<OrderBy>;
   label?: Maybe<OrderBy>;
   package_id?: Maybe<OrderBy>;
+  product_category_name?: Maybe<OrderBy>;
   product_name?: Maybe<OrderBy>;
+  shipped_quantity?: Maybe<OrderBy>;
+  shipper_wholesale_price?: Maybe<OrderBy>;
   transfer_id?: Maybe<OrderBy>;
   type?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
@@ -9494,7 +9543,10 @@ export type MetrcPackagesMinFields = {
   lab_results_status?: Maybe<Scalars["String"]>;
   label?: Maybe<Scalars["String"]>;
   package_id?: Maybe<Scalars["String"]>;
+  product_category_name?: Maybe<Scalars["String"]>;
   product_name?: Maybe<Scalars["String"]>;
+  shipped_quantity?: Maybe<Scalars["numeric"]>;
+  shipper_wholesale_price?: Maybe<Scalars["numeric"]>;
   transfer_id?: Maybe<Scalars["uuid"]>;
   type?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
@@ -9508,7 +9560,10 @@ export type MetrcPackagesMinOrderBy = {
   lab_results_status?: Maybe<OrderBy>;
   label?: Maybe<OrderBy>;
   package_id?: Maybe<OrderBy>;
+  product_category_name?: Maybe<OrderBy>;
   product_name?: Maybe<OrderBy>;
+  shipped_quantity?: Maybe<OrderBy>;
+  shipper_wholesale_price?: Maybe<OrderBy>;
   transfer_id?: Maybe<OrderBy>;
   type?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
@@ -9546,7 +9601,10 @@ export type MetrcPackagesOrderBy = {
   metrc_transfer?: Maybe<MetrcTransfersOrderBy>;
   package_id?: Maybe<OrderBy>;
   package_payload?: Maybe<OrderBy>;
+  product_category_name?: Maybe<OrderBy>;
   product_name?: Maybe<OrderBy>;
+  shipped_quantity?: Maybe<OrderBy>;
+  shipper_wholesale_price?: Maybe<OrderBy>;
   transfer_id?: Maybe<OrderBy>;
   type?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
@@ -9576,7 +9634,13 @@ export enum MetrcPackagesSelectColumn {
   /** column name */
   PackagePayload = "package_payload",
   /** column name */
+  ProductCategoryName = "product_category_name",
+  /** column name */
   ProductName = "product_name",
+  /** column name */
+  ShippedQuantity = "shipped_quantity",
+  /** column name */
+  ShipperWholesalePrice = "shipper_wholesale_price",
   /** column name */
   TransferId = "transfer_id",
   /** column name */
@@ -9595,10 +9659,61 @@ export type MetrcPackagesSetInput = {
   label?: Maybe<Scalars["String"]>;
   package_id?: Maybe<Scalars["String"]>;
   package_payload?: Maybe<Scalars["json"]>;
+  product_category_name?: Maybe<Scalars["String"]>;
   product_name?: Maybe<Scalars["String"]>;
+  shipped_quantity?: Maybe<Scalars["numeric"]>;
+  shipper_wholesale_price?: Maybe<Scalars["numeric"]>;
   transfer_id?: Maybe<Scalars["uuid"]>;
   type?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** aggregate stddev on columns */
+export type MetrcPackagesStddevFields = {
+  shipped_quantity?: Maybe<Scalars["Float"]>;
+  shipper_wholesale_price?: Maybe<Scalars["Float"]>;
+};
+
+/** order by stddev() on columns of table "metrc_packages" */
+export type MetrcPackagesStddevOrderBy = {
+  shipped_quantity?: Maybe<OrderBy>;
+  shipper_wholesale_price?: Maybe<OrderBy>;
+};
+
+/** aggregate stddev_pop on columns */
+export type MetrcPackagesStddevPopFields = {
+  shipped_quantity?: Maybe<Scalars["Float"]>;
+  shipper_wholesale_price?: Maybe<Scalars["Float"]>;
+};
+
+/** order by stddev_pop() on columns of table "metrc_packages" */
+export type MetrcPackagesStddevPopOrderBy = {
+  shipped_quantity?: Maybe<OrderBy>;
+  shipper_wholesale_price?: Maybe<OrderBy>;
+};
+
+/** aggregate stddev_samp on columns */
+export type MetrcPackagesStddevSampFields = {
+  shipped_quantity?: Maybe<Scalars["Float"]>;
+  shipper_wholesale_price?: Maybe<Scalars["Float"]>;
+};
+
+/** order by stddev_samp() on columns of table "metrc_packages" */
+export type MetrcPackagesStddevSampOrderBy = {
+  shipped_quantity?: Maybe<OrderBy>;
+  shipper_wholesale_price?: Maybe<OrderBy>;
+};
+
+/** aggregate sum on columns */
+export type MetrcPackagesSumFields = {
+  shipped_quantity?: Maybe<Scalars["numeric"]>;
+  shipper_wholesale_price?: Maybe<Scalars["numeric"]>;
+};
+
+/** order by sum() on columns of table "metrc_packages" */
+export type MetrcPackagesSumOrderBy = {
+  shipped_quantity?: Maybe<OrderBy>;
+  shipper_wholesale_price?: Maybe<OrderBy>;
 };
 
 /** update columns of table "metrc_packages" */
@@ -9620,7 +9735,13 @@ export enum MetrcPackagesUpdateColumn {
   /** column name */
   PackagePayload = "package_payload",
   /** column name */
+  ProductCategoryName = "product_category_name",
+  /** column name */
   ProductName = "product_name",
+  /** column name */
+  ShippedQuantity = "shipped_quantity",
+  /** column name */
+  ShipperWholesalePrice = "shipper_wholesale_price",
   /** column name */
   TransferId = "transfer_id",
   /** column name */
@@ -9628,6 +9749,42 @@ export enum MetrcPackagesUpdateColumn {
   /** column name */
   UpdatedAt = "updated_at",
 }
+
+/** aggregate var_pop on columns */
+export type MetrcPackagesVarPopFields = {
+  shipped_quantity?: Maybe<Scalars["Float"]>;
+  shipper_wholesale_price?: Maybe<Scalars["Float"]>;
+};
+
+/** order by var_pop() on columns of table "metrc_packages" */
+export type MetrcPackagesVarPopOrderBy = {
+  shipped_quantity?: Maybe<OrderBy>;
+  shipper_wholesale_price?: Maybe<OrderBy>;
+};
+
+/** aggregate var_samp on columns */
+export type MetrcPackagesVarSampFields = {
+  shipped_quantity?: Maybe<Scalars["Float"]>;
+  shipper_wholesale_price?: Maybe<Scalars["Float"]>;
+};
+
+/** order by var_samp() on columns of table "metrc_packages" */
+export type MetrcPackagesVarSampOrderBy = {
+  shipped_quantity?: Maybe<OrderBy>;
+  shipper_wholesale_price?: Maybe<OrderBy>;
+};
+
+/** aggregate variance on columns */
+export type MetrcPackagesVarianceFields = {
+  shipped_quantity?: Maybe<Scalars["Float"]>;
+  shipper_wholesale_price?: Maybe<Scalars["Float"]>;
+};
+
+/** order by variance() on columns of table "metrc_packages" */
+export type MetrcPackagesVarianceOrderBy = {
+  shipped_quantity?: Maybe<OrderBy>;
+  shipper_wholesale_price?: Maybe<OrderBy>;
+};
 
 /**
  * List of transfers from Metrc
@@ -11788,12 +11945,14 @@ export type MutationRootUpdateMetrcApiKeysByPkArgs = {
 
 /** mutation root */
 export type MutationRootUpdateMetrcPackagesArgs = {
+  _inc?: Maybe<MetrcPackagesIncInput>;
   _set?: Maybe<MetrcPackagesSetInput>;
   where: MetrcPackagesBoolExp;
 };
 
 /** mutation root */
 export type MutationRootUpdateMetrcPackagesByPkArgs = {
+  _inc?: Maybe<MetrcPackagesIncInput>;
   _set?: Maybe<MetrcPackagesSetInput>;
   pk_columns: MetrcPackagesPkColumnsInput;
 };
@@ -20091,6 +20250,9 @@ export type MetrcPackageFragment = Pick<
   | "label"
   | "type"
   | "product_name"
+  | "product_category_name"
+  | "shipped_quantity"
+  | "shipper_wholesale_price"
   | "package_payload"
   | "lab_results_payload"
   | "lab_results_status"
@@ -20917,6 +21079,9 @@ export const MetrcPackageFragmentDoc = gql`
     label
     type
     product_name
+    product_category_name
+    shipped_quantity
+    shipper_wholesale_price
     package_payload
     lab_results_payload
     lab_results_status

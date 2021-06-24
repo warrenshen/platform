@@ -1,6 +1,7 @@
 export const ColumnWidths = {
   // Fixed width columns.
   Comment: 250,
+  Count: 140,
   Currency: 130,
   Date: 130,
   Datetime: 220,

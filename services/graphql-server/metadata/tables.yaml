@@ -2548,16 +2548,22 @@
       - lab_results_status
       - created_at
       - updated_at
+      - product_category_name
+      - shipper_wholesale_price
+      - shipped_quantity
       filter: {}
   - role: bank_read_only
     permission:
       columns:
       - lab_results_payload
       - package_payload
+      - shipped_quantity
+      - shipper_wholesale_price
       - delivery_id
       - label
       - lab_results_status
       - package_id
+      - product_category_name
       - product_name
       - type
       - created_at
@@ -2568,16 +2574,19 @@
   - role: company_admin
     permission:
       columns:
-      - id
-      - package_id
-      - transfer_id
       - delivery_id
-      - label
-      - type
-      - product_name
-      - package_payload
+      - id
       - lab_results_payload
       - lab_results_status
+      - label
+      - package_id
+      - package_payload
+      - product_category_name
+      - product_name
+      - shipped_quantity
+      - shipper_wholesale_price
+      - transfer_id
+      - type
       filter:
         metrc_transfer:
           _or:
@@ -2588,16 +2597,19 @@
   - role: company_read_only
     permission:
       columns:
-      - id
-      - package_id
-      - transfer_id
       - delivery_id
-      - label
-      - type
-      - product_name
-      - package_payload
+      - id
       - lab_results_payload
       - lab_results_status
+      - label
+      - package_id
+      - package_payload
+      - product_category_name
+      - product_name
+      - shipped_quantity
+      - shipper_wholesale_price
+      - transfer_id
+      - type
       filter:
         metrc_transfer:
           _or:
@@ -2608,16 +2620,19 @@
   - role: purchase_order_reviewer
     permission:
       columns:
-      - id
-      - package_id
-      - transfer_id
       - delivery_id
-      - label
-      - type
-      - product_name
-      - package_payload
+      - id
       - lab_results_payload
       - lab_results_status
+      - label
+      - package_id
+      - package_payload
+      - product_category_name
+      - product_name
+      - shipped_quantity
+      - shipper_wholesale_price
+      - transfer_id
+      - type
       filter:
         metrc_transfer:
           vendor_id:

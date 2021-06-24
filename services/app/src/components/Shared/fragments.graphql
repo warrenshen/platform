@@ -234,6 +234,9 @@ fragment MetrcPackage on metrc_packages {
   label
   type
   product_name
+  product_category_name
+  shipped_quantity
+  shipper_wholesale_price
   package_payload
   lab_results_payload
   lab_results_status

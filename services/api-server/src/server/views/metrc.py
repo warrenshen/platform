@@ -78,12 +78,15 @@ class GetTransfersView(MethodView):
 			transfers_rows = transfers_obj.to_rows(include_header=include_transfers_header)
 			all_transfers_rows.extend(transfers_rows)
 
-			transfer_ids = transfers_obj.get_delivery_ids()
-			for transfer_id in transfer_ids:
-				resp = rest.get(f'/transfers/v1/delivery/{transfer_id}/packages')
+			delivery_ids = transfers_obj.get_delivery_ids()
+			for delivery_id in delivery_ids:
+				resp = rest.get(f'/transfers/v1/delivery/{delivery_id}/packages')
 				t_packages_json = json.loads(resp.content)
 
-				transfer_packages = transfers_util.TransferPackages(transfer_id, t_packages_json)
+				resp = rest.get(f'/transfers/v1/delivery/{delivery_id}/packages/wholesale')
+				t_packages_wholesale_json = json.loads(resp.content)
+
+				transfer_packages = transfers_util.TransferPackages(delivery_id, t_packages_json, t_packages_wholesale_json)
 				include_packages_header = len(all_transfer_package_rows) == 0
 				all_transfer_package_rows.extend(transfer_packages.to_rows(
 					include_header=include_packages_header))
