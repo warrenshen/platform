@@ -1,14 +1,22 @@
-query GetCustomerOverview($companyId: uuid!, $loanType: loan_type_enum) {
-  companies_by_pk(id: $companyId) {
+subscription GetCustomerFinancialSummaryByDate(
+  $company_id: uuid!,
+  $date: date!,
+) {
+  companies_by_pk(id: $company_id) {
     id
-    financial_summaries(
-      order_by: { date: desc }
-      where: { date: { _is_null: false } }
-      limit: 1
-    ) {
+    financial_summaries(where: { date: { _eq: $date } }) {
       id
       ...FinancialSummary
     }
+  }
+}
+
+query GetCustomerOverview(
+  $company_id: uuid!,
+  $loan_type: loan_type_enum,
+) {
+  companies_by_pk(id: $company_id) {
+    id
     outstanding_loans: loans(
       where: {
         _and: [
@@ -18,7 +26,7 @@ query GetCustomerOverview($companyId: uuid!, $loanType: loan_type_enum) {
               { is_deleted: { _eq: false } }
             ]
           }
-          { loan_type: { _eq: $loanType } }
+          { loan_type: { _eq: $loan_type } }
           { funded_at: { _is_null: false } }
           { closed_at: { _is_null: true } }
         ]
@@ -60,17 +68,9 @@ query GetCustomerOverview($companyId: uuid!, $loanType: loan_type_enum) {
   }
 }
 
-query GetCustomerAccount($companyId: uuid!) {
-  companies_by_pk(id: $companyId) {
+query GetCustomerAccount($company_id: uuid!) {
+  companies_by_pk(id: $company_id) {
     id
-    financial_summaries(
-      order_by: { date: desc }
-      where: { date: { _is_null: false } }
-      limit: 1
-    ) {
-      id
-      ...FinancialSummary
-    }
     fee_payments: payments(
       where: {
         _and: [

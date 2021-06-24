@@ -1,4 +1,5 @@
 import { Companies, ProductTypeEnum } from "generated/graphql";
+import CurrentCustomerProvider from "contexts/CurrentCustomerProvider";
 import CustomerLoansPageContent from "pages/Customer/Loans/LoansPageContent";
 
 interface Props {
@@ -12,10 +13,12 @@ export default function BankCustomerLoansSubpage({
 }: Props) {
   return (
     !!productType && (
-      <CustomerLoansPageContent
-        companyId={companyId}
-        productType={productType}
-      />
+      <CurrentCustomerProvider companyId={companyId}>
+        <CustomerLoansPageContent
+          companyId={companyId}
+          productType={productType}
+        />
+      </CurrentCustomerProvider>
     )
   );
 }

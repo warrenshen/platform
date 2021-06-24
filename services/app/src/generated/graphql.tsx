@@ -4346,6 +4346,7 @@ export type Contracts = {
   company_id?: Maybe<Scalars["uuid"]>;
   end_date?: Maybe<Scalars["date"]>;
   id: Scalars["uuid"];
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   modified_at: Scalars["timestamptz"];
   /** An object relationship */
   modified_by_user?: Maybe<Users>;
@@ -4445,6 +4446,7 @@ export type ContractsBoolExp = {
   company_id?: Maybe<UuidComparisonExp>;
   end_date?: Maybe<DateComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  is_deleted?: Maybe<BooleanComparisonExp>;
   modified_at?: Maybe<TimestamptzComparisonExp>;
   modified_by_user?: Maybe<UsersBoolExp>;
   modified_by_user_id?: Maybe<UuidComparisonExp>;
@@ -4485,6 +4487,7 @@ export type ContractsInsertInput = {
   company_id?: Maybe<Scalars["uuid"]>;
   end_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   modified_at?: Maybe<Scalars["timestamptz"]>;
   modified_by_user?: Maybe<UsersObjRelInsertInput>;
   modified_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -4577,6 +4580,7 @@ export type ContractsOrderBy = {
   company_id?: Maybe<OrderBy>;
   end_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  is_deleted?: Maybe<OrderBy>;
   modified_at?: Maybe<OrderBy>;
   modified_by_user?: Maybe<UsersOrderBy>;
   modified_by_user_id?: Maybe<OrderBy>;
@@ -4609,6 +4613,8 @@ export enum ContractsSelectColumn {
   /** column name */
   Id = "id",
   /** column name */
+  IsDeleted = "is_deleted",
+  /** column name */
   ModifiedAt = "modified_at",
   /** column name */
   ModifiedByUserId = "modified_by_user_id",
@@ -4630,6 +4636,7 @@ export type ContractsSetInput = {
   company_id?: Maybe<Scalars["uuid"]>;
   end_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   modified_at?: Maybe<Scalars["timestamptz"]>;
   modified_by_user_id?: Maybe<Scalars["uuid"]>;
   product_config?: Maybe<Scalars["jsonb"]>;
@@ -4649,6 +4656,8 @@ export enum ContractsUpdateColumn {
   EndDate = "end_date",
   /** column name */
   Id = "id",
+  /** column name */
+  IsDeleted = "is_deleted",
   /** column name */
   ModifiedAt = "modified_at",
   /** column name */
@@ -19013,17 +19022,29 @@ export type BankAccountsForTransferQuery = {
   >;
 };
 
-export type GetCustomerOverviewQueryVariables = Exact<{
-  companyId: Scalars["uuid"];
-  loanType?: Maybe<LoanTypeEnum>;
+export type GetCustomerFinancialSummaryByDateSubscriptionVariables = Exact<{
+  company_id: Scalars["uuid"];
+  date: Scalars["date"];
 }>;
 
-export type GetCustomerOverviewQuery = {
+export type GetCustomerFinancialSummaryByDateSubscription = {
   companies_by_pk?: Maybe<
     Pick<Companies, "id"> & {
       financial_summaries: Array<
         Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
       >;
+    }
+  >;
+};
+
+export type GetCustomerOverviewQueryVariables = Exact<{
+  company_id: Scalars["uuid"];
+  loan_type?: Maybe<LoanTypeEnum>;
+}>;
+
+export type GetCustomerOverviewQuery = {
+  companies_by_pk?: Maybe<
+    Pick<Companies, "id"> & {
       outstanding_loans: Array<
         Pick<Loans, "id"> & LoanLimitedFragment & LoanArtifactLimitedFragment
       >;
@@ -19036,15 +19057,12 @@ export type GetCustomerOverviewQuery = {
 };
 
 export type GetCustomerAccountQueryVariables = Exact<{
-  companyId: Scalars["uuid"];
+  company_id: Scalars["uuid"];
 }>;
 
 export type GetCustomerAccountQuery = {
   companies_by_pk?: Maybe<
     Pick<Companies, "id"> & {
-      financial_summaries: Array<
-        Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
-      >;
       fee_payments: Array<
         Pick<Payments, "id"> & {
           transactions: Array<Pick<Transactions, "id"> & TransactionFragment>;
@@ -19442,9 +19460,6 @@ export type GetActiveLoansForCompanyQueryVariables = Exact<{
 export type GetActiveLoansForCompanyQuery = {
   companies_by_pk?: Maybe<
     Pick<Companies, "id"> & {
-      financial_summaries: Array<
-        Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
-      >;
       loans: Array<
         Pick<Loans, "id"> & LoanLimitedFragment & LoanArtifactLimitedFragment
       >;
@@ -19726,6 +19741,7 @@ export type GetPaymentQuery = {
 
 export type GetPaymentForSettlementQueryVariables = Exact<{
   id: Scalars["uuid"];
+  today: Scalars["date"];
 }>;
 
 export type GetPaymentForSettlementQuery = {
@@ -19886,11 +19902,11 @@ export type AssignCollectionsBespokeBankAccountMutation = {
   >;
 };
 
-export type GetLatestBankFinancialSummariesSubscriptionVariables = Exact<{
-  [key: string]: never;
+export type GetBankFinancialSummariesByDateSubscriptionVariables = Exact<{
+  date: Scalars["date"];
 }>;
 
-export type GetLatestBankFinancialSummariesSubscription = {
+export type GetBankFinancialSummariesByDateSubscription = {
   bank_financial_summaries: Array<
     Pick<BankFinancialSummaries, "id"> & BankFinancialSummaryFragment
   >;
@@ -19976,9 +19992,6 @@ export type GetCompanyWithDetailsByCompanyIdQuery = {
   companies_by_pk?: Maybe<
     Pick<Companies, "id" | "name"> & {
       contract?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
-      financial_summaries: Array<
-        Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
-      >;
     }
   >;
 };
@@ -20811,7 +20824,7 @@ export type PaymentLimitedFragment = Pick<
 };
 
 export type GetCustomersWithMetadataQueryVariables = Exact<{
-  [key: string]: never;
+  date?: Maybe<Scalars["date"]>;
 }>;
 
 export type GetCustomersWithMetadataQuery = {
@@ -21811,18 +21824,58 @@ export type BankAccountsForTransferQueryResult = Apollo.QueryResult<
   BankAccountsForTransferQuery,
   BankAccountsForTransferQueryVariables
 >;
-export const GetCustomerOverviewDocument = gql`
-  query GetCustomerOverview($companyId: uuid!, $loanType: loan_type_enum) {
-    companies_by_pk(id: $companyId) {
+export const GetCustomerFinancialSummaryByDateDocument = gql`
+  subscription GetCustomerFinancialSummaryByDate(
+    $company_id: uuid!
+    $date: date!
+  ) {
+    companies_by_pk(id: $company_id) {
       id
-      financial_summaries(
-        order_by: { date: desc }
-        where: { date: { _is_null: false } }
-        limit: 1
-      ) {
+      financial_summaries(where: { date: { _eq: $date } }) {
         id
         ...FinancialSummary
       }
+    }
+  }
+  ${FinancialSummaryFragmentDoc}
+`;
+
+/**
+ * __useGetCustomerFinancialSummaryByDateSubscription__
+ *
+ * To run a query within a React component, call `useGetCustomerFinancialSummaryByDateSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomerFinancialSummaryByDateSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomerFinancialSummaryByDateSubscription({
+ *   variables: {
+ *      company_id: // value for 'company_id'
+ *      date: // value for 'date'
+ *   },
+ * });
+ */
+export function useGetCustomerFinancialSummaryByDateSubscription(
+  baseOptions: Apollo.SubscriptionHookOptions<
+    GetCustomerFinancialSummaryByDateSubscription,
+    GetCustomerFinancialSummaryByDateSubscriptionVariables
+  >
+) {
+  return Apollo.useSubscription<
+    GetCustomerFinancialSummaryByDateSubscription,
+    GetCustomerFinancialSummaryByDateSubscriptionVariables
+  >(GetCustomerFinancialSummaryByDateDocument, baseOptions);
+}
+export type GetCustomerFinancialSummaryByDateSubscriptionHookResult = ReturnType<
+  typeof useGetCustomerFinancialSummaryByDateSubscription
+>;
+export type GetCustomerFinancialSummaryByDateSubscriptionResult = Apollo.SubscriptionResult<GetCustomerFinancialSummaryByDateSubscription>;
+export const GetCustomerOverviewDocument = gql`
+  query GetCustomerOverview($company_id: uuid!, $loan_type: loan_type_enum) {
+    companies_by_pk(id: $company_id) {
+      id
       outstanding_loans: loans(
         where: {
           _and: [
@@ -21832,7 +21885,7 @@ export const GetCustomerOverviewDocument = gql`
                 { is_deleted: { _eq: false } }
               ]
             }
-            { loan_type: { _eq: $loanType } }
+            { loan_type: { _eq: $loan_type } }
             { funded_at: { _is_null: false } }
             { closed_at: { _is_null: true } }
           ]
@@ -21873,7 +21926,6 @@ export const GetCustomerOverviewDocument = gql`
       }
     }
   }
-  ${FinancialSummaryFragmentDoc}
   ${LoanLimitedFragmentDoc}
   ${LoanArtifactLimitedFragmentDoc}
   ${PaymentLimitedFragmentDoc}
@@ -21892,8 +21944,8 @@ export const GetCustomerOverviewDocument = gql`
  * @example
  * const { data, loading, error } = useGetCustomerOverviewQuery({
  *   variables: {
- *      companyId: // value for 'companyId'
- *      loanType: // value for 'loanType'
+ *      company_id: // value for 'company_id'
+ *      loan_type: // value for 'loan_type'
  *   },
  * });
  */
@@ -21930,17 +21982,9 @@ export type GetCustomerOverviewQueryResult = Apollo.QueryResult<
   GetCustomerOverviewQueryVariables
 >;
 export const GetCustomerAccountDocument = gql`
-  query GetCustomerAccount($companyId: uuid!) {
-    companies_by_pk(id: $companyId) {
+  query GetCustomerAccount($company_id: uuid!) {
+    companies_by_pk(id: $company_id) {
       id
-      financial_summaries(
-        order_by: { date: desc }
-        where: { date: { _is_null: false } }
-        limit: 1
-      ) {
-        id
-        ...FinancialSummary
-      }
       fee_payments: payments(
         where: {
           _and: [
@@ -21984,7 +22028,6 @@ export const GetCustomerAccountDocument = gql`
       }
     }
   }
-  ${FinancialSummaryFragmentDoc}
   ${PaymentLimitedFragmentDoc}
   ${TransactionFragmentDoc}
 `;
@@ -22001,7 +22044,7 @@ export const GetCustomerAccountDocument = gql`
  * @example
  * const { data, loading, error } = useGetCustomerAccountQuery({
  *   variables: {
- *      companyId: // value for 'companyId'
+ *      company_id: // value for 'company_id'
  *   },
  * });
  */
@@ -24051,14 +24094,6 @@ export const GetActiveLoansForCompanyDocument = gql`
   query GetActiveLoansForCompany($companyId: uuid!, $loanType: loan_type_enum) {
     companies_by_pk(id: $companyId) {
       id
-      financial_summaries(
-        order_by: { date: desc }
-        where: { date: { _is_null: false } }
-        limit: 1
-      ) {
-        id
-        ...FinancialSummary
-      }
       loans(
         where: {
           _and: [
@@ -24085,7 +24120,6 @@ export const GetActiveLoansForCompanyDocument = gql`
       }
     }
   }
-  ${FinancialSummaryFragmentDoc}
   ${LoanLimitedFragmentDoc}
   ${LoanArtifactLimitedFragmentDoc}
 `;
@@ -25528,7 +25562,7 @@ export type GetPaymentQueryResult = Apollo.QueryResult<
   GetPaymentQueryVariables
 >;
 export const GetPaymentForSettlementDocument = gql`
-  query GetPaymentForSettlement($id: uuid!) {
+  query GetPaymentForSettlement($id: uuid!, $today: date!) {
     payments_by_pk(id: $id) {
       id
       ...Payment
@@ -25539,7 +25573,7 @@ export const GetPaymentForSettlementDocument = gql`
           id
           ...Contract
         }
-        financial_summaries(order_by: { date: desc }, limit: 1) {
+        financial_summaries(where: { date: { _eq: $today } }) {
           id
           ...FinancialSummary
         }
@@ -25577,6 +25611,7 @@ export const GetPaymentForSettlementDocument = gql`
  * const { data, loading, error } = useGetPaymentForSettlementQuery({
  *   variables: {
  *      id: // value for 'id'
+ *      today: // value for 'today'
  *   },
  * });
  */
@@ -26394,9 +26429,12 @@ export type AssignCollectionsBespokeBankAccountMutationOptions = Apollo.BaseMuta
   AssignCollectionsBespokeBankAccountMutation,
   AssignCollectionsBespokeBankAccountMutationVariables
 >;
-export const GetLatestBankFinancialSummariesDocument = gql`
-  subscription GetLatestBankFinancialSummaries {
-    bank_financial_summaries(limit: 4, order_by: { date: desc }) {
+export const GetBankFinancialSummariesByDateDocument = gql`
+  subscription GetBankFinancialSummariesByDate($date: date!) {
+    bank_financial_summaries(
+      where: { date: { _eq: $date } }
+      order_by: { date: desc }
+    ) {
       id
       ...BankFinancialSummary
     }
@@ -26405,35 +26443,36 @@ export const GetLatestBankFinancialSummariesDocument = gql`
 `;
 
 /**
- * __useGetLatestBankFinancialSummariesSubscription__
+ * __useGetBankFinancialSummariesByDateSubscription__
  *
- * To run a query within a React component, call `useGetLatestBankFinancialSummariesSubscription` and pass it any options that fit your needs.
- * When your component renders, `useGetLatestBankFinancialSummariesSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetBankFinancialSummariesByDateSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetBankFinancialSummariesByDateSubscription` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetLatestBankFinancialSummariesSubscription({
+ * const { data, loading, error } = useGetBankFinancialSummariesByDateSubscription({
  *   variables: {
+ *      date: // value for 'date'
  *   },
  * });
  */
-export function useGetLatestBankFinancialSummariesSubscription(
-  baseOptions?: Apollo.SubscriptionHookOptions<
-    GetLatestBankFinancialSummariesSubscription,
-    GetLatestBankFinancialSummariesSubscriptionVariables
+export function useGetBankFinancialSummariesByDateSubscription(
+  baseOptions: Apollo.SubscriptionHookOptions<
+    GetBankFinancialSummariesByDateSubscription,
+    GetBankFinancialSummariesByDateSubscriptionVariables
   >
 ) {
   return Apollo.useSubscription<
-    GetLatestBankFinancialSummariesSubscription,
-    GetLatestBankFinancialSummariesSubscriptionVariables
-  >(GetLatestBankFinancialSummariesDocument, baseOptions);
+    GetBankFinancialSummariesByDateSubscription,
+    GetBankFinancialSummariesByDateSubscriptionVariables
+  >(GetBankFinancialSummariesByDateDocument, baseOptions);
 }
-export type GetLatestBankFinancialSummariesSubscriptionHookResult = ReturnType<
-  typeof useGetLatestBankFinancialSummariesSubscription
+export type GetBankFinancialSummariesByDateSubscriptionHookResult = ReturnType<
+  typeof useGetBankFinancialSummariesByDateSubscription
 >;
-export type GetLatestBankFinancialSummariesSubscriptionResult = Apollo.SubscriptionResult<GetLatestBankFinancialSummariesSubscription>;
+export type GetBankFinancialSummariesByDateSubscriptionResult = Apollo.SubscriptionResult<GetBankFinancialSummariesByDateSubscription>;
 export const GetLoansCountForBankDocument = gql`
   subscription GetLoansCountForBank {
     loans(
@@ -26805,14 +26844,9 @@ export const GetCompanyWithDetailsByCompanyIdDocument = gql`
         id
         ...Contract
       }
-      financial_summaries(order_by: { date: desc }, limit: 1) {
-        id
-        ...FinancialSummary
-      }
     }
   }
   ${ContractFragmentDoc}
-  ${FinancialSummaryFragmentDoc}
 `;
 
 /**
@@ -28459,7 +28493,7 @@ export type CompanyVendorPartnershipForVendorQueryResult = Apollo.QueryResult<
   CompanyVendorPartnershipForVendorQueryVariables
 >;
 export const GetCustomersWithMetadataDocument = gql`
-  query GetCustomersWithMetadata {
+  query GetCustomersWithMetadata($date: date) {
     customers: companies(
       where: { is_customer: { _eq: true } }
       order_by: { name: asc }
@@ -28470,7 +28504,7 @@ export const GetCustomersWithMetadataDocument = gql`
         id
         ...Contract
       }
-      financial_summaries(order_by: { date: desc }, limit: 1) {
+      financial_summaries(where: { date: { _eq: $date } }) {
         id
         ...FinancialSummary
       }
@@ -28498,6 +28532,7 @@ export const GetCustomersWithMetadataDocument = gql`
  * @example
  * const { data, loading, error } = useGetCustomersWithMetadataQuery({
  *   variables: {
+ *      date: // value for 'date'
  *   },
  * });
  */

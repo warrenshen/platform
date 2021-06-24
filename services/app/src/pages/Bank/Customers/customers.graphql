@@ -1,4 +1,4 @@
-query GetCustomersWithMetadata {
+query GetCustomersWithMetadata($date: date) {
   customers: companies(
     where: { is_customer: { _eq: true } }
     order_by: { name: asc }
@@ -9,7 +9,7 @@ query GetCustomersWithMetadata {
       id
       ...Contract
     }
-    financial_summaries(order_by: { date: desc }, limit: 1) {
+    financial_summaries(where: { date: { _eq: $date } }) {
       id
       ...FinancialSummary
     }

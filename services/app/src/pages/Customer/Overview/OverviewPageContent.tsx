@@ -17,6 +17,7 @@ import RepaymentsDataGrid from "components/Repayment/RepaymentsDataGrid";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import PageContent from "components/Shared/Page/PageContent";
+import { CurrentCustomerContext } from "contexts/CurrentCustomerContext";
 import {
   CurrentUserContext,
   isRoleBankUser,
@@ -68,6 +69,8 @@ export default function CustomerOverviewPageContent({
   } = useContext(CurrentUserContext);
   const isBankUser = isRoleBankUser(role);
 
+  const { financialSummary } = useContext(CurrentCustomerContext);
+
   const loanType =
     !!productType && productType in ProductTypeToLoanType
       ? ProductTypeToLoanType[productType]
@@ -76,8 +79,8 @@ export default function CustomerOverviewPageContent({
   const { data, refetch, error } = useGetCustomerOverviewQuery({
     fetchPolicy: "network-only",
     variables: {
-      companyId,
-      loanType,
+      company_id: companyId,
+      loan_type: loanType,
     },
   });
 
@@ -87,7 +90,6 @@ export default function CustomerOverviewPageContent({
   }
 
   const company = data?.companies_by_pk;
-  const financialSummary = company?.financial_summaries[0] || null;
   const payments = company?.pending_payments || [];
   const loans = company?.outstanding_loans || [];
   const settings = company?.settings || null;

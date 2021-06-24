@@ -98,8 +98,8 @@ export default function CreateMultiplePurchaseOrdersLoansModal({
 
   const { data: customerData } = useGetCustomerOverviewQuery({
     variables: {
-      companyId,
-      loanType:
+      company_id: companyId,
+      loan_type:
         productType === ProductTypeEnum.LineOfCredit
           ? LoanTypeEnum.LineOfCredit
           : LoanTypeEnum.PurchaseOrder,

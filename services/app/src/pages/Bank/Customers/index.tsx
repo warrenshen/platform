@@ -16,6 +16,7 @@ import {
   useGetCustomersWithMetadataQuery,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
+import { todayAsDateStringServer } from "lib/date";
 import { ProductTypeToLabel } from "lib/enum";
 import { bankRoutes } from "lib/routes";
 import { ColumnWidths } from "lib/tables";
@@ -31,6 +32,9 @@ export default function BankCustomersPage() {
   const { url } = useRouteMatch();
   const { data, refetch, error } = useGetCustomersWithMetadataQuery({
     fetchPolicy: "network-only",
+    variables: {
+      date: todayAsDateStringServer(),
+    },
   });
 
   if (error) {

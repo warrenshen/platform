@@ -6,7 +6,7 @@ import ReactDOM from "react-dom";
 import App from "./App";
 import CustomSnackbar from "./components/Shared/Snackbar/CustomSnackbar";
 import ApolloWrapper from "./contexts/ApolloClientProvider";
-import CurrentUserWrapper from "./contexts/CurrentUserProvider";
+import CurrentUserProvider from "./contexts/CurrentUserProvider";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
 
@@ -33,7 +33,7 @@ Sentry.init({
 });
 
 ReactDOM.render(
-  <CurrentUserWrapper>
+  <CurrentUserProvider>
     <ApolloWrapper>
       <ThemeProvider theme={theme}>
         <SnackbarProvider SnackbarComponent={CustomSnackbar}>
@@ -43,7 +43,7 @@ ReactDOM.render(
         </SnackbarProvider>
       </ThemeProvider>
     </ApolloWrapper>
-  </CurrentUserWrapper>,
+  </CurrentUserProvider>,
   document.getElementById("root")
 );
 

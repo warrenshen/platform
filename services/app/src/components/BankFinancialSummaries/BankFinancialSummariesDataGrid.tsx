@@ -2,7 +2,7 @@ import { ValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import {
-  GetLatestBankFinancialSummariesSubscription,
+  BankFinancialSummaryFragment,
   ProductTypeEnum,
 } from "generated/graphql";
 import { ProductTypeToLabel } from "lib/enum";
@@ -10,7 +10,7 @@ import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
 interface Props {
-  bankFinancialSummaries: GetLatestBankFinancialSummariesSubscription["bank_financial_summaries"];
+  bankFinancialSummaries: BankFinancialSummaryFragment[];
 }
 
 export default function BankFinancialSummariesDataGrid({

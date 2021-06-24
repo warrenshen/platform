@@ -12,9 +12,9 @@ import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
 import {
   useGetFundedLoansForBankSubscription,
-  useGetLatestBankFinancialSummariesSubscription,
+  useGetBankFinancialSummariesByDateSubscription,
 } from "generated/graphql";
-import { formatDatetimeString } from "lib/date";
+import { formatDatetimeString, todayAsDateStringServer } from "lib/date";
 import { bankRoutes } from "lib/routes";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
@@ -43,7 +43,11 @@ function BankOverviewPage() {
   const {
     data: latestBankFinancialSummariesData,
     error: latestBankFinancialSummariesError,
-  } = useGetLatestBankFinancialSummariesSubscription();
+  } = useGetBankFinancialSummariesByDateSubscription({
+    variables: {
+      date: todayAsDateStringServer(),
+    },
+  });
 
   const {
     data: fundedLoansData,

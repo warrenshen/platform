@@ -3,6 +3,7 @@ import { Alert } from "@material-ui/lab";
 import CreateRepaymentConfirmEffect from "components/Repayment/CreateRepaymentConfirmEffect";
 import CreateRepaymentSelectLoans from "components/Repayment/CreateRepaymentSelectLoans";
 import Modal from "components/Shared/Modal/Modal";
+import { CurrentCustomerContext } from "contexts/CurrentCustomerContext";
 import {
   CurrentUserContext,
   isRoleBankUser,
@@ -51,6 +52,8 @@ export default function CreateRepaymentModal({
   } = useContext(CurrentUserContext);
   const isBankUser = isRoleBankUser(role);
 
+  const { financialSummary } = useContext(CurrentCustomerContext);
+
   const { data } = useGetCompanyWithDetailsByCompanyIdQuery({
     fetchPolicy: "network-only",
     variables: {
@@ -60,7 +63,6 @@ export default function CreateRepaymentModal({
 
   const company = data?.companies_by_pk;
   const contract = company?.contract || null;
-  const financialSummary = company?.financial_summaries[0] || null;
 
   // There are 2 states that we show, one when the user is selecting
   // the payment method date, and payment type, and the next is when

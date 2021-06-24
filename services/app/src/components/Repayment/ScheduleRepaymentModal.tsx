@@ -12,7 +12,7 @@ import {
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { scheduleAccountLevelFeeRepaymentMutation } from "lib/api/payments";
-import { addBizDays, subtractBizDays } from "lib/date";
+import { addBizDays, subtractBizDays, todayAsDateStringServer } from "lib/date";
 import { PaymentTypeEnum, PaymentOptionEnum } from "lib/enum";
 import {
   computeSettlementDateForPayment,
@@ -48,6 +48,7 @@ export default function ScheduleRepaymentModal({
     fetchPolicy: "network-only",
     variables: {
       id: paymentId,
+      today: todayAsDateStringServer(),
     },
     onCompleted: (data) => {
       const existingPayment = data?.payments_by_pk;

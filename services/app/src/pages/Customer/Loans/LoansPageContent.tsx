@@ -1,45 +1,26 @@
 import { Box, Tab, Tabs, Typography } from "@material-ui/core";
 import PageContent from "components/Shared/Page/PageContent";
 import LinearProgressBar from "components/Shared/ProgressBar/LinearProgressBar";
-import {
-  ProductTypeEnum,
-  useGetActiveLoansForCompanyQuery,
-} from "generated/graphql";
-import { formatCurrency } from "lib/currency";
-import { ProductTypeToLoanType } from "lib/enum";
+import { CurrentCustomerContext } from "contexts/CurrentCustomerContext";
+import { ProductTypeEnum } from "generated/graphql";
 import { round } from "lodash";
 import CustomerLoansActiveTab from "pages/Customer/Loans/LoansActiveTab";
 import CustomerLoansClosedTab from "pages/Customer/Loans/LoansClosedTab";
-import { useState } from "react";
+import { formatCurrency } from "lib/currency";
+import { useContext, useState } from "react";
 
 interface Props {
   companyId: string;
   productType: ProductTypeEnum;
 }
 
-function CustomerLoansPageContent({ companyId, productType }: Props) {
+export default function CustomerLoansPageContent({
+  companyId,
+  productType,
+}: Props) {
+  const { financialSummary } = useContext(CurrentCustomerContext);
+
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
-
-  const loanType =
-    !!productType && productType in ProductTypeToLoanType
-      ? ProductTypeToLoanType[productType]
-      : null;
-
-  const { data, error } = useGetActiveLoansForCompanyQuery({
-    fetchPolicy: "network-only",
-    variables: {
-      companyId,
-      loanType,
-    },
-  });
-
-  if (error) {
-    console.error({ error });
-    alert(`Error in query (details in console): ${error.message}`);
-  }
-
-  const company = data?.companies_by_pk;
-  const financialSummary = company?.financial_summaries[0] || null;
 
   const outstandingAmount = financialSummary
     ? financialSummary.adjusted_total_limit - financialSummary.available_limit
@@ -96,5 +77,3 @@ function CustomerLoansPageContent({ companyId, productType }: Props) {
     </PageContent>
   );
 }
-
-export default CustomerLoansPageContent;

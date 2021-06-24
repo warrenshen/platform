@@ -13,7 +13,7 @@ query GetPayment($id: uuid!) {
   }
 }
 
-query GetPaymentForSettlement($id: uuid!) {
+query GetPaymentForSettlement($id: uuid!, $today: date!) {
   payments_by_pk(id: $id) {
     id
     ...Payment
@@ -24,7 +24,7 @@ query GetPaymentForSettlement($id: uuid!) {
         id
         ...Contract
       }
-      financial_summaries(order_by: { date: desc }, limit: 1) {
+      financial_summaries(where: { date: { _eq: $today } }) {
         id
         ...FinancialSummary
       }

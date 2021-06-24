@@ -7,7 +7,7 @@ import {
   PaymentsInsertInput,
   useGetPaymentForSettlementQuery,
 } from "generated/graphql";
-import { addBizDays } from "lib/date";
+import { addBizDays, todayAsDateStringServer } from "lib/date";
 import {
   PaymentMethodEnum,
   PaymentTypeEnum,
@@ -32,6 +32,7 @@ export default function SettleRepaymentModal({
     fetchPolicy: "network-only",
     variables: {
       id: paymentId,
+      today: todayAsDateStringServer(),
     },
     onCompleted: (data) => {
       const existingPayment = data?.payments_by_pk;

@@ -4,6 +4,7 @@ import DeleteLoanModal from "components/Loan/DeleteLoanModal";
 import PolymorphicLoansDataGrid from "components/Loans/PolymorphicLoansDataGrid";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
+import { CurrentCustomerContext } from "contexts/CurrentCustomerContext";
 import {
   CurrentUserContext,
   isRoleBankUser,
@@ -57,14 +58,14 @@ function LoansNotFunded({
   } = useContext(CurrentUserContext);
   const isBankUser = isRoleBankUser(role);
 
+  const { financialSummary } = useContext(CurrentCustomerContext);
+
   const company = data?.companies_by_pk;
 
   const loans = useMemo(
     () => (company?.loans || []).filter((loan) => !loan.funded_at),
     [company?.loans]
   );
-
-  const financialSummary = company?.financial_summaries[0] || null;
 
   const canCreateUpdateNewLoan =
     financialSummary?.available_limit && financialSummary?.available_limit > 0;

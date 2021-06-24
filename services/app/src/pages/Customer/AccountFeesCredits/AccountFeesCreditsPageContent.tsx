@@ -14,6 +14,7 @@ import CreateAccountFeesRepaymentModal from "components/Repayment/CreateAccountF
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import PageContent from "components/Shared/Page/PageContent";
+import { CurrentCustomerContext } from "contexts/CurrentCustomerContext";
 import {
   Payments,
   ProductTypeEnum,
@@ -21,7 +22,7 @@ import {
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { formatCurrency } from "lib/currency";
-import { useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -53,10 +54,12 @@ export default function CustomerAccountPageContent({
 }: Props) {
   const classes = useStyles();
 
+  const { financialSummary } = useContext(CurrentCustomerContext);
+
   const { data, refetch, error } = useGetCustomerAccountQuery({
     fetchPolicy: "network-only",
     variables: {
-      companyId,
+      company_id: companyId,
     },
   });
 
@@ -66,7 +69,6 @@ export default function CustomerAccountPageContent({
   }
 
   const company = data?.companies_by_pk;
-  const financialSummary = company?.financial_summaries[0] || null;
   const fees = company?.fee_payments || [];
   const canCreateRepaymentLoan =
     financialSummary?.total_outstanding_principal > 0 ||

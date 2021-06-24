@@ -37,7 +37,7 @@ function userFieldsFromToken(token: string) {
   };
 }
 
-function CurrentUserWrapper(props: { children: ReactNode }) {
+export default function CurrentUserProvider(props: { children: ReactNode }) {
   const [user, setUser] = useState<User>(BlankUser);
   const [isTokenLoaded, setIsTokenLoaded] = useState(false);
 
@@ -138,5 +138,3 @@ function CurrentUserWrapper(props: { children: ReactNode }) {
     <></>
   );
 }
-
-export default CurrentUserWrapper;

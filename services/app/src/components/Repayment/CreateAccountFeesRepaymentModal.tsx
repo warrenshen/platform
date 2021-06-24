@@ -2,6 +2,7 @@ import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import AccountFeesRepaymentForm from "components/Repayment/AccountFeesRepaymentForm";
 import Modal from "components/Shared/Modal/Modal";
+import { CurrentCustomerContext } from "contexts/CurrentCustomerContext";
 import {
   CurrentUserContext,
   isRoleBankUser,
@@ -10,7 +11,6 @@ import {
   Companies,
   PaymentsInsertInput,
   ProductTypeEnum,
-  useGetCompanyWithDetailsByCompanyIdQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -36,15 +36,7 @@ export default function CreateAccountFeesRepaymentModal({
   } = useContext(CurrentUserContext);
   const isBankUser = isRoleBankUser(role);
 
-  const { data } = useGetCompanyWithDetailsByCompanyIdQuery({
-    fetchPolicy: "network-only",
-    variables: {
-      companyId: companyId,
-    },
-  });
-
-  const company = data?.companies_by_pk;
-  const financialSummary = company?.financial_summaries[0] || null;
+  const { financialSummary } = useContext(CurrentCustomerContext);
 
   const [errMsg, setErrMsg] = useState("");
 
