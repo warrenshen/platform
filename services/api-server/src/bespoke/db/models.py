@@ -185,7 +185,7 @@ class CompanySettings(Base):
 			id=str(self.id),
 			vendor_agreement_docusign_template=self.vendor_agreement_docusign_template,
 			payor_agreement_docusign_template=self.payor_agreement_docusign_template,
-			active_ebba_application_id=str(self.active_ebba_application_id),
+			active_ebba_application_id=str(self.active_ebba_application_id) if self.active_ebba_application_id else None,
 		)
 
 ContractDict = TypedDict('ContractDict', {
