@@ -210,6 +210,7 @@ class Contract(Base):
 	modified_by_user_id = Column(GUID)
 	terminated_at = Column(DateTime)
 	terminated_by_user_id = Column(GUID)
+	is_deleted = Column(Boolean)
 
 	def as_dict(self) -> ContractDict:
 		return ContractDict(

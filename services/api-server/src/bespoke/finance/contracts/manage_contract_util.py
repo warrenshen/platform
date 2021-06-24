@@ -33,6 +33,10 @@ TerminateContractReqDict = TypedDict('TerminateContractReqDict', {
 	'termination_date': str
 })
 
+DeleteContractReqDict = TypedDict('DeleteContractReqDict', {
+	'contract_id': str
+})
+
 AddNewContractReqDict = TypedDict('AddNewContractReqDict', {
 	'company_id': str,
 	'contract_fields': ContractFieldsDict
@@ -218,6 +222,35 @@ def terminate_contract(
 		_, err = _update_loans_on_active_contract_updated(contract, session)
 		if err:
 			raise err
+
+	return True, None
+
+@errors.return_error_tuple
+def delete_contract(
+	req: DeleteContractReqDict, bank_admin_user_id: str, session_maker: Callable) -> Tuple[bool, errors.Error]:
+	err_details = {'req': req, 'method': 'delete_contract'}
+
+	with session_scope(session_maker) as session:
+		contract = cast(
+			models.Contract,
+			session.query(models.Contract).filter(
+				models.Contract.id == req['contract_id']
+			).first())
+		if not contract:
+			raise errors.Error('Contract could not be found', details=err_details)
+
+		company = cast(
+			models.Company,
+			session.query(models.Company).filter(
+				models.Company.id == contract.company_id
+			).first())
+		if not company:
+			raise errors.Error('Contract does not have a Company', details=err_details)
+
+		if not contract.terminated_at:
+			raise errors.Error('Cannot delete a contract which has not been terminated yet', details=err_details)
+
+		contract.is_deleted = True
 
 	return True, None
 

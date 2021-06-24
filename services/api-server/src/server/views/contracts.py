@@ -81,6 +81,36 @@ class TerminateContractView(MethodView):
 			'status': 'OK'
 		}), 200)
 
+class DeleteContractView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@events.wrap(events.Actions.CONTRACT_DELETE)
+	def post(self, **kwargs: Any) -> Response:
+		user_session = auth_util.UserSession.from_session()
+		bank_admin_user_id = user_session.get_user_id()
+
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'contract_id'
+		]
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(
+					'Missing key {} in request'.format(key))
+
+		_, err = manage_contract_util.delete_contract(
+			req=form, bank_admin_user_id=bank_admin_user_id,
+			session_maker=current_app.session_maker)
+		if err:
+			return handler_util.make_error_response(err)
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
+
 class AddNewContractView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
@@ -116,6 +146,9 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/update_contract', view_func=UpdateContractView.as_view(name='update_contract_view'))
+
+handler.add_url_rule(
+	'/delete_contract', view_func=DeleteContractView.as_view(name='delete_contract_view'))
 
 handler.add_url_rule(
 	'/add_new_contract', view_func=AddNewContractView.as_view(name='add_new_contract_view'))

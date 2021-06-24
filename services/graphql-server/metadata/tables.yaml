@@ -1190,6 +1190,7 @@
       - company_id
       - end_date
       - id
+      - is_deleted
       - modified_at
       - modified_by_user_id
       - product_config
@@ -1205,6 +1206,7 @@
       - company_id
       - end_date
       - id
+      - is_deleted
       - modified_at
       - modified_by_user_id
       - product_config
@@ -1220,6 +1222,7 @@
       - company_id
       - end_date
       - id
+      - is_deleted
       - product_config
       - product_type
       - start_date
@@ -1234,6 +1237,7 @@
       - company_id
       - end_date
       - id
+      - is_deleted
       - product_config
       - product_type
       - start_date
