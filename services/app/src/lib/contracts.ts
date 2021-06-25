@@ -1,15 +1,4 @@
-import {
-  Companies,
-  ContractFragment,
-  Contracts,
-  ContractsInsertInput,
-  ProductTypeEnum,
-} from "generated/graphql";
-import {
-  authenticatedApi,
-  contractRoutes,
-  CustomMutationResponse,
-} from "lib/api";
+import { ContractFragment, ProductTypeEnum } from "generated/graphql";
 import { ProductTypeToContractTermsJson } from "lib/enum";
 
 export enum ContractTermConfigs {
@@ -235,93 +224,6 @@ export function getContractTermIsHiddenIfNull(
       ContractTermConfigs.IsHiddenIfNull
     ];
   }
-}
-
-export type AddContractReq = {
-  variables: {
-    company_id: Companies["id"];
-    contract_fields: ContractsInsertInput;
-  };
-};
-
-export async function addContractMutation(
-  req: AddContractReq
-): Promise<CustomMutationResponse> {
-  return authenticatedApi
-    .post(contractRoutes.addContract, req.variables)
-    .then((res) => {
-      return res.data;
-    })
-    .then(
-      (response) => {
-        return response;
-      },
-      (error) => {
-        console.log("error", error);
-        return {
-          status: "ERROR",
-          msg: "Could not add contract",
-        };
-      }
-    );
-}
-
-export type UpdateContractReq = {
-  variables: {
-    contract_id: Contracts["id"];
-    contract_fields: ContractsInsertInput;
-  };
-};
-
-export async function updateContractMutation(
-  req: UpdateContractReq
-): Promise<CustomMutationResponse> {
-  return authenticatedApi
-    .post(contractRoutes.updateContract, req.variables)
-    .then((res) => {
-      return res.data;
-    })
-    .then(
-      (response) => {
-        return response;
-      },
-      (error) => {
-        console.log("error", error);
-        return {
-          status: "ERROR",
-          msg: "Could not update contract",
-        };
-      }
-    );
-}
-
-export type TerminateContractReq = {
-  variables: {
-    contract_id: Contracts["id"];
-    termination_date: Contracts["adjusted_end_date"];
-  };
-};
-
-export async function terminateContractMutation(
-  req: TerminateContractReq
-): Promise<CustomMutationResponse> {
-  return authenticatedApi
-    .post(contractRoutes.terminateContract, req.variables)
-    .then((res) => {
-      return res.data;
-    })
-    .then(
-      (response) => {
-        return response;
-      },
-      (error) => {
-        console.log("error", error);
-        return {
-          status: "ERROR",
-          msg: "Could not terminate contract",
-        };
-      }
-    );
 }
 
 // Contract terms related methods.

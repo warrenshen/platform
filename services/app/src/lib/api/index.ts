@@ -34,6 +34,7 @@ export const licenseRoutes = {
 
 export const contractRoutes = {
   addContract: "/contracts/add_new_contract",
+  deleteContract: "/contracts/delete_contract",
   terminateContract: "/contracts/terminate_contract",
   updateContract: "/contracts/update_contract",
 };

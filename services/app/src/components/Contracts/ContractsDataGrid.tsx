@@ -2,7 +2,11 @@ import { ValueFormatterParams } from "@material-ui/data-grid";
 import ContractDrawerLauncher from "components/Contract/ContractDrawerLauncher";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
-import { ContractFragment, ProductTypeEnum } from "generated/graphql";
+import {
+  ContractFragment,
+  Contracts,
+  ProductTypeEnum,
+} from "generated/graphql";
 import { formatDateString } from "lib/date";
 import { ProductTypeToLabel } from "lib/enum";
 import { ColumnWidths } from "lib/tables";
@@ -11,13 +15,19 @@ import { useMemo } from "react";
 interface Props {
   isCompanyVisible?: boolean;
   isExcelExport?: boolean;
+  isMultiSelectEnabled?: boolean;
   contracts: ContractFragment[];
+  selectedContractIds: Contracts["id"][];
+  handleSelectContracts: (contracts: ContractFragment[]) => void;
 }
 
-function ContractsDataGrid({
+export default function ContractsDataGrid({
   isCompanyVisible = true,
   isExcelExport = true,
+  isMultiSelectEnabled = false,
   contracts,
+  selectedContractIds,
+  handleSelectContracts,
 }: Props) {
   const rows = contracts;
   const columns = useMemo(
@@ -76,14 +86,22 @@ function ContractsDataGrid({
     []
   );
 
+  const handleSelectionChanged = useMemo(
+    () => ({ selectedRowsData }: any) =>
+      handleSelectContracts &&
+      handleSelectContracts(selectedRowsData as ContractFragment[]),
+    [handleSelectContracts]
+  );
+
   return (
     <ControlledDataGrid
-      dataSource={rows}
-      columns={columns}
       isExcelExport={isExcelExport}
       pager
+      select={isMultiSelectEnabled}
+      dataSource={rows}
+      columns={columns}
+      selectedRowKeys={selectedContractIds}
+      onSelectionChanged={handleSelectionChanged}
     />
   );
 }
-
-export default ContractsDataGrid;

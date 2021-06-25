@@ -8,8 +8,11 @@ export enum Action {
   AddBankAccount = "bank-accounts:add",
   EditBankAccount = "bank-accounts:edit",
   EditCustomerSettings = "bank-accounts:edit-customer-settings",
-  EditTerms = "bank-accounts:edit-terms",
-  TerminateContract = "bank-accounts:terminate-contract",
+
+  AddContract = "contracts:add",
+  DeleteContract = "contract:delete",
+  EditTerms = "contract:edit-terms",
+  TerminateContract = "contract:terminate",
 
   // Loans
   ApproveLoan = "loans:approve",
@@ -178,6 +181,9 @@ const rules: Rules = {
       Action.AddBankAccount,
       Action.EditBankAccount,
       Action.EditCustomerSettings,
+
+      Action.AddContract,
+      Action.DeleteContract,
       Action.EditTerms,
       Action.TerminateContract,
 

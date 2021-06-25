@@ -36,7 +36,7 @@ const useStyles = makeStyles(() =>
   })
 );
 
-function ContractCard({ contract, handleDataChange }: Props) {
+export default function ContractCard({ contract, handleDataChange }: Props) {
   const classes = useStyles();
 
   return (
@@ -132,5 +132,3 @@ function ContractCard({ contract, handleDataChange }: Props) {
     </Card>
   );
 }
-
-export default ContractCard;

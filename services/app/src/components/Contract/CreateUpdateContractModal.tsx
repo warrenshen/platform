@@ -10,14 +10,13 @@ import {
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
+import { addContractMutation, updateContractMutation } from "lib/api/contracts";
 import {
-  addContractMutation,
   createProductConfigFieldsFromContract,
   createProductConfigFieldsFromProductType,
   createProductConfigForServer,
   isProductConfigFieldInvalid,
   ProductConfigField,
-  updateContractMutation,
 } from "lib/contracts";
 import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
@@ -152,6 +151,7 @@ export default function CreateUpdateContractModal({
       dataCy={"create-contract-modal"}
       isPrimaryActionDisabled={isSubmitDisabled}
       title={`${actionType === ActionType.Update ? "Edit" : "Create"} Contract`}
+      contentWidth={600}
       primaryActionText={"Save"}
       handleClose={handleClose}
       handlePrimaryAction={handleClickSubmit}

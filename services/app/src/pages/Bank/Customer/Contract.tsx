@@ -1,85 +1,10 @@
-import { Box, Button, Typography } from "@material-ui/core";
-import ContractCard from "components/Contract/ContractCard";
-import CreateUpdateContractModal from "components/Contract/CreateUpdateContractModal";
-import ContractsDataGrid from "components/Contracts/ContractsDataGrid";
-import PageContent from "components/Shared/Page/PageContent";
-import { useGetCompanyForCustomerContractPageQuery } from "generated/graphql";
-import { ActionType } from "lib/enum";
-import { useState } from "react";
+import { Companies } from "generated/graphql";
+import CustomerContractPageContent from "pages/Customer/Contract/ContractPageContent";
 
 interface Props {
-  companyId: string;
+  companyId: Companies["id"];
 }
 
-function BankCustomerContractSubpage({ companyId }: Props) {
-  const { data, refetch } = useGetCompanyForCustomerContractPageQuery({
-    variables: {
-      companyId,
-    },
-  });
-
-  const activeContract = data?.companies_by_pk?.contract;
-  const contracts = data?.companies_by_pk?.contracts || [];
-
-  const isActiveContract = activeContract;
-
-  const [
-    isEditContractTermsModalOpen,
-    setIsEditContractTermsModalOpen,
-  ] = useState(false);
-  const [isCreateContractModalOpen, setIsCreateContractModalOpen] = useState(
-    false
-  );
-
-  return (
-    <PageContent title={"Contract"}>
-      {isEditContractTermsModalOpen && (
-        <CreateUpdateContractModal
-          actionType={ActionType.Update}
-          contractId={activeContract?.id || null}
-          companyId={companyId}
-          handleClose={() => {
-            refetch();
-            setIsEditContractTermsModalOpen(false);
-          }}
-        />
-      )}
-      {isCreateContractModalOpen && (
-        <CreateUpdateContractModal
-          actionType={ActionType.New}
-          contractId={null}
-          companyId={companyId}
-          handleClose={() => {
-            refetch();
-            setIsCreateContractModalOpen(false);
-          }}
-        />
-      )}
-      <Box>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => setIsCreateContractModalOpen(true)}
-        >
-          Create New Contract
-        </Button>
-      </Box>
-      <Box mt={3}>
-        <Box mb={1}>
-          <Typography variant="h6">Active Contract</Typography>
-        </Box>
-        {isActiveContract && activeContract && (
-          <ContractCard contract={activeContract} handleDataChange={refetch} />
-        )}
-      </Box>
-      <Box mt={3}>
-        <Box mb={1}>
-          <Typography variant="h6">Historical Contracts</Typography>
-        </Box>
-        <ContractsDataGrid isExcelExport contracts={contracts} />
-      </Box>
-    </PageContent>
-  );
+export default function BankCustomerContractSubpage({ companyId }: Props) {
+  return <CustomerContractPageContent companyId={companyId} />;
 }
-
-export default BankCustomerContractSubpage;
