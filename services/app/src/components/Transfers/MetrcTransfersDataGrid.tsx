@@ -26,7 +26,12 @@ export default function MetrcTransfersDataGrid({
           origin_facility: transferPayload.ShipperFacilityName,
           destination_license: transferPayload.RecipientFacilityLicenseNumber,
           destination_facility: transferPayload.RecipientFacilityName,
-          type: transferPayload.ShipmentTypeName,
+          shipment_type_name:
+            metrcTransfer.shipment_type_name ||
+            transferPayload.ShipmentTypeName,
+          shipment_transaction_type:
+            metrcTransfer.shipment_transaction_type ||
+            transferPayload.ShipmentTransactionType,
           last_modified_at: transferPayload.LastModified,
         };
       }),
@@ -92,8 +97,13 @@ export default function MetrcTransfersDataGrid({
         minWidth: ColumnWidths.MinWidth,
       },
       {
-        dataField: "type",
-        caption: "Type",
+        dataField: "shipment_type_name",
+        caption: "Shipment Type Name",
+        minWidth: ColumnWidths.MinWidth,
+      },
+      {
+        dataField: "shipment_transaction_type",
+        caption: "Shipment Transaction Type",
         minWidth: ColumnWidths.MinWidth,
       },
       {

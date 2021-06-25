@@ -349,12 +349,14 @@ class MetrcTransfer(Base):
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	license_id = cast(GUID, Column(GUID, ForeignKey('company_licenses.id')))
 	vendor_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
-	transfer_type = Column(String)
-	created_date = Column(Date)
-	delivery_id = Column(String)
-	manifest_number = Column(String)
-	transfer_payload = Column(JSON)
-	lab_results_status = Column(String)
+	created_date = Column(Date) # From Metrc info
+	delivery_id = Column(String) # From Metrc info
+	manifest_number = Column(String) # From Metrc info
+	shipment_type_name = Column(String) # From Metrc info
+	shipment_transaction_type = Column(String) # From Metrc info
+	transfer_payload = Column(JSON) # From Metrc info
+	transfer_type = Column(String) # Computed based on Metrc info
+	lab_results_status = Column(String) # Computed based on Metrc info
 	updated_at = Column(DateTime)
 
 

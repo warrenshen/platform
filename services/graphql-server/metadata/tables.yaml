@@ -2671,33 +2671,37 @@
   - role: bank_admin
     permission:
       columns:
+      - id
       - company_id
-      - created_at
+      - license_id
       - created_date
       - delivery_id
-      - id
-      - lab_results_status
-      - license_id
       - manifest_number
       - transfer_payload
-      - transfer_type
-      - updated_at
       - vendor_id
+      - transfer_type
+      - created_at
+      - updated_at
+      - lab_results_status
+      - shipment_type_name
+      - shipment_transaction_type
       filter: {}
   - role: bank_read_only
     permission:
       columns:
-      - company_id
-      - created_at
       - created_date
-      - delivery_id
-      - id
-      - lab_results_status
-      - license_id
-      - manifest_number
       - transfer_payload
+      - delivery_id
+      - lab_results_status
+      - manifest_number
+      - shipment_transaction_type
+      - shipment_type_name
       - transfer_type
+      - created_at
       - updated_at
+      - company_id
+      - id
+      - license_id
       - vendor_id
       filter: {}
   - role: company_admin
@@ -2710,6 +2714,8 @@
       - lab_results_status
       - license_id
       - manifest_number
+      - shipment_transaction_type
+      - shipment_type_name
       - transfer_payload
       - transfer_type
       - vendor_id
@@ -2729,6 +2735,8 @@
       - lab_results_status
       - license_id
       - manifest_number
+      - shipment_transaction_type
+      - shipment_type_name
       - transfer_payload
       - transfer_type
       - vendor_id
@@ -2748,6 +2756,8 @@
       - lab_results_status
       - license_id
       - manifest_number
+      - shipment_transaction_type
+      - shipment_type_name
       - transfer_payload
       - transfer_type
       - vendor_id

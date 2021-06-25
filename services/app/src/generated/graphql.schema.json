@@ -67671,6 +67671,30 @@
             "deprecationReason": null
           },
           {
+            "name": "shipment_transaction_type",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "shipment_type_name",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "transfer_payload",
             "description": null,
             "args": [
@@ -68117,6 +68141,26 @@
             "defaultValue": null
           },
           {
+            "name": "shipment_transaction_type",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "String_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "shipment_type_name",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "String_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "transfer_payload",
             "description": null,
             "type": {
@@ -68311,6 +68355,26 @@
             "defaultValue": null
           },
           {
+            "name": "shipment_transaction_type",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "shipment_type_name",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "transfer_payload",
             "description": null,
             "type": {
@@ -68467,6 +68531,30 @@
             "deprecationReason": null
           },
           {
+            "name": "shipment_transaction_type",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "shipment_type_name",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "transfer_type",
             "description": null,
             "args": [],
@@ -68586,6 +68674,26 @@
           },
           {
             "name": "manifest_number",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "shipment_transaction_type",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "shipment_type_name",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -68731,6 +68839,30 @@
             "deprecationReason": null
           },
           {
+            "name": "shipment_transaction_type",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "shipment_type_name",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "transfer_type",
             "description": null,
             "args": [],
@@ -68850,6 +68982,26 @@
           },
           {
             "name": "manifest_number",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "shipment_transaction_type",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "shipment_type_name",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -69153,6 +69305,26 @@
             "defaultValue": null
           },
           {
+            "name": "shipment_transaction_type",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "shipment_type_name",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "transfer_payload",
             "description": null,
             "type": {
@@ -69289,6 +69461,18 @@
             "deprecationReason": null
           },
           {
+            "name": "shipment_transaction_type",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "shipment_type_name",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "transfer_payload",
             "description": "column name",
             "isDeprecated": false,
@@ -69402,6 +69586,26 @@
             "defaultValue": null
           },
           {
+            "name": "shipment_transaction_type",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "shipment_type_name",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "transfer_payload",
             "description": null,
             "type": {
@@ -69498,6 +69702,18 @@
           },
           {
             "name": "manifest_number",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "shipment_transaction_type",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "shipment_type_name",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null

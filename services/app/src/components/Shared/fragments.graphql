@@ -218,6 +218,8 @@ fragment MetrcTransfer on metrc_transfers {
   transfer_type
   created_date
   manifest_number
+  shipment_type_name
+  shipment_transaction_type
   transfer_payload
   lab_results_status
   vendor {

@@ -141,6 +141,8 @@ class Transfers(object):
 			tr.delivery_id = '{}'.format(t['DeliveryId'])
 			tr.created_date = parser.parse(t['CreatedDateTime']).date()
 			tr.manifest_number = t['ManifestNumber']
+			tr.shipment_type_name = t['ShipmentTypeName']
+			tr.shipment_transaction_type = t['ShipmentTransactionType']
 			tr.transfer_payload = t
 			metrc_transfers.append(tr)
 
@@ -376,6 +378,8 @@ def populate_transfers_table(
 			# created_at
 			prev_transfer.created_date = metrc_transfer.created_date
 			prev_transfer.manifest_number = metrc_transfer.manifest_number
+			prev_transfer.shipment_type_name = metrc_transfer.shipment_type_name
+			prev_transfer.shipment_transaction_type = metrc_transfer.shipment_transaction_type
 			prev_transfer.transfer_payload = metrc_transfer.transfer_payload
 			prev_transfer.vendor_id = metrc_transfer.vendor_id
 			prev_transfer.transfer_type = metrc_transfer.transfer_type
