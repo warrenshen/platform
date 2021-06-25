@@ -930,15 +930,19 @@ class LoanCalculator(object):
 			)
 
 		report_repayment_date = balances['repayment_date']
+		financing_period = None
 
 		if loan['closed_at'] or should_close_loan:
 			if not report_repayment_date and payment_to_include:
 				report_repayment_date = payment_to_include['settlement_date']
 
-			financing_period = date_util.number_days_between_dates(
-				report_repayment_date,
-				loan['origination_date'],
-			)
+			# If there is a repayment date, calculate the financing period for this closed loan.
+			# Note: there may not be a repayment date if the loan was closed via adjustments.
+			if report_repayment_date:
+				financing_period = date_util.number_days_between_dates(
+					report_repayment_date,
+					loan['origination_date'],
+				)
 		else:
 			if report_repayment_date:
 				financing_period = date_util.number_days_between_dates(
