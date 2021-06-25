@@ -307,7 +307,7 @@ def import_line_of_credit_loans(session: Session, loan_tuples: List[List[str]]) 
 
 		contracts = cast(
 			List[models.Contract],
-			session.query(models.Contract).filter(
+			contract_util.get_active_contracts_base_query(session).filter(
 				models.Contract.company_id == customer.id
 			).all())
 		if not contracts:

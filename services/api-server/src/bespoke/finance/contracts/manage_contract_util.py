@@ -154,6 +154,9 @@ def update_contract(
 		if contract.terminated_at:
 			raise errors.Error('Cannot modify a contract which already has been terminated or "frozen"', details=err_details)
 
+		if contract.is_deleted:
+			raise errors.Error('Cannot update a deleted contract')
+
 		if not req['contract_fields']['start_date']:
 			raise errors.Error('Start date must be specified', details=err_details)
 
@@ -191,6 +194,9 @@ def terminate_contract(
 			).first())
 		if not contract:
 			raise errors.Error('Contract could not be found', details=err_details)
+
+		if contract.is_deleted:
+			raise errors.Error('Cannot terminate a contract that is already deleted')
 
 		company = cast(
 			models.Company,
@@ -239,6 +245,9 @@ def delete_contract(
 		if not contract:
 			raise errors.Error('Contract could not be found', details=err_details)
 
+		if contract.is_deleted:
+			raise errors.Error('Could not delete a contract which is already deleted')
+
 		company = cast(
 			models.Company,
 			session.query(models.Company).filter(
@@ -270,7 +279,7 @@ def add_new_contract(
 
 		existing_contracts = cast(
 			List[models.Contract],
-			session.query(models.Contract).filter(
+			contract_util.get_active_contracts_base_query(session).filter(
 				models.Contract.company_id == req['company_id']
 			).all())
 		if not existing_contracts:

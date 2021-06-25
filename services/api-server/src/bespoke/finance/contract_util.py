@@ -242,6 +242,11 @@ MinimumOwedDict = TypedDict('MinimumOwedDict', {
 	'amount': float
 })
 
+def get_active_contracts_base_query(session: Session) -> Any:
+	return session.query(models.Contract).filter(
+		cast(Callable, models.Contract.is_deleted.isnot)(True)
+	)
+
 class Contract(object):
 	"""
 		Represents a contract stored as JSON
@@ -872,7 +877,7 @@ def get_active_contracts_by_company_ids(
 
 	contracts = cast(
 		List[models.Contract],
-		session.query(models.Contract).filter(
+		get_active_contracts_base_query(session).filter(
 			models.Contract.id.in_(contract_ids)
 		).all())
 	if not contracts or len(contracts) != len(contract_ids):

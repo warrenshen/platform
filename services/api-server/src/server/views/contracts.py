@@ -5,6 +5,7 @@ from bespoke import errors
 from bespoke.db import db_constants, models, models_util
 from bespoke.db.models import session_scope
 from bespoke.audit import events
+from bespoke.finance import contract_util
 from bespoke.finance.contracts import manage_contract_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
@@ -42,7 +43,7 @@ class UpdateContractView(MethodView):
 			return handler_util.make_error_response(err)
 
 		with session_scope(current_app.session_maker) as session:
-			contract = session.query(models.Contract).filter(models.Contract.id == form["contract_id"]).first()
+			contract = contract_util.get_active_contracts_base_query(session).filter(models.Contract.id == form["contract_id"]).first()
 			if not contract:
 				raise errors.Error(
 					f"Failed to find contract specified in the request (id: {form['contract_id']})")

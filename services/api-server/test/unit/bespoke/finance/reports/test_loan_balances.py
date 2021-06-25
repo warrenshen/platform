@@ -302,6 +302,26 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				start_date=date_util.load_date_str('10/03/2020'), # Contract starts mid-quarter so we need to pro-rate
 				adjusted_end_date=date_util.load_date_str('12/1/2020')
 			))
+
+			# Add a contract which "is_deleted" so it shouldn't influence any loan balances calculations
+			session.add(models.Contract(
+				company_id=company_id,
+				product_type=ProductType.INVENTORY_FINANCING,
+				product_config=contract_test_helper.create_contract_config(
+					product_type=ProductType.INVENTORY_FINANCING,
+					input_dict=ContractInputDict(
+						interest_rate=0.001,
+						maximum_principal_amount=12000.01,
+						minimum_quarterly_amount=2000.03,
+						max_days_until_repayment=0, # unused
+						late_fee_structure=_get_late_fee_structure(), # unused
+					)
+				),
+				start_date=date_util.load_date_str('10/03/2020'), # Contract starts mid-quarter so we need to pro-rate
+				adjusted_end_date=date_util.load_date_str('12/1/2020'),
+				is_deleted=True
+			))
+
 			loan = models.Loan(
 				company_id=company_id,
 				origination_date=date_util.load_date_str('10/5/2020'),

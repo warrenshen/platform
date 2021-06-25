@@ -8,6 +8,7 @@ from bespoke.db import models, models_util
 from bespoke.db.models import (CompanySettingsDict, ContractDict,
                                EbbaApplicationDict, LoanDict, PaymentDict,
                                TransactionDict, session_scope)
+from bespoke.finance import contract_util
 from bespoke.finance.types import per_customer_types
 from mypy_extensions import TypedDict
 
@@ -45,7 +46,7 @@ class Fetcher(object):
 		with session_scope(self._session_maker) as session:
 			contracts = cast(
 				List[models.Contract],
-				session.query(models.Contract).filter(
+				contract_util.get_active_contracts_base_query(session).filter(
 					models.Contract.company_id == self._company_id
 				).all())
 			if not contracts:

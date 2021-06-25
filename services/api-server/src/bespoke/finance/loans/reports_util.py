@@ -8,7 +8,7 @@ from bespoke.audit import events
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
-from bespoke.finance import financial_summary_util, number_util
+from bespoke.finance import financial_summary_util, number_util, contract_util
 from bespoke.finance.reports import loan_balances
 from bespoke.finance.reports.loan_balances import CustomerUpdateDict
 from sqlalchemy.orm.session import Session
@@ -113,7 +113,7 @@ def compute_bank_financial_summaries(
 
 	contracts = cast(
 		List[models.Contract],
-		session.query(models.Contract).filter(
+		contract_util.get_active_contracts_base_query(session).filter(
 			models.Contract.id.in_(contract_ids)
 		).all())
 

@@ -26778,7 +26778,15 @@ export const GetCompanyForCustomerContractPageDocument = gql`
         id
         ...Contract
       }
-      contracts(order_by: [{ adjusted_end_date: desc }]) {
+      contracts(
+        order_by: [{ adjusted_end_date: desc }]
+        where: {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+      ) {
         id
         ...Contract
       }

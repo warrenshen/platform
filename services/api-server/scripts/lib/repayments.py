@@ -213,7 +213,7 @@ def import_settled_repayments(
 		# If so, set loan.closed_at to parsed_settled_at. Otherwise, continue.
 		contracts = cast(
 			List[models.Contract],
-			session.query(models.Contract).filter(
+			contract_util.get_active_contracts_base_query(session).filter(
 				models.Contract.company_id == customer.id
 			).all())
 		if not contracts:
@@ -524,7 +524,7 @@ def import_settled_repayments_line_of_credit(
 			# If so, set loan.closed_at to parsed_settled_at. Otherwise, continue.
 			contracts = cast(
 				List[models.Contract],
-				session.query(models.Contract).filter(
+				contract_util.get_active_contracts_base_query(session).filter(
 					models.Contract.company_id == customer_id
 				).all())
 			if not contracts:

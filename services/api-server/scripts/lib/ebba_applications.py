@@ -80,7 +80,7 @@ def import_approved_ebba_applications(
 
 		contracts = cast(
 			List[models.Contract],
-			session.query(models.Contract).filter(
+			contract_util.get_active_contracts_base_query(session).filter(
 				models.Contract.company_id == customer.id
 			).all())
 		if not contracts:

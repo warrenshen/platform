@@ -323,7 +323,7 @@ def submit_for_approval_if_has_autofinancing(
 
 	contract = cast(
 		models.Contract,
-		session.query(models.Contract).filter(
+		contract_util.get_active_contracts_base_query(session).filter(
 			models.Contract.id == company.contract_id
 		).first())
 	if not contract:

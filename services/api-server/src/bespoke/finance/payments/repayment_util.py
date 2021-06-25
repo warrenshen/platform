@@ -156,7 +156,7 @@ def calculate_repayment_effect(
 		# Get all contracts associated with company.
 		contracts = cast(
 			List[models.Contract],
-			session.query(models.Contract).filter(
+			contract_util.get_active_contracts_base_query(session).filter(
 				models.Contract.company_id == company_id
 			).all())
 		if not contracts:
@@ -779,7 +779,7 @@ def settle_repayment(
 		# Get all contracts associated with company.
 		contracts = cast(
 			List[models.Contract],
-			session.query(models.Contract).filter(
+			contract_util.get_active_contracts_base_query(session).filter(
 				models.Contract.company_id == company_id
 			).all())
 		if not contracts:
