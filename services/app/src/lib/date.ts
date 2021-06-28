@@ -11,6 +11,7 @@ import {
 } from "date-fns";
 import { getBankHolidays, Holiday } from "date-fns-holiday-us";
 
+export const MonthFormatClient = "MM/yyyy";
 export const DateFormatClient = "MM/dd/yyyy";
 export const DateFormatServer = "yyyy-MM-dd";
 export const TimeFormatClient = "hh:mm:ss a";
@@ -35,6 +36,24 @@ export function formatDateString(dateString: string) {
       return format(
         parse(dateString, DateFormatServer, new Date()),
         DateFormatClient
+      );
+    } catch (error) {
+      console.error(
+        `Could not format the date string "${dateString}", returning null. Error message: "${error}".`
+      );
+      return null;
+    }
+  }
+}
+
+export function formatDateStringAsMonth(dateString: string) {
+  if (!dateString) {
+    return "Invalid Date";
+  } else {
+    try {
+      return format(
+        parse(dateString, DateFormatServer, new Date()),
+        MonthFormatClient
       );
     } catch (error) {
       console.error(

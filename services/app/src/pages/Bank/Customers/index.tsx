@@ -24,7 +24,7 @@ import { ColumnWidths } from "lib/tables";
 import { filter, sortBy } from "lodash";
 import { useContext, useMemo, useState } from "react";
 import { useRouteMatch } from "react-router-dom";
-import CreateBulkMinimumMonthlyFeeModal from "components/Fee/CreateBulkMinimumMonthlyFeeModal";
+import CreateBulkMinimumMonthlyFeeModal from "components/Fee/CreateMinimumInterestFeesModal";
 
 export default function BankCustomersPage() {
   const {
@@ -173,11 +173,28 @@ export default function BankCustomersPage() {
             <Can perform={Action.BookFees}>
               <Box mr={2}>
                 <ModalButton
-                  label={"Book Minimum Monthly"}
+                  label={"Book Minimum Interest Fees"}
                   color={"default"}
                   variant={"outlined"}
                   modal={({ handleClose }) => (
                     <CreateBulkMinimumMonthlyFeeModal
+                      handleClose={() => {
+                        refetch();
+                        handleClose();
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+            </Can>
+            <Can perform={Action.RunBalances}>
+              <Box mr={2}>
+                <ModalButton
+                  label={"Run Balances (All Customers)"}
+                  color={"default"}
+                  variant={"outlined"}
+                  modal={({ handleClose }) => (
+                    <RunCustomerBalancesModal
                       handleClose={() => {
                         refetch();
                         handleClose();
@@ -212,22 +229,6 @@ export default function BankCustomersPage() {
                   color={"primary"}
                   modal={({ handleClose }) => (
                     <CreateCustomerModal
-                      handleClose={() => {
-                        refetch();
-                        handleClose();
-                      }}
-                    />
-                  )}
-                />
-              </Box>
-            )}
-            {check(role, Action.RunBalances) && (
-              <Box mr={2}>
-                <ModalButton
-                  label={"Run Balances"}
-                  color={"default"}
-                  modal={({ handleClose }) => (
-                    <RunCustomerBalancesModal
                       handleClose={() => {
                         refetch();
                         handleClose();
