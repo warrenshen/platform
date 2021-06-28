@@ -45,7 +45,6 @@ export default function CreateBulkMinimumMonthlyFeeModal({
     if (response.status !== "OK") {
       snackbar.showError(`Error: ${response.msg}`);
     } else {
-      window.console.log(response);
       setIsOnConfirmationPage(true);
       setMonthlyDueResp(response.data);
     }
@@ -82,17 +81,20 @@ export default function CreateBulkMinimumMonthlyFeeModal({
       title={"Create Minimum Monthly Fee For All Customers"}
       contentWidth={800}
       primaryActionText={isOnConfirmationPage ? "Submit" : "Next"}
+      secondaryActionText={
+        isOnConfirmationPage ? "Back to previous step" : null
+      }
       handleClose={handleClose}
       handlePrimaryAction={
         isOnConfirmationPage ? handleClickSubmit : handleClickNext
       }
+      handleSecondaryAction={() => setIsOnConfirmationPage(false)}
     >
       <Box display="flex" flexDirection="column">
         {!isOnConfirmationPage && (
           <Box>
             <Box display="flex" flexDirection="column" mt={4}>
               <DateInput
-                disableNonBankDays
                 id="choose-month-date-picker"
                 label="Choose Month"
                 value={dateStr}

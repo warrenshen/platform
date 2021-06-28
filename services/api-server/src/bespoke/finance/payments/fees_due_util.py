@@ -26,12 +26,15 @@ def _get_last_day_of_month_date(date_str: str) -> datetime.date:
 	# Find the last date of this month
 	chosen_date = date_util.load_date_str(date_str)
 	last_day_of_month = calendar.monthrange(chosen_date.year, chosen_date.month)[1]
-	return datetime.datetime(chosen_date.year, chosen_date.month, last_day_of_month)
+	return datetime.date(chosen_date.year, chosen_date.month, last_day_of_month)
 
 def _is_in_same_month(d1: datetime.date, d2: datetime.date) -> bool:
 	return d1.year == d2.year and d1.month == d2.month
 
 def _should_pay_this_month(fee_payload: models.FeeDict, cur_date: datetime.date) -> bool:
+	if 'prorated_info' not in fee_payload or fee_payload['prorated_info'] is None:
+		return False
+
 	day_to_pay = fee_payload['prorated_info']['day_to_pay']
 	date_to_pay = date_util.load_date_str(day_to_pay)
 
@@ -71,12 +74,12 @@ def get_all_monthly_minimum_fees_due(
 
 	for financial_summary in financial_summaries:
 		cur_company_id = str(financial_summary.company_id)
+		company_dict = company_id_to_dict[cur_company_id]
 
 		if not financial_summary.minimum_monthly_payload:
 			continue
 
 		minimum_monthly_payload = cast(models.FeeDict, financial_summary.minimum_monthly_payload)
-		#companies_with_financial_info[cur_company_id] = True
 
 		if not _should_pay_this_month(minimum_monthly_payload, last_day_of_month_date):
 			continue

@@ -47,8 +47,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 		customer_balance = loan_balances.CustomerBalance(
 			company_dict=models.CompanyDict(
-				name='Distributor 1',
-				id=company_id
+				id=company_id,
+				identifier='D1',
+				name='Distributor 1'
 			),
 			session_maker=self.session_maker
 		)

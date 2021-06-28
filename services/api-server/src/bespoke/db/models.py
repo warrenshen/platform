@@ -108,6 +108,7 @@ class Customer(Base):
 
 CompanyDict = TypedDict('CompanyDict', {
 	'id': str,
+	'identifier': str,
 	'name': str
 })
 
@@ -140,6 +141,7 @@ class Company(Base):
 	def as_dict(self) -> CompanyDict:
 		return CompanyDict(
 			id=str(self.id),
+			identifier=self.identifier, # May be None.
 			name=self.name
 		)
 
