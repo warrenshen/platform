@@ -25,6 +25,9 @@ export enum Action {
   CreateAdvance = "loans:create-advance",
   RunBalances = "loans:run-balances",
 
+  // Fees
+  BookFees = "fees:book_fees",
+
   // Adjustments
   CreateAdjustment = "loans:create-adjustment",
 
@@ -155,6 +158,9 @@ const rules: Rules = {
       Action.SendPayorAgreements,
 
       Action.AddBorrowingBase,
+
+      Action.CreateAdjustment,
+      Action.BookFees,
 
       // Bank on-behalf-of customer actions - bank performs on behalf of customer.
       Action.AddPurchaseOrders,

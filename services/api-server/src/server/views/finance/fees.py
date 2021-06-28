@@ -8,7 +8,7 @@ from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
 from bespoke.finance.payments import (payment_util, repayment_util,
-                                      repayment_util_fees)
+                                      repayment_util_fees, fees_due_util)
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from mypy_extensions import TypedDict
@@ -281,6 +281,73 @@ class SettleAccountLevelFeeRepaymentWithAccountCreditView(MethodView):
 			'transaction_ids': transaction_ids
 		}), 200)
 
+class GetAllMonthlyMinimumFeesDueView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = cast(Dict, json.loads(request.data))
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'date'
+		]
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(
+					'Missing key {} from get all monthly minimum fees due'.format(key))
+
+		user_session = auth_util.UserSession.from_session()
+
+		with models.session_scope(current_app.session_maker) as session:
+			resp, err = fees_due_util.get_all_monthly_minimum_fees_due(
+				form.get('date'),
+				session
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'data': resp
+		}), 200)
+
+
+class SubmitAllMonthlyMinimumFeesDueView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = cast(Dict, json.loads(request.data))
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'date',
+			'monthly_due_resp'
+		]
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(
+					'Missing key {} from get all monthly minimum fees due'.format(key))
+
+		user_session = auth_util.UserSession.from_session()
+
+		with models.session_scope(current_app.session_maker) as session:
+			success, err = fees_due_util.create_minimum_due_fee_for_customers(
+				form['date'],
+				form['monthly_due_resp'],
+				user_session.get_user_id(),
+				session
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
+
 handler.add_url_rule(
 	'/settle_account_level_fee_repayment_with_account_credit', view_func=SettleAccountLevelFeeRepaymentWithAccountCreditView.as_view(name='settle_account_level_fee_repayment_with_account_credit_view'))
 
@@ -298,3 +365,9 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/make_account_level_fee', view_func=MakeAccountLevelFeeView.as_view(name='make_account_level_fee_view'))
+
+handler.add_url_rule(
+	'/get_all_monthly_minimum_fees_due', view_func=GetAllMonthlyMinimumFeesDueView.as_view(name='get_all_monthly_minimum_fees_due_view'))
+
+handler.add_url_rule(
+	'/submit_all_monthly_minimum_fees_due', view_func=SubmitAllMonthlyMinimumFeesDueView.as_view(name='submit_all_monthly_minimum_fees_due_view'))

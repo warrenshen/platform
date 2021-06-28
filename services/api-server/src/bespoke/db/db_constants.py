@@ -133,6 +133,13 @@ PRODUCT_TYPE_TO_LOAN_TYPE = {
 	ProductType.PURCHASE_MONEY_FINANCING: LoanTypeEnum.INVENTORY,
 }
 
+# Fees
+
+class MinimumAmountDuration(object):
+	MONTHLY = 'monthly'
+	QUARTERLY = 'quarterly'
+	ANNUALLY = 'annually'
+
 # Payments
 
 class PaymentMethodEnum(object):

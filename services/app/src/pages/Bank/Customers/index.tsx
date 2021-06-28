@@ -10,6 +10,7 @@ import ModalButton from "components/Shared/Modal/ModalButton";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
+import Can from "components/Shared/Can";
 import {
   Companies,
   ProductTypeEnum,
@@ -23,6 +24,7 @@ import { ColumnWidths } from "lib/tables";
 import { filter, sortBy } from "lodash";
 import { useContext, useMemo, useState } from "react";
 import { useRouteMatch } from "react-router-dom";
+import CreateBulkMinimumMonthlyFeeModal from "components/Fee/CreateBulkMinimumMonthlyFeeModal";
 
 export default function BankCustomersPage() {
   const {
@@ -164,7 +166,30 @@ export default function BankCustomersPage() {
 
   return (
     <Page appBarTitle={"Customers"}>
-      <PageContent title={"Customers"}>
+      <PageContent
+        title={"Customers"}
+        bankActions={
+          <>
+            <Can perform={Action.BookFees}>
+              <Box mr={2}>
+                <ModalButton
+                  label={"Book Minimum Monthly"}
+                  color={"default"}
+                  variant={"outlined"}
+                  modal={({ handleClose }) => (
+                    <CreateBulkMinimumMonthlyFeeModal
+                      handleClose={() => {
+                        refetch();
+                        handleClose();
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+            </Can>
+          </>
+        }
+      >
         <Box
           display="flex"
           style={{ marginBottom: "1rem" }}

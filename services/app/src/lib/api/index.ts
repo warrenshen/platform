@@ -116,6 +116,9 @@ export const feesRoutes = {
     "finance/fees/schedule_account_level_fee_repayment",
   settleAccountLevelFeeRepayment:
     "/finance/fees/settle_account_level_fee_repayment",
+  getAllMonthlyMinimumFeesDue: "/finance/fees/get_all_monthly_minimum_fees_due",
+  submitAllMonthlyMinimumFeesDue:
+    "/finance/fees/submit_all_monthly_minimum_fees_due",
 };
 
 export const creditsRoutes = {

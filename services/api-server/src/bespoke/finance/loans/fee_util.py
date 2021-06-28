@@ -8,24 +8,10 @@ from typing import Dict, List, NamedTuple, Tuple
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
+from bespoke.db.models import FeeDict, ProratedFeeInfoDict
 from bespoke.finance import number_util, contract_util
 from bespoke.finance.types import finance_types
 from mypy_extensions import TypedDict
-
-ProratedFeeInfoDict = TypedDict('ProratedFeeInfoDict', {
-	'numerator': int,
-	'denom': int,
-	'fraction': float,
-	'day_to_pay': str # Day to pay in our standard MM/DD/YYYY format
-})
-
-FeeDict = TypedDict('FeeDict', {
-	'amount_accrued': float, # how much has accrued in fees for the time period
-	'minimum_amount': float, # the minimum you must pay in a time period
-	'amount_short': float, # how much you owe for a time period because of the minimum_due
-	'duration': str, # Over what duration is this fee owed
-	'prorated_info': ProratedFeeInfoDict
-})
 
 AccumulatedAmountDict = TypedDict('AccumulatedAmountDict', {
 	'interest_amount': float

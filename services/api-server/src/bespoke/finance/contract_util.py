@@ -8,7 +8,7 @@ from typing import Any, Callable, Dict, List, NamedTuple, Tuple, cast
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
-from bespoke.db.db_constants import ProductType
+from bespoke.db.db_constants import ProductType, MinimumAmountDuration
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
 
@@ -27,11 +27,6 @@ FullFieldDict = TypedDict('FullFieldDict', {
 	'value': Any,
 	'nullable': bool
 })
-
-class MinimumAmountDuration(object):
-	MONTHLY = 'monthly'
-	QUARTERLY = 'quarterly'
-	ANNUALLY = 'annually'
 
 INTERNAL_LATE_FEE_INFINITY = sys.maxsize
 

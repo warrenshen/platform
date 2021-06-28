@@ -148,7 +148,7 @@ export default function CustomerOverviewPageContent({
               />
             </Box>
           </Can>
-          <Can perform={Action.RunBalances}>
+          <Can perform={Action.CreateAdjustment}>
             <Box mr={2}>
               <ModalButton
                 label={"Create Adjustment"}

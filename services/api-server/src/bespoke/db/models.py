@@ -679,6 +679,21 @@ class BankFinancialSummary(Base):
 	adjusted_total_limit = Column(Numeric, nullable=False)
 	interest_accrued_today = Column(Numeric, nullable=False)
 
+ProratedFeeInfoDict = TypedDict('ProratedFeeInfoDict', {
+	'numerator': int,
+	'denom': int,
+	'fraction': float,
+	'day_to_pay': str # Day to pay in our standard MM/DD/YYYY format
+})
+
+FeeDict = TypedDict('FeeDict', {
+	'amount_accrued': float, # how much has accrued in fees for the time period
+	'minimum_amount': float, # the minimum you must pay in a time period
+	'amount_short': float, # how much you owe for a time period because of the minimum_due
+	'duration': str, # Over what duration is this fee owed
+	'prorated_info': ProratedFeeInfoDict
+})
+
 class FinancialSummary(Base):
 	__tablename__ = 'financial_summaries'
 
