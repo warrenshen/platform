@@ -183,7 +183,7 @@ function AuthenticateViaTwoFactorPage({
               <Box display="flex" flexDirection="column" mt={3}>
                 <TextField
                   autoFocus
-                  label="Enter code"
+                  label="Enter 2FA code"
                   value={codeEntered}
                   onChange={({ target: { value } }) => setCodeEntered(value)}
                 />

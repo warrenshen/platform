@@ -125,7 +125,7 @@ class SendCodeView(MethodView):
 
 def _approve_code(provided_token_val: str, two_factor_info: two_factor_util.TwoFactorInfoDict) -> Tuple[bool, errors.Error]:
 		if not provided_token_val:
-			return None, errors.Error('No token value provided from the SMS message')
+			return None, errors.Error('2FA code is missing: please submit code')
 
 		two_factor_link = two_factor_info['link']
 		email = two_factor_info['email']
@@ -141,10 +141,10 @@ def _approve_code(provided_token_val: str, two_factor_info: two_factor_util.TwoF
 		# We want to give the expires_in a timezone, so we default it to UTC
 		expires_datetime = parser.parse(token_dict['expires_in']).replace(tzinfo=datetime.timezone.utc)
 		if date_util.now() > expires_datetime: 
-			return None, errors.Error('Token has expired, please request a new one')
+			return None, errors.Error('2FA code is expired: please request a new one')
 
 		if provided_token_val != token_val:
-			return None, errors.Error('Provided token value is not correct')
+			return None, errors.Error('2FA code is incorrect: please try again or request a new one')
 
 		return True, None
 
