@@ -19072,7 +19072,7 @@ export type GetBankAccountsByCompanyIdQueryVariables = Exact<{
 }>;
 
 export type GetBankAccountsByCompanyIdQuery = {
-  bank_accounts: Array<BankAccountFragment>;
+  bank_accounts: Array<BankAccountLimitedFragment>;
 };
 
 export type BankAccountsForTransferQueryVariables = Exact<{
@@ -19872,9 +19872,7 @@ export type GetWireAdvancesByDateQueryVariables = Exact<{
 
 export type GetWireAdvancesByDateQuery = {
   payments: Array<
-    Pick<Payments, "id"> & {
-      company: Pick<Companies, "id" | "name">;
-    } & PaymentFragment
+    Pick<Payments, "id"> & PaymentFragment & PaymentBankAccountsFragment
   >;
 };
 
@@ -20097,16 +20095,18 @@ export type GetCompanyForBankQueryVariables = Exact<{
 
 export type GetCompanyForBankQuery = {
   companies_by_pk?: Maybe<
-    {
-      bank_accounts: Array<BankAccountFragment>;
+    Pick<Companies, "id"> & {
+      bank_accounts: Array<Pick<BankAccounts, "id"> & BankAccountFragment>;
       settings?: Maybe<
         {
-          collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
-          metrc_api_key?: Maybe<MetrcApiKeyFragment>;
+          collections_bespoke_bank_account?: Maybe<
+            Pick<BankAccounts, "id"> & BankAccountFragment
+          >;
+          metrc_api_key?: Maybe<Pick<MetrcApiKeys, "id"> & MetrcApiKeyFragment>;
         } & CompanySettingsFragment
       >;
-      contract?: Maybe<ContractFragment>;
-      licenses: Array<CompanyLicenseFragment>;
+      contract?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
+      licenses: Array<Pick<CompanyLicenses, "id"> & CompanyLicenseFragment>;
     } & CompanyFragment
   >;
 };
@@ -20118,13 +20118,17 @@ export type GetCompanyForCustomerQueryVariables = Exact<{
 export type GetCompanyForCustomerQuery = {
   companies_by_pk?: Maybe<
     Pick<Companies, "id"> & {
-      bank_accounts: Array<BankAccountLimitedFragment>;
+      bank_accounts: Array<
+        Pick<BankAccounts, "id"> & BankAccountLimitedFragment
+      >;
       settings?: Maybe<
-        {
-          collections_bespoke_bank_account?: Maybe<BankAccountLimitedFragment>;
+        Pick<CompanySettings, "id"> & {
+          collections_bespoke_bank_account?: Maybe<
+            Pick<BankAccounts, "id"> & BankAccountLimitedFragment
+          >;
         } & CompanySettingsLimitedFragment
       >;
-      contract?: Maybe<ContractFragment>;
+      contract?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
     } & CompanyFragment
   >;
 };
@@ -20136,23 +20140,6 @@ export type UpdateCompanyProfileMutationVariables = Exact<{
 
 export type UpdateCompanyProfileMutation = {
   update_companies_by_pk?: Maybe<CompanyFragment>;
-};
-
-export type AddCompanyBankAccountMutationVariables = Exact<{
-  bankAccount: BankAccountsInsertInput;
-}>;
-
-export type AddCompanyBankAccountMutation = {
-  insert_bank_accounts_one?: Maybe<BankAccountFragment>;
-};
-
-export type UpdateCompanyBankAccountMutationVariables = Exact<{
-  id: Scalars["uuid"];
-  bankAccount: BankAccountsSetInput;
-}>;
-
-export type UpdateCompanyBankAccountMutation = {
-  update_bank_accounts_by_pk?: Maybe<BankAccountFragment>;
 };
 
 export type UserFragment = Pick<
@@ -21811,10 +21798,10 @@ export type GetBespokeBankAccountsQueryResult = Apollo.QueryResult<
 export const GetBankAccountsByCompanyIdDocument = gql`
   query GetBankAccountsByCompanyId($companyId: uuid!) {
     bank_accounts(where: { company_id: { _eq: $companyId } }) {
-      ...BankAccount
+      ...BankAccountLimited
     }
   }
-  ${BankAccountFragmentDoc}
+  ${BankAccountLimitedFragmentDoc}
 `;
 
 /**
@@ -25907,13 +25894,11 @@ export const GetWireAdvancesByDateDocument = gql`
     ) {
       id
       ...Payment
-      company {
-        id
-        name
-      }
+      ...PaymentBankAccounts
     }
   }
   ${PaymentFragmentDoc}
+  ${PaymentBankAccountsFragmentDoc}
 `;
 
 /**
@@ -27144,20 +27129,25 @@ export type GetCompanyNextLoanIdentifierMutationOptions = Apollo.BaseMutationOpt
 export const GetCompanyForBankDocument = gql`
   query GetCompanyForBank($companyId: uuid!) {
     companies_by_pk(id: $companyId) {
+      id
       ...Company
       bank_accounts {
+        id
         ...BankAccount
       }
       settings {
         ...CompanySettings
         collections_bespoke_bank_account {
+          id
           ...BankAccount
         }
         metrc_api_key {
+          id
           ...MetrcApiKey
         }
       }
       contract {
+        id
         ...Contract
       }
       licenses(
@@ -27168,6 +27158,7 @@ export const GetCompanyForBankDocument = gql`
           ]
         }
       ) {
+        id
         ...CompanyLicense
       }
     }
@@ -27234,15 +27225,19 @@ export const GetCompanyForCustomerDocument = gql`
       id
       ...Company
       bank_accounts {
+        id
         ...BankAccountLimited
       }
       settings {
+        id
         ...CompanySettingsLimited
         collections_bespoke_bank_account {
+          id
           ...BankAccountLimited
         }
       }
       contract {
+        id
         ...Contract
       }
     }
@@ -27350,108 +27345,6 @@ export type UpdateCompanyProfileMutationResult = Apollo.MutationResult<UpdateCom
 export type UpdateCompanyProfileMutationOptions = Apollo.BaseMutationOptions<
   UpdateCompanyProfileMutation,
   UpdateCompanyProfileMutationVariables
->;
-export const AddCompanyBankAccountDocument = gql`
-  mutation AddCompanyBankAccount($bankAccount: bank_accounts_insert_input!) {
-    insert_bank_accounts_one(object: $bankAccount) {
-      ...BankAccount
-    }
-  }
-  ${BankAccountFragmentDoc}
-`;
-export type AddCompanyBankAccountMutationFn = Apollo.MutationFunction<
-  AddCompanyBankAccountMutation,
-  AddCompanyBankAccountMutationVariables
->;
-
-/**
- * __useAddCompanyBankAccountMutation__
- *
- * To run a mutation, you first call `useAddCompanyBankAccountMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAddCompanyBankAccountMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [addCompanyBankAccountMutation, { data, loading, error }] = useAddCompanyBankAccountMutation({
- *   variables: {
- *      bankAccount: // value for 'bankAccount'
- *   },
- * });
- */
-export function useAddCompanyBankAccountMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    AddCompanyBankAccountMutation,
-    AddCompanyBankAccountMutationVariables
-  >
-) {
-  return Apollo.useMutation<
-    AddCompanyBankAccountMutation,
-    AddCompanyBankAccountMutationVariables
-  >(AddCompanyBankAccountDocument, baseOptions);
-}
-export type AddCompanyBankAccountMutationHookResult = ReturnType<
-  typeof useAddCompanyBankAccountMutation
->;
-export type AddCompanyBankAccountMutationResult = Apollo.MutationResult<AddCompanyBankAccountMutation>;
-export type AddCompanyBankAccountMutationOptions = Apollo.BaseMutationOptions<
-  AddCompanyBankAccountMutation,
-  AddCompanyBankAccountMutationVariables
->;
-export const UpdateCompanyBankAccountDocument = gql`
-  mutation UpdateCompanyBankAccount(
-    $id: uuid!
-    $bankAccount: bank_accounts_set_input!
-  ) {
-    update_bank_accounts_by_pk(pk_columns: { id: $id }, _set: $bankAccount) {
-      ...BankAccount
-    }
-  }
-  ${BankAccountFragmentDoc}
-`;
-export type UpdateCompanyBankAccountMutationFn = Apollo.MutationFunction<
-  UpdateCompanyBankAccountMutation,
-  UpdateCompanyBankAccountMutationVariables
->;
-
-/**
- * __useUpdateCompanyBankAccountMutation__
- *
- * To run a mutation, you first call `useUpdateCompanyBankAccountMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateCompanyBankAccountMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateCompanyBankAccountMutation, { data, loading, error }] = useUpdateCompanyBankAccountMutation({
- *   variables: {
- *      id: // value for 'id'
- *      bankAccount: // value for 'bankAccount'
- *   },
- * });
- */
-export function useUpdateCompanyBankAccountMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UpdateCompanyBankAccountMutation,
-    UpdateCompanyBankAccountMutationVariables
-  >
-) {
-  return Apollo.useMutation<
-    UpdateCompanyBankAccountMutation,
-    UpdateCompanyBankAccountMutationVariables
-  >(UpdateCompanyBankAccountDocument, baseOptions);
-}
-export type UpdateCompanyBankAccountMutationHookResult = ReturnType<
-  typeof useUpdateCompanyBankAccountMutation
->;
-export type UpdateCompanyBankAccountMutationResult = Apollo.MutationResult<UpdateCompanyBankAccountMutation>;
-export type UpdateCompanyBankAccountMutationOptions = Apollo.BaseMutationOptions<
-  UpdateCompanyBankAccountMutation,
-  UpdateCompanyBankAccountMutationVariables
 >;
 export const UpdateCompanyInfoDocument = gql`
   mutation UpdateCompanyInfo($id: uuid!, $company: companies_set_input!) {

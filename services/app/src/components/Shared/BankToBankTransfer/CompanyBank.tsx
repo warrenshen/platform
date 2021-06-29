@@ -19,7 +19,7 @@ interface Props {
   onCompanyBankAccountSelection: (id: BankAccounts["id"]) => void;
 }
 
-function CompanyBank({
+export default function CompanyBank({
   companyId,
   payment,
   onCompanyBankAccountSelection,
@@ -69,5 +69,3 @@ function CompanyBank({
     </Box>
   );
 }
-
-export default CompanyBank;

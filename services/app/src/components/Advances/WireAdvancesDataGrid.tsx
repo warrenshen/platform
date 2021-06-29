@@ -15,7 +15,7 @@ function getRows(
   return payments.map((payment) => {
     return {
       ...payment,
-      template_name: "TBD",
+      template_name: payment.recipient_bank_account?.torrey_pines_template_name,
       bespoke_routing_number: "TBD", // TODO
       bespoke_account_number: "TBD", // TODO
       currency: "USD",
@@ -27,7 +27,7 @@ function getRows(
       recipient_account_number: payment.recipient_bank_account?.account_number,
       recipient_name: payment.recipient_bank_account?.recipient_name,
       recipient_address: payment.recipient_bank_account?.recipient_address,
-      recipient_address_2: "", // TODO
+      recipient_address_2: payment.recipient_bank_account?.recipient_address_2, // TODO
       additional_info_for_recipient: "", // TODO
     };
   });

@@ -1,19 +1,24 @@
 query GetCompanyForBank($companyId: uuid!) {
   companies_by_pk(id: $companyId) {
+    id
     ...Company
     bank_accounts {
+      id
       ...BankAccount
     }
     settings {
       ...CompanySettings
       collections_bespoke_bank_account {
+        id
         ...BankAccount
       }
       metrc_api_key {
+        id
         ...MetrcApiKey
       }
     }
     contract {
+      id
       ...Contract
     }
     licenses(
@@ -24,6 +29,7 @@ query GetCompanyForBank($companyId: uuid!) {
         ]
       }
     ) {
+      id
       ...CompanyLicense
     }
   }
@@ -34,15 +40,19 @@ query GetCompanyForCustomer($companyId: uuid!) {
     id
     ...Company
     bank_accounts {
+      id
       ...BankAccountLimited
     }
     settings {
+      id
       ...CompanySettingsLimited
       collections_bespoke_bank_account {
+        id
         ...BankAccountLimited
       }
     }
     contract {
+      id
       ...Contract
     }
   }
@@ -51,20 +61,5 @@ query GetCompanyForCustomer($companyId: uuid!) {
 mutation UpdateCompanyProfile($id: uuid!, $company: companies_set_input!) {
   update_companies_by_pk(pk_columns: { id: $id }, _set: $company) {
     ...Company
-  }
-}
-
-mutation AddCompanyBankAccount($bankAccount: bank_accounts_insert_input!) {
-  insert_bank_accounts_one(object: $bankAccount) {
-    ...BankAccount
-  }
-}
-
-mutation UpdateCompanyBankAccount(
-  $id: uuid!
-  $bankAccount: bank_accounts_set_input!
-) {
-  update_bank_accounts_by_pk(pk_columns: { id: $id }, _set: $bankAccount) {
-    ...BankAccount
   }
 }

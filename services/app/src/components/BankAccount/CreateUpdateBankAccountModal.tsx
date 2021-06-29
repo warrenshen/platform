@@ -12,6 +12,7 @@ import {
   CurrentUserContext,
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
+import BankAccountForm from "components/BankAccount/BankAccountForm";
 import {
   BankAccountFragment,
   BankAccountsInsertInput,
@@ -22,7 +23,6 @@ import {
 import useSnackbar from "hooks/useSnackbar";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useMemo, useState } from "react";
-import BankAccountForm from "./BankAccountForm";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

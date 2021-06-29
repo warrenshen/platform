@@ -84,10 +84,7 @@ query GetWireAdvancesByDate($date: date!) {
   ) {
     id
     ...Payment
-    company {
-      id
-      name
-    }
+    ...PaymentBankAccounts
   }
 }
 

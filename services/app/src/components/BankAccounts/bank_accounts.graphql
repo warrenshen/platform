@@ -6,7 +6,7 @@ query GetBespokeBankAccounts {
 
 query GetBankAccountsByCompanyId($companyId: uuid!) {
   bank_accounts(where: { company_id: { _eq: $companyId } }) {
-    ...BankAccount
+    ...BankAccountLimited
   }
 }
 

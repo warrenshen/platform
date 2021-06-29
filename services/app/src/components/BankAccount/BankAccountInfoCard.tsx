@@ -8,15 +8,20 @@ import {
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
 import { CheckCircle } from "@material-ui/icons";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import CreateUpdateBankAccountModal from "components/BankAccount/CreateUpdateBankAccountModal";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   BankAccountForVendorFragment,
   BankAccountFragment,
+  BankAccountLimitedFragment,
 } from "generated/graphql";
 import { formatDateString } from "lib/date";
 import { obfuscateBankNumbers } from "lib/privacy";
-import { useState } from "react";
+import { useContext, useState } from "react";
 
 const useStyles = makeStyles({
   baseInput: {
@@ -32,11 +37,14 @@ interface Props {
   isCannabisCompliantVisible?: boolean;
   isEditAllowed?: boolean;
   isVerificationVisible?: boolean;
-  bankAccount: BankAccountFragment | BankAccountForVendorFragment;
+  bankAccount:
+    | BankAccountFragment
+    | BankAccountLimitedFragment
+    | BankAccountForVendorFragment;
   handleDataChange?: () => void;
 }
 
-function BankAccountInfoCard({
+export default function BankAccountInfoCard({
   isCannabisCompliantVisible = false,
   isEditAllowed = false,
   isVerificationVisible = false,
@@ -44,13 +52,31 @@ function BankAccountInfoCard({
   handleDataChange,
 }: Props) {
   const classes = useStyles();
+
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+  const isBankUser = isRoleBankUser(role);
+
   const [isObfuscateEnabled, setIsObfuscateEnabled] = useState(true);
+
+  // Whether this bank account is associated with a Customer or Vendor
+  // (alternative is it is a Bespoke Financial bank account).
+  const isCompanyBank = !!bankAccount.company_id;
 
   return (
     <Card>
       <CardContent>
+        {isBankUser && isCompanyBank && (
+          <Box display="flex" pb={0.25}>
+            <Box className={classes.label}>Torrey Pines Template Name</Box>
+            <Box>
+              {(bankAccount as BankAccountFragment).torrey_pines_template_name}
+            </Box>
+          </Box>
+        )}
         <Box display="flex" pb={0.25}>
-          <Box className={classes.label}>Bank</Box>
+          <Box className={classes.label}>Bank Name</Box>
           <Box>{bankAccount.bank_name}</Box>
         </Box>
         <Box display="flex" pb={0.25}>
@@ -147,5 +173,3 @@ function BankAccountInfoCard({
     </Card>
   );
 }
-
-export default BankAccountInfoCard;
