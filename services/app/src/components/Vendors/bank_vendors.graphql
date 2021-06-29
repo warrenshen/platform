@@ -90,13 +90,13 @@ query CompanyBankAccounts($companyId: uuid!) {
 
 mutation AddBankAccount($bankAccount: bank_accounts_insert_input!) {
   insert_bank_accounts_one(object: $bankAccount) {
-    ...BankAccount
+    id
   }
 }
 
 mutation UpdateBankAccount($id: uuid!, $bankAccount: bank_accounts_set_input) {
   update_bank_accounts_by_pk(pk_columns: { id: $id }, _set: $bankAccount) {
-    ...BankAccount
+    id
   }
 }
 

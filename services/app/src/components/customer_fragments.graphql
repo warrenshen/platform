@@ -15,6 +15,25 @@ fragment CompanySettingsLimited on company_settings {
   has_autofinancing
 }
 
+fragment BankAccountLimited on bank_accounts {
+  id
+  company_id
+  bank_name
+  bank_address
+  account_title
+  account_type
+  account_number
+  routing_number
+  can_ach
+  can_wire
+  recipient_name
+  recipient_address
+  recipient_address_2
+  verified_at
+  verified_date
+  is_cannabis_compliant
+}
+
 fragment VendorLimited on vendors {
   id
   name

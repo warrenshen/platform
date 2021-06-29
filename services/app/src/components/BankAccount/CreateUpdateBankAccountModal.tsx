@@ -8,13 +8,15 @@ import {
   makeStyles,
   Theme,
 } from "@material-ui/core";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import {
   BankAccountFragment,
   BankAccountsInsertInput,
   Companies,
   useAddBankAccountMutation,
-  UserRolesEnum,
   useUpdateBankAccountMutation,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
@@ -39,7 +41,7 @@ interface Props {
   handleClose: () => void;
 }
 
-function CreateUpdateBankAccountModal({
+export default function CreateUpdateBankAccountModal({
   companyId,
   existingBankAccount,
   handleClose,
@@ -49,6 +51,7 @@ function CreateUpdateBankAccountModal({
   const {
     user: { role },
   } = useContext(CurrentUserContext);
+  const isBankUser = isRoleBankUser(role);
 
   const snackbar = useSnackbar();
 
@@ -67,6 +70,8 @@ function CreateUpdateBankAccountModal({
         bank_address: "",
         recipient_name: "",
         recipient_address: "",
+        recipient_address_2: "",
+        torrey_pines_template_name: "",
         verified_at: null,
         verified_date: null,
         is_cannabis_compliant: false,
@@ -82,35 +87,36 @@ function CreateUpdateBankAccountModal({
     )
   );
 
+  const prepareBankAccount = (isCreate: boolean) => {
+    return {
+      company_id: isCreate && isBankUser ? companyId : undefined,
+
+      bank_name: bankAccount.bank_name,
+      account_title: bankAccount.account_title,
+      account_type: bankAccount.account_type,
+      account_number: bankAccount.account_number,
+      routing_number: bankAccount.routing_number,
+      can_ach: bankAccount.can_ach,
+      can_wire: bankAccount.can_wire,
+      bank_address: bankAccount.bank_address,
+      recipient_name: bankAccount.recipient_name,
+      recipient_address: bankAccount.recipient_address,
+      recipient_address_2: bankAccount.recipient_address_2,
+      is_cannabis_compliant: bankAccount.is_cannabis_compliant,
+
+      torrey_pines_template_name: isBankUser
+        ? bankAccount.torrey_pines_template_name
+        : undefined,
+      verified_at: isBankUser ? bankAccount.verified_at : undefined,
+      verified_date: isBankUser ? bankAccount.verified_date : undefined,
+    };
+  };
+
   const handleUpdateBankAccount = async () => {
     await updateBankAccount({
       variables: {
         id: bankAccount.id,
-        bankAccount: {
-          bank_name: bankAccount.bank_name,
-          account_title: bankAccount.account_title,
-          account_type: bankAccount.account_type,
-          account_number: bankAccount.account_number,
-          routing_number: bankAccount.routing_number,
-          can_ach: bankAccount.can_ach,
-          can_wire: bankAccount.can_wire,
-          bank_address: bankAccount.bank_address,
-          recipient_name: bankAccount.recipient_name,
-          recipient_address: bankAccount.recipient_address,
-          verified_at:
-            role === UserRolesEnum.BankAdmin
-              ? bankAccount.verified_at
-              : undefined,
-          verified_date:
-            role === UserRolesEnum.BankAdmin
-              ? bankAccount.verified_date
-              : undefined,
-          is_cannabis_compliant:
-            role === UserRolesEnum.BankAdmin ||
-            role === UserRolesEnum.CompanyAdmin
-              ? bankAccount.is_cannabis_compliant
-              : undefined,
-        },
+        bankAccount: prepareBankAccount(false),
       },
     });
   };
@@ -118,32 +124,7 @@ function CreateUpdateBankAccountModal({
   const handleCreateBankAccount = async () => {
     await addBankAccount({
       variables: {
-        bankAccount: {
-          bank_name: bankAccount.bank_name,
-          account_title: bankAccount.account_title,
-          account_type: bankAccount.account_type,
-          account_number: bankAccount.account_number,
-          routing_number: bankAccount.routing_number,
-          can_ach: bankAccount.can_ach,
-          can_wire: bankAccount.can_wire,
-          bank_address: bankAccount.bank_address,
-          recipient_name: bankAccount.recipient_name,
-          recipient_address: bankAccount.recipient_address,
-          verified_at:
-            role === UserRolesEnum.BankAdmin
-              ? bankAccount.verified_at
-              : undefined,
-          verified_date:
-            role === UserRolesEnum.BankAdmin
-              ? bankAccount.verified_date
-              : undefined,
-          company_id: role === UserRolesEnum.BankAdmin ? companyId : undefined,
-          is_cannabis_compliant:
-            role === UserRolesEnum.BankAdmin ||
-            role === UserRolesEnum.CompanyAdmin
-              ? bankAccount.is_cannabis_compliant
-              : undefined,
-        },
+        bankAccount: prepareBankAccount(true),
       },
     });
   };
@@ -162,7 +143,7 @@ function CreateUpdateBankAccountModal({
       handleClose();
       snackbar.showSuccess(successMessage);
     } catch (err) {
-      snackbar.showError(`Error! Message: ${err}`);
+      snackbar.showError(`Error: ${err}`);
       console.error(err);
     }
   };
@@ -222,4 +203,3 @@ function CreateUpdateBankAccountModal({
     </Dialog>
   );
 }
-export default CreateUpdateBankAccountModal;

@@ -21,7 +21,11 @@ interface Props {
   setBankAccount: (update: BankAccountsInsertInput) => void;
 }
 
-function BankAccountForm({ bankAccount, setBankAccount, role }: Props) {
+export default function BankAccountForm({
+  bankAccount,
+  setBankAccount,
+  role,
+}: Props) {
   const classes = useStyles();
 
   return (
@@ -31,9 +35,9 @@ function BankAccountForm({ bankAccount, setBankAccount, role }: Props) {
           label="Bank Name"
           required
           value={bankAccount.bank_name}
-          onChange={({ target: { value } }) => {
-            setBankAccount({ ...bankAccount, bank_name: value });
-          }}
+          onChange={({ target: { value } }) =>
+            setBankAccount({ ...bankAccount, bank_name: value })
+          }
         />
       </Box>
       <Box mt={2}>
@@ -42,9 +46,9 @@ function BankAccountForm({ bankAccount, setBankAccount, role }: Props) {
           placeholder="Title on the account"
           required
           value={bankAccount.account_title || ""}
-          onChange={({ target: { value } }) => {
-            setBankAccount({ ...bankAccount, account_title: value });
-          }}
+          onChange={({ target: { value } }) =>
+            setBankAccount({ ...bankAccount, account_title: value })
+          }
         />
       </Box>
       <Box mt={2}>
@@ -53,9 +57,9 @@ function BankAccountForm({ bankAccount, setBankAccount, role }: Props) {
           placeholder="Checking, Savings, etc"
           required
           value={bankAccount.account_type}
-          onChange={({ target: { value } }) => {
-            setBankAccount({ ...bankAccount, account_type: value });
-          }}
+          onChange={({ target: { value } }) =>
+            setBankAccount({ ...bankAccount, account_type: value })
+          }
         />
       </Box>
       <Box mt={2}>
@@ -63,9 +67,9 @@ function BankAccountForm({ bankAccount, setBankAccount, role }: Props) {
           label="Routing Number"
           required
           value={bankAccount.routing_number}
-          onChange={({ target: { value } }) => {
-            setBankAccount({ ...bankAccount, routing_number: value });
-          }}
+          onChange={({ target: { value } }) =>
+            setBankAccount({ ...bankAccount, routing_number: value })
+          }
         />
       </Box>
       <Box mt={2}>
@@ -73,9 +77,9 @@ function BankAccountForm({ bankAccount, setBankAccount, role }: Props) {
           label="Account Number"
           required
           value={bankAccount.account_number}
-          onChange={({ target: { value } }) => {
-            setBankAccount({ ...bankAccount, account_number: value });
-          }}
+          onChange={({ target: { value } }) =>
+            setBankAccount({ ...bankAccount, account_number: value })
+          }
         />
       </Box>
       <Box mt={2}>
@@ -83,12 +87,12 @@ function BankAccountForm({ bankAccount, setBankAccount, role }: Props) {
           control={
             <Checkbox
               checked={!!bankAccount.can_ach}
-              onChange={(event: ChangeEvent<HTMLInputElement>) => {
+              onChange={(event: ChangeEvent<HTMLInputElement>) =>
                 setBankAccount({
                   ...bankAccount,
                   can_ach: event.target.checked,
-                });
-              }}
+                })
+              }
               color="primary"
             />
           }
@@ -99,12 +103,12 @@ function BankAccountForm({ bankAccount, setBankAccount, role }: Props) {
         control={
           <Checkbox
             checked={!!bankAccount.can_wire}
-            onChange={(event: ChangeEvent<HTMLInputElement>) => {
+            onChange={(event: ChangeEvent<HTMLInputElement>) =>
               setBankAccount({
                 ...bankAccount,
                 can_wire: event.target.checked,
-              });
-            }}
+              })
+            }
             color="primary"
           />
         }
@@ -117,9 +121,9 @@ function BankAccountForm({ bankAccount, setBankAccount, role }: Props) {
               className={classes.form}
               label="Bank Address"
               value={bankAccount.bank_address}
-              onChange={({ target: { value } }) => {
-                setBankAccount({ ...bankAccount, bank_address: value });
-              }}
+              onChange={({ target: { value } }) =>
+                setBankAccount({ ...bankAccount, bank_address: value })
+              }
             />
           </Box>
           <Box mt={2}>
@@ -127,9 +131,9 @@ function BankAccountForm({ bankAccount, setBankAccount, role }: Props) {
               label="Recipient Name"
               className={classes.form}
               value={bankAccount.recipient_name}
-              onChange={({ target: { value } }) => {
-                setBankAccount({ ...bankAccount, recipient_name: value });
-              }}
+              onChange={({ target: { value } }) =>
+                setBankAccount({ ...bankAccount, recipient_name: value })
+              }
             />
           </Box>
           <Box mt={2}>
@@ -137,32 +141,57 @@ function BankAccountForm({ bankAccount, setBankAccount, role }: Props) {
               label="Recipient Address"
               className={classes.form}
               value={bankAccount.recipient_address}
-              onChange={({ target: { value } }) => {
-                setBankAccount({ ...bankAccount, recipient_address: value });
-              }}
+              onChange={({ target: { value } }) =>
+                setBankAccount({ ...bankAccount, recipient_address: value })
+              }
+            />
+          </Box>
+          <Box mt={2}>
+            <TextField
+              label="Recipient Address 2"
+              className={classes.form}
+              value={bankAccount.recipient_address_2}
+              onChange={({ target: { value } }) =>
+                setBankAccount({ ...bankAccount, recipient_address_2: value })
+              }
             />
           </Box>
         </Box>
       )}
       {role === UserRolesEnum.BankAdmin && (
-        <Box mt={2}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={!!bankAccount.verified_at}
-                onChange={(event: ChangeEvent<HTMLInputElement>) => {
-                  setBankAccount({
-                    ...bankAccount,
-                    verified_at: !bankAccount.verified_at ? "now()" : null,
-                    verified_date: null,
-                  });
-                }}
-                color="primary"
-              />
-            }
-            label={"Verified bank account transfer"}
-          />
-        </Box>
+        <>
+          <Box mt={2}>
+            <TextField
+              label="Torrey Pines Template Name"
+              className={classes.form}
+              value={bankAccount.torrey_pines_template_name}
+              onChange={({ target: { value } }) =>
+                setBankAccount({
+                  ...bankAccount,
+                  torrey_pines_template_name: value,
+                })
+              }
+            />
+          </Box>
+          <Box mt={2}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={!!bankAccount.verified_at}
+                  onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                    setBankAccount({
+                      ...bankAccount,
+                      verified_at: !bankAccount.verified_at ? "now()" : null,
+                      verified_date: null,
+                    })
+                  }
+                  color="primary"
+                />
+              }
+              label={"Verified bank account transfer"}
+            />
+          </Box>
+        </>
       )}
       {role === UserRolesEnum.BankAdmin && !!bankAccount.verified_at && (
         <Box mt={2}>
@@ -202,5 +231,3 @@ function BankAccountForm({ bankAccount, setBankAccount, role }: Props) {
     </Box>
   );
 }
-
-export default BankAccountForm;

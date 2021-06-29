@@ -29,17 +29,17 @@ query GetCompanyForBank($companyId: uuid!) {
   }
 }
 
-query CompanyForCustomer($companyId: uuid!) {
+query GetCompanyForCustomer($companyId: uuid!) {
   companies_by_pk(id: $companyId) {
     id
     ...Company
     bank_accounts {
-      ...BankAccount
+      ...BankAccountLimited
     }
     settings {
       ...CompanySettingsLimited
       collections_bespoke_bank_account {
-        ...BankAccount
+        ...BankAccountLimited
       }
     }
     contract {

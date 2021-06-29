@@ -81,25 +81,6 @@ fragment PurchaseOrderFile on purchase_order_files {
 
 ## Finances
 
-# Bank accounts can be stored for the Bespoke bank and for customers
-fragment BankAccount on bank_accounts {
-  id
-  company_id
-  bank_name
-  bank_address
-  account_title
-  account_type
-  account_number
-  routing_number
-  can_ach
-  can_wire
-  recipient_name
-  recipient_address
-  verified_at
-  verified_date
-  is_cannabis_compliant
-}
-
 fragment BankAccountForVendor on bank_accounts {
   id
   company_id

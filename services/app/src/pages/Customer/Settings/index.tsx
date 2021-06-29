@@ -5,21 +5,26 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   CompanySettingsLimitedFragment,
   ContractFragment,
-  useCompanyForCustomerQuery,
+  useGetCompanyForCustomerQuery,
 } from "generated/graphql";
 import { useContext } from "react";
 
-function SettingsPage() {
+export default function SettingsPage() {
   const {
     user: { companyId },
   } = useContext(CurrentUserContext);
 
-  const { data, refetch } = useCompanyForCustomerQuery({
+  const { data, error, refetch } = useGetCompanyForCustomerQuery({
     fetchPolicy: "network-only",
     variables: {
       companyId,
     },
   });
+
+  if (error) {
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
+  }
 
   const company = data?.companies_by_pk;
   const settings = data?.companies_by_pk
@@ -43,5 +48,3 @@ function SettingsPage() {
     </Page>
   );
 }
-
-export default SettingsPage;

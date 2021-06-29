@@ -354,8 +354,10 @@ export type BankAccounts = {
   id: Scalars["uuid"];
   is_cannabis_compliant: Scalars["Boolean"];
   recipient_address?: Maybe<Scalars["String"]>;
+  recipient_address_2?: Maybe<Scalars["String"]>;
   recipient_name?: Maybe<Scalars["String"]>;
   routing_number: Scalars["String"];
+  torrey_pines_template_name?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   verified_at?: Maybe<Scalars["timestamptz"]>;
   verified_date?: Maybe<Scalars["date"]>;
@@ -449,8 +451,10 @@ export type BankAccountsBoolExp = {
   id?: Maybe<UuidComparisonExp>;
   is_cannabis_compliant?: Maybe<BooleanComparisonExp>;
   recipient_address?: Maybe<StringComparisonExp>;
+  recipient_address_2?: Maybe<StringComparisonExp>;
   recipient_name?: Maybe<StringComparisonExp>;
   routing_number?: Maybe<StringComparisonExp>;
+  torrey_pines_template_name?: Maybe<StringComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
   verified_at?: Maybe<TimestamptzComparisonExp>;
   verified_date?: Maybe<DateComparisonExp>;
@@ -479,8 +483,10 @@ export type BankAccountsInsertInput = {
   id?: Maybe<Scalars["uuid"]>;
   is_cannabis_compliant?: Maybe<Scalars["Boolean"]>;
   recipient_address?: Maybe<Scalars["String"]>;
+  recipient_address_2?: Maybe<Scalars["String"]>;
   recipient_name?: Maybe<Scalars["String"]>;
   routing_number?: Maybe<Scalars["String"]>;
+  torrey_pines_template_name?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   verified_at?: Maybe<Scalars["timestamptz"]>;
   verified_date?: Maybe<Scalars["date"]>;
@@ -497,8 +503,10 @@ export type BankAccountsMaxFields = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   recipient_address?: Maybe<Scalars["String"]>;
+  recipient_address_2?: Maybe<Scalars["String"]>;
   recipient_name?: Maybe<Scalars["String"]>;
   routing_number?: Maybe<Scalars["String"]>;
+  torrey_pines_template_name?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   verified_at?: Maybe<Scalars["timestamptz"]>;
   verified_date?: Maybe<Scalars["date"]>;
@@ -515,8 +523,10 @@ export type BankAccountsMaxOrderBy = {
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   recipient_address?: Maybe<OrderBy>;
+  recipient_address_2?: Maybe<OrderBy>;
   recipient_name?: Maybe<OrderBy>;
   routing_number?: Maybe<OrderBy>;
+  torrey_pines_template_name?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   verified_at?: Maybe<OrderBy>;
   verified_date?: Maybe<OrderBy>;
@@ -533,8 +543,10 @@ export type BankAccountsMinFields = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   recipient_address?: Maybe<Scalars["String"]>;
+  recipient_address_2?: Maybe<Scalars["String"]>;
   recipient_name?: Maybe<Scalars["String"]>;
   routing_number?: Maybe<Scalars["String"]>;
+  torrey_pines_template_name?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   verified_at?: Maybe<Scalars["timestamptz"]>;
   verified_date?: Maybe<Scalars["date"]>;
@@ -551,8 +563,10 @@ export type BankAccountsMinOrderBy = {
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   recipient_address?: Maybe<OrderBy>;
+  recipient_address_2?: Maybe<OrderBy>;
   recipient_name?: Maybe<OrderBy>;
   routing_number?: Maybe<OrderBy>;
+  torrey_pines_template_name?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   verified_at?: Maybe<OrderBy>;
   verified_date?: Maybe<OrderBy>;
@@ -596,8 +610,10 @@ export type BankAccountsOrderBy = {
   id?: Maybe<OrderBy>;
   is_cannabis_compliant?: Maybe<OrderBy>;
   recipient_address?: Maybe<OrderBy>;
+  recipient_address_2?: Maybe<OrderBy>;
   recipient_name?: Maybe<OrderBy>;
   routing_number?: Maybe<OrderBy>;
+  torrey_pines_template_name?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   verified_at?: Maybe<OrderBy>;
   verified_date?: Maybe<OrderBy>;
@@ -635,9 +651,13 @@ export enum BankAccountsSelectColumn {
   /** column name */
   RecipientAddress = "recipient_address",
   /** column name */
+  RecipientAddress_2 = "recipient_address_2",
+  /** column name */
   RecipientName = "recipient_name",
   /** column name */
   RoutingNumber = "routing_number",
+  /** column name */
+  TorreyPinesTemplateName = "torrey_pines_template_name",
   /** column name */
   UpdatedAt = "updated_at",
   /** column name */
@@ -660,8 +680,10 @@ export type BankAccountsSetInput = {
   id?: Maybe<Scalars["uuid"]>;
   is_cannabis_compliant?: Maybe<Scalars["Boolean"]>;
   recipient_address?: Maybe<Scalars["String"]>;
+  recipient_address_2?: Maybe<Scalars["String"]>;
   recipient_name?: Maybe<Scalars["String"]>;
   routing_number?: Maybe<Scalars["String"]>;
+  torrey_pines_template_name?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   verified_at?: Maybe<Scalars["timestamptz"]>;
   verified_date?: Maybe<Scalars["date"]>;
@@ -694,9 +716,13 @@ export enum BankAccountsUpdateColumn {
   /** column name */
   RecipientAddress = "recipient_address",
   /** column name */
+  RecipientAddress_2 = "recipient_address_2",
+  /** column name */
   RecipientName = "recipient_name",
   /** column name */
   RoutingNumber = "routing_number",
+  /** column name */
+  TorreyPinesTemplateName = "torrey_pines_template_name",
   /** column name */
   UpdatedAt = "updated_at",
   /** column name */
@@ -20085,17 +20111,17 @@ export type GetCompanyForBankQuery = {
   >;
 };
 
-export type CompanyForCustomerQueryVariables = Exact<{
+export type GetCompanyForCustomerQueryVariables = Exact<{
   companyId: Scalars["uuid"];
 }>;
 
-export type CompanyForCustomerQuery = {
+export type GetCompanyForCustomerQuery = {
   companies_by_pk?: Maybe<
     Pick<Companies, "id"> & {
-      bank_accounts: Array<BankAccountFragment>;
+      bank_accounts: Array<BankAccountLimitedFragment>;
       settings?: Maybe<
         {
-          collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
+          collections_bespoke_bank_account?: Maybe<BankAccountLimitedFragment>;
         } & CompanySettingsLimitedFragment
       >;
       contract?: Maybe<ContractFragment>;
@@ -20186,25 +20212,6 @@ export type PurchaseOrderFileFragment = Pick<
   PurchaseOrderFiles,
   "purchase_order_id" | "file_id" | "file_type"
 > & { file: Pick<Files, "id"> & FileFragment };
-
-export type BankAccountFragment = Pick<
-  BankAccounts,
-  | "id"
-  | "company_id"
-  | "bank_name"
-  | "bank_address"
-  | "account_title"
-  | "account_type"
-  | "account_number"
-  | "routing_number"
-  | "can_ach"
-  | "can_wire"
-  | "recipient_name"
-  | "recipient_address"
-  | "verified_at"
-  | "verified_date"
-  | "is_cannabis_compliant"
->;
 
 export type BankAccountForVendorFragment = Pick<
   BankAccounts,
@@ -20466,7 +20473,7 @@ export type AddBankAccountMutationVariables = Exact<{
 }>;
 
 export type AddBankAccountMutation = {
-  insert_bank_accounts_one?: Maybe<BankAccountFragment>;
+  insert_bank_accounts_one?: Maybe<Pick<BankAccounts, "id">>;
 };
 
 export type UpdateBankAccountMutationVariables = Exact<{
@@ -20475,7 +20482,7 @@ export type UpdateBankAccountMutationVariables = Exact<{
 }>;
 
 export type UpdateBankAccountMutation = {
-  update_bank_accounts_by_pk?: Maybe<BankAccountFragment>;
+  update_bank_accounts_by_pk?: Maybe<Pick<BankAccounts, "id">>;
 };
 
 export type ChangeBankAccountMutationVariables = Exact<{
@@ -20622,6 +20629,12 @@ export type CompanySettingsFragment = Pick<
 > &
   CompanySettingsLimitedFragment;
 
+export type BankAccountFragment = Pick<
+  BankAccounts,
+  "id" | "torrey_pines_template_name"
+> &
+  BankAccountLimitedFragment;
+
 export type MetrcApiKeyFragment = Pick<
   MetrcApiKeys,
   | "id"
@@ -20741,6 +20754,26 @@ export type CompanySettingsLimitedFragment = Pick<
   | "feature_flags_payload"
   | "custom_messages_payload"
   | "has_autofinancing"
+>;
+
+export type BankAccountLimitedFragment = Pick<
+  BankAccounts,
+  | "id"
+  | "company_id"
+  | "bank_name"
+  | "bank_address"
+  | "account_title"
+  | "account_type"
+  | "account_number"
+  | "routing_number"
+  | "can_ach"
+  | "can_wire"
+  | "recipient_name"
+  | "recipient_address"
+  | "recipient_address_2"
+  | "verified_at"
+  | "verified_date"
+  | "is_cannabis_compliant"
 >;
 
 export type VendorLimitedFragment = Pick<Vendors, "id" | "name"> & {
@@ -21590,8 +21623,8 @@ export const PaymentFragmentDoc = gql`
   }
   ${PaymentLimitedFragmentDoc}
 `;
-export const BankAccountFragmentDoc = gql`
-  fragment BankAccount on bank_accounts {
+export const BankAccountLimitedFragmentDoc = gql`
+  fragment BankAccountLimited on bank_accounts {
     id
     company_id
     bank_name
@@ -21604,10 +21637,19 @@ export const BankAccountFragmentDoc = gql`
     can_wire
     recipient_name
     recipient_address
+    recipient_address_2
     verified_at
     verified_date
     is_cannabis_compliant
   }
+`;
+export const BankAccountFragmentDoc = gql`
+  fragment BankAccount on bank_accounts {
+    id
+    torrey_pines_template_name
+    ...BankAccountLimited
+  }
+  ${BankAccountLimitedFragmentDoc}
 `;
 export const PaymentBankAccountsFragmentDoc = gql`
   fragment PaymentBankAccounts on payments {
@@ -27186,18 +27228,18 @@ export type GetCompanyForBankQueryResult = Apollo.QueryResult<
   GetCompanyForBankQuery,
   GetCompanyForBankQueryVariables
 >;
-export const CompanyForCustomerDocument = gql`
-  query CompanyForCustomer($companyId: uuid!) {
+export const GetCompanyForCustomerDocument = gql`
+  query GetCompanyForCustomer($companyId: uuid!) {
     companies_by_pk(id: $companyId) {
       id
       ...Company
       bank_accounts {
-        ...BankAccount
+        ...BankAccountLimited
       }
       settings {
         ...CompanySettingsLimited
         collections_bespoke_bank_account {
-          ...BankAccount
+          ...BankAccountLimited
         }
       }
       contract {
@@ -27206,58 +27248,58 @@ export const CompanyForCustomerDocument = gql`
     }
   }
   ${CompanyFragmentDoc}
-  ${BankAccountFragmentDoc}
+  ${BankAccountLimitedFragmentDoc}
   ${CompanySettingsLimitedFragmentDoc}
   ${ContractFragmentDoc}
 `;
 
 /**
- * __useCompanyForCustomerQuery__
+ * __useGetCompanyForCustomerQuery__
  *
- * To run a query within a React component, call `useCompanyForCustomerQuery` and pass it any options that fit your needs.
- * When your component renders, `useCompanyForCustomerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetCompanyForCustomerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCompanyForCustomerQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useCompanyForCustomerQuery({
+ * const { data, loading, error } = useGetCompanyForCustomerQuery({
  *   variables: {
  *      companyId: // value for 'companyId'
  *   },
  * });
  */
-export function useCompanyForCustomerQuery(
+export function useGetCompanyForCustomerQuery(
   baseOptions: Apollo.QueryHookOptions<
-    CompanyForCustomerQuery,
-    CompanyForCustomerQueryVariables
+    GetCompanyForCustomerQuery,
+    GetCompanyForCustomerQueryVariables
   >
 ) {
   return Apollo.useQuery<
-    CompanyForCustomerQuery,
-    CompanyForCustomerQueryVariables
-  >(CompanyForCustomerDocument, baseOptions);
+    GetCompanyForCustomerQuery,
+    GetCompanyForCustomerQueryVariables
+  >(GetCompanyForCustomerDocument, baseOptions);
 }
-export function useCompanyForCustomerLazyQuery(
+export function useGetCompanyForCustomerLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    CompanyForCustomerQuery,
-    CompanyForCustomerQueryVariables
+    GetCompanyForCustomerQuery,
+    GetCompanyForCustomerQueryVariables
   >
 ) {
   return Apollo.useLazyQuery<
-    CompanyForCustomerQuery,
-    CompanyForCustomerQueryVariables
-  >(CompanyForCustomerDocument, baseOptions);
+    GetCompanyForCustomerQuery,
+    GetCompanyForCustomerQueryVariables
+  >(GetCompanyForCustomerDocument, baseOptions);
 }
-export type CompanyForCustomerQueryHookResult = ReturnType<
-  typeof useCompanyForCustomerQuery
+export type GetCompanyForCustomerQueryHookResult = ReturnType<
+  typeof useGetCompanyForCustomerQuery
 >;
-export type CompanyForCustomerLazyQueryHookResult = ReturnType<
-  typeof useCompanyForCustomerLazyQuery
+export type GetCompanyForCustomerLazyQueryHookResult = ReturnType<
+  typeof useGetCompanyForCustomerLazyQuery
 >;
-export type CompanyForCustomerQueryResult = Apollo.QueryResult<
-  CompanyForCustomerQuery,
-  CompanyForCustomerQueryVariables
+export type GetCompanyForCustomerQueryResult = Apollo.QueryResult<
+  GetCompanyForCustomerQuery,
+  GetCompanyForCustomerQueryVariables
 >;
 export const UpdateCompanyProfileDocument = gql`
   mutation UpdateCompanyProfile($id: uuid!, $company: companies_set_input!) {
@@ -28088,10 +28130,9 @@ export type CompanyBankAccountsQueryResult = Apollo.QueryResult<
 export const AddBankAccountDocument = gql`
   mutation AddBankAccount($bankAccount: bank_accounts_insert_input!) {
     insert_bank_accounts_one(object: $bankAccount) {
-      ...BankAccount
+      id
     }
   }
-  ${BankAccountFragmentDoc}
 `;
 export type AddBankAccountMutationFn = Apollo.MutationFunction<
   AddBankAccountMutation,
@@ -28140,10 +28181,9 @@ export const UpdateBankAccountDocument = gql`
     $bankAccount: bank_accounts_set_input
   ) {
     update_bank_accounts_by_pk(pk_columns: { id: $id }, _set: $bankAccount) {
-      ...BankAccount
+      id
     }
   }
-  ${BankAccountFragmentDoc}
 `;
 export type UpdateBankAccountMutationFn = Apollo.MutationFunction<
   UpdateBankAccountMutation,

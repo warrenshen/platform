@@ -38,6 +38,13 @@ fragment CompanySettings on company_settings {
   ...CompanySettingsLimited
 }
 
+# Bank accounts can be stored for the Bespoke bank and for customers
+fragment BankAccount on bank_accounts {
+  id
+  torrey_pines_template_name
+  ...BankAccountLimited
+}
+
 fragment MetrcApiKey on metrc_api_keys {
   id
   created_at
