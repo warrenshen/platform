@@ -2782,6 +2782,9 @@
           name: invoices
         column_mapping:
           id: payment_id
+  - name: recipient_bank_account
+    using:
+      foreign_key_constraint_on: recipient_bank_account_id
   - name: settled_by_user
     using:
       foreign_key_constraint_on: settled_by_user_id
@@ -2814,6 +2817,7 @@
       - method
       - originating_payment_id
       - payment_date
+      - recipient_bank_account_id
       - requested_amount
       - requested_by_user_id
       - requested_payment_date
@@ -2844,6 +2848,7 @@
       - method
       - originating_payment_id
       - payment_date
+      - recipient_bank_account_id
       - requested_amount
       - requested_by_user_id
       - requested_payment_date

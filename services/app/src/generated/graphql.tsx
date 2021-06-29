@@ -19820,6 +19820,18 @@ export type GetSubmittedPaymentsSubscription = {
   >;
 };
 
+export type GetWireAdvancesByDateQueryVariables = Exact<{
+  date?: Maybe<Scalars["date"]>;
+}>;
+
+export type GetWireAdvancesByDateQuery = {
+  payments: Array<
+    Pick<Payments, "id"> & {
+      company: Pick<Companies, "id" | "name">;
+    } & PaymentFragment
+  >;
+};
+
 export type GetPaymentsForCompanyQueryVariables = Exact<{
   company_id: Scalars["uuid"];
 }>;
@@ -25811,6 +25823,82 @@ export type GetSubmittedPaymentsSubscriptionHookResult = ReturnType<
   typeof useGetSubmittedPaymentsSubscription
 >;
 export type GetSubmittedPaymentsSubscriptionResult = Apollo.SubscriptionResult<GetSubmittedPaymentsSubscription>;
+export const GetWireAdvancesByDateDocument = gql`
+  query GetWireAdvancesByDate($date: date) {
+    payments(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { type: { _eq: "advance" } }
+          { method: { _eq: "wire" } }
+          { settlement_date: { _eq: $date } }
+        ]
+      }
+    ) {
+      id
+      ...Payment
+      company {
+        id
+        name
+      }
+    }
+  }
+  ${PaymentFragmentDoc}
+`;
+
+/**
+ * __useGetWireAdvancesByDateQuery__
+ *
+ * To run a query within a React component, call `useGetWireAdvancesByDateQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetWireAdvancesByDateQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetWireAdvancesByDateQuery({
+ *   variables: {
+ *      date: // value for 'date'
+ *   },
+ * });
+ */
+export function useGetWireAdvancesByDateQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetWireAdvancesByDateQuery,
+    GetWireAdvancesByDateQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetWireAdvancesByDateQuery,
+    GetWireAdvancesByDateQueryVariables
+  >(GetWireAdvancesByDateDocument, baseOptions);
+}
+export function useGetWireAdvancesByDateLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetWireAdvancesByDateQuery,
+    GetWireAdvancesByDateQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetWireAdvancesByDateQuery,
+    GetWireAdvancesByDateQueryVariables
+  >(GetWireAdvancesByDateDocument, baseOptions);
+}
+export type GetWireAdvancesByDateQueryHookResult = ReturnType<
+  typeof useGetWireAdvancesByDateQuery
+>;
+export type GetWireAdvancesByDateLazyQueryHookResult = ReturnType<
+  typeof useGetWireAdvancesByDateLazyQuery
+>;
+export type GetWireAdvancesByDateQueryResult = Apollo.QueryResult<
+  GetWireAdvancesByDateQuery,
+  GetWireAdvancesByDateQueryVariables
+>;
 export const GetPaymentsForCompanyDocument = gql`
   query GetPaymentsForCompany($company_id: uuid!) {
     companies_by_pk(id: $company_id) {

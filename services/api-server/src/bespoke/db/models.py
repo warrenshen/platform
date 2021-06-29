@@ -494,7 +494,14 @@ class Payment(Base):
 	deposit_date = Column(Date)
 	settlement_date = Column(Date)
 	items_covered = Column(JSON)
+	# Sender's bank account.
+	# In the case of an advance: one of Bespoke Financial's bank account.
+	# In the case of a reverse draft ACH: Customer's bank account.
 	company_bank_account_id = Column(GUID)
+	# Recipient's bank account.
+	# In the case of an advance: either Customer's or Vendor's bank account.
+	# In the case of a reverse draft ACH: one of Bespoke Financial's bank account.
+	recipient_bank_account_id = Column(GUID)
 	customer_note = Column(Text)
 	bank_note = Column(Text)
 
