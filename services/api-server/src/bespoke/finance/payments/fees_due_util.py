@@ -11,6 +11,7 @@ from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import FeeDict
 from bespoke.db.db_constants import MinimumAmountDuration, TransactionSubType
+from bespoke.finance import number_util
 from bespoke.finance.payments import payment_util
 
 PerCompanyRespInfo = TypedDict('PerCompanyRespInfo', {
@@ -69,7 +70,6 @@ def get_all_monthly_minimum_fees_due(
 		return None, errors.Error('No financial summaries found for date {}'.format(
 			date_util.date_to_str(last_day_of_month_date)))
 
-	#missing_company_names: List[str] = []
 	company_id_to_financial_info = {}
 
 	for financial_summary in financial_summaries:
@@ -82,6 +82,9 @@ def get_all_monthly_minimum_fees_due(
 		minimum_monthly_payload = cast(models.FeeDict, financial_summary.minimum_monthly_payload)
 
 		if not _should_pay_this_month(minimum_monthly_payload, last_day_of_month_date):
+			continue
+
+		if number_util.is_currency_zero(minimum_monthly_payload['amount_short']):
 			continue
 
 		company_id_to_financial_info[cur_company_id] = PerCompanyRespInfo(
