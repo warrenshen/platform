@@ -19524,7 +19524,9 @@ export type GetFundedLoansByCompanyAndLoanTypeQueryVariables = Exact<{
 }>;
 
 export type GetFundedLoansByCompanyAndLoanTypeQuery = {
-  loans: Array<Pick<Loans, "id"> & LoanFragment & LoanArtifactLimitedFragment>;
+  loans: Array<
+    Pick<Loans, "id"> & LoanLimitedFragment & LoanArtifactLimitedFragment
+  >;
 };
 
 export type GetLoansByLoanIdsQueryVariables = Exact<{
@@ -20642,16 +20644,7 @@ export type VendorFragment = Pick<
 export type PurchaseOrderFragment = Pick<PurchaseOrders, "id" | "bank_note"> &
   PurchaseOrderLimitedFragment;
 
-export type LoanFragment = Pick<
-  Loans,
-  | "id"
-  | "loan_report_id"
-  | "notes"
-  | "requested_at"
-  | "rejected_at"
-  | "funded_at"
-  | "closed_at"
-> &
+export type LoanFragment = Pick<Loans, "id" | "loan_report_id" | "notes"> &
   LoanLimitedFragment;
 
 export type LoanReportFragment = Pick<
@@ -20816,8 +20809,11 @@ export type LoanLimitedFragment = Pick<
   | "outstanding_principal_balance"
   | "outstanding_interest"
   | "outstanding_fees"
+  | "requested_at"
   | "approved_at"
+  | "rejected_at"
   | "funded_at"
+  | "closed_at"
 > & { company: Pick<Companies, "id" | "identifier" | "name"> };
 
 export type LoanArtifactLimitedFragment = Pick<
@@ -21267,8 +21263,11 @@ export const LoanLimitedFragmentDoc = gql`
     outstanding_principal_balance
     outstanding_interest
     outstanding_fees
+    requested_at
     approved_at
+    rejected_at
     funded_at
+    closed_at
     company {
       id
       identifier
@@ -21281,10 +21280,6 @@ export const LoanFragmentDoc = gql`
     id
     loan_report_id
     notes
-    requested_at
-    rejected_at
-    funded_at
-    closed_at
     ...LoanLimited
   }
   ${LoanLimitedFragmentDoc}
@@ -24403,11 +24398,11 @@ export const GetFundedLoansByCompanyAndLoanTypeDocument = gql`
       ]
     ) {
       id
-      ...Loan
+      ...LoanLimited
       ...LoanArtifactLimited
     }
   }
-  ${LoanFragmentDoc}
+  ${LoanLimitedFragmentDoc}
   ${LoanArtifactLimitedFragmentDoc}
 `;
 

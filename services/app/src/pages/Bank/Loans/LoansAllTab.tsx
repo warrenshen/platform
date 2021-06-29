@@ -30,6 +30,7 @@ export default function BankLoansAllTab() {
       <Box display="flex" flexDirection="column">
         <LoansDataGrid
           isArtifactVisible
+          isArtifactBankNoteVisible
           isCompanyVisible
           isDisbursementIdentifierVisible
           isFilteringEnabled

@@ -177,6 +177,7 @@ export default function BankLoansActionRequiredTab() {
       <Box display="flex" flexDirection="column">
         <LoansDataGrid
           isArtifactVisible
+          isArtifactBankNoteVisible
           isCompanyVisible
           isMaturityVisible={false}
           isMultiSelectEnabled={check(role, Action.SelectLoan)}

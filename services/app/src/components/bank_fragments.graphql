@@ -69,10 +69,6 @@ fragment Loan on loans {
   id
   loan_report_id
   notes
-  requested_at
-  rejected_at
-  funded_at
-  closed_at
   ...LoanLimited
 }
 

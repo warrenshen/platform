@@ -180,7 +180,7 @@ query GetFundedLoansByCompanyAndLoanType(
     ]
   ) {
     id
-    ...Loan
+    ...LoanLimited
     ...LoanArtifactLimited
   }
 }

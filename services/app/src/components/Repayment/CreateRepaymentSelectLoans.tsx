@@ -32,7 +32,7 @@ interface Props {
   setPayment: (payment: PaymentsInsertInput) => void;
 }
 
-function CreateRepaymentSelectLoans({
+export default function CreateRepaymentSelectLoans({
   productType,
   financialSummary,
   payment,
@@ -165,5 +165,3 @@ function CreateRepaymentSelectLoans({
     </Box>
   );
 }
-
-export default CreateRepaymentSelectLoans;

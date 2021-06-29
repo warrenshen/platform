@@ -40,7 +40,7 @@ export default function CreateRepaymentDefaultSection({
 }: Props) {
   const loanType = ProductTypeToLoanType[productType];
 
-  const { data } = useGetFundedLoansByCompanyAndLoanTypeQuery({
+  const { data, error } = useGetFundedLoansByCompanyAndLoanTypeQuery({
     skip: !payment || !loanType,
     fetchPolicy: "network-only",
     variables: {
@@ -48,6 +48,12 @@ export default function CreateRepaymentDefaultSection({
       loanType: loanType || LoanTypeEnum.PurchaseOrder,
     },
   });
+
+  if (error) {
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
+  }
+
   const selectedLoans = useMemo(
     () =>
       data?.loans.filter(
@@ -55,6 +61,7 @@ export default function CreateRepaymentDefaultSection({
       ) || [],
     [data?.loans, payment.items_covered.loan_ids]
   );
+
   const notSelectedLoans = useMemo(
     () =>
       data?.loans.filter(
@@ -77,6 +84,7 @@ export default function CreateRepaymentDefaultSection({
           isDaysPastDueVisible
           isMaturityVisible
           isSortingDisabled
+          pager={false}
           loans={selectedLoans}
         />
         <Box display="flex" flexDirection="column" mt={4}>

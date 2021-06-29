@@ -58,7 +58,7 @@ export default function SettleRepaymentSelectLoans({
       ? ProductTypeToLoanType[productType]
       : null;
 
-  const { data } = useGetFundedLoansByCompanyAndLoanTypeQuery({
+  const { data, error } = useGetFundedLoansByCompanyAndLoanTypeQuery({
     skip: !payment || !loanType,
     fetchPolicy: "network-only",
     variables: {
@@ -66,6 +66,11 @@ export default function SettleRepaymentSelectLoans({
       loanType: loanType || LoanTypeEnum.PurchaseOrder,
     },
   });
+
+  if (error) {
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
+  }
 
   const selectedLoans = useMemo(
     () =>

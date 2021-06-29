@@ -42,6 +42,7 @@ import { useEffect, useMemo, useState } from "react";
 
 interface Props {
   isArtifactVisible?: boolean;
+  isArtifactBankNoteVisible?: boolean;
   isCompanyVisible?: boolean;
   isDaysPastDueVisible?: boolean;
   isDisbursementIdentifierVisible?: boolean;
@@ -112,6 +113,7 @@ const getMaturityDate = (rowData: any) =>
 
 export default function LoansDataGrid({
   isArtifactVisible = false,
+  isArtifactBankNoteVisible = false,
   isCompanyVisible = false,
   isDaysPastDueVisible = false,
   isDisbursementIdentifierVisible = false,
@@ -336,7 +338,7 @@ export default function LoansDataGrid({
         ),
       },
       {
-        visible: isArtifactVisible,
+        visible: isArtifactBankNoteVisible,
         dataField: "artifact_bank_note",
         caption: "PO Bank Note",
         width: 340,
@@ -492,6 +494,7 @@ export default function LoansDataGrid({
     ],
     [
       isArtifactVisible,
+      isArtifactBankNoteVisible,
       isCompanyVisible,
       isDaysPastDueVisible,
       isDisbursementIdentifierVisible,
