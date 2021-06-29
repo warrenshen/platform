@@ -17,6 +17,7 @@ from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest, test_helper
 from bespoke_test.payments import payment_test_helper
 from bespoke.finance.types import payment_types
+from fastapi_utils.guid_type import GUID
 
 INTEREST_RATE = 0.002 # 0.2%
 
@@ -72,6 +73,14 @@ class TestDeleteLoan(db_unittest.TestCase):
 		seed.initialize()
 
 		company_id = seed.get_company_id('company_admin', index=0)
+		with session_scope(session_maker) as session:
+			company_settings = cast(
+				models.CompanySettings,
+				session.query(models.CompanySettings).filter_by(
+					company_id=company_id
+				).first())
+			company_settings.advances_bespoke_bank_account_id = cast(GUID, 'ba12e58e-6378-450c-a753-943533f7ae88')
+			session.flush()
 
 		with session_scope(session_maker) as session:
 			contract = _get_contract(company_id, is_line_of_credit=False)

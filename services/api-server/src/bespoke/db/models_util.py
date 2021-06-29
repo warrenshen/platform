@@ -43,6 +43,7 @@ def get_augmented_transactions(transactions: List[models.TransactionDict], payme
 def _get_company_vendor_partnership_vendor_bank_account_id(
 	customer_id: str,
 	vendor_id: str,
+	vendor_name: str,
 	session: Session,
 ) -> Tuple[str, errors.Error]:
 	company_vendor_partnership = cast(
@@ -56,7 +57,7 @@ def _get_company_vendor_partnership_vendor_bank_account_id(
 		return None, errors.Error(f'[DATA ERROR] Company vendor partnership between customer {customer_id} and vendor {vendor_id} does not exist')
 
 	if not company_vendor_partnership.vendor_bank_id:
-		return None, errors.Error(f'Bank account for advance to be sent to is not set for vendor')
+		return None, errors.Error(f'Vendor {vendor_name} does not have ban account to receive advances configured')
 
 	return company_vendor_partnership.vendor_bank_id, None
 
@@ -92,6 +93,7 @@ def get_loan_recipient_bank_account_id(
 		vendor_bank_account_id, err = _get_company_vendor_partnership_vendor_bank_account_id(
 			customer_id,
 			vendor_id,
+			vendor.name,
 			session,
 		)
 
@@ -117,6 +119,7 @@ def get_loan_recipient_bank_account_id(
 			vendor_bank_account_id, err = _get_company_vendor_partnership_vendor_bank_account_id(
 				customer_id,
 				vendor_id,
+				vendor.name,
 				session,
 			)
 
@@ -124,12 +127,26 @@ def get_loan_recipient_bank_account_id(
 				return None, err
 
 			return vendor_bank_account_id, None
-		else:
-			# TODO(warrenshen): Not supported yet (bank account for advance to be sent to for LOC customer).
-			return None, None
-	else: # LoanTypeEnum.INVOICE
-		# TODO(warrenshen): Not supported yet (bank account for advance to be sent to for Invoice Financing customer).
-		return None, None
+
+	# If none of the above, then either of the following is true:
+	# - Loan type is LINE OF CREDIT and there is no recipient vendor
+	# - Loan type is INVOICE
+	#
+	# For either of these cases, advance is sent to the Customer's bank account.
+	if not customer.company_settings_id:
+		return None, errors.Error(f'[DATA ERROR] Company {customer_id} is missing company settings id')
+
+	company_settings = cast(
+		models.CompanySettings,
+		session.query(models.CompanySettings).get(str(customer.company_settings_id)))
+
+	if not company_settings:
+		return None, errors.Error(f'[DATA ERROR] Company {customer_id} is missing associated company settings')
+
+	if not company_settings.advances_bespoke_bank_account_id:
+		return None, errors.Error(f'Company {customer.name} does not have bank account to receive advances configured')
+
+	return str(company_settings.advances_bespoke_bank_account_id), None
 
 def compute_loan_approval_status(loan: models.Loan) -> str:
 	if loan.rejected_at is not None:

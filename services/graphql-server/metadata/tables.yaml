@@ -969,6 +969,7 @@
     permission:
       columns:
       - active_ebba_application_id
+      - advances_bespoke_bank_account_id
       - collections_bespoke_bank_account_id
       - company_id
       - custom_messages_payload
@@ -985,6 +986,7 @@
     permission:
       columns:
       - active_ebba_application_id
+      - advances_bespoke_bank_account_id
       - collections_bespoke_bank_account_id
       - company_id
       - custom_messages_payload

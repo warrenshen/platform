@@ -63,6 +63,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		seed.initialize()
 
 		contracts_by_company_index = test['contracts_by_company_index']
+		company_settings_by_company_index = test.get('company_settings_by_company_index', None)
 		input_loans = test['loans']
 		company_indices = test['company_indices']
 		vendors = test.get("vendors", [])
@@ -90,6 +91,17 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					session.query(models.Company).filter(models.Company.id==company_id).first())
 				cur_company.contract_id = cur_contract_ids[-1]
 				session.flush()
+
+			if company_settings_by_company_index:
+				for company_index, company_settings in company_settings_by_company_index.items():
+					company_id = seed.get_company_id('company_admin', index=company_index)
+					cs = cast(
+						models.CompanySettings,
+						session.query(models.CompanySettings).filter_by(
+							company_id=company_id
+						).first())
+					cs.advances_bespoke_bank_account_id = company_settings['advances_bespoke_bank_account_id']
+					session.flush()
 
 			for vendor in vendors:
 				v = models.Company(
@@ -591,6 +603,11 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		tests: List[Dict] = [
 			{
 				'comment': 'Tests that an advance on a line of credit loan results in a maturity date based on adjusted end date of active contract of customer',
+				'company_settings_by_company_index': {
+					0: {
+						'advances_bespoke_bank_account_id': 'cc12e58e-6378-450c-a753-943533f7ae88',
+					},
+				},
 				'contracts_by_company_index': {
 					0: [
 						_get_line_of_credit_contract()
@@ -631,7 +648,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'settlement_identifier': '1',
 						'amount': 10.01,
 						'company_index': 0,
-						'type': 'advance'
+						'type': 'advance',
+						'recipient_bank_account_id': 'cc12e58e-6378-450c-a753-943533f7ae88',
 					}
 				],
 				'expected_transactions': [

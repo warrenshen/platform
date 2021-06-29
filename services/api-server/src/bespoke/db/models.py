@@ -175,6 +175,10 @@ class CompanySettings(Base):
 	company_id = Column(GUID)
 	active_ebba_application_id = cast(GUID, Column(GUID, ForeignKey('ebba_applications.id')))
 	metrc_api_key_id = cast(GUID, Column(GUID, ForeignKey('metrc_api_keys.id')))
+	# For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances to
+	advances_bespoke_bank_account_id = cast(GUID, Column(GUID, ForeignKey('bank_accounts.id')))
+	# For CUSTOMER and PAYOR companies, this is the Bespoke Financial bank account company sends payments to
+	collections_bespoke_bank_account_id = cast(GUID, Column(GUID, ForeignKey('bank_accounts.id')))
 	vendor_agreement_docusign_template = Column(Text)
 	payor_agreement_docusign_template = Column(Text)
 	has_autofinancing = Column(Boolean)

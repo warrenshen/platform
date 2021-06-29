@@ -3403,11 +3403,11 @@ export type CompanySettings = {
   active_ebba_application_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
   advances_bespoke_bank_account?: Maybe<BankAccounts>;
-  /** Currently not used */
+  /** For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances to */
   advances_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
   collections_bespoke_bank_account?: Maybe<BankAccounts>;
-  /** For CUSTOMER and PAYOR companies, this is the Bespoke Financial bank account company sends payments to */
+  /** For CUSTOMER and PAYOR companies, this is the bank account which company sends repayments to */
   collections_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
   company?: Maybe<Companies>;
@@ -20736,6 +20736,7 @@ export type CompanySettingsLimitedFragment = Pick<
   | "company_id"
   | "vendor_agreement_docusign_template"
   | "payor_agreement_docusign_template"
+  | "advances_bespoke_bank_account_id"
   | "collections_bespoke_bank_account_id"
   | "feature_flags_payload"
   | "custom_messages_payload"
@@ -21202,6 +21203,7 @@ export const CompanySettingsLimitedFragmentDoc = gql`
     company_id
     vendor_agreement_docusign_template
     payor_agreement_docusign_template
+    advances_bespoke_bank_account_id
     collections_bespoke_bank_account_id
     feature_flags_payload
     custom_messages_payload
