@@ -105,6 +105,34 @@ fragment PurchaseOrderLimited on purchase_orders {
   }
 }
 
+fragment InvoiceLimited on invoices {
+  id
+  company_id
+  payor_id
+  invoice_number
+  subtotal_amount
+  total_amount
+  taxes_amount
+  invoice_date
+  invoice_due_date
+  is_cannabis
+  status
+  created_at
+  approved_at
+  funded_at
+  payment_requested_at
+  payment_confirmed_at
+  payment_rejected_at
+  company {
+    id
+    name
+  }
+  payor {
+    id
+    name
+  }
+}
+
 fragment LoanLimited on loans {
   id
   loan_type
@@ -141,12 +169,7 @@ fragment LoanArtifactLimited on loans {
   artifact_id
   identifier
   invoice {
-    id
-    invoice_number
-    payor {
-      id
-      name
-    }
+    ...InvoiceLimited
   }
   line_of_credit {
     id
@@ -154,11 +177,7 @@ fragment LoanArtifactLimited on loans {
   }
   purchase_order {
     id
-    order_number
-    vendor {
-      id
-      name
-    }
+    ...PurchaseOrderLimited
   }
 }
 

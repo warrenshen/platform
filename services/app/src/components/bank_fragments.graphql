@@ -146,10 +146,17 @@ fragment PayorPartnership on company_payor_partnerships {
 fragment Payment on payments {
   id
   created_at
+  ...PaymentLimited
+}
+
+fragment PaymentBankAccounts on payments {
+  id
   company_bank_account {
     ...BankAccount
   }
-  ...PaymentLimited
+  recipient_bank_account {
+    ...BankAccount
+  }
 }
 
 fragment Transaction on transactions {

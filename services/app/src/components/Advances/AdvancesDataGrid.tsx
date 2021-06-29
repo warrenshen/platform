@@ -1,4 +1,5 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import PaymentDrawerLauncher from "components/Payment/PaymentDrawerLauncher";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
@@ -34,6 +35,9 @@ function AdvancesDataGrid({
         dataField: "id",
         caption: "Advance ID",
         width: 140,
+        cellRender: (params: ValueFormatterParams) => (
+          <PaymentDrawerLauncher paymentId={params.row.data.id} />
+        ),
       },
       {
         caption: "Customer Name",

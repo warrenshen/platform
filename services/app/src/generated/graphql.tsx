@@ -12240,6 +12240,9 @@ export type Payments = {
   originating_payment_id?: Maybe<Scalars["uuid"]>;
   /** The date when payment is debited from source account */
   payment_date?: Maybe<Scalars["date"]>;
+  /** An object relationship */
+  recipient_bank_account?: Maybe<BankAccounts>;
+  recipient_bank_account_id?: Maybe<Scalars["uuid"]>;
   /** The amount the customer requests this payment to be */
   requested_amount?: Maybe<Scalars["numeric"]>;
   /** When a customer requests or notifies us a payment should take place, their user id is captured here */
@@ -12395,6 +12398,8 @@ export type PaymentsBoolExp = {
   method?: Maybe<StringComparisonExp>;
   originating_payment_id?: Maybe<UuidComparisonExp>;
   payment_date?: Maybe<DateComparisonExp>;
+  recipient_bank_account?: Maybe<BankAccountsBoolExp>;
+  recipient_bank_account_id?: Maybe<UuidComparisonExp>;
   requested_amount?: Maybe<NumericComparisonExp>;
   requested_by_user_id?: Maybe<UuidComparisonExp>;
   requested_payment_date?: Maybe<DateComparisonExp>;
@@ -12458,6 +12463,8 @@ export type PaymentsInsertInput = {
   method?: Maybe<Scalars["String"]>;
   originating_payment_id?: Maybe<Scalars["uuid"]>;
   payment_date?: Maybe<Scalars["date"]>;
+  recipient_bank_account?: Maybe<BankAccountsObjRelInsertInput>;
+  recipient_bank_account_id?: Maybe<Scalars["uuid"]>;
   requested_amount?: Maybe<Scalars["numeric"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   requested_payment_date?: Maybe<Scalars["date"]>;
@@ -12489,6 +12496,7 @@ export type PaymentsMaxFields = {
   method?: Maybe<Scalars["String"]>;
   originating_payment_id?: Maybe<Scalars["uuid"]>;
   payment_date?: Maybe<Scalars["date"]>;
+  recipient_bank_account_id?: Maybe<Scalars["uuid"]>;
   requested_amount?: Maybe<Scalars["numeric"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   requested_payment_date?: Maybe<Scalars["date"]>;
@@ -12517,6 +12525,7 @@ export type PaymentsMaxOrderBy = {
   method?: Maybe<OrderBy>;
   originating_payment_id?: Maybe<OrderBy>;
   payment_date?: Maybe<OrderBy>;
+  recipient_bank_account_id?: Maybe<OrderBy>;
   requested_amount?: Maybe<OrderBy>;
   requested_by_user_id?: Maybe<OrderBy>;
   requested_payment_date?: Maybe<OrderBy>;
@@ -12545,6 +12554,7 @@ export type PaymentsMinFields = {
   method?: Maybe<Scalars["String"]>;
   originating_payment_id?: Maybe<Scalars["uuid"]>;
   payment_date?: Maybe<Scalars["date"]>;
+  recipient_bank_account_id?: Maybe<Scalars["uuid"]>;
   requested_amount?: Maybe<Scalars["numeric"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   requested_payment_date?: Maybe<Scalars["date"]>;
@@ -12573,6 +12583,7 @@ export type PaymentsMinOrderBy = {
   method?: Maybe<OrderBy>;
   originating_payment_id?: Maybe<OrderBy>;
   payment_date?: Maybe<OrderBy>;
+  recipient_bank_account_id?: Maybe<OrderBy>;
   requested_amount?: Maybe<OrderBy>;
   requested_by_user_id?: Maybe<OrderBy>;
   requested_payment_date?: Maybe<OrderBy>;
@@ -12627,6 +12638,8 @@ export type PaymentsOrderBy = {
   method?: Maybe<OrderBy>;
   originating_payment_id?: Maybe<OrderBy>;
   payment_date?: Maybe<OrderBy>;
+  recipient_bank_account?: Maybe<BankAccountsOrderBy>;
+  recipient_bank_account_id?: Maybe<OrderBy>;
   requested_amount?: Maybe<OrderBy>;
   requested_by_user_id?: Maybe<OrderBy>;
   requested_payment_date?: Maybe<OrderBy>;
@@ -12685,6 +12698,8 @@ export enum PaymentsSelectColumn {
   /** column name */
   PaymentDate = "payment_date",
   /** column name */
+  RecipientBankAccountId = "recipient_bank_account_id",
+  /** column name */
   RequestedAmount = "requested_amount",
   /** column name */
   RequestedByUserId = "requested_by_user_id",
@@ -12726,6 +12741,7 @@ export type PaymentsSetInput = {
   method?: Maybe<Scalars["String"]>;
   originating_payment_id?: Maybe<Scalars["uuid"]>;
   payment_date?: Maybe<Scalars["date"]>;
+  recipient_bank_account_id?: Maybe<Scalars["uuid"]>;
   requested_amount?: Maybe<Scalars["numeric"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   requested_payment_date?: Maybe<Scalars["date"]>;
@@ -12818,6 +12834,8 @@ export enum PaymentsUpdateColumn {
   OriginatingPaymentId = "originating_payment_id",
   /** column name */
   PaymentDate = "payment_date",
+  /** column name */
+  RecipientBankAccountId = "recipient_bank_account_id",
   /** column name */
   RequestedAmount = "requested_amount",
   /** column name */
@@ -19407,7 +19425,7 @@ export type GetLoanWithArtifactForCustomerQueryVariables = Exact<{
 }>;
 
 export type GetLoanWithArtifactForCustomerQuery = {
-  loans_by_pk?: Maybe<LoanLimitedFragment & LoanArtifactFragment>;
+  loans_by_pk?: Maybe<LoanLimitedFragment & LoanArtifactLimitedFragment>;
 };
 
 export type GetLoanWithArtifactForBankQueryVariables = Exact<{
@@ -19823,7 +19841,7 @@ export type GetSubmittedPaymentsSubscription = {
 };
 
 export type GetWireAdvancesByDateQueryVariables = Exact<{
-  date?: Maybe<Scalars["date"]>;
+  date: Scalars["date"];
 }>;
 
 export type GetWireAdvancesByDateQuery = {
@@ -20256,29 +20274,7 @@ export type InvoiceFileFragment = Pick<
   "invoice_id" | "file_id" | "file_type"
 > & { file: Pick<Files, "id"> & FileFragment };
 
-export type InvoiceFragment = Pick<
-  Invoices,
-  | "id"
-  | "company_id"
-  | "payor_id"
-  | "invoice_number"
-  | "subtotal_amount"
-  | "total_amount"
-  | "taxes_amount"
-  | "invoice_date"
-  | "invoice_due_date"
-  | "is_cannabis"
-  | "status"
-  | "created_at"
-  | "approved_at"
-  | "funded_at"
-  | "payment_requested_at"
-  | "payment_confirmed_at"
-  | "payment_rejected_at"
-> & {
-  company: Pick<Companies, "id" | "name">;
-  payor?: Maybe<Pick<Payors, "id" | "name">>;
-};
+export type InvoiceFragment = Pick<Invoices, "id"> & InvoiceLimitedFragment;
 
 export type MetrcTransferFragment = Pick<
   MetrcTransfers,
@@ -20696,9 +20692,13 @@ export type VendorPartnershipFragment = Pick<
 export type PayorPartnershipFragment = Pick<CompanyPayorPartnerships, "id"> &
   PayorPartnershipLimitedFragment;
 
-export type PaymentFragment = Pick<Payments, "id" | "created_at"> & {
+export type PaymentFragment = Pick<Payments, "id" | "created_at"> &
+  PaymentLimitedFragment;
+
+export type PaymentBankAccountsFragment = Pick<Payments, "id"> & {
   company_bank_account?: Maybe<BankAccountFragment>;
-} & PaymentLimitedFragment;
+  recipient_bank_account?: Maybe<BankAccountFragment>;
+};
 
 export type TransactionFragment = Pick<
   Transactions,
@@ -20791,6 +20791,30 @@ export type PurchaseOrderLimitedFragment = Pick<
   vendor?: Maybe<Pick<Vendors, "id" | "name">>;
 };
 
+export type InvoiceLimitedFragment = Pick<
+  Invoices,
+  | "id"
+  | "company_id"
+  | "payor_id"
+  | "invoice_number"
+  | "subtotal_amount"
+  | "total_amount"
+  | "taxes_amount"
+  | "invoice_date"
+  | "invoice_due_date"
+  | "is_cannabis"
+  | "status"
+  | "created_at"
+  | "approved_at"
+  | "funded_at"
+  | "payment_requested_at"
+  | "payment_confirmed_at"
+  | "payment_rejected_at"
+> & {
+  company: Pick<Companies, "id" | "name">;
+  payor?: Maybe<Pick<Payors, "id" | "name">>;
+};
+
 export type LoanLimitedFragment = Pick<
   Loans,
   | "id"
@@ -20820,16 +20844,10 @@ export type LoanArtifactLimitedFragment = Pick<
   Loans,
   "id" | "loan_type" | "artifact_id" | "identifier"
 > & {
-  invoice?: Maybe<
-    Pick<Invoices, "id" | "invoice_number"> & {
-      payor?: Maybe<Pick<Payors, "id" | "name">>;
-    }
-  >;
+  invoice?: Maybe<InvoiceLimitedFragment>;
   line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
   purchase_order?: Maybe<
-    Pick<PurchaseOrders, "id" | "order_number"> & {
-      vendor?: Maybe<Pick<Vendors, "id" | "name">>;
-    }
+    Pick<PurchaseOrders, "id"> & PurchaseOrderLimitedFragment
   >;
 };
 
@@ -21295,8 +21313,8 @@ export const LoanReportFragmentDoc = gql`
     financing_day_limit
   }
 `;
-export const InvoiceFragmentDoc = gql`
-  fragment Invoice on invoices {
+export const InvoiceLimitedFragmentDoc = gql`
+  fragment InvoiceLimited on invoices {
     id
     company_id
     payor_id
@@ -21323,6 +21341,13 @@ export const InvoiceFragmentDoc = gql`
       name
     }
   }
+`;
+export const InvoiceFragmentDoc = gql`
+  fragment Invoice on invoices {
+    id
+    ...InvoiceLimited
+  }
+  ${InvoiceLimitedFragmentDoc}
 `;
 export const LineOfCreditFragmentDoc = gql`
   fragment LineOfCredit on line_of_credits {
@@ -21382,12 +21407,7 @@ export const LoanArtifactLimitedFragmentDoc = gql`
     artifact_id
     identifier
     invoice {
-      id
-      invoice_number
-      payor {
-        id
-        name
-      }
+      ...InvoiceLimited
     }
     line_of_credit {
       id
@@ -21395,14 +21415,12 @@ export const LoanArtifactLimitedFragmentDoc = gql`
     }
     purchase_order {
       id
-      order_number
-      vendor {
-        id
-        name
-      }
+      ...PurchaseOrderLimited
     }
   }
+  ${InvoiceLimitedFragmentDoc}
   ${LineOfCreditFragmentDoc}
+  ${PurchaseOrderLimitedFragmentDoc}
 `;
 export const LoanArtifactFragmentDoc = gql`
   fragment LoanArtifact on loans {
@@ -21527,25 +21545,6 @@ export const PayorPartnershipFragmentDoc = gql`
   }
   ${PayorPartnershipLimitedFragmentDoc}
 `;
-export const BankAccountFragmentDoc = gql`
-  fragment BankAccount on bank_accounts {
-    id
-    company_id
-    bank_name
-    bank_address
-    account_title
-    account_type
-    account_number
-    routing_number
-    can_ach
-    can_wire
-    recipient_name
-    recipient_address
-    verified_at
-    verified_date
-    is_cannabis_compliant
-  }
-`;
 export const PaymentLimitedFragmentDoc = gql`
   fragment PaymentLimited on payments {
     id
@@ -21585,13 +21584,40 @@ export const PaymentFragmentDoc = gql`
   fragment Payment on payments {
     id
     created_at
+    ...PaymentLimited
+  }
+  ${PaymentLimitedFragmentDoc}
+`;
+export const BankAccountFragmentDoc = gql`
+  fragment BankAccount on bank_accounts {
+    id
+    company_id
+    bank_name
+    bank_address
+    account_title
+    account_type
+    account_number
+    routing_number
+    can_ach
+    can_wire
+    recipient_name
+    recipient_address
+    verified_at
+    verified_date
+    is_cannabis_compliant
+  }
+`;
+export const PaymentBankAccountsFragmentDoc = gql`
+  fragment PaymentBankAccounts on payments {
+    id
     company_bank_account {
       ...BankAccount
     }
-    ...PaymentLimited
+    recipient_bank_account {
+      ...BankAccount
+    }
   }
   ${BankAccountFragmentDoc}
-  ${PaymentLimitedFragmentDoc}
 `;
 export const TransactionFragmentDoc = gql`
   fragment Transaction on transactions {
@@ -23670,11 +23696,11 @@ export const GetLoanWithArtifactForCustomerDocument = gql`
   query GetLoanWithArtifactForCustomer($id: uuid!) {
     loans_by_pk(id: $id) {
       ...LoanLimited
-      ...LoanArtifact
+      ...LoanArtifactLimited
     }
   }
   ${LoanLimitedFragmentDoc}
-  ${LoanArtifactFragmentDoc}
+  ${LoanArtifactLimitedFragmentDoc}
 `;
 
 /**
@@ -25819,7 +25845,7 @@ export type GetSubmittedPaymentsSubscriptionHookResult = ReturnType<
 >;
 export type GetSubmittedPaymentsSubscriptionResult = Apollo.SubscriptionResult<GetSubmittedPaymentsSubscription>;
 export const GetWireAdvancesByDateDocument = gql`
-  query GetWireAdvancesByDate($date: date) {
+  query GetWireAdvancesByDate($date: date!) {
     payments(
       where: {
         _and: [
@@ -25863,7 +25889,7 @@ export const GetWireAdvancesByDateDocument = gql`
  * });
  */
 export function useGetWireAdvancesByDateQuery(
-  baseOptions?: Apollo.QueryHookOptions<
+  baseOptions: Apollo.QueryHookOptions<
     GetWireAdvancesByDateQuery,
     GetWireAdvancesByDateQueryVariables
   >

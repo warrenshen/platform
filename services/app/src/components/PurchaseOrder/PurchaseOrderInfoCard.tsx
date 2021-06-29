@@ -7,7 +7,7 @@ import {
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
 import { CheckCircle } from "@material-ui/icons";
-import { PurchaseOrderFragment } from "generated/graphql";
+import { PurchaseOrderLimitedFragment } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
 
@@ -20,7 +20,7 @@ const useStyles = makeStyles({
 
 interface Props {
   isApprovedStatusVisible?: boolean;
-  purchaseOrder: PurchaseOrderFragment;
+  purchaseOrder: PurchaseOrderLimitedFragment;
 }
 
 export default function PurchaseOrderInfoCard({

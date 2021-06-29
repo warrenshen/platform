@@ -11,12 +11,11 @@ from typing import Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
-from bespoke.db import db_constants, models
+from bespoke.db import db_constants, models, models_util
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util, number_util
 from bespoke.finance.loans import sibling_util
 from bespoke.finance.payments import payment_util
-from bespoke.finance.types import per_customer_types
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
 from bespoke.finance.types import payment_types
@@ -175,6 +174,13 @@ def fund_loans_with_advance(
 				user_id=bank_admin_user_id
 			)
 
+			recipient_bank_account_id = None
+			for index, loan in enumerate(loans_for_company):
+				if recipient_bank_account_id is None:
+					recipient_bank_account_id, err = models_util.get_loan_recipient_bank_account_id(loan, session)
+					if err:
+						return None, err
+
 			payment_util.make_advance_payment_settled(
 				payment,
 				settlement_identifier=disbursement_identifier,
@@ -182,6 +188,7 @@ def fund_loans_with_advance(
 				payment_date=payment_date,
 				settlement_date=settlement_date,
 				settled_by_user_id=bank_admin_user_id,
+				recipient_bank_account_id=recipient_bank_account_id,
 			)
 			session.add(payment)
 			session.flush()

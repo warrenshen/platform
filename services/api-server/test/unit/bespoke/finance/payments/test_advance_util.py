@@ -65,14 +65,18 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		contracts_by_company_index = test['contracts_by_company_index']
 		input_loans = test['loans']
 		company_indices = test['company_indices']
+		vendors = test.get("vendors", [])
 		purchase_orders = test.get("purchase_orders", [])
+		line_of_credits = test.get("line_of_credits", [])
 		bank_admin_user_id = seed.get_user_id('bank_admin')
 
+		company_ids = []
 		loan_ids = []
 		with session_scope(session_maker) as session:
 			# NOTE: Assume the last contract is the most up-to-date contract
 			for company_index, contracts in contracts_by_company_index.items():
 				company_id = seed.get_company_id('company_admin', index=company_index)
+				company_ids += [company_id]
 				cur_contract_ids = []
 				for contract in contracts:
 					contract.company_id = company_id
@@ -87,12 +91,37 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				cur_company.contract_id = cur_contract_ids[-1]
 				session.flush()
 
+			for vendor in vendors:
+				v = models.Company(
+					id=vendor["id"],
+					is_vendor=True,
+				)
+				session.add(v)
+				session.flush()
+
+				vendor_id = str(v.id)
+				company_vendor_partnership = models.CompanyVendorPartnership(
+					company_id=company_ids[vendor["company_index"]],
+					vendor_id=vendor_id,
+					vendor_bank_id=vendor["vendor_bank_id"],
+				)
+				session.add(company_vendor_partnership)
+				session.flush()
+
 			for purchase_order in purchase_orders:
-				po = models.PurchaseOrder(
+				po = models.PurchaseOrder( # type: ignore
 					id=purchase_order["id"],
+					vendor_id=purchase_order["vendor_id"],
 					amount=purchase_order["amount"],
 				)
 				session.add(po)
+				session.flush()
+
+			for line_of_credit in line_of_credits:
+				loc = models.LineOfCredit(
+					id=line_of_credit["id"],
+				)
+				session.add(loc)
 				session.flush()
 
 			for i in range(len(input_loans)):
@@ -207,6 +236,10 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					self.assertEqual(exp_payment['method'] if 'method' in exp_payment else PaymentMethodEnum.ACH, payment.method)
 					self.assertEqual(payment_date, date_util.date_to_str(payment.payment_date))
 					self.assertEqual(settlement_date, date_util.date_to_str(payment.deposit_date))
+					self.assertEqual(
+						exp_payment.get('recipient_bank_account_id'),
+						str(payment.recipient_bank_account_id) if payment.recipient_bank_account_id else None,
+					)
 				else:
 					# No payment method associated with fees or credits
 					self.assertEqual('', payment.method)
@@ -288,12 +321,28 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						)
 					]
 				},
+				'vendors': [
+					{
+						'id': 'c012e58e-6378-450c-a753-943533f7ae88',
+						'company_index': 0,
+						'vendor_bank_id': 'ba12e58e-6378-450c-a753-943533f7ae88',
+					},
+				],
+				'purchase_orders': [
+					{
+						'id': 'a012e58e-6378-450c-a753-943533f7ae88',
+						'vendor_id': 'c012e58e-6378-450c-a753-943533f7ae88',
+						'amount': 40.04,
+					},
+				],
 				'loans': [
 					{
 						'amount': 10.01,
+						'artifact_id': 'a012e58e-6378-450c-a753-943533f7ae88',
 					},
 					{
 						'amount': 20.02,
+						'artifact_id': 'a012e58e-6378-450c-a753-943533f7ae88',
 					}
 				],
 				'company_indices': [0, 0],
@@ -328,6 +377,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'company_index': 0,
 						'type': 'advance',
 						'method': PaymentMethodEnum.WIRE,
+						'recipient_bank_account_id': 'ba12e58e-6378-450c-a753-943533f7ae88',
 					},
 					{
 						'amount': 50.00,
@@ -382,18 +432,46 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						)
 					]
 				},
+				'vendors': [
+					{
+						'id': 'c012e58e-6378-450c-a753-943533f7ae88',
+						'company_index': 0,
+						'vendor_bank_id': 'ba12e58e-6378-450c-a753-943533f7ae88',
+					},
+					{
+						'id': 'd012e58e-6378-450c-a753-943533f7ae88',
+						'company_index': 1,
+						'vendor_bank_id': 'ea12e58e-6378-450c-a753-943533f7ae88',
+					},
+				],
+				'purchase_orders': [
+					{
+						'id': 'a012e58e-6378-450c-a753-943533f7ae88',
+						'vendor_id': 'c012e58e-6378-450c-a753-943533f7ae88',
+						'amount': 40.04,
+					},
+					{
+						'id': 'b012e58e-6378-450c-a753-943533f7ae88',
+						'vendor_id': 'd012e58e-6378-450c-a753-943533f7ae88',
+						'amount': 60.06,
+					},
+				],
 				'loans': [
 					{
 						'amount': 10.01,
+						'artifact_id': 'a012e58e-6378-450c-a753-943533f7ae88',
 					},
 					{
 						'amount': 20.02,
+						'artifact_id': 'b012e58e-6378-450c-a753-943533f7ae88',
 					},
 					{
 						'amount': 30.03,
+						'artifact_id': 'a012e58e-6378-450c-a753-943533f7ae88',
 					},
 					{
 						'amount': 40.04,
+						'artifact_id': 'b012e58e-6378-450c-a753-943533f7ae88',
 					}
 				],
 				'company_indices': [0, 1, 0, 1],
@@ -441,6 +519,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'company_index': 0,
 						'type': 'advance',
 						'method': PaymentMethodEnum.WIRE,
+						'recipient_bank_account_id': 'ba12e58e-6378-450c-a753-943533f7ae88',
 					},
 					{
 						'amount': 50.00,
@@ -458,6 +537,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'company_index': 1,
 						'type': 'advance',
 						'method': PaymentMethodEnum.WIRE,
+						'recipient_bank_account_id': 'ea12e58e-6378-450c-a753-943533f7ae88',
 					}
 				],
 				'expected_transactions': [
@@ -516,9 +596,16 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						_get_line_of_credit_contract()
 					],
 				},
+				'line_of_credits': [
+					{
+						'id': 'a012e58e-6378-450c-a753-943533f7ae88',
+					},
+				],
 				'loans': [
 					{
 						'amount': 10.01,
+						'loan_type': LoanTypeEnum.LINE_OF_CREDIT,
+						'artifact_id': 'a012e58e-6378-450c-a753-943533f7ae88',
 					},
 				],
 				'company_indices': [0],
@@ -762,9 +849,17 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						)
 					]
 				},
+				'vendors': [
+					{
+						'id': 'c012e58e-6378-450c-a753-943533f7ae88',
+						'company_index': 0,
+						'vendor_bank_id': 'ba12e58e-6378-450c-a753-943533f7ae88',
+					},
+				],
 				'purchase_orders': [
 					{
 						'id': 'a012e58e-6378-450c-a753-943533f7ae88',
+						'vendor_id': 'c012e58e-6378-450c-a753-943533f7ae88',
 						'amount': 30.03,
 					}
 				],
@@ -809,7 +904,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'settlement_identifier': '1',
 						'amount': 30.03,
 						'company_index': 0,
-						'type': 'advance'
+						'type': 'advance',
+						'recipient_bank_account_id': 'ba12e58e-6378-450c-a753-943533f7ae88',
 					}
 				],
 				'expected_transactions': [
@@ -854,13 +950,22 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						)
 					]
 				},
+				'vendors': [
+					{
+						'id': 'c012e58e-6378-450c-a753-943533f7ae88',
+						'company_index': 0,
+						'vendor_bank_id': 'ba12e58e-6378-450c-a753-943533f7ae88',
+					},
+				],
 				'purchase_orders': [
 					{
 						'id': 'a012e58e-6378-450c-a753-943533f7ae88',
+						'vendor_id': 'c012e58e-6378-450c-a753-943533f7ae88',
 						'amount': 10.01,
 					},
 					{
 						'id': 'a012e58e-6378-450c-a753-943533f7ae89',
+						'vendor_id': 'c012e58e-6378-450c-a753-943533f7ae88',
 						'amount': 30.03,
 					}
 				],
@@ -905,7 +1010,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'settlement_identifier': '1',
 						'amount': 30.03,
 						'company_index': 0,
-						'type': 'advance'
+						'type': 'advance',
+						'recipient_bank_account_id': 'ba12e58e-6378-450c-a753-943533f7ae88',
 					}
 				],
 				'expected_transactions': [
@@ -954,12 +1060,28 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						)
 					]
 				},
+				'vendors': [
+					{
+						'id': 'c012e58e-6378-450c-a753-943533f7ae88',
+						'company_index': 0,
+						'vendor_bank_id': 'ba12e58e-6378-450c-a753-943533f7ae88',
+					},
+				],
+				'purchase_orders': [
+					{
+						'id': 'a012e58e-6378-450c-a753-943533f7ae88',
+						'vendor_id': 'c012e58e-6378-450c-a753-943533f7ae88',
+						'amount': 40.04,
+					},
+				],
 				'loans': [
 					{
 						'amount': 10.01,
+						'artifact_id': 'a012e58e-6378-450c-a753-943533f7ae88',
 					},
 					{
 						'amount': 20.02,
+						'artifact_id': 'a012e58e-6378-450c-a753-943533f7ae88',
 					}
 				],
 				'company_indices': [0, 0],
@@ -994,6 +1116,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'company_index': 0,
 						'type': 'advance',
 						'method': PaymentMethodEnum.WIRE,
+						'recipient_bank_account_id': 'ba12e58e-6378-450c-a753-943533f7ae88',
 					}
 				],
 				'expected_transactions': [
@@ -1131,18 +1254,36 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						)
 					]
 				},
+				'vendors': [
+					{
+						'id': 'c012e58e-6378-450c-a753-943533f7ae88',
+						'company_index': 0,
+						'vendor_bank_id': 'ba12e58e-6378-450c-a753-943533f7ae88',
+					},
+				],
+				'purchase_orders': [
+					{
+						'id': 'a012e58e-6378-450c-a753-943533f7ae88',
+						'vendor_id': 'c012e58e-6378-450c-a753-943533f7ae88',
+						'amount': 100.10,
+					}
+				],
 				'loans': [
 					{
 						'amount': 10.01,
+						'artifact_id': 'a012e58e-6378-450c-a753-943533f7ae88',
 					},
 					{
 						'amount': 20.02,
+						'artifact_id': 'a012e58e-6378-450c-a753-943533f7ae88',
 					},
 					{
 						'amount': 30.03,
+						'artifact_id': 'a012e58e-6378-450c-a753-943533f7ae88',
 					},
 					{
 						'amount': 40.04,
+						'artifact_id': 'a012e58e-6378-450c-a753-943533f7ae88',
 					}
 				],
 				'company_indices': [0, 0, 0, 0],
@@ -1205,6 +1346,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'company_index': 0,
 						'type': 'advance',
 						'method': PaymentMethodEnum.WIRE,
+						'recipient_bank_account_id': 'ba12e58e-6378-450c-a753-943533f7ae88',
 					},
 					{
 						'settlement_identifier': '2',
@@ -1212,6 +1354,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'company_index': 0,
 						'type': 'advance',
 						'method': PaymentMethodEnum.WIRE,
+						'recipient_bank_account_id': 'ba12e58e-6378-450c-a753-943533f7ae88',
 					},
 					{
 						'settlement_identifier': '3',
@@ -1219,6 +1362,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'company_index': 0,
 						'type': 'advance',
 						'method': PaymentMethodEnum.WIRE,
+						'recipient_bank_account_id': 'ba12e58e-6378-450c-a753-943533f7ae88',
 					}
 				],
 				'expected_transactions': [

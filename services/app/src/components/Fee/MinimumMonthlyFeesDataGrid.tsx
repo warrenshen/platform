@@ -7,11 +7,11 @@ import { useMemo } from "react";
 function getRows(minimumMonthlyFees: any[]): RowsProp {
   return minimumMonthlyFees.map((minimumMonthlyFee) => {
     return {
+      ...minimumMonthlyFees,
       id: minimumMonthlyFee.company.identifier,
       company_name: minimumMonthlyFee.company.name,
       fee_period: minimumMonthlyFee.fee_info?.duration,
       fee_due: minimumMonthlyFee.fee_info?.amount_short,
-      ...minimumMonthlyFees,
     };
   });
 }

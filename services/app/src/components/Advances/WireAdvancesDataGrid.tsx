@@ -1,35 +1,48 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import PaymentDrawerLauncher from "components/Payment/PaymentDrawerLauncher";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import { PaymentFragment } from "generated/graphql";
+import {
+  PaymentFragment,
+  PaymentBankAccountsFragment,
+} from "generated/graphql";
 import { ColumnWidths } from "lib/tables";
 import { useMemo, useState } from "react";
 
-function getRows(payments: PaymentFragment[]): RowsProp {
-  return payments.map((item) => {
+function getRows(
+  payments: (PaymentFragment & PaymentBankAccountsFragment)[]
+): RowsProp {
+  return payments.map((payment) => {
     return {
-      ...item,
+      ...payment,
       template_name: "TBD",
-      bespoke_routing_number: "TBD",
-      bespoke_account_number: "TBD",
+      bespoke_routing_number: "TBD", // TODO
+      bespoke_account_number: "TBD", // TODO
       currency: "USD",
       bespoke_bank_type: "ABA",
+      recipient_routing_number: payment.recipient_bank_account?.routing_number,
+      recipient_bank_name: payment.recipient_bank_account?.bank_name,
       blank_1: "",
       blank_2: "",
+      recipient_account_number: payment.recipient_bank_account?.account_number,
+      recipient_name: payment.recipient_bank_account?.recipient_name,
+      recipient_address: payment.recipient_bank_account?.recipient_address,
+      recipient_address_2: "", // TODO
+      additional_info_for_recipient: "", // TODO
     };
   });
 }
 
 interface Props {
-  payments: PaymentFragment[];
-  handleClickCustomer: (value: string) => void;
   isExcelExport?: boolean;
+  payments: (PaymentFragment & PaymentBankAccountsFragment)[];
+  handleClickCustomer: (value: string) => void;
 }
 
 export default function WireAdvancesDataGrid({
+  isExcelExport = true,
   payments,
   handleClickCustomer,
-  isExcelExport = true,
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = getRows(payments);
@@ -39,6 +52,9 @@ export default function WireAdvancesDataGrid({
         dataField: "id",
         caption: "Advance ID",
         width: 140,
+        cellRender: (params: ValueFormatterParams) => (
+          <PaymentDrawerLauncher paymentId={params.row.data.id} />
+        ),
       },
       {
         caption: "Customer Name",

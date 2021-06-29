@@ -40,6 +40,97 @@ def get_augmented_transactions(transactions: List[models.TransactionDict], payme
 
 		return augmented_transactions, None
 
+def _get_company_vendor_partnership_vendor_bank_account_id(
+	customer_id: str,
+	vendor_id: str,
+	session: Session,
+) -> Tuple[str, errors.Error]:
+	company_vendor_partnership = cast(
+		models.CompanyVendorPartnership,
+		session.query(models.CompanyVendorPartnership).filter_by(
+			company_id=customer_id,
+			vendor_id=vendor_id,
+		).first())
+
+	if not company_vendor_partnership:
+		return None, errors.Error(f'[DATA ERROR] Company vendor partnership between customer {customer_id} and vendor {vendor_id} does not exist')
+
+	if not company_vendor_partnership.vendor_bank_id:
+		return None, errors.Error(f'Bank account for advance to be sent to is not set for vendor')
+
+	return company_vendor_partnership.vendor_bank_id, None
+
+def get_loan_recipient_bank_account_id(
+	loan: models.Loan,
+	session: Session,
+) -> Tuple[str, errors.Error]:
+	customer_id = str(loan.company_id)
+
+	customer = cast(
+		models.Company,
+		session.query(models.Company).get(customer_id))
+
+	if not customer:
+		return None, errors.Error(f'[DATA ERROR]: Could not find customer by id {customer_id}')
+
+	if loan.loan_type == db_constants.LoanTypeEnum.INVENTORY:
+		purchase_order = cast(
+			models.PurchaseOrder,
+			session.query(models.PurchaseOrder).get(loan.artifact_id))
+
+		if not purchase_order:
+			return None, errors.Error(f'[DATA ERROR] Loan {str(loan.id)} is missing associated purchase order')
+
+		vendor = cast(
+			models.Company,
+			session.query(models.Company).get(purchase_order.vendor_id))
+
+		if not vendor:
+			return None, errors.Error(f'[DATA ERROR] Purchase order {str(purchase_order.id)} is missing associated vendor')
+
+		vendor_id = str(vendor.id)
+		vendor_bank_account_id, err = _get_company_vendor_partnership_vendor_bank_account_id(
+			customer_id,
+			vendor_id,
+			session,
+		)
+
+		if err:
+			return None, err
+
+		return vendor_bank_account_id, None
+
+	elif loan.loan_type == db_constants.LoanTypeEnum.LINE_OF_CREDIT:
+		line_of_credit = cast(
+			models.LineOfCredit,
+			session.query(models.LineOfCredit).get(loan.artifact_id))
+
+		if not line_of_credit:
+			return None, errors.Error(f'[DATA ERROR] Loan {str(loan.id)} is missing associated line of credit')
+
+		vendor = cast(
+			models.Company,
+			session.query(models.Company).get(line_of_credit.recipient_vendor_id))
+
+		if vendor:
+			vendor_id = str(vendor.id)
+			vendor_bank_account_id, err = _get_company_vendor_partnership_vendor_bank_account_id(
+				customer_id,
+				vendor_id,
+				session,
+			)
+
+			if err:
+				return None, err
+
+			return vendor_bank_account_id, None
+		else:
+			# TODO(warrenshen): Not supported yet (bank account for advance to be sent to for LOC customer).
+			return None, None
+	else: # LoanTypeEnum.INVOICE
+		# TODO(warrenshen): Not supported yet (bank account for advance to be sent to for Invoice Financing customer).
+		return None, None
+
 def compute_loan_approval_status(loan: models.Loan) -> str:
 	if loan.rejected_at is not None:
 		return db_constants.LoanStatusEnum.REJECTED

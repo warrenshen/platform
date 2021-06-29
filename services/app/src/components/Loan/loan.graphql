@@ -13,7 +13,7 @@ query GetLoanForCustomer($id: uuid!) {
 query GetLoanWithArtifactForCustomer($id: uuid!) {
   loans_by_pk(id: $id) {
     ...LoanLimited
-    ...LoanArtifact
+    ...LoanArtifactLimited
   }
 }
 

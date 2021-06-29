@@ -7,7 +7,7 @@ import {
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
 import { CheckCircle } from "@material-ui/icons";
-import { InvoiceFragment } from "generated/graphql";
+import { InvoiceLimitedFragment } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
 
@@ -23,7 +23,7 @@ const useStyles = makeStyles({
 
 interface Props {
   isApprovedStatusVisible?: boolean;
-  invoice: InvoiceFragment;
+  invoice: InvoiceLimitedFragment;
 }
 
 export default function InvoiceInfoCard({
