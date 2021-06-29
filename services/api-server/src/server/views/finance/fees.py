@@ -348,6 +348,74 @@ class SubmitAllMonthlyMinimumFeesDueView(MethodView):
 			'status': 'OK'
 		}), 200)
 
+
+class GetAllMonthlyLOCFeesDueView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = cast(Dict, json.loads(request.data))
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'date'
+		]
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(
+					'Missing key {} from get all monthly LOC fees due'.format(key))
+
+		user_session = auth_util.UserSession.from_session()
+
+		with models.session_scope(current_app.session_maker) as session:
+			resp, err = fees_due_util.get_all_monthly_loc_fees_due(
+				form.get('date'),
+				session
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'data': resp
+		}), 200)
+
+
+class SubmitAllMonthlyLOCFeesDueView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = cast(Dict, json.loads(request.data))
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'date',
+			'monthly_due_resp'
+		]
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(
+					'Missing key {} from get all monthly LOC fees due'.format(key))
+
+		user_session = auth_util.UserSession.from_session()
+
+		with models.session_scope(current_app.session_maker) as session:
+			success, err = fees_due_util.create_loc_fee_and_reverse_draft_for_customers(
+				form['date'],
+				form['monthly_due_resp'],
+				user_session.get_user_id(),
+				session
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
+
 handler.add_url_rule(
 	'/settle_account_level_fee_repayment_with_account_credit', view_func=SettleAccountLevelFeeRepaymentWithAccountCreditView.as_view(name='settle_account_level_fee_repayment_with_account_credit_view'))
 
@@ -371,3 +439,9 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/submit_all_monthly_minimum_fees_due', view_func=SubmitAllMonthlyMinimumFeesDueView.as_view(name='submit_all_monthly_minimum_fees_due_view'))
+
+handler.add_url_rule(
+	'/get_all_monthly_loc_fees_due', view_func=GetAllMonthlyLOCFeesDueView.as_view(name='get_all_monthly_loc_fees_due_view'))
+
+handler.add_url_rule(
+	'/submit_all_monthly_loc_fees_due', view_func=SubmitAllMonthlyLOCFeesDueView.as_view(name='submit_all_monthly_loc_fees_due_view'))

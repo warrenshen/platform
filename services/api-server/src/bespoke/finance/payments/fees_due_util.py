@@ -121,4 +121,81 @@ def create_minimum_due_fee_for_customers(
 
 	return True, None
 
+
+def get_all_monthly_loc_fees_due(
+	date_str: str, session: Session) -> Tuple[AllMonthlyMinimumDueRespDict, errors.Error]:
+	
+	return None, errors.Error('Unimplemented')
+
+	last_day_of_month_date = _get_last_day_of_month_date(date_str)
+
+	companies = cast(
+		List[models.Company],
+		session.query(models.Company).all())
+	company_id_to_dict = {}
+	for company in companies:
+		company_id_to_dict[str(company.id)] = company.as_dict()
+
+	financial_summaries = cast(
+		List[models.FinancialSummary],
+		session.query(models.FinancialSummary).filter(
+			models.FinancialSummary.date == last_day_of_month_date
+		).all())
+
+	if not financial_summaries:
+		return None, errors.Error('No financial summaries found for date {}'.format(
+			date_util.date_to_str(last_day_of_month_date)))
+
+	company_id_to_financial_info = {}
+
+	for financial_summary in financial_summaries:
+		cur_company_id = str(financial_summary.company_id)
+		company_dict = company_id_to_dict[cur_company_id]
+
+		if not financial_summary.minimum_monthly_payload:
+			continue
+
+		minimum_monthly_payload = cast(models.FeeDict, financial_summary.minimum_monthly_payload)
+
+		if not _should_pay_this_month(minimum_monthly_payload, last_day_of_month_date):
+			continue
+
+		if number_util.is_currency_zero(minimum_monthly_payload['amount_short']):
+			continue
+
+		company_id_to_financial_info[cur_company_id] = PerCompanyRespInfo(
+			fee_info=minimum_monthly_payload,
+			company=company_id_to_dict[cur_company_id]
+		)
+
+	return AllMonthlyMinimumDueRespDict(
+		company_due_to_financial_info=company_id_to_financial_info
+	), None
+
+def create_loc_fee_and_reverse_draft_for_customers(
+	date_str: str, minimum_due_resp: AllMonthlyMinimumDueRespDict,
+	user_id: str, session: Session) -> Tuple[bool, errors.Error]:
+
+	return None, errors.Error('Unimplemented')
+
+	if not minimum_due_resp['company_due_to_financial_info']:
+		return None, errors.Error('No companies provided to book minimum due fees')
+
+	effective_date = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
+
+	for customer_id, val_info in minimum_due_resp['company_due_to_financial_info'].items():
+		fee_dict = val_info['fee_info']
+		amount_due = fee_dict['amount_short']
+		_ = payment_util.create_and_add_account_level_fee(
+			company_id=customer_id,
+			subtype=TransactionSubType.MINIMUM_INTEREST_FEE,
+			amount=amount_due,
+			originating_payment_id=None,
+			created_by_user_id=user_id,
+			deposit_date=effective_date,
+			effective_date=effective_date,
+			session=session,
+		)
+
+	return True, None
 	

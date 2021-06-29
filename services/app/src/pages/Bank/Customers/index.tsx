@@ -25,6 +25,7 @@ import { filter, sortBy } from "lodash";
 import { useContext, useMemo, useState } from "react";
 import { useRouteMatch } from "react-router-dom";
 import CreateBulkMinimumMonthlyFeeModal from "components/Fee/CreateMinimumInterestFeesModal";
+import CreateReverseDraftLOCFeesModal from "components/Fee/CreateReverseDraftLOCFeesModal";
 
 export default function BankCustomersPage() {
   const {
@@ -178,6 +179,23 @@ export default function BankCustomersPage() {
                   variant={"outlined"}
                   modal={({ handleClose }) => (
                     <CreateBulkMinimumMonthlyFeeModal
+                      handleClose={() => {
+                        refetch();
+                        handleClose();
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+            </Can>
+            <Can perform={Action.BookFees}>
+              <Box mr={2}>
+                <ModalButton
+                  label={"Book LOC Monthly Fees"}
+                  color={"default"}
+                  variant={"outlined"}
+                  modal={({ handleClose }) => (
+                    <CreateReverseDraftLOCFeesModal
                       handleClose={() => {
                         refetch();
                         handleClose();

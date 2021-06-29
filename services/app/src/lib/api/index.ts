@@ -119,6 +119,8 @@ export const feesRoutes = {
   getAllMonthlyMinimumFeesDue: "/finance/fees/get_all_monthly_minimum_fees_due",
   submitAllMonthlyMinimumFeesDue:
     "/finance/fees/submit_all_monthly_minimum_fees_due",
+  getAllMonthlyLOCFeesDue: "/finance/fees/get_all_monthly_loc_fees_due",
+  submitAllMonthlyLOCFeesDue: "/finance/fees/submit_all_monthly_loc_fees_due",
 };
 
 export const creditsRoutes = {
