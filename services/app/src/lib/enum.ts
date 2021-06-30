@@ -35,9 +35,11 @@ export enum FileTypeEnum {
 export enum PaymentTypeEnum {
   Adjustment = "adjustment",
   Advance = "advance",
+  CreditToUser = "credit_to_user",
+  Fee = "fee",
+  PayoutUserCreditToCustomer = "payout_user_credit_to_customer",
   Repayment = "repayment",
   RepaymentOfAccountFee = "repayment_account_fee",
-  PayoutUserCreditToCustomer = "payout_user_credit_to_customer",
 }
 
 export enum PaymentStatusEnum {

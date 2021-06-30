@@ -159,14 +159,14 @@ ALL_PAYMENT_METHODS = (
 )
 
 class PaymentType(object):
+	ADJUSTMENT = 'adjustment' # A manual adjustment to balance the books, or correct for rounding issues
 	ADVANCE = 'advance'
-	REPAYMENT = 'repayment' # Repayment of loan
-	REPAYMENT_OF_ACCOUNT_FEE = 'repayment_account_fee' # Repayment of account fee
 	CREDIT_TO_USER = 'credit_to_user' # Bespoke giving $ credit to a user
 	FEE = 'fee' # Bespoke charging the user a fee
-	ADJUSTMENT = 'adjustment' # A manual adjustment to balance the books, or correct for rounding issues
-	USER_CREDIT_TO_ACCOUNT_FEE = 'user_credit_towards_account_fee' # User credit is applied to an account-level fee
 	PAYOUT_USER_CREDIT_TO_CUSTOMER = 'payout_user_credit_to_customer'
+	REPAYMENT = 'repayment' # Repayment of loan
+	REPAYMENT_OF_ACCOUNT_FEE = 'repayment_account_fee' # Repayment of account fee
+	USER_CREDIT_TO_ACCOUNT_FEE = 'user_credit_towards_account_fee' # User credit is applied to an account-level fee
 
 class TransactionSubType(object):
 	CUSTOM_FEE = 'custom_fee'

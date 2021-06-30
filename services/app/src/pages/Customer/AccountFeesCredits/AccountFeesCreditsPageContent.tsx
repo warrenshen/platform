@@ -6,6 +6,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import CreateAccountLevelFeeModal from "components/Fee/CreateAccountLevelFeeModal";
+import CreateHoldingAccountCreditModal from "components/Fee/CreateHoldingAccountCreditModal";
 import PayoutHoldingAccountModal from "components/Fee/PayoutHoldingAccountModal";
 import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal";
 import DeletePaymentModal from "components/Payment/DeletePaymentModal";
@@ -125,6 +126,24 @@ export default function CustomerAccountPageContent({
                 variant={"outlined"}
                 modal={({ handleClose }) => (
                   <PayoutHoldingAccountModal
+                    companyId={companyId}
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                    }}
+                  />
+                )}
+              />
+            </Box>
+          </Can>
+          <Can perform={Action.RunBalances}>
+            <Box mr={2}>
+              <ModalButton
+                label={"Create Holding Account Credit"}
+                color={"default"}
+                variant={"outlined"}
+                modal={({ handleClose }) => (
+                  <CreateHoldingAccountCreditModal
                     companyId={companyId}
                     handleClose={() => {
                       refetch();

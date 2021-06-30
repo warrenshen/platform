@@ -71,7 +71,6 @@ export default function CreateAccountLevelFeeModal({
     <Modal
       isPrimaryActionDisabled={isSubmitDisabled}
       title={"Create Account Fee"}
-      contentWidth={800}
       primaryActionText={"Submit"}
       handleClose={handleClose}
       handlePrimaryAction={handleClickSubmit}

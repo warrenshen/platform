@@ -1130,7 +1130,7 @@ def settle_repayment(
 				))
 
 		if to_user_credit > 0.0:
-			payment_util.create_and_add_credit_to_user(
+			payment_util.create_and_add_credit_to_user_transaction(
 				amount=to_user_credit,
 				payment_id=payment_id,
 				created_by_user_id=user_id,

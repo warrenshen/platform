@@ -124,6 +124,7 @@ export const feesRoutes = {
 };
 
 export const creditsRoutes = {
+  createCreditForCustomer: "/finance/credits/create_credit_for_customer",
   disburseCreditToCustomer: "/finance/credits/disburse_credit_to_customer",
 };
 

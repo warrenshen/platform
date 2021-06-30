@@ -1,9 +1,9 @@
-import PayoutHoldingAccountForm from "components/Fee/PayoutHoldingAccountForm";
+import CreditForm from "components/Fee/CreditForm";
 import Modal from "components/Shared/Modal/Modal";
 import { Companies, PaymentsInsertInput } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { disburseCreditToCustomerMutation } from "lib/api/payments";
+import { createHoldingAccountCreditMutation } from "lib/api/payments";
 import { PaymentTypeEnum } from "lib/enum";
 import { useState } from "react";
 
@@ -12,8 +12,8 @@ interface Props {
   handleClose: () => void;
 }
 
-// Only bank users can create an account level fee.
-export default function PayoutHoldingAccountModal({
+// Only bank users can create a holding account credit.
+export default function CreateHoldingAccountCreditModal({
   companyId,
   handleClose,
 }: Props) {
@@ -21,22 +21,21 @@ export default function PayoutHoldingAccountModal({
 
   const [payment, setPayment] = useState<PaymentsInsertInput>({
     company_id: companyId,
-    type: PaymentTypeEnum.PayoutUserCreditToCustomer,
+    type: PaymentTypeEnum.CreditToUser,
     amount: null,
     deposit_date: null,
     settlement_date: null,
   });
 
   const [
-    disburseCreditToCustomer,
-    { loading: isDisburseCreditToCustomerLoading },
-  ] = useCustomMutation(disburseCreditToCustomerMutation);
+    createHoldingAccountCredit,
+    { loading: isCreateHoldingAccountCreditLoading },
+  ] = useCustomMutation(createHoldingAccountCreditMutation);
 
   const handleClickSubmit = async () => {
-    const response = await disburseCreditToCustomer({
+    const response = await createHoldingAccountCredit({
       variables: {
         company_id: companyId,
-        payment_method: payment.method,
         amount: payment.amount,
         deposit_date: payment.deposit_date,
         settlement_date: payment.settlement_date,
@@ -55,17 +54,17 @@ export default function PayoutHoldingAccountModal({
     !payment.deposit_date ||
     !payment.settlement_date ||
     !payment.amount ||
-    isDisburseCreditToCustomerLoading;
+    isCreateHoldingAccountCreditLoading;
 
   return (
     <Modal
       isPrimaryActionDisabled={isSubmitDisabled}
-      title={"Payout From Holding Account"}
+      title={"Create Holding Account Credit"}
       primaryActionText={"Submit"}
       handleClose={handleClose}
       handlePrimaryAction={handleClickSubmit}
     >
-      <PayoutHoldingAccountForm payment={payment} setPayment={setPayment} />
+      <CreditForm payment={payment} setPayment={setPayment} />
     </Modal>
   );
 }

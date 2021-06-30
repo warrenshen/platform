@@ -40,6 +40,7 @@ SettleRepayFeeWithAccountCreditReqDict = TypedDict('SettleRepayFeeWithAccountCre
 	'effective_date': str
 })
 
+# Create transaction only.
 def create_and_add_repayment_of_account_fee(
 	amount: float,
 	payment_id: str,
@@ -59,6 +60,7 @@ def create_and_add_repayment_of_account_fee(
 	session.add(t)
 	return t
 
+# Create transaction only.
 def create_and_add_repayment_of_account_fee_with_user_credit(
 	amount: float,
 	payment_id: str,
@@ -301,7 +303,7 @@ def settle_repayment_of_fee(
 
 	tx_ids = []
 	if to_user_credit > 0.0:
-		credit_tx = payment_util.create_and_add_credit_to_user(
+		credit_tx = payment_util.create_and_add_credit_to_user_transaction(
 			amount=to_user_credit,
 			payment_id=payment_id,
 			created_by_user_id=user_id,

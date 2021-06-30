@@ -176,6 +176,33 @@ export async function settleAccountLevelFeeRepaymentMutation(
     );
 }
 
+export type CreateHoldingAccountCreditReq = {
+  variables: {
+    company_id: string;
+    amount: number;
+    deposit_date: string;
+    settlment_date: string;
+  };
+};
+
+export async function createHoldingAccountCreditMutation(
+  req: CreateHoldingAccountCreditReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(creditsRoutes.createCreditForCustomer, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not create holding account credit for customer",
+        };
+      }
+    );
+}
+
 export type DisburseCreditToCustomerReq = {
   variables: {
     company_id: string;

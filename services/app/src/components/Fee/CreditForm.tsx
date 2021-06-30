@@ -1,33 +1,16 @@
-import {
-  Box,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Typography,
-} from "@material-ui/core";
+import { Box, FormControl, Typography } from "@material-ui/core";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import { PaymentsInsertInput } from "generated/graphql";
-import {
-  BankPaymentMethods,
-  PaymentMethodEnum,
-  PaymentMethodToLabel,
-} from "lib/enum";
 
 interface Props {
   payment: PaymentsInsertInput;
   setPayment: (payment: PaymentsInsertInput) => void;
 }
 
-export default function AdjustmentForm({ payment, setPayment }: Props) {
+export default function CreditForm({ payment, setPayment }: Props) {
   return (
     <Box display="flex" flexDirection="column">
-      <Box mt={4}>
-        <Typography>
-          You are creating a payout to the customer from their holding account.
-        </Typography>
-      </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <DateInput
           disableNonBankDays
@@ -58,7 +41,7 @@ export default function AdjustmentForm({ payment, setPayment }: Props) {
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <Typography variant="subtitle2">
-          How much do you want to payout from the holding account?
+          How much is the holding account credit for?
         </Typography>
         <Box display="flex" flexDirection="column" mt={1}>
           <FormControl>
@@ -72,37 +55,6 @@ export default function AdjustmentForm({ payment, setPayment }: Props) {
                 })
               }
             />
-          </FormControl>
-        </Box>
-      </Box>
-      <Box display="flex" flexDirection="column" mt={4}>
-        <Typography variant="subtitle2">
-          Which payment method do you plan to use?
-        </Typography>
-        <Box display="flex" flexDirection="column" mt={1}>
-          <FormControl>
-            <InputLabel id="select-payment-method-label">
-              Payment Method
-            </InputLabel>
-            <Select
-              id="select-payment-method"
-              labelId="select-payment-method-label"
-              value={payment.method}
-              onChange={({ target: { value } }) =>
-                setPayment({
-                  ...payment,
-                  method: value as PaymentMethodEnum,
-                })
-              }
-            >
-              {BankPaymentMethods.map((paymentType) => {
-                return (
-                  <MenuItem key={paymentType} value={paymentType}>
-                    {PaymentMethodToLabel[paymentType]}
-                  </MenuItem>
-                );
-              })}
-            </Select>
           </FormControl>
         </Box>
       </Box>
