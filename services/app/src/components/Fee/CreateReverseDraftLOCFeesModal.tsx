@@ -8,7 +8,7 @@ import {
   submitAllMonthlyLOCFeesDueMutation,
 } from "lib/api/fees";
 import { useState } from "react";
-import MinimumMonthlyFeesDataGrid from "components/Fee/MinimumMonthlyFeesDataGrid";
+import LOCMonthlyFeesDataGrid from "components/Fee/LOCMonthlyFeesDataGrid";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import { formatDateStringAsMonth } from "lib/date";
 
@@ -77,7 +77,7 @@ export default function CreateReverseDraftLOCFeesModal({ handleClose }: Props) {
 
   const companyIdToMonthlyFeesDue =
     monthlyFeesDueResp?.company_due_to_financial_info || {};
-  const minimumMonthlyFees = Object.keys(companyIdToMonthlyFeesDue).map(
+  const minimumLOCFees = Object.keys(companyIdToMonthlyFeesDue).map(
     (companyId) => {
       const minimumMonthlyFeePayload = companyIdToMonthlyFeesDue[companyId];
       return minimumMonthlyFeePayload;
@@ -147,9 +147,7 @@ export default function CreateReverseDraftLOCFeesModal({ handleClose }: Props) {
                 </Alert>
               </Box>
             </Box>
-            <MinimumMonthlyFeesDataGrid
-              minimumMonthlyFees={minimumMonthlyFees}
-            />
+            <LOCMonthlyFeesDataGrid minimumLOCFees={minimumLOCFees} />
           </Box>
         )}
       </Box>

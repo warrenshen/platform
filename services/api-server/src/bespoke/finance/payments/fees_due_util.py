@@ -135,9 +135,7 @@ def create_minimum_due_fee_for_customers(
 
 
 def get_all_monthly_loc_fees_due(
-	date_str: str, session: Session) -> Tuple[AllMonthlyMinimumDueRespDict, errors.Error]:
-	
-	return None, errors.Error('Unimplemented')
+	date_str: str, session: Session) -> Tuple[AllMonthlyLOCDueRespDict, errors.Error]:
 
 	last_day_of_month_date = _get_last_day_of_month_date(date_str)
 
