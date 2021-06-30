@@ -87,7 +87,7 @@ export default function CreateReverseDraftLOCFeesModal({ handleClose }: Props) {
   return (
     <Modal
       isPrimaryActionDisabled={isNextDisabled || isSubmitDisabled}
-      title={"Create Reverse Draft for LOC Fees For Month"}
+      title={"Create LOC Month-End Payments For Month"}
       primaryActionText={isOnConfirmationPage ? "Submit" : "Next"}
       secondaryActionText={
         isOnConfirmationPage ? "Back to previous step" : null
@@ -105,14 +105,14 @@ export default function CreateReverseDraftLOCFeesModal({ handleClose }: Props) {
             <Box>
               <Typography variant="body1">
                 Select a month (any date in the month is fine) for which you'd
-                like to create the reverse draft ACH fees for LOC customers. For
-                example if you'd like to create the reverse draft ACH of
-                interest fees for the month of May 2021, select 05/31/21.
+                like to create LOC customer month-end reverse draft ACH payments
+                for. For example if you'd like to create the month-end payments
+                for the month of May 2021, select 05/31/21.
               </Typography>
               <Box mt={2}>
                 <Alert severity="warning">
                   Please ensure that customer financials are up-to-date and
-                  correct (as of the month you selet) before you create the
+                  correct (as of the month you select) before you create the
                   reverse draft ACHs with this tool.
                 </Alert>
               </Box>

@@ -191,7 +191,7 @@ export default function BankCustomersPage() {
             <Can perform={Action.BookFees}>
               <Box mr={2}>
                 <ModalButton
-                  label={"Book LOC Monthly Fees"}
+                  label={"Create LOC Month-End Payments"}
                   color={"default"}
                   variant={"outlined"}
                   modal={({ handleClose }) => (

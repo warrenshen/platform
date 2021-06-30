@@ -930,24 +930,6 @@
   - name: metrc_api_key
     using:
       foreign_key_constraint_on: metrc_api_key_id
-  insert_permissions:
-  - role: bank_admin
-    permission:
-      check: {}
-      columns:
-      - advances_bespoke_bank_account_id
-      - collections_bespoke_bank_account_id
-      - company_id
-      - has_autofinancing
-      - payor_agreement_docusign_template
-      - two_factor_message_method
-      - vendor_agreement_docusign_template
-      backend_only: false
-  - role: company_admin
-    permission:
-      check: {}
-      columns: []
-      backend_only: false
   select_permissions:
   - role: bank_admin
     permission:
@@ -1044,6 +1026,15 @@
       - two_factor_message_method
       - vendor_agreement_docusign_template
       filter: {}
+      check: null
+  - role: company_admin
+    permission:
+      columns:
+      - advances_bank_account_id
+      - collections_bank_account_id
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
       check: null
 - table:
     schema: public

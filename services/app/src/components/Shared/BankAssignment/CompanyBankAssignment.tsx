@@ -24,7 +24,7 @@ interface Props {
 const useStyles = makeStyles((theme: Theme) => ({
   formControl: {
     margin: theme.spacing(1),
-    minWidth: 200,
+    minWidth: 300,
   },
 }));
 
@@ -37,6 +37,7 @@ export default function CompanyBankAssignment({
   const classes = useStyles();
 
   const { data, error } = useGetBankAccountsByCompanyIdQuery({
+    fetchPolicy: "network-only",
     variables: {
       companyId,
     },

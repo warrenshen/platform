@@ -22,14 +22,16 @@ interface Props {
 const useStyles = makeStyles((theme: Theme) => ({
   formControl: {
     margin: theme.spacing(1),
-    minWidth: 200,
+    minWidth: 300,
   },
 }));
 
 export default function BespokeBankAssignment(props: Props) {
   const classes = useStyles();
 
-  const { data } = useGetBespokeBankAccountsQuery();
+  const { data } = useGetBespokeBankAccountsQuery({
+    fetchPolicy: "network-only",
+  });
   const labelId = props.label.split(" ").join("-");
 
   if (!data || !data.bank_accounts) {

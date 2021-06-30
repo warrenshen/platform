@@ -27,7 +27,7 @@ import { useContext, useMemo, useState } from "react";
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     dialog: {
-      width: 400,
+      width: 600,
     },
     dialogTitle: {
       borderBottom: "1px solid #c7c7c7",
