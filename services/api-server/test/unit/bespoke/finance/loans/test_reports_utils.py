@@ -50,6 +50,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 					self.assertEqual(expected.total_principal_in_requested_state, received.total_principal_in_requested_state)
 					self.assertEqual(expected.available_limit, received.available_limit)
 					self.assertEqual(expected.interest_accrued_today, received.interest_accrued_today)
+					self.assertEqual(expected.product_type, received.product_type)
 			else:
 				self.assertEqual(statements, expected_summaries)
 
@@ -106,7 +107,8 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 			available_limit=decimal.Decimal(25.00),
 			interest_accrued_today=decimal.Decimal(2.1),
 			minimum_monthly_payload={},
-			account_level_balance_payload={}
+			account_level_balance_payload={},
+			product_type=product_type
 		))
 
 

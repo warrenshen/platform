@@ -117,6 +117,7 @@ class TestSubmitForApproval(db_unittest.TestCase):
 			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=200.0,
 				available_limit=200.0,
+				product_type=ProductType.INVENTORY_FINANCING
 			),
 			'loans': [],
 			'loan_index': None,
@@ -132,7 +133,8 @@ class TestSubmitForApproval(db_unittest.TestCase):
 			'now_for_test': parser.parse('2019-10-01T16:33:27.69-08:00'),
 			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=200.0,
-				available_limit=200.0
+				available_limit=200.0,
+				product_type=ProductType.INVENTORY_FINANCING
 			),
 			'loans': [
 				models.Loan(
@@ -183,7 +185,8 @@ class TestSubmitForApproval(db_unittest.TestCase):
 			'now_for_test': parser.parse('2019-10-01T16:33:27.69-08:00'),
 			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=1000.0,
-				available_limit=200.0
+				available_limit=200.0,
+				product_type=ProductType.INVENTORY_FINANCING
 			),
 			'loans': [
 				models.Loan(
@@ -207,7 +210,8 @@ class TestSubmitForApproval(db_unittest.TestCase):
 			'now_for_test': parser.parse('2019-09-01T16:33:27.69-08:00'),
 			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=200.0,
-				available_limit=200.0
+				available_limit=200.0,
+				product_type=ProductType.INVENTORY_FINANCING
 			),
 			'loans': [
 				models.Loan(
@@ -246,6 +250,7 @@ class TestSubmitForApproval(db_unittest.TestCase):
 			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=200.0,
 				available_limit=200.0,
+				product_type=ProductType.INVENTORY_FINANCING
 			),
 			'loans': [
 				models.Loan(
@@ -270,6 +275,7 @@ class TestSubmitForApproval(db_unittest.TestCase):
 			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=200.0,
 				available_limit=200.0,
+				product_type=ProductType.INVENTORY_FINANCING
 			),
 			'loans': [
 				models.Loan(
@@ -376,7 +382,8 @@ class TestApproveLoans(db_unittest.TestCase):
 			'contract': _get_contract(product_type=ProductType.INVENTORY_FINANCING),
 			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=200.0,
-				available_limit=10.0
+				available_limit=10.0,
+				product_type=ProductType.INVENTORY_FINANCING
 			),
 			'loans': [
 				models.Loan(
@@ -401,7 +408,8 @@ class TestApproveLoans(db_unittest.TestCase):
 			'contract': _get_contract(product_type=ProductType.INVENTORY_FINANCING),
 			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=500.0,
-				available_limit=300.0
+				available_limit=300.0,
+				product_type=ProductType.INVENTORY_FINANCING
 			),
 			'loans': [
 				models.Loan(
@@ -427,6 +435,7 @@ class TestApproveLoans(db_unittest.TestCase):
 			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=200.0,
 				available_limit=200.0,
+				product_type=ProductType.INVENTORY_FINANCING
 			),
 			'loans': [
 				models.Loan(
@@ -530,6 +539,7 @@ class TestSubmitViaAutoFinancing(db_unittest.TestCase):
 			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=200.0,
 				available_limit=200.0,
+				product_type=ProductType.INVENTORY_FINANCING
 			),
 			'company_settings': models.CompanySettings(),
 			'artifact': models.PurchaseOrder(
@@ -547,6 +557,7 @@ class TestSubmitViaAutoFinancing(db_unittest.TestCase):
 			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=200.0,
 				available_limit=200.0,
+				product_type=ProductType.INVENTORY_FINANCING
 			),
 			'company_settings': models.CompanySettings(
 				has_autofinancing=True

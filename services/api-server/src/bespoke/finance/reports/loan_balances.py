@@ -216,7 +216,7 @@ def _get_summary_update(
 		available_limit=max(0.0, adjusted_total_limit - total_outstanding_principal),
 		minimum_monthly_payload=minimum_monthly_payload,
 		account_level_balance_payload=account_level_balance,
-		day_volume_threshold_met=None,
+		day_volume_threshold_met=None
 	), None
 
 class CustomerBalance(object):
@@ -499,6 +499,7 @@ class CustomerBalance(object):
 			financial_summary.minimum_monthly_payload = cast(Dict, summary_update['minimum_monthly_payload'])
 			financial_summary.account_level_balance_payload = cast(Dict, summary_update['account_level_balance_payload'])
 			financial_summary.day_volume_threshold_met = summary_update['day_volume_threshold_met']
+			financial_summary.product_type = summary_update['product_type']
 
 			if should_add_summary:
 				session.add(financial_summary)

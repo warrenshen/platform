@@ -29,7 +29,8 @@ class TestRepaymentOfFees(db_unittest.TestCase):
 
 			financial_summary = finance_test_helper.get_default_financial_summary(
 				total_limit=0.0,
-				available_limit=0.0
+				available_limit=0.0,
+				product_type=db_constants.ProductType.INVENTORY_FINANCING
 			)
 			financial_summary.company_id = company_id
 			financial_summary.account_level_balance_payload = {'fees_total': test['fees_total']}

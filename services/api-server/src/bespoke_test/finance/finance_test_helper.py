@@ -2,7 +2,11 @@ import decimal
 
 from bespoke.db import models
 
-def get_default_financial_summary(total_limit: float, available_limit: float) -> models.FinancialSummary:
+def get_default_financial_summary(
+	total_limit: float, 
+	available_limit: float,
+	product_type: str
+) -> models.FinancialSummary:
 	return models.FinancialSummary(
 		total_limit=decimal.Decimal(total_limit),
 		adjusted_total_limit=decimal.Decimal(total_limit),
@@ -14,5 +18,6 @@ def get_default_financial_summary(total_limit: float, available_limit: float) ->
 		interest_accrued_today=decimal.Decimal(0.0),
 		available_limit=decimal.Decimal(available_limit),
 		minimum_monthly_payload={},
-		account_level_balance_payload={}
+		account_level_balance_payload={},
+		product_type=product_type
 	)

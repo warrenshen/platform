@@ -783,7 +783,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			))
 			financial_summary = finance_test_helper.get_default_financial_summary(
 				total_limit=100.0,
-				available_limit=100.0
+				available_limit=100.0,
+				product_type=ProductType.INVENTORY_FINANCING
 			)
 			financial_summary.date = date_util.load_date_str('01/01/1960')
 			financial_summary.account_level_balance_payload = {
@@ -1114,7 +1115,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			))
 			financial_summary = finance_test_helper.get_default_financial_summary(
 				total_limit=100.0,
-				available_limit=100.0
+				available_limit=100.0,
+				product_type=ProductType.INVOICE_FINANCING
 			)
 			financial_summary.date = date_util.load_date_str('01/01/1960')
 			financial_summary.company_id = company_id

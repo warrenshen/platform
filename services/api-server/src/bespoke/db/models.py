@@ -726,6 +726,7 @@ class FinancialSummary(Base):
 	account_level_balance_payload = Column(JSON, nullable=False)
 	day_volume_threshold_met = Column(Date)
 	interest_accrued_today = Column(Numeric, nullable=False)
+	product_type = Column(Text, nullable=False)
 
 ### End of financial tables
 
