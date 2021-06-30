@@ -1,5 +1,6 @@
 import calendar
 import datetime
+import logging
 
 from datetime import timedelta
 from mypy_extensions import TypedDict
@@ -34,6 +35,11 @@ PerCompanyRespInfo = TypedDict('PerCompanyRespInfo', {
 AllMonthlyMinimumDueRespDict = TypedDict('AllMonthlyMinimumDueRespDict', {
 	'company_due_to_financial_info': Dict[str, PerCompanyRespInfo]
 })
+
+def _get_first_day_of_month_date(date_str: str) -> datetime.date:
+	# Find the last date of this month
+	chosen_date = date_util.load_date_str(date_str)
+	return datetime.date(chosen_date.year, chosen_date.month, 1)
 
 def _get_last_day_of_month_date(date_str: str) -> datetime.date:
 	# Find the last date of this month
@@ -137,6 +143,7 @@ def create_minimum_due_fee_for_customers(
 def get_all_monthly_loc_fees_due(
 	date_str: str, session: Session) -> Tuple[AllMonthlyLOCDueRespDict, errors.Error]:
 
+	first_day_of_month_date = _get_first_day_of_month_date(date_str)
 	last_day_of_month_date = _get_last_day_of_month_date(date_str)
 
 	companies = cast(
@@ -158,6 +165,22 @@ def get_all_monthly_loc_fees_due(
 		return None, errors.Error('No LOC financial summaries found for date {}'.format(
 			date_util.date_to_str(last_day_of_month_date)))
 
+	financial_summaries_begin_of_month = cast(
+		List[models.FinancialSummary],
+		session.query(models.FinancialSummary).filter(
+			models.FinancialSummary.date == first_day_of_month_date
+		).filter(
+			models.FinancialSummary.product_type == db_constants.ProductType.LINE_OF_CREDIT
+		).all())
+
+	if not financial_summaries_begin_of_month:
+		return None, errors.Error('No financial summaries found at the beginning of month for date {}'.format(
+			date_util.date_to_str(first_day_of_month_date)))
+
+	loc_companies_at_beginning_of_month = {}
+	for fin_summary in financial_summaries_begin_of_month:
+		loc_companies_at_beginning_of_month[str(fin_summary.company_id)] = True
+
 	company_id_to_financial_info = {}
 
 	for financial_summary in financial_summaries:
@@ -165,6 +188,11 @@ def get_all_monthly_loc_fees_due(
 		company_dict = company_id_to_dict[cur_company_id]
 
 		if not financial_summary.minimum_monthly_payload:
+			continue
+
+		if cur_company_id not in loc_companies_at_beginning_of_month:
+			logging.info('Skipping company {} from an LOC reverse draft ACH because they werent an LOC customer at the beginning of the month'.format(
+				company_dict['name']))
 			continue
 
 		minimum_monthly_payload = cast(models.FeeDict, financial_summary.minimum_monthly_payload)
