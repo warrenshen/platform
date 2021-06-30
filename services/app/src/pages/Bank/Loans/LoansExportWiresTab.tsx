@@ -34,7 +34,6 @@ export default function BankLoansAllTab() {
   }
 
   const payments = data?.payments || [];
-  console.log({ payments });
 
   return (
     <Container>

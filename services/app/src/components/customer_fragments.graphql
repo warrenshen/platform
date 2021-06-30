@@ -6,10 +6,10 @@
 fragment CompanySettingsLimited on company_settings {
   id
   company_id
+  advances_bank_account_id
+  collections_bank_account_id
   vendor_agreement_docusign_template
   payor_agreement_docusign_template
-  advances_bespoke_bank_account_id
-  collections_bespoke_bank_account_id
   feature_flags_payload
   custom_messages_payload
   has_autofinancing

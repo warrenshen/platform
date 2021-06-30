@@ -3,7 +3,6 @@ import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
-  CompanySettingsLimitedFragment,
   ContractFragment,
   useGetCompanyForCustomerQuery,
 } from "generated/graphql";
@@ -27,8 +26,7 @@ export default function SettingsPage() {
   }
 
   const company = data?.companies_by_pk;
-  const settings = data?.companies_by_pk
-    ?.settings as CompanySettingsLimitedFragment;
+  const settings = data?.companies_by_pk?.settings;
   const contract = data?.companies_by_pk?.contract as ContractFragment;
 
   return (

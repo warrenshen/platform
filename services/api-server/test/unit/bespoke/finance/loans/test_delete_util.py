@@ -80,6 +80,7 @@ class TestDeleteLoan(db_unittest.TestCase):
 					company_id=company_id
 				).first())
 			company_settings.advances_bespoke_bank_account_id = cast(GUID, 'ba12e58e-6378-450c-a753-943533f7ae88')
+			company_settings.advances_bank_account_id = cast(GUID, 'cc12e58e-6378-450c-a753-943533f7ae88')
 			session.flush()
 
 		with session_scope(session_maker) as session:

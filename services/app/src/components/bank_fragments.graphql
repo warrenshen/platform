@@ -34,6 +34,8 @@ fragment CustomerForBank on companies {
 
 fragment CompanySettings on company_settings {
   id
+  advances_bespoke_bank_account_id
+  collections_bespoke_bank_account_id
   two_factor_message_method
   ...CompanySettingsLimited
 }

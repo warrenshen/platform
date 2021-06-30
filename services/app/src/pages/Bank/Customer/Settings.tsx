@@ -9,8 +9,8 @@ import { Alert } from "@material-ui/lab";
 import MetrcApiKeys from "components/Settings/Bank/MetrcApiKeys";
 import SyncMetrcData from "components/Settings/Bank/SyncMetrcData";
 import CustomerSettings from "components/Settings/CustomerSettings";
-import AssignAdvancesBespokeBankAccount from "components/Shared/BespokeBankAssignment/AssignAdvancesBespokeBankAccount";
-import AssignCollectionsBespokeBankAccount from "components/Shared/BespokeBankAssignment/AssignCollectionsBespokeBankAccount";
+import AssignAdvancesBespokeBankAccount from "components/Shared/BankAssignment/AssignAdvancesBespokeBankAccount";
+import AssignCollectionsBespokeBankAccount from "components/Shared/BankAssignment/AssignCollectionsBespokeBankAccount";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import PageContent from "components/Shared/Page/PageContent";
@@ -19,7 +19,6 @@ import UpsertCustomMessagesModal from "components/Settings/Bank/UpsertCustomMess
 import UpsertFeatureFlagsModal from "components/Settings/Bank/UpsertFeatureFlagsModal";
 import {
   Companies,
-  CompanySettingsFragment,
   ContractFragment,
   MetrcApiKeyFragment,
   useGetCompanyForBankQuery,
@@ -49,14 +48,14 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
   }
 
   const company = data?.companies_by_pk;
-  const settings = company?.settings as CompanySettingsFragment;
+  const settings = company?.settings;
   const contract = company?.contract as ContractFragment;
   const metrcApiKey = company?.settings?.metrc_api_key as MetrcApiKeyFragment;
   const companyLicenses = company?.licenses || [];
   const featureFlagsPayload = settings?.feature_flags_payload || {};
   const customMessagesPayload = settings?.custom_messages_payload || {};
 
-  if (!company) {
+  if (!company || !settings) {
     return null;
   }
 
@@ -101,7 +100,7 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
               <AssignAdvancesBespokeBankAccount
                 companySettingsId={settings?.id}
                 assignedBespokeBankAccount={
-                  company.settings?.advances_bespoke_bank_account || undefined
+                  company.settings?.advances_bespoke_bank_account || null
                 }
                 handleDataChange={refetch}
               />
@@ -110,8 +109,7 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
               <AssignCollectionsBespokeBankAccount
                 companySettingsId={settings?.id}
                 assignedBespokeBankAccount={
-                  company.settings?.collections_bespoke_bank_account ||
-                  undefined
+                  company.settings?.collections_bespoke_bank_account || null
                 }
                 handleDataChange={refetch}
               />

@@ -175,9 +175,15 @@ def fund_loans_with_advance(
 			)
 
 			recipient_bank_account_id = None
+			sender_bank_account_id = None
 			for index, loan in enumerate(loans_for_company):
 				if recipient_bank_account_id is None:
 					recipient_bank_account_id, err = models_util.get_loan_recipient_bank_account_id(loan, session)
+					if err:
+						return None, err
+
+				if sender_bank_account_id is None:
+					sender_bank_account_id, err = models_util.get_loan_sender_bank_account_id(loan, session)
 					if err:
 						return None, err
 
@@ -188,6 +194,7 @@ def fund_loans_with_advance(
 				payment_date=payment_date,
 				settlement_date=settlement_date,
 				settled_by_user_id=bank_admin_user_id,
+				sender_bank_account_id=sender_bank_account_id,
 				recipient_bank_account_id=recipient_bank_account_id,
 			)
 			session.add(payment)

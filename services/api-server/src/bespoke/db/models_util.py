@@ -143,8 +143,36 @@ def get_loan_recipient_bank_account_id(
 	if not company_settings:
 		return None, errors.Error(f'[DATA ERROR] Company {customer_id} is missing associated company settings')
 
-	if not company_settings.advances_bespoke_bank_account_id:
+	if not company_settings.advances_bank_account_id:
 		return None, errors.Error(f'Company {customer.name} does not have bank account to receive advances configured')
+
+	return str(company_settings.advances_bank_account_id), None
+
+def get_loan_sender_bank_account_id(
+	loan: models.Loan,
+	session: Session,
+) -> Tuple[str, errors.Error]:
+	customer_id = str(loan.company_id)
+
+	customer = cast(
+		models.Company,
+		session.query(models.Company).get(customer_id))
+
+	if not customer:
+		return None, errors.Error(f'[DATA ERROR]: Could not find customer by id {customer_id}')
+
+	if not customer.company_settings_id:
+		return None, errors.Error(f'[DATA ERROR] Company {customer_id} is missing company settings id')
+
+	company_settings = cast(
+		models.CompanySettings,
+		session.query(models.CompanySettings).get(str(customer.company_settings_id)))
+
+	if not company_settings:
+		return None, errors.Error(f'[DATA ERROR] Company {customer_id} is missing associated company settings')
+
+	if not company_settings.advances_bespoke_bank_account_id:
+		return None, errors.Error(f'Company {customer.name} does not have Bespoke Financial bank account to send advances configured')
 
 	return str(company_settings.advances_bespoke_bank_account_id), None
 

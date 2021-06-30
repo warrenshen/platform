@@ -912,9 +912,15 @@
   - name: active_ebba_application
     using:
       foreign_key_constraint_on: active_ebba_application_id
+  - name: advances_bank_account
+    using:
+      foreign_key_constraint_on: advances_bank_account_id
   - name: advances_bespoke_bank_account
     using:
       foreign_key_constraint_on: advances_bespoke_bank_account_id
+  - name: collections_bank_account
+    using:
+      foreign_key_constraint_on: collections_bank_account_id
   - name: collections_bespoke_bank_account
     using:
       foreign_key_constraint_on: collections_bespoke_bank_account_id
@@ -946,45 +952,49 @@
   - role: bank_admin
     permission:
       columns:
-      - active_ebba_application_id
-      - advances_bespoke_bank_account_id
-      - collections_bespoke_bank_account_id
-      - company_id
-      - created_at
-      - custom_messages_payload
-      - feature_flags_payload
-      - has_autofinancing
       - id
-      - metrc_api_key_id
-      - payor_agreement_docusign_template
-      - two_factor_message_method
-      - updated_at
+      - company_id
       - vendor_agreement_docusign_template
+      - collections_bespoke_bank_account_id
+      - advances_bespoke_bank_account_id
+      - active_ebba_application_id
+      - created_at
+      - updated_at
+      - payor_agreement_docusign_template
+      - has_autofinancing
+      - two_factor_message_method
+      - metrc_api_key_id
+      - feature_flags_payload
+      - custom_messages_payload
+      - advances_bank_account_id
+      - collections_bank_account_id
       filter: {}
   - role: bank_read_only
     permission:
       columns:
-      - active_ebba_application_id
-      - advances_bespoke_bank_account_id
-      - collections_bespoke_bank_account_id
-      - company_id
-      - created_at
-      - custom_messages_payload
-      - feature_flags_payload
       - has_autofinancing
-      - id
-      - metrc_api_key_id
       - payor_agreement_docusign_template
       - two_factor_message_method
-      - updated_at
       - vendor_agreement_docusign_template
+      - created_at
+      - updated_at
+      - company_id
+      - id
+      - metrc_api_key_id
+      - collections_bank_account_id
+      - collections_bespoke_bank_account_id
+      - advances_bespoke_bank_account_id
+      - advances_bank_account_id
+      - active_ebba_application_id
+      - custom_messages_payload
+      - feature_flags_payload
       filter: {}
   - role: company_admin
     permission:
       columns:
       - active_ebba_application_id
-      - advances_bespoke_bank_account_id
-      - collections_bespoke_bank_account_id
+      - advances_bank_account_id
+      - collections_bank_account_id
       - company_id
       - custom_messages_payload
       - feature_flags_payload
@@ -1000,8 +1010,8 @@
     permission:
       columns:
       - active_ebba_application_id
-      - advances_bespoke_bank_account_id
-      - collections_bespoke_bank_account_id
+      - advances_bank_account_id
+      - collections_bank_account_id
       - company_id
       - custom_messages_payload
       - feature_flags_payload
@@ -1025,7 +1035,9 @@
   - role: bank_admin
     permission:
       columns:
+      - advances_bank_account_id
       - advances_bespoke_bank_account_id
+      - collections_bank_account_id
       - collections_bespoke_bank_account_id
       - has_autofinancing
       - payor_agreement_docusign_template

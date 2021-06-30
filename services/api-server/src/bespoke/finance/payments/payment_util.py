@@ -65,6 +65,7 @@ def make_advance_payment_settled(
 	payment_date: datetime.date,
 	settlement_date: datetime.date,
 	settled_by_user_id: str,
+	sender_bank_account_id: str,
 	recipient_bank_account_id: str,
 ) -> None:
 	"""
@@ -84,6 +85,7 @@ def make_advance_payment_settled(
 	payment.settlement_date = settlement_date
 	payment.settled_at = date_util.now()
 	payment.settled_by_user_id = settled_by_user_id
+	payment.company_bank_account_id = sender_bank_account_id
 	payment.recipient_bank_account_id = recipient_bank_account_id
 
 def get_and_increment_repayment_identifier(company_id: str, session: Session) -> str:

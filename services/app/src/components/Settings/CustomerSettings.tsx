@@ -4,6 +4,7 @@ import CreateUpdateBankAccountModal from "components/BankAccount/CreateUpdateBan
 import CompanySettingsCard from "components/Settings/CompanySettingsCard";
 import EditCustomerSettingsModal from "components/Settings/EditCustomerSettingsModal";
 import ManageUsersArea from "components/Settings/ManageUsersArea";
+import AssignAdvancesBankAccount from "components/Shared/BankAssignment/AssignAdvancesBankAccount";
 import Can from "components/Shared/Can";
 import CompanyInfo from "components/Shared/CompanyProfile/CompanyInfo";
 import ModalButton from "components/Shared/Modal/ModalButton";
@@ -11,9 +12,8 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   BankAccountFragment,
   CompanyFragment,
-  CompanySettingsFragment,
-  CompanySettingsLimitedFragment,
   ContractFragment,
+  GetCompanyForCustomerQuery,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { useContext, useState } from "react";
@@ -21,7 +21,9 @@ import { useContext, useState } from "react";
 interface Props {
   companyId: string;
   company: CompanyFragment;
-  settings: CompanySettingsFragment | CompanySettingsLimitedFragment;
+  settings: NonNullable<
+    GetCompanyForCustomerQuery["companies_by_pk"]
+  >["settings"];
   contract: ContractFragment | null;
   bankAccounts: BankAccountFragment[];
   handleDataChange: () => void;
@@ -40,6 +42,10 @@ export default function CustomerSettings({
   } = useContext(CurrentUserContext);
 
   const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
+
+  if (!settings) {
+    return null;
+  }
 
   return (
     <Box>
@@ -67,9 +73,7 @@ export default function CustomerSettings({
           <CompanySettingsCard
             contract={contract}
             settings={settings}
-            handleClick={() => {
-              setAccountSettingsOpen(true);
-            }}
+            handleClick={() => setAccountSettingsOpen(true)}
           />
         </Box>
       </Box>
@@ -90,6 +94,12 @@ export default function CustomerSettings({
             )}
           />
         </Can>
+        <AssignAdvancesBankAccount
+          companyId={companyId}
+          companySettingsId={settings.id}
+          assignedBankAccount={settings.advances_bank_account || null}
+          handleDataChange={handleDataChange}
+        />
         <Box display="flex" mt={3}>
           {bankAccounts.length > 0 ? (
             bankAccounts.map((bankAccount, index) => (

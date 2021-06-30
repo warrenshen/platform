@@ -100,7 +100,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						session.query(models.CompanySettings).filter_by(
 							company_id=company_id
 						).first())
-					cs.advances_bespoke_bank_account_id = company_settings['advances_bespoke_bank_account_id']
+					cs.advances_bespoke_bank_account_id = company_settings.get('advances_bespoke_bank_account_id')
+					cs.advances_bank_account_id = company_settings.get('advances_bank_account_id')
 					session.flush()
 
 			for vendor in vendors:
@@ -317,6 +318,12 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		tests: List[Dict] = [
 			{
 				'comment': 'Test multiple loans approved from one customer',
+				'company_settings_by_company_index': {
+					0: {
+						'advances_bespoke_bank_account_id': 'dc12e58e-6378-450c-a753-943533f7ae88',
+						'advances_bank_account_id': 'cc12e58e-6378-450c-a753-943533f7ae88',
+					},
+				},
 				'contracts_by_company_index': {
 					0: [
 						_get_default_contract(
@@ -428,6 +435,14 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		tests: List[Dict] = [
 			{
 				'comment': 'Test multiple loans approved from many customers',
+				'company_settings_by_company_index': {
+					0: {
+						'advances_bespoke_bank_account_id': 'dc12e58e-6378-450c-a753-943533f7ae88',
+					},
+					1: {
+						'advances_bespoke_bank_account_id': 'dc12e58e-6378-450c-a753-943533f7ae88',
+					},
+				},
 				'contracts_by_company_index': {
 					0: [
 						_get_default_contract(
@@ -605,7 +620,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				'comment': 'Tests that an advance on a line of credit loan results in a maturity date based on adjusted end date of active contract of customer',
 				'company_settings_by_company_index': {
 					0: {
-						'advances_bespoke_bank_account_id': 'cc12e58e-6378-450c-a753-943533f7ae88',
+						'advances_bespoke_bank_account_id': 'dc12e58e-6378-450c-a753-943533f7ae88',
+						'advances_bank_account_id': 'cc12e58e-6378-450c-a753-943533f7ae88',
 					},
 				},
 				'contracts_by_company_index': {
@@ -682,7 +698,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					items_covered={ 'loan_ids': [] },
 					company_bank_account_id=None,
 					customer_note=''
-			  	),
+				),
 				should_charge_wire_fee=False
 			),
 			bank_admin_user_id='',
@@ -722,7 +738,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					items_covered={ 'loan_ids': loan_ids },
 					company_bank_account_id=None,
 					customer_note=''
-			  	),
+				),
 				should_charge_wire_fee=False
 			),
 			bank_admin_user_id='',
@@ -762,7 +778,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					items_covered={ 'loan_ids': loan_ids },
 					company_bank_account_id=None,
 					customer_note=''
-			  	),
+				),
 				should_charge_wire_fee=False
 			),
 			bank_admin_user_id='',
@@ -800,7 +816,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					items_covered={ 'loan_ids': loan_ids },
 					company_bank_account_id=None,
 					customer_note=''
-			  	),
+				),
 				should_charge_wire_fee=False
 			),
 			bank_admin_user_id='',
@@ -840,7 +856,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					items_covered={'loan_ids': loan_ids},
 					company_bank_account_id=None,
 					customer_note=''
-			  	),
+				),
 				loan_ids=loan_ids,
 				should_charge_wire_fee=False
 			),
@@ -853,6 +869,11 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		tests: List[Dict] = [
 			{
 				'comment': 'Test multiple loans approved from one customer',
+				'company_settings_by_company_index': {
+					0: {
+						'advances_bespoke_bank_account_id': 'dc12e58e-6378-450c-a753-943533f7ae88',
+					},
+				},
 				'contracts_by_company_index': {
 					0: [
 						_get_default_contract(
@@ -954,6 +975,11 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		tests: List[Dict] = [
 			{
 				'comment': 'Test multiple loans approved from one customer',
+				'company_settings_by_company_index': {
+					0: {
+						'advances_bespoke_bank_account_id': 'dc12e58e-6378-450c-a753-943533f7ae88',
+					},
+				},
 				'contracts_by_company_index': {
 					0: [
 						_get_default_contract(
@@ -1062,6 +1088,11 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		tests: List[Dict] = [
 			{
 				'comment': 'Tests that a wire fee is not created if the wire fee value in contract is zero',
+				'company_settings_by_company_index': {
+					0: {
+						'advances_bespoke_bank_account_id': 'dc12e58e-6378-450c-a753-943533f7ae88',
+					},
+				},
 				'contracts_by_company_index': {
 					0: [
 						_get_default_contract(
@@ -1161,6 +1192,11 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		tests: List[Dict] = [
 			{
 				'comment': 'Tests that it is invalid to try to charge a wire fee if payment method is not Wire',
+				'company_settings_by_company_index': {
+					0: {
+						'advances_bespoke_bank_account_id': 'dc12e58e-6378-450c-a753-943533f7ae88',
+					},
+				},
 				'contracts_by_company_index': {
 					0: [
 						_get_default_contract(
@@ -1256,6 +1292,11 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		tests: List[Dict] = [
 			{
 				'comment': 'Test multiple loans approved from one customer',
+				'company_settings_by_company_index': {
+					0: {
+						'advances_bespoke_bank_account_id': 'dc12e58e-6378-450c-a753-943533f7ae88',
+					},
+				},
 				'contracts_by_company_index': {
 					0: [
 						_get_default_contract(

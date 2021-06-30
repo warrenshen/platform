@@ -3428,12 +3428,20 @@ export type CompanySettings = {
   /** If relevant, this foreign key points to the current active ebba_application for this company */
   active_ebba_application_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
+  advances_bank_account?: Maybe<BankAccounts>;
+  /** For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances TO */
+  advances_bank_account_id?: Maybe<Scalars["uuid"]>;
+  /** An object relationship */
   advances_bespoke_bank_account?: Maybe<BankAccounts>;
-  /** For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances to */
+  /** For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances FROM */
   advances_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
+  collections_bank_account?: Maybe<BankAccounts>;
+  /** For CUSTOMER and PAYOR companies, this is the bank account which company sends payments FROM */
+  collections_bank_account_id?: Maybe<Scalars["uuid"]>;
+  /** An object relationship */
   collections_bespoke_bank_account?: Maybe<BankAccounts>;
-  /** For CUSTOMER and PAYOR companies, this is the bank account which company sends repayments to */
+  /** For CUSTOMER and PAYOR companies, this is the Bespoke Financial bank account company sends payments TO */
   collections_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
   company?: Maybe<Companies>;
@@ -3519,8 +3527,12 @@ export type CompanySettingsBoolExp = {
   _or?: Maybe<Array<Maybe<CompanySettingsBoolExp>>>;
   active_ebba_application?: Maybe<EbbaApplicationsBoolExp>;
   active_ebba_application_id?: Maybe<UuidComparisonExp>;
+  advances_bank_account?: Maybe<BankAccountsBoolExp>;
+  advances_bank_account_id?: Maybe<UuidComparisonExp>;
   advances_bespoke_bank_account?: Maybe<BankAccountsBoolExp>;
   advances_bespoke_bank_account_id?: Maybe<UuidComparisonExp>;
+  collections_bank_account?: Maybe<BankAccountsBoolExp>;
+  collections_bank_account_id?: Maybe<UuidComparisonExp>;
   collections_bespoke_bank_account?: Maybe<BankAccountsBoolExp>;
   collections_bespoke_bank_account_id?: Maybe<UuidComparisonExp>;
   company?: Maybe<CompaniesBoolExp>;
@@ -3566,8 +3578,12 @@ export type CompanySettingsDeleteKeyInput = {
 export type CompanySettingsInsertInput = {
   active_ebba_application?: Maybe<EbbaApplicationsObjRelInsertInput>;
   active_ebba_application_id?: Maybe<Scalars["uuid"]>;
+  advances_bank_account?: Maybe<BankAccountsObjRelInsertInput>;
+  advances_bank_account_id?: Maybe<Scalars["uuid"]>;
   advances_bespoke_bank_account?: Maybe<BankAccountsObjRelInsertInput>;
   advances_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
+  collections_bank_account?: Maybe<BankAccountsObjRelInsertInput>;
+  collections_bank_account_id?: Maybe<Scalars["uuid"]>;
   collections_bespoke_bank_account?: Maybe<BankAccountsObjRelInsertInput>;
   collections_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company?: Maybe<CompaniesObjRelInsertInput>;
@@ -3588,7 +3604,9 @@ export type CompanySettingsInsertInput = {
 /** aggregate max on columns */
 export type CompanySettingsMaxFields = {
   active_ebba_application_id?: Maybe<Scalars["uuid"]>;
+  advances_bank_account_id?: Maybe<Scalars["uuid"]>;
   advances_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
+  collections_bank_account_id?: Maybe<Scalars["uuid"]>;
   collections_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
@@ -3603,7 +3621,9 @@ export type CompanySettingsMaxFields = {
 /** order by max() on columns of table "company_settings" */
 export type CompanySettingsMaxOrderBy = {
   active_ebba_application_id?: Maybe<OrderBy>;
+  advances_bank_account_id?: Maybe<OrderBy>;
   advances_bespoke_bank_account_id?: Maybe<OrderBy>;
+  collections_bank_account_id?: Maybe<OrderBy>;
   collections_bespoke_bank_account_id?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
@@ -3618,7 +3638,9 @@ export type CompanySettingsMaxOrderBy = {
 /** aggregate min on columns */
 export type CompanySettingsMinFields = {
   active_ebba_application_id?: Maybe<Scalars["uuid"]>;
+  advances_bank_account_id?: Maybe<Scalars["uuid"]>;
   advances_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
+  collections_bank_account_id?: Maybe<Scalars["uuid"]>;
   collections_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
@@ -3633,7 +3655,9 @@ export type CompanySettingsMinFields = {
 /** order by min() on columns of table "company_settings" */
 export type CompanySettingsMinOrderBy = {
   active_ebba_application_id?: Maybe<OrderBy>;
+  advances_bank_account_id?: Maybe<OrderBy>;
   advances_bespoke_bank_account_id?: Maybe<OrderBy>;
+  collections_bank_account_id?: Maybe<OrderBy>;
   collections_bespoke_bank_account_id?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
@@ -3670,8 +3694,12 @@ export type CompanySettingsOnConflict = {
 export type CompanySettingsOrderBy = {
   active_ebba_application?: Maybe<EbbaApplicationsOrderBy>;
   active_ebba_application_id?: Maybe<OrderBy>;
+  advances_bank_account?: Maybe<BankAccountsOrderBy>;
+  advances_bank_account_id?: Maybe<OrderBy>;
   advances_bespoke_bank_account?: Maybe<BankAccountsOrderBy>;
   advances_bespoke_bank_account_id?: Maybe<OrderBy>;
+  collections_bank_account?: Maybe<BankAccountsOrderBy>;
+  collections_bank_account_id?: Maybe<OrderBy>;
   collections_bespoke_bank_account?: Maybe<BankAccountsOrderBy>;
   collections_bespoke_bank_account_id?: Maybe<OrderBy>;
   company?: Maybe<CompaniesOrderBy>;
@@ -3705,7 +3733,11 @@ export enum CompanySettingsSelectColumn {
   /** column name */
   ActiveEbbaApplicationId = "active_ebba_application_id",
   /** column name */
+  AdvancesBankAccountId = "advances_bank_account_id",
+  /** column name */
   AdvancesBespokeBankAccountId = "advances_bespoke_bank_account_id",
+  /** column name */
+  CollectionsBankAccountId = "collections_bank_account_id",
   /** column name */
   CollectionsBespokeBankAccountId = "collections_bespoke_bank_account_id",
   /** column name */
@@ -3735,7 +3767,9 @@ export enum CompanySettingsSelectColumn {
 /** input type for updating data in table "company_settings" */
 export type CompanySettingsSetInput = {
   active_ebba_application_id?: Maybe<Scalars["uuid"]>;
+  advances_bank_account_id?: Maybe<Scalars["uuid"]>;
   advances_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
+  collections_bank_account_id?: Maybe<Scalars["uuid"]>;
   collections_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
@@ -3755,7 +3789,11 @@ export enum CompanySettingsUpdateColumn {
   /** column name */
   ActiveEbbaApplicationId = "active_ebba_application_id",
   /** column name */
+  AdvancesBankAccountId = "advances_bank_account_id",
+  /** column name */
   AdvancesBespokeBankAccountId = "advances_bespoke_bank_account_id",
+  /** column name */
+  CollectionsBankAccountId = "collections_bank_account_id",
   /** column name */
   CollectionsBespokeBankAccountId = "collections_bespoke_bank_account_id",
   /** column name */
@@ -20006,6 +20044,32 @@ export type AssignCollectionsBespokeBankAccountMutation = {
   >;
 };
 
+export type AssignAdvancesBankAccountMutationVariables = Exact<{
+  companySettingsId: Scalars["uuid"];
+  bankAccountId?: Maybe<Scalars["uuid"]>;
+}>;
+
+export type AssignAdvancesBankAccountMutation = {
+  update_company_settings_by_pk?: Maybe<
+    Pick<CompanySettings, "id"> & {
+      advances_bank_account?: Maybe<BankAccountLimitedFragment>;
+    }
+  >;
+};
+
+export type AssignCollectionsBankAccountMutationVariables = Exact<{
+  companySettingsId: Scalars["uuid"];
+  bankAccountId?: Maybe<Scalars["uuid"]>;
+}>;
+
+export type AssignCollectionsBankAccountMutation = {
+  update_company_settings_by_pk?: Maybe<
+    Pick<CompanySettings, "id"> & {
+      collections_bank_account?: Maybe<BankAccountLimitedFragment>;
+    }
+  >;
+};
+
 export type GetBankFinancialSummariesByDateSubscriptionVariables = Exact<{
   date: Scalars["date"];
 }>;
@@ -20127,6 +20191,12 @@ export type GetCompanyForBankQuery = {
           collections_bespoke_bank_account?: Maybe<
             Pick<BankAccounts, "id"> & BankAccountFragment
           >;
+          advances_bank_account?: Maybe<
+            Pick<BankAccounts, "id"> & BankAccountLimitedFragment
+          >;
+          collections_bank_account?: Maybe<
+            Pick<BankAccounts, "id"> & BankAccountLimitedFragment
+          >;
           metrc_api_key?: Maybe<Pick<MetrcApiKeys, "id"> & MetrcApiKeyFragment>;
         } & CompanySettingsFragment
       >;
@@ -20148,7 +20218,10 @@ export type GetCompanyForCustomerQuery = {
       >;
       settings?: Maybe<
         Pick<CompanySettings, "id"> & {
-          collections_bespoke_bank_account?: Maybe<
+          advances_bank_account?: Maybe<
+            Pick<BankAccounts, "id"> & BankAccountLimitedFragment
+          >;
+          collections_bank_account?: Maybe<
             Pick<BankAccounts, "id"> & BankAccountLimitedFragment
           >;
         } & CompanySettingsLimitedFragment
@@ -20638,7 +20711,10 @@ export type CustomerForBankFragment = Pick<
 
 export type CompanySettingsFragment = Pick<
   CompanySettings,
-  "id" | "two_factor_message_method"
+  | "id"
+  | "advances_bespoke_bank_account_id"
+  | "collections_bespoke_bank_account_id"
+  | "two_factor_message_method"
 > &
   CompanySettingsLimitedFragment;
 
@@ -20760,10 +20836,10 @@ export type CompanySettingsLimitedFragment = Pick<
   CompanySettings,
   | "id"
   | "company_id"
+  | "advances_bank_account_id"
+  | "collections_bank_account_id"
   | "vendor_agreement_docusign_template"
   | "payor_agreement_docusign_template"
-  | "advances_bespoke_bank_account_id"
-  | "collections_bespoke_bank_account_id"
   | "feature_flags_payload"
   | "custom_messages_payload"
   | "has_autofinancing"
@@ -21248,10 +21324,10 @@ export const CompanySettingsLimitedFragmentDoc = gql`
   fragment CompanySettingsLimited on company_settings {
     id
     company_id
+    advances_bank_account_id
+    collections_bank_account_id
     vendor_agreement_docusign_template
     payor_agreement_docusign_template
-    advances_bespoke_bank_account_id
-    collections_bespoke_bank_account_id
     feature_flags_payload
     custom_messages_payload
     has_autofinancing
@@ -21260,6 +21336,8 @@ export const CompanySettingsLimitedFragmentDoc = gql`
 export const CompanySettingsFragmentDoc = gql`
   fragment CompanySettings on company_settings {
     id
+    advances_bespoke_bank_account_id
+    collections_bespoke_bank_account_id
     two_factor_message_method
     ...CompanySettingsLimited
   }
@@ -26683,6 +26761,124 @@ export type AssignCollectionsBespokeBankAccountMutationOptions = Apollo.BaseMuta
   AssignCollectionsBespokeBankAccountMutation,
   AssignCollectionsBespokeBankAccountMutationVariables
 >;
+export const AssignAdvancesBankAccountDocument = gql`
+  mutation AssignAdvancesBankAccount(
+    $companySettingsId: uuid!
+    $bankAccountId: uuid
+  ) {
+    update_company_settings_by_pk(
+      pk_columns: { id: $companySettingsId }
+      _set: { advances_bank_account_id: $bankAccountId }
+    ) {
+      id
+      advances_bank_account {
+        ...BankAccountLimited
+      }
+    }
+  }
+  ${BankAccountLimitedFragmentDoc}
+`;
+export type AssignAdvancesBankAccountMutationFn = Apollo.MutationFunction<
+  AssignAdvancesBankAccountMutation,
+  AssignAdvancesBankAccountMutationVariables
+>;
+
+/**
+ * __useAssignAdvancesBankAccountMutation__
+ *
+ * To run a mutation, you first call `useAssignAdvancesBankAccountMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAssignAdvancesBankAccountMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [assignAdvancesBankAccountMutation, { data, loading, error }] = useAssignAdvancesBankAccountMutation({
+ *   variables: {
+ *      companySettingsId: // value for 'companySettingsId'
+ *      bankAccountId: // value for 'bankAccountId'
+ *   },
+ * });
+ */
+export function useAssignAdvancesBankAccountMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    AssignAdvancesBankAccountMutation,
+    AssignAdvancesBankAccountMutationVariables
+  >
+) {
+  return Apollo.useMutation<
+    AssignAdvancesBankAccountMutation,
+    AssignAdvancesBankAccountMutationVariables
+  >(AssignAdvancesBankAccountDocument, baseOptions);
+}
+export type AssignAdvancesBankAccountMutationHookResult = ReturnType<
+  typeof useAssignAdvancesBankAccountMutation
+>;
+export type AssignAdvancesBankAccountMutationResult = Apollo.MutationResult<AssignAdvancesBankAccountMutation>;
+export type AssignAdvancesBankAccountMutationOptions = Apollo.BaseMutationOptions<
+  AssignAdvancesBankAccountMutation,
+  AssignAdvancesBankAccountMutationVariables
+>;
+export const AssignCollectionsBankAccountDocument = gql`
+  mutation AssignCollectionsBankAccount(
+    $companySettingsId: uuid!
+    $bankAccountId: uuid
+  ) {
+    update_company_settings_by_pk(
+      pk_columns: { id: $companySettingsId }
+      _set: { collections_bank_account_id: $bankAccountId }
+    ) {
+      id
+      collections_bank_account {
+        ...BankAccountLimited
+      }
+    }
+  }
+  ${BankAccountLimitedFragmentDoc}
+`;
+export type AssignCollectionsBankAccountMutationFn = Apollo.MutationFunction<
+  AssignCollectionsBankAccountMutation,
+  AssignCollectionsBankAccountMutationVariables
+>;
+
+/**
+ * __useAssignCollectionsBankAccountMutation__
+ *
+ * To run a mutation, you first call `useAssignCollectionsBankAccountMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAssignCollectionsBankAccountMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [assignCollectionsBankAccountMutation, { data, loading, error }] = useAssignCollectionsBankAccountMutation({
+ *   variables: {
+ *      companySettingsId: // value for 'companySettingsId'
+ *      bankAccountId: // value for 'bankAccountId'
+ *   },
+ * });
+ */
+export function useAssignCollectionsBankAccountMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    AssignCollectionsBankAccountMutation,
+    AssignCollectionsBankAccountMutationVariables
+  >
+) {
+  return Apollo.useMutation<
+    AssignCollectionsBankAccountMutation,
+    AssignCollectionsBankAccountMutationVariables
+  >(AssignCollectionsBankAccountDocument, baseOptions);
+}
+export type AssignCollectionsBankAccountMutationHookResult = ReturnType<
+  typeof useAssignCollectionsBankAccountMutation
+>;
+export type AssignCollectionsBankAccountMutationResult = Apollo.MutationResult<AssignCollectionsBankAccountMutation>;
+export type AssignCollectionsBankAccountMutationOptions = Apollo.BaseMutationOptions<
+  AssignCollectionsBankAccountMutation,
+  AssignCollectionsBankAccountMutationVariables
+>;
 export const GetBankFinancialSummariesByDateDocument = gql`
   subscription GetBankFinancialSummariesByDate($date: date!) {
     bank_financial_summaries(
@@ -27231,6 +27427,14 @@ export const GetCompanyForBankDocument = gql`
           id
           ...BankAccount
         }
+        advances_bank_account {
+          id
+          ...BankAccountLimited
+        }
+        collections_bank_account {
+          id
+          ...BankAccountLimited
+        }
         metrc_api_key {
           id
           ...MetrcApiKey
@@ -27256,6 +27460,7 @@ export const GetCompanyForBankDocument = gql`
   ${CompanyFragmentDoc}
   ${BankAccountFragmentDoc}
   ${CompanySettingsFragmentDoc}
+  ${BankAccountLimitedFragmentDoc}
   ${MetrcApiKeyFragmentDoc}
   ${ContractFragmentDoc}
   ${CompanyLicenseFragmentDoc}
@@ -27321,7 +27526,11 @@ export const GetCompanyForCustomerDocument = gql`
       settings {
         id
         ...CompanySettingsLimited
-        collections_bespoke_bank_account {
+        advances_bank_account {
+          id
+          ...BankAccountLimited
+        }
+        collections_bank_account {
           id
           ...BankAccountLimited
         }

@@ -30,7 +30,7 @@ export default function BankAccountForm({
 
   return (
     <Box mb={3} display="flex" flexDirection="column" className={classes.form}>
-      <Box mt={2}>
+      <Box display="flex" flexDirection="column" mt={2}>
         <TextField
           label="Bank Name"
           required
@@ -40,7 +40,7 @@ export default function BankAccountForm({
           }
         />
       </Box>
-      <Box mt={2}>
+      <Box display="flex" flexDirection="column" mt={2}>
         <TextField
           label="Account Title"
           placeholder="Title on the account"
@@ -51,7 +51,7 @@ export default function BankAccountForm({
           }
         />
       </Box>
-      <Box mt={2}>
+      <Box display="flex" flexDirection="column" mt={2}>
         <TextField
           label="Account Type"
           placeholder="Checking, Savings, etc"
@@ -62,7 +62,7 @@ export default function BankAccountForm({
           }
         />
       </Box>
-      <Box mt={2}>
+      <Box display="flex" flexDirection="column" mt={2}>
         <TextField
           label="Routing Number"
           required
@@ -72,7 +72,7 @@ export default function BankAccountForm({
           }
         />
       </Box>
-      <Box mt={2}>
+      <Box display="flex" flexDirection="column" mt={2}>
         <TextField
           label="Account Number"
           required
@@ -82,7 +82,7 @@ export default function BankAccountForm({
           }
         />
       </Box>
-      <Box mt={2}>
+      <Box display="flex" flexDirection="column" mt={2}>
         <FormControlLabel
           control={
             <Checkbox
@@ -99,24 +99,26 @@ export default function BankAccountForm({
           label={"ACH"}
         />
       </Box>
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={!!bankAccount.can_wire}
-            onChange={(event: ChangeEvent<HTMLInputElement>) =>
-              setBankAccount({
-                ...bankAccount,
-                can_wire: event.target.checked,
-              })
-            }
-            color="primary"
-          />
-        }
-        label={"Wire"}
-      />
+      <Box display="flex" flexDirection="column" mt={2}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={!!bankAccount.can_wire}
+              onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                setBankAccount({
+                  ...bankAccount,
+                  can_wire: event.target.checked,
+                })
+              }
+              color="primary"
+            />
+          }
+          label={"Wire"}
+        />
+      </Box>
       {bankAccount.can_wire && (
         <Box ml={4}>
-          <Box mt={2}>
+          <Box display="flex" flexDirection="column" mt={2}>
             <TextField
               className={classes.form}
               label="Bank Address"
@@ -126,7 +128,7 @@ export default function BankAccountForm({
               }
             />
           </Box>
-          <Box mt={2}>
+          <Box display="flex" flexDirection="column" mt={2}>
             <TextField
               label="Recipient Name"
               className={classes.form}
@@ -136,7 +138,7 @@ export default function BankAccountForm({
               }
             />
           </Box>
-          <Box mt={2}>
+          <Box display="flex" flexDirection="column" mt={2}>
             <TextField
               label="Recipient Address"
               className={classes.form}
@@ -146,7 +148,7 @@ export default function BankAccountForm({
               }
             />
           </Box>
-          <Box mt={2}>
+          <Box display="flex" flexDirection="column" mt={2}>
             <TextField
               label="Recipient Address 2"
               className={classes.form}
@@ -160,7 +162,7 @@ export default function BankAccountForm({
       )}
       {role === UserRolesEnum.BankAdmin && (
         <>
-          <Box mt={2}>
+          <Box display="flex" flexDirection="column" mt={2}>
             <TextField
               label="Torrey Pines Template Name"
               className={classes.form}
@@ -173,7 +175,7 @@ export default function BankAccountForm({
               }
             />
           </Box>
-          <Box mt={2}>
+          <Box display="flex" flexDirection="column" mt={2}>
             <FormControlLabel
               control={
                 <Checkbox
@@ -194,7 +196,7 @@ export default function BankAccountForm({
         </>
       )}
       {role === UserRolesEnum.BankAdmin && !!bankAccount.verified_at && (
-        <Box mt={2}>
+        <Box display="flex" flexDirection="column" mt={2}>
           <DateInput
             id="date-picker-verified-date"
             label="Verified Date"
@@ -210,7 +212,7 @@ export default function BankAccountForm({
       )}
       {(role === UserRolesEnum.BankAdmin ||
         role === UserRolesEnum.CompanyAdmin) && (
-        <Box mt={2}>
+        <Box display="flex" flexDirection="column" mt={2}>
           <FormControlLabel
             control={
               <Checkbox

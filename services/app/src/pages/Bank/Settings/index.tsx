@@ -108,6 +108,7 @@ function BankSettingsPage() {
                   isEditAllowed={check(role, Action.EditBankAccount)}
                   isVerificationVisible
                   bankAccount={account}
+                  handleDataChange={refetchBankAccounts}
                 />
               </Box>
             ))}

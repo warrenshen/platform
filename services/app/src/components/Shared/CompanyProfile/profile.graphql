@@ -16,6 +16,14 @@ query GetCompanyForBank($companyId: uuid!) {
         id
         ...BankAccount
       }
+      advances_bank_account {
+        id
+        ...BankAccountLimited
+      }
+      collections_bank_account {
+        id
+        ...BankAccountLimited
+      }
       metrc_api_key {
         id
         ...MetrcApiKey
@@ -50,7 +58,11 @@ query GetCompanyForCustomer($companyId: uuid!) {
     settings {
       id
       ...CompanySettingsLimited
-      collections_bespoke_bank_account {
+      advances_bank_account {
+        id
+        ...BankAccountLimited
+      }
+      collections_bank_account {
         id
         ...BankAccountLimited
       }

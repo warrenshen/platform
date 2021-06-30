@@ -27,3 +27,33 @@ mutation AssignCollectionsBespokeBankAccount(
     }
   }
 }
+
+mutation AssignAdvancesBankAccount(
+  $companySettingsId: uuid!
+  $bankAccountId: uuid
+) {
+  update_company_settings_by_pk(
+    pk_columns: { id: $companySettingsId }
+    _set: { advances_bank_account_id: $bankAccountId }
+  ) {
+    id
+    advances_bank_account {
+      ...BankAccountLimited
+    }
+  }
+}
+
+mutation AssignCollectionsBankAccount(
+  $companySettingsId: uuid!
+  $bankAccountId: uuid
+) {
+  update_company_settings_by_pk(
+    pk_columns: { id: $companySettingsId }
+    _set: { collections_bank_account_id: $bankAccountId }
+  ) {
+    id
+    collections_bank_account {
+      ...BankAccountLimited
+    }
+  }
+}

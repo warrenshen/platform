@@ -87,6 +87,15 @@ export default function CreateUpdateBankAccountModal({
     )
   );
 
+  const [
+    addBankAccount,
+    { loading: isAddBankAccountLoading },
+  ] = useAddBankAccountMutation();
+  const [
+    updateBankAccount,
+    { loading: isUpdateBankAccountLoading },
+  ] = useUpdateBankAccountMutation();
+
   const prepareBankAccount = (isCreate: boolean) => {
     return {
       company_id: isCreate && isBankUser ? companyId : undefined,
@@ -140,22 +149,13 @@ export default function CreateUpdateBankAccountModal({
 
     try {
       await fn();
-      handleClose();
       snackbar.showSuccess(successMessage);
+      handleClose();
     } catch (err) {
       snackbar.showError(`Error: ${err}`);
       console.error(err);
     }
   };
-
-  const [
-    addBankAccount,
-    { loading: isAddBankAccountLoading },
-  ] = useAddBankAccountMutation();
-  const [
-    updateBankAccount,
-    { loading: isUpdateBankAccountLoading },
-  ] = useUpdateBankAccountMutation();
 
   const isSubmitDisabled =
     isAddBankAccountLoading ||

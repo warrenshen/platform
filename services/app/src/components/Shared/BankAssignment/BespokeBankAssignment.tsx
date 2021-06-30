@@ -8,18 +8,15 @@ import {
   Theme,
 } from "@material-ui/core";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   BankAccountFragment,
   useGetBespokeBankAccountsQuery,
 } from "generated/graphql";
-import { Action, check } from "lib/auth/rbac-rules";
-import { useContext } from "react";
 
 interface Props {
   label: string;
   onAssignment: (bankAccount: BankAccountFragment | null) => void;
-  assignedBespokeBankAccount?: BankAccountFragment;
+  assignedBespokeBankAccount: BankAccountFragment | null;
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -29,11 +26,9 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-function BespokeBankAssignment(props: Props) {
+export default function BespokeBankAssignment(props: Props) {
   const classes = useStyles();
-  const {
-    user: { role },
-  } = useContext(CurrentUserContext);
+
   const { data } = useGetBespokeBankAccountsQuery();
   const labelId = props.label.split(" ").join("-");
 
@@ -75,7 +70,6 @@ function BespokeBankAssignment(props: Props) {
           {props.assignedBespokeBankAccount && (
             <BankAccountInfoCard
               isCannabisCompliantVisible
-              isEditAllowed={check(role, Action.EditBankAccount)}
               isVerificationVisible
               bankAccount={props.assignedBespokeBankAccount}
             />
@@ -85,5 +79,3 @@ function BespokeBankAssignment(props: Props) {
     </>
   );
 }
-
-export default BespokeBankAssignment;

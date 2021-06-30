@@ -1,30 +1,30 @@
-import BespokeBankAssignment from "components/Shared/BespokeBankAssignment";
+import CompanyBankAssignment from "components/Shared/BankAssignment/CompanyBankAssignment";
 import {
-  BankAccountFragment,
+  BankAccountLimitedFragment,
+  Companies,
   CompanySettings,
-  useAssignAdvancesBespokeBankAccountMutation,
+  useAssignAdvancesBankAccountMutation,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 
 interface Props {
+  companyId: Companies["id"];
   companySettingsId: CompanySettings["id"];
-  assignedBespokeBankAccount?: BankAccountFragment;
+  assignedBankAccount: BankAccountLimitedFragment | null;
   handleDataChange: () => void;
 }
 
-export default function AssignAdvancesBespokeBankAccount(props: Props) {
+export default function AssignAdvancesBankAccount(props: Props) {
   const snackbar = useSnackbar();
 
-  const [
-    assignAdvancesBespokeBankAccount,
-  ] = useAssignAdvancesBespokeBankAccountMutation();
+  const [assignAdvancesBankAccount] = useAssignAdvancesBankAccountMutation();
 
   return (
-    <BespokeBankAssignment
+    <CompanyBankAssignment
       {...props}
       label="Advances Bank Account"
-      onAssignment={async (bankAccount: BankAccountFragment | null) => {
-        const response = await assignAdvancesBespokeBankAccount({
+      onAssignment={async (bankAccount: BankAccountLimitedFragment | null) => {
+        const response = await assignAdvancesBankAccount({
           variables: {
             bankAccountId: bankAccount?.id,
             companySettingsId: props.companySettingsId,
