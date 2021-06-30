@@ -508,7 +508,7 @@ def create_repayment(
 	company_id: str,
 	payment_insert_input: payment_types.PaymentInsertInputDict,
 	user_id: str,
-	session_maker: Callable,
+	session: Session,
 	is_line_of_credit: bool,
 	now_for_test: datetime.datetime = None
 ) -> Tuple[str, errors.Error]:
@@ -559,66 +559,65 @@ def create_repayment(
 
 	payment_id = None
 
-	with session_scope(session_maker) as session:
-		loans = []
-		if not is_line_of_credit:
-			loans = cast(
-				List[models.Loan],
-				session.query(models.Loan).filter(
-					models.Loan.company_id == company_id
-				).filter(
-					models.Loan.id.in_(loan_ids)
-				).all())
+	loans = []
+	if not is_line_of_credit:
+		loans = cast(
+			List[models.Loan],
+			session.query(models.Loan).filter(
+				models.Loan.company_id == company_id
+			).filter(
+				models.Loan.id.in_(loan_ids)
+			).all())
 
-			if len(loans) != len(loan_ids):
-				raise errors.Error('Not all selected loans found')
+		if len(loans) != len(loan_ids):
+			raise errors.Error('Not all selected loans found')
 
-			not_funded_loan_ids = [loan.id for loan in loans if not loan.funded_at]
-			if len(not_funded_loan_ids) > 0:
-				raise errors.Error('Not all selected loans are funded')
+		not_funded_loan_ids = [loan.id for loan in loans if not loan.funded_at]
+		if len(not_funded_loan_ids) > 0:
+			raise errors.Error('Not all selected loans are funded')
 
-			closed_loan_ids = [loan.id for loan in loans if loan.closed_at]
-			if len(closed_loan_ids) > 0:
-				raise errors.Error('Some selected loans are closed already')
+		closed_loan_ids = [loan.id for loan in loans if loan.closed_at]
+		if len(closed_loan_ids) > 0:
+			raise errors.Error('Some selected loans are closed already')
 
-		contract_obj, err = contract_util.get_active_contract_by_company_id(company_id, session)
-		if err:
-			raise err
+	contract_obj, err = contract_util.get_active_contract_by_company_id(company_id, session)
+	if err:
+		raise err
 
-		timezone, err = contract_obj.get_timezone_str()
-		if err:
-			raise err
+	timezone, err = contract_obj.get_timezone_str()
+	if err:
+		raise err
 
-		is_scheduled = payment_method == PaymentMethodEnum.REVERSE_DRAFT_ACH
-		meets_cutoff, meets_cutoff_err = date_util.meets_noon_cutoff(
-			requested_payment_date, timezone, now=now_for_test)
+	is_scheduled = payment_method == PaymentMethodEnum.REVERSE_DRAFT_ACH
+	meets_cutoff, meets_cutoff_err = date_util.meets_noon_cutoff(
+		requested_payment_date, timezone, now=now_for_test)
 
-		if is_scheduled and meets_cutoff_err:
-			raise errors.Error('Cannot set the requested payment date to {} because {}'.format(
-				requested_payment_date, meets_cutoff_err))
+	if is_scheduled and meets_cutoff_err:
+		raise errors.Error('Cannot set the requested payment date to {} because {}'.format(
+			requested_payment_date, meets_cutoff_err))
 
-		# Settlement date should not be set until the banker settles the payment.
-		payment_input = payment_types.RepaymentPaymentInputDict(
-			payment_method=payment_method,
-			requested_amount=requested_amount,
-			requested_payment_date=requested_payment_date,
-			payment_date=requested_payment_date if payment_method != PaymentMethodEnum.REVERSE_DRAFT_ACH else None,
-			items_covered=items_covered,
-			company_bank_account_id=company_bank_account_id,
-			customer_note=payment_insert_input.get('customer_note')
-		)
-		payment = payment_util.create_repayment_payment(
-			company_id=company_id,
-			payment_type=db_constants.PaymentType.REPAYMENT,
-			payment_input=payment_input,
-			created_by_user_id=user_id
-		)
-		session.add(payment)
-		session.flush()
-		payment_id = str(payment.id)
+	# Settlement date should not be set until the banker settles the payment.
+	payment_input = payment_types.RepaymentPaymentInputDict(
+		payment_method=payment_method,
+		requested_amount=requested_amount,
+		requested_payment_date=requested_payment_date,
+		payment_date=requested_payment_date if payment_method != PaymentMethodEnum.REVERSE_DRAFT_ACH else None,
+		items_covered=items_covered,
+		company_bank_account_id=company_bank_account_id,
+		customer_note=payment_insert_input.get('customer_note')
+	)
+	payment = payment_util.create_repayment_payment(
+		company_id=company_id,
+		payment_type=db_constants.PaymentType.REPAYMENT,
+		payment_input=payment_input,
+		created_by_user_id=user_id
+	)
+	session.add(payment)
+	session.flush()
+	payment_id = str(payment.id)
 
-		for loan in loans:
-			loan.payment_status = PaymentStatusEnum.PENDING
+	for loan in loans:
+		loan.payment_status = PaymentStatusEnum.PENDING
 
 	return payment_id, None
 

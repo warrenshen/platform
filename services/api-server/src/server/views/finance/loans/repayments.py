@@ -172,13 +172,17 @@ class CreateRepaymentView(MethodView):
 		company_id = form['company_id']
 		payment = form['payment']
 		is_line_of_credit = form['is_line_of_credit']
-		payment_id, err = repayment_util.create_repayment(
-			company_id,
-			payment,
-			user_session.get_user_id(),
-			current_app.session_maker,
-			is_line_of_credit=is_line_of_credit,
-		)
+		
+		with session_scope(current_app.session_maker) as session:
+			payment_id, err = repayment_util.create_repayment(
+				company_id,
+				payment,
+				user_session.get_user_id(),
+				session=session,
+				is_line_of_credit=is_line_of_credit,
+			)
+			if err:
+				raise err
 
 		if err:
 			logging.error(f"Failed to create repayment for company '{company_id}'; err: '{err}'")

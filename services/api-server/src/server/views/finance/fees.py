@@ -403,7 +403,7 @@ class SubmitAllMonthlyLOCFeesDueView(MethodView):
 		user_session = auth_util.UserSession.from_session()
 
 		with models.session_scope(current_app.session_maker) as session:
-			success, err = fees_due_util.create_loc_fee_and_reverse_draft_for_customers(
+			success, err = fees_due_util.create_loc_reverse_draft_for_customers(
 				form['date'],
 				form['monthly_due_resp'],
 				user_session.get_user_id(),

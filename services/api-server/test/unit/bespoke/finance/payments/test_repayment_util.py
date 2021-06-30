@@ -1142,34 +1142,36 @@ class TestCreatePayment(db_unittest.TestCase):
 		payment_date = test['requested_payment_date']
 		user_id = seed.get_user_id('company_admin', index=0)
 		payment_input_amount = test['payment_amount']
-		payment_id, err = repayment_util.create_repayment(
-			company_id=str(company_id),
-			payment_insert_input=payment_types.PaymentInsertInputDict(
-				company_id='unused',
-				type='unused',
-				requested_amount=payment_input_amount,
-				amount=None,
-				method=test['payment_method'],
-				requested_payment_date=payment_date,
-				payment_date=None,
-				settlement_date='unused',
-				items_covered={
-					'loan_ids': loan_ids,
-					'requested_to_account_fees': 0.0,
-				},
-				company_bank_account_id=test['company_bank_account_id'],
-				customer_note=''
-			),
-			user_id=user_id,
-			session_maker=self.session_maker,
-			is_line_of_credit=False,
-			now_for_test=test['now_for_test']
-		)
-		if test.get('in_err_msg'):
-			self.assertIn(test['in_err_msg'], err.msg)
-			return
-		else:
-			self.assertIsNone(err)
+
+		with session_scope(self.session_maker) as session:
+			payment_id, err = repayment_util.create_repayment(
+				company_id=str(company_id),
+				payment_insert_input=payment_types.PaymentInsertInputDict(
+					company_id='unused',
+					type='unused',
+					requested_amount=payment_input_amount,
+					amount=None,
+					method=test['payment_method'],
+					requested_payment_date=payment_date,
+					payment_date=None,
+					settlement_date='unused',
+					items_covered={
+						'loan_ids': loan_ids,
+						'requested_to_account_fees': 0.0,
+					},
+					company_bank_account_id=test['company_bank_account_id'],
+					customer_note=''
+				),
+				user_id=user_id,
+				session=session,
+				is_line_of_credit=False,
+				now_for_test=test['now_for_test']
+			)
+			if test.get('in_err_msg'):
+				self.assertIn(test['in_err_msg'], err.msg)
+				return
+			else:
+				self.assertIsNone(err)
 
 		with session_scope(session_maker) as session:
 			payment = cast(
@@ -1297,28 +1299,30 @@ class TestCreatePayment(db_unittest.TestCase):
 		seed = test_helper.BasicSeed.create(self.session_maker, self)
 		seed.initialize()
 		user_id = seed.get_user_id('company_admin', index=0)
-		payment_id, err = repayment_util.create_repayment(
-			company_id=None,
-			payment_insert_input=payment_types.PaymentInsertInputDict(
-				company_id='unused',
-				type='unused',
-				requested_amount=10.0,
-				amount=None,
-				method=PaymentMethodEnum.REVERSE_DRAFT_ACH,
-				requested_payment_date='10/10/2020',
-				payment_date=None,
-				settlement_date='unused',
-				items_covered={
-					'loan_ids': [str(uuid.uuid4())],
-					'requested_to_account_fees': 0.0,
-				},
-				company_bank_account_id=str(uuid.uuid4()),
-				customer_note=''
-			),
-			user_id=user_id,
-			session_maker=self.session_maker,
-			is_line_of_credit=False)
-		self.assertIn('Not all selected loans found', err.msg)
+
+		with session_scope(self.session_maker) as session:
+			payment_id, err = repayment_util.create_repayment(
+				company_id=None,
+				payment_insert_input=payment_types.PaymentInsertInputDict(
+					company_id='unused',
+					type='unused',
+					requested_amount=10.0,
+					amount=None,
+					method=PaymentMethodEnum.REVERSE_DRAFT_ACH,
+					requested_payment_date='10/10/2020',
+					payment_date=None,
+					settlement_date='unused',
+					items_covered={
+						'loan_ids': [str(uuid.uuid4())],
+						'requested_to_account_fees': 0.0,
+					},
+					company_bank_account_id=str(uuid.uuid4()),
+					customer_note=''
+				),
+				user_id=user_id,
+				session=session,
+				is_line_of_credit=False)
+			self.assertIn('Not all selected loans found', err.msg)
 
 	def test_not_funded_loan(self) -> None:
 		seed = test_helper.BasicSeed.create(self.session_maker, self)
@@ -1337,25 +1341,26 @@ class TestCreatePayment(db_unittest.TestCase):
 			session.flush()
 			loan_id = str(loan.id)
 
-		payment_id, err = repayment_util.create_repayment(
-			company_id=company_id,
-			payment_insert_input=payment_types.PaymentInsertInputDict(
-				company_id='unused',
-				type='unused',
-				requested_amount=10.0,
-				amount=None,
-				method=PaymentMethodEnum.REVERSE_DRAFT_ACH,
-				requested_payment_date='10/10/2020',
-				payment_date=None,
-				settlement_date='unused',
-				items_covered={
-					'loan_ids': [loan_id],
-					'requested_to_account_fees': 0.0,
-				},
-				company_bank_account_id=str(uuid.uuid4()),
-				customer_note=''
-			),
-			user_id=user_id,
-			session_maker=self.session_maker,
-			is_line_of_credit=False)
+		with session_scope(self.session_maker) as session:
+			payment_id, err = repayment_util.create_repayment(
+				company_id=company_id,
+				payment_insert_input=payment_types.PaymentInsertInputDict(
+					company_id='unused',
+					type='unused',
+					requested_amount=10.0,
+					amount=None,
+					method=PaymentMethodEnum.REVERSE_DRAFT_ACH,
+					requested_payment_date='10/10/2020',
+					payment_date=None,
+					settlement_date='unused',
+					items_covered={
+						'loan_ids': [loan_id],
+						'requested_to_account_fees': 0.0,
+					},
+					company_bank_account_id=str(uuid.uuid4()),
+					customer_note=''
+				),
+				user_id=user_id,
+				session=session,
+				is_line_of_credit=False)
 		self.assertIn('are funded', err.msg)

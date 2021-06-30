@@ -110,26 +110,27 @@ class TestUndoRepayment(db_unittest.TestCase):
 			to_user_credit=0.0,
 		)
 		# Make sure we have a payment already registered in the system that we are settling.
-		payment_id, err = repayment_util.create_repayment(
-			company_id=str(company_id),
-			payment_insert_input=payment_types.PaymentInsertInputDict(
-				company_id='unused',
-				type='unused',
-				method='ach',
-				requested_amount=number_util.round_currency(0.5),
-				amount=None,
-				requested_payment_date='10/10/2020',
-				payment_date=None,
-				settlement_date='10/10/2020', # unused
-				items_covered=items_covered,
-				company_bank_account_id=None,
-				customer_note=''
-			),
-			user_id=user_id,
-			session_maker=self.session_maker,
-			is_line_of_credit=False)
+		with session_scope(self.session_maker) as session:
+			payment_id, err = repayment_util.create_repayment(
+				company_id=str(company_id),
+				payment_insert_input=payment_types.PaymentInsertInputDict(
+					company_id='unused',
+					type='unused',
+					method='ach',
+					requested_amount=number_util.round_currency(0.5),
+					amount=None,
+					requested_payment_date='10/10/2020',
+					payment_date=None,
+					settlement_date='10/10/2020', # unused
+					items_covered=items_covered,
+					company_bank_account_id=None,
+					customer_note=''
+				),
+				user_id=user_id,
+				session=session,
+				is_line_of_credit=False)
 
-		self.assertIsNone(err)
+			self.assertIsNone(err)
 
 		req = repayment_util.SettleRepaymentReqDict(
 			company_id=company_id,
@@ -297,26 +298,26 @@ class TestReverseRepayment(db_unittest.TestCase):
 			to_user_credit=0.0,
 		)
 		# Make sure we have a payment already registered in the system that we are settling.
-		payment_id, err = repayment_util.create_repayment(
-			company_id=str(company_id),
-			payment_insert_input=payment_types.PaymentInsertInputDict(
-				company_id='unused',
-				type='unused',
-				method='ach',
-				requested_amount=number_util.round_currency(0.5),
-				amount=None,
-				requested_payment_date='10/02/2020',
-				payment_date=None,
-				settlement_date='10/02/2020', # unused
-				items_covered=items_covered,
-				company_bank_account_id=None,
-				customer_note=''
-			),
-			user_id=user_id,
-			session_maker=self.session_maker,
-			is_line_of_credit=False)
-
-		self.assertIsNone(err)
+		with session_scope(self.session_maker) as session:
+			payment_id, err = repayment_util.create_repayment(
+				company_id=str(company_id),
+				payment_insert_input=payment_types.PaymentInsertInputDict(
+					company_id='unused',
+					type='unused',
+					method='ach',
+					requested_amount=number_util.round_currency(0.5),
+					amount=None,
+					requested_payment_date='10/02/2020',
+					payment_date=None,
+					settlement_date='10/02/2020', # unused
+					items_covered=items_covered,
+					company_bank_account_id=None,
+					customer_note=''
+				),
+				user_id=user_id,
+				session=session,
+				is_line_of_credit=False)
+			self.assertIsNone(err)
 
 		req = repayment_util.SettleRepaymentReqDict(
 			company_id=company_id,

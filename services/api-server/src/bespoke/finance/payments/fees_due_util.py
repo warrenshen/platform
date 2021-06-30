@@ -8,11 +8,23 @@ from sqlalchemy.orm.session import Session
 
 from bespoke import errors
 from bespoke.date import date_util
-from bespoke.db import models
+from bespoke.db import models, db_constants
 from bespoke.db.models import FeeDict
 from bespoke.db.db_constants import MinimumAmountDuration, TransactionSubType
 from bespoke.finance import number_util
-from bespoke.finance.payments import payment_util
+from bespoke.finance.payments import payment_util, repayment_util
+from bespoke.finance.types import payment_types
+
+LOCPerCompanyRespInfo = TypedDict('LOCPerCompanyRespInfo', {
+	'fee_info': models.FeeDict,
+	'fee_amount': float,
+	'total_outstanding_interest': float,
+	'company': models.CompanyDict
+})
+
+AllMonthlyLOCDueRespDict = TypedDict('AllMonthlyLOCDueRespDict', {
+	'company_due_to_financial_info': Dict[str, LOCPerCompanyRespInfo]
+})
 
 PerCompanyRespInfo = TypedDict('PerCompanyRespInfo', {
 	'fee_info': models.FeeDict,
@@ -140,10 +152,12 @@ def get_all_monthly_loc_fees_due(
 		List[models.FinancialSummary],
 		session.query(models.FinancialSummary).filter(
 			models.FinancialSummary.date == last_day_of_month_date
+		).filter(
+			models.FinancialSummary.product_type == db_constants.ProductType.LINE_OF_CREDIT
 		).all())
 
 	if not financial_summaries:
-		return None, errors.Error('No financial summaries found for date {}'.format(
+		return None, errors.Error('No LOC financial summaries found for date {}'.format(
 			date_util.date_to_str(last_day_of_month_date)))
 
 	company_id_to_financial_info = {}
@@ -157,45 +171,63 @@ def get_all_monthly_loc_fees_due(
 
 		minimum_monthly_payload = cast(models.FeeDict, financial_summary.minimum_monthly_payload)
 
-		if not _should_pay_this_month(minimum_monthly_payload, last_day_of_month_date):
-			continue
+		fee_amount = float(financial_summary.total_outstanding_interest)
+		has_minimum_interest = not number_util.is_currency_zero(minimum_monthly_payload['amount_short'])
 
-		if number_util.is_currency_zero(minimum_monthly_payload['amount_short']):
-			continue
+		if _should_pay_this_month(
+			minimum_monthly_payload, last_day_of_month_date) and has_minimum_interest:
+			fee_amount += minimum_monthly_payload['amount_short']
 
-		company_id_to_financial_info[cur_company_id] = PerCompanyRespInfo(
+		company_id_to_financial_info[cur_company_id] = LOCPerCompanyRespInfo(
 			fee_info=minimum_monthly_payload,
+			total_outstanding_interest=float(financial_summary.total_outstanding_interest),
+			fee_amount=fee_amount,
 			company=company_id_to_dict[cur_company_id]
 		)
 
-	return AllMonthlyMinimumDueRespDict(
+	return AllMonthlyLOCDueRespDict(
 		company_due_to_financial_info=company_id_to_financial_info
 	), None
 
-def create_loc_fee_and_reverse_draft_for_customers(
-	date_str: str, minimum_due_resp: AllMonthlyMinimumDueRespDict,
+def create_loc_reverse_draft_for_customers(
+	date_str: str, minimum_due_resp: AllMonthlyLOCDueRespDict,
 	user_id: str, session: Session) -> Tuple[bool, errors.Error]:
-
-	return None, errors.Error('Unimplemented')
 
 	if not minimum_due_resp['company_due_to_financial_info']:
 		return None, errors.Error('No companies provided to book minimum due fees')
 
+	requested_date = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
 	effective_date = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
 
 	for customer_id, val_info in minimum_due_resp['company_due_to_financial_info'].items():
 		fee_dict = val_info['fee_info']
 		amount_due = fee_dict['amount_short']
-		_ = payment_util.create_and_add_account_level_fee(
+
+		_, err = repayment_util.create_repayment(
 			company_id=customer_id,
-			subtype=TransactionSubType.MINIMUM_INTEREST_FEE,
-			amount=amount_due,
-			originating_payment_id=None,
-			created_by_user_id=user_id,
-			deposit_date=effective_date,
-			effective_date=effective_date,
+			payment_insert_input=payment_types.PaymentInsertInputDict(
+				company_id=customer_id,
+				type=None,
+				requested_amount=val_info['fee_amount'],
+				amount=None,
+				method=db_constants.PaymentMethodEnum.REVERSE_DRAFT_ACH,
+				requested_payment_date=date_util.date_to_str(requested_date),
+				payment_date=None,
+				settlement_date=None,
+				company_bank_account_id=None, # TODO(warren): Fill it in
+				items_covered=dict(
+					requested_to_principal=0.0,
+					requested_to_interest=val_info['total_outstanding_interest'],
+					requested_to_account_fees=amount_due
+				),
+				customer_note=''
+			),
+			user_id=user_id,
 			session=session,
+			is_line_of_credit=True
 		)
+		if err:
+			raise err
 
 	return True, None
 	

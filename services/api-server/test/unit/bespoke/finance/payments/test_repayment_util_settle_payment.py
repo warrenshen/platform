@@ -173,29 +173,31 @@ def _run_test(self: db_unittest.TestCase, test: Dict) -> None:
 			repayment_loan_ids = loan_ids
 
 		# Make sure we have a payment already registered in the system that we are settling.
-		payment_id, err = repayment_util.create_repayment(
-			company_id=str(company_id),
-			payment_insert_input=payment_types.PaymentInsertInputDict(
-				company_id='unused',
-				type='unused',
-				method=payment_dict['payment_method'],
-				requested_amount=number_util.round_currency(payment_dict['amount']),
-				amount=None,
-				requested_payment_date='10/10/2020',
-				payment_date=None,
-				settlement_date='10/10/2020', # unused
-				items_covered={
-					'loan_ids': repayment_loan_ids,
-					'requested_to_account_fees': 0.0,
-				},
-				company_bank_account_id=payment_dict['company_bank_account_id'],
-				customer_note=''
-			),
-			user_id=user_id,
-			session_maker=self.session_maker,
-			is_line_of_credit=False)
-		self.assertIsNone(err)
-		payment_ids.append(payment_id)
+		with session_scope(self.session_maker) as session:
+			payment_id, err = repayment_util.create_repayment(
+				company_id=str(company_id),
+				payment_insert_input=payment_types.PaymentInsertInputDict(
+					company_id='unused',
+					type='unused',
+					method=payment_dict['payment_method'],
+					requested_amount=number_util.round_currency(payment_dict['amount']),
+					amount=None,
+					requested_payment_date='10/10/2020',
+					payment_date=None,
+					settlement_date='10/10/2020', # unused
+					items_covered={
+						'loan_ids': repayment_loan_ids,
+						'requested_to_account_fees': 0.0,
+					},
+					company_bank_account_id=payment_dict['company_bank_account_id'],
+					customer_note=''
+				),
+				user_id=user_id,
+				session=session,
+				is_line_of_credit=False)
+			
+			self.assertIsNone(err)
+			payment_ids.append(payment_id)
 
 		# Say the payment has already been applied if the test has this value set.
 		with session_scope(session_maker) as session:
