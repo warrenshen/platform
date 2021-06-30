@@ -40723,6 +40723,18 @@
             "deprecationReason": null
           },
           {
+            "name": "product_type",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "ENUM",
+              "name": "product_type_enum",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_amount_to_pay_interest_on",
             "description": null,
             "args": [],
@@ -41633,6 +41645,16 @@
             "defaultValue": null
           },
           {
+            "name": "product_type",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "product_type_enum_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_amount_to_pay_interest_on",
             "description": null,
             "type": {
@@ -42044,6 +42066,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "jsonb",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "product_type",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "product_type_enum",
               "ofType": null
             },
             "defaultValue": null
@@ -43033,6 +43065,16 @@
             "defaultValue": null
           },
           {
+            "name": "product_type",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_amount_to_pay_interest_on",
             "description": null,
             "type": {
@@ -43226,6 +43268,12 @@
             "deprecationReason": null
           },
           {
+            "name": "product_type",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_amount_to_pay_interest_on",
             "description": "column name",
             "isDeprecated": false,
@@ -43362,6 +43410,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "jsonb",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "product_type",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "product_type_enum",
               "ofType": null
             },
             "defaultValue": null
@@ -44467,6 +44525,12 @@
           },
           {
             "name": "minimum_monthly_payload",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "product_type",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null

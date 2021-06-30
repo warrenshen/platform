@@ -5923,6 +5923,7 @@ export type FinancialSummaries = {
   id: Scalars["uuid"];
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
   minimum_monthly_payload?: Maybe<Scalars["jsonb"]>;
+  product_type?: Maybe<ProductTypeEnum>;
   total_amount_to_pay_interest_on?: Maybe<Scalars["numeric"]>;
   total_limit: Scalars["numeric"];
   total_outstanding_fees: Scalars["numeric"];
@@ -6039,6 +6040,7 @@ export type FinancialSummariesBoolExp = {
   id?: Maybe<UuidComparisonExp>;
   interest_accrued_today?: Maybe<NumericComparisonExp>;
   minimum_monthly_payload?: Maybe<JsonbComparisonExp>;
+  product_type?: Maybe<ProductTypeEnumComparisonExp>;
   total_amount_to_pay_interest_on?: Maybe<NumericComparisonExp>;
   total_limit?: Maybe<NumericComparisonExp>;
   total_outstanding_fees?: Maybe<NumericComparisonExp>;
@@ -6100,6 +6102,7 @@ export type FinancialSummariesInsertInput = {
   id?: Maybe<Scalars["uuid"]>;
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
   minimum_monthly_payload?: Maybe<Scalars["jsonb"]>;
+  product_type?: Maybe<ProductTypeEnum>;
   total_amount_to_pay_interest_on?: Maybe<Scalars["numeric"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
@@ -6214,6 +6217,7 @@ export type FinancialSummariesOrderBy = {
   id?: Maybe<OrderBy>;
   interest_accrued_today?: Maybe<OrderBy>;
   minimum_monthly_payload?: Maybe<OrderBy>;
+  product_type?: Maybe<OrderBy>;
   total_amount_to_pay_interest_on?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
@@ -6255,6 +6259,8 @@ export enum FinancialSummariesSelectColumn {
   /** column name */
   MinimumMonthlyPayload = "minimum_monthly_payload",
   /** column name */
+  ProductType = "product_type",
+  /** column name */
   TotalAmountToPayInterestOn = "total_amount_to_pay_interest_on",
   /** column name */
   TotalLimit = "total_limit",
@@ -6281,6 +6287,7 @@ export type FinancialSummariesSetInput = {
   id?: Maybe<Scalars["uuid"]>;
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
   minimum_monthly_payload?: Maybe<Scalars["jsonb"]>;
+  product_type?: Maybe<ProductTypeEnum>;
   total_amount_to_pay_interest_on?: Maybe<Scalars["numeric"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
@@ -6422,6 +6429,8 @@ export enum FinancialSummariesUpdateColumn {
   InterestAccruedToday = "interest_accrued_today",
   /** column name */
   MinimumMonthlyPayload = "minimum_monthly_payload",
+  /** column name */
+  ProductType = "product_type",
   /** column name */
   TotalAmountToPayInterestOn = "total_amount_to_pay_interest_on",
   /** column name */
@@ -19971,6 +19980,19 @@ export type ListDeactivatedUsersByCompanyIdQuery = {
   users: Array<UserFragment>;
 };
 
+export type AssignAdvancesBespokeBankAccountMutationVariables = Exact<{
+  companySettingsId: Scalars["uuid"];
+  bankAccountId?: Maybe<Scalars["uuid"]>;
+}>;
+
+export type AssignAdvancesBespokeBankAccountMutation = {
+  update_company_settings_by_pk?: Maybe<
+    Pick<CompanySettings, "id"> & {
+      advances_bespoke_bank_account?: Maybe<BankAccountFragment>;
+    }
+  >;
+};
+
 export type AssignCollectionsBespokeBankAccountMutationVariables = Exact<{
   companySettingsId: Scalars["uuid"];
   bankAccountId?: Maybe<Scalars["uuid"]>;
@@ -20099,6 +20121,9 @@ export type GetCompanyForBankQuery = {
       bank_accounts: Array<Pick<BankAccounts, "id"> & BankAccountFragment>;
       settings?: Maybe<
         {
+          advances_bespoke_bank_account?: Maybe<
+            Pick<BankAccounts, "id"> & BankAccountFragment
+          >;
           collections_bespoke_bank_account?: Maybe<
             Pick<BankAccounts, "id"> & BankAccountFragment
           >;
@@ -26538,6 +26563,65 @@ export type ListDeactivatedUsersByCompanyIdQueryResult = Apollo.QueryResult<
   ListDeactivatedUsersByCompanyIdQuery,
   ListDeactivatedUsersByCompanyIdQueryVariables
 >;
+export const AssignAdvancesBespokeBankAccountDocument = gql`
+  mutation AssignAdvancesBespokeBankAccount(
+    $companySettingsId: uuid!
+    $bankAccountId: uuid
+  ) {
+    update_company_settings_by_pk(
+      pk_columns: { id: $companySettingsId }
+      _set: { advances_bespoke_bank_account_id: $bankAccountId }
+    ) {
+      id
+      advances_bespoke_bank_account {
+        ...BankAccount
+      }
+    }
+  }
+  ${BankAccountFragmentDoc}
+`;
+export type AssignAdvancesBespokeBankAccountMutationFn = Apollo.MutationFunction<
+  AssignAdvancesBespokeBankAccountMutation,
+  AssignAdvancesBespokeBankAccountMutationVariables
+>;
+
+/**
+ * __useAssignAdvancesBespokeBankAccountMutation__
+ *
+ * To run a mutation, you first call `useAssignAdvancesBespokeBankAccountMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAssignAdvancesBespokeBankAccountMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [assignAdvancesBespokeBankAccountMutation, { data, loading, error }] = useAssignAdvancesBespokeBankAccountMutation({
+ *   variables: {
+ *      companySettingsId: // value for 'companySettingsId'
+ *      bankAccountId: // value for 'bankAccountId'
+ *   },
+ * });
+ */
+export function useAssignAdvancesBespokeBankAccountMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    AssignAdvancesBespokeBankAccountMutation,
+    AssignAdvancesBespokeBankAccountMutationVariables
+  >
+) {
+  return Apollo.useMutation<
+    AssignAdvancesBespokeBankAccountMutation,
+    AssignAdvancesBespokeBankAccountMutationVariables
+  >(AssignAdvancesBespokeBankAccountDocument, baseOptions);
+}
+export type AssignAdvancesBespokeBankAccountMutationHookResult = ReturnType<
+  typeof useAssignAdvancesBespokeBankAccountMutation
+>;
+export type AssignAdvancesBespokeBankAccountMutationResult = Apollo.MutationResult<AssignAdvancesBespokeBankAccountMutation>;
+export type AssignAdvancesBespokeBankAccountMutationOptions = Apollo.BaseMutationOptions<
+  AssignAdvancesBespokeBankAccountMutation,
+  AssignAdvancesBespokeBankAccountMutationVariables
+>;
 export const AssignCollectionsBespokeBankAccountDocument = gql`
   mutation AssignCollectionsBespokeBankAccount(
     $companySettingsId: uuid!
@@ -27137,6 +27221,10 @@ export const GetCompanyForBankDocument = gql`
       }
       settings {
         ...CompanySettings
+        advances_bespoke_bank_account {
+          id
+          ...BankAccount
+        }
         collections_bespoke_bank_account {
           id
           ...BankAccount

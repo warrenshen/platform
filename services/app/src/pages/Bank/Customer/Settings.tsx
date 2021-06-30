@@ -9,7 +9,8 @@ import { Alert } from "@material-ui/lab";
 import MetrcApiKeys from "components/Settings/Bank/MetrcApiKeys";
 import SyncMetrcData from "components/Settings/Bank/SyncMetrcData";
 import CustomerSettings from "components/Settings/CustomerSettings";
-import CollectionsBank from "components/Shared/BespokeBankAssignment/CollectionsBank";
+import AssignAdvancesBespokeBankAccount from "components/Shared/BespokeBankAssignment/AssignAdvancesBespokeBankAccount";
+import AssignCollectionsBespokeBankAccount from "components/Shared/BespokeBankAssignment/AssignCollectionsBespokeBankAccount";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import PageContent from "components/Shared/Page/PageContent";
@@ -84,17 +85,37 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
             </Alert>
           </Box>
         </Box>
-        <Box mt={4}>
+        <Box display="flex" flexDirection="column" mt={4}>
           <Typography variant="h6">
-            <b>Bespoke Collections Account</b>
+            <b>Bespoke Financial Bank Accounts</b>
+          </Typography>
+          <Typography variant="body2">
+            Advances Bank Account: BF bank account that BF sends advances from.
+          </Typography>
+          <Typography variant="body2">
+            Collections Bank Account: BF bank account that customer should send
+            payments to.
           </Typography>
           <Box display="flex">
-            <CollectionsBank
-              companySettingsId={settings?.id}
-              assignedBespokeBankAccount={
-                company.settings?.collections_bespoke_bank_account || undefined
-              }
-            />
+            <Box display="flex">
+              <AssignAdvancesBespokeBankAccount
+                companySettingsId={settings?.id}
+                assignedBespokeBankAccount={
+                  company.settings?.advances_bespoke_bank_account || undefined
+                }
+                handleDataChange={refetch}
+              />
+            </Box>
+            <Box display="flex">
+              <AssignCollectionsBespokeBankAccount
+                companySettingsId={settings?.id}
+                assignedBespokeBankAccount={
+                  company.settings?.collections_bespoke_bank_account ||
+                  undefined
+                }
+                handleDataChange={refetch}
+              />
+            </Box>
           </Box>
         </Box>
         <Box mt={4}>

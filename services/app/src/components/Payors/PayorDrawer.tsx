@@ -9,7 +9,7 @@ import {
 } from "@material-ui/core";
 import * as Sentry from "@sentry/react";
 import ApprovePayor from "components/Payors/ApprovePayor";
-import CollectionsBank from "components/Shared/BespokeBankAssignment/CollectionsBank";
+import AssignCollectionsBespokeBankAccount from "components/Shared/BespokeBankAssignment/AssignCollectionsBespokeBankAccount";
 import Can from "components/Shared/Can";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import FileUploadDropzone from "components/Shared/File/FileUploadDropzone";
@@ -116,11 +116,12 @@ export default function PayorDrawer({ partnershipId, handleClose }: Props) {
           to:
         </Typography>
         <Box display="flex" mt={1}>
-          <CollectionsBank
+          <AssignCollectionsBespokeBankAccount
             companySettingsId={payor.settings?.id}
             assignedBespokeBankAccount={
               payor.settings?.collections_bespoke_bank_account || undefined
             }
+            handleDataChange={refetch}
           />
         </Box>
         <Box display="flex" flexDirection="column">

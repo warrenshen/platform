@@ -1,3 +1,18 @@
+mutation AssignAdvancesBespokeBankAccount(
+  $companySettingsId: uuid!
+  $bankAccountId: uuid
+) {
+  update_company_settings_by_pk(
+    pk_columns: { id: $companySettingsId }
+    _set: { advances_bespoke_bank_account_id: $bankAccountId }
+  ) {
+    id
+    advances_bespoke_bank_account {
+      ...BankAccount
+    }
+  }
+}
+
 mutation AssignCollectionsBespokeBankAccount(
   $companySettingsId: uuid!
   $bankAccountId: uuid

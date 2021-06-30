@@ -8,6 +8,10 @@ query GetCompanyForBank($companyId: uuid!) {
     }
     settings {
       ...CompanySettings
+      advances_bespoke_bank_account {
+        id
+        ...BankAccount
+      }
       collections_bespoke_bank_account {
         id
         ...BankAccount
