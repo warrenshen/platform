@@ -138,6 +138,7 @@ fragment FinancialSummary on financial_summaries {
   id
   company_id
   date
+  product_type
   available_limit
   adjusted_total_limit
   total_outstanding_principal

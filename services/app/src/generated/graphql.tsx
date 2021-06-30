@@ -20274,6 +20274,7 @@ export type FinancialSummaryFragment = Pick<
   | "id"
   | "company_id"
   | "date"
+  | "product_type"
   | "available_limit"
   | "adjusted_total_limit"
   | "total_outstanding_principal"
@@ -21139,6 +21140,7 @@ export const FinancialSummaryFragmentDoc = gql`
     id
     company_id
     date
+    product_type
     available_limit
     adjusted_total_limit
     total_outstanding_principal

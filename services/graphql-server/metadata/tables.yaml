@@ -1690,6 +1690,7 @@
       - id
       - interest_accrued_today
       - minimum_monthly_payload
+      - product_type
       - total_amount_to_pay_interest_on
       - total_limit
       - total_outstanding_fees
@@ -1710,6 +1711,7 @@
       - id
       - interest_accrued_today
       - minimum_monthly_payload
+      - product_type
       - total_amount_to_pay_interest_on
       - total_limit
       - total_outstanding_fees
@@ -1730,6 +1732,7 @@
       - id
       - interest_accrued_today
       - minimum_monthly_payload
+      - product_type
       - total_amount_to_pay_interest_on
       - total_limit
       - total_outstanding_fees
@@ -1752,6 +1755,7 @@
       - id
       - interest_accrued_today
       - minimum_monthly_payload
+      - product_type
       - total_amount_to_pay_interest_on
       - total_limit
       - total_outstanding_fees

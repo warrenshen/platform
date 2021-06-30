@@ -133,6 +133,7 @@ export default function BankReportsFinancialsByCustomerTab() {
             </Alert>
           </Box>
           <FinancialSummariesDataGrid
+            isProductTypeVisible
             financialSummaries={financialSummariesByCompanyId}
             handleClickCustomer={(customerId) =>
               history.push(`/customers/${customerId}/overview`)

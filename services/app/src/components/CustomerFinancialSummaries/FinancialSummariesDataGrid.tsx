@@ -1,4 +1,4 @@
-import { ValueFormatterParams } from "@material-ui/data-grid";
+import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
@@ -7,13 +7,27 @@ import {
   Companies,
   FinancialSummaryFragment,
   GetFinancialSummariesByCompanyIdQuery,
+  ProductTypeEnum,
 } from "generated/graphql";
+import { ProductTypeToLabel } from "lib/enum";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
+
+function getRows(financialSummaries: FinancialSummaryFragment[]): RowsProp {
+  return financialSummaries.map((financialSummary) => {
+    return {
+      ...financialSummary,
+      product_type:
+        ProductTypeToLabel[financialSummary.product_type as ProductTypeEnum],
+    };
+  });
+}
 
 interface Props {
   isCustomerNameFixed?: boolean;
   isExcelExport?: boolean;
+  isFilteringEnabled?: boolean;
+  isProductTypeVisible?: boolean;
   isSortingDisabled?: boolean;
   financialSummaries: GetFinancialSummariesByCompanyIdQuery["financial_summaries"];
   handleClickCustomer?: (customerId: Companies["id"]) => void;
@@ -22,11 +36,13 @@ interface Props {
 export default function FinancialSummariesDataGrid({
   isCustomerNameFixed = false,
   isExcelExport = true,
+  isFilteringEnabled = false,
+  isProductTypeVisible = false,
   isSortingDisabled = true,
   financialSummaries,
   handleClickCustomer,
 }: Props) {
-  const rows = financialSummaries;
+  const rows = getRows(financialSummaries);
   const columns = useMemo(
     () => [
       {
@@ -53,6 +69,12 @@ export default function FinancialSummariesDataGrid({
           ) : (
             params.row.data.company?.name || "-"
           ),
+      },
+      {
+        visible: isProductTypeVisible,
+        dataField: "product_type",
+        caption: "Product Type",
+        width: ColumnWidths.Type,
       },
       {
         dataField: "total_outstanding_principal",
@@ -177,13 +199,18 @@ export default function FinancialSummariesDataGrid({
         },
       },
     ],
-    [isCustomerNameFixed, handleClickCustomer]
+    [isCustomerNameFixed, isProductTypeVisible, handleClickCustomer]
   );
+
+  const filtering = useMemo(() => ({ enable: isFilteringEnabled }), [
+    isFilteringEnabled,
+  ]);
 
   return (
     <ControlledDataGrid
       isExcelExport={isExcelExport}
       isSortingDisabled={isSortingDisabled}
+      filtering={filtering}
       dataSource={rows}
       columns={columns}
     />

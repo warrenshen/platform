@@ -71,6 +71,8 @@ export default function BankReportsFinancialsByDateTab() {
         <Box display="flex" flexDirection="column">
           <FinancialSummariesDataGrid
             isCustomerNameFixed
+            isFilteringEnabled
+            isProductTypeVisible
             isSortingDisabled={false}
             financialSummaries={financialSummariesByDate}
             handleClickCustomer={(customerId) =>
