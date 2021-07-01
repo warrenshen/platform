@@ -510,6 +510,7 @@ def create_repayment(
 	user_id: str,
 	session: Session,
 	is_line_of_credit: bool,
+	bank_admin_override_for_ach_cutoff: bool = False,
 	now_for_test: datetime.datetime = None
 ) -> Tuple[str, errors.Error]:
 
@@ -588,13 +589,14 @@ def create_repayment(
 	if err:
 		raise err
 
-	is_scheduled = payment_method == PaymentMethodEnum.REVERSE_DRAFT_ACH
-	meets_cutoff, meets_cutoff_err = date_util.meets_noon_cutoff(
-		requested_payment_date, timezone, now=now_for_test)
+	if not bank_admin_override_for_ach_cutoff:
+		is_scheduled = payment_method == PaymentMethodEnum.REVERSE_DRAFT_ACH
+		meets_cutoff, meets_cutoff_err = date_util.meets_noon_cutoff(
+			requested_payment_date, timezone, now=now_for_test)
 
-	if is_scheduled and meets_cutoff_err:
-		raise errors.Error('Cannot set the requested payment date to {} because {}'.format(
-			requested_payment_date, meets_cutoff_err))
+		if is_scheduled and meets_cutoff_err:
+			raise errors.Error('Cannot set the requested payment date to {} because {}'.format(
+				requested_payment_date, meets_cutoff_err))
 
 	# Settlement date should not be set until the banker settles the payment.
 	payment_input = payment_types.RepaymentPaymentInputDict(

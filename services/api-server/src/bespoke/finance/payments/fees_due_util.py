@@ -204,6 +204,9 @@ def get_all_monthly_loc_fees_due(
 			minimum_monthly_payload, last_day_of_month_date) and has_minimum_interest:
 			fee_amount += minimum_monthly_payload['amount_short']
 
+		if number_util.is_currency_zero(fee_amount):
+			continue
+
 		company_id_to_financial_info[cur_company_id] = LOCPerCompanyRespInfo(
 			fee_info=minimum_monthly_payload,
 			total_outstanding_interest=float(financial_summary.total_outstanding_interest),
@@ -264,7 +267,8 @@ def create_loc_reverse_draft_for_customers(
 			),
 			user_id=user_id,
 			session=session,
-			is_line_of_credit=True
+			is_line_of_credit=True,
+			bank_admin_override_for_ach_cutoff=True
 		)
 		if err:
 			raise err
