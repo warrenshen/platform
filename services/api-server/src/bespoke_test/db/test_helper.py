@@ -132,7 +132,8 @@ class BasicSeed(object):
 			company_settings_id = str(company_settings.id)
 
 			customer_company = models.Company(
-				name='Distributor_{}'.format(i),
+				name=f'Distributor_{i}',
+				identifier=f'D{i}',
 				company_settings_id=company_settings_id
 			)
 			session.add(customer_company)
@@ -152,9 +153,9 @@ class BasicSeed(object):
 			session.flush()
 			company_admin = TestAccountInfo(
 				user=TestUser(
-			  	user_id=company_user.id,
-			  	company_id=company_id
-		  	)
+					user_id=company_user.id,
+					company_id=company_id
+				)
 			)
 			self.data['company_admins'].append(company_admin)
 

@@ -10,7 +10,6 @@ from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterator, List,
 
 import sqlalchemy
 from bespoke.date import date_util
-from bespoke.db import db_constants
 from fastapi_utils.guid_type import GUID, GUID_DEFAULT_SQLITE
 from mypy_extensions import TypedDict
 from sqlalchemy import (JSON, BigInteger, Boolean, Column, Date, DateTime,
@@ -275,6 +274,7 @@ class CompanyPayorPartnership(Base):
 
 class CompanyVendorContact(Base):
 	__tablename__ = 'company_vendor_contacts'
+
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	partnership_id = cast(GUID, Column(GUID, ForeignKey('company_vendor_partnerships.id')))
 	vendor_user_id = cast(GUID, Column(GUID, ForeignKey('users.id')))
@@ -517,6 +517,8 @@ class Payment(Base):
 	# In the case of a reverse draft ACH: one of Bespoke Financial's bank account.
 	recipient_bank_account_id = Column(GUID)
 	customer_note = Column(Text)
+	# For advances, bank note is: memo / additional info for recipient (which is exported to external bank).
+	# Bank note not used for other payment types yet.
 	bank_note = Column(Text)
 
 	requested_by_user_id = Column(GUID)

@@ -1160,7 +1160,8 @@ class TestCreatePayment(db_unittest.TestCase):
 						'requested_to_account_fees': 0.0,
 					},
 					company_bank_account_id=test['company_bank_account_id'],
-					customer_note=''
+					customer_note='',
+					bank_note=''
 				),
 				user_id=user_id,
 				session=session,
@@ -1317,7 +1318,8 @@ class TestCreatePayment(db_unittest.TestCase):
 						'requested_to_account_fees': 0.0,
 					},
 					company_bank_account_id=str(uuid.uuid4()),
-					customer_note=''
+					customer_note='',
+					bank_note=''
 				),
 				user_id=user_id,
 				session=session,
@@ -1358,7 +1360,8 @@ class TestCreatePayment(db_unittest.TestCase):
 						'requested_to_account_fees': 0.0,
 					},
 					company_bank_account_id=str(uuid.uuid4()),
-					customer_note=''
+					customer_note='',
+					bank_note=''
 				),
 				user_id=user_id,
 				session=session,

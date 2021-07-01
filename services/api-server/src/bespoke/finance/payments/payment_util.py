@@ -67,6 +67,7 @@ def make_advance_payment_settled(
 	settled_by_user_id: str,
 	sender_bank_account_id: str,
 	recipient_bank_account_id: str,
+	bank_note: str,
 ) -> None:
 	"""
 	Call this method when you are ready to settle an advance payment
@@ -87,6 +88,7 @@ def make_advance_payment_settled(
 	payment.settled_by_user_id = settled_by_user_id
 	payment.company_bank_account_id = sender_bank_account_id
 	payment.recipient_bank_account_id = recipient_bank_account_id
+	payment.bank_note = bank_note
 
 def get_and_increment_repayment_identifier(company_id: str, session: Session) -> str:
 	company = cast(

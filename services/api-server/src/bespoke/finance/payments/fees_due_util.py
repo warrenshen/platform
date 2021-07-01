@@ -262,7 +262,8 @@ def create_loc_reverse_draft_for_customers(
 					requested_to_interest=val_info['total_outstanding_interest'],
 					requested_to_account_fees=amount_due
 				),
-				customer_note=''
+				customer_note='',
+				bank_note=''
 			),
 			user_id=user_id,
 			session=session,

@@ -154,6 +154,7 @@ fragment PayorPartnership on company_payor_partnerships {
 
 fragment Payment on payments {
   id
+  bank_note
   created_at
   ...PaymentLimited
 }

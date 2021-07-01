@@ -8,6 +8,7 @@ import {
   makeStyles,
   MenuItem,
   Select,
+  TextField,
   Theme,
   Typography,
 } from "@material-ui/core";
@@ -82,6 +83,22 @@ export default function AdvanceForm({
           </Select>
         </FormControl>
       </Box>
+      {payment.method === PaymentMethodEnum.Wire && (
+        <Box mt={4}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={shouldChargeWireFee}
+                onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                  setShouldChargeWireFee(event.target.checked)
+                }
+                color="primary"
+              />
+            }
+            label={"Charge Wire Fee?"}
+          />
+        </Box>
+      )}
       <Box display="flex" flexDirection="column" mt={4}>
         <DateInput
           disableNonBankDays
@@ -122,22 +139,29 @@ export default function AdvanceForm({
           </Typography>
         </Box>
       </Box>
-      {payment.method === PaymentMethodEnum.Wire && (
-        <Box mt={4}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={shouldChargeWireFee}
-                onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                  setShouldChargeWireFee(event.target.checked)
-                }
-                color="primary"
-              />
-            }
-            label={"Charge Wire Fee?"}
-          />
+      <Box display="flex" flexDirection="column" mt={4}>
+        <TextField
+          inputProps={{
+            maxlength: 140,
+          }}
+          multiline
+          label={"Memo (additional info for recipient)"}
+          helperText={`[${(payment.bank_note || "").length}/${140}]`}
+          value={payment.bank_note || ""}
+          onChange={({ target: { value } }) =>
+            setPayment({
+              ...payment,
+              bank_note: value,
+            })
+          }
+        />
+        <Box mt={1}>
+          <Typography variant="body2" color="textSecondary">
+            If Memo is left blank, the loan disbursement identifier(s) will be
+            used
+          </Typography>
         </Box>
-      )}
+      </Box>
     </Box>
   );
 }

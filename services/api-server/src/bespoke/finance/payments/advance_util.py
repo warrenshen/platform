@@ -2,7 +2,6 @@
 	Utility functions for helping to calculate and create the effect of advances
 """
 
-import datetime
 import decimal
 import logging
 import string
@@ -70,6 +69,7 @@ def fund_loans_with_advance(
 
 	payment_date = date_util.load_date_str(payment_input['payment_date'])
 	settlement_date = date_util.load_date_str(payment_input['settlement_date'])
+	bank_note = payment_input['bank_note']
 
 	with session_scope(session_maker) as session:
 		# Note we order loans by [amount, created_at]. This order by
@@ -173,9 +173,14 @@ def fund_loans_with_advance(
 				),
 				user_id=bank_admin_user_id
 			)
+			session.add(payment)
+			session.flush()
+			payment_id = payment.id
 
+			disbursement_identifiers = []
 			recipient_bank_account_id = None
 			sender_bank_account_id = None
+
 			for index, loan in enumerate(loans_for_company):
 				if recipient_bank_account_id is None:
 					recipient_bank_account_id, err = models_util.get_loan_recipient_bank_account_id(loan, session)
@@ -187,27 +192,15 @@ def fund_loans_with_advance(
 					if err:
 						return None, err
 
-			payment_util.make_advance_payment_settled(
-				payment,
-				settlement_identifier=disbursement_identifier,
-				amount=decimal.Decimal(amount_to_company),
-				payment_date=payment_date,
-				settlement_date=settlement_date,
-				settled_by_user_id=bank_admin_user_id,
-				sender_bank_account_id=sender_bank_account_id,
-				recipient_bank_account_id=recipient_bank_account_id,
-			)
-			session.add(payment)
-			session.flush()
-			payment_id = payment.id
-
-			for index, loan in enumerate(loans_for_company):
 				# Generate a disbursement identifier for this loan
 				# (using the disbursement identifier for this payment for this company).
 				if len(loans_for_company) > 1:
 					loan.disbursement_identifier = disbursement_identifier + ASCII_CHARACTERS[index]
 				else:
 					loan.disbursement_identifier = disbursement_identifier
+
+				full_disbursement_identifier = f'{company.identifier}-{loan.disbursement_identifier}'
+				disbursement_identifiers += [full_disbursement_identifier]
 
 				loan_amount = float(loan.amount)
 
@@ -242,6 +235,23 @@ def fund_loans_with_advance(
 						effective_date=settlement_date,
 						session=session
 					)
+
+			# If bank admin did not specify a custom bank note (memo), set the
+			# bank note to the list of disbursement identifiers this advance is for.
+			if not bank_note:
+				bank_note = ",".join(disbursement_identifiers)
+
+			payment_util.make_advance_payment_settled(
+				payment,
+				settlement_identifier=disbursement_identifier,
+				amount=decimal.Decimal(amount_to_company),
+				payment_date=payment_date,
+				settlement_date=settlement_date,
+				settled_by_user_id=bank_admin_user_id,
+				sender_bank_account_id=sender_bank_account_id,
+				recipient_bank_account_id=recipient_bank_account_id,
+				bank_note=bank_note,
+			)
 
 		for loan in loans:
 			cur_contract = contracts_by_company_id[str(loan.company_id)]

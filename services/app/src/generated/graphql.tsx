@@ -20794,7 +20794,10 @@ export type VendorPartnershipFragment = Pick<
 export type PayorPartnershipFragment = Pick<CompanyPayorPartnerships, "id"> &
   PayorPartnershipLimitedFragment;
 
-export type PaymentFragment = Pick<Payments, "id" | "created_at"> &
+export type PaymentFragment = Pick<
+  Payments,
+  "id" | "bank_note" | "created_at"
+> &
   PaymentLimitedFragment;
 
 export type PaymentBankAccountsFragment = Pick<Payments, "id"> & {
@@ -21712,6 +21715,7 @@ export const PaymentLimitedFragmentDoc = gql`
 export const PaymentFragmentDoc = gql`
   fragment Payment on payments {
     id
+    bank_note
     created_at
     ...PaymentLimited
   }

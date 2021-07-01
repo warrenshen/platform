@@ -60,5 +60,6 @@ PaymentInsertInputDict = TypedDict('PaymentInsertInputDict', {
 	'settlement_date': str,
 	'items_covered': PaymentItemsCoveredDict,
 	'company_bank_account_id': str,
-	'customer_note': str
+	'customer_note': str,
+	'bank_note': str
 })

@@ -158,6 +158,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 			payment_date = advance['payment_date']
 			settlement_date = advance['settlement_date']
 			loan_indices = advance['loan_indices']
+			bank_note = advance.get('bank_note')
 			advance_loan_ids = [loan_ids[loan_index] for loan_index in loan_indices]
 
 			req = advance_util.FundLoansReqDict(
@@ -173,7 +174,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					settlement_date=settlement_date,
 					items_covered={'loan_ids': advance_loan_ids},
 					company_bank_account_id=None,
-					customer_note=''
+					customer_note='',
+					bank_note=bank_note
 				),
 				should_charge_wire_fee=advance['should_charge_wire_fee']
 			)
@@ -253,6 +255,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						exp_payment.get('recipient_bank_account_id'),
 						str(payment.recipient_bank_account_id) if payment.recipient_bank_account_id else None,
 					)
+					self.assertEqual(exp_payment.get('bank_note'), payment.bank_note)
 				else:
 					# No payment method associated with fees or credits
 					self.assertEqual('', payment.method)
@@ -397,6 +400,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'type': 'advance',
 						'method': PaymentMethodEnum.WIRE,
 						'recipient_bank_account_id': 'ba12e58e-6378-450c-a753-943533f7ae88',
+						'bank_note': 'D0-1A,D0-1B'
 					},
 					{
 						'amount': 50.00,
@@ -423,6 +427,113 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'payment_index': 1,
 						'type': 'fee',
 						'subtype': 'wire_fee'
+					}
+				],
+			}
+		]
+
+		for test in tests:
+			self._run_test(test)
+
+	def test_successful_advance_with_custom_bank_note(self) -> None:
+		tests: List[Dict] = [
+			{
+				'comment': 'Test an advance for multiple loans with a custom bank note',
+				'company_settings_by_company_index': {
+					0: {
+						'advances_bespoke_bank_account_id': 'dc12e58e-6378-450c-a753-943533f7ae88',
+						'advances_bank_account_id': 'cc12e58e-6378-450c-a753-943533f7ae88',
+					},
+				},
+				'contracts_by_company_index': {
+					0: [
+						_get_default_contract(
+							use_preceeding_business_day=False,
+							days_until_repayment=10,
+							wire_fee=50.0,
+						)
+					],
+					1: [
+						_get_default_contract(
+							use_preceeding_business_day=False,
+							days_until_repayment=20,
+							wire_fee=60.0
+						)
+					]
+				},
+				'vendors': [
+					{
+						'id': 'c012e58e-6378-450c-a753-943533f7ae88',
+						'company_index': 0,
+						'vendor_bank_id': 'ba12e58e-6378-450c-a753-943533f7ae88',
+					},
+				],
+				'purchase_orders': [
+					{
+						'id': 'a012e58e-6378-450c-a753-943533f7ae88',
+						'vendor_id': 'c012e58e-6378-450c-a753-943533f7ae88',
+						'amount': 40.04,
+					},
+				],
+				'loans': [
+					{
+						'amount': 10.01,
+						'artifact_id': 'a012e58e-6378-450c-a753-943533f7ae88',
+					},
+					{
+						'amount': 20.02,
+						'artifact_id': 'a012e58e-6378-450c-a753-943533f7ae88',
+					}
+				],
+				'company_indices': [0, 0],
+				'advances': [
+					{
+						'should_charge_wire_fee': False,
+						'payment_method': PaymentMethodEnum.WIRE,
+						'payment_date': '10/18/2020',
+						'settlement_date': '10/20/2020',
+						'payment_input_amount': 30.03,
+						'bank_note': 'Sample memo',
+						'loan_indices': [0, 1]
+					}
+				],
+				'expected_loans': [
+					{
+						'disbursement_identifier': '1A',
+						'amount': 10.01,
+						'maturity_date': '10/30/2020',
+						'adjusted_maturity_date': '10/30/2020'
+					},
+					{
+						'disbursement_identifier': '1B',
+						'amount': 20.02,
+						'maturity_date': '10/30/2020',
+						'adjusted_maturity_date': '10/30/2020'
+					}
+				],
+				'expected_payments': [
+					{
+						'settlement_identifier': '1',
+						'amount': 30.03,
+						'company_index': 0,
+						'type': 'advance',
+						'method': PaymentMethodEnum.WIRE,
+						'recipient_bank_account_id': 'ba12e58e-6378-450c-a753-943533f7ae88',
+						'bank_note': 'Sample memo'
+					}
+				],
+				'expected_transactions': [
+					{
+						'amount': 10.01,
+						'loan_index': 0,
+						'payment_index': 0,
+						'type': 'advance'
+					},
+					{
+						'amount': 20.02,
+						'loan_index': 1,
+						'payment_index': 0,
+						'type': 'advance'
 					}
 				],
 			}
@@ -547,6 +658,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'type': 'advance',
 						'method': PaymentMethodEnum.WIRE,
 						'recipient_bank_account_id': 'ba12e58e-6378-450c-a753-943533f7ae88',
+						'bank_note': 'D0-1A,D0-1B'
 					},
 					{
 						'amount': 50.00,
@@ -565,6 +677,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'type': 'advance',
 						'method': PaymentMethodEnum.WIRE,
 						'recipient_bank_account_id': 'ea12e58e-6378-450c-a753-943533f7ae88',
+						'bank_note': 'D0-1A,D0-1B'
 					}
 				],
 				'expected_transactions': [
@@ -666,6 +779,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'company_index': 0,
 						'type': 'advance',
 						'recipient_bank_account_id': 'cc12e58e-6378-450c-a753-943533f7ae88',
+						'bank_note': 'D0-1'
 					}
 				],
 				'expected_transactions': [
@@ -697,7 +811,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					settlement_date='10/30/2020',
 					items_covered={ 'loan_ids': [] },
 					company_bank_account_id=None,
-					customer_note=''
+					customer_note='',
+					bank_note=''
 				),
 				should_charge_wire_fee=False
 			),
@@ -737,7 +852,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					settlement_date='10/30/2020',
 					items_covered={ 'loan_ids': loan_ids },
 					company_bank_account_id=None,
-					customer_note=''
+					customer_note='',
+					bank_note=''
 				),
 				should_charge_wire_fee=False
 			),
@@ -777,7 +893,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					settlement_date='10/30/2020',
 					items_covered={ 'loan_ids': loan_ids },
 					company_bank_account_id=None,
-					customer_note=''
+					customer_note='',
+					bank_note=''
 				),
 				should_charge_wire_fee=False
 			),
@@ -815,7 +932,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					settlement_date='10/30/2020',
 					items_covered={ 'loan_ids': loan_ids },
 					company_bank_account_id=None,
-					customer_note=''
+					customer_note='',
+					bank_note=''
 				),
 				should_charge_wire_fee=False
 			),
@@ -855,7 +973,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					settlement_date='10/30/2020',
 					items_covered={'loan_ids': loan_ids},
 					company_bank_account_id=None,
-					customer_note=''
+					customer_note='',
+					bank_note=''
 				),
 				loan_ids=loan_ids,
 				should_charge_wire_fee=False
@@ -945,6 +1064,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'company_index': 0,
 						'type': 'advance',
 						'recipient_bank_account_id': 'ba12e58e-6378-450c-a753-943533f7ae88',
+						'bank_note': 'D0-1A,D0-1B'
 					}
 				],
 				'expected_transactions': [
@@ -1056,6 +1176,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'company_index': 0,
 						'type': 'advance',
 						'recipient_bank_account_id': 'ba12e58e-6378-450c-a753-943533f7ae88',
+						'bank_note': 'D0-1A,D0-1B'
 					}
 				],
 				'expected_transactions': [
@@ -1166,6 +1287,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'type': 'advance',
 						'method': PaymentMethodEnum.WIRE,
 						'recipient_bank_account_id': 'ba12e58e-6378-450c-a753-943533f7ae88',
+						'bank_note': 'D0-1A,D0-1B'
 					}
 				],
 				'expected_transactions': [
@@ -1406,6 +1528,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'type': 'advance',
 						'method': PaymentMethodEnum.WIRE,
 						'recipient_bank_account_id': 'ba12e58e-6378-450c-a753-943533f7ae88',
+						'bank_note': 'D0-1'
 					},
 					{
 						'settlement_identifier': '2',
@@ -1414,6 +1537,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'type': 'advance',
 						'method': PaymentMethodEnum.WIRE,
 						'recipient_bank_account_id': 'ba12e58e-6378-450c-a753-943533f7ae88',
+						'bank_note': 'D0-2'
 					},
 					{
 						'settlement_identifier': '3',
@@ -1422,6 +1546,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'type': 'advance',
 						'method': PaymentMethodEnum.WIRE,
 						'recipient_bank_account_id': 'ba12e58e-6378-450c-a753-943533f7ae88',
+						'bank_note': 'D0-3A,D0-3B'
 					}
 				],
 				'expected_transactions': [

@@ -37,6 +37,7 @@ export default function CreateAdvanceModal({
     method: "",
     payment_date: todayAsDateStringServer(),
     settlement_date: null,
+    bank_note: null,
   } as PaymentsInsertInput;
 
   const [payment, setPayment] = useState(newPayment);
@@ -113,6 +114,7 @@ export default function CreateAdvanceModal({
           method: payment.method,
           payment_date: payment.payment_date,
           settlement_date: payment.settlement_date,
+          bank_note: payment.bank_note,
         },
         loan_ids: selectedLoanIds,
         should_charge_wire_fee: shouldChargeWireFee,

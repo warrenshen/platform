@@ -28,7 +28,7 @@ function getRows(
       recipient_name: payment.recipient_bank_account?.recipient_name,
       recipient_address: payment.recipient_bank_account?.recipient_address,
       recipient_address_2: payment.recipient_bank_account?.recipient_address_2,
-      additional_info_for_recipient: "", // TODO
+      additional_info_for_recipient: payment.bank_note,
     };
   });
 }
