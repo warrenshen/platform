@@ -53,15 +53,22 @@ export default function RequestedRepaymentPreview({ payment }: Props) {
           ) && (
             <>
               <Typography variant="subtitle2">
-                {`- Requested Amount to Principal: ${formatCurrency(
+                {`- Requested Amount To Principal: ${formatCurrency(
                   payment.items_covered.requested_to_principal
                 )}`}
               </Typography>
               <Typography variant="subtitle2">
-                {`- Requested Amount to Interest: ${formatCurrency(
+                {`- Requested Amount To Interest: ${formatCurrency(
                   payment.items_covered.requested_to_interest
                 )}`}
               </Typography>
+              {!!payment.items_covered.requested_to_account_fees && (
+                <Typography variant="subtitle2">
+                  {`- Requested Amount To Account Fees: ${formatCurrency(
+                    payment.items_covered.requested_to_account_fees
+                  )}`}
+                </Typography>
+              )}
             </>
           )}
         </Box>

@@ -535,18 +535,22 @@ def create_repayment(
 	if payment_method == PaymentMethodEnum.REVERSE_DRAFT_ACH and not company_bank_account_id:
 		raise errors.Error('Bank account to trigger reverse from must be specified if payment method is Reverse Draft ACH', details=err_details)
 
+	if 'requested_to_account_fees' not in items_covered:
+		raise errors.Error('Requested to account fees must be specified', details=err_details)
+
 	if is_line_of_credit:
 		if 'requested_to_principal' not in items_covered or 'requested_to_interest' not in items_covered:
 			raise errors.Error('items_covered.requested_to_principal and items_covered.requested_to_interest must be specified', details=err_details)
 
 		requested_to_principal = items_covered['requested_to_principal']
 		requested_to_interest = items_covered['requested_to_interest']
+		requested_to_account_fees = items_covered['requested_to_account_fees']
 
 		if requested_to_principal is None or requested_to_interest is None:
 			raise errors.Error(f'Requested to principal and requested to interest must be specified')
 
-		if not number_util.float_eq(requested_amount, requested_to_principal + requested_to_interest):
-			raise errors.Error(f'Requested breakdown of requested_to_principal vs requested_to_interest ({requested_to_principal}, {requested_to_interest}) does not sum up to requested amount ({requested_amount})')
+		if not number_util.float_eq(requested_amount, requested_to_principal + requested_to_interest + requested_to_account_fees):
+			raise errors.Error(f'Requested breakdown of requested_to_principal vs requested_to_interest vs requested_to_account_fees ({requested_to_principal}, {requested_to_interest}, {requested_to_account_fees}) does not sum up to requested amount ({requested_amount})')
 	else:
 		if 'loan_ids' not in items_covered:
 			raise errors.Error('items_covered.loan_ids must be specified', details=err_details)
@@ -554,9 +558,6 @@ def create_repayment(
 		loan_ids = items_covered['loan_ids']
 		if len(loan_ids) <= 0:
 			raise errors.Error('At least one loan ID must be specified')
-
-	if 'requested_to_account_fees' not in items_covered:
-		raise errors.Error('Requested to account fees must be specified', details=err_details)
 
 	payment_id = None
 

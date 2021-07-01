@@ -25,7 +25,7 @@ import { filter, sortBy } from "lodash";
 import { useContext, useMemo, useState } from "react";
 import { useRouteMatch } from "react-router-dom";
 import CreateBulkMinimumMonthlyFeeModal from "components/Fee/CreateMinimumInterestFeesModal";
-import CreateReverseDraftLOCFeesModal from "components/Fee/CreateReverseDraftLOCFeesModal";
+import CreateLOCMonthEndPaymentsModal from "components/Fee/CreateLOCMonthEndPaymentsModal";
 
 export default function BankCustomersPage() {
   const {
@@ -195,7 +195,7 @@ export default function BankCustomersPage() {
                   color={"default"}
                   variant={"outlined"}
                   modal={({ handleClose }) => (
-                    <CreateReverseDraftLOCFeesModal
+                    <CreateLOCMonthEndPaymentsModal
                       handleClose={() => {
                         refetch();
                         handleClose();

@@ -226,7 +226,6 @@ def create_loc_reverse_draft_for_customers(
 		return None, errors.Error('No companies provided to book minimum due fees')
 
 	requested_date = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
-	effective_date = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
 
 	for customer_id, val_info in minimum_due_resp['company_due_to_financial_info'].items():
 		fee_dict = val_info['fee_info']

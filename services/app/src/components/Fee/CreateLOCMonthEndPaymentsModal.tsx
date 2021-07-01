@@ -16,7 +16,7 @@ interface Props {
   handleClose: () => void;
 }
 
-export default function CreateReverseDraftLOCFeesModal({ handleClose }: Props) {
+export default function CreateLOCMonthEndPaymentsModal({ handleClose }: Props) {
   const snackbar = useSnackbar();
 
   const [dateStr, setDateStr] = useState<string>("");
@@ -61,9 +61,7 @@ export default function CreateReverseDraftLOCFeesModal({ handleClose }: Props) {
     if (response.status !== "OK") {
       snackbar.showError(`Error: ${response.msg}`);
     } else {
-      snackbar.showSuccess(
-        "Fees created for customers who have monthly, quarterly or annual interest minimums."
-      );
+      snackbar.showSuccess("Month-end payments created for LOC customers.");
       handleClose();
     }
   };
