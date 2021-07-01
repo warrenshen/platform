@@ -42,8 +42,7 @@ class TestAddNewContract(db_unittest.TestCase):
 				end_date='06/01/2020',
 				product_config=_get_default_contract_config({
 					'interest_rate': 0.05
-				}),
-				termination_date='unused'
+				})
 			)
 		req = manage_contract_util.AddNewContractReqDict(
 			company_id=company_id,
@@ -93,8 +92,7 @@ class TestAddNewContract(db_unittest.TestCase):
 					end_date=end_date,
 					product_config=_get_default_contract_config({
 						'interest_rate': 0.05
-					}),
-					termination_date='unused'
+					})
 				)
 			return contract_fields
 
@@ -157,8 +155,7 @@ class TestUpdateContract(db_unittest.TestCase):
 					product_config=_get_default_contract_config({
 						'interest_rate': 0.001
 						
-					}),
-					termination_date='unused'
+					})
 				)
 			return contract_fields
 
@@ -187,14 +184,15 @@ class TestUpdateContract(db_unittest.TestCase):
 				'end_date': '05/01/2020',
 				'product_config': _get_default_contract_config({
 					'interest_rate': 0.001		
-				}),
-				'termination_date': 'unused'
+				})
 			}
 		)
-		success, err = manage_contract_util.update_contract(
-			terminate_req, bank_admin_user_id=user_id, session_maker=session_maker)
-		self.assertTrue(success, msg=err)
-		self.assertIsNone(err)
+
+		with session_scope(self.session_maker) as session:
+			success, err = manage_contract_util.update_contract(
+				terminate_req, bank_admin_user_id=user_id, session=session)
+			self.assertTrue(success, msg=err)
+			self.assertIsNone(err)
 
 	def test_successful_update_on_dynamic_interest_rates(self) -> None:
 		session_maker = self.session_maker
@@ -211,8 +209,7 @@ class TestUpdateContract(db_unittest.TestCase):
 							'01/01/2020-03/01/2020': 0.002,
 							'03/02/2020-06/01/2020': 0.001
 						})
-					}),
-					termination_date='unused'
+					})
 				)
 			return contract_fields
 
@@ -241,14 +238,15 @@ class TestUpdateContract(db_unittest.TestCase):
 				'end_date': '05/01/2020',
 				'product_config': _get_default_contract_config({
 					'interest_rate': 0.001		
-				}),
-				'termination_date': 'unused'
+				})
 			}
 		)
-		success, err = manage_contract_util.update_contract(
-			terminate_req, bank_admin_user_id=user_id, session_maker=session_maker)
-		self.assertTrue(success, msg=err)
-		self.assertIsNone(err)
+
+		with session_scope(self.session_maker) as session:
+			success, err = manage_contract_util.update_contract(
+				terminate_req, bank_admin_user_id=user_id, session=session)
+			self.assertTrue(success, msg=err)
+			self.assertIsNone(err)
 
 class TestDeleteContract(db_unittest.TestCase):
 
@@ -265,8 +263,7 @@ class TestDeleteContract(db_unittest.TestCase):
 					product_config=_get_default_contract_config({
 						'interest_rate': 0.001
 						
-					}),
-					termination_date='unused'
+					})
 				)
 			return contract_fields
 
@@ -311,8 +308,7 @@ class TestDeleteContract(db_unittest.TestCase):
 							'01/01/2020-03/01/2020': 0.002,
 							'03/02/2020-06/01/2020': 0.001
 						})
-					}),
-					termination_date='unused'
+					})
 				)
 			return contract_fields
 

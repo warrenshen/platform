@@ -19,14 +19,14 @@ ContractFieldsDict = TypedDict('ContractFieldsDict', {
 	'product_type': str,
 	'start_date': str,
 	'end_date': str,
-	'product_config': Dict,
-	'termination_date': str
-})
+	'product_config': Dict
+}, total=False)
 
 UpdateContractReqDict = TypedDict('UpdateContractReqDict', {
 	'contract_id': str,
-	'contract_fields': ContractFieldsDict
-})
+	'contract_fields': ContractFieldsDict,
+	'update_dates_only': bool
+}, total=False)
 
 TerminateContractReqDict = TypedDict('TerminateContractReqDict', {
 	'contract_id': str,
@@ -58,14 +58,18 @@ def _update_fields_based_on_new_dates(contract: models.Contract, new_start_date:
 	return True, None
 
 def _update_contract(
-	contract: models.Contract, fields_dict: ContractFieldsDict,
+	contract: models.Contract, 
+	fields_dict: ContractFieldsDict,
+	update_dates_only: bool,
 	bank_admin_user_id: str) -> Tuple[bool, errors.Error]:
 
 	start_date = date_util.load_date_str(fields_dict['start_date'])
 	end_date = date_util.load_date_str(fields_dict['end_date'])
 
-	contract.product_type = fields_dict['product_type']
-	contract.product_config = fields_dict['product_config']
+	if not update_dates_only:
+		contract.product_type = fields_dict['product_type']
+		contract.product_config = fields_dict['product_config']
+
 	contract.start_date = start_date
 	contract.end_date = end_date
 	contract.adjusted_end_date = end_date
@@ -139,45 +143,48 @@ def _update_loans_on_active_contract_updated(
 
 @errors.return_error_tuple
 def update_contract(
-	req: UpdateContractReqDict, bank_admin_user_id: str, session_maker: Callable) -> Tuple[bool, errors.Error]:
+	req: UpdateContractReqDict, bank_admin_user_id: str, session: Session) -> Tuple[bool, errors.Error]:
 	err_details = {'req': req, 'method': 'update_contract'}
 
-	with session_scope(session_maker) as session:
-		contract = cast(
-			models.Contract,
-			session.query(models.Contract).filter(
-				models.Contract.id == req['contract_id']
-			).first())
-		if not contract:
-			raise errors.Error('Contract could not be found', details=err_details)
+	contract = cast(
+		models.Contract,
+		session.query(models.Contract).filter(
+			models.Contract.id == req['contract_id']
+		).first())
+	if not contract:
+		raise errors.Error('Contract could not be found', details=err_details)
 
-		if contract.terminated_at:
-			raise errors.Error('Cannot modify a contract which already has been terminated or "frozen"', details=err_details)
+	if contract.terminated_at:
+		raise errors.Error('Cannot modify a contract which already has been terminated or "frozen"', details=err_details)
 
-		if contract.is_deleted:
-			raise errors.Error('Cannot update a deleted contract')
+	if contract.is_deleted:
+		raise errors.Error('Cannot update a deleted contract')
 
-		if not req['contract_fields']['start_date']:
-			raise errors.Error('Start date must be specified', details=err_details)
+	if not req['contract_fields']['start_date']:
+		raise errors.Error('Start date must be specified', details=err_details)
 
-		if not req['contract_fields']['end_date']:
-			raise errors.Error('End date must be specified', details=err_details)
+	if not req['contract_fields']['end_date']:
+		raise errors.Error('End date must be specified', details=err_details)
 
-		success, err = _update_fields_based_on_new_dates(
-			contract,
-			new_start_date=date_util.load_date_str(req['contract_fields']['start_date']),
-			new_end_date=date_util.load_date_str(req['contract_fields']['end_date'])
-		)
-		if err:
-			raise err
+	success, err = _update_fields_based_on_new_dates(
+		contract,
+		new_start_date=date_util.load_date_str(req['contract_fields']['start_date']),
+		new_end_date=date_util.load_date_str(req['contract_fields']['end_date'])
+	)
+	if err:
+		raise err
 
-		_, err = _update_contract(contract, req['contract_fields'], bank_admin_user_id)
-		if err:
-			raise err
+	_, err = _update_contract(
+		contract, 
+		req['contract_fields'],
+		update_dates_only=req.get('update_dates_only', False),
+		bank_admin_user_id=bank_admin_user_id)
+	if err:
+		raise err
 
-		_, err = _update_loans_on_active_contract_updated(contract, session)
-		if err:
-			raise err
+	_, err = _update_loans_on_active_contract_updated(contract, session)
+	if err:
+		raise err
 
 	return True, None
 
@@ -286,7 +293,12 @@ def add_new_contract(
 			existing_contracts = []
 
 		new_contract = models.Contract(company_id=company.id)
-		success, err = _update_contract(new_contract, req['contract_fields'], bank_admin_user_id)
+		success, err = _update_contract(
+			new_contract, 
+			req['contract_fields'],
+			update_dates_only=False, 
+			bank_admin_user_id=bank_admin_user_id
+		)
 		if err:
 			raise err
 

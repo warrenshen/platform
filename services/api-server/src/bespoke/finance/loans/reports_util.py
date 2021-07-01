@@ -23,6 +23,7 @@ def update_company_balance(
 	logging.info(f"Updating balance for '{company['name']}' with id: '{company['id']}'")
 
 	customer_balance = loan_balances.CustomerBalance(company, session_maker)
+
 	customer_update_dict, err = customer_balance.update(
 		today=report_date,
 		include_debug_info=include_debug_info

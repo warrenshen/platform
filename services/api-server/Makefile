@@ -32,13 +32,6 @@ run-async-local:
 	cd src && FLASK_ENV=development PYTHONPATH=$(PYTHONPATH) SERVER_ROOT_DIR=$(server_root_dir) gunicorn --reload --bind 0.0.0.0:7001 --timeout 300 --threads 2 manage_async:app
 
 # Scripts
-
-run-customer-reports:
-	cd src && PYTHONPATH=$(PYTHONPATH) SERVER_ROOT_DIR=$(server_root_dir) python3 $(CUSTOMER_REPORTS_SCRIPT)
-
-run-customer-balances:
-	cd src && PYTHONPATH=$(PYTHONPATH) SERVER_ROOT_DIR=$(server_root_dir) python3 $(RUN_BALANCES_SCRIPT)
-
 run-metrc-script:
 	cd src && PYTHONPATH=$(PYTHONPATH) SERVER_ROOT_DIR=$(server_root_dir) python3 bespoke/metrc/metrc_util.py
 
@@ -59,8 +52,6 @@ mypy:
 	MYPYPATH=stubs mypy src/bespoke/db/main.py --config-file=mypy.ini
 	MYPYPATH=stubs mypy src/manage.py --config-file=mypy.ini
 	MYPYPATH=stubs mypy src/manage_async.py --config-file=mypy.ini
-	MYPYPATH=stubs mypy src/$(CUSTOMER_REPORTS_SCRIPT) --config-file=mypy.ini
-	MYPYPATH=stubs mypy src/$(RUN_BALANCES_SCRIPT) --config-file=mypy.ini
 
 mypy-tests:
 	MYPYPATH=stubs:$(PYTHONPATH) mypy test/unit --config-file=mypy.ini

@@ -17,6 +17,7 @@
 import datetime
 import decimal
 import logging
+from datetime import timedelta
 from typing import Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
@@ -248,7 +249,7 @@ class CustomerBalance(object):
 			self._session_maker,
 			ignore_deleted=True,
 		)
-		_, err = fetcher.fetch()
+		_, err = fetcher.fetch(today)
 		if err:
 			raise err
 

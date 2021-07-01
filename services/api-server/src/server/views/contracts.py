@@ -20,6 +20,7 @@ class UpdateContractView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
 	@events.wrap(events.Actions.CONTRACT_UPDATE)
+	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
 		user_session = auth_util.UserSession.from_session()
 		bank_admin_user_id = user_session.get_user_id()
@@ -36,11 +37,13 @@ class UpdateContractView(MethodView):
 				return handler_util.make_error_response(
 					'Missing key {} in request'.format(key))
 
-		_, err = manage_contract_util.update_contract(
-			req=form, bank_admin_user_id=bank_admin_user_id,
-			session_maker=current_app.session_maker)
-		if err:
-			return handler_util.make_error_response(err)
+		with session_scope(current_app.session_maker) as session:
+			_, err = manage_contract_util.update_contract(
+				req=form, 
+				bank_admin_user_id=bank_admin_user_id,
+				session=session)
+			if err:
+				raise err
 
 		with session_scope(current_app.session_maker) as session:
 			contract = contract_util.get_active_contracts_base_query(session).filter(models.Contract.id == form["contract_id"]).first()
@@ -56,6 +59,7 @@ class TerminateContractView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
 	@events.wrap(events.Actions.CONTRACT_TERMINATE)
+	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
 		user_session = auth_util.UserSession.from_session()
 		bank_admin_user_id = user_session.get_user_id()
@@ -86,6 +90,7 @@ class DeleteContractView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
 	@events.wrap(events.Actions.CONTRACT_DELETE)
+	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
 		user_session = auth_util.UserSession.from_session()
 		bank_admin_user_id = user_session.get_user_id()
@@ -116,6 +121,7 @@ class AddNewContractView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
 	@events.wrap(events.Actions.CONTRACT_CREATE)
+	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
 		user_session = auth_util.UserSession.from_session()
 		bank_admin_user_id = user_session.get_user_id()

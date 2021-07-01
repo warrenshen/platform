@@ -912,6 +912,9 @@ class ContractHelper(object):
 	def __init__(self, contract_dicts: List[models.ContractDict], private: bool) -> None:
 		self._contract_dicts = contract_dicts
 
+	def get_latest_contract_dict(self) -> models.ContractDict:
+		return self._contract_dicts[-1]
+
 	def get_contract(self, cur_date: datetime.date) -> Tuple[Contract, errors.Error]:
 		# Find the contract that fits in between the time range
 

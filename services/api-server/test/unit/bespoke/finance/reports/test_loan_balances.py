@@ -1350,6 +1350,95 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			ebba = session.query(models.EbbaApplication).first()
 			self.assertEqual(ebba.calculated_borrowing_base, 825000)
 
+	def test_success_extend_ending_contract(self) -> None:
+		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+			session.add(models.Contract(
+				company_id=company_id,
+				product_type=ProductType.LINE_OF_CREDIT,
+				product_config=contract_test_helper.create_contract_config(
+					product_type=ProductType.LINE_OF_CREDIT,
+					input_dict=ContractInputDict(
+						interest_rate=0.05,
+						maximum_principal_amount=1200000,
+						minimum_monthly_amount=1.03,
+						max_days_until_repayment=0, # unused
+						late_fee_structure=_get_late_fee_structure(), # unused
+						borrowing_base_accounts_receivable_percentage=0.5,
+						borrowing_base_inventory_percentage=0.25,
+						borrowing_base_cash_percentage=0.75,
+						borrowing_base_cash_in_daca_percentage=0.25,
+					)
+				),
+				start_date=date_util.load_date_str('1/1/2020'),
+				adjusted_end_date=date_util.load_date_str('10/1/2020')
+			))
+
+		# Expected Value:
+		#  ((100k * 0.5) / 100.0)
+		#  + ((100k * 0.25) / 100.0)
+		#  + ((1M * 0.75) / 100.0)
+		# Computed borrowing base: $825,000
+		# Contract max limit: $1,200,000
+		self._run_test({
+			'today': '12/1/2020',
+			'expected_loan_updates': [],
+			'populate_fn': populate_fn,
+			'account_level_balance_payload': {
+					'fees_total': 0.0,
+					'credits_total': 0.0
+			},
+			'day_volume_threshold_met': None
+		})
+
+		with session_scope(self.session_maker) as session:
+			contract = session.query(models.Contract).first()
+			self.assertEqual('10/01/2021', date_util.date_to_str(contract.adjusted_end_date))
+
+
+	def test_success_extend_ending_contract_dynamic_interest_rate(self) -> None:
+		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+			session.add(models.Contract(
+				company_id=company_id,
+				product_type=ProductType.LINE_OF_CREDIT,
+				product_config=contract_test_helper.create_contract_config(
+					product_type=ProductType.LINE_OF_CREDIT,
+					input_dict=ContractInputDict(
+						dynamic_interest_rate=json.dumps({'1/1/2020-10/1/2020': 0.01}),
+						maximum_principal_amount=1200000,
+						minimum_monthly_amount=1.03,
+						max_days_until_repayment=0, # unused
+						late_fee_structure=_get_late_fee_structure(), # unused
+						borrowing_base_accounts_receivable_percentage=0.5,
+						borrowing_base_inventory_percentage=0.25,
+						borrowing_base_cash_percentage=0.75,
+						borrowing_base_cash_in_daca_percentage=0.25,
+					)
+				),
+				start_date=date_util.load_date_str('1/1/2020'),
+				adjusted_end_date=date_util.load_date_str('10/1/2020')
+			))
+
+		# Expected Value:
+		#  ((100k * 0.5) / 100.0)
+		#  + ((100k * 0.25) / 100.0)
+		#  + ((1M * 0.75) / 100.0)
+		# Computed borrowing base: $825,000
+		# Contract max limit: $1,200,000
+		self._run_test({
+			'today': '12/1/2020',
+			'expected_loan_updates': [],
+			'populate_fn': populate_fn,
+			'account_level_balance_payload': {
+					'fees_total': 0.0,
+					'credits_total': 0.0
+			},
+			'day_volume_threshold_met': None
+		})
+
+		with session_scope(self.session_maker) as session:
+			contract = session.query(models.Contract).first()
+			self.assertEqual('10/01/2021', date_util.date_to_str(contract.adjusted_end_date))
+
 	def test_success_adjusted_total_limit_contract_limit_less_than_computed_borrowing_base(self) -> None:
 		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
 			session.add(models.Contract(

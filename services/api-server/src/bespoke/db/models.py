@@ -208,7 +208,8 @@ ContractDict = TypedDict('ContractDict', {
 	'product_config': Dict,
 	'start_date': datetime.date,
 	'end_date': datetime.date,
-	'adjusted_end_date': datetime.date
+	'adjusted_end_date': datetime.date,
+	'terminated_at': datetime.datetime
 })
 
 class Contract(Base):
@@ -233,7 +234,8 @@ class Contract(Base):
 			product_config=cast(Dict, self.product_config),
 			start_date=self.start_date,
 			end_date=self.end_date,
-			adjusted_end_date=self.adjusted_end_date
+			adjusted_end_date=self.adjusted_end_date,
+			terminated_at=self.terminated_at
 		)
 
 class CompanyPartnershipRequest(Base):

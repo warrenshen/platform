@@ -55,6 +55,7 @@ class TestContractHelper(unittest.TestCase):
 				start_date=None,
 				end_date=None,
 				adjusted_end_date=date_util.load_date_str('2/11/2020'),
+				terminated_at=None
 			)
 		]
 
@@ -76,6 +77,7 @@ class TestContractHelper(unittest.TestCase):
 				start_date=date_util.load_date_str('2/11/2020'),
 				end_date=None,
 				adjusted_end_date=None,
+				terminated_at=None
 			)
 		]
 
@@ -97,6 +99,7 @@ class TestContractHelper(unittest.TestCase):
 				start_date=date_util.load_date_str('2/11/2020'),
 				end_date=None,
 				adjusted_end_date=date_util.load_date_str('2/20/2020'),
+				terminated_at=None
 			),
 			models.ContractDict(
 				id='unused2',
@@ -105,6 +108,7 @@ class TestContractHelper(unittest.TestCase):
 				start_date=date_util.load_date_str('2/12/2020'),
 				end_date=None,
 				adjusted_end_date=date_util.load_date_str('2/28/2020'),
+				terminated_at=None
 			)
 		]
 
@@ -137,6 +141,7 @@ class TestContractHelper(unittest.TestCase):
 				start_date=date_util.load_date_str('1/1/2020'),
 				end_date=date_util.load_date_str('2/10/2020'),
 				adjusted_end_date=date_util.load_date_str('2/11/2020'),
+				terminated_at=None
 			)
 		]
 
@@ -163,6 +168,7 @@ class TestContractHelper(unittest.TestCase):
 				start_date=date_util.load_date_str('2/11/2020'),
 				end_date=None,
 				adjusted_end_date=date_util.load_date_str('2/15/2020'),
+				terminated_at=None
 			),
 			models.ContractDict(
 				id='unused2',
@@ -174,6 +180,7 @@ class TestContractHelper(unittest.TestCase):
 				start_date=date_util.load_date_str('2/16/2020'),
 				end_date=None,
 				adjusted_end_date=date_util.load_date_str('2/28/2020'),
+				terminated_at=None
 			)
 		]
 
@@ -207,6 +214,7 @@ class TestDynamicInterestRate(unittest.TestCase):
 				start_date=date_util.load_date_str('2/10/2020'),
 				end_date=date_util.load_date_str('2/11/2020'),
 				adjusted_end_date=date_util.load_date_str('2/11/2020'),
+				terminated_at=None
 		)
 
 		contract, _ = contract_util.Contract.build(contract_dict, validate=False)
@@ -226,6 +234,7 @@ class TestDynamicInterestRate(unittest.TestCase):
 				start_date=date_util.load_date_str('2/10/2020'),
 				end_date=date_util.load_date_str('2/11/2020'),
 				adjusted_end_date=date_util.load_date_str('2/11/2020'),
+				terminated_at=None
 		)
 
 		contract, _ = contract_util.Contract.build(contract_dict, validate=False)
@@ -245,6 +254,7 @@ class TestDynamicInterestRate(unittest.TestCase):
 				start_date=date_util.load_date_str('2/10/2020'),
 				end_date=date_util.load_date_str('2/11/2020'),
 				adjusted_end_date=date_util.load_date_str('2/11/2020'),
+				terminated_at=None
 		)
 
 		contract, _ = contract_util.Contract.build(contract_dict, validate=False)
@@ -267,6 +277,7 @@ class TestDynamicInterestRate(unittest.TestCase):
 					start_date=date_util.load_date_str('2/11/2020'),
 					end_date=None,
 					adjusted_end_date=date_util.load_date_str('2/15/2020'),
+					terminated_at=None
 				),
 				'in_err_msg': 'first dynamic interest rate'
 			},
@@ -282,6 +293,7 @@ class TestDynamicInterestRate(unittest.TestCase):
 					start_date=date_util.load_date_str('2/16/2020'),
 					end_date=None,
 					adjusted_end_date=date_util.load_date_str('2/28/2020'),
+					terminated_at=None
 				),
 				'in_err_msg': 'one day after the previous'
 			},
@@ -297,6 +309,7 @@ class TestDynamicInterestRate(unittest.TestCase):
 					start_date=date_util.load_date_str('2/16/2020'),
 					end_date=None,
 					adjusted_end_date=date_util.load_date_str('12/28/2020'),
+					terminated_at=None
 				),
 				'in_err_msg': 'last dynamic interest rate'
 			}
@@ -321,6 +334,7 @@ class TestDynamicInterestRate(unittest.TestCase):
 					start_date=date_util.load_date_str('2/16/2020'),
 					end_date=None,
 					adjusted_end_date=date_util.load_date_str('12/26/2020'),
+					terminated_at=None
 		)
 		
 		contract, _ = contract_util.Contract.build(contract_dict, validate=False)
@@ -379,6 +393,7 @@ class TestDynamicInterestRate(unittest.TestCase):
 						start_date=date_util.load_date_str('2/16/2020'),
 						end_date=None,
 						adjusted_end_date=date_util.load_date_str('12/26/2020'),
+						terminated_at=None
 			)
 			
 			new_start_date = date_util.load_date_str('01/02/2020')

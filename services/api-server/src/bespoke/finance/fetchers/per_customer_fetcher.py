@@ -1,17 +1,21 @@
 """
   Per customer fetching of financial information.
 """
+import datetime
+from datetime import timedelta
+from mypy_extensions import TypedDict
 from typing import Callable, List, Tuple, cast
+from sqlalchemy.orm.session import Session
 
 from bespoke import errors
+from bespoke.date import date_util
 from bespoke.db import models, models_util
 from bespoke.db.models import (CompanySettingsDict, ContractDict,
                                EbbaApplicationDict, LoanDict, PaymentDict,
                                TransactionDict, session_scope)
 from bespoke.finance import contract_util
 from bespoke.finance.types import per_customer_types
-from mypy_extensions import TypedDict
-
+from bespoke.finance.contracts import manage_contract_util
 
 def _loan_to_str(l: LoanDict) -> str:
 	return f"{l['id']},{l['origination_date']},{l['amount']},{l['status']}"
@@ -21,6 +25,60 @@ def _payment_to_str(p: PaymentDict) -> str:
 
 def _transaction_to_str(t: TransactionDict) -> str:
 	return f"{t['id']},{t['type']},{t['amount']},{t['loan_id']},{t['to_principal']},{t['to_interest']},{t['to_fees']}"
+
+def _extend_the_last_contract_if_needed(
+	contract_dicts: List[models.ContractDict], today: datetime.date, session: Session) -> Tuple[bool, errors.Error]:
+	
+	company_id = None
+	contract_helper, err = contract_util.ContractHelper.build(company_id, contract_dicts)
+	if err:
+		return False, err
+
+	cur_contract, no_contract_in_range_err = contract_helper.get_contract(today)
+	if cur_contract:
+		end_date, err = cur_contract.get_adjusted_end_date()
+		if err:
+			return None, err
+		
+		if end_date > (today + timedelta(days=7)):
+			# No need to update the contract, we have a working one for at least a week
+			return False, None
+
+	# We've determined here we need to extend the contract
+
+	# Find the last contract and extend it if it hasn't been
+	# terminated yet.
+	latest_contract_dict = contract_helper.get_latest_contract_dict()
+
+	if latest_contract_dict['terminated_at']:
+		# If the contrat is already terminated though, we cant extend the
+		# contract and need to throw an error
+		raise no_contract_in_range_err
+
+	# If the contract ended by this report date, but it has
+	# not been terminated, then extend this contract for another year
+	contract_id = latest_contract_dict['id']
+	contract_end_date = latest_contract_dict['adjusted_end_date']
+	if not contract_end_date:
+		raise errors.Error('No adjusted end date set on the latest contract, therefore we cannot extend it')
+	
+	start_date = latest_contract_dict['start_date']
+	if not start_date:
+		raise errors.Error('No start date set on the latest contract, therefore we cannot extend it')
+
+	new_end_date = contract_end_date + timedelta(days=365)
+	manage_contract_util.update_contract(req=manage_contract_util.UpdateContractReqDict(
+		contract_id=contract_id,
+		contract_fields=manage_contract_util.ContractFieldsDict(
+			start_date=date_util.date_to_str(start_date),
+			end_date=date_util.date_to_str(new_end_date)
+		),
+		update_dates_only=True
+	),
+	bank_admin_user_id=None,
+	session=session)
+
+	return True, None
 
 class Fetcher(object):
 
@@ -41,7 +99,7 @@ class Fetcher(object):
 		self._active_ebba_application: EbbaApplicationDict = None
 		self._ignore_deleted = ignore_deleted
 
-	def _fetch_contracts(self) -> Tuple[bool, errors.Error]:
+	def _fetch_contracts(self, today: datetime.date) -> Tuple[bool, errors.Error]:
 
 		with session_scope(self._session_maker) as session:
 			contracts = cast(
@@ -52,6 +110,23 @@ class Fetcher(object):
 			if not contracts:
 				return True, None
 			self._contracts = [c.as_dict() for c in contracts]
+
+			# Extend contracts before doing any financial computations
+			was_extended, err = _extend_the_last_contract_if_needed(
+				self._contracts, today, session)
+			if err:
+				raise err
+
+			if was_extended:
+				# Fetch the contracts again if we needed to extend it
+				contracts = cast(
+					List[models.Contract],
+					contract_util.get_active_contracts_base_query(session).filter(
+						models.Contract.company_id == self._company_id
+					).all())
+				if not contracts:
+					return True, None
+				self._contracts = [c.as_dict() for c in contracts]
 
 		return True, None
 
@@ -206,8 +281,8 @@ class Fetcher(object):
 		return True, None
 
 	@errors.return_error_tuple
-	def fetch(self) -> Tuple[bool, errors.Error]:
-		_, err = self._fetch_contracts()
+	def fetch(self, today: datetime.date) -> Tuple[bool, errors.Error]:
+		_, err = self._fetch_contracts(today)
 		if err:
 			raise err
 
