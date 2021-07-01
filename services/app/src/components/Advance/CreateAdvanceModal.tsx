@@ -1,7 +1,11 @@
+import { Box } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import AdvanceForm from "components/Advance/AdvanceForm";
+import LoansDataGrid from "components/Loans/LoansDataGrid";
 import Modal from "components/Shared/Modal/Modal";
 import {
   Loans,
+  LoanTypeEnum,
   PaymentsInsertInput,
   useGetLoansByLoanIdsQuery,
 } from "generated/graphql";
@@ -15,6 +19,7 @@ import {
   SettlementTimelineConfigForBankAdvance,
 } from "lib/finance/payments/advance";
 import { useEffect, useState } from "react";
+import { uniq } from "lodash";
 
 interface Props {
   selectedLoanIds: Loans["id"];
@@ -37,7 +42,7 @@ export default function CreateAdvanceModal({
   const [payment, setPayment] = useState(newPayment);
   const [shouldChargeWireFee, setShouldChargeWireFee] = useState(false);
 
-  const { data } = useGetLoansByLoanIdsQuery({
+  const { data, error } = useGetLoansByLoanIdsQuery({
     variables: {
       loan_ids: selectedLoanIds,
     },
@@ -49,6 +54,11 @@ export default function CreateAdvanceModal({
       });
     },
   });
+
+  if (error) {
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
+  }
 
   const selectedLoans = data?.loans || [];
 
@@ -122,22 +132,57 @@ export default function CreateAdvanceModal({
   const isFormLoading = isCreateAdvanceLoading;
   const isSubmitDisabled = !isFormValid || isFormLoading;
 
-  return isDialogReady ? (
+  const allRecipients = selectedLoans.map((loan) => {
+    if (loan.loan_type === LoanTypeEnum.PurchaseOrder) {
+      return loan.purchase_order?.vendor_id;
+    }
+    if (loan.loan_type === LoanTypeEnum.LineOfCredit) {
+      return loan.line_of_credit?.recipient_vendor_id || loan.company_id;
+    }
+    return loan.company_id;
+  });
+  const uniqueRecipients = uniq(allRecipients);
+  const isOnlyOneRecipient = uniqueRecipients.length <= 1;
+
+  if (!isDialogReady) {
+    return null;
+  }
+
+  return (
     <Modal
       isPrimaryActionDisabled={isSubmitDisabled}
       title={"Create Advance(s)"}
-      contentWidth={1000}
+      contentWidth={800}
       primaryActionText={"Submit"}
       handleClose={handleClose}
       handlePrimaryAction={handleClickSubmit}
     >
-      <AdvanceForm
-        selectedLoans={selectedLoans}
-        payment={payment}
-        setPayment={setPayment}
-        shouldChargeWireFee={shouldChargeWireFee}
-        setShouldChargeWireFee={setShouldChargeWireFee}
-      />
+      <Box mt={4}>
+        <LoansDataGrid
+          isArtifactVisible
+          isCompanyVisible
+          isSortingDisabled
+          isStatusVisible={false}
+          loans={selectedLoans}
+        />
+      </Box>
+      {isOnlyOneRecipient ? (
+        <AdvanceForm
+          payment={payment}
+          setPayment={setPayment}
+          shouldChargeWireFee={shouldChargeWireFee}
+          setShouldChargeWireFee={setShouldChargeWireFee}
+        />
+      ) : (
+        <Box>
+          <Alert severity="warning">
+            You've selected loans corresponding to <b>MULTIPLE</b> recipient
+            bank accounts. This is not allowed: an advance may only be sent to
+            one recipient bank account. Please select different loans and try
+            again.
+          </Alert>
+        </Box>
+      )}
     </Modal>
-  ) : null;
+  );
 }

@@ -155,6 +155,7 @@ fragment InvoiceLimited on invoices {
 
 fragment LoanLimited on loans {
   id
+  company_id
   loan_type
   artifact_id
   identifier

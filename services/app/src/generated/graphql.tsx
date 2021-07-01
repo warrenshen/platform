@@ -20941,6 +20941,7 @@ export type InvoiceLimitedFragment = Pick<
 export type LoanLimitedFragment = Pick<
   Loans,
   | "id"
+  | "company_id"
   | "loan_type"
   | "artifact_id"
   | "identifier"
@@ -21393,6 +21394,7 @@ export const VendorFragmentDoc = gql`
 export const LoanLimitedFragmentDoc = gql`
   fragment LoanLimited on loans {
     id
+    company_id
     loan_type
     artifact_id
     identifier
@@ -24187,7 +24189,7 @@ export const GetNotFundedLoansForBankDocument = gql`
           { closed_at: { _is_null: true } }
         ]
       }
-      order_by: { requested_payment_date: asc }
+      order_by: [{ requested_payment_date: asc }, { company_id: asc }]
     ) {
       id
       ...Loan

@@ -11,9 +11,8 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import LoansDataGrid from "components/Loans/LoansDataGrid";
 import DateInput from "components/Shared/FormInputs/DateInput";
-import { GetLoansByLoanIdsQuery, PaymentsInsertInput } from "generated/graphql";
+import { PaymentsInsertInput } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
 import { ChangeEvent } from "react";
@@ -28,7 +27,6 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   payment: PaymentsInsertInput;
-  selectedLoans: GetLoansByLoanIdsQuery["loans"];
   setPayment: (payment: PaymentsInsertInput) => void;
   shouldChargeWireFee: boolean;
   setShouldChargeWireFee: (val: boolean) => void;
@@ -36,7 +34,6 @@ interface Props {
 
 export default function AdvanceForm({
   payment,
-  selectedLoans,
   setPayment,
   shouldChargeWireFee,
   setShouldChargeWireFee,
@@ -47,22 +44,13 @@ export default function AdvanceForm({
     <Box display="flex" flexDirection="column">
       <Box mt={4}>
         <Typography>
-          You are recording advances(s) for the following loans. Please enter in
-          information for the advance(s) and then press "Submit".
+          You are creating an advance for the loan(s) shown above. Please enter
+          in information for the advance and then press "Submit".
         </Typography>
       </Box>
       <Box mt={4}>
-        <LoansDataGrid
-          isArtifactVisible
-          isCompanyVisible
-          isSortingDisabled
-          isStatusVisible={false}
-          loans={selectedLoans}
-        />
-      </Box>
-      <Box mt={4}>
         <Typography variant="body2" color="textSecondary">
-          Amount
+          Total Amount
         </Typography>
         <Typography variant="body1">
           {formatCurrency(payment.amount)}
@@ -148,12 +136,6 @@ export default function AdvanceForm({
             }
             label={"Charge Wire Fee?"}
           />
-          <Box>
-            <Typography variant="body2" color="textSecondary">
-              If there are multiple customers, a Wire Fee will be recorded for
-              each customer.
-            </Typography>
-          </Box>
         </Box>
       )}
     </Box>
