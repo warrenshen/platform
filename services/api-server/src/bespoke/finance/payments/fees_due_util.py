@@ -229,6 +229,20 @@ def create_loc_reverse_draft_for_customers(
 		fee_dict = val_info['fee_info']
 		amount_due = fee_dict['amount_short']
 
+		customer = cast(
+			models.Company,
+			session.query(models.Company).get(customer_id))
+
+		if not customer.company_settings_id:
+			return None, errors.Error(f'[DATA ERROR] Company {customer_id} is missing company settings id')
+
+		company_settings = cast(
+			models.CompanySettings,
+			session.query(models.CompanySettings).get(str(customer.company_settings_id)))
+
+		if not company_settings.collections_bank_account_id:
+			return None, errors.Error(f'Company {customer.name} does not have bank account to reverse payments from configured')
+
 		_, err = repayment_util.create_repayment(
 			company_id=customer_id,
 			payment_insert_input=payment_types.PaymentInsertInputDict(
@@ -240,7 +254,7 @@ def create_loc_reverse_draft_for_customers(
 				requested_payment_date=date_util.date_to_str(requested_date),
 				payment_date=None,
 				settlement_date=None,
-				company_bank_account_id=None, # TODO(warren): Fill it in
+				company_bank_account_id=str(company_settings.collections_bank_account_id),
 				items_covered=dict(
 					requested_to_principal=0.0,
 					requested_to_interest=val_info['total_outstanding_interest'],

@@ -8,7 +8,7 @@ import {
   submitAllMonthlyLOCFeesDueMutation,
 } from "lib/api/fees";
 import { useState } from "react";
-import LOCMonthlyFeesDataGrid from "components/Fee/LOCMonthlyFeesDataGrid";
+import LOCMonthEndPaymentsDataGrid from "components/Fee/LOCMonthEndPaymentsDataGrid";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import { formatDateStringAsMonth } from "lib/date";
 
@@ -136,18 +136,19 @@ export default function CreateReverseDraftLOCFeesModal({ handleClose }: Props) {
             <Box mt={4}>
               <Typography variant="body1">
                 Based on customer financials for the month you selected, here
-                are the LOC interest fees to create. Please double check these
-                values and press "Submit" to create these LOC interest fees.
+                are the LOC month-end reverse draft ACH payments to create.
+                Please double check these values and press "Submit" to create
+                these payments.
               </Typography>
               <Box mt={2}>
                 <Alert severity="warning">
-                  Note: if you've previously created LOC interest fees for the
-                  selected month, pressing "Submit" will create a duplicate set
-                  of fees.
+                  Note: if you've previously created LOC month-end payments for
+                  the selected month, pressing "Submit" will create a duplicate
+                  set of payments.
                 </Alert>
               </Box>
             </Box>
-            <LOCMonthlyFeesDataGrid minimumLOCFees={minimumLOCFees} />
+            <LOCMonthEndPaymentsDataGrid minimumLOCFees={minimumLOCFees} />
           </Box>
         )}
       </Box>

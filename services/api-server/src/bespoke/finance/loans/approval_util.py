@@ -199,7 +199,6 @@ def submit_for_approval(
 
 	if meets_noon_cutoff_err:
 		raise errors.Error('Cannot set the requested payment date to {} because {}'.format(loan.requested_payment_date, meets_noon_cutoff_err))
-			#it is currently after 12 noon in your timezone. Please select the next day'.format(loan.requested_payment_date))
 
 	customer_name = None
 	loan_html = None

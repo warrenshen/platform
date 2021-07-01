@@ -23,7 +23,7 @@ interface Props {
   minimumLOCFees: any;
 }
 
-export default function LOCMonthlyFeesDataGrid({
+export default function LOCMonthEndPaymentsDataGrid({
   isExcelExport = true,
   minimumLOCFees,
 }: Props) {
@@ -38,7 +38,7 @@ export default function LOCMonthlyFeesDataGrid({
       },
       {
         dataField: "fee_amount",
-        caption: "Amount to Reverse Draft ACH",
+        caption: "Payment Total Amount",
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.fee_amount} />
@@ -46,7 +46,7 @@ export default function LOCMonthlyFeesDataGrid({
       },
       {
         dataField: "total_outstanding_interest",
-        caption: "Total Outstanding Interest",
+        caption: "Amount To Accrued Interest",
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell
@@ -56,7 +56,7 @@ export default function LOCMonthlyFeesDataGrid({
       },
       {
         dataField: "fee_due",
-        caption: "Minimum Interest Fee Amount",
+        caption: "Amount To Minimum Interest Fee",
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
