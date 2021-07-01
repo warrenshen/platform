@@ -86,8 +86,8 @@ export default function CustomerSettings({
             advances to.
           </Typography>
           <Typography variant="body2">
-            Collections Bank Account: bank account that you want Bespoke
-            Financial to initiate reverse draft ACHs from.
+            Reverses Bank Account: bank account that you want Bespoke Financial
+            to initiate reverse draft ACHs from.
           </Typography>
           <Box display="flex" mt={2}>
             <Box display="flex" mr={2}>

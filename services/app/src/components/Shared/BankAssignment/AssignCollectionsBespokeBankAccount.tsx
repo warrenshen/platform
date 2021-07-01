@@ -22,7 +22,7 @@ export default function AssignCollectionsBespokeBankAccount(props: Props) {
   return (
     <BespokeBankAssignment
       {...props}
-      label="Collections BF Bank Account"
+      label="BF Payments Bank Account"
       onAssignment={async (bankAccount: BankAccountFragment | null) => {
         const response = await assignCollectionsBankAccount({
           variables: {
@@ -32,11 +32,11 @@ export default function AssignCollectionsBespokeBankAccount(props: Props) {
         });
         if (!response.data?.update_company_settings_by_pk) {
           snackbar.showError(
-            `Could not assign collections Bespoke Financial bank account.`
+            `Could not assign Bespoke Financial payments bank account.`
           );
         } else {
           snackbar.showSuccess(
-            "Collections Bespoke Financial bank account assigned."
+            "Bespoke Financial payments bank account assigned."
           );
           props.handleDataChange();
         }

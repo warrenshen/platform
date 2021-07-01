@@ -78,9 +78,11 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
             Additional Settings (Bank User Only)
           </Typography>
           <Box mt={2}>
-            <Alert severity="info">
-              Note: the settings below are only visible by bank users (you are a
-              bank user).
+            <Alert severity="warning">
+              <Typography variant={"body1"}>
+                Note: the settings below are ONLY visible to bank users (you are
+                a bank user).
+              </Typography>
             </Alert>
           </Box>
         </Box>
@@ -89,10 +91,11 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
             <b>Bespoke Financial Bank Accounts</b>
           </Typography>
           <Typography variant="body2">
-            Advances Bank Account: BF bank account that BF sends advances from.
+            BF Advances Bank Account: BF bank account that BF sends advances
+            from.
           </Typography>
           <Typography variant="body2">
-            Collections Bank Account: BF bank account that customer should send
+            BF Payments Bank Account: BF bank account that customer should send
             payments to.
           </Typography>
           <Box display="flex">

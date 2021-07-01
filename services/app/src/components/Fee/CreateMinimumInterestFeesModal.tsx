@@ -62,7 +62,7 @@ export default function CreateMinimumInterestFeesModal({ handleClose }: Props) {
       snackbar.showError(`Error: ${response.msg}`);
     } else {
       snackbar.showSuccess(
-        "Fees created for customers who have monthly, quarterly or annual interest minimums."
+        "Fees created for customers who have monthly, quarterly, or annual interest minimums."
       );
       handleClose();
     }

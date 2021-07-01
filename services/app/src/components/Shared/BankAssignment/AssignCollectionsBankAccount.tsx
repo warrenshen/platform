@@ -24,7 +24,7 @@ export default function AssignCollectionsBankAccount(props: Props) {
   return (
     <CompanyBankAssignment
       {...props}
-      label="Collections Bank Account"
+      label="Reverses Bank Account"
       onAssignment={async (bankAccount: BankAccountLimitedFragment | null) => {
         const response = await assignCollectionsBankAccount({
           variables: {
@@ -33,9 +33,9 @@ export default function AssignCollectionsBankAccount(props: Props) {
           },
         });
         if (!response.data?.update_company_settings_by_pk) {
-          snackbar.showError(`Could not assign collections bank account.`);
+          snackbar.showError(`Could not assign reverses bank account.`);
         } else {
-          snackbar.showSuccess("Collections bank account assigned.");
+          snackbar.showSuccess("Reverses bank account assigned.");
           props.handleDataChange();
         }
       }}

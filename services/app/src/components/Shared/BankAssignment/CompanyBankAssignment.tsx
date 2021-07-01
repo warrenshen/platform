@@ -86,11 +86,7 @@ export default function CompanyBankAssignment({
         </FormControl>
         <Box mt={2} width="fit-content">
           {assignedBankAccount && (
-            <BankAccountInfoCard
-              isCannabisCompliantVisible
-              isVerificationVisible
-              bankAccount={assignedBankAccount}
-            />
+            <BankAccountInfoCard bankAccount={assignedBankAccount} />
           )}
         </Box>
       </Box>
