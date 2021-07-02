@@ -53,7 +53,7 @@ export default function ApprovePayor({
     }
     if (hasNoCollectionsBankAccount) {
       snackbar.showError(
-        "Payor does not have a reverses bank account assigned to it yet"
+        "Payor does not have a payments bank account assigned to it yet"
       );
       return false;
     }

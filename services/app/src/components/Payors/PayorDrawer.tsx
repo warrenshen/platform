@@ -101,7 +101,7 @@ export default function PayorDrawer({ partnershipId, handleClose }: Props) {
           <ThirdPartyInfo
             company={omit(payor, ["users"])}
             editAction={Action.EditVendor}
-          />{" "}
+          />
         </Box>
         <Typography variant="h6">Contacts</Typography>
         <ContactsList
@@ -115,6 +115,12 @@ export default function PayorDrawer({ partnershipId, handleClose }: Props) {
           Specify which Bespoke Financial bank account Payor will send payments
           to:
         </Typography>
+        {hasNoCollectionsBankAccount && (
+          <Typography variant="body2" color="secondary">
+            Warning: BF bank account for payor to send payments to NOT assigned
+            yet.
+          </Typography>
+        )}
         <Box display="flex" mt={1}>
           <AssignCollectionsBespokeBankAccount
             companySettingsId={payor.settings?.id}

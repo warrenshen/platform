@@ -5,11 +5,13 @@ import Can from "components/Shared/Can";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   BankAccountFragment,
+  BankAccounts,
   Companies,
   CompanyVendorPartnerships,
   useChangeBankAccountMutation,
   useCompanyBankAccountsQuery,
 } from "generated/graphql";
+import useSnackbar from "hooks/useSnackbar";
 import { Action, check } from "lib/auth/rbac-rules";
 import { useContext, useState } from "react";
 
@@ -22,24 +24,50 @@ const useStyles = makeStyles({
   },
 });
 
-function BankAccount(props: {
+interface Props {
   companyId: Companies["id"];
   companyVendorPartnershipId: CompanyVendorPartnerships["id"];
   bankAccount?: BankAccountFragment | null;
-}) {
+  handleDataChange: () => void;
+}
+
+export default function BankAccount({
+  companyId,
+  companyVendorPartnershipId,
+  bankAccount,
+  handleDataChange,
+}: Props) {
   const classes = useStyles();
+  const snackbar = useSnackbar();
+
   const {
     user: { role },
   } = useContext(CurrentUserContext);
 
+  const [addingNewAccount, setAddingNewAccount] = useState(false);
+
   const { data, refetch } = useCompanyBankAccountsQuery({
     variables: {
-      companyId: props.companyId,
+      companyId,
     },
   });
   const [changeBankAccount] = useChangeBankAccountMutation();
 
-  const [addingNewAccount, setAddingNewAccount] = useState(false);
+  const handleChangeBankAccount = async (bankAccountId: BankAccounts["id"]) => {
+    const response = await changeBankAccount({
+      variables: {
+        bankAccountId: bankAccountId,
+        companyVendorPartnershipId: companyVendorPartnershipId,
+      },
+    });
+
+    if (!response.data?.update_company_vendor_partnerships_by_pk) {
+      snackbar.showError(`Could not assign bank account`);
+    } else {
+      snackbar.showSuccess(`Bank account assignment saved.`);
+      handleDataChange();
+    }
+  };
 
   return (
     <Box display="flex" flexDirection="column">
@@ -49,24 +77,10 @@ function BankAccount(props: {
             <Select
               className={classes.selectInput}
               variant="outlined"
-              value={props.bankAccount?.id || "None"}
-              onChange={({ target: { value } }) => {
-                changeBankAccount({
-                  variables: {
-                    bankAccountId: value === "None" ? null : value,
-                    companyVendorPartnershipId:
-                      props.companyVendorPartnershipId,
-                  },
-                  optimisticResponse: {
-                    update_company_vendor_partnerships_by_pk: {
-                      id: props.companyVendorPartnershipId,
-                      vendor_bank_account: data.bank_accounts.find(
-                        (bank) => bank.id === value
-                      ),
-                    },
-                  },
-                });
-              }}
+              value={bankAccount?.id || "None"}
+              onChange={({ target: { value } }) =>
+                handleChangeBankAccount(value === "None" ? null : value)
+              }
             >
               <MenuItem key="none" value="None">
                 {`None (${data.bank_accounts.length} available)`}
@@ -97,7 +111,7 @@ function BankAccount(props: {
       <Box mb={3}>
         {addingNewAccount && (
           <CreateUpdateBankAccountModal
-            companyId={props.companyId}
+            companyId={companyId}
             existingBankAccount={null}
             handleClose={() => {
               refetch();
@@ -105,13 +119,13 @@ function BankAccount(props: {
             }}
           />
         )}
-        {props.bankAccount && (
+        {!!bankAccount && (
           <Box width="fit-content" mt={2}>
             <BankAccountInfoCard
               isCannabisCompliantVisible
               isEditAllowed={check(role, Action.EditBankAccount)}
               isVerificationVisible
-              bankAccount={props.bankAccount}
+              bankAccount={bankAccount}
             />
           </Box>
         )}
@@ -119,5 +133,3 @@ function BankAccount(props: {
     </Box>
   );
 }
-
-export default BankAccount;

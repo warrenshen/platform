@@ -53,7 +53,7 @@ interface Props {
   onClose: () => void;
 }
 
-function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
+export default function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
 
@@ -124,7 +124,7 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
         <Typography variant="h6">Bank Information</Typography>
         {!isVendorBankAccountValid && (
           <Typography variant="body2" color="secondary">
-            Warning: vendor bank account NOT configured yet.
+            Warning: vendor bank account to send advances to NOT assigned yet.
           </Typography>
         )}
         <Typography variant="subtitle2">
@@ -139,6 +139,7 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
             bankAccount={
               data.company_vendor_partnerships_by_pk.vendor_bank_account
             }
+            handleDataChange={refetch}
           />
         </Box>
         <Box display="flex" flexDirection="column">
@@ -289,5 +290,3 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
     </Drawer>
   );
 }
-
-export default VendorDrawer;

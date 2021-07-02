@@ -12,7 +12,11 @@ interface Props {
   handleDataChange: () => void;
 }
 
-export default function AssignCollectionsBespokeBankAccount(props: Props) {
+export default function AssignCollectionsBespokeBankAccount({
+  companySettingsId,
+  assignedBespokeBankAccount,
+  handleDataChange,
+}: Props) {
   const snackbar = useSnackbar();
 
   const [
@@ -21,13 +25,13 @@ export default function AssignCollectionsBespokeBankAccount(props: Props) {
 
   return (
     <BespokeBankAssignment
-      {...props}
       label="BF Payments Bank Account"
+      assignedBespokeBankAccount={assignedBespokeBankAccount}
       onAssignment={async (bankAccount: BankAccountFragment | null) => {
         const response = await assignCollectionsBankAccount({
           variables: {
             bankAccountId: bankAccount?.id,
-            companySettingsId: props.companySettingsId,
+            companySettingsId: companySettingsId,
           },
         });
         if (!response.data?.update_company_settings_by_pk) {
@@ -38,7 +42,7 @@ export default function AssignCollectionsBespokeBankAccount(props: Props) {
           snackbar.showSuccess(
             "Bespoke Financial payments bank account assigned."
           );
-          props.handleDataChange();
+          handleDataChange();
         }
       }}
     />
