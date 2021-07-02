@@ -225,28 +225,27 @@ export default function CustomerPurchaseOrdersOpenTab({
               </Button>
             </Box>
           </Can>
-          {selectedNotApprovedPurchaseOrder &&
-            !selectedNotApprovedPurchaseOrder.requested_at && (
-              <Can perform={Action.DeletePurchaseOrders}>
-                <Box mr={2}>
-                  <ModalButton
-                    isDisabled={!selectedNotApprovedPurchaseOrder}
-                    label={"Delete PO"}
-                    variant={"outlined"}
-                    modal={({ handleClose }) => (
-                      <DeletePurchaseOrderModal
-                        purchaseOrderId={selectedNotApprovedPurchaseOrderIds[0]}
-                        handleClose={() => {
-                          refetch();
-                          handleClose();
-                          setSelectedNotApprovedPurchaseOrderIds([]);
-                        }}
-                      />
-                    )}
-                  />
-                </Box>
-              </Can>
-            )}
+          {!!selectedNotApprovedPurchaseOrder && (
+            <Can perform={Action.DeletePurchaseOrders}>
+              <Box mr={2}>
+                <ModalButton
+                  isDisabled={!selectedNotApprovedPurchaseOrder}
+                  label={"Delete PO"}
+                  variant={"outlined"}
+                  modal={({ handleClose }) => (
+                    <DeletePurchaseOrderModal
+                      purchaseOrderId={selectedNotApprovedPurchaseOrderIds[0]}
+                      handleClose={() => {
+                        refetch();
+                        handleClose();
+                        setSelectedNotApprovedPurchaseOrderIds([]);
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+            </Can>
+          )}
         </Box>
         <Box>
           <PurchaseOrdersDataGrid
@@ -314,6 +313,27 @@ export default function CustomerPurchaseOrdersOpenTab({
                 />
               </Box>
             </Can>
+            {!!selectedApprovedPurchaseOrder && (
+              <Can perform={Action.DeletePurchaseOrders}>
+                <Box mr={2}>
+                  <ModalButton
+                    isDisabled={!selectedApprovedPurchaseOrder}
+                    label={"Delete PO"}
+                    variant={"outlined"}
+                    modal={({ handleClose }) => (
+                      <DeletePurchaseOrderModal
+                        purchaseOrderId={selectedApprovedPurchaseOrder?.id}
+                        handleClose={() => {
+                          refetch();
+                          handleClose();
+                          setSelectedApprovedPurchaseOrderIds([]);
+                        }}
+                      />
+                    )}
+                  />
+                </Box>
+              </Can>
+            )}
           </Box>
           <PurchaseOrdersDataGrid
             isCompanyVisible={false}

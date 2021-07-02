@@ -136,140 +136,150 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
   return (
     <Box className={classes.wrapper}>
       <Box className={classes.container}>
-        <Box display="flex" flexDirection="column">
-          <Typography variant="h5">{`${purchaseOrder.vendor?.name}, your approval is requested`}</Typography>
-          <Box mt={1}>
-            <Typography variant="body2">
-              This purchase order requires your approval before Bespoke
-              Financial can finance it. Please review the information and select
-              either approve or reject.
-            </Typography>
+        {!!purchaseOrder.is_deleted ? (
+          <Box display="flex" flexDirection="column">
+            <Typography variant="h5">Purchase order is deleted</Typography>
           </Box>
-        </Box>
-        {isMetrcBased && (
-          <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="body2" color="textSecondary">
-              Related manifest(s) from Metrc
-            </Typography>
-            {metrcTransfers.map((metrcTransfer) => (
-              <Box
-                key={metrcTransfer.id}
-                display="flex"
-                flexDirection="column"
-                mt={1}
-              >
-                <MetrcTransferInfoCardForVendor metrcTransfer={metrcTransfer} />
+        ) : (
+          <>
+            <Box display="flex" flexDirection="column">
+              <Typography variant="h5">{`${purchaseOrder.vendor?.name}, your approval is requested`}</Typography>
+              <Box mt={1}>
+                <Typography variant="body2">
+                  This purchase order requires your approval before Bespoke
+                  Financial can finance it. Please review the information and
+                  select either approve or reject.
+                </Typography>
               </Box>
-            ))}
-          </Box>
+            </Box>
+            {isMetrcBased && (
+              <Box display="flex" flexDirection="column" mt={2}>
+                <Typography variant="body2" color="textSecondary">
+                  Related manifest(s) from Metrc
+                </Typography>
+                {metrcTransfers.map((metrcTransfer) => (
+                  <Box
+                    key={metrcTransfer.id}
+                    display="flex"
+                    flexDirection="column"
+                    mt={1}
+                  >
+                    <MetrcTransferInfoCardForVendor
+                      metrcTransfer={metrcTransfer}
+                    />
+                  </Box>
+                ))}
+              </Box>
+            )}
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Buyer
+              </Typography>
+              <Typography variant={"body1"}>
+                {purchaseOrder.company?.name}
+              </Typography>
+            </Box>
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                PO Number
+              </Typography>
+              <Typography variant={"body1"}>
+                {purchaseOrder.order_number}
+              </Typography>
+            </Box>
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Amount
+              </Typography>
+              <Typography variant={"body1"}>
+                {formatCurrency(purchaseOrder.amount)}
+              </Typography>
+            </Box>
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                PO Date
+              </Typography>
+              <Typography variant={"body1"}>
+                {formatDateString(purchaseOrder.order_date)}
+              </Typography>
+            </Box>
+            {!isMetrcBased && (
+              <Box display="flex" flexDirection="column" mt={2}>
+                <Typography variant="subtitle2" color="textSecondary">
+                  Delivery Date
+                </Typography>
+                <Typography variant={"body1"}>
+                  {formatDateString(purchaseOrder.delivery_date)}
+                </Typography>
+              </Box>
+            )}
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Purchase Order File
+              </Typography>
+              <DownloadThumbnail
+                fileIds={purchaseOrderFileIds}
+                fileType={FileTypeEnum.PURCHASE_ORDER}
+              />
+            </Box>
+            {!isMetrcBased && purchaseOrder.is_cannabis && (
+              <Box display="flex" flexDirection="column" mt={2}>
+                <Typography variant="subtitle2" color="textSecondary">
+                  Cannabis or Derivatives File(s)
+                </Typography>
+                <DownloadThumbnail
+                  fileIds={purchaseOrderCannabisFileIds}
+                  fileType={FileTypeEnum.PURCHASE_ORDER}
+                />
+              </Box>
+            )}
+            <Box display="flex" justifyContent="center" mt={6}>
+              {isApproveModalOpen && (
+                <ReviewPurchaseOrderApproveModal
+                  purchaseOrder={purchaseOrder}
+                  linkVal={linkVal}
+                  handleClose={() => setIsApproveModalOpen(false)}
+                  handleApproveSuccess={() => {
+                    history.push({
+                      pathname: anonymousRoutes.reviewPurchaseOrderComplete,
+                    });
+                  }}
+                />
+              )}
+              {isRejectModalOpen && (
+                <ReviewPurchaseOrderRejectModal
+                  purchaseOrderId={purchaseOrder.id}
+                  linkVal={linkVal}
+                  handleClose={() => setIsRejectModalOpen(false)}
+                  handleRejectSuccess={() =>
+                    history.push({
+                      pathname: anonymousRoutes.reviewPurchaseOrderComplete,
+                    })
+                  }
+                />
+              )}
+              <Buttons>
+                <StyledButton
+                  disabled={false}
+                  onClick={() => setIsRejectModalOpen(true)}
+                  variant={"outlined"}
+                  color={"default"}
+                >
+                  Reject
+                </StyledButton>
+                <ButtonSpace />
+                <StyledButton
+                  disabled={false}
+                  onClick={() => setIsApproveModalOpen(true)}
+                  variant={"contained"}
+                  color={"primary"}
+                >
+                  Approve
+                </StyledButton>
+              </Buttons>
+            </Box>
+          </>
         )}
-        <Box display="flex" flexDirection="column" mt={2}>
-          <Typography variant="subtitle2" color="textSecondary">
-            Buyer
-          </Typography>
-          <Typography variant={"body1"}>
-            {purchaseOrder.company?.name}
-          </Typography>
-        </Box>
-        <Box display="flex" flexDirection="column" mt={2}>
-          <Typography variant="subtitle2" color="textSecondary">
-            PO Number
-          </Typography>
-          <Typography variant={"body1"}>
-            {purchaseOrder.order_number}
-          </Typography>
-        </Box>
-        <Box display="flex" flexDirection="column" mt={2}>
-          <Typography variant="subtitle2" color="textSecondary">
-            Amount
-          </Typography>
-          <Typography variant={"body1"}>
-            {formatCurrency(purchaseOrder.amount)}
-          </Typography>
-        </Box>
-        <Box display="flex" flexDirection="column" mt={2}>
-          <Typography variant="subtitle2" color="textSecondary">
-            PO Date
-          </Typography>
-          <Typography variant={"body1"}>
-            {formatDateString(purchaseOrder.order_date)}
-          </Typography>
-        </Box>
-        {!isMetrcBased && (
-          <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="subtitle2" color="textSecondary">
-              Delivery Date
-            </Typography>
-            <Typography variant={"body1"}>
-              {formatDateString(purchaseOrder.delivery_date)}
-            </Typography>
-          </Box>
-        )}
-        <Box display="flex" flexDirection="column" mt={2}>
-          <Typography variant="subtitle2" color="textSecondary">
-            Purchase Order File
-          </Typography>
-          <DownloadThumbnail
-            fileIds={purchaseOrderFileIds}
-            fileType={FileTypeEnum.PURCHASE_ORDER}
-          />
-        </Box>
-        {!isMetrcBased && purchaseOrder.is_cannabis && (
-          <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="subtitle2" color="textSecondary">
-              Cannabis or Derivatives File(s)
-            </Typography>
-            <DownloadThumbnail
-              fileIds={purchaseOrderCannabisFileIds}
-              fileType={FileTypeEnum.PURCHASE_ORDER}
-            />
-          </Box>
-        )}
-        <Box display="flex" justifyContent="center" mt={6}>
-          {isApproveModalOpen && (
-            <ReviewPurchaseOrderApproveModal
-              purchaseOrder={purchaseOrder}
-              linkVal={linkVal}
-              handleClose={() => setIsApproveModalOpen(false)}
-              handleApproveSuccess={() => {
-                history.push({
-                  pathname: anonymousRoutes.reviewPurchaseOrderComplete,
-                });
-              }}
-            />
-          )}
-          {isRejectModalOpen && (
-            <ReviewPurchaseOrderRejectModal
-              purchaseOrderId={purchaseOrder.id}
-              linkVal={linkVal}
-              handleClose={() => setIsRejectModalOpen(false)}
-              handleRejectSuccess={() =>
-                history.push({
-                  pathname: anonymousRoutes.reviewPurchaseOrderComplete,
-                })
-              }
-            />
-          )}
-          <Buttons>
-            <StyledButton
-              disabled={false}
-              onClick={() => setIsRejectModalOpen(true)}
-              variant={"outlined"}
-              color={"default"}
-            >
-              Reject
-            </StyledButton>
-            <ButtonSpace />
-            <StyledButton
-              disabled={false}
-              onClick={() => setIsApproveModalOpen(true)}
-              variant={"contained"}
-              color={"primary"}
-            >
-              Approve
-            </StyledButton>
-          </Buttons>
-        </Box>
       </Box>
     </Box>
   );

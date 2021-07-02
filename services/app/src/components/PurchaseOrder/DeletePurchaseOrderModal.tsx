@@ -52,7 +52,9 @@ function DeletePurchaseOrderModal({ purchaseOrderId, handleClose }: Props) {
       },
     });
     if (response.status !== "OK") {
-      snackbar.showError(`Error! Message: ${response.msg}`);
+      snackbar.showError(
+        `Could not delete purchase order. Error: ${response.msg}`
+      );
     } else {
       snackbar.showSuccess("Purchase order deleted.");
       handleClose();

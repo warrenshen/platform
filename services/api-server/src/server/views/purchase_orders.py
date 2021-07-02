@@ -358,15 +358,19 @@ class DeleteView(MethodView):
 			if not user_session.is_bank_or_this_company_admin(str(purchase_order.company_id)):
 				return handler_util.make_error_response('Access Denied')
 
-			if (
-				purchase_order.requested_at or
-				purchase_order.approved_at or
-				purchase_order.rejected_at
-			):
-				raise errors.Error('Purchase Order is not a draft')
+			loans = cast(
+				List[models.Loan],
+				session.query(models.Loan).filter(
+					cast(Callable, models.Loan.is_deleted.isnot)(True)
+				).filter(
+					models.Loan.artifact_id == purchase_order_id
+				).all())
+
+			if len(loans) > 0:
+				raise errors.Error('Purchase order is associated with loan(s) and cannot be deleted')
 
 			if purchase_order.is_deleted:
-				raise errors.Error('Purchase Order is already deleted')
+				raise errors.Error('Purchase order is already deleted')
 
 			purchase_order.is_deleted = True
 

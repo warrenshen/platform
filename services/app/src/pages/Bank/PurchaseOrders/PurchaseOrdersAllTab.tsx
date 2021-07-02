@@ -1,7 +1,15 @@
 import { Box, TextField } from "@material-ui/core";
+import DeletePurchaseOrderModal from "components/PurchaseOrder/DeletePurchaseOrderModal";
 import PurchaseOrdersDataGrid from "components/PurchaseOrder/PurchaseOrdersDataGrid";
-import { useGetPurchaseOrdersSubscription } from "generated/graphql";
+import Can from "components/Shared/Can";
+import ModalButton from "components/Shared/Modal/ModalButton";
+import {
+  PurchaseOrderFragment,
+  PurchaseOrders,
+  useGetPurchaseOrdersSubscription,
+} from "generated/graphql";
 import { useHistory } from "react-router-dom";
+import { Action } from "lib/auth/rbac-rules";
 import { filter } from "lodash";
 import { useMemo, useState } from "react";
 
@@ -28,6 +36,29 @@ export default function BankPurchaseOrdersAllTab() {
     return filteredPurchaseOrders;
   }, [searchQuery, data?.purchase_orders]);
 
+  const [selectedPurchaseOrderIds, setSelectedPurchaseOrderIds] = useState<
+    PurchaseOrders["id"]
+  >([]);
+
+  const selectedPurchaseOrder = useMemo(
+    () =>
+      selectedPurchaseOrderIds.length === 1
+        ? purchaseOrders.find(
+            (purchaseOrder) => purchaseOrder.id === selectedPurchaseOrderIds[0]
+          )
+        : null,
+    [purchaseOrders, selectedPurchaseOrderIds]
+  );
+
+  const handleSelectPurchaseOrders = useMemo(
+    () => (purchaseOrders: PurchaseOrderFragment[]) => {
+      setSelectedPurchaseOrderIds(
+        purchaseOrders.map((purchaseOrder) => purchaseOrder.id)
+      );
+    },
+    [setSelectedPurchaseOrderIds]
+  );
+
   return (
     <Box mt={3}>
       <Box
@@ -45,6 +76,28 @@ export default function BankPurchaseOrdersAllTab() {
             style={{ width: 400 }}
           />
         </Box>
+        <Box display="flex" flexDirection="row-reverse">
+          <Can perform={Action.DeletePurchaseOrders}>
+            <Box>
+              <ModalButton
+                isDisabled={selectedPurchaseOrderIds.length !== 1}
+                label={"Delete PO"}
+                variant={"outlined"}
+                modal={({ handleClose }) =>
+                  selectedPurchaseOrder ? (
+                    <DeletePurchaseOrderModal
+                      purchaseOrderId={selectedPurchaseOrder.id}
+                      handleClose={() => {
+                        handleClose();
+                        setSelectedPurchaseOrderIds([]);
+                      }}
+                    />
+                  ) : null
+                }
+              />
+            </Box>
+          </Can>
+        </Box>
       </Box>
       <Box display="flex" flexDirection="column">
         <PurchaseOrdersDataGrid
@@ -52,9 +105,11 @@ export default function BankPurchaseOrdersAllTab() {
           isCompanyVisible
           isCustomerNoteVisible={false}
           purchaseOrders={purchaseOrders}
+          selectedPurchaseOrderIds={selectedPurchaseOrderIds}
           handleClickCustomer={(customerId) =>
             history.push(`/customers/${customerId}/purchase-orders`)
           }
+          handleSelectPurchaseOrders={handleSelectPurchaseOrders}
         />
       </Box>
     </Box>

@@ -19764,6 +19764,7 @@ export type GetPurchaseOrderForReviewQuery = {
       | "amount"
       | "is_cannabis"
       | "is_metrc_based"
+      | "is_deleted"
       | "status"
       | "created_at"
     > & {
@@ -25197,6 +25198,7 @@ export const GetPurchaseOrderForReviewDocument = gql`
       amount
       is_cannabis
       is_metrc_based
+      is_deleted
       status
       created_at
       purchase_order_files {

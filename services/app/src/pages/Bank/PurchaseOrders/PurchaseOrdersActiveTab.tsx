@@ -1,5 +1,6 @@
 import { Box, TextField } from "@material-ui/core";
 import ApprovePurchaseOrderModal from "components/PurchaseOrder/ApprovePurchaseOrderModal";
+import DeletePurchaseOrderModal from "components/PurchaseOrder/DeletePurchaseOrderModal";
 import PurchaseOrdersDataGrid from "components/PurchaseOrder/PurchaseOrdersDataGrid";
 import RejectPurchaseOrderModal from "components/PurchaseOrder/RejectPurchaseOrderModal";
 import Can from "components/Shared/Can";
@@ -37,7 +38,6 @@ export default function BankPurchaseOrdersActiveTab() {
     return filteredPurchaseOrders;
   }, [searchQuery, data?.purchase_orders]);
 
-  // Reverse Draft ACH - schedule section
   const [selectedPurchaseOrderIds, setSelectedPurchaseOrderIds] = useState<
     PurchaseOrders["id"]
   >([]);
@@ -117,6 +117,26 @@ export default function BankPurchaseOrdersActiveTab() {
               </Box>
             </>
           </Can>
+          <Can perform={Action.DeletePurchaseOrders}>
+            <Box mr={2}>
+              <ModalButton
+                isDisabled={selectedPurchaseOrderIds.length !== 1}
+                label={"Delete PO"}
+                variant={"outlined"}
+                modal={({ handleClose }) =>
+                  selectedPurchaseOrder ? (
+                    <DeletePurchaseOrderModal
+                      purchaseOrderId={selectedPurchaseOrder.id}
+                      handleClose={() => {
+                        handleClose();
+                        setSelectedPurchaseOrderIds([]);
+                      }}
+                    />
+                  ) : null
+                }
+              />
+            </Box>
+          </Can>
         </Box>
       </Box>
       <Box display="flex" flexDirection="column">
@@ -127,6 +147,7 @@ export default function BankPurchaseOrdersActiveTab() {
           isCustomerNoteVisible={false}
           isMultiSelectEnabled
           purchaseOrders={purchaseOrders}
+          selectedPurchaseOrderIds={selectedPurchaseOrderIds}
           handleClickCustomer={(customerId) =>
             history.push(`/customers/${customerId}/purchase-orders`)
           }
