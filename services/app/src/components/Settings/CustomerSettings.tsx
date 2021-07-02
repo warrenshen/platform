@@ -137,6 +137,7 @@ export default function CustomerSettings({
                   isEditAllowed={check(role, Action.EditBankAccount)}
                   isVerificationVisible
                   bankAccount={bankAccount}
+                  handleDataChange={handleDataChange}
                 />
               </Box>
             ))

@@ -67,14 +67,6 @@ export default function BankAccountInfoCard({
   return (
     <Card>
       <CardContent>
-        {isBankUser && isCompanyBank && (
-          <Box display="flex" pb={0.25}>
-            <Box className={classes.label}>Torrey Pines Template Name</Box>
-            <Box>
-              {(bankAccount as BankAccountFragment).torrey_pines_template_name}
-            </Box>
-          </Box>
-        )}
         <Box display="flex" pb={0.25}>
           <Box className={classes.label}>Bank Name</Box>
           <Box>{bankAccount.bank_name}</Box>
@@ -113,6 +105,22 @@ export default function BankAccountInfoCard({
             {isObfuscateEnabled ? "Reveal Numbers" : "Hide Numbers"}
           </Button>
         </Box>
+        {isCannabisCompliantVisible && (
+          <Box display="flex" alignItems="center" pt={0.5} pb={1}>
+            <CheckCircle
+              color={
+                (bankAccount as BankAccountFragment).is_cannabis_compliant
+                  ? "primary"
+                  : "disabled"
+              }
+            />
+            <Box pl={1}>
+              {(bankAccount as BankAccountFragment).is_cannabis_compliant
+                ? "Cannabis Compliant"
+                : "Not Cannabis Compliant"}
+            </Box>
+          </Box>
+        )}
         {isVerificationVisible && (
           <Box display="flex" alignItems="center" pt={0.5} pb={1}>
             <CheckCircle
@@ -133,19 +141,12 @@ export default function BankAccountInfoCard({
             </Box>
           </Box>
         )}
-        {isCannabisCompliantVisible && (
-          <Box display="flex" alignItems="center" pt={0.5} pb={1}>
-            <CheckCircle
-              color={
-                (bankAccount as BankAccountFragment).is_cannabis_compliant
-                  ? "primary"
-                  : "disabled"
-              }
-            />
-            <Box pl={1}>
-              {(bankAccount as BankAccountFragment).is_cannabis_compliant
-                ? "Cannabis Compliant"
-                : "Not Cannabis Compliant"}
+        {isBankUser && isCompanyBank && (
+          <Box display="flex" pb={0.25}>
+            <Box className={classes.label}>Torrey Pines Template Name</Box>
+            <Box>
+              {(bankAccount as BankAccountFragment)
+                .torrey_pines_template_name || "-"}
             </Box>
           </Box>
         )}

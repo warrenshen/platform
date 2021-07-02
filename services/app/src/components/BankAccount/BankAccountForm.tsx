@@ -160,56 +160,6 @@ export default function BankAccountForm({
           </Box>
         </Box>
       )}
-      {role === UserRolesEnum.BankAdmin && (
-        <>
-          <Box display="flex" flexDirection="column" mt={2}>
-            <TextField
-              label="Torrey Pines Template Name"
-              className={classes.form}
-              value={bankAccount.torrey_pines_template_name}
-              onChange={({ target: { value } }) =>
-                setBankAccount({
-                  ...bankAccount,
-                  torrey_pines_template_name: value,
-                })
-              }
-            />
-          </Box>
-          <Box display="flex" flexDirection="column" mt={2}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={!!bankAccount.verified_at}
-                  onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                    setBankAccount({
-                      ...bankAccount,
-                      verified_at: !bankAccount.verified_at ? "now()" : null,
-                      verified_date: null,
-                    })
-                  }
-                  color="primary"
-                />
-              }
-              label={"Verified bank account transfer"}
-            />
-          </Box>
-        </>
-      )}
-      {role === UserRolesEnum.BankAdmin && !!bankAccount.verified_at && (
-        <Box display="flex" flexDirection="column" mt={2}>
-          <DateInput
-            id="date-picker-verified-date"
-            label="Verified Date"
-            value={bankAccount.verified_date}
-            onChange={(value) => {
-              setBankAccount({
-                ...bankAccount,
-                verified_date: value,
-              });
-            }}
-          />
-        </Box>
-      )}
       {(role === UserRolesEnum.BankAdmin ||
         role === UserRolesEnum.CompanyAdmin) && (
         <Box display="flex" flexDirection="column" mt={2}>
@@ -227,6 +177,58 @@ export default function BankAccountForm({
               />
             }
             label={"Cannabis Compliant"}
+          />
+        </Box>
+      )}
+      {role === UserRolesEnum.BankAdmin && (
+        <Box display="flex" flexDirection="column" mt={2}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={!!bankAccount.verified_at}
+                onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                  setBankAccount({
+                    ...bankAccount,
+                    verified_at: !bankAccount.verified_at ? "now()" : null,
+                    verified_date: null,
+                  })
+                }
+                color="primary"
+              />
+            }
+            label={"Verified bank account transfer"}
+          />
+        </Box>
+      )}
+      {role === UserRolesEnum.BankAdmin && !!bankAccount.verified_at && (
+        <Box ml={4}>
+          <Box display="flex" flexDirection="column" mt={2}>
+            <DateInput
+              id="date-picker-verified-date"
+              label="Verified Date"
+              value={bankAccount.verified_date}
+              onChange={(value) => {
+                setBankAccount({
+                  ...bankAccount,
+                  verified_date: value,
+                });
+              }}
+            />
+          </Box>
+        </Box>
+      )}
+      {role === UserRolesEnum.BankAdmin && (
+        <Box display="flex" flexDirection="column" mt={2}>
+          <TextField
+            label="Torrey Pines Template Name"
+            className={classes.form}
+            value={bankAccount.torrey_pines_template_name}
+            onChange={({ target: { value } }) =>
+              setBankAccount({
+                ...bankAccount,
+                torrey_pines_template_name: value,
+              })
+            }
           />
         </Box>
       )}
