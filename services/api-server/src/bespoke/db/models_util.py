@@ -144,7 +144,7 @@ def get_loan_recipient_bank_account_id(
 		return None, errors.Error(f'[DATA ERROR] Company {customer_id} is missing associated company settings')
 
 	if not company_settings.advances_bank_account_id:
-		return None, errors.Error(f'Company {customer.name} does not have bank account to receive advances configured')
+		return None, errors.Error(f'Company {customer.name} does not have advances bank account to receive advances configured')
 
 	return str(company_settings.advances_bank_account_id), None
 
@@ -172,7 +172,7 @@ def get_loan_sender_bank_account_id(
 		return None, errors.Error(f'[DATA ERROR] Company {customer_id} is missing associated company settings')
 
 	if not company_settings.advances_bespoke_bank_account_id:
-		return None, errors.Error(f'Company {customer.name} does not have bank account to receive advances configured')
+		return None, errors.Error(f'Company {customer.name} does not have BF advances bank account to send advances configured')
 
 	return str(company_settings.advances_bespoke_bank_account_id), None
 
