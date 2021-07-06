@@ -7,7 +7,7 @@ import {
   PaymentBankAccountsFragment,
 } from "generated/graphql";
 import { ColumnWidths } from "lib/tables";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 function getRows(
   payments: (PaymentFragment & PaymentBankAccountsFragment)[]
@@ -44,11 +44,11 @@ export default function WireAdvancesDataGrid({
   payments,
   handleClickCustomer,
 }: Props) {
-  const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = getRows(payments);
   const columns = useMemo(
     () => [
       {
+        visible: false, // Developer note: change to true if you want to debug.
         dataField: "id",
         caption: "Advance ID",
         width: 140,
@@ -57,20 +57,14 @@ export default function WireAdvancesDataGrid({
         ),
       },
       {
+        visible: false, // Developer note: change to true if you want to debug.
         caption: "Customer Name",
         dataField: "company.name",
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
           <ClickableDataGridCell
             label={params.row.data.company.name}
-            onClick={() => {
-              handleClickCustomer(params.row.data.company.name);
-              dataGrid?.instance.filter([
-                "company.name",
-                "=",
-                params.row.data.company.name,
-              ]);
-            }}
+            onClick={() => handleClickCustomer(params.row.data.company.name)}
           />
         ),
       },
@@ -145,16 +139,16 @@ export default function WireAdvancesDataGrid({
         width: 140,
       },
     ],
-    [dataGrid?.instance, handleClickCustomer]
+    [handleClickCustomer]
   );
 
   return (
     <ControlledDataGrid
-      dataSource={rows}
-      columns={columns}
-      ref={(ref) => setDataGrid(ref)}
+      exportType={"csv"}
       isExcelExport={isExcelExport}
       pager
+      dataSource={rows}
+      columns={columns}
     />
   );
 }

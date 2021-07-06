@@ -10,6 +10,9 @@ import DataGrid, {
   Sorting,
 } from "devextreme-react/data-grid";
 import DataSource from "devextreme/data/data_source";
+import { exportDataGrid } from "devextreme/excel_exporter";
+import { Workbook } from "exceljs";
+import { saveAs } from "file-saver";
 import {
   forwardRef,
   useCallback,
@@ -21,6 +24,9 @@ import {
 } from "react";
 
 interface DataGridProps {
+  exportType?: "csv" | "xlsx";
+  isExcelExport?: boolean;
+  isSortingDisabled?: boolean;
   dataSource?: any[];
   columns: IColumnProps[];
   pager?: boolean;
@@ -34,18 +40,19 @@ interface DataGridProps {
   pagerSizeSelector?: boolean;
   allowedPageSizes?: number[];
   select?: boolean;
-  isSortingDisabled?: boolean;
   selectedRowKeys?: any[]; // can be controlled
   onSelectionChanged?: (params: {}) => void; // callback
   onPageChanged?: (page: number) => void; // callback
   onSortingChanged?: (index: number, order: "asc" | "desc") => void; // callback
   onFilteringChanged?: (index: number, value: string) => void;
-  isExcelExport?: boolean;
 }
 
 const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
   (
     {
+      exportType = "xlsx",
+      isExcelExport = true,
+      isSortingDisabled = false,
       dataSource,
       columns,
       pageSize = 10,
@@ -55,14 +62,12 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
       pagerSizeSelector = true,
       filtering,
       select,
-      isSortingDisabled = false,
       sortBy,
       selectedRowKeys,
       onSelectionChanged,
       onPageChanged,
       onSortingChanged,
       onFilteringChanged,
-      isExcelExport = true,
     }: DataGridProps,
     ref
   ) => {
@@ -118,6 +123,33 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
       [onFilteringChanged, onPageChanged, onSortingChanged]
     );
 
+    const onExporting = function (event: any) {
+      if (exportType === "csv") {
+        const workbook = new Workbook();
+        const worksheet = workbook.addWorksheet("Main sheet");
+
+        exportDataGrid({
+          topLeftCell: { row: 1, column: 1 },
+          component: event.component,
+          worksheet: worksheet,
+        }).then(function () {
+          // https://github.com/exceljs/exceljs#writing-csv
+          // https://github.com/exceljs/exceljs#reading-csv
+
+          // Remove header (1st) row.
+          worksheet.spliceRows(0, 1);
+          workbook.csv.writeBuffer().then(function (buffer) {
+            saveAs(
+              new Blob([buffer], { type: "application/octet-stream" }),
+              "Report.csv"
+            );
+          });
+        });
+
+        event.cancel = true;
+      }
+    };
+
     // Note: it is ok that we use `index` as the key for the <Column>
     // element below because we do not support re-ordering columns or
     // other operations that require a stronger key than `index`.
@@ -129,6 +161,7 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
         dataSource={_dataSource}
         wordWrapEnabled={true}
         onSelectionChanged={onSelectionChanged}
+        onExporting={onExporting}
         onOptionChanged={onOptionChanged}
       >
         <ColumnFixing enabled={true} />

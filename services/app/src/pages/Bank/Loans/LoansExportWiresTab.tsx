@@ -1,4 +1,5 @@
-import { Box } from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import WireAdvancesDataGrid from "components/Advances/WireAdvancesDataGrid";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import { useGetWireAdvancesByDateQuery } from "generated/graphql";
@@ -49,6 +50,14 @@ export default function BankLoansAllTab() {
         />
       </Box>
       <Box display="flex" flexDirection="column">
+        <Box mb={2}>
+          <Alert severity="info">
+            <Typography variant="body1">
+              Press the export button / icon at the top right of the table to
+              export rows (non-header rows) in CSV file format.
+            </Typography>
+          </Alert>
+        </Box>
         <WireAdvancesDataGrid
           payments={payments}
           handleClickCustomer={(customerId) =>
