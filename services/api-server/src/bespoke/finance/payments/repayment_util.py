@@ -92,37 +92,43 @@ def _zero_if_null(val: Optional[float]) -> float:
 		return 0.0
 	return val
 
-def _loan_dict_to_loan_balance(loan_dict: models.LoanDict) -> LoanBalanceDict:
-	return LoanBalanceDict(
-		amount=loan_dict['amount'],
-		outstanding_principal_balance=_zero_if_null(
-			loan_dict['outstanding_principal_balance']),
-		outstanding_interest=_zero_if_null(loan_dict['outstanding_interest']),
-		outstanding_fees=_zero_if_null(loan_dict['outstanding_fees'])
-	)
+def _fetch_line_of_credit_payable_loans(
+	company_id: str,
+	deposit_date: datetime.date,
+	session: Session,
+) -> List[models.Loan]:
+	# TODO(warrenshen):
+	# Write a test to check condition 4.
+	# Write a test to check condition 5.
+	# Write a test to check that loans are fetch sorted by [origination date, created at].
 
-def _apply_to(balance: LoanBalanceDict, category: str, amount_left: float) -> Tuple[float, float]:
-	if category == 'principal':
-		outstanding_amount = balance['outstanding_principal_balance']
-	elif category == 'interest':
-		outstanding_amount = balance['outstanding_interest']
-	elif category == 'fees':
-		outstanding_amount = balance['outstanding_fees']
-	else:
-		raise Exception('Unexpected category to apply to {}'.format(category))
+	# 1. Loan is not deleted
+	# 2. Loan is not frozen
+	# 3. Loan belongs to correct company
+	# 4. Loan has an origination date (which means its funded)
+	# 5. Loan has an origination date on or before proposed payment deposit date
+	#    (payment may not pay off loan that is not originated yet, relative to the deposit date)
+	# 6. Loan is not closed
+	loans = cast(
+		List[models.Loan],
+		session.query(models.Loan).filter(
+			cast(Callable, models.Loan.is_deleted.isnot)(True)
+		).filter(
+			cast(Callable, models.Loan.is_frozen.isnot)(True)
+		).filter(
+			models.Loan.company_id == company_id
+		).filter(
+			models.Loan.origination_date != None
+		).filter(
+			models.Loan.origination_date <= deposit_date
+		).filter(
+			models.Loan.closed_at == None
+		).order_by(
+			models.Loan.origination_date.asc(),
+			models.Loan.created_at.asc()
+		).all())
 
-	if outstanding_amount is None:
-		amount_left_to_use = amount_left
-		amount_applied = 0.0
-		return amount_left_to_use, amount_applied
-	elif amount_left <= outstanding_amount:
-		amount_left_to_use = 0.0
-		amount_applied = amount_left
-		return amount_left_to_use, amount_applied
-	else:
-		amount_applied = outstanding_amount
-		amount_left_to_use = amount_left - amount_applied
-		return amount_left_to_use, amount_applied
+	return loans
 
 @errors.return_error_tuple
 def calculate_repayment_effect(
@@ -182,26 +188,7 @@ def calculate_repayment_effect(
 	with session_scope(session_maker) as session:
 		loans = []
 		if product_type == ProductType.LINE_OF_CREDIT:
-			# TODO(warrenshen):
-			# Write a test to check that loans that do not have an origination date
-			# set (ex. rejected loans) are NOT fetched.
-			# Write a test to check that loans are fetch sorted by [origination date, created at].
-			loans = cast(
-				List[models.Loan],
-				session.query(models.Loan).filter(
-					cast(Callable, models.Loan.is_deleted.isnot)(True)
-				).filter(
-					cast(Callable, models.Loan.is_frozen.isnot)(True)
-				).filter(
-					models.Loan.company_id == company_id
-				).filter(
-					models.Loan.origination_date != None
-				).filter(
-					models.Loan.closed_at == None
-				).order_by(
-					models.Loan.origination_date.asc(),
-					models.Loan.created_at.asc()
-				).all())
+			loans = _fetch_line_of_credit_payable_loans(company_id, payment_deposit_date, session)
 		else:
 			if not loan_ids:
 				raise errors.Error('No loans are selected')
@@ -806,31 +793,7 @@ def settle_repayment(
 			if product_type != ProductType.LINE_OF_CREDIT:
 				raise errors.Error('Customer is not of Line of Credit product type', details=err_details)
 
-			# TODO(warrenshen):
-			# Write a test to check that loans that do not have an origination date
-			# set (ex. rejected loans) are NOT fetched.
-			# Write a test to check that loans are fetch sorted by origination date.
-			loans = cast(
-				List[models.Loan],
-				session.query(models.Loan).filter(
-					cast(Callable, models.Loan.is_deleted.isnot)(True)
-				).filter(
-					cast(Callable, models.Loan.is_frozen.isnot)(True)
-				).filter(
-					models.Loan.company_id == company_id
-				).filter(
-					models.Loan.origination_date != None
-				).filter(
-					# Do not fetch loans that have an origination_date
-					# in the future relative to this payment's deposit date.
-					models.Loan.origination_date <= deposit_date
-				).filter(
-					models.Loan.closed_at == None
-				).order_by(
-					models.Loan.origination_date.asc(),
-					models.Loan.created_at.asc()
-				).all())
-
+			loans = _fetch_line_of_credit_payable_loans(company_id, deposit_date, session)
 			loan_ids = list(map(lambda loan: str(loan.id), loans))
 		else:
 			loan_ids = items_covered['loan_ids']
