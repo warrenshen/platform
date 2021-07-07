@@ -349,7 +349,7 @@ class SubmitAllMonthlyMinimumFeesDueView(MethodView):
 		}), 200)
 
 
-class GetAllMonthlyLOCFeesDueView(MethodView):
+class GetAllMonthEndPaymentsView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
 	@handler_util.catch_bad_json_request
@@ -369,7 +369,7 @@ class GetAllMonthlyLOCFeesDueView(MethodView):
 		user_session = auth_util.UserSession.from_session()
 
 		with models.session_scope(current_app.session_maker) as session:
-			resp, err = fees_due_util.get_all_monthly_loc_fees_due(
+			resp, err = fees_due_util.get_all_month_end_payments(
 				form.get('date'),
 				session
 			)
@@ -382,7 +382,7 @@ class GetAllMonthlyLOCFeesDueView(MethodView):
 		}), 200)
 
 
-class SubmitAllMonthlyLOCFeesDueView(MethodView):
+class SubmitMonthEndPaymentsView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
 	@handler_util.catch_bad_json_request
@@ -403,7 +403,7 @@ class SubmitAllMonthlyLOCFeesDueView(MethodView):
 		user_session = auth_util.UserSession.from_session()
 
 		with models.session_scope(current_app.session_maker) as session:
-			success, err = fees_due_util.create_loc_reverse_draft_for_customers(
+			success, err = fees_due_util.create_month_end_payments_for_customers(
 				form['date'],
 				form['monthly_due_resp'],
 				user_session.get_user_id(),
@@ -441,7 +441,7 @@ handler.add_url_rule(
 	'/submit_all_monthly_minimum_fees_due', view_func=SubmitAllMonthlyMinimumFeesDueView.as_view(name='submit_all_monthly_minimum_fees_due_view'))
 
 handler.add_url_rule(
-	'/get_all_monthly_loc_fees_due', view_func=GetAllMonthlyLOCFeesDueView.as_view(name='get_all_monthly_loc_fees_due_view'))
+	'/get_all_month_end_payments', view_func=GetAllMonthEndPaymentsView.as_view(name='get_all_month_end_payments_view'))
 
 handler.add_url_rule(
-	'/submit_all_monthly_loc_fees_due', view_func=SubmitAllMonthlyLOCFeesDueView.as_view(name='submit_all_monthly_loc_fees_due_view'))
+	'/submit_month_end_payments', view_func=SubmitMonthEndPaymentsView.as_view(name='submit_month_end_payments_view'))

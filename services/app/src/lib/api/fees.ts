@@ -36,11 +36,11 @@ export async function submitAllMonthlyFeesDueMutation(req: {
     );
 }
 
-export async function getAllMonthlyLOCFeesDueQuery(req: {
+export async function getAllMonthEndPaymentsQuery(req: {
   variables: { date: string };
 }): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(feesRoutes.getAllMonthlyLOCFeesDue, req.variables)
+    .post(feesRoutes.getAllMonthEndPayments, req.variables)
     .then((res) => res.data)
     .then(
       (res) => res,
@@ -54,11 +54,11 @@ export async function getAllMonthlyLOCFeesDueQuery(req: {
     );
 }
 
-export async function submitAllMonthlyLOCFeesDueMutation(req: {
+export async function submitMonthEndPaymentsMutation(req: {
   variables: any;
 }): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(feesRoutes.submitAllMonthlyLOCFeesDue, req.variables)
+    .post(feesRoutes.submitMonthEndPayments, req.variables)
     .then((res) => res.data)
     .then(
       (res) => res,

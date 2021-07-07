@@ -140,7 +140,7 @@ def create_minimum_due_fee_for_customers(
 	return True, None
 
 
-def get_all_monthly_loc_fees_due(
+def get_all_month_end_payments(
 	date_str: str, session: Session) -> Tuple[AllMonthlyLOCDueRespDict, errors.Error]:
 
 	first_day_of_month_date = _get_first_day_of_month_date(date_str)
@@ -218,7 +218,7 @@ def get_all_monthly_loc_fees_due(
 		company_due_to_financial_info=company_id_to_financial_info
 	), None
 
-def create_loc_reverse_draft_for_customers(
+def create_month_end_payments_for_customers(
 	date_str: str, minimum_due_resp: AllMonthlyLOCDueRespDict,
 	user_id: str, session: Session) -> Tuple[bool, errors.Error]:
 
@@ -274,4 +274,3 @@ def create_loc_reverse_draft_for_customers(
 			raise err
 
 	return True, None
-	

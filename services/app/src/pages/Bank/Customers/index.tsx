@@ -25,7 +25,7 @@ import { filter, sortBy } from "lodash";
 import { useContext, useMemo, useState } from "react";
 import { useRouteMatch } from "react-router-dom";
 import CreateBulkMinimumMonthlyFeeModal from "components/Fee/CreateMinimumInterestFeesModal";
-import CreateLOCMonthEndPaymentsModal from "components/Fee/CreateLOCMonthEndPaymentsModal";
+import CreateMonthEndPaymentsModal from "components/Fee/CreateMonthEndPaymentsModal";
 
 export default function BankCustomersPage() {
   const {
@@ -191,11 +191,11 @@ export default function BankCustomersPage() {
             <Can perform={Action.BookFees}>
               <Box mr={2}>
                 <ModalButton
-                  label={"Create LOC Month-End Payments"}
+                  label={"Create Month-End Payments"}
                   color={"default"}
                   variant={"outlined"}
                   modal={({ handleClose }) => (
-                    <CreateLOCMonthEndPaymentsModal
+                    <CreateMonthEndPaymentsModal
                       handleClose={() => {
                         refetch();
                         handleClose();

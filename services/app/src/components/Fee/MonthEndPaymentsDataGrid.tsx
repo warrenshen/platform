@@ -1,6 +1,9 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
+import DataGridActionMenu, {
+  DataGridActionItem,
+} from "components/Shared/DataGrid/DataGridActionMenu";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
@@ -8,7 +11,7 @@ function getRows(minimumMonthlyFees: any[]): RowsProp {
   return minimumMonthlyFees.map((rowInfo) => {
     return {
       ...rowInfo,
-      id: rowInfo.company.identifier,
+      id: rowInfo.company.id,
       company_name: rowInfo.company.name,
       total_outstanding_interest: rowInfo.total_outstanding_interest,
       fee_amount: rowInfo.fee_amount,
@@ -20,16 +23,29 @@ function getRows(minimumMonthlyFees: any[]): RowsProp {
 
 interface Props {
   isExcelExport?: boolean;
-  minimumLOCFees: any;
+  monthEndPayments: any;
+  actionItems: DataGridActionItem[];
 }
 
-export default function LOCMonthEndPaymentsDataGrid({
+export default function MonthEndPaymentsDataGrid({
   isExcelExport = true,
-  minimumLOCFees,
+  monthEndPayments,
+  actionItems,
 }: Props) {
-  const rows = getRows(minimumLOCFees);
+  const rows = getRows(monthEndPayments);
   const columns = useMemo(
     () => [
+      {
+        fixed: true,
+        visible: !!actionItems && actionItems.length > 0,
+        dataField: "action",
+        caption: "Action",
+        alignment: "center",
+        width: 80,
+        cellRender: (params: ValueFormatterParams) => (
+          <DataGridActionMenu params={params} actionItems={actionItems} />
+        ),
+      },
       {
         fixed: true,
         dataField: "company_name",
@@ -69,7 +85,7 @@ export default function LOCMonthEndPaymentsDataGrid({
         minWidth: ColumnWidths.MinWidth,
       },
     ],
-    []
+    [actionItems]
   );
 
   return (

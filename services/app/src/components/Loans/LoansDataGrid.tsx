@@ -1,4 +1,5 @@
 import { Box, Typography } from "@material-ui/core";
+import CommentIcon from "@material-ui/icons/Comment";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import InvoiceDrawerLauncher from "components/Invoices/InvoiceDrawerLauncher";
@@ -12,7 +13,6 @@ import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
-import CommentIcon from "@material-ui/icons/Comment";
 import UpdatePurchaseOrderBankNote from "components/PurchaseOrder/UpdatePurchaseOrderBankNote";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";

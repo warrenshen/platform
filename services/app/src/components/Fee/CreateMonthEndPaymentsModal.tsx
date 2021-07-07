@@ -1,14 +1,15 @@
 import { Box, Typography } from "@material-ui/core";
+import { ValueFormatterParams } from "@material-ui/data-grid";
 import { Alert } from "@material-ui/lab";
 import Modal from "components/Shared/Modal/Modal";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import {
-  getAllMonthlyLOCFeesDueQuery,
-  submitAllMonthlyLOCFeesDueMutation,
+  getAllMonthEndPaymentsQuery,
+  submitMonthEndPaymentsMutation,
 } from "lib/api/fees";
 import { useState } from "react";
-import LOCMonthEndPaymentsDataGrid from "components/Fee/LOCMonthEndPaymentsDataGrid";
+import MonthEndPaymentsDataGrid from "components/Fee/MonthEndPaymentsDataGrid";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import { formatDateStringAsMonth } from "lib/date";
 
@@ -16,24 +17,26 @@ interface Props {
   handleClose: () => void;
 }
 
-export default function CreateLOCMonthEndPaymentsModal({ handleClose }: Props) {
+export default function CreateMonthEndPaymentsModal({ handleClose }: Props) {
   const snackbar = useSnackbar();
 
   const [dateStr, setDateStr] = useState<string>("");
   const [isOnConfirmationPage, setIsOnConfirmationPage] = useState<boolean>(
     false
   );
-  const [monthlyFeesDueResp, setMonthlyFeesDueResp] = useState<any>(null);
+  const [monthEndPaymentsPayload, setMonthEndPaymentsPayload] = useState<any>(
+    null
+  );
 
   const [
     getAllMonthlyFeesDue,
     { loading: isGetAllMonthlyFeesDueLoading },
-  ] = useCustomMutation(getAllMonthlyLOCFeesDueQuery);
+  ] = useCustomMutation(getAllMonthEndPaymentsQuery);
 
   const [
-    submitAllMonthlyFeesDue,
-    { loading: isSubmitAllMonthlyFeesDueLoading },
-  ] = useCustomMutation(submitAllMonthlyLOCFeesDueMutation);
+    submitMonthEndPayments,
+    { loading: isSubmitMonthEndPaymentsLoading },
+  ] = useCustomMutation(submitMonthEndPaymentsMutation);
 
   const handleClickNext = async () => {
     const response = await getAllMonthlyFeesDue({
@@ -45,23 +48,23 @@ export default function CreateLOCMonthEndPaymentsModal({ handleClose }: Props) {
     if (response.status !== "OK") {
       snackbar.showError(`Error: ${response.msg}`);
     } else {
-      setMonthlyFeesDueResp(response.data);
+      setMonthEndPaymentsPayload(response.data);
       setIsOnConfirmationPage(true);
     }
   };
 
   const handleClickSubmit = async () => {
-    const response = await submitAllMonthlyFeesDue({
+    const response = await submitMonthEndPayments({
       variables: {
         date: dateStr,
-        monthly_due_resp: monthlyFeesDueResp,
+        monthly_due_resp: monthEndPaymentsPayload,
       },
     });
 
     if (response.status !== "OK") {
       snackbar.showError(`Error: ${response.msg}`);
     } else {
-      snackbar.showSuccess("Month-end payments created for LOC customers.");
+      snackbar.showSuccess("Month-end payments created for customers.");
       handleClose();
     }
   };
@@ -71,21 +74,18 @@ export default function CreateLOCMonthEndPaymentsModal({ handleClose }: Props) {
     (dateStr.length === 0 || isGetAllMonthlyFeesDueLoading);
 
   const isSubmitDisabled =
-    isOnConfirmationPage && isSubmitAllMonthlyFeesDueLoading;
+    isOnConfirmationPage && isSubmitMonthEndPaymentsLoading;
 
-  const companyIdToMonthlyFeesDue =
-    monthlyFeesDueResp?.company_due_to_financial_info || {};
-  const minimumLOCFees = Object.keys(companyIdToMonthlyFeesDue).map(
-    (companyId) => {
-      const minimumMonthlyFeePayload = companyIdToMonthlyFeesDue[companyId];
-      return minimumMonthlyFeePayload;
-    }
+  const companyIdToMonthEndPayment =
+    monthEndPaymentsPayload?.company_due_to_financial_info || {};
+  const monthEndPayments = Object.keys(companyIdToMonthEndPayment).map(
+    (companyId) => companyIdToMonthEndPayment[companyId]
   );
 
   return (
     <Modal
       isPrimaryActionDisabled={isNextDisabled || isSubmitDisabled}
-      title={"Create LOC Month-End Payments For Month"}
+      title={"Create Month-End Payments For Month"}
       primaryActionText={isOnConfirmationPage ? "Submit" : "Next"}
       secondaryActionText={
         isOnConfirmationPage ? "Back to previous step" : null
@@ -103,9 +103,9 @@ export default function CreateLOCMonthEndPaymentsModal({ handleClose }: Props) {
             <Box>
               <Typography variant="body1">
                 Select a month (any date in the month is fine) for which you'd
-                like to create LOC customer month-end reverse draft ACH payments
-                for. For example if you'd like to create the month-end payments
-                for the month of May 2021, select 05/31/21.
+                like to create month-end reverse draft ACH payments for. For
+                example if you'd like to create the month-end payments for the
+                month of May 2021, select 05/31/21.
               </Typography>
               <Box mt={2}>
                 <Alert severity="warning">
@@ -134,19 +134,37 @@ export default function CreateLOCMonthEndPaymentsModal({ handleClose }: Props) {
             <Box mt={4}>
               <Typography variant="body1">
                 Based on customer financials for the month you selected, here
-                are the LOC month-end reverse draft ACH payments to create.
-                Please double check these values and press "Submit" to create
-                these payments.
+                are the month-end reverse draft ACH payments to create. Please
+                double check these values and press "Submit" to create these
+                payments.
               </Typography>
               <Box mt={2}>
                 <Alert severity="warning">
-                  Note: if you've previously created LOC month-end payments for
-                  the selected month, pressing "Submit" will create a duplicate
-                  set of payments.
+                  Note: if you've previously created month-end payments for the
+                  selected month, pressing "Submit" will create a duplicate set
+                  of payments.
                 </Alert>
               </Box>
             </Box>
-            <LOCMonthEndPaymentsDataGrid minimumLOCFees={minimumLOCFees} />
+            <MonthEndPaymentsDataGrid
+              monthEndPayments={monthEndPayments}
+              actionItems={[
+                {
+                  key: "remove",
+                  label: "Remove",
+                  handleClick: (params: ValueFormatterParams) => {
+                    const companyId = params.row.data.id;
+                    const newMonthEndPaymentsPayload = Object.assign(
+                      {},
+                      monthEndPaymentsPayload
+                    );
+                    delete newMonthEndPaymentsPayload
+                      .company_due_to_financial_info[companyId];
+                    setMonthEndPaymentsPayload(newMonthEndPaymentsPayload);
+                  },
+                },
+              ]}
+            />
           </Box>
         )}
       </Box>
