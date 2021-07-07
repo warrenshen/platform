@@ -898,7 +898,7 @@ class LoanCalculator(object):
 				# reduces their outstanding_principal_for_interest
 				if not inserted_repayment_transaction:
 					errors_list.append(errors.Error(
-						'There is no inserted repayment transaction, therefore an error must have occurred while determining details about the repayment on the deposit date. Likely you chose a deposit date outside the range of when the loan originated or matured.'))
+						f'There is no inserted repayment transaction for loan {loan["identifier"]} ({loan["id"]}) on {date_util.date_to_db_str(cur_date)}. An error must have occurred while determining details about the repayment on the deposit date. Likely you chose a deposit date outside the range of loan origination date and maturity date.'))
 					continue
 
 				balances['outstanding_principal_for_interest'] -= inserted_repayment_transaction['to_principal']
