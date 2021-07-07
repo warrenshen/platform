@@ -1,4 +1,4 @@
-import { Typography } from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import { LoanStatusEnum } from "generated/graphql";
 import { LoanPaymentStatusEnum, LoanPaymentStatusToLabel } from "lib/enum";
 import styled from "styled-components";
@@ -36,30 +36,32 @@ const StatusToColor = {
 
 export default function LoanPaymentStatusChip({ paymentStatus }: Props) {
   return (
-    <Chip
-      backgroundColor={
-        StatusToColor[
-          [
+    <Box height={33}>
+      <Chip
+        backgroundColor={
+          StatusToColor[
+            [
+              LoanPaymentStatusEnum.PARTIALLY_PAID,
+              LoanPaymentStatusEnum.PENDING,
+              LoanPaymentStatusEnum.SCHEDULED,
+              LoanPaymentStatusEnum.CLOSED,
+            ].includes(paymentStatus)
+              ? paymentStatus
+              : LoanStatusEnum.Funded
+          ]
+        }
+      >
+        <Text>
+          {[
             LoanPaymentStatusEnum.PARTIALLY_PAID,
             LoanPaymentStatusEnum.PENDING,
             LoanPaymentStatusEnum.SCHEDULED,
             LoanPaymentStatusEnum.CLOSED,
           ].includes(paymentStatus)
-            ? paymentStatus
-            : LoanStatusEnum.Funded
-        ]
-      }
-    >
-      <Text>
-        {[
-          LoanPaymentStatusEnum.PARTIALLY_PAID,
-          LoanPaymentStatusEnum.PENDING,
-          LoanPaymentStatusEnum.SCHEDULED,
-          LoanPaymentStatusEnum.CLOSED,
-        ].includes(paymentStatus)
-          ? LoanPaymentStatusToLabel[paymentStatus]
-          : "No Payment"}
-      </Text>
-    </Chip>
+            ? LoanPaymentStatusToLabel[paymentStatus]
+            : "No Payment"}
+        </Text>
+      </Chip>
+    </Box>
   );
 }

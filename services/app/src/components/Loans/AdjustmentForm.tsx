@@ -1,5 +1,5 @@
-import { Box, FormControl, TextField, Typography } from "@material-ui/core";
-import Autocomplete from "@material-ui/lab/Autocomplete";
+import { Box, FormControl, Typography } from "@material-ui/core";
+import SelectLoanAutocomplete from "components/Loan/SelectLoanAutocomplete";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DateInput from "components/Shared/FormInputs/DateInput";
@@ -8,12 +8,6 @@ import {
   PaymentsInsertInput,
   TransactionsInsertInput,
 } from "generated/graphql";
-import { formatCurrency } from "lib/currency";
-import { formatDateString } from "lib/date";
-import {
-  createLoanCustomerIdentifier,
-  createLoanDisbursementIdentifier,
-} from "lib/loans";
 import { useMemo } from "react";
 
 interface Props {
@@ -46,42 +40,16 @@ export default function AdjustmentForm({
         </Typography>
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
-        <FormControl>
-          <Autocomplete
-            autoHighlight
-            id="combo-box-demo"
-            options={loans}
-            getOptionLabel={(loan) =>
-              `${createLoanCustomerIdentifier(
-                loan
-              )} | ${createLoanDisbursementIdentifier(
-                loan
-              )} | Amount: ${formatCurrency(
-                loan.amount,
-                "Error"
-              )} | Origination Date: ${
-                loan.origination_date
-                  ? formatDateString(loan.origination_date)
-                  : "Error"
-              } | Outstanding Principal: ${formatCurrency(
-                loan.outstanding_principal_balance
-              )} | Outstanding Interest: ${formatCurrency(
-                loan.outstanding_interest
-              )} | Outstanding Late Fees: ${formatCurrency(
-                loan.outstanding_fees
-              )}`
-            }
-            renderInput={(params) => (
-              <TextField {...params} label="Select loan" variant="outlined" />
-            )}
-            onChange={(_event, loan) =>
-              setTransaction({
-                ...transaction,
-                loan_id: loan?.id || null,
-              })
-            }
-          />
-        </FormControl>
+        <SelectLoanAutocomplete
+          isDisbursementIdentifierVisible
+          optionLoans={loans}
+          handleSelectLoan={(loan) => {
+            setTransaction({
+              ...transaction,
+              loan_id: loan?.id || null,
+            });
+          }}
+        />
       </Box>
       {selectedLoans.length > 0 && (
         <Box mt={4}>

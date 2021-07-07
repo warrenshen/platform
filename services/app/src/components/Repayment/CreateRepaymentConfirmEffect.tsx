@@ -70,7 +70,7 @@ function getAlertText(payment: PaymentsInsertInput) {
   }
 }
 
-function CreateRepaymentConfirmEffect({
+export default function CreateRepaymentConfirmEffect({
   companyId,
   productType,
   payableAmountPrincipal,
@@ -182,5 +182,3 @@ function CreateRepaymentConfirmEffect({
     </Box>
   );
 }
-
-export default CreateRepaymentConfirmEffect;

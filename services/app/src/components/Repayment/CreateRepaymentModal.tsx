@@ -142,8 +142,6 @@ export default function CreateRepaymentModal({
       },
     });
 
-    console.log({ type: "calculateRepaymentEffect", response });
-
     if (response.status !== "OK") {
       setErrMsg(response.msg || "");
     } else {

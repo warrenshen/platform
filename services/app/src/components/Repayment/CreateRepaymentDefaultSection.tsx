@@ -5,10 +5,9 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  TextField,
   Typography,
 } from "@material-ui/core";
-import Autocomplete from "@material-ui/lab/Autocomplete";
+import SelectLoanAutocomplete from "components/Loan/SelectLoanAutocomplete";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import {
@@ -17,15 +16,12 @@ import {
   ProductTypeEnum,
   useGetFundedLoansByCompanyAndLoanTypeQuery,
 } from "generated/graphql";
-import { formatCurrency } from "lib/currency";
-import { formatDateString } from "lib/date";
 import {
   CustomerPaymentOptions,
   PaymentOptionToLabel,
   ProductTypeToLoanType,
 } from "lib/enum";
-import { createLoanCustomerIdentifier } from "lib/loans";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 interface Props {
   productType: ProductTypeEnum;
@@ -71,8 +67,6 @@ export default function CreateRepaymentDefaultSection({
     [data?.loans, payment.items_covered.loan_ids]
   );
 
-  const [autocompleteInputValue, setAutocompleteInputValue] = useState("");
-
   return (
     <Box display="flex" flexDirection="column">
       <Box>
@@ -88,46 +82,18 @@ export default function CreateRepaymentDefaultSection({
           loans={selectedLoans}
         />
         <Box display="flex" flexDirection="column" mt={4}>
-          <FormControl>
-            <Autocomplete
-              autoHighlight
-              id="combo-box-demo"
-              options={notSelectedLoans}
-              inputValue={autocompleteInputValue}
-              value={null}
-              getOptionLabel={(loan) =>
-                `${createLoanCustomerIdentifier(
-                  loan
-                )} | Amount: ${formatCurrency(
-                  loan.amount
-                )} | Origination Date: ${formatDateString(
-                  loan.origination_date
-                )}`
-              }
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Add another loan"
-                  variant="outlined"
-                />
-              )}
-              onChange={(_event, loan) => {
-                if (loan) {
-                  setPayment({
-                    ...payment,
-                    items_covered: {
-                      ...payment.items_covered,
-                      loan_ids: [...payment.items_covered.loan_ids, loan.id],
-                    },
-                  });
-                  setAutocompleteInputValue("");
-                }
-              }}
-              onInputChange={(_event, value) =>
-                setAutocompleteInputValue(value)
-              }
-            />
-          </FormControl>
+          <SelectLoanAutocomplete
+            optionLoans={notSelectedLoans}
+            handleSelectLoan={(loan) =>
+              setPayment({
+                ...payment,
+                items_covered: {
+                  ...payment.items_covered,
+                  loan_ids: [...payment.items_covered.loan_ids, loan.id],
+                },
+              })
+            }
+          />
         </Box>
       </Box>
       <Box my={6}>
