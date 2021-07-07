@@ -29,7 +29,7 @@ export default function CreateMonthEndPaymentsModal({ handleClose }: Props) {
   );
 
   const [
-    getAllMonthlyFeesDue,
+    getAllMonthlyInterestFeesDue,
     { loading: isGetAllMonthlyFeesDueLoading },
   ] = useCustomMutation(getAllMonthEndPaymentsQuery);
 
@@ -39,7 +39,7 @@ export default function CreateMonthEndPaymentsModal({ handleClose }: Props) {
   ] = useCustomMutation(submitMonthEndPaymentsMutation);
 
   const handleClickNext = async () => {
-    const response = await getAllMonthlyFeesDue({
+    const response = await getAllMonthlyInterestFeesDue({
       variables: {
         date: dateStr,
       },

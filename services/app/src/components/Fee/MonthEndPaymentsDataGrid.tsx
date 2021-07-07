@@ -7,16 +7,16 @@ import DataGridActionMenu, {
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
-function getRows(minimumMonthlyFees: any[]): RowsProp {
-  return minimumMonthlyFees.map((rowInfo) => {
+function getRows(monthEndPayments: any[]): RowsProp {
+  return monthEndPayments.map((monthEndPayment) => {
     return {
-      ...rowInfo,
-      id: rowInfo.company.id,
-      company_name: rowInfo.company.name,
-      total_outstanding_interest: rowInfo.total_outstanding_interest,
-      fee_amount: rowInfo.fee_amount,
-      fee_period: rowInfo.fee_info?.duration,
-      fee_due: rowInfo.fee_info?.amount_short,
+      ...monthEndPayment,
+      id: monthEndPayment.company.id,
+      company_name: monthEndPayment.company.name,
+      total_outstanding_interest: monthEndPayment.total_outstanding_interest,
+      fee_amount: monthEndPayment.fee_amount,
+      fee_period: monthEndPayment.fee_info?.duration,
+      fee_due: monthEndPayment.fee_info?.amount_short,
     };
   });
 }

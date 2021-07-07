@@ -281,7 +281,7 @@ class SettleAccountLevelFeeRepaymentWithAccountCreditView(MethodView):
 			'transaction_ids': transaction_ids
 		}), 200)
 
-class GetAllMonthlyMinimumFeesDueView(MethodView):
+class GetAllMinimumInterestFeesDueView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
 	@handler_util.catch_bad_json_request
@@ -301,7 +301,7 @@ class GetAllMonthlyMinimumFeesDueView(MethodView):
 		user_session = auth_util.UserSession.from_session()
 
 		with models.session_scope(current_app.session_maker) as session:
-			resp, err = fees_due_util.get_all_monthly_minimum_fees_due(
+			resp, err = fees_due_util.get_all_minimum_interest_fees_due(
 				form.get('date'),
 				session
 			)
@@ -314,7 +314,7 @@ class GetAllMonthlyMinimumFeesDueView(MethodView):
 		}), 200)
 
 
-class SubmitAllMonthlyMinimumFeesDueView(MethodView):
+class SubmitMinimumInterestFeesDueView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
 	@handler_util.catch_bad_json_request
@@ -435,10 +435,10 @@ handler.add_url_rule(
 	'/make_account_level_fee', view_func=MakeAccountLevelFeeView.as_view(name='make_account_level_fee_view'))
 
 handler.add_url_rule(
-	'/get_all_monthly_minimum_fees_due', view_func=GetAllMonthlyMinimumFeesDueView.as_view(name='get_all_monthly_minimum_fees_due_view'))
+	'/get_all_minimum_interest_fees_due', view_func=GetAllMinimumInterestFeesDueView.as_view(name='get_all_minimum_interest_fees_due_view'))
 
 handler.add_url_rule(
-	'/submit_all_monthly_minimum_fees_due', view_func=SubmitAllMonthlyMinimumFeesDueView.as_view(name='submit_all_monthly_minimum_fees_due_view'))
+	'/submit_minimum_interest_fees_due', view_func=SubmitMinimumInterestFeesDueView.as_view(name='submit_minimum_interest_fees_due_view'))
 
 handler.add_url_rule(
 	'/get_all_month_end_payments', view_func=GetAllMonthEndPaymentsView.as_view(name='get_all_month_end_payments_view'))

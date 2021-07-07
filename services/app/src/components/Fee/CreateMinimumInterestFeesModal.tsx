@@ -1,14 +1,15 @@
 import { Box, Typography } from "@material-ui/core";
+import { ValueFormatterParams } from "@material-ui/data-grid";
 import { Alert } from "@material-ui/lab";
 import Modal from "components/Shared/Modal/Modal";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import {
-  getAllMonthlyFeesDueQuery,
-  submitAllMonthlyFeesDueMutation,
+  getAllMonthlyInterestFeesDueQuery,
+  submitMinimumInterestFeesDueMutation,
 } from "lib/api/fees";
 import { useState } from "react";
-import MinimumMonthlyFeesDataGrid from "components/Fee/MinimumMonthlyFeesDataGrid";
+import MinimumInterestFeesDataGrid from "components/Fee/MinimumInterestFeesDataGrid";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import { formatDateStringAsMonth } from "lib/date";
 
@@ -23,20 +24,23 @@ export default function CreateMinimumInterestFeesModal({ handleClose }: Props) {
   const [isOnConfirmationPage, setIsOnConfirmationPage] = useState<boolean>(
     false
   );
-  const [monthlyFeesDueResp, setMonthlyFeesDueResp] = useState<any>(null);
+  const [
+    minimumInterestFeesDuePayload,
+    setMinimumInterestFeesDuePayload,
+  ] = useState<any>(null);
 
   const [
-    getAllMonthlyFeesDue,
+    getAllMonthlyInterestFeesDue,
     { loading: isGetAllMonthlyFeesDueLoading },
-  ] = useCustomMutation(getAllMonthlyFeesDueQuery);
+  ] = useCustomMutation(getAllMonthlyInterestFeesDueQuery);
 
   const [
-    submitAllMonthlyFeesDue,
+    submitMinimumInterestFeesDue,
     { loading: isSubmitAllMonthlyFeesDueLoading },
-  ] = useCustomMutation(submitAllMonthlyFeesDueMutation);
+  ] = useCustomMutation(submitMinimumInterestFeesDueMutation);
 
   const handleClickNext = async () => {
-    const response = await getAllMonthlyFeesDue({
+    const response = await getAllMonthlyInterestFeesDue({
       variables: {
         date: dateStr,
       },
@@ -45,25 +49,23 @@ export default function CreateMinimumInterestFeesModal({ handleClose }: Props) {
     if (response.status !== "OK") {
       snackbar.showError(`Error: ${response.msg}`);
     } else {
-      setMonthlyFeesDueResp(response.data);
+      setMinimumInterestFeesDuePayload(response.data);
       setIsOnConfirmationPage(true);
     }
   };
 
   const handleClickSubmit = async () => {
-    const response = await submitAllMonthlyFeesDue({
+    const response = await submitMinimumInterestFeesDue({
       variables: {
         date: dateStr,
-        monthly_due_resp: monthlyFeesDueResp,
+        monthly_due_resp: minimumInterestFeesDuePayload,
       },
     });
 
     if (response.status !== "OK") {
       snackbar.showError(`Error: ${response.msg}`);
     } else {
-      snackbar.showSuccess(
-        "Fees created for customers who have monthly, quarterly, or annual interest minimums."
-      );
+      snackbar.showSuccess("Minimum interest fees created for customers.");
       handleClose();
     }
   };
@@ -75,14 +77,11 @@ export default function CreateMinimumInterestFeesModal({ handleClose }: Props) {
   const isSubmitDisabled =
     isOnConfirmationPage && isSubmitAllMonthlyFeesDueLoading;
 
-  const companyIdToMonthlyFeesDue =
-    monthlyFeesDueResp?.company_due_to_financial_info || {};
-  const minimumMonthlyFees = Object.keys(companyIdToMonthlyFeesDue).map(
-    (companyId) => {
-      const minimumMonthlyFeePayload = companyIdToMonthlyFeesDue[companyId];
-      return minimumMonthlyFeePayload;
-    }
-  );
+  const companyIdToMinimumInterestFeeDue =
+    minimumInterestFeesDuePayload?.company_due_to_financial_info || {};
+  const minimumInterestFeesDue = Object.keys(
+    companyIdToMinimumInterestFeeDue
+  ).map((companyId) => companyIdToMinimumInterestFeeDue[companyId]);
 
   return (
     <Modal
@@ -148,8 +147,26 @@ export default function CreateMinimumInterestFeesModal({ handleClose }: Props) {
                 </Alert>
               </Box>
             </Box>
-            <MinimumMonthlyFeesDataGrid
-              minimumMonthlyFees={minimumMonthlyFees}
+            <MinimumInterestFeesDataGrid
+              minimumInterestFees={minimumInterestFeesDue}
+              actionItems={[
+                {
+                  key: "remove",
+                  label: "Remove",
+                  handleClick: (params: ValueFormatterParams) => {
+                    const companyId = params.row.data.id;
+                    const newMinimumInterestFeesDuePayload = Object.assign(
+                      {},
+                      minimumInterestFeesDuePayload
+                    );
+                    delete newMinimumInterestFeesDuePayload
+                      .company_due_to_financial_info[companyId];
+                    setMinimumInterestFeesDuePayload(
+                      newMinimumInterestFeesDuePayload
+                    );
+                  },
+                },
+              ]}
             />
           </Box>
         )}

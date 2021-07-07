@@ -1,33 +1,49 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
+import DataGridActionMenu, {
+  DataGridActionItem,
+} from "components/Shared/DataGrid/DataGridActionMenu";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
-function getRows(minimumMonthlyFees: any[]): RowsProp {
-  return minimumMonthlyFees.map((minimumMonthlyFee) => {
+function getRows(minimumInterestFees: any[]): RowsProp {
+  return minimumInterestFees.map((minimumInterestFee) => {
     return {
-      ...minimumMonthlyFees,
-      id: minimumMonthlyFee.company.identifier,
-      company_name: minimumMonthlyFee.company.name,
-      fee_period: minimumMonthlyFee.fee_info?.duration,
-      fee_due: minimumMonthlyFee.fee_info?.amount_short,
+      ...minimumInterestFee,
+      id: minimumInterestFee.company.id,
+      company_name: minimumInterestFee.company.name,
+      fee_period: minimumInterestFee.fee_info?.duration,
+      fee_due: minimumInterestFee.fee_info?.amount_short,
     };
   });
 }
 
 interface Props {
   isExcelExport?: boolean;
-  minimumMonthlyFees: any;
+  minimumInterestFees: any;
+  actionItems: DataGridActionItem[];
 }
 
-export default function MinimumMonthlyFeesDataGrid({
+export default function MinimumInterestFeesDataGrid({
   isExcelExport = true,
-  minimumMonthlyFees,
+  minimumInterestFees,
+  actionItems,
 }: Props) {
-  const rows = getRows(minimumMonthlyFees);
+  const rows = getRows(minimumInterestFees);
   const columns = useMemo(
     () => [
+      {
+        fixed: true,
+        visible: !!actionItems && actionItems.length > 0,
+        dataField: "action",
+        caption: "Action",
+        alignment: "center",
+        width: 80,
+        cellRender: (params: ValueFormatterParams) => (
+          <DataGridActionMenu params={params} actionItems={actionItems} />
+        ),
+      },
       {
         fixed: true,
         dataField: "company_name",
@@ -49,7 +65,7 @@ export default function MinimumMonthlyFeesDataGrid({
         ),
       },
     ],
-    []
+    [actionItems]
   );
 
   return (

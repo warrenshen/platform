@@ -1,10 +1,10 @@
 import { authenticatedApi, CustomMutationResponse, feesRoutes } from "lib/api";
 
-export async function getAllMonthlyFeesDueQuery(req: {
+export async function getAllMonthlyInterestFeesDueQuery(req: {
   variables: { date: string };
 }): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(feesRoutes.getAllMonthlyMinimumFeesDue, req.variables)
+    .post(feesRoutes.getAllMinimumInterestFeesDue, req.variables)
     .then((res) => res.data)
     .then(
       (res) => res,
@@ -18,11 +18,11 @@ export async function getAllMonthlyFeesDueQuery(req: {
     );
 }
 
-export async function submitAllMonthlyFeesDueMutation(req: {
+export async function submitMinimumInterestFeesDueMutation(req: {
   variables: any;
 }): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(feesRoutes.submitAllMonthlyMinimumFeesDue, req.variables)
+    .post(feesRoutes.submitMinimumInterestFeesDue, req.variables)
     .then((res) => res.data)
     .then(
       (res) => res,

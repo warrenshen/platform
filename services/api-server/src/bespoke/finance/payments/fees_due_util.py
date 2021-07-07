@@ -66,7 +66,7 @@ def _should_pay_this_month(fee_payload: models.FeeDict, cur_date: datetime.date)
 	else:
 		raise errors.Error('Unrecognized fee payload duration "{}"'.format(fee_payload['duration']))
 
-def get_all_monthly_minimum_fees_due(
+def get_all_minimum_interest_fees_due(
 	date_str: str, session: Session) -> Tuple[AllMonthlyMinimumDueRespDict, errors.Error]:
 	
 	last_day_of_month_date = _get_last_day_of_month_date(date_str)
