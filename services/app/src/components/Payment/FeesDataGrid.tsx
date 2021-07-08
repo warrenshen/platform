@@ -32,7 +32,7 @@ interface Props {
   })[];
   selectedPaymentIds?: Payments["id"][];
   handleClickCustomer?: (customerId: Companies["id"]) => void;
-  handleSelectPayments?: (payments: PaymentLimitedFragment[]) => void;
+  handleSelectFees?: (payments: PaymentLimitedFragment[]) => void;
 }
 
 function getRows(
@@ -53,7 +53,7 @@ export default function FeesDataGrid({
   fees,
   selectedPaymentIds,
   handleClickCustomer,
-  handleSelectPayments,
+  handleSelectFees,
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = useMemo(() => getRows(fees), [fees]);
@@ -124,9 +124,9 @@ export default function FeesDataGrid({
 
   const handleSelectionChanged = useMemo(
     () => ({ selectedRowsData }: any) =>
-      handleSelectPayments &&
-      handleSelectPayments(selectedRowsData as PaymentLimitedFragment[]),
-    [handleSelectPayments]
+      handleSelectFees &&
+      handleSelectFees(selectedRowsData as PaymentLimitedFragment[]),
+    [handleSelectFees]
   );
 
   return (

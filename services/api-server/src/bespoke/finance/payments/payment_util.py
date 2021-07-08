@@ -482,6 +482,12 @@ def delete_payment(
 			models.Payment.id == payment_id
 		).first())
 
+	if payment.type == db_constants.PaymentType.FEE:
+		# If we have a fee, we can immediately unsettle it while also deleting it.
+		success, err = unsettle_payment(payment.type, payment_id, is_undo=False, session=session)
+		if err:
+			raise err
+
 	if not payment:
 		raise errors.Error(f'No payment found to delete')
 

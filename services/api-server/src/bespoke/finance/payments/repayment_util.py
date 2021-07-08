@@ -1294,6 +1294,7 @@ def delete_repayment(
 			payment_types=[
 				db_constants.PaymentType.REPAYMENT,
 				db_constants.PaymentType.REPAYMENT_OF_ACCOUNT_FEE,
+				db_constants.PaymentType.FEE
 			],
 			payment_id=req['payment_id'],
 			session=session

@@ -11,7 +11,11 @@ import useSnackbar from "hooks/useSnackbar";
 import { deleteRepaymentMutation } from "lib/api/payments";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
-import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
+import {
+  PaymentMethodEnum,
+  PaymentMethodToLabel,
+  PaymentTypeEnum,
+} from "lib/enum";
 import { useContext } from "react";
 
 interface Props {
@@ -41,6 +45,17 @@ function DeletePaymentModal({ paymentId, handleClose }: Props) {
     { loading: isDeleteRepaymentLoading },
   ] = useCustomMutation(deleteRepaymentMutation);
 
+  let title = "Delete Payment";
+  let noun = "payment";
+
+  if (payment?.type === PaymentTypeEnum.RepaymentOfAccountFee) {
+    title = "Delete Payment of Fee";
+    noun = "repayment";
+  } else if (payment?.type === PaymentTypeEnum.Fee) {
+    title = "Delete Fee";
+    noun = "fee";
+  }
+
   const handleClickSubmit = async () => {
     const response = await deletePayment({
       variables: {
@@ -50,7 +65,7 @@ function DeletePaymentModal({ paymentId, handleClose }: Props) {
     if (response.status !== "OK") {
       snackbar.showError(`Message: ${response.msg}`);
     } else {
-      snackbar.showSuccess("Payment deleted.");
+      snackbar.showSuccess(`${noun} deleted.`);
       handleClose();
     }
   };
@@ -62,7 +77,7 @@ function DeletePaymentModal({ paymentId, handleClose }: Props) {
   return isDialogReady ? (
     <Modal
       isPrimaryActionDisabled={isSubmitDisabled}
-      title={"Delete Payment"}
+      title={title}
       primaryActionText={"Confirm"}
       handleClose={handleClose}
       handlePrimaryAction={handleClickSubmit}
@@ -72,7 +87,7 @@ function DeletePaymentModal({ paymentId, handleClose }: Props) {
           <Box mt={2} mb={6}>
             <Alert severity="warning">
               <Typography variant="body1">
-                {`Warning: you are deleting a payment on behalf of this
+                {`Warning: you are deleting a ${noun} on behalf of this
                 customer (only bank admins can do this).`}
               </Typography>
             </Alert>
@@ -80,8 +95,8 @@ function DeletePaymentModal({ paymentId, handleClose }: Props) {
         )}
         <Box mb={2}>
           <Typography variant={"h6"}>
-            Are you sure you want to delete the following payment? You CANNOT
-            undo this action.
+            {`Are you sure you want to delete the following ${noun}? You CANNOT
+            undo this action.`}
           </Typography>
         </Box>
         {payment && (

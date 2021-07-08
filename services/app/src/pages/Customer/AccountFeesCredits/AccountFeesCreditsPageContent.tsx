@@ -20,6 +20,7 @@ import {
   Payments,
   ProductTypeEnum,
   useGetCustomerAccountQuery,
+  PaymentLimitedFragment,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { formatCurrency } from "lib/currency";
@@ -86,13 +87,22 @@ export default function CustomerAccountPageContent({
       ? accountBalancePayload.credits_total
       : null;
 
-  const [selectedPaymentIds, setSelectedPaymentIds] = useState<Payments["id"]>(
-    []
+  const [selectedPaymentIdsForFees, setSelectedPaymentIdsForFees] = useState<
+    Payments["id"]
+  >([]);
+
+  const selectedPaymentIdForFees = useMemo(
+    () =>
+      selectedPaymentIdsForFees.length === 1
+        ? selectedPaymentIdsForFees[0]
+        : null,
+    [selectedPaymentIdsForFees]
   );
 
-  const selectedPaymentId = useMemo(
-    () => (selectedPaymentIds.length === 1 ? selectedPaymentIds[0] : null),
-    [selectedPaymentIds]
+  const handleSelectFees = useMemo(
+    () => (payments: PaymentLimitedFragment[]) =>
+      setSelectedPaymentIdsForFees(payments.map((payment) => payment.id)),
+    [setSelectedPaymentIdsForFees]
   );
 
   return (
@@ -226,18 +236,18 @@ export default function CustomerAccountPageContent({
             <Typography variant="h6">Account Fees</Typography>
           </Box>
           <Box display="flex" flexDirection="row-reverse" mb={2}>
-            {!!selectedPaymentId && (
+            {!!selectedPaymentIdForFees && (
               <Can perform={Action.DeleteRepayments}>
                 <ModalButton
-                  label={"Delete Payment"}
+                  label={"Delete Fee"}
                   variant={"outlined"}
                   modal={({ handleClose }) => (
                     <DeletePaymentModal
-                      paymentId={selectedPaymentId}
+                      paymentId={selectedPaymentIdForFees}
                       handleClose={() => {
                         refetch();
                         handleClose();
-                        setSelectedPaymentIds([]);
+                        setSelectedPaymentIdsForFees([]);
                       }}
                     />
                   )}
@@ -249,9 +259,13 @@ export default function CustomerAccountPageContent({
             <Box display="flex" flexDirection="column" width="100%">
               <Box display="flex" flex={1}>
                 {fees.length > 0 ? (
-                  <FeesDataGrid fees={fees} />
+                  <FeesDataGrid
+                    fees={fees}
+                    handleSelectFees={handleSelectFees}
+                    isMultiSelectEnabled={true}
+                  />
                 ) : (
-                  <Typography variant="body1">No pending repayments</Typography>
+                  <Typography variant="body1">No pending fees</Typography>
                 )}
               </Box>
             </Box>
