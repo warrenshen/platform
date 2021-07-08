@@ -364,7 +364,7 @@ class GetAllMonthEndPaymentsView(MethodView):
 		for key in required_keys:
 			if key not in form:
 				return handler_util.make_error_response(
-					'Missing key {} from get all monthly LOC fees due'.format(key))
+					'Missing key {} from get all monthly fees due'.format(key))
 
 		user_session = auth_util.UserSession.from_session()
 
@@ -398,7 +398,7 @@ class SubmitMonthEndPaymentsView(MethodView):
 		for key in required_keys:
 			if key not in form:
 				return handler_util.make_error_response(
-					'Missing key {} from get all monthly LOC fees due'.format(key))
+					'Missing key {} from get all monthly fees due'.format(key))
 
 		user_session = auth_util.UserSession.from_session()
 

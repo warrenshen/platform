@@ -16,15 +16,15 @@ from bespoke.finance import number_util
 from bespoke.finance.payments import payment_util, repayment_util
 from bespoke.finance.types import payment_types
 
-LOCPerCompanyRespInfo = TypedDict('LOCPerCompanyRespInfo', {
+MonthEndPerCompanyRespInfo = TypedDict('MonthEndPerCompanyRespInfo', {
 	'fee_info': models.FeeDict,
 	'fee_amount': float,
 	'total_outstanding_interest': float,
 	'company': models.CompanyDict
 })
 
-AllMonthlyLOCDueRespDict = TypedDict('AllMonthlyLOCDueRespDict', {
-	'company_due_to_financial_info': Dict[str, LOCPerCompanyRespInfo]
+AllMonthlyDueRespDict = TypedDict('AllMonthlyDueRespDict', {
+	'company_due_to_financial_info': Dict[str, MonthEndPerCompanyRespInfo]
 })
 
 PerCompanyRespInfo = TypedDict('PerCompanyRespInfo', {
@@ -141,7 +141,7 @@ def create_minimum_due_fee_for_customers(
 
 
 def get_all_month_end_payments(
-	date_str: str, session: Session) -> Tuple[AllMonthlyLOCDueRespDict, errors.Error]:
+	date_str: str, session: Session) -> Tuple[AllMonthlyDueRespDict, errors.Error]:
 
 	first_day_of_month_date = _get_first_day_of_month_date(date_str)
 	last_day_of_month_date = _get_last_day_of_month_date(date_str)
@@ -157,12 +157,10 @@ def get_all_month_end_payments(
 		List[models.FinancialSummary],
 		session.query(models.FinancialSummary).filter(
 			models.FinancialSummary.date == last_day_of_month_date
-		).filter(
-			models.FinancialSummary.product_type == db_constants.ProductType.LINE_OF_CREDIT
 		).all())
 
 	if not financial_summaries:
-		return None, errors.Error('No LOC financial summaries found for date {}'.format(
+		return None, errors.Error('No financial summaries found for date {}'.format(
 			date_util.date_to_str(last_day_of_month_date)))
 
 	financial_summaries_begin_of_month = cast(
@@ -190,14 +188,16 @@ def get_all_month_end_payments(
 		if not financial_summary.minimum_monthly_payload:
 			continue
 
-		if cur_company_id not in loc_companies_at_beginning_of_month:
+		is_loc_customer = financial_summary.product_type == db_constants.ProductType.LINE_OF_CREDIT
+
+		if is_loc_customer and (cur_company_id not in loc_companies_at_beginning_of_month):
 			logging.info('Skipping company {} from an LOC reverse draft ACH because they werent an LOC customer at the beginning of the month'.format(
 				company_dict['name']))
 			continue
 
 		minimum_monthly_payload = cast(models.FeeDict, financial_summary.minimum_monthly_payload)
 
-		fee_amount = float(financial_summary.total_outstanding_interest)
+		fee_amount = float(financial_summary.total_outstanding_interest) if is_loc_customer else 0.0
 		has_minimum_interest = not number_util.is_currency_zero(minimum_monthly_payload['amount_short'])
 
 		if _should_pay_this_month(
@@ -207,19 +207,19 @@ def get_all_month_end_payments(
 		if number_util.is_currency_zero(fee_amount):
 			continue
 
-		company_id_to_financial_info[cur_company_id] = LOCPerCompanyRespInfo(
+		company_id_to_financial_info[cur_company_id] = MonthEndPerCompanyRespInfo(
 			fee_info=minimum_monthly_payload,
 			total_outstanding_interest=float(financial_summary.total_outstanding_interest),
 			fee_amount=fee_amount,
 			company=company_id_to_dict[cur_company_id]
 		)
 
-	return AllMonthlyLOCDueRespDict(
+	return AllMonthlyDueRespDict(
 		company_due_to_financial_info=company_id_to_financial_info
 	), None
 
 def create_month_end_payments_for_customers(
-	date_str: str, minimum_due_resp: AllMonthlyLOCDueRespDict,
+	date_str: str, minimum_due_resp: AllMonthlyDueRespDict,
 	user_id: str, session: Session) -> Tuple[bool, errors.Error]:
 
 	if not minimum_due_resp['company_due_to_financial_info']:
