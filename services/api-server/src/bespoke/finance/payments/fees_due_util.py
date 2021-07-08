@@ -149,6 +149,7 @@ def get_all_month_end_payments(
 	companies = cast(
 		List[models.Company],
 		session.query(models.Company).all())
+
 	company_id_to_dict = {}
 	for company in companies:
 		company_id_to_dict[str(company.id)] = company.as_dict()

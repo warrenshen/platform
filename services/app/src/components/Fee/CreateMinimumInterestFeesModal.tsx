@@ -12,6 +12,7 @@ import { useState } from "react";
 import MinimumInterestFeesDataGrid from "components/Fee/MinimumInterestFeesDataGrid";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import { formatDateStringAsMonth } from "lib/date";
+import { sortBy } from "lodash";
 
 interface Props {
   handleClose: () => void;
@@ -82,6 +83,10 @@ export default function CreateMinimumInterestFeesModal({ handleClose }: Props) {
   const minimumInterestFeesDue = Object.keys(
     companyIdToMinimumInterestFeeDue
   ).map((companyId) => companyIdToMinimumInterestFeeDue[companyId]);
+  const sortedMinimumInterestFeesDue = sortBy(
+    minimumInterestFeesDue,
+    (minimumInterestFeeDue) => minimumInterestFeeDue.company.name
+  );
 
   return (
     <Modal
@@ -148,7 +153,7 @@ export default function CreateMinimumInterestFeesModal({ handleClose }: Props) {
               </Box>
             </Box>
             <MinimumInterestFeesDataGrid
-              minimumInterestFees={minimumInterestFeesDue}
+              minimumInterestFees={sortedMinimumInterestFeesDue}
               actionItems={[
                 {
                   key: "remove",

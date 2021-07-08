@@ -202,7 +202,10 @@ class SyncMetrcDataPerCustomerView(MethodView):
 			session_maker=current_app.session_maker
 		)
 		if fatal_err:
-			raise errors.Error('{}'.format(fatal_err), http_code=500)
+			return make_response(json.dumps({
+				'status': 'ERROR',
+				'errors': [f'{fatal_err}']
+			}))
 
 		logging.info(f"Finished syncing metrc data for 1 customer")
 

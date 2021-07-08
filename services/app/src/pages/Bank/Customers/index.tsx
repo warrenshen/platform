@@ -174,11 +174,11 @@ export default function BankCustomersPage() {
             <Can perform={Action.BookFees}>
               <Box mr={2}>
                 <ModalButton
-                  label={"Book Minimum Interest Fees"}
+                  label={"Create Month-End Repayments"}
                   color={"default"}
                   variant={"outlined"}
                   modal={({ handleClose }) => (
-                    <CreateBulkMinimumMonthlyFeeModal
+                    <CreateMonthEndPaymentsModal
                       handleClose={() => {
                         refetch();
                         handleClose();
@@ -191,11 +191,11 @@ export default function BankCustomersPage() {
             <Can perform={Action.BookFees}>
               <Box mr={2}>
                 <ModalButton
-                  label={"Create Month-End Repayments"}
+                  label={"Book Minimum Interest Fees"}
                   color={"default"}
                   variant={"outlined"}
                   modal={({ handleClose }) => (
-                    <CreateMonthEndPaymentsModal
+                    <CreateBulkMinimumMonthlyFeeModal
                       handleClose={() => {
                         refetch();
                         handleClose();

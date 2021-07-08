@@ -12,6 +12,7 @@ import { useState } from "react";
 import MonthEndPaymentsDataGrid from "components/Fee/MonthEndPaymentsDataGrid";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import { formatDateStringAsMonth } from "lib/date";
+import { sortBy } from "lodash";
 
 interface Props {
   handleClose: () => void;
@@ -81,6 +82,10 @@ export default function CreateMonthEndPaymentsModal({ handleClose }: Props) {
   const monthEndPayments = Object.keys(companyIdToMonthEndPayment).map(
     (companyId) => companyIdToMonthEndPayment[companyId]
   );
+  const sortedMonthEndPayments = sortBy(
+    monthEndPayments,
+    (monthEndPayment) => monthEndPayment.company.name
+  );
 
   return (
     <Modal
@@ -90,7 +95,7 @@ export default function CreateMonthEndPaymentsModal({ handleClose }: Props) {
       secondaryActionText={
         isOnConfirmationPage ? "Back to previous step" : null
       }
-      contentWidth={900}
+      contentWidth={800}
       handleClose={handleClose}
       handlePrimaryAction={
         isOnConfirmationPage ? handleClickSubmit : handleClickNext
@@ -145,9 +150,17 @@ export default function CreateMonthEndPaymentsModal({ handleClose }: Props) {
                   of payments.
                 </Alert>
               </Box>
+              <Box mt={2}>
+                <Alert severity="warning">
+                  Note: customers who have transitioned from a non-LOC product
+                  type to the LOC product type within the selected month are
+                  EXCLUDED from the table below. Please create the month-end
+                  payments for these customers manually.
+                </Alert>
+              </Box>
             </Box>
             <MonthEndPaymentsDataGrid
-              monthEndPayments={monthEndPayments}
+              monthEndPayments={sortedMonthEndPayments}
               actionItems={[
                 {
                   key: "remove",
