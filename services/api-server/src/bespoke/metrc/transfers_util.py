@@ -165,9 +165,13 @@ class Transfers(object):
 
 		return metrc_common_util.dicts_to_rows(self._transfers, col_specs, include_header)
 
+class TransferType(object):
+	INCOMING = 'INCOMING'
+	OUTGOING = 'OUTGOING'
+
 def _match_and_add_licenses_to_transfers(
 	metrc_transfers: List[models.MetrcTransfer],
-	transfer_type_prefix: str,
+	transfer_type: str,
 	session: Session) -> None:
 
 	# Vendor licenses lookup
@@ -206,14 +210,17 @@ def _match_and_add_licenses_to_transfers(
 
 		recipient_license_number = '{}'.format(cast(Dict, metrc_transfer.transfer_payload)['RecipientFacilityLicenseNumber'])
 		recipient_company_id = recipient_license_to_company_id.get(recipient_license_number)
+		if recipient_company_id:
+			metrc_transfer.payor_id = cast(Any, recipient_company_id)
 
 		company_matches_via_licenses = vendor_company_id and recipient_company_id and vendor_company_id == recipient_company_id
 		company_matches_via_ids = vendor_company_id and vendor_company_id == metrc_transfer.company_id
 		if company_matches_via_licenses or company_matches_via_ids:
-			metrc_transfer.transfer_type = f'{transfer_type_prefix}_INTERNAL'
-		else:
-			metrc_transfer.transfer_type = f'{transfer_type_prefix}_FROM_VENDOR'
-
+			metrc_transfer.transfer_type = f'{transfer_type}_INTERNAL'
+		elif transfer_type == TransferType.INCOMING:
+			metrc_transfer.transfer_type = 'INCOMING_FROM_VENDOR'
+		elif transfer_type == TransferType.OUTGOING:
+			metrc_transfer.transfer_type = 'OUTGOING_TO_PAYOR'
 
 @errors.return_error_tuple
 def populate_transfers_table(
@@ -280,32 +287,53 @@ def populate_transfers_table(
 
 	## Fetch transfers
 
+	# Incoming
 	try:
 		resp = rest.get('/transfers/v1/incoming', time_range=[cur_date_str])
-		transfers = json.loads(resp.content)
+		incoming_transfers = json.loads(resp.content)
 		request_status['transfers_api'] = 200
 	except errors.Error as e:
 		request_status['transfers_api'] = e.details.get('status_code')
 		return request_status, e
 
-	metrc_transfers = Transfers.build(transfers).get_transfer_models(
+	incoming_metrc_transfers = Transfers.build(incoming_transfers).get_transfer_models(
 		company_id=company_info.company_id,
 		license_id=license['license_id']
 	)
-
-	all_metrc_packages = []
-	# So we can map a package back to its parent transfer's delivery ID
-	package_id_to_delivery_id = {}  
-
 	# Look up company ids for vendors that might match, and use those
 	# licenses to determine what kind of transfer this is
 	_match_and_add_licenses_to_transfers(
-		metrc_transfers,
-		transfer_type_prefix='INCOMING',
+		incoming_metrc_transfers,
+		transfer_type=TransferType.INCOMING,
 		session=session
 	)
 
-	## Fetch packages and lab results 
+	# Outgoing
+	try:
+		resp = rest.get('/transfers/v1/outgoing', time_range=[cur_date_str])
+		outgoing_transfers = json.loads(resp.content)
+		request_status['transfers_api'] = 200
+	except errors.Error as e:
+		request_status['transfers_api'] = e.details.get('status_code')
+		return request_status, e
+
+	outgoing_metrc_transfers = Transfers.build(outgoing_transfers).get_transfer_models(
+		company_id=company_info.company_id,
+		license_id=license['license_id']
+	)
+	_match_and_add_licenses_to_transfers(
+		outgoing_metrc_transfers,
+		transfer_type=TransferType.OUTGOING,
+		session=session
+	)
+
+
+	metrc_transfers = incoming_metrc_transfers + outgoing_metrc_transfers
+
+	## Fetch packages and lab results
+	all_metrc_packages = []
+	# So we can map a package back to its parent transfer's delivery ID
+	package_id_to_delivery_id = {} 
 
 	for metrc_transfer in metrc_transfers:
 		logging.info(f'Downloading packages for metrc transfer delivery_id={metrc_transfer.delivery_id}')
@@ -382,6 +410,7 @@ def populate_transfers_table(
 			prev_transfer.shipment_transaction_type = metrc_transfer.shipment_transaction_type
 			prev_transfer.transfer_payload = metrc_transfer.transfer_payload
 			prev_transfer.vendor_id = metrc_transfer.vendor_id
+			prev_transfer.payor_id = metrc_transfer.payor_id
 			prev_transfer.transfer_type = metrc_transfer.transfer_type
 			prev_transfer.updated_at = metrc_transfer.updated_at
 			prev_transfer.lab_results_status = metrc_transfer.lab_results_status
