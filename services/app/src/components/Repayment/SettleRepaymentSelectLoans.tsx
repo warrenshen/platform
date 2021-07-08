@@ -151,7 +151,7 @@ export default function SettleRepaymentSelectLoans({
           </Box>
           <FormControl className={classes.inputField}>
             <CurrencyInput
-              label={"Payment Total Amount"}
+              label={"Total Amount"}
               value={payment.amount}
               handleChange={(value) =>
                 setPayment({ ...payment, amount: value })

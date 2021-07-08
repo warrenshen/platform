@@ -1,6 +1,6 @@
 // This component shows all the details about a repayment
 // before the user either clicks "Schedule" in the case of reverse_ach
-// or "Close" in the case of all other payment types.
+// or "Close" in the case of all other repayment types.
 import {
   Box,
   Button,
@@ -70,13 +70,13 @@ function LoansBeforeAfterPaymentPreview({
     <Box className={classes.container}>
       <Box className={classes.loanBeforeAfterPayment}>
         <Box className={classes.loanBeforePayment}>
-          <Typography variant="h6">Loans before payment</Typography>
+          <Typography variant="h6">Loans before repayment</Typography>
         </Box>
         <Box className={classes.middle}>
           <ArrowRightAlt />
         </Box>
         <Box className={classes.loanAfterPayment}>
-          <Typography variant="h6">Loans after payment</Typography>
+          <Typography variant="h6">Loans after repayment</Typography>
         </Box>
       </Box>
       <Box className={classes.loanBeforeAfterPayment}>

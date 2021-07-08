@@ -1,8 +1,8 @@
 import { Tab, Tabs } from "@material-ui/core";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
-import BankPaymentsActionRequiredTab from "pages/Bank/Payments/PaymentsActionRequiredTab";
-import BankPaymentsAllTab from "pages/Bank/Payments/PaymentsAllTab";
+import BankRepaymentsActionRequiredTab from "pages/Bank/Repayments/RepaymentsActionRequiredTab";
+import BankRepaymentsAllTab from "pages/Bank/Repayments/RepaymentsAllTab";
 import { useState } from "react";
 import styled from "styled-components";
 
@@ -19,12 +19,12 @@ const SectionSpace = styled.div`
   height: 24px;
 `;
 
-function BankPaymentsPage() {
+function BankRepaymentsPage() {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
   return (
-    <Page appBarTitle={"Payments"}>
-      <PageContent title={"Payments"}>
+    <Page appBarTitle={"Repayments"}>
+      <PageContent title={"Repayments"}>
         <Container>
           <Tabs
             value={selectedTabIndex}
@@ -39,9 +39,9 @@ function BankPaymentsPage() {
           </Tabs>
           <SectionSpace />
           {selectedTabIndex === 0 ? (
-            <BankPaymentsActionRequiredTab />
+            <BankRepaymentsActionRequiredTab />
           ) : (
-            <BankPaymentsAllTab />
+            <BankRepaymentsAllTab />
           )}
         </Container>
       </PageContent>
@@ -49,4 +49,4 @@ function BankPaymentsPage() {
   );
 }
 
-export default BankPaymentsPage;
+export default BankRepaymentsPage;

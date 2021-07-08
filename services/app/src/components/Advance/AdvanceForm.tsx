@@ -60,7 +60,7 @@ export default function AdvanceForm({
       <Box mt={4}>
         <FormControl className={classes.inputField}>
           <InputLabel id="select-payment-method-label" required>
-            Payment Method
+            Advance Method
           </InputLabel>
           <Select
             id="select-payment-method"

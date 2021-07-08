@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function BankPaymentsActionRequiredTab() {
+export default function BankRepaymentsActionRequiredTab() {
   const classes = useStyles();
   const history = useHistory();
 
@@ -128,7 +128,7 @@ export default function BankPaymentsActionRequiredTab() {
               <Box>
                 <ModalButton
                   isDisabled={selectedSchedulePaymentIds.length !== 1}
-                  label={"Submit Payment"}
+                  label={"Submit Repayment"}
                   modal={({ handleClose }) => (
                     <ScheduleRepaymentModal
                       paymentId={selectedSchedulePaymentIds[0]}
@@ -181,7 +181,7 @@ export default function BankPaymentsActionRequiredTab() {
               <Box>
                 <ModalButton
                   isDisabled={selectedSettlePaymentIds.length !== 1}
-                  label={"Settle Payment"}
+                  label={"Settle Repayment"}
                   modal={({ handleClose }) => (
                     <SettleRepaymentModal
                       paymentId={selectedSettlePaymentIds[0]}
@@ -234,7 +234,7 @@ export default function BankPaymentsActionRequiredTab() {
               <Box>
                 <ModalButton
                   isDisabled={selectedNotifyPaymentIds.length !== 1}
-                  label={"Settle Payment"}
+                  label={"Settle Repayment"}
                   modal={({ handleClose }) => (
                     <SettleRepaymentModal
                       paymentId={selectedNotifyPaymentIds[0]}

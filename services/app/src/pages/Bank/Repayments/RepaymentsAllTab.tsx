@@ -11,7 +11,7 @@ const Container = styled.div`
   width: 100%;
 `;
 
-function BankPaymentsAllTab() {
+function BankRepaymentsAllTab() {
   const { data } = useGetPaymentsSubscription();
 
   const payments = data?.payments || [];
@@ -27,4 +27,4 @@ function BankPaymentsAllTab() {
   );
 }
 
-export default BankPaymentsAllTab;
+export default BankRepaymentsAllTab;

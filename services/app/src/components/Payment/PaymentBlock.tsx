@@ -33,7 +33,7 @@ export default function PaymentBlock({ payment }: Props) {
   return (
     <Container>
       <Box display="flex" flexDirection="column" width="100%">
-        <Typography variant="h6">{`Payment P${payment.settlement_identifier}`}</Typography>
+        <Typography variant="h6">{`Repayment P${payment.settlement_identifier}`}</Typography>
         <Box display="flex" justifyContent="space-between" my={2}>
           <Box display="flex">
             <Box display="flex" flexDirection="column" width={200}>

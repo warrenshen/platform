@@ -28,7 +28,7 @@ subscription GetLoansCountForBank {
   }
 }
 
-subscription GetPaymentsCountForBank {
+subscription GetRepaymentsCountForBank {
   payments(
     where: {
       _and: [
@@ -38,7 +38,7 @@ subscription GetPaymentsCountForBank {
             { is_deleted: { _eq: false } }
           ]
         }
-        { type: { _eq: "repayment" } }
+        { type: { _in: ["repayment", "repayment_account_fee"] } }
         { method: { _eq: "reverse_draft_ach" } }
         { payment_date: { _is_null: true } }
       ]

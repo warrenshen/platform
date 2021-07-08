@@ -86,7 +86,7 @@ export default function CreateMinimumInterestFeesModal({ handleClose }: Props) {
   return (
     <Modal
       isPrimaryActionDisabled={isNextDisabled || isSubmitDisabled}
-      title={"Create Minimum Interest Fees For Month"}
+      title={"Create Minimum Interest Fees"}
       primaryActionText={isOnConfirmationPage ? "Submit" : "Next"}
       secondaryActionText={
         isOnConfirmationPage ? "Back to previous step" : null

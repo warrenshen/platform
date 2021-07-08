@@ -67,7 +67,7 @@ export default function RepaymentTransactionsDataGrid({
     () => [
       {
         dataField: "payment.settlement_identifier",
-        caption: "Payment #",
+        caption: "Repayment #",
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
           <PaymentDrawerLauncher
@@ -78,7 +78,7 @@ export default function RepaymentTransactionsDataGrid({
       },
       {
         dataField: "payment.method",
-        caption: "Payment Method",
+        caption: "Repayment Method",
         minWidth: ColumnWidths.MinWidth,
         calculateCellValue: ({
           payment,
@@ -88,7 +88,7 @@ export default function RepaymentTransactionsDataGrid({
       },
       {
         dataField: "payment.amount",
-        caption: "Payment Total Amount",
+        caption: "Total Amount",
         minWidth: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
@@ -97,12 +97,12 @@ export default function RepaymentTransactionsDataGrid({
       },
       {
         dataField: "status",
-        caption: "Payment Status",
+        caption: "Repayment Status",
         width: ColumnWidths.Status,
       },
       {
         dataField: "payment.deposit_date",
-        caption: "Payment Deposit Date",
+        caption: "Deposit Date",
         width: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
@@ -111,7 +111,7 @@ export default function RepaymentTransactionsDataGrid({
       },
       {
         dataField: "payment.settlement_date",
-        caption: "Payment Settlement Date",
+        caption: "Settlement Date",
         width: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (

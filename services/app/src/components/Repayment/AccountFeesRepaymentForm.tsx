@@ -73,12 +73,12 @@ export default function AccountFeesRepaymentForm({
       </Box>
       <Box mt={4}>
         <Typography variant="subtitle2">
-          Which payment method do you plan to pay with?
+          Which repayment method do you plan to pay with?
         </Typography>
         <Box display="flex" flexDirection="column" mt={1}>
           <FormControl>
             <InputLabel id="select-payment-method-label">
-              Payment Method
+              Repayment Method
             </InputLabel>
             <Select
               id="select-payment-method"

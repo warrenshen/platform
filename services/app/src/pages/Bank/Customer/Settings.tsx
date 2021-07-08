@@ -95,8 +95,8 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
             from.
           </Typography>
           <Typography variant="body2">
-            BF Payments Bank Account: BF bank account that customer should send
-            payments to.
+            BF Repayments Bank Account: BF bank account that customer should
+            send repayments to.
           </Typography>
           <Box display="flex">
             <Box display="flex">

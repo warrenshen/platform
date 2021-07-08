@@ -69,7 +69,7 @@ export default function CreateAdvanceModal({
   ] = useCustomMutation(createAdvanceMutation);
 
   useEffect(() => {
-    // When user changes payment method or payment date,
+    // When user changes advance method or advance date,
     // automatically update expect deposit and settlement dates.
     if (payment.method && payment.payment_date) {
       const settlementDate = computeSettlementDateForPayment(
@@ -86,7 +86,7 @@ export default function CreateAdvanceModal({
   }, [payment.method, payment.payment_date, setPayment]);
 
   useEffect(() => {
-    // If user selects payment method Wire and amount less than $25,000,
+    // If user selects advance method Wire and amount less than $25,000,
     // automatically check the "Charge Wire Fee" checkbox.
     if (payment.method === PaymentMethodEnum.Wire && payment.amount < 25000) {
       setShouldChargeWireFee(true);
@@ -96,7 +96,7 @@ export default function CreateAdvanceModal({
     } else if (payment.method !== PaymentMethodEnum.Wire) {
       setShouldChargeWireFee(false);
       // Do not show a snackbar here since the "Charge Wire Fee?" checkbox
-      // is not shown when payment method is not Wire.
+      // is not shown when advance method is not Wire.
     }
   }, [
     payment.method,

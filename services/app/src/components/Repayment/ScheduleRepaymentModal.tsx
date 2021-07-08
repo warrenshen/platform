@@ -91,7 +91,7 @@ export default function ScheduleRepaymentModal({
 
   useEffect(() => {
     if (contract && payment?.method && payment?.payment_date) {
-      // For Reverse Draft ACH payment method, deposit date equals payment date + 1 day.
+      // For Reverse Draft ACH repayment method, deposit date equals payment date + 1 day.
       // Why? Banks execute the payment the day after you submit it to them.
       const depositDate = addBizDays(payment.payment_date, 1);
       const settlementTimelineConfig = getSettlementTimelineConfigFromContract(

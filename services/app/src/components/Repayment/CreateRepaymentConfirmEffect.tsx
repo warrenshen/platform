@@ -105,9 +105,7 @@ export default function CreateRepaymentConfirmEffect({
           <Box>
             <Box mb={2}>
               <Typography variant="body1">
-                {`Payment Total Amount: ${formatCurrency(
-                  payment.requested_amount
-                )}`}
+                {`Total Amount: ${formatCurrency(payment.requested_amount)}`}
               </Typography>
             </Box>
             <Typography variant="body2">
@@ -127,9 +125,7 @@ export default function CreateRepaymentConfirmEffect({
             <Box>
               <Box mb={2}>
                 <Typography variant="body1">
-                  {`Payment Total Amount: ${formatCurrency(
-                    payment.requested_amount
-                  )}`}
+                  {`Total Amount: ${formatCurrency(payment.requested_amount)}`}
                 </Typography>
               </Box>
             </Box>

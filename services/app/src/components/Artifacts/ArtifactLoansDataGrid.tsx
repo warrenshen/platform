@@ -124,7 +124,7 @@ export default function ArtifactLoansDataGrid({
       {
         visible: isMaturityVisible,
         dataField: "payment_status",
-        caption: "Payment Status",
+        caption: "Repayment Status",
         width: ColumnWidths.Status,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (

@@ -49,7 +49,7 @@ export default function SettleRepaymentModalLoans({
   const snackbar = useSnackbar();
 
   // There are 2 states that we show, one when the user is selecting
-  // the payment method date, and payment type, and the next is when
+  // the repayment method date, and repayment type, and the next is when
   // they have to "confirm" what they have selected.
   const [isOnSelectLoans, setIsOnSelectLoans] = useState(true);
   const [errMsg, setErrMsg] = useState("");

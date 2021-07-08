@@ -78,13 +78,13 @@ export default function SettleRepaymentConfirmEffect({
             </Alert>
             <Box mt={2}>
               <Typography variant="body1">
-                {`Payment Total Amount: ${formatCurrency(payment.amount)}`}
+                {`Total Amount: ${formatCurrency(payment.amount)}`}
               </Typography>
             </Box>
             <Box display="flex" flexDirection="column" mt={2}>
               <FormControl>
                 <CurrencyInput
-                  label={"Payment Amount To Principal"}
+                  label={"Amount To Principal"}
                   value={payment.items_covered.to_principal}
                   handleChange={(value) =>
                     setPayment({
@@ -101,7 +101,7 @@ export default function SettleRepaymentConfirmEffect({
             <Box display="flex" flexDirection="column" mt={2}>
               <FormControl>
                 <CurrencyInput
-                  label={"Payment Amount To Interest"}
+                  label={"Amount To Interest"}
                   value={payment.items_covered.to_interest}
                   handleChange={(value) =>
                     setPayment({
@@ -118,7 +118,7 @@ export default function SettleRepaymentConfirmEffect({
             <Box display="flex" flexDirection="column" mt={2}>
               <FormControl>
                 <CurrencyInput
-                  label={"Payment Amount To Account Fees"}
+                  label={"Amount To Account Fees"}
                   value={payment.items_covered.to_account_fees}
                   handleChange={(value) =>
                     setPayment({
@@ -137,12 +137,12 @@ export default function SettleRepaymentConfirmEffect({
           <Box display="flex" flexDirection="column" mt={4}>
             <Box mb={2}>
               <Typography variant="body1">
-                {`Payment Total Amount: ${formatCurrency(payment.amount)}`}
+                {`Total Amount: ${formatCurrency(payment.amount)}`}
               </Typography>
             </Box>
             <Box display="flex" flexDirection="column" mb={1}>
               <Typography variant="body1">
-                {`"Loans before payment" balances are as of the settlement date, ${formatDateString(
+                {`"Loans before repayment" balances are as of the settlement date, ${formatDateString(
                   payment.settlement_date
                 )}.`}
               </Typography>
@@ -158,7 +158,7 @@ export default function SettleRepaymentConfirmEffect({
       <Box display="flex" flexDirection="column" mt={2}>
         <FormControl>
           <CurrencyInput
-            label={"Payment Amount to Holding Account"}
+            label={"Amount to Holding Account"}
             value={payment.items_covered.to_user_credit}
             handleChange={(value) =>
               setPayment({

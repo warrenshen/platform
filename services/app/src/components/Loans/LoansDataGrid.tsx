@@ -245,7 +245,7 @@ export default function LoansDataGrid({
       {
         visible: isStatusVisible && isMaturityVisible,
         dataField: "payment_status",
-        caption: "Payment Status",
+        caption: "Repayment Status",
         width: ColumnWidths.Status,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (

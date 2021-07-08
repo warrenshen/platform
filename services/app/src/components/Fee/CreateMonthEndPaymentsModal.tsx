@@ -85,7 +85,7 @@ export default function CreateMonthEndPaymentsModal({ handleClose }: Props) {
   return (
     <Modal
       isPrimaryActionDisabled={isNextDisabled || isSubmitDisabled}
-      title={"Create Month-End Payments For Month"}
+      title={"Create Month-End Repayments"}
       primaryActionText={isOnConfirmationPage ? "Submit" : "Next"}
       secondaryActionText={
         isOnConfirmationPage ? "Back to previous step" : null

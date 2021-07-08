@@ -29,7 +29,7 @@ import BankInvoicesPage from "pages/Bank/Invoices";
 import BankLoansPage from "pages/Bank/Loans";
 import BankOverviewPage from "pages/Bank/Overview";
 import BankPartnershipsPage from "pages/Bank/Partnerships";
-import BankPaymentsPage from "pages/Bank/Payments";
+import BankRepaymentsPage from "pages/Bank/Repayments";
 import BankPayorsPage from "pages/Bank/Payors";
 import BankPurchaseOrdersPage from "pages/Bank/PurchaseOrders";
 import BankReportsPage from "pages/Bank/Reports";
@@ -42,7 +42,7 @@ import CustomerEbbaApplicationsPage from "pages/Customer/EbbaApplications";
 import CustomerInvoicesPages from "pages/Customer/Invoices";
 import CustomerLoansPage from "pages/Customer/Loans";
 import CustomerOverviewPage from "pages/Customer/Overview";
-import CustomerPaymentsPage from "pages/Customer/Payments";
+import CustomerRepaymentsPage from "pages/Customer/Repayments";
 import CustomerPayorsPage from "pages/Customer/Payors";
 import CustomerPurchaseOrdersPage from "pages/Customer/PurchaseOrders";
 import CustomerSettingsPage from "pages/Customer/Settings";
@@ -207,7 +207,7 @@ function App() {
             UserRolesEnum.CompanyReadOnly,
           ]}
         >
-          <CustomerPaymentsPage />
+          <CustomerRepaymentsPage />
         </PrivateRoute>
         <PrivateRoute
           exact
@@ -301,7 +301,7 @@ function App() {
           path={bankRoutes.payments}
           requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
         >
-          <BankPaymentsPage />
+          <BankRepaymentsPage />
         </PrivateRoute>
         <PrivateRoute
           exact

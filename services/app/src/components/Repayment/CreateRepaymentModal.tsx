@@ -65,7 +65,7 @@ export default function CreateRepaymentModal({
   const contract = company?.contract || null;
 
   // There are 2 states that we show, one when the user is selecting
-  // the payment method date, and payment type, and the next is when
+  // the repayment method date, and repayment type, and the next is when
   // they have to "confirm" what they have selected.
   const [isOnSelectLoans, setIsOnSelectLoans] = useState(true);
   const [errMsg, setErrMsg] = useState("");
@@ -236,7 +236,7 @@ export default function CreateRepaymentModal({
       isPrimaryActionDisabled={
         isOnSelectLoans ? isNextButtonDisabled : isSubmitButtonDisabled
       }
-      title={"Make Payment"}
+      title={"Make Repayment"}
       subtitle={isOnSelectLoans ? "Step 1 of 2" : "Step 2 of 2"}
       contentWidth={1000}
       primaryActionText={isOnSelectLoans ? "Next step" : submitButtonText}

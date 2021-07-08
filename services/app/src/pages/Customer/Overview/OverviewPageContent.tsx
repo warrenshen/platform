@@ -130,14 +130,14 @@ export default function CustomerOverviewPageContent({
       title={"Overview"}
       bankActions={
         <>
-          <Can perform={Action.RunBalances}>
+          <Can perform={Action.CreateAdjustment}>
             <Box>
               <ModalButton
-                label={"Run Balances"}
+                label={"Create Adjustment"}
                 color={"default"}
                 variant={"outlined"}
                 modal={({ handleClose }) => (
-                  <RunCustomerBalancesModal
+                  <CreateAdjustmentModal
                     companyId={companyId}
                     handleClose={() => {
                       refetch();
@@ -148,14 +148,14 @@ export default function CustomerOverviewPageContent({
               />
             </Box>
           </Can>
-          <Can perform={Action.CreateAdjustment}>
+          <Can perform={Action.RunBalances}>
             <Box mr={2}>
               <ModalButton
-                label={"Create Adjustment"}
+                label={"Run Balances"}
                 color={"default"}
                 variant={"outlined"}
                 modal={({ handleClose }) => (
-                  <CreateAdjustmentModal
+                  <RunCustomerBalancesModal
                     companyId={companyId}
                     handleClose={() => {
                       refetch();
@@ -174,7 +174,7 @@ export default function CustomerOverviewPageContent({
             <Box>
               <ModalButton
                 isDisabled={!canCreateRepaymentLoan}
-                label={"Make Payment"}
+                label={"Make Repayment"}
                 modal={({ handleClose }) => (
                   <CreateRepaymentModal
                     companyId={companyId}
@@ -236,7 +236,7 @@ export default function CustomerOverviewPageContent({
         <Box className={classes.section}>
           <Box display="flex" justifyContent="space-between">
             <Typography variant="h6">
-              {`Pending Payments${
+              {`Pending Repayments${
                 payments.length > 0 ? ` (${payments.length})` : ""
               }`}
             </Typography>
@@ -247,7 +247,7 @@ export default function CustomerOverviewPageContent({
                 <Box>
                   <ModalButton
                     isDisabled={!canCreateRepaymentLoan}
-                    label={"Make Payment"}
+                    label={"Make Repayment"}
                     modal={({ handleClose }) => (
                       <CreateRepaymentModal
                         companyId={companyId}
@@ -293,7 +293,7 @@ export default function CustomerOverviewPageContent({
                     handleSelectPayments={handleSelectPayments}
                   />
                 ) : (
-                  <Typography variant="body1">No pending payments</Typography>
+                  <Typography variant="body1">No pending repayments</Typography>
                 )}
               </Box>
             </Box>
@@ -312,7 +312,7 @@ export default function CustomerOverviewPageContent({
                 <Can perform={Action.RepayPurchaseOrderLoans}>
                   <ModalButton
                     isDisabled={!canCreateRepaymentLoan}
-                    label={"Make Payment"}
+                    label={"Make Repayment"}
                     modal={({ handleClose }) => (
                       <CreateRepaymentModal
                         companyId={companyId}

@@ -97,7 +97,7 @@ export default function SelectLoanAutocomplete({
                   width={ColumnWidths.Status}
                 >
                   <Typography variant="subtitle2" color="textSecondary">
-                    <b>Payment Status</b>
+                    <b>Repayment Status</b>
                   </Typography>
                   <LoanPaymentStatusChip
                     paymentStatus={loan.payment_status as LoanPaymentStatusEnum}

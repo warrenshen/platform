@@ -92,7 +92,7 @@ export default function CreateAccountFeesRepaymentModal({
   return (
     <Modal
       isPrimaryActionDisabled={isSubmitButtonDisabled}
-      title={"Make Payment"}
+      title={"Make Repayment"}
       primaryActionText={"Submit"}
       handleClose={handleClose}
       handlePrimaryAction={handleClickConfirm}

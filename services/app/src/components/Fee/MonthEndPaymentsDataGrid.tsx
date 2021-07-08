@@ -54,7 +54,7 @@ export default function MonthEndPaymentsDataGrid({
       },
       {
         dataField: "fee_amount",
-        caption: "Payment Total Amount",
+        caption: "Total Amount",
         minWidth: ColumnWidths.Currency,
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.fee_amount} />

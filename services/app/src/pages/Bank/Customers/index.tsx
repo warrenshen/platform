@@ -191,7 +191,7 @@ export default function BankCustomersPage() {
             <Can perform={Action.BookFees}>
               <Box mr={2}>
                 <ModalButton
-                  label={"Create Month-End Payments"}
+                  label={"Create Month-End Repayments"}
                   color={"default"}
                   variant={"outlined"}
                   modal={({ handleClose }) => (

@@ -22,7 +22,7 @@ export default function RequestedRepaymentPreview({ payment }: Props) {
       <Box display="flex" flexDirection="column">
         <Box>
           <Typography variant="body1">
-            {`Requested Payment Method: ${
+            {`Requested Repayment Method: ${
               PaymentMethodToLabel[payment.method as PaymentMethodEnum]
             }`}
           </Typography>

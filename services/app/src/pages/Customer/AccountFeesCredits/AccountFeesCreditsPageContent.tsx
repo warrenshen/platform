@@ -103,24 +103,6 @@ export default function CustomerAccountPageContent({
           <Can perform={Action.RunBalances}>
             <Box>
               <ModalButton
-                label={"Run Balances"}
-                color={"default"}
-                variant={"outlined"}
-                modal={({ handleClose }) => (
-                  <RunCustomerBalancesModal
-                    companyId={companyId}
-                    handleClose={() => {
-                      refetch();
-                      handleClose();
-                    }}
-                  />
-                )}
-              />
-            </Box>
-          </Can>
-          <Can perform={Action.RunBalances}>
-            <Box mr={2}>
-              <ModalButton
                 label={"Payout Holding Account"}
                 color={"default"}
                 variant={"outlined"}
@@ -172,6 +154,24 @@ export default function CustomerAccountPageContent({
               />
             </Box>
           </Can>
+          <Can perform={Action.RunBalances}>
+            <Box mr={2}>
+              <ModalButton
+                label={"Run Balances"}
+                color={"default"}
+                variant={"outlined"}
+                modal={({ handleClose }) => (
+                  <RunCustomerBalancesModal
+                    companyId={companyId}
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                    }}
+                  />
+                )}
+              />
+            </Box>
+          </Can>
         </>
       }
       customerActions={
@@ -180,7 +180,7 @@ export default function CustomerAccountPageContent({
             <Box>
               <ModalButton
                 isDisabled={!canCreateRepaymentLoan}
-                label={"Make Payment"}
+                label={"Make Repayment"}
                 modal={({ handleClose }) => (
                   <CreateAccountFeesRepaymentModal
                     companyId={companyId}
@@ -251,7 +251,7 @@ export default function CustomerAccountPageContent({
                 {fees.length > 0 ? (
                   <FeesDataGrid fees={fees} />
                 ) : (
-                  <Typography variant="body1">No pending payments</Typography>
+                  <Typography variant="body1">No pending repayments</Typography>
                 )}
               </Box>
             </Box>

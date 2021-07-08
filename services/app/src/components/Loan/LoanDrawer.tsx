@@ -133,7 +133,7 @@ export default function LoanDrawer({ loanId, handleClose }: Props) {
           mt={2}
         >
           <Typography variant="subtitle2" color="textSecondary">
-            Payment Status
+            Repayment Status
           </Typography>
           <LoanPaymentStatusChip
             paymentStatus={loan.payment_status as LoanPaymentStatusEnum}

@@ -20089,11 +20089,11 @@ export type GetLoansCountForBankSubscription = {
   loans: Array<Pick<Loans, "id">>;
 };
 
-export type GetPaymentsCountForBankSubscriptionVariables = Exact<{
+export type GetRepaymentsCountForBankSubscriptionVariables = Exact<{
   [key: string]: never;
 }>;
 
-export type GetPaymentsCountForBankSubscription = {
+export type GetRepaymentsCountForBankSubscription = {
   payments: Array<Pick<Payments, "id">>;
 };
 
@@ -26983,8 +26983,8 @@ export type GetLoansCountForBankSubscriptionHookResult = ReturnType<
   typeof useGetLoansCountForBankSubscription
 >;
 export type GetLoansCountForBankSubscriptionResult = Apollo.SubscriptionResult<GetLoansCountForBankSubscription>;
-export const GetPaymentsCountForBankDocument = gql`
-  subscription GetPaymentsCountForBank {
+export const GetRepaymentsCountForBankDocument = gql`
+  subscription GetRepaymentsCountForBank {
     payments(
       where: {
         _and: [
@@ -26994,7 +26994,7 @@ export const GetPaymentsCountForBankDocument = gql`
               { is_deleted: { _eq: false } }
             ]
           }
-          { type: { _eq: "repayment" } }
+          { type: { _in: ["repayment", "repayment_account_fee"] } }
           { method: { _eq: "reverse_draft_ach" } }
           { payment_date: { _is_null: true } }
         ]
@@ -27007,35 +27007,35 @@ export const GetPaymentsCountForBankDocument = gql`
 `;
 
 /**
- * __useGetPaymentsCountForBankSubscription__
+ * __useGetRepaymentsCountForBankSubscription__
  *
- * To run a query within a React component, call `useGetPaymentsCountForBankSubscription` and pass it any options that fit your needs.
- * When your component renders, `useGetPaymentsCountForBankSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetRepaymentsCountForBankSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetRepaymentsCountForBankSubscription` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetPaymentsCountForBankSubscription({
+ * const { data, loading, error } = useGetRepaymentsCountForBankSubscription({
  *   variables: {
  *   },
  * });
  */
-export function useGetPaymentsCountForBankSubscription(
+export function useGetRepaymentsCountForBankSubscription(
   baseOptions?: Apollo.SubscriptionHookOptions<
-    GetPaymentsCountForBankSubscription,
-    GetPaymentsCountForBankSubscriptionVariables
+    GetRepaymentsCountForBankSubscription,
+    GetRepaymentsCountForBankSubscriptionVariables
   >
 ) {
   return Apollo.useSubscription<
-    GetPaymentsCountForBankSubscription,
-    GetPaymentsCountForBankSubscriptionVariables
-  >(GetPaymentsCountForBankDocument, baseOptions);
+    GetRepaymentsCountForBankSubscription,
+    GetRepaymentsCountForBankSubscriptionVariables
+  >(GetRepaymentsCountForBankDocument, baseOptions);
 }
-export type GetPaymentsCountForBankSubscriptionHookResult = ReturnType<
-  typeof useGetPaymentsCountForBankSubscription
+export type GetRepaymentsCountForBankSubscriptionHookResult = ReturnType<
+  typeof useGetRepaymentsCountForBankSubscription
 >;
-export type GetPaymentsCountForBankSubscriptionResult = Apollo.SubscriptionResult<GetPaymentsCountForBankSubscription>;
+export type GetRepaymentsCountForBankSubscriptionResult = Apollo.SubscriptionResult<GetRepaymentsCountForBankSubscription>;
 export const GetEbbaApplicationsCountForBankDocument = gql`
   subscription GetEbbaApplicationsCountForBank {
     ebba_applications(

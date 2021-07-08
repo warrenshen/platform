@@ -9,7 +9,7 @@ interface Props {
   companyId: Companies["id"];
 }
 
-export default function CustomerPaymentsPageContent({ companyId }: Props) {
+export default function CustomerRepaymentsPageContent({ companyId }: Props) {
   const { data, error } = useGetPaymentsForCompanyQuery({
     fetchPolicy: "network-only",
     variables: {
@@ -27,8 +27,8 @@ export default function CustomerPaymentsPageContent({ companyId }: Props) {
 
   return (
     <PageContent
-      title={"Payments"}
-      subtitle={"Review your historical payments to Bespoke Financial."}
+      title={"Repayments"}
+      subtitle={"Review your historical repayments to Bespoke Financial."}
     >
       <Box mt={4}>
         <RepaymentTransactionsDataGrid payments={payments} />

@@ -85,7 +85,7 @@ function LoansFunded({
           <Can perform={Action.RepayPurchaseOrderLoans}>
             <Box>
               <ModalButton
-                label={"Make Payment"}
+                label={"Make Repayment"}
                 handleClick={({ handleOpen }) => {
                   const fundedLoans = selectedLoans.filter(
                     (loan) => loan.funded_at

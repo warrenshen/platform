@@ -8,7 +8,7 @@ import { ReactComponent as CustomersIcon } from "components/Shared/Layout/Icons/
 import { ReactComponent as InvoicesIcon } from "components/Shared/Layout/Icons/Invoices.svg";
 import { ReactComponent as LoansIcon } from "components/Shared/Layout/Icons/Loans.svg";
 import { ReactComponent as OverviewIcon } from "components/Shared/Layout/Icons/Overview.svg";
-import { ReactComponent as PaymentsIcon } from "components/Shared/Layout/Icons/Payments.svg";
+import { ReactComponent as RepaymentsIcon } from "components/Shared/Layout/Icons/Payments.svg";
 import { ReactComponent as PayorsIcon } from "components/Shared/Layout/Icons/Payors.svg";
 import { ReactComponent as PurchaseOrdersIcon } from "components/Shared/Layout/Icons/PurchaseOrders.svg";
 import { ReactComponent as ReportsIcon } from "components/Shared/Layout/Icons/Reports.svg";
@@ -28,7 +28,7 @@ import {
   useGetEbbaApplicationsCountForBankSubscription,
   useGetLoansCountForBankSubscription,
   useGetPartnershipRequestsCountForBankSubscription,
-  useGetPaymentsCountForBankSubscription,
+  useGetRepaymentsCountForBankSubscription,
 } from "generated/graphql";
 import { withinNDaysOfNowOrBefore } from "lib/date";
 import { bankRoutes, customerRoutes, routes } from "lib/routes";
@@ -159,9 +159,9 @@ const getCustomerNavItems = (
       link: customerRoutes.invoices,
     },
     {
-      dataCy: "payments",
-      iconNode: PaymentsIcon,
-      text: "Payments",
+      dataCy: "repayments",
+      iconNode: RepaymentsIcon,
+      text: "Repayments",
       link: customerRoutes.payments,
     },
     {
@@ -195,7 +195,7 @@ const getCustomerNavItems = (
 
 const getBankNavItems = (
   loansCount: number,
-  paymentsCount: number,
+  repaymentsCount: number,
   ebbaApplicationsCount: number,
   partnershipRequestsCount: number
 ): NavItem[] => {
@@ -214,11 +214,11 @@ const getBankNavItems = (
       counter: loansCount,
     },
     {
-      dataCy: "payments",
-      iconNode: PaymentsIcon,
-      text: "Payments",
+      dataCy: "repayments",
+      iconNode: RepaymentsIcon,
+      text: "Repayments",
       link: bankRoutes.payments,
-      counter: paymentsCount,
+      counter: repaymentsCount,
     },
     {
       dataCy: "purchase-orders",
@@ -299,7 +299,9 @@ export default function Layout({ appBarTitle, children }: Props) {
     skip: !isBankUser,
   });
 
-  const { data: paymentsCountData } = useGetPaymentsCountForBankSubscription({
+  const {
+    data: repaymentsCountData,
+  } = useGetRepaymentsCountForBankSubscription({
     skip: !isBankUser,
   });
 
@@ -316,7 +318,7 @@ export default function Layout({ appBarTitle, children }: Props) {
   });
 
   const loansCount = loansCountData?.loans?.length || 0;
-  const paymentsCount = paymentsCountData?.payments?.length || 0;
+  const repaymentsCount = repaymentsCountData?.payments?.length || 0;
   const ebbaApplicationsCount =
     ebbaApplicationsCountData?.ebba_applications?.length || 0;
   const partnershipRequestsCount =
@@ -343,7 +345,7 @@ export default function Layout({ appBarTitle, children }: Props) {
   const navItems = isBankUser
     ? getBankNavItems(
         loansCount,
-        paymentsCount,
+        repaymentsCount,
         ebbaApplicationsCount,
         partnershipRequestsCount
       )

@@ -110,7 +110,7 @@ const getCustomerPaths = (productType: ProductTypeEnum | null) => [
   {
     path: bankRoutes.customer.payments,
     component: BankCustomerPaymentsSubpage,
-    label: "Payments",
+    label: "Repayments",
   },
   {
     visible: isVendorsTabVisible(productType),

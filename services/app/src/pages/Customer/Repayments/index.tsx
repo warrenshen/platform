@@ -1,17 +1,17 @@
 import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import CustomerPaymentsPageContent from "pages/Customer/Payments/PaymentsPageContent";
+import CustomerRepaymentsPageContent from "pages/Customer/Repayments/RepaymentsPageContent";
 import { useContext } from "react";
 
-export default function CustomerPaymentsPage() {
+export default function CustomerRepaymentsPage() {
   const {
     user: { companyId, productType },
   } = useContext(CurrentUserContext);
 
   return (
-    <Page appBarTitle={"Payments"}>
+    <Page appBarTitle={"Repayments"}>
       {companyId && productType && (
-        <CustomerPaymentsPageContent companyId={companyId} />
+        <CustomerRepaymentsPageContent companyId={companyId} />
       )}
     </Page>
   );

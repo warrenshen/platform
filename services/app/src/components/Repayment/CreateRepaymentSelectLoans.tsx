@@ -66,12 +66,12 @@ export default function CreateRepaymentSelectLoans({
       </Box>
       <Box>
         <Typography variant="subtitle2">
-          Which payment method do you plan to pay with?
+          Which repayment method do you plan to pay with?
         </Typography>
         <Box display="flex" flexDirection="column" mt={1}>
           <FormControl>
             <InputLabel id="select-payment-method-label">
-              Payment Method
+              Repayment Method
             </InputLabel>
             <Select
               id="select-payment-method"
@@ -130,7 +130,7 @@ export default function CreateRepaymentSelectLoans({
                 What is my expected settlement date?
               </Typography>
               <Typography variant="body2">
-                {`Based on your payment method and ${
+                {`Based on your repayment method and ${
                   isReverseDraftACH
                     ? "requested withdraw date"
                     : "specified deposit date"

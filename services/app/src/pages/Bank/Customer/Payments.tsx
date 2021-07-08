@@ -1,9 +1,9 @@
-import CustomerPaymentsPageContent from "pages/Customer/Payments/PaymentsPageContent";
+import CustomerRepaymentsPageContent from "pages/Customer/Repayments/RepaymentsPageContent";
 
 interface Props {
   companyId: string;
 }
 
 export default function BankCustomerPaymentsSubpage({ companyId }: Props) {
-  return <CustomerPaymentsPageContent companyId={companyId} />;
+  return <CustomerRepaymentsPageContent companyId={companyId} />;
 }

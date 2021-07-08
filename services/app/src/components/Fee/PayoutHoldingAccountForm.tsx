@@ -77,12 +77,12 @@ export default function AdjustmentForm({ payment, setPayment }: Props) {
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <Typography variant="subtitle2">
-          Which payment method do you plan to use?
+          Which payout method do you plan to use?
         </Typography>
         <Box display="flex" flexDirection="column" mt={1}>
           <FormControl>
             <InputLabel id="select-payment-method-label">
-              Payment Method
+              Payout Method
             </InputLabel>
             <Select
               id="select-payment-method"
