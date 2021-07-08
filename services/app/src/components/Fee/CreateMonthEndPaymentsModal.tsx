@@ -90,7 +90,7 @@ export default function CreateMonthEndPaymentsModal({ handleClose }: Props) {
       secondaryActionText={
         isOnConfirmationPage ? "Back to previous step" : null
       }
-      contentWidth={600}
+      contentWidth={900}
       handleClose={handleClose}
       handlePrimaryAction={
         isOnConfirmationPage ? handleClickSubmit : handleClickNext

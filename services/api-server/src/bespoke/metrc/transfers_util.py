@@ -103,20 +103,20 @@ class TransferPackages(object):
 
 	def to_rows(self, include_header: bool) -> List[List[str]]:
 		col_specs = [
-				('Delivery Id', 'DeliveryId'),
-				('Package Id', 'PackageId'),
-				('Package', 'PackageLabel'),
-				('Package Type', 'PackageType'),
-				('Item', 'ProductName'),
-				('Item Category', 'ProductCategoryName'),
-				('Item Strain Name', 'ItemStrainName'),
-				('Item State', 'ShipmentPackageState'),
-				('Received Qty', 'ReceivedQuantity'),
-				('UoM', 'ReceivedUnitOfMeasureName'),
-				('Item Unit Qty', 'ItemUnitQuantity'),
-				('Item Unit Weight', 'ItemUnitWeight'),
-				('Is Testing Sample', 'IsTestingSample')
-				# ReceiverDollarAmount
+			('Delivery Id', 'DeliveryId'),
+			('Package Id', 'PackageId'),
+			('Package', 'PackageLabel'),
+			('Package Type', 'PackageType'),
+			('Item', 'ProductName'),
+			('Item Category', 'ProductCategoryName'),
+			('Item Strain Name', 'ItemStrainName'),
+			('Item State', 'ShipmentPackageState'),
+			('Received Qty', 'ReceivedQuantity'),
+			('UoM', 'ReceivedUnitOfMeasureName'),
+			('Item Unit Qty', 'ItemUnitQuantity'),
+			('Item Unit Weight', 'ItemUnitWeight'),
+			('Is Testing Sample', 'IsTestingSample')
+			# ReceiverDollarAmount
 		]
 		return metrc_common_util.dicts_to_rows(self._packages, col_specs, include_header)
 
@@ -150,17 +150,17 @@ class Transfers(object):
 
 	def to_rows(self, include_header: bool) -> List[List[str]]:
 		col_specs = [
-				('Transfer Id', 'Id'),
-				('Delivery Id', 'DeliveryId'),
-				('Manifest', 'ManifestNumber'),
-				('Origin Lic', 'ShipperFacilityLicenseNumber'),
-				('Origin Facility', 'ShipperFacilityName'),
-				# Origin Facility Type
-				('Dest Lic', 'RecipientFacilityLicenseNumber'),
-				('Destination Facility', 'RecipientFacilityName'),
-				('Type', 'ShipmentTypeName'),
-				('Received', 'ReceivedDateTime'),
-				('Num Packages', 'PackageCount')
+			('Transfer Id', 'Id'),
+			('Delivery Id', 'DeliveryId'),
+			('Manifest', 'ManifestNumber'),
+			('Origin Lic', 'ShipperFacilityLicenseNumber'),
+			('Origin Facility', 'ShipperFacilityName'),
+			# Origin Facility Type
+			('Dest Lic', 'RecipientFacilityLicenseNumber'),
+			('Destination Facility', 'RecipientFacilityName'),
+			('Type', 'ShipmentTypeName'),
+			('Received', 'ReceivedDateTime'),
+			('Num Packages', 'PackageCount')
 		]
 
 		return metrc_common_util.dicts_to_rows(self._transfers, col_specs, include_header)

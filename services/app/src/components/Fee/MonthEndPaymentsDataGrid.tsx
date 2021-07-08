@@ -55,7 +55,7 @@ export default function MonthEndPaymentsDataGrid({
       {
         dataField: "fee_amount",
         caption: "Payment Total Amount",
-        minWidth: ColumnWidths.MinWidth,
+        minWidth: ColumnWidths.Currency,
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.fee_amount} />
         ),
@@ -63,7 +63,7 @@ export default function MonthEndPaymentsDataGrid({
       {
         dataField: "total_outstanding_interest",
         caption: "Amount To Accrued Interest",
-        minWidth: ColumnWidths.MinWidth,
+        minWidth: ColumnWidths.Currency,
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell
             value={params.row.data.total_outstanding_interest}
@@ -81,7 +81,7 @@ export default function MonthEndPaymentsDataGrid({
       },
       {
         dataField: "fee_period",
-        caption: "Minimum Interest Period",
+        caption: "Minimum Interest Period (If Applicable)",
         minWidth: ColumnWidths.MinWidth,
       },
     ],
