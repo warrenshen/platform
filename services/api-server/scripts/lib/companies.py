@@ -33,6 +33,8 @@ def import_payors_vendors(
 		) = new_payor_vendor_tuple
 
 		parsed_customer_identifier = customer_identifier.strip()
+		customer_name = customer_name.strip()
+		company_name = company_name.strip()
 
 		if (
 			not parsed_customer_identifier or
@@ -72,13 +74,8 @@ def import_payors_vendors(
 			).first())
 
 		if existing_company_by_name:
-			if existing_company_by_name.company_type != company_type:
-				print(f'[{index + 1} of {payors_vendors_count}] Company with name {company_name} exists, but is not the correct company type...')
-				print(f'SKIPPING...')
-				continue
-			else:
-				print(f'[{index + 1} of {payors_vendors_count}] Company with name {company_name} already exists')
-				company = existing_company_by_name
+			print(f'[{index + 1} of {payors_vendors_count}] Company with name {company_name} already exists')
+			company = existing_company_by_name
 		else:
 			print(f'[{index + 1} of {payors_vendors_count}] Company with name {company_name} does not exist, creating it...')
 
@@ -96,9 +93,9 @@ def import_payors_vendors(
 
 			company = models.Company(
 				company_settings_id=company_settings_id,
+				is_customer=company_type == 'customer',
 				is_payor=company_type == 'payor',
 				is_vendor=company_type == 'vendor',
-				is_customer=company_type == 'customer',
 				name=company_name,
 				contract_name=company_contract_name,
 				dba_name=dba_name,
@@ -110,7 +107,7 @@ def import_payors_vendors(
 			company_settings.company_id = company_id
 			session.flush()
 
-			print(f'[{index + 1} of {payors_vendors_count}] Created company {company.name} ({company.company_type})')
+			print(f'[{index + 1} of {payors_vendors_count}] Created company {company.name}')
 
 		if company_type == CompanyType.Payor:
 			existing_company_payor_partnership = cast(
@@ -174,6 +171,7 @@ def load_into_db_from_excel(session: Session, path: str) -> None:
 	# Skip the header row and filter out empty rows.
 	filtered_payor_vendor_tuples = list(filter(lambda payor_vendor_tuple: payor_vendor_tuple[0] is not '', payor_vendor_tuples[1:]))
 	import_payors_vendors(session, filtered_payor_vendor_tuples)
+
 	print(f'Finished import')
 
 def import_company_licenses(

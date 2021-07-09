@@ -25,6 +25,7 @@ from bespoke.finance.payments import payment_util, repayment_util
 def import_settled_repayments(
 	session: Session,
 	repayment_tuples,
+	account_fee_type = 'wire', # 'wire' | 'custom'
 ) -> None:
 	"""
 	Imports repayments for all product types except for Line of Credit.
@@ -44,7 +45,7 @@ def import_settled_repayments(
 			to_principal,
 			to_interest,
 			to_late_fees,
-			to_wire_fee,
+			to_account_fee,
 		) = new_repayment_tuple
 
 		parsed_customer_identifier = customer_identifier.strip()
@@ -56,7 +57,7 @@ def import_settled_repayments(
 		parsed_to_principal = number_util.round_currency(float(to_principal or 0)) # Value may be ''.
 		parsed_to_interest = number_util.round_currency(float(to_interest or 0))
 		parsed_to_late_fees = number_util.round_currency(float(to_late_fees or 0))
-		parsed_to_wire_fee = number_util.round_currency(float(to_wire_fee or 0))
+		parsed_to_account_fee = number_util.round_currency(float(to_account_fee or 0))
 
 		try:
 			# If loan_identifier from XLSX is "25.0", convert it to 25.
@@ -76,12 +77,16 @@ def import_settled_repayments(
 			parsed_to_principal < 0 or
 			parsed_to_interest < 0 or
 			parsed_to_late_fees < 0 or
-			parsed_to_wire_fee < 0 or
-			not number_util.float_eq(parsed_amount, parsed_to_principal + parsed_to_interest + parsed_to_late_fees + parsed_to_wire_fee)
+			parsed_to_account_fee < 0 or
+			not number_util.float_eq(parsed_amount, parsed_to_principal + parsed_to_interest + parsed_to_late_fees + parsed_to_account_fee)
 		):
 			print(f'[{index + 1} of {repayments_count}] Invalid repayment field(s): numbers')
 			print(f'EXITING EARLY')
 			return
+
+		if account_fee_type not in ['wire', 'custom']:
+			print(f'[{index + 1} of {repayments_count}] Invalid account fee type')
+			print(f'EXITING EARLY')
 
 		if (
 			not parsed_deposit_date or
@@ -127,7 +132,7 @@ def import_settled_repayments(
 			return
 
 		amount_to_loan = parsed_to_principal + parsed_to_interest + parsed_to_late_fees
-		amount_to_account = parsed_to_wire_fee
+		amount_to_account = parsed_to_account_fee
 
 		if not number_util.float_eq(parsed_amount, amount_to_loan + amount_to_account):
 			print(f'[{index + 1} of {repayments_count}] Invalid repayment field(s): math')
@@ -183,7 +188,19 @@ def import_settled_repayments(
 		session.add(to_loan_transaction)
 		session.flush()
 
-		if parsed_to_wire_fee > 0:
+		if parsed_to_account_fee > 0:
+			# Create account level fee that is paid for by the following transaction.
+			_ = payment_util.create_and_add_account_level_fee(
+				company_id=customer.id,
+				subtype=TransactionSubType.WIRE_FEE if account_fee_type == 'wire' else TransactionSubType.CUSTOM_FEE,
+				amount=amount_to_account,
+				originating_payment_id=None,
+				created_by_user_id=None,
+				deposit_date=parsed_deposit_date,
+				effective_date=parsed_deposit_date,
+				session=session,
+			)
+
 			to_account_transaction = models.Transaction(
 				payment_id=repayment.id,
 				loan_id=None,

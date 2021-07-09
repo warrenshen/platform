@@ -50,7 +50,6 @@ def import_funded_invoices(
 			not parsed_customer_identifier or
 			not parsed_payor_name or
 			not parsed_invoice_number or
-			# not parsed_invoice_date or
 			not parsed_amount or
 			parsed_amount <= 0 or
 			not parsed_funded_at
@@ -81,6 +80,7 @@ def import_funded_invoices(
 			).first())
 
 		if not payor:
+			print(parsed_payor_name)
 			print(f'[{index + 1} of {invoices_count}] Payor with name {parsed_payor_name} does not exist')
 			print(f'EXITING EARLY')
 			return

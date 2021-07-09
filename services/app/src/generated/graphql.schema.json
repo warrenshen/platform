@@ -47540,13 +47540,9 @@
             "description": null,
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "date",
-                "ofType": null
-              }
+              "kind": "SCALAR",
+              "name": "date",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -47556,13 +47552,9 @@
             "description": null,
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "date",
-                "ofType": null
-              }
+              "kind": "SCALAR",
+              "name": "date",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -68251,6 +68243,18 @@
             "deprecationReason": null
           },
           {
+            "name": "payor_id",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "shipment_transaction_type",
             "description": null,
             "args": [],
@@ -68721,6 +68725,16 @@
             "defaultValue": null
           },
           {
+            "name": "payor_id",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "uuid_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "shipment_transaction_type",
             "description": null,
             "type": {
@@ -68935,6 +68949,16 @@
             "defaultValue": null
           },
           {
+            "name": "payor_id",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "shipment_transaction_type",
             "description": null,
             "type": {
@@ -69111,6 +69135,18 @@
             "deprecationReason": null
           },
           {
+            "name": "payor_id",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "shipment_transaction_type",
             "description": null,
             "args": [],
@@ -69254,6 +69290,16 @@
           },
           {
             "name": "manifest_number",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "payor_id",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -69419,6 +69465,18 @@
             "deprecationReason": null
           },
           {
+            "name": "payor_id",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "shipment_transaction_type",
             "description": null,
             "args": [],
@@ -69562,6 +69620,16 @@
           },
           {
             "name": "manifest_number",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "payor_id",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -69885,6 +69953,16 @@
             "defaultValue": null
           },
           {
+            "name": "payor_id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "shipment_transaction_type",
             "description": null,
             "type": {
@@ -70041,6 +70119,12 @@
             "deprecationReason": null
           },
           {
+            "name": "payor_id",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "shipment_transaction_type",
             "description": "column name",
             "isDeprecated": false,
@@ -70166,6 +70250,16 @@
             "defaultValue": null
           },
           {
+            "name": "payor_id",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "shipment_transaction_type",
             "description": null,
             "type": {
@@ -70282,6 +70376,12 @@
           },
           {
             "name": "manifest_number",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "payor_id",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null

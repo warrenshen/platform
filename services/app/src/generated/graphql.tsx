@@ -6894,8 +6894,8 @@ export type Invoices = {
   created_at: Scalars["timestamptz"];
   funded_at?: Maybe<Scalars["timestamptz"]>;
   id: Scalars["uuid"];
-  invoice_date: Scalars["date"];
-  invoice_due_date: Scalars["date"];
+  invoice_date?: Maybe<Scalars["date"]>;
+  invoice_due_date?: Maybe<Scalars["date"]>;
   /** An array relationship */
   invoice_files: Array<InvoiceFiles>;
   /** An aggregated array relationship */
@@ -9891,6 +9891,7 @@ export type MetrcTransfers = {
   metrc_packages: Array<MetrcPackages>;
   /** An aggregated array relationship */
   metrc_packages_aggregate: MetrcPackagesAggregate;
+  payor_id?: Maybe<Scalars["uuid"]>;
   shipment_transaction_type?: Maybe<Scalars["String"]>;
   shipment_type_name?: Maybe<Scalars["String"]>;
   transfer_payload: Scalars["json"];
@@ -9987,6 +9988,7 @@ export type MetrcTransfersBoolExp = {
   license_id?: Maybe<UuidComparisonExp>;
   manifest_number?: Maybe<StringComparisonExp>;
   metrc_packages?: Maybe<MetrcPackagesBoolExp>;
+  payor_id?: Maybe<UuidComparisonExp>;
   shipment_transaction_type?: Maybe<StringComparisonExp>;
   shipment_type_name?: Maybe<StringComparisonExp>;
   transfer_payload?: Maybe<JsonComparisonExp>;
@@ -10017,6 +10019,7 @@ export type MetrcTransfersInsertInput = {
   license_id?: Maybe<Scalars["uuid"]>;
   manifest_number?: Maybe<Scalars["String"]>;
   metrc_packages?: Maybe<MetrcPackagesArrRelInsertInput>;
+  payor_id?: Maybe<Scalars["uuid"]>;
   shipment_transaction_type?: Maybe<Scalars["String"]>;
   shipment_type_name?: Maybe<Scalars["String"]>;
   transfer_payload?: Maybe<Scalars["json"]>;
@@ -10036,6 +10039,7 @@ export type MetrcTransfersMaxFields = {
   lab_results_status?: Maybe<Scalars["String"]>;
   license_id?: Maybe<Scalars["uuid"]>;
   manifest_number?: Maybe<Scalars["String"]>;
+  payor_id?: Maybe<Scalars["uuid"]>;
   shipment_transaction_type?: Maybe<Scalars["String"]>;
   shipment_type_name?: Maybe<Scalars["String"]>;
   transfer_type?: Maybe<Scalars["String"]>;
@@ -10053,6 +10057,7 @@ export type MetrcTransfersMaxOrderBy = {
   lab_results_status?: Maybe<OrderBy>;
   license_id?: Maybe<OrderBy>;
   manifest_number?: Maybe<OrderBy>;
+  payor_id?: Maybe<OrderBy>;
   shipment_transaction_type?: Maybe<OrderBy>;
   shipment_type_name?: Maybe<OrderBy>;
   transfer_type?: Maybe<OrderBy>;
@@ -10070,6 +10075,7 @@ export type MetrcTransfersMinFields = {
   lab_results_status?: Maybe<Scalars["String"]>;
   license_id?: Maybe<Scalars["uuid"]>;
   manifest_number?: Maybe<Scalars["String"]>;
+  payor_id?: Maybe<Scalars["uuid"]>;
   shipment_transaction_type?: Maybe<Scalars["String"]>;
   shipment_type_name?: Maybe<Scalars["String"]>;
   transfer_type?: Maybe<Scalars["String"]>;
@@ -10087,6 +10093,7 @@ export type MetrcTransfersMinOrderBy = {
   lab_results_status?: Maybe<OrderBy>;
   license_id?: Maybe<OrderBy>;
   manifest_number?: Maybe<OrderBy>;
+  payor_id?: Maybe<OrderBy>;
   shipment_transaction_type?: Maybe<OrderBy>;
   shipment_type_name?: Maybe<OrderBy>;
   transfer_type?: Maybe<OrderBy>;
@@ -10128,6 +10135,7 @@ export type MetrcTransfersOrderBy = {
   license_id?: Maybe<OrderBy>;
   manifest_number?: Maybe<OrderBy>;
   metrc_packages_aggregate?: Maybe<MetrcPackagesAggregateOrderBy>;
+  payor_id?: Maybe<OrderBy>;
   shipment_transaction_type?: Maybe<OrderBy>;
   shipment_type_name?: Maybe<OrderBy>;
   transfer_payload?: Maybe<OrderBy>;
@@ -10161,6 +10169,8 @@ export enum MetrcTransfersSelectColumn {
   /** column name */
   ManifestNumber = "manifest_number",
   /** column name */
+  PayorId = "payor_id",
+  /** column name */
   ShipmentTransactionType = "shipment_transaction_type",
   /** column name */
   ShipmentTypeName = "shipment_type_name",
@@ -10184,6 +10194,7 @@ export type MetrcTransfersSetInput = {
   lab_results_status?: Maybe<Scalars["String"]>;
   license_id?: Maybe<Scalars["uuid"]>;
   manifest_number?: Maybe<Scalars["String"]>;
+  payor_id?: Maybe<Scalars["uuid"]>;
   shipment_transaction_type?: Maybe<Scalars["String"]>;
   shipment_type_name?: Maybe<Scalars["String"]>;
   transfer_payload?: Maybe<Scalars["json"]>;
@@ -10210,6 +10221,8 @@ export enum MetrcTransfersUpdateColumn {
   LicenseId = "license_id",
   /** column name */
   ManifestNumber = "manifest_number",
+  /** column name */
+  PayorId = "payor_id",
   /** column name */
   ShipmentTransactionType = "shipment_transaction_type",
   /** column name */
