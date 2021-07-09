@@ -208,9 +208,13 @@ def get_all_month_end_payments(
 		if number_util.is_currency_zero(fee_amount):
 			continue
 
+		# Total outstanding interest is only a relevant number for LOC customers
+		total_outstanding_interest = float(financial_summary.total_outstanding_interest) \
+			if is_loc_customer else 0.0
+
 		company_id_to_financial_info[cur_company_id] = MonthEndPerCompanyRespInfo(
 			fee_info=minimum_monthly_payload,
-			total_outstanding_interest=float(financial_summary.total_outstanding_interest),
+			total_outstanding_interest=total_outstanding_interest,
 			fee_amount=fee_amount,
 			company=company_id_to_dict[cur_company_id]
 		)
