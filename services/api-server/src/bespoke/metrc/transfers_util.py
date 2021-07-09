@@ -338,13 +338,20 @@ def populate_transfers_table(
 	for metrc_transfer in metrc_transfers:
 		logging.info(f'Downloading packages for metrc transfer delivery_id={metrc_transfer.delivery_id}')
 		delivery_id = metrc_transfer.delivery_id
+
+		packages_api_failed = False
 		try:
 			resp = rest.get(f'/transfers/v1/delivery/{delivery_id}/packages')
 			t_packages_json = json.loads(resp.content)
 			request_status['packages_api'] = 200
 		except errors.Error as e:
-			request_status['packages_api'] = e.details.get('status_code')
-			return request_status, e
+			if request_status['packages_api'] != 200:
+				# Only update the request status if we haven't seen a 200 yet
+				request_status['packages_api'] = e.details.get('status_code')
+			packages_api_failed = True
+
+		if packages_api_failed:
+			continue
 
 		try:
 			resp = rest.get(f'/transfers/v1/delivery/{delivery_id}/packages/wholesale')
