@@ -45,6 +45,8 @@ def import_contracts(
 			adjusted_factoring_fee_percentage,
 			late_fee_structure, # Not used yet
 			wire_fee,
+			timezone,
+			us_state,
 			settlement_timeline, # Not used yet
 			borrowing_base_accounts_receivable_percentage,
 			borrowing_base_inventory_percentage,
@@ -68,10 +70,19 @@ def import_contracts(
 		parsed_factoring_fee_starting_value = float(factoring_fee_starting_value) if factoring_fee_starting_value != '' else None
 		parsed_adjusted_factoring_fee_percentage = float(adjusted_factoring_fee_percentage) if adjusted_factoring_fee_percentage else None
 		parsed_wire_fee = float(wire_fee or 0)
+		parsed_timezone = None
+		if timezone.strip() == 'PST':
+			parsed_timezone = 'Canada/Pacific (GMT-07:00)'
+		elif timezone.strip() == 'EST':
+			parsed_timezone = 'America/New_York (GMT-04:00)'
+		parsed_us_state = us_state.strip()
 		parsed_borrowing_base_accounts_receivable_percentage = float(borrowing_base_accounts_receivable_percentage) if borrowing_base_accounts_receivable_percentage != '' else None
 		parsed_borrowing_base_inventory_percentage = float(borrowing_base_inventory_percentage) if borrowing_base_inventory_percentage != '' else None
 		parsed_borrowing_base_cash_percentage = float(borrowing_base_cash_percentage) if borrowing_base_cash_percentage != '' else None
 		parsed_borrowing_base_cash_in_daca_percentage = float(borrowing_base_cash_in_daca_percentage) if borrowing_base_cash_in_daca_percentage != '' else None
+
+		if parsed_factoring_fee_threshold is not None and parsed_factoring_fee_starting_value is None:
+			parsed_factoring_fee_starting_value = 0.0
 
 		if parsed_advance_rate == 100.0:
 			parsed_advance_rate = 1.0
@@ -100,6 +111,8 @@ def import_contracts(
 			parsed_product_type = ProductType.INVENTORY_FINANCING
 		elif product_type in ['Line of Credit', 'line_of_credit', 'LOC']:
 			parsed_product_type = ProductType.LINE_OF_CREDIT
+		elif product_type in ['Invoice', 'invoice']:
+			parsed_product_type = ProductType.INVOICE_FINANCING
 
 		if parsed_product_type not in PRODUCT_TYPES:
 			print(f'[{index + 1} of {contracts_count}] Invalid contract field(s): product type')
@@ -118,7 +131,9 @@ def import_contracts(
 			parsed_factoring_fee_percentage > 1 or
 			(parsed_adjusted_factoring_fee_percentage and parsed_adjusted_factoring_fee_percentage <= 0) or
 			(parsed_adjusted_factoring_fee_percentage and parsed_adjusted_factoring_fee_percentage > 1) or
-			parsed_wire_fee is None
+			parsed_wire_fee is None or
+			parsed_timezone is None or
+			parsed_us_state is None
 		):
 			print(f'[{index + 1} of {contracts_count}] Invalid contract field(s): terms')
 			print(f'EXITING EARLY')
@@ -244,6 +259,8 @@ def import_contracts(
 				late_fee_structure=late_fee_structure,
 				preceeding_business_day=False,
 				wire_fee=parsed_wire_fee,
+				timezone=parsed_timezone,
+				us_state=parsed_us_state,
 				repayment_type_settlement_timeline=settlement_timeline,
 				borrowing_base_accounts_receivable_percentage=parsed_borrowing_base_accounts_receivable_percentage,
 				borrowing_base_inventory_percentage=parsed_borrowing_base_inventory_percentage,
@@ -288,7 +305,6 @@ def load_into_db_from_excel(session: Session, path: str) -> None:
 		raise Exception(err)
 
 	contract_tuples = sheet['rows']
-	# TODO(warrenshen): in the future, handle line of credit repayments as well.
 	# Skip the header row and filter out empty rows.
 	filtered_contract_tuples = list(filter(lambda contract_tuple: contract_tuple[0] is not '', contract_tuples[1:]))
 	import_contracts(session, filtered_contract_tuples)

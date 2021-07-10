@@ -1,18 +1,10 @@
 """
-DATABASE_URL=postgres+psycopg2://postgres:postgrespassword@localhost:5432/postgres python scripts/batch/
-
-What:
-This script creates loan reports for frozen loans.
-
-Why:
-You can run this script to create loan reports for frozen loans in the database.
+DATABASE_URL=postgres+psycopg2://postgres:postgrespassword@localhost:5432/postgres python scripts/backfill/
 """
 
-import decimal
 import os
 import sys
 from os import path
-from typing import List, cast
 
 # Path hack before we try to import bespoke
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
@@ -20,7 +12,8 @@ sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
 
 from bespoke.db import models
 
-from lib import loans
+from lib import contracts
+
 
 def main() -> None:
 	if not os.environ.get("DATABASE_URL"):
@@ -30,7 +23,13 @@ def main() -> None:
 	engine = models.create_engine()
 	session_maker = models.new_sessionmaker(engine)
 
-	loans.populate_frozen_loan_reports(session_maker)
+	print(f'Beginning import...')
+
+	contracts_path = 'scripts/data/historical_contracts_2021_07_10.xlsx'
+	with models.session_scope(session_maker) as session:
+		contracts.load_into_db_from_excel(session, contracts_path)
+
+	print(f'Finished import')
 
 if __name__ == "__main__":
 	main()

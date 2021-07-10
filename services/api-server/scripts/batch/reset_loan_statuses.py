@@ -15,6 +15,7 @@ from typing import List, cast
 
 # Path hack before we try to import bespoke
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
+sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
 
 from bespoke.db import models
 
