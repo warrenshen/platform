@@ -72,6 +72,8 @@ def main() -> None:
 
 		loans.reset_loan_statuses(session)
 
+		loans.populate_frozen_loan_reports(session_maker)
+
 		print(f'Finished import')
 
 if __name__ == "__main__":

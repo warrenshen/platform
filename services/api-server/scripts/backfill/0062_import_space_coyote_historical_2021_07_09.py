@@ -25,11 +25,7 @@ def main() -> None:
 	engine = models.create_engine()
 	session_maker = models.new_sessionmaker(engine)
 
-	payor_vendors_path = 'scripts/data/payor_vendors_2021_07_08.xlsx'
-	with models.session_scope(session_maker) as session:
-		companies.load_into_db_from_excel(session, payor_vendors_path)
-
-	invoice_historical_path = 'scripts/data/invoice_historical_2021_07_08.xlsx'
+	invoice_historical_path = 'scripts/data/space_coyote_historical_2021_07_09.xlsx'
 
 	with models.session_scope(session_maker) as session:
 		workbook, err = excel_reader.ExcelWorkbook.load_xlsx(invoice_historical_path)
@@ -73,7 +69,7 @@ def main() -> None:
 		loans.reset_loan_statuses(session)
 
 		loans.populate_frozen_loan_reports(session_maker)
-
+		
 		print(f'Finished import')
 
 if __name__ == "__main__":

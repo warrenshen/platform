@@ -76,6 +76,11 @@ def import_payors_vendors(
 		if existing_company_by_name:
 			print(f'[{index + 1} of {payors_vendors_count}] Company with name {company_name} already exists')
 			company = existing_company_by_name
+
+			if company_type == 'payor' and not company.is_payor:
+				company.is_payor = True
+			elif company_type == 'vendor' and not company.is_vendor:
+				company.is_vendor = True
 		else:
 			print(f'[{index + 1} of {payors_vendors_count}] Company with name {company_name} does not exist, creating it...')
 
