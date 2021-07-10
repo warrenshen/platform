@@ -17,6 +17,9 @@ from bespoke.excel import excel_reader
 from bespoke.finance import contract_util, number_util
 from bespoke.finance.reports import loan_balances
 
+def chunker(seq, size):
+	return (seq[pos:pos + size] for pos in range(0, len(seq), size))
+
 def populate_frozen_loan_reports(session_maker: Callable) -> None:
 	customer_dicts = []
 
@@ -25,6 +28,8 @@ def populate_frozen_loan_reports(session_maker: Callable) -> None:
 			List[models.Company],
 			session.query(models.Company).filter(
 				models.Company.is_customer == True
+			).order_by(
+				models.Company.name.asc()
 			).all())
 
 		customer_dicts += [customer.as_dict() for customer in customers]
@@ -42,6 +47,10 @@ def populate_frozen_loan_reports(session_maker: Callable) -> None:
 			include_frozen=True,
 		)
 
+		if err:
+			print(f'[{index + 1} of {customers_count}] Error for customer {customer_dict["name"]}')
+			print(err)
+
 		if customer_update_dict is not None:
 			with session_scope(session_maker) as session:
 				loan_ids = []
@@ -52,47 +61,50 @@ def populate_frozen_loan_reports(session_maker: Callable) -> None:
 					loan_id_to_update[loan_id] = loan_update
 					loan_ids.append(loan_id)
 
-				with session_scope(session_maker) as session:
-					loans = cast(
-						List[models.Loan],
-						session.query(models.Loan).filter(
-							models.Loan.id.in_(loan_ids)
-						).all())
+				BATCH_SIZE = 50
 
-					if not loans:
-						loans = []
+				for loan_ids_chunk in chunker(loan_ids, BATCH_SIZE):
+					with session_scope(session_maker) as session:
+						loans = cast(
+							List[models.Loan],
+							session.query(models.Loan).filter(
+								models.Loan.id.in_(loan_ids_chunk)
+							).all())
 
-					loan_report_ids = [loan.loan_report_id for loan in loans]
-					loan_reports = cast(
-						List[models.LoanReport],
-						session.query(models.LoanReport).filter(
-							models.LoanReport.id.in_(loan_report_ids)
-						).all())
+						if not loans:
+							loans = []
 
-					loan_report_id_to_loan_report = dict({})
-					for loan_report in loan_reports:
-						loan_report_id_to_loan_report[str(loan_report.id)] = loan_report
+						loan_report_ids = [loan.loan_report_id for loan in loans]
+						loan_reports = cast(
+							List[models.LoanReport],
+							session.query(models.LoanReport).filter(
+								models.LoanReport.id.in_(loan_report_ids)
+							).all())
 
-					for loan in loans:
-						if not loan.is_frozen:
-							continue
+						loan_report_id_to_loan_report = dict({})
+						for loan_report in loan_reports:
+							loan_report_id_to_loan_report[str(loan_report.id)] = loan_report
 
-						cur_loan_update = loan_id_to_update[str(loan.id)]
+						for loan in loans:
+							if not loan.is_frozen:
+								continue
 
-						loan_report = loan_report_id_to_loan_report.get(str(loan.id), None)
+							cur_loan_update = loan_id_to_update[str(loan.id)]
 
-						if not loan_report:
-							loan_report = models.LoanReport()
-							session.add(loan_report)
-							session.flush()
-							loan.loan_report_id = loan_report.id
+							loan_report = loan_report_id_to_loan_report.get(str(loan.id), None)
 
-						loan_report.repayment_date = cur_loan_update['repayment_date']
-						loan_report.financing_period = cur_loan_update['financing_period']
-						loan_report.financing_day_limit = cur_loan_update['financing_day_limit']
-						loan_report.total_principal_paid = decimal.Decimal(number_util.round_currency(cur_loan_update['total_principal_paid']))
-						loan_report.total_interest_paid = decimal.Decimal(number_util.round_currency(cur_loan_update['total_interest_paid']))
-						loan_report.total_fees_paid = decimal.Decimal(number_util.round_currency(cur_loan_update['total_fees_paid']))
+							if not loan_report:
+								loan_report = models.LoanReport()
+								session.add(loan_report)
+								session.flush()
+								loan.loan_report_id = loan_report.id
+
+							loan_report.repayment_date = cur_loan_update['repayment_date']
+							loan_report.financing_period = cur_loan_update['financing_period']
+							loan_report.financing_day_limit = cur_loan_update['financing_day_limit']
+							loan_report.total_principal_paid = decimal.Decimal(number_util.round_currency(cur_loan_update['total_principal_paid']))
+							loan_report.total_interest_paid = decimal.Decimal(number_util.round_currency(cur_loan_update['total_interest_paid']))
+							loan_report.total_fees_paid = decimal.Decimal(number_util.round_currency(cur_loan_update['total_fees_paid']))
 
 def reset_loan_statuses(session: Session) -> None:
 	loans = cast(

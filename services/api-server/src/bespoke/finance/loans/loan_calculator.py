@@ -710,12 +710,15 @@ class LoanCalculator(object):
 
 		financing_day_limit = None
 
+		if loan['is_frozen'] and not loan['closed_at']:
+			logging.warn(f'Loan {loan["identifier"]} ({loan["id"]}) is frozen but closed_at is None')
+
 		for i in range(days_out):
 			cur_date = loan['origination_date'] + timedelta(days=i)
 
 			# For frozen loans: if loan is closed, do not perform any calculations for this date.
 			# TODO(warrenshen): apply the same logic for non-frozen loans.
-			if loan['is_frozen'] and cur_date > loan['closed_at'].date():
+			if loan['is_frozen'] and loan['closed_at'] and cur_date > loan['closed_at'].date():
 				continue
 
 			cur_date_contract, err = self._contract_helper.get_contract(cur_date)
