@@ -231,7 +231,7 @@ def populate_transfers_table(
 
 	## Setup
 
-	logging.info('Downloading transfers for company "{}" for date {} with license {}'.format(
+	logging.info('Downloading transfers for company "{}" for last modified date {} with license {}'.format(
 		company_info.name, cur_date, license['license_number']
 	))
 
@@ -336,7 +336,7 @@ def populate_transfers_table(
 	package_id_to_delivery_id = {} 
 
 	for metrc_transfer in metrc_transfers:
-		logging.info(f'Downloading packages for metrc transfer delivery_id={metrc_transfer.delivery_id}')
+		logging.info(f'Downloading packages for {"outgoing" if "outgoing" in metrc_transfer.transfer_type else "incoming"} metrc transfer manifest number {metrc_transfer.manifest_number}')
 		delivery_id = metrc_transfer.delivery_id
 
 		packages_api_failed = False
