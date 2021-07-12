@@ -625,17 +625,18 @@ class LoanCalculator(object):
 		self._contract_helper = contract_helper
 		self._fee_accumulator = fee_accumulator
 
-	def calculate_loan_balance(
+	def _calculate_loan_balance_internal(
 		self,
 		threshold_info: ThresholdInfoDict,
 		loan: models.LoanDict,
 		invoice: models.InvoiceDict, # Filled in if this loan is related to invoice financing
 		augmented_transactions: List[models.AugmentedTransactionDict],
 		today: datetime.date,
+		start_date_for_storing_results: datetime.date,
 		should_round_output: bool = True,
 		payment_to_include: IncludedPaymentDict = None,
 		include_debug_info: bool = False
-	) -> Tuple[CalculateResultDict, List[errors.Error]]:
+	) -> Tuple[Dict[datetime.date, CalculateResultDict], List[errors.Error]]:
 		# Replay the history of the loan and all the expenses that are due as a result.
 		# Heres what you owe based on the transaction history applied to your loan.
 
@@ -709,7 +710,89 @@ class LoanCalculator(object):
 		)
 
 		financing_day_limit = None
+		date_to_result = {}
 
+		def _get_calculate_result_dict() -> CalculateResultDict:
+
+			# If you haven't gone through the transaction's settlement days, but you did include
+			# them because they were deposited, interest and fees may go negative for those
+			# clearance days, but then when those settlement days happen, the fees and interest
+			# balance out.
+
+			should_close_loan = False
+			outstanding_principal = _format_output_value(balances['outstanding_principal'], should_round_output)
+			outstanding_principal_for_interest = _format_output_value(balances['outstanding_principal_for_interest'], should_round_output)
+			outstanding_interest = _format_output_value(balances['outstanding_interest'], should_round_output)
+			outstanding_fees = _format_output_value(balances['outstanding_fees'], should_round_output)
+
+			if not loan['closed_at'] and balances['has_been_funded']:
+				# If the loan hasn't been closed yet and is funded, then
+				# check whether it should be closed.
+				# If it already has been closed, then no need to close it again.
+				# If it's not funded yet, then we shouldnt close it out yet.
+				should_close_loan = payment_util.should_close_loan(
+					new_outstanding_principal=outstanding_principal,
+					new_outstanding_interest=outstanding_interest,
+					new_outstanding_fees=outstanding_fees,
+				)
+
+			report_repayment_date = balances['repayment_date']
+			financing_period = None
+
+			if loan['closed_at'] or should_close_loan:
+				if not report_repayment_date and payment_to_include:
+					report_repayment_date = payment_to_include['settlement_date']
+
+				# If there is a repayment date, calculate the financing period for this closed loan.
+				# Note: there may not be a repayment date if the loan was closed via adjustments.
+				if report_repayment_date:
+					financing_period = date_util.number_days_between_dates(
+						report_repayment_date,
+						loan['origination_date'],
+					)
+			else:
+				if report_repayment_date:
+					financing_period = date_util.number_days_between_dates(
+						max(
+							date_util.now_as_date(date_util.DEFAULT_TIMEZONE),
+							report_repayment_date,
+						),
+						loan['origination_date'],
+					)
+				else:
+					financing_period = date_util.number_days_between_dates(
+						date_util.now_as_date(date_util.DEFAULT_TIMEZONE),
+						loan['origination_date'],
+					)
+
+			l = LoanUpdateDict(
+				loan_id=loan['id'],
+				adjusted_maturity_date=loan['adjusted_maturity_date'],
+				outstanding_principal=outstanding_principal,
+				outstanding_principal_for_interest=outstanding_principal_for_interest,
+				outstanding_interest=outstanding_interest,
+				outstanding_fees=outstanding_fees,
+				amount_to_pay_interest_on=_format_output_value(amount_to_pay_interest_on, should_round_output),
+				interest_accrued_today=_format_output_value(interest_accrued_today, should_round_output),
+				should_close_loan=should_close_loan,
+				repayment_date=report_repayment_date,
+				financing_period=financing_period,
+				financing_day_limit=financing_day_limit,
+				total_principal_paid=_format_output_value(balances['total_principal_paid'], should_round_output),
+				total_interest_paid=_format_output_value(balances['total_interest_paid'], should_round_output),
+				total_fees_paid=_format_output_value(balances['total_fees_paid'], should_round_output),
+			)
+
+			return CalculateResultDict(
+				payment_effect=payment_effect_dict,
+				loan_update=l,
+				debug_info=LoanUpdateDebugInfoDict(
+					column_names=debug_column_names,
+					update_states=debug_update_states
+				)
+			)
+
+		# Run through all the days and compute the balances
 		if loan['is_frozen'] and not loan['closed_at']:
 			logging.warn(f'Loan {loan["identifier"]} ({loan["id"]}) is frozen but closed_at is None')
 
@@ -907,83 +990,64 @@ class LoanCalculator(object):
 				balances['outstanding_principal_for_interest'] -= inserted_repayment_transaction['to_principal']
 				balances['amount_paid_back_on_loan'] += inserted_repayment_transaction['amount']
 
+			# Store results for this day if the caller requested it.
+			if start_date_for_storing_results and cur_date >= start_date_for_storing_results:
+				date_to_result[cur_date] = _get_calculate_result_dict()
+
 		if errors_list:
 			return None, errors_list
 
-		# If you haven't gone through the transaction's settlement days, but you did include
-		# them because they were deposited, interest and fees may go negative for those
-		# clearance days, but then when those settlement days happen, the fees and interest
-		# balance out.
+		date_to_result[today] = _get_calculate_result_dict()
+		return date_to_result, None
 
-		should_close_loan = False
-		outstanding_principal = _format_output_value(balances['outstanding_principal'], should_round_output)
-		outstanding_principal_for_interest = _format_output_value(balances['outstanding_principal_for_interest'], should_round_output)
-		outstanding_interest = _format_output_value(balances['outstanding_interest'], should_round_output)
-		outstanding_fees = _format_output_value(balances['outstanding_fees'], should_round_output)
+	def calculate_loan_balance(
+		self,
+		threshold_info: ThresholdInfoDict,
+		loan: models.LoanDict,
+		invoice: models.InvoiceDict, # Filled in if this loan is related to invoice financing
+		augmented_transactions: List[models.AugmentedTransactionDict],
+		today: datetime.date,
+		should_round_output: bool = True,
+		payment_to_include: IncludedPaymentDict = None,
+		include_debug_info: bool = False
+	) -> Tuple[CalculateResultDict, List[errors.Error]]:
 
-		if not loan['closed_at'] and balances['has_been_funded']:
-			# If the loan hasn't been closed yet and is funded, then
-			# check whether it should be closed.
-			# If it already has been closed, then no need to close it again.
-			# If it's not funded yet, then we shouldnt close it out yet.
-			should_close_loan = payment_util.should_close_loan(
-				new_outstanding_principal=outstanding_principal,
-				new_outstanding_interest=outstanding_interest,
-				new_outstanding_fees=outstanding_fees,
-			)
-
-		report_repayment_date = balances['repayment_date']
-		financing_period = None
-
-		if loan['closed_at'] or should_close_loan:
-			if not report_repayment_date and payment_to_include:
-				report_repayment_date = payment_to_include['settlement_date']
-
-			# If there is a repayment date, calculate the financing period for this closed loan.
-			# Note: there may not be a repayment date if the loan was closed via adjustments.
-			if report_repayment_date:
-				financing_period = date_util.number_days_between_dates(
-					report_repayment_date,
-					loan['origination_date'],
-				)
-		else:
-			if report_repayment_date:
-				financing_period = date_util.number_days_between_dates(
-					max(
-						date_util.now_as_date(date_util.DEFAULT_TIMEZONE),
-						report_repayment_date,
-					),
-					loan['origination_date'],
-				)
-			else:
-				financing_period = date_util.number_days_between_dates(
-					date_util.now_as_date(date_util.DEFAULT_TIMEZONE),
-					loan['origination_date'],
-				)
-
-		l = LoanUpdateDict(
-			loan_id=loan['id'],
-			adjusted_maturity_date=loan['adjusted_maturity_date'],
-			outstanding_principal=outstanding_principal,
-			outstanding_principal_for_interest=outstanding_principal_for_interest,
-			outstanding_interest=outstanding_interest,
-			outstanding_fees=outstanding_fees,
-			amount_to_pay_interest_on=_format_output_value(amount_to_pay_interest_on, should_round_output),
-			interest_accrued_today=_format_output_value(interest_accrued_today, should_round_output),
-			should_close_loan=should_close_loan,
-			repayment_date=report_repayment_date,
-			financing_period=financing_period,
-			financing_day_limit=financing_day_limit,
-			total_principal_paid=_format_output_value(balances['total_principal_paid'], should_round_output),
-			total_interest_paid=_format_output_value(balances['total_interest_paid'], should_round_output),
-			total_fees_paid=_format_output_value(balances['total_fees_paid'], should_round_output),
+		date_to_results, err = self._calculate_loan_balance_internal(
+			threshold_info=threshold_info,
+			loan=loan,
+			invoice=invoice,
+			augmented_transactions=augmented_transactions,
+			today=today,
+			start_date_for_storing_results=None,
+			should_round_output=should_round_output,
+			payment_to_include=payment_to_include,
+			include_debug_info=include_debug_info
 		)
+		if err:
+			return None, err
+		return date_to_results[today], None
 
-		return CalculateResultDict(
-			payment_effect=payment_effect_dict,
-			loan_update=l,
-			debug_info=LoanUpdateDebugInfoDict(
-				column_names=debug_column_names,
-				update_states=debug_update_states
-			)
-		), None
+	def calculate_loan_balance_for_many_days(
+		self,
+		threshold_info: ThresholdInfoDict,
+		loan: models.LoanDict,
+		invoice: models.InvoiceDict, # Filled in if this loan is related to invoice financing
+		augmented_transactions: List[models.AugmentedTransactionDict],
+		today: datetime.date,
+		start_date_for_storing_results: datetime.date,
+		should_round_output: bool = True,
+		payment_to_include: IncludedPaymentDict = None,
+		include_debug_info: bool = False
+	) -> Tuple[Dict[datetime.date, CalculateResultDict], List[errors.Error]]:
+
+		return self._calculate_loan_balance_internal(
+			threshold_info=threshold_info,
+			loan=loan,
+			invoice=invoice,
+			augmented_transactions=augmented_transactions,
+			today=today,
+			start_date_for_storing_results=start_date_for_storing_results,
+			should_round_output=should_round_output,
+			payment_to_include=payment_to_include,
+			include_debug_info=include_debug_info
+		)
