@@ -60,7 +60,7 @@ const Chip = styled.div`
   background-color: rgba(203, 166, 121, 0.75);
   border-radius: 12px;
   font-weight: 600;
-  letterspacing: 1px;
+  letter-spacing: 1px;
 `;
 
 interface Props {
