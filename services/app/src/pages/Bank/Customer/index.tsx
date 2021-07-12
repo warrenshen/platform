@@ -25,7 +25,7 @@ import BankCustomerEbbaApplicationsSubpage from "./EbbaApplications";
 import BankCustomerInvoicesSubpage from "./Invoices";
 import BankCustomerLoansSubpage from "./Loans";
 import BankCustomerOverviewSubpage from "./Overview";
-import BankCustomerPaymentsSubpage from "./Payments";
+import BankCustomerPaymentsSubpage from "./Repayments";
 import BankCustomerPayorsSubpage from "./Payors";
 import BankCustomerPurchaseOrdersSubpage from "./PurchaseOrders";
 import BankCustomerSettingsSubpage from "./Settings";
@@ -69,12 +69,12 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const getCustomerPaths = (productType: ProductTypeEnum | null) => [
   {
-    path: bankRoutes.customer.overview,
+    path: bankRoutes.company.overview,
     component: BankCustomerOverviewSubpage,
     label: "Overview",
   },
   {
-    path: bankRoutes.customer.loans,
+    path: bankRoutes.company.loans,
     component: BankCustomerLoansSubpage,
     label: "Loans",
   },
@@ -85,14 +85,14 @@ const getCustomerPaths = (productType: ProductTypeEnum | null) => [
         ProductTypeEnum.InventoryFinancing,
         ProductTypeEnum.PurchaseMoneyFinancing,
       ].includes(productType),
-    path: bankRoutes.customer.purchaseOrders,
+    path: bankRoutes.company.purchaseOrders,
     component: BankCustomerPurchaseOrdersSubpage,
     label: "Purchase Orders",
   },
   {
     visible:
       !!productType && [ProductTypeEnum.LineOfCredit].includes(productType),
-    path: bankRoutes.customer.ebbaApplications,
+    path: bankRoutes.company.ebbaApplications,
     component: BankCustomerEbbaApplicationsSubpage,
     label: "Borrowing Base",
   },
@@ -103,45 +103,45 @@ const getCustomerPaths = (productType: ProductTypeEnum | null) => [
         ProductTypeEnum.InvoiceFinancing,
         ProductTypeEnum.PurchaseMoneyFinancing,
       ].includes(productType),
-    path: bankRoutes.customer.invoices,
+    path: bankRoutes.company.invoices,
     component: BankCustomerInvoicesSubpage,
     label: "Invoices",
   },
   {
-    path: bankRoutes.customer.payments,
+    path: bankRoutes.company.payments,
     component: BankCustomerPaymentsSubpage,
     label: "Repayments",
   },
   {
     visible: isVendorsTabVisible(productType),
-    path: bankRoutes.customer.vendors,
+    path: bankRoutes.company.vendors,
     component: BankCustomerVendorsSubpage,
     label: "Vendors",
   },
   {
     visible: isPayorsTabVisible(productType),
-    path: bankRoutes.customer.payors,
+    path: bankRoutes.company.payors,
     component: BankCustomerPayorsSubpage,
     label: "Payors",
   },
   {
-    path: bankRoutes.customer.metrc,
+    path: bankRoutes.company.metrc,
     component: BankCustomerMetrcSubpage,
     label: "Metrc",
   },
   {
-    path: bankRoutes.customer.contract,
+    path: bankRoutes.company.contract,
     component: BankCustomerContractPage,
     label: "Contract",
   },
   {
-    path: bankRoutes.customer.settings,
+    path: bankRoutes.company.settings,
     component: BankCustomerSettingsSubpage,
     label: "Settings",
   },
   {
     visible: false,
-    path: bankRoutes.customer.accountFeesCredits,
+    path: bankRoutes.company.accountFeesCredits,
     component: BankCustomerAccountFeesCreditsSubpage,
   },
 ];
@@ -181,7 +181,7 @@ export default function BankCustomerPage() {
                   selected={Boolean(
                     matchPath(
                       location.pathname,
-                      `/customers/:companyId${customerPath.path}`
+                      `/companies/:companyId${customerPath.path}`
                     )
                   )}
                 >

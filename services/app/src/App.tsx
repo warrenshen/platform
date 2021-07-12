@@ -284,7 +284,7 @@ function App() {
           <BankCustomersPage />
         </PrivateRoute>
         <PrivateRoute
-          path={bankRoutes.customerRoot}
+          path={bankRoutes.companyRoot}
           requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
         >
           <BankCustomerPage />

@@ -1,3 +1,5 @@
+import { Companies } from "generated/graphql";
+
 // Frontend routes
 
 export const routes = {
@@ -40,18 +42,25 @@ export const customerRoutes = {
   users: "/1/users",
 };
 
+export enum BankCompanyRouteEnum {
+  AccountFeesCredits = "/account",
+  Loans = "/loans",
+  Overview = "/overview",
+  PurchaseOrders = "/purchase-orders",
+}
+
 // Bank user routes are not prefixed.
 export const bankRoutes = {
   overview: "/overview",
-  customerRoot: "/customers/:companyId",
-  customer: {
-    accountFeesCredits: "/account",
+  companyRoot: "/companies/:companyId",
+  company: {
+    accountFeesCredits: BankCompanyRouteEnum.AccountFeesCredits,
     contract: "/contract",
     ebbaApplications: "/borrowing-base",
-    loans: "/loans",
-    overview: "/overview",
+    loans: BankCompanyRouteEnum.Loans,
+    overview: BankCompanyRouteEnum.Overview,
     payments: "/payments",
-    purchaseOrders: "/purchase-orders",
+    purchaseOrders: BankCompanyRouteEnum.PurchaseOrders,
     vendors: "/vendors",
     payors: "/payors",
     invoices: "/invoices",
@@ -72,3 +81,10 @@ export const bankRoutes = {
   transfers: "/transfers",
   vendors: "/vendors",
 };
+
+export function getBankCompanyRoute(
+  companyId: Companies["id"],
+  bankCompanyRoute: BankCompanyRouteEnum
+) {
+  return `/companies/${companyId}${bankCompanyRoute}`;
+}

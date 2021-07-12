@@ -19,11 +19,10 @@ import {
 import { Action, check } from "lib/auth/rbac-rules";
 import { todayAsDateStringServer } from "lib/date";
 import { ProductTypeToLabel } from "lib/enum";
-import { bankRoutes } from "lib/routes";
+import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ColumnWidths } from "lib/tables";
 import { filter, sortBy } from "lodash";
 import { useContext, useMemo, useState } from "react";
-import { useRouteMatch } from "react-router-dom";
 import CreateBulkMinimumMonthlyFeeModal from "components/Fee/CreateMinimumInterestFeesModal";
 import CreateMonthEndPaymentsModal from "components/Fee/CreateMonthEndPaymentsModal";
 
@@ -32,7 +31,6 @@ export default function BankCustomersPage() {
     user: { role },
   } = useContext(CurrentUserContext);
 
-  const { url } = useRouteMatch();
   const { data, refetch, error } = useGetCustomersWithMetadataQuery({
     fetchPolicy: "network-only",
     variables: {
@@ -66,7 +64,7 @@ export default function BankCustomersPage() {
         minWidth: ColumnWidths.MinWidth,
         cellRender: ({ value, data }: { value: string; data: any }) => (
           <ClickableDataGridCell
-            url={`${url}/${data.id}${bankRoutes.customer.overview}`}
+            url={getBankCompanyRoute(data.id, BankCompanyRouteEnum.Overview)}
             label={value}
           />
         ),
@@ -162,7 +160,7 @@ export default function BankCustomersPage() {
         ),
       },
     ],
-    [url]
+    []
   );
 
   return (

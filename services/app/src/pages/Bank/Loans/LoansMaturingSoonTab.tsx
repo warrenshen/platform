@@ -7,6 +7,7 @@ import {
 } from "@material-ui/core";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import { useGetFundedLoansForBankSubscription } from "generated/graphql";
+import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
@@ -84,7 +85,9 @@ export default function BankLoansMaturingSoonTab() {
           loans={maturingLoans}
           matureDays={matureDays}
           handleClickCustomer={(customerId) =>
-            history.push(`/customers/${customerId}/loans`)
+            history.push(
+              getBankCompanyRoute(customerId, BankCompanyRouteEnum.Loans)
+            )
           }
         />
       </Box>

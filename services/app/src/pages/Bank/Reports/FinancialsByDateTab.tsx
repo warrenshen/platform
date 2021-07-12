@@ -3,6 +3,7 @@ import FinancialSummariesDataGrid from "components/CustomerFinancialSummaries/Fi
 import DateInput from "components/Shared/FormInputs/DateInput";
 import { useGetFinancialSummariesByDateQuery } from "generated/graphql";
 import { todayAsDateStringServer } from "lib/date";
+import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
 
@@ -76,7 +77,9 @@ export default function BankReportsFinancialsByDateTab() {
             isSortingDisabled={false}
             financialSummaries={financialSummariesByDate}
             handleClickCustomer={(customerId) =>
-              history.push(`/customers/${customerId}/overview`)
+              history.push(
+                getBankCompanyRoute(customerId, BankCompanyRouteEnum.Overview)
+              )
             }
           />
         </Box>

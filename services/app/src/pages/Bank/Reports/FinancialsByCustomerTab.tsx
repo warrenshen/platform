@@ -7,12 +7,13 @@ import {
   useGetCustomersWithMetadataQuery,
   useGetFinancialSummariesByCompanyIdQuery,
 } from "generated/graphql";
-import { useState } from "react";
-import { useHistory } from "react-router-dom";
 import Can from "components/Shared/Can";
 import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import { Action } from "lib/auth/rbac-rules";
+import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
+import { useState } from "react";
+import { useHistory } from "react-router-dom";
 
 export default function BankReportsFinancialsByCustomerTab() {
   const history = useHistory();
@@ -136,7 +137,9 @@ export default function BankReportsFinancialsByCustomerTab() {
             isProductTypeVisible
             financialSummaries={financialSummariesByCompanyId}
             handleClickCustomer={(customerId) =>
-              history.push(`/customers/${customerId}/overview`)
+              history.push(
+                getBankCompanyRoute(customerId, BankCompanyRouteEnum.Overview)
+              )
             }
           />
         </Box>

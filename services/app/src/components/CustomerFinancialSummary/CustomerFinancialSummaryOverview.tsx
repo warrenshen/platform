@@ -17,7 +17,11 @@ import {
   ProductTypeEnum,
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
-import { customerRoutes } from "lib/routes";
+import {
+  BankCompanyRouteEnum,
+  getBankCompanyRoute,
+  customerRoutes,
+} from "lib/routes";
 import { round } from "lodash";
 import { useContext } from "react";
 import { Link } from "react-router-dom";
@@ -95,7 +99,7 @@ export default function CustomerFinancialSummaryOverview({
   const roundedLimitPercent = round(rawLimitPercent, 1);
 
   const customerAccountFeesCreditsRoute = isBankUser
-    ? `/customers/${companyId}/account`
+    ? getBankCompanyRoute(companyId, BankCompanyRouteEnum.AccountFeesCredits)
     : customerRoutes.account;
 
   return (

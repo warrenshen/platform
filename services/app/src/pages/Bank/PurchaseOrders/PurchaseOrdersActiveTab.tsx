@@ -12,6 +12,7 @@ import {
 } from "generated/graphql";
 import { useHistory } from "react-router-dom";
 import { Action } from "lib/auth/rbac-rules";
+import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { filter } from "lodash";
 import { useMemo, useState } from "react";
 
@@ -149,7 +150,12 @@ export default function BankPurchaseOrdersActiveTab() {
           purchaseOrders={purchaseOrders}
           selectedPurchaseOrderIds={selectedPurchaseOrderIds}
           handleClickCustomer={(customerId) =>
-            history.push(`/customers/${customerId}/purchase-orders`)
+            history.push(
+              getBankCompanyRoute(
+                customerId,
+                BankCompanyRouteEnum.PurchaseOrders
+              )
+            )
           }
           handleSelectPurchaseOrders={handleSelectPurchaseOrders}
         />

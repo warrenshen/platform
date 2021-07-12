@@ -1,6 +1,5 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import PaymentDrawerLauncher from "components/Payment/PaymentDrawerLauncher";
-import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import {
   PaymentFragment,
@@ -36,13 +35,11 @@ function getRows(
 interface Props {
   isExcelExport?: boolean;
   payments: (PaymentFragment & PaymentBankAccountsFragment)[];
-  handleClickCustomer: (value: string) => void;
 }
 
 export default function WireAdvancesDataGrid({
   isExcelExport = true,
   payments,
-  handleClickCustomer,
 }: Props) {
   const rows = getRows(payments);
   const columns = useMemo(
@@ -61,12 +58,6 @@ export default function WireAdvancesDataGrid({
         caption: "Customer Name",
         dataField: "company.name",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
-          <ClickableDataGridCell
-            label={params.row.data.company.name}
-            onClick={() => handleClickCustomer(params.row.data.company.name)}
-          />
-        ),
       },
       {
         dataField: "template_name",
@@ -139,7 +130,7 @@ export default function WireAdvancesDataGrid({
         width: 140,
       },
     ],
-    [handleClickCustomer]
+    []
   );
 
   return (

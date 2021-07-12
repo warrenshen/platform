@@ -1,6 +1,7 @@
 import { Box } from "@material-ui/core";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import { useGetFundedLoansForBankSubscription } from "generated/graphql";
+import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useMemo } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
@@ -47,7 +48,9 @@ export default function BankLoansPastDueTab() {
           isMaturityVisible
           loans={pastDueLoans}
           handleClickCustomer={(customerId) =>
-            history.push(`/customers/${customerId}/loans`)
+            history.push(
+              getBankCompanyRoute(customerId, BankCompanyRouteEnum.Loans)
+            )
           }
         />
       </Box>

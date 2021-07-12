@@ -25,6 +25,7 @@ export default function CustomerRepaymentsPageContent({ companyId }: Props) {
   const company = data?.companies_by_pk;
   const payments = useMemo(() => company?.payments || [], [company]);
 
+  // TODO(warrenshen): pagination is necessary for the list of PaymentBlocks rendered below.
   return (
     <PageContent
       title={"Repayments"}
@@ -34,12 +35,13 @@ export default function CustomerRepaymentsPageContent({ companyId }: Props) {
         <RepaymentTransactionsDataGrid payments={payments} />
       </Box>
       <Box mt={4}>
-        {payments.map((payment, index) => (
-          <Box key={payment.id}>
-            {index > 0 && <Box mt={8} />}
-            <PaymentBlock payment={payment} />
-          </Box>
-        ))}
+        {false &&
+          payments.map((payment, index) => (
+            <Box key={payment.id}>
+              {index > 0 && <Box mt={8} />}
+              <PaymentBlock payment={payment} />
+            </Box>
+          ))}
       </Box>
     </PageContent>
   );

@@ -5,7 +5,6 @@ import DateInput from "components/Shared/FormInputs/DateInput";
 import { useGetWireAdvancesByDateQuery } from "generated/graphql";
 import { todayAsDateStringServer } from "lib/date";
 import { useState } from "react";
-import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -17,9 +16,7 @@ const Container = styled.div`
   width: 100%;
 `;
 
-export default function BankLoansAllTab() {
-  const history = useHistory();
-
+export default function BankLoansExportWiresTab() {
   const [selectedDate, setSelectedDate] = useState(todayAsDateStringServer());
 
   const { data, error } = useGetWireAdvancesByDateQuery({
@@ -58,12 +55,7 @@ export default function BankLoansAllTab() {
             </Typography>
           </Alert>
         </Box>
-        <WireAdvancesDataGrid
-          payments={payments}
-          handleClickCustomer={(customerId) =>
-            history.push(`/customers/${customerId}/loans`)
-          }
-        />
+        <WireAdvancesDataGrid payments={payments} />
       </Box>
     </Container>
   );

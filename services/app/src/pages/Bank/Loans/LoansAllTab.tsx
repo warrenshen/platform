@@ -1,6 +1,7 @@
 import { Box } from "@material-ui/core";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import { useGetLoansForBankSubscription } from "generated/graphql";
+import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
@@ -38,7 +39,9 @@ export default function BankLoansAllTab() {
           isReportingVisible
           loans={loans}
           handleClickCustomer={(customerId) =>
-            history.push(`/customers/${customerId}/loans`)
+            history.push(
+              getBankCompanyRoute(customerId, BankCompanyRouteEnum.Loans)
+            )
           }
         />
       </Box>

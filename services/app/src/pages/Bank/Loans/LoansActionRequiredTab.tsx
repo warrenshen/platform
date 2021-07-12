@@ -16,6 +16,7 @@ import { useHistory } from "react-router-dom";
 import useSnackbar from "hooks/useSnackbar";
 import { approveLoans } from "lib/api/loans";
 import { Action, check } from "lib/auth/rbac-rules";
+import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useContext, useMemo, useState } from "react";
 import styled from "styled-components";
 
@@ -185,7 +186,9 @@ export default function BankLoansActionRequiredTab() {
           loans={loans}
           selectedLoanIds={selectedLoanIds}
           handleClickCustomer={(customerId) =>
-            history.push(`/customers/${customerId}/loans`)
+            history.push(
+              getBankCompanyRoute(customerId, BankCompanyRouteEnum.Loans)
+            )
           }
           handleSelectLoans={handleSelectLoans}
         />
