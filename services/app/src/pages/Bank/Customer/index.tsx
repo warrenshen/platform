@@ -1,4 +1,4 @@
-import { Box, ListItem, ListItemText } from "@material-ui/core";
+import { Box, ListItem, ListItemText, Typography } from "@material-ui/core";
 import List from "@material-ui/core/List";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import Page from "components/Shared/Page";
@@ -12,6 +12,7 @@ import {
 import { bankRoutes } from "lib/routes";
 import { isPayorsTabVisible, isVendorsTabVisible } from "lib/settings";
 import BankCustomerContractPage from "pages/Bank/Customer/Contract";
+import { flatten } from "lodash";
 import {
   Link,
   matchPath,
@@ -24,18 +25,17 @@ import BankCustomerAccountFeesCreditsSubpage from "./AccountFeesCredits";
 import BankCustomerEbbaApplicationsSubpage from "./EbbaApplications";
 import BankCustomerInvoicesSubpage from "./Invoices";
 import BankCustomerLoansSubpage from "./Loans";
+import BankCustomerMetrcSubpage from "./Metrc";
 import BankCustomerOverviewSubpage from "./Overview";
-import BankCustomerPaymentsSubpage from "./Repayments";
 import BankCustomerPayorsSubpage from "./Payors";
 import BankCustomerPurchaseOrdersSubpage from "./PurchaseOrders";
+import BankCustomerPaymentsSubpage from "./Repayments";
 import BankCustomerSettingsSubpage from "./Settings";
 import BankCustomerVendorsSubpage from "./Vendors";
-import BankCustomerMetrcSubpage from "./Metrc";
 
 const DRAWER_WIDTH = 200;
 
 const TitleText = styled.span`
-  margin-bottom: 24px;
   font-size: 24px;
   font-weight: 500;
 `;
@@ -67,82 +67,115 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
+type BankCustomerPath = {
+  visible?: boolean;
+  label: string;
+  path: string;
+  component: NonNullable<
+    React.FunctionComponent<{
+      companyId: Companies["id"];
+      productType: ProductTypeEnum | null;
+    }>
+  >;
+};
+
 const getCustomerPaths = (productType: ProductTypeEnum | null) => [
   {
-    path: bankRoutes.company.overview,
-    component: BankCustomerOverviewSubpage,
-    label: "Overview",
+    label: "Customer",
+    paths: [
+      {
+        label: "Overview",
+        path: bankRoutes.company.overview,
+        component: BankCustomerOverviewSubpage,
+      },
+      {
+        label: "Loans",
+        path: bankRoutes.company.loans,
+        component: BankCustomerLoansSubpage,
+      },
+      {
+        visible:
+          !!productType &&
+          [
+            ProductTypeEnum.InventoryFinancing,
+            ProductTypeEnum.PurchaseMoneyFinancing,
+          ].includes(productType),
+        label: "Purchase Orders",
+        path: bankRoutes.company.purchaseOrders,
+        component: BankCustomerPurchaseOrdersSubpage,
+      },
+      {
+        visible:
+          !!productType && [ProductTypeEnum.LineOfCredit].includes(productType),
+        label: "Borrowing Base",
+        path: bankRoutes.company.ebbaApplications,
+        component: BankCustomerEbbaApplicationsSubpage,
+      },
+      {
+        visible:
+          !!productType &&
+          [
+            ProductTypeEnum.InvoiceFinancing,
+            ProductTypeEnum.PurchaseMoneyFinancing,
+          ].includes(productType),
+        label: "Invoices",
+        path: bankRoutes.company.invoices,
+        component: BankCustomerInvoicesSubpage,
+      },
+      {
+        label: "Repayments",
+        path: bankRoutes.company.payments,
+        component: BankCustomerPaymentsSubpage,
+      },
+      {
+        visible: isVendorsTabVisible(productType),
+        label: "Vendors",
+        path: bankRoutes.company.vendors,
+        component: BankCustomerVendorsSubpage,
+      },
+      {
+        visible: isPayorsTabVisible(productType),
+        label: "Payors",
+        path: bankRoutes.company.payors,
+        component: BankCustomerPayorsSubpage,
+      },
+      {
+        label: "Metrc",
+        path: bankRoutes.company.metrc,
+        component: BankCustomerMetrcSubpage,
+      },
+      {
+        label: "Contract",
+        path: bankRoutes.company.contract,
+        component: BankCustomerContractPage,
+      },
+      {
+        visible: false,
+        label: "Account Fees & Credits",
+        path: bankRoutes.company.accountFeesCredits,
+        component: BankCustomerAccountFeesCreditsSubpage,
+      },
+    ] as BankCustomerPath[],
   },
+  // {
+  //   label: "Vendor",
+  //   paths: [
+  //     {
+  //       path: bankRoutes.company.settings,
+  //       component: BankCustomerSettingsSubpage,
+  //       label: "Settings",
+  //     },
+  //   ]
+  // },
   {
-    path: bankRoutes.company.loans,
-    component: BankCustomerLoansSubpage,
-    label: "Loans",
-  },
-  {
-    visible:
-      !!productType &&
-      [
-        ProductTypeEnum.InventoryFinancing,
-        ProductTypeEnum.PurchaseMoneyFinancing,
-      ].includes(productType),
-    path: bankRoutes.company.purchaseOrders,
-    component: BankCustomerPurchaseOrdersSubpage,
-    label: "Purchase Orders",
-  },
-  {
-    visible:
-      !!productType && [ProductTypeEnum.LineOfCredit].includes(productType),
-    path: bankRoutes.company.ebbaApplications,
-    component: BankCustomerEbbaApplicationsSubpage,
-    label: "Borrowing Base",
-  },
-  {
-    visible:
-      !!productType &&
-      [
-        ProductTypeEnum.InvoiceFinancing,
-        ProductTypeEnum.PurchaseMoneyFinancing,
-      ].includes(productType),
-    path: bankRoutes.company.invoices,
-    component: BankCustomerInvoicesSubpage,
-    label: "Invoices",
-  },
-  {
-    path: bankRoutes.company.payments,
-    component: BankCustomerPaymentsSubpage,
-    label: "Repayments",
-  },
-  {
-    visible: isVendorsTabVisible(productType),
-    path: bankRoutes.company.vendors,
-    component: BankCustomerVendorsSubpage,
-    label: "Vendors",
-  },
-  {
-    visible: isPayorsTabVisible(productType),
-    path: bankRoutes.company.payors,
-    component: BankCustomerPayorsSubpage,
-    label: "Payors",
-  },
-  {
-    path: bankRoutes.company.metrc,
-    component: BankCustomerMetrcSubpage,
-    label: "Metrc",
-  },
-  {
-    path: bankRoutes.company.contract,
-    component: BankCustomerContractPage,
-    label: "Contract",
-  },
-  {
-    path: bankRoutes.company.settings,
-    component: BankCustomerSettingsSubpage,
-    label: "Settings",
-  },
-  {
-    visible: false,
-    path: bankRoutes.company.accountFeesCredits,
-    component: BankCustomerAccountFeesCreditsSubpage,
+    label: "General",
+    paths: [
+      {
+        label: "Settings",
+        path: bankRoutes.company.settings,
+        component: BankCustomerSettingsSubpage,
+      },
+    ] as BankCustomerPath[],
   },
 ];
 
@@ -170,35 +203,51 @@ export default function BankCustomerPage() {
         <Box className={classes.drawer}>
           <TitleText>{customerName || ""}</TitleText>
           <List className={classes.list}>
-            {getCustomerPaths(productType)
-              .filter((customerPath) => customerPath.visible !== false)
-              .map((customerPath) => (
-                <ListItem
-                  key={customerPath.path}
-                  button
-                  component={Link}
-                  to={`${url}${customerPath.path}`}
-                  selected={Boolean(
-                    matchPath(
-                      location.pathname,
-                      `/companies/:companyId${customerPath.path}`
+            {getCustomerPaths(productType).map((section) => (
+              <Box display="flex" flexDirection="column" mt={2}>
+                <Box mb={1}>
+                  <Typography variant="subtitle2" color="textSecondary">
+                    <b>{section.label.toUpperCase()}</b>
+                  </Typography>
+                </Box>
+                <List>
+                  {section.paths
+                    .filter(
+                      (customerPath) =>
+                        customerPath.visible == null || !!customerPath?.visible
                     )
-                  )}
-                >
-                  <ListItemText
-                    primaryTypographyProps={{
-                      className: classes.listItemText,
-                      variant: "subtitle1",
-                    }}
-                  >
-                    {customerPath.label}
-                  </ListItemText>
-                </ListItem>
-              ))}
+                    .map((customerPath) => (
+                      <ListItem
+                        key={customerPath.path}
+                        button
+                        component={Link}
+                        to={`${url}${customerPath.path}`}
+                        selected={Boolean(
+                          matchPath(
+                            location.pathname,
+                            `/companies/:companyId${customerPath.path}`
+                          )
+                        )}
+                      >
+                        <ListItemText
+                          primaryTypographyProps={{
+                            className: classes.listItemText,
+                            variant: "subtitle1",
+                          }}
+                        >
+                          {customerPath.label}
+                        </ListItemText>
+                      </ListItem>
+                    ))}
+                </List>
+              </Box>
+            ))}
           </List>
         </Box>
         <Box className={classes.content}>
-          {getCustomerPaths(productType).map((customerPath) => (
+          {flatten(
+            getCustomerPaths(productType).map((section) => section.paths)
+          ).map((customerPath) => (
             <PrivateRoute
               key={customerPath.path}
               exact
