@@ -61,6 +61,7 @@ export const bankRoutes = {
     overview: BankCompanyRouteEnum.Overview,
     payments: "/payments",
     purchaseOrders: BankCompanyRouteEnum.PurchaseOrders,
+    payorPartnerships: "/payor-partnerships",
     vendorPartnerships: "/vendor-partnerships",
     vendors: "/vendors",
     payors: "/payors",

@@ -9882,7 +9882,6 @@ export type MetrcTransfers = {
   company_license: CompanyLicenses;
   created_at?: Maybe<Scalars["timestamptz"]>;
   created_date: Scalars["date"];
-  delivery_id: Scalars["String"];
   id: Scalars["uuid"];
   lab_results_status?: Maybe<Scalars["String"]>;
   license_id: Scalars["uuid"];
@@ -9894,6 +9893,7 @@ export type MetrcTransfers = {
   payor_id?: Maybe<Scalars["uuid"]>;
   shipment_transaction_type?: Maybe<Scalars["String"]>;
   shipment_type_name?: Maybe<Scalars["String"]>;
+  transfer_id_from_json?: Maybe<Scalars["String"]>;
   transfer_payload: Scalars["json"];
   transfer_type: Scalars["String"];
   updated_at?: Maybe<Scalars["timestamptz"]>;
@@ -9982,7 +9982,6 @@ export type MetrcTransfersBoolExp = {
   company_license?: Maybe<CompanyLicensesBoolExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   created_date?: Maybe<DateComparisonExp>;
-  delivery_id?: Maybe<StringComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   lab_results_status?: Maybe<StringComparisonExp>;
   license_id?: Maybe<UuidComparisonExp>;
@@ -9991,6 +9990,7 @@ export type MetrcTransfersBoolExp = {
   payor_id?: Maybe<UuidComparisonExp>;
   shipment_transaction_type?: Maybe<StringComparisonExp>;
   shipment_type_name?: Maybe<StringComparisonExp>;
+  transfer_id_from_json?: Maybe<StringComparisonExp>;
   transfer_payload?: Maybe<JsonComparisonExp>;
   transfer_type?: Maybe<StringComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
@@ -10001,9 +10001,9 @@ export type MetrcTransfersBoolExp = {
 /** unique or primary key constraints on table "metrc_transfers" */
 export enum MetrcTransfersConstraint {
   /** unique or primary key constraint */
-  MetrcTransfersDeliveryIdKey = "metrc_transfers_delivery_id_key",
-  /** unique or primary key constraint */
   MetrcTransfersPkey = "metrc_transfers_pkey",
+  /** unique or primary key constraint */
+  MetrcTransfersTransferIdFromJsonKey = "metrc_transfers_transfer_id_from_json_key",
 }
 
 /** input type for inserting data into table "metrc_transfers" */
@@ -10013,7 +10013,6 @@ export type MetrcTransfersInsertInput = {
   company_license?: Maybe<CompanyLicensesObjRelInsertInput>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   created_date?: Maybe<Scalars["date"]>;
-  delivery_id?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
   lab_results_status?: Maybe<Scalars["String"]>;
   license_id?: Maybe<Scalars["uuid"]>;
@@ -10022,6 +10021,7 @@ export type MetrcTransfersInsertInput = {
   payor_id?: Maybe<Scalars["uuid"]>;
   shipment_transaction_type?: Maybe<Scalars["String"]>;
   shipment_type_name?: Maybe<Scalars["String"]>;
+  transfer_id_from_json?: Maybe<Scalars["String"]>;
   transfer_payload?: Maybe<Scalars["json"]>;
   transfer_type?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
@@ -10034,7 +10034,6 @@ export type MetrcTransfersMaxFields = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   created_date?: Maybe<Scalars["date"]>;
-  delivery_id?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
   lab_results_status?: Maybe<Scalars["String"]>;
   license_id?: Maybe<Scalars["uuid"]>;
@@ -10042,6 +10041,7 @@ export type MetrcTransfersMaxFields = {
   payor_id?: Maybe<Scalars["uuid"]>;
   shipment_transaction_type?: Maybe<Scalars["String"]>;
   shipment_type_name?: Maybe<Scalars["String"]>;
+  transfer_id_from_json?: Maybe<Scalars["String"]>;
   transfer_type?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_id?: Maybe<Scalars["uuid"]>;
@@ -10052,7 +10052,6 @@ export type MetrcTransfersMaxOrderBy = {
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   created_date?: Maybe<OrderBy>;
-  delivery_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   lab_results_status?: Maybe<OrderBy>;
   license_id?: Maybe<OrderBy>;
@@ -10060,6 +10059,7 @@ export type MetrcTransfersMaxOrderBy = {
   payor_id?: Maybe<OrderBy>;
   shipment_transaction_type?: Maybe<OrderBy>;
   shipment_type_name?: Maybe<OrderBy>;
+  transfer_id_from_json?: Maybe<OrderBy>;
   transfer_type?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor_id?: Maybe<OrderBy>;
@@ -10070,7 +10070,6 @@ export type MetrcTransfersMinFields = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   created_date?: Maybe<Scalars["date"]>;
-  delivery_id?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
   lab_results_status?: Maybe<Scalars["String"]>;
   license_id?: Maybe<Scalars["uuid"]>;
@@ -10078,6 +10077,7 @@ export type MetrcTransfersMinFields = {
   payor_id?: Maybe<Scalars["uuid"]>;
   shipment_transaction_type?: Maybe<Scalars["String"]>;
   shipment_type_name?: Maybe<Scalars["String"]>;
+  transfer_id_from_json?: Maybe<Scalars["String"]>;
   transfer_type?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_id?: Maybe<Scalars["uuid"]>;
@@ -10088,7 +10088,6 @@ export type MetrcTransfersMinOrderBy = {
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   created_date?: Maybe<OrderBy>;
-  delivery_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   lab_results_status?: Maybe<OrderBy>;
   license_id?: Maybe<OrderBy>;
@@ -10096,6 +10095,7 @@ export type MetrcTransfersMinOrderBy = {
   payor_id?: Maybe<OrderBy>;
   shipment_transaction_type?: Maybe<OrderBy>;
   shipment_type_name?: Maybe<OrderBy>;
+  transfer_id_from_json?: Maybe<OrderBy>;
   transfer_type?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor_id?: Maybe<OrderBy>;
@@ -10129,7 +10129,6 @@ export type MetrcTransfersOrderBy = {
   company_license?: Maybe<CompanyLicensesOrderBy>;
   created_at?: Maybe<OrderBy>;
   created_date?: Maybe<OrderBy>;
-  delivery_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   lab_results_status?: Maybe<OrderBy>;
   license_id?: Maybe<OrderBy>;
@@ -10138,6 +10137,7 @@ export type MetrcTransfersOrderBy = {
   payor_id?: Maybe<OrderBy>;
   shipment_transaction_type?: Maybe<OrderBy>;
   shipment_type_name?: Maybe<OrderBy>;
+  transfer_id_from_json?: Maybe<OrderBy>;
   transfer_payload?: Maybe<OrderBy>;
   transfer_type?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
@@ -10159,8 +10159,6 @@ export enum MetrcTransfersSelectColumn {
   /** column name */
   CreatedDate = "created_date",
   /** column name */
-  DeliveryId = "delivery_id",
-  /** column name */
   Id = "id",
   /** column name */
   LabResultsStatus = "lab_results_status",
@@ -10174,6 +10172,8 @@ export enum MetrcTransfersSelectColumn {
   ShipmentTransactionType = "shipment_transaction_type",
   /** column name */
   ShipmentTypeName = "shipment_type_name",
+  /** column name */
+  TransferIdFromJson = "transfer_id_from_json",
   /** column name */
   TransferPayload = "transfer_payload",
   /** column name */
@@ -10189,7 +10189,6 @@ export type MetrcTransfersSetInput = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   created_date?: Maybe<Scalars["date"]>;
-  delivery_id?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
   lab_results_status?: Maybe<Scalars["String"]>;
   license_id?: Maybe<Scalars["uuid"]>;
@@ -10197,6 +10196,7 @@ export type MetrcTransfersSetInput = {
   payor_id?: Maybe<Scalars["uuid"]>;
   shipment_transaction_type?: Maybe<Scalars["String"]>;
   shipment_type_name?: Maybe<Scalars["String"]>;
+  transfer_id_from_json?: Maybe<Scalars["String"]>;
   transfer_payload?: Maybe<Scalars["json"]>;
   transfer_type?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
@@ -10212,8 +10212,6 @@ export enum MetrcTransfersUpdateColumn {
   /** column name */
   CreatedDate = "created_date",
   /** column name */
-  DeliveryId = "delivery_id",
-  /** column name */
   Id = "id",
   /** column name */
   LabResultsStatus = "lab_results_status",
@@ -10227,6 +10225,8 @@ export enum MetrcTransfersUpdateColumn {
   ShipmentTransactionType = "shipment_transaction_type",
   /** column name */
   ShipmentTypeName = "shipment_type_name",
+  /** column name */
+  TransferIdFromJson = "transfer_id_from_json",
   /** column name */
   TransferPayload = "transfer_payload",
   /** column name */
@@ -19684,6 +19684,16 @@ export type GetPayorPartnershipsForBankQuery = {
   >;
 };
 
+export type GetPayorPartnershipsByPayorIdQueryVariables = Exact<{
+  payor_id: Scalars["uuid"];
+}>;
+
+export type GetPayorPartnershipsByPayorIdQuery = {
+  company_payor_partnerships: Array<
+    Pick<CompanyPayorPartnerships, "id"> & PayorPartnershipFragment
+  >;
+};
+
 export type UpdatePayorAgreementIdMutationVariables = Exact<{
   companyPayorPartnershipId: Scalars["uuid"];
   payorAgreementId?: Maybe<Scalars["uuid"]>;
@@ -24871,6 +24881,67 @@ export type GetPayorPartnershipsForBankLazyQueryHookResult = ReturnType<
 export type GetPayorPartnershipsForBankQueryResult = Apollo.QueryResult<
   GetPayorPartnershipsForBankQuery,
   GetPayorPartnershipsForBankQueryVariables
+>;
+export const GetPayorPartnershipsByPayorIdDocument = gql`
+  query GetPayorPartnershipsByPayorId($payor_id: uuid!) {
+    company_payor_partnerships(
+      where: { payor_id: { _eq: $payor_id } }
+      order_by: { company: { name: asc } }
+    ) {
+      id
+      ...PayorPartnership
+    }
+  }
+  ${PayorPartnershipFragmentDoc}
+`;
+
+/**
+ * __useGetPayorPartnershipsByPayorIdQuery__
+ *
+ * To run a query within a React component, call `useGetPayorPartnershipsByPayorIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPayorPartnershipsByPayorIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPayorPartnershipsByPayorIdQuery({
+ *   variables: {
+ *      payor_id: // value for 'payor_id'
+ *   },
+ * });
+ */
+export function useGetPayorPartnershipsByPayorIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetPayorPartnershipsByPayorIdQuery,
+    GetPayorPartnershipsByPayorIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetPayorPartnershipsByPayorIdQuery,
+    GetPayorPartnershipsByPayorIdQueryVariables
+  >(GetPayorPartnershipsByPayorIdDocument, baseOptions);
+}
+export function useGetPayorPartnershipsByPayorIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetPayorPartnershipsByPayorIdQuery,
+    GetPayorPartnershipsByPayorIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetPayorPartnershipsByPayorIdQuery,
+    GetPayorPartnershipsByPayorIdQueryVariables
+  >(GetPayorPartnershipsByPayorIdDocument, baseOptions);
+}
+export type GetPayorPartnershipsByPayorIdQueryHookResult = ReturnType<
+  typeof useGetPayorPartnershipsByPayorIdQuery
+>;
+export type GetPayorPartnershipsByPayorIdLazyQueryHookResult = ReturnType<
+  typeof useGetPayorPartnershipsByPayorIdLazyQuery
+>;
+export type GetPayorPartnershipsByPayorIdQueryResult = Apollo.QueryResult<
+  GetPayorPartnershipsByPayorIdQuery,
+  GetPayorPartnershipsByPayorIdQueryVariables
 >;
 export const UpdatePayorAgreementIdDocument = gql`
   mutation UpdatePayorAgreementId(

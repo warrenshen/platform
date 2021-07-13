@@ -1,9 +1,9 @@
 import { Box, TextField } from "@material-ui/core";
 import PageContent from "components/Shared/Page/PageContent";
-import VendorPartnershipsDataGrid from "components/Vendors/VendorPartnershipsDataGrid";
+import PayorPartnershipsDataGrid from "components/Payors/PayorPartnershipsDataGrid";
 import {
   Companies,
-  useGetVendorPartnershipsByVendorIdQuery,
+  useGetPayorPartnershipsByPayorIdQuery,
 } from "generated/graphql";
 import { filter, sortBy } from "lodash";
 import { useMemo, useState } from "react";
@@ -12,34 +12,34 @@ interface Props {
   companyId: Companies["id"];
 }
 
-export default function BankCustomerVendorPartnershipsSubpage({
+export default function BankCustomerPayorPartnershipsSubpage({
   companyId,
 }: Props) {
-  const { data } = useGetVendorPartnershipsByVendorIdQuery({
+  const { data } = useGetPayorPartnershipsByPayorIdQuery({
     fetchPolicy: "network-only",
     variables: {
-      vendor_id: companyId,
+      payor_id: companyId,
     },
   });
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  const vendorPartnerships = useMemo(() => {
-    const filteredVendorPartnerships = filter(
-      data?.company_vendor_partnerships || [],
-      (vendorPartnership) =>
-        (vendorPartnership.vendor?.name || "")
+  const payorPartnerships = useMemo(() => {
+    const filteredPayorPartnerships = filter(
+      data?.company_payor_partnerships || [],
+      (payorPartnership) =>
+        (payorPartnership.payor?.name || "")
           .toLowerCase()
           .indexOf(searchQuery.toLowerCase()) >= 0
     );
     return sortBy(
-      filteredVendorPartnerships,
-      (vendorPartnership) => vendorPartnership.vendor?.name || null
+      filteredPayorPartnerships,
+      (payorPartnership) => payorPartnership.payor?.name || null
     );
-  }, [searchQuery, data?.company_vendor_partnerships]);
+  }, [searchQuery, data?.company_payor_partnerships]);
 
   return (
-    <PageContent title={"Vendor Partnerships"}>
+    <PageContent title={"Payor Partnerships"}>
       <Box
         display="flex"
         style={{ marginBottom: "1rem" }}
@@ -55,9 +55,9 @@ export default function BankCustomerVendorPartnershipsSubpage({
         </Box>
       </Box>
       <Box display="flex" flexDirection="column">
-        <VendorPartnershipsDataGrid
-          isBankUserRole
-          vendorPartnerships={vendorPartnerships}
+        <PayorPartnershipsDataGrid
+          isBankAccount
+          payorPartnerships={payorPartnerships}
         />
       </Box>
     </PageContent>

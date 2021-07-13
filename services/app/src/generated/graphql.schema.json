@@ -67993,22 +67993,6 @@
             "deprecationReason": null
           },
           {
-            "name": "delivery_id",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "id",
             "description": null,
             "args": [],
@@ -68268,6 +68252,18 @@
           },
           {
             "name": "shipment_type_name",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "transfer_id_from_json",
             "description": null,
             "args": [],
             "type": {
@@ -68665,16 +68661,6 @@
             "defaultValue": null
           },
           {
-            "name": "delivery_id",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "String_comparison_exp",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "id",
             "description": null,
             "type": {
@@ -68755,6 +68741,16 @@
             "defaultValue": null
           },
           {
+            "name": "transfer_id_from_json",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "String_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "transfer_payload",
             "description": null,
             "type": {
@@ -68818,13 +68814,13 @@
         "interfaces": null,
         "enumValues": [
           {
-            "name": "metrc_transfers_delivery_id_key",
+            "name": "metrc_transfers_pkey",
             "description": "unique or primary key constraint",
             "isDeprecated": false,
             "deprecationReason": null
           },
           {
-            "name": "metrc_transfers_pkey",
+            "name": "metrc_transfers_transfer_id_from_json_key",
             "description": "unique or primary key constraint",
             "isDeprecated": false,
             "deprecationReason": null
@@ -68884,16 +68880,6 @@
             "type": {
               "kind": "SCALAR",
               "name": "date",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "delivery_id",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
               "ofType": null
             },
             "defaultValue": null
@@ -68970,6 +68956,16 @@
           },
           {
             "name": "shipment_type_name",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "transfer_id_from_json",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -69075,18 +69071,6 @@
             "deprecationReason": null
           },
           {
-            "name": "delivery_id",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "id",
             "description": null,
             "args": [],
@@ -69160,6 +69144,18 @@
           },
           {
             "name": "shipment_type_name",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "transfer_id_from_json",
             "description": null,
             "args": [],
             "type": {
@@ -69249,16 +69245,6 @@
             "defaultValue": null
           },
           {
-            "name": "delivery_id",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "id",
             "description": null,
             "type": {
@@ -69320,6 +69306,16 @@
           },
           {
             "name": "shipment_type_name",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "transfer_id_from_json",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -69405,18 +69401,6 @@
             "deprecationReason": null
           },
           {
-            "name": "delivery_id",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "id",
             "description": null,
             "args": [],
@@ -69490,6 +69474,18 @@
           },
           {
             "name": "shipment_type_name",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "transfer_id_from_json",
             "description": null,
             "args": [],
             "type": {
@@ -69579,16 +69575,6 @@
             "defaultValue": null
           },
           {
-            "name": "delivery_id",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "id",
             "description": null,
             "type": {
@@ -69650,6 +69636,16 @@
           },
           {
             "name": "shipment_type_name",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "transfer_id_from_json",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -69893,16 +69889,6 @@
             "defaultValue": null
           },
           {
-            "name": "delivery_id",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "id",
             "description": null,
             "type": {
@@ -69974,6 +69960,16 @@
           },
           {
             "name": "shipment_type_name",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "transfer_id_from_json",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -70089,12 +70085,6 @@
             "deprecationReason": null
           },
           {
-            "name": "delivery_id",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "id",
             "description": "column name",
             "isDeprecated": false,
@@ -70132,6 +70122,12 @@
           },
           {
             "name": "shipment_type_name",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "transfer_id_from_json",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -70200,16 +70196,6 @@
             "defaultValue": null
           },
           {
-            "name": "delivery_id",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "id",
             "description": null,
             "type": {
@@ -70271,6 +70257,16 @@
           },
           {
             "name": "shipment_type_name",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "transfer_id_from_json",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -70351,12 +70347,6 @@
             "deprecationReason": null
           },
           {
-            "name": "delivery_id",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "id",
             "description": "column name",
             "isDeprecated": false,
@@ -70394,6 +70384,12 @@
           },
           {
             "name": "shipment_type_name",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "transfer_id_from_json",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null

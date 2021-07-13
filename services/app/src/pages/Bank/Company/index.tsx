@@ -31,6 +31,7 @@ import BankCustomerOverviewSubpage from "./Overview";
 import BankCustomerPayorsSubpage from "./Payors";
 import BankCustomerPurchaseOrdersSubpage from "./PurchaseOrders";
 import BankCustomerPaymentsSubpage from "./Repayments";
+import BankCompanyPayorPartnershipsSubpage from "./PayorPartnerships";
 import BankCustomerSettingsSubpage from "./Settings";
 import BankCompanyVendorPartnershipsSubpage from "./VendorPartnerships";
 import BankCustomerVendorsSubpage from "./Vendors";
@@ -160,6 +161,17 @@ const getCustomerPaths = (
         label: "Account Fees & Credits",
         path: bankRoutes.company.accountFeesCredits,
         component: BankCustomerAccountFeesCreditsSubpage,
+      },
+    ] as BankCustomerPath[],
+  },
+  {
+    visible: !!company?.is_payor,
+    label: "Payor",
+    paths: [
+      {
+        path: bankRoutes.company.payorPartnerships,
+        component: BankCompanyPayorPartnershipsSubpage,
+        label: "Partnerships",
       },
     ] as BankCustomerPath[],
   },

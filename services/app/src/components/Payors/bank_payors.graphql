@@ -55,6 +55,16 @@ query GetPayorPartnershipsForBank {
   }
 }
 
+query GetPayorPartnershipsByPayorId($payor_id: uuid!) {
+  company_payor_partnerships(
+    where: { payor_id: { _eq: $payor_id } }
+    order_by: { company: { name: asc } }
+  ) {
+    id
+    ...PayorPartnership
+  }
+}
+
 mutation UpdatePayorAgreementId(
   $companyPayorPartnershipId: uuid!
   $payorAgreementId: uuid

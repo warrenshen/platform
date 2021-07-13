@@ -107,11 +107,11 @@ export default function PayorPartnershipsDataGrid({
         />
       )}
       <ControlledDataGrid
+        isExcelExport={isExcelExport}
         pager
         dataSource={rows}
         columns={columns}
         filtering={{ enable: true, filterBy: { index: 0, value: "" } }}
-        isExcelExport={isExcelExport}
       />
     </>
   );
