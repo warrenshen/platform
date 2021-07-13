@@ -72,11 +72,11 @@ export default function MetrcPackagesDataGrid({
           />
         ),
       },
-      {
-        dataField: "delivery_id",
-        caption: "Delivery ID",
-        width: ColumnWidths.MetrcId,
-      },
+      // {
+      //   dataField: "delivery_id",
+      //   caption: "Delivery ID",
+      //   width: ColumnWidths.MetrcId,
+      // },
       {
         visible: isViewActionAvailable,
         dataField: undefined,

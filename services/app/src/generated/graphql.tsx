@@ -20389,7 +20389,6 @@ export type MetrcTransferFragment = Pick<
   | "id"
   | "company_id"
   | "license_id"
-  | "delivery_id"
   | "vendor_id"
   | "transfer_type"
   | "created_date"
@@ -20405,7 +20404,6 @@ export type MetrcPackageFragment = Pick<
   | "id"
   | "package_id"
   | "transfer_id"
-  | "delivery_id"
   | "label"
   | "type"
   | "product_name"
@@ -21277,7 +21275,6 @@ export const MetrcTransferFragmentDoc = gql`
     id
     company_id
     license_id
-    delivery_id
     vendor_id
     transfer_type
     created_date
@@ -21297,7 +21294,6 @@ export const MetrcPackageFragmentDoc = gql`
     id
     package_id
     transfer_id
-    delivery_id
     label
     type
     product_name

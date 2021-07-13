@@ -90,7 +90,7 @@ export default function BankTransfersTab() {
           const transferRow = deliveryIdToTransferRow[deliveryId];
           return {
             transfer_id: transferRow[0],
-            delivery_id: transferRow[1],
+            // delivery_id: transferRow[1],
             manifest_number: transferRow[2],
             origin_license: transferRow[3],
             origin_facility: transferRow[4],

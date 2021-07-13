@@ -29,12 +29,12 @@ export default function TransferPackagesDataGrid({
         caption: "Transfer ID",
         width: ColumnWidths.Date,
       },
-      {
-        fixed: true,
-        dataField: "delivery_id",
-        caption: "Delivery ID",
-        width: ColumnWidths.Date,
-      },
+      // {
+      //   fixed: true,
+      //   dataField: "delivery_id",
+      //   caption: "Delivery ID",
+      //   width: ColumnWidths.Date,
+      // },
       {
         fixed: true,
         dataField: "manifest_number",

@@ -53,11 +53,11 @@ export default function MetrcTransfersDataGrid({
           />
         ),
       },
-      {
-        dataField: "delivery_id",
-        caption: "Delivery ID",
-        width: ColumnWidths.MetrcId,
-      },
+      // {
+      //   dataField: "delivery_id",
+      //   caption: "Delivery ID",
+      //   width: ColumnWidths.MetrcId,
+      // },
       {
         dataField: "vendor_name",
         caption: "Vendor Name",

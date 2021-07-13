@@ -172,7 +172,6 @@ fragment MetrcTransfer on metrc_transfers {
   id
   company_id
   license_id
-  delivery_id
   vendor_id
   transfer_type
   created_date
@@ -191,7 +190,6 @@ fragment MetrcPackage on metrc_packages {
   id
   package_id
   transfer_id
-  delivery_id
   label
   type
   product_name
