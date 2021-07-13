@@ -1,14 +1,15 @@
-import { RowsProp } from "@material-ui/data-grid";
+import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import VendorDrawer from "components/Vendors/VendorDrawer";
+import VendorPartnershipDrawerLauncher from "components/Partnership/VendorPartnershipDrawerLauncher";
 import VerificationChip from "components/Vendors/VerificationChip";
 import {
   VendorPartnershipFragment,
   VendorPartnershipLimitedFragment,
 } from "generated/graphql";
+import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ColumnWidths } from "lib/tables";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 function getRows(
   vendorPartnerships: (
@@ -45,20 +46,6 @@ export default function VendorPartnershipsDataGrid({
   isDrilldownByCustomer,
   vendorPartnerships,
 }: Props) {
-  const [open, setOpen] = useState(false);
-  const [
-    currentVendorPartnership,
-    setCurrentVendorPartnership,
-  ] = useState<string>();
-
-  const onCellClick = useMemo(
-    () => ({ id }: { id: string }) => {
-      !open && setOpen(true);
-      setCurrentVendorPartnership(id);
-    },
-    [open, setOpen, setCurrentVendorPartnership]
-  );
-
   const verificationCellRenderer = useMemo(
     () => ({ value }: { value: string }) => <VerificationChip value={value} />,
     []
@@ -68,13 +55,27 @@ export default function VendorPartnershipsDataGrid({
   const columns = useMemo(
     () => [
       {
+        fixed: true,
+        dataField: "id",
+        caption: "",
+        width: 90,
+        cellRender: (params: ValueFormatterParams) => (
+          <VendorPartnershipDrawerLauncher
+            vendorPartnershipId={params.row.data.id}
+          />
+        ),
+      },
+      {
         dataField: "vendor_name",
         caption: "Vendor Name",
         minWidth: ColumnWidths.MinWidth,
         ...(isBankUserRole && {
           cellRender: ({ value, data }: { value: string; data: any }) => (
             <ClickableDataGridCell
-              onClick={() => onCellClick(data)}
+              url={getBankCompanyRoute(
+                data.vendor_id,
+                BankCompanyRouteEnum.VendorPartnerships
+              )}
               label={value}
             />
           ),
@@ -85,6 +86,15 @@ export default function VendorPartnershipsDataGrid({
         dataField: "company.name",
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
+        cellRender: ({ value, data }: { value: string; data: any }) => (
+          <ClickableDataGridCell
+            url={getBankCompanyRoute(
+              data.company_id,
+              BankCompanyRouteEnum.Overview
+            )}
+            label={value}
+          />
+        ),
       },
       {
         dataField: "vendor_agreement_id",
@@ -113,12 +123,7 @@ export default function VendorPartnershipsDataGrid({
         cellRender: verificationCellRenderer,
       },
     ],
-    [
-      isBankUserRole,
-      isDrilldownByCustomer,
-      onCellClick,
-      verificationCellRenderer,
-    ]
+    [isBankUserRole, isDrilldownByCustomer, verificationCellRenderer]
   );
 
   // Example of columns sorting callback
@@ -132,21 +137,13 @@ export default function VendorPartnershipsDataGrid({
   };
 
   return (
-    <>
-      {open && currentVendorPartnership && (
-        <VendorDrawer
-          vendorPartnershipId={currentVendorPartnership}
-          onClose={() => setOpen(false)}
-        />
-      )}
-      <ControlledDataGrid
-        isExcelExport={isExcelExport}
-        pager
-        dataSource={rows}
-        onSortingChanged={onSortingChanged}
-        onFilteringChanged={onFilteringChanged}
-        columns={columns}
-      />
-    </>
+    <ControlledDataGrid
+      isExcelExport={isExcelExport}
+      pager
+      dataSource={rows}
+      onSortingChanged={onSortingChanged}
+      onFilteringChanged={onFilteringChanged}
+      columns={columns}
+    />
   );
 }

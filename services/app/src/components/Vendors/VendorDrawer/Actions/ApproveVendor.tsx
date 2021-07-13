@@ -139,7 +139,7 @@ export default function ApproveVendor(props: Props) {
           setOpen(true);
         }}
       >
-        Approve vendor
+        Approve vendor partnership
       </Button>
     </>
   );

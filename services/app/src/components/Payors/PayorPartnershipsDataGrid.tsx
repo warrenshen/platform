@@ -1,12 +1,12 @@
-import { RowsProp } from "@material-ui/data-grid";
-import { ValueFormatterParams } from "@material-ui/data-grid";
+import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import PayorDrawer from "components/Payors/PayorDrawer";
+import PayorPartnershipDrawerLauncher from "components/Partnership/PayorPartnershipDrawerLauncher";
 import VerificationChip from "components/Vendors/VerificationChip";
 import { PayorPartnershipFragment } from "generated/graphql";
+import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ColumnWidths } from "lib/tables";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 const verificationCellRenderer = (params: ValueFormatterParams) => (
   <VerificationChip value={params.value} />
@@ -36,24 +36,20 @@ export default function PayorPartnershipsDataGrid({
   isDrilldownByCustomer,
   payorPartnerships,
 }: Props) {
-  const [open, setOpen] = useState(false);
-
-  const [
-    currentPayorPartnershipId,
-    setCurrentPayorPartnershipId,
-  ] = useState<string>();
-
-  const onCellClick = useMemo(
-    () => ({ id }: { id: string }) => {
-      !open && setOpen(true);
-      setCurrentPayorPartnershipId(id);
-    },
-    [open, setOpen, setCurrentPayorPartnershipId]
-  );
-
   const rows = getRows(payorPartnerships);
   const columns = useMemo(
     () => [
+      {
+        fixed: true,
+        dataField: "id",
+        caption: "",
+        width: 90,
+        cellRender: (params: ValueFormatterParams) => (
+          <PayorPartnershipDrawerLauncher
+            payorPartnershipId={params.row.data.id}
+          />
+        ),
+      },
       {
         dataField: "payor.name",
         caption: "Payor Name",
@@ -61,9 +57,10 @@ export default function PayorPartnershipsDataGrid({
         ...(isBankAccount && {
           cellRender: ({ value, data }: { value: string; data: any }) => (
             <ClickableDataGridCell
-              onClick={() => {
-                onCellClick(data);
-              }}
+              url={getBankCompanyRoute(
+                data.vendor_id,
+                BankCompanyRouteEnum.PayorPartnerships
+              )}
               label={value}
             />
           ),
@@ -95,24 +92,16 @@ export default function PayorPartnershipsDataGrid({
         cellRender: verificationCellRenderer,
       },
     ],
-    [isBankAccount, isDrilldownByCustomer, onCellClick]
+    [isBankAccount, isDrilldownByCustomer]
   );
 
   return (
-    <>
-      {open && currentPayorPartnershipId && (
-        <PayorDrawer
-          partnershipId={currentPayorPartnershipId}
-          handleClose={() => setOpen(false)}
-        />
-      )}
-      <ControlledDataGrid
-        isExcelExport={isExcelExport}
-        pager
-        dataSource={rows}
-        columns={columns}
-        filtering={{ enable: true, filterBy: { index: 0, value: "" } }}
-      />
-    </>
+    <ControlledDataGrid
+      isExcelExport={isExcelExport}
+      pager
+      dataSource={rows}
+      columns={columns}
+      filtering={{ enable: true, filterBy: { index: 0, value: "" } }}
+    />
   );
 }

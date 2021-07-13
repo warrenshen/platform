@@ -47,6 +47,8 @@ export enum BankCompanyRouteEnum {
   Loans = "/loans",
   Overview = "/overview",
   PurchaseOrders = "/purchase-orders",
+  PayorPartnerships = "/payor-partnerships",
+  VendorPartnerships = "/vendor-partnerships",
 }
 
 // Bank user routes are not prefixed.
@@ -61,8 +63,8 @@ export const bankRoutes = {
     overview: BankCompanyRouteEnum.Overview,
     payments: "/payments",
     purchaseOrders: BankCompanyRouteEnum.PurchaseOrders,
-    payorPartnerships: "/payor-partnerships",
-    vendorPartnerships: "/vendor-partnerships",
+    payorPartnerships: BankCompanyRouteEnum.PayorPartnerships,
+    vendorPartnerships: BankCompanyRouteEnum.VendorPartnerships,
     vendors: "/vendors",
     payors: "/payors",
     invoices: "/invoices",
