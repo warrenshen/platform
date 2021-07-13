@@ -115,10 +115,13 @@ query GetCustomerAccount($company_id: uuid!) {
   }
 }
 
-query GetCustomerForBank($id: uuid!) {
+query GetCompanyForBankCompanyPage($id: uuid!) {
   companies_by_pk(id: $id) {
     id
-    ...CustomerForBank
+    name
+    is_customer
+    is_payor
+    is_vendor
     contract {
       id
       product_type

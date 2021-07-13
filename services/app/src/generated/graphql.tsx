@@ -19203,15 +19203,16 @@ export type GetCustomerAccountQuery = {
   >;
 };
 
-export type GetCustomerForBankQueryVariables = Exact<{
+export type GetCompanyForBankCompanyPageQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
 
-export type GetCustomerForBankQuery = {
+export type GetCompanyForBankCompanyPageQuery = {
   companies_by_pk?: Maybe<
-    Pick<Companies, "id"> & {
-      contract?: Maybe<Pick<Contracts, "id" | "product_type">>;
-    } & CustomerForBankFragment
+    Pick<
+      Companies,
+      "id" | "name" | "is_customer" | "is_payor" | "is_vendor"
+    > & { contract?: Maybe<Pick<Contracts, "id" | "product_type">> }
   >;
 };
 
@@ -20557,6 +20558,16 @@ export type GetVendorPartnershipsForBankQuery = {
         Pick<Vendors, "id"> & { users: Array<ContactFragment> } & VendorFragment
       >;
     } & VendorPartnershipFragment
+  >;
+};
+
+export type GetVendorPartnershipsByVendorIdQueryVariables = Exact<{
+  vendor_id: Scalars["uuid"];
+}>;
+
+export type GetVendorPartnershipsByVendorIdQuery = {
+  company_vendor_partnerships: Array<
+    Pick<CompanyVendorPartnerships, "id"> & VendorPartnershipFragment
   >;
 };
 
@@ -22299,67 +22310,69 @@ export type GetCustomerAccountQueryResult = Apollo.QueryResult<
   GetCustomerAccountQuery,
   GetCustomerAccountQueryVariables
 >;
-export const GetCustomerForBankDocument = gql`
-  query GetCustomerForBank($id: uuid!) {
+export const GetCompanyForBankCompanyPageDocument = gql`
+  query GetCompanyForBankCompanyPage($id: uuid!) {
     companies_by_pk(id: $id) {
       id
-      ...CustomerForBank
+      name
+      is_customer
+      is_payor
+      is_vendor
       contract {
         id
         product_type
       }
     }
   }
-  ${CustomerForBankFragmentDoc}
 `;
 
 /**
- * __useGetCustomerForBankQuery__
+ * __useGetCompanyForBankCompanyPageQuery__
  *
- * To run a query within a React component, call `useGetCustomerForBankQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCustomerForBankQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetCompanyForBankCompanyPageQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCompanyForBankCompanyPageQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetCustomerForBankQuery({
+ * const { data, loading, error } = useGetCompanyForBankCompanyPageQuery({
  *   variables: {
  *      id: // value for 'id'
  *   },
  * });
  */
-export function useGetCustomerForBankQuery(
+export function useGetCompanyForBankCompanyPageQuery(
   baseOptions: Apollo.QueryHookOptions<
-    GetCustomerForBankQuery,
-    GetCustomerForBankQueryVariables
+    GetCompanyForBankCompanyPageQuery,
+    GetCompanyForBankCompanyPageQueryVariables
   >
 ) {
   return Apollo.useQuery<
-    GetCustomerForBankQuery,
-    GetCustomerForBankQueryVariables
-  >(GetCustomerForBankDocument, baseOptions);
+    GetCompanyForBankCompanyPageQuery,
+    GetCompanyForBankCompanyPageQueryVariables
+  >(GetCompanyForBankCompanyPageDocument, baseOptions);
 }
-export function useGetCustomerForBankLazyQuery(
+export function useGetCompanyForBankCompanyPageLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    GetCustomerForBankQuery,
-    GetCustomerForBankQueryVariables
+    GetCompanyForBankCompanyPageQuery,
+    GetCompanyForBankCompanyPageQueryVariables
   >
 ) {
   return Apollo.useLazyQuery<
-    GetCustomerForBankQuery,
-    GetCustomerForBankQueryVariables
-  >(GetCustomerForBankDocument, baseOptions);
+    GetCompanyForBankCompanyPageQuery,
+    GetCompanyForBankCompanyPageQueryVariables
+  >(GetCompanyForBankCompanyPageDocument, baseOptions);
 }
-export type GetCustomerForBankQueryHookResult = ReturnType<
-  typeof useGetCustomerForBankQuery
+export type GetCompanyForBankCompanyPageQueryHookResult = ReturnType<
+  typeof useGetCompanyForBankCompanyPageQuery
 >;
-export type GetCustomerForBankLazyQueryHookResult = ReturnType<
-  typeof useGetCustomerForBankLazyQuery
+export type GetCompanyForBankCompanyPageLazyQueryHookResult = ReturnType<
+  typeof useGetCompanyForBankCompanyPageLazyQuery
 >;
-export type GetCustomerForBankQueryResult = Apollo.QueryResult<
-  GetCustomerForBankQuery,
-  GetCustomerForBankQueryVariables
+export type GetCompanyForBankCompanyPageQueryResult = Apollo.QueryResult<
+  GetCompanyForBankCompanyPageQuery,
+  GetCompanyForBankCompanyPageQueryVariables
 >;
 export const GetFinancialSummariesByCompanyIdDocument = gql`
   query GetFinancialSummariesByCompanyId($companyId: uuid!) {
@@ -28282,6 +28295,67 @@ export type GetVendorPartnershipsForBankLazyQueryHookResult = ReturnType<
 export type GetVendorPartnershipsForBankQueryResult = Apollo.QueryResult<
   GetVendorPartnershipsForBankQuery,
   GetVendorPartnershipsForBankQueryVariables
+>;
+export const GetVendorPartnershipsByVendorIdDocument = gql`
+  query GetVendorPartnershipsByVendorId($vendor_id: uuid!) {
+    company_vendor_partnerships(
+      where: { vendor_id: { _eq: $vendor_id } }
+      order_by: { company: { name: asc } }
+    ) {
+      id
+      ...VendorPartnership
+    }
+  }
+  ${VendorPartnershipFragmentDoc}
+`;
+
+/**
+ * __useGetVendorPartnershipsByVendorIdQuery__
+ *
+ * To run a query within a React component, call `useGetVendorPartnershipsByVendorIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetVendorPartnershipsByVendorIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetVendorPartnershipsByVendorIdQuery({
+ *   variables: {
+ *      vendor_id: // value for 'vendor_id'
+ *   },
+ * });
+ */
+export function useGetVendorPartnershipsByVendorIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetVendorPartnershipsByVendorIdQuery,
+    GetVendorPartnershipsByVendorIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetVendorPartnershipsByVendorIdQuery,
+    GetVendorPartnershipsByVendorIdQueryVariables
+  >(GetVendorPartnershipsByVendorIdDocument, baseOptions);
+}
+export function useGetVendorPartnershipsByVendorIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetVendorPartnershipsByVendorIdQuery,
+    GetVendorPartnershipsByVendorIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetVendorPartnershipsByVendorIdQuery,
+    GetVendorPartnershipsByVendorIdQueryVariables
+  >(GetVendorPartnershipsByVendorIdDocument, baseOptions);
+}
+export type GetVendorPartnershipsByVendorIdQueryHookResult = ReturnType<
+  typeof useGetVendorPartnershipsByVendorIdQuery
+>;
+export type GetVendorPartnershipsByVendorIdLazyQueryHookResult = ReturnType<
+  typeof useGetVendorPartnershipsByVendorIdLazyQuery
+>;
+export type GetVendorPartnershipsByVendorIdQueryResult = Apollo.QueryResult<
+  GetVendorPartnershipsByVendorIdQuery,
+  GetVendorPartnershipsByVendorIdQueryVariables
 >;
 export const CompanyBankAccountsDocument = gql`
   query CompanyBankAccounts($companyId: uuid!) {

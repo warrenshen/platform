@@ -5,13 +5,14 @@ import Page from "components/Shared/Page";
 import PrivateRoute from "components/Shared/PrivateRoute";
 import {
   Companies,
+  GetCompanyForBankCompanyPageQuery,
   ProductTypeEnum,
-  useGetCustomerForBankQuery,
+  useGetCompanyForBankCompanyPageQuery,
   UserRolesEnum,
 } from "generated/graphql";
 import { bankRoutes } from "lib/routes";
 import { isPayorsTabVisible, isVendorsTabVisible } from "lib/settings";
-import BankCustomerContractPage from "pages/Bank/Customer/Contract";
+import BankCustomerContractPage from "pages/Bank/Company/Contract";
 import { flatten } from "lodash";
 import {
   Link,
@@ -31,6 +32,7 @@ import BankCustomerPayorsSubpage from "./Payors";
 import BankCustomerPurchaseOrdersSubpage from "./PurchaseOrders";
 import BankCustomerPaymentsSubpage from "./Repayments";
 import BankCustomerSettingsSubpage from "./Settings";
+import BankCompanyVendorPartnershipsSubpage from "./VendorPartnerships";
 import BankCustomerVendorsSubpage from "./Vendors";
 
 const DRAWER_WIDTH = 200;
@@ -79,8 +81,12 @@ type BankCustomerPath = {
   >;
 };
 
-const getCustomerPaths = (productType: ProductTypeEnum | null) => [
+const getCustomerPaths = (
+  company: GetCompanyForBankCompanyPageQuery["companies_by_pk"] | null,
+  productType: ProductTypeEnum | null
+) => [
   {
+    visible: !!company?.is_customer,
     label: "Customer",
     paths: [
       {
@@ -157,17 +163,19 @@ const getCustomerPaths = (productType: ProductTypeEnum | null) => [
       },
     ] as BankCustomerPath[],
   },
-  // {
-  //   label: "Vendor",
-  //   paths: [
-  //     {
-  //       path: bankRoutes.company.settings,
-  //       component: BankCustomerSettingsSubpage,
-  //       label: "Settings",
-  //     },
-  //   ]
-  // },
   {
+    visible: !!company?.is_vendor,
+    label: "Vendor",
+    paths: [
+      {
+        path: bankRoutes.company.vendorPartnerships,
+        component: BankCompanyVendorPartnershipsSubpage,
+        label: "Partnerships",
+      },
+    ] as BankCustomerPath[],
+  },
+  {
+    visible: true,
     label: "General",
     paths: [
       {
@@ -187,77 +195,83 @@ export default function BankCustomerPage() {
   const location = useLocation();
   const classes = useStyles();
 
-  const { data } = useGetCustomerForBankQuery({
+  const { data } = useGetCompanyForBankCompanyPageQuery({
     variables: {
       id: companyId,
     },
   });
 
-  const customer = data?.companies_by_pk;
-  const customerName = customer?.name;
-  const productType = customer?.contract?.product_type || null;
+  const company = data?.companies_by_pk || null;
+  const companyName = company?.name;
+  const productType = company?.contract?.product_type || null;
 
   return (
-    <Page appBarTitle={customerName || ""}>
+    <Page appBarTitle={companyName || ""}>
       <Box display="flex" width="100%">
         <Box className={classes.drawer}>
-          <TitleText>{customerName || ""}</TitleText>
+          <TitleText>{companyName || ""}</TitleText>
           <List className={classes.list}>
-            {getCustomerPaths(productType).map((section) => (
-              <Box display="flex" flexDirection="column" mt={2}>
-                <Box mb={1}>
-                  <Typography variant="subtitle2" color="textSecondary">
-                    <b>{section.label.toUpperCase()}</b>
-                  </Typography>
-                </Box>
-                <List>
-                  {section.paths
-                    .filter(
-                      (customerPath) =>
-                        customerPath.visible == null || !!customerPath?.visible
-                    )
-                    .map((customerPath) => (
-                      <ListItem
-                        key={customerPath.path}
-                        button
-                        component={Link}
-                        to={`${url}${customerPath.path}`}
-                        selected={Boolean(
-                          matchPath(
-                            location.pathname,
-                            `/companies/:companyId${customerPath.path}`
-                          )
-                        )}
-                      >
-                        <ListItemText
-                          primaryTypographyProps={{
-                            className: classes.listItemText,
-                            variant: "subtitle1",
-                          }}
+            {getCustomerPaths(company, productType)
+              .filter(
+                (section) => section.visible == null || !!section?.visible
+              )
+              .map((section) => (
+                <Box display="flex" flexDirection="column" mt={2}>
+                  <Box mb={1}>
+                    <Typography variant="subtitle2" color="textSecondary">
+                      <b>{section.label.toUpperCase()}</b>
+                    </Typography>
+                  </Box>
+                  <List>
+                    {section.paths
+                      .filter(
+                        (companyPath) =>
+                          companyPath.visible == null || !!companyPath?.visible
+                      )
+                      .map((companyPath) => (
+                        <ListItem
+                          key={companyPath.path}
+                          button
+                          component={Link}
+                          to={`${url}${companyPath.path}`}
+                          selected={Boolean(
+                            matchPath(
+                              location.pathname,
+                              `/companies/:companyId${companyPath.path}`
+                            )
+                          )}
                         >
-                          {customerPath.label}
-                        </ListItemText>
-                      </ListItem>
-                    ))}
-                </List>
-              </Box>
-            ))}
+                          <ListItemText
+                            primaryTypographyProps={{
+                              className: classes.listItemText,
+                              variant: "subtitle1",
+                            }}
+                          >
+                            {companyPath.label}
+                          </ListItemText>
+                        </ListItem>
+                      ))}
+                  </List>
+                </Box>
+              ))}
           </List>
         </Box>
         <Box className={classes.content}>
           {flatten(
-            getCustomerPaths(productType).map((section) => section.paths)
-          ).map((customerPath) => (
+            getCustomerPaths(company, productType).map(
+              (section) => section.paths
+            )
+          ).map((companyPath) => (
             <PrivateRoute
-              key={customerPath.path}
+              key={companyPath.path}
               exact
-              path={`${path}${customerPath.path}`}
+              path={`${path}${companyPath.path}`}
               requiredRoles={[
                 UserRolesEnum.BankAdmin,
                 UserRolesEnum.BankReadOnly,
               ]}
             >
-              {customerPath.component({ companyId, productType })}
+              {companyPath.component({ companyId, productType })}
             </PrivateRoute>
           ))}
         </Box>

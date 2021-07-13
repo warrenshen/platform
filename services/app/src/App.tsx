@@ -22,7 +22,7 @@ import ReviewPurchaseOrderPage from "pages/Anonymous/ReviewPurchaseOrder";
 import ReviewPurchaseOrderCompletePage from "pages/Anonymous/ReviewPurchaseOrderComplete";
 import AnonymousSecureLinkPage from "pages/Anonymous/SecureLink";
 import SignIn from "pages/Anonymous/SignIn";
-import BankCustomerPage from "pages/Bank/Customer";
+import BankCompanyPage from "pages/Bank/Company";
 import BankCustomersPage from "pages/Bank/Customers";
 import BankEbbaApplicationsPage from "pages/Bank/EbbaApplications";
 import BankInvoicesPage from "pages/Bank/Invoices";
@@ -287,7 +287,7 @@ function App() {
           path={bankRoutes.companyRoot}
           requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
         >
-          <BankCustomerPage />
+          <BankCompanyPage />
         </PrivateRoute>
         <PrivateRoute
           exact

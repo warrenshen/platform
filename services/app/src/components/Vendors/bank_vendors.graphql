@@ -80,6 +80,16 @@ query GetVendorPartnershipsForBank {
   }
 }
 
+query GetVendorPartnershipsByVendorId($vendor_id: uuid!) {
+  company_vendor_partnerships(
+    where: { vendor_id: { _eq: $vendor_id } }
+    order_by: { company: { name: asc } }
+  ) {
+    id
+    ...VendorPartnership
+  }
+}
+
 query CompanyBankAccounts($companyId: uuid!) {
   bank_accounts(where: { company_id: { _eq: $companyId } }) {
     ...BankAccount
