@@ -376,6 +376,17 @@ class MetrcTransfer(Base):
 	lab_results_status = Column(String) # Computed based on Metrc info
 	updated_at = Column(DateTime)
 
+class MetrcDelivery(Base):
+	__tablename__ = 'metrc_deliveries'
+
+	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
+	delivery_id = Column(String)
+	recipient_facility_license_number = Column(String)
+	recipient_facility_name = Column(String)
+	shipment_type_name = Column(String)
+	shipment_transaction_type = Column(String)
+	received_datetime = Column(DateTime)
+	delivery_payload = Column(JSON)
 
 class MetrcPackage(Base):
 	__tablename__ = 'metrc_packages'
@@ -383,6 +394,7 @@ class MetrcPackage(Base):
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
 	package_id = Column(String)
 	transfer_id = cast(GUID, Column(GUID, ForeignKey('metrc_transfers.id')))
+	delivery_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_deliveries.id'))) 
 	delivery_id = Column(String)
 	label = Column(String)
 	type = Column(String)

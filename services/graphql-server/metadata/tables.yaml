@@ -2564,8 +2564,39 @@
           _eq: X-Hasura-Company-Id
 - table:
     schema: public
+    name: metrc_deliveries
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - id
+      - delivery_id
+      - recipient_facility_license_number
+      - recipient_facility_name
+      - shipment_type_name
+      - shipment_transaction_type
+      - received_datetime
+      - delivery_payload
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - delivery_payload
+      - delivery_id
+      - recipient_facility_license_number
+      - recipient_facility_name
+      - shipment_transaction_type
+      - shipment_type_name
+      - received_datetime
+      - id
+      filter: {}
+- table:
+    schema: public
     name: metrc_packages
   object_relationships:
+  - name: metrc_delivery
+    using:
+      foreign_key_constraint_on: delivery_row_id
   - name: metrc_transfer
     using:
       foreign_key_constraint_on: transfer_id
@@ -2573,45 +2604,48 @@
   - role: bank_admin
     permission:
       columns:
-      - id
-      - package_id
-      - transfer_id
+      - created_at
       - delivery_id
-      - label
-      - type
-      - product_name
-      - package_payload
+      - delivery_row_id
+      - id
       - lab_results_payload
       - lab_results_status
-      - created_at
-      - updated_at
+      - label
+      - package_id
+      - package_payload
       - product_category_name
-      - shipper_wholesale_price
+      - product_name
       - shipped_quantity
+      - shipper_wholesale_price
+      - transfer_id
+      - type
+      - updated_at
       filter: {}
   - role: bank_read_only
     permission:
       columns:
-      - lab_results_payload
-      - package_payload
-      - shipped_quantity
-      - shipper_wholesale_price
+      - created_at
       - delivery_id
-      - label
+      - delivery_row_id
+      - id
+      - lab_results_payload
       - lab_results_status
+      - label
       - package_id
+      - package_payload
       - product_category_name
       - product_name
-      - type
-      - created_at
-      - updated_at
-      - id
+      - shipped_quantity
+      - shipper_wholesale_price
       - transfer_id
+      - type
+      - updated_at
       filter: {}
   - role: company_admin
     permission:
       columns:
       - delivery_id
+      - delivery_row_id
       - id
       - lab_results_payload
       - lab_results_status
@@ -2635,6 +2669,7 @@
     permission:
       columns:
       - delivery_id
+      - delivery_row_id
       - id
       - lab_results_payload
       - lab_results_status
@@ -2658,6 +2693,7 @@
     permission:
       columns:
       - delivery_id
+      - delivery_row_id
       - id
       - lab_results_payload
       - lab_results_status
