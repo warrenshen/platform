@@ -2701,37 +2701,37 @@
   - role: bank_admin
     permission:
       columns:
-      - id
       - company_id
-      - license_id
-      - created_date
-      - delivery_id
-      - manifest_number
-      - transfer_payload
-      - vendor_id
-      - transfer_type
       - created_at
-      - updated_at
+      - created_date
+      - id
       - lab_results_status
-      - shipment_type_name
+      - license_id
+      - manifest_number
+      - payor_id
       - shipment_transaction_type
+      - shipment_type_name
+      - transfer_payload
+      - transfer_type
+      - updated_at
+      - vendor_id
       filter: {}
   - role: bank_read_only
     permission:
       columns:
+      - company_id
+      - created_at
       - created_date
-      - transfer_payload
-      - delivery_id
+      - id
       - lab_results_status
+      - license_id
       - manifest_number
+      - payor_id
       - shipment_transaction_type
       - shipment_type_name
+      - transfer_payload
       - transfer_type
-      - created_at
       - updated_at
-      - company_id
-      - id
-      - license_id
       - vendor_id
       filter: {}
   - role: company_admin
@@ -2739,11 +2739,11 @@
       columns:
       - company_id
       - created_date
-      - delivery_id
       - id
       - lab_results_status
       - license_id
       - manifest_number
+      - payor_id
       - shipment_transaction_type
       - shipment_type_name
       - transfer_payload
@@ -2760,11 +2760,11 @@
       columns:
       - company_id
       - created_date
-      - delivery_id
       - id
       - lab_results_status
       - license_id
       - manifest_number
+      - payor_id
       - shipment_transaction_type
       - shipment_type_name
       - transfer_payload
@@ -2781,11 +2781,11 @@
       columns:
       - company_id
       - created_date
-      - delivery_id
       - id
       - lab_results_status
       - license_id
       - manifest_number
+      - payor_id
       - shipment_transaction_type
       - shipment_type_name
       - transfer_payload

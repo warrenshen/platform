@@ -39,6 +39,17 @@ class LabTest(object):
 
 		return 'passed'
 
+def get_final_lab_status(lab_result_statuses: List[str]) -> str:
+	final_lab_results_status = "unknown"
+
+	for lab_results_status in lab_result_statuses:
+		if lab_results_status == "failed":
+			return "failed"
+		elif lab_results_status == "passed":
+			final_lab_results_status = "passed"
+
+	return final_lab_results_status
+
 class TransferPackages(object):
 
 	def __init__(self, delivery_id: str, transfer_packages: List[Dict], transfer_packages_wholesale: List[Dict]) -> None:
@@ -64,6 +75,8 @@ class TransferPackages(object):
 		package_id_to_package_wholesale = {}
 		for package_wholesale in self._packages_wholesale:
 			package_id_to_package_wholesale[package_wholesale['PackageId']] = package_wholesale
+
+		lab_statuses = []
 
 		for i in range(len(self._packages)):
 			package = self._packages[i]
@@ -94,12 +107,9 @@ class TransferPackages(object):
 
 			metrc_packages.append(p)
 
-			if p.lab_results_status == "failed" and transfer_lab_results_status != "failed":
-				transfer_lab_results_status = "failed"
-			elif p.lab_results_status == "passed" and transfer_lab_results_status == "unknown":
-				transfer_lab_results_status = "passed"
+			lab_statuses.append(p.lab_results_status)
 
-		return metrc_packages, transfer_lab_results_status
+		return metrc_packages, get_final_lab_status(lab_statuses)
 
 	def to_rows(self, include_header: bool) -> List[List[str]]:
 		col_specs = [
@@ -120,6 +130,13 @@ class TransferPackages(object):
 		]
 		return metrc_common_util.dicts_to_rows(self._packages, col_specs, include_header)
 
+class MetrcTransferObj(object):
+	"""Wrapper object for a metrc transfer DB object and delivery IDs"""
+
+	def __init__(self, metrc_transfer: models.MetrcTransfer, delivery_ids: List[str]) -> None:
+		self.metrc_transfer = metrc_transfer
+		self.delivery_ids = delivery_ids
+
 class Transfers(object):
 
 	def __init__(self, transfers: List[Dict]) -> None:
@@ -129,24 +146,38 @@ class Transfers(object):
 	def build(transfers: List[Dict]) -> 'Transfers':
 		return Transfers(transfers)
 
-	def get_delivery_ids(self) -> List[str]:
-		return [t['DeliveryId'] for t in self._transfers]
+	def get_transfer_objs(self, rest: metrc_common_util.REST, company_id: str, license_id: str, transfer_type: str) -> List[MetrcTransferObj]:
+		metrc_transfer_objs = []
 
-	def get_transfer_models(self, company_id: str, license_id: str) -> List[models.MetrcTransfer]:
-		metrc_transfers = []
 		for t in self._transfers:
 			tr = models.MetrcTransfer()
 			tr.company_id = cast(Any, company_id)
 			tr.license_id = cast(Any, license_id)
-			tr.delivery_id = '{}'.format(t['DeliveryId'])
+			tr.transfer_id_from_json = '{}'.format(t['Id'])
 			tr.created_date = parser.parse(t['CreatedDateTime']).date()
 			tr.manifest_number = t['ManifestNumber']
 			tr.shipment_type_name = t['ShipmentTypeName']
 			tr.shipment_transaction_type = t['ShipmentTransactionType']
 			tr.transfer_payload = t
-			metrc_transfers.append(tr)
+		
+			delivery_ids = []
+			if transfer_type == TransferType.INCOMING:
+				delivery_ids.append('{}'.format(t['DeliveryId']))
+			else:
+				outgoing_transfer_id = t['Id']
+				delivery_resp = rest.get(f'/transfers/v1/{outgoing_transfer_id}/deliveries')
+				delivery_json_arr = cast(List[Dict], json.loads(delivery_resp.content))
 
-		return metrc_transfers
+				for delivery_json in delivery_json_arr:
+					delivery_ids.append('{}'.format(delivery_json['Id']))
+
+			transfer_obj = MetrcTransferObj(
+				metrc_transfer=tr,
+				delivery_ids=delivery_ids
+			)
+			metrc_transfer_objs.append(transfer_obj)
+
+		return metrc_transfer_objs
 
 	def to_rows(self, include_header: bool) -> List[List[str]]:
 		col_specs = [
@@ -170,13 +201,14 @@ class TransferType(object):
 	OUTGOING = 'OUTGOING'
 
 def _match_and_add_licenses_to_transfers(
-	metrc_transfers: List[models.MetrcTransfer],
+	metrc_transfer_objs: List[MetrcTransferObj],
 	transfer_type: str,
 	session: Session) -> None:
 
 	# Vendor licenses lookup
 	shipper_license_numbers = []
-	for metrc_transfer in metrc_transfers:
+	for metrc_transfer_obj in metrc_transfer_objs:
+		metrc_transfer = metrc_transfer_obj.metrc_transfer
 		shipper_license_number = '{}'.format(cast(Dict, metrc_transfer.transfer_payload)['ShipperFacilityLicenseNumber'])
 		shipper_license_numbers.append(shipper_license_number)
 
@@ -190,7 +222,8 @@ def _match_and_add_licenses_to_transfers(
 
 	# Recipient licenses lookup
 	recipient_license_numbers = []
-	for metrc_transfer in metrc_transfers:
+	for metrc_transfer_obj in metrc_transfer_objs:
+		metrc_transfer = metrc_transfer_obj.metrc_transfer
 		recipient_license_number = '{}'.format(cast(Dict, metrc_transfer.transfer_payload)['RecipientFacilityLicenseNumber'])
 		recipient_license_numbers.append(recipient_license_number)
 
@@ -202,7 +235,8 @@ def _match_and_add_licenses_to_transfers(
 		recipient_license_to_company_id[recipient_license.license_number] = str(recipient_license.company_id)
 
 	# Match based on license number
-	for metrc_transfer in metrc_transfers:
+	for metrc_transfer_obj in metrc_transfer_objs:
+		metrc_transfer = metrc_transfer_obj.metrc_transfer
 		shipper_license_number = '{}'.format(cast(Dict, metrc_transfer.transfer_payload)['ShipperFacilityLicenseNumber'])
 		vendor_company_id = shipper_license_to_company_id.get(shipper_license_number)
 		if vendor_company_id:
@@ -296,14 +330,16 @@ def populate_transfers_table(
 		request_status['transfers_api'] = e.details.get('status_code')
 		return request_status, e
 
-	incoming_metrc_transfers = Transfers.build(incoming_transfers).get_transfer_models(
+	incoming_metrc_transfer_objs = Transfers.build(incoming_transfers).get_transfer_objs(
+		rest=rest,
 		company_id=company_info.company_id,
-		license_id=license['license_id']
+		license_id=license['license_id'],
+		transfer_type=TransferType.INCOMING
 	)
 	# Look up company ids for vendors that might match, and use those
 	# licenses to determine what kind of transfer this is
 	_match_and_add_licenses_to_transfers(
-		incoming_metrc_transfers,
+		incoming_metrc_transfer_objs,
 		transfer_type=TransferType.INCOMING,
 		session=session
 	)
@@ -317,100 +353,112 @@ def populate_transfers_table(
 		request_status['transfers_api'] = e.details.get('status_code')
 		return request_status, e
 
-	outgoing_metrc_transfers = Transfers.build(outgoing_transfers).get_transfer_models(
+	outgoing_metrc_transfer_objs = Transfers.build(outgoing_transfers).get_transfer_objs(
+		rest=rest,
 		company_id=company_info.company_id,
-		license_id=license['license_id']
+		license_id=license['license_id'],
+		transfer_type=TransferType.OUTGOING
 	)
 	_match_and_add_licenses_to_transfers(
-		outgoing_metrc_transfers,
+		outgoing_metrc_transfer_objs,
 		transfer_type=TransferType.OUTGOING,
 		session=session
 	)
 
 
-	metrc_transfers = incoming_metrc_transfers + outgoing_metrc_transfers
+	metrc_transfer_objs = incoming_metrc_transfer_objs + outgoing_metrc_transfer_objs
 
 	## Fetch packages and lab results
 	all_metrc_packages = []
 	# So we can map a package back to its parent transfer's delivery ID
 	package_id_to_delivery_id = {} 
 
-	for metrc_transfer in metrc_transfers:
-		logging.info(f'Downloading packages for {"outgoing" if "outgoing" in metrc_transfer.transfer_type else "incoming"} metrc transfer manifest number {metrc_transfer.manifest_number}')
-		delivery_id = metrc_transfer.delivery_id
+	for metrc_transfer_obj in metrc_transfer_objs:
+		metrc_transfer = metrc_transfer_obj.metrc_transfer
+		lab_result_statuses_for_transfer = []
 
-		packages_api_failed = False
-		try:
-			resp = rest.get(f'/transfers/v1/delivery/{delivery_id}/packages')
-			t_packages_json = json.loads(resp.content)
-			request_status['packages_api'] = 200
-		except errors.Error as e:
-			if request_status['packages_api'] != 200:
-				# Only update the request status if we haven't seen a 200 yet
-				request_status['packages_api'] = e.details.get('status_code')
-			packages_api_failed = True
+		for delivery_id in metrc_transfer_obj.delivery_ids:
+			logging.info(f'Downloading packages for {TransferType.OUTGOING if TransferType.OUTGOING in metrc_transfer.transfer_type else TransferType.INCOMING} metrc transfer manifest number {metrc_transfer.manifest_number}, delivery ID {delivery_id}')
 
-		if packages_api_failed:
-			continue
-
-		try:
-			resp = rest.get(f'/transfers/v1/delivery/{delivery_id}/packages/wholesale')
-			t_packages_wholesale_json = json.loads(resp.content)
-			request_status['packages_wholesale_api'] = 200
-		except errors.Error as e:
-			t_packages_wholesale_json = [] # If fetch fails, we set to empty array and continue.
-			logging.error(f'Could not fetch packages wholesale for company {company_info.name} for transfer with delivery id {delivery_id}. {e}')
-			request_status['packages_wholesale_api'] = e.details.get('status_code')
-
-		packages = TransferPackages(delivery_id, t_packages_json, t_packages_wholesale_json)
-		package_ids = packages.get_package_ids()
-
-		lab_tests = []
-		for package_id in package_ids:
-			logging.info(f'Downloading lab results for metrc package package_id={package_id}')
+			packages_api_failed = False
 			try:
-				resp = rest.get(f'/labtests/v1/results?packageId={package_id}')
-				lab_test_json = json.loads(resp.content)
-				request_status['lab_results_api'] = 200
+				resp = rest.get(f'/transfers/v1/delivery/{delivery_id}/packages')
+				t_packages_json = json.loads(resp.content)
+				request_status['packages_api'] = 200
 			except errors.Error as e:
-				lab_test_json = [] # If fetch fails, we set to empty array and continue.
-				logging.error(f'Could not fetch lab results for company {company_info.name} for package {package_id}. {e}')
-				request_status['lab_results_api'] = e.details.get('status_code')
+				if request_status['packages_api'] != 200:
+					# Only update the request status if we haven't seen a 200 yet
+					request_status['packages_api'] = e.details.get('status_code')
+				packages_api_failed = True
 
-			lab_tests.append(LabTest(lab_test_json))
+			if packages_api_failed:
+				continue
 
-		metrc_packages, transfer_lab_results_status = packages.get_package_models(
-			transfer_id=None,
-			lab_tests=lab_tests
-		)
-		metrc_transfer.lab_results_status = transfer_lab_results_status
-		for metrc_package in metrc_packages:
-			package_id_to_delivery_id[metrc_package.package_id] = metrc_transfer.delivery_id
-			all_metrc_packages.append(metrc_package)
+			try:
+				resp = rest.get(f'/transfers/v1/delivery/{delivery_id}/packages/wholesale')
+				t_packages_wholesale_json = json.loads(resp.content)
+				request_status['packages_wholesale_api'] = 200
+			except errors.Error as e:
+				t_packages_wholesale_json = [] # If fetch fails, we set to empty array and continue.
+				logging.error(f'Could not fetch packages wholesale for company {company_info.name} for transfer with delivery id {delivery_id}. {e}')
+				request_status['packages_wholesale_api'] = e.details.get('status_code')
+
+			packages = TransferPackages(delivery_id, t_packages_json, t_packages_wholesale_json)
+			package_ids = packages.get_package_ids()
+
+			lab_tests = []
+			for package_id in package_ids:
+				logging.info(f'Downloading lab results for metrc package package_id={package_id}')
+				try:
+					resp = rest.get(f'/labtests/v1/results?packageId={package_id}')
+					lab_test_json = json.loads(resp.content)
+					request_status['lab_results_api'] = 200
+				except errors.Error as e:
+					lab_test_json = [] # If fetch fails, we set to empty array and continue.
+					logging.error(f'Could not fetch lab results for company {company_info.name} for package {package_id}. {e}')
+					request_status['lab_results_api'] = e.details.get('status_code')
+
+				lab_tests.append(LabTest(lab_test_json))
+
+			metrc_packages, delivery_lab_results_status = packages.get_package_models(
+				transfer_id=None,
+				lab_tests=lab_tests
+			)
+			#delivery_obj.lab_results_status = delivery_lab_results_status
+			lab_result_statuses_for_transfer.append(delivery_lab_results_status)
+
+			for metrc_package in metrc_packages:
+				package_id_to_delivery_id[metrc_package.package_id] = delivery_id
+				all_metrc_packages.append(metrc_package)
+
+		metrc_transfer.lab_results_status = get_final_lab_status(lab_result_statuses_for_transfer)
 
 	## Write the transfers
 
 	# Find previous transfers, update those that previously existed, add rows
 	# that do not exist.
-	delivery_ids = [tr.delivery_id for tr in metrc_transfers]
+	transfer_ids_from_json = [tr_obj.metrc_transfer.transfer_id_from_json for tr_obj in metrc_transfer_objs]
 	prev_metrc_transfers = session.query(models.MetrcTransfer).filter(
-		models.MetrcTransfer.delivery_id.in_(delivery_ids)
+		models.MetrcTransfer.transfer_id_from_json.in_(transfer_ids_from_json)
 	)
-	delivery_id_to_prev_transfer = {}
+	transfer_id_to_prev_transfer = {}
 	for prev_transfer in prev_metrc_transfers:
-		delivery_id_to_prev_transfer[prev_transfer.delivery_id] = prev_transfer
+		transfer_id_to_prev_transfer[prev_transfer.transfer_id_from_json] = prev_transfer
 
-	delivery_id_to_transfer_id = {} # So we can map a transfer delivery ID to the row UUID in the DB (e.g., the transfer ID)
-	for metrc_transfer in metrc_transfers:
-		if metrc_transfer.delivery_id in delivery_id_to_prev_transfer:
+	#transfer_id_to_row_id = {} # So we can map a transfer delivery ID to the row UUID in the DB (e.g., the transfer ID)
+	delivery_id_to_transfer_id = {}
+
+	for metrc_transfer_obj in metrc_transfer_objs:
+		metrc_transfer = metrc_transfer_obj.metrc_transfer
+		if metrc_transfer.transfer_id_from_json in transfer_id_to_prev_transfer:
 			# update
-			prev_transfer = delivery_id_to_prev_transfer[metrc_transfer.delivery_id]
+			prev_transfer = transfer_id_to_prev_transfer[metrc_transfer.transfer_id_from_json]
 
 			# Assume these stay the same:
 			# company_id
 			# license_id
-			# delivery_id
 			# created_at
+			# transfer_id_from_json
 			prev_transfer.created_date = metrc_transfer.created_date
 			prev_transfer.manifest_number = metrc_transfer.manifest_number
 			prev_transfer.shipment_type_name = metrc_transfer.shipment_type_name
@@ -421,13 +469,16 @@ def populate_transfers_table(
 			prev_transfer.transfer_type = metrc_transfer.transfer_type
 			prev_transfer.updated_at = metrc_transfer.updated_at
 			prev_transfer.lab_results_status = metrc_transfer.lab_results_status
-			delivery_id_to_transfer_id[metrc_transfer.delivery_id] = str(prev_transfer.id)
+
+			for delivery_id in metrc_transfer_obj.delivery_ids:
+				delivery_id_to_transfer_id[delivery_id] = str(prev_transfer.id)
 		else:
 			# add
 			session.add(metrc_transfer)
 			session.flush()
 
-			delivery_id_to_transfer_id[metrc_transfer.delivery_id] = str(metrc_transfer.id)
+			for delivery_id in metrc_transfer_obj.delivery_ids:
+				delivery_id_to_transfer_id[delivery_id] = str(metrc_transfer.id)
 
 	## Write packages
 
