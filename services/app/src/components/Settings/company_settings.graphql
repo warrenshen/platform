@@ -23,6 +23,20 @@ mutation UpdateCustomerSettings(
   }
 }
 
+mutation UpdateIsDummyAccount(
+  $companySettingsId: uuid!
+  $isDummyAccount: Boolean
+) {
+  update_company_settings_by_pk(
+    pk_columns: { id: $companySettingsId }
+    _set: {
+      is_dummy_account: $isDummyAccount
+    }
+  ) {
+    ...CompanySettings
+  }
+}
+
 mutation UpdateCompanySettings(
   $company_settings_id: uuid!
   $company_settings: company_settings_set_input!

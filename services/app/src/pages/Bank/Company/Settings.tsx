@@ -8,6 +8,7 @@ import {
 import { Alert } from "@material-ui/lab";
 import MetrcApiKeys from "components/Settings/Bank/MetrcApiKeys";
 import SyncMetrcData from "components/Settings/Bank/SyncMetrcData";
+import ChangeIsDummyAccountModal from "components/Settings/Bank/ChangeIsDummyAccountModal";
 import CustomerSettings from "components/Settings/CustomerSettings";
 import AssignAdvancesBespokeBankAccount from "components/Shared/BankAssignment/AssignAdvancesBespokeBankAccount";
 import AssignCollectionsBespokeBankAccount from "components/Shared/BankAssignment/AssignCollectionsBespokeBankAccount";
@@ -54,6 +55,7 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
   const companyLicenses = company?.licenses || [];
   const featureFlagsPayload = settings?.feature_flags_payload || {};
   const customMessagesPayload = settings?.custom_messages_payload || {};
+  const isDummyAccount = settings?.is_dummy_account || false;
 
   if (!company || !settings) {
     return null;
@@ -257,6 +259,39 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
                 </Box>
               </Box>
             ))}
+          </Box>
+        </Box>
+
+        <Box mt={1}>
+          <Typography variant="h6">
+            <b>Is Dummy Account</b>
+          </Typography>
+          <Typography variant="body2" color="textSecondary">
+            Enabling "is dummy account" excludes this customer from all
+            financial calculations.
+          </Typography>
+          {isDummyAccount && (
+            <Box mt={1}>
+              <Alert severity="warning">
+                This customer is set as a dummy account
+              </Alert>
+            </Box>
+          )}
+          <Box mt={2}>
+            <ModalButton
+              label={"Change Dummy Account Status"}
+              color={"primary"}
+              modal={({ handleClose }) => (
+                <ChangeIsDummyAccountModal
+                  companySettingsId={settings.id}
+                  isDummyAccountInitially={isDummyAccount}
+                  handleClose={() => {
+                    refetch();
+                    handleClose();
+                  }}
+                />
+              )}
+            />
           </Box>
         </Box>
       </Box>

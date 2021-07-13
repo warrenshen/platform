@@ -37,6 +37,7 @@ fragment CompanySettings on company_settings {
   advances_bespoke_bank_account_id
   collections_bespoke_bank_account_id
   two_factor_message_method
+  is_dummy_account
   ...CompanySettingsLimited
 }
 

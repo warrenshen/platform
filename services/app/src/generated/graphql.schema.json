@@ -24403,6 +24403,22 @@
             "deprecationReason": null
           },
           {
+            "name": "is_dummy_account",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "metrc_api_key",
             "description": "An object relationship",
             "args": [],
@@ -24937,6 +24953,16 @@
             "defaultValue": null
           },
           {
+            "name": "is_dummy_account",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "Boolean_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "metrc_api_key",
             "description": null,
             "type": {
@@ -25291,6 +25317,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "is_dummy_account",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null
@@ -26296,6 +26332,16 @@
             "defaultValue": null
           },
           {
+            "name": "is_dummy_account",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "metrc_api_key",
             "description": null,
             "type": {
@@ -26491,6 +26537,12 @@
             "deprecationReason": null
           },
           {
+            "name": "is_dummy_account",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "metrc_api_key_id",
             "description": "column name",
             "isDeprecated": false,
@@ -26640,6 +26692,16 @@
             "defaultValue": null
           },
           {
+            "name": "is_dummy_account",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "metrc_api_key_id",
             "description": null,
             "type": {
@@ -26764,6 +26826,12 @@
           },
           {
             "name": "id",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "is_dummy_account",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null

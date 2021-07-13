@@ -3453,6 +3453,7 @@ export type CompanySettings = {
   feature_flags_payload?: Maybe<Scalars["jsonb"]>;
   has_autofinancing?: Maybe<Scalars["Boolean"]>;
   id: Scalars["uuid"];
+  is_dummy_account: Scalars["Boolean"];
   /** An object relationship */
   metrc_api_key?: Maybe<MetrcApiKeys>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
@@ -3542,6 +3543,7 @@ export type CompanySettingsBoolExp = {
   feature_flags_payload?: Maybe<JsonbComparisonExp>;
   has_autofinancing?: Maybe<BooleanComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  is_dummy_account?: Maybe<BooleanComparisonExp>;
   metrc_api_key?: Maybe<MetrcApiKeysBoolExp>;
   metrc_api_key_id?: Maybe<UuidComparisonExp>;
   payor_agreement_docusign_template?: Maybe<StringComparisonExp>;
@@ -3593,6 +3595,7 @@ export type CompanySettingsInsertInput = {
   feature_flags_payload?: Maybe<Scalars["jsonb"]>;
   has_autofinancing?: Maybe<Scalars["Boolean"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_dummy_account?: Maybe<Scalars["Boolean"]>;
   metrc_api_key?: Maybe<MetrcApiKeysObjRelInsertInput>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
@@ -3709,6 +3712,7 @@ export type CompanySettingsOrderBy = {
   feature_flags_payload?: Maybe<OrderBy>;
   has_autofinancing?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  is_dummy_account?: Maybe<OrderBy>;
   metrc_api_key?: Maybe<MetrcApiKeysOrderBy>;
   metrc_api_key_id?: Maybe<OrderBy>;
   payor_agreement_docusign_template?: Maybe<OrderBy>;
@@ -3753,6 +3757,8 @@ export enum CompanySettingsSelectColumn {
   /** column name */
   Id = "id",
   /** column name */
+  IsDummyAccount = "is_dummy_account",
+  /** column name */
   MetrcApiKeyId = "metrc_api_key_id",
   /** column name */
   PayorAgreementDocusignTemplate = "payor_agreement_docusign_template",
@@ -3777,6 +3783,7 @@ export type CompanySettingsSetInput = {
   feature_flags_payload?: Maybe<Scalars["jsonb"]>;
   has_autofinancing?: Maybe<Scalars["Boolean"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_dummy_account?: Maybe<Scalars["Boolean"]>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
@@ -3808,6 +3815,8 @@ export enum CompanySettingsUpdateColumn {
   HasAutofinancing = "has_autofinancing",
   /** column name */
   Id = "id",
+  /** column name */
+  IsDummyAccount = "is_dummy_account",
   /** column name */
   MetrcApiKeyId = "metrc_api_key_id",
   /** column name */
@@ -19992,6 +20001,15 @@ export type UpdateCustomerSettingsMutation = {
   update_company_settings_by_pk?: Maybe<CompanySettingsFragment>;
 };
 
+export type UpdateIsDummyAccountMutationVariables = Exact<{
+  companySettingsId: Scalars["uuid"];
+  isDummyAccount?: Maybe<Scalars["Boolean"]>;
+}>;
+
+export type UpdateIsDummyAccountMutation = {
+  update_company_settings_by_pk?: Maybe<CompanySettingsFragment>;
+};
+
 export type UpdateCompanySettingsMutationVariables = Exact<{
   company_settings_id: Scalars["uuid"];
   company_settings: CompanySettingsSetInput;
@@ -20748,6 +20766,7 @@ export type CompanySettingsFragment = Pick<
   | "advances_bespoke_bank_account_id"
   | "collections_bespoke_bank_account_id"
   | "two_factor_message_method"
+  | "is_dummy_account"
 > &
   CompanySettingsLimitedFragment;
 
@@ -21374,6 +21393,7 @@ export const CompanySettingsFragmentDoc = gql`
     advances_bespoke_bank_account_id
     collections_bespoke_bank_account_id
     two_factor_message_method
+    is_dummy_account
     ...CompanySettingsLimited
   }
   ${CompanySettingsLimitedFragmentDoc}
@@ -26376,6 +26396,62 @@ export type UpdateCustomerSettingsMutationResult = Apollo.MutationResult<UpdateC
 export type UpdateCustomerSettingsMutationOptions = Apollo.BaseMutationOptions<
   UpdateCustomerSettingsMutation,
   UpdateCustomerSettingsMutationVariables
+>;
+export const UpdateIsDummyAccountDocument = gql`
+  mutation UpdateIsDummyAccount(
+    $companySettingsId: uuid!
+    $isDummyAccount: Boolean
+  ) {
+    update_company_settings_by_pk(
+      pk_columns: { id: $companySettingsId }
+      _set: { is_dummy_account: $isDummyAccount }
+    ) {
+      ...CompanySettings
+    }
+  }
+  ${CompanySettingsFragmentDoc}
+`;
+export type UpdateIsDummyAccountMutationFn = Apollo.MutationFunction<
+  UpdateIsDummyAccountMutation,
+  UpdateIsDummyAccountMutationVariables
+>;
+
+/**
+ * __useUpdateIsDummyAccountMutation__
+ *
+ * To run a mutation, you first call `useUpdateIsDummyAccountMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateIsDummyAccountMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateIsDummyAccountMutation, { data, loading, error }] = useUpdateIsDummyAccountMutation({
+ *   variables: {
+ *      companySettingsId: // value for 'companySettingsId'
+ *      isDummyAccount: // value for 'isDummyAccount'
+ *   },
+ * });
+ */
+export function useUpdateIsDummyAccountMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateIsDummyAccountMutation,
+    UpdateIsDummyAccountMutationVariables
+  >
+) {
+  return Apollo.useMutation<
+    UpdateIsDummyAccountMutation,
+    UpdateIsDummyAccountMutationVariables
+  >(UpdateIsDummyAccountDocument, baseOptions);
+}
+export type UpdateIsDummyAccountMutationHookResult = ReturnType<
+  typeof useUpdateIsDummyAccountMutation
+>;
+export type UpdateIsDummyAccountMutationResult = Apollo.MutationResult<UpdateIsDummyAccountMutation>;
+export type UpdateIsDummyAccountMutationOptions = Apollo.BaseMutationOptions<
+  UpdateIsDummyAccountMutation,
+  UpdateIsDummyAccountMutationVariables
 >;
 export const UpdateCompanySettingsDocument = gql`
   mutation UpdateCompanySettings(
