@@ -2565,99 +2565,57 @@
 - table:
     schema: public
     name: metrc_deliveries
-  select_permissions:
-  - role: bank_admin
-    permission:
-      columns:
-      - id
-      - delivery_id
-      - recipient_facility_license_number
-      - recipient_facility_name
-      - shipment_type_name
-      - shipment_transaction_type
-      - received_datetime
-      - delivery_payload
-      filter: {}
-  - role: bank_read_only
-    permission:
-      columns:
-      - delivery_payload
-      - delivery_id
-      - recipient_facility_license_number
-      - recipient_facility_name
-      - shipment_transaction_type
-      - shipment_type_name
-      - received_datetime
-      - id
-      filter: {}
-- table:
-    schema: public
-    name: metrc_packages
   object_relationships:
-  - name: metrc_delivery
-    using:
-      foreign_key_constraint_on: delivery_row_id
   - name: metrc_transfer
     using:
-      foreign_key_constraint_on: transfer_id
+      foreign_key_constraint_on: transfer_row_id
+  array_relationships:
+  - name: metrc_packages
+    using:
+      foreign_key_constraint_on:
+        column: delivery_row_id
+        table:
+          schema: public
+          name: metrc_packages
   select_permissions:
   - role: bank_admin
     permission:
       columns:
-      - created_at
-      - delivery_id
-      - delivery_row_id
       - id
-      - lab_results_payload
-      - lab_results_status
-      - label
-      - package_id
-      - package_payload
-      - product_category_name
-      - product_name
-      - shipped_quantity
-      - shipper_wholesale_price
-      - transfer_id
-      - type
-      - updated_at
+      - delivery_id
+      - recipient_facility_license_number
+      - recipient_facility_name
+      - shipment_type_name
+      - shipment_transaction_type
+      - received_datetime
+      - delivery_payload
+      - transfer_row_id
       filter: {}
   - role: bank_read_only
     permission:
       columns:
-      - created_at
-      - delivery_id
-      - delivery_row_id
+      - delivery_payload
+      - recipient_facility_license_number
+      - recipient_facility_name
+      - shipment_transaction_type
+      - shipment_type_name
+      - received_datetime
       - id
-      - lab_results_payload
-      - lab_results_status
-      - label
-      - package_id
-      - package_payload
-      - product_category_name
-      - product_name
-      - shipped_quantity
-      - shipper_wholesale_price
-      - transfer_id
-      - type
-      - updated_at
+      - transfer_row_id
+      - delivery_id
       filter: {}
   - role: company_admin
     permission:
       columns:
-      - delivery_id
-      - delivery_row_id
+      - delivery_payload
+      - recipient_facility_license_number
+      - recipient_facility_name
+      - shipment_transaction_type
+      - shipment_type_name
+      - received_datetime
       - id
-      - lab_results_payload
-      - lab_results_status
-      - label
-      - package_id
-      - package_payload
-      - product_category_name
-      - product_name
-      - shipped_quantity
-      - shipper_wholesale_price
-      - transfer_id
-      - type
+      - transfer_row_id
+      - delivery_id
       filter:
         metrc_transfer:
           _or:
@@ -2668,6 +2626,56 @@
   - role: company_read_only
     permission:
       columns:
+      - delivery_payload
+      - recipient_facility_license_number
+      - recipient_facility_name
+      - shipment_transaction_type
+      - shipment_type_name
+      - received_datetime
+      - id
+      - transfer_row_id
+      - delivery_id
+      filter:
+        metrc_transfer:
+          _or:
+          - company_id:
+              _eq: X-Hasura-Company-Id
+          - vendor_id:
+              _eq: X-Hasura-Company-Id
+  - role: purchase_order_reviewer
+    permission:
+      columns:
+      - delivery_payload
+      - recipient_facility_license_number
+      - recipient_facility_name
+      - shipment_transaction_type
+      - shipment_type_name
+      - received_datetime
+      - id
+      - transfer_row_id
+      - delivery_id
+      filter:
+        metrc_transfer:
+          _or:
+          - company_id:
+              _eq: X-Hasura-Company-Id
+          - vendor_id:
+              _eq: X-Hasura-Company-Id
+- table:
+    schema: public
+    name: metrc_packages
+  object_relationships:
+  - name: metrc_delivery
+    using:
+      foreign_key_constraint_on: delivery_row_id
+  - name: metrc_transfer
+    using:
+      foreign_key_constraint_on: transfer_row_id
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - created_at
       - delivery_id
       - delivery_row_id
       - id
@@ -2680,8 +2688,75 @@
       - product_name
       - shipped_quantity
       - shipper_wholesale_price
-      - transfer_id
+      - transfer_row_id
       - type
+      - updated_at
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - created_at
+      - delivery_id
+      - delivery_row_id
+      - id
+      - lab_results_payload
+      - lab_results_status
+      - label
+      - package_id
+      - package_payload
+      - product_category_name
+      - product_name
+      - shipped_quantity
+      - shipper_wholesale_price
+      - transfer_row_id
+      - type
+      - updated_at
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+      - id
+      - package_id
+      - transfer_row_id
+      - delivery_id
+      - label
+      - type
+      - product_name
+      - package_payload
+      - lab_results_payload
+      - lab_results_status
+      - created_at
+      - updated_at
+      - product_category_name
+      - shipper_wholesale_price
+      - shipped_quantity
+      - delivery_row_id
+      filter:
+        metrc_transfer:
+          _or:
+          - company_id:
+              _eq: X-Hasura-Company-Id
+          - vendor_id:
+              _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+      - lab_results_payload
+      - package_payload
+      - shipped_quantity
+      - shipper_wholesale_price
+      - label
+      - lab_results_status
+      - product_category_name
+      - product_name
+      - type
+      - created_at
+      - updated_at
+      - delivery_row_id
+      - id
+      - transfer_row_id
+      - delivery_id
+      - package_id
       filter:
         metrc_transfer:
           _or:
@@ -2704,7 +2779,7 @@
       - product_name
       - shipped_quantity
       - shipper_wholesale_price
-      - transfer_id
+      - transfer_row_id
       - type
       filter:
         metrc_transfer:
@@ -2732,7 +2807,7 @@
   - name: metrc_packages
     using:
       foreign_key_constraint_on:
-        column: transfer_id
+        column: transfer_row_id
         table:
           schema: public
           name: metrc_packages
@@ -2740,54 +2815,59 @@
   - role: bank_admin
     permission:
       columns:
-      - company_id
-      - created_at
-      - created_date
       - id
-      - lab_results_status
+      - company_id
       - license_id
+      - created_date
       - manifest_number
-      - payor_id
-      - shipment_transaction_type
-      - shipment_type_name
       - transfer_payload
-      - transfer_type
-      - updated_at
       - vendor_id
+      - transfer_type
+      - created_at
+      - updated_at
+      - lab_results_status
+      - shipment_type_name
+      - shipment_transaction_type
+      - payor_id
+      - transfer_id
       filter: {}
   - role: bank_read_only
     permission:
       columns:
-      - company_id
-      - created_at
       - created_date
-      - id
+      - transfer_payload
       - lab_results_status
-      - license_id
       - manifest_number
-      - payor_id
       - shipment_transaction_type
       - shipment_type_name
-      - transfer_payload
       - transfer_type
+      - created_at
       - updated_at
+      - company_id
+      - id
+      - license_id
+      - payor_id
       - vendor_id
+      - transfer_id
       filter: {}
   - role: company_admin
     permission:
       columns:
-      - company_id
       - created_date
-      - id
+      - transfer_payload
       - lab_results_status
-      - license_id
       - manifest_number
-      - payor_id
       - shipment_transaction_type
       - shipment_type_name
-      - transfer_payload
       - transfer_type
+      - created_at
+      - updated_at
+      - company_id
+      - id
+      - license_id
+      - payor_id
       - vendor_id
+      - transfer_id
       filter:
         _or:
         - company_id:
@@ -2797,18 +2877,21 @@
   - role: company_read_only
     permission:
       columns:
-      - company_id
       - created_date
-      - id
+      - transfer_payload
       - lab_results_status
-      - license_id
       - manifest_number
-      - payor_id
       - shipment_transaction_type
       - shipment_type_name
-      - transfer_payload
       - transfer_type
+      - created_at
+      - updated_at
+      - company_id
+      - id
+      - license_id
+      - payor_id
       - vendor_id
+      - transfer_id
       filter:
         _or:
         - company_id:
@@ -2827,6 +2910,7 @@
       - payor_id
       - shipment_transaction_type
       - shipment_type_name
+      - transfer_id
       - transfer_payload
       - transfer_type
       - vendor_id

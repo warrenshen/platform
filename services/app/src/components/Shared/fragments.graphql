@@ -173,6 +173,7 @@ fragment MetrcTransfer on metrc_transfers {
   company_id
   license_id
   vendor_id
+  transfer_id
   transfer_type
   created_date
   manifest_number
@@ -188,8 +189,10 @@ fragment MetrcTransfer on metrc_transfers {
 
 fragment MetrcPackage on metrc_packages {
   id
+  transfer_row_id
+  delivery_row_id
+  delivery_id
   package_id
-  transfer_id
   label
   type
   product_name

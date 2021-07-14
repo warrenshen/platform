@@ -62,11 +62,7 @@ class TransferPackages(object):
 	def get_package_ids(self) -> List[str]:
 		return [t['PackageId'] for t in self._packages]
 
-	def get_package_models(
-		self,
-		transfer_id: str,
-		lab_tests: List[LabTest],
-	) -> Tuple[List[models.MetrcPackage], str]:
+	def get_package_models(self, lab_tests: List[LabTest]) -> Tuple[List[models.MetrcPackage], str]:
 		# Return list of MetrcPackage models and lab results status
 		# of the Transfer that all these packages belong to.
 		metrc_packages = []
@@ -86,7 +82,6 @@ class TransferPackages(object):
 
 			p = models.MetrcPackage()
 			p.package_id = '{}'.format(package_id)
-			p.transfer_id = cast(Any, transfer_id)
 			p.delivery_id = '{}'.format(package['DeliveryId'])
 			p.label = package['PackageLabel']
 			p.type = package['PackageType']
@@ -156,8 +151,8 @@ class Transfers(object):
 			tr = models.MetrcTransfer()
 			tr.company_id = cast(Any, company_id)
 			tr.license_id = cast(Any, license_id)
-			tr.transfer_id_from_json = '{}'.format(t['Id'])
-			tr.created_date = parser.parse(t['CreatedDateTime']).date()
+			tr.transfer_id = '{}'.format(t['Id'])
+			tr.created_date = parser.parse(t['CreatedDateTime']).date() if t['CreatedDateTime'] else None
 			tr.manifest_number = t['ManifestNumber']
 			tr.shipment_type_name = t['ShipmentTypeName']
 			tr.shipment_transaction_type = t['ShipmentTransactionType']
@@ -171,7 +166,7 @@ class Transfers(object):
 				d.recipient_facility_name = t['RecipientFacilityName']
 				d.shipment_type_name = t['ShipmentTypeName']
 				d.shipment_transaction_type = t['ShipmentTransactionType']
-				d.received_datetime = parser.parse(t['ReceivedDateTime'])
+				d.received_datetime = parser.parse(t['ReceivedDateTime']) if t['ReceivedDateTime'] else None
 				d.delivery_payload = {}
 				deliveries.append(d)
 			else:
@@ -186,7 +181,7 @@ class Transfers(object):
 					d.recipient_facility_name = delivery_json['RecipientFacilityName']
 					d.shipment_type_name = delivery_json['ShipmentTypeName']
 					d.shipment_transaction_type = delivery_json['ShipmentTransactionType']
-					d.received_datetime = parser.parse(delivery_json['ReceivedDateTime'])
+					d.received_datetime = parser.parse(delivery_json['ReceivedDateTime']) if delivery_json['ReceivedDateTime'] else None
 					d.delivery_payload = delivery_json
 					deliveries.append(d)
 
@@ -427,6 +422,7 @@ def populate_transfers_table(
 			packages = TransferPackages(delivery_id, t_packages_json, t_packages_wholesale_json)
 			package_ids = packages.get_package_ids()
 
+			# Flip this to False for debug use.
 			skip_lab_tests = False
 
 			lab_tests = []
@@ -447,10 +443,8 @@ def populate_transfers_table(
 
 				lab_tests.append(LabTest(lab_test_json))
 
-			metrc_packages, delivery_lab_results_status = packages.get_package_models(
-				transfer_id=None,
-				lab_tests=lab_tests
-			)
+			metrc_packages, delivery_lab_results_status = packages.get_package_models(lab_tests=lab_tests)
+
 			#delivery_obj.lab_results_status = delivery_lab_results_status
 			lab_result_statuses_for_transfer.append(delivery_lab_results_status)
 
@@ -464,28 +458,27 @@ def populate_transfers_table(
 
 	# Find previous transfers, update those that previously existed, add rows
 	# that do not exist.
-	transfer_ids_from_json = [tr_obj.metrc_transfer.transfer_id_from_json for tr_obj in metrc_transfer_objs]
+	transfer_ids = [tr_obj.metrc_transfer.transfer_id for tr_obj in metrc_transfer_objs]
 	prev_metrc_transfers = session.query(models.MetrcTransfer).filter(
-		models.MetrcTransfer.transfer_id_from_json.in_(transfer_ids_from_json)
+		models.MetrcTransfer.transfer_id.in_(transfer_ids)
 	)
 	transfer_id_to_prev_transfer = {}
 	for prev_transfer in prev_metrc_transfers:
-		transfer_id_to_prev_transfer[prev_transfer.transfer_id_from_json] = prev_transfer
+		transfer_id_to_prev_transfer[prev_transfer.transfer_id] = prev_transfer
 
-	#transfer_id_to_row_id = {} # So we can map a transfer delivery ID to the row UUID in the DB (e.g., the transfer ID)
-	delivery_id_to_transfer_id = {}
+	delivery_id_to_transfer_row_id = {}
 
 	for metrc_transfer_obj in metrc_transfer_objs:
 		metrc_transfer = metrc_transfer_obj.metrc_transfer
-		if metrc_transfer.transfer_id_from_json in transfer_id_to_prev_transfer:
+		if metrc_transfer.transfer_id in transfer_id_to_prev_transfer:
 			# update
-			prev_transfer = transfer_id_to_prev_transfer[metrc_transfer.transfer_id_from_json]
+			prev_transfer = transfer_id_to_prev_transfer[metrc_transfer.transfer_id]
 
 			# Assume these stay the same:
 			# company_id
 			# license_id
 			# created_at
-			# transfer_id_from_json
+			# transfer_id
 			prev_transfer.created_date = metrc_transfer.created_date
 			prev_transfer.manifest_number = metrc_transfer.manifest_number
 			prev_transfer.shipment_type_name = metrc_transfer.shipment_type_name
@@ -498,14 +491,14 @@ def populate_transfers_table(
 			prev_transfer.lab_results_status = metrc_transfer.lab_results_status
 
 			for delivery_id in metrc_transfer_obj.get_delivery_ids():
-				delivery_id_to_transfer_id[delivery_id] = str(prev_transfer.id)
+				delivery_id_to_transfer_row_id[delivery_id] = str(prev_transfer.id)
 		else:
 			# add
 			session.add(metrc_transfer)
 			session.flush()
 
 			for delivery_id in metrc_transfer_obj.get_delivery_ids():
-				delivery_id_to_transfer_id[delivery_id] = str(metrc_transfer.id)
+				delivery_id_to_transfer_row_id[delivery_id] = str(metrc_transfer.id)
 
 	## Write deliveries
 
@@ -516,16 +509,20 @@ def populate_transfers_table(
 	for prev_delivery in prev_metrc_deliveries:
 		delivery_id_to_prev_delivery[prev_delivery.delivery_id] = prev_delivery
 
-	delivery_id_to_row_id = {}
+	delivery_id_to_delivery_row_id = {}
+
 	for metrc_transfer_obj in metrc_transfer_objs:
 		for delivery in metrc_transfer_obj.deliveries:
+			transfer_row_id = delivery_id_to_transfer_row_id[delivery.delivery_id]
+
 			if delivery.delivery_id in delivery_id_to_prev_delivery:
 				# update
-				prev_delivery = delivery_id_to_prev_delivery[delivery.delivery_id] 
-				delivery_id_to_row_id[delivery.delivery_id] = str(prev_delivery.id)
+				prev_delivery = delivery_id_to_prev_delivery[delivery.delivery_id]
+				delivery_id_to_delivery_row_id[delivery.delivery_id] = str(prev_delivery.id)
 
 				# delivery_id - no change
 
+				prev_delivery.transfer_row_id = cast(Any, transfer_row_id)
 				prev_delivery.recipient_facility_license_number = delivery.recipient_facility_license_number
 				prev_delivery.recipient_facility_name = delivery.recipient_facility_name
 				prev_delivery.shipment_type_name = delivery.shipment_type_name
@@ -534,9 +531,13 @@ def populate_transfers_table(
 				prev_delivery.delivery_payload = delivery.delivery_payload
 			else:
 				# add
+				delivery.transfer_row_id = cast(Any, transfer_row_id)
+
 				session.add(delivery)
 				session.flush()
-				delivery_id_to_row_id[delivery.delivery_id] = str(delivery.id)
+
+				# This must come AFTER session.flush()
+				delivery_id_to_delivery_row_id[delivery.delivery_id] = str(delivery.id)
 
 	## Write packages
 
@@ -553,17 +554,18 @@ def populate_transfers_table(
 	# Write the packages
 	for metrc_package in all_metrc_packages:
 		cur_delivery_id = package_id_to_delivery_id[metrc_package.package_id]
-		transfer_id = delivery_id_to_transfer_id[cur_delivery_id]
+		transfer_row_id = delivery_id_to_transfer_row_id[cur_delivery_id]
+		delivery_row_id = delivery_id_to_delivery_row_id[metrc_package.delivery_id]
 
 		if metrc_package.package_id in package_id_to_prev_package:
 			# update
 
 			prev_metrc_package = package_id_to_prev_package[metrc_package.package_id]
+			prev_metrc_package.transfer_row_id = cast(Any, transfer_row_id)
+			prev_metrc_package.delivery_row_id = cast(Any, delivery_row_id)
 			# package_id - no need to update
 			# created_at - no need to update
-			prev_metrc_package.transfer_id = cast(Any, transfer_id)
 			prev_metrc_package.delivery_id = metrc_package.delivery_id
-			prev_metrc_package.delivery_row_id = cast(Any, delivery_id_to_row_id[metrc_package.delivery_id])
 			prev_metrc_package.label = metrc_package.label
 			prev_metrc_package.type = metrc_package.type
 			prev_metrc_package.product_name = metrc_package.product_name
@@ -576,8 +578,8 @@ def populate_transfers_table(
 			prev_metrc_package.updated_at = metrc_package.updated_at
 		else:
 			# add
-			metrc_package.transfer_id = cast(Any, transfer_id)
+			metrc_package.transfer_row_id = cast(Any, transfer_row_id)
+			metrc_package.delivery_row_id = cast(Any, delivery_row_id)
 			session.add(metrc_package)
 
 	return request_status, None
-

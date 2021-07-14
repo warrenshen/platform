@@ -366,7 +366,7 @@ class MetrcTransfer(Base):
 	license_id = cast(GUID, Column(GUID, ForeignKey('company_licenses.id')))
 	vendor_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	payor_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
-	transfer_id_from_json = Column(String) # From Metrc info
+	transfer_id = Column(String) # From Metrc info
 	created_date = Column(Date) # From Metrc info
 	manifest_number = Column(String) # From Metrc info
 	shipment_type_name = Column(String) # From Metrc info
@@ -380,7 +380,8 @@ class MetrcDelivery(Base):
 	__tablename__ = 'metrc_deliveries'
 
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
-	delivery_id = Column(String)
+	transfer_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_transfers.id')))
+	delivery_id = Column(String) # From Metrc info
 	recipient_facility_license_number = Column(String)
 	recipient_facility_name = Column(String)
 	shipment_type_name = Column(String)
@@ -392,10 +393,10 @@ class MetrcPackage(Base):
 	__tablename__ = 'metrc_packages'
 
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
-	package_id = Column(String)
-	transfer_id = cast(GUID, Column(GUID, ForeignKey('metrc_transfers.id')))
+	transfer_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_transfers.id')))
 	delivery_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_deliveries.id'))) 
-	delivery_id = Column(String)
+	package_id = Column(String) # From Metrc info
+	delivery_id = Column(String) # From Metrc info
 	label = Column(String)
 	type = Column(String)
 	product_name = Column(String)

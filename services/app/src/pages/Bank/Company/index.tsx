@@ -199,7 +199,7 @@ const getCustomerPaths = (
   },
 ];
 
-export default function BankCustomerPage() {
+export default function BankCompanyPage() {
   const { companyId } = useParams<{
     companyId: Companies["id"];
   }>();
@@ -228,7 +228,12 @@ export default function BankCustomerPage() {
                 (section) => section.visible == null || !!section?.visible
               )
               .map((section) => (
-                <Box display="flex" flexDirection="column" mt={2}>
+                <Box
+                  key={section.label}
+                  display="flex"
+                  flexDirection="column"
+                  mt={2}
+                >
                   <Box mb={1}>
                     <Typography variant="subtitle2" color="textSecondary">
                       <b>{section.label.toUpperCase()}</b>

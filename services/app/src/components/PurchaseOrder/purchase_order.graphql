@@ -43,10 +43,6 @@ query GetPurchaseOrderForCustomer($id: uuid!) {
       metrc_transfer {
         id
         ...MetrcTransfer
-        metrc_packages {
-          id
-          ...MetrcPackage
-        }
       }
     }
   }
