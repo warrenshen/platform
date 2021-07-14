@@ -31,7 +31,9 @@ def main() -> None:
 
 			metrc_transfers_batch = cast(
 				List[models.MetrcTransfer],
-				session.query(models.MetrcTransfer).offset(
+				session.query(models.MetrcTransfer).order_by(
+					models.MetrcTransfer.created_at.asc() # Order by is necessary for batch-based iteration to work.
+				).offset(
 					current_page * BATCH_SIZE
 				).limit(BATCH_SIZE).all())
 

@@ -374,6 +374,7 @@ class MetrcTransfer(Base):
 	transfer_payload = Column(JSON) # From Metrc info
 	transfer_type = Column(String) # Computed based on Metrc info
 	lab_results_status = Column(String) # Computed based on Metrc info
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime)
 
 class MetrcDelivery(Base):
