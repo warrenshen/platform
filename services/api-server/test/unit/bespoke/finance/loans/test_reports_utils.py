@@ -1,6 +1,7 @@
 import datetime
 import decimal
 import json
+from datetime import timedelta
 from typing import Any, Callable, Dict, List
 
 from bespoke import errors
@@ -119,6 +120,23 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 			product_type=product_type
 		))
 
+		# This financial summary should not be used because it is in the future
+		session.add(models.FinancialSummary(
+			date=datetime.date.today() + timedelta(days=4),
+			company_id=company_id,
+			total_limit=decimal.Decimal(120.0),
+			adjusted_total_limit=decimal.Decimal(120.0),
+			total_outstanding_principal=decimal.Decimal(5.0),
+			total_outstanding_principal_for_interest=decimal.Decimal(6.0),
+			total_outstanding_interest=decimal.Decimal(12.60),
+			total_outstanding_fees=decimal.Decimal(15.25),
+			total_principal_in_requested_state=decimal.Decimal(13.15),
+			available_limit=decimal.Decimal(125.00),
+			interest_accrued_today=decimal.Decimal(12.1),
+			minimum_monthly_payload={},
+			account_level_balance_payload={},
+			product_type=product_type
+		))
 
 	def test_failure_on_unpopulated(self) -> None:
 		def populate(session: Session, seed: test_helper.BasicSeed) -> None:

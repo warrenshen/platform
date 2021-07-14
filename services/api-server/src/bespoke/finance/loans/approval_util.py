@@ -178,7 +178,8 @@ def submit_for_approval(
 	if loan.amount is None or loan.amount <= 0:
 		raise errors.Error('Invalid amount', details=err_details)
 
-	financial_summary = financial_summary_util.get_latest_financial_summary(loan.company_id, session)
+	financial_summary = financial_summary_util.get_latest_financial_summary(
+		loan.company_id, session, now_for_test=now_for_test)
 	if not financial_summary:
 		raise errors.Error('No financial summary associated with this customer, so we could not determine the max limit allowed', details=err_details)
 
