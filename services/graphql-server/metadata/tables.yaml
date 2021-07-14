@@ -2590,6 +2590,8 @@
       - received_datetime
       - delivery_payload
       - transfer_row_id
+      - created_at
+      - updated_at
       filter: {}
   - role: bank_read_only
     permission:
@@ -2599,7 +2601,9 @@
       - recipient_facility_name
       - shipment_transaction_type
       - shipment_type_name
+      - created_at
       - received_datetime
+      - updated_at
       - id
       - transfer_row_id
       - delivery_id
@@ -2612,7 +2616,9 @@
       - recipient_facility_name
       - shipment_transaction_type
       - shipment_type_name
+      - created_at
       - received_datetime
+      - updated_at
       - id
       - transfer_row_id
       - delivery_id
@@ -2631,7 +2637,9 @@
       - recipient_facility_name
       - shipment_transaction_type
       - shipment_type_name
+      - created_at
       - received_datetime
+      - updated_at
       - id
       - transfer_row_id
       - delivery_id
