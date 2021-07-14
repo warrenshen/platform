@@ -192,6 +192,7 @@ class CompanySettings(Base):
 	two_factor_message_method = Column(Text)
 	feature_flags_payload = Column(JSON)
 	custom_messages_payload = Column(JSON)
+	is_dummy_account = Column(Boolean)
 
 	def as_dict(self) -> CompanySettingsDict:
 		return CompanySettingsDict(

@@ -118,6 +118,12 @@ def compute_bank_financial_summaries(
 			models.Contract.id.in_(contract_ids)
 		).all())
 
+	dummy_company_ids = set([])
+	all_settings = cast(List[models.CompanySettings], session.query(models.CompanySettings).all())
+	for cur_settings in all_settings:
+		if cur_settings.is_dummy_account:
+			dummy_company_ids.add(str(cur_settings.company_id))
+
 	if not contracts:
 		return None, errors.Error('No contracts registered in the DB') # Early Return
 
@@ -149,7 +155,10 @@ def compute_bank_financial_summaries(
 
 	# Sum up all the financial summaries across customers
 	for summary in financial_summaries:
-		product_type = company_id_to_product_type[str(summary.company_id)]
+		company_id = str(summary.company_id)
+		if company_id in dummy_company_ids:
+			continue
+		product_type = company_id_to_product_type[company_id]
 		cur_bank_summary = product_type_to_bank_summary[product_type]
 		cur_bank_summary.total_limit += decimal.Decimal(summary.total_limit or 0)
 		cur_bank_summary.adjusted_total_limit += decimal.Decimal(summary.adjusted_total_limit or 0)

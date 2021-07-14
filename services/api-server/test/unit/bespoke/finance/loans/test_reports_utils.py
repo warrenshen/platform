@@ -70,7 +70,12 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 			self.assertEqual(received, count)
 
 
-	def _add_summary_for_company(self, session: Session, company_id: str, product_type: str) -> None:
+	def _add_summary_for_company(
+		self, 
+		session: Session, 
+		company_id: str, 
+		product_type: str,
+		is_dummy_account: bool = False) -> None:
 		contract = models.Contract(
 			company_id=company_id,
 			product_type=product_type,
@@ -92,6 +97,9 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 
 		company = session.query(models.Company).get(company_id)
 		company.contract_id = contract.id
+
+		company_settings = session.query(models.CompanySettings).get(company.company_settings_id)
+		company_settings.is_dummy_account = is_dummy_account
 		session.commit()
 
 		session.add(models.FinancialSummary(
@@ -232,10 +240,13 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 		], expected_error=None)
 
 
-	def test_compute_success_with_two_financial_summaries_different_types(self) -> None:
+	def test_compute_success_with_two_financial_summaries_different_types_ignore_dummy_account(self) -> None:
 		def populate(session: Session, seed: test_helper.BasicSeed) -> None:
 			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=0), ProductType.INVENTORY_FINANCING)
 			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=2), ProductType.LINE_OF_CREDIT)
+			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=1), ProductType.LINE_OF_CREDIT, 
+				is_dummy_account=True
+			)
 
 		self._run_compute_test(populate, expected_summaries=[
 			models.BankFinancialSummary(
