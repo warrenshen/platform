@@ -18,6 +18,7 @@ import { LoanPaymentStatusEnum } from "lib/enum";
 import {
   createLoanCustomerIdentifier,
   createLoanDisbursementIdentifier,
+  getLoanArtifactName,
 } from "lib/loans";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
@@ -52,13 +53,7 @@ function getRows(
     ...loan,
     customer_identifier: createLoanCustomerIdentifier(loan),
     disbursement_identifier: createLoanDisbursementIdentifier(loan),
-    artifact_name: loan.purchase_order
-      ? loan.purchase_order.order_number
-      : loan.invoice
-      ? loan.invoice.invoice_number
-      : !!loan.line_of_credit?.is_credit_for_vendor
-      ? loan.line_of_credit.recipient_vendor?.name
-      : "N/A",
+    artifact_name: getLoanArtifactName(loan),
   }));
 }
 

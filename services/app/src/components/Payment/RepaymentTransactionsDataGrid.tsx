@@ -14,7 +14,10 @@ import {
   Payments,
 } from "generated/graphql";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
-import { createLoanDisbursementIdentifier } from "lib/loans";
+import {
+  createLoanDisbursementIdentifier,
+  getLoanArtifactName,
+} from "lib/loans";
 import { ColumnWidths } from "lib/tables";
 import { flatten } from "lodash";
 import { useMemo } from "react";
@@ -38,7 +41,15 @@ function getRows(
             id: `${payment.id}-${transaction.id}`,
             status: "Settled",
             payment: payment,
-            transaction: transaction,
+            transaction: {
+              ...transaction,
+              loan: {
+                ...transaction.loan,
+                artifact_name: transaction.loan
+                  ? getLoanArtifactName(transaction.loan)
+                  : "N/A",
+              },
+            },
           }))
     )
   );
@@ -140,30 +151,24 @@ export default function RepaymentTransactionsDataGrid({
         ),
       },
       {
-        dataField: "transaction.loan.artifact_id",
+        dataField: "transaction.loan.artifact_name",
         caption: "Purchase Order / Invoice",
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
           <Box display="flex" alignItems="center">
             {params.row.data.transaction?.loan?.purchase_order && (
               <PurchaseOrderDrawerLauncher
-                label={
-                  params.row.data.transaction.loan.purchase_order
-                    .order_number as string
-                }
+                label={params.row.data.transaction.loan.artifact_name as string}
                 purchaseOrderId={
-                  params.row.data.transaction.loan.purchase_order.id as string
+                  params.row.data.transaction.loan.artifact_id as string
                 }
               />
             )}
             {params.row.data.transaction?.loan?.invoice && (
               <InvoiceDrawerLauncher
-                label={
-                  params.row.data.transaction.loan.invoice
-                    .invoice_number as string
-                }
+                label={params.row.data.transaction.loan.artifact_name as string}
                 invoiceId={
-                  params.row.data.transaction.loan.invoice.id as string
+                  params.row.data.transaction.loan.artifact_id as string
                 }
               />
             )}

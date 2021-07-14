@@ -11,6 +11,8 @@ import { LoanPaymentStatusEnum } from "lib/enum";
 import {
   createLoanCustomerIdentifier,
   createLoanDisbursementIdentifier,
+  getLoanArtifactName,
+  getLoanVendorName,
 } from "lib/loans";
 import { ColumnWidths } from "lib/tables";
 import { useState } from "react";
@@ -39,16 +41,8 @@ export default function SelectLoanAutocomplete({
         inputValue={autocompleteInputValue}
         value={null}
         getOptionLabel={(loan) => {
-          const artifactName = loan.purchase_order
-            ? loan.purchase_order.order_number
-            : loan.invoice
-            ? loan.invoice.invoice_number
-            : "N/A";
-          const vendorName = loan.purchase_order
-            ? loan.purchase_order.vendor?.name
-            : loan.line_of_credit
-            ? loan.line_of_credit.recipient_vendor?.name
-            : "N/A";
+          const artifactName = getLoanArtifactName(loan);
+          const vendorName = getLoanVendorName(loan);
           return `${createLoanCustomerIdentifier(
             loan
           )} ${createLoanDisbursementIdentifier(loan)} ${formatCurrency(
@@ -61,16 +55,8 @@ export default function SelectLoanAutocomplete({
           <TextField {...params} label="Add another loan" variant="outlined" />
         )}
         renderOption={(loan) => {
-          const artifactName = loan.purchase_order
-            ? loan.purchase_order.order_number
-            : loan.invoice
-            ? loan.invoice.invoice_number
-            : "N/A";
-          const vendorName = loan.purchase_order
-            ? loan.purchase_order.vendor?.name
-            : loan.line_of_credit
-            ? loan.line_of_credit.recipient_vendor?.name
-            : "N/A";
+          const artifactName = getLoanArtifactName(loan);
+          const vendorName = getLoanVendorName(loan);
           return (
             <Box display="flex" py={0.5}>
               <Box display="flex" justifyContent="space-between">

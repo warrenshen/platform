@@ -36,6 +36,8 @@ import {
 import {
   createLoanCustomerIdentifier,
   createLoanDisbursementIdentifier,
+  getLoanArtifactName,
+  getLoanVendorName,
 } from "lib/loans";
 import { ColumnWidths, truncateString } from "lib/tables";
 import { useEffect, useMemo, useState } from "react";
@@ -74,21 +76,13 @@ function getRows(
     ...loan,
     customer_identifier: createLoanCustomerIdentifier(loan),
     disbursement_identifier: createLoanDisbursementIdentifier(loan),
-    artifact_name: loan.purchase_order
-      ? loan.purchase_order.order_number
-      : loan.invoice
-      ? loan.invoice.invoice_number
-      : "N/A",
+    artifact_name: getLoanArtifactName(loan),
     artifact_bank_note: loan.purchase_order
       ? truncateString(
           (loan as LoanArtifactFragment).purchase_order?.bank_note || ""
         )
       : "N/A",
-    vendor_name: loan.purchase_order
-      ? loan.purchase_order.vendor?.name
-      : loan.line_of_credit
-      ? loan.line_of_credit.recipient_vendor?.name
-      : "N/A",
+    vendor_name: getLoanVendorName(loan),
     repayment_date: !!loan.loan_report ? loan.loan_report.repayment_date : null,
     financing_period: !!loan.loan_report
       ? loan.loan_report.financing_period
