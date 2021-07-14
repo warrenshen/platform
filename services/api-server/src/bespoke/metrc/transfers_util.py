@@ -422,7 +422,7 @@ def populate_transfers_table(
 			packages = TransferPackages(delivery_id, t_packages_json, t_packages_wholesale_json)
 			package_ids = packages.get_package_ids()
 
-			# Flip this to False for debug use.
+			# Flip this to True for debug use.
 			skip_lab_tests = False
 
 			lab_tests = []
