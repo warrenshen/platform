@@ -31,9 +31,9 @@ function getRows(
 }
 
 interface Props {
-  isBankUserRole?: boolean;
   isDrilldownByCustomer?: boolean;
   isExcelExport?: boolean;
+  isRoleBankUser?: boolean;
   vendorPartnerships: (
     | VendorPartnershipFragment
     | VendorPartnershipLimitedFragment
@@ -41,9 +41,9 @@ interface Props {
 }
 
 export default function VendorPartnershipsDataGrid({
-  isBankUserRole,
   isExcelExport = true,
-  isDrilldownByCustomer,
+  isDrilldownByCustomer = false,
+  isRoleBankUser = false,
   vendorPartnerships,
 }: Props) {
   const verificationCellRenderer = useMemo(
@@ -55,6 +55,7 @@ export default function VendorPartnershipsDataGrid({
   const columns = useMemo(
     () => [
       {
+        visible: isRoleBankUser,
         fixed: true,
         dataField: "id",
         caption: "",
@@ -69,7 +70,7 @@ export default function VendorPartnershipsDataGrid({
         dataField: "vendor_name",
         caption: "Vendor Name",
         minWidth: ColumnWidths.MinWidth,
-        ...(isBankUserRole && {
+        ...(isRoleBankUser && {
           cellRender: ({ value, data }: { value: string; data: any }) => (
             <ClickableDataGridCell
               url={getBankCompanyRoute(
@@ -82,7 +83,7 @@ export default function VendorPartnershipsDataGrid({
         }),
       },
       {
-        visible: !!isDrilldownByCustomer ? false : !!isBankUserRole,
+        visible: !!isDrilldownByCustomer ? false : !!isRoleBankUser,
         dataField: "company.name",
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
@@ -100,7 +101,7 @@ export default function VendorPartnershipsDataGrid({
         dataField: "vendor_agreement_id",
         caption: "Signed Vendor Agreement",
         alignment: "center",
-        width: isBankUserRole ? 195 : 225,
+        width: isRoleBankUser ? 195 : 225,
         cellRender: verificationCellRenderer,
       },
       {
@@ -110,7 +111,7 @@ export default function VendorPartnershipsDataGrid({
         cellRender: verificationCellRenderer,
       },
       {
-        visible: !!isBankUserRole,
+        visible: !!isRoleBankUser,
         dataField: "is_verified_bank_account",
         caption: "Verified Bank account",
         alignment: "center",
@@ -123,7 +124,7 @@ export default function VendorPartnershipsDataGrid({
         cellRender: verificationCellRenderer,
       },
     ],
-    [isBankUserRole, isDrilldownByCustomer, verificationCellRenderer]
+    [isRoleBankUser, isDrilldownByCustomer, verificationCellRenderer]
   );
 
   // Example of columns sorting callback

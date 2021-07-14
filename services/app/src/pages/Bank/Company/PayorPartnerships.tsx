@@ -56,7 +56,7 @@ export default function BankCustomerPayorPartnershipsSubpage({
       </Box>
       <Box display="flex" flexDirection="column">
         <PayorPartnershipsDataGrid
-          isBankAccount
+          isRoleBankUser
           payorPartnerships={payorPartnerships}
         />
       </Box>

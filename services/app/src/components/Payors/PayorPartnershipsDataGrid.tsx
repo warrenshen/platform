@@ -24,22 +24,23 @@ function getRows(payorPartnerships: PayorPartnershipFragment[]): RowsProp {
 }
 
 interface Props {
-  isBankAccount?: boolean;
   isExcelExport?: boolean;
   isDrilldownByCustomer?: boolean;
+  isRoleBankUser?: boolean;
   payorPartnerships: PayorPartnershipFragment[];
 }
 
 export default function PayorPartnershipsDataGrid({
-  isBankAccount,
   isExcelExport = true,
-  isDrilldownByCustomer,
+  isDrilldownByCustomer = false,
+  isRoleBankUser = false,
   payorPartnerships,
 }: Props) {
   const rows = getRows(payorPartnerships);
   const columns = useMemo(
     () => [
       {
+        visible: isRoleBankUser,
         fixed: true,
         dataField: "id",
         caption: "",
@@ -54,7 +55,7 @@ export default function PayorPartnershipsDataGrid({
         dataField: "payor.name",
         caption: "Payor Name",
         minWidth: ColumnWidths.MinWidth,
-        ...(isBankAccount && {
+        ...(isRoleBankUser && {
           cellRender: ({ value, data }: { value: string; data: any }) => (
             <ClickableDataGridCell
               url={getBankCompanyRoute(
@@ -67,7 +68,7 @@ export default function PayorPartnershipsDataGrid({
         }),
       },
       {
-        visible: !!isDrilldownByCustomer ? false : !!isBankAccount,
+        visible: !!isDrilldownByCustomer ? false : !!isRoleBankUser,
         dataField: "company.name",
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
@@ -76,7 +77,7 @@ export default function PayorPartnershipsDataGrid({
         dataField: "payor_agreement_id",
         caption: "Signed Payor Agreement",
         alignment: "center",
-        width: isBankAccount ? 195 : 225,
+        width: isRoleBankUser ? 195 : 225,
         cellRender: verificationCellRenderer,
       },
       {
@@ -92,7 +93,7 @@ export default function PayorPartnershipsDataGrid({
         cellRender: verificationCellRenderer,
       },
     ],
-    [isBankAccount, isDrilldownByCustomer]
+    [isRoleBankUser, isDrilldownByCustomer]
   );
 
   return (
