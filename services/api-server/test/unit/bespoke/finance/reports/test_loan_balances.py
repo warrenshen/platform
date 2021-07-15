@@ -2,6 +2,7 @@ import datetime
 import decimal
 import json
 import uuid
+from datetime import timedelta
 from typing import Any, Callable, Dict, List, cast
 
 from bespoke.date import date_util
@@ -53,12 +54,15 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			),
 			session_maker=self.session_maker
 		)
-		customer_update, err = customer_balance.update(
-			today=date_util.load_date_str(test['today']),
+		today = date_util.load_date_str(test['today'])
+		date_to_customer_update, err = customer_balance.update(
+			today=today,
+			start_date_for_storing_updates=today - timedelta(days=14),
 			include_debug_info=False
 		)
 		self.assertIsNone(err)
 
+		customer_update = date_to_customer_update[today]
 		# Sort by increasing adjusted maturity date for consistency in tests
 		loan_updates = customer_update['loan_updates']
 		loan_updates.sort(key=lambda u: u['adjusted_maturity_date'])

@@ -1,6 +1,7 @@
 import datetime
 import decimal
 import logging
+from datetime import timedelta
 from typing import Callable, Dict, Iterable, List, Optional, Tuple, cast
 
 from bespoke import errors
@@ -18,13 +19,15 @@ def update_company_balance(
 	session_maker: Callable,
 	company: models.CompanyDict,
 	report_date: datetime.date,
+	update_days_back: int,
 	include_debug_info: bool
 ) -> Tuple[CustomerUpdateDict, str]:
-	logging.info(f"Updating balance for '{company['name']}' with id: '{company['id']}'")
+	logging.info(f"Updating balance for '{company['name']}' with id: '{company['id']}' for report date '{report_date}'")
 
 	customer_balance = loan_balances.CustomerBalance(company, session_maker)
 
-	customer_update_dict, err = customer_balance.update(
+	day_to_customer_update_dict, err = customer_balance.update(
+		start_date_for_storing_updates=report_date - timedelta(days=update_days_back),
 		today=report_date,
 		include_debug_info=include_debug_info
 	)
@@ -36,29 +39,36 @@ def update_company_balance(
 		logging.error(msg)
 		return None, msg
 
-	if customer_update_dict is not None:
-		event = events.new(
-			company_id=company['id'],
-			is_system=True,
-			action=events.Actions.COMPANY_BALANCE_UPDATE,
-			data={
-				'report_date': date_util.date_to_str(report_date),
-				'loan_ids': [l['loan_id'] for l in customer_update_dict['loan_updates']],
-			}
-		)
+	for cur_date, customer_update_dict in day_to_customer_update_dict.items():
 
-		with session_scope(session_maker) as session:
-			success, err = customer_balance.write(customer_update_dict)
-			if err:
-				msg = 'Error writing results to update customer balance. Error: {}'.format(err)
-				logging.error(msg)
-				event.set_failed().write_with_session(session)
-				session.rollback()
-				return None, msg
-			event.set_succeeded().write_with_session(session)
+		if customer_update_dict is not None:
+			event = events.new(
+				company_id=company['id'],
+				is_system=True,
+				action=events.Actions.COMPANY_BALANCE_UPDATE,
+				data={
+					'report_date': date_util.date_to_str(cur_date),
+					'loan_ids': [l['loan_id'] for l in customer_update_dict['loan_updates']],
+				}
+			)
 
-	logging.info(f"Successfully updated balance for '{company['name']}' with id '{company['id']}' for date '{report_date}'")
-	return customer_update_dict, None
+			with session_scope(session_maker) as session:
+				success, err = customer_balance.write(customer_update_dict)
+				if err:
+					msg = 'Error writing results to update customer balance. Error: {}'.format(err)
+					logging.error(msg)
+					event.set_failed().write_with_session(session)
+					session.rollback()
+					return None, msg
+				event.set_succeeded().write_with_session(session)
+
+		logging.info(f"Successfully updated balance for '{company['name']}' with id '{company['id']}' for date '{cur_date}'")
+	
+	# Internally we re-compute the most recent X days of previous loan balances
+	# when an update happens to a customer, but in terms of this fucntion,
+	# we only need to return the customer_update_dict for today because we use
+	# it for debugging purposes. 
+	return day_to_customer_update_dict[report_date], None
 
 
 def delete_old_bank_financial_summaries(session: Session, report_date: datetime.date) -> None:
@@ -220,7 +230,8 @@ def run_customer_balances_for_companies(
 
 	for company in companies:
 		customer_update_dict, descriptive_error = update_company_balance(
-			session_maker, company, report_date, include_debug_info=include_debug_info)
+			session_maker, company, report_date, 
+			update_days_back=14, include_debug_info=include_debug_info)
 		if descriptive_error:
 			errors_list.append(descriptive_error)
 

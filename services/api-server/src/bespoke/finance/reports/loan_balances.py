@@ -230,30 +230,13 @@ class CustomerBalance(object):
 		self._company_name = company_dict['name']
 		self._company_id = company_dict['id']
 
-	@errors.return_error_tuple
-	def update(
-		self,
-		today: datetime.date,
+	def _get_customer_update(
+		self, 
+		today: datetime.date, 
+		customer_info: per_customer_types.CustomerFinancials,
 		include_debug_info: bool,
-		include_frozen: bool = False,
-	) -> Tuple[CustomerUpdateDict, errors.Error]:
-		"""
-		Returns None if company does not have any contracts.
-		"""
-		# Get your contracts and loans
-		fetcher = per_customer_fetcher.Fetcher(
-			per_customer_types.CompanyInfoDict(
-				id=self._company_id,
-				name=self._company_name
-			),
-			self._session_maker,
-			ignore_deleted=True,
-		)
-		_, err = fetcher.fetch(today)
-		if err:
-			raise err
+		include_frozen: bool) -> Tuple[CustomerUpdateDict, errors.Error]:
 
-		customer_info = fetcher.get_financials()
 		financials = customer_info['financials']
 
 		if not financials['contracts']:
@@ -264,9 +247,6 @@ class CustomerBalance(object):
 		if err:
 			raise err
 
-		# NOTE: Consider an argument that allows someone who runs a report to
-		# to specify the start date, not just the report date.
-		#
 		# For now, we just assume the start date is today.
 		start_date = today
 		fee_accumulator = fee_util.FeeAccumulator()
@@ -346,6 +326,7 @@ class CustomerBalance(object):
 				invoice,
 				transactions_for_loan,
 				today,
+				#start_date_for_storing_results=start_date_for_storing_updates,
 				should_round_output=False,
 				include_debug_info=include_debug_info
 			)
@@ -365,7 +346,6 @@ class CustomerBalance(object):
 				'Will not proceed with updates because there was more than 1 error during loan balance updating',
 				details={'errors': all_errors}
 			)
-
 
 		ebba_application_update, err = _get_active_ebba_application_update(
 			contract_helper,
@@ -389,7 +369,7 @@ class CustomerBalance(object):
 		summary_update['total_principal_in_requested_state'] = total_principal_in_requested_state
 		summary_update['day_volume_threshold_met'] = threshold_info['day_threshold_met']
 
-		return CustomerUpdateDict(
+		customer_update = CustomerUpdateDict(
 			today=today,
 			loan_updates=loan_update_dicts,
 			active_ebba_application_update=ebba_application_update,
@@ -398,7 +378,57 @@ class CustomerBalance(object):
 			),
 			summary_update=summary_update,
 			loan_id_to_debug_info=loan_id_to_debug_info
-		), None
+		)
+		return customer_update, None
+
+	@errors.return_error_tuple
+	def update(
+		self,
+		start_date_for_storing_updates: datetime.date,
+		today: datetime.date,
+		include_debug_info: bool,
+		include_frozen: bool = False,
+	) -> Tuple[Dict[datetime.date, CustomerUpdateDict], errors.Error]:
+		"""
+		Returns None if company does not have any contracts.
+		"""
+		# Get your contracts and loans
+		fetcher = per_customer_fetcher.Fetcher(
+			per_customer_types.CompanyInfoDict(
+				id=self._company_id,
+				name=self._company_name
+			),
+			self._session_maker,
+			ignore_deleted=True,
+		)
+		_, err = fetcher.fetch(today)
+		if err:
+			raise err
+
+		customer_info = fetcher.get_financials()
+
+		customer_update, err = self._get_customer_update(
+			today, customer_info, include_debug_info, include_frozen)
+		if err:
+			return None, err
+
+		date_to_customer_update = {}
+		date_to_customer_update[today] = customer_update
+
+		# Calculate the customer update for the remaining days in the past,
+		# and TODO(dlluncor): use a memoizer to cache results about loans that
+		# are already known when we calculated the first loan update. 
+		cur_date = start_date_for_storing_updates
+		while cur_date < today:
+			customer_update, err = self._get_customer_update(
+				cur_date, customer_info, include_debug_info, include_frozen)
+			if err:
+				return None, err
+			date_to_customer_update[cur_date] = customer_update
+
+			cur_date = cur_date + timedelta(days=1)
+
+		return date_to_customer_update, None
 
 	@errors.return_error_tuple
 	def write(self, customer_update: CustomerUpdateDict) -> Tuple[bool, errors.Error]:
