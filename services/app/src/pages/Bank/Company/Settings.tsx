@@ -18,6 +18,7 @@ import PageContent from "components/Shared/Page/PageContent";
 import UpdateCompanyLicensesModal from "components/ThirdParties/UpdateCompanyLicensesModal";
 import UpsertCustomMessagesModal from "components/Settings/Bank/UpsertCustomMessagesModal";
 import UpsertFeatureFlagsModal from "components/Settings/Bank/UpsertFeatureFlagsModal";
+import UpdateThirdPartyCompanySettingsModal from "components/ThirdParties/UpdateThirdPartyCompanySettingsModal";
 import {
   Companies,
   ContractFragment,
@@ -29,7 +30,13 @@ import {
   getFeatureFlagName,
   getFeatureFlagDescription,
 } from "lib/companies";
-import { AllCustomMessages, AllFeatureFlags, FileTypeEnum } from "lib/enum";
+import {
+  AllCustomMessages,
+  AllFeatureFlags,
+  FileTypeEnum,
+  TwoFactorMessageMethodEnum,
+  TwoFactorMessageMethodToLabel,
+} from "lib/enum";
 
 interface Props {
   companyId: Companies["id"];
@@ -143,8 +150,6 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
           </Box>
           <ModalButton
             label={"Edit Licenses"}
-            color="default"
-            variant="outlined"
             modal={({ handleClose }) => (
               <UpdateCompanyLicensesModal
                 companyId={companyId}
@@ -261,8 +266,40 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
             ))}
           </Box>
         </Box>
-
-        <Box mt={1}>
+        <Box mt={4}>
+          <Typography variant="h6">
+            <b>2FA Method</b>
+          </Typography>
+          <Typography variant="body2" color="textSecondary">
+            Which 2FA method will be used for vendor partnership related
+            communication.
+          </Typography>
+          <Box display="flex" flexDirection="column" mt={2}>
+            <Typography variant="subtitle2" color="textSecondary">
+              2FA Method
+            </Typography>
+            {!!settings.two_factor_message_method
+              ? TwoFactorMessageMethodToLabel[
+                  settings.two_factor_message_method as TwoFactorMessageMethodEnum
+                ]
+              : "None"}
+          </Box>
+          <Box mt={2}>
+            <ModalButton
+              label={"Edit 2FA Method"}
+              modal={({ handleClose }) => (
+                <UpdateThirdPartyCompanySettingsModal
+                  companySettingsId={settings.id}
+                  handleClose={() => {
+                    refetch();
+                    handleClose();
+                  }}
+                />
+              )}
+            />
+          </Box>
+        </Box>
+        <Box mt={4}>
           <Typography variant="h6">
             <b>Is Dummy Account</b>
           </Typography>
@@ -270,10 +307,16 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
             Enabling "is dummy account" excludes this customer from all
             financial calculations.
           </Typography>
-          {isDummyAccount && (
+          {isDummyAccount ? (
             <Box mt={1}>
               <Alert severity="warning">
                 This customer is set as a dummy account
+              </Alert>
+            </Box>
+          ) : (
+            <Box mt={1}>
+              <Alert severity="info">
+                This customer is NOT set as a dummy account
               </Alert>
             </Box>
           )}
