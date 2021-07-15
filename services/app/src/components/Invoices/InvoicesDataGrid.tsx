@@ -48,6 +48,7 @@ export default function InvoicesDataGrid({
   const columns = useMemo(
     () => [
       {
+        fixed: true,
         dataField: "invoice_number",
         caption: "Invoice",
         minWidth: ColumnWidths.MinWidth,

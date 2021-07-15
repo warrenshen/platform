@@ -59,6 +59,7 @@ export default function BankCustomersPage() {
   const columns = useMemo(
     () => [
       {
+        fixed: true,
         dataField: "name",
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
@@ -70,6 +71,7 @@ export default function BankCustomersPage() {
         ),
       },
       {
+        fixed: true,
         dataField: "identifier",
         caption: "Identifier",
         minWidth: ColumnWidths.MinWidth,

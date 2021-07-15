@@ -44,6 +44,7 @@ export default function EbbaApplicationsDataGrid({
   const columns = useMemo(
     () => [
       {
+        fixed: true,
         dataField: "id",
         caption: "Platform ID",
         width: ColumnWidths.Identifier,

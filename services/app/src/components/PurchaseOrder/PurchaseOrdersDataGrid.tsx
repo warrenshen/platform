@@ -71,6 +71,7 @@ export default function PurchaseOrdersDataGrid({
   const columns = useMemo(
     () => [
       {
+        fixed: true,
         dataField: "order_number",
         caption: "PO Number",
         minWidth: ColumnWidths.MinWidth,

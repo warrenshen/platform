@@ -6,7 +6,7 @@ export const ColumnWidths = {
   Date: 130,
   Datetime: 220,
   DateContract: 220,
-  Identifier: 100,
+  Identifier: 110,
   PhoneNumber: 150,
   MetrcId: 140,
   Status: 170,
