@@ -3972,6 +3972,8 @@ export enum CompanyTypeUpdateColumn {
 export type CompanyVendorContacts = {
   id: Scalars["uuid"];
   partnership_id: Scalars["uuid"];
+  /** An object relationship */
+  user: Users;
   vendor_user_id: Scalars["uuid"];
 };
 
@@ -4014,6 +4016,7 @@ export type CompanyVendorContactsBoolExp = {
   _or?: Maybe<Array<Maybe<CompanyVendorContactsBoolExp>>>;
   id?: Maybe<UuidComparisonExp>;
   partnership_id?: Maybe<UuidComparisonExp>;
+  user?: Maybe<UsersBoolExp>;
   vendor_user_id?: Maybe<UuidComparisonExp>;
 };
 
@@ -4027,6 +4030,7 @@ export enum CompanyVendorContactsConstraint {
 export type CompanyVendorContactsInsertInput = {
   id?: Maybe<Scalars["uuid"]>;
   partnership_id?: Maybe<Scalars["uuid"]>;
+  user?: Maybe<UsersObjRelInsertInput>;
   vendor_user_id?: Maybe<Scalars["uuid"]>;
 };
 
@@ -4083,6 +4087,7 @@ export type CompanyVendorContactsOnConflict = {
 export type CompanyVendorContactsOrderBy = {
   id?: Maybe<OrderBy>;
   partnership_id?: Maybe<OrderBy>;
+  user?: Maybe<UsersOrderBy>;
   vendor_user_id?: Maybe<OrderBy>;
 };
 
@@ -9446,6 +9451,7 @@ export enum MetrcApiKeysUpdateColumn {
 
 /** columns and relationships of "metrc_deliveries" */
 export type MetrcDeliveries = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
   /** From Metrc */
   delivery_id: Scalars["String"];
   delivery_payload: Scalars["json"];
@@ -9456,12 +9462,13 @@ export type MetrcDeliveries = {
   metrc_packages_aggregate: MetrcPackagesAggregate;
   /** An object relationship */
   metrc_transfer: MetrcTransfers;
-  received_datetime: Scalars["timestamptz"];
+  received_datetime?: Maybe<Scalars["timestamptz"]>;
   recipient_facility_license_number: Scalars["String"];
   recipient_facility_name: Scalars["String"];
   shipment_transaction_type: Scalars["String"];
   shipment_type_name: Scalars["String"];
   transfer_row_id: Scalars["uuid"];
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** columns and relationships of "metrc_deliveries" */
@@ -9524,6 +9531,7 @@ export type MetrcDeliveriesBoolExp = {
   _and?: Maybe<Array<Maybe<MetrcDeliveriesBoolExp>>>;
   _not?: Maybe<MetrcDeliveriesBoolExp>;
   _or?: Maybe<Array<Maybe<MetrcDeliveriesBoolExp>>>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
   delivery_id?: Maybe<StringComparisonExp>;
   delivery_payload?: Maybe<JsonComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
@@ -9535,6 +9543,7 @@ export type MetrcDeliveriesBoolExp = {
   shipment_transaction_type?: Maybe<StringComparisonExp>;
   shipment_type_name?: Maybe<StringComparisonExp>;
   transfer_row_id?: Maybe<UuidComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
 };
 
 /** unique or primary key constraints on table "metrc_deliveries" */
@@ -9547,6 +9556,7 @@ export enum MetrcDeliveriesConstraint {
 
 /** input type for inserting data into table "metrc_deliveries" */
 export type MetrcDeliveriesInsertInput = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
   delivery_id?: Maybe<Scalars["String"]>;
   delivery_payload?: Maybe<Scalars["json"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -9558,10 +9568,12 @@ export type MetrcDeliveriesInsertInput = {
   shipment_transaction_type?: Maybe<Scalars["String"]>;
   shipment_type_name?: Maybe<Scalars["String"]>;
   transfer_row_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** aggregate max on columns */
 export type MetrcDeliveriesMaxFields = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
   delivery_id?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
   received_datetime?: Maybe<Scalars["timestamptz"]>;
@@ -9570,10 +9582,12 @@ export type MetrcDeliveriesMaxFields = {
   shipment_transaction_type?: Maybe<Scalars["String"]>;
   shipment_type_name?: Maybe<Scalars["String"]>;
   transfer_row_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** order by max() on columns of table "metrc_deliveries" */
 export type MetrcDeliveriesMaxOrderBy = {
+  created_at?: Maybe<OrderBy>;
   delivery_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   received_datetime?: Maybe<OrderBy>;
@@ -9582,10 +9596,12 @@ export type MetrcDeliveriesMaxOrderBy = {
   shipment_transaction_type?: Maybe<OrderBy>;
   shipment_type_name?: Maybe<OrderBy>;
   transfer_row_id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
 };
 
 /** aggregate min on columns */
 export type MetrcDeliveriesMinFields = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
   delivery_id?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
   received_datetime?: Maybe<Scalars["timestamptz"]>;
@@ -9594,10 +9610,12 @@ export type MetrcDeliveriesMinFields = {
   shipment_transaction_type?: Maybe<Scalars["String"]>;
   shipment_type_name?: Maybe<Scalars["String"]>;
   transfer_row_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** order by min() on columns of table "metrc_deliveries" */
 export type MetrcDeliveriesMinOrderBy = {
+  created_at?: Maybe<OrderBy>;
   delivery_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   received_datetime?: Maybe<OrderBy>;
@@ -9606,6 +9624,7 @@ export type MetrcDeliveriesMinOrderBy = {
   shipment_transaction_type?: Maybe<OrderBy>;
   shipment_type_name?: Maybe<OrderBy>;
   transfer_row_id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
 };
 
 /** response of any mutation on the table "metrc_deliveries" */
@@ -9631,6 +9650,7 @@ export type MetrcDeliveriesOnConflict = {
 
 /** ordering options when selecting data from "metrc_deliveries" */
 export type MetrcDeliveriesOrderBy = {
+  created_at?: Maybe<OrderBy>;
   delivery_id?: Maybe<OrderBy>;
   delivery_payload?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
@@ -9642,6 +9662,7 @@ export type MetrcDeliveriesOrderBy = {
   shipment_transaction_type?: Maybe<OrderBy>;
   shipment_type_name?: Maybe<OrderBy>;
   transfer_row_id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
 };
 
 /** primary key columns input for table: "metrc_deliveries" */
@@ -9652,6 +9673,8 @@ export type MetrcDeliveriesPkColumnsInput = {
 /** select columns of table "metrc_deliveries" */
 export enum MetrcDeliveriesSelectColumn {
   /** column name */
+  CreatedAt = "created_at",
+  /** column name */
   DeliveryId = "delivery_id",
   /** column name */
   DeliveryPayload = "delivery_payload",
@@ -9669,10 +9692,13 @@ export enum MetrcDeliveriesSelectColumn {
   ShipmentTypeName = "shipment_type_name",
   /** column name */
   TransferRowId = "transfer_row_id",
+  /** column name */
+  UpdatedAt = "updated_at",
 }
 
 /** input type for updating data in table "metrc_deliveries" */
 export type MetrcDeliveriesSetInput = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
   delivery_id?: Maybe<Scalars["String"]>;
   delivery_payload?: Maybe<Scalars["json"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -9682,10 +9708,13 @@ export type MetrcDeliveriesSetInput = {
   shipment_transaction_type?: Maybe<Scalars["String"]>;
   shipment_type_name?: Maybe<Scalars["String"]>;
   transfer_row_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** update columns of table "metrc_deliveries" */
 export enum MetrcDeliveriesUpdateColumn {
+  /** column name */
+  CreatedAt = "created_at",
   /** column name */
   DeliveryId = "delivery_id",
   /** column name */
@@ -9704,6 +9733,8 @@ export enum MetrcDeliveriesUpdateColumn {
   ShipmentTypeName = "shipment_type_name",
   /** column name */
   TransferRowId = "transfer_row_id",
+  /** column name */
+  UpdatedAt = "updated_at",
 }
 
 /** columns and relationships of "metrc_packages" */
@@ -9830,7 +9861,7 @@ export type MetrcPackagesBoolExp = {
 /** unique or primary key constraints on table "metrc_packages" */
 export enum MetrcPackagesConstraint {
   /** unique or primary key constraint */
-  MetrcPackagesPackageIdKey = "metrc_packages_package_id_key",
+  MetrcPackagesDeliveryIdPackageIdKey = "metrc_packages_delivery_id_package_id_key",
   /** unique or primary key constraint */
   MetrcPackagesPkey = "metrc_packages_pkey",
 }
@@ -18653,6 +18684,8 @@ export enum UserRolesEnum {
   BankReadOnly = "bank_read_only",
   /** Company Admin */
   CompanyAdmin = "company_admin",
+  /** Company Contact Only */
+  CompanyContactOnly = "company_contact_only",
   /** Company Read Only */
   CompanyReadOnly = "company_read_only",
 }
@@ -20935,6 +20968,10 @@ export type GetVendorPartnershipForBankQueryVariables = Exact<{
 export type GetVendorPartnershipForBankQuery = {
   company_vendor_partnerships_by_pk?: Maybe<
     {
+      company: {
+        users: Array<ContactFragment>;
+        settings?: Maybe<CompanySettingsFragment>;
+      } & CompanyFragment;
       vendor?: Maybe<
         Pick<Vendors, "id"> & {
           licenses: Array<CompanyLicenseFragment>;
@@ -20943,16 +20980,39 @@ export type GetVendorPartnershipForBankQuery = {
               collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
             } & CompanySettingsFragment
           >;
-          users: Array<ContactFragment>;
+          users: Array<Pick<Users, "id"> & ContactFragment>;
         }
       >;
-      company: {
-        users: Array<ContactFragment>;
-        settings?: Maybe<CompanySettingsFragment>;
-      } & CompanyFragment;
       vendor_agreement?: Maybe<CompanyAgreementFragment>;
       vendor_bank_account?: Maybe<
         Pick<BankAccounts, "id"> & BankAccountFragment
+      >;
+      vendor_contacts: Array<
+        Pick<CompanyVendorContacts, "id"> & CompanyVendorContactFragment
+      >;
+    } & VendorPartnershipFragment
+  >;
+};
+
+export type CompanyVendorContactFragment = Pick<
+  CompanyVendorContacts,
+  "id" | "vendor_user_id"
+> & { user: Pick<Users, "id"> & ContactFragment };
+
+export type GetVendorPartnershipForContactsQueryVariables = Exact<{
+  id: Scalars["uuid"];
+}>;
+
+export type GetVendorPartnershipForContactsQuery = {
+  company_vendor_partnerships_by_pk?: Maybe<
+    {
+      vendor?: Maybe<
+        Pick<Vendors, "id"> & {
+          users: Array<Pick<Users, "id"> & ContactFragment>;
+        }
+      >;
+      vendor_contacts: Array<
+        Pick<CompanyVendorContacts, "id"> & CompanyVendorContactFragment
       >;
     } & VendorPartnershipFragment
   >;
@@ -21746,6 +21806,17 @@ export const ContactFragmentDoc = gql`
     phone_number
     created_at
   }
+`;
+export const CompanyVendorContactFragmentDoc = gql`
+  fragment CompanyVendorContact on company_vendor_contacts {
+    id
+    vendor_user_id
+    user {
+      id
+      ...Contact
+    }
+  }
+  ${ContactFragmentDoc}
 `;
 export const CustomerForBankFragmentDoc = gql`
   fragment CustomerForBank on companies {
@@ -28656,6 +28727,15 @@ export const GetVendorPartnershipForBankDocument = gql`
   query GetVendorPartnershipForBank($id: uuid!) {
     company_vendor_partnerships_by_pk(id: $id) {
       ...VendorPartnership
+      company {
+        ...Company
+        users {
+          ...Contact
+        }
+        settings {
+          ...CompanySettings
+        }
+      }
       vendor {
         id
         licenses(
@@ -28676,16 +28756,8 @@ export const GetVendorPartnershipForBankDocument = gql`
           }
         }
         users {
+          id
           ...Contact
-        }
-      }
-      company {
-        ...Company
-        users {
-          ...Contact
-        }
-        settings {
-          ...CompanySettings
         }
       }
       vendor_agreement {
@@ -28695,15 +28767,20 @@ export const GetVendorPartnershipForBankDocument = gql`
         id
         ...BankAccount
       }
+      vendor_contacts {
+        id
+        ...CompanyVendorContact
+      }
     }
   }
   ${VendorPartnershipFragmentDoc}
-  ${CompanyLicenseFragmentDoc}
-  ${CompanySettingsFragmentDoc}
-  ${BankAccountFragmentDoc}
-  ${ContactFragmentDoc}
   ${CompanyFragmentDoc}
+  ${ContactFragmentDoc}
+  ${CompanySettingsFragmentDoc}
+  ${CompanyLicenseFragmentDoc}
+  ${BankAccountFragmentDoc}
   ${CompanyAgreementFragmentDoc}
+  ${CompanyVendorContactFragmentDoc}
 `;
 
 /**
@@ -28753,6 +28830,76 @@ export type GetVendorPartnershipForBankLazyQueryHookResult = ReturnType<
 export type GetVendorPartnershipForBankQueryResult = Apollo.QueryResult<
   GetVendorPartnershipForBankQuery,
   GetVendorPartnershipForBankQueryVariables
+>;
+export const GetVendorPartnershipForContactsDocument = gql`
+  query GetVendorPartnershipForContacts($id: uuid!) {
+    company_vendor_partnerships_by_pk(id: $id) {
+      ...VendorPartnership
+      vendor {
+        id
+        users {
+          id
+          ...Contact
+        }
+      }
+      vendor_contacts {
+        id
+        ...CompanyVendorContact
+      }
+    }
+  }
+  ${VendorPartnershipFragmentDoc}
+  ${ContactFragmentDoc}
+  ${CompanyVendorContactFragmentDoc}
+`;
+
+/**
+ * __useGetVendorPartnershipForContactsQuery__
+ *
+ * To run a query within a React component, call `useGetVendorPartnershipForContactsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetVendorPartnershipForContactsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetVendorPartnershipForContactsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetVendorPartnershipForContactsQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetVendorPartnershipForContactsQuery,
+    GetVendorPartnershipForContactsQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetVendorPartnershipForContactsQuery,
+    GetVendorPartnershipForContactsQueryVariables
+  >(GetVendorPartnershipForContactsDocument, baseOptions);
+}
+export function useGetVendorPartnershipForContactsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetVendorPartnershipForContactsQuery,
+    GetVendorPartnershipForContactsQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetVendorPartnershipForContactsQuery,
+    GetVendorPartnershipForContactsQueryVariables
+  >(GetVendorPartnershipForContactsDocument, baseOptions);
+}
+export type GetVendorPartnershipForContactsQueryHookResult = ReturnType<
+  typeof useGetVendorPartnershipForContactsQuery
+>;
+export type GetVendorPartnershipForContactsLazyQueryHookResult = ReturnType<
+  typeof useGetVendorPartnershipForContactsLazyQuery
+>;
+export type GetVendorPartnershipForContactsQueryResult = Apollo.QueryResult<
+  GetVendorPartnershipForContactsQuery,
+  GetVendorPartnershipForContactsQueryVariables
 >;
 export const GetVendorPartnershipsForBankDocument = gql`
   query GetVendorPartnershipsForBank {

@@ -55,7 +55,7 @@ function ActiveUsersTab({ companyId }: ActiveUsersTabProps) {
         <Can perform={Action.ManipulateUser}>
           <ModalButton
             isDisabled={selectedUsers.length > 0}
-            label={"Invite User"}
+            label={"Create User"}
             modal={({ handleClose }) => (
               <InviteUserModal
                 companyId={companyId}
@@ -111,6 +111,7 @@ function ActiveUsersTab({ companyId }: ActiveUsersTabProps) {
         {users.length > 0 ? (
           <UsersDataGrid
             isMultiSelectEnabled
+            isRoleVisible
             users={users}
             selectedUserIds={selectedUserIds}
             handleSelectUsers={handleSelectUsers}
@@ -171,6 +172,7 @@ function DeactivatedUsersTab({ companyId }: DeactivatedUsersTabProps) {
         {users.length > 0 ? (
           <UsersDataGrid
             isMultiSelectEnabled
+            isRoleVisible
             users={users}
             selectedUserIds={selectedUserIds}
             handleSelectUsers={handleSelectUsers}

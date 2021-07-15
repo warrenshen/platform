@@ -26,6 +26,10 @@ export const companyRoutes = {
   upsertFeatureFlags: "/companies/upsert_feature_flags",
 };
 
+export const partnershipRoutes = {
+  updatePartnershipContacts: "/partnerships/update_partnership_contacts",
+};
+
 export const licenseRoutes = {
   addLicenses: "/licenses/add_licenses",
   createUpdateLicenses: "/licenses/create_update_licenses",

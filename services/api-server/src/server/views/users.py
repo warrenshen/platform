@@ -109,35 +109,35 @@ class CreateBankCustomerUserView(MethodView):
 		if err:
 			return handler_util.make_error_response(err)
 
-		password = security_util.generate_temp_password()
-		user_email = ''
-
-		sendgrid_client = cast(sendgrid_util.Client,
-							   current_app.sendgrid_client)
-		cfg = cast(Config, current_app.app_config)
-
 		with session_scope(current_app.session_maker) as session:
 			existing_user = session.query(models.User).filter(
 				models.User.id == user_id).first()
 			if not existing_user:
 				return handler_util.make_error_response('No user id found')
 
-			existing_user.password = security_util.hash_password(
-				cfg.PASSWORD_SALT, password)
-			user_email = existing_user.email
+			if not existing_user.role == db_constants.UserRoles.COMPANY_CONTACT_ONLY:
+				password = security_util.generate_temp_password()
+				user_email = ''
 
-			template_data = {
-				'email': user_email,
-				'password': password,
-				'app_link': cfg.BESPOKE_DOMAIN,
-			}
-			_, err = sendgrid_client.send(
-				template_name=sendgrid_util.TemplateNames.USER_INVITED_TO_PLATFORM,
-				template_data=template_data,
-				recipients=[user_email],
-			)
-			if err:
-				raise err
+				sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
+				cfg = cast(Config, current_app.app_config)
+
+				existing_user.password = security_util.hash_password(
+					cfg.PASSWORD_SALT, password)
+				user_email = existing_user.email
+
+				template_data = {
+					'email': user_email,
+					'password': password,
+					'app_link': cfg.BESPOKE_DOMAIN,
+				}
+				_, err = sendgrid_client.send(
+					template_name=sendgrid_util.TemplateNames.USER_INVITED_TO_PLATFORM,
+					template_data=template_data,
+					recipients=[user_email],
+				)
+				if err:
+					raise err
 
 		return make_response(json.dumps({
 			'status': 'OK'

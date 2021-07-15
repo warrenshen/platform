@@ -17,9 +17,21 @@ from bespoke.email import email_manager, sendgrid_util
 from bespoke.email.email_manager import EmailConfigDict, SendGridConfigDict
 from bespoke.security import two_factor_util
 from server.config import get_config, is_development_env, is_test_env
-from server.views import (auth, companies, contracts, cypress, files,
-                          healthcheck, licenses, metrc, notify,
-                          purchase_orders, two_factor, users)
+from server.views import (
+	auth,
+	companies,
+	contracts,
+	cypress,
+	files,
+    healthcheck,
+	licenses,
+	metrc,
+	notify,
+	partnerships,
+    purchase_orders,
+	two_factor,
+	users,
+)
 from server.views.finance import credits, fees
 from server.views.finance.ebba_applications import \
     approvals as ebba_application_approvals
@@ -71,6 +83,9 @@ app.register_blueprint(users.handler, url_prefix='/users')
 
 # Third-party APIs
 app.register_blueprint(metrc.handler, url_prefix='/metrc')
+
+# Partnerships
+app.register_blueprint(partnerships.handler, url_prefix='/partnerships')
 
 # Purchase orders
 app.register_blueprint(purchase_orders.handler, url_prefix='/purchase_orders')

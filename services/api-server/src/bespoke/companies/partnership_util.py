@@ -1,9 +1,9 @@
 """
 	Utility functions related to company-vendor and company-payor relationships
 """
-from typing import List, Tuple, cast
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
+from typing import Callable, List, Tuple, cast
 
 from bespoke.db import models, db_constants
 from bespoke import errors
@@ -121,3 +121,86 @@ def get_partner_contacts_using_company_ids(
 		return _get_payor_contacts(str(payor_partnership.id), session)
 
 	return None, errors.Error('Unrecognized partnership type "{}"'.format(partnership_type))
+
+def update_partnership_contacts(
+	is_payor: bool,
+	partnership_id: str,
+	user_ids: List[str],
+	session: Session,
+) -> Tuple[bool, errors.Error]:
+	if is_payor:
+		payor_partnership = cast(
+			models.CompanyPayorPartnership,
+			session.query(models.CompanyPayorPartnership).get(partnership_id))
+		if not payor_partnership:
+			return None, errors.Error('Company payor partnership not found')
+
+		existing_payor_contacts = cast(
+			List[models.CompanyPayorContact],
+			session.query(models.CompanyPayorContact).filter(
+				models.CompanyPayorContact.partnership_id == partnership_id
+			).all())
+
+		company_payor_contacts_to_delete = []
+		for existing_payor_contact in existing_payor_contacts:
+			is_payor_contact_deleted = str(existing_payor_contact.id) not in user_ids
+			if is_payor_contact_deleted:
+				company_payor_contacts_to_delete.append(existing_payor_contact)
+
+		for company_payor_contact_to_delete in company_payor_contacts_to_delete:
+			cast(Callable, session.delete)(company_payor_contact_to_delete)
+
+		session.flush()
+
+		for user_id in user_ids:
+			existing_payor_contact = cast(
+				models.CompanyPayorContact,
+				session.query(models.CompanyPayorContact).filter_by(
+					partnership_id=partnership_id,
+					payor_user_id=user_id,
+				).first())
+			if not existing_payor_contact:
+				new_company_payor_contact = models.CompanyPayorContact( # type: ignore
+					partnership_id=partnership_id,
+					payor_user_id=user_id,
+				)
+				session.add(new_company_payor_contact)
+	else:
+		vendor_partnership = cast(
+			models.CompanyVendorPartnership,
+			session.query(models.CompanyVendorPartnership).get(partnership_id))
+		if not vendor_partnership:
+			return None, errors.Error('Company vendor partnership not found')
+
+		existing_vendor_contacts = cast(
+			List[models.CompanyVendorContact],
+			session.query(models.CompanyVendorContact).filter(
+				models.CompanyVendorContact.partnership_id == partnership_id
+			).all())
+
+		company_vendor_contacts_to_delete = []
+		for existing_vendor_contact in existing_vendor_contacts:
+			is_vendor_contact_deleted = str(existing_vendor_contact.vendor_user_id) not in user_ids
+			if is_vendor_contact_deleted:
+				company_vendor_contacts_to_delete.append(existing_vendor_contact)
+
+		for company_vendor_contact_to_delete in company_vendor_contacts_to_delete:
+			cast(Callable, session.delete)(company_vendor_contact_to_delete)
+
+		session.flush()
+
+		for user_id in user_ids:
+			existing_vendor_contact = cast(
+				models.CompanyVendorContact,
+				session.query(models.CompanyVendorContact).filter_by(
+					partnership_id=partnership_id,
+					vendor_user_id=user_id,
+				).first())
+			if not existing_vendor_contact:
+				new_company_vendor_contact = models.CompanyVendorContact( # type: ignore
+					partnership_id=partnership_id,
+					vendor_user_id=user_id,
+				)
+				session.add(new_company_vendor_contact)
+
+	return True, None

@@ -21,6 +21,15 @@ query GetVendorCompanyFileAttachments($company_id: uuid!) {
 query GetVendorPartnershipForBank($id: uuid!) {
   company_vendor_partnerships_by_pk(id: $id) {
     ...VendorPartnership
+    company {
+      ...Company
+      users {
+        ...Contact
+      }
+      settings {
+        ...CompanySettings
+      }
+    }
     vendor {
       id
       licenses(
@@ -41,16 +50,8 @@ query GetVendorPartnershipForBank($id: uuid!) {
         }
       }
       users {
+        id
         ...Contact
-      }
-    }
-    company {
-      ...Company
-      users {
-        ...Contact
-      }
-      settings {
-        ...CompanySettings
       }
     }
     vendor_agreement {
@@ -59,6 +60,36 @@ query GetVendorPartnershipForBank($id: uuid!) {
     vendor_bank_account {
       id
       ...BankAccount
+    }
+    vendor_contacts {
+      id
+      ...CompanyVendorContact
+    }
+  }
+}
+
+fragment CompanyVendorContact on company_vendor_contacts {
+  id
+  vendor_user_id
+  user {
+    id
+    ...Contact
+  }
+}
+
+query GetVendorPartnershipForContacts($id: uuid!) {
+  company_vendor_partnerships_by_pk(id: $id) {
+    ...VendorPartnership
+    vendor {
+      id
+      users {
+        id
+        ...Contact
+      }
+    }
+    vendor_contacts {
+      id
+      ...CompanyVendorContact
     }
   }
 }

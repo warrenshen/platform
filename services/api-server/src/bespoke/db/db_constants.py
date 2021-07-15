@@ -9,6 +9,7 @@ class UserRoles(object):
 	BANK_READ_ONLY = 'bank_read_only'
 	COMPANY_ADMIN = 'company_admin'
 	COMPANY_READ_ONLY = 'company_read_only'
+	COMPANY_CONTACT_ONLY = 'company_contact_only'
 	PURCHASE_ORDER_REVIEWER = 'purchase_order_reviewer'
 	INVOICE_REVIEWER = 'invoice_reviewer'
 
@@ -17,6 +18,7 @@ ALL_USER_ROLES = [
 	UserRoles.BANK_READ_ONLY,
 	UserRoles.COMPANY_ADMIN,
 	UserRoles.COMPANY_READ_ONLY,
+	UserRoles.COMPANY_CONTACT_ONLY,
 	UserRoles.PURCHASE_ORDER_REVIEWER,
 	UserRoles.INVOICE_REVIEWER,
 ]

@@ -9,19 +9,23 @@ import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
 interface Props {
-  isMultiSelectEnabled?: boolean;
   isCompanyVisible?: boolean;
   isExcelExport?: boolean;
+  isMultiSelectEnabled?: boolean;
+  isRoleVisible?: boolean;
+  pager?: boolean;
   users: UserFragment[];
   selectedUserIds?: Users["id"][];
   handleSelectUsers?: (users: Users[]) => void;
   actionItems?: DataGridActionItem[];
 }
 
-function UsersDataGrid({
-  isMultiSelectEnabled = false,
+export default function UsersDataGrid({
   isCompanyVisible = false,
   isExcelExport = true,
+  isMultiSelectEnabled = false,
+  isRoleVisible = false,
+  pager = true,
   users,
   selectedUserIds,
   handleSelectUsers,
@@ -37,6 +41,7 @@ function UsersDataGrid({
         minWidth: ColumnWidths.MinWidth,
       },
       {
+        fixed: true,
         visible: !!actionItems && actionItems.length > 0,
         caption: "Action",
         width: ColumnWidths.Actions,
@@ -45,6 +50,7 @@ function UsersDataGrid({
         ),
       },
       {
+        visible: isRoleVisible,
         caption: "Role",
         dataField: "role",
         width: ColumnWidths.UserRole,
@@ -72,7 +78,7 @@ function UsersDataGrid({
         minWidth: ColumnWidths.PhoneNumber,
       },
     ],
-    [isCompanyVisible, actionItems]
+    [isCompanyVisible, isRoleVisible, actionItems]
   );
 
   const handleSelectionChanged = useMemo(
@@ -83,7 +89,7 @@ function UsersDataGrid({
 
   return (
     <ControlledDataGrid
-      pager
+      pager={pager}
       select={isMultiSelectEnabled}
       dataSource={rows}
       columns={columns}
@@ -93,5 +99,3 @@ function UsersDataGrid({
     />
   );
 }
-
-export default UsersDataGrid;

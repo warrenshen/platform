@@ -39,7 +39,8 @@ const useStyles = makeStyles((theme: Theme) =>
     },
   })
 );
-function BankSettingsPage() {
+
+export default function BankSettingsPage() {
   const classes = useStyles();
 
   const {
@@ -155,6 +156,7 @@ function BankSettingsPage() {
           </Can>
           <UsersDataGrid
             isMultiSelectEnabled
+            isRoleVisible
             users={users}
             selectedUserIds={selectedUserIds}
             handleSelectUsers={handleSelectUsers}
@@ -164,5 +166,3 @@ function BankSettingsPage() {
     </Page>
   );
 }
-
-export default BankSettingsPage;

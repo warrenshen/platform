@@ -5,8 +5,7 @@ from typing import Callable, Dict, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
-from bespoke.db import models
-from bespoke.db.db_constants import CompanyType
+from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util
 from mypy_extensions import TypedDict
@@ -72,13 +71,18 @@ def create_bank_or_customer_user(
 
 	with session_scope(session_maker) as session:
 		if company_id:
-			customer = session.query(models.Company) \
+			company = session.query(models.Company) \
 				.filter(models.Company.id == company_id) \
 				.first()
-			if not customer:
-				raise errors.Error('Could not find customer')
-			if not customer.is_customer:
-				raise errors.Error('Company is not Customer company type')
+			if not company:
+				raise errors.Error('Could not find company')
+
+			if role == db_constants.UserRoles.COMPANY_CONTACT_ONLY:
+				if not company.is_payor and not company.is_vendor:
+					raise errors.Error('Company is neither Payor or Vendor company type')
+			else:
+				if not company.is_customer:
+					raise errors.Error('Company is not Customer company type')
 
 		existing_user = session.query(models.User) \
 			.filter(models.User.email == email.lower()) \

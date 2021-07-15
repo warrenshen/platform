@@ -46,7 +46,11 @@ interface Props {
   handleClose: () => void;
 }
 
-function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
+export default function InviteUserModal({
+  companyId,
+  userRoles,
+  handleClose,
+}: Props) {
   const snackbar = useSnackbar();
   const classes = useStyles();
 
@@ -58,7 +62,6 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
     email: "",
     phone_number: "",
   });
-  const [errMsg, setErrMsg] = useState("");
 
   const [
     createBankCustomerUser,
@@ -89,10 +92,13 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
     });
 
     if (response.status !== "OK") {
-      setErrMsg(response.msg);
       snackbar.showError(`Could not create user. Error: ${response.msg}`);
     } else {
-      snackbar.showSuccess("User created and sent a welcome email.");
+      if (user.role === UserRolesEnum.CompanyContactOnly) {
+        snackbar.showSuccess("User created.");
+      } else {
+        snackbar.showSuccess("User created and sent a welcome email.");
+      }
       handleClose();
     }
   };
@@ -112,7 +118,7 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
       maxWidth="xl"
       classes={{ paper: classes.dialog }}
     >
-      <DialogTitle className={classes.dialogTitle}>Invite New User</DialogTitle>
+      <DialogTitle className={classes.dialogTitle}>Create User</DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="column">
           <Box display="flex" flexDirection="column" mt={4}>
@@ -139,12 +145,12 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
               required
               label="First Name"
               value={user.first_name}
-              onChange={({ target: { value } }) => {
+              onChange={({ target: { value } }) =>
                 setUser({
                   ...user,
                   first_name: value,
-                });
-              }}
+                })
+              }
             />
           </Box>
           <Box display="flex" flexDirection="column" mt={4}>
@@ -152,12 +158,12 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
               required
               label="Last Name"
               value={user.last_name}
-              onChange={({ target: { value } }) => {
+              onChange={({ target: { value } }) =>
                 setUser({
                   ...user,
                   last_name: value,
-                });
-              }}
+                })
+              }
             />
           </Box>
           <Box display="flex" flexDirection="column" mt={4}>
@@ -166,12 +172,12 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
               label="Email"
               error={!!user.email && !isEmailValid}
               value={user.email}
-              onChange={({ target: { value } }) => {
+              onChange={({ target: { value } }) =>
                 setUser({
                   ...user,
                   email: value,
-                });
-              }}
+                })
+              }
             />
           </Box>
           <Box display="flex" flexDirection="column" mt={4}>
@@ -186,7 +192,6 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
               }
             />
           </Box>
-          {errMsg && <div>Error: {errMsg}</div>}
         </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
@@ -206,5 +211,3 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
     </Dialog>
   );
 }
-
-export default InviteUserModal;

@@ -1,6 +1,8 @@
 import {
   Box,
+  Checkbox,
   createStyles,
+  FormControlLabel,
   Grid,
   makeStyles,
   Theme,
@@ -10,11 +12,14 @@ import Can from "components/Shared/Can";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import FileUploadDropzone from "components/Shared/File/FileUploadDropzone";
 import Modal from "components/Shared/Modal/Modal";
-import ContactsList from "components/ThirdParties/ContactsList";
+import ModalButton from "components/Shared/Modal/ModalButton";
+import UsersDataGrid from "components/Users/UsersDataGrid";
+import UpdateVendorContactsModal from "components/VendorContacts/UpdateVendorContactsModal";
 import ApproveVendor from "components/Vendors/VendorDrawer/Actions/ApproveVendor";
 import BankAccount from "components/Vendors/VendorDrawer/BankAccount";
 import {
   CompanyAgreementsInsertInput,
+  CompanyVendorPartnerships,
   useAddCompanyVendorAgreementMutation,
   useGetVendorPartnershipForBankQuery,
   useUpdateVendorAgreementIdMutation,
@@ -39,7 +44,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
-  vendorPartnershipId: string;
+  vendorPartnershipId: CompanyVendorPartnerships["id"];
   handleClose: () => void;
 }
 
@@ -65,6 +70,8 @@ export default function VendorPartnershipDrawer({
   const [updateVendorAgreementId] = useUpdateVendorAgreementIdMutation();
   const [addCompanyVendorAgreement] = useAddCompanyVendorAgreementMutation();
 
+  const companyVendorPartnership = data?.company_vendor_partnerships_by_pk;
+
   const agreementFileId =
     data?.company_vendor_partnerships_by_pk?.vendor_agreement?.file_id;
 
@@ -72,22 +79,28 @@ export default function VendorPartnershipDrawer({
     return agreementFileId ? [agreementFileId] : [];
   }, [agreementFileId]);
 
-  if (!data?.company_vendor_partnerships_by_pk) {
+  const customer = companyVendorPartnership?.company;
+  const vendor = companyVendorPartnership?.vendor;
+
+  const vendorContacts = useMemo(
+    () =>
+      (companyVendorPartnership?.vendor_contacts || []).length > 0
+        ? companyVendorPartnership?.vendor_contacts.map(
+            (vendorContact) => vendorContact.user
+          ) || []
+        : vendor?.users || [],
+    [companyVendorPartnership, vendor]
+  );
+
+  if (!companyVendorPartnership || !customer || !vendor) {
     return null;
   }
 
-  const customer = data.company_vendor_partnerships_by_pk.company;
-  const vendor = data.company_vendor_partnerships_by_pk.vendor;
-
-  if (!customer || !vendor) {
-    return null;
-  }
-
+  const shouldUseAllUsers = vendorContacts.length === vendor.users.length;
   const customerName = customer.name;
 
   const notifier = new InventoryNotifier();
-  const isVendorBankAccountValid = !!data.company_vendor_partnerships_by_pk
-    .vendor_bank_account;
+  const isVendorBankAccountValid = !!companyVendorPartnership?.vendor_bank_account;
   const hasNoContactsSetup =
     !vendor.users ||
     vendor?.users.length === 0 ||
@@ -104,12 +117,40 @@ export default function VendorPartnershipDrawer({
       <Box className={classes.drawerContent} p={4}>
         <Box display="flex" flexDirection="column" mt={4}>
           <Typography variant="h6">Vendor Contacts</Typography>
-          <ContactsList
-            isPayor={false}
-            companyId={vendor.id}
-            contacts={vendor.users}
-            handleDataChange={refetch}
-          />
+          <Typography variant="subtitle2">
+            Specify which vendor users will receive notifications for this
+            partnership.
+          </Typography>
+          <Box mt={2}>
+            <ModalButton
+              label={"Edit Vendor Contacts"}
+              color="default"
+              size="small"
+              variant="outlined"
+              modal={({ handleClose }) => (
+                <UpdateVendorContactsModal
+                  vendorPartnershipId={vendorPartnershipId}
+                  handleClose={() => {
+                    refetch();
+                    handleClose();
+                  }}
+                />
+              )}
+            />
+          </Box>
+          <Box mt={2}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  disabled
+                  checked={shouldUseAllUsers}
+                  color="primary"
+                />
+              }
+              label={"Use ALL company users as vendor contacts"}
+            />
+          </Box>
+          <UsersDataGrid users={vendorContacts} />
         </Box>
         <Box display="flex" flexDirection="column" mt={4}>
           <Typography variant="h6">Bank Information</Typography>
@@ -124,12 +165,8 @@ export default function VendorPartnershipDrawer({
           <Box display="flex" mt={1}>
             <BankAccount
               companyId={vendor.id}
-              companyVendorPartnershipId={
-                data.company_vendor_partnerships_by_pk.id
-              }
-              bankAccount={
-                data.company_vendor_partnerships_by_pk.vendor_bank_account
-              }
+              companyVendorPartnershipId={companyVendorPartnership.id}
+              bankAccount={companyVendorPartnership.vendor_bank_account}
               handleDataChange={refetch}
             />
           </Box>
