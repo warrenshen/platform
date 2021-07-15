@@ -3,7 +3,7 @@ import json
 import logging
 from datetime import timedelta
 from mypy_extensions import TypedDict
-from typing import Any, Callable, Dict, List, Tuple, cast
+from typing import Any, Callable, Dict, Iterable, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
@@ -49,6 +49,9 @@ def get_final_lab_status(lab_result_statuses: List[str]) -> str:
 			final_lab_results_status = "passed"
 
 	return final_lab_results_status
+
+def chunker(seq: List, size: int) -> Iterable[List]:
+	return (seq[pos:pos + size] for pos in range(0, len(seq), size))
 
 class TransferPackages(object):
 
@@ -543,10 +546,15 @@ def populate_transfers_table(
 
 	# Find previous packages, update those that previously existed, add rows
 	# that do not exist.
+	BATCH_SIZE = 100
 	package_ids = [pkg.package_id for pkg in all_metrc_packages]
-	prev_metrc_packages = session.query(models.MetrcPackage).filter(
-		models.MetrcPackage.package_id.in_(package_ids)
-	)
+	prev_metrc_packages = []
+	for package_ids_chunk in chunker(package_ids, BATCH_SIZE):
+		prev_metrc_packages_chunk = cast(List[models.MetrcPackage], session.query(models.MetrcPackage).filter(
+			models.MetrcPackage.package_id.in_(package_ids_chunk)
+		))
+		prev_metrc_packages.extend(prev_metrc_packages_chunk)
+
 	package_id_to_prev_package = {}
 	for prev_metrc_package in prev_metrc_packages:
 		package_id_to_prev_package[prev_metrc_package.package_id] = prev_metrc_package 
