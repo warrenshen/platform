@@ -52,7 +52,7 @@ export default function EbbaApplicationsDataGrid({
         fixed: true,
         dataField: "id",
         caption: "",
-        width: ColumnWidths.Identifier,
+        width: ColumnWidths.Open,
         cellRender: (params: ValueFormatterParams) => (
           <ClickableDataGridCell
             onClick={() => setSelectedEbbaApplicationId(params.row.data.id)}

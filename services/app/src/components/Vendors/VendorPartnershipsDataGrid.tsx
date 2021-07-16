@@ -65,7 +65,7 @@ export default function VendorPartnershipsDataGrid({
         fixed: true,
         dataField: "id",
         caption: "",
-        width: 90,
+        width: ColumnWidths.Open,
         cellRender: (params: ValueFormatterParams) => (
           <ClickableDataGridCell
             onClick={() => setSelectedVendorPartnershipId(params.row.data.id)}

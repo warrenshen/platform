@@ -51,7 +51,7 @@ export default function PayorPartnershipsDataGrid({
         fixed: true,
         dataField: "id",
         caption: "",
-        width: 90,
+        width: ColumnWidths.Open,
         cellRender: (params: ValueFormatterParams) => (
           <ClickableDataGridCell
             onClick={() => setSelectedPayorPartnershipId(params.row.data.id)}
