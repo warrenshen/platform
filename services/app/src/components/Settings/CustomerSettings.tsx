@@ -12,7 +12,6 @@ import ModalButton from "components/Shared/Modal/ModalButton";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   BankAccountFragment,
-  CompanyFragment,
   ContractFragment,
   GetCompanyForCustomerQuery,
 } from "generated/graphql";
@@ -21,7 +20,7 @@ import { useContext, useState } from "react";
 
 interface Props {
   companyId: string;
-  company: CompanyFragment;
+  company: NonNullable<GetCompanyForCustomerQuery["companies_by_pk"]>;
   settings: NonNullable<
     GetCompanyForCustomerQuery["companies_by_pk"]
   >["settings"];
@@ -147,7 +146,7 @@ export default function CustomerSettings({
         </Box>
       </Box>
       <Box mt={4}>
-        <ManageUsersArea companyId={companyId}></ManageUsersArea>
+        <ManageUsersArea company={company} />
       </Box>
     </Box>
   );

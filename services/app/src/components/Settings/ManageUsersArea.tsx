@@ -7,30 +7,31 @@ import InviteUserModal from "components/Users/InviteUserModal";
 import ReactivateUserModal from "components/Users/ReactivateUserModal";
 import UsersDataGrid from "components/Users/UsersDataGrid";
 import {
+  GetCompanyForCustomerQuery,
   useListDeactivatedUsersByCompanyIdQuery,
   useListUsersByCompanyIdQuery,
   Users,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
-import { CompanyUserRoles } from "lib/enum";
+import { getCompanyUserRolesForCompany } from "lib/companies";
 import { useMemo, useState } from "react";
 
 interface Props {
-  companyId: string;
+  company: NonNullable<GetCompanyForCustomerQuery["companies_by_pk"]>;
 }
 
 interface ActiveUsersTabProps {
-  companyId: string;
+  company: NonNullable<GetCompanyForCustomerQuery["companies_by_pk"]>;
 }
 
 interface DeactivatedUsersTabProps {
   companyId: string;
 }
 
-function ActiveUsersTab({ companyId }: ActiveUsersTabProps) {
+function ActiveUsersTab({ company }: ActiveUsersTabProps) {
   const { data, refetch } = useListUsersByCompanyIdQuery({
     variables: {
-      companyId,
+      companyId: company.id,
     },
   });
 
@@ -49,6 +50,8 @@ function ActiveUsersTab({ companyId }: ActiveUsersTabProps) {
     [setSelectedUsers]
   );
 
+  const companyUserRoles = getCompanyUserRolesForCompany(company);
+
   return (
     <>
       <Box display="flex" flexDirection="row-reverse">
@@ -58,8 +61,8 @@ function ActiveUsersTab({ companyId }: ActiveUsersTabProps) {
             label={"Create User"}
             modal={({ handleClose }) => (
               <InviteUserModal
-                companyId={companyId}
-                userRoles={CompanyUserRoles}
+                companyId={company.id}
+                userRoles={companyUserRoles}
                 handleClose={() => {
                   refetch();
                   handleClose();
@@ -76,7 +79,7 @@ function ActiveUsersTab({ companyId }: ActiveUsersTabProps) {
               modal={({ handleClose }) => (
                 <EditUserProfileModal
                   userId={selectedUsers[0].id}
-                  userRoles={CompanyUserRoles}
+                  userRoles={companyUserRoles}
                   originalUserProfile={selectedUsers[0]}
                   handleClose={() => {
                     refetch();
@@ -95,7 +98,7 @@ function ActiveUsersTab({ companyId }: ActiveUsersTabProps) {
               label={"Deactivate User"}
               modal={({ handleClose }) => (
                 <DeactivateUserModal
-                  companyId={companyId}
+                  companyId={company.id}
                   user={selectedUsers[0]}
                   handleClose={() => {
                     refetch();
@@ -185,7 +188,7 @@ function DeactivatedUsersTab({ companyId }: DeactivatedUsersTabProps) {
   );
 }
 
-export default function ManageUsersArea({ companyId }: Props) {
+export default function ManageUsersArea({ company }: Props) {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
   return (
@@ -202,9 +205,9 @@ export default function ManageUsersArea({ companyId }: Props) {
       </Tabs>
       <br />
       {selectedTabIndex === 0 ? (
-        <ActiveUsersTab companyId={companyId} />
+        <ActiveUsersTab company={company} />
       ) : (
-        <DeactivatedUsersTab companyId={companyId} />
+        <DeactivatedUsersTab companyId={company.id} />
       )}
     </Box>
   );

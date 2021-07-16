@@ -37,6 +37,7 @@ query ListUsersByCompanyId($companyId: uuid!) {
         { company_id: { _eq: $companyId } }
       ]
     }
+    order_by: { full_name: asc }
   ) {
     ...User
   }

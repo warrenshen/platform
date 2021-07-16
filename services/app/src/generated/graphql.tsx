@@ -20669,6 +20669,8 @@ export type GetCompanyForBankQuery = {
   companies_by_pk?: Maybe<
     Pick<Companies, "id"> & {
       bank_accounts: Array<Pick<BankAccounts, "id"> & BankAccountFragment>;
+      contract?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
+      licenses: Array<Pick<CompanyLicenses, "id"> & CompanyLicenseFragment>;
       settings?: Maybe<
         {
           advances_bespoke_bank_account?: Maybe<
@@ -20686,8 +20688,7 @@ export type GetCompanyForBankQuery = {
           metrc_api_key?: Maybe<Pick<MetrcApiKeys, "id"> & MetrcApiKeyFragment>;
         } & CompanySettingsFragment
       >;
-      contract?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
-      licenses: Array<Pick<CompanyLicenses, "id"> & CompanyLicenseFragment>;
+      users: Array<Pick<Users, "id"> & UserFragment>;
     } & CompanyFragment
   >;
 };
@@ -20702,6 +20703,7 @@ export type GetCompanyForCustomerQuery = {
       bank_accounts: Array<
         Pick<BankAccounts, "id"> & BankAccountLimitedFragment
       >;
+      contract?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
       settings?: Maybe<
         Pick<CompanySettings, "id"> & {
           advances_bank_account?: Maybe<
@@ -20712,7 +20714,7 @@ export type GetCompanyForCustomerQuery = {
           >;
         } & CompanySettingsLimitedFragment
       >;
-      contract?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
+      users: Array<Pick<Users, "id"> & UserFragment>;
     } & CompanyFragment
   >;
 };
@@ -20757,6 +20759,9 @@ export type CompanyFragment = Pick<
   Companies,
   | "id"
   | "identifier"
+  | "is_customer"
+  | "is_payor"
+  | "is_vendor"
   | "name"
   | "contract_name"
   | "dba_name"
@@ -21661,6 +21666,9 @@ export const CompanyFragmentDoc = gql`
   fragment Company on companies {
     id
     identifier
+    is_customer
+    is_payor
+    is_vendor
     name
     contract_name
     dba_name
@@ -27274,6 +27282,7 @@ export const ListUsersByCompanyIdDocument = gql`
           { company_id: { _eq: $companyId } }
         ]
       }
+      order_by: { full_name: asc }
     ) {
       ...User
     }
@@ -28167,6 +28176,21 @@ export const GetCompanyForBankDocument = gql`
         id
         ...BankAccount
       }
+      contract {
+        id
+        ...Contract
+      }
+      licenses(
+        where: {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+      ) {
+        id
+        ...CompanyLicense
+      }
       settings {
         ...CompanySettings
         advances_bespoke_bank_account {
@@ -28190,30 +28214,20 @@ export const GetCompanyForBankDocument = gql`
           ...MetrcApiKey
         }
       }
-      contract {
+      users {
         id
-        ...Contract
-      }
-      licenses(
-        where: {
-          _or: [
-            { is_deleted: { _is_null: true } }
-            { is_deleted: { _eq: false } }
-          ]
-        }
-      ) {
-        id
-        ...CompanyLicense
+        ...User
       }
     }
   }
   ${CompanyFragmentDoc}
   ${BankAccountFragmentDoc}
+  ${ContractFragmentDoc}
+  ${CompanyLicenseFragmentDoc}
   ${CompanySettingsFragmentDoc}
   ${BankAccountLimitedFragmentDoc}
   ${MetrcApiKeyFragmentDoc}
-  ${ContractFragmentDoc}
-  ${CompanyLicenseFragmentDoc}
+  ${UserFragmentDoc}
 `;
 
 /**
@@ -28273,6 +28287,10 @@ export const GetCompanyForCustomerDocument = gql`
         id
         ...BankAccountLimited
       }
+      contract {
+        id
+        ...Contract
+      }
       settings {
         id
         ...CompanySettingsLimited
@@ -28285,16 +28303,17 @@ export const GetCompanyForCustomerDocument = gql`
           ...BankAccountLimited
         }
       }
-      contract {
+      users {
         id
-        ...Contract
+        ...User
       }
     }
   }
   ${CompanyFragmentDoc}
   ${BankAccountLimitedFragmentDoc}
-  ${CompanySettingsLimitedFragmentDoc}
   ${ContractFragmentDoc}
+  ${CompanySettingsLimitedFragmentDoc}
+  ${UserFragmentDoc}
 `;
 
 /**

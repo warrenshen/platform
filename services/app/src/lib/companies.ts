@@ -1,5 +1,20 @@
-import { CompanySettingsLimitedFragment } from "generated/graphql";
-import { CustomMessageEnum, FeatureFlagEnum } from "lib/enum";
+import {
+  CompanyFragment,
+  CompanySettingsLimitedFragment,
+} from "generated/graphql";
+import {
+  CustomerUserRoles,
+  CustomMessageEnum,
+  FeatureFlagEnum,
+  PartnerCompanyUserRoles,
+} from "lib/enum";
+
+export function getCompanyUserRolesForCompany(company: CompanyFragment) {
+  return [
+    ...(company.is_customer ? CustomerUserRoles : []),
+    ...(company.is_payor || company.is_vendor ? PartnerCompanyUserRoles : []),
+  ];
+}
 
 export enum FeatureFlagConfigs {
   Name = "name",

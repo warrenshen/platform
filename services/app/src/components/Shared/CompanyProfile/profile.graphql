@@ -6,6 +6,21 @@ query GetCompanyForBank($companyId: uuid!) {
       id
       ...BankAccount
     }
+    contract {
+      id
+      ...Contract
+    }
+    licenses(
+      where: {
+        _or: [
+          { is_deleted: { _is_null: true } }
+          { is_deleted: { _eq: false } }
+        ]
+      }
+    ) {
+      id
+      ...CompanyLicense
+    }
     settings {
       ...CompanySettings
       advances_bespoke_bank_account {
@@ -29,20 +44,9 @@ query GetCompanyForBank($companyId: uuid!) {
         ...MetrcApiKey
       }
     }
-    contract {
+    users {
       id
-      ...Contract
-    }
-    licenses(
-      where: {
-        _or: [
-          { is_deleted: { _is_null: true } }
-          { is_deleted: { _eq: false } }
-        ]
-      }
-    ) {
-      id
-      ...CompanyLicense
+      ...User
     }
   }
 }
@@ -54,6 +58,10 @@ query GetCompanyForCustomer($companyId: uuid!) {
     bank_accounts {
       id
       ...BankAccountLimited
+    }
+    contract {
+      id
+      ...Contract
     }
     settings {
       id
@@ -67,9 +75,9 @@ query GetCompanyForCustomer($companyId: uuid!) {
         ...BankAccountLimited
       }
     }
-    contract {
+    users {
       id
-      ...Contract
+      ...User
     }
   }
 }

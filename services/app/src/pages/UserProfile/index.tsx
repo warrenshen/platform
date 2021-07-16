@@ -1,8 +1,6 @@
 import {
   Box,
-  Button,
   Card,
-  CardActions,
   CardContent,
   makeStyles,
   Typography,
@@ -10,14 +8,12 @@ import {
 import { grey } from "@material-ui/core/colors";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
-import EditUserProfileModal from "components/Users/EditUserProfileModal";
 import {
   CurrentUserContext,
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
 import { useUserByIdQuery } from "generated/graphql";
-import { BankUserRoles, CompanyUserRoles } from "lib/enum";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 
 const useStyles = makeStyles({
   label: {
@@ -26,15 +22,12 @@ const useStyles = makeStyles({
   },
 });
 
-function UserProfile() {
+export default function UserProfile() {
   const classes = useStyles();
 
   const { user: currentUser } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(currentUser?.role);
 
-  const [open, setOpen] = useState(false);
-
-  const { data, refetch } = useUserByIdQuery({
+  const { data } = useUserByIdQuery({
     fetchPolicy: "network-only",
     variables: {
       id: currentUser.id,
@@ -46,17 +39,6 @@ function UserProfile() {
   return (
     <Page appBarTitle={"Users"}>
       <PageContent title={"Users"}>
-        {user && open && (
-          <EditUserProfileModal
-            userId={user.id}
-            userRoles={isBankUser ? BankUserRoles : CompanyUserRoles}
-            originalUserProfile={user}
-            handleClose={() => {
-              refetch();
-              setOpen(false);
-            }}
-          />
-        )}
         <Box display="flex">
           <Card>
             <CardContent>
@@ -92,22 +74,9 @@ function UserProfile() {
                 </Box>
               </Box>
             </CardContent>
-            <CardActions>
-              <Button
-                onClick={() => {
-                  setOpen(true);
-                }}
-                variant="outlined"
-                size="small"
-              >
-                Edit
-              </Button>
-            </CardActions>
           </Card>
         </Box>
       </PageContent>
     </Page>
   );
 }
-
-export default UserProfile;

@@ -42,6 +42,9 @@ fragment CompanyMinimal on companies {
 fragment Company on companies {
   id
   identifier
+  is_customer
+  is_payor
+  is_vendor
   name
   contract_name
   dba_name

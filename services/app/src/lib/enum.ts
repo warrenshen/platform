@@ -225,6 +225,13 @@ export const CompanyUserRoles = [
   UserRolesEnum.CompanyContactOnly,
 ];
 
+export const CustomerUserRoles = [
+  UserRolesEnum.CompanyAdmin,
+  UserRolesEnum.CompanyReadOnly,
+];
+
+export const PartnerCompanyUserRoles = [UserRolesEnum.CompanyContactOnly];
+
 // Mapping for when we look up loans based on ProductType
 export const ProductTypeToLoanType = {
   [ProductTypeEnum.InventoryFinancing]: LoanTypeEnum.PurchaseOrder,

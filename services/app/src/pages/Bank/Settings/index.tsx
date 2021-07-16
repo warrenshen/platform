@@ -122,7 +122,7 @@ export default function BankSettingsPage() {
             <Box display="flex" flexDirection="row-reverse" mb={2}>
               <ModalButton
                 isDisabled={selectedUsers.length > 0}
-                label={"Invite BF User"}
+                label={"Create BF User"}
                 modal={({ handleClose }) => (
                   <InviteUserModal
                     companyId={null}
