@@ -87,12 +87,13 @@ def delete_old_bank_financial_summaries(session: Session, report_date: datetime.
 
 def compute_bank_financial_summaries(
 	session: Session,
-	report_date: datetime.date) -> Tuple[Iterable[models.BankFinancialSummary], errors.Error]:
+	report_date: datetime.date,
+) -> Tuple[Iterable[models.BankFinancialSummary], errors.Error]:
 	"""Given a session_maker and a report date, we grab the current financial statements
 	and compute new bank financial statements across all of our product types. This function
 	returns the list of bank financial summaries and an optional descriptive error.
 	"""
-	financial_summaries, err = financial_summary_util.get_latest_financial_summary_for_all_customers(session)
+	financial_summaries, err = financial_summary_util.get_financial_summary_for_all_customers(session, report_date)
 
 	if err:
 		return None, err
@@ -260,7 +261,7 @@ def run_customer_balances_for_companies_that_need_recompute(
     session_maker: Callable, report_date: datetime.date) -> Tuple[List[str], errors.Error]:
     companies = list_companies_that_need_balances_recomputed(session_maker)
     _, descriptive_errors, fatal_error = run_customer_balances_for_companies(
-    	session_maker, companies, report_date, include_debug_info=False)
+		session_maker, companies, report_date, include_debug_info=False)
 
     return descriptive_errors, fatal_error 
 

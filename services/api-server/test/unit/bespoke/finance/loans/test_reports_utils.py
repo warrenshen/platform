@@ -16,6 +16,9 @@ from bespoke_test.db import db_unittest, test_helper
 from sqlalchemy.orm.session import Session
 
 
+TODAY = datetime.date.today()
+FOUR_DAYS_FROM_TODAY = TODAY + timedelta(days=4)
+
 def _get_late_fee_structure() -> str:
 	return json.dumps({
 		'1-14': 0.25,
@@ -30,7 +33,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 		seed = test_helper.BasicSeed.create(self.session_maker, self)
 		seed.initialize()
 
-		report_date = datetime.date.today()
+		report_date = TODAY
 
 		with session_scope(self.session_maker) as session:
 			populate(session, seed)
@@ -60,8 +63,6 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 		self.reset()
 		seed = test_helper.BasicSeed.create(self.session_maker, self)
 		seed.initialize()
-
-		report_date = datetime.date.today()
 
 		with session_scope(self.session_maker) as session:
 			populate(session, seed)
@@ -104,7 +105,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 		session.commit()
 
 		session.add(models.FinancialSummary(
-			date=datetime.date.today(),
+			date=TODAY,
 			company_id=company_id,
 			total_limit=decimal.Decimal(100.0),
 			adjusted_total_limit=decimal.Decimal(100.0),
@@ -122,7 +123,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 
 		# This financial summary should not be used because it is in the future
 		session.add(models.FinancialSummary(
-			date=datetime.date.today() + timedelta(days=4),
+			date=FOUR_DAYS_FROM_TODAY,
 			company_id=company_id,
 			total_limit=decimal.Decimal(120.0),
 			adjusted_total_limit=decimal.Decimal(120.0),
@@ -151,7 +152,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 
 		self._run_compute_test(populate, expected_summaries=[
 			models.BankFinancialSummary(
-				date=datetime.date.today(),
+				date=TODAY,
 				product_type=ProductType.INVENTORY_FINANCING,
 				total_limit=decimal.Decimal(0),
 				adjusted_total_limit=decimal.Decimal(0),
@@ -163,7 +164,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				available_limit=decimal.Decimal(0)
 			),
 			models.BankFinancialSummary(
-				date=datetime.date.today(),
+				date=TODAY,
 				product_type=ProductType.INVOICE_FINANCING,
 				total_limit=decimal.Decimal(0),
 				adjusted_total_limit=decimal.Decimal(0),
@@ -175,7 +176,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				available_limit=decimal.Decimal(0),
 			),
 			models.BankFinancialSummary(
-				date=datetime.date.today(),
+				date=TODAY,
 				product_type=ProductType.LINE_OF_CREDIT,
 				total_limit=decimal.Decimal(0),
 				adjusted_total_limit=decimal.Decimal(0),
@@ -187,7 +188,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				available_limit=decimal.Decimal(0),
 			),
 			models.BankFinancialSummary(
-				date=datetime.date.today(),
+				date=TODAY,
 				product_type=ProductType.PURCHASE_MONEY_FINANCING,
 				total_limit=decimal.Decimal(100.0),
 				adjusted_total_limit=decimal.Decimal(100.0),
@@ -208,7 +209,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 
 		self._run_compute_test(populate, expected_summaries=[
 			models.BankFinancialSummary(
-				date=datetime.date.today(),
+				date=TODAY,
 				product_type=ProductType.INVENTORY_FINANCING,
 				total_limit=decimal.Decimal(200.0),
 				adjusted_total_limit=decimal.Decimal(200.0),
@@ -220,7 +221,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				available_limit=decimal.Decimal(50.0),
 			),
 			models.BankFinancialSummary(
-				date=datetime.date.today(),
+				date=TODAY,
 				product_type=ProductType.INVOICE_FINANCING,
 				total_limit=decimal.Decimal(0),
 				adjusted_total_limit=decimal.Decimal(0),
@@ -232,7 +233,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				available_limit=decimal.Decimal(0),
 			),
 			models.BankFinancialSummary(
-				date=datetime.date.today(),
+				date=TODAY,
 				product_type=ProductType.LINE_OF_CREDIT,
 				total_limit=decimal.Decimal(0),
 				adjusted_total_limit=decimal.Decimal(0),
@@ -244,7 +245,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				available_limit=decimal.Decimal(0),
 			),
 			models.BankFinancialSummary(
-				date=datetime.date.today(),
+				date=TODAY,
 				product_type=ProductType.PURCHASE_MONEY_FINANCING,
 				total_limit=decimal.Decimal(0),
 				adjusted_total_limit=decimal.Decimal(0),
@@ -268,7 +269,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 
 		self._run_compute_test(populate, expected_summaries=[
 			models.BankFinancialSummary(
-				date=datetime.date.today(),
+				date=TODAY,
 				product_type=ProductType.INVENTORY_FINANCING,
 				total_limit=decimal.Decimal(100.0),
 				adjusted_total_limit=decimal.Decimal(100.0),
@@ -280,7 +281,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				available_limit=decimal.Decimal(25.00),
 			),
 			models.BankFinancialSummary(
-				date=datetime.date.today(),
+				date=TODAY,
 				product_type=ProductType.INVOICE_FINANCING,
 				total_limit=decimal.Decimal(0),
 				adjusted_total_limit=decimal.Decimal(0),
@@ -292,7 +293,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				available_limit=decimal.Decimal(0),
 			),
 			models.BankFinancialSummary(
-				date=datetime.date.today(),
+				date=TODAY,
 				product_type=ProductType.LINE_OF_CREDIT,
 				total_limit=decimal.Decimal(100.0),
 				adjusted_total_limit=decimal.Decimal(100.0),
@@ -304,7 +305,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				available_limit=decimal.Decimal(25.00),
 			),
 			models.BankFinancialSummary(
-				date=datetime.date.today(),
+				date=TODAY,
 				product_type=ProductType.PURCHASE_MONEY_FINANCING,
 				total_limit=decimal.Decimal(0),
 				adjusted_total_limit=decimal.Decimal(0),
@@ -323,7 +324,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=0), ProductType.INVENTORY_FINANCING)
 			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=2), ProductType.LINE_OF_CREDIT)
 
-			reports_util.compute_and_update_bank_financial_summaries(session, datetime.date.today())
+			reports_util.compute_and_update_bank_financial_summaries(session, TODAY)
 
 		self._run_compute_and_update_test(populate, len(PRODUCT_TYPES))
 
@@ -333,10 +334,10 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=0), ProductType.INVENTORY_FINANCING)
 			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=2), ProductType.LINE_OF_CREDIT)
 
-			reports_util.compute_and_update_bank_financial_summaries(session, datetime.date.today())
+			reports_util.compute_and_update_bank_financial_summaries(session, TODAY)
 			session.commit()
 
-			reports_util.compute_and_update_bank_financial_summaries(session, datetime.date.today())
+			reports_util.compute_and_update_bank_financial_summaries(session, TODAY)
 			session.commit()
 
 		self._run_compute_and_update_test(populate, len(PRODUCT_TYPES))
@@ -367,7 +368,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 		self.assertEqual(company_dicts[0]["id"], str(company_id))
 
 		descriptive_errors, fatal_error = reports_util.run_customer_balances_for_companies_that_need_recompute(
-			self.session_maker, datetime.date.today())
+			self.session_maker, TODAY)
 
 		self.assertIsNone(fatal_error)
 		self.assertEqual(len(descriptive_errors), 0)

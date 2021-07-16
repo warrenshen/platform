@@ -9,19 +9,17 @@ from sqlalchemy.orm.session import Session
 def _get_today(now_for_test: datetime.datetime) -> datetime.date:
 	return now_for_test.date() if now_for_test else date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
 
-def _get_most_recent_summary_date_or_today(session: Session, now_for_test: datetime.datetime) -> datetime.date:
-	today = _get_today(now_for_test)
-
-	todays_financial_summary = cast(
+def _get_summary_date_or_most_recent_date(session: Session, report_date: datetime.date) -> datetime.date:
+	report_date_financial_summary = cast(
 		models.FinancialSummary,
 		session.query(models.FinancialSummary)
-			.filter(models.FinancialSummary.date == today)
+			.filter(models.FinancialSummary.date == report_date)
 			.first()
 		)
-	if todays_financial_summary:
-		return today
+	if report_date_financial_summary:
+		return report_date
 
-	financial_summary = cast(
+	most_recent_financial_summary = cast(
 		models.FinancialSummary,
 		session.query(models.FinancialSummary)
 			.filter(models.FinancialSummary.date != None)
@@ -29,13 +27,16 @@ def _get_most_recent_summary_date_or_today(session: Session, now_for_test: datet
 			.first()
 		)
 
-	if not financial_summary:
+	if not most_recent_financial_summary:
 		return None
 
-	return financial_summary.date
+	return most_recent_financial_summary.date
 
-def get_latest_financial_summary_for_all_customers(session: Session, now_for_test: datetime.datetime = None) -> Tuple[List[models.FinancialSummary], errors.Error]:
-		latest_date = _get_most_recent_summary_date_or_today(session, now_for_test=now_for_test)
+def get_financial_summary_for_all_customers(
+	session: Session,
+	report_date: datetime.date,
+) -> Tuple[List[models.FinancialSummary], errors.Error]:
+		latest_date = _get_summary_date_or_most_recent_date(session, report_date)
 		if not latest_date:
 			return None, errors.Error('No financial summary found that has a date populated')
 
