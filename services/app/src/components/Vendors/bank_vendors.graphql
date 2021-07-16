@@ -68,15 +68,6 @@ query GetVendorPartnershipForBank($id: uuid!) {
   }
 }
 
-fragment CompanyVendorContact on company_vendor_contacts {
-  id
-  vendor_user_id
-  user {
-    id
-    ...Contact
-  }
-}
-
 query GetVendorPartnershipForContacts($id: uuid!) {
   company_vendor_partnerships_by_pk(id: $id) {
     ...VendorPartnership

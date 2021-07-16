@@ -15,6 +15,24 @@ fragment Contact on users {
   created_at
 }
 
+fragment CompanyPayorContact on company_payor_contacts {
+  id
+  payor_user_id
+  user {
+    id
+    ...Contact
+  }
+}
+
+fragment CompanyVendorContact on company_vendor_contacts {
+  id
+  vendor_user_id
+  user {
+    id
+    ...Contact
+  }
+}
+
 ## Companies
 
 fragment CustomerForBank on companies {

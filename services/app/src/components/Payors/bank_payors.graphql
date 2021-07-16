@@ -1,6 +1,15 @@
 query GetBankPayorPartnership($id: uuid!) {
   company_payor_partnerships_by_pk(id: $id) {
     ...PayorPartnership
+    company {
+      ...Company
+      users {
+        ...Contact
+      }
+      settings {
+        ...CompanySettings
+      }
+    }
     payor {
       id
       licenses(
@@ -23,17 +32,29 @@ query GetBankPayorPartnership($id: uuid!) {
         ...Contact
       }
     }
-    company {
-      ...Company
-      users {
-        ...Contact
-      }
-      settings {
-        ...CompanySettings
-      }
-    }
     payor_agreement {
       ...CompanyAgreement
+    }
+    payor_contacts {
+      id
+      ...CompanyPayorContact
+    }
+  }
+}
+
+query GetPayorPartnershipForContacts($id: uuid!) {
+  company_payor_partnerships_by_pk(id: $id) {
+    ...PayorPartnership
+    payor {
+      id
+      users {
+        id
+        ...Contact
+      }
+    }
+    payor_contacts {
+      id
+      ...CompanyPayorContact
     }
   }
 }

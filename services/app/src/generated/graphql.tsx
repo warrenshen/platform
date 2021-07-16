@@ -3008,6 +3008,8 @@ export type CompanyPayorContacts = {
   id: Scalars["uuid"];
   partnership_id: Scalars["uuid"];
   payor_user_id: Scalars["uuid"];
+  /** An object relationship */
+  user: Users;
 };
 
 /** aggregated selection of "company_payor_contacts" */
@@ -3050,6 +3052,7 @@ export type CompanyPayorContactsBoolExp = {
   id?: Maybe<UuidComparisonExp>;
   partnership_id?: Maybe<UuidComparisonExp>;
   payor_user_id?: Maybe<UuidComparisonExp>;
+  user?: Maybe<UsersBoolExp>;
 };
 
 /** unique or primary key constraints on table "company_payor_contacts" */
@@ -3063,6 +3066,7 @@ export type CompanyPayorContactsInsertInput = {
   id?: Maybe<Scalars["uuid"]>;
   partnership_id?: Maybe<Scalars["uuid"]>;
   payor_user_id?: Maybe<Scalars["uuid"]>;
+  user?: Maybe<UsersObjRelInsertInput>;
 };
 
 /** aggregate max on columns */
@@ -3119,6 +3123,7 @@ export type CompanyPayorContactsOrderBy = {
   id?: Maybe<OrderBy>;
   partnership_id?: Maybe<OrderBy>;
   payor_user_id?: Maybe<OrderBy>;
+  user?: Maybe<UsersOrderBy>;
 };
 
 /** primary key columns input for table: "company_payor_contacts" */
@@ -20078,6 +20083,10 @@ export type GetBankPayorPartnershipQueryVariables = Exact<{
 export type GetBankPayorPartnershipQuery = {
   company_payor_partnerships_by_pk?: Maybe<
     {
+      company: {
+        users: Array<ContactFragment>;
+        settings?: Maybe<CompanySettingsFragment>;
+      } & CompanyFragment;
       payor?: Maybe<
         Pick<Payors, "id"> & {
           licenses: Array<CompanyLicenseFragment>;
@@ -20089,11 +20098,29 @@ export type GetBankPayorPartnershipQuery = {
           users: Array<ContactFragment>;
         }
       >;
-      company: {
-        users: Array<ContactFragment>;
-        settings?: Maybe<CompanySettingsFragment>;
-      } & CompanyFragment;
       payor_agreement?: Maybe<CompanyAgreementFragment>;
+      payor_contacts: Array<
+        Pick<CompanyPayorContacts, "id"> & CompanyPayorContactFragment
+      >;
+    } & PayorPartnershipFragment
+  >;
+};
+
+export type GetPayorPartnershipForContactsQueryVariables = Exact<{
+  id: Scalars["uuid"];
+}>;
+
+export type GetPayorPartnershipForContactsQuery = {
+  company_payor_partnerships_by_pk?: Maybe<
+    {
+      payor?: Maybe<
+        Pick<Payors, "id"> & {
+          users: Array<Pick<Users, "id"> & ContactFragment>;
+        }
+      >;
+      payor_contacts: Array<
+        Pick<CompanyPayorContacts, "id"> & CompanyPayorContactFragment
+      >;
     } & PayorPartnershipFragment
   >;
 };
@@ -20994,11 +21021,6 @@ export type GetVendorPartnershipForBankQuery = {
   >;
 };
 
-export type CompanyVendorContactFragment = Pick<
-  CompanyVendorContacts,
-  "id" | "vendor_user_id"
-> & { user: Pick<Users, "id"> & ContactFragment };
-
 export type GetVendorPartnershipForContactsQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -21189,6 +21211,16 @@ export type ContactFragment = Pick<
   | "phone_number"
   | "created_at"
 >;
+
+export type CompanyPayorContactFragment = Pick<
+  CompanyPayorContacts,
+  "id" | "payor_user_id"
+> & { user: Pick<Users, "id"> & ContactFragment };
+
+export type CompanyVendorContactFragment = Pick<
+  CompanyVendorContacts,
+  "id" | "vendor_user_id"
+> & { user: Pick<Users, "id"> & ContactFragment };
 
 export type CustomerForBankFragment = Pick<
   Companies,
@@ -21806,6 +21838,17 @@ export const ContactFragmentDoc = gql`
     phone_number
     created_at
   }
+`;
+export const CompanyPayorContactFragmentDoc = gql`
+  fragment CompanyPayorContact on company_payor_contacts {
+    id
+    payor_user_id
+    user {
+      id
+      ...Contact
+    }
+  }
+  ${ContactFragmentDoc}
 `;
 export const CompanyVendorContactFragmentDoc = gql`
   fragment CompanyVendorContact on company_vendor_contacts {
@@ -25200,6 +25243,15 @@ export const GetBankPayorPartnershipDocument = gql`
   query GetBankPayorPartnership($id: uuid!) {
     company_payor_partnerships_by_pk(id: $id) {
       ...PayorPartnership
+      company {
+        ...Company
+        users {
+          ...Contact
+        }
+        settings {
+          ...CompanySettings
+        }
+      }
       payor {
         id
         licenses(
@@ -25222,27 +25274,23 @@ export const GetBankPayorPartnershipDocument = gql`
           ...Contact
         }
       }
-      company {
-        ...Company
-        users {
-          ...Contact
-        }
-        settings {
-          ...CompanySettings
-        }
-      }
       payor_agreement {
         ...CompanyAgreement
+      }
+      payor_contacts {
+        id
+        ...CompanyPayorContact
       }
     }
   }
   ${PayorPartnershipFragmentDoc}
+  ${CompanyFragmentDoc}
+  ${ContactFragmentDoc}
+  ${CompanySettingsFragmentDoc}
   ${CompanyLicenseFragmentDoc}
   ${BankAccountFragmentDoc}
-  ${ContactFragmentDoc}
-  ${CompanyFragmentDoc}
-  ${CompanySettingsFragmentDoc}
   ${CompanyAgreementFragmentDoc}
+  ${CompanyPayorContactFragmentDoc}
 `;
 
 /**
@@ -25292,6 +25340,76 @@ export type GetBankPayorPartnershipLazyQueryHookResult = ReturnType<
 export type GetBankPayorPartnershipQueryResult = Apollo.QueryResult<
   GetBankPayorPartnershipQuery,
   GetBankPayorPartnershipQueryVariables
+>;
+export const GetPayorPartnershipForContactsDocument = gql`
+  query GetPayorPartnershipForContacts($id: uuid!) {
+    company_payor_partnerships_by_pk(id: $id) {
+      ...PayorPartnership
+      payor {
+        id
+        users {
+          id
+          ...Contact
+        }
+      }
+      payor_contacts {
+        id
+        ...CompanyPayorContact
+      }
+    }
+  }
+  ${PayorPartnershipFragmentDoc}
+  ${ContactFragmentDoc}
+  ${CompanyPayorContactFragmentDoc}
+`;
+
+/**
+ * __useGetPayorPartnershipForContactsQuery__
+ *
+ * To run a query within a React component, call `useGetPayorPartnershipForContactsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPayorPartnershipForContactsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPayorPartnershipForContactsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetPayorPartnershipForContactsQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetPayorPartnershipForContactsQuery,
+    GetPayorPartnershipForContactsQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetPayorPartnershipForContactsQuery,
+    GetPayorPartnershipForContactsQueryVariables
+  >(GetPayorPartnershipForContactsDocument, baseOptions);
+}
+export function useGetPayorPartnershipForContactsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetPayorPartnershipForContactsQuery,
+    GetPayorPartnershipForContactsQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetPayorPartnershipForContactsQuery,
+    GetPayorPartnershipForContactsQueryVariables
+  >(GetPayorPartnershipForContactsDocument, baseOptions);
+}
+export type GetPayorPartnershipForContactsQueryHookResult = ReturnType<
+  typeof useGetPayorPartnershipForContactsQuery
+>;
+export type GetPayorPartnershipForContactsLazyQueryHookResult = ReturnType<
+  typeof useGetPayorPartnershipForContactsLazyQuery
+>;
+export type GetPayorPartnershipForContactsQueryResult = Apollo.QueryResult<
+  GetPayorPartnershipForContactsQuery,
+  GetPayorPartnershipForContactsQueryVariables
 >;
 export const GetPayorPartnershipsForBankDocument = gql`
   query GetPayorPartnershipsForBank {
