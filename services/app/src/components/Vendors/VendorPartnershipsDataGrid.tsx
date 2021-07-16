@@ -1,15 +1,16 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import VendorPartnershipDrawer from "components/Partnership/VendorPartnershipDrawer";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import VendorPartnershipDrawerLauncher from "components/Partnership/VendorPartnershipDrawerLauncher";
 import VerificationChip from "components/Vendors/VerificationChip";
 import {
+  CompanyVendorPartnerships,
   VendorPartnershipFragment,
   VendorPartnershipLimitedFragment,
 } from "generated/graphql";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ColumnWidths } from "lib/tables";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 function getRows(
   vendorPartnerships: (
@@ -46,6 +47,11 @@ export default function VendorPartnershipsDataGrid({
   isRoleBankUser = false,
   vendorPartnerships,
 }: Props) {
+  const [
+    selectedVendorPartnershipId,
+    setSelectedVendorPartnershipId,
+  ] = useState<CompanyVendorPartnerships["id"] | null>(null);
+
   const verificationCellRenderer = useMemo(
     () => ({ value }: { value: string }) => <VerificationChip value={value} />,
     []
@@ -61,8 +67,9 @@ export default function VendorPartnershipsDataGrid({
         caption: "",
         width: 90,
         cellRender: (params: ValueFormatterParams) => (
-          <VendorPartnershipDrawerLauncher
-            vendorPartnershipId={params.row.data.id}
+          <ClickableDataGridCell
+            onClick={() => setSelectedVendorPartnershipId(params.row.data.id)}
+            label={"OPEN"}
           />
         ),
       },
@@ -138,13 +145,21 @@ export default function VendorPartnershipsDataGrid({
   };
 
   return (
-    <ControlledDataGrid
-      isExcelExport={isExcelExport}
-      pager
-      dataSource={rows}
-      onSortingChanged={onSortingChanged}
-      onFilteringChanged={onFilteringChanged}
-      columns={columns}
-    />
+    <>
+      {!!selectedVendorPartnershipId && (
+        <VendorPartnershipDrawer
+          vendorPartnershipId={selectedVendorPartnershipId}
+          handleClose={() => setSelectedVendorPartnershipId(null)}
+        />
+      )}
+      <ControlledDataGrid
+        isExcelExport={isExcelExport}
+        pager
+        dataSource={rows}
+        onSortingChanged={onSortingChanged}
+        onFilteringChanged={onFilteringChanged}
+        columns={columns}
+      />
+    </>
   );
 }

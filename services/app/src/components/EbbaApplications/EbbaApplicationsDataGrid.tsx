@@ -1,6 +1,7 @@
 import { ValueFormatterParams } from "@material-ui/data-grid";
-import EbbaApplicationDrawerLauncher from "components/EbbaApplication/EbbaApplicationDrawerLauncher";
+import EbbaApplicationDrawer from "components/EbbaApplication/EbbaApplicationDrawer";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
+import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
@@ -11,7 +12,7 @@ import {
   RequestStatusEnum,
 } from "generated/graphql";
 import { ColumnWidths } from "lib/tables";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 interface Props {
   isCompanyVisible?: boolean;
@@ -32,6 +33,10 @@ export default function EbbaApplicationsDataGrid({
   selectedEbbaApplicationIds,
   handleSelectEbbaApplications,
 }: Props) {
+  const [selectedEbbaApplicationId, setSelectedEbbaApplicationId] = useState<
+    EbbaApplications["id"] | null
+  >(null);
+
   const rows = useMemo(
     () =>
       ebbaApplications.map((ebbaApplication) => ({
@@ -46,11 +51,12 @@ export default function EbbaApplicationsDataGrid({
       {
         fixed: true,
         dataField: "id",
-        caption: "Platform ID",
+        caption: "",
         width: ColumnWidths.Identifier,
         cellRender: (params: ValueFormatterParams) => (
-          <EbbaApplicationDrawerLauncher
-            ebbaApplicationId={params.row.data.id}
+          <ClickableDataGridCell
+            onClick={() => setSelectedEbbaApplicationId(params.row.data.id)}
+            label={"OPEN"}
           />
         ),
       },
@@ -147,14 +153,22 @@ export default function EbbaApplicationsDataGrid({
   );
 
   return (
-    <ControlledDataGrid
-      isExcelExport={isExcelExport}
-      pager
-      select={isMultiSelectEnabled}
-      dataSource={rows}
-      columns={columns}
-      selectedRowKeys={selectedEbbaApplicationIds}
-      onSelectionChanged={handleSelectionChanged}
-    />
+    <>
+      {!!selectedEbbaApplicationId && (
+        <EbbaApplicationDrawer
+          ebbaApplicationId={selectedEbbaApplicationId}
+          handleClose={() => setSelectedEbbaApplicationId(null)}
+        />
+      )}
+      <ControlledDataGrid
+        isExcelExport={isExcelExport}
+        pager
+        select={isMultiSelectEnabled}
+        dataSource={rows}
+        columns={columns}
+        selectedRowKeys={selectedEbbaApplicationIds}
+        onSelectionChanged={handleSelectionChanged}
+      />
+    </>
   );
 }

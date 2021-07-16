@@ -10,23 +10,8 @@ import {
 import { useMemo, useState } from "react";
 
 export default function EbbaApplicationsActiveTab() {
-  // Note: we use the fetchPolicy "no-cache" here.
-  //
-  // The following component tree is rendered.
-  // EbbaApplicationsDataGrid >
-  // EbbaApplicationDrawerLauncher >
-  // EbbaApplicationDrawer >
-  // CreateUpdateEbbaApplicationModal
-  //
-  // When the user updates an EbbaApplication, this updates the Apollo cache
-  // and causes ebbaApplications in this component to update. This passes down
-  // updated ebbaApplications to the child data grid. Finally, the
-  // ControlledDataGrid component currently ALWAYS re-renders on data change,
-  // which causes the whole grid to re-render and forcefully close any
-  // EbbaApplicationDrawer that is open.
-
   const { data, error, refetch } = useGetOpenEbbaApplicationsQuery({
-    fetchPolicy: "no-cache",
+    fetchPolicy: "network-only",
   });
 
   if (error) {

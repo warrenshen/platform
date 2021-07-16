@@ -1,12 +1,15 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import PayorPartnershipDrawer from "components/Partnership/PayorPartnershipDrawer";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import PayorPartnershipDrawerLauncher from "components/Partnership/PayorPartnershipDrawerLauncher";
 import VerificationChip from "components/Vendors/VerificationChip";
-import { PayorPartnershipFragment } from "generated/graphql";
+import {
+  CompanyPayorPartnerships,
+  PayorPartnershipFragment,
+} from "generated/graphql";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ColumnWidths } from "lib/tables";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 const verificationCellRenderer = (params: ValueFormatterParams) => (
   <VerificationChip value={params.value} />
@@ -36,6 +39,10 @@ export default function PayorPartnershipsDataGrid({
   isRoleBankUser = false,
   payorPartnerships,
 }: Props) {
+  const [selectedPayorPartnershipId, setSelectedPayorPartnershipId] = useState<
+    CompanyPayorPartnerships["id"] | null
+  >(null);
+
   const rows = getRows(payorPartnerships);
   const columns = useMemo(
     () => [
@@ -46,8 +53,9 @@ export default function PayorPartnershipsDataGrid({
         caption: "",
         width: 90,
         cellRender: (params: ValueFormatterParams) => (
-          <PayorPartnershipDrawerLauncher
-            payorPartnershipId={params.row.data.id}
+          <ClickableDataGridCell
+            onClick={() => setSelectedPayorPartnershipId(params.row.data.id)}
+            label={"OPEN"}
           />
         ),
       },
@@ -106,12 +114,20 @@ export default function PayorPartnershipsDataGrid({
   );
 
   return (
-    <ControlledDataGrid
-      isExcelExport={isExcelExport}
-      pager
-      dataSource={rows}
-      columns={columns}
-      filtering={{ enable: true, filterBy: { index: 0, value: "" } }}
-    />
+    <>
+      {!!selectedPayorPartnershipId && (
+        <PayorPartnershipDrawer
+          payorPartnershipId={selectedPayorPartnershipId}
+          handleClose={() => setSelectedPayorPartnershipId(null)}
+        />
+      )}
+      <ControlledDataGrid
+        isExcelExport={isExcelExport}
+        pager
+        dataSource={rows}
+        columns={columns}
+        filtering={{ enable: true, filterBy: { index: 0, value: "" } }}
+      />
+    </>
   );
 }
