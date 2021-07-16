@@ -253,8 +253,12 @@ def run_customer_balances_for_companies(
 
 def list_companies_that_need_balances_recomputed(session_maker: Callable) -> List[models.CompanyDict]:
 	with session_scope(session_maker) as session:
-		return [company.as_dict() \
-			for company in session.query(models.Company).filter(models.Company.needs_balance_recomputed).all()]
+		companies = session.query(models.Company).filter(
+			models.Company.needs_balance_recomputed
+		).order_by(
+			models.Company.name.asc()
+		).all()
+		return [company.as_dict() for company in companies]
 
 
 def run_customer_balances_for_companies_that_need_recompute(
@@ -268,9 +272,11 @@ def run_customer_balances_for_companies_that_need_recompute(
 
 def list_all_companies(session_maker: Callable) -> List[models.CompanyDict]:
 	with session_scope(session_maker) as session:
-		companies = session.query(models.Company) \
-			.filter(cast(Callable, models.Company.is_customer.is_)(True)) \
-			.all()
+		companies = session.query(models.Company).filter(
+			cast(Callable, models.Company.is_customer.is_)(True)
+		).order_by(
+			models.Company.name.asc()
+		).all()
 		return [company.as_dict() for company in companies]
 
 def run_customer_balances_for_all_companies(

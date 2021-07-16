@@ -59,7 +59,7 @@ export default function PayorPartnershipsDataGrid({
           cellRender: ({ value, data }: { value: string; data: any }) => (
             <ClickableDataGridCell
               url={getBankCompanyRoute(
-                data.vendor_id,
+                data.payor_id,
                 BankCompanyRouteEnum.PayorPartnerships
               )}
               label={value}
@@ -72,6 +72,15 @@ export default function PayorPartnershipsDataGrid({
         dataField: "company.name",
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
+        cellRender: ({ value, data }: { value: string; data: any }) => (
+          <ClickableDataGridCell
+            url={getBankCompanyRoute(
+              data.company_id,
+              BankCompanyRouteEnum.Overview
+            )}
+            label={value}
+          />
+        ),
       },
       {
         dataField: "payor_agreement_id",
