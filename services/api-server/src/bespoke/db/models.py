@@ -80,6 +80,8 @@ class User(Base):
 	__tablename__ = 'users'
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	company_id = Column(GUID, nullable=True)
 	email = Column(String(120), unique=True, nullable=False)
 	password = Column(Text, nullable=False)
