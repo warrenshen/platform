@@ -65,6 +65,7 @@ export default function BankCustomersPage() {
         minWidth: ColumnWidths.MinWidth,
         cellRender: ({ value, data }: { value: string; data: any }) => (
           <ClickableDataGridCell
+            dataCy={`customers-data-grid-view-customer-button-${data.identifier}`}
             url={getBankCompanyRoute(data.id, BankCompanyRouteEnum.Overview)}
             label={value}
           />

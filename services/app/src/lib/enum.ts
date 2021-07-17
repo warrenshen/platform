@@ -190,8 +190,8 @@ export const ProductTypeToLabel = {
 
 // List of all supported product types, note that we do NOT include "None".
 export const AllProductTypes = [
-  ProductTypeEnum.InventoryFinancing,
   ProductTypeEnum.LineOfCredit,
+  ProductTypeEnum.InventoryFinancing,
   ProductTypeEnum.InvoiceFinancing,
   // TODO(warren): Hiding these for now because things blow up when we allow a user to select it.
   ProductTypeEnum.PurchaseMoneyFinancing,

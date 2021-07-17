@@ -80,6 +80,7 @@ export default function ContractPageContent({ companyId }: Props) {
           <Can perform={Action.AddContract}>
             <Box mb={3}>
               <ModalButton
+                dataCy={"create-contract-button"}
                 label={"Create New Contract"}
                 modal={({ handleClose }) => (
                   <CreateUpdateContractModal

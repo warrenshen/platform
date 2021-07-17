@@ -73,7 +73,7 @@ def _update_contract(
 	contract.start_date = start_date
 	contract.end_date = end_date
 	contract.adjusted_end_date = end_date
-	contract.modified_by_user_id = bank_admin_user_id
+	contract.modified_by_user_id = bank_admin_user_id # type: ignore
 
 	contract_obj, err = contract_util.Contract.build(contract.as_dict(), validate=True)
 	if err:
@@ -220,7 +220,7 @@ def terminate_contract(
 
 		contract.adjusted_end_date = date_util.load_date_str(req['termination_date'])
 		contract.terminated_at = date_util.now()
-		contract.terminated_by_user_id = bank_admin_user_id
+		contract.terminated_by_user_id = bank_admin_user_id # type: ignore
 
 		success, err = _update_fields_based_on_new_dates(
 			contract,

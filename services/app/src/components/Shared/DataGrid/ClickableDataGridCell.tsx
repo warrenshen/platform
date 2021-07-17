@@ -31,16 +31,23 @@ const useStyles = makeStyles({
 });
 
 interface Props {
-  onClick?: () => void;
+  dataCy?: string;
   label: string;
   url?: string;
+  onClick?: () => void;
 }
 
-export default function ClickableDataGridCell({ onClick, label, url }: Props) {
+export default function ClickableDataGridCell({
+  dataCy,
+  label,
+  url,
+  onClick,
+}: Props) {
   const classes = useStyles();
 
   return (
     <Button
+      data-cy={dataCy}
       className={classes.clickableCell}
       {...(url ? { component: Link, to: url } : {})}
       onClick={onClick}

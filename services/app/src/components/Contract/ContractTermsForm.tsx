@@ -365,9 +365,7 @@ export default function ContractTermsForm({
           >
             {AllProductTypes.map((productType, index) => (
               <MenuItem
-                data-cy={`contract-form-input-product-type-menu-item-${
-                  index + 1
-                }`}
+                data-cy={`contract-form-input-product-type-menu-item-${index}`}
                 key={productType}
                 value={productType}
               >

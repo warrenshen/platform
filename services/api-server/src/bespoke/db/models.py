@@ -224,9 +224,9 @@ class Contract(Base):
 	start_date = Column(Date)
 	end_date = Column(Date)
 	adjusted_end_date = Column(Date) # either the end date, or the termination_date if set
-	modified_by_user_id = Column(GUID)
+	modified_by_user_id = cast(GUID, Column(GUID, ForeignKey('users.id')))
 	terminated_at = Column(DateTime)
-	terminated_by_user_id = Column(GUID)
+	terminated_by_user_id = cast(GUID, Column(GUID, ForeignKey('users.id')))
 	is_deleted = Column(Boolean)
 
 	def as_dict(self) -> ContractDict:

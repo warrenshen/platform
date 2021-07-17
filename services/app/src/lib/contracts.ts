@@ -67,28 +67,29 @@ const ContractTermNameToConfigs = {
     [ContractTermConfigs.IsHiddenIfNull]: true,
   },
   [ContractTermNames.BorrowingBaseAccountsReceivablePercentage]: {
-    [ContractTermConfigs.DataCy]: null,
+    [ContractTermConfigs.DataCy]:
+      "borrowing-base-accounts-receivable-percentage",
     [ContractTermConfigs.BankDescription]: "",
     [ContractTermConfigs.CustomerDescription]:
       "% of AR amount used in determining borrowing base",
     [ContractTermConfigs.IsHiddenIfNull]: true,
   },
   [ContractTermNames.BorrowingBaseInventoryPercentage]: {
-    [ContractTermConfigs.DataCy]: null,
+    [ContractTermConfigs.DataCy]: "borrowing-base-inventory-percentage",
     [ContractTermConfigs.BankDescription]: "",
     [ContractTermConfigs.CustomerDescription]:
       "% of inventory amount used in determining borrowing base",
     [ContractTermConfigs.IsHiddenIfNull]: true,
   },
   [ContractTermNames.BorrowingBaseCashPercentage]: {
-    [ContractTermConfigs.DataCy]: null,
+    [ContractTermConfigs.DataCy]: "borrowing-base-cash-percentage",
     [ContractTermConfigs.BankDescription]: "",
     [ContractTermConfigs.CustomerDescription]:
       "% of cash amount in Deposit Accounts used in determining borrowing base",
     [ContractTermConfigs.IsHiddenIfNull]: true,
   },
   [ContractTermNames.BorrowingBaseCashInDacaPercentage]: {
-    [ContractTermConfigs.DataCy]: null,
+    [ContractTermConfigs.DataCy]: "borrowing-base-cash-in-daca-percentage",
     [ContractTermConfigs.BankDescription]: "",
     [ContractTermConfigs.CustomerDescription]:
       "% of cash amount in DACA Deposit Accounts used in determining borrowing base",

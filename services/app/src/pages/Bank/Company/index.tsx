@@ -72,6 +72,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 type BankCustomerPath = {
   visible?: boolean;
+  dataCy: string;
   label: string;
   path: string;
   component: NonNullable<
@@ -91,11 +92,13 @@ const getCustomerPaths = (
     label: "Customer",
     paths: [
       {
+        dataCy: "customer-overview",
         label: "Overview",
         path: bankRoutes.company.overview,
         component: BankCustomerOverviewSubpage,
       },
       {
+        dataCy: "customer-loans",
         label: "Loans",
         path: bankRoutes.company.loans,
         component: BankCustomerLoansSubpage,
@@ -107,6 +110,7 @@ const getCustomerPaths = (
             ProductTypeEnum.InventoryFinancing,
             ProductTypeEnum.PurchaseMoneyFinancing,
           ].includes(productType),
+        dataCy: "customer-purchase-orders",
         label: "Purchase Orders",
         path: bankRoutes.company.purchaseOrders,
         component: BankCustomerPurchaseOrdersSubpage,
@@ -114,6 +118,7 @@ const getCustomerPaths = (
       {
         visible:
           !!productType && [ProductTypeEnum.LineOfCredit].includes(productType),
+        dataCy: "customer-borrowing-base",
         label: "Borrowing Base",
         path: bankRoutes.company.ebbaApplications,
         component: BankCustomerEbbaApplicationsSubpage,
@@ -125,39 +130,46 @@ const getCustomerPaths = (
             ProductTypeEnum.InvoiceFinancing,
             ProductTypeEnum.PurchaseMoneyFinancing,
           ].includes(productType),
+        dataCy: "customer-invoices",
         label: "Invoices",
         path: bankRoutes.company.invoices,
         component: BankCustomerInvoicesSubpage,
       },
       {
+        dataCy: "customer-repayments",
         label: "Repayments",
         path: bankRoutes.company.payments,
         component: BankCustomerPaymentsSubpage,
       },
       {
         visible: isVendorsTabVisible(productType),
+        dataCy: "customer-vendors",
         label: "Vendors",
         path: bankRoutes.company.vendors,
         component: BankCustomerVendorsSubpage,
       },
       {
         visible: isPayorsTabVisible(productType),
+        dataCy: "customer-payors",
         label: "Payors",
         path: bankRoutes.company.payors,
         component: BankCustomerPayorsSubpage,
       },
       {
+        dataCy: "customer-metrc",
         label: "Metrc",
         path: bankRoutes.company.metrc,
         component: BankCustomerMetrcSubpage,
       },
       {
+        dataCy: "customer-contract",
         label: "Contract",
         path: bankRoutes.company.contract,
         component: BankCustomerContractPage,
       },
       {
         visible: false,
+        dataCy: "customer-account-fees-credits",
         label: "Account Fees & Credits",
         path: bankRoutes.company.accountFeesCredits,
         component: BankCustomerAccountFeesCreditsSubpage,
@@ -169,9 +181,10 @@ const getCustomerPaths = (
     label: "Payor",
     paths: [
       {
+        dataCy: "payor-partnerships",
+        label: "Partnerships",
         path: bankRoutes.company.payorPartnerships,
         component: BankCompanyPayorPartnershipsSubpage,
-        label: "Partnerships",
       },
     ] as BankCustomerPath[],
   },
@@ -180,9 +193,10 @@ const getCustomerPaths = (
     label: "Vendor",
     paths: [
       {
+        dataCy: "vendor-partnerships",
+        label: "Partnerships",
         path: bankRoutes.company.vendorPartnerships,
         component: BankCompanyVendorPartnershipsSubpage,
-        label: "Partnerships",
       },
     ] as BankCustomerPath[],
   },
@@ -191,6 +205,7 @@ const getCustomerPaths = (
     label: "General",
     paths: [
       {
+        dataCy: "general-settings",
         label: "Settings",
         path: bankRoutes.company.settings,
         component: BankCustomerSettingsSubpage,
@@ -248,6 +263,7 @@ export default function BankCompanyPage() {
                       .map((companyPath) => (
                         <ListItem
                           key={companyPath.path}
+                          data-cy={`company-sidebar-item-${companyPath.dataCy}`}
                           button
                           component={Link}
                           to={`${url}${companyPath.path}`}
