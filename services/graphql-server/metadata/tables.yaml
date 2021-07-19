@@ -2865,6 +2865,8 @@
       - shipment_transaction_type
       - payor_id
       - transfer_id
+      - shipper_facility_license_number
+      - shipper_facility_name
       filter: {}
   - role: bank_read_only
     permission:
@@ -2875,6 +2877,8 @@
       - manifest_number
       - shipment_transaction_type
       - shipment_type_name
+      - shipper_facility_license_number
+      - shipper_facility_name
       - transfer_type
       - created_at
       - updated_at
@@ -2894,6 +2898,8 @@
       - manifest_number
       - shipment_transaction_type
       - shipment_type_name
+      - shipper_facility_license_number
+      - shipper_facility_name
       - transfer_type
       - created_at
       - updated_at
@@ -2918,6 +2924,8 @@
       - manifest_number
       - shipment_transaction_type
       - shipment_type_name
+      - shipper_facility_license_number
+      - shipper_facility_name
       - transfer_type
       - created_at
       - updated_at
@@ -2945,6 +2953,8 @@
       - payor_id
       - shipment_transaction_type
       - shipment_type_name
+      - shipper_facility_license_number
+      - shipper_facility_name
       - transfer_id
       - transfer_payload
       - transfer_type

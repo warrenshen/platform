@@ -155,6 +155,8 @@ class Transfers(object):
 			tr.company_id = cast(Any, company_id)
 			tr.license_id = cast(Any, license_id)
 			tr.transfer_id = '{}'.format(t['Id'])
+			tr.shipper_facility_license_number = t['ShipperFacilityLicenseNumber']
+			tr.shipper_facility_name = t['ShipperFacilityName']
 			tr.created_date = parser.parse(t['CreatedDateTime']).date() if t['CreatedDateTime'] else None
 			tr.manifest_number = t['ManifestNumber']
 			tr.shipment_type_name = t['ShipmentTypeName']
@@ -482,6 +484,8 @@ def populate_transfers_table(
 			# license_id
 			# created_at
 			# transfer_id
+			prev_transfer.shipper_facility_license_number = metrc_transfer.shipper_facility_license_number
+			prev_transfer.shipper_facility_name = metrc_transfer.shipper_facility_name
 			prev_transfer.created_date = metrc_transfer.created_date
 			prev_transfer.manifest_number = metrc_transfer.manifest_number
 			prev_transfer.shipment_type_name = metrc_transfer.shipment_type_name

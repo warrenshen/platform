@@ -370,6 +370,8 @@ class MetrcTransfer(Base):
 	vendor_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	payor_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	transfer_id = Column(String) # From Metrc info
+	shipper_facility_license_number = Column(String)
+	shipper_facility_name = Column(String)
 	created_date = Column(Date) # From Metrc info
 	manifest_number = Column(String) # From Metrc info
 	shipment_type_name = Column(String) # From Metrc info
