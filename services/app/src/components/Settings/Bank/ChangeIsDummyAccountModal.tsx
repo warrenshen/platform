@@ -1,13 +1,13 @@
 import {
   Box,
   Button,
-  createStyles,
   Checkbox,
+  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
-  FormControlLabel,
   DialogTitle,
+  FormControlLabel,
   makeStyles,
   Theme,
   Typography,
@@ -17,8 +17,7 @@ import {
   useUpdateIsDummyAccountMutation,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
-import { useState } from "react";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

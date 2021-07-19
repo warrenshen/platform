@@ -7,6 +7,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import ContractTermsForm from "components/Contract/ContractTermsForm";
+import AutocompleteCompany from "components/Shared/Company/AutocompleteCompany";
 import Modal from "components/Shared/Modal/Modal";
 import {
   CompaniesInsertInput,
@@ -49,6 +50,7 @@ export default function CreateCustomerModal({ handleClose }: Props) {
   const classes = useStyles();
 
   const [customer, setCustomer] = useState<CompaniesInsertInput>({
+    id: null,
     name: null,
     identifier: null,
     contract_name: null,
@@ -116,12 +118,14 @@ export default function CreateCustomerModal({ handleClose }: Props) {
     }
   };
 
+  const hasCustomerFieldsSet =
+    customer.id ||
+    (customer.name && customer.identifier && customer.contract_name);
+
   const isSubmitDisabled =
-    !customer.name ||
-    !customer.identifier ||
-    !customer.contract_name ||
-    !contract.product_type ||
-    !contract.start_date;
+    !hasCustomerFieldsSet || !contract.product_type || !contract.start_date;
+
+  const companyExists = !!customer.id;
 
   return (
     <Modal
@@ -136,54 +140,77 @@ export default function CreateCustomerModal({ handleClose }: Props) {
         <Box mb={2}>
           <Typography variant="h6">Company Information</Typography>
         </Box>
-        <Box>
-          <TextField
-            data-cy={"customer-form-input-name"}
-            className={classes.input}
-            label="Customer Name"
-            placeholder="Distributor Example"
-            value={customer.name || ""}
-            onChange={({ target: { value } }) =>
-              setCustomer({ ...customer, name: value })
-            }
-          />
+        <Box display="flex" flexDirection="column">
+          <Typography variant={"body1"}>
+            Does the company above ALREADY exist in the system? If yes, please
+            select this existing company in the dropdown below. If you do not
+            select a company below, a NEW company will be created.
+          </Typography>
+          <Box mt={4}>
+            <AutocompleteCompany
+              textFieldLabel="Select existing company"
+              onChange={(selectedCompanyId) =>
+                setCustomer({ ...customer, id: selectedCompanyId })
+              }
+            />
+          </Box>
         </Box>
-        <Box mt={2}>
-          <TextField
-            data-cy={"customer-form-input-identifier"}
-            className={classes.input}
-            label="Company Identifier (Unique Short Name)"
-            placeholder="DE"
-            value={customer.identifier || ""}
-            onChange={({ target: { value } }) =>
-              setCustomer({ ...customer, identifier: value })
-            }
-          />
-        </Box>
-        <Box mt={2}>
-          <TextField
-            data-cy={"customer-form-input-contract-name"}
-            className={classes.input}
-            label="Contract Name"
-            placeholder="DISTRIBUTOR EXAMPLE, INC."
-            value={customer.contract_name || ""}
-            onChange={({ target: { value } }) =>
-              setCustomer({ ...customer, contract_name: value })
-            }
-          />
-        </Box>
-        <Box mt={2}>
-          <TextField
-            data-cy={"customer-form-input-dba"}
-            className={classes.input}
-            label="DBA"
-            placeholder="DBA 1, DBA 2"
-            value={customer.dba_name || ""}
-            onChange={({ target: { value } }) =>
-              setCustomer({ ...customer, dba_name: value })
-            }
-          />
-        </Box>
+        {!companyExists && (
+          <Box mt={2}>
+            <TextField
+              data-cy={"customer-form-input-name"}
+              className={classes.input}
+              label="Customer Name"
+              placeholder="Distributor Example"
+              value={customer.name || ""}
+              onChange={({ target: { value } }) =>
+                setCustomer({ ...customer, name: value })
+              }
+            />
+          </Box>
+        )}
+        {!companyExists && (
+          <Box mt={2}>
+            <TextField
+              data-cy={"customer-form-input-identifier"}
+              className={classes.input}
+              label="Company Identifier (Unique Short Name)"
+              placeholder="DE"
+              value={customer.identifier || ""}
+              onChange={({ target: { value } }) =>
+                setCustomer({ ...customer, identifier: value })
+              }
+            />
+          </Box>
+        )}
+        {!companyExists && (
+          <Box mt={2}>
+            <TextField
+              data-cy={"customer-form-input-contract-name"}
+              className={classes.input}
+              label="Contract Name"
+              placeholder="DISTRIBUTOR EXAMPLE, INC."
+              value={customer.contract_name || ""}
+              onChange={({ target: { value } }) =>
+                setCustomer({ ...customer, contract_name: value })
+              }
+            />
+          </Box>
+        )}
+        {!companyExists && (
+          <Box mt={2}>
+            <TextField
+              data-cy={"customer-form-input-dba"}
+              className={classes.input}
+              label="DBA"
+              placeholder="DBA 1, DBA 2"
+              value={customer.dba_name || ""}
+              onChange={({ target: { value } }) =>
+                setCustomer({ ...customer, dba_name: value })
+              }
+            />
+          </Box>
+        )}
       </Box>
       <Box mt={6}>
         <Box mb={2}>

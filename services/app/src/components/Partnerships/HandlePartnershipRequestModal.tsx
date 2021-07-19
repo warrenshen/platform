@@ -4,19 +4,17 @@ import {
   DialogContentText,
   Divider,
   FormControlLabel,
-  TextField,
   Typography,
 } from "@material-ui/core";
-import Autocomplete from "@material-ui/lab/Autocomplete";
+import AutocompleteCompany from "components/Shared/Company/AutocompleteCompany";
 import Modal from "components/Shared/Modal/Modal";
 import {
   Companies,
   GetPartnershipRequestsForBankSubscription,
-  useGetCompaniesWithLicensesQuery,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { createPartnershipMutation } from "lib/api/companies";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 interface Props {
   partnerRequest: GetPartnershipRequestsForBankSubscription["company_partnership_requests"][0];
@@ -33,15 +31,6 @@ export default function HandlePartnershipRequestModal({
   const [selectedCompanyId, setSelectedCompanyId] = useState<Companies["id"]>(
     null
   );
-
-  const { data, error } = useGetCompaniesWithLicensesQuery();
-
-  if (error) {
-    console.error({ error });
-    alert(`Error in query (details in console): ${error.message}`);
-  }
-
-  const companies = useMemo(() => data?.companies || [], [data?.companies]);
 
   const handleSubmit = async () => {
     const response = await createPartnershipMutation({
@@ -150,26 +139,10 @@ export default function HandlePartnershipRequestModal({
           not select a company below, a NEW company will be created.
         </Typography>
         <Box mt={4}>
-          <Autocomplete
-            autoHighlight
-            id="auto-complete-company"
-            options={companies}
-            getOptionLabel={(company) => {
-              const licenses = company.licenses
-                .filter((companyLicense) => !!companyLicense.license_number)
-                .map((companyLicense) => companyLicense.license_number)
-                .join(", ");
-              return `${company.name}${licenses ? " | " : ""}${licenses}`;
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Select partner company"
-                variant="outlined"
-              />
-            )}
-            onChange={(_event, company) =>
-              setSelectedCompanyId(company?.id || null)
+          <AutocompleteCompany
+            textFieldLabel="Select partner company"
+            onChange={(selectedCompanyId) =>
+              setSelectedCompanyId(selectedCompanyId)
             }
           />
         </Box>

@@ -15,6 +15,7 @@ from sqlalchemy.orm.session import Session
 
 # Should match with the graphql types for inserting objects into the DB.
 CompanyInsertInputDict = TypedDict('CompanyInsertInputDict', {
+	'id': str,
 	'name': str,
 	'identifier': str,
 	'contract_name': str,
@@ -110,25 +111,28 @@ def create_customer(
 		company_contract_name = req['company']['contract_name']
 		company_dba_name = req['company']['dba_name']
 
-		existing_company_by_name = cast(
-			models.Company,
-			session.query(models.Company).filter(
-				cast(Callable, models.Company.is_customer.is_)(True)
-			).filter(
-				models.Company.name == company_name
-			).first())
-		if existing_company_by_name:
-			raise errors.Error(f'A customer with name "{company_name}" already exists')
+		should_create_company = req['company']['id'] is None
 
-		existing_company_by_identifier = cast(
-			models.Company,
-			session.query(models.Company).filter(
-				cast(Callable, models.Company.is_customer.is_)(True)
-			).filter(
-				models.Company.identifier == company_identifier
-			).first())
-		if existing_company_by_identifier:
-			raise errors.Error(f'A customer with identifier "{company_identifier}" already exists')
+		if should_create_company:
+			existing_company_by_name = cast(
+				models.Company,
+				session.query(models.Company).filter(
+					cast(Callable, models.Company.is_customer.is_)(True)
+				).filter(
+					models.Company.name == company_name
+				).first())
+			if existing_company_by_name:
+				raise errors.Error(f'A customer with name "{company_name}" already exists')
+
+			existing_company_by_identifier = cast(
+				models.Company,
+				session.query(models.Company).filter(
+					cast(Callable, models.Company.is_customer.is_)(True)
+				).filter(
+					models.Company.identifier == company_identifier
+				).first())
+			if existing_company_by_identifier:
+				raise errors.Error(f'A customer with identifier "{company_identifier}" already exists')
 
 		if not req['contract']['product_config']:
 			raise errors.Error('No product config specified')
@@ -152,13 +156,22 @@ def create_customer(
 		session.flush()
 		contract_id = str(contract.id)
 
-		company = create_customer_company(
-			name=company_name,
-			identifier=company_identifier,
-			contract_name=company_contract_name,
-			dba_name=company_dba_name,
-			session=session,
-		)
+		if should_create_company:
+			company = create_customer_company(
+				name=company_name,
+				identifier=company_identifier,
+				contract_name=company_contract_name,
+				dba_name=company_dba_name,
+				session=session,
+			)
+		else:
+			company = session.query(models.Company).filter(
+				models.Company.id == req['company']['id']
+			).first()
+			if not company:
+				raise errors.Error('Company ID provided does not exist')
+
+			company.is_customer = True
 
 		company_id = str(company.id)
 		company.contract_id = contract_id
