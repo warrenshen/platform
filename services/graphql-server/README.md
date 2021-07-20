@@ -90,6 +90,25 @@ Install [psql](https://www.postgresql.org/docs/9.3/app-psql.html) or [Postico](h
 psql postgres://postgres:postgrespassword@localhost:5432/postgres
 ```
 
+### Common SQL statements to run in the Hasura console?
+
+1. View existing database table indices:
+```sql
+SELECT
+   tablename,
+   indexname,
+   indexdef
+FROM
+   pg_indexes
+WHERE
+   schemaname = 'public'
+ORDER BY
+   tablename,
+   indexname;
+```
+
+## Work in progress (may not work)
+
 ### Copy database from staging / production to local?
 
 Capture a backup of database on Heroku (example `$APP_NAME` is `bespoke-graphql-staging`):
