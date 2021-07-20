@@ -107,6 +107,20 @@ ORDER BY
    indexname;
 ```
 
+2. Explain SQL query:
+```sql
+EXPLAIN
+SELECT
+   metrc_transfers.id
+FROM
+   metrc_transfers
+   INNER JOIN metrc_deliveries ON metrc_transfers.id = metrc_deliveries.transfer_row_id
+   INNER JOIN metrc_packages ON metrc_deliveries.id = metrc_packages.delivery_row_id
+ORDER BY
+   metrc_transfers.created_at
+;
+```
+
 ## Work in progress (may not work)
 
 ### Copy database from staging / production to local?

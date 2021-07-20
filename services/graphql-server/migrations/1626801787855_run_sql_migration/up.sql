@@ -1,0 +1,1 @@
+CREATE INDEX metrc_deliveries_transfer_row_id_key ON metrc_deliveries (transfer_row_id);
