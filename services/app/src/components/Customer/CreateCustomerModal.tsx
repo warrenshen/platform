@@ -141,14 +141,17 @@ export default function CreateCustomerModal({ handleClose }: Props) {
           <Typography variant="h6">Company Information</Typography>
         </Box>
         <Box display="flex" flexDirection="column">
-          <Typography variant={"body1"}>
-            Does the company above ALREADY exist in the system? If yes, please
-            select this existing company in the dropdown below. If you do not
-            select a company below, a NEW company will be created.
+          <Typography variant={"body2"}>
+            <b>Select existing company</b>
           </Typography>
-          <Box mt={4}>
+          <Typography variant={"subtitle2"} color={"textSecondary"}>
+            Does the company you want to create a customer profile for ALREADY
+            exist in the system? If yes, please select this existing company in
+            the dropdown below.
+          </Typography>
+          <Box mt={2}>
             <AutocompleteCompany
-              textFieldLabel="Select existing company"
+              textFieldLabel="Select existing company (search by name or license)"
               onChange={(selectedCompanyId) =>
                 setCustomer({ ...customer, id: selectedCompanyId })
               }
@@ -156,60 +159,66 @@ export default function CreateCustomerModal({ handleClose }: Props) {
           </Box>
         </Box>
         {!companyExists && (
-          <Box mt={2}>
-            <TextField
-              data-cy={"customer-form-input-name"}
-              className={classes.input}
-              label="Customer Name"
-              placeholder="Distributor Example"
-              value={customer.name || ""}
-              onChange={({ target: { value } }) =>
-                setCustomer({ ...customer, name: value })
-              }
-            />
-          </Box>
-        )}
-        {!companyExists && (
-          <Box mt={2}>
-            <TextField
-              data-cy={"customer-form-input-identifier"}
-              className={classes.input}
-              label="Company Identifier (Unique Short Name)"
-              placeholder="DE"
-              value={customer.identifier || ""}
-              onChange={({ target: { value } }) =>
-                setCustomer({ ...customer, identifier: value })
-              }
-            />
-          </Box>
-        )}
-        {!companyExists && (
-          <Box mt={2}>
-            <TextField
-              data-cy={"customer-form-input-contract-name"}
-              className={classes.input}
-              label="Contract Name"
-              placeholder="DISTRIBUTOR EXAMPLE, INC."
-              value={customer.contract_name || ""}
-              onChange={({ target: { value } }) =>
-                setCustomer({ ...customer, contract_name: value })
-              }
-            />
-          </Box>
-        )}
-        {!companyExists && (
-          <Box mt={2}>
-            <TextField
-              data-cy={"customer-form-input-dba"}
-              className={classes.input}
-              label="DBA"
-              placeholder="DBA 1, DBA 2"
-              value={customer.dba_name || ""}
-              onChange={({ target: { value } }) =>
-                setCustomer({ ...customer, dba_name: value })
-              }
-            />
-          </Box>
+          <>
+            <Box mt={2}>
+              <Typography variant={"subtitle2"} color={"textSecondary"}>
+                OR
+              </Typography>
+            </Box>
+            <Box mt={2}>
+              <Typography variant={"body2"}>
+                <b>Create new company</b>
+              </Typography>
+            </Box>
+            <Box mt={2}>
+              <TextField
+                data-cy={"customer-form-input-name"}
+                className={classes.input}
+                label="Customer Name"
+                placeholder="Distributor Example"
+                value={customer.name || ""}
+                onChange={({ target: { value } }) =>
+                  setCustomer({ ...customer, name: value })
+                }
+              />
+            </Box>
+            <Box mt={2}>
+              <TextField
+                data-cy={"customer-form-input-identifier"}
+                className={classes.input}
+                label="Company Identifier (Unique Short Name)"
+                placeholder="DE"
+                value={customer.identifier || ""}
+                onChange={({ target: { value } }) =>
+                  setCustomer({ ...customer, identifier: value })
+                }
+              />
+            </Box>
+            <Box mt={2}>
+              <TextField
+                data-cy={"customer-form-input-contract-name"}
+                className={classes.input}
+                label="Contract Name"
+                placeholder="DISTRIBUTOR EXAMPLE, INC."
+                value={customer.contract_name || ""}
+                onChange={({ target: { value } }) =>
+                  setCustomer({ ...customer, contract_name: value })
+                }
+              />
+            </Box>
+            <Box mt={2}>
+              <TextField
+                data-cy={"customer-form-input-dba"}
+                className={classes.input}
+                label="DBA"
+                placeholder="DBA 1, DBA 2"
+                value={customer.dba_name || ""}
+                onChange={({ target: { value } }) =>
+                  setCustomer({ ...customer, dba_name: value })
+                }
+              />
+            </Box>
+          </>
         )}
       </Box>
       <Box mt={6}>

@@ -140,7 +140,7 @@ export default function HandlePartnershipRequestModal({
         </Typography>
         <Box mt={4}>
           <AutocompleteCompany
-            textFieldLabel="Select partner company"
+            textFieldLabel="Select existing company (search by name or license)"
             onChange={(selectedCompanyId) =>
               setSelectedCompanyId(selectedCompanyId)
             }
