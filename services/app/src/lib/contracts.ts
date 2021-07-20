@@ -267,7 +267,12 @@ export const isProductConfigFieldInvalid = (item: ProductConfigField) => {
   return false;
 };
 
-// TODO (warrenshen): remove hardcoded `fields[1]` if possible.
+// The hardcoded `fields[1]` and `fields[2]` are done
+// such that we can convert decimal to percentage and
+// percentage to decimal in custom "json" type contract
+// fields when we de-serialize and serialize contract fields.
+//
+// Ideally we can remove the use of these hardcoded fields in the future.
 const formatValueForClient = (
   type: string,
   value: string | number | null,
@@ -287,7 +292,10 @@ const formatValueForClient = (
     const parsedValue = JSON.parse(value);
     Object.keys(parsedValue).forEach((field) => {
       const value = parsedValue[field] as number;
-      if (fields[1].format === "percentage") {
+      if (fields[1]?.format === "percentage") {
+        parsedValue[field] = value * 100 <= 100 ? value * 100 : null;
+      }
+      if (fields[2]?.format === "percentage") {
         parsedValue[field] = value * 100 <= 100 ? value * 100 : null;
       }
     });
@@ -339,7 +347,10 @@ const formatValueForServer = (field: ProductConfigField) => {
     };
     Object.keys(parsedValue).forEach((field) => {
       const value = parsedValue[field] as number;
-      if (fields[1].format === "percentage") {
+      if (fields[1]?.format === "percentage") {
+        parsedValue[field] = value / 100;
+      }
+      if (fields[2]?.format === "percentage") {
         parsedValue[field] = value / 100;
       }
     });
