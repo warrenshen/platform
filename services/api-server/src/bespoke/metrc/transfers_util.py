@@ -92,7 +92,7 @@ class TransferPackages(object):
 			p.product_category_name = package['ProductCategoryName']
 			p.shipped_quantity = package['ShippedQuantity']
 			p.lab_results_payload = {
-				'lab_results': lab_tests[i].get_results_array()
+				'lab_results': [] # lab_tests[i].get_results_array()
 			}
 			p.lab_results_status = lab_tests[i].get_status()
 
