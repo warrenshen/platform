@@ -68,6 +68,9 @@ subscription GetFundedLoansForBank {
     id
     ...Loan
     ...LoanArtifact
+    loan_report {
+      ...LoanReport
+    }
   }
 }
 

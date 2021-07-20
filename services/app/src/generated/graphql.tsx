@@ -10220,6 +10220,8 @@ export type MetrcTransfers = {
   payor_id?: Maybe<Scalars["uuid"]>;
   shipment_transaction_type?: Maybe<Scalars["String"]>;
   shipment_type_name?: Maybe<Scalars["String"]>;
+  shipper_facility_license_number?: Maybe<Scalars["String"]>;
+  shipper_facility_name?: Maybe<Scalars["String"]>;
   /** From Metrc */
   transfer_id?: Maybe<Scalars["String"]>;
   transfer_payload: Scalars["json"];
@@ -10318,6 +10320,8 @@ export type MetrcTransfersBoolExp = {
   payor_id?: Maybe<UuidComparisonExp>;
   shipment_transaction_type?: Maybe<StringComparisonExp>;
   shipment_type_name?: Maybe<StringComparisonExp>;
+  shipper_facility_license_number?: Maybe<StringComparisonExp>;
+  shipper_facility_name?: Maybe<StringComparisonExp>;
   transfer_id?: Maybe<StringComparisonExp>;
   transfer_payload?: Maybe<JsonComparisonExp>;
   transfer_type?: Maybe<StringComparisonExp>;
@@ -10331,7 +10335,7 @@ export enum MetrcTransfersConstraint {
   /** unique or primary key constraint */
   MetrcTransfersPkey = "metrc_transfers_pkey",
   /** unique or primary key constraint */
-  MetrcTransfersTransferIdFromJsonKey = "metrc_transfers_transfer_id_from_json_key",
+  MetrcTransfersTransferIdKey = "metrc_transfers_transfer_id_key",
 }
 
 /** input type for inserting data into table "metrc_transfers" */
@@ -10349,6 +10353,8 @@ export type MetrcTransfersInsertInput = {
   payor_id?: Maybe<Scalars["uuid"]>;
   shipment_transaction_type?: Maybe<Scalars["String"]>;
   shipment_type_name?: Maybe<Scalars["String"]>;
+  shipper_facility_license_number?: Maybe<Scalars["String"]>;
+  shipper_facility_name?: Maybe<Scalars["String"]>;
   transfer_id?: Maybe<Scalars["String"]>;
   transfer_payload?: Maybe<Scalars["json"]>;
   transfer_type?: Maybe<Scalars["String"]>;
@@ -10369,6 +10375,8 @@ export type MetrcTransfersMaxFields = {
   payor_id?: Maybe<Scalars["uuid"]>;
   shipment_transaction_type?: Maybe<Scalars["String"]>;
   shipment_type_name?: Maybe<Scalars["String"]>;
+  shipper_facility_license_number?: Maybe<Scalars["String"]>;
+  shipper_facility_name?: Maybe<Scalars["String"]>;
   transfer_id?: Maybe<Scalars["String"]>;
   transfer_type?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
@@ -10387,6 +10395,8 @@ export type MetrcTransfersMaxOrderBy = {
   payor_id?: Maybe<OrderBy>;
   shipment_transaction_type?: Maybe<OrderBy>;
   shipment_type_name?: Maybe<OrderBy>;
+  shipper_facility_license_number?: Maybe<OrderBy>;
+  shipper_facility_name?: Maybe<OrderBy>;
   transfer_id?: Maybe<OrderBy>;
   transfer_type?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
@@ -10405,6 +10415,8 @@ export type MetrcTransfersMinFields = {
   payor_id?: Maybe<Scalars["uuid"]>;
   shipment_transaction_type?: Maybe<Scalars["String"]>;
   shipment_type_name?: Maybe<Scalars["String"]>;
+  shipper_facility_license_number?: Maybe<Scalars["String"]>;
+  shipper_facility_name?: Maybe<Scalars["String"]>;
   transfer_id?: Maybe<Scalars["String"]>;
   transfer_type?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
@@ -10423,6 +10435,8 @@ export type MetrcTransfersMinOrderBy = {
   payor_id?: Maybe<OrderBy>;
   shipment_transaction_type?: Maybe<OrderBy>;
   shipment_type_name?: Maybe<OrderBy>;
+  shipper_facility_license_number?: Maybe<OrderBy>;
+  shipper_facility_name?: Maybe<OrderBy>;
   transfer_id?: Maybe<OrderBy>;
   transfer_type?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
@@ -10465,6 +10479,8 @@ export type MetrcTransfersOrderBy = {
   payor_id?: Maybe<OrderBy>;
   shipment_transaction_type?: Maybe<OrderBy>;
   shipment_type_name?: Maybe<OrderBy>;
+  shipper_facility_license_number?: Maybe<OrderBy>;
+  shipper_facility_name?: Maybe<OrderBy>;
   transfer_id?: Maybe<OrderBy>;
   transfer_payload?: Maybe<OrderBy>;
   transfer_type?: Maybe<OrderBy>;
@@ -10501,6 +10517,10 @@ export enum MetrcTransfersSelectColumn {
   /** column name */
   ShipmentTypeName = "shipment_type_name",
   /** column name */
+  ShipperFacilityLicenseNumber = "shipper_facility_license_number",
+  /** column name */
+  ShipperFacilityName = "shipper_facility_name",
+  /** column name */
   TransferId = "transfer_id",
   /** column name */
   TransferPayload = "transfer_payload",
@@ -10524,6 +10544,8 @@ export type MetrcTransfersSetInput = {
   payor_id?: Maybe<Scalars["uuid"]>;
   shipment_transaction_type?: Maybe<Scalars["String"]>;
   shipment_type_name?: Maybe<Scalars["String"]>;
+  shipper_facility_license_number?: Maybe<Scalars["String"]>;
+  shipper_facility_name?: Maybe<Scalars["String"]>;
   transfer_id?: Maybe<Scalars["String"]>;
   transfer_payload?: Maybe<Scalars["json"]>;
   transfer_type?: Maybe<Scalars["String"]>;
@@ -10553,6 +10575,10 @@ export enum MetrcTransfersUpdateColumn {
   ShipmentTransactionType = "shipment_transaction_type",
   /** column name */
   ShipmentTypeName = "shipment_type_name",
+  /** column name */
+  ShipperFacilityLicenseNumber = "shipper_facility_license_number",
+  /** column name */
+  ShipperFacilityName = "shipper_facility_name",
   /** column name */
   TransferId = "transfer_id",
   /** column name */
@@ -20014,7 +20040,12 @@ export type GetFundedLoansForBankSubscriptionVariables = Exact<{
 }>;
 
 export type GetFundedLoansForBankSubscription = {
-  loans: Array<Pick<Loans, "id"> & LoanFragment & LoanArtifactFragment>;
+  loans: Array<
+    Pick<Loans, "id"> & {
+      loan_report?: Maybe<LoanReportFragment>;
+    } & LoanFragment &
+      LoanArtifactFragment
+  >;
 };
 
 export type GetActiveLoansForCompanyQueryVariables = Exact<{
@@ -20553,6 +20584,18 @@ export type AssignCollectionsBankAccountMutation = {
     Pick<CompanySettings, "id"> & {
       collections_bank_account?: Maybe<BankAccountLimitedFragment>;
     }
+  >;
+};
+
+export type GetCompaniesWithLicensesQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetCompaniesWithLicensesQuery = {
+  companies: Array<
+    Pick<Companies, "id"> & {
+      licenses: Array<Pick<CompanyLicenses, "id" | "license_number">>;
+    } & CompanyMinimalFragment
   >;
 };
 
@@ -21594,18 +21637,6 @@ export type GetPartnershipRequestsForBankSubscription = {
       requesting_company: Pick<Companies, "id" | "name">;
       requested_by_user: Pick<Users, "full_name">;
     } & PartnershipRequestFragment
-  >;
-};
-
-export type GetCompaniesWithLicensesQueryVariables = Exact<{
-  [key: string]: never;
-}>;
-
-export type GetCompaniesWithLicensesQuery = {
-  companies: Array<
-    Pick<Companies, "id"> & {
-      licenses: Array<Pick<CompanyLicenses, "id" | "license_number">>;
-    } & CompanyMinimalFragment
   >;
 };
 
@@ -24823,10 +24854,14 @@ export const GetFundedLoansForBankDocument = gql`
       id
       ...Loan
       ...LoanArtifact
+      loan_report {
+        ...LoanReport
+      }
     }
   }
   ${LoanFragmentDoc}
   ${LoanArtifactFragmentDoc}
+  ${LoanReportFragmentDoc}
 `;
 
 /**
@@ -27638,6 +27673,74 @@ export type AssignCollectionsBankAccountMutationOptions = Apollo.BaseMutationOpt
   AssignCollectionsBankAccountMutation,
   AssignCollectionsBankAccountMutationVariables
 >;
+export const GetCompaniesWithLicensesDocument = gql`
+  query GetCompaniesWithLicenses {
+    companies: companies(order_by: { name: asc }) {
+      id
+      ...CompanyMinimal
+      licenses(
+        where: {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+      ) {
+        id
+        license_number
+      }
+    }
+  }
+  ${CompanyMinimalFragmentDoc}
+`;
+
+/**
+ * __useGetCompaniesWithLicensesQuery__
+ *
+ * To run a query within a React component, call `useGetCompaniesWithLicensesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCompaniesWithLicensesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCompaniesWithLicensesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetCompaniesWithLicensesQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetCompaniesWithLicensesQuery,
+    GetCompaniesWithLicensesQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetCompaniesWithLicensesQuery,
+    GetCompaniesWithLicensesQueryVariables
+  >(GetCompaniesWithLicensesDocument, baseOptions);
+}
+export function useGetCompaniesWithLicensesLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetCompaniesWithLicensesQuery,
+    GetCompaniesWithLicensesQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetCompaniesWithLicensesQuery,
+    GetCompaniesWithLicensesQueryVariables
+  >(GetCompaniesWithLicensesDocument, baseOptions);
+}
+export type GetCompaniesWithLicensesQueryHookResult = ReturnType<
+  typeof useGetCompaniesWithLicensesQuery
+>;
+export type GetCompaniesWithLicensesLazyQueryHookResult = ReturnType<
+  typeof useGetCompaniesWithLicensesLazyQuery
+>;
+export type GetCompaniesWithLicensesQueryResult = Apollo.QueryResult<
+  GetCompaniesWithLicensesQuery,
+  GetCompaniesWithLicensesQueryVariables
+>;
 export const GetBankFinancialSummariesByDateDocument = gql`
   subscription GetBankFinancialSummariesByDate($date: date!) {
     bank_financial_summaries(
@@ -30071,74 +30174,6 @@ export type GetPartnershipRequestsForBankSubscriptionHookResult = ReturnType<
   typeof useGetPartnershipRequestsForBankSubscription
 >;
 export type GetPartnershipRequestsForBankSubscriptionResult = Apollo.SubscriptionResult<GetPartnershipRequestsForBankSubscription>;
-export const GetCompaniesWithLicensesDocument = gql`
-  query GetCompaniesWithLicenses {
-    companies: companies(order_by: { name: asc }) {
-      id
-      ...CompanyMinimal
-      licenses(
-        where: {
-          _or: [
-            { is_deleted: { _is_null: true } }
-            { is_deleted: { _eq: false } }
-          ]
-        }
-      ) {
-        id
-        license_number
-      }
-    }
-  }
-  ${CompanyMinimalFragmentDoc}
-`;
-
-/**
- * __useGetCompaniesWithLicensesQuery__
- *
- * To run a query within a React component, call `useGetCompaniesWithLicensesQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCompaniesWithLicensesQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetCompaniesWithLicensesQuery({
- *   variables: {
- *   },
- * });
- */
-export function useGetCompaniesWithLicensesQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    GetCompaniesWithLicensesQuery,
-    GetCompaniesWithLicensesQueryVariables
-  >
-) {
-  return Apollo.useQuery<
-    GetCompaniesWithLicensesQuery,
-    GetCompaniesWithLicensesQueryVariables
-  >(GetCompaniesWithLicensesDocument, baseOptions);
-}
-export function useGetCompaniesWithLicensesLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetCompaniesWithLicensesQuery,
-    GetCompaniesWithLicensesQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<
-    GetCompaniesWithLicensesQuery,
-    GetCompaniesWithLicensesQueryVariables
-  >(GetCompaniesWithLicensesDocument, baseOptions);
-}
-export type GetCompaniesWithLicensesQueryHookResult = ReturnType<
-  typeof useGetCompaniesWithLicensesQuery
->;
-export type GetCompaniesWithLicensesLazyQueryHookResult = ReturnType<
-  typeof useGetCompaniesWithLicensesLazyQuery
->;
-export type GetCompaniesWithLicensesQueryResult = Apollo.QueryResult<
-  GetCompaniesWithLicensesQuery,
-  GetCompaniesWithLicensesQueryVariables
->;
 export const UserByIdDocument = gql`
   query UserById($id: uuid!) {
     users_by_pk(id: $id) {

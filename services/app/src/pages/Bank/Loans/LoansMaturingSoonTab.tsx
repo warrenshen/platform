@@ -82,6 +82,7 @@ export default function BankLoansMaturingSoonTab() {
           isDisbursementIdentifierVisible
           isFilteringEnabled
           isMaturityVisible
+          isReportingVisible
           loans={maturingLoans}
           matureDays={matureDays}
           handleClickCustomer={(customerId) =>

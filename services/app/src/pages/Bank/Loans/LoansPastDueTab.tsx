@@ -46,6 +46,7 @@ export default function BankLoansPastDueTab() {
           isDisbursementIdentifierVisible
           isFilteringEnabled
           isMaturityVisible
+          isReportingVisible
           loans={pastDueLoans}
           handleClickCustomer={(customerId) =>
             history.push(

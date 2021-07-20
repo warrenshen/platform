@@ -70567,6 +70567,30 @@
             "deprecationReason": null
           },
           {
+            "name": "shipper_facility_license_number",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "shipper_facility_name",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "transfer_id",
             "description": "From Metrc",
             "args": [],
@@ -71045,6 +71069,26 @@
             "defaultValue": null
           },
           {
+            "name": "shipper_facility_license_number",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "String_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "shipper_facility_name",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "String_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "transfer_id",
             "description": null,
             "type": {
@@ -71124,7 +71168,7 @@
             "deprecationReason": null
           },
           {
-            "name": "metrc_transfers_transfer_id_from_json_key",
+            "name": "metrc_transfers_transfer_id_key",
             "description": "unique or primary key constraint",
             "isDeprecated": false,
             "deprecationReason": null
@@ -71260,6 +71304,26 @@
           },
           {
             "name": "shipment_type_name",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "shipper_facility_license_number",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "shipper_facility_name",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -71459,6 +71523,30 @@
             "deprecationReason": null
           },
           {
+            "name": "shipper_facility_license_number",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "shipper_facility_name",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "transfer_id",
             "description": null,
             "args": [],
@@ -71610,6 +71698,26 @@
           },
           {
             "name": "shipment_type_name",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "shipper_facility_license_number",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "shipper_facility_name",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -71789,6 +71897,30 @@
             "deprecationReason": null
           },
           {
+            "name": "shipper_facility_license_number",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "shipper_facility_name",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "transfer_id",
             "description": null,
             "args": [],
@@ -71940,6 +72072,26 @@
           },
           {
             "name": "shipment_type_name",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "shipper_facility_license_number",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "shipper_facility_name",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -72273,6 +72425,26 @@
             "defaultValue": null
           },
           {
+            "name": "shipper_facility_license_number",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "shipper_facility_name",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "transfer_id",
             "description": null,
             "type": {
@@ -72431,6 +72603,18 @@
             "deprecationReason": null
           },
           {
+            "name": "shipper_facility_license_number",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "shipper_facility_name",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "transfer_id",
             "description": "column name",
             "isDeprecated": false,
@@ -72570,6 +72754,26 @@
             "defaultValue": null
           },
           {
+            "name": "shipper_facility_license_number",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "shipper_facility_name",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "transfer_id",
             "description": null,
             "type": {
@@ -72688,6 +72892,18 @@
           },
           {
             "name": "shipment_type_name",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "shipper_facility_license_number",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "shipper_facility_name",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
