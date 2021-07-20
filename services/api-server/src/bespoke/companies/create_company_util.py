@@ -231,11 +231,8 @@ def upsert_custom_messages_payload(
 #
 # Just create the partnership with a company_id
 
-def _create_partner_company_and_its_first_user(
-	partnership_req: models.CompanyPartnershipRequest,
-	session: Session,
-) -> str:
-	user_input = cast(Dict, partnership_req.user_info)
+def _create_user(user_input: Dict, company_id: str, session: Session) -> str:
+	# Note: Payor / Vendor users do not have any role for now.
 	user_first_name = user_input['first_name']
 	user_last_name = user_input['last_name']
 	user_email = user_input['email']
@@ -249,6 +246,26 @@ def _create_partner_company_and_its_first_user(
 
 	if not user_phone_number:
 		raise errors.Error('User phone number must be specified')
+
+	user = models.User()
+	user.company_id = company_id
+	user.first_name = user_first_name
+	user.last_name = user_last_name
+	user.email = user_email
+	user.phone_number = user_phone_number
+	user.role = db_constants.UserRoles.COMPANY_CONTACT_ONLY
+	session.add(user)
+	session.flush()
+	return str(user.id)
+
+def _create_partner_company_and_its_first_user(
+	partnership_req: models.CompanyPartnershipRequest,
+	session: Session,
+) -> str:
+	user_input = cast(Dict, partnership_req.user_info)
+
+	if not user_input.get('email'):
+		raise errors.Error('User email must be specified')
 
 	company_settings = models.CompanySettings()
 	company_settings.two_factor_message_method = partnership_req.two_factor_message_method
@@ -269,21 +286,12 @@ def _create_partner_company_and_its_first_user(
 	company_id = str(company.id)
 
 	existing_user = session.query(models.User) \
-		.filter(models.User.email == user_email) \
+		.filter(models.User.email == user_input['email']) \
 		.first()
 	if existing_user:
 		raise errors.Error('Email is already taken')
 
-	# Note: Payor / Vendor users do not have any role for now.
-	user = models.User()
-	user.company_id = company_id
-	user.first_name = user_first_name
-	user.last_name = user_last_name
-	user.email = user_email
-	user.phone_number = user_phone_number
-	session.add(user)
-
-	# TODO(dlluncor): Also create a user specific to this partnership
+	user_id = _create_user(user_input, company_id, session)
 
 	if partnership_req.license_info:
 		# Add any licenses the user might have specified.
@@ -295,6 +303,25 @@ def _create_partner_company_and_its_first_user(
 			session.add(license)
 
 	return company_id
+
+def _setup_users_for_existing_company(
+	company_id: str, partnership_req: models.CompanyPartnershipRequest, session: Session) -> str:
+	
+	user_input = cast(Dict, partnership_req.user_info)
+
+	if not user_input.get('email'):
+		raise errors.Error('User email must be specified')
+
+	existing_user = session.query(models.User) \
+		.filter(models.User.email == user_input['email']) \
+		.first()
+	if existing_user:
+		user_id = str(existing_user.id)
+	else:
+		# Only create the user if it doesn't exist by email
+		user_id = _create_user(user_input, company_id, session)
+
+	return user_id
 
 @errors.return_error_tuple
 def create_partnership(
@@ -325,6 +352,9 @@ def create_partnership(
 		company_id = req.get('partner_company_id')
 		if not company_id:
 			raise errors.Error('partner_company_id must be specified because the partnership is based on a pre-existing company')
+
+		_setup_users_for_existing_company(
+			company_id, partnership_req, session)
 
 	company = cast(
 		models.Company,
