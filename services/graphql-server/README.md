@@ -104,7 +104,8 @@ WHERE
    schemaname = 'public'
 ORDER BY
    tablename,
-   indexname;
+   indexname
+;
 ```
 
 2. Explain SQL query:
@@ -119,6 +120,11 @@ FROM
 ORDER BY
    metrc_transfers.created_at
 ;
+```
+
+3. Insert table index:
+```sql
+CREATE INDEX metrc_transfers_company_id_transfer_type_key ON metrc_transfers (company_id, transfer_type);
 ```
 
 ## Work in progress (may not work)
