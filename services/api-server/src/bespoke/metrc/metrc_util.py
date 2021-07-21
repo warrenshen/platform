@@ -13,7 +13,8 @@ from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util
 from bespoke.metrc import transfers_util
-from bespoke.metrc.metrc_common_util import CompanyInfo, LicenseAuthDict, UNKNOWN_STATUS_CODE
+from bespoke.metrc import metrc_common_util
+from bespoke.metrc.metrc_common_util import AuthDict, CompanyInfo, LicenseAuthDict, UNKNOWN_STATUS_CODE
 from bespoke.security import security_util
 from dateutil import parser
 from dotenv import load_dotenv
@@ -172,11 +173,11 @@ def _get_companies_with_metrc_keys(
 				cast(Callable, models.CompanyLicense.is_deleted.isnot)(True)
 		).all())
 
-		company_id_to_licenses: Dict[str, List[LicenseAuthDict]] = {}
+		company_id_to_licenses_map: Dict[str, Dict[str, models.CompanyLicenseDict]] = {}
 		for license in all_licenses:
 			company_id = str(license.company_id)
-			if company_id not in company_id_to_licenses:
-				company_id_to_licenses[company_id] = []
+			if company_id not in company_id_to_licenses_map:
+				company_id_to_licenses_map[company_id] = {}
 
 			cur_contract = company_id_to_contract.get(company_id)
 			if not cur_contract:
@@ -188,13 +189,7 @@ def _get_companies_with_metrc_keys(
 
 			vendor_key, err = auth_provider.get_vendor_key_by_state(us_state)
 
-			company_id_to_licenses[company_id].append(LicenseAuthDict(
-				license_id=str(license.id),
-				license_number=license.license_number,
-				us_state=us_state,
-				vendor_key=vendor_key,
-				user_key=None
-			))
+			company_id_to_licenses_map[company_id][license.license_number] = license.as_dict()
 
 		for metrc_api_key in metrc_api_keys:
 			company_id = str(metrc_api_key.company_id)
@@ -203,15 +198,45 @@ def _get_companies_with_metrc_keys(
 				security_cfg, metrc_api_key.encrypted_api_key
 			)
 
-			if company_id not in company_id_to_licenses:
+			if company_id not in company_id_to_licenses_map:
 				logging.warn('Company ID {}, Name: "{}" has no licenses saved in the DB, skipping...'.format(
 										 company_id, company_id_to_name[company_id]))
 				continue
 
-			license_auths = company_id_to_licenses[company_id]
-			for license_auth in license_auths:
-				# For now, one customer has one user key
-				license_auth['user_key'] = api_key
+			cur_contract = company_id_to_contract.get(company_id)
+			if not cur_contract:
+				return None, errors.Error('Company ID: "{}" is missing an active contract but has metrc licenses'.format(company_id))
+
+			us_state, err = cur_contract.get_us_state()
+			if err:
+				return None, err
+
+			vendor_key, err = auth_provider.get_vendor_key_by_state(us_state)
+			if err:
+				return None, err
+
+			license_auths = []
+			facilities = metrc_common_util.get_facilities(AuthDict(
+				vendor_key=vendor_key,
+				user_key=api_key
+			), us_state)
+			license_number_to_license = company_id_to_licenses_map[company_id]
+
+			for facility in facilities:
+				license_number = facility['license_number']
+				license_id = None
+				if license_number in license_number_to_license:
+					license_id = license_number_to_license[license_number]['id']
+				else:
+					logging.warn(f'Company "{company_name}" has license "{license_number}" in Metrc which are not stored in our Postgres DB')
+
+				license_auths.append(LicenseAuthDict(
+					license_id=license_id,
+					license_number=license_number,
+					us_state=us_state,
+					vendor_key=vendor_key,
+					user_key=api_key
+				))
 
 			logging.info('Company name: {} has a metrc key'.format(company_name))
 			company_infos.append(CompanyInfo(

@@ -153,6 +153,11 @@ class CompanyAgreement(Base):
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id'), nullable=False))
 	file_id = cast(GUID, Column(GUID, ForeignKey('files.id'), nullable=False))
 
+CompanyLicenseDict = TypedDict('CompanyLicenseDict', {
+	'id': str,
+	'license_number': str
+})
+
 class CompanyLicense(Base):
 	__tablename__ = 'company_licenses'
 
@@ -161,6 +166,12 @@ class CompanyLicense(Base):
 	file_id = cast(GUID, Column(GUID, ForeignKey('files.id')))
 	license_number = Column(Text)
 	is_deleted = Column(Boolean, nullable=False, default=False)
+
+	def as_dict(self) -> CompanyLicenseDict:
+		return CompanyLicenseDict(
+			id=str(self.id),
+			license_number=self.license_number
+		)
 
 CompanySettingsDict = TypedDict('CompanySettingsDict', {
 	'id': str,

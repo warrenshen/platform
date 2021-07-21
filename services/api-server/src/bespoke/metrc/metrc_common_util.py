@@ -1,10 +1,10 @@
-from typing import Dict, List, Tuple, cast
-
+import json
 import requests
 from bespoke import errors
 from dateutil import parser
 from mypy_extensions import TypedDict
 from requests.auth import HTTPBasicAuth
+from typing import Dict, List, Tuple, cast
 
 AuthDict = TypedDict('AuthDict', {
 	'vendor_key': str,
@@ -31,13 +31,42 @@ class CompanyInfo(object):
 UNKNOWN_STATUS_CODE = -1
 UNAUTHORIZED_ERROR_STATUSES = set([401, 403])
 
+FacilityInfoDict = TypedDict('FacilityInfoDict', {
+	'license_number': str
+})
+
+def _get_base_url(us_state: str) -> str:
+	abbr = us_state.lower()
+	return f'https://api-{abbr}.metrc.com'
+
+def get_facilities(auth_dict: AuthDict, us_state: str) -> List[FacilityInfoDict]:
+	auth = HTTPBasicAuth(auth_dict['vendor_key'], auth_dict['user_key'])
+	base_url = _get_base_url(us_state)
+	url = base_url + '/facilities/v1/'
+	resp = requests.get(url, auth=auth)
+
+	if not resp.ok:
+		raise errors.Error('Code: {}. Reason: {}. Response: {}'.format(
+			resp.status_code, resp.reason, resp.content.decode('utf-8')),
+			details={'status_code': resp.status_code})
+
+	facilities_arr = json.loads(resp.content)
+
+	facility_dicts = []
+	for facility_json in facilities_arr:
+		facility_dicts.append(FacilityInfoDict(
+			license_number=facility_json['License']['Number']
+		))
+
+	return facility_dicts
+
+
 class REST(object):
 
 	def __init__(self, auth_dict: AuthDict, license_number: str, us_state: str, debug: bool = False) -> None:
 		self.auth = HTTPBasicAuth(auth_dict['vendor_key'], auth_dict['user_key'])
 		self.license_number = license_number
-		abbr = us_state.lower()
-		self.base_url = f'https://api-{abbr}.metrc.com'
+		self.base_url = _get_base_url(us_state)
 		self.debug = debug
 
 	def get(self, path: str, time_range: List = None) -> requests.models.Response:
