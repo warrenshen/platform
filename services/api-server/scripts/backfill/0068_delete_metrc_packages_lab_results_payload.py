@@ -27,28 +27,23 @@ def main() -> None:
 
 	while not is_done:
 		with models.session_scope(session_maker) as session:
-			print(f'[Page {current_page + 1}] Populating metrc transfers transfer_id...')
+			print(f'[Page {current_page + 1}] Deleting metrc packages lab_result_payload...')
 
-			metrc_transfers_batch = cast(
-				List[models.MetrcTransfer],
-				session.query(models.MetrcTransfer).order_by(
-					models.MetrcTransfer.id.asc() # Order by is necessary for batch-based iteration to work.
+			metrc_packages_batch = cast(
+				List[models.MetrcPackage],
+				session.query(models.MetrcPackage).order_by(
+					models.MetrcPackage.id.asc() # Order by is necessary for batch-based iteration to work.
 				).offset(
 					current_page * BATCH_SIZE
 				).limit(BATCH_SIZE).all())
 
-			if len(metrc_transfers_batch) <= 0:
+			if len(metrc_packages_batch) <= 0:
 				is_done = True
 				continue
 			else:
-				for metrc_transfer in metrc_transfers_batch:
-					transfer_payload = metrc_transfer.transfer_payload
-					shipper_facility_license_number = transfer_payload["ShipperFacilityLicenseNumber"]
-					shipper_facility_name = transfer_payload["ShipperFacilityName"]
-
-					if not metrc_transfer.shipper_facility_license_number or not metrc_transfer.shipper_facility_name:
-						metrc_transfer.shipper_facility_license_number = shipper_facility_license_number
-						metrc_transfer.shipper_facility_name = shipper_facility_name
+				for metrc_package in metrc_packages_batch:
+					if metrc_package.lab_results_payload is not None:
+						metrc_package.lab_results_payload = None
 
 			current_page += 1
 

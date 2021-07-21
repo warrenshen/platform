@@ -91,9 +91,11 @@ class TransferPackages(object):
 			p.product_name = package['ProductName']
 			p.product_category_name = package['ProductCategoryName']
 			p.shipped_quantity = package['ShippedQuantity']
-			p.lab_results_payload = {
-				'lab_results': [] # lab_tests[i].get_results_array()
-			}
+			# We do not store lab results json for now.
+			p.lab_results_payload = None
+			# p.lab_results_payload = {
+			# 	'lab_results': lab_tests[i].get_results_array()
+			# }
 			p.lab_results_status = lab_tests[i].get_status()
 
 			if package_wholesale:

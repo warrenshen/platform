@@ -394,6 +394,8 @@ class MetrcDelivery(Base):
 	shipment_transaction_type = Column(String)
 	received_datetime = Column(DateTime)
 	delivery_payload = Column(JSON)
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime)
 
 class MetrcPackage(Base):
 	__tablename__ = 'metrc_packages'
@@ -412,6 +414,7 @@ class MetrcPackage(Base):
 	package_payload = Column(JSON)
 	lab_results_payload = Column(JSON)
 	lab_results_status = Column(String)
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime)
 
 
