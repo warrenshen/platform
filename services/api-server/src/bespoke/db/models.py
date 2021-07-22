@@ -67,9 +67,10 @@ def create_engine() -> Engine:
 			"options": "-c statement_timeout=3000",
 		},
 		pool_pre_ping=True,  # to prevent disconnect errors from causing runtime errors
-		pool_recycle=3600,  # dont let connections last for longer than 1 hr
+		pool_recycle=1200,  # dont let connections last for longer than 10 minutes
 		# we want old connections to be recycled and thrown out, so only use the most recent connections
 		pool_use_lifo=True,
+		max_overflow=2, # limit to an additional 5 connections for overflow purposes
 		pool_size=3,  # Only allow 3 connections at most at once
 		# We dont want to keep connections in memory, currently we only have about 100 max connections
 		poolclass=QueuePool
