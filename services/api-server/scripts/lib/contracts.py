@@ -57,6 +57,8 @@ def import_contracts(
 		parsed_customer_name = customer_name.strip()
 		parsed_customer_identifier = customer_identifier.strip()
 		parsed_start_date = date_util.load_date_str(start_date)
+		# TODO(warrenshen): there is a likely a bug with parsed_end_date, previous imports
+		# resulted in contracts with bad end_date and adjusted_end_date column values.
 		parsed_end_date = date_util.load_date_str(end_date)
 		parsed_termination_date = date_util.load_date_str(termination_date) if termination_date else None
 		parsed_financing_terms = int(float(financing_terms)) if financing_terms else None

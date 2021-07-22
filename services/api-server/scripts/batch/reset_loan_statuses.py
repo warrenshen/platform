@@ -1,5 +1,5 @@
 """
-DATABASE_URL=postgres+psycopg2://postgres:postgrespassword@localhost:5432/postgres python scripts/
+DATABASE_URL=postgres+psycopg2://postgres:postgrespassword@localhost:5432/postgres python scripts/batch/
 
 What:
 This script resets the status columns of all loans.

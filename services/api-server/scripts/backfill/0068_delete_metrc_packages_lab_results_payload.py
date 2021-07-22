@@ -2,8 +2,11 @@
 DATABASE_URL=postgres+psycopg2://postgres:postgrespassword@localhost:5432/postgres python scripts/backfill/
 """
 
+from datetime import datetime, timezone
 import os
+import pytz
 import sys
+import time
 from os import path
 from typing import List, cast
 
@@ -11,6 +14,7 @@ from typing import List, cast
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
 
+from bespoke.date import date_util
 from bespoke.db import db_constants, models
 
 def main() -> None:
@@ -22,8 +26,12 @@ def main() -> None:
 	session_maker = models.new_sessionmaker(engine)
 
 	current_page = 0
-	BATCH_SIZE = 50
+	BATCH_SIZE = 10
 	is_done = False
+
+	# Use hard-coded threshold timestamp to determine whether to update metrc package or not.
+	# Threshold timestamp value is Thu Jul 22 2021 00:00:00 GMT-0700 (Pacific Daylight Time).
+	threshold_timestamp = datetime.fromtimestamp(1626937200, tz=timezone.utc)
 
 	while not is_done:
 		with models.session_scope(session_maker) as session:
@@ -42,7 +50,7 @@ def main() -> None:
 				continue
 			else:
 				for metrc_package in metrc_packages_batch:
-					if metrc_package.lab_results_payload is not None:
+					if metrc_package.updated_at is None or metrc_package.updated_at < threshold_timestamp:
 						metrc_package.lab_results_payload = None
 
 			current_page += 1
