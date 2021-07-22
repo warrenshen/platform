@@ -92,7 +92,6 @@ class TransferPackages(object):
 			p.product_category_name = package['ProductCategoryName']
 			p.shipped_quantity = package['ShippedQuantity']
 			# We do not store lab results json for now.
-			p.lab_results_payload = None
 			# p.lab_results_payload = {
 			# 	'lab_results': lab_tests[i].get_results_array()
 			# }
@@ -587,7 +586,6 @@ def populate_transfers_table(
 			prev_metrc_package.shipped_quantity = metrc_package.shipped_quantity
 			prev_metrc_package.shipper_wholesale_price = metrc_package.shipper_wholesale_price
 			prev_metrc_package.package_payload = metrc_package.package_payload
-			prev_metrc_package.lab_results_payload = metrc_package.lab_results_payload
 			prev_metrc_package.lab_results_status = metrc_package.lab_results_status
 			prev_metrc_package.updated_at = metrc_package.updated_at
 		else:

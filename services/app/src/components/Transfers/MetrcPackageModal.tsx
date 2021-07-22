@@ -36,7 +36,6 @@ export default function MetrcPackageModal({
   }
 
   const packagePayload = metrcPackage.package_payload;
-  const labResultsPayload = metrcPackage.lab_results_payload;
 
   return (
     <Modal
@@ -88,12 +87,6 @@ export default function MetrcPackageModal({
           Raw Package JSON
         </Typography>
         <RawJsonToggle rawJson={packagePayload} />
-      </Box>
-      <Box display="flex" flexDirection="column" mt={2}>
-        <Typography variant="subtitle2" color="textSecondary">
-          Raw Lab Results JSON
-        </Typography>
-        <RawJsonToggle rawJson={labResultsPayload} />
       </Box>
       {isBankUser && (
         <Box

@@ -203,7 +203,6 @@ fragment MetrcPackage on metrc_packages {
   shipped_quantity
   shipper_wholesale_price
   package_payload
-  lab_results_payload
   lab_results_status
   metrc_transfer {
     id

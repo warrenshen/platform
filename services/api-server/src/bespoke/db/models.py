@@ -424,7 +424,6 @@ class MetrcPackage(Base):
 	shipped_quantity = Column(Numeric)
 	shipper_wholesale_price = Column(Numeric)
 	package_payload = Column(JSON)
-	lab_results_payload = Column(JSON)
 	lab_results_status = Column(String)
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime)

@@ -2714,7 +2714,6 @@
       - delivery_id
       - delivery_row_id
       - id
-      - lab_results_payload
       - lab_results_status
       - label
       - package_id
@@ -2734,7 +2733,6 @@
       - delivery_id
       - delivery_row_id
       - id
-      - lab_results_payload
       - lab_results_status
       - label
       - package_id
@@ -2750,22 +2748,21 @@
   - role: company_admin
     permission:
       columns:
-      - id
-      - package_id
-      - transfer_row_id
-      - delivery_id
-      - label
-      - type
-      - product_name
-      - package_payload
-      - lab_results_payload
-      - lab_results_status
       - created_at
-      - updated_at
-      - product_category_name
-      - shipper_wholesale_price
-      - shipped_quantity
+      - delivery_id
       - delivery_row_id
+      - id
+      - lab_results_status
+      - label
+      - package_id
+      - package_payload
+      - product_category_name
+      - product_name
+      - shipped_quantity
+      - shipper_wholesale_price
+      - transfer_row_id
+      - type
+      - updated_at
       filter:
         metrc_transfer:
           _or:
@@ -2776,22 +2773,21 @@
   - role: company_read_only
     permission:
       columns:
-      - lab_results_payload
-      - package_payload
-      - shipped_quantity
-      - shipper_wholesale_price
-      - label
-      - lab_results_status
-      - product_category_name
-      - product_name
-      - type
       - created_at
-      - updated_at
+      - delivery_id
       - delivery_row_id
       - id
-      - transfer_row_id
-      - delivery_id
+      - lab_results_status
+      - label
       - package_id
+      - package_payload
+      - product_category_name
+      - product_name
+      - shipped_quantity
+      - shipper_wholesale_price
+      - transfer_row_id
+      - type
+      - updated_at
       filter:
         metrc_transfer:
           _or:
@@ -2805,7 +2801,6 @@
       - delivery_id
       - delivery_row_id
       - id
-      - lab_results_payload
       - lab_results_status
       - label
       - package_id

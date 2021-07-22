@@ -9749,7 +9749,6 @@ export type MetrcPackages = {
   delivery_id: Scalars["String"];
   delivery_row_id?: Maybe<Scalars["uuid"]>;
   id: Scalars["uuid"];
-  lab_results_payload: Scalars["json"];
   lab_results_status: Scalars["String"];
   label: Scalars["String"];
   /** An object relationship */
@@ -9766,11 +9765,6 @@ export type MetrcPackages = {
   transfer_row_id: Scalars["uuid"];
   type: Scalars["String"];
   updated_at?: Maybe<Scalars["timestamptz"]>;
-};
-
-/** columns and relationships of "metrc_packages" */
-export type MetrcPackagesLabResultsPayloadArgs = {
-  path?: Maybe<Scalars["String"]>;
 };
 
 /** columns and relationships of "metrc_packages" */
@@ -9847,7 +9841,6 @@ export type MetrcPackagesBoolExp = {
   delivery_id?: Maybe<StringComparisonExp>;
   delivery_row_id?: Maybe<UuidComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
-  lab_results_payload?: Maybe<JsonComparisonExp>;
   lab_results_status?: Maybe<StringComparisonExp>;
   label?: Maybe<StringComparisonExp>;
   metrc_delivery?: Maybe<MetrcDeliveriesBoolExp>;
@@ -9883,7 +9876,6 @@ export type MetrcPackagesInsertInput = {
   delivery_id?: Maybe<Scalars["String"]>;
   delivery_row_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
-  lab_results_payload?: Maybe<Scalars["json"]>;
   lab_results_status?: Maybe<Scalars["String"]>;
   label?: Maybe<Scalars["String"]>;
   metrc_delivery?: Maybe<MetrcDeliveriesObjRelInsertInput>;
@@ -9998,7 +9990,6 @@ export type MetrcPackagesOrderBy = {
   delivery_id?: Maybe<OrderBy>;
   delivery_row_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
-  lab_results_payload?: Maybe<OrderBy>;
   lab_results_status?: Maybe<OrderBy>;
   label?: Maybe<OrderBy>;
   metrc_delivery?: Maybe<MetrcDeliveriesOrderBy>;
@@ -10030,8 +10021,6 @@ export enum MetrcPackagesSelectColumn {
   /** column name */
   Id = "id",
   /** column name */
-  LabResultsPayload = "lab_results_payload",
-  /** column name */
   LabResultsStatus = "lab_results_status",
   /** column name */
   Label = "label",
@@ -10061,7 +10050,6 @@ export type MetrcPackagesSetInput = {
   delivery_id?: Maybe<Scalars["String"]>;
   delivery_row_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
-  lab_results_payload?: Maybe<Scalars["json"]>;
   lab_results_status?: Maybe<Scalars["String"]>;
   label?: Maybe<Scalars["String"]>;
   package_id?: Maybe<Scalars["String"]>;
@@ -10133,8 +10121,6 @@ export enum MetrcPackagesUpdateColumn {
   DeliveryRowId = "delivery_row_id",
   /** column name */
   Id = "id",
-  /** column name */
-  LabResultsPayload = "lab_results_payload",
   /** column name */
   LabResultsStatus = "lab_results_status",
   /** column name */
@@ -20933,7 +20919,6 @@ export type MetrcPackageFragment = Pick<
   | "shipped_quantity"
   | "shipper_wholesale_price"
   | "package_payload"
-  | "lab_results_payload"
   | "lab_results_status"
 > & {
   metrc_transfer: Pick<MetrcTransfers, "id" | "company_id" | "manifest_number">;
@@ -21850,7 +21835,6 @@ export const MetrcPackageFragmentDoc = gql`
     shipped_quantity
     shipper_wholesale_price
     package_payload
-    lab_results_payload
     lab_results_status
     metrc_transfer {
       id
