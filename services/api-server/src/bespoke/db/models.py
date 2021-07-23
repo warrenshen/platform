@@ -9,6 +9,7 @@ from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterator, List,
                     Optional, cast)
 
 import sqlalchemy
+from bespoke.config.config_util import is_prod_env
 from bespoke.date import date_util
 from fastapi_utils.guid_type import GUID, GUID_DEFAULT_SQLITE
 from mypy_extensions import TypedDict
@@ -60,6 +61,13 @@ def get_db_url() -> str:
 
 
 def create_engine() -> Engine:
+	max_overflow = 2 
+	pool_size = 3
+
+	if not is_prod_env(os.environ.get('FLASK_ENV')):
+		max_overflow = 1
+		pool_size = 2
+
 	return sqlalchemy.create_engine(
 		get_db_url(),
 		connect_args={
@@ -67,12 +75,12 @@ def create_engine() -> Engine:
 			"options": "-c statement_timeout=3000",
 		},
 		pool_pre_ping=True,  # to prevent disconnect errors from causing runtime errors
-		pool_recycle=1200,  # dont let connections last for longer than 10 minutes
+		pool_recycle=1200,  # dont let connections last for longer than X seconds
 		# we want old connections to be recycled and thrown out, so only use the most recent connections
 		pool_use_lifo=True,
-		max_overflow=2, # limit to an additional 5 connections for overflow purposes
-		pool_size=3,  # Only allow 3 connections at most at once
-		# We dont want to keep connections in memory, currently we only have about 100 max connections
+		max_overflow=max_overflow, # limit to an additional X connections for overflow purposes
+		pool_size=pool_size,  # Only allow X connections at most at once
+		# We dont want to keep connections in memory, currently we only have about 20 max connections in non-prod envs
 		poolclass=QueuePool
 	)
 

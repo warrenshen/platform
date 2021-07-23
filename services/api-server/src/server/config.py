@@ -2,7 +2,7 @@ import json
 import os
 from typing import Dict
 
-from bespoke.config.config_util import is_development_env, is_test_env, MetrcAuthProvider
+from bespoke.config.config_util import is_prod_env, is_development_env, is_test_env, MetrcAuthProvider
 from bespoke.security import security_util
 
 
@@ -96,7 +96,7 @@ class Config(object):
 		)
 
 	def is_not_prod_env(self) -> bool:
-		return self.FLASK_ENV != 'prod'
+		return not is_prod_env(self.FLASK_ENV)
 
 	def is_development_env(self) -> bool:
 		return is_development_env(self.FLASK_ENV)
