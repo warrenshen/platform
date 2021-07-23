@@ -235,7 +235,8 @@ class CustomerBalance(object):
 		today: datetime.date, 
 		customer_info: per_customer_types.CustomerFinancials,
 		include_debug_info: bool,
-		include_frozen: bool) -> Tuple[CustomerUpdateDict, errors.Error]:
+		include_frozen: bool,
+		is_past_date: bool) -> Tuple[CustomerUpdateDict, errors.Error]:
 
 		financials = customer_info['financials']
 
@@ -246,6 +247,12 @@ class CustomerBalance(object):
 			self._company_id, financials['contracts'])
 		if err:
 			raise err
+
+		contract, err = contract_helper.get_contract(today)
+		if err and is_past_date:
+			# If we dont have a contract for a date in the past, that is OK,
+			# because we technically only need today's report_date to succeed
+			return None, None
 
 		# For now, we just assume the start date is today.
 		start_date = today
@@ -408,7 +415,7 @@ class CustomerBalance(object):
 		customer_info = fetcher.get_financials()
 
 		customer_update, err = self._get_customer_update(
-			today, customer_info, include_debug_info, include_frozen)
+			today, customer_info, include_debug_info, include_frozen, is_past_date=False)
 		if err:
 			return None, err
 
@@ -421,7 +428,7 @@ class CustomerBalance(object):
 		cur_date = start_date_for_storing_updates
 		while cur_date < today:
 			customer_update, err = self._get_customer_update(
-				cur_date, customer_info, include_debug_info, include_frozen)
+				cur_date, customer_info, include_debug_info, include_frozen, is_past_date=True)
 			if err:
 				return None, err
 			date_to_customer_update[cur_date] = customer_update

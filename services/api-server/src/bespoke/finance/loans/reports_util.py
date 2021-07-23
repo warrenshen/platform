@@ -62,7 +62,9 @@ def update_company_balance(
 					return None, msg
 				event.set_succeeded().write_with_session(session)
 
-		logging.info(f"Successfully updated balance for '{company['name']}' with id '{company['id']}' for date '{cur_date}'")
+			logging.info(f"Successfully updated balance for '{company['name']}' with id '{company['id']}' for date '{cur_date}'")
+		else:
+			logging.info(f"Skipping balance for '{company['name']}' with id '{company['id']}' for date '{cur_date}' because it could not be calculated")
 	
 	# Internally we re-compute the most recent X days of previous loan balances
 	# when an update happens to a customer, but in terms of this fucntion,

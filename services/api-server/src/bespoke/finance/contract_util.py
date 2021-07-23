@@ -908,6 +908,10 @@ def get_active_contract_by_company_id(
 
 
 class ContractHelper(object):
+	"""
+		NOTE: Must be a read-only object, because it is used across various calculations,
+		so no writes should be conducted on this object. 
+	"""
 
 	def __init__(self, contract_dicts: List[models.ContractDict], private: bool) -> None:
 		self._contract_dicts = contract_dicts

@@ -234,7 +234,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						late_fee_structure=_get_late_fee_structure(), # unused
 					)
 				),
-				start_date=date_util.load_date_str('1/1/2020'),
+				# contract starts only a few days before the report date, 
+				# tests that -14 days back doesnt cause a bug
+				start_date=date_util.load_date_str('09/28/2020'), 
 				adjusted_end_date=date_util.load_date_str('12/1/2020')
 			))
 			loan = models.Loan(
