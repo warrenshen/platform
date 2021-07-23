@@ -41,8 +41,10 @@ def populate_frozen_loan_reports(session_maker: Callable) -> None:
 		print(f'[{index + 1} of {customers_count}] Updating frozen loans for customer {customer_dict["name"]}')
 
 		customer_balance = loan_balances.CustomerBalance(customer_dict, session_maker)
-		customer_update_dict, err = customer_balance.update(
-			today=date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE),
+		today = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
+		date_to_customer_update_dict, err = customer_balance.update(
+			start_date_for_storing_updates=today,
+			today=today,
 			include_debug_info=False,
 			include_frozen=True,
 		)
@@ -51,11 +53,13 @@ def populate_frozen_loan_reports(session_maker: Callable) -> None:
 			print(f'[{index + 1} of {customers_count}] Error for customer {customer_dict["name"]}')
 			print(err)
 
-		if customer_update_dict is not None:
+		if date_to_customer_update_dict is not None and today in date_to_customer_update_dict:
 			with session_scope(session_maker) as session:
-				loan_ids = []
+				customer_update_dict = date_to_customer_update_dict[today]
 
+				loan_ids = []
 				loan_id_to_update = {}
+
 				for loan_update in customer_update_dict['loan_updates']:
 					loan_id = loan_update['loan_id']
 					loan_id_to_update[loan_id] = loan_update
@@ -105,6 +109,9 @@ def populate_frozen_loan_reports(session_maker: Callable) -> None:
 							loan_report.total_principal_paid = decimal.Decimal(number_util.round_currency(cur_loan_update['total_principal_paid']))
 							loan_report.total_interest_paid = decimal.Decimal(number_util.round_currency(cur_loan_update['total_interest_paid']))
 							loan_report.total_fees_paid = decimal.Decimal(number_util.round_currency(cur_loan_update['total_fees_paid']))
+		else:
+			print(f'[{index + 1} of {customers_count}] Error for customer {customer_dict["name"]}: no results')
+
 
 def reset_loan_statuses(session: Session) -> None:
 	loans = cast(
