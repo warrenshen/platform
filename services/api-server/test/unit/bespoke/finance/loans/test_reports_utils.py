@@ -368,7 +368,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 		self.assertEqual(company_dicts[0]["id"], str(company_id))
 
 		descriptive_errors, fatal_error = reports_util.run_customer_balances_for_companies_that_need_recompute(
-			self.session_maker, TODAY)
+			self.session_maker, TODAY, update_days_back=reports_util.DAYS_TO_COMPUTE_BACK)
 
 		self.assertIsNone(fatal_error)
 		self.assertEqual(len(descriptive_errors), 0)

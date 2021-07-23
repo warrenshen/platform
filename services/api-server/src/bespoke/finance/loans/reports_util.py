@@ -14,6 +14,7 @@ from bespoke.finance.reports import loan_balances
 from bespoke.finance.reports.loan_balances import CustomerUpdateDict
 from sqlalchemy.orm.session import Session
 
+DAYS_TO_COMPUTE_BACK = 14
 
 def update_company_balance(
 	session_maker: Callable,
@@ -215,6 +216,7 @@ def run_customer_balances_for_companies(
 	session_maker: Callable,
 	companies: List[models.CompanyDict],
 	report_date: datetime.date,
+	update_days_back: int,
 	include_debug_info: bool
 	) -> Tuple[Dict[str, CustomerUpdateDict], List[str], errors.Error]:
 	"""Given a session_maker, a list of companies, and a report date, this function
@@ -234,7 +236,7 @@ def run_customer_balances_for_companies(
 	for company in companies:
 		customer_update_dict, descriptive_error = update_company_balance(
 			session_maker, company, report_date, 
-			update_days_back=14, include_debug_info=include_debug_info)
+			update_days_back=update_days_back, include_debug_info=include_debug_info)
 		if descriptive_error:
 			errors_list.append(descriptive_error)
 
@@ -264,10 +266,10 @@ def list_companies_that_need_balances_recomputed(session_maker: Callable) -> Lis
 
 
 def run_customer_balances_for_companies_that_need_recompute(
-    session_maker: Callable, report_date: datetime.date) -> Tuple[List[str], errors.Error]:
+    session_maker: Callable, report_date: datetime.date, update_days_back: int) -> Tuple[List[str], errors.Error]:
     companies = list_companies_that_need_balances_recomputed(session_maker)
     _, descriptive_errors, fatal_error = run_customer_balances_for_companies(
-		session_maker, companies, report_date, include_debug_info=False)
+		session_maker, companies, report_date, update_days_back, include_debug_info=False)
 
     return descriptive_errors, fatal_error 
 
@@ -282,9 +284,9 @@ def list_all_companies(session_maker: Callable) -> List[models.CompanyDict]:
 		return [company.as_dict() for company in companies]
 
 def run_customer_balances_for_all_companies(
-	session_maker: Callable, report_date: datetime.date) -> Tuple[List[str], errors.Error]:
+	session_maker: Callable, report_date: datetime.date, update_days_back: int) -> Tuple[List[str], errors.Error]:
 	companies = list_all_companies(session_maker)
 	_, descriptive_errors, fatal_error = run_customer_balances_for_companies(
-		session_maker, companies, report_date, include_debug_info=False)
+		session_maker, companies, report_date, update_days_back, include_debug_info=False)
 
 	return descriptive_errors, fatal_error
