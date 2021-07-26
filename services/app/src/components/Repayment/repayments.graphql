@@ -98,7 +98,7 @@ subscription GetSubmittedPayments {
   }
 }
 
-query GetPaymentsForCompany($company_id: uuid!) {
+query GetRepaymentsForCompany($company_id: uuid!) {
   companies_by_pk(id: $company_id) {
     id
     payments(

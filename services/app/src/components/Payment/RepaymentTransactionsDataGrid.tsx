@@ -8,7 +8,7 @@ import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import {
-  GetPaymentsForCompanyQuery,
+  GetRepaymentsForCompanyQuery,
   LoanLimitedFragment,
   PaymentLimitedFragment,
   Payments,
@@ -23,44 +23,54 @@ import { flatten } from "lodash";
 import { useMemo } from "react";
 
 function getRows(
+  isLineOfCredit: boolean,
   payments: NonNullable<
-    GetPaymentsForCompanyQuery["companies_by_pk"]
+    GetRepaymentsForCompanyQuery["companies_by_pk"]
   >["payments"]
 ) {
-  return flatten(
-    payments.map((payment) =>
-      !!payment.reversed_at
-        ? [
-            {
-              id: `${payment.id}-0`,
-              status: "Reversed",
-              payment: payment,
-            },
-          ]
-        : payment.transactions.map((transaction) => ({
-            id: `${payment.id}-${transaction.id}`,
-            status: "Settled",
-            payment: payment,
-            transaction: {
-              ...transaction,
-              loan: {
-                ...transaction.loan,
-                artifact_name: transaction.loan
-                  ? getLoanArtifactName(transaction.loan)
-                  : "N/A",
+  if (isLineOfCredit) {
+    return payments.map((payment) => ({
+      id: payment.id,
+      status: !!payment.reversed_at ? "Reversed" : "Settled",
+      payment: payment,
+    }));
+  } else {
+    return flatten(
+      payments.map((payment) =>
+        !!payment.reversed_at
+          ? [
+              {
+                id: `${payment.id}-0`,
+                status: "Reversed",
+                payment: payment,
               },
-            },
-          }))
-    )
-  );
+            ]
+          : payment.transactions.map((transaction) => ({
+              id: `${payment.id}-${transaction.id}`,
+              status: "Settled",
+              payment: payment,
+              transaction: {
+                ...transaction,
+                loan: {
+                  ...transaction.loan,
+                  artifact_name: transaction.loan
+                    ? getLoanArtifactName(transaction.loan)
+                    : "N/A",
+                },
+              },
+            }))
+      )
+    );
+  }
 }
 
 interface Props {
   isExcelExport?: boolean;
+  isLineOfCredit?: boolean; // If LOC, simply show payments instead of payments broken down by transactions.
   isMethodVisible?: boolean;
   isMultiSelectEnabled?: boolean;
   payments: NonNullable<
-    GetPaymentsForCompanyQuery["companies_by_pk"]
+    GetRepaymentsForCompanyQuery["companies_by_pk"]
   >["payments"];
   selectedPaymentIds?: Payments["id"][];
   handleSelectPayments?: (payments: PaymentLimitedFragment[]) => void;
@@ -68,15 +78,20 @@ interface Props {
 
 export default function RepaymentTransactionsDataGrid({
   isExcelExport = true,
+  isLineOfCredit = false,
   isMultiSelectEnabled = false,
   payments,
   selectedPaymentIds,
   handleSelectPayments,
 }: Props) {
-  const rows = useMemo(() => getRows(payments), [payments]);
+  const rows = useMemo(() => getRows(isLineOfCredit, payments), [
+    isLineOfCredit,
+    payments,
+  ]);
   const columns = useMemo(
     () => [
       {
+        fixed: true,
         dataField: "payment.settlement_identifier",
         caption: "Repayment #",
         minWidth: ColumnWidths.MinWidth,
@@ -86,6 +101,11 @@ export default function RepaymentTransactionsDataGrid({
             label={`P${params.row.data.payment.settlement_identifier}`}
           />
         ),
+      },
+      {
+        dataField: "status",
+        caption: "Repayment Status",
+        width: ColumnWidths.Status,
       },
       {
         dataField: "payment.method",
@@ -105,11 +125,6 @@ export default function RepaymentTransactionsDataGrid({
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.payment.amount} />
         ),
-      },
-      {
-        dataField: "status",
-        caption: "Repayment Status",
-        width: ColumnWidths.Status,
       },
       {
         dataField: "payment.deposit_date",
@@ -132,6 +147,7 @@ export default function RepaymentTransactionsDataGrid({
         ),
       },
       {
+        visible: !isLineOfCredit,
         dataField: "transaction.loan.disbursement_identifier",
         caption: "Loan Disbursement Identifier",
         width: ColumnWidths.Identifier,
@@ -151,6 +167,7 @@ export default function RepaymentTransactionsDataGrid({
         ),
       },
       {
+        visible: !isLineOfCredit,
         dataField: "transaction.loan.artifact_name",
         caption: "Purchase Order / Invoice",
         minWidth: ColumnWidths.MinWidth,
@@ -177,6 +194,7 @@ export default function RepaymentTransactionsDataGrid({
         ),
       },
       {
+        visible: !isLineOfCredit,
         dataField: "transaction.amount",
         caption: "Transaction Total Amount",
         width: ColumnWidths.Currency,
@@ -188,6 +206,7 @@ export default function RepaymentTransactionsDataGrid({
         ),
       },
       {
+        visible: !isLineOfCredit,
         dataField: "transaction.to_principal",
         caption: "Transaction To Principal",
         width: ColumnWidths.Currency,
@@ -203,6 +222,7 @@ export default function RepaymentTransactionsDataGrid({
         ),
       },
       {
+        visible: !isLineOfCredit,
         dataField: "transaction.to_interest",
         caption: "Transaction To Interest",
         width: ColumnWidths.Currency,
@@ -218,6 +238,7 @@ export default function RepaymentTransactionsDataGrid({
         ),
       },
       {
+        visible: !isLineOfCredit,
         dataField: "transaction.to_fees",
         caption: "Transaction To Fees",
         width: ColumnWidths.Currency,
@@ -233,7 +254,7 @@ export default function RepaymentTransactionsDataGrid({
         ),
       },
     ],
-    []
+    [isLineOfCredit]
   );
 
   const handleSelectionChanged = useMemo(

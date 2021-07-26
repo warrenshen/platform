@@ -1,7 +1,7 @@
 import { Box, Divider, Typography } from "@material-ui/core";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import PaymentDrawerLauncher from "components/Payment/PaymentDrawerLauncher";
-import { GetPaymentsForCompanyQuery } from "generated/graphql";
+import { GetRepaymentsForCompanyQuery } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
 import {
@@ -25,7 +25,7 @@ const Container = styled.div`
 
 interface Props {
   payment: NonNullable<
-    GetPaymentsForCompanyQuery["companies_by_pk"]
+    GetRepaymentsForCompanyQuery["companies_by_pk"]
   >["payments"][0];
 }
 

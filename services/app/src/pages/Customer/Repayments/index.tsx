@@ -11,7 +11,10 @@ export default function CustomerRepaymentsPage() {
   return (
     <Page appBarTitle={"Repayments"}>
       {companyId && productType && (
-        <CustomerRepaymentsPageContent companyId={companyId} />
+        <CustomerRepaymentsPageContent
+          companyId={companyId}
+          productType={productType}
+        />
       )}
     </Page>
   );

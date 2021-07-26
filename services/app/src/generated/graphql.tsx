@@ -20450,11 +20450,11 @@ export type GetSubmittedPaymentsSubscription = {
   >;
 };
 
-export type GetPaymentsForCompanyQueryVariables = Exact<{
+export type GetRepaymentsForCompanyQueryVariables = Exact<{
   company_id: Scalars["uuid"];
 }>;
 
-export type GetPaymentsForCompanyQuery = {
+export type GetRepaymentsForCompanyQuery = {
   companies_by_pk?: Maybe<
     Pick<Companies, "id"> & {
       payments: Array<
@@ -26976,8 +26976,8 @@ export type GetSubmittedPaymentsSubscriptionHookResult = ReturnType<
   typeof useGetSubmittedPaymentsSubscription
 >;
 export type GetSubmittedPaymentsSubscriptionResult = Apollo.SubscriptionResult<GetSubmittedPaymentsSubscription>;
-export const GetPaymentsForCompanyDocument = gql`
-  query GetPaymentsForCompany($company_id: uuid!) {
+export const GetRepaymentsForCompanyDocument = gql`
+  query GetRepaymentsForCompany($company_id: uuid!) {
     companies_by_pk(id: $company_id) {
       id
       payments(
@@ -27030,52 +27030,52 @@ export const GetPaymentsForCompanyDocument = gql`
 `;
 
 /**
- * __useGetPaymentsForCompanyQuery__
+ * __useGetRepaymentsForCompanyQuery__
  *
- * To run a query within a React component, call `useGetPaymentsForCompanyQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetPaymentsForCompanyQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetRepaymentsForCompanyQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetRepaymentsForCompanyQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetPaymentsForCompanyQuery({
+ * const { data, loading, error } = useGetRepaymentsForCompanyQuery({
  *   variables: {
  *      company_id: // value for 'company_id'
  *   },
  * });
  */
-export function useGetPaymentsForCompanyQuery(
+export function useGetRepaymentsForCompanyQuery(
   baseOptions: Apollo.QueryHookOptions<
-    GetPaymentsForCompanyQuery,
-    GetPaymentsForCompanyQueryVariables
+    GetRepaymentsForCompanyQuery,
+    GetRepaymentsForCompanyQueryVariables
   >
 ) {
   return Apollo.useQuery<
-    GetPaymentsForCompanyQuery,
-    GetPaymentsForCompanyQueryVariables
-  >(GetPaymentsForCompanyDocument, baseOptions);
+    GetRepaymentsForCompanyQuery,
+    GetRepaymentsForCompanyQueryVariables
+  >(GetRepaymentsForCompanyDocument, baseOptions);
 }
-export function useGetPaymentsForCompanyLazyQuery(
+export function useGetRepaymentsForCompanyLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    GetPaymentsForCompanyQuery,
-    GetPaymentsForCompanyQueryVariables
+    GetRepaymentsForCompanyQuery,
+    GetRepaymentsForCompanyQueryVariables
   >
 ) {
   return Apollo.useLazyQuery<
-    GetPaymentsForCompanyQuery,
-    GetPaymentsForCompanyQueryVariables
-  >(GetPaymentsForCompanyDocument, baseOptions);
+    GetRepaymentsForCompanyQuery,
+    GetRepaymentsForCompanyQueryVariables
+  >(GetRepaymentsForCompanyDocument, baseOptions);
 }
-export type GetPaymentsForCompanyQueryHookResult = ReturnType<
-  typeof useGetPaymentsForCompanyQuery
+export type GetRepaymentsForCompanyQueryHookResult = ReturnType<
+  typeof useGetRepaymentsForCompanyQuery
 >;
-export type GetPaymentsForCompanyLazyQueryHookResult = ReturnType<
-  typeof useGetPaymentsForCompanyLazyQuery
+export type GetRepaymentsForCompanyLazyQueryHookResult = ReturnType<
+  typeof useGetRepaymentsForCompanyLazyQuery
 >;
-export type GetPaymentsForCompanyQueryResult = Apollo.QueryResult<
-  GetPaymentsForCompanyQuery,
-  GetPaymentsForCompanyQueryVariables
+export type GetRepaymentsForCompanyQueryResult = Apollo.QueryResult<
+  GetRepaymentsForCompanyQuery,
+  GetRepaymentsForCompanyQueryVariables
 >;
 export const GetCompanySettingsDocument = gql`
   query GetCompanySettings($company_settings_id: uuid!) {

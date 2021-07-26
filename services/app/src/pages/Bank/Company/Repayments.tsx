@@ -1,9 +1,19 @@
+import { ProductTypeEnum } from "generated/graphql";
 import CustomerRepaymentsPageContent from "pages/Customer/Repayments/RepaymentsPageContent";
 
 interface Props {
   companyId: string;
+  productType: ProductTypeEnum;
 }
 
-export default function BankCustomerPaymentsSubpage({ companyId }: Props) {
-  return <CustomerRepaymentsPageContent companyId={companyId} />;
+export default function BankCustomerPaymentsSubpage({
+  companyId,
+  productType,
+}: Props) {
+  return (
+    <CustomerRepaymentsPageContent
+      companyId={companyId}
+      productType={productType}
+    />
+  );
 }

@@ -2,15 +2,23 @@ import { Box } from "@material-ui/core";
 import PaymentBlock from "components/Payment/PaymentBlock";
 import RepaymentTransactionsDataGrid from "components/Payment/RepaymentTransactionsDataGrid";
 import PageContent from "components/Shared/Page/PageContent";
-import { Companies, useGetPaymentsForCompanyQuery } from "generated/graphql";
+import {
+  Companies,
+  ProductTypeEnum,
+  useGetRepaymentsForCompanyQuery,
+} from "generated/graphql";
 import { useMemo } from "react";
 
 interface Props {
   companyId: Companies["id"];
+  productType: ProductTypeEnum;
 }
 
-export default function CustomerRepaymentsPageContent({ companyId }: Props) {
-  const { data, error } = useGetPaymentsForCompanyQuery({
+export default function CustomerRepaymentsPageContent({
+  companyId,
+  productType,
+}: Props) {
+  const { data, error } = useGetRepaymentsForCompanyQuery({
     fetchPolicy: "network-only",
     variables: {
       company_id: companyId,
@@ -32,7 +40,10 @@ export default function CustomerRepaymentsPageContent({ companyId }: Props) {
       subtitle={"Review your historical repayments to Bespoke Financial."}
     >
       <Box mt={4}>
-        <RepaymentTransactionsDataGrid payments={payments} />
+        <RepaymentTransactionsDataGrid
+          isLineOfCredit={productType === ProductTypeEnum.LineOfCredit}
+          payments={payments}
+        />
       </Box>
       <Box mt={4}>
         {false &&
