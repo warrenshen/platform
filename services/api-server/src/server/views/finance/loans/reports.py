@@ -68,11 +68,13 @@ class RunCustomerBalancesView(MethodView):
 		loan_id_to_debug_info = None
 
 		while cur_date <= report_date:
+			is_past_date = cur_date < report_date
 			company_id_to_update_dict, descriptive_errors, fatal_error = reports_util.run_customer_balances_for_companies(
 				session_maker,
 				company_dicts,
 				cur_date,
 				update_days_back=0,
+				is_past_date_default_val=is_past_date,
 				include_debug_info=include_debug_info
 			)
 

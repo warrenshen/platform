@@ -21,8 +21,14 @@ def update_company_balance(
 	company: models.CompanyDict,
 	report_date: datetime.date,
 	update_days_back: int,
+	is_past_date_default_val: bool,
 	include_debug_info: bool
 ) -> Tuple[CustomerUpdateDict, str]:
+	"""
+		is_past_date_default_val is set to True if in fact this update_company_balance
+		is a date in the past. See /run_customer_balances to see how this value should be
+		set to True on dates where the update is a previous date.
+	"""
 	logging.info(f"Updating balance for '{company['name']}' with id: '{company['id']}' for report date '{report_date}'")
 
 	customer_balance = loan_balances.CustomerBalance(company, session_maker)
@@ -30,7 +36,8 @@ def update_company_balance(
 	day_to_customer_update_dict, err = customer_balance.update(
 		start_date_for_storing_updates=report_date - timedelta(days=update_days_back),
 		today=report_date,
-		include_debug_info=include_debug_info
+		include_debug_info=include_debug_info,
+		is_past_date_default_val=is_past_date_default_val
 	)
 
 	if err:
@@ -217,6 +224,7 @@ def run_customer_balances_for_companies(
 	companies: List[models.CompanyDict],
 	report_date: datetime.date,
 	update_days_back: int,
+	is_past_date_default_val: bool,
 	include_debug_info: bool
 	) -> Tuple[Dict[str, CustomerUpdateDict], List[str], errors.Error]:
 	"""Given a session_maker, a list of companies, and a report date, this function
@@ -236,7 +244,9 @@ def run_customer_balances_for_companies(
 	for company in companies:
 		customer_update_dict, descriptive_error = update_company_balance(
 			session_maker, company, report_date, 
-			update_days_back=update_days_back, include_debug_info=include_debug_info)
+			update_days_back=update_days_back, 
+			include_debug_info=include_debug_info,
+			is_past_date_default_val=is_past_date_default_val)
 		if descriptive_error:
 			errors_list.append(descriptive_error)
 
@@ -269,7 +279,8 @@ def run_customer_balances_for_companies_that_need_recompute(
     session_maker: Callable, report_date: datetime.date, update_days_back: int) -> Tuple[List[str], errors.Error]:
     companies = list_companies_that_need_balances_recomputed(session_maker)
     _, descriptive_errors, fatal_error = run_customer_balances_for_companies(
-		session_maker, companies, report_date, update_days_back, include_debug_info=False)
+		session_maker, companies, report_date, update_days_back, 
+		is_past_date_default_val=False, include_debug_info=False)
 
     return descriptive_errors, fatal_error 
 
@@ -287,6 +298,7 @@ def run_customer_balances_for_all_companies(
 	session_maker: Callable, report_date: datetime.date, update_days_back: int) -> Tuple[List[str], errors.Error]:
 	companies = list_all_companies(session_maker)
 	_, descriptive_errors, fatal_error = run_customer_balances_for_companies(
-		session_maker, companies, report_date, update_days_back, include_debug_info=False)
+		session_maker, companies, report_date, update_days_back, 
+		is_past_date_default_val=False, include_debug_info=False)
 
 	return descriptive_errors, fatal_error

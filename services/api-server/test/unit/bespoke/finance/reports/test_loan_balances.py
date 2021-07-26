@@ -82,6 +82,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			date_to_customer_update, err = customer_balance.update(
 				today=today_date_dict['report_date'],
 				start_date_for_storing_updates=today_date_dict['start_date'],
+				is_past_date_default_val=False,
 				include_debug_info=False
 			)
 			self.assertIsNone(err)

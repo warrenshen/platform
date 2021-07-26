@@ -394,6 +394,7 @@ class CustomerBalance(object):
 		start_date_for_storing_updates: datetime.date,
 		today: datetime.date,
 		include_debug_info: bool,
+		is_past_date_default_val: bool,
 		include_frozen: bool = False,
 	) -> Tuple[Dict[datetime.date, CustomerUpdateDict], errors.Error]:
 		"""
@@ -415,7 +416,7 @@ class CustomerBalance(object):
 		customer_info = fetcher.get_financials()
 
 		customer_update, err = self._get_customer_update(
-			today, customer_info, include_debug_info, include_frozen, is_past_date=False)
+			today, customer_info, include_debug_info, include_frozen, is_past_date=is_past_date_default_val)
 		if err:
 			return None, err
 
