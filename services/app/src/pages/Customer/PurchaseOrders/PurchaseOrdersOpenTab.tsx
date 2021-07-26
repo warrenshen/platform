@@ -6,6 +6,7 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import CreateMultiplePurchaseOrdersLoansModal from "components/Loan/CreateMultiplePurchaseOrdersLoansModal";
 import CreateUpdatePurchaseOrderLoanModal from "components/Loan/CreateUpdatePurchaseOrderLoanModal";
 import CreateUpdatePurchaseOrderModal from "components/PurchaseOrder/CreateUpdatePurchaseOrderModal";
@@ -69,6 +70,10 @@ export default function CustomerPurchaseOrdersOpenTab({
     alert(`Error in query (details in console): ${error.message}`);
   }
 
+  const hasAutofinancing = useMemo(
+    () => !!data?.companies_by_pk?.settings?.has_autofinancing,
+    [data?.companies_by_pk]
+  );
   const purchaseOrders = useMemo(() => data?.purchase_orders || [], [
     data?.purchase_orders,
   ]);
@@ -174,6 +179,27 @@ export default function CustomerPurchaseOrdersOpenTab({
       <Box flex={1} display="flex" flexDirection="column" width="100%">
         <Box className={classes.sectionSpace} />
         <Typography variant="h6">Not Approved by Vendor Yet</Typography>
+        <Box mt={2}>
+          {hasAutofinancing ? (
+            <Alert severity="info">
+              <Typography variant="body1">
+                You have auto-financing enabled: when a purchase order is
+                approved a financing request will be automatically sent to
+                Bespoke Financial on your behalf.
+              </Typography>
+            </Alert>
+          ) : (
+            <Alert severity="info">
+              <Typography variant="body1">
+                IMPORTANT: After a purchase order is approved,{" "}
+                <b>
+                  the next step is to select it and press "Request PO Financing"
+                </b>{" "}
+                below to submit your financing request to Bespoke Financial.
+              </Typography>
+            </Alert>
+          )}
+        </Box>
         <Box my={2} display="flex" flexDirection="row-reverse">
           <Can perform={Action.AddPurchaseOrders}>
             <ModalButton
@@ -258,15 +284,13 @@ export default function CustomerPurchaseOrdersOpenTab({
         </Box>
         <Box className={classes.sectionSpace} />
         <Box display="flex" flexDirection="column">
-          <Typography variant="h6">
-            Approved by Vendor & Ready to be Funded
-          </Typography>
+          <Typography variant="h6">Ready to Request Financing</Typography>
           <Box my={2} display="flex" flexDirection="row-reverse">
             <Can perform={Action.FundPurchaseOrders}>
               <Box>
                 <ModalButton
                   isDisabled={selectedApprovedPurchaseOrderIds.length <= 0}
-                  label={"Fund PO(s)"}
+                  label={"Request PO Financing"}
                   modal={({ handleClose }) => {
                     const handler = () => {
                       refetch();

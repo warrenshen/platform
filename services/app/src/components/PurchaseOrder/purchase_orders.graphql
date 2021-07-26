@@ -66,6 +66,13 @@ mutation UpdatePurchaseOrder(
 
 # Customer users
 query GetOpenPurchaseOrdersByCompanyId($company_id: uuid!) {
+  companies_by_pk(id: $company_id) {
+    id
+    settings {
+      id
+      has_autofinancing
+    }
+  }
   purchase_orders(
     where: {
       _and: [

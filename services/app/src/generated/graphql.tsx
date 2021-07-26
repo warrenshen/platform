@@ -20348,6 +20348,11 @@ export type GetOpenPurchaseOrdersByCompanyIdQueryVariables = Exact<{
 }>;
 
 export type GetOpenPurchaseOrdersByCompanyIdQuery = {
+  companies_by_pk?: Maybe<
+    Pick<Companies, "id"> & {
+      settings?: Maybe<Pick<CompanySettings, "id" | "has_autofinancing">>;
+    }
+  >;
   purchase_orders: Array<PurchaseOrderLimitedFragment>;
 };
 
@@ -26403,6 +26408,13 @@ export type UpdatePurchaseOrderMutationOptions = Apollo.BaseMutationOptions<
 >;
 export const GetOpenPurchaseOrdersByCompanyIdDocument = gql`
   query GetOpenPurchaseOrdersByCompanyId($company_id: uuid!) {
+    companies_by_pk(id: $company_id) {
+      id
+      settings {
+        id
+        has_autofinancing
+      }
+    }
     purchase_orders(
       where: {
         _and: [

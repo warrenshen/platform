@@ -11,11 +11,15 @@ import EditButton from "components/Shared/CompanyProfile/EditCompanyProfile/Edit
 import { CompanyFragment } from "generated/graphql";
 
 const useStyles = makeStyles({
+  card: {
+    width: 350,
+    minHeight: 100,
+  },
   baseInput: {
     width: 300,
   },
   label: {
-    width: 130,
+    width: 150,
     color: grey[600],
   },
 });
@@ -34,7 +38,7 @@ export default function CompanyInfo({
   const classes = useStyles();
   return (
     <Box display="flex">
-      <Card>
+      <Card className={classes.card}>
         <CardContent>
           <Typography variant="h6">{company?.name}</Typography>
           <Box display="flex" pb={0.25}>

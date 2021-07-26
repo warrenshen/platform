@@ -29,11 +29,11 @@ interface Props {
 const useStyles = makeStyles(() =>
   createStyles({
     card: {
-      width: 300,
+      width: 350,
       minHeight: 100,
     },
     label: {
-      width: 130,
+      width: 180,
       color: grey[600],
     },
   })
@@ -97,7 +97,7 @@ function CompanySettingsCard({ contract, settings, handleClick }: Props) {
             </Box>
           )}
           <Box display="flex" pb={0.25}>
-            <Box className={classes.label}>Autofinancing</Box>
+            <Box className={classes.label}>Is Autofinancing Enabled?</Box>
             <Box>
               <Typography variant="body2">
                 {settings.has_autofinancing ? (
