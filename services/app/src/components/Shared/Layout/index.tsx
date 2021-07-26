@@ -2,6 +2,7 @@ import { Box, Drawer } from "@material-ui/core";
 import List from "@material-ui/core/List";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import EnvironmentChip from "components/Shared/Chip/EnvironmentChip";
+import { ReactComponent as AdvancesIcon } from "components/Shared/Layout/Icons/Advances.svg";
 import { ReactComponent as BorrowingBasesIcon } from "components/Shared/Layout/Icons/BorrowingBases.svg";
 import { ReactComponent as ContractsIcon } from "components/Shared/Layout/Icons/Contracts.svg";
 import { ReactComponent as CustomersIcon } from "components/Shared/Layout/Icons/Customers.svg";
@@ -212,6 +213,13 @@ const getBankNavItems = (
       text: "Loans",
       link: bankRoutes.loans,
       counter: loansCount,
+    },
+    {
+      dataCy: "advances",
+      iconNode: AdvancesIcon,
+      text: "Advances",
+      link: bankRoutes.advances,
+      counter: 0,
     },
     {
       dataCy: "repayments",

@@ -1,10 +1,87 @@
-query GetAdvances {
-  payments(where: { type: { _eq: "advance" } }) {
+subscription GetAdvances {
+  payments(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { type: { _eq: "advance" } }
+      ]
+    }
+    order_by: [
+      { payment_date: desc }
+      { created_at: desc }
+    ]
+  ) {
     id
     ...Payment
     company {
       id
       name
     }
+    settled_by_user {
+      id
+      full_name
+    }
+  }
+}
+
+query GetAdvancesByPaymentDate($date: date!) {
+  payments(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { type: { _eq: "advance" } }
+        { payment_date: { _eq: $date } }
+      ]
+    }
+    order_by: [
+      { settlement_date: asc }
+      { created_at: asc }
+    ]
+  ) {
+    id
+    ...Payment
+    company {
+      id
+      financial_summaries: financial_summaries(where: { date: { _eq: $date } }) {
+        id
+        product_type
+      }
+    }
+    settled_by_user {
+      id
+      full_name
+    }
+  }
+}
+
+query GetWireAdvancesByDate($date: date!) {
+  payments(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { type: { _eq: "advance" } }
+        { method: { _eq: "wire" } }
+        { settlement_date: { _eq: $date } }
+      ]
+    }
+  ) {
+    id
+    ...Payment
+    ...PaymentBankAccounts
   }
 }

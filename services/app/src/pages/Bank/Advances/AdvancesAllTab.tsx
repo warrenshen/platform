@@ -1,5 +1,5 @@
 import AdvancesDataGrid from "components/Advances/AdvancesDataGrid";
-import { useGetAdvancesQuery } from "generated/graphql";
+import { useGetAdvancesSubscription } from "generated/graphql";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -9,11 +9,10 @@ const Container = styled.div`
   flex: 1;
 
   width: 100%;
-  margin-top: 48px;
 `;
 
-function BankAdvancesPage() {
-  const { data } = useGetAdvancesQuery();
+export default function BankRepaymentsAllTab() {
+  const { data } = useGetAdvancesSubscription();
 
   const payments = data?.payments || [];
 
@@ -23,5 +22,3 @@ function BankAdvancesPage() {
     </Container>
   );
 }
-
-export default BankAdvancesPage;

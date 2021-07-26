@@ -1,9 +1,8 @@
 import { Tab, Tabs } from "@material-ui/core";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
-import BankRepaymentsActionRequiredTab from "pages/Bank/Repayments/RepaymentsActionRequiredTab";
-import BankRepaymentsByDepositDateTab from "pages/Bank/Repayments/RepaymentsByDepositDateTab";
-import BankRepaymentsAllTab from "pages/Bank/Repayments/RepaymentsAllTab";
+import BankAdvancesByPaymentDateTab from "pages/Bank/Advances/AdvancesByPaymentDateTab";
+import BankAdvancesAllTab from "pages/Bank/Advances/AdvancesAllTab";
 import { useState } from "react";
 import styled from "styled-components";
 
@@ -20,12 +19,12 @@ const SectionSpace = styled.div`
   height: 24px;
 `;
 
-export default function BankRepaymentsPage() {
+export default function BankAdvancesPage() {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
   return (
-    <Page appBarTitle={"Repayments"}>
-      <PageContent title={"Repayments"}>
+    <Page appBarTitle={"Advances"}>
+      <PageContent title={"Advances"}>
         <Container>
           <Tabs
             value={selectedTabIndex}
@@ -35,17 +34,14 @@ export default function BankRepaymentsPage() {
               setSelectedTabIndex(value)
             }
           >
-            <Tab label="Action Required" />
-            <Tab label="By Deposit Date" />
+            <Tab label="By Payment Date" />
             <Tab label="All" />
           </Tabs>
           <SectionSpace />
           {selectedTabIndex === 0 ? (
-            <BankRepaymentsActionRequiredTab />
-          ) : selectedTabIndex === 1 ? (
-            <BankRepaymentsByDepositDateTab />
+            <BankAdvancesByPaymentDateTab />
           ) : (
-            <BankRepaymentsAllTab />
+            <BankAdvancesAllTab />
           )}
         </Container>
       </PageContent>

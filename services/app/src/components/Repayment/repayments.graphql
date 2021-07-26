@@ -1,4 +1,4 @@
-subscription GetPayments {
+subscription GetRepayments {
   payments(
     where: {
       _and: [
@@ -33,6 +33,38 @@ subscription GetPayments {
   }
 }
 
+query GetRepaymentsByDepositDate($date: date!) {
+    payments(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { type: { _eq: "repayment" } }
+        { deposit_date: { _eq: $date } }
+      ]
+    }
+    order_by: [
+      { settlement_date: asc }
+      { created_at: asc }
+    ]
+  ) {
+    id
+    ...Payment
+    company {
+      id
+      name
+    }
+    settled_by_user {
+      id
+      full_name
+    }
+  }
+}
+
 subscription GetSubmittedPayments {
   payments(
     where: {
@@ -63,28 +95,6 @@ subscription GetSubmittedPayments {
         name
       }
     }
-  }
-}
-
-query GetWireAdvancesByDate($date: date!) {
-  payments(
-    where: {
-      _and: [
-        {
-          _or: [
-            { is_deleted: { _is_null: true } }
-            { is_deleted: { _eq: false } }
-          ]
-        }
-        { type: { _eq: "advance" } }
-        { method: { _eq: "wire" } }
-        { settlement_date: { _eq: $date } }
-      ]
-    }
-  ) {
-    id
-    ...Payment
-    ...PaymentBankAccounts
   }
 }
 

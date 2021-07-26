@@ -76,6 +76,7 @@ export const bankRoutes = {
   ebbaApplications: "/borrowing-bases",
   loans: "/loans",
   partnerships: "/partnerships",
+  advances: "/advances",
   payments: "/payments",
   payors: "/payors",
   purchaseOrders: "/purchase-orders",

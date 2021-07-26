@@ -20,6 +20,10 @@ export function todayAsDateStringServer() {
   return format(new Date(), DateFormatServer);
 }
 
+export function previousBizDayAsDateStringServer() {
+  return subtractBizDays(todayAsDateStringServer(), 1);
+}
+
 export function todayAsDateStringClient() {
   return format(new Date(), DateFormatClient);
 }

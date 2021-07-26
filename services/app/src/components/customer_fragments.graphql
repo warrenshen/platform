@@ -222,6 +222,7 @@ fragment PaymentLimited on payments {
   company {
     id
     name
+    identifier
   }
   invoice {
     id

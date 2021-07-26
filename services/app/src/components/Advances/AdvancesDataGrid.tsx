@@ -1,43 +1,64 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
-import PaymentDrawerLauncher from "components/Payment/PaymentDrawerLauncher";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
-import { PaymentFragment } from "generated/graphql";
+import {
+  Companies,
+  FinancialSummaries,
+  PaymentFragment,
+  ProductTypeEnum,
+} from "generated/graphql";
+import { ProductTypeToLabel } from "lib/enum";
 import { ColumnWidths } from "lib/tables";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
-function getRows(payments: PaymentFragment[]): RowsProp {
-  return payments.map((item) => {
+type PaymentWithFinancialSummary = PaymentFragment & {
+  company: Pick<Companies, "id"> & {
+    financial_summaries: Pick<FinancialSummaries, "id" | "product_type">[];
+  };
+};
+
+function getRows(
+  payments: (PaymentFragment | PaymentWithFinancialSummary)[]
+): RowsProp {
+  console.log({ payments });
+  return payments.map((payment) => {
     return {
-      ...item,
+      ...payment,
+      settlement_identifier: `${payment.company.identifier}-A${payment.settlement_identifier}`,
+      product_type:
+        ProductTypeToLabel[
+          (payment as PaymentWithFinancialSummary).company?.financial_summaries
+            ? (payment as PaymentWithFinancialSummary).company
+                ?.financial_summaries[0]?.product_type || ProductTypeEnum.None
+            : ProductTypeEnum.None
+        ],
     };
   });
 }
 
 interface Props {
-  payments: PaymentFragment[];
-  handleClickCustomer: (value: string) => void;
   isExcelExport?: boolean;
+  isProductTypeVisible?: boolean;
+  payments: (PaymentFragment | PaymentWithFinancialSummary)[];
+  handleClickCustomer: (value: string) => void;
 }
 
-function AdvancesDataGrid({
+export default function AdvancesDataGrid({
+  isExcelExport = true,
+  isProductTypeVisible = false,
   payments,
   handleClickCustomer,
-  isExcelExport = true,
 }: Props) {
-  const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = getRows(payments);
   const columns = useMemo(
     () => [
       {
-        dataField: "id",
-        caption: "Advance ID",
+        fixed: true,
+        caption: "Disbursement Identifier",
+        dataField: "settlement_identifier",
         width: 140,
-        cellRender: (params: ValueFormatterParams) => (
-          <PaymentDrawerLauncher paymentId={params.row.data.id} />
-        ),
       },
       {
         caption: "Customer Name",
@@ -46,16 +67,15 @@ function AdvancesDataGrid({
         cellRender: (params: ValueFormatterParams) => (
           <ClickableDataGridCell
             label={params.row.data.company.name}
-            onClick={() => {
-              handleClickCustomer(params.row.data.company.name);
-              dataGrid?.instance.filter([
-                "company.name",
-                "=",
-                params.row.data.company.name,
-              ]);
-            }}
+            onClick={() => handleClickCustomer(params.row.data.company.name)}
           />
         ),
+      },
+      {
+        visible: isProductTypeVisible,
+        caption: "Product Type",
+        dataField: "product_type",
+        minWidth: ColumnWidths.MinWidth,
       },
       {
         caption: "Total Amount",
@@ -81,6 +101,15 @@ function AdvancesDataGrid({
         ),
       },
       {
+        caption: "Deposit Date",
+        dataField: "deposit_date",
+        width: ColumnWidths.Date,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <DateDataGridCell dateString={params.row.data.deposit_date} />
+        ),
+      },
+      {
         caption: "Settlement Date",
         dataField: "settlement_date",
         width: ColumnWidths.Date,
@@ -94,19 +123,21 @@ function AdvancesDataGrid({
         caption: "Submitted By",
         width: ColumnWidths.UserName,
       },
+      {
+        dataField: "settled_by_user.full_name",
+        caption: "Settled By",
+        width: ColumnWidths.UserName,
+      },
     ],
-    [dataGrid?.instance, handleClickCustomer]
+    [isProductTypeVisible, handleClickCustomer]
   );
 
   return (
     <ControlledDataGrid
-      dataSource={rows}
-      columns={columns}
-      ref={(ref) => setDataGrid(ref)}
       isExcelExport={isExcelExport}
       pager
+      dataSource={rows}
+      columns={columns}
     />
   );
 }
-
-export default AdvancesDataGrid;

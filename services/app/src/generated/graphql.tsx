@@ -19555,13 +19555,41 @@ export type VendorsVarianceOrderBy = {
   latest_loan_identifier?: Maybe<OrderBy>;
 };
 
-export type GetAdvancesQueryVariables = Exact<{ [key: string]: never }>;
+export type GetAdvancesSubscriptionVariables = Exact<{ [key: string]: never }>;
 
-export type GetAdvancesQuery = {
+export type GetAdvancesSubscription = {
   payments: Array<
     Pick<Payments, "id"> & {
       company: Pick<Companies, "id" | "name">;
+      settled_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
     } & PaymentFragment
+  >;
+};
+
+export type GetAdvancesByPaymentDateQueryVariables = Exact<{
+  date: Scalars["date"];
+}>;
+
+export type GetAdvancesByPaymentDateQuery = {
+  payments: Array<
+    Pick<Payments, "id"> & {
+      company: Pick<Companies, "id"> & {
+        financial_summaries: Array<
+          Pick<FinancialSummaries, "id" | "product_type">
+        >;
+      };
+      settled_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
+    } & PaymentFragment
+  >;
+};
+
+export type GetWireAdvancesByDateQueryVariables = Exact<{
+  date: Scalars["date"];
+}>;
+
+export type GetWireAdvancesByDateQuery = {
+  payments: Array<
+    Pick<Payments, "id"> & PaymentFragment & PaymentBankAccountsFragment
   >;
 };
 
@@ -20378,9 +20406,11 @@ export type GetPaymentForSettlementQuery = {
   >;
 };
 
-export type GetPaymentsSubscriptionVariables = Exact<{ [key: string]: never }>;
+export type GetRepaymentsSubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
 
-export type GetPaymentsSubscription = {
+export type GetRepaymentsSubscription = {
   payments: Array<
     Pick<Payments, "id"> & {
       company: Pick<Companies, "id" | "name">;
@@ -20388,6 +20418,19 @@ export type GetPaymentsSubscription = {
       invoice?: Maybe<
         Pick<Invoices, "id"> & { payor?: Maybe<Pick<Payors, "id" | "name">> }
       >;
+    } & PaymentFragment
+  >;
+};
+
+export type GetRepaymentsByDepositDateQueryVariables = Exact<{
+  date: Scalars["date"];
+}>;
+
+export type GetRepaymentsByDepositDateQuery = {
+  payments: Array<
+    Pick<Payments, "id"> & {
+      company: Pick<Companies, "id" | "name">;
+      settled_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
     } & PaymentFragment
   >;
 };
@@ -20404,16 +20447,6 @@ export type GetSubmittedPaymentsSubscription = {
         Pick<Invoices, "id"> & { payor?: Maybe<Pick<Payors, "id" | "name">> }
       >;
     } & PaymentFragment
-  >;
-};
-
-export type GetWireAdvancesByDateQueryVariables = Exact<{
-  date: Scalars["date"];
-}>;
-
-export type GetWireAdvancesByDateQuery = {
-  payments: Array<
-    Pick<Payments, "id"> & PaymentFragment & PaymentBankAccountsFragment
   >;
 };
 
@@ -21560,7 +21593,7 @@ export type PaymentLimitedFragment = Pick<
   | "items_covered"
   | "is_deleted"
 > & {
-  company: Pick<Companies, "id" | "name">;
+  company: Pick<Companies, "id" | "name" | "identifier">;
   invoice?: Maybe<
     Pick<Invoices, "id"> & { payor?: Maybe<Pick<Payors, "id" | "name">> }
   >;
@@ -22275,6 +22308,7 @@ export const PaymentLimitedFragmentDoc = gql`
     company {
       id
       name
+      identifier
     }
     invoice {
       id
@@ -22369,13 +22403,30 @@ export const BankFinancialSummaryFragmentDoc = gql`
   }
 `;
 export const GetAdvancesDocument = gql`
-  query GetAdvances {
-    payments(where: { type: { _eq: "advance" } }) {
+  subscription GetAdvances {
+    payments(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { type: { _eq: "advance" } }
+        ]
+      }
+      order_by: [{ payment_date: desc }, { created_at: desc }]
+    ) {
       id
       ...Payment
       company {
         id
         name
+      }
+      settled_by_user {
+        id
+        full_name
       }
     }
   }
@@ -22383,49 +22434,193 @@ export const GetAdvancesDocument = gql`
 `;
 
 /**
- * __useGetAdvancesQuery__
+ * __useGetAdvancesSubscription__
  *
- * To run a query within a React component, call `useGetAdvancesQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetAdvancesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetAdvancesSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetAdvancesSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAdvancesSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetAdvancesSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    GetAdvancesSubscription,
+    GetAdvancesSubscriptionVariables
+  >
+) {
+  return Apollo.useSubscription<
+    GetAdvancesSubscription,
+    GetAdvancesSubscriptionVariables
+  >(GetAdvancesDocument, baseOptions);
+}
+export type GetAdvancesSubscriptionHookResult = ReturnType<
+  typeof useGetAdvancesSubscription
+>;
+export type GetAdvancesSubscriptionResult = Apollo.SubscriptionResult<GetAdvancesSubscription>;
+export const GetAdvancesByPaymentDateDocument = gql`
+  query GetAdvancesByPaymentDate($date: date!) {
+    payments(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { type: { _eq: "advance" } }
+          { payment_date: { _eq: $date } }
+        ]
+      }
+      order_by: [{ settlement_date: asc }, { created_at: asc }]
+    ) {
+      id
+      ...Payment
+      company {
+        id
+        financial_summaries: financial_summaries(
+          where: { date: { _eq: $date } }
+        ) {
+          id
+          product_type
+        }
+      }
+      settled_by_user {
+        id
+        full_name
+      }
+    }
+  }
+  ${PaymentFragmentDoc}
+`;
+
+/**
+ * __useGetAdvancesByPaymentDateQuery__
+ *
+ * To run a query within a React component, call `useGetAdvancesByPaymentDateQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAdvancesByPaymentDateQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetAdvancesQuery({
+ * const { data, loading, error } = useGetAdvancesByPaymentDateQuery({
  *   variables: {
+ *      date: // value for 'date'
  *   },
  * });
  */
-export function useGetAdvancesQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    GetAdvancesQuery,
-    GetAdvancesQueryVariables
+export function useGetAdvancesByPaymentDateQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetAdvancesByPaymentDateQuery,
+    GetAdvancesByPaymentDateQueryVariables
   >
 ) {
-  return Apollo.useQuery<GetAdvancesQuery, GetAdvancesQueryVariables>(
-    GetAdvancesDocument,
-    baseOptions
-  );
+  return Apollo.useQuery<
+    GetAdvancesByPaymentDateQuery,
+    GetAdvancesByPaymentDateQueryVariables
+  >(GetAdvancesByPaymentDateDocument, baseOptions);
 }
-export function useGetAdvancesLazyQuery(
+export function useGetAdvancesByPaymentDateLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    GetAdvancesQuery,
-    GetAdvancesQueryVariables
+    GetAdvancesByPaymentDateQuery,
+    GetAdvancesByPaymentDateQueryVariables
   >
 ) {
-  return Apollo.useLazyQuery<GetAdvancesQuery, GetAdvancesQueryVariables>(
-    GetAdvancesDocument,
-    baseOptions
-  );
+  return Apollo.useLazyQuery<
+    GetAdvancesByPaymentDateQuery,
+    GetAdvancesByPaymentDateQueryVariables
+  >(GetAdvancesByPaymentDateDocument, baseOptions);
 }
-export type GetAdvancesQueryHookResult = ReturnType<typeof useGetAdvancesQuery>;
-export type GetAdvancesLazyQueryHookResult = ReturnType<
-  typeof useGetAdvancesLazyQuery
+export type GetAdvancesByPaymentDateQueryHookResult = ReturnType<
+  typeof useGetAdvancesByPaymentDateQuery
 >;
-export type GetAdvancesQueryResult = Apollo.QueryResult<
-  GetAdvancesQuery,
-  GetAdvancesQueryVariables
+export type GetAdvancesByPaymentDateLazyQueryHookResult = ReturnType<
+  typeof useGetAdvancesByPaymentDateLazyQuery
+>;
+export type GetAdvancesByPaymentDateQueryResult = Apollo.QueryResult<
+  GetAdvancesByPaymentDateQuery,
+  GetAdvancesByPaymentDateQueryVariables
+>;
+export const GetWireAdvancesByDateDocument = gql`
+  query GetWireAdvancesByDate($date: date!) {
+    payments(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { type: { _eq: "advance" } }
+          { method: { _eq: "wire" } }
+          { settlement_date: { _eq: $date } }
+        ]
+      }
+    ) {
+      id
+      ...Payment
+      ...PaymentBankAccounts
+    }
+  }
+  ${PaymentFragmentDoc}
+  ${PaymentBankAccountsFragmentDoc}
+`;
+
+/**
+ * __useGetWireAdvancesByDateQuery__
+ *
+ * To run a query within a React component, call `useGetWireAdvancesByDateQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetWireAdvancesByDateQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetWireAdvancesByDateQuery({
+ *   variables: {
+ *      date: // value for 'date'
+ *   },
+ * });
+ */
+export function useGetWireAdvancesByDateQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetWireAdvancesByDateQuery,
+    GetWireAdvancesByDateQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetWireAdvancesByDateQuery,
+    GetWireAdvancesByDateQueryVariables
+  >(GetWireAdvancesByDateDocument, baseOptions);
+}
+export function useGetWireAdvancesByDateLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetWireAdvancesByDateQuery,
+    GetWireAdvancesByDateQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetWireAdvancesByDateQuery,
+    GetWireAdvancesByDateQueryVariables
+  >(GetWireAdvancesByDateDocument, baseOptions);
+}
+export type GetWireAdvancesByDateQueryHookResult = ReturnType<
+  typeof useGetWireAdvancesByDateQuery
+>;
+export type GetWireAdvancesByDateLazyQueryHookResult = ReturnType<
+  typeof useGetWireAdvancesByDateLazyQuery
+>;
+export type GetWireAdvancesByDateQueryResult = Apollo.QueryResult<
+  GetWireAdvancesByDateQuery,
+  GetWireAdvancesByDateQueryVariables
 >;
 export const GetBespokeBankAccountsDocument = gql`
   query GetBespokeBankAccounts {
@@ -26567,8 +26762,8 @@ export type GetPaymentForSettlementQueryResult = Apollo.QueryResult<
   GetPaymentForSettlementQuery,
   GetPaymentForSettlementQueryVariables
 >;
-export const GetPaymentsDocument = gql`
-  subscription GetPayments {
+export const GetRepaymentsDocument = gql`
+  subscription GetRepayments {
     payments(
       where: {
         _and: [
@@ -26606,35 +26801,115 @@ export const GetPaymentsDocument = gql`
 `;
 
 /**
- * __useGetPaymentsSubscription__
+ * __useGetRepaymentsSubscription__
  *
- * To run a query within a React component, call `useGetPaymentsSubscription` and pass it any options that fit your needs.
- * When your component renders, `useGetPaymentsSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetRepaymentsSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetRepaymentsSubscription` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetPaymentsSubscription({
+ * const { data, loading, error } = useGetRepaymentsSubscription({
  *   variables: {
  *   },
  * });
  */
-export function useGetPaymentsSubscription(
+export function useGetRepaymentsSubscription(
   baseOptions?: Apollo.SubscriptionHookOptions<
-    GetPaymentsSubscription,
-    GetPaymentsSubscriptionVariables
+    GetRepaymentsSubscription,
+    GetRepaymentsSubscriptionVariables
   >
 ) {
   return Apollo.useSubscription<
-    GetPaymentsSubscription,
-    GetPaymentsSubscriptionVariables
-  >(GetPaymentsDocument, baseOptions);
+    GetRepaymentsSubscription,
+    GetRepaymentsSubscriptionVariables
+  >(GetRepaymentsDocument, baseOptions);
 }
-export type GetPaymentsSubscriptionHookResult = ReturnType<
-  typeof useGetPaymentsSubscription
+export type GetRepaymentsSubscriptionHookResult = ReturnType<
+  typeof useGetRepaymentsSubscription
 >;
-export type GetPaymentsSubscriptionResult = Apollo.SubscriptionResult<GetPaymentsSubscription>;
+export type GetRepaymentsSubscriptionResult = Apollo.SubscriptionResult<GetRepaymentsSubscription>;
+export const GetRepaymentsByDepositDateDocument = gql`
+  query GetRepaymentsByDepositDate($date: date!) {
+    payments(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { type: { _eq: "repayment" } }
+          { deposit_date: { _eq: $date } }
+        ]
+      }
+      order_by: [{ settlement_date: asc }, { created_at: asc }]
+    ) {
+      id
+      ...Payment
+      company {
+        id
+        name
+      }
+      settled_by_user {
+        id
+        full_name
+      }
+    }
+  }
+  ${PaymentFragmentDoc}
+`;
+
+/**
+ * __useGetRepaymentsByDepositDateQuery__
+ *
+ * To run a query within a React component, call `useGetRepaymentsByDepositDateQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetRepaymentsByDepositDateQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetRepaymentsByDepositDateQuery({
+ *   variables: {
+ *      date: // value for 'date'
+ *   },
+ * });
+ */
+export function useGetRepaymentsByDepositDateQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetRepaymentsByDepositDateQuery,
+    GetRepaymentsByDepositDateQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetRepaymentsByDepositDateQuery,
+    GetRepaymentsByDepositDateQueryVariables
+  >(GetRepaymentsByDepositDateDocument, baseOptions);
+}
+export function useGetRepaymentsByDepositDateLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetRepaymentsByDepositDateQuery,
+    GetRepaymentsByDepositDateQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetRepaymentsByDepositDateQuery,
+    GetRepaymentsByDepositDateQueryVariables
+  >(GetRepaymentsByDepositDateDocument, baseOptions);
+}
+export type GetRepaymentsByDepositDateQueryHookResult = ReturnType<
+  typeof useGetRepaymentsByDepositDateQuery
+>;
+export type GetRepaymentsByDepositDateLazyQueryHookResult = ReturnType<
+  typeof useGetRepaymentsByDepositDateLazyQuery
+>;
+export type GetRepaymentsByDepositDateQueryResult = Apollo.QueryResult<
+  GetRepaymentsByDepositDateQuery,
+  GetRepaymentsByDepositDateQueryVariables
+>;
 export const GetSubmittedPaymentsDocument = gql`
   subscription GetSubmittedPayments {
     payments(
@@ -26701,80 +26976,6 @@ export type GetSubmittedPaymentsSubscriptionHookResult = ReturnType<
   typeof useGetSubmittedPaymentsSubscription
 >;
 export type GetSubmittedPaymentsSubscriptionResult = Apollo.SubscriptionResult<GetSubmittedPaymentsSubscription>;
-export const GetWireAdvancesByDateDocument = gql`
-  query GetWireAdvancesByDate($date: date!) {
-    payments(
-      where: {
-        _and: [
-          {
-            _or: [
-              { is_deleted: { _is_null: true } }
-              { is_deleted: { _eq: false } }
-            ]
-          }
-          { type: { _eq: "advance" } }
-          { method: { _eq: "wire" } }
-          { settlement_date: { _eq: $date } }
-        ]
-      }
-    ) {
-      id
-      ...Payment
-      ...PaymentBankAccounts
-    }
-  }
-  ${PaymentFragmentDoc}
-  ${PaymentBankAccountsFragmentDoc}
-`;
-
-/**
- * __useGetWireAdvancesByDateQuery__
- *
- * To run a query within a React component, call `useGetWireAdvancesByDateQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetWireAdvancesByDateQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetWireAdvancesByDateQuery({
- *   variables: {
- *      date: // value for 'date'
- *   },
- * });
- */
-export function useGetWireAdvancesByDateQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    GetWireAdvancesByDateQuery,
-    GetWireAdvancesByDateQueryVariables
-  >
-) {
-  return Apollo.useQuery<
-    GetWireAdvancesByDateQuery,
-    GetWireAdvancesByDateQueryVariables
-  >(GetWireAdvancesByDateDocument, baseOptions);
-}
-export function useGetWireAdvancesByDateLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetWireAdvancesByDateQuery,
-    GetWireAdvancesByDateQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<
-    GetWireAdvancesByDateQuery,
-    GetWireAdvancesByDateQueryVariables
-  >(GetWireAdvancesByDateDocument, baseOptions);
-}
-export type GetWireAdvancesByDateQueryHookResult = ReturnType<
-  typeof useGetWireAdvancesByDateQuery
->;
-export type GetWireAdvancesByDateLazyQueryHookResult = ReturnType<
-  typeof useGetWireAdvancesByDateLazyQuery
->;
-export type GetWireAdvancesByDateQueryResult = Apollo.QueryResult<
-  GetWireAdvancesByDateQuery,
-  GetWireAdvancesByDateQueryVariables
->;
 export const GetPaymentsForCompanyDocument = gql`
   query GetPaymentsForCompany($company_id: uuid!) {
     companies_by_pk(id: $company_id) {

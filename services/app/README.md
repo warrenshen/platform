@@ -33,3 +33,8 @@ yarn cypress
 ```
 
 Note: running instances of [api-server](https://github.com/bespoke-capital/platform/tree/master/services/api-server#readme) and [graphql-server](https://github.com/bespoke-capital/graphql-server) are prerequistes.
+
+# FAQ
+
+1. List of iconography:
+    * https://tablericons.com/

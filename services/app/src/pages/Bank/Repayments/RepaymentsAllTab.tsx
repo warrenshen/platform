@@ -1,5 +1,5 @@
 import RepaymentsDataGrid from "components/Repayment/RepaymentsDataGrid";
-import { useGetPaymentsSubscription } from "generated/graphql";
+import { useGetRepaymentsSubscription } from "generated/graphql";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -11,8 +11,8 @@ const Container = styled.div`
   width: 100%;
 `;
 
-function BankRepaymentsAllTab() {
-  const { data } = useGetPaymentsSubscription();
+export default function BankRepaymentsAllTab() {
+  const { data } = useGetRepaymentsSubscription();
 
   const payments = data?.payments || [];
 
@@ -26,5 +26,3 @@ function BankRepaymentsAllTab() {
     </Container>
   );
 }
-
-export default BankRepaymentsAllTab;
