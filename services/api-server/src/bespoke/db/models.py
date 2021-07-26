@@ -65,8 +65,12 @@ def create_engine() -> Engine:
 	pool_size = 3
 
 	if not is_prod_env(os.environ.get('FLASK_ENV')):
+		# Staging DB has 20 connections
+		# Assuming 5 are taken up by GraphQL
+		# we allow for 2 per thread, 6 threads total (4 api-server, 2 api-server async)
+		# therefore 2 * 6 + 5 = 17 which is under the 20 limit
 		max_overflow = 1
-		pool_size = 2
+		pool_size = 1
 
 	return sqlalchemy.create_engine(
 		get_db_url(),
