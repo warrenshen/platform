@@ -66,7 +66,7 @@ class SendCodeView(MethodView):
 
 			link_type = cast(Dict, two_factor_link.form_info).get('type', '')
 			if link_type == db_constants.TwoFactorLinkType.FORGOT_PASSWORD:
-				# Forgot your password links dont require 2FA
+				# Forgot your password links don't require 2FA
 				return make_response(json.dumps({
 					'status': 'OK',
 					'phone_number': '',
@@ -89,7 +89,10 @@ class SendCodeView(MethodView):
 				message_method = 'email'
 				_, err = sendgrid_client.send(
 					sendgrid_util.TemplateNames.USER_TWO_FACTOR_CODE,
-					template_data={'token_val': token_val},
+					template_data={
+						'artifact_name': '',
+						'token_val': token_val,
+					},
 					recipients=[email],
 				)
 				if err:
@@ -102,7 +105,7 @@ class SendCodeView(MethodView):
 
 				_, err = sms_client.send_text_message(
 					to_=to_phone_number,
-					msg='Your Bespoke two-factor code is {}'.format(token_val)
+					msg=f'Bespoke Financial authentication code: {token_val}'
 				)
 				if err:
 					raise err
