@@ -24539,6 +24539,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "vendor_onboarding_link",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -25067,6 +25079,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "vendor_onboarding_link",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "String_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -25436,6 +25458,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "vendor_onboarding_link",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -25602,6 +25634,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "vendor_onboarding_link",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -25737,6 +25781,16 @@
           },
           {
             "name": "vendor_agreement_docusign_template",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "vendor_onboarding_link",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -25910,6 +25964,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "vendor_onboarding_link",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -26045,6 +26111,16 @@
           },
           {
             "name": "vendor_agreement_docusign_template",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "vendor_onboarding_link",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -26446,6 +26522,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "vendor_onboarding_link",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -26614,6 +26700,12 @@
           },
           {
             "name": "vendor_agreement_docusign_template",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "vendor_onboarding_link",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -26796,6 +26888,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "vendor_onboarding_link",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -26908,6 +27010,12 @@
           },
           {
             "name": "vendor_agreement_docusign_template",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "vendor_onboarding_link",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null

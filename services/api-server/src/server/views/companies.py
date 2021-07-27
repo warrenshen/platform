@@ -7,6 +7,7 @@ from bespoke.companies import create_company_util, partnership_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
+from bespoke.finance import contract_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from mypy_extensions import TypedDict
@@ -293,10 +294,22 @@ class CreatePartnershipView(MethodView):
 
 			customer_name = customer.name
 
+			contract, err = contract_util.get_active_contract_by_company_id(customer_id, session)
+			if err:
+				raise err
+
+			product_type, err = contract.get_product_type()
+			if err:
+				raise err
+			is_loc_customer = product_type == db_constants.ProductType.LINE_OF_CREDIT
+
 			if resp['company_type'] == db_constants.CompanyType.Payor:
 				docusign_link = customer_settings.payor_agreement_docusign_template
 				template_name = sendgrid_util.TemplateNames.PAYOR_AGREEMENT_WITH_CUSTOMER
-			elif resp['company_type'] == db_constants.CompanyType.Vendor:
+			elif is_loc_customer and resp['company_type'] == db_constants.CompanyType.Vendor:
+				docusign_link = customer_settings.vendor_onboarding_link
+				template_name = sendgrid_util.TemplateNames.VENDOR_AGREEMENT_WITH_CUSTOMER
+			elif resp['company_type'] == db_constants.CompanyType.Vendor: 
 				docusign_link = customer_settings.vendor_agreement_docusign_template
 				template_name = sendgrid_util.TemplateNames.VENDOR_AGREEMENT_WITH_CUSTOMER
 			else:

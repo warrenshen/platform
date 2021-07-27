@@ -51,6 +51,10 @@ export class SettingsHelper {
     this._productType = producType;
   }
 
+  shouldShowVendorOnboardingLink(): boolean {
+    return this._productType === ProductTypeEnum.LineOfCredit;
+  }
+
   shouldShowVendorAgreement(): boolean {
     return (
       this._productType === ProductTypeEnum.InventoryFinancing ||

@@ -12,8 +12,8 @@ import {
 import { grey } from "@material-ui/core/colors";
 import Can from "components/Shared/Can";
 import {
-  CompanySettingsLimitedFragment,
   CompanySettingsFragment,
+  CompanySettingsLimitedFragment,
   ContractFragment,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
@@ -85,6 +85,24 @@ function CompanySettingsCard({ contract, settings, handleClick }: Props) {
                 {settings.payor_agreement_docusign_template ? (
                   <Link
                     href={settings.payor_agreement_docusign_template}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    Link
+                  </Link>
+                ) : (
+                  <Typography variant="body2">TBD</Typography>
+                )}
+              </Box>
+            </Box>
+          )}
+          {settingsHelper.shouldShowVendorOnboardingLink() && (
+            <Box display="flex" pb={0.25}>
+              <Box className={classes.label}>Vendor Onboarding Link</Box>
+              <Box>
+                {settings.vendor_onboarding_link ? (
+                  <Link
+                    href={settings.vendor_onboarding_link}
                     rel="noreferrer"
                     target="_blank"
                   >

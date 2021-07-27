@@ -3466,6 +3466,7 @@ export type CompanySettings = {
   two_factor_message_method?: Maybe<Scalars["String"]>;
   updated_at: Scalars["timestamptz"];
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
+  vendor_onboarding_link?: Maybe<Scalars["String"]>;
 };
 
 /**
@@ -3555,6 +3556,7 @@ export type CompanySettingsBoolExp = {
   two_factor_message_method?: Maybe<StringComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
   vendor_agreement_docusign_template?: Maybe<StringComparisonExp>;
+  vendor_onboarding_link?: Maybe<StringComparisonExp>;
 };
 
 /** unique or primary key constraints on table "company_settings" */
@@ -3607,6 +3609,7 @@ export type CompanySettingsInsertInput = {
   two_factor_message_method?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
+  vendor_onboarding_link?: Maybe<Scalars["String"]>;
 };
 
 /** aggregate max on columns */
@@ -3624,6 +3627,7 @@ export type CompanySettingsMaxFields = {
   two_factor_message_method?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
+  vendor_onboarding_link?: Maybe<Scalars["String"]>;
 };
 
 /** order by max() on columns of table "company_settings" */
@@ -3641,6 +3645,7 @@ export type CompanySettingsMaxOrderBy = {
   two_factor_message_method?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor_agreement_docusign_template?: Maybe<OrderBy>;
+  vendor_onboarding_link?: Maybe<OrderBy>;
 };
 
 /** aggregate min on columns */
@@ -3658,6 +3663,7 @@ export type CompanySettingsMinFields = {
   two_factor_message_method?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
+  vendor_onboarding_link?: Maybe<Scalars["String"]>;
 };
 
 /** order by min() on columns of table "company_settings" */
@@ -3675,6 +3681,7 @@ export type CompanySettingsMinOrderBy = {
   two_factor_message_method?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor_agreement_docusign_template?: Maybe<OrderBy>;
+  vendor_onboarding_link?: Maybe<OrderBy>;
 };
 
 /** response of any mutation on the table "company_settings" */
@@ -3724,6 +3731,7 @@ export type CompanySettingsOrderBy = {
   two_factor_message_method?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor_agreement_docusign_template?: Maybe<OrderBy>;
+  vendor_onboarding_link?: Maybe<OrderBy>;
 };
 
 /** primary key columns input for table: "company_settings" */
@@ -3773,6 +3781,8 @@ export enum CompanySettingsSelectColumn {
   UpdatedAt = "updated_at",
   /** column name */
   VendorAgreementDocusignTemplate = "vendor_agreement_docusign_template",
+  /** column name */
+  VendorOnboardingLink = "vendor_onboarding_link",
 }
 
 /** input type for updating data in table "company_settings" */
@@ -3794,6 +3804,7 @@ export type CompanySettingsSetInput = {
   two_factor_message_method?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
+  vendor_onboarding_link?: Maybe<Scalars["String"]>;
 };
 
 /** update columns of table "company_settings" */
@@ -3832,6 +3843,8 @@ export enum CompanySettingsUpdateColumn {
   UpdatedAt = "updated_at",
   /** column name */
   VendorAgreementDocusignTemplate = "vendor_agreement_docusign_template",
+  /** column name */
+  VendorOnboardingLink = "vendor_onboarding_link",
 }
 
 /** columns and relationships of "company_type" */
@@ -20492,6 +20505,7 @@ export type UpdateCustomerSettingsMutationVariables = Exact<{
   companySettingsId: Scalars["uuid"];
   vendorAgreementTemplateLink?: Maybe<Scalars["String"]>;
   payorAgreementTemplateLink?: Maybe<Scalars["String"]>;
+  vendorOnboardingLink?: Maybe<Scalars["String"]>;
   hasAutofinancing?: Maybe<Scalars["Boolean"]>;
 }>;
 
@@ -21443,6 +21457,7 @@ export type CompanySettingsLimitedFragment = Pick<
   | "advances_bank_account_id"
   | "collections_bank_account_id"
   | "vendor_agreement_docusign_template"
+  | "vendor_onboarding_link"
   | "payor_agreement_docusign_template"
   | "feature_flags_payload"
   | "custom_messages_payload"
@@ -21945,6 +21960,7 @@ export const CompanySettingsLimitedFragmentDoc = gql`
     advances_bank_account_id
     collections_bank_account_id
     vendor_agreement_docusign_template
+    vendor_onboarding_link
     payor_agreement_docusign_template
     feature_flags_payload
     custom_messages_payload
@@ -27151,6 +27167,7 @@ export const UpdateCustomerSettingsDocument = gql`
     $companySettingsId: uuid!
     $vendorAgreementTemplateLink: String
     $payorAgreementTemplateLink: String
+    $vendorOnboardingLink: String
     $hasAutofinancing: Boolean
   ) {
     update_company_settings_by_pk(
@@ -27158,6 +27175,7 @@ export const UpdateCustomerSettingsDocument = gql`
       _set: {
         vendor_agreement_docusign_template: $vendorAgreementTemplateLink
         payor_agreement_docusign_template: $payorAgreementTemplateLink
+        vendor_onboarding_link: $vendorOnboardingLink
         has_autofinancing: $hasAutofinancing
       }
     ) {
@@ -27187,6 +27205,7 @@ export type UpdateCustomerSettingsMutationFn = Apollo.MutationFunction<
  *      companySettingsId: // value for 'companySettingsId'
  *      vendorAgreementTemplateLink: // value for 'vendorAgreementTemplateLink'
  *      payorAgreementTemplateLink: // value for 'payorAgreementTemplateLink'
+ *      vendorOnboardingLink: // value for 'vendorOnboardingLink'
  *      hasAutofinancing: // value for 'hasAutofinancing'
  *   },
  * });

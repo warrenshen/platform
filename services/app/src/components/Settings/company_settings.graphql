@@ -9,6 +9,7 @@ mutation UpdateCustomerSettings(
   $companySettingsId: uuid!
   $vendorAgreementTemplateLink: String
   $payorAgreementTemplateLink: String
+  $vendorOnboardingLink: String
   $hasAutofinancing: Boolean
 ) {
   update_company_settings_by_pk(
@@ -16,6 +17,7 @@ mutation UpdateCustomerSettings(
     _set: {
       vendor_agreement_docusign_template: $vendorAgreementTemplateLink
       payor_agreement_docusign_template: $payorAgreementTemplateLink
+      vendor_onboarding_link: $vendorOnboardingLink
       has_autofinancing: $hasAutofinancing
     }
   ) {
@@ -29,9 +31,7 @@ mutation UpdateIsDummyAccount(
 ) {
   update_company_settings_by_pk(
     pk_columns: { id: $companySettingsId }
-    _set: {
-      is_dummy_account: $isDummyAccount
-    }
+    _set: { is_dummy_account: $isDummyAccount }
   ) {
     ...CompanySettings
   }

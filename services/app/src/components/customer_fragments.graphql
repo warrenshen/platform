@@ -9,6 +9,7 @@ fragment CompanySettingsLimited on company_settings {
   advances_bank_account_id
   collections_bank_account_id
   vendor_agreement_docusign_template
+  vendor_onboarding_link
   payor_agreement_docusign_template
   feature_flags_payload
   custom_messages_payload
@@ -39,10 +40,7 @@ fragment VendorLimited on vendors {
   name
   licenses(
     where: {
-      _or: [
-        { is_deleted: { _is_null: true } }
-        { is_deleted: { _eq: false } }
-      ]
+      _or: [{ is_deleted: { _is_null: true } }, { is_deleted: { _eq: false } }]
     }
   ) {
     ...CompanyLicense
@@ -54,10 +52,7 @@ fragment PayorLimited on payors {
   name
   licenses(
     where: {
-      _or: [
-        { is_deleted: { _is_null: true } }
-        { is_deleted: { _eq: false } }
-      ]
+      _or: [{ is_deleted: { _is_null: true } }, { is_deleted: { _eq: false } }]
     }
   ) {
     ...CompanyLicense

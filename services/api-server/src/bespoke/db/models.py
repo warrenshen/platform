@@ -214,6 +214,7 @@ class CompanySettings(Base):
 	collections_bank_account_id = cast(GUID, Column(GUID, ForeignKey('bank_accounts.id')))
 	vendor_agreement_docusign_template = Column(Text)
 	payor_agreement_docusign_template = Column(Text)
+	vendor_onboarding_link = Column(Text)
 	has_autofinancing = Column(Boolean)
 	two_factor_message_method = Column(Text)
 	feature_flags_payload = Column(JSON)

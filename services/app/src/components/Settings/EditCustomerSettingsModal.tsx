@@ -13,8 +13,8 @@ import {
   Theme,
 } from "@material-ui/core";
 import {
-  CompanySettingsLimitedFragment,
   CompanySettingsFragment,
+  CompanySettingsLimitedFragment,
   ContractFragment,
   useUpdateCustomerSettingsMutation,
 } from "generated/graphql";
@@ -74,6 +74,7 @@ export default function EditCustomerSettingsModal({
         companySettingsId: settings.id,
         vendorAgreementTemplateLink:
           settings.vendor_agreement_docusign_template,
+        vendorOnboardingLink: settings.vendor_onboarding_link,
         payorAgreementTemplateLink: settings.payor_agreement_docusign_template,
         hasAutofinancing: settings.has_autofinancing,
       },
@@ -113,9 +114,26 @@ export default function EditCustomerSettingsModal({
           flexDirection="column"
           className={classes.form}
         >
+          {settingsHelper.shouldShowVendorOnboardingLink() && (
+            <Box mb={2}>
+              <TextField
+                fullWidth
+                label="Vendor Onboarding Link"
+                placeholder="http://docusign.com/link/to/vendor_onboarding"
+                value={settings.vendor_onboarding_link || ""}
+                onChange={({ target: { value } }) => {
+                  setSettings({
+                    ...settings,
+                    vendor_onboarding_link: value,
+                  });
+                }}
+              />
+            </Box>
+          )}
           {settingsHelper.shouldShowVendorAgreement() && (
             <Box mb={2}>
               <TextField
+                fullWidth
                 label="Vendor Agreement"
                 placeholder="http://docusign.com/link/to/template"
                 value={settings.vendor_agreement_docusign_template || ""}
@@ -131,6 +149,7 @@ export default function EditCustomerSettingsModal({
           {settingsHelper.shouldShowNoticeOfAssignment() && (
             <Box mb={2}>
               <TextField
+                fullWidth
                 label="Notice of Assignment"
                 placeholder="http://docusign.com/link/to/template"
                 value={settings.payor_agreement_docusign_template || ""}

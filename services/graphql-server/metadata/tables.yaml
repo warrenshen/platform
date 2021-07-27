@@ -974,6 +974,7 @@
       - two_factor_message_method
       - updated_at
       - vendor_agreement_docusign_template
+      - vendor_onboarding_link
       filter: {}
   - role: bank_read_only
     permission:
@@ -995,6 +996,7 @@
       - two_factor_message_method
       - updated_at
       - vendor_agreement_docusign_template
+      - vendor_onboarding_link
       filter: {}
   - role: company_admin
     permission:
@@ -1010,6 +1012,7 @@
       - payor_agreement_docusign_template
       - two_factor_message_method
       - vendor_agreement_docusign_template
+      - vendor_onboarding_link
       filter:
         company_id:
           _eq: X-Hasura-Company-Id
@@ -1027,6 +1030,7 @@
       - payor_agreement_docusign_template
       - two_factor_message_method
       - vendor_agreement_docusign_template
+      - vendor_onboarding_link
       filter:
         company_id:
           _eq: X-Hasura-Company-Id
@@ -1051,6 +1055,7 @@
       - payor_agreement_docusign_template
       - two_factor_message_method
       - vendor_agreement_docusign_template
+      - vendor_onboarding_link
       filter: {}
       check: null
   - role: company_admin
