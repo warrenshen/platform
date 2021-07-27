@@ -712,8 +712,9 @@ class LoanCalculator(object):
 		financing_day_limit = None
 		date_to_result = {}
 
-		def _get_calculate_result_dict() -> CalculateResultDict:
-
+		def _get_calculate_result_dict(
+			result_today: datetime.date, # "Today" date to use in the result dict.
+		) -> CalculateResultDict:
 			# If you haven't gone through the transaction's settlement days, but you did include
 			# them because they were deposited, interest and fees may go negative for those
 			# clearance days, but then when those settlement days happen, the fees and interest
@@ -739,7 +740,10 @@ class LoanCalculator(object):
 			report_repayment_date = balances['repayment_date']
 			financing_period = None
 
-			if loan['closed_at'] or should_close_loan:
+			# Financing period is complete on date loan is closed.
+			is_financing_period_complete = loan['closed_at'] or should_close_loan
+
+			if is_financing_period_complete:
 				if not report_repayment_date and payment_to_include:
 					report_repayment_date = payment_to_include['settlement_date']
 
@@ -749,21 +753,15 @@ class LoanCalculator(object):
 					financing_period = date_util.number_days_between_dates(
 						report_repayment_date,
 						loan['origination_date'],
+						inclusive_later_date=True,
 					)
 			else:
-				if report_repayment_date:
-					financing_period = date_util.number_days_between_dates(
-						max(
-							date_util.now_as_date(date_util.DEFAULT_TIMEZONE),
-							report_repayment_date,
-						),
-						loan['origination_date'],
-					)
-				else:
-					financing_period = date_util.number_days_between_dates(
-						date_util.now_as_date(date_util.DEFAULT_TIMEZONE),
-						loan['origination_date'],
-					)
+				# Since loan is not closed, financing period is not complete.
+				financing_period = date_util.number_days_between_dates(
+					max(result_today, report_repayment_date) if report_repayment_date else result_today,
+					loan['origination_date'],
+					inclusive_later_date=True,
+				)
 
 			l = LoanUpdateDict(
 				loan_id=loan['id'],
@@ -992,12 +990,12 @@ class LoanCalculator(object):
 
 			# Store results for this day if the caller requested it.
 			if start_date_for_storing_results and cur_date >= start_date_for_storing_results:
-				date_to_result[cur_date] = _get_calculate_result_dict()
+				date_to_result[cur_date] = _get_calculate_result_dict(cur_date)
 
 		if errors_list:
 			return None, errors_list
 
-		date_to_result[today] = _get_calculate_result_dict()
+		date_to_result[today] = _get_calculate_result_dict(today)
 		return date_to_result, None
 
 	def calculate_loan_balance(
