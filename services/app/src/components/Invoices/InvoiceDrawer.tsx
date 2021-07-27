@@ -87,17 +87,6 @@ export default function InvoiceDrawer({ invoiceId, handleClose }: Props) {
     <Drawer open anchor="right" onClose={handleClose}>
       <Box className={classes.drawerContent} p={4}>
         <Typography variant="h5">Invoice</Typography>
-        <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="flex-start"
-          mt={2}
-        >
-          <Typography variant="subtitle2" color="textSecondary">
-            Platform ID
-          </Typography>
-          <Typography variant={"body1"}>{invoice.id}</Typography>
-        </Box>
         <Box display="flex" flexDirection="column">
           <Box
             display="flex"
@@ -220,6 +209,19 @@ export default function InvoiceDrawer({ invoiceId, handleClose }: Props) {
             isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
           />
         </Box>
+        {isBankUser && (
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="flex-start"
+            mt={2}
+          >
+            <Typography variant="subtitle2" color="textSecondary">
+              Platform ID
+            </Typography>
+            <Typography variant={"body1"}>{invoice.id}</Typography>
+          </Box>
+        )}
       </Box>
     </Drawer>
   );

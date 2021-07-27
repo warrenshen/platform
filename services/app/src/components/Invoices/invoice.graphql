@@ -51,7 +51,8 @@ query GetInvoiceForReview($id: uuid!) {
       settings {
         id
         collections_bespoke_bank_account {
-          ...BankAccount
+          id
+          ...BankAccountLimited
         }
       }
     }

@@ -19882,7 +19882,9 @@ export type GetInvoiceForReviewQuery = {
         Pick<Payors, "id" | "name"> & {
           settings?: Maybe<
             Pick<CompanySettings, "id"> & {
-              collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
+              collections_bespoke_bank_account?: Maybe<
+                Pick<BankAccounts, "id"> & BankAccountLimitedFragment
+              >;
             }
           >;
         }
@@ -23915,14 +23917,15 @@ export const GetInvoiceForReviewDocument = gql`
         settings {
           id
           collections_bespoke_bank_account {
-            ...BankAccount
+            id
+            ...BankAccountLimited
           }
         }
       }
     }
   }
   ${InvoiceFileFragmentDoc}
-  ${BankAccountFragmentDoc}
+  ${BankAccountLimitedFragmentDoc}
 `;
 
 /**
