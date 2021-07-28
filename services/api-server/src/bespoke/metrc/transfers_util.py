@@ -563,29 +563,42 @@ def populate_transfers_table(
 
 	# Find previous packages, update those that previously existed, add rows
 	# that do not exist.
-	BATCH_SIZE = 100
-	package_ids = [pkg.package_id for pkg in all_metrc_packages]
+
+	# Without the following batching logic, we run into SQL timeout errors due to how much
+	# data is in the metrc_packages table, namely the metrc_packages.package_payload column.
+	BATCH_SIZE = 20
+	# Note the de-dupe here, there may be multiple packages with the same package_id from the
+	# packages collected above (this is because multiple deliveries may have the same package).
+	package_ids = list(set([pkg.package_id for pkg in all_metrc_packages]))
+
 	prev_metrc_packages = []
 	for package_ids_chunk in chunker(package_ids, BATCH_SIZE):
+		# Since metrc_packages are unique on (delivery_id, package_id), note
+		# the following query may return more than BATCH_SIZE number of results.
 		prev_metrc_packages_chunk = cast(List[models.MetrcPackage], session.query(models.MetrcPackage).filter(
 			models.MetrcPackage.package_id.in_(package_ids_chunk)
 		))
 		prev_metrc_packages.extend(prev_metrc_packages_chunk)
 
-	package_id_to_prev_package = {}
+	delivery_id_package_id_to_prev_package = {}
 	for prev_metrc_package in prev_metrc_packages:
-		package_id_to_prev_package[prev_metrc_package.package_id] = prev_metrc_package 
+		# Package key is a tuple of (delivery_id, package_id) - the
+		# same package may show up in multiple different deliveries.
+		metrc_package_key = (prev_metrc_package.delivery_id, prev_metrc_package.package_id)
+		delivery_id_package_id_to_prev_package[metrc_package_key] = prev_metrc_package
 
 	# Write the packages
 	for metrc_package in all_metrc_packages:
+		metrc_package_key = (metrc_package.delivery_id, metrc_package.package_id)
+
 		cur_delivery_id = package_id_to_delivery_id[metrc_package.package_id]
 		transfer_row_id = delivery_id_to_transfer_row_id[cur_delivery_id]
 		delivery_row_id = delivery_id_to_delivery_row_id[metrc_package.delivery_id]
 
-		if metrc_package.package_id in package_id_to_prev_package:
+		if metrc_package_key in delivery_id_package_id_to_prev_package:
 			# update
 
-			prev_metrc_package = package_id_to_prev_package[metrc_package.package_id]
+			prev_metrc_package = delivery_id_package_id_to_prev_package[metrc_package_key]
 			prev_metrc_package.transfer_row_id = cast(Any, transfer_row_id)
 			prev_metrc_package.delivery_row_id = cast(Any, delivery_row_id)
 			# package_id - no need to update
@@ -608,6 +621,6 @@ def populate_transfers_table(
 
 		# In some rare cases, a new package may show up twice in the same day.
 		# The following line prevents an attempt to insert a duplicate package.
-		package_id_to_prev_package[metrc_package.package_id] = metrc_package
+		delivery_id_package_id_to_prev_package[metrc_package_key] = metrc_package
 
 	return request_status, None

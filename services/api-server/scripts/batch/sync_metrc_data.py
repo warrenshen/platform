@@ -62,7 +62,7 @@ def main() -> None:
 		company_id=company_id,
 		auth_provider=config.get_metrc_auth_provider(),
 		security_cfg=config.get_security_config(),
-		start_date=date_util.load_date_str('06/01/2020'),
+		start_date=date_util.load_date_str('06/10/2020'),
 		end_date=date_util.load_date_str('12/31/2020'),
 		session_maker=session_maker
 	)
