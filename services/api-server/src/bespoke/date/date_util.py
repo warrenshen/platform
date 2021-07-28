@@ -122,4 +122,5 @@ def number_days_between_dates(
 	earlier_date: datetime.date,
 	inclusive_later_date: bool = False,
 ) -> int:
-	return (later_date - earlier_date).days + (1 if inclusive_later_date else 0)
+	result = (later_date - earlier_date).days + (1 if inclusive_later_date else 0)
+	return result if result >= 0 else None
