@@ -281,7 +281,9 @@ def populate_transfers_table(
 	cur_date: datetime.date,
 	company_info: CompanyInfo,
 	license: LicenseAuthDict,
-	session: Session) -> Tuple[RequestStatusesDict, errors.Error]:
+	session: Session,
+	debug: bool = False
+) -> Tuple[RequestStatusesDict, errors.Error]:
 
 	## Setup
 
@@ -433,7 +435,9 @@ def populate_transfers_table(
 
 			lab_tests = []
 			for package_id in package_ids:
-				logging.info(f'Downloading lab results for metrc package package_id={package_id}')
+				if debug:
+					logging.info(f'Downloading lab results for metrc package package_id={package_id}')
+
 				try:
 					if skip_lab_tests:
 						lab_test_json = []
@@ -444,7 +448,8 @@ def populate_transfers_table(
 					request_status['lab_results_api'] = 200
 				except errors.Error as e:
 					lab_test_json = [] # If fetch fails, we set to empty array and continue.
-					logging.error(f'Could not fetch lab results for company {company_info.name} for package {package_id}. {e}')
+					if debug:
+						logging.error(f'Could not fetch lab results for company {company_info.name} for package {package_id}. {e}')
 					request_status['lab_results_api'] = e.details.get('status_code')
 
 				lab_tests.append(LabTest(lab_test_json))

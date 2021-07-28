@@ -292,7 +292,8 @@ def _download_data(
 						cur_date=cur_date,
 						company_info=company_info,
 						license=license,
-						session=session
+						session=session,
+						debug=False,
 					)
 					if statuses:
 						if statuses['transfers_api'] != UNKNOWN_STATUS_CODE:
