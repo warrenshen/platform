@@ -21,7 +21,7 @@ import {
   ProductTypeEnum,
 } from "generated/graphql";
 import { FileTypeEnum } from "lib/enum";
-import { isPurchaseMoneyFinancingProductType } from "lib/settings";
+import { isInvoiceFinancingProductType } from "lib/settings";
 import { ChangeEvent, useMemo } from "react";
 
 interface Props {
@@ -36,6 +36,26 @@ interface Props {
   setInvoiceCannabisFiles: (files: InvoiceFileFragment[]) => void;
 }
 
+/*
+For Invoice Financing, we require:
+1) Invoice Attachment
+2) COAs
+3) Shipping Manifest
+
+---
+
+For Purchase Money Financing, we require:
+
+For purchase order,
+1) Purchase Order Attachment
+2) COAs
+3) Shipping manifest
+
+For invoice (the borrower submits both purchase orders and invoices for PMF),
+1) Invoice Attachment
+
+Note: COAs and Shipping Manifest are NOT required for PMF invoice.
+*/
 export default function InvoiceForm({
   companyId,
   productType,
@@ -175,7 +195,7 @@ export default function InvoiceForm({
           />
         </FormControl>
       </Box>
-      {isPurchaseMoneyFinancingProductType(productType) && (
+      {isInvoiceFinancingProductType(productType) && (
         <Box display="flex" flexDirection="column" mt={4}>
           <FormControlLabel
             control={

@@ -10205,12 +10205,12 @@ export type MetrcTransfers = {
   company: Companies;
   company_id: Scalars["uuid"];
   /** An object relationship */
-  company_license: CompanyLicenses;
+  company_license?: Maybe<CompanyLicenses>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   created_date: Scalars["date"];
   id: Scalars["uuid"];
   lab_results_status?: Maybe<Scalars["String"]>;
-  license_id: Scalars["uuid"];
+  license_id?: Maybe<Scalars["uuid"]>;
   manifest_number: Scalars["String"];
   /** An array relationship */
   metrc_packages: Array<MetrcPackages>;
@@ -19839,11 +19839,11 @@ export type GetInvoiceByIdQueryVariables = Exact<{
 
 export type GetInvoiceByIdQuery = {
   invoices_by_pk?: Maybe<
-    {
+    Pick<Invoices, "id"> & {
       company: Pick<Companies, "id"> & {
         contract?: Maybe<Pick<Contracts, "id" | "product_type">>;
       };
-      loans: Array<Pick<Loans, "id"> & LoanFragment>;
+      loans: Array<Pick<Loans, "id"> & LoanLimitedFragment>;
       invoice_files: Array<InvoiceFileFragment>;
     } & InvoiceFragment
   >;
@@ -23813,6 +23813,7 @@ export type CompanyPayorPartnershipForPayorQueryResult = Apollo.QueryResult<
 export const GetInvoiceByIdDocument = gql`
   query GetInvoiceById($id: uuid!) {
     invoices_by_pk(id: $id) {
+      id
       ...Invoice
       company {
         id
@@ -23823,7 +23824,7 @@ export const GetInvoiceByIdDocument = gql`
       }
       loans(where: { loan_type: { _eq: invoice } }) {
         id
-        ...Loan
+        ...LoanLimited
       }
       invoice_files {
         ...InvoiceFile
@@ -23831,7 +23832,7 @@ export const GetInvoiceByIdDocument = gql`
     }
   }
   ${InvoiceFragmentDoc}
-  ${LoanFragmentDoc}
+  ${LoanLimitedFragmentDoc}
   ${InvoiceFileFragmentDoc}
 `;
 

@@ -1,5 +1,6 @@
 query GetInvoiceById($id: uuid!) {
   invoices_by_pk(id: $id) {
+    id
     ...Invoice
     company {
       id
@@ -10,7 +11,7 @@ query GetInvoiceById($id: uuid!) {
     }
     loans(where: { loan_type: { _eq: invoice } }) {
       id
-      ...Loan
+      ...LoanLimited
     }
     invoice_files {
       ...InvoiceFile

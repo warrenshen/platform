@@ -204,9 +204,7 @@ export default function CustomerInvoicesOpenTab({
       </Box>
       <Box className={classes.sectionSpace} />
       <Box className={classes.section}>
-        <Typography variant="h6">
-          Approved by Payor & Ready to be Funded
-        </Typography>
+        <Typography variant="h6">Ready to Request Financing</Typography>
         <Box mb={2} display="flex" flexDirection="row-reverse">
           <Can perform={Action.FundInvoices}>
             <Box>

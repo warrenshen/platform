@@ -52,11 +52,16 @@ export default function InvoiceDrawer({ invoiceId, handleClose }: Props) {
   } = useContext(CurrentUserContext);
   const isBankUser = isRoleBankUser(role);
 
-  const { data } = useGetInvoiceByIdQuery({
+  const { data, error } = useGetInvoiceByIdQuery({
     variables: {
       id: invoiceId,
     },
   });
+
+  if (error) {
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
+  }
 
   const invoice = data?.invoices_by_pk;
   const loans = invoice?.loans;

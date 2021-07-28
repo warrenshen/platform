@@ -10,7 +10,6 @@ from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.email import sendgrid_util
 from bespoke.finance.payments import payment_util
-from server.views.common import auth_util
 from sqlalchemy.orm import Session
 from bespoke.finance.types import payment_types
 
@@ -129,8 +128,8 @@ class InvoiceUpsertRequest:
 			return None, err
 
 		return InvoiceUpsertRequest(
-			data,
-			[InvoiceFileItem.from_dict(f) for f in d.get('invoice_files', [])]
+			invoice=data,
+			invoice_files=[InvoiceFileItem.from_dict(f) for f in d.get('invoice_files', [])]
 		), None
 
 
@@ -265,6 +264,7 @@ def create_update_invoice(
 
 		invoice_id = str(invoice.id)
 
+		# Invoice files
 		existing_invoice_files = cast(
 			List[models.InvoiceFile],
 			session.query(models.InvoiceFile).filter(
@@ -334,8 +334,7 @@ def create_update_invoice(
 def is_invoice_ready_for_approval(
 	session_maker: Callable,
 	invoice_id: str
-	) -> errors.Error:
-
+) -> errors.Error:
 	try:
 		with models.session_scope(session_maker) as session:
 			invoice = session.query(models.Invoice).get(invoice_id)
