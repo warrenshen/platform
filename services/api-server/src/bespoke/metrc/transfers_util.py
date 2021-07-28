@@ -387,7 +387,6 @@ def populate_transfers_table(
 		session=session
 	)
 
-
 	metrc_transfer_objs = incoming_metrc_transfer_objs + outgoing_metrc_transfer_objs
 
 	## Fetch packages and lab results

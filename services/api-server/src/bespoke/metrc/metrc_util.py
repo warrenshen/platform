@@ -308,10 +308,13 @@ def _download_data(
 
 					if err:
 						session.rollback()
+
+						logging.error(f'Error thrown for company {company_info.name} for date {cur_date} and license {license["license_number"]}!')
 						errs.append(err)
 						api_key_has_err = True
-						# If there was any error, dont keep fetching information
-						# for the rest of the days
+
+						# If there was any error, do NOT keep fetching
+						# information for the rest of the days
 						break
 
 				cur_date = cur_date + timedelta(days=1)
