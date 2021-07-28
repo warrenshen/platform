@@ -16,9 +16,9 @@ class Config(object):
 	def __init__(self) -> None:
 		# JWT / Auth
 		# https://flask-jwt-extended.readthedocs.io/en/stable/options/#configuration-options
-		jwt_config = json.loads(os.environ.get('HASURA_GRAPHQL_JWT_SECRET'))
-		self.JWT_SECRET_KEY = jwt_config['key']
-		self.JWT_ALGORITHM = jwt_config['type']
+		jwt_config = json.loads(os.environ.get('HASURA_GRAPHQL_JWT_SECRET', '{}'))
+		self.JWT_SECRET_KEY = jwt_config['key'] if 'key' in jwt_config else None
+		self.JWT_ALGORITHM = jwt_config['type'] if 'type' in jwt_config else None
 		self.JWT_IDENTITY_CLAIM = 'https://hasura.io/jwt/claims'
 		self.JWT_ACCESS_TOKEN_EXPIRES = 60 * 15  # 15 minutes in seconds (default)
 		self.JWT_REFRESH_TOKEN_EXPIRES = 60 * 60 * 24 * 30  # 30 days in seconds (default)

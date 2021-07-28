@@ -228,7 +228,7 @@ def _get_companies_with_metrc_keys(
 				if license_number in license_number_to_license:
 					license_id = license_number_to_license[license_number]['id']
 				else:
-					logging.warn(f'Company "{company_name}" has license "{license_number}" in Metrc which are not stored in our Postgres DB')
+					logging.warn(f'Company "{company_name}" has license "{license_number}" in Metrc which is not stored in our Postgres DB')
 
 				license_auths.append(LicenseAuthDict(
 					license_id=license_id,
