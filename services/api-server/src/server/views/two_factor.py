@@ -10,6 +10,7 @@ from flask import Response, Blueprint
 from flask.views import MethodView
 from flask_jwt_extended import create_access_token, create_refresh_token
 from sqlalchemy.orm.attributes import flag_modified
+from sqlalchemy.orm.session import Session
 from typing import cast, Callable, Dict, Tuple
 
 from bespoke.db import db_constants
@@ -22,6 +23,34 @@ from server.views.common import auth_util, handler_util
 
 handler = Blueprint('two_factor', __name__)
 
+def _get_artifact_name(form_info: Dict, session: Session) -> str:
+	payload = form_info.get('payload')
+	if not payload:
+		return ''
+
+	purchase_order_id = payload.get('purchase_order_id')
+	if purchase_order_id:
+		purchase_order = cast(
+   			models.PurchaseOrder,
+	 			session.query(models.PurchaseOrder).filter(
+ 				models.PurchaseOrder.id == purchase_order_id).first())
+		if not purchase_order:
+			return ''
+
+		return purchase_order.order_number
+
+	invoice_id = payload.get('invoice_id')
+	if invoice_id:
+		invoice = cast(
+   			models.Invoice,
+   			session.query(models.Invoice).filter(
+   				models.Invoice.id == invoice_id).first())
+		if not invoice:
+			return ''
+
+		return invoice.invoice_number
+
+	return ''
 
 class SendCodeView(MethodView):
 	"""
@@ -64,7 +93,9 @@ class SendCodeView(MethodView):
 			if not existing_user:
 				raise errors.Error('No user found matching email "{}"'.format(email))
 
-			link_type = cast(Dict, two_factor_link.form_info).get('type', '')
+			form_info = cast(Dict, two_factor_link.form_info)
+			link_type = form_info.get('type', '')
+
 			if link_type == db_constants.TwoFactorLinkType.FORGOT_PASSWORD:
 				# Forgot your password links don't require 2FA
 				return make_response(json.dumps({
@@ -86,11 +117,13 @@ class SendCodeView(MethodView):
 			message_method = 'phone'
 
 			if company_settings.two_factor_message_method == 'email':
+				artifact_name = _get_artifact_name(form_info, session)
+
 				message_method = 'email'
 				_, err = sendgrid_client.send(
 					sendgrid_util.TemplateNames.USER_TWO_FACTOR_CODE,
 					template_data={
-						'artifact_name': '',
+						'artifact_name': artifact_name,
 						'token_val': token_val,
 					},
 					recipients=[email],

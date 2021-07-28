@@ -38,7 +38,8 @@ class SMSClient(object):
 		return True, None
 
 def get_two_factor_link(
-	link_signed_val: str, security_config: security_util.ConfigDict,
+	link_signed_val: str, 
+	security_config: security_util.ConfigDict,
 	max_age_in_seconds: int, 
 	session: Session) -> Tuple[TwoFactorInfoDict, errors.Error]:
 	link_info, err = security_util.get_link_info_from_url(
