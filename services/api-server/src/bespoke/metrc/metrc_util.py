@@ -310,6 +310,8 @@ def _download_data(
 						session.rollback()
 
 						logging.error(f'Error thrown for company {company_info.name} for date {cur_date} and license {license["license_number"]}!')
+						logging.error(f'Error: {err}')
+
 						errs.append(err)
 						api_key_has_err = True
 

@@ -400,7 +400,7 @@ def populate_transfers_table(
 		lab_result_statuses_for_transfer = []
 
 		for delivery_id in metrc_transfer_obj.get_delivery_ids():
-			logging.info(f'Downloading packages for {TransferType.OUTGOING if TransferType.OUTGOING in metrc_transfer.transfer_type else TransferType.INCOMING} metrc transfer manifest number {metrc_transfer.manifest_number}, delivery ID {delivery_id}')
+			logging.info(f'Downloading packages for {TransferType.OUTGOING if TransferType.OUTGOING in metrc_transfer.transfer_type else TransferType.INCOMING} metrc transfer {metrc_transfer.transfer_id}, manifest number {metrc_transfer.manifest_number}, delivery ID {delivery_id}')
 
 			all_delivery_ids.append(delivery_id)
 			packages_api_failed = False
@@ -509,6 +509,10 @@ def populate_transfers_table(
 			session.add(metrc_transfer)
 			session.flush()
 
+			# In some rare cases, a new transfer may show up twice in the same day.
+			# The following line prevents an attempt to insert a duplicate transfer.
+			transfer_id_to_prev_transfer[metrc_transfer.transfer_id] = metrc_transfer
+
 			for delivery_id in metrc_transfer_obj.get_delivery_ids():
 				delivery_id_to_transfer_row_id[delivery_id] = str(metrc_transfer.id)
 
@@ -524,32 +528,36 @@ def populate_transfers_table(
 	delivery_id_to_delivery_row_id = {}
 
 	for metrc_transfer_obj in metrc_transfer_objs:
-		for delivery in metrc_transfer_obj.deliveries:
-			transfer_row_id = delivery_id_to_transfer_row_id[delivery.delivery_id]
+		for metrc_delivery in metrc_transfer_obj.deliveries:
+			transfer_row_id = delivery_id_to_transfer_row_id[metrc_delivery.delivery_id]
 
-			if delivery.delivery_id in delivery_id_to_prev_delivery:
+			if metrc_delivery.delivery_id in delivery_id_to_prev_delivery:
 				# update
-				prev_delivery = delivery_id_to_prev_delivery[delivery.delivery_id]
-				delivery_id_to_delivery_row_id[delivery.delivery_id] = str(prev_delivery.id)
+				prev_delivery = delivery_id_to_prev_delivery[metrc_delivery.delivery_id]
+				delivery_id_to_delivery_row_id[metrc_delivery.delivery_id] = str(prev_delivery.id)
 
 				# delivery_id - no change
 
 				prev_delivery.transfer_row_id = cast(Any, transfer_row_id)
-				prev_delivery.recipient_facility_license_number = delivery.recipient_facility_license_number
-				prev_delivery.recipient_facility_name = delivery.recipient_facility_name
-				prev_delivery.shipment_type_name = delivery.shipment_type_name
-				prev_delivery.shipment_transaction_type = delivery.shipment_transaction_type
-				prev_delivery.received_datetime = delivery.received_datetime
-				prev_delivery.delivery_payload = delivery.delivery_payload
+				prev_delivery.recipient_facility_license_number = metrc_delivery.recipient_facility_license_number
+				prev_delivery.recipient_facility_name = metrc_delivery.recipient_facility_name
+				prev_delivery.shipment_type_name = metrc_delivery.shipment_type_name
+				prev_delivery.shipment_transaction_type = metrc_delivery.shipment_transaction_type
+				prev_delivery.received_datetime = metrc_delivery.received_datetime
+				prev_delivery.delivery_payload = metrc_delivery.delivery_payload
 			else:
 				# add
-				delivery.transfer_row_id = cast(Any, transfer_row_id)
+				metrc_delivery.transfer_row_id = cast(Any, transfer_row_id)
 
-				session.add(delivery)
+				session.add(metrc_delivery)
 				session.flush()
 
-				# This must come AFTER session.flush()
-				delivery_id_to_delivery_row_id[delivery.delivery_id] = str(delivery.id)
+				# In some rare cases, a new delivery may show up twice in the same day.
+				# The following line prevents an attempt to insert a duplicate delivery.
+				delivery_id_to_prev_delivery[metrc_delivery.delivery_id] = metrc_delivery
+
+				# This must come AFTER session.flush().
+				delivery_id_to_delivery_row_id[metrc_delivery.delivery_id] = str(metrc_delivery.id)
 
 	## Write packages
 
@@ -597,5 +605,9 @@ def populate_transfers_table(
 			metrc_package.transfer_row_id = cast(Any, transfer_row_id)
 			metrc_package.delivery_row_id = cast(Any, delivery_row_id)
 			session.add(metrc_package)
+
+		# In some rare cases, a new package may show up twice in the same day.
+		# The following line prevents an attempt to insert a duplicate package.
+		package_id_to_prev_package[metrc_package.package_id] = metrc_package
 
 	return request_status, None
