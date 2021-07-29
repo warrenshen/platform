@@ -1,3 +1,11 @@
+- name: expire_old_borrowing_base_certifications
+  webhook: '{{ASYNC_SERVER_BASE_URL}}/triggers/expire-active-ebba-applications'
+  schedule: 15 0 * * *
+  include_in_metadata: true
+  payload: {}
+  headers:
+  - name: x-api-key
+    value_from_env: ASYNC_SERVER_API_KEY
 - name: update_dirty_customer_balances
   webhook: '{{ASYNC_SERVER_BASE_URL}}/triggers/update-dirty-customer-balances'
   schedule: '* * * * *'
@@ -8,14 +16,6 @@
     value_from_env: ASYNC_SERVER_API_KEY
   comment: Update the customer balance for every customer with `needs_balance_recomputed`
     set
-- name: expire_old_borrowing_base_certifications
-  webhook: '{{ASYNC_SERVER_BASE_URL}}/triggers/expire-active-ebba-applications'
-  schedule: 15 0 * * *
-  include_in_metadata: true
-  payload: {}
-  headers:
-  - name: x-api-key
-    value_from_env: ASYNC_SERVER_API_KEY
 - name: update_all_customer_balances
   webhook: '{{ASYNC_SERVER_BASE_URL}}/triggers/update-all-customer-balances'
   schedule: 3 * * * *
@@ -29,6 +29,24 @@
   schedule: 15 3 * * *
   include_in_metadata: true
   payload: {}
+  retry_conf:
+    num_retries: 0
+    timeout_seconds: 3600
+    tolerance_seconds: 21600
+    retry_interval_seconds: 10
+  headers:
+  - name: x-api-key
+    value_from_env: ASYNC_SERVER_API_KEY
+- name: execute_async_tasks
+  webhook: '{{ASYNC_SERVER_BASE_URL}}/triggers/execute-async-tasks'
+  schedule: '* * * * *'
+  include_in_metadata: true
+  payload: {}
+  retry_conf:
+    num_retries: 0
+    timeout_seconds: 3600
+    tolerance_seconds: 21600
+    retry_interval_seconds: 10
   headers:
   - name: x-api-key
     value_from_env: ASYNC_SERVER_API_KEY

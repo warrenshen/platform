@@ -1044,13 +1044,33 @@ class BankAccount(Base):
 	is_cannabis_compliant = Column(Boolean, default=False)
 	verified_at = Column(DateTime)
 
+AsyncPipelineDict = TypedDict('AsyncPipelineDict', {
+	'id': str,
+	'name': str,
+	'status': str,
+	'internal_state': Dict,
+	'params': Dict
+})
+
 class AsyncPipeline(Base):
 	__tablename__ = 'async_pipelines'
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	name = Column(String)
+	status = Column(String)
 	internal_state = Column(JSON)
 	params = Column(JSON)
+	created_at = Column(DateTime)
+	updated_at = Column(DateTime)
+
+	def as_dict(self) -> AsyncPipelineDict:
+		return AsyncPipelineDict(
+			id=str(self.id),
+			name=self.name,
+			status=self.status,
+			internal_state=cast(Dict, self.internal_state),
+			params=cast(Dict, self.params)
+		)
 
 class RetryingQuery(_Query):
 	__retry_count__ = 4

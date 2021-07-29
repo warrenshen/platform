@@ -278,9 +278,16 @@ class DownloadMetrcDataView(MethodView):
 class ExecuteAsyncTasksView(MethodView):
 	decorators = [auth_util.requires_async_magic_header]
 
+	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
-		orchestrator.handle_async_tasks(current_app.session_maker)
-		return make_response(json.dumps({'status': 'ERROR', 'msg': 'Unimplemented'}))
+		cfg = cast(Config, current_app.app_config)
+
+		resp = orchestrator.handle_async_tasks(ctx=orchestrator.Context(
+			session_maker=current_app.session_maker,
+			metrc_auth_provider=cfg.get_metrc_auth_provider(),
+			security_cfg=cfg.get_security_config()
+		))
+		return make_response(json.dumps({'status': 'OK', 'resp': resp}))
 
 handler.add_url_rule(
 	'/update-dirty-customer-balances',

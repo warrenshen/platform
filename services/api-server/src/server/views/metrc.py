@@ -6,6 +6,7 @@ from typing import Any, List, cast
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.audit import events
+from bespoke.async_util.pipeline_constants import PipelineName, PipelineState
 from bespoke.db import db_constants, models, models_util
 from bespoke.db.models import session_scope
 from bespoke.metrc import metrc_util, metrc_common_util, transfers_util
@@ -110,8 +111,9 @@ class SyncMetrcDataPerCustomerView(MethodView):
 		
 			with session_scope(current_app.session_maker) as session:
 				pipeline = models.AsyncPipeline()
-				pipeline.name = 'sync_metrc_data_per_customer'
-				pipeline.internal_state = {'state': 'beginning'}
+				pipeline.name = PipelineName.SYNC_METRC_DATA_PER_CUSTOMER
+				pipeline.internal_state = {}
+				pipeline.status = PipelineState.SUBMITTED
 				pipeline.params = {
 					'company_id': data['company_id'],
 					'start_date': data['start_date'],
