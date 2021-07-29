@@ -1044,6 +1044,13 @@ class BankAccount(Base):
 	is_cannabis_compliant = Column(Boolean, default=False)
 	verified_at = Column(DateTime)
 
+class AsyncPipeline(Base):
+	__tablename__ = 'async_pipelines'
+
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	name = Column(String)
+	internal_state = Column(JSON)
+	params = Column(JSON)
 
 class RetryingQuery(_Query):
 	__retry_count__ = 4

@@ -105,26 +105,46 @@ class SyncMetrcDataPerCustomerView(MethodView):
 		start_date = date_util.load_date_str(data['start_date'])
 		end_date = date_util.load_date_str(data['end_date'])
 
-		resp, fatal_err = metrc_util.download_data_for_one_customer(
-			company_id=data['company_id'],
-			auth_provider=cfg.get_metrc_auth_provider(),
-			security_cfg=cfg.get_security_config(),
-			start_date=start_date,
-			end_date=end_date,
-			session_maker=current_app.session_maker
-		)
-		if fatal_err:
+		if data.get('use_async'):
+			logging.info(f"Submitting request to sync metrc data for 1 customer [async]")
+		
+			with session_scope(current_app.session_maker) as session:
+				pipeline = models.AsyncPipeline()
+				pipeline.name = 'sync_metrc_data_per_customer'
+				pipeline.internal_state = {'state': 'beginning'}
+				pipeline.params = {
+					'company_id': data['company_id'],
+					'start_date': data['start_date'],
+					'end_date': data['end_date']
+				}
+				session.add(pipeline)
+				pipeline_id = str(pipeline.id)
+
 			return make_response(json.dumps({
-				'status': 'ERROR',
-				'errors': [f'{fatal_err}']
+				'status': 'OK',
+				'pipeline_id': pipeline_id
 			}))
+		else:
+			resp, fatal_err = metrc_util.download_data_for_one_customer(
+				company_id=data['company_id'],
+				auth_provider=cfg.get_metrc_auth_provider(),
+				security_cfg=cfg.get_security_config(),
+				start_date=start_date,
+				end_date=end_date,
+				session_maker=current_app.session_maker
+			)
+			if fatal_err:
+				return make_response(json.dumps({
+					'status': 'ERROR',
+					'errors': [f'{fatal_err}']
+				}))
 
-		logging.info(f"Finished syncing metrc data for 1 customer")
+			logging.info(f"Finished syncing metrc data for 1 customer")
 
-		return make_response(json.dumps({
-			'status': 'OK',
-			'errors': ['{}'.format(err) for err in resp['all_errs']]
-		}))
+			return make_response(json.dumps({
+				'status': 'OK',
+				'errors': ['{}'.format(err) for err in resp['all_errs']]
+			}))
 
 class SyncMetrcDataView(MethodView):
 	decorators = [auth_util.bank_admin_required]

@@ -1,5 +1,8 @@
 - table:
     schema: public
+    name: async_pipelines
+- table:
+    schema: public
     name: audit_events
 - table:
     schema: public

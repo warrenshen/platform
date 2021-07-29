@@ -10,6 +10,7 @@ from mypy_extensions import TypedDict
 from sqlalchemy import func
 
 from bespoke import errors
+from bespoke.async_util import orchestrator
 from bespoke.audit import events
 from bespoke.date import date_util
 from bespoke.db import models, models_util
@@ -258,6 +259,13 @@ class DownloadMetrcDataView(MethodView):
 		}))
 
 
+class ExecuteAsyncTasksView(MethodView):
+	decorators = [auth_util.requires_async_magic_header]
+
+	def post(self) -> Response:
+		orchestrator.handle_async_tasks(current_app.session_maker)
+		return make_response(json.dumps({'status': 'ERROR', 'msg': 'Unimplemented'}))
+
 handler.add_url_rule(
 	'/update-dirty-customer-balances',
 	view_func=UpdateDirtyCompanyBalancesView.as_view(name='update_dirty_customer_balances_view'))
@@ -279,3 +287,7 @@ handler.add_url_rule(
 handler.add_url_rule(
 	"/download-metrc-data",
 	view_func=DownloadMetrcDataView.as_view(name='download_metrc_data_view'))
+
+handler.add_url_rule(
+	"/execute-async-tasks",
+	view_func=ExecuteAsyncTasksView.as_view(name='execute_async_tasks_view'))
