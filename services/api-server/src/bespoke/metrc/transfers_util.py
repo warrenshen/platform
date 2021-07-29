@@ -566,7 +566,7 @@ def populate_transfers_table(
 
 	# Without the following batching logic, we run into SQL timeout errors due to how much
 	# data is in the metrc_packages table, namely the metrc_packages.package_payload column.
-	BATCH_SIZE = 20
+	BATCH_SIZE = 10
 	# Note the de-dupe here, there may be multiple packages with the same package_id from the
 	# packages collected above (this is because multiple deliveries may have the same package).
 	package_ids = list(set([pkg.package_id for pkg in all_metrc_packages]))
