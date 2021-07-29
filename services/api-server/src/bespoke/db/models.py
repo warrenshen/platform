@@ -22,7 +22,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.orm.query import Query as _Query
 from sqlalchemy.orm.session import Session
-from sqlalchemy.pool import QueuePool, NullPool
+from sqlalchemy.pool import QueuePool
 
 Base = declarative_base()
 
@@ -65,14 +65,12 @@ def create_engine() -> Engine:
 	pool_size = 3
 
 	if not is_prod_env(os.environ.get('FLASK_ENV')):
-		return sqlalchemy.create_engine(
-			get_db_url(),
-			connect_args={
-				'connect_timeout': 100,
-				"options": "-c statement_timeout=3000",
-			},
-			poolclass=NullPool
-		)
+		# Staging DB has 20 connections
+		# Assuming 5 are taken up by GraphQL
+		# we allow for 2 per thread, 6 threads total (4 api-server, 2 api-server async)
+		# therefore 2 * 6 + 5 = 17 which is under the 20 limit
+		max_overflow = 1
+		pool_size = 1
 
 	return sqlalchemy.create_engine(
 		get_db_url(),
@@ -84,8 +82,8 @@ def create_engine() -> Engine:
 		pool_recycle=1200,  # dont let connections last for longer than X seconds
 		# we want old connections to be recycled and thrown out, so only use the most recent connections
 		pool_use_lifo=True,
-		max_overflow=2, # limit to an additional X connections for overflow purposes
-		pool_size=3,  # Only allow X connections at most at once
+		max_overflow=max_overflow, # limit to an additional X connections for overflow purposes
+		pool_size=pool_size,  # Only allow X connections at most at once
 		# We dont want to keep connections in memory, currently we only have about 20 max connections in non-prod envs
 		poolclass=QueuePool
 	)
