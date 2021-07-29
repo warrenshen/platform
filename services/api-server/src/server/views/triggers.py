@@ -225,25 +225,41 @@ class DownloadMetrcDataView(MethodView):
 
 		start_date = todays_date - timedelta(days=TIME_WINDOW_IN_DAYS)
 		end_date = todays_date
-
+		
 		before = time.time()
-		resp, fatal_err = metrc_util.download_data_for_all_customers(
-			auth_provider=cfg.get_metrc_auth_provider(),
-			security_cfg=cfg.get_security_config(),
-			start_date=start_date,
-			end_date=end_date,
-			session_maker=current_app.session_maker
-		)
-		if fatal_err:
-			raise errors.Error('{}'.format(fatal_err), http_code=500)
+		
+		company_ids = metrc_util.get_companies_with_metrc_keys(current_app.session_maker)
 
-		descriptive_errors = ['{}'.format(err) for err in resp['all_errs']]
+		all_errs = []
+		failed_company_ids = []
+
+		for company_id in company_ids:
+			cur_date = start_date
+
+			while cur_date <= end_date:
+				resp, fatal_err = metrc_util.download_data_for_one_customer(
+					auth_provider=cfg.get_metrc_auth_provider(),
+					security_cfg=cfg.get_security_config(),
+					cur_date=cur_date,
+					company_id=company_id,
+					session_maker=current_app.session_maker
+				)
+				if fatal_err:
+					all_errs.append(fatal_err)
+					failed_company_ids.append(company_id)
+					# Dont continue with additional days if one of the days failed
+					break
+
+				cur_date = cur_date + timedelta(days=1)
+
+		descriptive_errors = ['{}'.format(err) for err in all_errs]
 		after = time.time()
 		additional_info = 'Took {:.2f} seconds'.format(after - before)
+		final_fatal_err = errors.Error('All companies failed') if len(failed_company_ids) == len(company_ids) else None
 
 		err = _send_ops_notification(_prepare_notification_data(
 			'download_metrc_data',
-			fatal_err,
+			final_fatal_err,
 			descriptive_errors,
 			additional_info
 		))

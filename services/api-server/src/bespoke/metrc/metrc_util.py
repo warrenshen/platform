@@ -98,170 +98,136 @@ def view_api_key(
 
 ### Download logic
 
-def _get_companies_with_metrc_keys(
+def get_companies_with_metrc_keys(session_maker: Callable) -> List[str]:
+	company_ids_set = set([])
+
+	with session_scope(session_maker) as session:
+		metrc_api_keys = cast(
+			List[models.MetrcApiKey],
+			session.query(models.MetrcApiKey).all())
+		for metrc_api_key in metrc_api_keys:
+			company_ids_set.add(str(metrc_api_key.company_id))
+
+	return list(company_ids_set)
+
+def _get_metrc_company_info(
 	auth_provider: MetrcAuthProvider,
 	security_cfg: security_util.ConfigDict,
-	specific_company_id: str,
-	session_maker: Callable) -> Tuple[List[CompanyInfo], errors.Error]:
-	company_infos = []
+	company_id: str,
+	session_maker: Callable) -> Tuple[CompanyInfo, errors.Error]:
 
-	# Find all customers that have a metrc key
 	with session_scope(session_maker) as session:
-		if specific_company_id:
-			companies = cast(
-				List[models.Company],
-				session.query(models.Company).filter(
-					models.Company.id == specific_company_id
-				).all())
+		company = cast(
+			models.Company,
+			session.query(models.Company).filter(
+				models.Company.id == company_id
+			).first())
+		if not company:
+			return None, errors.Error('Company {} not found'.format(company_id))
 
-		else:
-			companies = cast(
-				List[models.Company],
-				session.query(models.Company).all())
+		if not company.company_settings_id:
+			return None, errors.Error('Company {} has no settings, but has a metrc key'.format(company_id))
 
-		company_settings_ids = []
-		company_ids = []
-		company_id_to_name = {}
-		for company in companies:
-			if not company.company_settings_id:
-				# Skip companies who do not have settings setup
-				continue
-			if not company.contract_id:
-				# Skip companies who do not have contracts setup
-				continue
-			company_settings_ids.append(str(company.company_settings_id))
-			company_id_to_name[str(company.id)] = company.name
-			company_ids.append(str(company.id))
+		if not company.contract_id:
+			# Skip companies who do not have contracts setup
+			return None, errors.Error('Company {} has no contract, but has a metrc key'.format(company_id))
 
-		company_id_to_contract, err = contract_util.get_active_contracts_by_company_ids(
-			company_ids=company_ids,
-			session=session,
-			err_details={}
+		cur_contract, err = contract_util.get_active_contract_by_company_id(
+			company_id=company_id,
+			session=session
 		)
 		if err:
 			return None, err
 
-		company_settings = cast(
-			List[models.CompanySettings],
+		company_setting = cast(
+			models.CompanySettings,
 			session.query(models.CompanySettings).filter(
-				models.CompanySettings.id.in_(company_settings_ids)
-		).all())
+				models.CompanySettings.id == company.company_settings_id
+		).first())
 
-		metrc_api_key_ids = []
-		for company_setting in company_settings:
-			if not company_setting.metrc_api_key_id:
-				continue
+		metrc_api_key_id = None
+		if not company_setting.metrc_api_key_id:
+			return None, errors.Error('No metrc key ID exists for company {}'.format(company_id))
 
-			metrc_api_key_ids.append(str(company_setting.metrc_api_key_id))
+		metrc_api_key_id = str(company_setting.metrc_api_key_id)
 
-		metrc_api_keys = cast(
-			List[models.MetrcApiKey],
+		metrc_api_key = cast(
+			models.MetrcApiKey,
 			session.query(models.MetrcApiKey).filter(
-				models.MetrcApiKey.id.in_(metrc_api_key_ids)
-		).all())
-
-		company_ids_with_metrc_keys = set([])
-		for metrc_api_key in metrc_api_keys:
-			company_id = str(metrc_api_key.company_id)
-			company_ids_with_metrc_keys.add(company_id)
+				models.MetrcApiKey.id == metrc_api_key_id
+		).first())
 
 		all_licenses = cast(
 			List[models.CompanyLicense],
 			session.query(models.CompanyLicense).filter(
-				models.CompanyLicense.company_id.in_(company_ids_with_metrc_keys)
+				models.CompanyLicense.company_id == company_id
 			).filter(
 				cast(Callable, models.CompanyLicense.is_deleted.isnot)(True)
 		).all())
 
-		company_id_to_licenses_map: Dict[str, Dict[str, models.CompanyLicenseDict]] = {}
+		licenses_map: Dict[str, models.CompanyLicenseDict] = {}
 		for license in all_licenses:
-			company_id = str(license.company_id)
-			if company_id not in company_id_to_licenses_map:
-				company_id_to_licenses_map[company_id] = {}
+			licenses_map[license.license_number] = license.as_dict()
 
-			cur_contract = company_id_to_contract.get(company_id)
-			if not cur_contract:
-				return None, errors.Error('Company ID: "{}" is missing an active contract but has metrc licenses'.format(company_id))
+		company_name = company.name
+		api_key = security_util.decode_secret_string(
+			security_cfg, metrc_api_key.encrypted_api_key
+		)
 
-			us_state, err = cur_contract.get_us_state()
-			if err:
-				return None, err
+		if not licenses_map:
+			return None, errors.Error('Company ID {}, Name: "{}" has no licenses saved in the DB but has a metrc key specified'.format(
+									 company_id, company_name))
 
-			vendor_key, err = auth_provider.get_vendor_key_by_state(us_state)
+		us_state, err = cur_contract.get_us_state()
+		if err:
+			return None, err
 
-			company_id_to_licenses_map[company_id][license.license_number] = license.as_dict()
+		vendor_key, err = auth_provider.get_vendor_key_by_state(us_state)
+		if err:
+			return None, err
 
-		for metrc_api_key in metrc_api_keys:
-			company_id = str(metrc_api_key.company_id)
-			company_name = company_id_to_name[company_id]
-			api_key = security_util.decode_secret_string(
-				security_cfg, metrc_api_key.encrypted_api_key
-			)
+		license_auths = []
+		facilities = metrc_common_util.get_facilities(AuthDict(
+			vendor_key=vendor_key,
+			user_key=api_key
+		), us_state)
 
-			if company_id not in company_id_to_licenses_map:
-				logging.warn('Company ID {}, Name: "{}" has no licenses saved in the DB, skipping...'.format(
-										 company_id, company_id_to_name[company_id]))
-				continue
+		for facility in facilities:
+			license_number = facility['license_number']
+			license_id = None
+			if license_number in licenses_map:
+				license_id = licenses_map[license_number]['id']
+			else:
+				logging.warn(f'Company "{company_name}" has license "{license_number}" in Metrc which is not stored in our Postgres DB')
 
-			cur_contract = company_id_to_contract.get(company_id)
-			if not cur_contract:
-				return None, errors.Error('Company ID: "{}" is missing an active contract but has metrc licenses'.format(company_id))
-
-			us_state, err = cur_contract.get_us_state()
-			if err:
-				return None, err
-
-			vendor_key, err = auth_provider.get_vendor_key_by_state(us_state)
-			if err:
-				return None, err
-
-			license_auths = []
-			facilities = metrc_common_util.get_facilities(AuthDict(
+			license_auths.append(LicenseAuthDict(
+				license_id=license_id,
+				license_number=license_number,
+				us_state=us_state,
 				vendor_key=vendor_key,
 				user_key=api_key
-			), us_state)
-			license_number_to_license = company_id_to_licenses_map[company_id]
-
-			for facility in facilities:
-				license_number = facility['license_number']
-				license_id = None
-				if license_number in license_number_to_license:
-					license_id = license_number_to_license[license_number]['id']
-				else:
-					logging.warn(f'Company "{company_name}" has license "{license_number}" in Metrc which is not stored in our Postgres DB')
-
-				license_auths.append(LicenseAuthDict(
-					license_id=license_id,
-					license_number=license_number,
-					us_state=us_state,
-					vendor_key=vendor_key,
-					user_key=api_key
-				))
-
-			logging.info('Company name: {} has a metrc key'.format(company_name))
-			company_infos.append(CompanyInfo(
-				company_id=company_id,
-				name=company_name,
-				licenses=license_auths,
-				metrc_api_key_id=str(metrc_api_key.id)
 			))
 
-	return company_infos, None
+		return CompanyInfo(
+			company_id=company_id,
+			name=company_name,
+			licenses=license_auths,
+			metrc_api_key_id=str(metrc_api_key.id)
+		), None
 
 def _download_data(
-	specific_company_id: str,
+	company_id: str,
 	auth_provider: MetrcAuthProvider,
 	security_cfg: security_util.ConfigDict,
-	start_date: datetime.date,
-	end_date: datetime.date,
+	cur_date: datetime.date,
 	session_maker: Callable
 ) -> Tuple[DownloadDataRespDict, errors.Error]:
 	# Return: success, all_errs, fatal_error
 
-	company_infos, err = _get_companies_with_metrc_keys(
+	company_info, err = _get_metrc_company_info(
 			auth_provider,
 			security_cfg,
-			specific_company_id=specific_company_id,
+			company_id=company_id,
 			session_maker=session_maker
 		)
 	if err:
@@ -272,78 +238,68 @@ def _download_data(
 
 	errs = []
 
-	for company_info in company_infos:
-		functioning_licenses_count = 0 # How many licenses is the API key functioning for
-		license_to_statuses = {}
+	functioning_licenses_count = 0 # How many licenses is the API key functioning for
+	license_to_statuses = {}
 
-		for license in company_info.licenses:
-			api_key_has_err = False # Assume 1 API key per customer
+	for license in company_info.licenses:
+		api_key_has_err = False # Assume 1 API key per customer
 
-			cur_date = start_date
+		transfers_status_code = UNKNOWN_STATUS_CODE
+		packages_status_code = UNKNOWN_STATUS_CODE
+		lab_results_status_code = UNKNOWN_STATUS_CODE
 
-			transfers_status_code = UNKNOWN_STATUS_CODE
-			packages_status_code = UNKNOWN_STATUS_CODE
-			lab_results_status_code = UNKNOWN_STATUS_CODE
-
-			while cur_date <= end_date:
-				with session_scope(session_maker) as session:
-					# Download transfers data for the particular day and key
-					statuses, err = transfers_util.populate_transfers_table(
-						cur_date=cur_date,
-						company_info=company_info,
-						license=license,
-						session=session,
-						debug=False,
-					)
-					if statuses:
-						if statuses['transfers_api'] != UNKNOWN_STATUS_CODE:
-							# Only overwrite the status if we actually got a status code
-							transfers_status_code = statuses['transfers_api']
-
-						if statuses['packages_api'] != UNKNOWN_STATUS_CODE:
-							packages_status_code = statuses['packages_api']
-
-						if statuses['lab_results_api'] != UNKNOWN_STATUS_CODE:
-							lab_results_status_code = statuses['lab_results_api']
-
-					if err:
-						session.rollback()
-
-						logging.error(f'Error thrown for company {company_info.name} for date {cur_date} and license {license["license_number"]}!')
-						logging.error(f'Error: {err}')
-
-						errs.append(err)
-						api_key_has_err = True
-
-						# If there was any error, do NOT keep fetching
-						# information for the rest of the days
-						break
-
-				cur_date = cur_date + timedelta(days=1)
-
-			functioning_licenses_count += 1 if not api_key_has_err else 0
-			license_to_statuses[license['license_number']] = {
-				'api_key_has_err': api_key_has_err, # Record whether there was an error with the Metrc API for this license
-				'transfers_api': transfers_status_code,
-				'packages_api': packages_status_code,
-				'lab_results_api': lab_results_status_code
-			}
-
-		# Update whether this metrc key worked
 		with session_scope(session_maker) as session:
+			# Download transfers data for the particular day and key
+			statuses, err = transfers_util.populate_transfers_table(
+				cur_date=cur_date,
+				company_info=company_info,
+				license=license,
+				session=session,
+				debug=False,
+			)
+			if statuses:
+				if statuses['transfers_api'] != UNKNOWN_STATUS_CODE:
+					# Only overwrite the status if we actually got a status code
+					transfers_status_code = statuses['transfers_api']
 
-			metrc_api_key = cast(
-				models.MetrcApiKey,
-				session.query(models.MetrcApiKey).filter(
-					models.MetrcApiKey.id == company_info.metrc_api_key_id
-			).first())
+				if statuses['packages_api'] != UNKNOWN_STATUS_CODE:
+					packages_status_code = statuses['packages_api']
 
-			if metrc_api_key:
-				metrc_api_key.is_functioning = functioning_licenses_count > 0 # Metrc API key is "functioning" if at least one license is functioning
-				metrc_api_key.last_used_at = date_util.now()
-				metrc_api_key.status_codes_payload = license_to_statuses
+				if statuses['lab_results_api'] != UNKNOWN_STATUS_CODE:
+					lab_results_status_code = statuses['lab_results_api']
 
-	if specific_company_id and errs:
+			if err:
+				session.rollback()
+
+				logging.error(f'Error thrown for company {company_info.name} for date {cur_date} and license {license["license_number"]}!')
+				logging.error(f'Error: {err}')
+
+				errs.append(err)
+				api_key_has_err = True
+
+		functioning_licenses_count += 1 if not api_key_has_err else 0
+		license_to_statuses[license['license_number']] = {
+			'api_key_has_err': api_key_has_err, # Record whether there was an error with the Metrc API for this license
+			'transfers_api': transfers_status_code,
+			'packages_api': packages_status_code,
+			'lab_results_api': lab_results_status_code
+		}
+
+	# Update whether this metrc key worked
+	with session_scope(session_maker) as session:
+
+		metrc_api_key = cast(
+			models.MetrcApiKey,
+			session.query(models.MetrcApiKey).filter(
+				models.MetrcApiKey.id == company_info.metrc_api_key_id
+		).first())
+
+		if metrc_api_key:
+			metrc_api_key.is_functioning = functioning_licenses_count > 0 # Metrc API key is "functioning" if at least one license is functioning
+			metrc_api_key.last_used_at = date_util.now()
+			metrc_api_key.status_codes_payload = license_to_statuses
+
+	if errs:
 		return DownloadDataRespDict(
 			success=False, 
 			all_errs=errs
@@ -358,35 +314,15 @@ def download_data_for_one_customer(
 	company_id: str,
 	auth_provider: MetrcAuthProvider,
 	security_cfg: security_util.ConfigDict,
-	start_date: datetime.date,
-	end_date: datetime.date,
+	cur_date: datetime.date,
 	session_maker: Callable
 ) -> Tuple[DownloadDataRespDict, errors.Error]:
 
 	return _download_data(
-		specific_company_id=company_id,
+		company_id=company_id,
 		auth_provider=auth_provider,
 		security_cfg=security_cfg,
-		start_date=start_date,
-		end_date=end_date,
-		session_maker=session_maker
-	)
-
-@errors.return_error_tuple
-def download_data_for_all_customers(
-	auth_provider: MetrcAuthProvider,
-	security_cfg: security_util.ConfigDict,
-	start_date: datetime.date,
-	end_date: datetime.date,
-	session_maker: Callable
-) -> Tuple[DownloadDataRespDict, errors.Error]:
-
-	return _download_data(
-		specific_company_id=None,
-		auth_provider=auth_provider,
-		security_cfg=security_cfg,
-		start_date=start_date,
-		end_date=end_date,
+		cur_date=cur_date,
 		session_maker=session_maker
 	)
 

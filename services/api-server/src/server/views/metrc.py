@@ -125,19 +125,21 @@ class SyncMetrcDataPerCustomerView(MethodView):
 				'pipeline_id': pipeline_id
 			}))
 		else:
-			resp, fatal_err = metrc_util.download_data_for_one_customer(
-				company_id=data['company_id'],
-				auth_provider=cfg.get_metrc_auth_provider(),
-				security_cfg=cfg.get_security_config(),
-				start_date=start_date,
-				end_date=end_date,
-				session_maker=current_app.session_maker
-			)
-			if fatal_err:
-				return make_response(json.dumps({
-					'status': 'ERROR',
-					'errors': [f'{fatal_err}']
-				}))
+			cur_date = start_date
+			while cur_date <= end_date:
+				resp, fatal_err = metrc_util.download_data_for_one_customer(
+					company_id=data['company_id'],
+					auth_provider=cfg.get_metrc_auth_provider(),
+					security_cfg=cfg.get_security_config(),
+					cur_date=cur_date,
+					session_maker=current_app.session_maker
+				)
+				cur_date = cur_date + timedelta(days=1)
+				if fatal_err:
+					return make_response(json.dumps({
+						'status': 'ERROR',
+						'errors': [f'{fatal_err}']
+					}))
 
 			logging.info(f"Finished syncing metrc data for 1 customer")
 
@@ -156,24 +158,30 @@ class SyncMetrcDataView(MethodView):
 
 		data = json.loads(request.data)
 
-		start_date = date_util.load_date_str(data['cur_date'])
-		end_date = start_date
+		cur_date = date_util.load_date_str(data['cur_date'])
+	
+		company_ids = metrc_util.get_companies_with_metrc_keys(current_app.session_maker)
+		all_errs = []
+		failed_company_ids = []
 
-		resp, fatal_err = metrc_util.download_data_for_all_customers(
-			auth_provider=cfg.get_metrc_auth_provider(),
-			security_cfg=cfg.get_security_config(),
-			start_date=start_date,
-			end_date=end_date,
-			session_maker=current_app.session_maker
-		)
-		if fatal_err:
-			raise errors.Error('{}'.format(fatal_err), http_code=500)
+		for company_id in company_ids:		
+			resp, fatal_err = metrc_util.download_data_for_one_customer(
+				auth_provider=cfg.get_metrc_auth_provider(),
+				security_cfg=cfg.get_security_config(),
+				cur_date=cur_date,
+				company_id=company_id,
+				session_maker=current_app.session_maker
+			)
+			if fatal_err:
+				all_errs.append(errors.Error('{}'.format(fatal_err)))
+				failed_company_ids.append(company_id)
 
 		logging.info(f"Finished syncing metrc data for all customers")
 
 		return make_response(json.dumps({
 			'status': 'OK',
-			'errors': ['{}'.format(err) for err in resp['all_errs']]
+			'errors': ['{}'.format(err) for err in all_errs],
+			'failed_company_ids': failed_company_ids
 		}))
 
 handler.add_url_rule(
