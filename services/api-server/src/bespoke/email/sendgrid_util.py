@@ -15,7 +15,11 @@ from mypy_extensions import TypedDict
 
 
 class TemplateNames(object):
-	VENDOR_AGREEMENT_WITH_CUSTOMER = 'vendor_agreement_with_customer' # to vendor
+	# Email sent to vendor: onboarding link for Line of Credit customers.
+	VENDOR_ONBOARDING_LINE_OF_CREDIT = 'vendor_onboarding_line_of_credit'
+
+	# Email sent to vendor: Vendor Agreement for Inventory Financing & PMF customers.
+	VENDOR_AGREEMENT_WITH_CUSTOMER = 'vendor_agreement_with_customer'
 	VENDOR_APPROVED_NOTIFY_CUSTOMER = 'vendor_approved_notify_customer'
 	VENDOR_APPROVED_NOTIFY_VENDOR = 'vendor_approved_notify_vendor' # to vendor
 	VENDOR_TO_APPROVE_PURCHASE_ORDER = 'vendor_to_approve_purchase_order' # to vendor
@@ -28,6 +32,7 @@ class TemplateNames(object):
 	VENDOR_REJECTED_PURCHASE_ORDER = 'vendor_rejected_purchase_order'
 	BANK_REJECTED_PURCHASE_ORDER = 'bank_rejected_purchase_order'
 
+	# Email sent to payor: Payor Agreement (Notice of Assignment) for Invoice Financing customers.
 	PAYOR_AGREEMENT_WITH_CUSTOMER = 'payor_agreement_with_customer' # to payor
 	PAYOR_APPROVED_NOTIFY_CUSTOMER = 'payor_approved_notify_customer' 
 	PAYOR_APPROVED_NOTIFY_PAYOR = 'payor_approved_notify_payor' # to payor
@@ -81,6 +86,10 @@ TEMPLATES_TO_EXCLUDE_FROM_BESPOKE_NOTIFICATIONS = set([
 ])
 
 _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
+	TemplateNames.VENDOR_ONBOARDING_LINE_OF_CREDIT: {
+		'id': 'd-8a4e70664462483d96c2faddcc031a0a',
+		'requires_secure_link': False
+	},
 	TemplateNames.VENDOR_AGREEMENT_WITH_CUSTOMER: {
 		'id': 'd-58c45054a5254f64a81bd6695709aed0',
 		'requires_secure_link': False

@@ -119,7 +119,7 @@ export default function EditCustomerSettingsModal({
               <TextField
                 fullWidth
                 label="Vendor Onboarding Link"
-                placeholder="http://docusign.com/link/to/vendor_onboarding"
+                placeholder="http://forms.google.com/vendor-onboarding"
                 value={settings.vendor_onboarding_link || ""}
                 onChange={({ target: { value } }) => {
                   setSettings({
@@ -135,7 +135,7 @@ export default function EditCustomerSettingsModal({
               <TextField
                 fullWidth
                 label="Vendor Agreement"
-                placeholder="http://docusign.com/link/to/template"
+                placeholder="http://docusign.com/vendor-agreement"
                 value={settings.vendor_agreement_docusign_template || ""}
                 onChange={({ target: { value } }) => {
                   setSettings({
@@ -151,7 +151,7 @@ export default function EditCustomerSettingsModal({
               <TextField
                 fullWidth
                 label="Notice of Assignment"
-                placeholder="http://docusign.com/link/to/template"
+                placeholder="http://docusign.com/notice-of-assignment"
                 value={settings.payor_agreement_docusign_template || ""}
                 onChange={({ target: { value } }) => {
                   setSettings({

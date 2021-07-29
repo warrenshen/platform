@@ -308,7 +308,7 @@ class CreatePartnershipView(MethodView):
 				template_name = sendgrid_util.TemplateNames.PAYOR_AGREEMENT_WITH_CUSTOMER
 			elif is_loc_customer and resp['company_type'] == db_constants.CompanyType.Vendor:
 				docusign_link = customer_settings.vendor_onboarding_link
-				template_name = sendgrid_util.TemplateNames.VENDOR_AGREEMENT_WITH_CUSTOMER
+				template_name = sendgrid_util.TemplateNames.VENDOR_ONBOARDING_LINE_OF_CREDIT
 			elif resp['company_type'] == db_constants.CompanyType.Vendor: 
 				docusign_link = customer_settings.vendor_agreement_docusign_template
 				template_name = sendgrid_util.TemplateNames.VENDOR_AGREEMENT_WITH_CUSTOMER
