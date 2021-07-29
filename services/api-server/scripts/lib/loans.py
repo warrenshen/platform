@@ -46,6 +46,7 @@ def populate_frozen_loan_reports(session_maker: Callable) -> None:
 			start_date_for_storing_updates=today,
 			today=today,
 			include_debug_info=False,
+			is_past_date_default_val=False,
 			include_frozen=True,
 		)
 
@@ -53,7 +54,11 @@ def populate_frozen_loan_reports(session_maker: Callable) -> None:
 			print(f'[{index + 1} of {customers_count}] Error for customer {customer_dict["name"]}')
 			print(err)
 
-		if date_to_customer_update_dict is not None and today in date_to_customer_update_dict:
+		if (
+			date_to_customer_update_dict is not None and
+			today in date_to_customer_update_dict and
+			date_to_customer_update_dict[today]
+		):
 			with session_scope(session_maker) as session:
 				customer_update_dict = date_to_customer_update_dict[today]
 

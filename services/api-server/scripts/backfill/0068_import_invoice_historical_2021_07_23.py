@@ -25,6 +25,10 @@ def main() -> None:
 	engine = models.create_engine()
 	session_maker = models.new_sessionmaker(engine)
 
+	payor_vendors_path = 'scripts/data/payor_vendors_2021_07_23.xlsx'
+	with models.session_scope(session_maker) as session:
+		companies.load_into_db_from_excel(session, payor_vendors_path)
+
 	invoice_historical_path = 'scripts/data/invoice_historical_2021_07_23.xlsx'
 
 	with models.session_scope(session_maker) as session:
@@ -66,9 +70,9 @@ def main() -> None:
 		filtered_repayment_tuples = list(filter(lambda repayment_tuple: repayment_tuple[0] is not '', repayment_tuples[1:]))
 		repayments.import_settled_repayments(session, filtered_repayment_tuples, account_fee_type='custom')
 
-		# loans.reset_loan_statuses(session)
+		loans.reset_loan_statuses(session)
 
-		# loans.populate_frozen_loan_reports(session_maker)
+		loans.populate_frozen_loan_reports(session_maker)
 
 		print(f'Finished import')
 

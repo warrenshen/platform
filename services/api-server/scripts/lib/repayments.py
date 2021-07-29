@@ -71,7 +71,13 @@ def import_settled_repayments(
 		if (
 			not parsed_customer_identifier or
 			not parsed_loan_identifier or
-			not numeric_loan_identifier or
+			not numeric_loan_identifier
+		):
+			print(f'[{index + 1} of {repayments_count}] Invalid repayment field(s): identifiers')
+			print(f'EXITING EARLY')
+			return
+
+		if (
 			not parsed_amount or
 			parsed_amount <= 0 or
 			parsed_to_principal < 0 or
