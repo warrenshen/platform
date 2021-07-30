@@ -20,6 +20,90 @@ from bespoke.finance.reports import loan_balances
 def chunker(seq, size):
 	return (seq[pos:pos + size] for pos in range(0, len(seq), size))
 
+def populate_frozen_loan_reports_for_customer(
+	customer_dict: models.CompanyDict,
+	session_maker: Callable,
+) -> bool:
+	customer_balance = loan_balances.CustomerBalance(customer_dict, session_maker)
+	today = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
+	date_to_customer_update_dict, err = customer_balance.update(
+		start_date_for_storing_updates=today,
+		today=today,
+		include_debug_info=False,
+		is_past_date_default_val=False,
+		include_frozen=True,
+	)
+
+	if err:
+		print(f'Error for customer {customer_dict["name"]}')
+		print(err)
+		return False
+
+	if (
+		date_to_customer_update_dict is not None and
+		today in date_to_customer_update_dict and
+		date_to_customer_update_dict[today]
+	):
+		with session_scope(session_maker) as session:
+			customer_update_dict = date_to_customer_update_dict[today]
+
+			loan_ids = []
+			loan_id_to_update = {}
+
+			for loan_update in customer_update_dict['loan_updates']:
+				loan_id = loan_update['loan_id']
+				loan_id_to_update[loan_id] = loan_update
+				loan_ids.append(loan_id)
+
+			BATCH_SIZE = 50
+
+			for loan_ids_chunk in chunker(loan_ids, BATCH_SIZE):
+				with session_scope(session_maker) as session:
+					loans = cast(
+						List[models.Loan],
+						session.query(models.Loan).filter(
+							models.Loan.id.in_(loan_ids_chunk)
+						).all())
+
+					if not loans:
+						loans = []
+
+					loan_report_ids = [loan.loan_report_id for loan in loans]
+					loan_reports = cast(
+						List[models.LoanReport],
+						session.query(models.LoanReport).filter(
+							models.LoanReport.id.in_(loan_report_ids)
+						).all())
+
+					loan_report_id_to_loan_report = dict({})
+					for loan_report in loan_reports:
+						loan_report_id_to_loan_report[str(loan_report.id)] = loan_report
+
+					for loan in loans:
+						if not loan.is_frozen:
+							continue
+
+						cur_loan_update = loan_id_to_update[str(loan.id)]
+
+						loan_report = loan_report_id_to_loan_report.get(str(loan.id), None)
+
+						if not loan_report:
+							loan_report = models.LoanReport()
+							session.add(loan_report)
+							session.flush()
+							loan.loan_report_id = loan_report.id
+
+						loan_report.repayment_date = cur_loan_update['repayment_date']
+						loan_report.financing_period = cur_loan_update['financing_period']
+						loan_report.financing_day_limit = cur_loan_update['financing_day_limit']
+						loan_report.total_principal_paid = decimal.Decimal(number_util.round_currency(cur_loan_update['total_principal_paid']))
+						loan_report.total_interest_paid = decimal.Decimal(number_util.round_currency(cur_loan_update['total_interest_paid']))
+						loan_report.total_fees_paid = decimal.Decimal(number_util.round_currency(cur_loan_update['total_fees_paid']))
+	else:
+		print(f'Warning for customer {customer_dict["name"]}: no results')
+
+	return True
+
 def populate_frozen_loan_reports(session_maker: Callable) -> None:
 	customer_dicts = []
 
@@ -40,83 +124,14 @@ def populate_frozen_loan_reports(session_maker: Callable) -> None:
 		print(f'[{index + 1} of {customers_count}]')
 		print(f'[{index + 1} of {customers_count}] Updating frozen loans for customer {customer_dict["name"]}')
 
-		customer_balance = loan_balances.CustomerBalance(customer_dict, session_maker)
-		today = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
-		date_to_customer_update_dict, err = customer_balance.update(
-			start_date_for_storing_updates=today,
-			today=today,
-			include_debug_info=False,
-			is_past_date_default_val=False,
-			include_frozen=True,
-		)
+		success = populate_frozen_loan_reports_for_customer(customer_dict, session_maker)
 
-		if err:
-			print(f'[{index + 1} of {customers_count}] Error for customer {customer_dict["name"]}')
-			print(err)
-
-		if (
-			date_to_customer_update_dict is not None and
-			today in date_to_customer_update_dict and
-			date_to_customer_update_dict[today]
-		):
-			with session_scope(session_maker) as session:
-				customer_update_dict = date_to_customer_update_dict[today]
-
-				loan_ids = []
-				loan_id_to_update = {}
-
-				for loan_update in customer_update_dict['loan_updates']:
-					loan_id = loan_update['loan_id']
-					loan_id_to_update[loan_id] = loan_update
-					loan_ids.append(loan_id)
-
-				BATCH_SIZE = 50
-
-				for loan_ids_chunk in chunker(loan_ids, BATCH_SIZE):
-					with session_scope(session_maker) as session:
-						loans = cast(
-							List[models.Loan],
-							session.query(models.Loan).filter(
-								models.Loan.id.in_(loan_ids_chunk)
-							).all())
-
-						if not loans:
-							loans = []
-
-						loan_report_ids = [loan.loan_report_id for loan in loans]
-						loan_reports = cast(
-							List[models.LoanReport],
-							session.query(models.LoanReport).filter(
-								models.LoanReport.id.in_(loan_report_ids)
-							).all())
-
-						loan_report_id_to_loan_report = dict({})
-						for loan_report in loan_reports:
-							loan_report_id_to_loan_report[str(loan_report.id)] = loan_report
-
-						for loan in loans:
-							if not loan.is_frozen:
-								continue
-
-							cur_loan_update = loan_id_to_update[str(loan.id)]
-
-							loan_report = loan_report_id_to_loan_report.get(str(loan.id), None)
-
-							if not loan_report:
-								loan_report = models.LoanReport()
-								session.add(loan_report)
-								session.flush()
-								loan.loan_report_id = loan_report.id
-
-							loan_report.repayment_date = cur_loan_update['repayment_date']
-							loan_report.financing_period = cur_loan_update['financing_period']
-							loan_report.financing_day_limit = cur_loan_update['financing_day_limit']
-							loan_report.total_principal_paid = decimal.Decimal(number_util.round_currency(cur_loan_update['total_principal_paid']))
-							loan_report.total_interest_paid = decimal.Decimal(number_util.round_currency(cur_loan_update['total_interest_paid']))
-							loan_report.total_fees_paid = decimal.Decimal(number_util.round_currency(cur_loan_update['total_fees_paid']))
+		if success:
+			print(f'[{index + 1} of {customers_count}] Successfully updated frozen loans for customer {customer_dict["name"]}')
 		else:
-			print(f'[{index + 1} of {customers_count}] Error for customer {customer_dict["name"]}: no results')
-
+			print(f'[{index + 1} of {customers_count}] Error updating frozen loans for customer {customer_dict["name"]}')
+			print('EXITING EARLY')
+			return
 
 def reset_loan_statuses(session: Session) -> None:
 	loans = cast(

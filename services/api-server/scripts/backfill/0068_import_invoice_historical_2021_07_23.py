@@ -5,6 +5,7 @@ DATABASE_URL=postgres+psycopg2://postgres:postgrespassword@localhost:5432/postgr
 import os
 import sys
 from os import path
+from typing import cast
 
 # Path hack before we try to import bespoke
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
@@ -70,11 +71,23 @@ def main() -> None:
 		filtered_repayment_tuples = list(filter(lambda repayment_tuple: repayment_tuple[0] is not '', repayment_tuples[1:]))
 		repayments.import_settled_repayments(session, filtered_repayment_tuples, account_fee_type='custom')
 
+	with models.session_scope(session_maker) as session:
 		loans.reset_loan_statuses(session)
 
-		loans.populate_frozen_loan_reports(session_maker)
+	customer_dict = None
 
-		print(f'Finished import')
+	with models.session_scope(session_maker) as session:
+		customer = cast(
+			models.Company,
+			session.query(models.Company).filter(
+				models.Company.identifier == 'PC'
+			).first())
+
+		customer_dict = customer.as_dict()
+
+	loans.populate_frozen_loan_reports_for_customer(customer_dict, session_maker)
+
+	print(f'Finished import')
 
 if __name__ == "__main__":
 	main()
