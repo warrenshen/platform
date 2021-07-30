@@ -28,6 +28,53 @@ StepUpdateRespDict = TypedDict('StepUpdateRespDict', {
 	'internal_state': Dict
 })
 
+def _sync_metrc_data_all_customers(p: models.AsyncPipelineDict, ctx: Context) -> StepUpdateRespDict:
+	internal_state = p['internal_state']
+	cur_customer_index = None
+
+	if p['status'] == PipelineState.SUBMITTED:
+		cur_comster_index = 0
+	elif p['status'] == PipelineState.IN_PROGRESS:
+		cur_customer_index = p['internal_state'].get('cur_customer_index')
+		if cur_customer_index is None:
+			internal_state['err_msg'] = 'No customer index not specified'
+			return StepUpdateRespDict(status=PipelineState.FAILURE, internal_state=internal_state)
+
+		cur_customer_index += 1
+	else:
+		internal_state['err_msg'] = 'Unrecognized pipeline state {}'.format(p['status'])
+		return StepUpdateRespDict(status=PipelineState.FAILURE, internal_state=internal_state)
+
+	if cur_customer_index >= len(p['params']['company_ids']):
+		return StepUpdateRespDict(status=PipelineState.COMPLETE, internal_state=internal_state)
+
+	start_date = date_util.load_date_str(p['params']['start_date'])
+	end_date = date_util.load_date_str(p['params']['end_date'])
+
+	company_id = p['params']['company_ids'][cur_customer_index]
+
+	cur_date = start_date
+	while cur_date <= end_date:
+
+		resp, fatal_err = metrc_util.download_data_for_one_customer(
+			company_id=company_id,
+			auth_provider=ctx.metrc_auth_provider,
+			security_cfg=ctx.security_cfg,
+			cur_date=cur_date,
+			session_maker=ctx.session_maker
+		)
+		if fatal_err:
+			if 'err_msgs' not in internal_state:
+				internal_state['err_msgs'] = []
+			internal_state['err_msgs'].append('{}'.format(fatal_err))
+			break
+
+		cur_date = cur_date + timedelta(days=1)
+			
+	# update things that this customer is complete
+	internal_state['cur_customer_index'] = cur_customer_index
+	return StepUpdateRespDict(status=PipelineState.IN_PROGRESS, internal_state=internal_state)
+
 def _sync_metrc_data_per_customer(p: models.AsyncPipelineDict, ctx: Context) -> StepUpdateRespDict:
 	internal_state = p['internal_state']
 	cur_date = None
@@ -67,6 +114,8 @@ def _sync_metrc_data_per_customer(p: models.AsyncPipelineDict, ctx: Context) -> 
 def _process_pipeline(p: models.AsyncPipelineDict, ctx: Context) -> None:
 	if p['name'] == PipelineName.SYNC_METRC_DATA_PER_CUSTOMER:
 		update = _sync_metrc_data_per_customer(p, ctx)
+	elif p['name'] == PipelineName.SYNC_METRC_DATA_ALL_CUSTOMERS:
+		update = _sync_metrc_data_all_customers(p, ctx)
 	else:
 		return
 

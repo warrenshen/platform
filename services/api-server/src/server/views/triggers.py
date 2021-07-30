@@ -11,6 +11,7 @@ from sqlalchemy import func
 
 from bespoke import errors
 from bespoke.async_util import orchestrator
+from bespoke.async_util.pipeline_constants import PipelineName, PipelineState
 from bespoke.audit import events
 from bespoke.date import date_util
 from bespoke.db import models, models_util
@@ -225,10 +226,28 @@ class DownloadMetrcDataView(MethodView):
 
 		start_date = todays_date - timedelta(days=TIME_WINDOW_IN_DAYS)
 		end_date = todays_date
-		
-		before = time.time()
-		
+
+		before = time.time()		
 		company_ids = metrc_util.get_companies_with_metrc_keys(current_app.session_maker)
+
+		if data.get('use_async'):
+			logging.info(f"Submitting request to download metrc data for all customers [async]")
+		
+			with session_scope(current_app.session_maker) as session:
+				pipeline = models.AsyncPipeline()
+				pipeline.name = PipelineName.SYNC_METRC_DATA_ALL_CUSTOMERS
+				pipeline.internal_state = {}
+				pipeline.status = PipelineState.SUBMITTED
+				pipeline.params = {
+					'company_ids': company_ids,
+					'start_date': start_date,
+					'end_date': end_date
+				}
+				session.add(pipeline)
+				session.flush()
+				pipeline_id = str(pipeline.id)
+
+			return make_response(json.dumps({'status': 'OK', 'pipeline_id': pipeline_id}))
 
 		all_errs = []
 		failed_company_ids = []

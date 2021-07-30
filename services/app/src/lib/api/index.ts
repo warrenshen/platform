@@ -142,7 +142,6 @@ export const metrcRoutes = {
   getTransfers: "/metrc/get_transfers",
   upsertApiKey: "/metrc/upsert_api_key",
   viewApiKey: "/metrc/view_api_key",
-  syncMetrcData: "/metrc/sync_metrc_data",
   syncMetrcDataPerCustomer: "/metrc/sync_metrc_data_per_customer",
 };
 

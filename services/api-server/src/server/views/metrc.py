@@ -120,6 +120,7 @@ class SyncMetrcDataPerCustomerView(MethodView):
 					'end_date': data['end_date']
 				}
 				session.add(pipeline)
+				session.flush()
 				pipeline_id = str(pipeline.id)
 
 			return make_response(json.dumps({
@@ -150,42 +151,6 @@ class SyncMetrcDataPerCustomerView(MethodView):
 				'errors': ['{}'.format(err) for err in resp['all_errs']]
 			}))
 
-class SyncMetrcDataView(MethodView):
-	decorators = [auth_util.bank_admin_required]
-
-	@handler_util.catch_bad_json_request
-	def post(self) -> Response:
-		logging.info("Received request to download metrc data from the SYNC endpoint")
-		cfg = cast(Config, current_app.app_config)
-
-		data = json.loads(request.data)
-
-		cur_date = date_util.load_date_str(data['cur_date'])
-	
-		company_ids = metrc_util.get_companies_with_metrc_keys(current_app.session_maker)
-		all_errs = []
-		failed_company_ids = []
-
-		for company_id in company_ids:		
-			resp, fatal_err = metrc_util.download_data_for_one_customer(
-				auth_provider=cfg.get_metrc_auth_provider(),
-				security_cfg=cfg.get_security_config(),
-				cur_date=cur_date,
-				company_id=company_id,
-				session_maker=current_app.session_maker
-			)
-			if fatal_err:
-				all_errs.append(errors.Error('{}'.format(fatal_err)))
-				failed_company_ids.append(company_id)
-
-		logging.info(f"Finished syncing metrc data for all customers")
-
-		return make_response(json.dumps({
-			'status': 'OK',
-			'errors': ['{}'.format(err) for err in all_errs],
-			'failed_company_ids': failed_company_ids
-		}))
-
 handler.add_url_rule(
 	'/upsert_api_key', view_func=UpsertApiKeyView.as_view(name='upsert_api_key_view'))
 
@@ -194,6 +159,3 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/sync_metrc_data_per_customer', view_func=SyncMetrcDataPerCustomerView.as_view(name='sync_metrc_data_per_customer_view'))
-
-handler.add_url_rule(
-	'/sync_metrc_data', view_func=SyncMetrcDataView.as_view(name='sync_metrc_data_view'))

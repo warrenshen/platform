@@ -241,26 +241,6 @@ export async function syncMetrcDataPerCustomer(req: {
     );
 }
 
-export async function syncMetrcData(req: {
-  variables: {
-    cur_date: string;
-  };
-}): Promise<CustomMutationResponse> {
-  return authenticatedApi
-    .post(metrcRoutes.syncMetrcData, req.variables)
-    .then((res) => res.data)
-    .then(
-      (res) => res,
-      (error) => {
-        console.log("error", error);
-        return {
-          status: "ERROR",
-          msg: "Could not sync metrc data",
-        };
-      }
-    );
-}
-
 export function getMetrcTransferVendorDescription(
   metrcTransfer: NonNullable<
     GetArtifactRelationsByCompanyIdQuery["companies_by_pk"]
