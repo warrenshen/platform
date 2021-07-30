@@ -2825,6 +2825,9 @@
             _eq: X-Hasura-Company-Id
 - table:
     schema: public
+    name: metrc_sales_receipts
+- table:
+    schema: public
     name: metrc_transfers
   object_relationships:
   - name: company

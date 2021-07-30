@@ -210,7 +210,7 @@ def _get_metrc_company_info(
 			licenses=license_auths,
 			metrc_api_key_id=str(metrc_api_key.id),
 			apis_to_use=metrc_common_util.ApisToUseDict(
-				sales_receipts=False,
+				sales_receipts=True,
 				incoming_transfers=True,
 				outgoing_transfers=True,
 				lab_tests=True

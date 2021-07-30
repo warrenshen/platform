@@ -445,6 +445,7 @@ class MetrcSalesReceipt(Base):
 	__tablename__ = 'metrc_sales_receipts'
 
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
+	type = Column(Text)
 	receipt_number = Column(Text)
 	sales_customer_type = Column(Text)
 	sales_datetime = Column(DateTime)
