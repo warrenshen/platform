@@ -11,24 +11,34 @@ subscription GetRepayments {
         { type: { _eq: "repayment" } }
       ]
     }
-    order_by: { created_at: desc }
+    order_by: [
+      { deposit_date: desc }
+      { created_at: desc }
+    ]
   ) {
     id
     ...Payment
-    company {
+    transactions(
+      order_by: [
+        { payment: { deposit_date: desc } }
+        { payment: { created_at: desc } }
+      ]
+    ) {
       id
-      name
+      ...Transaction
+      loan {
+        id
+        ...LoanLimited
+        ...LoanArtifactLimited
+      }
+      payment {
+        id
+        ...PaymentLimited
+      }
     }
     settled_by_user {
       id
       full_name
-    }
-    invoice {
-      id
-      payor {
-        id
-        name
-      }
     }
   }
 }

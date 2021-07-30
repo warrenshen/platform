@@ -70,6 +70,210 @@ export type StringComparisonExp = {
   _similar?: Maybe<Scalars["String"]>;
 };
 
+/** columns and relationships of "async_pipelines" */
+export type AsyncPipelines = {
+  created_at: Scalars["timestamptz"];
+  id: Scalars["uuid"];
+  internal_state: Scalars["json"];
+  name: Scalars["String"];
+  params: Scalars["json"];
+  status: Scalars["String"];
+  updated_at: Scalars["timestamptz"];
+};
+
+/** columns and relationships of "async_pipelines" */
+export type AsyncPipelinesInternalStateArgs = {
+  path?: Maybe<Scalars["String"]>;
+};
+
+/** columns and relationships of "async_pipelines" */
+export type AsyncPipelinesParamsArgs = {
+  path?: Maybe<Scalars["String"]>;
+};
+
+/** aggregated selection of "async_pipelines" */
+export type AsyncPipelinesAggregate = {
+  aggregate?: Maybe<AsyncPipelinesAggregateFields>;
+  nodes: Array<AsyncPipelines>;
+};
+
+/** aggregate fields of "async_pipelines" */
+export type AsyncPipelinesAggregateFields = {
+  count?: Maybe<Scalars["Int"]>;
+  max?: Maybe<AsyncPipelinesMaxFields>;
+  min?: Maybe<AsyncPipelinesMinFields>;
+};
+
+/** aggregate fields of "async_pipelines" */
+export type AsyncPipelinesAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<AsyncPipelinesSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** order by aggregate values of table "async_pipelines" */
+export type AsyncPipelinesAggregateOrderBy = {
+  count?: Maybe<OrderBy>;
+  max?: Maybe<AsyncPipelinesMaxOrderBy>;
+  min?: Maybe<AsyncPipelinesMinOrderBy>;
+};
+
+/** input type for inserting array relation for remote table "async_pipelines" */
+export type AsyncPipelinesArrRelInsertInput = {
+  data: Array<AsyncPipelinesInsertInput>;
+  on_conflict?: Maybe<AsyncPipelinesOnConflict>;
+};
+
+/** Boolean expression to filter rows from the table "async_pipelines". All fields are combined with a logical 'AND'. */
+export type AsyncPipelinesBoolExp = {
+  _and?: Maybe<Array<Maybe<AsyncPipelinesBoolExp>>>;
+  _not?: Maybe<AsyncPipelinesBoolExp>;
+  _or?: Maybe<Array<Maybe<AsyncPipelinesBoolExp>>>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
+  id?: Maybe<UuidComparisonExp>;
+  internal_state?: Maybe<JsonComparisonExp>;
+  name?: Maybe<StringComparisonExp>;
+  params?: Maybe<JsonComparisonExp>;
+  status?: Maybe<StringComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
+};
+
+/** unique or primary key constraints on table "async_pipelines" */
+export enum AsyncPipelinesConstraint {
+  /** unique or primary key constraint */
+  AsyncPipelinesPkey = "async_pipelines_pkey",
+}
+
+/** input type for inserting data into table "async_pipelines" */
+export type AsyncPipelinesInsertInput = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  internal_state?: Maybe<Scalars["json"]>;
+  name?: Maybe<Scalars["String"]>;
+  params?: Maybe<Scalars["json"]>;
+  status?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** aggregate max on columns */
+export type AsyncPipelinesMaxFields = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  name?: Maybe<Scalars["String"]>;
+  status?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** order by max() on columns of table "async_pipelines" */
+export type AsyncPipelinesMaxOrderBy = {
+  created_at?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  name?: Maybe<OrderBy>;
+  status?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
+/** aggregate min on columns */
+export type AsyncPipelinesMinFields = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  name?: Maybe<Scalars["String"]>;
+  status?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** order by min() on columns of table "async_pipelines" */
+export type AsyncPipelinesMinOrderBy = {
+  created_at?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  name?: Maybe<OrderBy>;
+  status?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
+/** response of any mutation on the table "async_pipelines" */
+export type AsyncPipelinesMutationResponse = {
+  /** number of affected rows by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data of the affected rows by the mutation */
+  returning: Array<AsyncPipelines>;
+};
+
+/** input type for inserting object relation for remote table "async_pipelines" */
+export type AsyncPipelinesObjRelInsertInput = {
+  data: AsyncPipelinesInsertInput;
+  on_conflict?: Maybe<AsyncPipelinesOnConflict>;
+};
+
+/** on conflict condition type for table "async_pipelines" */
+export type AsyncPipelinesOnConflict = {
+  constraint: AsyncPipelinesConstraint;
+  update_columns: Array<AsyncPipelinesUpdateColumn>;
+  where?: Maybe<AsyncPipelinesBoolExp>;
+};
+
+/** ordering options when selecting data from "async_pipelines" */
+export type AsyncPipelinesOrderBy = {
+  created_at?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  internal_state?: Maybe<OrderBy>;
+  name?: Maybe<OrderBy>;
+  params?: Maybe<OrderBy>;
+  status?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: "async_pipelines" */
+export type AsyncPipelinesPkColumnsInput = {
+  id: Scalars["uuid"];
+};
+
+/** select columns of table "async_pipelines" */
+export enum AsyncPipelinesSelectColumn {
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  Id = "id",
+  /** column name */
+  InternalState = "internal_state",
+  /** column name */
+  Name = "name",
+  /** column name */
+  Params = "params",
+  /** column name */
+  Status = "status",
+  /** column name */
+  UpdatedAt = "updated_at",
+}
+
+/** input type for updating data in table "async_pipelines" */
+export type AsyncPipelinesSetInput = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  internal_state?: Maybe<Scalars["json"]>;
+  name?: Maybe<Scalars["String"]>;
+  params?: Maybe<Scalars["json"]>;
+  status?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** update columns of table "async_pipelines" */
+export enum AsyncPipelinesUpdateColumn {
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  Id = "id",
+  /** column name */
+  InternalState = "internal_state",
+  /** column name */
+  Name = "name",
+  /** column name */
+  Params = "params",
+  /** column name */
+  Status = "status",
+  /** column name */
+  UpdatedAt = "updated_at",
+}
+
 /**
  * Capture information about business actions
  *
@@ -10194,6 +10398,351 @@ export type MetrcPackagesVarianceOrderBy = {
   shipper_wholesale_price?: Maybe<OrderBy>;
 };
 
+/** columns and relationships of "metrc_sales_receipts" */
+export type MetrcSalesReceipts = {
+  id: Scalars["uuid"];
+  is_final?: Maybe<Scalars["Boolean"]>;
+  payload: Scalars["json"];
+  receipt_number: Scalars["String"];
+  sales_customer_type: Scalars["String"];
+  sales_datetime: Scalars["timestamptz"];
+  total_packages: Scalars["Int"];
+  total_price: Scalars["numeric"];
+  type: Scalars["String"];
+};
+
+/** columns and relationships of "metrc_sales_receipts" */
+export type MetrcSalesReceiptsPayloadArgs = {
+  path?: Maybe<Scalars["String"]>;
+};
+
+/** aggregated selection of "metrc_sales_receipts" */
+export type MetrcSalesReceiptsAggregate = {
+  aggregate?: Maybe<MetrcSalesReceiptsAggregateFields>;
+  nodes: Array<MetrcSalesReceipts>;
+};
+
+/** aggregate fields of "metrc_sales_receipts" */
+export type MetrcSalesReceiptsAggregateFields = {
+  avg?: Maybe<MetrcSalesReceiptsAvgFields>;
+  count?: Maybe<Scalars["Int"]>;
+  max?: Maybe<MetrcSalesReceiptsMaxFields>;
+  min?: Maybe<MetrcSalesReceiptsMinFields>;
+  stddev?: Maybe<MetrcSalesReceiptsStddevFields>;
+  stddev_pop?: Maybe<MetrcSalesReceiptsStddevPopFields>;
+  stddev_samp?: Maybe<MetrcSalesReceiptsStddevSampFields>;
+  sum?: Maybe<MetrcSalesReceiptsSumFields>;
+  var_pop?: Maybe<MetrcSalesReceiptsVarPopFields>;
+  var_samp?: Maybe<MetrcSalesReceiptsVarSampFields>;
+  variance?: Maybe<MetrcSalesReceiptsVarianceFields>;
+};
+
+/** aggregate fields of "metrc_sales_receipts" */
+export type MetrcSalesReceiptsAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<MetrcSalesReceiptsSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** order by aggregate values of table "metrc_sales_receipts" */
+export type MetrcSalesReceiptsAggregateOrderBy = {
+  avg?: Maybe<MetrcSalesReceiptsAvgOrderBy>;
+  count?: Maybe<OrderBy>;
+  max?: Maybe<MetrcSalesReceiptsMaxOrderBy>;
+  min?: Maybe<MetrcSalesReceiptsMinOrderBy>;
+  stddev?: Maybe<MetrcSalesReceiptsStddevOrderBy>;
+  stddev_pop?: Maybe<MetrcSalesReceiptsStddevPopOrderBy>;
+  stddev_samp?: Maybe<MetrcSalesReceiptsStddevSampOrderBy>;
+  sum?: Maybe<MetrcSalesReceiptsSumOrderBy>;
+  var_pop?: Maybe<MetrcSalesReceiptsVarPopOrderBy>;
+  var_samp?: Maybe<MetrcSalesReceiptsVarSampOrderBy>;
+  variance?: Maybe<MetrcSalesReceiptsVarianceOrderBy>;
+};
+
+/** input type for inserting array relation for remote table "metrc_sales_receipts" */
+export type MetrcSalesReceiptsArrRelInsertInput = {
+  data: Array<MetrcSalesReceiptsInsertInput>;
+  on_conflict?: Maybe<MetrcSalesReceiptsOnConflict>;
+};
+
+/** aggregate avg on columns */
+export type MetrcSalesReceiptsAvgFields = {
+  total_packages?: Maybe<Scalars["Float"]>;
+  total_price?: Maybe<Scalars["Float"]>;
+};
+
+/** order by avg() on columns of table "metrc_sales_receipts" */
+export type MetrcSalesReceiptsAvgOrderBy = {
+  total_packages?: Maybe<OrderBy>;
+  total_price?: Maybe<OrderBy>;
+};
+
+/** Boolean expression to filter rows from the table "metrc_sales_receipts". All fields are combined with a logical 'AND'. */
+export type MetrcSalesReceiptsBoolExp = {
+  _and?: Maybe<Array<Maybe<MetrcSalesReceiptsBoolExp>>>;
+  _not?: Maybe<MetrcSalesReceiptsBoolExp>;
+  _or?: Maybe<Array<Maybe<MetrcSalesReceiptsBoolExp>>>;
+  id?: Maybe<UuidComparisonExp>;
+  is_final?: Maybe<BooleanComparisonExp>;
+  payload?: Maybe<JsonComparisonExp>;
+  receipt_number?: Maybe<StringComparisonExp>;
+  sales_customer_type?: Maybe<StringComparisonExp>;
+  sales_datetime?: Maybe<TimestamptzComparisonExp>;
+  total_packages?: Maybe<IntComparisonExp>;
+  total_price?: Maybe<NumericComparisonExp>;
+  type?: Maybe<StringComparisonExp>;
+};
+
+/** unique or primary key constraints on table "metrc_sales_receipts" */
+export enum MetrcSalesReceiptsConstraint {
+  /** unique or primary key constraint */
+  MetrcSalesReceiptsPkey = "metrc_sales_receipts_pkey",
+  /** unique or primary key constraint */
+  MetrcSalesReceiptsReceiptNumberKey = "metrc_sales_receipts_receipt_number_key",
+}
+
+/** input type for incrementing integer column in table "metrc_sales_receipts" */
+export type MetrcSalesReceiptsIncInput = {
+  total_packages?: Maybe<Scalars["Int"]>;
+  total_price?: Maybe<Scalars["numeric"]>;
+};
+
+/** input type for inserting data into table "metrc_sales_receipts" */
+export type MetrcSalesReceiptsInsertInput = {
+  id?: Maybe<Scalars["uuid"]>;
+  is_final?: Maybe<Scalars["Boolean"]>;
+  payload?: Maybe<Scalars["json"]>;
+  receipt_number?: Maybe<Scalars["String"]>;
+  sales_customer_type?: Maybe<Scalars["String"]>;
+  sales_datetime?: Maybe<Scalars["timestamptz"]>;
+  total_packages?: Maybe<Scalars["Int"]>;
+  total_price?: Maybe<Scalars["numeric"]>;
+  type?: Maybe<Scalars["String"]>;
+};
+
+/** aggregate max on columns */
+export type MetrcSalesReceiptsMaxFields = {
+  id?: Maybe<Scalars["uuid"]>;
+  receipt_number?: Maybe<Scalars["String"]>;
+  sales_customer_type?: Maybe<Scalars["String"]>;
+  sales_datetime?: Maybe<Scalars["timestamptz"]>;
+  total_packages?: Maybe<Scalars["Int"]>;
+  total_price?: Maybe<Scalars["numeric"]>;
+  type?: Maybe<Scalars["String"]>;
+};
+
+/** order by max() on columns of table "metrc_sales_receipts" */
+export type MetrcSalesReceiptsMaxOrderBy = {
+  id?: Maybe<OrderBy>;
+  receipt_number?: Maybe<OrderBy>;
+  sales_customer_type?: Maybe<OrderBy>;
+  sales_datetime?: Maybe<OrderBy>;
+  total_packages?: Maybe<OrderBy>;
+  total_price?: Maybe<OrderBy>;
+  type?: Maybe<OrderBy>;
+};
+
+/** aggregate min on columns */
+export type MetrcSalesReceiptsMinFields = {
+  id?: Maybe<Scalars["uuid"]>;
+  receipt_number?: Maybe<Scalars["String"]>;
+  sales_customer_type?: Maybe<Scalars["String"]>;
+  sales_datetime?: Maybe<Scalars["timestamptz"]>;
+  total_packages?: Maybe<Scalars["Int"]>;
+  total_price?: Maybe<Scalars["numeric"]>;
+  type?: Maybe<Scalars["String"]>;
+};
+
+/** order by min() on columns of table "metrc_sales_receipts" */
+export type MetrcSalesReceiptsMinOrderBy = {
+  id?: Maybe<OrderBy>;
+  receipt_number?: Maybe<OrderBy>;
+  sales_customer_type?: Maybe<OrderBy>;
+  sales_datetime?: Maybe<OrderBy>;
+  total_packages?: Maybe<OrderBy>;
+  total_price?: Maybe<OrderBy>;
+  type?: Maybe<OrderBy>;
+};
+
+/** response of any mutation on the table "metrc_sales_receipts" */
+export type MetrcSalesReceiptsMutationResponse = {
+  /** number of affected rows by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data of the affected rows by the mutation */
+  returning: Array<MetrcSalesReceipts>;
+};
+
+/** input type for inserting object relation for remote table "metrc_sales_receipts" */
+export type MetrcSalesReceiptsObjRelInsertInput = {
+  data: MetrcSalesReceiptsInsertInput;
+  on_conflict?: Maybe<MetrcSalesReceiptsOnConflict>;
+};
+
+/** on conflict condition type for table "metrc_sales_receipts" */
+export type MetrcSalesReceiptsOnConflict = {
+  constraint: MetrcSalesReceiptsConstraint;
+  update_columns: Array<MetrcSalesReceiptsUpdateColumn>;
+  where?: Maybe<MetrcSalesReceiptsBoolExp>;
+};
+
+/** ordering options when selecting data from "metrc_sales_receipts" */
+export type MetrcSalesReceiptsOrderBy = {
+  id?: Maybe<OrderBy>;
+  is_final?: Maybe<OrderBy>;
+  payload?: Maybe<OrderBy>;
+  receipt_number?: Maybe<OrderBy>;
+  sales_customer_type?: Maybe<OrderBy>;
+  sales_datetime?: Maybe<OrderBy>;
+  total_packages?: Maybe<OrderBy>;
+  total_price?: Maybe<OrderBy>;
+  type?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: "metrc_sales_receipts" */
+export type MetrcSalesReceiptsPkColumnsInput = {
+  id: Scalars["uuid"];
+};
+
+/** select columns of table "metrc_sales_receipts" */
+export enum MetrcSalesReceiptsSelectColumn {
+  /** column name */
+  Id = "id",
+  /** column name */
+  IsFinal = "is_final",
+  /** column name */
+  Payload = "payload",
+  /** column name */
+  ReceiptNumber = "receipt_number",
+  /** column name */
+  SalesCustomerType = "sales_customer_type",
+  /** column name */
+  SalesDatetime = "sales_datetime",
+  /** column name */
+  TotalPackages = "total_packages",
+  /** column name */
+  TotalPrice = "total_price",
+  /** column name */
+  Type = "type",
+}
+
+/** input type for updating data in table "metrc_sales_receipts" */
+export type MetrcSalesReceiptsSetInput = {
+  id?: Maybe<Scalars["uuid"]>;
+  is_final?: Maybe<Scalars["Boolean"]>;
+  payload?: Maybe<Scalars["json"]>;
+  receipt_number?: Maybe<Scalars["String"]>;
+  sales_customer_type?: Maybe<Scalars["String"]>;
+  sales_datetime?: Maybe<Scalars["timestamptz"]>;
+  total_packages?: Maybe<Scalars["Int"]>;
+  total_price?: Maybe<Scalars["numeric"]>;
+  type?: Maybe<Scalars["String"]>;
+};
+
+/** aggregate stddev on columns */
+export type MetrcSalesReceiptsStddevFields = {
+  total_packages?: Maybe<Scalars["Float"]>;
+  total_price?: Maybe<Scalars["Float"]>;
+};
+
+/** order by stddev() on columns of table "metrc_sales_receipts" */
+export type MetrcSalesReceiptsStddevOrderBy = {
+  total_packages?: Maybe<OrderBy>;
+  total_price?: Maybe<OrderBy>;
+};
+
+/** aggregate stddev_pop on columns */
+export type MetrcSalesReceiptsStddevPopFields = {
+  total_packages?: Maybe<Scalars["Float"]>;
+  total_price?: Maybe<Scalars["Float"]>;
+};
+
+/** order by stddev_pop() on columns of table "metrc_sales_receipts" */
+export type MetrcSalesReceiptsStddevPopOrderBy = {
+  total_packages?: Maybe<OrderBy>;
+  total_price?: Maybe<OrderBy>;
+};
+
+/** aggregate stddev_samp on columns */
+export type MetrcSalesReceiptsStddevSampFields = {
+  total_packages?: Maybe<Scalars["Float"]>;
+  total_price?: Maybe<Scalars["Float"]>;
+};
+
+/** order by stddev_samp() on columns of table "metrc_sales_receipts" */
+export type MetrcSalesReceiptsStddevSampOrderBy = {
+  total_packages?: Maybe<OrderBy>;
+  total_price?: Maybe<OrderBy>;
+};
+
+/** aggregate sum on columns */
+export type MetrcSalesReceiptsSumFields = {
+  total_packages?: Maybe<Scalars["Int"]>;
+  total_price?: Maybe<Scalars["numeric"]>;
+};
+
+/** order by sum() on columns of table "metrc_sales_receipts" */
+export type MetrcSalesReceiptsSumOrderBy = {
+  total_packages?: Maybe<OrderBy>;
+  total_price?: Maybe<OrderBy>;
+};
+
+/** update columns of table "metrc_sales_receipts" */
+export enum MetrcSalesReceiptsUpdateColumn {
+  /** column name */
+  Id = "id",
+  /** column name */
+  IsFinal = "is_final",
+  /** column name */
+  Payload = "payload",
+  /** column name */
+  ReceiptNumber = "receipt_number",
+  /** column name */
+  SalesCustomerType = "sales_customer_type",
+  /** column name */
+  SalesDatetime = "sales_datetime",
+  /** column name */
+  TotalPackages = "total_packages",
+  /** column name */
+  TotalPrice = "total_price",
+  /** column name */
+  Type = "type",
+}
+
+/** aggregate var_pop on columns */
+export type MetrcSalesReceiptsVarPopFields = {
+  total_packages?: Maybe<Scalars["Float"]>;
+  total_price?: Maybe<Scalars["Float"]>;
+};
+
+/** order by var_pop() on columns of table "metrc_sales_receipts" */
+export type MetrcSalesReceiptsVarPopOrderBy = {
+  total_packages?: Maybe<OrderBy>;
+  total_price?: Maybe<OrderBy>;
+};
+
+/** aggregate var_samp on columns */
+export type MetrcSalesReceiptsVarSampFields = {
+  total_packages?: Maybe<Scalars["Float"]>;
+  total_price?: Maybe<Scalars["Float"]>;
+};
+
+/** order by var_samp() on columns of table "metrc_sales_receipts" */
+export type MetrcSalesReceiptsVarSampOrderBy = {
+  total_packages?: Maybe<OrderBy>;
+  total_price?: Maybe<OrderBy>;
+};
+
+/** aggregate variance on columns */
+export type MetrcSalesReceiptsVarianceFields = {
+  total_packages?: Maybe<Scalars["Float"]>;
+  total_price?: Maybe<Scalars["Float"]>;
+};
+
+/** order by variance() on columns of table "metrc_sales_receipts" */
+export type MetrcSalesReceiptsVarianceOrderBy = {
+  total_packages?: Maybe<OrderBy>;
+  total_price?: Maybe<OrderBy>;
+};
+
 /**
  * List of transfers from Metrc
  *
@@ -10592,6 +11141,10 @@ export enum MetrcTransfersUpdateColumn {
 
 /** mutation root */
 export type MutationRoot = {
+  /** delete data from the table: "async_pipelines" */
+  delete_async_pipelines?: Maybe<AsyncPipelinesMutationResponse>;
+  /** delete single row from the table: "async_pipelines" */
+  delete_async_pipelines_by_pk?: Maybe<AsyncPipelines>;
   /** delete data from the table: "audit_events" */
   delete_audit_events?: Maybe<AuditEventsMutationResponse>;
   /** delete single row from the table: "audit_events" */
@@ -10708,6 +11261,10 @@ export type MutationRoot = {
   delete_metrc_packages?: Maybe<MetrcPackagesMutationResponse>;
   /** delete single row from the table: "metrc_packages" */
   delete_metrc_packages_by_pk?: Maybe<MetrcPackages>;
+  /** delete data from the table: "metrc_sales_receipts" */
+  delete_metrc_sales_receipts?: Maybe<MetrcSalesReceiptsMutationResponse>;
+  /** delete single row from the table: "metrc_sales_receipts" */
+  delete_metrc_sales_receipts_by_pk?: Maybe<MetrcSalesReceipts>;
   /** delete data from the table: "metrc_transfers" */
   delete_metrc_transfers?: Maybe<MetrcTransfersMutationResponse>;
   /** delete single row from the table: "metrc_transfers" */
@@ -10764,6 +11321,10 @@ export type MutationRoot = {
   delete_users_by_pk?: Maybe<Users>;
   /** delete data from the table: "vendors" */
   delete_vendors?: Maybe<VendorsMutationResponse>;
+  /** insert data into the table: "async_pipelines" */
+  insert_async_pipelines?: Maybe<AsyncPipelinesMutationResponse>;
+  /** insert a single row into the table: "async_pipelines" */
+  insert_async_pipelines_one?: Maybe<AsyncPipelines>;
   /** insert data into the table: "audit_events" */
   insert_audit_events?: Maybe<AuditEventsMutationResponse>;
   /** insert a single row into the table: "audit_events" */
@@ -10880,6 +11441,10 @@ export type MutationRoot = {
   insert_metrc_packages?: Maybe<MetrcPackagesMutationResponse>;
   /** insert a single row into the table: "metrc_packages" */
   insert_metrc_packages_one?: Maybe<MetrcPackages>;
+  /** insert data into the table: "metrc_sales_receipts" */
+  insert_metrc_sales_receipts?: Maybe<MetrcSalesReceiptsMutationResponse>;
+  /** insert a single row into the table: "metrc_sales_receipts" */
+  insert_metrc_sales_receipts_one?: Maybe<MetrcSalesReceipts>;
   /** insert data into the table: "metrc_transfers" */
   insert_metrc_transfers?: Maybe<MetrcTransfersMutationResponse>;
   /** insert a single row into the table: "metrc_transfers" */
@@ -10940,6 +11505,10 @@ export type MutationRoot = {
   insert_vendors?: Maybe<VendorsMutationResponse>;
   /** insert a single row into the table: "vendors" */
   insert_vendors_one?: Maybe<Vendors>;
+  /** update data of the table: "async_pipelines" */
+  update_async_pipelines?: Maybe<AsyncPipelinesMutationResponse>;
+  /** update single row of the table: "async_pipelines" */
+  update_async_pipelines_by_pk?: Maybe<AsyncPipelines>;
   /** update data of the table: "audit_events" */
   update_audit_events?: Maybe<AuditEventsMutationResponse>;
   /** update single row of the table: "audit_events" */
@@ -11056,6 +11625,10 @@ export type MutationRoot = {
   update_metrc_packages?: Maybe<MetrcPackagesMutationResponse>;
   /** update single row of the table: "metrc_packages" */
   update_metrc_packages_by_pk?: Maybe<MetrcPackages>;
+  /** update data of the table: "metrc_sales_receipts" */
+  update_metrc_sales_receipts?: Maybe<MetrcSalesReceiptsMutationResponse>;
+  /** update single row of the table: "metrc_sales_receipts" */
+  update_metrc_sales_receipts_by_pk?: Maybe<MetrcSalesReceipts>;
   /** update data of the table: "metrc_transfers" */
   update_metrc_transfers?: Maybe<MetrcTransfersMutationResponse>;
   /** update single row of the table: "metrc_transfers" */
@@ -11112,6 +11685,16 @@ export type MutationRoot = {
   update_users_by_pk?: Maybe<Users>;
   /** update data of the table: "vendors" */
   update_vendors?: Maybe<VendorsMutationResponse>;
+};
+
+/** mutation root */
+export type MutationRootDeleteAsyncPipelinesArgs = {
+  where: AsyncPipelinesBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteAsyncPipelinesByPkArgs = {
+  id: Scalars["uuid"];
 };
 
 /** mutation root */
@@ -11407,6 +11990,16 @@ export type MutationRootDeleteMetrcPackagesByPkArgs = {
 };
 
 /** mutation root */
+export type MutationRootDeleteMetrcSalesReceiptsArgs = {
+  where: MetrcSalesReceiptsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteMetrcSalesReceiptsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** mutation root */
 export type MutationRootDeleteMetrcTransfersArgs = {
   where: MetrcTransfersBoolExp;
 };
@@ -11545,6 +12138,18 @@ export type MutationRootDeleteUsersByPkArgs = {
 /** mutation root */
 export type MutationRootDeleteVendorsArgs = {
   where: VendorsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootInsertAsyncPipelinesArgs = {
+  objects: Array<AsyncPipelinesInsertInput>;
+  on_conflict?: Maybe<AsyncPipelinesOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertAsyncPipelinesOneArgs = {
+  object: AsyncPipelinesInsertInput;
+  on_conflict?: Maybe<AsyncPipelinesOnConflict>;
 };
 
 /** mutation root */
@@ -11896,6 +12501,18 @@ export type MutationRootInsertMetrcPackagesOneArgs = {
 };
 
 /** mutation root */
+export type MutationRootInsertMetrcSalesReceiptsArgs = {
+  objects: Array<MetrcSalesReceiptsInsertInput>;
+  on_conflict?: Maybe<MetrcSalesReceiptsOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertMetrcSalesReceiptsOneArgs = {
+  object: MetrcSalesReceiptsInsertInput;
+  on_conflict?: Maybe<MetrcSalesReceiptsOnConflict>;
+};
+
+/** mutation root */
 export type MutationRootInsertMetrcTransfersArgs = {
   objects: Array<MetrcTransfersInsertInput>;
   on_conflict?: Maybe<MetrcTransfersOnConflict>;
@@ -12069,6 +12686,18 @@ export type MutationRootInsertVendorsArgs = {
 /** mutation root */
 export type MutationRootInsertVendorsOneArgs = {
   object: VendorsInsertInput;
+};
+
+/** mutation root */
+export type MutationRootUpdateAsyncPipelinesArgs = {
+  _set?: Maybe<AsyncPipelinesSetInput>;
+  where: AsyncPipelinesBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateAsyncPipelinesByPkArgs = {
+  _set?: Maybe<AsyncPipelinesSetInput>;
+  pk_columns: AsyncPipelinesPkColumnsInput;
 };
 
 /** mutation root */
@@ -12475,6 +13104,20 @@ export type MutationRootUpdateMetrcPackagesByPkArgs = {
   _inc?: Maybe<MetrcPackagesIncInput>;
   _set?: Maybe<MetrcPackagesSetInput>;
   pk_columns: MetrcPackagesPkColumnsInput;
+};
+
+/** mutation root */
+export type MutationRootUpdateMetrcSalesReceiptsArgs = {
+  _inc?: Maybe<MetrcSalesReceiptsIncInput>;
+  _set?: Maybe<MetrcSalesReceiptsSetInput>;
+  where: MetrcSalesReceiptsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateMetrcSalesReceiptsByPkArgs = {
+  _inc?: Maybe<MetrcSalesReceiptsIncInput>;
+  _set?: Maybe<MetrcSalesReceiptsSetInput>;
+  pk_columns: MetrcSalesReceiptsPkColumnsInput;
 };
 
 /** mutation root */
@@ -15120,6 +15763,12 @@ export type PurchaseOrdersVarianceOrderBy = {
 
 /** query root */
 export type QueryRoot = {
+  /** fetch data from the table: "async_pipelines" */
+  async_pipelines: Array<AsyncPipelines>;
+  /** fetch aggregated fields from the table: "async_pipelines" */
+  async_pipelines_aggregate: AsyncPipelinesAggregate;
+  /** fetch data from the table: "async_pipelines" using primary key columns */
+  async_pipelines_by_pk?: Maybe<AsyncPipelines>;
   /** fetch data from the table: "audit_events" */
   audit_events: Array<AuditEvents>;
   /** fetch aggregated fields from the table: "audit_events" */
@@ -15294,6 +15943,12 @@ export type QueryRoot = {
   metrc_packages_aggregate: MetrcPackagesAggregate;
   /** fetch data from the table: "metrc_packages" using primary key columns */
   metrc_packages_by_pk?: Maybe<MetrcPackages>;
+  /** fetch data from the table: "metrc_sales_receipts" */
+  metrc_sales_receipts: Array<MetrcSalesReceipts>;
+  /** fetch aggregated fields from the table: "metrc_sales_receipts" */
+  metrc_sales_receipts_aggregate: MetrcSalesReceiptsAggregate;
+  /** fetch data from the table: "metrc_sales_receipts" using primary key columns */
+  metrc_sales_receipts_by_pk?: Maybe<MetrcSalesReceipts>;
   /** fetch data from the table: "metrc_transfers" */
   metrc_transfers: Array<MetrcTransfers>;
   /** fetch aggregated fields from the table: "metrc_transfers" */
@@ -15380,6 +16035,29 @@ export type QueryRoot = {
   vendors: Array<Vendors>;
   /** fetch aggregated fields from the table: "vendors" */
   vendors_aggregate: VendorsAggregate;
+};
+
+/** query root */
+export type QueryRootAsyncPipelinesArgs = {
+  distinct_on?: Maybe<Array<AsyncPipelinesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<AsyncPipelinesOrderBy>>;
+  where?: Maybe<AsyncPipelinesBoolExp>;
+};
+
+/** query root */
+export type QueryRootAsyncPipelinesAggregateArgs = {
+  distinct_on?: Maybe<Array<AsyncPipelinesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<AsyncPipelinesOrderBy>>;
+  where?: Maybe<AsyncPipelinesBoolExp>;
+};
+
+/** query root */
+export type QueryRootAsyncPipelinesByPkArgs = {
+  id: Scalars["uuid"];
 };
 
 /** query root */
@@ -16052,6 +16730,29 @@ export type QueryRootMetrcPackagesByPkArgs = {
 };
 
 /** query root */
+export type QueryRootMetrcSalesReceiptsArgs = {
+  distinct_on?: Maybe<Array<MetrcSalesReceiptsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MetrcSalesReceiptsOrderBy>>;
+  where?: Maybe<MetrcSalesReceiptsBoolExp>;
+};
+
+/** query root */
+export type QueryRootMetrcSalesReceiptsAggregateArgs = {
+  distinct_on?: Maybe<Array<MetrcSalesReceiptsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MetrcSalesReceiptsOrderBy>>;
+  where?: Maybe<MetrcSalesReceiptsBoolExp>;
+};
+
+/** query root */
+export type QueryRootMetrcSalesReceiptsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** query root */
 export type QueryRootMetrcTransfersArgs = {
   distinct_on?: Maybe<Array<MetrcTransfersSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -16709,6 +17410,12 @@ export enum RevokedTokensUpdateColumn {
 
 /** subscription root */
 export type SubscriptionRoot = {
+  /** fetch data from the table: "async_pipelines" */
+  async_pipelines: Array<AsyncPipelines>;
+  /** fetch aggregated fields from the table: "async_pipelines" */
+  async_pipelines_aggregate: AsyncPipelinesAggregate;
+  /** fetch data from the table: "async_pipelines" using primary key columns */
+  async_pipelines_by_pk?: Maybe<AsyncPipelines>;
   /** fetch data from the table: "audit_events" */
   audit_events: Array<AuditEvents>;
   /** fetch aggregated fields from the table: "audit_events" */
@@ -16883,6 +17590,12 @@ export type SubscriptionRoot = {
   metrc_packages_aggregate: MetrcPackagesAggregate;
   /** fetch data from the table: "metrc_packages" using primary key columns */
   metrc_packages_by_pk?: Maybe<MetrcPackages>;
+  /** fetch data from the table: "metrc_sales_receipts" */
+  metrc_sales_receipts: Array<MetrcSalesReceipts>;
+  /** fetch aggregated fields from the table: "metrc_sales_receipts" */
+  metrc_sales_receipts_aggregate: MetrcSalesReceiptsAggregate;
+  /** fetch data from the table: "metrc_sales_receipts" using primary key columns */
+  metrc_sales_receipts_by_pk?: Maybe<MetrcSalesReceipts>;
   /** fetch data from the table: "metrc_transfers" */
   metrc_transfers: Array<MetrcTransfers>;
   /** fetch aggregated fields from the table: "metrc_transfers" */
@@ -16969,6 +17682,29 @@ export type SubscriptionRoot = {
   vendors: Array<Vendors>;
   /** fetch aggregated fields from the table: "vendors" */
   vendors_aggregate: VendorsAggregate;
+};
+
+/** subscription root */
+export type SubscriptionRootAsyncPipelinesArgs = {
+  distinct_on?: Maybe<Array<AsyncPipelinesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<AsyncPipelinesOrderBy>>;
+  where?: Maybe<AsyncPipelinesBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootAsyncPipelinesAggregateArgs = {
+  distinct_on?: Maybe<Array<AsyncPipelinesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<AsyncPipelinesOrderBy>>;
+  where?: Maybe<AsyncPipelinesBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootAsyncPipelinesByPkArgs = {
+  id: Scalars["uuid"];
 };
 
 /** subscription root */
@@ -17637,6 +18373,29 @@ export type SubscriptionRootMetrcPackagesAggregateArgs = {
 
 /** subscription root */
 export type SubscriptionRootMetrcPackagesByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** subscription root */
+export type SubscriptionRootMetrcSalesReceiptsArgs = {
+  distinct_on?: Maybe<Array<MetrcSalesReceiptsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MetrcSalesReceiptsOrderBy>>;
+  where?: Maybe<MetrcSalesReceiptsBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootMetrcSalesReceiptsAggregateArgs = {
+  distinct_on?: Maybe<Array<MetrcSalesReceiptsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MetrcSalesReceiptsOrderBy>>;
+  where?: Maybe<MetrcSalesReceiptsBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootMetrcSalesReceiptsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -20433,11 +21192,17 @@ export type GetRepaymentsSubscriptionVariables = Exact<{
 export type GetRepaymentsSubscription = {
   payments: Array<
     Pick<Payments, "id"> & {
-      company: Pick<Companies, "id" | "name">;
-      settled_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
-      invoice?: Maybe<
-        Pick<Invoices, "id"> & { payor?: Maybe<Pick<Payors, "id" | "name">> }
+      transactions: Array<
+        Pick<Transactions, "id"> & {
+          loan?: Maybe<
+            Pick<Loans, "id"> &
+              LoanLimitedFragment &
+              LoanArtifactLimitedFragment
+          >;
+          payment: Pick<Payments, "id"> & PaymentLimitedFragment;
+        } & TransactionFragment
       >;
+      settled_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
     } & PaymentFragment
   >;
 };
@@ -26808,28 +27573,39 @@ export const GetRepaymentsDocument = gql`
           { type: { _eq: "repayment" } }
         ]
       }
-      order_by: { created_at: desc }
+      order_by: [{ deposit_date: desc }, { created_at: desc }]
     ) {
       id
       ...Payment
-      company {
+      transactions(
+        order_by: [
+          { payment: { deposit_date: desc } }
+          { payment: { created_at: desc } }
+        ]
+      ) {
         id
-        name
+        ...Transaction
+        loan {
+          id
+          ...LoanLimited
+          ...LoanArtifactLimited
+        }
+        payment {
+          id
+          ...PaymentLimited
+        }
       }
       settled_by_user {
         id
         full_name
       }
-      invoice {
-        id
-        payor {
-          id
-          name
-        }
-      }
     }
   }
   ${PaymentFragmentDoc}
+  ${TransactionFragmentDoc}
+  ${LoanLimitedFragmentDoc}
+  ${LoanArtifactLimitedFragmentDoc}
+  ${PaymentLimitedFragmentDoc}
 `;
 
 /**

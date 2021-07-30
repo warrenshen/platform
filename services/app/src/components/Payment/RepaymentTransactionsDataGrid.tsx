@@ -4,10 +4,12 @@ import InvoiceDrawerLauncher from "components/Invoices/InvoiceDrawerLauncher";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import PaymentDrawerLauncher from "components/Payment/PaymentDrawerLauncher";
 import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
+import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import {
+  Companies,
   GetRepaymentsForCompanyQuery,
   LoanLimitedFragment,
   PaymentLimitedFragment,
@@ -31,6 +33,9 @@ function getRows(
   if (isLineOfCredit) {
     return payments.map((payment) => ({
       id: payment.id,
+      company_id: payment.company_id,
+      company_identifier: payment.company.identifier,
+      company_name: payment.company.name,
       status: !!payment.reversed_at ? "Reversed" : "Settled",
       payment: payment,
     }));
@@ -41,12 +46,18 @@ function getRows(
           ? [
               {
                 id: `${payment.id}-0`,
+                company_id: payment.company_id,
+                company_identifier: payment.company.identifier,
+                company_name: payment.company.name,
                 status: "Reversed",
                 payment: payment,
               },
             ]
           : payment.transactions.map((transaction) => ({
               id: `${payment.id}-${transaction.id}`,
+              company_id: payment.company_id,
+              company_identifier: payment.company.identifier,
+              company_name: payment.company.name,
               status: "Settled",
               payment: payment,
               transaction: {
@@ -65,7 +76,9 @@ function getRows(
 }
 
 interface Props {
+  isCompanyVisible?: boolean;
   isExcelExport?: boolean;
+  isFilteringEnabled?: boolean;
   isLineOfCredit?: boolean; // If LOC, simply show payments instead of payments broken down by transactions.
   isMethodVisible?: boolean;
   isMultiSelectEnabled?: boolean;
@@ -73,15 +86,19 @@ interface Props {
     GetRepaymentsForCompanyQuery["companies_by_pk"]
   >["payments"];
   selectedPaymentIds?: Payments["id"][];
+  handleClickCustomer?: (customerId: Companies["id"]) => void;
   handleSelectPayments?: (payments: PaymentLimitedFragment[]) => void;
 }
 
 export default function RepaymentTransactionsDataGrid({
+  isCompanyVisible = false,
   isExcelExport = true,
+  isFilteringEnabled = false,
   isLineOfCredit = false,
   isMultiSelectEnabled = false,
   payments,
   selectedPaymentIds,
+  handleClickCustomer = () => {},
   handleSelectPayments,
 }: Props) {
   const rows = useMemo(() => getRows(isLineOfCredit, payments), [
@@ -98,9 +115,32 @@ export default function RepaymentTransactionsDataGrid({
         cellRender: (params: ValueFormatterParams) => (
           <PaymentDrawerLauncher
             paymentId={params.row.data.payment.id}
-            label={`P${params.row.data.payment.settlement_identifier}`}
+            label={
+              isCompanyVisible
+                ? `${params.row.data.company_identifier}-R${params.row.data.payment.settlement_identifier}`
+                : `P${params.row.data.payment.settlement_identifier}`
+            }
           />
         ),
+      },
+      {
+        visible: isCompanyVisible,
+        dataField: "company_name",
+        caption: "Customer Name",
+        height: 40,
+        minWidth: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) =>
+          handleClickCustomer ? (
+            <ClickableDataGridCell
+              label={params.row.data.company_name}
+              onClick={() =>
+                handleClickCustomer &&
+                handleClickCustomer(params.row.data.company_id)
+              }
+            />
+          ) : (
+            params.row.data.company.name
+          ),
       },
       {
         dataField: "status",
@@ -254,7 +294,7 @@ export default function RepaymentTransactionsDataGrid({
         ),
       },
     ],
-    [isLineOfCredit]
+    [isCompanyVisible, isLineOfCredit, handleClickCustomer]
   );
 
   const handleSelectionChanged = useMemo(
@@ -264,8 +304,13 @@ export default function RepaymentTransactionsDataGrid({
     [handleSelectPayments]
   );
 
+  const filtering = useMemo(() => ({ enable: isFilteringEnabled }), [
+    isFilteringEnabled,
+  ]);
+
   return (
     <ControlledDataGrid
+      filtering={filtering}
       pager
       select={isMultiSelectEnabled}
       isExcelExport={isExcelExport}

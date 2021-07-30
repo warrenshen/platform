@@ -1,4 +1,4 @@
-import RepaymentsDataGrid from "components/Repayment/RepaymentsDataGrid";
+import RepaymentTransactionsDataGrid from "components/Payment/RepaymentTransactionsDataGrid";
 import { useGetRepaymentsSubscription } from "generated/graphql";
 import styled from "styled-components";
 
@@ -18,10 +18,11 @@ export default function BankRepaymentsAllTab() {
 
   return (
     <Container>
-      <RepaymentsDataGrid
+      <RepaymentTransactionsDataGrid
         isCompanyVisible
+        isFilteringEnabled
+        isLineOfCredit={false}
         payments={payments}
-        handleClickCustomer={() => {}}
       />
     </Container>
   );
