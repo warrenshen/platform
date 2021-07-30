@@ -31,24 +31,24 @@ def _get_artifact_name(form_info: Dict, session: Session) -> str:
 	purchase_order_id = payload.get('purchase_order_id')
 	if purchase_order_id:
 		purchase_order = cast(
-   			models.PurchaseOrder,
-	 			session.query(models.PurchaseOrder).filter(
- 				models.PurchaseOrder.id == purchase_order_id).first())
+			models.PurchaseOrder,
+			session.query(models.PurchaseOrder).filter(
+				models.PurchaseOrder.id == purchase_order_id).first())
 		if not purchase_order:
 			return ''
 
-		return purchase_order.order_number
+		return f'PO {purchase_order.order_number}'
 
 	invoice_id = payload.get('invoice_id')
 	if invoice_id:
 		invoice = cast(
-   			models.Invoice,
-   			session.query(models.Invoice).filter(
-   				models.Invoice.id == invoice_id).first())
+			models.Invoice,
+			session.query(models.Invoice).filter(
+				models.Invoice.id == invoice_id).first())
 		if not invoice:
 			return ''
 
-		return invoice.invoice_number
+		return f'Invoice {invoice.invoice_number}'
 
 	return ''
 
