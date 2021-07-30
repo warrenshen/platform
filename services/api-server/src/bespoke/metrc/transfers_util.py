@@ -72,6 +72,7 @@ class SalesReceipts(object):
 			receipt.sales_datetime = parser.parse(s['SalesDateTime'])
 			receipt.total_packages = s['TotalPackages']
 			receipt.total_price = s['TotalPrice']
+			receipt.is_final = s['IsFinal']
 			receipt.payload = s
 			sales_receipts.append(receipt)
 
@@ -527,14 +528,15 @@ def populate_transfers_table(
 	active_sales_receipts = []
 	inactive_sales_receipts: List[Dict] = []
 	if apis_to_use['sales_receipts']:
-		# NOTE: Commenting out because inactive sales receipts makes the server just hang
-		# and never returns a response
-		#try:
-		#	resp = rest.get('/sales/v1/receipts/inactive', time_range=[cur_date_str])
-		#	inactive_sales_receipts = json.loads(resp.content)
-		#	request_status['receipts_api'] = 200
-		#except errors.Error as e:
-		#	request_status['receipts_api'] = e.details.get('status_code')
+		# NOTE: Sometimes there are a lot of inactive receipts to pull for a single day
+		# and this makes it look like the sync is stuck / hanging - could be good to
+		# change this logic to use smaller (intraday) time ranges to prevent this.
+		try:
+			resp = rest.get('/sales/v1/receipts/inactive', time_range=[cur_date_str])
+			inactive_sales_receipts = json.loads(resp.content)
+			request_status['receipts_api'] = 200
+		except errors.Error as e:
+			request_status['receipts_api'] = e.details.get('status_code')
 
 		try:
 			resp = rest.get('/sales/v1/receipts/active', time_range=[cur_date_str])

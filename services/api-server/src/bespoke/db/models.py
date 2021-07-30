@@ -451,6 +451,7 @@ class MetrcSalesReceipt(Base):
 	sales_datetime = Column(DateTime)
 	total_packages = Column(Integer)
 	total_price = Column(Numeric)
+	is_final = Column(Boolean)
 	payload = Column(JSON)
 
 ## End Metrc
