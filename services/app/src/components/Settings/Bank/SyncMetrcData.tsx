@@ -1,17 +1,19 @@
 import {
   Box,
   Button,
+  Checkbox,
   createStyles,
+  FormControlLabel,
   makeStyles,
   Theme,
   Typography,
 } from "@material-ui/core";
 import DateInput from "components/Shared/FormInputs/DateInput";
-import useSnackbar from "hooks/useSnackbar";
 import { Companies } from "generated/graphql";
+import useSnackbar from "hooks/useSnackbar";
 import { syncMetrcDataPerCustomer } from "lib/api/metrc";
 import { todayAsDateStringServer } from "lib/date";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -31,6 +33,7 @@ export default function SyncMetrcData(props: Props) {
 
   const [startDate, setStartDate] = useState<string>(todayAsDateStringServer());
   const [endDate, setEndDate] = useState<string>(todayAsDateStringServer());
+  const [useAsync, setUseAsync] = useState<boolean>(false);
 
   const handleSubmit = async () => {
     const response = await syncMetrcDataPerCustomer({
@@ -38,6 +41,7 @@ export default function SyncMetrcData(props: Props) {
         start_date: startDate,
         end_date: endDate,
         company_id: props.companyId,
+        use_async: useAsync,
       },
     });
 
@@ -46,7 +50,8 @@ export default function SyncMetrcData(props: Props) {
         `Could not sync data. Error: ${(response?.errors || []).join(", ")}`
       );
     } else {
-      snackbar.showSuccess("Metrc data synced");
+      const msg = useAsync ? "Metrc sync job scheduled" : "Metrc data synced";
+      snackbar.showSuccess(msg);
     }
   };
 
@@ -82,6 +87,20 @@ export default function SyncMetrcData(props: Props) {
             disableFuture
             value={endDate}
             onChange={(value) => setEndDate(value || todayAsDateStringServer())}
+          />
+        </Box>
+        <Box mt={1}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={useAsync}
+                onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                  setUseAsync(event.target.checked)
+                }
+                color="primary"
+              />
+            }
+            label={"Run Async? [experimental]"}
           />
         </Box>
         <Box mt={1}>

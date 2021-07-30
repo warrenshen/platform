@@ -1,6 +1,31 @@
 - table:
     schema: public
     name: async_pipelines
+  event_triggers:
+  - name: async_pipelines_changed
+    definition:
+      enable_manual: false
+      insert:
+        columns: '*'
+      delete:
+        columns: '*'
+      update:
+        columns:
+        - internal_state
+        - params
+        - name
+        - status
+        - created_at
+        - updated_at
+        - id
+    retry_conf:
+      num_retries: 0
+      interval_sec: 10
+      timeout_sec: 3600
+    webhook: '{{ASYNC_SERVER_BASE_URL}}/triggers/execute-async-tasks'
+    headers:
+    - name: x-api-key
+      value_from_env: ASYNC_SERVER_API_KEY
 - table:
     schema: public
     name: audit_events

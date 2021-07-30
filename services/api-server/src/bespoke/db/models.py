@@ -1069,8 +1069,8 @@ class AsyncPipeline(Base):
 	status = Column(String)
 	internal_state = Column(JSON)
 	params = Column(JSON)
-	created_at = Column(DateTime)
-	updated_at = Column(DateTime)
+	created_at = Column(DateTime, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 	def as_dict(self) -> AsyncPipelineDict:
 		return AsyncPipelineDict(

@@ -36,7 +36,7 @@ def _sync_metrc_data_per_customer(p: models.AsyncPipelineDict, ctx: Context) -> 
 		cur_date = date_util.load_date_str(p['params']['start_date'])
 	elif p['status'] == PipelineState.IN_PROGRESS:
 		cur_date_str = p['internal_state'].get('cur_date')
-		if not cur_date:
+		if not cur_date_str:
 			internal_state['err_msg'] = 'Current date not specified'
 			return StepUpdateRespDict(status=PipelineState.FAILURE, internal_state=internal_state)
 
@@ -75,9 +75,10 @@ def _process_pipeline(p: models.AsyncPipelineDict, ctx: Context) -> None:
 					models.AsyncPipeline,
 				session.query(models.AsyncPipeline).filter(
 					models.AsyncPipeline.id == p['id']
-				))
+				).first())
 		if not pipeline:
 			logging.warn('Pipeline {} no longer found in the DB'.format(p['id']))
+			return
 
 		pipeline.status = update['status']
 		pipeline.internal_state = update['internal_state']

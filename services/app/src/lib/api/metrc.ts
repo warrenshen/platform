@@ -1,5 +1,5 @@
-import { authenticatedApi, CustomMutationResponse, metrcRoutes } from "lib/api";
 import { GetArtifactRelationsByCompanyIdQuery } from "generated/graphql";
+import { authenticatedApi, CustomMutationResponse, metrcRoutes } from "lib/api";
 
 // {
 //    "Id":1977406,
@@ -223,6 +223,7 @@ export async function syncMetrcDataPerCustomer(req: {
     start_date: string;
     end_date: string;
     company_id: string;
+    use_async: boolean;
   };
 }): Promise<CustomMutationResponse> {
   return authenticatedApi
