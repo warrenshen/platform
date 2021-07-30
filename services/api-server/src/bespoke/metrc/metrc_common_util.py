@@ -19,14 +19,22 @@ LicenseAuthDict = TypedDict('LicenseAuthDict', {
 	'user_key': str
 })
 
+ApisToUseDict = TypedDict('ApisToUseDict', {
+	'sales_receipts': bool,
+	'incoming_transfers': bool,
+	'outgoing_transfers': bool,
+	'lab_tests': bool
+})
+
 class CompanyInfo(object):
 
 	def __init__(self, company_id: str, name: str, licenses: List[LicenseAuthDict],
-										 metrc_api_key_id: str) -> None:
+										 metrc_api_key_id: str, apis_to_use: ApisToUseDict) -> None:
 		self.company_id = company_id
 		self.name = name
 		self.licenses = licenses
 		self.metrc_api_key_id = metrc_api_key_id
+		self.apis_to_use = apis_to_use
 
 UNKNOWN_STATUS_CODE = -1
 UNAUTHORIZED_ERROR_STATUSES = set([401, 403])
@@ -93,8 +101,8 @@ class REST(object):
 		resp = requests.get(url, auth=self.auth)
 
 		if not resp.ok:
-			raise errors.Error('Code: {}. Reason: {}. Response: {}'.format(
-				resp.status_code, resp.reason, resp.content.decode('utf-8')),
+			raise errors.Error('URL: {}. Code: {}. Reason: {}. Response: {}'.format(
+				path, resp.status_code, resp.reason, resp.content.decode('utf-8')),
 				details={'status_code': resp.status_code})
 
 		return resp

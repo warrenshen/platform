@@ -441,6 +441,16 @@ class MetrcPackage(Base):
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime)
 
+class MetrcSalesReceipt(Base):
+	__tablename__ = 'metrc_sales_receipts'
+
+	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
+	receipt_number = Column(Text)
+	sales_customer_type = Column(Text)
+	sales_datetime = Column(DateTime)
+	total_packages = Column(Integer)
+	total_price = Column(Numeric)
+	payload = Column(JSON)
 
 ## End Metrc
 

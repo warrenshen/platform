@@ -174,10 +174,6 @@ def _get_metrc_company_info(
 			security_cfg, metrc_api_key.encrypted_api_key
 		)
 
-		if not licenses_map:
-			return None, errors.Error('Company ID {}, Name: "{}" has no licenses saved in the DB but has a metrc key specified'.format(
-									 company_id, company_name))
-
 		us_state, err = cur_contract.get_us_state()
 		if err:
 			return None, err
@@ -212,7 +208,13 @@ def _get_metrc_company_info(
 			company_id=company_id,
 			name=company_name,
 			licenses=license_auths,
-			metrc_api_key_id=str(metrc_api_key.id)
+			metrc_api_key_id=str(metrc_api_key.id),
+			apis_to_use=metrc_common_util.ApisToUseDict(
+				sales_receipts=False,
+				incoming_transfers=True,
+				outgoing_transfers=True,
+				lab_tests=True
+			)
 		), None
 
 def _download_data(
@@ -248,34 +250,31 @@ def _download_data(
 		packages_status_code = UNKNOWN_STATUS_CODE
 		lab_results_status_code = UNKNOWN_STATUS_CODE
 
-		with session_scope(session_maker) as session:
-			# Download transfers data for the particular day and key
-			statuses, err = transfers_util.populate_transfers_table(
-				cur_date=cur_date,
-				company_info=company_info,
-				license=license,
-				session=session,
-				debug=False,
-			)
-			if statuses:
-				if statuses['transfers_api'] != UNKNOWN_STATUS_CODE:
-					# Only overwrite the status if we actually got a status code
-					transfers_status_code = statuses['transfers_api']
+		# Download transfers data for the particular day and key
+		statuses, err = transfers_util.populate_transfers_table(
+			cur_date=cur_date,
+			company_info=company_info,
+			license=license,
+			session_maker=session_maker,
+			debug=False,
+		)
+		if statuses:
+			if statuses['transfers_api'] != UNKNOWN_STATUS_CODE:
+				# Only overwrite the status if we actually got a status code
+				transfers_status_code = statuses['transfers_api']
 
-				if statuses['packages_api'] != UNKNOWN_STATUS_CODE:
-					packages_status_code = statuses['packages_api']
+			if statuses['packages_api'] != UNKNOWN_STATUS_CODE:
+				packages_status_code = statuses['packages_api']
 
-				if statuses['lab_results_api'] != UNKNOWN_STATUS_CODE:
-					lab_results_status_code = statuses['lab_results_api']
+			if statuses['lab_results_api'] != UNKNOWN_STATUS_CODE:
+				lab_results_status_code = statuses['lab_results_api']
 
-			if err:
-				session.rollback()
+		if err:
+			logging.error(f'Error thrown for company {company_info.name} for date {cur_date} and license {license["license_number"]}!')
+			logging.error(f'Error: {err}')
 
-				logging.error(f'Error thrown for company {company_info.name} for date {cur_date} and license {license["license_number"]}!')
-				logging.error(f'Error: {err}')
-
-				errs.append(err)
-				api_key_has_err = True
+			errs.append(err)
+			api_key_has_err = True
 
 		functioning_licenses_count += 1 if not api_key_has_err else 0
 		license_to_statuses[license['license_number']] = {
