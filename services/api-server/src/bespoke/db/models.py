@@ -446,6 +446,7 @@ class MetrcSalesReceipt(Base):
 
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
 	type = Column(Text)
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	receipt_number = Column(Text)
 	sales_customer_type = Column(Text)
 	sales_datetime = Column(DateTime)

@@ -61,12 +61,13 @@ class SalesReceipts(object):
 		self._sales_receipts = sales_receipts
 		self._type = receipt_type
 
-	def get_sales_receipt_models(self) -> List[models.MetrcSalesReceipt]:
+	def get_sales_receipt_models(self, company_id: str) -> List[models.MetrcSalesReceipt]:
 		sales_receipts = []
 		for i in range(len(self._sales_receipts)):
 			s = self._sales_receipts[i]
 			receipt = models.MetrcSalesReceipt()
 			receipt.type = self._type
+			receipt.company_id = cast(Any, company_id)
 			receipt.receipt_number = s['ReceiptNumber']
 			receipt.sales_customer_type = s['SalesCustomerType']
 			receipt.sales_datetime = parser.parse(s['SalesDateTime'])
@@ -319,6 +320,7 @@ def _write_sales_receipts(
 			# update
 			prev = receipt_number_to_sales_receipt[sales_receipt.receipt_number]
 			prev.type = sales_receipt.type
+			prev.company_id = sales_receipt.company_id
 			prev.sales_customer_type = sales_receipt.sales_customer_type
 			prev.sales_datetime = sales_receipt.sales_datetime
 			prev.total_packages = sales_receipt.total_packages
@@ -545,8 +547,12 @@ def populate_transfers_table(
 		except errors.Error as e:
 			request_status['receipts_api'] = e.details.get('status_code')
 
-	active_sales_receipts_models = SalesReceipts(active_sales_receipts, 'active').get_sales_receipt_models()
-	inactive_sales_receipts_models = SalesReceipts(inactive_sales_receipts, 'inactive').get_sales_receipt_models()
+	active_sales_receipts_models = SalesReceipts(active_sales_receipts, 'active').get_sales_receipt_models(
+		company_id=company_info.company_id
+	)
+	inactive_sales_receipts_models = SalesReceipts(inactive_sales_receipts, 'inactive').get_sales_receipt_models(
+		company_id=company_info.company_id
+	)
 	
 	logging.info('Downloaded {} active sales receipts for {} on {}'.format(
 		len(active_sales_receipts_models), company_info.name, cur_date))
