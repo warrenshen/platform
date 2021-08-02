@@ -95,16 +95,16 @@ psql postgres://postgres:postgrespassword@localhost:5432/postgres
 1. View existing database table indices:
 ```sql
 SELECT
-   tablename,
-   indexname,
-   indexdef
+  tablename,
+  indexname,
+  indexdef
 FROM
-   pg_indexes
+  pg_indexes
 WHERE
-   schemaname = 'public'
+  schemaname = 'public'
 ORDER BY
-   tablename,
-   indexname
+  tablename,
+  indexname
 ;
 ```
 
@@ -112,13 +112,13 @@ ORDER BY
 ```sql
 EXPLAIN
 SELECT
-   metrc_transfers.id
+  metrc_transfers.id
 FROM
-   metrc_transfers
-   INNER JOIN metrc_deliveries ON metrc_transfers.id = metrc_deliveries.transfer_row_id
-   INNER JOIN metrc_packages ON metrc_deliveries.id = metrc_packages.delivery_row_id
+  metrc_transfers
+  INNER JOIN metrc_deliveries ON metrc_transfers.id = metrc_deliveries.transfer_row_id
+  INNER JOIN metrc_packages ON metrc_deliveries.id = metrc_packages.delivery_row_id
 ORDER BY
-   metrc_transfers.created_at
+  metrc_transfers.created_at
 ;
 ```
 
