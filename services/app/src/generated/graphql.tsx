@@ -10400,6 +10400,9 @@ export type MetrcPackagesVarianceOrderBy = {
 
 /** columns and relationships of "metrc_sales_receipts" */
 export type MetrcSalesReceipts = {
+  /** An object relationship */
+  company?: Maybe<Companies>;
+  company_id?: Maybe<Scalars["uuid"]>;
   id: Scalars["uuid"];
   is_final?: Maybe<Scalars["Boolean"]>;
   payload: Scalars["json"];
@@ -10481,6 +10484,8 @@ export type MetrcSalesReceiptsBoolExp = {
   _and?: Maybe<Array<Maybe<MetrcSalesReceiptsBoolExp>>>;
   _not?: Maybe<MetrcSalesReceiptsBoolExp>;
   _or?: Maybe<Array<Maybe<MetrcSalesReceiptsBoolExp>>>;
+  company?: Maybe<CompaniesBoolExp>;
+  company_id?: Maybe<UuidComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   is_final?: Maybe<BooleanComparisonExp>;
   payload?: Maybe<JsonComparisonExp>;
@@ -10508,6 +10513,8 @@ export type MetrcSalesReceiptsIncInput = {
 
 /** input type for inserting data into table "metrc_sales_receipts" */
 export type MetrcSalesReceiptsInsertInput = {
+  company?: Maybe<CompaniesObjRelInsertInput>;
+  company_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   is_final?: Maybe<Scalars["Boolean"]>;
   payload?: Maybe<Scalars["json"]>;
@@ -10521,6 +10528,7 @@ export type MetrcSalesReceiptsInsertInput = {
 
 /** aggregate max on columns */
 export type MetrcSalesReceiptsMaxFields = {
+  company_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   receipt_number?: Maybe<Scalars["String"]>;
   sales_customer_type?: Maybe<Scalars["String"]>;
@@ -10532,6 +10540,7 @@ export type MetrcSalesReceiptsMaxFields = {
 
 /** order by max() on columns of table "metrc_sales_receipts" */
 export type MetrcSalesReceiptsMaxOrderBy = {
+  company_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   receipt_number?: Maybe<OrderBy>;
   sales_customer_type?: Maybe<OrderBy>;
@@ -10543,6 +10552,7 @@ export type MetrcSalesReceiptsMaxOrderBy = {
 
 /** aggregate min on columns */
 export type MetrcSalesReceiptsMinFields = {
+  company_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   receipt_number?: Maybe<Scalars["String"]>;
   sales_customer_type?: Maybe<Scalars["String"]>;
@@ -10554,6 +10564,7 @@ export type MetrcSalesReceiptsMinFields = {
 
 /** order by min() on columns of table "metrc_sales_receipts" */
 export type MetrcSalesReceiptsMinOrderBy = {
+  company_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   receipt_number?: Maybe<OrderBy>;
   sales_customer_type?: Maybe<OrderBy>;
@@ -10586,6 +10597,8 @@ export type MetrcSalesReceiptsOnConflict = {
 
 /** ordering options when selecting data from "metrc_sales_receipts" */
 export type MetrcSalesReceiptsOrderBy = {
+  company?: Maybe<CompaniesOrderBy>;
+  company_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   is_final?: Maybe<OrderBy>;
   payload?: Maybe<OrderBy>;
@@ -10604,6 +10617,8 @@ export type MetrcSalesReceiptsPkColumnsInput = {
 
 /** select columns of table "metrc_sales_receipts" */
 export enum MetrcSalesReceiptsSelectColumn {
+  /** column name */
+  CompanyId = "company_id",
   /** column name */
   Id = "id",
   /** column name */
@@ -10626,6 +10641,7 @@ export enum MetrcSalesReceiptsSelectColumn {
 
 /** input type for updating data in table "metrc_sales_receipts" */
 export type MetrcSalesReceiptsSetInput = {
+  company_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   is_final?: Maybe<Scalars["Boolean"]>;
   payload?: Maybe<Scalars["json"]>;
@@ -10687,6 +10703,8 @@ export type MetrcSalesReceiptsSumOrderBy = {
 
 /** update columns of table "metrc_sales_receipts" */
 export enum MetrcSalesReceiptsUpdateColumn {
+  /** column name */
+  CompanyId = "company_id",
   /** column name */
   Id = "id",
   /** column name */
@@ -20355,11 +20373,12 @@ export type GetAdvancesByPaymentDateQuery = {
   >;
 };
 
-export type GetWireAdvancesByDateQueryVariables = Exact<{
+export type GetAdvancesByDateAndMethodQueryVariables = Exact<{
   date: Scalars["date"];
+  method: Scalars["String"];
 }>;
 
-export type GetWireAdvancesByDateQuery = {
+export type GetAdvancesByDateAndMethodQuery = {
   payments: Array<
     Pick<Payments, "id"> & PaymentFragment & PaymentBankAccountsFragment
   >;
@@ -23336,8 +23355,8 @@ export type GetAdvancesByPaymentDateQueryResult = Apollo.QueryResult<
   GetAdvancesByPaymentDateQuery,
   GetAdvancesByPaymentDateQueryVariables
 >;
-export const GetWireAdvancesByDateDocument = gql`
-  query GetWireAdvancesByDate($date: date!) {
+export const GetAdvancesByDateAndMethodDocument = gql`
+  query GetAdvancesByDateAndMethod($date: date!, $method: String!) {
     payments(
       where: {
         _and: [
@@ -23348,8 +23367,8 @@ export const GetWireAdvancesByDateDocument = gql`
             ]
           }
           { type: { _eq: "advance" } }
-          { method: { _eq: "wire" } }
-          { settlement_date: { _eq: $date } }
+          { method: { _eq: $method } }
+          { deposit_date: { _eq: $date } }
         ]
       }
     ) {
@@ -23363,52 +23382,53 @@ export const GetWireAdvancesByDateDocument = gql`
 `;
 
 /**
- * __useGetWireAdvancesByDateQuery__
+ * __useGetAdvancesByDateAndMethodQuery__
  *
- * To run a query within a React component, call `useGetWireAdvancesByDateQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetWireAdvancesByDateQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetAdvancesByDateAndMethodQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAdvancesByDateAndMethodQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetWireAdvancesByDateQuery({
+ * const { data, loading, error } = useGetAdvancesByDateAndMethodQuery({
  *   variables: {
  *      date: // value for 'date'
+ *      method: // value for 'method'
  *   },
  * });
  */
-export function useGetWireAdvancesByDateQuery(
+export function useGetAdvancesByDateAndMethodQuery(
   baseOptions: Apollo.QueryHookOptions<
-    GetWireAdvancesByDateQuery,
-    GetWireAdvancesByDateQueryVariables
+    GetAdvancesByDateAndMethodQuery,
+    GetAdvancesByDateAndMethodQueryVariables
   >
 ) {
   return Apollo.useQuery<
-    GetWireAdvancesByDateQuery,
-    GetWireAdvancesByDateQueryVariables
-  >(GetWireAdvancesByDateDocument, baseOptions);
+    GetAdvancesByDateAndMethodQuery,
+    GetAdvancesByDateAndMethodQueryVariables
+  >(GetAdvancesByDateAndMethodDocument, baseOptions);
 }
-export function useGetWireAdvancesByDateLazyQuery(
+export function useGetAdvancesByDateAndMethodLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    GetWireAdvancesByDateQuery,
-    GetWireAdvancesByDateQueryVariables
+    GetAdvancesByDateAndMethodQuery,
+    GetAdvancesByDateAndMethodQueryVariables
   >
 ) {
   return Apollo.useLazyQuery<
-    GetWireAdvancesByDateQuery,
-    GetWireAdvancesByDateQueryVariables
-  >(GetWireAdvancesByDateDocument, baseOptions);
+    GetAdvancesByDateAndMethodQuery,
+    GetAdvancesByDateAndMethodQueryVariables
+  >(GetAdvancesByDateAndMethodDocument, baseOptions);
 }
-export type GetWireAdvancesByDateQueryHookResult = ReturnType<
-  typeof useGetWireAdvancesByDateQuery
+export type GetAdvancesByDateAndMethodQueryHookResult = ReturnType<
+  typeof useGetAdvancesByDateAndMethodQuery
 >;
-export type GetWireAdvancesByDateLazyQueryHookResult = ReturnType<
-  typeof useGetWireAdvancesByDateLazyQuery
+export type GetAdvancesByDateAndMethodLazyQueryHookResult = ReturnType<
+  typeof useGetAdvancesByDateAndMethodLazyQuery
 >;
-export type GetWireAdvancesByDateQueryResult = Apollo.QueryResult<
-  GetWireAdvancesByDateQuery,
-  GetWireAdvancesByDateQueryVariables
+export type GetAdvancesByDateAndMethodQueryResult = Apollo.QueryResult<
+  GetAdvancesByDateAndMethodQuery,
+  GetAdvancesByDateAndMethodQueryVariables
 >;
 export const GetBespokeBankAccountsDocument = gql`
   query GetBespokeBankAccounts {

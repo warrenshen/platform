@@ -36,6 +36,7 @@ const useStyles = makeStyles({
 interface Props {
   isCannabisCompliantVisible?: boolean;
   isEditAllowed?: boolean;
+  isTemplateNameVisible?: boolean;
   isVerificationVisible?: boolean;
   bankAccount:
     | BankAccountFragment
@@ -47,6 +48,7 @@ interface Props {
 export default function BankAccountInfoCard({
   isCannabisCompliantVisible = false,
   isEditAllowed = false,
+  isTemplateNameVisible = false,
   isVerificationVisible = false,
   bankAccount,
   handleDataChange,
@@ -141,7 +143,7 @@ export default function BankAccountInfoCard({
             </Box>
           </Box>
         )}
-        {isBankUser && isCompanyBank && (
+        {isBankUser && isCompanyBank && isTemplateNameVisible && (
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Torrey Pines Template Name</Box>
             <Box>

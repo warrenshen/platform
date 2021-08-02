@@ -118,11 +118,7 @@ function ReviewPurchaseOrderApproveModal({
           information is not up-to-date, please contact us.
         </DialogContentText>
         <Box>
-          <BankAccountInfoCard
-            isEditAllowed={false}
-            isVerificationVisible={false}
-            bankAccount={vendorBankAccount}
-          />
+          <BankAccountInfoCard bankAccount={vendorBankAccount} />
         </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>

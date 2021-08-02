@@ -3,7 +3,6 @@ import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
 import BankLoansActionRequiredTab from "pages/Bank/Loans/LoansActionRequiredTab";
 import BankLoansAllTab from "pages/Bank/Loans/LoansAllTab";
-import BankLoansExportWiresTab from "pages/Bank/Loans/LoansExportWiresTab";
 import BankLoansMaturingSoonTab from "pages/Bank/Loans/LoansMaturingSoonTab";
 import BankLoansPastDueTab from "pages/Bank/Loans/LoansPastDueTab";
 import { useState } from "react";
@@ -41,7 +40,6 @@ export default function BankLoansPage() {
             <Tab label="Maturing Soon" />
             <Tab label="Past Due" />
             <Tab label="All" />
-            <Tab label="Export - Wires" />
           </Tabs>
           <SectionSpace />
           {selectedTabIndex === 0 ? (
@@ -50,10 +48,8 @@ export default function BankLoansPage() {
             <BankLoansMaturingSoonTab />
           ) : selectedTabIndex === 2 ? (
             <BankLoansPastDueTab />
-          ) : selectedTabIndex === 3 ? (
-            <BankLoansAllTab />
           ) : (
-            <BankLoansExportWiresTab />
+            <BankLoansAllTab />
           )}
         </Container>
       </PageContent>

@@ -2,6 +2,8 @@ import { Tab, Tabs } from "@material-ui/core";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
 import BankAdvancesByPaymentDateTab from "pages/Bank/Advances/AdvancesByPaymentDateTab";
+import BankAdvancesExportAchsTab from "pages/Bank/Advances/AdvancesExportAchsTab";
+import BankAdvancesExportWiresTab from "pages/Bank/Advances/AdvancesExportWiresTab";
 import BankAdvancesAllTab from "pages/Bank/Advances/AdvancesAllTab";
 import { useState } from "react";
 import styled from "styled-components";
@@ -35,11 +37,17 @@ export default function BankAdvancesPage() {
             }
           >
             <Tab label="By Payment Date" />
+            <Tab label="TP Export - ACHs" />
+            <Tab label="TP Export - Wires" />
             <Tab label="All" />
           </Tabs>
           <SectionSpace />
           {selectedTabIndex === 0 ? (
             <BankAdvancesByPaymentDateTab />
+          ) : selectedTabIndex === 1 ? (
+            <BankAdvancesExportAchsTab />
+          ) : selectedTabIndex === 2 ? (
+            <BankAdvancesExportWiresTab />
           ) : (
             <BankAdvancesAllTab />
           )}

@@ -134,6 +134,7 @@ export default function CustomerSettings({
                 <BankAccountInfoCard
                   isCannabisCompliantVisible
                   isEditAllowed={check(role, Action.EditBankAccount)}
+                  isTemplateNameVisible
                   isVerificationVisible
                   bankAccount={bankAccount}
                   handleDataChange={handleDataChange}

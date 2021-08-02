@@ -22,7 +22,6 @@ type PaymentWithFinancialSummary = PaymentFragment & {
 function getRows(
   payments: (PaymentFragment | PaymentWithFinancialSummary)[]
 ): RowsProp {
-  console.log({ payments });
   return payments.map((payment) => {
     return {
       ...payment,

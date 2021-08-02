@@ -14,16 +14,13 @@ function getRows(
   return payments.map((payment) => {
     return {
       ...payment,
-      currency: "USD",
-      bespoke_bank_type: "ABA",
-      blank_1: "",
-      blank_2: "",
       bespoke_routing_number: payment.company_bank_account?.routing_number,
       bespoke_account_number: payment.company_bank_account?.account_number,
       template_name: payment.recipient_bank_account?.torrey_pines_template_name,
       recipient_routing_number: payment.recipient_bank_account?.routing_number,
       recipient_bank_name: payment.recipient_bank_account?.bank_name,
       recipient_account_number: payment.recipient_bank_account?.account_number,
+      recipient_account_type: payment.recipient_bank_account?.account_type,
       recipient_name: payment.recipient_bank_account?.recipient_name,
       recipient_address: payment.recipient_bank_account?.recipient_address,
       recipient_address_2: payment.recipient_bank_account?.recipient_address_2,
@@ -37,7 +34,7 @@ interface Props {
   payments: (PaymentFragment & PaymentBankAccountsFragment)[];
 }
 
-export default function WireAdvancesDataGrid({
+export default function AchAdvancesDataGrid({
   isExcelExport = true,
   payments,
 }: Props) {
@@ -60,73 +57,33 @@ export default function WireAdvancesDataGrid({
         minWidth: ColumnWidths.MinWidth,
       },
       {
+        dataField: "recipient_routing_number",
+        caption: "Routing Number",
+        width: 140,
+      },
+      {
+        dataField: "recipient_account_number",
+        caption: "Account Number",
+        width: 140,
+      },
+      {
+        dataField: "recipient_account_type",
+        caption: "Account Type",
+        width: 140,
+      },
+      {
         dataField: "template_name",
         caption: "Template Name",
         width: 140,
       },
       {
-        dataField: "bespoke_routing_number",
-        caption: "Bank ID",
-        width: 140,
-      },
-      {
-        dataField: "bespoke_account_number",
-        caption: "Account",
-        width: 140,
-      },
-      {
-        dataField: "currency",
-        caption: "Currency",
-        width: 140,
-      },
-      {
-        dataField: "bespoke_bank_type",
-        caption: "Bank ID Type",
-        width: 140,
-      },
-      {
-        dataField: "recipient_routing_number",
-        caption: "Bank ID",
-        width: 140,
-      },
-      {
-        dataField: "recipient_bank_name",
-        caption: "Bank Name",
-        width: 140,
-      },
-      {
-        dataField: "blank_1",
-        caption: "",
-        width: 140,
-      },
-      {
-        dataField: "blank_2",
-        caption: "",
-        width: 140,
-      },
-      {
-        dataField: "recipient_account_number",
-        caption: "Recipient account",
-        width: 140,
-      },
-      {
-        dataField: "recipient_name",
-        caption: "Recipient name",
-        width: 140,
-      },
-      {
-        dataField: "recipient_address",
-        caption: "Recipient address",
-        width: 140,
-      },
-      {
-        dataField: "recipient_address_2",
-        caption: "Recipient address 2",
+        dataField: "amount",
+        caption: "Default Amount",
         width: 140,
       },
       {
         dataField: "additional_info_for_recipient",
-        caption: "Additional information for recipient",
+        caption: "Additional Information",
         width: 140,
       },
     ],

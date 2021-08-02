@@ -112,11 +112,7 @@ function ApprovePurchaseOrderModal({ purchaseOrder, handleClose }: Props) {
           {isCompanyVendorPartnershipLoading ? (
             <Typography variant="body1">Loading...</Typography>
           ) : vendorBankAccount ? (
-            <BankAccountInfoCard
-              isEditAllowed={false}
-              isVerificationVisible={false}
-              bankAccount={vendorBankAccount}
-            />
+            <BankAccountInfoCard bankAccount={vendorBankAccount} />
           ) : (
             <Typography variant="body1">No bank account</Typography>
           )}

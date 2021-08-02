@@ -2,8 +2,9 @@ import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import WireAdvancesDataGrid from "components/Advances/WireAdvancesDataGrid";
 import DateInput from "components/Shared/FormInputs/DateInput";
-import { useGetWireAdvancesByDateQuery } from "generated/graphql";
+import { useGetAdvancesByDateAndMethodQuery } from "generated/graphql";
 import { todayAsDateStringServer } from "lib/date";
+import { PaymentMethodEnum } from "lib/enum";
 import { useState } from "react";
 import styled from "styled-components";
 
@@ -16,13 +17,14 @@ const Container = styled.div`
   width: 100%;
 `;
 
-export default function BankLoansExportWiresTab() {
+export default function BankAdvancesExportWiresTab() {
   const [selectedDate, setSelectedDate] = useState(todayAsDateStringServer());
 
-  const { data, error } = useGetWireAdvancesByDateQuery({
+  const { data, error } = useGetAdvancesByDateAndMethodQuery({
     fetchPolicy: "network-only",
     variables: {
       date: selectedDate,
+      method: PaymentMethodEnum.Wire,
     },
   });
 
@@ -39,7 +41,6 @@ export default function BankLoansExportWiresTab() {
         <DateInput
           id="export-date-date-picker"
           label="Export Date"
-          disableFuture
           value={selectedDate}
           onChange={(value) =>
             setSelectedDate(value || todayAsDateStringServer())

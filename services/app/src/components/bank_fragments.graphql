@@ -181,9 +181,11 @@ fragment Payment on payments {
 fragment PaymentBankAccounts on payments {
   id
   company_bank_account {
+    id
     ...BankAccount
   }
   recipient_bank_account {
+    id
     ...BankAccount
   }
 }

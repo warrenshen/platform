@@ -64,7 +64,7 @@ query GetAdvancesByPaymentDate($date: date!) {
   }
 }
 
-query GetWireAdvancesByDate($date: date!) {
+query GetAdvancesByDateAndMethod($date: date!, $method: String!) {
   payments(
     where: {
       _and: [
@@ -75,8 +75,8 @@ query GetWireAdvancesByDate($date: date!) {
           ]
         }
         { type: { _eq: "advance" } }
-        { method: { _eq: "wire" } }
-        { settlement_date: { _eq: $date } }
+        { method: { _eq: $method } }
+        { deposit_date: { _eq: $date } }
       ]
     }
   ) {
