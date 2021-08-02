@@ -57,8 +57,7 @@ class RunCustomerBalancesView(MethodView):
 		if start_date > report_date:
 			return handler_util.make_error_response('Start date must be the same day or before the report_date')
 
-		# Update X number of days back from when the user indicated so
-		cur_date = start_date - timedelta(days=reports_util.DAYS_TO_COMPUTE_BACK)
+		cur_date = start_date
 		all_descriptive_errors = []
 		include_debug_info = form.get('include_debug_info')
 
