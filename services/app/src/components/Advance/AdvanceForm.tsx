@@ -66,12 +66,12 @@ export default function AdvanceForm({
             id="select-payment-method"
             labelId="select-payment-method-label"
             value={payment.method}
-            onChange={({ target: { value } }) => {
+            onChange={({ target: { value } }) =>
               setPayment({
                 ...payment,
                 method: value as PaymentMethodEnum,
-              });
-            }}
+              })
+            }
           >
             {[PaymentMethodEnum.ACH, PaymentMethodEnum.Wire].map(
               (paymentMethod) => (
@@ -115,7 +115,8 @@ export default function AdvanceForm({
         />
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">
-            The date you sent or will send the advance out.
+            The date the advance was sent / will be sent <b>to the bank</b> (ex.
+            export via CSV to Torrey Pines).
           </Typography>
         </Box>
       </Box>
@@ -135,7 +136,8 @@ export default function AdvanceForm({
         />
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">
-            The date advance arrived or will arrive to the recipient.
+            The date the advance arrived / will arrive <b>to the recipient</b>{" "}
+            and the date interest starts to accrue.
           </Typography>
         </Box>
       </Box>

@@ -2,7 +2,7 @@ import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import WireAdvancesDataGrid from "components/Advances/WireAdvancesDataGrid";
 import DateInput from "components/Shared/FormInputs/DateInput";
-import { useGetAdvancesByDateAndMethodQuery } from "generated/graphql";
+import { useGetAdvancesByMethodAndPaymentDateQuery } from "generated/graphql";
 import { todayAsDateStringServer } from "lib/date";
 import { PaymentMethodEnum } from "lib/enum";
 import { useState } from "react";
@@ -20,11 +20,11 @@ const Container = styled.div`
 export default function BankAdvancesExportWiresTab() {
   const [selectedDate, setSelectedDate] = useState(todayAsDateStringServer());
 
-  const { data, error } = useGetAdvancesByDateAndMethodQuery({
+  const { data, error } = useGetAdvancesByMethodAndPaymentDateQuery({
     fetchPolicy: "network-only",
     variables: {
-      date: selectedDate,
       method: PaymentMethodEnum.Wire,
+      date: selectedDate,
     },
   });
 
@@ -39,8 +39,8 @@ export default function BankAdvancesExportWiresTab() {
     <Container>
       <Box mb={2}>
         <DateInput
-          id="export-date-date-picker"
-          label="Export Date"
+          id="payment-date-date-picker"
+          label="Payment Date"
           value={selectedDate}
           onChange={(value) =>
             setSelectedDate(value || todayAsDateStringServer())
@@ -51,8 +51,9 @@ export default function BankAdvancesExportWiresTab() {
         <Box mb={2}>
           <Alert severity="info">
             <Typography variant="body1">
-              Press the export button / icon at the top right of the table to
-              export rows (non-header rows) in CSV file format.
+              Note the default Payment Date is today. Press the export button /
+              icon at the top right of the table to export rows (non-header
+              rows) in CSV file format.
             </Typography>
           </Alert>
         </Box>

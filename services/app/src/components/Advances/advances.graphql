@@ -64,7 +64,7 @@ query GetAdvancesByPaymentDate($date: date!) {
   }
 }
 
-query GetAdvancesByDateAndMethod($date: date!, $method: String!) {
+query GetAdvancesByMethodAndPaymentDate($method: String!, $date: date!) {
   payments(
     where: {
       _and: [
@@ -76,7 +76,7 @@ query GetAdvancesByDateAndMethod($date: date!, $method: String!) {
         }
         { type: { _eq: "advance" } }
         { method: { _eq: $method } }
-        { deposit_date: { _eq: $date } }
+        { payment_date: { _eq: $date } }
       ]
     }
   ) {
