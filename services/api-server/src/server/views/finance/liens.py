@@ -18,7 +18,7 @@ from server.views.common import auth_util
 handler = Blueprint('liens', __name__)
 
 class CheckDebtorsView(MethodView):
-	#decorators = [auth_util.bank_admin_required]
+	decorators = [auth_util.bank_admin_required]
 
 	def post(self) -> Response:
 		cfg = cast(Config, current_app.app_config)
