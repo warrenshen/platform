@@ -308,7 +308,7 @@ def _write_sales_receipts(
 	receipt_numbers = [receipt.receipt_number for receipt in sales_receipts] 
 
 	prev_sales_receipts = session.query(models.MetrcSalesReceipt).filter(
-				models.MetrcSalesReceipt.receipt_number.in_(receipt_numbers)
+		models.MetrcSalesReceipt.receipt_number.in_(receipt_numbers)
 	)
 
 	receipt_number_to_sales_receipt = {}
@@ -529,6 +529,7 @@ def populate_transfers_table(
 	# Reference for when we want to fetch sales, plants, and plant batches info in the future.
 	active_sales_receipts = []
 	inactive_sales_receipts: List[Dict] = []
+
 	if apis_to_use['sales_receipts']:
 		# NOTE: Sometimes there are a lot of inactive receipts to pull for a single day
 		# and this makes it look like the sync is stuck / hanging - could be good to
@@ -547,24 +548,27 @@ def populate_transfers_table(
 		except errors.Error as e:
 			request_status['receipts_api'] = e.details.get('status_code')
 
-	active_sales_receipts_models = SalesReceipts(active_sales_receipts, 'active').get_sales_receipt_models(
-		company_id=company_info.company_id
-	)
-	inactive_sales_receipts_models = SalesReceipts(inactive_sales_receipts, 'inactive').get_sales_receipt_models(
-		company_id=company_info.company_id
-	)
-	
-	logging.info('Downloaded {} active sales receipts for {} on {}'.format(
-		len(active_sales_receipts_models), company_info.name, cur_date))
-	logging.info('Downloaded {} inactive sales receipts for {} on {}'.format(
-		len(inactive_sales_receipts_models), company_info.name, cur_date))
+		active_sales_receipts_models = SalesReceipts(active_sales_receipts, 'active').get_sales_receipt_models(
+			company_id=company_info.company_id
+		)
+		inactive_sales_receipts_models = SalesReceipts(inactive_sales_receipts, 'inactive').get_sales_receipt_models(
+			company_id=company_info.company_id
+		)
 
-	SALES_BATCH_SIZE = 10
-	sales_receipts_models = active_sales_receipts_models + inactive_sales_receipts_models
-	for sales_chunk in chunker(sales_receipts_models, SALES_BATCH_SIZE):
-		with session_scope(session_maker) as session:
-			_write_sales_receipts(sales_chunk, session)
+		logging.info('Downloaded {} active sales receipts for {} on {}'.format(
+			len(active_sales_receipts_models), company_info.name, cur_date))
+		logging.info('Downloaded {} inactive sales receipts for {} on {}'.format(
+			len(inactive_sales_receipts_models), company_info.name, cur_date))
 
+		SALES_BATCH_SIZE = 50
+		sales_receipts_models = active_sales_receipts_models + inactive_sales_receipts_models
+		batch_index = 1
+		batches_count = len(sales_receipts_models) // SALES_BATCH_SIZE + 1
+		for sales_chunk in chunker(sales_receipts_models, SALES_BATCH_SIZE):
+			logging.info(f'Writing sales receipts batch {batch_index} of {batches_count}...')
+			with session_scope(session_maker) as session:
+				_write_sales_receipts(sales_chunk, session)
+			batch_index += 1
 
 	# try:
 	# 	resp = rest.get('/plants/v1/vegetative', time_range=[cur_date_str])

@@ -227,14 +227,14 @@ def _download_data(
 	# Return: success, all_errs, fatal_error
 
 	company_info, err = _get_metrc_company_info(
-			auth_provider,
-			security_cfg,
-			company_id=company_id,
-			session_maker=session_maker
-		)
+		auth_provider,
+		security_cfg,
+		company_id=company_id,
+		session_maker=session_maker
+	)
 	if err:
 		return DownloadDataRespDict(
-			success=False, 
+			success=False,
 			all_errs=[]
 		), err
 
