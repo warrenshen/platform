@@ -2,7 +2,9 @@ import json
 import os
 from typing import Dict
 
-from bespoke.config.config_util import is_prod_env, is_development_env, is_test_env, MetrcAuthProvider
+from bespoke.config.config_util import (
+	is_prod_env, is_development_env, is_test_env, 
+	MetrcAuthProvider, FCSConfigDict)
 from bespoke.security import security_util
 
 
@@ -68,6 +70,13 @@ class Config(object):
 		self.METRC_VENDOR_KEY_CA = os.environ.get('METRC_VENDOR_KEY_CA')
 		self.METRC_USER_KEY = os.environ.get('METRC_USER_KEY')
 
+		# FCS
+		self.FCS_USE_PROD = _string_to_bool(os.environ.get('FCS_USE_PROD'))
+		self.FCS_CLIENT_ID = os.environ.get('FCS_CLIENT_ID')
+		self.FCS_CLIENT_SECRET = os.environ.get('FCS_CLIENT_SECRET')
+		self.FCS_USERNAME = os.environ.get('FCS_USERNAME')
+		self.FCS_PASSWORD = os.environ.get('FCS_PASSWORD')
+
 		# Files
 		self.S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME')
 
@@ -93,6 +102,15 @@ class Config(object):
 			state_to_vendor_key={
 				'CA': self.METRC_VENDOR_KEY_CA
 			}
+		)
+
+	def get_fcs_config(self) -> FCSConfigDict:
+		return FCSConfigDict(
+			use_prod=self.FCS_USE_PROD,
+			client_id=self.FCS_CLIENT_ID,
+			client_secret=self.FCS_CLIENT_SECRET,
+			username=self.FCS_USERNAME,
+			password=self.FCS_PASSWORD
 		)
 
 	def is_not_prod_env(self) -> bool:

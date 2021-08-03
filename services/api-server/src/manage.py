@@ -32,7 +32,7 @@ from server.views import (
 	two_factor,
 	users,
 )
-from server.views.finance import credits, fees
+from server.views.finance import credits, fees, liens
 from server.views.finance.ebba_applications import \
     approvals as ebba_application_approvals
 from server.views.finance.invoices import routes as invoices_routes
@@ -83,7 +83,7 @@ app.register_blueprint(users.handler, url_prefix='/users')
 
 # Third-party APIs
 app.register_blueprint(metrc.handler, url_prefix='/metrc')
-
+app.register_blueprint(liens.handler, url_prefix='/liens')
 # Partnerships
 app.register_blueprint(partnerships.handler, url_prefix='/partnerships')
 

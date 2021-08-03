@@ -1,3 +1,4 @@
+from mypy_extensions import TypedDict
 from typing import Tuple, Dict
 
 from bespoke import errors
@@ -26,3 +27,11 @@ class MetrcAuthProvider(object):
 			return None, errors.Error('No vendor key registered for state {}'.format(us_state))
 
 		return self._state_to_vendor_key[us_state], None
+
+FCSConfigDict = TypedDict('FCSConfigDict', {
+	'use_prod': bool,
+	'client_id': str,
+	'client_secret': str,
+	'username': str,
+	'password': str
+})
