@@ -178,12 +178,10 @@ class CreatePartnershipRequestView(MethodView):
 					models.CompanySettings.company_id == customer_id
 				).first())
 
-			# Payor or vendor users.
-			customer_name = customer.name
 			partner_name = req['company']['name']
 
 			template_data = {
-				'customer_name': customer_name,
+				'customer_name': customer.get_display_name(),
 				'partner_name': partner_name,
 				'partnership_type': partnership_type
 			}
@@ -292,8 +290,6 @@ class CreatePartnershipView(MethodView):
 				raise errors.Error('There are no users configured for this payor or vendor')
 			company_emails = [contact['email'] for contact in partner_contacts]
 
-			customer_name = customer.name
-
 			contract, err = contract_util.get_active_contract_by_company_id(customer_id, session)
 			if err:
 				raise err
@@ -316,7 +312,7 @@ class CreatePartnershipView(MethodView):
 				raise errors.Error('Unexpected company_type {}'.format(resp['company_type']))
 
 			template_data = {
-				'customer_name': customer_name,
+				'customer_name': customer.get_display_name(),
 				'docusign_link': docusign_link,
 			}
 			recipients = company_emails

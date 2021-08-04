@@ -14,7 +14,7 @@ import {
 } from "generated/graphql";
 import { AllLoanStatuses } from "lib/enum";
 import { ColumnWidths } from "lib/tables";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 interface Props {
   pager?: boolean;
@@ -33,9 +33,6 @@ function getRows(asyncPipelines: any[]): RowsProp {
   }));
 }
 
-const getMaturityDate = (rowData: any) =>
-  new Date(rowData.adjusted_maturity_date);
-
 export default function AsyncPipelinesDataGrid({
   pager = true,
   pageSize = 10,
@@ -45,8 +42,6 @@ export default function AsyncPipelinesDataGrid({
   handleClickCustomer,
   handleSelectLoans,
 }: Props) {
-  const [dataGrid, setDataGrid] = useState<any>(null);
-
   const rows = useMemo(() => getRows(asyncPipelines), [asyncPipelines]);
 
   const columns = useMemo(
@@ -144,7 +139,6 @@ export default function AsyncPipelinesDataGrid({
 
   return (
     <ControlledDataGrid
-      ref={(ref) => setDataGrid(ref)}
       isExcelExport={true}
       isSortingDisabled={false}
       pager={pager}

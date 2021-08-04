@@ -85,7 +85,6 @@ def _send_bank_created_advances_emails(
 			if err:
 				raise err
 
-			customer_name = customer.name
 			customer_identifier = customer.identifier
 
 			# Step 1
@@ -97,7 +96,7 @@ def _send_bank_created_advances_emails(
 				'requested_date': date_util.human_readable_yearmonthday(loan.requested_at),
 			} for loan in customer_loans]
 			template_data = {
-				'customer_name': customer_name,
+				'customer_name': customer.get_display_name(),
 				'loans': loan_dicts,
 			}
 			customer_emails = [user.email for user in customer_users]
@@ -138,8 +137,8 @@ def _send_bank_created_advances_emails(
 						raise errors.Error(f'There are no users configured for vendor {vendor.name}')
 
 					template_data = {
-						'customer_name': customer_name,
-						'vendor_name': vendor.name,
+						'customer_name': customer.get_display_name(),
+						'vendor_name': vendor.get_display_name(),
 						'purchase_order_number': purchase_order.order_number,
 						'advance_amount': number_util.to_dollar_format(float(loan.amount)),
 					}
@@ -178,8 +177,8 @@ def _send_bank_created_advances_emails(
 							raise errors.Error(f'There are no users configured for vendor {vendor.name}')
 
 						template_data = {
-							'customer_name': customer_name,
-							'vendor_name': vendor.name,
+							'customer_name': customer.get_display_name(),
+							'vendor_name': vendor.get_display_name(),
 							'advance_amount': number_util.to_dollar_format(float(loan.amount)),
 						}
 						vendor_emails = [user.email for user in vendor_users]

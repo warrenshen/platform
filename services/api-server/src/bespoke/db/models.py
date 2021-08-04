@@ -152,6 +152,9 @@ class Company(Base):
 	# Last created identifier for a repayment payment belonging to this company.
 	latest_repayment_identifier = Column(Integer, nullable=False, default=0)
 
+	def get_display_name(self) -> str:
+		return f'{self.name} (DBA {self.dba_name})' if self.dba_name else self.name
+
 	def as_dict(self) -> CompanyDict:
 		return CompanyDict(
 			id=str(self.id),

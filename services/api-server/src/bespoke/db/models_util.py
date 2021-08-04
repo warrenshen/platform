@@ -12,7 +12,6 @@ from sqlalchemy.orm.session import Session
 
 
 def set_needs_balance_recomputed(company_id: str, session: Session) -> Tuple[bool, errors.Error]:
-
 	company = session.query(models.Company).filter(models.Company.id == company_id).first()
 	if not company:
 		return None, errors.Error(

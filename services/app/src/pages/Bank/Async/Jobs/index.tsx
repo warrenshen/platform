@@ -1,20 +1,8 @@
-import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
+import { Box } from "@material-ui/core";
 import { useGetAsyncPipelinesQuery } from "generated/graphql";
-import useSnackbar from "hooks/useSnackbar";
 import AsyncPipelinesDataGrid from "pages/Bank/Async/Jobs/AsyncPipelinesDataGrid";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    inputField: {
-      width: 200,
-    },
-  })
-);
-
 export default function AsyncPipelinesPage() {
-  const classes = useStyles();
-  const snackbar = useSnackbar();
-
   const { data, error } = useGetAsyncPipelinesQuery();
 
   if (error) {

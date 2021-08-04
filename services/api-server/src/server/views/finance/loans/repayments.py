@@ -40,7 +40,7 @@ def _send_customer_requested_repayment_emails(
 			session.query(models.Company).get(payment.company_id))
 
 		template_data = {
-			'customer_name': customer.name,
+			'customer_name': customer.get_display_name(),
 			'payment_amount': number_util.to_dollar_format(float(payment.requested_amount)),
 			'payment_method': payment.method,
 			'requested_payment_date': date_util.date_to_str(payment.requested_payment_date),
@@ -74,7 +74,7 @@ def _send_bank_settled_repayment_emails(
 			session.query(models.Company).get(payment.company_id))
 
 		template_data = {
-			'customer_name': customer.name,
+			'customer_name': customer.get_display_name(),
 			'payment_amount': number_util.to_dollar_format(float(payment.amount)),
 			'payment_method': payment.method,
 			'payment_deposit_date': date_util.date_to_str(payment.deposit_date),

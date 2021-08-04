@@ -140,8 +140,6 @@ class SubmitEbbaApplicationForApproval(MethodView):
 
 		ebba_application_id = form['ebba_application_id']
 
-		customer_name = ''
-
 		with session_scope(current_app.session_maker) as session:
 			ebba_application = cast(
 				models.EbbaApplication,
@@ -156,8 +154,6 @@ class SubmitEbbaApplicationForApproval(MethodView):
 			if not ebba_application.application_date:
 				raise errors.Error('Application month is required')
 
-			customer_name = ebba_application.company.name
-
 			ebba_application.status = RequestStatusEnum.APPROVAL_REQUESTED
 			ebba_application.requested_at = date_util.now()
 			ebba_application.submitted_by_user_id = user_session.get_user_id()
@@ -166,7 +162,7 @@ class SubmitEbbaApplicationForApproval(MethodView):
 			ebba_application_html = '<span>LINK HERE</span>'
 			template_name = sendgrid_util.TemplateNames.CUSTOMER_SUBMITTED_EBBA_APPLICATION
 			template_data = {
-				'customer_name': customer_name,
+				'customer_name': ebba_application.company.get_display_name(),
 				'ebba_application_html': ebba_application_html
 			}
 			recipients = cfg.BANK_NOTIFY_EMAIL_ADDRESSES

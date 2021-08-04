@@ -433,8 +433,8 @@ def handle_invoice_approval_request(
 			emails = [u['email'] for u in payor_users]
 
 			template_data = {
-				'payor_name': payor.name,
-				'customer_name': customer.name,
+				'payor_name': payor.get_display_name(),
+				'customer_name': customer.get_display_name(),
 			}
 
 			_, err = sendgrid_client.send(
@@ -474,8 +474,8 @@ def send_one_notification_for_payment(
 	)
 
 	template_data = {
-		'payor_name': invoice.payor.name,
-		'customer_name': customer.name
+		'payor_name': invoice.payor.get_display_name(),
+		'customer_name': customer.get_display_name(),
 	}
 
 	payor_users, err = partnership_util.get_partner_contacts_using_company_ids(

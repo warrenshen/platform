@@ -261,8 +261,8 @@ class RespondToApprovalRequestView(MethodView):
 			if not customer_users:
 				raise errors.Error('There are no users configured for this customer')
 
-			vendor_name = purchase_order.vendor.name
-			customer_name = purchase_order.company.name
+			vendor_name = purchase_order.vendor.get_display_name()
+			customer_name = purchase_order.company.get_display_name()
 			customer_emails = [user.email for user in customer_users]
 
 			if not user_session.is_bank_admin():

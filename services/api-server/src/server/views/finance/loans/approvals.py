@@ -59,7 +59,6 @@ def _send_bank_approved_loans_emails(
 			if not customer_users:
 				raise errors.Error('There are no users configured for this customer')
 
-			customer_name = customer.name
 			customer_identifier = customer.identifier
 			loan_dicts = [{
 				'identifier': f'{customer_identifier}{loan.identifier}',
@@ -67,9 +66,10 @@ def _send_bank_approved_loans_emails(
 				'requested_payment_date': date_util.date_to_str(loan.requested_payment_date),
 				'requested_date': date_util.human_readable_yearmonthday(loan.requested_at),
 			} for loan in customer_loans]
+
 			template_name = sendgrid_util.TemplateNames.BANK_APPROVED_LOANS
 			template_data = {
-				'customer_name': customer_name,
+				'customer_name': customer.get_display_name(),
 				'loans': loan_dicts,
 			}
 
@@ -170,7 +170,6 @@ class RejectLoanView(MethodView):
 				session.query(models.Company).filter(
 					models.Company.id == customer_id
 				).first())
-			customer_name = customer.name
 
 			loan_identifier = f'{customer.identifier}{loan.identifier}'
 			loan_amount = number_util.to_dollar_format(float(loan.amount))
@@ -183,7 +182,7 @@ class RejectLoanView(MethodView):
 
 		template_name = sendgrid_util.TemplateNames.BANK_REJECTED_LOAN
 		template_data = {
-			'customer_name': customer_name,
+			'customer_name': customer.get_display_name(),
 			'loan_identifier': loan_identifier,
 			'loan_amount': loan_amount,
 			'loan_requested_payment_date': loan_requested_payment_date,

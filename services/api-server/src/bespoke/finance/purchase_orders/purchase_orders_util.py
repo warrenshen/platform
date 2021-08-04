@@ -291,8 +291,8 @@ def create_update_purchase_order(
 		)
 
 		template_data = {
-			'customer_name': customer.name,
-			'vendor_name': vendor.name,
+			'customer_name': customer.get_display_name(),
+			'vendor_name': vendor.get_display_name(),
 			'purchase_order_number': purchase_order.order_number,
 			'purchase_order_amount': number_util.to_dollar_format(float(purchase_order.amount)) if purchase_order.amount else None,
 		}
@@ -429,8 +429,8 @@ def submit_purchase_order_for_approval(
 	# Send the email to the vendor for them to approve or reject this purchase order
 	# Get the vendor_id and find its users
 	template_data = {
-		'vendor_name': vendor.name,
-		'customer_name': customer.name,
+		'vendor_name': vendor.get_display_name(),
+		'customer_name': customer.get_display_name(),
 	}
 	_, err = sendgrid_client.send(
 		template_name=sendgrid_util.TemplateNames.VENDOR_TO_APPROVE_PURCHASE_ORDER,
@@ -445,8 +445,8 @@ def submit_purchase_order_for_approval(
 	# send an email to the Bespoke team letting them know about this.
 	if is_vendor_missing_bank_account:
 		template_data = {
-			'vendor_name': vendor.name,
-			'customer_name': customer.name,
+			'vendor_name': vendor.get_display_name(),
+			'customer_name': customer.get_display_name(),
 		}
 		_, err = sendgrid_client.send(
 			template_name=sendgrid_util.TemplateNames.CUSTOMER_REQUESTED_APPROVAL_NO_VENDOR_BANK_ACCOUNT,
