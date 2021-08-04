@@ -607,6 +607,7 @@
   - role: invoice_reviewer
     permission:
       columns:
+      - dba_name
       - id
       - is_customer
       - is_payor
@@ -619,6 +620,7 @@
   - role: purchase_order_reviewer
     permission:
       columns:
+      - dba_name
       - id
       - is_customer
       - is_payor

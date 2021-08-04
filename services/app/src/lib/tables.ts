@@ -1,5 +1,6 @@
 export const ColumnWidths = {
   // Fixed width columns.
+  Checkbox: 120,
   Comment: 250,
   Count: 140,
   Currency: 130,

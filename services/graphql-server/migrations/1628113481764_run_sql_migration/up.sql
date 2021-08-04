@@ -1,0 +1,1 @@
+CREATE INDEX company_licenses_company_id_license_number_key ON company_licenses (company_id, license_number);

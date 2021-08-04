@@ -8,6 +8,7 @@ import {
   VendorPartnershipFragment,
   VendorPartnershipLimitedFragment,
 } from "generated/graphql";
+import { getCompanyDisplayName } from "lib/companies";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ColumnWidths } from "lib/tables";
 import { useMemo, useState } from "react";
@@ -21,7 +22,9 @@ function getRows(
   return vendorPartnerships.map((vendorPartnership) => {
     return {
       ...vendorPartnership,
-      vendor_name: vendorPartnership.vendor?.name,
+      vendor_name: !!vendorPartnership.vendor
+        ? getCompanyDisplayName(vendorPartnership.vendor)
+        : "",
       is_verified_bank_account: !!(vendorPartnership as VendorPartnershipFragment)
         .vendor_bank_account?.verified_at,
       is_verified_license:
@@ -108,13 +111,14 @@ export default function VendorPartnershipsDataGrid({
         dataField: "vendor_agreement_id",
         caption: "Signed Vendor Agreement",
         alignment: "center",
-        width: isRoleBankUser ? 195 : 225,
+        width: ColumnWidths.Checkbox,
         cellRender: verificationCellRenderer,
       },
       {
         dataField: "is_verified_license",
         caption: "Verified License",
         alignment: "center",
+        width: ColumnWidths.Checkbox,
         cellRender: verificationCellRenderer,
       },
       {
@@ -122,12 +126,14 @@ export default function VendorPartnershipsDataGrid({
         dataField: "is_verified_bank_account",
         caption: "Verified Bank account",
         alignment: "center",
+        width: ColumnWidths.Checkbox,
         cellRender: verificationCellRenderer,
       },
       {
         dataField: "is_approved",
         caption: "Approved",
         alignment: "center",
+        width: ColumnWidths.Checkbox,
         cellRender: verificationCellRenderer,
       },
     ],

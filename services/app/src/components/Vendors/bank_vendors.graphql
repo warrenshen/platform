@@ -90,7 +90,7 @@ query GetVendorPartnershipsForBank {
     ...VendorPartnership
     company {
       id
-      name
+      ...CompanyLimited
     }
     vendor {
       id

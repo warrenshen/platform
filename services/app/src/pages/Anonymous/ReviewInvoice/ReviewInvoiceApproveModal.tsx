@@ -81,7 +81,7 @@ export default function ReviewInvoiceApproveModal({
       <DialogContent>
         <DialogContentText>
           Please confirm that the invoice due date is correct and that you have
-          not paid off this invoice to {invoice.company.name} yet.
+          not paid off this invoice yet.
         </DialogContentText>
         <Box display="flex" flexDirection="row" justifyContent="center">
           <InvoiceInfoCard isApprovedStatusVisible={false} invoice={invoice} />

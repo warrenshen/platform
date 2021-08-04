@@ -38,6 +38,7 @@ fragment BankAccountLimited on bank_accounts {
 fragment VendorLimited on vendors {
   id
   name
+  dba_name
   licenses(
     where: {
       _or: [{ is_deleted: { _is_null: true } }, { is_deleted: { _eq: false } }]
@@ -50,6 +51,7 @@ fragment VendorLimited on vendors {
 fragment PayorLimited on payors {
   id
   name
+  dba_name
   licenses(
     where: {
       _or: [{ is_deleted: { _is_null: true } }, { is_deleted: { _eq: false } }]

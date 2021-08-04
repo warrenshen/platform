@@ -22301,11 +22301,12 @@ export type BankAccountLimitedFragment = Pick<
   | "is_cannabis_compliant"
 >;
 
-export type VendorLimitedFragment = Pick<Vendors, "id" | "name"> & {
-  licenses: Array<CompanyLicenseFragment>;
-};
+export type VendorLimitedFragment = Pick<
+  Vendors,
+  "id" | "name" | "dba_name"
+> & { licenses: Array<CompanyLicenseFragment> };
 
-export type PayorLimitedFragment = Pick<Payors, "id" | "name"> & {
+export type PayorLimitedFragment = Pick<Payors, "id" | "name" | "dba_name"> & {
   licenses: Array<CompanyLicenseFragment>;
 };
 
@@ -22822,6 +22823,7 @@ export const VendorLimitedFragmentDoc = gql`
   fragment VendorLimited on vendors {
     id
     name
+    dba_name
     licenses(
       where: {
         _or: [
@@ -23034,6 +23036,7 @@ export const PayorLimitedFragmentDoc = gql`
   fragment PayorLimited on payors {
     id
     name
+    dba_name
     licenses(
       where: {
         _or: [

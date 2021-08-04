@@ -5,6 +5,7 @@ import {
   Companies,
   useGetVendorPartnershipsByVendorIdQuery,
 } from "generated/graphql";
+import { getCompanyDisplayName } from "lib/companies";
 import { filter, sortBy } from "lodash";
 import { useMemo, useState } from "react";
 
@@ -28,7 +29,10 @@ export default function BankCustomerVendorPartnershipsSubpage({
     const filteredVendorPartnerships = filter(
       data?.company_vendor_partnerships || [],
       (vendorPartnership) =>
-        (vendorPartnership.vendor?.name || "")
+        (!!vendorPartnership.vendor
+          ? getCompanyDisplayName(vendorPartnership.vendor)
+          : ""
+        )
           .toLowerCase()
           .indexOf(searchQuery.toLowerCase()) >= 0
     );

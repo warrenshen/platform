@@ -1,6 +1,9 @@
 import {
   CompanyFragment,
+  CompanyLimitedFragment,
   CompanySettingsLimitedFragment,
+  PayorLimitedFragment,
+  VendorLimitedFragment,
 } from "generated/graphql";
 import {
   CustomerUserRoles,
@@ -9,10 +12,12 @@ import {
   PartnerCompanyUserRoles,
 } from "lib/enum";
 
-export function getCompanyDisplayName(company: CompanyFragment) {
+export function getCompanyDisplayName(
+  company: CompanyLimitedFragment | PayorLimitedFragment | VendorLimitedFragment
+) {
   return !!company.dba_name
     ? `${company.name} (DBA ${company.dba_name})`
-    : company.name;
+    : company.name || "Unkown";
 }
 
 export function getCompanyUserRolesForCompany(company: CompanyFragment) {

@@ -3,6 +3,7 @@ import PayorPartnershipsDataGrid from "components/Payors/PayorPartnershipsDataGr
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
 import { useGetPayorPartnershipsForBankQuery } from "generated/graphql";
+import { getCompanyDisplayName } from "lib/companies";
 import { filter, sortBy } from "lodash";
 import { useMemo, useState } from "react";
 
@@ -17,7 +18,10 @@ export default function BankPayorsPage() {
     const filteredPayorPartnerships = filter(
       data?.company_payor_partnerships || [],
       (payorPartnership) =>
-        (payorPartnership.payor?.name || "")
+        (!!payorPartnership.payor
+          ? getCompanyDisplayName(payorPartnership.payor)
+          : ""
+        )
           .toLowerCase()
           .indexOf(searchQuery.toLowerCase()) >= 0
     );

@@ -7,6 +7,7 @@ import {
   CompanyPayorPartnerships,
   PayorPartnershipFragment,
 } from "generated/graphql";
+import { getCompanyDisplayName } from "lib/companies";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ColumnWidths } from "lib/tables";
 import { useMemo, useState } from "react";
@@ -19,7 +20,9 @@ function getRows(payorPartnerships: PayorPartnershipFragment[]): RowsProp {
   return payorPartnerships.map((payorPartnership) => {
     return {
       ...payorPartnership,
-      payor_name: payorPartnership.payor?.name,
+      payor_name: !!payorPartnership.payor
+        ? getCompanyDisplayName(payorPartnership.payor)
+        : "",
       is_verified_license: (payorPartnership.payor?.licenses || []).length > 0,
       is_approved: !!payorPartnership.approved_at,
     };
@@ -60,7 +63,7 @@ export default function PayorPartnershipsDataGrid({
         ),
       },
       {
-        dataField: "payor.name",
+        dataField: "payor_name",
         caption: "Payor Name",
         minWidth: ColumnWidths.MinWidth,
         ...(isRoleBankUser && {
@@ -94,19 +97,21 @@ export default function PayorPartnershipsDataGrid({
         dataField: "payor_agreement_id",
         caption: "Signed Payor Agreement",
         alignment: "center",
-        width: isRoleBankUser ? 195 : 225,
+        width: ColumnWidths.Checkbox,
         cellRender: verificationCellRenderer,
       },
       {
         dataField: "is_verified_license",
         caption: "Verified License",
         alignment: "center",
+        width: ColumnWidths.Checkbox,
         cellRender: verificationCellRenderer,
       },
       {
         dataField: "is_approved",
         caption: "Approved",
         alignment: "center",
+        width: ColumnWidths.Checkbox,
         cellRender: verificationCellRenderer,
       },
     ],

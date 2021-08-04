@@ -3,6 +3,7 @@ import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
 import VendorPartnershipsDataGrid from "components/Vendors/VendorPartnershipsDataGrid";
 import { useGetVendorPartnershipsForBankQuery } from "generated/graphql";
+import { getCompanyDisplayName } from "lib/companies";
 import { filter, sortBy } from "lodash";
 import { useMemo, useState } from "react";
 
@@ -17,7 +18,10 @@ export default function BankVendorsPage() {
     const filteredVendorPartnerships = filter(
       data?.company_vendor_partnerships || [],
       (vendorPartnership) =>
-        (vendorPartnership.vendor?.name || "")
+        (!!vendorPartnership.vendor
+          ? getCompanyDisplayName(vendorPartnership.vendor)
+          : ""
+        )
           .toLowerCase()
           .indexOf(searchQuery.toLowerCase()) >= 0
     );
