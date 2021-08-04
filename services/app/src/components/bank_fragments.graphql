@@ -217,3 +217,7 @@ fragment BankFinancialSummary on bank_financial_summaries {
   available_limit
   interest_accrued_today
 }
+
+fragment AsyncPipeline on async_pipelines {
+  id
+}

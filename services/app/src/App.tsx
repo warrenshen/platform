@@ -23,6 +23,7 @@ import ReviewPurchaseOrderCompletePage from "pages/Anonymous/ReviewPurchaseOrder
 import AnonymousSecureLinkPage from "pages/Anonymous/SecureLink";
 import SignIn from "pages/Anonymous/SignIn";
 import BankAdvancesPage from "pages/Bank/Advances";
+import BankAsyncJobsPage from "pages/Bank/Async/Jobs";
 import BankCompanyPage from "pages/Bank/Company";
 import BankCustomersPage from "pages/Bank/Customers";
 import BankEbbaApplicationsPage from "pages/Bank/EbbaApplications";
@@ -30,9 +31,9 @@ import BankInvoicesPage from "pages/Bank/Invoices";
 import BankLoansPage from "pages/Bank/Loans";
 import BankOverviewPage from "pages/Bank/Overview";
 import BankPartnershipsPage from "pages/Bank/Partnerships";
-import BankRepaymentsPage from "pages/Bank/Repayments";
 import BankPayorsPage from "pages/Bank/Payors";
 import BankPurchaseOrdersPage from "pages/Bank/PurchaseOrders";
+import BankRepaymentsPage from "pages/Bank/Repayments";
 import BankReportsPage from "pages/Bank/Reports";
 import BankSettingsPage from "pages/Bank/Settings";
 import BankVendorsPage from "pages/Bank/Vendors";
@@ -42,9 +43,9 @@ import CustomerEbbaApplicationsPage from "pages/Customer/EbbaApplications";
 import CustomerInvoicesPages from "pages/Customer/Invoices";
 import CustomerLoansPage from "pages/Customer/Loans";
 import CustomerOverviewPage from "pages/Customer/Overview";
-import CustomerRepaymentsPage from "pages/Customer/Repayments";
 import CustomerPayorsPage from "pages/Customer/Payors";
 import CustomerPurchaseOrdersPage from "pages/Customer/PurchaseOrders";
+import CustomerRepaymentsPage from "pages/Customer/Repayments";
 import CustomerSettingsPage from "pages/Customer/Settings";
 import CustomerVendorsPage from "pages/Customer/Vendors";
 import UserProfile from "pages/UserProfile";
@@ -263,6 +264,13 @@ export default function App() {
           requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
         >
           <BankLoansPage />
+        </PrivateRoute>
+        <PrivateRoute
+          exact
+          path={bankRoutes.asyncJobs}
+          requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
+        >
+          <BankAsyncJobsPage />
         </PrivateRoute>
         <PrivateRoute
           path={bankRoutes.purchaseOrders}

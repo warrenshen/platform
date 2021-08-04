@@ -72,6 +72,7 @@ export const bankRoutes = {
     settings: "/settings",
     users: "/users",
   },
+  asyncJobs: "/async/jobs",
   customers: "/customers",
   ebbaApplications: "/borrowing-bases",
   loans: "/loans",

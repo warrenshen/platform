@@ -22266,6 +22266,8 @@ export type BankFinancialSummaryFragment = Pick<
   | "interest_accrued_today"
 >;
 
+export type AsyncPipelineFragment = Pick<AsyncPipelines, "id">;
+
 export type CompanySettingsLimitedFragment = Pick<
   CompanySettings,
   | "id"
@@ -22434,6 +22436,12 @@ export type PaymentLimitedFragment = Pick<
     Pick<Invoices, "id"> & { payor?: Maybe<Pick<Payors, "id" | "name">> }
   >;
   submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
+};
+
+export type GetAsyncPipelinesQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetAsyncPipelinesQuery = {
+  async_pipelines: Array<Pick<AsyncPipelines, "id"> & AsyncPipelineFragment>;
 };
 
 export type GetCustomersWithMetadataQueryVariables = Exact<{
@@ -23239,6 +23247,11 @@ export const BankFinancialSummaryFragmentDoc = gql`
     total_principal_in_requested_state
     available_limit
     interest_accrued_today
+  }
+`;
+export const AsyncPipelineFragmentDoc = gql`
+  fragment AsyncPipeline on async_pipelines {
+    id
   }
 `;
 export const GetAdvancesDocument = gql`
@@ -30929,6 +30942,63 @@ export type CompanyVendorPartnershipForVendorLazyQueryHookResult = ReturnType<
 export type CompanyVendorPartnershipForVendorQueryResult = Apollo.QueryResult<
   CompanyVendorPartnershipForVendorQuery,
   CompanyVendorPartnershipForVendorQueryVariables
+>;
+export const GetAsyncPipelinesDocument = gql`
+  query GetAsyncPipelines {
+    async_pipelines: async_pipelines(order_by: { updated_at: asc }) {
+      id
+      ...AsyncPipeline
+    }
+  }
+  ${AsyncPipelineFragmentDoc}
+`;
+
+/**
+ * __useGetAsyncPipelinesQuery__
+ *
+ * To run a query within a React component, call `useGetAsyncPipelinesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAsyncPipelinesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAsyncPipelinesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetAsyncPipelinesQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetAsyncPipelinesQuery,
+    GetAsyncPipelinesQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetAsyncPipelinesQuery,
+    GetAsyncPipelinesQueryVariables
+  >(GetAsyncPipelinesDocument, baseOptions);
+}
+export function useGetAsyncPipelinesLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetAsyncPipelinesQuery,
+    GetAsyncPipelinesQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetAsyncPipelinesQuery,
+    GetAsyncPipelinesQueryVariables
+  >(GetAsyncPipelinesDocument, baseOptions);
+}
+export type GetAsyncPipelinesQueryHookResult = ReturnType<
+  typeof useGetAsyncPipelinesQuery
+>;
+export type GetAsyncPipelinesLazyQueryHookResult = ReturnType<
+  typeof useGetAsyncPipelinesLazyQuery
+>;
+export type GetAsyncPipelinesQueryResult = Apollo.QueryResult<
+  GetAsyncPipelinesQuery,
+  GetAsyncPipelinesQueryVariables
 >;
 export const GetCustomersWithMetadataDocument = gql`
   query GetCustomersWithMetadata($date: date) {
