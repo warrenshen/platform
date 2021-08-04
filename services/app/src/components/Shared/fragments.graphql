@@ -33,7 +33,7 @@ fragment CompanyLicense on company_licenses {
   license_number
 }
 
-fragment CompanyMinimal on companies {
+fragment CompanyLimited on companies {
   id
   name
   dba_name
@@ -45,12 +45,11 @@ fragment Company on companies {
   is_customer
   is_payor
   is_vendor
-  name
   contract_name
-  dba_name
   employer_identification_number
   address
   phone_number
+  ...CompanyLimited
 }
 
 fragment Contract on contracts {

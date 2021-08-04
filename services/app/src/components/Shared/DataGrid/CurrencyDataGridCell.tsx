@@ -5,8 +5,6 @@ interface Props {
   value: number | null;
 }
 
-function CurrencyDataGridCell({ value }: Props) {
+export default function CurrencyDataGridCell({ value }: Props) {
   return <Box>{formatCurrency(value)}</Box>;
 }
-
-export default CurrencyDataGridCell;

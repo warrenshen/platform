@@ -44,7 +44,7 @@ query GetInvoiceForReview($id: uuid!) {
     }
     company {
       id
-      name
+      ...CompanyLimited
     }
     payor {
       id

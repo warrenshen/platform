@@ -12,6 +12,7 @@ import {
   RequestStatusEnum,
   useGetInvoiceForReviewQuery,
 } from "generated/graphql";
+import { getCompanyDisplayName } from "lib/companies";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
 import { FileTypeEnum } from "lib/enum";
@@ -132,7 +133,7 @@ export default function ReviewInvoicePage(props: Props) {
     <Box className={classes.wrapper}>
       <Box className={classes.container}>
         <Box display="flex" flexDirection="column">
-          <Typography variant="h5">{`${invoice.payor?.name}, your approval is requested`}</Typography>
+          <Typography variant="h5">{`Approval requested for Invoice ${invoice.invoice_number}`}</Typography>
           <Box mt={1}>
             <Typography variant="body2">
               The invoice shown below requires your approval. Please review the
@@ -145,7 +146,9 @@ export default function ReviewInvoicePage(props: Props) {
           <Typography variant="subtitle2" color="textSecondary">
             Issuer
           </Typography>
-          <Typography variant={"body1"}>{invoice.company?.name}</Typography>
+          <Typography variant={"body1"}>
+            {getCompanyDisplayName(invoice.company)}
+          </Typography>
         </Box>
         <Box display="flex" flexDirection="column" mt={2}>
           <Typography variant="subtitle2" color="textSecondary">

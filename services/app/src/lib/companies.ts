@@ -9,6 +9,12 @@ import {
   PartnerCompanyUserRoles,
 } from "lib/enum";
 
+export function getCompanyDisplayName(company: CompanyFragment) {
+  return !!company.dba_name
+    ? `${company.name} (DBA ${company.dba_name})`
+    : company.name;
+}
+
 export function getCompanyUserRolesForCompany(company: CompanyFragment) {
   return [
     ...(company.is_customer ? CustomerUserRoles : []),

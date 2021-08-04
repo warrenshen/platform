@@ -2,7 +2,7 @@
 query GetCompaniesWithLicenses {
   companies: companies(order_by: { name: asc }) {
     id
-    ...CompanyMinimal
+    ...CompanyLimited
     licenses(
       where: {
         _or: [

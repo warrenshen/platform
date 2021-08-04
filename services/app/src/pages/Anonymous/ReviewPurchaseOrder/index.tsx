@@ -13,6 +13,7 @@ import {
   RequestStatusEnum,
   useGetPurchaseOrderForReviewQuery,
 } from "generated/graphql";
+import { getCompanyDisplayName } from "lib/companies";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
 import { FileTypeEnum } from "lib/enum";
@@ -143,7 +144,7 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
         ) : (
           <>
             <Box display="flex" flexDirection="column">
-              <Typography variant="h5">{`${purchaseOrder.vendor?.name}, your approval is requested`}</Typography>
+              <Typography variant="h5">{`Approval requested for PO ${purchaseOrder.order_number}`}</Typography>
               <Box mt={1}>
                 <Typography variant="body2">
                   This purchase order requires your approval before Bespoke
@@ -176,7 +177,7 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
                 Buyer
               </Typography>
               <Typography variant={"body1"}>
-                {purchaseOrder.company?.name}
+                {getCompanyDisplayName(purchaseOrder.company)}
               </Typography>
             </Box>
             <Box display="flex" flexDirection="column" mt={2}>

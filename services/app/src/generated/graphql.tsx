@@ -20683,7 +20683,7 @@ export type GetInvoiceForReviewQuery = {
       invoice_files: Array<
         Pick<InvoiceFiles, "invoice_id" | "file_id"> & InvoiceFileFragment
       >;
-      company: Pick<Companies, "id" | "name">;
+      company: Pick<Companies, "id"> & CompanyLimitedFragment;
       payor?: Maybe<
         Pick<Payors, "id" | "name"> & {
           settings?: Maybe<
@@ -21114,7 +21114,7 @@ export type GetPurchaseOrderForReviewQuery = {
         Pick<PurchaseOrderFiles, "purchase_order_id" | "file_id"> &
           PurchaseOrderFileFragment
       >;
-      company: Pick<Companies, "id" | "name">;
+      company: Pick<Companies, "id"> & CompanyLimitedFragment;
       vendor?: Maybe<Pick<Vendors, "id" | "name">>;
       purchase_order_metrc_transfers: Array<
         Pick<PurchaseOrderMetrcTransfers, "id"> & {
@@ -21447,7 +21447,7 @@ export type GetCompaniesWithLicensesQuery = {
   companies: Array<
     Pick<Companies, "id"> & {
       licenses: Array<Pick<CompanyLicenses, "id" | "license_number">>;
-    } & CompanyMinimalFragment
+    } & CompanyLimitedFragment
   >;
 };
 
@@ -21645,7 +21645,7 @@ export type CompanyLicenseFragment = Pick<
   "id" | "company_id" | "file_id" | "license_number"
 >;
 
-export type CompanyMinimalFragment = Pick<
+export type CompanyLimitedFragment = Pick<
   Companies,
   "id" | "name" | "dba_name"
 >;
@@ -21657,13 +21657,12 @@ export type CompanyFragment = Pick<
   | "is_customer"
   | "is_payor"
   | "is_vendor"
-  | "name"
   | "contract_name"
-  | "dba_name"
   | "employer_identification_number"
   | "address"
   | "phone_number"
->;
+> &
+  CompanyLimitedFragment;
 
 export type ContractFragment = Pick<
   Contracts,
@@ -22548,8 +22547,8 @@ export const CompanyAgreementFragmentDoc = gql`
     file_id
   }
 `;
-export const CompanyMinimalFragmentDoc = gql`
-  fragment CompanyMinimal on companies {
+export const CompanyLimitedFragmentDoc = gql`
+  fragment CompanyLimited on companies {
     id
     name
     dba_name
@@ -22562,13 +22561,13 @@ export const CompanyFragmentDoc = gql`
     is_customer
     is_payor
     is_vendor
-    name
     contract_name
-    dba_name
     employer_identification_number
     address
     phone_number
+    ...CompanyLimited
   }
+  ${CompanyLimitedFragmentDoc}
 `;
 export const ContractFragmentDoc = gql`
   fragment Contract on contracts {
@@ -24740,7 +24739,7 @@ export const GetInvoiceForReviewDocument = gql`
       }
       company {
         id
-        name
+        ...CompanyLimited
       }
       payor {
         id
@@ -24756,6 +24755,7 @@ export const GetInvoiceForReviewDocument = gql`
     }
   }
   ${InvoiceFileFragmentDoc}
+  ${CompanyLimitedFragmentDoc}
   ${BankAccountLimitedFragmentDoc}
 `;
 
@@ -26971,7 +26971,7 @@ export const GetPurchaseOrderForReviewDocument = gql`
       }
       company {
         id
-        name
+        ...CompanyLimited
       }
       vendor {
         id
@@ -26992,6 +26992,7 @@ export const GetPurchaseOrderForReviewDocument = gql`
     }
   }
   ${PurchaseOrderFileFragmentDoc}
+  ${CompanyLimitedFragmentDoc}
   ${PurchaseOrderMetrcTransferFragmentDoc}
   ${MetrcTransferFragmentDoc}
   ${MetrcPackageFragmentDoc}
@@ -28738,7 +28739,7 @@ export const GetCompaniesWithLicensesDocument = gql`
   query GetCompaniesWithLicenses {
     companies: companies(order_by: { name: asc }) {
       id
-      ...CompanyMinimal
+      ...CompanyLimited
       licenses(
         where: {
           _or: [
@@ -28752,7 +28753,7 @@ export const GetCompaniesWithLicensesDocument = gql`
       }
     }
   }
-  ${CompanyMinimalFragmentDoc}
+  ${CompanyLimitedFragmentDoc}
 `;
 
 /**
