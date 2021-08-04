@@ -20685,7 +20685,7 @@ export type GetInvoiceForReviewQuery = {
       >;
       company: Pick<Companies, "id"> & CompanyLimitedFragment;
       payor?: Maybe<
-        Pick<Payors, "id" | "name"> & {
+        Pick<Payors, "id"> & {
           settings?: Maybe<
             Pick<CompanySettings, "id"> & {
               collections_bespoke_bank_account?: Maybe<
@@ -20693,7 +20693,7 @@ export type GetInvoiceForReviewQuery = {
               >;
             }
           >;
-        }
+        } & PayorLimitedFragment
       >;
     }
   >;
@@ -20709,26 +20709,14 @@ export type GetInvoicesByCompanyIdQueryVariables = Exact<{
   company_id: Scalars["uuid"];
 }>;
 
-export type GetInvoicesByCompanyIdQuery = {
-  invoices: Array<
-    {
-      company: Pick<Companies, "id" | "name">;
-      payor?: Maybe<Pick<Payors, "id" | "name">>;
-    } & InvoiceFragment
-  >;
-};
+export type GetInvoicesByCompanyIdQuery = { invoices: Array<InvoiceFragment> };
 
 export type GetOpenInvoicesByCompanyIdQueryVariables = Exact<{
   company_id: Scalars["uuid"];
 }>;
 
 export type GetOpenInvoicesByCompanyIdQuery = {
-  invoices: Array<
-    {
-      company: Pick<Companies, "id" | "name">;
-      payor?: Maybe<Pick<Payors, "id" | "name">>;
-    } & InvoiceFragment
-  >;
+  invoices: Array<InvoiceLimitedFragment>;
 };
 
 export type GetClosedInvoicesByCompanyIdQueryVariables = Exact<{
@@ -20736,12 +20724,7 @@ export type GetClosedInvoicesByCompanyIdQueryVariables = Exact<{
 }>;
 
 export type GetClosedInvoicesByCompanyIdQuery = {
-  invoices: Array<
-    {
-      company: Pick<Companies, "id" | "name">;
-      payor?: Maybe<Pick<Payors, "id" | "name">>;
-    } & InvoiceFragment
-  >;
+  invoices: Array<InvoiceLimitedFragment>;
 };
 
 export type GetApprovedInvoicesByCompanyIdQueryVariables = Exact<{
@@ -20998,7 +20981,7 @@ export type GetPayorPartnershipsForBankQueryVariables = Exact<{
 export type GetPayorPartnershipsForBankQuery = {
   company_payor_partnerships: Array<
     {
-      company: Pick<Companies, "id" | "name">;
+      company: Pick<Companies, "id"> & CompanyLimitedFragment;
       payor?: Maybe<
         Pick<Payors, "id"> & { users: Array<ContactFragment> } & PayorFragment
       >;
@@ -21115,7 +21098,7 @@ export type GetPurchaseOrderForReviewQuery = {
           PurchaseOrderFileFragment
       >;
       company: Pick<Companies, "id"> & CompanyLimitedFragment;
-      vendor?: Maybe<Pick<Vendors, "id" | "name">>;
+      vendor?: Maybe<Pick<Vendors, "id"> & VendorLimitedFragment>;
       purchase_order_metrc_transfers: Array<
         Pick<PurchaseOrderMetrcTransfers, "id"> & {
           metrc_transfer: Pick<MetrcTransfers, "id"> & {
@@ -21945,7 +21928,7 @@ export type GetVendorPartnershipsForBankQueryVariables = Exact<{
 export type GetVendorPartnershipsForBankQuery = {
   company_vendor_partnerships: Array<
     {
-      company: Pick<Companies, "id" | "name">;
+      company: Pick<Companies, "id"> & CompanyLimitedFragment;
       vendor?: Maybe<
         Pick<Vendors, "id"> & { users: Array<ContactFragment> } & VendorFragment
       >;
@@ -22347,8 +22330,8 @@ export type PurchaseOrderLimitedFragment = Pick<
   | "approved_at"
   | "funded_at"
 > & {
-  company: Pick<Companies, "id" | "name">;
-  vendor?: Maybe<Pick<Vendors, "id" | "name">>;
+  company: Pick<Companies, "id"> & CompanyLimitedFragment;
+  vendor?: Maybe<Pick<Vendors, "id"> & VendorLimitedFragment>;
 };
 
 export type InvoiceLimitedFragment = Pick<
@@ -22371,8 +22354,8 @@ export type InvoiceLimitedFragment = Pick<
   | "payment_confirmed_at"
   | "payment_rejected_at"
 > & {
-  company: Pick<Companies, "id" | "name">;
-  payor?: Maybe<Pick<Payors, "id" | "name">>;
+  company: Pick<Companies, "id"> & CompanyLimitedFragment;
+  payor?: Maybe<Pick<Payors, "id"> & PayorLimitedFragment>;
 };
 
 export type LoanLimitedFragment = Pick<
@@ -22901,6 +22884,24 @@ export const LoanReportFragmentDoc = gql`
     financing_day_limit
   }
 `;
+export const PayorLimitedFragmentDoc = gql`
+  fragment PayorLimited on payors {
+    id
+    name
+    dba_name
+    licenses(
+      where: {
+        _or: [
+          { is_deleted: { _is_null: true } }
+          { is_deleted: { _eq: false } }
+        ]
+      }
+    ) {
+      ...CompanyLicense
+    }
+  }
+  ${CompanyLicenseFragmentDoc}
+`;
 export const InvoiceLimitedFragmentDoc = gql`
   fragment InvoiceLimited on invoices {
     id
@@ -22922,13 +22923,15 @@ export const InvoiceLimitedFragmentDoc = gql`
     payment_rejected_at
     company {
       id
-      name
+      ...CompanyLimited
     }
     payor {
       id
-      name
+      ...PayorLimited
     }
   }
+  ${CompanyLimitedFragmentDoc}
+  ${PayorLimitedFragmentDoc}
 `;
 export const InvoiceFragmentDoc = gql`
   fragment Invoice on invoices {
@@ -22972,13 +22975,15 @@ export const PurchaseOrderLimitedFragmentDoc = gql`
     funded_at
     company {
       id
-      name
+      ...CompanyLimited
     }
     vendor {
       id
-      name
+      ...VendorLimited
     }
   }
+  ${CompanyLimitedFragmentDoc}
+  ${VendorLimitedFragmentDoc}
 `;
 export const PurchaseOrderFragmentDoc = gql`
   fragment PurchaseOrder on purchase_orders {
@@ -23031,24 +23036,6 @@ export const LoanArtifactFragmentDoc = gql`
   ${LineOfCreditFragmentDoc}
   ${PurchaseOrderFragmentDoc}
   ${LoanArtifactLimitedFragmentDoc}
-`;
-export const PayorLimitedFragmentDoc = gql`
-  fragment PayorLimited on payors {
-    id
-    name
-    dba_name
-    licenses(
-      where: {
-        _or: [
-          { is_deleted: { _is_null: true } }
-          { is_deleted: { _eq: false } }
-        ]
-      }
-    ) {
-      ...CompanyLicense
-    }
-  }
-  ${CompanyLicenseFragmentDoc}
 `;
 export const PayorFragmentDoc = gql`
   fragment Payor on payors {
@@ -24746,7 +24733,7 @@ export const GetInvoiceForReviewDocument = gql`
       }
       payor {
         id
-        name
+        ...PayorLimited
         settings {
           id
           collections_bespoke_bank_account {
@@ -24759,6 +24746,7 @@ export const GetInvoiceForReviewDocument = gql`
   }
   ${InvoiceFileFragmentDoc}
   ${CompanyLimitedFragmentDoc}
+  ${PayorLimitedFragmentDoc}
   ${BankAccountLimitedFragmentDoc}
 `;
 
@@ -24888,14 +24876,6 @@ export const GetInvoicesByCompanyIdDocument = gql`
       }
     ) {
       ...Invoice
-      company {
-        id
-        name
-      }
-      payor {
-        id
-        name
-      }
     }
   }
   ${InvoiceFragmentDoc}
@@ -24965,18 +24945,10 @@ export const GetOpenInvoicesByCompanyIdDocument = gql`
         ]
       }
     ) {
-      ...Invoice
-      company {
-        id
-        name
-      }
-      payor {
-        id
-        name
-      }
+      ...InvoiceLimited
     }
   }
-  ${InvoiceFragmentDoc}
+  ${InvoiceLimitedFragmentDoc}
 `;
 
 /**
@@ -25043,18 +25015,10 @@ export const GetClosedInvoicesByCompanyIdDocument = gql`
         ]
       }
     ) {
-      ...Invoice
-      company {
-        id
-        name
-      }
-      payor {
-        id
-        name
-      }
+      ...InvoiceLimited
     }
   }
-  ${InvoiceFragmentDoc}
+  ${InvoiceLimitedFragmentDoc}
 `;
 
 /**
@@ -26497,7 +26461,7 @@ export const GetPayorPartnershipsForBankDocument = gql`
       ...PayorPartnership
       company {
         id
-        name
+        ...CompanyLimited
       }
       payor {
         id
@@ -26509,6 +26473,7 @@ export const GetPayorPartnershipsForBankDocument = gql`
     }
   }
   ${PayorPartnershipFragmentDoc}
+  ${CompanyLimitedFragmentDoc}
   ${PayorFragmentDoc}
   ${ContactFragmentDoc}
 `;
@@ -26978,7 +26943,7 @@ export const GetPurchaseOrderForReviewDocument = gql`
       }
       vendor {
         id
-        name
+        ...VendorLimited
       }
       purchase_order_metrc_transfers {
         id
@@ -26996,6 +26961,7 @@ export const GetPurchaseOrderForReviewDocument = gql`
   }
   ${PurchaseOrderFileFragmentDoc}
   ${CompanyLimitedFragmentDoc}
+  ${VendorLimitedFragmentDoc}
   ${PurchaseOrderMetrcTransferFragmentDoc}
   ${MetrcTransferFragmentDoc}
   ${MetrcPackageFragmentDoc}
@@ -30212,7 +30178,7 @@ export const GetVendorPartnershipsForBankDocument = gql`
       ...VendorPartnership
       company {
         id
-        name
+        ...CompanyLimited
       }
       vendor {
         id
@@ -30224,6 +30190,7 @@ export const GetVendorPartnershipsForBankDocument = gql`
     }
   }
   ${VendorPartnershipFragmentDoc}
+  ${CompanyLimitedFragmentDoc}
   ${VendorFragmentDoc}
   ${ContactFragmentDoc}
 `;

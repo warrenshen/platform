@@ -275,8 +275,8 @@ export default function CustomerPurchaseOrdersOpenTab({
         </Box>
         <Box>
           <PurchaseOrdersDataGrid
-            isCompanyVisible={false}
             isApprovedByVendor={false}
+            isCompanyVisible={false}
             purchaseOrders={notApprovedPurchaseOrders}
             selectedPurchaseOrderIds={selectedNotApprovedPurchaseOrderIds}
             handleSelectPurchaseOrders={handleSelectPurchaseOrders}

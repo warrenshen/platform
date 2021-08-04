@@ -74,7 +74,7 @@ query GetPurchaseOrderForReview($id: uuid!) {
     }
     vendor {
       id
-      name
+      ...VendorLimited
     }
     purchase_order_metrc_transfers {
       id

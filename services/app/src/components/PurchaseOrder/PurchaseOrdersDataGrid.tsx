@@ -20,6 +20,7 @@ import {
   PurchaseOrders,
   RequestStatusEnum,
 } from "generated/graphql";
+import { getCompanyDisplayName } from "lib/companies";
 import { formatCurrency } from "lib/currency";
 import { ColumnWidths, truncateString } from "lib/tables";
 import { useMemo } from "react";
@@ -28,7 +29,9 @@ function getRows(purchaseOrders: PurchaseOrderFragment[]): RowsProp {
   return purchaseOrders.map((purchaseOrder) => ({
     ...purchaseOrder,
     company_name: purchaseOrder.company.name,
-    vendor_name: purchaseOrder.vendor?.name,
+    vendor_name: purchaseOrder.vendor
+      ? getCompanyDisplayName(purchaseOrder.vendor)
+      : "",
     percent_funded:
       ((purchaseOrder.amount_funded || 0) / (purchaseOrder.amount || 1)) * 100,
     customer_note: truncateString(purchaseOrder?.customer_note || "-"),

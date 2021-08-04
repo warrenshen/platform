@@ -24,14 +24,6 @@ query GetInvoicesByCompanyId($company_id: uuid!) {
     }
   ) {
     ...Invoice
-    company {
-      id
-      name
-    }
-    payor {
-      id
-      name
-    }
   }
 }
 
@@ -50,15 +42,7 @@ query GetOpenInvoicesByCompanyId($company_id: uuid!) {
       ]
     }
   ) {
-    ...Invoice
-    company {
-      id
-      name
-    }
-    payor {
-      id
-      name
-    }
+    ...InvoiceLimited
   }
 }
 
@@ -77,15 +61,7 @@ query GetClosedInvoicesByCompanyId($company_id: uuid!) {
       ]
     }
   ) {
-    ...Invoice
-    company {
-      id
-      name
-    }
-    payor {
-      id
-      name
-    }
+    ...InvoiceLimited
   }
 }
 

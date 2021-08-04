@@ -1,9 +1,9 @@
 import {
+  Companies,
   CompanyFragment,
-  CompanyLimitedFragment,
   CompanySettingsLimitedFragment,
-  PayorLimitedFragment,
-  VendorLimitedFragment,
+  Payors,
+  Vendors,
 } from "generated/graphql";
 import {
   CustomerUserRoles,
@@ -13,7 +13,10 @@ import {
 } from "lib/enum";
 
 export function getCompanyDisplayName(
-  company: CompanyLimitedFragment | PayorLimitedFragment | VendorLimitedFragment
+  company:
+    | Pick<Companies, "id" | "name" | "dba_name">
+    | Pick<Payors, "id" | "name" | "dba_name">
+    | Pick<Vendors, "id" | "name" | "dba_name">
 ) {
   return !!company.dba_name
     ? `${company.name} (DBA ${company.dba_name})`

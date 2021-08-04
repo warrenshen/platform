@@ -114,11 +114,11 @@ fragment PurchaseOrderLimited on purchase_orders {
   funded_at
   company {
     id
-    name
+    ...CompanyLimited
   }
   vendor {
     id
-    name
+    ...VendorLimited
   }
 }
 
@@ -142,11 +142,11 @@ fragment InvoiceLimited on invoices {
   payment_rejected_at
   company {
     id
-    name
+    ...CompanyLimited
   }
   payor {
     id
-    name
+    ...PayorLimited
   }
 }
 

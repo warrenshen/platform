@@ -11,7 +11,7 @@ import {
   Theme,
 } from "@material-ui/core";
 import InvoiceInfoCard from "components/Invoices/InvoiceInfoCard";
-import { InvoiceFragment, RequestStatusEnum } from "generated/graphql";
+import { InvoiceLimitedFragment, RequestStatusEnum } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { authenticatedApi, invoicesRoutes } from "lib/api";
 
@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
-  invoice: InvoiceFragment;
+  invoice: InvoiceLimitedFragment;
   linkVal: string; // the link value used to generate this one-time reject ability
   handleClose: () => void;
   handleApproveSuccess: () => void;

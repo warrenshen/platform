@@ -1,4 +1,4 @@
-import { ValueFormatterParams } from "@material-ui/data-grid";
+import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import InvoiceDrawerLauncher from "components/Invoices/InvoiceDrawerLauncher";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
@@ -13,6 +13,7 @@ import {
   Invoices,
   RequestStatusEnum,
 } from "generated/graphql";
+import { getCompanyDisplayName } from "lib/companies";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
@@ -26,6 +27,16 @@ interface Props {
   handleSelectedInvoices?: (invoices: InvoiceFragment[]) => void;
 }
 
+function getRows(invoices: InvoiceFragment[]): RowsProp {
+  return invoices.map((invoice) => {
+    return {
+      ...invoice,
+      company_name: invoice.company?.name,
+      payor_name: invoice.payor ? getCompanyDisplayName(invoice.payor) : "",
+    };
+  });
+}
+
 export default function InvoicesDataGrid({
   isCompanyVisible,
   isMultiSelectEnabled = true,
@@ -35,15 +46,7 @@ export default function InvoicesDataGrid({
   handleSelectedInvoices,
   isExcelExport = true,
 }: Props) {
-  const rows = useMemo(
-    () =>
-      invoices.map((invoice) => ({
-        ...invoice,
-        company_name: invoice.company?.name,
-        payor_name: invoice.payor?.name,
-      })),
-    [invoices]
-  );
+  const rows = useMemo(() => getRows(invoices), [invoices]);
 
   const columns = useMemo(
     () => [
