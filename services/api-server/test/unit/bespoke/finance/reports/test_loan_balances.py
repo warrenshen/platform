@@ -10,6 +10,7 @@ from bespoke.db import db_constants, models
 from bespoke.db.db_constants import ProductType
 from bespoke.db.models import session_scope
 from bespoke.finance import financial_summary_util, number_util
+from bespoke.finance.loans import reports_util
 from bespoke.finance.payments import (payment_util, repayment_util,
                                       repayment_util_fees)
 from bespoke.finance.reports import loan_balances
@@ -46,12 +47,13 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			if test.get('populate_fn'):
 				test['populate_fn'](session, seed, company_id)
 
-		customer_balance = loan_balances.CustomerBalance(
-			company_dict=models.CompanyDict(
+		company_dict = models.CompanyDict(
 				id=company_id,
 				identifier='D1',
 				name='Distributor 1'
-			),
+		)
+		customer_balance = loan_balances.CustomerBalance(
+			company_dict=company_dict,
 			session_maker=self.session_maker
 		)
 
@@ -60,12 +62,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		today_date_dicts: List[Dict] = [
 			{
 				'report_date': today,
-				'start_date': today - timedelta(days=14),
+				'days_back': 14,
 				'today': today
 			},
 			{
 				'report_date': today + timedelta(days=2),
-				'start_date': today - timedelta(days=10),
+				'days_back': 10,
 				'today': today
 			}
 			# Test that when using memoized results (the report_date comes after the date you are fetching information for)
@@ -80,20 +82,23 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 		for today_date_dict in today_date_dicts:
 
-			date_to_customer_update, err = customer_balance.update(
-				today=today_date_dict['report_date'],
-				start_date_for_storing_updates=today_date_dict['start_date'],
+			day_to_customer_update, err = reports_util.update_company_balance(
+				session_maker=self.session_maker,
+				company=company_dict,
+				report_date=today_date_dict['report_date'],
+				update_days_back=today_date_dict['days_back'],
 				is_past_date_default_val=False,
 				include_debug_info=False
 			)
 			self.assertIsNone(err)
 
-			customer_update = date_to_customer_update[today_date_dict['today']]
+			customer_update = day_to_customer_update[today_date_dict['today']]
 			# Sort by increasing adjusted maturity date for consistency in tests
 			loan_updates = customer_update['loan_updates']
 			loan_updates.sort(key=lambda u: u['adjusted_maturity_date'])
 
 			self.assertEqual(len(test['expected_loan_updates']), len(loan_updates))
+
 			for i in range(len(loan_updates)):
 				expected = test['expected_loan_updates'][i]
 				actual = cast(Dict, loan_updates[i])
@@ -133,9 +138,27 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					self, expected['account_level_balance_payload'], cast(Dict, actual['account_level_balance_payload']))
 				self.assertEqual(expected['day_volume_threshold_met'], actual['day_volume_threshold_met'])
 
-			success, err = customer_balance.write(customer_update)
-			self.assertTrue(success)
-			self.assertIsNone(err)
+			if today_date_dict['report_date'] != today_date_dict['today']:
+				continue
+
+			# The loan fields will be equal when the report_date equals the last date we calculated
+			# customer balances until.
+			#
+			# So all the tests below should only be executed when report_date == today
+
+			loan_ids = [loan_update['loan_id'] for loan_update in loan_updates]
+			loans = cast(
+				List[models.Loan],
+				session.query(models.Loan).filter(
+					models.Loan.id.in_(loan_ids)
+				).all())
+			loans = [loan for loan in loans]
+			loans.sort(key=lambda u: u.adjusted_maturity_date)
+
+			for i in range(len(loans)):
+				loan = loans[i]
+				expected_loan = test['expected_loan_updates'][i]
+				self.assertAlmostEqual(expected_loan['outstanding_principal'], float(loan.outstanding_principal_balance))
 
 			with session_scope(self.session_maker) as session:
 				financial_summary = financial_summary_util.get_latest_financial_summary(company_id, session)

@@ -23,13 +23,13 @@ def update_company_balance(
 	update_days_back: int,
 	is_past_date_default_val: bool,
 	include_debug_info: bool
-) -> Tuple[CustomerUpdateDict, str]:
+) -> Tuple[Dict[datetime.date, CustomerUpdateDict], str]:
 	"""
 		is_past_date_default_val is set to True if in fact this update_company_balance
 		is a date in the past. See /run_customer_balances to see how this value should be
 		set to True on dates where the update is a previous date.
 	"""
-	logging.info(f"Updating balance for '{company['name']}' with id: '{company['id']}' for report date '{report_date}'")
+	logging.info(f"Calculating balance for '{company['name']}' with id: '{company['id']}' for report date '{report_date}'")
 
 	customer_balance = loan_balances.CustomerBalance(company, session_maker)
 
@@ -47,7 +47,12 @@ def update_company_balance(
 		logging.error(msg)
 		return None, msg
 
-	for cur_date, customer_update_dict in day_to_customer_update_dict.items():
+	days_to_update = list(day_to_customer_update_dict.keys())
+	days_to_update.sort()
+
+	for i in range(len(days_to_update)):
+		cur_date = days_to_update[i]
+		customer_update_dict = day_to_customer_update_dict[cur_date]
 
 		if customer_update_dict is not None:
 			event = events.new(
@@ -70,15 +75,15 @@ def update_company_balance(
 					return None, msg
 				event.set_succeeded().write_with_session(session)
 
-			logging.info(f"Successfully updated balance for '{company['name']}' with id '{company['id']}' for date '{cur_date}'")
+			logging.debug(f"Successfully updated balance for '{company['name']}' with id '{company['id']}' for date '{cur_date}'")
 		else:
-			logging.info(f"Skipping balance for '{company['name']}' with id '{company['id']}' for date '{cur_date}' because it could not be calculated")
+			logging.debug(f"Skipping balance for '{company['name']}' with id '{company['id']}' for date '{cur_date}' because it could not be calculated")
 	
 	# Internally we re-compute the most recent X days of previous loan balances
 	# when an update happens to a customer, but in terms of this fucntion,
 	# we only need to return the customer_update_dict for today because we use
 	# it for debugging purposes. 
-	return day_to_customer_update_dict[report_date], None
+	return day_to_customer_update_dict, None
 
 
 def delete_old_bank_financial_summaries(session: Session, report_date: datetime.date) -> None:
@@ -242,11 +247,13 @@ def run_customer_balances_for_companies(
 	company_id_to_update_dict = {}
 
 	for company in companies:
-		customer_update_dict, descriptive_error = update_company_balance(
+		day_to_customer_update_dict, descriptive_error = update_company_balance(
 			session_maker, company, report_date, 
 			update_days_back=update_days_back, 
 			include_debug_info=include_debug_info,
 			is_past_date_default_val=is_past_date_default_val)
+		
+		customer_update_dict = day_to_customer_update_dict[report_date]
 		if descriptive_error:
 			errors_list.append(descriptive_error)
 
