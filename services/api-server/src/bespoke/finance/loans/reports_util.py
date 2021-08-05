@@ -91,7 +91,7 @@ def delete_old_bank_financial_summaries(session: Session, report_date: datetime.
 	bank_summaries = cast(
 		List[models.BankFinancialSummary],
 		session.query(models.BankFinancialSummary).filter(
-			models.BankFinancialSummary.date == report_date.isoformat()
+			models.BankFinancialSummary.date == report_date
 		).all()
 	)
 
@@ -99,6 +99,9 @@ def delete_old_bank_financial_summaries(session: Session, report_date: datetime.
 		for bank_summary in bank_summaries:
 			cast(Callable, session.delete)(bank_summary)
 
+	# Call session.flush() here so subsequent insert does not
+	# trigger duplicate key error for bank_financial_summaries.
+	session.flush()
 
 def compute_bank_financial_summaries(
 	session: Session,
@@ -253,11 +256,11 @@ def run_customer_balances_for_companies(
 			include_debug_info=include_debug_info,
 			is_past_date_default_val=is_past_date_default_val)
 		
-		customer_update_dict = day_to_customer_update_dict[report_date]
 		if descriptive_error:
 			errors_list.append(descriptive_error)
-
-		company_id_to_update_dict[company['id']] = customer_update_dict
+		else:
+			customer_update_dict = day_to_customer_update_dict[report_date]
+			company_id_to_update_dict[company['id']] = customer_update_dict
 
 	if len(errors_list) == len(companies):
 		return None, errors_list, errors.Error('No companies balances could be computed successfully. Errors: {}'.format(
