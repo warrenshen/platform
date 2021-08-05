@@ -11,17 +11,9 @@ from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.metrc import metrc_common_util
 from bespoke.metrc.metrc_common_util import (
-	CompanyInfo, LicenseAuthDict, UNKNOWN_STATUS_CODE)
+	CompanyInfo, LicenseAuthDict, UNKNOWN_STATUS_CODE, chunker)
 from dateutil import parser
 from sqlalchemy.orm.session import Session
-
-RequestStatusesDict = TypedDict('RequestStatusesDict', {
-	'receipts_api': int,
-	'transfers_api': int,
-	'packages_api': int,
-	'packages_wholesale_api': int,
-	'lab_results_api': int
-})
 
 class LabTest(object):
 
@@ -51,33 +43,6 @@ def get_final_lab_status(lab_result_statuses: List[str]) -> str:
 			final_lab_results_status = "passed"
 
 	return final_lab_results_status
-
-def chunker(seq: List, size: int) -> Iterable[List]:
-	return (seq[pos:pos + size] for pos in range(0, len(seq), size))
-
-class SalesReceipts(object):
-
-	def __init__(self, sales_receipts: List[Dict], receipt_type: str) -> None:
-		self._sales_receipts = sales_receipts
-		self._type = receipt_type
-
-	def get_sales_receipt_models(self, company_id: str) -> List[models.MetrcSalesReceipt]:
-		sales_receipts = []
-		for i in range(len(self._sales_receipts)):
-			s = self._sales_receipts[i]
-			receipt = models.MetrcSalesReceipt()
-			receipt.type = self._type
-			receipt.company_id = cast(Any, company_id)
-			receipt.receipt_number = s['ReceiptNumber']
-			receipt.sales_customer_type = s['SalesCustomerType']
-			receipt.sales_datetime = parser.parse(s['SalesDateTime'])
-			receipt.total_packages = s['TotalPackages']
-			receipt.total_price = s['TotalPrice']
-			receipt.is_final = s['IsFinal']
-			receipt.payload = s
-			sales_receipts.append(receipt)
-
-		return sales_receipts
 
 class TransferPackages(object):
 
@@ -302,37 +267,6 @@ def _match_and_add_licenses_to_transfers(
 		elif transfer_type == TransferType.OUTGOING:
 			metrc_transfer.transfer_type = 'OUTGOING_TO_PAYOR'
 
-def _write_sales_receipts(
-	sales_receipts: List[models.MetrcSalesReceipt],
-	session: Session) -> None:
-	receipt_numbers = [receipt.receipt_number for receipt in sales_receipts] 
-
-	prev_sales_receipts = session.query(models.MetrcSalesReceipt).filter(
-		models.MetrcSalesReceipt.receipt_number.in_(receipt_numbers)
-	)
-
-	receipt_number_to_sales_receipt = {}
-	for prev_sales_receipt in prev_sales_receipts:
-		receipt_number_to_sales_receipt[prev_sales_receipt.receipt_number] = prev_sales_receipt
-
-	for sales_receipt in sales_receipts:
-		if sales_receipt.receipt_number in receipt_number_to_sales_receipt:
-			# update
-			prev = receipt_number_to_sales_receipt[sales_receipt.receipt_number]
-			prev.type = sales_receipt.type
-			prev.company_id = sales_receipt.company_id
-			prev.sales_customer_type = sales_receipt.sales_customer_type
-			prev.sales_datetime = sales_receipt.sales_datetime
-			prev.total_packages = sales_receipt.total_packages
-			prev.total_price = sales_receipt.total_price
-			prev.payload = sales_receipt.payload
-		else:
-			# add
-			session.add(sales_receipt)
-			# In some rare cases, a new sales receipt may show up twice in the same day.
-			# The following line prevents an attempt to insert a duplicate.
-			receipt_number_to_sales_receipt[sales_receipt.receipt_number] = sales_receipt
-
 def _write_transfers(
 	transfer_objs: List[MetrcTransferObj], 
 	delivery_id_to_transfer_row_id: Dict, 
@@ -493,102 +427,23 @@ def _write_packages(
 
 @errors.return_error_tuple
 def populate_transfers_table(
-	cur_date: datetime.date,
-	company_info: CompanyInfo,
-	license: LicenseAuthDict,
-	session_maker: Callable,
-	debug: bool = False
-) -> Tuple[RequestStatusesDict, errors.Error]:
+	ctx: metrc_common_util.DownloadContext,
+	session_maker: Callable
+) -> Tuple[bool, errors.Error]:
 
 	## Setup
+	company_info = ctx.company_info
+	cur_date = ctx.cur_date
+	request_status = ctx.request_status
+	rest = ctx.rest
+	license = ctx.license
 
 	logging.info('Running populate_transfers_table for company "{}" for last modified date {} with license {}'.format(
 		company_info.name, cur_date, license['license_number']
 	))
 
-	request_status = RequestStatusesDict(
-		transfers_api=UNKNOWN_STATUS_CODE,
-		packages_api=UNKNOWN_STATUS_CODE,
-		packages_wholesale_api=UNKNOWN_STATUS_CODE,
-		lab_results_api=UNKNOWN_STATUS_CODE,
-		receipts_api=UNKNOWN_STATUS_CODE
-	)
-
-	rest = metrc_common_util.REST(
-		metrc_common_util.AuthDict(
-			vendor_key=license['vendor_key'],
-			user_key=license['user_key']
-		),
-		license_number=license['license_number'],
-		us_state=license['us_state']
-	)
-
-	cur_date_str = cur_date.strftime('%m/%d/%Y')
+	cur_date_str = ctx.get_cur_date_str()
 	apis_to_use = company_info.apis_to_use
-
-	# Reference for when we want to fetch sales, plants, and plant batches info in the future.
-	active_sales_receipts = []
-	inactive_sales_receipts: List[Dict] = []
-
-	if apis_to_use['sales_receipts']:
-		# NOTE: Sometimes there are a lot of inactive receipts to pull for a single day
-		# and this makes it look like the sync is stuck / hanging - could be good to
-		# change this logic to use smaller (intraday) time ranges to prevent this.
-		try:
-			resp = rest.get('/sales/v1/receipts/inactive', time_range=[cur_date_str])
-			inactive_sales_receipts = json.loads(resp.content)
-			request_status['receipts_api'] = 200
-		except errors.Error as e:
-			request_status['receipts_api'] = e.details.get('status_code')
-
-		try:
-			resp = rest.get('/sales/v1/receipts/active', time_range=[cur_date_str])
-			active_sales_receipts = json.loads(resp.content)
-			request_status['receipts_api'] = 200
-		except errors.Error as e:
-			request_status['receipts_api'] = e.details.get('status_code')
-
-		active_sales_receipts_models = SalesReceipts(active_sales_receipts, 'active').get_sales_receipt_models(
-			company_id=company_info.company_id
-		)
-		inactive_sales_receipts_models = SalesReceipts(inactive_sales_receipts, 'inactive').get_sales_receipt_models(
-			company_id=company_info.company_id
-		)
-
-		logging.info('Downloaded {} active sales receipts for {} on {}'.format(
-			len(active_sales_receipts_models), company_info.name, cur_date))
-		logging.info('Downloaded {} inactive sales receipts for {} on {}'.format(
-			len(inactive_sales_receipts_models), company_info.name, cur_date))
-
-		SALES_BATCH_SIZE = 50
-		sales_receipts_models = active_sales_receipts_models + inactive_sales_receipts_models
-		batch_index = 1
-		batches_count = len(sales_receipts_models) // SALES_BATCH_SIZE + 1
-		for sales_chunk in chunker(sales_receipts_models, SALES_BATCH_SIZE):
-			logging.info(f'Writing sales receipts batch {batch_index} of {batches_count}...')
-			with session_scope(session_maker) as session:
-				_write_sales_receipts(sales_chunk, session)
-			batch_index += 1
-
-	# try:
-	# 	resp = rest.get('/plants/v1/vegetative', time_range=[cur_date_str])
-	# 	content = json.loads(resp.content)
-	# 	print('success', 'plants')
-	# 	# request_status['plants_api'] = 200
-	# except errors.Error as e:
-	# 	print('failure', 'plants')
-	# 	# request_status['plants_api'] = e.details.get('status_code')
-	# 	return request_status, e
-
-	# try:
-	# 	resp = rest.get('/plantbatches/v1/active', time_range=[cur_date_str])
-	# 	content = json.loads(resp.content)
-	# 	print('success', 'plantbatches')
-	# 	# request_status['plant_batches_api'] = 200
-	# except errors.Error as e:
-	# 	print('failure', 'plantbatches')
-	# 	# request_status['plant_batches_api'] = e.details.get('status_code')
-	# 	return request_status, e
 
 	## Fetch transfers
 
@@ -601,7 +456,7 @@ def populate_transfers_table(
 			request_status['transfers_api'] = 200
 		except errors.Error as e:
 			request_status['transfers_api'] = e.details.get('status_code')
-			return request_status, e
+			return False, e
 
 	incoming_metrc_transfer_objs = Transfers.build(incoming_transfers).get_transfer_objs(
 		rest=rest,
@@ -628,7 +483,7 @@ def populate_transfers_table(
 			request_status['transfers_api'] = 200
 		except errors.Error as e:
 			request_status['transfers_api'] = e.details.get('status_code')
-			return request_status, e
+			return False, e
 
 	outgoing_metrc_transfer_objs = Transfers.build(outgoing_transfers).get_transfer_objs(
 		rest=rest,
@@ -686,7 +541,7 @@ def populate_transfers_table(
 
 			lab_tests = []
 			for package_id in package_ids:
-				if debug:
+				if ctx.debug:
 					logging.info(f'Downloading lab results for metrc package package_id={package_id}')
 
 				try:
@@ -698,7 +553,7 @@ def populate_transfers_table(
 					request_status['lab_results_api'] = 200
 				except errors.Error as e:
 					lab_test_json = [] # If fetch fails, we set to empty array and continue.
-					if debug:
+					if ctx.debug:
 						logging.error(f'Could not fetch lab results for company {company_info.name} for package {package_id}. {e}')
 					request_status['lab_results_api'] = e.details.get('status_code')
 
@@ -759,4 +614,4 @@ def populate_transfers_table(
 				session=session
 			)
 
-	return request_status, None
+	return True, None

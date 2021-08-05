@@ -1,10 +1,14 @@
+import datetime
 import json
 import requests
 from bespoke import errors
 from dateutil import parser
 from mypy_extensions import TypedDict
 from requests.auth import HTTPBasicAuth
-from typing import Dict, List, Tuple, cast
+from typing import Dict, Iterable, List, Tuple, cast
+
+UNKNOWN_STATUS_CODE = -1
+UNAUTHORIZED_ERROR_STATUSES = set([401, 403])
 
 AuthDict = TypedDict('AuthDict', {
 	'vendor_key': str,
@@ -19,11 +23,24 @@ LicenseAuthDict = TypedDict('LicenseAuthDict', {
 	'user_key': str
 })
 
+RequestStatusesDict = TypedDict('RequestStatusesDict', {
+	'receipts_api': int,
+	'transfers_api': int,
+	'packages_api': int,
+	'packages_wholesale_api': int,
+	'lab_results_api': int
+})
+
 ApisToUseDict = TypedDict('ApisToUseDict', {
 	'sales_receipts': bool,
 	'incoming_transfers': bool,
 	'outgoing_transfers': bool,
-	'lab_tests': bool
+	'lab_tests': bool,
+	'plants': bool
+})
+
+FacilityInfoDict = TypedDict('FacilityInfoDict', {
+	'license_number': str
 })
 
 class CompanyInfo(object):
@@ -36,12 +53,37 @@ class CompanyInfo(object):
 		self.metrc_api_key_id = metrc_api_key_id
 		self.apis_to_use = apis_to_use
 
-UNKNOWN_STATUS_CODE = -1
-UNAUTHORIZED_ERROR_STATUSES = set([401, 403])
+class DownloadContext(object):
+	"""
+		Context object to contain information when we fetch from various parts of Metrc
+	"""
 
-FacilityInfoDict = TypedDict('FacilityInfoDict', {
-	'license_number': str
-})
+	def __init__(self, cur_date: datetime.date, company_info: CompanyInfo, 
+										 license_auth: LicenseAuthDict, debug: bool) -> None:
+		self.cur_date = cur_date
+		self.request_status = RequestStatusesDict(
+			transfers_api=UNKNOWN_STATUS_CODE,
+			packages_api=UNKNOWN_STATUS_CODE,
+			packages_wholesale_api=UNKNOWN_STATUS_CODE,
+			lab_results_api=UNKNOWN_STATUS_CODE,
+			receipts_api=UNKNOWN_STATUS_CODE
+		)
+		self.company_info = company_info
+		self.apis_to_use = company_info.apis_to_use
+		self.rest = REST(
+			AuthDict(
+				vendor_key=license_auth['vendor_key'],
+				user_key=license_auth['user_key']
+			),
+			license_number=license_auth['license_number'],
+			us_state=license_auth['us_state']
+		)
+		self.license = license_auth
+		self.debug = debug
+
+	def get_cur_date_str(self) -> str:
+		return self.cur_date.strftime('%m/%d/%Y')
+
 
 def _get_base_url(us_state: str) -> str:
 	abbr = us_state.lower()
@@ -106,6 +148,9 @@ class REST(object):
 				details={'status_code': resp.status_code})
 
 		return resp
+
+def chunker(seq: List, size: int) -> Iterable[List]:
+	return (seq[pos:pos + size] for pos in range(0, len(seq), size))
 
 def dicts_to_rows(
 	dicts: List[Dict],

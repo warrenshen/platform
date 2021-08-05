@@ -12,8 +12,7 @@ from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util
-from bespoke.metrc import transfers_util
-from bespoke.metrc import metrc_common_util
+from bespoke.metrc import transfers_util, sales_util, metrc_common_util
 from bespoke.metrc.metrc_common_util import AuthDict, CompanyInfo, LicenseAuthDict, UNKNOWN_STATUS_CODE
 from bespoke.security import security_util
 from dateutil import parser
@@ -213,7 +212,8 @@ def _get_metrc_company_info(
 				sales_receipts=True,
 				incoming_transfers=True,
 				outgoing_transfers=True,
-				lab_tests=True
+				lab_tests=True,
+				plants=False
 			)
 		), None
 
@@ -244,44 +244,29 @@ def _download_data(
 	license_to_statuses = {}
 
 	for license in company_info.licenses:
-		api_key_has_err = False # Assume 1 API key per customer
 
-		transfers_status_code = UNKNOWN_STATUS_CODE
-		packages_status_code = UNKNOWN_STATUS_CODE
-		lab_results_status_code = UNKNOWN_STATUS_CODE
+		ctx = metrc_common_util.DownloadContext(cur_date, company_info, license, debug=False)
+		
+		if ctx.apis_to_use['sales_receipts']:
+			sales_receipts_models = sales_util.download_sales_receipts(ctx)
+			sales_util.write_sales_receipts(sales_receipts_models, session_maker)
 
 		# Download transfers data for the particular day and key
-		statuses, err = transfers_util.populate_transfers_table(
-			cur_date=cur_date,
-			company_info=company_info,
-			license=license,
-			session_maker=session_maker,
-			debug=False,
+		success, err = transfers_util.populate_transfers_table(
+			ctx=ctx,
+			session_maker=session_maker
 		)
-		if statuses:
-			if statuses['transfers_api'] != UNKNOWN_STATUS_CODE:
-				# Only overwrite the status if we actually got a status code
-				transfers_status_code = statuses['transfers_api']
-
-			if statuses['packages_api'] != UNKNOWN_STATUS_CODE:
-				packages_status_code = statuses['packages_api']
-
-			if statuses['lab_results_api'] != UNKNOWN_STATUS_CODE:
-				lab_results_status_code = statuses['lab_results_api']
-
 		if err:
 			logging.error(f'Error thrown for company {company_info.name} for date {cur_date} and license {license["license_number"]}!')
 			logging.error(f'Error: {err}')
-
 			errs.append(err)
-			api_key_has_err = True
 
-		functioning_licenses_count += 1 if not api_key_has_err else 0
+		functioning_licenses_count += 1 if not err else 0
 		license_to_statuses[license['license_number']] = {
-			'api_key_has_err': api_key_has_err, # Record whether there was an error with the Metrc API for this license
-			'transfers_api': transfers_status_code,
-			'packages_api': packages_status_code,
-			'lab_results_api': lab_results_status_code
+			'api_key_has_err': err is not None, # Record whether there was an error with the Metrc API for this license
+			'transfers_api': ctx.request_status['transfers_api'],
+			'packages_api': ctx.request_status['packages_api'],
+			'lab_results_api': ctx.request_status['lab_results_api']
 		}
 
 	# Update whether this metrc key worked
