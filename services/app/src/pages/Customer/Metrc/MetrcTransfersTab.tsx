@@ -5,6 +5,7 @@ import {
   Companies,
   useGetMetrcTransfersByCompanyIdQuery,
 } from "generated/graphql";
+import { getCompanyDisplayName } from "lib/companies";
 import { useMemo } from "react";
 import { useState } from "react";
 import { filter } from "lodash";
@@ -33,9 +34,9 @@ export default function CustomerMetrcTransfersTab({ companyId }: Props) {
       filter(
         data?.metrc_transfers || [],
         (metrcTransfer) =>
-          `${metrcTransfer.manifest_number} ${
-            metrcTransfer.vendor?.name || ""
-          } ${
+          `${metrcTransfer.manifest_number} ${getCompanyDisplayName(
+            metrcTransfer.vendor
+          )} ${
             metrcTransfer.transfer_payload.ShipperFacilityLicenseNumber || ""
           }`
             .toLowerCase()

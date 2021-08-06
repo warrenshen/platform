@@ -3,6 +3,7 @@ import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 import { MetrcTransferFragment } from "generated/graphql";
+import { getCompanyDisplayName } from "lib/companies";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import MetrcTransferDrawerLauncher from "components/Transfers/MetrcTransferDrawerLauncher";
 
@@ -21,7 +22,7 @@ export default function MetrcTransfersDataGrid({
         const transferPayload = metrcTransfer.transfer_payload;
         return {
           ...metrcTransfer,
-          vendor_name: metrcTransfer.vendor?.name || "Unknown",
+          vendor_name: getCompanyDisplayName(metrcTransfer.vendor),
           origin_license: transferPayload.ShipperFacilityLicenseNumber,
           origin_facility: transferPayload.ShipperFacilityName,
           destination_license: transferPayload.RecipientFacilityLicenseNumber,

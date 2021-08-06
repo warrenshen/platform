@@ -133,7 +133,7 @@ fragment LineOfCredit on line_of_credits {
   customer_note
   recipient_vendor {
     id
-    name
+    ...CompanyLimited
   }
 }
 

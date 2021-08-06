@@ -13,14 +13,19 @@ import {
 } from "lib/enum";
 
 export function getCompanyDisplayName(
-  company:
+  company?:
     | Pick<Companies, "id" | "name" | "dba_name">
     | Pick<Payors, "id" | "name" | "dba_name">
     | Pick<Vendors, "id" | "name" | "dba_name">
+    | null
 ) {
-  return !!company.dba_name
-    ? `${company.name} (DBA ${company.dba_name})`
-    : company.name || "Unkown";
+  if (!company) {
+    return "Unknown";
+  } else {
+    return !!company.dba_name
+      ? `${company.name} (DBA ${company.dba_name})`
+      : company.name || "Unkown";
+  }
 }
 
 export function getCompanyUserRolesForCompany(company: CompanyFragment) {

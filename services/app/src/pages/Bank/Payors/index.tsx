@@ -18,16 +18,12 @@ export default function BankPayorsPage() {
     const filteredPayorPartnerships = filter(
       data?.company_payor_partnerships || [],
       (payorPartnership) =>
-        (!!payorPartnership.payor
-          ? getCompanyDisplayName(payorPartnership.payor)
-          : ""
-        )
+        getCompanyDisplayName(payorPartnership.payor)
           .toLowerCase()
           .indexOf(searchQuery.toLowerCase()) >= 0
     );
-    return sortBy(
-      filteredPayorPartnerships,
-      (payorPartnership) => payorPartnership.payor?.name || null
+    return sortBy(filteredPayorPartnerships, (payorPartnership) =>
+      getCompanyDisplayName(payorPartnership.payor)
     );
   }, [searchQuery, data?.company_payor_partnerships]);
 

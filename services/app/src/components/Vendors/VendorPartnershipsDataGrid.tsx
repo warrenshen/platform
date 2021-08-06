@@ -22,9 +22,7 @@ function getRows(
   return vendorPartnerships.map((vendorPartnership) => {
     return {
       ...vendorPartnership,
-      vendor_name: !!vendorPartnership.vendor
-        ? getCompanyDisplayName(vendorPartnership.vendor)
-        : "",
+      vendor_name: getCompanyDisplayName(vendorPartnership.vendor),
       is_verified_bank_account: !!(vendorPartnership as VendorPartnershipFragment)
         .vendor_bank_account?.verified_at,
       is_verified_license:

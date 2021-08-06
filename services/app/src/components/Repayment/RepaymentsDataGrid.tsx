@@ -7,6 +7,7 @@ import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
 import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import { Companies, PaymentLimitedFragment, Payments } from "generated/graphql";
+import { getCompanyDisplayName } from "lib/companies";
 import { addBizDays } from "lib/date";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
 import { ColumnWidths } from "lib/tables";
@@ -60,7 +61,8 @@ export default function RepaymentsDataGrid({
             )
           : null,
         submitted_by_name: payment.submitted_by_user?.full_name,
-        payor_name: payment.invoice?.payor?.name || payment.company.name,
+        payor_name:
+          getCompanyDisplayName(payment.invoice?.payor) || payment.company.name,
       })),
     [isOther, payments]
   );

@@ -20,6 +20,7 @@ import {
   useGetInvoiceByIdQuery,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
+import { getCompanyDisplayName } from "lib/companies";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
 import { FileTypeEnum } from "lib/enum";
@@ -122,7 +123,9 @@ export default function InvoiceDrawer({ invoiceId, handleClose }: Props) {
             <Typography variant="subtitle2" color="textSecondary">
               Payor
             </Typography>
-            <Typography variant={"body1"}>{invoice.payor?.name}</Typography>
+            <Typography variant={"body1"}>
+              {getCompanyDisplayName(invoice.payor)}
+            </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">

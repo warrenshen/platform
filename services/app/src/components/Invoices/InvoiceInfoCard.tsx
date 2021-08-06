@@ -8,6 +8,7 @@ import {
 import { grey } from "@material-ui/core/colors";
 import { CheckCircle } from "@material-ui/icons";
 import { InvoiceLimitedFragment } from "generated/graphql";
+import { getCompanyDisplayName } from "lib/companies";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
 
@@ -48,7 +49,7 @@ export default function InvoiceInfoCard({
           )}
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Payor</Box>
-            <Box>{invoice.payor?.name}</Box>
+            <Box>{getCompanyDisplayName(invoice.payor)}</Box>
           </Box>
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Invoice Number</Box>

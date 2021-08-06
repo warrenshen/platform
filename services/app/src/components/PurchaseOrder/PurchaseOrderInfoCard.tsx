@@ -8,6 +8,7 @@ import {
 import { grey } from "@material-ui/core/colors";
 import { CheckCircle } from "@material-ui/icons";
 import { PurchaseOrderLimitedFragment } from "generated/graphql";
+import { getCompanyDisplayName } from "lib/companies";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
 
@@ -47,7 +48,7 @@ export default function PurchaseOrderInfoCard({
           )}
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Vendor</Box>
-            <Box>{purchaseOrder.vendor?.name}</Box>
+            <Box>{getCompanyDisplayName(purchaseOrder.vendor)}</Box>
           </Box>
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>PO Number</Box>

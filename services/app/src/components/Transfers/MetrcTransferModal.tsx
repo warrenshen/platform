@@ -94,9 +94,7 @@ export default function MetrcTransferModal({
           Vendor
         </Typography>
         <Typography variant="body1">
-          {!!metrcTransfer.vendor
-            ? getCompanyDisplayName(metrcTransfer.vendor)
-            : "Unknown"}
+          {getCompanyDisplayName(metrcTransfer.vendor)}
         </Typography>
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>

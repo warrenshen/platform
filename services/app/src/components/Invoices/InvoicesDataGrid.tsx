@@ -32,7 +32,7 @@ function getRows(invoices: InvoiceFragment[]): RowsProp {
     return {
       ...invoice,
       company_name: invoice.company?.name,
-      payor_name: invoice.payor ? getCompanyDisplayName(invoice.payor) : "",
+      payor_name: getCompanyDisplayName(invoice.payor),
     };
   });
 }

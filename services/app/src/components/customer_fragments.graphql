@@ -176,7 +176,7 @@ fragment LoanLimited on loans {
   company {
     id
     identifier
-    name
+    ...CompanyLimited
   }
 }
 

@@ -21761,7 +21761,9 @@ export type LineOfCreditFragment = Pick<
   | "recipient_vendor_id"
   | "is_credit_for_vendor"
   | "customer_note"
-> & { recipient_vendor?: Maybe<Pick<Companies, "id" | "name">> };
+> & {
+  recipient_vendor?: Maybe<Pick<Companies, "id"> & CompanyLimitedFragment>;
+};
 
 export type FinancialSummaryFragment = Pick<
   FinancialSummaries,
@@ -22435,7 +22437,7 @@ export type LoanLimitedFragment = Pick<
   | "rejected_at"
   | "funded_at"
   | "closed_at"
-> & { company: Pick<Companies, "id" | "identifier" | "name"> };
+> & { company: Pick<Companies, "id" | "identifier"> & CompanyLimitedFragment };
 
 export type LoanArtifactLimitedFragment = Pick<
   Loans,
@@ -22914,9 +22916,10 @@ export const LoanLimitedFragmentDoc = gql`
     company {
       id
       identifier
-      name
+      ...CompanyLimited
     }
   }
+  ${CompanyLimitedFragmentDoc}
 `;
 export const LoanFragmentDoc = gql`
   fragment Loan on loans {
@@ -23003,9 +23006,10 @@ export const LineOfCreditFragmentDoc = gql`
     customer_note
     recipient_vendor {
       id
-      name
+      ...CompanyLimited
     }
   }
+  ${CompanyLimitedFragmentDoc}
 `;
 export const PurchaseOrderLimitedFragmentDoc = gql`
   fragment PurchaseOrderLimited on purchase_orders {

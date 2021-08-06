@@ -8,6 +8,7 @@ import {
   Companies,
   useGetVendorPartnershipsByCompanyIdQuery,
 } from "generated/graphql";
+import { getCompanyDisplayName } from "lib/companies";
 import { sortBy } from "lodash";
 
 interface Props {
@@ -28,7 +29,8 @@ export default function CustomerVendorsPageContent({ companyId }: Props) {
 
   const vendorPartnerships = sortBy(
     data?.company_vendor_partnerships || [],
-    (companyVendorPartnership) => companyVendorPartnership.vendor?.name
+    (companyVendorPartnership) =>
+      getCompanyDisplayName(companyVendorPartnership.vendor)
   );
 
   return (

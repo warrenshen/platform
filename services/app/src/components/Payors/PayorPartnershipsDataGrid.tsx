@@ -20,9 +20,7 @@ function getRows(payorPartnerships: PayorPartnershipFragment[]): RowsProp {
   return payorPartnerships.map((payorPartnership) => {
     return {
       ...payorPartnership,
-      payor_name: !!payorPartnership.payor
-        ? getCompanyDisplayName(payorPartnership.payor)
-        : "",
+      payor_name: getCompanyDisplayName(payorPartnership.payor),
       is_verified_license: (payorPartnership.payor?.licenses || []).length > 0,
       is_approved: !!payorPartnership.approved_at,
     };

@@ -29,9 +29,7 @@ function getRows(purchaseOrders: PurchaseOrderFragment[]): RowsProp {
   return purchaseOrders.map((purchaseOrder) => ({
     ...purchaseOrder,
     company_name: purchaseOrder.company.name,
-    vendor_name: purchaseOrder.vendor
-      ? getCompanyDisplayName(purchaseOrder.vendor)
-      : "",
+    vendor_name: getCompanyDisplayName(purchaseOrder.vendor),
     percent_funded:
       ((purchaseOrder.amount_funded || 0) / (purchaseOrder.amount || 1)) * 100,
     customer_note: truncateString(purchaseOrder?.customer_note || "-"),

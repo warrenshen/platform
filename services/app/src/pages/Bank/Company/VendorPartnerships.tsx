@@ -29,16 +29,12 @@ export default function BankCustomerVendorPartnershipsSubpage({
     const filteredVendorPartnerships = filter(
       data?.company_vendor_partnerships || [],
       (vendorPartnership) =>
-        (!!vendorPartnership.vendor
-          ? getCompanyDisplayName(vendorPartnership.vendor)
-          : ""
-        )
+        getCompanyDisplayName(vendorPartnership.vendor)
           .toLowerCase()
           .indexOf(searchQuery.toLowerCase()) >= 0
     );
-    return sortBy(
-      filteredVendorPartnerships,
-      (vendorPartnership) => vendorPartnership.vendor?.name || null
+    return sortBy(filteredVendorPartnerships, (vendorPartnership) =>
+      getCompanyDisplayName(vendorPartnership.vendor)
     );
   }, [searchQuery, data?.company_vendor_partnerships]);
 

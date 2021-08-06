@@ -2,6 +2,7 @@ import {
   LoanArtifactLimitedFragment,
   LoanLimitedFragment,
 } from "generated/graphql";
+import { getCompanyDisplayName } from "lib/companies";
 
 export function createLoanCustomerIdentifier(loan: LoanLimitedFragment) {
   return `${loan.company.identifier}/${loan.identifier}`;
@@ -19,14 +20,16 @@ export function getLoanArtifactName(loan: LoanArtifactLimitedFragment) {
     : loan.invoice
     ? loan.invoice.invoice_number
     : !!loan.line_of_credit?.is_credit_for_vendor
-    ? loan.line_of_credit.recipient_vendor?.name
+    ? getCompanyDisplayName(loan.line_of_credit.recipient_vendor)
     : "N/A";
 }
 
 export function getLoanVendorName(loan: LoanArtifactLimitedFragment) {
   return loan.purchase_order
-    ? loan.purchase_order.vendor?.name
+    ? getCompanyDisplayName(loan.purchase_order.vendor)
     : loan.line_of_credit
-    ? loan.line_of_credit.recipient_vendor?.name
+    ? !!loan.line_of_credit.is_credit_for_vendor
+      ? getCompanyDisplayName(loan.line_of_credit.recipient_vendor)
+      : "N/A"
     : "N/A";
 }

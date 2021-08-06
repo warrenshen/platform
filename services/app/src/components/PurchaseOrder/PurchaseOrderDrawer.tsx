@@ -22,6 +22,7 @@ import {
   useGetPurchaseOrderForCustomerQuery,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
+import { getCompanyDisplayName } from "lib/companies";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
 import { FileTypeEnum } from "lib/enum";
@@ -147,7 +148,9 @@ export default function PurchaseOrderDrawer({
         <Typography variant="subtitle2" color="textSecondary">
           Vendor
         </Typography>
-        <Typography variant={"body1"}>{purchaseOrder.vendor?.name}</Typography>
+        <Typography variant={"body1"}>
+          {getCompanyDisplayName(purchaseOrder.vendor)}
+        </Typography>
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>
         <Typography variant="subtitle2" color="textSecondary">

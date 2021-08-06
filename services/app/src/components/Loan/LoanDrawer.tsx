@@ -19,6 +19,7 @@ import {
   useGetLoanWithArtifactForCustomerQuery,
   useGetTransactionsForLoanQuery,
 } from "generated/graphql";
+import { getCompanyDisplayName } from "lib/companies";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
 import { LoanPaymentStatusEnum, LoanTypeToLabel } from "lib/enum";
@@ -202,9 +203,7 @@ export default function LoanDrawer({ loanId, handleClose }: Props) {
               Recipient Vendor
             </Typography>
             <Typography variant={"body1"}>
-              {loan.line_of_credit?.is_credit_for_vendor
-                ? loan.line_of_credit?.recipient_vendor?.name
-                : "N/A"}
+              {getCompanyDisplayName(loan.line_of_credit?.recipient_vendor)}
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
