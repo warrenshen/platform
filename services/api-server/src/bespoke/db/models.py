@@ -143,8 +143,6 @@ class Company(Base):
 	is_vendor = Column(Boolean)
 	is_payor = Column(Boolean)
 
-	needs_balance_recomputed = Column(Boolean, nullable=False, default=False) # is_dirty
-
 	# Last created identifier for a loan belonging to this company.
 	latest_loan_identifier = Column(Integer, nullable=False, default=0)
 	# Last created identifier for an advance payment belonging to this company.
@@ -801,7 +799,9 @@ class FinancialSummary(Base):
 	account_level_balance_payload = Column(JSON, nullable=False)
 	day_volume_threshold_met = Column(Date)
 	interest_accrued_today = Column(Numeric, nullable=False)
-	product_type = Column(Text, nullable=False)
+	product_type = Column(Text, nullable=True)
+	needs_recompute = Column(Boolean)
+	days_to_compute_back = Column(Integer)
 
 ### End of financial tables
 

@@ -2,7 +2,7 @@ import datetime
 import decimal
 import json
 from datetime import timedelta
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Tuple
 
 from bespoke import errors
 from bespoke.date import date_util
@@ -25,6 +25,46 @@ def _get_late_fee_structure() -> str:
 		'15-29': 0.50,
 		'30+': 1.0
 	})
+
+def _to_date_range_strs(date_range_tuples: List[Tuple[datetime.date, int]]) -> List[Tuple[str, int]]:
+	new_tups = []
+	for tup in date_range_tuples:
+		new_tups.append(
+			(date_util.date_to_str(tup[0]), tup[1])
+		)
+
+	return new_tups
+
+class TestHelperFns(db_unittest.TestCase):
+
+	def test_get_dates_updated(self) -> None:
+		days_updated = reports_util.get_dates_updated(date_util.load_date_str('10/10/2020'), days_back=5)
+		self.assertEqual([
+			date_util.load_date_str('10/10/2020'),
+			date_util.load_date_str('10/9/2020'),
+			date_util.load_date_str('10/8/2020'),
+			date_util.load_date_str('10/7/2020'),
+			date_util.load_date_str('10/6/2020'),
+			date_util.load_date_str('10/5/2020')
+		], days_updated)
+
+	def test_date_ranges_for_needs_balance_recomputed(self) -> None:
+		date_range_tuples = reports_util.date_ranges_for_needs_balance_recomputed(
+			date_util.load_date_str('10/10/2020'),
+			date_util.load_date_str('10/30/2020'))
+
+		self.assertEqual([
+			('10/30/2020', 14),
+			('10/15/2020', 5)
+		], _to_date_range_strs(date_range_tuples))
+
+		date_range_tuples = reports_util.date_ranges_for_needs_balance_recomputed(
+			date_util.load_date_str('10/10/2020'),
+			date_util.load_date_str('10/15/2020'))
+
+		self.assertEqual([
+			('10/15/2020', 5)
+		], _to_date_range_strs(date_range_tuples))
 
 class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 
@@ -352,27 +392,59 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 
 		with session_scope(self.session_maker) as session:
 			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=0), ProductType.INVENTORY_FINANCING)
+			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=1), ProductType.LINE_OF_CREDIT)
+			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=2), ProductType.INVOICE_FINANCING)
+			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=3), ProductType.PURCHASE_MONEY_FINANCING)
 
-			count = session.query(models.Company).count()
-			self.assertEqual(count, 4)
+			count = session.query(models.FinancialSummary).count()
+			self.assertEqual(count, 8) # 4 today, 4 we created that were for future dates
 
-			count = session.query(models.Company).filter(models.Company.needs_balance_recomputed == True).count()
+			count = session.query(models.FinancialSummary).filter(models.FinancialSummary.needs_recompute == True).count()
 			self.assertEqual(count, 0)
 
 		with session_scope(self.session_maker) as session:
-			company = session.query(models.Company).get(company_id)
-			company.needs_balance_recomputed = True
+			reports_util.set_needs_balance_recomputed(
+				company_ids=[seed.get_company_id('company_admin', index=0)],
+				cur_date=TODAY,
+				create_if_missing=True,
+				days_to_compute_back=14,
+				session=session
+			)
+		
+		with session_scope(self.session_maker) as session:
+			count = session.query(models.FinancialSummary).filter(models.FinancialSummary.needs_recompute == True).count()
+			self.assertEqual(1, count)
 
-		company_dicts = reports_util.list_companies_that_need_balances_recomputed(self.session_maker)
-		self.assertEqual(len(company_dicts), 1)
-		self.assertEqual(company_dicts[0]["id"], str(company_id))
+			financial_summary = session.query(models.FinancialSummary).filter(models.FinancialSummary.needs_recompute == True).first()
+			self.assertEqual(14, financial_summary.days_to_compute_back)
 
-		descriptive_errors, fatal_error = reports_util.run_customer_balances_for_companies_that_need_recompute(
-			self.session_maker, TODAY, update_days_back=reports_util.DAYS_TO_COMPUTE_BACK)
+		with session_scope(self.session_maker) as session:
+			reports_util.set_needs_balance_recomputed(
+				company_ids=[seed.get_company_id('company_admin', index=0)],
+				cur_date=TODAY + timedelta(days=1),
+				create_if_missing=True,
+				days_to_compute_back=14,
+				session=session
+			)
+			# One more FinancialSummary gets created because of create_if_missing
+			count = session.query(models.FinancialSummary).filter(models.FinancialSummary.needs_recompute == True).count()
+			self.assertEqual(2, count)
 
-		self.assertIsNone(fatal_error)
-		self.assertEqual(len(descriptive_errors), 0)
+		with session_scope(self.session_maker) as session:
+			# We already created TODAY + 1day for company index=0, so one more gets added for index=1
+			reports_util.set_needs_balance_recomputed(
+				company_ids=[seed.get_company_id('company_admin', index=0), seed.get_company_id('company_admin', index=1)],
+				cur_date=TODAY + timedelta(days=1),
+				create_if_missing=True,
+				days_to_compute_back=14,
+				session=session
+			)
+			# One more FinancialSummary gets created because of create_if_missing
+			count = session.query(models.FinancialSummary).filter(models.FinancialSummary.needs_recompute == True).count()
+			self.assertEqual(3, count)
 
-		company_dicts = reports_util.list_companies_that_need_balances_recomputed(self.session_maker)
-		self.assertEqual(len(company_dicts), 0)
 
+		compute_requests = reports_util.list_financial_summaries_that_need_balances_recomputed(self.session_maker, today=TODAY, amount_to_fetch=2)
+		self.assertEqual(seed.get_company_id('company_admin', index=0), compute_requests[0]['company_id'])
+		self.assertEqual(seed.get_company_id('company_admin', index=0), compute_requests[0]['company']['id'])
+		

@@ -25,9 +25,11 @@ def hours_from_today(hours: int) -> datetime.datetime:
 def now() -> datetime.datetime:
 	return datetime.datetime.now(timezone.utc)
 
-def now_as_date(timezone: str) -> datetime.date:
-	dt = datetime.datetime.now(pytz.utc)
-	dt = dt.astimezone(pytz.timezone(timezone))
+def now_as_date(timezone: str, now: datetime.datetime = None) -> datetime.date:
+	if now is None:
+		now = datetime.datetime.now(pytz.utc)
+
+	dt = now.astimezone(pytz.timezone(timezone))
 	return dt.date()
 
 def meets_noon_cutoff(requested_date: datetime.date, timezone: str, now: datetime.datetime = None) -> Tuple[bool, errors.Error]:

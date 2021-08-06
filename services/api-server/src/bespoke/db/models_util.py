@@ -2,24 +2,14 @@
 	A file that contains some helpers needed to construct certain types or perform some
 	common operations on models.py
 """
-
+import datetime
+from datetime import timedelta
 from typing import Callable, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.db import db_constants, models
 from bespoke.finance.types.payment_types import PaymentItemsCoveredDict
 from sqlalchemy.orm.session import Session
-
-
-def set_needs_balance_recomputed(company_id: str, session: Session) -> Tuple[bool, errors.Error]:
-	company = session.query(models.Company).filter(models.Company.id == company_id).first()
-	if not company:
-		return None, errors.Error(
-			"Failed to find company associated with the company_id {}".format(company_id))
-
-	company.needs_balance_recomputed = True
-
-	return True, None
 
 def get_augmented_transactions(transactions: List[models.TransactionDict], payments: List[models.PaymentDict]) -> Tuple[List[models.AugmentedTransactionDict], errors.Error]:
 		id_to_payment = {}

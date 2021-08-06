@@ -1,5 +1,5 @@
 import datetime
-from typing import List, Tuple, cast
+from typing import Callable, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
@@ -23,6 +23,7 @@ def _get_summary_date_or_most_recent_date(session: Session, report_date: datetim
 		models.FinancialSummary,
 		session.query(models.FinancialSummary)
 			.filter(models.FinancialSummary.date != None)
+			.filter(cast(Callable, models.FinancialSummary.product_type.isnot)(None)) # Dont select summaries that dont have data filled in yet
 			.order_by(models.FinancialSummary.date.desc())
 			.first()
 		)
@@ -63,6 +64,8 @@ def get_latest_financial_summary(company_id: str, session: Session, now_for_test
 			models.FinancialSummary,
 			session.query(models.FinancialSummary).filter_by(
 				company_id=company_id
+			).filter(
+				cast(Callable, models.FinancialSummary.product_type.isnot)(None) # Dont select summaries that dont have data filled in yet
 			).order_by(models.FinancialSummary.date.desc()).first()
 		)
 		return latest_financial_summary

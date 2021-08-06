@@ -32,6 +32,7 @@ from bespoke.finance.loans.loan_calculator import LoanUpdateDict, LoanUpdateDebu
 from bespoke.finance.payments import payment_util
 from bespoke.finance.types import finance_types, per_customer_types
 from mypy_extensions import TypedDict
+from sqlalchemy.orm.session import Session
 
 SummaryUpdateDict = TypedDict('SummaryUpdateDict', {
 	'product_type': str,
@@ -254,6 +255,10 @@ class CustomerBalance(object):
 			# because we technically only need today's report_date to succeed
 			return None, None
 
+		if err:
+			# However if its a current day, then we really cant calculate the customer update for today
+			return None, err
+
 		# For now, we just assume the start date is today.
 		start_date = today
 		fee_accumulator = fee_util.FeeAccumulator()
@@ -423,9 +428,7 @@ class CustomerBalance(object):
 		date_to_customer_update = {}
 		date_to_customer_update[today] = customer_update
 
-		# Calculate the customer update for the remaining days in the past,
-		# and TODO(dlluncor): use a memoizer to cache results about loans that
-		# are already known when we calculated the first loan update. 
+		# Calculate the customer update for the remaining days in the past
 		cur_date = start_date_for_storing_updates
 		while cur_date < today:
 			customer_update, err = self._get_customer_update(
@@ -438,8 +441,7 @@ class CustomerBalance(object):
 
 		return date_to_customer_update, None
 
-	@errors.return_error_tuple
-	def write(self, customer_update: CustomerUpdateDict) -> Tuple[bool, errors.Error]:
+	def _update_todays_info(self, customer_update: CustomerUpdateDict, session: Session) -> None:
 		loan_ids = []
 		loan_id_to_update = {}
 		for loan_update in customer_update['loan_updates']:
@@ -447,69 +449,85 @@ class CustomerBalance(object):
 			loan_id_to_update[loan_id] = loan_update
 			loan_ids.append(loan_id)
 
+		loans = cast(
+				List[models.Loan],
+				session.query(models.Loan).filter(
+					models.Loan.id.in_(loan_ids)
+				).all())
+
+		if not loans:
+			loans = []
+
+		loan_report_ids = [loan.loan_report_id for loan in loans]
+		loan_reports = cast(
+			List[models.LoanReport],
+			session.query(models.LoanReport).filter(
+				models.LoanReport.id.in_(loan_report_ids)
+			).all())
+
+		loan_report_id_to_loan_report = dict({})
+		for loan_report in loan_reports:
+			loan_report_id_to_loan_report[str(loan_report.id)] = loan_report
+
+		for loan in loans:
+			cur_loan_update = loan_id_to_update[str(loan.id)]
+			loan.outstanding_principal_balance = decimal.Decimal(number_util.round_currency(cur_loan_update['outstanding_principal']))
+			loan.outstanding_interest = decimal.Decimal(number_util.round_currency(cur_loan_update['outstanding_interest']))
+			loan.outstanding_fees = decimal.Decimal(number_util.round_currency(cur_loan_update['outstanding_fees']))
+
+			if cur_loan_update['should_close_loan']:
+				payment_util.close_loan(loan)
+
+			loan_report = loan_report_id_to_loan_report.get(str(loan.id), None)
+			if not loan_report:
+				loan_report = models.LoanReport()
+				session.add(loan_report)
+				session.flush()
+				loan.loan_report_id = loan_report.id
+
+			loan_report.repayment_date = cur_loan_update['repayment_date']
+			loan_report.financing_period = cur_loan_update['financing_period']
+			loan_report.financing_day_limit = cur_loan_update['financing_day_limit']
+			loan_report.total_principal_paid = decimal.Decimal(number_util.round_currency(cur_loan_update['total_principal_paid']))
+			loan_report.total_interest_paid = decimal.Decimal(number_util.round_currency(cur_loan_update['total_interest_paid']))
+			loan_report.total_fees_paid = decimal.Decimal(number_util.round_currency(cur_loan_update['total_fees_paid']))
+
+		purchase_order_id_to_update = customer_update['purchase_orders_update']['purchase_order_id_to_update']
+		purchase_order_ids = list(purchase_order_id_to_update.keys())
+		purchase_orders = cast(
+			List[models.PurchaseOrder],
+			session.query(models.PurchaseOrder).filter(
+				models.PurchaseOrder.id.in_(purchase_order_ids)
+			).all())
+
+		if not purchase_orders:
+			purchase_orders = []
+
+		for purchase_order in purchase_orders:
+			po_update = purchase_order_id_to_update[str(purchase_order.id)]
+			purchase_order.amount_funded = decimal.Decimal(po_update['amount_funded'])
+
+		# If there is an active ebba application, update its calculated borrowing
+		# base to reflect the value as a product of the current contract. These are
+		# first computed in the UI and stored on the server. However, if the
+		# contract changes, then the calculated value we've stored may no
+		# longer reflect the terms of the company's contract.
+		active_ebba_application_update = customer_update.get('active_ebba_application_update')
+		if active_ebba_application_update and active_ebba_application_update['id'] is not None:
+			app = session.query(models.EbbaApplication).get(active_ebba_application_update['id'])
+			app.calculated_borrowing_base = decimal.Decimal(active_ebba_application_update['calculated_borrowing_base'])
+
+	@errors.return_error_tuple
+	def write(self, customer_update: CustomerUpdateDict, is_todays_update: bool) -> Tuple[bool, errors.Error]:
+
 		err_details = {
 			'customer_name': self._company_name,
 			'method': 'CustomerBalance.write'
 		}
 
 		with session_scope(self._session_maker) as session:
-			loans = cast(
-				List[models.Loan],
-				session.query(models.Loan).filter(
-					models.Loan.id.in_(loan_ids)
-				).all())
-
-			if not loans:
-				loans = []
-
-			loan_report_ids = [loan.loan_report_id for loan in loans]
-			loan_reports = cast(
-				List[models.LoanReport],
-				session.query(models.LoanReport).filter(
-					models.LoanReport.id.in_(loan_report_ids)
-				).all())
-
-			loan_report_id_to_loan_report = dict({})
-			for loan_report in loan_reports:
-				loan_report_id_to_loan_report[str(loan_report.id)] = loan_report
-
-			for loan in loans:
-				cur_loan_update = loan_id_to_update[str(loan.id)]
-				loan.outstanding_principal_balance = decimal.Decimal(number_util.round_currency(cur_loan_update['outstanding_principal']))
-				loan.outstanding_interest = decimal.Decimal(number_util.round_currency(cur_loan_update['outstanding_interest']))
-				loan.outstanding_fees = decimal.Decimal(number_util.round_currency(cur_loan_update['outstanding_fees']))
-
-				if cur_loan_update['should_close_loan']:
-					payment_util.close_loan(loan)
-
-				loan_report = loan_report_id_to_loan_report.get(str(loan.id), None)
-				if not loan_report:
-					loan_report = models.LoanReport()
-					session.add(loan_report)
-					session.flush()
-					loan.loan_report_id = loan_report.id
-
-				loan_report.repayment_date = cur_loan_update['repayment_date']
-				loan_report.financing_period = cur_loan_update['financing_period']
-				loan_report.financing_day_limit = cur_loan_update['financing_day_limit']
-				loan_report.total_principal_paid = decimal.Decimal(number_util.round_currency(cur_loan_update['total_principal_paid']))
-				loan_report.total_interest_paid = decimal.Decimal(number_util.round_currency(cur_loan_update['total_interest_paid']))
-				loan_report.total_fees_paid = decimal.Decimal(number_util.round_currency(cur_loan_update['total_fees_paid']))
-
-			purchase_order_id_to_update = customer_update['purchase_orders_update']['purchase_order_id_to_update']
-			purchase_order_ids = list(purchase_order_id_to_update.keys())
-			purchase_orders = cast(
-				List[models.PurchaseOrder],
-				session.query(models.PurchaseOrder).filter(
-					models.PurchaseOrder.id.in_(purchase_order_ids)
-				).all())
-
-			if not purchase_orders:
-				purchase_orders = []
-
-			for purchase_order in purchase_orders:
-				po_update = purchase_order_id_to_update[str(purchase_order.id)]
-				purchase_order.amount_funded = decimal.Decimal(po_update['amount_funded'])
+			if is_todays_update:
+				self._update_todays_info(customer_update, session)
 
 			financial_summary = cast(
 				models.FinancialSummary,
@@ -543,18 +561,7 @@ class CustomerBalance(object):
 			if should_add_summary:
 				session.add(financial_summary)
 
-			# If there is an active ebba application, update its calculated borrowing
-			# base to reflect the value as a product of the current contract. These are
-			# first computed in the UI and stored on the server. However, if the
-			# contract changes, then the calculated value we've stored may no
-			# longer reflect the terms of the company's contract.
-			active_ebba_application_update = customer_update.get('active_ebba_application_update')
-			if active_ebba_application_update and active_ebba_application_update['id'] is not None:
-				app = session.query(models.EbbaApplication).get(active_ebba_application_update['id'])
-				app.calculated_borrowing_base = decimal.Decimal(active_ebba_application_update['calculated_borrowing_base'])
-
 			# The balance was updated so we no longer need to "recompute" it
-			company = session.query(models.Company).get(self._company_id)
-			company.needs_balance_recomputed = False
+			financial_summary.needs_recompute = False
 
 			return True, None

@@ -1789,9 +1789,11 @@
       - company_id
       - date
       - day_volume_threshold_met
+      - days_to_compute_back
       - id
       - interest_accrued_today
       - minimum_monthly_payload
+      - needs_recompute
       - product_type
       - total_amount_to_pay_interest_on
       - total_limit
@@ -1800,6 +1802,7 @@
       - total_outstanding_principal
       - total_outstanding_principal_for_interest
       - total_principal_in_requested_state
+      - updated_at
       filter: {}
   - role: bank_read_only
     permission:
@@ -1810,9 +1813,11 @@
       - company_id
       - date
       - day_volume_threshold_met
+      - days_to_compute_back
       - id
       - interest_accrued_today
       - minimum_monthly_payload
+      - needs_recompute
       - product_type
       - total_amount_to_pay_interest_on
       - total_limit
@@ -1821,6 +1826,7 @@
       - total_outstanding_principal
       - total_outstanding_principal_for_interest
       - total_principal_in_requested_state
+      - updated_at
       filter: {}
   - role: company_admin
     permission:
@@ -1831,9 +1837,11 @@
       - company_id
       - date
       - day_volume_threshold_met
+      - days_to_compute_back
       - id
       - interest_accrued_today
       - minimum_monthly_payload
+      - needs_recompute
       - product_type
       - total_amount_to_pay_interest_on
       - total_limit
@@ -1842,6 +1850,7 @@
       - total_outstanding_principal
       - total_outstanding_principal_for_interest
       - total_principal_in_requested_state
+      - updated_at
       filter:
         company_id:
           _eq: X-Hasura-Company-Id
@@ -1854,9 +1863,11 @@
       - company_id
       - date
       - day_volume_threshold_met
+      - days_to_compute_back
       - id
       - interest_accrued_today
       - minimum_monthly_payload
+      - needs_recompute
       - product_type
       - total_amount_to_pay_interest_on
       - total_limit
@@ -1865,6 +1876,7 @@
       - total_outstanding_principal
       - total_outstanding_principal_for_interest
       - total_principal_in_requested_state
+      - updated_at
       filter:
         company_id:
           _eq: X-Hasura-Company-Id
@@ -2574,36 +2586,29 @@
         columns: '*'
       update:
         columns:
+        - is_deleted
         - adjusted_maturity_date
         - maturity_date
         - amount
-        - outstanding_fees
-        - outstanding_interest
-        - outstanding_principal_balance
         - identifier
         - loan_type
         - notes
         - rejection_note
         - approved_at
-        - closed_at
         - created_at
         - funded_at
-        - modified_at
         - rejected_at
         - requested_at
-        - updated_at
         - approved_by_user_id
         - artifact_id
         - company_id
         - funded_by_user_id
         - id
-        - modified_by_user_id
         - rejected_by_user_id
         - requested_by_user_id
-        - payment_status
-        - status
-        - origination_date
+        - is_frozen
         - requested_payment_date
+        - origination_date
     retry_conf:
       num_retries: 0
       interval_sec: 10

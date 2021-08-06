@@ -32,6 +32,11 @@
   schedule: '* * * * *'
   include_in_metadata: true
   payload: {}
+  retry_conf:
+    num_retries: 0
+    timeout_seconds: 3000
+    tolerance_seconds: 21600
+    retry_interval_seconds: 10
   headers:
   - name: x-api-key
     value_from_env: ASYNC_SERVER_API_KEY

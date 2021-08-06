@@ -1,9 +1,10 @@
 import json
 import logging
 import time
+import datetime
 import typing
 from datetime import timedelta
-from typing import Callable, Tuple, cast
+from typing import Callable, List, Tuple, cast
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from mypy_extensions import TypedDict
@@ -72,24 +73,50 @@ def _send_ops_notification(data: NotificationTemplateData) -> errors.Error:
 		return err
 	return None
 
+@errors.return_error_tuple
+def _set_needs_balance_recomputed(
+	company_ids: List[str], cur_date: datetime.date, create_if_missing: bool, 
+	days_to_compute_back: int, session_maker: Callable) -> Tuple[bool, errors.Error]:
+
+	if not company_ids:
+		raise errors.Error("Failed to find company_ids in set_needs_balance_recomputed")
+
+	with models.session_scope(session_maker) as session:
+		_, err = reports_util.set_needs_balance_recomputed(
+			company_ids, cur_date, create_if_missing, 
+			days_to_compute_back=days_to_compute_back,
+			session=session)
+		if err:
+			logging.error(f"FAILED marking that company.needs_balance_recomputed for companies: '{company_ids}'")
+			raise errors.Error("Failed setting {} companies as dirty".format(len(company_ids)))
+
+		return True, None
 
 class UpdateDirtyCompanyBalancesView(MethodView):
 	decorators = [auth_util.requires_async_magic_header]
 
 	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
-		logging.info("Received request to update dirty company balances")
+		logging.debug("Received request to update dirty company balances")
 
-		descriptive_errors, fatal_error = reports_util.run_customer_balances_for_companies_that_need_recompute(
+		today = date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
+		compute_requests = reports_util.list_financial_summaries_that_need_balances_recomputed(
+			current_app.session_maker, today, amount_to_fetch=10)
+		if not compute_requests:
+			return make_response(json.dumps({
+				'status': 'OK',
+				'errors': []
+			}))
+
+		descriptive_errors, fatal_error = reports_util.run_customer_balances_for_financial_summaries_that_need_recompute(
 			current_app.session_maker,
-			date_util.now_as_date(date_util.DEFAULT_TIMEZONE),
-			update_days_back=reports_util.DAYS_TO_COMPUTE_BACK
+			compute_requests
 		)
 		if fatal_error:
 			logging.error(f"Got fatal error while recomputing balances for companies that need it: '{fatal_error}'")
 			return handler_util.make_error_response(fatal_error)
 
-		logging.info("Finished request to update dirty company balances")
+		logging.info("Finished request to update {} dirty financial summaries".format(len(compute_requests)))
 
 		return make_response(json.dumps({
 			"status": "OK",
@@ -104,34 +131,21 @@ class UpdateAllCompanyBalancesView(MethodView):
 	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
 		logging.info("Received request to update all company balances")
-		before = time.time()
+		session_maker = current_app.session_maker
+		
+		companies = reports_util.list_all_companies(session_maker)
+		cur_date = date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
+		company_ids = [company['id'] for company in companies]
+		_set_needs_balance_recomputed(
+			company_ids, cur_date, 
+			create_if_missing=True,
+			days_to_compute_back=reports_util.DAYS_TO_COMPUTE_BACK, 
+			session_maker=session_maker)
 
-		descriptive_errors, fatal_error = reports_util.run_customer_balances_for_all_companies(
-			current_app.session_maker,
-			date_util.now_as_date(date_util.DEFAULT_TIMEZONE),
-			update_days_back=reports_util.DAYS_TO_COMPUTE_BACK
-		)
-		if fatal_error:
-			logging.error(f"Got fatal error while recomputing balances for all companies: '{fatal_error}'")
-			return handler_util.make_error_response(fatal_error)
-
-		after = time.time()
-		logging.info("Finished updating all company balances")
-
-		additional_info = 'Took {:.2f} seconds'.format(after - before)
-
-		err = _send_ops_notification(_prepare_notification_data(
-			'update_all_customer_balances',
-			fatal_error,
-			descriptive_errors,
-			additional_info))
-		if err:
-			return handler_util.make_error_response(
-				f"Failed sending update_all_customer_balances trigger notification. Error: '{err}'")
+		logging.info("Submitted that all customers need their company balances updated")
 
 		return make_response(json.dumps({
-			"status": "OK",
-			"errors": descriptive_errors,
+			"status": "OK"
 		}))
 
 
@@ -169,21 +183,6 @@ class ExpireActiveEbbaApplications(MethodView):
 			"errors": [],
 		}))
 
-
-@errors.return_error_tuple
-def _set_needs_balance_recomputed(company_id: str, session_maker: Callable) -> Tuple[bool, errors.Error]:
-
-	if not company_id:
-		raise errors.Error("Failed to find company_id in request")
-
-	with models.session_scope(session_maker) as session:
-		_, err = models_util.set_needs_balance_recomputed(company_id, session)
-		if err:
-			logging.error(f"FAILED marking that company.needs_balance_recomputed for company: '{company_id}'")
-			raise errors.Error("Failed setting company dirty")
-
-		return True, None
-
 class SetDirtyCompanyBalancesView(MethodView):
 	decorators = [auth_util.requires_async_magic_header]
 
@@ -193,14 +192,24 @@ class SetDirtyCompanyBalancesView(MethodView):
 
 		data = json.loads(request.data)
 
-		company_id = data.get('event', {}) \
+		company_id: str = data.get('event', {}) \
 			.get('data', {}) \
 			.get('new', {}) \
 			.get('company_id')
 
+		if not company_id:
+			return make_response(json.dumps({
+				"status": "OK"
+			}))
+
 		logging.info(f"Marking that company.needs_balance_recomputed for company: '{company_id}'")
 
-		success, err = _set_needs_balance_recomputed(company_id, current_app.session_maker)
+		cur_date = date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
+		success, err = _set_needs_balance_recomputed(
+			[company_id], cur_date, 
+			create_if_missing=True, 
+			days_to_compute_back=reports_util.DAYS_TO_COMPUTE_BACK,
+			session_maker=current_app.session_maker)
 		if err:
 			raise errors.Error('{}'.format(err), http_code=500)
 

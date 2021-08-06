@@ -124,7 +124,7 @@ class BasicSeed(object):
 	def _setup_company_users(self, session: Any) -> None:
 			# Setup the company admin (for the distributor account)
 
-		num_companies = 3
+		num_companies = 4
 		for i in range(num_companies):
 			company_settings = models.CompanySettings()
 			session.add(company_settings)

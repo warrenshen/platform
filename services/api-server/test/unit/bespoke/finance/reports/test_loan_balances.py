@@ -1,6 +1,7 @@
 import datetime
 import decimal
 import json
+import pytz
 import uuid
 from datetime import timedelta
 from typing import Any, Callable, Dict, List, cast
@@ -81,6 +82,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		]
 
 		for today_date_dict in today_date_dicts:
+			today = today_date_dict['today']
 
 			day_to_customer_update, err = reports_util.update_company_balance(
 				session_maker=self.session_maker,
@@ -88,11 +90,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				report_date=today_date_dict['report_date'],
 				update_days_back=today_date_dict['days_back'],
 				is_past_date_default_val=False,
-				include_debug_info=False
+				include_debug_info=False,
+				today_for_test=today
 			)
 			self.assertIsNone(err)
 
-			customer_update = day_to_customer_update[today_date_dict['today']]
+			customer_update = day_to_customer_update[today]
 			# Sort by increasing adjusted maturity date for consistency in tests
 			loan_updates = customer_update['loan_updates']
 			loan_updates.sort(key=lambda u: u['adjusted_maturity_date'])
