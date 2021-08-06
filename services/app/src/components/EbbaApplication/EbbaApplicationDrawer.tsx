@@ -18,7 +18,7 @@ import {
 import useSnackbar from "hooks/useSnackbar";
 import { authenticatedApi, ebbaApplicationsRoutes } from "lib/api";
 import { formatCurrency } from "lib/currency";
-import { formatDateString } from "lib/date";
+import { formatDateString, formatDatetimeString } from "lib/date";
 import { ActionType, FileTypeEnum } from "lib/enum";
 import { useContext, useMemo, useState } from "react";
 
@@ -99,6 +99,16 @@ export default function EbbaApplicationDrawer({
           </Typography>
           <RequestStatusChip requestStatus={ebbaApplication.status} />
         </Box>
+        {!!ebbaApplication.approved_at && (
+          <Box display="flex" flexDirection="column" mt={2}>
+            <Typography variant="subtitle2" color="textSecondary">
+              Approved At
+            </Typography>
+            <Typography variant={"body1"}>
+              {formatDatetimeString(ebbaApplication.approved_at)}
+            </Typography>
+          </Box>
+        )}
         {ebbaApplication.status === RequestStatusEnum.Rejected && (
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">

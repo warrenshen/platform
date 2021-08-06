@@ -107,8 +107,9 @@ fragment EbbaApplication on ebba_applications {
   calculated_borrowing_base
   status
   rejection_note
-  created_at
   expires_at
+  created_at
+  approved_at
   submitted_by_user {
     id
     full_name

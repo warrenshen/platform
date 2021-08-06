@@ -5,6 +5,7 @@ import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridC
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
+import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
 import {
   EbbaApplicationFragment,
   EbbaApplications,
@@ -12,9 +13,11 @@ import {
   RequestStatusEnum,
 } from "generated/graphql";
 import { ColumnWidths } from "lib/tables";
+import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useMemo, useState } from "react";
 
 interface Props {
+  isApprovedAtVisible?: boolean;
   isCompanyVisible?: boolean;
   isExcelExport?: boolean;
   isMultiSelectEnabled?: boolean;
@@ -26,7 +29,8 @@ interface Props {
 }
 
 export default function EbbaApplicationsDataGrid({
-  isCompanyVisible = true,
+  isApprovedAtVisible = false,
+  isCompanyVisible = false,
   isExcelExport = true,
   isMultiSelectEnabled = false,
   ebbaApplications,
@@ -72,15 +76,37 @@ export default function EbbaApplicationsDataGrid({
         ),
       },
       {
-        dataField: "submitted_by_name",
-        caption: "Submitted By",
-        width: ColumnWidths.UserName,
+        visible: isApprovedAtVisible,
+        dataField: "approved_at",
+        caption: "Approved At",
+        width: ColumnWidths.Type,
+        alignment: "center",
+        cellRender: (params: ValueFormatterParams) => (
+          <DatetimeDataGridCell
+            isTimeVisible
+            datetimeString={params.row.data.approved_at}
+          />
+        ),
       },
       {
         visible: isCompanyVisible,
         dataField: "company_name",
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) => (
+          <ClickableDataGridCell
+            url={getBankCompanyRoute(
+              params.row.data.company_id,
+              BankCompanyRouteEnum.EbbaApplications
+            )}
+            label={params.row.data.company_name}
+          />
+        ),
+      },
+      {
+        dataField: "submitted_by_name",
+        caption: "Submitted By",
+        width: ColumnWidths.UserName,
       },
       {
         dataField: "application_date",
@@ -140,7 +166,7 @@ export default function EbbaApplicationsDataGrid({
         ),
       },
     ],
-    [isCompanyVisible]
+    [isApprovedAtVisible, isCompanyVisible]
   );
 
   const handleSelectionChanged = useMemo(

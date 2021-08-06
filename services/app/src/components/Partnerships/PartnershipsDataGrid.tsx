@@ -89,11 +89,11 @@ export default function PartnershipsDataGrid({
         alignment: "center",
       },
       {
+        visible: !isClosedTab,
         caption: "Requested At",
         dataField: "created_at",
         width: ColumnWidths.Type,
         alignment: "center",
-        visible: !isClosedTab,
         cellRender: (params: ValueFormatterParams) => (
           <DatetimeDataGridCell
             isTimeVisible

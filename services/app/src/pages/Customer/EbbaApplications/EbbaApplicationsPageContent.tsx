@@ -165,7 +165,6 @@ export default function CustomerEbbaApplicationsPageContent({
             )}
           </Box>
           <EbbaApplicationsDataGrid
-            isCompanyVisible={false}
             isMultiSelectEnabled
             ebbaApplications={ebbaApplications}
             selectedEbbaApplicationIds={selectedEbbaApplicationIds}

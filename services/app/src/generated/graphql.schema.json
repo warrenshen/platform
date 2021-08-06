@@ -42515,6 +42515,18 @@
             "deprecationReason": null
           },
           {
+            "name": "days_to_compute_back",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "id",
             "description": null,
             "args": [],
@@ -42561,6 +42573,22 @@
               "kind": "SCALAR",
               "name": "jsonb",
               "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "needs_recompute",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -42677,6 +42705,18 @@
                 "name": "numeric",
                 "ofType": null
               }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "updated_at",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -43131,6 +43171,18 @@
             "deprecationReason": null
           },
           {
+            "name": "days_to_compute_back",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "interest_accrued_today",
             "description": null,
             "args": [],
@@ -43250,6 +43302,16 @@
           },
           {
             "name": "available_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "days_to_compute_back",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -43458,6 +43520,16 @@
             "defaultValue": null
           },
           {
+            "name": "days_to_compute_back",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "Int_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "id",
             "description": null,
             "type": {
@@ -43483,6 +43555,16 @@
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "jsonb_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "needs_recompute",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "Boolean_comparison_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -43563,6 +43645,16 @@
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "numeric_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "updated_at",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "timestamptz_comparison_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -43718,6 +43810,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "days_to_compute_back",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
               "ofType": null
             },
             "defaultValue": null
@@ -43884,6 +43986,16 @@
             "defaultValue": null
           },
           {
+            "name": "days_to_compute_back",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "id",
             "description": null,
             "type": {
@@ -43909,6 +44021,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "jsonb",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "needs_recompute",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null
@@ -43992,6 +44114,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "updated_at",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -44064,6 +44196,18 @@
             "deprecationReason": null
           },
           {
+            "name": "days_to_compute_back",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "id",
             "description": null,
             "args": [],
@@ -44170,6 +44314,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "updated_at",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -44225,6 +44381,16 @@
           },
           {
             "name": "day_volume_threshold_met",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "days_to_compute_back",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -44315,6 +44481,16 @@
           },
           {
             "name": "total_principal_in_requested_state",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "updated_at",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -44394,6 +44570,18 @@
             "deprecationReason": null
           },
           {
+            "name": "days_to_compute_back",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "id",
             "description": null,
             "args": [],
@@ -44500,6 +44688,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "updated_at",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -44555,6 +44755,16 @@
           },
           {
             "name": "day_volume_threshold_met",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "days_to_compute_back",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -44645,6 +44855,16 @@
           },
           {
             "name": "total_principal_in_requested_state",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "updated_at",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -44878,6 +45098,16 @@
             "defaultValue": null
           },
           {
+            "name": "days_to_compute_back",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "id",
             "description": null,
             "type": {
@@ -44899,6 +45129,16 @@
           },
           {
             "name": "minimum_monthly_payload",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "needs_recompute",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -44979,6 +45219,16 @@
           },
           {
             "name": "total_principal_in_requested_state",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "updated_at",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -45093,6 +45343,12 @@
             "deprecationReason": null
           },
           {
+            "name": "days_to_compute_back",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "id",
             "description": "column name",
             "isDeprecated": false,
@@ -45106,6 +45362,12 @@
           },
           {
             "name": "minimum_monthly_payload",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "needs_recompute",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -45154,6 +45416,12 @@
           },
           {
             "name": "total_principal_in_requested_state",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "updated_at",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -45228,6 +45496,16 @@
             "defaultValue": null
           },
           {
+            "name": "days_to_compute_back",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "id",
             "description": null,
             "type": {
@@ -45253,6 +45531,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "jsonb",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "needs_recompute",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null
@@ -45336,6 +45624,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "updated_at",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -45361,6 +45659,18 @@
           },
           {
             "name": "available_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "days_to_compute_back",
             "description": null,
             "args": [],
             "type": {
@@ -45500,6 +45810,16 @@
             "defaultValue": null
           },
           {
+            "name": "days_to_compute_back",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "interest_accrued_today",
             "description": null,
             "type": {
@@ -45603,6 +45923,18 @@
           },
           {
             "name": "available_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "days_to_compute_back",
             "description": null,
             "args": [],
             "type": {
@@ -45742,6 +46074,16 @@
             "defaultValue": null
           },
           {
+            "name": "days_to_compute_back",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "interest_accrued_today",
             "description": null,
             "type": {
@@ -45845,6 +46187,18 @@
           },
           {
             "name": "available_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "days_to_compute_back",
             "description": null,
             "args": [],
             "type": {
@@ -45984,6 +46338,16 @@
             "defaultValue": null
           },
           {
+            "name": "days_to_compute_back",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "interest_accrued_today",
             "description": null,
             "type": {
@@ -46092,6 +46456,18 @@
             "type": {
               "kind": "SCALAR",
               "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "days_to_compute_back",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
               "ofType": null
             },
             "isDeprecated": false,
@@ -46217,6 +46593,16 @@
           },
           {
             "name": "available_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "days_to_compute_back",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -46355,6 +46741,12 @@
             "deprecationReason": null
           },
           {
+            "name": "days_to_compute_back",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "id",
             "description": "column name",
             "isDeprecated": false,
@@ -46368,6 +46760,12 @@
           },
           {
             "name": "minimum_monthly_payload",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "needs_recompute",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -46419,6 +46817,12 @@
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "updated_at",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "possibleTypes": null
@@ -46442,6 +46846,18 @@
           },
           {
             "name": "available_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "days_to_compute_back",
             "description": null,
             "args": [],
             "type": {
@@ -46581,6 +46997,16 @@
             "defaultValue": null
           },
           {
+            "name": "days_to_compute_back",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "interest_accrued_today",
             "description": null,
             "type": {
@@ -46684,6 +47110,18 @@
           },
           {
             "name": "available_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "days_to_compute_back",
             "description": null,
             "args": [],
             "type": {
@@ -46823,6 +47261,16 @@
             "defaultValue": null
           },
           {
+            "name": "days_to_compute_back",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "interest_accrued_today",
             "description": null,
             "type": {
@@ -46926,6 +47374,18 @@
           },
           {
             "name": "available_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "days_to_compute_back",
             "description": null,
             "args": [],
             "type": {
@@ -47056,6 +47516,16 @@
           },
           {
             "name": "available_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "days_to_compute_back",
             "description": null,
             "type": {
               "kind": "ENUM",
