@@ -11,6 +11,7 @@ import {
   MetrcTransfers,
   useGetMetrcTransferQuery,
 } from "generated/graphql";
+import { getCompanyDisplayName } from "lib/companies";
 import { formatDatetimeString } from "lib/date";
 import { useContext } from "react";
 
@@ -93,7 +94,9 @@ export default function MetrcTransferModal({
           Vendor
         </Typography>
         <Typography variant="body1">
-          {metrcTransfer.vendor?.name || "Unknown"}
+          {!!metrcTransfer.vendor
+            ? getCompanyDisplayName(metrcTransfer.vendor)
+            : "Unknown"}
         </Typography>
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>

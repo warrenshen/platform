@@ -19,6 +19,7 @@ import {
   PurchaseOrderFileTypeEnum,
   PurchaseOrdersInsertInput,
 } from "generated/graphql";
+import { getCompanyDisplayName } from "lib/companies";
 import { FileTypeEnum } from "lib/enum";
 import { useMemo } from "react";
 
@@ -86,10 +87,10 @@ export default function PurchaseOrderForm({
                 key={vendor.id}
                 value={vendor.id}
               >
-                {`${vendor.name} ${
+                {`${getCompanyDisplayName(vendor)} ${
                   vendor.company_vendor_partnerships[0]?.approved_at
-                    ? "(Approved)"
-                    : "(Not approved)"
+                    ? "[Approved]"
+                    : "[Not approved]"
                 }`}
               </MenuItem>
             ))}

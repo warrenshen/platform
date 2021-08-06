@@ -20,6 +20,7 @@ import {
   PayorsByPartnerCompanyQuery,
   ProductTypeEnum,
 } from "generated/graphql";
+import { getCompanyDisplayName } from "lib/companies";
 import { FileTypeEnum } from "lib/enum";
 import { isInvoiceFinancingProductType } from "lib/settings";
 import { ChangeEvent, useMemo } from "react";
@@ -98,10 +99,10 @@ export default function InvoiceForm({
             </MenuItem>
             {payors.map((payor) => (
               <MenuItem key={payor.id} value={payor.id}>
-                {`${payor.name} ${
+                {`${getCompanyDisplayName(payor)} ${
                   payor.company_payor_partnerships[0]?.approved_at
-                    ? "(Approved)"
-                    : "(Not approved)"
+                    ? "[Approved]"
+                    : "[Not approved]"
                 }`}
               </MenuItem>
             ))}

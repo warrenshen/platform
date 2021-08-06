@@ -16,6 +16,7 @@ import {
   LineOfCreditsInsertInput,
   LoansInsertInput,
 } from "generated/graphql";
+import { getCompanyDisplayName } from "lib/companies";
 import { ChangeEvent } from "react";
 
 interface Props {
@@ -77,10 +78,10 @@ export default function LineOfCreditLoanForm({
               </MenuItem>
               {vendors.map((vendor) => (
                 <MenuItem key={vendor.id} value={vendor.id}>
-                  {`${vendor.name} ${
+                  {`${getCompanyDisplayName(vendor)} ${
                     vendor.company_vendor_partnerships[0]?.approved_at
-                      ? "(Approved)"
-                      : "(Not approved)"
+                      ? "[Approved]"
+                      : "[Not approved]"
                   }`}
                 </MenuItem>
               ))}
