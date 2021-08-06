@@ -33,14 +33,6 @@ def _delete_company(company_id: str, session: Session) -> None:
 			for db_object in db_objects:
 				session.delete(db_object)
 
-	pre_db_classes = [
-		models.AuditEvent, models.BankAccount, models.CompanyAgreement,
-		models.CompanyLicense, models.EbbaApplication, models.File,
-		models.FinancialSummary, models.Invoice, models.LineOfCredit,
-		models.Loan, models.Payment, models.PurchaseOrder, models.User,
-		models.Contract, models.CompanySettings
-	]
-
 	company = session.query(models.Company).filter(
 		models.Company.id == company_id).first()
 	company.contract_id = None
@@ -53,9 +45,30 @@ def _delete_company(company_id: str, session: Session) -> None:
 
 	session.flush()
 
+	pre_db_classes = [
+		# models.AuditEvent,
+		models.BankAccount,
+		models.CompanyAgreement,
+		# models.CompanyLicense,
+		models.EbbaApplication,
+		models.File,
+		models.FinancialSummary,
+		models.Invoice,
+		models.LineOfCredit,
+		models.Loan,
+		models.Payment,
+		models.PurchaseOrder,
+		models.User,
+		models.Contract,
+		models.CompanySettings
+	]
+
 	_delete_db_objects(pre_db_classes)
 
-	session.delete(company)
+	# IMPORTANT
+	# The final delete of the company row fails due to a SQL timeout when the audit_events
+	# table is searched due to the audits_events.company_id foreign key constraint.
+	# session.delete(company)
 
 def dedupe(session: Session, path: str) -> None:
 
@@ -69,11 +82,13 @@ def dedupe(session: Session, path: str) -> None:
 
 	row_tuples = sheet['rows']
 	filtered_row_tuples = list(filter(lambda tup: tup[0] is not '', row_tuples[1:]))
+	dedupe_tuples(session, filtered_row_tuples)
 
+def dedupe_tuples(session: Session, row_tuples: List[List[str]]):
 	print(f'Beginning dedupe...')
-	rows_count = len(filtered_row_tuples)
+	rows_count = len(row_tuples)
 	
-	for index, row in enumerate(filtered_row_tuples):
+	for index, row in enumerate(row_tuples):
 		print(f'[{index + 1} of {rows_count}]')
 
 		# (replace_company_id, to_delete_company_id, partnership_type)
@@ -104,10 +119,11 @@ def dedupe(session: Session, path: str) -> None:
 		_check_no_dangling_references(to_delete_company_id, session)
 
 		if partnership_type == 'vendor':
-			# (1) Change PurchaseOrder vendor_id
+			# De-dupe operations for vendor case
+			# (1) Change purchase_orders.vendor_id
 			# (2) Change vendor agreements (and files)
 			# (3) Change vendor partnership
-			# (3) Change LineOfCredit recipient_vendor_id
+			# (3) Change line_of_credits.recipient_vendor_id
 			# (4) Transfer bank account of previous vendor
 
 			# 1
@@ -163,9 +179,10 @@ def dedupe(session: Session, path: str) -> None:
 				existing_replacing_company.is_vendor = True
 
 		elif partnership_type == 'payor':
+			# De-dupe operations for payor case
 			# (1) Change payor agreements (and files)
 			# (2) Change payor partnership
-			# (3) Change Invoice payor_id
+			# (3) Change invoices.payor_id
 
 			# 1
 			company_agreements = session.query(models.CompanyAgreement).filter(
@@ -209,7 +226,38 @@ def dedupe(session: Session, path: str) -> None:
 		else:
 			raise errors.Error('Unexpected partnership_type {}'.format(partnership_type))
 
-		print(f'[{index + 1} of {rows_count}] Successfully deduped partnership type {partnership_type}')
+		# De-dupe operations for both payor / vendor cases
+		# 1) Change metrc_transfers.vendor_id
+		# 2) Change company_licenses.company_id
+		# 3) Change users.company_id
+		metrc_transfers = session.query(models.MetrcTransfer).filter(
+			models.MetrcTransfer.vendor_id == to_delete_company_id
+		).all()
+		for metrc_transfer in metrc_transfers:
+			metrc_transfer.vendor_id = replacing_company_id
+
+		company_licenses = session.query(models.CompanyLicense).filter(
+			models.CompanyLicense.company_id == to_delete_company_id
+		).all()
+		for company_license in company_licenses:
+			company_license.company_id = replacing_company_id
+
+		company_license_file_ids = [company_license.file_id for company_license in company_licenses]
+		company_license_files = session.query(models.File).filter(
+			models.File.id.in_(company_license_file_ids)
+		).all()
+		for company_license_file in company_license_files:
+			company_license_file.company_id = replacing_company_id
+
+		users = session.query(models.User).filter(
+			models.User.company_id == to_delete_company_id
+		).all()
+		for user in users:
+			user.company_id = replacing_company_id
 
 		# Delete everything about the company ID to delete
 		_delete_company(to_delete_company_id, session)
+
+		session.flush()
+
+		print(f'[{index + 1} of {rows_count}] Successfully deduped partnership type {partnership_type}')
