@@ -374,10 +374,13 @@ def _write_packages(
 	# Note the de-dupe here, there may be multiple packages with the same package_id from the
 	# packages collected above (this is because multiple deliveries may have the same package).
 	package_ids = list(set([pkg.package_id for pkg in metrc_packages]))
+	delivery_ids = list(set([pkg.delivery_id for pkg in metrc_packages]))
 
 	# Since metrc_packages are unique on (delivery_id, package_id), note
 	# the following query may return more than BATCH_SIZE number of results.
 	prev_metrc_packages = cast(List[models.MetrcPackage], session.query(models.MetrcPackage).filter(
+		models.MetrcPackage.delivery_id.in_(delivery_ids)
+	).filter(
 		models.MetrcPackage.package_id.in_(package_ids)
 	))
 
