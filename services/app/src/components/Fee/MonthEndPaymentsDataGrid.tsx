@@ -72,7 +72,7 @@ export default function MonthEndPaymentsDataGrid({
       },
       {
         dataField: "fee_due",
-        caption: "Amount To Minimum Interest Fee",
+        caption: "Amount To Minimum Interest Fee Due Now",
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (

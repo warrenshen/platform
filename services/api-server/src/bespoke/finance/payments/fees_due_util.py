@@ -204,6 +204,12 @@ def get_all_month_end_payments(
 		if _should_pay_this_month(
 			minimum_monthly_payload, last_day_of_month_date) and has_minimum_interest:
 			fee_amount += minimum_monthly_payload['amount_short']
+		else:
+			# Amount short means how much the customer should pay this month.
+			# In the quartertly and annual case, they may not owe this minimum fee,
+			# so we just present it as 0.0 to the user, and the calculation will
+			# run correctly
+			minimum_monthly_payload['amount_short'] = 0.0
 
 		if number_util.is_currency_zero(fee_amount):
 			continue
