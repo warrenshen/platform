@@ -72,10 +72,6 @@ export default function CustomerAccountPageContent({
 
   const company = data?.companies_by_pk;
   const fees = company?.fee_payments || [];
-  const canCreateRepaymentLoan =
-    financialSummary?.total_outstanding_principal > 0 ||
-    financialSummary?.total_outstanding_interest > 0 ||
-    financialSummary?.total_outstanding_fees;
 
   const accountBalancePayload = financialSummary?.account_level_balance_payload;
   const accountFees =
@@ -86,6 +82,8 @@ export default function CustomerAccountPageContent({
     accountBalancePayload?.credits_total != null
       ? accountBalancePayload.credits_total
       : null;
+
+  const canCreateRepaymentAccountFee = !!accountFees;
 
   const [selectedPaymentIdsForFees, setSelectedPaymentIdsForFees] = useState<
     Payments["id"]
@@ -189,7 +187,7 @@ export default function CustomerAccountPageContent({
           <Can perform={Action.RepayPurchaseOrderLoans}>
             <Box>
               <ModalButton
-                isDisabled={!canCreateRepaymentLoan}
+                isDisabled={!canCreateRepaymentAccountFee}
                 label={"Make Repayment"}
                 modal={({ handleClose }) => (
                   <CreateAccountFeesRepaymentModal

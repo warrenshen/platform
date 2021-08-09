@@ -99,7 +99,7 @@ export default function CustomerOverviewPageContent({
   const canCreateRepaymentLoan =
     financialSummary?.total_outstanding_principal > 0 ||
     financialSummary?.total_outstanding_interest > 0 ||
-    financialSummary?.total_outstanding_fees;
+    financialSummary?.total_outstanding_fees > 0;
   const customMessage = settings?.custom_messages_payload
     ? settings?.custom_messages_payload[CustomMessageEnum.OVERVIEW_PAGE] || null
     : null;
