@@ -124,7 +124,7 @@ ORDER BY
 
 3. Insert table index:
 ```sql
-CREATE INDEX metrc_transfers_company_id_transfer_type_key ON metrc_transfers (company_id, transfer_type);
+CREATE INDEX IF NOT EXISTS metrc_transfers_company_id_transfer_type_key ON metrc_transfers (company_id, transfer_type);
 ```
 
 ## Work in progress (may not work)

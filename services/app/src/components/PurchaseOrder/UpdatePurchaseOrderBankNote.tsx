@@ -15,9 +15,10 @@ import {
   PurchaseOrders,
   PurchaseOrdersInsertInput,
   useGetPurchaseOrderForBankQuery,
-  useUpdatePurchaseOrderMutation,
 } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
+import { updateBankFieldsMutation } from "lib/api/purchaseOrders";
 import { isNull, mergeWith } from "lodash";
 import { useState } from "react";
 
@@ -89,20 +90,18 @@ export default function UpdatePurchaseOrderBankNote({
   const existingPurchaseOrder = data?.purchase_orders_by_pk || null;
 
   const [
-    updatePurchaseOrder,
-    { loading: isUpdateLoanLoading },
-  ] = useUpdatePurchaseOrderMutation();
+    updateBankFields,
+    { loading: isUpdateBankFieldsLoading },
+  ] = useCustomMutation(updateBankFieldsMutation);
 
   const handleClickSave = async () => {
-    const response = await updatePurchaseOrder({
+    const response = await updateBankFields({
       variables: {
-        id: purchaseOrder.id,
-        purchaseOrder: {
-          bank_note: purchaseOrder.bank_note,
-        },
+        purchase_order_id: purchaseOrder.id,
+        bank_note: purchaseOrder.bank_note,
       },
     });
-    if (!response.data?.update_purchase_orders_by_pk) {
+    if (response.status !== "OK") {
       snackbar.showError("Could not update purchase order.");
     } else {
       snackbar.showSuccess("Purchase order updated.");
@@ -111,7 +110,7 @@ export default function UpdatePurchaseOrderBankNote({
   };
 
   const isDialogReady = !isExistingLoanLoading;
-  const isFormLoading = isUpdateLoanLoading;
+  const isFormLoading = isUpdateBankFieldsLoading;
   const isSaveDisabled = isFormLoading;
 
   if (!isDialogReady || !existingPurchaseOrder) {

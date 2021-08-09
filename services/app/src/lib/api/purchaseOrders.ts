@@ -139,6 +139,31 @@ export async function respondToPurchaseOrderApprovalRequestMutation(
     );
 }
 
+export type UpdateBankFieldsReq = {
+  variables: {
+    purchase_order_id: PurchaseOrders["id"];
+    bank_note: string;
+  };
+};
+
+export async function updateBankFieldsMutation(
+  req: UpdateBankFieldsReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(purchaseOrdersRoutes.updateBankFields, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not update purchase order",
+        };
+      }
+    );
+}
+
 export type DeletePurchaseOrderReq = {
   variables: {
     purchase_order_id: PurchaseOrders["id"];

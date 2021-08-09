@@ -331,6 +331,45 @@ class RespondToApprovalRequestView(MethodView):
 			'msg': 'Purchase Order {} approval request responded to'.format(purchase_order_id)
 		}), 200)
 
+class UpdateBankFieldsView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'purchase_order_id',
+			'bank_note',
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(
+					'Missing key {} in request'.format(key))
+
+		purchase_order_id = form['purchase_order_id']
+		bank_note = form['bank_note']
+
+		with session_scope(current_app.session_maker) as session:
+			purchase_order = cast(
+				models.PurchaseOrder,
+				session.query(models.PurchaseOrder).filter_by(
+					id=purchase_order_id
+				).first())
+
+			if purchase_order.is_deleted:
+				raise errors.Error('Purchase order is deleted')
+
+			purchase_order.bank_note = bank_note
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Purchase Order {} updated'.format(purchase_order_id)
+		}), 200)
+
 class DeleteView(MethodView):
 	decorators = [auth_util.login_required]
 
@@ -407,6 +446,11 @@ handler.add_url_rule(
 	'/respond_to_approval_request',
 	view_func=RespondToApprovalRequestView.as_view(
 		name='respond_to_approval_request')
+)
+
+handler.add_url_rule(
+	'/update_bank_fields',
+	view_func=UpdateBankFieldsView.as_view(name='update_bank_fields')
 )
 
 handler.add_url_rule(

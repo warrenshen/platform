@@ -69,6 +69,7 @@ export const purchaseOrdersRoutes = {
   update: "/purchase_orders/update",
   submit: "/purchase_orders/submit",
   respondToApprovalRequest: "/purchase_orders/respond_to_approval_request",
+  updateBankFields: "/purchase_orders/update_bank_fields",
   delete: "/purchase_orders/delete",
 };
 
