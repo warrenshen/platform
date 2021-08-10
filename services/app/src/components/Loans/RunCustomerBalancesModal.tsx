@@ -75,15 +75,12 @@ function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
 
       if (response.status !== "OK") {
         snackbar.showError(
-          `Error! Could not re-calculate customer balances. Reason: ${response.msg}`
+          `Could not queue up job to calculate balances of customer(s). Reason: ${response.msg}`
         );
-      } else if (response.errors && response.errors.length > 0) {
-        snackbar.showWarning(
-          `Partial success! Here are the customer balances NOT recalculated: ${response.errors}`
-        );
-        handleClose();
       } else {
-        snackbar.showSuccess("Customer balances recalculated.");
+        snackbar.showSuccess(
+          "Queued up job to calculate balances of customer(s). This job will be run soon."
+        );
         handleClose();
       }
     }
@@ -107,10 +104,10 @@ function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
       </DialogTitle>
       <DialogContent>
         <Typography variant="body2" color="textSecondary">
-          {`Select a range of dates below. For each date in the range (inclusive) given,
-          financials (loans and summary) will be re-calculated for ${
+          {`Select a range of dates below: for each date in the range (inclusive) given,
+          financials will be calculated for ${
             companyId ? "this customer" : "all customers"
-          }.`}
+          }. After you press "Submit", a job will be queued to perform these calculations.`}
         </Typography>
         <Box display="flex" flexDirection="column" mt={4}>
           <DateInput
