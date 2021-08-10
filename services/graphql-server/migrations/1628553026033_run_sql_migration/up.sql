@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS metrc_transfers_shipper_facility_license_number_key ON metrc_transfers (shipper_facility_license_number);

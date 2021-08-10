@@ -825,6 +825,29 @@
             company_vendor_partnerships:
               vendor_id:
                 _eq: X-Hasura-Company-Id
+  event_triggers:
+  - name: company_licenses_changed
+    definition:
+      enable_manual: true
+      insert:
+        columns: '*'
+      delete:
+        columns: '*'
+      update:
+        columns:
+        - is_deleted
+        - license_number
+        - company_id
+        - file_id
+        - id
+    retry_conf:
+      num_retries: 0
+      interval_sec: 10
+      timeout_sec: 60
+    webhook: '{{ASYNC_SERVER_BASE_URL}}/triggers/company_licenses_modified_view'
+    headers:
+    - name: x-api-key
+      value_from_env: ASYNC_SERVER_API_KEY
 - table:
     schema: public
     name: company_partnership_requests

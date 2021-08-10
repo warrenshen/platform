@@ -14,8 +14,11 @@ from bespoke import errors
 from bespoke.async_util import orchestrator
 from bespoke.async_util.pipeline_constants import PipelineName, PipelineState
 from bespoke.audit import events
+from bespoke.companies import licenses_util
+from bespoke.companies.licenses_util import LicenseModificationDict
 from bespoke.date import date_util
 from bespoke.db import models, models_util
+from bespoke.db.db_constants import DBOperation
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.finance.loans import reports_util
@@ -302,6 +305,74 @@ class DownloadMetrcDataView(MethodView):
 			'errors': descriptive_errors
 		}))
 
+class CompanyLicensesModifiedView(MethodView):
+	decorators = [auth_util.requires_async_magic_header]
+
+	@handler_util.catch_bad_json_request
+	def post(self) -> Response:
+		logging.info("Company licenses modified -- running updates")
+		cfg = cast(Config, current_app.app_config)
+
+		data = json.loads(request.data)
+		event = data.get('event')
+		if not event:
+			return make_response(json.dumps({'status': 'OK'}))
+
+		mods = []
+
+		op = event['op']
+
+		if op == DBOperation.DELETE:
+			mods = [
+				LicenseModificationDict(
+					license_row_id=event.get('data', {}).get('old', {}).get('id'),
+					license_number=event.get('data', {}).get('old', {}).get('license_number'),
+					op=op
+				)
+			]
+
+		elif op == DBOperation.INSERT:
+			mods = [
+				LicenseModificationDict(
+					license_row_id=event.get('data', {}).get('new', {}).get('id'),
+					license_number=event.get('data', {}).get('new', {}).get('license_number'),
+					op=op
+				)
+			]
+
+		elif op == DBOperation.UPDATE:
+			# On an update we consider that we need to remove the association with
+			# the previous license number, and then consider that a new association
+			# as been added.
+			#
+			# So it's really a DELETE followed by an INSERT
+			mods = [
+				LicenseModificationDict(
+					license_row_id=event.get('data', {}).get('old', {}).get('id'),
+					license_number=event.get('data', {}).get('old', {}).get('license_number'),
+					op=DBOperation.DELETE
+				),
+				LicenseModificationDict(
+					license_row_id=event.get('data', {}).get('new', {}).get('id'),
+					license_number=event.get('data', {}).get('new', {}).get('license_number'),
+					op=DBOperation.INSERT,
+				)
+			]
+		else:
+			return handler_util.make_error_response('Unrecognized operation to company licenses modified trigger: {}'.format(op))
+
+		for mod in mods:
+			if not mod['license_row_id']:
+				return handler_util.make_error_response('No license row id identified in the company licenses modified trigger')
+
+			success, err = licenses_util.update_metrc_rows_on_license_change(
+				mod=mod,
+				session_maker=current_app.session_maker
+			)
+			if err:
+				return handler_util.make_error_response(err)
+
+		return make_response(json.dumps({'status': 'OK'}))
 
 class ExecuteAsyncTasksView(MethodView):
 	decorators = [auth_util.requires_async_magic_header]
@@ -342,3 +413,8 @@ handler.add_url_rule(
 handler.add_url_rule(
 	"/execute-async-tasks",
 	view_func=ExecuteAsyncTasksView.as_view(name='execute_async_tasks_view'))
+
+handler.add_url_rule(
+	"/company_licenses_modified_view",
+	view_func=CompanyLicensesModifiedView.as_view(name='company_licenses_modified_view'))
+

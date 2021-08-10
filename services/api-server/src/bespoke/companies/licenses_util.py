@@ -5,6 +5,8 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, cast
 
 from bespoke import errors
 from bespoke.db import models
+from bespoke.db.db_constants import DBOperation
+from bespoke.db.models import session_scope
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
 
@@ -13,6 +15,12 @@ CompanyLicenseInsertInputDict = TypedDict('CompanyLicenseInsertInputDict', {
 	'company_id': str,
 	'file_id': str,
 	'license_number': str,
+})
+
+LicenseModificationDict = TypedDict('LicenseModificationDict', {
+	'license_number': str,
+	'license_row_id': str,
+	'op': str
 })
 
 @errors.return_error_tuple
@@ -135,5 +143,82 @@ def delete_license(
 		raise errors.Error('No file to delete could be found')
 
 	cast(Callable, session.delete)(existing_license)
+
+	return True, None
+
+def _update_vendor_id_on_metrc_rows(company_id: str, license_number: str, session: Session) -> None:
+	# Update the vendor_id if it matches any shipper license numbers
+	is_done = False
+	page_index = 0
+	batch_size = 5
+
+	while not is_done:
+		matching_transfers = cast(
+			List[models.MetrcTransfer],
+			session.query(models.MetrcTransfer).filter(
+				models.MetrcTransfer.shipper_facility_license_number == license_number).offset(
+				page_index * batch_size
+			).limit(batch_size).all())
+
+		if not matching_transfers:
+			is_done = True
+			break
+
+		for metrc_transfer in matching_transfers:
+			metrc_transfer.vendor_id = cast(Any, company_id)
+
+		page_index += 1
+
+def _update_payor_id_on_metrc_rows(company_id: str, license_number: str, session: Session) -> None:
+	is_done = False
+	page_index = 0
+	batch_size = 5
+
+	while not is_done:
+		matching_deliveries = cast(
+			List[models.MetrcDelivery],
+			session.query(models.MetrcDelivery).filter(
+				models.MetrcDelivery.recipient_facility_license_number == license_number).offset(
+				page_index * batch_size
+			).limit(batch_size).all())
+
+		if not matching_deliveries:
+			is_done = True
+			break
+
+		transfer_row_ids = [metrc_delivery.transfer_row_id for metrc_delivery in matching_deliveries]
+
+		matching_transfers = cast(
+			List[models.MetrcTransfer],
+			session.query(models.MetrcTransfer).filter(
+				models.MetrcTransfer.id.in_(transfer_row_ids)).all())
+
+		for metrc_transfer in matching_transfers:
+			metrc_transfer.payor_id = cast(Any, company_id)
+
+		page_index += 1
+
+@errors.return_error_tuple
+def update_metrc_rows_on_license_change(
+	mod: LicenseModificationDict, session_maker: Callable) -> Tuple[bool, errors.Error]:
+
+	with session_scope(session_maker) as session:
+		existing_license = cast(
+			models.CompanyLicense,
+			session.query(models.CompanyLicense).filter(
+				models.CompanyLicense.id == mod['license_row_id']).first())
+		if not existing_license:
+			raise errors.Error('No license found in DB matching row ID {}'.format(mod['license_row_id']))
+
+		company_id = str(existing_license.company_id)
+		if mod['op'] == DBOperation.DELETE:
+			# If the user deleted the license, we want to set company_id to None, since
+			# this license is no longer associated with a company.
+			company_id = None
+
+		_update_vendor_id_on_metrc_rows(company_id, mod['license_number'], session)
+
+	with session_scope(session_maker) as session:
+		_update_payor_id_on_metrc_rows(company_id, mod['license_number'], session)
 
 	return True, None

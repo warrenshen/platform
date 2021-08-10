@@ -192,3 +192,13 @@ class InvoiceFileTypeEnum(object):
 	Invoice = 'invoice'
 	Cannabis = 'cannabis'
 
+# Hasura
+
+class DBOperation(object):
+	"""
+		Enum for insert update, delete when Hasura / GraphQL notifies you of these events
+	"""
+	INSERT = 'INSERT'
+	UPDATE = 'UPDATE'
+	DELETE = 'DELETE'
+
