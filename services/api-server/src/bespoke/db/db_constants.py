@@ -202,3 +202,8 @@ class DBOperation(object):
 	UPDATE = 'UPDATE'
 	DELETE = 'DELETE'
 
+# Metrc
+
+class TransferType(object):
+	INCOMING = 'INCOMING'
+	OUTGOING = 'OUTGOING'

@@ -7,7 +7,7 @@ from typing import Any, Callable, Dict, Iterable, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
-from bespoke.db import models
+from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
 from bespoke.metrc import metrc_common_util
 from bespoke.metrc.metrc_common_util import (
@@ -167,7 +167,7 @@ class Transfers(object):
 			tr.transfer_payload = t
 		
 			deliveries: List[MetrcDeliveryObj] = []
-			if transfer_type == TransferType.INCOMING:
+			if transfer_type == db_constants.TransferType.INCOMING:
 				d = models.MetrcDelivery()
 				d.delivery_id = '{}'.format(t['DeliveryId'])
 				d.recipient_facility_license_number = t['RecipientFacilityLicenseNumber']
@@ -220,10 +220,6 @@ class Transfers(object):
 
 		return metrc_common_util.dicts_to_rows(self._transfers, col_specs, include_header)
 
-class TransferType(object):
-	INCOMING = 'INCOMING'
-	OUTGOING = 'OUTGOING'
-
 def _match_and_add_licenses_to_transfers(
 	metrc_transfer_objs: List[MetrcTransferObj],
 	session: Session) -> None:
@@ -247,9 +243,9 @@ def _match_and_add_licenses_to_transfers(
 	for metrc_transfer_obj in metrc_transfer_objs:
 		metrc_transfer = metrc_transfer_obj.metrc_transfer
 		shipper_license_number = '{}'.format(cast(Dict, metrc_transfer.transfer_payload)['ShipperFacilityLicenseNumber'])
-		vendor_company_id = shipper_license_to_company_id.get(shipper_license_number)
-		if vendor_company_id:
-			metrc_transfer.vendor_id = cast(Any, vendor_company_id)
+		shipper_company_id = shipper_license_to_company_id.get(shipper_license_number)
+		if shipper_company_id:
+			metrc_transfer.vendor_id = cast(Any, shipper_company_id)
 
 def _match_and_add_licenses_to_deliveries(deliveries: List[MetrcDeliveryObj], session: Session) -> None:
 	# Recipient licenses lookup
@@ -275,17 +271,25 @@ def _match_and_add_licenses_to_deliveries(deliveries: List[MetrcDeliveryObj], se
 		if recipient_company_id:
 			metrc_delivery.payor_id = cast(Any, recipient_company_id)
 
-		vendor_company_id = delivery.metrc_transfer.vendor_id
+		shipper_company_id = delivery.metrc_transfer.vendor_id
 		company_id = delivery.metrc_transfer.company_id
 
-		company_matches_via_licenses = vendor_company_id and recipient_company_id and vendor_company_id == recipient_company_id
-		company_matches_via_ids = vendor_company_id and vendor_company_id == company_id
-		if company_matches_via_licenses or company_matches_via_ids:
-			metrc_delivery.delivery_type = f'{transfer_type}_INTERNAL'
-		elif transfer_type == TransferType.INCOMING:
-			metrc_delivery.delivery_type = 'INCOMING_FROM_VENDOR'
-		elif transfer_type == TransferType.OUTGOING:
-			metrc_delivery.delivery_type = 'OUTGOING_TO_PAYOR'
+		is_company_shipper = shipper_company_id and shipper_company_id == company_id
+		is_company_recipient = recipient_company_id and recipient_company_id == company_id
+
+		# If company is neither shipper nor recipient, set delivery_type to UNKNOWN.
+		# This prompts bank admin to look into delivery and figure out which license(s) are missing.
+		if not is_company_shipper and not is_company_recipient:
+			delivery_type = 'UNKNOWN'
+		else:
+			if is_company_shipper and is_company_recipient:
+				delivery_type = f'{transfer_type}_INTERNAL'
+			elif transfer_type == db_constants.TransferType.INCOMING:
+				delivery_type = 'INCOMING_FROM_VENDOR'
+			else: # transfer_type == db_constants.TransferType.OUTGOING:
+				delivery_type = 'OUTGOING_TO_PAYOR'
+
+		metrc_delivery.delivery_type = delivery_type
 
 def _write_transfers(
 	transfer_objs: List[MetrcTransferObj], 
@@ -486,7 +490,7 @@ def populate_transfers_table(
 		rest=rest,
 		company_id=company_info.company_id,
 		license_id=license['license_id'],
-		transfer_type=TransferType.INCOMING
+		transfer_type=db_constants.TransferType.INCOMING
 	)
 
 	with session_scope(session_maker) as session:
@@ -512,7 +516,7 @@ def populate_transfers_table(
 		rest=rest,
 		company_id=company_info.company_id,
 		license_id=license['license_id'],
-		transfer_type=TransferType.OUTGOING
+		transfer_type=db_constants.TransferType.OUTGOING
 	)
 
 	with session_scope(session_maker) as session:
@@ -534,7 +538,7 @@ def populate_transfers_table(
 
 		for delivery in metrc_transfer_obj.deliveries:
 			delivery_id = delivery.metrc_delivery.delivery_id
-			logging.info(f'Downloading packages for {TransferType.OUTGOING if TransferType.OUTGOING in delivery.transfer_type else TransferType.INCOMING} metrc transfer {metrc_transfer.transfer_id}, manifest number {metrc_transfer.manifest_number}, delivery ID {delivery_id}')
+			logging.info(f'Downloading packages for {db_constants.TransferType.OUTGOING if db_constants.TransferType.OUTGOING in delivery.transfer_type else db_constants.TransferType.INCOMING} metrc transfer {metrc_transfer.transfer_id}, manifest number {metrc_transfer.manifest_number}, delivery ID {delivery_id}')
 
 			packages_api_failed = False
 			try:
