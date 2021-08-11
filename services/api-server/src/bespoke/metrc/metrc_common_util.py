@@ -152,29 +152,3 @@ class REST(object):
 def chunker(seq: List, size: int) -> Iterable[List]:
 	return (seq[pos:pos + size] for pos in range(0, len(seq), size))
 
-def dicts_to_rows(
-	dicts: List[Dict],
-	col_specs: List[Tuple[str, str]],
-	include_header: bool) -> List[List[str]]:
-	title_row = []
-	rows: List[List[str]] = []
-
-	for t in dicts:
-		row = []
-		for i in range(len(col_specs)):
-			col_spec = col_specs[i]
-			if len(rows) == 0: # its the first row we are dealing with
-				title_row.append(col_spec[0])
-
-			key_name = col_spec[1]
-			val = t[key_name]
-			if val is None:
-				val = ''
-			row.append('{}'.format(val))
-
-		rows.append(row)
-
-	if include_header:
-		return [title_row] + rows
-
-	return rows

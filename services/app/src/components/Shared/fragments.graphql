@@ -196,8 +196,8 @@ fragment MetrcPackage on metrc_packages {
   delivery_row_id
   delivery_id
   package_id
-  label
-  type
+  package_label
+  package_type
   product_name
   product_category_name
   shipped_quantity

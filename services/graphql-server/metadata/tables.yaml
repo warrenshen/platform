@@ -2825,7 +2825,7 @@
       - delivery_row_id
       - id
       - lab_results_status
-      - label
+      - package_label
       - package_id
       - package_payload
       - product_category_name
@@ -2833,7 +2833,7 @@
       - shipped_quantity
       - shipper_wholesale_price
       - transfer_row_id
-      - type
+      - package_type
       - updated_at
       filter: {}
   - role: bank_read_only
@@ -2844,7 +2844,7 @@
       - delivery_row_id
       - id
       - lab_results_status
-      - label
+      - package_label
       - package_id
       - package_payload
       - product_category_name
@@ -2852,7 +2852,7 @@
       - shipped_quantity
       - shipper_wholesale_price
       - transfer_row_id
-      - type
+      - package_type
       - updated_at
       filter: {}
   - role: company_admin
@@ -2863,7 +2863,7 @@
       - delivery_row_id
       - id
       - lab_results_status
-      - label
+      - package_label
       - package_id
       - package_payload
       - product_category_name
@@ -2871,7 +2871,7 @@
       - shipped_quantity
       - shipper_wholesale_price
       - transfer_row_id
-      - type
+      - package_type
       - updated_at
       filter:
         metrc_transfer:
@@ -2888,7 +2888,7 @@
       - delivery_row_id
       - id
       - lab_results_status
-      - label
+      - package_label
       - package_id
       - package_payload
       - product_category_name
@@ -2896,7 +2896,7 @@
       - shipped_quantity
       - shipper_wholesale_price
       - transfer_row_id
-      - type
+      - package_type
       - updated_at
       filter:
         metrc_transfer:
@@ -2912,7 +2912,7 @@
       - delivery_row_id
       - id
       - lab_results_status
-      - label
+      - package_label
       - package_id
       - package_payload
       - product_category_name
@@ -2920,7 +2920,7 @@
       - shipped_quantity
       - shipper_wholesale_price
       - transfer_row_id
-      - type
+      - package_type
       filter:
         metrc_transfer:
           vendor_id:

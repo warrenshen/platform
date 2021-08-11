@@ -81,8 +81,8 @@ class TransferPackages(object):
 			p = models.MetrcPackage()
 			p.package_id = '{}'.format(package_id)
 			p.delivery_id = '{}'.format(package['DeliveryId'])
-			p.label = package['PackageLabel']
-			p.type = package['PackageType']
+			p.package_label = package['PackageLabel']
+			p.package_type = package['PackageType']
 			p.product_name = package['ProductName']
 			p.product_category_name = package['ProductCategoryName']
 			p.shipped_quantity = package['ShippedQuantity']
@@ -104,25 +104,6 @@ class TransferPackages(object):
 			lab_statuses.append(p.lab_results_status)
 
 		return metrc_packages, get_final_lab_status(lab_statuses)
-
-	def to_rows(self, include_header: bool) -> List[List[str]]:
-		col_specs = [
-			('Delivery Id', 'DeliveryId'),
-			('Package Id', 'PackageId'),
-			('Package', 'PackageLabel'),
-			('Package Type', 'PackageType'),
-			('Item', 'ProductName'),
-			('Item Category', 'ProductCategoryName'),
-			('Item Strain Name', 'ItemStrainName'),
-			('Item State', 'ShipmentPackageState'),
-			('Received Qty', 'ReceivedQuantity'),
-			('UoM', 'ReceivedUnitOfMeasureName'),
-			('Item Unit Qty', 'ItemUnitQuantity'),
-			('Item Unit Weight', 'ItemUnitWeight'),
-			('Is Testing Sample', 'IsTestingSample')
-			# ReceiverDollarAmount
-		]
-		return metrc_common_util.dicts_to_rows(self._packages, col_specs, include_header)
 
 class MetrcDeliveryObj(object):
 	"""Wrapper object for a metrc delivery DB object, so we can associated 
@@ -219,23 +200,6 @@ class Transfers(object):
 			metrc_transfer_objs.append(transfer_obj)
 
 		return metrc_transfer_objs
-
-	def to_rows(self, include_header: bool) -> List[List[str]]:
-		col_specs = [
-			('Transfer Id', 'Id'),
-			('Delivery Id', 'DeliveryId'),
-			('Manifest', 'ManifestNumber'),
-			('Origin Lic', 'ShipperFacilityLicenseNumber'),
-			('Origin Facility', 'ShipperFacilityName'),
-			# Origin Facility Type
-			('Dest Lic', 'RecipientFacilityLicenseNumber'),
-			('Destination Facility', 'RecipientFacilityName'),
-			('Type', 'ShipmentTypeName'),
-			('Received', 'ReceivedDateTime'),
-			('Num Packages', 'PackageCount')
-		]
-
-		return metrc_common_util.dicts_to_rows(self._transfers, col_specs, include_header)
 
 def _match_and_add_licenses_to_transfers(
 	metrc_transfer_objs: List[MetrcTransferObj],
@@ -454,6 +418,8 @@ def _write_packages(
 
 		if metrc_package_key in delivery_id_package_id_to_prev_package:
 			# update
+			# TODO(dlluncor): Figure out the right merge logic, e.g., dont overwrite
+			# data with NULL if the previous value was not NULL
 
 			prev_metrc_package = delivery_id_package_id_to_prev_package[metrc_package_key]
 			prev_metrc_package.transfer_row_id = cast(Any, transfer_row_id)
@@ -461,8 +427,8 @@ def _write_packages(
 			# package_id - no need to update
 			# created_at - no need to update
 			prev_metrc_package.delivery_id = metrc_package.delivery_id
-			prev_metrc_package.label = metrc_package.label
-			prev_metrc_package.type = metrc_package.type
+			prev_metrc_package.package_label = metrc_package.package_label
+			prev_metrc_package.package_type = metrc_package.package_type
 			prev_metrc_package.product_name = metrc_package.product_name
 			prev_metrc_package.product_category_name = metrc_package.product_category_name
 			prev_metrc_package.shipped_quantity = metrc_package.shipped_quantity

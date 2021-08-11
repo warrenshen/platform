@@ -1,14 +1,14 @@
+import { ValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
+import ModalButton from "components/Shared/Modal/ModalButton";
+import MetrcPackageDrawerLauncher from "components/Transfers/MetrcPackageDrawerLauncher";
+import MetrcPackageModal from "components/Transfers/MetrcPackageModal";
+import MetrcTransferDrawerLauncher from "components/Transfers/MetrcTransferDrawerLauncher";
 import { MetrcPackageFragment } from "generated/graphql";
 import { MetrcPackagePayload } from "lib/api/metrc";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
-import MetrcPackageModal from "components/Transfers/MetrcPackageModal";
-import { ValueFormatterParams } from "@material-ui/data-grid";
-import ModalButton from "components/Shared/Modal/ModalButton";
-import MetrcPackageDrawerLauncher from "components/Transfers/MetrcPackageDrawerLauncher";
-import MetrcTransferDrawerLauncher from "components/Transfers/MetrcTransferDrawerLauncher";
 
 interface Props {
   isExcelExport?: boolean;
@@ -27,8 +27,8 @@ export default function MetrcPackagesDataGrid({
         const packagePayload = metrcPackage.package_payload as MetrcPackagePayload;
         return {
           ...metrcPackage,
-          company_id: metrcPackage.metrc_transfer.company_id,
-          manifest_number: metrcPackage.metrc_transfer.manifest_number,
+          company_id: metrcPackage.metrc_transfer?.company_id,
+          manifest_number: metrcPackage.metrc_transfer?.manifest_number,
           source_harvest_names: packagePayload["SourceHarvestNames"],
           source_package_labels: packagePayload["SourcePackageLabels"],
           lab_testing_state: packagePayload["LabTestingState"],

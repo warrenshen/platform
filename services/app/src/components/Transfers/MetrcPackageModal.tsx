@@ -40,7 +40,7 @@ export default function MetrcPackageModal({
   return (
     <Modal
       title={"Metrc Package"}
-      subtitle={metrcPackage.label}
+      subtitle={metrcPackage.package_label}
       contentWidth={1000}
       handleClose={handleClose}
     >
@@ -54,7 +54,7 @@ export default function MetrcPackageModal({
         <Typography variant="subtitle2" color="textSecondary">
           Label
         </Typography>
-        <Typography variant="body1">{metrcPackage.label}</Typography>
+        <Typography variant="body1">{metrcPackage.package_label}</Typography>
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>
         <Typography variant="subtitle2" color="textSecondary">

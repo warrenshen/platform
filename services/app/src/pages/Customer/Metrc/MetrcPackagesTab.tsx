@@ -1,13 +1,11 @@
-import { TextField } from "@material-ui/core";
-import { Box } from "@material-ui/core";
+import { Box, TextField } from "@material-ui/core";
 import MetrcPackagesDataGrid from "components/Transfers/MetrcPackagesDataGrid";
 import {
   Companies,
   useGetMetrcPackagesByCompanyIdQuery,
 } from "generated/graphql";
-import { useMemo } from "react";
-import { useState } from "react";
 import { filter } from "lodash";
+import { useMemo, useState } from "react";
 
 interface Props {
   companyId: Companies["id"];
@@ -33,7 +31,7 @@ export default function CustomermetrcPackagesTab({ companyId }: Props) {
       filter(
         data?.metrc_packages || [],
         (metrcPackage) =>
-          `${metrcPackage.package_id} ${metrcPackage.metrc_transfer.manifest_number}`
+          `${metrcPackage.package_id} ${metrcPackage.metrc_transfer?.manifest_number}`
             .toLowerCase()
             .indexOf(searchQuery.toLowerCase()) >= 0
       ),
