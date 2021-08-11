@@ -67,7 +67,6 @@ class RunCustomerBalancesView(MethodView):
 			# Trigger an async job when there's no debug info requested.
 			company_ids = [company_dict['id'] for company_dict in company_dicts]
 			cur_date = report_date
-			days_back_step = reports_util.DAYS_TO_COMPUTE_BACK
 			date_range_tuples = reports_util.date_ranges_for_needs_balance_recomputed(start_date, report_date)
 
 			for i in range(len(date_range_tuples)):

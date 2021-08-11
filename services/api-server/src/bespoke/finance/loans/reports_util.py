@@ -47,12 +47,12 @@ def date_ranges_for_needs_balance_recomputed(
 	step_back = DAYS_TO_COMPUTE_BACK
 
 	date_tuples = []
-	while (cur_date - timedelta(days=step_back + 1)) >= start_date:
+	while cur_date - timedelta(days=step_back + 1) >= start_date:
 		date_tuples.append((cur_date, DAYS_TO_COMPUTE_BACK))
 		cur_date = cur_date - timedelta(days=step_back + 1)
 
 	# Fill up the remaining days, which may be less than 14
-	if cur_date > start_date:
+	if cur_date >= start_date:
 		date_tuples.append((cur_date, (cur_date - start_date).days))
 
 	return date_tuples
