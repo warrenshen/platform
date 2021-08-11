@@ -186,15 +186,8 @@ def _update_payor_id_on_metrc_rows(company_id: str, license_number: str, session
 			is_done = True
 			break
 
-		transfer_row_ids = [metrc_delivery.transfer_row_id for metrc_delivery in matching_deliveries]
-
-		matching_transfers = cast(
-			List[models.MetrcTransfer],
-			session.query(models.MetrcTransfer).filter(
-				models.MetrcTransfer.id.in_(transfer_row_ids)).all())
-
-		for metrc_transfer in matching_transfers:
-			metrc_transfer.payor_id = cast(Any, company_id)
+		for metrc_delivery in matching_deliveries:
+			metrc_delivery.payor_id = cast(Any, company_id)
 
 		page_index += 1
 

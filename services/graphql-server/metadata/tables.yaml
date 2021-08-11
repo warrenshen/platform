@@ -2693,6 +2693,9 @@
   - name: metrc_transfer
     using:
       foreign_key_constraint_on: transfer_row_id
+  - name: payor
+    using:
+      foreign_key_constraint_on: payor_id
   array_relationships:
   - name: metrc_packages
     using:
@@ -2705,47 +2708,53 @@
   - role: bank_admin
     permission:
       columns:
-      - id
+      - created_at
       - delivery_id
+      - delivery_payload
+      - delivery_type
+      - id
+      - payor_id
+      - received_datetime
       - recipient_facility_license_number
       - recipient_facility_name
-      - shipment_type_name
       - shipment_transaction_type
-      - received_datetime
-      - delivery_payload
+      - shipment_type_name
       - transfer_row_id
-      - created_at
       - updated_at
       filter: {}
   - role: bank_read_only
     permission:
       columns:
+      - created_at
+      - delivery_id
       - delivery_payload
+      - delivery_type
+      - id
+      - payor_id
+      - received_datetime
       - recipient_facility_license_number
       - recipient_facility_name
       - shipment_transaction_type
       - shipment_type_name
-      - created_at
-      - received_datetime
-      - updated_at
-      - id
       - transfer_row_id
-      - delivery_id
+      - updated_at
       filter: {}
   - role: company_admin
     permission:
       columns:
+      - created_at
+      - delivery_id
       - delivery_payload
+      - delivery_type
+      - id
+      - payor_id
+      - received_datetime
       - recipient_facility_license_number
       - recipient_facility_name
       - shipment_transaction_type
       - shipment_type_name
-      - created_at
-      - received_datetime
-      - updated_at
-      - id
       - transfer_row_id
-      - delivery_id
+      - updated_at
       filter:
         metrc_transfer:
           _or:
@@ -2756,17 +2765,19 @@
   - role: company_read_only
     permission:
       columns:
+      - created_at
+      - delivery_id
       - delivery_payload
+      - delivery_type
+      - id
+      - payor_id
+      - received_datetime
       - recipient_facility_license_number
       - recipient_facility_name
       - shipment_transaction_type
       - shipment_type_name
-      - created_at
-      - received_datetime
-      - updated_at
-      - id
       - transfer_row_id
-      - delivery_id
+      - updated_at
       filter:
         metrc_transfer:
           _or:
@@ -2777,15 +2788,17 @@
   - role: purchase_order_reviewer
     permission:
       columns:
+      - delivery_id
       - delivery_payload
+      - delivery_type
+      - id
+      - payor_id
+      - received_datetime
       - recipient_facility_license_number
       - recipient_facility_name
       - shipment_transaction_type
       - shipment_type_name
-      - received_datetime
-      - id
       - transfer_row_id
-      - delivery_id
       filter:
         metrc_transfer:
           _or:

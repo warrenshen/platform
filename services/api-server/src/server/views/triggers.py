@@ -228,7 +228,7 @@ class DownloadMetrcDataView(MethodView):
 
 	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
-		logging.info("Received request to download metrc data")
+		logging.info("Received request to download metrc data for all customers")
 		cfg = cast(Config, current_app.app_config)
 
 		data = json.loads(request.data)
