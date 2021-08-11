@@ -15,6 +15,10 @@ from bespoke.metrc.metrc_common_util import (
 from dateutil import parser
 from sqlalchemy.orm.session import Session
 
+TransferDetails = TypedDict('TransferDetails', {
+	'vendor_id': str
+})
+
 class LabTest(object):
 
 	def __init__(self, lab_test_json: List[Dict]) -> None:
@@ -124,11 +128,15 @@ class MetrcDeliveryObj(object):
 	"""Wrapper object for a metrc delivery DB object, so we can associated 
 			additional fields that dont get written to the DB"""
 
-	def __init__(self, metrc_delivery: models.MetrcDelivery, transfer_type: str,
-										 metrc_transfer: models.MetrcTransfer) -> None:
+	def __init__(self, 
+		metrc_delivery: models.MetrcDelivery, 
+		transfer_type: str,
+		transfer_id: str,
+		company_id: str) -> None:
 		self.metrc_delivery = metrc_delivery
 		self.transfer_type = transfer_type
-		self.metrc_transfer = metrc_transfer
+		self.transfer_id = transfer_id
+		self.company_id = company_id
 
 
 class MetrcTransferObj(object):
@@ -154,10 +162,11 @@ class Transfers(object):
 		metrc_transfer_objs = []
 
 		for t in self._transfers:
+			transfer_id = '{}'.format(t['Id'])
 			tr = models.MetrcTransfer()
 			tr.company_id = cast(Any, company_id)
 			tr.license_id = cast(Any, license_id)
-			tr.transfer_id = '{}'.format(t['Id'])
+			tr.transfer_id = transfer_id
 			tr.shipper_facility_license_number = t['ShipperFacilityLicenseNumber']
 			tr.shipper_facility_name = t['ShipperFacilityName']
 			tr.created_date = parser.parse(t['CreatedDateTime']).date() if t['CreatedDateTime'] else None
@@ -177,7 +186,11 @@ class Transfers(object):
 				d.received_datetime = parser.parse(t['ReceivedDateTime']) if t['ReceivedDateTime'] else None
 				d.delivery_payload = {}
 				deliveries.append(MetrcDeliveryObj(
-					d, transfer_type=transfer_type, metrc_transfer=tr))
+					d, 
+					transfer_type=transfer_type, 
+					transfer_id=transfer_id,
+					company_id=company_id
+				))
 			else:
 				outgoing_transfer_id = t['Id']
 				delivery_resp = rest.get(f'/transfers/v1/{outgoing_transfer_id}/deliveries')
@@ -193,7 +206,11 @@ class Transfers(object):
 					d.received_datetime = parser.parse(delivery_json['ReceivedDateTime']) if delivery_json['ReceivedDateTime'] else None
 					d.delivery_payload = delivery_json
 					deliveries.append(MetrcDeliveryObj(
-						d, transfer_type=transfer_type, metrc_transfer=tr))
+						d, 
+						transfer_type=transfer_type,
+						transfer_id=transfer_id, 
+						company_id=company_id
+					))
 
 			transfer_obj = MetrcTransferObj(
 				metrc_transfer=tr,
@@ -222,6 +239,7 @@ class Transfers(object):
 
 def _match_and_add_licenses_to_transfers(
 	metrc_transfer_objs: List[MetrcTransferObj],
+	transfer_id_to_details: Dict[str, TransferDetails],
 	session: Session) -> None:
 
 	# Vendor licenses lookup
@@ -246,8 +264,15 @@ def _match_and_add_licenses_to_transfers(
 		shipper_company_id = shipper_license_to_company_id.get(shipper_license_number)
 		if shipper_company_id:
 			metrc_transfer.vendor_id = cast(Any, shipper_company_id)
+			transfer_id_to_details[metrc_transfer.transfer_id] = TransferDetails(
+				vendor_id=shipper_company_id 
+			)
 
-def _match_and_add_licenses_to_deliveries(deliveries: List[MetrcDeliveryObj], session: Session) -> None:
+def _match_and_add_licenses_to_deliveries(
+	deliveries: List[MetrcDeliveryObj],
+	transfer_id_to_details: Dict[str, TransferDetails],  
+	session: Session
+	) -> None:
 	# Recipient licenses lookup
 	recipient_license_numbers = []
 	for delivery in deliveries:
@@ -271,8 +296,11 @@ def _match_and_add_licenses_to_deliveries(deliveries: List[MetrcDeliveryObj], se
 		if recipient_company_id:
 			metrc_delivery.payor_id = cast(Any, recipient_company_id)
 
-		shipper_company_id = delivery.metrc_transfer.vendor_id
-		company_id = delivery.metrc_transfer.company_id
+		shipper_company_id = None
+		if delivery.transfer_id in transfer_id_to_details:
+			shipper_company_id = transfer_id_to_details[delivery.transfer_id]['vendor_id']
+
+		company_id = delivery.company_id
 
 		is_company_shipper = shipper_company_id and shipper_company_id == company_id
 		is_company_recipient = recipient_company_id and recipient_company_id == company_id
@@ -472,6 +500,7 @@ def populate_transfers_table(
 
 	cur_date_str = ctx.get_cur_date_str()
 	apis_to_use = company_info.apis_to_use
+	transfer_id_to_details: Dict[str, TransferDetails] = {}
 
 	## Fetch transfers
 
@@ -498,6 +527,7 @@ def populate_transfers_table(
 		# licenses to determine what kind of transfer this is
 		_match_and_add_licenses_to_transfers(
 			incoming_metrc_transfer_objs,
+			transfer_id_to_details,
 			session=session
 		)
 
@@ -522,6 +552,7 @@ def populate_transfers_table(
 	with session_scope(session_maker) as session:
 		_match_and_add_licenses_to_transfers(
 			outgoing_metrc_transfer_objs,
+			transfer_id_to_details,
 			session=session
 		)
 
@@ -615,7 +646,7 @@ def populate_transfers_table(
 
 	for deliveries_chunk in chunker(all_deliveries, DELIVERIES_BATCH_SIZE):
 		with session_scope(session_maker) as session:
-			_match_and_add_licenses_to_deliveries(deliveries_chunk, session)
+			_match_and_add_licenses_to_deliveries(deliveries_chunk, transfer_id_to_details, session)
 			_write_deliveries(
 				deliveries_chunk, 
 				delivery_id_to_transfer_row_id=delivery_id_to_transfer_row_id,
