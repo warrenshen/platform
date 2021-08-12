@@ -21814,6 +21814,7 @@ export type FinancialSummaryFragment = Pick<
   | "account_level_balance_payload"
   | "day_volume_threshold_met"
   | "interest_accrued_today"
+  | "needs_recompute"
 >;
 
 export type InvoiceFileFragment = Pick<
@@ -22736,6 +22737,7 @@ export const FinancialSummaryFragmentDoc = gql`
     account_level_balance_payload
     day_volume_threshold_met
     interest_accrued_today
+    needs_recompute
   }
 `;
 export const InvoiceFileFragmentDoc = gql`

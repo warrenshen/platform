@@ -154,6 +154,7 @@ fragment FinancialSummary on financial_summaries {
   account_level_balance_payload
   day_volume_threshold_met
   interest_accrued_today
+  needs_recompute
 }
 
 fragment InvoiceFile on invoice_files {

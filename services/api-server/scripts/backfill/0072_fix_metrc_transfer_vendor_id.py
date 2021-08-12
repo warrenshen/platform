@@ -26,7 +26,7 @@ def main() -> None:
 	BATCH_SIZE = 50
 	is_done = False
 
-	license_number_to_company_license = {}
+	license_number_to_company_id = {}
 	with models.session_scope(session_maker) as session:
 		company_licenses = cast(
 			List[models.CompanyLicense],
@@ -35,11 +35,11 @@ def main() -> None:
 			).all())
 
 		for company_license in company_licenses:
-			license_number_to_company_license[company_license.license_number] = (str(company_license.id), str(company_license.company_id))
+			license_number_to_company_id[company_license.license_number] = str(company_license.company_id)
 
 	while not is_done:
 		with models.session_scope(session_maker) as session:
-			print(f'[Page {current_page + 1}] Populating metrc deliveries delivery_type...')
+			print(f'[Page {current_page + 1}] Fixing metrc transfers vendor_id...')
 
 			try:
 				metrc_transfers_batch = cast(
@@ -62,24 +62,11 @@ def main() -> None:
 					shipper_facility_license_number = metrc_transfer.shipper_facility_license_number
 					shipper_facility_name = metrc_transfer.shipper_facility_name
 
-					shipper_company_license = license_number_to_company_license.get(shipper_facility_license_number, None)
-					if not shipper_company_license:
-						continue
+					shipper_company_id = license_number_to_company_id.get(shipper_facility_license_number, None)
 
-					shipper_license_id, shipper_company_id = shipper_company_license
-
-					if (
-						str(metrc_transfer.vendor_id) != shipper_company_id or
-						str(metrc_transfer.company_id) != shipper_company_id or
-						str(metrc_transfer.license_id) != shipper_license_id
-					):
-						# print(f'[ACTION] Updating IDs for metrc transfer for company {shipper_company_id} with manifest number {metrc_transfer.manifest_number}...')
-						# print(metrc_transfer.vendor_id, shipper_company_id)
-						# print(metrc_transfer.company_id, shipper_company_id)
-						# print(metrc_transfer.license_id, shipper_license_id)
+					if str(metrc_transfer.vendor_id) != shipper_company_id:
+						print(f'[ACTION] Updating metrc transfer with manifest number {metrc_transfer.manifest_number}...')
 						metrc_transfer.vendor_id = shipper_company_id
-						metrc_transfer.company_id = shipper_company_id
-						metrc_transfer.license_id = shipper_license_id
 
 				current_page += 1
 
