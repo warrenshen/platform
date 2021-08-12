@@ -3,7 +3,7 @@ import decimal
 import logging
 from datetime import timedelta
 from mypy_extensions import TypedDict
-from typing import Callable, Dict, Iterable, List, Optional, Tuple, cast
+from typing import Set, Callable, Dict, Iterable, List, Optional, Tuple, cast
 
 from bespoke import errors
 from bespoke.audit import events
@@ -249,10 +249,13 @@ def compute_bank_financial_summaries(
 		return None, errors.Error('Not all companies found that have a financial summary') # Early Return
 
 	contract_ids = []
+	ignore_company_ids = set([])
 
 	for company in companies:
 		if not company.contract_id:
-			return None, errors.Error('Company "{}" has no contract setup for it'.format(company.name))
+			logging.warn('[WARNING]: Company "{}" has no contract setup for it'.format(company.name))
+			ignore_company_ids.add(str(company.id))
+			continue
 
 		contract_ids.append(str(company.contract_id))
 
@@ -262,11 +265,10 @@ def compute_bank_financial_summaries(
 			models.Contract.id.in_(contract_ids)
 		).all())
 
-	dummy_company_ids = set([])
 	all_settings = cast(List[models.CompanySettings], session.query(models.CompanySettings).all())
 	for cur_settings in all_settings:
 		if cur_settings.is_dummy_account:
-			dummy_company_ids.add(str(cur_settings.company_id))
+			ignore_company_ids.add(str(cur_settings.company_id))
 
 	if not contracts:
 		return None, errors.Error('No contracts registered in the DB') # Early Return
@@ -300,7 +302,7 @@ def compute_bank_financial_summaries(
 	# Sum up all the financial summaries across customers
 	for summary in financial_summaries:
 		company_id = str(summary.company_id)
-		if company_id in dummy_company_ids:
+		if company_id in ignore_company_ids:
 			continue
 		product_type = company_id_to_product_type[company_id]
 		cur_bank_summary = product_type_to_bank_summary[product_type]
@@ -395,9 +397,8 @@ def list_financial_summaries_that_need_balances_recomputed(session_maker: Callab
 
 	return summary_requests
 
-# TODO(dlluncor): Write a unit test
 def run_customer_balances_for_financial_summaries_that_need_recompute(
-	session_maker: Callable, compute_requests: List[ComputeSummaryRequest]) -> Tuple[List[str], errors.Error]:
+	session_maker: Callable, compute_requests: List[ComputeSummaryRequest]) -> Tuple[Set[datetime.date], List[str], errors.Error]:
 
 	dates_updated = set([])
 
@@ -417,17 +418,10 @@ def run_customer_balances_for_financial_summaries_that_need_recompute(
 		dates_updated.update(get_dates_updated(req['report_date'], req['update_days_back']))
 
 	if len(descriptive_errors) == len(compute_requests):
-		return descriptive_errors, errors.Error('No companies balances could be computed successfully. Errors: {}'.format(
+		return None, descriptive_errors, errors.Error('No companies balances could be computed successfully. Errors: {}'.format(
 			descriptive_errors))
 
-	for cur_date in dates_updated:
-		with session_scope(session_maker) as session:
-			fatal_error = compute_and_update_bank_financial_summaries(session, cur_date)
-			if fatal_error:
-				session.rollback()
-				return descriptive_errors, fatal_error
-
-	return descriptive_errors, None 
+	return dates_updated, descriptive_errors, None 
 
 
 def list_all_companies(session_maker: Callable) -> List[models.CompanyDict]:

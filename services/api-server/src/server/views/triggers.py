@@ -111,13 +111,19 @@ class UpdateDirtyCompanyBalancesView(MethodView):
 				'errors': []
 			}))
 
-		descriptive_errors, fatal_error = reports_util.run_customer_balances_for_financial_summaries_that_need_recompute(
+		dates_updated, descriptive_errors, fatal_error = reports_util.run_customer_balances_for_financial_summaries_that_need_recompute(
 			current_app.session_maker,
 			compute_requests
 		)
 		if fatal_error:
-			logging.error(f"Got fatal error while recomputing balances for companies that need it: '{fatal_error}'")
+			logging.error(f"Got FATAL error while recomputing balances for companies that need it: '{fatal_error}'")
 			return handler_util.make_error_response(fatal_error)
+
+		for cur_date in dates_updated:
+			with session_scope(current_app.session_maker) as session:
+				fatal_error = reports_util.compute_and_update_bank_financial_summaries(session, cur_date)
+				if fatal_error:
+					raise errors.Error('FAILED to update bank financial summary on {}'.format(fatal_error))
 
 		logging.info("Finished request to update {} dirty financial summaries".format(len(compute_requests)))
 

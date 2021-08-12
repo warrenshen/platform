@@ -117,28 +117,33 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 		session: Session, 
 		company_id: str, 
 		product_type: str,
+		has_contract: bool = True,
 		is_dummy_account: bool = False) -> None:
-		contract = models.Contract(
-			company_id=company_id,
-			product_type=product_type,
-			product_config=contract_test_helper.create_contract_config(
+
+		if has_contract:
+			contract = models.Contract(
+				company_id=company_id,
 				product_type=product_type,
-				input_dict=ContractInputDict(
-					interest_rate=5.00,
-					maximum_principal_amount=120000.01,
-					max_days_until_repayment=0, # unused
-					late_fee_structure=_get_late_fee_structure(), # unused
-				)
-			),
-			start_date=date_util.load_date_str('1/1/2020'),
-			adjusted_end_date=date_util.load_date_str('12/1/2024')
-		)
-		session.add(contract)
-		session.commit()
-		session.refresh(contract)
+				product_config=contract_test_helper.create_contract_config(
+					product_type=product_type,
+					input_dict=ContractInputDict(
+						interest_rate=5.00,
+						maximum_principal_amount=120000.01,
+						max_days_until_repayment=0, # unused
+						late_fee_structure=_get_late_fee_structure(), # unused
+					)
+				),
+				start_date=date_util.load_date_str('1/1/2020'),
+				adjusted_end_date=date_util.load_date_str('12/1/2024')
+			)
+			session.add(contract)
+			session.commit()
+			session.refresh(contract)
 
 		company = session.query(models.Company).get(company_id)
-		company.contract_id = contract.id
+
+		if has_contract:
+			company.contract_id = contract.id
 
 		company_settings = session.query(models.CompanySettings).get(company.company_settings_id)
 		company_settings.is_dummy_account = is_dummy_account
@@ -372,6 +377,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 	def test_compute_and_update_maintains_the_count_twice(self) -> None:
 		def populate(session: Session, seed: test_helper.BasicSeed) -> None:
 			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=0), ProductType.INVENTORY_FINANCING)
+			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=1), ProductType.LINE_OF_CREDIT, has_contract=False)
 			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=2), ProductType.LINE_OF_CREDIT)
 
 			reports_util.compute_and_update_bank_financial_summaries(session, TODAY)
