@@ -68,6 +68,7 @@ class Config(object):
 
 		# Metrc
 		self.METRC_VENDOR_KEY_CA = os.environ.get('METRC_VENDOR_KEY_CA')
+		self.METRC_VENDOR_KEY_OR = os.environ.get('METRC_VENDOR_KEY_OR')
 		self.METRC_USER_KEY = os.environ.get('METRC_USER_KEY')
 
 		# FCS
@@ -100,7 +101,8 @@ class Config(object):
 		return MetrcAuthProvider(
 			user_key=self.METRC_USER_KEY,
 			state_to_vendor_key={
-				'CA': self.METRC_VENDOR_KEY_CA
+				'CA': self.METRC_VENDOR_KEY_CA,
+				'OR': self.METRC_VENDOR_KEY_OR,
 			}
 		)
 
