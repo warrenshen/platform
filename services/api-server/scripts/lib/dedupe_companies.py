@@ -49,7 +49,7 @@ def _delete_company(company_id: str, session: Session) -> None:
 		# models.AuditEvent,
 		models.BankAccount,
 		models.CompanyAgreement,
-		# models.CompanyLicense,
+		models.CompanyLicense,
 		models.EbbaApplication,
 		models.File,
 		models.FinancialSummary,
@@ -228,13 +228,20 @@ def dedupe_tuples(session: Session, row_tuples: List[List[str]]):
 
 		# De-dupe operations for both payor / vendor cases
 		# 1) Change metrc_transfers.vendor_id
-		# 2) Change company_licenses.company_id
-		# 3) Change users.company_id
+		# 2) Change metrc_deliveries.payor_id
+		# 3) Change company_licenses.company_id
+		# 4) Change users.company_id
 		metrc_transfers = session.query(models.MetrcTransfer).filter(
 			models.MetrcTransfer.vendor_id == to_delete_company_id
 		).all()
 		for metrc_transfer in metrc_transfers:
 			metrc_transfer.vendor_id = replacing_company_id
+
+		metrc_deliveries = session.query(models.MetrcDelivery).filter(
+			models.MetrcDelivery.payor_id == to_delete_company_id
+		).all()
+		for metrc_delivery in metrc_deliveries:
+			metrc_delivery.payor_id = replacing_company_id
 
 		company_licenses = session.query(models.CompanyLicense).filter(
 			models.CompanyLicense.company_id == to_delete_company_id
