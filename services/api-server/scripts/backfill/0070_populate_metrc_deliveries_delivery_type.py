@@ -92,10 +92,9 @@ def main() -> None:
 						elif is_company_recipient:
 							transfer_type = db_constants.TransferType.INCOMING
 						else:
-							print(f'Could not determine transfer type for metrc transfer with id {str(metrc_transfer.id)} manifest number {metrc_transfer.manifest_number}')
+							print(f'[WARNING] Could not determine transfer type for metrc transfer with manifest number {metrc_transfer.manifest_number}')
 							print(company_id, shipper_company_id, recipient_company_id)
 							print(shipper_facility_name, shipper_facility_license_number, recipient_facility_name, recipient_facility_license_number)
-							continue
 
 						if not is_company_shipper and not is_company_recipient:
 							delivery_type = 'UNKNOWN'
