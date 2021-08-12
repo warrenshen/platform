@@ -12,8 +12,9 @@ from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util
-from bespoke.metrc import transfers_util, sales_util, metrc_common_util
-from bespoke.metrc.metrc_common_util import AuthDict, CompanyInfo, LicenseAuthDict, UNKNOWN_STATUS_CODE
+from bespoke.metrc import transfers_util, sales_util, packages_util
+from bespoke.metrc.common import metrc_common_util
+from bespoke.metrc.common.metrc_common_util import AuthDict, CompanyInfo, LicenseAuthDict, UNKNOWN_STATUS_CODE
 from bespoke.security import security_util
 from dateutil import parser
 from dotenv import load_dotenv
@@ -182,6 +183,8 @@ def _get_metrc_company_info(
 			return None, err
 
 		license_auths = []
+		use_unsaved_licenses = True # Can change to False for debugging, such as when a customer has many licenses
+
 		facilities = metrc_common_util.get_facilities(AuthDict(
 			vendor_key=vendor_key,
 			user_key=api_key
@@ -192,8 +195,12 @@ def _get_metrc_company_info(
 			license_id = None
 			if license_number in licenses_map:
 				license_id = licenses_map[license_number]['id']
-			else:
+			elif use_unsaved_licenses:
 				logging.warn(f'Company "{company_name}" has license "{license_number}" in Metrc which is not stored in our Postgres DB')
+			else:
+				# If use_unsaved_licenses is false, then skip over this particular
+				# license number
+				continue
 
 			license_auths.append(LicenseAuthDict(
 				license_id=license_id,
@@ -212,6 +219,7 @@ def _get_metrc_company_info(
 				sales_receipts=True,
 				incoming_transfers=True,
 				outgoing_transfers=True,
+				packages=True,
 				lab_tests=True,
 				plants=False
 			)
@@ -251,6 +259,13 @@ def _download_data(
 			sales_receipts_models = sales_util.download_sales_receipts(ctx)
 			sales_util.write_sales_receipts(sales_receipts_models, session_maker)
 
+		# TODO(dlluncor): The way in which packages interact with transfer packages
+		# is likely not correct. We may be double-counting and not merging those
+		# details correctly
+		if ctx.apis_to_use['packages']:
+			package_models = packages_util.download_packages(ctx)
+			packages_util.write_packages(package_models, session_maker)
+
 		# Download transfers data for the particular day and key
 		success, err = transfers_util.populate_transfers_table(
 			ctx=ctx,
@@ -265,6 +280,8 @@ def _download_data(
 		license_to_statuses[license['license_number']] = {
 			'api_key_has_err': err is not None, # Record whether there was an error with the Metrc API for this license
 			'transfers_api': ctx.request_status['transfers_api'],
+			'transfer_packages_api': ctx.request_status['transfer_packages_api'],
+			'transfer_packages_wholesale_api': ctx.request_status['transfer_packages_wholesale_api'],
 			'packages_api': ctx.request_status['packages_api'],
 			'lab_results_api': ctx.request_status['lab_results_api']
 		}

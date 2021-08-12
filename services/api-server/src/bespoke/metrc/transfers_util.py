@@ -9,8 +9,9 @@ from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
-from bespoke.metrc import metrc_common_util
-from bespoke.metrc.metrc_common_util import (
+from bespoke.metrc.common import metrc_common_util, package_common_util
+from bespoke.metrc.common.package_common_util import UNKNOWN_LAB_STATUS
+from bespoke.metrc.common.metrc_common_util import (
 	CompanyInfo, LicenseAuthDict, UNKNOWN_STATUS_CODE, chunker)
 from dateutil import parser
 from sqlalchemy.orm.session import Session
@@ -29,7 +30,7 @@ class LabTest(object):
 
 	def get_status(self) -> str:
 		if not self._lab_test_results:
-			return 'unknown'
+			return UNKNOWN_LAB_STATUS
 
 		for result in self._lab_test_results:
 			if not result['TestPassed']:
@@ -38,7 +39,7 @@ class LabTest(object):
 		return 'passed'
 
 def get_final_lab_status(lab_result_statuses: List[str]) -> str:
-	final_lab_results_status = "unknown"
+	final_lab_results_status = UNKNOWN_LAB_STATUS
 
 	for lab_results_status in lab_result_statuses:
 		if lab_results_status == "failed":
@@ -60,11 +61,11 @@ class TransferPackages(object):
 	def get_package_ids(self) -> List[str]:
 		return [t['PackageId'] for t in self._packages]
 
-	def get_package_models(self, lab_tests: List[LabTest]) -> Tuple[List[models.MetrcPackage], str]:
+	def get_package_models(self, lab_tests: List[LabTest], transfer_type: str, company_id: str) -> Tuple[List[models.MetrcPackage], str]:
 		# Return list of MetrcPackage models and lab results status
 		# of the Transfer that all these packages belong to.
 		metrc_packages = []
-		transfer_lab_results_status = "unknown"
+		transfer_lab_results_status = UNKNOWN_LAB_STATUS
 
 		package_id_to_package_wholesale = {}
 		for package_wholesale in self._packages_wholesale:
@@ -79,6 +80,8 @@ class TransferPackages(object):
 			package_wholesale = package_id_to_package_wholesale.get(package_id)
 
 			p = models.MetrcPackage()
+			p.type = 'transfer_{}'.format(transfer_type).lower()
+			p.company_id = cast(Any, company_id)
 			p.package_id = '{}'.format(package_id)
 			p.delivery_id = '{}'.format(package['DeliveryId'])
 			p.package_label = package['PackageLabel']
@@ -399,7 +402,7 @@ def _write_packages(
 		models.MetrcPackage.delivery_id.in_(delivery_ids)
 	).filter(
 		models.MetrcPackage.package_id.in_(package_ids)
-	))
+	).all())
 
 	delivery_id_package_id_to_prev_package = {}
 	for prev_metrc_package in prev_metrc_packages:
@@ -418,24 +421,16 @@ def _write_packages(
 
 		if metrc_package_key in delivery_id_package_id_to_prev_package:
 			# update
-			# TODO(dlluncor): Figure out the right merge logic, e.g., dont overwrite
-			# data with NULL if the previous value was not NULL
-
 			prev_metrc_package = delivery_id_package_id_to_prev_package[metrc_package_key]
 			prev_metrc_package.transfer_row_id = cast(Any, transfer_row_id)
 			prev_metrc_package.delivery_row_id = cast(Any, delivery_row_id)
+			prev_metrc_package.delivery_id = metrc_package.delivery_id
 			# package_id - no need to update
 			# created_at - no need to update
-			prev_metrc_package.delivery_id = metrc_package.delivery_id
-			prev_metrc_package.package_label = metrc_package.package_label
-			prev_metrc_package.package_type = metrc_package.package_type
-			prev_metrc_package.product_name = metrc_package.product_name
-			prev_metrc_package.product_category_name = metrc_package.product_category_name
-			prev_metrc_package.shipped_quantity = metrc_package.shipped_quantity
-			prev_metrc_package.shipper_wholesale_price = metrc_package.shipper_wholesale_price
-			prev_metrc_package.package_payload = metrc_package.package_payload
-			prev_metrc_package.lab_results_status = metrc_package.lab_results_status
-			prev_metrc_package.updated_at = metrc_package.updated_at
+			package_common_util.merge_into_prev_package(
+				prev=prev_metrc_package, 
+				cur=metrc_package
+			)
 		else:
 			# add
 			metrc_package.transfer_row_id = cast(Any, transfer_row_id)
@@ -541,11 +536,9 @@ def populate_transfers_table(
 			try:
 				resp = rest.get(f'/transfers/v1/delivery/{delivery_id}/packages')
 				t_packages_json = json.loads(resp.content)
-				request_status['packages_api'] = 200
+				request_status['transfer_packages_api'] = 200
 			except errors.Error as e:
-				if request_status['packages_api'] != 200:
-					# Only update the request status if we haven't seen a 200 yet
-					request_status['packages_api'] = e.details.get('status_code')
+				metrc_common_util.update_if_all_are_unsuccessful(request_status, 'transfer_packages_api', e)
 				packages_api_failed = True
 
 			if packages_api_failed:
@@ -554,11 +547,11 @@ def populate_transfers_table(
 			try:
 				resp = rest.get(f'/transfers/v1/delivery/{delivery_id}/packages/wholesale')
 				t_packages_wholesale_json = json.loads(resp.content)
-				request_status['packages_wholesale_api'] = 200
+				request_status['transfer_packages_wholesale_api'] = 200
 			except errors.Error as e:
 				t_packages_wholesale_json = [] # If fetch fails, we set to empty array and continue.
 				logging.error(f'Could not fetch packages wholesale for company {company_info.name} for transfer with delivery id {delivery_id}. {e}')
-				request_status['packages_wholesale_api'] = e.details.get('status_code')
+				metrc_common_util.update_if_all_are_unsuccessful(request_status, 'transfer_packages_wholesale_api', e)
 
 			packages = TransferPackages(delivery_id, t_packages_json, t_packages_wholesale_json)
 			package_ids = packages.get_package_ids()
@@ -579,11 +572,15 @@ def populate_transfers_table(
 					lab_test_json = [] # If fetch fails, we set to empty array and continue.
 					if ctx.debug:
 						logging.error(f'Could not fetch lab results for company {company_info.name} for package {package_id}. {e}')
-					request_status['lab_results_api'] = e.details.get('status_code')
+					metrc_common_util.update_if_all_are_unsuccessful(request_status, 'lab_results_api', e)
 
 				lab_tests.append(LabTest(lab_test_json))
 
-			metrc_packages, delivery_lab_results_status = packages.get_package_models(lab_tests=lab_tests)
+			metrc_packages, delivery_lab_results_status = packages.get_package_models(
+				lab_tests=lab_tests,
+				transfer_type=delivery.transfer_type,
+				company_id=company_info.company_id
+			)
 
 			#delivery_obj.lab_results_status = delivery_lab_results_status
 			lab_result_statuses_for_transfer.append(delivery_lab_results_status)

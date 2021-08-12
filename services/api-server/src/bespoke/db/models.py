@@ -426,10 +426,9 @@ class MetrcDelivery(Base):
 class MetrcPackage(Base):
 	__tablename__ = 'metrc_packages'
 
-	# TODO(dlluncor): Roll out our own type
-	# type, active, inactive, onhold
-
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
+	type = Column(String)
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	transfer_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_transfers.id')))
 	delivery_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_deliveries.id'))) 
 	package_id = Column(String) # From Metrc info

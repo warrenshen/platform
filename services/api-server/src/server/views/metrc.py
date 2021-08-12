@@ -9,7 +9,8 @@ from bespoke.audit import events
 from bespoke.async_util.pipeline_constants import PipelineName, PipelineState
 from bespoke.db import db_constants, models, models_util
 from bespoke.db.models import session_scope
-from bespoke.metrc import metrc_util, metrc_common_util, transfers_util
+from bespoke.metrc import metrc_util, transfers_util
+from bespoke.metrc.common import metrc_common_util
 from dateutil import parser
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView

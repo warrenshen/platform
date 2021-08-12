@@ -11,8 +11,8 @@ from typing import Any, Callable, List, Tuple, Dict, cast
 from bespoke import errors
 from bespoke.db import models
 from bespoke.db.models import session_scope
-from bespoke.metrc import metrc_common_util
-from bespoke.metrc.metrc_common_util import chunker
+from bespoke.metrc.common import metrc_common_util
+from bespoke.metrc.common.metrc_common_util import chunker
 
 class SalesReceipts(object):
 

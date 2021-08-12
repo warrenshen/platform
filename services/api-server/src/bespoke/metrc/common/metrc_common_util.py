@@ -27,15 +27,26 @@ RequestStatusesDict = TypedDict('RequestStatusesDict', {
 	'receipts_api': int,
 	'transfers_api': int,
 	'packages_api': int,
-	'packages_wholesale_api': int,
+	'transfer_packages_api': int,
+	'transfer_packages_wholesale_api': int,
 	'lab_results_api': int
 })
+
+"""
+# NOTE: supported once we have mypy 0.910 ready
+RequestStatusKeys = Literal[
+  'receipts_api', 'transfers_api', 'packages_api', 
+  'transfer_packages_api', 'transfer_packages_wholesale_api',
+  'lab_results_api'
+]
+"""
 
 ApisToUseDict = TypedDict('ApisToUseDict', {
 	'sales_receipts': bool,
 	'incoming_transfers': bool,
 	'outgoing_transfers': bool,
 	'lab_tests': bool,
+	'packages': bool,
 	'plants': bool
 })
 
@@ -64,7 +75,8 @@ class DownloadContext(object):
 		self.request_status = RequestStatusesDict(
 			transfers_api=UNKNOWN_STATUS_CODE,
 			packages_api=UNKNOWN_STATUS_CODE,
-			packages_wholesale_api=UNKNOWN_STATUS_CODE,
+			transfer_packages_api=UNKNOWN_STATUS_CODE,
+			transfer_packages_wholesale_api=UNKNOWN_STATUS_CODE,
 			lab_results_api=UNKNOWN_STATUS_CODE,
 			receipts_api=UNKNOWN_STATUS_CODE
 		)
@@ -152,3 +164,9 @@ class REST(object):
 def chunker(seq: List, size: int) -> Iterable[List]:
 	return (seq[pos:pos + size] for pos in range(0, len(seq), size))
 
+def update_if_all_are_unsuccessful(request_status: RequestStatusesDict, key: str, e: errors.Error) -> None:
+	d = cast(Dict, request_status)
+	if d[key] != 200:
+		# Only update the request status if we haven't seen a 200 yet
+		d[key] = e.details.get('status_code')
+				
