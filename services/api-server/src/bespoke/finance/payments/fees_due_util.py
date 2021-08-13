@@ -169,16 +169,16 @@ def get_all_month_end_payments(
 		session.query(models.FinancialSummary).filter(
 			models.FinancialSummary.date == first_day_of_month_date
 		).filter(
-			models.FinancialSummary.product_type == db_constants.ProductType.LINE_OF_CREDIT
+			models.FinancialSummary.product_type != db_constants.ProductType.LINE_OF_CREDIT
 		).all())
 
 	if not financial_summaries_begin_of_month:
 		return None, errors.Error('No financial summaries found at the beginning of month for date {}'.format(
 			date_util.date_to_str(first_day_of_month_date)))
 
-	loc_companies_at_beginning_of_month = {}
+	non_loc_companies_at_beginning_of_month = {}
 	for fin_summary in financial_summaries_begin_of_month:
-		loc_companies_at_beginning_of_month[str(fin_summary.company_id)] = True
+		non_loc_companies_at_beginning_of_month[str(fin_summary.company_id)] = True
 
 	company_id_to_financial_info = {}
 
@@ -191,7 +191,7 @@ def get_all_month_end_payments(
 
 		is_loc_customer = financial_summary.product_type == db_constants.ProductType.LINE_OF_CREDIT
 
-		if is_loc_customer and (cur_company_id not in loc_companies_at_beginning_of_month):
+		if is_loc_customer and (cur_company_id in non_loc_companies_at_beginning_of_month):
 			logging.info('Skipping company {} from an LOC reverse draft ACH because they werent an LOC customer at the beginning of the month'.format(
 				company_dict['name']))
 			continue
