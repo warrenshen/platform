@@ -55,14 +55,14 @@ def download_sales_receipts(ctx: metrc_common_util.DownloadContext) -> List[mode
 		inactive_sales_receipts = json.loads(resp.content)
 		request_status['receipts_api'] = 200
 	except errors.Error as e:
-		request_status['receipts_api'] = e.details.get('status_code')
+		metrc_common_util.update_if_all_are_unsuccessful(request_status, 'receipts_api', e)
 
 	try:
 		resp = rest.get('/sales/v1/receipts/active', time_range=[cur_date_str])
 		active_sales_receipts = json.loads(resp.content)
 		request_status['receipts_api'] = 200
 	except errors.Error as e:
-		request_status['receipts_api'] = e.details.get('status_code')
+		metrc_common_util.update_if_all_are_unsuccessful(request_status, 'receipts_api', e)
 
 	active_sales_receipts_models = SalesReceipts(active_sales_receipts, 'active').get_sales_receipt_models(
 		company_id=company_info.company_id
@@ -71,10 +71,13 @@ def download_sales_receipts(ctx: metrc_common_util.DownloadContext) -> List[mode
 		company_id=company_info.company_id
 	)
 
-	logging.info('Downloaded {} active sales receipts for {} on {}'.format(
-		len(active_sales_receipts_models), company_info.name, ctx.cur_date))
-	logging.info('Downloaded {} inactive sales receipts for {} on {}'.format(
-		len(inactive_sales_receipts_models), company_info.name, ctx.cur_date))
+	if active_sales_receipts:
+		logging.info('Downloaded {} active sales receipts for {} on {}'.format(
+			len(active_sales_receipts_models), company_info.name, ctx.cur_date))
+	
+	if inactive_sales_receipts:
+		logging.info('Downloaded {} inactive sales receipts for {} on {}'.format(
+			len(inactive_sales_receipts_models), company_info.name, ctx.cur_date))
 
 	sales_receipts_models = active_sales_receipts_models + inactive_sales_receipts_models
 	return sales_receipts_models

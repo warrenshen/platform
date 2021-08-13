@@ -387,6 +387,41 @@ class MetrcApiKey(Base):
 	is_functioning = Column(Boolean)
 	status_codes_payload = Column(JSON)
 
+class MetrcPlant(Base):
+	__tablename__ = 'metrc_plants'
+
+	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	type = Column(String)
+	# TODO(dlluncor): Fill in the associated with plant batch ID, harvest ID, location ID, strain ID
+	plant_id = Column(String) # From Metrc info
+	label = Column(String) # From Metrc info
+	planted_date = Column(Date) # From Metrc info
+	payload = Column(JSON) # From Metrc info
+
+class MetrcPlantBatch(Base):
+	__tablename__ = 'metrc_plant_batches'
+
+	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	type = Column(String)
+	# TODO(dlluncor): Fill in the associated with location ID, strain ID
+	plant_batch_id = Column(String) # From Metrc info
+	name = Column(String) # From Metrc info
+	planted_date = Column(Date) # From Metrc info
+	payload = Column(JSON) # From Metrc info
+
+class MetrcHarvest(Base):
+	__tablename__ = 'metrc_harvests'
+	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	type = Column(String)
+	harvest_id = Column(String) # From Metrc info
+	name = Column(String) # From Metrc info
+	harvest_start_date = Column(Date) # From Metrc info
+	payload = Column(JSON)
+	
+
 class MetrcTransfer(Base):
 	__tablename__ = 'metrc_transfers'
 

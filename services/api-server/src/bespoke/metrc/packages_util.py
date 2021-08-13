@@ -50,18 +50,17 @@ class Packages(object):
 
 		for i in range(len(self._packages)):
 			package = self._packages[i]
-
-			package_id = package['PackageId']
+			package_id = '{}'.format(package['Id'])
 
 			p = models.MetrcPackage()
 			p.type = self._endpoint_type
 			p.company_id = cast(Any, company_id)
-			p.package_id = '{}'.format(package_id)
-			p.package_label = package['PackageLabel']
+			p.package_id = package_id
+			p.package_label = package['Label']
 			p.package_type = package['PackageType']
-			p.product_name = package['ProductName']
-			p.product_category_name = package['ProductCategoryName']
-			p.shipped_quantity = package['ShippedQuantity']
+			p.product_name = package.get('ProductName')
+			p.product_category_name = package.get('ProductCategoryName')
+			p.shipped_quantity = package.get('ShippedQuantity')
 			p.lab_results_status = UNKNOWN_LAB_STATUS
 
 			p.package_payload = self._rewrite_payload(package)
@@ -116,12 +115,17 @@ def download_packages(ctx: metrc_common_util.DownloadContext) -> List[PackageObj
 		company_id=company_info.company_id
 	)
 
-	logging.info('Downloaded {} active packages for {} on {}'.format(
-		len(active_package_models), company_info.name, ctx.cur_date))
-	logging.info('Downloaded {} inactive packages for {} on {}'.format(
-		len(inactive_package_models), company_info.name, ctx.cur_date))
-	logging.info('Downloaded {} on hold packages for {} on {}'.format(
-		len(onhold_package_models), company_info.name, ctx.cur_date))
+	if active_packages:
+		logging.info('Downloaded {} active packages for {} on {}'.format(
+			len(active_package_models), company_info.name, ctx.cur_date))
+
+	if inactive_packages:
+		logging.info('Downloaded {} inactive packages for {} on {}'.format(
+			len(inactive_package_models), company_info.name, ctx.cur_date))
+
+	if onhold_packages:
+		logging.info('Downloaded {} on hold packages for {} on {}'.format(
+			len(onhold_package_models), company_info.name, ctx.cur_date))
 
 	package_models = active_package_models + inactive_package_models + onhold_package_models
 	return package_models

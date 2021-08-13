@@ -29,7 +29,10 @@ RequestStatusesDict = TypedDict('RequestStatusesDict', {
 	'packages_api': int,
 	'transfer_packages_api': int,
 	'transfer_packages_wholesale_api': int,
-	'lab_results_api': int
+	'lab_results_api': int,
+	'plants_api': int,
+	'plant_batches_api': int,
+	'harvests_api': int
 })
 
 """
@@ -47,7 +50,9 @@ ApisToUseDict = TypedDict('ApisToUseDict', {
 	'outgoing_transfers': bool,
 	'lab_tests': bool,
 	'packages': bool,
-	'plants': bool
+	'harvests': bool,
+	'plants': bool,
+	'plant_batches': bool
 })
 
 FacilityInfoDict = TypedDict('FacilityInfoDict', {
@@ -77,6 +82,9 @@ class DownloadContext(object):
 			packages_api=UNKNOWN_STATUS_CODE,
 			transfer_packages_api=UNKNOWN_STATUS_CODE,
 			transfer_packages_wholesale_api=UNKNOWN_STATUS_CODE,
+			harvests_api=UNKNOWN_STATUS_CODE,
+			plant_batches_api=UNKNOWN_STATUS_CODE,
+			plants_api=UNKNOWN_STATUS_CODE,
 			lab_results_api=UNKNOWN_STATUS_CODE,
 			receipts_api=UNKNOWN_STATUS_CODE
 		)

@@ -12,7 +12,10 @@ from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util
-from bespoke.metrc import transfers_util, sales_util, packages_util
+from bespoke.metrc import (
+	transfers_util, sales_util, packages_util, 
+	plants_util, plant_batches_util, harvests_util
+)
 from bespoke.metrc.common import metrc_common_util
 from bespoke.metrc.common.metrc_common_util import AuthDict, CompanyInfo, LicenseAuthDict, UNKNOWN_STATUS_CODE
 from bespoke.security import security_util
@@ -221,7 +224,9 @@ def _get_metrc_company_info(
 				outgoing_transfers=True,
 				packages=True,
 				lab_tests=True,
-				plants=False
+				harvests=True,
+				plants=True,
+				plant_batches=True,
 			)
 		), None
 
@@ -254,7 +259,11 @@ def _download_data(
 	for license in company_info.licenses:
 
 		ctx = metrc_common_util.DownloadContext(cur_date, company_info, license, debug=False)
-		
+
+		logging.info('Running download metrc data for company "{}" for last modified date {} with license {}'.format(
+			ctx.company_info.name, cur_date, license['license_number']
+		))
+
 		if ctx.apis_to_use['sales_receipts']:
 			sales_receipts_models = sales_util.download_sales_receipts(ctx)
 			sales_util.write_sales_receipts(sales_receipts_models, session_maker)
@@ -265,6 +274,20 @@ def _download_data(
 		if ctx.apis_to_use['packages']:
 			package_models = packages_util.download_packages(ctx)
 			packages_util.write_packages(package_models, session_maker)
+
+		if ctx.apis_to_use['harvests']:
+			harvest_models = harvests_util.download_harvests(ctx)
+			harvests_util.write_harvests(harvest_models, session_maker)
+
+		if ctx.apis_to_use['plant_batches']:
+			plant_batches_models = plant_batches_util.download_plant_batches(ctx)
+			plant_batches_util.write_plant_batches(plant_batches_models, session_maker)
+
+		# NOTE: plants have references to plant batches and harvests, so this
+		# must come after fetching plant_batches and harvests
+		if ctx.apis_to_use['plants']:
+			plants_models = plants_util.download_plants(ctx)
+			plants_util.write_plants(plants_models, session_maker)
 
 		# Download transfers data for the particular day and key
 		success, err = transfers_util.populate_transfers_table(
@@ -283,6 +306,9 @@ def _download_data(
 			'transfer_packages_api': ctx.request_status['transfer_packages_api'],
 			'transfer_packages_wholesale_api': ctx.request_status['transfer_packages_wholesale_api'],
 			'packages_api': ctx.request_status['packages_api'],
+			'plants_api': ctx.request_status['plants_api'],
+			'plant_batches_api': ctx.request_status['plant_batches_api'],
+			'harvests_api': ctx.request_status['harvests_api'],
 			'lab_results_api': ctx.request_status['lab_results_api']
 		}
 

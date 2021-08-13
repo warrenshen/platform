@@ -455,10 +455,6 @@ def populate_transfers_table(
 	rest = ctx.rest
 	license = ctx.license
 
-	logging.info('Running populate_transfers_table for company "{}" for last modified date {} with license {}'.format(
-		company_info.name, cur_date, license['license_number']
-	))
-
 	cur_date_str = ctx.get_cur_date_str()
 	apis_to_use = company_info.apis_to_use
 	transfer_id_to_details: Dict[str, TransferDetails] = {}
