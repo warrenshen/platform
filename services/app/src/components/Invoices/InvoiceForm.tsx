@@ -100,9 +100,9 @@ export default function InvoiceForm({
             {payors.map((payor) => (
               <MenuItem key={payor.id} value={payor.id}>
                 {`${getCompanyDisplayName(payor)} ${
-                  payor.company_payor_partnerships[0]?.approved_at
+                  !!payor.company_payor_partnerships[0]?.approved_at
                     ? "[Approved]"
-                    : "[Not approved]"
+                    : "[Not Approved]"
                 }`}
               </MenuItem>
             ))}

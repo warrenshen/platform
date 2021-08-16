@@ -88,9 +88,9 @@ export default function PurchaseOrderForm({
                 value={vendor.id}
               >
                 {`${getCompanyDisplayName(vendor)} ${
-                  vendor.company_vendor_partnerships[0]?.approved_at
+                  !!vendor.company_vendor_partnerships[0]?.approved_at
                     ? "[Approved]"
-                    : "[Not approved]"
+                    : "[Not Approved]"
                 }`}
               </MenuItem>
             ))}
