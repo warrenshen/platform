@@ -139,7 +139,6 @@ def _write_packages_chunk(
 	# are not associated with a delivery.
 	# Note the following query may return more than BATCH_SIZE number of results.
 	prev_metrc_packages = cast(List[models.MetrcPackage], session.query(models.MetrcPackage).filter(
-	).filter(
 		models.MetrcPackage.package_id.in_(package_ids)
 	).filter(models.MetrcPackage.delivery_row_id == None).all())
 

@@ -24,6 +24,7 @@ from server.views import (
 	cypress,
 	files,
     healthcheck,
+    inventory,
 	licenses,
 	metrc,
 	notify,
@@ -82,6 +83,7 @@ app.register_blueprint(two_factor.handler, url_prefix='/two_factor')
 app.register_blueprint(users.handler, url_prefix='/users')
 
 # Third-party APIs
+app.register_blueprint(inventory.handler, url_prefix='/inventory')
 app.register_blueprint(metrc.handler, url_prefix='/metrc')
 app.register_blueprint(liens.handler, url_prefix='/liens')
 # Partnerships
