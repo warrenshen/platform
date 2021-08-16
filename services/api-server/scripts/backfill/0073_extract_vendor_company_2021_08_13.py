@@ -34,7 +34,7 @@ def main() -> None:
 		dedupe_companies.extract_vendor_from_company(
 			session,
 			EXTRACT_TUPLE,
-			is_dry_run=False,
+			is_test_run=False,
 		)
 
 if __name__ == "__main__":

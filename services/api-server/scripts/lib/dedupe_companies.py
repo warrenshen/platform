@@ -274,9 +274,9 @@ def dedupe_tuples(session: Session, row_tuples: List[List[str]]):
 def extract_vendor_from_company(
 	session: Session,
 	company_info_tuple: List[List[str]],
-	is_dry_run: bool = True,
+	is_test_run: bool = True,
 ) -> None:
-	if is_dry_run:
+	if is_test_run:
 		print('Running in DRY RUN MODE...')
 
 	(
@@ -297,7 +297,7 @@ def extract_vendor_from_company(
 	else:
 		raise errors.Error(f'No company found with identifier {original_company_identifier}')
 
-	if not is_dry_run:
+	if not is_test_run:
 		company_settings = models.CompanySettings()
 		session.add(company_settings)
 		session.flush()
@@ -340,7 +340,7 @@ def extract_vendor_from_company(
 	else:
 		raise errors.Error(f'No company vendor partnership found between {original_company.name} and {vendor_partner.name}')
 
-	if not is_dry_run:
+	if not is_test_run:
 		company_vendor_partnership.vendor_id = new_company.id
 
 	# 2. Transfer users
@@ -353,7 +353,7 @@ def extract_vendor_from_company(
 	else:
 		raise errors.Error(f'No found with email {user_email}')
 
-	if not is_dry_run:
+	if not is_test_run:
 		user.company_id = new_company.id
 
 	# 3. Transfer purchase orders
@@ -369,7 +369,7 @@ def extract_vendor_from_company(
 		else:
 			raise errors.Error(f'No purchase order found for {vendor_partner.name} (with vendor {original_company.name}) with {purchase_order_number}')
 
-		if not is_dry_run:
+		if not is_test_run:
 			purchase_order.vendor_id = new_company.id
 
 	print('DONE!')
