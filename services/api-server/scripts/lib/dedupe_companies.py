@@ -268,3 +268,108 @@ def dedupe_tuples(session: Session, row_tuples: List[List[str]]):
 		session.flush()
 
 		print(f'[{index + 1} of {rows_count}] Successfully deduped partnership type {partnership_type}')
+
+# Extracts a new vendor company out of an existing company.
+# This is useful when you want to undo an erroneous merge.
+def extract_vendor_from_company(
+	session: Session,
+	company_info_tuple: List[List[str]],
+	is_dry_run: bool = True,
+) -> None:
+	if is_dry_run:
+		print('Running in DRY RUN MODE...')
+
+	(
+		original_company_identifier,
+		new_company_name,
+		new_company_dba_name,
+		vendor_partner_name, # Name of vendor partner (customer) to be extracted
+		user_email, # Email of user to be extracted
+		purchase_order_numbers, # List of purchase numbers to move to new vendor
+	) = company_info_tuple
+
+	original_company = session.query(models.Company).filter(
+		models.Company.identifier == original_company_identifier
+	).first()
+
+	if original_company:
+		print(f'Found vendor company {original_company.name}')
+	else:
+		raise errors.Error(f'No company found with identifier {original_company_identifier}')
+
+	if not is_dry_run:
+		company_settings = models.CompanySettings()
+		session.add(company_settings)
+		session.flush()
+		company_settings_id = str(company_settings.id)
+
+		new_company = models.Company(
+			company_settings_id=company_settings_id,
+			is_customer=False,
+			is_payor=False,
+			is_vendor=True,
+			name=new_company_name,
+			dba_name=new_company_dba_name,
+		)
+		session.add(new_company)
+		session.flush()
+
+	print(f'Created new vendor company {new_company_name}')
+
+	# Customer company who is partnered with new vendor.
+	vendor_partner = session.query(models.Company).filter(
+		models.Company.name == vendor_partner_name
+	).filter(
+		models.Company.is_customer.is_(True)
+	).first()
+
+	if vendor_partner:
+		print(f'Found vendor partner (customer) {vendor_partner.name}')
+	else:
+		raise errors.Error(f'No company found with name {vendor_partner_name}')
+
+	# 1. Transfer vendor_partnerships
+	company_vendor_partnership = session.query(models.CompanyVendorPartnership).filter(
+		models.CompanyVendorPartnership.vendor_id == original_company.id
+	).filter(
+		models.CompanyVendorPartnership.company_id == vendor_partner.id
+	).first()
+
+	if company_vendor_partnership:
+		print(f'Found company vendor partnership between {original_company.name} (vendor) and {vendor_partner.name} (customer), changing vendor of partnership to {new_company_name}...')
+	else:
+		raise errors.Error(f'No company vendor partnership found between {original_company.name} and {vendor_partner.name}')
+
+	if not is_dry_run:
+		company_vendor_partnership.vendor_id = new_company.id
+
+	# 2. Transfer users
+	user = session.query(models.User).filter(
+		models.User.email == user_email
+	).first()
+
+	if user:
+		print(f'Found user with email {user.email}, transferring to {new_company_name}')
+	else:
+		raise errors.Error(f'No found with email {user_email}')
+
+	if not is_dry_run:
+		user.company_id = new_company.id
+
+	# 3. Transfer purchase orders
+	for purchase_order_number in purchase_order_numbers:
+		purchase_order = session.query(models.PurchaseOrder).filter(
+			models.PurchaseOrder.company_id == vendor_partner.id
+		).filter(
+			models.PurchaseOrder.order_number == purchase_order_number
+		).first()
+
+		if purchase_order:
+			print(f'Found purchase order for {vendor_partner.name} (with vendor {original_company.name}) with {purchase_order.order_number}, changing vendor to {new_company_name}')
+		else:
+			raise errors.Error(f'No purchase order found for {vendor_partner.name} (with vendor {original_company.name}) with {purchase_order_number}')
+
+		if not is_dry_run:
+			purchase_order.vendor_id = new_company.id
+
+	print('DONE!')
