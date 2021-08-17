@@ -9,16 +9,14 @@ from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
+from bespoke.db.metrc_models_util import MetrcDeliveryObj, MetrcTransferObj, TransferDetails
+from bespoke.companies import licenses_util
 from bespoke.metrc.common import metrc_common_util, package_common_util
 from bespoke.metrc.common.package_common_util import UNKNOWN_LAB_STATUS
 from bespoke.metrc.common.metrc_common_util import (
 	CompanyInfo, LicenseAuthDict, UNKNOWN_STATUS_CODE, chunker)
 from dateutil import parser
 from sqlalchemy.orm.session import Session
-
-TransferDetails = TypedDict('TransferDetails', {
-	'vendor_id': str
-})
 
 class LabTest(object):
 
@@ -108,31 +106,6 @@ class TransferPackages(object):
 
 		return metrc_packages, get_final_lab_status(lab_statuses)
 
-class MetrcDeliveryObj(object):
-	"""Wrapper object for a metrc delivery DB object, so we can associated 
-			additional fields that dont get written to the DB"""
-
-	def __init__(self, 
-		metrc_delivery: models.MetrcDelivery, 
-		transfer_type: str,
-		transfer_id: str,
-		company_id: str) -> None:
-		self.metrc_delivery = metrc_delivery
-		self.transfer_type = transfer_type
-		self.transfer_id = transfer_id
-		self.company_id = company_id
-
-
-class MetrcTransferObj(object):
-	"""Wrapper object for a metrc transfer DB object and delivery IDs"""
-
-	def __init__(self, metrc_transfer: models.MetrcTransfer, deliveries: List[MetrcDeliveryObj]) -> None:
-		self.metrc_transfer = metrc_transfer
-		self.deliveries = deliveries
-
-	def get_delivery_ids(self) -> List[str]:
-		return [delivery_obj.metrc_delivery.delivery_id for delivery_obj in self.deliveries]
-
 class Transfers(object):
 
 	def __init__(self, transfers: List[Dict]) -> None:
@@ -158,6 +131,7 @@ class Transfers(object):
 			tr.shipment_type_name = t['ShipmentTypeName']
 			tr.shipment_transaction_type = t['ShipmentTransactionType']
 			tr.transfer_payload = t
+			tr.type = transfer_type
 		
 			deliveries: List[MetrcDeliveryObj] = []
 			if transfer_type == db_constants.TransferType.INCOMING:
@@ -204,88 +178,6 @@ class Transfers(object):
 
 		return metrc_transfer_objs
 
-def _match_and_add_licenses_to_transfers(
-	metrc_transfer_objs: List[MetrcTransferObj],
-	transfer_id_to_details: Dict[str, TransferDetails],
-	session: Session) -> None:
-
-	# Vendor licenses lookup
-	shipper_license_numbers = []
-	for metrc_transfer_obj in metrc_transfer_objs:
-		metrc_transfer = metrc_transfer_obj.metrc_transfer
-		shipper_license_number = '{}'.format(cast(Dict, metrc_transfer.transfer_payload)['ShipperFacilityLicenseNumber'])
-		shipper_license_numbers.append(shipper_license_number)
-
-	shipper_licenses = session.query(models.CompanyLicense).filter(
-		models.CompanyLicense.license_number.in_(shipper_license_numbers)
-	).all()
-
-	shipper_license_to_company_id = {}
-	for shipper_license in shipper_licenses:
-		shipper_license_to_company_id[shipper_license.license_number] = str(shipper_license.company_id)
-
-	# Match based on license number
-	for metrc_transfer_obj in metrc_transfer_objs:
-		metrc_transfer = metrc_transfer_obj.metrc_transfer
-		shipper_license_number = '{}'.format(cast(Dict, metrc_transfer.transfer_payload)['ShipperFacilityLicenseNumber'])
-		shipper_company_id = shipper_license_to_company_id.get(shipper_license_number)
-		if shipper_company_id:
-			metrc_transfer.vendor_id = cast(Any, shipper_company_id)
-			transfer_id_to_details[metrc_transfer.transfer_id] = TransferDetails(
-				vendor_id=shipper_company_id 
-			)
-
-def _match_and_add_licenses_to_deliveries(
-	deliveries: List[MetrcDeliveryObj],
-	transfer_id_to_details: Dict[str, TransferDetails],  
-	session: Session
-	) -> None:
-	# Recipient licenses lookup
-	recipient_license_numbers = []
-	for delivery in deliveries:
-		metrc_delivery = delivery.metrc_delivery
-		recipient_license_number = metrc_delivery.recipient_facility_license_number
-		recipient_license_numbers.append(recipient_license_number)
-
-	recipient_licenses = session.query(models.CompanyLicense).filter(
-		models.CompanyLicense.license_number.in_(recipient_license_numbers)
-	).all()
-	recipient_license_to_company_id = {}
-	for recipient_license in recipient_licenses:
-		recipient_license_to_company_id[recipient_license.license_number] = str(recipient_license.company_id)
-
-	for delivery in deliveries:
-		# TODO(dlluncor): Drop: payor_id, transfer_type from transfers table
-		metrc_delivery = delivery.metrc_delivery
-		transfer_type = delivery.transfer_type
-		recipient_license_number = metrc_delivery.recipient_facility_license_number
-		recipient_company_id = recipient_license_to_company_id.get(recipient_license_number)
-		if recipient_company_id:
-			metrc_delivery.payor_id = cast(Any, recipient_company_id)
-
-		shipper_company_id = None
-		if delivery.transfer_id in transfer_id_to_details:
-			shipper_company_id = transfer_id_to_details[delivery.transfer_id]['vendor_id']
-
-		company_id = delivery.company_id
-
-		is_company_shipper = shipper_company_id and shipper_company_id == company_id
-		is_company_recipient = recipient_company_id and recipient_company_id == company_id
-
-		# If company is neither shipper nor recipient, set delivery_type to UNKNOWN.
-		# This prompts bank admin to look into delivery and figure out which license(s) are missing.
-		if not is_company_shipper and not is_company_recipient:
-			delivery_type = 'UNKNOWN'
-		else:
-			if is_company_shipper and is_company_recipient:
-				delivery_type = f'{transfer_type}_INTERNAL'
-			elif transfer_type == db_constants.TransferType.INCOMING:
-				delivery_type = 'INCOMING_FROM_VENDOR'
-			else: # transfer_type == db_constants.TransferType.OUTGOING:
-				delivery_type = 'OUTGOING_TO_PAYOR'
-
-		metrc_delivery.delivery_type = delivery_type
-
 def _write_transfers(
 	transfer_objs: List[MetrcTransferObj], 
 	delivery_id_to_transfer_row_id: Dict, 
@@ -312,6 +204,7 @@ def _write_transfers(
 			# license_id
 			# created_at
 			# transfer_id
+			prev_transfer.type = metrc_transfer.type
 			prev_transfer.shipper_facility_license_number = metrc_transfer.shipper_facility_license_number
 			prev_transfer.shipper_facility_name = metrc_transfer.shipper_facility_name
 			prev_transfer.created_date = metrc_transfer.created_date
@@ -482,7 +375,7 @@ def populate_transfers_table(
 	with session_scope(session_maker) as session:
 		# Look up company ids for vendors that might match, and use those
 		# licenses to determine what kind of transfer this is
-		_match_and_add_licenses_to_transfers(
+		licenses_util.populate_transfer_vendor_details(
 			incoming_metrc_transfer_objs,
 			transfer_id_to_details,
 			session=session
@@ -507,7 +400,7 @@ def populate_transfers_table(
 	)
 
 	with session_scope(session_maker) as session:
-		_match_and_add_licenses_to_transfers(
+		licenses_util.populate_transfer_vendor_details(
 			outgoing_metrc_transfer_objs,
 			transfer_id_to_details,
 			session=session
@@ -605,7 +498,7 @@ def populate_transfers_table(
 
 	for deliveries_chunk in chunker(all_deliveries, DELIVERIES_BATCH_SIZE):
 		with session_scope(session_maker) as session:
-			_match_and_add_licenses_to_deliveries(deliveries_chunk, transfer_id_to_details, session)
+			licenses_util.populate_delivery_details(deliveries_chunk, transfer_id_to_details, session)
 			_write_deliveries(
 				deliveries_chunk, 
 				delivery_id_to_transfer_row_id=delivery_id_to_transfer_row_id,

@@ -51,6 +51,9 @@ def _sync_metrc_data_all_customers(p: models.AsyncPipelineDict, ctx: Context) ->
 	start_date = date_util.load_date_str(p['params']['start_date'])
 	end_date = date_util.load_date_str(p['params']['end_date'])
 
+	# TODO(dlluncor): If we're at the first customer index, then run facilities
+	# for all customers so that we update licenses from /get_facilities
+
 	company_id = p['params']['company_ids'][cur_customer_index]
 
 	cur_date = start_date

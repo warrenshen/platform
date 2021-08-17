@@ -426,6 +426,7 @@ class MetrcTransfer(Base):
 	__tablename__ = 'metrc_transfers'
 
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
+	type = Column(String)
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	license_id = cast(GUID, Column(GUID, ForeignKey('company_licenses.id')))
 	vendor_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
