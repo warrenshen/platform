@@ -4,12 +4,17 @@
 """
 import datetime
 from datetime import timedelta
-from typing import Callable, List, Tuple, cast
+from typing import Callable, List, Tuple, cast, Any
 
 from bespoke import errors
 from bespoke.db import db_constants, models
 from bespoke.finance.types.payment_types import PaymentItemsCoveredDict
 from sqlalchemy.orm.session import Session
+
+def get_licenses_base_query(session: Session) -> Any:
+	return session.query(models.CompanyLicense).filter(
+		cast(Callable, models.CompanyLicense.is_deleted.isnot)(True)
+	)
 
 def get_augmented_transactions(transactions: List[models.TransactionDict], payments: List[models.PaymentDict]) -> Tuple[List[models.AugmentedTransactionDict], errors.Error]:
 		id_to_payment = {}

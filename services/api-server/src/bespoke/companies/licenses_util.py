@@ -6,7 +6,7 @@ from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
 
 from bespoke import errors
-from bespoke.db import models
+from bespoke.db import models, models_util
 from bespoke.db.db_constants import DBOperation
 from bespoke.db.models import session_scope
 from bespoke.db import metrc_models_util
@@ -162,7 +162,7 @@ def populate_transfer_vendor_details(
 		shipper_license_number = '{}'.format(cast(Dict, metrc_transfer.transfer_payload)['ShipperFacilityLicenseNumber'])
 		shipper_license_numbers.append(shipper_license_number)
 
-	shipper_licenses = session.query(models.CompanyLicense).filter(
+	shipper_licenses = models_util.get_licenses_base_query(session).filter(
 		models.CompanyLicense.license_number.in_(shipper_license_numbers)
 	).all()
 
@@ -193,7 +193,7 @@ def populate_delivery_details(
 		recipient_license_number = metrc_delivery.recipient_facility_license_number
 		recipient_license_numbers.append(recipient_license_number)
 
-	recipient_licenses = session.query(models.CompanyLicense).filter(
+	recipient_licenses = models_util.get_licenses_base_query(session).filter(
 		models.CompanyLicense.license_number.in_(recipient_license_numbers)
 	).all()
 	recipient_license_to_company_id = {}
@@ -201,7 +201,7 @@ def populate_delivery_details(
 		recipient_license_to_company_id[recipient_license.license_number] = str(recipient_license.company_id)
 
 	for delivery in deliveries:
-		# TODO(dlluncor): Drop: payor_id, transfer_type from transfers table
+		# TODO(dlluncor): Drop: payor_id from transfers table
 		metrc_delivery = delivery.metrc_delivery
 		transfer_type = delivery.transfer_type
 		recipient_license_number = metrc_delivery.recipient_facility_license_number
@@ -248,7 +248,7 @@ def _get_transfer_objs(
 				delivery_objs.append(MetrcDeliveryObj(
 					metrc_delivery=metrc_delivery, 
 					transfer_type=metrc_transfer.type,
-					transfer_id=str(metrc_transfer.id),
+					transfer_id=str(metrc_transfer.transfer_id),
 					company_id=str(metrc_transfer.company_id)
 				))
 
@@ -266,15 +266,15 @@ def _update_matching_transfers_and_deliveries(
 
 	transfer_id_to_details: Dict[str, TransferDetails] = {}
 	transfer_objs = _get_transfer_objs(matching_transfers, matching_deliveries)
-	populate_transfer_vendor_details(transfer_objs, transfer_id_to_details, session)		
-	
+	populate_transfer_vendor_details(transfer_objs, transfer_id_to_details, session)
+
 	all_delivery_objs = []
 	for transfer_obj in transfer_objs:
 		all_delivery_objs.extend(transfer_obj.deliveries)
 
 	populate_delivery_details(all_delivery_objs, transfer_id_to_details, session)
 
-def _update_metrc_rows_based_on_vendor(company_id: str, license_number: str, session: Session) -> None:
+def _update_metrc_rows_based_on_vendor(company_id: str, op: str, license_number: str, session: Session) -> None:
 	# Update the vendor_id if it matches any shipper license numbers
 	is_done = False
 	page_index = 0
@@ -296,6 +296,7 @@ def _update_metrc_rows_based_on_vendor(company_id: str, license_number: str, ses
 		for metrc_transfer in matching_transfers:
 			metrc_transfer.vendor_id = cast(Any, company_id)
 			transfer_row_ids.append(str(metrc_transfer.id))
+			session.flush()
 
 		matching_deliveries = cast(
 			List[models.MetrcDelivery],
@@ -306,7 +307,7 @@ def _update_metrc_rows_based_on_vendor(company_id: str, license_number: str, ses
 
 		page_index += 1
 
-def _update_metrc_rows_based_on_recipient(company_id: str, license_number: str, session: Session) -> None:
+def _update_metrc_rows_based_on_recipient(company_id: str, op: str, license_number: str, session: Session) -> None:
 	is_done = False
 	page_index = 0
 	batch_size = 5
@@ -326,6 +327,7 @@ def _update_metrc_rows_based_on_recipient(company_id: str, license_number: str, 
 		transfer_row_ids = set([])
 		for metrc_delivery in matching_deliveries:
 			transfer_row_ids.add(str(metrc_delivery.transfer_row_id))
+			metrc_delivery.payor_id = cast(Any, company_id)
 
 		matching_transfers = cast(
 			List[models.MetrcTransfer],
@@ -354,9 +356,9 @@ def update_metrc_rows_on_license_change(
 			# this license is no longer associated with a company.
 			company_id = None
 
-		_update_metrc_rows_based_on_vendor(company_id, mod['license_number'], session)
+		_update_metrc_rows_based_on_vendor(company_id, mod['op'], mod['license_number'], session)
 
 	with session_scope(session_maker) as session:
-		_update_metrc_rows_based_on_recipient(company_id, mod['license_number'], session)
+		_update_metrc_rows_based_on_recipient(company_id, mod['op'], mod['license_number'], session)
 
 	return True, None
