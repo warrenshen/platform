@@ -90,6 +90,12 @@ Install [psql](https://www.postgresql.org/docs/9.3/app-psql.html) or [Postico](h
 psql postgres://postgres:postgrespassword@localhost:5432/postgres
 ```
 
+### Apply migrations to local database from inside Hasura container?
+
+```bash
+docker-compose exec bespoke-graphql-engine sh /bin/apply-migrations.sh
+```
+
 ### Common SQL statements to run in the Hasura console?
 
 1. View existing database table indices:

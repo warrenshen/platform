@@ -1,5 +1,4 @@
 #!/bin/sh
-# https://github.com/hasura/graphql-engine/issues/4651#issuecomment-637506254
 
 set -e
 
@@ -74,38 +73,24 @@ if [ -z ${HASURA_GRAPHQL_METADATA_DIR+x} ]; then
     HASURA_GRAPHQL_METADATA_DIR="$DEFAULT_METADATA_DIR"
 fi
 
-# apply migrations if the directory exist
-# if [ -d "$HASURA_GRAPHQL_MIGRATIONS_DIR" ]; then
-#     log "applying migrations from $HASURA_GRAPHQL_MIGRATIONS_DIR"
-#     mkdir -p "$TEMP_PROJECT_DIR"
-#     cp -dR "$HASURA_GRAPHQL_MIGRATIONS_DIR/." "$TEMP_PROJECT_DIR/migrations/"
-#     cd "$TEMP_PROJECT_DIR"
-#     echo "version: 2" > config.yaml
-#     echo "endpoint: http://localhost:$HASURA_GRAPHQL_MIGRATIONS_SERVER_PORT" >> config.yaml
-#     hasura-cli migrate apply
-# else
-#     log "directory $HASURA_GRAPHQL_MIGRATIONS_DIR does not exist, skipping migrations"
-# fi
+log "applying migrations from $HASURA_GRAPHQL_MIGRATIONS_DIR"
+mkdir -p "$TEMP_PROJECT_DIR"
+cp -dR "$HASURA_GRAPHQL_MIGRATIONS_DIR/." "$TEMP_PROJECT_DIR/migrations/"
+cd "$TEMP_PROJECT_DIR"
+echo "version: 2" > config.yaml
+echo "endpoint: http://localhost:$HASURA_GRAPHQL_MIGRATIONS_SERVER_PORT" >> config.yaml
+hasura-cli migrate apply
 
-# apply metadata if the directory exist
-# if [ -d "$HASURA_GRAPHQL_METADATA_DIR" ]; then
-#     rm -rf "$TEMP_PROJECT_DIR"
-#     log "applying metadata from $HASURA_GRAPHQL_METADATA_DIR"
-#     mkdir -p "$TEMP_PROJECT_DIR"
-#     cp -dR "$HASURA_GRAPHQL_METADATA_DIR/." "$TEMP_PROJECT_DIR/metadata/"
-#     cd "$TEMP_PROJECT_DIR"
-#     echo "version: 2" > config.yaml
-#     echo "endpoint: http://localhost:$HASURA_GRAPHQL_MIGRATIONS_SERVER_PORT" >> config.yaml
-#     echo "metadata_directory: metadata" >> config.yaml
-#     hasura-cli metadata apply
-# else
-#     log "directory $HASURA_GRAPHQL_METADATA_DIR does not exist, skipping metadata"
-# fi
+rm -rf "$TEMP_PROJECT_DIR"
+log "applying metadata from $HASURA_GRAPHQL_METADATA_DIR"
+mkdir -p "$TEMP_PROJECT_DIR"
+cp -dR "$HASURA_GRAPHQL_METADATA_DIR/." "$TEMP_PROJECT_DIR/metadata/"
+cd "$TEMP_PROJECT_DIR"
+echo "version: 2" > config.yaml
+echo "endpoint: http://localhost:$HASURA_GRAPHQL_MIGRATIONS_SERVER_PORT" >> config.yaml
+echo "metadata_directory: metadata" >> config.yaml
+hasura-cli metadata apply
 
 # kill graphql engine that we started earlier
 log "killing temporary server"
 kill $PID
-
-# pass control to CMD
-log "graphql-engine will now start in normal mode"
-exec "$@"

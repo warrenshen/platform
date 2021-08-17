@@ -19,7 +19,9 @@ services:
       timeout: 5s
       retries: 5
   bespoke-graphql-engine:
-    image: hasura/graphql-engine:v1.3.3.cli-migrations-v2
+    build:
+      context: graphql-server
+      dockerfile: Dockerfile
     container_name: bespoke-graphql-engine
     ports:
       - 8080:8080
@@ -30,7 +32,8 @@ services:
       - ./graphql-server/migrations:/hasura-migrations
       - ./graphql-server/metadata:/hasura-metadata
     environment:
-      HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:postgrespassword@bespoke-postgres:5432/postgres
+      PORT: 8080
+      DATABASE_URL: postgres://postgres:postgrespassword@bespoke-postgres:5432/postgres
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true" # set to "false" to disable console
       HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
       HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
@@ -50,6 +53,7 @@ services:
     ports:
       - 7001:7001
     depends_on:
+      - bespoke-postgres
       - bespoke-graphql-engine
     volumes:
       - ./api-server/src:/app/src/

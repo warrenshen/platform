@@ -10,6 +10,9 @@ COPY metadata /hasura-metadata
 COPY docker-entrypoint.sh /bin/
 RUN chmod +x /bin/docker-entrypoint.sh
 
+COPY apply-migrations.sh /bin/
+RUN chmod +x /bin/apply-migrations.sh
+
 RUN chmod -R 777 /tmp /.hasura /hasura-migrations /hasura-metadata /tmp/plugins-downloads/cli-ext
 
 ENTRYPOINT ["docker-entrypoint.sh"]
