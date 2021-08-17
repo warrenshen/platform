@@ -3032,7 +3032,6 @@
       - lab_results_status
       - license_id
       - manifest_number
-      - payor_id
       - shipment_transaction_type
       - shipment_type_name
       - shipper_facility_license_number
@@ -3054,7 +3053,6 @@
       - lab_results_status
       - license_id
       - manifest_number
-      - payor_id
       - shipment_transaction_type
       - shipment_type_name
       - shipper_facility_license_number
@@ -3076,7 +3074,6 @@
       - lab_results_status
       - license_id
       - manifest_number
-      - payor_id
       - shipment_transaction_type
       - shipment_type_name
       - shipper_facility_license_number
@@ -3103,7 +3100,6 @@
       - lab_results_status
       - license_id
       - manifest_number
-      - payor_id
       - shipment_transaction_type
       - shipment_type_name
       - shipper_facility_license_number
@@ -3129,7 +3125,6 @@
       - lab_results_status
       - license_id
       - manifest_number
-      - payor_id
       - shipment_transaction_type
       - shipment_type_name
       - shipper_facility_license_number

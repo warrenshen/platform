@@ -201,7 +201,6 @@ def populate_delivery_details(
 		recipient_license_to_company_id[recipient_license.license_number] = str(recipient_license.company_id)
 
 	for delivery in deliveries:
-		# TODO(dlluncor): Drop: payor_id from transfers table
 		metrc_delivery = delivery.metrc_delivery
 		transfer_type = delivery.transfer_type
 		recipient_license_number = metrc_delivery.recipient_facility_license_number
