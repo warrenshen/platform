@@ -49,7 +49,7 @@ export default function BankCustomersPage() {
     const filteredCustomers = filter(
       data?.customers || [],
       (customer) =>
-        `${customer.name} ${customer.identifier}`
+        `${customer.name} ${customer.dba_name} ${customer.identifier}`
           .toLowerCase()
           .indexOf(searchQuery.toLowerCase()) >= 0
     );
