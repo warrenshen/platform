@@ -259,9 +259,6 @@ def _download_data(
 			sales_receipts_models = sales_util.download_sales_receipts(ctx)
 			sales_util.write_sales_receipts(sales_receipts_models, session_maker)
 
-		# TODO(dlluncor): The way in which packages interact with transfer packages
-		# is likely not correct. We may be double-counting and not merging those
-		# details correctly
 		if ctx.apis_to_use['packages']:
 			package_models = packages_util.download_packages(ctx)
 			packages_util.write_packages(package_models, session_maker)

@@ -5,11 +5,14 @@ import {
   CurrentUserContext,
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
-import { MetrcPackages, useGetMetrcPackageQuery } from "generated/graphql";
+import {
+  MetrcTransferPackages,
+  useGetMetrcTransferPackageQuery,
+} from "generated/graphql";
 import { useContext } from "react";
 
 interface Props {
-  metrcPackageId: MetrcPackages["id"];
+  metrcPackageId: MetrcTransferPackages["id"];
   handleClose: () => void;
 }
 
@@ -22,14 +25,14 @@ export default function MetrcPackageModal({
   } = useContext(CurrentUserContext);
   const isBankUser = isRoleBankUser(role);
 
-  const { data } = useGetMetrcPackageQuery({
+  const { data } = useGetMetrcTransferPackageQuery({
     fetchPolicy: "network-only",
     variables: {
       id: metrcPackageId,
     },
   });
 
-  const metrcPackage = data?.metrc_packages_by_pk;
+  const metrcPackage = data?.metrc_transfer_packages_by_pk;
 
   if (!metrcPackage) {
     return null;

@@ -18,7 +18,7 @@ query GetPurchaseOrderForBank($id: uuid!) {
         ...MetrcTransfer
         metrc_packages {
           id
-          ...MetrcPackage
+          ...MetrcTransferPackage
         }
       }
     }
@@ -84,7 +84,7 @@ query GetPurchaseOrderForReview($id: uuid!) {
         ...MetrcTransfer
         metrc_packages {
           id
-          ...MetrcPackage
+          ...MetrcTransferPackage
         }
       }
     }

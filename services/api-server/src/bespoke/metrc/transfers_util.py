@@ -59,8 +59,8 @@ class TransferPackages(object):
 	def get_package_ids(self) -> List[str]:
 		return [t['PackageId'] for t in self._packages]
 
-	def get_package_models(self, lab_tests: List[LabTest], transfer_type: str, company_id: str) -> Tuple[List[models.MetrcPackage], str]:
-		# Return list of MetrcPackage models and lab results status
+	def get_package_models(self, lab_tests: List[LabTest], transfer_type: str, company_id: str) -> Tuple[List[models.MetrcTransferPackage], str]:
+		# Return list of MetrcTransferPackage models and lab results status
 		# of the Transfer that all these packages belong to.
 		metrc_packages = []
 		transfer_lab_results_status = UNKNOWN_LAB_STATUS
@@ -77,7 +77,7 @@ class TransferPackages(object):
 			package_id = package['PackageId']
 			package_wholesale = package_id_to_package_wholesale.get(package_id)
 
-			p = models.MetrcPackage()
+			p = models.MetrcTransferPackage()
 			p.type = 'transfer_{}'.format(transfer_type).lower()
 			p.company_id = cast(Any, company_id)
 			p.package_id = '{}'.format(package_id)
@@ -278,7 +278,7 @@ def _write_deliveries(
 			delivery_id_to_delivery_row_id[metrc_delivery.delivery_id] = str(metrc_delivery.id)
 
 def _write_packages(
-	metrc_packages: List[models.MetrcPackage], 
+	metrc_packages: List[models.MetrcTransferPackage], 
 	package_id_to_delivery_id: Dict,
 	delivery_id_to_transfer_row_id: Dict,
 	delivery_id_to_delivery_row_id: Dict,
@@ -291,10 +291,10 @@ def _write_packages(
 
 	# Since metrc_packages are unique on (delivery_id, package_id), note
 	# the following query may return more than BATCH_SIZE number of results.
-	prev_metrc_packages = cast(List[models.MetrcPackage], session.query(models.MetrcPackage).filter(
-		models.MetrcPackage.delivery_id.in_(delivery_ids)
+	prev_metrc_packages = cast(List[models.MetrcTransferPackage], session.query(models.MetrcTransferPackage).filter(
+		models.MetrcTransferPackage.delivery_id.in_(delivery_ids)
 	).filter(
-		models.MetrcPackage.package_id.in_(package_ids)
+		models.MetrcTransferPackage.package_id.in_(package_ids)
 	).all())
 
 	delivery_id_package_id_to_prev_package = {}
@@ -320,7 +320,7 @@ def _write_packages(
 			prev_metrc_package.delivery_id = metrc_package.delivery_id
 			# package_id - no need to update
 			# created_at - no need to update
-			package_common_util.merge_into_prev_package(
+			package_common_util.merge_into_prev_transfer_package(
 				prev=prev_metrc_package, 
 				cur=metrc_package
 			)

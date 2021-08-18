@@ -2703,7 +2703,7 @@
         column: delivery_row_id
         table:
           schema: public
-          name: metrc_packages
+          name: metrc_transfer_packages
   select_permissions:
   - role: bank_admin
     permission:
@@ -2811,7 +2811,74 @@
     name: metrc_harvests
 - table:
     schema: public
-    name: metrc_packages
+    name: metrc_plant_batches
+  object_relationships:
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - id
+      - company_id
+      - type
+      - plant_batch_id
+      - name
+      - planted_date
+      - payload
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - planted_date
+      - payload
+      - name
+      - plant_batch_id
+      - type
+      - company_id
+      - id
+      filter: {}
+- table:
+    schema: public
+    name: metrc_plants
+  object_relationships:
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - id
+      - company_id
+      - type
+      - plant_id
+      - label
+      - planted_date
+      - payload
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - planted_date
+      - payload
+      - label
+      - plant_id
+      - type
+      - company_id
+      - id
+      filter: {}
+- table:
+    schema: public
+    name: metrc_sales_receipts
+  object_relationships:
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+- table:
+    schema: public
+    name: metrc_transfer_packages
   object_relationships:
   - name: metrc_delivery
     using:
@@ -2930,73 +2997,6 @@
             _eq: X-Hasura-Company-Id
 - table:
     schema: public
-    name: metrc_plant_batches
-  object_relationships:
-  - name: company
-    using:
-      foreign_key_constraint_on: company_id
-  select_permissions:
-  - role: bank_admin
-    permission:
-      columns:
-      - id
-      - company_id
-      - type
-      - plant_batch_id
-      - name
-      - planted_date
-      - payload
-      filter: {}
-  - role: bank_read_only
-    permission:
-      columns:
-      - planted_date
-      - payload
-      - name
-      - plant_batch_id
-      - type
-      - company_id
-      - id
-      filter: {}
-- table:
-    schema: public
-    name: metrc_plants
-  object_relationships:
-  - name: company
-    using:
-      foreign_key_constraint_on: company_id
-  select_permissions:
-  - role: bank_admin
-    permission:
-      columns:
-      - id
-      - company_id
-      - type
-      - plant_id
-      - label
-      - planted_date
-      - payload
-      filter: {}
-  - role: bank_read_only
-    permission:
-      columns:
-      - planted_date
-      - payload
-      - label
-      - plant_id
-      - type
-      - company_id
-      - id
-      filter: {}
-- table:
-    schema: public
-    name: metrc_sales_receipts
-  object_relationships:
-  - name: company
-    using:
-      foreign_key_constraint_on: company_id
-- table:
-    schema: public
     name: metrc_transfers
   object_relationships:
   - name: company
@@ -3020,7 +3020,7 @@
         column: transfer_row_id
         table:
           schema: public
-          name: metrc_packages
+          name: metrc_transfer_packages
   select_permissions:
   - role: bank_admin
     permission:

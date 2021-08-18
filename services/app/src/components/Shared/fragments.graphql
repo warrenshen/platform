@@ -191,7 +191,7 @@ fragment MetrcTransfer on metrc_transfers {
   }
 }
 
-fragment MetrcPackage on metrc_packages {
+fragment MetrcTransferPackage on metrc_transfer_packages {
   id
   transfer_row_id
   delivery_row_id

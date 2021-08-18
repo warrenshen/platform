@@ -140,7 +140,7 @@ def _write_packages_chunk(
 	# Note the following query may return more than BATCH_SIZE number of results.
 	prev_metrc_packages = cast(List[models.MetrcPackage], session.query(models.MetrcPackage).filter(
 		models.MetrcPackage.package_id.in_(package_ids)
-	).filter(models.MetrcPackage.delivery_row_id == None).all())
+	).all())
 
 	package_id_to_prev_package = {}
 	for prev_metrc_package in prev_metrc_packages:

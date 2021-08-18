@@ -2,7 +2,7 @@ import { Box, TextField } from "@material-ui/core";
 import MetrcPackagesDataGrid from "components/Transfers/MetrcPackagesDataGrid";
 import {
   Companies,
-  useGetMetrcPackagesByCompanyIdQuery,
+  useGetMetrcTransferPackagesByCompanyIdQuery,
 } from "generated/graphql";
 import { filter } from "lodash";
 import { useMemo, useState } from "react";
@@ -12,7 +12,7 @@ interface Props {
 }
 
 export default function CustomermetrcPackagesTab({ companyId }: Props) {
-  const { data, error } = useGetMetrcPackagesByCompanyIdQuery({
+  const { data, error } = useGetMetrcTransferPackagesByCompanyIdQuery({
     fetchPolicy: "network-only",
     variables: {
       company_id: companyId,
@@ -29,13 +29,13 @@ export default function CustomermetrcPackagesTab({ companyId }: Props) {
   const metrcPackages = useMemo(
     () =>
       filter(
-        data?.metrc_packages || [],
+        data?.metrc_transfer_packages || [],
         (metrcPackage) =>
           `${metrcPackage.package_id} ${metrcPackage.metrc_transfer?.manifest_number}`
             .toLowerCase()
             .indexOf(searchQuery.toLowerCase()) >= 0
       ),
-    [searchQuery, data?.metrc_packages]
+    [searchQuery, data?.metrc_transfer_packages]
   );
 
   return (

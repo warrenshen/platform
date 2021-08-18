@@ -459,26 +459,37 @@ class MetrcDelivery(Base):
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime)
 
-"""
-class TransferMetrcPackage(object):
-
-	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
-	metrc_package_id = cast(GUID, Column(GUID, ForeignKey('metrc_packages.id')))
-
-	transfer_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_transfers.id')))
-	delivery_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_deliveries.id')))
-	package_payload = cast(JSON)
-"""
-
 class MetrcPackage(Base):
 	__tablename__ = 'metrc_packages'
 
-	# parent_package_id = Column(GUID)
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
+	
 	type = Column(String)
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	package_id = Column(String) # From Metrc info
+	delivery_id = Column(String) # From Metrc info
+	package_label = Column(String) # From Metrc info
+	package_type = Column(String) # From Metrc info
+	product_name = Column(String) # From Metrc info
+	product_category_name = Column(String) # From Metrc info
+	shipped_quantity = Column(Numeric) # From Metrc info
+	shipper_wholesale_price = Column(Numeric) # From Metrc info
+	package_payload = Column(JSON) # From Metrc info
+	lab_results_status = Column(String) # Derived from Metrc info
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime)
+
+class MetrcTransferPackage(Base):
+	__tablename__ = 'metrc_transfer_packages'
+
+	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
+	
+	metrc_package_id = cast(GUID, Column(GUID, ForeignKey('metrc_packages.id')))
 	transfer_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_transfers.id')))
-	delivery_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_deliveries.id'))) 
+	delivery_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_deliveries.id')))
+
+	type = Column(String)
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	package_id = Column(String) # From Metrc info
 	delivery_id = Column(String) # From Metrc info
 	package_label = Column(String) # From Metrc info

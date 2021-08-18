@@ -5,7 +5,7 @@ import ModalButton from "components/Shared/Modal/ModalButton";
 import MetrcPackageDrawerLauncher from "components/Transfers/MetrcPackageDrawerLauncher";
 import MetrcPackageModal from "components/Transfers/MetrcPackageModal";
 import MetrcTransferDrawerLauncher from "components/Transfers/MetrcTransferDrawerLauncher";
-import { MetrcPackageFragment } from "generated/graphql";
+import { MetrcTransferPackageFragment } from "generated/graphql";
 import { MetrcPackagePayload } from "lib/api/metrc";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
@@ -13,7 +13,7 @@ import { useMemo } from "react";
 interface Props {
   isExcelExport?: boolean;
   isViewActionAvailable?: boolean;
-  metrcPackages: MetrcPackageFragment[];
+  metrcPackages: MetrcTransferPackageFragment[];
 }
 
 export default function MetrcPackagesDataGrid({

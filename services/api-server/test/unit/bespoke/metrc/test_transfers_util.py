@@ -379,8 +379,8 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 		]
 
 		with session_scope(session_maker) as session:
-			metrc_packages = cast(List[models.MetrcPackage], session.query(
-				models.MetrcPackage).order_by(models.MetrcPackage.shipped_quantity).all())
+			metrc_packages = cast(List[models.MetrcTransferPackage], session.query(
+				models.MetrcTransferPackage).order_by(models.MetrcTransferPackage.shipped_quantity).all())
 			self.assertEqual(4, len(metrc_packages))
 			for i in range(len(metrc_packages)):
 				p = metrc_packages[i]

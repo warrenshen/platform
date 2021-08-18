@@ -10,15 +10,15 @@ query GetMetrcTransfer($id: uuid!, $company_id: uuid) {
     ...MetrcTransfer
     metrc_packages {
       id
-      ...MetrcPackage
+      ...MetrcTransferPackage
     }
   }
 }
 
-query GetMetrcPackage($id: uuid!) {
-  metrc_packages_by_pk(id: $id) {
+query GetMetrcTransferPackage($id: uuid!) {
+  metrc_transfer_packages_by_pk(id: $id) {
     id
-    ...MetrcPackage
+    ...MetrcTransferPackage
   }
 }
 
@@ -32,8 +32,8 @@ query GetMetrcTransfersByCompanyId($company_id: uuid!) {
   }
 }
 
-query GetMetrcPackagesByCompanyId($company_id: uuid!) {
-  metrc_packages(
+query GetMetrcTransferPackagesByCompanyId($company_id: uuid!) {
+  metrc_transfer_packages(
     where: { metrc_transfer: { company_id: { _eq: $company_id } } }
     order_by: [
       { metrc_transfer: { manifest_number: desc } }
@@ -41,6 +41,6 @@ query GetMetrcPackagesByCompanyId($company_id: uuid!) {
     ]
   ) {
     id
-    ...MetrcPackage
+    ...MetrcTransferPackage
   }
 }
