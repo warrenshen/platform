@@ -207,3 +207,4 @@ class DBOperation(object):
 class TransferType(object):
 	INCOMING = 'INCOMING'
 	OUTGOING = 'OUTGOING'
+	UNKNOWN = 'UNKNOWN'
