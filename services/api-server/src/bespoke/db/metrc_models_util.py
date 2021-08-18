@@ -38,7 +38,11 @@ class MetrcTransferObj(object):
 		return [delivery_obj.metrc_delivery.delivery_id for delivery_obj in self.deliveries]
 
 def get_delivery_type(
-	transfer_type: str, company_id: str, shipper_company_id: str, recipient_company_id: str) -> str:
+	transfer_type: str,
+	company_id: str,
+	shipper_company_id: str,
+	recipient_company_id: str,
+) -> str:
 	is_company_shipper = shipper_company_id and shipper_company_id == company_id
 	is_company_recipient = recipient_company_id and recipient_company_id == company_id
 	are_companys_known = shipper_company_id is not None and recipient_company_id is not None

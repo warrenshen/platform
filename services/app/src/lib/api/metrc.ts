@@ -251,7 +251,9 @@ export function getMetrcTransferVendorDescription(
     return "";
   } else {
     return `${vendor.name} ${
-      !!vendor.company_vendor_partnerships[0] ? "[Approved]" : "[Not Approved]"
+      !!vendor.company_vendor_partnerships[0]?.approved_at
+        ? "[Approved]"
+        : "[Not Approved]"
     }`;
   }
 }

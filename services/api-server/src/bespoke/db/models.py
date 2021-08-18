@@ -426,10 +426,10 @@ class MetrcTransfer(Base):
 	__tablename__ = 'metrc_transfers'
 
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
-	type = Column(String)
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	license_id = cast(GUID, Column(GUID, ForeignKey('company_licenses.id')))
 	vendor_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	type = Column(String) # db_constants.TransferType based on Metrc API endpoint.
 	transfer_id = Column(String) # From Metrc info
 	shipper_facility_license_number = Column(String)
 	shipper_facility_name = Column(String)
