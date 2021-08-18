@@ -459,9 +459,21 @@ class MetrcDelivery(Base):
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime)
 
+"""
+class TransferMetrcPackage(object):
+
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	metrc_package_id = cast(GUID, Column(GUID, ForeignKey('metrc_packages.id')))
+
+	transfer_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_transfers.id')))
+	delivery_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_deliveries.id')))
+	package_payload = cast(JSON)
+"""
+
 class MetrcPackage(Base):
 	__tablename__ = 'metrc_packages'
 
+	# parent_package_id = Column(GUID)
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
 	type = Column(String)
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))

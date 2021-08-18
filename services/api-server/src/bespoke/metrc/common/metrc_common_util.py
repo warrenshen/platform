@@ -109,6 +109,18 @@ def _get_base_url(us_state: str) -> str:
 	abbr = us_state.lower()
 	return f'https://api-{abbr}.metrc.com'
 
+def get_default_apis_to_use() -> ApisToUseDict:
+	return ApisToUseDict(
+		sales_receipts=True,
+		incoming_transfers=True,
+		outgoing_transfers=True,
+		packages=True,
+		lab_tests=True,
+		harvests=True,
+		plants=True,
+		plant_batches=True,
+	)
+
 def get_facilities(auth_dict: AuthDict, us_state: str) -> List[FacilityInfoDict]:
 	auth = HTTPBasicAuth(auth_dict['vendor_key'], auth_dict['user_key'])
 	base_url = _get_base_url(us_state)
@@ -161,6 +173,7 @@ class REST(object):
 			print(url)
 
 		resp = requests.get(url, auth=self.auth)
+		# TODO(dlluncor): A retry with a wait if rate-limited
 
 		if not resp.ok:
 			raise errors.Error('URL: {}. Code: {}. Reason: {}. Response: {}'.format(
