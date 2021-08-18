@@ -66,6 +66,14 @@ class TestHelperFns(db_unittest.TestCase):
 			('10/15/2020', 5)
 		], _to_date_range_strs(date_range_tuples))
 
+		date_range_tuples = reports_util.date_ranges_for_needs_balance_recomputed(
+			date_util.load_date_str('10/15/2020'),
+			date_util.load_date_str('10/15/2020'))
+
+		self.assertEqual([
+			('10/15/2020', 0)
+		], _to_date_range_strs(date_range_tuples))
+
 class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 
 	def _run_compute_test(self, populate: Callable, expected_summaries: List[models.BankFinancialSummary], expected_error: errors.Error) -> None:
