@@ -2811,6 +2811,44 @@
     name: metrc_harvests
 - table:
     schema: public
+    name: metrc_packages
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - id
+      - type
+      - company_id
+      - package_id
+      - package_label
+      - package_type
+      - product_name
+      - product_category_name
+      - package_payload
+      - last_modified_at
+      - packaged_date
+      - updated_at
+      - created_at
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - packaged_date
+      - package_payload
+      - package_id
+      - package_label
+      - package_type
+      - product_category_name
+      - product_name
+      - type
+      - created_at
+      - last_modified_at
+      - updated_at
+      - company_id
+      - id
+      filter: {}
+- table:
+    schema: public
     name: metrc_plant_batches
   object_relationships:
   - name: company
@@ -2890,58 +2928,76 @@
   - role: bank_admin
     permission:
       columns:
+      - company_id
       - created_at
       - delivery_id
       - delivery_row_id
       - id
       - lab_results_status
-      - package_label
       - package_id
+      - package_label
       - package_payload
+      - package_type
       - product_category_name
       - product_name
+      - received_quantity
+      - received_unit_of_measure
+      - shipment_package_state
       - shipped_quantity
+      - shipped_unit_of_measure
       - shipper_wholesale_price
       - transfer_row_id
-      - package_type
+      - type
       - updated_at
       filter: {}
   - role: bank_read_only
     permission:
       columns:
+      - company_id
       - created_at
       - delivery_id
       - delivery_row_id
       - id
       - lab_results_status
-      - package_label
       - package_id
+      - package_label
       - package_payload
+      - package_type
       - product_category_name
       - product_name
+      - received_quantity
+      - received_unit_of_measure
+      - shipment_package_state
       - shipped_quantity
+      - shipped_unit_of_measure
       - shipper_wholesale_price
       - transfer_row_id
-      - package_type
+      - type
       - updated_at
       filter: {}
   - role: company_admin
     permission:
       columns:
+      - company_id
       - created_at
       - delivery_id
       - delivery_row_id
       - id
       - lab_results_status
-      - package_label
       - package_id
+      - package_label
       - package_payload
+      - package_type
       - product_category_name
       - product_name
+      - received_quantity
+      - received_unit_of_measure
+      - shipment_package_state
       - shipped_quantity
+      - shipped_unit_of_measure
       - shipper_wholesale_price
       - transfer_row_id
-      - package_type
+      - type
       - updated_at
       filter:
         metrc_transfer:
@@ -2953,20 +3009,26 @@
   - role: company_read_only
     permission:
       columns:
+      - company_id
       - created_at
       - delivery_id
       - delivery_row_id
       - id
       - lab_results_status
-      - package_label
       - package_id
+      - package_label
       - package_payload
+      - package_type
       - product_category_name
       - product_name
+      - received_quantity
+      - received_unit_of_measure
+      - shipment_package_state
       - shipped_quantity
+      - shipped_unit_of_measure
       - shipper_wholesale_price
       - transfer_row_id
-      - package_type
+      - type
       - updated_at
       filter:
         metrc_transfer:
@@ -2978,19 +3040,25 @@
   - role: purchase_order_reviewer
     permission:
       columns:
+      - company_id
       - delivery_id
       - delivery_row_id
       - id
       - lab_results_status
-      - package_label
       - package_id
+      - package_label
       - package_payload
+      - package_type
       - product_category_name
       - product_name
+      - received_quantity
+      - received_unit_of_measure
+      - shipment_package_state
       - shipped_quantity
+      - shipped_unit_of_measure
       - shipper_wholesale_price
       - transfer_row_id
-      - package_type
+      - type
       filter:
         metrc_transfer:
           vendor_id:

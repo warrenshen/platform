@@ -60,8 +60,8 @@ class Packages(object):
 			p.package_type = package['PackageType']
 			p.product_name = package.get('ProductName')
 			p.product_category_name = package.get('ProductCategoryName')
-			p.shipped_quantity = package.get('ShippedQuantity')
-			p.lab_results_status = UNKNOWN_LAB_STATUS
+			p.last_modified_at = parser.parse(package['LastModified'])
+			p.packaged_date = parser.parse(package['PackagedDate'])
 
 			p.package_payload = self._rewrite_payload(package)
 
@@ -130,54 +130,18 @@ def download_packages(ctx: metrc_common_util.DownloadContext) -> List[PackageObj
 	package_models = active_package_models + inactive_package_models + onhold_package_models
 	return package_models
 
-def _write_packages_chunk(
-	packages: List[PackageObject],
-	session: Session) -> None:
-	package_ids = [package.metrc_package.package_id for package in packages] 
-
-	# metrc_packages are unique on package_id, when they 
-	# are not associated with a delivery.
-	# Note the following query may return more than BATCH_SIZE number of results.
-	prev_metrc_packages = cast(List[models.MetrcPackage], session.query(models.MetrcPackage).filter(
-		models.MetrcPackage.package_id.in_(package_ids)
-	).all())
-
-	package_id_to_prev_package = {}
-	for prev_metrc_package in prev_metrc_packages:
-		# Package key is a tuple of (delivery_id, package_id) - the
-		# same package may show up in multiple different deliveries.
-		metrc_package_key = prev_metrc_package.package_id
-		package_id_to_prev_package[metrc_package_key] = prev_metrc_package
-
-	# Write the packages
-	for package in packages:
-		metrc_package = package.metrc_package
-		metrc_package_key = metrc_package.package_id
-
-		if metrc_package_key in package_id_to_prev_package:
-			# update
-			prev_metrc_package = package_id_to_prev_package[metrc_package_key]
-			package_common_util.merge_into_prev_package(
-				prev=prev_metrc_package, 
-				cur=metrc_package
-			)
-		else:
-			# add
-			session.add(metrc_package)
-			session.flush()
-
-		# In some rare cases, a new package may show up twice in the same day.
-		# The following line prevents an attempt to insert a duplicate package.
-		package_id_to_prev_package[metrc_package_key] = metrc_package
-
 def write_packages(packages_models: List[PackageObject], session_maker: Callable) -> None:
 	BATCH_SIZE = 50
 	batch_index = 1
 
 	batches_count = len(packages_models) // BATCH_SIZE + 1
-	for packages_chunk in chunker(packages_models, BATCH_SIZE):
+	for package_models_chunk in chunker(packages_models, BATCH_SIZE):
 		logging.info(f'Writing packages batch {batch_index} of {batches_count}...')
 		with session_scope(session_maker) as session:
-			_write_packages_chunk(packages_chunk, session)
+			packages_chunk = [package.metrc_package for package in package_models_chunk]
+			package_common_util.update_packages(
+				packages_chunk,
+				session=session
+			)
 		batch_index += 1
 

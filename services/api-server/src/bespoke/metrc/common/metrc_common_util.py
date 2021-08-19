@@ -114,7 +114,7 @@ def get_default_apis_to_use() -> ApisToUseDict:
 		sales_receipts=True,
 		incoming_transfers=True,
 		outgoing_transfers=True,
-		packages=False,
+		packages=True,
 		lab_tests=True,
 		harvests=True,
 		plants=True,

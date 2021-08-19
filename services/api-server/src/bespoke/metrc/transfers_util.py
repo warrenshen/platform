@@ -87,11 +87,16 @@ class TransferPackages(object):
 			p.product_name = package['ProductName']
 			p.product_category_name = package['ProductCategoryName']
 			p.shipped_quantity = package['ShippedQuantity']
+			p.received_quantity = package.get('ReceivedQuantity')
+			p.shipped_unit_of_measure = package['ShippedUnitOfMeasureName']
+			p.received_unit_of_measure = package['ReceivedUnitOfMeasureName']
+			p.shipment_package_state = package['ShipmentPackageState']
 			# We do not store lab results json for now.
 			# p.lab_results_payload = {
 			# 	'lab_results': lab_tests[i].get_results_array()
 			# }
 			p.lab_results_status = lab_tests[i].get_status()
+			p.last_modified_at = parser.parse(package['LastModified'])
 
 			if package_wholesale:
 				p.shipper_wholesale_price = package_wholesale.get('ShipperWholesalePrice')
@@ -277,7 +282,7 @@ def _write_deliveries(
 			# This must come AFTER session.flush().
 			delivery_id_to_delivery_row_id[metrc_delivery.delivery_id] = str(metrc_delivery.id)
 
-def _write_packages(
+def _write_transfer_packages(
 	metrc_packages: List[models.MetrcTransferPackage], 
 	package_id_to_delivery_id: Dict,
 	delivery_id_to_transfer_row_id: Dict,
@@ -409,7 +414,7 @@ def populate_transfers_table(
 	metrc_transfer_objs = incoming_metrc_transfer_objs + outgoing_metrc_transfer_objs
 
 	## Fetch packages and lab results
-	all_metrc_packages = []
+	all_metrc_packages: List[models.MetrcTransferPackage] = []
 	# So we can map a package back to its parent transfer's delivery ID
 	package_id_to_delivery_id = {}
 
@@ -515,13 +520,19 @@ def populate_transfers_table(
 	# data is in the metrc_packages table, namely the metrc_packages.package_payload column.
 	PACKAGES_BATCH_SIZE = 10
 
-	for packages_chunk in chunker(all_metrc_packages, PACKAGES_BATCH_SIZE):
+	for transfer_packages_chunk in cast(Iterable[List[models.MetrcTransferPackage]], chunker(all_metrc_packages, PACKAGES_BATCH_SIZE)):
 		with session_scope(session_maker) as session:
-			_write_packages(
-				packages_chunk,
+			_write_transfer_packages(
+				transfer_packages_chunk,
 				package_id_to_delivery_id=package_id_to_delivery_id,
 				delivery_id_to_transfer_row_id=delivery_id_to_transfer_row_id,
 				delivery_id_to_delivery_row_id=delivery_id_to_delivery_row_id,
+				session=session
+			)
+			packages_chunk = [package_common_util.transfer_package_to_package(transfer_pkg) for transfer_pkg in transfer_packages_chunk]
+			# TODO(dlluncor): Keep track of package_row_id on the transfer package as well
+			package_common_util.update_packages(
+				packages_chunk,
 				session=session
 			)
 

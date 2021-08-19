@@ -467,15 +467,14 @@ class MetrcPackage(Base):
 	type = Column(String)
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	package_id = Column(String) # From Metrc info
-	delivery_id = Column(String) # From Metrc info
 	package_label = Column(String) # From Metrc info
 	package_type = Column(String) # From Metrc info
 	product_name = Column(String) # From Metrc info
 	product_category_name = Column(String) # From Metrc info
-	shipped_quantity = Column(Numeric) # From Metrc info
-	shipper_wholesale_price = Column(Numeric) # From Metrc info
 	package_payload = Column(JSON) # From Metrc info
-	lab_results_status = Column(String) # Derived from Metrc info
+	last_modified_at = Column(DateTime) # From Metrc info
+	packaged_date = Column(Date)
+
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime)
 
@@ -484,22 +483,29 @@ class MetrcTransferPackage(Base):
 
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
 	
-	metrc_package_id = cast(GUID, Column(GUID, ForeignKey('metrc_packages.id')))
+	#metrc_package_id = cast(GUID, Column(GUID, ForeignKey('metrc_packages.id')))
 	transfer_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_transfers.id')))
 	delivery_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_deliveries.id')))
+	delivery_id = Column(String) # From Metrc info
 
 	type = Column(String)
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	package_id = Column(String) # From Metrc info
-	delivery_id = Column(String) # From Metrc info
 	package_label = Column(String) # From Metrc info
 	package_type = Column(String) # From Metrc info
 	product_name = Column(String) # From Metrc info
 	product_category_name = Column(String) # From Metrc info
-	shipped_quantity = Column(Numeric) # From Metrc info
-	shipper_wholesale_price = Column(Numeric) # From Metrc info
 	package_payload = Column(JSON) # From Metrc info
+	last_modified_at = Column(DateTime) # From Metrc info
+
+	shipped_quantity = Column(Numeric) # From Metrc info
+	received_quantity = Column(Numeric) # From Metrc info
+	shipped_unit_of_measure = Column(Text)
+	received_unit_of_measure = Column(Text)
+	shipper_wholesale_price = Column(Numeric) # From Metrc info
+	shipment_package_state = Column(String) # From Metrc info
 	lab_results_status = Column(String) # Derived from Metrc info
+
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime)
 

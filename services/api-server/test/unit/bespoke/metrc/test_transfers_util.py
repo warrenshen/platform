@@ -25,6 +25,7 @@ def _package_json(p: Dict) -> Dict:
 	p['PackageType'] = p['PackageId'] + '-type'
 	p['ProductName'] = p['PackageId'] + '-product-name'
 	p['ProductCategoryName'] = p['PackageId'] + '-category-name'
+	p['ShipmentPackageState'] = p['PackageId'] + '-shipment-package-state'
 
 	return p
 
@@ -137,12 +138,20 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 								_package_json({
 									'Id': 'out-p1',
 									'PackageId': 'out-pkg1-A',
-									'ShippedQuantity': 3.0
+									'ShippedQuantity': 3.0,
+									'ReceivedQuantity': 3.1,
+									'ShippedUnitOfMeasureName': 'oz',
+									'ReceivedUnitOfMeasureName': 'lbs',
+									'LastModified': parser.parse('02/03/2020').isoformat()
 								}),
 								_package_json({
 									'Id': 'out-p2',
 									'PackageId': 'out-pkg2-B',
-									'ShippedQuantity': 4.0
+									'ShippedQuantity': 4.0,
+									'ReceivedQuantity': 4.1,
+									'ShippedUnitOfMeasureName': 'oz',
+									'ReceivedUnitOfMeasureName': 'lbs',
+									'LastModified': parser.parse('02/04/2020').isoformat()
 								})
 							]
 						}
@@ -159,12 +168,20 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 								_package_json({
 									'Id': 'in-p1',
 									'PackageId': 'in-pkg1-A',
-									'ShippedQuantity': 5.0
+									'ShippedQuantity': 5.0,
+									'ReceivedQuantity': 5.1,
+									'ShippedUnitOfMeasureName': 'oz',
+									'ReceivedUnitOfMeasureName': 'lbs',
+									'LastModified': parser.parse('02/05/2020').isoformat()
 								}),
 								_package_json({
 									'Id': 'in-p2',
 									'PackageId': 'in-pkg2-B',
-									'ShippedQuantity': 6.0
+									'ShippedQuantity': 6.0,
+									'ReceivedQuantity': 6.1,
+									'ShippedUnitOfMeasureName': 'oz',
+									'ReceivedUnitOfMeasureName': 'lbs',
+									'LastModified': parser.parse('02/06/2020').isoformat()
 								})
 							]
 						}
@@ -327,60 +344,138 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 				self.assertEqual('UNKNOWN', d.delivery_type)
 				metrc_delivery_row_ids.append(str(d.id))
 
-		expected_packages: List[Dict] = [
+		expected_transfer_packages: List[Dict] = [
 			{
 				'type': 'transfer_outgoing',
 				'company_id': company_id,
 				'package_id': 'out-pkg1-A',
 				'delivery_id': 'out-d1',
+				'received_quantity': 3.1,
 				'shipped_quantity': 3.0,
 				'lab_results_status': 'failed',
 				'shipper_wholesale_price': 1.0,
 				'receiver_wholesale_price': 2.0,
+				'shipped_unit_of_measure': 'oz',
+				'received_unit_of_measure': 'lbs',
 				'delivery_row_id': metrc_delivery_row_ids[1],
 				'transfer_row_id': transfer_row_ids[1],
+				'last_modified_at': parser.parse('02/03/2020'),
 			},
 			{
 				'type': 'transfer_outgoing',
 				'company_id': company_id,
 				'package_id': 'out-pkg2-B',
 				'delivery_id': 'out-d1',
+				'received_quantity': 4.1,
 				'shipped_quantity': 4.0,
 				'lab_results_status': 'passed',
 				'shipper_wholesale_price': 3.0,
 				'receiver_wholesale_price': 4.0,
+				'shipped_unit_of_measure': 'oz',
+				'received_unit_of_measure': 'lbs',
 				'delivery_row_id': metrc_delivery_row_ids[1],
 				'transfer_row_id': transfer_row_ids[1],
+				'last_modified_at': parser.parse('02/04/2020'),
 			},
 			{
 				'type': 'transfer_incoming',
 				'company_id': company_id,
 				'package_id': 'in-pkg1-A',
 				'delivery_id': 'incoming-d3',
+				'received_quantity': 5.1,
 				'shipped_quantity': 5.0,
 				'lab_results_status': 'unknown',
 				'shipper_wholesale_price': None,
 				'receiver_wholesale_price': None,
+				'shipped_unit_of_measure': 'oz',
+				'received_unit_of_measure': 'lbs',
 				'delivery_row_id': metrc_delivery_row_ids[0],
 				'transfer_row_id': transfer_row_ids[0],
+				'last_modified_at': parser.parse('02/05/2020'),
 			},
 			{
 				'type': 'transfer_incoming',
 				'company_id': company_id,
 				'package_id': 'in-pkg2-B',
 				'delivery_id': 'incoming-d3',
+				'received_quantity': 6.1,
 				'shipped_quantity': 6.0,
 				'lab_results_status': 'unknown',
 				'shipper_wholesale_price': None,
 				'receiver_wholesale_price': None,
+				'shipped_unit_of_measure': 'oz',
+				'received_unit_of_measure': 'lbs',
 				'delivery_row_id': metrc_delivery_row_ids[0],
 				'transfer_row_id': transfer_row_ids[0],
+				'last_modified_at': parser.parse('02/06/2020'),
 			}
 		]
 
 		with session_scope(session_maker) as session:
-			metrc_packages = cast(List[models.MetrcTransferPackage], session.query(
+			metrc_transfer_packages = cast(List[models.MetrcTransferPackage], session.query(
 				models.MetrcTransferPackage).order_by(models.MetrcTransferPackage.shipped_quantity).all())
+			self.assertEqual(4, len(metrc_transfer_packages))
+			for i in range(len(metrc_transfer_packages)):
+				tp = metrc_transfer_packages[i]
+				exp = expected_transfer_packages[i]
+				self.assertEqual(exp['type'], tp.type)
+				self.assertEqual(exp['company_id'], str(tp.company_id))
+				self.assertEqual(exp['package_id'], tp.package_id)
+				self.assertEqual(exp['delivery_id'], tp.delivery_id)
+				self.assertEqual(exp['package_id'] + '-label', tp.package_label)
+				self.assertEqual(exp['package_id'] + '-type', tp.package_type)
+				self.assertEqual(exp['package_id'] + '-product-name', tp.product_name)
+				self.assertEqual(exp['package_id'] + '-category-name', tp.product_category_name)
+				
+				self.assertAlmostEqual(exp['shipped_quantity'], float(tp.shipped_quantity) if tp.shipped_quantity else None)
+				self.assertEqual(exp['received_quantity'], float(tp.received_quantity))
+				self.assertEqual(exp['package_id'] + '-shipment-package-state', tp.shipment_package_state)
+				self.assertEqual(exp['shipper_wholesale_price'], tp.shipper_wholesale_price)
+				self.assertEqual(exp['receiver_wholesale_price'], cast(Dict, tp.package_payload).get('ReceiverWholesalePrice'))
+				self.assertEqual(exp['shipped_unit_of_measure'], tp.shipped_unit_of_measure)
+				self.assertEqual(exp['received_unit_of_measure'], tp.received_unit_of_measure)
+
+				self.assertEqual(exp['lab_results_status'], tp.lab_results_status)
+				
+				self.assertEqual(exp['delivery_row_id'], str(tp.delivery_row_id))
+				self.assertEqual(exp['transfer_row_id'], str(tp.transfer_row_id))
+				self.assertEqual(exp['last_modified_at'], tp.last_modified_at)
+
+		expected_packages: List[Dict] = [
+			{
+				'type': 'active',
+				'company_id': company_id,
+				'package_id': 'out-pkg1-A',
+				'delivery_id': 'out-d1',
+				'last_modified_at': parser.parse('02/03/2020'),
+			},
+			{
+				'type': 'active',
+				'company_id': company_id,
+				'package_id': 'out-pkg2-B',
+				'last_modified_at': parser.parse('02/04/2020'),
+			},
+			{
+				'type': 'active',
+				'company_id': company_id,
+				'package_id': 'in-pkg1-A',
+				'delivery_id': 'incoming-d3',
+				'shipped_quantity': 5.0,
+				'lab_results_status': 'unknown',
+				'last_modified_at': parser.parse('02/05/2020'),
+			},
+			{
+				'type': 'active',
+				'company_id': company_id,
+				'package_id': 'in-pkg2-B',
+				'delivery_id': 'incoming-d3',
+				'last_modified_at': parser.parse('02/06/2020'),
+			}
+		]
+
+		with session_scope(session_maker) as session:
+			metrc_packages = cast(List[models.MetrcPackage], session.query(
+				models.MetrcPackage).order_by(models.MetrcPackage.last_modified_at).all())
 			self.assertEqual(4, len(metrc_packages))
 			for i in range(len(metrc_packages)):
 				p = metrc_packages[i]
@@ -388,15 +483,9 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 				self.assertEqual(exp['type'], p.type)
 				self.assertEqual(exp['company_id'], str(p.company_id))
 				self.assertEqual(exp['package_id'], p.package_id)
-				self.assertEqual(exp['delivery_id'], p.delivery_id)
 				self.assertEqual(exp['package_id'] + '-label', p.package_label)
 				self.assertEqual(exp['package_id'] + '-type', p.package_type)
 				self.assertEqual(exp['package_id'] + '-product-name', p.product_name)
 				self.assertEqual(exp['package_id'] + '-category-name', p.product_category_name)
-				self.assertAlmostEqual(exp['shipped_quantity'], float(p.shipped_quantity) if p.shipped_quantity else None)
-				self.assertEqual(exp['lab_results_status'], p.lab_results_status)
-				self.assertEqual(exp['shipper_wholesale_price'], p.shipper_wholesale_price)
-				self.assertEqual(exp['receiver_wholesale_price'], cast(Dict, p.package_payload).get('ReceiverWholesalePrice'))
-				self.assertEqual(exp['delivery_row_id'], str(p.delivery_row_id))
-				self.assertEqual(exp['transfer_row_id'], str(p.transfer_row_id))
+				self.assertEqual(exp['last_modified_at'], p.last_modified_at)
 
