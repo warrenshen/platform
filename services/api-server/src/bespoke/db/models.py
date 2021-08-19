@@ -473,7 +473,8 @@ class MetrcPackage(Base):
 	product_category_name = Column(String) # From Metrc info
 	package_payload = Column(JSON) # From Metrc info
 	last_modified_at = Column(DateTime) # From Metrc info
-	packaged_date = Column(Date)
+
+	packaged_date = Column(Date) # From Metrc info
 
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime)

@@ -58,8 +58,9 @@ class Packages(object):
 			p.package_id = package_id
 			p.package_label = package['Label']
 			p.package_type = package['PackageType']
-			p.product_name = package.get('ProductName')
-			p.product_category_name = package.get('ProductCategoryName')
+			item = package['Item']
+			p.product_name = item['Name']
+			p.product_category_name = item['ProductCategoryName']
 			p.last_modified_at = parser.parse(package['LastModified'])
 			p.packaged_date = parser.parse(package['PackagedDate'])
 
@@ -141,6 +142,7 @@ def write_packages(packages_models: List[PackageObject], session_maker: Callable
 			packages_chunk = [package.metrc_package for package in package_models_chunk]
 			package_common_util.update_packages(
 				packages_chunk,
+				is_from_transfer_packages=False,
 				session=session
 			)
 		batch_index += 1

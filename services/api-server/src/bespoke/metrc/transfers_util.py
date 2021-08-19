@@ -533,6 +533,7 @@ def populate_transfers_table(
 			# TODO(dlluncor): Keep track of package_row_id on the transfer package as well
 			package_common_util.update_packages(
 				packages_chunk,
+				is_from_transfer_packages=True,
 				session=session
 			)
 

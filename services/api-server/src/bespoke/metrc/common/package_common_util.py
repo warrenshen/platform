@@ -73,6 +73,7 @@ def maybe_merge_into_prev_package(
 
 def update_packages(
 	packages: List[models.MetrcPackage],
+	is_from_transfer_packages: bool,
 	session: Session) -> None:
 	package_ids = [package.package_id for package in packages] 
 
@@ -97,10 +98,16 @@ def update_packages(
 		if metrc_package_key in package_id_to_prev_package:
 			# update
 			prev_metrc_package = package_id_to_prev_package[metrc_package_key]
+			prev_package_payload = dict(prev_metrc_package.package_payload)
 			maybe_merge_into_prev_package(
 				prev=prev_metrc_package, 
 				cur=metrc_package
 			)
+			if is_from_transfer_packages:
+				# When overwriting from transfer packages, don't modify the original
+				# package_payload. We want to retain the package_payload from the
+				# original package
+				prev_metrc_package.package_payload = prev_package_payload
 		else:
 			# add
 			session.add(metrc_package)
