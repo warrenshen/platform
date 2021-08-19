@@ -90,6 +90,7 @@ def download_packages(ctx: metrc_common_util.DownloadContext) -> List[PackageObj
 		active_packages = json.loads(resp.content)
 		request_status['packages_api'] = 200
 	except errors.Error as e:
+		logging.error(e)
 		metrc_common_util.update_if_all_are_unsuccessful(request_status, 'packages_api', e)
 
 	try:
@@ -131,8 +132,7 @@ def download_packages(ctx: metrc_common_util.DownloadContext) -> List[PackageObj
 	package_models = active_package_models + inactive_package_models + onhold_package_models
 	return package_models
 
-def write_packages(packages_models: List[PackageObject], session_maker: Callable) -> None:
-	BATCH_SIZE = 50
+def write_packages(packages_models: List[PackageObject], session_maker: Callable, BATCH_SIZE: int = 50) -> None:
 	batch_index = 1
 
 	batches_count = len(packages_models) // BATCH_SIZE + 1

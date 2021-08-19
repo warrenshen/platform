@@ -9,7 +9,9 @@ from typing import Any, Dict, List, Tuple, NamedTuple, cast
 from fastapi_utils.guid_type import GUID
 
 from bespoke.db import models
+from bespoke.db.models import session_scope
 from bespoke.metrc.common import package_common_util
+from bespoke_test.db import db_unittest, test_helper
 
 class TestMergePackage(unittest.TestCase):
 
@@ -219,3 +221,107 @@ class TestMergeTransferPackage(unittest.TestCase):
 				self.assertEqual('active', got.type)
 			else:
 				self.assertEqual(getattr(got, field), getattr(cur, field))
+
+class TestUpdatePackages(db_unittest.TestCase):
+
+	def test_update_packages(self) -> None:
+		self.reset()
+		session_maker = self.session_maker
+		seed = test_helper.BasicSeed.create(self.session_maker, self)
+		seed.initialize()
+
+		company_id = seed.get_company_id('company_admin', index=0)
+		with session_scope(session_maker) as session:
+			cur = models.MetrcPackage(
+				type='type-2',
+				package_id='2',
+				package_label='A',
+				package_type='2-type',
+				product_name='2-name',
+				product_category_name='2-category-name',
+				package_payload={'Label': 'A'},
+				last_modified_at=parser.parse('01/02/2020'),
+				packaged_date=parser.parse('01/04/2020'),
+				updated_at=parser.parse('01/05/2020')
+			)
+			cur.company_id = cast(Any, company_id)
+			session.add(cur)
+
+		with session_scope(session_maker) as session:
+			metrc_packages = cast(List[models.MetrcPackage], session.query(
+				models.MetrcPackage).order_by(models.MetrcPackage.last_modified_at).all())
+			self.assertEqual(1, len(metrc_packages))
+
+			new_packages = [
+				models.MetrcPackage(
+					type='type-2',
+					package_id='2',
+					package_label='A',
+					package_type='2-type',
+					product_name='2-name-NEW',
+					product_category_name='2-category-name',
+					package_payload={'Label': 'A-NEW'},
+					last_modified_at=parser.parse('01/02/2020'),
+					packaged_date=parser.parse('01/04/2020'),
+					updated_at=parser.parse('01/05/2020')
+				),
+				models.MetrcPackage(
+					type='type-3',
+					package_id='3',
+					package_label='B',
+					package_type='3-type',
+					product_name='3-name',
+					product_category_name='3-category-name',
+					package_payload={'Label': 'B'},
+					last_modified_at=parser.parse('01/03/2020'),
+					packaged_date=parser.parse('01/05/2020'),
+					updated_at=parser.parse('01/06/2020')
+				)
+			]
+			package_common_util.update_packages(
+				new_packages, 
+				is_from_transfer_packages=False,
+				session=session)
+
+		# Testing that the update works when is_from_transfer_packages=False
+		with session_scope(session_maker) as session:
+			metrc_packages = cast(List[models.MetrcPackage], session.query(
+				models.MetrcPackage).order_by(models.MetrcPackage.last_modified_at).all())
+			self.assertEqual(2, len(metrc_packages))
+
+			# One package gets overwritten with a new field
+			self.assertEqual('2-name-NEW', metrc_packages[0].product_name)
+			self.assertEqual({'Label': 'A-NEW'}, metrc_packages[0].package_payload)
+
+		with session_scope(session_maker) as session:
+			new_packages = [
+				models.MetrcPackage(
+					type='type-2',
+					package_id='2',
+					package_label='A',
+					package_type='2-type',
+					product_name='2-name-NEW3',
+					product_category_name='2-category-name',
+					package_payload={'Label': 'DO-NOT-USE-TO-OVERWRITE'},
+					last_modified_at=parser.parse('01/02/2020'),
+					packaged_date=parser.parse('01/04/2020'),
+					updated_at=parser.parse('01/05/2020')
+				),
+			]
+			package_common_util.update_packages(
+				new_packages, 
+				is_from_transfer_packages=True,
+				session=session)
+
+		with session_scope(session_maker) as session:
+			metrc_packages = cast(List[models.MetrcPackage], session.query(
+				models.MetrcPackage).order_by(models.MetrcPackage.last_modified_at).all())
+			self.assertEqual(2, len(metrc_packages))
+
+			# One package gets overwritten with a new field
+			self.assertEqual('2-name-NEW3', metrc_packages[0].product_name)
+			self.assertEqual({'Label': 'A-NEW'}, metrc_packages[0].package_payload)
+
+
+
+
