@@ -1,0 +1,1 @@
+ALTER INDEX IF EXISTS metrc_packages_company_id_type RENAME TO metrc_packages_company_id_type_key;

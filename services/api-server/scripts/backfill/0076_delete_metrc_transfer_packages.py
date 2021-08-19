@@ -44,9 +44,9 @@ def main(is_test_run: bool = True) -> None:
 				is_done = True
 				continue
 			else:
-				metrc_transfer_package_index += 1
-
 				for metrc_transfer_package in metrc_transfer_packages_batch:
+					metrc_transfer_package_index += 1
+
 					if metrc_transfer_package.transfer_row_id is not None:
 						print('ERROR! Exiting early')
 						return

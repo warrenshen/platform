@@ -1,0 +1,1 @@
+ALTER INDEX IF EXISTS metrc_packages_delivery_id_package_id_key RENAME TO metrc_transfer_packages_delivery_id_package_id_key;

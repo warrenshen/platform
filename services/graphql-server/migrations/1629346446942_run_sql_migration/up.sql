@@ -1,0 +1,1 @@
+ALTER INDEX IF EXISTS metrc_packages_package_id_key1 RENAME TO metrc_packages_package_id_key;

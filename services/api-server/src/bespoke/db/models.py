@@ -429,7 +429,7 @@ class MetrcTransfer(Base):
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	license_id = cast(GUID, Column(GUID, ForeignKey('company_licenses.id')))
 	vendor_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
-	type = Column(String) # db_constants.TransferType based on Metrc API endpoint.
+	type = Column(String) # Enum based on Metrc API endpoint: db_constants.TransferType.
 	transfer_id = Column(String) # From Metrc info
 	shipper_facility_license_number = Column(String)
 	shipper_facility_name = Column(String)
@@ -448,7 +448,7 @@ class MetrcDelivery(Base):
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
 	transfer_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_transfers.id')))
 	delivery_id = Column(String) # From Metrc info
-	delivery_type = Column(String)
+	delivery_type = Column(String) # Custom enum: 'INCOMING_INTERNAL', 'INCOMING_FROM_VENDOR', 'INCOMING_UNKNOWN', 'OUTGOING_INTERNAL', 'OUTGOING_TO_VENDOR', 'OUTGOING_UNKNOWN', 'UNKNOWN'.
 	recipient_facility_license_number = Column(String)
 	recipient_facility_name = Column(String)
 	payor_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
@@ -464,7 +464,7 @@ class MetrcPackage(Base):
 
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
 	
-	type = Column(String)
+	type = Column(String) # Enum based on Metrc API endpoint: 'active' | 'onhold' | 'inactive'.
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	package_id = Column(String) # From Metrc info
 	package_label = Column(String) # From Metrc info
