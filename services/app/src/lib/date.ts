@@ -32,6 +32,14 @@ export function todayMinusXDaysDateStringServer(xDays: number) {
   return format(addDays(new Date(), -1 * xDays), DateFormatServer);
 }
 
+export function lastThreeMonthsCertificationDates() {
+  return [
+    todayAsDateStringServer(),
+    todayAsDateStringServer(),
+    todayAsDateStringServer(),
+  ];
+}
+
 export function formatDateString(dateString: string) {
   if (!dateString) {
     return "Invalid Date";

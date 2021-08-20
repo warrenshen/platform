@@ -8,6 +8,7 @@ from typing import Any, Callable, List, Tuple, cast
 import boto3
 import requests
 from bespoke import errors
+from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.db_constants import FileTypeEnum
 from bespoke.db.models import session_scope
@@ -280,7 +281,8 @@ class DownloadSignedUrlView(MethodView):
 						'id': file_id,
 						'name': file_orm.name,
 						'path': file_orm.path,
-						'url': url
+						'url': url,
+						'created_at': date_util.datetime_to_str(file_orm.created_at),
 					})
 				except ClientError as e:
 					logging.error(

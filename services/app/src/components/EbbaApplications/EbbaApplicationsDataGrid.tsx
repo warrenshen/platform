@@ -20,6 +20,7 @@ interface Props {
   isApprovedAtVisible?: boolean;
   isCompanyVisible?: boolean;
   isExcelExport?: boolean;
+  isLineOfCredit?: boolean;
   isMultiSelectEnabled?: boolean;
   ebbaApplications: GetOpenEbbaApplicationsQuery["ebba_applications"];
   selectedEbbaApplicationIds?: EbbaApplications["id"][];
@@ -32,6 +33,7 @@ export default function EbbaApplicationsDataGrid({
   isApprovedAtVisible = false,
   isCompanyVisible = false,
   isExcelExport = true,
+  isLineOfCredit = false,
   isMultiSelectEnabled = false,
   ebbaApplications,
   selectedEbbaApplicationIds,
@@ -46,6 +48,7 @@ export default function EbbaApplicationsDataGrid({
       ebbaApplications.map((ebbaApplication) => ({
         ...ebbaApplication,
         company_name: ebbaApplication.company?.name,
+        files_count: ebbaApplication.ebba_application_files.length,
         submitted_by_name: ebbaApplication.submitted_by_user?.full_name,
       })),
     [ebbaApplications]
@@ -79,7 +82,7 @@ export default function EbbaApplicationsDataGrid({
         visible: isApprovedAtVisible,
         dataField: "approved_at",
         caption: "Approved At",
-        width: ColumnWidths.Type,
+        width: ColumnWidths.Datetime,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
           <DatetimeDataGridCell
@@ -110,7 +113,7 @@ export default function EbbaApplicationsDataGrid({
       },
       {
         dataField: "application_date",
-        caption: "Borrowing Base Date",
+        caption: "Certification Date",
         width: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
@@ -118,6 +121,13 @@ export default function EbbaApplicationsDataGrid({
         ),
       },
       {
+        dataField: "files_count",
+        caption: "# File Attachments",
+        width: ColumnWidths.Date,
+        alignment: "right",
+      },
+      {
+        visible: isLineOfCredit,
         dataField: "monthly_accounts_receivable",
         caption: "Accounts Receivable Balance",
         width: ColumnWidths.Currency,
@@ -129,6 +139,7 @@ export default function EbbaApplicationsDataGrid({
         ),
       },
       {
+        visible: isLineOfCredit,
         dataField: "monthly_inventory",
         caption: "Inventory",
         width: ColumnWidths.Currency,
@@ -138,6 +149,7 @@ export default function EbbaApplicationsDataGrid({
         ),
       },
       {
+        visible: isLineOfCredit,
         dataField: "monthly_cash",
         caption: "Cash in Deposit Accounts",
         width: ColumnWidths.Currency,
@@ -147,6 +159,7 @@ export default function EbbaApplicationsDataGrid({
         ),
       },
       {
+        visible: isLineOfCredit,
         dataField: "amount_cash_in_daca",
         caption: "Cash in DACA Deposit Accounts",
         width: ColumnWidths.Currency,
@@ -156,6 +169,7 @@ export default function EbbaApplicationsDataGrid({
         ),
       },
       {
+        visible: isLineOfCredit,
         dataField: "calculated_borrowing_base",
         caption: "Calculated Borrowing Base",
         alignment: "right",
@@ -166,7 +180,7 @@ export default function EbbaApplicationsDataGrid({
         ),
       },
     ],
-    [isApprovedAtVisible, isCompanyVisible]
+    [isApprovedAtVisible, isCompanyVisible, isLineOfCredit]
   );
 
   const handleSelectionChanged = useMemo(

@@ -302,3 +302,8 @@ export enum CustomMessageEnum {
 }
 
 export const AllCustomMessages = [CustomMessageEnum.OVERVIEW_PAGE];
+
+export enum ClientSurveillanceCategoryEnum {
+  BorrowingBase = "borrowing_base",
+  FinancialReports = "financial_reports",
+}

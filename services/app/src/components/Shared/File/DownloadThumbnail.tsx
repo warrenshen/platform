@@ -1,9 +1,10 @@
 import { Box, Button, Link, Typography } from "@material-ui/core";
 import InsertDriveFileIcon from "@material-ui/icons/InsertDriveFile";
 import { ReactComponent as CloseIcon } from "components/Shared/Layout/Icons/Close.svg";
+import { FileWithSignedURL, downloadFilesWithSignedUrls } from "lib/api/files";
+import { formatDatetimeString } from "lib/date";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { FileWithSignedURL, downloadFilesWithSignedUrls } from "lib/api/files";
 
 const File = styled.div`
   display: flex;
@@ -33,6 +34,10 @@ const FileLinkText = styled.span`
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+`;
+
+const FileRightSection = styled.div`
+  display: flex;
 `;
 
 const CloseButton = styled(Button)`
@@ -91,15 +96,24 @@ export default function DownloadThumbnail({
                   </Box>
                   <FileLinkText>{fileWithSignedUrl.name}</FileLinkText>
                 </FileLink>
-                {deleteFileId && (
-                  <CloseButton
-                    onClick={() =>
-                      deleteFileId && deleteFileId(fileWithSignedUrl.id)
-                    }
-                  >
-                    <CloseIcon />
-                  </CloseButton>
-                )}
+                <FileRightSection>
+                  <Box mr={1}>
+                    <Typography variant="subtitle2" color="textSecondary">
+                      {`Uploaded ${formatDatetimeString(
+                        fileWithSignedUrl.created_at
+                      )}`}
+                    </Typography>
+                  </Box>
+                  {deleteFileId && (
+                    <CloseButton
+                      onClick={() =>
+                        deleteFileId && deleteFileId(fileWithSignedUrl.id)
+                      }
+                    >
+                      <CloseIcon />
+                    </CloseButton>
+                  )}
+                </FileRightSection>
               </File>
             ))}
           </Box>

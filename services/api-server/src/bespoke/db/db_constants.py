@@ -208,3 +208,8 @@ class TransferType(object):
 	INCOMING = 'INCOMING'
 	OUTGOING = 'OUTGOING'
 	UNKNOWN = 'UNKNOWN'
+
+# Client Surveillance
+class ClientSurveillanceCategoryEnum(object):
+	BORROWING_BASE = 'borrowing_base'
+	FINANCIAL_REPORTS = 'financial_reports'

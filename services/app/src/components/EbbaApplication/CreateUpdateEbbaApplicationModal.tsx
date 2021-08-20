@@ -20,7 +20,7 @@ import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { submitEbbaApplicationMutation } from "lib/api/ebbaApplications";
 import { computeEbbaApplicationExpiresAt } from "lib/date";
-import { ActionType } from "lib/enum";
+import { ActionType, ClientSurveillanceCategoryEnum } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useMemo, useState } from "react";
 
@@ -192,6 +192,7 @@ export default function CreateUpdateEbbaApplicationModal({
         variables: {
           ebbaApplication: {
             company_id: isBankUser ? companyId : undefined,
+            category: ClientSurveillanceCategoryEnum.BorrowingBase,
             application_date: ebbaApplication.application_date,
             monthly_accounts_receivable:
               ebbaApplication.monthly_accounts_receivable,

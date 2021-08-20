@@ -19,6 +19,10 @@ query GetOpenEbbaApplications {
       id
       name
     }
+    ebba_application_files {
+      ebba_application_id
+      file_id
+    }
   }
 }
 
@@ -42,6 +46,10 @@ query GetClosedEbbaApplications {
     company {
       id
       name
+    }
+    ebba_application_files {
+      ebba_application_id
+      file_id
     }
   }
 }

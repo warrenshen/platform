@@ -96,6 +96,10 @@ query GetCompanyForCustomerBorrowingBase($companyId: uuid!) {
         id
         name
       }
+      ebba_application_files {
+        ebba_application_id
+        file_id
+      }
     }
     settings {
       id

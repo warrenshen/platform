@@ -6,6 +6,7 @@ export type FileWithSignedURL = {
   name: string;
   path: string;
   url: string;
+  created_at: string;
 };
 
 type DownloadSignedURLResponse = {

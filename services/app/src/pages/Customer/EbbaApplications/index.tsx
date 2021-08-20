@@ -5,12 +5,17 @@ import { useContext } from "react";
 
 export default function CustomerEbbaApplicationsPage() {
   const {
-    user: { companyId },
+    user: { companyId, productType },
   } = useContext(CurrentUserContext);
 
   return (
     <Page appBarTitle={"Borrowing Base"}>
-      <CustomerEbbaApplicationsPageContent companyId={companyId} />
+      {companyId && productType && (
+        <CustomerEbbaApplicationsPageContent
+          companyId={companyId}
+          productType={productType}
+        />
+      )}
     </Page>
   );
 }

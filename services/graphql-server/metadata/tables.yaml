@@ -1516,6 +1516,7 @@
       - amount_cash_in_daca
       - application_date
       - calculated_borrowing_base
+      - category
       - company_id
       - expires_at
       - monthly_accounts_receivable
@@ -1533,6 +1534,7 @@
       - amount_cash_in_daca
       - application_date
       - calculated_borrowing_base
+      - category
       - expires_at
       - monthly_accounts_receivable
       - monthly_cash
@@ -1542,90 +1544,96 @@
   - role: bank_admin
     permission:
       columns:
-      - amount_cash_in_daca
-      - application_date
-      - approved_at
-      - calculated_borrowing_base
-      - company_id
-      - created_at
-      - expires_at
       - id
-      - is_deleted
+      - company_id
+      - application_date
+      - created_at
+      - updated_at
       - monthly_accounts_receivable
-      - monthly_cash
       - monthly_inventory
+      - monthly_cash
+      - status
+      - requested_at
       - rejected_at
       - rejection_note
-      - requested_at
-      - status
+      - approved_at
+      - calculated_borrowing_base
+      - expires_at
+      - amount_cash_in_daca
+      - is_deleted
       - submitted_by_user_id
-      - updated_at
+      - category
       filter: {}
   - role: bank_read_only
     permission:
       columns:
-      - amount_cash_in_daca
-      - application_date
-      - approved_at
-      - calculated_borrowing_base
-      - company_id
-      - created_at
-      - expires_at
-      - id
       - is_deleted
+      - application_date
+      - expires_at
+      - amount_cash_in_daca
+      - calculated_borrowing_base
       - monthly_accounts_receivable
       - monthly_cash
       - monthly_inventory
-      - rejected_at
+      - category
       - rejection_note
-      - requested_at
       - status
-      - submitted_by_user_id
+      - rejected_at
+      - approved_at
+      - created_at
+      - requested_at
       - updated_at
+      - company_id
+      - id
+      - submitted_by_user_id
       filter: {}
   - role: company_admin
     permission:
       columns:
-      - amount_cash_in_daca
-      - application_date
-      - approved_at
-      - calculated_borrowing_base
-      - company_id
-      - created_at
-      - expires_at
-      - id
       - is_deleted
+      - application_date
+      - expires_at
+      - amount_cash_in_daca
+      - calculated_borrowing_base
       - monthly_accounts_receivable
       - monthly_cash
       - monthly_inventory
+      - category
       - rejection_note
-      - requested_at
       - status
-      - submitted_by_user_id
+      - rejected_at
+      - approved_at
+      - created_at
+      - requested_at
       - updated_at
+      - company_id
+      - id
+      - submitted_by_user_id
       filter:
         company_id:
           _eq: X-Hasura-Company-Id
   - role: company_read_only
     permission:
       columns:
-      - amount_cash_in_daca
-      - application_date
-      - approved_at
-      - calculated_borrowing_base
-      - company_id
-      - created_at
-      - expires_at
-      - id
       - is_deleted
+      - application_date
+      - expires_at
+      - amount_cash_in_daca
+      - calculated_borrowing_base
       - monthly_accounts_receivable
       - monthly_cash
       - monthly_inventory
+      - category
       - rejection_note
-      - requested_at
       - status
-      - submitted_by_user_id
+      - rejected_at
+      - approved_at
+      - created_at
+      - requested_at
       - updated_at
+      - company_id
+      - id
+      - submitted_by_user_id
       filter:
         company_id:
           _eq: X-Hasura-Company-Id

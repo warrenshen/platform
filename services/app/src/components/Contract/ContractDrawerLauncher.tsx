@@ -9,7 +9,11 @@ interface Props {
   children?: (handleClick: () => void) => ReactNode;
 }
 
-function Launcher({ label, contractId, children }: Props) {
+export default function ContractDrawerLauncher({
+  label,
+  contractId,
+  children,
+}: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -31,5 +35,3 @@ function Launcher({ label, contractId, children }: Props) {
     </>
   );
 }
-
-export default Launcher;

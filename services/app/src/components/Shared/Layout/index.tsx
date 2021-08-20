@@ -66,7 +66,7 @@ const Content = styled.main`
   flex-direction: column;
   align-items: stretch;
 
-  width: calc(100% - 260px);
+  width: calc(100% - 270px);
   background-color: #f6f5f3;
   overflow-y: scroll;
 `;
@@ -76,7 +76,7 @@ const Footer = styled.div`
   flex-direction: column;
 `;
 
-const DRAWER_WIDTH = 260;
+const DRAWER_WIDTH = 270;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

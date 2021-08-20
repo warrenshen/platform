@@ -99,6 +99,7 @@ fragment BankAccountForVendor on bank_accounts {
 fragment EbbaApplication on ebba_applications {
   id
   company_id
+  category
   application_date
   monthly_accounts_receivable
   monthly_inventory

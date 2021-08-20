@@ -21,6 +21,7 @@ export default function EbbaApplicationsClosedTab() {
         <EbbaApplicationsDataGrid
           isApprovedAtVisible
           isCompanyVisible
+          isLineOfCredit
           ebbaApplications={ebbaApplications}
         />
       </Box>

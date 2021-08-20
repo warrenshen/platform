@@ -1,6 +1,7 @@
 import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import CreateUpdateEbbaApplicationModal from "components/EbbaApplication/CreateUpdateEbbaApplicationModal";
+import CreateUpdateFinancialReportsCertificationModal from "components/EbbaApplication/CreateUpdateFinancialReportsCertificationModal";
 import DeleteEbbaApplicationModal from "components/EbbaApplication/DeleteEbbaApplicationModal";
 import EbbaApplicationCard from "components/EbbaApplication/EbbaApplicationCard";
 import EbbaApplicationsDataGrid from "components/EbbaApplications/EbbaApplicationsDataGrid";
@@ -12,6 +13,7 @@ import {
   Companies,
   EbbaApplicationFragment,
   EbbaApplications,
+  ProductTypeEnum,
   useGetCompanyForCustomerBorrowingBaseQuery,
 } from "generated/graphql";
 import { withinNDaysOfNowOrBefore } from "lib/date";
@@ -20,10 +22,12 @@ import { useMemo, useState } from "react";
 
 interface Props {
   companyId: Companies["id"];
+  productType: ProductTypeEnum;
 }
 
 export default function CustomerEbbaApplicationsPageContent({
   companyId,
+  productType,
 }: Props) {
   const { data, loading, refetch } = useGetCompanyForCustomerBorrowingBaseQuery(
     {
@@ -33,6 +37,11 @@ export default function CustomerEbbaApplicationsPageContent({
       },
     }
   );
+
+  const isLineOfCredit = [ProductTypeEnum.LineOfCredit].includes(productType);
+  const ebbaApplicationDisplayCategory = isLineOfCredit
+    ? "Borrowing Base"
+    : "Financial Reports";
 
   const activeEbbaApplication =
     data?.companies_by_pk?.settings?.active_ebba_application;
@@ -73,7 +82,7 @@ export default function CustomerEbbaApplicationsPageContent({
 
   return (
     <PageContent
-      title={"Borrowing Base"}
+      title={`${ebbaApplicationDisplayCategory} Certifications`}
       subtitle={
         "Review your current certification, submit a new certification, and view historical certifications."
       }
@@ -81,18 +90,30 @@ export default function CustomerEbbaApplicationsPageContent({
       <Can perform={Action.AddBorrowingBase}>
         <Box mt={2}>
           <ModalButton
-            label={"Create Borrowing Base Certification"}
-            modal={({ handleClose }) => (
-              <CreateUpdateEbbaApplicationModal
-                actionType={ActionType.New}
-                companyId={companyId}
-                ebbaApplicationId={null}
-                handleClose={() => {
-                  refetch();
-                  handleClose();
-                }}
-              />
-            )}
+            label={`Create ${ebbaApplicationDisplayCategory} Certification`}
+            modal={({ handleClose }) =>
+              isLineOfCredit ? (
+                <CreateUpdateEbbaApplicationModal
+                  actionType={ActionType.New}
+                  companyId={companyId}
+                  ebbaApplicationId={null}
+                  handleClose={() => {
+                    refetch();
+                    handleClose();
+                  }}
+                />
+              ) : (
+                <CreateUpdateFinancialReportsCertificationModal
+                  actionType={ActionType.New}
+                  companyId={companyId}
+                  ebbaApplicationId={null}
+                  handleClose={() => {
+                    refetch();
+                    handleClose();
+                  }}
+                />
+              )
+            }
           />
         </Box>
       </Can>
@@ -100,13 +121,15 @@ export default function CustomerEbbaApplicationsPageContent({
         <Box>
           <Box mb={1}>
             <Typography variant="h6">
-              Active Borrowing Base Certification
+              {`Active ${ebbaApplicationDisplayCategory} Certification`}
             </Typography>
             <Box width="50%">
               <Typography variant="body2">
-                Your active borrowing base certification determines your max
+                {isLineOfCredit
+                  ? `Your active borrowing base certification determines your max
                 borrowing limit. The financial information you provide is used
-                to calculate your max borrowing limit.
+                to calculate your max borrowing limit.`
+                  : `Your active financial reports certification determines whether you are eligible for financing.`}
               </Typography>
             </Box>
           </Box>
@@ -116,24 +139,24 @@ export default function CustomerEbbaApplicationsPageContent({
                 !isActiveApplicationExpiringSoon ? (
                   <Alert severity="info" style={{ alignSelf: "flex-start" }}>
                     <Box maxWidth={600}>
-                      Your current borrowing base certification is up-to-date.
-                      You can review its details below.
+                      {`Your current ${ebbaApplicationDisplayCategory.toLowerCase()} certification is up-to-date.
+                      You can review its details below.`}
                     </Box>
                   </Alert>
                 ) : (
                   <Alert severity="warning" style={{ alignSelf: "flex-start" }}>
                     <Box maxWidth={600}>
-                      Your current borrowing base certification is expiring
-                      soon. Please submit a new certification.
+                      {`Your current ${ebbaApplicationDisplayCategory.toLowerCase()} certification is expiring
+                      soon. Please submit a new certification.`}
                     </Box>
                   </Alert>
                 )
               ) : (
                 <Alert severity="warning" style={{ alignSelf: "flex-start" }}>
                   <Box maxWidth={600}>
-                    You do not have an up-to-date borrowing base certification.
+                    {`You do not have an up-to-date ${ebbaApplicationDisplayCategory.toLowerCase()} certification.
                     Please submit a new certification for approval, otherwise
-                    you will not be able to receive financing.
+                    you will not be able to receive financing.`}
                   </Box>
                 </Alert>
               ))}
@@ -145,7 +168,7 @@ export default function CustomerEbbaApplicationsPageContent({
         <Box mt={3}>
           <Box mb={1}>
             <Typography variant="h6">
-              Historical Borrowing Base Certifications
+              {`Historical ${ebbaApplicationDisplayCategory} Certifications`}
             </Typography>
           </Box>
           <Box display="flex" flexDirection="row-reverse" mt={2} mb={2}>
@@ -165,6 +188,7 @@ export default function CustomerEbbaApplicationsPageContent({
             )}
           </Box>
           <EbbaApplicationsDataGrid
+            isLineOfCredit={isLineOfCredit}
             isMultiSelectEnabled
             ebbaApplications={ebbaApplications}
             selectedEbbaApplicationIds={selectedEbbaApplicationIds}

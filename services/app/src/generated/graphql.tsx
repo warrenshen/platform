@@ -5150,6 +5150,7 @@ export type EbbaApplications = {
   application_date: Scalars["date"];
   approved_at?: Maybe<Scalars["timestamptz"]>;
   calculated_borrowing_base?: Maybe<Scalars["numeric"]>;
+  category?: Maybe<Scalars["String"]>;
   /** An object relationship */
   company: Companies;
   company_id: Scalars["uuid"];
@@ -5277,6 +5278,7 @@ export type EbbaApplicationsBoolExp = {
   application_date?: Maybe<DateComparisonExp>;
   approved_at?: Maybe<TimestamptzComparisonExp>;
   calculated_borrowing_base?: Maybe<NumericComparisonExp>;
+  category?: Maybe<StringComparisonExp>;
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
@@ -5317,6 +5319,7 @@ export type EbbaApplicationsInsertInput = {
   application_date?: Maybe<Scalars["date"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   calculated_borrowing_base?: Maybe<Scalars["numeric"]>;
+  category?: Maybe<Scalars["String"]>;
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
@@ -5342,6 +5345,7 @@ export type EbbaApplicationsMaxFields = {
   application_date?: Maybe<Scalars["date"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   calculated_borrowing_base?: Maybe<Scalars["numeric"]>;
+  category?: Maybe<Scalars["String"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   expires_at?: Maybe<Scalars["date"]>;
@@ -5362,6 +5366,7 @@ export type EbbaApplicationsMaxOrderBy = {
   application_date?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   calculated_borrowing_base?: Maybe<OrderBy>;
+  category?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   expires_at?: Maybe<OrderBy>;
@@ -5382,6 +5387,7 @@ export type EbbaApplicationsMinFields = {
   application_date?: Maybe<Scalars["date"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   calculated_borrowing_base?: Maybe<Scalars["numeric"]>;
+  category?: Maybe<Scalars["String"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   expires_at?: Maybe<Scalars["date"]>;
@@ -5402,6 +5408,7 @@ export type EbbaApplicationsMinOrderBy = {
   application_date?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   calculated_borrowing_base?: Maybe<OrderBy>;
+  category?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   expires_at?: Maybe<OrderBy>;
@@ -5443,6 +5450,7 @@ export type EbbaApplicationsOrderBy = {
   application_date?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   calculated_borrowing_base?: Maybe<OrderBy>;
+  category?: Maybe<OrderBy>;
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
@@ -5477,6 +5485,8 @@ export enum EbbaApplicationsSelectColumn {
   ApprovedAt = "approved_at",
   /** column name */
   CalculatedBorrowingBase = "calculated_borrowing_base",
+  /** column name */
+  Category = "category",
   /** column name */
   CompanyId = "company_id",
   /** column name */
@@ -5513,6 +5523,7 @@ export type EbbaApplicationsSetInput = {
   application_date?: Maybe<Scalars["date"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   calculated_borrowing_base?: Maybe<Scalars["numeric"]>;
+  category?: Maybe<Scalars["String"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   expires_at?: Maybe<Scalars["date"]>;
@@ -5611,6 +5622,8 @@ export enum EbbaApplicationsUpdateColumn {
   ApprovedAt = "approved_at",
   /** column name */
   CalculatedBorrowingBase = "calculated_borrowing_base",
+  /** column name */
+  Category = "category",
   /** column name */
   CompanyId = "company_id",
   /** column name */
@@ -10328,9 +10341,9 @@ export type MetrcPackagesBoolExp = {
 /** unique or primary key constraints on table "metrc_packages" */
 export enum MetrcPackagesConstraint {
   /** unique or primary key constraint */
-  MetrcPackagesPackageIdKey1 = "metrc_packages_package_id_key1",
+  MetrcPackagesPackageIdKey = "metrc_packages_package_id_key",
   /** unique or primary key constraint */
-  MetrcPackagesPkey1 = "metrc_packages_pkey1",
+  MetrcPackagesPkey = "metrc_packages_pkey",
 }
 
 /** input type for inserting data into table "metrc_packages" */
@@ -11352,6 +11365,7 @@ export type MetrcTransferPackages = {
   delivery_row_id?: Maybe<Scalars["uuid"]>;
   id: Scalars["uuid"];
   lab_results_status: Scalars["String"];
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
   /** An object relationship */
   metrc_delivery?: Maybe<MetrcDeliveries>;
   /** An object relationship */
@@ -11452,6 +11466,7 @@ export type MetrcTransferPackagesBoolExp = {
   delivery_row_id?: Maybe<UuidComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   lab_results_status?: Maybe<StringComparisonExp>;
+  last_modified_at?: Maybe<TimestamptzComparisonExp>;
   metrc_delivery?: Maybe<MetrcDeliveriesBoolExp>;
   metrc_transfer?: Maybe<MetrcTransfersBoolExp>;
   package_id?: Maybe<StringComparisonExp>;
@@ -11474,9 +11489,9 @@ export type MetrcTransferPackagesBoolExp = {
 /** unique or primary key constraints on table "metrc_transfer_packages" */
 export enum MetrcTransferPackagesConstraint {
   /** unique or primary key constraint */
-  MetrcPackagesDeliveryIdPackageIdKey = "metrc_packages_delivery_id_package_id_key",
+  MetrcTransferPackagesDeliveryIdPackageIdKey = "metrc_transfer_packages_delivery_id_package_id_key",
   /** unique or primary key constraint */
-  MetrcPackagesPkey = "metrc_packages_pkey",
+  MetrcTransferPackagesPkey = "metrc_transfer_packages_pkey",
 }
 
 /** input type for incrementing integer column in table "metrc_transfer_packages" */
@@ -11494,6 +11509,7 @@ export type MetrcTransferPackagesInsertInput = {
   delivery_row_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   lab_results_status?: Maybe<Scalars["String"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
   metrc_delivery?: Maybe<MetrcDeliveriesObjRelInsertInput>;
   metrc_transfer?: Maybe<MetrcTransfersObjRelInsertInput>;
   package_id?: Maybe<Scalars["String"]>;
@@ -11521,6 +11537,7 @@ export type MetrcTransferPackagesMaxFields = {
   delivery_row_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   lab_results_status?: Maybe<Scalars["String"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
   package_id?: Maybe<Scalars["String"]>;
   package_label?: Maybe<Scalars["String"]>;
   package_type?: Maybe<Scalars["String"]>;
@@ -11545,6 +11562,7 @@ export type MetrcTransferPackagesMaxOrderBy = {
   delivery_row_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   lab_results_status?: Maybe<OrderBy>;
+  last_modified_at?: Maybe<OrderBy>;
   package_id?: Maybe<OrderBy>;
   package_label?: Maybe<OrderBy>;
   package_type?: Maybe<OrderBy>;
@@ -11569,6 +11587,7 @@ export type MetrcTransferPackagesMinFields = {
   delivery_row_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   lab_results_status?: Maybe<Scalars["String"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
   package_id?: Maybe<Scalars["String"]>;
   package_label?: Maybe<Scalars["String"]>;
   package_type?: Maybe<Scalars["String"]>;
@@ -11593,6 +11612,7 @@ export type MetrcTransferPackagesMinOrderBy = {
   delivery_row_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   lab_results_status?: Maybe<OrderBy>;
+  last_modified_at?: Maybe<OrderBy>;
   package_id?: Maybe<OrderBy>;
   package_label?: Maybe<OrderBy>;
   package_type?: Maybe<OrderBy>;
@@ -11638,6 +11658,7 @@ export type MetrcTransferPackagesOrderBy = {
   delivery_row_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   lab_results_status?: Maybe<OrderBy>;
+  last_modified_at?: Maybe<OrderBy>;
   metrc_delivery?: Maybe<MetrcDeliveriesOrderBy>;
   metrc_transfer?: Maybe<MetrcTransfersOrderBy>;
   package_id?: Maybe<OrderBy>;
@@ -11676,6 +11697,8 @@ export enum MetrcTransferPackagesSelectColumn {
   Id = "id",
   /** column name */
   LabResultsStatus = "lab_results_status",
+  /** column name */
+  LastModifiedAt = "last_modified_at",
   /** column name */
   PackageId = "package_id",
   /** column name */
@@ -11716,6 +11739,7 @@ export type MetrcTransferPackagesSetInput = {
   delivery_row_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   lab_results_status?: Maybe<Scalars["String"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
   package_id?: Maybe<Scalars["String"]>;
   package_label?: Maybe<Scalars["String"]>;
   package_payload?: Maybe<Scalars["json"]>;
@@ -11803,6 +11827,8 @@ export enum MetrcTransferPackagesUpdateColumn {
   Id = "id",
   /** column name */
   LabResultsStatus = "lab_results_status",
+  /** column name */
+  LastModifiedAt = "last_modified_at",
   /** column name */
   PackageId = "package_id",
   /** column name */
@@ -11893,6 +11919,7 @@ export type MetrcTransfers = {
   created_date: Scalars["date"];
   id: Scalars["uuid"];
   lab_results_status?: Maybe<Scalars["String"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
   license_id?: Maybe<Scalars["uuid"]>;
   manifest_number: Scalars["String"];
   /** An array relationship */
@@ -11996,6 +12023,7 @@ export type MetrcTransfersBoolExp = {
   created_date?: Maybe<DateComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   lab_results_status?: Maybe<StringComparisonExp>;
+  last_modified_at?: Maybe<TimestamptzComparisonExp>;
   license_id?: Maybe<UuidComparisonExp>;
   manifest_number?: Maybe<StringComparisonExp>;
   metrc_packages?: Maybe<MetrcTransferPackagesBoolExp>;
@@ -12029,6 +12057,7 @@ export type MetrcTransfersInsertInput = {
   created_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   lab_results_status?: Maybe<Scalars["String"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
   license_id?: Maybe<Scalars["uuid"]>;
   manifest_number?: Maybe<Scalars["String"]>;
   metrc_packages?: Maybe<MetrcTransferPackagesArrRelInsertInput>;
@@ -12052,6 +12081,7 @@ export type MetrcTransfersMaxFields = {
   created_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   lab_results_status?: Maybe<Scalars["String"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
   license_id?: Maybe<Scalars["uuid"]>;
   manifest_number?: Maybe<Scalars["String"]>;
   shipment_transaction_type?: Maybe<Scalars["String"]>;
@@ -12072,6 +12102,7 @@ export type MetrcTransfersMaxOrderBy = {
   created_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   lab_results_status?: Maybe<OrderBy>;
+  last_modified_at?: Maybe<OrderBy>;
   license_id?: Maybe<OrderBy>;
   manifest_number?: Maybe<OrderBy>;
   shipment_transaction_type?: Maybe<OrderBy>;
@@ -12092,6 +12123,7 @@ export type MetrcTransfersMinFields = {
   created_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   lab_results_status?: Maybe<Scalars["String"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
   license_id?: Maybe<Scalars["uuid"]>;
   manifest_number?: Maybe<Scalars["String"]>;
   shipment_transaction_type?: Maybe<Scalars["String"]>;
@@ -12112,6 +12144,7 @@ export type MetrcTransfersMinOrderBy = {
   created_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   lab_results_status?: Maybe<OrderBy>;
+  last_modified_at?: Maybe<OrderBy>;
   license_id?: Maybe<OrderBy>;
   manifest_number?: Maybe<OrderBy>;
   shipment_transaction_type?: Maybe<OrderBy>;
@@ -12155,6 +12188,7 @@ export type MetrcTransfersOrderBy = {
   created_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   lab_results_status?: Maybe<OrderBy>;
+  last_modified_at?: Maybe<OrderBy>;
   license_id?: Maybe<OrderBy>;
   manifest_number?: Maybe<OrderBy>;
   metrc_packages_aggregate?: Maybe<MetrcTransferPackagesAggregateOrderBy>;
@@ -12189,6 +12223,8 @@ export enum MetrcTransfersSelectColumn {
   /** column name */
   LabResultsStatus = "lab_results_status",
   /** column name */
+  LastModifiedAt = "last_modified_at",
+  /** column name */
   LicenseId = "license_id",
   /** column name */
   ManifestNumber = "manifest_number",
@@ -12221,6 +12257,7 @@ export type MetrcTransfersSetInput = {
   created_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   lab_results_status?: Maybe<Scalars["String"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
   license_id?: Maybe<Scalars["uuid"]>;
   manifest_number?: Maybe<Scalars["String"]>;
   shipment_transaction_type?: Maybe<Scalars["String"]>;
@@ -12247,6 +12284,8 @@ export enum MetrcTransfersUpdateColumn {
   Id = "id",
   /** column name */
   LabResultsStatus = "lab_results_status",
+  /** column name */
+  LastModifiedAt = "last_modified_at",
   /** column name */
   LicenseId = "license_id",
   /** column name */
@@ -22044,7 +22083,11 @@ export type GetEbbaApplicationQueryVariables = Exact<{
 export type GetEbbaApplicationQuery = {
   ebba_applications_by_pk?: Maybe<
     Pick<EbbaApplications, "id"> & {
-      company: Pick<Companies, "id" | "name">;
+      company: Pick<Companies, "id" | "name"> & {
+        ebba_applications: Array<
+          Pick<EbbaApplications, "id" | "category" | "application_date">
+        >;
+      };
       ebba_application_files: Array<EbbaApplicationFileFragment>;
     } & EbbaApplicationFragment
   >;
@@ -22090,6 +22133,9 @@ export type GetOpenEbbaApplicationsQuery = {
   ebba_applications: Array<
     Pick<EbbaApplications, "id"> & {
       company: Pick<Companies, "id" | "name">;
+      ebba_application_files: Array<
+        Pick<EbbaApplicationFiles, "ebba_application_id" | "file_id">
+      >;
     } & EbbaApplicationFragment
   >;
 };
@@ -22102,6 +22148,9 @@ export type GetClosedEbbaApplicationsQuery = {
   ebba_applications: Array<
     Pick<EbbaApplications, "id"> & {
       company: Pick<Companies, "id" | "name">;
+      ebba_application_files: Array<
+        Pick<EbbaApplicationFiles, "ebba_application_id" | "file_id">
+      >;
     } & EbbaApplicationFragment
   >;
 };
@@ -22994,6 +23043,9 @@ export type GetCompanyForCustomerBorrowingBaseQuery = {
       ebba_applications: Array<
         Pick<EbbaApplications, "id"> & {
           company: Pick<Companies, "id" | "name">;
+          ebba_application_files: Array<
+            Pick<EbbaApplicationFiles, "ebba_application_id" | "file_id">
+          >;
         } & EbbaApplicationFragment
       >;
       settings?: Maybe<
@@ -23188,6 +23240,7 @@ export type EbbaApplicationFragment = Pick<
   EbbaApplications,
   | "id"
   | "company_id"
+  | "category"
   | "application_date"
   | "monthly_accounts_receivable"
   | "monthly_inventory"
@@ -24137,6 +24190,7 @@ export const EbbaApplicationFragmentDoc = gql`
   fragment EbbaApplication on ebba_applications {
     id
     company_id
+    category
     application_date
     monthly_accounts_receivable
     monthly_inventory
@@ -25650,6 +25704,11 @@ export const GetEbbaApplicationDocument = gql`
       company {
         id
         name
+        ebba_applications {
+          id
+          category
+          application_date
+        }
       }
       ebba_application_files {
         ...EbbaApplicationFile
@@ -25856,6 +25915,10 @@ export const GetOpenEbbaApplicationsDocument = gql`
         id
         name
       }
+      ebba_application_files {
+        ebba_application_id
+        file_id
+      }
     }
   }
   ${EbbaApplicationFragmentDoc}
@@ -25929,6 +25992,10 @@ export const GetClosedEbbaApplicationsDocument = gql`
       company {
         id
         name
+      }
+      ebba_application_files {
+        ebba_application_id
+        file_id
       }
     }
   }
@@ -30603,6 +30670,10 @@ export const GetCompanyForCustomerBorrowingBaseDocument = gql`
         company {
           id
           name
+        }
+        ebba_application_files {
+          ebba_application_id
+          file_id
         }
       }
       settings {

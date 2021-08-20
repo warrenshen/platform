@@ -939,8 +939,14 @@ class EbbaApplication(Base):
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id'), nullable=False))
+	# TODO (warren): change category to be non-nullable.
+	category = Column(Text)
+
 	status = Column(String, nullable=False)
 	application_date = Column(Date)
+	is_deleted = Column(Boolean, nullable=False, default=False)
+	submitted_by_user_id = Column(GUID)
+
 	monthly_accounts_receivable = Column(Numeric)
 	monthly_inventory = Column(Numeric)
 	monthly_cash = Column(Numeric)
@@ -948,11 +954,10 @@ class EbbaApplication(Base):
 	calculated_borrowing_base = Column(Numeric)
 	rejection_note = Column(Text)
 	expires_at = Column(Date)
+
 	requested_at = Column(DateTime)
 	approved_at = Column(DateTime)
 	rejected_at = Column(DateTime)
-	is_deleted = Column(Boolean, nullable=False, default=False)
-	submitted_by_user_id = Column(GUID)
 
 	company = relationship(
 		'Company',
