@@ -59,6 +59,10 @@ export default function EbbaApplicationFinancialReportsForm({
     [ebbaApplicationFiles]
   );
 
+  const selectedCertificationDate = ebbaApplication.application_date
+    ? formatDateString(ebbaApplication.application_date)
+    : "";
+
   return (
     <Box display="flex" flexDirection="column">
       <Box display="flex" flexDirection="column" mt={4}>
@@ -86,7 +90,7 @@ export default function EbbaApplicationFinancialReportsForm({
                   <MenuItem key={index} value={dateStringServer}>
                     {`${formatDateStringAsMonth(
                       dateStringServer
-                    )}: Submit financials as of ${formatDateString(
+                    )}: submit financial reports as of ${formatDateString(
                       dateStringServer
                     )}`}
                   </MenuItem>
@@ -96,23 +100,33 @@ export default function EbbaApplicationFinancialReportsForm({
           </FormControl>
         </Box>
       </Box>
-      <Box mt={4}>
-        <Alert severity="info">
-          <Typography variant="body1">
-            {`Important: all financial values provided below should be AS OF the certification date specified above.`}
-          </Typography>
-        </Alert>
-      </Box>
       <Box display="flex" flexDirection="column" mt={4}>
-        <Box mb={1}>
-          <Typography variant="subtitle1" color="textSecondary">
-            File Attachment(s)
-          </Typography>
-          <Typography variant="body2" color="textSecondary">
-            Please upload file attachment(s) that serve as proof of the above
-            financial information. One file attachment for each number is
-            preferred.
-          </Typography>
+        <Box mb={2}>
+          <Box>
+            <Typography variant="subtitle1" color="textSecondary">
+              Please upload the following required financial reports:
+            </Typography>
+          </Box>
+          <Box mt={0.5}>
+            <Typography variant="body1">
+              {`Balance Sheet as of: ${selectedCertificationDate}`}
+            </Typography>
+          </Box>
+          <Box mt={0.5}>
+            <Typography variant="body1">
+              {`Monthly Income Statement as of: ${selectedCertificationDate}`}
+            </Typography>
+          </Box>
+          <Box mt={0.5}>
+            <Typography variant="body1">
+              {`A/R Aging Summary Report as of: ${selectedCertificationDate}`}
+            </Typography>
+          </Box>
+          <Box mt={0.5}>
+            <Typography variant="body1">
+              {`A/P Aging Summary Report as of: ${selectedCertificationDate}`}
+            </Typography>
+          </Box>
         </Box>
         <FileUploader
           companyId={companyId}

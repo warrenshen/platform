@@ -23,7 +23,7 @@ export default function BankEbbaApplicationsPage() {
           >
             <Tab label="PO / INV - Financial Reports" />
             <Tab label="LOC - Borrowing Bases" />
-            <Tab label="Historical Submissions" />
+            <Tab label="Historical Certifications" />
           </Tabs>
           {selectedTabIndex === 0 ? (
             <EbbaApplicationsFinancialReportsTab />

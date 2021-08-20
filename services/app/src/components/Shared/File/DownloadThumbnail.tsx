@@ -38,6 +38,7 @@ const FileLinkText = styled.span`
 
 const FileRightSection = styled.div`
   display: flex;
+  align-items: center;
 `;
 
 const CloseButton = styled(Button)`

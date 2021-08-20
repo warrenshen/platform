@@ -6,15 +6,20 @@ import {
   format,
   getYear,
   isEqual,
+  lastDayOfMonth,
   parse,
   parseISO,
 } from "date-fns";
 import { getBankHolidays, Holiday } from "date-fns-holiday-us";
 
-export const MonthFormatClient = "MM/yyyy";
+export const MonthFormatClient = "MMMM yyyy (MM/yyyy)";
 export const DateFormatClient = "MM/dd/yyyy";
 export const DateFormatServer = "yyyy-MM-dd";
 export const TimeFormatClient = "hh:mm:ss a";
+
+function dateAsDateStringServer(date: Date) {
+  return format(date, DateFormatServer);
+}
 
 export function todayAsDateStringServer() {
   return format(new Date(), DateFormatServer);
@@ -33,10 +38,17 @@ export function todayMinusXDaysDateStringServer(xDays: number) {
 }
 
 export function lastThreeMonthsCertificationDates() {
+  const today = new Date();
+  const monthOne = addMonths(today, -1);
+  const monthTwo = addMonths(today, -2);
+  const monthThree = addMonths(today, -3);
+  const dateOne = lastDayOfMonth(monthOne);
+  const dateTwo = lastDayOfMonth(monthTwo);
+  const dateThree = lastDayOfMonth(monthThree);
   return [
-    todayAsDateStringServer(),
-    todayAsDateStringServer(),
-    todayAsDateStringServer(),
+    dateAsDateStringServer(dateOne),
+    dateAsDateStringServer(dateTwo),
+    dateAsDateStringServer(dateThree),
   ];
 }
 

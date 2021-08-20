@@ -174,19 +174,51 @@ export default function CustomerEbbaApplicationsPageContent({
             </Typography>
           </Box>
           <Box display="flex" flexDirection="row-reverse" mt={2} mb={2}>
-            <ModalButton
-              isDisabled={!selectedEbbaApplication}
-              label={"Delete Certification"}
-              modal={({ handleClose }) => (
-                <DeleteEbbaApplicationModal
-                  ebbaApplicationId={selectedEbbaApplication?.id}
-                  handleClose={() => {
-                    refetch();
-                    handleClose();
-                  }}
-                />
-              )}
-            />
+            <Box>
+              <ModalButton
+                isDisabled={!selectedEbbaApplication}
+                label={"Edit Certification"}
+                modal={({ handleClose }) =>
+                  isCategoryBorrowingBase ? (
+                    <CreateUpdateBorrowingBaseCertificationModal
+                      actionType={ActionType.Update}
+                      companyId={companyId}
+                      ebbaApplicationId={selectedEbbaApplication?.id}
+                      handleClose={() => {
+                        refetch();
+                        handleClose();
+                      }}
+                    />
+                  ) : (
+                    <CreateUpdateFinancialReportsCertificationModal
+                      actionType={ActionType.Update}
+                      companyId={companyId}
+                      ebbaApplicationId={selectedEbbaApplication?.id}
+                      handleClose={() => {
+                        refetch();
+                        handleClose();
+                      }}
+                    />
+                  )
+                }
+              />
+            </Box>
+            <Box mr={2}>
+              <ModalButton
+                isDisabled={!selectedEbbaApplication}
+                label={"Delete Certification"}
+                variant={"outlined"}
+                modal={({ handleClose }) => (
+                  <DeleteEbbaApplicationModal
+                    ebbaApplicationId={selectedEbbaApplication?.id}
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                    }}
+                  />
+                )}
+              />
+            </Box>
           </Box>
           <EbbaApplicationsDataGrid
             isBorrowingBaseFieldsVisible={isCategoryBorrowingBase}

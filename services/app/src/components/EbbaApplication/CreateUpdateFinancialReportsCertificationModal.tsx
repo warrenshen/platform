@@ -139,9 +139,7 @@ export default function CreateUpdateEbbaApplicationModal({
   const handleClickSubmit = async () => {
     const savedEbbaApplication = await upsertEbbaApplication();
     if (!savedEbbaApplication) {
-      snackbar.showError(
-        "Error! Could not submit financial reports certification."
-      );
+      snackbar.showError("Could not submit financial reports certification.");
       return;
     }
 
@@ -209,6 +207,15 @@ export default function CreateUpdateEbbaApplicationModal({
         setEbbaApplication={setEbbaApplication}
         setEbbaApplicationFiles={setEbbaApplicationFiles}
       />
+      <Box mt={4}>
+        <Alert severity="warning">
+          <Typography>
+            If you have PRIOR month financial reports that were ADJUSTED after
+            they were provided to Bespoke Financial, please upload those to the
+            correct previous month certification.
+          </Typography>
+        </Alert>
+      </Box>
     </Modal>
   );
 }
