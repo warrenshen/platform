@@ -80,7 +80,8 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 									'DeliveryId': 'incoming-d3',
 									'RecipientFacilityLicenseNumber': 'lic-recip1',
 									'RecipientFacilityName': 'facility-name-recip1',
-									'ReceivedDateTime': parser.parse('01/02/2020').isoformat()
+									'ReceivedDateTime': parser.parse('01/02/2020').isoformat(),
+									'LastModified': parser.parse('02/05/2020').isoformat()
 								}
 							]
 						}
@@ -101,7 +102,8 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 									'CreatedDateTime': parser.parse('01/03/2020').isoformat(),
 									'ManifestNumber': 'out-t1-manifest',
 									'ShipmentTypeName': 'ship-type-out-t1',
-									'ShipmentTransactionType': 'ship-tx-type-out-t1'
+									'ShipmentTransactionType': 'ship-tx-type-out-t1',
+									'LastModified': parser.parse('02/03/2020').isoformat()
 								}
 							]
 						}
@@ -142,7 +144,6 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 									'ReceivedQuantity': 3.1,
 									'ShippedUnitOfMeasureName': 'oz',
 									'ReceivedUnitOfMeasureName': 'lbs',
-									'LastModified': parser.parse('02/03/2020').isoformat()
 								}),
 								_package_json({
 									'Id': 'out-p2',
@@ -151,7 +152,6 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 									'ReceivedQuantity': 4.1,
 									'ShippedUnitOfMeasureName': 'oz',
 									'ReceivedUnitOfMeasureName': 'lbs',
-									'LastModified': parser.parse('02/04/2020').isoformat()
 								})
 							]
 						}
@@ -172,7 +172,6 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 									'ReceivedQuantity': 5.1,
 									'ShippedUnitOfMeasureName': 'oz',
 									'ReceivedUnitOfMeasureName': 'lbs',
-									'LastModified': parser.parse('02/05/2020').isoformat()
 								}),
 								_package_json({
 									'Id': 'in-p2',
@@ -181,7 +180,6 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 									'ReceivedQuantity': 6.1,
 									'ShippedUnitOfMeasureName': 'oz',
 									'ReceivedUnitOfMeasureName': 'lbs',
-									'LastModified': parser.parse('02/06/2020').isoformat()
 								})
 							]
 						}
@@ -375,7 +373,7 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 				'received_unit_of_measure': 'lbs',
 				'delivery_row_id': metrc_delivery_row_ids[1],
 				'transfer_row_id': transfer_row_ids[1],
-				'last_modified_at': parser.parse('02/04/2020'),
+				'last_modified_at': parser.parse('02/03/2020'),
 			},
 			{
 				'type': 'transfer_incoming',
@@ -407,7 +405,7 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 				'received_unit_of_measure': 'lbs',
 				'delivery_row_id': metrc_delivery_row_ids[0],
 				'transfer_row_id': transfer_row_ids[0],
-				'last_modified_at': parser.parse('02/06/2020'),
+				'last_modified_at': parser.parse('02/05/2020'),
 			}
 		]
 
@@ -445,19 +443,6 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 			{
 				'type': 'active',
 				'company_id': company_id,
-				'package_id': 'out-pkg1-A',
-				'delivery_id': 'out-d1',
-				'last_modified_at': parser.parse('02/03/2020'),
-			},
-			{
-				'type': 'active',
-				'company_id': company_id,
-				'package_id': 'out-pkg2-B',
-				'last_modified_at': parser.parse('02/04/2020'),
-			},
-			{
-				'type': 'active',
-				'company_id': company_id,
 				'package_id': 'in-pkg1-A',
 				'delivery_id': 'incoming-d3',
 				'shipped_quantity': 5.0,
@@ -469,13 +454,26 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 				'company_id': company_id,
 				'package_id': 'in-pkg2-B',
 				'delivery_id': 'incoming-d3',
-				'last_modified_at': parser.parse('02/06/2020'),
+				'last_modified_at': parser.parse('02/05/2020'),
+			},
+			{
+				'type': 'active',
+				'company_id': company_id,
+				'package_id': 'out-pkg1-A',
+				'delivery_id': 'out-d1',
+				'last_modified_at': parser.parse('02/03/2020'),
+			},
+			{
+				'type': 'active',
+				'company_id': company_id,
+				'package_id': 'out-pkg2-B',
+				'last_modified_at': parser.parse('02/03/2020'),
 			}
 		]
 
 		with session_scope(session_maker) as session:
 			metrc_packages = cast(List[models.MetrcPackage], session.query(
-				models.MetrcPackage).order_by(models.MetrcPackage.last_modified_at).all())
+				models.MetrcPackage).order_by(models.MetrcPackage.updated_at).all())
 			self.assertEqual(4, len(metrc_packages))
 			for i in range(len(metrc_packages)):
 				p = metrc_packages[i]

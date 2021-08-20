@@ -2934,6 +2934,7 @@
       - delivery_row_id
       - id
       - lab_results_status
+      - last_modified_at
       - package_id
       - package_label
       - package_payload
@@ -2959,6 +2960,7 @@
       - delivery_row_id
       - id
       - lab_results_status
+      - last_modified_at
       - package_id
       - package_label
       - package_payload
@@ -2984,6 +2986,7 @@
       - delivery_row_id
       - id
       - lab_results_status
+      - last_modified_at
       - package_id
       - package_label
       - package_payload
@@ -3015,6 +3018,7 @@
       - delivery_row_id
       - id
       - lab_results_status
+      - last_modified_at
       - package_id
       - package_label
       - package_payload
@@ -3045,6 +3049,7 @@
       - delivery_row_id
       - id
       - lab_results_status
+      - last_modified_at
       - package_id
       - package_label
       - package_payload
@@ -3098,6 +3103,7 @@
       - created_date
       - id
       - lab_results_status
+      - last_modified_at
       - license_id
       - manifest_number
       - shipment_transaction_type
@@ -3119,6 +3125,7 @@
       - created_date
       - id
       - lab_results_status
+      - last_modified_at
       - license_id
       - manifest_number
       - shipment_transaction_type
@@ -3140,6 +3147,7 @@
       - created_date
       - id
       - lab_results_status
+      - last_modified_at
       - license_id
       - manifest_number
       - shipment_transaction_type
@@ -3166,6 +3174,7 @@
       - created_date
       - id
       - lab_results_status
+      - last_modified_at
       - license_id
       - manifest_number
       - shipment_transaction_type
@@ -3191,6 +3200,7 @@
       - created_date
       - id
       - lab_results_status
+      - last_modified_at
       - license_id
       - manifest_number
       - shipment_transaction_type

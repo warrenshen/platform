@@ -1,8 +1,8 @@
 import { Box, TextField } from "@material-ui/core";
-import MetrcPackagesDataGrid from "components/Transfers/MetrcPackagesDataGrid";
+import MetrcPackagesDataGrid from "components/Packages/MetrcPackagesDataGrid";
 import {
   Companies,
-  useGetMetrcTransferPackagesByCompanyIdQuery,
+  useGetMetrcPackagesByCompanyIdQuery,
 } from "generated/graphql";
 import { filter } from "lodash";
 import { useMemo, useState } from "react";
@@ -11,8 +11,8 @@ interface Props {
   companyId: Companies["id"];
 }
 
-export default function CustomermetrcPackagesTab({ companyId }: Props) {
-  const { data, error } = useGetMetrcTransferPackagesByCompanyIdQuery({
+export default function CustomerMetrcPackagesTab({ companyId }: Props) {
+  const { data, error } = useGetMetrcPackagesByCompanyIdQuery({
     fetchPolicy: "network-only",
     variables: {
       company_id: companyId,
@@ -29,13 +29,13 @@ export default function CustomermetrcPackagesTab({ companyId }: Props) {
   const metrcPackages = useMemo(
     () =>
       filter(
-        data?.metrc_transfer_packages || [],
+        data?.metrc_packages || [],
         (metrcPackage) =>
-          `${metrcPackage.package_id} ${metrcPackage.metrc_transfer?.manifest_number}`
+          `${metrcPackage.package_id}`
             .toLowerCase()
             .indexOf(searchQuery.toLowerCase()) >= 0
       ),
-    [searchQuery, data?.metrc_transfer_packages]
+    [searchQuery, data?.metrc_packages]
   );
 
   return (
@@ -49,7 +49,7 @@ export default function CustomermetrcPackagesTab({ companyId }: Props) {
         <Box display="flex">
           <TextField
             autoFocus
-            label="Search by package ID or manifest number"
+            label="Search by package ID"
             value={searchQuery}
             onChange={({ target: { value } }) => setSearchQuery(value)}
             style={{ width: 400 }}

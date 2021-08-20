@@ -10251,6 +10251,289 @@ export enum MetrcHarvestsUpdateColumn {
   Type = "type",
 }
 
+/** columns and relationships of "metrc_packages" */
+export type MetrcPackages = {
+  company_id: Scalars["uuid"];
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  id: Scalars["uuid"];
+  last_modified_at: Scalars["timestamptz"];
+  package_id: Scalars["String"];
+  package_label: Scalars["String"];
+  package_payload: Scalars["json"];
+  package_type: Scalars["String"];
+  packaged_date: Scalars["date"];
+  product_category_name?: Maybe<Scalars["String"]>;
+  product_name?: Maybe<Scalars["String"]>;
+  type: Scalars["String"];
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** columns and relationships of "metrc_packages" */
+export type MetrcPackagesPackagePayloadArgs = {
+  path?: Maybe<Scalars["String"]>;
+};
+
+/** aggregated selection of "metrc_packages" */
+export type MetrcPackagesAggregate = {
+  aggregate?: Maybe<MetrcPackagesAggregateFields>;
+  nodes: Array<MetrcPackages>;
+};
+
+/** aggregate fields of "metrc_packages" */
+export type MetrcPackagesAggregateFields = {
+  count?: Maybe<Scalars["Int"]>;
+  max?: Maybe<MetrcPackagesMaxFields>;
+  min?: Maybe<MetrcPackagesMinFields>;
+};
+
+/** aggregate fields of "metrc_packages" */
+export type MetrcPackagesAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<MetrcPackagesSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** order by aggregate values of table "metrc_packages" */
+export type MetrcPackagesAggregateOrderBy = {
+  count?: Maybe<OrderBy>;
+  max?: Maybe<MetrcPackagesMaxOrderBy>;
+  min?: Maybe<MetrcPackagesMinOrderBy>;
+};
+
+/** input type for inserting array relation for remote table "metrc_packages" */
+export type MetrcPackagesArrRelInsertInput = {
+  data: Array<MetrcPackagesInsertInput>;
+  on_conflict?: Maybe<MetrcPackagesOnConflict>;
+};
+
+/** Boolean expression to filter rows from the table "metrc_packages". All fields are combined with a logical 'AND'. */
+export type MetrcPackagesBoolExp = {
+  _and?: Maybe<Array<Maybe<MetrcPackagesBoolExp>>>;
+  _not?: Maybe<MetrcPackagesBoolExp>;
+  _or?: Maybe<Array<Maybe<MetrcPackagesBoolExp>>>;
+  company_id?: Maybe<UuidComparisonExp>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
+  id?: Maybe<UuidComparisonExp>;
+  last_modified_at?: Maybe<TimestamptzComparisonExp>;
+  package_id?: Maybe<StringComparisonExp>;
+  package_label?: Maybe<StringComparisonExp>;
+  package_payload?: Maybe<JsonComparisonExp>;
+  package_type?: Maybe<StringComparisonExp>;
+  packaged_date?: Maybe<DateComparisonExp>;
+  product_category_name?: Maybe<StringComparisonExp>;
+  product_name?: Maybe<StringComparisonExp>;
+  type?: Maybe<StringComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
+};
+
+/** unique or primary key constraints on table "metrc_packages" */
+export enum MetrcPackagesConstraint {
+  /** unique or primary key constraint */
+  MetrcPackagesPackageIdKey1 = "metrc_packages_package_id_key1",
+  /** unique or primary key constraint */
+  MetrcPackagesPkey1 = "metrc_packages_pkey1",
+}
+
+/** input type for inserting data into table "metrc_packages" */
+export type MetrcPackagesInsertInput = {
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
+  package_id?: Maybe<Scalars["String"]>;
+  package_label?: Maybe<Scalars["String"]>;
+  package_payload?: Maybe<Scalars["json"]>;
+  package_type?: Maybe<Scalars["String"]>;
+  packaged_date?: Maybe<Scalars["date"]>;
+  product_category_name?: Maybe<Scalars["String"]>;
+  product_name?: Maybe<Scalars["String"]>;
+  type?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** aggregate max on columns */
+export type MetrcPackagesMaxFields = {
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
+  package_id?: Maybe<Scalars["String"]>;
+  package_label?: Maybe<Scalars["String"]>;
+  package_type?: Maybe<Scalars["String"]>;
+  packaged_date?: Maybe<Scalars["date"]>;
+  product_category_name?: Maybe<Scalars["String"]>;
+  product_name?: Maybe<Scalars["String"]>;
+  type?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** order by max() on columns of table "metrc_packages" */
+export type MetrcPackagesMaxOrderBy = {
+  company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  last_modified_at?: Maybe<OrderBy>;
+  package_id?: Maybe<OrderBy>;
+  package_label?: Maybe<OrderBy>;
+  package_type?: Maybe<OrderBy>;
+  packaged_date?: Maybe<OrderBy>;
+  product_category_name?: Maybe<OrderBy>;
+  product_name?: Maybe<OrderBy>;
+  type?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
+/** aggregate min on columns */
+export type MetrcPackagesMinFields = {
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
+  package_id?: Maybe<Scalars["String"]>;
+  package_label?: Maybe<Scalars["String"]>;
+  package_type?: Maybe<Scalars["String"]>;
+  packaged_date?: Maybe<Scalars["date"]>;
+  product_category_name?: Maybe<Scalars["String"]>;
+  product_name?: Maybe<Scalars["String"]>;
+  type?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** order by min() on columns of table "metrc_packages" */
+export type MetrcPackagesMinOrderBy = {
+  company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  last_modified_at?: Maybe<OrderBy>;
+  package_id?: Maybe<OrderBy>;
+  package_label?: Maybe<OrderBy>;
+  package_type?: Maybe<OrderBy>;
+  packaged_date?: Maybe<OrderBy>;
+  product_category_name?: Maybe<OrderBy>;
+  product_name?: Maybe<OrderBy>;
+  type?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
+/** response of any mutation on the table "metrc_packages" */
+export type MetrcPackagesMutationResponse = {
+  /** number of affected rows by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data of the affected rows by the mutation */
+  returning: Array<MetrcPackages>;
+};
+
+/** input type for inserting object relation for remote table "metrc_packages" */
+export type MetrcPackagesObjRelInsertInput = {
+  data: MetrcPackagesInsertInput;
+  on_conflict?: Maybe<MetrcPackagesOnConflict>;
+};
+
+/** on conflict condition type for table "metrc_packages" */
+export type MetrcPackagesOnConflict = {
+  constraint: MetrcPackagesConstraint;
+  update_columns: Array<MetrcPackagesUpdateColumn>;
+  where?: Maybe<MetrcPackagesBoolExp>;
+};
+
+/** ordering options when selecting data from "metrc_packages" */
+export type MetrcPackagesOrderBy = {
+  company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  last_modified_at?: Maybe<OrderBy>;
+  package_id?: Maybe<OrderBy>;
+  package_label?: Maybe<OrderBy>;
+  package_payload?: Maybe<OrderBy>;
+  package_type?: Maybe<OrderBy>;
+  packaged_date?: Maybe<OrderBy>;
+  product_category_name?: Maybe<OrderBy>;
+  product_name?: Maybe<OrderBy>;
+  type?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: "metrc_packages" */
+export type MetrcPackagesPkColumnsInput = {
+  id: Scalars["uuid"];
+};
+
+/** select columns of table "metrc_packages" */
+export enum MetrcPackagesSelectColumn {
+  /** column name */
+  CompanyId = "company_id",
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  Id = "id",
+  /** column name */
+  LastModifiedAt = "last_modified_at",
+  /** column name */
+  PackageId = "package_id",
+  /** column name */
+  PackageLabel = "package_label",
+  /** column name */
+  PackagePayload = "package_payload",
+  /** column name */
+  PackageType = "package_type",
+  /** column name */
+  PackagedDate = "packaged_date",
+  /** column name */
+  ProductCategoryName = "product_category_name",
+  /** column name */
+  ProductName = "product_name",
+  /** column name */
+  Type = "type",
+  /** column name */
+  UpdatedAt = "updated_at",
+}
+
+/** input type for updating data in table "metrc_packages" */
+export type MetrcPackagesSetInput = {
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
+  package_id?: Maybe<Scalars["String"]>;
+  package_label?: Maybe<Scalars["String"]>;
+  package_payload?: Maybe<Scalars["json"]>;
+  package_type?: Maybe<Scalars["String"]>;
+  packaged_date?: Maybe<Scalars["date"]>;
+  product_category_name?: Maybe<Scalars["String"]>;
+  product_name?: Maybe<Scalars["String"]>;
+  type?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** update columns of table "metrc_packages" */
+export enum MetrcPackagesUpdateColumn {
+  /** column name */
+  CompanyId = "company_id",
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  Id = "id",
+  /** column name */
+  LastModifiedAt = "last_modified_at",
+  /** column name */
+  PackageId = "package_id",
+  /** column name */
+  PackageLabel = "package_label",
+  /** column name */
+  PackagePayload = "package_payload",
+  /** column name */
+  PackageType = "package_type",
+  /** column name */
+  PackagedDate = "packaged_date",
+  /** column name */
+  ProductCategoryName = "product_category_name",
+  /** column name */
+  ProductName = "product_name",
+  /** column name */
+  Type = "type",
+  /** column name */
+  UpdatedAt = "updated_at",
+}
+
 /** columns and relationships of "metrc_plant_batches" */
 export type MetrcPlantBatches = {
   /** An object relationship */
@@ -11080,7 +11363,11 @@ export type MetrcTransferPackages = {
   package_type: Scalars["String"];
   product_category_name?: Maybe<Scalars["String"]>;
   product_name?: Maybe<Scalars["String"]>;
+  received_quantity?: Maybe<Scalars["numeric"]>;
+  received_unit_of_measure?: Maybe<Scalars["String"]>;
+  shipment_package_state?: Maybe<Scalars["String"]>;
   shipped_quantity?: Maybe<Scalars["numeric"]>;
+  shipped_unit_of_measure?: Maybe<Scalars["String"]>;
   shipper_wholesale_price?: Maybe<Scalars["numeric"]>;
   transfer_row_id?: Maybe<Scalars["uuid"]>;
   type: Scalars["String"];
@@ -11142,12 +11429,14 @@ export type MetrcTransferPackagesArrRelInsertInput = {
 
 /** aggregate avg on columns */
 export type MetrcTransferPackagesAvgFields = {
+  received_quantity?: Maybe<Scalars["Float"]>;
   shipped_quantity?: Maybe<Scalars["Float"]>;
   shipper_wholesale_price?: Maybe<Scalars["Float"]>;
 };
 
 /** order by avg() on columns of table "metrc_transfer_packages" */
 export type MetrcTransferPackagesAvgOrderBy = {
+  received_quantity?: Maybe<OrderBy>;
   shipped_quantity?: Maybe<OrderBy>;
   shipper_wholesale_price?: Maybe<OrderBy>;
 };
@@ -11171,7 +11460,11 @@ export type MetrcTransferPackagesBoolExp = {
   package_type?: Maybe<StringComparisonExp>;
   product_category_name?: Maybe<StringComparisonExp>;
   product_name?: Maybe<StringComparisonExp>;
+  received_quantity?: Maybe<NumericComparisonExp>;
+  received_unit_of_measure?: Maybe<StringComparisonExp>;
+  shipment_package_state?: Maybe<StringComparisonExp>;
   shipped_quantity?: Maybe<NumericComparisonExp>;
+  shipped_unit_of_measure?: Maybe<StringComparisonExp>;
   shipper_wholesale_price?: Maybe<NumericComparisonExp>;
   transfer_row_id?: Maybe<UuidComparisonExp>;
   type?: Maybe<StringComparisonExp>;
@@ -11188,6 +11481,7 @@ export enum MetrcTransferPackagesConstraint {
 
 /** input type for incrementing integer column in table "metrc_transfer_packages" */
 export type MetrcTransferPackagesIncInput = {
+  received_quantity?: Maybe<Scalars["numeric"]>;
   shipped_quantity?: Maybe<Scalars["numeric"]>;
   shipper_wholesale_price?: Maybe<Scalars["numeric"]>;
 };
@@ -11208,7 +11502,11 @@ export type MetrcTransferPackagesInsertInput = {
   package_type?: Maybe<Scalars["String"]>;
   product_category_name?: Maybe<Scalars["String"]>;
   product_name?: Maybe<Scalars["String"]>;
+  received_quantity?: Maybe<Scalars["numeric"]>;
+  received_unit_of_measure?: Maybe<Scalars["String"]>;
+  shipment_package_state?: Maybe<Scalars["String"]>;
   shipped_quantity?: Maybe<Scalars["numeric"]>;
+  shipped_unit_of_measure?: Maybe<Scalars["String"]>;
   shipper_wholesale_price?: Maybe<Scalars["numeric"]>;
   transfer_row_id?: Maybe<Scalars["uuid"]>;
   type?: Maybe<Scalars["String"]>;
@@ -11228,7 +11526,11 @@ export type MetrcTransferPackagesMaxFields = {
   package_type?: Maybe<Scalars["String"]>;
   product_category_name?: Maybe<Scalars["String"]>;
   product_name?: Maybe<Scalars["String"]>;
+  received_quantity?: Maybe<Scalars["numeric"]>;
+  received_unit_of_measure?: Maybe<Scalars["String"]>;
+  shipment_package_state?: Maybe<Scalars["String"]>;
   shipped_quantity?: Maybe<Scalars["numeric"]>;
+  shipped_unit_of_measure?: Maybe<Scalars["String"]>;
   shipper_wholesale_price?: Maybe<Scalars["numeric"]>;
   transfer_row_id?: Maybe<Scalars["uuid"]>;
   type?: Maybe<Scalars["String"]>;
@@ -11248,7 +11550,11 @@ export type MetrcTransferPackagesMaxOrderBy = {
   package_type?: Maybe<OrderBy>;
   product_category_name?: Maybe<OrderBy>;
   product_name?: Maybe<OrderBy>;
+  received_quantity?: Maybe<OrderBy>;
+  received_unit_of_measure?: Maybe<OrderBy>;
+  shipment_package_state?: Maybe<OrderBy>;
   shipped_quantity?: Maybe<OrderBy>;
+  shipped_unit_of_measure?: Maybe<OrderBy>;
   shipper_wholesale_price?: Maybe<OrderBy>;
   transfer_row_id?: Maybe<OrderBy>;
   type?: Maybe<OrderBy>;
@@ -11268,7 +11574,11 @@ export type MetrcTransferPackagesMinFields = {
   package_type?: Maybe<Scalars["String"]>;
   product_category_name?: Maybe<Scalars["String"]>;
   product_name?: Maybe<Scalars["String"]>;
+  received_quantity?: Maybe<Scalars["numeric"]>;
+  received_unit_of_measure?: Maybe<Scalars["String"]>;
+  shipment_package_state?: Maybe<Scalars["String"]>;
   shipped_quantity?: Maybe<Scalars["numeric"]>;
+  shipped_unit_of_measure?: Maybe<Scalars["String"]>;
   shipper_wholesale_price?: Maybe<Scalars["numeric"]>;
   transfer_row_id?: Maybe<Scalars["uuid"]>;
   type?: Maybe<Scalars["String"]>;
@@ -11288,7 +11598,11 @@ export type MetrcTransferPackagesMinOrderBy = {
   package_type?: Maybe<OrderBy>;
   product_category_name?: Maybe<OrderBy>;
   product_name?: Maybe<OrderBy>;
+  received_quantity?: Maybe<OrderBy>;
+  received_unit_of_measure?: Maybe<OrderBy>;
+  shipment_package_state?: Maybe<OrderBy>;
   shipped_quantity?: Maybe<OrderBy>;
+  shipped_unit_of_measure?: Maybe<OrderBy>;
   shipper_wholesale_price?: Maybe<OrderBy>;
   transfer_row_id?: Maybe<OrderBy>;
   type?: Maybe<OrderBy>;
@@ -11332,7 +11646,11 @@ export type MetrcTransferPackagesOrderBy = {
   package_type?: Maybe<OrderBy>;
   product_category_name?: Maybe<OrderBy>;
   product_name?: Maybe<OrderBy>;
+  received_quantity?: Maybe<OrderBy>;
+  received_unit_of_measure?: Maybe<OrderBy>;
+  shipment_package_state?: Maybe<OrderBy>;
   shipped_quantity?: Maybe<OrderBy>;
+  shipped_unit_of_measure?: Maybe<OrderBy>;
   shipper_wholesale_price?: Maybe<OrderBy>;
   transfer_row_id?: Maybe<OrderBy>;
   type?: Maybe<OrderBy>;
@@ -11371,7 +11689,15 @@ export enum MetrcTransferPackagesSelectColumn {
   /** column name */
   ProductName = "product_name",
   /** column name */
+  ReceivedQuantity = "received_quantity",
+  /** column name */
+  ReceivedUnitOfMeasure = "received_unit_of_measure",
+  /** column name */
+  ShipmentPackageState = "shipment_package_state",
+  /** column name */
   ShippedQuantity = "shipped_quantity",
+  /** column name */
+  ShippedUnitOfMeasure = "shipped_unit_of_measure",
   /** column name */
   ShipperWholesalePrice = "shipper_wholesale_price",
   /** column name */
@@ -11396,7 +11722,11 @@ export type MetrcTransferPackagesSetInput = {
   package_type?: Maybe<Scalars["String"]>;
   product_category_name?: Maybe<Scalars["String"]>;
   product_name?: Maybe<Scalars["String"]>;
+  received_quantity?: Maybe<Scalars["numeric"]>;
+  received_unit_of_measure?: Maybe<Scalars["String"]>;
+  shipment_package_state?: Maybe<Scalars["String"]>;
   shipped_quantity?: Maybe<Scalars["numeric"]>;
+  shipped_unit_of_measure?: Maybe<Scalars["String"]>;
   shipper_wholesale_price?: Maybe<Scalars["numeric"]>;
   transfer_row_id?: Maybe<Scalars["uuid"]>;
   type?: Maybe<Scalars["String"]>;
@@ -11405,48 +11735,56 @@ export type MetrcTransferPackagesSetInput = {
 
 /** aggregate stddev on columns */
 export type MetrcTransferPackagesStddevFields = {
+  received_quantity?: Maybe<Scalars["Float"]>;
   shipped_quantity?: Maybe<Scalars["Float"]>;
   shipper_wholesale_price?: Maybe<Scalars["Float"]>;
 };
 
 /** order by stddev() on columns of table "metrc_transfer_packages" */
 export type MetrcTransferPackagesStddevOrderBy = {
+  received_quantity?: Maybe<OrderBy>;
   shipped_quantity?: Maybe<OrderBy>;
   shipper_wholesale_price?: Maybe<OrderBy>;
 };
 
 /** aggregate stddev_pop on columns */
 export type MetrcTransferPackagesStddevPopFields = {
+  received_quantity?: Maybe<Scalars["Float"]>;
   shipped_quantity?: Maybe<Scalars["Float"]>;
   shipper_wholesale_price?: Maybe<Scalars["Float"]>;
 };
 
 /** order by stddev_pop() on columns of table "metrc_transfer_packages" */
 export type MetrcTransferPackagesStddevPopOrderBy = {
+  received_quantity?: Maybe<OrderBy>;
   shipped_quantity?: Maybe<OrderBy>;
   shipper_wholesale_price?: Maybe<OrderBy>;
 };
 
 /** aggregate stddev_samp on columns */
 export type MetrcTransferPackagesStddevSampFields = {
+  received_quantity?: Maybe<Scalars["Float"]>;
   shipped_quantity?: Maybe<Scalars["Float"]>;
   shipper_wholesale_price?: Maybe<Scalars["Float"]>;
 };
 
 /** order by stddev_samp() on columns of table "metrc_transfer_packages" */
 export type MetrcTransferPackagesStddevSampOrderBy = {
+  received_quantity?: Maybe<OrderBy>;
   shipped_quantity?: Maybe<OrderBy>;
   shipper_wholesale_price?: Maybe<OrderBy>;
 };
 
 /** aggregate sum on columns */
 export type MetrcTransferPackagesSumFields = {
+  received_quantity?: Maybe<Scalars["numeric"]>;
   shipped_quantity?: Maybe<Scalars["numeric"]>;
   shipper_wholesale_price?: Maybe<Scalars["numeric"]>;
 };
 
 /** order by sum() on columns of table "metrc_transfer_packages" */
 export type MetrcTransferPackagesSumOrderBy = {
+  received_quantity?: Maybe<OrderBy>;
   shipped_quantity?: Maybe<OrderBy>;
   shipper_wholesale_price?: Maybe<OrderBy>;
 };
@@ -11478,7 +11816,15 @@ export enum MetrcTransferPackagesUpdateColumn {
   /** column name */
   ProductName = "product_name",
   /** column name */
+  ReceivedQuantity = "received_quantity",
+  /** column name */
+  ReceivedUnitOfMeasure = "received_unit_of_measure",
+  /** column name */
+  ShipmentPackageState = "shipment_package_state",
+  /** column name */
   ShippedQuantity = "shipped_quantity",
+  /** column name */
+  ShippedUnitOfMeasure = "shipped_unit_of_measure",
   /** column name */
   ShipperWholesalePrice = "shipper_wholesale_price",
   /** column name */
@@ -11491,36 +11837,42 @@ export enum MetrcTransferPackagesUpdateColumn {
 
 /** aggregate var_pop on columns */
 export type MetrcTransferPackagesVarPopFields = {
+  received_quantity?: Maybe<Scalars["Float"]>;
   shipped_quantity?: Maybe<Scalars["Float"]>;
   shipper_wholesale_price?: Maybe<Scalars["Float"]>;
 };
 
 /** order by var_pop() on columns of table "metrc_transfer_packages" */
 export type MetrcTransferPackagesVarPopOrderBy = {
+  received_quantity?: Maybe<OrderBy>;
   shipped_quantity?: Maybe<OrderBy>;
   shipper_wholesale_price?: Maybe<OrderBy>;
 };
 
 /** aggregate var_samp on columns */
 export type MetrcTransferPackagesVarSampFields = {
+  received_quantity?: Maybe<Scalars["Float"]>;
   shipped_quantity?: Maybe<Scalars["Float"]>;
   shipper_wholesale_price?: Maybe<Scalars["Float"]>;
 };
 
 /** order by var_samp() on columns of table "metrc_transfer_packages" */
 export type MetrcTransferPackagesVarSampOrderBy = {
+  received_quantity?: Maybe<OrderBy>;
   shipped_quantity?: Maybe<OrderBy>;
   shipper_wholesale_price?: Maybe<OrderBy>;
 };
 
 /** aggregate variance on columns */
 export type MetrcTransferPackagesVarianceFields = {
+  received_quantity?: Maybe<Scalars["Float"]>;
   shipped_quantity?: Maybe<Scalars["Float"]>;
   shipper_wholesale_price?: Maybe<Scalars["Float"]>;
 };
 
 /** order by variance() on columns of table "metrc_transfer_packages" */
 export type MetrcTransferPackagesVarianceOrderBy = {
+  received_quantity?: Maybe<OrderBy>;
   shipped_quantity?: Maybe<OrderBy>;
   shipper_wholesale_price?: Maybe<OrderBy>;
 };
@@ -12043,6 +12395,10 @@ export type MutationRoot = {
   delete_metrc_harvests?: Maybe<MetrcHarvestsMutationResponse>;
   /** delete single row from the table: "metrc_harvests" */
   delete_metrc_harvests_by_pk?: Maybe<MetrcHarvests>;
+  /** delete data from the table: "metrc_packages" */
+  delete_metrc_packages?: Maybe<MetrcPackagesMutationResponse>;
+  /** delete single row from the table: "metrc_packages" */
+  delete_metrc_packages_by_pk?: Maybe<MetrcPackages>;
   /** delete data from the table: "metrc_plant_batches" */
   delete_metrc_plant_batches?: Maybe<MetrcPlantBatchesMutationResponse>;
   /** delete single row from the table: "metrc_plant_batches" */
@@ -12235,6 +12591,10 @@ export type MutationRoot = {
   insert_metrc_harvests?: Maybe<MetrcHarvestsMutationResponse>;
   /** insert a single row into the table: "metrc_harvests" */
   insert_metrc_harvests_one?: Maybe<MetrcHarvests>;
+  /** insert data into the table: "metrc_packages" */
+  insert_metrc_packages?: Maybe<MetrcPackagesMutationResponse>;
+  /** insert a single row into the table: "metrc_packages" */
+  insert_metrc_packages_one?: Maybe<MetrcPackages>;
   /** insert data into the table: "metrc_plant_batches" */
   insert_metrc_plant_batches?: Maybe<MetrcPlantBatchesMutationResponse>;
   /** insert a single row into the table: "metrc_plant_batches" */
@@ -12431,6 +12791,10 @@ export type MutationRoot = {
   update_metrc_harvests?: Maybe<MetrcHarvestsMutationResponse>;
   /** update single row of the table: "metrc_harvests" */
   update_metrc_harvests_by_pk?: Maybe<MetrcHarvests>;
+  /** update data of the table: "metrc_packages" */
+  update_metrc_packages?: Maybe<MetrcPackagesMutationResponse>;
+  /** update single row of the table: "metrc_packages" */
+  update_metrc_packages_by_pk?: Maybe<MetrcPackages>;
   /** update data of the table: "metrc_plant_batches" */
   update_metrc_plant_batches?: Maybe<MetrcPlantBatchesMutationResponse>;
   /** update single row of the table: "metrc_plant_batches" */
@@ -12804,6 +13168,16 @@ export type MutationRootDeleteMetrcHarvestsArgs = {
 
 /** mutation root */
 export type MutationRootDeleteMetrcHarvestsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** mutation root */
+export type MutationRootDeleteMetrcPackagesArgs = {
+  where: MetrcPackagesBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteMetrcPackagesByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -13346,6 +13720,18 @@ export type MutationRootInsertMetrcHarvestsArgs = {
 export type MutationRootInsertMetrcHarvestsOneArgs = {
   object: MetrcHarvestsInsertInput;
   on_conflict?: Maybe<MetrcHarvestsOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertMetrcPackagesArgs = {
+  objects: Array<MetrcPackagesInsertInput>;
+  on_conflict?: Maybe<MetrcPackagesOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertMetrcPackagesOneArgs = {
+  object: MetrcPackagesInsertInput;
+  on_conflict?: Maybe<MetrcPackagesOnConflict>;
 };
 
 /** mutation root */
@@ -13986,6 +14372,18 @@ export type MutationRootUpdateMetrcHarvestsArgs = {
 export type MutationRootUpdateMetrcHarvestsByPkArgs = {
   _set?: Maybe<MetrcHarvestsSetInput>;
   pk_columns: MetrcHarvestsPkColumnsInput;
+};
+
+/** mutation root */
+export type MutationRootUpdateMetrcPackagesArgs = {
+  _set?: Maybe<MetrcPackagesSetInput>;
+  where: MetrcPackagesBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateMetrcPackagesByPkArgs = {
+  _set?: Maybe<MetrcPackagesSetInput>;
+  pk_columns: MetrcPackagesPkColumnsInput;
 };
 
 /** mutation root */
@@ -16863,6 +17261,12 @@ export type QueryRoot = {
   metrc_harvests_aggregate: MetrcHarvestsAggregate;
   /** fetch data from the table: "metrc_harvests" using primary key columns */
   metrc_harvests_by_pk?: Maybe<MetrcHarvests>;
+  /** fetch data from the table: "metrc_packages" */
+  metrc_packages: Array<MetrcPackages>;
+  /** fetch aggregated fields from the table: "metrc_packages" */
+  metrc_packages_aggregate: MetrcPackagesAggregate;
+  /** fetch data from the table: "metrc_packages" using primary key columns */
+  metrc_packages_by_pk?: Maybe<MetrcPackages>;
   /** fetch data from the table: "metrc_plant_batches" */
   metrc_plant_batches: Array<MetrcPlantBatches>;
   /** fetch aggregated fields from the table: "metrc_plant_batches" */
@@ -17664,6 +18068,29 @@ export type QueryRootMetrcHarvestsAggregateArgs = {
 
 /** query root */
 export type QueryRootMetrcHarvestsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** query root */
+export type QueryRootMetrcPackagesArgs = {
+  distinct_on?: Maybe<Array<MetrcPackagesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MetrcPackagesOrderBy>>;
+  where?: Maybe<MetrcPackagesBoolExp>;
+};
+
+/** query root */
+export type QueryRootMetrcPackagesAggregateArgs = {
+  distinct_on?: Maybe<Array<MetrcPackagesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MetrcPackagesOrderBy>>;
+  where?: Maybe<MetrcPackagesBoolExp>;
+};
+
+/** query root */
+export type QueryRootMetrcPackagesByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -18597,6 +19024,12 @@ export type SubscriptionRoot = {
   metrc_harvests_aggregate: MetrcHarvestsAggregate;
   /** fetch data from the table: "metrc_harvests" using primary key columns */
   metrc_harvests_by_pk?: Maybe<MetrcHarvests>;
+  /** fetch data from the table: "metrc_packages" */
+  metrc_packages: Array<MetrcPackages>;
+  /** fetch aggregated fields from the table: "metrc_packages" */
+  metrc_packages_aggregate: MetrcPackagesAggregate;
+  /** fetch data from the table: "metrc_packages" using primary key columns */
+  metrc_packages_by_pk?: Maybe<MetrcPackages>;
   /** fetch data from the table: "metrc_plant_batches" */
   metrc_plant_batches: Array<MetrcPlantBatches>;
   /** fetch aggregated fields from the table: "metrc_plant_batches" */
@@ -19398,6 +19831,29 @@ export type SubscriptionRootMetrcHarvestsAggregateArgs = {
 
 /** subscription root */
 export type SubscriptionRootMetrcHarvestsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** subscription root */
+export type SubscriptionRootMetrcPackagesArgs = {
+  distinct_on?: Maybe<Array<MetrcPackagesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MetrcPackagesOrderBy>>;
+  where?: Maybe<MetrcPackagesBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootMetrcPackagesAggregateArgs = {
+  distinct_on?: Maybe<Array<MetrcPackagesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MetrcPackagesOrderBy>>;
+  where?: Maybe<MetrcPackagesBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootMetrcPackagesByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -22826,6 +23282,19 @@ export type MetrcTransferPackageFragment = Pick<
   >;
 };
 
+export type MetrcPackageFragment = Pick<
+  MetrcPackages,
+  | "id"
+  | "package_id"
+  | "package_label"
+  | "package_type"
+  | "product_name"
+  | "product_category_name"
+  | "packaged_date"
+  | "package_payload"
+  | "company_id"
+>;
+
 export type PurchaseOrderMetrcTransferFragment = Pick<
   PurchaseOrderMetrcTransfers,
   "id" | "purchase_order_id" | "metrc_transfer_id"
@@ -22912,6 +23381,14 @@ export type GetMetrcTransferPackagesByCompanyIdQuery = {
   metrc_transfer_packages: Array<
     Pick<MetrcTransferPackages, "id"> & MetrcTransferPackageFragment
   >;
+};
+
+export type GetMetrcPackagesByCompanyIdQueryVariables = Exact<{
+  company_id: Scalars["uuid"];
+}>;
+
+export type GetMetrcPackagesByCompanyIdQuery = {
+  metrc_packages: Array<Pick<MetrcPackages, "id"> & MetrcPackageFragment>;
 };
 
 export type GetVendorCompanyFileAttachmentsQueryVariables = Exact<{
@@ -23761,6 +24238,19 @@ export const MetrcTransferPackageFragmentDoc = gql`
       company_id
       manifest_number
     }
+  }
+`;
+export const MetrcPackageFragmentDoc = gql`
+  fragment MetrcPackage on metrc_packages {
+    id
+    package_id
+    package_label
+    package_type
+    product_name
+    product_category_name
+    packaged_date
+    package_payload
+    company_id
   }
 `;
 export const PurchaseOrderMetrcTransferFragmentDoc = gql`
@@ -30984,6 +31474,67 @@ export type GetMetrcTransferPackagesByCompanyIdLazyQueryHookResult = ReturnType<
 export type GetMetrcTransferPackagesByCompanyIdQueryResult = Apollo.QueryResult<
   GetMetrcTransferPackagesByCompanyIdQuery,
   GetMetrcTransferPackagesByCompanyIdQueryVariables
+>;
+export const GetMetrcPackagesByCompanyIdDocument = gql`
+  query GetMetrcPackagesByCompanyId($company_id: uuid!) {
+    metrc_packages(
+      where: { company_id: { _eq: $company_id } }
+      order_by: [{ last_modified_at: asc }]
+    ) {
+      id
+      ...MetrcPackage
+    }
+  }
+  ${MetrcPackageFragmentDoc}
+`;
+
+/**
+ * __useGetMetrcPackagesByCompanyIdQuery__
+ *
+ * To run a query within a React component, call `useGetMetrcPackagesByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMetrcPackagesByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMetrcPackagesByCompanyIdQuery({
+ *   variables: {
+ *      company_id: // value for 'company_id'
+ *   },
+ * });
+ */
+export function useGetMetrcPackagesByCompanyIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetMetrcPackagesByCompanyIdQuery,
+    GetMetrcPackagesByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetMetrcPackagesByCompanyIdQuery,
+    GetMetrcPackagesByCompanyIdQueryVariables
+  >(GetMetrcPackagesByCompanyIdDocument, baseOptions);
+}
+export function useGetMetrcPackagesByCompanyIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetMetrcPackagesByCompanyIdQuery,
+    GetMetrcPackagesByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetMetrcPackagesByCompanyIdQuery,
+    GetMetrcPackagesByCompanyIdQueryVariables
+  >(GetMetrcPackagesByCompanyIdDocument, baseOptions);
+}
+export type GetMetrcPackagesByCompanyIdQueryHookResult = ReturnType<
+  typeof useGetMetrcPackagesByCompanyIdQuery
+>;
+export type GetMetrcPackagesByCompanyIdLazyQueryHookResult = ReturnType<
+  typeof useGetMetrcPackagesByCompanyIdLazyQuery
+>;
+export type GetMetrcPackagesByCompanyIdQueryResult = Apollo.QueryResult<
+  GetMetrcPackagesByCompanyIdQuery,
+  GetMetrcPackagesByCompanyIdQueryVariables
 >;
 export const GetVendorCompanyFileAttachmentsDocument = gql`
   query GetVendorCompanyFileAttachments($company_id: uuid!) {

@@ -1,7 +1,7 @@
 import { Box, Typography } from "@material-ui/core";
 import Modal from "components/Shared/Modal/Modal";
 import RawJsonToggle from "components/Shared/RawJsonToggle";
-import MetrcPackagesDataGrid from "components/Transfers/MetrcPackagesDataGrid";
+import MetrcPackagesDataGrid from "components/Transfers/MetrcTransferPackagesDataGrid";
 import {
   CurrentUserContext,
   isRoleBankUser,

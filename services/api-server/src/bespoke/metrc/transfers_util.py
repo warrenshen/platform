@@ -49,7 +49,8 @@ def get_final_lab_status(lab_result_statuses: List[str]) -> str:
 
 class TransferPackages(object):
 
-	def __init__(self, delivery_id: str, transfer_packages: List[Dict], transfer_packages_wholesale: List[Dict]) -> None:
+	def __init__(self, last_modified_at: datetime.datetime, delivery_id: str, transfer_packages: List[Dict], transfer_packages_wholesale: List[Dict]) -> None:
+		self._last_modified_at = last_modified_at
 		self.delivery_id = delivery_id
 		self._packages = transfer_packages
 		self._packages_wholesale = transfer_packages_wholesale
@@ -96,7 +97,7 @@ class TransferPackages(object):
 			# 	'lab_results': lab_tests[i].get_results_array()
 			# }
 			p.lab_results_status = lab_tests[i].get_status()
-			p.last_modified_at = parser.parse(package['LastModified'])
+			p.last_modified_at = self._last_modified_at # Transfer packages inherit last modified at from the transfer
 
 			if package_wholesale:
 				p.shipper_wholesale_price = package_wholesale.get('ShipperWholesalePrice')
@@ -135,6 +136,7 @@ class Transfers(object):
 			tr.manifest_number = t['ManifestNumber']
 			tr.shipment_type_name = t['ShipmentTypeName']
 			tr.shipment_transaction_type = t['ShipmentTransactionType']
+			tr.last_modified_at = parser.parse(t['LastModified'])
 			tr.transfer_payload = t
 			tr.type = transfer_type
 		
@@ -447,7 +449,7 @@ def populate_transfers_table(
 				logging.error(f'Could not fetch packages wholesale for company {company_info.name} for transfer with delivery id {delivery_id}. {e}')
 				metrc_common_util.update_if_all_are_unsuccessful(request_status, 'transfer_packages_wholesale_api', e)
 
-			packages = TransferPackages(delivery_id, t_packages_json, t_packages_wholesale_json)
+			packages = TransferPackages(metrc_transfer.last_modified_at, delivery_id, t_packages_json, t_packages_wholesale_json)
 			package_ids = packages.get_package_ids()
 
 			lab_tests = []
