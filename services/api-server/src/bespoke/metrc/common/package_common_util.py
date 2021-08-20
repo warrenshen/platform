@@ -29,6 +29,14 @@ def transfer_package_to_package(tp: models.MetrcTransferPackage) -> models.Metrc
 	p = models.MetrcPackage()
 	_merge_common_fields(source=tp, dest=p)
 	p.type = 'active' # Consider all incoming and outgoing transfer packages as active packages until we see it go inactive
+	
+	if tp.type == 'transfer_incoming':
+		p.quantity = tp.received_quantity
+		p.unit_of_measure = tp.received_unit_of_measure
+	elif tp.type == 'transfer_outgoing':
+		p.quantity = tp.shipped_quantity
+		p.unit_of_measure = tp.shipped_unit_of_measure
+
 	return p
 
 def merge_into_prev_transfer_package(prev: models.MetrcTransferPackage, cur: models.MetrcTransferPackage) -> None:
@@ -68,6 +76,11 @@ def maybe_merge_into_prev_package(
 	if cur.packaged_date:
 		# Only override when the newer one is defined
 		prev.packaged_date = cur.packaged_date
+
+	if cur.quantity:
+		prev.quantity = cur.quantity
+
+	prev.unit_of_measure = cur.unit_of_measure
 
 	_merge_common_fields(source=cur, dest=prev)	
 

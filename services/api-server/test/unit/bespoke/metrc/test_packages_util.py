@@ -23,10 +23,10 @@ from bespoke_test.metrc.metrc_test_helper import FakeREST, RequestKey
 def _package_json(p: Dict) -> Dict:
 	p['Label'] = p['Id'] + '-label'
 	p['PackageType'] = p['Id'] + '-type'
+	p['UnitOfMeasureName'] = p['Id'] + '-unit-of-measure-name'
 	p['Item'] = {}
 	p['Item']['Name'] = p['Id'] + '-product-name'
 	p['Item']['ProductCategoryName'] = p['Id'] + '-category-name'
-
 	return p
 
 class TestPopulatePackagesTable(db_unittest.TestCase):
@@ -72,11 +72,13 @@ class TestPopulatePackagesTable(db_unittest.TestCase):
 									'Id': 'a-p1',
 									'LastModified': parser.parse('02/01/2020').isoformat(),
 									'PackagedDate': parser.parse('02/02/2020').isoformat(),
+									'Quantity': 1,
 								}),
 								_package_json({
 									'Id': 'a-p2',
 									'LastModified': parser.parse('02/02/2020').isoformat(),
 									'PackagedDate': parser.parse('02/03/2020').isoformat(),
+									'Quantity': 2
 								})
 							]
 						}
@@ -94,11 +96,13 @@ class TestPopulatePackagesTable(db_unittest.TestCase):
 									'Id': 'ia-p3',
 									'LastModified': parser.parse('02/03/2020').isoformat(),
 									'PackagedDate': parser.parse('02/04/2020').isoformat(),
+									'Quantity': 3,
 								}),
 								_package_json({
 									'Id': 'ia-p4',
 									'LastModified': parser.parse('02/04/2020').isoformat(),
-									'PackagedDate': parser.parse('02/05/2020').isoformat()
+									'PackagedDate': parser.parse('02/05/2020').isoformat(),
+									'Quantity': 4,
 								})
 							]
 						}
@@ -116,11 +120,13 @@ class TestPopulatePackagesTable(db_unittest.TestCase):
 									'Id': 'o-p5',
 									'LastModified': parser.parse('02/05/2020').isoformat(),
 									'PackagedDate': parser.parse('02/06/2020').isoformat(),
+									'Quantity': 5,
 								}),
 								_package_json({
 									'Id': 'o-p6',
 									'LastModified': parser.parse('02/06/2020').isoformat(),
 									'PackagedDate': parser.parse('02/07/2020').isoformat(),
+									'Quantity': 6,
 								})
 							]
 						}
@@ -138,6 +144,7 @@ class TestPopulatePackagesTable(db_unittest.TestCase):
 				'package_id': 'a-p1',
 				'last_modified_at': parser.parse('02/01/2020'),
 				'packaged_date': parser.parse('02/02/2020').date(),
+				'quantity': 1,
 			},
 			{
 				'type': 'active',
@@ -145,6 +152,7 @@ class TestPopulatePackagesTable(db_unittest.TestCase):
 				'package_id': 'a-p2',
 				'last_modified_at': parser.parse('02/02/2020'),
 				'packaged_date': parser.parse('02/03/2020').date(),
+				'quantity': 2,
 			},
 			{
 				'type': 'inactive',
@@ -152,6 +160,7 @@ class TestPopulatePackagesTable(db_unittest.TestCase):
 				'package_id': 'ia-p3',
 				'last_modified_at': parser.parse('02/03/2020'),
 				'packaged_date': parser.parse('02/04/2020').date(),
+				'quantity': 3,
 			},
 			{
 				'type': 'inactive',
@@ -159,6 +168,7 @@ class TestPopulatePackagesTable(db_unittest.TestCase):
 				'package_id': 'ia-p4',
 				'last_modified_at': parser.parse('02/04/2020'),
 				'packaged_date': parser.parse('02/05/2020').date(),
+				'quantity': 4,
 			},
 			{
 				'type': 'onhold',
@@ -166,6 +176,7 @@ class TestPopulatePackagesTable(db_unittest.TestCase):
 				'package_id': 'o-p5',
 				'last_modified_at': parser.parse('02/05/2020'),
 				'packaged_date': parser.parse('02/06/2020').date(),
+				'quantity': 5,
 			},
 			{
 				'type': 'onhold',
@@ -173,6 +184,7 @@ class TestPopulatePackagesTable(db_unittest.TestCase):
 				'package_id': 'o-p6',
 				'last_modified_at': parser.parse('02/06/2020'),
 				'packaged_date': parser.parse('02/07/2020').date(),
+				'quantity': 6,
 			},
 		]
 
@@ -190,6 +202,8 @@ class TestPopulatePackagesTable(db_unittest.TestCase):
 				self.assertEqual(exp['package_id'] + '-type', p.package_type)
 				self.assertEqual(exp['package_id'] + '-product-name', p.product_name)
 				self.assertEqual(exp['package_id'] + '-category-name', p.product_category_name)
+				self.assertEqual(exp['package_id'] + '-unit-of-measure-name', p.unit_of_measure)
 				self.assertEqual(exp['packaged_date'], p.packaged_date)
 				self.assertEqual(exp['last_modified_at'], p.last_modified_at)
 				self.assertIsNotNone(p.package_payload)
+				self.assertEqual(exp['quantity'], p.quantity)

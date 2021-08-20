@@ -476,6 +476,8 @@ class MetrcPackage(Base):
 	last_modified_at = Column(DateTime) # From Metrc info
 
 	packaged_date = Column(Date) # From Metrc info
+	quantity = Column(Numeric) # From Metrc info
+	unit_of_measure = Column(Text) # From Metrc info
 
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime)

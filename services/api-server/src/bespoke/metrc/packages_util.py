@@ -63,6 +63,8 @@ class Packages(object):
 			p.product_category_name = item['ProductCategoryName']
 			p.last_modified_at = parser.parse(package['LastModified'])
 			p.packaged_date = parser.parse(package['PackagedDate'])
+			p.quantity = package['Quantity']
+			p.unit_of_measure = package['UnitOfMeasureName']
 
 			p.package_payload = self._rewrite_payload(package)
 
