@@ -1,5 +1,4 @@
 import { Box, Button, Typography } from "@material-ui/core";
-import CreateUpdateBorrowingBaseCertificationModal from "components/EbbaApplication/CreateUpdateBorrowingBaseCertificationModal";
 import ReviewEbbaApplicationRejectModal from "components/EbbaApplication/ReviewEbbaApplicationRejectModal";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
@@ -19,11 +18,7 @@ import useSnackbar from "hooks/useSnackbar";
 import { authenticatedApi, ebbaApplicationsRoutes } from "lib/api";
 import { formatCurrency } from "lib/currency";
 import { formatDateString, formatDatetimeString } from "lib/date";
-import {
-  ActionType,
-  ClientSurveillanceCategoryEnum,
-  FileTypeEnum,
-} from "lib/enum";
+import { ClientSurveillanceCategoryEnum, FileTypeEnum } from "lib/enum";
 import { useContext, useMemo, useState } from "react";
 
 interface Props {
@@ -248,23 +243,6 @@ export default function EbbaApplicationDrawer({
             <Typography variant="subtitle2" color="textSecondary">
               Actions
             </Typography>
-            <Box mt={1}>
-              <ModalButton
-                label={"Edit"}
-                color={"default"}
-                modal={({ handleClose }) => (
-                  <CreateUpdateBorrowingBaseCertificationModal
-                    actionType={ActionType.Update}
-                    companyId={ebbaApplication.company_id}
-                    ebbaApplicationId={ebbaApplication.id}
-                    handleClose={() => {
-                      refetch();
-                      handleClose();
-                    }}
-                  />
-                )}
-              />
-            </Box>
             {ebbaApplication.status !== RequestStatusEnum.Approved && (
               <Box mt={1}>
                 <Button

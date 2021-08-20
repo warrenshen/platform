@@ -53,8 +53,8 @@ export default function EbbaApplicationsDataGrid({
         category:
           ebbaApplication.category ===
           ClientSurveillanceCategoryEnum.BorrowingBase
-            ? "Borrowing Base"
-            : "Financial Reports",
+            ? "LOC - Borrowing Base"
+            : "PO / INV - Financial Reports",
         company_name: ebbaApplication.company?.name,
         expiration_date: ebbaApplication.expires_at,
         files_count: ebbaApplication.ebba_application_files.length,
