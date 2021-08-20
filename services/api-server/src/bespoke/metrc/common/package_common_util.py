@@ -1,3 +1,5 @@
+import logging
+
 from sqlalchemy.orm.session import Session
 from typing import List, Union, cast
 from bespoke.db import models
@@ -25,20 +27,17 @@ def _merge_common_fields(
 	prev.last_modified_at = cur.last_modified_at
 
 
-def transfer_package_to_package(tp: models.MetrcTransferPackage) -> models.MetrcPackage:
-	p = models.MetrcPackage()
-	_merge_common_fields(source=tp, dest=p)
-	p.type = 'active' # Consider all incoming and outgoing transfer packages as active packages until we see it go inactive
-	
-	if tp.type == 'transfer_incoming':
-		p.quantity = tp.received_quantity
-		p.unit_of_measure = tp.received_unit_of_measure
-	elif tp.type == 'transfer_outgoing':
-		p.quantity = tp.shipped_quantity
-		p.unit_of_measure = tp.shipped_unit_of_measure
+def update_package_based_on_transfer_package(tp: models.MetrcTransferPackage, p: models.MetrcPackage) -> None:
+	has_last_modified = tp.last_modified_at and p.last_modified_at
 
-	p.packaged_date = tp.created_date
-	return p
+	if has_last_modified and tp.last_modified_at < p.last_modified_at:
+		# No need to modify when this transfer package was updated before this package was.
+		return
+
+	if tp.type == 'transfer_incoming':
+		pass
+	elif tp.type == 'transfer_outgoing':
+		p.type = 'outgoing'
 
 def merge_into_prev_transfer_package(prev: models.MetrcTransferPackage, cur: models.MetrcTransferPackage) -> None:
 	has_last_modified = cur.last_modified_at and prev.last_modified_at
@@ -87,7 +86,6 @@ def maybe_merge_into_prev_package(
 
 def update_packages(
 	packages: List[models.MetrcPackage],
-	is_from_transfer_packages: bool,
 	session: Session) -> None:
 	package_ids = [package.package_id for package in packages] 
 
@@ -112,17 +110,45 @@ def update_packages(
 		if metrc_package_key in package_id_to_prev_package:
 			# update
 			prev_metrc_package = package_id_to_prev_package[metrc_package_key]
-			prev_package_payload = dict(prev_metrc_package.package_payload)
 			maybe_merge_into_prev_package(
 				prev=prev_metrc_package, 
 				cur=metrc_package
 			)
-			if is_from_transfer_packages:
-				# When overwriting from transfer packages, don't modify the original
-				# package_payload. We want to retain the package_payload from the
-				# original package
-				prev_metrc_package.package_payload = prev_package_payload
 		else:
 			# add
 			session.add(metrc_package)
 			session.flush()
+
+def update_packages_from_transfer_packages(
+	transfer_packages: List[models.MetrcTransferPackage],
+	session: Session) -> None:
+	package_ids = [package.package_id for package in transfer_packages] 
+
+	# metrc_packages are unique on package_id, when they 
+	# are not associated with a delivery.
+	# Note the following query may return more than BATCH_SIZE number of results.
+	prev_metrc_packages = cast(List[models.MetrcPackage], session.query(models.MetrcPackage).filter(
+		models.MetrcPackage.package_id.in_(package_ids)
+	).all())
+
+	package_id_to_prev_package = {}
+	for prev_metrc_package in prev_metrc_packages:
+		# Package key is package_id - the same package may show up across different
+		# transfers.
+		metrc_package_key = prev_metrc_package.package_id
+		package_id_to_prev_package[metrc_package_key] = prev_metrc_package
+
+	# Write the packages
+	for metrc_transfer_package in transfer_packages:
+		metrc_package_key = metrc_transfer_package.package_id
+
+		if metrc_package_key in package_id_to_prev_package:
+			# update
+			prev_metrc_package = package_id_to_prev_package[metrc_package_key]
+			update_package_based_on_transfer_package(
+				tp=metrc_transfer_package,
+				p=prev_metrc_package
+			)
+		else:
+			logging.warn('We observed a transfer package #{} which is not registered in our DB as a regular package'.format(
+										metrc_transfer_package.package_id))

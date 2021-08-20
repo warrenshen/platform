@@ -535,11 +535,8 @@ def populate_transfers_table(
 				delivery_id_to_delivery_row_id=delivery_id_to_delivery_row_id,
 				session=session
 			)
-			packages_chunk = [package_common_util.transfer_package_to_package(transfer_pkg) for transfer_pkg in transfer_packages_chunk]
-			# TODO(dlluncor): Keep track of package_row_id on the transfer package as well
-			package_common_util.update_packages(
-				packages_chunk,
-				is_from_transfer_packages=True,
+			package_common_util.update_packages_from_transfer_packages(
+				transfer_packages_chunk,
 				session=session
 			)
 

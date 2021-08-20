@@ -40,6 +40,34 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 		company_id = seed.get_company_id('company_admin', index=0)
 		license_id = str(uuid.uuid4())
 
+		with session_scope(session_maker) as session:
+			pkg1 = models.MetrcPackage(
+				type='active',
+				package_id='in-pkg1-A',
+				packaged_date=date_util.load_date_str('01/01/2020'),
+				last_modified_at=parser.parse('01/03/2020'),
+			)
+			pkg1.company_id = cast(Any, company_id)
+			session.add(pkg1)
+
+			pkg2 = models.MetrcPackage(
+				type='active',
+				package_id='in-pkg2-B',
+				packaged_date=date_util.load_date_str('01/01/2020'),
+				last_modified_at=parser.parse('01/04/2020'),
+			)
+			pkg2.company_id = cast(Any, company_id)
+			session.add(pkg2)
+
+			pkg3 = models.MetrcPackage(
+				type='active',
+				package_id='out-pkg1-A',
+				packaged_date=date_util.load_date_str('01/01/2020'),
+				last_modified_at=parser.parse('01/05/2020'),
+			)
+			pkg3.company_id = cast(Any, company_id)
+			session.add(pkg3)
+
 		ctx = metrc_common_util.DownloadContext(
 			cur_date=date_util.load_date_str('1/1/2020'),
 			company_info=CompanyInfo(
@@ -444,46 +472,31 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 				'type': 'active',
 				'company_id': company_id,
 				'package_id': 'in-pkg1-A',
-				'delivery_id': 'incoming-d3',
-				'shipped_quantity': 5.0,
-				'lab_results_status': 'unknown',
-				'last_modified_at': parser.parse('02/05/2020'),
+				'last_modified_at': parser.parse('01/03/2020'),
 			},
 			{
 				'type': 'active',
 				'company_id': company_id,
 				'package_id': 'in-pkg2-B',
-				'delivery_id': 'incoming-d3',
-				'last_modified_at': parser.parse('02/05/2020'),
+				'last_modified_at': parser.parse('01/04/2020'),
 			},
 			{
-				'type': 'active',
+				'type': 'outgoing',
 				'company_id': company_id,
 				'package_id': 'out-pkg1-A',
-				'delivery_id': 'out-d1',
-				'last_modified_at': parser.parse('02/03/2020'),
-			},
-			{
-				'type': 'active',
-				'company_id': company_id,
-				'package_id': 'out-pkg2-B',
-				'last_modified_at': parser.parse('02/03/2020'),
+				'last_modified_at': parser.parse('01/05/2020'),
 			}
 		]
 
 		with session_scope(session_maker) as session:
 			metrc_packages = cast(List[models.MetrcPackage], session.query(
-				models.MetrcPackage).order_by(models.MetrcPackage.updated_at).all())
-			self.assertEqual(4, len(metrc_packages))
+				models.MetrcPackage).order_by(models.MetrcPackage.last_modified_at).all())
+			self.assertEqual(3, len(metrc_packages))
 			for i in range(len(metrc_packages)):
 				p = metrc_packages[i]
 				exp = expected_packages[i]
 				self.assertEqual(exp['type'], p.type)
 				self.assertEqual(exp['company_id'], str(p.company_id))
 				self.assertEqual(exp['package_id'], p.package_id)
-				self.assertEqual(exp['package_id'] + '-label', p.package_label)
-				self.assertEqual(exp['package_id'] + '-type', p.package_type)
-				self.assertEqual(exp['package_id'] + '-product-name', p.product_name)
-				self.assertEqual(exp['package_id'] + '-category-name', p.product_category_name)
 				self.assertEqual(exp['last_modified_at'], p.last_modified_at)
 

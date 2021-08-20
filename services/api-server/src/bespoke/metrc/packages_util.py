@@ -144,7 +144,6 @@ def write_packages(packages_models: List[PackageObject], session_maker: Callable
 			packages_chunk = [package.metrc_package for package in package_models_chunk]
 			package_common_util.update_packages(
 				packages_chunk,
-				is_from_transfer_packages=False,
 				session=session
 			)
 		batch_index += 1

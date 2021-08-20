@@ -193,8 +193,13 @@ class TestMergeTransferPackage(unittest.TestCase):
 			self.assertEqual(getattr(prev, field), getattr(cur, field))
 
 	def test_transfer_package_to_package(self) -> None:
-		cur = models.MetrcTransferPackage(
+		tp = models.MetrcTransferPackage(
 			type='transfer_incoming',
+		)
+		tp.company_id = cast(Any, uuid.uuid4())
+
+		p = models.MetrcPackage(
+			type='active',
 			package_id='1',
 			package_label='B',
 			package_type='1-type',
@@ -203,12 +208,24 @@ class TestMergeTransferPackage(unittest.TestCase):
 			package_payload={'Label': 'B'},
 			last_modified_at=parser.parse('01/01/2020'),
 			updated_at=parser.parse('01/06/2020'),
-			received_quantity=decimal.Decimal(2.0),
-			received_unit_of_measure='Each'
+			quantity=decimal.Decimal(2.0),
+			unit_of_measure='Each'
 		)
-		cur.company_id = cast(Any, uuid.uuid4())
+		package_common_util.update_package_based_on_transfer_package(tp=tp, p=p)
 
-		got = package_common_util.transfer_package_to_package(cur)
+		exp = models.MetrcPackage(
+			type='active',
+			package_id='1',
+			package_label='B',
+			package_type='1-type',
+			product_name='1-name',
+			product_category_name='1-category-name',
+			package_payload={'Label': 'B'},
+			last_modified_at=parser.parse('01/01/2020'),
+			updated_at=parser.parse('01/06/2020'),
+			quantity=decimal.Decimal(2.0),
+			unit_of_measure='Each'
+		)
 
 		fields = [
 			'type', 
@@ -225,16 +242,7 @@ class TestMergeTransferPackage(unittest.TestCase):
 			'unit_of_measure'
 		]
 		for field in fields:
-			# All the fields should match from the transfer package to the package
-			if field == 'type':
-				# type is a special case because it gets rewritten
-				self.assertEqual('active', got.type)
-			elif field == 'quantity':
-				self.assertEqual(2.0, got.quantity)
-			elif field == 'unit_of_measure':
-				self.assertEqual('Each', got.unit_of_measure)
-			else:
-				self.assertEqual(getattr(got, field), getattr(cur, field))
+			self.assertEqual(getattr(p, field), getattr(exp, field))
 
 class TestUpdatePackages(db_unittest.TestCase):
 
@@ -294,10 +302,8 @@ class TestUpdatePackages(db_unittest.TestCase):
 			]
 			package_common_util.update_packages(
 				new_packages, 
-				is_from_transfer_packages=False,
 				session=session)
 
-		# Testing that the update works when is_from_transfer_packages=False
 		with session_scope(session_maker) as session:
 			metrc_packages = cast(List[models.MetrcPackage], session.query(
 				models.MetrcPackage).order_by(models.MetrcPackage.last_modified_at).all())
@@ -305,35 +311,6 @@ class TestUpdatePackages(db_unittest.TestCase):
 
 			# One package gets overwritten with a new field
 			self.assertEqual('2-name-NEW', metrc_packages[0].product_name)
-			self.assertEqual({'Label': 'A-NEW'}, metrc_packages[0].package_payload)
-
-		with session_scope(session_maker) as session:
-			new_packages = [
-				models.MetrcPackage(
-					type='type-2',
-					package_id='2',
-					package_label='A',
-					package_type='2-type',
-					product_name='2-name-NEW3',
-					product_category_name='2-category-name',
-					package_payload={'Label': 'DO-NOT-USE-TO-OVERWRITE'},
-					last_modified_at=parser.parse('01/02/2020'),
-					packaged_date=parser.parse('01/04/2020'),
-					updated_at=parser.parse('01/05/2020')
-				),
-			]
-			package_common_util.update_packages(
-				new_packages, 
-				is_from_transfer_packages=True,
-				session=session)
-
-		with session_scope(session_maker) as session:
-			metrc_packages = cast(List[models.MetrcPackage], session.query(
-				models.MetrcPackage).order_by(models.MetrcPackage.last_modified_at).all())
-			self.assertEqual(2, len(metrc_packages))
-
-			# One package gets overwritten with a new field
-			self.assertEqual('2-name-NEW3', metrc_packages[0].product_name)
 			self.assertEqual({'Label': 'A-NEW'}, metrc_packages[0].package_payload)
 
 
