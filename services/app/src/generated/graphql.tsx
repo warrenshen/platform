@@ -22125,11 +22125,11 @@ export type UpdateEbbaApplicationMutation = {
   >;
 };
 
-export type GetOpenEbbaApplicationsQueryVariables = Exact<{
-  [key: string]: never;
+export type GetOpenEbbaApplicationsByCategoryQueryVariables = Exact<{
+  category: Scalars["String"];
 }>;
 
-export type GetOpenEbbaApplicationsQuery = {
+export type GetOpenEbbaApplicationsByCategoryQuery = {
   ebba_applications: Array<
     Pick<EbbaApplications, "id"> & {
       company: Pick<Companies, "id" | "name">;
@@ -25893,8 +25893,8 @@ export type UpdateEbbaApplicationMutationOptions = Apollo.BaseMutationOptions<
   UpdateEbbaApplicationMutation,
   UpdateEbbaApplicationMutationVariables
 >;
-export const GetOpenEbbaApplicationsDocument = gql`
-  query GetOpenEbbaApplications {
+export const GetOpenEbbaApplicationsByCategoryDocument = gql`
+  query GetOpenEbbaApplicationsByCategory($category: String!) {
     ebba_applications(
       where: {
         _and: [
@@ -25904,6 +25904,7 @@ export const GetOpenEbbaApplicationsDocument = gql`
               { is_deleted: { _eq: false } }
             ]
           }
+          { category: { _eq: $category } }
           { approved_at: { _is_null: true } }
         ]
       }
@@ -25925,51 +25926,52 @@ export const GetOpenEbbaApplicationsDocument = gql`
 `;
 
 /**
- * __useGetOpenEbbaApplicationsQuery__
+ * __useGetOpenEbbaApplicationsByCategoryQuery__
  *
- * To run a query within a React component, call `useGetOpenEbbaApplicationsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetOpenEbbaApplicationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetOpenEbbaApplicationsByCategoryQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOpenEbbaApplicationsByCategoryQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetOpenEbbaApplicationsQuery({
+ * const { data, loading, error } = useGetOpenEbbaApplicationsByCategoryQuery({
  *   variables: {
+ *      category: // value for 'category'
  *   },
  * });
  */
-export function useGetOpenEbbaApplicationsQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    GetOpenEbbaApplicationsQuery,
-    GetOpenEbbaApplicationsQueryVariables
+export function useGetOpenEbbaApplicationsByCategoryQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetOpenEbbaApplicationsByCategoryQuery,
+    GetOpenEbbaApplicationsByCategoryQueryVariables
   >
 ) {
   return Apollo.useQuery<
-    GetOpenEbbaApplicationsQuery,
-    GetOpenEbbaApplicationsQueryVariables
-  >(GetOpenEbbaApplicationsDocument, baseOptions);
+    GetOpenEbbaApplicationsByCategoryQuery,
+    GetOpenEbbaApplicationsByCategoryQueryVariables
+  >(GetOpenEbbaApplicationsByCategoryDocument, baseOptions);
 }
-export function useGetOpenEbbaApplicationsLazyQuery(
+export function useGetOpenEbbaApplicationsByCategoryLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    GetOpenEbbaApplicationsQuery,
-    GetOpenEbbaApplicationsQueryVariables
+    GetOpenEbbaApplicationsByCategoryQuery,
+    GetOpenEbbaApplicationsByCategoryQueryVariables
   >
 ) {
   return Apollo.useLazyQuery<
-    GetOpenEbbaApplicationsQuery,
-    GetOpenEbbaApplicationsQueryVariables
-  >(GetOpenEbbaApplicationsDocument, baseOptions);
+    GetOpenEbbaApplicationsByCategoryQuery,
+    GetOpenEbbaApplicationsByCategoryQueryVariables
+  >(GetOpenEbbaApplicationsByCategoryDocument, baseOptions);
 }
-export type GetOpenEbbaApplicationsQueryHookResult = ReturnType<
-  typeof useGetOpenEbbaApplicationsQuery
+export type GetOpenEbbaApplicationsByCategoryQueryHookResult = ReturnType<
+  typeof useGetOpenEbbaApplicationsByCategoryQuery
 >;
-export type GetOpenEbbaApplicationsLazyQueryHookResult = ReturnType<
-  typeof useGetOpenEbbaApplicationsLazyQuery
+export type GetOpenEbbaApplicationsByCategoryLazyQueryHookResult = ReturnType<
+  typeof useGetOpenEbbaApplicationsByCategoryLazyQuery
 >;
-export type GetOpenEbbaApplicationsQueryResult = Apollo.QueryResult<
-  GetOpenEbbaApplicationsQuery,
-  GetOpenEbbaApplicationsQueryVariables
+export type GetOpenEbbaApplicationsByCategoryQueryResult = Apollo.QueryResult<
+  GetOpenEbbaApplicationsByCategoryQuery,
+  GetOpenEbbaApplicationsByCategoryQueryVariables
 >;
 export const GetClosedEbbaApplicationsDocument = gql`
   query GetClosedEbbaApplications {
@@ -32386,7 +32388,7 @@ export const GetArtifactRelationsByCompanyIdDocument = gql`
       metrc_transfers(
         where: {
           _and: [
-            { transfer_type: { _eq: "INCOMING_FROM_VENDOR" } }
+            { transfer_type: { _in: ["INCOMING", "INCOMING_FROM_VENDOR"] } }
             { vendor_id: { _is_null: false } }
             { created_date: { _gte: $start_created_date } }
           ]

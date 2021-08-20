@@ -1,6 +1,6 @@
 import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
-import CreateUpdateEbbaApplicationModal from "components/EbbaApplication/CreateUpdateEbbaApplicationModal";
+import CreateUpdateBorrowingBaseCertificationModal from "components/EbbaApplication/CreateUpdateBorrowingBaseCertificationModal";
 import CreateUpdateFinancialReportsCertificationModal from "components/EbbaApplication/CreateUpdateFinancialReportsCertificationModal";
 import DeleteEbbaApplicationModal from "components/EbbaApplication/DeleteEbbaApplicationModal";
 import EbbaApplicationCard from "components/EbbaApplication/EbbaApplicationCard";
@@ -38,8 +38,10 @@ export default function CustomerEbbaApplicationsPageContent({
     }
   );
 
-  const isLineOfCredit = [ProductTypeEnum.LineOfCredit].includes(productType);
-  const ebbaApplicationDisplayCategory = isLineOfCredit
+  const isCategoryBorrowingBase = [ProductTypeEnum.LineOfCredit].includes(
+    productType
+  );
+  const ebbaApplicationDisplayCategory = isCategoryBorrowingBase
     ? "Borrowing Base"
     : "Financial Reports";
 
@@ -92,8 +94,8 @@ export default function CustomerEbbaApplicationsPageContent({
           <ModalButton
             label={`Create ${ebbaApplicationDisplayCategory} Certification`}
             modal={({ handleClose }) =>
-              isLineOfCredit ? (
-                <CreateUpdateEbbaApplicationModal
+              isCategoryBorrowingBase ? (
+                <CreateUpdateBorrowingBaseCertificationModal
                   actionType={ActionType.New}
                   companyId={companyId}
                   ebbaApplicationId={null}
@@ -125,7 +127,7 @@ export default function CustomerEbbaApplicationsPageContent({
             </Typography>
             <Box width="50%">
               <Typography variant="body2">
-                {isLineOfCredit
+                {isCategoryBorrowingBase
                   ? `Your active borrowing base certification determines your max
                 borrowing limit. The financial information you provide is used
                 to calculate your max borrowing limit.`
@@ -172,23 +174,22 @@ export default function CustomerEbbaApplicationsPageContent({
             </Typography>
           </Box>
           <Box display="flex" flexDirection="row-reverse" mt={2} mb={2}>
-            {!!selectedEbbaApplication && (
-              <ModalButton
-                label={"Delete Certification"}
-                modal={({ handleClose }) => (
-                  <DeleteEbbaApplicationModal
-                    ebbaApplicationId={selectedEbbaApplication.id}
-                    handleClose={() => {
-                      refetch();
-                      handleClose();
-                    }}
-                  />
-                )}
-              />
-            )}
+            <ModalButton
+              isDisabled={!selectedEbbaApplication}
+              label={"Delete Certification"}
+              modal={({ handleClose }) => (
+                <DeleteEbbaApplicationModal
+                  ebbaApplicationId={selectedEbbaApplication?.id}
+                  handleClose={() => {
+                    refetch();
+                    handleClose();
+                  }}
+                />
+              )}
+            />
           </Box>
           <EbbaApplicationsDataGrid
-            isLineOfCredit={isLineOfCredit}
+            isBorrowingBaseFieldsVisible={isCategoryBorrowingBase}
             isMultiSelectEnabled
             ebbaApplications={ebbaApplications}
             selectedEbbaApplicationIds={selectedEbbaApplicationIds}

@@ -58,7 +58,7 @@ export default function DeleteEbbaApplicationModal({
     if (response.status !== "OK") {
       snackbar.showError(`Message: ${response.msg}`);
     } else {
-      snackbar.showSuccess("Certification base deleted.");
+      snackbar.showSuccess("Certification deleted.");
       handleClose();
     }
   };

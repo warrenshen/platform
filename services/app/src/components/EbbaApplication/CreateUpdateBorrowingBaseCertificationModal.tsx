@@ -1,6 +1,6 @@
 import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
-import EbbaApplicationForm from "components/EbbaApplication/EbbaApplicationForm";
+import EbbaApplicationBorrowingBaseForm from "components/EbbaApplication/EbbaApplicationBorrowingBaseForm";
 import Modal from "components/Shared/Modal/Modal";
 import {
   CurrentUserContext,
@@ -284,7 +284,7 @@ export default function CreateUpdateEbbaApplicationModal({
           </Alert>
         </Box>
       )}
-      <EbbaApplicationForm
+      <EbbaApplicationBorrowingBaseForm
         isAccountsReceivableVisible={isAccountsReceivableVisible}
         isInventoryVisible={isInventoryVisible}
         isCashVisible={isCashVisible}

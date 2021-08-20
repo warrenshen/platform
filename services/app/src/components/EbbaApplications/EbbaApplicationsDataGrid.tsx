@@ -9,20 +9,22 @@ import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCel
 import {
   EbbaApplicationFragment,
   EbbaApplications,
-  GetOpenEbbaApplicationsQuery,
+  GetOpenEbbaApplicationsByCategoryQuery,
   RequestStatusEnum,
 } from "generated/graphql";
+import { ClientSurveillanceCategoryEnum } from "lib/enum";
 import { ColumnWidths } from "lib/tables";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useMemo, useState } from "react";
 
 interface Props {
   isApprovedAtVisible?: boolean;
+  isBorrowingBaseFieldsVisible?: boolean;
+  isCategoryVisible?: boolean;
   isCompanyVisible?: boolean;
   isExcelExport?: boolean;
-  isLineOfCredit?: boolean;
   isMultiSelectEnabled?: boolean;
-  ebbaApplications: GetOpenEbbaApplicationsQuery["ebba_applications"];
+  ebbaApplications: GetOpenEbbaApplicationsByCategoryQuery["ebba_applications"];
   selectedEbbaApplicationIds?: EbbaApplications["id"][];
   handleSelectEbbaApplications?: (
     ebbaApplications: EbbaApplicationFragment[]
@@ -31,9 +33,10 @@ interface Props {
 
 export default function EbbaApplicationsDataGrid({
   isApprovedAtVisible = false,
+  isBorrowingBaseFieldsVisible = false,
+  isCategoryVisible = false,
   isCompanyVisible = false,
   isExcelExport = true,
-  isLineOfCredit = false,
   isMultiSelectEnabled = false,
   ebbaApplications,
   selectedEbbaApplicationIds,
@@ -47,7 +50,13 @@ export default function EbbaApplicationsDataGrid({
     () =>
       ebbaApplications.map((ebbaApplication) => ({
         ...ebbaApplication,
+        category:
+          ebbaApplication.category ===
+          ClientSurveillanceCategoryEnum.BorrowingBase
+            ? "Borrowing Base"
+            : "Financial Reports",
         company_name: ebbaApplication.company?.name,
+        expiration_date: ebbaApplication.expires_at,
         files_count: ebbaApplication.ebba_application_files.length,
         submitted_by_name: ebbaApplication.submitted_by_user?.full_name,
       })),
@@ -66,6 +75,27 @@ export default function EbbaApplicationsDataGrid({
             label={"OPEN"}
           />
         ),
+      },
+      {
+        visible: isCompanyVisible,
+        dataField: "company_name",
+        caption: "Customer Name",
+        minWidth: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) => (
+          <ClickableDataGridCell
+            url={getBankCompanyRoute(
+              params.row.data.company_id,
+              BankCompanyRouteEnum.EbbaApplications
+            )}
+            label={params.row.data.company_name}
+          />
+        ),
+      },
+      {
+        visible: isCategoryVisible,
+        dataField: "category",
+        caption: "Certification Type",
+        width: ColumnWidths.Status,
       },
       {
         dataField: "status",
@@ -92,21 +122,6 @@ export default function EbbaApplicationsDataGrid({
         ),
       },
       {
-        visible: isCompanyVisible,
-        dataField: "company_name",
-        caption: "Customer Name",
-        minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
-          <ClickableDataGridCell
-            url={getBankCompanyRoute(
-              params.row.data.company_id,
-              BankCompanyRouteEnum.EbbaApplications
-            )}
-            label={params.row.data.company_name}
-          />
-        ),
-      },
-      {
         dataField: "submitted_by_name",
         caption: "Submitted By",
         width: ColumnWidths.UserName,
@@ -121,13 +136,22 @@ export default function EbbaApplicationsDataGrid({
         ),
       },
       {
+        dataField: "expiration_date",
+        caption: "Expiration Date",
+        width: ColumnWidths.Date,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <DateDataGridCell dateString={params.row.data.expiration_date} />
+        ),
+      },
+      {
         dataField: "files_count",
         caption: "# File Attachments",
         width: ColumnWidths.Date,
         alignment: "right",
       },
       {
-        visible: isLineOfCredit,
+        visible: isBorrowingBaseFieldsVisible,
         dataField: "monthly_accounts_receivable",
         caption: "Accounts Receivable Balance",
         width: ColumnWidths.Currency,
@@ -139,7 +163,7 @@ export default function EbbaApplicationsDataGrid({
         ),
       },
       {
-        visible: isLineOfCredit,
+        visible: isBorrowingBaseFieldsVisible,
         dataField: "monthly_inventory",
         caption: "Inventory",
         width: ColumnWidths.Currency,
@@ -149,7 +173,7 @@ export default function EbbaApplicationsDataGrid({
         ),
       },
       {
-        visible: isLineOfCredit,
+        visible: isBorrowingBaseFieldsVisible,
         dataField: "monthly_cash",
         caption: "Cash in Deposit Accounts",
         width: ColumnWidths.Currency,
@@ -159,7 +183,7 @@ export default function EbbaApplicationsDataGrid({
         ),
       },
       {
-        visible: isLineOfCredit,
+        visible: isBorrowingBaseFieldsVisible,
         dataField: "amount_cash_in_daca",
         caption: "Cash in DACA Deposit Accounts",
         width: ColumnWidths.Currency,
@@ -169,7 +193,7 @@ export default function EbbaApplicationsDataGrid({
         ),
       },
       {
-        visible: isLineOfCredit,
+        visible: isBorrowingBaseFieldsVisible,
         dataField: "calculated_borrowing_base",
         caption: "Calculated Borrowing Base",
         alignment: "right",
@@ -180,7 +204,12 @@ export default function EbbaApplicationsDataGrid({
         ),
       },
     ],
-    [isApprovedAtVisible, isCompanyVisible, isLineOfCredit]
+    [
+      isApprovedAtVisible,
+      isCategoryVisible,
+      isCompanyVisible,
+      isBorrowingBaseFieldsVisible,
+    ]
   );
 
   const handleSelectionChanged = useMemo(

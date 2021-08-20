@@ -68,7 +68,7 @@ export default function MetrcTransfersDataGrid({
         ),
       },
       {
-        dataField: "transfer_type",
+        dataField: "type",
         caption: "Transfer Type",
         width: 230,
       },

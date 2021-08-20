@@ -1,17 +1,23 @@
-import { Box } from "@material-ui/core";
+import { Box, TextField } from "@material-ui/core";
 import DeleteEbbaApplicationModal from "components/EbbaApplication/DeleteEbbaApplicationModal";
 import EbbaApplicationsDataGrid from "components/EbbaApplications/EbbaApplicationsDataGrid";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   EbbaApplicationFragment,
   EbbaApplications,
-  useGetOpenEbbaApplicationsQuery,
+  useGetOpenEbbaApplicationsByCategoryQuery,
 } from "generated/graphql";
+import { getCompanyDisplayName } from "lib/companies";
+import { ClientSurveillanceCategoryEnum } from "lib/enum";
+import { filter } from "lodash";
 import { useMemo, useState } from "react";
 
-export default function EbbaApplicationsActiveTab() {
-  const { data, error, refetch } = useGetOpenEbbaApplicationsQuery({
+export default function EbbaApplicationsBorrowingBaseTab() {
+  const { data, error, refetch } = useGetOpenEbbaApplicationsByCategoryQuery({
     fetchPolicy: "network-only",
+    variables: {
+      category: ClientSurveillanceCategoryEnum.BorrowingBase,
+    },
   });
 
   if (error) {
@@ -19,7 +25,19 @@ export default function EbbaApplicationsActiveTab() {
     console.error({ error });
   }
 
-  const ebbaApplications = useMemo(() => data?.ebba_applications || [], [data]);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const ebbaApplications = useMemo(
+    () =>
+      filter(
+        data?.ebba_applications || [],
+        (ebbaApplication) =>
+          getCompanyDisplayName(ebbaApplication.company)
+            .toLowerCase()
+            .indexOf(searchQuery.toLowerCase()) >= 0
+      ),
+    [searchQuery, data?.ebba_applications]
+  );
 
   const [selectedEbbaApplicationIds, setSelectedEbbaApplicationIds] = useState<
     EbbaApplications["id"][]
@@ -45,14 +63,29 @@ export default function EbbaApplicationsActiveTab() {
   );
 
   return (
-    <Box>
-      <Box display="flex" flexDirection="row-reverse" mb={4}>
-        {!!selectedEbbaApplication && (
+    <Box mt={2}>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="flex-end"
+        mb={2}
+      >
+        <Box display="flex">
+          <TextField
+            autoFocus
+            label="Search by customer name"
+            value={searchQuery}
+            onChange={({ target: { value } }) => setSearchQuery(value)}
+            style={{ width: 300 }}
+          />
+        </Box>
+        <Box display="flex" flexDirection="row-reverse">
           <ModalButton
+            isDisabled={!selectedEbbaApplication}
             label={"Delete Certification"}
             modal={({ handleClose }) => (
               <DeleteEbbaApplicationModal
-                ebbaApplicationId={selectedEbbaApplication.id}
+                ebbaApplicationId={selectedEbbaApplication?.id}
                 handleClose={() => {
                   refetch();
                   handleClose();
@@ -60,12 +93,12 @@ export default function EbbaApplicationsActiveTab() {
               />
             )}
           />
-        )}
+        </Box>
       </Box>
       <Box display="flex" flexDirection="column">
         <EbbaApplicationsDataGrid
+          isBorrowingBaseFieldsVisible
           isCompanyVisible
-          isLineOfCredit
           isMultiSelectEnabled
           ebbaApplications={ebbaApplications}
           selectedEbbaApplicationIds={selectedEbbaApplicationIds}

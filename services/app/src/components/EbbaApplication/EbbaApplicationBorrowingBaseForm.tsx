@@ -42,7 +42,7 @@ interface Props {
   ) => void;
 }
 
-export default function EbbaApplicationForm({
+export default function EbbaApplicationBorrowingBaseForm({
   isAccountsReceivableVisible,
   isInventoryVisible,
   isCashVisible,

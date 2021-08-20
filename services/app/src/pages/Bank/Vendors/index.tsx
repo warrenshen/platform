@@ -38,7 +38,7 @@ export default function BankVendorsPage() {
           <Box display="flex">
             <TextField
               autoFocus
-              label="Search"
+              label="Search by customer name"
               value={searchQuery}
               onChange={({ target: { value } }) => setSearchQuery(value)}
             />

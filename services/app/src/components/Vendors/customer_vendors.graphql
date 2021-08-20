@@ -14,7 +14,7 @@ query GetArtifactRelationsByCompanyId(
     metrc_transfers(
       where: {
         _and: [
-          { transfer_type: { _eq: "INCOMING_FROM_VENDOR" } }
+          { transfer_type: { _in: ["INCOMING", "INCOMING_FROM_VENDOR"] } }
           { vendor_id: { _is_null: false } }
           { created_date: { _gte: $start_created_date } }
         ]

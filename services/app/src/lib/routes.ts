@@ -75,7 +75,7 @@ export const bankRoutes = {
   },
   asyncJobs: "/async/jobs",
   customers: "/customers",
-  ebbaApplications: "/borrowing-bases",
+  ebbaApplications: "/client-surveillance",
   loans: "/loans",
   partnerships: "/partnerships",
   advances: "/advances",

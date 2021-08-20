@@ -3,7 +3,7 @@ import List from "@material-ui/core/List";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import EnvironmentChip from "components/Shared/Chip/EnvironmentChip";
 import { ReactComponent as AdvancesIcon } from "components/Shared/Layout/Icons/Advances.svg";
-import { ReactComponent as BorrowingBasesIcon } from "components/Shared/Layout/Icons/BorrowingBases.svg";
+import { ReactComponent as EbbaApplicationsIcon } from "components/Shared/Layout/Icons/EbbaApplications.svg";
 import { ReactComponent as ContractsIcon } from "components/Shared/Layout/Icons/Contracts.svg";
 import { ReactComponent as CustomersIcon } from "components/Shared/Layout/Icons/Customers.svg";
 import { ReactComponent as InvoicesIcon } from "components/Shared/Layout/Icons/Invoices.svg";
@@ -110,7 +110,7 @@ type NavItem = {
 
 const getCustomerNavItems = (
   productType: ProductTypeEnum | null,
-  showBorrowingBasesChip?: boolean
+  showEbbaApplicationsChip: boolean
 ): NavItem[] => {
   return [
     {
@@ -139,15 +139,6 @@ const getCustomerNavItems = (
       link: customerRoutes.purchaseOrders,
     },
     {
-      dataCy: "borrowing-base",
-      visible:
-        !!productType && [ProductTypeEnum.LineOfCredit].includes(productType),
-      iconNode: PurchaseOrdersIcon,
-      text: "Borrowing Base",
-      link: customerRoutes.ebbaApplications,
-      counter: showBorrowingBasesChip ? 1 : 0,
-    },
-    {
       dataCy: "invoices",
       visible:
         !!productType &&
@@ -164,6 +155,16 @@ const getCustomerNavItems = (
       iconNode: RepaymentsIcon,
       text: "Repayments",
       link: customerRoutes.payments,
+    },
+    {
+      dataCy: "ebba-applications",
+      iconNode: EbbaApplicationsIcon,
+      text:
+        !!productType && [ProductTypeEnum.LineOfCredit].includes(productType)
+          ? "Borrowing Base"
+          : "Financial Reports",
+      link: customerRoutes.ebbaApplications,
+      counter: showEbbaApplicationsChip ? 1 : 0,
     },
     {
       dataCy: "vendors",
@@ -235,17 +236,17 @@ const getBankNavItems = (
       link: bankRoutes.purchaseOrders,
     },
     {
-      dataCy: "borrowing bases",
-      iconNode: BorrowingBasesIcon,
-      text: "Borrowing Bases",
-      link: bankRoutes.ebbaApplications,
-      counter: ebbaApplicationsCount,
-    },
-    {
       dataCy: "invoices",
       iconNode: InvoicesIcon,
       text: "Invoices",
       link: bankRoutes.invoices,
+    },
+    {
+      dataCy: "client-surveillance",
+      iconNode: EbbaApplicationsIcon,
+      text: "Client Surveillance",
+      link: bankRoutes.ebbaApplications,
+      counter: ebbaApplicationsCount,
     },
     {
       dataCy: "customers",
@@ -345,7 +346,7 @@ export default function Layout({ appBarTitle, children }: Props) {
   const ebbaApplication =
     data?.companies_by_pk?.settings?.active_ebba_application;
 
-  const showBorrowingBasesChip =
+  const showEbbaApplicationsChip =
     !borrowingBaseLoading &&
     (!ebbaApplication ||
       withinNDaysOfNowOrBefore(ebbaApplication.expires_at, 15));
@@ -357,7 +358,7 @@ export default function Layout({ appBarTitle, children }: Props) {
         ebbaApplicationsCount,
         partnershipRequestsCount
       )
-    : getCustomerNavItems(productType, showBorrowingBasesChip);
+    : getCustomerNavItems(productType, showEbbaApplicationsChip);
 
   return (
     <Wrapper>

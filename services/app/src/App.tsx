@@ -26,7 +26,7 @@ import BankAdvancesPage from "pages/Bank/Advances";
 import BankAsyncJobsPage from "pages/Bank/Async/Jobs";
 import BankCompanyPage from "pages/Bank/Company";
 import BankCustomersPage from "pages/Bank/Customers";
-import BankEbbaApplicationsPage from "pages/Bank/EbbaApplications";
+import BankClientSurveillancePage from "pages/Bank/ClientSurveillance";
 import BankInvoicesPage from "pages/Bank/Invoices";
 import BankLoansPage from "pages/Bank/Loans";
 import BankOverviewPage from "pages/Bank/Overview";
@@ -302,7 +302,7 @@ export default function App() {
           path={bankRoutes.ebbaApplications}
           requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
         >
-          <BankEbbaApplicationsPage />
+          <BankClientSurveillancePage />
         </PrivateRoute>
         <PrivateRoute
           exact

@@ -1,5 +1,5 @@
 import { Box, Button, Typography } from "@material-ui/core";
-import CreateUpdateEbbaApplicationModal from "components/EbbaApplication/CreateUpdateEbbaApplicationModal";
+import CreateUpdateBorrowingBaseCertificationModal from "components/EbbaApplication/CreateUpdateBorrowingBaseCertificationModal";
 import ReviewEbbaApplicationRejectModal from "components/EbbaApplication/ReviewEbbaApplicationRejectModal";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
@@ -19,7 +19,11 @@ import useSnackbar from "hooks/useSnackbar";
 import { authenticatedApi, ebbaApplicationsRoutes } from "lib/api";
 import { formatCurrency } from "lib/currency";
 import { formatDateString, formatDatetimeString } from "lib/date";
-import { ActionType, FileTypeEnum } from "lib/enum";
+import {
+  ActionType,
+  ClientSurveillanceCategoryEnum,
+  FileTypeEnum,
+} from "lib/enum";
 import { useContext, useMemo, useState } from "react";
 
 interface Props {
@@ -48,6 +52,13 @@ export default function EbbaApplicationDrawer({
   });
 
   const ebbaApplication = data?.ebba_applications_by_pk;
+
+  const isBorrowingBase =
+    ebbaApplication?.category === ClientSurveillanceCategoryEnum.BorrowingBase;
+  const ebbaApplicationDisplayCategory = isBorrowingBase
+    ? "Borrowing Base"
+    : "Financial Reports";
+
   const ebbaApplicationFileIds = useMemo(() => {
     return (
       ebbaApplication?.ebba_application_files.map(
@@ -73,7 +84,7 @@ export default function EbbaApplicationDrawer({
       snackbar.showError(`Error! Message: ${response.data?.msg}`);
     } else {
       refetch();
-      snackbar.showSuccess("Borrowing base certification approved.");
+      snackbar.showSuccess("Certification approved.");
     }
   };
 
@@ -83,11 +94,21 @@ export default function EbbaApplicationDrawer({
 
   return (
     <Modal
-      title={"Borrowing Base Certification"}
+      title={`${ebbaApplicationDisplayCategory} Certification`}
       contentWidth={700}
       handleClose={handleClose}
     >
       <Box display="flex" flexDirection="column">
+        {isBankUser && (
+          <Box display="flex" flexDirection="column" mt={2}>
+            <Typography variant="subtitle2" color="textSecondary">
+              Customer
+            </Typography>
+            <Typography variant={"body1"}>
+              {ebbaApplication.company?.name}
+            </Typography>
+          </Box>
+        )}
         <Box
           display="flex"
           flexDirection="column"
@@ -119,64 +140,58 @@ export default function EbbaApplicationDrawer({
             </Typography>
           </Box>
         )}
-        {isBankUser && (
-          <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="subtitle2" color="textSecondary">
-              Customer
-            </Typography>
-            <Typography variant={"body1"}>
-              {ebbaApplication.company?.name}
-            </Typography>
-          </Box>
-        )}
         <Box display="flex" flexDirection="column" mt={2}>
           <Typography variant="subtitle2" color="textSecondary">
-            Borrowing Base Date
+            Certification Date
           </Typography>
           <Typography variant={"body1"}>
             {formatDateString(ebbaApplication.application_date)}
           </Typography>
         </Box>
-        <Box display="flex" flexDirection="column" mt={2}>
-          <Typography variant="subtitle2" color="textSecondary">
-            Accounts Receivable Balance
-          </Typography>
-          <Typography variant={"body1"}>
-            {formatCurrency(ebbaApplication.monthly_accounts_receivable)}
-          </Typography>
-        </Box>
-        <Box display="flex" flexDirection="column" mt={2}>
-          <Typography variant="subtitle2" color="textSecondary">
-            Inventory Balance
-          </Typography>
-          <Typography variant={"body1"}>
-            {formatCurrency(ebbaApplication.monthly_inventory)}
-          </Typography>
-        </Box>
-        <Box display="flex" flexDirection="column" mt={2}>
-          <Typography variant="subtitle2" color="textSecondary">
-            Cash in Deposit Accounts
-          </Typography>
-          <Typography variant={"body1"}>
-            {formatCurrency(ebbaApplication.monthly_cash)}
-          </Typography>
-        </Box>
-        <Box display="flex" flexDirection="column" mt={2}>
-          <Typography variant="subtitle2" color="textSecondary">
-            Cash in DACA
-          </Typography>
-          <Typography variant={"body1"}>
-            {formatCurrency(ebbaApplication.amount_cash_in_daca)}
-          </Typography>
-        </Box>
-        <Box display="flex" flexDirection="column" mt={2}>
-          <Typography variant="subtitle2" color="textSecondary">
-            Calculated Borrowing Base
-          </Typography>
-          <Typography variant={"body1"}>
-            {formatCurrency(ebbaApplication.calculated_borrowing_base)}
-          </Typography>
-        </Box>
+        {isBorrowingBase && (
+          <>
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Accounts Receivable Balance
+              </Typography>
+              <Typography variant={"body1"}>
+                {formatCurrency(ebbaApplication.monthly_accounts_receivable)}
+              </Typography>
+            </Box>
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Inventory Balance
+              </Typography>
+              <Typography variant={"body1"}>
+                {formatCurrency(ebbaApplication.monthly_inventory)}
+              </Typography>
+            </Box>
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Cash in Deposit Accounts
+              </Typography>
+              <Typography variant={"body1"}>
+                {formatCurrency(ebbaApplication.monthly_cash)}
+              </Typography>
+            </Box>
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Cash in DACA
+              </Typography>
+              <Typography variant={"body1"}>
+                {formatCurrency(ebbaApplication.amount_cash_in_daca)}
+              </Typography>
+            </Box>
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Calculated Borrowing Base
+              </Typography>
+              <Typography variant={"body1"}>
+                {formatCurrency(ebbaApplication.calculated_borrowing_base)}
+              </Typography>
+            </Box>
+          </>
+        )}
         <Box display="flex" flexDirection="column" mt={2}>
           <Typography variant="subtitle2" color="textSecondary">
             File Attachments
@@ -238,7 +253,7 @@ export default function EbbaApplicationDrawer({
                 label={"Edit"}
                 color={"default"}
                 modal={({ handleClose }) => (
-                  <CreateUpdateEbbaApplicationModal
+                  <CreateUpdateBorrowingBaseCertificationModal
                     actionType={ActionType.Update}
                     companyId={ebbaApplication.company_id}
                     ebbaApplicationId={ebbaApplication.id}

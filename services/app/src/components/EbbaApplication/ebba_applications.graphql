@@ -1,4 +1,4 @@
-query GetOpenEbbaApplications {
+query GetOpenEbbaApplicationsByCategory($category: String!) {
   ebba_applications(
     where: {
       _and: [
@@ -8,6 +8,7 @@ query GetOpenEbbaApplications {
             { is_deleted: { _eq: false } }
           ]
         }
+        { category: { _eq: $category } }
         { approved_at: { _is_null: true } }
       ]
     }

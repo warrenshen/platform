@@ -42,7 +42,7 @@ interface Props {
   ) => void;
 }
 
-export default function EbbaApplicationForm({
+export default function EbbaApplicationFinancialReportsForm({
   companyId,
   ebbaApplication,
   ebbaApplicationFiles,
@@ -66,22 +66,6 @@ export default function EbbaApplicationForm({
           What month would you like to submit financial reports for?
         </Typography>
         <Box mt={1}>
-          {/* <DateInput
-            autoFocus
-            disableFuture
-            required
-            className={classes.inputField}
-            id="application-month-date-picker"
-            label="Certification Date"
-            disablePast={false}
-            value={ebbaApplication.application_date}
-            onChange={(value) =>
-              setEbbaApplication({
-                ...ebbaApplication,
-                application_date: value,
-              })
-            }
-          /> */}
           <FormControl className={classes.inputField}>
             <InputLabel id="select-certification-date-label" required>
               Certification Date
