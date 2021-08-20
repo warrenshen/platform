@@ -1,12 +1,20 @@
 import { Box, TextField } from "@material-ui/core";
+import CreateUpdateBorrowingBaseCertificationModal from "components/EbbaApplication/CreateUpdateBorrowingBaseCertificationModal";
+import CreateUpdateFinancialReportsCertificationModal from "components/EbbaApplication/CreateUpdateFinancialReportsCertificationModal";
 import EbbaApplicationsDataGrid from "components/EbbaApplications/EbbaApplicationsDataGrid";
-import { useGetClosedEbbaApplicationsQuery } from "generated/graphql";
+import ModalButton from "components/Shared/Modal/ModalButton";
+import {
+  EbbaApplicationFragment,
+  EbbaApplications,
+  useGetClosedEbbaApplicationsQuery,
+} from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
+import { ActionType, ClientSurveillanceCategoryEnum } from "lib/enum";
 import { filter } from "lodash";
 import { useMemo, useState } from "react";
 
 export default function EbbaApplicationsClosedTab() {
-  const { data, error } = useGetClosedEbbaApplicationsQuery({
+  const { data, error, refetch } = useGetClosedEbbaApplicationsQuery({
     fetchPolicy: "network-only",
   });
 
@@ -29,6 +37,36 @@ export default function EbbaApplicationsClosedTab() {
     [searchQuery, data?.ebba_applications]
   );
 
+  const [selectedEbbaApplicationIds, setSelectedEbbaApplicationIds] = useState<
+    EbbaApplications["id"][]
+  >([]);
+
+  const selectedEbbaApplication = useMemo(
+    () =>
+      selectedEbbaApplicationIds.length === 1
+        ? ebbaApplications.find(
+            (ebbaApplication) =>
+              ebbaApplication.id === selectedEbbaApplicationIds[0]
+          )
+        : null,
+    [ebbaApplications, selectedEbbaApplicationIds]
+  );
+
+  const isCategoryBorrowingBase = useMemo(
+    () =>
+      selectedEbbaApplication?.category ===
+      ClientSurveillanceCategoryEnum.BorrowingBase,
+    [selectedEbbaApplication]
+  );
+
+  const handleSelectEbbaApplications = useMemo(
+    () => (ebbaApplications: EbbaApplicationFragment[]) =>
+      setSelectedEbbaApplicationIds(
+        ebbaApplications.map((ebbaApplication) => ebbaApplication.id)
+      ),
+    [setSelectedEbbaApplicationIds]
+  );
+
   return (
     <Box mt={2}>
       <Box
@@ -46,7 +84,37 @@ export default function EbbaApplicationsClosedTab() {
             style={{ width: 300 }}
           />
         </Box>
-        <Box display="flex" flexDirection="row-reverse" />
+        <Box display="flex" flexDirection="row-reverse">
+          <Box>
+            <ModalButton
+              isDisabled={!selectedEbbaApplication}
+              label={"Edit Certification"}
+              modal={({ handleClose }) =>
+                isCategoryBorrowingBase ? (
+                  <CreateUpdateBorrowingBaseCertificationModal
+                    actionType={ActionType.Update}
+                    companyId={selectedEbbaApplication?.company_id}
+                    ebbaApplicationId={selectedEbbaApplication?.id}
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                    }}
+                  />
+                ) : (
+                  <CreateUpdateFinancialReportsCertificationModal
+                    actionType={ActionType.Update}
+                    companyId={selectedEbbaApplication?.company_id}
+                    ebbaApplicationId={selectedEbbaApplication?.id}
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                    }}
+                  />
+                )
+              }
+            />
+          </Box>
+        </Box>
       </Box>
       <Box display="flex" flexDirection="column">
         <EbbaApplicationsDataGrid
@@ -54,7 +122,10 @@ export default function EbbaApplicationsClosedTab() {
           isBorrowingBaseFieldsVisible
           isCategoryVisible
           isCompanyVisible
+          isMultiSelectEnabled
           ebbaApplications={ebbaApplications}
+          selectedEbbaApplicationIds={selectedEbbaApplicationIds}
+          handleSelectEbbaApplications={handleSelectEbbaApplications}
         />
       </Box>
     </Box>
