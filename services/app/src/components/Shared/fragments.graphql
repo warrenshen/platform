@@ -215,14 +215,18 @@ fragment MetrcTransferPackage on metrc_transfer_packages {
 
 fragment MetrcPackage on metrc_packages {
   id
+  company_id
   package_id
+  last_modified_at
+  type
   package_label
   package_type
   product_name
   product_category_name
   packaged_date
+  quantity
+  unit_of_measure
   package_payload
-  company_id
 }
 
 fragment PurchaseOrderMetrcTransfer on purchase_order_metrc_transfers {

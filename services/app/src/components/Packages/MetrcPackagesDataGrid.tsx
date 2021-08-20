@@ -2,9 +2,11 @@ import { ValueFormatterParams } from "@material-ui/data-grid";
 import MetrcPackageDrawerLauncher from "components/Packages/MetrcPackageDrawerLauncher";
 import MetrcPackageModal from "components/Packages/MetrcPackageModal";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
+import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
+import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import { MetrcPackageFragment } from "generated/graphql";
-import { MetrcPackagePayload } from "lib/api/metrc";
+// import { MetrcPackagePayload } from "lib/api/metrc";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
@@ -22,21 +24,10 @@ export default function MetrcPackagesDataGrid({
   const rows = useMemo(
     () =>
       metrcPackages.map((metrcPackage) => {
-        const packagePayload = metrcPackage.package_payload as MetrcPackagePayload;
+        // const packagePayload = metrcPackage.package_payload as MetrcPackagePayload;
         return {
           ...metrcPackage,
           company_id: metrcPackage?.company_id,
-          source_harvest_names: packagePayload["SourceHarvestNames"],
-          source_package_labels: packagePayload["SourcePackageLabels"],
-          lab_testing_state: packagePayload["LabTestingState"],
-          item_category: packagePayload["ItemCategory"],
-          item_strain_name: packagePayload["ItemStrainName"],
-          item_state: packagePayload["ItemState"],
-          shipped_quantity: `${packagePayload["ShippedQuantity"]} (${packagePayload["ShippedUnitOfMeasureName"]})`,
-          received_quantity: `${packagePayload["ReceivedQuantity"]} (${packagePayload["ReceivedUnitOfMeasureName"]})`,
-          item_unit_quantity: packagePayload["ItemUnitQuantity"],
-          item_unit_weight: packagePayload["ItemUnitWeight"],
-          is_testing_sample: packagePayload["IsTestingSample"],
         };
       }),
     [metrcPackages]
@@ -82,6 +73,37 @@ export default function MetrcPackagesDataGrid({
         minWidth: ColumnWidths.MinWidth,
       },
       {
+        dataField: "package_label",
+        caption: "Package Label",
+        minWidth: ColumnWidths.MinWidth,
+      },
+      {
+        caption: "Packaged Date",
+        dataField: "packaged_date",
+        width: ColumnWidths.Date,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <DateDataGridCell dateString={params.row.data.packaged_date} />
+        ),
+      },
+      {
+        caption: "Last Modified At",
+        dataField: "last_modified_at",
+        width: ColumnWidths.Datetime,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <DatetimeDataGridCell
+            isTimeVisible
+            datetimeString={params.row.data.last_modified_at}
+          />
+        ),
+      },
+      {
+        dataField: "package_type",
+        caption: "Package Type",
+        minWidth: ColumnWidths.MinWidth,
+      },
+      {
         dataField: "product_name",
         caption: "Product Name",
         minWidth: ColumnWidths.MinWidth,
@@ -92,44 +114,16 @@ export default function MetrcPackagesDataGrid({
         minWidth: ColumnWidths.MinWidth,
       },
       {
-        dataField: "label",
-        caption: "Label",
+        caption: "Quantity",
+        dataField: "quantity",
         minWidth: ColumnWidths.MinWidth,
+        alignment: "right",
       },
       {
-        dataField: "item",
-        caption: "Item",
-        minWidth: ColumnWidths.MinWidth,
-      },
-      {
-        dataField: "item_category",
-        caption: "Item Category",
-        minWidth: ColumnWidths.MinWidth,
-      },
-      {
-        dataField: "item_strain_name",
-        caption: "Item Strain Name",
-        minWidth: ColumnWidths.MinWidth,
-      },
-      {
-        dataField: "item_state",
-        caption: "Item State",
-        minWidth: ColumnWidths.MinWidth,
-      },
-      {
-        dataField: "item_unit_quantity",
-        caption: "Item Unit Quantity",
-        minWidth: ColumnWidths.MinWidth,
-      },
-      {
-        dataField: "item_unit_weight",
-        caption: "Item Unit Weight",
-        minWidth: ColumnWidths.MinWidth,
-      },
-      {
-        dataField: "is_testing_sample",
-        caption: "Is Testing Sample",
-        minWidth: ColumnWidths.MinWidth,
+        caption: "Unit of Measure",
+        dataField: "unit_of_measure",
+        width: ColumnWidths.MinWidth,
+        alignment: "right",
       },
     ],
     [isViewActionAvailable]
@@ -138,7 +132,6 @@ export default function MetrcPackagesDataGrid({
   return (
     <ControlledDataGrid
       isExcelExport={isExcelExport}
-      isSortingDisabled
       dataSource={rows}
       columns={columns}
     />

@@ -1,7 +1,7 @@
 import { Tab, Tabs } from "@material-ui/core";
 import PageContent from "components/Shared/Page/PageContent";
 import { Companies } from "generated/graphql";
-import CustomerMetrcPackagesTab from "pages/Customer/Metrc/MetrcPackagesTab";
+import CustomerMetrcActivePackagesTab from "pages/Customer/Metrc/MetrcActivePackagesTab";
 import CustomerMetrcTransferPackagesTab from "pages/Customer/Metrc/MetrcTransferPackagesTab";
 import CustomerMetrcTransfersTab from "pages/Customer/Metrc/MetrcTransfersTab";
 import { useState } from "react";
@@ -23,14 +23,14 @@ export default function CustomerMetrcPageContent({ companyId }: Props) {
       >
         <Tab label="Metrc Transfers" />
         <Tab label="Metrc Transfer Packages" />
-        <Tab label="Metrc Inventory" />
+        <Tab label="Metrc Inventory (Active Packages)" />
       </Tabs>
       {selectedTabIndex === 0 ? (
         <CustomerMetrcTransfersTab companyId={companyId} />
       ) : selectedTabIndex === 1 ? (
         <CustomerMetrcTransferPackagesTab companyId={companyId} />
       ) : (
-        <CustomerMetrcPackagesTab companyId={companyId} />
+        <CustomerMetrcActivePackagesTab companyId={companyId} />
       )}
     </PageContent>
   );

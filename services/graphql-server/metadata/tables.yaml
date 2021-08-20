@@ -2837,18 +2837,22 @@
       - packaged_date
       - updated_at
       - created_at
+      - quantity
+      - unit_of_measure
       filter: {}
   - role: bank_read_only
     permission:
       columns:
       - packaged_date
       - package_payload
+      - quantity
       - package_id
       - package_label
       - package_type
       - product_category_name
       - product_name
       - type
+      - unit_of_measure
       - created_at
       - last_modified_at
       - updated_at

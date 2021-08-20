@@ -45,10 +45,15 @@ query GetMetrcTransferPackagesByCompanyId($company_id: uuid!) {
   }
 }
 
-query GetMetrcPackagesByCompanyId($company_id: uuid!) {
+query GetActiveMetrcPackagesByCompanyId($company_id: uuid!) {
   metrc_packages(
-    where: { company_id: { _eq: $company_id } }
-    order_by: [{ last_modified_at: asc }]
+    where: {
+      _and: [
+        { company_id: { _eq: $company_id } }
+        { type: { _in: ["active", "onhold"] } }
+      ]
+    }
+    order_by: [{ packaged_date: asc }, { last_modified_at: asc }]
   ) {
     id
     ...MetrcPackage

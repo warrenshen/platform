@@ -2,7 +2,7 @@ import { Box, TextField } from "@material-ui/core";
 import MetrcPackagesDataGrid from "components/Packages/MetrcPackagesDataGrid";
 import {
   Companies,
-  useGetMetrcPackagesByCompanyIdQuery,
+  useGetActiveMetrcPackagesByCompanyIdQuery,
 } from "generated/graphql";
 import { filter } from "lodash";
 import { useMemo, useState } from "react";
@@ -12,7 +12,7 @@ interface Props {
 }
 
 export default function CustomerMetrcPackagesTab({ companyId }: Props) {
-  const { data, error } = useGetMetrcPackagesByCompanyIdQuery({
+  const { data, error } = useGetActiveMetrcPackagesByCompanyIdQuery({
     fetchPolicy: "network-only",
     variables: {
       company_id: companyId,

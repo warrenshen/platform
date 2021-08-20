@@ -33,7 +33,7 @@ export default function SyncMetrcData(props: Props) {
 
   const [startDate, setStartDate] = useState<string>(todayAsDateStringServer());
   const [endDate, setEndDate] = useState<string>(todayAsDateStringServer());
-  const [useAsync, setUseAsync] = useState<boolean>(false);
+  const [useAsync, setUseAsync] = useState<boolean>(true);
 
   const handleSubmit = async () => {
     const response = await syncMetrcDataPerCustomer({

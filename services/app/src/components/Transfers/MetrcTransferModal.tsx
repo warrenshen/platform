@@ -1,7 +1,7 @@
 import { Box, Typography } from "@material-ui/core";
 import Modal from "components/Shared/Modal/Modal";
 import RawJsonToggle from "components/Shared/RawJsonToggle";
-import MetrcPackagesDataGrid from "components/Transfers/MetrcTransferPackagesDataGrid";
+import MetrcTransferPackagesDataGrid from "components/Transfers/MetrcTransferPackagesDataGrid";
 import {
   CurrentUserContext,
   isRoleBankUser,
@@ -125,7 +125,7 @@ export default function MetrcTransferModal({
         <Typography variant="subtitle2" color="textSecondary">
           {`Packages (${metrcTransfer.metrc_packages.length})`}
         </Typography>
-        <MetrcPackagesDataGrid
+        <MetrcTransferPackagesDataGrid
           isViewActionAvailable={isBankUser}
           metrcPackages={metrcTransfer.metrc_packages}
         />
