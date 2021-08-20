@@ -201,7 +201,7 @@ export default function CreateUpdateEbbaApplicationModal({
         </Box>
       )}
       <EbbaApplicationFinancialReportsForm
-        isActionTypeUpdate
+        isActionTypeUpdate={isActionTypeUpdate}
         companyId={companyId}
         ebbaApplication={ebbaApplication}
         ebbaApplicationFiles={ebbaApplicationFiles}
