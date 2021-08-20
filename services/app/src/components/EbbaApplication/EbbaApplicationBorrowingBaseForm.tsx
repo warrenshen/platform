@@ -28,6 +28,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
+  isActionTypeUpdate: boolean;
   isAccountsReceivableVisible: boolean;
   isInventoryVisible: boolean;
   isCashVisible: boolean;
@@ -43,6 +44,7 @@ interface Props {
 }
 
 export default function EbbaApplicationBorrowingBaseForm({
+  isActionTypeUpdate,
   isAccountsReceivableVisible,
   isInventoryVisible,
   isCashVisible,
@@ -67,14 +69,19 @@ export default function EbbaApplicationBorrowingBaseForm({
   return (
     <Box display="flex" flexDirection="column">
       <Box display="flex" flexDirection="column" mt={4}>
-        <Typography variant="subtitle2">
-          What date would you like to submit a borrowing base certification for
-          (ex. month end or date of submission)? All financial values provided
-          below should be as of this date.
-        </Typography>
-        <Box mt={1}>
+        {!isActionTypeUpdate && (
+          <Box mb={1}>
+            <Typography variant="subtitle2">
+              What date would you like to submit a borrowing base certification
+              for (ex. month end or date of submission)? All financial values
+              provided below should be as of this date.
+            </Typography>
+          </Box>
+        )}
+        <Box>
           <DateInput
             autoFocus
+            disabled={isActionTypeUpdate}
             disableFuture
             required
             className={classes.inputField}

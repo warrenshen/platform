@@ -9,12 +9,12 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import { Alert } from "@material-ui/lab";
 import FileUploader from "components/Shared/File/FileUploader";
 import {
   EbbaApplicationFilesInsertInput,
   EbbaApplicationsInsertInput,
   Scalars,
+  useGetEbbaApplicationsByCompanyIdQuery,
 } from "generated/graphql";
 import {
   formatDateString,
@@ -33,6 +33,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
+  isActionTypeUpdate: boolean;
   companyId: Scalars["uuid"];
   ebbaApplication: EbbaApplicationsInsertInput;
   ebbaApplicationFiles: EbbaApplicationFilesInsertInput[];
@@ -43,6 +44,7 @@ interface Props {
 }
 
 export default function EbbaApplicationFinancialReportsForm({
+  isActionTypeUpdate,
   companyId,
   ebbaApplication,
   ebbaApplicationFiles,
@@ -50,6 +52,29 @@ export default function EbbaApplicationFinancialReportsForm({
   setEbbaApplicationFiles,
 }: Props) {
   const classes = useStyles();
+
+  const { data, error } = useGetEbbaApplicationsByCompanyIdQuery({
+    fetchPolicy: "network-only",
+    variables: {
+      company_id: companyId,
+    },
+  });
+
+  if (error) {
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
+  }
+
+  const certificationDateOptions = useMemo(() => {
+    const existingEbbaApplications = data?.ebba_applications || [];
+    const existingEbbaApplicationDates = existingEbbaApplications.map(
+      (ebbaApplication) => ebbaApplication.application_date
+    );
+    return lastThreeMonthsCertificationDates().map((certificationDate) => ({
+      isDisabled: existingEbbaApplicationDates.indexOf(certificationDate) >= 0,
+      certificationDate,
+    }));
+  }, [data?.ebba_applications]);
 
   const ebbaApplicationFileIds = useMemo(
     () =>
@@ -66,10 +91,14 @@ export default function EbbaApplicationFinancialReportsForm({
   return (
     <Box display="flex" flexDirection="column">
       <Box display="flex" flexDirection="column" mt={4}>
-        <Typography variant="subtitle2">
-          What month would you like to submit financial reports for?
-        </Typography>
-        <Box mt={1}>
+        {!isActionTypeUpdate && (
+          <Box mb={1}>
+            <Typography variant="subtitle2">
+              What month would you like to submit financial reports for?
+            </Typography>
+          </Box>
+        )}
+        <Box>
           <FormControl className={classes.inputField}>
             <InputLabel id="select-certification-date-label" required>
               Certification Date
@@ -77,6 +106,7 @@ export default function EbbaApplicationFinancialReportsForm({
             <Select
               id="select-certification-date"
               labelId="select-certification-date-label"
+              disabled={isActionTypeUpdate}
               value={ebbaApplication.application_date}
               onChange={({ target: { value } }) =>
                 setEbbaApplication({
@@ -85,13 +115,17 @@ export default function EbbaApplicationFinancialReportsForm({
                 })
               }
             >
-              {lastThreeMonthsCertificationDates().map(
-                (dateStringServer, index) => (
-                  <MenuItem key={index} value={dateStringServer}>
+              {certificationDateOptions.map(
+                ({ certificationDate, isDisabled }) => (
+                  <MenuItem
+                    key={certificationDate}
+                    disabled={isDisabled}
+                    value={certificationDate}
+                  >
                     {`${formatDateStringAsMonth(
-                      dateStringServer
+                      certificationDate
                     )}: submit financial reports as of ${formatDateString(
-                      dateStringServer
+                      certificationDate
                     )}`}
                   </MenuItem>
                 )

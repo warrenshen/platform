@@ -1,3 +1,27 @@
+query GetEbbaApplicationsByCompanyId($company_id: uuid!) {
+  ebba_applications(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { company_id: { _eq: $company_id } }
+      ]
+    }
+    order_by: [{ application_date: desc }, { created_at: desc }]
+  ) {
+    id
+    ...EbbaApplication
+    company {
+      id
+      name
+    }
+  }
+}
+
 query GetOpenEbbaApplicationsByCategory($category: String!) {
   ebba_applications(
     where: {

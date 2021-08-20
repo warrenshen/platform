@@ -285,6 +285,7 @@ export default function CreateUpdateEbbaApplicationModal({
         </Box>
       )}
       <EbbaApplicationBorrowingBaseForm
+        isActionTypeUpdate={isActionTypeUpdate}
         isAccountsReceivableVisible={isAccountsReceivableVisible}
         isInventoryVisible={isInventoryVisible}
         isCashVisible={isCashVisible}

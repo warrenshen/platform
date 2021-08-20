@@ -22083,11 +22083,7 @@ export type GetEbbaApplicationQueryVariables = Exact<{
 export type GetEbbaApplicationQuery = {
   ebba_applications_by_pk?: Maybe<
     Pick<EbbaApplications, "id"> & {
-      company: Pick<Companies, "id" | "name"> & {
-        ebba_applications: Array<
-          Pick<EbbaApplications, "id" | "category" | "application_date">
-        >;
-      };
+      company: Pick<Companies, "id" | "name">;
       ebba_application_files: Array<EbbaApplicationFileFragment>;
     } & EbbaApplicationFragment
   >;
@@ -22121,6 +22117,18 @@ export type UpdateEbbaApplicationMutation = {
   update_ebba_applications_by_pk?: Maybe<
     Pick<EbbaApplications, "id"> & {
       ebba_application_files: Array<EbbaApplicationFileFragment>;
+    } & EbbaApplicationFragment
+  >;
+};
+
+export type GetEbbaApplicationsByCompanyIdQueryVariables = Exact<{
+  company_id: Scalars["uuid"];
+}>;
+
+export type GetEbbaApplicationsByCompanyIdQuery = {
+  ebba_applications: Array<
+    Pick<EbbaApplications, "id"> & {
+      company: Pick<Companies, "id" | "name">;
     } & EbbaApplicationFragment
   >;
 };
@@ -25704,11 +25712,6 @@ export const GetEbbaApplicationDocument = gql`
       company {
         id
         name
-        ebba_applications {
-          id
-          category
-          application_date
-        }
       }
       ebba_application_files {
         ...EbbaApplicationFile
@@ -25892,6 +25895,81 @@ export type UpdateEbbaApplicationMutationResult = Apollo.MutationResult<UpdateEb
 export type UpdateEbbaApplicationMutationOptions = Apollo.BaseMutationOptions<
   UpdateEbbaApplicationMutation,
   UpdateEbbaApplicationMutationVariables
+>;
+export const GetEbbaApplicationsByCompanyIdDocument = gql`
+  query GetEbbaApplicationsByCompanyId($company_id: uuid!) {
+    ebba_applications(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { company_id: { _eq: $company_id } }
+        ]
+      }
+      order_by: [{ application_date: desc }, { created_at: desc }]
+    ) {
+      id
+      ...EbbaApplication
+      company {
+        id
+        name
+      }
+    }
+  }
+  ${EbbaApplicationFragmentDoc}
+`;
+
+/**
+ * __useGetEbbaApplicationsByCompanyIdQuery__
+ *
+ * To run a query within a React component, call `useGetEbbaApplicationsByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetEbbaApplicationsByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetEbbaApplicationsByCompanyIdQuery({
+ *   variables: {
+ *      company_id: // value for 'company_id'
+ *   },
+ * });
+ */
+export function useGetEbbaApplicationsByCompanyIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetEbbaApplicationsByCompanyIdQuery,
+    GetEbbaApplicationsByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetEbbaApplicationsByCompanyIdQuery,
+    GetEbbaApplicationsByCompanyIdQueryVariables
+  >(GetEbbaApplicationsByCompanyIdDocument, baseOptions);
+}
+export function useGetEbbaApplicationsByCompanyIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetEbbaApplicationsByCompanyIdQuery,
+    GetEbbaApplicationsByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetEbbaApplicationsByCompanyIdQuery,
+    GetEbbaApplicationsByCompanyIdQueryVariables
+  >(GetEbbaApplicationsByCompanyIdDocument, baseOptions);
+}
+export type GetEbbaApplicationsByCompanyIdQueryHookResult = ReturnType<
+  typeof useGetEbbaApplicationsByCompanyIdQuery
+>;
+export type GetEbbaApplicationsByCompanyIdLazyQueryHookResult = ReturnType<
+  typeof useGetEbbaApplicationsByCompanyIdLazyQuery
+>;
+export type GetEbbaApplicationsByCompanyIdQueryResult = Apollo.QueryResult<
+  GetEbbaApplicationsByCompanyIdQuery,
+  GetEbbaApplicationsByCompanyIdQueryVariables
 >;
 export const GetOpenEbbaApplicationsByCategoryDocument = gql`
   query GetOpenEbbaApplicationsByCategory($category: String!) {

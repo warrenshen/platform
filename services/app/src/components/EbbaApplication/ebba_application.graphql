@@ -5,11 +5,6 @@ query GetEbbaApplication($id: uuid!) {
     company {
       id
       name
-      ebba_applications {
-        id
-        category
-        application_date
-      }
     }
     ebba_application_files {
       ...EbbaApplicationFile
