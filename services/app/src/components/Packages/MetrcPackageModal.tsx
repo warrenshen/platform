@@ -5,14 +5,11 @@ import {
   CurrentUserContext,
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
-import {
-  MetrcTransferPackages,
-  useGetMetrcTransferPackageQuery,
-} from "generated/graphql";
+import { MetrcPackages, useGetMetrcPackageQuery } from "generated/graphql";
 import { useContext } from "react";
 
 interface Props {
-  metrcPackageId: MetrcTransferPackages["id"];
+  metrcPackageId: MetrcPackages["id"];
   handleClose: () => void;
 }
 
@@ -25,14 +22,14 @@ export default function MetrcPackageModal({
   } = useContext(CurrentUserContext);
   const isBankUser = isRoleBankUser(role);
 
-  const { data } = useGetMetrcTransferPackageQuery({
+  const { data } = useGetMetrcPackageQuery({
     fetchPolicy: "network-only",
     variables: {
       id: metrcPackageId,
     },
   });
 
-  const metrcPackage = data?.metrc_transfer_packages_by_pk;
+  const metrcPackage = data?.metrc_packages_by_pk;
 
   if (!metrcPackage) {
     return null;
@@ -63,27 +60,15 @@ export default function MetrcPackageModal({
         <Typography variant="subtitle2" color="textSecondary">
           Product Name
         </Typography>
-        <Typography variant="body1">{packagePayload.ProductName}</Typography>
+        <Typography variant="body1">{metrcPackage.product_name}</Typography>
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>
         <Typography variant="subtitle2" color="textSecondary">
           Product Category
         </Typography>
         <Typography variant="body1">
-          {packagePayload.ProductCategoryName}
+          {metrcPackage.product_category_name}
         </Typography>
-      </Box>
-      <Box display="flex" flexDirection="column" mt={2}>
-        <Typography variant="subtitle2" color="textSecondary">
-          Shipped Quantity
-        </Typography>
-        <Typography variant="body1">{`${packagePayload.ShippedQuantity} (${packagePayload.ShippedUnitOfMeasureName})`}</Typography>
-      </Box>
-      <Box display="flex" flexDirection="column" mt={2}>
-        <Typography variant="subtitle2" color="textSecondary">
-          Received Quantity
-        </Typography>
-        <Typography variant="body1">{`${packagePayload.ReceivedQuantity} (${packagePayload.ReceivedUnitOfMeasureName})`}</Typography>
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>
         <Typography variant="subtitle2" color="textSecondary">

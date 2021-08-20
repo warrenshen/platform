@@ -54,3 +54,10 @@ query GetMetrcPackagesByCompanyId($company_id: uuid!) {
     ...MetrcPackage
   }
 }
+
+query GetMetrcPackage($id: uuid!) {
+  metrc_packages_by_pk(id: $id) {
+    id
+    ...MetrcPackage
+  }
+}

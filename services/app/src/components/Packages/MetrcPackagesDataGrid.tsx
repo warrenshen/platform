@@ -1,8 +1,8 @@
 import { ValueFormatterParams } from "@material-ui/data-grid";
+import MetrcPackageDrawerLauncher from "components/Packages/MetrcPackageDrawerLauncher";
+import MetrcPackageModal from "components/Packages/MetrcPackageModal";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import ModalButton from "components/Shared/Modal/ModalButton";
-import MetrcPackageDrawerLauncher from "components/Transfers/MetrcPackageDrawerLauncher";
-import MetrcPackageModal from "components/Transfers/MetrcPackageModal";
 import { MetrcPackageFragment } from "generated/graphql";
 import { MetrcPackagePayload } from "lib/api/metrc";
 import { ColumnWidths } from "lib/tables";

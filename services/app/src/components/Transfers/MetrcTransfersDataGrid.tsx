@@ -1,11 +1,11 @@
+import { ValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
-import { ColumnWidths } from "lib/tables";
-import { useMemo } from "react";
+import MetrcTransferDrawerLauncher from "components/Transfers/MetrcTransferDrawerLauncher";
 import { MetrcTransferFragment } from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
-import { ValueFormatterParams } from "@material-ui/data-grid";
-import MetrcTransferDrawerLauncher from "components/Transfers/MetrcTransferDrawerLauncher";
+import { ColumnWidths } from "lib/tables";
+import { useMemo } from "react";
 
 interface Props {
   isExcelExport?: boolean;

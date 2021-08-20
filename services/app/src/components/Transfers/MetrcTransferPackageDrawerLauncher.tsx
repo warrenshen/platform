@@ -1,6 +1,6 @@
 import { Box } from "@material-ui/core";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
-import MetrcPackageModal from "components/Transfers/MetrcPackageModal";
+import MetrcPackageModal from "components/Transfers/MetrcTransferPackageModal";
 import { MetrcTransferPackages } from "generated/graphql";
 import { useState } from "react";
 
@@ -9,7 +9,7 @@ interface Props {
   metrcPackageId: MetrcTransferPackages["id"];
 }
 
-export default function MetrcTransferDrawerLauncher({
+export default function MetrcTransferPackageDrawerLauncher({
   label,
   metrcPackageId,
 }: Props) {

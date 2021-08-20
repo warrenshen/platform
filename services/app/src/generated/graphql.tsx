@@ -23452,6 +23452,16 @@ export type GetMetrcPackagesByCompanyIdQuery = {
   metrc_packages: Array<Pick<MetrcPackages, "id"> & MetrcPackageFragment>;
 };
 
+export type GetMetrcPackageQueryVariables = Exact<{
+  id: Scalars["uuid"];
+}>;
+
+export type GetMetrcPackageQuery = {
+  metrc_packages_by_pk?: Maybe<
+    Pick<MetrcPackages, "id"> & MetrcPackageFragment
+  >;
+};
+
 export type GetVendorCompanyFileAttachmentsQueryVariables = Exact<{
   company_id: Scalars["uuid"];
 }>;
@@ -31686,6 +31696,64 @@ export type GetMetrcPackagesByCompanyIdLazyQueryHookResult = ReturnType<
 export type GetMetrcPackagesByCompanyIdQueryResult = Apollo.QueryResult<
   GetMetrcPackagesByCompanyIdQuery,
   GetMetrcPackagesByCompanyIdQueryVariables
+>;
+export const GetMetrcPackageDocument = gql`
+  query GetMetrcPackage($id: uuid!) {
+    metrc_packages_by_pk(id: $id) {
+      id
+      ...MetrcPackage
+    }
+  }
+  ${MetrcPackageFragmentDoc}
+`;
+
+/**
+ * __useGetMetrcPackageQuery__
+ *
+ * To run a query within a React component, call `useGetMetrcPackageQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMetrcPackageQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMetrcPackageQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetMetrcPackageQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetMetrcPackageQuery,
+    GetMetrcPackageQueryVariables
+  >
+) {
+  return Apollo.useQuery<GetMetrcPackageQuery, GetMetrcPackageQueryVariables>(
+    GetMetrcPackageDocument,
+    baseOptions
+  );
+}
+export function useGetMetrcPackageLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetMetrcPackageQuery,
+    GetMetrcPackageQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetMetrcPackageQuery,
+    GetMetrcPackageQueryVariables
+  >(GetMetrcPackageDocument, baseOptions);
+}
+export type GetMetrcPackageQueryHookResult = ReturnType<
+  typeof useGetMetrcPackageQuery
+>;
+export type GetMetrcPackageLazyQueryHookResult = ReturnType<
+  typeof useGetMetrcPackageLazyQuery
+>;
+export type GetMetrcPackageQueryResult = Apollo.QueryResult<
+  GetMetrcPackageQuery,
+  GetMetrcPackageQueryVariables
 >;
 export const GetVendorCompanyFileAttachmentsDocument = gql`
   query GetVendorCompanyFileAttachments($company_id: uuid!) {
