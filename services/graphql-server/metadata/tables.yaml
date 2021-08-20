@@ -2824,21 +2824,21 @@
   - role: bank_admin
     permission:
       columns:
-      - id
-      - type
-      - company_id
+      - packaged_date
+      - package_payload
+      - quantity
       - package_id
       - package_label
       - package_type
-      - product_name
       - product_category_name
-      - package_payload
-      - last_modified_at
-      - packaged_date
-      - updated_at
-      - created_at
-      - quantity
+      - product_name
+      - type
       - unit_of_measure
+      - created_at
+      - last_modified_at
+      - updated_at
+      - company_id
+      - id
       filter: {}
   - role: bank_read_only
     permission:

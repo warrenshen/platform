@@ -475,7 +475,7 @@ class MetrcPackage(Base):
 	package_payload = Column(JSON) # From Metrc info
 	last_modified_at = Column(DateTime) # From Metrc info
 
-	packaged_date = Column(Date) # From Metrc info
+	packaged_date = Column(Date, nullable=False) # From Metrc info
 	quantity = Column(Numeric) # From Metrc info
 	unit_of_measure = Column(Text) # From Metrc info
 
@@ -501,6 +501,7 @@ class MetrcTransferPackage(Base):
 	product_category_name = Column(String) # From Metrc info
 	package_payload = Column(JSON) # From Metrc info
 	last_modified_at = Column(DateTime) # From Metrc info
+	created_date = Column(Date) # From Metrc info (the transfer)
 
 	shipped_quantity = Column(Numeric) # From Metrc info
 	received_quantity = Column(Numeric) # From Metrc info

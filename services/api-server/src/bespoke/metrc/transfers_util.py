@@ -60,7 +60,9 @@ class TransferPackages(object):
 	def get_package_ids(self) -> List[str]:
 		return [t['PackageId'] for t in self._packages]
 
-	def get_package_models(self, lab_tests: List[LabTest], transfer_type: str, company_id: str) -> Tuple[List[models.MetrcTransferPackage], str]:
+	def get_package_models(
+		self, lab_tests: List[LabTest], transfer_type: str, 
+					created_date: datetime.date, company_id: str) -> Tuple[List[models.MetrcTransferPackage], str]:
 		# Return list of MetrcTransferPackage models and lab results status
 		# of the Transfer that all these packages belong to.
 		metrc_packages = []
@@ -96,6 +98,7 @@ class TransferPackages(object):
 			# p.lab_results_payload = {
 			# 	'lab_results': lab_tests[i].get_results_array()
 			# }
+			p.created_date = created_date
 			p.lab_results_status = lab_tests[i].get_status()
 			p.last_modified_at = self._last_modified_at # Transfer packages inherit last modified at from the transfer
 
@@ -475,6 +478,7 @@ def populate_transfers_table(
 			metrc_packages, delivery_lab_results_status = packages.get_package_models(
 				lab_tests=lab_tests,
 				transfer_type=delivery.transfer_type,
+				created_date=metrc_transfer.created_date,
 				company_id=company_info.company_id
 			)
 

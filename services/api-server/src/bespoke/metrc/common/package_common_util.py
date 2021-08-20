@@ -37,6 +37,7 @@ def transfer_package_to_package(tp: models.MetrcTransferPackage) -> models.Metrc
 		p.quantity = tp.shipped_quantity
 		p.unit_of_measure = tp.shipped_unit_of_measure
 
+	p.packaged_date = tp.created_date
 	return p
 
 def merge_into_prev_transfer_package(prev: models.MetrcTransferPackage, cur: models.MetrcTransferPackage) -> None:
