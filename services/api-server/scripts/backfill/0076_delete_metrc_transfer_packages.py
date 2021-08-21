@@ -19,7 +19,7 @@ def main(is_test_run: bool = True) -> None:
 	session_maker = models.new_sessionmaker(engine)
 
 	current_page = 0
-	BATCH_SIZE = 50
+	BATCH_SIZE = 5
 	is_done = False
 	metrc_transfer_package_index = 0
 
