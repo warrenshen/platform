@@ -54,7 +54,7 @@ export default function MetrcTransferModal({
 
   return (
     <Modal
-      title={"Metrc Manifest / Transfer"}
+      title={"Metrc Transfer (Manifest)"}
       subtitle={metrcTransfer.manifest_number}
       contentWidth={1000}
       handleClose={handleClose}
@@ -123,11 +123,11 @@ export default function MetrcTransferModal({
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>
         <Typography variant="subtitle2" color="textSecondary">
-          {`Packages (${metrcTransfer.metrc_packages.length})`}
+          {`Packages (${metrcTransfer.metrc_transfer_packages.length})`}
         </Typography>
         <MetrcTransferPackagesDataGrid
           isViewActionAvailable={isBankUser}
-          metrcPackages={metrcTransfer.metrc_packages}
+          metrcTransferPackages={metrcTransfer.metrc_transfer_packages}
         />
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>

@@ -13,22 +13,22 @@ import { useMemo } from "react";
 interface Props {
   isExcelExport?: boolean;
   isViewActionAvailable?: boolean;
-  metrcPackages: MetrcTransferPackageFragment[];
+  metrcTransferPackages: MetrcTransferPackageFragment[];
 }
 
 export default function MetrcTransferPackagesDataGrid({
   isExcelExport = true,
   isViewActionAvailable = false,
-  metrcPackages,
+  metrcTransferPackages,
 }: Props) {
   const rows = useMemo(
     () =>
-      metrcPackages.map((metrcPackage) => {
-        const packagePayload = metrcPackage.package_payload as MetrcPackagePayload;
+      metrcTransferPackages.map((metrcTransferPackage) => {
+        const packagePayload = metrcTransferPackage.package_payload as MetrcPackagePayload;
         return {
-          ...metrcPackage,
-          company_id: metrcPackage.metrc_transfer?.company_id,
-          manifest_number: metrcPackage.metrc_transfer?.manifest_number,
+          ...metrcTransferPackage,
+          company_id: metrcTransferPackage.metrc_transfer?.company_id,
+          manifest_number: metrcTransferPackage.metrc_transfer?.manifest_number,
           source_harvest_names: packagePayload["SourceHarvestNames"],
           source_package_labels: packagePayload["SourcePackageLabels"],
           lab_testing_state: packagePayload["LabTestingState"],
@@ -42,7 +42,7 @@ export default function MetrcTransferPackagesDataGrid({
           is_testing_sample: packagePayload["IsTestingSample"],
         };
       }),
-    [metrcPackages]
+    [metrcTransferPackages]
   );
 
   const columns = useMemo(
@@ -72,11 +72,6 @@ export default function MetrcTransferPackagesDataGrid({
           />
         ),
       },
-      // {
-      //   dataField: "delivery_id",
-      //   caption: "Delivery ID",
-      //   width: ColumnWidths.MetrcId,
-      // },
       {
         visible: isViewActionAvailable,
         dataField: undefined,

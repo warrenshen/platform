@@ -30,17 +30,14 @@ export default function BankVendorsPage() {
   return (
     <Page appBarTitle={"Vendors"}>
       <PageContent title={"Vendors"}>
-        <Box
-          display="flex"
-          style={{ marginBottom: "1rem" }}
-          justifyContent="space-between"
-        >
+        <Box display="flex" justifyContent="space-between" mb={2}>
           <Box display="flex">
             <TextField
               autoFocus
-              label="Search by customer name"
+              label="Search by vendor name"
               value={searchQuery}
               onChange={({ target: { value } }) => setSearchQuery(value)}
+              style={{ width: 300 }}
             />
           </Box>
         </Box>

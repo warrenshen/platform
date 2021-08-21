@@ -11487,6 +11487,7 @@ export type MetrcSalesReceiptsVarianceOrderBy = {
 export type MetrcTransferPackages = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  created_date?: Maybe<Scalars["date"]>;
   /** From Metrc */
   delivery_id?: Maybe<Scalars["String"]>;
   delivery_row_id?: Maybe<Scalars["uuid"]>;
@@ -11589,6 +11590,7 @@ export type MetrcTransferPackagesBoolExp = {
   _or?: Maybe<Array<Maybe<MetrcTransferPackagesBoolExp>>>;
   company_id?: Maybe<UuidComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
+  created_date?: Maybe<DateComparisonExp>;
   delivery_id?: Maybe<StringComparisonExp>;
   delivery_row_id?: Maybe<UuidComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
@@ -11632,6 +11634,7 @@ export type MetrcTransferPackagesIncInput = {
 export type MetrcTransferPackagesInsertInput = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  created_date?: Maybe<Scalars["date"]>;
   delivery_id?: Maybe<Scalars["String"]>;
   delivery_row_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -11660,6 +11663,7 @@ export type MetrcTransferPackagesInsertInput = {
 export type MetrcTransferPackagesMaxFields = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  created_date?: Maybe<Scalars["date"]>;
   delivery_id?: Maybe<Scalars["String"]>;
   delivery_row_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -11685,6 +11689,7 @@ export type MetrcTransferPackagesMaxFields = {
 export type MetrcTransferPackagesMaxOrderBy = {
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  created_date?: Maybe<OrderBy>;
   delivery_id?: Maybe<OrderBy>;
   delivery_row_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
@@ -11710,6 +11715,7 @@ export type MetrcTransferPackagesMaxOrderBy = {
 export type MetrcTransferPackagesMinFields = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  created_date?: Maybe<Scalars["date"]>;
   delivery_id?: Maybe<Scalars["String"]>;
   delivery_row_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -11735,6 +11741,7 @@ export type MetrcTransferPackagesMinFields = {
 export type MetrcTransferPackagesMinOrderBy = {
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  created_date?: Maybe<OrderBy>;
   delivery_id?: Maybe<OrderBy>;
   delivery_row_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
@@ -11781,6 +11788,7 @@ export type MetrcTransferPackagesOnConflict = {
 export type MetrcTransferPackagesOrderBy = {
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  created_date?: Maybe<OrderBy>;
   delivery_id?: Maybe<OrderBy>;
   delivery_row_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
@@ -11816,6 +11824,8 @@ export enum MetrcTransferPackagesSelectColumn {
   CompanyId = "company_id",
   /** column name */
   CreatedAt = "created_at",
+  /** column name */
+  CreatedDate = "created_date",
   /** column name */
   DeliveryId = "delivery_id",
   /** column name */
@@ -11862,6 +11872,7 @@ export enum MetrcTransferPackagesSelectColumn {
 export type MetrcTransferPackagesSetInput = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  created_date?: Maybe<Scalars["date"]>;
   delivery_id?: Maybe<Scalars["String"]>;
   delivery_row_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -11946,6 +11957,8 @@ export enum MetrcTransferPackagesUpdateColumn {
   CompanyId = "company_id",
   /** column name */
   CreatedAt = "created_at",
+  /** column name */
+  CreatedDate = "created_date",
   /** column name */
   DeliveryId = "delivery_id",
   /** column name */
@@ -12050,9 +12063,9 @@ export type MetrcTransfers = {
   license_id?: Maybe<Scalars["uuid"]>;
   manifest_number: Scalars["String"];
   /** An array relationship */
-  metrc_packages: Array<MetrcTransferPackages>;
+  metrc_transfer_packages: Array<MetrcTransferPackages>;
   /** An aggregated array relationship */
-  metrc_packages_aggregate: MetrcTransferPackagesAggregate;
+  metrc_transfer_packages_aggregate: MetrcTransferPackagesAggregate;
   shipment_transaction_type?: Maybe<Scalars["String"]>;
   shipment_type_name?: Maybe<Scalars["String"]>;
   shipper_facility_license_number?: Maybe<Scalars["String"]>;
@@ -12074,7 +12087,7 @@ export type MetrcTransfers = {
  *
  * columns and relationships of "metrc_transfers"
  */
-export type MetrcTransfersMetrcPackagesArgs = {
+export type MetrcTransfersMetrcTransferPackagesArgs = {
   distinct_on?: Maybe<Array<MetrcTransferPackagesSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
   offset?: Maybe<Scalars["Int"]>;
@@ -12088,7 +12101,7 @@ export type MetrcTransfersMetrcPackagesArgs = {
  *
  * columns and relationships of "metrc_transfers"
  */
-export type MetrcTransfersMetrcPackagesAggregateArgs = {
+export type MetrcTransfersMetrcTransferPackagesAggregateArgs = {
   distinct_on?: Maybe<Array<MetrcTransferPackagesSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
   offset?: Maybe<Scalars["Int"]>;
@@ -12153,7 +12166,7 @@ export type MetrcTransfersBoolExp = {
   last_modified_at?: Maybe<TimestamptzComparisonExp>;
   license_id?: Maybe<UuidComparisonExp>;
   manifest_number?: Maybe<StringComparisonExp>;
-  metrc_packages?: Maybe<MetrcTransferPackagesBoolExp>;
+  metrc_transfer_packages?: Maybe<MetrcTransferPackagesBoolExp>;
   shipment_transaction_type?: Maybe<StringComparisonExp>;
   shipment_type_name?: Maybe<StringComparisonExp>;
   shipper_facility_license_number?: Maybe<StringComparisonExp>;
@@ -12187,7 +12200,7 @@ export type MetrcTransfersInsertInput = {
   last_modified_at?: Maybe<Scalars["timestamptz"]>;
   license_id?: Maybe<Scalars["uuid"]>;
   manifest_number?: Maybe<Scalars["String"]>;
-  metrc_packages?: Maybe<MetrcTransferPackagesArrRelInsertInput>;
+  metrc_transfer_packages?: Maybe<MetrcTransferPackagesArrRelInsertInput>;
   shipment_transaction_type?: Maybe<Scalars["String"]>;
   shipment_type_name?: Maybe<Scalars["String"]>;
   shipper_facility_license_number?: Maybe<Scalars["String"]>;
@@ -12318,7 +12331,7 @@ export type MetrcTransfersOrderBy = {
   last_modified_at?: Maybe<OrderBy>;
   license_id?: Maybe<OrderBy>;
   manifest_number?: Maybe<OrderBy>;
-  metrc_packages_aggregate?: Maybe<MetrcTransferPackagesAggregateOrderBy>;
+  metrc_transfer_packages_aggregate?: Maybe<MetrcTransferPackagesAggregateOrderBy>;
   shipment_transaction_type?: Maybe<OrderBy>;
   shipment_type_name?: Maybe<OrderBy>;
   shipper_facility_license_number?: Maybe<OrderBy>;
@@ -22734,7 +22747,7 @@ export type GetPurchaseOrderForBankQuery = {
       purchase_order_metrc_transfers: Array<
         Pick<PurchaseOrderMetrcTransfers, "id"> & {
           metrc_transfer: Pick<MetrcTransfers, "id"> & {
-            metrc_packages: Array<
+            metrc_transfer_packages: Array<
               Pick<MetrcTransferPackages, "id"> & MetrcTransferPackageFragment
             >;
           } & MetrcTransferFragment;
@@ -22792,7 +22805,7 @@ export type GetPurchaseOrderForReviewQuery = {
       purchase_order_metrc_transfers: Array<
         Pick<PurchaseOrderMetrcTransfers, "id"> & {
           metrc_transfer: Pick<MetrcTransfers, "id"> & {
-            metrc_packages: Array<
+            metrc_transfer_packages: Array<
               Pick<MetrcTransferPackages, "id"> & MetrcTransferPackageFragment
             >;
           } & MetrcTransferFragment;
@@ -23542,7 +23555,7 @@ export type GetMetrcTransferQuery = {
           >;
         }
       >;
-      metrc_packages: Array<
+      metrc_transfer_packages: Array<
         Pick<MetrcTransferPackages, "id"> & MetrcTransferPackageFragment
       >;
     } & MetrcTransferFragment
@@ -28631,7 +28644,7 @@ export const GetPurchaseOrderForBankDocument = gql`
         metrc_transfer {
           id
           ...MetrcTransfer
-          metrc_packages {
+          metrc_transfer_packages {
             id
             ...MetrcTransferPackage
           }
@@ -28806,7 +28819,7 @@ export const GetPurchaseOrderForReviewDocument = gql`
         metrc_transfer {
           id
           ...MetrcTransfer
-          metrc_packages {
+          metrc_transfer_packages {
             id
             ...MetrcTransferPackage
           }
@@ -31540,7 +31553,7 @@ export const GetMetrcTransferDocument = gql`
         }
       }
       ...MetrcTransfer
-      metrc_packages {
+      metrc_transfer_packages {
         id
         ...MetrcTransferPackage
       }

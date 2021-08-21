@@ -16,7 +16,7 @@ query GetPurchaseOrderForBank($id: uuid!) {
       metrc_transfer {
         id
         ...MetrcTransfer
-        metrc_packages {
+        metrc_transfer_packages {
           id
           ...MetrcTransferPackage
         }
@@ -82,7 +82,7 @@ query GetPurchaseOrderForReview($id: uuid!) {
       metrc_transfer {
         id
         ...MetrcTransfer
-        metrc_packages {
+        metrc_transfer_packages {
           id
           ...MetrcTransferPackage
         }

@@ -26,7 +26,7 @@ export default function CustomerMetrcTransferPackagesTab({ companyId }: Props) {
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  const metrcPackages = useMemo(
+  const metrcTransferPackages = useMemo(
     () =>
       filter(
         data?.metrc_transfer_packages || [],
@@ -57,7 +57,9 @@ export default function CustomerMetrcTransferPackagesTab({ companyId }: Props) {
         </Box>
       </Box>
       <Box display="flex" flexDirection="column">
-        <MetrcTransferPackagesDataGrid metrcPackages={metrcPackages} />
+        <MetrcTransferPackagesDataGrid
+          metrcTransferPackages={metrcTransferPackages}
+        />
       </Box>
     </Box>
   );

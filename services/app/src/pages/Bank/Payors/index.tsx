@@ -30,17 +30,14 @@ export default function BankPayorsPage() {
   return (
     <Page appBarTitle="Payors">
       <PageContent title={"Payors"}>
-        <Box
-          display="flex"
-          style={{ marginBottom: "1rem" }}
-          justifyContent="space-between"
-        >
+        <Box display="flex" justifyContent="space-between" mb={2}>
           <Box display="flex">
             <TextField
               autoFocus
-              label="Search"
+              label="Search by payor name"
               value={searchQuery}
               onChange={({ target: { value } }) => setSearchQuery(value)}
+              style={{ width: 300 }}
             />
           </Box>
         </Box>

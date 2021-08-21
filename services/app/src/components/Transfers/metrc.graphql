@@ -8,7 +8,7 @@ query GetMetrcTransfer($id: uuid!, $company_id: uuid) {
       }
     }
     ...MetrcTransfer
-    metrc_packages {
+    metrc_transfer_packages {
       id
       ...MetrcTransferPackage
     }
