@@ -19,6 +19,7 @@ import {
   PurchaseOrdersInsertInput,
   RequestStatusEnum,
   useGetArtifactRelationsByCompanyIdQuery,
+  useGetIncomingFromVendorMetrcDeliveriesByCompanyIdQuery,
   useGetPurchaseOrderForCustomerQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -34,6 +35,7 @@ import { todayMinusXDaysDateStringServer } from "lib/date";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useMemo, useState } from "react";
 import styled from "styled-components";
+import { uniqBy } from "lodash";
 
 const Buttons = styled.div`
   display: flex;
@@ -171,7 +173,6 @@ export default function CreateUpdatePurchaseOrderModal({
     fetchPolicy: "network-only",
     variables: {
       company_id: companyId,
-      start_created_date: todayMinusXDaysDateStringServer(60), // Fetch Metrc transfers created in last 60 days.
     },
   });
 
@@ -182,12 +183,37 @@ export default function CreateUpdatePurchaseOrderModal({
     );
   }
 
+  const {
+    data: metrcDeliveriesData,
+    // loading: isMetrcDeliveriesLoading,
+    error: metrcDeliveriesError,
+  } = useGetIncomingFromVendorMetrcDeliveriesByCompanyIdQuery({
+    fetchPolicy: "network-only",
+    variables: {
+      company_id: companyId,
+      start_created_date: todayMinusXDaysDateStringServer(60), // Fetch Metrc deliveries created in last 60 days.
+    },
+  });
+
+  if (metrcDeliveriesError) {
+    console.error({ metrcDeliveriesError });
+    alert(
+      `Error in query (details in console): ${metrcDeliveriesError.message}`
+    );
+  }
+
   const companySettings = data?.companies_by_pk?.settings;
   const selectableVendors = data?.vendors || [];
 
   const allMetrcTransfers = useMemo(
-    () => data?.companies_by_pk?.metrc_transfers || [],
-    [data?.companies_by_pk]
+    () =>
+      uniqBy(
+        (metrcDeliveriesData?.metrc_deliveries || []).map(
+          (metrcDelivery) => metrcDelivery.metrc_transfer
+        ),
+        (metrcTransfer) => metrcTransfer.manifest_number
+      ),
+    [metrcDeliveriesData?.metrc_deliveries]
   );
 
   const selectedMetrcTransfers = useMemo(
@@ -222,8 +248,7 @@ export default function CreateUpdatePurchaseOrderModal({
       companySettings,
       FeatureFlagEnum.CREATE_PURCHASE_ORDER_FROM_METRC_TRANSFERS
     ) &&
-    metrcApiKeys.length > 0 &&
-    selectableMetrcTransfers.length > 0;
+    metrcApiKeys.length > 0;
   const isMetrcBased = purchaseOrder.is_metrc_based;
 
   const [

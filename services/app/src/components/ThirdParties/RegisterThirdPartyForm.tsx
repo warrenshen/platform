@@ -55,6 +55,7 @@ export default function RegisterThirdPartyForm({
       <Box my={2}>
         <Box display="flex" flexDirection="column">
           <TextField
+            autoFocus
             label={`${companyTypeUpper} Name`}
             required
             value={company.name}

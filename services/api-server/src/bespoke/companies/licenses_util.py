@@ -273,7 +273,7 @@ def _update_matching_transfers_and_deliveries(
 
 	populate_delivery_details(all_delivery_objs, transfer_id_to_details, session)
 
-def _update_metrc_rows_based_on_vendor(company_id: str, op: str, license_number: str, session: Session) -> None:
+def _update_metrc_rows_based_on_shipper(company_id: str, op: str, license_number: str, session: Session) -> None:
 	# Update the vendor_id if it matches any shipper license numbers
 	is_done = False
 	page_index = 0
@@ -355,7 +355,7 @@ def update_metrc_rows_on_license_change(
 			# this license is no longer associated with a company.
 			company_id = None
 
-		_update_metrc_rows_based_on_vendor(company_id, mod['op'], mod['license_number'], session)
+		_update_metrc_rows_based_on_shipper(company_id, mod['op'], mod['license_number'], session)
 
 	with session_scope(session_maker) as session:
 		_update_metrc_rows_based_on_recipient(company_id, mod['op'], mod['license_number'], session)

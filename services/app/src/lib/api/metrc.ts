@@ -1,4 +1,4 @@
-import { GetArtifactRelationsByCompanyIdQuery } from "generated/graphql";
+import { GetIncomingFromVendorMetrcDeliveriesByCompanyIdQuery } from "generated/graphql";
 import { authenticatedApi, CustomMutationResponse, metrcRoutes } from "lib/api";
 
 // {
@@ -243,8 +243,8 @@ export async function syncMetrcDataPerCustomer(req: {
 
 export function getMetrcTransferVendorDescription(
   metrcTransfer: NonNullable<
-    GetArtifactRelationsByCompanyIdQuery["companies_by_pk"]
-  >["metrc_transfers"][0]
+    GetIncomingFromVendorMetrcDeliveriesByCompanyIdQuery["metrc_deliveries"]
+  >[0]["metrc_transfer"]
 ) {
   const vendor = metrcTransfer.vendor || null;
   if (!vendor) {

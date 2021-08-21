@@ -1,5 +1,6 @@
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
+import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import MetrcTransferDrawerLauncher from "components/Transfers/MetrcTransferDrawerLauncher";
 import { MetrcTransferFragment } from "generated/graphql";
@@ -71,6 +72,15 @@ export default function MetrcTransfersDataGrid({
         dataField: "type",
         caption: "Transfer Type",
         width: 230,
+      },
+      {
+        caption: "Created Date",
+        dataField: "created_date",
+        width: ColumnWidths.Date,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <DateDataGridCell dateString={params.row.data.created_date} />
+        ),
       },
       {
         dataField: "lab_results_status",

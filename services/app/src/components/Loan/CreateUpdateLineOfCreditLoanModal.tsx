@@ -24,7 +24,6 @@ import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { submitLoanMutation } from "lib/api/loans";
 import { ActionType } from "lib/enum";
-import { todayMinusXDaysDateStringServer } from "lib/date";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useState } from "react";
 
@@ -100,7 +99,6 @@ export default function CreateUpdateLineOfCreditLoanModal({
     fetchPolicy: "network-only",
     variables: {
       company_id: companyId,
-      start_created_date: todayMinusXDaysDateStringServer(60), // Fetch Metrc transfers created in last 60 days.
     },
   });
   const vendors = data?.vendors || [];

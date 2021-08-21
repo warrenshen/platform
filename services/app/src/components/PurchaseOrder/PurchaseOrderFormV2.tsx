@@ -7,7 +7,7 @@ import DateInput from "components/Shared/FormInputs/DateInput";
 import MetrcTransferInfoCard from "components/Transfers/MetrcTransferInfoCard";
 import {
   Companies,
-  GetArtifactRelationsByCompanyIdQuery,
+  GetIncomingFromVendorMetrcDeliveriesByCompanyIdQuery,
   MetrcTransferFragment,
   PurchaseOrderFileFragment,
   PurchaseOrderFileTypeEnum,
@@ -28,8 +28,8 @@ interface Props {
   purchaseOrderFile: PurchaseOrderFileFragment | null;
   purchaseOrderCannabisFiles: PurchaseOrderFileFragment[];
   selectableMetrcTransfers: NonNullable<
-    GetArtifactRelationsByCompanyIdQuery["companies_by_pk"]
-  >["metrc_transfers"];
+    GetIncomingFromVendorMetrcDeliveriesByCompanyIdQuery["metrc_deliveries"]
+  >[0]["metrc_transfer"][];
   selectedMetrcTransfers: MetrcTransferFragment[];
   setPurchaseOrder: (purchaseOrder: PurchaseOrdersInsertInput) => void;
   setPurchaseOrderFile: (file: PurchaseOrderFileFragment | null) => void;

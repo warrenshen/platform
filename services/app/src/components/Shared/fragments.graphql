@@ -179,13 +179,13 @@ fragment MetrcTransfer on metrc_transfers {
   license_id
   vendor_id
   transfer_id
-  transfer_type
+  type
   created_date
   manifest_number
   shipment_type_name
   shipment_transaction_type
-  transfer_payload
   lab_results_status
+  transfer_payload
   vendor {
     id
     name

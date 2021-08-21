@@ -1,35 +1,12 @@
-query GetArtifactRelationsByCompanyId(
-  $company_id: uuid!,
-  $start_created_date: date!,
-) {
+query GetArtifactRelationsByCompanyId($company_id: uuid!) {
   companies_by_pk(id: $company_id) {
     id
     settings {
       id
       ...CompanySettingsLimited
     }
-    metrc_api_keys(where: { is_functioning: { _eq: true } }) {
+    metrc_api_keys {
       id
-    }
-    metrc_transfers(
-      where: {
-        _and: [
-          { transfer_type: { _in: ["INCOMING", "INCOMING_FROM_VENDOR"] } }
-          { vendor_id: { _is_null: false } }
-          { created_date: { _gte: $start_created_date } }
-        ]
-      }
-      order_by: { manifest_number: desc }
-    ) {
-      id
-      ...MetrcTransfer
-      vendor {
-        id
-        company_vendor_partnerships(where: { company_id: { _eq: $company_id } }) {
-          id
-          approved_at
-        }
-      }
     }
   }
   vendors(
@@ -41,6 +18,37 @@ query GetArtifactRelationsByCompanyId(
     company_vendor_partnerships {
       id
       approved_at
+    }
+  }
+}
+
+query GetIncomingFromVendorMetrcDeliveriesByCompanyId(
+  $company_id: uuid!,
+  $start_created_date: date!,
+) {
+  metrc_deliveries(
+    where: {
+      _and: [
+        { metrc_transfer: { company_id: { _eq: $company_id } } }
+        { metrc_transfer: { vendor_id: { _is_null: false } } }
+        { metrc_transfer: { created_date: { _gte: $start_created_date } } }
+        { delivery_type: { _eq: "INCOMING_FROM_VENDOR" } }
+      ]
+    }
+    order_by: { metrc_transfer: { manifest_number: desc } }
+  ) {
+    id
+    delivery_type
+    metrc_transfer {
+      id
+      ...MetrcTransfer
+      vendor {
+        id
+        company_vendor_partnerships(where: { company_id: { _eq: $company_id } }) {
+          id
+          approved_at
+        }
+      }
     }
   }
 }
