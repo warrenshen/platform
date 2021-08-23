@@ -11497,7 +11497,7 @@ export type MetrcTransferPackages = {
   /** An object relationship */
   metrc_delivery?: Maybe<MetrcDeliveries>;
   /** An object relationship */
-  metrc_transfer?: Maybe<MetrcTransfers>;
+  metrc_transfer: MetrcTransfers;
   /** From Metrc */
   package_id: Scalars["String"];
   package_label: Scalars["String"];
@@ -11511,7 +11511,7 @@ export type MetrcTransferPackages = {
   shipped_quantity?: Maybe<Scalars["numeric"]>;
   shipped_unit_of_measure?: Maybe<Scalars["String"]>;
   shipper_wholesale_price?: Maybe<Scalars["numeric"]>;
-  transfer_row_id?: Maybe<Scalars["uuid"]>;
+  transfer_row_id: Scalars["uuid"];
   type: Scalars["String"];
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
@@ -23480,9 +23480,7 @@ export type MetrcTransferPackageFragment = Pick<
   | "package_payload"
   | "lab_results_status"
 > & {
-  metrc_transfer?: Maybe<
-    Pick<MetrcTransfers, "id" | "company_id" | "manifest_number">
-  >;
+  metrc_transfer: Pick<MetrcTransfers, "id" | "company_id" | "manifest_number">;
 };
 
 export type MetrcPackageFragment = Pick<
