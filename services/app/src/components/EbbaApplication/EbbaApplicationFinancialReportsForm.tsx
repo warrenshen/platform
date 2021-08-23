@@ -19,7 +19,7 @@ import {
 import {
   formatDateString,
   formatDateStringAsMonth,
-  lastThreeMonthsCertificationDates,
+  previousXMonthsCertificationDates,
 } from "lib/date";
 import { FileTypeEnum } from "lib/enum";
 import { useMemo } from "react";
@@ -70,7 +70,8 @@ export default function EbbaApplicationFinancialReportsForm({
     const existingEbbaApplicationDates = existingEbbaApplications.map(
       (ebbaApplication) => ebbaApplication.application_date
     );
-    return lastThreeMonthsCertificationDates().map((certificationDate) => ({
+    // Allow user to select months up to from 1 - 4 months back.
+    return previousXMonthsCertificationDates(4).map((certificationDate) => ({
       isDisabled: existingEbbaApplicationDates.indexOf(certificationDate) >= 0,
       certificationDate,
     }));
@@ -101,7 +102,7 @@ export default function EbbaApplicationFinancialReportsForm({
         <Box>
           <FormControl className={classes.inputField}>
             <InputLabel id="select-certification-date-label" required>
-              Certification Date
+              Certification Month
             </InputLabel>
             <Select
               id="select-certification-date"

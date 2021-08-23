@@ -11,6 +11,7 @@ import {
   parseISO,
 } from "date-fns";
 import { getBankHolidays, Holiday } from "date-fns-holiday-us";
+import { range } from "lodash";
 
 export const MonthFormatClient = "MMMM yyyy (MM/yyyy)";
 export const DateFormatClient = "MM/dd/yyyy";
@@ -37,19 +38,11 @@ export function todayMinusXDaysDateStringServer(xDays: number) {
   return format(addDays(new Date(), -1 * xDays), DateFormatServer);
 }
 
-export function lastThreeMonthsCertificationDates() {
+export function previousXMonthsCertificationDates(xMonths: number) {
   const today = new Date();
-  const monthOne = addMonths(today, -1);
-  const monthTwo = addMonths(today, -2);
-  const monthThree = addMonths(today, -3);
-  const dateOne = lastDayOfMonth(monthOne);
-  const dateTwo = lastDayOfMonth(monthTwo);
-  const dateThree = lastDayOfMonth(monthThree);
-  return [
-    dateAsDateStringServer(dateOne),
-    dateAsDateStringServer(dateTwo),
-    dateAsDateStringServer(dateThree),
-  ];
+  return range(-1, -xMonths - 1).map((monthOffset) =>
+    dateAsDateStringServer(lastDayOfMonth(addMonths(today, monthOffset)))
+  );
 }
 
 export function formatDateString(dateString: string) {
