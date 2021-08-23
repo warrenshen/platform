@@ -417,6 +417,69 @@ class TestDynamicInterestRate(unittest.TestCase):
 
 class TestContractMethods(unittest.TestCase):
 
+	def test_getters(self) -> None:
+		late_fee_structure = json.dumps({
+			'1-14': 0.25,
+			'15-29': 0.50,
+			'30+': 1.0
+		})
+
+		contract = models.Contract(
+				company_id='some-uuid',
+				product_type=ProductType.INVENTORY_FINANCING,
+				product_config=contract_test_helper.create_contract_config(
+					product_type=ProductType.INVENTORY_FINANCING,
+					input_dict=ContractInputDict(
+						interest_rate=0.05,
+						maximum_principal_amount=120000.01,
+						minimum_monthly_amount=None,
+						max_days_until_repayment=0,
+						late_fee_structure=late_fee_structure,
+						us_state='OR',
+						timezone='America/New York'
+					)
+				),
+				start_date=date_util.load_date_str('1/1/2020'),
+				adjusted_end_date=date_util.load_date_str('12/1/2020')
+		)
+		# Technically we allow the minimum amounts to all be null, since some customers
+		# dont have any minimums.
+		contract_obj, err = contract_util.Contract.build(contract.as_dict(), validate=True)
+		self.assertIsNone(err)
+		self.assertEqual(('OR', None), contract_obj.get_us_state())
+		self.assertEqual(('America/New York', None), contract_obj.get_timezone_str())
+
+	def test_getters_unset_values(self) -> None:
+		late_fee_structure = json.dumps({
+			'1-14': 0.25,
+			'15-29': 0.50,
+			'30+': 1.0
+		})
+
+		contract = models.Contract(
+				company_id='some-uuid',
+				product_type=ProductType.INVENTORY_FINANCING,
+				product_config=contract_test_helper.create_contract_config(
+					product_type=ProductType.INVENTORY_FINANCING,
+					input_dict=ContractInputDict(
+						interest_rate=0.05,
+						maximum_principal_amount=120000.01,
+						minimum_monthly_amount=None,
+						max_days_until_repayment=0,
+						late_fee_structure=late_fee_structure,
+					)
+				),
+				start_date=date_util.load_date_str('1/1/2020'),
+				adjusted_end_date=date_util.load_date_str('12/1/2020')
+		)
+		# Technically we allow the minimum amounts to all be null, since some customers
+		# dont have any minimums.
+		contract_obj, err = contract_util.Contract.build(contract.as_dict(), validate=True)
+		self.assertIsNone(err)
+		# Defaults to CA
+		self.assertEqual(('CA', None), contract_obj.get_us_state())
+		self.assertEqual(('US/Pacific', None), contract_obj.get_timezone_str())
+
 	def test_validate_no_errors(self) -> None:
 		late_fee_structure = json.dumps({
 			'1-14': 0.25,

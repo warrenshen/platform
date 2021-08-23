@@ -406,16 +406,32 @@ class Contract(object):
 		return adjusted_end_date, None
 
 	def get_timezone_str(self) -> Tuple[str, errors.Error]:
-		if 'timezone' not in self._config:
+		timezone_field, err = self._get_field('timezone')
+		if err:
 			return date_util.DEFAULT_TIMEZONE, None
 
-		return self._config['timezone'], None
+		timezone, err = self._get_string_value('timezone')
+		if err:
+			return None, err
+
+		if not timezone:
+			return date_util.DEFAULT_TIMEZONE, None
+
+		return timezone, None
 
 	def get_us_state(self) -> Tuple[str, errors.Error]:
-		if 'us_state' not in self._config:
+		us_state_field, err = self._get_field('us_state')
+		if err:
 			return 'CA', None
 
-		return self._config['us_state'], None
+		us_state, err = self._get_string_value('us_state')
+		if err:
+			return None, err
+
+		if not us_state:
+			return 'CA', None
+
+		return us_state, None
 
 	def get_maximum_principal_limit(self) -> Tuple[float, errors.Error]:
 		return self._get_float_value('maximum_amount')
