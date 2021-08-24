@@ -406,18 +406,7 @@ class Contract(object):
 		return adjusted_end_date, None
 
 	def get_timezone_str(self) -> Tuple[str, errors.Error]:
-		timezone_field, err = self._get_field('timezone')
-		if err:
-			return date_util.DEFAULT_TIMEZONE, None
-
-		timezone, err = self._get_string_value('timezone')
-		if err:
-			return None, err
-
-		if not timezone:
-			return date_util.DEFAULT_TIMEZONE, None
-
-		return timezone, None
+		return date_util.DEFAULT_TIMEZONE, None
 
 	def get_us_state(self) -> Tuple[str, errors.Error]:
 		us_state_field, err = self._get_field('us_state')
