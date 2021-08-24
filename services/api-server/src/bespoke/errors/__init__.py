@@ -1,5 +1,6 @@
 
 from typing import cast, Any, Callable, Dict, Tuple, TypeVar
+import logging
 import traceback
 
 class Error(Exception):
@@ -33,6 +34,7 @@ def return_error_tuple(f: FError) -> FError:
 		except Exception as exc:
 			err = Error('{}'.format(exc))
 			err.traceback = traceback.format_exc()
+			logging.error(err.traceback)
 			return None, err
 
 	return cast(FError, inner_func)

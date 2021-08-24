@@ -246,20 +246,31 @@ def _write_deliveries(
 	delivery_id_to_delivery_row_id: Dict, 
 	session: Session) -> None:
 	delivery_ids = [delivery.metrc_delivery.delivery_id for delivery in deliveries]
+
+	transfer_row_ids = []
+	for delivery in deliveries:
+		cur_transfer_row_id = delivery_id_to_transfer_row_id[delivery.metrc_delivery.delivery_id]
+		transfer_row_ids.append(cur_transfer_row_id)
+
 	prev_metrc_deliveries = session.query(models.MetrcDelivery).filter(
 		models.MetrcDelivery.delivery_id.in_(delivery_ids)
+	).filter(
+		models.MetrcDelivery.transfer_row_id.in_(transfer_row_ids)
 	)
-	delivery_id_to_prev_delivery: Dict[str, models.MetrcDelivery] = {}
+	delivery_key_to_prev_delivery: Dict[Tuple[str, str], models.MetrcDelivery] = {}
 	for prev_delivery in prev_metrc_deliveries:
-		delivery_id_to_prev_delivery[prev_delivery.delivery_id] = prev_delivery
+		cur_transfer_row_id = delivery_id_to_transfer_row_id[prev_delivery.delivery_id]
+		key = (cur_transfer_row_id, prev_delivery.delivery_id)
+		delivery_key_to_prev_delivery[key] = prev_delivery
 
 	for delivery in deliveries:
 		metrc_delivery = delivery.metrc_delivery
 		transfer_row_id = delivery_id_to_transfer_row_id[metrc_delivery.delivery_id]
+		key = (transfer_row_id, metrc_delivery.delivery_id)
 
-		if metrc_delivery.delivery_id in delivery_id_to_prev_delivery:
+		if key in delivery_key_to_prev_delivery:
 			# update
-			prev_delivery = delivery_id_to_prev_delivery[metrc_delivery.delivery_id]
+			prev_delivery = delivery_key_to_prev_delivery[key]
 			delivery_id_to_delivery_row_id[metrc_delivery.delivery_id] = str(prev_delivery.id)
 
 			# delivery_id - no change
@@ -282,7 +293,7 @@ def _write_deliveries(
 
 			# In some rare cases, a new delivery may show up twice in the same day.
 			# The following line prevents an attempt to insert a duplicate delivery.
-			delivery_id_to_prev_delivery[metrc_delivery.delivery_id] = metrc_delivery
+			delivery_key_to_prev_delivery[key] = metrc_delivery
 
 			# This must come AFTER session.flush().
 			delivery_id_to_delivery_row_id[metrc_delivery.delivery_id] = str(metrc_delivery.id)
