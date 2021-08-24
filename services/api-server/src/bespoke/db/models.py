@@ -398,6 +398,7 @@ class MetrcPlant(Base):
 	label = Column(String) # From Metrc info
 	planted_date = Column(Date) # From Metrc info
 	payload = Column(JSON) # From Metrc info
+	last_modified_at = Column(DateTime) # From Metrc info
 
 class MetrcPlantBatch(Base):
 	__tablename__ = 'metrc_plant_batches'
@@ -410,6 +411,7 @@ class MetrcPlantBatch(Base):
 	name = Column(String) # From Metrc info
 	planted_date = Column(Date) # From Metrc info
 	payload = Column(JSON) # From Metrc info
+	last_modified_at = Column(DateTime) # From Metrc info
 
 class MetrcHarvest(Base):
 	__tablename__ = 'metrc_harvests'
@@ -419,8 +421,8 @@ class MetrcHarvest(Base):
 	harvest_id = Column(String) # From Metrc info
 	name = Column(String) # From Metrc info
 	harvest_start_date = Column(Date) # From Metrc info
-	payload = Column(JSON)
-	
+	payload = Column(JSON) # From Metrc info
+	last_modified_at = Column(DateTime) # From Metrc info
 
 class MetrcTransfer(Base):
 	__tablename__ = 'metrc_transfers'
@@ -520,13 +522,14 @@ class MetrcSalesReceipt(Base):
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
 	type = Column(Text)
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
-	receipt_number = Column(Text)
-	sales_customer_type = Column(Text)
-	sales_datetime = Column(DateTime)
-	total_packages = Column(Integer)
-	total_price = Column(Numeric)
-	is_final = Column(Boolean)
-	payload = Column(JSON)
+	receipt_number = Column(Text) # From Metrc info
+	sales_customer_type = Column(Text) # From Metrc info
+	sales_datetime = Column(DateTime) # From Metrc info
+	total_packages = Column(Integer) # From Metrc info
+	total_price = Column(Numeric) # From Metrc info
+	is_final = Column(Boolean) # From Metrc info
+	payload = Column(JSON) # From Metrc info
+	last_modified_at = Column(DateTime) # From Metrc info
 
 ## End Metrc
 

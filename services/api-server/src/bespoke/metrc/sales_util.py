@@ -33,6 +33,7 @@ class SalesReceipts(object):
 			receipt.total_packages = s['TotalPackages']
 			receipt.total_price = s['TotalPrice']
 			receipt.is_final = s['IsFinal']
+			receipt.last_modified_at = parser.parse(s['LastModified'])
 			receipt.payload = s
 			sales_receipts.append(receipt)
 
@@ -106,6 +107,7 @@ def _write_sales_receipts_chunk(
 			prev.total_packages = sales_receipt.total_packages
 			prev.total_price = sales_receipt.total_price
 			prev.payload = sales_receipt.payload
+			prev.last_modified_at = sales_receipt.last_modified_at
 		else:
 			# add
 			session.add(sales_receipt)
@@ -113,12 +115,11 @@ def _write_sales_receipts_chunk(
 			# The following line prevents an attempt to insert a duplicate.
 			receipt_number_to_sales_receipt[sales_receipt.receipt_number] = sales_receipt
 
-def write_sales_receipts(sales_receipts_models: List[models.MetrcSalesReceipt], session_maker: Callable) -> None:
-	SALES_BATCH_SIZE = 50
+def write_sales_receipts(sales_receipts_models: List[models.MetrcSalesReceipt], session_maker: Callable, BATCH_SIZE: int = 50) -> None:
 	batch_index = 1
 
-	batches_count = len(sales_receipts_models) // SALES_BATCH_SIZE + 1
-	for sales_chunk in chunker(sales_receipts_models, SALES_BATCH_SIZE):
+	batches_count = len(sales_receipts_models) // BATCH_SIZE + 1
+	for sales_chunk in chunker(sales_receipts_models, BATCH_SIZE):
 		logging.info(f'Writing sales receipts batch {batch_index} of {batches_count}...')
 		with session_scope(session_maker) as session:
 			_write_sales_receipts_chunk(sales_chunk, session)

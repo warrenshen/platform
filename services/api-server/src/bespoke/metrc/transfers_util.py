@@ -225,6 +225,7 @@ def _write_transfers(
 			prev_transfer.vendor_id = metrc_transfer.vendor_id
 			prev_transfer.updated_at = metrc_transfer.updated_at
 			prev_transfer.lab_results_status = metrc_transfer.lab_results_status
+			prev_transfer.last_modified_at = metrc_transfer.last_modified_at
 
 			for delivery_id in metrc_transfer_obj.get_delivery_ids():
 				delivery_id_to_transfer_row_id[delivery_id] = str(prev_transfer.id)

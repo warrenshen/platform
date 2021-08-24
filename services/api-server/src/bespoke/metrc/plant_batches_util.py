@@ -35,6 +35,7 @@ class PlantBatches(object):
 			batch.plant_batch_id = '{}'.format(p['Id'])
 			batch.name = p['Name']
 			batch.planted_date = parser.parse(p['PlantedDate'])
+			batch.last_modified_at = parser.parse(p['LastModified'])
 			batch.payload = p
 
 			plant_batches.append(PlantBatchObj(
@@ -110,6 +111,7 @@ def _write_plant_batches_chunk(
 			prev.name = metrc_batch.name
 			prev.planted_date = metrc_batch.planted_date
 			prev.payload = metrc_batch.payload
+			prev.last_modified_at = metrc_batch.last_modified_at
 		else:
 			# add
 			session.add(metrc_batch)
@@ -118,8 +120,7 @@ def _write_plant_batches_chunk(
 			key_to_plant_batch[metrc_batch.plant_batch_id] = metrc_batch
 
 
-def write_plant_batches(plant_batches_models: List[PlantBatchObj], session_maker: Callable) -> None:
-	BATCH_SIZE = 50
+def write_plant_batches(plant_batches_models: List[PlantBatchObj], session_maker: Callable, BATCH_SIZE: int = 50) -> None:
 	batch_index = 1
 
 	batches_count = len(plant_batches_models) // BATCH_SIZE + 1

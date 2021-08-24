@@ -2817,6 +2817,31 @@
 - table:
     schema: public
     name: metrc_harvests
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - id
+      - company_id
+      - type
+      - harvest_id
+      - name
+      - harvest_start_date
+      - payload
+      - last_modified_at
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - harvest_start_date
+      - payload
+      - harvest_id
+      - name
+      - type
+      - last_modified_at
+      - company_id
+      - id
+      filter: {}
 - table:
     schema: public
     name: metrc_packages
@@ -2870,24 +2895,26 @@
   - role: bank_admin
     permission:
       columns:
-      - id
       - company_id
-      - type
-      - plant_batch_id
+      - id
+      - last_modified_at
       - name
-      - planted_date
       - payload
+      - plant_batch_id
+      - planted_date
+      - type
       filter: {}
   - role: bank_read_only
     permission:
       columns:
-      - planted_date
-      - payload
-      - name
-      - plant_batch_id
-      - type
       - company_id
       - id
+      - last_modified_at
+      - name
+      - payload
+      - plant_batch_id
+      - planted_date
+      - type
       filter: {}
 - table:
     schema: public
@@ -2900,24 +2927,26 @@
   - role: bank_admin
     permission:
       columns:
-      - id
       - company_id
-      - type
-      - plant_id
+      - id
       - label
-      - planted_date
+      - last_modified_at
       - payload
+      - plant_id
+      - planted_date
+      - type
       filter: {}
   - role: bank_read_only
     permission:
       columns:
-      - planted_date
-      - payload
-      - label
-      - plant_id
-      - type
       - company_id
       - id
+      - label
+      - last_modified_at
+      - payload
+      - plant_id
+      - planted_date
+      - type
       filter: {}
 - table:
     schema: public
@@ -2926,6 +2955,41 @@
   - name: company
     using:
       foreign_key_constraint_on: company_id
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - id
+      - receipt_number
+      - sales_customer_type
+      - sales_datetime
+      - total_packages
+      - total_price
+      - payload
+      - type
+      - is_final
+      - company_id
+      - created_at
+      - updated_at
+      - last_modified_at
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - is_final
+      - total_packages
+      - payload
+      - total_price
+      - receipt_number
+      - sales_customer_type
+      - type
+      - created_at
+      - last_modified_at
+      - sales_datetime
+      - updated_at
+      - company_id
+      - id
+      filter: {}
 - table:
     schema: public
     name: metrc_transfer_packages
@@ -2942,6 +3006,7 @@
       columns:
       - company_id
       - created_at
+      - created_date
       - delivery_id
       - delivery_row_id
       - id
@@ -2968,6 +3033,7 @@
       columns:
       - company_id
       - created_at
+      - created_date
       - delivery_id
       - delivery_row_id
       - id
@@ -2994,6 +3060,7 @@
       columns:
       - company_id
       - created_at
+      - created_date
       - delivery_id
       - delivery_row_id
       - id
@@ -3026,6 +3093,7 @@
       columns:
       - company_id
       - created_at
+      - created_date
       - delivery_id
       - delivery_row_id
       - id
@@ -3057,6 +3125,7 @@
     permission:
       columns:
       - company_id
+      - created_date
       - delivery_id
       - delivery_row_id
       - id
@@ -3099,7 +3168,7 @@
         column_mapping:
           vendor_id: id
   array_relationships:
-  - name: metrc_transfer_packages
+  - name: metrc_packages
     using:
       foreign_key_constraint_on:
         column: transfer_row_id

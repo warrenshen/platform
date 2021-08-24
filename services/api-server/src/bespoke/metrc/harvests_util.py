@@ -36,6 +36,7 @@ class Harvests(object):
 			harvest.name = h['Name']
 			harvest.harvest_start_date = parser.parse(h['HarvestStartDate'])
 			harvest.payload = h
+			harvest.last_modified_at = parser.parse(h['LastModified'])
 			harvests.append(HarvestObj(
 				harvest=harvest
 			))
@@ -121,6 +122,7 @@ def _write_harvests_chunk(
 			prev.name = metrc_harvest.name
 			prev.harvest_start_date = metrc_harvest.harvest_start_date
 			prev.payload = metrc_harvest.payload
+			prev.last_modified_at = metrc_harvest.last_modified_at
 		else:
 			# add
 			session.add(metrc_harvest)
@@ -129,8 +131,7 @@ def _write_harvests_chunk(
 			key_to_harvest[metrc_harvest.harvest_id] = metrc_harvest
 
 
-def write_harvests(harvests_models: List[HarvestObj], session_maker: Callable) -> None:
-	BATCH_SIZE = 50
+def write_harvests(harvests_models: List[HarvestObj], session_maker: Callable, BATCH_SIZE: int = 50) -> None:
 	batch_index = 1
 
 	batches_count = len(harvests_models) // BATCH_SIZE + 1

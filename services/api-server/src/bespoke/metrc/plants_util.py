@@ -35,6 +35,7 @@ class Plants(object):
 			plant.plant_id = '{}'.format(p['Id'])
 			plant.label = p['Label']
 			plant.planted_date = parser.parse(p['PlantedDate'])
+			plant.last_modified_at = parser.parse(p['LastModified'])
 			plant.payload = p
 
 			plants.append(PlantObj(
@@ -55,14 +56,14 @@ def download_plants(ctx: metrc_common_util.DownloadContext) -> List[PlantObj]:
 	rest = ctx.rest
 
 	try:
-		resp = rest.get('/harvests/v1/vegetative', time_range=[cur_date_str])
+		resp = rest.get('/plants/v1/vegetative', time_range=[cur_date_str])
 		vegetative_plants = json.loads(resp.content)
 		request_status['plants_api'] = 200
 	except errors.Error as e:
 		metrc_common_util.update_if_all_are_unsuccessful(request_status, 'plants_api', e)
 
 	try:
-		resp = rest.get('/harvests/v1/flowering', time_range=[cur_date_str])
+		resp = rest.get('/plants/v1/flowering', time_range=[cur_date_str])
 		flowering_plants = json.loads(resp.content)
 		request_status['plants_api'] = 200
 	except errors.Error as e:
@@ -137,6 +138,7 @@ def _write_plants_chunk(
 			prev.label = metrc_plant.label
 			prev.planted_date = metrc_plant.planted_date
 			prev.payload = metrc_plant.payload
+			prev.last_modified_at = metrc_plant.last_modified_at
 		else:
 			# add
 			session.add(metrc_plant)
@@ -145,11 +147,10 @@ def _write_plants_chunk(
 			key_to_plant[metrc_plant.plant_id] = metrc_plant
 
 
-def write_plants(plants_models: List[PlantObj], session_maker: Callable) -> None:
-	BATCH_SIZE = 50
+def write_plants(plants_models: List[PlantObj], session_maker: Callable, 	BATCH_SIZE: int = 50) -> None:
 	batch_index = 1
 
-	batches_count = len(plants_models) // BATCH_SIZE + 1
+	batches_count = int(len(plants_models) / BATCH_SIZE)
 	for chunk in chunker(plants_models, BATCH_SIZE):
 		logging.info(f'Writing plants - batch {batch_index} of {batches_count}...')
 		with session_scope(session_maker) as session:
