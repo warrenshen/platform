@@ -32,7 +32,8 @@ RequestStatusesDict = TypedDict('RequestStatusesDict', {
 	'lab_results_api': int,
 	'plants_api': int,
 	'plant_batches_api': int,
-	'harvests_api': int
+	'harvests_api': int,
+	'sales_transactions_api': int
 })
 
 """
@@ -46,6 +47,7 @@ RequestStatusKeys = Literal[
 
 ApisToUseDict = TypedDict('ApisToUseDict', {
 	'sales_receipts': bool,
+	'sales_transactions': bool,
 	'incoming_transfers': bool,
 	'outgoing_transfers': bool,
 	'lab_tests': bool,
@@ -86,7 +88,8 @@ class DownloadContext(object):
 			plant_batches_api=UNKNOWN_STATUS_CODE,
 			plants_api=UNKNOWN_STATUS_CODE,
 			lab_results_api=UNKNOWN_STATUS_CODE,
-			receipts_api=UNKNOWN_STATUS_CODE
+			receipts_api=UNKNOWN_STATUS_CODE,
+			sales_transactions_api=UNKNOWN_STATUS_CODE,
 		)
 		self.company_info = company_info
 		self.apis_to_use = company_info.apis_to_use
@@ -110,8 +113,24 @@ def _get_base_url(us_state: str) -> str:
 	return f'https://api-{abbr}.metrc.com'
 
 def get_default_apis_to_use() -> ApisToUseDict:
+	"""
+	# For copy-paste help when you are debugging with one API at a time
+	return ApisToUseDict(
+			sales_receipts=False,
+			sales_transactions=False,
+			incoming_transfers=False,
+			outgoing_transfers=False,
+			packages=False,
+			lab_tests=False,
+			harvests=False,
+			plants=False,
+			plant_batches=False,
+		)
+	"""
+
 	return ApisToUseDict(
 		sales_receipts=True,
+		sales_transactions=True,
 		incoming_transfers=True,
 		outgoing_transfers=True,
 		packages=True,

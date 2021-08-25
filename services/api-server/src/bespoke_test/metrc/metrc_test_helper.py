@@ -41,4 +41,5 @@ class FakeREST(object):
 		r = requests.models.Response()
 		r.status_code = 200 if is_ok else 400
 		r._content = content
+		self.req_to_resp[key]['__index'] += 1
 		return r

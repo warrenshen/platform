@@ -10,6 +10,7 @@ from typing import Any, Callable, List, Tuple, Dict, cast
 
 from bespoke import errors
 from bespoke.db import models
+from bespoke.db.db_constants import PackageType
 from bespoke.db.models import session_scope
 from bespoke.metrc.common import metrc_common_util, package_common_util
 from bespoke.metrc.common.package_common_util import UNKNOWN_LAB_STATUS
@@ -109,13 +110,13 @@ def download_packages(ctx: metrc_common_util.DownloadContext) -> List[PackageObj
 	except errors.Error as e:
 		metrc_common_util.update_if_all_are_unsuccessful(request_status, 'packages_api', e)
 
-	active_package_models = Packages(active_packages, 'active').get_models(
+	active_package_models = Packages(active_packages, PackageType.ACTIVE).get_models(
 		company_id=company_info.company_id
 	)
-	inactive_package_models = Packages(inactive_packages, 'inactive').get_models(
+	inactive_package_models = Packages(inactive_packages, PackageType.INACTIVE).get_models(
 		company_id=company_info.company_id
 	)
-	onhold_package_models = Packages(onhold_packages, 'onhold').get_models(
+	onhold_package_models = Packages(onhold_packages, PackageType.ONHOLD).get_models(
 		company_id=company_info.company_id
 	)
 

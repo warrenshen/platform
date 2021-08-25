@@ -13,8 +13,8 @@ from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util
 from bespoke.metrc import (
-	transfers_util, sales_util, packages_util, 
-	plants_util, plant_batches_util, harvests_util
+	transfers_util, sales_util, 
+	packages_util, plants_util, plant_batches_util, harvests_util
 )
 from bespoke.metrc.common import metrc_common_util
 from bespoke.metrc.common.metrc_common_util import AuthDict, CompanyInfo, LicenseAuthDict, UNKNOWN_STATUS_CODE
@@ -255,10 +255,6 @@ def _download_data(
 			ctx.company_info.name, cur_date, license['license_number']
 		))
 
-		if ctx.apis_to_use['sales_receipts']:
-			sales_receipts_models = sales_util.download_sales_receipts(ctx)
-			sales_util.write_sales_receipts(sales_receipts_models, session_maker)
-
 		if ctx.apis_to_use['packages']:
 			package_models = packages_util.download_packages(ctx)
 			packages_util.write_packages(package_models, session_maker)
@@ -277,6 +273,14 @@ def _download_data(
 			plants_models = plants_util.download_plants(ctx)
 			plants_util.write_plants(plants_models, session_maker)
 
+		# NOTE: Sales data has references to packages, so this method
+		# should run after download_packages
+		if ctx.apis_to_use['sales_receipts']:
+			sales_receipts_models = sales_util.download_sales_info(ctx)
+			sales_util.write_sales_info(sales_receipts_models, session_maker)
+
+		# NOTE: transfer must come after download_packages, because transfers
+		# may update the state of packages
 		# Download transfers data for the particular day and key
 		success, err = transfers_util.populate_transfers_table(
 			ctx=ctx,
@@ -297,7 +301,9 @@ def _download_data(
 			'plants_api': ctx.request_status['plants_api'],
 			'plant_batches_api': ctx.request_status['plant_batches_api'],
 			'harvests_api': ctx.request_status['harvests_api'],
-			'lab_results_api': ctx.request_status['lab_results_api']
+			'lab_results_api': ctx.request_status['lab_results_api'],
+			'sales_receipts_api': ctx.request_status['receipts_api'],
+			'sales_transactions_api': ctx.request_status['sales_transactions_api']
 		}
 
 	# Update whether this metrc key worked

@@ -522,12 +522,32 @@ class MetrcSalesReceipt(Base):
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
 	type = Column(Text)
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	receipt_id = Column(Text)
 	receipt_number = Column(Text) # From Metrc info
 	sales_customer_type = Column(Text) # From Metrc info
 	sales_datetime = Column(DateTime) # From Metrc info
 	total_packages = Column(Integer) # From Metrc info
 	total_price = Column(Numeric) # From Metrc info
 	is_final = Column(Boolean) # From Metrc info
+	payload = Column(JSON) # From Metrc info
+	last_modified_at = Column(DateTime) # From Metrc info
+
+class MetrcSalesTransaction(Base):
+	__tablename__ = 'metrc_sales_transactions'
+
+	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
+	type = Column(Text)
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	receipt_id = Column(String) # From parent Metrc info
+	receipt_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_sales_receipts.id')))
+	package_id = Column(String) # From Metrc info
+	package_label = Column(String) # From Metrc info
+	product_name = Column(String)
+	product_category_name = Column(String)
+	quantity_sold = Column(Numeric)
+	unit_of_measure = Column(String)
+	total_price = Column(Numeric) # From Metrc info
+	recorded_datetime = Column(DateTime) # From Metrc info
 	payload = Column(JSON) # From Metrc info
 	last_modified_at = Column(DateTime) # From Metrc info
 

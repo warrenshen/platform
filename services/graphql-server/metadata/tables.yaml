@@ -2972,6 +2972,7 @@
       - created_at
       - updated_at
       - last_modified_at
+      - receipt_id
       filter: {}
   - role: bank_read_only
     permission:
@@ -2980,6 +2981,7 @@
       - total_packages
       - payload
       - total_price
+      - receipt_id
       - receipt_number
       - sales_customer_type
       - type
@@ -2989,6 +2991,52 @@
       - updated_at
       - company_id
       - id
+      filter: {}
+- table:
+    schema: public
+    name: metrc_sales_transactions
+  object_relationships:
+  - name: metrc_sales_receipt
+    using:
+      foreign_key_constraint_on: receipt_row_id
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - id
+      - type
+      - company_id
+      - package_id
+      - package_label
+      - product_name
+      - quantity_sold
+      - unit_of_measure
+      - total_price
+      - recorded_datetime
+      - payload
+      - last_modified_at
+      - product_category_name
+      - receipt_id
+      - receipt_row_id
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - payload
+      - quantity_sold
+      - total_price
+      - package_id
+      - package_label
+      - product_category_name
+      - product_name
+      - receipt_id
+      - type
+      - unit_of_measure
+      - last_modified_at
+      - recorded_datetime
+      - company_id
+      - id
+      - receipt_row_id
       filter: {}
 - table:
     schema: public

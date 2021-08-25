@@ -2,7 +2,7 @@ import logging
 
 from sqlalchemy.orm.session import Session
 from typing import List, Union, cast
-from bespoke.db import models
+from bespoke.db import models, db_constants
 
 UNKNOWN_LAB_STATUS = 'unknown'
 
@@ -37,7 +37,7 @@ def update_package_based_on_transfer_package(tp: models.MetrcTransferPackage, p:
 	if tp.type == 'transfer_incoming':
 		pass
 	elif tp.type == 'transfer_outgoing':
-		p.type = 'outgoing'
+		p.type = db_constants.PackageType.OUTGOING
 
 def merge_into_prev_transfer_package(prev: models.MetrcTransferPackage, cur: models.MetrcTransferPackage) -> None:
 	has_last_modified = cur.last_modified_at and prev.last_modified_at
@@ -118,6 +118,39 @@ def update_packages(
 			# add
 			session.add(metrc_package)
 			session.flush()
+
+def update_packages_from_sales_transactions(
+	sales_transactions: List[models.MetrcSalesTransaction],
+	session: Session
+	) -> None:
+
+	package_ids = [tx.package_id for tx in sales_transactions] 
+
+	# metrc_packages are unique on package_id, when they 
+	# are not associated with a delivery.
+	# Note the following query may return more than BATCH_SIZE number of results.
+	prev_metrc_packages = cast(List[models.MetrcPackage], session.query(models.MetrcPackage).filter(
+		models.MetrcPackage.package_id.in_(package_ids)
+	).all())
+
+	package_id_to_prev_package = {}
+	for prev_metrc_package in prev_metrc_packages:
+		# Package key is package_id - the same package may show up across different
+		# transfers.
+		metrc_package_key = prev_metrc_package.package_id
+		package_id_to_prev_package[metrc_package_key] = prev_metrc_package
+
+	# Write the packages
+	for tx in sales_transactions:
+		metrc_package_key = tx.package_id
+
+		if metrc_package_key in package_id_to_prev_package:
+			# update
+			prev_metrc_package = package_id_to_prev_package[metrc_package_key]
+			prev_metrc_package.type = db_constants.PackageType.SOLD
+		else:
+			logging.warn('We observed a sales transaction referring to package #{} which is not registered in our DB as a regular package'.format(
+										tx.package_id))
 
 def update_packages_from_transfer_packages(
 	transfer_packages: List[models.MetrcTransferPackage],

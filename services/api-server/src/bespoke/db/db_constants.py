@@ -209,6 +209,13 @@ class TransferType(object):
 	OUTGOING = 'OUTGOING'
 	UNKNOWN = 'UNKNOWN'
 
+class PackageType(object):
+	ACTIVE = 'active'
+	INACTIVE = 'inactive'
+	OUTGOING = 'outgoing'
+	ONHOLD = 'onhold'
+	SOLD = 'sold'
+
 # Client Surveillance
 class ClientSurveillanceCategoryEnum(object):
 	BORROWING_BASE = 'borrowing_base'
