@@ -119,6 +119,7 @@ export default function EbbaApplicationsFinancialReportsTab() {
       <Box display="flex" flexDirection="column">
         <EbbaApplicationsDataGrid
           isCompanyVisible
+          isExpirationDateVisible
           isMultiSelectEnabled
           ebbaApplications={ebbaApplications}
           selectedEbbaApplicationIds={selectedEbbaApplicationIds}

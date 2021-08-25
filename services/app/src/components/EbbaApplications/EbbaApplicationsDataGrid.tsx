@@ -23,6 +23,7 @@ interface Props {
   isCategoryVisible?: boolean;
   isCompanyVisible?: boolean;
   isExcelExport?: boolean;
+  isExpirationDateVisible?: boolean;
   isMultiSelectEnabled?: boolean;
   ebbaApplications: GetOpenEbbaApplicationsByCategoryQuery["ebba_applications"];
   selectedEbbaApplicationIds?: EbbaApplications["id"][];
@@ -37,6 +38,7 @@ export default function EbbaApplicationsDataGrid({
   isCategoryVisible = false,
   isCompanyVisible = false,
   isExcelExport = true,
+  isExpirationDateVisible = false,
   isMultiSelectEnabled = false,
   ebbaApplications,
   selectedEbbaApplicationIds,
@@ -136,6 +138,7 @@ export default function EbbaApplicationsDataGrid({
         ),
       },
       {
+        visible: isExpirationDateVisible,
         dataField: "expiration_date",
         caption: "Expiration Date",
         width: ColumnWidths.Date,
@@ -206,9 +209,10 @@ export default function EbbaApplicationsDataGrid({
     ],
     [
       isApprovedAtVisible,
+      isBorrowingBaseFieldsVisible,
       isCategoryVisible,
       isCompanyVisible,
-      isBorrowingBaseFieldsVisible,
+      isExpirationDateVisible,
     ]
   );
 

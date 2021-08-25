@@ -135,6 +135,16 @@ export default function EbbaApplicationDrawer({
             </Typography>
           </Box>
         )}
+        {isBankUser && (
+          <Box display="flex" flexDirection="column" mt={2}>
+            <Typography variant="subtitle2" color="textSecondary">
+              Expiration Date
+            </Typography>
+            <Typography variant={"body1"}>
+              {formatDateString(ebbaApplication.expires_at)}
+            </Typography>
+          </Box>
+        )}
         <Box display="flex" flexDirection="column" mt={2}>
           <Typography variant="subtitle2" color="textSecondary">
             Certification Date

@@ -116,10 +116,11 @@ const getCustomerPaths = (
         component: BankCustomerPurchaseOrdersSubpage,
       },
       {
-        visible:
-          !!productType && [ProductTypeEnum.LineOfCredit].includes(productType),
-        dataCy: "customer-borrowing-base",
-        label: "Borrowing Base",
+        dataCy: "customer-financials",
+        label:
+          !!productType && [ProductTypeEnum.LineOfCredit].includes(productType)
+            ? "Borrowing Base"
+            : "Financial Certifications",
         path: bankRoutes.company.ebbaApplications,
         component: BankCustomerEbbaApplicationsSubpage,
       },

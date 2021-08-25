@@ -44,7 +44,7 @@ export const customerRoutes = {
 
 export enum BankCompanyRouteEnum {
   AccountFeesCredits = "/account",
-  EbbaApplications = "/borrowing-base",
+  EbbaApplications = "/financials",
   Loans = "/loans",
   Overview = "/overview",
   PurchaseOrders = "/purchase-orders",

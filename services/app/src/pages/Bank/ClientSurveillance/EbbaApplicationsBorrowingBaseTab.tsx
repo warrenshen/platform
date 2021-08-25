@@ -120,6 +120,7 @@ export default function EbbaApplicationsBorrowingBaseTab() {
         <EbbaApplicationsDataGrid
           isBorrowingBaseFieldsVisible
           isCompanyVisible
+          isExpirationDateVisible
           isMultiSelectEnabled
           ebbaApplications={ebbaApplications}
           selectedEbbaApplicationIds={selectedEbbaApplicationIds}
