@@ -34,6 +34,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   isActionTypeUpdate: boolean;
+  isBankUser: boolean;
   companyId: Scalars["uuid"];
   ebbaApplication: EbbaApplicationsInsertInput;
   ebbaApplicationFiles: EbbaApplicationFilesInsertInput[];
@@ -45,6 +46,7 @@ interface Props {
 
 export default function EbbaApplicationFinancialReportsForm({
   isActionTypeUpdate,
+  isBankUser,
   companyId,
   ebbaApplication,
   ebbaApplicationFiles,
@@ -70,12 +72,16 @@ export default function EbbaApplicationFinancialReportsForm({
     const existingEbbaApplicationDates = existingEbbaApplications.map(
       (ebbaApplication) => ebbaApplication.application_date
     );
-    // Allow user to select months up to from 1 - 4 months back.
-    return previousXMonthsCertificationDates(4).map((certificationDate) => ({
-      isDisabled: existingEbbaApplicationDates.indexOf(certificationDate) >= 0,
-      certificationDate,
-    }));
-  }, [data?.ebba_applications]);
+    // 1. Allow bank user to select months up to 12 months back.
+    // 2. Allow customer user to selects months up to 4 months back.
+    return previousXMonthsCertificationDates(isBankUser ? 12 : 4).map(
+      (certificationDate) => ({
+        isDisabled:
+          existingEbbaApplicationDates.indexOf(certificationDate) >= 0,
+        certificationDate,
+      })
+    );
+  }, [isBankUser, data?.ebba_applications]);
 
   const ebbaApplicationFileIds = useMemo(
     () =>

@@ -30,7 +30,7 @@ interface Props {
   handleClose: () => void;
 }
 
-export default function CreateUpdateEbbaApplicationModal({
+export default function CreateUpdateFinancialReportsCertificationModal({
   actionType,
   companyId,
   ebbaApplicationId = null,
@@ -202,6 +202,7 @@ export default function CreateUpdateEbbaApplicationModal({
       )}
       <EbbaApplicationFinancialReportsForm
         isActionTypeUpdate={isActionTypeUpdate}
+        isBankUser={isBankUser}
         companyId={companyId}
         ebbaApplication={ebbaApplication}
         ebbaApplicationFiles={ebbaApplicationFiles}
