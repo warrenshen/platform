@@ -21,7 +21,7 @@ def main(is_test_run: bool = True) -> None:
 	ebba_application_index = 0
 
 	with models.session_scope(session_maker) as session:
-		print(f'Resetting approved ebba applications expiration date...')
+		print(f'Resetting ebba applications expiration date...')
 
 		ebba_applications = cast(
 			List[models.EbbaApplication],
@@ -32,13 +32,13 @@ def main(is_test_run: bool = True) -> None:
 		for ebba_application in ebba_applications:
 			ebba_application_index += 1
 
-			if not ebba_application.approved_at:
+			if not ebba_application.application_date:
 				continue
 
 			application_date = ebba_application.application_date
 			new_expiration_date = (application_date + relativedelta.relativedelta(months=2)).replace(day=15)
 
-			print(f'[{ebba_application_index}] Updating approved ebba application (certification date {ebba_application.application_date}) expiration date from {ebba_application.expires_at} to {new_expiration_date}...')
+			print(f'[{ebba_application_index}] Updating ebba application (certification date {ebba_application.application_date}) expiration date from {ebba_application.expires_at} to {new_expiration_date}...')
 
 			if not is_test_run:
 				ebba_application.expires_at = new_expiration_date
