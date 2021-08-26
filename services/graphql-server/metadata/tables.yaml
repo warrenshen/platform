@@ -3172,27 +3172,29 @@
   - role: purchase_order_reviewer
     permission:
       columns:
-      - company_id
       - created_date
-      - delivery_id
-      - delivery_row_id
-      - id
-      - lab_results_status
-      - last_modified_at
-      - package_id
-      - package_label
       - package_payload
+      - received_quantity
+      - shipped_quantity
+      - shipper_wholesale_price
+      - lab_results_status
+      - package_label
       - package_type
       - product_category_name
       - product_name
-      - received_quantity
       - received_unit_of_measure
       - shipment_package_state
-      - shipped_quantity
       - shipped_unit_of_measure
-      - shipper_wholesale_price
-      - transfer_row_id
       - type
+      - created_at
+      - last_modified_at
+      - updated_at
+      - company_id
+      - delivery_row_id
+      - id
+      - transfer_row_id
+      - delivery_id
+      - package_id
       filter:
         metrc_transfer:
           vendor_id:
