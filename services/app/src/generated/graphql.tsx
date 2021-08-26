@@ -10065,6 +10065,7 @@ export type MetrcHarvests = {
   harvest_id: Scalars["String"];
   harvest_start_date: Scalars["date"];
   id: Scalars["uuid"];
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
   name: Scalars["String"];
   payload: Scalars["json"];
   type: Scalars["String"];
@@ -10116,6 +10117,7 @@ export type MetrcHarvestsBoolExp = {
   harvest_id?: Maybe<StringComparisonExp>;
   harvest_start_date?: Maybe<DateComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  last_modified_at?: Maybe<TimestamptzComparisonExp>;
   name?: Maybe<StringComparisonExp>;
   payload?: Maybe<JsonComparisonExp>;
   type?: Maybe<StringComparisonExp>;
@@ -10135,6 +10137,7 @@ export type MetrcHarvestsInsertInput = {
   harvest_id?: Maybe<Scalars["String"]>;
   harvest_start_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
   name?: Maybe<Scalars["String"]>;
   payload?: Maybe<Scalars["json"]>;
   type?: Maybe<Scalars["String"]>;
@@ -10146,6 +10149,7 @@ export type MetrcHarvestsMaxFields = {
   harvest_id?: Maybe<Scalars["String"]>;
   harvest_start_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
   name?: Maybe<Scalars["String"]>;
   type?: Maybe<Scalars["String"]>;
 };
@@ -10156,6 +10160,7 @@ export type MetrcHarvestsMaxOrderBy = {
   harvest_id?: Maybe<OrderBy>;
   harvest_start_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  last_modified_at?: Maybe<OrderBy>;
   name?: Maybe<OrderBy>;
   type?: Maybe<OrderBy>;
 };
@@ -10166,6 +10171,7 @@ export type MetrcHarvestsMinFields = {
   harvest_id?: Maybe<Scalars["String"]>;
   harvest_start_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
   name?: Maybe<Scalars["String"]>;
   type?: Maybe<Scalars["String"]>;
 };
@@ -10176,6 +10182,7 @@ export type MetrcHarvestsMinOrderBy = {
   harvest_id?: Maybe<OrderBy>;
   harvest_start_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  last_modified_at?: Maybe<OrderBy>;
   name?: Maybe<OrderBy>;
   type?: Maybe<OrderBy>;
 };
@@ -10207,6 +10214,7 @@ export type MetrcHarvestsOrderBy = {
   harvest_id?: Maybe<OrderBy>;
   harvest_start_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  last_modified_at?: Maybe<OrderBy>;
   name?: Maybe<OrderBy>;
   payload?: Maybe<OrderBy>;
   type?: Maybe<OrderBy>;
@@ -10228,6 +10236,8 @@ export enum MetrcHarvestsSelectColumn {
   /** column name */
   Id = "id",
   /** column name */
+  LastModifiedAt = "last_modified_at",
+  /** column name */
   Name = "name",
   /** column name */
   Payload = "payload",
@@ -10241,6 +10251,7 @@ export type MetrcHarvestsSetInput = {
   harvest_id?: Maybe<Scalars["String"]>;
   harvest_start_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
   name?: Maybe<Scalars["String"]>;
   payload?: Maybe<Scalars["json"]>;
   type?: Maybe<Scalars["String"]>;
@@ -10256,6 +10267,8 @@ export enum MetrcHarvestsUpdateColumn {
   HarvestStartDate = "harvest_start_date",
   /** column name */
   Id = "id",
+  /** column name */
+  LastModifiedAt = "last_modified_at",
   /** column name */
   Name = "name",
   /** column name */
@@ -10680,6 +10693,7 @@ export type MetrcPlantBatches = {
   company: Companies;
   company_id: Scalars["uuid"];
   id: Scalars["uuid"];
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
   name: Scalars["String"];
   payload: Scalars["json"];
   plant_batch_id: Scalars["String"];
@@ -10732,6 +10746,7 @@ export type MetrcPlantBatchesBoolExp = {
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  last_modified_at?: Maybe<TimestamptzComparisonExp>;
   name?: Maybe<StringComparisonExp>;
   payload?: Maybe<JsonComparisonExp>;
   plant_batch_id?: Maybe<StringComparisonExp>;
@@ -10752,6 +10767,7 @@ export type MetrcPlantBatchesInsertInput = {
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
   name?: Maybe<Scalars["String"]>;
   payload?: Maybe<Scalars["json"]>;
   plant_batch_id?: Maybe<Scalars["String"]>;
@@ -10763,6 +10779,7 @@ export type MetrcPlantBatchesInsertInput = {
 export type MetrcPlantBatchesMaxFields = {
   company_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
   name?: Maybe<Scalars["String"]>;
   plant_batch_id?: Maybe<Scalars["String"]>;
   planted_date?: Maybe<Scalars["date"]>;
@@ -10773,6 +10790,7 @@ export type MetrcPlantBatchesMaxFields = {
 export type MetrcPlantBatchesMaxOrderBy = {
   company_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  last_modified_at?: Maybe<OrderBy>;
   name?: Maybe<OrderBy>;
   plant_batch_id?: Maybe<OrderBy>;
   planted_date?: Maybe<OrderBy>;
@@ -10783,6 +10801,7 @@ export type MetrcPlantBatchesMaxOrderBy = {
 export type MetrcPlantBatchesMinFields = {
   company_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
   name?: Maybe<Scalars["String"]>;
   plant_batch_id?: Maybe<Scalars["String"]>;
   planted_date?: Maybe<Scalars["date"]>;
@@ -10793,6 +10812,7 @@ export type MetrcPlantBatchesMinFields = {
 export type MetrcPlantBatchesMinOrderBy = {
   company_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  last_modified_at?: Maybe<OrderBy>;
   name?: Maybe<OrderBy>;
   plant_batch_id?: Maybe<OrderBy>;
   planted_date?: Maybe<OrderBy>;
@@ -10825,6 +10845,7 @@ export type MetrcPlantBatchesOrderBy = {
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  last_modified_at?: Maybe<OrderBy>;
   name?: Maybe<OrderBy>;
   payload?: Maybe<OrderBy>;
   plant_batch_id?: Maybe<OrderBy>;
@@ -10844,6 +10865,8 @@ export enum MetrcPlantBatchesSelectColumn {
   /** column name */
   Id = "id",
   /** column name */
+  LastModifiedAt = "last_modified_at",
+  /** column name */
   Name = "name",
   /** column name */
   Payload = "payload",
@@ -10859,6 +10882,7 @@ export enum MetrcPlantBatchesSelectColumn {
 export type MetrcPlantBatchesSetInput = {
   company_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
   name?: Maybe<Scalars["String"]>;
   payload?: Maybe<Scalars["json"]>;
   plant_batch_id?: Maybe<Scalars["String"]>;
@@ -10872,6 +10896,8 @@ export enum MetrcPlantBatchesUpdateColumn {
   CompanyId = "company_id",
   /** column name */
   Id = "id",
+  /** column name */
+  LastModifiedAt = "last_modified_at",
   /** column name */
   Name = "name",
   /** column name */
@@ -10891,6 +10917,7 @@ export type MetrcPlants = {
   company_id: Scalars["uuid"];
   id: Scalars["uuid"];
   label: Scalars["String"];
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
   payload: Scalars["json"];
   plant_id: Scalars["String"];
   planted_date: Scalars["date"];
@@ -10943,6 +10970,7 @@ export type MetrcPlantsBoolExp = {
   company_id?: Maybe<UuidComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   label?: Maybe<StringComparisonExp>;
+  last_modified_at?: Maybe<TimestamptzComparisonExp>;
   payload?: Maybe<JsonComparisonExp>;
   plant_id?: Maybe<StringComparisonExp>;
   planted_date?: Maybe<DateComparisonExp>;
@@ -10963,6 +10991,7 @@ export type MetrcPlantsInsertInput = {
   company_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   label?: Maybe<Scalars["String"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
   payload?: Maybe<Scalars["json"]>;
   plant_id?: Maybe<Scalars["String"]>;
   planted_date?: Maybe<Scalars["date"]>;
@@ -10974,6 +11003,7 @@ export type MetrcPlantsMaxFields = {
   company_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   label?: Maybe<Scalars["String"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
   plant_id?: Maybe<Scalars["String"]>;
   planted_date?: Maybe<Scalars["date"]>;
   type?: Maybe<Scalars["String"]>;
@@ -10984,6 +11014,7 @@ export type MetrcPlantsMaxOrderBy = {
   company_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   label?: Maybe<OrderBy>;
+  last_modified_at?: Maybe<OrderBy>;
   plant_id?: Maybe<OrderBy>;
   planted_date?: Maybe<OrderBy>;
   type?: Maybe<OrderBy>;
@@ -10994,6 +11025,7 @@ export type MetrcPlantsMinFields = {
   company_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   label?: Maybe<Scalars["String"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
   plant_id?: Maybe<Scalars["String"]>;
   planted_date?: Maybe<Scalars["date"]>;
   type?: Maybe<Scalars["String"]>;
@@ -11004,6 +11036,7 @@ export type MetrcPlantsMinOrderBy = {
   company_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   label?: Maybe<OrderBy>;
+  last_modified_at?: Maybe<OrderBy>;
   plant_id?: Maybe<OrderBy>;
   planted_date?: Maybe<OrderBy>;
   type?: Maybe<OrderBy>;
@@ -11036,6 +11069,7 @@ export type MetrcPlantsOrderBy = {
   company_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   label?: Maybe<OrderBy>;
+  last_modified_at?: Maybe<OrderBy>;
   payload?: Maybe<OrderBy>;
   plant_id?: Maybe<OrderBy>;
   planted_date?: Maybe<OrderBy>;
@@ -11056,6 +11090,8 @@ export enum MetrcPlantsSelectColumn {
   /** column name */
   Label = "label",
   /** column name */
+  LastModifiedAt = "last_modified_at",
+  /** column name */
   Payload = "payload",
   /** column name */
   PlantId = "plant_id",
@@ -11070,6 +11106,7 @@ export type MetrcPlantsSetInput = {
   company_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   label?: Maybe<Scalars["String"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
   payload?: Maybe<Scalars["json"]>;
   plant_id?: Maybe<Scalars["String"]>;
   planted_date?: Maybe<Scalars["date"]>;
@@ -11084,6 +11121,8 @@ export enum MetrcPlantsUpdateColumn {
   Id = "id",
   /** column name */
   Label = "label",
+  /** column name */
+  LastModifiedAt = "last_modified_at",
   /** column name */
   Payload = "payload",
   /** column name */
@@ -11102,7 +11141,9 @@ export type MetrcSalesReceipts = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   id: Scalars["uuid"];
   is_final?: Maybe<Scalars["Boolean"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
   payload: Scalars["json"];
+  receipt_id?: Maybe<Scalars["String"]>;
   receipt_number: Scalars["String"];
   sales_customer_type: Scalars["String"];
   sales_datetime: Scalars["timestamptz"];
@@ -11187,7 +11228,9 @@ export type MetrcSalesReceiptsBoolExp = {
   created_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   is_final?: Maybe<BooleanComparisonExp>;
+  last_modified_at?: Maybe<TimestamptzComparisonExp>;
   payload?: Maybe<JsonComparisonExp>;
+  receipt_id?: Maybe<StringComparisonExp>;
   receipt_number?: Maybe<StringComparisonExp>;
   sales_customer_type?: Maybe<StringComparisonExp>;
   sales_datetime?: Maybe<TimestamptzComparisonExp>;
@@ -11201,6 +11244,8 @@ export type MetrcSalesReceiptsBoolExp = {
 export enum MetrcSalesReceiptsConstraint {
   /** unique or primary key constraint */
   MetrcSalesReceiptsPkey = "metrc_sales_receipts_pkey",
+  /** unique or primary key constraint */
+  MetrcSalesReceiptsReceiptIdKey = "metrc_sales_receipts_receipt_id_key",
   /** unique or primary key constraint */
   MetrcSalesReceiptsReceiptNumberKey = "metrc_sales_receipts_receipt_number_key",
 }
@@ -11218,7 +11263,9 @@ export type MetrcSalesReceiptsInsertInput = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   is_final?: Maybe<Scalars["Boolean"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
   payload?: Maybe<Scalars["json"]>;
+  receipt_id?: Maybe<Scalars["String"]>;
   receipt_number?: Maybe<Scalars["String"]>;
   sales_customer_type?: Maybe<Scalars["String"]>;
   sales_datetime?: Maybe<Scalars["timestamptz"]>;
@@ -11233,6 +11280,8 @@ export type MetrcSalesReceiptsMaxFields = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
+  receipt_id?: Maybe<Scalars["String"]>;
   receipt_number?: Maybe<Scalars["String"]>;
   sales_customer_type?: Maybe<Scalars["String"]>;
   sales_datetime?: Maybe<Scalars["timestamptz"]>;
@@ -11247,6 +11296,8 @@ export type MetrcSalesReceiptsMaxOrderBy = {
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  last_modified_at?: Maybe<OrderBy>;
+  receipt_id?: Maybe<OrderBy>;
   receipt_number?: Maybe<OrderBy>;
   sales_customer_type?: Maybe<OrderBy>;
   sales_datetime?: Maybe<OrderBy>;
@@ -11261,6 +11312,8 @@ export type MetrcSalesReceiptsMinFields = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
+  receipt_id?: Maybe<Scalars["String"]>;
   receipt_number?: Maybe<Scalars["String"]>;
   sales_customer_type?: Maybe<Scalars["String"]>;
   sales_datetime?: Maybe<Scalars["timestamptz"]>;
@@ -11275,6 +11328,8 @@ export type MetrcSalesReceiptsMinOrderBy = {
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  last_modified_at?: Maybe<OrderBy>;
+  receipt_id?: Maybe<OrderBy>;
   receipt_number?: Maybe<OrderBy>;
   sales_customer_type?: Maybe<OrderBy>;
   sales_datetime?: Maybe<OrderBy>;
@@ -11312,7 +11367,9 @@ export type MetrcSalesReceiptsOrderBy = {
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   is_final?: Maybe<OrderBy>;
+  last_modified_at?: Maybe<OrderBy>;
   payload?: Maybe<OrderBy>;
+  receipt_id?: Maybe<OrderBy>;
   receipt_number?: Maybe<OrderBy>;
   sales_customer_type?: Maybe<OrderBy>;
   sales_datetime?: Maybe<OrderBy>;
@@ -11338,7 +11395,11 @@ export enum MetrcSalesReceiptsSelectColumn {
   /** column name */
   IsFinal = "is_final",
   /** column name */
+  LastModifiedAt = "last_modified_at",
+  /** column name */
   Payload = "payload",
+  /** column name */
+  ReceiptId = "receipt_id",
   /** column name */
   ReceiptNumber = "receipt_number",
   /** column name */
@@ -11361,7 +11422,9 @@ export type MetrcSalesReceiptsSetInput = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   is_final?: Maybe<Scalars["Boolean"]>;
+  last_modified_at?: Maybe<Scalars["timestamptz"]>;
   payload?: Maybe<Scalars["json"]>;
+  receipt_id?: Maybe<Scalars["String"]>;
   receipt_number?: Maybe<Scalars["String"]>;
   sales_customer_type?: Maybe<Scalars["String"]>;
   sales_datetime?: Maybe<Scalars["timestamptz"]>;
@@ -11430,7 +11493,11 @@ export enum MetrcSalesReceiptsUpdateColumn {
   /** column name */
   IsFinal = "is_final",
   /** column name */
+  LastModifiedAt = "last_modified_at",
+  /** column name */
   Payload = "payload",
+  /** column name */
+  ReceiptId = "receipt_id",
   /** column name */
   ReceiptNumber = "receipt_number",
   /** column name */
