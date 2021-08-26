@@ -352,6 +352,13 @@ def calculate_repayment_effect(
 		payment_effect = calculate_result['payment_effect']
 		loan_before_payment = payment_effect['loan_state_before_payment']
 
+		if loan_after_payment['outstanding_interest'] < 0.0 or loan_after_payment['outstanding_principal'] < 0.0:
+			# Check if this is due to a repayment occuring after the one we are settling today
+			for aug_tx in transactions_for_loan:
+				if aug_tx['payment']['deposit_date'] > payment_to_include['deposit_date']:
+					raise errors.Error('outstanding_interest or outstanding_principal is negative due payment #{} settled on {} which occurs after this payment we are settling on {}. Please unsettle payment #{} and then settle this payment first'.format(
+						aug_tx['payment']['id'], aug_tx['payment']['deposit_date'], payment_to_include['deposit_date'], aug_tx['payment']['id']))
+
 		loans_to_show.append(LoanToShowDict(
 			loan_id=loan_dict['id'],
 			loan_identifier=loan_dict['identifier'],
@@ -401,7 +408,8 @@ def calculate_repayment_effect(
 			outstanding_principal_balance=loan_update['outstanding_principal'],
 			outstanding_interest=loan_update['outstanding_interest'],
 			outstanding_fees=loan_update['outstanding_fees']
-		)
+		)	
+
 		# List out the unselected, but overdue loans, and what their balances will be.
 		loans_past_due_but_not_selected.append(LoanToShowDict(
 			loan_id=past_due_loan_id,

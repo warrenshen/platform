@@ -118,6 +118,11 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 			should_pay_principal_first=False,
 			session_maker=session_maker
 		)
+		if test.get('in_err_msg'):
+			self.assertIsNotNone(err)
+			self.assertIn(test['in_err_msg'], err.msg)
+			return
+
 		self.assertIsNone(err)
 		self.assertEqual('OK', resp.get('status'), msg=err)
 		test_helper.assertIsCurrencyRounded(self, resp['data']['amount_to_pay']) # Ensure this number is always down to 2 digits
@@ -362,6 +367,65 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 						amount=20.00,
 						outstanding_principal_balance=2.38,
 						outstanding_interest=0.0,
+						outstanding_fees=0.0
+					)
+				)
+			],
+			'expected_past_due_but_not_selected_indices': []
+		}
+
+		self._run_test(test)
+
+	def test_custom_amount_repay_in_the_past_relative_to_other_payments_already_in_the_system(self) -> None:
+		daily_interest1 = INTEREST_RATE # INTEREST_RATE * 20.00 == daily_interest_rate_pct * principal_owed
+		
+		test: Dict = {
+			'comment': 'The user pays off multiple loans and have a credit remaining on their principal',
+			'loans': [
+				models.Loan(
+					amount=decimal.Decimal(20.00),
+					origination_date=date_util.load_date_str('8/20/2020'),
+					adjusted_maturity_date=date_util.load_date_str('9/15/2020')
+				)
+			],
+			'transaction_lists': [
+				# Transactions are parallel to the loans defined in the test.
+				# These will be advances or repayments made against their respective loans.
+				[
+					{'type': 'advance', 'amount': 20.00, 'payment_date': '8/20/2020', 'effective_date': '8/20/2020'},
+					{
+					  'type': 'repayment', 'to_principal': 3.00, 'to_interest': 0.36, 'to_fees': 0.0,
+					  'payment_date': '8/24/2020', 'effective_date': '8/25/2020'
+					}
+				]
+			],
+			'deposit_date': '8/23/2020',
+			'settlement_date': '8/25/2020',
+			'payment_option': 'custom_amount',
+			'payment_input_amount': 15.00,
+			'expected_amount_to_pay': 15.00,
+			'expected_amount_as_credit_to_user': 0.0,
+			'in_err_msg': 'outstanding_interest or outstanding_principal is negative due payment',
+			'expected_loans_to_show': [
+				LoanToShowDict(
+					loan_id='filled in by test',
+					loan_identifier='filled in by test',
+					transaction=TransactionInputDict(
+						amount=15.00,
+						to_principal=14.76,
+						to_interest=0.24,
+						to_fees=0.0
+					),
+					before_loan_balance=LoanBalanceDict(
+						amount=20.00,
+						outstanding_principal_balance=20.00,
+						outstanding_interest=0.24, # 6 days of interest accrued
+						outstanding_fees=0.0
+					),
+					after_loan_balance=LoanBalanceDict(
+						amount=20.00,
+						outstanding_principal_balance=2.24,
+						outstanding_interest=-0.36,
 						outstanding_fees=0.0
 					)
 				)
