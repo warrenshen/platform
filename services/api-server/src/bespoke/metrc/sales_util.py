@@ -21,12 +21,13 @@ class SalesTransactions(object):
 		self._sales_transactions = sales_transactions
 		self._type = transaction_type
 
-	def get_sales_transactions_models(self, company_id: str, receipt_id: str) -> List[models.MetrcSalesTransaction]:
+	def get_sales_transactions_models(self, company_id: str, license_number: str, receipt_id: str) -> List[models.MetrcSalesTransaction]:
 		sales_transactions = []
 		for i in range(len(self._sales_transactions)):
 			tx = self._sales_transactions[i]
 			sales_tx = models.MetrcSalesTransaction()
 			sales_tx.type = self._type
+			sales_tx.license_number = license_number
 			sales_tx.company_id = cast(Any, company_id)
 			sales_tx.package_id = '{}'.format(tx['PackageId'])
 			sales_tx.package_label = tx['PackageLabel']
@@ -59,11 +60,13 @@ class SalesReceipts(object):
 	def get_sales_receipt_models(self, ctx: metrc_common_util.DownloadContext, company_id: str, cur_date: datetime.date) -> List[SalesReceiptObj]:
 		sales_receipt_objs = []
 		LOG_EVERY = 10
+		license_number = ctx.license['license_number']
 
 		for i in range(len(self._sales_receipts)):
 			s = self._sales_receipts[i]
 			receipt = models.MetrcSalesReceipt()
 			receipt.type = self._type
+			receipt.license_number = license_number
 			receipt.company_id = cast(Any, company_id)
 			receipt.receipt_id = '{}'.format(s['Id'])
 			receipt.receipt_number = s['ReceiptNumber']
@@ -83,6 +86,7 @@ class SalesReceipts(object):
 				receipt_resp = json.loads(resp.content)
 				transactions = SalesTransactions(receipt_resp['Transactions'], self._type).get_sales_transactions_models(
 					company_id=company_id,
+					license_number=license_number,
 					receipt_id=receipt.receipt_id
 				)
 				ctx.request_status['sales_transactions_api'] = 200
@@ -195,6 +199,7 @@ def _write_sales_receipts_chunk(
 			# update
 			prev = receipt_number_to_sales_receipt[sales_receipt.receipt_number]
 			prev.type = sales_receipt.type
+			prev.license_number = sales_receipt.license_number
 			prev.company_id = sales_receipt.company_id
 			prev.sales_customer_type = sales_receipt.sales_customer_type
 			prev.sales_datetime = sales_receipt.sales_datetime

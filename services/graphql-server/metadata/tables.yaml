@@ -2705,7 +2705,7 @@
     using:
       foreign_key_constraint_on: payor_id
   array_relationships:
-  - name: metrc_transfer_packages
+  - name: metrc_packages
     using:
       foreign_key_constraint_on:
         column: delivery_row_id
@@ -2821,26 +2821,28 @@
   - role: bank_admin
     permission:
       columns:
-      - id
       - company_id
-      - type
       - harvest_id
-      - name
       - harvest_start_date
-      - payload
+      - id
       - last_modified_at
+      - license_number
+      - name
+      - payload
+      - type
       filter: {}
   - role: bank_read_only
     permission:
       columns:
-      - harvest_start_date
-      - payload
-      - harvest_id
-      - name
-      - type
-      - last_modified_at
       - company_id
+      - harvest_id
+      - harvest_start_date
       - id
+      - last_modified_at
+      - license_number
+      - name
+      - payload
+      - type
       filter: {}
 - table:
     schema: public
@@ -2849,40 +2851,42 @@
   - role: bank_admin
     permission:
       columns:
-      - packaged_date
-      - package_payload
-      - quantity
+      - company_id
+      - created_at
+      - id
+      - last_modified_at
+      - license_number
       - package_id
       - package_label
+      - package_payload
       - package_type
+      - packaged_date
       - product_category_name
       - product_name
+      - quantity
       - type
       - unit_of_measure
-      - created_at
-      - last_modified_at
       - updated_at
-      - company_id
-      - id
       filter: {}
   - role: bank_read_only
     permission:
       columns:
-      - packaged_date
-      - package_payload
-      - quantity
+      - company_id
+      - created_at
+      - id
+      - last_modified_at
+      - license_number
       - package_id
       - package_label
+      - package_payload
       - package_type
+      - packaged_date
       - product_category_name
       - product_name
+      - quantity
       - type
       - unit_of_measure
-      - created_at
-      - last_modified_at
       - updated_at
-      - company_id
-      - id
       filter: {}
 - table:
     schema: public
@@ -2898,6 +2902,7 @@
       - company_id
       - id
       - last_modified_at
+      - license_number
       - name
       - payload
       - plant_batch_id
@@ -2910,6 +2915,7 @@
       - company_id
       - id
       - last_modified_at
+      - license_number
       - name
       - payload
       - plant_batch_id
@@ -2931,6 +2937,7 @@
       - id
       - label
       - last_modified_at
+      - license_number
       - payload
       - plant_id
       - planted_date
@@ -2943,6 +2950,7 @@
       - id
       - label
       - last_modified_at
+      - license_number
       - payload
       - plant_id
       - planted_date
@@ -2959,38 +2967,40 @@
   - role: bank_admin
     permission:
       columns:
+      - company_id
+      - created_at
       - id
+      - is_final
+      - last_modified_at
+      - license_number
+      - payload
+      - receipt_id
       - receipt_number
       - sales_customer_type
       - sales_datetime
       - total_packages
       - total_price
-      - payload
       - type
-      - is_final
-      - company_id
-      - created_at
       - updated_at
-      - last_modified_at
-      - receipt_id
       filter: {}
   - role: bank_read_only
     permission:
       columns:
+      - company_id
+      - created_at
+      - id
       - is_final
-      - total_packages
+      - last_modified_at
+      - license_number
       - payload
-      - total_price
       - receipt_id
       - receipt_number
       - sales_customer_type
-      - type
-      - created_at
-      - last_modified_at
       - sales_datetime
+      - total_packages
+      - total_price
+      - type
       - updated_at
-      - company_id
-      - id
       filter: {}
 - table:
     schema: public
@@ -3003,40 +3013,42 @@
   - role: bank_admin
     permission:
       columns:
-      - id
-      - type
       - company_id
+      - id
+      - last_modified_at
+      - license_number
       - package_id
       - package_label
+      - payload
+      - product_category_name
       - product_name
       - quantity_sold
-      - unit_of_measure
-      - total_price
-      - recorded_datetime
-      - payload
-      - last_modified_at
-      - product_category_name
       - receipt_id
       - receipt_row_id
+      - recorded_datetime
+      - total_price
+      - type
+      - unit_of_measure
       filter: {}
   - role: bank_read_only
     permission:
       columns:
-      - payload
-      - quantity_sold
-      - total_price
-      - package_id
-      - package_label
-      - product_category_name
-      - product_name
-      - receipt_id
-      - type
-      - unit_of_measure
-      - last_modified_at
-      - recorded_datetime
       - company_id
       - id
+      - last_modified_at
+      - license_number
+      - package_id
+      - package_label
+      - payload
+      - product_category_name
+      - product_name
+      - quantity_sold
+      - receipt_id
       - receipt_row_id
+      - recorded_datetime
+      - total_price
+      - type
+      - unit_of_measure
       filter: {}
 - table:
     schema: public
@@ -3060,6 +3072,7 @@
       - id
       - lab_results_status
       - last_modified_at
+      - license_number
       - package_id
       - package_label
       - package_payload
@@ -3087,6 +3100,7 @@
       - id
       - lab_results_status
       - last_modified_at
+      - license_number
       - package_id
       - package_label
       - package_payload
@@ -3114,6 +3128,7 @@
       - id
       - lab_results_status
       - last_modified_at
+      - license_number
       - package_id
       - package_label
       - package_payload
@@ -3147,6 +3162,7 @@
       - id
       - lab_results_status
       - last_modified_at
+      - license_number
       - package_id
       - package_label
       - package_payload
@@ -3172,29 +3188,28 @@
   - role: purchase_order_reviewer
     permission:
       columns:
+      - company_id
       - created_date
-      - package_payload
-      - received_quantity
-      - shipped_quantity
-      - shipper_wholesale_price
+      - delivery_id
+      - delivery_row_id
+      - id
       - lab_results_status
+      - last_modified_at
+      - license_number
+      - package_id
       - package_label
+      - package_payload
       - package_type
       - product_category_name
       - product_name
+      - received_quantity
       - received_unit_of_measure
       - shipment_package_state
+      - shipped_quantity
       - shipped_unit_of_measure
-      - type
-      - created_at
-      - last_modified_at
-      - updated_at
-      - company_id
-      - delivery_row_id
-      - id
+      - shipper_wholesale_price
       - transfer_row_id
-      - delivery_id
-      - package_id
+      - type
       filter:
         metrc_transfer:
           vendor_id:
@@ -3218,7 +3233,7 @@
         column_mapping:
           vendor_id: id
   array_relationships:
-  - name: metrc_transfer_packages
+  - name: metrc_packages
     using:
       foreign_key_constraint_on:
         column: transfer_row_id
@@ -3236,6 +3251,7 @@
       - lab_results_status
       - last_modified_at
       - license_id
+      - license_number
       - manifest_number
       - shipment_transaction_type
       - shipment_type_name
@@ -3258,6 +3274,7 @@
       - lab_results_status
       - last_modified_at
       - license_id
+      - license_number
       - manifest_number
       - shipment_transaction_type
       - shipment_type_name
@@ -3280,6 +3297,7 @@
       - lab_results_status
       - last_modified_at
       - license_id
+      - license_number
       - manifest_number
       - shipment_transaction_type
       - shipment_type_name
@@ -3307,6 +3325,7 @@
       - lab_results_status
       - last_modified_at
       - license_id
+      - license_number
       - manifest_number
       - shipment_transaction_type
       - shipment_type_name
@@ -3333,6 +3352,7 @@
       - lab_results_status
       - last_modified_at
       - license_id
+      - license_number
       - manifest_number
       - shipment_transaction_type
       - shipment_type_name

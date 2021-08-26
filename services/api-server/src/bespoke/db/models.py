@@ -393,6 +393,7 @@ class MetrcPlant(Base):
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	type = Column(String)
+	license_number = Column(String, nullable=False)
 	# TODO(dlluncor): Fill in the associated with plant batch ID, harvest ID, location ID, strain ID
 	plant_id = Column(String) # From Metrc info
 	label = Column(String) # From Metrc info
@@ -405,6 +406,7 @@ class MetrcPlantBatch(Base):
 
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	license_number = Column(String, nullable=False)
 	type = Column(String)
 	# TODO(dlluncor): Fill in the associated with location ID, strain ID
 	plant_batch_id = Column(String) # From Metrc info
@@ -417,6 +419,7 @@ class MetrcHarvest(Base):
 	__tablename__ = 'metrc_harvests'
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	license_number = Column(String)
 	type = Column(String)
 	harvest_id = Column(String) # From Metrc info
 	name = Column(String) # From Metrc info
@@ -432,6 +435,7 @@ class MetrcTransfer(Base):
 	license_id = cast(GUID, Column(GUID, ForeignKey('company_licenses.id')))
 	vendor_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	type = Column(String) # Enum based on Metrc API endpoint: db_constants.TransferType.
+	license_number = Column(String, nullable=False)
 	transfer_id = Column(String) # From Metrc info
 	shipper_facility_license_number = Column(String)
 	shipper_facility_name = Column(String)
@@ -469,6 +473,7 @@ class MetrcPackage(Base):
 	
 	type = Column(String) # Enum based on Metrc API endpoint: 'active' | 'onhold' | 'inactive'.
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	license_number = Column(String, nullable=False)
 	package_id = Column(String) # From Metrc info
 	package_label = Column(String) # From Metrc info
 	package_type = Column(String) # From Metrc info
@@ -495,6 +500,7 @@ class MetrcTransferPackage(Base):
 	delivery_id = Column(String) # From Metrc info
 
 	type = Column(String)
+	license_number = Column(String, nullable=False)
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	package_id = Column(String) # From Metrc info
 	package_label = Column(String) # From Metrc info
@@ -521,6 +527,7 @@ class MetrcSalesReceipt(Base):
 
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
 	type = Column(Text)
+	license_number = Column(String, nullable=False)
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	receipt_id = Column(Text)
 	receipt_number = Column(Text) # From Metrc info
@@ -537,6 +544,7 @@ class MetrcSalesTransaction(Base):
 
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
 	type = Column(Text)
+	license_number = Column(String, nullable=False)
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	receipt_id = Column(String) # From parent Metrc info
 	receipt_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_sales_receipts.id')))

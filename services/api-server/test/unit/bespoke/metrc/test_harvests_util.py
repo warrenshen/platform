@@ -185,6 +185,7 @@ class TestPopulateHarvestsTable(db_unittest.TestCase):
 				p = metrc_harvests[i]
 				exp = expected_harvests[i]
 				self.assertEqual(exp['type'], p.type)
+				self.assertEqual('abcd', p.license_number)
 				self.assertEqual(exp['harvest_id'], p.harvest_id)
 				self.assertEqual(exp['company_id'], str(p.company_id))
 				self.assertEqual(exp['harvest_start_date'], p.harvest_start_date)

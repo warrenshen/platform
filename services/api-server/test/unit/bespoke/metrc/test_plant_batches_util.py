@@ -26,7 +26,7 @@ def _plant_batch_json(p: Dict) -> Dict:
 
 class TestPopulatePlantBatchesTable(db_unittest.TestCase):
 
-	def test_populate_harvests(self) -> None:
+	def test_populate_plant_batches(self) -> None:
 		self.reset()
 		session_maker = self.session_maker
 		seed = test_helper.BasicSeed.create(self.session_maker, self)
@@ -147,6 +147,7 @@ class TestPopulatePlantBatchesTable(db_unittest.TestCase):
 				p = metrc_plant_batches[i]
 				exp = expected_plant_batches[i]
 				self.assertEqual(exp['type'], p.type)
+				self.assertEqual('abcd', p.license_number)
 				self.assertEqual(exp['company_id'], str(p.company_id))
 				self.assertEqual(exp['plant_batch_id'], p.plant_batch_id)
 				self.assertEqual(exp['planted_date'], p.planted_date)

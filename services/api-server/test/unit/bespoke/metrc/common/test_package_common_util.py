@@ -40,6 +40,7 @@ class TestMergePackage(unittest.TestCase):
 	def test_maybe_merge_into_prev_package_perform(self) -> None:
 		prev = models.MetrcPackage(
 			type='type-1',
+			license_number='abcd',
 			package_id='1',
 			package_label='B',
 			package_type='1-type',
@@ -56,6 +57,7 @@ class TestMergePackage(unittest.TestCase):
 
 		cur = models.MetrcPackage(
 			type='type-2',
+			license_number='efgh',
 			package_id='2',
 			package_label='A',
 			package_type='2-type',
@@ -76,7 +78,8 @@ class TestMergePackage(unittest.TestCase):
 		)
 
 		fields = [
-			'type', 
+			'type',
+			'license_number',
 			'company_id',
 			'package_id',
 			'package_label',
@@ -256,6 +259,7 @@ class TestUpdatePackages(db_unittest.TestCase):
 		with session_scope(session_maker) as session:
 			cur = models.MetrcPackage(
 				type='type-2',
+				license_number='abcd',
 				package_id='2',
 				package_label='A',
 				package_type='2-type',
@@ -277,6 +281,7 @@ class TestUpdatePackages(db_unittest.TestCase):
 			new_packages = [
 				models.MetrcPackage(
 					type='type-2',
+					license_number='abcd',
 					package_id='2',
 					package_label='A',
 					package_type='2-type',
@@ -289,6 +294,7 @@ class TestUpdatePackages(db_unittest.TestCase):
 				),
 				models.MetrcPackage(
 					type='type-3',
+					license_number='abcd',
 					package_id='3',
 					package_label='B',
 					package_type='3-type',

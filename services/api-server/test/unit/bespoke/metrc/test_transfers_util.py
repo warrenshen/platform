@@ -43,6 +43,7 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 		with session_scope(session_maker) as session:
 			pkg1 = models.MetrcPackage(
 				type='active',
+				license_number='abcd',
 				package_id='in-pkg1-A',
 				packaged_date=date_util.load_date_str('01/01/2020'),
 				last_modified_at=parser.parse('01/03/2020'),
@@ -52,6 +53,7 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 
 			pkg2 = models.MetrcPackage(
 				type='active',
+				license_number='abcd',
 				package_id='in-pkg2-B',
 				packaged_date=date_util.load_date_str('01/01/2020'),
 				last_modified_at=parser.parse('01/04/2020'),
@@ -61,6 +63,7 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 
 			pkg3 = models.MetrcPackage(
 				type='active',
+				license_number='abcd',
 				package_id='out-pkg1-A',
 				packaged_date=date_util.load_date_str('01/01/2020'),
 				last_modified_at=parser.parse('01/05/2020'),
@@ -319,6 +322,8 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 			for i in range(len(metrc_transfers)):
 				t = metrc_transfers[i]
 				exp = expected_transfers[i]
+				self.assertEqual(exp['type'], t.type)
+				self.assertEqual('abcd', t.license_number)
 				self.assertEqual(exp['company_id'], str(t.company_id))
 				self.assertEqual(exp['license_id'], str(t.license_id))
 				self.assertEqual(exp['transfer_id'], t.transfer_id)
@@ -329,7 +334,6 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 				self.assertEqual(exp['shipment_type_name'], t.shipment_type_name)
 				self.assertEqual(exp['shipment_transaction_type'], t.shipment_transaction_type)
 				self.assertIsNotNone(t.transfer_payload)
-				self.assertEqual(exp['type'], t.type)
 				transfer_row_ids.append(str(t.id))
 
 		expected_deliveries: List[Dict] = [
@@ -445,6 +449,7 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 				tp = metrc_transfer_packages[i]
 				exp = expected_transfer_packages[i]
 				self.assertEqual(exp['type'], tp.type)
+				self.assertEqual('abcd', tp.license_number)
 				self.assertEqual(exp['company_id'], str(tp.company_id))
 				self.assertEqual(exp['package_id'], tp.package_id)
 				self.assertEqual(exp['delivery_id'], tp.delivery_id)
@@ -496,6 +501,7 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 				p = metrc_packages[i]
 				exp = expected_packages[i]
 				self.assertEqual(exp['type'], p.type)
+				self.assertEqual('abcd', p.license_number)
 				self.assertEqual(exp['company_id'], str(p.company_id))
 				self.assertEqual(exp['package_id'], p.package_id)
 				self.assertEqual(exp['last_modified_at'], p.last_modified_at)

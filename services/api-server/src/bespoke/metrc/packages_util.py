@@ -46,7 +46,7 @@ class Packages(object):
 
 		return payload
 
-	def get_models(self, company_id: str) -> List[PackageObject]:
+	def get_models(self, company_id: str, license_number: str) -> List[PackageObject]:
 		package_objs = []
 
 		for i in range(len(self._packages)):
@@ -55,6 +55,7 @@ class Packages(object):
 
 			p = models.MetrcPackage()
 			p.type = self._endpoint_type
+			p.license_number = license_number
 			p.company_id = cast(Any, company_id)
 			p.package_id = package_id
 			p.package_label = package['Label']
@@ -110,14 +111,19 @@ def download_packages(ctx: metrc_common_util.DownloadContext) -> List[PackageObj
 	except errors.Error as e:
 		metrc_common_util.update_if_all_are_unsuccessful(request_status, 'packages_api', e)
 
+	license_number = ctx.license['license_number']
+
 	active_package_models = Packages(active_packages, PackageType.ACTIVE).get_models(
-		company_id=company_info.company_id
+		company_id=company_info.company_id,
+		license_number=license_number
 	)
 	inactive_package_models = Packages(inactive_packages, PackageType.INACTIVE).get_models(
-		company_id=company_info.company_id
+		company_id=company_info.company_id,
+		license_number=license_number
 	)
 	onhold_package_models = Packages(onhold_packages, PackageType.ONHOLD).get_models(
-		company_id=company_info.company_id
+		company_id=company_info.company_id,
+		license_number=license_number
 	)
 
 	if active_packages:

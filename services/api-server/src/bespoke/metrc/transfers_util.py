@@ -62,7 +62,8 @@ class TransferPackages(object):
 
 	def get_package_models(
 		self, lab_tests: List[LabTest], transfer_type: str, 
-					created_date: datetime.date, company_id: str) -> Tuple[List[models.MetrcTransferPackage], str]:
+					created_date: datetime.date, company_id: str,
+					license_number: str) -> Tuple[List[models.MetrcTransferPackage], str]:
 		# Return list of MetrcTransferPackage models and lab results status
 		# of the Transfer that all these packages belong to.
 		metrc_packages = []
@@ -82,6 +83,7 @@ class TransferPackages(object):
 
 			p = models.MetrcTransferPackage()
 			p.type = 'transfer_{}'.format(transfer_type).lower()
+			p.license_number = license_number
 			p.company_id = cast(Any, company_id)
 			p.package_id = '{}'.format(package_id)
 			p.delivery_id = '{}'.format(package['DeliveryId'])
@@ -124,12 +126,13 @@ class Transfers(object):
 	def build(transfers: List[Dict]) -> 'Transfers':
 		return Transfers(transfers)
 
-	def get_transfer_objs(self, rest: metrc_common_util.REST, company_id: str, license_id: str, transfer_type: str) -> List[MetrcTransferObj]:
+	def get_transfer_objs(self, rest: metrc_common_util.REST, company_id: str, license_id: str, transfer_type: str, license_number: str) -> List[MetrcTransferObj]:
 		metrc_transfer_objs = []
 
 		for t in self._transfers:
 			transfer_id = '{}'.format(t['Id'])
 			tr = models.MetrcTransfer()
+			tr.license_number = license_number
 			tr.company_id = cast(Any, company_id)
 			tr.license_id = cast(Any, license_id)
 			tr.transfer_id = transfer_id
@@ -215,6 +218,7 @@ def _write_transfers(
 			# created_at
 			# transfer_id
 			prev_transfer.type = metrc_transfer.type
+			prev_transfer.license_number = metrc_transfer.license_number
 			prev_transfer.shipper_facility_license_number = metrc_transfer.shipper_facility_license_number
 			prev_transfer.shipper_facility_name = metrc_transfer.shipper_facility_name
 			prev_transfer.created_date = metrc_transfer.created_date
@@ -391,7 +395,8 @@ def populate_transfers_table(
 		rest=rest,
 		company_id=company_info.company_id,
 		license_id=license['license_id'],
-		transfer_type=db_constants.TransferType.INCOMING
+		transfer_type=db_constants.TransferType.INCOMING,
+		license_number=license['license_number']
 	)
 
 	with session_scope(session_maker) as session:
@@ -418,7 +423,8 @@ def populate_transfers_table(
 		rest=rest,
 		company_id=company_info.company_id,
 		license_id=license['license_id'],
-		transfer_type=db_constants.TransferType.OUTGOING
+		transfer_type=db_constants.TransferType.OUTGOING,
+		license_number=license['license_number']
 	)
 
 	with session_scope(session_maker) as session:
@@ -464,7 +470,8 @@ def populate_transfers_table(
 				logging.error(f'Could not fetch packages wholesale for company {company_info.name} for transfer with delivery id {delivery_id}. {e}')
 				metrc_common_util.update_if_all_are_unsuccessful(request_status, 'transfer_packages_wholesale_api', e)
 
-			packages = TransferPackages(metrc_transfer.last_modified_at, delivery_id, t_packages_json, t_packages_wholesale_json)
+			packages = TransferPackages(
+				metrc_transfer.last_modified_at, delivery_id, t_packages_json, t_packages_wholesale_json)
 			package_ids = packages.get_package_ids()
 
 			lab_tests = []
@@ -491,7 +498,8 @@ def populate_transfers_table(
 				lab_tests=lab_tests,
 				transfer_type=delivery.transfer_type,
 				created_date=metrc_transfer.created_date,
-				company_id=company_info.company_id
+				company_id=company_info.company_id,
+				license_number=metrc_transfer.license_number
 			)
 
 			#delivery_obj.lab_results_status = delivery_lab_results_status

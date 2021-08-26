@@ -215,6 +215,7 @@ class TestPopulatePlantsTable(db_unittest.TestCase):
 				p = metrc_plants[i]
 				exp = expected_plants[i]
 				self.assertEqual(exp['type'], p.type)
+				self.assertEqual('abcd', p.license_number)
 				self.assertEqual(exp['company_id'], str(p.company_id))
 				self.assertEqual(exp['plant_id'], p.plant_id)
 				self.assertEqual(exp['planted_date'], p.planted_date)

@@ -64,6 +64,7 @@ def _get_deliveries(transfer_row_id: str, session: Session) -> List[models.Metrc
 
 def _create_transfer(shipper_license_number: str, transfer_type: str, transfer_id: str, company_id: str, session: Session) -> models.MetrcTransfer:
 	tr = models.MetrcTransfer()
+	tr.license_number = 'abcd'
 	tr.shipper_facility_license_number = shipper_license_number
 	tr.vendor_id = cast(GUID, _get_company_id_from_license_number(shipper_license_number, session))
 	tr.type = transfer_type
