@@ -5,12 +5,12 @@ on:
     branches:
       - master
     paths:
-      - "services/app/**"
+      - 'services/app/**'
   pull_request:
     branches:
       - master
     paths:
-      - "services/app/**"
+      - 'services/app/**'
 
 jobs:
   app:
@@ -26,10 +26,10 @@ jobs:
       - name: Use Node.js ${{ steps.nvm.outputs.NVMRC }}
         uses: actions/setup-node@v1
         with:
-          node-version: "${{ steps.nvm.outputs.NVMRC }}"
+          node-version: '${{ steps.nvm.outputs.NVMRC }}'
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+        run: echo '::set-output name=dir::$(yarn cache dir)'
       - name: Restore cached yarn cache
         uses: actions/cache@v2
         id: cache-yarn-cache

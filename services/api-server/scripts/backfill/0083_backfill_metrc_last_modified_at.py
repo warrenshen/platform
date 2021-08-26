@@ -184,7 +184,7 @@ def _metrc_harvests(session_maker):
 
 		current_page += 1
 
-def main(is_test_run: bool = True) -> None:
+def main() -> None:
 	engine = models.create_engine()
 	session_maker = models.new_sessionmaker(engine)
 
@@ -199,12 +199,4 @@ if __name__ == "__main__":
 		print("You must set 'DATABASE_URL' in the environment to use this script")
 		exit(1)
 
-	is_test_run = True
-
-	if not os.environ.get("CONFIRM"):
-		print("This script CHANGES information in the database")
-		print("You must set 'CONFIRM=1' as an environment variable to actually perform database changes with this script")
-	else:
-		is_test_run = False
-
-	main(is_test_run)
+	main()
