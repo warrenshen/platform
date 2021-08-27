@@ -204,13 +204,18 @@ class REST(object):
 					self.license_number, time_range),
 					details={'status_code': resp.status_code})
 
-			if not resp.ok and resp.status_code in NON_RETRY_STATUSES:
+			# Return successful response.
+			if resp.ok:
+				return resp
+
+			if resp.status_code in NON_RETRY_STATUSES:
 				raise e
 			else:
 				logging.error(e)
 
 			time.sleep(1 + (i * 1.5))
 
+		# Even with retries, we are unsuccessful: return unsuccessful response.
 		return resp
 
 def chunker(seq: List, size: int) -> Iterable[List]:
