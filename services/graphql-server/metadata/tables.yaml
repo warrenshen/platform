@@ -2705,7 +2705,7 @@
     using:
       foreign_key_constraint_on: payor_id
   array_relationships:
-  - name: metrc_packages
+  - name: metrc_transfer_packages
     using:
       foreign_key_constraint_on:
         column: delivery_row_id
@@ -3233,7 +3233,7 @@
         column_mapping:
           vendor_id: id
   array_relationships:
-  - name: metrc_packages
+  - name: metrc_transfer_packages
     using:
       foreign_key_constraint_on:
         column: transfer_row_id
