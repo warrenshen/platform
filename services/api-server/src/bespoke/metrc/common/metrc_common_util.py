@@ -1,6 +1,8 @@
 import datetime
 import json
+import logging
 import requests
+import time
 from bespoke import errors
 from dateutil import parser
 from mypy_extensions import TypedDict
@@ -116,7 +118,7 @@ def get_default_apis_to_use() -> ApisToUseDict:
 	"""
 	# For copy-paste help when you are debugging with one API at a time
 	return ApisToUseDict(
-			sales_receipts=False,
+			sales_receipts=True,
 			sales_transactions=False,
 			incoming_transfers=False,
 			outgoing_transfers=False,
@@ -147,8 +149,8 @@ def get_facilities(auth_dict: AuthDict, us_state: str) -> List[FacilityInfoDict]
 	resp = requests.get(url, auth=auth)
 
 	if not resp.ok:
-		raise errors.Error('Code: {}. Reason: {}. Response: {}'.format(
-			resp.status_code, resp.reason, resp.content.decode('utf-8')),
+		raise errors.Error('URL: {}. Code: {}. Reason: {}. Response: {}'.format(
+			url, resp.status_code, resp.reason, resp.content.decode('utf-8')),
 			details={'status_code': resp.status_code})
 
 	facilities_arr = json.loads(resp.content)
@@ -191,13 +193,23 @@ class REST(object):
 		if self.debug:
 			print(url)
 
-		resp = requests.get(url, auth=self.auth)
-		# TODO(dlluncor): A retry with a wait if rate-limited
+		NUM_RETRIES = 5
+		NON_RETRY_STATUSES = set([401, 403])
 
-		if not resp.ok:
-			raise errors.Error('URL: {}. Code: {}. Reason: {}. Response: {}'.format(
-				path, resp.status_code, resp.reason, resp.content.decode('utf-8')),
-				details={'status_code': resp.status_code})
+		for i in range(NUM_RETRIES):
+			resp = requests.get(url, auth=self.auth)
+
+			e = errors.Error('Metrc error: URL: {}. Code: {}. Reason: {}. Response: {}. License num: {}. Time range: {}'.format(
+					path, resp.status_code, resp.reason, resp.content.decode('utf-8'),
+					self.license_number, time_range),
+					details={'status_code': resp.status_code})
+
+			if not resp.ok and resp.status_code in NON_RETRY_STATUSES:
+				raise e
+			else:
+				logging.error(e)
+
+			time.sleep(1 + (i * 1.5))
 
 		return resp
 
