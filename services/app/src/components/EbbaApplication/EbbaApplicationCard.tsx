@@ -9,7 +9,7 @@ import {
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
 import EbbaApplicationDrawerLauncher from "components/EbbaApplication/EbbaApplicationDrawerLauncher";
-import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
+import EbbaApplicationStatusChip from "components/EbbaApplication/EbbaApplicationStatusChip";
 import { EbbaApplicationFragment } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
@@ -42,7 +42,7 @@ export default function EbbaApplicationCard({ ebbaApplication }: Props) {
       <CardContent>
         <Box display="flex" mb={0.5}>
           <Typography className={classes.label}>Status</Typography>
-          <RequestStatusChip requestStatus={ebbaApplication.status} />
+          <EbbaApplicationStatusChip requestStatus={ebbaApplication.status} />
         </Box>
         <Box display="flex" alignItems="center" mb={0.5}>
           <Typography className={classes.label}>Certification Date</Typography>

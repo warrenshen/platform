@@ -1,6 +1,6 @@
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import EbbaApplicationDrawer from "components/EbbaApplication/EbbaApplicationDrawer";
-import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
+import EbbaApplicationStatusChip from "components/EbbaApplication/EbbaApplicationStatusChip";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
@@ -105,7 +105,7 @@ export default function EbbaApplicationsDataGrid({
         width: ColumnWidths.Status,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
-          <RequestStatusChip
+          <EbbaApplicationStatusChip
             requestStatus={params.row.data.status as RequestStatusEnum}
           />
         ),

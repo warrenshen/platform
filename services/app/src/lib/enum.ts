@@ -202,7 +202,15 @@ export const RequestStatusToLabel = {
   [RequestStatusEnum.Drafted]: "Draft",
   [RequestStatusEnum.ApprovalRequested]: "Pending Review",
   [RequestStatusEnum.Approved]: "Confirmed",
-  [RequestStatusEnum.Rejected]: "Changes Required",
+  [RequestStatusEnum.Rejected]: "Action Required",
+};
+
+// Request status enum related.
+export const EbbaApplicationStatusToLabel = {
+  [RequestStatusEnum.Drafted]: "Draft",
+  [RequestStatusEnum.ApprovalRequested]: "Pending Review",
+  [RequestStatusEnum.Approved]: "Accepted",
+  [RequestStatusEnum.Rejected]: "Action Required",
 };
 
 // User Role enum related.

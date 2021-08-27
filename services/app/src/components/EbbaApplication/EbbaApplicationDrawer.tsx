@@ -1,6 +1,6 @@
 import { Box, Button, Typography } from "@material-ui/core";
+import EbbaApplicationStatusChip from "components/EbbaApplication/EbbaApplicationStatusChip";
 import ReviewEbbaApplicationRejectModal from "components/EbbaApplication/ReviewEbbaApplicationRejectModal";
-import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import FileViewer from "components/Shared/File/FileViewer";
 import Modal from "components/Shared/Modal/Modal";
@@ -76,7 +76,9 @@ export default function EbbaApplicationDrawer({
       params
     );
     if (response.data?.status === "ERROR") {
-      snackbar.showError(`Error! Message: ${response.data?.msg}`);
+      snackbar.showError(
+        `Could not approve certification. Message: ${response.data?.msg}`
+      );
     } else {
       refetch();
       snackbar.showSuccess("Certification approved.");
@@ -113,12 +115,12 @@ export default function EbbaApplicationDrawer({
           <Typography variant="subtitle2" color="textSecondary">
             Status
           </Typography>
-          <RequestStatusChip requestStatus={ebbaApplication.status} />
+          <EbbaApplicationStatusChip requestStatus={ebbaApplication.status} />
         </Box>
         {!!ebbaApplication.approved_at && (
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">
-              Approved At
+              Accepted At
             </Typography>
             <Typography variant={"body1"}>
               {formatDatetimeString(ebbaApplication.approved_at)}
@@ -261,7 +263,7 @@ export default function EbbaApplicationDrawer({
                   variant={"contained"}
                   color={"primary"}
                 >
-                  Approve
+                  Accept
                 </Button>
               </Box>
             )}

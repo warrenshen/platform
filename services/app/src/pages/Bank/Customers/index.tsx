@@ -234,9 +234,10 @@ export default function BankCustomersPage() {
           <Box display="flex">
             <TextField
               autoFocus
-              label="Search"
+              label="Search by customer identifier or name"
               value={searchQuery}
               onChange={({ target: { value } }) => setSearchQuery(value)}
+              style={{ width: 300 }}
             />
           </Box>
           <Box display="flex" flexDirection="row-reverse">

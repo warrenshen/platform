@@ -1,6 +1,6 @@
 import { Typography } from "@material-ui/core";
 import { RequestStatusEnum } from "generated/graphql";
-import { RequestStatusToLabel } from "lib/enum";
+import { EbbaApplicationStatusToLabel } from "lib/enum";
 import styled from "styled-components";
 
 const Chip = styled.div<{ backgroundColor: string }>`
@@ -33,10 +33,10 @@ const StatusToColor = {
   [RequestStatusEnum.Rejected]: "#e67e22", // Orange
 };
 
-export default function RequestStatusChip({ requestStatus }: Props) {
+export default function EbbaApplicationStatusChip({ requestStatus }: Props) {
   return (
     <Chip backgroundColor={StatusToColor[requestStatus]}>
-      <Text>{RequestStatusToLabel[requestStatus]}</Text>
+      <Text>{EbbaApplicationStatusToLabel[requestStatus]}</Text>
     </Chip>
   );
 }
