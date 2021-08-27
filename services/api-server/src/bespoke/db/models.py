@@ -513,8 +513,8 @@ class MetrcTransferPackage(Base):
 
 	shipped_quantity = Column(Numeric) # From Metrc info
 	received_quantity = Column(Numeric) # From Metrc info
-	shipped_unit_of_measure = Column(Text)
-	received_unit_of_measure = Column(Text)
+	shipped_unit_of_measure = Column(Text) # From Metrc info
+	received_unit_of_measure = Column(Text) # From Metrc info
 	shipper_wholesale_price = Column(Numeric) # From Metrc info
 	shipment_package_state = Column(String) # From Metrc info
 	lab_results_status = Column(String) # Derived from Metrc info
