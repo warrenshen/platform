@@ -199,24 +199,24 @@ class REST(object):
 		for i in range(NUM_RETRIES):
 			resp = requests.get(url, auth=self.auth)
 
+			# Return successful response.
+			if resp.ok:
+				return resp
+
 			e = errors.Error('Metrc error: URL: {}. Code: {}. Reason: {}. Response: {}. License num: {}. Time range: {}'.format(
 					path, resp.status_code, resp.reason, resp.content.decode('utf-8'),
 					self.license_number, time_range),
 					details={'status_code': resp.status_code})
-
-			# Return successful response.
-			if resp.ok:
-				return resp
 
 			if resp.status_code in NON_RETRY_STATUSES:
 				raise e
 			else:
 				logging.error(e)
 
-			time.sleep(1 + (i * 1.5))
+			time.sleep(1 + (i * 3))
 
-		# Even with retries, we are unsuccessful: return unsuccessful response.
-		return resp
+		# After retries, we are unsuccessful: raise the last error we saw
+		raise e
 
 def chunker(seq: List, size: int) -> Iterable[List]:
 	return (seq[pos:pos + size] for pos in range(0, len(seq), size))
