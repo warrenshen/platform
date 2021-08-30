@@ -22982,6 +22982,14 @@ export type GetEbbaApplicationsByCompanyIdQuery = {
   >;
 };
 
+export type GetOpenEbbaApplicationsCountForBankSubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetOpenEbbaApplicationsCountForBankSubscription = {
+  ebba_applications: Array<Pick<EbbaApplications, "id" | "category">>;
+};
+
 export type GetOpenEbbaApplicationsByCategoryQueryVariables = Exact<{
   category: Scalars["String"];
 }>;
@@ -26845,6 +26853,57 @@ export type GetEbbaApplicationsByCompanyIdQueryResult = Apollo.QueryResult<
   GetEbbaApplicationsByCompanyIdQuery,
   GetEbbaApplicationsByCompanyIdQueryVariables
 >;
+export const GetOpenEbbaApplicationsCountForBankDocument = gql`
+  subscription GetOpenEbbaApplicationsCountForBank {
+    ebba_applications(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { approved_at: { _is_null: true } }
+        ]
+      }
+    ) {
+      id
+      category
+    }
+  }
+`;
+
+/**
+ * __useGetOpenEbbaApplicationsCountForBankSubscription__
+ *
+ * To run a query within a React component, call `useGetOpenEbbaApplicationsCountForBankSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetOpenEbbaApplicationsCountForBankSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOpenEbbaApplicationsCountForBankSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetOpenEbbaApplicationsCountForBankSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    GetOpenEbbaApplicationsCountForBankSubscription,
+    GetOpenEbbaApplicationsCountForBankSubscriptionVariables
+  >
+) {
+  return Apollo.useSubscription<
+    GetOpenEbbaApplicationsCountForBankSubscription,
+    GetOpenEbbaApplicationsCountForBankSubscriptionVariables
+  >(GetOpenEbbaApplicationsCountForBankDocument, baseOptions);
+}
+export type GetOpenEbbaApplicationsCountForBankSubscriptionHookResult = ReturnType<
+  typeof useGetOpenEbbaApplicationsCountForBankSubscription
+>;
+export type GetOpenEbbaApplicationsCountForBankSubscriptionResult = Apollo.SubscriptionResult<GetOpenEbbaApplicationsCountForBankSubscription>;
 export const GetOpenEbbaApplicationsByCategoryDocument = gql`
   query GetOpenEbbaApplicationsByCategory($category: String!) {
     ebba_applications(

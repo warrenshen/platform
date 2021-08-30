@@ -220,9 +220,7 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
   const handleClickSubmit = async () => {
     const savedEbbaApplication = await upsertEbbaApplication();
     if (!savedEbbaApplication) {
-      snackbar.showError(
-        "Error! Could not upsert borrowing base certification."
-      );
+      snackbar.showError("Could not submit borrowing base certification.");
       return;
     }
 

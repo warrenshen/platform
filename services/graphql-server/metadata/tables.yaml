@@ -1490,6 +1490,12 @@
   - role: bank_admin
     permission:
       filter: {}
+  - role: company_admin
+    permission:
+      filter:
+        ebba_application:
+          company_id:
+            _eq: X-Hasura-Company-Id
 - table:
     schema: public
     name: ebba_applications
@@ -1649,6 +1655,20 @@
       - monthly_cash
       - monthly_inventory
       filter: {}
+      check: null
+  - role: company_admin
+    permission:
+      columns:
+      - amount_cash_in_daca
+      - application_date
+      - calculated_borrowing_base
+      - expires_at
+      - monthly_accounts_receivable
+      - monthly_cash
+      - monthly_inventory
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
       check: null
 - table:
     schema: public

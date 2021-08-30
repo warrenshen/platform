@@ -22,6 +22,25 @@ query GetEbbaApplicationsByCompanyId($company_id: uuid!) {
   }
 }
 
+subscription GetOpenEbbaApplicationsCountForBank {
+  ebba_applications(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { approved_at: { _is_null: true } }
+      ]
+    }
+  ) {
+    id
+    category
+  }
+}
+
 query GetOpenEbbaApplicationsByCategory($category: String!) {
   ebba_applications(
     where: {
