@@ -11,9 +11,10 @@ import {
 } from "@material-ui/core";
 import FileUploader from "components/Shared/File/FileUploader";
 import {
+  Companies,
   EbbaApplicationFilesInsertInput,
   EbbaApplicationsInsertInput,
-  Scalars,
+  Files,
   useGetEbbaApplicationsByCompanyIdQuery,
 } from "generated/graphql";
 import {
@@ -35,7 +36,8 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
   isActionTypeUpdate: boolean;
   isBankUser: boolean;
-  companyId: Scalars["uuid"];
+  companyId: Companies["id"];
+  frozenFileIds?: Files["id"][];
   ebbaApplication: EbbaApplicationsInsertInput;
   ebbaApplicationFiles: EbbaApplicationFilesInsertInput[];
   setEbbaApplication: (ebbaApplication: EbbaApplicationsInsertInput) => void;
@@ -48,6 +50,7 @@ export default function EbbaApplicationFinancialReportsForm({
   isActionTypeUpdate,
   isBankUser,
   companyId,
+  frozenFileIds,
   ebbaApplication,
   ebbaApplicationFiles,
   setEbbaApplication,
@@ -173,6 +176,7 @@ export default function EbbaApplicationFinancialReportsForm({
           companyId={companyId}
           fileType={FileTypeEnum.EBBA_APPLICATION}
           fileIds={ebbaApplicationFileIds}
+          frozenFileIds={frozenFileIds}
           handleDeleteFileById={(fileId) =>
             setEbbaApplicationFiles(
               ebbaApplicationFiles.filter(

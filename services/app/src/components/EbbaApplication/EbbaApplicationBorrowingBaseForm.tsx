@@ -11,9 +11,10 @@ import FileUploader from "components/Shared/File/FileUploader";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import {
+  Companies,
   EbbaApplicationFilesInsertInput,
   EbbaApplicationsInsertInput,
-  Scalars,
+  Files,
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { FileTypeEnum } from "lib/enum";
@@ -33,7 +34,8 @@ interface Props {
   isInventoryVisible: boolean;
   isCashVisible: boolean;
   isCashInDacaVisible: boolean;
-  companyId: Scalars["uuid"];
+  companyId: Companies["id"];
+  frozenFileIds?: Files["id"][];
   calculatedBorrowingBase: number | null;
   ebbaApplication: EbbaApplicationsInsertInput;
   ebbaApplicationFiles: EbbaApplicationFilesInsertInput[];
@@ -50,6 +52,7 @@ export default function EbbaApplicationBorrowingBaseForm({
   isCashVisible,
   isCashInDacaVisible,
   companyId,
+  frozenFileIds,
   calculatedBorrowingBase,
   ebbaApplication,
   ebbaApplicationFiles,
@@ -222,6 +225,7 @@ export default function EbbaApplicationBorrowingBaseForm({
           companyId={companyId}
           fileType={FileTypeEnum.EBBA_APPLICATION}
           fileIds={ebbaApplicationFileIds}
+          frozenFileIds={frozenFileIds}
           handleDeleteFileById={(fileId) =>
             setEbbaApplicationFiles(
               ebbaApplicationFiles.filter(

@@ -11,6 +11,7 @@ import {
   EbbaApplicationFilesInsertInput,
   EbbaApplications,
   EbbaApplicationsInsertInput,
+  Files,
   useAddEbbaApplicationMutation,
   useGetEbbaApplicationQuery,
   useUpdateEbbaApplicationMutation,
@@ -51,7 +52,7 @@ export default function CreateUpdateFinancialReportsCertificationModal({
   } as EbbaApplicationsInsertInput;
 
   const [ebbaApplication, setEbbaApplication] = useState(newEbbaApplication);
-
+  const [frozenFileIds, setFrozenFileIds] = useState<Files["id"][]>([]);
   const [ebbaApplicationFiles, setEbbaApplicationFiles] = useState<
     EbbaApplicationFilesInsertInput[]
   >([]);
@@ -80,8 +81,13 @@ export default function CreateUpdateFinancialReportsCertificationModal({
             })
           )
         );
+        setFrozenFileIds(
+          existingEbbaApplication.ebba_application_files.map(
+            (ebbaApplicationFile) => ebbaApplicationFile.file_id
+          )
+        );
       } else {
-        snackbar.showError("Error! Could not get expected Financial reports.");
+        snackbar.showError("Error! Could not get expected financial reports.");
       }
     },
   });
@@ -204,6 +210,7 @@ export default function CreateUpdateFinancialReportsCertificationModal({
         isActionTypeUpdate={isActionTypeUpdate}
         isBankUser={isBankUser}
         companyId={companyId}
+        frozenFileIds={frozenFileIds}
         ebbaApplication={ebbaApplication}
         ebbaApplicationFiles={ebbaApplicationFiles}
         setEbbaApplication={setEbbaApplication}

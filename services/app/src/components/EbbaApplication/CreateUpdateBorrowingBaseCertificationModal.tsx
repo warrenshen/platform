@@ -11,6 +11,7 @@ import {
   EbbaApplicationFilesInsertInput,
   EbbaApplications,
   EbbaApplicationsInsertInput,
+  Files,
   useAddEbbaApplicationMutation,
   useGetCompanyWithActiveContractQuery,
   useGetEbbaApplicationQuery,
@@ -108,7 +109,7 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
   } as EbbaApplicationsInsertInput;
 
   const [ebbaApplication, setEbbaApplication] = useState(newEbbaApplication);
-
+  const [frozenFileIds, setFrozenFileIds] = useState<Files["id"][]>([]);
   const [ebbaApplicationFiles, setEbbaApplicationFiles] = useState<
     EbbaApplicationFilesInsertInput[]
   >([]);
@@ -135,6 +136,11 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
               ebba_application_id: ebbaApplicationFile.ebba_application_id,
               file_id: ebbaApplicationFile.file_id,
             })
+          )
+        );
+        setFrozenFileIds(
+          existingEbbaApplication.ebba_application_files.map(
+            (ebbaApplicationFile) => ebbaApplicationFile.file_id
           )
         );
       } else {
@@ -291,6 +297,7 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
         isCashVisible={isCashVisible}
         isCashInDacaVisible={isCashInDacaVisible}
         companyId={companyId}
+        frozenFileIds={frozenFileIds}
         calculatedBorrowingBase={calculatedBorrowingBase}
         ebbaApplication={ebbaApplication}
         ebbaApplicationFiles={ebbaApplicationFiles}

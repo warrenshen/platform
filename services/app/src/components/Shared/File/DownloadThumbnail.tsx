@@ -1,6 +1,7 @@
 import { Box, Button, Link, Typography } from "@material-ui/core";
 import InsertDriveFileIcon from "@material-ui/icons/InsertDriveFile";
 import { ReactComponent as CloseIcon } from "components/Shared/Layout/Icons/Close.svg";
+import { Files } from "generated/graphql";
 import { FileWithSignedURL, downloadFilesWithSignedUrls } from "lib/api/files";
 import { formatDatetimeString } from "lib/date";
 import { useEffect, useState } from "react";
@@ -49,15 +50,62 @@ const CloseButton = styled(Button)`
 
 interface Props {
   isCountVisible?: boolean;
-  fileIds: string[];
   fileType: string;
-  deleteFileId?: (fileId: string) => void;
+  fileIds: Files["id"][];
+  frozenFileIds?: Files["id"][];
+  deleteFileId?: (fileId: Files["id"]) => void;
+}
+
+function FileDownloadThumnail({
+  frozenFileIds,
+  fileWithSignedUrl,
+  deleteFileId,
+}: {
+  frozenFileIds?: Files["id"][];
+  fileWithSignedUrl: FileWithSignedURL;
+  deleteFileId?: (fileId: Files["id"]) => void;
+}) {
+  // If no frozenFileIds array is provided, assume all files are frozen.
+  const isFileFrozen =
+    !frozenFileIds || frozenFileIds.includes(fileWithSignedUrl.id);
+
+  return (
+    <File key={fileWithSignedUrl.id}>
+      <FileLink
+        key={fileWithSignedUrl.id}
+        href={fileWithSignedUrl.url}
+        target={"_blank"}
+      >
+        <Box mr={1}>
+          <InsertDriveFileIcon />
+        </Box>
+        <FileLinkText>{fileWithSignedUrl.name}</FileLinkText>
+      </FileLink>
+      <FileRightSection>
+        {isFileFrozen && (
+          <Box mr={1}>
+            <Typography variant="subtitle2" color="textSecondary">
+              {`Uploaded ${formatDatetimeString(fileWithSignedUrl.created_at)}`}
+            </Typography>
+          </Box>
+        )}
+        {!isFileFrozen && deleteFileId && (
+          <CloseButton
+            onClick={() => deleteFileId && deleteFileId(fileWithSignedUrl.id)}
+          >
+            <CloseIcon />
+          </CloseButton>
+        )}
+      </FileRightSection>
+    </File>
+  );
 }
 
 export default function DownloadThumbnail({
   isCountVisible = true,
-  fileIds,
   fileType,
+  fileIds,
+  frozenFileIds,
   deleteFileId,
 }: Props) {
   const [filesWithSignedUrls, setFilesWithSignedUrls] = useState<
@@ -86,36 +134,12 @@ export default function DownloadThumbnail({
         {filesWithSignedUrls.length > 0 && (
           <Box display="flex" flexDirection="column" mt={1}>
             {filesWithSignedUrls.map((fileWithSignedUrl) => (
-              <File key={fileWithSignedUrl.id}>
-                <FileLink
-                  key={fileWithSignedUrl.id}
-                  href={fileWithSignedUrl.url}
-                  target={"_blank"}
-                >
-                  <Box mr={1}>
-                    <InsertDriveFileIcon />
-                  </Box>
-                  <FileLinkText>{fileWithSignedUrl.name}</FileLinkText>
-                </FileLink>
-                <FileRightSection>
-                  <Box mr={1}>
-                    <Typography variant="subtitle2" color="textSecondary">
-                      {`Uploaded ${formatDatetimeString(
-                        fileWithSignedUrl.created_at
-                      )}`}
-                    </Typography>
-                  </Box>
-                  {deleteFileId && (
-                    <CloseButton
-                      onClick={() =>
-                        deleteFileId && deleteFileId(fileWithSignedUrl.id)
-                      }
-                    >
-                      <CloseIcon />
-                    </CloseButton>
-                  )}
-                </FileRightSection>
-              </File>
+              <FileDownloadThumnail
+                key={fileWithSignedUrl.id}
+                frozenFileIds={frozenFileIds}
+                fileWithSignedUrl={fileWithSignedUrl}
+                deleteFileId={deleteFileId}
+              />
             ))}
           </Box>
         )}
