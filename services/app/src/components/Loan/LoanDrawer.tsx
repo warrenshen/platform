@@ -203,7 +203,10 @@ export default function LoanDrawer({ loanId, handleClose }: Props) {
               Recipient Vendor
             </Typography>
             <Typography variant={"body1"}>
-              {getCompanyDisplayName(loan.line_of_credit?.recipient_vendor)}
+              {getCompanyDisplayName(
+                loan.line_of_credit?.recipient_vendor,
+                "N/A"
+              )}
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>

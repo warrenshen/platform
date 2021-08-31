@@ -17,14 +17,15 @@ export function getCompanyDisplayName(
     | Pick<Companies, "id" | "name" | "dba_name">
     | Pick<Payors, "id" | "name" | "dba_name">
     | Pick<Vendors, "id" | "name" | "dba_name">
-    | null
+    | null,
+  defaultIfNull: string = "Unknown"
 ) {
   if (!company) {
-    return "Unknown";
+    return defaultIfNull;
   } else {
     return !!company.dba_name
       ? `${company.name} (DBA ${company.dba_name})`
-      : company.name || "Unkown";
+      : company.name || "Unknown";
   }
 }
 

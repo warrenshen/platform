@@ -62,7 +62,8 @@ export default function RepaymentsDataGrid({
           : null,
         submitted_by_name: payment.submitted_by_user?.full_name,
         payor_name:
-          getCompanyDisplayName(payment.invoice?.payor) || payment.company.name,
+          getCompanyDisplayName(payment.invoice?.payor, "") ||
+          payment.company.name,
       })),
     [isOther, payments]
   );
