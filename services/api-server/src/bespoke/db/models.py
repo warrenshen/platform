@@ -386,6 +386,7 @@ class MetrcApiKey(Base):
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	last_used_at = Column(DateTime)
 	is_functioning = Column(Boolean)
+	facilities_payload = Column(JSON)
 	status_codes_payload = Column(JSON)
 
 class MetrcPlant(Base):

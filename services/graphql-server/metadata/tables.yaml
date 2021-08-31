@@ -2677,6 +2677,7 @@
       columns:
       - company_id
       - created_at
+      - facilities_payload
       - id
       - is_functioning
       - last_used_at
@@ -2687,6 +2688,7 @@
       columns:
       - company_id
       - created_at
+      - facilities_payload
       - id
       - is_functioning
       - last_used_at

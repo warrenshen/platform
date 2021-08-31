@@ -60,19 +60,29 @@ ApisToUseDict = TypedDict('ApisToUseDict', {
 	'plant_batches': bool
 })
 
+FacilityLicenseDict = TypedDict('FacilityLicenseDict', {
+	'Number': str
+})
+
 FacilityInfoDict = TypedDict('FacilityInfoDict', {
-	'license_number': str
+	'License': FacilityLicenseDict
+})
+
+FacilitiesPayloadDict = TypedDict('FacilitiesPayloadDict', {
+	'facilities': List[FacilityInfoDict]
 })
 
 class CompanyInfo(object):
 
 	def __init__(self, company_id: str, name: str, licenses: List[LicenseAuthDict],
-										 metrc_api_key_id: str, apis_to_use: ApisToUseDict) -> None:
+										 metrc_api_key_id: str, apis_to_use: ApisToUseDict,
+										 facilities_payload: FacilitiesPayloadDict) -> None:
 		self.company_id = company_id
 		self.name = name
 		self.licenses = licenses
 		self.metrc_api_key_id = metrc_api_key_id
 		self.apis_to_use = apis_to_use
+		self.facilities_payload = facilities_payload
 
 class DownloadContext(object):
 	"""
@@ -156,14 +166,7 @@ def get_facilities(auth_dict: AuthDict, us_state: str) -> List[FacilityInfoDict]
 			details={'status_code': resp.status_code})
 
 	facilities_arr = json.loads(resp.content)
-
-	facility_dicts = []
-	for facility_json in facilities_arr:
-		facility_dicts.append(FacilityInfoDict(
-			license_number=facility_json['License']['Number']
-		))
-
-	return facility_dicts
+	return facilities_arr
 
 
 class REST(object):

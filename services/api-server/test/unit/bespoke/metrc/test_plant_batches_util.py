@@ -43,7 +43,8 @@ class TestPopulatePlantBatchesTable(db_unittest.TestCase):
 				name='Company 1',
 				licenses=[], # unused
 				metrc_api_key_id='',
-				apis_to_use=metrc_common_util.get_default_apis_to_use()
+				apis_to_use=metrc_common_util.get_default_apis_to_use(),
+				facilities_payload=None,
 			),
 			license_auth=LicenseAuthDict(
 				license_id=license_id,

@@ -189,13 +189,13 @@ def _get_metrc_company_info(
 		license_auths = []
 		use_unsaved_licenses = True # Can change to False for debugging, such as when a customer has many licenses
 
-		facilities = metrc_common_util.get_facilities(AuthDict(
+		facilities_arr = metrc_common_util.get_facilities(AuthDict(
 			vendor_key=vendor_key,
 			user_key=api_key
 		), us_state)
 
-		for facility in facilities:
-			license_number = facility['license_number']
+		for facility_info in facilities_arr:
+			license_number = facility_info['License']['Number']
 			license_id = None
 			if license_number in licenses_map:
 				license_id = licenses_map[license_number]['id']
@@ -219,7 +219,10 @@ def _get_metrc_company_info(
 			name=company_name,
 			licenses=license_auths,
 			metrc_api_key_id=str(metrc_api_key.id),
-			apis_to_use=metrc_common_util.get_default_apis_to_use()
+			apis_to_use=metrc_common_util.get_default_apis_to_use(),
+			facilities_payload=metrc_common_util.FacilitiesPayloadDict(
+				facilities=facilities_arr 
+			)
 		), None
 
 def _download_data(
@@ -321,6 +324,7 @@ def _download_data(
 			metrc_api_key.is_functioning = functioning_licenses_count > 0 # Metrc API key is "functioning" if at least one license is functioning
 			metrc_api_key.last_used_at = date_util.now()
 			metrc_api_key.status_codes_payload = license_to_statuses
+			metrc_api_key.facilities_payload = cast(Dict, company_info.facilities_payload)
 
 	if errs:
 		return DownloadDataRespDict(
