@@ -122,9 +122,9 @@ export default function CreateAdvanceModal({
     });
 
     if (response.status !== "OK") {
-      snackbar.showError(`Could not create advance(s). Error: ${response.msg}`);
+      snackbar.showError(`Could not create advance. Message: ${response.msg}`);
     } else {
-      snackbar.showSuccess("Advance(s) created.");
+      snackbar.showSuccess("Advance created.");
       handleClose();
     }
   };

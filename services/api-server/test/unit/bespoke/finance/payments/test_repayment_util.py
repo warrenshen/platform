@@ -114,7 +114,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 			amount=test['payment_input_amount'],
 			deposit_date=test['deposit_date'],
 			settlement_date=test['settlement_date'],
-			loan_ids=loan_ids,
+			items_covered={ 'loan_ids': loan_ids },
 			should_pay_principal_first=False,
 			session_maker=session_maker
 		)

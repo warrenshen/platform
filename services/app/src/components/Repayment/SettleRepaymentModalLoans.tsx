@@ -53,6 +53,8 @@ export default function SettleRepaymentModalLoans({
   // they have to "confirm" what they have selected.
   const [isOnSelectLoans, setIsOnSelectLoans] = useState(true);
   const [errMsg, setErrMsg] = useState("");
+  // Whether "Apply payment to account fees?" is checked.
+  const [isAccountFeesChecked, setIsAccountFeesChecked] = useState(false);
 
   const contract = customer?.contract || null;
   const productType = customer?.contract?.product_type || null;
@@ -105,12 +107,10 @@ export default function SettleRepaymentModalLoans({
         amount: payment.amount,
         deposit_date: payment.deposit_date,
         settlement_date: payment.settlement_date,
-        loan_ids: payment.items_covered.loan_ids,
+        items_covered: payment.items_covered,
         should_pay_principal_first: shouldPayPrincipalFirst,
       },
     });
-
-    console.log({ type: "calculateRepaymentEffect", response });
 
     if (response.status !== "OK") {
       setErrMsg(response.msg || "");
@@ -233,7 +233,11 @@ export default function SettleRepaymentModalLoans({
   // TODO(warrenshen): also check if payment.items_covered is valid.
   const isSubmitButtonDisabled = isNextButtonDisabled;
 
-  return payment && customer ? (
+  if (!payment || !customer) {
+    return null;
+  }
+
+  return (
     <Modal
       isPrimaryActionDisabled={
         isOnSelectLoans ? isNextButtonDisabled : isSubmitButtonDisabled
@@ -252,10 +256,12 @@ export default function SettleRepaymentModalLoans({
     >
       {isOnSelectLoans ? (
         <SettleRepaymentSelectLoans
+          isAccountFeesChecked={isAccountFeesChecked}
           shouldPayPrincipalFirst={shouldPayPrincipalFirst}
           payment={payment}
           customer={customer}
           payor={payor!}
+          setIsAccountFeesChecked={setIsAccountFeesChecked}
           setPayment={setPayment}
           setShouldPayPrincipalFirst={setShouldPayPrincipalFirst}
         />
@@ -283,5 +289,5 @@ export default function SettleRepaymentModalLoans({
         </Box>
       )}
     </Modal>
-  ) : null;
+  );
 }

@@ -137,13 +137,13 @@ def calculate_repayment_effect(
 	amount: float,
 	deposit_date: str,
 	settlement_date: str,
-	loan_ids: List[str],
+	items_covered: payment_types.PaymentItemsCoveredDict,
 	should_pay_principal_first: bool,
 	session_maker: Callable
 ) -> Tuple[RepaymentEffectRespDict, errors.Error]:
 	# What loans and fees does would this payment pay off?
 
-	err_details = {'company_id': company_id, 'loan_ids': loan_ids, 'method': 'calculate_repayment_effect'}
+	err_details = {'company_id': company_id, 'items_covered': items_covered, 'method': 'calculate_repayment_effect'}
 
 	if payment_option == RepaymentOption.CUSTOM_AMOUNT:
 		if not number_util.is_number(amount) or amount <= 0:
@@ -154,6 +154,11 @@ def calculate_repayment_effect(
 
 	if not settlement_date:
 		raise errors.Error('Settlement date must be specified')
+
+	if 'loan_ids' not in items_covered:
+		raise errors.Error('items_covered.loan_ids must be specified', details=err_details)
+
+	loan_ids = items_covered['loan_ids']
 
 	payment_deposit_date = date_util.load_date_str(deposit_date)
 	payment_settlement_date = date_util.load_date_str(settlement_date)

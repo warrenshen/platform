@@ -98,7 +98,7 @@ export async function calculateRepaymentEffectMutation(req: {
     amount: number;
     deposit_date: string;
     settlement_date: string;
-    loan_ids: string[];
+    items_covered: any;
     should_pay_principal_first: boolean;
   };
 }): Promise<CalculateRepaymentEffectResp> {

@@ -105,7 +105,7 @@ class CalculateRepaymentEffectView(MethodView):
 			'amount',
 			'deposit_date',
 			'settlement_date',
-			'loan_ids',
+			'items_covered',
 			'should_pay_principal_first',
 		]
 		for key in required_keys:
@@ -123,7 +123,7 @@ class CalculateRepaymentEffectView(MethodView):
 		amount = form['amount']
 		deposit_date = form['deposit_date']
 		settlement_date = form['settlement_date']
-		loan_ids = form['loan_ids']
+		items_covered = form['items_covered']
 		should_pay_principal_first = form.get('should_pay_principal_first')
 
 		# NOTE: Fetching information is likely a slow task, so we probably want to
@@ -134,7 +134,7 @@ class CalculateRepaymentEffectView(MethodView):
 			amount,
 			deposit_date,
 			settlement_date,
-			loan_ids,
+			items_covered,
 			should_pay_principal_first,
 			current_app.session_maker,
 		)

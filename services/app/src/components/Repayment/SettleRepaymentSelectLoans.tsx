@@ -34,19 +34,23 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
+  isAccountFeesChecked: boolean;
   shouldPayPrincipalFirst: boolean;
   payment: PaymentsInsertInput;
   customer: Companies;
   payor: PayorFragment;
+  setIsAccountFeesChecked: React.Dispatch<React.SetStateAction<boolean>>;
   setPayment: React.Dispatch<React.SetStateAction<PaymentsInsertInput>>;
   setShouldPayPrincipalFirst: (shouldPayPrincipalFirst: boolean) => void;
 }
 
 export default function SettleRepaymentSelectLoans({
+  isAccountFeesChecked,
   shouldPayPrincipalFirst,
   payment,
   customer,
   payor,
+  setIsAccountFeesChecked,
   setPayment,
   setShouldPayPrincipalFirst,
 }: Props) {
@@ -132,7 +136,11 @@ export default function SettleRepaymentSelectLoans({
     [setPayment]
   );
 
-  return payment && customer && payor ? (
+  if (!payment || !customer || !payor) {
+    return null;
+  }
+
+  return (
     <Box>
       <Box display="flex" flexDirection="column">
         <Typography variant="body1">
@@ -143,24 +151,22 @@ export default function SettleRepaymentSelectLoans({
         </Box>
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
-        <Box display="flex" flexDirection="column">
-          <Box mb={1}>
-            <Typography variant="subtitle2">
-              Specify actual total amount of this payment.
-            </Typography>
-          </Box>
-          <FormControl className={classes.inputField}>
-            <CurrencyInput
-              label={"Total Amount"}
-              value={payment.amount}
-              handleChange={(value) =>
-                setPayment({ ...payment, amount: value })
-              }
-            />
-          </FormControl>
+        <Box mb={1}>
+          <Typography variant="body1">
+            Specify actual total amount of this payment.
+          </Typography>
         </Box>
-        <Box mt={4} mb={1}>
-          <Typography variant="subtitle2">
+        <FormControl className={classes.inputField}>
+          <CurrencyInput
+            label={"Total Amount"}
+            value={payment.amount}
+            handleChange={(value) => setPayment({ ...payment, amount: value })}
+          />
+        </FormControl>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={4}>
+        <Box mb={1}>
+          <Typography variant="body1">
             Specify Deposit Date and Settlement Date.
           </Typography>
         </Box>
@@ -215,18 +221,24 @@ export default function SettleRepaymentSelectLoans({
         </Box>
       </Box>
       {productType !== ProductTypeEnum.LineOfCredit && (
-        <>
-          <Box display="flex" flexDirection="column" mt={4}>
-            <Box mb={1}>
-              <Typography variant="subtitle2">
-                {`Select which loans this payment will apply towards. The loans that ${customer.name} suggested are pre-selected, but the final selection is up to your discretion.`}
-              </Typography>
-            </Box>
-            <Typography variant="subtitle1">Selected loans</Typography>
+        <Box display="flex" flexDirection="column" mt={4}>
+          <Box mb={1}>
+            <Typography variant="body1">
+              Select loans to apply this payment towards.
+            </Typography>
+            <Typography variant="subtitle2" color="textSecondary">
+              {`If ${customer.name} selected loans during "Create Repayment", those loan will be pre-selected below.`}
+            </Typography>
+          </Box>
+          <Box mt={2}>
+            <Typography variant="subtitle1" color="textSecondary">
+              <b>Selected loans</b>
+            </Typography>
             <LoansDataGrid
               isArtifactVisible
               isDaysPastDueVisible
               isDisbursementIdentifierVisible
+              isExcelExport={false}
               isMaturityVisible
               isSortingDisabled
               pager={false}
@@ -235,11 +247,14 @@ export default function SettleRepaymentSelectLoans({
             />
           </Box>
           <Box mt={4}>
-            <Typography variant="subtitle1">Not selected loans</Typography>
+            <Typography variant="subtitle1" color="textSecondary">
+              <b>Not selected loans</b>
+            </Typography>
             <LoansDataGrid
               isArtifactVisible
               isDaysPastDueVisible
               isDisbursementIdentifierVisible
+              isExcelExport={false}
               isMaturityVisible
               isSortingDisabled
               pageSize={25}
@@ -247,12 +262,48 @@ export default function SettleRepaymentSelectLoans({
               actionItems={notSelectedLoansActionItems}
             />
           </Box>
-        </>
+        </Box>
+      )}
+      {isAccountFeesChecked && (
+        <Box display="flex" flexDirection="column" mt={4}>
+          <Box mb={1}>
+            <Typography variant="body1">
+              Select how much of payment to apply to account-level fees.
+            </Typography>
+          </Box>
+          <FormControl className={classes.inputField}>
+            <CurrencyInput
+              label={"Amount To Account Fees"}
+              value={payment.items_covered.to_account_fees}
+              handleChange={(value) =>
+                setPayment({
+                  ...payment,
+                  items_covered: {
+                    ...payment.items_covered,
+                    to_account_fees: value,
+                  },
+                })
+              }
+            />
+          </FormControl>
+        </Box>
       )}
       <Box display="flex" flexDirection="column" mt={4}>
-        <Typography variant="body1" color="textSecondary">
-          Advanced settings
-        </Typography>
+        <Box mb={1}>
+          <Typography variant="body1">Advanced settings</Typography>
+        </Box>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={isAccountFeesChecked}
+              onChange={(event) =>
+                setIsAccountFeesChecked(event.target.checked)
+              }
+              color="primary"
+            />
+          }
+          label={"Apply portion of payment to account-level fees?"}
+        />
         <FormControlLabel
           control={
             <Checkbox
@@ -269,5 +320,5 @@ export default function SettleRepaymentSelectLoans({
         />
       </Box>
     </Box>
-  ) : null;
+  );
 }

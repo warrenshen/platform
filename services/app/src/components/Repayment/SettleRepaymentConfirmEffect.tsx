@@ -155,22 +155,41 @@ export default function SettleRepaymentConfirmEffect({
           </Box>
         )}
       </Box>
-      <Box display="flex" flexDirection="column" mt={2}>
-        <FormControl>
-          <CurrencyInput
-            label={"Amount to Holding Account"}
-            value={payment.items_covered.to_user_credit}
-            handleChange={(value) =>
-              setPayment({
-                ...payment,
-                items_covered: {
-                  ...payment.items_covered,
-                  to_user_credit: value,
-                },
-              })
-            }
-          />
-        </FormControl>
+      <Box display="flex" flexDirection="column" mt={4}>
+        <Box display="flex" flexDirection="column" mt={2}>
+          <FormControl>
+            <CurrencyInput
+              label={"Amount To Account Fees"}
+              value={payment.items_covered.to_account_fees}
+              handleChange={(value) =>
+                setPayment({
+                  ...payment,
+                  items_covered: {
+                    ...payment.items_covered,
+                    to_account_fees: value,
+                  },
+                })
+              }
+            />
+          </FormControl>
+        </Box>
+        <Box display="flex" flexDirection="column" mt={2}>
+          <FormControl>
+            <CurrencyInput
+              label={"Amount To Holding Account"}
+              value={payment.items_covered.to_user_credit}
+              handleChange={(value) =>
+                setPayment({
+                  ...payment,
+                  items_covered: {
+                    ...payment.items_covered,
+                    to_user_credit: value,
+                  },
+                })
+              }
+            />
+          </FormControl>
+        </Box>
       </Box>
     </Box>
   );
