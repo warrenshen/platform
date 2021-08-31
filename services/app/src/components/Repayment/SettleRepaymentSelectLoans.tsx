@@ -34,23 +34,29 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
-  isAccountFeesChecked: boolean;
+  isAmountToAccountFeesChecked: boolean;
+  isAmountToLoansChecked: boolean;
   shouldPayPrincipalFirst: boolean;
   payment: PaymentsInsertInput;
   customer: Companies;
   payor: PayorFragment;
-  setIsAccountFeesChecked: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsAmountToAccountFeesChecked: React.Dispatch<
+    React.SetStateAction<boolean>
+  >;
+  setIsAmountToLoansChecked: React.Dispatch<React.SetStateAction<boolean>>;
   setPayment: React.Dispatch<React.SetStateAction<PaymentsInsertInput>>;
   setShouldPayPrincipalFirst: (shouldPayPrincipalFirst: boolean) => void;
 }
 
 export default function SettleRepaymentSelectLoans({
-  isAccountFeesChecked,
+  isAmountToAccountFeesChecked,
+  isAmountToLoansChecked,
   shouldPayPrincipalFirst,
   payment,
   customer,
   payor,
-  setIsAccountFeesChecked,
+  setIsAmountToAccountFeesChecked,
+  setIsAmountToLoansChecked,
   setPayment,
   setShouldPayPrincipalFirst,
 }: Props) {
@@ -220,7 +226,7 @@ export default function SettleRepaymentSelectLoans({
           </Typography>
         </Box>
       </Box>
-      {productType !== ProductTypeEnum.LineOfCredit && (
+      {isAmountToLoansChecked && productType !== ProductTypeEnum.LineOfCredit && (
         <Box display="flex" flexDirection="column" mt={4}>
           <Box mb={1}>
             <Typography variant="body1">
@@ -264,7 +270,7 @@ export default function SettleRepaymentSelectLoans({
           </Box>
         </Box>
       )}
-      {isAccountFeesChecked && (
+      {isAmountToAccountFeesChecked && (
         <Box display="flex" flexDirection="column" mt={4}>
           <Box mb={1}>
             <Typography variant="body1">
@@ -295,9 +301,21 @@ export default function SettleRepaymentSelectLoans({
         <FormControlLabel
           control={
             <Checkbox
-              checked={isAccountFeesChecked}
+              checked={isAmountToLoansChecked}
               onChange={(event) =>
-                setIsAccountFeesChecked(event.target.checked)
+                setIsAmountToLoansChecked(event.target.checked)
+              }
+              color="primary"
+            />
+          }
+          label={"Apply portion of payment to loan(s)?"}
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={isAmountToAccountFeesChecked}
+              onChange={(event) =>
+                setIsAmountToAccountFeesChecked(event.target.checked)
               }
               color="primary"
             />

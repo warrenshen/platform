@@ -13,7 +13,7 @@ import {
   PaymentTypeEnum,
   PaymentOptionEnum,
 } from "lib/enum";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface Props {
   paymentId: Payments["id"];
@@ -27,6 +27,14 @@ export default function SettleRepaymentModal({
   const [customer, setCustomer] = useState<Companies | null>(null);
   const [payor, setPayor] = useState<PayorFragment | null>(null);
   const [payment, setPayment] = useState<PaymentsInsertInput>({});
+
+  // Whether "Apply payment to account fees?" is checked.
+  const [
+    isAmountToAccountFeesChecked,
+    setIsAmountToAccountFeesChecked,
+  ] = useState(false);
+  // Whether "Apply payment to loans?" is checked.
+  const [isAmountToLoansChecked, setIsAmountToLoansChecked] = useState(false);
 
   useGetPaymentForSettlementQuery({
     fetchPolicy: "network-only",
@@ -83,11 +91,42 @@ export default function SettleRepaymentModal({
             to_user_credit: 0.0,
           },
         } as PaymentsInsertInput);
+        // Initialize starting value for "Apply portion of payment to account-level fees?".
+        if (!!existingPayment.items_covered.requested_to_account_fees) {
+          setIsAmountToAccountFeesChecked(true);
+        }
+        // Initialize starting value for "Apply portion of payment to loan(s)?".
+        if (!!existingPayment.items_covered.loan_ids) {
+          setIsAmountToLoansChecked(true);
+        }
       } else {
         alert("Existing payment not found");
       }
     },
   });
+
+  useEffect(() => {
+    if (
+      !isAmountToLoansChecked &&
+      !!payment.items_covered?.loan_ids &&
+      payment.items_covered.loan_ids.length > 0
+    ) {
+      // If "Apply portion of payment to loan(s)" is not checked,
+      // ensure that no loans are selected in payment.items_covered.
+      setPayment((payment) => ({
+        ...payment,
+        items_covered: {
+          ...payment.items_covered,
+          loan_ids: [],
+        },
+      }));
+    }
+  }, [
+    isAmountToLoansChecked,
+    payment.items_covered?.loan_ids,
+    setIsAmountToLoansChecked,
+    setPayment,
+  ]);
 
   if (!payment || !customer || !payor) {
     return null;
@@ -106,9 +145,13 @@ export default function SettleRepaymentModal({
     />
   ) : (
     <SettleRepaymentModalLoans
+      isAmountToAccountFeesChecked={isAmountToAccountFeesChecked}
+      isAmountToLoansChecked={isAmountToLoansChecked}
       customer={customer}
       payor={payor}
       payment={payment}
+      setIsAmountToAccountFeesChecked={setIsAmountToAccountFeesChecked}
+      setIsAmountToLoansChecked={setIsAmountToLoansChecked}
       setPayment={setPayment}
       handleClose={handleClose}
     />

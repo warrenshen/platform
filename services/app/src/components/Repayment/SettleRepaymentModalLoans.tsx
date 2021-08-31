@@ -32,17 +32,27 @@ import {
 import { useEffect, useMemo, useState } from "react";
 
 interface Props {
+  isAmountToAccountFeesChecked: boolean;
+  isAmountToLoansChecked: boolean;
   customer: Companies;
   payor: PayorFragment;
   payment: PaymentsInsertInput;
+  setIsAmountToAccountFeesChecked: React.Dispatch<
+    React.SetStateAction<boolean>
+  >;
+  setIsAmountToLoansChecked: React.Dispatch<React.SetStateAction<boolean>>;
   setPayment: React.Dispatch<React.SetStateAction<PaymentsInsertInput>>;
   handleClose: () => void;
 }
 
 export default function SettleRepaymentModalLoans({
+  isAmountToAccountFeesChecked,
+  isAmountToLoansChecked,
   customer,
   payor,
   payment,
+  setIsAmountToAccountFeesChecked,
+  setIsAmountToLoansChecked,
   setPayment,
   handleClose,
 }: Props) {
@@ -53,8 +63,6 @@ export default function SettleRepaymentModalLoans({
   // they have to "confirm" what they have selected.
   const [isOnSelectLoans, setIsOnSelectLoans] = useState(true);
   const [errMsg, setErrMsg] = useState("");
-  // Whether "Apply payment to account fees?" is checked.
-  const [isAccountFeesChecked, setIsAccountFeesChecked] = useState(false);
 
   const contract = customer?.contract || null;
   const productType = customer?.contract?.product_type || null;
@@ -256,12 +264,14 @@ export default function SettleRepaymentModalLoans({
     >
       {isOnSelectLoans ? (
         <SettleRepaymentSelectLoans
-          isAccountFeesChecked={isAccountFeesChecked}
+          isAmountToAccountFeesChecked={isAmountToAccountFeesChecked}
+          isAmountToLoansChecked={isAmountToLoansChecked}
           shouldPayPrincipalFirst={shouldPayPrincipalFirst}
           payment={payment}
           customer={customer}
           payor={payor!}
-          setIsAccountFeesChecked={setIsAccountFeesChecked}
+          setIsAmountToAccountFeesChecked={setIsAmountToAccountFeesChecked}
+          setIsAmountToLoansChecked={setIsAmountToLoansChecked}
           setPayment={setPayment}
           setShouldPayPrincipalFirst={setShouldPayPrincipalFirst}
         />
