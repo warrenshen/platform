@@ -41,6 +41,7 @@ class TestPopulatePackagesTable(db_unittest.TestCase):
 		license_id = str(uuid.uuid4())
 
 		ctx = metrc_common_util.DownloadContext(
+			sendgrid_client=None,
 			cur_date=date_util.load_date_str('1/1/2020'),
 			company_info=CompanyInfo(
 				company_id=company_id,

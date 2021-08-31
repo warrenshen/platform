@@ -236,6 +236,7 @@ class DownloadMetrcDataView(MethodView):
 	def post(self) -> Response:
 		logging.info("Received request to download metrc data for all customers")
 		cfg = cast(Config, current_app.app_config)
+		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
 		data = json.loads(request.data)
 
@@ -277,6 +278,7 @@ class DownloadMetrcDataView(MethodView):
 				resp, fatal_err = metrc_util.download_data_for_one_customer(
 					auth_provider=cfg.get_metrc_auth_provider(),
 					security_cfg=cfg.get_security_config(),
+					sendgrid_client=sendgrid_client,
 					cur_date=cur_date,
 					company_id=company_id,
 					session_maker=current_app.session_maker
@@ -386,10 +388,12 @@ class ExecuteAsyncTasksView(MethodView):
 	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
 		cfg = cast(Config, current_app.app_config)
+		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
 		resp = orchestrator.handle_async_tasks(ctx=orchestrator.Context(
 			session_maker=current_app.session_maker,
 			metrc_auth_provider=cfg.get_metrc_auth_provider(),
+			sendgrid_client=sendgrid_client,
 			security_cfg=cfg.get_security_config()
 		))
 		return make_response(json.dumps({'status': 'OK', 'resp': resp}))

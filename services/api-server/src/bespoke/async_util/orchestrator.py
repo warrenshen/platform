@@ -9,18 +9,21 @@ from bespoke.config.config_util import MetrcAuthProvider
 from bespoke.date import date_util
 from bespoke.db import models, models_util
 from bespoke.db.models import session_scope
+from bespoke.email import sendgrid_util
 from bespoke.security import security_util
 from bespoke.metrc import metrc_util
 
 class Context(object):
 
 	def __init__(self, 
-		session_maker: Callable, 
+		session_maker: Callable,
 		metrc_auth_provider: MetrcAuthProvider,
+		sendgrid_client: sendgrid_util.Client,
 		security_cfg: security_util.ConfigDict
 	) -> None:
 		self.session_maker = session_maker
 		self.metrc_auth_provider = metrc_auth_provider
+		self.sendgrid_client = sendgrid_client
 		self.security_cfg = security_cfg
 
 StepUpdateRespDict = TypedDict('StepUpdateRespDict', {
@@ -62,6 +65,7 @@ def _sync_metrc_data_all_customers(p: models.AsyncPipelineDict, ctx: Context) ->
 		resp, fatal_err = metrc_util.download_data_for_one_customer(
 			company_id=company_id,
 			auth_provider=ctx.metrc_auth_provider,
+			sendgrid_client=ctx.sendgrid_client,
 			security_cfg=ctx.security_cfg,
 			cur_date=cur_date,
 			session_maker=ctx.session_maker
@@ -102,6 +106,7 @@ def _sync_metrc_data_per_customer(p: models.AsyncPipelineDict, ctx: Context) -> 
 	resp, fatal_err = metrc_util.download_data_for_one_customer(
 		company_id=p['params']['company_id'],
 		auth_provider=ctx.metrc_auth_provider,
+		sendgrid_client=ctx.sendgrid_client,
 		security_cfg=ctx.security_cfg,
 		cur_date=cur_date,
 		session_maker=ctx.session_maker

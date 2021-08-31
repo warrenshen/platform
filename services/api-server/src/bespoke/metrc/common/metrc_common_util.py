@@ -4,6 +4,7 @@ import logging
 import requests
 import time
 from bespoke import errors
+from bespoke.email import sendgrid_util
 from dateutil import parser
 from mypy_extensions import TypedDict
 from requests.auth import HTTPBasicAuth
@@ -78,7 +79,7 @@ class DownloadContext(object):
 		Context object to contain information when we fetch from various parts of Metrc
 	"""
 
-	def __init__(self, cur_date: datetime.date, company_info: CompanyInfo, 
+	def __init__(self, sendgrid_client: sendgrid_util.Client, cur_date: datetime.date, company_info: CompanyInfo, 
 										 license_auth: LicenseAuthDict, debug: bool) -> None:
 		self.cur_date = cur_date
 		self.request_status = RequestStatusesDict(
@@ -96,6 +97,7 @@ class DownloadContext(object):
 		self.company_info = company_info
 		self.apis_to_use = company_info.apis_to_use
 		self.rest = REST(
+			sendgrid_client,
 			AuthDict(
 				vendor_key=license_auth['vendor_key'],
 				user_key=license_auth['user_key']
@@ -166,11 +168,12 @@ def get_facilities(auth_dict: AuthDict, us_state: str) -> List[FacilityInfoDict]
 
 class REST(object):
 
-	def __init__(self, auth_dict: AuthDict, license_number: str, us_state: str, debug: bool = False) -> None:
+	def __init__(self, sendgrid_client: sendgrid_util.Client, auth_dict: AuthDict, license_number: str, us_state: str, debug: bool = False) -> None:
 		self.auth = HTTPBasicAuth(auth_dict['vendor_key'], auth_dict['user_key'])
 		self.license_number = license_number
 		self.base_url = _get_base_url(us_state)
 		self.debug = debug
+		self.sendgrid_client = sendgrid_client
 
 	def get(self, path: str, time_range: List = None) -> requests.models.Response:
 		url = self.base_url + path
@@ -216,6 +219,15 @@ class REST(object):
 			time.sleep(1 + (i * 3))
 
 		# After retries, we are unsuccessful: raise the last error we saw
+		self.sendgrid_client.send(
+			template_name=sendgrid_util.TemplateNames.SYNC_METRC_DATA_ERROR_CREATED,
+			template_data={
+				'msg': str(e),
+				'traceback': e.traceback,
+				'details': '{}'.format(e.details)
+			},
+			recipients=self.sendgrid_client.get_ops_email_addresses()
+		)
 		raise e
 
 def chunker(seq: List, size: int) -> Iterable[List]:

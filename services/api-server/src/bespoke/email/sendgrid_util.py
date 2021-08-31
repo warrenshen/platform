@@ -74,6 +74,7 @@ class TemplateNames(object):
 	USER_TWO_FACTOR_CODE = 'user_two_factor_code'
 
 	OPS_TRIGGER_NOTIFICATION = 'ops_trigger_notification'
+	SYNC_METRC_DATA_ERROR_CREATED = 'sync_metrc_data_error_created'
 
 
 TemplateConfigDict = TypedDict('TemplateConfigDict', {
@@ -296,6 +297,9 @@ class Client(object):
 
 	def get_bank_notify_email_addresses(self) -> List[str]:
 		return self._cfg['bank_notify_email_addresses']
+
+	def get_ops_email_addresses(self) -> List[str]:
+		return self._cfg['ops_email_addresses']
 
 	def send(
 		self,

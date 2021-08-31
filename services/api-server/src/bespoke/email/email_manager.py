@@ -30,6 +30,7 @@ EmailConfigDict = TypedDict(
 		'sendgrid_config': SendGridConfigDict,
 		'flask_env': str,
 		'no_reply_email_addr': str,
+		'ops_email_addresses': List[str],
 		'bank_notify_email_addresses': List[str]
 	})
 

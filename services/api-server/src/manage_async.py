@@ -61,7 +61,8 @@ email_config = EmailConfigDict(
 	),
 	flask_env=config.FLASK_ENV,
 	no_reply_email_addr=config.NO_REPLY_EMAIL_ADDRESS,
-	bank_notify_email_addresses=config.BANK_NOTIFY_EMAIL_ADDRESSES
+	bank_notify_email_addresses=config.BANK_NOTIFY_EMAIL_ADDRESSES,
+	ops_email_addresses=config.OPS_EMAIL_ADDRESSES
 )
 email_client = email_manager.new_client(email_config)
 app.sendgrid_client = sendgrid_util.Client(

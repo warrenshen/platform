@@ -72,6 +72,7 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 			session.add(pkg3)
 
 		ctx = metrc_common_util.DownloadContext(
+			sendgrid_client=None,
 			cur_date=date_util.load_date_str('1/1/2020'),
 			company_info=CompanyInfo(
 				company_id=company_id,

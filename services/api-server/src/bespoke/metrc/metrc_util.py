@@ -11,6 +11,7 @@ from bespoke.config.config_util import MetrcAuthProvider
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
+from bespoke.email import sendgrid_util
 from bespoke.finance import contract_util
 from bespoke.metrc import (
 	transfers_util, sales_util, 
@@ -224,6 +225,7 @@ def _get_metrc_company_info(
 def _download_data(
 	company_id: str,
 	auth_provider: MetrcAuthProvider,
+	sendgrid_client: sendgrid_util.Client,
 	security_cfg: security_util.ConfigDict,
 	cur_date: datetime.date,
 	session_maker: Callable
@@ -249,7 +251,7 @@ def _download_data(
 
 	for license in company_info.licenses:
 
-		ctx = metrc_common_util.DownloadContext(cur_date, company_info, license, debug=False)
+		ctx = metrc_common_util.DownloadContext(sendgrid_client, cur_date, company_info, license, debug=False)
 
 		logging.info('Running download metrc data for company "{}" for last modified date {} with license {}'.format(
 			ctx.company_info.name, cur_date, license['license_number']
@@ -334,6 +336,7 @@ def _download_data(
 def download_data_for_one_customer(
 	company_id: str,
 	auth_provider: MetrcAuthProvider,
+	sendgrid_client: sendgrid_util.Client,
 	security_cfg: security_util.ConfigDict,
 	cur_date: datetime.date,
 	session_maker: Callable
@@ -342,6 +345,7 @@ def download_data_for_one_customer(
 	return _download_data(
 		company_id=company_id,
 		auth_provider=auth_provider,
+		sendgrid_client=sendgrid_client,
 		security_cfg=security_cfg,
 		cur_date=cur_date,
 		session_maker=session_maker

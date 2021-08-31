@@ -9,6 +9,7 @@ from bespoke.audit import events
 from bespoke.async_util.pipeline_constants import PipelineName, PipelineState
 from bespoke.db import db_constants, models, models_util
 from bespoke.db.models import session_scope
+from bespoke.email import sendgrid_util
 from bespoke.metrc import metrc_util, transfers_util
 from bespoke.metrc.common import metrc_common_util
 from dateutil import parser
@@ -101,6 +102,7 @@ class SyncMetrcDataPerCustomerView(MethodView):
 	def post(self) -> Response:
 		logging.info("Received request to download metrc data for 1 customer using the SYNC endpoint")
 		cfg = cast(Config, current_app.app_config)
+		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
 		data = json.loads(request.data)
 
@@ -134,6 +136,7 @@ class SyncMetrcDataPerCustomerView(MethodView):
 				resp, fatal_err = metrc_util.download_data_for_one_customer(
 					company_id=data['company_id'],
 					auth_provider=cfg.get_metrc_auth_provider(),
+					sendgrid_client=sendgrid_client,
 					security_cfg=cfg.get_security_config(),
 					cur_date=cur_date,
 					session_maker=current_app.session_maker
