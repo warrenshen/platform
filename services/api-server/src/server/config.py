@@ -27,6 +27,11 @@ class Config(object):
 		self.JWT_BLACKLIST_ENABLED = True
 		self.JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
 
+		# DB:
+		# DATABASE_URL
+		# DB_MAX_OVERFLOW
+		# DB_POOL_SIZE
+
 		# General
 		self.FLASK_ENV = os.environ.get('FLASK_ENV')
 		self.IS_TEST_ENV = self.FLASK_ENV == 'test' or _string_to_bool(os.environ.get('IS_TEST_ENV'))

@@ -61,16 +61,17 @@ def get_db_url() -> str:
 
 
 def create_engine() -> Engine:
-	max_overflow = 2 
-	pool_size = 3
+	is_prod = is_prod_env(os.environ.get('FLASK_ENV'))
+	default_max_overflow = 2 if is_prod else 1
+	default_pool_size = 3 if is_prod else 1
 
-	if not is_prod_env(os.environ.get('FLASK_ENV')):
-		# Staging DB has 20 connections
-		# Assuming 5 are taken up by GraphQL
-		# we allow for 2 per thread, 6 threads total (4 api-server, 2 api-server async)
-		# therefore 2 * 6 + 5 = 17 which is under the 20 limit
-		max_overflow = 1
-		pool_size = 1
+	max_overflow = int(os.environ.get('DB_MAX_OVERFLOW', default_max_overflow))
+	pool_size = int(os.environ.get('DB_POOL_SIZE', default_pool_size))
+	
+	# Staging DB has 20 connections
+	# Assuming 5 are taken up by GraphQL
+	# we allow for 2 per thread, 6 threads total (4 api-server, 2 api-server async)
+	# therefore 2 * 6 + 5 = 17 which is under the 20 limit
 
 	return sqlalchemy.create_engine(
 		get_db_url(),
