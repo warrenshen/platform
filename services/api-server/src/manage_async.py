@@ -9,9 +9,8 @@ from flask_cors import CORS
 from flask_script import Manager
 
 from bespoke.db import models
-from bespoke.email import email_manager, sendgrid_util
-from bespoke.email.email_manager import EmailConfigDict, SendGridConfigDict
-from server.config import get_config, is_development_env
+from bespoke.email import sendgrid_util
+from server.config import get_config, get_email_client, is_development_env
 from server.views import triggers, healthcheck
 
 
@@ -52,19 +51,7 @@ app.app_config = config
 app.engine = models.create_engine()
 app.session_maker = models.new_sessionmaker(app.engine)
 
-email_config = EmailConfigDict(
-	email_provider=config.EMAIL_PROVIDER,
-	from_addr=config.NO_REPLY_EMAIL_ADDRESS,
-	support_email_addr=config.SUPPORT_EMAIL_ADDRESS,
-	sendgrid_config=SendGridConfigDict(
-		api_key=config.SENDGRID_API_KEY
-	),
-	flask_env=config.FLASK_ENV,
-	no_reply_email_addr=config.NO_REPLY_EMAIL_ADDRESS,
-	bank_notify_email_addresses=config.BANK_NOTIFY_EMAIL_ADDRESSES,
-	ops_email_addresses=config.OPS_EMAIL_ADDRESSES
-)
-email_client = email_manager.new_client(email_config)
+email_client = get_email_client(config)
 app.sendgrid_client = sendgrid_util.Client(
 	email_client, app.session_maker,
 	config.get_security_config())

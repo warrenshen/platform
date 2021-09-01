@@ -26,10 +26,11 @@ from typing import List, cast
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
 
-from server.config import get_config
+from server.config import get_config, get_email_client
 
 from bespoke.date import date_util
 from bespoke.db import models
+from bespoke.email import sendgrid_util
 from bespoke.metrc import metrc_util
 
 REQUIRED_ENV_VARS = [
@@ -55,6 +56,13 @@ def main(company_identifier, start_date, end_date) -> None:
 	engine = models.create_engine()
 	session_maker = models.new_sessionmaker(engine)
 
+	email_client = get_email_client(config)
+	sendgrid_client = sendgrid_util.Client(
+		email_client,
+		session_maker,
+		config.get_security_config(),
+	)
+
 	company_id = None
 
 	with models.session_scope(session_maker) as session:
@@ -75,6 +83,7 @@ def main(company_identifier, start_date, end_date) -> None:
 			company_id=company_id,
 			auth_provider=config.get_metrc_auth_provider(),
 			security_cfg=config.get_security_config(),
+			sendgrid_client=sendgrid_client,
 			cur_date=cur_date,
 			session_maker=session_maker
 		)
