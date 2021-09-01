@@ -114,7 +114,10 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 			amount=test['payment_input_amount'],
 			deposit_date=test['deposit_date'],
 			settlement_date=test['settlement_date'],
-			items_covered={ 'loan_ids': loan_ids },
+			items_covered={
+				'loan_ids': loan_ids,
+				'to_account_fees': test['to_account_fees'] if 'to_account_fees' in test else 0.0,
+			},
 			should_pay_principal_first=False,
 			session_maker=session_maker
 		)
@@ -125,11 +128,27 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 
 		self.assertIsNone(err)
 		self.assertEqual('OK', resp.get('status'), msg=err)
+
 		test_helper.assertIsCurrencyRounded(self, resp['data']['amount_to_pay']) # Ensure this number is always down to 2 digits
 		self.assertEqual(test['expected_amount_to_pay'], resp['data']['amount_to_pay'])
 
+		test_helper.assertIsCurrencyRounded(self, resp['data']['amount_to_account_fees'])
+		if 'expected_amount_to_account_fees' in test:
+			self.assertAlmostEqual(
+				test['expected_amount_to_account_fees'],
+				resp['data']['amount_to_account_fees']
+			)
+		else:
+			self.assertAlmostEqual(
+				0.0,
+				resp['data']['amount_to_account_fees']
+			)
+
 		test_helper.assertIsCurrencyRounded(self, resp['data']['amount_as_credit_to_user'])
-		self.assertAlmostEqual(test['expected_amount_as_credit_to_user'], resp['data']['amount_as_credit_to_user'])
+		self.assertAlmostEqual(
+			test['expected_amount_as_credit_to_user'],
+			resp['data']['amount_as_credit_to_user']
+		)
 
 		# Assert on the expected loans afterwards
 		self.assertEqual(len(test['expected_loans_to_show']), len(resp['data']['loans_to_show']))
@@ -265,6 +284,90 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 			'payment_input_amount': 105.00,
 			'expected_amount_to_pay': 105.00,
 			'expected_amount_as_credit_to_user': 105.00 - 20.36 - 30.42,
+			'expected_loans_to_show': [
+				LoanToShowDict(
+					loan_id='filled in by test',
+					loan_identifier='filled in by test',
+					transaction=TransactionInputDict(
+						amount=20.36,
+						to_principal=20.00,
+						to_interest=9 * daily_interest1,
+						to_fees=0.0
+					),
+					before_loan_balance=LoanBalanceDict(
+						amount=20.00,
+						outstanding_principal_balance=20.00,
+						outstanding_interest=9 * daily_interest1, # 9 days of interest accrued
+						outstanding_fees=0.0
+					),
+					after_loan_balance=LoanBalanceDict(
+						amount=20.00,
+						outstanding_principal_balance=0.0,
+						outstanding_interest=0.0,
+						outstanding_fees=0.0
+					)
+				),
+				LoanToShowDict(
+					loan_id='filled in by test',
+					loan_identifier='filled in by test',
+					transaction=TransactionInputDict(
+						amount=30.0 + 0.42, # 30.0 + (7 * daily_interest2)
+						to_principal=30.0,
+						to_interest=7 * daily_interest2,
+						to_fees=0.0
+					),
+					before_loan_balance=LoanBalanceDict(
+						amount=30.00,
+						outstanding_principal_balance=30.00,
+						outstanding_interest=7 * daily_interest2, # 0.42
+						outstanding_fees=0.0
+					),
+					after_loan_balance=LoanBalanceDict(
+						amount=30.00,
+						outstanding_principal_balance=0.0, # we dont store the credit on the principal
+						outstanding_interest=0.0,
+						outstanding_fees=0.0
+					)
+				)
+			],
+			'expected_past_due_but_not_selected_indices': []
+		}
+
+		self._run_test(test)
+
+	def test_custom_amount_multiple_loans_and_account_fees(self) -> None:
+		#credit_amount = 15.01 - 9.99 - 1.03 - 1.88 - 0.73
+		daily_interest1 = 0.04 # INTEREST_RATE * 20.00 == daily_interest_rate_pct * principal_owed
+		daily_interest2 = 0.06 # INTEREST_RATE * 30.00 == daily_interest_rate_pct * principal_owed
+
+		test: Dict = {
+			'comment': 'The user pays off multiple loans and account level fees at the same time',
+			'loans': [
+				models.Loan(
+					amount=decimal.Decimal(20.00),
+					origination_date=date_util.load_date_str('8/20/2020'),
+					adjusted_maturity_date=date_util.load_date_str('8/27/2020')
+				),
+				models.Loan(
+					amount=decimal.Decimal(30.00),
+					origination_date=date_util.load_date_str('8/22/2020'),
+					adjusted_maturity_date=date_util.load_date_str('8/29/2020')
+				)
+			],
+			'transaction_lists': [
+				# Transactions are parallel to the loans defined in the test.
+				# These will be advances or repayments made against their respective loans.
+				[{'type': 'advance', 'amount': 20.00, 'payment_date': '8/20/2020', 'effective_date': '8/20/2020'}],
+				[{'type': 'advance', 'amount': 30.00, 'payment_date': '8/22/2020', 'effective_date': '8/22/2020'}]
+			],
+			'deposit_date': '8/24/2020',
+			'settlement_date': '8/28/2020', # late fees accrued on the 1st loan
+			'payment_option': 'custom_amount',
+			'payment_input_amount': 105.00,
+			'to_account_fees': 50.0,
+			'expected_amount_to_pay': 105.00,
+			'expected_amount_to_account_fees': 50.0,
+			'expected_amount_as_credit_to_user': 4.22,
 			'expected_loans_to_show': [
 				LoanToShowDict(
 					loan_id='filled in by test',
@@ -1093,7 +1196,6 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 
 		for test in tests:
 			self._run_test(test)
-
 
 	def test_pay_in_full_before_maturity_date_so_no_fees_accrued(self) -> None:
 		daily_interest1 = INTEREST_RATE * 20.00

@@ -60,6 +60,7 @@ RepaymentEffectRespDataDict = TypedDict('RepaymentEffectRespDataDict', {
 	'payable_amount_interest': float,
 	'loans_to_show': List[LoanToShowDict],
 	'amount_to_pay': float,
+	'amount_to_account_fees': float,
 	'amount_as_credit_to_user': float, # If the user overpaid more than what they could possibly owe, we keep this amount as a credit to them.
 	'loans_past_due_but_not_selected': List[LoanToShowDict],
 })
@@ -155,13 +156,18 @@ def calculate_repayment_effect(
 	if not settlement_date:
 		raise errors.Error('Settlement date must be specified')
 
+	payment_deposit_date = date_util.load_date_str(deposit_date)
+	payment_settlement_date = date_util.load_date_str(settlement_date)
+
 	if 'loan_ids' not in items_covered:
 		raise errors.Error('items_covered.loan_ids must be specified', details=err_details)
 
 	loan_ids = items_covered['loan_ids']
 
-	payment_deposit_date = date_util.load_date_str(deposit_date)
-	payment_settlement_date = date_util.load_date_str(settlement_date)
+	if 'to_account_fees' not in items_covered:
+		to_account_fees = 0.0
+	else:
+		to_account_fees = items_covered['to_account_fees']
 
 	with session_scope(session_maker) as session:
 		# Get all contracts associated with company.
@@ -319,9 +325,9 @@ def calculate_repayment_effect(
 	# while trying to cover as much of the loan coming due earliest
 	loan_dicts.sort(key=lambda l: (l['adjusted_maturity_date'], l['origination_date'], l['created_at']))
 
-	amount_to_pay = 0.0
-	amount_as_credit_to_user = 0.0
+	max_amount_to_loans = amount - to_account_fees if amount else None
 	loans_to_show = []
+
 	# This says: the user wants to pay some amount of money, and iterate through each loan
 	# and determine where this money can be applied.
 	#
@@ -330,11 +336,11 @@ def calculate_repayment_effect(
 	# should pay based on accumulated principal, interest and fees.
 	payment_to_include = loan_calculator.IncludedPaymentDict(
 		option=payment_option,
-		custom_amount=amount,
+		custom_amount=max_amount_to_loans,
 		custom_amount_split=None,
 		deposit_date=payment_deposit_date,
 		settlement_date=payment_settlement_date,
-		should_pay_principal_first=should_pay_principal_first
+		should_pay_principal_first=should_pay_principal_first,
 	)
 
 	for loan_dict in loan_dicts:
@@ -456,6 +462,8 @@ def calculate_repayment_effect(
 		_round_balance(cur_loan['before_loan_balance'])
 		_round_balance(cur_loan['after_loan_balance'])
 
+	amount_to_pay_to_loans = 0.0
+	amount_as_credit_to_user = 0.0
 
 	for cur_loan in loans_to_show:
 		_round_loan(cur_loan)
@@ -467,7 +475,7 @@ def calculate_repayment_effect(
 			continue
 
 		amount_used = tx['amount']
-		amount_to_pay += amount_used
+		amount_to_pay_to_loans += amount_used
 
 	for cur_loan in loans_past_due_but_not_selected:
 		_round_loan(cur_loan)
@@ -485,11 +493,13 @@ def calculate_repayment_effect(
 			ordered_loans_to_show.append(loan_id_to_loan_to_show[loan_id])
 
 	if payment_option == RepaymentOption.CUSTOM_AMOUNT:
-		amount_as_credit_to_user = amount - amount_to_pay
+		amount_as_credit_to_user = amount - amount_to_pay_to_loans - to_account_fees
 		# in the custom_amount case, we always say the user will pay the amount
 		# they specified, even though only a portion of it may be going to pay off the
 		# loans, and some goes to credit
-		amount_to_pay = amount
+		amount_to_pay_to_loans = max_amount_to_loans
+
+	amount_to_pay = amount_to_pay_to_loans + to_account_fees
 
 	return RepaymentEffectRespDict(
 		status='OK',
@@ -498,6 +508,7 @@ def calculate_repayment_effect(
 			payable_amount_interest=number_util.round_currency(payable_amount_interest),
 			loans_to_show=ordered_loans_to_show,
 			amount_to_pay=number_util.round_currency(amount_to_pay),
+			amount_to_account_fees=to_account_fees,
 			amount_as_credit_to_user=number_util.round_currency(amount_as_credit_to_user),
 			loans_past_due_but_not_selected=loans_past_due_but_not_selected,
 		),
