@@ -121,9 +121,30 @@ def create_minimum_due_fee_for_customers(
 	if not minimum_due_resp['company_due_to_financial_info']:
 		return None, errors.Error('No companies provided to book minimum due fees')
 
+	selected_date = date_util.load_date_str(date_str)
 	effective_date = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
 
+	# Find minimum fee payments which were booked this month
+	effective_month = selected_date.strftime('%m/%Y')
+
+	booked_minimum_fees = cast(
+		List[models.Payment],
+		session.query(models.Payment).filter(
+			models.Payment.type == db_constants.PaymentType.FEE
+		).filter(models.Payment.items_covered == {
+			'effective_month': effective_month
+		}).all())
+
+	company_id_to_fee = {}
+	for payment in booked_minimum_fees:
+		company_id_to_fee[str(payment.company_id)] = payment
+
 	for customer_id, val_info in minimum_due_resp['company_due_to_financial_info'].items():
+		existing_booked_fee = company_id_to_fee.get(customer_id)
+		if existing_booked_fee:
+			raise errors.Error('Company {} already has a fee booked for {}. Please remove them or undue the booked minimum fee for this time frame'.format(
+				customer_id, effective_month))
+
 		fee_dict = val_info['fee_info']
 		amount_due = fee_dict['amount_short']
 		_ = payment_util.create_and_add_account_level_fee(
@@ -134,6 +155,9 @@ def create_minimum_due_fee_for_customers(
 			created_by_user_id=user_id,
 			deposit_date=effective_date,
 			effective_date=effective_date,
+			items_covered={
+				'effective_month': effective_month
+			},
 			session=session,
 		)
 
@@ -143,6 +167,7 @@ def create_minimum_due_fee_for_customers(
 def get_all_month_end_payments(
 	date_str: str, session: Session) -> Tuple[AllMonthlyDueRespDict, errors.Error]:
 
+	selected_date = date_util.load_date_str(date_str)
 	first_day_of_month_date = _get_first_day_of_month_date(date_str)
 	last_day_of_month_date = _get_last_day_of_month_date(date_str)
 
@@ -182,6 +207,19 @@ def get_all_month_end_payments(
 
 	company_id_to_financial_info = {}
 
+	# Find minimum fee payments which were booked this month
+	booked_minimum_fees = cast(
+		List[models.Payment],
+		session.query(models.Payment).filter(
+			models.Payment.type == db_constants.PaymentType.FEE
+		).filter(models.Payment.items_covered == {
+			'effective_month': selected_date.strftime('%m/%Y')
+		}).all())
+
+	company_id_to_fee = {}
+	for payment in booked_minimum_fees:
+		company_id_to_fee[str(payment.company_id)] = payment
+
 	for financial_summary in financial_summaries:
 		cur_company_id = str(financial_summary.company_id)
 		company_dict = company_id_to_dict[cur_company_id]
@@ -197,16 +235,16 @@ def get_all_month_end_payments(
 			continue
 
 		minimum_monthly_payload = cast(models.FeeDict, financial_summary.minimum_monthly_payload)
-
 		fee_amount = float(financial_summary.total_outstanding_interest) if is_loc_customer else 0.0
-		has_minimum_interest = not number_util.is_currency_zero(minimum_monthly_payload['amount_short'])
 
-		if _should_pay_this_month(
-			minimum_monthly_payload, last_day_of_month_date) and has_minimum_interest:
-			fee_amount += minimum_monthly_payload['amount_short']
+		booked_fee = company_id_to_fee.get(cur_company_id)
+		owes_fee = booked_fee is not None
+
+		if owes_fee:
+			fee_amount += float(booked_fee.amount)
 		else:
 			# Amount short means how much the customer should pay this month.
-			# In the quartertly and annual case, they may not owe this minimum fee,
+			# In the quarterly and annual case, they may not owe this minimum fee,
 			# so we just present it as 0.0 to the user, and the calculation will
 			# run correctly
 			minimum_monthly_payload['amount_short'] = 0.0
@@ -278,7 +316,9 @@ def create_month_end_payments_for_customers(
 			),
 			user_id=user_id,
 			session=session,
-			is_line_of_credit=True,
+			is_line_of_credit=True, # Even though not all customers here are LOC, we use this flag to indicate
+			                        # we are paying for an account-level repayment, and so this is a
+			                        # way to reuse the flag to create the repayment type we want.
 			bank_admin_override_for_ach_cutoff=True
 		)
 		if err:

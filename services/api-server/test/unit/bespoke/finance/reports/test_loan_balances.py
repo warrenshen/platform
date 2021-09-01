@@ -7,7 +7,7 @@ from datetime import timedelta
 from typing import Any, Callable, Dict, List, cast
 
 from bespoke.date import date_util
-from bespoke.db import db_constants, models
+from bespoke.db import db_constants, models, model_types
 from bespoke.db.db_constants import ProductType
 from bespoke.db.models import session_scope
 from bespoke.finance import financial_summary_util, number_util
@@ -907,6 +907,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				created_by_user_id=seed.get_user_id('bank_admin'),
 				deposit_date=date_util.load_date_str('10/01/2020'),
 				effective_date=date_util.load_date_str('10/01/2020'),
+				items_covered=model_types.FeeItemsCoveredDict(),
 				session=session
 			)
 
@@ -918,6 +919,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				created_by_user_id=seed.get_user_id('bank_admin'),
 				deposit_date=date_util.load_date_str('10/01/2020'),
 				effective_date=date_util.load_date_str('10/01/2020'),
+				items_covered=model_types.FeeItemsCoveredDict(),
 				session=session
 			)
 

@@ -126,7 +126,15 @@ class BasicSeed(object):
 
 		num_companies = 4
 		for i in range(num_companies):
+			bank_account = models.BankAccount()
+			bank_account.bank_name = 'Chase'
+			bank_account.account_type = 'Checking'
+			bank_account.account_number = '1234-{}'.format(i)
+			bank_account.routing_number = '5678-{}'.format(i)
+			session.add(bank_account)
+			session.flush()
 			company_settings = models.CompanySettings()
+			company_settings.collections_bank_account_id = bank_account.id
 			session.add(company_settings)
 			session.flush()
 			company_settings_id = str(company_settings.id)

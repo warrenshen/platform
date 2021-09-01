@@ -8,7 +8,7 @@ from typing import Any, Callable, Dict, List, Tuple, Union, cast
 
 from bespoke import errors
 from bespoke.date import date_util
-from bespoke.db import db_constants, models, models_util
+from bespoke.db import db_constants, models, model_types, models_util
 from bespoke.finance import financial_summary_util
 from bespoke.finance.types import payment_types, finance_types
 from sqlalchemy.orm.session import Session
@@ -49,7 +49,7 @@ def create_repayment_payment(
 	payment.requested_amount = decimal.Decimal(payment_input['requested_amount'])
 	payment.requested_payment_date = payment_input['requested_payment_date']
 	payment.payment_date = payment_input['payment_date']
-	payment.items_covered = cast(Dict[str, Any], payment_input['items_covered'])
+	payment.items_covered = cast(model_types.PaymentItemsCoveredDict, payment_input['items_covered'])
 	payment.company_bank_account_id = payment_input['company_bank_account_id']
 	payment.submitted_at = datetime.datetime.now()
 	payment.submitted_by_user_id = created_by_user_id
@@ -263,7 +263,7 @@ def create_and_add_credit_payout_to_customer(
 	payment.settlement_date = effective_date
 	payment.settled_at = date_util.now()
 	payment.settled_by_user_id = created_by_user_id
-	payment.items_covered = {}
+	payment.items_covered = model_types.PayoutItemsCoveredDict()
 	session.add(payment)
 	session.flush()
 	payment_id = str(payment.id)
@@ -329,6 +329,7 @@ def create_and_add_account_level_fee(
 	created_by_user_id: str,
 	deposit_date: datetime.date,
 	effective_date: datetime.date,
+	items_covered: model_types.ItemsCoveredDict,
 	session: Session) -> str:
 
 	payment = create_payment(
@@ -345,6 +346,7 @@ def create_and_add_account_level_fee(
 	payment.settlement_date = effective_date
 	payment.settled_at = date_util.now()
 	payment.settled_by_user_id = created_by_user_id
+	payment.items_covered = items_covered
 
 	session.add(payment)
 	session.flush()

@@ -6,11 +6,14 @@ import time
 import uuid
 from contextlib import contextmanager
 from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterator, List,
-                    Optional, cast)
+                    Optional, Union, cast)
 
 import sqlalchemy
 from bespoke.config.config_util import is_prod_env
 from bespoke.date import date_util
+from bespoke.db.model_types import (
+	ItemsCoveredDict
+)
 from fastapi_utils.guid_type import GUID, GUID_DEFAULT_SQLITE
 from mypy_extensions import TypedDict
 from sqlalchemy import (JSON, BigInteger, Boolean, Column, Date, DateTime,
@@ -673,7 +676,7 @@ class Payment(Base):
 	payment_date = Column(Date)
 	deposit_date = Column(Date)
 	settlement_date = Column(Date)
-	items_covered = Column(JSON)
+	items_covered = cast(ItemsCoveredDict, Column(JSON))
 	# Sender's bank account.
 	# In the case of an advance: one of Bespoke Financial's bank account.
 	# In the case of a reverse draft ACH: Customer's bank account.

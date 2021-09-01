@@ -10,7 +10,7 @@ from typing import Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
-from bespoke.db import db_constants, models, models_util
+from bespoke.db import db_constants, models, model_types, models_util
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util, number_util
 from bespoke.finance.loans import sibling_util
@@ -233,6 +233,8 @@ def fund_loans_with_advance(
 						created_by_user_id=bank_admin_user_id,
 						deposit_date=settlement_date,
 						effective_date=settlement_date,
+						items_covered=model_types.FeeItemsCoveredDict(
+						),
 						session=session
 					)
 

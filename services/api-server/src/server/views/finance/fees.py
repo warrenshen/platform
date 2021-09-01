@@ -52,6 +52,7 @@ class MakeAccountLevelFeeView(MethodView):
 				created_by_user_id=user_session.get_user_id(),
 				deposit_date=date_util.load_date_str(form['deposit_date']),
 				effective_date=date_util.load_date_str(form['settlement_date']),
+				items_covered=form.get('items_covered', {}),
 				session=session
 			)
 
