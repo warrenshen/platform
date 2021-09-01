@@ -40,11 +40,11 @@ export default function SettleRepaymentConfirmEffect({
   return (
     <Box>
       <Box>
-        <Typography variant={"h6"}>Review payment</Typography>
+        <Typography variant={"h6"}>Review repayment</Typography>
       </Box>
       <Box>
         <Typography variant={"body2"}>
-          Confirm payment details are all correct.
+          Confirm repayment details are all correct.
         </Typography>
       </Box>
       <Box my={6}>
@@ -109,23 +109,6 @@ export default function SettleRepaymentConfirmEffect({
                       items_covered: {
                         ...payment.items_covered,
                         to_interest: value,
-                      },
-                    })
-                  }
-                />
-              </FormControl>
-            </Box>
-            <Box display="flex" flexDirection="column" mt={2}>
-              <FormControl>
-                <CurrencyInput
-                  label={"Amount To Account Fees"}
-                  value={payment.items_covered.to_account_fees}
-                  handleChange={(value) =>
-                    setPayment({
-                      ...payment,
-                      items_covered: {
-                        ...payment.items_covered,
-                        to_account_fees: value,
                       },
                     })
                   }

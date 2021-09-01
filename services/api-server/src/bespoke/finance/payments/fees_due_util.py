@@ -271,7 +271,7 @@ def create_month_end_payments_for_customers(
 				items_covered=dict(
 					requested_to_principal=0.0,
 					requested_to_interest=val_info['total_outstanding_interest'],
-					requested_to_account_fees=amount_due
+					requested_to_account_fees=amount_due,
 				),
 				customer_note='',
 				bank_note=''

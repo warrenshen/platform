@@ -90,11 +90,11 @@ export default function CreateRepaymentConfirmEffect({
   return (
     <Box>
       <Box>
-        <Typography variant={"h6"}>Review payment</Typography>
+        <Typography variant={"h6"}>Review repayment</Typography>
       </Box>
       <Box>
         <Typography variant={"body2"}>
-          Confirm payment details are all correct.
+          Confirm repayment details are all correct.
         </Typography>
       </Box>
       <Box my={6}>
