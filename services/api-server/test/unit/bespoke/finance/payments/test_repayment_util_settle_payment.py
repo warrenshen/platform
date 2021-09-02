@@ -1204,7 +1204,7 @@ class TestSettleRepayment(db_unittest.TestCase):
 			session_maker=self.session_maker,
 			is_line_of_credit=False,
 		)
-		self.assertIn('No loans', err.msg)
+		self.assertIn('Not all loans', err.msg)
 
 	def test_failure_unequal_transactions_and_loans(self) -> None:
 		test: Dict = {

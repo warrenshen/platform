@@ -169,6 +169,10 @@ def calculate_repayment_effect(
 	else:
 		to_account_fees = items_covered['to_account_fees']
 
+
+	if not loan_ids and not to_account_fees:
+		raise errors.Error('Repayment must apply to loan(s) and / or account fees - please select loan(s) or specify amount to account fee')
+
 	with session_scope(session_maker) as session:
 		# Get all contracts associated with company.
 		contracts = cast(
@@ -201,9 +205,6 @@ def calculate_repayment_effect(
 		if product_type == ProductType.LINE_OF_CREDIT:
 			loans = _fetch_line_of_credit_payable_loans(company_id, payment_deposit_date, session)
 		else:
-			if not loan_ids:
-				raise errors.Error('No loans are selected')
-
 			loans = cast(
 				List[models.Loan],
 				session.query(models.Loan).filter(
@@ -758,8 +759,11 @@ def settle_repayment(
 
 		transaction_inputs = req['transaction_inputs']
 
-		if not transaction_inputs or len(transaction_inputs) <= 0:
+		if transaction_inputs is None:
 			raise errors.Error('transaction_inputs must be specified', details=err_details)
+
+		if len(transaction_inputs) <= 0 and not to_account_fees:
+			raise errors.Error('Repayment must apply to loan(s) and / or account fees - please select loan(s) or specify amount to account fee', details=err_details)
 
 		transactions_sum = 0.0
 
@@ -828,9 +832,6 @@ def settle_repayment(
 				).filter(
 					models.Loan.id.in_(loan_ids)
 				).all())
-
-			if not loans:
-				raise errors.Error('No loans associated with settlement request', details=err_details)
 
 			if len(loans) != len(loan_ids):
 				raise errors.Error('Not all loans found in database to settle', details=err_details)
