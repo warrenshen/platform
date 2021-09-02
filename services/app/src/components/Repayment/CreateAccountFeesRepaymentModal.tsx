@@ -102,7 +102,7 @@ export default function CreateAccountFeesRepaymentModal({
           <Box mt={2} mb={6}>
             <Alert severity="info">
               <Typography variant="body1">
-                Warning: you are creating a payment on behalf of this customer
+                Warning: you are creating a repayment on behalf of this customer
                 (only bank admins can do this).
               </Typography>
             </Alert>

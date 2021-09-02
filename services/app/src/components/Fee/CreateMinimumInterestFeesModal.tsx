@@ -116,8 +116,7 @@ export default function CreateMinimumInterestFeesModal({ handleClose }: Props) {
               <Box mt={2}>
                 <Alert severity="warning">
                   Please ensure that customer financials are up-to-date and
-                  correct (as of the month you select) before you create minimum
-                  fees with this tool.
+                  correct (as of the month you select) before you proceed.
                 </Alert>
               </Box>
             </Box>

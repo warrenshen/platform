@@ -39,7 +39,7 @@ function getAlertText(payment: PaymentsInsertInput) {
   } else if (payment.method === PaymentMethodEnum.ReverseDraftACH) {
     return (
       <>
-        After you press "Schedule payment", Bespoke Financial will initiate a
+        After you press "Schedule repayment", Bespoke Financial will initiate a
         reverse draft ACH of <b>{formatCurrency(payment.requested_amount)}</b>{" "}
         from your bank account.
         <br />
@@ -156,7 +156,7 @@ export default function CreateRepaymentConfirmEffect({
                 <Typography variant="body2">
                   {`Please send your ${
                     PaymentMethodToLabel[payment.method as PaymentMethodEnum]
-                  } payment to the following bank account:`}
+                  } repayment to the following bank account:`}
                 </Typography>
                 <Box mt={2}>
                   {!!bespokeCollectionsBankAccount && (

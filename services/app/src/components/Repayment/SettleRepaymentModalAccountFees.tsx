@@ -67,7 +67,7 @@ export default function SettleRepaymentModalAccountFees({
       setErrMsg(response.msg || "Error!");
     } else {
       setErrMsg("");
-      snackbar.showSuccess("Payment settled.");
+      snackbar.showSuccess("Repayment settled.");
       handleClose();
     }
   };
@@ -84,9 +84,9 @@ export default function SettleRepaymentModalAccountFees({
       isPrimaryActionDisabled={isSubmitButtonDisabled}
       title={`Settle ${
         PaymentMethodToLabel[payment.method as PaymentMethodEnum]
-      } Payment of Account Fees`}
+      } Repayment of Account Fees`}
       contentWidth={1000}
-      primaryActionText={"Settle payment"}
+      primaryActionText={"Settle repayment"}
       handleClose={handleClose}
       handlePrimaryAction={handleClickConfirm}
     >

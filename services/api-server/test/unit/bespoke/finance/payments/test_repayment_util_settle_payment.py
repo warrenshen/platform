@@ -207,7 +207,7 @@ def _run_test(self: db_unittest.TestCase, test: Dict) -> None:
 				session.query(models.Payment).filter(
 					models.Payment.id == payment_id
 				).first())
-			# TODO(warrenshen): actually do the "schedule payment" flow to set the payment date.
+			# TODO(warrenshen): actually do the "schedule repayment" flow to set the payment date.
 			payment.payment_date = date_util.load_date_str(payment_dict['payment_date'])
 			if payment and payment_dict.get('settled_at'):
 				payment.settled_at = payment_dict['settled_at']

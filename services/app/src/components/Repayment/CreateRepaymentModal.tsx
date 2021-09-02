@@ -228,7 +228,7 @@ export default function CreateRepaymentModal({
     isNextButtonDisabled || payment.requested_amount <= 0;
   const submitButtonText =
     payment.method === PaymentMethodEnum.ReverseDraftACH
-      ? "Schedule payment"
+      ? "Schedule repayment"
       : "Notify Bespoke Financial";
 
   return (
@@ -252,7 +252,7 @@ export default function CreateRepaymentModal({
           <Box mt={2} mb={6}>
             <Alert severity="info">
               <Typography variant="body1">
-                Warning: you are creating a payment on behalf of this customer
+                Warning: you are creating a repayment on behalf of this customer
                 (only bank admins can do this).
               </Typography>
             </Alert>

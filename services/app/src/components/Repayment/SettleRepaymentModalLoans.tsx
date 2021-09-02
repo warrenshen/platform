@@ -186,7 +186,7 @@ export default function SettleRepaymentModalLoans({
       setErrMsg(response.msg || "Error!");
     } else {
       setErrMsg("");
-      snackbar.showSuccess("Payment settled.");
+      snackbar.showSuccess("Repayment settled.");
       handleClose();
     }
   };
@@ -252,9 +252,9 @@ export default function SettleRepaymentModalLoans({
       }
       title={`Settle ${
         PaymentMethodToLabel[payment.method as PaymentMethodEnum]
-      } Payment`}
+      } Repayment`}
       contentWidth={1000}
-      primaryActionText={isOnSelectLoans ? "Next step" : "Settle payment"}
+      primaryActionText={isOnSelectLoans ? "Next step" : "Settle repayment"}
       secondaryActionText={!isOnSelectLoans ? "Back to step 1" : null}
       handleClose={handleClose}
       handlePrimaryAction={

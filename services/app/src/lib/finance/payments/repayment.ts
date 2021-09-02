@@ -205,7 +205,7 @@ export async function settleRepaymentMutation(
         console.log("error", error);
         return {
           status: "ERROR",
-          msg: "Could not settle payment",
+          msg: "Could not settle repayment",
         };
       }
     );

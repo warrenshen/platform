@@ -254,7 +254,7 @@ export default function RepaymentTransactionsDataGrid({
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell
             value={
-              params.row.data.transaction?.to_principal
+              params.row.data.transaction?.to_principal != null
                 ? params.row.data.transaction.to_principal
                 : null
             }
