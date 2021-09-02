@@ -95,9 +95,9 @@ class RespondToApprovalRequestView(MethodView):
 			if err:
 				raise err
 
-			user = session.query(models.User) \
-				.filter(models.User.email == info['email']) \
-				.first()
+			user = session.query(models.User).filter(
+				models.User.email == info['email'].lower()
+			).first()
 			if user:
 				event.user_id(str(user.id))
 

@@ -570,9 +570,9 @@ def respond_to_payment_request(
 	email: str,
 	data: InvoicePaymentRequestResponse) -> Tuple[bool, errors.Error]:
 
-	user = session.query(models.User) \
-		.filter(models.User.email == email) \
-		.first()
+	user = session.query(models.User).filter(
+		models.User.email == email.lower()
+	).first()
 	if not user:
 		raise errors.Error("could not find user")
 

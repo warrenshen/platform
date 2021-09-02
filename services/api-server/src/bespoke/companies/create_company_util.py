@@ -285,9 +285,9 @@ def _create_partner_company_and_its_first_user(
 	session.flush()
 	company_id = str(company.id)
 
-	existing_user = session.query(models.User) \
-		.filter(models.User.email == user_input['email']) \
-		.first()
+	existing_user = session.query(models.User).filter(
+		models.User.email == user_input['email'].lower()
+	).first()
 	if existing_user:
 		raise errors.Error('Email is already taken')
 
@@ -312,9 +312,9 @@ def _setup_users_for_existing_company(
 	if not user_input.get('email'):
 		raise errors.Error('User email must be specified')
 
-	existing_user = session.query(models.User) \
-		.filter(models.User.email == user_input['email']) \
-		.first()
+	existing_user = session.query(models.User).filter(
+		models.User.email == user_input['email'].lower()
+	).first()
 	if existing_user:
 		user_id = str(existing_user.id)
 	else:

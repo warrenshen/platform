@@ -87,7 +87,7 @@ def import_payor_vendor_users(
 			).filter(
 				models.User.last_name == parsed_last_name
 			).filter(
-				models.User.email == parsed_email
+				models.User.email == parsed_email.lower()
 			).first()
 
 		if existing_payor_vendor_user:
@@ -99,7 +99,7 @@ def import_payor_vendor_users(
 			continue
 
 		existing_user_by_email = session.query(models.User).filter(
-			models.User.email == parsed_email
+			models.User.email == parsed_email.lower()
 		).first()
 
 		# If there is a user (who does not belong to the target payor / vendor)
@@ -120,7 +120,7 @@ def import_payor_vendor_users(
 			).filter(
 				models.User.last_name == parsed_last_name
 			).filter(
-				models.User.email == parsed_email
+				models.User.email == parsed_email.lower()
 			).first()
 
 		if existing_payor_vendor_user:
@@ -132,7 +132,7 @@ def import_payor_vendor_users(
 			continue
 
 		existing_user_by_email = session.query(models.User).filter(
-			models.User.email == parsed_email
+			models.User.email == parsed_email.lower()
 		).first()
 
 		# If there is a user (who does not belong to the target payor / vendor
@@ -154,7 +154,7 @@ def import_payor_vendor_users(
 			).filter(
 				models.User.last_name == parsed_last_name
 			).filter(
-				models.User.email == parsed_email
+				models.User.email == parsed_email.lower()
 			).first()
 
 		if existing_payor_vendor_user:

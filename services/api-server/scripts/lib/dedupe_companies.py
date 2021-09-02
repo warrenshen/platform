@@ -345,7 +345,7 @@ def extract_vendor_from_company(
 
 	# 2. Transfer users
 	user = session.query(models.User).filter(
-		models.User.email == user_email
+		models.User.email == user_email.lower()
 	).first()
 
 	if user:

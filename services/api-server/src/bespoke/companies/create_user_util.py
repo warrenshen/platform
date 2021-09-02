@@ -84,9 +84,9 @@ def create_bank_or_customer_user(
 				if not company.is_customer:
 					raise errors.Error('Company is not Customer company type')
 
-		existing_user = session.query(models.User) \
-			.filter(models.User.email == email.lower()) \
-			.first()
+		existing_user = session.query(models.User).filter(
+			models.User.email == email.lower()
+		).first()
 		if existing_user:
 			raise errors.Error('Email is already taken')
 
@@ -136,9 +136,9 @@ def create_third_party_user(
 		if not is_payor and not company.is_vendor:
 			raise errors.Error('Company is not Vendor company type')
 
-		user = session.query(models.User) \
-			.filter(models.User.email == email.lower()) \
-			.first()
+		user = session.query(models.User).filter(
+			models.User.email == email.lower()
+		).first()
 		if user:
 			raise errors.Error('Email is already taken')
 

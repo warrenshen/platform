@@ -87,9 +87,9 @@ class SendCodeView(MethodView):
 			if email not in token_states_dict:
 				raise errors.Error('Invalid email for link provided')
 
-			existing_user = session.query(models.User) \
-				.filter(models.User.email == email) \
-				.first()
+			existing_user = session.query(models.User).filter(
+				models.User.email == email.lower()
+			).first()
 			if not existing_user:
 				raise errors.Error('No user found matching email "{}"'.format(email))
 
@@ -214,7 +214,8 @@ class GetSecureLinkPayloadView(MethodView):
 
 			email = two_factor_info['email']
 			user = cast(models.User, session.query(models.User).filter(
-				models.User.email == email).first())
+				models.User.email == email.lower()
+			).first())
 			if not user:
 				raise errors.Error('User opening this link does not exist in the system at all')
 
