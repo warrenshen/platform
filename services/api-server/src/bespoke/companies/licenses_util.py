@@ -294,6 +294,16 @@ def _update_metrc_rows_based_on_shipper(company_id: str, op: str, license_number
 		transfer_row_ids = []
 		for metrc_transfer in matching_transfers:
 			metrc_transfer.vendor_id = cast(Any, company_id)
+			if op == DBOperation.DELETE:
+				metrc_transfer.license_id = None
+			else:
+				# In the update or add case, match the license to the license number which just
+				# got created.
+				license = session.query(models.CompanyLicense).filter(
+					models.CompanyLicense.license_number == license_number).first()
+				if license:
+					metrc_transfer.license_id = license.id
+
 			transfer_row_ids.append(str(metrc_transfer.id))
 			session.flush()
 
