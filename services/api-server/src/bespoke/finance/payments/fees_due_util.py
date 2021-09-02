@@ -79,7 +79,8 @@ def get_all_minimum_interest_fees_due(
 
 	real_company_ids = []
 	for company_setting in company_settings_list:
-		real_company_ids.append(str(company_setting.company_id))
+		if company_setting.company_id:
+			real_company_ids.append(str(company_setting.company_id))
 
 	companies = cast(
 		List[models.Company],
@@ -193,7 +194,8 @@ def get_all_month_end_payments(
 
 	real_company_ids = []
 	for company_setting in company_settings_list:
-		real_company_ids.append(str(company_setting.company_id))
+		if company_setting.company_id:
+			real_company_ids.append(str(company_setting.company_id))
 
 	companies = cast(
 		List[models.Company],
