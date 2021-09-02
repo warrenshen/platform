@@ -4,7 +4,7 @@ import logging
 
 from datetime import timedelta
 from mypy_extensions import TypedDict
-from typing import Tuple, List, Dict, cast
+from typing import Callable, Tuple, List, Dict, cast
 from sqlalchemy.orm.session import Session
 
 from bespoke import errors
@@ -71,18 +71,32 @@ def get_all_minimum_interest_fees_due(
 	
 	last_day_of_month_date = _get_last_day_of_month_date(date_str)
 
+	company_settings_list = cast(
+		List[models.CompanySettings],
+		session.query(models.CompanySettings).filter(
+			cast(Callable, models.CompanySettings.is_dummy_account.isnot)(True)
+		).all())
+
+	real_company_ids = []
+	for company_setting in company_settings_list:
+		real_company_ids.append(str(company_setting.company_id))
+
 	companies = cast(
 		List[models.Company],
-		session.query(models.Company).all())
+		session.query(models.Company).filter(models.Company.id.in_(real_company_ids)).all())
+
 	company_id_to_dict = {}
+	company_setting_ids = []
 	for company in companies:
 		company_id_to_dict[str(company.id)] = company.as_dict()
+		if company.company_settings_id:
+			company_setting_ids.append(str(company.company_settings_id))
 
 	financial_summaries = cast(
 		List[models.FinancialSummary],
 		session.query(models.FinancialSummary).filter(
 			models.FinancialSummary.date == last_day_of_month_date
-		).all())
+		).filter(models.FinancialSummary.company_id.in_(real_company_ids)).all())
 
 	if not financial_summaries:
 		return None, errors.Error('No financial summaries found for date {}'.format(
@@ -171,9 +185,19 @@ def get_all_month_end_payments(
 	first_day_of_month_date = _get_first_day_of_month_date(date_str)
 	last_day_of_month_date = _get_last_day_of_month_date(date_str)
 
+	company_settings_list = cast(
+		List[models.CompanySettings],
+		session.query(models.CompanySettings).filter(
+			cast(Callable, models.CompanySettings.is_dummy_account.isnot)(True)
+		).all())
+
+	real_company_ids = []
+	for company_setting in company_settings_list:
+		real_company_ids.append(str(company_setting.company_id))
+
 	companies = cast(
 		List[models.Company],
-		session.query(models.Company).all())
+		session.query(models.Company).filter(models.Company.id.in_(real_company_ids)).all())
 
 	company_id_to_dict = {}
 	for company in companies:
@@ -183,6 +207,8 @@ def get_all_month_end_payments(
 		List[models.FinancialSummary],
 		session.query(models.FinancialSummary).filter(
 			models.FinancialSummary.date == last_day_of_month_date
+		).filter(
+			models.FinancialSummary.company_id.in_(real_company_ids)
 		).all())
 
 	if not financial_summaries:

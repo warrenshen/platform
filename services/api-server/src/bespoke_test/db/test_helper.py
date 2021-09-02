@@ -95,6 +95,7 @@ class BasicSeed(object):
 			)
 		session.add(bank_company)
 		session.flush()
+		company_settings.company_id = bank_company.id
 
 		for i in range(num_bank_admins):
 

@@ -3,6 +3,7 @@ import decimal
 import json
 import uuid
 from dateutil import parser
+from sqlalchemy.orm.session import Session
 from typing import Any, Dict, List, cast
 
 from bespoke.date import date_util
@@ -19,6 +20,12 @@ from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest, test_helper
 from bespoke_test.finance import finance_test_helper
 from bespoke_test.payments import payment_test_helper
+
+def _set_is_dummy_account(company_id: str, session: Session) -> None:
+		company = session.query(models.Company).get(company_id)
+		company_settings = session.query(models.CompanySettings).get(company.company_settings_id)
+		company_settings.is_dummy_account = True
+		session.commit()
 
 class TestMinimumFeesDue(db_unittest.TestCase):
 	maxDiff = None
@@ -57,8 +64,11 @@ class TestMinimumFeesDue(db_unittest.TestCase):
 		seed.initialize()
 		company_id = seed.get_company_id('company_admin', index=0)
 		company_id2 = seed.get_company_id('company_admin', index=1)
+		company_id3 = seed.get_company_id('company_admin', index=2)
 
 		with session_scope(session_maker) as session:
+			_set_is_dummy_account(company_id3, session)
+
 			minimum_monthly_payload = models.FeeDict(
 				amount_accrued=6.0, # unused
 				minimum_amount=10.0, # unused
@@ -104,6 +114,17 @@ class TestMinimumFeesDue(db_unittest.TestCase):
 				minimum_monthly_payload=minimum_monthly_payload2
 			)
 			session.add(summary2)
+
+			# We should ignore this as a dummy account.
+			summary3 = finance_test_helper.get_default_financial_summary(
+				total_limit=100.0,
+				available_limit=80.0,
+				product_type=ProductType.LINE_OF_CREDIT,
+				date_str='1/31/2020',
+				company_id=company_id3,
+				minimum_monthly_payload=minimum_monthly_payload2
+			)
+			session.add(summary3)
 
 		with session_scope(session_maker) as session:
 			resp, err = fees_due_util.get_all_minimum_interest_fees_due(
@@ -257,6 +278,7 @@ class TestMonthEndRepayments(db_unittest.TestCase):
 		company_id = seed.get_company_id('company_admin', index=0)
 		company_id2 = seed.get_company_id('company_admin', index=1)
 		company_id3 = seed.get_company_id('company_admin', index=2)
+		company_id4 = seed.get_company_id('company_admin', index=3)
 
 		with session_scope(session_maker) as session:
 			# Customer 1
@@ -371,6 +393,22 @@ class TestMonthEndRepayments(db_unittest.TestCase):
 
 			contract3 = self._get_contract(company_id3, product_type=ProductType.LINE_OF_CREDIT)
 			contract_test_helper.set_and_add_contract_for_company(contract3, company_id3, session)
+
+			# Customer 4 who is a dummy account, ignore
+			summary4 = finance_test_helper.get_default_financial_summary(
+				total_limit=100.0,
+				available_limit=80.0,
+				product_type=ProductType.LINE_OF_CREDIT,
+				date_str='1/31/2020',
+				company_id=company_id4,
+				minimum_monthly_payload=minimum_monthly_payload3,
+				total_outstanding_interest=5.0
+			)
+			session.add(summary4)
+			_set_is_dummy_account(company_id4, session)
+
+			contract4 = self._get_contract(company_id4, product_type=ProductType.LINE_OF_CREDIT)
+			contract_test_helper.set_and_add_contract_for_company(contract4, company_id4, session)
 
 		with session_scope(session_maker) as session:
 
