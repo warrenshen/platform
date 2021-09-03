@@ -18,7 +18,7 @@ CompanyLicenseInsertInputDict = TypedDict('CompanyLicenseInsertInputDict', {
 	'company_id': str,
 	'file_id': str,
 	'license_number': str,
-})
+}, total=False)
 
 LicenseModificationDict = TypedDict('LicenseModificationDict', {
 	'license_number': str,
@@ -51,6 +51,24 @@ def add_licenses(
 
 	return new_license_ids, None
 
+def _update_license(
+	existing_company_license: models.CompanyLicense, 
+	license_input: CompanyLicenseInsertInputDict) -> str:
+	l = license_input
+	existing_company_license.license_number = l['license_number']
+	existing_company_license.file_id = cast(Any, l.get('file_id'))
+	return str(existing_company_license.id)
+
+def _add_license(license_input: CompanyLicenseInsertInputDict, session: Session) -> str:
+	l = license_input
+
+	new_company_license = models.CompanyLicense()
+	new_company_license.company_id = cast(Any, l['company_id'])
+	new_company_license.file_id = cast(Any, l.get('file_id'))
+	new_company_license.license_number= cast(Any, l['license_number'])
+	session.add(new_company_license)
+	session.flush()
+	return str(new_company_license.id)
 
 @errors.return_error_tuple
 def create_update_licenses(
@@ -81,7 +99,9 @@ def create_update_licenses(
 	for company_license_input in company_license_inputs:
 		company_license_id = company_license_input['id']
 		license_number = company_license_input['license_number']
-		file_id = company_license_input['file_id']
+		# _add_license and _update_license depend on the license_input containing
+		# the company_id.
+		company_license_input['company_id'] = company_id
 
 		################################
 		# Validations
@@ -103,20 +123,50 @@ def create_update_licenses(
 			if not existing_company_license:
 				raise errors.Error('Could not find company license')
 
-			existing_company_license.license_number = license_number
-			existing_company_license.file_id = file_id # type: ignore
-
-			license_ids.append(str(existing_company_license.id))
+			license_id = _update_license(existing_company_license, company_license_input)
+			license_ids.append(license_id)
 		else:
-			new_company_license = models.CompanyLicense( # type: ignore
-				company_id=company_id,
-				file_id=file_id,
-				license_number=license_number,
-			)
-			session.add(new_company_license)
-			session.flush()
+			license_id = _add_license(company_license_input, session)
+			license_ids.append(license_id)
 
-			license_ids.append(str(new_company_license.id))
+	return license_ids, None
+
+@errors.return_error_tuple
+def bulk_update_licenses(
+	company_license_inputs: List[CompanyLicenseInsertInputDict],
+	session: Session,
+) -> Tuple[List[str], errors.Error]:
+
+	license_numbers = []
+	for license_input in company_license_inputs:
+		if license_input.get('license_number'):
+			raise errors.Error('License number missing from license input {}'.format(license_input))
+
+		license_numbers.append(license_input['license_number'])
+
+	existing_company_licenses = cast(
+		List[models.CompanyLicense],
+		session.query(models.CompanyLicense).filter(
+			models.CompanyLicense.license_number.in_(license_numbers)
+		).all())
+
+	license_number_to_license = {}
+	for license in existing_company_licenses:
+		license_number_to_license[license.license_number] = license
+
+	license_ids = []
+
+	for company_license_input in company_license_inputs:
+		company_license_id = company_license_input['id']
+		license_number = company_license_input['license_number']
+
+		if license_number in license_number_to_license:
+			existing_company_license = license_number_to_license[license_number]
+			license_id = _update_license(existing_company_license, company_license_input)
+			license_ids.append(license_id)
+		else:
+			license_id = _add_license(company_license_input, session)
+			license_ids.append(license_id)
 
 	return license_ids, None
 
@@ -148,7 +198,6 @@ def delete_license(
 	cast(Callable, session.delete)(existing_license)
 
 	return True, None
-
 
 def populate_transfer_vendor_details(
 	metrc_transfer_objs: List[MetrcTransferObj],

@@ -32,6 +32,7 @@ from server.views import (
 	two_factor,
 	users,
 )
+from server.views.api import licenses as licenses_api
 from server.views.finance import credits, fees, liens
 from server.views.finance.ebba_applications import \
     approvals as ebba_application_approvals
@@ -109,6 +110,9 @@ app.register_blueprint(adjustments.handler, url_prefix='/finance/loans/adjustmen
 app.register_blueprint(deletion.handler, url_prefix='/finance/loans/deletion')
 app.register_blueprint(reports.handler, url_prefix='/finance/loans/reports')
 app.register_blueprint(loans_purchase_orders.handler, url_prefix='/finance/loans/purchase_orders')
+
+# API for external services
+app.register_blueprint(licenses_api.handler, url_prefix='/api/v1/licenses')
 
 # healthcheck
 app.register_blueprint(healthcheck.handler, url_prefix='/healthcheck')
