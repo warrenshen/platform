@@ -104,7 +104,7 @@ class UpdateDirtyCompanyBalancesView(MethodView):
 
 		today = date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
 		compute_requests = reports_util.list_financial_summaries_that_need_balances_recomputed(
-			current_app.session_maker, today, amount_to_fetch=10)
+			current_app.session_maker, today, amount_to_fetch=5)
 		if not compute_requests:
 			return make_response(json.dumps({
 				'status': 'OK',

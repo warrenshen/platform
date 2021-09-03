@@ -34,7 +34,7 @@
   payload: {}
   retry_conf:
     num_retries: 0
-    timeout_seconds: 3000
+    timeout_seconds: 6000
     tolerance_seconds: 21600
     retry_interval_seconds: 10
   headers:
