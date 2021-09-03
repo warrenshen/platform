@@ -2751,6 +2751,7 @@
       - shipment_type_name
       - transfer_row_id
       - updated_at
+      - us_state
       filter: {}
   - role: bank_read_only
     permission:
@@ -2768,6 +2769,7 @@
       - shipment_type_name
       - transfer_row_id
       - updated_at
+      - us_state
       filter: {}
   - role: company_admin
     permission:
@@ -2785,6 +2787,7 @@
       - shipment_type_name
       - transfer_row_id
       - updated_at
+      - us_state
       filter:
         metrc_transfer:
           _or:
@@ -2808,6 +2811,7 @@
       - shipment_type_name
       - transfer_row_id
       - updated_at
+      - us_state
       filter:
         metrc_transfer:
           _or:
@@ -2829,6 +2833,7 @@
       - shipment_transaction_type
       - shipment_type_name
       - transfer_row_id
+      - us_state
       filter:
         metrc_transfer:
           _or:
@@ -2852,6 +2857,7 @@
       - name
       - payload
       - type
+      - us_state
       filter: {}
   - role: bank_read_only
     permission:
@@ -2865,6 +2871,7 @@
       - name
       - payload
       - type
+      - us_state
       filter: {}
 - table:
     schema: public
@@ -2889,6 +2896,7 @@
       - type
       - unit_of_measure
       - updated_at
+      - us_state
       filter: {}
   - role: bank_read_only
     permission:
@@ -2909,6 +2917,7 @@
       - type
       - unit_of_measure
       - updated_at
+      - us_state
       filter: {}
 - table:
     schema: public
@@ -2930,6 +2939,7 @@
       - plant_batch_id
       - planted_date
       - type
+      - us_state
       filter: {}
   - role: bank_read_only
     permission:
@@ -2943,6 +2953,7 @@
       - plant_batch_id
       - planted_date
       - type
+      - us_state
       filter: {}
 - table:
     schema: public
@@ -2964,6 +2975,7 @@
       - plant_id
       - planted_date
       - type
+      - us_state
       filter: {}
   - role: bank_read_only
     permission:
@@ -2977,6 +2989,7 @@
       - plant_id
       - planted_date
       - type
+      - us_state
       filter: {}
 - table:
     schema: public
@@ -3004,6 +3017,7 @@
       - total_price
       - type
       - updated_at
+      - us_state
       filter: {}
   - role: bank_read_only
     permission:
@@ -3023,6 +3037,7 @@
       - total_price
       - type
       - updated_at
+      - us_state
       filter: {}
 - table:
     schema: public
@@ -3051,6 +3066,7 @@
       - total_price
       - type
       - unit_of_measure
+      - us_state
       filter: {}
   - role: bank_read_only
     permission:
@@ -3071,6 +3087,7 @@
       - total_price
       - type
       - unit_of_measure
+      - us_state
       filter: {}
 - table:
     schema: public
@@ -3110,6 +3127,7 @@
       - transfer_row_id
       - type
       - updated_at
+      - us_state
       filter: {}
   - role: bank_read_only
     permission:
@@ -3138,6 +3156,7 @@
       - transfer_row_id
       - type
       - updated_at
+      - us_state
       filter: {}
   - role: company_admin
     permission:
@@ -3166,6 +3185,7 @@
       - transfer_row_id
       - type
       - updated_at
+      - us_state
       filter:
         metrc_transfer:
           _or:
@@ -3200,6 +3220,7 @@
       - transfer_row_id
       - type
       - updated_at
+      - us_state
       filter:
         metrc_transfer:
           _or:
@@ -3232,6 +3253,7 @@
       - shipper_wholesale_price
       - transfer_row_id
       - type
+      - us_state
       filter:
         metrc_transfer:
           vendor_id:
@@ -3284,6 +3306,7 @@
       - transfer_type
       - type
       - updated_at
+      - us_state
       - vendor_id
       filter: {}
   - role: bank_read_only
@@ -3307,6 +3330,7 @@
       - transfer_type
       - type
       - updated_at
+      - us_state
       - vendor_id
       filter: {}
   - role: company_admin
@@ -3330,6 +3354,7 @@
       - transfer_type
       - type
       - updated_at
+      - us_state
       - vendor_id
       filter:
         _or:
@@ -3358,6 +3383,7 @@
       - transfer_type
       - type
       - updated_at
+      - us_state
       - vendor_id
       filter:
         _or:
@@ -3384,6 +3410,7 @@
       - transfer_payload
       - transfer_type
       - type
+      - us_state
       - vendor_id
       filter:
         vendor_id:

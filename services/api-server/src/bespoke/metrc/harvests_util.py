@@ -25,7 +25,11 @@ class Harvests(object):
 		self._harvests = harvests
 		self._api_type = api_type
 
-	def get_models(self, company_id: str, license_number: str) -> List[HarvestObj]:
+	def get_models(self, ctx: metrc_common_util.DownloadContext) -> List[HarvestObj]:
+		company_id = ctx.company_info.company_id
+		license_number = ctx.license['license_number']
+		us_state = ctx.license['us_state']
+
 		harvests = []
 		for i in range(len(self._harvests)):
 			h = self._harvests[i]
@@ -33,6 +37,7 @@ class Harvests(object):
 			harvest.company_id = cast(Any, company_id)
 			harvest.type = self._api_type
 			harvest.license_number = license_number
+			harvest.us_state = us_state
 			harvest.harvest_id = '{}'.format(h['Id'])
 			harvest.name = h['Name']
 			harvest.harvest_start_date = parser.parse(h['HarvestStartDate'])
@@ -78,16 +83,13 @@ def download_harvests(ctx: metrc_common_util.DownloadContext) -> List[HarvestObj
 	license_number = ctx.license['license_number']
 
 	active_harvests_models = Harvests(active_harvests, 'active').get_models(
-		company_id=company_info.company_id,
-		license_number=license_number
+		ctx=ctx,
 	)
 	inactive_harvests_models = Harvests(inactive_harvests, 'inactive').get_models(
-		company_id=company_info.company_id,
-		license_number=license_number
+		ctx=ctx,
 	)
 	onhold_harvests_models = Harvests(onhold_harvests, 'onhold').get_models(
-		company_id=company_info.company_id,
-		license_number=license_number
+		ctx=ctx,
 	)
 
 	if active_harvests:
@@ -125,6 +127,7 @@ def _write_harvests_chunk(
 			prev = key_to_harvest[metrc_harvest.harvest_id]
 			prev.type = metrc_harvest.type
 			prev.license_number = metrc_harvest.license_number
+			prev.us_state = metrc_harvest.us_state
 			prev.company_id = metrc_harvest.company_id
 			prev.name = metrc_harvest.name
 			prev.harvest_start_date = metrc_harvest.harvest_start_date

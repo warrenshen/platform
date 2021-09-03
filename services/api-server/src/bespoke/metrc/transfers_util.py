@@ -61,9 +61,13 @@ class TransferPackages(object):
 		return [t['PackageId'] for t in self._packages]
 
 	def get_package_models(
-		self, lab_tests: List[LabTest], transfer_type: str, 
-					created_date: datetime.date, company_id: str,
-					license_number: str) -> Tuple[List[models.MetrcTransferPackage], str]:
+			self, lab_tests: List[LabTest], transfer_type: str, created_date: datetime.date,
+			ctx: metrc_common_util.DownloadContext) -> Tuple[List[models.MetrcTransferPackage], str]:
+		company_id = ctx.company_info.company_id
+		license_id = ctx.license['license_id']
+		license_number = ctx.license['license_number']
+		us_state = ctx.license['us_state']
+
 		# Return list of MetrcTransferPackage models and lab results status
 		# of the Transfer that all these packages belong to.
 		metrc_packages = []
@@ -84,6 +88,7 @@ class TransferPackages(object):
 			p = models.MetrcTransferPackage()
 			p.type = 'transfer_{}'.format(transfer_type).lower()
 			p.license_number = license_number
+			p.us_state = us_state
 			p.company_id = cast(Any, company_id)
 			p.package_id = '{}'.format(package_id)
 			p.delivery_id = '{}'.format(package['DeliveryId'])
@@ -126,13 +131,18 @@ class Transfers(object):
 	def build(transfers: List[Dict]) -> 'Transfers':
 		return Transfers(transfers)
 
-	def get_transfer_objs(self, rest: metrc_common_util.REST, company_id: str, license_id: str, transfer_type: str, license_number: str) -> List[MetrcTransferObj]:
+	def get_transfer_objs(self, rest: metrc_common_util.REST, ctx: metrc_common_util.DownloadContext, transfer_type: str) -> List[MetrcTransferObj]:
 		metrc_transfer_objs = []
+		company_id = ctx.company_info.company_id
+		license_id = ctx.license['license_id']
+		license_number = ctx.license['license_number']
+		us_state = ctx.license['us_state']
 
 		for t in self._transfers:
 			transfer_id = '{}'.format(t['Id'])
 			tr = models.MetrcTransfer()
 			tr.license_number = license_number
+			tr.us_state = us_state
 			tr.company_id = cast(Any, company_id)
 			tr.license_id = cast(Any, license_id)
 			tr.transfer_id = transfer_id
@@ -149,6 +159,7 @@ class Transfers(object):
 			deliveries: List[MetrcDeliveryObj] = []
 			if transfer_type == db_constants.TransferType.INCOMING:
 				d = models.MetrcDelivery()
+				d.us_state = us_state
 				d.delivery_id = '{}'.format(t['DeliveryId'])
 				d.recipient_facility_license_number = t['RecipientFacilityLicenseNumber']
 				d.recipient_facility_name = t['RecipientFacilityName']
@@ -169,6 +180,7 @@ class Transfers(object):
 
 				for delivery_json in delivery_json_arr:
 					d = models.MetrcDelivery()
+					d.us_state = us_state
 					d.delivery_id = '{}'.format(delivery_json['Id'])
 					d.recipient_facility_license_number = delivery_json['RecipientFacilityLicenseNumber']
 					d.recipient_facility_name = delivery_json['RecipientFacilityName']
@@ -197,10 +209,13 @@ def _write_transfers(
 	all_deliveries: List[MetrcDeliveryObj],
 	session: Session) -> None:
 	transfer_ids = [transfer_obj.metrc_transfer.transfer_id for transfer_obj in transfer_objs]
+	us_states = [transfer_obj.metrc_transfer.us_state for transfer_obj in transfer_objs]
 
 	prev_metrc_transfers = session.query(models.MetrcTransfer).filter(
-				models.MetrcTransfer.transfer_id.in_(transfer_ids)
-			)
+		models.MetrcTransfer.transfer_id.in_(transfer_ids)
+	).filter(
+		models.MetrcTransfer.us_state.in_(us_states)
+	)
 	transfer_id_to_prev_transfer = {}
 	for prev_transfer in prev_metrc_transfers:
 		transfer_id_to_prev_transfer[prev_transfer.transfer_id] = prev_transfer
@@ -251,6 +266,8 @@ def _write_deliveries(
 	delivery_id_to_delivery_row_id: Dict, 
 	session: Session) -> None:
 	delivery_ids = [delivery.metrc_delivery.delivery_id for delivery in deliveries]
+	# In reality, all the deliveries will be from the same state.
+	us_states = [delivery.metrc_delivery.us_state for delivery in deliveries]
 
 	transfer_row_ids = []
 	for delivery in deliveries:
@@ -261,6 +278,8 @@ def _write_deliveries(
 		models.MetrcDelivery.delivery_id.in_(delivery_ids)
 	).filter(
 		models.MetrcDelivery.transfer_row_id.in_(transfer_row_ids)
+	).filter(
+		models.MetrcDelivery.us_state.in_(us_states)
 	)
 	delivery_key_to_prev_delivery: Dict[Tuple[str, str], models.MetrcDelivery] = {}
 	for prev_delivery in prev_metrc_deliveries:
@@ -393,10 +412,8 @@ def populate_transfers_table(
 
 	incoming_metrc_transfer_objs = Transfers.build(incoming_transfers).get_transfer_objs(
 		rest=rest,
-		company_id=company_info.company_id,
-		license_id=license['license_id'],
-		transfer_type=db_constants.TransferType.INCOMING,
-		license_number=license['license_number']
+		ctx=ctx,
+		transfer_type=db_constants.TransferType.INCOMING
 	)
 
 	with session_scope(session_maker) as session:
@@ -421,10 +438,8 @@ def populate_transfers_table(
 
 	outgoing_metrc_transfer_objs = Transfers.build(outgoing_transfers).get_transfer_objs(
 		rest=rest,
-		company_id=company_info.company_id,
-		license_id=license['license_id'],
+		ctx=ctx,
 		transfer_type=db_constants.TransferType.OUTGOING,
-		license_number=license['license_number']
 	)
 
 	with session_scope(session_maker) as session:
@@ -498,8 +513,7 @@ def populate_transfers_table(
 				lab_tests=lab_tests,
 				transfer_type=delivery.transfer_type,
 				created_date=metrc_transfer.created_date,
-				company_id=company_info.company_id,
-				license_number=metrc_transfer.license_number
+				ctx=ctx
 			)
 
 			#delivery_obj.lab_results_status = delivery_lab_results_status

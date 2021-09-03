@@ -150,6 +150,7 @@ class TestPopulatePlantBatchesTable(db_unittest.TestCase):
 				exp = expected_plant_batches[i]
 				self.assertEqual(exp['type'], p.type)
 				self.assertEqual('abcd', p.license_number)
+				self.assertEqual('CA', p.us_state)
 				self.assertEqual(exp['company_id'], str(p.company_id))
 				self.assertEqual(exp['plant_batch_id'], p.plant_batch_id)
 				self.assertEqual(exp['planted_date'], p.planted_date)

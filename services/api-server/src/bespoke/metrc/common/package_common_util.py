@@ -18,6 +18,7 @@ def _merge_common_fields(
 
 	prev.company_id = cur.company_id
 	prev.license_number = cur.license_number
+	prev.us_state = cur.us_state
 	prev.package_id = cur.package_id
 	prev.package_label = cur.package_label
 	prev.package_type = cur.package_type

@@ -199,6 +199,7 @@ class TestPopulatePackagesTable(db_unittest.TestCase):
 				exp = expected_packages[i]
 				self.assertEqual(exp['type'], p.type)
 				self.assertEqual('abcd', p.license_number)
+				self.assertEqual('CA', p.us_state)
 				self.assertEqual(exp['company_id'], str(p.company_id))
 				self.assertEqual(exp['package_id'], p.package_id)
 				self.assertEqual(exp['package_id'] + '-label', p.package_label)

@@ -21,14 +21,15 @@ class SalesTransactions(object):
 		self._sales_transactions = sales_transactions
 		self._type = transaction_type
 
-	def get_sales_transactions_models(self, company_id: str, license_number: str, receipt_id: str) -> List[models.MetrcSalesTransaction]:
+	def get_sales_transactions_models(self, ctx: metrc_common_util.DownloadContext, receipt_id: str) -> List[models.MetrcSalesTransaction]:
 		sales_transactions = []
 		for i in range(len(self._sales_transactions)):
 			tx = self._sales_transactions[i]
 			sales_tx = models.MetrcSalesTransaction()
 			sales_tx.type = self._type
-			sales_tx.license_number = license_number
-			sales_tx.company_id = cast(Any, company_id)
+			sales_tx.license_number = ctx.license['license_number']
+			sales_tx.us_state = ctx.license['us_state']
+			sales_tx.company_id = cast(Any, ctx.company_info.company_id)
 			sales_tx.package_id = '{}'.format(tx['PackageId'])
 			sales_tx.package_label = tx['PackageLabel']
 			sales_tx.product_name = tx['ProductName']
@@ -67,6 +68,7 @@ class SalesReceipts(object):
 			receipt = models.MetrcSalesReceipt()
 			receipt.type = self._type
 			receipt.license_number = license_number
+			receipt.us_state = ctx.license['us_state']
 			receipt.company_id = cast(Any, company_id)
 			receipt.receipt_id = '{}'.format(s['Id'])
 			receipt.receipt_number = s['ReceiptNumber']
@@ -85,8 +87,7 @@ class SalesReceipts(object):
 				resp = ctx.rest.get('/sales/v1/receipts/{}'.format(receipt.receipt_id))
 				receipt_resp = json.loads(resp.content)
 				transactions = SalesTransactions(receipt_resp['Transactions'], self._type).get_sales_transactions_models(
-					company_id=company_id,
-					license_number=license_number,
+					ctx=ctx,
 					receipt_id=receipt.receipt_id
 				)
 				ctx.request_status['sales_transactions_api'] = 200
@@ -158,11 +159,14 @@ def _write_sales_transactions_chunk(
 		return
 
 	company_id = sales_transactions[0].company_id
+	us_state = sales_transactions[0].us_state
 
 	prev_sales_transactions = session.query(models.MetrcSalesTransaction).filter(
 		models.MetrcSalesTransaction.receipt_id == receipt_id
 	).filter(
 		models.MetrcSalesTransaction.company_id == company_id
+	).filter(
+		models.MetrcSalesTransaction.us_state == us_state
 	)
 
 	# Sales transactions data comes in an "all or nothing" fashion, e.g.,
@@ -182,10 +186,16 @@ def _write_sales_transactions_chunk(
 def _write_sales_receipts_chunk(
 	sales_receipt_objs: List[SalesReceiptObj],
 	session: Session) -> None:
+	if not sales_receipt_objs:
+		return
+
 	receipt_numbers = [receipt_obj.metrc_receipt.receipt_number for receipt_obj in sales_receipt_objs] 
+	us_state = sales_receipt_objs[0].metrc_receipt.us_state
 
 	prev_sales_receipts = session.query(models.MetrcSalesReceipt).filter(
 		models.MetrcSalesReceipt.receipt_number.in_(receipt_numbers)
+	).filter(
+		models.MetrcSalesReceipt.us_state == us_state
 	)
 
 	receipt_number_to_sales_receipt = {}
@@ -200,6 +210,8 @@ def _write_sales_receipts_chunk(
 			prev = receipt_number_to_sales_receipt[sales_receipt.receipt_number]
 			prev.type = sales_receipt.type
 			prev.license_number = sales_receipt.license_number
+			prev.us_state = sales_receipt.us_state
+			prev.us_state = sales_receipt.us_state
 			prev.company_id = sales_receipt.company_id
 			prev.sales_customer_type = sales_receipt.sales_customer_type
 			prev.sales_datetime = sales_receipt.sales_datetime

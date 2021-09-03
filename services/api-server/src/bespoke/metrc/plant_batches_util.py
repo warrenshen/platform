@@ -25,13 +25,18 @@ class PlantBatches(object):
 		self._plant_batches = plant_batches
 		self._api_type = api_type
 
-	def get_models(self, company_id: str, license_number: str) -> List[PlantBatchObj]:
+	def get_models(self, ctx: metrc_common_util.DownloadContext) -> List[PlantBatchObj]:
+		company_id = ctx.company_info.company_id
+		license_number = ctx.license['license_number']
+		us_state = ctx.license['us_state']
+
 		plant_batches = []
 		for i in range(len(self._plant_batches)):
 			p = self._plant_batches[i]
 			batch = models.MetrcPlantBatch()
 			batch.company_id = cast(Any, company_id)
 			batch.license_number = license_number
+			batch.us_state = us_state
 			batch.type = self._api_type
 			batch.plant_batch_id = '{}'.format(p['Id'])
 			batch.name = p['Name']
@@ -69,13 +74,11 @@ def download_plant_batches(ctx: metrc_common_util.DownloadContext) -> List[Plant
 		metrc_common_util.update_if_all_are_unsuccessful(request_status, 'plant_batches_api', e)
 
 	inactive_plant_batch_models = PlantBatches(inactive_batches, 'inactive').get_models(
-		company_id=company_info.company_id,
-		license_number=ctx.license['license_number']
+		ctx=ctx,
 	)
 
 	active_plant_batch_models = PlantBatches(active_batches, 'active').get_models(
-		company_id=company_info.company_id,
-		license_number=ctx.license['license_number']
+		ctx=ctx,
 	)
 
 	if inactive_batches:
@@ -111,6 +114,7 @@ def _write_plant_batches_chunk(
 			prev = key_to_plant_batch[metrc_batch.plant_batch_id]
 			prev.type = metrc_batch.type
 			prev.license_number = metrc_batch.license_number
+			prev.us_state = metrc_batch.us_state
 			prev.company_id = metrc_batch.company_id
 			prev.name = metrc_batch.name
 			prev.planted_date = metrc_batch.planted_date

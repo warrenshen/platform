@@ -41,6 +41,7 @@ class TestMergePackage(unittest.TestCase):
 		prev = models.MetrcPackage(
 			type='type-1',
 			license_number='abcd',
+			us_state='CA',
 			package_id='1',
 			package_label='B',
 			package_type='1-type',
@@ -58,6 +59,7 @@ class TestMergePackage(unittest.TestCase):
 		cur = models.MetrcPackage(
 			type='type-2',
 			license_number='efgh',
+			us_state='CA',
 			package_id='2',
 			package_label='A',
 			package_type='2-type',
@@ -260,6 +262,7 @@ class TestUpdatePackages(db_unittest.TestCase):
 			cur = models.MetrcPackage(
 				type='type-2',
 				license_number='abcd',
+				us_state='CA',
 				package_id='2',
 				package_label='A',
 				package_type='2-type',
@@ -282,6 +285,7 @@ class TestUpdatePackages(db_unittest.TestCase):
 				models.MetrcPackage(
 					type='type-2',
 					license_number='abcd',
+					us_state='CA',
 					package_id='2',
 					package_label='A',
 					package_type='2-type',
@@ -295,6 +299,7 @@ class TestUpdatePackages(db_unittest.TestCase):
 				models.MetrcPackage(
 					type='type-3',
 					license_number='abcd',
+					us_state='CA',
 					package_id='3',
 					package_label='B',
 					package_type='3-type',

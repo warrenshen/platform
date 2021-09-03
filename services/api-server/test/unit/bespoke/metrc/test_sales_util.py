@@ -48,6 +48,7 @@ class TestPopulateSalesTable(db_unittest.TestCase):
 				id_ = str(cast(Dict, p.payload)['Id'])
 				self.assertEqual(exp['type'], p.type)
 				self.assertEqual('abcd', p.license_number)
+				self.assertEqual('CA', p.us_state)
 				self.assertEqual(exp['company_id'], str(p.company_id))
 				self.assertEqual(str(exp['receipt_id']), p.receipt_id)
 				self.assertIsNotNone(p.receipt_row_id)
@@ -471,6 +472,7 @@ class TestPopulateSalesTable(db_unittest.TestCase):
 				exp = expected_receipts[i]
 				self.assertEqual(exp['type'], p.type)
 				self.assertEqual('abcd', p.license_number)
+				self.assertEqual('CA', p.us_state)
 				self.assertEqual(exp['company_id'], str(p.company_id))
 				self.assertEqual(exp['receipt_id'] + '-receipt-num', p.receipt_number)
 				self.assertEqual(exp['receipt_id'], p.receipt_id)

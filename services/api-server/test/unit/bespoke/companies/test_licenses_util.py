@@ -70,6 +70,7 @@ def _get_deliveries(transfer_row_id: str, session: Session) -> List[models.Metrc
 def _create_transfer(shipper_license_number: str, transfer_type: str, transfer_id: str, company_id: str, session: Session) -> models.MetrcTransfer:
 	tr = models.MetrcTransfer()
 	tr.license_number = 'abcd'
+	tr.us_state = 'CA'
 	tr.license_id = _get_row_license_id('abcd', session)
 	tr.shipper_facility_license_number = shipper_license_number
 	tr.vendor_id = cast(GUID, _get_company_id_from_license_number(shipper_license_number, session))
@@ -83,6 +84,7 @@ def _create_transfer(shipper_license_number: str, transfer_type: str, transfer_i
 
 def _create_delivery(recipient_license_number: str, transfer_row_id: str, session: Session) -> models.MetrcDelivery:
 	dlvry = models.MetrcDelivery()
+	dlvry.us_state = 'CA'
 	dlvry.recipient_facility_license_number = recipient_license_number
 	dlvry.transfer_row_id = cast(GUID, transfer_row_id)
 	dlvry.payor_id = cast(GUID, _get_company_id_from_license_number(recipient_license_number, session))

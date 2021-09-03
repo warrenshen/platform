@@ -25,14 +25,19 @@ class Plants(object):
 		self._plants = plants
 		self._api_type = api_type
 
-	def get_models(self, company_id: str, license_number: str) -> List[PlantObj]:
+	def get_models(self, ctx: metrc_common_util.DownloadContext) -> List[PlantObj]:
 		plants = []
+		company_id = ctx.company_info.company_id
+		license_number = ctx.license['license_number']
+		us_state = ctx.license['us_state']
+
 		for i in range(len(self._plants)):
 			p = self._plants[i]
 			plant = models.MetrcPlant()
 			plant.company_id = cast(Any, company_id)
 			plant.type = self._api_type
 			plant.license_number = license_number
+			plant.us_state = us_state
 			plant.plant_id = '{}'.format(p['Id'])
 			plant.label = p['Label']
 			plant.planted_date = parser.parse(p['PlantedDate'])
@@ -87,20 +92,16 @@ def download_plants(ctx: metrc_common_util.DownloadContext) -> List[PlantObj]:
 	license_number = ctx.license['license_number']
 
 	vegetative_plant_models = Plants(vegetative_plants, 'vegetative').get_models(
-		company_id=company_info.company_id,
-		license_number=license_number
+		ctx=ctx,
 	)
 	flowering_plant_models = Plants(flowering_plants, 'flowering').get_models(
-		company_id=company_info.company_id,
-		license_number=license_number
+		ctx=ctx,
 	)
 	inactive_plant_models = Plants(inactive_plants, 'inactive').get_models(
-		company_id=company_info.company_id,
-		license_number=license_number
+		ctx=ctx,
 	)
 	onhold_plant_models = Plants(onhold_plants, 'onhold').get_models(
-		company_id=company_info.company_id,
-		license_number=license_number
+		ctx=ctx,
 	)
 
 	if vegetative_plants:
@@ -142,6 +143,7 @@ def _write_plants_chunk(
 			prev = key_to_plant[metrc_plant.plant_id]
 			prev.type = metrc_plant.type
 			prev.license_number = metrc_plant.license_number
+			prev.us_state = metrc_plant.us_state
 			prev.company_id = metrc_plant.company_id
 			prev.label = metrc_plant.label
 			prev.planted_date = metrc_plant.planted_date
