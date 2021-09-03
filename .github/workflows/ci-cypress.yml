@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - staging
-    paths:
-      - 'services/app/**'
-      - 'services/graphql-server/**'
 
 jobs:
   cypress:
