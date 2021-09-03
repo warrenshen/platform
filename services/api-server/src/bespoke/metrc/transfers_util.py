@@ -6,15 +6,13 @@ from mypy_extensions import TypedDict
 from typing import Any, Callable, Dict, Iterable, List, Tuple, cast
 
 from bespoke import errors
-from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
 from bespoke.db.metrc_models_util import MetrcDeliveryObj, MetrcTransferObj, TransferDetails
 from bespoke.companies import licenses_util
 from bespoke.metrc.common import metrc_common_util, package_common_util
 from bespoke.metrc.common.package_common_util import UNKNOWN_LAB_STATUS
-from bespoke.metrc.common.metrc_common_util import (
-	CompanyInfo, LicenseAuthDict, UNKNOWN_STATUS_CODE, chunker)
+from bespoke.metrc.common.metrc_common_util import chunker
 from dateutil import parser
 from sqlalchemy.orm.session import Session
 
