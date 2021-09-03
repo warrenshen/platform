@@ -169,10 +169,6 @@ def calculate_repayment_effect(
 	else:
 		to_account_fees = items_covered['to_account_fees']
 
-
-	if not loan_ids and not to_account_fees:
-		raise errors.Error('Repayment must apply to loan(s) and / or account fees - please select loan(s) or specify amount to account fee')
-
 	with session_scope(session_maker) as session:
 		# Get all contracts associated with company.
 		contracts = cast(
@@ -195,6 +191,13 @@ def calculate_repayment_effect(
 	if not active_contract:
 		raise errors.Error('No active contract on settlement date')
 	product_type, err = active_contract.get_product_type()
+
+	if product_type == ProductType.LINE_OF_CREDIT:
+		if not amount:
+			raise errors.Error('Repayment must apply to principal and / or interest - please specify amount to principal or interest')
+	else:
+		if not loan_ids and not to_account_fees:
+			raise errors.Error('Repayment must apply to loan(s) and / or account fees - please select loan(s) or specify amount to account fee')
 
 	# Figure out how much is due by a particular date
 	loan_dicts = []
