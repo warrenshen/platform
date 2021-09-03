@@ -45,11 +45,11 @@ function DeletePaymentModal({ paymentId, handleClose }: Props) {
     { loading: isDeleteRepaymentLoading },
   ] = useCustomMutation(deleteRepaymentMutation);
 
-  let title = "Delete Payment";
+  let title = "Delete Repayment";
   let noun = "payment";
 
   if (payment?.type === PaymentTypeEnum.RepaymentOfAccountFee) {
-    title = "Delete Payment of Fee";
+    title = "Delete Repayment of Fee";
     noun = "repayment";
   } else if (payment?.type === PaymentTypeEnum.Fee) {
     title = "Delete Fee";

@@ -56,7 +56,7 @@ export async function deleteRepaymentMutation(
         console.log("error", error);
         return {
           status: "ERROR",
-          msg: "Could not delete payment",
+          msg: "Could not delete repayment",
         };
       }
     );

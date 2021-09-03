@@ -265,20 +265,22 @@ export default function CustomerOverviewPageContent({
             )}
             {!!selectedPaymentId && (
               <Can perform={Action.DeleteRepayments}>
-                <ModalButton
-                  label={"Delete Payment"}
-                  variant={"outlined"}
-                  modal={({ handleClose }) => (
-                    <DeletePaymentModal
-                      paymentId={selectedPaymentId}
-                      handleClose={() => {
-                        refetch();
-                        handleClose();
-                        setSelectedPaymentIds([]);
-                      }}
-                    />
-                  )}
-                />
+                <Box mr={2}>
+                  <ModalButton
+                    label={"Delete Repayment"}
+                    variant={"outlined"}
+                    modal={({ handleClose }) => (
+                      <DeletePaymentModal
+                        paymentId={selectedPaymentId}
+                        handleClose={() => {
+                          refetch();
+                          handleClose();
+                          setSelectedPaymentIds([]);
+                        }}
+                      />
+                    )}
+                  />
+                </Box>
               </Can>
             )}
           </Box>

@@ -378,7 +378,7 @@ class DeleteRepaymentView(MethodView):
 		for key in required_keys:
 			if key not in form:
 				return handler_util.make_error_response(
-					'Missing key {} from delete payment request'.format(key))
+					'Missing key {} from delete repayment request'.format(key))
 
 		user_session = auth_util.UserSession.from_session()
 

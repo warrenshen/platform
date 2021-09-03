@@ -146,7 +146,7 @@ export default function BankRepaymentsActionRequiredTab() {
               <Can perform={Action.DeleteRepayments}>
                 <Box mr={2}>
                   <ModalButton
-                    label={"Delete Payment"}
+                    label={"Delete Repayment"}
                     variant={"outlined"}
                     modal={({ handleClose }) => (
                       <DeletePaymentModal
@@ -201,7 +201,7 @@ export default function BankRepaymentsActionRequiredTab() {
               <Can perform={Action.DeleteRepayments}>
                 <Box mr={2}>
                   <ModalButton
-                    label={"Delete Payment"}
+                    label={"Delete Repayment"}
                     variant={"outlined"}
                     modal={({ handleClose }) => (
                       <DeletePaymentModal
@@ -256,7 +256,7 @@ export default function BankRepaymentsActionRequiredTab() {
               <Can perform={Action.DeleteRepayments}>
                 <Box mr={2}>
                   <ModalButton
-                    label={"Delete Payment"}
+                    label={"Delete Repayment"}
                     variant={"outlined"}
                     modal={({ handleClose }) => (
                       <DeletePaymentModal
