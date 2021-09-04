@@ -698,6 +698,7 @@ def settle_repayment(
 	user_id: str,
 	session_maker: Callable,
 	is_line_of_credit: bool,
+	now_for_test: datetime.datetime = None
 ) -> Tuple[List[str], errors.Error]:
 
 	err_details = {
@@ -1218,14 +1219,14 @@ def settle_repayment(
 			cur_loan.outstanding_interest = decimal.Decimal(new_outstanding_interest)
 			cur_loan.outstanding_fees = decimal.Decimal(new_outstanding_fees)
 
-			no_outstanding_balance = payment_util.should_close_loan(
+			no_outstanding_balance = payment_util.is_loan_balance_zero(
 				new_outstanding_principal=new_outstanding_principal_balance,
 				new_outstanding_interest=new_outstanding_interest,
 				new_outstanding_fees=new_outstanding_fees
 			)
 
 			if no_outstanding_balance:
-				payment_util.close_loan(cur_loan)
+				cur_loan.payment_status = PaymentStatusEnum.CLOSING
 			else:
 				cur_loan.payment_status = PaymentStatusEnum.PARTIALLY_PAID
 

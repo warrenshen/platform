@@ -32,34 +32,7 @@ def _get_late_fee_structure() -> str:
 class TestCalculateLoanBalance(db_unittest.TestCase):
 
 	def _run_test(self, test: Dict) -> None:
-		self.reset()
-		session_maker = self.session_maker
-		seed = test_helper.BasicSeed.create(self.session_maker, self)
-		seed.initialize()
-
-		company_id = seed.get_company_id('company_admin', index=0)
-
-		with session_scope(self.session_maker) as session:
-			session.add(models.CompanySettings(
-				company_id=company_id,
-				vendor_agreement_docusign_template='unused'
-			))
-
-			if test.get('populate_fn'):
-				test['populate_fn'](session, seed, company_id)
-
-		company_dict = models.CompanyDict(
-				id=company_id,
-				identifier='D1',
-				name='Distributor 1'
-		)
-		customer_balance = loan_balances.CustomerBalance(
-			company_dict=company_dict,
-			session_maker=self.session_maker
-		)
-
 		today = date_util.load_date_str(test['today'])
-
 		today_date_dicts: List[Dict] = [
 			{
 				'report_date': today,
@@ -82,6 +55,33 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		]
 
 		for today_date_dict in today_date_dicts:
+
+			self.reset()
+			session_maker = self.session_maker
+			seed = test_helper.BasicSeed.create(self.session_maker, self)
+			seed.initialize()
+
+			company_id = seed.get_company_id('company_admin', index=0)
+
+			with session_scope(self.session_maker) as session:
+				session.add(models.CompanySettings(
+					company_id=company_id,
+					vendor_agreement_docusign_template='unused'
+				))
+
+				if test.get('populate_fn'):
+					test['populate_fn'](session, seed, company_id)
+
+			company_dict = models.CompanyDict(
+					id=company_id,
+					identifier='D1',
+					name='Distributor 1'
+			)
+			customer_balance = loan_balances.CustomerBalance(
+				company_dict=company_dict,
+				session_maker=self.session_maker
+			)
+
 			today = today_date_dict['today']
 
 			day_to_customer_update, err = reports_util.update_company_balance(
@@ -112,9 +112,10 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				self.assertAlmostEqual(expected['outstanding_interest'], number_util.round_currency(actual['outstanding_interest']))
 				self.assertAlmostEqual(expected['outstanding_fees'], number_util.round_currency(actual['outstanding_fees']))
 				self.assertAlmostEqual(expected['amount_to_pay_interest_on'], number_util.round_currency(actual['amount_to_pay_interest_on']))
+				self.assertEqual(expected['day_last_repayment_settles'], actual['day_last_repayment_settles'])
 				self.assertAlmostEqual(expected['interest_accrued_today'], number_util.round_currency(actual['interest_accrued_today']))
-				self.assertAlmostEqual(expected['financing_period'] if expected['financing_period'] else None, actual['financing_period'])
-				#self.assertAlmostEqual(expected['should_close_loan'], actual['should_close_loan'])
+				self.assertEqual(expected['financing_period'] if expected['financing_period'] else None, actual['financing_period'])
+				self.assertEqual(expected['should_close_loan'], actual['should_close_loan'])
 
 			if test.get('expected_summary_update') is not None:
 				expected = test['expected_summary_update']
@@ -148,21 +149,27 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			# customer balances until.
 			#
 			# So all the tests below should only be executed when report_date == today
-
-			loan_ids = [loan_update['loan_id'] for loan_update in loan_updates]
+			"""
 			loans = cast(
 				List[models.Loan],
 				session.query(models.Loan).filter(
 					models.Loan.id.in_(loan_ids)
 				).all())
 			loans = [loan for loan in loans]
+			"""
+			loan_ids = [loan_update['loan_id'] for loan_update in loan_updates]
+			loans = cast(
+				List[models.Loan],
+				session.query(models.Loan).filter(
+					models.Loan.id.in_(loan_ids)
+				).all())
 			loans.sort(key=lambda u: u.adjusted_maturity_date)
 
 			for i in range(len(loans)):
 				loan = loans[i]
 				expected_loan = test['expected_loan_updates'][i]
 				self.assertAlmostEqual(expected_loan['outstanding_principal'], float(loan.outstanding_principal_balance))
-
+				
 			with session_scope(self.session_maker) as session:
 				financial_summary = financial_summary_util.get_latest_financial_summary(company_id, session)
 
@@ -302,6 +309,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'amount_to_pay_interest_on': 500.03,
 						'interest_accrued_today': number_util.round_currency(0.05 * 500.03),
 						'financing_period': 3, # It's been 3 days since this loan was originated.
+						'day_last_repayment_settles': None, # no repayments yet
 						'should_close_loan': False
 					},
 					{
@@ -313,6 +321,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'amount_to_pay_interest_on': 100.03,
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.03),
 						'financing_period': 2, # It's been 2 days since this loan was originated.
+						'day_last_repayment_settles': None, # no repayments yet
 						'should_close_loan': False
 					}
 				],
@@ -422,6 +431,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 500.03,
 						'interest_accrued_today': number_util.round_currency(0.005 * 500.03),
+						'day_last_repayment_settles': None, # no repayment has been deposited until this point
 						'financing_period': 30,
 						'should_close_loan': False
 					},
@@ -452,6 +462,25 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				}
 			},
 			{
+				'today': '11/05/2020', # It's been 32 days since the loan started, and it gets fully paid off
+				'populate_fn': populate_fn,
+				'expected_loan_updates': [
+					{
+						'adjusted_maturity_date': date_util.load_date_str('11/05/2020'),
+						'outstanding_principal': 0.0,
+						'outstanding_principal_for_interest': 500.03,
+						'outstanding_interest': -2.51, # Because it's "overpaid" during the time period before the settlement days kick in
+						'outstanding_fees': 0.0,
+						'amount_to_pay_interest_on': 500.03,
+						'interest_accrued_today': number_util.round_currency(0.005 * 500.03),
+						'day_last_repayment_settles': date_util.load_date_str('11/06/2020'),
+						'financing_period': 32,
+						# Dont close the loan yet because the last repayment hasnt settled
+						'should_close_loan': False
+					},
+				],
+			},
+			{
 				'today': '11/06/2020', # It's been 33 days since the loan started, and it gets fully paid off
 				'populate_fn': populate_fn,
 				'expected_loan_updates': [
@@ -463,6 +492,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 500.03,
 						'interest_accrued_today': number_util.round_currency(0.005 * 500.03),
+						'day_last_repayment_settles': date_util.load_date_str('11/06/2020'),
 						'financing_period': 33,
 						'should_close_loan': True
 					},
@@ -514,6 +544,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 500.03,
 						'interest_accrued_today': number_util.round_currency(0.005 * 500.03),
+						'day_last_repayment_settles': None,
 						'financing_period': 35,
 						'should_close_loan': False
 					},
@@ -547,7 +578,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		for test in tests:
 			self._run_test(test)
 
-	def test_success_no_payments_two_loans_reduced_interest_rate_due_to_threshold(self) -> None:
+	def test_success_two_loans_reduced_interest_rate_due_to_threshold(self) -> None:
 
 		def get_populate_fn(threshold_starting_value: float) -> Callable:
 
@@ -646,6 +677,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 500.03,
 						'interest_accrued_today': number_util.round_currency(0.05 * 500.03),
+						'day_last_repayment_settles': date_util.load_date_str('10/03/2020'),
 						'financing_period': 3,
 						'should_close_loan': False
 					},
@@ -658,6 +690,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'amount_to_pay_interest_on': 0.0,
 						'interest_accrued_today': 0.0,
 						'financing_period': None,
+						'day_last_repayment_settles': None,
 						'should_close_loan': False # hasnt been funded yet
 					},
 					{
@@ -669,6 +702,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'amount_to_pay_interest_on': 0.0,
 						'interest_accrued_today': 0.0,
 						'financing_period': None,
+						'day_last_repayment_settles': None,
 						'should_close_loan': False # hasnt been funded yet
 					}
 				],
@@ -686,6 +720,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 100.0,
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00),
+						'day_last_repayment_settles': date_util.load_date_str('10/05/2020'),
 						'financing_period': 5,
 						'should_close_loan': False
 					},
@@ -697,6 +732,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 600.03,
 						'interest_accrued_today': number_util.round_currency(0.05 * 600.03),
+						'day_last_repayment_settles': date_util.load_date_str('10/05/2020'),
 						'financing_period': 1,
 						'should_close_loan': False
 					},
@@ -708,6 +744,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 0.0,
 						'interest_accrued_today': 0.0,
+						'day_last_repayment_settles': None,
 						'financing_period': None,
 						'should_close_loan': False
 					}
@@ -726,6 +763,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 0.0,
 						'interest_accrued_today': 0.0,
+						'day_last_repayment_settles': date_util.load_date_str('10/05/2020'),
 						'financing_period': 9,
 						'should_close_loan': False
 					},
@@ -737,6 +775,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 100.0,
 						'interest_accrued_today': number_util.round_currency(0.01 * 100.00),
+						'day_last_repayment_settles': date_util.load_date_str('10/05/2020'),
 						'financing_period': 5,
 						'should_close_loan': False
 					},
@@ -748,6 +787,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 700.03,
 						'interest_accrued_today': number_util.round_currency(0.01 * 700.03),
+						'day_last_repayment_settles': None,
 						'financing_period': 3,
 						'should_close_loan': False
 					}
@@ -766,6 +806,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 0.0,
 						'interest_accrued_today': 0.0,
+						'day_last_repayment_settles': date_util.load_date_str('10/05/2020'),
 						'financing_period': 9,
 						'should_close_loan': False
 					},
@@ -777,6 +818,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 100.0,
 						'interest_accrued_today': number_util.round_currency(0.01 * 100.0),
+						'day_last_repayment_settles': date_util.load_date_str('10/05/2020'),
 						'financing_period': 5,
 						'should_close_loan': False
 					},
@@ -788,6 +830,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 700.03,
 						'interest_accrued_today': number_util.round_currency(0.01 * 700.03),
+						'day_last_repayment_settles': None,
 						'financing_period': 3,
 						'should_close_loan': False
 					}
@@ -806,6 +849,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 0.0,
 						'interest_accrued_today': 0.0,
+						'day_last_repayment_settles': date_util.load_date_str('10/05/2020'),
 						'financing_period': 9,
 						'should_close_loan': False
 					},
@@ -817,6 +861,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 100.0,
 						'interest_accrued_today': number_util.round_currency(0.01 * 100.00),
+						'day_last_repayment_settles': date_util.load_date_str('10/05/2020'),
 						'financing_period': 5,
 						'should_close_loan': False
 					},
@@ -828,6 +873,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 700.03,
 						'interest_accrued_today': number_util.round_currency(0.01 * 700.03),
+						'day_last_repayment_settles': None,
 						'financing_period': 3,
 						'should_close_loan': False
 					}
@@ -837,7 +883,6 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		]
 		i = 0
 		for test in tests:
-			#print('RUN A TEST {}'.format(i))
 			self._run_test(test)
 			i += 1
 
@@ -1103,6 +1148,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'amount_to_pay_interest_on': 500.03,
 						'interest_accrued_today': number_util.round_currency(0.002 * 500.03),
 						'financing_period': 2,
+						'day_last_repayment_settles': date_util.load_date_str('10/03/2020'),
 						'should_close_loan': False
 					}
 				],
@@ -1144,6 +1190,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_interest': 0.0, # partial payment paid off interest
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 500.03,
+						'day_last_repayment_settles': date_util.load_date_str('10/03/2020'),
 						'interest_accrued_today': number_util.round_currency(0.002 * 500.03), # The repayment takes effect after the 3rd
 						'financing_period': 3,
 						'should_close_loan': False
@@ -1166,6 +1213,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': number_util.round_currency(((14 * daily_interest * 0.25) + (7 * daily_interest * 0.5)) + 2.0),
 						'amount_to_pay_interest_on': 450.03 - 1.0,
 						'interest_accrued_today': number_util.round_currency(daily_interest),
+						'day_last_repayment_settles': date_util.load_date_str('10/03/2020'),
 						'financing_period': 26,
 						'should_close_loan': False
 					}
@@ -1278,6 +1326,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 430.02,
 						'interest_accrued_today': number_util.round_currency(430.02 * 0.002),
+						'day_last_repayment_settles': date_util.load_date_str('10/03/2020'),
 						'financing_period': 2,
 						'should_close_loan': False
 					}
@@ -1320,6 +1369,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						# first_two_days_carryover + settlement day, which doesnt include repayment (because repayment influence happens at the end of the settlement day)
 						'amount_to_pay_interest_on': 430.02,
 						'interest_accrued_today': number_util.round_currency(430.02 * 0.002 * 1),
+						'day_last_repayment_settles': date_util.load_date_str('10/03/2020'),
 						'financing_period': 3,
 						'should_close_loan': False
 					}
@@ -1341,6 +1391,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						# - 1.0 is adjustment from principal
 						# + 2.0 is adjustment for interest
 						'interest_accrued_today': number_util.round_currency((430.02  - 51.1) * 0.002),
+						'day_last_repayment_settles': date_util.load_date_str('10/03/2020'),
 						'financing_period': 26,
 						'should_close_loan': False
 					}

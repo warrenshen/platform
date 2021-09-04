@@ -37,7 +37,8 @@ LoanUpdateDict = TypedDict('LoanUpdateDict', {
 	'amount_to_pay_interest_on': float,
 	'interest_accrued_today': float,
 	'should_close_loan': bool,
-	'repayment_date': datetime.date,
+	'repayment_date': datetime.date, # last repayment settlement date, calculated on the settlement date
+	'day_last_repayment_settles': datetime.date, # last repayment settlement date, calculated on the deposit date, e.g., a "look ahead"
 	'total_principal_paid': float,
 	'total_interest_paid': float,
 	'total_fees_paid': float,
@@ -71,6 +72,7 @@ CalculatorBalances = TypedDict('CalculatorBalances', {
 	'has_been_funded': bool,
 	'amount_paid_back_on_loan': float,
 	'loan_paid_by_maturity_date': bool,
+	'day_last_repayment_settles': datetime.date,
 	'repayment_date': datetime.date,
 	'total_principal_paid': float,
 	'total_interest_paid': float,
@@ -548,6 +550,11 @@ def _update_end_of_day_repayment_deposits(
 			):
 				balances['loan_paid_by_maturity_date'] = True
 
+			if not balances['day_last_repayment_settles']:
+				balances['day_last_repayment_settles'] = tx['effective_date']
+			elif tx['effective_date'] > balances['day_last_repayment_settles']:
+				balances['day_last_repayment_settles'] = tx['effective_date']
+
 def _update_end_of_day_repayment_settlements(
 	transactions_by_settlement_date: List[models.AugmentedTransactionDict],
 	balances: CalculatorBalances,
@@ -635,7 +642,8 @@ class LoanCalculator(object):
 		start_date_for_storing_results: datetime.date,
 		should_round_output: bool = True,
 		payment_to_include: IncludedPaymentDict = None,
-		include_debug_info: bool = False
+		include_debug_info: bool = False,
+		now_for_test: datetime.datetime = None,
 	) -> Tuple[Dict[datetime.date, CalculateResultDict], List[errors.Error]]:
 		# Replay the history of the loan and all the expenses that are due as a result.
 		# Heres what you owe based on the transaction history applied to your loan.
@@ -667,6 +675,7 @@ class LoanCalculator(object):
 			has_been_funded = False,
 			amount_paid_back_on_loan = 0.0,
 			loan_paid_by_maturity_date = False,
+			day_last_repayment_settles=None,
 
 			# Report values: values used for reporting purposes ONLY.
 			repayment_date = None,
@@ -735,6 +744,8 @@ class LoanCalculator(object):
 					new_outstanding_principal=outstanding_principal,
 					new_outstanding_interest=outstanding_interest,
 					new_outstanding_fees=outstanding_fees,
+					day_last_repayment_settles=balances['day_last_repayment_settles'],
+					today=today
 				)
 
 			report_repayment_date = balances['repayment_date']
@@ -774,6 +785,7 @@ class LoanCalculator(object):
 				interest_accrued_today=_format_output_value(interest_accrued_today, should_round_output),
 				should_close_loan=should_close_loan,
 				repayment_date=report_repayment_date,
+				day_last_repayment_settles=balances['day_last_repayment_settles'],
 				financing_period=financing_period,
 				financing_day_limit=financing_day_limit,
 				total_principal_paid=_format_output_value(balances['total_principal_paid'], should_round_output),
@@ -967,6 +979,13 @@ class LoanCalculator(object):
 				):
 					balances['loan_paid_by_maturity_date'] = True
 
+				# If someone is using a payment to include, also use this to count
+				# when the last repayment settles
+				if not balances['day_last_repayment_settles']:
+					balances['day_last_repayment_settles'] = payment_to_include['settlement_date']
+				elif payment_to_include['settlement_date'] > balances['day_last_repayment_settles']:
+					balances['day_last_repayment_settles'] = payment_to_include['settlement_date']
+
 				payment_effect_dict = PaymentEffectDict(
 					loan_state_before_payment=loan_state_before_payment,
 					transaction=inserted_repayment_transaction
@@ -1007,7 +1026,8 @@ class LoanCalculator(object):
 		today: datetime.date,
 		should_round_output: bool = True,
 		payment_to_include: IncludedPaymentDict = None,
-		include_debug_info: bool = False
+		include_debug_info: bool = False,
+		now_for_test: datetime.datetime = None,
 	) -> Tuple[CalculateResultDict, List[errors.Error]]:
 
 		date_to_results, err = self._calculate_loan_balance_internal(
@@ -1019,7 +1039,8 @@ class LoanCalculator(object):
 			start_date_for_storing_results=None,
 			should_round_output=should_round_output,
 			payment_to_include=payment_to_include,
-			include_debug_info=include_debug_info
+			include_debug_info=include_debug_info,
+			now_for_test=now_for_test
 		)
 		if err:
 			return None, err
@@ -1035,7 +1056,8 @@ class LoanCalculator(object):
 		start_date_for_storing_results: datetime.date,
 		should_round_output: bool = True,
 		payment_to_include: IncludedPaymentDict = None,
-		include_debug_info: bool = False
+		include_debug_info: bool = False,
+		now_for_test: datetime.datetime = None,
 	) -> Tuple[Dict[datetime.date, CalculateResultDict], List[errors.Error]]:
 
 		return self._calculate_loan_balance_internal(
@@ -1047,5 +1069,6 @@ class LoanCalculator(object):
 			start_date_for_storing_results=start_date_for_storing_results,
 			should_round_output=should_round_output,
 			payment_to_include=payment_to_include,
-			include_debug_info=include_debug_info
+			include_debug_info=include_debug_info,
+			now_for_test=now_for_test
 		)

@@ -353,8 +353,8 @@ class TestReverseRepayment(db_unittest.TestCase):
 					models.Loan.id.in_(loan_ids)
 				).all())
 			for loan in loans:
-				self.assertIsNotNone(loan.closed_at)
-				self.assertEqual(PaymentStatusEnum.CLOSED, loan.payment_status)
+				self.assertIsNone(loan.closed_at)
+				self.assertEqual(PaymentStatusEnum.CLOSING, loan.payment_status)
 
 		reverse_req = repayment_util.ReverseRepaymentReqDict(
 			company_id=company_id,

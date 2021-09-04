@@ -4,6 +4,7 @@
 """
 import datetime
 import decimal
+import pytz
 from typing import Any, Callable, Dict, List, Tuple, Union, cast
 
 from bespoke import errors
@@ -133,12 +134,29 @@ def is_repayment(p: Union[models.PaymentDict, models.TransactionDict]) -> bool:
 def is_adjustment(p: Union[models.PaymentDict, models.TransactionDict]) -> bool:
 	return p['type'] in db_constants.ADJUSTMENT_TYPES
 
-def should_close_loan(
-	new_outstanding_principal: float, new_outstanding_interest: float,
-	new_outstanding_fees: float) -> bool:
+def is_loan_balance_zero(
+	new_outstanding_principal: float, 
+	new_outstanding_interest: float,
+	new_outstanding_fees: float
+	) -> bool:
 	return new_outstanding_principal <= 0.0 \
 				and new_outstanding_interest <= 0.0 \
 				and new_outstanding_fees <= 0.0
+
+def should_close_loan(
+	new_outstanding_principal: float, 
+	new_outstanding_interest: float,
+	new_outstanding_fees: float,
+	day_last_repayment_settles: datetime.date,
+	today: datetime.date) -> bool:
+
+	repayment_happened_before_report_date = True
+	if day_last_repayment_settles:
+		repayment_happened_before_report_date = day_last_repayment_settles <= today
+
+	return is_loan_balance_zero(
+		new_outstanding_principal, new_outstanding_interest, new_outstanding_fees
+		) and repayment_happened_before_report_date
 
 def close_loan(cur_loan: models.Loan) -> None:
 	cur_loan.closed_at = date_util.now()

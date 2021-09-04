@@ -109,6 +109,7 @@ class PaymentStatusEnum(object):
 	PARTIALLY_PAID = 'partially_paid' # No pending payments on loan, loan partially paid.
 	SCHEDULED = 'scheduled' # Deprecated, to be removed.
 	CLOSED = 'closed' # Loan is fully paid off.
+	CLOSING = 'closing' # Loan is paid off, but some settlement days may be remaining
 
 class LoanStatusEnum(object):
 	APPROVAL_REQUESTED = 'approval_requested'

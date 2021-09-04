@@ -338,7 +338,6 @@ class CustomerBalance(object):
 				invoice,
 				transactions_for_loan,
 				today,
-				#start_date_for_storing_results=start_date_for_storing_updates,
 				should_round_output=False,
 				include_debug_info=include_debug_info
 			)

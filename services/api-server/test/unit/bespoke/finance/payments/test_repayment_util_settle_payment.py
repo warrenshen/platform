@@ -490,7 +490,7 @@ class TestSettleRepayment(db_unittest.TestCase):
 						'outstanding_principal_balance': 50.0 - 50.0,
 						'outstanding_interest': 0.3 - 0.3,
 						'outstanding_fees': 0.0 - 0.0,
-						'payment_status': PaymentStatusEnum.CLOSED
+						'payment_status': PaymentStatusEnum.CLOSING
 					}
 				]
 			}
@@ -564,7 +564,7 @@ class TestSettleRepayment(db_unittest.TestCase):
 					'outstanding_principal_balance': 0.0,
 					'outstanding_interest': 0.0,
 					'outstanding_fees': 0.0,
-					'payment_status': PaymentStatusEnum.CLOSED,
+					'payment_status': PaymentStatusEnum.CLOSING,
 				}
 			],
 		}
@@ -661,14 +661,14 @@ class TestSettleRepayment(db_unittest.TestCase):
 						'outstanding_principal_balance': 50.0 - 50.0,
 						'outstanding_interest': 0.3 - 0.3,
 						'outstanding_fees': 0.0 - 0.0,
-						'payment_status': PaymentStatusEnum.CLOSED,
+						'payment_status': PaymentStatusEnum.CLOSING,
 					},
 					{
 						'amount': 40.0,
 						'outstanding_principal_balance': 40.0 - 40.0,
 						'outstanding_interest': 0.24 - 0.24,
 						'outstanding_fees': 0.0 - 0.0,
-						'payment_status': PaymentStatusEnum.CLOSED,
+						'payment_status': PaymentStatusEnum.CLOSING,
 					},
 					{
 						'amount': 30.0,
@@ -797,14 +797,14 @@ class TestSettleRepayment(db_unittest.TestCase):
 						'outstanding_principal_balance': 40.0 - 40.0,
 						'outstanding_interest': 0.24 - 0.24,
 						'outstanding_fees': 0.0,
-						'payment_status': PaymentStatusEnum.CLOSED
+						'payment_status': PaymentStatusEnum.CLOSING
 					},
 					{
 						'amount': 30.0,
 						'outstanding_principal_balance': 0.0,
 						'outstanding_interest': 0.18 - 0.18,
 						'outstanding_fees': 0.0,
-						'payment_status': PaymentStatusEnum.CLOSED
+						'payment_status': PaymentStatusEnum.CLOSING
 					},
 				]
 			}
@@ -903,14 +903,14 @@ class TestSettleRepayment(db_unittest.TestCase):
 						'outstanding_principal_balance': 50.0 - 50.0,
 						'outstanding_interest': 0.3 - 0.3,
 						'outstanding_fees': 0.0,
-						'payment_status': PaymentStatusEnum.CLOSED
+						'payment_status': PaymentStatusEnum.CLOSING
 					},
 					{
 						'amount': 40.0,
 						'outstanding_principal_balance': 40.0 - 40.0,
 						'outstanding_interest': 0.24 - 0.24,
 						'outstanding_fees': 0.0,
-						'payment_status': PaymentStatusEnum.CLOSED
+						'payment_status': PaymentStatusEnum.CLOSING
 					},
 				]
 			}
@@ -981,7 +981,7 @@ class TestSettleRepayment(db_unittest.TestCase):
 					'outstanding_principal_balance': 0.0,
 					'outstanding_interest': 0.0,
 					'outstanding_fees': 0.0,
-					'payment_status': PaymentStatusEnum.CLOSED,
+					'payment_status': PaymentStatusEnum.CLOSING,
 				}
 			],
 			'in_err_msg': 'Principal on a loan may not be negative'
@@ -1557,7 +1557,7 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 						'outstanding_principal_balance': 50.0 - 50.0,
 						'outstanding_interest': 0.4 - 0.4,
 						'outstanding_fees': 0.0 - 0.0,
-						'payment_status': PaymentStatusEnum.CLOSED
+						'payment_status': PaymentStatusEnum.CLOSING
 					},
 				]
 			}
@@ -1623,7 +1623,7 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 						'outstanding_principal_balance': 50.0 - 50.0,
 						'outstanding_interest': 0.4 - 0.4,
 						'outstanding_fees': 0.0 - 0.0,
-						'payment_status': PaymentStatusEnum.CLOSED
+						'payment_status': PaymentStatusEnum.CLOSING
 					},
 				]
 			}
@@ -1820,14 +1820,14 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 						'outstanding_principal_balance': 50.0 - 50.0,
 						'outstanding_interest': 0.4 - 0.4,
 						'outstanding_fees': 0.0 - 0.0,
-						'payment_status': PaymentStatusEnum.CLOSED
+						'payment_status': PaymentStatusEnum.CLOSING
 					},
 					{
 						'amount': 100.0,
 						'outstanding_principal_balance': 100.0 - 100.0,
 						'outstanding_interest': 0.6 - 0.6,
 						'outstanding_fees': 0.0 - 0.0,
-						'payment_status': PaymentStatusEnum.CLOSED
+						'payment_status': PaymentStatusEnum.CLOSING
 					},
 				]
 			}
