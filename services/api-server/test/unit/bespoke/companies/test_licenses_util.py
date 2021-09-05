@@ -364,7 +364,7 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 						license_type='manufacturing',
 						license_description='desc1',
 						us_state='CA',
-						expiration_date=date_util.load_date_str('01/05/2020'),
+						expiration_date='01/05/2020',
 					),
 					CompanyLicenseInsertInputDict(
 						company_id=company_id,
@@ -376,7 +376,7 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 						license_type='dispensary',
 						license_description='desc2',
 						us_state='OR',
-						expiration_date=date_util.load_date_str('01/06/2020'),
+						expiration_date='01/06/2020',
 					)
 				],
 				session=session
@@ -394,7 +394,7 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 				license_type='manufacturing',
 				license_description='desc1',
 				us_state='CA',
-				expiration_date=date_util.load_date_str('01/05/2020'),
+				expiration_date='01/05/2020',
 			),
 			dict(
 				company_id=company_id,
@@ -406,7 +406,7 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 				license_type='dispensary',
 				license_description='desc2',
 				us_state='OR',
-				expiration_date=date_util.load_date_str('01/06/2020'),
+				expiration_date='01/06/2020',
 			)
 		]
 
@@ -429,7 +429,7 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 				self.assertEqual(exp['license_type'], actual.license_type)
 				self.assertEqual(exp['license_description'], actual.license_description)
 				self.assertEqual(exp['us_state'], actual.us_state)
-				self.assertEqual(exp['expiration_date'], actual.expiration_date)
+				self.assertEqual(exp['expiration_date'], date_util.date_to_str(actual.expiration_date))
 
 
 

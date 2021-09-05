@@ -6,6 +6,7 @@ from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
 
 from bespoke import errors
+from bespoke.date import date_util
 from bespoke.db import models, models_util
 from bespoke.db.db_constants import DBOperation
 from bespoke.db.models import session_scope
@@ -25,7 +26,7 @@ CompanyLicenseInsertInputDict = TypedDict('CompanyLicenseInsertInputDict', {
 	'license_type': str,
 	'license_description': str,
 	'us_state': str,
-	'expiration_date': datetime.date,
+	'expiration_date': str,
 }, total=False)
 
 LicenseModificationDict = TypedDict('LicenseModificationDict', {
@@ -80,7 +81,7 @@ def _update_license(
 	if l.get('us_state'):
 		existing.us_state = l['us_state']
 	if l.get('expiration_date'):
-		existing.expiration_date = l['expiration_date']
+		existing.expiration_date = date_util.load_date_str(l['expiration_date'])
 	if l.get('file_id'):
 		existing.file_id = cast(Any, l.get('file_id'))
 
@@ -101,7 +102,8 @@ def _add_license(license_input: CompanyLicenseInsertInputDict, session: Session)
 	license.license_type = l.get('license_type')
 	license.license_description = l.get('license_description')
 	license.us_state = l.get('us_state')
-	license.expiration_date = l.get('expiration_date')
+	if l.get('expiration_date'):
+		license.expiration_date = date_util.load_date_str(l['expiration_date'])
 
 	session.add(license)
 	session.flush()

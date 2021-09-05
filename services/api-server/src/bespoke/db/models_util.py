@@ -4,12 +4,15 @@
 """
 import datetime
 from datetime import timedelta
-from typing import Callable, List, Tuple, cast, Any
+from typing import Callable, List, Iterable, Tuple, cast, Any
 
 from bespoke import errors
 from bespoke.db import db_constants, models
 from bespoke.finance.types.payment_types import PaymentItemsCoveredDict
 from sqlalchemy.orm.session import Session
+
+def chunker(seq: List, size: int) -> Iterable[List]:
+	return (seq[pos:pos + size] for pos in range(0, len(seq), size))
 
 def get_licenses_base_query(session: Session) -> Any:
 	return session.query(models.CompanyLicense).filter(
