@@ -18,7 +18,7 @@ from server.views.common.auth_util import UserSession
 handler = Blueprint('licenses_api', __name__)
 
 class BulkUpdateLicensesView(MethodView):
-	decorators = [auth_util.bank_admin_required]
+	decorators = [auth_util.requires_async_magic_header]
 
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:

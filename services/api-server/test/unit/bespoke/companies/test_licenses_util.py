@@ -12,7 +12,7 @@ from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
 from bespoke.companies import licenses_util
-from bespoke.companies.licenses_util import LicenseModificationDict
+from bespoke.companies.licenses_util import LicenseModificationDict, CompanyLicenseInsertInputDict
 from bespoke_test.db import db_unittest, test_helper
 
 def _add_license(company_id: str, session: Session, license_number: str) -> str:
@@ -279,3 +279,158 @@ class TestUpdateMetrcRowsOnLicenseChange(db_unittest.TestCase):
 			for delivery in deliveries:
 				self.assertEqual(company_id2, str(delivery.payor_id))
 				self.assertEqual('OUTGOING_TO_PAYOR', delivery.delivery_type)
+
+
+class TestUpdateBulkLicenses(db_unittest.TestCase):
+
+	def test_bulk_update_licenses_few_fields_specified(self) -> None:
+		self.reset()
+		session_maker = self.session_maker
+		seed = test_helper.BasicSeed.create(self.session_maker, self)
+		seed.initialize()
+
+		company_id = seed.get_company_id('company_admin', index=0)
+		company_id2 = seed.get_company_id('company_admin', index=1)
+		with session_scope(session_maker) as session:
+			license_row_id = _add_license(company_id, session, license_number='abcd')
+			licenses = session.query(models.CompanyLicense).all()
+			self.assertEqual(1, len(licenses))			
+
+
+		with session_scope(session_maker) as session:
+			_, err = licenses_util.bulk_update_licenses(
+				company_license_inputs=[
+					CompanyLicenseInsertInputDict(
+						company_id=company_id2,
+						license_number='abcd',
+					),
+					CompanyLicenseInsertInputDict(
+						company_id=company_id,
+						license_number='efgh',
+					)
+				],
+				session=session
+			)
+			self.assertIsNone(err)
+
+		expected_licenses = [
+			{
+				'company_id': company_id2,
+				'license_number': 'abcd',
+			},
+			{
+				'company_id': company_id,
+				'license_number': 'efgh'
+			}
+		]
+
+		with session_scope(session_maker) as session:
+			licenses = session.query(models.CompanyLicense).order_by(
+				models.CompanyLicense.created_at).all()
+			self.assertEqual(len(expected_licenses), len(licenses))
+
+			for i in range(len(expected_licenses)):
+				exp = expected_licenses[i]
+				actual = licenses[i]
+				self.assertEqual(exp['company_id'], str(actual.company_id))
+				self.assertEqual(None, actual.file_id)
+				self.assertEqual(exp['license_number'], actual.license_number)
+				self.assertEqual(False, actual.is_deleted)
+
+	def test_bulk_update_licenses_many_fields_specified(self) -> None:
+		self.reset()
+		session_maker = self.session_maker
+		seed = test_helper.BasicSeed.create(self.session_maker, self)
+		seed.initialize()
+
+		company_id = seed.get_company_id('company_admin', index=0)
+		company_id2 = seed.get_company_id('company_admin', index=1)
+		with session_scope(session_maker) as session:
+			license_row_id = _add_license(company_id, session, license_number='abcd')
+			licenses = session.query(models.CompanyLicense).all()
+			self.assertEqual(1, len(licenses))			
+
+
+		with session_scope(session_maker) as session:
+			_, err = licenses_util.bulk_update_licenses(
+				company_license_inputs=[
+					CompanyLicenseInsertInputDict(
+						company_id=company_id2,
+						license_number='abcd',
+						rollup_id='id1',
+						legal_name='legal1',
+						license_status='status1',
+						is_current=False,
+						license_type='manufacturing',
+						license_description='desc1',
+						us_state='CA',
+						expiration_date=date_util.load_date_str('01/05/2020'),
+					),
+					CompanyLicenseInsertInputDict(
+						company_id=company_id,
+						license_number='efgh',
+						rollup_id='id2',
+						legal_name='legal2',
+						license_status='status2',
+						is_current=False,
+						license_type='dispensary',
+						license_description='desc2',
+						us_state='OR',
+						expiration_date=date_util.load_date_str('01/06/2020'),
+					)
+				],
+				session=session
+			)
+			self.assertIsNone(err)
+
+		expected_licenses = [
+			dict(
+				company_id=company_id2,
+				license_number='abcd',
+				rollup_id='id1',
+				legal_name='legal1',
+				license_status='status1',
+				is_current=False,
+				license_type='manufacturing',
+				license_description='desc1',
+				us_state='CA',
+				expiration_date=date_util.load_date_str('01/05/2020'),
+			),
+			dict(
+				company_id=company_id,
+				license_number='efgh',
+				rollup_id='id2',
+				legal_name='legal2',
+				license_status='status2',
+				is_current=False,
+				license_type='dispensary',
+				license_description='desc2',
+				us_state='OR',
+				expiration_date=date_util.load_date_str('01/06/2020'),
+			)
+		]
+
+		with session_scope(session_maker) as session:
+			licenses = session.query(models.CompanyLicense).order_by(
+				models.CompanyLicense.created_at).all()
+			self.assertEqual(len(expected_licenses), len(licenses))
+
+			for i in range(len(expected_licenses)):
+				exp = expected_licenses[i]
+				actual = licenses[i]
+				self.assertEqual(exp['company_id'], str(actual.company_id))
+				self.assertEqual(None, actual.file_id)
+				self.assertEqual(exp['license_number'], actual.license_number)
+				self.assertEqual(False, actual.is_deleted)
+				self.assertEqual(exp['rollup_id'], actual.rollup_id)
+				self.assertEqual(exp['legal_name'], actual.legal_name)
+				self.assertEqual(exp['license_status'], actual.license_status)
+				self.assertEqual(exp['is_current'], actual.is_current)
+				self.assertEqual(exp['license_type'], actual.license_type)
+				self.assertEqual(exp['license_description'], actual.license_description)
+				self.assertEqual(exp['us_state'], actual.us_state)
+				self.assertEqual(exp['expiration_date'], actual.expiration_date)
+
+
+
+

@@ -184,7 +184,16 @@ class CompanyLicense(Base):
 	file_id = cast(GUID, Column(GUID, ForeignKey('files.id')))
 	license_number = Column(Text)
 	is_deleted = Column(Boolean, nullable=False, default=False)
-
+	rollup_id = Column(Text)
+	legal_name = Column(Text)
+	license_status = Column(Text)
+	is_current = Column(Boolean)
+	license_type = Column(Text)
+	license_description = Column(Text)
+	us_state = Column(Text)
+	expiration_date = Column(Date)
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	
 	def as_dict(self) -> CompanyLicenseDict:
 		return CompanyLicenseDict(
 			id=str(self.id),
