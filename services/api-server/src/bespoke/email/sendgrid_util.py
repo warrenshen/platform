@@ -221,7 +221,11 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 	TemplateNames.OPS_TRIGGER_NOTIFICATION: {
 		'id': 'd-6b7e9c5b88ef47a49c352b8a5596eb5f',
 		'requires_secure_link': False,
-	}
+	},
+	TemplateNames.SYNC_METRC_DATA_ERROR_CREATED: {
+		'id': 'd-8bceeac2b1e440b2808ed6a6e8884c15',
+		'requires_secure_link': False,
+	},
 }
 
 def _get_template_id(template_name: str) -> str:
