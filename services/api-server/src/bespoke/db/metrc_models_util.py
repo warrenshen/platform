@@ -6,7 +6,7 @@ from mypy_extensions import TypedDict
 from typing import List
 
 from bespoke.db import models
-from bespoke.db.db_constants import TransferType
+from bespoke.db.db_constants import TransferType, DeliveryType
 
 TransferDetails = TypedDict('TransferDetails', {
 	'vendor_id': str
@@ -50,18 +50,18 @@ def get_delivery_type(
 	if not is_company_shipper and not is_company_recipient:
 		# If company is neither shipper nor recipient, set delivery_type to UNKNOWN.
 		# This prompts bank admin to look into delivery and figure out which license(s) are missing.
-		delivery_type = 'UNKNOWN'
+		delivery_type = DeliveryType.UNKNOWN
 	elif is_company_shipper and is_company_recipient:
 		delivery_type = f'{transfer_type}_INTERNAL'
 	elif transfer_type == TransferType.INCOMING and are_companys_known:
-		delivery_type = 'INCOMING_FROM_VENDOR'
+		delivery_type = DeliveryType.INCOMING_FROM_VENDOR
 	elif transfer_type == TransferType.INCOMING and not are_companys_known:
-		delivery_type = 'INCOMING_UNKNOWN'
+		delivery_type = DeliveryType.INCOMING_UNKNOWN
 	elif transfer_type == TransferType.OUTGOING and are_companys_known:
-		delivery_type = 'OUTGOING_TO_PAYOR'
+		delivery_type = DeliveryType.OUTGOING_TO_PAYOR
 	elif transfer_type == TransferType.OUTGOING and not are_companys_known:
-		delivery_type = 'OUTGOING_UNKNOWN'
+		delivery_type = DeliveryType.OUTGOING_UNKNOWN
 	else:
-		delivery_type = 'UNKNOWN'
+		delivery_type = DeliveryType.UNKNOWN
 
 	return delivery_type

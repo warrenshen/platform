@@ -84,7 +84,12 @@ class TransferPackages(object):
 			package_wholesale = package_id_to_package_wholesale.get(package_id)
 
 			p = models.MetrcTransferPackage()
-			p.type = 'transfer_{}'.format(transfer_type).lower()
+			if transfer_type == db_constants.TransferType.INCOMING:
+				p.type = db_constants.TransferPackageType.TRANSFER_INCOMING
+			elif transfer_type == db_constants.TransferType.OUTGOING:
+				p.type = db_constants.TransferPackageType.TRANSFER_OUTGOING
+			else:
+				raise errors.Error('Unexpected transfer type provided to get package models {}'.format(transfer_type))
 			p.license_number = license_number
 			p.us_state = us_state
 			p.company_id = cast(Any, company_id)

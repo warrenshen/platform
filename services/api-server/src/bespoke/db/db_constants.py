@@ -210,6 +210,20 @@ class TransferType(object):
 	OUTGOING = 'OUTGOING'
 	UNKNOWN = 'UNKNOWN'
 
+class DeliveryType(object):
+	UNKNOWN = 'UNKNOWN'
+	INCOMING_INTERNAL = 'INCOMING_INTERNAL'
+	OUTGOING_INTERNAL = 'OUTGOING_INTERNAL'
+	INCOMING_FROM_VENDOR = 'INCOMING_FROM_VENDOR'
+	INCOMING_UNKNOWN = 'INCOMING_UNKNOWN'
+	OUTGOING_TO_PAYOR = 'OUTGOING_TO_PAYOR'
+	OUTGOING_UNKNOWN = 'OUTGOING_UNKNOWN'
+
+class TransferPackageType(object):
+	UNKNOWN = 'unknown'
+	TRANSFER_INCOMING = 'transfer_incoming'
+	TRANSFER_OUTGOING = 'transfer_outgoing'
+
 class PackageType(object):
 	ACTIVE = 'active'
 	INACTIVE = 'inactive'
