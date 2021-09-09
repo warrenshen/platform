@@ -92,7 +92,7 @@ def _add_license(license_input: CompanyLicenseInsertInputDict, session: Session)
 	l = license_input
 
 	license = models.CompanyLicense()
-	license.company_id = cast(Any, l['company_id'])
+	license.company_id = cast(Any, l.get('company_id'))
 	license.file_id = cast(Any, l.get('file_id'))
 	license.license_number = cast(Any, l['license_number'])
 	license.rollup_id = l.get('rollup_id')

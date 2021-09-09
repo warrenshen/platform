@@ -377,6 +377,18 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 						license_description='desc2',
 						us_state='OR',
 						expiration_date='01/06/2020',
+					),
+					CompanyLicenseInsertInputDict(
+						company_id=None,
+						license_number='ijkl',
+						rollup_id='id3',
+						legal_name='legal3',
+						license_status='status3',
+						is_current=False,
+						license_type='dispensary',
+						license_description=None,
+						us_state='CA',
+						expiration_date=None,
 					)
 				],
 				session=session
@@ -407,7 +419,19 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 				license_description='desc2',
 				us_state='OR',
 				expiration_date='01/06/2020',
-			)
+			),
+			dict(
+				company_id=None,
+				license_number='ijkl',
+				rollup_id='id3',
+				legal_name='legal3',
+				license_status='status3',
+				is_current=False,
+				license_type='dispensary',
+				license_description=None,
+				us_state='CA',
+				expiration_date=None,
+			),
 		]
 
 		with session_scope(session_maker) as session:
@@ -418,7 +442,7 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 			for i in range(len(expected_licenses)):
 				exp = expected_licenses[i]
 				actual = licenses[i]
-				self.assertEqual(exp['company_id'], str(actual.company_id))
+				self.assertEqual(exp['company_id'], str(actual.company_id) if actual.company_id else None)
 				self.assertEqual(None, actual.file_id)
 				self.assertEqual(exp['license_number'], actual.license_number)
 				self.assertEqual(False, actual.is_deleted)
@@ -429,8 +453,4 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 				self.assertEqual(exp['license_type'], actual.license_type)
 				self.assertEqual(exp['license_description'], actual.license_description)
 				self.assertEqual(exp['us_state'], actual.us_state)
-				self.assertEqual(exp['expiration_date'], date_util.date_to_str(actual.expiration_date))
-
-
-
-
+				self.assertEqual(exp['expiration_date'], date_util.date_to_str(actual.expiration_date) if actual.expiration_date else None)

@@ -180,7 +180,7 @@ class CompanyLicense(Base):
 	__tablename__ = 'company_licenses'
 
 	id = cast(GUID, Column(GUID, nullable=False, primary_key=True, default=GUID_DEFAULT, unique=True))
-	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id'), nullable=False))
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	file_id = cast(GUID, Column(GUID, ForeignKey('files.id')))
 	license_number = Column(Text)
 	is_deleted = Column(Boolean, nullable=False, default=False)
