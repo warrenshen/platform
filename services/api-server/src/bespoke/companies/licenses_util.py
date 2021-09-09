@@ -1,7 +1,4 @@
-import datetime
-import decimal
-import json
-from typing import Any, Callable, Dict, List, Optional, Tuple, cast
+from typing import Any, Callable, Dict, List, Tuple, cast
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
 
@@ -21,9 +18,10 @@ CompanyLicenseInsertInputDict = TypedDict('CompanyLicenseInsertInputDict', {
 	'license_number': str,
 	'rollup_id': str,
 	'legal_name': str,
-	'license_status': str,
 	'is_current': bool,
+	'license_status': str,
 	'license_type': str,
+	'license_category': str,
 	'license_description': str,
 	'us_state': str,
 	'expiration_date': str,
@@ -70,12 +68,14 @@ def _update_license(
 		existing.rollup_id = l['rollup_id']
 	if l.get('legal_name'):
 		existing.legal_name = l['legal_name']
-	if l.get('license_status'):
-		existing.license_status = l['license_status']
 	if l.get('is_current') is not None:
 		existing.is_current = l['is_current']
+	if l.get('license_status'):
+		existing.license_status = l['license_status']
 	if l.get('license_type'):
 		existing.license_type = l['license_type']
+	if l.get('license_category'):
+		existing.license_category = l['license_category']
 	if l.get('license_description'):
 		existing.license_description = l['license_description']
 	if l.get('us_state'):
@@ -97,9 +97,10 @@ def _add_license(license_input: CompanyLicenseInsertInputDict, session: Session)
 	license.license_number = cast(Any, l['license_number'])
 	license.rollup_id = l.get('rollup_id')
 	license.legal_name = l.get('legal_name')
-	license.license_status = l.get('license_status')
 	license.is_current = l.get('is_current')
+	license.license_status = l.get('license_status')
 	license.license_type = l.get('license_type')
+	license.license_category = l.get('license_category')
 	license.license_description = l.get('license_description')
 	license.us_state = l.get('us_state')
 	if l.get('expiration_date'):

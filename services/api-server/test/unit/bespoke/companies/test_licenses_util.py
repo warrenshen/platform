@@ -359,9 +359,10 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 						license_number='abcd',
 						rollup_id='id1',
 						legal_name='legal1',
-						license_status='status1',
 						is_current=False,
+						license_status='status1',
 						license_type='manufacturing',
+						license_category='processor',
 						license_description='desc1',
 						us_state='CA',
 						expiration_date='01/05/2020',
@@ -371,9 +372,10 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 						license_number='efgh',
 						rollup_id='id2',
 						legal_name='legal2',
-						license_status='status2',
 						is_current=False,
+						license_status='status2',
 						license_type='dispensary',
+						license_category='retailer',
 						license_description='desc2',
 						us_state='OR',
 						expiration_date='01/06/2020',
@@ -383,9 +385,10 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 						license_number='ijkl',
 						rollup_id='id3',
 						legal_name='legal3',
-						license_status='status3',
 						is_current=False,
+						license_status='status3',
 						license_type='dispensary',
+						license_category='retailer',
 						license_description=None,
 						us_state='CA',
 						expiration_date=None,
@@ -401,9 +404,10 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 				license_number='abcd',
 				rollup_id='id1',
 				legal_name='legal1',
-				license_status='status1',
 				is_current=False,
+				license_status='status1',
 				license_type='manufacturing',
+				license_category='processor',
 				license_description='desc1',
 				us_state='CA',
 				expiration_date='01/05/2020',
@@ -413,9 +417,10 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 				license_number='efgh',
 				rollup_id='id2',
 				legal_name='legal2',
-				license_status='status2',
 				is_current=False,
+				license_status='status2',
 				license_type='dispensary',
+				license_category='retailer',
 				license_description='desc2',
 				us_state='OR',
 				expiration_date='01/06/2020',
@@ -425,9 +430,10 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 				license_number='ijkl',
 				rollup_id='id3',
 				legal_name='legal3',
-				license_status='status3',
 				is_current=False,
+				license_status='status3',
 				license_type='dispensary',
+				license_category='retailer',
 				license_description=None,
 				us_state='CA',
 				expiration_date=None,
@@ -448,9 +454,10 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 				self.assertEqual(False, actual.is_deleted)
 				self.assertEqual(exp['rollup_id'], actual.rollup_id)
 				self.assertEqual(exp['legal_name'], actual.legal_name)
-				self.assertEqual(exp['license_status'], actual.license_status)
 				self.assertEqual(exp['is_current'], actual.is_current)
+				self.assertEqual(exp['license_status'], actual.license_status)
 				self.assertEqual(exp['license_type'], actual.license_type)
+				self.assertEqual(exp['license_category'], actual.license_category)
 				self.assertEqual(exp['license_description'], actual.license_description)
 				self.assertEqual(exp['us_state'], actual.us_state)
 				self.assertEqual(exp['expiration_date'], date_util.date_to_str(actual.expiration_date) if actual.expiration_date else None)
