@@ -22,8 +22,12 @@ ConfigDict = TypedDict('ConfigDict', {
 })
 
 
-def get_secure_link(cfg: ConfigDict, two_factor_row_id: str) -> str:
-	return cfg['BESPOKE_DOMAIN'] + '/get-secure-link?val=' + two_factor_row_id
+def get_secure_link(cfg: ConfigDict, two_factor_row_id: str, is_url_relative: bool) -> str:
+	relative_url = '/get-secure-link?val=' + two_factor_row_id
+	if is_url_relative:
+		return relative_url
+	else:
+		return cfg['BESPOKE_DOMAIN'] + relative_url
 
 def get_url_serializer(cfg: ConfigDict) -> URLSafeTimedSerializer:
 	secret_key = cfg['URL_SECRET_KEY']

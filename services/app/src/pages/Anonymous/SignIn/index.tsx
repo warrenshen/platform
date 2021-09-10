@@ -8,9 +8,9 @@ import {
 } from "@material-ui/core";
 import AuthPage from "components/Shared/Page/AuthPage";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { anonymousRoutes, routes } from "lib/routes";
+import { anonymousRoutes } from "lib/routes";
 import { useContext, useState } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { useTitle } from "react-use";
 
 export default function SignInPage() {
@@ -21,7 +21,6 @@ export default function SignInPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const { state }: any = useLocation();
   const history = useHistory();
 
   const onFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -32,8 +31,7 @@ export default function SignInPage() {
       // If sign in is successful, isSignedIn will flip to true and cause a history.push below.
       // `await` is necessary here (even though the IDE says it is not)
       // to catch any errors thrown by `signIn`.
-      await signIn(email, password);
-      history.push(state?.from || routes.root);
+      await signIn(email, password, (successUrl) => history.push(successUrl));
     } catch (err) {
       setError("Error: email and password combination not valid.");
       setPassword("");

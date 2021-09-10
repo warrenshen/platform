@@ -74,7 +74,8 @@ class SignInView(MethodView):
 				secure_link = two_factor_util.get_url_to_prompt_user(
 					security_cfg=security_cfg,
 					link_id=link_id,
-					user_email=email
+					user_email=email,
+					is_url_relative=True,
 				)
 				return make_response(json.dumps({
 					'status': 'OK',

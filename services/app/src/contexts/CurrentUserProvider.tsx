@@ -17,6 +17,7 @@ import {
   setAccessToken,
   setRefreshToken,
 } from "lib/auth/tokenStorage";
+import { routes } from "lib/routes";
 import { ReactNode, useCallback, useEffect, useState } from "react";
 
 const JWT_CLAIMS_KEY = "https://hasura.io/jwt/claims";
@@ -68,35 +69,44 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
     [user.productType]
   );
 
-  const signIn = useCallback(async (email: string, password: string) => {
-    const response = await unAuthenticatedApi.post(authRoutes.signIn, {
-      email,
-      password,
-    });
+  const signIn = useCallback(
+    async (
+      email: string,
+      password: string,
+      handleSuccess: (successUrl: string) => void
+    ) => {
+      const response = await unAuthenticatedApi.post(authRoutes.signIn, {
+        email,
+        password,
+      });
 
-    // Try catch block to catch errors related to `userFieldsFromToken`.
-    try {
-      const data = response.data;
-      if (
-        data.login_method === "simple" &&
-        data.status === "OK" &&
-        data.access_token
-      ) {
-        setAccessToken(data.access_token);
-        setRefreshToken(data.refresh_token);
-        setUser((user) => ({
-          ...user,
-          ...userFieldsFromToken(data.access_token),
-        }));
-      } else if (data.login_method === "2fa" && data.status === "OK") {
-        window.location.href = data.two_factor_link;
-      } else {
-        alert(data.msg);
+      // Try catch block to catch errors related to `userFieldsFromToken`.
+      try {
+        const data = response.data;
+        if (
+          data.login_method === "simple" &&
+          data.status === "OK" &&
+          data.access_token
+        ) {
+          setAccessToken(data.access_token);
+          setRefreshToken(data.refresh_token);
+          setUser((user) => ({
+            ...user,
+            ...userFieldsFromToken(data.access_token),
+          }));
+          handleSuccess(routes.root);
+        } else if (data.login_method === "2fa" && data.status === "OK") {
+          window.location.href = data.two_factor_link;
+          handleSuccess(data.two_factor_link);
+        } else {
+          alert(data.msg);
+        }
+      } catch (err) {
+        alert(err);
       }
-    } catch (err) {
-      alert(err);
-    }
-  }, []);
+    },
+    []
+  );
 
   const signOut = useCallback(
     async (client: ApolloClient<NormalizedCacheObject>) => {

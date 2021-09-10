@@ -21,7 +21,11 @@ export type CurrentUserContextType = {
   isSignedIn: boolean;
   resetUser: () => void; // A function that resets state of CurrentUserProvider component.
   setUserProductType: (productType: ProductTypeEnum) => void; // A function that sets productType state of CurrentUserProvider component.
-  signIn: (email: string, password: string) => void;
+  signIn: (
+    email: string,
+    password: string,
+    handleSuccess: (successUrl: string) => void
+  ) => void;
   signOut: (client: ApolloClient<NormalizedCacheObject>) => void;
 };
 

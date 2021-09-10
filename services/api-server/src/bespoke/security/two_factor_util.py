@@ -65,16 +65,17 @@ def add_two_factor_link_to_db(
 	return link_id
 
 def get_url_to_prompt_user(
-		security_cfg: security_util.ConfigDict,
-		link_id: str,
-		user_email: str
-	) -> str:
+	security_cfg: security_util.ConfigDict,
+	link_id: str,
+	user_email: str,
+	is_url_relative: bool = False,
+) -> str:
 	serializer = security_util.get_url_serializer(security_cfg)
 	signed_val = serializer.dumps(security_util.LinkInfoDict(
 		link_id=link_id,
 		email=user_email
 	))
-	return security_util.get_secure_link(security_cfg, signed_val)
+	return security_util.get_secure_link(security_cfg, signed_val, is_url_relative)
 
 def get_two_factor_link(
 	link_signed_val: str, 
