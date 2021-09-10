@@ -111,7 +111,7 @@ export default function CreateRepaymentDefaultSection({
             <Select
               id="select-payment-option"
               labelId="select-payment-option-label"
-              value={payment.items_covered.payment_option}
+              value={payment.items_covered.payment_option || ""}
               onChange={({ target: { value } }) =>
                 setPayment({
                   ...payment,

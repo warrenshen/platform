@@ -5,8 +5,7 @@ import {
 } from "@material-ui/pickers";
 import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
 import { format, parse } from "date-fns";
-import { DateFormatClient, DateFormatServer } from "lib/date";
-import { addYearToBankHolidays, bankHolidays } from "lib/holidays";
+import { DateFormatClient, DateFormatServer, isBankHoliday } from "lib/date";
 
 interface Props {
   dataCy?: string;
@@ -57,12 +56,7 @@ export default function DateInput(props: Props) {
                 return true;
               }
               // Disable bank holidays.
-              const year = date.getFullYear();
-              if (!bankHolidays.has(year)) {
-                addYearToBankHolidays(year, bankHolidays);
-              }
-              const holidays = bankHolidays.get(year);
-              return holidays.has(format(date, "MM/dd/yyyy"));
+              return isBankHoliday(date);
             }
           } else {
             return false;

@@ -5,12 +5,11 @@ import {
   differenceInDays,
   format,
   getYear,
-  isEqual,
   lastDayOfMonth,
   parse,
   parseISO,
 } from "date-fns";
-import { getBankHolidays, Holiday } from "date-fns-holiday-us";
+import { addYearToBankHolidays, bankHolidays } from "lib/holidays";
 import { range } from "lodash";
 
 export const MonthFormatClient = "MMMM yyyy (MM/yyyy)";
@@ -104,13 +103,13 @@ export function formatDatetimeString(
   }
 }
 
-function isBankHoliday(date: Date) {
-  const holidays = getBankHolidays(getYear(date));
-  return (
-    Object.keys(holidays).filter((holidayName) => {
-      return isEqual(date, holidays[holidayName as Holiday].date);
-    }).length > 0
-  );
+export function isBankHoliday(date: Date) {
+  const year = getYear(date);
+  if (!bankHolidays.has(year)) {
+    addYearToBankHolidays(year, bankHolidays);
+  }
+  const holidays = bankHolidays.get(year);
+  return holidays.has(format(date, "MM/dd/yyyy"));
 }
 
 export function addBizDays(dateString: string, days: number) {
