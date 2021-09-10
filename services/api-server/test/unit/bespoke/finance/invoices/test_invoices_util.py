@@ -504,6 +504,7 @@ class TestIsInvoiceReadyForApproval(db_unittest.TestCase):
 						role='peter the payor',
 						first_name='Peter',
 						last_name='Payor',
+						login_method='simple'
 					)),
 				'None'
 			)
@@ -557,6 +558,7 @@ class TestSubmitInvoicesForPayment(db_unittest.TestCase):
 				role='peter the payor',
 				first_name='Peter',
 				last_name='Payor',
+				login_method='simple'
 			))
 
 		with models.session_scope(self.session_maker) as session:
@@ -603,6 +605,7 @@ class TestSubmitInvoicesForPayment(db_unittest.TestCase):
 				role='peter the payor',
 				first_name='Peter',
 				last_name='Payor',
+				login_method='simple'
 			))
 
 		with models.session_scope(self.session_maker) as session:
@@ -650,6 +653,7 @@ class TestSubmitInvoicesForPayment(db_unittest.TestCase):
 				role='peter the payor',
 				first_name='Peter',
 				last_name='Payor',
+				login_method='simple'
 			))
 
 		invoice_id = None

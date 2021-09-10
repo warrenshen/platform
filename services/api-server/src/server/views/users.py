@@ -102,7 +102,7 @@ class CreateBankCustomerUserView(MethodView):
 			return handler_util.make_error_response('Access Denied')
 
 		user_id, err = create_user_util.create_bank_or_customer_user(
-			cast(create_user_util.CreateBankCustomerInputDict, form),
+			cast(create_user_util.CreateBankOrCustomerUserInputDict, form),
 			current_app.session_maker,
 		)
 

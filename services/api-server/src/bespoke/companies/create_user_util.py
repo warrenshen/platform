@@ -6,6 +6,7 @@ from typing import Callable, Dict, Tuple, cast
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
+from bespoke.db.db_constants import LoginMethod
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util
 from mypy_extensions import TypedDict
@@ -18,7 +19,7 @@ UserInsertInputDict = TypedDict('UserInsertInputDict', {
 	'phone_number': str,
 })
 
-CreateBankCustomerInputDict = TypedDict('CreateBankCustomerInputDict', {
+CreateBankOrCustomerUserInputDict = TypedDict('CreateBankOrCustomerUserInputDict', {
 	'company_id': str,
 	'user': UserInsertInputDict,
 })
@@ -46,10 +47,9 @@ UpdateThirdPartyUserRespDict = TypedDict('UpdateThirdPartyUserRespDict', {
 
 @errors.return_error_tuple
 def create_bank_or_customer_user(
-	req: CreateBankCustomerInputDict,
+	req: CreateBankOrCustomerUserInputDict,
 	session_maker: Callable,
 ) -> Tuple[str, errors.Error]:
-	# If company id is null, create a bank user. Otherwise, create a customer user.
 	company_id = req['company_id']
 	user_input = req['user']
 	role = user_input['role']
@@ -68,6 +68,7 @@ def create_bank_or_customer_user(
 		raise errors.Error('Email must be specified')
 
 	user_id = None
+	is_bank_user = db_constants.is_bank_user([role])
 
 	with session_scope(session_maker) as session:
 		if company_id:
@@ -97,6 +98,7 @@ def create_bank_or_customer_user(
 		user.last_name = last_name
 		user.email = email.lower()
 		user.phone_number = phone_number
+		user.login_method = LoginMethod.TWO_FA if is_bank_user else LoginMethod.SIMPLE
 
 		session.add(user)
 		session.flush()
@@ -148,6 +150,7 @@ def create_third_party_user(
 		user.last_name = last_name
 		user.email = email.lower()
 		user.phone_number = phone_number
+		user.login_method = db_constants.LoginMethod.SIMPLE
 
 		session.add(user)
 		session.flush()

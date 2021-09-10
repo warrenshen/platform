@@ -102,7 +102,7 @@ def setup_db_test(app: Any) -> None:
 
 				if not existing_user:
 					user_id, err = create_user_util.create_bank_or_customer_user(
-						req=create_user_util.CreateBankCustomerInputDict(
+						req=create_user_util.CreateBankOrCustomerUserInputDict(
 							company_id=company_id,
 							user=create_user_util.UserInsertInputDict(
 								role=role,

@@ -106,6 +106,7 @@ class BasicSeed(object):
 				role='bank_admin',
 				first_name='Bank Admin',
 				last_name='User',
+				login_method='2fa'
 			)
 			session.add(bank_user)
 			session.flush()
@@ -157,6 +158,7 @@ class BasicSeed(object):
 				role='company_admin',
 				first_name='Company Admin',
 				last_name='User',
+				login_method='simple'
 			)
 			session.add(company_user)
 			session.flush()

@@ -241,7 +241,8 @@ class GetSecureLinkPayloadView(MethodView):
 				password='',
 				id=None,
 				role=user_role,
-				company_id=company_id
+				company_id=company_id,
+				login_method=None # Not used because we create this User for get_claims_payload
 			)
 			claims_payload = auth_util.get_claims_payload(user)
 			access_token = create_access_token(identity=claims_payload)

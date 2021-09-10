@@ -173,6 +173,7 @@ def import_payor_vendor_users(
 			last_name=parsed_last_name,
 			email=parsed_email,
 			phone_number=parsed_phone_number,
+			login_method='simple'
 		)
 		session.add(user)
 

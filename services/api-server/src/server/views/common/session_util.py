@@ -38,11 +38,7 @@ class UserSession(object):
 		return self.payload['X-Hasura-User-Id']
 
 	def has_bank_reader_permission(self) -> bool:
-		for user_role in self._user_roles():
-			if user_role in db_constants.ALL_BANK_READER_ROLES:
-				return True
-
-		return False
+		return db_constants.is_bank_user(self._user_roles())
 
 	def is_company_admin(self) -> bool:
 		return 'company_admin' in self._user_roles()

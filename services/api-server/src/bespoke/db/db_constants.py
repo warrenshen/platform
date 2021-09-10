@@ -1,6 +1,7 @@
 """
 Constants for things that can get stored in the DB
 """
+from typing import List
 
 # Auth
 
@@ -23,10 +24,18 @@ ALL_USER_ROLES = [
 	UserRoles.INVOICE_REVIEWER,
 ]
 
-ALL_BANK_READER_ROLES = [
+_ALL_BANK_READER_ROLES = [
 	UserRoles.BANK_ADMIN,
 	UserRoles.BANK_READ_ONLY,
 ]
+
+def is_bank_user(roles: List[str]) -> bool:
+	for user_role in roles:
+		if user_role in _ALL_BANK_READER_ROLES:
+			return True
+
+	return False
+
 
 class FileTypeEnum(object):
 	COMPANY_AGREEMENT = 'company_agreement'
