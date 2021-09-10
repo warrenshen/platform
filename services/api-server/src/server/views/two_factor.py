@@ -108,7 +108,9 @@ class SendCodeView(MethodView):
 				.filter(models.CompanySettings.company_id == existing_user.company_id) \
 				.first()
 			if not company_settings:
-				raise errors.Error('No company settings associated with your user. Cannot proceed')
+				two_factor_message_method = db_constants.TwoFactorMessageMethod.PHONE
+			else:
+				two_factor_message_method = company_settings.two_factor_message_method
 
 			token_val = security_util.mfa_code_generator()
 
@@ -116,7 +118,7 @@ class SendCodeView(MethodView):
 			to_phone_number = ''
 			message_method = 'phone'
 
-			if company_settings.two_factor_message_method == 'email':
+			if two_factor_message_method == 'email':
 				artifact_name = _get_artifact_name(form_info, session)
 
 				message_method = 'email'
@@ -246,6 +248,21 @@ class GetSecureLinkPayloadView(MethodView):
 			refresh_expires_delta = datetime.timedelta(minutes=15)
 			refresh_token = create_refresh_token(
 				identity=claims_payload, expires_delta=refresh_expires_delta)
+		elif link_type == db_constants.TwoFactorLinkType.LOGIN:
+			# Now we get the access and refresh token now that the user has
+			# verified their 2FA code.
+			user = cast(models.User, session.query(models.User).filter(
+				models.User.email == email.lower()).first())
+			if not user:
+				raise errors.Error('User {} does not exist'.format(email))
+
+			if user.is_deleted:
+				raise errors.Error('User {} does not exist'.format(email))
+
+			claims_payload = auth_util.get_claims_payload(user)
+			access_token = create_access_token(identity=claims_payload)
+			refresh_token = create_refresh_token(identity=claims_payload)
+
 		elif link_type == db_constants.TwoFactorLinkType.FORGOT_PASSWORD:
 			pass
 		else:

@@ -107,6 +107,7 @@ class User(Base):
 	last_name = Column(Text, nullable=False)
 	phone_number = Column(Text)
 	is_deleted = Column(Boolean)
+	login_method = Column(Text)
 
 
 class UserRole(Base):

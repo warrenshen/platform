@@ -28,6 +28,7 @@ class SignInView(MethodView):
 
 	def post(self) -> Response:
 		cfg = cast(Config, current_app.app_config)
+		security_cfg = cfg.get_security_config()
 		data = json.loads(request.data)
 		email = data["email"]
 		password_guess = data['password']
@@ -47,16 +48,42 @@ class SignInView(MethodView):
 			if not security_util.verify_password(cfg.PASSWORD_SALT, password_guess, user.password):
 				return handler_util.make_error_response(f'Invalid password provided', 401)
 
-			claims_payload = auth_util.get_claims_payload(user)
-			access_token = create_access_token(identity=claims_payload)
-			refresh_token = create_refresh_token(identity=claims_payload)
+			if user.login_method == db_constants.LoginMethod.SIMPLE:
+				claims_payload = auth_util.get_claims_payload(user)
+				access_token = create_access_token(identity=claims_payload)
+				refresh_token = create_refresh_token(identity=claims_payload)
 
-			return make_response(json.dumps({
-				'status': 'OK',
-				'msg': 'Logged in as {}'.format(email),
-				'access_token': access_token,
-				'refresh_token': refresh_token
-			}), 200)
+				return make_response(json.dumps({
+					'status': 'OK',
+					'msg': 'Logged in as {}'.format(email),
+					'login_method': user.login_method,
+					'access_token': access_token,
+					'refresh_token': refresh_token
+				}), 200)
+			elif user.login_method == db_constants.LoginMethod.TWO_FA:
+				link_id = two_factor_util.add_two_factor_link_to_db(
+					user_emails=[email],
+					form_info=models.TwoFactorFormInfoDict(
+						type=db_constants.TwoFactorLinkType.LOGIN,
+						payload={}
+					),
+					expires_at=date_util.hours_from_today(1),
+					session_maker=current_app.session_maker
+				)
+
+				secure_link = two_factor_util.get_url_to_prompt_user(
+					security_cfg=security_cfg,
+					link_id=link_id,
+					user_email=email
+				)
+				return make_response(json.dumps({
+					'status': 'OK',
+					'login_method': user.login_method,
+					'two_factor_link': secure_link
+				}), 200)
+			else:
+				return handler_util.make_error_response('Invalid login method associated with user "{}"'.format(user.login_method))
+
 
 class ForgotPasswordView(MethodView):
 	"""

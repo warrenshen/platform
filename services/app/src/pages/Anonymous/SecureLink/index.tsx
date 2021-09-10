@@ -2,7 +2,7 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import useSnackbar from "hooks/useSnackbar";
 import { twoFactorRoutes, unAuthenticatedApi } from "lib/api";
 import { setAccessToken, setRefreshToken } from "lib/auth/tokenStorage";
-import { anonymousRoutes } from "lib/routes";
+import { anonymousRoutes, routes } from "lib/routes";
 import { useCallback, useContext, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import AuthenticateViaTwoFactorPage from "../AuthenticateViaTwoFactor";
@@ -25,6 +25,7 @@ const linkTypeToRoute: { [type: string]: string } = {
   confirm_invoice: anonymousRoutes.reviewInvoice,
   forgot_password: anonymousRoutes.resetPassword,
   pay_invoice: anonymousRoutes.reviewInvoicePayment,
+  login: routes.root,
 };
 
 const getSecureLinkPayload = async (req: {

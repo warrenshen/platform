@@ -10,7 +10,7 @@ from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.email import email_manager
-from bespoke.security import security_util
+from bespoke.security import security_util, two_factor_util
 from mypy_extensions import TypedDict
 
 
@@ -358,35 +358,25 @@ class Client(object):
 
 		# This path does require two factor authentication
 
-		# Keep track of the two-factor code entered per email.
-		token_states: Dict[str, Dict] = {}
-		for email in recipients:
-			token_states[email] = {}
-
-		with session_scope(self._session_maker) as session:
-			# A two-factor link sends an email with encoded information in the URL
-			# The link has an expiration.
-			two_factor_link = models.TwoFactorLink(
-				token_states=token_states,
-				form_info=cast(Dict, two_factor_payload['form_info']),
-				expires_at=two_factor_payload['expires_at']
-			)
-			session.add(two_factor_link)
-			session.flush()
-			link_id = str(two_factor_link.id)
+		link_id = two_factor_util.add_two_factor_link_to_db(
+			user_emails=recipients,
+			form_info=two_factor_payload['form_info'],
+			expires_at=two_factor_payload['expires_at'],
+			session_maker=self._session_maker
+		)
 
 		for email in recipients:
 			cur_recipient = email
 			cur_template_data = copy.deepcopy(template_data)
 
-			serializer = security_util.get_url_serializer(self._security_cfg)
-			signed_val = serializer.dumps(security_util.LinkInfoDict(
+			secure_link = two_factor_util.get_url_to_prompt_user(
+				security_cfg=self._security_cfg,
 				link_id=link_id,
-				email=cur_recipient
-			))
+				user_email=cur_recipient
+			)
 
 			cur_template_data['_2fa'] = {
-				'secure_link': security_util.get_secure_link(self._security_cfg, signed_val)
+				'secure_link': secure_link
 			}
 			try:
 				self._email_client.send_dynamic_email_template(

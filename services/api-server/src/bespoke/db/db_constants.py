@@ -35,7 +35,12 @@ class FileTypeEnum(object):
 	INVOICE = 'invoice'
 	PURCHASE_ORDER = 'purchase_order'
 
+class LoginMethod(object):
+	SIMPLE = 'simple'
+	TWO_FA = '2fa'
+
 class TwoFactorLinkType(object):
+	LOGIN = 'login'
 	CONFIRM_PURCHASE_ORDER = 'confirm_purchase_order'
 	CONFIRM_INVOICE = 'confirm_invoice'
 	PAY_INVOICE = 'pay_invoice'

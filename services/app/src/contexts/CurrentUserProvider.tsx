@@ -40,7 +40,6 @@ function userFieldsFromToken(token: string) {
 export default function CurrentUserProvider(props: { children: ReactNode }) {
   const [user, setUser] = useState<User>(BlankUser);
   const [isTokenLoaded, setIsTokenLoaded] = useState(false);
-
   const isSignedIn = !!(user.id && user.role);
 
   useEffect(() => {
@@ -78,13 +77,19 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
     // Try catch block to catch errors related to `userFieldsFromToken`.
     try {
       const data = response.data;
-      if (data.status === "OK" && data.access_token) {
+      if (
+        data.login_method === "simple" &&
+        data.status === "OK" &&
+        data.access_token
+      ) {
         setAccessToken(data.access_token);
         setRefreshToken(data.refresh_token);
         setUser((user) => ({
           ...user,
           ...userFieldsFromToken(data.access_token),
         }));
+      } else if (data.login_method === "2fa" && data.status === "OK") {
+        window.location.href = data.two_factor_link;
       } else {
         alert(data.msg);
       }
