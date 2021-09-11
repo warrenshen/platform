@@ -48,6 +48,9 @@ setup-db:
 
 # For mypy
 
+mypy-scripts:
+	MYPYPATH=stubs:src mypy scripts/analysis/compute_monthly_inventory.py --config-file=mypy.ini
+
 mypy:
 	MYPYPATH=stubs mypy src/bespoke/db/main.py --config-file=mypy.ini
 	MYPYPATH=stubs mypy src/manage.py --config-file=mypy.ini
