@@ -9,6 +9,7 @@ CI/CD via [Github Actions](https://github.com/features/actions). Hosted on [Hero
 This monorepo includes
 
 - Flask/Python API server
+- Hasura/GraphQL API server
 - React/Typescript static app
 
 Note the [graphql-server](https://github.com/bespoke-capital/graphql-server) is separated because Heroku does not have first class support for deploying Dockerized apps within monorepos.
