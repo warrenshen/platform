@@ -177,19 +177,16 @@ class PackageHistory(object):
 		
 		if not self.incomings:
 			return False
-		
-		if not self.sales_txs:
-			return False
+				
+		incoming_pkg = self.incomings[-1]
 		
 		if len(self.incomings) > 1:
 				p.warn(f'package #{self.package_id} has multiple incoming transfers', package_id=self.package_id)
-				
-		incoming_pkg = self.incomings[-1]
+
 		arrived_date = incoming_pkg['created_date']
 		if not incoming_pkg['shipped_quantity'] or numpy.isnan(incoming_pkg['shipped_quantity']):
 			p.warn(f'package #{self.package_id} does not have a shipped quantity', package_id=self.package_id)
 			return False
-
 
 		shipped_quantity = int(incoming_pkg['shipped_quantity'])
 		price_of_pkg = incoming_pkg['shipper_wholesale_price']

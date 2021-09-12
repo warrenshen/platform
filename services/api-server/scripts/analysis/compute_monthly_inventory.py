@@ -39,10 +39,12 @@ class Download(object):
 def main() -> None:
 
 	company_name = 'Royal_Apothecary'
-	INCOMING_TRANSFERS_FILE = 'data/royal/royal_apothecary_incoming_transfer_packages_20210101_20210905.xlsx'
-	OUTGOING_TRANSFERS_FILE = 'data/royal/royal_apothecary_outgoing_transfer_packages_20210101_20210905.xlsx'
-	PACKAGES_FILE = 'data/royal/royal_apothecary_active_inventory_20210906.xlsx'
-	SALES_TRANSACTIONS_FILE = 'data/royal/royal_apothecary_sales_transactions_20210101_20210905.xlsx'
+	base_path = '../../notebooks/data/royal'
+
+	INCOMING_TRANSFERS_FILE = base_path + '/royal_apothecary_incoming_transfer_packages_20210101_20210905.xlsx'
+	OUTGOING_TRANSFERS_FILE = base_path + '/royal_apothecary_outgoing_transfer_packages_20210101_20210905.xlsx'
+	PACKAGES_FILE = base_path + '/royal_apothecary_active_inventory_20210906.xlsx'
+	SALES_TRANSACTIONS_FILE = base_path + '/royal_apothecary_sales_transactions_20210101_20210905.xlsx'
 
 	inventory_dates = [
 			'05/31/2021',
