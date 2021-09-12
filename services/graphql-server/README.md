@@ -1,18 +1,18 @@
-## Installing
+# Installing
 
 1. Install Docker
 
-   Download and install [Docker](https://docs.docker.com/docker-for-mac/install/) via Docker for Mac; modify instructions for other OS accordingly. Further documentation can be found [here](https://docs.docker.com/engine/docker-overview/).
+Download and install [Docker](https://docs.docker.com/docker-for-mac/install/) via Docker for Mac; modify instructions for other OS accordingly. Further documentation can be found [here](https://docs.docker.com/engine/docker-overview/).
 
 2. Install Hasura CLI
 
-   [Hasura](https://hasura.io/) is a GraphQL server that gives you instant, realtime GraphQL APIs over Postgres, with webhook triggers on database events, and remote schemas for business logic.
+[Hasura](https://hasura.io/) is a GraphQL server that gives you instant, realtime GraphQL APIs over Postgres, with webhook triggers on database events, and remote schemas for business logic.
 
-   ```bash
-   curl -L https://github.com/hasura/graphql-engine/raw/stable/cli/get.sh | bash
-   ```
+```bash
+curl -L https://github.com/hasura/graphql-engine/raw/stable/cli/get.sh | bash
+```
 
-   See more detailed instructions [here](https://hasura.io/docs/1.0/graphql/manual/hasura-cli/install-hasura-cli.html)
+See more detailed instructions [here](https://hasura.io/docs/1.0/graphql/manual/hasura-cli/install-hasura-cli.html)
 
 ## Running w/ Docker
 
@@ -28,10 +28,10 @@ By default, `docker-compose up` will run any new migrations. You may encounter a
 
 1. Remove the config `- ./migrations:/hasura-migrations` from `volumes:` in `docker-compose.yaml`. Do not remove `- ./metadata:/hasura-metadata`. This will leave you with:
 
-   ```
-    volumes:
-      - ./metadata:/hasura-metadata
-   ```
+```
+ volumes:
+   - ./metadata:/hasura-metadata
+```
 
 2. Run the following:
 
@@ -132,27 +132,3 @@ ORDER BY
 ```sql
 CREATE INDEX IF NOT EXISTS metrc_transfers_company_id_transfer_type_key ON metrc_transfers (company_id, transfer_type);
 ```
-
-## Work in progress (may not work)
-
-### Copy database from staging / production to local?
-
-Capture a backup of database on Heroku (example `$APP_NAME` is `bespoke-graphql-staging`):
-
-```bash
-heroku pg:backups:capture -a $APP_NAME
-```
-
-Download backup of database:
-
-```bash
-heroku pg:backups:download -a $APP_NAME
-```
-
-Copy backup of database into local database:
-
-```bash
-pg_restore --verbose --clean --no-acl --no-owner -h localhost -U postgres -d postgres latest.dump
-```
-
-Note: you will have to reset the password for any user you want to log in as.
