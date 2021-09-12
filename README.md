@@ -12,8 +12,6 @@ This monorepo includes
 - Hasura/GraphQL API server
 - React/Typescript static app
 
-Note the [graphql-server](https://github.com/bespoke-capital/graphql-server) is separated because Heroku does not have first class support for deploying Dockerized apps within monorepos.
-
 ## Installing
 
 1. Clone the repos
