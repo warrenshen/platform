@@ -48,6 +48,9 @@ def make_error_response(error: Union[str, errors.Error], status_code: int = None
 		mimetype='application/json',
 		status=status_code)
 
+def make_api_error_response(error: Union[str, errors.Error], status_code: int = 500) -> Response:
+	return make_error_response(error, status_code)
+
 def catch_bad_json_request(f: Callable[..., Response]) -> Callable[..., Response]:
 
 	def inner_func(*args: Any, **kwargs: Any) -> Response:
@@ -69,5 +72,29 @@ def catch_bad_json_request(f: Callable[..., Response]) -> Callable[..., Response
 			err = errors.Error(msg)
 			err.traceback = traceback.format_exc()
 			return make_error_response(err)
+
+	return inner_func
+
+def catch_bad_api_request(f: Callable[..., Response]) -> Callable[..., Response]:
+
+	def inner_func(*args: Any, **kwargs: Any) -> Response:
+		try:
+			return f(*args, **kwargs)
+		except errors.Error as e:
+			e.traceback = traceback.format_exc()
+			return make_api_error_response(e, status_code=500)
+		except Exception as e:
+			# TODO(dlluncor): Log to sentry
+			logging.error(
+				u'Received exception in WEBAPP JSON request: {}\n{}'.format(
+					e, traceback.format_exc()))
+
+			known, msg = get_exception_message(e)
+			if not known:
+				msg = u'An unexpected error occurred.'
+
+			err = errors.Error(msg)
+			err.traceback = traceback.format_exc()
+			return make_api_error_response(err, status_code=500)
 
 	return inner_func

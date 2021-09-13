@@ -21,18 +21,18 @@ handler = Blueprint('licenses_api', __name__)
 class BulkUpdateLicensesView(MethodView):
 	decorators = [auth_util.requires_async_magic_header]
 
-	@handler_util.catch_bad_json_request
+	@handler_util.catch_bad_api_request
 	def post(self, **kwargs: Any) -> Response:
 		form = json.loads(request.data)
 		if not form:
-			return handler_util.make_error_response('No data provided')
+			return handler_util.make_api_error_response('No data provided')
 
 		required_keys = [
 			'company_licenses'
 		]
 		for key in required_keys:
 			if key not in form:
-				return handler_util.make_error_response(
+				return handler_util.make_api_error_response(
 					'Missing key {} in request'.format(key))
 
 		company_license_inputs = form['company_licenses']
