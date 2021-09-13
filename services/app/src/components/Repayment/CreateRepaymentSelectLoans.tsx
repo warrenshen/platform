@@ -40,6 +40,15 @@ export default function CreateRepaymentSelectLoans({
 }: Props) {
   const isReverseDraftACH =
     payment.method === PaymentMethodEnum.ReverseDraftACH;
+  /**
+   * If payment method is reverse draft ACH and today's date is X,
+   * the earliest the payment date of repayment may be is:
+   * 1. 1 business day after X, if it is currently before 12pm (user's timezone).
+   * 2. 2 business days after X, if it is currently after 12pm (user's timezone).
+   *
+   * The above rules give Bespoke Financial's Operations team time to
+   * set up a reverse draft ACH repayment with the desired payment date.
+   */
   const disabledBefore = isReverseDraftACH
     ? addBizDays(todayAsDateStringServer(), new Date().getHours() >= 12 ? 2 : 1)
     : undefined;
