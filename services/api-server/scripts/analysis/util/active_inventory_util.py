@@ -2,6 +2,7 @@ import datetime
 import numpy
 import xlwt
 
+from pathlib import Path
 from typing import Dict, List, Tuple, Union, Set, cast
 from dateutil import parser
 from collections import OrderedDict
@@ -400,8 +401,10 @@ def create_inventory_xlsx(
 			
 			row = history.get_inventory_output_row(inventory_date)
 			sheet.add_row(row)
-	 
-	filepath = f'{q.company_name}_inventory_by_month.xls'
+	
+	Path('out').mkdir(parents=True, exist_ok=True)
+
+	filepath = f'out/{q.company_name}_inventory_by_month.xls'
 	with open(filepath, 'wb') as f:
 			wb.save(f)
 			print('Wrote result to {}'.format(filepath))

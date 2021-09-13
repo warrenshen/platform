@@ -4,6 +4,7 @@ __pycache__/
 .mypy_cache/
 *.log
 tmp/
+notebooks/data/royal*
 out*
 .vscode
 .direnv
