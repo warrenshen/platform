@@ -6,7 +6,6 @@ For example:
 DATABASE_URL=postgres+psycopg2://postgres:postgrespassword@localhost:5432/postgres python scripts/0000_example.py
 """
 
-import pandas
 import os
 import sys
 from os import path
@@ -18,24 +17,7 @@ sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 from bespoke.db import models
 from util import active_inventory_util as util
 
-class Download(object):
-		
-	def __init__(self, 
-							 incoming_file: str, outgoing_file: str, packages_file: str,
-							 sales_transactions_file: str):
-		self.incoming_records = self._file_as_dict_records(incoming_file)
-		self.outgoing_records = self._file_as_dict_records(outgoing_file)
-		self.packages_records = self._file_as_dict_records(packages_file)
-		self.sales_tx_records = self._file_as_dict_records(sales_transactions_file)
-		
-	def _file_as_dict_records(self, filepath: str) -> List[Dict]:
-		df = pandas.read_excel(filepath, converters={
-				'package_id': str,
-				'tx_package_id': str
-		})
-		print('Opening file {} with columns {}'.format(filepath, df.columns))
-		return df.to_dict('records')
-				
+	
 def main() -> None:
 
 	company_name = 'Royal_Apothecary'
@@ -56,11 +38,11 @@ def main() -> None:
 	q.inventory_dates = inventory_dates
 	q.company_name = 'Royal_Apothecary'
 
-	d = Download(
-		incoming_file=INCOMING_TRANSFERS_FILE,
-		outgoing_file=OUTGOING_TRANSFERS_FILE,
-		packages_file=PACKAGES_FILE,
-		sales_transactions_file=SALES_TRANSACTIONS_FILE,
+	d = util.Download(
+		incoming_files=[INCOMING_TRANSFERS_FILE],
+		outgoing_files=[OUTGOING_TRANSFERS_FILE],
+		packages_files=[PACKAGES_FILE],
+		sales_transactions_files=[SALES_TRANSACTIONS_FILE],
 	)
 	id_to_history = util.get_histories(cast(Any, d))
 	util.create_inventory_xlsx(id_to_history, q)

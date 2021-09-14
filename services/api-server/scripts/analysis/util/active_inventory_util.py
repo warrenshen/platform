@@ -1,5 +1,7 @@
 import datetime
+import glob
 import numpy
+import pandas
 import xlwt
 
 from pathlib import Path
@@ -9,20 +11,42 @@ from collections import OrderedDict
 
 from bespoke.excel import excel_writer
 
+class Download(object):
+		
+	def __init__(self, 
+							 incoming_files: List[str], 
+							 outgoing_files: List[str], 
+							 packages_files: List[str],
+							 sales_transactions_files: List[str]):
+		self.incoming_records = self._file_as_dict_records(incoming_files)
+		self.outgoing_records = self._file_as_dict_records(outgoing_files)
+		self.packages_records = self._file_as_dict_records(packages_files)
+		self.sales_tx_records = self._file_as_dict_records(sales_transactions_files)
+		
+	def _file_as_dict_records(self, filepaths: List[str]) -> List[Dict]:
+		all_records = []
+
+		expanded_filepaths = []
+		for filepath in filepaths:
+			# Expand any wildcards, e.g., if the filepath is "incoming_transfers*.ipynb"
+			expanded_filepaths.extend(list(glob.iglob(filepath)))
+
+		for filepath in expanded_filepaths:
+			df = pandas.read_excel(filepath, converters={
+					'package_id': str,
+					'tx_package_id': str
+			})
+			print('Opening file {} with columns {}'.format(filepath, df.columns))
+			all_records.extend(df.to_dict('records'))
+
+		return all_records
+
 class Query(object):
 
 	def __init__(self) -> None:
 		self.inventory_dates: List[str] = []
 		self.company_name = ''
 
-class Download(object):
-		
-	def __init__(self) -> None:
-		self.incoming_records: List[Dict] = []
-		self.outgoing_records: List[Dict] = []
-		self.packages_records: List[Dict] = []
-		self.sales_tx_records: List[Dict] = []
-		
 def date_to_str(dt: datetime.datetime) -> str:
 	return dt.strftime('%m/%d/%Y')
 
