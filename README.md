@@ -40,3 +40,18 @@ sudo xcode-select --install
 ## Running
 
 Follow instructions [here](https://docs.google.com/document/d/1fIoWutW-oksJabg2mDH3E7Ot4Vc1XMavUblGC0D0F-4/edit#heading=h.ouot35nvjvpl)
+
+## Testing
+
+From this directory, to start up hot-reloading services to be used by Cypress integration tests...
+
+```
+docker-compose -f docker-compose.cypress.yaml up
+```
+
+From this directory, to start up Cypress service...
+
+```
+cd cypress
+yarn cypress
+```
