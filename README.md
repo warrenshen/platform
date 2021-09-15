@@ -43,15 +43,14 @@ Follow instructions [here](https://docs.google.com/document/d/1fIoWutW-oksJabg2m
 
 ## Testing
 
-From this directory, to start up hot-reloading services to be used by Cypress integration tests...
+From the `services` directory, to start up hot-reloading services to be used by Cypress integration tests...
 
 ```
 docker-compose -f docker-compose.cypress.yaml up
 ```
 
-From this directory, to start up Cypress service...
+From the `services/app` directory, to start up a Cypress service...
 
 ```
-cd cypress
 yarn cypress
 ```
