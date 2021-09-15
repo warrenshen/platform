@@ -49,7 +49,7 @@ From the `services` directory, to start up hot-reloading services to be used by 
 docker-compose -f docker-compose.cypress.yaml up
 ```
 
-From the `services/app` directory, to start up a Cypress service...
+From the `services/app` directory, to start up the Cypress service...
 
 ```
 yarn cypress
