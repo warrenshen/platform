@@ -450,12 +450,7 @@ class MetrcTransfer(Base):
 	__tablename__ = 'metrc_transfers'
 
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
-	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
-	license_id = cast(GUID, Column(GUID, ForeignKey('company_licenses.id')))
-	vendor_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
-	type = Column(String) # Enum based on Metrc API endpoint: db_constants.TransferType.
-	license_number = Column(String, nullable=False)
-	us_state = Column(String, nullable=False)
+	us_state = Column(String)
 	transfer_id = Column(String) # From Metrc info
 	shipper_facility_license_number = Column(String)
 	shipper_facility_name = Column(String)
@@ -475,17 +470,30 @@ class MetrcDelivery(Base):
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
 	transfer_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_transfers.id')))
 	delivery_id = Column(String) # From Metrc info
-	delivery_type = Column(String) # Custom enum: 'INCOMING_INTERNAL', 'INCOMING_FROM_VENDOR', 'INCOMING_UNKNOWN', 'OUTGOING_INTERNAL', 'OUTGOING_TO_VENDOR', 'OUTGOING_UNKNOWN', 'UNKNOWN'.
 	us_state = Column(String, nullable=False)
 	recipient_facility_license_number = Column(String)
 	recipient_facility_name = Column(String)
-	payor_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	shipment_type_name = Column(String)
 	shipment_transaction_type = Column(String)
 	received_datetime = Column(DateTime)
 	delivery_payload = Column(JSON)
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime)
+
+class CompanyDelivery(Base):
+	__tablename__ = 'company_deliveries'
+	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	license_number = Column(String, nullable=False)
+	us_state = Column(String, nullable=False)
+	vendor_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	payor_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	transfer_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_transfers.id')))
+	transfer_type = Column(String) # Enum based on Metrc API endpoint: db_constants.TransferType.
+	delivery_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_deliveries.id')))
+	delivery_type = Column(String) # Custom enum: 'INCOMING_INTERNAL', 'INCOMING_FROM_VENDOR', 'INCOMING_UNKNOWN', 'OUTGOING_INTERNAL', 'OUTGOING_TO_VENDOR', 'OUTGOING_UNKNOWN', 'UNKNOWN'.
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 class MetrcPackage(Base):
 	__tablename__ = 'metrc_packages'

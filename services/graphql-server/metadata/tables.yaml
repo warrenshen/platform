@@ -709,6 +709,58 @@
       filter: {}
 - table:
     schema: public
+    name: company_deliveries
+  object_relationships:
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  - name: metrc_delivery
+    using:
+      foreign_key_constraint_on: delivery_row_id
+  - name: metrc_transfer
+    using:
+      foreign_key_constraint_on: transfer_row_id
+  - name: payor
+    using:
+      foreign_key_constraint_on: payor_id
+  - name: vendor
+    using:
+      foreign_key_constraint_on: vendor_id
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - id
+      - company_id
+      - license_number
+      - us_state
+      - vendor_id
+      - payor_id
+      - transfer_row_id
+      - transfer_type
+      - delivery_row_id
+      - delivery_type
+      - created_at
+      - updated_at
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - delivery_type
+      - license_number
+      - transfer_type
+      - us_state
+      - created_at
+      - updated_at
+      - company_id
+      - delivery_row_id
+      - id
+      - payor_id
+      - transfer_row_id
+      - vendor_id
+      filter: {}
+- table:
+    schema: public
     name: company_licenses
   object_relationships:
   - name: company

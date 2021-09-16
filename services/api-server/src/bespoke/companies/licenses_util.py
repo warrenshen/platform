@@ -1,3 +1,5 @@
+import logging
+
 from typing import Any, Callable, Dict, List, Tuple, cast
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
@@ -8,7 +10,9 @@ from bespoke.db import models, models_util
 from bespoke.db.db_constants import DBOperation
 from bespoke.db.models import session_scope
 from bespoke.db import metrc_models_util
-from bespoke.db.metrc_models_util import MetrcDeliveryObj, MetrcTransferObj, TransferDetails
+from bespoke.db.metrc_models_util import (
+	CompanyDeliveryObj, MetrcDeliveryObj, MetrcTransferObj
+)
 
 
 CompanyLicenseInsertInputDict = TypedDict('CompanyLicenseInsertInputDict', {
@@ -238,15 +242,14 @@ def delete_license(
 
 	return True, None
 
-def populate_transfer_vendor_details(
-	metrc_transfer_objs: List[MetrcTransferObj],
-	transfer_id_to_details: Dict[str, TransferDetails],
+def populate_vendor_details(
+	company_delivery_objs: List[CompanyDeliveryObj],
 	session: Session) -> None:
 
 	# Vendor licenses lookup
 	shipper_license_numbers = []
-	for metrc_transfer_obj in metrc_transfer_objs:
-		metrc_transfer = metrc_transfer_obj.metrc_transfer
+	for company_delivery_obj in company_delivery_objs:
+		metrc_transfer = company_delivery_obj.metrc_transfer
 		shipper_license_number = '{}'.format(cast(Dict, metrc_transfer.transfer_payload)['ShipperFacilityLicenseNumber'])
 		shipper_license_numbers.append(shipper_license_number)
 
@@ -260,25 +263,23 @@ def populate_transfer_vendor_details(
 			shipper_license_to_company_id[shipper_license.license_number] = str(shipper_license.company_id)
 
 	# Match based on license number
-	for metrc_transfer_obj in metrc_transfer_objs:
-		metrc_transfer = metrc_transfer_obj.metrc_transfer
+	for company_delivery_obj in company_delivery_objs:
+		company_delivery = company_delivery_obj.company_delivery
+		metrc_transfer = company_delivery_obj.metrc_transfer
+
 		shipper_license_number = '{}'.format(cast(Dict, metrc_transfer.transfer_payload)['ShipperFacilityLicenseNumber'])
 		shipper_company_id = shipper_license_to_company_id.get(shipper_license_number)
 		if shipper_company_id:
-			metrc_transfer.vendor_id = cast(Any, shipper_company_id)
-			transfer_id_to_details[metrc_transfer.transfer_id] = TransferDetails(
-				vendor_id=shipper_company_id 
-			)
+			company_delivery.vendor_id = cast(Any, shipper_company_id)
 
 def populate_delivery_details(
-	deliveries: List[MetrcDeliveryObj],
-	transfer_id_to_details: Dict[str, TransferDetails],  
+	company_delivery_objs: List[CompanyDeliveryObj],  
 	session: Session
 	) -> None:
 	# Recipient licenses lookup
 	recipient_license_numbers = []
-	for delivery in deliveries:
-		metrc_delivery = delivery.metrc_delivery
+	for company_delivery_obj in company_delivery_objs:
+		metrc_delivery = company_delivery_obj.metrc_delivery
 		recipient_license_number = metrc_delivery.recipient_facility_license_number
 		recipient_license_numbers.append(recipient_license_number)
 
@@ -290,78 +291,77 @@ def populate_delivery_details(
 		if recipient_license.company_id:
 			recipient_license_to_company_id[recipient_license.license_number] = str(recipient_license.company_id)
 
-	for delivery in deliveries:
-		metrc_delivery = delivery.metrc_delivery
-		transfer_type = delivery.transfer_type
+	for company_delivery_obj in company_delivery_objs:
+		company_delivery = company_delivery_obj.company_delivery
+		metrc_delivery = company_delivery_obj.metrc_delivery
+
+		transfer_type = company_delivery.transfer_type
 		recipient_license_number = metrc_delivery.recipient_facility_license_number
 		recipient_company_id = recipient_license_to_company_id.get(recipient_license_number)
 		if recipient_company_id:
-			metrc_delivery.payor_id = cast(Any, recipient_company_id)
+			company_delivery.payor_id = cast(Any, recipient_company_id)
 
-		shipper_company_id = None
-		if delivery.transfer_id in transfer_id_to_details:
-			shipper_company_id = transfer_id_to_details[delivery.transfer_id]['vendor_id']
-
-		company_id = delivery.company_id
+		shipper_company_id = company_delivery.vendor_id
+		company_id = company_delivery.company_id
 
 		delivery_type = metrc_models_util.get_delivery_type(
 			transfer_type=transfer_type,
-			company_id=company_id,
-			shipper_company_id=shipper_company_id,
+			company_id=str(company_id) if company_id else None,
+			shipper_company_id=str(shipper_company_id) if shipper_company_id else None,
 			recipient_company_id=recipient_company_id
 		)
+		company_delivery.delivery_type = delivery_type
 
-		metrc_delivery.delivery_type = delivery_type
-
-def _get_transfer_objs(
+def _get_company_delivery_objs(
 	matching_transfers: List[models.MetrcTransfer], 
-	matching_deliveries: List[models.MetrcDelivery]) -> List[MetrcTransferObj]:
-	transfer_objs = []
-
-	transfer_id_to_deliveries: Dict[str, List[models.MetrcDelivery]] = {}
-	for metrc_delivery in matching_deliveries:
-		transfer_id = str(metrc_delivery.transfer_row_id)
-		if transfer_id not in transfer_id_to_deliveries:
-			transfer_id_to_deliveries[transfer_id] = []
-
-		transfer_id_to_deliveries[transfer_id].append(metrc_delivery)
-
+	matching_deliveries: List[models.MetrcDelivery],
+	matching_company_deliveries: List[models.CompanyDelivery]
+	) -> List[CompanyDeliveryObj]:
+	
+	transfer_row_id_to_transfer: Dict[str, models.MetrcTransfer] = {}
 	for metrc_transfer in matching_transfers:
-		transfer_id = str(metrc_transfer.id)
+		transfer_row_id = str(metrc_transfer.id)
+		transfer_row_id_to_transfer[transfer_row_id] = metrc_transfer
 
-		delivery_objs = []
-		if transfer_id in transfer_id_to_deliveries:
-			metrc_deliveries = transfer_id_to_deliveries[transfer_id]
+	delivery_row_id_to_delivery: Dict[str, models.MetrcDelivery] = {}
+	for metrc_delivery in matching_deliveries:
+		delivery_row_id = str(metrc_delivery.id)
+		delivery_row_id_to_delivery[delivery_row_id] = metrc_delivery
 
-			for metrc_delivery in metrc_deliveries:
-				delivery_objs.append(MetrcDeliveryObj(
-					metrc_delivery=metrc_delivery, 
-					transfer_type=metrc_transfer.type,
-					transfer_id=str(metrc_transfer.transfer_id),
-					company_id=str(metrc_transfer.company_id)
-				))
+	company_delivery_objs: List[CompanyDeliveryObj] = []
 
-		transfer_objs.append(MetrcTransferObj(
+	for company_delivery in matching_company_deliveries:
+		transfer_row_id = str(company_delivery.transfer_row_id)
+		delivery_row_id = str(company_delivery.delivery_row_id)
+
+		if transfer_row_id not in transfer_row_id_to_transfer:
+			logging.error('ERROR: Company Delivery ID {} has no matching MetrcTransfer'.format(company_delivery.id))
+			continue
+		metrc_transfer = transfer_row_id_to_transfer[transfer_row_id]
+
+		if delivery_row_id not in delivery_row_id_to_delivery:
+			logging.error('ERROR: Company Delivery ID {} has no matching MetrcDelivery'.format(company_delivery.id))
+			continue
+
+		metrc_delivery = delivery_row_id_to_delivery[delivery_row_id]
+		company_delivery_objs.append(CompanyDeliveryObj(
 			metrc_transfer=metrc_transfer,
-			deliveries=delivery_objs
+			metrc_delivery=metrc_delivery,
+			company_delivery=company_delivery
 		))
 
-	return transfer_objs
+	return company_delivery_objs
 
 def _update_matching_transfers_and_deliveries(
 	matching_transfers: List[models.MetrcTransfer], 
 	matching_deliveries: List[models.MetrcDelivery],
+	matching_company_deliveries: List[models.CompanyDelivery],
 	session: Session) -> None:
 
-	transfer_id_to_details: Dict[str, TransferDetails] = {}
-	transfer_objs = _get_transfer_objs(matching_transfers, matching_deliveries)
-	populate_transfer_vendor_details(transfer_objs, transfer_id_to_details, session)
-
-	all_delivery_objs = []
-	for transfer_obj in transfer_objs:
-		all_delivery_objs.extend(transfer_obj.deliveries)
-
-	populate_delivery_details(all_delivery_objs, transfer_id_to_details, session)
+	company_delivery_objs = _get_company_delivery_objs(
+		matching_transfers, matching_deliveries, matching_company_deliveries)
+	populate_vendor_details(company_delivery_objs, session)
+	populate_delivery_details(company_delivery_objs, session)
 
 def _update_metrc_rows_based_on_shipper(company_id: str, op: str, license_number: str, session: Session) -> None:
 	# Update the vendor_id if it matches any shipper license numbers
@@ -381,28 +381,27 @@ def _update_metrc_rows_based_on_shipper(company_id: str, op: str, license_number
 			is_done = True
 			break
 
-		transfer_row_ids = []
-		for metrc_transfer in matching_transfers:
-			metrc_transfer.vendor_id = cast(Any, company_id)
-			if op == DBOperation.DELETE:
-				metrc_transfer.license_id = None
-			else:
-				# In the update or add case, match the license to the license number which just
-				# got created.
-				license = session.query(models.CompanyLicense).filter(
-					models.CompanyLicense.license_number == license_number).first()
-				if license:
-					metrc_transfer.license_id = license.id
-
-			transfer_row_ids.append(str(metrc_transfer.id))
-			session.flush()
-
+		transfer_row_ids = [str(metrc_transfer.id) for metrc_transfer in matching_transfers]
+		
 		matching_deliveries = cast(
 			List[models.MetrcDelivery],
 			session.query(models.MetrcDelivery).filter(
 				models.MetrcDelivery.transfer_row_id.in_(transfer_row_ids)).all())
 
-		_update_matching_transfers_and_deliveries(matching_transfers, matching_deliveries, session)
+		delivery_row_ids = [str(metrc_delivery.id) for metrc_delivery in matching_deliveries]
+
+		matching_company_deliveries = cast(
+			List[models.CompanyDelivery],
+			session.query(models.CompanyDelivery).filter(
+				models.CompanyDelivery.delivery_row_id.in_(delivery_row_ids)).all())
+
+		for company_delivery in matching_company_deliveries:
+			company_delivery.vendor_id = cast(Any, company_id)
+			session.flush()
+
+		_update_matching_transfers_and_deliveries(
+			matching_transfers, matching_deliveries, matching_company_deliveries, session
+		)
 
 		page_index += 1
 
@@ -424,16 +423,26 @@ def _update_metrc_rows_based_on_recipient(company_id: str, op: str, license_numb
 			break
 
 		transfer_row_ids = set([])
+		delivery_row_ids = set([])
 		for metrc_delivery in matching_deliveries:
 			transfer_row_ids.add(str(metrc_delivery.transfer_row_id))
-			metrc_delivery.payor_id = cast(Any, company_id)
+			delivery_row_ids.add(str(metrc_delivery.id))
+
+		matching_company_deliveries = cast(
+			List[models.CompanyDelivery],
+			session.query(models.CompanyDelivery).filter(
+				models.CompanyDelivery.delivery_row_id.in_(delivery_row_ids)).all())
+
+		for company_delivery in matching_company_deliveries:
+			company_delivery.payor_id = cast(Any, company_id)
 
 		matching_transfers = cast(
 			List[models.MetrcTransfer],
 			session.query(models.MetrcTransfer).filter(
 				models.MetrcTransfer.id.in_(transfer_row_ids)).all())
 
-		_update_matching_transfers_and_deliveries(matching_transfers, matching_deliveries, session)
+		_update_matching_transfers_and_deliveries(
+			matching_transfers, matching_deliveries, matching_company_deliveries, session)
 
 		page_index += 1
 

@@ -67,16 +67,22 @@ def _get_deliveries(transfer_row_id: str, session: Session) -> List[models.Metrc
 
 	return deliveries
 
+def _get_company_deliveries(company_delivery_ids: List[str], session: Session) -> List[models.CompanyDelivery]:	
+	deliveries = cast(
+			List[models.CompanyDelivery],
+			session.query(models.CompanyDelivery).filter(
+				models.CompanyDelivery.id.in_(company_delivery_ids)).all())
+	if not deliveries:
+		raise errors.Error('No deliveries exists with company delivery IDs {}'.format(company_delivery_ids))
+
+	return deliveries
+
+
 def _create_transfer(shipper_license_number: str, transfer_type: str, transfer_id: str, company_id: str, session: Session) -> models.MetrcTransfer:
 	tr = models.MetrcTransfer()
-	tr.license_number = 'abcd'
 	tr.us_state = 'CA'
-	tr.license_id = _get_row_license_id('abcd', session)
 	tr.shipper_facility_license_number = shipper_license_number
-	tr.vendor_id = cast(GUID, _get_company_id_from_license_number(shipper_license_number, session))
-	tr.type = transfer_type
 	tr.transfer_id = transfer_id
-	tr.company_id = cast(Any, company_id)
 	tr.transfer_payload = {
 		'ShipperFacilityLicenseNumber': shipper_license_number
 	}
@@ -87,12 +93,10 @@ def _create_delivery(recipient_license_number: str, transfer_row_id: str, sessio
 	dlvry.us_state = 'CA'
 	dlvry.recipient_facility_license_number = recipient_license_number
 	dlvry.transfer_row_id = cast(GUID, transfer_row_id)
-	dlvry.payor_id = cast(GUID, _get_company_id_from_license_number(recipient_license_number, session))
-
 	return dlvry 
 
 AddDeliveryAndTransferResp = TypedDict('AddDeliveryAndTransferResp', {
-	'transfer_row_id': str
+	'company_delivery_row_ids': List[str]
 })
 
 def _add_deliveries_and_transfer(
@@ -111,15 +115,35 @@ def _add_deliveries_and_transfer(
 	session.flush()
 	transfer_row_id = str(tr.id)
 
+	company_delivery_row_ids = []
+
 	for i in range(num_deliveries):
 		dl = _create_delivery(recipient_license_number, 
 			transfer_row_id=transfer_row_id, 
 			session=session
 		)
 		session.add(dl)
+		session.flush()
+		delivery_row_id = str(dl.id)
+
+		company_delivery = models.CompanyDelivery(
+			license_number='abcd',
+			us_state='CA',
+			transfer_type=transfer_type,
+			delivery_type=None
+		)
+		company_delivery.transfer_row_id = cast(Any, transfer_row_id)
+		company_delivery.delivery_row_id = cast(Any, delivery_row_id)
+		company_delivery.company_id = cast(Any, company_id)
+		company_delivery.vendor_id = cast(GUID, _get_company_id_from_license_number(shipper_license_number, session))
+		company_delivery.payor_id = cast(GUID, _get_company_id_from_license_number(recipient_license_number, session))
+
+		session.add(company_delivery)
+		session.flush()
+		company_delivery_row_ids.append(str(company_delivery.id))
 
 	return AddDeliveryAndTransferResp(
-		transfer_row_id=transfer_row_id
+		company_delivery_row_ids=company_delivery_row_ids
 	)
 
 class TestUpdateMetrcRowsOnLicenseChange(db_unittest.TestCase):
@@ -162,14 +186,13 @@ class TestUpdateMetrcRowsOnLicenseChange(db_unittest.TestCase):
 				num_deliveries=1, 
 				session=session
 			)
-			transfer_row_id = resp['transfer_row_id']
+			company_delivery_ids = resp['company_delivery_row_ids']
 
 		with session_scope(session_maker) as session:
 			# Assert the vendor_id and payor_id are setup before modification
-			tr = _get_transfer(transfer_row_id, session)
-			deliveries = _get_deliveries(transfer_row_id, session)
-			self.assertEqual(company_id, str(tr.vendor_id))
-			for delivery in deliveries:
+			company_deliveries = _get_company_deliveries(company_delivery_ids, session)
+			for delivery in company_deliveries:
+				self.assertEqual(company_id, str(delivery.vendor_id))
 				self.assertEqual(company_id2, str(delivery.payor_id))
 
 			_delete_license('abcd', session) # Delete the license associated with the vendor
@@ -183,11 +206,10 @@ class TestUpdateMetrcRowsOnLicenseChange(db_unittest.TestCase):
 
 		with session_scope(session_maker) as session:
 			# Assert the vendor_id and payor_id are correct after modification
-			tr = _get_transfer(transfer_row_id, session)
-			deliveries = _get_deliveries(transfer_row_id, session)
-			self.assertEqual(None, tr.vendor_id)
-			self.assertEqual(None, tr.license_id)
-			for delivery in deliveries:
+			company_deliveries = _get_company_deliveries(company_delivery_ids, session)
+
+			for delivery in company_deliveries:
+				self.assertEqual(None, delivery.vendor_id)
 				self.assertEqual(company_id2, str(delivery.payor_id))
 
 		with session_scope(session_maker) as session:
@@ -202,10 +224,10 @@ class TestUpdateMetrcRowsOnLicenseChange(db_unittest.TestCase):
 
 		with session_scope(session_maker) as session:
 			# Assert the vendor_id and payor_id are correct after modification
-			tr = _get_transfer(transfer_row_id, session)
-			deliveries = _get_deliveries(transfer_row_id, session)
-			self.assertEqual(None, tr.vendor_id)
-			for delivery in deliveries:
+			company_deliveries = _get_company_deliveries(company_delivery_ids, session)
+
+			for delivery in company_deliveries:
+				self.assertEqual(None, delivery.vendor_id)
 				self.assertEqual(None, delivery.payor_id)
 
 	def test_add_affects_vendor_id_and_payor_id(self) -> None:
@@ -227,14 +249,14 @@ class TestUpdateMetrcRowsOnLicenseChange(db_unittest.TestCase):
 				num_deliveries=1, 
 				session=session
 			)
-			transfer_row_id = resp['transfer_row_id']
+			company_delivery_ids = resp['company_delivery_row_ids']
 
 		with session_scope(session_maker) as session:
 			# Assert the vendor_id and payor_id are setup before modification
-			tr = _get_transfer(transfer_row_id, session)
-			deliveries = _get_deliveries(transfer_row_id, session)
-			self.assertEqual(None, tr.vendor_id)
-			for delivery in deliveries:
+			company_deliveries = _get_company_deliveries(company_delivery_ids, session)
+
+			for delivery in company_deliveries:
+				self.assertEqual(None, delivery.vendor_id)
 				self.assertEqual(None, delivery.payor_id)
 				self.assertEqual(None, delivery.delivery_type)
 
@@ -249,12 +271,10 @@ class TestUpdateMetrcRowsOnLicenseChange(db_unittest.TestCase):
 
 		with session_scope(session_maker) as session:
 			# Assert the vendor_id and payor_id are correct after modification
-			tr = _get_transfer(transfer_row_id, session)
-			self.assertEqual(license_row_id, str(tr.license_id))
-			self.assertEqual(company_id, str(tr.vendor_id))
+			company_deliveries = _get_company_deliveries(company_delivery_ids, session)
 			
-			deliveries = _get_deliveries(transfer_row_id, session)
-			for delivery in deliveries:
+			for delivery in company_deliveries:
+				self.assertEqual(company_id, str(delivery.vendor_id))
 				self.assertEqual(None, delivery.payor_id)
 				self.assertEqual('OUTGOING_UNKNOWN', delivery.delivery_type)
 
@@ -271,12 +291,10 @@ class TestUpdateMetrcRowsOnLicenseChange(db_unittest.TestCase):
 
 		with session_scope(session_maker) as session:
 			# Assert the vendor_id and payor_id are correct after modification
-			tr = _get_transfer(transfer_row_id, session)
-			self.assertEqual(license_row_id, str(tr.license_id))
-			self.assertEqual(company_id, str(tr.vendor_id))
-
-			deliveries = _get_deliveries(transfer_row_id, session)
-			for delivery in deliveries:
+			company_deliveries = _get_company_deliveries(company_delivery_ids, session)
+			
+			for delivery in company_deliveries:
+				self.assertEqual(company_id, str(delivery.vendor_id))
 				self.assertEqual(company_id2, str(delivery.payor_id))
 				self.assertEqual('OUTGOING_TO_PAYOR', delivery.delivery_type)
 

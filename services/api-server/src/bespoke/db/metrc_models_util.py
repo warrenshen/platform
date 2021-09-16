@@ -8,9 +8,17 @@ from typing import List
 from bespoke.db import models
 from bespoke.db.db_constants import TransferType, DeliveryType
 
-TransferDetails = TypedDict('TransferDetails', {
-	'vendor_id': str
-})
+class CompanyDeliveryObj(object):
+	"""Wrapper object for a CompanyDelivery DB object, so we can associated 
+			additional fields for convenience"""
+	def __init__(self,
+		company_delivery: models.CompanyDelivery,
+		metrc_delivery: models.MetrcDelivery,
+		metrc_transfer: models.MetrcTransfer
+	):
+		self.company_delivery = company_delivery
+		self.metrc_delivery = metrc_delivery
+		self.metrc_transfer = metrc_transfer
 
 class MetrcDeliveryObj(object):
 	"""Wrapper object for a metrc delivery DB object, so we can associated 
@@ -30,9 +38,13 @@ class MetrcDeliveryObj(object):
 class MetrcTransferObj(object):
 	"""Wrapper object for a metrc transfer DB object and delivery IDs"""
 
-	def __init__(self, metrc_transfer: models.MetrcTransfer, deliveries: List[MetrcDeliveryObj]) -> None:
+	def __init__(self, 
+		metrc_transfer: models.MetrcTransfer, 
+		deliveries: List[MetrcDeliveryObj],
+		company_deliveries: List[CompanyDeliveryObj]) -> None:
 		self.metrc_transfer = metrc_transfer
 		self.deliveries = deliveries
+		self.company_deliveries = company_deliveries
 
 	def get_delivery_ids(self) -> List[str]:
 		return [delivery_obj.metrc_delivery.delivery_id for delivery_obj in self.deliveries]

@@ -8,7 +8,9 @@ from typing import Any, Callable, Dict, Iterable, List, Tuple, cast
 from bespoke import errors
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
-from bespoke.db.metrc_models_util import MetrcDeliveryObj, MetrcTransferObj, TransferDetails
+from bespoke.db.metrc_models_util import (
+		CompanyDeliveryObj, MetrcDeliveryObj, MetrcTransferObj
+)
 from bespoke.companies import licenses_util
 from bespoke.metrc.common import metrc_common_util, package_common_util
 from bespoke.metrc.common.package_common_util import UNKNOWN_LAB_STATUS
@@ -144,11 +146,8 @@ class Transfers(object):
 		for t in self._transfers:
 			transfer_id = '{}'.format(t['Id'])
 			tr = models.MetrcTransfer()
-			tr.license_number = license_number
-			tr.us_state = us_state
-			tr.company_id = cast(Any, company_id)
-			tr.license_id = cast(Any, license_id)
 			tr.transfer_id = transfer_id
+			tr.us_state = us_state
 			tr.shipper_facility_license_number = t['ShipperFacilityLicenseNumber']
 			tr.shipper_facility_name = t['ShipperFacilityName']
 			tr.created_date = parser.parse(t['CreatedDateTime']).date() if t['CreatedDateTime'] else None
@@ -157,9 +156,10 @@ class Transfers(object):
 			tr.shipment_transaction_type = t['ShipmentTransactionType']
 			tr.last_modified_at = parser.parse(t['LastModified'])
 			tr.transfer_payload = t
-			tr.type = transfer_type
 		
 			deliveries: List[MetrcDeliveryObj] = []
+			company_deliveries: List[CompanyDeliveryObj] = []
+
 			if transfer_type == db_constants.TransferType.INCOMING:
 				d = models.MetrcDelivery()
 				d.us_state = us_state
@@ -175,6 +175,19 @@ class Transfers(object):
 					transfer_type=transfer_type, 
 					transfer_id=transfer_id,
 					company_id=company_id
+				))
+
+				company_delivery = models.CompanyDelivery(
+					license_number=license_number,
+					us_state=us_state,
+					transfer_type=transfer_type,
+				)
+				company_delivery.company_id = cast(Any, company_id)
+
+				company_deliveries.append(CompanyDeliveryObj(
+					company_delivery=company_delivery,
+					metrc_delivery=d,
+					metrc_transfer=tr
 				))
 			else:
 				outgoing_transfer_id = t['Id']
@@ -198,9 +211,22 @@ class Transfers(object):
 						company_id=company_id
 					))
 
+					company_delivery = models.CompanyDelivery(
+						license_number=license_number,
+						us_state=us_state,
+						transfer_type=transfer_type,
+					)
+					company_delivery.company_id = cast(Any, company_id)
+					company_deliveries.append(CompanyDeliveryObj(
+						company_delivery=company_delivery,
+						metrc_delivery=d,
+						metrc_transfer=tr
+					))
+
 			transfer_obj = MetrcTransferObj(
 				metrc_transfer=tr,
-				deliveries=deliveries
+				deliveries=deliveries,
+				company_deliveries=company_deliveries
 			)
 			metrc_transfer_objs.append(transfer_obj)
 
@@ -209,7 +235,7 @@ class Transfers(object):
 def _write_transfers(
 	transfer_objs: List[MetrcTransferObj], 
 	delivery_id_to_transfer_row_id: Dict, 
-	all_deliveries: List[MetrcDeliveryObj],
+	all_company_deliveries: List[CompanyDeliveryObj],
 	session: Session) -> None:
 	transfer_ids = [transfer_obj.metrc_transfer.transfer_id for transfer_obj in transfer_objs]
 	us_states = [transfer_obj.metrc_transfer.us_state for transfer_obj in transfer_objs]
@@ -225,7 +251,7 @@ def _write_transfers(
 
 	for metrc_transfer_obj in transfer_objs:
 		metrc_transfer = metrc_transfer_obj.metrc_transfer
-		all_deliveries.extend(metrc_transfer_obj.deliveries)
+		all_company_deliveries.extend(metrc_transfer_obj.company_deliveries)
 		if metrc_transfer.transfer_id in transfer_id_to_prev_transfer:
 			# update
 			prev_transfer = transfer_id_to_prev_transfer[metrc_transfer.transfer_id]
@@ -235,8 +261,6 @@ def _write_transfers(
 			# license_id
 			# created_at
 			# transfer_id
-			prev_transfer.type = metrc_transfer.type
-			prev_transfer.license_number = metrc_transfer.license_number
 			prev_transfer.shipper_facility_license_number = metrc_transfer.shipper_facility_license_number
 			prev_transfer.shipper_facility_name = metrc_transfer.shipper_facility_name
 			prev_transfer.created_date = metrc_transfer.created_date
@@ -244,7 +268,6 @@ def _write_transfers(
 			prev_transfer.shipment_type_name = metrc_transfer.shipment_type_name
 			prev_transfer.shipment_transaction_type = metrc_transfer.shipment_transaction_type
 			prev_transfer.transfer_payload = metrc_transfer.transfer_payload
-			prev_transfer.vendor_id = metrc_transfer.vendor_id
 			prev_transfer.updated_at = metrc_transfer.updated_at
 			prev_transfer.lab_results_status = metrc_transfer.lab_results_status
 			prev_transfer.last_modified_at = metrc_transfer.last_modified_at
@@ -263,18 +286,79 @@ def _write_transfers(
 			for delivery_id in metrc_transfer_obj.get_delivery_ids():
 				delivery_id_to_transfer_row_id[delivery_id] = str(metrc_transfer.id)
 
-def _write_deliveries(
-	deliveries: List[MetrcDeliveryObj],
+def _write_company_deliveries(
+	deliveries: List[CompanyDeliveryObj],
 	delivery_id_to_transfer_row_id: Dict,
 	delivery_id_to_delivery_row_id: Dict, 
 	session: Session) -> None:
-	delivery_ids = [delivery.metrc_delivery.delivery_id for delivery in deliveries]
+	delivery_ids = [company_delivery_obj.metrc_delivery.delivery_id for company_delivery_obj in deliveries]
 	# In reality, all the deliveries will be from the same state.
-	us_states = [delivery.metrc_delivery.us_state for delivery in deliveries]
+	us_states = [company_delivery_obj.company_delivery.us_state for company_delivery_obj in deliveries]
 
 	transfer_row_ids = []
-	for delivery in deliveries:
-		cur_transfer_row_id = delivery_id_to_transfer_row_id[delivery.metrc_delivery.delivery_id]
+	delivery_row_ids = []
+	for company_delivery_obj in deliveries:
+		metrc_delivery = company_delivery_obj.metrc_delivery
+		cur_transfer_row_id = delivery_id_to_transfer_row_id[metrc_delivery.delivery_id]
+		transfer_row_ids.append(cur_transfer_row_id)
+		delivery_row_ids.append(delivery_id_to_delivery_row_id[metrc_delivery.delivery_id])
+
+	prev_deliveries = session.query(models.CompanyDelivery).filter(
+		models.CompanyDelivery.delivery_row_id.in_(delivery_row_ids)
+	).filter(
+		models.CompanyDelivery.transfer_row_id.in_(transfer_row_ids)
+	).filter(
+		models.CompanyDelivery.us_state.in_(us_states)
+	)
+	delivery_key_to_prev_delivery: Dict[Tuple[str, str], models.CompanyDelivery] = {}
+	for prev_delivery in prev_deliveries:
+		key = (str(prev_delivery.transfer_row_id), str(prev_delivery.delivery_row_id))
+		delivery_key_to_prev_delivery[key] = prev_delivery
+
+	for company_delivery_obj in deliveries:
+		delivery_row_id = delivery_id_to_delivery_row_id[company_delivery_obj.metrc_delivery.delivery_id]
+		transfer_row_id = delivery_id_to_transfer_row_id[company_delivery_obj.metrc_delivery.delivery_id]
+		key = (transfer_row_id, delivery_row_id)
+		company_delivery = company_delivery_obj.company_delivery
+
+		if key in delivery_key_to_prev_delivery:
+			# update
+			prev_delivery = delivery_key_to_prev_delivery[key]
+
+			# delivery_id - no change
+			prev_delivery.company_id = company_delivery.company_id
+			prev_delivery.license_number = company_delivery.license_number
+			prev_delivery.us_state = company_delivery.us_state
+			prev_delivery.vendor_id = company_delivery.vendor_id
+			prev_delivery.payor_id = company_delivery.payor_id
+			prev_delivery.transfer_row_id = cast(Any, transfer_row_id)
+			prev_delivery.transfer_type = company_delivery.transfer_type
+			prev_delivery.delivery_row_id = cast(Any, delivery_row_id)
+			prev_delivery.delivery_type = company_delivery.delivery_type
+		else:
+			# add
+			company_delivery.delivery_row_id = cast(Any, delivery_row_id)
+			company_delivery.transfer_row_id = cast(Any, transfer_row_id)
+
+			session.add(company_delivery)
+			session.flush()
+
+			# In some rare cases, a new delivery may show up twice in the same day.
+			# The following line prevents an attempt to insert a duplicate delivery.
+			delivery_key_to_prev_delivery[key] = company_delivery
+
+def _write_deliveries(
+	deliveries: List[models.MetrcDelivery],
+	delivery_id_to_transfer_row_id: Dict,
+	delivery_id_to_delivery_row_id: Dict, 
+	session: Session) -> None:
+	delivery_ids = [metrc_delivery.delivery_id for metrc_delivery in deliveries]
+	# In reality, all the deliveries will be from the same state.
+	us_states = [metrc_delivery.us_state for metrc_delivery in deliveries]
+
+	transfer_row_ids = []
+	for metrc_delivery in deliveries:
+		cur_transfer_row_id = delivery_id_to_transfer_row_id[metrc_delivery.delivery_id]
 		transfer_row_ids.append(cur_transfer_row_id)
 
 	prev_metrc_deliveries = session.query(models.MetrcDelivery).filter(
@@ -290,8 +374,7 @@ def _write_deliveries(
 		key = (cur_transfer_row_id, prev_delivery.delivery_id)
 		delivery_key_to_prev_delivery[key] = prev_delivery
 
-	for delivery in deliveries:
-		metrc_delivery = delivery.metrc_delivery
+	for metrc_delivery in deliveries:
 		transfer_row_id = delivery_id_to_transfer_row_id[metrc_delivery.delivery_id]
 		key = (transfer_row_id, metrc_delivery.delivery_id)
 
@@ -301,10 +384,7 @@ def _write_deliveries(
 			delivery_id_to_delivery_row_id[metrc_delivery.delivery_id] = str(prev_delivery.id)
 
 			# delivery_id - no change
-
 			prev_delivery.transfer_row_id = cast(Any, transfer_row_id)
-			prev_delivery.payor_id = metrc_delivery.payor_id
-			prev_delivery.delivery_type = metrc_delivery.delivery_type
 			prev_delivery.recipient_facility_license_number = metrc_delivery.recipient_facility_license_number
 			prev_delivery.recipient_facility_name = metrc_delivery.recipient_facility_name
 			prev_delivery.shipment_type_name = metrc_delivery.shipment_type_name
@@ -383,6 +463,12 @@ def _write_transfer_packages(
 		# The following line prevents an attempt to insert a duplicate package.
 		delivery_id_package_id_to_prev_package[metrc_package_key] = metrc_package
 
+def _get_company_delivery_objs(transfer_objs: List[MetrcTransferObj]) -> List[CompanyDeliveryObj]:
+	company_delivery_objs = []
+	for transfer_obj in transfer_objs:
+		company_delivery_objs.extend(transfer_obj.company_deliveries)
+	return company_delivery_objs
+
 @errors.return_error_tuple
 def populate_transfers_table(
 	ctx: metrc_common_util.DownloadContext,
@@ -398,7 +484,6 @@ def populate_transfers_table(
 
 	cur_date_str = ctx.get_cur_date_str()
 	apis_to_use = company_info.apis_to_use
-	transfer_id_to_details: Dict[str, TransferDetails] = {}
 
 	## Fetch transfers
 
@@ -422,9 +507,8 @@ def populate_transfers_table(
 	with session_scope(session_maker) as session:
 		# Look up company ids for vendors that might match, and use those
 		# licenses to determine what kind of transfer this is
-		licenses_util.populate_transfer_vendor_details(
-			incoming_metrc_transfer_objs,
-			transfer_id_to_details,
+		licenses_util.populate_vendor_details(
+			_get_company_delivery_objs(incoming_metrc_transfer_objs),
 			session=session
 		)
 
@@ -446,9 +530,8 @@ def populate_transfers_table(
 	)
 
 	with session_scope(session_maker) as session:
-		licenses_util.populate_transfer_vendor_details(
-			outgoing_metrc_transfer_objs,
-			transfer_id_to_details,
+		licenses_util.populate_vendor_details(
+			_get_company_delivery_objs(outgoing_metrc_transfer_objs),
 			session=session
 		)
 
@@ -534,25 +617,32 @@ def populate_transfers_table(
 	# that do not exist.
 	TRANSFERS_BATCH_SIZE = 10
 	delivery_id_to_transfer_row_id: Dict = {}
-	all_deliveries: List[MetrcDeliveryObj] = []
+	all_company_deliveries: List[CompanyDeliveryObj] = []
 
 	for transfers_chunk in chunker(metrc_transfer_objs, TRANSFERS_BATCH_SIZE):
 		with session_scope(session_maker) as session:
-			_write_transfers(transfers_chunk, delivery_id_to_transfer_row_id, all_deliveries, session)
+			_write_transfers(transfers_chunk, delivery_id_to_transfer_row_id, all_company_deliveries, session)
 
 	## Write deliveries
 	DELIVERIES_BATCH_SIZE = 10
 	delivery_id_to_delivery_row_id: Dict = {}
 
-	for deliveries_chunk in chunker(all_deliveries, DELIVERIES_BATCH_SIZE):
+	for company_deliveries_chunk in cast(Iterable[List[CompanyDeliveryObj]], chunker(all_company_deliveries, DELIVERIES_BATCH_SIZE)):
 		with session_scope(session_maker) as session:
-			licenses_util.populate_delivery_details(deliveries_chunk, transfer_id_to_details, session)
+			licenses_util.populate_delivery_details(company_deliveries_chunk, session)
+			deliveries_chunk = [company_delivery_obj.metrc_delivery for company_delivery_obj in company_deliveries_chunk]
 			_write_deliveries(
 				deliveries_chunk, 
 				delivery_id_to_transfer_row_id=delivery_id_to_transfer_row_id,
 				delivery_id_to_delivery_row_id=delivery_id_to_delivery_row_id, 
 				session=session
 			)
+			_write_company_deliveries(
+				company_deliveries_chunk,
+				delivery_id_to_transfer_row_id=delivery_id_to_transfer_row_id,
+				delivery_id_to_delivery_row_id=delivery_id_to_delivery_row_id, 
+				session=session
+			)			
 
 	## Write packages
 
