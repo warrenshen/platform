@@ -256,7 +256,8 @@ def populate_transfer_vendor_details(
 
 	shipper_license_to_company_id = {}
 	for shipper_license in shipper_licenses:
-		shipper_license_to_company_id[shipper_license.license_number] = str(shipper_license.company_id)
+		if shipper_license.company_id:
+			shipper_license_to_company_id[shipper_license.license_number] = str(shipper_license.company_id)
 
 	# Match based on license number
 	for metrc_transfer_obj in metrc_transfer_objs:
@@ -286,7 +287,8 @@ def populate_delivery_details(
 	).all()
 	recipient_license_to_company_id = {}
 	for recipient_license in recipient_licenses:
-		recipient_license_to_company_id[recipient_license.license_number] = str(recipient_license.company_id)
+		if recipient_license.company_id:
+			recipient_license_to_company_id[recipient_license.license_number] = str(recipient_license.company_id)
 
 	for delivery in deliveries:
 		metrc_delivery = delivery.metrc_delivery
