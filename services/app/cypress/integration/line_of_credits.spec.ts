@@ -80,6 +80,7 @@ describe("Create line of credit contract for existing customer", () => {
       cy.dataCySelector("contract-terms-form-input-timezone", "input").type(
         "-7.00{enter}"
       );
+      // US State
       cy.get("[data-cy=us-state-dropdown]").click();
       cy.get("[data-cy*=us-state-dropdown-item]").first().click();
       // Clearance Days

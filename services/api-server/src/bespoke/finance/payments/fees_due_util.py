@@ -157,7 +157,7 @@ def create_minimum_due_fee_for_customers(
 	for customer_id, val_info in minimum_due_resp['company_due_to_financial_info'].items():
 		existing_booked_fee = company_id_to_fee.get(customer_id)
 		if existing_booked_fee:
-			raise errors.Error('Company {} already has a fee booked for {}. Please remove them or undue the booked minimum fee for this time frame'.format(
+			raise errors.Error('Company {} already has a fee booked for {}. Please remove them or undo the booked minimum fee for this time frame'.format(
 				customer_id, effective_month))
 
 		fee_dict = val_info['fee_info']

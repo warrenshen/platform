@@ -90,9 +90,9 @@ describe("Create inventory financing customer", () => {
       cy.dataCySelector("contract-terms-form-input-timezone", "input").type(
         "-7.00{enter}"
       );
-      cy.dataCySelector("contract-terms-form-input-us-state", "input").type(
-        "CA"
-      );
+      // US State
+      cy.get("[data-cy=us-state-dropdown]").click();
+      cy.get("[data-cy*=us-state-dropdown-item]").first().click();
       // Clearance Days
       cy.dataCy(
         "contract-terms-form-input-clearance-days-structure-0-0"
@@ -222,9 +222,9 @@ describe("Create line of credit customer", () => {
       cy.dataCySelector("contract-terms-form-input-timezone", "input").type(
         "-7.00{enter}"
       );
-      cy.dataCySelector("contract-terms-form-input-us-state", "input").type(
-        "CA"
-      );
+      // US State
+      cy.get("[data-cy=us-state-dropdown]").click();
+      cy.get("[data-cy*=us-state-dropdown-item]").first().click();
       // Clearance Days
       cy.dataCy(
         "contract-terms-form-input-clearance-days-structure-0-0"
