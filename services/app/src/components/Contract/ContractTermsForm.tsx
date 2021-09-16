@@ -31,6 +31,60 @@ import { groupBy } from "lodash";
 import { ChangeEvent, useMemo } from "react";
 import SelectTimezoneMaterialUi from "select-timezone-material-ui";
 
+const us_states = [
+  { abbreviation: "AL", full: "Alabama" },
+  { abbreviation: "AK", full: "Alaska" },
+  { abbreviation: "AZ", full: "Arizona" },
+  { abbreviation: "AR", full: "Arkansas" },
+  { abbreviation: "CA", full: "California" },
+  { abbreviation: "CO", full: "Colorado" },
+  { abbreviation: "CT", full: "Connecticut" },
+  { abbreviation: "DE", full: "Delaware" },
+  { abbreviation: "DC", full: "District of Columbia" },
+  { abbreviation: "FL", full: "Florida" },
+  { abbreviation: "GA", full: "Georgia" },
+  { abbreviation: "HI", full: "Hawaii" },
+  { abbreviation: "ID", full: "Idaho" },
+  { abbreviation: "IL", full: "Illinois" },
+  { abbreviation: "IN", full: "Indiana" },
+  { abbreviation: "IA", full: "Iowa" },
+  { abbreviation: "KS", full: "Kansas" },
+  { abbreviation: "KY", full: "Kentucky" },
+  { abbreviation: "LA", full: "Louisiana" },
+  { abbreviation: "ME", full: "Maine" },
+  { abbreviation: "MD", full: "Maryland" },
+  { abbreviation: "MA", full: "Massachusetts" },
+  { abbreviation: "MI", full: "Michigan" },
+  { abbreviation: "MN", full: "Minnesota" },
+  { abbreviation: "MS", full: "Mississippi" },
+  { abbreviation: "MO", full: "Missouri" },
+  { abbreviation: "MT", full: "Montana" },
+  { abbreviation: "NE", full: "Nebraska" },
+  { abbreviation: "NV", full: "Nevada" },
+  { abbreviation: "NH", full: "New Hampshire" },
+  { abbreviation: "NJ", full: "New Jersey" },
+  { abbreviation: "NM", full: "New Mexico" },
+  { abbreviation: "NY", full: "New York" },
+  { abbreviation: "NC", full: "North Carolina" },
+  { abbreviation: "ND", full: "North Dakota" },
+  { abbreviation: "OH", full: "Ohio" },
+  { abbreviation: "OK", full: "Oklahoma" },
+  { abbreviation: "OR", full: "Oregon" },
+  { abbreviation: "PA", full: "Pennsylvania" },
+  { abbreviation: "RI", full: "Rhode Island" },
+  { abbreviation: "SC", full: "South Carolina" },
+  { abbreviation: "SD", full: "South Dakota" },
+  { abbreviation: "TN", full: "Tennessee" },
+  { abbreviation: "TX", full: "Texas" },
+  { abbreviation: "UT", full: "Utah" },
+  { abbreviation: "VT", full: "Vermont" },
+  { abbreviation: "VA", full: "Virginia" },
+  { abbreviation: "WA", full: "Washington" },
+  { abbreviation: "WV", full: "West Virginia" },
+  { abbreviation: "WI", full: "Wisconisin" },
+  { abbreviation: "WY", full: "Wyoming" },
+];
+
 const useStyles = makeStyles({
   section: {
     fontWeight: 400,
@@ -224,6 +278,36 @@ export default function ContractTermsForm({
           value={item.value || null}
           onChange={(value: any) => findAndReplaceInJSON(item, value)}
         />
+      );
+    } else if (item.type === "us_state") {
+      return (
+        <Select
+          data-cy={"us-state-dropdown"}
+          id={item.internal_name}
+          style={{ width: "100%" }}
+          displayEmpty={true}
+          renderValue={() => <span>{item.display_name}:</span>}
+          value={item.value || ""}
+          onChange={(e: any) => {
+            const state_abbreviation = e.target.value;
+            findAndReplaceInJSON(item, state_abbreviation);
+          }}
+        >
+          {us_states.map((us_state: any, index: any) => {
+            return (
+              <MenuItem
+                data-cy={"us-state-dropdown-item"}
+                classes={{
+                  root: "us-state-option",
+                }}
+                key={us_state["abbreviation"]}
+                value={us_state["abbreviation"]}
+              >
+                {us_state["full"]}
+              </MenuItem>
+            );
+          })}
+        </Select>
       );
     } else if (item.type === "timezone") {
       return (

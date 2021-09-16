@@ -17,7 +17,7 @@ describe("Create line of credit contract for existing customer", () => {
       cy.dataCy("sidebar-item-customers").click();
       cy.url().should("include", "customers");
 
-      cy.dataCy("customers-data-grid-view-customer-button-C2-LOC")
+      cy.get("[data-cy*=customers-data-grid-view-customer-button-]")
         .first()
         .click({ force: true });
 
@@ -80,9 +80,8 @@ describe("Create line of credit contract for existing customer", () => {
       cy.dataCySelector("contract-terms-form-input-timezone", "input").type(
         "-7.00{enter}"
       );
-      cy.dataCySelector("contract-terms-form-input-us-state", "input").type(
-        "CA"
-      );
+      cy.get("[data-cy=us-state-dropdown]").click();
+      cy.get("[data-cy*=us-state-dropdown-item]").first().click();
       // Clearance Days
       cy.dataCy(
         "contract-terms-form-input-clearance-days-structure-0-0"
@@ -124,6 +123,40 @@ describe("Create line of credit contract for existing customer", () => {
       cy.dataCy("create-contract-modal-primary-button").click();
 
       cy.dataCy("create-contract-modal").should("not.exist");
+    }
+  );
+});
+
+describe("Checking states in dropdown selection list", () => {
+  it(
+    "Include al 50 states and DC in the dropdown list",
+    {
+      retries: {
+        runMode: 5,
+      },
+    },
+    () => {
+      cy.resetDatabase();
+      cy.loginBankAdmin();
+
+      cy.dataCy("sidebar-item-customers").click();
+
+      cy.get("[data-cy*=customers-data-grid-view-customer-button-]")
+        .first()
+        .click({ force: true });
+
+      cy.dataCy("company-sidebar-item-customer-contract").click();
+
+      cy.dataCy("create-contract-button").click();
+
+      cy.dataCy("create-contract-modal").should("be.visible");
+
+      // Enter contract non-terms information.
+      cy.dataCy("contract-form-input-product-type").click();
+      cy.dataCy("contract-form-input-product-type-menu-item-0").click();
+
+      cy.get("[data-cy=us-state-dropdown]").click();
+      cy.get("[data-cy*=us-state-dropdown-item]").should("have.length", 51);
     }
   );
 });
