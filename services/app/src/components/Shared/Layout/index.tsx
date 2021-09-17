@@ -8,10 +8,11 @@ import { ReactComponent as ContractsIcon } from "components/Shared/Layout/Icons/
 import { ReactComponent as CustomersIcon } from "components/Shared/Layout/Icons/Customers.svg";
 import { ReactComponent as InvoicesIcon } from "components/Shared/Layout/Icons/Invoices.svg";
 import { ReactComponent as LoansIcon } from "components/Shared/Layout/Icons/Loans.svg";
+import { ReactComponent as MetrcIcon } from "components/Shared/Layout/Icons/Metrc.svg";
 import { ReactComponent as OverviewIcon } from "components/Shared/Layout/Icons/Overview.svg";
-import { ReactComponent as RepaymentsIcon } from "components/Shared/Layout/Icons/Payments.svg";
 import { ReactComponent as PayorsIcon } from "components/Shared/Layout/Icons/Payors.svg";
 import { ReactComponent as PurchaseOrdersIcon } from "components/Shared/Layout/Icons/PurchaseOrders.svg";
+import { ReactComponent as RepaymentsIcon } from "components/Shared/Layout/Icons/Payments.svg";
 import { ReactComponent as ReportsIcon } from "components/Shared/Layout/Icons/Reports.svg";
 import { ReactComponent as SettingsIcon } from "components/Shared/Layout/Icons/Settings.svg";
 import { ReactComponent as VendorsIcon } from "components/Shared/Layout/Icons/Vendors.svg";
@@ -278,6 +279,12 @@ const getBankNavItems = (
       iconNode: ReportsIcon,
       text: "Reports",
       link: bankRoutes.reports,
+    },
+    {
+      dataCy: "reports",
+      iconNode: MetrcIcon,
+      text: "Metrc",
+      link: bankRoutes.metrcRoot,
     },
     {
       dataCy: "settings",

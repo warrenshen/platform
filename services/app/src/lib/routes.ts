@@ -83,6 +83,10 @@ export const bankRoutes = {
   payors: "/payors",
   purchaseOrders: "/purchase-orders",
   invoices: "/invoices",
+  metrcRoot: "/metrc",
+  metrc: {
+    transfer: "/transfer",
+  },
   reports: "/reports",
   settings: "/settings",
   vendors: "/vendors",
