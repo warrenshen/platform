@@ -68,7 +68,6 @@ services:
     restart: always
     volumes:
       - ./app:/app
-      - /app/node_modules
 
 volumes:
   bespoke_db_data_cypress:
