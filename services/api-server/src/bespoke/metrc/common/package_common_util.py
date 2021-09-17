@@ -6,6 +6,13 @@ from bespoke.db import models, db_constants
 
 UNKNOWN_LAB_STATUS = 'unknown'
 
+class TransferPackageObj(object):
+
+	def __init__(self, company_id: str, transfer_type: str, transfer_package: models.MetrcTransferPackage) -> None:
+		self.company_id = company_id
+		self.transfer_type = transfer_type
+		self.transfer_package = transfer_package
+
 def _merge_common_fields(
 	dest: Union[models.MetrcPackage, models.MetrcTransferPackage], 
 	source: Union[models.MetrcPackage, models.MetrcTransferPackage]) -> None:
@@ -16,8 +23,6 @@ def _merge_common_fields(
 		# Only override the type when its defined
 		prev.type = cur.type
 
-	prev.company_id = cur.company_id
-	prev.license_number = cur.license_number
 	prev.us_state = cur.us_state
 	prev.package_id = cur.package_id
 	prev.package_label = cur.package_label
@@ -29,16 +34,17 @@ def _merge_common_fields(
 	prev.last_modified_at = cur.last_modified_at
 
 
-def update_package_based_on_transfer_package(tp: models.MetrcTransferPackage, p: models.MetrcPackage) -> None:
+def update_package_based_on_transfer_package(
+	company_id: str, transfer_type: str, tp: models.MetrcTransferPackage, p: models.MetrcPackage) -> None:
 	has_last_modified = tp.last_modified_at and p.last_modified_at
 
 	if has_last_modified and tp.last_modified_at < p.last_modified_at:
 		# No need to modify when this transfer package was updated before this package was.
 		return
 
-	if tp.type == 'transfer_incoming':
+	if transfer_type == db_constants.TransferType.INCOMING:
 		pass
-	elif tp.type == 'transfer_outgoing':
+	elif company_id == str(p.company_id) and transfer_type == db_constants.TransferType.OUTGOING:
 		p.type = db_constants.PackageType.OUTGOING
 
 def merge_into_prev_transfer_package(prev: models.MetrcTransferPackage, cur: models.MetrcTransferPackage) -> None:
@@ -82,9 +88,14 @@ def maybe_merge_into_prev_package(
 	if cur.quantity:
 		prev.quantity = cur.quantity
 
+	if cur.company_id:
+		prev.company_id = cur.company_id
+	
+	if cur.license_number:
+		prev.license_number = cur.license_number
+	
 	prev.unit_of_measure = cur.unit_of_measure
-
-	_merge_common_fields(source=cur, dest=prev)	
+	_merge_common_fields(source=cur, dest=prev)
 
 def update_packages(
 	packages: List[models.MetrcPackage],
@@ -155,9 +166,9 @@ def update_packages_from_sales_transactions(
 										tx.package_id))
 
 def update_packages_from_transfer_packages(
-	transfer_packages: List[models.MetrcTransferPackage],
+	transfer_package_objs: List[TransferPackageObj],
 	session: Session) -> None:
-	package_ids = [package.package_id for package in transfer_packages] 
+	package_ids = [package_obj.transfer_package.package_id for package_obj in transfer_package_objs] 
 
 	# metrc_packages are unique on package_id, when they 
 	# are not associated with a delivery.
@@ -174,13 +185,16 @@ def update_packages_from_transfer_packages(
 		package_id_to_prev_package[metrc_package_key] = prev_metrc_package
 
 	# Write the packages
-	for metrc_transfer_package in transfer_packages:
+	for transfer_package_obj in transfer_package_objs:
+		metrc_transfer_package = transfer_package_obj.transfer_package
 		metrc_package_key = metrc_transfer_package.package_id
 
 		if metrc_package_key in package_id_to_prev_package:
 			# update
 			prev_metrc_package = package_id_to_prev_package[metrc_package_key]
 			update_package_based_on_transfer_package(
+				company_id=transfer_package_obj.company_id,
+				transfer_type=transfer_package_obj.transfer_type,
 				tp=metrc_transfer_package,
 				p=prev_metrc_package
 			)

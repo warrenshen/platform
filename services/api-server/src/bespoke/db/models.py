@@ -524,15 +524,12 @@ class MetrcTransferPackage(Base):
 
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
 	
-	#metrc_package_id = cast(GUID, Column(GUID, ForeignKey('metrc_packages.id')))
 	transfer_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_transfers.id')))
 	delivery_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_deliveries.id')))
 	delivery_id = Column(String) # From Metrc info
 
 	type = Column(String)
-	license_number = Column(String, nullable=False)
 	us_state = Column(String, nullable=False)
-	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	package_id = Column(String) # From Metrc info
 	package_label = Column(String) # From Metrc info
 	package_type = Column(String) # From Metrc info

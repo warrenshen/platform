@@ -13,7 +13,9 @@ from bespoke.db.metrc_models_util import (
 )
 from bespoke.companies import licenses_util
 from bespoke.metrc.common import metrc_common_util, package_common_util
-from bespoke.metrc.common.package_common_util import UNKNOWN_LAB_STATUS
+from bespoke.metrc.common.package_common_util import (
+	UNKNOWN_LAB_STATUS, TransferPackageObj
+)
 from bespoke.metrc.common.metrc_common_util import chunker
 from dateutil import parser
 from sqlalchemy.orm.session import Session
@@ -86,15 +88,8 @@ class TransferPackages(object):
 			package_wholesale = package_id_to_package_wholesale.get(package_id)
 
 			p = models.MetrcTransferPackage()
-			if transfer_type == db_constants.TransferType.INCOMING:
-				p.type = db_constants.TransferPackageType.TRANSFER_INCOMING
-			elif transfer_type == db_constants.TransferType.OUTGOING:
-				p.type = db_constants.TransferPackageType.TRANSFER_OUTGOING
-			else:
-				raise errors.Error('Unexpected transfer type provided to get package models {}'.format(transfer_type))
-			p.license_number = license_number
+			p.type = db_constants.TransferPackageType.TRANSFER
 			p.us_state = us_state
-			p.company_id = cast(Any, company_id)
 			p.package_id = '{}'.format(package_id)
 			p.delivery_id = '{}'.format(package['DeliveryId'])
 			p.package_label = package['PackageLabel']
@@ -291,9 +286,12 @@ def _write_company_deliveries(
 	delivery_id_to_transfer_row_id: Dict,
 	delivery_id_to_delivery_row_id: Dict, 
 	session: Session) -> None:
+	if not deliveries:
+		return
 	delivery_ids = [company_delivery_obj.metrc_delivery.delivery_id for company_delivery_obj in deliveries]
 	# In reality, all the deliveries will be from the same state.
-	us_states = [company_delivery_obj.company_delivery.us_state for company_delivery_obj in deliveries]
+	us_state = deliveries[0].company_delivery.us_state
+	company_id = deliveries[0].company_delivery.company_id
 
 	transfer_row_ids = []
 	delivery_row_ids = []
@@ -304,11 +302,13 @@ def _write_company_deliveries(
 		delivery_row_ids.append(delivery_id_to_delivery_row_id[metrc_delivery.delivery_id])
 
 	prev_deliveries = session.query(models.CompanyDelivery).filter(
+		models.CompanyDelivery.company_id == company_id
+	).filter(
 		models.CompanyDelivery.delivery_row_id.in_(delivery_row_ids)
 	).filter(
 		models.CompanyDelivery.transfer_row_id.in_(transfer_row_ids)
 	).filter(
-		models.CompanyDelivery.us_state.in_(us_states)
+		models.CompanyDelivery.us_state == us_state
 	)
 	delivery_key_to_prev_delivery: Dict[Tuple[str, str], models.CompanyDelivery] = {}
 	for prev_delivery in prev_deliveries:
@@ -538,7 +538,7 @@ def populate_transfers_table(
 	metrc_transfer_objs = incoming_metrc_transfer_objs + outgoing_metrc_transfer_objs
 
 	## Fetch packages and lab results
-	all_metrc_packages: List[models.MetrcTransferPackage] = []
+	all_metrc_transfer_package_objs: List[TransferPackageObj] = []
 	# So we can map a package back to its parent transfer's delivery ID
 	package_id_to_delivery_id = {}
 
@@ -607,7 +607,12 @@ def populate_transfers_table(
 
 			for metrc_package in metrc_packages:
 				package_id_to_delivery_id[metrc_package.package_id] = delivery_id
-				all_metrc_packages.append(metrc_package)
+				all_metrc_transfer_package_objs.append(
+					TransferPackageObj(
+						company_id=company_info.company_id,
+						transfer_type=delivery.transfer_type,
+						transfer_package=metrc_package
+					))
 
 		metrc_transfer.lab_results_status = get_final_lab_status(lab_result_statuses_for_transfer)
 
@@ -653,17 +658,17 @@ def populate_transfers_table(
 	# data is in the metrc_packages table, namely the metrc_packages.package_payload column.
 	PACKAGES_BATCH_SIZE = 10
 
-	for transfer_packages_chunk in cast(Iterable[List[models.MetrcTransferPackage]], chunker(all_metrc_packages, PACKAGES_BATCH_SIZE)):
+	for transfer_package_objs_chunk in cast(Iterable[List[TransferPackageObj]], chunker(all_metrc_transfer_package_objs, PACKAGES_BATCH_SIZE)):
 		with session_scope(session_maker) as session:
 			_write_transfer_packages(
-				transfer_packages_chunk,
+				[transfer_package_obj.transfer_package for transfer_package_obj in transfer_package_objs_chunk],
 				package_id_to_delivery_id=package_id_to_delivery_id,
 				delivery_id_to_transfer_row_id=delivery_id_to_transfer_row_id,
 				delivery_id_to_delivery_row_id=delivery_id_to_delivery_row_id,
 				session=session
 			)
 			package_common_util.update_packages_from_transfer_packages(
-				transfer_packages_chunk,
+				transfer_package_objs_chunk,
 				session=session
 			)
 

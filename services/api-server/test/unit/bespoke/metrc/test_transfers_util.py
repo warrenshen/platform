@@ -38,6 +38,228 @@ def _add_license(company_id: str, session: Session, license_number: str) -> str:
 	license_row_id = str(license.id)
 	return license_row_id
 
+def _get_company2_downloads(seed: test_helper.BasicSeed) -> metrc_common_util.DownloadContext:
+
+	company_id2 = seed.get_company_id('company_admin', index=1)
+	license_id2 = str(uuid.uuid4())
+
+	ctx = metrc_common_util.DownloadContext(
+		sendgrid_client=None,
+		cur_date=date_util.load_date_str('1/1/2020'),
+		company_info=CompanyInfo(
+			company_id=company_id2,
+			name='Company 2',
+			licenses=[], # unused
+			metrc_api_key_id='',
+			apis_to_use=metrc_common_util.get_default_apis_to_use(),
+			facilities_payload=None,
+		),
+		license_auth=LicenseAuthDict(
+			license_id=license_id2,
+			license_number='efgh',
+			us_state='OR',
+			vendor_key='vkey',
+			user_key='ukey2'
+		),
+		debug=True
+	)
+	ctx.rest = cast(metrc_common_util.REST, FakeREST(
+		# The outgoing and incoming are reversed from company_id2's
+		# perspective compared to company_id.
+		req_to_resp={
+			RequestKey(
+				url='/transfers/v1/incoming',
+				time_range=('01/01/2020',)
+			): {
+				'resps': [
+					{
+						'status': 'OK',
+						'json': [
+							{
+								'Id': 'out-t1',
+								'ShipperFacilityLicenseNumber': 'lic-shipper2', 
+								'ShipperFacilityName': 'shipper2-name',
+								'CreatedDateTime': parser.parse('01/03/2020').isoformat(),
+								'ManifestNumber': 'out-t1-manifest',
+								'ShipmentTypeName': 'ship-type-out-t1',
+								'ShipmentTransactionType': 'ship-tx-type-out-t1',
+								'LastModified': parser.parse('02/03/2020').isoformat(),
+								# Incoming frields
+								'DeliveryId': 'out-d1',
+								'RecipientFacilityLicenseNumber': 'lic-recip2',
+								'RecipientFacilityName': 'facility-name-recip2', 
+								'ReceivedDateTime': parser.parse('01/04/2020').isoformat()
+							}
+						]
+					},
+				]
+			},
+			RequestKey(
+				url='/transfers/v1/outgoing',
+				time_range=('01/01/2020',)
+			): {
+				'resps': [
+					{
+						'status': 'OK',
+						'json': [
+							{
+								'Id': 'in-t1',
+								'ShipperFacilityLicenseNumber': 'lic-shipper1', 
+								'ShipperFacilityName': 'shipper1-name',
+								'CreatedDateTime': parser.parse('01/01/2020').isoformat(),
+								'ManifestNumber': 'in-t1-manifest',
+								'ShipmentTypeName': 'ship-type-incoming-d3',
+								'ShipmentTransactionType': 'ship-tx-type-incoming-d3',
+								'LastModified': parser.parse('02/05/2020').isoformat()
+							}
+						]
+					},
+				]
+			},
+			RequestKey(
+				url='/transfers/v1/in-t1/deliveries',
+				time_range=None
+			): {
+				'resps': [
+					{
+						'status': 'OK',
+						'json': [
+							{
+								# Incoming fields
+								'Id': 'incoming-d3',
+								'ShipmentTypeName': 'ship-type-incoming-d3',
+								'ShipmentTransactionType': 'ship-tx-type-incoming-d3',
+								'ShipperFacilityLicenseNumber': 'lic-shipper1', 
+								'ShipperFacilityName': 'shipper1-name',
+								'RecipientFacilityLicenseNumber': 'lic-recip1',
+								'RecipientFacilityName': 'facility-name-recip1',
+								'ReceivedDateTime': parser.parse('01/02/2020').isoformat(),
+							}
+						]
+					},
+				]
+			},
+			RequestKey(
+				url='/transfers/v1/delivery/out-d1/packages',
+				time_range=None
+			): {
+				'resps': [
+					{
+						'status': 'OK',
+						'json': [
+							_package_json({
+								'Id': 'out-p1',
+								'PackageId': 'out-pkg1-A',
+								'ShippedQuantity': 3.0,
+								'ReceivedQuantity': 3.1,
+								'ShippedUnitOfMeasureName': 'oz',
+								'ReceivedUnitOfMeasureName': 'lbs',
+							}),
+							_package_json({
+								'Id': 'out-p2',
+								'PackageId': 'out-pkg2-B',
+								'ShippedQuantity': 4.0,
+								'ReceivedQuantity': 4.1,
+								'ShippedUnitOfMeasureName': 'oz',
+								'ReceivedUnitOfMeasureName': 'lbs',
+							})
+						]
+					},
+				]
+			},
+			RequestKey(
+				url='/transfers/v1/delivery/incoming-d3/packages',
+				time_range=None
+			): {
+				'resps': [
+					{
+						'status': 'OK',
+						'json': [
+							_package_json({
+								'Id': 'in-p1',
+								'PackageId': 'in-pkg1-A',
+								'ShippedQuantity': 5.0,
+								'ReceivedQuantity': 5.1,
+								'ShippedUnitOfMeasureName': 'oz',
+								'ReceivedUnitOfMeasureName': 'lbs',
+							}),
+							_package_json({
+								'Id': 'in-p2',
+								'PackageId': 'in-pkg2-B',
+								'ShippedQuantity': 6.0,
+								'ReceivedQuantity': 6.1,
+								'ShippedUnitOfMeasureName': 'oz',
+								'ReceivedUnitOfMeasureName': 'lbs',
+							})
+						]
+					},
+				]
+			},
+			RequestKey(
+				url='/transfers/v1/delivery/out-d1/packages/wholesale',
+				time_range=None
+			): {
+				'resps': [
+					{
+						'status': 'OK',
+						'json': [
+							{
+								'Id': 'out-p1-wholesale',
+								'PackageId': 'out-pkg1-A',
+								'ShipperWholesalePrice': 1.0,
+								'ReceiverWholesalePrice': 2.0
+							},
+							{
+								'Id': 'out-p2-wholesale',
+								'PackageId': 'out-pkg2-B',
+								'ShipperWholesalePrice': 3.0,
+								'ReceiverWholesalePrice': 4.0
+							}
+						]
+					},
+				]
+			},
+			RequestKey(
+				url='/labtests/v1/results?packageId=out-pkg1-A',
+				time_range=None
+			): {
+				'resps': [
+					{
+						'status': 'OK',
+						'json': [
+							{
+								'TestPassed': True
+							},
+							{
+								'TestPassed': False
+							}
+						]
+					}
+				]
+			},
+			RequestKey(
+				url='/labtests/v1/results?packageId=out-pkg2-B',
+				time_range=None
+			): {
+				'resps': [
+					{
+						'status': 'OK',
+						'json': [
+							{
+								'TestPassed': True
+							},
+							{
+								'TestPassed': True
+							}
+						]
+					}
+				]
+			}
+		}
+		# NOTE: we skip the /wholesale and /lab_results queries for the out packages
+	))
+	return ctx
+
 class TestPopulateTransfersTable(db_unittest.TestCase):
 
 	def test_populate_incoming_outgoing_transfers(self) -> None:
@@ -441,7 +663,7 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 				self.assertEqual(None, deliv.payor_id)
 				self.assertEqual('UNKNOWN', deliv.delivery_type)
 
-			_add_license(company_id, session, 'lic-shipper1')
+			_add_license(company_id1, session, 'lic-shipper1')
 			_add_license(company_id, session, 'lic-recip1')
 
 			_add_license(company_id, session, 'lic-shipper2')
@@ -453,6 +675,14 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 		if err:
 			print(err.traceback)
 		self.assertIsNone(err)
+
+		ctx2 = _get_company2_downloads(seed)
+		# Add transfers from the counter-parties perspective to make sure the overwrite logic 
+		# is working properly
+		success, err = transfers_util.populate_transfers_table(ctx2, session_maker)
+		if err:
+			print(err.traceback)
+		self.assertIsNone(err)		
 
 		expected_transfers: List[Dict] = [
 			{
@@ -516,8 +746,8 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 				'delivery_id': 'out-d1',
 				'recipient_facility_license_number': 'lic-recip2',
 				'recipient_facility_name': 'facility-name-recip2',
-				'shipment_type_name': 'ship-type-out-d1',
-				'shipment_transaction_type': 'ship-tx-type-out-d1',
+				'shipment_type_name': 'ship-type-out-',
+				'shipment_transaction_type': 'ship-tx-type-out-',
 				'transfer_row_id': transfer_row_ids[1],
 			}
 		]
@@ -535,8 +765,8 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 				self.assertEqual('OR', d.us_state)
 				self.assertEqual(exp['recipient_facility_license_number'], d.recipient_facility_license_number)
 				self.assertEqual(exp['recipient_facility_name'], d.recipient_facility_name)
-				self.assertEqual(exp['shipment_type_name'], d.shipment_type_name)
-				self.assertEqual(exp['shipment_transaction_type'], d.shipment_transaction_type)
+				self.assertTrue(d.shipment_type_name.startswith(exp['shipment_type_name']))
+				self.assertTrue(d.shipment_transaction_type.startswith(exp['shipment_transaction_type']))
 				self.assertIsNotNone(d.delivery_payload)
 				self.assertEqual(exp['transfer_row_id'], str(d.transfer_row_id))
 				metrc_delivery_row_ids.append(str(d.id))
@@ -544,19 +774,41 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 		expected_company_deliveries: List[Dict] = [
 			{
 				'company_id': company_id,
+				'license_number': 'abcd',
 				'delivery_row_id': metrc_delivery_row_ids[0],
 				'transfer_row_id': transfer_row_ids[0],
-				'vendor_id': company_id,
+				'vendor_id': company_id1,
 				'payor_id': company_id,
-				'delivery_type': 'INCOMING_INTERNAL',
+				'delivery_type': 'INCOMING_FROM_VENDOR',
 				'transfer_type': 'INCOMING',
 			},
 			{
 				'company_id': company_id,
+				'license_number': 'abcd',
 				'delivery_row_id': metrc_delivery_row_ids[1],
 				'transfer_row_id': transfer_row_ids[1],
 				'vendor_id': company_id,
 				'payor_id': company_id1,
+				'delivery_type': 'OUTGOING_TO_PAYOR',
+				'transfer_type': 'OUTGOING',
+			},
+			{
+				'company_id': company_id1,
+				'license_number': 'efgh',
+				'delivery_row_id': metrc_delivery_row_ids[1],
+				'transfer_row_id': transfer_row_ids[1],
+				'vendor_id': company_id,
+				'payor_id': company_id1,
+				'delivery_type': 'INCOMING_FROM_VENDOR',
+				'transfer_type': 'INCOMING',
+			},
+			{
+				'company_id': company_id1,
+				'license_number': 'efgh',
+				'delivery_row_id': metrc_delivery_row_ids[0],
+				'transfer_row_id': transfer_row_ids[0],
+				'vendor_id': company_id1,
+				'payor_id': company_id,
 				'delivery_type': 'OUTGOING_TO_PAYOR',
 				'transfer_type': 'OUTGOING',
 			}
@@ -565,12 +817,12 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 		with session_scope(session_maker) as session:
 			company_deliveries = cast(List[models.CompanyDelivery], session.query(
 				models.CompanyDelivery).order_by(models.CompanyDelivery.created_at).all())
-			self.assertEqual(2, len(company_deliveries))
+			self.assertEqual(4, len(company_deliveries))
 			for i in range(len(company_deliveries)):
 				deliv = company_deliveries[i]
 				exp = expected_company_deliveries[i]
 				self.assertEqual(exp['company_id'], str(deliv.company_id))
-				self.assertEqual('abcd', deliv.license_number)
+				self.assertEqual(exp['license_number'], deliv.license_number)
 				self.assertEqual('OR', deliv.us_state)
 				self.assertEqual(exp['vendor_id'], str(deliv.vendor_id))
 				self.assertEqual(exp['payor_id'], str(deliv.payor_id))
@@ -582,7 +834,7 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 
 		expected_transfer_packages: List[Dict] = [
 			{
-				'type': 'transfer_outgoing',
+				'type': 'transfer',
 				'company_id': company_id,
 				'package_id': 'out-pkg1-A',
 				'delivery_id': 'out-d1',
@@ -598,7 +850,7 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 				'last_modified_at': parser.parse('02/03/2020'),
 			},
 			{
-				'type': 'transfer_outgoing',
+				'type': 'transfer',
 				'company_id': company_id,
 				'package_id': 'out-pkg2-B',
 				'delivery_id': 'out-d1',
@@ -614,8 +866,7 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 				'last_modified_at': parser.parse('02/03/2020'),
 			},
 			{
-				'type': 'transfer_incoming',
-				'company_id': company_id,
+				'type': 'transfer',
 				'package_id': 'in-pkg1-A',
 				'delivery_id': 'incoming-d3',
 				'received_quantity': 5.1,
@@ -630,8 +881,7 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 				'last_modified_at': parser.parse('02/05/2020'),
 			},
 			{
-				'type': 'transfer_incoming',
-				'company_id': company_id,
+				'type': 'transfer',
 				'package_id': 'in-pkg2-B',
 				'delivery_id': 'incoming-d3',
 				'received_quantity': 6.1,
@@ -655,9 +905,7 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 				tp = metrc_transfer_packages[i]
 				exp = expected_transfer_packages[i]
 				self.assertEqual(exp['type'], tp.type)
-				self.assertEqual('abcd', tp.license_number)
 				self.assertEqual('OR', tp.us_state)
-				self.assertEqual(exp['company_id'], str(tp.company_id))
 				self.assertEqual(exp['package_id'], tp.package_id)
 				self.assertEqual(exp['delivery_id'], tp.delivery_id)
 				self.assertEqual(exp['package_id'] + '-label', tp.package_label)

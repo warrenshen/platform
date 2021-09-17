@@ -234,9 +234,7 @@ class DeliveryType(object):
 	OUTGOING_UNKNOWN = 'OUTGOING_UNKNOWN'
 
 class TransferPackageType(object):
-	UNKNOWN = 'unknown'
-	TRANSFER_INCOMING = 'transfer_incoming'
-	TRANSFER_OUTGOING = 'transfer_outgoing'
+	TRANSFER = 'transfer'
 
 class PackageType(object):
 	ACTIVE = 'active'

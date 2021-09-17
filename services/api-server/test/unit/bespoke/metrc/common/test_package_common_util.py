@@ -143,7 +143,6 @@ class TestMergeTransferPackage(unittest.TestCase):
 			shipment_package_state='state1',
 			lab_results_status='status1',
 		)
-		prev.company_id = cast(Any, uuid.uuid4())
 
 		cur = models.MetrcTransferPackage(
 			type='type-2',
@@ -164,7 +163,6 @@ class TestMergeTransferPackage(unittest.TestCase):
 			shipment_package_state='state2',
 			lab_results_status='status2',
 		)
-		cur.company_id= cast(Any, uuid.uuid4())
 
 		package_common_util.merge_into_prev_transfer_package(
 			prev=prev,
@@ -173,8 +171,7 @@ class TestMergeTransferPackage(unittest.TestCase):
 
 		fields = [
 			# common with MetrcPackage
-			'type', 
-			'company_id',
+			'type',
 			'package_id',
 			'package_label',
 			'package_type',
@@ -201,7 +198,6 @@ class TestMergeTransferPackage(unittest.TestCase):
 		tp = models.MetrcTransferPackage(
 			type='transfer_incoming',
 		)
-		tp.company_id = cast(Any, uuid.uuid4())
 
 		p = models.MetrcPackage(
 			type='active',
@@ -216,7 +212,11 @@ class TestMergeTransferPackage(unittest.TestCase):
 			quantity=decimal.Decimal(2.0),
 			unit_of_measure='Each'
 		)
-		package_common_util.update_package_based_on_transfer_package(tp=tp, p=p)
+		package_common_util.update_package_based_on_transfer_package(
+			company_id=cast(Any, uuid.uuid4()),
+			transfer_type='OUTGOING',
+			tp=tp, 
+			p=p)
 
 		exp = models.MetrcPackage(
 			type='active',
