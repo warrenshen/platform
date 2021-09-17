@@ -15,10 +15,24 @@ query GetMetrcTransfer($id: uuid!, $company_id: uuid) {
   }
 }
 
-query GetMetrcTransferPackage($id: uuid!) {
-  metrc_transfer_packages_by_pk(id: $id) {
+query GetMetrcTransfersByUsStateManifestNumber(
+  $us_state: String!,
+  $manifest_number: String!,
+) {
+  metrc_transfers(
+    where: {
+      _and: [
+        { us_state: { _eq: $us_state } }
+        { manifest_number: { _eq: $manifest_number } }
+      ]
+    }
+  ) {
     id
-    ...MetrcTransferPackage
+    ...MetrcTransfer
+    metrc_deliveries {
+      id
+      ...MetrcDelivery
+    }
   }
 }
 
@@ -29,6 +43,13 @@ query GetMetrcTransfersByCompanyId($company_id: uuid!) {
   ) {
     id
     ...MetrcTransfer
+  }
+}
+
+query GetMetrcTransferPackage($id: uuid!) {
+  metrc_transfer_packages_by_pk(id: $id) {
+    id
+    ...MetrcTransferPackage
   }
 }
 

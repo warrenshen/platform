@@ -182,14 +182,29 @@ fragment MetrcTransfer on metrc_transfers {
   type
   created_date
   manifest_number
+  shipper_facility_license_number
+  shipper_facility_name
   shipment_type_name
   shipment_transaction_type
   lab_results_status
+  last_modified_at
   transfer_payload
   vendor {
     id
     name
   }
+}
+
+fragment MetrcDelivery on metrc_deliveries {
+  id
+  transfer_row_id
+  delivery_id
+  us_state
+  recipient_facility_license_number
+  recipient_facility_name
+  shipment_type_name
+  shipment_transaction_type
+  received_datetime
 }
 
 fragment MetrcTransferPackage on metrc_transfer_packages {

@@ -6,7 +6,6 @@ import {
   Loans,
   useGetAllLoansForCompanyQuery,
 } from "generated/graphql";
-import { useState } from "react";
 import useSnackbar from "hooks/useSnackbar";
 import useCustomMutation from "hooks/useCustomMutation";
 import { todayAsDateStringServer } from "lib/date";
@@ -14,7 +13,7 @@ import { runCustomerBalancesMutation } from "lib/finance/loans/reports";
 import LoanFinancialSummariesDataGrid from "components/Loans/LoanFinancialSummariesDataGrid";
 import { orderBy, zipObject } from "lodash";
 import { createLoanDisbursementIdentifier } from "lib/loans";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 export default function BankReportsFinancialsByCustomerTab() {
   const snackbar = useSnackbar();
@@ -69,8 +68,6 @@ export default function BankReportsFinancialsByCustomerTab() {
         include_debug_info: true,
       },
     });
-
-    console.log({ type: "runCustomerBalances", response });
 
     if (response.status !== "OK") {
       snackbar.showError(`Error: ${response.msg}`);

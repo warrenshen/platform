@@ -13208,6 +13208,10 @@ export type MetrcTransfers = {
   license_number?: Maybe<Scalars["String"]>;
   manifest_number: Scalars["String"];
   /** An array relationship */
+  metrc_deliveries: Array<MetrcDeliveries>;
+  /** An aggregated array relationship */
+  metrc_deliveries_aggregate: MetrcDeliveriesAggregate;
+  /** An array relationship */
   metrc_transfer_packages: Array<MetrcTransferPackages>;
   /** An aggregated array relationship */
   metrc_transfer_packages_aggregate: MetrcTransferPackagesAggregate;
@@ -13225,6 +13229,34 @@ export type MetrcTransfers = {
   /** An object relationship */
   vendor?: Maybe<Vendors>;
   vendor_id?: Maybe<Scalars["uuid"]>;
+};
+
+/**
+ * List of transfers from Metrc
+ *
+ *
+ * columns and relationships of "metrc_transfers"
+ */
+export type MetrcTransfersMetrcDeliveriesArgs = {
+  distinct_on?: Maybe<Array<MetrcDeliveriesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MetrcDeliveriesOrderBy>>;
+  where?: Maybe<MetrcDeliveriesBoolExp>;
+};
+
+/**
+ * List of transfers from Metrc
+ *
+ *
+ * columns and relationships of "metrc_transfers"
+ */
+export type MetrcTransfersMetrcDeliveriesAggregateArgs = {
+  distinct_on?: Maybe<Array<MetrcDeliveriesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MetrcDeliveriesOrderBy>>;
+  where?: Maybe<MetrcDeliveriesBoolExp>;
 };
 
 /**
@@ -13313,6 +13345,7 @@ export type MetrcTransfersBoolExp = {
   license_id?: Maybe<UuidComparisonExp>;
   license_number?: Maybe<StringComparisonExp>;
   manifest_number?: Maybe<StringComparisonExp>;
+  metrc_deliveries?: Maybe<MetrcDeliveriesBoolExp>;
   metrc_transfer_packages?: Maybe<MetrcTransferPackagesBoolExp>;
   shipment_transaction_type?: Maybe<StringComparisonExp>;
   shipment_type_name?: Maybe<StringComparisonExp>;
@@ -13349,6 +13382,7 @@ export type MetrcTransfersInsertInput = {
   license_id?: Maybe<Scalars["uuid"]>;
   license_number?: Maybe<Scalars["String"]>;
   manifest_number?: Maybe<Scalars["String"]>;
+  metrc_deliveries?: Maybe<MetrcDeliveriesArrRelInsertInput>;
   metrc_transfer_packages?: Maybe<MetrcTransferPackagesArrRelInsertInput>;
   shipment_transaction_type?: Maybe<Scalars["String"]>;
   shipment_type_name?: Maybe<Scalars["String"]>;
@@ -13490,6 +13524,7 @@ export type MetrcTransfersOrderBy = {
   license_id?: Maybe<OrderBy>;
   license_number?: Maybe<OrderBy>;
   manifest_number?: Maybe<OrderBy>;
+  metrc_deliveries_aggregate?: Maybe<MetrcDeliveriesAggregateOrderBy>;
   metrc_transfer_packages_aggregate?: Maybe<MetrcTransferPackagesAggregateOrderBy>;
   shipment_transaction_type?: Maybe<OrderBy>;
   shipment_type_name?: Maybe<OrderBy>;
@@ -24859,11 +24894,27 @@ export type MetrcTransferFragment = Pick<
   | "type"
   | "created_date"
   | "manifest_number"
+  | "shipper_facility_license_number"
+  | "shipper_facility_name"
   | "shipment_type_name"
   | "shipment_transaction_type"
   | "lab_results_status"
+  | "last_modified_at"
   | "transfer_payload"
 > & { vendor?: Maybe<Pick<Vendors, "id" | "name">> };
+
+export type MetrcDeliveryFragment = Pick<
+  MetrcDeliveries,
+  | "id"
+  | "transfer_row_id"
+  | "delivery_id"
+  | "us_state"
+  | "recipient_facility_license_number"
+  | "recipient_facility_name"
+  | "shipment_type_name"
+  | "shipment_transaction_type"
+  | "received_datetime"
+>;
 
 export type MetrcTransferPackageFragment = Pick<
   MetrcTransferPackages,
@@ -24961,13 +25012,18 @@ export type GetMetrcTransferQuery = {
   >;
 };
 
-export type GetMetrcTransferPackageQueryVariables = Exact<{
-  id: Scalars["uuid"];
+export type GetMetrcTransfersByUsStateManifestNumberQueryVariables = Exact<{
+  us_state: Scalars["String"];
+  manifest_number: Scalars["String"];
 }>;
 
-export type GetMetrcTransferPackageQuery = {
-  metrc_transfer_packages_by_pk?: Maybe<
-    Pick<MetrcTransferPackages, "id"> & MetrcTransferPackageFragment
+export type GetMetrcTransfersByUsStateManifestNumberQuery = {
+  metrc_transfers: Array<
+    Pick<MetrcTransfers, "id"> & {
+      metrc_deliveries: Array<
+        Pick<MetrcDeliveries, "id"> & MetrcDeliveryFragment
+      >;
+    } & MetrcTransferFragment
   >;
 };
 
@@ -24977,6 +25033,16 @@ export type GetMetrcTransfersByCompanyIdQueryVariables = Exact<{
 
 export type GetMetrcTransfersByCompanyIdQuery = {
   metrc_transfers: Array<Pick<MetrcTransfers, "id"> & MetrcTransferFragment>;
+};
+
+export type GetMetrcTransferPackageQueryVariables = Exact<{
+  id: Scalars["uuid"];
+}>;
+
+export type GetMetrcTransferPackageQuery = {
+  metrc_transfer_packages_by_pk?: Maybe<
+    Pick<MetrcTransferPackages, "id"> & MetrcTransferPackageFragment
+  >;
 };
 
 export type GetMetrcTransferPackagesByCompanyIdQueryVariables = Exact<{
@@ -25834,14 +25900,30 @@ export const MetrcTransferFragmentDoc = gql`
     type
     created_date
     manifest_number
+    shipper_facility_license_number
+    shipper_facility_name
     shipment_type_name
     shipment_transaction_type
     lab_results_status
+    last_modified_at
     transfer_payload
     vendor {
       id
       name
     }
+  }
+`;
+export const MetrcDeliveryFragmentDoc = gql`
+  fragment MetrcDelivery on metrc_deliveries {
+    id
+    transfer_row_id
+    delivery_id
+    us_state
+    recipient_facility_license_number
+    recipient_facility_name
+    shipment_type_name
+    shipment_transaction_type
+    received_datetime
   }
 `;
 export const MetrcTransferPackageFragmentDoc = gql`
@@ -33062,63 +33144,79 @@ export type GetMetrcTransferQueryResult = Apollo.QueryResult<
   GetMetrcTransferQuery,
   GetMetrcTransferQueryVariables
 >;
-export const GetMetrcTransferPackageDocument = gql`
-  query GetMetrcTransferPackage($id: uuid!) {
-    metrc_transfer_packages_by_pk(id: $id) {
+export const GetMetrcTransfersByUsStateManifestNumberDocument = gql`
+  query GetMetrcTransfersByUsStateManifestNumber(
+    $us_state: String!
+    $manifest_number: String!
+  ) {
+    metrc_transfers(
+      where: {
+        _and: [
+          { us_state: { _eq: $us_state } }
+          { manifest_number: { _eq: $manifest_number } }
+        ]
+      }
+    ) {
       id
-      ...MetrcTransferPackage
+      ...MetrcTransfer
+      metrc_deliveries {
+        id
+        ...MetrcDelivery
+      }
     }
   }
-  ${MetrcTransferPackageFragmentDoc}
+  ${MetrcTransferFragmentDoc}
+  ${MetrcDeliveryFragmentDoc}
 `;
 
 /**
- * __useGetMetrcTransferPackageQuery__
+ * __useGetMetrcTransfersByUsStateManifestNumberQuery__
  *
- * To run a query within a React component, call `useGetMetrcTransferPackageQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetMetrcTransferPackageQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetMetrcTransfersByUsStateManifestNumberQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMetrcTransfersByUsStateManifestNumberQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetMetrcTransferPackageQuery({
+ * const { data, loading, error } = useGetMetrcTransfersByUsStateManifestNumberQuery({
  *   variables: {
- *      id: // value for 'id'
+ *      us_state: // value for 'us_state'
+ *      manifest_number: // value for 'manifest_number'
  *   },
  * });
  */
-export function useGetMetrcTransferPackageQuery(
+export function useGetMetrcTransfersByUsStateManifestNumberQuery(
   baseOptions: Apollo.QueryHookOptions<
-    GetMetrcTransferPackageQuery,
-    GetMetrcTransferPackageQueryVariables
+    GetMetrcTransfersByUsStateManifestNumberQuery,
+    GetMetrcTransfersByUsStateManifestNumberQueryVariables
   >
 ) {
   return Apollo.useQuery<
-    GetMetrcTransferPackageQuery,
-    GetMetrcTransferPackageQueryVariables
-  >(GetMetrcTransferPackageDocument, baseOptions);
+    GetMetrcTransfersByUsStateManifestNumberQuery,
+    GetMetrcTransfersByUsStateManifestNumberQueryVariables
+  >(GetMetrcTransfersByUsStateManifestNumberDocument, baseOptions);
 }
-export function useGetMetrcTransferPackageLazyQuery(
+export function useGetMetrcTransfersByUsStateManifestNumberLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    GetMetrcTransferPackageQuery,
-    GetMetrcTransferPackageQueryVariables
+    GetMetrcTransfersByUsStateManifestNumberQuery,
+    GetMetrcTransfersByUsStateManifestNumberQueryVariables
   >
 ) {
   return Apollo.useLazyQuery<
-    GetMetrcTransferPackageQuery,
-    GetMetrcTransferPackageQueryVariables
-  >(GetMetrcTransferPackageDocument, baseOptions);
+    GetMetrcTransfersByUsStateManifestNumberQuery,
+    GetMetrcTransfersByUsStateManifestNumberQueryVariables
+  >(GetMetrcTransfersByUsStateManifestNumberDocument, baseOptions);
 }
-export type GetMetrcTransferPackageQueryHookResult = ReturnType<
-  typeof useGetMetrcTransferPackageQuery
+export type GetMetrcTransfersByUsStateManifestNumberQueryHookResult = ReturnType<
+  typeof useGetMetrcTransfersByUsStateManifestNumberQuery
 >;
-export type GetMetrcTransferPackageLazyQueryHookResult = ReturnType<
-  typeof useGetMetrcTransferPackageLazyQuery
+export type GetMetrcTransfersByUsStateManifestNumberLazyQueryHookResult = ReturnType<
+  typeof useGetMetrcTransfersByUsStateManifestNumberLazyQuery
 >;
-export type GetMetrcTransferPackageQueryResult = Apollo.QueryResult<
-  GetMetrcTransferPackageQuery,
-  GetMetrcTransferPackageQueryVariables
+export type GetMetrcTransfersByUsStateManifestNumberQueryResult = Apollo.QueryResult<
+  GetMetrcTransfersByUsStateManifestNumberQuery,
+  GetMetrcTransfersByUsStateManifestNumberQueryVariables
 >;
 export const GetMetrcTransfersByCompanyIdDocument = gql`
   query GetMetrcTransfersByCompanyId($company_id: uuid!) {
@@ -33180,6 +33278,64 @@ export type GetMetrcTransfersByCompanyIdLazyQueryHookResult = ReturnType<
 export type GetMetrcTransfersByCompanyIdQueryResult = Apollo.QueryResult<
   GetMetrcTransfersByCompanyIdQuery,
   GetMetrcTransfersByCompanyIdQueryVariables
+>;
+export const GetMetrcTransferPackageDocument = gql`
+  query GetMetrcTransferPackage($id: uuid!) {
+    metrc_transfer_packages_by_pk(id: $id) {
+      id
+      ...MetrcTransferPackage
+    }
+  }
+  ${MetrcTransferPackageFragmentDoc}
+`;
+
+/**
+ * __useGetMetrcTransferPackageQuery__
+ *
+ * To run a query within a React component, call `useGetMetrcTransferPackageQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMetrcTransferPackageQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMetrcTransferPackageQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetMetrcTransferPackageQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetMetrcTransferPackageQuery,
+    GetMetrcTransferPackageQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetMetrcTransferPackageQuery,
+    GetMetrcTransferPackageQueryVariables
+  >(GetMetrcTransferPackageDocument, baseOptions);
+}
+export function useGetMetrcTransferPackageLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetMetrcTransferPackageQuery,
+    GetMetrcTransferPackageQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetMetrcTransferPackageQuery,
+    GetMetrcTransferPackageQueryVariables
+  >(GetMetrcTransferPackageDocument, baseOptions);
+}
+export type GetMetrcTransferPackageQueryHookResult = ReturnType<
+  typeof useGetMetrcTransferPackageQuery
+>;
+export type GetMetrcTransferPackageLazyQueryHookResult = ReturnType<
+  typeof useGetMetrcTransferPackageLazyQuery
+>;
+export type GetMetrcTransferPackageQueryResult = Apollo.QueryResult<
+  GetMetrcTransferPackageQuery,
+  GetMetrcTransferPackageQueryVariables
 >;
 export const GetMetrcTransferPackagesByCompanyIdDocument = gql`
   query GetMetrcTransferPackagesByCompanyId($company_id: uuid!) {

@@ -1,16 +1,17 @@
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
-// import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
+import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
 import MetrcTransferDrawerLauncher from "components/Transfers/MetrcTransferDrawerLauncher";
-import { MetrcTransferFragment } from "generated/graphql";
+import { GetMetrcTransfersByUsStateManifestNumberQuery } from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
 import { ColumnWidths } from "lib/tables";
+import { flatten } from "lodash";
 import { useMemo } from "react";
 
 interface Props {
   isExcelExport?: boolean;
-  metrcTransfers: MetrcTransferFragment[];
+  metrcTransfers: GetMetrcTransfersByUsStateManifestNumberQuery["metrc_transfers"];
 }
 
 export default function MetrcTransfersDataGrid({
@@ -19,14 +20,30 @@ export default function MetrcTransfersDataGrid({
 }: Props) {
   const rows = useMemo(
     () =>
-      metrcTransfers.map((metrcTransfer) => {
-        const transferPayload = metrcTransfer.transfer_payload;
-        return {
-          ...metrcTransfer,
-          vendor_name: getCompanyDisplayName(metrcTransfer.vendor),
-          last_modified_at: transferPayload.LastModified,
-        };
-      }),
+      flatten(
+        metrcTransfers.map((metrcTransfer) =>
+          metrcTransfer.metrc_deliveries.map((metrcDelivery) => {
+            return {
+              id: metrcDelivery.id,
+              manifest_number: metrcTransfer.manifest_number,
+              last_modified_at: metrcTransfer.last_modified_at,
+              created_date: metrcTransfer.created_date,
+              lab_results_status: metrcTransfer.lab_results_status,
+              shipper_facility_license_number:
+                metrcTransfer.shipper_facility_license_number,
+              shipper_facility_name: metrcTransfer.shipper_facility_name,
+              recipient_facility_license_number:
+                metrcDelivery.recipient_facility_license_number,
+              recipient_facility_name: metrcDelivery.recipient_facility_name,
+              shipment_type_name: metrcDelivery.shipment_type_name,
+              shipment_transaction_type:
+                metrcDelivery.shipment_transaction_type,
+
+              vendor_name: getCompanyDisplayName(metrcTransfer.vendor),
+            };
+          })
+        )
+      ),
     [metrcTransfers]
   );
 
@@ -49,15 +66,14 @@ export default function MetrcTransfersDataGrid({
         dataField: "last_modified_at",
         caption: "Last Modified At",
         width: ColumnWidths.Datetime,
+        alignment: "center",
+        cellRender: (params: ValueFormatterParams) => (
+          <DatetimeDataGridCell
+            isTimeVisible
+            datetimeString={params.row.data.last_modified_at}
+          />
+        ),
       },
-      // {
-      //   dataField: "vendor_name",
-      //   caption: "Vendor Name",
-      //   minWidth: ColumnWidths.MinWidth,
-      //   cellRender: (params: ValueFormatterParams) => (
-      //     <TextDataGridCell label={params.row.data.vendor_name} />
-      //   ),
-      // },
       {
         caption: "Created Date",
         dataField: "created_date",
@@ -80,6 +96,16 @@ export default function MetrcTransfersDataGrid({
       {
         dataField: "shipper_facility_name",
         caption: "Shipper Facility Name",
+        minWidth: ColumnWidths.MinWidth,
+      },
+      {
+        dataField: "recipient_facility_license_number",
+        caption: "Recipient Facility License Number",
+        minWidth: ColumnWidths.MinWidth,
+      },
+      {
+        dataField: "recipient_facility_name",
+        caption: "Recipient Facility Name",
         minWidth: ColumnWidths.MinWidth,
       },
       // {

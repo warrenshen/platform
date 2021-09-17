@@ -456,8 +456,8 @@ class MetrcTransfer(Base):
 	shipper_facility_name = Column(String)
 	created_date = Column(Date) # From Metrc info
 	manifest_number = Column(String) # From Metrc info
-	shipment_type_name = Column(String) # From Metrc info
-	shipment_transaction_type = Column(String) # From Metrc info
+	shipment_type_name = Column(String) # Deprecated: use Metrc delivery
+	shipment_transaction_type = Column(String) # Deprecated: use Metrc delivery
 	transfer_payload = Column(JSON) # From Metrc info
 	lab_results_status = Column(String) # Computed based on Metrc info
 	last_modified_at = Column(DateTime) # From Metrc info
