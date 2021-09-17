@@ -43,6 +43,8 @@ Follow instructions [here](https://docs.google.com/document/d/1fIoWutW-oksJabg2m
 
 ## Testing
 
+Note: please configure your Docker service to have AT LEAST 4GB of memory.
+
 From the `services` directory, to start up hot-reloading services to be used by Cypress integration tests...
 
 ```
