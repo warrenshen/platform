@@ -53,6 +53,35 @@ query GetIncomingFromVendorMetrcDeliveriesByCompanyId(
   }
 }
 
+query GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDate(
+  $company_id: uuid!,
+  $start_created_date: date!,
+) {
+  company_deliveries(
+    where: {
+      _and: [
+        { company_id: { _eq: $company_id } }
+        { delivery_type: { _eq: "INCOMING_FROM_VENDOR" } }
+        { metrc_transfer: { created_date: { _gte: $start_created_date } } }
+      ]
+    }
+  ) {
+    id
+    delivery_type
+    metrc_transfer {
+      id
+      ...MetrcTransfer
+      vendor {
+        id
+        company_vendor_partnerships(where: { company_id: { _eq: $company_id } }) {
+          id
+          approved_at
+        }
+      }
+    }
+  }
+}
+
 query GetVendorPartnershipsByCompanyId($companyId: uuid!) {
   company_vendor_partnerships(where: { company_id: { _eq: $companyId } }) {
     ...VendorPartnershipLimited

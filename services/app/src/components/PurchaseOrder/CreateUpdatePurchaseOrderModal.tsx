@@ -20,6 +20,7 @@ import {
   RequestStatusEnum,
   useGetArtifactRelationsByCompanyIdQuery,
   useGetIncomingFromVendorMetrcDeliveriesByCompanyIdQuery,
+  useGetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery,
   useGetPurchaseOrderForCustomerQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -202,18 +203,47 @@ export default function CreateUpdatePurchaseOrderModal({
     );
   }
 
+  const {
+    data: companyDeliveriesData,
+    error: companyDeliveriesError,
+  } = useGetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery({
+    fetchPolicy: "network-only",
+    variables: {
+      company_id: companyId,
+      start_created_date: todayMinusXDaysDateStringServer(60), // Fetch Metrc deliveries created in last 60 days.
+    },
+  });
+
+  if (companyDeliveriesError) {
+    console.error({ companyDeliveriesError });
+    alert(
+      `Error in query (details in console): ${companyDeliveriesError.message}`
+    );
+  }
+
   const companySettings = data?.companies_by_pk?.settings;
   const selectableVendors = data?.vendors || [];
 
+  // TODO(warrenshen): remove feature flag once company deliveries are ready to be used.
   const allMetrcTransfers = useMemo(
     () =>
-      uniqBy(
-        (metrcDeliveriesData?.metrc_deliveries || []).map(
-          (metrcDelivery) => metrcDelivery.metrc_transfer
-        ),
-        (metrcTransfer) => metrcTransfer.manifest_number
-      ),
-    [metrcDeliveriesData?.metrc_deliveries]
+      true
+        ? uniqBy(
+            (metrcDeliveriesData?.metrc_deliveries || []).map(
+              (metrcDelivery) => metrcDelivery.metrc_transfer
+            ),
+            (metrcTransfer) => metrcTransfer.manifest_number
+          )
+        : uniqBy(
+            (companyDeliveriesData?.company_deliveries || []).map(
+              (companyDelivery) => companyDelivery.metrc_transfer
+            ),
+            (metrcTransfer) => metrcTransfer.manifest_number
+          ),
+    [
+      companyDeliveriesData?.company_deliveries,
+      metrcDeliveriesData?.metrc_deliveries,
+    ]
   );
 
   const selectedMetrcTransfers = useMemo(
