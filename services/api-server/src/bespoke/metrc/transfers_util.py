@@ -301,6 +301,7 @@ def _write_company_deliveries(
 		transfer_row_ids.append(cur_transfer_row_id)
 		delivery_row_ids.append(delivery_id_to_delivery_row_id[metrc_delivery.delivery_id])
 
+	# TODO(dlluncor): Handle INCOMING_INTERNAL OUTGOING_INTERNAL case
 	prev_deliveries = session.query(models.CompanyDelivery).filter(
 		models.CompanyDelivery.company_id == company_id
 	).filter(
