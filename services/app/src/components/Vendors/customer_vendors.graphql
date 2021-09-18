@@ -67,7 +67,7 @@ query GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDate(
     }
   ) {
     id
-    delivery_type
+    ...CompanyDelivery
     metrc_transfer {
       id
       ...MetrcTransfer

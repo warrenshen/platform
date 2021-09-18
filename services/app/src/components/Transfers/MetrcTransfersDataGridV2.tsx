@@ -57,7 +57,6 @@ export default function MetrcTransfersDataGrid({
         cellRender: (params: ValueFormatterParams) => (
           <MetrcTransferDrawerLauncher
             label={params.row.data.manifest_number}
-            companyId={params.row.data.company_id}
             metrcTransferId={params.row.data.id}
           />
         ),

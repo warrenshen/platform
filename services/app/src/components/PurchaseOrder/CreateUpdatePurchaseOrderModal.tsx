@@ -236,7 +236,10 @@ export default function CreateUpdatePurchaseOrderModal({
           )
         : uniqBy(
             (companyDeliveriesData?.company_deliveries || []).map(
-              (companyDelivery) => companyDelivery.metrc_transfer
+              (companyDelivery) => ({
+                ...companyDelivery.metrc_transfer,
+                vendor_id: companyDelivery.vendor_id,
+              })
             ),
             (metrcTransfer) => metrcTransfer.manifest_number
           ),

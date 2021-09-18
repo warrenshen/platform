@@ -6,23 +6,17 @@ import {
   CurrentUserContext,
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
-import {
-  Companies,
-  MetrcTransfers,
-  useGetMetrcTransferQuery,
-} from "generated/graphql";
-import { getCompanyDisplayName } from "lib/companies";
+import { MetrcTransfers, useGetMetrcTransferQuery } from "generated/graphql";
+// import { getCompanyDisplayName } from "lib/companies";
 import { formatDatetimeString } from "lib/date";
 import { useContext } from "react";
 
 interface Props {
-  companyId: Companies["id"];
   metrcTransferId: MetrcTransfers["id"];
   handleClose: () => void;
 }
 
 export default function MetrcTransferModal({
-  companyId,
   metrcTransferId,
   handleClose,
 }: Props) {
@@ -35,7 +29,6 @@ export default function MetrcTransferModal({
     fetchPolicy: "network-only",
     variables: {
       id: metrcTransferId,
-      company_id: companyId,
     },
   });
 
@@ -89,14 +82,14 @@ export default function MetrcTransferModal({
           {`${transferPayload.RecipientFacilityName} (${transferPayload.RecipientFacilityLicenseNumber})`}
         </Typography>
       </Box>
-      <Box display="flex" flexDirection="column" mt={2}>
+      {/* <Box display="flex" flexDirection="column" mt={2}>
         <Typography variant="subtitle2" color="textSecondary">
           Vendor
         </Typography>
         <Typography variant="body1">
           {getCompanyDisplayName(metrcTransfer.vendor)}
         </Typography>
-      </Box>
+      </Box> */}
       <Box display="flex" flexDirection="column" mt={2}>
         <Typography variant="subtitle2" color="textSecondary">
           Estimated Departure Time

@@ -1,12 +1,6 @@
-query GetMetrcTransfer($id: uuid!, $company_id: uuid) {
+query GetMetrcTransfer($id: uuid!) {
   metrc_transfers_by_pk(id: $id) {
     id
-    vendor {
-      id
-      company_vendor_partnerships(where: { company_id: { _eq: $company_id } }) {
-        id
-      }
-    }
     ...MetrcTransfer
     metrc_transfer_packages {
       id

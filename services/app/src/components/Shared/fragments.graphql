@@ -173,19 +173,28 @@ fragment Invoice on invoices {
   ...InvoiceLimited
 }
 
-fragment MetrcTransfer on metrc_transfers {
+fragment CompanyDelivery on company_deliveries {
   id
   company_id
-  license_id
+  license_number
+  us_state
   vendor_id
+  payor_id
+  transfer_row_id
+  transfer_type
+  delivery_row_id
+  delivery_type
+}
+
+fragment MetrcTransfer on metrc_transfers {
+  id
+  vendor_id
+  us_state
   transfer_id
-  type
-  created_date
   manifest_number
+  created_date
   shipper_facility_license_number
   shipper_facility_name
-  shipment_type_name
-  shipment_transaction_type
   lab_results_status
   last_modified_at
   transfer_payload
@@ -197,9 +206,9 @@ fragment MetrcTransfer on metrc_transfers {
 
 fragment MetrcDelivery on metrc_deliveries {
   id
-  transfer_row_id
-  delivery_id
   us_state
+  delivery_id
+  transfer_row_id
   recipient_facility_license_number
   recipient_facility_name
   shipment_type_name
@@ -209,10 +218,11 @@ fragment MetrcDelivery on metrc_deliveries {
 
 fragment MetrcTransferPackage on metrc_transfer_packages {
   id
+  us_state
+  package_id
   transfer_row_id
   delivery_row_id
   delivery_id
-  package_id
   package_label
   package_type
   product_name
@@ -223,7 +233,6 @@ fragment MetrcTransferPackage on metrc_transfer_packages {
   lab_results_status
   metrc_transfer {
     id
-    company_id
     manifest_number
   }
 }

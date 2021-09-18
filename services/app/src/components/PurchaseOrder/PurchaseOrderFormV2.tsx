@@ -162,7 +162,6 @@ export default function PurchaseOrderFormV2({
             {selectedMetrcTransfers.map((selectedMetrcTransfer) => (
               <Box key={selectedMetrcTransfer.id} mt={2}>
                 <MetrcTransferInfoCard
-                  companyId={selectedMetrcTransfer.company_id}
                   metrcTransferId={selectedMetrcTransfer.id}
                   handleClickClose={() =>
                     setPurchaseOrderMetrcTransfers(

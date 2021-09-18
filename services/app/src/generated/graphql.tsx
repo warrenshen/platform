@@ -2829,7 +2829,7 @@ export enum CompanyDeliveriesConstraint {
   /** unique or primary key constraint */
   CompanyDeliveriesPkey = "company_deliveries_pkey",
   /** unique or primary key constraint */
-  CompanyDeliveriesUsStateTransferRowIdDeliveryRowIdKey = "company_deliveries_us_state_transfer_row_id_delivery_row_id_key",
+  CompanyDeliveriesUsStateLicenseNumberCompanyIdTransfer = "company_deliveries_us_state_license_number_company_id_transfer_",
 }
 
 /** input type for inserting data into table "company_deliveries" */
@@ -24884,20 +24884,30 @@ export type InvoiceFileFragment = Pick<
 
 export type InvoiceFragment = Pick<Invoices, "id"> & InvoiceLimitedFragment;
 
+export type CompanyDeliveryFragment = Pick<
+  CompanyDeliveries,
+  | "id"
+  | "company_id"
+  | "license_number"
+  | "us_state"
+  | "vendor_id"
+  | "payor_id"
+  | "transfer_row_id"
+  | "transfer_type"
+  | "delivery_row_id"
+  | "delivery_type"
+>;
+
 export type MetrcTransferFragment = Pick<
   MetrcTransfers,
   | "id"
-  | "company_id"
-  | "license_id"
   | "vendor_id"
+  | "us_state"
   | "transfer_id"
-  | "type"
-  | "created_date"
   | "manifest_number"
+  | "created_date"
   | "shipper_facility_license_number"
   | "shipper_facility_name"
-  | "shipment_type_name"
-  | "shipment_transaction_type"
   | "lab_results_status"
   | "last_modified_at"
   | "transfer_payload"
@@ -24906,9 +24916,9 @@ export type MetrcTransferFragment = Pick<
 export type MetrcDeliveryFragment = Pick<
   MetrcDeliveries,
   | "id"
-  | "transfer_row_id"
-  | "delivery_id"
   | "us_state"
+  | "delivery_id"
+  | "transfer_row_id"
   | "recipient_facility_license_number"
   | "recipient_facility_name"
   | "shipment_type_name"
@@ -24919,10 +24929,11 @@ export type MetrcDeliveryFragment = Pick<
 export type MetrcTransferPackageFragment = Pick<
   MetrcTransferPackages,
   | "id"
+  | "us_state"
+  | "package_id"
   | "transfer_row_id"
   | "delivery_row_id"
   | "delivery_id"
-  | "package_id"
   | "package_label"
   | "package_type"
   | "product_name"
@@ -24931,9 +24942,7 @@ export type MetrcTransferPackageFragment = Pick<
   | "shipper_wholesale_price"
   | "package_payload"
   | "lab_results_status"
-> & {
-  metrc_transfer: Pick<MetrcTransfers, "id" | "company_id" | "manifest_number">;
-};
+> & { metrc_transfer: Pick<MetrcTransfers, "id" | "manifest_number"> };
 
 export type MetrcPackageFragment = Pick<
   MetrcPackages,
@@ -24992,19 +25001,11 @@ export type GetTransactionsQuery = {
 
 export type GetMetrcTransferQueryVariables = Exact<{
   id: Scalars["uuid"];
-  company_id?: Maybe<Scalars["uuid"]>;
 }>;
 
 export type GetMetrcTransferQuery = {
   metrc_transfers_by_pk?: Maybe<
     Pick<MetrcTransfers, "id"> & {
-      vendor?: Maybe<
-        Pick<Vendors, "id"> & {
-          company_vendor_partnerships: Array<
-            Pick<CompanyVendorPartnerships, "id">
-          >;
-        }
-      >;
       metrc_transfer_packages: Array<
         Pick<MetrcTransferPackages, "id"> & MetrcTransferPackageFragment
       >;
@@ -25293,7 +25294,7 @@ export type GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQueryVar
 
 export type GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery = {
   company_deliveries: Array<
-    Pick<CompanyDeliveries, "id" | "delivery_type"> & {
+    Pick<CompanyDeliveries, "id"> & {
       metrc_transfer: Pick<MetrcTransfers, "id"> & {
         vendor?: Maybe<
           Pick<Vendors, "id"> & {
@@ -25303,7 +25304,7 @@ export type GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery = 
           }
         >;
       } & MetrcTransferFragment;
-    }
+    } & CompanyDeliveryFragment
   >;
 };
 
@@ -25911,20 +25912,30 @@ export const InvoiceFileFragmentDoc = gql`
   }
   ${FileFragmentDoc}
 `;
+export const CompanyDeliveryFragmentDoc = gql`
+  fragment CompanyDelivery on company_deliveries {
+    id
+    company_id
+    license_number
+    us_state
+    vendor_id
+    payor_id
+    transfer_row_id
+    transfer_type
+    delivery_row_id
+    delivery_type
+  }
+`;
 export const MetrcTransferFragmentDoc = gql`
   fragment MetrcTransfer on metrc_transfers {
     id
-    company_id
-    license_id
     vendor_id
+    us_state
     transfer_id
-    type
-    created_date
     manifest_number
+    created_date
     shipper_facility_license_number
     shipper_facility_name
-    shipment_type_name
-    shipment_transaction_type
     lab_results_status
     last_modified_at
     transfer_payload
@@ -25937,9 +25948,9 @@ export const MetrcTransferFragmentDoc = gql`
 export const MetrcDeliveryFragmentDoc = gql`
   fragment MetrcDelivery on metrc_deliveries {
     id
-    transfer_row_id
-    delivery_id
     us_state
+    delivery_id
+    transfer_row_id
     recipient_facility_license_number
     recipient_facility_name
     shipment_type_name
@@ -25950,10 +25961,11 @@ export const MetrcDeliveryFragmentDoc = gql`
 export const MetrcTransferPackageFragmentDoc = gql`
   fragment MetrcTransferPackage on metrc_transfer_packages {
     id
+    us_state
+    package_id
     transfer_row_id
     delivery_row_id
     delivery_id
-    package_id
     package_label
     package_type
     product_name
@@ -25964,7 +25976,6 @@ export const MetrcTransferPackageFragmentDoc = gql`
     lab_results_status
     metrc_transfer {
       id
-      company_id
       manifest_number
     }
   }
@@ -33094,17 +33105,9 @@ export type GetTransactionsQueryResult = Apollo.QueryResult<
   GetTransactionsQueryVariables
 >;
 export const GetMetrcTransferDocument = gql`
-  query GetMetrcTransfer($id: uuid!, $company_id: uuid) {
+  query GetMetrcTransfer($id: uuid!) {
     metrc_transfers_by_pk(id: $id) {
       id
-      vendor {
-        id
-        company_vendor_partnerships(
-          where: { company_id: { _eq: $company_id } }
-        ) {
-          id
-        }
-      }
       ...MetrcTransfer
       metrc_transfer_packages {
         id
@@ -33129,7 +33132,6 @@ export const GetMetrcTransferDocument = gql`
  * const { data, loading, error } = useGetMetrcTransferQuery({
  *   variables: {
  *      id: // value for 'id'
- *      company_id: // value for 'company_id'
  *   },
  * });
  */
@@ -34486,7 +34488,7 @@ export const GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateDocumen
       }
     ) {
       id
-      delivery_type
+      ...CompanyDelivery
       metrc_transfer {
         id
         ...MetrcTransfer
@@ -34502,6 +34504,7 @@ export const GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateDocumen
       }
     }
   }
+  ${CompanyDeliveryFragmentDoc}
   ${MetrcTransferFragmentDoc}
 `;
 
