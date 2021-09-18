@@ -1,10 +1,10 @@
 {
   "$schema": "https://raw.githubusercontent.com/cypress-io/cypress/develop/cli/schema/cypress.schema.json",
-  "baseUrl": "http://localhost:3005",
+  "baseUrl": "http://localhost:3006",
   "chromeWebSecurity": false,
   "env": {
     "isDocker": false,
-    "apiServerUrl": "http://localhost:7000"
+    "apiServerUrl": "http://localhost:7002"
   },
   "reporter": "junit",
   "reporterOptions": {

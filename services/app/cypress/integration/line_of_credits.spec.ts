@@ -17,7 +17,7 @@ describe("Create line of credit contract for existing customer", () => {
       cy.dataCy("sidebar-item-customers").click();
       cy.url().should("include", "customers");
 
-      cy.get("[data-cy*=customers-data-grid-view-customer-button-]")
+      cy.dataCy("customers-data-grid-view-customer-button-C2-LOC")
         .first()
         .click({ force: true });
 
