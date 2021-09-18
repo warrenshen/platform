@@ -301,7 +301,6 @@ def _write_company_deliveries(
 		transfer_row_ids.append(cur_transfer_row_id)
 		delivery_row_ids.append(delivery_id_to_delivery_row_id[metrc_delivery.delivery_id])
 
-	# TODO(dlluncor): Handle INCOMING_INTERNAL OUTGOING_INTERNAL case
 	prev_deliveries = session.query(models.CompanyDelivery).filter(
 		models.CompanyDelivery.company_id == company_id
 	).filter(
@@ -311,17 +310,17 @@ def _write_company_deliveries(
 	).filter(
 		models.CompanyDelivery.us_state == us_state
 	)
-	delivery_key_to_prev_delivery: Dict[Tuple[str, str], models.CompanyDelivery] = {}
+	delivery_key_to_prev_delivery: Dict[Tuple[str, str, str], models.CompanyDelivery] = {}
 	for prev_delivery in prev_deliveries:
-		key = (str(prev_delivery.transfer_row_id), str(prev_delivery.delivery_row_id))
+		key = (prev_delivery.license_number, str(prev_delivery.transfer_row_id), str(prev_delivery.delivery_row_id))
 		delivery_key_to_prev_delivery[key] = prev_delivery
 
 	for company_delivery_obj in deliveries:
+		company_delivery = company_delivery_obj.company_delivery
 		delivery_row_id = delivery_id_to_delivery_row_id[company_delivery_obj.metrc_delivery.delivery_id]
 		transfer_row_id = delivery_id_to_transfer_row_id[company_delivery_obj.metrc_delivery.delivery_id]
-		key = (transfer_row_id, delivery_row_id)
-		company_delivery = company_delivery_obj.company_delivery
-
+		key = (company_delivery.license_number, transfer_row_id, delivery_row_id)
+		
 		if key in delivery_key_to_prev_delivery:
 			# update
 			prev_delivery = delivery_key_to_prev_delivery[key]
