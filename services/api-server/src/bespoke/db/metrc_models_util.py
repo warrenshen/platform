@@ -59,7 +59,9 @@ def get_delivery_type(
 	is_company_recipient = recipient_company_id and recipient_company_id == company_id
 	are_companys_known = shipper_company_id is not None and recipient_company_id is not None
 
-	if not is_company_shipper and not is_company_recipient:
+	if transfer_type == TransferType.INTERNAL:
+		delivery_type = DeliveryType.INTERNAL
+	elif not is_company_shipper and not is_company_recipient:
 		# If company is neither shipper nor recipient, set delivery_type to UNKNOWN.
 		# This prompts bank admin to look into delivery and figure out which license(s) are missing.
 		delivery_type = DeliveryType.UNKNOWN

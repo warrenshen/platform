@@ -88,6 +88,8 @@ def _add_company_deliveries(
 			recipient_company_id = license_number_to_company_id.get(recipient_facility_license_number, None)
 			us_state = metrc_delivery.us_state
 
+			is_same_license = shipper_license_number == recipient_facility_license_number
+
 			if shipper_company_id:
 				print(f'[{metrc_transfer_index}] Adding OUTGOING company delivery (manifest number {metrc_transfer.manifest_number})...')
 				# This is an outgoing delivery from the shipper's perspective
@@ -98,17 +100,18 @@ def _add_company_deliveries(
 				out_delivery.vendor_id = cast(Any, shipper_company_id)
 				out_delivery.payor_id = cast(Any, recipient_company_id)
 				out_delivery.transfer_row_id = cast(Any, transfer_row_id)
-				out_delivery.transfer_type = db_constants.TransferType.OUTGOING
+				out_delivery.transfer_type = db_constants.TransferType.INTERNAL if is_same_license else db_constants.TransferType.OUTGOING
 				out_delivery.delivery_row_id = cast(Any, delivery_row_id)
 				out_delivery.delivery_type = metrc_models_util.get_delivery_type(
-					transfer_type=db_constants.TransferType.OUTGOING,
+					transfer_type=out_delivery.transfer_type,
 					company_id=shipper_company_id,
 					shipper_company_id=shipper_company_id,
 					recipient_company_id=recipient_company_id
 				)
 				session.add(out_delivery)
 
-			if recipient_company_id:
+			if not is_same_license and recipient_company_id:
+				# Dont add another transfer if it's coming from the same license
 				print(f'[{metrc_transfer_index}] Adding INCOMING company delivery (manifest number {metrc_transfer.manifest_number})...')
 				# This is an incoming delivery from the receipient's perspective
 				in_delivery = models.CompanyDelivery()
