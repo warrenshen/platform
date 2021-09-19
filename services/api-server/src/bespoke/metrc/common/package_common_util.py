@@ -42,8 +42,9 @@ def update_package_based_on_transfer_package(
 		# No need to modify when this transfer package was updated before this package was.
 		return
 
-	if transfer_type == db_constants.TransferType.INCOMING:
-		pass
+	if company_id == str(p.company_id) and transfer_type == db_constants.TransferType.INCOMING:
+		# This is your package that is incoming, mark it as active
+		p.type = db_constants.PackageType.ACTIVE
 	elif company_id == str(p.company_id) and transfer_type == db_constants.TransferType.OUTGOING:
 		p.type = db_constants.PackageType.OUTGOING
 
