@@ -4,7 +4,7 @@ import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 // import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import MetrcTransferDrawerLauncher from "components/Transfers/MetrcTransferDrawerLauncher";
 import { MetrcTransferFragment } from "generated/graphql";
-import { getCompanyDisplayName } from "lib/companies";
+// import { getCompanyDisplayName } from "lib/companies";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
@@ -23,7 +23,7 @@ export default function MetrcTransfersDataGrid({
         const transferPayload = metrcTransfer.transfer_payload;
         return {
           ...metrcTransfer,
-          vendor_name: getCompanyDisplayName(metrcTransfer.vendor),
+          // vendor_name: getCompanyDisplayName(metrcTransfer.vendor),
           last_modified_at: transferPayload.LastModified,
         };
       }),

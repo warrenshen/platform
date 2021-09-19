@@ -722,10 +722,20 @@
       foreign_key_constraint_on: transfer_row_id
   - name: payor
     using:
-      foreign_key_constraint_on: payor_id
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: payors
+        column_mapping:
+          payor_id: id
   - name: vendor
     using:
-      foreign_key_constraint_on: vendor_id
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: vendors
+        column_mapping:
+          vendor_id: id
   select_permissions:
   - role: bank_admin
     permission:
@@ -759,6 +769,48 @@
       - transfer_row_id
       - vendor_id
       filter: {}
+  - role: company_admin
+    permission:
+      columns:
+      - id
+      - company_id
+      - license_number
+      - us_state
+      - vendor_id
+      - payor_id
+      - transfer_row_id
+      - transfer_type
+      - delivery_row_id
+      - delivery_type
+      - created_at
+      - updated_at
+      filter:
+        _or:
+        - company_id:
+            _eq: X-Hasura-Company-Id
+        - vendor_id:
+            _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+      - delivery_type
+      - license_number
+      - transfer_type
+      - us_state
+      - created_at
+      - updated_at
+      - company_id
+      - delivery_row_id
+      - id
+      - payor_id
+      - transfer_row_id
+      - vendor_id
+      filter:
+        _or:
+        - company_id:
+            _eq: X-Hasura-Company-Id
+        - vendor_id:
+            _eq: X-Hasura-Company-Id
 - table:
     schema: public
     name: company_licenses
@@ -3329,6 +3381,13 @@
         column_mapping:
           vendor_id: id
   array_relationships:
+  - name: company_deliveries
+    using:
+      foreign_key_constraint_on:
+        column: transfer_row_id
+        table:
+          schema: public
+          name: company_deliveries
   - name: metrc_deliveries
     using:
       foreign_key_constraint_on:
@@ -3417,10 +3476,12 @@
       - vendor_id
       filter:
         _or:
-        - company_id:
-            _eq: X-Hasura-Company-Id
-        - vendor_id:
-            _eq: X-Hasura-Company-Id
+        - company_deliveries:
+            company_id:
+              _eq: X-Hasura-Company-Id
+        - company_deliveries:
+            vendor_id:
+              _eq: X-Hasura-Company-Id
   - role: company_read_only
     permission:
       columns:
@@ -3446,10 +3507,12 @@
       - vendor_id
       filter:
         _or:
-        - company_id:
-            _eq: X-Hasura-Company-Id
-        - vendor_id:
-            _eq: X-Hasura-Company-Id
+        - company_deliveries:
+            company_id:
+              _eq: X-Hasura-Company-Id
+        - company_deliveries:
+            vendor_id:
+              _eq: X-Hasura-Company-Id
   - role: purchase_order_reviewer
     permission:
       columns:
@@ -3472,8 +3535,9 @@
       - us_state
       - vendor_id
       filter:
-        vendor_id:
-          _eq: X-Hasura-Company-Id
+        company_deliveries:
+          vendor_id:
+            _eq: X-Hasura-Company-Id
 - table:
     schema: public
     name: payments
@@ -4353,6 +4417,14 @@
         column_mapping:
           company_settings_id: id
   array_relationships:
+  - name: company_deliveries
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: company_deliveries
+        column_mapping:
+          id: vendor_id
   - name: company_vendor_partnerships
     using:
       manual_configuration:
@@ -4442,7 +4514,7 @@
         - company_vendor_partnerships:
             company_id:
               _eq: X-Hasura-Company-Id
-        - metrc_transfers:
+        - company_deliveries:
             company_id:
               _eq: X-Hasura-Company-Id
   - role: company_read_only
@@ -4459,8 +4531,8 @@
         - company_vendor_partnerships:
             company_id:
               _eq: X-Hasura-Company-Id
-        - metrc_transfers:
-            vendor_id:
+        - company_deliveries:
+            company_id:
               _eq: X-Hasura-Company-Id
   - role: purchase_order_reviewer
     permission:

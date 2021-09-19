@@ -2757,14 +2757,14 @@ export type CompanyDeliveries = {
   /** An object relationship */
   metrc_transfer: MetrcTransfers;
   /** An object relationship */
-  payor?: Maybe<Companies>;
+  payor?: Maybe<Payors>;
   payor_id?: Maybe<Scalars["uuid"]>;
   transfer_row_id: Scalars["uuid"];
   transfer_type: Scalars["String"];
   updated_at: Scalars["timestamptz"];
   us_state: Scalars["String"];
   /** An object relationship */
-  vendor?: Maybe<Companies>;
+  vendor?: Maybe<Vendors>;
   vendor_id?: Maybe<Scalars["uuid"]>;
 };
 
@@ -2814,13 +2814,13 @@ export type CompanyDeliveriesBoolExp = {
   license_number?: Maybe<StringComparisonExp>;
   metrc_delivery?: Maybe<MetrcDeliveriesBoolExp>;
   metrc_transfer?: Maybe<MetrcTransfersBoolExp>;
-  payor?: Maybe<CompaniesBoolExp>;
+  payor?: Maybe<PayorsBoolExp>;
   payor_id?: Maybe<UuidComparisonExp>;
   transfer_row_id?: Maybe<UuidComparisonExp>;
   transfer_type?: Maybe<StringComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
   us_state?: Maybe<StringComparisonExp>;
-  vendor?: Maybe<CompaniesBoolExp>;
+  vendor?: Maybe<VendorsBoolExp>;
   vendor_id?: Maybe<UuidComparisonExp>;
 };
 
@@ -2843,13 +2843,13 @@ export type CompanyDeliveriesInsertInput = {
   license_number?: Maybe<Scalars["String"]>;
   metrc_delivery?: Maybe<MetrcDeliveriesObjRelInsertInput>;
   metrc_transfer?: Maybe<MetrcTransfersObjRelInsertInput>;
-  payor?: Maybe<CompaniesObjRelInsertInput>;
+  payor?: Maybe<PayorsObjRelInsertInput>;
   payor_id?: Maybe<Scalars["uuid"]>;
   transfer_row_id?: Maybe<Scalars["uuid"]>;
   transfer_type?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   us_state?: Maybe<Scalars["String"]>;
-  vendor?: Maybe<CompaniesObjRelInsertInput>;
+  vendor?: Maybe<VendorsObjRelInsertInput>;
   vendor_id?: Maybe<Scalars["uuid"]>;
 };
 
@@ -2949,13 +2949,13 @@ export type CompanyDeliveriesOrderBy = {
   license_number?: Maybe<OrderBy>;
   metrc_delivery?: Maybe<MetrcDeliveriesOrderBy>;
   metrc_transfer?: Maybe<MetrcTransfersOrderBy>;
-  payor?: Maybe<CompaniesOrderBy>;
+  payor?: Maybe<PayorsOrderBy>;
   payor_id?: Maybe<OrderBy>;
   transfer_row_id?: Maybe<OrderBy>;
   transfer_type?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   us_state?: Maybe<OrderBy>;
-  vendor?: Maybe<CompaniesOrderBy>;
+  vendor?: Maybe<VendorsOrderBy>;
   vendor_id?: Maybe<OrderBy>;
 };
 
@@ -13196,6 +13196,10 @@ export type MetrcTransferPackagesVarianceOrderBy = {
 export type MetrcTransfers = {
   /** An object relationship */
   company?: Maybe<Companies>;
+  /** An array relationship */
+  company_deliveries: Array<CompanyDeliveries>;
+  /** An aggregated array relationship */
+  company_deliveries_aggregate: CompanyDeliveriesAggregate;
   company_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
   company_license?: Maybe<CompanyLicenses>;
@@ -13229,6 +13233,34 @@ export type MetrcTransfers = {
   /** An object relationship */
   vendor?: Maybe<Vendors>;
   vendor_id?: Maybe<Scalars["uuid"]>;
+};
+
+/**
+ * List of transfers from Metrc
+ *
+ *
+ * columns and relationships of "metrc_transfers"
+ */
+export type MetrcTransfersCompanyDeliveriesArgs = {
+  distinct_on?: Maybe<Array<CompanyDeliveriesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyDeliveriesOrderBy>>;
+  where?: Maybe<CompanyDeliveriesBoolExp>;
+};
+
+/**
+ * List of transfers from Metrc
+ *
+ *
+ * columns and relationships of "metrc_transfers"
+ */
+export type MetrcTransfersCompanyDeliveriesAggregateArgs = {
+  distinct_on?: Maybe<Array<CompanyDeliveriesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyDeliveriesOrderBy>>;
+  where?: Maybe<CompanyDeliveriesBoolExp>;
 };
 
 /**
@@ -13335,6 +13367,7 @@ export type MetrcTransfersBoolExp = {
   _not?: Maybe<MetrcTransfersBoolExp>;
   _or?: Maybe<Array<Maybe<MetrcTransfersBoolExp>>>;
   company?: Maybe<CompaniesBoolExp>;
+  company_deliveries?: Maybe<CompanyDeliveriesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
   company_license?: Maybe<CompanyLicensesBoolExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
@@ -13372,6 +13405,7 @@ export enum MetrcTransfersConstraint {
 /** input type for inserting data into table "metrc_transfers" */
 export type MetrcTransfersInsertInput = {
   company?: Maybe<CompaniesObjRelInsertInput>;
+  company_deliveries?: Maybe<CompanyDeliveriesArrRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
   company_license?: Maybe<CompanyLicensesObjRelInsertInput>;
   created_at?: Maybe<Scalars["timestamptz"]>;
@@ -13514,6 +13548,7 @@ export type MetrcTransfersOnConflict = {
 /** ordering options when selecting data from "metrc_transfers" */
 export type MetrcTransfersOrderBy = {
   company?: Maybe<CompaniesOrderBy>;
+  company_deliveries_aggregate?: Maybe<CompanyDeliveriesAggregateOrderBy>;
   company_id?: Maybe<OrderBy>;
   company_license?: Maybe<CompanyLicensesOrderBy>;
   created_at?: Maybe<OrderBy>;
@@ -24171,6 +24206,50 @@ export type ListPayorPartnershipsByCompanyIdQuery = {
   >;
 };
 
+export type GetCompanyDeliveryQueryVariables = Exact<{
+  id: Scalars["uuid"];
+  company_id: Scalars["uuid"];
+}>;
+
+export type GetCompanyDeliveryQuery = {
+  company_deliveries_by_pk?: Maybe<
+    Pick<CompanyDeliveries, "id"> & {
+      metrc_transfer: Pick<MetrcTransfers, "id"> & {
+        metrc_transfer_packages: Array<
+          Pick<MetrcTransferPackages, "id"> & MetrcTransferPackageFragment
+        >;
+      } & MetrcTransferFragment;
+      vendor?: Maybe<
+        Pick<Vendors, "id" | "name"> & {
+          company_vendor_partnerships: Array<
+            Pick<CompanyVendorPartnerships, "id" | "approved_at">
+          >;
+        }
+      >;
+    } & CompanyDeliveryFragment
+  >;
+};
+
+export type GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQueryVariables = Exact<{
+  company_id: Scalars["uuid"];
+  start_created_date: Scalars["date"];
+}>;
+
+export type GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery = {
+  company_deliveries: Array<
+    Pick<CompanyDeliveries, "id"> & {
+      metrc_transfer: Pick<MetrcTransfers, "id"> & MetrcTransferFragment;
+      vendor?: Maybe<
+        Pick<Vendors, "id" | "name"> & {
+          company_vendor_partnerships: Array<
+            Pick<CompanyVendorPartnerships, "id" | "approved_at">
+          >;
+        }
+      >;
+    } & CompanyDeliveryFragment
+  >;
+};
+
 export type GetPurchaseOrderForBankQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -24901,7 +24980,6 @@ export type CompanyDeliveryFragment = Pick<
 export type MetrcTransferFragment = Pick<
   MetrcTransfers,
   | "id"
-  | "vendor_id"
   | "us_state"
   | "transfer_id"
   | "manifest_number"
@@ -24911,7 +24989,7 @@ export type MetrcTransferFragment = Pick<
   | "lab_results_status"
   | "last_modified_at"
   | "transfer_payload"
-> & { vendor?: Maybe<Pick<Vendors, "id" | "name">> };
+>;
 
 export type MetrcDeliveryFragment = Pick<
   MetrcDeliveries,
@@ -25263,48 +25341,6 @@ export type GetArtifactRelationsByCompanyIdQuery = {
         Pick<CompanyVendorPartnerships, "id" | "approved_at">
       >;
     } & VendorLimitedFragment
-  >;
-};
-
-export type GetIncomingFromVendorMetrcDeliveriesByCompanyIdQueryVariables = Exact<{
-  company_id: Scalars["uuid"];
-  start_created_date: Scalars["date"];
-}>;
-
-export type GetIncomingFromVendorMetrcDeliveriesByCompanyIdQuery = {
-  metrc_deliveries: Array<
-    Pick<MetrcDeliveries, "id" | "delivery_type"> & {
-      metrc_transfer: Pick<MetrcTransfers, "id"> & {
-        vendor?: Maybe<
-          Pick<Vendors, "id"> & {
-            company_vendor_partnerships: Array<
-              Pick<CompanyVendorPartnerships, "id" | "approved_at">
-            >;
-          }
-        >;
-      } & MetrcTransferFragment;
-    }
-  >;
-};
-
-export type GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQueryVariables = Exact<{
-  company_id: Scalars["uuid"];
-  start_created_date: Scalars["date"];
-}>;
-
-export type GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery = {
-  company_deliveries: Array<
-    Pick<CompanyDeliveries, "id"> & {
-      metrc_transfer: Pick<MetrcTransfers, "id"> & {
-        vendor?: Maybe<
-          Pick<Vendors, "id"> & {
-            company_vendor_partnerships: Array<
-              Pick<CompanyVendorPartnerships, "id" | "approved_at">
-            >;
-          }
-        >;
-      } & MetrcTransferFragment;
-    } & CompanyDeliveryFragment
   >;
 };
 
@@ -25929,7 +25965,6 @@ export const CompanyDeliveryFragmentDoc = gql`
 export const MetrcTransferFragmentDoc = gql`
   fragment MetrcTransfer on metrc_transfers {
     id
-    vendor_id
     us_state
     transfer_id
     manifest_number
@@ -25939,10 +25974,6 @@ export const MetrcTransferFragmentDoc = gql`
     lab_results_status
     last_modified_at
     transfer_payload
-    vendor {
-      id
-      name
-    }
   }
 `;
 export const MetrcDeliveryFragmentDoc = gql`
@@ -30190,6 +30221,176 @@ export type ListPayorPartnershipsByCompanyIdQueryResult = Apollo.QueryResult<
   ListPayorPartnershipsByCompanyIdQuery,
   ListPayorPartnershipsByCompanyIdQueryVariables
 >;
+export const GetCompanyDeliveryDocument = gql`
+  query GetCompanyDelivery($id: uuid!, $company_id: uuid!) {
+    company_deliveries_by_pk(id: $id) {
+      id
+      ...CompanyDelivery
+      metrc_transfer {
+        id
+        ...MetrcTransfer
+        metrc_transfer_packages {
+          id
+          ...MetrcTransferPackage
+        }
+      }
+      vendor {
+        id
+        name
+        company_vendor_partnerships(
+          where: { company_id: { _eq: $company_id } }
+        ) {
+          id
+          approved_at
+        }
+      }
+    }
+  }
+  ${CompanyDeliveryFragmentDoc}
+  ${MetrcTransferFragmentDoc}
+  ${MetrcTransferPackageFragmentDoc}
+`;
+
+/**
+ * __useGetCompanyDeliveryQuery__
+ *
+ * To run a query within a React component, call `useGetCompanyDeliveryQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCompanyDeliveryQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCompanyDeliveryQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *      company_id: // value for 'company_id'
+ *   },
+ * });
+ */
+export function useGetCompanyDeliveryQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetCompanyDeliveryQuery,
+    GetCompanyDeliveryQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetCompanyDeliveryQuery,
+    GetCompanyDeliveryQueryVariables
+  >(GetCompanyDeliveryDocument, baseOptions);
+}
+export function useGetCompanyDeliveryLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetCompanyDeliveryQuery,
+    GetCompanyDeliveryQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetCompanyDeliveryQuery,
+    GetCompanyDeliveryQueryVariables
+  >(GetCompanyDeliveryDocument, baseOptions);
+}
+export type GetCompanyDeliveryQueryHookResult = ReturnType<
+  typeof useGetCompanyDeliveryQuery
+>;
+export type GetCompanyDeliveryLazyQueryHookResult = ReturnType<
+  typeof useGetCompanyDeliveryLazyQuery
+>;
+export type GetCompanyDeliveryQueryResult = Apollo.QueryResult<
+  GetCompanyDeliveryQuery,
+  GetCompanyDeliveryQueryVariables
+>;
+export const GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateDocument = gql`
+  query GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDate(
+    $company_id: uuid!
+    $start_created_date: date!
+  ) {
+    company_deliveries(
+      where: {
+        _and: [
+          { company_id: { _eq: $company_id } }
+          { delivery_type: { _eq: "INCOMING_FROM_VENDOR" } }
+          { metrc_transfer: { created_date: { _gte: $start_created_date } } }
+        ]
+      }
+    ) {
+      id
+      ...CompanyDelivery
+      metrc_transfer {
+        id
+        ...MetrcTransfer
+      }
+      vendor {
+        id
+        name
+        company_vendor_partnerships(
+          where: { company_id: { _eq: $company_id } }
+        ) {
+          id
+          approved_at
+        }
+      }
+    }
+  }
+  ${CompanyDeliveryFragmentDoc}
+  ${MetrcTransferFragmentDoc}
+`;
+
+/**
+ * __useGetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery__
+ *
+ * To run a query within a React component, call `useGetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery({
+ *   variables: {
+ *      company_id: // value for 'company_id'
+ *      start_created_date: // value for 'start_created_date'
+ *   },
+ * });
+ */
+export function useGetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery,
+    GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery,
+    GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQueryVariables
+  >(
+    GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateDocument,
+    baseOptions
+  );
+}
+export function useGetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery,
+    GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery,
+    GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQueryVariables
+  >(
+    GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateDocument,
+    baseOptions
+  );
+}
+export type GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQueryHookResult = ReturnType<
+  typeof useGetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery
+>;
+export type GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateLazyQueryHookResult = ReturnType<
+  typeof useGetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateLazyQuery
+>;
+export type GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQueryResult = Apollo.QueryResult<
+  GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery,
+  GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQueryVariables
+>;
 export const GetPurchaseOrderForBankDocument = gql`
   query GetPurchaseOrderForBank($id: uuid!) {
     purchase_orders_by_pk(id: $id) {
@@ -34387,181 +34588,6 @@ export type GetArtifactRelationsByCompanyIdLazyQueryHookResult = ReturnType<
 export type GetArtifactRelationsByCompanyIdQueryResult = Apollo.QueryResult<
   GetArtifactRelationsByCompanyIdQuery,
   GetArtifactRelationsByCompanyIdQueryVariables
->;
-export const GetIncomingFromVendorMetrcDeliveriesByCompanyIdDocument = gql`
-  query GetIncomingFromVendorMetrcDeliveriesByCompanyId(
-    $company_id: uuid!
-    $start_created_date: date!
-  ) {
-    metrc_deliveries(
-      where: {
-        _and: [
-          { metrc_transfer: { company_id: { _eq: $company_id } } }
-          { metrc_transfer: { vendor_id: { _is_null: false } } }
-          { metrc_transfer: { created_date: { _gte: $start_created_date } } }
-          { delivery_type: { _eq: "INCOMING_FROM_VENDOR" } }
-        ]
-      }
-      order_by: { metrc_transfer: { manifest_number: desc } }
-    ) {
-      id
-      delivery_type
-      metrc_transfer {
-        id
-        ...MetrcTransfer
-        vendor {
-          id
-          company_vendor_partnerships(
-            where: { company_id: { _eq: $company_id } }
-          ) {
-            id
-            approved_at
-          }
-        }
-      }
-    }
-  }
-  ${MetrcTransferFragmentDoc}
-`;
-
-/**
- * __useGetIncomingFromVendorMetrcDeliveriesByCompanyIdQuery__
- *
- * To run a query within a React component, call `useGetIncomingFromVendorMetrcDeliveriesByCompanyIdQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetIncomingFromVendorMetrcDeliveriesByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetIncomingFromVendorMetrcDeliveriesByCompanyIdQuery({
- *   variables: {
- *      company_id: // value for 'company_id'
- *      start_created_date: // value for 'start_created_date'
- *   },
- * });
- */
-export function useGetIncomingFromVendorMetrcDeliveriesByCompanyIdQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    GetIncomingFromVendorMetrcDeliveriesByCompanyIdQuery,
-    GetIncomingFromVendorMetrcDeliveriesByCompanyIdQueryVariables
-  >
-) {
-  return Apollo.useQuery<
-    GetIncomingFromVendorMetrcDeliveriesByCompanyIdQuery,
-    GetIncomingFromVendorMetrcDeliveriesByCompanyIdQueryVariables
-  >(GetIncomingFromVendorMetrcDeliveriesByCompanyIdDocument, baseOptions);
-}
-export function useGetIncomingFromVendorMetrcDeliveriesByCompanyIdLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetIncomingFromVendorMetrcDeliveriesByCompanyIdQuery,
-    GetIncomingFromVendorMetrcDeliveriesByCompanyIdQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<
-    GetIncomingFromVendorMetrcDeliveriesByCompanyIdQuery,
-    GetIncomingFromVendorMetrcDeliveriesByCompanyIdQueryVariables
-  >(GetIncomingFromVendorMetrcDeliveriesByCompanyIdDocument, baseOptions);
-}
-export type GetIncomingFromVendorMetrcDeliveriesByCompanyIdQueryHookResult = ReturnType<
-  typeof useGetIncomingFromVendorMetrcDeliveriesByCompanyIdQuery
->;
-export type GetIncomingFromVendorMetrcDeliveriesByCompanyIdLazyQueryHookResult = ReturnType<
-  typeof useGetIncomingFromVendorMetrcDeliveriesByCompanyIdLazyQuery
->;
-export type GetIncomingFromVendorMetrcDeliveriesByCompanyIdQueryResult = Apollo.QueryResult<
-  GetIncomingFromVendorMetrcDeliveriesByCompanyIdQuery,
-  GetIncomingFromVendorMetrcDeliveriesByCompanyIdQueryVariables
->;
-export const GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateDocument = gql`
-  query GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDate(
-    $company_id: uuid!
-    $start_created_date: date!
-  ) {
-    company_deliveries(
-      where: {
-        _and: [
-          { company_id: { _eq: $company_id } }
-          { delivery_type: { _eq: "INCOMING_FROM_VENDOR" } }
-          { metrc_transfer: { created_date: { _gte: $start_created_date } } }
-        ]
-      }
-    ) {
-      id
-      ...CompanyDelivery
-      metrc_transfer {
-        id
-        ...MetrcTransfer
-        vendor {
-          id
-          company_vendor_partnerships(
-            where: { company_id: { _eq: $company_id } }
-          ) {
-            id
-            approved_at
-          }
-        }
-      }
-    }
-  }
-  ${CompanyDeliveryFragmentDoc}
-  ${MetrcTransferFragmentDoc}
-`;
-
-/**
- * __useGetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery__
- *
- * To run a query within a React component, call `useGetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery({
- *   variables: {
- *      company_id: // value for 'company_id'
- *      start_created_date: // value for 'start_created_date'
- *   },
- * });
- */
-export function useGetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery,
-    GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQueryVariables
-  >
-) {
-  return Apollo.useQuery<
-    GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery,
-    GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQueryVariables
-  >(
-    GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateDocument,
-    baseOptions
-  );
-}
-export function useGetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery,
-    GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<
-    GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery,
-    GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQueryVariables
-  >(
-    GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateDocument,
-    baseOptions
-  );
-}
-export type GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQueryHookResult = ReturnType<
-  typeof useGetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery
->;
-export type GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateLazyQueryHookResult = ReturnType<
-  typeof useGetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateLazyQuery
->;
-export type GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQueryResult = Apollo.QueryResult<
-  GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery,
-  GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQueryVariables
 >;
 export const GetVendorPartnershipsByCompanyIdDocument = gql`
   query GetVendorPartnershipsByCompanyId($companyId: uuid!) {

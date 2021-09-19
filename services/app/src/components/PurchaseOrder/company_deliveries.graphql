@@ -1,0 +1,55 @@
+query GetCompanyDelivery(
+  $id: uuid!,
+  $company_id: uuid!,
+) {
+  company_deliveries_by_pk(id: $id) {
+    id
+    ...CompanyDelivery
+    metrc_transfer {
+      id
+      ...MetrcTransfer
+      metrc_transfer_packages {
+        id
+        ...MetrcTransferPackage
+      }
+    }
+    vendor {
+      id
+      name
+      company_vendor_partnerships(where: { company_id: { _eq: $company_id } }) {
+        id
+        approved_at
+      }
+    }
+  }
+}
+
+query GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDate(
+  $company_id: uuid!,
+  $start_created_date: date!,
+) {
+  company_deliveries(
+    where: {
+      _and: [
+        { company_id: { _eq: $company_id } }
+        { delivery_type: { _eq: "INCOMING_FROM_VENDOR" } }
+        { metrc_transfer: { created_date: { _gte: $start_created_date } } }
+      ]
+    }
+  ) {
+    id
+    ...CompanyDelivery
+    metrc_transfer {
+      id
+      ...MetrcTransfer
+    }
+    vendor {
+      id
+      name
+      company_vendor_partnerships(where: { company_id: { _eq: $company_id } }) {
+        id
+        approved_at
+      }
+    }
+  }
+}

@@ -35,7 +35,7 @@ export default function CustomerMetrcTransfersTab({ companyId }: Props) {
         data?.metrc_transfers || [],
         (metrcTransfer) =>
           `${metrcTransfer.manifest_number} ${getCompanyDisplayName(
-            metrcTransfer.vendor
+            metrcTransfer.transfer_payload.ShipperFacilityName
           )} ${
             metrcTransfer.transfer_payload.ShipperFacilityLicenseNumber || ""
           }`

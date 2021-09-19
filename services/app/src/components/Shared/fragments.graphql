@@ -188,7 +188,6 @@ fragment CompanyDelivery on company_deliveries {
 
 fragment MetrcTransfer on metrc_transfers {
   id
-  vendor_id
   us_state
   transfer_id
   manifest_number
@@ -198,10 +197,6 @@ fragment MetrcTransfer on metrc_transfers {
   lab_results_status
   last_modified_at
   transfer_payload
-  vendor {
-    id
-    name
-  }
 }
 
 fragment MetrcDelivery on metrc_deliveries {

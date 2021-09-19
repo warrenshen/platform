@@ -4,11 +4,10 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 import FileUploader from "components/Shared/File/FileUploader";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DateInput from "components/Shared/FormInputs/DateInput";
-import MetrcTransferInfoCard from "components/Transfers/MetrcTransferInfoCard";
+import CompanyDeliveryInfoCard from "components/Transfers/CompanyDeliveryInfoCard";
 import {
   Companies,
-  GetIncomingFromVendorMetrcDeliveriesByCompanyIdQuery,
-  MetrcTransferFragment,
+  GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery,
   PurchaseOrderFileFragment,
   PurchaseOrderFileTypeEnum,
   PurchaseOrderMetrcTransferFragment,
@@ -16,7 +15,7 @@ import {
 } from "generated/graphql";
 import {
   MetrcTransferPayload,
-  getMetrcTransferVendorDescription,
+  getCompanyDeliveryVendorDescription,
 } from "lib/api/metrc";
 import { formatDateString, formatDatetimeString } from "lib/date";
 import { FileTypeEnum } from "lib/enum";
@@ -27,10 +26,12 @@ interface Props {
   purchaseOrder: PurchaseOrdersInsertInput;
   purchaseOrderFile: PurchaseOrderFileFragment | null;
   purchaseOrderCannabisFiles: PurchaseOrderFileFragment[];
-  selectableMetrcTransfers: NonNullable<
-    GetIncomingFromVendorMetrcDeliveriesByCompanyIdQuery["metrc_deliveries"]
-  >[0]["metrc_transfer"][];
-  selectedMetrcTransfers: MetrcTransferFragment[];
+  selectableCompanyDeliveries: NonNullable<
+    GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery["company_deliveries"]
+  >;
+  selectedCompanyDeliveries: NonNullable<
+    GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery["company_deliveries"]
+  >;
   setPurchaseOrder: (purchaseOrder: PurchaseOrdersInsertInput) => void;
   setPurchaseOrderFile: (file: PurchaseOrderFileFragment | null) => void;
   setPurchaseOrderCannabisFiles: (files: PurchaseOrderFileFragment[]) => void;
@@ -46,8 +47,8 @@ export default function PurchaseOrderFormV2({
   purchaseOrder,
   purchaseOrderFile,
   purchaseOrderCannabisFiles,
-  selectableMetrcTransfers,
-  selectedMetrcTransfers,
+  selectableCompanyDeliveries,
+  selectedCompanyDeliveries,
   setPurchaseOrder,
   setPurchaseOrderFile,
   setPurchaseOrderCannabisFiles,
@@ -69,8 +70,8 @@ export default function PurchaseOrderFormV2({
 
   // True if a metrc transfer is selected and its lab results status is "passed".
   const isLabResultsPassed =
-    selectedMetrcTransfers.length > 0 &&
-    selectedMetrcTransfers[0].lab_results_status === "passed";
+    selectedCompanyDeliveries.length > 0 &&
+    selectedCompanyDeliveries[0].metrc_transfer.lab_results_status === "passed";
 
   // TODO(warrenshen): once at least one Metrc transfer is selected, user should
   // only be able to add additional Metrc transfers belonging to the same vendor.
@@ -81,13 +82,14 @@ export default function PurchaseOrderFormV2({
           autoHighlight
           blurOnSelect // Majority case: only one Metrc manifest for the purchase order
           id="auto-complete-transfers"
-          options={selectableMetrcTransfers}
+          options={selectableCompanyDeliveries}
           inputValue={autocompleteInputValue}
           value={null}
-          getOptionLabel={(metrcTransfer) => {
+          getOptionLabel={(companyDelivery) => {
+            const metrcTransfer = companyDelivery.metrc_transfer;
             const metrcTransferPayload = metrcTransfer.transfer_payload as MetrcTransferPayload;
             return `${metrcTransfer.manifest_number} ${
-              metrcTransfer.vendor?.name || ""
+              companyDelivery.vendor?.name || ""
             } ${formatDatetimeString(
               metrcTransferPayload.ReceivedDateTime
             )} ${formatDateString(metrcTransfer.created_date)}`;
@@ -99,7 +101,8 @@ export default function PurchaseOrderFormV2({
               variant="outlined"
             />
           )}
-          renderOption={(metrcTransfer) => {
+          renderOption={(companyDelivery) => {
+            const metrcTransfer = companyDelivery.metrc_transfer;
             const metrcTransferPayload = metrcTransfer.transfer_payload as MetrcTransferPayload;
             return (
               <Box py={0.5}>
@@ -110,8 +113,8 @@ export default function PurchaseOrderFormV2({
                   {`License from -> to: ${metrcTransferPayload.ShipperFacilityLicenseNumber} -> ${metrcTransferPayload.RecipientFacilityLicenseNumber}`}
                 </Typography>
                 <Typography variant="body2">
-                  {`Vendor: ${getMetrcTransferVendorDescription(
-                    metrcTransfer
+                  {`Vendor: ${getCompanyDeliveryVendorDescription(
+                    companyDelivery
                   )}`}
                 </Typography>
                 <Typography variant="body2">
@@ -139,11 +142,12 @@ export default function PurchaseOrderFormV2({
               </Box>
             );
           }}
-          onChange={(_event, metrcTransfer) => {
-            if (metrcTransfer) {
+          onChange={(_event, companyDelivery) => {
+            if (companyDelivery) {
+              const metrcTransfer = companyDelivery.metrc_transfer;
               setPurchaseOrder({
                 ...purchaseOrder,
-                vendor_id: metrcTransfer.vendor_id,
+                vendor_id: companyDelivery.vendor_id,
               });
               setPurchaseOrderMetrcTransfers((purchaseOrderMetrcTransfers) => [
                 ...purchaseOrderMetrcTransfers,
@@ -157,19 +161,20 @@ export default function PurchaseOrderFormV2({
           }}
           onInputChange={(_event, value) => setAutocompleteInputValue(value)}
         />
-        {selectedMetrcTransfers.length > 0 ? (
+        {selectedCompanyDeliveries.length > 0 ? (
           <Box display="flex" flexDirection="column">
-            {selectedMetrcTransfers.map((selectedMetrcTransfer) => (
-              <Box key={selectedMetrcTransfer.id} mt={2}>
-                <MetrcTransferInfoCard
-                  metrcTransferId={selectedMetrcTransfer.id}
+            {selectedCompanyDeliveries.map((selectedCompanyDelivery) => (
+              <Box key={selectedCompanyDelivery.id} mt={2}>
+                <CompanyDeliveryInfoCard
+                  companyDeliveryId={selectedCompanyDelivery.id}
+                  companyId={companyId}
                   handleClickClose={() =>
                     setPurchaseOrderMetrcTransfers(
                       (purchaseOrderMetrcTransfers) =>
                         purchaseOrderMetrcTransfers.filter(
                           (purchaseOrderMetrcTransfer) =>
                             purchaseOrderMetrcTransfer.metrc_transfer_id !==
-                            selectedMetrcTransfer.id
+                            selectedCompanyDelivery.metrc_transfer.id
                         )
                     )
                   }

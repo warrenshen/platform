@@ -4,7 +4,7 @@ import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
 import MetrcTransferDrawerLauncher from "components/Transfers/MetrcTransferDrawerLauncher";
 import { GetMetrcTransfersByUsStateManifestNumberQuery } from "generated/graphql";
-import { getCompanyDisplayName } from "lib/companies";
+// import { getCompanyDisplayName } from "lib/companies";
 import { ColumnWidths } from "lib/tables";
 import { flatten } from "lodash";
 import { useMemo } from "react";
@@ -39,7 +39,7 @@ export default function MetrcTransfersDataGrid({
               shipment_transaction_type:
                 metrcDelivery.shipment_transaction_type,
 
-              vendor_name: getCompanyDisplayName(metrcTransfer.vendor),
+              // vendor_name: getCompanyDisplayName(metrcTransfer.vendor),
             };
           })
         )

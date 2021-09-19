@@ -11,7 +11,7 @@ import {
 } from "contexts/CurrentUserContext";
 import {
   Companies,
-  MetrcTransferFragment,
+  GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery,
   PurchaseOrderFileFragment,
   PurchaseOrderFileTypeEnum,
   PurchaseOrderMetrcTransferFragment,
@@ -19,7 +19,6 @@ import {
   PurchaseOrdersInsertInput,
   RequestStatusEnum,
   useGetArtifactRelationsByCompanyIdQuery,
-  useGetIncomingFromVendorMetrcDeliveriesByCompanyIdQuery,
   useGetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery,
   useGetPurchaseOrderForCustomerQuery,
 } from "generated/graphql";
@@ -185,25 +184,6 @@ export default function CreateUpdatePurchaseOrderModal({
   }
 
   const {
-    data: metrcDeliveriesData,
-    // loading: isMetrcDeliveriesLoading,
-    error: metrcDeliveriesError,
-  } = useGetIncomingFromVendorMetrcDeliveriesByCompanyIdQuery({
-    fetchPolicy: "network-only",
-    variables: {
-      company_id: companyId,
-      start_created_date: todayMinusXDaysDateStringServer(60), // Fetch Metrc deliveries created in last 60 days.
-    },
-  });
-
-  if (metrcDeliveriesError) {
-    console.error({ metrcDeliveriesError });
-    alert(
-      `Error in query (details in console): ${metrcDeliveriesError.message}`
-    );
-  }
-
-  const {
     data: companyDeliveriesData,
     error: companyDeliveriesError,
   } = useGetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery({
@@ -224,54 +204,39 @@ export default function CreateUpdatePurchaseOrderModal({
   const companySettings = data?.companies_by_pk?.settings;
   const selectableVendors = data?.vendors || [];
 
-  // TODO(warrenshen): remove feature flag once company deliveries are ready to be used.
-  const allMetrcTransfers = useMemo(
+  const allCompanyDeliveries = useMemo(
     () =>
-      true
-        ? uniqBy(
-            (metrcDeliveriesData?.metrc_deliveries || []).map(
-              (metrcDelivery) => metrcDelivery.metrc_transfer
-            ),
-            (metrcTransfer) => metrcTransfer.manifest_number
-          )
-        : uniqBy(
-            (companyDeliveriesData?.company_deliveries || []).map(
-              (companyDelivery) => ({
-                ...companyDelivery.metrc_transfer,
-                vendor_id: companyDelivery.vendor_id,
-              })
-            ),
-            (metrcTransfer) => metrcTransfer.manifest_number
-          ),
-    [
-      companyDeliveriesData?.company_deliveries,
-      metrcDeliveriesData?.metrc_deliveries,
-    ]
+      uniqBy(
+        companyDeliveriesData?.company_deliveries || [],
+        (companyDelivery) => companyDelivery.metrc_transfer.manifest_number
+      ),
+    [companyDeliveriesData?.company_deliveries]
   );
 
-  const selectedMetrcTransfers = useMemo(
+  const selectedCompanyDeliveries = useMemo(
     () =>
       purchaseOrderMetrcTransfers
         .map((purchaseOrderMetrcTransfer) =>
-          allMetrcTransfers.find(
-            (metrcTransfer) =>
-              metrcTransfer.id === purchaseOrderMetrcTransfer.metrc_transfer_id
+          allCompanyDeliveries.find(
+            (companyDelivery) =>
+              companyDelivery.metrc_transfer.id ===
+              purchaseOrderMetrcTransfer.metrc_transfer_id
           )
         )
-        .filter((selectedMetrcTransfer) => !!selectedMetrcTransfer),
-    [allMetrcTransfers, purchaseOrderMetrcTransfers]
-  ) as MetrcTransferFragment[];
+        .filter((selectedCompanyDelivery) => !!selectedCompanyDelivery),
+    [allCompanyDeliveries, purchaseOrderMetrcTransfers]
+  ) as GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery["company_deliveries"];
 
-  const selectableMetrcTransfers = useMemo(
+  const selectableCompanyDeliveries = useMemo(
     () =>
-      allMetrcTransfers.filter(
-        (metrcTransfer) =>
-          !selectedMetrcTransfers.find(
-            (selectedMetrcTransfer) =>
-              selectedMetrcTransfer.id === metrcTransfer.id
+      allCompanyDeliveries.filter(
+        (companyDelivery) =>
+          !selectedCompanyDeliveries.find(
+            (selectedCompanyDelivery) =>
+              selectedCompanyDelivery.id === companyDelivery.id
           )
       ),
-    [allMetrcTransfers, selectedMetrcTransfers]
+    [allCompanyDeliveries, selectedCompanyDeliveries]
   );
 
   const metrcApiKeys = data?.companies_by_pk?.metrc_api_keys || [];
@@ -336,9 +301,9 @@ export default function CreateUpdatePurchaseOrderModal({
   };
 
   const preparePurchaseOrderMetrcTransfers = () => {
-    return selectedMetrcTransfers.map((selectedMetrcTransfer) => ({
+    return selectedCompanyDeliveries.map((selectedCompanyDelivery) => ({
       purchase_order_id: purchaseOrder.id,
-      metrc_transfer_id: selectedMetrcTransfer.id,
+      metrc_transfer_id: selectedCompanyDelivery.metrc_transfer.id,
     }));
   };
 
@@ -544,8 +509,8 @@ export default function CreateUpdatePurchaseOrderModal({
             purchaseOrder={purchaseOrder}
             purchaseOrderFile={purchaseOrderFile}
             purchaseOrderCannabisFiles={purchaseOrderCannabisFiles}
-            selectableMetrcTransfers={selectableMetrcTransfers}
-            selectedMetrcTransfers={selectedMetrcTransfers}
+            selectableCompanyDeliveries={selectableCompanyDeliveries}
+            selectedCompanyDeliveries={selectedCompanyDeliveries}
             setPurchaseOrder={setPurchaseOrder}
             setPurchaseOrderFile={setPurchaseOrderFile}
             setPurchaseOrderCannabisFiles={setPurchaseOrderCannabisFiles}
