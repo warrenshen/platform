@@ -36,6 +36,7 @@ query GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDate(
         { metrc_transfer: { created_date: { _gte: $start_created_date } } }
       ]
     }
+    order_by: { metrc_transfer: { created_date: desc } }
   ) {
     id
     ...CompanyDelivery

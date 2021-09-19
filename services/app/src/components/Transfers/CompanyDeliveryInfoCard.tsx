@@ -8,7 +8,7 @@ import {
   useGetCompanyDeliveryQuery,
 } from "generated/graphql";
 import { getCompanyDeliveryVendorDescription } from "lib/api/metrc";
-import { formatDatetimeString } from "lib/date";
+import { formatDateString, formatDatetimeString } from "lib/date";
 import styled from "styled-components";
 
 const Manifest = styled.div`
@@ -73,6 +73,9 @@ export default function CompanyDeliveryInfoCard({
           {`Received at: ${formatDatetimeString(
             metrcTransferPayload.ReceivedDateTime
           )}`}
+        </Typography>
+        <Typography variant="body2">
+          {`Created date: ${formatDateString(metrcTransfer.created_date)}`}
         </Typography>
         <Typography variant="body2">
           {`Package(s) count: ${

@@ -23049,6 +23049,10 @@ export type UuidComparisonExp = {
 export type Vendors = {
   address?: Maybe<Scalars["String"]>;
   city?: Maybe<Scalars["String"]>;
+  /** An array relationship */
+  company_deliveries: Array<CompanyDeliveries>;
+  /** An aggregated array relationship */
+  company_deliveries_aggregate: CompanyDeliveriesAggregate;
   company_settings_id?: Maybe<Scalars["uuid"]>;
   /** An array relationship */
   company_vendor_partnerships: Array<CompanyVendorPartnerships>;
@@ -23082,6 +23086,24 @@ export type Vendors = {
   /** An aggregated array relationship */
   users_aggregate: UsersAggregate;
   zip_code?: Maybe<Scalars["String"]>;
+};
+
+/** columns and relationships of "vendors" */
+export type VendorsCompanyDeliveriesArgs = {
+  distinct_on?: Maybe<Array<CompanyDeliveriesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyDeliveriesOrderBy>>;
+  where?: Maybe<CompanyDeliveriesBoolExp>;
+};
+
+/** columns and relationships of "vendors" */
+export type VendorsCompanyDeliveriesAggregateArgs = {
+  distinct_on?: Maybe<Array<CompanyDeliveriesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyDeliveriesOrderBy>>;
+  where?: Maybe<CompanyDeliveriesBoolExp>;
 };
 
 /** columns and relationships of "vendors" */
@@ -23220,6 +23242,7 @@ export type VendorsBoolExp = {
   _or?: Maybe<Array<Maybe<VendorsBoolExp>>>;
   address?: Maybe<StringComparisonExp>;
   city?: Maybe<StringComparisonExp>;
+  company_deliveries?: Maybe<CompanyDeliveriesBoolExp>;
   company_settings_id?: Maybe<UuidComparisonExp>;
   company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsBoolExp>;
   contract_id?: Maybe<UuidComparisonExp>;
@@ -23251,6 +23274,7 @@ export type VendorsIncInput = {
 export type VendorsInsertInput = {
   address?: Maybe<Scalars["String"]>;
   city?: Maybe<Scalars["String"]>;
+  company_deliveries?: Maybe<CompanyDeliveriesArrRelInsertInput>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
   company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsArrRelInsertInput>;
   contract_id?: Maybe<Scalars["uuid"]>;
@@ -23370,6 +23394,7 @@ export type VendorsObjRelInsertInput = {
 export type VendorsOrderBy = {
   address?: Maybe<OrderBy>;
   city?: Maybe<OrderBy>;
+  company_deliveries_aggregate?: Maybe<CompanyDeliveriesAggregateOrderBy>;
   company_settings_id?: Maybe<OrderBy>;
   company_vendor_partnerships_aggregate?: Maybe<CompanyVendorPartnershipsAggregateOrderBy>;
   contract_id?: Maybe<OrderBy>;
@@ -30313,6 +30338,7 @@ export const GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateDocumen
           { metrc_transfer: { created_date: { _gte: $start_created_date } } }
         ]
       }
+      order_by: { metrc_transfer: { created_date: desc } }
     ) {
       id
       ...CompanyDelivery
