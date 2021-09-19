@@ -61,7 +61,7 @@ def _add_company_deliveries(
 		).all())
 
 	for company_license in company_licenses:
-		license_number_to_company_id[company_license.license_number] = str(company_license.company_id)
+		license_number_to_company_id[company_license.license_number] = str(company_license.company_id) if company_license.company_id else None
 
 	for metrc_transfer in metrc_transfers:
 		metrc_transfer_index += 1
