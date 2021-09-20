@@ -150,6 +150,7 @@ def _get_company2_downloads(seed: test_helper.BasicSeed, index: int) -> metrc_co
 							_package_json({
 								'Id': 'out-p1',
 								'PackageId': 'out-pkg1-A',
+								'LabTestingState': 'TestFailed',
 								'ShippedQuantity': 3.0,
 								'ReceivedQuantity': 3.1,
 								'ShippedUnitOfMeasureName': 'oz',
@@ -158,6 +159,7 @@ def _get_company2_downloads(seed: test_helper.BasicSeed, index: int) -> metrc_co
 							_package_json({
 								'Id': 'out-p2',
 								'PackageId': 'out-pkg2-B',
+								'LabTestingState': 'TestPassed',
 								'ShippedQuantity': 4.0,
 								'ReceivedQuantity': 4.1,
 								'ShippedUnitOfMeasureName': 'oz',
@@ -217,42 +219,6 @@ def _get_company2_downloads(seed: test_helper.BasicSeed, index: int) -> metrc_co
 							}
 						]
 					},
-				]
-			},
-			RequestKey(
-				url='/labtests/v1/results?packageId=out-pkg1-A',
-				time_range=None
-			): {
-				'resps': [
-					{
-						'status': 'OK',
-						'json': [
-							{
-								'TestPassed': True
-							},
-							{
-								'TestPassed': False
-							}
-						]
-					}
-				]
-			},
-			RequestKey(
-				url='/labtests/v1/results?packageId=out-pkg2-B',
-				time_range=None
-			): {
-				'resps': [
-					{
-						'status': 'OK',
-						'json': [
-							{
-								'TestPassed': True
-							},
-							{
-								'TestPassed': True
-							}
-						]
-					}
 				]
 			}
 		}

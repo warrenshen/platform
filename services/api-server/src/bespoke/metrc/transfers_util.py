@@ -22,21 +22,17 @@ from sqlalchemy.orm.session import Session
 
 class LabTest(object):
 
-	def __init__(self, lab_test_json: List[Dict]) -> None:
-		self._lab_test_results = lab_test_json # its an array that comes from the API
-
-	def get_results_array(self) -> List[Dict]:
-		return self._lab_test_results
+	def __init__(self, lab_testing_state: str) -> None:
+		self._lab_testing_state = lab_testing_state
 
 	def get_status(self) -> str:
-		if not self._lab_test_results:
+		if not self._lab_testing_state:
 			return UNKNOWN_LAB_STATUS
 
-		for result in self._lab_test_results:
-			if not result['TestPassed']:
-				return 'failed'
+		if self._lab_testing_state == 'TestPassed':
+			return 'passed'
 
-		return 'passed'
+		return 'failed'
 
 def get_final_lab_status(lab_result_statuses: List[str]) -> str:
 	final_lab_results_status = UNKNOWN_LAB_STATUS
@@ -59,8 +55,8 @@ class TransferPackages(object):
 		for package in self._packages:
 			package['DeliveryId'] = delivery_id
 
-	def get_package_ids(self) -> List[str]:
-		return [t['PackageId'] for t in self._packages]
+	def get_lab_testing_states(self) -> List[str]:
+		return [t.get('LabTestingState', '') for t in self._packages]
 
 	def get_package_models(
 			self, lab_tests: List[LabTest], transfer_type: str, created_date: datetime.date,
@@ -101,10 +97,6 @@ class TransferPackages(object):
 			p.shipped_unit_of_measure = package['ShippedUnitOfMeasureName']
 			p.received_unit_of_measure = package['ReceivedUnitOfMeasureName']
 			p.shipment_package_state = package['ShipmentPackageState']
-			# We do not store lab results json for now.
-			# p.lab_results_payload = {
-			# 	'lab_results': lab_tests[i].get_results_array()
-			# }
 			p.created_date = created_date
 			p.lab_results_status = lab_tests[i].get_status()
 			p.last_modified_at = self._last_modified_at # Transfer packages inherit last modified at from the transfer
@@ -573,27 +565,11 @@ def populate_transfers_table(
 
 			packages = TransferPackages(
 				metrc_transfer.last_modified_at, delivery_id, t_packages_json, t_packages_wholesale_json)
-			package_ids = packages.get_package_ids()
+			lab_testing_states = packages.get_lab_testing_states()
 
 			lab_tests = []
-			for package_id in package_ids:
-				if ctx.debug:
-					logging.info(f'Downloading lab results for metrc package package_id={package_id}')
-
-				try:
-					lab_test_json = []
-					if apis_to_use['lab_tests']:
-						resp = rest.get(f'/labtests/v1/results?packageId={package_id}')
-						lab_test_json = json.loads(resp.content)
-
-					request_status['lab_results_api'] = 200
-				except errors.Error as e:
-					lab_test_json = [] # If fetch fails, we set to empty array and continue.
-					if ctx.debug:
-						logging.error(f'Could not fetch lab results for company {company_info.name} for package {package_id}. {e}')
-					metrc_common_util.update_if_all_are_unsuccessful(request_status, 'lab_results_api', e)
-
-				lab_tests.append(LabTest(lab_test_json))
+			for lab_testing_state in lab_testing_states:
+				lab_tests.append(LabTest(lab_testing_state))
 
 			metrc_packages, delivery_lab_results_status = packages.get_package_models(
 				lab_tests=lab_tests,
