@@ -22,7 +22,7 @@
       num_retries: 0
       interval_sec: 10
       timeout_sec: 3600
-    webhook: '{{ASYNC_SERVER_BASE_URL}}/triggers/execute-async-tasks'
+    webhook: '{{ASYNC_SERVER_BASE_URL}}/triggers/execute_async_tasks_view'
     headers:
     - name: x-api-key
       value_from_env: ASYNC_SERVER_API_KEY

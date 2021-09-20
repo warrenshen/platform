@@ -387,6 +387,7 @@ class ExecuteAsyncTasksView(MethodView):
 
 	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
+		logging.info("async_pipelines modified -- running updates")
 		cfg = cast(Config, current_app.app_config)
 		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
@@ -421,7 +422,7 @@ handler.add_url_rule(
 	view_func=DownloadMetrcDataView.as_view(name='download_metrc_data_view'))
 
 handler.add_url_rule(
-	"/execute-async-tasks",
+	"/execute_async_tasks_view",
 	view_func=ExecuteAsyncTasksView.as_view(name='execute_async_tasks_view'))
 
 handler.add_url_rule(
