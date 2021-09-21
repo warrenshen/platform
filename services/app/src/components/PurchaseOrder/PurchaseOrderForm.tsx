@@ -1,11 +1,7 @@
 import {
   Box,
   Checkbox,
-  FormControl,
   FormControlLabel,
-  InputLabel,
-  MenuItem,
-  Select,
   TextField,
   Typography,
 } from "@material-ui/core";
@@ -19,9 +15,9 @@ import {
   PurchaseOrderFileTypeEnum,
   PurchaseOrdersInsertInput,
 } from "generated/graphql";
-import { getCompanyDisplayName } from "lib/companies";
 import { FileTypeEnum } from "lib/enum";
 import { useMemo } from "react";
+import Autocomplete from "@material-ui/lab/Autocomplete";
 
 interface Props {
   companyId: Companies["id"];
@@ -59,43 +55,37 @@ export default function PurchaseOrderForm({
   return (
     <Box display="flex" flexDirection="column">
       <Box display="flex" flexDirection="column">
-        <FormControl>
-          <InputLabel id="vendor-select-label">Vendor</InputLabel>
-          <Select
-            data-cy={"purchase-order-form-input-vendor"}
-            disabled={selectableVendors.length <= 0}
-            labelId="vendor-select-label"
-            id="vendor-select"
-            value={
-              selectableVendors.length > 0 ? purchaseOrder.vendor_id || "" : ""
-            }
-            onChange={({ target: { value } }) =>
-              setPurchaseOrder({
-                ...purchaseOrder,
-                vendor_id: value || null,
-              })
-            }
-          >
-            <MenuItem value={""}>
-              <em>None</em>
-            </MenuItem>
-            {selectableVendors.map((vendor, index) => (
-              <MenuItem
-                data-cy={`purchase-order-form-input-vendor-menu-item-${
-                  index + 1
-                }`}
-                key={vendor.id}
-                value={vendor.id}
-              >
-                {`${getCompanyDisplayName(vendor)} ${
-                  !!vendor.company_vendor_partnerships[0]?.approved_at
-                    ? "[Approved]"
-                    : "[Not Approved]"
-                }`}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <Autocomplete
+          data-cy={"purchase-order-form-input-vendor"}
+          autoHighlight
+          id="auto-complete-vendor"
+          options={selectableVendors}
+          getOptionLabel={(vendor) => {
+            return `${vendor.name} ${
+              !!vendor.company_vendor_partnerships[0]?.approved_at
+                ? "[Approved]"
+                : "[Not Approved]"
+            }`;
+          }}
+          renderInput={(params) => {
+            const vendor = selectableVendors.find(
+              (v) => v.id === purchaseOrder.vendor_id
+            );
+            return (
+              <TextField
+                {...params}
+                label={vendor ? vendor.name : "Vendor"}
+                variant="outlined"
+              />
+            );
+          }}
+          onChange={(event, newValue) => {
+            setPurchaseOrder({
+              ...purchaseOrder,
+              vendor_id: newValue?.id || null,
+            });
+          }}
+        />
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <TextField
