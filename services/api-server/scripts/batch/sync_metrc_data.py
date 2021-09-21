@@ -78,8 +78,8 @@ def main(company_identifier, start_date, end_date) -> None:
 	parsed_start_date = date_util.load_date_str(start_date)
 	parsed_end_date = date_util.load_date_str(end_date)
 
-	cur_date = parsed_start_date
-	while cur_date <= parsed_end_date:
+	cur_date = parsed_end_date
+	while cur_date >= parsed_start_date:
 		resp, fatal_err = metrc_util.download_data_for_one_customer(
 			company_id=company_id,
 			auth_provider=config.get_metrc_auth_provider(),
@@ -94,7 +94,7 @@ def main(company_identifier, start_date, end_date) -> None:
 			print(fatal_err)
 			return
 
-		cur_date = cur_date + timedelta(days=1)
+		cur_date = cur_date - timedelta(days=1)
 
 	print('SUCCESS!')
 
