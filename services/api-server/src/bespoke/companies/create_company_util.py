@@ -292,16 +292,32 @@ def _create_partner_company_and_its_first_user(
 	if existing_user:
 		raise errors.Error('Email is already taken')
 
-	user_id = _create_user(user_input, company_id, session)
+	_create_user(user_input, company_id, session)
 
 	if partnership_req.license_info:
 		# Add any licenses the user might have specified.
-		license_ids = cast(Dict, partnership_req.license_info)['license_ids']
-		for license_id in license_ids:
-			license = models.CompanyLicense()
-			license.company_id = cast(Any, company_id)
-			license.license_number = license_id
-			session.add(license)
+		license_numbers = cast(Dict, partnership_req.license_info)['license_ids']
+		for license_number in license_numbers:
+			existing_license = cast(
+				models.CompanyLicense,
+				session.query(models.CompanyLicense).filter(
+					models.CompanyLicense.license_number == license_number
+				).first())
+
+			if existing_license:
+				# If company license exists in our system but does not have a company
+				# associated with it, associate the newly created company with the license.
+				#
+				# If company license exists in our system but does have a company associated
+				# with it, perhaps the newly created company already exists in the system?
+				# We do NOT block this case for now, but can change this later.
+				if not existing_license.company_id:
+					existing_license.company_id = cast(Any, company_id)
+			else:
+				new_license = models.CompanyLicense()
+				new_license.company_id = cast(Any, company_id)
+				new_license.license_number = license_number
+				session.add(new_license)
 
 	return company_id
 
@@ -313,9 +329,11 @@ def _setup_users_for_existing_company(
 	if not user_input.get('email'):
 		raise errors.Error('User email must be specified')
 
-	existing_user = session.query(models.User).filter(
-		models.User.email == user_input['email'].lower()
-	).first()
+	existing_user = cast(
+		models.User,
+		session.query(models.User).filter(
+			models.User.email == user_input['email'].lower()
+		).first())
 	if existing_user:
 		user_id = str(existing_user.id)
 	else:
