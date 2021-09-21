@@ -31,7 +31,7 @@ import { groupBy } from "lodash";
 import { ChangeEvent, useMemo } from "react";
 import SelectTimezoneMaterialUi from "select-timezone-material-ui";
 
-const us_states = [
+const USStates = [
   { abbreviation: "AL", full: "Alabama" },
   { abbreviation: "AK", full: "Alaska" },
   { abbreviation: "AZ", full: "Arizona" },
@@ -85,59 +85,10 @@ const us_states = [
   { abbreviation: "WY", full: "Wyoming" },
 ];
 
-const us_states_lookup = new Map([
-  ["AL", "Alabama"],
-  ["AK", "Alaska"],
-  ["AZ", "Arizona"],
-  ["AR", "Arkansas"],
-  ["CA", "California"],
-  ["CO", "Colorado"],
-  ["CT", "Connecticut"],
-  ["DE", "Delaware"],
-  ["DC", "District of Columbia"],
-  ["FL", "Florida"],
-  ["GA", "Georgia"],
-  ["HI", "Hawaii"],
-  ["ID", "Idaho"],
-  ["IL", "Illinois"],
-  ["IN", "Indiana"],
-  ["IA", "Iowa"],
-  ["KS", "Kansas"],
-  ["KY", "Kentucky"],
-  ["LA", "Louisiana"],
-  ["ME", "Maine"],
-  ["MD", "Maryland"],
-  ["MA", "Massachusetts"],
-  ["MI", "Michigan"],
-  ["MN", "Minnesota"],
-  ["MS", "Mississippi"],
-  ["MO", "Missouri"],
-  ["MT", "Montana"],
-  ["NE", "Nebraska"],
-  ["NV", "Nevada"],
-  ["NH", "New Hampshire"],
-  ["NJ", "New Jersey"],
-  ["NM", "New Mexico"],
-  ["NY", "New York"],
-  ["NC", "North Carolina"],
-  ["ND", "North Dakota"],
-  ["OH", "Ohio"],
-  ["OK", "Oklahoma"],
-  ["OR", "Oregon"],
-  ["PA", "Pennsylvania"],
-  ["RI", "Rhode Island"],
-  ["SC", "South Carolina"],
-  ["SD", "South Dakota"],
-  ["TN", "Tennessee"],
-  ["TX", "Texas"],
-  ["UT", "Utah"],
-  ["VT", "Vermont"],
-  ["VA", "Virginia"],
-  ["WA", "Washington"],
-  ["WV", "West Virginia"],
-  ["WI", "Wisconisin"],
-  ["WY", "Wyoming"],
-]);
+const USStatesData = USStates.map(
+  (s) => [s.abbreviation, s.full] as [string, string]
+);
+const USStatesLookup = new Map<string, string>(USStatesData.values());
 
 const useStyles = makeStyles({
   section: {
@@ -335,39 +286,43 @@ export default function ContractTermsForm({
       );
     } else if (item.type === "us_state") {
       return (
-        <Select
-          data-cy={"us-state-dropdown"}
-          id={item.internal_name}
-          style={{ width: "100%" }}
-          displayEmpty={true}
-          renderValue={() => (
-            <span>
-              {item.value
-                ? us_states_lookup.get(item.value)
-                : item.display_name}
-            </span>
-          )}
-          value={item.value || ""}
-          onChange={(e: any) => {
-            const state_abbreviation = e.target.value;
-            findAndReplaceInJSON(item, state_abbreviation);
-          }}
-        >
-          {us_states.map((us_state: any, index: any) => {
-            return (
-              <MenuItem
-                data-cy={"us-state-dropdown-item"}
-                classes={{
-                  root: "us-state-option",
-                }}
-                key={us_state["abbreviation"]}
-                value={us_state["abbreviation"]}
-              >
-                {us_state["full"]}
-              </MenuItem>
-            );
-          })}
-        </Select>
+        <FormControl>
+          <FormHelperText>US State *</FormHelperText>
+          <Select
+            data-cy={"us-state-dropdown"}
+            id={item.internal_name}
+            style={{ width: "100%" }}
+            displayEmpty={true}
+            renderValue={() => (
+              <span>
+                {item.value
+                  ? USStatesLookup.get(item.value)
+                  : item.display_name}
+              </span>
+            )}
+            value={item.value || ""}
+            onChange={(e: any) => {
+              const state_abbreviation = e.target.value;
+              findAndReplaceInJSON(item, state_abbreviation);
+            }}
+          >
+            {USStates.map((usState: any, index: any) => {
+              return (
+                <MenuItem
+                  data-cy={"us-state-dropdown-item"}
+                  classes={{
+                    root: "us-state-option",
+                  }}
+                  key={usState["abbreviation"]}
+                  value={usState["abbreviation"]}
+                >
+                  {usState["full"]}
+                </MenuItem>
+              );
+            })}
+          </Select>
+          <FormHelperText>Please select a state from the list</FormHelperText>
+        </FormControl>
       );
     } else if (item.type === "timezone") {
       return (
