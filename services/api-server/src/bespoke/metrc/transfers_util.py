@@ -244,9 +244,7 @@ def _write_transfers(
 			prev_transfer = transfer_id_to_prev_transfer[metrc_transfer.transfer_id]
 
 			# Assume these stay the same:
-			# company_id
-			# license_id
-			# created_at
+			# us_state
 			# transfer_id
 			prev_transfer.shipper_facility_license_number = metrc_transfer.shipper_facility_license_number
 			prev_transfer.shipper_facility_name = metrc_transfer.shipper_facility_name
@@ -255,7 +253,6 @@ def _write_transfers(
 			prev_transfer.shipment_type_name = metrc_transfer.shipment_type_name
 			prev_transfer.shipment_transaction_type = metrc_transfer.shipment_transaction_type
 			prev_transfer.transfer_payload = metrc_transfer.transfer_payload
-			prev_transfer.updated_at = metrc_transfer.updated_at
 			prev_transfer.lab_results_status = metrc_transfer.lab_results_status
 			prev_transfer.last_modified_at = metrc_transfer.last_modified_at
 
@@ -280,9 +277,10 @@ def _write_company_deliveries(
 	session: Session) -> None:
 	if not deliveries:
 		return
-	delivery_ids = [company_delivery_obj.metrc_delivery.delivery_id for company_delivery_obj in deliveries]
-	# In reality, all the deliveries will be from the same state.
+
+	# In reality, all the deliveries will be from the same state and license number.
 	us_state = deliveries[0].company_delivery.us_state
+	license_number = deliveries[0].company_delivery.license_number
 	company_id = deliveries[0].company_delivery.company_id
 
 	transfer_row_ids = []
@@ -294,13 +292,15 @@ def _write_company_deliveries(
 		delivery_row_ids.append(delivery_id_to_delivery_row_id[metrc_delivery.delivery_id])
 
 	prev_deliveries = session.query(models.CompanyDelivery).filter(
+		models.CompanyDelivery.us_state == us_state
+	).filter(
+		models.CompanyDelivery.license_number == license_number
+	).filter(
 		models.CompanyDelivery.company_id == company_id
 	).filter(
 		models.CompanyDelivery.delivery_row_id.in_(delivery_row_ids)
 	).filter(
 		models.CompanyDelivery.transfer_row_id.in_(transfer_row_ids)
-	).filter(
-		models.CompanyDelivery.us_state == us_state
 	)
 	delivery_key_to_prev_delivery: Dict[Tuple[str, str, str], models.CompanyDelivery] = {}
 	for prev_delivery in prev_deliveries:
