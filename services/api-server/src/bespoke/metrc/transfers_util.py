@@ -228,9 +228,9 @@ def _write_transfers(
 	us_states = [transfer_obj.metrc_transfer.us_state for transfer_obj in transfer_objs]
 
 	prev_metrc_transfers = session.query(models.MetrcTransfer).filter(
-		models.MetrcTransfer.transfer_id.in_(transfer_ids)
-	).filter(
 		models.MetrcTransfer.us_state.in_(us_states)
+	).filter(
+		models.MetrcTransfer.transfer_id.in_(transfer_ids)
 	)
 	transfer_id_to_prev_transfer = {}
 	for prev_transfer in prev_metrc_transfers:
@@ -298,9 +298,9 @@ def _write_company_deliveries(
 	).filter(
 		models.CompanyDelivery.company_id == company_id
 	).filter(
-		models.CompanyDelivery.delivery_row_id.in_(delivery_row_ids)
-	).filter(
 		models.CompanyDelivery.transfer_row_id.in_(transfer_row_ids)
+	).filter(
+		models.CompanyDelivery.delivery_row_id.in_(delivery_row_ids)
 	)
 	delivery_key_to_prev_delivery: Dict[Tuple[str, str, str], models.CompanyDelivery] = {}
 	for prev_delivery in prev_deliveries:
@@ -354,11 +354,11 @@ def _write_deliveries(
 		transfer_row_ids.append(cur_transfer_row_id)
 
 	prev_metrc_deliveries = session.query(models.MetrcDelivery).filter(
-		models.MetrcDelivery.delivery_id.in_(delivery_ids)
+		models.MetrcDelivery.us_state.in_(us_states)
 	).filter(
 		models.MetrcDelivery.transfer_row_id.in_(transfer_row_ids)
 	).filter(
-		models.MetrcDelivery.us_state.in_(us_states)
+		models.MetrcDelivery.delivery_id.in_(delivery_ids)
 	)
 	delivery_key_to_prev_delivery: Dict[Tuple[str, str], models.MetrcDelivery] = {}
 	for prev_delivery in prev_metrc_deliveries:

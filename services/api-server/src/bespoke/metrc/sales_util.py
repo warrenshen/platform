@@ -162,11 +162,11 @@ def _write_sales_transactions_chunk(
 	us_state = sales_transactions[0].us_state
 
 	prev_sales_transactions = session.query(models.MetrcSalesTransaction).filter(
+		models.MetrcSalesTransaction.us_state == us_state
+	).filter(
 		models.MetrcSalesTransaction.receipt_id == receipt_id
 	).filter(
 		models.MetrcSalesTransaction.company_id == company_id
-	).filter(
-		models.MetrcSalesTransaction.us_state == us_state
 	)
 
 	# Sales transactions data comes in an "all or nothing" fashion, e.g.,
@@ -193,9 +193,9 @@ def _write_sales_receipts_chunk(
 	us_state = sales_receipt_objs[0].metrc_receipt.us_state
 
 	prev_sales_receipts = session.query(models.MetrcSalesReceipt).filter(
-		models.MetrcSalesReceipt.receipt_number.in_(receipt_numbers)
-	).filter(
 		models.MetrcSalesReceipt.us_state == us_state
+	).filter(
+		models.MetrcSalesReceipt.receipt_number.in_(receipt_numbers)
 	)
 
 	receipt_number_to_sales_receipt = {}

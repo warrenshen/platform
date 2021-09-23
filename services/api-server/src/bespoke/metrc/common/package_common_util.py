@@ -1,8 +1,10 @@
 import logging
 
 from sqlalchemy.orm.session import Session
-from typing import List, Union, cast
+from typing import List, Iterable, Union, cast
+
 from bespoke.db import models, db_constants
+from bespoke.metrc.common.metrc_common_util import chunker
 
 UNKNOWN_LAB_STATUS = 'unknown'
 
@@ -140,12 +142,16 @@ def update_packages_from_sales_transactions(
 
 	package_ids = [tx.package_id for tx in sales_transactions] 
 
+	BATCH_SIZE = 50
+	prev_metrc_packages = []
+
 	# metrc_packages are unique on package_id, when they 
 	# are not associated with a delivery.
-	# Note the following query may return more than BATCH_SIZE number of results.
-	prev_metrc_packages = cast(List[models.MetrcPackage], session.query(models.MetrcPackage).filter(
-		models.MetrcPackage.package_id.in_(package_ids)
-	).all())
+	for package_ids_chunk in cast(Iterable[List[models.MetrcPackage]], chunker(package_ids, BATCH_SIZE)):
+		prev_metrc_packages_chunk = cast(List[models.MetrcPackage], session.query(models.MetrcPackage).filter(
+			models.MetrcPackage.package_id.in_(package_ids_chunk)
+		).all())
+		prev_metrc_packages += prev_metrc_packages_chunk
 
 	package_id_to_prev_package = {}
 	for prev_metrc_package in prev_metrc_packages:
