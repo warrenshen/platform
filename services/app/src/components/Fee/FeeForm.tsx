@@ -59,26 +59,13 @@ export default function FeeForm({
       <Box display="flex" flexDirection="column" mt={4}>
         <DateInput
           disableNonBankDays
-          id="deposit-date-date-picker"
-          label="Deposit Date"
-          value={payment.deposit_date}
-          onChange={(value) =>
-            setPayment({
-              ...payment,
-              deposit_date: value,
-            })
-          }
-        />
-      </Box>
-      <Box display="flex" flexDirection="column" mt={4}>
-        <DateInput
-          disableNonBankDays
           id="settlement-date-date-picker"
           label="Settlement Date"
           value={payment.settlement_date}
           onChange={(value) =>
             setPayment({
               ...payment,
+              deposit_date: value,
               settlement_date: value,
             })
           }
