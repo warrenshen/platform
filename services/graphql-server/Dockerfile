@@ -2,6 +2,7 @@
 FROM hasura/graphql-engine:v1.3.3.cli-migrations-v2
 
 ENV HASURA_GRAPHQL_CLI_ENVIRONMENT=default
+ENV HASURA_RUN_MIGRATIONS="true"
 
 RUN mkdir /hasura-migrations && mkdir /hasura-metadata && mkdir /.hasura && mkdir -p /tmp/plugins-downloads/cli-ext
 COPY migrations /hasura-migrations
@@ -15,7 +16,7 @@ RUN chmod +x /bin/apply-migrations.sh
 
 RUN chmod -R 777 /tmp /.hasura /hasura-migrations /hasura-metadata /tmp/plugins-downloads/cli-ext
 
-ENTRYPOINT ["docker-entrypoint.sh"]
+ENTRYPOINT ["docker-entrypoint.sh", "-r", "$HASURA_RUN_MIGRATIONS"]
 
 CMD graphql-engine \
     --database-url $DATABASE_URL \

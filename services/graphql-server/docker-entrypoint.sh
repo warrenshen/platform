@@ -3,6 +3,23 @@
 
 set -e
 
+run_migrations="true"
+while getopts ":r:" opt; do
+  case $opt in
+    r)
+      run_migrations="${OPTARG}"
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      exit 1
+      ;;
+  esac
+done
+
 log() {
     TIMESTAMP=$(date -u "+%Y-%m-%dT%H:%M:%S.000+0000")
     MESSAGE=$1
@@ -75,16 +92,20 @@ if [ -z ${HASURA_GRAPHQL_METADATA_DIR+x} ]; then
 fi
 
 # apply migrations if the directory exist
-if [ -d "$HASURA_GRAPHQL_MIGRATIONS_DIR" ]; then
-    log "applying migrations from $HASURA_GRAPHQL_MIGRATIONS_DIR"
-    mkdir -p "$TEMP_PROJECT_DIR"
-    cp -dR "$HASURA_GRAPHQL_MIGRATIONS_DIR/." "$TEMP_PROJECT_DIR/migrations/"
-    cd "$TEMP_PROJECT_DIR"
-    echo "version: 2" > config.yaml
-    echo "endpoint: http://localhost:$HASURA_GRAPHQL_MIGRATIONS_SERVER_PORT" >> config.yaml
-    hasura-cli migrate apply
+if [ "$run_migrations" = "true" ] ; then
+    if [ -d "$HASURA_GRAPHQL_MIGRATIONS_DIR" ]; then
+        log "applying migrations from $HASURA_GRAPHQL_MIGRATIONS_DIR"
+        mkdir -p "$TEMP_PROJECT_DIR"
+        cp -dR "$HASURA_GRAPHQL_MIGRATIONS_DIR/." "$TEMP_PROJECT_DIR/migrations/"
+        cd "$TEMP_PROJECT_DIR"
+        echo "version: 2" > config.yaml
+        echo "endpoint: http://localhost:$HASURA_GRAPHQL_MIGRATIONS_SERVER_PORT" >> config.yaml
+        hasura-cli migrate apply
+    else
+        log "directory $HASURA_GRAPHQL_MIGRATIONS_DIR does not exist, skipping migrations"
+    fi
 else
-    log "directory $HASURA_GRAPHQL_MIGRATIONS_DIR does not exist, skipping migrations"
+    log "run_migrations flag set to something other than \"true\", skipping migrations"
 fi
 
 # apply metadata if the directory exist

@@ -40,6 +40,7 @@ services:
       HASURA_GRAPHQL_JWT_SECRET: '{"type":"HS256", "key": "FAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKE"}'
       ASYNC_SERVER_API_KEY: bespoke-async-server-api-key
       ASYNC_SERVER_BASE_URL: "http://bespoke-async-server:7001"
+      HASURA_RUN_MIGRATIONS: "true" # set to "true" to run migrations, "false" to skip
       SET_DIRTY_COMPANY_BALANCES_ENDPOINT: "http://bespoke-async-server:7001/triggers/set_dirty_company_balances_view"
     healthcheck:
       test: "wget --quiet --spider http://localhost:8080/healthz || exit 1"

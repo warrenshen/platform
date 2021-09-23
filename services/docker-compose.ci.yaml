@@ -33,6 +33,7 @@ services:
       HASURA_GRAPHQL_JWT_SECRET: '{"type":"HS256", "key": "FAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKE"}'
       ASYNC_SERVER_API_KEY: bespoke-async-server-api-key
       ASYNC_SERVER_BASE_URL: "http://bespoke-api-server-ci:7002"
+      HASURA_RUN_MIGRATIONS: "true" # set to "true" to run migrations, "false" to skip
   bespoke-api-server-ci:
     build:
       context: ./api-server
