@@ -77,7 +77,7 @@ if [ -z ${HASURA_GRAPHQL_METADATA_DIR+x} ]; then
 fi
 
 # apply migrations if the directory exist
-if [ "$run_migrations" = "true" ] ; then
+if [ "${run_migrations}" = "true" ] ; then
     if [ -d "$HASURA_GRAPHQL_MIGRATIONS_DIR" ]; then
         log "applying migrations from $HASURA_GRAPHQL_MIGRATIONS_DIR"
         mkdir -p "$TEMP_PROJECT_DIR"
