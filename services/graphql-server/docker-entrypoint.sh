@@ -3,22 +3,7 @@
 
 set -e
 
-run_migrations="true"
-while getopts ":r:" opt; do
-  case $opt in
-    r)
-      run_migrations="${OPTARG}"
-      ;;
-    \?)
-      echo "Invalid option: -$OPTARG" >&2
-      exit 1
-      ;;
-    :)
-      echo "Option -$OPTARG requires an argument." >&2
-      exit 1
-      ;;
-  esac
-done
+run_migrations="${HASURA_RUN_MIGRATIONS}"
 
 log() {
     TIMESTAMP=$(date -u "+%Y-%m-%dT%H:%M:%S.000+0000")

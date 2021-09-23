@@ -16,7 +16,7 @@ RUN chmod +x /bin/apply-migrations.sh
 
 RUN chmod -R 777 /tmp /.hasura /hasura-migrations /hasura-metadata /tmp/plugins-downloads/cli-ext
 
-ENTRYPOINT ["docker-entrypoint.sh", "-r", "$HASURA_RUN_MIGRATIONS"]
+ENTRYPOINT ["docker-entrypoint.sh"]
 
 CMD graphql-engine \
     --database-url $DATABASE_URL \
