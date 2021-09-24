@@ -60,7 +60,7 @@ export default function FeeForm({
         <DateInput
           disableNonBankDays
           id="settlement-date-date-picker"
-          label="Settlement Date"
+          label="Fee Date"
           value={payment.settlement_date}
           onChange={(value) =>
             setPayment({

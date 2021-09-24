@@ -155,7 +155,7 @@ export default function BankFinancialSummariesDataGrid({
             <td style={DefineCellStyle(3)} role="gridcell" aria-colindex={3}>
               {formatCurrency(
                 rows.reduce(
-                  (sum, current) => sum + current.interest_accrued_today,
+                  (sum, current) => sum + current.total_outstanding_interest,
                   0
                 )
               )}
