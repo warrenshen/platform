@@ -3059,7 +3059,6 @@ export type CompanyLicenses = {
   license_description?: Maybe<Scalars["String"]>;
   license_number?: Maybe<Scalars["String"]>;
   license_status?: Maybe<Scalars["String"]>;
-  license_type?: Maybe<Scalars["String"]>;
   rollup_id?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   us_state?: Maybe<Scalars["String"]>;
@@ -3116,7 +3115,6 @@ export type CompanyLicensesBoolExp = {
   license_description?: Maybe<StringComparisonExp>;
   license_number?: Maybe<StringComparisonExp>;
   license_status?: Maybe<StringComparisonExp>;
-  license_type?: Maybe<StringComparisonExp>;
   rollup_id?: Maybe<StringComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
   us_state?: Maybe<StringComparisonExp>;
@@ -3146,7 +3144,6 @@ export type CompanyLicensesInsertInput = {
   license_description?: Maybe<Scalars["String"]>;
   license_number?: Maybe<Scalars["String"]>;
   license_status?: Maybe<Scalars["String"]>;
-  license_type?: Maybe<Scalars["String"]>;
   rollup_id?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   us_state?: Maybe<Scalars["String"]>;
@@ -3164,7 +3161,6 @@ export type CompanyLicensesMaxFields = {
   license_description?: Maybe<Scalars["String"]>;
   license_number?: Maybe<Scalars["String"]>;
   license_status?: Maybe<Scalars["String"]>;
-  license_type?: Maybe<Scalars["String"]>;
   rollup_id?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   us_state?: Maybe<Scalars["String"]>;
@@ -3182,7 +3178,6 @@ export type CompanyLicensesMaxOrderBy = {
   license_description?: Maybe<OrderBy>;
   license_number?: Maybe<OrderBy>;
   license_status?: Maybe<OrderBy>;
-  license_type?: Maybe<OrderBy>;
   rollup_id?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   us_state?: Maybe<OrderBy>;
@@ -3200,7 +3195,6 @@ export type CompanyLicensesMinFields = {
   license_description?: Maybe<Scalars["String"]>;
   license_number?: Maybe<Scalars["String"]>;
   license_status?: Maybe<Scalars["String"]>;
-  license_type?: Maybe<Scalars["String"]>;
   rollup_id?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   us_state?: Maybe<Scalars["String"]>;
@@ -3218,7 +3212,6 @@ export type CompanyLicensesMinOrderBy = {
   license_description?: Maybe<OrderBy>;
   license_number?: Maybe<OrderBy>;
   license_status?: Maybe<OrderBy>;
-  license_type?: Maybe<OrderBy>;
   rollup_id?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   us_state?: Maybe<OrderBy>;
@@ -3261,7 +3254,6 @@ export type CompanyLicensesOrderBy = {
   license_description?: Maybe<OrderBy>;
   license_number?: Maybe<OrderBy>;
   license_status?: Maybe<OrderBy>;
-  license_type?: Maybe<OrderBy>;
   rollup_id?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   us_state?: Maybe<OrderBy>;
@@ -3299,8 +3291,6 @@ export enum CompanyLicensesSelectColumn {
   /** column name */
   LicenseStatus = "license_status",
   /** column name */
-  LicenseType = "license_type",
-  /** column name */
   RollupId = "rollup_id",
   /** column name */
   UpdatedAt = "updated_at",
@@ -3322,7 +3312,6 @@ export type CompanyLicensesSetInput = {
   license_description?: Maybe<Scalars["String"]>;
   license_number?: Maybe<Scalars["String"]>;
   license_status?: Maybe<Scalars["String"]>;
-  license_type?: Maybe<Scalars["String"]>;
   rollup_id?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   us_state?: Maybe<Scalars["String"]>;
@@ -3354,8 +3343,6 @@ export enum CompanyLicensesUpdateColumn {
   LicenseNumber = "license_number",
   /** column name */
   LicenseStatus = "license_status",
-  /** column name */
-  LicenseType = "license_type",
   /** column name */
   RollupId = "rollup_id",
   /** column name */

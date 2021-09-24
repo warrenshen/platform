@@ -379,7 +379,6 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 						legal_name='legal1',
 						is_current=False,
 						license_status='status1',
-						license_type='manufacturing',
 						license_category='processor',
 						license_description='desc1',
 						us_state='CA',
@@ -392,7 +391,6 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 						legal_name='legal2',
 						is_current=False,
 						license_status='status2',
-						license_type='dispensary',
 						license_category='retailer',
 						license_description='desc2',
 						us_state='OR',
@@ -405,7 +403,6 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 						legal_name='legal3',
 						is_current=False,
 						license_status='status3',
-						license_type='dispensary',
 						license_category='retailer',
 						license_description=None,
 						us_state='CA',
@@ -424,7 +421,6 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 				legal_name='legal1',
 				is_current=False,
 				license_status='status1',
-				license_type='manufacturing',
 				license_category='processor',
 				license_description='desc1',
 				us_state='CA',
@@ -437,7 +433,6 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 				legal_name='legal2',
 				is_current=False,
 				license_status='status2',
-				license_type='dispensary',
 				license_category='retailer',
 				license_description='desc2',
 				us_state='OR',
@@ -450,7 +445,6 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 				legal_name='legal3',
 				is_current=False,
 				license_status='status3',
-				license_type='dispensary',
 				license_category='retailer',
 				license_description=None,
 				us_state='CA',
@@ -474,7 +468,6 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 				self.assertEqual(exp['legal_name'], actual.legal_name)
 				self.assertEqual(exp['is_current'], actual.is_current)
 				self.assertEqual(exp['license_status'], actual.license_status)
-				self.assertEqual(exp['license_type'], actual.license_type)
 				self.assertEqual(exp['license_category'], actual.license_category)
 				self.assertEqual(exp['license_description'], actual.license_description)
 				self.assertEqual(exp['us_state'], actual.us_state)

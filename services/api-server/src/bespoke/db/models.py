@@ -189,7 +189,6 @@ class CompanyLicense(Base):
 	legal_name = Column(Text)
 	is_current = Column(Boolean)
 	license_status = Column(Text)
-	license_type = Column(Text)
 	license_category = Column(Text)
 	license_description = Column(Text)
 	us_state = Column(Text)

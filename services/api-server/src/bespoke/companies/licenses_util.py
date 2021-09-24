@@ -24,7 +24,6 @@ CompanyLicenseInsertInputDict = TypedDict('CompanyLicenseInsertInputDict', {
 	'legal_name': str,
 	'is_current': bool,
 	'license_status': str,
-	'license_type': str,
 	'license_category': str,
 	'license_description': str,
 	'us_state': str,
@@ -76,8 +75,6 @@ def _update_license(
 		existing.is_current = l['is_current']
 	if l.get('license_status'):
 		existing.license_status = l['license_status']
-	if l.get('license_type'):
-		existing.license_type = l['license_type']
 	if l.get('license_category'):
 		existing.license_category = l['license_category']
 	if l.get('license_description'):
@@ -103,7 +100,6 @@ def _add_license(license_input: CompanyLicenseInsertInputDict, session: Session)
 	license.legal_name = l.get('legal_name')
 	license.is_current = l.get('is_current')
 	license.license_status = l.get('license_status')
-	license.license_type = l.get('license_type')
 	license.license_category = l.get('license_category')
 	license.license_description = l.get('license_description')
 	license.us_state = l.get('us_state')
