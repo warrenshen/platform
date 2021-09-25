@@ -450,6 +450,7 @@ class MetrcTransfer(Base):
 
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
 	us_state = Column(String)
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	transfer_id = Column(String) # From Metrc info
 	shipper_facility_license_number = Column(String)
 	shipper_facility_name = Column(String)
