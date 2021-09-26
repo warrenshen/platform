@@ -48,7 +48,8 @@ app.register_blueprint(triggers.handler, url_prefix='/triggers')
 app.register_blueprint(healthcheck.handler, url_prefix='/healthcheck')
 
 app.app_config = config
-app.engine = models.create_engine()
+# For async server, set SQL statement timeout to 10 seconds.
+app.engine = models.create_engine(statement_timeout=10000)
 app.session_maker = models.new_sessionmaker(app.engine)
 
 email_client = get_email_client(config)

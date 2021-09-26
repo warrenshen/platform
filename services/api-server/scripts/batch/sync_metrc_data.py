@@ -54,7 +54,8 @@ def main(company_identifier, start_date, end_date) -> None:
 	config = get_config()
 	config.SERVER_TYPE = "batch-scripts"
 
-	engine = models.create_engine()
+	# For batch job, set SQL statement timeout to 10 seconds.
+	engine = models.create_engine(statement_timeout=10000)
 	session_maker = models.new_sessionmaker(engine)
 
 	email_client = get_email_client(config)

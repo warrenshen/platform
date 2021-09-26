@@ -605,7 +605,7 @@ def populate_transfers_table(
 			_write_transfers(transfers_chunk, delivery_id_to_transfer_row_id, all_company_deliveries, session)
 
 	## Write deliveries
-	DELIVERIES_BATCH_SIZE = 10
+	DELIVERIES_BATCH_SIZE = 5
 	delivery_id_to_delivery_row_id: Dict = {}
 
 	for company_deliveries_chunk in cast(Iterable[List[CompanyDeliveryObj]], chunker(all_company_deliveries, DELIVERIES_BATCH_SIZE)):
