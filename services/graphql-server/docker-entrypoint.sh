@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # https://github.com/hasura/graphql-engine/issues/4651#issuecomment-637506254
 
 set -e
