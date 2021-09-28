@@ -283,29 +283,27 @@ def _write_company_deliveries(
 	license_number = deliveries[0].company_delivery.license_number
 	company_id = deliveries[0].company_delivery.company_id
 
-	transfer_row_ids = []
-	delivery_row_ids = []
+	delivery_key_to_prev_delivery: Dict[Tuple[str, str, str], models.CompanyDelivery] = {}
+	
 	for company_delivery_obj in deliveries:
 		metrc_delivery = company_delivery_obj.metrc_delivery
 		cur_transfer_row_id = delivery_id_to_transfer_row_id[metrc_delivery.delivery_id]
-		transfer_row_ids.append(cur_transfer_row_id)
-		delivery_row_ids.append(delivery_id_to_delivery_row_id[metrc_delivery.delivery_id])
+		cur_delivery_row_id = delivery_id_to_delivery_row_id[metrc_delivery.delivery_id]
 
-	prev_deliveries = session.query(models.CompanyDelivery).filter(
-		models.CompanyDelivery.us_state == us_state
-	).filter(
-		models.CompanyDelivery.license_number == license_number
-	).filter(
-		models.CompanyDelivery.company_id == company_id
-	).filter(
-		models.CompanyDelivery.transfer_row_id.in_(transfer_row_ids)
-	).filter(
-		models.CompanyDelivery.delivery_row_id.in_(delivery_row_ids)
-	)
-	delivery_key_to_prev_delivery: Dict[Tuple[str, str, str], models.CompanyDelivery] = {}
-	for prev_delivery in prev_deliveries:
-		key = (prev_delivery.license_number, str(prev_delivery.transfer_row_id), str(prev_delivery.delivery_row_id))
-		delivery_key_to_prev_delivery[key] = prev_delivery
+		prev_delivery = session.query(models.CompanyDelivery).filter(
+			models.CompanyDelivery.us_state == us_state
+		).filter(
+			models.CompanyDelivery.license_number == license_number
+		).filter(
+			models.CompanyDelivery.company_id == company_id
+		).filter(
+			models.CompanyDelivery.transfer_row_id == cur_transfer_row_id
+		).filter(
+			models.CompanyDelivery.delivery_row_id == cur_delivery_row_id
+		).first()
+		if prev_delivery:
+			key = (prev_delivery.license_number, str(prev_delivery.transfer_row_id), str(prev_delivery.delivery_row_id))
+			delivery_key_to_prev_delivery[key] = prev_delivery
 
 	for company_delivery_obj in deliveries:
 		company_delivery = company_delivery_obj.company_delivery
