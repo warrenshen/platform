@@ -8,7 +8,7 @@ import {
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { createAccountLevelFeeMutation } from "lib/api/payments";
-import { PaymentTypeEnum } from "lib/enum";
+import { PaymentTypeEnum, FeeTypeEnum } from "lib/enum";
 import { useState } from "react";
 
 interface Props {
@@ -25,14 +25,15 @@ export default function CreateAccountLevelFeeModal({
 
   const [payment, setPayment] = useState<PaymentsInsertInput>({
     company_id: companyId,
-    type: PaymentTypeEnum.Adjustment,
+    type: PaymentTypeEnum.Fee,
     amount: null,
     deposit_date: null,
     settlement_date: null,
+    items_covered: {},
   });
 
   const [transaction, setTransaction] = useState<TransactionsInsertInput>({
-    type: PaymentTypeEnum.Adjustment,
+    type: PaymentTypeEnum.Fee,
     subtype: null,
   });
 
@@ -49,6 +50,7 @@ export default function CreateAccountLevelFeeModal({
         amount: payment.amount,
         deposit_date: payment.deposit_date,
         settlement_date: payment.settlement_date,
+        items_covered: payment.items_covered,
       },
     });
 
@@ -65,6 +67,8 @@ export default function CreateAccountLevelFeeModal({
     !payment.settlement_date ||
     !payment.amount ||
     !transaction.subtype ||
+    (transaction.subtype === FeeTypeEnum.MinimumInterestFee &&
+      Object.keys(payment.items_covered).length === 0) ||
     isCreateAccountLevelFeeLoading;
 
   return (

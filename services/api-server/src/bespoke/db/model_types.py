@@ -8,6 +8,7 @@ FeeItemsCoveredDict = TypedDict('FeeItemsCoveredDict', {
 	'effective_month': str, # for booking month-end minimum fees
 }, total=False) 
 
+# NOTE(JR): consider renaming Payment to Repayment to better align with terminology elsewhere in code base
 PaymentItemsCoveredDict = TypedDict('PaymentItemsCoveredDict', {
 	'loan_ids': List[str],
 	'invoice_ids': List[str],
@@ -17,7 +18,7 @@ PaymentItemsCoveredDict = TypedDict('PaymentItemsCoveredDict', {
 	'to_principal': float,
 	'to_interest': float,
 	'to_account_fees': float,
-	'to_user_credit': float,
+	'to_user_credit': float
 }, total=False)
 
 ItemsCoveredDict = Union[PaymentItemsCoveredDict, FeeItemsCoveredDict, PayoutItemsCoveredDict]

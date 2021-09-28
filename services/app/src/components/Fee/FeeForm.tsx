@@ -56,6 +56,27 @@ export default function FeeForm({
           </FormControl>
         </Box>
       </Box>
+      {transaction.subtype === FeeTypeEnum.MinimumInterestFee ? (
+        <Box>
+          <Box display="flex" flexDirection="column" mt={4}>
+            <DateInput
+              id="choose-month-date-picker"
+              label="Choose Month"
+              value={
+                payment.items_covered === null
+                  ? ""
+                  : payment.items_covered["effective_month"]
+              }
+              onChange={(value) => {
+                setPayment({
+                  ...payment,
+                  items_covered: { effective_month: value },
+                });
+              }}
+            />
+          </Box>
+        </Box>
+      ) : null}
       <Box display="flex" flexDirection="column" mt={4}>
         <DateInput
           disableNonBankDays

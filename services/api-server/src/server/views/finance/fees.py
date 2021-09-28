@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Tuple, cast
 from bespoke import errors
 from bespoke.audit import events
 from bespoke.date import date_util
-from bespoke.db import db_constants, models
+from bespoke.db import db_constants, models, model_types
 from bespoke.db.models import session_scope
 from bespoke.finance.payments import (payment_util, repayment_util,
                                       repayment_util_fees, fees_due_util)
@@ -43,6 +43,10 @@ class MakeAccountLevelFeeView(MethodView):
 				return handler_util.make_error_response(
 					'Missing key {} from make account level fee request'.format(key))
 
+		if "effective_month" in form["items_covered"]:
+			selected_date = date_util.load_date_str(form["items_covered"]["effective_month"])
+			form["items_covered"]["effective_month"] = selected_date.strftime('%m/%Y');
+
 		with models.session_scope(current_app.session_maker) as session:
 			payment_id = payment_util.create_and_add_account_level_fee(
 				company_id=form['company_id'],
@@ -52,7 +56,7 @@ class MakeAccountLevelFeeView(MethodView):
 				created_by_user_id=user_session.get_user_id(),
 				deposit_date=date_util.load_date_str(form['deposit_date']),
 				effective_date=date_util.load_date_str(form['settlement_date']),
-				items_covered=form.get('items_covered', {}),
+				items_covered=cast(model_types.FeeItemsCoveredDict, form.get('items_covered', {})),
 				session=session
 			)
 
