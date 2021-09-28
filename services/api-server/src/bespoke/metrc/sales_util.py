@@ -81,7 +81,7 @@ class SalesReceipts(object):
 			receipt.payload = s
 
 			if i % LOG_EVERY == 0:
-				logging.info('Downloading transaction #{} for company {} on day {}'.format(i, company_id, cur_date))
+				logging.info('Downloading sales transaction #{} for company {} on day {}'.format(i, company_id, cur_date))
 
 			if ctx.apis_to_use['sales_transactions']:
 				resp = ctx.rest.get('/sales/v1/receipts/{}'.format(receipt.receipt_id))
@@ -180,8 +180,8 @@ def _write_sales_transactions_chunk(
 	for sales_tx in sales_transactions:
 		session.add(sales_tx)
 
-	package_common_util.update_packages_from_sales_transactions(
-		sales_transactions, session)
+	# package_common_util.update_packages_from_sales_transactions(
+	# 	sales_transactions, session)
 
 def _write_sales_receipts_chunk(
 	sales_receipt_objs: List[SalesReceiptObj],

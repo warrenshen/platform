@@ -630,9 +630,9 @@ def populate_transfers_table(
 
 	# Without the following batching logic, we run into SQL timeout errors due to how much
 	# data is in the metrc_packages table, namely the metrc_packages.package_payload column.
-	PACKAGES_BATCH_SIZE = 10
+	TRANSFER_PACKAGES_BATCH_SIZE = 10
 
-	for transfer_package_objs_chunk in cast(Iterable[List[TransferPackageObj]], chunker(all_metrc_transfer_package_objs, PACKAGES_BATCH_SIZE)):
+	for transfer_package_objs_chunk in cast(Iterable[List[TransferPackageObj]], chunker(all_metrc_transfer_package_objs, TRANSFER_PACKAGES_BATCH_SIZE)):
 		with session_scope(session_maker) as session:
 			_write_transfer_packages(
 				[transfer_package_obj.transfer_package for transfer_package_obj in transfer_package_objs_chunk],

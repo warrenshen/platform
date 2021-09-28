@@ -157,10 +157,10 @@ def _write_plants_chunk(
 			key_to_plant[metrc_plant.plant_id] = metrc_plant
 
 
-def write_plants(plants_models: List[PlantObj], session_maker: Callable, 	BATCH_SIZE: int = 50) -> None:
+def write_plants(plants_models: List[PlantObj], session_maker: Callable, BATCH_SIZE: int = 50) -> None:
 	batch_index = 1
 
-	batches_count = int(len(plants_models) / BATCH_SIZE)
+	batches_count = len(plants_models) // BATCH_SIZE + 1
 	for chunk in chunker(plants_models, BATCH_SIZE):
 		logging.info(f'Writing plants - batch {batch_index} of {batches_count}...')
 		with session_scope(session_maker) as session:

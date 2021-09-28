@@ -13,11 +13,12 @@ from bespoke.excel import excel_writer
 
 class Download(object):
 		
-	def __init__(self, 
-							 incoming_files: List[str], 
-							 outgoing_files: List[str], 
-							 packages_files: List[str],
-							 sales_transactions_files: List[str]):
+	def __init__(
+		self,
+		incoming_files: List[str],
+		outgoing_files: List[str],
+		packages_files: List[str],
+		sales_transactions_files: List[str]):
 		self.incoming_records = self._file_as_dict_records(incoming_files)
 		self.outgoing_records = self._file_as_dict_records(outgoing_files)
 		self.packages_records = self._file_as_dict_records(packages_files)
