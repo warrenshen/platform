@@ -260,27 +260,27 @@ def _download_data(
 			ctx.company_info.name, cur_date, license['license_number']
 		))
 
-		if ctx.apis_to_use['packages']:
+		if ctx.apis_to_use.get('packages', False):
 			package_models = packages_util.download_packages(ctx)
 			packages_util.write_packages(package_models, session_maker)
 
-		if ctx.apis_to_use['harvests']:
+		if ctx.apis_to_use.get('harvests', False):
 			harvest_models = harvests_util.download_harvests(ctx)
 			harvests_util.write_harvests(harvest_models, session_maker)
 
-		if ctx.apis_to_use['plant_batches']:
+		if ctx.apis_to_use.get('plant_batches', False):
 			plant_batches_models = plant_batches_util.download_plant_batches(ctx)
 			plant_batches_util.write_plant_batches(plant_batches_models, session_maker)
 
 		# NOTE: plants have references to plant batches and harvests, so this
 		# must come after fetching plant_batches and harvests
-		if ctx.apis_to_use['plants']:
+		if ctx.apis_to_use.get('plants', False):
 			plants_models = plants_util.download_plants(ctx)
 			plants_util.write_plants(plants_models, session_maker)
 
 		# NOTE: Sales data has references to packages, so this method
 		# should run after download_packages
-		if ctx.apis_to_use['sales_receipts']:
+		if ctx.apis_to_use.get('sales_receipts', False):
 			sales_receipts_models = sales_util.download_sales_info(ctx)
 			sales_util.write_sales_info(sales_receipts_models, session_maker)
 
