@@ -3102,6 +3102,14 @@
   - name: company
     using:
       foreign_key_constraint_on: company_id
+  array_relationships:
+  - name: metrc_sales_transactions
+    using:
+      foreign_key_constraint_on:
+        column: receipt_row_id
+        table:
+          schema: public
+          name: metrc_sales_transactions
   select_permissions:
   - role: bank_admin
     permission:
