@@ -96,7 +96,6 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
           }));
           handleSuccess(routes.root);
         } else if (data.login_method === "2fa" && data.status === "OK") {
-          window.location.href = data.two_factor_link;
           handleSuccess(data.two_factor_link);
         } else {
           alert(data.msg);
