@@ -77,36 +77,36 @@ if [ -z ${HASURA_GRAPHQL_METADATA_DIR+x} ]; then
 fi
 
 # apply migrations if the directory exist
-# if [ "${run_migrations}" = "true" ] ; then
-#     if [ -d "$HASURA_GRAPHQL_MIGRATIONS_DIR" ]; then
-#         log "applying migrations from $HASURA_GRAPHQL_MIGRATIONS_DIR"
-#         mkdir -p "$TEMP_PROJECT_DIR"
-#         cp -dR "$HASURA_GRAPHQL_MIGRATIONS_DIR/." "$TEMP_PROJECT_DIR/migrations/"
-#         cd "$TEMP_PROJECT_DIR"
-#         echo "version: 2" > config.yaml
-#         echo "endpoint: http://localhost:$HASURA_GRAPHQL_MIGRATIONS_SERVER_PORT" >> config.yaml
-#         hasura-cli migrate apply
-#     else
-#         log "directory $HASURA_GRAPHQL_MIGRATIONS_DIR does not exist, skipping migrations"
-#     fi
-# else
-#     log "run_migrations flag set to something other than \"true\", skipping migrations"
-# fi
+if [ "${run_migrations}" = "true" ] ; then
+    if [ -d "$HASURA_GRAPHQL_MIGRATIONS_DIR" ]; then
+        log "applying migrations from $HASURA_GRAPHQL_MIGRATIONS_DIR"
+        mkdir -p "$TEMP_PROJECT_DIR"
+        cp -dR "$HASURA_GRAPHQL_MIGRATIONS_DIR/." "$TEMP_PROJECT_DIR/migrations/"
+        cd "$TEMP_PROJECT_DIR"
+        echo "version: 2" > config.yaml
+        echo "endpoint: http://localhost:$HASURA_GRAPHQL_MIGRATIONS_SERVER_PORT" >> config.yaml
+        hasura-cli migrate apply
+    else
+        log "directory $HASURA_GRAPHQL_MIGRATIONS_DIR does not exist, skipping migrations"
+    fi
+else
+    log "run_migrations flag set to something other than \"true\", skipping migrations"
+fi
 
 # apply metadata if the directory exist
-# if [ -d "$HASURA_GRAPHQL_METADATA_DIR" ]; then
-#     rm -rf "$TEMP_PROJECT_DIR"
-#     log "applying metadata from $HASURA_GRAPHQL_METADATA_DIR"
-#     mkdir -p "$TEMP_PROJECT_DIR"
-#     cp -dR "$HASURA_GRAPHQL_METADATA_DIR/." "$TEMP_PROJECT_DIR/metadata/"
-#     cd "$TEMP_PROJECT_DIR"
-#     echo "version: 2" > config.yaml
-#     echo "endpoint: http://localhost:$HASURA_GRAPHQL_MIGRATIONS_SERVER_PORT" >> config.yaml
-#     echo "metadata_directory: metadata" >> config.yaml
-#     hasura-cli metadata apply
-# else
-#     log "directory $HASURA_GRAPHQL_METADATA_DIR does not exist, skipping metadata"
-# fi
+if [ -d "$HASURA_GRAPHQL_METADATA_DIR" ]; then
+    rm -rf "$TEMP_PROJECT_DIR"
+    log "applying metadata from $HASURA_GRAPHQL_METADATA_DIR"
+    mkdir -p "$TEMP_PROJECT_DIR"
+    cp -dR "$HASURA_GRAPHQL_METADATA_DIR/." "$TEMP_PROJECT_DIR/metadata/"
+    cd "$TEMP_PROJECT_DIR"
+    echo "version: 2" > config.yaml
+    echo "endpoint: http://localhost:$HASURA_GRAPHQL_MIGRATIONS_SERVER_PORT" >> config.yaml
+    echo "metadata_directory: metadata" >> config.yaml
+    hasura-cli metadata apply
+else
+    log "directory $HASURA_GRAPHQL_METADATA_DIR does not exist, skipping metadata"
+fi
 
 # kill graphql engine that we started earlier
 log "killing temporary server"
