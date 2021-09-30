@@ -9,11 +9,6 @@ PYTHONPATH=$(server_root_dir)/src
 update-requirements:
 	pip-compile requirements.in --output-file=requirements.txt
 
-# Example of running a file of tests:
-# make run-test-local NAME=unit.bespoke.finance.test_contract_util
-# Example of running a single test in a file of tests:
-# make run-test-local NAME=unit.bespoke.finance.test_contract_util.TestContractHelper.test_missing_start_date
-
 ifdef NAME
 run-test-local:
 	cd test && FLASK_ENV=development SERVER_ROOT_DIR=$(server_root_dir) PYTHONPATH=$(current_dir)/src python3 -m unittest $(NAME)

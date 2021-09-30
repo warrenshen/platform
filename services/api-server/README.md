@@ -83,7 +83,12 @@ make mypy-tests
 Run tests...
 
 ```
+# Run all tests
 make run-test-local
+# Run a file of tests
+make run-test-local NAME=unit.bespoke.finance.test_contract_util
+# Run a single test (in a file of tests)
+make run-test-local NAME=unit.bespoke.finance.test_contract_util.TestContractHelper.test_missing_start_date
 ```
 
 ## Restoring a Database from Another
