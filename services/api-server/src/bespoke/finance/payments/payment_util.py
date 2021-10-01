@@ -148,15 +148,19 @@ def should_close_loan(
 	new_outstanding_interest: float,
 	new_outstanding_fees: float,
 	day_last_repayment_settles: datetime.date,
-	today: datetime.date) -> bool:
+	cur_date: datetime.date) -> bool:
 
-	repayment_happened_before_report_date = True
+	repayment_settled_before_report_date = True
 	if day_last_repayment_settles:
-		repayment_happened_before_report_date = day_last_repayment_settles <= today
+		repayment_settled_before_report_date = day_last_repayment_settles <= cur_date
 
-	return is_loan_balance_zero(
+	is_loan_at_zero = is_loan_balance_zero(
 		new_outstanding_principal, new_outstanding_interest, new_outstanding_fees
-		) and repayment_happened_before_report_date
+	)
+
+	#print('{}: IS LOAN AT ZERO {}. Repayment settled before report date {}'.format(
+	#	cur_date, is_loan_at_zero, repayment_settled_before_report_date))
+	return is_loan_at_zero and repayment_settled_before_report_date
 
 def close_loan(cur_loan: models.Loan) -> None:
 	cur_loan.closed_at = date_util.now()

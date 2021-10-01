@@ -8,7 +8,7 @@ import datetime
 import logging
 from collections import OrderedDict
 from datetime import timedelta
-from typing import Dict, List, NamedTuple, Tuple, Union, cast
+from typing import Dict, List, NamedTuple, Tuple, Union, Set, cast
 
 from bespoke import errors
 from bespoke.date import date_util
@@ -32,10 +32,13 @@ LoanUpdateDict = TypedDict('LoanUpdateDict', {
 	'adjusted_maturity_date': datetime.date,
 	'outstanding_principal': float,
 	'outstanding_principal_for_interest': float,
+	'interest_paid_daily_adjustment': float, # this number is used to "pull-forward" interest revenue in the cast of cross-month repayments
+	'fees_paid_daily_adjustment': float, # this number is used to "pull-forward" fee revenue in the cast of cross-month repayments
 	'outstanding_interest': float,
 	'outstanding_fees': float,
 	'amount_to_pay_interest_on': float,
 	'interest_accrued_today': float,
+	'fees_accrued_today': float,
 	'should_close_loan': bool,
 	'repayment_date': datetime.date, # last repayment settlement date, calculated on the settlement date
 	'day_last_repayment_settles': datetime.date, # last repayment settlement date, calculated on the deposit date, e.g., a "look ahead"
@@ -204,25 +207,6 @@ class BalanceRange(object):
 	def add_fee_info(self, interest_rate: float, fee_multiplier: float) -> None:
 		self.interest_rates.append(interest_rate)
 		self.fee_multipliers.append(fee_multiplier)
-
-def _get_transactions_on_deposit_date(
-	cur_date: datetime.date, augmented_transactions: List[models.AugmentedTransactionDict]) -> List[models.AugmentedTransactionDict]:
-	txs_on_date = []
-	for tx in augmented_transactions:
-		if tx['payment']['deposit_date'] == cur_date:
-			txs_on_date.append(tx)
-
-	return txs_on_date
-
-def _get_transactions_on_settlement_date(
-	cur_date: datetime.date, augmented_transactions: List[models.AugmentedTransactionDict]) -> List[models.AugmentedTransactionDict]:
-	txs_on_date = []
-	for tx in augmented_transactions:
-		# Note: we could use tx['payment']['settlement_date'] here alternatively.
-		if tx['transaction']['effective_date'] == cur_date:
-			txs_on_date.append(tx)
-
-	return txs_on_date
 
 def get_transactions_for_loan(
 	loan_id: str, augmented_transactions: List[models.AugmentedTransactionDict],
@@ -397,6 +381,71 @@ def _format_output_value(value: float, should_round: bool) -> float:
 	else:
 		return value
 
+class TransactionsHelper(object):
+
+	def __init__(self) -> None:
+		self._settlement_date_to_txs: Dict[datetime.date, List[models.AugmentedTransactionDict]] = {}
+		self._deposit_date_to_txs: Dict[datetime.date, List[models.AugmentedTransactionDict]] = {}
+		self.last_tx_settlement_date: datetime.date = None
+		self.loan_repayment_dates: List[Tuple[datetime.date, datetime.date]] = []
+
+	def get_transactions_on_deposit_date(self, cur_date: datetime.date) -> List[models.AugmentedTransactionDict]:
+		return self._deposit_date_to_txs.get(cur_date, [])
+
+	def get_transactions_on_settlement_date(self, cur_date: datetime.date) -> List[models.AugmentedTransactionDict]:
+		return self._settlement_date_to_txs.get(cur_date, [])
+
+	@staticmethod
+	def build(
+		augmented_transactions: List[models.AugmentedTransactionDict],
+		payment_to_include: IncludedPaymentDict,
+		today: datetime.date) -> Tuple['TransactionsHelper', errors.Error]:
+
+		loan_repayment_dates_set: Set[Tuple[datetime.date, datetime.date]] = set([])
+		last_tx_settlement_date = None
+		settlement_date_to_txs: Dict[datetime.date, List[models.AugmentedTransactionDict]] = {}
+		deposit_date_to_txs: Dict[datetime.date, List[models.AugmentedTransactionDict]] = {}
+
+		for tx in augmented_transactions:
+			cur_deposit_date = tx['payment']['deposit_date']
+			if cur_deposit_date not in deposit_date_to_txs:
+				deposit_date_to_txs[cur_deposit_date] = []
+			deposit_date_to_txs[cur_deposit_date].append(tx)
+
+			cur_settlement_date = tx['transaction']['effective_date']
+			if cur_settlement_date not in settlement_date_to_txs:
+				settlement_date_to_txs[cur_settlement_date] = []
+			settlement_date_to_txs[cur_settlement_date].append(tx)
+
+			if payment_util.is_repayment(tx['transaction']) and cur_deposit_date <= today:
+				# If this transaction was deposited within this report date,
+				# we actually need to calculate all the loan details up until its
+				# settlement date.
+				if not last_tx_settlement_date:
+					last_tx_settlement_date = cur_settlement_date
+				elif last_tx_settlement_date < cur_settlement_date:
+					last_tx_settlement_date = cur_settlement_date
+
+				loan_repayment_dates_set.add((cur_deposit_date, cur_settlement_date))
+
+		if payment_to_include:
+			# If someone is using a payment to include, also use this to count
+			# when the last repayment settles
+			if not last_tx_settlement_date:
+				last_tx_settlement_date = payment_to_include['settlement_date']
+			elif payment_to_include['settlement_date'] > last_tx_settlement_date:
+				last_tx_settlement_date = payment_to_include['settlement_date']
+
+		helper = TransactionsHelper()
+		helper._deposit_date_to_txs = deposit_date_to_txs
+		helper._settlement_date_to_txs = settlement_date_to_txs
+		helper.last_tx_settlement_date = last_tx_settlement_date
+
+		loan_repayment_dates = list(loan_repayment_dates_set)
+		loan_repayment_dates.sort(key=lambda x: x[0]) # sort by deposit_date
+		helper.loan_repayment_dates = loan_repayment_dates
+
+		return helper, None
 
 def _reduce_custom_amount_remaining(tx: TransactionInputDict, payment_to_include: IncludedPaymentDict) -> None:
 	if not payment_to_include:
@@ -414,7 +463,6 @@ def _reduce_custom_amount_remaining(tx: TransactionInputDict, payment_to_include
 		payment_to_include['custom_amount_split']['to_principal'] -= tx['to_principal']
 		payment_to_include['custom_amount_split']['to_interest'] -= tx['to_interest']
 		payment_to_include['custom_amount_split']['to_fees'] -= tx['to_fees']
-
 
 def _get_interest_and_fees_due_on_day(
 	contract_helper: contract_util.ContractHelper,
@@ -504,7 +552,7 @@ def _get_interest_and_fees_due_on_day(
 	# If the customer does not have any outstanding principal by the loan maturity date,
 	# even though their principal for interest is accruing, dont charge any additional fees there.
 	fee_due_for_day = 0.0 if balances['loan_paid_by_maturity_date'] else fee_multiplier * interest_due_for_day
-
+	
 	return InterestFeeInfoDict(
 		amount_to_pay_interest_on=amount_to_pay_interest_on,
 		interest_due_for_day=interest_due_for_day,
@@ -550,11 +598,6 @@ def _update_end_of_day_repayment_deposits(
 			):
 				balances['loan_paid_by_maturity_date'] = True
 
-			if not balances['day_last_repayment_settles']:
-				balances['day_last_repayment_settles'] = tx['effective_date']
-			elif tx['effective_date'] > balances['day_last_repayment_settles']:
-				balances['day_last_repayment_settles'] = tx['effective_date']
-
 def _update_end_of_day_repayment_settlements(
 	transactions_by_settlement_date: List[models.AugmentedTransactionDict],
 	balances: CalculatorBalances,
@@ -576,7 +619,7 @@ def _get_additional_interest_and_fees_for_repayment_effect(
 	cur_date: datetime.date, 
 	payment_to_include: IncludedPaymentDict,
 	inner_balances: CalculatorBalances, 
-	augmented_transactions: List[models.AugmentedTransactionDict],
+	txs_helper: TransactionsHelper,
 	interest_input_dict: CalculateInterestInputDict) -> Tuple[float, float, errors.Error]:
 
 	loan = interest_input_dict['loan']
@@ -587,17 +630,17 @@ def _get_additional_interest_and_fees_for_repayment_effect(
 	inner_has_err = None
 
 	_update_end_of_day_repayment_settlements(
-		_get_transactions_on_settlement_date(cur_date, augmented_transactions),
+		txs_helper.get_transactions_on_settlement_date(cur_date),
 		inner_balances
 	)
 
 	while inner_cur_date < inner_end_date:
 		inner_cur_date = inner_cur_date + timedelta(days=1)
-		inner_transactions_by_deposit_date = _get_transactions_on_deposit_date(
-			inner_cur_date, augmented_transactions
+		inner_transactions_by_deposit_date = txs_helper.get_transactions_on_deposit_date(
+			inner_cur_date
 		)
-		inner_transactions_by_settlement_date = _get_transactions_on_settlement_date(
-			inner_cur_date, augmented_transactions
+		inner_transactions_by_settlement_date = txs_helper.get_transactions_on_settlement_date(
+			inner_cur_date
 		)
 
 		_update_at_beginning_of_day(inner_transactions_by_settlement_date, inner_balances)
@@ -622,6 +665,109 @@ def _get_additional_interest_and_fees_for_repayment_effect(
 
 	return additional_interest, additional_fees, None
 
+def _perform_daily_interest_and_fees_adjustment(fee_accumulator: fee_util.FeeAccumulator, txs_helper: TransactionsHelper, date_to_result: Dict[datetime.date, CalculateResultDict]) -> Tuple[bool, errors.Error]:
+	# Iterate through days that had a repayment deposited
+	# Within each deposit - settlement window, re-distribute the interest
+	# adjustments so:
+	#  1) the Finance team can book revenue within the same month the payment deposits
+	#  2) We can close out the loan on the deposit date, because we know they
+	#     paid enough of the interest / fees that will collect by the settlement date
+	performed_adjustment_by_month: Dict[finance_types.Month, bool] = {}
+
+	for deposit_date, settlement_date in txs_helper.loan_repayment_dates:
+		
+		settlement_update = date_to_result[settlement_date]['loan_update']
+		if settlement_update['should_close_loan']:
+			# If the loan was closed on the settlement date, then we can
+			# close it out by the deposit_date, and all days leading up to the
+			# settlement date
+			cur_date = deposit_date
+			while cur_date <= settlement_date:
+				date_to_result[cur_date]['loan_update']['should_close_loan'] = True
+				date_to_result[cur_date]['loan_update']['financing_period'] = settlement_update['financing_period']
+				cur_date = cur_date + timedelta(days=1)
+
+		cur_month_tuple = finance_types.Month(month=deposit_date.month, year=deposit_date.year)
+
+		performed_cross_month_adjustment = performed_adjustment_by_month.get(cur_month_tuple)
+		if performed_cross_month_adjustment:
+			continue
+
+		# Only do this adjustment once per unique month
+		is_cross_month_repayment = deposit_date.month != settlement_date.month
+		if is_cross_month_repayment:
+			# For a cross-month repayment, move the extra interest paid 
+			# on deposit_date.month (that paid off some of settlement_date.month)
+			# as an interest adjustment on the last day of deposit_date.month
+
+			# the amount of negative interest on the deposit date is the amount
+			# of interest paid to cover the interest accrued during the settlement
+			# days
+			extra_interest_paid = abs(min(0.0, date_to_result[deposit_date]['loan_update']['outstanding_interest']))
+			extra_fees_paid = abs(min(0.0, date_to_result[deposit_date]['loan_update']['outstanding_fees']))
+			#print('You initially paid an extra {} on {}'.format(extra_interest_paid, deposit_date))
+			
+			cur_date = deposit_date + timedelta(days=1)
+			while cur_date <= settlement_date:
+				# For subsequent days, interest collected in the same month
+				# subtract from what needs to be adjusted from the next month's
+				# interest collected
+				if cur_date.month == deposit_date.month:
+					extra_interest_paid -= date_to_result[cur_date]['loan_update']['interest_accrued_today']		
+					extra_fees_paid -= date_to_result[cur_date]['loan_update']['fees_accrued_today']
+					#print('Subtracting that accrued {} on {}'.format(date_to_result[cur_date]['loan_update']['interest_accrued_today'], cur_date))
+
+				cur_date = cur_date + timedelta(days=1)
+
+			if extra_interest_paid > 0:
+				# Only do an adjustment if you have extra interest paid in this month
+				# that should be "pulled forward"
+
+				settlement_month = finance_types.Month(month=settlement_date.month, year=settlement_date.year)
+				interest_accumulated_in_settlement_month, err = fee_accumulator.get_amount_interest_accrued_by_month(settlement_month)
+				if err:
+					return None, err
+
+				#print('You have {} that was accumulated in month {} that can be subtracted off those days'.format(
+				#		interest_accumulated_in_settlement_month, settlement_month))
+
+				if extra_interest_paid > interest_accumulated_in_settlement_month:
+					end_of_month_adjustment = interest_accumulated_in_settlement_month
+				else:
+					end_of_month_adjustment = extra_interest_paid
+					
+				last_day_of_month = date_util.get_last_day_of_month(year=deposit_date.year, month=deposit_date.month)
+				end_of_month = datetime.date(year=deposit_date.year, month=deposit_date.month, day=last_day_of_month)
+				first_of_next_month = datetime.date(year=settlement_date.year, month=settlement_date.month, day=1)
+				date_to_result[end_of_month]['loan_update']['interest_paid_daily_adjustment'] = end_of_month_adjustment
+				date_to_result[first_of_next_month]['loan_update']['interest_paid_daily_adjustment'] = -end_of_month_adjustment
+
+			if extra_fees_paid > 0:
+				# Only do an adjustment if you have extra interest paid in this month
+				# that should be "pulled forward"
+
+				settlement_month = finance_types.Month(month=settlement_date.month, year=settlement_date.year)
+				fees_accumulated_in_settlement_month, err = fee_accumulator.get_amount_fees_accrued_by_month(settlement_month)
+				if err:
+					return None, err
+
+				#print('You have {} in fees that was accumulated in month {} that can be subtracted off those days'.format(
+				#		fees_accumulated_in_settlement_month, settlement_month))
+
+				if extra_fees_paid > fees_accumulated_in_settlement_month:
+					end_of_month_fee_adjustment = fees_accumulated_in_settlement_month
+				else:
+					end_of_month_fee_adjustment = extra_fees_paid
+					
+				last_day_of_month = date_util.get_last_day_of_month(year=deposit_date.year, month=deposit_date.month)
+				end_of_month = datetime.date(year=deposit_date.year, month=deposit_date.month, day=last_day_of_month)
+				first_of_next_month = datetime.date(year=settlement_date.year, month=settlement_date.month, day=1)
+				date_to_result[end_of_month]['loan_update']['fees_paid_daily_adjustment'] = end_of_month_fee_adjustment
+				date_to_result[first_of_next_month]['loan_update']['fees_paid_daily_adjustment'] = -end_of_month_fee_adjustment
+
+			performed_adjustment_by_month[cur_month_tuple] = True
+
+	return True, None
 
 class LoanCalculator(object):
 	"""
@@ -639,31 +785,17 @@ class LoanCalculator(object):
 		invoice: models.InvoiceDict, # Filled in if this loan is related to invoice financing
 		augmented_transactions: List[models.AugmentedTransactionDict],
 		today: datetime.date,
-		start_date_for_storing_results: datetime.date,
 		should_round_output: bool = True,
 		payment_to_include: IncludedPaymentDict = None,
 		include_debug_info: bool = False,
 		now_for_test: datetime.datetime = None,
-	) -> Tuple[Dict[datetime.date, CalculateResultDict], List[errors.Error]]:
+	) -> Tuple[CalculateResultDict, List[errors.Error]]:
 		# Replay the history of the loan and all the expenses that are due as a result.
 		# Heres what you owe based on the transaction history applied to your loan.
 
 		if not loan['origination_date']:
 			return None, [errors.Error('Could not determine loan balance for loan_id={} because it has no origination_date set'.format(
 				loan['id']))]
-
-		calculate_up_to_date = today
-
-		if today < loan['origination_date']:
-			# No loan has been originated yet, so skip any calculations for it.
-			days_out = 0
-		else:
-			# Once we've considered how these transactions were applied, here is the remaining amount
-			# which hasn't been factored in yet based on how much you owe up to this particular day.
-			days_out = date_util.num_calendar_days_passed(
-				calculate_up_to_date,
-				loan['origination_date'],
-			)
 
 		# For each day between today and the origination date, you need to calculate interest and fees
 		# and consider transactions along the way.
@@ -686,10 +818,21 @@ class LoanCalculator(object):
 
 		amount_to_pay_interest_on = 0.0 # The exact amount on a given day that the person paid interest on
 		interest_accrued_today = 0.0
+		fees_accrued_today = 0.0
 
 		# Variables used to calculate the repayment effect
 		payment_effect_dict = None # Only filled in when payment_to_include is incorporated
 		inserted_repayment_transaction = None # A transaction which would occur, if the user did indeed include this payment
+		debug_update_states: List[UpdateDebugStateDict] = []
+		debug_column_names: List[str] = []
+		interest_input_dict = CalculateInterestInputDict(
+			loan=loan,
+			invoice=invoice,
+			threshold_info=threshold_info
+		)
+
+		financing_day_limit = None
+		date_to_result = {}
 
 		errors_list = []
 		todays_contract, err = self._contract_helper.get_contract(today)
@@ -709,17 +852,6 @@ class LoanCalculator(object):
 
 		if payment_to_include and not payment_to_include.get('settlement_date'):
 			return None, [errors.Error('Settlement date missing from payment to include')]
-
-		debug_update_states: List[UpdateDebugStateDict] = []
-		debug_column_names: List[str] = []
-		interest_input_dict = CalculateInterestInputDict(
-			loan=loan,
-			invoice=invoice,
-			threshold_info=threshold_info
-		)
-
-		financing_day_limit = None
-		date_to_result = {}
 
 		def _get_calculate_result_dict(
 			result_today: datetime.date, # "Today" date to use in the result dict.
@@ -745,7 +877,7 @@ class LoanCalculator(object):
 					new_outstanding_interest=outstanding_interest,
 					new_outstanding_fees=outstanding_fees,
 					day_last_repayment_settles=balances['day_last_repayment_settles'],
-					today=today
+					cur_date=result_today
 				)
 
 			report_repayment_date = balances['repayment_date']
@@ -781,8 +913,11 @@ class LoanCalculator(object):
 				outstanding_principal_for_interest=outstanding_principal_for_interest,
 				outstanding_interest=outstanding_interest,
 				outstanding_fees=outstanding_fees,
+				interest_paid_daily_adjustment=0.0, # Will be filled in later if necessary
+				fees_paid_daily_adjustment=0.0, # Will be filled in later if necessary
 				amount_to_pay_interest_on=_format_output_value(amount_to_pay_interest_on, should_round_output),
 				interest_accrued_today=_format_output_value(interest_accrued_today, should_round_output),
+				fees_accrued_today=_format_output_value(fees_accrued_today, should_round_output),
 				should_close_loan=should_close_loan,
 				repayment_date=report_repayment_date,
 				day_last_repayment_settles=balances['day_last_repayment_settles'],
@@ -806,6 +941,29 @@ class LoanCalculator(object):
 		if loan['is_frozen'] and not loan['closed_at']:
 			logging.warn(f'Loan {loan["identifier"]} ({loan["id"]}) is frozen but closed_at is None')
 
+		txs_helper, err = TransactionsHelper.build(augmented_transactions, payment_to_include, today)
+		if err:
+			return None, [err]
+		
+		last_tx_settlement_date = txs_helper.last_tx_settlement_date
+		if last_tx_settlement_date and last_tx_settlement_date > today:
+			calculate_up_to_date = last_tx_settlement_date
+		else:
+			calculate_up_to_date = today
+
+		balances['day_last_repayment_settles'] = last_tx_settlement_date
+
+		if today < loan['origination_date']:
+			# No loan has been originated yet, so skip any calculations for it.
+			days_out = 0
+		else:
+			# Once we've considered how these transactions were applied, here is the remaining amount
+			# which hasn't been factored in yet based on how much you owe up to this particular day.
+			days_out = date_util.num_calendar_days_passed(
+				calculate_up_to_date,
+				loan['origination_date'],
+			)
+
 		for i in range(days_out):
 			cur_date = loan['origination_date'] + timedelta(days=i)
 
@@ -828,7 +986,7 @@ class LoanCalculator(object):
 					return None, [err]
 
 			# Check each transaction and the effect it had on this loan
-			transactions_by_settlement_date = _get_transactions_on_settlement_date(cur_date, augmented_transactions)
+			transactions_by_settlement_date = txs_helper.get_transactions_on_settlement_date(cur_date)
 
 			# Advances count against principal on the settlement date (which happens to be
 			# be the same as deposit date)
@@ -852,14 +1010,15 @@ class LoanCalculator(object):
 			balances['outstanding_interest'] += interest_due_for_day
 			balances['outstanding_fees'] += fee_due_for_day
 
-			if cur_date == today:
-				interest_accrued_today = interest_due_for_day
-				amount_to_pay_interest_on = interest_fee_info['amount_to_pay_interest_on']
+			interest_accrued_today = interest_due_for_day
+			fees_accrued_today = fee_due_for_day
+			amount_to_pay_interest_on = interest_fee_info['amount_to_pay_interest_on']
 
 			self._fee_accumulator.accumulate(
 				todays_contract_start_date=todays_contract_start_date,
 				todays_contract_end_date=todays_contract_end_date,
 				interest_for_day=interest_due_for_day,
+				fees_for_day=fee_due_for_day,
 				day=cur_date
 			)
 
@@ -896,7 +1055,7 @@ class LoanCalculator(object):
 
 			# Apply repayment transactions at the "end of the day"
 
-			transactions_by_deposit_date = _get_transactions_on_deposit_date(cur_date, augmented_transactions)
+			transactions_by_deposit_date = txs_helper.get_transactions_on_deposit_date(cur_date)
 			_update_end_of_day_repayment_deposits(transactions_by_deposit_date, balances, cur_date, loan)
 
 			if payment_to_include and payment_to_include['deposit_date'] == cur_date:
@@ -915,8 +1074,10 @@ class LoanCalculator(object):
 				# and settlement date.
 				
 				additional_interest, additional_fees, inner_has_err = _get_additional_interest_and_fees_for_repayment_effect(
-					self._contract_helper, cur_date, payment_to_include, inner_balances, 
-					augmented_transactions, interest_input_dict
+					self._contract_helper, cur_date, payment_to_include, 
+					inner_balances,
+					txs_helper=txs_helper, 
+					interest_input_dict=interest_input_dict
 				) 
 
 				if inner_has_err:
@@ -967,9 +1128,6 @@ class LoanCalculator(object):
 
 				_reduce_custom_amount_remaining(inserted_repayment_transaction, payment_to_include)
 
-				# Only interest and fees get paid on this date because we need to wait until the
-				# settlement date to pay for interest and fees, and then pay off whatever we can
-				# to the principal.
 				balances['outstanding_principal'] -= inserted_repayment_transaction['to_principal']
 				balances['outstanding_interest'] -= inserted_repayment_transaction['to_interest']
 				balances['outstanding_fees'] -= inserted_repayment_transaction['to_fees']
@@ -978,13 +1136,6 @@ class LoanCalculator(object):
 					cur_date <= loan['adjusted_maturity_date']
 				):
 					balances['loan_paid_by_maturity_date'] = True
-
-				# If someone is using a payment to include, also use this to count
-				# when the last repayment settles
-				if not balances['day_last_repayment_settles']:
-					balances['day_last_repayment_settles'] = payment_to_include['settlement_date']
-				elif payment_to_include['settlement_date'] > balances['day_last_repayment_settles']:
-					balances['day_last_repayment_settles'] = payment_to_include['settlement_date']
 
 				payment_effect_dict = PaymentEffectDict(
 					loan_state_before_payment=loan_state_before_payment,
@@ -1007,15 +1158,21 @@ class LoanCalculator(object):
 				balances['outstanding_principal_for_interest'] -= inserted_repayment_transaction['to_principal']
 				balances['amount_paid_back_on_loan'] += inserted_repayment_transaction['amount']
 
-			# Store results for this day if the caller requested it.
-			if start_date_for_storing_results and cur_date >= start_date_for_storing_results:
-				date_to_result[cur_date] = _get_calculate_result_dict(cur_date)
+			# TODO(dlluncor): Only store dates here where repayments occurred
+			date_to_result[cur_date] = _get_calculate_result_dict(cur_date)
 
 		if errors_list:
 			return None, errors_list
 
-		date_to_result[today] = _get_calculate_result_dict(today)
-		return date_to_result, None
+		if today not in date_to_result:
+			# If we haven't added any results yet, just add a dummy one here.
+			date_to_result[today] = _get_calculate_result_dict(today)
+
+		success, err = _perform_daily_interest_and_fees_adjustment(self._fee_accumulator, txs_helper, date_to_result)
+		if err:
+			return None, [err]
+
+		return date_to_result[today], None
 
 	def calculate_loan_balance(
 		self,
@@ -1030,13 +1187,12 @@ class LoanCalculator(object):
 		now_for_test: datetime.datetime = None,
 	) -> Tuple[CalculateResultDict, List[errors.Error]]:
 
-		date_to_results, err = self._calculate_loan_balance_internal(
+		calculate_result, err = self._calculate_loan_balance_internal(
 			threshold_info=threshold_info,
 			loan=loan,
 			invoice=invoice,
 			augmented_transactions=augmented_transactions,
 			today=today,
-			start_date_for_storing_results=None,
 			should_round_output=should_round_output,
 			payment_to_include=payment_to_include,
 			include_debug_info=include_debug_info,
@@ -1044,31 +1200,5 @@ class LoanCalculator(object):
 		)
 		if err:
 			return None, err
-		return date_to_results[today], None
 
-	def calculate_loan_balance_for_many_days(
-		self,
-		threshold_info: ThresholdInfoDict,
-		loan: models.LoanDict,
-		invoice: models.InvoiceDict, # Filled in if this loan is related to invoice financing
-		augmented_transactions: List[models.AugmentedTransactionDict],
-		today: datetime.date,
-		start_date_for_storing_results: datetime.date,
-		should_round_output: bool = True,
-		payment_to_include: IncludedPaymentDict = None,
-		include_debug_info: bool = False,
-		now_for_test: datetime.datetime = None,
-	) -> Tuple[Dict[datetime.date, CalculateResultDict], List[errors.Error]]:
-
-		return self._calculate_loan_balance_internal(
-			threshold_info=threshold_info,
-			loan=loan,
-			invoice=invoice,
-			augmented_transactions=augmented_transactions,
-			today=today,
-			start_date_for_storing_results=start_date_for_storing_results,
-			should_round_output=should_round_output,
-			payment_to_include=payment_to_include,
-			include_debug_info=include_debug_info,
-			now_for_test=now_for_test
-		)
+		return calculate_result, None

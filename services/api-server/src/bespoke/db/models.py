@@ -750,10 +750,16 @@ TransactionDict = TypedDict('TransactionDict', {
 	'is_deleted': bool
 })
 
+AugmentedTransactionInfo = TypedDict('AugmentedTransactionInfo', {
+	'crosses_over_month': bool,
+	'days_into_month': int
+})
+
 # Transaction with some additional pieces of information
 AugmentedTransactionDict = TypedDict('AugmentedTransactionDict', {
 	'transaction': TransactionDict,
-	'payment': PaymentDict # The payment which was used to create this transaction
+	'payment': PaymentDict, # The payment which was used to create this transaction
+	'tx_info': AugmentedTransactionInfo,
 })
 
 class Transaction(Base):
@@ -927,6 +933,8 @@ class FinancialSummary(Base):
 	total_outstanding_fees = Column(Numeric, nullable=False)
 	total_principal_in_requested_state = Column(Numeric, nullable=False)
 	total_amount_to_pay_interest_on = Column(Numeric)
+	total_interest_paid_adjustment_today = Column(Numeric)
+	total_fees_paid_adjustment_today = Column(Numeric)
 	available_limit = Column(Numeric, nullable=False)
 	adjusted_total_limit = Column(Numeric, nullable=False)
 	minimum_monthly_payload = Column(JSON, nullable=False)

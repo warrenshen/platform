@@ -14,7 +14,8 @@ from bespoke.finance.types import finance_types
 from mypy_extensions import TypedDict
 
 AccumulatedAmountDict = TypedDict('AccumulatedAmountDict', {
-	'interest_amount': float
+	'interest_amount': float,
+	'fees_amount': float
 })
 
 _MONTH_TO_QUARTER = {
@@ -169,15 +170,27 @@ class FeeAccumulator(object):
 	def __init__(self) -> None:
 		self._month_to_amounts: Dict[finance_types.Month, AccumulatedAmountDict] = {}
 		self._quarter_to_amounts: Dict[finance_types.Quarter, AccumulatedAmountDict] = {}
-		self._year_to_amount = AccumulatedAmountDict(interest_amount=0)
+		self._year_to_amount = AccumulatedAmountDict(interest_amount=0, fees_amount=0)
 
 	def init_with_date_range(self, start_date: datetime.date, end_date: datetime.date) -> None:
 		# Allows you to initialize what months, quarters, year must get included based on this date range
 		cur_date = start_date
 
 		while cur_date <= end_date:
-			self.accumulate(start_date, end_date, 0.0, cur_date)
+			self.accumulate(start_date, end_date, 0.0, 0.0, cur_date)
 			cur_date = start_date + timedelta(days=30)
+
+	def get_amount_fees_accrued_by_month(self, month: finance_types.Month) -> Tuple[float, errors.Error]:
+		if month not in self._month_to_amounts:
+			return None, errors.Error('{} is missing the monthly amount of fees accrued'.format(month))
+
+		return self._month_to_amounts[month]['fees_amount'], None
+
+	def get_amount_interest_accrued_by_month(self, month: finance_types.Month) -> Tuple[float, errors.Error]:
+		if month not in self._month_to_amounts:
+			return None, errors.Error('{} is missing the monthly amount of interest accrued'.format(month))
+
+		return self._month_to_amounts[month]['interest_amount'], None
 
 	def get_amount_accrued_by_duration(self, duration: str, day: datetime.date) -> Tuple[float, errors.Error]:
 
@@ -208,6 +221,7 @@ class FeeAccumulator(object):
 		todays_contract_start_date: datetime.date,
 		todays_contract_end_date: datetime.date,
 		interest_for_day: float,
+		fees_for_day: float,
 		day: datetime.date
 	) -> None:
 		if day < todays_contract_start_date or day > todays_contract_end_date:
@@ -218,23 +232,26 @@ class FeeAccumulator(object):
 		# Month accumulation
 		month = finance_types.Month(month=day.month, year=day.year)
 		if month not in self._month_to_amounts:
-			self._month_to_amounts[month] = AccumulatedAmountDict(interest_amount=0)
+			self._month_to_amounts[month] = AccumulatedAmountDict(interest_amount=0, fees_amount=0)
 
 		self._month_to_amounts[month]['interest_amount'] += interest_for_day
+		self._month_to_amounts[month]['fees_amount'] += fees_for_day
 
 		# Quarter accumulation
 		quarter_num = _MONTH_TO_QUARTER[day.month]
 		quarter = finance_types.Quarter(quarter=quarter_num, year=day.year)
 
 		if quarter not in self._quarter_to_amounts:
-			self._quarter_to_amounts[quarter] = AccumulatedAmountDict(interest_amount=0)
+			self._quarter_to_amounts[quarter] = AccumulatedAmountDict(interest_amount=0, fees_amount=0)
 
 		self._quarter_to_amounts[quarter]['interest_amount'] += interest_for_day
+		self._quarter_to_amounts[quarter]['fees_amount'] += fees_for_day
 
 		# Only accumulate within a year of the contract start date
 		year_from_contract_end = todays_contract_start_date + timedelta(days=365)
 		if day < year_from_contract_end:
 			self._year_to_amount['interest_amount'] += interest_for_day
+			self._year_to_amount['fees_amount'] += fees_for_day
 
 
 def get_cur_minimum_fees(contract_helper: contract_util.ContractHelper, today: datetime.date, fee_accumulator: FeeAccumulator) -> Tuple[FeeDict, errors.Error]:

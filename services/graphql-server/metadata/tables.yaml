@@ -1938,100 +1938,108 @@
   - role: bank_admin
     permission:
       columns:
-      - account_level_balance_payload
-      - adjusted_total_limit
-      - available_limit
-      - company_id
-      - date
-      - day_volume_threshold_met
-      - days_to_compute_back
       - id
-      - interest_accrued_today
-      - minimum_monthly_payload
-      - needs_recompute
-      - product_type
-      - total_amount_to_pay_interest_on
+      - company_id
       - total_limit
-      - total_outstanding_fees
-      - total_outstanding_interest
       - total_outstanding_principal
-      - total_outstanding_principal_for_interest
+      - total_outstanding_interest
       - total_principal_in_requested_state
+      - available_limit
+      - total_outstanding_fees
+      - adjusted_total_limit
+      - date
+      - total_outstanding_principal_for_interest
+      - minimum_monthly_payload
+      - account_level_balance_payload
+      - day_volume_threshold_met
+      - interest_accrued_today
+      - total_amount_to_pay_interest_on
+      - product_type
+      - needs_recompute
       - updated_at
+      - days_to_compute_back
+      - total_interest_paid_adjustment_today
+      - total_fees_paid_adjustment_today
       filter: {}
   - role: bank_read_only
     permission:
       columns:
+      - needs_recompute
+      - date
+      - days_to_compute_back
       - account_level_balance_payload
+      - minimum_monthly_payload
       - adjusted_total_limit
       - available_limit
-      - company_id
-      - date
-      - day_volume_threshold_met
-      - days_to_compute_back
-      - id
       - interest_accrued_today
-      - minimum_monthly_payload
-      - needs_recompute
-      - product_type
       - total_amount_to_pay_interest_on
+      - total_fees_paid_adjustment_today
+      - total_interest_paid_adjustment_today
       - total_limit
       - total_outstanding_fees
       - total_outstanding_interest
       - total_outstanding_principal
       - total_outstanding_principal_for_interest
       - total_principal_in_requested_state
+      - product_type
       - updated_at
+      - company_id
+      - id
+      - day_volume_threshold_met
       filter: {}
   - role: company_admin
     permission:
       columns:
+      - needs_recompute
+      - date
+      - days_to_compute_back
       - account_level_balance_payload
+      - minimum_monthly_payload
       - adjusted_total_limit
       - available_limit
-      - company_id
-      - date
-      - day_volume_threshold_met
-      - days_to_compute_back
-      - id
       - interest_accrued_today
-      - minimum_monthly_payload
-      - needs_recompute
-      - product_type
       - total_amount_to_pay_interest_on
+      - total_fees_paid_adjustment_today
+      - total_interest_paid_adjustment_today
       - total_limit
       - total_outstanding_fees
       - total_outstanding_interest
       - total_outstanding_principal
       - total_outstanding_principal_for_interest
       - total_principal_in_requested_state
+      - product_type
       - updated_at
+      - company_id
+      - id
+      - day_volume_threshold_met
       filter:
         company_id:
           _eq: X-Hasura-Company-Id
   - role: company_read_only
     permission:
       columns:
+      - needs_recompute
+      - date
+      - days_to_compute_back
       - account_level_balance_payload
+      - minimum_monthly_payload
       - adjusted_total_limit
       - available_limit
-      - company_id
-      - date
-      - day_volume_threshold_met
-      - days_to_compute_back
-      - id
       - interest_accrued_today
-      - minimum_monthly_payload
-      - needs_recompute
-      - product_type
       - total_amount_to_pay_interest_on
+      - total_fees_paid_adjustment_today
+      - total_interest_paid_adjustment_today
       - total_limit
       - total_outstanding_fees
       - total_outstanding_interest
       - total_outstanding_principal
       - total_outstanding_principal_for_interest
       - total_principal_in_requested_state
+      - product_type
       - updated_at
+      - company_id
+      - id
+      - day_volume_threshold_met
       filter:
         company_id:
           _eq: X-Hasura-Company-Id

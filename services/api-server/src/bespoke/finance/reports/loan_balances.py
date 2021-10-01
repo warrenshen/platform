@@ -45,6 +45,8 @@ SummaryUpdateDict = TypedDict('SummaryUpdateDict', {
 	'total_principal_in_requested_state': float,
 	'total_amount_to_pay_interest_on': float,
 	'total_interest_accrued_today': float,
+	'total_interest_paid_adjustment_today': float,
+	'total_fees_paid_adjustment_today': float,
 	'available_limit': float,
 	'minimum_monthly_payload': FeeDict,
 	'account_level_balance_payload': finance_types.AccountBalanceDict,
@@ -187,6 +189,8 @@ def _get_summary_update(
 	total_outstanding_fees = 0.0
 	total_amount_to_pay_interest_on = 0.0
 	total_interest_accrued_today = 0.0
+	total_interest_paid_adjustment_today = 0.0
+	total_fees_paid_adjustment_today = 0.0
 
 	for l in loan_updates:
 		total_outstanding_principal += l['outstanding_principal']
@@ -195,6 +199,8 @@ def _get_summary_update(
 		total_outstanding_fees += l['outstanding_fees']
 		total_amount_to_pay_interest_on += l['amount_to_pay_interest_on']
 		total_interest_accrued_today += l['interest_accrued_today']
+		total_interest_paid_adjustment_today += l['interest_paid_daily_adjustment']
+		total_fees_paid_adjustment_today += l['fees_paid_daily_adjustment']
 
 	minimum_monthly_payload, err = fee_util.get_cur_minimum_fees(contract_helper, today, fee_accumulator)
 	if err:
@@ -215,6 +221,8 @@ def _get_summary_update(
 		total_principal_in_requested_state=0.0,
 		total_amount_to_pay_interest_on=total_amount_to_pay_interest_on,
 		total_interest_accrued_today=total_interest_accrued_today,
+		total_interest_paid_adjustment_today=total_interest_paid_adjustment_today,
+		total_fees_paid_adjustment_today=total_fees_paid_adjustment_today,
 		available_limit=max(0.0, adjusted_total_limit - total_outstanding_principal),
 		minimum_monthly_payload=minimum_monthly_payload,
 		account_level_balance_payload=account_level_balance,
@@ -551,6 +559,8 @@ class CustomerBalance(object):
 			financial_summary.total_principal_in_requested_state = decimal.Decimal(number_util.round_currency(summary_update['total_principal_in_requested_state']))
 			financial_summary.total_amount_to_pay_interest_on = decimal.Decimal(number_util.round_currency(summary_update['total_amount_to_pay_interest_on']))
 			financial_summary.interest_accrued_today = decimal.Decimal(number_util.round_currency(summary_update['total_interest_accrued_today']))
+			financial_summary.total_interest_paid_adjustment_today = decimal.Decimal(number_util.round_currency(summary_update['total_interest_paid_adjustment_today']))
+			financial_summary.total_fees_paid_adjustment_today = decimal.Decimal(number_util.round_currency(summary_update['total_fees_paid_adjustment_today']))
 			financial_summary.available_limit = decimal.Decimal(number_util.round_currency(summary_update['available_limit']))
 			financial_summary.minimum_monthly_payload = cast(Dict, summary_update['minimum_monthly_payload'])
 			financial_summary.account_level_balance_payload = cast(Dict, summary_update['account_level_balance_payload'])

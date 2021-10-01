@@ -30,9 +30,20 @@ def get_augmented_transactions(transactions: List[models.TransactionDict], payme
 				return None, errors.Error(
 					'[DATA ERROR]: Transaction {} is missing an associated payment'.format(t['id']))
 
+			payment_dict = id_to_payment[t['payment_id']]
+			deposit_date = payment_dict['deposit_date']
+			settlement_date = t['effective_date']
+
+			crosses_over_month = settlement_date.month > deposit_date.month
+			days_into_month = settlement_date.day
+
 			augmented_transactions.append(models.AugmentedTransactionDict(
 				transaction=t,
-				payment=id_to_payment[t['payment_id']]
+				payment=payment_dict,
+				tx_info=models.AugmentedTransactionInfo(
+					crosses_over_month=crosses_over_month,
+					days_into_month=days_into_month
+				)
 			))
 
 		return augmented_transactions, None

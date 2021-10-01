@@ -5,6 +5,7 @@ from typing import Tuple
 import holidays
 import numpy as np
 import pytz
+from calendar import monthrange
 from bespoke import errors
 from dateutil import parser, relativedelta
 
@@ -21,6 +22,13 @@ def hours_from_today(hours: int) -> datetime.datetime:
 		Useful for generation expiration datetimes.
 	"""
 	return datetime.datetime.now(timezone.utc) + timedelta(hours=hours)
+
+def get_last_day_of_month(year: int, month: int) -> int:
+	return monthrange(year, month)[1]
+
+def is_last_day_of_month(day: datetime.date) -> int:
+	return get_last_day_of_month(year=day.year, month=day.month) == day.day
+
 
 def now() -> datetime.datetime:
 	return datetime.datetime.now(timezone.utc)
