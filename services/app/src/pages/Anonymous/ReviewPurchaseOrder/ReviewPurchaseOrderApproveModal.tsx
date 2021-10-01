@@ -73,7 +73,7 @@ function ReviewPurchaseOrderApproveModal({
   if (!data?.company_vendor_partnerships[0]?.vendor_bank_account) {
     if (!isCompanyVendorPartnershipLoading) {
       snackbar.showError(
-        "Error! Bespoke does not have your bank account information. Please contact Bespoke to resolve this."
+        "Bespoke Financial does not have your bank account information. Please contact Bespoke Financial to resolve this."
       );
     }
     return null;

@@ -85,7 +85,7 @@ const sendTwoFactorMessage = async (req: {
     );
 };
 
-function AuthenticateViaTwoFactorPage({
+export default function AuthenticateViaTwoFactorPage({
   linkVal,
   codeEntered,
   setCodeEntered,
@@ -136,16 +136,12 @@ function AuthenticateViaTwoFactorPage({
 
   if (linkType === "forgot_password" || linkType === "") {
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        width="100vw"
-        height="100vh"
-      >
-        <Box display="flex" flexDirection="column">
-          <Box>
-            <p>{!linkVal ? "No link value provided." : "Loading..."}</p>
+      <Box className={classes.wrapper}>
+        <Box className={classes.container}>
+          <Box display="flex" flexDirection="column" alignItems="center">
+            <Typography variant="h5">
+              {linkVal ? "Loading..." : "No link value provided."}
+            </Typography>
           </Box>
         </Box>
       </Box>
@@ -222,5 +218,3 @@ function AuthenticateViaTwoFactorPage({
     </Box>
   );
 }
-
-export default AuthenticateViaTwoFactorPage;

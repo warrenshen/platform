@@ -82,7 +82,9 @@ export default function ReviewInvoicePage(props: Props) {
     data,
     loading: isInvoiceLoading,
     error,
+    refetch,
   } = useGetInvoiceForReviewQuery({
+    fetchPolicy: "network-only",
     variables: {
       id: invoiceId,
     },
@@ -90,7 +92,6 @@ export default function ReviewInvoicePage(props: Props) {
 
   if (error) {
     console.error({ error });
-    alert(`Error in query (details in console): ${error.message}`);
   }
 
   const invoice = data?.invoices_by_pk;
@@ -123,144 +124,179 @@ export default function ReviewInvoicePage(props: Props) {
     history.replace(anonymousRoutes.reviewInvoiceComplete);
   }
 
-  const isDataReady = !isInvoiceLoading;
-
-  if (!isDataReady || !invoice) {
-    return null;
-  }
+  const isDataReady = !isInvoiceLoading && !error;
 
   return (
     <Box className={classes.wrapper}>
       <Box className={classes.container}>
-        <Box display="flex" flexDirection="column">
-          <Typography variant="h5">{`Approval requested for Invoice ${invoice.invoice_number}`}</Typography>
-          <Box mt={1}>
-            <Typography variant="body2">
-              The invoice shown below requires your approval. Please review the
-              info and press either approve or reject. If you press reject, you
-              will be prompted to enter in a reason.
-            </Typography>
+        {!isDataReady ? (
+          <Box display="flex" flexDirection="column">
+            {!!error ? (
+              <>
+                <Typography variant="h5">
+                  A network error occurred. Please check your network connection
+                  and try again.
+                </Typography>
+                <Box display="flex" flexDirection="column" mt={2}>
+                  <StyledButton
+                    variant={"contained"}
+                    color={"primary"}
+                    onClick={() => refetch()}
+                  >
+                    Retry
+                  </StyledButton>
+                </Box>
+              </>
+            ) : (
+              <Box
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                mt={2}
+              >
+                <Typography variant="h5">Loading...</Typography>
+              </Box>
+            )}
           </Box>
-        </Box>
-        <Box display="flex" flexDirection="column" mt={2}>
-          <Typography variant="subtitle2" color="textSecondary">
-            Issuer
-          </Typography>
-          <Typography variant={"body1"}>
-            {getCompanyDisplayName(invoice.company)}
-          </Typography>
-        </Box>
-        <Box display="flex" flexDirection="column" mt={2}>
-          <Typography variant="subtitle2" color="textSecondary">
-            Invoice Number
-          </Typography>
-          <Typography variant={"body1"}>{invoice.invoice_number}</Typography>
-        </Box>
-        <Box display="flex" flexDirection="column" mt={2}>
-          <Typography variant="subtitle2" color="textSecondary">
-            Subtotal Amount
-          </Typography>
-          <Typography variant={"body1"}>
-            {formatCurrency(invoice.subtotal_amount)}
-          </Typography>
-        </Box>
-        <Box display="flex" flexDirection="column" mt={2}>
-          <Typography variant="subtitle2" color="textSecondary">
-            Taxes
-          </Typography>
-          <Typography variant={"body1"}>
-            {formatCurrency(invoice.taxes_amount)}
-          </Typography>
-        </Box>
-        <Box display="flex" flexDirection="column" mt={2}>
-          <Typography variant="subtitle2" color="textSecondary">
-            Total Amount
-          </Typography>
-          <Typography variant={"body1"}>
-            {formatCurrency(invoice.total_amount)}
-          </Typography>
-        </Box>
-        <Box display="flex" flexDirection="column" mt={2}>
-          <Typography variant="subtitle2" color="textSecondary">
-            Invoice Date
-          </Typography>
-          <Typography variant={"body1"}>
-            {formatDateString(invoice.invoice_date)}
-          </Typography>
-        </Box>
-        <Box display="flex" flexDirection="column" mt={2}>
-          <Typography variant="subtitle2" color="textSecondary">
-            Invoice Due Date
-          </Typography>
-          <Typography variant={"body1"}>
-            {formatDateString(invoice.invoice_due_date)}
-          </Typography>
-        </Box>
-        <Box display="flex" flexDirection="column" mt={2}>
-          <Typography variant="subtitle2" color="textSecondary">
-            Invoice File
-          </Typography>
-          <DownloadThumbnail
-            fileIds={invoiceFileIds}
-            fileType={FileTypeEnum.INVOICE}
-          />
-        </Box>
-        {invoice?.is_cannabis && (
-          <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="subtitle2" color="textSecondary">
-              Cannabis or Derivatives File(s)
-            </Typography>
-            <DownloadThumbnail
-              fileIds={invoiceCannabisFileIds}
-              fileType={FileTypeEnum.INVOICE}
-            />
+        ) : !invoice ? (
+          <Box display="flex" flexDirection="column">
+            <Typography variant="h5">Invoice does not exist</Typography>
           </Box>
+        ) : (
+          <>
+            <Box display="flex" flexDirection="column">
+              <Typography variant="h5">{`Approval requested for Invoice ${invoice.invoice_number}`}</Typography>
+              <Box mt={1}>
+                <Typography variant="body2">
+                  The invoice shown below requires your approval. Please review
+                  the info and press either approve or reject. If you press
+                  reject, you will be prompted to enter in a reason.
+                </Typography>
+              </Box>
+            </Box>
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Issuer
+              </Typography>
+              <Typography variant={"body1"}>
+                {getCompanyDisplayName(invoice.company)}
+              </Typography>
+            </Box>
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Invoice Number
+              </Typography>
+              <Typography variant={"body1"}>
+                {invoice.invoice_number}
+              </Typography>
+            </Box>
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Subtotal Amount
+              </Typography>
+              <Typography variant={"body1"}>
+                {formatCurrency(invoice.subtotal_amount)}
+              </Typography>
+            </Box>
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Taxes
+              </Typography>
+              <Typography variant={"body1"}>
+                {formatCurrency(invoice.taxes_amount)}
+              </Typography>
+            </Box>
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Total Amount
+              </Typography>
+              <Typography variant={"body1"}>
+                {formatCurrency(invoice.total_amount)}
+              </Typography>
+            </Box>
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Invoice Date
+              </Typography>
+              <Typography variant={"body1"}>
+                {formatDateString(invoice.invoice_date)}
+              </Typography>
+            </Box>
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Invoice Due Date
+              </Typography>
+              <Typography variant={"body1"}>
+                {formatDateString(invoice.invoice_due_date)}
+              </Typography>
+            </Box>
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Invoice File
+              </Typography>
+              <DownloadThumbnail
+                fileIds={invoiceFileIds}
+                fileType={FileTypeEnum.INVOICE}
+              />
+            </Box>
+            {invoice?.is_cannabis && (
+              <Box display="flex" flexDirection="column" mt={2}>
+                <Typography variant="subtitle2" color="textSecondary">
+                  Cannabis or Derivatives File(s)
+                </Typography>
+                <DownloadThumbnail
+                  fileIds={invoiceCannabisFileIds}
+                  fileType={FileTypeEnum.INVOICE}
+                />
+              </Box>
+            )}
+            <Box display="flex" justifyContent="center" mt={6}>
+              {isApproveModalOpen && (
+                <ReviewInvoiceApproveModal
+                  invoice={invoice}
+                  linkVal={linkVal}
+                  handleClose={() => setIsApproveModalOpen(false)}
+                  handleApproveSuccess={() => {
+                    history.push({
+                      pathname: anonymousRoutes.reviewInvoiceComplete,
+                    });
+                  }}
+                />
+              )}
+              {isRejectModalOpen && (
+                <ReviewInvoiceRejectModal
+                  invoiceId={invoice?.id}
+                  linkVal={linkVal}
+                  handleClose={() => setIsRejectModalOpen(false)}
+                  handleRejectSuccess={() =>
+                    history.push({
+                      pathname: anonymousRoutes.reviewInvoiceComplete,
+                    })
+                  }
+                />
+              )}
+              <Buttons>
+                <StyledButton
+                  disabled={false}
+                  variant={"outlined"}
+                  color={"default"}
+                  onClick={() => setIsRejectModalOpen(true)}
+                >
+                  Reject
+                </StyledButton>
+                <ButtonSpace />
+                <StyledButton
+                  disabled={false}
+                  variant={"contained"}
+                  color={"primary"}
+                  onClick={() => setIsApproveModalOpen(true)}
+                >
+                  Approve
+                </StyledButton>
+              </Buttons>
+            </Box>
+          </>
         )}
-        <Box display="flex" justifyContent="center" mt={4}>
-          {isApproveModalOpen && (
-            <ReviewInvoiceApproveModal
-              invoice={invoice}
-              linkVal={linkVal}
-              handleClose={() => setIsApproveModalOpen(false)}
-              handleApproveSuccess={() => {
-                history.push({
-                  pathname: anonymousRoutes.reviewInvoiceComplete,
-                });
-              }}
-            />
-          )}
-          {isRejectModalOpen && (
-            <ReviewInvoiceRejectModal
-              invoiceId={invoice?.id}
-              linkVal={linkVal}
-              handleClose={() => setIsRejectModalOpen(false)}
-              handleRejectSuccess={() =>
-                history.push({
-                  pathname: anonymousRoutes.reviewInvoiceComplete,
-                })
-              }
-            />
-          )}
-          <Buttons>
-            <StyledButton
-              disabled={false}
-              onClick={() => setIsRejectModalOpen(true)}
-              variant={"outlined"}
-              color={"default"}
-            >
-              Reject
-            </StyledButton>
-            <ButtonSpace />
-            <StyledButton
-              disabled={false}
-              onClick={() => setIsApproveModalOpen(true)}
-              variant={"contained"}
-              color={"primary"}
-            >
-              Approve
-            </StyledButton>
-          </Buttons>
-        </Box>
       </Box>
     </Box>
   );

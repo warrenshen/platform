@@ -82,7 +82,9 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
     data,
     loading: isPurchaseOrderLoading,
     error,
+    refetch,
   } = useGetPurchaseOrderForReviewQuery({
+    fetchPolicy: "network-only",
     variables: {
       id: purchaseOrderId,
     },
@@ -90,7 +92,6 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
 
   if (error) {
     console.error({ error });
-    alert(`Error in query (details in console): ${error.message}`);
   }
 
   const purchaseOrder = data?.purchase_orders_by_pk;
@@ -123,23 +124,49 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
     history.replace(anonymousRoutes.reviewPurchaseOrderComplete);
   }
 
-  const isDataReady = !isPurchaseOrderLoading;
+  const isMetrcBased = !!purchaseOrder?.is_metrc_based;
+  const metrcTransfers =
+    purchaseOrder?.purchase_order_metrc_transfers.map(
+      (purchaseOrderMetrcTransfer) => purchaseOrderMetrcTransfer.metrc_transfer
+    ) || [];
 
-  if (!isDataReady || !purchaseOrder) {
-    return null;
-  }
-
-  const isMetrcBased = !!purchaseOrder.is_metrc_based;
-  const metrcTransfers = purchaseOrder.purchase_order_metrc_transfers.map(
-    (purchaseOrderMetrcTransfer) => purchaseOrderMetrcTransfer.metrc_transfer
-  );
+  const isDataReady = !isPurchaseOrderLoading && !error;
 
   return (
     <Box className={classes.wrapper}>
       <Box className={classes.container}>
-        {!!purchaseOrder.is_deleted ? (
+        {!isDataReady ? (
           <Box display="flex" flexDirection="column">
-            <Typography variant="h5">Purchase order is deleted</Typography>
+            {!!error ? (
+              <>
+                <Typography variant="h5">
+                  A network error occurred. Please check your network connection
+                  and try again.
+                </Typography>
+                <Box display="flex" flexDirection="column" mt={2}>
+                  <StyledButton
+                    variant={"contained"}
+                    color={"primary"}
+                    onClick={() => refetch()}
+                  >
+                    Retry
+                  </StyledButton>
+                </Box>
+              </>
+            ) : (
+              <Box
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                mt={2}
+              >
+                <Typography variant="h5">Loading...</Typography>
+              </Box>
+            )}
+          </Box>
+        ) : !purchaseOrder || !!purchaseOrder.is_deleted ? (
+          <Box display="flex" flexDirection="column">
+            <Typography variant="h5">Purchase order does not exist</Typography>
           </Box>
         ) : (
           <>
@@ -262,18 +289,18 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
               <Buttons>
                 <StyledButton
                   disabled={false}
-                  onClick={() => setIsRejectModalOpen(true)}
                   variant={"outlined"}
                   color={"default"}
+                  onClick={() => setIsRejectModalOpen(true)}
                 >
                   Reject
                 </StyledButton>
                 <ButtonSpace />
                 <StyledButton
                   disabled={false}
-                  onClick={() => setIsApproveModalOpen(true)}
                   variant={"contained"}
                   color={"primary"}
+                  onClick={() => setIsApproveModalOpen(true)}
                 >
                   Approve
                 </StyledButton>
