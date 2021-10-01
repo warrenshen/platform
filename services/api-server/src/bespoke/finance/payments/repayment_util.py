@@ -538,6 +538,24 @@ def create_repayment(
 	company_bank_account_id = payment_insert_input['company_bank_account_id']
 	loan_ids = None
 
+	# This if statement handles the edge case where a user starts a repayment while meeting the cutoff
+	# but clicks submit while no longer hitting the cutoff. This was born from actual user activity.
+	# There is a check on the front end that performs the same logic. However, we felt checking in two
+	# places was prudent since auto-financing process won't come through that front end check
+	if payment_method == PaymentMethodEnum.REVERSE_DRAFT_ACH:
+		active_contracts, contracts_err = contract_util.get_active_contracts_by_company_ids([company_id], session, err_details=err_details)
+		if contracts_err:
+			raise contracts_err;
+		contract_obj = active_contracts[company_id]
+		timezone, timezone_err = contract_obj.get_timezone_str()
+		if timezone_err:
+			raise timezone_err
+
+		meets_cutoff, cutoff_error = date_util.meets_noon_cutoff(requested_payment_date, timezone, now=now_for_test)
+		if not meets_cutoff:
+			cutoff_error.details=err_details
+			raise cutoff_error
+	
 	if not payment_method:
 		raise errors.Error('Payment method must be specified', details=err_details)
 

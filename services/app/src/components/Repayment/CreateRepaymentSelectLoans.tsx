@@ -18,7 +18,10 @@ import {
   PaymentsInsertInput,
   ProductTypeEnum,
 } from "generated/graphql";
-import { addBizDays, todayAsDateStringServer } from "lib/date";
+import {
+  computeRequestedWithdrawCutoffDate,
+  todayAsDateStringServer,
+} from "lib/date";
 import {
   AllPaymentMethods,
   PaymentMethodEnum,
@@ -50,7 +53,7 @@ export default function CreateRepaymentSelectLoans({
    * set up a reverse draft ACH repayment with the desired payment date.
    */
   const disabledBefore = isReverseDraftACH
-    ? addBizDays(todayAsDateStringServer(), new Date().getHours() >= 12 ? 2 : 1)
+    ? computeRequestedWithdrawCutoffDate(todayAsDateStringServer())
     : undefined;
 
   return (

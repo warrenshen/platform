@@ -132,6 +132,10 @@ export function addBizDays(dateString: string, days: number) {
   return format(resultDate, DateFormatServer);
 }
 
+export function computeRequestedWithdrawCutoffDate(dateString: string) {
+  return addBizDays(dateString, new Date().getHours() >= 12 ? 2 : 1);
+}
+
 export function subtractBizDays(dateString: string, days: number) {
   if (!dateString) {
     return "Invalid Date";

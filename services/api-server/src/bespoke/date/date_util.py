@@ -53,7 +53,7 @@ def meets_noon_cutoff(requested_date: datetime.date, timezone: str, now: datetim
 
 	if requested_date < now_dt.date():
 		# Cannot specify a day in the past.
-		return False, errors.Error('this is a date in the past. Please select a date after {}'.format(now_dt.date()))
+		return False, errors.Error('This is a date in the past. Please select a date after {}'.format(now_dt.date()))
 
 	year = requested_date.year
 	month = requested_date.month
@@ -64,7 +64,9 @@ def meets_noon_cutoff(requested_date: datetime.date, timezone: str, now: datetim
 	if now_dt < noon_today:
 		return True, None
 
-	return False, errors.Error('it is currently after 12 noon in your timezone. Please select the next business day')
+	# We use PST here as the default comparison because the 12 noon cutoff is for the operations team
+	# and the bank we use. Both of which are primarily based in PST.
+	return False, errors.Error('It is currently after 12 noon in Pacific Standard Time. Please select the next business day')
 
 def get_earliest_requested_payment_date(timezone: str) -> datetime.date:
 	requested_date = now_as_date(timezone)

@@ -1466,10 +1466,30 @@ class TestCreatePayment(db_unittest.TestCase):
 		seed = test_helper.BasicSeed.create(self.session_maker, self)
 		seed.initialize()
 		user_id = seed.get_user_id('company_admin', index=0)
+		company_id=seed.get_company_id('company_admin', index=0)
 
 		with session_scope(self.session_maker) as session:
+			contract = models.Contract(
+				company_id=company_id,
+				product_type=ProductType.PURCHASE_MONEY_FINANCING,
+				product_config=contract_test_helper.create_contract_config(
+					product_type=ProductType.PURCHASE_MONEY_FINANCING,
+					input_dict=ContractInputDict(
+						interest_rate=5.00,
+						maximum_principal_amount=120000.01,
+						max_days_until_repayment=0, # unused
+						late_fee_structure=_get_late_fee_structure(), # unused
+						timezone='America/Los_Angeles'
+					)
+				),
+				start_date=date_util.load_date_str('1/1/2020'),
+				adjusted_end_date=date_util.load_date_str('12/1/2024')
+			)
+
+			contract_test_helper.set_and_add_contract_for_company(contract, company_id, session)
+
 			payment_id, err = repayment_util.create_repayment(
-				company_id=None,
+				company_id=company_id,
 				payment_insert_input=payment_types.PaymentInsertInputDict(
 					company_id='unused',
 					type='unused',
@@ -1489,7 +1509,8 @@ class TestCreatePayment(db_unittest.TestCase):
 				),
 				user_id=user_id,
 				session=session,
-				is_line_of_credit=False)
+				is_line_of_credit=False,
+				now_for_test=parser.parse('2020-10-01T16:33:27.69-08:00'))
 			self.assertIn('Not all selected loans found', err.msg)
 
 	def test_not_funded_loan(self) -> None:
@@ -1510,10 +1531,29 @@ class TestCreatePayment(db_unittest.TestCase):
 			loan_id = str(loan.id)
 
 		with session_scope(self.session_maker) as session:
+			contract = models.Contract(
+				company_id=company_id,
+				product_type=ProductType.LINE_OF_CREDIT,
+				product_config=contract_test_helper.create_contract_config(
+					product_type=ProductType.LINE_OF_CREDIT,
+					input_dict=ContractInputDict(
+						interest_rate=5.00,
+						maximum_principal_amount=120000.01,
+						max_days_until_repayment=0, # unused
+						late_fee_structure=_get_late_fee_structure(), # unused
+						timezone='America/Los_Angeles'
+					)
+				),
+				start_date=date_util.load_date_str('1/1/2020'),
+				adjusted_end_date=date_util.load_date_str('12/1/2024')
+			)
+
+			contract_test_helper.set_and_add_contract_for_company(contract, company_id, session)
+
 			payment_id, err = repayment_util.create_repayment(
 				company_id=company_id,
 				payment_insert_input=payment_types.PaymentInsertInputDict(
-					company_id='unused',
+					company_id=company_id,
 					type='unused',
 					requested_amount=10.0,
 					amount=None,
@@ -1531,5 +1571,6 @@ class TestCreatePayment(db_unittest.TestCase):
 				),
 				user_id=user_id,
 				session=session,
-				is_line_of_credit=False)
+				is_line_of_credit=False,
+				now_for_test=parser.parse('2020-10-01T16:33:27.69-08:00'))
 		self.assertIn('are funded', err.msg)

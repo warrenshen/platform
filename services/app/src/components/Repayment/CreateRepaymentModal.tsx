@@ -31,6 +31,10 @@ import {
   LoanToShow,
 } from "lib/finance/payments/repayment";
 import { useContext, useEffect, useState } from "react";
+import {
+  computeRequestedWithdrawCutoffDate,
+  todayAsDateStringServer,
+} from "lib/date";
 
 interface Props {
   companyId: Companies["id"];
@@ -175,6 +179,19 @@ export default function CreateRepaymentModal({
   const handleClickConfirm = async () => {
     if (payment.requested_amount <= 0) {
       setErrMsg("Payment amount must be larger than 0");
+      return;
+    }
+
+    const dateAdjustmentAtSubmission = computeRequestedWithdrawCutoffDate(
+      todayAsDateStringServer()
+    );
+    if (
+      new Date(dateAdjustmentAtSubmission) >
+      new Date(payment.requested_payment_date)
+    ) {
+      setErrMsg(
+        `Your submission has now passed the 12pm deadline. Please adjust your requested withdraw date of #${payment.requested_payment_date} to something on or after #${dateAdjustmentAtSubmission}.`
+      );
       return;
     }
 
