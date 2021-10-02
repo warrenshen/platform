@@ -25,7 +25,11 @@ def _get_late_fee_structure() -> str:
 		'30+': 1.0
 	})
 
-def _get_contract() -> models.Contract:
+def _get_contract(
+	minimum_monthly_amount: float = None,
+	minimum_quarterly_amount: float = None,
+	minimum_annual_amount: float = None
+) -> models.Contract:
 	return models.Contract(
 		company_id=None, # filled in later by test
 		product_type=ProductType.INVENTORY_FINANCING,
@@ -36,6 +40,9 @@ def _get_contract() -> models.Contract:
 				maximum_principal_amount=120000.01,
 				max_days_until_repayment=0,
 				late_fee_structure=_get_late_fee_structure(),
+				minimum_monthly_amount=minimum_monthly_amount,
+				minimum_quarterly_amount=minimum_quarterly_amount,
+				minimum_annual_amount=minimum_annual_amount
 			)
 		),
 		start_date=date_util.load_date_str('1/1/2020'),
@@ -55,6 +62,7 @@ class TestMinimumFees(db_unittest.TestCase):
 		today = date_util.load_date_str(test['today'])
 
 		fee_accumulator = fee_util.FeeAccumulator()
+		test['populate_fn'](fee_accumulator)
 		contract_helper, err = contract_util.ContractHelper.build(
 			company_id=company_id, contract_dicts=[c.as_dict() for c in contracts]
 		)
@@ -65,17 +73,133 @@ class TestMinimumFees(db_unittest.TestCase):
 			return
 
 		self.assertIsNone(err)
+		# Dont need to test prorated_info here
+		del cast(Any, fees_dict)['prorated_info']
+		del test['expected_fee_dict']['prorated_info']
 		test_helper.assertDeepAlmostEqual(self, test['expected_fee_dict'], cast(Dict, fees_dict))
 
 	def test_monthly_fees_no_duration_set(self) -> None:
+		
+		def populate_fn(fee_accumulator: fee_util.FeeAccumulator) -> None:
+			pass
+
 		test: Dict = {
 			'today': '10/01/2020',
 			'contracts': [_get_contract()],
+			'populate_fn': populate_fn,
 			'expected_fee_dict': fee_util.FeeDict(
 				minimum_amount=0.0,
 				amount_accrued=0.0,
 				amount_short=0.0,
 				duration=None,
+				prorated_info=None
+			)
+		}
+		self._run_test(test)
+
+	def test_accumulate_per_month(self) -> None:
+
+		def populate_fn(fee_accumulator: fee_util.FeeAccumulator) -> None:
+			contract_start_date = date_util.load_date_str('01/02/2020')
+			contract_end_date = date_util.load_date_str('01/02/2021')
+
+			fee_accumulator.accumulate(
+				todays_contract_start_date=contract_start_date,
+				todays_contract_end_date=contract_end_date,
+				interest_for_day=2.0,
+				fees_for_day=0.1,
+				day=date_util.load_date_str('01/03/2020')
+			)
+
+			fee_accumulator.accumulate(
+				todays_contract_start_date=contract_start_date,
+				todays_contract_end_date=contract_end_date,
+				interest_for_day=2.0,
+				fees_for_day=0.1,
+				day=date_util.load_date_str('02/03/2020') # gets ignored outside the month
+			)
+
+		test: Dict = {
+			'today': '01/10/2020',
+			'contracts': [_get_contract(minimum_monthly_amount=3.0)],
+			'populate_fn': populate_fn,
+			'expected_fee_dict': fee_util.FeeDict(
+				minimum_amount=3.0,
+				amount_accrued=2.1,
+				amount_short=0.9,
+				duration='monthly',
+				prorated_info=None
+			)
+		}
+		self._run_test(test)
+
+	def test_accumulate_per_quarter(self) -> None:
+
+		def populate_fn(fee_accumulator: fee_util.FeeAccumulator) -> None:
+			contract_start_date = date_util.load_date_str('01/02/2020')
+			contract_end_date = date_util.load_date_str('01/02/2021')
+
+			fee_accumulator.accumulate(
+				todays_contract_start_date=contract_start_date,
+				todays_contract_end_date=contract_end_date,
+				interest_for_day=2.0,
+				fees_for_day=0.1,
+				day=date_util.load_date_str('01/03/2020')
+			)
+
+			fee_accumulator.accumulate(
+				todays_contract_start_date=contract_start_date,
+				todays_contract_end_date=contract_end_date,
+				interest_for_day=2.0,
+				fees_for_day=0.1,
+				day=date_util.load_date_str('06/03/2020') # gets ignored outside the quarter
+			)
+
+		test: Dict = {
+			'today': '01/10/2020',
+			'contracts': [_get_contract(minimum_quarterly_amount=3.0)],
+			'populate_fn': populate_fn,
+			'expected_fee_dict': fee_util.FeeDict(
+				minimum_amount=3.0,
+				amount_accrued=2.1,
+				amount_short=0.9,
+				duration='quarterly',
+				prorated_info=None
+			)
+		}
+		self._run_test(test)
+
+	def test_accumulate_annually(self) -> None:
+
+		def populate_fn(fee_accumulator: fee_util.FeeAccumulator) -> None:
+			contract_start_date = date_util.load_date_str('01/02/2020')
+			contract_end_date = date_util.load_date_str('01/02/2021')
+
+			fee_accumulator.accumulate(
+				todays_contract_start_date=contract_start_date,
+				todays_contract_end_date=contract_end_date,
+				interest_for_day=2.0,
+				fees_for_day=0.1,
+				day=date_util.load_date_str('01/03/2020')
+			)
+
+			fee_accumulator.accumulate(
+				todays_contract_start_date=contract_start_date,
+				todays_contract_end_date=contract_end_date,
+				interest_for_day=2.0,
+				fees_for_day=0.1,
+				day=date_util.load_date_str('06/03/2021') # gets ignored outside the quarter
+			)
+
+		test: Dict = {
+			'today': '01/10/2020',
+			'contracts': [_get_contract(minimum_annual_amount=3.0)],
+			'populate_fn': populate_fn,
+			'expected_fee_dict': fee_util.FeeDict(
+				minimum_amount=3.0,
+				amount_accrued=2.1,
+				amount_short=0.9,
+				duration='annually',
 				prorated_info=None
 			)
 		}

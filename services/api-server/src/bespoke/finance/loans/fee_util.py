@@ -192,7 +192,7 @@ class FeeAccumulator(object):
 
 		return self._month_to_amounts[month]['interest_amount'], None
 
-	def get_amount_accrued_by_duration(self, duration: str, day: datetime.date) -> Tuple[float, errors.Error]:
+	def get_amount_revenue_accrued_by_duration(self, duration: str, day: datetime.date) -> Tuple[float, errors.Error]:
 
 		if duration == contract_util.MinimumAmountDuration.MONTHLY:
 			month = finance_types.Month(month=day.month, year=day.year)
@@ -200,7 +200,7 @@ class FeeAccumulator(object):
 			if month not in self._month_to_amounts:
 				return None, errors.Error('{} is missing the minimum fees monthly amount'.format(month))
 
-			return self._month_to_amounts[month]['interest_amount'], None
+			return self._month_to_amounts[month]['interest_amount'] + self._month_to_amounts[month]['fees_amount'], None
 
 		elif duration == contract_util.MinimumAmountDuration.QUARTERLY:
 			quarter = finance_types.Quarter(quarter=_get_quarter(month=day.month), year=day.year)
@@ -208,12 +208,12 @@ class FeeAccumulator(object):
 			if quarter not in self._quarter_to_amounts:
 				return None, errors.Error('{} is missing the minimum fees quarter amount'.format(quarter))
 
-			return self._quarter_to_amounts[quarter]['interest_amount'], None
+			return self._quarter_to_amounts[quarter]['interest_amount'] + self._quarter_to_amounts[quarter]['fees_amount'], None
 
 		elif duration == contract_util.MinimumAmountDuration.ANNUALLY:
 			# For the annual summation, we check in the accumulate method that we only
 			# count up interest from within a year of the contract start.
-			return self._year_to_amount['interest_amount'], None
+			return self._year_to_amount['interest_amount'] + self._year_to_amount['fees_amount'], None
 
 		return None, errors.Error('Invalid duration provided to accrue interest: "{}"'.format(duration))
 
@@ -275,7 +275,7 @@ def get_cur_minimum_fees(contract_helper: contract_util.ContractHelper, today: d
 		return None, err
 
 	duration = minimum_owed_dict['duration']
-	amount_accrued, err = fee_accumulator.get_amount_accrued_by_duration(duration, today)
+	amount_accrued, err = fee_accumulator.get_amount_revenue_accrued_by_duration(duration, today)
 	if err:
 		return None, err
 

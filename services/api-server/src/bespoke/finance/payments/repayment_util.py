@@ -538,23 +538,26 @@ def create_repayment(
 	company_bank_account_id = payment_insert_input['company_bank_account_id']
 	loan_ids = None
 
+	contract_obj, err = contract_util.get_active_contract_by_company_id(company_id, session)
+	if err:
+		raise err
+
+	timezone, err = contract_obj.get_timezone_str()
+	if err:
+		raise err
+
 	# This if statement handles the edge case where a user starts a repayment while meeting the cutoff
 	# but clicks submit while no longer hitting the cutoff. This was born from actual user activity.
 	# There is a check on the front end that performs the same logic. However, we felt checking in two
 	# places was prudent since auto-financing process won't come through that front end check
-	if payment_method == PaymentMethodEnum.REVERSE_DRAFT_ACH:
-		active_contracts, contracts_err = contract_util.get_active_contracts_by_company_ids([company_id], session, err_details=err_details)
-		if contracts_err:
-			raise contracts_err;
-		contract_obj = active_contracts[company_id]
-		timezone, timezone_err = contract_obj.get_timezone_str()
-		if timezone_err:
-			raise timezone_err
+	if not bank_admin_override_for_ach_cutoff:
+		is_scheduled = payment_method == PaymentMethodEnum.REVERSE_DRAFT_ACH
+		meets_cutoff, meets_cutoff_err = date_util.meets_noon_cutoff(
+			requested_payment_date, timezone, now=now_for_test)
 
-		meets_cutoff, cutoff_error = date_util.meets_noon_cutoff(requested_payment_date, timezone, now=now_for_test)
-		if not meets_cutoff:
-			cutoff_error.details=err_details
-			raise cutoff_error
+		if is_scheduled and meets_cutoff_err:
+			raise errors.Error('Cannot set the requested payment date to {} because {}'.format(
+				requested_payment_date, meets_cutoff_err))
 	
 	if not payment_method:
 		raise errors.Error('Payment method must be specified', details=err_details)
@@ -614,23 +617,6 @@ def create_repayment(
 		closed_loan_ids = [loan.id for loan in loans if loan.closed_at]
 		if len(closed_loan_ids) > 0:
 			raise errors.Error('Some selected loans are closed already')
-
-	contract_obj, err = contract_util.get_active_contract_by_company_id(company_id, session)
-	if err:
-		raise err
-
-	timezone, err = contract_obj.get_timezone_str()
-	if err:
-		raise err
-
-	if not bank_admin_override_for_ach_cutoff:
-		is_scheduled = payment_method == PaymentMethodEnum.REVERSE_DRAFT_ACH
-		meets_cutoff, meets_cutoff_err = date_util.meets_noon_cutoff(
-			requested_payment_date, timezone, now=now_for_test)
-
-		if is_scheduled and meets_cutoff_err:
-			raise errors.Error('Cannot set the requested payment date to {} because {}'.format(
-				requested_payment_date, meets_cutoff_err))
 
 	# Settlement date should not be set until the banker settles the payment.
 	payment_input = payment_types.RepaymentPaymentInputDict(
