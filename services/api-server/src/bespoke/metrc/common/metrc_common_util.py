@@ -72,25 +72,50 @@ FacilitiesPayloadDict = TypedDict('FacilitiesPayloadDict', {
 	'facilities': List[FacilityInfoDict]
 })
 
+CompanyDetailsDict = TypedDict('CompanyDetailsDict', {
+	'company_id': str,
+	'name': str
+})
+
+CompanyStateInfoDict = TypedDict('CompanyStateInfoDict', {
+	'metrc_api_key_id': str,
+	'apis_to_use': ApisToUseDict,
+	'licenses': List[LicenseAuthDict],
+	'facilities_payload': FacilitiesPayloadDict
+})
+
+
+
 class CompanyInfo(object):
 
-	def __init__(self, company_id: str, name: str, licenses: List[LicenseAuthDict],
-										 metrc_api_key_id: str, apis_to_use: ApisToUseDict,
-										 facilities_payload: FacilitiesPayloadDict) -> None:
+	def __init__(self, company_id: str, name: str, state_to_company_info: Dict[str, CompanyStateInfoDict]) -> None:
 		self.company_id = company_id
 		self.name = name
-		self.licenses = licenses
-		self.metrc_api_key_id = metrc_api_key_id
-		self.apis_to_use = apis_to_use
-		self.facilities_payload = facilities_payload
+		self._us_states = list(state_to_company_info.keys())
+		self._state_to_company_info = state_to_company_info
+
+	def get_us_states(self) -> List[str]:
+		return self._us_states
+
+	def get_company_state_info(self, us_state: str) -> CompanyStateInfoDict:
+		if us_state not in self._state_to_company_info:
+			raise errors.Error('Requested us_state {} for company {} but we dont have any information for that state'.format(
+				us_state, self.name))
+		return self._state_to_company_info[us_state]
 
 class DownloadContext(object):
 	"""
 		Context object to contain information when we fetch from various parts of Metrc
 	"""
 
-	def __init__(self, sendgrid_client: sendgrid_util.Client, cur_date: datetime.date, company_info: CompanyInfo, 
-										 license_auth: LicenseAuthDict, debug: bool) -> None:
+	def __init__(self, 
+		sendgrid_client: sendgrid_util.Client, 
+		cur_date: datetime.date, 
+		company_details: CompanyDetailsDict, 
+		apis_to_use: ApisToUseDict,
+		license_auth: LicenseAuthDict, 
+		debug: bool
+	) -> None:
 		self.cur_date = cur_date
 		self.request_status = RequestStatusesDict(
 			transfers_api=UNKNOWN_STATUS_CODE,
@@ -104,8 +129,8 @@ class DownloadContext(object):
 			receipts_api=UNKNOWN_STATUS_CODE,
 			sales_transactions_api=UNKNOWN_STATUS_CODE,
 		)
-		self.company_info = company_info
-		self.apis_to_use = company_info.apis_to_use
+		self.company_details = company_details
+		self.apis_to_use = apis_to_use
 		self.rest = REST(
 			sendgrid_client,
 			AuthDict(
@@ -154,19 +179,27 @@ def get_default_apis_to_use() -> ApisToUseDict:
 		plant_batches=True,
 	)
 
-def get_facilities(auth_dict: AuthDict, us_state: str) -> List[FacilityInfoDict]:
-	auth = HTTPBasicAuth(auth_dict['vendor_key'], auth_dict['user_key'])
-	base_url = _get_base_url(us_state)
-	url = base_url + '/facilities/v1/'
-	resp = requests.get(url, auth=auth)
+class FacilitiesFetcherInterface(object):
+	"""Interface, to make it easier for the test to fake out this function"""
 
-	if not resp.ok:
-		raise errors.Error('URL: {}. Code: {}. Reason: {}. Response: {}'.format(
-			url, resp.status_code, resp.reason, resp.content.decode('utf-8')),
-			details={'status_code': resp.status_code})
+	def get_facilities(self, auth_dict: AuthDict, us_state: str) -> List[FacilityInfoDict]:
+		return []
 
-	facilities_arr = json.loads(resp.content)
-	return facilities_arr
+class FacilitiesFetcher(FacilitiesFetcherInterface):
+
+	def get_facilities(self, auth_dict: AuthDict, us_state: str) -> List[FacilityInfoDict]:
+		auth = HTTPBasicAuth(auth_dict['vendor_key'], auth_dict['user_key'])
+		base_url = _get_base_url(us_state)
+		url = base_url + '/facilities/v1/'
+		resp = requests.get(url, auth=auth)
+
+		if not resp.ok:
+			raise errors.Error('URL: {}. Code: {}. Reason: {}. Response: {}'.format(
+				url, resp.status_code, resp.reason, resp.content.decode('utf-8')),
+				details={'status_code': resp.status_code})
+
+		facilities_arr = json.loads(resp.content)
+		return facilities_arr
 
 
 class REST(object):

@@ -26,7 +26,7 @@ class Harvests(object):
 		self._api_type = api_type
 
 	def get_models(self, ctx: metrc_common_util.DownloadContext) -> List[HarvestObj]:
-		company_id = ctx.company_info.company_id
+		company_id = ctx.company_details['company_id']
 		license_number = ctx.license['license_number']
 		us_state = ctx.license['us_state']
 
@@ -54,7 +54,7 @@ def download_harvests(ctx: metrc_common_util.DownloadContext) -> List[HarvestObj
 	inactive_harvests: List[Dict] = []
 	onhold_harvests: List[Dict] = []
 
-	company_info = ctx.company_info
+	company_details = ctx.company_details
 	cur_date_str = ctx.get_cur_date_str()
 	request_status = ctx.request_status
 	rest = ctx.rest
@@ -94,15 +94,15 @@ def download_harvests(ctx: metrc_common_util.DownloadContext) -> List[HarvestObj
 
 	if active_harvests:
 		logging.info('Downloaded {} active harvests for {} on {}'.format(
-			len(active_harvests), company_info.name, ctx.cur_date))
+			len(active_harvests), company_details['name'], ctx.cur_date))
 
 	if inactive_harvests:
 		logging.info('Downloaded {} inactive harvests for {} on {}'.format(
-			len(inactive_harvests), company_info.name, ctx.cur_date))
+			len(inactive_harvests), company_details['name'], ctx.cur_date))
 
 	if onhold_harvests:
 		logging.info('Downloaded {} onhold harvests for {} on {}'.format(
-			len(onhold_harvests), company_info.name, ctx.cur_date))
+			len(onhold_harvests), company_details['name'], ctx.cur_date))
 
 	harvest_models = active_harvests_models + inactive_harvests_models + onhold_harvests_models
 	return harvest_models

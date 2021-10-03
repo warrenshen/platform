@@ -29,7 +29,7 @@ class SalesTransactions(object):
 			sales_tx.type = self._type
 			sales_tx.license_number = ctx.license['license_number']
 			sales_tx.us_state = ctx.license['us_state']
-			sales_tx.company_id = cast(Any, ctx.company_info.company_id)
+			sales_tx.company_id = cast(Any, ctx.company_details['company_id'])
 			sales_tx.package_id = '{}'.format(tx['PackageId'])
 			sales_tx.package_label = tx['PackageLabel']
 			sales_tx.product_name = tx['ProductName']
@@ -108,7 +108,7 @@ def download_sales_info(ctx: metrc_common_util.DownloadContext) -> List[SalesRec
 	active_sales_receipts: List[Dict] = []
 	inactive_sales_receipts: List[Dict] = []
 
-	company_info = ctx.company_info
+	company_details = ctx.company_details
 	cur_date_str = ctx.get_cur_date_str()
 	request_status = ctx.request_status
 	rest = ctx.rest
@@ -129,12 +129,12 @@ def download_sales_info(ctx: metrc_common_util.DownloadContext) -> List[SalesRec
 
 	active_sales_receipts_models = SalesReceipts(active_sales_receipts, 'active').get_sales_receipt_models(
 		ctx=ctx,
-		company_id=company_info.company_id,
+		company_id=company_details['company_id'],
 		cur_date=ctx.cur_date
 	)
 	inactive_sales_receipts_models = SalesReceipts(inactive_sales_receipts, 'inactive').get_sales_receipt_models(
 		ctx=ctx,
-		company_id=company_info.company_id,
+		company_id=company_details['company_id'],
 		cur_date=ctx.cur_date
 	)
 
@@ -142,11 +142,11 @@ def download_sales_info(ctx: metrc_common_util.DownloadContext) -> List[SalesRec
 
 	if active_sales_receipts:
 		logging.info('Downloaded {} active sales receipts with {} transactions for {} on {}'.format(
-			len(active_sales_receipts_models), num_transactions, company_info.name, ctx.cur_date))
+			len(active_sales_receipts_models), num_transactions, company_details['name'], ctx.cur_date))
 	
 	if inactive_sales_receipts:
 		logging.info('Downloaded {} inactive sales receipts for {} on {}'.format(
-			len(inactive_sales_receipts_models), company_info.name, ctx.cur_date))
+			len(inactive_sales_receipts_models), company_details['name'], ctx.cur_date))
 
 	sales_receipts_models = active_sales_receipts_models + inactive_sales_receipts_models
 	return sales_receipts_models

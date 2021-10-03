@@ -18,6 +18,7 @@ from bespoke.metrc.common import metrc_common_util
 from bespoke.metrc.common.metrc_common_util import LicenseAuthDict, CompanyInfo
 
 from bespoke_test.db import db_unittest, test_helper
+from bespoke_test.metrc import metrc_test_helper
 from bespoke_test.metrc.metrc_test_helper import FakeREST, RequestKey
 
 def _package_json(p: Dict) -> Dict:
@@ -43,25 +44,17 @@ def _get_company2_downloads(seed: test_helper.BasicSeed, index: int) -> metrc_co
 	company_id2 = seed.get_company_id('company_admin', index=index)
 	license_id2 = str(uuid.uuid4())
 
-	ctx = metrc_common_util.DownloadContext(
-		sendgrid_client=None,
-		cur_date=date_util.load_date_str('1/1/2020'),
-		company_info=CompanyInfo(
-			company_id=company_id2,
-			name='Company 2',
-			licenses=[], # unused
-			metrc_api_key_id='',
-			apis_to_use=metrc_common_util.get_default_apis_to_use(),
-			facilities_payload=None,
-		),
+	ctx = metrc_test_helper.create_download_context(
+		cur_date='1/1/2020',
+		company_id=company_id2,
+		name='Company 2',
 		license_auth=LicenseAuthDict(
 			license_id=license_id2,
 			license_number='efgh',
 			us_state='OR',
 			vendor_key='vkey',
 			user_key='ukey2'
-		),
-		debug=True
+		)
 	)
 	ctx.rest = cast(metrc_common_util.REST, FakeREST(
 		# The outgoing and incoming are reversed from company_id2's
@@ -283,25 +276,17 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 				pkg3.company_id = cast(Any, company_id)
 				session.add(pkg3)
 
-			ctx = metrc_common_util.DownloadContext(
-				sendgrid_client=None,
-				cur_date=date_util.load_date_str('1/1/2020'),
-				company_info=CompanyInfo(
-					company_id=company_id,
-					name='Company 1',
-					licenses=[], # unused
-					metrc_api_key_id='',
-					apis_to_use=metrc_common_util.get_default_apis_to_use(),
-					facilities_payload=None,
-				),
+			ctx = metrc_test_helper.create_download_context(
+				cur_date='1/1/2020',
+				company_id=company_id,
+				name='Company 1',
 				license_auth=LicenseAuthDict(
 					license_id=license_id,
 					license_number='abcd',
 					us_state='OR',
 					vendor_key='vkey',
 					user_key='ukey'
-				),
-				debug=True
+				)
 			)
 			ctx.rest = cast(metrc_common_util.REST, FakeREST(
 				req_to_resp={

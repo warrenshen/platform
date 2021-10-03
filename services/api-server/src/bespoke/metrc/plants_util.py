@@ -27,7 +27,7 @@ class Plants(object):
 
 	def get_models(self, ctx: metrc_common_util.DownloadContext) -> List[PlantObj]:
 		plants = []
-		company_id = ctx.company_info.company_id
+		company_id = ctx.company_details['company_id']
 		license_number = ctx.license['license_number']
 		us_state = ctx.license['us_state']
 
@@ -56,7 +56,7 @@ def download_plants(ctx: metrc_common_util.DownloadContext) -> List[PlantObj]:
 	inactive_plants: List[Dict] = []
 	onhold_plants: List[Dict] = []
 
-	company_info = ctx.company_info
+	company_details = ctx.company_details
 	cur_date_str = ctx.get_cur_date_str()
 	request_status = ctx.request_status
 	rest = ctx.rest
@@ -106,19 +106,19 @@ def download_plants(ctx: metrc_common_util.DownloadContext) -> List[PlantObj]:
 
 	if vegetative_plants:
 		logging.info('Downloaded {} vegetative plants for {} on {}'.format(
-			len(vegetative_plants), company_info.name, ctx.cur_date))
+			len(vegetative_plants), company_details['name'], ctx.cur_date))
 
 	if flowering_plants:
 		logging.info('Downloaded {} flowering plants for {} on {}'.format(
-			len(flowering_plants), company_info.name, ctx.cur_date))
+			len(flowering_plants), company_details['name'], ctx.cur_date))
 
 	if inactive_plants:
 		logging.info('Downloaded {} inactive plants for {} on {}'.format(
-			len(inactive_plants), company_info.name, ctx.cur_date))
+			len(inactive_plants), company_details['name'], ctx.cur_date))
 
 	if onhold_plants:
 		logging.info('Downloaded {} onhold plants for {} on {}'.format(
-			len(onhold_plants), company_info.name, ctx.cur_date))
+			len(onhold_plants), company_details['name'], ctx.cur_date))
 
 	plant_models = vegetative_plant_models + flowering_plant_models + inactive_plant_models + onhold_plant_models
 	return plant_models

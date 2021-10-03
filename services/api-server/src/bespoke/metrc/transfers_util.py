@@ -61,7 +61,7 @@ class TransferPackages(object):
 	def get_package_models(
 			self, lab_tests: List[LabTest], transfer_type: str, created_date: datetime.date,
 			ctx: metrc_common_util.DownloadContext) -> Tuple[List[models.MetrcTransferPackage], str]:
-		company_id = ctx.company_info.company_id
+		company_id = ctx.company_details['company_id']
 		license_id = ctx.license['license_id']
 		license_number = ctx.license['license_number']
 		us_state = ctx.license['us_state']
@@ -125,7 +125,7 @@ class Transfers(object):
 
 	def get_transfer_objs(self, rest: metrc_common_util.REST, ctx: metrc_common_util.DownloadContext, transfer_type: str) -> List[MetrcTransferObj]:
 		metrc_transfer_objs = []
-		company_id = ctx.company_info.company_id
+		company_id = ctx.company_details['company_id']
 		license_id = ctx.license['license_id']
 		license_number = ctx.license['license_number']
 		us_state = ctx.license['us_state']
@@ -466,14 +466,14 @@ def populate_transfers_table(
 ) -> Tuple[bool, errors.Error]:
 
 	## Setup
-	company_info = ctx.company_info
+	company_details = ctx.company_details
 	cur_date = ctx.cur_date
 	request_status = ctx.request_status
 	rest = ctx.rest
 	license = ctx.license
 
 	cur_date_str = ctx.get_cur_date_str()
-	apis_to_use = company_info.apis_to_use
+	apis_to_use = ctx.apis_to_use
 
 	## Fetch transfers
 
@@ -558,7 +558,7 @@ def populate_transfers_table(
 				request_status['transfer_packages_wholesale_api'] = 200
 			except errors.Error as e:
 				t_packages_wholesale_json = [] # If fetch fails, we set to empty array and continue.
-				logging.error(f'Could not fetch packages wholesale for company {company_info.name} for transfer with delivery id {delivery_id}. {e}')
+				logging.error(f'Could not fetch packages wholesale for company {company_details["name"]} for transfer with delivery id {delivery_id}. {e}')
 				metrc_common_util.update_if_all_are_unsuccessful(request_status, 'transfer_packages_wholesale_api', e)
 
 			packages = TransferPackages(
@@ -583,7 +583,7 @@ def populate_transfers_table(
 				package_id_to_delivery_id[metrc_package.package_id] = delivery_id
 				all_metrc_transfer_package_objs.append(
 					TransferPackageObj(
-						company_id=company_info.company_id,
+						company_id=company_details['company_id'],
 						transfer_type=delivery.transfer_type,
 						transfer_package=metrc_package
 					))

@@ -49,6 +49,7 @@ class UpsertApiKeyView(MethodView):
 				company_settings_id=form['company_settings_id'],
 				metrc_api_key_id=form['metrc_api_key_id'],
 				security_cfg=cfg.get_security_config(),
+				us_state=form.get('us_state'),
 				session=session
 			)
 			if err:

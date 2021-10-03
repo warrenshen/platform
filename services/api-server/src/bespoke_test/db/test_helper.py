@@ -4,7 +4,7 @@
 import logging
 import traceback
 import unittest
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, cast
 
 from bespoke.db import models
 from bespoke.db.models import session_scope
@@ -212,6 +212,19 @@ class BasicSeed(object):
 			return str(self.data['company_admins'][index]['user']['user_id'])
 
 		raise Exception('Unsupported account_role for get_user_id')
+
+	def get_company_settings_id(self, account_role: str, index: int = 0) -> str:
+		company_id = self.get_company_id(account_role, index)
+		with session_scope(self.session_maker) as session:
+			company_settings = cast(
+				models.CompanySettings,
+				session.query(models.CompanySettings).filter(
+					models.CompanySettings.company_id == company_id
+				).first())
+			if not company_settings:
+				raise Exception('No company settings found for account_role={} index={}'.format(account_role, index))
+
+			return str(company_settings.id)
 
 	@staticmethod
 	def create(session_maker: Callable, test_self: Any) -> 'BasicSeed':

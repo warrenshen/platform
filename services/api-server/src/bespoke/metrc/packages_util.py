@@ -47,7 +47,7 @@ class Packages(object):
 		return payload
 
 	def get_models(self, ctx: metrc_common_util.DownloadContext) -> List[PackageObject]:
-		company_id = ctx.company_info.company_id
+		company_id = ctx.company_details['company_id']
 		license_number = ctx.license['license_number']
 		us_state = ctx.license['us_state']
 
@@ -88,7 +88,7 @@ def download_packages(ctx: metrc_common_util.DownloadContext) -> List[PackageObj
 	inactive_packages: List[Dict] = []
 	onhold_packages: List[Dict] = []
 
-	company_info = ctx.company_info
+	company_details = ctx.company_details
 	cur_date_str = ctx.get_cur_date_str()
 	request_status = ctx.request_status
 	rest = ctx.rest
@@ -129,15 +129,15 @@ def download_packages(ctx: metrc_common_util.DownloadContext) -> List[PackageObj
 
 	if active_packages:
 		logging.info('Downloaded {} active packages for {} on {}'.format(
-			len(active_package_models), company_info.name, ctx.cur_date))
+			len(active_package_models), company_details['name'], ctx.cur_date))
 
 	if inactive_packages:
 		logging.info('Downloaded {} inactive packages for {} on {}'.format(
-			len(inactive_package_models), company_info.name, ctx.cur_date))
+			len(inactive_package_models), company_details['name'], ctx.cur_date))
 
 	if onhold_packages:
 		logging.info('Downloaded {} on hold packages for {} on {}'.format(
-			len(onhold_package_models), company_info.name, ctx.cur_date))
+			len(onhold_package_models), company_details['name'], ctx.cur_date))
 
 	package_models = active_package_models + inactive_package_models + onhold_package_models
 	return package_models

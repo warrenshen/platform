@@ -3,6 +3,8 @@ import requests
 from typing import Any, Dict, List, Tuple, NamedTuple, cast
 
 from bespoke import errors
+from bespoke.date import date_util
+from bespoke.metrc.common import metrc_common_util
 
 RequestKey = NamedTuple('RequestKey', (
 	('url', str),
@@ -43,3 +45,21 @@ class FakeREST(object):
 		r._content = content
 		self.req_to_resp[key]['__index'] += 1
 		return r
+
+def create_download_context(
+	cur_date: str,
+	company_id: str,
+	name: str,
+	license_auth: metrc_common_util.LicenseAuthDict,
+	) -> metrc_common_util.DownloadContext:
+	return metrc_common_util.DownloadContext(
+		sendgrid_client=None,
+		cur_date=date_util.load_date_str(cur_date),
+		company_details=metrc_common_util.CompanyDetailsDict(
+			company_id=company_id,
+			name=name,
+		),
+		apis_to_use=metrc_common_util.get_default_apis_to_use(),
+		license_auth=license_auth,
+		debug=True
+	)

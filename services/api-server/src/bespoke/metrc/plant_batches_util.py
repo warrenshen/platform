@@ -26,7 +26,7 @@ class PlantBatches(object):
 		self._api_type = api_type
 
 	def get_models(self, ctx: metrc_common_util.DownloadContext) -> List[PlantBatchObj]:
-		company_id = ctx.company_info.company_id
+		company_id = ctx.company_details['company_id']
 		license_number = ctx.license['license_number']
 		us_state = ctx.license['us_state']
 
@@ -54,7 +54,7 @@ def download_plant_batches(ctx: metrc_common_util.DownloadContext) -> List[Plant
 	active_batches: List[Dict] = []
 	inactive_batches: List[Dict] = []
 
-	company_info = ctx.company_info
+	company_details = ctx.company_details
 	cur_date_str = ctx.get_cur_date_str()
 	request_status = ctx.request_status
 	rest = ctx.rest
@@ -83,11 +83,11 @@ def download_plant_batches(ctx: metrc_common_util.DownloadContext) -> List[Plant
 
 	if inactive_batches:
 		logging.info('Downloaded {} inactive batches for {} on {}'.format(
-			len(inactive_batches), company_info.name, ctx.cur_date))
+			len(inactive_batches), company_details['name'], ctx.cur_date))
 
 	if active_batches:
 		logging.info('Downloaded {} inactive batches for {} on {}'.format(
-			len(active_batches), company_info.name, ctx.cur_date))
+			len(active_batches), company_details['name'], ctx.cur_date))
 
 	batch_models = inactive_plant_batch_models + active_plant_batch_models
 	return batch_models

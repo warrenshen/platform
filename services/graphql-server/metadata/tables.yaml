@@ -2794,6 +2794,7 @@
       - is_functioning
       - last_used_at
       - status_codes_payload
+      - us_state
       filter: {}
   - role: bank_read_only
     permission:
@@ -2805,6 +2806,7 @@
       - is_functioning
       - last_used_at
       - status_codes_payload
+      - us_state
       filter: {}
   - role: company_admin
     permission:
@@ -2814,6 +2816,7 @@
       - id
       - is_functioning
       - last_used_at
+      - us_state
       filter:
         company_id:
           _eq: X-Hasura-Company-Id
@@ -2825,6 +2828,7 @@
       - id
       - is_functioning
       - last_used_at
+      - us_state
       filter:
         company_id:
           _eq: X-Hasura-Company-Id
