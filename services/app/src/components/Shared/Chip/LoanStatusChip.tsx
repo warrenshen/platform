@@ -34,6 +34,7 @@ const StatusToColor = {
   [LoanStatusEnum.PastDue]: "#e74c3c", // Red
   [LoanStatusEnum.Funded]: "#3498db", // Blue
   [LoanStatusEnum.Closed]: "#9b59b6", // Purple
+  [LoanStatusEnum.Closing]: "#9b59b6",
 };
 
 export default function LoanStatusChip({ loanStatus }: Props) {

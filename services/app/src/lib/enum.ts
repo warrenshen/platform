@@ -86,6 +86,7 @@ export const LoanStatusToLabel = {
   [LoanStatusEnum.PastDue]: "Past Due",
   [LoanStatusEnum.Funded]: "Funded",
   [LoanStatusEnum.Closed]: "Closed",
+  [LoanStatusEnum.Closing]: "Closing",
 };
 
 export const AllLoanStatuses = [

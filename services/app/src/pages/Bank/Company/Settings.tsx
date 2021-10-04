@@ -6,9 +6,11 @@ import {
   Typography,
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
+import ChangeIsDummyAccountModal from "components/Settings/Bank/ChangeIsDummyAccountModal";
 import MetrcApiKeys from "components/Settings/Bank/MetrcApiKeys";
 import SyncMetrcData from "components/Settings/Bank/SyncMetrcData";
-import ChangeIsDummyAccountModal from "components/Settings/Bank/ChangeIsDummyAccountModal";
+import UpsertCustomMessagesModal from "components/Settings/Bank/UpsertCustomMessagesModal";
+import UpsertFeatureFlagsModal from "components/Settings/Bank/UpsertFeatureFlagsModal";
 import CustomerSettings from "components/Settings/CustomerSettings";
 import AssignAdvancesBespokeBankAccount from "components/Shared/BankAssignment/AssignAdvancesBespokeBankAccount";
 import AssignCollectionsBespokeBankAccount from "components/Shared/BankAssignment/AssignCollectionsBespokeBankAccount";
@@ -16,8 +18,6 @@ import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import PageContent from "components/Shared/Page/PageContent";
 import UpdateCompanyLicensesModal from "components/ThirdParties/UpdateCompanyLicensesModal";
-import UpsertCustomMessagesModal from "components/Settings/Bank/UpsertCustomMessagesModal";
-import UpsertFeatureFlagsModal from "components/Settings/Bank/UpsertFeatureFlagsModal";
 import UpdateThirdPartyCompanySettingsModal from "components/ThirdParties/UpdateThirdPartyCompanySettingsModal";
 import {
   Companies,
@@ -27,8 +27,8 @@ import {
 } from "generated/graphql";
 import {
   getCustomMessageName,
-  getFeatureFlagName,
   getFeatureFlagDescription,
+  getFeatureFlagName,
 } from "lib/companies";
 import {
   AllCustomMessages,
@@ -208,9 +208,10 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
             <b>Metrc</b>
           </Typography>
           <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="subtitle1">API Key</Typography>
+            <Typography variant="subtitle1">API Keys</Typography>
             <MetrcApiKeys
               metrcApiKey={metrcApiKey}
+              companyId={companyId}
               companySettingsId={settings?.id}
               handleDataChange={refetch}
             />

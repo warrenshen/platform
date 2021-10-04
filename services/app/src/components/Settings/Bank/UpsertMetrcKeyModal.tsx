@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   companySettingsId: CompanySettings["id"];
-  metrcApiKey: MetrcApiKeyFragment;
+  metrcApiKey: MetrcApiKeyFragment | null | undefined;
   handleClose: () => void;
 }
 
@@ -45,6 +45,7 @@ export default function UpsertMetrcKeyModal({
   const [errorMessage, setErrorMessage] = useState("");
 
   const [apiKey, setApiKey] = useState<string>("");
+  const [usState, setUsState] = useState<string>("");
   const hasKey = !!metrcApiKey;
 
   const [upsertApiKey, { loading: isUpsertKeyLoading }] = useCustomMutation(
@@ -53,6 +54,9 @@ export default function UpsertMetrcKeyModal({
 
   useEffect(() => {
     async function viewKey() {
+      if (!metrcApiKey) {
+        return;
+      }
       const resp = await viewApiKey({
         variables: {
           metrc_api_key_id: metrcApiKey.id,
@@ -60,6 +64,7 @@ export default function UpsertMetrcKeyModal({
       });
       if (resp.status === "OK") {
         setApiKey(resp.data?.api_key || "Invalid");
+        setUsState(resp.data?.us_state || "");
       }
     }
 
@@ -74,6 +79,7 @@ export default function UpsertMetrcKeyModal({
         company_settings_id: companySettingsId,
         metrc_api_key_id: metrcApiKey ? metrcApiKey.id : null,
         api_key: apiKey.trim(),
+        us_state: usState?.trim(),
       },
     });
 
@@ -104,7 +110,7 @@ export default function UpsertMetrcKeyModal({
             </Typography>
           )}
         </Box>
-        <Box display="flex" flexDirection="column">
+        <Box display="flex" flexDirection="column" mb={2}>
           <TextField
             autoFocus
             label="API Key"
@@ -112,6 +118,17 @@ export default function UpsertMetrcKeyModal({
             value={apiKey}
             onChange={({ target: { value } }) => {
               setApiKey(value);
+            }}
+          />
+        </Box>
+        <Box display="flex" flexDirection="column">
+          <TextField
+            autoFocus
+            label="US State"
+            required
+            value={usState}
+            onChange={({ target: { value } }) => {
+              setUsState(value);
             }}
           />
         </Box>

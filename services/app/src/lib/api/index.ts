@@ -142,6 +142,7 @@ export const twoFactorRoutes = {
 export const metrcRoutes = {
   getTransfers: "/metrc/get_transfers",
   upsertApiKey: "/metrc/upsert_api_key",
+  deleteApiKey: "/metrc/delete_api_key",
   viewApiKey: "/metrc/view_api_key",
   syncMetrcDataPerCustomer: "/metrc/sync_metrc_data_per_customer",
 };

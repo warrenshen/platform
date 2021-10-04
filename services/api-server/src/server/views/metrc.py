@@ -43,13 +43,45 @@ class UpsertApiKeyView(MethodView):
 					'Missing key {} in request'.format(key))
 
 		with session_scope(current_app.session_maker) as session:
-
 			_, err = metrc_util.upsert_api_key(
 				api_key=form['api_key'], 
 				company_settings_id=form['company_settings_id'],
 				metrc_api_key_id=form['metrc_api_key_id'],
 				security_cfg=cfg.get_security_config(),
 				us_state=form.get('us_state'),
+				session=session
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
+
+class DeleteApiKeyView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		cfg = cast(Config, current_app.app_config)
+		user_session = auth_util.UserSession.from_session()
+
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'company_settings_id', 'metrc_api_key_id'
+		]
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(
+					'Missing key {} in request'.format(key))
+
+		with session_scope(current_app.session_maker) as session:
+			_, err = metrc_util.delete_api_key(
+				company_settings_id=form['company_settings_id'],
+				metrc_api_key_id=form['metrc_api_key_id'],
 				session=session
 			)
 			if err:
@@ -81,7 +113,7 @@ class ViewApiKeyView(MethodView):
 
 		with session_scope(current_app.session_maker) as session:
 
-			api_key, err = metrc_util.view_api_key(
+			view_api_key_resp, err = metrc_util.view_api_key(
 				metrc_api_key_id=form['metrc_api_key_id'],
 				security_cfg=cfg.get_security_config(),
 				session=session
@@ -91,9 +123,7 @@ class ViewApiKeyView(MethodView):
 
 		return make_response(json.dumps({
 			'status': 'OK',
-			'data': {
-				'api_key': api_key,
-			},
+			'data': view_api_key_resp,
 		}), 200)
 
 class SyncMetrcDataPerCustomerView(MethodView):
@@ -161,6 +191,9 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/view_api_key', view_func=ViewApiKeyView.as_view(name='view_api_key_view'))
+
+handler.add_url_rule(
+	'/delete_api_key', view_func=DeleteApiKeyView.as_view(name='delete_api_key_view'))
 
 handler.add_url_rule(
 	'/sync_metrc_data_per_customer', view_func=SyncMetrcDataPerCustomerView.as_view(name='sync_metrc_data_per_customer_view'))

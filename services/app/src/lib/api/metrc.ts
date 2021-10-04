@@ -198,6 +198,27 @@ export async function upsertApiKeyMutation(req: {
     );
 }
 
+export async function deleteApiKeyMutation(req: {
+  variables: {
+    company_settings_id: string;
+    metrc_api_key_id: string;
+  };
+}): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(metrcRoutes.deleteApiKey, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not delete api key",
+        };
+      }
+    );
+}
+
 export async function viewApiKey(req: {
   variables: {
     metrc_api_key_id: string;

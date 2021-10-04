@@ -6638,6 +6638,8 @@ export type FinancialSummaries = {
   needs_recompute: Scalars["Boolean"];
   product_type?: Maybe<ProductTypeEnum>;
   total_amount_to_pay_interest_on?: Maybe<Scalars["numeric"]>;
+  total_fees_paid_adjustment_today?: Maybe<Scalars["numeric"]>;
+  total_interest_paid_adjustment_today?: Maybe<Scalars["numeric"]>;
   total_limit: Scalars["numeric"];
   total_outstanding_fees: Scalars["numeric"];
   total_outstanding_interest: Scalars["numeric"];
@@ -6718,6 +6720,8 @@ export type FinancialSummariesAvgFields = {
   days_to_compute_back?: Maybe<Scalars["Float"]>;
   interest_accrued_today?: Maybe<Scalars["Float"]>;
   total_amount_to_pay_interest_on?: Maybe<Scalars["Float"]>;
+  total_fees_paid_adjustment_today?: Maybe<Scalars["Float"]>;
+  total_interest_paid_adjustment_today?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
@@ -6733,6 +6737,8 @@ export type FinancialSummariesAvgOrderBy = {
   days_to_compute_back?: Maybe<OrderBy>;
   interest_accrued_today?: Maybe<OrderBy>;
   total_amount_to_pay_interest_on?: Maybe<OrderBy>;
+  total_fees_paid_adjustment_today?: Maybe<OrderBy>;
+  total_interest_paid_adjustment_today?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
@@ -6760,6 +6766,8 @@ export type FinancialSummariesBoolExp = {
   needs_recompute?: Maybe<BooleanComparisonExp>;
   product_type?: Maybe<ProductTypeEnumComparisonExp>;
   total_amount_to_pay_interest_on?: Maybe<NumericComparisonExp>;
+  total_fees_paid_adjustment_today?: Maybe<NumericComparisonExp>;
+  total_interest_paid_adjustment_today?: Maybe<NumericComparisonExp>;
   total_limit?: Maybe<NumericComparisonExp>;
   total_outstanding_fees?: Maybe<NumericComparisonExp>;
   total_outstanding_interest?: Maybe<NumericComparisonExp>;
@@ -6802,6 +6810,8 @@ export type FinancialSummariesIncInput = {
   days_to_compute_back?: Maybe<Scalars["Int"]>;
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
   total_amount_to_pay_interest_on?: Maybe<Scalars["numeric"]>;
+  total_fees_paid_adjustment_today?: Maybe<Scalars["numeric"]>;
+  total_interest_paid_adjustment_today?: Maybe<Scalars["numeric"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
   total_outstanding_interest?: Maybe<Scalars["numeric"]>;
@@ -6826,6 +6836,8 @@ export type FinancialSummariesInsertInput = {
   needs_recompute?: Maybe<Scalars["Boolean"]>;
   product_type?: Maybe<ProductTypeEnum>;
   total_amount_to_pay_interest_on?: Maybe<Scalars["numeric"]>;
+  total_fees_paid_adjustment_today?: Maybe<Scalars["numeric"]>;
+  total_interest_paid_adjustment_today?: Maybe<Scalars["numeric"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
   total_outstanding_interest?: Maybe<Scalars["numeric"]>;
@@ -6846,6 +6858,8 @@ export type FinancialSummariesMaxFields = {
   id?: Maybe<Scalars["uuid"]>;
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
   total_amount_to_pay_interest_on?: Maybe<Scalars["numeric"]>;
+  total_fees_paid_adjustment_today?: Maybe<Scalars["numeric"]>;
+  total_interest_paid_adjustment_today?: Maybe<Scalars["numeric"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
   total_outstanding_interest?: Maybe<Scalars["numeric"]>;
@@ -6866,6 +6880,8 @@ export type FinancialSummariesMaxOrderBy = {
   id?: Maybe<OrderBy>;
   interest_accrued_today?: Maybe<OrderBy>;
   total_amount_to_pay_interest_on?: Maybe<OrderBy>;
+  total_fees_paid_adjustment_today?: Maybe<OrderBy>;
+  total_interest_paid_adjustment_today?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
@@ -6886,6 +6902,8 @@ export type FinancialSummariesMinFields = {
   id?: Maybe<Scalars["uuid"]>;
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
   total_amount_to_pay_interest_on?: Maybe<Scalars["numeric"]>;
+  total_fees_paid_adjustment_today?: Maybe<Scalars["numeric"]>;
+  total_interest_paid_adjustment_today?: Maybe<Scalars["numeric"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
   total_outstanding_interest?: Maybe<Scalars["numeric"]>;
@@ -6906,6 +6924,8 @@ export type FinancialSummariesMinOrderBy = {
   id?: Maybe<OrderBy>;
   interest_accrued_today?: Maybe<OrderBy>;
   total_amount_to_pay_interest_on?: Maybe<OrderBy>;
+  total_fees_paid_adjustment_today?: Maybe<OrderBy>;
+  total_interest_paid_adjustment_today?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
@@ -6952,6 +6972,8 @@ export type FinancialSummariesOrderBy = {
   needs_recompute?: Maybe<OrderBy>;
   product_type?: Maybe<OrderBy>;
   total_amount_to_pay_interest_on?: Maybe<OrderBy>;
+  total_fees_paid_adjustment_today?: Maybe<OrderBy>;
+  total_interest_paid_adjustment_today?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
@@ -7001,6 +7023,10 @@ export enum FinancialSummariesSelectColumn {
   /** column name */
   TotalAmountToPayInterestOn = "total_amount_to_pay_interest_on",
   /** column name */
+  TotalFeesPaidAdjustmentToday = "total_fees_paid_adjustment_today",
+  /** column name */
+  TotalInterestPaidAdjustmentToday = "total_interest_paid_adjustment_today",
+  /** column name */
   TotalLimit = "total_limit",
   /** column name */
   TotalOutstandingFees = "total_outstanding_fees",
@@ -7031,6 +7057,8 @@ export type FinancialSummariesSetInput = {
   needs_recompute?: Maybe<Scalars["Boolean"]>;
   product_type?: Maybe<ProductTypeEnum>;
   total_amount_to_pay_interest_on?: Maybe<Scalars["numeric"]>;
+  total_fees_paid_adjustment_today?: Maybe<Scalars["numeric"]>;
+  total_interest_paid_adjustment_today?: Maybe<Scalars["numeric"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
   total_outstanding_interest?: Maybe<Scalars["numeric"]>;
@@ -7047,6 +7075,8 @@ export type FinancialSummariesStddevFields = {
   days_to_compute_back?: Maybe<Scalars["Float"]>;
   interest_accrued_today?: Maybe<Scalars["Float"]>;
   total_amount_to_pay_interest_on?: Maybe<Scalars["Float"]>;
+  total_fees_paid_adjustment_today?: Maybe<Scalars["Float"]>;
+  total_interest_paid_adjustment_today?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
@@ -7062,6 +7092,8 @@ export type FinancialSummariesStddevOrderBy = {
   days_to_compute_back?: Maybe<OrderBy>;
   interest_accrued_today?: Maybe<OrderBy>;
   total_amount_to_pay_interest_on?: Maybe<OrderBy>;
+  total_fees_paid_adjustment_today?: Maybe<OrderBy>;
+  total_interest_paid_adjustment_today?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
@@ -7077,6 +7109,8 @@ export type FinancialSummariesStddevPopFields = {
   days_to_compute_back?: Maybe<Scalars["Float"]>;
   interest_accrued_today?: Maybe<Scalars["Float"]>;
   total_amount_to_pay_interest_on?: Maybe<Scalars["Float"]>;
+  total_fees_paid_adjustment_today?: Maybe<Scalars["Float"]>;
+  total_interest_paid_adjustment_today?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
@@ -7092,6 +7126,8 @@ export type FinancialSummariesStddevPopOrderBy = {
   days_to_compute_back?: Maybe<OrderBy>;
   interest_accrued_today?: Maybe<OrderBy>;
   total_amount_to_pay_interest_on?: Maybe<OrderBy>;
+  total_fees_paid_adjustment_today?: Maybe<OrderBy>;
+  total_interest_paid_adjustment_today?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
@@ -7107,6 +7143,8 @@ export type FinancialSummariesStddevSampFields = {
   days_to_compute_back?: Maybe<Scalars["Float"]>;
   interest_accrued_today?: Maybe<Scalars["Float"]>;
   total_amount_to_pay_interest_on?: Maybe<Scalars["Float"]>;
+  total_fees_paid_adjustment_today?: Maybe<Scalars["Float"]>;
+  total_interest_paid_adjustment_today?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
@@ -7122,6 +7160,8 @@ export type FinancialSummariesStddevSampOrderBy = {
   days_to_compute_back?: Maybe<OrderBy>;
   interest_accrued_today?: Maybe<OrderBy>;
   total_amount_to_pay_interest_on?: Maybe<OrderBy>;
+  total_fees_paid_adjustment_today?: Maybe<OrderBy>;
+  total_interest_paid_adjustment_today?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
@@ -7137,6 +7177,8 @@ export type FinancialSummariesSumFields = {
   days_to_compute_back?: Maybe<Scalars["Int"]>;
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
   total_amount_to_pay_interest_on?: Maybe<Scalars["numeric"]>;
+  total_fees_paid_adjustment_today?: Maybe<Scalars["numeric"]>;
+  total_interest_paid_adjustment_today?: Maybe<Scalars["numeric"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
   total_outstanding_interest?: Maybe<Scalars["numeric"]>;
@@ -7152,6 +7194,8 @@ export type FinancialSummariesSumOrderBy = {
   days_to_compute_back?: Maybe<OrderBy>;
   interest_accrued_today?: Maybe<OrderBy>;
   total_amount_to_pay_interest_on?: Maybe<OrderBy>;
+  total_fees_paid_adjustment_today?: Maybe<OrderBy>;
+  total_interest_paid_adjustment_today?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
@@ -7189,6 +7233,10 @@ export enum FinancialSummariesUpdateColumn {
   /** column name */
   TotalAmountToPayInterestOn = "total_amount_to_pay_interest_on",
   /** column name */
+  TotalFeesPaidAdjustmentToday = "total_fees_paid_adjustment_today",
+  /** column name */
+  TotalInterestPaidAdjustmentToday = "total_interest_paid_adjustment_today",
+  /** column name */
   TotalLimit = "total_limit",
   /** column name */
   TotalOutstandingFees = "total_outstanding_fees",
@@ -7211,6 +7259,8 @@ export type FinancialSummariesVarPopFields = {
   days_to_compute_back?: Maybe<Scalars["Float"]>;
   interest_accrued_today?: Maybe<Scalars["Float"]>;
   total_amount_to_pay_interest_on?: Maybe<Scalars["Float"]>;
+  total_fees_paid_adjustment_today?: Maybe<Scalars["Float"]>;
+  total_interest_paid_adjustment_today?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
@@ -7226,6 +7276,8 @@ export type FinancialSummariesVarPopOrderBy = {
   days_to_compute_back?: Maybe<OrderBy>;
   interest_accrued_today?: Maybe<OrderBy>;
   total_amount_to_pay_interest_on?: Maybe<OrderBy>;
+  total_fees_paid_adjustment_today?: Maybe<OrderBy>;
+  total_interest_paid_adjustment_today?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
@@ -7241,6 +7293,8 @@ export type FinancialSummariesVarSampFields = {
   days_to_compute_back?: Maybe<Scalars["Float"]>;
   interest_accrued_today?: Maybe<Scalars["Float"]>;
   total_amount_to_pay_interest_on?: Maybe<Scalars["Float"]>;
+  total_fees_paid_adjustment_today?: Maybe<Scalars["Float"]>;
+  total_interest_paid_adjustment_today?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
@@ -7256,6 +7310,8 @@ export type FinancialSummariesVarSampOrderBy = {
   days_to_compute_back?: Maybe<OrderBy>;
   interest_accrued_today?: Maybe<OrderBy>;
   total_amount_to_pay_interest_on?: Maybe<OrderBy>;
+  total_fees_paid_adjustment_today?: Maybe<OrderBy>;
+  total_interest_paid_adjustment_today?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
@@ -7271,6 +7327,8 @@ export type FinancialSummariesVarianceFields = {
   days_to_compute_back?: Maybe<Scalars["Float"]>;
   interest_accrued_today?: Maybe<Scalars["Float"]>;
   total_amount_to_pay_interest_on?: Maybe<Scalars["Float"]>;
+  total_fees_paid_adjustment_today?: Maybe<Scalars["Float"]>;
+  total_interest_paid_adjustment_today?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
@@ -7286,6 +7344,8 @@ export type FinancialSummariesVarianceOrderBy = {
   days_to_compute_back?: Maybe<OrderBy>;
   interest_accrued_today?: Maybe<OrderBy>;
   total_amount_to_pay_interest_on?: Maybe<OrderBy>;
+  total_fees_paid_adjustment_today?: Maybe<OrderBy>;
+  total_interest_paid_adjustment_today?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
@@ -8932,6 +8992,8 @@ export enum LoanStatusEnum {
   Approved = "approved",
   /** Closed */
   Closed = "closed",
+  /** Closing */
+  Closing = "closing",
   /** Drafted */
   Drafted = "drafted",
   /** Funded */
@@ -9966,6 +10028,7 @@ export type MetrcApiKeys = {
   is_functioning?: Maybe<Scalars["Boolean"]>;
   last_used_at?: Maybe<Scalars["timestamptz"]>;
   status_codes_payload?: Maybe<Scalars["json"]>;
+  us_state?: Maybe<Scalars["String"]>;
 };
 
 /**
@@ -10033,6 +10096,7 @@ export type MetrcApiKeysBoolExp = {
   is_functioning?: Maybe<BooleanComparisonExp>;
   last_used_at?: Maybe<TimestamptzComparisonExp>;
   status_codes_payload?: Maybe<JsonComparisonExp>;
+  us_state?: Maybe<StringComparisonExp>;
 };
 
 /** unique or primary key constraints on table "metrc_api_keys" */
@@ -10051,6 +10115,7 @@ export type MetrcApiKeysInsertInput = {
   is_functioning?: Maybe<Scalars["Boolean"]>;
   last_used_at?: Maybe<Scalars["timestamptz"]>;
   status_codes_payload?: Maybe<Scalars["json"]>;
+  us_state?: Maybe<Scalars["String"]>;
 };
 
 /** aggregate max on columns */
@@ -10060,6 +10125,7 @@ export type MetrcApiKeysMaxFields = {
   encrypted_api_key?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
   last_used_at?: Maybe<Scalars["timestamptz"]>;
+  us_state?: Maybe<Scalars["String"]>;
 };
 
 /** order by max() on columns of table "metrc_api_keys" */
@@ -10069,6 +10135,7 @@ export type MetrcApiKeysMaxOrderBy = {
   encrypted_api_key?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   last_used_at?: Maybe<OrderBy>;
+  us_state?: Maybe<OrderBy>;
 };
 
 /** aggregate min on columns */
@@ -10078,6 +10145,7 @@ export type MetrcApiKeysMinFields = {
   encrypted_api_key?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
   last_used_at?: Maybe<Scalars["timestamptz"]>;
+  us_state?: Maybe<Scalars["String"]>;
 };
 
 /** order by min() on columns of table "metrc_api_keys" */
@@ -10087,6 +10155,7 @@ export type MetrcApiKeysMinOrderBy = {
   encrypted_api_key?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   last_used_at?: Maybe<OrderBy>;
+  us_state?: Maybe<OrderBy>;
 };
 
 /** response of any mutation on the table "metrc_api_keys" */
@@ -10120,6 +10189,7 @@ export type MetrcApiKeysOrderBy = {
   is_functioning?: Maybe<OrderBy>;
   last_used_at?: Maybe<OrderBy>;
   status_codes_payload?: Maybe<OrderBy>;
+  us_state?: Maybe<OrderBy>;
 };
 
 /** primary key columns input for table: "metrc_api_keys" */
@@ -10145,6 +10215,8 @@ export enum MetrcApiKeysSelectColumn {
   LastUsedAt = "last_used_at",
   /** column name */
   StatusCodesPayload = "status_codes_payload",
+  /** column name */
+  UsState = "us_state",
 }
 
 /** input type for updating data in table "metrc_api_keys" */
@@ -10157,6 +10229,7 @@ export type MetrcApiKeysSetInput = {
   is_functioning?: Maybe<Scalars["Boolean"]>;
   last_used_at?: Maybe<Scalars["timestamptz"]>;
   status_codes_payload?: Maybe<Scalars["json"]>;
+  us_state?: Maybe<Scalars["String"]>;
 };
 
 /** update columns of table "metrc_api_keys" */
@@ -10177,6 +10250,8 @@ export enum MetrcApiKeysUpdateColumn {
   LastUsedAt = "last_used_at",
   /** column name */
   StatusCodesPayload = "status_codes_payload",
+  /** column name */
+  UsState = "us_state",
 }
 
 /** columns and relationships of "metrc_deliveries" */
@@ -11699,6 +11774,10 @@ export type MetrcSalesReceipts = {
   is_final?: Maybe<Scalars["Boolean"]>;
   last_modified_at?: Maybe<Scalars["timestamptz"]>;
   license_number?: Maybe<Scalars["String"]>;
+  /** An array relationship */
+  metrc_sales_transactions: Array<MetrcSalesTransactions>;
+  /** An aggregated array relationship */
+  metrc_sales_transactions_aggregate: MetrcSalesTransactionsAggregate;
   payload: Scalars["json"];
   receipt_id?: Maybe<Scalars["String"]>;
   receipt_number: Scalars["String"];
@@ -11709,6 +11788,24 @@ export type MetrcSalesReceipts = {
   type: Scalars["String"];
   updated_at?: Maybe<Scalars["timestamptz"]>;
   us_state: Scalars["String"];
+};
+
+/** columns and relationships of "metrc_sales_receipts" */
+export type MetrcSalesReceiptsMetrcSalesTransactionsArgs = {
+  distinct_on?: Maybe<Array<MetrcSalesTransactionsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MetrcSalesTransactionsOrderBy>>;
+  where?: Maybe<MetrcSalesTransactionsBoolExp>;
+};
+
+/** columns and relationships of "metrc_sales_receipts" */
+export type MetrcSalesReceiptsMetrcSalesTransactionsAggregateArgs = {
+  distinct_on?: Maybe<Array<MetrcSalesTransactionsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MetrcSalesTransactionsOrderBy>>;
+  where?: Maybe<MetrcSalesTransactionsBoolExp>;
 };
 
 /** columns and relationships of "metrc_sales_receipts" */
@@ -11788,6 +11885,7 @@ export type MetrcSalesReceiptsBoolExp = {
   is_final?: Maybe<BooleanComparisonExp>;
   last_modified_at?: Maybe<TimestamptzComparisonExp>;
   license_number?: Maybe<StringComparisonExp>;
+  metrc_sales_transactions?: Maybe<MetrcSalesTransactionsBoolExp>;
   payload?: Maybe<JsonComparisonExp>;
   receipt_id?: Maybe<StringComparisonExp>;
   receipt_number?: Maybe<StringComparisonExp>;
@@ -11825,6 +11923,7 @@ export type MetrcSalesReceiptsInsertInput = {
   is_final?: Maybe<Scalars["Boolean"]>;
   last_modified_at?: Maybe<Scalars["timestamptz"]>;
   license_number?: Maybe<Scalars["String"]>;
+  metrc_sales_transactions?: Maybe<MetrcSalesTransactionsArrRelInsertInput>;
   payload?: Maybe<Scalars["json"]>;
   receipt_id?: Maybe<Scalars["String"]>;
   receipt_number?: Maybe<Scalars["String"]>;
@@ -11939,6 +12038,7 @@ export type MetrcSalesReceiptsOrderBy = {
   is_final?: Maybe<OrderBy>;
   last_modified_at?: Maybe<OrderBy>;
   license_number?: Maybe<OrderBy>;
+  metrc_sales_transactions_aggregate?: Maybe<MetrcSalesTransactionsAggregateOrderBy>;
   payload?: Maybe<OrderBy>;
   receipt_id?: Maybe<OrderBy>;
   receipt_number?: Maybe<OrderBy>;
@@ -24520,6 +24620,14 @@ export type GetRepaymentsForCompanyQuery = {
   >;
 };
 
+export type GetMetrcApiKeysPerCompanyQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+}>;
+
+export type GetMetrcApiKeysPerCompanyQuery = {
+  metrc_api_keys: Array<Pick<MetrcApiKeys, "id"> & MetrcApiKeyFragment>;
+};
+
 export type GetCompanySettingsQueryVariables = Exact<{
   company_settings_id: Scalars["uuid"];
 }>;
@@ -25438,6 +25546,7 @@ export type MetrcApiKeyFragment = Pick<
   | "last_used_at"
   | "is_functioning"
   | "status_codes_payload"
+  | "us_state"
 >;
 
 export type VendorFragment = Pick<
@@ -26129,6 +26238,7 @@ export const MetrcApiKeyFragmentDoc = gql`
     last_used_at
     is_functioning
     status_codes_payload
+    us_state
   }
 `;
 export const CompanyLicenseFragmentDoc = gql`
@@ -31565,6 +31675,64 @@ export type GetRepaymentsForCompanyLazyQueryHookResult = ReturnType<
 export type GetRepaymentsForCompanyQueryResult = Apollo.QueryResult<
   GetRepaymentsForCompanyQuery,
   GetRepaymentsForCompanyQueryVariables
+>;
+export const GetMetrcApiKeysPerCompanyDocument = gql`
+  query GetMetrcApiKeysPerCompany($companyId: uuid!) {
+    metrc_api_keys(where: { company_id: { _eq: $companyId } }) {
+      id
+      ...MetrcApiKey
+    }
+  }
+  ${MetrcApiKeyFragmentDoc}
+`;
+
+/**
+ * __useGetMetrcApiKeysPerCompanyQuery__
+ *
+ * To run a query within a React component, call `useGetMetrcApiKeysPerCompanyQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMetrcApiKeysPerCompanyQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMetrcApiKeysPerCompanyQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useGetMetrcApiKeysPerCompanyQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetMetrcApiKeysPerCompanyQuery,
+    GetMetrcApiKeysPerCompanyQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetMetrcApiKeysPerCompanyQuery,
+    GetMetrcApiKeysPerCompanyQueryVariables
+  >(GetMetrcApiKeysPerCompanyDocument, baseOptions);
+}
+export function useGetMetrcApiKeysPerCompanyLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetMetrcApiKeysPerCompanyQuery,
+    GetMetrcApiKeysPerCompanyQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetMetrcApiKeysPerCompanyQuery,
+    GetMetrcApiKeysPerCompanyQueryVariables
+  >(GetMetrcApiKeysPerCompanyDocument, baseOptions);
+}
+export type GetMetrcApiKeysPerCompanyQueryHookResult = ReturnType<
+  typeof useGetMetrcApiKeysPerCompanyQuery
+>;
+export type GetMetrcApiKeysPerCompanyLazyQueryHookResult = ReturnType<
+  typeof useGetMetrcApiKeysPerCompanyLazyQuery
+>;
+export type GetMetrcApiKeysPerCompanyQueryResult = Apollo.QueryResult<
+  GetMetrcApiKeysPerCompanyQuery,
+  GetMetrcApiKeysPerCompanyQueryVariables
 >;
 export const GetCompanySettingsDocument = gql`
   query GetCompanySettings($company_settings_id: uuid!) {
