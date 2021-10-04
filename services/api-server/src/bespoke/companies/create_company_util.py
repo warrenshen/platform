@@ -251,7 +251,7 @@ def _create_user(user_input: Dict, company_id: str, session: Session) -> str:
 	user.company_id = company_id
 	user.first_name = user_first_name
 	user.last_name = user_last_name
-	user.email = user_email
+	user.email = user_email.lower()
 	user.phone_number = user_phone_number
 	user.role = db_constants.UserRoles.COMPANY_CONTACT_ONLY
 	user.login_method = db_constants.LoginMethod.SIMPLE

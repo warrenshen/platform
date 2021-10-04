@@ -34,8 +34,6 @@ def main() -> None:
 			current_email = user.email
 			new_email = user.email.lower()
 
-			print(f'[{index + 1} of {users_count}] Running for user with email {current_email}')
-
 			if current_email == new_email:
 				continue
 
@@ -47,6 +45,7 @@ def main() -> None:
 				print(f'[{index + 1} of {users_count}] Error: user(s) with the new email {new_email} already exist, skipping...')
 				continue
 
+			print(f'[{index + 1} of {users_count}] Changing email of user from {current_email} to {new_email}...')
 			user.email = new_email
 
 if __name__ == "__main__":
