@@ -176,16 +176,23 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 		
 		self.assertEqual(expected['company_id'], actual.company_id)
 		for us_state in actual.get_us_states():
-			self.assertIn(us_state, expected['state_to_company_info'])
-			expected_info = expected['state_to_company_info'][us_state]
-			actual_info = actual.get_company_state_info(us_state)
-			actual_info['licenses'].sort(key=lambda l: l['license_number'])
+			self.assertIn(us_state, expected['state_to_company_infos'])
+			expected_infos = expected['state_to_company_infos'][us_state]
+			actual_infos = actual.get_company_state_infos(us_state)
 
-			self.assertEqual(len(expected_info['licenses']), len(actual_info['licenses']))
-			for i in range(len(expected_info['licenses'])):
-				self.assertDictEqual(expected_info['licenses'][i], cast(Dict, actual_info['licenses'][i]))
-			self.assertEqual(expected_info['metrc_api_key_id'], actual_info['metrc_api_key_id'])
-			self.assertDictEqual(expected_info['facilities_payload'], cast(Dict, actual_info['facilities_payload']))
+			self.assertEqual(len(expected_infos), len(actual_infos))
+
+			for j in range(len(expected_infos)):
+				expected_info = expected_infos[j]
+				actual_info = actual_infos[j]
+
+				actual_info['licenses'].sort(key=lambda l: l['license_number'])
+
+				self.assertEqual(len(expected_info['licenses']), len(actual_info['licenses']))
+				for i in range(len(expected_info['licenses'])):
+					self.assertDictEqual(expected_info['licenses'][i], cast(Dict, actual_info['licenses'][i]))
+				self.assertEqual(expected_info['metrc_api_key_id'], actual_info['metrc_api_key_id'])
+				self.assertDictEqual(expected_info['facilities_payload'], cast(Dict, actual_info['facilities_payload']))
 
 	def test_no_facilities_no_licenses(self) -> None:
 		self.reset()
@@ -227,16 +234,17 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 		self.assertIsNone(err)
 		self._assert_company_info({
 			'company_id': company_id,
-			'state_to_company_info': {
-				'CA': {
-					'licenses': [],
-					'metrc_api_key_id': metrc_api_key_id,
-					'facilities_payload': {
-						'facilities': []
-					}				
-				}
-			}
-
+			'state_to_company_infos': {
+					'CA': [
+						{
+							'licenses': [],
+							'metrc_api_key_id': metrc_api_key_id,
+							'facilities_payload': {
+								'facilities': []
+							}				
+						}
+					],
+			},
 		}, company_info)
 
 	def test_single_state_facilities_and_licenses(self) -> None:
@@ -304,33 +312,36 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 		self.assertIsNone(err)
 		self._assert_company_info({
 			'company_id': company_id,
-			'state_to_company_info': {
-				'CA': {
-					'licenses': [
+			'state_to_company_infos': 
+				{
+					'CA': [ 
 						{
-							'license_id': license_id1,
-							'license_number': 'abcd',
-		  				'us_state': 'CA',
-							'user_key': 'the-api-key',
-							'vendor_key': 'ca-vendorkey'
-						},
-						{
-							'license_id': None,
-							'license_number': 'ijkl',
-		  				'us_state': 'CA',
-							'user_key': 'the-api-key',
-							'vendor_key': 'ca-vendorkey'
+							'licenses': [
+								{
+									'license_id': license_id1,
+									'license_number': 'abcd',
+				  				'us_state': 'CA',
+									'user_key': 'the-api-key',
+									'vendor_key': 'ca-vendorkey'
+								},
+								{
+									'license_id': None,
+									'license_number': 'ijkl',
+				  				'us_state': 'CA',
+									'user_key': 'the-api-key',
+									'vendor_key': 'ca-vendorkey'
+								}
+							],
+							'metrc_api_key_id': metrc_api_key_id,
+							'facilities_payload': {
+								'facilities': [
+									{'License': {'Number': 'abcd'}},
+				          {'License': {'Number': 'ijkl'}}
+				        ]
+							}
 						}
-					],
-					'metrc_api_key_id': metrc_api_key_id,
-					'facilities_payload': {
-						'facilities': [
-							{'License': {'Number': 'abcd'}},
-		          {'License': {'Number': 'ijkl'}}
-		        ]
-					}
+					]
 				}
-			},
 		}, company_info)
 
 	def test_multi_state_facilities_and_licenses(self) -> None:
@@ -419,48 +430,52 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 		self.assertIsNone(err)
 		self._assert_company_info({
 			'company_id': company_id,
-			'state_to_company_info': {
-				'CA': {
-					'licenses': [
-						{
-							'license_id': license_id1,
-							'license_number': 'abcd',
-		  				'us_state': 'CA',
-							'user_key': 'the-api-key',
-							'vendor_key': 'ca-vendorkey'
-						},
-						{
-							'license_id': None,
-							'license_number': 'efgh',
-		  				'us_state': 'CA',
-							'user_key': 'the-api-key',
-							'vendor_key': 'ca-vendorkey'
-						},
-					],
-					'metrc_api_key_id': metrc_api_key_id,
-					'facilities_payload': {
-						'facilities': [
-							{'License': {'Number': 'abcd'}},
-		          {'License': {'Number': 'efgh'}}
-		        ]
-					}
-				},
-				'OR': {
-					'licenses': [			
-						{
-							'license_id': license_id2,
-							'license_number': 'ijkl',
-		  				'us_state': 'OR',
-							'user_key': 'the-api-key2',
-							'vendor_key': 'or-vendorkey'
+			'state_to_company_infos': {
+				'CA': [
+					{
+						'licenses': [
+							{
+								'license_id': license_id1,
+								'license_number': 'abcd',
+			  				'us_state': 'CA',
+								'user_key': 'the-api-key',
+								'vendor_key': 'ca-vendorkey'
+							},
+							{
+								'license_id': None,
+								'license_number': 'efgh',
+			  				'us_state': 'CA',
+								'user_key': 'the-api-key',
+								'vendor_key': 'ca-vendorkey'
+							},
+						],
+						'metrc_api_key_id': metrc_api_key_id,
+						'facilities_payload': {
+							'facilities': [
+								{'License': {'Number': 'abcd'}},
+			          {'License': {'Number': 'efgh'}}
+			        ]
 						}
-					],
-					'metrc_api_key_id': metrc_api_key_id2,
-					'facilities_payload': {
-						'facilities': [
-							{'License': {'Number': 'ijkl'}}
-		        ]
 					}
-				}
+				],
+				'OR': [
+					{
+						'licenses': [			
+							{
+								'license_id': license_id2,
+								'license_number': 'ijkl',
+			  				'us_state': 'OR',
+								'user_key': 'the-api-key2',
+								'vendor_key': 'or-vendorkey'
+							}
+						],
+						'metrc_api_key_id': metrc_api_key_id2,
+						'facilities_payload': {
+							'facilities': [
+								{'License': {'Number': 'ijkl'}}
+			        ]
+						}
+					}
+				]
 			}
 		}, company_info)

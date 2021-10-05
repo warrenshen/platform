@@ -391,6 +391,11 @@ def float_or_null(val: Optional[decimal.Decimal]) -> float:
 
 ## Metrc
 
+MetrcApiKeyDict = TypedDict('MetrcApiKeyDict', {
+	'id': str,
+	'us_state': str
+})
+
 class MetrcApiKey(Base):
 	__tablename__ = 'metrc_api_keys'
 
@@ -403,6 +408,12 @@ class MetrcApiKey(Base):
 	us_state = Column(String)
 	facilities_payload = Column(JSON)
 	status_codes_payload = Column(JSON)
+
+	def as_dict(self) -> MetrcApiKeyDict:
+		return MetrcApiKeyDict(
+			id=str(self.id),
+			us_state=self.us_state if self.us_state else None
+		)
 
 class MetrcPlant(Base):
 	__tablename__ = 'metrc_plants'

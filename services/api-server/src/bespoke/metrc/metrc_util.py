@@ -266,9 +266,7 @@ def _get_metrc_company_info(
 
 		# Assume the current key set uses the customer's default state
 		# in their contract.
-		state_to_metrc_api_key = {
-			us_state: metrc_api_key
-		}
+		state_to_metrc_api_keys: Dict[str, List[models.MetrcApiKey]] = {}
 
 		# Fetch additional metrc api keys for cross-state operators 
 		other_metrc_api_keys = cast(
@@ -278,8 +276,15 @@ def _get_metrc_company_info(
 		).all())
 
 		for other_metrc_api_key in other_metrc_api_keys:
+	
 			if other_metrc_api_key.us_state:
-				state_to_metrc_api_key[other_metrc_api_key.us_state] = other_metrc_api_key
+				cur_us_state = other_metrc_api_key.us_state
+			else:
+				cur_us_state = us_state
+
+			if cur_us_state not in state_to_metrc_api_keys:
+				state_to_metrc_api_keys[cur_us_state] = []
+			state_to_metrc_api_keys[cur_us_state].append(other_metrc_api_key)
 
 		all_licenses = cast(
 			List[models.CompanyLicense],
@@ -298,59 +303,62 @@ def _get_metrc_company_info(
 
 		company_name = company.name
 		use_unsaved_licenses = True # Can change to False for debugging, such as when a customer has many licenses
-		state_to_company_info: Dict[str, CompanyStateInfoDict] = {}
+		state_to_company_infos: Dict[str, List[CompanyStateInfoDict]] = {}
 
 		for us_state in us_states_set:
 			vendor_key, err = auth_provider.get_vendor_key_by_state(us_state)
 			if err:
 				return None, err
 
-			cur_metrc_api_key = state_to_metrc_api_key[us_state]
-			api_key = security_util.decode_secret_string(
-				security_cfg, cur_metrc_api_key.encrypted_api_key
-			)
+			cur_metrc_api_keys = state_to_metrc_api_keys[us_state]
+			for cur_metrc_api_key in cur_metrc_api_keys:
+				api_key = security_util.decode_secret_string(
+					security_cfg, cur_metrc_api_key.encrypted_api_key
+				)
 
-			facilities_arr = facilities_fetcher.get_facilities(AuthDict(
-				vendor_key=vendor_key,
-				user_key=api_key
-			), us_state)
-
-			license_auths = []
-
-			for facility_info in facilities_arr:
-				license_number = facility_info['License']['Number']
-				license_id = None
-				if license_number in licenses_map:
-					license_id = licenses_map[license_number]['id']
-				elif use_unsaved_licenses:
-					logging.warn(f'Company "{company_name}" has license "{license_number}" in Metrc which is not stored in our Postgres DB')
-				else:
-					# If use_unsaved_licenses is false, then skip over this particular
-					# license number
-					continue
-
-				license_auths.append(LicenseAuthDict(
-					license_id=license_id,
-					license_number=license_number,
-					us_state=us_state,
+				facilities_arr = facilities_fetcher.get_facilities(AuthDict(
 					vendor_key=vendor_key,
 					user_key=api_key
-				))
+				), us_state)
 
-			company_state_info = CompanyStateInfoDict(
-				licenses=license_auths,
-				metrc_api_key_id=str(cur_metrc_api_key.id),
-				apis_to_use=metrc_common_util.get_default_apis_to_use(),
-				facilities_payload=metrc_common_util.FacilitiesPayloadDict(
-					facilities=facilities_arr 
+				license_auths = []
+
+				for facility_info in facilities_arr:
+					license_number = facility_info['License']['Number']
+					license_id = None
+					if license_number in licenses_map:
+						license_id = licenses_map[license_number]['id']
+					elif use_unsaved_licenses:
+						logging.warn(f'Company "{company_name}" has license "{license_number}" in Metrc which is not stored in our Postgres DB')
+					else:
+						# If use_unsaved_licenses is false, then skip over this particular
+						# license number
+						continue
+
+					license_auths.append(LicenseAuthDict(
+						license_id=license_id,
+						license_number=license_number,
+						us_state=us_state,
+						vendor_key=vendor_key,
+						user_key=api_key
+					))
+
+				company_state_info = CompanyStateInfoDict(
+					licenses=license_auths,
+					metrc_api_key_id=str(cur_metrc_api_key.id),
+					apis_to_use=metrc_common_util.get_default_apis_to_use(),
+					facilities_payload=metrc_common_util.FacilitiesPayloadDict(
+						facilities=facilities_arr 
+					)
 				)
-			)
-			state_to_company_info[us_state] = company_state_info
+				if us_state not in state_to_company_infos:
+					state_to_company_infos[us_state] = []
+				state_to_company_infos[us_state].append(company_state_info)
 			
 		return CompanyInfo(
 			company_id=company_id,
 			name=company_name,
-			state_to_company_info=state_to_company_info
+			state_to_company_infos=state_to_company_infos
 		), None
 
 def _download_data(
@@ -381,88 +389,89 @@ def _download_data(
 
 	for us_state in company_info.get_us_states():
 		# Each company has One API key per state
-		state_info = company_info.get_company_state_info(us_state)
+		state_infos = company_info.get_company_state_infos(us_state)
 
-		for license in state_info['licenses']:
-			functioning_licenses_count = 0 # How many licenses is the API key functioning for
-			license_to_statuses = {}
-			company_details = metrc_common_util.CompanyDetailsDict(
-				company_id=company_info.company_id,
-				name=company_info.name
-			)
+		for state_info in state_infos:
+			for license in state_info['licenses']:
+				functioning_licenses_count = 0 # How many licenses is the API key functioning for
+				license_to_statuses = {}
+				company_details = metrc_common_util.CompanyDetailsDict(
+					company_id=company_info.company_id,
+					name=company_info.name
+				)
 
-			ctx = metrc_common_util.DownloadContext(
-				sendgrid_client, cur_date, company_details, state_info['apis_to_use'], license, debug=False)
+				ctx = metrc_common_util.DownloadContext(
+					sendgrid_client, cur_date, company_details, state_info['apis_to_use'], license, debug=False)
 
-			logging.info('Running download metrc data for company "{}" for last modified date {} with license {}'.format(
-				ctx.company_details['name'], cur_date, license['license_number']
-			))
+				logging.info('Running download metrc data for company "{}" for last modified date {} with license {}'.format(
+					ctx.company_details['name'], cur_date, license['license_number']
+				))
 
-			if ctx.apis_to_use.get('packages', False):
-				package_models = packages_util.download_packages(ctx)
-				packages_util.write_packages(package_models, session_maker)
+				if ctx.apis_to_use.get('packages', False):
+					package_models = packages_util.download_packages(ctx)
+					packages_util.write_packages(package_models, session_maker)
 
-			if ctx.apis_to_use.get('harvests', False):
-				harvest_models = harvests_util.download_harvests(ctx)
-				harvests_util.write_harvests(harvest_models, session_maker)
+				if ctx.apis_to_use.get('harvests', False):
+					harvest_models = harvests_util.download_harvests(ctx)
+					harvests_util.write_harvests(harvest_models, session_maker)
 
-			if ctx.apis_to_use.get('plant_batches', False):
-				plant_batches_models = plant_batches_util.download_plant_batches(ctx)
-				plant_batches_util.write_plant_batches(plant_batches_models, session_maker)
+				if ctx.apis_to_use.get('plant_batches', False):
+					plant_batches_models = plant_batches_util.download_plant_batches(ctx)
+					plant_batches_util.write_plant_batches(plant_batches_models, session_maker)
 
-			# NOTE: plants have references to plant batches and harvests, so this
-			# must come after fetching plant_batches and harvests
-			if ctx.apis_to_use.get('plants', False):
-				plants_models = plants_util.download_plants(ctx)
-				plants_util.write_plants(plants_models, session_maker)
+				# NOTE: plants have references to plant batches and harvests, so this
+				# must come after fetching plant_batches and harvests
+				if ctx.apis_to_use.get('plants', False):
+					plants_models = plants_util.download_plants(ctx)
+					plants_util.write_plants(plants_models, session_maker)
 
-			# NOTE: Sales data has references to packages, so this method
-			# should run after download_packages
-			if ctx.apis_to_use.get('sales_receipts', False):
-				sales_receipts_models = sales_util.download_sales_info(ctx)
-				sales_util.write_sales_info(sales_receipts_models, session_maker)
+				# NOTE: Sales data has references to packages, so this method
+				# should run after download_packages
+				if ctx.apis_to_use.get('sales_receipts', False):
+					sales_receipts_models = sales_util.download_sales_info(ctx)
+					sales_util.write_sales_info(sales_receipts_models, session_maker)
 
-			# NOTE: transfer must come after download_packages, because transfers
-			# may update the state of packages
-			# Download transfers data for the particular day and key
-			success, err = transfers_util.populate_transfers_table(
-				ctx=ctx,
-				session_maker=session_maker
-			)
-			if err:
-				logging.error(f'Error thrown for company {company_info.name} for date {cur_date} and license {license["license_number"]}!')
-				logging.error(f'Error: {err}')
-				errs.append(err)
+				# NOTE: transfer must come after download_packages, because transfers
+				# may update the state of packages
+				# Download transfers data for the particular day and key
+				success, err = transfers_util.populate_transfers_table(
+					ctx=ctx,
+					session_maker=session_maker
+				)
+				if err:
+					logging.error(f'Error thrown for company {company_info.name} for date {cur_date} and license {license["license_number"]}!')
+					logging.error(f'Error: {err}')
+					errs.append(err)
 
-			functioning_licenses_count += 1 if not err else 0
-			license_to_statuses[license['license_number']] = {
-				'api_key_has_err': err is not None, # Record whether there was an error with the Metrc API for this license
-				'transfers_api': ctx.request_status['transfers_api'],
-				'transfer_packages_api': ctx.request_status['transfer_packages_api'],
-				'transfer_packages_wholesale_api': ctx.request_status['transfer_packages_wholesale_api'],
-				'packages_api': ctx.request_status['packages_api'],
-				'plants_api': ctx.request_status['plants_api'],
-				'plant_batches_api': ctx.request_status['plant_batches_api'],
-				'harvests_api': ctx.request_status['harvests_api'],
-				'lab_results_api': ctx.request_status['lab_results_api'],
-				'sales_receipts_api': ctx.request_status['receipts_api'],
-				'sales_transactions_api': ctx.request_status['sales_transactions_api']
-			}
+				functioning_licenses_count += 1 if not err else 0
+				license_to_statuses[license['license_number']] = {
+					'api_key_has_err': err is not None, # Record whether there was an error with the Metrc API for this license
+					'transfers_api': ctx.request_status['transfers_api'],
+					'transfer_packages_api': ctx.request_status['transfer_packages_api'],
+					'transfer_packages_wholesale_api': ctx.request_status['transfer_packages_wholesale_api'],
+					'packages_api': ctx.request_status['packages_api'],
+					'plants_api': ctx.request_status['plants_api'],
+					'plant_batches_api': ctx.request_status['plant_batches_api'],
+					'harvests_api': ctx.request_status['harvests_api'],
+					'lab_results_api': ctx.request_status['lab_results_api'],
+					'sales_receipts_api': ctx.request_status['receipts_api'],
+					'sales_transactions_api': ctx.request_status['sales_transactions_api']
+				}
 
-		# Update whether this metrc key worked
-		with session_scope(session_maker) as session:
+			# Update whether this metrc key worked
+			with session_scope(session_maker) as session:
 
-			metrc_api_key = cast(
-				models.MetrcApiKey,
-				session.query(models.MetrcApiKey).filter(
-					models.MetrcApiKey.id == state_info['metrc_api_key_id']
-			).first())
+				metrc_api_key = cast(
+					models.MetrcApiKey,
+					session.query(models.MetrcApiKey).filter(
+						models.MetrcApiKey.id == state_info['metrc_api_key_id']
+				).first())
 
-			if metrc_api_key:
-				metrc_api_key.is_functioning = functioning_licenses_count > 0 # Metrc API key is "functioning" if at least one license is functioning
-				metrc_api_key.last_used_at = date_util.now()
-				metrc_api_key.status_codes_payload = license_to_statuses
-				metrc_api_key.facilities_payload = cast(Dict, state_info['facilities_payload'])
+				if metrc_api_key:
+					metrc_api_key.is_functioning = functioning_licenses_count > 0 # Metrc API key is "functioning" if at least one license is functioning
+					metrc_api_key.last_used_at = date_util.now()
+					metrc_api_key.status_codes_payload = license_to_statuses
+					metrc_api_key.facilities_payload = cast(Dict, state_info['facilities_payload'])
 
 	if errs:
 		return DownloadDataRespDict(

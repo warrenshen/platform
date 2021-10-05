@@ -88,20 +88,20 @@ CompanyStateInfoDict = TypedDict('CompanyStateInfoDict', {
 
 class CompanyInfo(object):
 
-	def __init__(self, company_id: str, name: str, state_to_company_info: Dict[str, CompanyStateInfoDict]) -> None:
+	def __init__(self, company_id: str, name: str, state_to_company_infos: Dict[str, List[CompanyStateInfoDict]]) -> None:
 		self.company_id = company_id
 		self.name = name
-		self._us_states = list(state_to_company_info.keys())
-		self._state_to_company_info = state_to_company_info
+		self._us_states = list(state_to_company_infos.keys())
+		self._state_to_company_infos = state_to_company_infos
 
 	def get_us_states(self) -> List[str]:
 		return self._us_states
 
-	def get_company_state_info(self, us_state: str) -> CompanyStateInfoDict:
-		if us_state not in self._state_to_company_info:
+	def get_company_state_infos(self, us_state: str) -> List[CompanyStateInfoDict]:
+		if us_state not in self._state_to_company_infos:
 			raise errors.Error('Requested us_state {} for company {} but we dont have any information for that state'.format(
 				us_state, self.name))
-		return self._state_to_company_info[us_state]
+		return self._state_to_company_infos[us_state]
 
 class DownloadContext(object):
 	"""
