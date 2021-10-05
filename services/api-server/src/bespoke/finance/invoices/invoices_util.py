@@ -330,7 +330,6 @@ def create_update_invoice(
 
 	return invoice_id, None
 
-
 def is_invoice_ready_for_approval(
 	session_maker: Callable,
 	invoice_id: str
@@ -374,22 +373,6 @@ def is_invoice_ready_for_approval(
 	except Exception as e:
 		logging.exception("caught exception while checking if invoice is ready for approval")
 		return errors.Error(str(e))
-	return None
-
-
-def update_invoice_approval_status(
-	session_maker: Callable,
-	invoice_id: str
-	) -> errors.Error:
-	try:
-		with models.session_scope(session_maker) as session:
-			invoice = session.query(models.Invoice).get(invoice_id)
-			invoice.status = db_constants.RequestStatusEnum.APPROVAL_REQUESTED
-			invoice.requested_at = date_util.now()
-	except Exception as e:
-		logging.exception("Caught exception while updating invoice approval status")
-		return errors.Error(str(e))
-
 	return None
 
 @errors.return_error_tuple
