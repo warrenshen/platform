@@ -970,6 +970,7 @@ class LoanCalculator(object):
 			# For frozen loans: if loan is closed, do not perform any calculations for this date.
 			# TODO(warrenshen): apply the same logic for non-frozen loans.
 			if loan['is_frozen'] and loan['closed_at'] and cur_date > loan['closed_at'].date():
+				logging.error('WE SHOULD NEVER SEE CLOSED, FROZEN LOANS in loan_calculator in prod')
 				continue
 
 			cur_date_contract, err = self._contract_helper.get_contract(cur_date)
@@ -1168,9 +1169,11 @@ class LoanCalculator(object):
 			# If we haven't added any results yet, just add a dummy one here.
 			date_to_result[today] = _get_calculate_result_dict(today)
 
+		"""
 		success, err = _perform_daily_interest_and_fees_adjustment(self._fee_accumulator, txs_helper, date_to_result)
 		if err:
 			return None, [err]
+		"""
 
 		return date_to_result[today], None
 
