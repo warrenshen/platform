@@ -159,11 +159,9 @@ export function computeEbbaApplicationExpiresAt(dateString: string): string {
     return "Invalid Date";
   }
   const date = parse(dateString, DateFormatServer, new Date());
-  // If certification date is 07/31/21, the expiration date is 09/15/21.
-  // In this example, it is expected that during the month of 08/31,
-  // customer submits certification information as of 07/31/21.
-  const expirationDate = addMonths(date, 2);
-  expirationDate.setDate(15);
+  // Expiration date is 45 calendar days after the certification date.
+  const expirationDate = addDays(date, 45);
+
   return format(expirationDate, DateFormatServer);
 }
 

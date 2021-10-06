@@ -1020,6 +1020,11 @@ EbbaApplicationDict = TypedDict('EbbaApplicationDict', {
 })
 
 class EbbaApplication(Base):
+	"""
+	Record of information for either of:
+	1. Monthly borrowing base certification - for line of credit (LOC) product type
+	2. Monthly financial reports certification - for all other product types
+	"""
 	__tablename__ = 'ebba_applications'
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
