@@ -388,12 +388,13 @@ def _download_data(
 	errs = []
 
 	for us_state in company_info.get_us_states():
-		# Each company has One API key per state
+		# Each state may have multiple Metrc API keys.
 		state_infos = company_info.get_company_state_infos(us_state)
 
 		for state_info in state_infos:
 			for license in state_info['licenses']:
-				functioning_licenses_count = 0 # How many licenses is the API key functioning for
+				# How many licenses is the API key functioning for?
+				functioning_licenses_count = 0
 				license_to_statuses = {}
 				company_details = metrc_common_util.CompanyDetailsDict(
 					company_id=company_info.company_id,
