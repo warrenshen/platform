@@ -293,7 +293,7 @@ def fund_loans_with_advance(
 					session,
 					id_)
 
-				if funded_amount >= artifact.max_loan_amount():
+				if number_util.float_eq(funded_amount, float(artifact.max_loan_amount()) ):
 					artifact.funded_at = date_util.now()
 
 	return FundLoansRespDict(

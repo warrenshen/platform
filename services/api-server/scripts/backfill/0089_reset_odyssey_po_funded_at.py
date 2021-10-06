@@ -15,6 +15,7 @@ sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
 
 from bespoke.db import db_constants, models
 from bespoke.finance.loans import sibling_util
+from bespoke.finance import number_util
 
 def main(is_test_run: bool = True) -> None:
 	engine = models.create_engine()
@@ -59,7 +60,7 @@ def main(is_test_run: bool = True) -> None:
 					if po.funded_at is None:
 						funded_amount = sibling_util.get_funded_loan_sum_on_artifact(session, po.id)
 
-						if funded_amount >= po.max_loan_amount():
+						if number_util.float_eq( funded_amount, po.max_loan_amount() ):
 							# Now that we know that the PO *should* be updated. Grab the loans associated
 							# with the PO so that we can pull the funded_at date of the most recent loan
 							try:
@@ -94,8 +95,8 @@ def main(is_test_run: bool = True) -> None:
 									time.sleep(5)
 									continue
 						else:
-							t = Template("[INFO]: Purchase order $po for company $c does not meet max loan amount. No updates required.")
-							s = t.substitute(po=po.id, c=c.name)
+							t = Template("[INFO]: Purchase order $po for company $c does not meet max loan amount of $max_amount. Current loan amount is $current_amount. No updates required.")
+							s = t.substitute(po=po.id, c=c.name, max_amount=po.max_loan_amount(), current_amount=po.amount_funded)
 							print(s)
 
 			is_done = True
