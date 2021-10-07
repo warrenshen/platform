@@ -111,7 +111,11 @@ class QuarterHelper(object):
 		days_in_last_month = _num_days_in_month(datetime.date(self.today.year, last_month, 1))
 		return datetime.date(self.today.year, last_month, days_in_last_month)
 
-def get_prorated_fee_info(duration: str, contract_start_date: datetime.date, today: datetime.date) -> ProratedFeeInfoDict:
+def get_prorated_fee_info(
+	duration: str, 
+	contract_start_date: datetime.date,
+	contract_end_date: datetime.date, 
+	today: datetime.date) -> ProratedFeeInfoDict:
 	start = contract_start_date
 
 	if duration == contract_util.MinimumAmountDuration.MONTHLY:
@@ -151,14 +155,17 @@ def get_prorated_fee_info(duration: str, contract_start_date: datetime.date, tod
 			day_to_pay=date_util.date_to_str(quarter_helper.get_last_day())
 		)
 	elif duration == contract_util.MinimumAmountDuration.ANNUALLY:
-		# You dont pro-rate the annual fee, and you only book it at the end
-		# of the 1 year anniversary.
+		# You annual fee is pro-rated if its less than a year, and 
+		# you only book it at the end of the 1 year anniversary.
+		# Contracts are limited to 365 calendar days.
+		num_days_passed = min(365, date_util.num_calendar_days_passed(
+			contract_start_date, contract_end_date))
+
 		return ProratedFeeInfoDict(
-			numerator=365,
+			numerator=num_days_passed,
 			denom=365,
-			fraction=1,
-			day_to_pay=date_util.date_to_str(
-				datetime.date(start.year + 1, start.month, start.day))
+			fraction=num_days_passed / 365,
+			day_to_pay=date_util.date_to_str(contract_end_date)
 		)
 	else:
 		raise errors.Error('Invalid duration provided {}'.format(duration))
@@ -170,7 +177,7 @@ class FeeAccumulator(object):
 	def __init__(self) -> None:
 		self._month_to_amounts: Dict[finance_types.Month, AccumulatedAmountDict] = {}
 		self._quarter_to_amounts: Dict[finance_types.Quarter, AccumulatedAmountDict] = {}
-		self._year_to_amount = AccumulatedAmountDict(interest_amount=0, fees_amount=0)
+		self._contract_year_to_amounts: Dict[Tuple[datetime.date, datetime.date], AccumulatedAmountDict] = {}
 
 	def init_with_date_range(self, start_date: datetime.date, end_date: datetime.date) -> None:
 		# Allows you to initialize what months, quarters, year must get included based on this date range
@@ -211,22 +218,26 @@ class FeeAccumulator(object):
 			return self._quarter_to_amounts[quarter]['interest_amount'] + self._quarter_to_amounts[quarter]['fees_amount'], None
 
 		elif duration == contract_util.MinimumAmountDuration.ANNUALLY:
-			# For the annual summation, we check in the accumulate method that we only
-			# count up interest from within a year of the contract start.
-			return self._year_to_amount['interest_amount'] + self._year_to_amount['fees_amount'], None
+			for (contract_start_date, contract_end_date), contract_amounts in self._contract_year_to_amounts.items():
+				if day >= contract_start_date and day <= contract_end_date:
+					# For the annual summation, we check in the accumulate method that we only
+					# count up interest from within a year of the contract start.
+					return contract_amounts['interest_amount'] + contract_amounts['fees_amount'], None
+
+			return None, errors.Error('Could not find a contract in-effect with accumulated revenue for day {}'.format(day))
 
 		return None, errors.Error('Invalid duration provided to accrue interest: "{}"'.format(duration))
 
 	def accumulate(self,
-		todays_contract_start_date: datetime.date,
-		todays_contract_end_date: datetime.date,
+		contract_start_date: datetime.date,
+		contract_end_date: datetime.date,
 		interest_for_day: float,
 		fees_for_day: float,
 		day: datetime.date
 	) -> None:
-		if day < todays_contract_start_date or day > todays_contract_end_date:
+		if day < contract_start_date or day > contract_end_date:
 			# Dont count these fees towards their accumulated total if it happened outside
-			# of the contract in-place when this report is generated.
+			# of the contract in-place for this particular day
 			return
 
 		# Month accumulation
@@ -248,10 +259,14 @@ class FeeAccumulator(object):
 		self._quarter_to_amounts[quarter]['fees_amount'] += fees_for_day
 
 		# Only accumulate within a year of the contract start date
-		year_from_contract_end = todays_contract_start_date + timedelta(days=365)
-		if day < year_from_contract_end:
-			self._year_to_amount['interest_amount'] += interest_for_day
-			self._year_to_amount['fees_amount'] += fees_for_day
+		contract_year_key = (contract_start_date, contract_end_date)
+
+		if contract_year_key not in self._contract_year_to_amounts:
+			self._contract_year_to_amounts[contract_year_key] = AccumulatedAmountDict(interest_amount=0, fees_amount=0)
+
+
+		self._contract_year_to_amounts[contract_year_key]['interest_amount'] += interest_for_day
+		self._contract_year_to_amounts[contract_year_key]['fees_amount'] += fees_for_day
 
 
 def get_cur_minimum_fees(contract_helper: contract_util.ContractHelper, today: datetime.date, fee_accumulator: FeeAccumulator) -> Tuple[FeeDict, errors.Error]:
@@ -274,12 +289,16 @@ def get_cur_minimum_fees(contract_helper: contract_util.ContractHelper, today: d
 	if err:
 		return None, err
 
+	contract_end_date, err = cur_contract.get_adjusted_end_date()
+	if err:
+		return None, err
+
 	duration = minimum_owed_dict['duration']
 	amount_accrued, err = fee_accumulator.get_amount_revenue_accrued_by_duration(duration, today)
 	if err:
 		return None, err
 
-	prorated_info = get_prorated_fee_info(duration, contract_start_date, today)
+	prorated_info = get_prorated_fee_info(duration, contract_start_date, contract_end_date, today)
 	prorated_fraction = prorated_info['fraction']
 
 	# Use a fraction to determine how much we pro-rate this fee.

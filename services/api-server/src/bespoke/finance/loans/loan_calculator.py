@@ -839,14 +839,6 @@ class LoanCalculator(object):
 		if err:
 			return None, [err]
 
-		todays_contract_start_date, err = todays_contract.get_start_date()
-		if err:
-			return None, [err]
-
-		todays_contract_end_date, err = todays_contract.get_adjusted_end_date()
-		if err:
-			return None, [err]
-
 		if payment_to_include and not payment_to_include.get('deposit_date'):
 			return None, [errors.Error('Deposit date missing from payment to include')]
 
@@ -1015,9 +1007,19 @@ class LoanCalculator(object):
 			fees_accrued_today = fee_due_for_day
 			amount_to_pay_interest_on = interest_fee_info['amount_to_pay_interest_on']
 
+			cur_contract_start_date, err = cur_date_contract.get_start_date()
+			if err:
+				errors_list.append(err)
+				continue
+
+			cur_contract_end_date, err = cur_date_contract.get_adjusted_end_date()
+			if err:
+				errors_list.append(err)
+				continue
+
 			self._fee_accumulator.accumulate(
-				todays_contract_start_date=todays_contract_start_date,
-				todays_contract_end_date=todays_contract_end_date,
+				contract_start_date=cur_contract_start_date,
+				contract_end_date=cur_contract_end_date,
 				interest_for_day=interest_due_for_day,
 				fees_for_day=fee_due_for_day,
 				day=cur_date
@@ -1169,11 +1171,9 @@ class LoanCalculator(object):
 			# If we haven't added any results yet, just add a dummy one here.
 			date_to_result[today] = _get_calculate_result_dict(today)
 
-		"""
 		success, err = _perform_daily_interest_and_fees_adjustment(self._fee_accumulator, txs_helper, date_to_result)
 		if err:
 			return None, [err]
-		"""
 
 		return date_to_result[today], None
 

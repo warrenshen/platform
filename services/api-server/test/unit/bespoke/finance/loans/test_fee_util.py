@@ -28,7 +28,9 @@ def _get_late_fee_structure() -> str:
 def _get_contract(
 	minimum_monthly_amount: float = None,
 	minimum_quarterly_amount: float = None,
-	minimum_annual_amount: float = None
+	minimum_annual_amount: float = None,
+	contract_start_date: str = '1/1/2020',
+	contract_end_date: str = '12/1/2020'
 ) -> models.Contract:
 	return models.Contract(
 		company_id=None, # filled in later by test
@@ -45,8 +47,8 @@ def _get_contract(
 				minimum_annual_amount=minimum_annual_amount
 			)
 		),
-		start_date=date_util.load_date_str('1/1/2020'),
-		adjusted_end_date=date_util.load_date_str('12/1/2020')
+		start_date=date_util.load_date_str(contract_start_date),
+		adjusted_end_date=date_util.load_date_str(contract_end_date)
 	)
 
 class TestMinimumFees(db_unittest.TestCase):
@@ -104,16 +106,16 @@ class TestMinimumFees(db_unittest.TestCase):
 			contract_end_date = date_util.load_date_str('01/02/2021')
 
 			fee_accumulator.accumulate(
-				todays_contract_start_date=contract_start_date,
-				todays_contract_end_date=contract_end_date,
+				contract_start_date=contract_start_date,
+				contract_end_date=contract_end_date,
 				interest_for_day=2.0,
 				fees_for_day=0.1,
 				day=date_util.load_date_str('01/03/2020')
 			)
 
 			fee_accumulator.accumulate(
-				todays_contract_start_date=contract_start_date,
-				todays_contract_end_date=contract_end_date,
+				contract_start_date=contract_start_date,
+				contract_end_date=contract_end_date,
 				interest_for_day=2.0,
 				fees_for_day=0.1,
 				day=date_util.load_date_str('02/03/2020') # gets ignored outside the month
@@ -140,16 +142,16 @@ class TestMinimumFees(db_unittest.TestCase):
 			contract_end_date = date_util.load_date_str('01/02/2021')
 
 			fee_accumulator.accumulate(
-				todays_contract_start_date=contract_start_date,
-				todays_contract_end_date=contract_end_date,
+				contract_start_date=contract_start_date,
+				contract_end_date=contract_end_date,
 				interest_for_day=2.0,
 				fees_for_day=0.1,
 				day=date_util.load_date_str('01/03/2020')
 			)
 
 			fee_accumulator.accumulate(
-				todays_contract_start_date=contract_start_date,
-				todays_contract_end_date=contract_end_date,
+				contract_start_date=contract_start_date,
+				contract_end_date=contract_end_date,
 				interest_for_day=2.0,
 				fees_for_day=0.1,
 				day=date_util.load_date_str('06/03/2020') # gets ignored outside the quarter
@@ -176,24 +178,28 @@ class TestMinimumFees(db_unittest.TestCase):
 			contract_end_date = date_util.load_date_str('01/02/2021')
 
 			fee_accumulator.accumulate(
-				todays_contract_start_date=contract_start_date,
-				todays_contract_end_date=contract_end_date,
+				contract_start_date=contract_start_date,
+				contract_end_date=contract_end_date,
 				interest_for_day=2.0,
 				fees_for_day=0.1,
 				day=date_util.load_date_str('01/03/2020')
 			)
 
 			fee_accumulator.accumulate(
-				todays_contract_start_date=contract_start_date,
-				todays_contract_end_date=contract_end_date,
+				contract_start_date=contract_start_date,
+				contract_end_date=contract_end_date,
 				interest_for_day=2.0,
 				fees_for_day=0.1,
-				day=date_util.load_date_str('06/03/2021') # gets ignored outside the quarter
+				day=date_util.load_date_str('06/03/2021') # gets ignored outside the year
 			)
 
 		test: Dict = {
 			'today': '01/10/2020',
-			'contracts': [_get_contract(minimum_annual_amount=3.0)],
+			'contracts': [_get_contract(
+				minimum_annual_amount=3.0,
+				contract_start_date='01/02/2020',
+				contract_end_date='01/02/2021'
+			)],
 			'populate_fn': populate_fn,
 			'expected_fee_dict': fee_util.FeeDict(
 				minimum_amount=3.0,
@@ -211,6 +217,7 @@ class TestGetProratedFeeInfo(unittest.TestCase):
 		fee_info = fee_util.get_prorated_fee_info(
 			duration=test['duration'],
 			contract_start_date=date_util.load_date_str(test['contract_start_date']),
+			contract_end_date=date_util.load_date_str(test['contract_end_date']),
 			today=date_util.load_date_str(test['today'])
 		)
 		test_helper.assertDeepAlmostEqual(self, test['expected_fee_info'], cast(Dict, fee_info))
@@ -219,6 +226,7 @@ class TestGetProratedFeeInfo(unittest.TestCase):
 		test: Dict = {
 			'duration': contract_util.MinimumAmountDuration.ANNUALLY,
 			'contract_start_date': '01/10/2020',
+			'contract_end_date': '01/10/2021',
 			'today': '10/20/2020', # doesnt play a factor in the yearly calculation
 			'expected_fee_info': ProratedFeeInfoDict(
 				numerator=365,
@@ -229,10 +237,26 @@ class TestGetProratedFeeInfo(unittest.TestCase):
 		}
 		self._run_test(test)
 
+	def test_yearly_prorated(self) -> None:
+		test: Dict = {
+			'duration': contract_util.MinimumAmountDuration.ANNUALLY,
+			'contract_start_date': '01/10/2020',
+			'contract_end_date': '03/10/2020',
+			'today': '03/01/2020', # doesnt play a factor in the yearly calculation
+			'expected_fee_info': ProratedFeeInfoDict(
+				numerator=61,
+				denom=365,
+				fraction=61 / 365,
+				day_to_pay='03/10/2020'
+			)
+		}
+		self._run_test(test)
+
 	def test_monthly_not_prorated(self) -> None:
 		test: Dict = {
 			'duration': contract_util.MinimumAmountDuration.MONTHLY,
 			'contract_start_date': '01/10/2020',
+			'contract_end_date': '01/10/2021',
 			'today': '2/20/2020', # doesnt play a factor in the yearly calculation
 			'expected_fee_info': ProratedFeeInfoDict(
 				numerator=29,
@@ -247,6 +271,7 @@ class TestGetProratedFeeInfo(unittest.TestCase):
 		test: Dict = {
 			'duration': contract_util.MinimumAmountDuration.MONTHLY,
 			'contract_start_date': '02/10/2021',
+			'contract_end_date': '01/10/2021',
 			'today': '2/20/2021', # doesnt play a factor in the yearly calculation
 			'expected_fee_info': ProratedFeeInfoDict(
 				numerator=19, # 28 days - 9 days before the contract took effect
@@ -261,6 +286,7 @@ class TestGetProratedFeeInfo(unittest.TestCase):
 		test: Dict = {
 			'duration': contract_util.MinimumAmountDuration.MONTHLY,
 			'contract_start_date': '02/01/2021',
+			'contract_end_date': '01/10/2021',
 			'today': '2/20/2021', # doesnt play a factor in the yearly calculation
 			'expected_fee_info': ProratedFeeInfoDict(
 				numerator=28, # Still need to pay everything this month
@@ -275,6 +301,7 @@ class TestGetProratedFeeInfo(unittest.TestCase):
 		test: Dict = {
 			'duration': contract_util.MinimumAmountDuration.QUARTERLY,
 			'contract_start_date': '05/10/2020',
+			'contract_end_date': '01/10/2021',
 			'today': '12/20/2020', # Use today's quarter when not pro-rating
 			'expected_fee_info': ProratedFeeInfoDict(
 				numerator=31 + 30 + 31, # sum of the number of days in the quarter
@@ -291,6 +318,7 @@ class TestGetProratedFeeInfo(unittest.TestCase):
 		test: Dict = {
 			'duration': contract_util.MinimumAmountDuration.QUARTERLY,
 			'contract_start_date': '05/10/2020',
+			'contract_end_date': '01/10/2021',
 			'today': '06/20/2020', # Overlapping quarter, so we must pro-rate
 			'expected_fee_info': ProratedFeeInfoDict(
 				numerator=numerator, # sum of the number of days in the quarter
@@ -307,6 +335,7 @@ class TestGetProratedFeeInfo(unittest.TestCase):
 		test: Dict = {
 			'duration': contract_util.MinimumAmountDuration.QUARTERLY,
 			'contract_start_date': '04/01/2020',
+			'contract_end_date': '01/10/2021',
 			'today': '06/20/2020', # Overlapping quarter, so we must pro-rate
 			'expected_fee_info': ProratedFeeInfoDict(
 				numerator=numerator, # sum of the number of days in the quarter
