@@ -17,10 +17,11 @@ class Download(object):
 		self,
 		incoming_files: List[str],
 		outgoing_files: List[str],
-		sales_transactions_files: List[str],
-	):
+		packages_files: List[str],
+		sales_transactions_files: List[str]):
 		self.incoming_records = self._file_as_dict_records(incoming_files)
 		self.outgoing_records = self._file_as_dict_records(outgoing_files)
+		self.packages_records = self._file_as_dict_records(packages_files)
 		self.sales_tx_records = self._file_as_dict_records(sales_transactions_files)
 		
 	def _file_as_dict_records(self, filepaths: List[str]) -> List[Dict]:
@@ -33,13 +34,11 @@ class Download(object):
 
 		for filepath in expanded_filepaths:
 			df = pandas.read_excel(filepath, converters={
-				'package_id': str,
-				'tx_package_id': str
+					'package_id': str,
+					'tx_package_id': str
 			})
-			df_records = df.to_dict('records')
-			print(f'Opened file {filepath} with {len(df.columns)} columns and {len(df_records)} rows')
-			print(f'Dataframe columns:\n{df.columns}')
-			all_records.extend(df_records)
+			print('Opening file {} with columns {}'.format(filepath, df.columns))
+			all_records.extend(df.to_dict('records'))
 
 		return all_records
 
@@ -62,7 +61,7 @@ def parse_to_date(cur_date: Union[str, datetime.datetime]) -> datetime.datetime:
 	return cast(datetime.datetime, cur_date)
 				
 class Printer(object):
-
+		 
 	def __init__(self, verbose: bool, show_info: bool) -> None:
 		self.verbose = verbose
 		self.show_info = show_info
@@ -94,6 +93,7 @@ class PackageHistory(object):
 		self.incomings: List[Dict] = []
 		self.outgoings: List[Dict] = []
 		self.sales_txs: List[Dict] = []
+		self.pkg: Dict = None
 		self.package_id = package_id
 		self.computed_info: Dict = {}
 		self.should_exclude = False
@@ -104,12 +104,12 @@ class PackageHistory(object):
 		cur_date = parse_to_date(cur_date_str)    
 		arrived_date = parse_to_date(self.computed_info['arrived']['date'])
 		if cur_date < arrived_date:
-			return False
+				return False
 		
 		sold_date = parse_to_date(self.computed_info.get('sold', {}).get('date'))
 		if sold_date and cur_date > sold_date:
-			# We know it's not in your possession after the sales date
-			return False
+				# We know it's not in your possession after the sales date
+				return False
 		
 		# Knowing nothing else, assume you have the package at this date
 		return True
@@ -132,12 +132,12 @@ class PackageHistory(object):
 
 	def get_inventory_column_names(self) -> List[str]:
 		return [
-			'Package ID',
-			'Arrived Date',
-			'Product Category',
-			'Product Name',
-			'Current Quantity',
-			'Sold Date',
+				'Package ID',
+				'Arrived Date',
+				'Product Category',
+				'Product Name',
+				'Current Quantity',
+				'Sold Date',
 		]
 
 	def get_inventory_output_row(self, inventory_date_str: str) -> List[str]:
@@ -150,12 +150,12 @@ class PackageHistory(object):
 		cur_quantity = self._get_current_quantity(inventory_date_str)
 
 		return [
-			self.package_id,
-			date_to_str(self.computed_info['arrived']['date']),
-			incoming_pkg['product_category_name'],
-			incoming_pkg['product_name'],
-			'{}'.format(cur_quantity) if cur_quantity != -1 else '',
-			date_to_str(sold_date) if sold_date else '',
+				self.package_id,
+				date_to_str(self.computed_info['arrived']['date']),
+				incoming_pkg['product_category_name'],
+				incoming_pkg['product_name'],
+				'{}'.format(cur_quantity) if cur_quantity != -1 else '',
+				date_to_str(sold_date) if sold_date else '',
 		]
 				
 	def filter_out_unhandled_packages(self, p: Printer) -> None:
@@ -174,21 +174,29 @@ class PackageHistory(object):
 	def when_it_arrived(self, p: Printer) -> bool:
 		# Fills in the 'arrived' value for self.computed_info
 		if self.incomings:
-			incoming_pkg = self.incomings[-1]
-			arrived_date = incoming_pkg['created_date']
-			self.computed_info['arrived'] = {
-				'reason': 'incoming',
-				'date': arrived_date
-			}
-			return True
-		else:
-			return False
-
+				incoming_pkg = self.incomings[-1]
+				arrived_date = incoming_pkg['created_date']
+				self.computed_info['arrived'] = {
+						'reason': 'incoming',
+						'date': arrived_date
+				}
+				return True
+		
+		if not self.pkg:
+				p.warn(f'package {self.package_id} neither has an incoming package nor a regular "inventory" package')
+				return False
+		
+		self.computed_info['arrived'] = {
+				'reason': 'ownership',
+				'date': self.pkg['packaged_date']
+		}
+		return True 
+				
 	def run_is_sold_logic(self, p: Printer) -> bool:
 		# Fills in the 'sold' value for self.computed_info
 		#
 		# Tells us when a package was sold
-		sold_threshold = 0.95
+		sold_threshold = 0.9
 		
 		# It's only considered sold if it was an incoming package
 		# and we see there are sales transactions.
@@ -217,8 +225,7 @@ class PackageHistory(object):
 		verbose = p.verbose
 		
 		if verbose:
-			lines.append('')
-			lines.append(f'Package {self.package_id} arrived on {date_to_str(arrived_date)} with quantity {shipped_quantity} and price ${price_of_pkg}')
+			lines.append(f'Arrived {date_to_str(arrived_date)} with quantity {shipped_quantity}')
 		
 		self.sales_txs.sort(key = lambda x: x['sales_datetime'])
 
@@ -231,6 +238,7 @@ class PackageHistory(object):
 
 		amount_sold = 0
 		is_sold = False
+		is_sold_datetime = None
 		revenue_from_pkg = 0
 		
 		dates = list(date_to_txs.keys())
@@ -242,23 +250,18 @@ class PackageHistory(object):
 
 			for tx in txs:
 				if verbose:
-					lines.append(f"Package {self.package_id} sold on {date_to_str(tx['sales_datetime'])} {tx['tx_quantity_sold']} ({tx['tx_unit_of_measure']}) for ${tx['tx_total_price']}")
-	
+						lines.append(f"On {date_to_str(tx['sales_datetime'])} sold {tx['tx_quantity_sold']} ({tx['tx_unit_of_measure']}) for ${tx['total_price']}")
 				amount_sold += tx['tx_quantity_sold']
 				remaining_quantity -= tx['tx_quantity_sold']
-				revenue_from_pkg += tx['tx_total_price']
-
+				revenue_from_pkg += tx['total_price']
+				
 				if not is_sold and (amount_sold / shipped_quantity) > sold_threshold:
-					if verbose:
-						lines.append(f'Package {self.package_id} marked as SOLD since it is more than {sold_threshold * 100}% sold')
-
-					is_sold = True
-					is_sold_date = tx['sales_datetime']
-
-				if revenue_from_pkg != 0:
-					profit_margin = '{:.2f}'.format((revenue_from_pkg - price_of_pkg) / revenue_from_pkg * 100)
-				else:
-					profit_margin = 0
+						if verbose:
+								lines.append(f'More than {sold_threshold * 100}% was sold, therefore we consider it sold')
+						is_sold = True
+						is_sold_date = tx['sales_datetime']
+		
+				profit_margin = '{:.2f}'.format((revenue_from_pkg - price_of_pkg) / revenue_from_pkg * 100)
 						
 				if is_sold:
 					days_delta = (is_sold_date - arrived_date).days
@@ -266,14 +269,16 @@ class PackageHistory(object):
 					# (Revenue - Expenses) / Revenue
 					#print(f'Revenue {revenue_from_pkg}')
 					#print(f'Price {price_of_pkg}')
-					lines.append(f'Package {self.package_id} took {days_delta} days to sell with profit margin {profit_margin}%')
+					lines.insert(0, f'Package #{self.package_id} took {days_delta} days to sell with profit margin {profit_margin}%')
 					self.computed_info['sold'] = {
-						'date': is_sold_date
+							'date': is_sold_date
 					}
+				else:
+					lines.insert(0, f'Package #{self.package_id} has current profit margin {profit_margin}%')
+		
+				p.info('\n'.join(lines))
 
 			date_to_quantity[parse_to_date(cur_date)] = remaining_quantity
-
-		p.info('\n'.join(lines))
 
 		self.computed_info['date_to_quantity'] = date_to_quantity
 				
@@ -294,29 +299,38 @@ def get_histories(d: Download) -> Dict[str, PackageHistory]:
 	package_id_to_history = {}
 	
 	for in_r in d.incoming_records:
-		package_id = in_r['package_id']
-		if package_id not in package_id_to_history:
-			package_id_to_history[package_id] = PackageHistory(package_id)
-
-		history = package_id_to_history[package_id]
-		history.incomings.append(in_r)
+			package_id = in_r['package_id']
+			if package_id not in package_id_to_history:
+					package_id_to_history[package_id] = PackageHistory(package_id)
+					
+			history = package_id_to_history[package_id]
+			history.incomings.append(in_r)
 
 	for out_r in d.outgoing_records:
-		package_id = out_r['package_id']
-		if package_id not in package_id_to_history:
-			package_id_to_history[package_id] = PackageHistory(package_id)
-
-		history = package_id_to_history[package_id]
-		history.outgoings.append(out_r)
-
+			package_id = out_r['package_id']
+			if package_id not in package_id_to_history:
+					package_id_to_history[package_id] = PackageHistory(package_id)
+					
+			history = package_id_to_history[package_id]
+			history.outgoings.append(out_r)
+			
+	
+	for pkg_r in d.packages_records:
+			package_id = pkg_r['package_id']
+			if package_id not in package_id_to_history:
+					package_id_to_history[package_id] = PackageHistory(package_id)
+					
+			history = package_id_to_history[package_id]
+			history.pkg = pkg_r
+			
 	for tx_r in d.sales_tx_records:
-		package_id = tx_r['tx_package_id']
-		if package_id not in package_id_to_history:
-			package_id_to_history[package_id] = PackageHistory(package_id)
-
-		history = package_id_to_history[package_id]
-		history.sales_txs.append(tx_r)
-
+			package_id = tx_r['tx_package_id']
+			if package_id not in package_id_to_history:
+					package_id_to_history[package_id] = PackageHistory(package_id)
+					
+			history = package_id_to_history[package_id]
+			history.sales_txs.append(tx_r)
+			
 	return package_id_to_history
 
 ##### DEBUG ######
@@ -332,75 +346,38 @@ def print_counts(id_to_history: Dict[str, PackageHistory]) -> None:
 	total_seen = 0
 
 	for package_id, history in id_to_history.items():
-		if history.outgoings and not history.incomings:
-			only_outgoing += 1
+			if history.outgoings and not history.incomings:
+					only_outgoing += 1
 
-		if history.incomings and not history.outgoings and not history.sales_txs:
-			only_incoming += 1
+			if history.incomings and not history.outgoings and not history.sales_txs:
+					only_incoming += 1
 
-		if history.incomings and history.sales_txs:
-			in_and_sold_at_least_once += 1
+			if history.pkg:
+					current_inventory += 1
+					
+			if history.incomings and history.sales_txs:
+					in_and_sold_at_least_once += 1
+					
+			if history.incomings and len(history.sales_txs) > 1:
+					#print(f'Package ID {package_id} was sold multiple times')
+					in_and_sold_many_times += 1
+					
+			if history.outgoings and history.incomings:
+					outgoing_and_incoming += 1
+					
+			if history.pkg and not history.outgoings and not history.incomings:
+					inventory_with_no_transfers += 1
 
-		if history.incomings and len(history.sales_txs) > 1:
-			in_and_sold_many_times += 1
-
-		if history.outgoings and history.incomings:
-			outgoing_and_incoming += 1
-
-		total_seen += 1
+			total_seen += 1
 
 	print(f'Only outgoing: {only_outgoing}')
 	print(f'Only incoming: {only_incoming}')
 	print(f'In and out: {outgoing_and_incoming}')
 	print(f'In and sold at least once {in_and_sold_at_least_once}')
 	print(f'In and sold many times {in_and_sold_many_times}')
+	print(f'Inventory no transfers: {inventory_with_no_transfers}')
+	print(f'Cur inventory: {current_inventory}')
 	print(f'Total pkgs: {total_seen}')
-
-def create_inventory_dataframes(
-	package_id_to_history: Dict[str, PackageHistory],
-	q: Query,
-):
-	i = 0
-	num_excluded = 0
-	num_total = 0
-	max_to_see = -1
-
-	p = Printer(verbose=False, show_info=False)
-	exclude_reason_to_count: Dict[str, int] = OrderedDict()
-
-	for package_id, history in package_id_to_history.items():
-		history.compute_additional_fields(run_filter=True, p=p)
-		num_total += 1
-		if history.should_exclude:
-			num_excluded += 1
-			reason_count = exclude_reason_to_count.get(history.exclude_reason, 0)
-			exclude_reason_to_count[history.exclude_reason] = reason_count + 1
-
-		if max_to_see > 0 and i >= max_to_see:
-			# NOTE: remove this break, using this so I can debug 1 package
-			# at a time
-			break
-
-		i += 1
-
-	date_to_inventory_records = {}
-
-	for inventory_date in q.inventory_dates:
-		package_records = []
-
-		for package_id, history in package_id_to_history.items():
-			if history.should_exclude:
-				continue
-
-			if not history.in_inventory_at_date(inventory_date):
-				continue
-
-			package_record = history.get_inventory_output_row(inventory_date)
-			package_records += [package_record]
-
-		date_to_inventory_records[inventory_date] = package_records
-
-	return date_to_inventory_records
 
 def create_inventory_xlsx(
 	id_to_history: Dict[str, PackageHistory], q: Query) -> None:
@@ -409,7 +386,6 @@ def create_inventory_xlsx(
 	num_excluded = 0
 	num_total = 0
 	max_to_see = -1
-
 	p = Printer(verbose=False, show_info=False)
 	exclude_reason_to_count: Dict[str, int] = OrderedDict()
 
@@ -417,14 +393,14 @@ def create_inventory_xlsx(
 		history.compute_additional_fields(run_filter=True, p=p)
 		num_total += 1
 		if history.should_exclude:
-			num_excluded += 1
-			reason_count = exclude_reason_to_count.get(history.exclude_reason, 0)
-			exclude_reason_to_count[history.exclude_reason] = reason_count + 1
+				num_excluded += 1
+				reason_count = exclude_reason_to_count.get(history.exclude_reason, 0)
+				exclude_reason_to_count[history.exclude_reason] = reason_count + 1
 
 		if max_to_see > 0 and i >= max_to_see:
-			# NOTE: remove this break, using this so I can debug 1 package
-			# at a time
-			break
+				# NOTE: remove this break, using this so I can debug 1 package
+				# at a time
+				break
 				
 		i += 1
 
@@ -439,14 +415,14 @@ def create_inventory_xlsx(
 		
 		for package_id, history in id_to_history.items():
 			if history.should_exclude:
-				continue
-
+					continue
+					
 			if not history.in_inventory_at_date(inventory_date):
-				continue
-
+					continue
+					
 			if first:
-				sheet.add_row(history.get_inventory_column_names())
-				first = False
+					sheet.add_row(history.get_inventory_column_names())
+					first = False
 			
 			row = history.get_inventory_output_row(inventory_date)
 			sheet.add_row(row)
@@ -455,8 +431,9 @@ def create_inventory_xlsx(
 
 	filepath = f'out/{q.company_name}_inventory_by_month.xls'
 	with open(filepath, 'wb') as f:
-		wb.save(f)
-		print('Wrote result to {}'.format(filepath))
+			wb.save(f)
+			print('Wrote result to {}'.format(filepath))
+			print('Hello there')
 			
 	pct_excluded = '{:.2f}'.format(num_excluded / num_total * 100)
 	print(f'Excluded {num_excluded} / {num_total} packages from consideration ({pct_excluded}%)')
