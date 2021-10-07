@@ -5,7 +5,7 @@ from typing import Any, Callable, cast
 from bespoke import errors
 from bespoke.audit import events
 from bespoke.date import date_util
-from bespoke.db import models
+from bespoke.db import models, models_util
 from bespoke.db.db_constants import RequestStatusEnum
 from bespoke.email import sendgrid_util
 from bespoke.finance import contract_util, number_util
@@ -150,9 +150,7 @@ class RespondToApprovalRequestView(MethodView):
 				'requested_at_date': date_util.human_readable_yearmonthday(invoice.requested_at),
 			}]
 
-			customer_users = session.query(models.User) \
-				.filter(models.User.company_id == invoice.company_id) \
-				.all()
+			customer_users = models_util.get_active_users(company_id=invoice.company_id, session=session)
 
 			if not customer_users:
 				raise errors.Error("No users configured for this customer")

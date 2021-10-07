@@ -6,7 +6,7 @@ from typing import Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.companies import partnership_util
-from bespoke.db import models, db_constants
+from bespoke.db import models, models_util, db_constants
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.email.sendgrid_util import TemplateNames
@@ -92,11 +92,7 @@ class NotifyHelper(object):
 				settings = actual_settings
 
 			company_name = company.name
-			company_users = cast(
-				List[models.User],
-				session.query(models.User).filter_by(
-					company_id=company_id
-				).all())
+			company_users = models_util.get_active_users(company_id=company_id, session=session)
 
 			if company_users:
 				recipients = [_user_to_recipient(

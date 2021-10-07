@@ -50,12 +50,7 @@ def _send_bank_approved_loans_emails(
 					models.Company.id == customer_id
 				).first())
 
-			customer_users = cast(
-				List[models.User],
-				session.query(models.User).filter_by(
-					company_id=customer_id
-				).all())
-
+			customer_users = models_util.get_active_users(company_id=customer_id, session=session)
 			if not customer_users:
 				raise errors.Error('There are no users configured for this customer')
 
@@ -176,8 +171,7 @@ class RejectLoanView(MethodView):
 			loan_requested_payment_date = date_util.date_to_str(loan.requested_payment_date)
 			loan_requested_date = date_util.human_readable_yearmonthday(loan.requested_at)
 
-			customer_users = cast(List[models.User], session.query(
-				models.User).filter_by(company_id=customer_id).all())
+			customer_users = models_util.get_active_users(company_id=customer_id, session=session)
 			customer_emails = [user.email for user in customer_users]
 
 		template_name = sendgrid_util.TemplateNames.BANK_REJECTED_LOAN

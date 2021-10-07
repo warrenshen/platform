@@ -7,7 +7,7 @@ from typing import Callable, Dict, List, Optional, Tuple, cast
 from bespoke import errors
 from bespoke.companies import partnership_util
 from bespoke.date import date_util
-from bespoke.db import db_constants, models
+from bespoke.db import db_constants, models, models_util
 from bespoke.email import sendgrid_util
 from bespoke.finance.payments import payment_util
 from sqlalchemy.orm import Session
@@ -365,9 +365,7 @@ def is_invoice_ready_for_approval(
 			if not relationship or relationship.approved_at is None:
 				return errors.Error("payor is not approved")
 
-			payor_users = session.query(models.User) \
-				.filter_by(company_id=invoice.payor_id) \
-				.all()
+			payor_users = models_util.get_active_users(company_id=invoice.payor_id, session=session)
 			if not payor_users:
 				return errors.Error("no users configured for this payor")
 	except Exception as e:
