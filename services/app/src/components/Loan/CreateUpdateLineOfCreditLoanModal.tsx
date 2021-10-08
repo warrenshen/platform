@@ -10,7 +10,6 @@ import {
   Companies,
   LineOfCreditsInsertInput,
   LoansInsertInput,
-  LoanStatusEnum,
   LoanTypeEnum,
   Scalars,
   useAddLineOfCreditMutation,
@@ -23,7 +22,7 @@ import {
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { submitLoanMutation } from "lib/api/loans";
-import { ActionType } from "lib/enum";
+import { ActionType, LoanStatusEnum } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useState } from "react";
 

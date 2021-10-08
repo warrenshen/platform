@@ -2504,10 +2504,6 @@
       filter: {}
 - table:
     schema: public
-    name: loan_status
-  is_enum: true
-- table:
-    schema: public
     name: loan_type
   is_enum: true
 - table:

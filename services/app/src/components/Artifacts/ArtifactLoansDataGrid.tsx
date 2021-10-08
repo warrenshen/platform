@@ -12,9 +12,8 @@ import {
   LoanArtifactLimitedFragment,
   LoanFragment,
   Loans,
-  LoanStatusEnum,
 } from "generated/graphql";
-import { LoanPaymentStatusEnum } from "lib/enum";
+import { LoanPaymentStatusEnum, LoanStatusEnum } from "lib/enum";
 import {
   createLoanCustomerIdentifier,
   createLoanDisbursementIdentifier,

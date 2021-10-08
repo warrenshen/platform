@@ -9,13 +9,13 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LoanFragment,
   Loans,
-  LoanStatusEnum,
   useGetNotFundedLoansForBankSubscription,
 } from "generated/graphql";
 import { useHistory } from "react-router-dom";
 import useSnackbar from "hooks/useSnackbar";
 import { approveLoans } from "lib/api/loans";
 import { Action, check } from "lib/auth/rbac-rules";
+import { LoanStatusEnum } from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useContext, useMemo, useState } from "react";
 import styled from "styled-components";

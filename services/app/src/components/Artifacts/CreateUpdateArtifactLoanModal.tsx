@@ -8,7 +8,6 @@ import {
 import {
   Companies,
   LoansInsertInput,
-  LoanStatusEnum,
   LoanTypeEnum,
   ProductTypeEnum,
   Scalars,
@@ -21,7 +20,7 @@ import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { submitLoanMutation } from "lib/api/loans";
 import { formatCurrency } from "lib/currency";
-import { ActionType } from "lib/enum";
+import { ActionType, LoanStatusEnum } from "lib/enum";
 import {
   Artifact,
   listArtifactsForCreateLoan,

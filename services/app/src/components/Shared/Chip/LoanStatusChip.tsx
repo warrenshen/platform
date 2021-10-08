@@ -1,6 +1,5 @@
 import { Typography } from "@material-ui/core";
-import { LoanStatusEnum } from "generated/graphql";
-import { LoanStatusToLabel } from "lib/enum";
+import { LoanStatusEnum, LoanStatusToLabel } from "lib/enum";
 import styled from "styled-components";
 
 const Chip = styled.div<{ backgroundColor: string }>`

@@ -1,9 +1,6 @@
-import {
-  Companies,
-  LoanStatusEnum,
-  PurchaseOrderFragment,
-} from "generated/graphql";
+import { Companies, PurchaseOrderFragment } from "generated/graphql";
 import { authenticatedApi, loansRoutes } from "lib/api";
+import { LoanStatusEnum } from "lib/enum";
 
 export type LoanUpsert = {
   id: string | null;

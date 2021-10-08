@@ -1,6 +1,9 @@
 import { Box, Typography } from "@material-ui/core";
-import { LoanStatusEnum } from "generated/graphql";
-import { LoanPaymentStatusEnum, LoanPaymentStatusToLabel } from "lib/enum";
+import {
+  LoanPaymentStatusEnum,
+  LoanPaymentStatusToLabel,
+  LoanStatusEnum,
+} from "lib/enum";
 import styled from "styled-components";
 
 const Chip = styled.div<{ backgroundColor: string }>`

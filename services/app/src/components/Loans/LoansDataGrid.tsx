@@ -23,7 +23,6 @@ import {
   LoanFragment,
   LoanReportFragment,
   Loans,
-  LoanStatusEnum,
   LoanTypeEnum,
   Maybe,
   RequestStatusEnum,
@@ -31,6 +30,7 @@ import {
 import {
   AllLoanStatuses,
   LoanPaymentStatusEnum,
+  LoanStatusEnum,
   LoanTypeToLabel,
 } from "lib/enum";
 import {

@@ -6,13 +6,8 @@ import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
-import {
-  Companies,
-  LoanFragment,
-  Loans,
-  LoanStatusEnum,
-} from "generated/graphql";
-import { AllLoanStatuses } from "lib/enum";
+import { Companies, LoanFragment, Loans } from "generated/graphql";
+import { AllLoanStatuses, LoanStatusEnum } from "lib/enum";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 

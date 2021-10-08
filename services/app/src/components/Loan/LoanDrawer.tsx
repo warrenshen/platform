@@ -13,7 +13,6 @@ import {
 } from "contexts/CurrentUserContext";
 import {
   Loans,
-  LoanStatusEnum,
   LoanTypeEnum,
   useGetLoanWithArtifactForBankQuery,
   useGetLoanWithArtifactForCustomerQuery,
@@ -22,7 +21,11 @@ import {
 import { getCompanyDisplayName } from "lib/companies";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
-import { LoanPaymentStatusEnum, LoanTypeToLabel } from "lib/enum";
+import {
+  LoanPaymentStatusEnum,
+  LoanStatusEnum,
+  LoanTypeToLabel,
+} from "lib/enum";
 import {
   createLoanCustomerIdentifier,
   createLoanDisbursementIdentifier,
@@ -151,7 +154,7 @@ export default function LoanDrawer({ loanId, handleClose }: Props) {
             <Typography variant="subtitle2" color="textSecondary">
               Approval Status
             </Typography>
-            <LoanStatusChip loanStatus={loan.status} />
+            <LoanStatusChip loanStatus={loan.status as LoanStatusEnum} />
           </Box>
           {loan.status === LoanStatusEnum.Rejected && (
             <Box display="flex" flexDirection="column" mt={2}>

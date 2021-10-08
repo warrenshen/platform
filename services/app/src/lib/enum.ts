@@ -1,6 +1,5 @@
 import {
   CompanyTypeEnum,
-  LoanStatusEnum,
   LoanTypeEnum,
   ProductTypeEnum,
   RequestStatusEnum,
@@ -75,8 +74,19 @@ export const LoanPaymentStatusToLabel = {
   [LoanPaymentStatusEnum.CLOSED]: "Closed",
 };
 
-// TODO(dlluncor): Remove references to PastDue, Funded, Closed as these are not valid statuses
-// on the loan "request status"
+export enum LoanStatusEnum {
+  Drafted = "drafted",
+  ApprovalRequested = "approval_requested",
+  Approved = "approved",
+  Rejected = "rejected",
+  Funded = "funded",
+  PastDue = "past_due",
+  Closed = "closed",
+  Closing = "closing",
+}
+
+// TODO(dlluncor): Remove references to PastDue, Funded, Closed
+// as these are not valid statuses on the loan "request status"
 // Loan Status enum related.
 export const LoanStatusToLabel = {
   [LoanStatusEnum.Drafted]: "Draft",

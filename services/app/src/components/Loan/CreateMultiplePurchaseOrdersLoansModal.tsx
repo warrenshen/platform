@@ -19,7 +19,6 @@ import {
   GetPurchaseOrdersForIdsQuery,
   LoanFragment,
   Loans,
-  LoanStatusEnum,
   LoanTypeEnum,
   ProductTypeEnum,
   Scalars,
@@ -28,6 +27,7 @@ import {
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
+import { LoanStatusEnum } from "lib/enum";
 import {
   PurchaseOrderLoanUpsert,
   upsertPurchaseOrdersLoansMutation,
