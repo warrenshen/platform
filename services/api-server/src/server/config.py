@@ -75,6 +75,7 @@ class Config(object):
 
 		# Metrc
 		self.METRC_VENDOR_KEY_CA = os.environ.get('METRC_VENDOR_KEY_CA')
+		self.METRC_VENDOR_KEY_CO = os.environ.get('METRC_VENDOR_KEY_CO')
 		self.METRC_VENDOR_KEY_OR = os.environ.get('METRC_VENDOR_KEY_OR')
 		self.METRC_USER_KEY = os.environ.get('METRC_USER_KEY')
 
@@ -109,6 +110,7 @@ class Config(object):
 			user_key=self.METRC_USER_KEY,
 			state_to_vendor_key={
 				'CA': self.METRC_VENDOR_KEY_CA,
+				'CO': self.METRC_VENDOR_KEY_CO,
 				'OR': self.METRC_VENDOR_KEY_OR,
 			}
 		)
