@@ -185,15 +185,15 @@ export default function CreateRepaymentModal({
     const dateAdjustmentAtSubmission = computeRequestedWithdrawCutoffDate(
       todayAsDateStringServer()
     );
-    /*if (
-      new Date(dateAdjustmentAtSubmission) >
-      new Date(payment.requested_payment_date)
-    ) {
-      setErrMsg(
-        `Your submission has now passed the 12pm deadline. Please adjust your requested withdraw date of #${payment.requested_payment_date} to something on or after #${dateAdjustmentAtSubmission}.`
-      );
-      return;
-    }*/
+
+    if (payment.method === PaymentMethodEnum.ReverseDraftACH) {
+      if (dateAdjustmentAtSubmission > payment.requested_payment_date) {
+        setErrMsg(
+          `Your submission has now passed the 12pm deadline. Please adjust your requested withdraw date of #${payment.requested_payment_date} to something on or after #${dateAdjustmentAtSubmission}.`
+        );
+        return;
+      }
+    }
 
     const response = await createRepayment({
       variables: {
