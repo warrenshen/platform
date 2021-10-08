@@ -185,7 +185,7 @@ export default function CreateRepaymentModal({
     const dateAdjustmentAtSubmission = computeRequestedWithdrawCutoffDate(
       todayAsDateStringServer()
     );
-    if (
+    /*if (
       new Date(dateAdjustmentAtSubmission) >
       new Date(payment.requested_payment_date)
     ) {
@@ -193,7 +193,7 @@ export default function CreateRepaymentModal({
         `Your submission has now passed the 12pm deadline. Please adjust your requested withdraw date of #${payment.requested_payment_date} to something on or after #${dateAdjustmentAtSubmission}.`
       );
       return;
-    }
+    }*/
 
     const response = await createRepayment({
       variables: {
