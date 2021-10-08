@@ -429,7 +429,7 @@ def _download_data(
 				# NOTE: Sales data has references to packages, so this method
 				# should run after download_packages
 				if ctx.apis_to_use.get('sales_receipts', False):
-					sales_receipts_models = sales_util.download_sales_info(ctx)
+					sales_receipts_models = sales_util.download_sales_info(ctx, session_maker)
 					sales_util.write_sales_info(sales_receipts_models, session_maker)
 
 				# NOTE: transfer must come after download_packages, because transfers

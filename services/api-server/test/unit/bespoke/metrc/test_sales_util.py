@@ -117,7 +117,7 @@ class TestPopulateSalesTable(db_unittest.TestCase):
 							'json': [
 								_sales_receipt_json({
 									'Id': 1,
-									'LastModified': parser.parse('02/01/2020').isoformat(),
+									'LastModified': parser.parse('02/01/2020 08:00').isoformat(),
 									'SalesDateTime': parser.parse('02/02/2020').isoformat(),
 									'TotalPackages': 1,
 									'TotalPrice': 10.1,
@@ -125,7 +125,7 @@ class TestPopulateSalesTable(db_unittest.TestCase):
 								}),
 								_sales_receipt_json({
 									'Id': 2,
-									'LastModified': parser.parse('02/02/2020').isoformat(),
+									'LastModified': parser.parse('02/02/2020 08:00').isoformat(),
 									'SalesDateTime': parser.parse('02/03/2020').isoformat(),
 									'TotalPackages': 2,
 									'TotalPrice': 20.2,
@@ -166,7 +166,7 @@ class TestPopulateSalesTable(db_unittest.TestCase):
 							'json': [
 								_sales_receipt_json({
 									'Id': 3,
-									'LastModified': parser.parse('02/03/2020').isoformat(),
+									'LastModified': parser.parse('02/03/2020 08:00').isoformat(),
 									'SalesDateTime': parser.parse('02/04/2020').isoformat(),
 									'TotalPackages': 3,
 									'TotalPrice': 30.3,
@@ -174,7 +174,7 @@ class TestPopulateSalesTable(db_unittest.TestCase):
 								}),
 								_sales_receipt_json({
 									'Id': 4,
-									'LastModified': parser.parse('02/04/2020').isoformat(),
+									'LastModified': parser.parse('02/04/2020 08:00').isoformat(),
 									'SalesDateTime': parser.parse('02/05/2020').isoformat(),
 									'TotalPackages': 4,
 									'TotalPrice': 40.4,
@@ -410,7 +410,7 @@ class TestPopulateSalesTable(db_unittest.TestCase):
 				},
 			}
 		))
-		sales_info_objects = sales_util.download_sales_info(ctx)
+		sales_info_objects = sales_util.download_sales_info(ctx, session_maker)
 		sales_util.write_sales_info(sales_info_objects, session_maker, BATCH_SIZE=4)
 		
 		expected_receipts: List[Dict] = [
@@ -555,7 +555,7 @@ class TestPopulateSalesTable(db_unittest.TestCase):
 		self._assert_transactions(expected_transactions, session_maker)
 
 		# Run it a 2nd time
-		sales_info_objects = sales_util.download_sales_info(ctx)
+		sales_info_objects = sales_util.download_sales_info(ctx, session_maker)
 		sales_util.write_sales_info(sales_info_objects, session_maker, BATCH_SIZE=4)
 
 		# Let's test that we fetch the tranactions a second time, we delete all
