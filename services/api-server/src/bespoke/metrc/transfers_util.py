@@ -114,6 +114,13 @@ class TransferPackages(object):
 
 		return metrc_packages, get_final_lab_status(lab_statuses)
 
+def _get_prev_metrc_transfers(transfer_ids: List[str], us_state: str, session: Session) -> List[models.MetrcTransfer]:
+	return session.query(models.MetrcTransfer).filter(
+		models.MetrcTransfer.us_state == us_state
+	).filter(
+		models.MetrcTransfer.transfer_id.in_(transfer_ids)
+	).all()
+
 class Transfers(object):
 
 	def __init__(self, transfers: List[Dict]) -> None:
@@ -122,6 +129,38 @@ class Transfers(object):
 	@staticmethod
 	def build(transfers: List[Dict]) -> 'Transfers':
 		return Transfers(transfers)
+
+
+	def filter_new_only(self, ctx: metrc_common_util.DownloadContext, session: Session) -> 'Transfers':
+		"""
+			Only keep transfers which are newly updated, e.g.,
+			last_modified_at > db.last_modified_at.
+
+			This prevents us from querying transfers where we know they haven't changed.
+		"""
+
+		us_state = ctx.license['us_state']
+		transfer_ids = ['{}'.format(t['Id']) for t in self._transfers]
+		prev_transfers = _get_prev_metrc_transfers(transfer_ids, us_state, session)
+
+		transfer_id_to_transfer = {}
+		for prev_metrc_transfer in prev_transfers:
+			transfer_id_to_transfer[prev_metrc_transfer.transfer_id] = prev_metrc_transfer
+
+		new_transfers = []
+		for t in self._transfers:
+			cur_transfer_id = '{}'.format(t['Id']) 
+			if cur_transfer_id in transfer_id_to_transfer:
+				prev_transfer = transfer_id_to_transfer[cur_transfer_id]
+				if prev_transfer.last_modified_at >= parser.parse(t['LastModified']):
+					# If we've seen a previous transfer that's at the same last_modified_at
+					# or newer than what we just fetched, no need to use it again
+					continue
+			
+			new_transfers.append(t)
+
+		self._transfers = new_transfers
+		return self
 
 	def get_transfer_objs(self, rest: metrc_common_util.REST, ctx: metrc_common_util.DownloadContext, transfer_type: str) -> List[MetrcTransferObj]:
 		metrc_transfer_objs = []
@@ -227,11 +266,11 @@ def _write_transfers(
 	transfer_ids = [transfer_obj.metrc_transfer.transfer_id for transfer_obj in transfer_objs]
 	us_states = [transfer_obj.metrc_transfer.us_state for transfer_obj in transfer_objs]
 
-	prev_metrc_transfers = session.query(models.MetrcTransfer).filter(
-		models.MetrcTransfer.us_state.in_(us_states)
-	).filter(
-		models.MetrcTransfer.transfer_id.in_(transfer_ids)
-	)
+	if not transfer_objs:
+		return
+
+	prev_metrc_transfers = _get_prev_metrc_transfers(transfer_ids, us_states[0], session)
+
 	transfer_id_to_prev_transfer = {}
 	for prev_transfer in prev_metrc_transfers:
 		transfer_id_to_prev_transfer[prev_transfer.transfer_id] = prev_transfer
@@ -478,17 +517,22 @@ def populate_transfers_table(
 	## Fetch transfers
 
 	# Incoming
-	incoming_transfers = []
+	incoming_transfers_arr = []
 	if apis_to_use['incoming_transfers']:
 		try:
 			resp = rest.get('/transfers/v1/incoming', time_range=[cur_date_str])
-			incoming_transfers = json.loads(resp.content)
+			incoming_transfers_arr = json.loads(resp.content)
 			request_status['transfers_api'] = 200
 		except errors.Error as e:
 			request_status['transfers_api'] = e.details.get('status_code')
 			return False, e
 
-	incoming_metrc_transfer_objs = Transfers.build(incoming_transfers).get_transfer_objs(
+	with session_scope(session_maker) as session:
+		incoming_transfers = Transfers.build(incoming_transfers_arr).filter_new_only(
+			ctx, session
+		)
+
+	incoming_metrc_transfer_objs = incoming_transfers.get_transfer_objs(
 		rest=rest,
 		ctx=ctx,
 		transfer_type=db_constants.TransferType.INCOMING
@@ -503,17 +547,22 @@ def populate_transfers_table(
 		)
 
 	# Outgoing
-	outgoing_transfers = []
+	outgoing_transfers_arr = []
 	if apis_to_use['outgoing_transfers']:
 		try:
 			resp = rest.get('/transfers/v1/outgoing', time_range=[cur_date_str])
-			outgoing_transfers = json.loads(resp.content)
+			outgoing_transfers_arr = json.loads(resp.content)
 			request_status['transfers_api'] = 200
 		except errors.Error as e:
 			request_status['transfers_api'] = e.details.get('status_code')
 			return False, e
 
-	outgoing_metrc_transfer_objs = Transfers.build(outgoing_transfers).get_transfer_objs(
+	with session_scope(session_maker) as session:
+		outgoing_transfers = Transfers.build(outgoing_transfers_arr).filter_new_only(
+			ctx, session
+		)
+
+	outgoing_metrc_transfer_objs = outgoing_transfers.get_transfer_objs(
 		rest=rest,
 		ctx=ctx,
 		transfer_type=db_constants.TransferType.OUTGOING,
