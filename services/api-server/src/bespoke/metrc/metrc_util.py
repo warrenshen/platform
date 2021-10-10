@@ -2,6 +2,7 @@ import base64
 import datetime
 import logging
 import os
+import traceback
 from datetime import timedelta
 from typing import Any, Callable, Dict, List, Tuple, cast
 
@@ -342,6 +343,66 @@ def _get_metrc_company_info(
 			state_to_company_infos=state_to_company_infos
 		), None
 
+def _download_data_for_license(
+	ctx: metrc_common_util.DownloadContext,
+	session_maker: Callable) -> Tuple[Dict, errors.Error]:
+	cur_date = ctx.cur_date
+	license = ctx.license
+
+	logging.info('Running download metrc data for company "{}" for last modified date {} with license {}'.format(
+		ctx.company_details['name'], cur_date, license['license_number']
+	))
+
+	if ctx.apis_to_use.get('packages', False):
+		package_models = packages_util.download_packages(ctx)
+		packages_util.write_packages(package_models, session_maker)
+
+	if ctx.apis_to_use.get('harvests', False):
+		harvest_models = harvests_util.download_harvests(ctx)
+		harvests_util.write_harvests(harvest_models, session_maker)
+
+	if ctx.apis_to_use.get('plant_batches', False):
+		plant_batches_models = plant_batches_util.download_plant_batches(ctx)
+		plant_batches_util.write_plant_batches(plant_batches_models, session_maker)
+
+	# NOTE: plants have references to plant batches and harvests, so this
+	# must come after fetching plant_batches and harvests
+	if ctx.apis_to_use.get('plants', False):
+		plants_models = plants_util.download_plants(ctx)
+		plants_util.write_plants(plants_models, session_maker)
+
+	# NOTE: Sales data has references to packages, so this method
+	# should run after download_packages
+	if ctx.apis_to_use.get('sales_receipts', False):
+		sales_receipts_models = sales_util.download_sales_info(ctx, session_maker)
+		sales_util.write_sales_info(sales_receipts_models, session_maker)
+
+	# NOTE: transfer must come after download_packages, because transfers
+	# may update the state of packages
+	# Download transfers data for the particular day and key
+	success, err = transfers_util.populate_transfers_table(
+		ctx=ctx,
+		session_maker=session_maker
+	)
+	if err:
+		logging.error(f'Error thrown for company {ctx.company_details["name"]} for date {cur_date} and license {license["license_number"]}!')
+		logging.error(f'Error: {err}')
+		return None, err
+
+	return {
+		'api_key_has_err': err is not None, # Record whether there was an error with the Metrc API for this license
+		'transfers_api': ctx.request_status['transfers_api'],
+		'transfer_packages_api': ctx.request_status['transfer_packages_api'],
+		'transfer_packages_wholesale_api': ctx.request_status['transfer_packages_wholesale_api'],
+		'packages_api': ctx.request_status['packages_api'],
+		'plants_api': ctx.request_status['plants_api'],
+		'plant_batches_api': ctx.request_status['plant_batches_api'],
+		'harvests_api': ctx.request_status['harvests_api'],
+		'lab_results_api': ctx.request_status['lab_results_api'],
+		'sales_receipts_api': ctx.request_status['receipts_api'],
+		'sales_transactions_api': ctx.request_status['sales_transactions_api']
+	}, None
+
 def _download_data(
 	company_id: str,
 	auth_provider: MetrcAuthProvider,
@@ -367,78 +428,44 @@ def _download_data(
 		), err
 
 	errs = []
+	company_details = metrc_common_util.CompanyDetailsDict(
+		company_id=company_info.company_id,
+		name=company_info.name
+	)
 
 	for us_state in company_info.get_us_states():
 		# Each state may have multiple Metrc API keys.
 		state_infos = company_info.get_company_state_infos(us_state)
 
 		for state_info in state_infos:
+			# How many licenses is the API key functioning for?
+			functioning_licenses_count = 0
+			license_to_statuses = {}
+				
 			for license in state_info['licenses']:
-				# How many licenses is the API key functioning for?
-				functioning_licenses_count = 0
-				license_to_statuses = {}
-				company_details = metrc_common_util.CompanyDetailsDict(
-					company_id=company_info.company_id,
-					name=company_info.name
-				)
-
 				ctx = metrc_common_util.DownloadContext(
-					sendgrid_client, cur_date, company_details, state_info['apis_to_use'], license, debug=False)
-
-				logging.info('Running download metrc data for company "{}" for last modified date {} with license {}'.format(
-					ctx.company_details['name'], cur_date, license['license_number']
-				))
-
-				if ctx.apis_to_use.get('packages', False):
-					package_models = packages_util.download_packages(ctx)
-					packages_util.write_packages(package_models, session_maker)
-
-				if ctx.apis_to_use.get('harvests', False):
-					harvest_models = harvests_util.download_harvests(ctx)
-					harvests_util.write_harvests(harvest_models, session_maker)
-
-				if ctx.apis_to_use.get('plant_batches', False):
-					plant_batches_models = plant_batches_util.download_plant_batches(ctx)
-					plant_batches_util.write_plant_batches(plant_batches_models, session_maker)
-
-				# NOTE: plants have references to plant batches and harvests, so this
-				# must come after fetching plant_batches and harvests
-				if ctx.apis_to_use.get('plants', False):
-					plants_models = plants_util.download_plants(ctx)
-					plants_util.write_plants(plants_models, session_maker)
-
-				# NOTE: Sales data has references to packages, so this method
-				# should run after download_packages
-				if ctx.apis_to_use.get('sales_receipts', False):
-					sales_receipts_models = sales_util.download_sales_info(ctx, session_maker)
-					sales_util.write_sales_info(sales_receipts_models, session_maker)
-
-				# NOTE: transfer must come after download_packages, because transfers
-				# may update the state of packages
-				# Download transfers data for the particular day and key
-				success, err = transfers_util.populate_transfers_table(
-					ctx=ctx,
-					session_maker=session_maker
+					sendgrid_client, cur_date, company_details, 
+					state_info['apis_to_use'], license, debug=False
 				)
+				api_status_dict = None
+				err = None
+				try:
+					api_status_dict, err = _download_data_for_license(
+						ctx, session_maker)
+				except errors.Error as e1:
+					err = e1
+				except Exception as e:
+					logging.error('SEVERE error, download data for metrc failed: {}'.format(e))
+					logging.error(traceback.format_exc())
+					err = errors.Error('{}'.format(e))
+
 				if err:
-					logging.error(f'Error thrown for company {company_info.name} for date {cur_date} and license {license["license_number"]}!')
-					logging.error(f'Error: {err}')
 					errs.append(err)
 
+				if api_status_dict:
+					license_to_statuses[license['license_number']] = api_status_dict
+
 				functioning_licenses_count += 1 if not err else 0
-				license_to_statuses[license['license_number']] = {
-					'api_key_has_err': err is not None, # Record whether there was an error with the Metrc API for this license
-					'transfers_api': ctx.request_status['transfers_api'],
-					'transfer_packages_api': ctx.request_status['transfer_packages_api'],
-					'transfer_packages_wholesale_api': ctx.request_status['transfer_packages_wholesale_api'],
-					'packages_api': ctx.request_status['packages_api'],
-					'plants_api': ctx.request_status['plants_api'],
-					'plant_batches_api': ctx.request_status['plant_batches_api'],
-					'harvests_api': ctx.request_status['harvests_api'],
-					'lab_results_api': ctx.request_status['lab_results_api'],
-					'sales_receipts_api': ctx.request_status['receipts_api'],
-					'sales_transactions_api': ctx.request_status['sales_transactions_api']
-				}
 
 			# Update whether this metrc key worked
 			with session_scope(session_maker) as session:
