@@ -182,24 +182,24 @@ def get_default_apis_to_use() -> ApisToUseDict:
 class FacilitiesFetcherInterface(object):
 	"""Interface, to make it easier for the test to fake out this function"""
 
-	def get_facilities(self, auth_dict: AuthDict, us_state: str) -> List[FacilityInfoDict]:
-		return []
+	def get_facilities(self, auth_dict: AuthDict, us_state: str) -> Tuple[List[FacilityInfoDict], errors.Error]:
+		return [], None
 
 class FacilitiesFetcher(FacilitiesFetcherInterface):
 
-	def get_facilities(self, auth_dict: AuthDict, us_state: str) -> List[FacilityInfoDict]:
+	def get_facilities(self, auth_dict: AuthDict, us_state: str) -> Tuple[List[FacilityInfoDict], errors.Error]:
 		auth = HTTPBasicAuth(auth_dict['vendor_key'], auth_dict['user_key'])
 		base_url = _get_base_url(us_state)
 		url = base_url + '/facilities/v1/'
 		resp = requests.get(url, auth=auth)
 
 		if not resp.ok:
-			raise errors.Error('URL: {}. Code: {}. Reason: {}. Response: {}'.format(
+			return None, errors.Error('URL: {}. Code: {}. Reason: {}. Response: {}'.format(
 				url, resp.status_code, resp.reason, resp.content.decode('utf-8')),
 				details={'status_code': resp.status_code})
 
 		facilities_arr = json.loads(resp.content)
-		return facilities_arr
+		return facilities_arr, None
 
 
 class REST(object):

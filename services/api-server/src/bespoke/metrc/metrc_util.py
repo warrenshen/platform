@@ -256,6 +256,8 @@ def _get_metrc_company_info(
 				models.MetrcApiKey.company_id == company_id
 		).all())
 
+		us_states_set = set([])
+		
 		for other_metrc_api_key in other_metrc_api_keys:
 	
 			if not other_metrc_api_key.us_state:
@@ -266,7 +268,9 @@ def _get_metrc_company_info(
 			
 			if cur_us_state not in state_to_metrc_api_keys:
 				state_to_metrc_api_keys[cur_us_state] = []
+
 			state_to_metrc_api_keys[cur_us_state].append(other_metrc_api_key)
+			us_states_set.add(cur_us_state)
 
 		all_licenses = cast(
 			List[models.CompanyLicense],
@@ -277,11 +281,8 @@ def _get_metrc_company_info(
 		).all())
 
 		licenses_map: Dict[str, models.CompanyLicenseDict] = {}
-		us_states_set = set([])
 		for license in all_licenses:
 			licenses_map[license.license_number] = license.as_dict()
-			if license.us_state:
-				us_states_set.add(license.us_state)
 
 		company_name = company.name
 		use_unsaved_licenses = True # Can change to False for debugging, such as when a customer has many licenses
@@ -298,10 +299,15 @@ def _get_metrc_company_info(
 					security_cfg, cur_metrc_api_key.encrypted_api_key
 				)
 
-				facilities_arr = facilities_fetcher.get_facilities(AuthDict(
+				facilities_arr, err = facilities_fetcher.get_facilities(AuthDict(
 					vendor_key=vendor_key,
 					user_key=api_key
 				), us_state)
+
+				if err:
+					logging.error('/facilities/v1 endpoint failed for api_key {}. Reason: {}'.format(
+						str(cur_metrc_api_key.id), err))
+					continue
 
 				license_auths = []
 

@@ -54,11 +54,17 @@ def _get_contract(company_id: str, product_type: str, us_state: str) -> models.C
 
 class FakeFacilitiesFetcher(metrc_common_util.FacilitiesFetcherInterface):
 
-	def __init__(self, state_to_facilities: Dict[str, List[FacilityInfoDict]]) -> None:
+	def __init__(self, 
+		state_to_facilities: Dict[str, List[FacilityInfoDict]],
+		state_to_errs: Dict[str, errors.Error]) -> None:
 		self._state_to_facilities = state_to_facilities
+		self._state_to_errs = state_to_errs
 
-	def get_facilities(self, auth_dict: AuthDict, us_state: str) -> List[FacilityInfoDict]:
-		return self._state_to_facilities[us_state]
+	def get_facilities(self, auth_dict: AuthDict, us_state: str) -> Tuple[List[FacilityInfoDict], errors.Error]:
+		if us_state in self._state_to_errs:
+			return None, self._state_to_errs[us_state]
+
+		return self._state_to_facilities[us_state], None
 
 class TestDeleteKey(db_unittest.TestCase):
 
@@ -213,6 +219,7 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 			state_to_vendor_key={
 				'CA': 'ca-vendorkey',
 				'OR': 'or-vendorkey',
+				'FL': 'fl-vendorkey'
 			}
 		)
 
@@ -266,7 +273,7 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 			security_cfg=self.security_cfg,
 			facilities_fetcher=FakeFacilitiesFetcher({
 				'CA': facilities
-			}),
+			}, state_to_errs={}),
 			company_id=company_id,
 			session_maker=self.session_maker
 		)
@@ -338,7 +345,7 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 			security_cfg=self.security_cfg,
 			facilities_fetcher=FakeFacilitiesFetcher({
 				'CA': facilities
-			}),
+			}, state_to_errs={}),
 			company_id=company_id,
 			session_maker=self.session_maker
 		)
@@ -377,7 +384,7 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 				}
 		}, company_info)
 
-	def test_multi_state_facilities_and_licenses(self) -> None:
+	def test_multi_state_facilities_and_licenses_with_failures_that_get_ignored(self) -> None:
 		self.reset()
 		session_maker = self.session_maker
 		seed = test_helper.BasicSeed.create(self.session_maker, self)
@@ -429,6 +436,16 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 			)
 			self.assertIsNone(err)
 
+			metrc_api_key_id3, err = metrc_util.upsert_api_key(
+				api_key='the-api-key3', 
+				company_settings_id=company_settings_id, 
+				metrc_api_key_id=None,
+				security_cfg=self.security_cfg,
+				us_state='FL',
+				session=session
+			)
+			self.assertIsNone(err)
+
 			license1 = models.CompanyLicense()
 			license1.company_id = cast(Any, company_id)
 			license1.license_number = 'abcd'
@@ -450,6 +467,8 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 			facilities_fetcher=FakeFacilitiesFetcher({
 				'CA': ca_facilities,
 				'OR': or_facilities
+			}, state_to_errs={
+				'FL': errors.Error('No succesful facilities found for FL')
 			}),
 			company_id=company_id,
 			session_maker=self.session_maker
