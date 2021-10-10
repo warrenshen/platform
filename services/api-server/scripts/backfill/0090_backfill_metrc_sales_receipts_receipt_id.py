@@ -14,7 +14,7 @@ sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
 
 from bespoke.db import db_constants, models
 
-def main() -> None:
+def main(is_test_run: bool = True) -> None:
 	if not os.environ.get("DATABASE_URL"):
 		print("You must set 'DATABASE_URL' in the environment to use this script")
 		exit(1)
@@ -53,9 +53,24 @@ def main() -> None:
 						print('WARNING: metrc sales receipt {} is missing a payload'.format(cur_id))
 						continue
 
-					metrc_sales_receipt.receipt_id = '{}'.format(metrc_sales_receipt.payload['Id'])
+					if not metrc_sales_receipt.receipt_id:
+						print(f'Updating metrc sales receipt {str(metrc_sales_receipt.id)} receipt_id...')
+						if not is_test_run:
+							metrc_sales_receipt.receipt_id = '{}'.format(metrc_sales_receipt.payload['Id'])
 
 				current_page += 1
 
 if __name__ == "__main__":
-	main()
+	if not os.environ.get("DATABASE_URL"):
+		print("You must set 'DATABASE_URL' in the environment to use this script")
+		exit(1)
+
+	is_test_run = True
+
+	if not os.environ.get("CONFIRM"):
+		print("This script CHANGES information in the database")
+		print("You must set 'CONFIRM=1' as an environment variable to actually perform database changes with this script")
+	else:
+		is_test_run = False
+
+	main(is_test_run)

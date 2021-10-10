@@ -430,6 +430,9 @@ class MetrcPlant(Base):
 	payload = Column(JSON) # From Metrc info
 	last_modified_at = Column(DateTime) # From Metrc info
 
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime)
+
 class MetrcPlantBatch(Base):
 	__tablename__ = 'metrc_plant_batches'
 
@@ -445,6 +448,9 @@ class MetrcPlantBatch(Base):
 	payload = Column(JSON) # From Metrc info
 	last_modified_at = Column(DateTime) # From Metrc info
 
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime)
+
 class MetrcHarvest(Base):
 	__tablename__ = 'metrc_harvests'
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
@@ -457,6 +463,9 @@ class MetrcHarvest(Base):
 	harvest_start_date = Column(Date) # From Metrc info
 	payload = Column(JSON) # From Metrc info
 	last_modified_at = Column(DateTime) # From Metrc info
+
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime)
 
 class MetrcTransfer(Base):
 	__tablename__ = 'metrc_transfers'
@@ -474,6 +483,7 @@ class MetrcTransfer(Base):
 	transfer_payload = Column(JSON) # From Metrc info
 	lab_results_status = Column(String) # Computed based on Metrc info
 	last_modified_at = Column(DateTime) # From Metrc info
+
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime)
 
@@ -490,6 +500,7 @@ class MetrcDelivery(Base):
 	shipment_transaction_type = Column(String)
 	received_datetime = Column(DateTime)
 	delivery_payload = Column(JSON)
+
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime)
 
@@ -505,6 +516,7 @@ class CompanyDelivery(Base):
 	transfer_type = Column(String) # Enum based on Metrc API endpoint: db_constants.TransferType.
 	delivery_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_deliveries.id')))
 	delivery_type = Column(String) # Custom enum: 'INCOMING_INTERNAL', 'INCOMING_FROM_VENDOR', 'INCOMING_UNKNOWN', 'OUTGOING_INTERNAL', 'OUTGOING_TO_VENDOR', 'OUTGOING_UNKNOWN', 'UNKNOWN'.
+
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime, default=datetime.datetime.utcnow)
 
@@ -581,6 +593,9 @@ class MetrcSalesReceipt(Base):
 	payload = Column(JSON) # From Metrc info
 	last_modified_at = Column(DateTime) # From Metrc info
 
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime)
+
 class MetrcSalesTransaction(Base):
 	__tablename__ = 'metrc_sales_transactions'
 
@@ -601,6 +616,9 @@ class MetrcSalesTransaction(Base):
 	recorded_datetime = Column(DateTime) # From Metrc info
 	payload = Column(JSON) # From Metrc info
 	last_modified_at = Column(DateTime) # From Metrc info
+
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime)
 
 ## End Metrc
 
