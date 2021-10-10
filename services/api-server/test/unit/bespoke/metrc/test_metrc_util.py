@@ -78,12 +78,6 @@ class TestUpsertApiKey(db_unittest.TestCase):
 		company_id = seed.get_company_id('company_admin', index=0)
 
 		with session_scope(self.session_maker) as session:
-			contract = _get_contract(
-				company_id, 
-				product_type=ProductType.LINE_OF_CREDIT,
-				us_state='CA'
-			)
-			contract_test_helper.set_and_add_contract_for_company(contract, company_id, session)
 			company_settings_id = seed.get_company_settings_id('company_admin', index=0)
 
 			metrc_api_key_id, err = metrc_util.upsert_api_key(
@@ -91,7 +85,7 @@ class TestUpsertApiKey(db_unittest.TestCase):
 				company_settings_id=company_settings_id, 
 				metrc_api_key_id=None,
 				security_cfg=self.security_cfg,
-				us_state=None,
+				us_state='CA',
 				session=session
 			)
 			self.assertIsNone(err)
@@ -115,12 +109,6 @@ class TestUpsertApiKey(db_unittest.TestCase):
 		company_id = seed.get_company_id('company_admin', index=0)
 		
 		with session_scope(self.session_maker) as session:
-			contract = _get_contract(
-				company_id, 
-				product_type=ProductType.LINE_OF_CREDIT,
-				us_state='CA'
-			)
-			contract_test_helper.set_and_add_contract_for_company(contract, company_id, session)
 			company_settings_id = seed.get_company_settings_id('company_admin', index=0)
 
 			metrc_api_key_id, err = metrc_util.upsert_api_key(
@@ -128,7 +116,7 @@ class TestUpsertApiKey(db_unittest.TestCase):
 				company_settings_id=company_settings_id, 
 				metrc_api_key_id=None,
 				security_cfg=self.security_cfg,
-				us_state=None,
+				us_state='CA',
 				session=session
 			)
 			self.assertIsNone(err)
@@ -140,7 +128,7 @@ class TestUpsertApiKey(db_unittest.TestCase):
 				company_settings_id=company_settings_id, 
 				metrc_api_key_id=None,
 				security_cfg=self.security_cfg,
-				us_state=None,
+				us_state='CA',
 				session=session
 			)
 			self.assertIsNone(err)
@@ -204,12 +192,6 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 		company_id = seed.get_company_id('company_admin', index=0)
 
 		with session_scope(self.session_maker) as session:
-			contract = _get_contract(
-				company_id, 
-				product_type=ProductType.LINE_OF_CREDIT,
-				us_state='CA'
-			)
-			contract_test_helper.set_and_add_contract_for_company(contract, company_id, session)
 			company_settings_id = seed.get_company_settings_id('company_admin', index=0)
 
 			metrc_api_key_id, err = metrc_util.upsert_api_key(
@@ -217,7 +199,7 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 				company_settings_id=company_settings_id, 
 				metrc_api_key_id=None,
 				security_cfg=self.security_cfg,
-				us_state=None,
+				us_state='CA',
 				session=session
 			)
 			self.assertIsNone(err)
@@ -268,12 +250,6 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 		company_id = seed.get_company_id('company_admin', index=0)
 
 		with session_scope(self.session_maker) as session:
-			contract = _get_contract(
-				company_id, 
-				product_type=ProductType.LINE_OF_CREDIT,
-				us_state='CA'
-			)
-			contract_test_helper.set_and_add_contract_for_company(contract, company_id, session)
 			company_settings_id = seed.get_company_settings_id('company_admin', index=0)
 
 			metrc_api_key_id, err = metrc_util.upsert_api_key(
@@ -281,7 +257,7 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 				company_settings_id=company_settings_id, 
 				metrc_api_key_id=None,
 				security_cfg=self.security_cfg,
-				us_state=None,
+				us_state='CA',
 				session=session
 			)
 			self.assertIsNone(err)
@@ -372,12 +348,6 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 		company_id = seed.get_company_id('company_admin', index=0)
 
 		with session_scope(self.session_maker) as session:
-			contract = _get_contract(
-				company_id, 
-				product_type=ProductType.LINE_OF_CREDIT,
-				us_state='CA'
-			)
-			contract_test_helper.set_and_add_contract_for_company(contract, company_id, session)
 			company_settings_id = seed.get_company_settings_id('company_admin', index=0)
 
 			metrc_api_key_id2, err = metrc_util.upsert_api_key(
@@ -397,7 +367,7 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 				company_settings_id=company_settings_id, 
 				metrc_api_key_id=None,
 				security_cfg=self.security_cfg,
-				us_state=None,
+				us_state='CA',
 				session=session
 			)
 			self.assertIsNone(err)

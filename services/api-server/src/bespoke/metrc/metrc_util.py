@@ -123,19 +123,8 @@ def upsert_api_key(
 			models.MetrcApiKey.company_id == company.id
 		).all())
 
-	cur_contract, err = contract_util.get_active_contract_by_company_id(
-		company_id=str(company.id),
-		session=session
-	)
-	if err:
-		raise err
-
-	default_us_state, err = cur_contract.get_us_state()
-	if err:
-		raise err
-
 	if not us_state:
-		us_state = default_us_state
+		raise errors.Error('US state must be specified to create or update a metrc API key')
 
 	if metrc_api_key_id:
 		# The "edit" case
@@ -232,16 +221,9 @@ def _get_metrc_company_info(
 			return None, errors.Error('Company {} has no settings, but has a metrc key'.format(company_id))
 
 		if not company.contract_id:
-			# Skip companies who do not have contracts setup
-			return None, errors.Error('Company {} has no contract, but has a metrc key'.format(company_id))
-
-		cur_contract, err = contract_util.get_active_contract_by_company_id(
-			company_id=company_id,
-			session=session
-		)
-		if err:
-			return None, err
-
+			# Allow companies who do not have contracts setup as well
+			pass
+			
 		company_setting = cast(
 			models.CompanySettings,
 			session.query(models.CompanySettings).filter(
@@ -260,10 +242,6 @@ def _get_metrc_company_info(
 				models.MetrcApiKey.id == metrc_api_key_id
 		).first())
 
-		us_state, err = cur_contract.get_us_state()
-		if err:
-			return None, err
-
 		# Assume the current key set uses the customer's default state
 		# in their contract.
 		state_to_metrc_api_keys: Dict[str, List[models.MetrcApiKey]] = {}
@@ -277,11 +255,12 @@ def _get_metrc_company_info(
 
 		for other_metrc_api_key in other_metrc_api_keys:
 	
-			if other_metrc_api_key.us_state:
-				cur_us_state = other_metrc_api_key.us_state
-			else:
-				cur_us_state = us_state
+			if not other_metrc_api_key.us_state:
+				raise errors.Error('Metrc key {} is missing the us_state. It must be specified explicitly to download data from Metrc'.format(
+					str(other_metrc_api_key.id)))
 
+			cur_us_state = other_metrc_api_key.us_state
+			
 			if cur_us_state not in state_to_metrc_api_keys:
 				state_to_metrc_api_keys[cur_us_state] = []
 			state_to_metrc_api_keys[cur_us_state].append(other_metrc_api_key)
@@ -295,7 +274,7 @@ def _get_metrc_company_info(
 		).all())
 
 		licenses_map: Dict[str, models.CompanyLicenseDict] = {}
-		us_states_set = set([us_state])
+		us_states_set = set([])
 		for license in all_licenses:
 			licenses_map[license.license_number] = license.as_dict()
 			if license.us_state:
