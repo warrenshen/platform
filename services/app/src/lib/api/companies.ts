@@ -20,6 +20,10 @@ export type CreateCustomerReq = {
   contract: ContractsInsertInput;
 };
 
+export type CreateProspectiveCustomerReq = {
+  company: CompaniesInsertInput;
+};
+
 export async function createCustomer(
   req: CreateCustomerReq
 ): Promise<CustomMutationResponse> {
@@ -37,6 +41,28 @@ export async function createCustomer(
         return {
           status: "ERROR",
           msg: "Could not create company",
+        };
+      }
+    );
+}
+
+export async function createProspectiveCustomer(
+  req: CreateProspectiveCustomerReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(companyRoutes.createProspectiveCustomer, req)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not create prospective company",
         };
       }
     );

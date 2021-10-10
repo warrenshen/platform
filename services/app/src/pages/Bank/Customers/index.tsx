@@ -1,7 +1,11 @@
 import { Box, TextField } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import CreateCustomerModal from "components/Customer/CreateCustomerModal";
+import CreateProspectiveCustomerModal from "components/Customer/CreateProspectiveCustomerModal";
+import CreateBulkMinimumMonthlyFeeModal from "components/Fee/CreateMinimumInterestFeesModal";
+import CreateMonthEndPaymentsModal from "components/Fee/CreateMonthEndPaymentsModal";
 import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal";
+import Can from "components/Shared/Can";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
@@ -10,7 +14,6 @@ import ModalButton from "components/Shared/Modal/ModalButton";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import Can from "components/Shared/Can";
 import {
   Companies,
   ProductTypeEnum,
@@ -23,8 +26,6 @@ import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ColumnWidths } from "lib/tables";
 import { filter, sortBy } from "lodash";
 import { useContext, useMemo, useState } from "react";
-import CreateBulkMinimumMonthlyFeeModal from "components/Fee/CreateMinimumInterestFeesModal";
-import CreateMonthEndPaymentsModal from "components/Fee/CreateMonthEndPaymentsModal";
 
 export default function BankCustomersPage() {
   const {
@@ -239,6 +240,25 @@ export default function BankCustomersPage() {
               onChange={({ target: { value } }) => setSearchQuery(value)}
               style={{ width: 300 }}
             />
+          </Box>
+          <Box display="flex" flexDirection="row-reverse">
+            {check(role, Action.EditCustomerSettings) && (
+              <Box>
+                <ModalButton
+                  dataCy={"create-customer-prospect-button"}
+                  label={"Create Prospect"}
+                  color={"primary"}
+                  modal={({ handleClose }) => (
+                    <CreateProspectiveCustomerModal
+                      handleClose={() => {
+                        refetch();
+                        handleClose();
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+            )}
           </Box>
           <Box display="flex" flexDirection="row-reverse">
             {check(role, Action.EditCustomerSettings) && (

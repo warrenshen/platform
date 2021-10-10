@@ -39,6 +39,10 @@ CreateCustomerInputDict = TypedDict('CreateCustomerInputDict', {
 	'contract': ContractInsertInputDict
 })
 
+CreateProspectiveCustomerInputDict = TypedDict('CreateProspectiveCustomerInputDict', {
+	'company': CompanyInsertInputDict
+})
+
 CreateCustomerRespDict = TypedDict('CreateCustomerRespDict', {
 	'status': str
 })
@@ -67,6 +71,29 @@ CreatePartnershipRequestInputDict = TypedDict('CreatePartnershipRequestInputDict
 	'user': create_user_util.UserInsertInputDict,
 	'license_info': LicenseInfoDict
 })
+
+def _check_is_company_name_already_used(company_name: str, company_identifier: str, session: Session) -> Tuple[bool, errors.Error]:
+	existing_company_by_name = cast(
+		models.Company,
+		session.query(models.Company).filter(
+			cast(Callable, models.Company.is_customer.is_)(True)
+		).filter(
+			models.Company.name == company_name
+		).first())
+	if existing_company_by_name:
+		return False, errors.Error(f'A customer with name "{company_name}" already exists')
+
+	existing_company_by_identifier = cast(
+		models.Company,
+		session.query(models.Company).filter(
+			cast(Callable, models.Company.is_customer.is_)(True)
+		).filter(
+			models.Company.identifier == company_identifier
+		).first())
+	if existing_company_by_identifier:
+		return False, errors.Error(f'A customer with identifier "{company_identifier}" already exists')
+
+	return True, None
 
 def create_customer_company(
 	name: str,
@@ -98,6 +125,64 @@ def create_customer_company(
 
 	return company
 
+
+def create_prospective_company(
+	name: str,
+	identifier: str,
+	dba_name: str,
+	session: Session,
+) -> models.Company:
+	company_settings = models.CompanySettings()
+	session.add(company_settings)
+
+	session.flush()
+	company_settings_id = str(company_settings.id)
+
+	company = models.Company(
+		# TODO(dlluncor): Agree on a boolean that we want for "is_prospect"
+		# For now this person just has False for all the types of customer
+		# that it could be.
+		name=name,
+		identifier=identifier,
+		dba_name=dba_name,
+		company_settings_id=company_settings_id,
+	)
+
+	session.add(company)
+	session.flush()
+
+	company_id = str(company.id)
+	company_settings.company_id = company_id
+
+	return company
+
+@errors.return_error_tuple
+def create_prospective_customer(
+	req: CreateProspectiveCustomerInputDict,
+	bank_admin_user_id: str,
+	session_maker: Callable
+) -> Tuple[CreateCustomerRespDict, errors.Error]:
+
+	with session_scope(session_maker) as session:
+		company_name = req['company']['name']
+		company_identifier = req['company']['identifier']
+		company_dba_name = req['company']['dba_name']
+
+		success, err = _check_is_company_name_already_used(
+			company_name, company_identifier, session)
+		if err:
+			raise err
+
+		create_prospective_company(
+			name=company_name,
+			identifier=company_identifier,
+			dba_name=company_dba_name,
+			session=session)
+
+	return CreateCustomerRespDict(
+		status='OK'
+	), None
+
 @errors.return_error_tuple
 def create_customer(
 	req: CreateCustomerInputDict,
@@ -114,25 +199,10 @@ def create_customer(
 		should_create_company = req['company']['id'] is None
 
 		if should_create_company:
-			existing_company_by_name = cast(
-				models.Company,
-				session.query(models.Company).filter(
-					cast(Callable, models.Company.is_customer.is_)(True)
-				).filter(
-					models.Company.name == company_name
-				).first())
-			if existing_company_by_name:
-				raise errors.Error(f'A customer with name "{company_name}" already exists')
-
-			existing_company_by_identifier = cast(
-				models.Company,
-				session.query(models.Company).filter(
-					cast(Callable, models.Company.is_customer.is_)(True)
-				).filter(
-					models.Company.identifier == company_identifier
-				).first())
-			if existing_company_by_identifier:
-				raise errors.Error(f'A customer with identifier "{company_identifier}" already exists')
+			success, err = _check_is_company_name_already_used(
+				company_name, company_identifier, session)
+			if err:
+				raise err
 
 		if not req['contract']['product_config']:
 			raise errors.Error('No product config specified')

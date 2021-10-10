@@ -45,6 +45,34 @@ class CreateCustomerView(MethodView):
 
 		return make_response(json.dumps(resp), 200)
 
+class CreateProspectiveCustomerView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@events.wrap(events.Actions.CUSTOMER_CREATE)
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		user_session = auth_util.UserSession.from_session()
+		bank_admin_user_id = user_session.get_user_id()
+
+		required_keys = ['company']
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in response to create prospective company')
+
+		resp, err = create_company_util.create_prospective_customer(
+			req=form,
+			bank_admin_user_id=bank_admin_user_id,
+			session_maker=current_app.session_maker,
+		)
+		if err:
+			return handler_util.make_error_response(err)
+
+		return make_response(json.dumps(resp), 200)
+
 class UpsertCustomMessagesView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
@@ -363,6 +391,9 @@ class ApprovePartnershipView(MethodView):
 
 handler.add_url_rule(
 	'/create_customer', view_func=CreateCustomerView.as_view(name='create_customer_view'))
+
+handler.add_url_rule(
+	'/create_prospective_customer', view_func=CreateProspectiveCustomerView.as_view(name='create_prospective_customer_view'))
 
 handler.add_url_rule(
 	'/upsert_custom_messages', view_func=UpsertCustomMessagesView.as_view(name='upsert_custom_messages_view'))
