@@ -63,10 +63,12 @@ def delete_api_key(
 	if not metrc_api_key:
 		raise errors.Error('Metrc API Key to delete does not exist in the database')
 	
-	cast(Callable, session.delete)(metrc_api_key)
-
-	if company_settings.metrc_api_key_id == metrc_api_key_id:
+	if company_settings.metrc_api_key_id and str(company_settings.metrc_api_key_id) == metrc_api_key_id:
 		company_settings.metrc_api_key_id = None
+
+	session.flush()
+
+	cast(Callable, session.delete)(metrc_api_key)
 
 	return True, None
 

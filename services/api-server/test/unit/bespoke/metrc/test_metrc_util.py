@@ -60,6 +60,63 @@ class FakeFacilitiesFetcher(metrc_common_util.FacilitiesFetcherInterface):
 	def get_facilities(self, auth_dict: AuthDict, us_state: str) -> List[FacilityInfoDict]:
 		return self._state_to_facilities[us_state]
 
+class TestDeleteKey(db_unittest.TestCase):
+
+	def setUp(self) -> None:
+		self.security_cfg = security_util.ConfigDict(
+			URL_SECRET_KEY='url-secret-key1234',
+			URL_SALT='url-salt1234',
+			BESPOKE_DOMAIN='https://app.bespokefinancial.com'
+		)
+
+	def test_delete_last_remaining_key(self) -> None:
+		self.reset()
+		session_maker = self.session_maker
+		seed = test_helper.BasicSeed.create(self.session_maker, self)
+		seed.initialize()
+
+		company_id = seed.get_company_id('company_admin', index=0)
+
+		with session_scope(self.session_maker) as session:
+			company_settings_id = seed.get_company_settings_id('company_admin', index=0)
+
+			metrc_api_key_id, err = metrc_util.upsert_api_key(
+				api_key='the-api-key', 
+				company_settings_id=company_settings_id, 
+				metrc_api_key_id=None,
+				security_cfg=self.security_cfg,
+				us_state='CA',
+				session=session
+			)
+			self.assertIsNone(err)
+
+		with session_scope(self.session_maker) as session:
+			view_resp, err = metrc_util.view_api_key(
+				metrc_api_key_id,
+				security_cfg=self.security_cfg,
+				session=session
+			)
+			self.assertIsNone(err)
+			self.assertEqual('the-api-key', view_resp['api_key'])
+			self.assertEqual('CA', view_resp['us_state'])
+
+		with session_scope(self.session_maker) as session:
+			success, err = metrc_util.delete_api_key(
+				company_settings_id, 
+				metrc_api_key_id,
+				session=session
+			)
+			self.assertTrue(success)
+			self.assertIsNone(err)
+
+		with session_scope(self.session_maker) as session:
+			view_resp, err = metrc_util.view_api_key(
+				metrc_api_key_id,
+				security_cfg=self.security_cfg,
+				session=session
+			)
+			self.assertIsNotNone(err)
+
 class TestUpsertApiKey(db_unittest.TestCase):
 
 	def setUp(self) -> None:
