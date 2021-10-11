@@ -33,10 +33,8 @@ def main(is_test_run: bool = True) -> None:
 			try:
 				metrc_sales_receipts_batch = cast(
 					List[models.MetrcSalesReceipt],
-					session.query(models.MetrcSalesReceipt).order_by(
-						models.MetrcSalesReceipt.id.asc() # Order by is necessary for batch-based iteration to work.
-					).offset(
-						current_page * BATCH_SIZE
+					session.query(models.MetrcSalesReceipt).filter(
+						models.MetrcSalesReceipt.receipt_id == None
 					).limit(BATCH_SIZE).all())
 			except Exception:
 				print('[WARNING] Caught SQL query exception, sleeping for 5 seconds before retrying...')

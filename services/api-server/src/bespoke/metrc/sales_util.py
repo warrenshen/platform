@@ -75,7 +75,12 @@ class SalesReceipts(object):
 		"""
 		us_state = ctx.license['us_state']
 		receipt_numbers = [s['ReceiptNumber'] for s in self._sales_receipts]
-		prev_sales_receipts = _get_prev_sales_receipts(receipt_numbers, us_state, session)
+		prev_sales_receipts = []
+
+		BATCH_SIZE = 50
+		for receipt_numbers_chunk in cast(Iterable[List[str]], chunker(receipt_numbers, BATCH_SIZE)):
+			prev_sales_receipts_chunk = _get_prev_sales_receipts(receipt_numbers_chunk, us_state, session)
+			prev_sales_receipts += prev_sales_receipts_chunk
 
 		receipt_number_to_sales_receipt = {}
 		for prev_sales_receipt in prev_sales_receipts:

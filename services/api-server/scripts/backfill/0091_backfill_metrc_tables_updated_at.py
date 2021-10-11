@@ -21,7 +21,7 @@ def backfill_table(
 	is_test_run: bool,
 ) -> None:
 	current_page = 0
-	BATCH_SIZE = 50
+	BATCH_SIZE = 100
 	is_done = False
 
 	while not is_done:
