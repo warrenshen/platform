@@ -409,6 +409,19 @@ def _download_data_for_license(
 		'sales_transactions_api': ctx.request_status['sales_transactions_api']
 	}, None
 
+def retry_download_errs_for_one_day() -> None:
+	"""
+	retry_helper = metrc_common_util.RetryHelper(download_errs)
+	ctx = metrc_common_util.DownloadContext(
+		sendgrid_client, cur_date, company_details, 
+		state_info['apis_to_use'], license, 
+		retry_helper, debug=False
+	)
+	api_status_dict, err = _download_data_for_license(
+		ctx, session_maker)
+	"""
+	pass
+
 def _download_data(
 	company_id: str,
 	auth_provider: MetrcAuthProvider,
@@ -447,6 +460,7 @@ def _download_data(
 			# How many licenses is the API key functioning for?
 			functioning_licenses_count = 0
 			license_to_statuses = {}
+			retry_errors = []
 				
 			for license in state_info['licenses']:
 				ctx = metrc_common_util.DownloadContext(
@@ -472,6 +486,7 @@ def _download_data(
 					license_to_statuses[license['license_number']] = api_status_dict
 
 				functioning_licenses_count += 1 if not err else 0
+				retry_errors.extend(ctx.get_retry_errors())
 
 			# Update whether this metrc key worked
 			with session_scope(session_maker) as session:
@@ -487,6 +502,13 @@ def _download_data(
 					metrc_api_key.last_used_at = date_util.now()
 					metrc_api_key.status_codes_payload = license_to_statuses
 					metrc_api_key.facilities_payload = cast(Dict, state_info['facilities_payload'])
+
+				if retry_errors:
+					# TODO(dlluncor): Implement writing a MetrcDownloadSummary
+					logging.error('Issue with one of the metrc downloads for day {} company {}'.format(
+						cur_date, company_id))
+				else:
+					pass
 
 	if errs:
 		return DownloadDataRespDict(

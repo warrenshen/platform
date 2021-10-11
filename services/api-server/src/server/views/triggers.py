@@ -192,6 +192,23 @@ class ExpireActiveEbbaApplications(MethodView):
 			"errors": [],
 		}))
 
+class RerunFailedMetrcDownloadsView(MethodView):
+	decorators = [auth_util.requires_async_magic_header]
+
+	@handler_util.catch_bad_json_request
+	@typing.no_type_check
+	def post(self) -> Response:
+		logging.info("Received request to rerun failed metrc downloads")
+
+		with session_scope(current_app.session_maker) as session:
+			# TODO(dlluncor): Re-run per day
+			pass
+
+		return make_response(json.dumps({
+			"status": "OK",
+			"errors": [],
+		}))
+
 class SetDirtyCompanyBalancesView(MethodView):
 	decorators = [auth_util.requires_async_magic_header]
 
@@ -407,6 +424,10 @@ handler.add_url_rule(
 handler.add_url_rule(
 	'/update-all-customer-balances',
 	view_func=UpdateAllCompanyBalancesView.as_view(name='update_all_customer_balances_view'))
+
+handler.add_url_rule(
+	'/rerun-failed-metrc-downloads',
+	view_func=RerunFailedMetrcDownloadsView.as_view(name='rerun_failed_metrc_download_view'))
 
 
 handler.add_url_rule(

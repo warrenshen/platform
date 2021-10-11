@@ -465,6 +465,29 @@ class MetrcHarvest(Base):
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime)
 
+class MetrcDownloadSummary(Base):
+	__tablename__ = 'metrc_download_summary'
+
+	# Per day summary of jobs
+	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	date = Column(Date)
+	retry_payload = Column(JSON) # stores all paths to retry
+	status = Column(String) # not_started, completed, failure, needs_retry
+	err_details = Column(JSON)
+
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime)
+	# For each API
+	#  access, don't have access
+	#  working, not working
+
+	# {per_api}_status:
+	#   no_access
+	#   metrc_server_error
+	#   bespoke_logic_error
+	#   success
+
 class MetrcTransfer(Base):
 	__tablename__ = 'metrc_transfers'
 

@@ -4,6 +4,7 @@ import logging
 import requests
 import time
 from bespoke import errors
+from bespoke.db import models
 from bespoke.email import sendgrid_util
 from dateutil import parser
 from mypy_extensions import TypedDict
@@ -84,7 +85,80 @@ CompanyStateInfoDict = TypedDict('CompanyStateInfoDict', {
 	'facilities_payload': FacilitiesPayloadDict
 })
 
+## Retry logic
 
+MetrcRetryItemInfoDict = TypedDict('MetrcRetryItemInfoDict', {
+	'receipt_id': str
+}, total=False)
+
+MetrcRetryParamsDict = TypedDict('MetrcRetryParamsDict', {
+	'license_number': str,
+	'us_state': str,
+	'path': str,
+	'time_range': List[str],
+	'item_info': MetrcRetryItemInfoDict
+})
+
+class HTTPResponse(object):
+
+	def __init__(self, response: requests.models.Response) -> None:
+		self._resp = response
+
+	@property
+	def content(self) -> bytes:
+		return self._resp.content
+
+class MetrcRetryError(object):
+
+	def __init__(self, retry_params: MetrcRetryParamsDict, err_details: Dict) -> None:
+		self.retry_params = retry_params
+		self.err_details = err_details
+
+class ErrorCatcher(object):
+
+	def __init__(self, license_number: str, us_state: str) -> None:
+		self._license_number = license_number
+		self._us_state = us_state
+		self._retry_errors: List[MetrcRetryError] = []
+		# Errors per endpoint group, e.g.,
+		# transfers, sales, plants, packages
+		#
+		# date
+		# transfers_status
+		# sales_status
+		# plants_status
+		# packages_status
+
+		# 
+		# errors_payload:
+		# 'transfers': {
+		#   'paths': [],
+		#   'num_failed_endpoints': 2,
+		#   'bespoke_logic_error': False / True 
+		# }
+
+	def add_retry_error(self, path: str, time_range: List[str], err_details: Dict) -> None:
+		
+		item_info = MetrcRetryItemInfoDict()
+
+		if path.startswith('/sales/v1/receipts/'):
+			parts = path.split('/sales/v1/receipts/')
+			if parts[1] not in set(['inactive', 'active']):
+				item_info['receipt_id'] = parts[1]
+
+		self._retry_errors.append(MetrcRetryError(
+			MetrcRetryParamsDict(
+				license_number=self._license_number,
+				us_state=self._us_state,
+				path=path,
+				time_range=time_range,
+				item_info=item_info
+			),
+			err_details=err_details,
+		))
+
+	def get_retry_errors(self) -> List[MetrcRetryError]:
+		return self._retry_errors
 
 class CompanyInfo(object):
 
@@ -113,7 +187,7 @@ class DownloadContext(object):
 		cur_date: datetime.date, 
 		company_details: CompanyDetailsDict, 
 		apis_to_use: ApisToUseDict,
-		license_auth: LicenseAuthDict, 
+		license_auth: LicenseAuthDict,
 		debug: bool
 	) -> None:
 		self.cur_date = cur_date
@@ -131,6 +205,10 @@ class DownloadContext(object):
 		)
 		self.company_details = company_details
 		self.apis_to_use = apis_to_use
+		self.error_catcher = ErrorCatcher(
+			license_number=license_auth['license_number'],
+			us_state=license_auth['us_state']
+		)
 		self.rest = REST(
 			sendgrid_client,
 			AuthDict(
@@ -138,7 +216,8 @@ class DownloadContext(object):
 				user_key=license_auth['user_key']
 			),
 			license_number=license_auth['license_number'],
-			us_state=license_auth['us_state']
+			us_state=license_auth['us_state'],
+			error_catcher=self.error_catcher,
 		)
 		self.license = license_auth
 		self.debug = debug
@@ -146,6 +225,8 @@ class DownloadContext(object):
 	def get_cur_date_str(self) -> str:
 		return self.cur_date.strftime('%m/%d/%Y')
 
+	def get_retry_errors(self) -> List[MetrcRetryError]:
+		return self.error_catcher.get_retry_errors()
 
 def _get_base_url(us_state: str) -> str:
 	abbr = us_state.lower()
@@ -204,14 +285,20 @@ class FacilitiesFetcher(FacilitiesFetcherInterface):
 
 class REST(object):
 
-	def __init__(self, sendgrid_client: sendgrid_util.Client, auth_dict: AuthDict, license_number: str, us_state: str, debug: bool = False) -> None:
+	def __init__(self, 
+			sendgrid_client: sendgrid_util.Client, auth_dict: AuthDict, 
+			license_number: str, us_state: str, 
+			error_catcher: ErrorCatcher,
+			debug: bool = False
+	) -> None:
 		self.auth = HTTPBasicAuth(auth_dict['vendor_key'], auth_dict['user_key'])
 		self.license_number = license_number
 		self.base_url = _get_base_url(us_state)
 		self.debug = debug
+		self._error_catcher = error_catcher
 		self.sendgrid_client = sendgrid_client
 
-	def get(self, path: str, time_range: List = None) -> requests.models.Response:
+	def get(self, path: str, time_range: List[str] = None) -> HTTPResponse:
 		url = self.base_url + path
 
 		needs_q_mark = '?' not in path
@@ -240,7 +327,7 @@ class REST(object):
 
 			# Return successful response.
 			if resp.ok:
-				return resp
+				return HTTPResponse(resp)
 
 			e = errors.Error('Metrc error: URL: {}. Code: {}. Reason: {}. Response: {}. License num: {}. Time range: {}'.format(
 					path, resp.status_code, resp.reason, resp.content.decode('utf-8'),
@@ -248,11 +335,21 @@ class REST(object):
 					details={'status_code': resp.status_code})
 
 			if resp.status_code in NON_RETRY_STATUSES:
+				# TODO(dlluncor): Capture retry errors here.
 				raise e
 			else:
 				logging.error(e)
 
 			time.sleep(1 + (i * 3))
+
+		self._error_catcher.add_retry_error(
+			path=path,
+			time_range=time_range,
+			err_details={
+				'reason': resp.reason[0:100], # Keep it short since its in a DB
+				'status_code': resp.status_code
+			},
+		)
 
 		# After retries, we are unsuccessful: raise the last error we saw
 		self.sendgrid_client.send(

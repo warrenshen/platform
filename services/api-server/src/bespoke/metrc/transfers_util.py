@@ -599,6 +599,8 @@ def populate_transfers_table(
 				packages_api_failed = True
 
 			if packages_api_failed:
+				# TODO(dlluncor): Dont write a transfer at all if any of the downsream
+				# APIs failed.
 				continue
 
 			try:
