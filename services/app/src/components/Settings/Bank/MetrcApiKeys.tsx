@@ -181,16 +181,25 @@ export default function MetrcApiKeys({
       {
         dataField: "us_state",
         caption: "US State",
-        visible: true,
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
           <TextDataGridCell label={params.row.data.us_state} />
         ),
       },
       {
+        dataField: "last_used_at",
+        caption: "Last Used At",
+        minWidth: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) => (
+          <DatetimeDataGridCell
+            isTimeVisible
+            datetimeString={params.row.data.created_at}
+          />
+        ),
+      },
+      {
         dataField: "created_at",
         caption: "Created At",
-        visible: true,
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
           <DatetimeDataGridCell
@@ -230,55 +239,18 @@ export default function MetrcApiKeys({
     <Box>
       {hasKey ? (
         <Box mt={1}>
-          <Alert severity="info">Metrc API key is set up</Alert>
+          <Alert severity="info">Metrc API key(s) set up</Alert>
         </Box>
       ) : (
         <Box mt={1}>
-          <Alert severity="warning">Metrc API key is NOT set up yet</Alert>
+          <Alert severity="warning">Metrc API key(s) NOT set up yet</Alert>
         </Box>
       )}
       <Box mt={2}>
         <Box display="flex" flexDirection="row-reverse">
-          <Box ml={2}>
-            {selectedMetrcKeyIds.length === 1 && (
-              <Box>
-                <ModalButton
-                  label={"Delete API Key"}
-                  modal={({ handleClose }) => (
-                    <DeleteMetrcKeyModal
-                      metrcApiKey={selectedMetrcApiKey}
-                      companySettingsId={companySettingsId}
-                      handleClose={() => {
-                        handleDataChange();
-                        handleClose();
-                        refetch();
-                      }}
-                    />
-                  )}
-                />
-              </Box>
-            )}
-          </Box>
-          {selectedMetrcKeyIds.length === 1 && (
-            <Box>
-              <ModalButton
-                label={"Edit API Key"}
-                modal={({ handleClose }) => (
-                  <UpsertMetrcKeyModal
-                    metrcApiKey={selectedMetrcApiKey}
-                    companySettingsId={companySettingsId}
-                    handleClose={() => {
-                      handleDataChange();
-                      handleClose();
-                      refetch();
-                    }}
-                  />
-                )}
-              />
-            </Box>
-          )}
-          <Box mr={2}>
+          <Box>
             <ModalButton
+              isDisabled={selectedMetrcKeyIds.length >= 1}
               label={"Add API Key"}
               modal={({ handleClose }) => (
                 <UpsertMetrcKeyModal
@@ -293,9 +265,46 @@ export default function MetrcApiKeys({
               )}
             />
           </Box>
+          <Box mr={2}>
+            <ModalButton
+              isDisabled={selectedMetrcKeyIds.length !== 1}
+              label={"Edit API Key"}
+              modal={({ handleClose }) => (
+                <UpsertMetrcKeyModal
+                  metrcApiKey={selectedMetrcApiKey}
+                  companySettingsId={companySettingsId}
+                  handleClose={() => {
+                    handleDataChange();
+                    handleClose();
+                    refetch();
+                  }}
+                />
+              )}
+            />
+          </Box>
+          <Box mr={2}>
+            <Box>
+              <ModalButton
+                isDisabled={selectedMetrcKeyIds.length !== 1}
+                label={"Delete API Key"}
+                variant={"outlined"}
+                modal={({ handleClose }) => (
+                  <DeleteMetrcKeyModal
+                    metrcApiKey={selectedMetrcApiKey}
+                    companySettingsId={companySettingsId}
+                    handleClose={() => {
+                      handleDataChange();
+                      handleClose();
+                      refetch();
+                    }}
+                  />
+                )}
+              />
+            </Box>
+          </Box>
         </Box>
       </Box>
-      <Box display="flex" flexDirection="column">
+      <Box display="flex" flexDirection="column" mt={2}>
         <ControlledDataGrid
           isExcelExport={false}
           isSortingDisabled={false}

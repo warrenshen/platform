@@ -116,20 +116,15 @@ export default function UpsertMetrcKeyModal({
             label="API Key"
             required
             value={apiKey}
-            onChange={({ target: { value } }) => {
-              setApiKey(value);
-            }}
+            onChange={({ target: { value } }) => setApiKey(value)}
           />
         </Box>
         <Box display="flex" flexDirection="column">
           <TextField
-            autoFocus
             label="US State"
             required
             value={usState}
-            onChange={({ target: { value } }) => {
-              setUsState(value);
-            }}
+            onChange={({ target: { value } }) => setUsState(value)}
           />
         </Box>
       </DialogContent>
