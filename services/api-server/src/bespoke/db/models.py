@@ -423,7 +423,6 @@ class MetrcPlant(Base):
 	type = Column(String)
 	license_number = Column(String, nullable=False)
 	us_state = Column(String, nullable=False)
-	# TODO(dlluncor): Fill in the associated with plant batch ID, harvest ID, location ID, strain ID
 	plant_id = Column(String) # From Metrc info
 	label = Column(String) # From Metrc info
 	planted_date = Column(Date) # From Metrc info
@@ -441,7 +440,6 @@ class MetrcPlantBatch(Base):
 	license_number = Column(String, nullable=False)
 	us_state = Column(String, nullable=False)
 	type = Column(String)
-	# TODO(dlluncor): Fill in the associated with location ID, strain ID
 	plant_batch_id = Column(String) # From Metrc info
 	name = Column(String) # From Metrc info
 	planted_date = Column(Date) # From Metrc info

@@ -1161,7 +1161,6 @@ class LoanCalculator(object):
 				balances['outstanding_principal_for_interest'] -= inserted_repayment_transaction['to_principal']
 				balances['amount_paid_back_on_loan'] += inserted_repayment_transaction['amount']
 
-			# TODO(dlluncor): Only store dates here where repayments occurred
 			date_to_result[cur_date] = _get_calculate_result_dict(cur_date)
 
 		if errors_list:

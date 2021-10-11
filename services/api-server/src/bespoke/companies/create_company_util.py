@@ -139,8 +139,7 @@ def create_prospective_company(
 	company_settings_id = str(company_settings.id)
 
 	company = models.Company(
-		# TODO(dlluncor): Agree on a boolean that we want for "is_prospect"
-		# For now this person just has False for all the types of customer
+		#  "is_prospect" just has False for all the types of customer
 		# that it could be.
 		name=name,
 		identifier=identifier,
