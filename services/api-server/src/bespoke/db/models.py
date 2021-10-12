@@ -389,7 +389,7 @@ def float_or_null(val: Optional[decimal.Decimal]) -> float:
 
 	return float(val)
 
-## Metrc
+## Begin Metrc
 
 MetrcApiKeyDict = TypedDict('MetrcApiKeyDict', {
 	'id': str,
@@ -402,18 +402,44 @@ class MetrcApiKey(Base):
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	encrypted_api_key = Column(String)
-	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	last_used_at = Column(DateTime)
 	is_functioning = Column(Boolean)
 	us_state = Column(String)
 	facilities_payload = Column(JSON)
 	status_codes_payload = Column(JSON)
 
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+
 	def as_dict(self) -> MetrcApiKeyDict:
 		return MetrcApiKeyDict(
 			id=str(self.id),
 			us_state=self.us_state if self.us_state else None
 		)
+
+class MetrcDownloadSummary(Base):
+	__tablename__ = 'metrc_download_summary'
+
+	# Per day summary of jobs
+	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	date = Column(Date)
+	retry_payload = Column(JSON) # stores all paths to retry
+	status = Column(String) # not_started, completed, failure, needs_retry
+	err_details = Column(JSON)
+
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+
+	# For each API
+	#  access, don't have access
+	#  working, not working
+
+	# {per_api}_status:
+	#   no_access
+	#   metrc_server_error
+	#   bespoke_logic_error
+	#   success
 
 class MetrcPlant(Base):
 	__tablename__ = 'metrc_plants'
@@ -430,7 +456,7 @@ class MetrcPlant(Base):
 	last_modified_at = Column(DateTime) # From Metrc info
 
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-	updated_at = Column(DateTime)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 
 class MetrcPlantBatch(Base):
 	__tablename__ = 'metrc_plant_batches'
@@ -447,7 +473,7 @@ class MetrcPlantBatch(Base):
 	last_modified_at = Column(DateTime) # From Metrc info
 
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-	updated_at = Column(DateTime)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 
 class MetrcHarvest(Base):
 	__tablename__ = 'metrc_harvests'
@@ -463,30 +489,7 @@ class MetrcHarvest(Base):
 	last_modified_at = Column(DateTime) # From Metrc info
 
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-	updated_at = Column(DateTime)
-
-class MetrcDownloadSummary(Base):
-	__tablename__ = 'metrc_download_summary'
-
-	# Per day summary of jobs
-	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
-	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
-	date = Column(Date)
-	retry_payload = Column(JSON) # stores all paths to retry
-	status = Column(String) # not_started, completed, failure, needs_retry
-	err_details = Column(JSON)
-
-	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-	updated_at = Column(DateTime)
-	# For each API
-	#  access, don't have access
-	#  working, not working
-
-	# {per_api}_status:
-	#   no_access
-	#   metrc_server_error
-	#   bespoke_logic_error
-	#   success
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 
 class MetrcTransfer(Base):
 	__tablename__ = 'metrc_transfers'
@@ -506,7 +509,7 @@ class MetrcTransfer(Base):
 	last_modified_at = Column(DateTime) # From Metrc info
 
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-	updated_at = Column(DateTime)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 
 class MetrcDelivery(Base):
 	__tablename__ = 'metrc_deliveries'
@@ -523,7 +526,7 @@ class MetrcDelivery(Base):
 	delivery_payload = Column(JSON)
 
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-	updated_at = Column(DateTime)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 
 class CompanyDelivery(Base):
 	__tablename__ = 'company_deliveries'
@@ -539,7 +542,7 @@ class CompanyDelivery(Base):
 	delivery_type = Column(String) # Custom enum: 'INCOMING_INTERNAL', 'INCOMING_FROM_VENDOR', 'INCOMING_UNKNOWN', 'OUTGOING_INTERNAL', 'OUTGOING_TO_VENDOR', 'OUTGOING_UNKNOWN', 'UNKNOWN'.
 
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-	updated_at = Column(DateTime, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 
 class MetrcPackage(Base):
 	__tablename__ = 'metrc_packages'
@@ -563,7 +566,7 @@ class MetrcPackage(Base):
 	unit_of_measure = Column(Text) # From Metrc info
 
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-	updated_at = Column(DateTime)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 
 class MetrcTransferPackage(Base):
 	__tablename__ = 'metrc_transfer_packages'
@@ -594,7 +597,7 @@ class MetrcTransferPackage(Base):
 	lab_results_status = Column(String) # Derived from Metrc info
 
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-	updated_at = Column(DateTime)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 
 class MetrcSalesReceipt(Base):
 	__tablename__ = 'metrc_sales_receipts'
@@ -615,7 +618,7 @@ class MetrcSalesReceipt(Base):
 	last_modified_at = Column(DateTime) # From Metrc info
 
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-	updated_at = Column(DateTime)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 
 class MetrcSalesTransaction(Base):
 	__tablename__ = 'metrc_sales_transactions'
@@ -639,7 +642,7 @@ class MetrcSalesTransaction(Base):
 	last_modified_at = Column(DateTime) # From Metrc info
 
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-	updated_at = Column(DateTime)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 
 ## End Metrc
 
