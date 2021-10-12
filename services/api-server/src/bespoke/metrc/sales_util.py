@@ -12,7 +12,7 @@ from bespoke import errors
 from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.metrc.common import metrc_common_util, package_common_util
-from bespoke.metrc.common.metrc_common_util import chunker
+from bespoke.metrc.common.metrc_common_util import chunker, SplitTimeBy
 
 
 class SalesTransactions(object):
@@ -156,15 +156,15 @@ def download_sales_info(ctx: metrc_common_util.DownloadContext, session_maker: C
 	rest = ctx.rest
 
 	try:
-		resp = rest.get('/sales/v1/receipts/inactive', time_range=[cur_date_str])
-		inactive_sales_receipts_arr = json.loads(resp.content)
+		resp = rest.get('/sales/v1/receipts/inactive', time_range=[cur_date_str], split_time_by=SplitTimeBy.HOUR)
+		inactive_sales_receipts_arr = resp.results
 		request_status['receipts_api'] = 200
 	except errors.Error as e:
 		metrc_common_util.update_if_all_are_unsuccessful(request_status, 'receipts_api', e)
 
 	try:
-		resp = rest.get('/sales/v1/receipts/active', time_range=[cur_date_str])
-		active_sales_receipts_arr = json.loads(resp.content)
+		resp = rest.get('/sales/v1/receipts/active', time_range=[cur_date_str], split_time_by=SplitTimeBy.HOUR)
+		active_sales_receipts_arr = resp.results
 		request_status['receipts_api'] = 200
 	except errors.Error as e:
 		metrc_common_util.update_if_all_are_unsuccessful(request_status, 'receipts_api', e)

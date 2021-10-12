@@ -4,8 +4,10 @@ import logging
 import requests
 import time
 from bespoke import errors
+from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.email import sendgrid_util
+from datetime import timedelta
 from dateutil import parser
 from mypy_extensions import TypedDict
 from requests.auth import HTTPBasicAuth
@@ -85,6 +87,37 @@ CompanyStateInfoDict = TypedDict('CompanyStateInfoDict', {
 	'facilities_payload': FacilitiesPayloadDict
 })
 
+class SplitTimeBy(object):
+	HOUR = 'hour'
+
+def _get_date_str(cur_date: datetime.date) -> str:
+	return cur_date.strftime('%m/%d/%Y')
+
+def _get_time_ranges(orig_time_str: str, split_time_by: str) -> List[List[str]]:
+	orig_date = date_util.load_date_str(orig_time_str)
+	if split_time_by == SplitTimeBy.HOUR:
+		# Start from midnight to night (cover the full day)
+		cur_hour = 0
+		time_ranges = []
+		while cur_hour < 24:
+			cur_start_time = datetime.datetime(
+				orig_date.year, orig_date.month, orig_date.day, hour=cur_hour)
+			if cur_hour == 23:
+				cur_end_time = datetime.datetime(orig_date.year, orig_date.month, orig_date.day) + timedelta(days=1)
+			else:
+				cur_end_time = datetime.datetime(
+					orig_date.year, orig_date.month, orig_date.day, hour=cur_hour + 1)
+			
+			time_ranges.append([
+				date_util.datetime_to_str(cur_start_time), 
+				date_util.datetime_to_str(cur_end_time)
+			])
+			cur_hour += 1
+
+		return time_ranges
+
+	raise errors.Error('Unhandled option to get_time_ranges, split_time_by={}'.format(split_time_by))
+
 ## Retry logic
 
 MetrcRetryItemInfoDict = TypedDict('MetrcRetryItemInfoDict', {
@@ -101,8 +134,11 @@ MetrcRetryParamsDict = TypedDict('MetrcRetryParamsDict', {
 
 class HTTPResponse(object):
 
-	def __init__(self, response: requests.models.Response) -> None:
+	def __init__(self, response: requests.models.Response, results: List[Dict] = None) -> None:
 		self._resp = response
+		# An alternative if you already know its an array of results. 
+		# Specifically used for SplitTimeBy
+		self.results = results
 
 	@property
 	def content(self) -> bytes:
@@ -140,11 +176,6 @@ class ErrorCatcher(object):
 	def add_retry_error(self, path: str, time_range: List[str], err_details: Dict) -> None:
 		
 		item_info = MetrcRetryItemInfoDict()
-
-		if path.startswith('/sales/v1/receipts/'):
-			parts = path.split('/sales/v1/receipts/')
-			if parts[1] not in set(['inactive', 'active']):
-				item_info['receipt_id'] = parts[1]
 
 		self._retry_errors.append(MetrcRetryError(
 			MetrcRetryParamsDict(
@@ -223,7 +254,7 @@ class DownloadContext(object):
 		self.debug = debug
 
 	def get_cur_date_str(self) -> str:
-		return self.cur_date.strftime('%m/%d/%Y')
+		return _get_date_str(self.cur_date)
 
 	def get_retry_errors(self) -> List[MetrcRetryError]:
 		return self.error_catcher.get_retry_errors()
@@ -233,11 +264,11 @@ def _get_base_url(us_state: str) -> str:
 	return f'https://api-{abbr}.metrc.com'
 
 def get_default_apis_to_use() -> ApisToUseDict:
-	"""
 	# For copy-paste help when you are debugging with one API at a time
+	"""
 	return ApisToUseDict(
 			sales_receipts=True,
-			sales_transactions=False,
+			sales_transactions=True,
 			incoming_transfers=False,
 			outgoing_transfers=False,
 			packages=False,
@@ -298,7 +329,7 @@ class REST(object):
 		self._error_catcher = error_catcher
 		self.sendgrid_client = sendgrid_client
 
-	def get(self, path: str, time_range: List[str] = None) -> HTTPResponse:
+	def _query_url(self, path: str, time_range: List[str]) -> HTTPResponse:
 		url = self.base_url + path
 
 		needs_q_mark = '?' not in path
@@ -362,6 +393,36 @@ class REST(object):
 			recipients=self.sendgrid_client.get_ops_email_addresses()
 		)
 		raise e
+
+	def get(self, path: str, time_range: List[str] = None, split_time_by: str = None) -> HTTPResponse:
+		"""
+			split_time_by can only be used when the resultant resp.content is an array
+			that can be joined to one another through list.extend()
+			AND when len(time_range) == 1, which means we are querying for a day
+		"""
+		if split_time_by and len(time_range) != 1:
+			raise errors.Error('Cannot split time when time_range is already a range, not a single day')
+
+		if not split_time_by:
+			# Run the query as normal
+			return self._query_url(path, time_range)
+
+		time_range_tuples = _get_time_ranges(time_range[0], split_time_by)
+		
+		all_results = []
+		i = 0
+		for time_range_tuple in time_range_tuples:
+			cur_resp = self._query_url(path, time_range_tuple)
+			cur_results = json.loads(cur_resp.content)
+			if type(cur_results) != list:
+				raise errors.Error('When splitting the results using time range, each result must be a list that can be joined together')
+			all_results.extend(cur_results)
+			if i % 4 == 0:
+				logging.info('Completed {} for sub time_range: {}'.format(path, time_range_tuple))
+
+			i += 1
+
+		return HTTPResponse(response=None, results=all_results)
 
 def chunker(seq: List, size: int) -> Iterable[List]:
 	return (seq[pos:pos + size] for pos in range(0, len(seq), size))

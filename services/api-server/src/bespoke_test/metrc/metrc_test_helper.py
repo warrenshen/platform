@@ -19,7 +19,7 @@ class FakeREST(object):
 		for key in keys:
 			self.req_to_resp[key]['__index'] = 0
 
-	def get(self, path: str, time_range: List = None) -> requests.models.Response:
+	def get(self, path: str, time_range: List = None, split_time_by: str = None) -> metrc_common_util.HTTPResponse:
 		key = RequestKey(
 			url=path,
 			time_range=tuple(time_range) if time_range else None
@@ -40,11 +40,18 @@ class FakeREST(object):
 		if 'json' in resp:
 			content = json.dumps(resp['json']).encode('utf-8')
 
-		r = requests.models.Response()
-		r.status_code = 200 if is_ok else 400
-		r._content = content
 		self.req_to_resp[key]['__index'] += 1
-		return r
+
+		if split_time_by:
+			# Populate whatever the results would be in the results field
+			# of the HTTPReponse, since that is how split_time_by works
+			return metrc_common_util.HTTPResponse(
+				response=None, results=json.loads(content))
+		else:
+			r = requests.models.Response()
+			r.status_code = 200 if is_ok else 400
+			r._content = content
+			return metrc_common_util.HTTPResponse(r)
 
 def create_download_context(
 	cur_date: str,
