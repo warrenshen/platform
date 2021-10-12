@@ -361,7 +361,7 @@ class REST(object):
 				return HTTPResponse(resp)
 
 			e = errors.Error('Metrc error: URL: {}. Code: {}. Reason: {}. Response: {}. License num: {}. Time range: {}'.format(
-					path, resp.status_code, resp.reason, resp.content.decode('utf-8'),
+					url, resp.status_code, resp.reason, resp.content.decode('utf-8'),
 					self.license_number, time_range),
 					details={'status_code': resp.status_code})
 
