@@ -61,6 +61,7 @@ def main(is_test_run: bool = True) -> None:
 	session_maker = models.new_sessionmaker(engine)
 
 	table_tuples = [
+		('metrc_api_keys', models.MetrcApiKey),
 		('company_deliveries', models.CompanyDelivery),
 		('metrc_deliveries', models.MetrcDelivery),
 		('metrc_harvests', models.MetrcHarvest),

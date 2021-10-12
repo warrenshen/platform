@@ -32,7 +32,6 @@ def _merge_common_fields(
 	prev.product_name = cur.product_name
 	prev.product_category_name = cur.product_category_name
 	prev.package_payload = cur.package_payload
-	prev.updated_at = cur.updated_at
 	prev.last_modified_at = cur.last_modified_at
 
 

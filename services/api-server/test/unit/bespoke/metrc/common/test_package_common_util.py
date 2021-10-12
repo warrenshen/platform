@@ -50,7 +50,6 @@ class TestMergePackage(unittest.TestCase):
 			package_payload={'Label': 'B'},
 			last_modified_at=parser.parse('01/01/2020'),
 			packaged_date=parser.parse('01/03/2020'),
-			updated_at=parser.parse('01/06/2020'),
 			quantity=decimal.Decimal(1.0),
 			unit_of_measure='Each',
 		)
@@ -68,7 +67,6 @@ class TestMergePackage(unittest.TestCase):
 			package_payload={'Label': 'A'},
 			last_modified_at=parser.parse('01/02/2020'),
 			packaged_date=parser.parse('01/04/2020'),
-			updated_at=parser.parse('01/05/2020'),
 			quantity=decimal.Decimal(2.0),
 			unit_of_measure='Each2',
 		)
@@ -91,7 +89,6 @@ class TestMergePackage(unittest.TestCase):
 			'package_payload',
 			'last_modified_at', 
 			'packaged_date',
-			'updated_at',
 			'quantity',
 			'unit_of_measure'
 		]
@@ -133,7 +130,6 @@ class TestMergeTransferPackage(unittest.TestCase):
 			product_category_name='1-category-name',
 			package_payload={'Label': 'B'},
 			last_modified_at=parser.parse('01/01/2020'),
-			updated_at=parser.parse('01/06/2020'),
 
 			shipped_quantity=decimal.Decimal(1.0),
 			received_quantity=decimal.Decimal(2.0),
@@ -153,7 +149,6 @@ class TestMergeTransferPackage(unittest.TestCase):
 			product_category_name='2-category-name',
 			package_payload={'Label': 'A'},
 			last_modified_at=parser.parse('01/02/2020'),
-			updated_at=parser.parse('01/05/2020'),
 
 			shipped_quantity=decimal.Decimal(3.0),
 			received_quantity=decimal.Decimal(4.0),
@@ -179,7 +174,6 @@ class TestMergeTransferPackage(unittest.TestCase):
 			'product_category_name',
 			'package_payload',
 			'last_modified_at',
-			'updated_at',
 
 			# specific to MetrcTransferPackage
 			'shipped_quantity',
