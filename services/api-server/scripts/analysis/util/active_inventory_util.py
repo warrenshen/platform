@@ -11,9 +11,40 @@ from collections import OrderedDict
 
 from bespoke.excel import excel_writer
 
+def date_to_str(dt: datetime.datetime) -> str:
+	return dt.strftime('%m/%d/%Y')
+
+def parse_to_date(cur_date: Union[str, datetime.date, datetime.datetime]) -> datetime.date:
+	if not cur_date:
+		return None
+
+	if type(cur_date) == str:
+		return parser.parse(cast(str, cur_date)).date()
+	elif type(cur_date) == datetime.datetime:
+		cur_date = cur_date.date()
+
+	return cast(datetime.date, cur_date)
+
 class Download(object):
 		
-	def __init__(
+	def __init__(self):
+		self.incoming_records = None
+		self.outgoing_records = None
+		self.sales_tx_records = None
+
+	def download_dataframes(
+		self,
+		incoming_transfer_packages_dataframe,
+		outgoing_transfer_packages_dataframe,
+		sales_transactions_dataframe
+	):
+		self.incoming_records = incoming_transfer_packages_dataframe.to_dict('records')
+		self.outgoing_records = outgoing_transfer_packages_dataframe.to_dict('records')
+		self.sales_tx_records = sales_transactions_dataframe.to_dict('records')
+		for sales_tx_record in self.sales_tx_records:
+			sales_tx_record['sales_datetime'] = sales_tx_record['sales_datetime'].to_pydatetime()
+
+	def download_files(
 		self,
 		incoming_files: List[str],
 		outgoing_files: List[str],
@@ -22,7 +53,7 @@ class Download(object):
 		self.incoming_records = self._file_as_dict_records(incoming_files)
 		self.outgoing_records = self._file_as_dict_records(outgoing_files)
 		self.sales_tx_records = self._file_as_dict_records(sales_transactions_files)
-		
+
 	def _file_as_dict_records(self, filepaths: List[str]) -> List[Dict]:
 		all_records = []
 
@@ -49,18 +80,6 @@ class Query(object):
 		self.inventory_dates: List[str] = []
 		self.company_name = ''
 
-def date_to_str(dt: datetime.datetime) -> str:
-	return dt.strftime('%m/%d/%Y')
-
-def parse_to_date(cur_date: Union[str, datetime.datetime]) -> datetime.datetime:
-	if not cur_date:
-		return None
-	
-	if type(cur_date) == str:
-		return parser.parse(cast(str, cur_date))
-	
-	return cast(datetime.datetime, cur_date)
-				
 class Printer(object):
 
 	def __init__(self, verbose: bool, show_info: bool) -> None:
@@ -175,7 +194,7 @@ class PackageHistory(object):
 		# Fills in the 'arrived' value for self.computed_info
 		if self.incomings:
 			incoming_pkg = self.incomings[-1]
-			arrived_date = incoming_pkg['created_date']
+			arrived_date = parse_to_date(incoming_pkg['created_date'])
 			self.computed_info['arrived'] = {
 				'reason': 'incoming',
 				'date': arrived_date
@@ -201,7 +220,7 @@ class PackageHistory(object):
 		if len(self.incomings) > 1:
 				p.warn(f'package #{self.package_id} has multiple incoming transfers', package_id=self.package_id)
 
-		arrived_date = incoming_pkg['created_date']
+		arrived_date = parse_to_date(incoming_pkg['created_date'])
 		if not incoming_pkg['shipped_quantity'] or numpy.isnan(incoming_pkg['shipped_quantity']):
 			p.warn(f'package #{self.package_id} does not have a shipped quantity', package_id=self.package_id)
 			return False
@@ -253,7 +272,7 @@ class PackageHistory(object):
 						lines.append(f'Package {self.package_id} marked as SOLD since it is more than {sold_threshold * 100}% sold')
 
 					is_sold = True
-					is_sold_date = tx['sales_datetime']
+					is_sold_date = parse_to_date(tx['sales_datetime'])
 
 				if revenue_from_pkg != 0:
 					profit_margin = '{:.2f}'.format((revenue_from_pkg - price_of_pkg) / revenue_from_pkg * 100)
@@ -355,6 +374,47 @@ def print_counts(id_to_history: Dict[str, PackageHistory]) -> None:
 	print(f'In and sold at least once {in_and_sold_at_least_once}')
 	print(f'In and sold many times {in_and_sold_many_times}')
 	print(f'Total pkgs: {total_seen}')
+
+def create_inventory_dataframe_by_date(
+	package_id_to_history: Dict[str, PackageHistory],
+	date: str,
+):
+	i = 0
+	num_excluded = 0
+	num_total = 0
+	max_to_see = -1
+
+	p = Printer(verbose=False, show_info=False)
+	exclude_reason_to_count: Dict[str, int] = OrderedDict()
+
+	for package_id, history in package_id_to_history.items():
+		history.compute_additional_fields(run_filter=True, p=p)
+		num_total += 1
+		if history.should_exclude:
+			num_excluded += 1
+			reason_count = exclude_reason_to_count.get(history.exclude_reason, 0)
+			exclude_reason_to_count[history.exclude_reason] = reason_count + 1
+
+		if max_to_see > 0 and i >= max_to_see:
+			# NOTE: remove this break, using this so I can debug 1 package
+			# at a time
+			break
+
+		i += 1
+
+	package_records = []
+
+	for package_id, history in package_id_to_history.items():
+		if history.should_exclude:
+			continue
+
+		if not history.in_inventory_at_date(date):
+			continue
+
+		package_record = history.get_inventory_output_row(date)
+		package_records += [package_record]
+
+	return package_records
 
 def create_inventory_dataframes(
 	package_id_to_history: Dict[str, PackageHistory],
