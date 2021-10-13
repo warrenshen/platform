@@ -2955,6 +2955,9 @@
               _eq: X-Hasura-Company-Id
 - table:
     schema: public
+    name: metrc_download_summaries
+- table:
+    schema: public
     name: metrc_harvests
   select_permissions:
   - role: bank_admin

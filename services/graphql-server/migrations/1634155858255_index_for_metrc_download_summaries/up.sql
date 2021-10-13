@@ -1,0 +1,1 @@
+DROP INDEX IF EXISTS company_id_metrc_key_license_date_key;

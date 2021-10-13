@@ -21,7 +21,8 @@ from bespoke.metrc import (
 from bespoke.metrc.common import metrc_common_util
 from bespoke.metrc.common.metrc_common_util import (
 	AuthDict, CompanyInfo, CompanyStateInfoDict, LicenseAuthDict, 
-	UNKNOWN_STATUS_CODE
+	MetrcErrorDetailsDict,
+	UNKNOWN_STATUS_CODE, BESPOKE_INTERNAL_ERROR_STATUS_CODE
 )
 from bespoke.security import security_util
 from dateutil import parser
@@ -354,42 +355,77 @@ def _download_data_for_license(
 	session_maker: Callable) -> Tuple[Dict, errors.Error]:
 	cur_date = ctx.cur_date
 	license = ctx.license
+	company_name = ctx.company_details['name']
 
 	logging.info('Running download metrc data for company "{}" for last modified date {} with license {}'.format(
-		ctx.company_details['name'], cur_date, license['license_number']
+		company_name, cur_date, license['license_number']
 	))
+	cur_date_str = ctx.get_cur_date_str()
+
+	def _catch_exception(e: Exception, path: str) -> None:
+		ctx.error_catcher.add_retry_error(
+			path=path,
+			time_range=[cur_date_str],
+			err_details=MetrcErrorDetailsDict(
+				reason='Unexpected exception downloading or writing {}. Err: {}'.format(path, e),
+				status_code=BESPOKE_INTERNAL_ERROR_STATUS_CODE,
+				traceback='{}'.format(traceback.format_exc())
+			)
+		)
+		logging.error('EXCEPTION downloading {} for company {} on {}'.format(path, company_name, cur_date))
+		logging.error(traceback.format_exc())
 
 	if ctx.apis_to_use.get('packages', False):
-		package_models = packages_util.download_packages(ctx)
-		packages_util.write_packages(package_models, session_maker)
+		try:
+			package_models = packages_util.download_packages(ctx)
+			packages_util.write_packages(package_models, session_maker)
+		except Exception as e:
+			_catch_exception(e, '/packages')
 
 	if ctx.apis_to_use.get('harvests', False):
-		harvest_models = harvests_util.download_harvests(ctx)
-		harvests_util.write_harvests(harvest_models, session_maker)
+		try:
+			harvest_models = harvests_util.download_harvests(ctx)
+			harvests_util.write_harvests(harvest_models, session_maker)
+		except Exception as e:
+			_catch_exception(e, '/harvests')
 
 	if ctx.apis_to_use.get('plant_batches', False):
-		plant_batches_models = plant_batches_util.download_plant_batches(ctx)
-		plant_batches_util.write_plant_batches(plant_batches_models, session_maker)
+		try:
+			plant_batches_models = plant_batches_util.download_plant_batches(ctx)
+			plant_batches_util.write_plant_batches(plant_batches_models, session_maker)
+		except Exception as e:
+			_catch_exception(e, '/plantbatches')
 
 	# NOTE: plants have references to plant batches and harvests, so this
 	# must come after fetching plant_batches and harvests
 	if ctx.apis_to_use.get('plants', False):
-		plants_models = plants_util.download_plants(ctx)
-		plants_util.write_plants(plants_models, session_maker)
+		try:
+			plants_models = plants_util.download_plants(ctx)
+			plants_util.write_plants(plants_models, session_maker)
+		except Exception as e:
+			_catch_exception(e, '/plants')
 
 	# NOTE: Sales data has references to packages, so this method
 	# should run after download_packages
 	if ctx.apis_to_use.get('sales_receipts', False):
-		sales_receipts_models = sales_util.download_sales_info(ctx, session_maker)
-		sales_util.write_sales_info(sales_receipts_models, session_maker)
+		try:
+			sales_receipts_models = sales_util.download_sales_info(ctx, session_maker)
+			sales_util.write_sales_info(sales_receipts_models, session_maker)
+		except Exception as e:
+			_catch_exception(e, '/sales')
 
 	# NOTE: transfer must come after download_packages, because transfers
 	# may update the state of packages
 	# Download transfers data for the particular day and key
-	success, err = transfers_util.populate_transfers_table(
-		ctx=ctx,
-		session_maker=session_maker
-	)
+	err = None
+	try:
+		success, err = transfers_util.populate_transfers_table(
+			ctx=ctx,
+			session_maker=session_maker
+		)
+	except Exception as e:
+		_catch_exception(e, '/transfers')
+
 	if err:
 		logging.error(f'Error thrown for company {ctx.company_details["name"]} for date {cur_date} and license {license["license_number"]}!')
 		logging.error(f'Error: {err}')
@@ -460,7 +496,6 @@ def _download_data(
 			# How many licenses is the API key functioning for?
 			functioning_licenses_count = 0
 			license_to_statuses = {}
-			retry_errors = []
 				
 			for license in state_info['licenses']:
 				ctx = metrc_common_util.DownloadContext(
@@ -486,7 +521,16 @@ def _download_data(
 					license_to_statuses[license['license_number']] = api_status_dict
 
 				functioning_licenses_count += 1 if not err else 0
-				retry_errors.extend(ctx.get_retry_errors())
+
+				with session_scope(session_maker) as session:
+					metrc_common_util.write_download_summary(
+						retry_errors=ctx.get_retry_errors(),
+						cur_date=cur_date,
+						company_id=company_info.company_id,
+						metrc_api_key_id=state_info['metrc_api_key_id'],
+						license_number=license['license_number'],
+						session=session
+					)
 
 			# Update whether this metrc key worked
 			with session_scope(session_maker) as session:
@@ -502,13 +546,6 @@ def _download_data(
 					metrc_api_key.last_used_at = date_util.now()
 					metrc_api_key.status_codes_payload = license_to_statuses
 					metrc_api_key.facilities_payload = cast(Dict, state_info['facilities_payload'])
-
-				if retry_errors:
-					# TODO(dlluncor): Implement writing a MetrcDownloadSummary
-					logging.error('Issue with one of the metrc downloads for day {} company {}'.format(
-						cur_date, company_id))
-				else:
-					pass
 
 	if errs:
 		return DownloadDataRespDict(

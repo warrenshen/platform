@@ -50,7 +50,7 @@ def backfill_table(
 						continue
 
 					if not metrc_table_row.updated_at:
-						print(f'Updating row {str(metrc_table_row.id)} in {table_name} updated_at...')
+						#print(f'Updating row {str(metrc_table_row.id)} in {table_name} updated_at...')
 						if not is_test_run:
 							metrc_table_row.updated_at = metrc_table_row.created_at
 

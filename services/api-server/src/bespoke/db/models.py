@@ -418,28 +418,30 @@ class MetrcApiKey(Base):
 		)
 
 class MetrcDownloadSummary(Base):
-	__tablename__ = 'metrc_download_summary'
+	__tablename__ = 'metrc_download_summaries'
 
 	# Per day summary of jobs
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	metrc_api_key_id = cast(GUID, Column(GUID, ForeignKey('metrc_api_keys.id')))
+	license_number = Column(String)
 	date = Column(Date)
+
+	status = Column(String) # completed, failure, needs_retry
+	harvests_status = Column(String)
+	packages_status = Column(String)
+	plant_batches_status = Column(String)
+	plants_status = Column(String)
+	sales_status = Column(String)
+	transfers_status = Column(String)
+
 	retry_payload = Column(JSON) # stores all paths to retry
-	status = Column(String) # not_started, completed, failure, needs_retry
 	err_details = Column(JSON)
+	num_retries = Column(Integer)
 
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 
-	# For each API
-	#  access, don't have access
-	#  working, not working
-
-	# {per_api}_status:
-	#   no_access
-	#   metrc_server_error
-	#   bespoke_logic_error
-	#   success
 
 class MetrcPlant(Base):
 	__tablename__ = 'metrc_plants'

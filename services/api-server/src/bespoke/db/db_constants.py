@@ -219,6 +219,17 @@ class DBOperation(object):
 
 # Metrc
 
+class MetrcDownloadStatus(object):
+	NO_ACCESS = 'no_access'
+	METRC_SERVER_ERROR = 'metrc_server_error'
+	BESPOKE_SERVER_ERROR = 'bespoke_server_error'
+	SUCCESS = 'success'
+
+class MetrcDownloadSummaryStatus(object):
+	COMPLETED = 'completed'
+	FAILURE = 'failure'
+	NEEDS_RETRY = 'needs_retry'
+
 class TransferType(object):
 	INCOMING = 'INCOMING'
 	OUTGOING = 'OUTGOING'
