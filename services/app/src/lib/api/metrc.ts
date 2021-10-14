@@ -178,7 +178,7 @@ export async function getTransfersMutation(
 
 export async function upsertApiKeyMutation(req: {
   variables: {
-    company_settings_id: string;
+    company_id: string;
     metrc_api_key_id: string;
     api_key: string;
   };
@@ -200,7 +200,7 @@ export async function upsertApiKeyMutation(req: {
 
 export async function deleteApiKeyMutation(req: {
   variables: {
-    company_settings_id: string;
+    company_id: string;
     metrc_api_key_id: string;
   };
 }): Promise<CustomMutationResponse> {

@@ -260,13 +260,12 @@ class TestWriteDownloadSummary(db_unittest.TestCase):
 		)
 
 		with session_scope(self.session_maker) as session:
-			company_settings_id = seed.get_company_settings_id(
-				'company_admin', index=company_index)
+			company_id = seed.get_company_id('company_admin', index=company_index)
 
 			metrc_api_key_id, err = metrc_util.upsert_api_key(
-				api_key='the-api-key', 
-				company_settings_id=company_settings_id, 
+				company_id=company_id,
 				metrc_api_key_id=None,
+				api_key='the-api-key',
 				security_cfg=security_cfg,
 				us_state='OR',
 				session=session

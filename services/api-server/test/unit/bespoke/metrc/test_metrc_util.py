@@ -84,12 +84,10 @@ class TestDeleteKey(db_unittest.TestCase):
 		company_id = seed.get_company_id('company_admin', index=0)
 
 		with session_scope(self.session_maker) as session:
-			company_settings_id = seed.get_company_settings_id('company_admin', index=0)
-
 			metrc_api_key_id, err = metrc_util.upsert_api_key(
-				api_key='the-api-key', 
-				company_settings_id=company_settings_id, 
+				company_id=company_id, 
 				metrc_api_key_id=None,
+				api_key='the-api-key', 
 				security_cfg=self.security_cfg,
 				us_state='CA',
 				session=session
@@ -108,7 +106,6 @@ class TestDeleteKey(db_unittest.TestCase):
 
 		with session_scope(self.session_maker) as session:
 			success, err = metrc_util.delete_api_key(
-				company_settings_id, 
 				metrc_api_key_id,
 				session=session
 			)
@@ -141,12 +138,10 @@ class TestUpsertApiKey(db_unittest.TestCase):
 		company_id = seed.get_company_id('company_admin', index=0)
 
 		with session_scope(self.session_maker) as session:
-			company_settings_id = seed.get_company_settings_id('company_admin', index=0)
-
 			metrc_api_key_id, err = metrc_util.upsert_api_key(
-				api_key='the-api-key', 
-				company_settings_id=company_settings_id, 
+				company_id=company_id,
 				metrc_api_key_id=None,
+				api_key='the-api-key',
 				security_cfg=self.security_cfg,
 				us_state='CA',
 				session=session
@@ -172,24 +167,10 @@ class TestUpsertApiKey(db_unittest.TestCase):
 		company_id = seed.get_company_id('company_admin', index=0)
 		
 		with session_scope(self.session_maker) as session:
-			company_settings_id = seed.get_company_settings_id('company_admin', index=0)
-
 			metrc_api_key_id, err = metrc_util.upsert_api_key(
-				api_key='the-api-key', 
-				company_settings_id=company_settings_id, 
+				company_id=company_id,
 				metrc_api_key_id=None,
-				security_cfg=self.security_cfg,
-				us_state='CA',
-				session=session
-			)
-			self.assertIsNone(err)
-
-			# Cannot add another default us_state because that will conflict
-			# with the existing key.
-			metrc_api_key_id, err = metrc_util.upsert_api_key(
-				api_key='the-api-key2', 
-				company_settings_id=company_settings_id, 
-				metrc_api_key_id=None,
+				api_key='the-api-key',
 				security_cfg=self.security_cfg,
 				us_state='CA',
 				session=session
@@ -197,9 +178,19 @@ class TestUpsertApiKey(db_unittest.TestCase):
 			self.assertIsNone(err)
 
 			metrc_api_key_id, err = metrc_util.upsert_api_key(
-				api_key='the-api-key2', 
-				company_settings_id=company_settings_id, 
+				company_id=company_id,
 				metrc_api_key_id=None,
+				api_key='the-api-key2',
+				security_cfg=self.security_cfg,
+				us_state='CA',
+				session=session
+			)
+			self.assertIsNone(err)
+
+			metrc_api_key_id, err = metrc_util.upsert_api_key(
+				company_id=company_id,
+				metrc_api_key_id=None,
+				api_key='the-api-key2',
 				security_cfg=self.security_cfg,
 				us_state='CA', # disallowed because the default state is CA
 				session=session
@@ -256,12 +247,10 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 		company_id = seed.get_company_id('company_admin', index=0)
 
 		with session_scope(self.session_maker) as session:
-			company_settings_id = seed.get_company_settings_id('company_admin', index=0)
-
 			metrc_api_key_id, err = metrc_util.upsert_api_key(
-				api_key='the-api-key', 
-				company_settings_id=company_settings_id, 
+				company_id=company_id,
 				metrc_api_key_id=None,
+				api_key='the-api-key',
 				security_cfg=self.security_cfg,
 				us_state='CA',
 				session=session
@@ -314,12 +303,10 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 		company_id = seed.get_company_id('company_admin', index=0)
 
 		with session_scope(self.session_maker) as session:
-			company_settings_id = seed.get_company_settings_id('company_admin', index=0)
-
 			metrc_api_key_id, err = metrc_util.upsert_api_key(
-				api_key='the-api-key', 
-				company_settings_id=company_settings_id, 
+				company_id=company_id,
 				metrc_api_key_id=None,
+				api_key='the-api-key',
 				security_cfg=self.security_cfg,
 				us_state='CA',
 				session=session
@@ -360,14 +347,14 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 								{
 									'license_id': license_id1,
 									'license_number': 'abcd',
-				  				'us_state': 'CA',
+									'us_state': 'CA',
 									'user_key': 'the-api-key',
 									'vendor_key': 'ca-vendorkey'
 								},
 								{
 									'license_id': None,
 									'license_number': 'ijkl',
-				  				'us_state': 'CA',
+									'us_state': 'CA',
 									'user_key': 'the-api-key',
 									'vendor_key': 'ca-vendorkey'
 								}
@@ -376,8 +363,8 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 							'facilities_payload': {
 								'facilities': [
 									{'License': {'Number': 'abcd'}},
-				          {'License': {'Number': 'ijkl'}}
-				        ]
+									{'License': {'Number': 'ijkl'}}
+								]
 							}
 						}
 					]
@@ -412,12 +399,10 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 		company_id = seed.get_company_id('company_admin', index=0)
 
 		with session_scope(self.session_maker) as session:
-			company_settings_id = seed.get_company_settings_id('company_admin', index=0)
-
 			metrc_api_key_id2, err = metrc_util.upsert_api_key(
-				api_key='the-api-key2', 
-				company_settings_id=company_settings_id, 
+				company_id=company_id,
 				metrc_api_key_id=None,
+				api_key='the-api-key2',
 				security_cfg=self.security_cfg,
 				us_state='OR',
 				session=session
@@ -427,9 +412,9 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 			# Because of the way upsert works, it sets the default metrc_key
 			# for now, so this has to come second
 			metrc_api_key_id, err = metrc_util.upsert_api_key(
-				api_key='the-api-key', 
-				company_settings_id=company_settings_id, 
+				company_id=company_id,
 				metrc_api_key_id=None,
+				api_key='the-api-key',
 				security_cfg=self.security_cfg,
 				us_state='CA',
 				session=session
@@ -437,9 +422,9 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 			self.assertIsNone(err)
 
 			metrc_api_key_id3, err = metrc_util.upsert_api_key(
-				api_key='the-api-key3', 
-				company_settings_id=company_settings_id, 
+				company_id=company_id,
 				metrc_api_key_id=None,
+				api_key='the-api-key3',
 				security_cfg=self.security_cfg,
 				us_state='FL',
 				session=session
@@ -483,14 +468,14 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 							{
 								'license_id': license_id1,
 								'license_number': 'abcd',
-			  				'us_state': 'CA',
+								'us_state': 'CA',
 								'user_key': 'the-api-key',
 								'vendor_key': 'ca-vendorkey'
 							},
 							{
 								'license_id': None,
 								'license_number': 'efgh',
-			  				'us_state': 'CA',
+								'us_state': 'CA',
 								'user_key': 'the-api-key',
 								'vendor_key': 'ca-vendorkey'
 							},
@@ -499,8 +484,8 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 						'facilities_payload': {
 							'facilities': [
 								{'License': {'Number': 'abcd'}},
-			          {'License': {'Number': 'efgh'}}
-			        ]
+								{'License': {'Number': 'efgh'}}
+							]
 						}
 					}
 				],
@@ -510,7 +495,7 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 							{
 								'license_id': license_id2,
 								'license_number': 'ijkl',
-			  				'us_state': 'OR',
+								'us_state': 'OR',
 								'user_key': 'the-api-key2',
 								'vendor_key': 'or-vendorkey'
 							}
@@ -519,7 +504,7 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 						'facilities_payload': {
 							'facilities': [
 								{'License': {'Number': 'ijkl'}}
-			        ]
+							]
 						}
 					}
 				]

@@ -35,7 +35,10 @@ class UpsertApiKeyView(MethodView):
 			return handler_util.make_error_response('No data provided')
 
 		required_keys = [
-			'api_key', 'company_settings_id', 'metrc_api_key_id'
+			'company_id',
+			'metrc_api_key_id',
+			'api_key',
+			'us_state',
 		]
 		for key in required_keys:
 			if key not in form:
@@ -44,11 +47,11 @@ class UpsertApiKeyView(MethodView):
 
 		with session_scope(current_app.session_maker) as session:
 			_, err = metrc_util.upsert_api_key(
-				api_key=form['api_key'], 
-				company_settings_id=form['company_settings_id'],
+				company_id=form['company_id'],
 				metrc_api_key_id=form['metrc_api_key_id'],
+				api_key=form['api_key'],
+				us_state=form['us_state'],
 				security_cfg=cfg.get_security_config(),
-				us_state=form.get('us_state'),
 				session=session
 			)
 			if err:
@@ -71,7 +74,7 @@ class DeleteApiKeyView(MethodView):
 			return handler_util.make_error_response('No data provided')
 
 		required_keys = [
-			'company_settings_id', 'metrc_api_key_id'
+			'metrc_api_key_id'
 		]
 		for key in required_keys:
 			if key not in form:
@@ -80,7 +83,6 @@ class DeleteApiKeyView(MethodView):
 
 		with session_scope(current_app.session_maker) as session:
 			_, err = metrc_util.delete_api_key(
-				company_settings_id=form['company_settings_id'],
 				metrc_api_key_id=form['metrc_api_key_id'],
 				session=session
 			)

@@ -9867,7 +9867,7 @@ export type MetrcApiKeys = {
   is_functioning?: Maybe<Scalars["Boolean"]>;
   last_used_at?: Maybe<Scalars["timestamptz"]>;
   status_codes_payload?: Maybe<Scalars["json"]>;
-  updated_at?: Maybe<Scalars["timestamptz"]>;
+  updated_at: Scalars["timestamptz"];
   us_state?: Maybe<Scalars["String"]>;
 };
 
@@ -10108,7 +10108,7 @@ export enum MetrcApiKeysUpdateColumn {
 
 /** columns and relationships of "metrc_deliveries" */
 export type MetrcDeliveries = {
-  created_at?: Maybe<Scalars["timestamptz"]>;
+  created_at: Scalars["timestamptz"];
   /** From Metrc */
   delivery_id: Scalars["String"];
   delivery_payload: Scalars["json"];
@@ -10129,7 +10129,7 @@ export type MetrcDeliveries = {
   shipment_transaction_type: Scalars["String"];
   shipment_type_name: Scalars["String"];
   transfer_row_id: Scalars["uuid"];
-  updated_at?: Maybe<Scalars["timestamptz"]>;
+  updated_at: Scalars["timestamptz"];
   us_state: Scalars["String"];
 };
 
@@ -10441,7 +10441,7 @@ export enum MetrcDeliveriesUpdateColumn {
 /** columns and relationships of "metrc_harvests" */
 export type MetrcHarvests = {
   company_id: Scalars["uuid"];
-  created_at?: Maybe<Scalars["timestamptz"]>;
+  created_at: Scalars["timestamptz"];
   harvest_id: Scalars["String"];
   harvest_start_date: Scalars["date"];
   id: Scalars["uuid"];
@@ -10450,7 +10450,7 @@ export type MetrcHarvests = {
   name: Scalars["String"];
   payload: Scalars["json"];
   type: Scalars["String"];
-  updated_at?: Maybe<Scalars["timestamptz"]>;
+  updated_at: Scalars["timestamptz"];
   us_state: Scalars["String"];
 };
 
@@ -10711,7 +10711,7 @@ export enum MetrcHarvestsUpdateColumn {
 /** columns and relationships of "metrc_packages" */
 export type MetrcPackages = {
   company_id: Scalars["uuid"];
-  created_at?: Maybe<Scalars["timestamptz"]>;
+  created_at: Scalars["timestamptz"];
   id: Scalars["uuid"];
   last_modified_at: Scalars["timestamptz"];
   license_number?: Maybe<Scalars["String"]>;
@@ -10725,7 +10725,7 @@ export type MetrcPackages = {
   quantity?: Maybe<Scalars["numeric"]>;
   type: Scalars["String"];
   unit_of_measure?: Maybe<Scalars["String"]>;
-  updated_at?: Maybe<Scalars["timestamptz"]>;
+  updated_at: Scalars["timestamptz"];
   us_state: Scalars["String"];
 };
 
@@ -11149,7 +11149,7 @@ export type MetrcPlantBatches = {
   /** An object relationship */
   company: Companies;
   company_id: Scalars["uuid"];
-  created_at?: Maybe<Scalars["timestamptz"]>;
+  created_at: Scalars["timestamptz"];
   id: Scalars["uuid"];
   last_modified_at?: Maybe<Scalars["timestamptz"]>;
   license_number?: Maybe<Scalars["String"]>;
@@ -11158,7 +11158,7 @@ export type MetrcPlantBatches = {
   plant_batch_id: Scalars["String"];
   planted_date: Scalars["date"];
   type: Scalars["String"];
-  updated_at?: Maybe<Scalars["timestamptz"]>;
+  updated_at: Scalars["timestamptz"];
   us_state: Scalars["String"];
 };
 
@@ -11424,7 +11424,7 @@ export type MetrcPlants = {
   /** An object relationship */
   company: Companies;
   company_id: Scalars["uuid"];
-  created_at?: Maybe<Scalars["timestamptz"]>;
+  created_at: Scalars["timestamptz"];
   id: Scalars["uuid"];
   label: Scalars["String"];
   last_modified_at?: Maybe<Scalars["timestamptz"]>;
@@ -11433,7 +11433,7 @@ export type MetrcPlants = {
   plant_id: Scalars["String"];
   planted_date: Scalars["date"];
   type: Scalars["String"];
-  updated_at?: Maybe<Scalars["timestamptz"]>;
+  updated_at: Scalars["timestamptz"];
   us_state?: Maybe<Scalars["String"]>;
 };
 
@@ -11699,7 +11699,7 @@ export type MetrcSalesReceipts = {
   /** An object relationship */
   company?: Maybe<Companies>;
   company_id?: Maybe<Scalars["uuid"]>;
-  created_at?: Maybe<Scalars["timestamptz"]>;
+  created_at: Scalars["timestamptz"];
   id: Scalars["uuid"];
   is_final?: Maybe<Scalars["Boolean"]>;
   last_modified_at?: Maybe<Scalars["timestamptz"]>;
@@ -11716,7 +11716,7 @@ export type MetrcSalesReceipts = {
   total_packages: Scalars["Int"];
   total_price: Scalars["numeric"];
   type: Scalars["String"];
-  updated_at?: Maybe<Scalars["timestamptz"]>;
+  updated_at: Scalars["timestamptz"];
   us_state: Scalars["String"];
 };
 
@@ -12165,7 +12165,7 @@ export type MetrcSalesReceiptsVarianceOrderBy = {
 /** columns and relationships of "metrc_sales_transactions" */
 export type MetrcSalesTransactions = {
   company_id: Scalars["uuid"];
-  created_at?: Maybe<Scalars["timestamptz"]>;
+  created_at: Scalars["timestamptz"];
   id: Scalars["uuid"];
   last_modified_at: Scalars["timestamptz"];
   license_number?: Maybe<Scalars["String"]>;
@@ -12183,7 +12183,7 @@ export type MetrcSalesTransactions = {
   total_price: Scalars["numeric"];
   type: Scalars["String"];
   unit_of_measure: Scalars["String"];
-  updated_at?: Maybe<Scalars["timestamptz"]>;
+  updated_at: Scalars["timestamptz"];
   us_state: Scalars["String"];
 };
 
@@ -12647,7 +12647,7 @@ export type MetrcSalesTransactionsVarianceOrderBy = {
 /** columns and relationships of "metrc_transfer_packages" */
 export type MetrcTransferPackages = {
   company_id?: Maybe<Scalars["uuid"]>;
-  created_at?: Maybe<Scalars["timestamptz"]>;
+  created_at: Scalars["timestamptz"];
   created_date?: Maybe<Scalars["date"]>;
   /** From Metrc */
   delivery_id?: Maybe<Scalars["String"]>;
@@ -12675,7 +12675,7 @@ export type MetrcTransferPackages = {
   shipper_wholesale_price?: Maybe<Scalars["numeric"]>;
   transfer_row_id: Scalars["uuid"];
   type: Scalars["String"];
-  updated_at?: Maybe<Scalars["timestamptz"]>;
+  updated_at: Scalars["timestamptz"];
   us_state: Scalars["String"];
 };
 
@@ -13246,7 +13246,7 @@ export type MetrcTransfers = {
   company_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
   company_license?: Maybe<CompanyLicenses>;
-  created_at?: Maybe<Scalars["timestamptz"]>;
+  created_at: Scalars["timestamptz"];
   created_date: Scalars["date"];
   id: Scalars["uuid"];
   lab_results_status?: Maybe<Scalars["String"]>;
@@ -13271,7 +13271,7 @@ export type MetrcTransfers = {
   transfer_payload: Scalars["json"];
   transfer_type: Scalars["String"];
   type?: Maybe<Scalars["String"]>;
-  updated_at?: Maybe<Scalars["timestamptz"]>;
+  updated_at: Scalars["timestamptz"];
   us_state: Scalars["String"];
   /** An object relationship */
   vendor?: Maybe<Vendors>;
@@ -24756,7 +24756,6 @@ export type GetCompanyForBankQuery = {
           collections_bank_account?: Maybe<
             Pick<BankAccounts, "id"> & BankAccountLimitedFragment
           >;
-          metrc_api_key?: Maybe<Pick<MetrcApiKeys, "id"> & MetrcApiKeyFragment>;
         } & CompanySettingsFragment
       >;
       users: Array<Pick<Users, "id"> & UserFragment>;
@@ -33013,10 +33012,6 @@ export const GetCompanyForBankDocument = gql`
           id
           ...BankAccountLimited
         }
-        metrc_api_key {
-          id
-          ...MetrcApiKey
-        }
       }
       users {
         id
@@ -33030,7 +33025,6 @@ export const GetCompanyForBankDocument = gql`
   ${CompanyLicenseFragmentDoc}
   ${CompanySettingsFragmentDoc}
   ${BankAccountLimitedFragmentDoc}
-  ${MetrcApiKeyFragmentDoc}
   ${UserFragmentDoc}
 `;
 

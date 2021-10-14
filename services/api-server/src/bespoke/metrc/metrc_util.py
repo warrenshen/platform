@@ -43,19 +43,9 @@ ViewApiKeyRespDict = TypedDict('ViewApiKeyRespDict', {
 
 @errors.return_error_tuple
 def delete_api_key(
-	company_settings_id: str,
 	metrc_api_key_id: str,
 	session: Session
 ) -> Tuple[bool, errors.Error]:
-
-	company_settings = cast(
-		models.CompanySettings,
-		session.query(models.CompanySettings).filter(
-			models.CompanySettings.id == company_settings_id
-		).first())
-
-	if not company_settings:
-		raise errors.Error('No company settings found, so we could not save the Metrc API key')
 
 	metrc_api_key = cast(
 		models.MetrcApiKey,
@@ -65,76 +55,34 @@ def delete_api_key(
 	if not metrc_api_key:
 		raise errors.Error('Metrc API Key to delete does not exist in the database')
 	
-	if company_settings.metrc_api_key_id and str(company_settings.metrc_api_key_id) == metrc_api_key_id:
-		company_settings.metrc_api_key_id = None
-
-	session.flush()
-
 	cast(Callable, session.delete)(metrc_api_key)
 
 	return True, None
 
 @errors.return_error_tuple
-def set_key_as_default(
-	company_settings_id: str,
-	metrc_api_key_id: str,
-	session: Session
-) -> Tuple[bool, errors.Error]:
-
-	company_settings = cast(
-		models.CompanySettings,
-		session.query(models.CompanySettings).filter(
-			models.CompanySettings.id == company_settings_id
-		).first())
-
-	if not company_settings:
-		raise errors.Error('No company settings found, so we could not save the Metrc API key')
-
-	company_settings.metrc_api_key_id = cast(Any, metrc_api_key_id)
-	return True, None
-
-@errors.return_error_tuple
 def upsert_api_key(
-	api_key: str,
-	company_settings_id: str,
+	company_id: str,
 	metrc_api_key_id: str,
+	api_key: str,
 	security_cfg: security_util.ConfigDict,
 	us_state: str,
 	session: Session
 ) -> Tuple[str, errors.Error]:
 
-	company_settings = cast(
-		models.CompanySettings,
-		session.query(models.CompanySettings).filter(
-			models.CompanySettings.id == company_settings_id
-		).first())
-
-	if not company_settings:
-		raise errors.Error('No company settings found, so we could not save the Metrc API key')
-
 	company = cast(
 		models.Company,
 		session.query(models.Company).filter(
-			models.Company.company_settings_id == company_settings_id
+			models.Company.id == company_id
 		).first())
 
 	if not company:
-		raise errors.Error('No company found with the corresponding company settings provided')
-
-	metrc_api_keys = cast(
-		List[models.MetrcApiKey],
-		session.query(models.MetrcApiKey).filter(
-			models.MetrcApiKey.company_id == company.id
-		).all())
+		raise errors.Error('No company found with company ID provided')
 
 	if not us_state:
 		raise errors.Error('US state must be specified to create or update a metrc API key')
 
 	if metrc_api_key_id:
 		# The "edit" case
-		if metrc_api_key_id != str(company_settings.metrc_api_key_id):
-			raise errors.Error('Metrc API Key ID to update does not match the one from the company settings')
-
 		metrc_api_key = cast(
 			models.MetrcApiKey,
 			session.query(models.MetrcApiKey).filter(
@@ -149,22 +97,15 @@ def upsert_api_key(
 		)
 		return str(metrc_api_key.id), None
 	else:
-
 		# The "add" case
 		metrc_api_key = models.MetrcApiKey()
 		metrc_api_key.encrypted_api_key = security_util.encode_secret_string(
 			security_cfg, api_key
 		)
-		metrc_api_key.company_id = company_settings.company_id
+		metrc_api_key.company_id = company.id
 		metrc_api_key.us_state = us_state
 		session.add(metrc_api_key)
 		session.flush()
-
-		if not company_settings.metrc_api_key_id:
-			# Only set this key as the default if it's the first key
-			# we are adding for a customer
-			company_settings.metrc_api_key_id = metrc_api_key.id
-
 		return str(metrc_api_key.id), None
 
 @errors.return_error_tuple
@@ -228,30 +169,12 @@ def _get_metrc_company_info(
 			# Allow companies who do not have contracts setup as well
 			pass
 			
-		company_setting = cast(
-			models.CompanySettings,
-			session.query(models.CompanySettings).filter(
-				models.CompanySettings.id == company.company_settings_id
-		).first())
-
-		metrc_api_key_id = None
-		if not company_setting.metrc_api_key_id:
-			return None, errors.Error('No metrc key ID exists for company {}'.format(company_id))
-
-		metrc_api_key_id = str(company_setting.metrc_api_key_id)
-
-		metrc_api_key = cast(
-			models.MetrcApiKey,
-			session.query(models.MetrcApiKey).filter(
-				models.MetrcApiKey.id == metrc_api_key_id
-		).first())
-
 		# Assume the current key set uses the customer's default state
 		# in their contract.
 		state_to_metrc_api_keys: Dict[str, List[models.MetrcApiKey]] = {}
 
 		# Fetch additional metrc api keys for cross-state operators 
-		other_metrc_api_keys = cast(
+		metrc_api_keys = cast(
 			List[models.MetrcApiKey],
 			session.query(models.MetrcApiKey).filter(
 				models.MetrcApiKey.company_id == company_id
@@ -259,18 +182,18 @@ def _get_metrc_company_info(
 
 		us_states_set = set([])
 		
-		for other_metrc_api_key in other_metrc_api_keys:
+		for metrc_api_key in metrc_api_keys:
 	
-			if not other_metrc_api_key.us_state:
+			if not metrc_api_key.us_state:
 				raise errors.Error('Metrc key {} is missing the us_state. It must be specified explicitly to download data from Metrc'.format(
-					str(other_metrc_api_key.id)))
+					str(metrc_api_key.id)))
 
-			cur_us_state = other_metrc_api_key.us_state
+			cur_us_state = metrc_api_key.us_state
 			
 			if cur_us_state not in state_to_metrc_api_keys:
 				state_to_metrc_api_keys[cur_us_state] = []
 
-			state_to_metrc_api_keys[cur_us_state].append(other_metrc_api_key)
+			state_to_metrc_api_keys[cur_us_state].append(metrc_api_key)
 			us_states_set.add(cur_us_state)
 
 		all_licenses = cast(

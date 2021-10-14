@@ -11,7 +11,7 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import { CompanySettings, MetrcApiKeyFragment } from "generated/graphql";
+import { Companies, MetrcApiKeyFragment } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { deleteApiKeyMutation } from "lib/api/metrc";
@@ -29,13 +29,13 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
-  companySettingsId: CompanySettings["id"];
+  companyId: Companies["id"];
   metrcApiKey: MetrcApiKeyFragment | null | undefined;
   handleClose: () => void;
 }
 
 export default function DeleteMetrcKeyModal({
-  companySettingsId,
+  companyId,
   metrcApiKey,
   handleClose,
 }: Props) {
@@ -50,7 +50,7 @@ export default function DeleteMetrcKeyModal({
   const handleRegisterClick = async () => {
     const response = await deleteApiKey({
       variables: {
-        company_settings_id: companySettingsId,
+        company_id: companyId,
         metrc_api_key_id: metrcApiKey ? metrcApiKey.id : null,
       },
     });

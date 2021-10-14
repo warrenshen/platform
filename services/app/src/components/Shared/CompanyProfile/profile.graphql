@@ -39,10 +39,6 @@ query GetCompanyForBank($companyId: uuid!) {
         id
         ...BankAccountLimited
       }
-      metrc_api_key {
-        id
-        ...MetrcApiKey
-      }
     }
     users {
       id

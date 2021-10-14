@@ -7,8 +7,6 @@ import {
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import ChangeIsDummyAccountModal from "components/Settings/Bank/ChangeIsDummyAccountModal";
-import MetrcApiKeys from "components/Settings/Bank/MetrcApiKeys";
-import SyncMetrcData from "components/Settings/Bank/SyncMetrcData";
 import UpsertCustomMessagesModal from "components/Settings/Bank/UpsertCustomMessagesModal";
 import UpsertFeatureFlagsModal from "components/Settings/Bank/UpsertFeatureFlagsModal";
 import CustomerSettings from "components/Settings/CustomerSettings";
@@ -22,7 +20,6 @@ import UpdateThirdPartyCompanySettingsModal from "components/ThirdParties/Update
 import {
   Companies,
   ContractFragment,
-  MetrcApiKeyFragment,
   useGetCompanyForBankQuery,
 } from "generated/graphql";
 import {
@@ -58,7 +55,6 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
   const company = data?.companies_by_pk;
   const settings = company?.settings;
   const contract = company?.contract as ContractFragment;
-  const metrcApiKey = company?.settings?.metrc_api_key as MetrcApiKeyFragment;
   const companyLicenses = company?.licenses || [];
   const featureFlagsPayload = settings?.feature_flags_payload || {};
   const customMessagesPayload = settings?.custom_messages_payload || {};
@@ -201,26 +197,6 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
                 </Box>
               </Box>
             ))}
-          </Box>
-        </Box>
-        <Box mt={4}>
-          <Typography variant="h6">
-            <b>Metrc</b>
-          </Typography>
-          <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="subtitle1">API Keys</Typography>
-            <MetrcApiKeys
-              metrcApiKey={metrcApiKey}
-              companyId={companyId}
-              companySettingsId={settings?.id}
-              handleDataChange={refetch}
-            />
-          </Box>
-          <Box mt={2}>
-            <Typography variant="subtitle1">Sync Metrc Data</Typography>
-            <Box display="flex">
-              <SyncMetrcData companyId={company.id}></SyncMetrcData>
-            </Box>
           </Box>
         </Box>
         <Box mt={4}>
