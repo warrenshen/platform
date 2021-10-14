@@ -13,6 +13,7 @@ from bespoke.finance import number_util
 from bespoke.finance.fetchers import per_customer_fetcher
 from bespoke.finance.payments import payment_util, repayment_util
 from bespoke.finance.types import per_customer_types
+from bespoke.finance.types import payment_types
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from mypy_extensions import TypedDict
@@ -196,6 +197,61 @@ class CreateRepaymentView(MethodView):
 		return make_response(json.dumps({
 			'status': 'OK',
 			'payment_id': payment_id,
+		}), 200)
+
+class EditRepaymentView(MethodView):
+	decorators = [auth_util.login_required]
+
+	@events.wrap(events.Actions.LOANS_EDIT_REPAYMENT)
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'company_id',
+			'payment',
+		]
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(
+					'Missing key {} from handle payment request'.format(key))
+
+		user_session = auth_util.UserSession.from_session()
+
+		if not user_session.is_bank_or_this_company_admin(form['company_id']):
+			return handler_util.make_error_response('Access Denied')
+
+		repayment_id = form['payment']['id']
+		company_id = form['company_id']
+		payment = form['payment']
+
+		repayment_date_edits = payment_types.RepaymentDateEditInputDict(
+ 			id = repayment_id,
+  			requested_payment_date = form['payment']['requested_payment_date'],
+  			payment_date = form['payment']['payment_date'],
+  			deposit_date = form['payment']['deposit_date'],
+  			settlement_date = form['payment']['settlement_date']
+		)
+
+		with session_scope(current_app.session_maker) as session:
+			payment_id, err = repayment_util.edit_repayment(
+				form['company_id'],
+				repayment_date_edits,
+				user_session.get_user_id(),
+				session=session,
+			)
+			if err:
+				raise err
+
+		if err:
+			logging.error(f"Failed to edit repayment dates for company '{company_id}' for repayment '{repayment_id}'; err: '{err}'")
+			return handler_util.make_error_response(err)
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'payment_id': repayment_id,
 		}), 200)
 
 class ScheduleRepaymentView(MethodView):
@@ -400,6 +456,9 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/create_repayment', view_func=CreateRepaymentView.as_view(name='create_payment_view'))
+
+handler.add_url_rule(
+	'/edit_repayment', view_func=EditRepaymentView.as_view(name='edit_payment_view'))
 
 handler.add_url_rule(
 	'/schedule_repayment', view_func=ScheduleRepaymentView.as_view(name='schedule_payment_view'))

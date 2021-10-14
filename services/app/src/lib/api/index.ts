@@ -100,6 +100,7 @@ export const loansRoutes = {
   createAdjustment: "/finance/loans/adjustments/make_adjustment",
   createAdvance: "/finance/loans/advances/handle_advance",
   createRepayment: "/finance/loans/repayments/create_repayment",
+  editRepayment: "/finance/loans/repayments/edit_repayment",
   scheduleRepayment: "/finance/loans/repayments/schedule_repayment",
   settleRepayment: "/finance/loans/repayments/settle_repayment",
   reverseRepayment: "/finance/loans/repayments/reverse_repayment",

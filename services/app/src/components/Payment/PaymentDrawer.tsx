@@ -7,6 +7,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import ReverseRepaymentModal from "components/Payment/ReverseRepaymentModal";
+import EditRepaymentDatesModal from "components/Payment/EditRepaymentDatesModal";
 import PaymentStatusChip from "components/Shared/Chip/PaymentStatusChip";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
@@ -197,6 +198,26 @@ export default function PaymentDrawer({ paymentId, handleClose }: Props) {
                 color={"default"}
                 modal={({ handleClose }) => (
                   <ReverseRepaymentModal
+                    paymentId={payment.id}
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                    }}
+                  />
+                )}
+              />
+            </Box>
+            <Box
+              style={{
+                marginTop: "10px",
+              }}
+            >
+              <ModalButton
+                isDisabled={!!payment.reversed_at}
+                label={"Edit Repayment Dates"}
+                color={"default"}
+                modal={({ handleClose }) => (
+                  <EditRepaymentDatesModal
                     paymentId={payment.id}
                     handleClose={() => {
                       refetch();

@@ -54,3 +54,11 @@ PaymentInsertInputDict = TypedDict('PaymentInsertInputDict', {
 	'customer_note': str,
 	'bank_note': str
 })
+
+RepaymentDateEditInputDict = TypedDict('RepaymentDateEditInputDict', {
+	'id': str,
+	'requested_payment_date': str,
+	'payment_date': str,
+	'deposit_date': str,
+	'settlement_date': str,
+})

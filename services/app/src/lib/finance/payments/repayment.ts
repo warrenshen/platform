@@ -147,6 +147,32 @@ export async function createRepaymentMutation(req: {
     );
 }
 
+export async function editRepaymentMutation(req: {
+  variables: {
+    company_id: string;
+    payment: PaymentsInsertInput;
+    is_line_of_credit: boolean;
+  };
+}): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(loansRoutes.editRepayment, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not edit payment for the loan(s)",
+        };
+      }
+    );
+}
+
 export type ScheduleRepaymentReq = {
   variables: {
     company_id: string;
