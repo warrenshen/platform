@@ -36,7 +36,7 @@ export default function MetrcApiKeyInfo({ number, metrcApiKey }: Props) {
           <b>{`Key #${number}`}</b>
         </Typography>
       </Box>
-      <Box display="flex" flexDirection="column" overflow="scroll">
+      <Box display="flex" flexDirection="column">
         <MetrcDownloadSummariesGrid metrcApiKey={metrcApiKey} />
       </Box>
       <Box mt={2}>

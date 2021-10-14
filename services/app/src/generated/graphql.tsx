@@ -32172,7 +32172,7 @@ export const GetMetrcApiKeysPerCompanyDocument = gql`
     metrc_api_keys(where: { company_id: { _eq: $companyId } }) {
       id
       ...MetrcApiKey
-      metrc_download_summaries(order_by: { date: asc }) {
+      metrc_download_summaries(order_by: { date: desc }) {
         id
         ...MetrcDownloadSummary
       }

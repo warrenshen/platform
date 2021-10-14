@@ -44,6 +44,13 @@ export function previousXMonthsCertificationDates(xMonths: number) {
   );
 }
 
+export function previousDayAsDateStringServer(dateString: string) {
+  return format(
+    addDays(parse(dateString, DateFormatServer, new Date()), -1),
+    DateFormatServer
+  );
+}
+
 export function formatDateString(dateString: string) {
   if (!dateString) {
     return "Invalid Date";

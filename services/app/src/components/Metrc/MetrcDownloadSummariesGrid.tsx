@@ -1,9 +1,11 @@
-import { Box, Tooltip } from "@material-ui/core";
+import { Box, Tooltip, Typography } from "@material-ui/core";
 import {
   GetMetrcApiKeysPerCompanyQuery,
   MetrcDownloadSummaryFragment,
 } from "generated/graphql";
+import { formatDateString, previousDayAsDateStringServer } from "lib/date";
 import { MetrcDownloadSummaryStatusEnum } from "lib/enum";
+import { useMemo } from "react";
 import styled from "styled-components";
 
 const StyledBox = styled.div<{ backgroundColor: string }>`
@@ -31,8 +33,12 @@ function MetrcDownloadSummaryCell({
   status: MetrcDownloadSummaryStatusEnum;
 }) {
   return (
-    <Tooltip arrow interactive title={`[${date}] ${label}: ${status}`}>
-      <StyledBox backgroundColor={StatusToColor[status]} />
+    <Tooltip
+      arrow
+      interactive
+      title={`[${formatDateString(date)}] ${label}: ${status}`}
+    >
+      <StyledBox backgroundColor={status ? StatusToColor[status] : "none"} />
     </Tooltip>
   );
 }
@@ -94,17 +100,67 @@ interface Props {
   metrcApiKey: GetMetrcApiKeysPerCompanyQuery["metrc_api_keys"][0];
 }
 
-// TODO(warren): compute dates that are missing in the set of existing download summaries.
 export default function MetrcDownloadSummariesGrid({ metrcApiKey }: Props) {
+  const rawMetrcDownloadSummaries = metrcApiKey.metrc_download_summaries;
+  // Fill in missing dates, if applicable.
+  // For example, we may only have download summaries for October 2021 and November 2020
+  // and none for any of the months in between (those months have not been backfilled yet).
+  const metrcDownloadSummaries = useMemo(() => {
+    const result: MetrcDownloadSummaryFragment[] = [];
+    const firstMetrcDownloadSummary = rawMetrcDownloadSummaries[0];
+    const endDate = firstMetrcDownloadSummary.date;
+    const startDate =
+      rawMetrcDownloadSummaries[rawMetrcDownloadSummaries.length - 1].date;
+    let currentDate = endDate;
+    let rawIndex = 0;
+    while (currentDate >= startDate) {
+      if (rawMetrcDownloadSummaries[rawIndex].date === currentDate) {
+        result.push(rawMetrcDownloadSummaries[rawIndex]);
+        rawIndex += 1;
+      } else {
+        result.push({
+          id: currentDate,
+          company_id: firstMetrcDownloadSummary.company_id,
+          metrc_api_key_id: firstMetrcDownloadSummary.metrc_api_key_id,
+          license_number: firstMetrcDownloadSummary.license_number,
+          date: currentDate,
+          status: "",
+          harvests_status: "",
+          packages_status: "",
+          plant_batches_status: "",
+          plants_status: "",
+          sales_status: "",
+          transfers_status: "",
+          updated_at: undefined,
+        } as MetrcDownloadSummaryFragment);
+      }
+      currentDate = previousDayAsDateStringServer(currentDate);
+    }
+    return result;
+  }, [rawMetrcDownloadSummaries]);
+
   return (
     <Box display="flex" flexDirection="column">
-      <Box display="flex">
-        {metrcApiKey.metrc_download_summaries.map((metrcDownloadSummary) => (
-          <MetrcDownloadSummaryColumn
-            key={metrcDownloadSummary.id}
-            metrcDownloadSummary={metrcDownloadSummary}
-          />
-        ))}
+      <Box>
+        <Typography>
+          {metrcDownloadSummaries.length > 0
+            ? `Date range: ${formatDateString(
+                metrcDownloadSummaries[0].date
+              )} (left) -> ${formatDateString(
+                metrcDownloadSummaries[metrcDownloadSummaries.length - 1].date
+              )} (right)`
+            : ""}
+        </Typography>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={2} overflow="scroll">
+        <Box display="flex">
+          {metrcDownloadSummaries.map((metrcDownloadSummary) => (
+            <MetrcDownloadSummaryColumn
+              key={metrcDownloadSummary.id}
+              metrcDownloadSummary={metrcDownloadSummary}
+            />
+          ))}
+        </Box>
       </Box>
     </Box>
   );
