@@ -146,5 +146,9 @@ def write_download_summary(
 		session.add(download_summary)
 
 	if retry_errors:
-		logging.error('Issue with one of the metrc downloads for day {} company {}'.format(
-			cur_date, company_id))
+		for retry_error in retry_errors:
+			if retry_error.get_api_status() == MetrcDownloadStatus.NO_ACCESS:
+				continue
+
+			logging.error('Error with one of the metrc downloads for day {} company {}. Reason: {}'.format(
+				cur_date, company_id, retry_error.err_details))
