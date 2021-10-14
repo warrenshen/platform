@@ -22,7 +22,7 @@ export default function CustomerMetrcApiKeysTab({ companyId }: Props) {
         <Typography variant="subtitle1">
           <b>Metrc API Keys</b>
         </Typography>
-        <MetrcApiKeys companyId={companyId} companySettingsId={""} />
+        <MetrcApiKeys companyId={companyId} />
       </Box>
     </Box>
   );

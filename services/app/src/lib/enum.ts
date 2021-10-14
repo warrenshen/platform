@@ -326,3 +326,10 @@ export enum ClientSurveillanceCategoryEnum {
   BorrowingBase = "borrowing_base",
   FinancialReports = "financial_reports",
 }
+
+export enum MetrcDownloadSummaryStatusEnum {
+  BespokeServerError = "bespoke_server_error",
+  MetrcServerError = "metrc_server_error",
+  NoAccess = "no_access",
+  Success = "success",
+}

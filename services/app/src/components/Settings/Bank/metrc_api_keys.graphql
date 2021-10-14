@@ -1,6 +1,26 @@
+fragment MetrcDownloadSummary on metrc_download_summaries{
+  id
+  company_id
+  metrc_api_key_id
+  license_number
+  date
+  status
+	harvests_status
+	packages_status
+	plant_batches_status
+	plants_status
+	sales_status
+	transfers_status
+  updated_at
+}
+
 query GetMetrcApiKeysPerCompany($companyId: uuid!) {
   metrc_api_keys(where: { company_id: { _eq: $companyId } }) {
     id
     ...MetrcApiKey
+    metrc_download_summaries(order_by: { date: asc }) {
+      id
+      ...MetrcDownloadSummary
+    }
   }
 }

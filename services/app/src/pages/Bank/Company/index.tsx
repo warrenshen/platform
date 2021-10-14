@@ -157,12 +157,6 @@ const getCustomerPaths = (
         component: BankCustomerPayorsSubpage,
       },
       {
-        dataCy: "customer-metrc",
-        label: "Metrc",
-        path: bankRoutes.company.metrc,
-        component: BankCustomerMetrcSubpage,
-      },
-      {
         dataCy: "customer-contract",
         label: "Contract",
         path: bankRoutes.company.contract,
@@ -205,6 +199,12 @@ const getCustomerPaths = (
     visible: true,
     label: "General",
     paths: [
+      {
+        dataCy: "general-metrc",
+        label: "Metrc",
+        path: bankRoutes.company.metrc,
+        component: BankCustomerMetrcSubpage,
+      },
       {
         dataCy: "general-settings",
         label: "Settings",

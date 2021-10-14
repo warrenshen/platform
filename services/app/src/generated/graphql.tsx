@@ -9866,6 +9866,10 @@ export type MetrcApiKeys = {
   id: Scalars["uuid"];
   is_functioning?: Maybe<Scalars["Boolean"]>;
   last_used_at?: Maybe<Scalars["timestamptz"]>;
+  /** An array relationship */
+  metrc_download_summaries: Array<MetrcDownloadSummaries>;
+  /** An aggregated array relationship */
+  metrc_download_summaries_aggregate: MetrcDownloadSummariesAggregate;
   status_codes_payload?: Maybe<Scalars["json"]>;
   updated_at: Scalars["timestamptz"];
   us_state?: Maybe<Scalars["String"]>;
@@ -9879,6 +9883,34 @@ export type MetrcApiKeys = {
  */
 export type MetrcApiKeysFacilitiesPayloadArgs = {
   path?: Maybe<Scalars["String"]>;
+};
+
+/**
+ * List of API keys we use to connect to Metrc
+ *
+ *
+ * columns and relationships of "metrc_api_keys"
+ */
+export type MetrcApiKeysMetrcDownloadSummariesArgs = {
+  distinct_on?: Maybe<Array<MetrcDownloadSummariesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MetrcDownloadSummariesOrderBy>>;
+  where?: Maybe<MetrcDownloadSummariesBoolExp>;
+};
+
+/**
+ * List of API keys we use to connect to Metrc
+ *
+ *
+ * columns and relationships of "metrc_api_keys"
+ */
+export type MetrcApiKeysMetrcDownloadSummariesAggregateArgs = {
+  distinct_on?: Maybe<Array<MetrcDownloadSummariesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MetrcDownloadSummariesOrderBy>>;
+  where?: Maybe<MetrcDownloadSummariesBoolExp>;
 };
 
 /**
@@ -9935,6 +9967,7 @@ export type MetrcApiKeysBoolExp = {
   id?: Maybe<UuidComparisonExp>;
   is_functioning?: Maybe<BooleanComparisonExp>;
   last_used_at?: Maybe<TimestamptzComparisonExp>;
+  metrc_download_summaries?: Maybe<MetrcDownloadSummariesBoolExp>;
   status_codes_payload?: Maybe<JsonComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
   us_state?: Maybe<StringComparisonExp>;
@@ -9955,6 +9988,7 @@ export type MetrcApiKeysInsertInput = {
   id?: Maybe<Scalars["uuid"]>;
   is_functioning?: Maybe<Scalars["Boolean"]>;
   last_used_at?: Maybe<Scalars["timestamptz"]>;
+  metrc_download_summaries?: Maybe<MetrcDownloadSummariesArrRelInsertInput>;
   status_codes_payload?: Maybe<Scalars["json"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   us_state?: Maybe<Scalars["String"]>;
@@ -10034,6 +10068,7 @@ export type MetrcApiKeysOrderBy = {
   id?: Maybe<OrderBy>;
   is_functioning?: Maybe<OrderBy>;
   last_used_at?: Maybe<OrderBy>;
+  metrc_download_summaries_aggregate?: Maybe<MetrcDownloadSummariesAggregateOrderBy>;
   status_codes_payload?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   us_state?: Maybe<OrderBy>;
@@ -10437,6 +10472,465 @@ export enum MetrcDeliveriesUpdateColumn {
   /** column name */
   UsState = "us_state",
 }
+
+/**
+ * Structured results of how a download
+ *
+ *
+ * columns and relationships of "metrc_download_summaries"
+ */
+export type MetrcDownloadSummaries = {
+  company_id: Scalars["uuid"];
+  created_at: Scalars["timestamptz"];
+  date: Scalars["date"];
+  err_details: Scalars["json"];
+  harvests_status: Scalars["String"];
+  id: Scalars["uuid"];
+  license_number: Scalars["String"];
+  /** An object relationship */
+  metrc_api_key: MetrcApiKeys;
+  metrc_api_key_id: Scalars["uuid"];
+  num_retries: Scalars["Int"];
+  packages_status: Scalars["String"];
+  plant_batches_status: Scalars["String"];
+  plants_status: Scalars["String"];
+  retry_payload: Scalars["json"];
+  sales_status: Scalars["String"];
+  status: Scalars["String"];
+  transfers_status: Scalars["String"];
+  updated_at: Scalars["timestamptz"];
+};
+
+/**
+ * Structured results of how a download
+ *
+ *
+ * columns and relationships of "metrc_download_summaries"
+ */
+export type MetrcDownloadSummariesErrDetailsArgs = {
+  path?: Maybe<Scalars["String"]>;
+};
+
+/**
+ * Structured results of how a download
+ *
+ *
+ * columns and relationships of "metrc_download_summaries"
+ */
+export type MetrcDownloadSummariesRetryPayloadArgs = {
+  path?: Maybe<Scalars["String"]>;
+};
+
+/** aggregated selection of "metrc_download_summaries" */
+export type MetrcDownloadSummariesAggregate = {
+  aggregate?: Maybe<MetrcDownloadSummariesAggregateFields>;
+  nodes: Array<MetrcDownloadSummaries>;
+};
+
+/** aggregate fields of "metrc_download_summaries" */
+export type MetrcDownloadSummariesAggregateFields = {
+  avg?: Maybe<MetrcDownloadSummariesAvgFields>;
+  count?: Maybe<Scalars["Int"]>;
+  max?: Maybe<MetrcDownloadSummariesMaxFields>;
+  min?: Maybe<MetrcDownloadSummariesMinFields>;
+  stddev?: Maybe<MetrcDownloadSummariesStddevFields>;
+  stddev_pop?: Maybe<MetrcDownloadSummariesStddevPopFields>;
+  stddev_samp?: Maybe<MetrcDownloadSummariesStddevSampFields>;
+  sum?: Maybe<MetrcDownloadSummariesSumFields>;
+  var_pop?: Maybe<MetrcDownloadSummariesVarPopFields>;
+  var_samp?: Maybe<MetrcDownloadSummariesVarSampFields>;
+  variance?: Maybe<MetrcDownloadSummariesVarianceFields>;
+};
+
+/** aggregate fields of "metrc_download_summaries" */
+export type MetrcDownloadSummariesAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<MetrcDownloadSummariesSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** order by aggregate values of table "metrc_download_summaries" */
+export type MetrcDownloadSummariesAggregateOrderBy = {
+  avg?: Maybe<MetrcDownloadSummariesAvgOrderBy>;
+  count?: Maybe<OrderBy>;
+  max?: Maybe<MetrcDownloadSummariesMaxOrderBy>;
+  min?: Maybe<MetrcDownloadSummariesMinOrderBy>;
+  stddev?: Maybe<MetrcDownloadSummariesStddevOrderBy>;
+  stddev_pop?: Maybe<MetrcDownloadSummariesStddevPopOrderBy>;
+  stddev_samp?: Maybe<MetrcDownloadSummariesStddevSampOrderBy>;
+  sum?: Maybe<MetrcDownloadSummariesSumOrderBy>;
+  var_pop?: Maybe<MetrcDownloadSummariesVarPopOrderBy>;
+  var_samp?: Maybe<MetrcDownloadSummariesVarSampOrderBy>;
+  variance?: Maybe<MetrcDownloadSummariesVarianceOrderBy>;
+};
+
+/** input type for inserting array relation for remote table "metrc_download_summaries" */
+export type MetrcDownloadSummariesArrRelInsertInput = {
+  data: Array<MetrcDownloadSummariesInsertInput>;
+  on_conflict?: Maybe<MetrcDownloadSummariesOnConflict>;
+};
+
+/** aggregate avg on columns */
+export type MetrcDownloadSummariesAvgFields = {
+  num_retries?: Maybe<Scalars["Float"]>;
+};
+
+/** order by avg() on columns of table "metrc_download_summaries" */
+export type MetrcDownloadSummariesAvgOrderBy = {
+  num_retries?: Maybe<OrderBy>;
+};
+
+/** Boolean expression to filter rows from the table "metrc_download_summaries". All fields are combined with a logical 'AND'. */
+export type MetrcDownloadSummariesBoolExp = {
+  _and?: Maybe<Array<Maybe<MetrcDownloadSummariesBoolExp>>>;
+  _not?: Maybe<MetrcDownloadSummariesBoolExp>;
+  _or?: Maybe<Array<Maybe<MetrcDownloadSummariesBoolExp>>>;
+  company_id?: Maybe<UuidComparisonExp>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
+  date?: Maybe<DateComparisonExp>;
+  err_details?: Maybe<JsonComparisonExp>;
+  harvests_status?: Maybe<StringComparisonExp>;
+  id?: Maybe<UuidComparisonExp>;
+  license_number?: Maybe<StringComparisonExp>;
+  metrc_api_key?: Maybe<MetrcApiKeysBoolExp>;
+  metrc_api_key_id?: Maybe<UuidComparisonExp>;
+  num_retries?: Maybe<IntComparisonExp>;
+  packages_status?: Maybe<StringComparisonExp>;
+  plant_batches_status?: Maybe<StringComparisonExp>;
+  plants_status?: Maybe<StringComparisonExp>;
+  retry_payload?: Maybe<JsonComparisonExp>;
+  sales_status?: Maybe<StringComparisonExp>;
+  status?: Maybe<StringComparisonExp>;
+  transfers_status?: Maybe<StringComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
+};
+
+/** unique or primary key constraints on table "metrc_download_summaries" */
+export enum MetrcDownloadSummariesConstraint {
+  /** unique or primary key constraint */
+  MetrcDownloadSummariesCompanyIdMetrcApiKeyIdLicensKey = "metrc_download_summaries_company_id_metrc_api_key_id_licens_key",
+  /** unique or primary key constraint */
+  MetrcDownloadSummariesIdKey = "metrc_download_summaries_id_key",
+  /** unique or primary key constraint */
+  MetrcDownloadSummariesPkey = "metrc_download_summaries_pkey",
+}
+
+/** input type for incrementing integer column in table "metrc_download_summaries" */
+export type MetrcDownloadSummariesIncInput = {
+  num_retries?: Maybe<Scalars["Int"]>;
+};
+
+/** input type for inserting data into table "metrc_download_summaries" */
+export type MetrcDownloadSummariesInsertInput = {
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  date?: Maybe<Scalars["date"]>;
+  err_details?: Maybe<Scalars["json"]>;
+  harvests_status?: Maybe<Scalars["String"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  license_number?: Maybe<Scalars["String"]>;
+  metrc_api_key?: Maybe<MetrcApiKeysObjRelInsertInput>;
+  metrc_api_key_id?: Maybe<Scalars["uuid"]>;
+  num_retries?: Maybe<Scalars["Int"]>;
+  packages_status?: Maybe<Scalars["String"]>;
+  plant_batches_status?: Maybe<Scalars["String"]>;
+  plants_status?: Maybe<Scalars["String"]>;
+  retry_payload?: Maybe<Scalars["json"]>;
+  sales_status?: Maybe<Scalars["String"]>;
+  status?: Maybe<Scalars["String"]>;
+  transfers_status?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** aggregate max on columns */
+export type MetrcDownloadSummariesMaxFields = {
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  date?: Maybe<Scalars["date"]>;
+  harvests_status?: Maybe<Scalars["String"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  license_number?: Maybe<Scalars["String"]>;
+  metrc_api_key_id?: Maybe<Scalars["uuid"]>;
+  num_retries?: Maybe<Scalars["Int"]>;
+  packages_status?: Maybe<Scalars["String"]>;
+  plant_batches_status?: Maybe<Scalars["String"]>;
+  plants_status?: Maybe<Scalars["String"]>;
+  sales_status?: Maybe<Scalars["String"]>;
+  status?: Maybe<Scalars["String"]>;
+  transfers_status?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** order by max() on columns of table "metrc_download_summaries" */
+export type MetrcDownloadSummariesMaxOrderBy = {
+  company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  date?: Maybe<OrderBy>;
+  harvests_status?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  license_number?: Maybe<OrderBy>;
+  metrc_api_key_id?: Maybe<OrderBy>;
+  num_retries?: Maybe<OrderBy>;
+  packages_status?: Maybe<OrderBy>;
+  plant_batches_status?: Maybe<OrderBy>;
+  plants_status?: Maybe<OrderBy>;
+  sales_status?: Maybe<OrderBy>;
+  status?: Maybe<OrderBy>;
+  transfers_status?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
+/** aggregate min on columns */
+export type MetrcDownloadSummariesMinFields = {
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  date?: Maybe<Scalars["date"]>;
+  harvests_status?: Maybe<Scalars["String"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  license_number?: Maybe<Scalars["String"]>;
+  metrc_api_key_id?: Maybe<Scalars["uuid"]>;
+  num_retries?: Maybe<Scalars["Int"]>;
+  packages_status?: Maybe<Scalars["String"]>;
+  plant_batches_status?: Maybe<Scalars["String"]>;
+  plants_status?: Maybe<Scalars["String"]>;
+  sales_status?: Maybe<Scalars["String"]>;
+  status?: Maybe<Scalars["String"]>;
+  transfers_status?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** order by min() on columns of table "metrc_download_summaries" */
+export type MetrcDownloadSummariesMinOrderBy = {
+  company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  date?: Maybe<OrderBy>;
+  harvests_status?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  license_number?: Maybe<OrderBy>;
+  metrc_api_key_id?: Maybe<OrderBy>;
+  num_retries?: Maybe<OrderBy>;
+  packages_status?: Maybe<OrderBy>;
+  plant_batches_status?: Maybe<OrderBy>;
+  plants_status?: Maybe<OrderBy>;
+  sales_status?: Maybe<OrderBy>;
+  status?: Maybe<OrderBy>;
+  transfers_status?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
+/** response of any mutation on the table "metrc_download_summaries" */
+export type MetrcDownloadSummariesMutationResponse = {
+  /** number of affected rows by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data of the affected rows by the mutation */
+  returning: Array<MetrcDownloadSummaries>;
+};
+
+/** input type for inserting object relation for remote table "metrc_download_summaries" */
+export type MetrcDownloadSummariesObjRelInsertInput = {
+  data: MetrcDownloadSummariesInsertInput;
+  on_conflict?: Maybe<MetrcDownloadSummariesOnConflict>;
+};
+
+/** on conflict condition type for table "metrc_download_summaries" */
+export type MetrcDownloadSummariesOnConflict = {
+  constraint: MetrcDownloadSummariesConstraint;
+  update_columns: Array<MetrcDownloadSummariesUpdateColumn>;
+  where?: Maybe<MetrcDownloadSummariesBoolExp>;
+};
+
+/** ordering options when selecting data from "metrc_download_summaries" */
+export type MetrcDownloadSummariesOrderBy = {
+  company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  date?: Maybe<OrderBy>;
+  err_details?: Maybe<OrderBy>;
+  harvests_status?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  license_number?: Maybe<OrderBy>;
+  metrc_api_key?: Maybe<MetrcApiKeysOrderBy>;
+  metrc_api_key_id?: Maybe<OrderBy>;
+  num_retries?: Maybe<OrderBy>;
+  packages_status?: Maybe<OrderBy>;
+  plant_batches_status?: Maybe<OrderBy>;
+  plants_status?: Maybe<OrderBy>;
+  retry_payload?: Maybe<OrderBy>;
+  sales_status?: Maybe<OrderBy>;
+  status?: Maybe<OrderBy>;
+  transfers_status?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: "metrc_download_summaries" */
+export type MetrcDownloadSummariesPkColumnsInput = {
+  id: Scalars["uuid"];
+};
+
+/** select columns of table "metrc_download_summaries" */
+export enum MetrcDownloadSummariesSelectColumn {
+  /** column name */
+  CompanyId = "company_id",
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  Date = "date",
+  /** column name */
+  ErrDetails = "err_details",
+  /** column name */
+  HarvestsStatus = "harvests_status",
+  /** column name */
+  Id = "id",
+  /** column name */
+  LicenseNumber = "license_number",
+  /** column name */
+  MetrcApiKeyId = "metrc_api_key_id",
+  /** column name */
+  NumRetries = "num_retries",
+  /** column name */
+  PackagesStatus = "packages_status",
+  /** column name */
+  PlantBatchesStatus = "plant_batches_status",
+  /** column name */
+  PlantsStatus = "plants_status",
+  /** column name */
+  RetryPayload = "retry_payload",
+  /** column name */
+  SalesStatus = "sales_status",
+  /** column name */
+  Status = "status",
+  /** column name */
+  TransfersStatus = "transfers_status",
+  /** column name */
+  UpdatedAt = "updated_at",
+}
+
+/** input type for updating data in table "metrc_download_summaries" */
+export type MetrcDownloadSummariesSetInput = {
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  date?: Maybe<Scalars["date"]>;
+  err_details?: Maybe<Scalars["json"]>;
+  harvests_status?: Maybe<Scalars["String"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  license_number?: Maybe<Scalars["String"]>;
+  metrc_api_key_id?: Maybe<Scalars["uuid"]>;
+  num_retries?: Maybe<Scalars["Int"]>;
+  packages_status?: Maybe<Scalars["String"]>;
+  plant_batches_status?: Maybe<Scalars["String"]>;
+  plants_status?: Maybe<Scalars["String"]>;
+  retry_payload?: Maybe<Scalars["json"]>;
+  sales_status?: Maybe<Scalars["String"]>;
+  status?: Maybe<Scalars["String"]>;
+  transfers_status?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** aggregate stddev on columns */
+export type MetrcDownloadSummariesStddevFields = {
+  num_retries?: Maybe<Scalars["Float"]>;
+};
+
+/** order by stddev() on columns of table "metrc_download_summaries" */
+export type MetrcDownloadSummariesStddevOrderBy = {
+  num_retries?: Maybe<OrderBy>;
+};
+
+/** aggregate stddev_pop on columns */
+export type MetrcDownloadSummariesStddevPopFields = {
+  num_retries?: Maybe<Scalars["Float"]>;
+};
+
+/** order by stddev_pop() on columns of table "metrc_download_summaries" */
+export type MetrcDownloadSummariesStddevPopOrderBy = {
+  num_retries?: Maybe<OrderBy>;
+};
+
+/** aggregate stddev_samp on columns */
+export type MetrcDownloadSummariesStddevSampFields = {
+  num_retries?: Maybe<Scalars["Float"]>;
+};
+
+/** order by stddev_samp() on columns of table "metrc_download_summaries" */
+export type MetrcDownloadSummariesStddevSampOrderBy = {
+  num_retries?: Maybe<OrderBy>;
+};
+
+/** aggregate sum on columns */
+export type MetrcDownloadSummariesSumFields = {
+  num_retries?: Maybe<Scalars["Int"]>;
+};
+
+/** order by sum() on columns of table "metrc_download_summaries" */
+export type MetrcDownloadSummariesSumOrderBy = {
+  num_retries?: Maybe<OrderBy>;
+};
+
+/** update columns of table "metrc_download_summaries" */
+export enum MetrcDownloadSummariesUpdateColumn {
+  /** column name */
+  CompanyId = "company_id",
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  Date = "date",
+  /** column name */
+  ErrDetails = "err_details",
+  /** column name */
+  HarvestsStatus = "harvests_status",
+  /** column name */
+  Id = "id",
+  /** column name */
+  LicenseNumber = "license_number",
+  /** column name */
+  MetrcApiKeyId = "metrc_api_key_id",
+  /** column name */
+  NumRetries = "num_retries",
+  /** column name */
+  PackagesStatus = "packages_status",
+  /** column name */
+  PlantBatchesStatus = "plant_batches_status",
+  /** column name */
+  PlantsStatus = "plants_status",
+  /** column name */
+  RetryPayload = "retry_payload",
+  /** column name */
+  SalesStatus = "sales_status",
+  /** column name */
+  Status = "status",
+  /** column name */
+  TransfersStatus = "transfers_status",
+  /** column name */
+  UpdatedAt = "updated_at",
+}
+
+/** aggregate var_pop on columns */
+export type MetrcDownloadSummariesVarPopFields = {
+  num_retries?: Maybe<Scalars["Float"]>;
+};
+
+/** order by var_pop() on columns of table "metrc_download_summaries" */
+export type MetrcDownloadSummariesVarPopOrderBy = {
+  num_retries?: Maybe<OrderBy>;
+};
+
+/** aggregate var_samp on columns */
+export type MetrcDownloadSummariesVarSampFields = {
+  num_retries?: Maybe<Scalars["Float"]>;
+};
+
+/** order by var_samp() on columns of table "metrc_download_summaries" */
+export type MetrcDownloadSummariesVarSampOrderBy = {
+  num_retries?: Maybe<OrderBy>;
+};
+
+/** aggregate variance on columns */
+export type MetrcDownloadSummariesVarianceFields = {
+  num_retries?: Maybe<Scalars["Float"]>;
+};
+
+/** order by variance() on columns of table "metrc_download_summaries" */
+export type MetrcDownloadSummariesVarianceOrderBy = {
+  num_retries?: Maybe<OrderBy>;
+};
 
 /** columns and relationships of "metrc_harvests" */
 export type MetrcHarvests = {
@@ -13853,6 +14347,10 @@ export type MutationRoot = {
   delete_metrc_deliveries?: Maybe<MetrcDeliveriesMutationResponse>;
   /** delete single row from the table: "metrc_deliveries" */
   delete_metrc_deliveries_by_pk?: Maybe<MetrcDeliveries>;
+  /** delete data from the table: "metrc_download_summaries" */
+  delete_metrc_download_summaries?: Maybe<MetrcDownloadSummariesMutationResponse>;
+  /** delete single row from the table: "metrc_download_summaries" */
+  delete_metrc_download_summaries_by_pk?: Maybe<MetrcDownloadSummaries>;
   /** delete data from the table: "metrc_harvests" */
   delete_metrc_harvests?: Maybe<MetrcHarvestsMutationResponse>;
   /** delete single row from the table: "metrc_harvests" */
@@ -14053,6 +14551,10 @@ export type MutationRoot = {
   insert_metrc_deliveries?: Maybe<MetrcDeliveriesMutationResponse>;
   /** insert a single row into the table: "metrc_deliveries" */
   insert_metrc_deliveries_one?: Maybe<MetrcDeliveries>;
+  /** insert data into the table: "metrc_download_summaries" */
+  insert_metrc_download_summaries?: Maybe<MetrcDownloadSummariesMutationResponse>;
+  /** insert a single row into the table: "metrc_download_summaries" */
+  insert_metrc_download_summaries_one?: Maybe<MetrcDownloadSummaries>;
   /** insert data into the table: "metrc_harvests" */
   insert_metrc_harvests?: Maybe<MetrcHarvestsMutationResponse>;
   /** insert a single row into the table: "metrc_harvests" */
@@ -14257,6 +14759,10 @@ export type MutationRoot = {
   update_metrc_deliveries?: Maybe<MetrcDeliveriesMutationResponse>;
   /** update single row of the table: "metrc_deliveries" */
   update_metrc_deliveries_by_pk?: Maybe<MetrcDeliveries>;
+  /** update data of the table: "metrc_download_summaries" */
+  update_metrc_download_summaries?: Maybe<MetrcDownloadSummariesMutationResponse>;
+  /** update single row of the table: "metrc_download_summaries" */
+  update_metrc_download_summaries_by_pk?: Maybe<MetrcDownloadSummaries>;
   /** update data of the table: "metrc_harvests" */
   update_metrc_harvests?: Maybe<MetrcHarvestsMutationResponse>;
   /** update single row of the table: "metrc_harvests" */
@@ -14632,6 +15138,16 @@ export type MutationRootDeleteMetrcDeliveriesArgs = {
 
 /** mutation root */
 export type MutationRootDeleteMetrcDeliveriesByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** mutation root */
+export type MutationRootDeleteMetrcDownloadSummariesArgs = {
+  where: MetrcDownloadSummariesBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteMetrcDownloadSummariesByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -15192,6 +15708,18 @@ export type MutationRootInsertMetrcDeliveriesArgs = {
 export type MutationRootInsertMetrcDeliveriesOneArgs = {
   object: MetrcDeliveriesInsertInput;
   on_conflict?: Maybe<MetrcDeliveriesOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertMetrcDownloadSummariesArgs = {
+  objects: Array<MetrcDownloadSummariesInsertInput>;
+  on_conflict?: Maybe<MetrcDownloadSummariesOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertMetrcDownloadSummariesOneArgs = {
+  object: MetrcDownloadSummariesInsertInput;
+  on_conflict?: Maybe<MetrcDownloadSummariesOnConflict>;
 };
 
 /** mutation root */
@@ -15856,6 +16384,20 @@ export type MutationRootUpdateMetrcDeliveriesArgs = {
 export type MutationRootUpdateMetrcDeliveriesByPkArgs = {
   _set?: Maybe<MetrcDeliveriesSetInput>;
   pk_columns: MetrcDeliveriesPkColumnsInput;
+};
+
+/** mutation root */
+export type MutationRootUpdateMetrcDownloadSummariesArgs = {
+  _inc?: Maybe<MetrcDownloadSummariesIncInput>;
+  _set?: Maybe<MetrcDownloadSummariesSetInput>;
+  where: MetrcDownloadSummariesBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateMetrcDownloadSummariesByPkArgs = {
+  _inc?: Maybe<MetrcDownloadSummariesIncInput>;
+  _set?: Maybe<MetrcDownloadSummariesSetInput>;
+  pk_columns: MetrcDownloadSummariesPkColumnsInput;
 };
 
 /** mutation root */
@@ -18767,6 +19309,12 @@ export type QueryRoot = {
   metrc_deliveries_aggregate: MetrcDeliveriesAggregate;
   /** fetch data from the table: "metrc_deliveries" using primary key columns */
   metrc_deliveries_by_pk?: Maybe<MetrcDeliveries>;
+  /** fetch data from the table: "metrc_download_summaries" */
+  metrc_download_summaries: Array<MetrcDownloadSummaries>;
+  /** fetch aggregated fields from the table: "metrc_download_summaries" */
+  metrc_download_summaries_aggregate: MetrcDownloadSummariesAggregate;
+  /** fetch data from the table: "metrc_download_summaries" using primary key columns */
+  metrc_download_summaries_by_pk?: Maybe<MetrcDownloadSummaries>;
   /** fetch data from the table: "metrc_harvests" */
   metrc_harvests: Array<MetrcHarvests>;
   /** fetch aggregated fields from the table: "metrc_harvests" */
@@ -19563,6 +20111,29 @@ export type QueryRootMetrcDeliveriesAggregateArgs = {
 
 /** query root */
 export type QueryRootMetrcDeliveriesByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** query root */
+export type QueryRootMetrcDownloadSummariesArgs = {
+  distinct_on?: Maybe<Array<MetrcDownloadSummariesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MetrcDownloadSummariesOrderBy>>;
+  where?: Maybe<MetrcDownloadSummariesBoolExp>;
+};
+
+/** query root */
+export type QueryRootMetrcDownloadSummariesAggregateArgs = {
+  distinct_on?: Maybe<Array<MetrcDownloadSummariesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MetrcDownloadSummariesOrderBy>>;
+  where?: Maybe<MetrcDownloadSummariesBoolExp>;
+};
+
+/** query root */
+export type QueryRootMetrcDownloadSummariesByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -20559,6 +21130,12 @@ export type SubscriptionRoot = {
   metrc_deliveries_aggregate: MetrcDeliveriesAggregate;
   /** fetch data from the table: "metrc_deliveries" using primary key columns */
   metrc_deliveries_by_pk?: Maybe<MetrcDeliveries>;
+  /** fetch data from the table: "metrc_download_summaries" */
+  metrc_download_summaries: Array<MetrcDownloadSummaries>;
+  /** fetch aggregated fields from the table: "metrc_download_summaries" */
+  metrc_download_summaries_aggregate: MetrcDownloadSummariesAggregate;
+  /** fetch data from the table: "metrc_download_summaries" using primary key columns */
+  metrc_download_summaries_by_pk?: Maybe<MetrcDownloadSummaries>;
   /** fetch data from the table: "metrc_harvests" */
   metrc_harvests: Array<MetrcHarvests>;
   /** fetch aggregated fields from the table: "metrc_harvests" */
@@ -21355,6 +21932,29 @@ export type SubscriptionRootMetrcDeliveriesAggregateArgs = {
 
 /** subscription root */
 export type SubscriptionRootMetrcDeliveriesByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** subscription root */
+export type SubscriptionRootMetrcDownloadSummariesArgs = {
+  distinct_on?: Maybe<Array<MetrcDownloadSummariesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MetrcDownloadSummariesOrderBy>>;
+  where?: Maybe<MetrcDownloadSummariesBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootMetrcDownloadSummariesAggregateArgs = {
+  distinct_on?: Maybe<Array<MetrcDownloadSummariesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MetrcDownloadSummariesOrderBy>>;
+  where?: Maybe<MetrcDownloadSummariesBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootMetrcDownloadSummariesByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -24472,12 +25072,35 @@ export type GetRepaymentsForCompanyQuery = {
   >;
 };
 
+export type MetrcDownloadSummaryFragment = Pick<
+  MetrcDownloadSummaries,
+  | "id"
+  | "company_id"
+  | "metrc_api_key_id"
+  | "license_number"
+  | "date"
+  | "status"
+  | "harvests_status"
+  | "packages_status"
+  | "plant_batches_status"
+  | "plants_status"
+  | "sales_status"
+  | "transfers_status"
+  | "updated_at"
+>;
+
 export type GetMetrcApiKeysPerCompanyQueryVariables = Exact<{
   companyId: Scalars["uuid"];
 }>;
 
 export type GetMetrcApiKeysPerCompanyQuery = {
-  metrc_api_keys: Array<Pick<MetrcApiKeys, "id"> & MetrcApiKeyFragment>;
+  metrc_api_keys: Array<
+    Pick<MetrcApiKeys, "id"> & {
+      metrc_download_summaries: Array<
+        Pick<MetrcDownloadSummaries, "id"> & MetrcDownloadSummaryFragment
+      >;
+    } & MetrcApiKeyFragment
+  >;
 };
 
 export type GetCompanySettingsQueryVariables = Exact<{
@@ -25768,6 +26391,23 @@ export type UpdateUserMutationVariables = Exact<{
 
 export type UpdateUserMutation = { update_users_by_pk?: Maybe<UserFragment> };
 
+export const MetrcDownloadSummaryFragmentDoc = gql`
+  fragment MetrcDownloadSummary on metrc_download_summaries {
+    id
+    company_id
+    metrc_api_key_id
+    license_number
+    date
+    status
+    harvests_status
+    packages_status
+    plant_batches_status
+    plants_status
+    sales_status
+    transfers_status
+    updated_at
+  }
+`;
 export const UserFragmentDoc = gql`
   fragment User on users {
     id
@@ -31532,9 +32172,14 @@ export const GetMetrcApiKeysPerCompanyDocument = gql`
     metrc_api_keys(where: { company_id: { _eq: $companyId } }) {
       id
       ...MetrcApiKey
+      metrc_download_summaries(order_by: { date: asc }) {
+        id
+        ...MetrcDownloadSummary
+      }
     }
   }
   ${MetrcApiKeyFragmentDoc}
+  ${MetrcDownloadSummaryFragmentDoc}
 `;
 
 /**

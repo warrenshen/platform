@@ -32,10 +32,9 @@ import {
 import { ActionType, FeatureFlagEnum } from "lib/enum";
 import { isFeatureFlagEnabled } from "lib/companies";
 import { todayMinusXDaysDateStringServer } from "lib/date";
-import { isNull, mergeWith } from "lodash";
+import { isNull, mergeWith, uniqBy } from "lodash";
 import { useContext, useMemo, useState } from "react";
 import styled from "styled-components";
-import { uniqBy } from "lodash";
 
 const Buttons = styled.div`
   display: flex;

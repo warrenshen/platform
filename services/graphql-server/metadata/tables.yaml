@@ -2779,6 +2779,14 @@
 - table:
     schema: public
     name: metrc_api_keys
+  array_relationships:
+  - name: metrc_download_summaries
+    using:
+      foreign_key_constraint_on:
+        column: metrc_api_key_id
+        table:
+          schema: public
+          name: metrc_download_summaries
   select_permissions:
   - role: bank_admin
     permission:
@@ -2790,6 +2798,7 @@
       - is_functioning
       - last_used_at
       - status_codes_payload
+      - updated_at
       - us_state
       filter: {}
   - role: bank_read_only
@@ -2802,6 +2811,7 @@
       - is_functioning
       - last_used_at
       - status_codes_payload
+      - updated_at
       - us_state
       filter: {}
   - role: company_admin
@@ -2956,6 +2966,53 @@
 - table:
     schema: public
     name: metrc_download_summaries
+  object_relationships:
+  - name: metrc_api_key
+    using:
+      foreign_key_constraint_on: metrc_api_key_id
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - date
+      - num_retries
+      - err_details
+      - retry_payload
+      - harvests_status
+      - license_number
+      - packages_status
+      - plant_batches_status
+      - plants_status
+      - sales_status
+      - status
+      - transfers_status
+      - created_at
+      - updated_at
+      - company_id
+      - id
+      - metrc_api_key_id
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - date
+      - num_retries
+      - err_details
+      - retry_payload
+      - harvests_status
+      - license_number
+      - packages_status
+      - plant_batches_status
+      - plants_status
+      - sales_status
+      - status
+      - transfers_status
+      - created_at
+      - updated_at
+      - company_id
+      - id
+      - metrc_api_key_id
+      filter: {}
 - table:
     schema: public
     name: metrc_harvests
