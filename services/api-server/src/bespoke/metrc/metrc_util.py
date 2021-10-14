@@ -21,11 +21,14 @@ from bespoke.metrc import (
 	transfers_util, sales_util, 
 	packages_util, plants_util, plant_batches_util, harvests_util
 )
-from bespoke.metrc.common import metrc_common_util
+from bespoke.metrc.common import metrc_common_util, metrc_summary_util
+from bespoke.metrc.common.metrc_error_util import (
+	BESPOKE_INTERNAL_ERROR_STATUS_CODE
+)
 from bespoke.metrc.common.metrc_common_util import (
 	AuthDict, CompanyInfo, CompanyStateInfoDict, LicenseAuthDict, 
 	MetrcErrorDetailsDict,
-	UNKNOWN_STATUS_CODE, BESPOKE_INTERNAL_ERROR_STATUS_CODE
+	UNKNOWN_STATUS_CODE
 )
 from bespoke.security import security_util
 from dateutil import parser
@@ -409,7 +412,7 @@ def _download_and_summarize_data_for_license(
 		err = errors.Error('{}'.format(e))
 
 	with session_scope(session_maker) as session:
-		metrc_common_util.write_download_summary(
+		metrc_summary_util.write_download_summary(
 			retry_errors=ctx.get_retry_errors(),
 			cur_date=cur_date,
 			company_id=ctx.company_details['company_id'],
