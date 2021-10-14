@@ -1,8 +1,10 @@
 import logging
+import concurrent
 import datetime
 import json
 import requests
 
+from concurrent.futures import ThreadPoolExecutor
 from dateutil import parser
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
@@ -59,6 +61,46 @@ class SalesReceiptObj(object):
 		self.metrc_receipt = receipt
 		self.transactions = transactions
 
+def _download_sales_receipt(
+	receipt_type: str, s: Dict, i: int, ctx: metrc_common_util.DownloadContext) -> SalesReceiptObj:
+	license_number = ctx.license['license_number']
+	company_id = ctx.company_details['company_id']
+	LOG_EVERY = 10
+		
+	receipt = models.MetrcSalesReceipt()
+	receipt.type = receipt_type
+	receipt.license_number = license_number
+	receipt.us_state = ctx.license['us_state']
+	receipt.company_id = cast(Any, company_id)
+	receipt.receipt_id = '{}'.format(s['Id'])
+	receipt.receipt_number = s['ReceiptNumber']
+	receipt.sales_customer_type = s['SalesCustomerType']
+	receipt.sales_datetime = parser.parse(s['SalesDateTime'])
+	receipt.total_packages = s['TotalPackages']
+	receipt.total_price = s['TotalPrice']
+	receipt.is_final = s['IsFinal']
+	receipt.last_modified_at = parser.parse(s['LastModified'])
+	receipt.payload = s
+
+	if i % LOG_EVERY == 0:
+		logging.info('Downloading sales transaction #{} for company {} on day {}'.format(i, company_id, ctx.cur_date))
+
+	if ctx.apis_to_use['sales_transactions']:
+		resp = ctx.rest.get('/sales/v1/receipts/{}'.format(receipt.receipt_id))
+		receipt_resp = json.loads(resp.content)
+		transactions = SalesTransactions(receipt_resp['Transactions'], receipt_type).get_sales_transactions_models(
+			ctx=ctx,
+			receipt_id=receipt.receipt_id
+		)
+		ctx.request_status['sales_transactions_api'] = 200
+	else:
+		transactions = []
+
+	return SalesReceiptObj(
+		receipt=receipt,
+		transactions=transactions
+	)
+
 class SalesReceipts(object):
 
 	def __init__(self, sales_receipts: List[Dict], receipt_type: str) -> None:
@@ -104,44 +146,17 @@ class SalesReceipts(object):
 
 	def get_sales_receipt_models(self, ctx: metrc_common_util.DownloadContext, company_id: str, cur_date: datetime.date) -> List[SalesReceiptObj]:
 		sales_receipt_objs = []
-		LOG_EVERY = 10
-		license_number = ctx.license['license_number']
 
-		for i in range(len(self._sales_receipts)):
-			s = self._sales_receipts[i]
-			receipt = models.MetrcSalesReceipt()
-			receipt.type = self._type
-			receipt.license_number = license_number
-			receipt.us_state = ctx.license['us_state']
-			receipt.company_id = cast(Any, company_id)
-			receipt.receipt_id = '{}'.format(s['Id'])
-			receipt.receipt_number = s['ReceiptNumber']
-			receipt.sales_customer_type = s['SalesCustomerType']
-			receipt.sales_datetime = parser.parse(s['SalesDateTime'])
-			receipt.total_packages = s['TotalPackages']
-			receipt.total_price = s['TotalPrice']
-			receipt.is_final = s['IsFinal']
-			receipt.last_modified_at = parser.parse(s['LastModified'])
-			receipt.payload = s
+		with ThreadPoolExecutor(max_workers=ctx.worker_cfg.num_parallel_sales_transactions) as executor:
+			future_to_i = {}
 
-			if i % LOG_EVERY == 0:
-				logging.info('Downloading sales transaction #{} for company {} on day {}'.format(i, company_id, cur_date))
-
-			if ctx.apis_to_use['sales_transactions']:
-				resp = ctx.rest.get('/sales/v1/receipts/{}'.format(receipt.receipt_id))
-				receipt_resp = json.loads(resp.content)
-				transactions = SalesTransactions(receipt_resp['Transactions'], self._type).get_sales_transactions_models(
-					ctx=ctx,
-					receipt_id=receipt.receipt_id
-				)
-				ctx.request_status['sales_transactions_api'] = 200
-			else:
-				transactions = []
-
-			sales_receipt_objs.append(SalesReceiptObj(
-				receipt=receipt,
-				transactions=transactions
-			))
+			for i in range(len(self._sales_receipts)):
+				s = self._sales_receipts[i]
+				future_to_i[executor.submit(_download_sales_receipt, self._type, s, i, ctx)] = i
+				
+			for future in concurrent.futures.as_completed(future_to_i):
+				sales_receipt_obj = future.result()
+				sales_receipt_objs.append(sales_receipt_obj)
 
 		return sales_receipt_objs
 

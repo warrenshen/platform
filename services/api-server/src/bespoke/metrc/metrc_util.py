@@ -1,14 +1,17 @@
 import base64
+import concurrent
 import datetime
 import logging
 import os
+import time
 import traceback
+from concurrent.futures import ThreadPoolExecutor
 from datetime import timedelta
 from typing import Any, Callable, Dict, List, Tuple, cast
 
 import requests
 from bespoke import errors
-from bespoke.config.config_util import MetrcAuthProvider
+from bespoke.config.config_util import MetrcAuthProvider, MetrcWorkerConfig
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
@@ -381,15 +384,51 @@ def retry_download_errs_for_one_day() -> None:
 	"""
 	pass
 
+def _download_and_summarize_data_for_license(
+	ctx: metrc_common_util.DownloadContext, 
+	session_maker: Callable,
+	metrc_api_key_id: str) -> Tuple[Dict, errors.Error]:
+	
+	api_status_dict = None
+	err = None
+	cur_date = ctx.cur_date
+	license_number = ctx.license['license_number']
+
+	try:
+		before = time.time()
+		api_status_dict, err = _download_data_for_license(
+			ctx, session_maker)
+		after = time.time()
+		logging.info('Took {:.2f} seconds to download data for day {} license {}'.format(
+			after - before, cur_date, ctx.license['license_number']))
+	except errors.Error as e1:
+		err = e1
+	except Exception as e:
+		logging.error('SEVERE error, download data for metrc failed: {}'.format(e))
+		logging.error(traceback.format_exc())
+		err = errors.Error('{}'.format(e))
+
+	with session_scope(session_maker) as session:
+		metrc_common_util.write_download_summary(
+			retry_errors=ctx.get_retry_errors(),
+			cur_date=cur_date,
+			company_id=ctx.company_details['company_id'],
+			metrc_api_key_id=metrc_api_key_id,
+			license_number=ctx.license['license_number'],
+			session=session
+		)
+
+	return api_status_dict, err
+
 def _download_data(
 	company_id: str,
 	auth_provider: MetrcAuthProvider,
+	worker_cfg: MetrcWorkerConfig,
 	sendgrid_client: sendgrid_util.Client,
 	security_cfg: security_util.ConfigDict,
 	cur_date: datetime.date,
 	session_maker: Callable
 ) -> Tuple[DownloadDataRespDict, errors.Error]:
-	# Return: success, all_errs, fatal_error
 	facilities_fetcher = metrc_common_util.FacilitiesFetcher()
 
 	company_info, err = _get_metrc_company_info(
@@ -420,40 +459,30 @@ def _download_data(
 			functioning_licenses_count = 0
 			license_to_statuses = {}
 				
-			for license in state_info['licenses']:
-				ctx = metrc_common_util.DownloadContext(
-					sendgrid_client, cur_date, company_details, 
-					state_info['apis_to_use'], license, debug=False
-				)
-				api_status_dict = None
-				err = None
-				try:
-					api_status_dict, err = _download_data_for_license(
-						ctx, session_maker)
-				except errors.Error as e1:
-					err = e1
-				except Exception as e:
-					logging.error('SEVERE error, download data for metrc failed: {}'.format(e))
-					logging.error(traceback.format_exc())
-					err = errors.Error('{}'.format(e))
-
-				if err:
-					errs.append(err)
-
-				if api_status_dict:
-					license_to_statuses[license['license_number']] = api_status_dict
-
-				functioning_licenses_count += 1 if not err else 0
-
-				with session_scope(session_maker) as session:
-					metrc_common_util.write_download_summary(
-						retry_errors=ctx.get_retry_errors(),
-						cur_date=cur_date,
-						company_id=company_info.company_id,
-						metrc_api_key_id=state_info['metrc_api_key_id'],
-						license_number=license['license_number'],
-						session=session
+			with ThreadPoolExecutor(max_workers=worker_cfg.num_parallel_licenses) as executor:
+				future_to_ctx = {}
+				for license in state_info['licenses']:
+					ctx = metrc_common_util.DownloadContext(
+						sendgrid_client, worker_cfg, cur_date, company_details, 
+						state_info['apis_to_use'], license, debug=False
 					)
+
+					future_to_ctx[
+						executor.submit(
+							_download_and_summarize_data_for_license, 
+							ctx, session_maker, state_info['metrc_api_key_id'])
+					] = ctx
+
+				for future in concurrent.futures.as_completed(future_to_ctx):
+					ctx = future_to_ctx[future]
+					api_status_dict, err = future.result()
+					if err:
+						errs.append(err)
+
+					if api_status_dict:
+						license_to_statuses[ctx.license['license_number']] = api_status_dict
+
+					functioning_licenses_count += 1 if not err else 0
 
 			# Update whether this metrc key worked
 			with session_scope(session_maker) as session:
@@ -484,6 +513,7 @@ def _download_data(
 def download_data_for_one_customer(
 	company_id: str,
 	auth_provider: MetrcAuthProvider,
+	worker_cfg: MetrcWorkerConfig,
 	sendgrid_client: sendgrid_util.Client,
 	security_cfg: security_util.ConfigDict,
 	cur_date: datetime.date,
@@ -493,6 +523,7 @@ def download_data_for_one_customer(
 	return _download_data(
 		company_id=company_id,
 		auth_provider=auth_provider,
+		worker_cfg=worker_cfg,
 		sendgrid_client=sendgrid_client,
 		security_cfg=security_cfg,
 		cur_date=cur_date,

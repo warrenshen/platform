@@ -4,7 +4,7 @@ from typing import Dict
 
 from bespoke.config.config_util import (
 	is_prod_env, is_development_env, is_test_env, 
-	MetrcAuthProvider, FCSConfigDict)
+	MetrcAuthProvider, MetrcWorkerConfig, FCSConfigDict)
 from bespoke.email import email_manager
 from bespoke.email.email_manager import EmailConfigDict, EmailSender, SendGridConfigDict
 from bespoke.security import security_util
@@ -104,6 +104,12 @@ class Config(object):
 			URL_SECRET_KEY=self.URL_SECRET_KEY,
 			URL_SALT=self.URL_SALT,
 			BESPOKE_DOMAIN=self.BESPOKE_DOMAIN
+		)
+
+	def get_metrc_worker_config(self) -> MetrcWorkerConfig:
+		return MetrcWorkerConfig(
+			num_parallel_licenses=1,
+			num_parallel_sales_transactions=1
 		)
 
 	def get_metrc_auth_provider(self) -> MetrcAuthProvider:

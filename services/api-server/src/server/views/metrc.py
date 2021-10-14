@@ -169,6 +169,7 @@ class SyncMetrcDataPerCustomerView(MethodView):
 				resp, fatal_err = metrc_util.download_data_for_one_customer(
 					company_id=data['company_id'],
 					auth_provider=cfg.get_metrc_auth_provider(),
+					worker_cfg=cfg.get_metrc_worker_config(),
 					sendgrid_client=sendgrid_client,
 					security_cfg=cfg.get_security_config(),
 					cur_date=cur_date,

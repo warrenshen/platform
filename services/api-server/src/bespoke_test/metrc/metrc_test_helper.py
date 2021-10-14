@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Tuple, NamedTuple, cast
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.metrc.common import metrc_common_util
+from bespoke.config.config_util import MetrcWorkerConfig
 
 RequestKey = NamedTuple('RequestKey', (
 	('url', str),
@@ -61,6 +62,10 @@ def create_download_context(
 	) -> metrc_common_util.DownloadContext:
 	return metrc_common_util.DownloadContext(
 		sendgrid_client=None,
+		worker_cfg=MetrcWorkerConfig(
+			num_parallel_licenses=1,
+			num_parallel_sales_transactions=2
+		),
 		cur_date=date_util.load_date_str(cur_date),
 		company_details=metrc_common_util.CompanyDetailsDict(
 			company_id=company_id,

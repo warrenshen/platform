@@ -12,6 +12,18 @@ def is_development_env(flask_env: str) -> bool:
 def is_prod_env(flask_env: str) -> bool:
 	return flask_env == 'production'
 
+class MetrcWorkerConfig(object):
+	"""
+		For providing configuration on how to execute and parallelize
+		Metrc downloads
+	"""
+	def __init__(self, 
+		num_parallel_licenses: int,
+		num_parallel_sales_transactions: int) -> None:
+		self.num_parallel_licenses = num_parallel_licenses
+		self.num_parallel_sales_transactions = num_parallel_sales_transactions
+
+
 class MetrcAuthProvider(object):
 	"""For providing the right API key given a state"""
 

@@ -28,6 +28,7 @@ sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
 
 from server.config import get_config, get_email_client
 
+from bespoke.config.config_util import MetrcWorkerConfig
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.email import sendgrid_util
@@ -43,7 +44,7 @@ REQUIRED_ENV_VARS = [
 	'METRC_USER_KEY',
 ]
 
-def main(company_identifier, start_date, end_date) -> None:
+def main(company_identifier: str, start_date: str, end_date: str) -> None:
 	for env_var in REQUIRED_ENV_VARS:
 		if not os.environ.get(env_var):
 			print(f'You must set "{env_var}" in the environment to use this script')
@@ -84,6 +85,10 @@ def main(company_identifier, start_date, end_date) -> None:
 		resp, fatal_err = metrc_util.download_data_for_one_customer(
 			company_id=company_id,
 			auth_provider=config.get_metrc_auth_provider(),
+			worker_cfg=MetrcWorkerConfig(
+				num_parallel_licenses=5,
+				num_parallel_sales_transactions=4,
+			),
 			security_cfg=config.get_security_config(),
 			sendgrid_client=sendgrid_client,
 			cur_date=cur_date,

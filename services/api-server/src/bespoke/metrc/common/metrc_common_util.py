@@ -10,6 +10,7 @@ from requests.auth import HTTPBasicAuth
 from typing import Any, Dict, Iterable, List, Tuple, cast
 from sqlalchemy.orm.session import Session
 
+from bespoke.config.config_util import MetrcWorkerConfig
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
@@ -344,7 +345,8 @@ class DownloadContext(object):
 	"""
 
 	def __init__(self, 
-		sendgrid_client: sendgrid_util.Client, 
+		sendgrid_client: sendgrid_util.Client,
+		worker_cfg: MetrcWorkerConfig, 
 		cur_date: datetime.date, 
 		company_details: CompanyDetailsDict, 
 		apis_to_use: ApisToUseDict,
@@ -352,6 +354,7 @@ class DownloadContext(object):
 		debug: bool
 	) -> None:
 		self.cur_date = cur_date
+		self.worker_cfg = worker_cfg
 		self.request_status = RequestStatusesDict(
 			transfers_api=UNKNOWN_STATUS_CODE,
 			packages_api=UNKNOWN_STATUS_CODE,

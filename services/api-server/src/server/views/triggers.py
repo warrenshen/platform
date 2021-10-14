@@ -295,6 +295,7 @@ class DownloadMetrcDataView(MethodView):
 				resp, fatal_err = metrc_util.download_data_for_one_customer(
 					auth_provider=cfg.get_metrc_auth_provider(),
 					security_cfg=cfg.get_security_config(),
+					worker_cfg=cfg.get_metrc_worker_config(),
 					sendgrid_client=sendgrid_client,
 					cur_date=cur_date,
 					company_id=company_id,
@@ -411,6 +412,7 @@ class ExecuteAsyncTasksView(MethodView):
 		resp = orchestrator.handle_async_tasks(ctx=orchestrator.Context(
 			session_maker=current_app.session_maker,
 			metrc_auth_provider=cfg.get_metrc_auth_provider(),
+			metrc_worker_config=cfg.get_metrc_worker_config(),
 			sendgrid_client=sendgrid_client,
 			security_cfg=cfg.get_security_config()
 		))
