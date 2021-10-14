@@ -107,12 +107,19 @@ export default function MetrcDownloadSummariesGrid({ metrcApiKey }: Props) {
   // and none for any of the months in between (those months have not been backfilled yet).
   const metrcDownloadSummaries = useMemo(() => {
     const result: MetrcDownloadSummaryFragment[] = [];
+
+    if (rawMetrcDownloadSummaries.length <= 0) {
+      return result;
+    }
+
     const firstMetrcDownloadSummary = rawMetrcDownloadSummaries[0];
     const endDate = firstMetrcDownloadSummary.date;
     const startDate =
       rawMetrcDownloadSummaries[rawMetrcDownloadSummaries.length - 1].date;
+
     let currentDate = endDate;
     let rawIndex = 0;
+
     while (currentDate >= startDate) {
       if (rawMetrcDownloadSummaries[rawIndex].date === currentDate) {
         result.push(rawMetrcDownloadSummaries[rawIndex]);
@@ -136,6 +143,7 @@ export default function MetrcDownloadSummariesGrid({ metrcApiKey }: Props) {
       }
       currentDate = previousDayAsDateStringServer(currentDate);
     }
+
     return result;
   }, [rawMetrcDownloadSummaries]);
 
