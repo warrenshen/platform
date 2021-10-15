@@ -344,17 +344,17 @@ def submit_purchase_order_for_approval(
 			vendor_id=vendor.id,
 		).first())
 
-	purchase_order_file = cast(
-		models.PurchaseOrderFile,
+	purchase_order_files = cast(
+		List[models.PurchaseOrderFile],
 		session.query(
 			models.PurchaseOrderFile
 		).filter_by(
 			purchase_order_id=purchase_order.id,
 			file_type=db_constants.PurchaseOrderFileTypeEnum.PurchaseOrder,
-		).first())
+		).all())
 
-	if not purchase_order_file:
-		raise errors.Error('Purchase order file attachment is required')
+	if not purchase_order_files:
+		raise errors.Error('Purchase order file attachment(s) are required')
 
 	if not company_vendor_relationship or company_vendor_relationship.approved_at is None:
 		raise errors.Error('Vendor is not approved')

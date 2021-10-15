@@ -22,27 +22,32 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 interface Props {
   companyId: Companies["id"];
   purchaseOrder: PurchaseOrdersInsertInput;
-  purchaseOrderFile: PurchaseOrderFileFragment | null;
+  purchaseOrderFiles: PurchaseOrderFileFragment[];
   purchaseOrderCannabisFiles: PurchaseOrderFileFragment[];
   selectableVendors: GetArtifactRelationsByCompanyIdQuery["vendors"];
   setPurchaseOrder: (purchaseOrder: PurchaseOrdersInsertInput) => void;
-  setPurchaseOrderFile: (file: PurchaseOrderFileFragment | null) => void;
+  setPurchaseOrderFiles: (file: PurchaseOrderFileFragment[]) => void;
   setPurchaseOrderCannabisFiles: (files: PurchaseOrderFileFragment[]) => void;
+  frozenPurchaseOrderFileIds: string[];
+  frozenPurchaseOrderCannabisFileIds: string[];
 }
 
 export default function PurchaseOrderForm({
   companyId,
   purchaseOrder,
-  purchaseOrderFile,
+  purchaseOrderFiles,
   purchaseOrderCannabisFiles,
   selectableVendors,
   setPurchaseOrder,
-  setPurchaseOrderFile,
+  setPurchaseOrderFiles,
   setPurchaseOrderCannabisFiles,
+  frozenPurchaseOrderFileIds,
+  frozenPurchaseOrderCannabisFileIds,
 }: Props) {
   const purchaseOrderFileIds = useMemo(
-    () => (purchaseOrderFile ? [purchaseOrderFile.file_id] : []),
-    [purchaseOrderFile]
+    () =>
+      purchaseOrderFiles.map((purchaseOrderFile) => purchaseOrderFile.file_id),
+    [purchaseOrderFiles]
   );
   const purchaseOrderCannabisFileIds = useMemo(
     () =>
@@ -169,16 +174,25 @@ export default function PurchaseOrderForm({
           dataCy={"purchase-order-form-file-uploader-purchase-order-file"}
           companyId={companyId}
           fileType={FileTypeEnum.PURCHASE_ORDER}
-          maxFilesAllowed={1}
           fileIds={purchaseOrderFileIds}
-          handleDeleteFileById={() => setPurchaseOrderFile(null)}
+          frozenFileIds={frozenPurchaseOrderFileIds}
+          handleDeleteFileById={(fileId) =>
+            setPurchaseOrderFiles(
+              purchaseOrderFiles.filter(
+                (purchaseOrderFile) => purchaseOrderFile.file_id !== fileId
+              )
+            )
+          }
           handleNewFiles={(files) =>
-            setPurchaseOrderFile({
-              purchase_order_id: purchaseOrder.id,
-              file_id: files[0].id,
-              file_type: PurchaseOrderFileTypeEnum.PurchaseOrder,
-              file: files[0],
-            })
+            setPurchaseOrderFiles([
+              ...purchaseOrderFiles,
+              ...files.map((file) => ({
+                purchase_order_id: purchaseOrder.id,
+                file_id: file.id,
+                file_type: PurchaseOrderFileTypeEnum.PurchaseOrder,
+                file: file,
+              })),
+            ])
           }
         />
       </Box>
@@ -197,6 +211,7 @@ export default function PurchaseOrderForm({
             companyId={companyId}
             fileType={FileTypeEnum.PURCHASE_ORDER}
             fileIds={purchaseOrderCannabisFileIds}
+            frozenFileIds={frozenPurchaseOrderCannabisFileIds}
             handleDeleteFileById={(fileId) =>
               setPurchaseOrderCannabisFiles(
                 purchaseOrderCannabisFiles.filter(

@@ -21,6 +21,7 @@ import {
   useGetArtifactRelationsByCompanyIdQuery,
   useGetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery,
   useGetPurchaseOrderForCustomerQuery,
+  Files,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -105,13 +106,12 @@ export default function CreateUpdatePurchaseOrderModal({
 
   /*
   There are different types of files related to a Purchase Order.
-  Purchase order file: exactly one file attachment that is required to be present to submit a PO for approval.
+  Purchase order file(s): one or more file attachments that are required to be present to submit a PO for approval.
   Purchase order cannabis file(s): one or more file attachments present if PO contains cannabis or other derivatives.
   */
-  const [
-    purchaseOrderFile,
-    setPurchaseOrderFile,
-  ] = useState<PurchaseOrderFileFragment | null>(null);
+  const [purchaseOrderFiles, setPurchaseOrderFiles] = useState<
+    PurchaseOrderFileFragment[]
+  >([]);
   const [purchaseOrderCannabisFiles, setPurchaseOrderCannabisFiles] = useState<
     PurchaseOrderFileFragment[]
   >([]);
@@ -119,6 +119,14 @@ export default function CreateUpdatePurchaseOrderModal({
     purchaseOrderMetrcTransfers,
     setPurchaseOrderMetrcTransfers,
   ] = useState<PurchaseOrderMetrcTransferFragment[]>([]);
+
+  const [frozenPurchaseOrderFileIds, setFrozenPurchaseOrderFileIds] = useState<
+    Files["id"][]
+  >([]);
+  const [
+    frozenPurchaseOrderCannabisFileIds,
+    setFrozenPurchaseOrderCannabisFileIds,
+  ] = useState<Files["id"][]>([]);
 
   const {
     loading: isExistingPurchaseOrderLoading,
@@ -137,12 +145,12 @@ export default function CreateUpdatePurchaseOrderModal({
             isNull(b) ? a : b
           )
         );
-        setPurchaseOrderFile(
+        setPurchaseOrderFiles(
           existingPurchaseOrder.purchase_order_files.filter(
             (purchaseOrderFile) =>
               purchaseOrderFile.file_type ===
               PurchaseOrderFileTypeEnum.PurchaseOrder
-          )[0]
+          )
         );
         setPurchaseOrderCannabisFiles(
           existingPurchaseOrder.purchase_order_files.filter(
@@ -153,6 +161,20 @@ export default function CreateUpdatePurchaseOrderModal({
         setPurchaseOrderMetrcTransfers(
           existingPurchaseOrder.purchase_order_metrc_transfers || []
         );
+
+        // This must live here as to not freeze new files before submitting
+        // Otherwise, it freezes new files on rerender
+        let purchaseOrderFileIds: string[] = [];
+        let purchaseOrderCannabisFileIds: string[] = [];
+        existingPurchaseOrder.purchase_order_files.forEach((pof) => {
+          if (pof.file_type === PurchaseOrderFileTypeEnum.Cannabis) {
+            purchaseOrderCannabisFileIds.push(pof.file_id);
+          } else {
+            purchaseOrderFileIds.push(pof.file_id);
+          }
+        });
+        setFrozenPurchaseOrderFileIds(purchaseOrderFileIds);
+        setFrozenPurchaseOrderCannabisFileIds(purchaseOrderCannabisFileIds);
       }
     },
   });
@@ -280,11 +302,13 @@ export default function CreateUpdatePurchaseOrderModal({
   };
 
   const preparePurchaseOrderFiles = () => {
-    const purchaseOrderFileData = purchaseOrderFile && {
-      purchase_order_id: purchaseOrderFile.purchase_order_id,
-      file_id: purchaseOrderFile.file_id,
-      file_type: purchaseOrderFile.file_type,
-    };
+    const purchaseOrderFileData = purchaseOrderFiles.map(
+      (purchaseOrderFile) => ({
+        purchase_order_id: purchaseOrderFile.purchase_order_id,
+        file_id: purchaseOrderFile.file_id,
+        file_type: purchaseOrderFile.file_type,
+      })
+    );
     const purchaseOrderCannabisFilesData = purchaseOrderCannabisFiles.map(
       (purchaseOrderFile) => ({
         purchase_order_id: purchaseOrderFile.purchase_order_id,
@@ -293,7 +317,7 @@ export default function CreateUpdatePurchaseOrderModal({
       })
     );
     const purchaseOrderFilesData = [
-      ...(purchaseOrderFileData ? [purchaseOrderFileData] : []),
+      ...purchaseOrderFileData,
       ...purchaseOrderCannabisFilesData,
     ];
     return purchaseOrderFilesData;
@@ -386,14 +410,14 @@ export default function CreateUpdatePurchaseOrderModal({
   const isSecondaryActionDisabled = !isFormValid || isFormLoading;
 
   const isPrimaryActionDisabledMetrcBased =
-    !purchaseOrder.order_date || !purchaseOrder.amount || !purchaseOrderFile;
+    !purchaseOrder.order_date || !purchaseOrder.amount || !purchaseOrderFiles;
   const isPrimaryActionDisabledManual =
     !selectableVendors?.find((vendor) => vendor.id === purchaseOrder.vendor_id)
       ?.company_vendor_partnerships[0].approved_at ||
     !purchaseOrder.order_date ||
     !purchaseOrder.delivery_date ||
     !purchaseOrder.amount ||
-    !purchaseOrderFile ||
+    !purchaseOrderFiles ||
     (!!purchaseOrder.is_cannabis && purchaseOrderCannabisFiles.length <= 0);
   const isPrimaryActionDisabled = isActionTypeUpdate
     ? isSecondaryActionDisabled
@@ -506,37 +530,49 @@ export default function CreateUpdatePurchaseOrderModal({
           <PurchaseOrderFormV2
             companyId={companyId}
             purchaseOrder={purchaseOrder}
-            purchaseOrderFile={purchaseOrderFile}
+            purchaseOrderFiles={purchaseOrderFiles}
             purchaseOrderCannabisFiles={purchaseOrderCannabisFiles}
             selectableCompanyDeliveries={selectableCompanyDeliveries}
             selectedCompanyDeliveries={selectedCompanyDeliveries}
             setPurchaseOrder={setPurchaseOrder}
-            setPurchaseOrderFile={setPurchaseOrderFile}
+            setPurchaseOrderFiles={setPurchaseOrderFiles}
             setPurchaseOrderCannabisFiles={setPurchaseOrderCannabisFiles}
             setPurchaseOrderMetrcTransfers={setPurchaseOrderMetrcTransfers}
+            frozenPurchaseOrderFileIds={frozenPurchaseOrderFileIds}
+            frozenPurchaseOrderCannabisFileIds={
+              frozenPurchaseOrderCannabisFileIds
+            }
           />
         ) : (
           <PurchaseOrderForm
             companyId={companyId}
             purchaseOrder={purchaseOrder}
-            purchaseOrderFile={purchaseOrderFile}
+            purchaseOrderFiles={purchaseOrderFiles}
             purchaseOrderCannabisFiles={purchaseOrderCannabisFiles}
             selectableVendors={selectableVendors}
             setPurchaseOrder={setPurchaseOrder}
-            setPurchaseOrderFile={setPurchaseOrderFile}
+            setPurchaseOrderFiles={setPurchaseOrderFiles}
             setPurchaseOrderCannabisFiles={setPurchaseOrderCannabisFiles}
+            frozenPurchaseOrderFileIds={frozenPurchaseOrderFileIds}
+            frozenPurchaseOrderCannabisFileIds={
+              frozenPurchaseOrderCannabisFileIds
+            }
           />
         ))
       ) : (
         <PurchaseOrderForm
           companyId={companyId}
           purchaseOrder={purchaseOrder}
-          purchaseOrderFile={purchaseOrderFile}
+          purchaseOrderFiles={purchaseOrderFiles}
           purchaseOrderCannabisFiles={purchaseOrderCannabisFiles}
           selectableVendors={selectableVendors}
           setPurchaseOrder={setPurchaseOrder}
-          setPurchaseOrderFile={setPurchaseOrderFile}
+          setPurchaseOrderFiles={setPurchaseOrderFiles}
           setPurchaseOrderCannabisFiles={setPurchaseOrderCannabisFiles}
+          frozenPurchaseOrderFileIds={frozenPurchaseOrderFileIds}
+          frozenPurchaseOrderCannabisFileIds={
+            frozenPurchaseOrderCannabisFileIds
+          }
         />
       )}
     </Modal>

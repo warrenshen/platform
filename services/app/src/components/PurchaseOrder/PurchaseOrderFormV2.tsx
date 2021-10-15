@@ -24,7 +24,7 @@ import { useMemo, useState } from "react";
 interface Props {
   companyId: Companies["id"];
   purchaseOrder: PurchaseOrdersInsertInput;
-  purchaseOrderFile: PurchaseOrderFileFragment | null;
+  purchaseOrderFiles: PurchaseOrderFileFragment[];
   purchaseOrderCannabisFiles: PurchaseOrderFileFragment[];
   selectableCompanyDeliveries: NonNullable<
     GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery["company_deliveries"]
@@ -33,11 +33,13 @@ interface Props {
     GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery["company_deliveries"]
   >;
   setPurchaseOrder: (purchaseOrder: PurchaseOrdersInsertInput) => void;
-  setPurchaseOrderFile: (file: PurchaseOrderFileFragment | null) => void;
+  setPurchaseOrderFiles: (file: PurchaseOrderFileFragment[]) => void;
   setPurchaseOrderCannabisFiles: (files: PurchaseOrderFileFragment[]) => void;
   setPurchaseOrderMetrcTransfers: React.Dispatch<
     React.SetStateAction<PurchaseOrderMetrcTransferFragment[]>
   >;
+  frozenPurchaseOrderFileIds: string[];
+  frozenPurchaseOrderCannabisFileIds: string[];
 }
 
 // As of this commit, this form is the version of the "create purchase order"
@@ -45,18 +47,21 @@ interface Props {
 export default function PurchaseOrderFormV2({
   companyId,
   purchaseOrder,
-  purchaseOrderFile,
+  purchaseOrderFiles,
   purchaseOrderCannabisFiles,
   selectableCompanyDeliveries,
   selectedCompanyDeliveries,
   setPurchaseOrder,
-  setPurchaseOrderFile,
+  setPurchaseOrderFiles,
   setPurchaseOrderCannabisFiles,
   setPurchaseOrderMetrcTransfers,
+  frozenPurchaseOrderFileIds,
+  frozenPurchaseOrderCannabisFileIds,
 }: Props) {
   const purchaseOrderFileIds = useMemo(
-    () => (purchaseOrderFile ? [purchaseOrderFile.file_id] : []),
-    [purchaseOrderFile]
+    () =>
+      purchaseOrderFiles.map((purchaseOrderFile) => purchaseOrderFile.file_id),
+    [purchaseOrderFiles]
   );
   const purchaseOrderCannabisFileIds = useMemo(
     () =>
@@ -254,14 +259,24 @@ export default function PurchaseOrderFormV2({
           fileType={FileTypeEnum.PURCHASE_ORDER}
           maxFilesAllowed={1}
           fileIds={purchaseOrderFileIds}
-          handleDeleteFileById={() => setPurchaseOrderFile(null)}
+          frozenFileIds={frozenPurchaseOrderFileIds}
+          handleDeleteFileById={(fileId) =>
+            setPurchaseOrderFiles(
+              purchaseOrderFiles.filter(
+                (purchaseOrderFile) => purchaseOrderFile.file_id !== fileId
+              )
+            )
+          }
           handleNewFiles={(files) =>
-            setPurchaseOrderFile({
-              purchase_order_id: purchaseOrder.id,
-              file_id: files[0].id,
-              file_type: PurchaseOrderFileTypeEnum.PurchaseOrder,
-              file: files[0],
-            })
+            setPurchaseOrderFiles([
+              ...purchaseOrderFiles,
+              ...files.map((file) => ({
+                purchase_order_id: purchaseOrder.id,
+                file_id: file.id,
+                file_type: PurchaseOrderFileTypeEnum.PurchaseOrder,
+                file: file,
+              })),
+            ])
           }
         />
       </Box>
@@ -280,6 +295,7 @@ export default function PurchaseOrderFormV2({
             companyId={companyId}
             fileType={FileTypeEnum.PURCHASE_ORDER}
             fileIds={purchaseOrderCannabisFileIds}
+            frozenFileIds={frozenPurchaseOrderCannabisFileIds}
             handleDeleteFileById={(fileId) =>
               setPurchaseOrderCannabisFiles(
                 purchaseOrderCannabisFiles.filter(
