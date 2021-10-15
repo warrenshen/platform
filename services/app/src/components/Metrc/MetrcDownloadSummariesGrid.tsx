@@ -3,7 +3,13 @@ import {
   GetMetrcApiKeysPerCompanyQuery,
   MetrcDownloadSummaryFragment,
 } from "generated/graphql";
-import { formatDateString, previousDayAsDateStringServer } from "lib/date";
+import {
+  DateFormatClientMonthDayOnly,
+  DateFormatClientYearOnly,
+  formatDateString,
+  isDateStringSunday,
+  previousDayAsDateStringServer,
+} from "lib/date";
 import { MetrcDownloadSummaryStatusEnum } from "lib/enum";
 import { useMemo } from "react";
 import styled from "styled-components";
@@ -50,6 +56,31 @@ function MetrcDownloadSummaryColumn({
 }) {
   return (
     <Box display="flex" flexDirection="column" width={36}>
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        height={40}
+      >
+        {isDateStringSunday(metrcDownloadSummary.date) && (
+          <>
+            <Typography variant="caption">
+              <strong>
+                {formatDateString(
+                  metrcDownloadSummary.date,
+                  DateFormatClientYearOnly
+                )}
+              </strong>
+            </Typography>
+            <Typography variant="caption">
+              {formatDateString(
+                metrcDownloadSummary.date,
+                DateFormatClientMonthDayOnly
+              )}
+            </Typography>
+          </>
+        )}
+      </Box>
       <MetrcDownloadSummaryCell
         date={metrcDownloadSummary.date}
         label={"Packages"}

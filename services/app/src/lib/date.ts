@@ -12,8 +12,10 @@ import {
 import { addYearToBankHolidays, bankHolidays } from "lib/holidays";
 import { range } from "lodash";
 
-export const MonthFormatClient = "MMMM yyyy (MM/yyyy)";
 export const DateFormatClient = "MM/dd/yyyy";
+export const DateFormatClientMonthDayOnly = "MM/dd";
+export const DateFormatClientYearOnly = "yyyy";
+export const MonthFormatClient = "MMMM yyyy (MM/yyyy)";
 export const DateFormatServer = "yyyy-MM-dd";
 export const TimeFormatClient = "hh:mm:ss a";
 
@@ -51,14 +53,17 @@ export function previousDayAsDateStringServer(dateString: string) {
   );
 }
 
-export function formatDateString(dateString: string) {
+export function formatDateString(
+  dateString: string,
+  formatString: string = DateFormatServer
+) {
   if (!dateString) {
     return "Invalid Date";
   } else {
     try {
       return format(
         parse(dateString, DateFormatServer, new Date()),
-        DateFormatClient
+        formatString
       );
     } catch (error) {
       console.error(
@@ -108,6 +113,10 @@ export function formatDatetimeString(
       return null;
     }
   }
+}
+
+export function isDateStringSunday(dateString: string) {
+  return parse(dateString, DateFormatServer, new Date()).getDay() === 0;
 }
 
 export function isBankHoliday(date: Date) {
