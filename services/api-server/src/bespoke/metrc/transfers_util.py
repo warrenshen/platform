@@ -276,6 +276,11 @@ def _write_transfers(
 		transfer_id_to_prev_transfer[prev_transfer.transfer_id] = prev_transfer
 
 	for metrc_transfer_obj in transfer_objs:
+		if metrc_transfer_obj.has_error:
+			# Dont write transfer objects which are not complete, perhaps due to
+			# their packages not being pulled successfully.
+			continue
+
 		metrc_transfer = metrc_transfer_obj.metrc_transfer
 		all_company_deliveries.extend(metrc_transfer_obj.company_deliveries)
 		if metrc_transfer.transfer_id in transfer_id_to_prev_transfer:
@@ -599,8 +604,7 @@ def populate_transfers_table(
 				packages_api_failed = True
 
 			if packages_api_failed:
-				# TODO(dlluncor): Dont write a transfer at all if any of the downsream
-				# APIs failed.
+				metrc_transfer_obj.has_error = True
 				continue
 
 			try:

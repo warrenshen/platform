@@ -45,6 +45,7 @@ class MetrcTransferObj(object):
 		self.metrc_transfer = metrc_transfer
 		self.deliveries = deliveries
 		self.company_deliveries = company_deliveries
+		self.has_error = False
 
 	def get_delivery_ids(self) -> List[str]:
 		return [delivery_obj.metrc_delivery.delivery_id for delivery_obj in self.deliveries]

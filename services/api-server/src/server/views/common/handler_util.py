@@ -60,7 +60,6 @@ def catch_bad_json_request(f: Callable[..., Response]) -> Callable[..., Response
 			e.traceback = traceback.format_exc()
 			return make_error_response(e)
 		except Exception as e:
-			# TODO(dlluncor): Log to sentry
 			logging.error(
 				u'Received exception in WEBAPP JSON request: {}\n{}'.format(
 					e, traceback.format_exc()))
@@ -84,7 +83,6 @@ def catch_bad_api_request(f: Callable[..., Response]) -> Callable[..., Response]
 			e.traceback = traceback.format_exc()
 			return make_api_error_response(e, status_code=500)
 		except Exception as e:
-			# TODO(dlluncor): Log to sentry
 			logging.error(
 				u'Received exception in WEBAPP JSON request: {}\n{}'.format(
 					e, traceback.format_exc()))
