@@ -27,3 +27,20 @@ query CompanyVendors($companyId: uuid!) {
     }
   }
 }
+
+query GetCompaniesWithMetadata {
+  companies(
+    order_by: { name: asc }
+  ) {
+    id
+    ...Company
+    contract {
+      id
+      ...Contract
+    }
+    settings {
+      id
+      ...CompanySettings
+    }
+  }
+}

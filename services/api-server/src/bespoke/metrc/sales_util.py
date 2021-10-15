@@ -115,8 +115,6 @@ class SalesReceipts(object):
 			This prevents us from querying sales transactions where we know the
 			sales receipt hasn't changed.
 		"""
-		return self
-
 		us_state = ctx.license['us_state']
 		receipt_numbers = [s['ReceiptNumber'] for s in self._sales_receipts]
 		prev_sales_receipts = []

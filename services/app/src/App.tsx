@@ -24,6 +24,7 @@ import AnonymousSecureLinkPage from "pages/Anonymous/SecureLink";
 import SignIn from "pages/Anonymous/SignIn";
 import BankAdvancesPage from "pages/Bank/Advances";
 import BankAsyncJobsPage from "pages/Bank/Async/Jobs";
+import BankCompaniesPage from "pages/Bank/Companies";
 import BankCompanyPage from "pages/Bank/Company";
 import BankCustomersPage from "pages/Bank/Customers";
 import BankClientSurveillancePage from "pages/Bank/ClientSurveillance";
@@ -291,6 +292,13 @@ export default function App() {
           requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
         >
           <BankInvoicesPage />
+        </PrivateRoute>
+        <PrivateRoute
+          exact
+          path={bankRoutes.companies}
+          requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
+        >
+          <BankCompaniesPage />
         </PrivateRoute>
         <PrivateRoute
           exact

@@ -1,7 +1,6 @@
 import { Box, TextField } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import CreateCustomerModal from "components/Customer/CreateCustomerModal";
-import CreateProspectiveCustomerModal from "components/Customer/CreateProspectiveCustomerModal";
 import CreateBulkMinimumMonthlyFeeModal from "components/Fee/CreateMinimumInterestFeesModal";
 import CreateMonthEndPaymentsModal from "components/Fee/CreateMonthEndPaymentsModal";
 import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal";
@@ -76,7 +75,7 @@ export default function BankCustomersPage() {
         fixed: true,
         dataField: "identifier",
         caption: "Identifier",
-        minWidth: ColumnWidths.MinWidth,
+        minWidth: ColumnWidths.Identifier,
         width: ColumnWidths.Type,
       },
       {
@@ -240,25 +239,6 @@ export default function BankCustomersPage() {
               onChange={({ target: { value } }) => setSearchQuery(value)}
               style={{ width: 300 }}
             />
-          </Box>
-          <Box display="flex" flexDirection="row-reverse">
-            {check(role, Action.EditCustomerSettings) && (
-              <Box>
-                <ModalButton
-                  dataCy={"create-customer-prospect-button"}
-                  label={"Create Prospect"}
-                  color={"primary"}
-                  modal={({ handleClose }) => (
-                    <CreateProspectiveCustomerModal
-                      handleClose={() => {
-                        refetch();
-                        handleClose();
-                      }}
-                    />
-                  )}
-                />
-              </Box>
-            )}
           </Box>
           <Box display="flex" flexDirection="row-reverse">
             {check(role, Action.EditCustomerSettings) && (

@@ -55,6 +55,8 @@ export enum BankCompanyRouteEnum {
 // Bank user routes are not prefixed.
 export const bankRoutes = {
   overview: "/overview",
+  asyncJobs: "/async/jobs",
+  companies: "/companies",
   companyRoot: "/companies/:companyId",
   company: {
     accountFeesCredits: BankCompanyRouteEnum.AccountFeesCredits,
@@ -73,7 +75,6 @@ export const bankRoutes = {
     settings: "/settings",
     users: "/users",
   },
-  asyncJobs: "/async/jobs",
   customers: "/customers",
   ebbaApplications: "/client-surveillance",
   loans: "/loans",

@@ -26330,6 +26330,19 @@ export type CompanyVendorsQuery = {
   company_vendor_partnerships: Array<{ vendor?: Maybe<Pick<Vendors, "name">> }>;
 };
 
+export type GetCompaniesWithMetadataQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetCompaniesWithMetadataQuery = {
+  companies: Array<
+    Pick<Companies, "id"> & {
+      contract?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
+      settings?: Maybe<Pick<CompanySettings, "id"> & CompanySettingsFragment>;
+    } & CompanyFragment
+  >;
+};
+
 export type GetPartnershipRequestsCountForBankSubscriptionVariables = Exact<{
   [key: string]: never;
 }>;
@@ -35576,6 +35589,73 @@ export type CompanyVendorsLazyQueryHookResult = ReturnType<
 export type CompanyVendorsQueryResult = Apollo.QueryResult<
   CompanyVendorsQuery,
   CompanyVendorsQueryVariables
+>;
+export const GetCompaniesWithMetadataDocument = gql`
+  query GetCompaniesWithMetadata {
+    companies(order_by: { name: asc }) {
+      id
+      ...Company
+      contract {
+        id
+        ...Contract
+      }
+      settings {
+        id
+        ...CompanySettings
+      }
+    }
+  }
+  ${CompanyFragmentDoc}
+  ${ContractFragmentDoc}
+  ${CompanySettingsFragmentDoc}
+`;
+
+/**
+ * __useGetCompaniesWithMetadataQuery__
+ *
+ * To run a query within a React component, call `useGetCompaniesWithMetadataQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCompaniesWithMetadataQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCompaniesWithMetadataQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetCompaniesWithMetadataQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetCompaniesWithMetadataQuery,
+    GetCompaniesWithMetadataQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetCompaniesWithMetadataQuery,
+    GetCompaniesWithMetadataQueryVariables
+  >(GetCompaniesWithMetadataDocument, baseOptions);
+}
+export function useGetCompaniesWithMetadataLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetCompaniesWithMetadataQuery,
+    GetCompaniesWithMetadataQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetCompaniesWithMetadataQuery,
+    GetCompaniesWithMetadataQueryVariables
+  >(GetCompaniesWithMetadataDocument, baseOptions);
+}
+export type GetCompaniesWithMetadataQueryHookResult = ReturnType<
+  typeof useGetCompaniesWithMetadataQuery
+>;
+export type GetCompaniesWithMetadataLazyQueryHookResult = ReturnType<
+  typeof useGetCompaniesWithMetadataLazyQuery
+>;
+export type GetCompaniesWithMetadataQueryResult = Apollo.QueryResult<
+  GetCompaniesWithMetadataQuery,
+  GetCompaniesWithMetadataQueryVariables
 >;
 export const GetPartnershipRequestsCountForBankDocument = gql`
   subscription GetPartnershipRequestsCountForBank {
