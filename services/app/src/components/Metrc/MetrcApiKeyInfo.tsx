@@ -36,16 +36,13 @@ export default function MetrcApiKeyInfo({ number, metrcApiKey }: Props) {
           <b>{`Key #${number}`}</b>
         </Typography>
       </Box>
-      <Box display="flex" flexDirection="column">
-        <MetrcDownloadSummariesGrid metrcApiKey={metrcApiKey} />
-      </Box>
       <Box mt={2}>
-        <Typography variant="body2">{`Is Functioning?: ${
+        <Typography variant="body1">{`Is Functioning?: ${
           metrcApiKey.is_functioning ? "Yes" : "No"
         }`}</Typography>
       </Box>
       <Box mt={2}>
-        <Typography variant="body2">
+        <Typography variant="body1">
           {`Last used at: ${
             metrcApiKey.last_used_at
               ? formatDatetimeString(metrcApiKey.last_used_at)
@@ -54,16 +51,36 @@ export default function MetrcApiKeyInfo({ number, metrcApiKey }: Props) {
         </Typography>
       </Box>
       {metrcApiKey.status_codes_payload &&
-        Object.keys(metrcApiKey.status_codes_payload).map((licenseNum) => {
-          const statusesObj = metrcApiKey.status_codes_payload[licenseNum];
+        Object.keys(metrcApiKey.status_codes_payload).map((licenseNumber) => {
+          const statusesObj = metrcApiKey.status_codes_payload[licenseNumber];
           return (
-            <Box key={licenseNum} display="flex" flexDirection="column" mt={2}>
-              <Box mb={2}>
-                <Typography variant="body2">
-                  {`License number: ${licenseNum}`}
+            <Box
+              key={licenseNumber}
+              display="flex"
+              flexDirection="column"
+              mt={2}
+            >
+              <Box>
+                <Typography variant="body1">
+                  {`License number: ${licenseNumber}`}
                 </Typography>
               </Box>
-              <Box display="flex" flexDirection="column" width={500} pl={2}>
+              <Box display="flex" flexDirection="column" mt={2}>
+                <Typography variant="body1">{`Download summaries:`}</Typography>
+                <MetrcDownloadSummariesGrid
+                  metrcDownloadSummaries={metrcApiKey.metrc_download_summaries.filter(
+                    (metrcDownloadSummary) =>
+                      metrcDownloadSummary.license_number === licenseNumber
+                  )}
+                />
+              </Box>
+              <Box
+                display="flex"
+                flexDirection="column"
+                width={500}
+                pl={2}
+                mt={2}
+              >
                 <Box mb={2}>
                   <Box mb={1}>
                     <Typography variant="subtitle2">

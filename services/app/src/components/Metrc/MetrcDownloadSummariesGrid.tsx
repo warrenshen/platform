@@ -1,8 +1,5 @@
 import { Box, Tooltip, Typography } from "@material-ui/core";
-import {
-  GetMetrcApiKeysPerCompanyQuery,
-  MetrcDownloadSummaryFragment,
-} from "generated/graphql";
+import { MetrcDownloadSummaryFragment } from "generated/graphql";
 import {
   DateFormatClientMonthDayOnly,
   DateFormatClientYearOnly,
@@ -128,32 +125,33 @@ function MetrcDownloadSummaryColumn({
 }
 
 interface Props {
-  metrcApiKey: GetMetrcApiKeysPerCompanyQuery["metrc_api_keys"][0];
+  metrcDownloadSummaries: MetrcDownloadSummaryFragment[];
 }
 
-export default function MetrcDownloadSummariesGrid({ metrcApiKey }: Props) {
-  const rawMetrcDownloadSummaries = metrcApiKey.metrc_download_summaries;
+export default function MetrcDownloadSummariesGrid({
+  metrcDownloadSummaries,
+}: Props) {
   // Fill in missing dates, if applicable.
   // For example, we may only have download summaries for October 2021 and November 2020
   // and none for any of the months in between (those months have not been backfilled yet).
-  const metrcDownloadSummaries = useMemo(() => {
+  const filledMetrcDownloadSummaries = useMemo(() => {
     const result: MetrcDownloadSummaryFragment[] = [];
 
-    if (rawMetrcDownloadSummaries.length <= 0) {
+    if (metrcDownloadSummaries.length <= 0) {
       return result;
     }
 
-    const firstMetrcDownloadSummary = rawMetrcDownloadSummaries[0];
+    const firstMetrcDownloadSummary = metrcDownloadSummaries[0];
     const endDate = firstMetrcDownloadSummary.date;
     const startDate =
-      rawMetrcDownloadSummaries[rawMetrcDownloadSummaries.length - 1].date;
+      metrcDownloadSummaries[metrcDownloadSummaries.length - 1].date;
 
     let currentDate = endDate;
     let rawIndex = 0;
 
     while (currentDate >= startDate) {
-      if (rawMetrcDownloadSummaries[rawIndex].date === currentDate) {
-        result.push(rawMetrcDownloadSummaries[rawIndex]);
+      if (metrcDownloadSummaries[rawIndex].date === currentDate) {
+        result.push(metrcDownloadSummaries[rawIndex]);
         rawIndex += 1;
       } else {
         result.push({
@@ -176,24 +174,26 @@ export default function MetrcDownloadSummariesGrid({ metrcApiKey }: Props) {
     }
 
     return result;
-  }, [rawMetrcDownloadSummaries]);
+  }, [metrcDownloadSummaries]);
 
   return (
     <Box display="flex" flexDirection="column">
-      <Box>
-        <Typography>
-          {metrcDownloadSummaries.length > 0
+      <Box mt={2}>
+        <Typography variant="body2">
+          {filledMetrcDownloadSummaries.length > 0
             ? `Date range: ${formatDateString(
-                metrcDownloadSummaries[0].date
+                filledMetrcDownloadSummaries[0].date
               )} (left) -> ${formatDateString(
-                metrcDownloadSummaries[metrcDownloadSummaries.length - 1].date
+                filledMetrcDownloadSummaries[
+                  filledMetrcDownloadSummaries.length - 1
+                ].date
               )} (right)`
             : ""}
         </Typography>
       </Box>
       <Box display="flex" flexDirection="column" mt={2} overflow="scroll">
         <Box display="flex">
-          {metrcDownloadSummaries.map((metrcDownloadSummary) => (
+          {filledMetrcDownloadSummaries.map((metrcDownloadSummary) => (
             <MetrcDownloadSummaryColumn
               key={metrcDownloadSummary.id}
               metrcDownloadSummary={metrcDownloadSummary}
