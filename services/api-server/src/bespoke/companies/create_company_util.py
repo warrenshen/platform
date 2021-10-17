@@ -76,8 +76,6 @@ def _check_is_company_name_already_used(company_name: str, company_identifier: s
 	existing_company_by_name = cast(
 		models.Company,
 		session.query(models.Company).filter(
-			cast(Callable, models.Company.is_customer.is_)(True)
-		).filter(
 			models.Company.name == company_name
 		).first())
 	if existing_company_by_name:
@@ -86,8 +84,6 @@ def _check_is_company_name_already_used(company_name: str, company_identifier: s
 	existing_company_by_identifier = cast(
 		models.Company,
 		session.query(models.Company).filter(
-			cast(Callable, models.Company.is_customer.is_)(True)
-		).filter(
 			models.Company.identifier == company_identifier
 		).first())
 	if existing_company_by_identifier:
