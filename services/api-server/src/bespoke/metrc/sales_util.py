@@ -225,24 +225,42 @@ def _write_sales_transactions_chunk(
 	company_id = sales_transactions[0].company_id
 	us_state = sales_transactions[0].us_state
 
-	prev_sales_transactions = session.query(models.MetrcSalesTransaction).filter(
+	delete_query = models.MetrcSalesTransaction.__table__.delete().where(
 		models.MetrcSalesTransaction.us_state == us_state
-	).filter(
+	).where(
 		models.MetrcSalesTransaction.receipt_id == receipt_id
-	).filter(
+	).where(
 		models.MetrcSalesTransaction.company_id == company_id
 	)
 
 	# Sales transactions data comes in an "all or nothing" fashion, e.g.,
 	# we get all the transactions for a receipt ID. So if we pull that data again,
 	# we need to flush out what we had before associated with this receipt ID
-	for prev_sales_tx in prev_sales_transactions:
-		cast(Callable, session.delete)(prev_sales_tx)
-
+	session.execute(delete_query)
 	session.flush()
 
+	sales_transaction_dicts = []
 	for sales_tx in sales_transactions:
-		session.add(sales_tx)
+		sales_transaction_dicts.append({
+			'type': sales_tx.type,
+			'license_number': sales_tx.license_number,
+			'us_state': sales_tx.us_state,
+			'company_id': sales_tx.company_id,
+			'receipt_id': sales_tx.receipt_id,
+			'receipt_row_id': sales_tx.receipt_row_id,
+			'package_id': sales_tx.package_id,
+			'package_label': sales_tx.package_label,
+			'product_name': sales_tx.product_name,
+			'product_category_name': sales_tx.product_category_name,
+			'quantity_sold': sales_tx.quantity_sold,
+			'unit_of_measure': sales_tx.unit_of_measure,
+			'total_price': sales_tx.total_price,
+			'recorded_datetime': sales_tx.recorded_datetime,
+			'payload': sales_tx.payload,
+			'last_modified_at': sales_tx.last_modified_at	
+		})
+
+	session.execute(models.MetrcSalesTransaction.__table__.insert(), sales_transaction_dicts)
 
 	# package_common_util.update_packages_from_sales_transactions(
 	# 	sales_transactions, session)
