@@ -108,6 +108,41 @@ def create_company_outgoing_transfer_packages_query(company_identifier, start_da
             metrc_transfers.created_date desc
     """
 
+def create_company_sales_receipts_with_transactions_query(company_identifier, start_date):
+    """
+    Note the left outer join of metrc_sales_transactions.
+    """
+    return f"""
+        select
+            metrc_sales_receipts.id as rt_id,
+            metrc_sales_receipts.license_number,
+            metrc_sales_receipts.receipt_number,
+            metrc_sales_receipts.type as rt_type,
+            metrc_sales_receipts.sales_customer_type,
+            metrc_sales_receipts.sales_datetime,
+            metrc_sales_receipts.total_packages,
+            metrc_sales_receipts.total_price as rt_total_price,
+            metrc_sales_transactions.id as tx_id,
+            metrc_sales_transactions.type as tx_type,
+            metrc_sales_transactions.package_id as tx_package_id,
+            metrc_sales_transactions.package_label as tx_package_label,
+            metrc_sales_transactions.product_name as tx_product_name,
+            metrc_sales_transactions.product_category_name as tx_product_category_name,
+            metrc_sales_transactions.unit_of_measure as tx_unit_of_measure,
+            metrc_sales_transactions.quantity_sold as tx_quantity_sold,
+            metrc_sales_transactions.total_price as tx_total_price
+        from
+            metrc_sales_receipts
+            inner join companies on metrc_sales_receipts.company_id = companies.id
+            left outer join metrc_sales_transactions on metrc_sales_receipts.id = metrc_sales_transactions.receipt_row_id
+        where
+            True
+            and companies.identifier = '{company_identifier}'
+            and metrc_sales_receipts.sales_datetime >= '{start_date}'
+        order by
+            metrc_sales_receipts.sales_datetime desc
+    """
+
 def create_company_sales_transactions_query(company_identifier, start_date):
     return f"""
         select
