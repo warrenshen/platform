@@ -55,7 +55,7 @@ export function previousDayAsDateStringServer(dateString: string) {
 
 export function formatDateString(
   dateString: string,
-  formatString: string = DateFormatServer
+  formatString: string = DateFormatClient
 ) {
   if (!dateString) {
     return "Invalid Date";
