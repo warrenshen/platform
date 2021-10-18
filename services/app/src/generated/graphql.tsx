@@ -12661,6 +12661,7 @@ export type MetrcSalesTransactions = {
   company_id: Scalars["uuid"];
   created_at: Scalars["timestamptz"];
   id: Scalars["uuid"];
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   last_modified_at: Scalars["timestamptz"];
   license_number?: Maybe<Scalars["String"]>;
   /** An object relationship */
@@ -12754,6 +12755,7 @@ export type MetrcSalesTransactionsBoolExp = {
   company_id?: Maybe<UuidComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  is_deleted?: Maybe<BooleanComparisonExp>;
   last_modified_at?: Maybe<TimestamptzComparisonExp>;
   license_number?: Maybe<StringComparisonExp>;
   metrc_sales_receipt?: Maybe<MetrcSalesReceiptsBoolExp>;
@@ -12790,6 +12792,7 @@ export type MetrcSalesTransactionsInsertInput = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   last_modified_at?: Maybe<Scalars["timestamptz"]>;
   license_number?: Maybe<Scalars["String"]>;
   metrc_sales_receipt?: Maybe<MetrcSalesReceiptsObjRelInsertInput>;
@@ -12923,6 +12926,7 @@ export type MetrcSalesTransactionsOrderBy = {
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  is_deleted?: Maybe<OrderBy>;
   last_modified_at?: Maybe<OrderBy>;
   license_number?: Maybe<OrderBy>;
   metrc_sales_receipt?: Maybe<MetrcSalesReceiptsOrderBy>;
@@ -12955,6 +12959,8 @@ export enum MetrcSalesTransactionsSelectColumn {
   CreatedAt = "created_at",
   /** column name */
   Id = "id",
+  /** column name */
+  IsDeleted = "is_deleted",
   /** column name */
   LastModifiedAt = "last_modified_at",
   /** column name */
@@ -12994,6 +13000,7 @@ export type MetrcSalesTransactionsSetInput = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   last_modified_at?: Maybe<Scalars["timestamptz"]>;
   license_number?: Maybe<Scalars["String"]>;
   package_id?: Maybe<Scalars["String"]>;
@@ -13068,6 +13075,8 @@ export enum MetrcSalesTransactionsUpdateColumn {
   CreatedAt = "created_at",
   /** column name */
   Id = "id",
+  /** column name */
+  IsDeleted = "is_deleted",
   /** column name */
   LastModifiedAt = "last_modified_at",
   /** column name */
