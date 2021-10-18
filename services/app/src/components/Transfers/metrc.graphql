@@ -81,3 +81,10 @@ query GetMetrcPackage($id: uuid!) {
     ...MetrcPackage
   }
 }
+
+query GetMetrcDownloadSummary($id: uuid!) {
+  metrc_download_summaries_by_pk(id: $id) {
+    id
+    ...MetrcDownloadSummary
+  }
+}

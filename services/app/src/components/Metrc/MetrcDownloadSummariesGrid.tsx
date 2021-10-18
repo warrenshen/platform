@@ -1,5 +1,9 @@
 import { Box, Tooltip, Typography } from "@material-ui/core";
-import { MetrcDownloadSummaryFragment } from "generated/graphql";
+import MetrcDownloadSummaryModal from "components/Metrc/MetrcDownloadSummaryModal";
+import {
+  MetrcDownloadSummaries,
+  MetrcDownloadSummaryLimitedFragment,
+} from "generated/graphql";
 import {
   DateFormatClientMonthDayOnly,
   DateFormatClientYearOnly,
@@ -8,10 +12,21 @@ import {
   previousDayAsDateStringServer,
 } from "lib/date";
 import { MetrcDownloadSummaryStatusEnum } from "lib/enum";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import styled from "styled-components";
 
-const StyledBox = styled.div<{ backgroundColor: string }>`
+const Cells = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
+const Cell = styled.div<{ backgroundColor: string }>`
   width: 36px;
   height: 36px;
   background-color: ${(props) => props.backgroundColor};
@@ -41,7 +56,7 @@ function MetrcDownloadSummaryCell({
       interactive
       title={`[${formatDateString(date)}] ${label}: ${status}`}
     >
-      <StyledBox backgroundColor={status ? StatusToColor[status] : "none"} />
+      <Cell backgroundColor={status ? StatusToColor[status] : "none"} />
     </Tooltip>
   );
 }
@@ -49,10 +64,21 @@ function MetrcDownloadSummaryCell({
 function MetrcDownloadSummaryColumn({
   metrcDownloadSummary,
 }: {
-  metrcDownloadSummary: MetrcDownloadSummaryFragment;
+  metrcDownloadSummary: MetrcDownloadSummaryLimitedFragment;
 }) {
+  const [
+    selectedMetrcDownloadSummaryId,
+    setSelectedMetrcDownloadSummaryId,
+  ] = useState<MetrcDownloadSummaries["id"]>(null);
+
   return (
     <Box display="flex" flexDirection="column" width={36}>
+      {selectedMetrcDownloadSummaryId && (
+        <MetrcDownloadSummaryModal
+          metrcDownloadSummaryId={selectedMetrcDownloadSummaryId}
+          handleClose={() => setSelectedMetrcDownloadSummaryId(null)}
+        />
+      )}
       <Box
         display="flex"
         flexDirection="column"
@@ -78,54 +104,60 @@ function MetrcDownloadSummaryColumn({
           </>
         )}
       </Box>
-      <MetrcDownloadSummaryCell
-        date={metrcDownloadSummary.date}
-        label={"Packages"}
-        status={
-          metrcDownloadSummary.packages_status as MetrcDownloadSummaryStatusEnum
+      <Cells
+        onClick={() =>
+          setSelectedMetrcDownloadSummaryId(metrcDownloadSummary.id)
         }
-      />
-      <MetrcDownloadSummaryCell
-        date={metrcDownloadSummary.date}
-        label={"Transfers"}
-        status={
-          metrcDownloadSummary.transfers_status as MetrcDownloadSummaryStatusEnum
-        }
-      />
-      <MetrcDownloadSummaryCell
-        date={metrcDownloadSummary.date}
-        label={"Sales"}
-        status={
-          metrcDownloadSummary.sales_status as MetrcDownloadSummaryStatusEnum
-        }
-      />
-      <MetrcDownloadSummaryCell
-        date={metrcDownloadSummary.date}
-        label={"Plants"}
-        status={
-          metrcDownloadSummary.plants_status as MetrcDownloadSummaryStatusEnum
-        }
-      />
-      <MetrcDownloadSummaryCell
-        date={metrcDownloadSummary.date}
-        label={"Plant Batches"}
-        status={
-          metrcDownloadSummary.plant_batches_status as MetrcDownloadSummaryStatusEnum
-        }
-      />
-      <MetrcDownloadSummaryCell
-        date={metrcDownloadSummary.date}
-        label={"Harvests"}
-        status={
-          metrcDownloadSummary.harvests_status as MetrcDownloadSummaryStatusEnum
-        }
-      />
+      >
+        <MetrcDownloadSummaryCell
+          date={metrcDownloadSummary.date}
+          label={"Packages"}
+          status={
+            metrcDownloadSummary.packages_status as MetrcDownloadSummaryStatusEnum
+          }
+        />
+        <MetrcDownloadSummaryCell
+          date={metrcDownloadSummary.date}
+          label={"Transfers"}
+          status={
+            metrcDownloadSummary.transfers_status as MetrcDownloadSummaryStatusEnum
+          }
+        />
+        <MetrcDownloadSummaryCell
+          date={metrcDownloadSummary.date}
+          label={"Sales"}
+          status={
+            metrcDownloadSummary.sales_status as MetrcDownloadSummaryStatusEnum
+          }
+        />
+        <MetrcDownloadSummaryCell
+          date={metrcDownloadSummary.date}
+          label={"Plants"}
+          status={
+            metrcDownloadSummary.plants_status as MetrcDownloadSummaryStatusEnum
+          }
+        />
+        <MetrcDownloadSummaryCell
+          date={metrcDownloadSummary.date}
+          label={"Plant Batches"}
+          status={
+            metrcDownloadSummary.plant_batches_status as MetrcDownloadSummaryStatusEnum
+          }
+        />
+        <MetrcDownloadSummaryCell
+          date={metrcDownloadSummary.date}
+          label={"Harvests"}
+          status={
+            metrcDownloadSummary.harvests_status as MetrcDownloadSummaryStatusEnum
+          }
+        />
+      </Cells>
     </Box>
   );
 }
 
 interface Props {
-  metrcDownloadSummaries: MetrcDownloadSummaryFragment[];
+  metrcDownloadSummaries: MetrcDownloadSummaryLimitedFragment[];
 }
 
 export default function MetrcDownloadSummariesGrid({
@@ -135,7 +167,7 @@ export default function MetrcDownloadSummariesGrid({
   // For example, we may only have download summaries for October 2021 and November 2020
   // and none for any of the months in between (those months have not been backfilled yet).
   const filledMetrcDownloadSummaries = useMemo(() => {
-    const result: MetrcDownloadSummaryFragment[] = [];
+    const result: MetrcDownloadSummaryLimitedFragment[] = [];
 
     if (metrcDownloadSummaries.length <= 0) {
       return result;
@@ -168,7 +200,7 @@ export default function MetrcDownloadSummariesGrid({
           sales_status: "",
           transfers_status: "",
           updated_at: undefined,
-        } as MetrcDownloadSummaryFragment);
+        } as MetrcDownloadSummaryLimitedFragment);
       }
       currentDate = previousDayAsDateStringServer(currentDate);
     }

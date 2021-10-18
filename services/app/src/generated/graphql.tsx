@@ -25072,23 +25072,6 @@ export type GetRepaymentsForCompanyQuery = {
   >;
 };
 
-export type MetrcDownloadSummaryFragment = Pick<
-  MetrcDownloadSummaries,
-  | "id"
-  | "company_id"
-  | "metrc_api_key_id"
-  | "license_number"
-  | "date"
-  | "status"
-  | "harvests_status"
-  | "packages_status"
-  | "plant_batches_status"
-  | "plants_status"
-  | "sales_status"
-  | "transfers_status"
-  | "updated_at"
->;
-
 export type GetMetrcApiKeysPerCompanyQueryVariables = Exact<{
   companyId: Scalars["uuid"];
 }>;
@@ -25097,7 +25080,7 @@ export type GetMetrcApiKeysPerCompanyQuery = {
   metrc_api_keys: Array<
     Pick<MetrcApiKeys, "id"> & {
       metrc_download_summaries: Array<
-        Pick<MetrcDownloadSummaries, "id"> & MetrcDownloadSummaryFragment
+        Pick<MetrcDownloadSummaries, "id"> & MetrcDownloadSummaryLimitedFragment
       >;
     } & MetrcApiKeyFragment
   >;
@@ -25746,6 +25729,16 @@ export type GetMetrcPackageQuery = {
   >;
 };
 
+export type GetMetrcDownloadSummaryQueryVariables = Exact<{
+  id: Scalars["uuid"];
+}>;
+
+export type GetMetrcDownloadSummaryQuery = {
+  metrc_download_summaries_by_pk?: Maybe<
+    Pick<MetrcDownloadSummaries, "id"> & MetrcDownloadSummaryFragment
+  >;
+};
+
 export type GetVendorCompanyFileAttachmentsQueryVariables = Exact<{
   company_id: Scalars["uuid"];
 }>;
@@ -26129,6 +26122,29 @@ export type BankFinancialSummaryFragment = Pick<
 
 export type AsyncPipelineFragment = Pick<AsyncPipelines, "id">;
 
+export type MetrcDownloadSummaryLimitedFragment = Pick<
+  MetrcDownloadSummaries,
+  | "id"
+  | "company_id"
+  | "metrc_api_key_id"
+  | "license_number"
+  | "date"
+  | "status"
+  | "harvests_status"
+  | "packages_status"
+  | "plant_batches_status"
+  | "plants_status"
+  | "sales_status"
+  | "transfers_status"
+  | "updated_at"
+>;
+
+export type MetrcDownloadSummaryFragment = Pick<
+  MetrcDownloadSummaries,
+  "id" | "err_details"
+> &
+  MetrcDownloadSummaryLimitedFragment;
+
 export type CompanySettingsLimitedFragment = Pick<
   CompanySettings,
   | "id"
@@ -26404,23 +26420,6 @@ export type UpdateUserMutationVariables = Exact<{
 
 export type UpdateUserMutation = { update_users_by_pk?: Maybe<UserFragment> };
 
-export const MetrcDownloadSummaryFragmentDoc = gql`
-  fragment MetrcDownloadSummary on metrc_download_summaries {
-    id
-    company_id
-    metrc_api_key_id
-    license_number
-    date
-    status
-    harvests_status
-    packages_status
-    plant_batches_status
-    plants_status
-    sales_status
-    transfers_status
-    updated_at
-  }
-`;
 export const UserFragmentDoc = gql`
   fragment User on users {
     id
@@ -27195,6 +27194,31 @@ export const AsyncPipelineFragmentDoc = gql`
   fragment AsyncPipeline on async_pipelines {
     id
   }
+`;
+export const MetrcDownloadSummaryLimitedFragmentDoc = gql`
+  fragment MetrcDownloadSummaryLimited on metrc_download_summaries {
+    id
+    company_id
+    metrc_api_key_id
+    license_number
+    date
+    status
+    harvests_status
+    packages_status
+    plant_batches_status
+    plants_status
+    sales_status
+    transfers_status
+    updated_at
+  }
+`;
+export const MetrcDownloadSummaryFragmentDoc = gql`
+  fragment MetrcDownloadSummary on metrc_download_summaries {
+    id
+    ...MetrcDownloadSummaryLimited
+    err_details
+  }
+  ${MetrcDownloadSummaryLimitedFragmentDoc}
 `;
 export const GetAdvancesDocument = gql`
   subscription GetAdvances {
@@ -32187,12 +32211,12 @@ export const GetMetrcApiKeysPerCompanyDocument = gql`
       ...MetrcApiKey
       metrc_download_summaries(order_by: { date: desc }) {
         id
-        ...MetrcDownloadSummary
+        ...MetrcDownloadSummaryLimited
       }
     }
   }
   ${MetrcApiKeyFragmentDoc}
-  ${MetrcDownloadSummaryFragmentDoc}
+  ${MetrcDownloadSummaryLimitedFragmentDoc}
 `;
 
 /**
@@ -34433,6 +34457,64 @@ export type GetMetrcPackageLazyQueryHookResult = ReturnType<
 export type GetMetrcPackageQueryResult = Apollo.QueryResult<
   GetMetrcPackageQuery,
   GetMetrcPackageQueryVariables
+>;
+export const GetMetrcDownloadSummaryDocument = gql`
+  query GetMetrcDownloadSummary($id: uuid!) {
+    metrc_download_summaries_by_pk(id: $id) {
+      id
+      ...MetrcDownloadSummary
+    }
+  }
+  ${MetrcDownloadSummaryFragmentDoc}
+`;
+
+/**
+ * __useGetMetrcDownloadSummaryQuery__
+ *
+ * To run a query within a React component, call `useGetMetrcDownloadSummaryQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMetrcDownloadSummaryQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMetrcDownloadSummaryQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetMetrcDownloadSummaryQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetMetrcDownloadSummaryQuery,
+    GetMetrcDownloadSummaryQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetMetrcDownloadSummaryQuery,
+    GetMetrcDownloadSummaryQueryVariables
+  >(GetMetrcDownloadSummaryDocument, baseOptions);
+}
+export function useGetMetrcDownloadSummaryLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetMetrcDownloadSummaryQuery,
+    GetMetrcDownloadSummaryQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetMetrcDownloadSummaryQuery,
+    GetMetrcDownloadSummaryQueryVariables
+  >(GetMetrcDownloadSummaryDocument, baseOptions);
+}
+export type GetMetrcDownloadSummaryQueryHookResult = ReturnType<
+  typeof useGetMetrcDownloadSummaryQuery
+>;
+export type GetMetrcDownloadSummaryLazyQueryHookResult = ReturnType<
+  typeof useGetMetrcDownloadSummaryLazyQuery
+>;
+export type GetMetrcDownloadSummaryQueryResult = Apollo.QueryResult<
+  GetMetrcDownloadSummaryQuery,
+  GetMetrcDownloadSummaryQueryVariables
 >;
 export const GetVendorCompanyFileAttachmentsDocument = gql`
   query GetVendorCompanyFileAttachments($company_id: uuid!) {
