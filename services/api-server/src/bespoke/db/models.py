@@ -642,6 +642,7 @@ class MetrcSalesTransaction(Base):
 	recorded_datetime = Column(DateTime) # From Metrc info
 	payload = Column(JSON) # From Metrc info
 	last_modified_at = Column(DateTime) # From Metrc info
+	is_deleted = Column(Boolean)
 
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)

@@ -41,7 +41,9 @@ class TestPopulateSalesTable(db_unittest.TestCase):
 	def _assert_transactions(self, expected_transactions: List[Dict], session_maker: Callable) -> None:
 		with session_scope(session_maker) as session:
 			metrc_sales_transactions = cast(List[models.MetrcSalesTransaction], session.query(
-				models.MetrcSalesTransaction).order_by(models.MetrcSalesTransaction.last_modified_at).all())
+				models.MetrcSalesTransaction).filter(
+				cast(Callable, models.MetrcSalesTransaction.is_deleted.isnot)(True)
+			).order_by(models.MetrcSalesTransaction.last_modified_at).all())
 			self.assertEqual(len(expected_transactions), len(metrc_sales_transactions))
 			for i in range(len(metrc_sales_transactions)):
 				p = metrc_sales_transactions[i]
@@ -374,6 +376,15 @@ class TestPopulateSalesTable(db_unittest.TestCase):
 										'RecordedDateTime': parser.parse('02/12/2020').isoformat(),
 										'QuantitySold': 11,
 										'TotalPrice': 110.11,
+									}),
+									# This sales tx gets deleted because its PackageId
+									# doesnt show up on the next pull
+									_sales_transaction_json({
+										'Id': 20,
+										'LastModified': parser.parse('02/12/2020').isoformat(),
+										'RecordedDateTime': parser.parse('02/13/2020').isoformat(),
+										'QuantitySold': 20,
+										'TotalPrice': 200.11,
 									})
 								]
 							}
@@ -549,6 +560,15 @@ class TestPopulateSalesTable(db_unittest.TestCase):
 				'recorded_datetime': parser.parse('02/12/2020'),
 				'quantity_sold': 11,
 				'total_price': 110.11,
+			},
+			{
+				'type': 'active',
+				'company_id': company_id,
+				'receipt_id': 4,
+				'last_modified_at': parser.parse('02/12/2020'),
+				'recorded_datetime': parser.parse('02/13/2020'),
+				'quantity_sold': 20,
+				'total_price': 200.11,
 			},
 		]
 

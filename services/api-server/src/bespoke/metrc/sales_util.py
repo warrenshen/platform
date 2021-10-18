@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dateutil import parser
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
+from sqlalchemy import func
 from typing import Any, Callable, List, Iterable, Tuple, Dict, cast
 
 from bespoke import errors
@@ -215,6 +216,24 @@ def download_sales_info(ctx: metrc_common_util.DownloadContext, session_maker: C
 	sales_receipts_models = active_sales_receipts_models + inactive_sales_receipts_models
 	return sales_receipts_models
 
+def _update_sales_transaction(prev: models.MetrcSalesTransaction, cur: models.MetrcSalesTransaction) -> None:
+	prev.type = cur.type
+	prev.license_number = cur.license_number
+	prev.us_state = cur.us_state
+	prev.company_id = cur.company_id
+	prev.receipt_id = cur.receipt_id
+	prev.receipt_row_id = cur.receipt_row_id
+	prev.package_id = cur.package_id
+	prev.package_label = cur.package_label
+	prev.product_name = cur.product_name
+	prev.product_category_name = cur.product_category_name
+	prev.quantity_sold = cur.quantity_sold
+	prev.unit_of_measure = cur.unit_of_measure
+	prev.total_price = cur.total_price
+	prev.recorded_datetime = cur.recorded_datetime
+	prev.payload = cur.payload
+	prev.last_modified_at = cur.last_modified_at	
+
 def _write_sales_transactions_chunk(
 	receipt_id: str,
 	sales_transactions: List[models.MetrcSalesTransaction],
@@ -225,20 +244,54 @@ def _write_sales_transactions_chunk(
 	company_id = sales_transactions[0].company_id
 	us_state = sales_transactions[0].us_state
 
-	delete_query = models.MetrcSalesTransaction.__table__.delete().where(
+	query = session.query(func.count(models.MetrcSalesTransaction.id)).filter(
 		models.MetrcSalesTransaction.us_state == us_state
-	).where(
+	).filter(
 		models.MetrcSalesTransaction.receipt_id == receipt_id
-	).where(
+	).filter(
 		models.MetrcSalesTransaction.company_id == company_id
 	)
+	num_prev_txs = cast(Callable, query.scalar)()
+	if num_prev_txs > 0:
+		prev_sales_txs = session.query(models.MetrcSalesTransaction).filter(
+			models.MetrcSalesTransaction.us_state == us_state
+		).filter(
+			models.MetrcSalesTransaction.receipt_id == receipt_id
+		).filter(
+			models.MetrcSalesTransaction.company_id == company_id
+		).all()
+		package_id_to_prev_tx = {}
+		prev_txs_to_delete = {}
+		for prev_sales_tx in prev_sales_txs:
+			package_id_to_prev_tx[prev_sales_tx.package_id] = prev_sales_tx
+			prev_txs_to_delete[prev_sales_tx.package_id] = prev_sales_tx
+			
+
+		for sales_tx in sales_transactions:
+			if sales_tx.package_id in package_id_to_prev_tx:
+				prev_tx = package_id_to_prev_tx[sales_tx.package_id]
+				_update_sales_transaction(prev=prev_tx, cur=sales_tx)
+				prev_tx.is_deleted = False # In case it flipped from is_deleted True to False
+
+				if sales_tx.package_id in prev_txs_to_delete:
+					# If we see the same package_id from the previous set of transactions
+					# we don't have to delete it. But if we never find it
+					# we have to delete those transactions.
+					del prev_txs_to_delete[sales_tx.package_id]
+			else:
+				session.add(sales_tx)
+
+		for prev_tx_to_delete in prev_txs_to_delete.values():
+			prev_tx_to_delete.is_deleted = True
+
+		return
+
+	# If there are no previous transactions then do a bulk insert of all these
+	# sales transactions
 
 	# Sales transactions data comes in an "all or nothing" fashion, e.g.,
 	# we get all the transactions for a receipt ID. So if we pull that data again,
 	# we need to flush out what we had before associated with this receipt ID
-	session.execute(delete_query)
-	session.flush()
-
 	sales_transaction_dicts = []
 	for sales_tx in sales_transactions:
 		sales_transaction_dicts.append({
