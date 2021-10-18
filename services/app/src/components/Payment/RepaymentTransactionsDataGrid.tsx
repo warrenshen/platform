@@ -118,7 +118,7 @@ export default function RepaymentTransactionsDataGrid({
             label={
               isCompanyVisible
                 ? `${params.row.data.company_identifier}-R${params.row.data.payment.settlement_identifier}`
-                : `P${params.row.data.payment.settlement_identifier}`
+                : `R${params.row.data.payment.settlement_identifier}`
             }
           />
         ),

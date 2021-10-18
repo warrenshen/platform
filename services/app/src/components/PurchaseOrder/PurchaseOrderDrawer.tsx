@@ -54,11 +54,15 @@ export default function PurchaseOrderDrawer({
   const purchaseOrder = data?.purchase_orders_by_pk;
   const loans = purchaseOrder?.loans;
   const purchaseOrderFileIds = useMemo(() => {
-    const purchaseOrderFile = purchaseOrder?.purchase_order_files.filter(
-      (purchaseOrderFile) =>
-        purchaseOrderFile.file_type === PurchaseOrderFileTypeEnum.PurchaseOrder
-    )[0];
-    return purchaseOrderFile ? [purchaseOrderFile.file_id] : [];
+    return (
+      purchaseOrder?.purchase_order_files
+        .filter(
+          (purchaseOrderFile) =>
+            purchaseOrderFile.file_type ===
+            PurchaseOrderFileTypeEnum.PurchaseOrder
+        )
+        .map((purchaseOrderFile) => purchaseOrderFile.file_id) || []
+    );
   }, [purchaseOrder]);
   const purchaseOrderCannabisFileIds = useMemo(() => {
     return (

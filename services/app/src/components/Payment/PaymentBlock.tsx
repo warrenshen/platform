@@ -42,7 +42,7 @@ export default function PaymentBlock({ payment }: Props) {
               </Typography>
               <PaymentDrawerLauncher
                 paymentId={payment.id}
-                label={`P${payment.settlement_identifier}`}
+                label={`R${payment.settlement_identifier}`}
               />
             </Box>
             <Box display="flex" flexDirection="column" width={200}>
