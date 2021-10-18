@@ -68,12 +68,15 @@ export default function InvoiceDrawer({ invoiceId, handleClose }: Props) {
   const loans = invoice?.loans;
   const productType = invoice?.company?.contract?.product_type || null;
 
-  const invoiceFileIds = useMemo(() => {
-    const invoiceFile = invoice?.invoice_files.filter(
-      (invoiceFile) => invoiceFile.file_type === InvoiceFileTypeEnum.Invoice
-    )[0];
-    return invoiceFile ? [invoiceFile.file_id] : [];
-  }, [invoice]);
+  const invoiceFileIds = useMemo(
+    () =>
+      invoice?.invoice_files
+        .filter(
+          (invoiceFile) => invoiceFile.file_type === InvoiceFileTypeEnum.Invoice
+        )
+        .map((invoiceFile) => invoiceFile.file_id) || [],
+    [invoice]
+  );
   const invoiceCannabisFileIds = useMemo(
     () =>
       invoice?.invoice_files

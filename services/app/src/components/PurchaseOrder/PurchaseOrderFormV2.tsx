@@ -250,7 +250,11 @@ export default function PurchaseOrderFormV2({
       <Box display="flex" flexDirection="column" mt={4}>
         <Box mb={1}>
           <Typography variant="subtitle1" color="textSecondary">
-            Purchase Order File Attachment
+            Purchase Order File Attachment(s)
+          </Typography>
+          <Typography variant="body2" color="textSecondary">
+            Please upload at least one file showing information about the
+            purchase order.
           </Typography>
         </Box>
         <FileUploader

@@ -164,8 +164,8 @@ export default function CreateUpdatePurchaseOrderModal({
 
         // This must live here as to not freeze new files before submitting
         // Otherwise, it freezes new files on rerender
-        let purchaseOrderFileIds: string[] = [];
-        let purchaseOrderCannabisFileIds: string[] = [];
+        let purchaseOrderFileIds: Files["id"] = [];
+        let purchaseOrderCannabisFileIds: Files["id"] = [];
         existingPurchaseOrder.purchase_order_files.forEach((pof) => {
           if (pof.file_type === PurchaseOrderFileTypeEnum.Cannabis) {
             purchaseOrderCannabisFileIds.push(pof.file_id);

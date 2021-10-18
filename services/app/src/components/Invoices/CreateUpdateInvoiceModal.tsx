@@ -16,6 +16,7 @@ import {
   RequestStatusEnum,
   useGetInvoiceByIdQuery,
   usePayorsByPartnerCompanyQuery,
+  Files,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -73,9 +74,7 @@ export default function CreateUpdateInvoiceModal({
 
   const [invoice, setInvoice] = useState(newInvoice);
 
-  const [invoiceFile, setInvoiceFile] = useState<InvoiceFileFragment | null>(
-    null
-  );
+  const [invoiceFiles, setInvoiceFiles] = useState<InvoiceFileFragment[]>([]);
   const [invoiceCannabisFiles, setInvoiceCannabisFiles] = useState<
     InvoiceFileFragment[]
   >([]);
@@ -87,6 +86,14 @@ export default function CreateUpdateInvoiceModal({
     },
   });
   const payors = data?.payors || [];
+
+  const [frozenInvoiceFileIds, setFrozenInvoiceFileIds] = useState<
+    Files["id"][]
+  >([]);
+  const [
+    frozenInvoiceCannabisFileIds,
+    setFrozenInvoiceCannabisFileIds,
+  ] = useState<Files["id"][]>([]);
 
   const { loading: isExistingInvoiceLoading } = useGetInvoiceByIdQuery({
     skip: actionType === ActionType.New,
@@ -100,10 +107,10 @@ export default function CreateUpdateInvoiceModal({
       setInvoice(
         mergeWith(newInvoice, existingInvoice, (a, b) => (isNull(b) ? a : b))
       );
-      setInvoiceFile(
+      setInvoiceFiles(
         existingInvoice.invoice_files.filter(
-          (f) => f.file_type === InvoiceFileTypeEnum.Invoice
-        )[0]
+          (invoiceFile) => invoiceFile.file_type === InvoiceFileTypeEnum.Invoice
+        )
       );
       setInvoiceCannabisFiles(
         existingInvoice.invoice_files.filter(
@@ -111,6 +118,20 @@ export default function CreateUpdateInvoiceModal({
             invoiceFile.file_type === InvoiceFileTypeEnum.Cannabis
         )
       );
+
+      // This must live here as to not freeze new files before submitting
+      // Otherwise, it freezes new files on rerender
+      let invoiceFileIds: Files["id"] = [];
+      let invoiceCannabisFileIds: Files["id"] = [];
+      existingInvoice.invoice_files.forEach((file) => {
+        if (file.file_type === InvoiceFileTypeEnum.Cannabis) {
+          invoiceCannabisFileIds.push(file.file_id);
+        } else {
+          invoiceFileIds.push(file.file_id);
+        }
+      });
+      setFrozenInvoiceFileIds(invoiceFileIds);
+      setFrozenInvoiceCannabisFileIds(invoiceCannabisFileIds);
     },
   });
 
@@ -150,11 +171,11 @@ export default function CreateUpdateInvoiceModal({
   };
 
   const prepareInvoiceFiles = () => {
-    const invoiceFileData = invoiceFile && {
+    const invoiceFilesData = invoiceFiles.map((invoiceFile) => ({
       invoice_id: invoiceFile.invoice_id,
       file_id: invoiceFile.file_id,
       file_type: invoiceFile.file_type,
-    };
+    }));
     const invoiceCannabisFilesData = invoiceCannabisFiles.map(
       (invoiceFile) => ({
         invoice_id: invoiceFile.invoice_id,
@@ -162,11 +183,7 @@ export default function CreateUpdateInvoiceModal({
         file_type: invoiceFile.file_type,
       })
     );
-    const invoiceFilesData = [
-      ...(invoiceFileData ? [invoiceFileData] : []),
-      ...invoiceCannabisFilesData,
-    ];
-    return invoiceFilesData;
+    return [...invoiceFilesData, ...invoiceCannabisFilesData];
   };
 
   const handleClickSaveDraft = async () => {
@@ -243,7 +260,7 @@ export default function CreateUpdateInvoiceModal({
     !invoice.invoice_due_date ||
     !invoice.subtotal_amount ||
     !invoice.total_amount ||
-    !invoiceFile;
+    !invoiceFiles;
 
   // Do not attempt a render unless we're ready
   if (!isReady) {
@@ -277,12 +294,14 @@ export default function CreateUpdateInvoiceModal({
         companyId={companyId}
         productType={productType}
         invoice={invoice}
-        invoiceFile={invoiceFile}
+        invoiceFiles={invoiceFiles}
         invoiceCannabisFiles={invoiceCannabisFiles}
         payors={payors}
         setInvoice={setInvoice}
-        setInvoiceFile={setInvoiceFile}
+        setInvoiceFiles={setInvoiceFiles}
         setInvoiceCannabisFiles={setInvoiceCannabisFiles}
+        frozenInvoiceFileIds={frozenInvoiceFileIds}
+        frozenInvoiceCannabisFileIds={frozenInvoiceCannabisFileIds}
       />
     </Modal>
   );

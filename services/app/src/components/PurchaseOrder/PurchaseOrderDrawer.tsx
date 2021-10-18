@@ -190,7 +190,7 @@ export default function PurchaseOrderDrawer({
       <Box display="flex" flexDirection="column" mt={2}>
         <Box mb={1}>
           <Typography variant="subtitle2" color="textSecondary">
-            Purchase Order File Attachment
+            Purchase Order File Attachment(s)
           </Typography>
         </Box>
         <DownloadThumbnail

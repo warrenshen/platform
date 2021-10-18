@@ -29,12 +29,14 @@ interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum;
   invoice: InvoicesInsertInput;
-  invoiceFile: InvoiceFileFragment | null;
+  invoiceFiles: InvoiceFileFragment[];
   invoiceCannabisFiles: InvoiceFileFragment[];
   payors: PayorsByPartnerCompanyQuery["payors"];
   setInvoice: (invoice: InvoicesInsertInput) => void;
-  setInvoiceFile: (file: InvoiceFileFragment | null) => void;
+  setInvoiceFiles: (files: InvoiceFileFragment[]) => void;
   setInvoiceCannabisFiles: (files: InvoiceFileFragment[]) => void;
+  frozenInvoiceFileIds: string[];
+  frozenInvoiceCannabisFileIds: string[];
 }
 
 /*
@@ -61,16 +63,18 @@ export default function InvoiceForm({
   companyId,
   productType,
   invoice,
-  invoiceFile,
+  invoiceFiles,
   invoiceCannabisFiles,
   payors,
   setInvoice,
-  setInvoiceFile,
+  setInvoiceFiles,
   setInvoiceCannabisFiles,
+  frozenInvoiceFileIds,
+  frozenInvoiceCannabisFileIds,
 }: Props) {
   const invoiceFileIds = useMemo(
-    () => (invoiceFile ? [invoiceFile.file_id] : []),
-    [invoiceFile]
+    () => invoiceFiles.map((invoiceFile) => invoiceFile.file_id),
+    [invoiceFiles]
   );
   const invoiceCannabisFileIds = useMemo(
     () => invoiceCannabisFiles.map((invoiceFile) => invoiceFile.file_id),
@@ -218,22 +222,35 @@ export default function InvoiceForm({
       <Box display="flex" flexDirection="column" mt={4}>
         <Box mb={1}>
           <Typography variant="subtitle1" color="textSecondary">
-            Invoice File Attachment
+            Invoice File Attachment(s)
+          </Typography>
+          <Typography variant="body2" color="textSecondary">
+            Please upload at least one file showing information about the
+            invoice.
           </Typography>
         </Box>
         <FileUploader
           companyId={companyId}
           fileType={FileTypeEnum.INVOICE}
-          maxFilesAllowed={1}
           fileIds={invoiceFileIds}
-          handleDeleteFileById={() => setInvoiceFile(null)}
+          frozenFileIds={frozenInvoiceFileIds}
+          handleDeleteFileById={(fileId) =>
+            setInvoiceFiles(
+              invoiceFiles.filter(
+                (invoiceFile) => invoiceFile.file_id !== fileId
+              )
+            )
+          }
           handleNewFiles={(files) =>
-            setInvoiceFile({
-              invoice_id: invoice.id,
-              file_id: files[0].id,
-              file_type: InvoiceFileTypeEnum.Invoice,
-              file: files[0],
-            })
+            setInvoiceFiles([
+              ...invoiceFiles,
+              ...files.map((file) => ({
+                invoice_id: invoice.id,
+                file_id: file.id,
+                file_type: InvoiceFileTypeEnum.Invoice,
+                file: file,
+              })),
+            ])
           }
         />
         {!!invoice.is_cannabis && (
@@ -251,6 +268,7 @@ export default function InvoiceForm({
               companyId={companyId}
               fileType={FileTypeEnum.INVOICE}
               fileIds={invoiceCannabisFileIds}
+              frozenFileIds={frozenInvoiceCannabisFileIds}
               handleDeleteFileById={(fileId) =>
                 setInvoiceCannabisFiles(
                   invoiceCannabisFiles.filter(
