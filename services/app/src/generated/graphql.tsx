@@ -10607,9 +10607,7 @@ export type MetrcDownloadSummariesBoolExp = {
 /** unique or primary key constraints on table "metrc_download_summaries" */
 export enum MetrcDownloadSummariesConstraint {
   /** unique or primary key constraint */
-  MetrcDownloadSummariesCompanyIdMetrcApiKeyIdLicensKey = "metrc_download_summaries_company_id_metrc_api_key_id_licens_key",
-  /** unique or primary key constraint */
-  MetrcDownloadSummariesIdKey = "metrc_download_summaries_id_key",
+  MetrcDownloadSummariesMetrcApiKeyIdDateLicenseNumberK = "metrc_download_summaries_metrc_api_key_id_date_license_number_k",
   /** unique or primary key constraint */
   MetrcDownloadSummariesPkey = "metrc_download_summaries_pkey",
 }
@@ -12327,9 +12325,9 @@ export enum MetrcSalesReceiptsConstraint {
   /** unique or primary key constraint */
   MetrcSalesReceiptsPkey = "metrc_sales_receipts_pkey",
   /** unique or primary key constraint */
-  MetrcSalesReceiptsReceiptIdKey = "metrc_sales_receipts_receipt_id_key",
+  MetrcSalesReceiptsUsStateReceiptIdKey = "metrc_sales_receipts_us_state_receipt_id_key",
   /** unique or primary key constraint */
-  MetrcSalesReceiptsReceiptNumberKey = "metrc_sales_receipts_receipt_number_key",
+  MetrcSalesReceiptsUsStateReceiptNumberKey = "metrc_sales_receipts_us_state_receipt_number_key",
 }
 
 /** input type for incrementing integer column in table "metrc_sales_receipts" */

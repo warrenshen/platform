@@ -1,0 +1,1 @@
+DROP INDEX IF EXISTS metrc_download_summaries_company_id_metrc_key_license_date_key;
