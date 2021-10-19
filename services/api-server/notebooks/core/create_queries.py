@@ -1,4 +1,7 @@
-def create_company_incoming_transfer_packages_query(company_identifier, start_date):
+def create_company_incoming_transfer_packages_query(company_identifier, start_date, end_date=None):
+    end_date_where_clause = f"""
+        and metrc_transfers.created_date <= '{end_date}'
+    """ if end_date else ''
     return f"""
         select
             metrc_transfer_packages.id as package_row_id,
@@ -49,6 +52,7 @@ def create_company_incoming_transfer_packages_query(company_identifier, start_da
                 company_deliveries.delivery_type = 'INCOMING_UNKNOWN'
             )
             and metrc_transfers.created_date >= '{start_date}'
+            {end_date_where_clause}
         order by
             created_date desc
     """
