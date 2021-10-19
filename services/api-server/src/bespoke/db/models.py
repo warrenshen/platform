@@ -194,7 +194,9 @@ class CompanyLicense(Base):
 	license_description = Column(Text)
 	us_state = Column(Text)
 	expiration_date = Column(Date)
+
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	
 	def as_dict(self) -> CompanyLicenseDict:
 		return CompanyLicenseDict(
