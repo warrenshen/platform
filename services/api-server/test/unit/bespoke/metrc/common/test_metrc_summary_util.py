@@ -172,7 +172,7 @@ class TestDownloadSummary(unittest.TestCase):
 		}))
 
 
-class TestWriteDownloadSummary(db_unittest.TestCase):
+class TestWriteDownloadSummaryAndNeedsRerun(db_unittest.TestCase):
 
 	def _write_metrc_api_key(self, seed: test_helper.BasicSeed, company_index: int) -> str:
 		security_cfg = security_util.ConfigDict(
@@ -277,6 +277,15 @@ class TestWriteDownloadSummary(db_unittest.TestCase):
 			self.assertEqual(1, summary.num_retries)
 			self.assertEqual(MetrcDownloadSummaryStatus.NEEDS_RETRY, summary.status)
 
+		with session_scope(self.session_maker) as session:
+			retry_infos, err = metrc_summary_util.fetch_metrc_daily_summaries_to_rerun(
+				session, num_to_fetch=1)
+			self.assertIsNone(err)
+			self.assertEqual({
+				'cur_date': date_util.load_date_str('10/01/2020'),
+				'company_id': company_id,
+			}, retry_infos[0])
+
 	def test_write_summaries_from_different_api_keys(self) -> None:
 		self.reset()
 		session_maker = self.session_maker
@@ -312,7 +321,6 @@ class TestWriteDownloadSummary(db_unittest.TestCase):
 			'license_number': 'abcd',
 			'errors': [
 				{
-					# Access Denied gets pinned, regardless of what happens later
 					'path': '/packages/active',
 					'reason': 'Internal Server Error',
 					'status_code': 500
@@ -322,5 +330,132 @@ class TestWriteDownloadSummary(db_unittest.TestCase):
 		self._write_download_summary(test_input)
 
 		with session_scope(self.session_maker) as session:
-			summaries = session.query(models.MetrcDownloadSummary).all()
+			summaries = session.query(models.MetrcDownloadSummary).order_by(
+				models.MetrcDownloadSummary.created_at
+			).all()
 			self.assertEqual(2, len(summaries))
+
+			self.assertEqual(MetrcDownloadSummaryStatus.COMPLETED, summaries[0].status)
+			self.assertEqual(MetrcDownloadSummaryStatus.NEEDS_RETRY, summaries[1].status)
+
+		with session_scope(self.session_maker) as session:
+			retry_infos, err = metrc_summary_util.fetch_metrc_daily_summaries_to_rerun(
+				session, num_to_fetch=2)
+			self.assertIsNone(err)
+			self.assertEqual(1, len(retry_infos)) # There is only one day that needs retry
+			self.assertEqual({
+				'cur_date': date_util.load_date_str('10/01/2020'),
+				'company_id': company_id,
+			}, retry_infos[0])
+
+	def test_write_summaries_different_days_different_customers(self) -> None:
+		self.reset()
+		session_maker = self.session_maker
+		seed = test_helper.BasicSeed.create(self.session_maker, self)
+		seed.initialize()
+
+		metrc_api_key_id = self._write_metrc_api_key(seed, company_index=0)
+		company_id = seed.get_company_id('company_admin', index=0)
+
+		test_input: Dict = {
+			'cur_date': '10/01/2020',
+			'company_id': company_id,
+			'metrc_api_key_id': metrc_api_key_id,
+			'license_number': 'abcd',
+			'errors': []
+		}
+		self._write_download_summary(test_input)
+
+		metrc_api_key_id1 = self._write_metrc_api_key(seed, company_index=1)
+		company_id1 = seed.get_company_id('company_admin', index=1)
+
+		test_input = {
+			'cur_date': '10/01/2020',
+			'company_id': company_id1,
+			'metrc_api_key_id': metrc_api_key_id1,
+			'license_number': 'efgh',
+			'errors': []
+		}
+		self._write_download_summary(test_input)
+
+		metrc_api_key_id2_1 = self._write_metrc_api_key(seed, company_index=2)
+		company_id2 = seed.get_company_id('company_admin', index=2)
+
+		test_input = {
+			'cur_date': '10/01/2020',
+			'company_id': company_id2,
+			'metrc_api_key_id': metrc_api_key_id2_1,
+			'license_number': 'efgh',
+			'errors': [
+				{
+					'path': '/packages/active',
+					'reason': 'Internal Server Error',
+					'status_code': 500
+				},
+			]
+		}
+		self._write_download_summary(test_input)
+
+		metrc_api_key_id2_2 = self._write_metrc_api_key(seed, company_index=2)
+		company_id2 = seed.get_company_id('company_admin', index=2)
+
+		test_input = {
+			'cur_date': '10/01/2020',
+			'company_id': company_id2,
+			'metrc_api_key_id': metrc_api_key_id2_2,
+			'license_number': 'efgh',
+			'errors': [
+				{
+					'path': '/packages/active',
+					'reason': 'Internal Server Error',
+					'status_code': 500
+				},
+			]
+		}
+		self._write_download_summary(test_input)
+
+		test_input = {
+			'cur_date': '10/02/2020',
+			'company_id': company_id2,
+			'metrc_api_key_id': metrc_api_key_id2_2,
+			'license_number': 'efgh',
+			'errors': [
+				{
+					'path': '/packages/active',
+					'reason': 'Internal Server Error',
+					'status_code': 500
+				},
+			]
+		}
+		self._write_download_summary(test_input)
+
+		with session_scope(self.session_maker) as session:
+			summaries = session.query(models.MetrcDownloadSummary).order_by(
+				models.MetrcDownloadSummary.created_at
+			).all()
+			self.assertEqual(5, len(summaries))
+
+			self.assertEqual(MetrcDownloadSummaryStatus.COMPLETED, summaries[0].status)
+			self.assertEqual(MetrcDownloadSummaryStatus.COMPLETED, summaries[1].status)
+			self.assertEqual(MetrcDownloadSummaryStatus.NEEDS_RETRY, summaries[2].status)
+			self.assertEqual(MetrcDownloadSummaryStatus.NEEDS_RETRY, summaries[3].status)
+			self.assertEqual(MetrcDownloadSummaryStatus.NEEDS_RETRY, summaries[4].status)
+
+		with session_scope(self.session_maker) as session:
+			retry_infos, err = metrc_summary_util.fetch_metrc_daily_summaries_to_rerun(
+				session, num_to_fetch=5)
+			retry_infos.sort(key=lambda x: x['cur_date'])
+			# We end up with 2 (company_id, date) to retry because we group_by the
+			# company_id and date, and we don't retry multiple times if multiple licenses
+			# or multiple keys failed.
+			self.assertIsNone(err)
+			self.assertEqual(2, len(retry_infos)) # There is only one day that needs retry
+			self.assertEqual({
+				'cur_date': date_util.load_date_str('10/01/2020'),
+				'company_id': company_id2,
+			}, retry_infos[0])
+
+			self.assertEqual({
+				'cur_date': date_util.load_date_str('10/02/2020'),
+				'company_id': company_id2,
+			}, retry_infos[1])

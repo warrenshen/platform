@@ -18,6 +18,11 @@ from bespoke.metrc.common.metrc_error_util import (
 	MetrcErrorDetailsDict, MetrcRetryError)
 from bespoke.email import sendgrid_util
 
+RerunDailyJobInfoDict = TypedDict('RerunDailyJobInfoDict', {
+	'cur_date': datetime.date,
+	'company_id': str
+})
+
 def _get_download_summary(retry_errors: List[MetrcRetryError]) -> models.MetrcDownloadSummary:
 	"""
 		Get a summary based on all the errors seen for the day
@@ -112,7 +117,13 @@ def _copy_over_summary(prev: models.MetrcDownloadSummary, cur: models.MetrcDownl
 	prev.plants_status = cur.plants_status
 	prev.sales_status = cur.sales_status
 	prev.transfers_status = cur.transfers_status
+
+	if prev.num_retries > 3:
+		# We dont allow a summary to retry more than 3 times
+		prev.status = MetrcDownloadSummaryStatus.FAILURE
+
 	prev.num_retries += 1
+
 
 def write_download_summary(
 	retry_errors: List[MetrcRetryError],
@@ -152,3 +163,32 @@ def write_download_summary(
 
 			logging.error('Error with one of the metrc downloads for day {} company {}. Reason: {}'.format(
 				cur_date, company_id, retry_error.err_details))
+
+def fetch_metrc_daily_summaries_to_rerun(session: Session, num_to_fetch: int) -> Tuple[List[RerunDailyJobInfoDict], errors.Error]:
+	rows_to_fetch = num_to_fetch * 2
+
+	summaries = session.query(models.MetrcDownloadSummary).filter(
+		models.MetrcDownloadSummary.status == MetrcDownloadSummaryStatus.NEEDS_RETRY
+	).limit(rows_to_fetch).all()
+
+	# We only want to re-run metrc download summaries for the unique combination
+	# of (date, company_id)
+	unique_tuples = set([])
+	for summary in summaries:
+		unique_tuples.add((
+			summary.date, str(summary.company_id)
+		))
+		if len(unique_tuples) >= num_to_fetch:
+			# Weve reached all the re-runs that have been requested
+			break
+
+	rerun_daily_infos = []
+	for tup in unique_tuples:
+		cur_date = tup[0]
+		company_id = tup[1]
+		rerun_daily_infos.append(RerunDailyJobInfoDict(
+			cur_date=cur_date,
+			company_id=company_id
+		))
+
+	return rerun_daily_infos, None

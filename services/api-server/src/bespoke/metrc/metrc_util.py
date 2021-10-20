@@ -374,19 +374,6 @@ def _download_data_for_license(
 		'sales_transactions_api': ctx.request_status['sales_transactions_api']
 	}, None
 
-def retry_download_errs_for_one_day() -> None:
-	"""
-	retry_helper = metrc_common_util.RetryHelper(download_errs)
-	ctx = metrc_common_util.DownloadContext(
-		sendgrid_client, cur_date, company_details, 
-		state_info['apis_to_use'], license, 
-		retry_helper, debug=False
-	)
-	api_status_dict, err = _download_data_for_license(
-		ctx, session_maker)
-	"""
-	pass
-
 def _download_and_summarize_data_for_license(
 	ctx: metrc_common_util.DownloadContext, 
 	session_maker: Callable,

@@ -4,7 +4,7 @@ import time
 import datetime
 import typing
 from datetime import timedelta
-from typing import Callable, List, Tuple, cast
+from typing import Any, Callable, List, Tuple, cast
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from mypy_extensions import TypedDict
@@ -23,6 +23,7 @@ from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.finance.loans import reports_util
 from bespoke.metrc import metrc_util
+from bespoke.metrc.common import metrc_summary_util
 from server.config import Config
 from server.views.common import auth_util, handler_util
 
@@ -95,6 +96,44 @@ def _set_needs_balance_recomputed(
 
 		return True, None
 
+def _download_metrc_data_for_one_customer(cur_date: datetime.date, company_id: str, current_app: Any) -> Tuple[metrc_util.DownloadDataRespDict, errors.Error]:
+	cfg = cast(Config, current_app.app_config)
+	sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
+
+	resp, fatal_err = metrc_util.download_data_for_one_customer(
+		auth_provider=cfg.get_metrc_auth_provider(),
+		security_cfg=cfg.get_security_config(),
+		worker_cfg=cfg.get_metrc_worker_config(),
+		sendgrid_client=sendgrid_client,
+		cur_date=cur_date,
+		company_id=company_id,
+		session_maker=current_app.session_maker
+	)
+	return resp, fatal_err
+
+def _handle_errs_after_metrc_downloads(
+	before: float, 
+	trigger_name: str,
+	all_errs: List[errors.Error],
+	company_ids: List[str],
+	failed_company_ids: List[str]
+) -> Tuple[bool, errors.Error]:
+	descriptive_errors = ['{}'.format(err) for err in all_errs]
+	after = time.time()
+	additional_info = 'Took {:.2f} seconds'.format(after - before)
+	final_fatal_err = errors.Error('All companies failed') if len(failed_company_ids) == len(company_ids) else None
+
+	err = _send_ops_notification(_prepare_notification_data(
+		trigger_name,
+		final_fatal_err,
+		descriptive_errors,
+		additional_info
+	))
+	if err:
+		return None, errors.Error(f"Failed sending download_metrc_data trigger notification. Error: '{err}'")
+
+	return True, None
+
 class UpdateDirtyCompanyBalancesView(MethodView):
 	decorators = [auth_util.requires_async_magic_header]
 
@@ -164,16 +203,14 @@ class ExpireActiveEbbaApplications(MethodView):
 	# This function cannot be type checked because it uses "join" which is an
 	# untyped function
 	@handler_util.catch_bad_json_request
-	@typing.no_type_check
 	def post(self) -> Response:
 		logging.info("Received request to expire old ebba applications")
 
 		with session_scope(current_app.session_maker) as session:
-			results = session.query(models.CompanySettings) \
-				.filter(models.CompanySettings.active_ebba_application_id != None) \
-				.join(models.EbbaApplication) \
-				.filter(models.EbbaApplication.expires_at < func.now()) \
-				.all()
+			results = session.query(models.CompanySettings).filter( # type: ignore
+				models.CompanySettings.active_ebba_application_id != None).join(
+				models.EbbaApplication
+				).filter(models.EbbaApplication.expires_at < func.now()).all()
 
 			for company in results:
 				events.new(
@@ -196,17 +233,49 @@ class RerunFailedMetrcDownloadsView(MethodView):
 	decorators = [auth_util.requires_async_magic_header]
 
 	@handler_util.catch_bad_json_request
-	@typing.no_type_check
 	def post(self) -> Response:
 		logging.info("Received request to rerun failed metrc downloads")
+		before = time.time()
 
 		with session_scope(current_app.session_maker) as session:
-			# TODO(dlluncor): Re-run per day
-			pass
+			retry_infos, err = metrc_summary_util.fetch_metrc_daily_summaries_to_rerun(
+				session,
+				num_to_fetch=2
+			)
+			if err:
+				return handler_util.make_error_response(err)
+
+		company_ids = []
+		failed_company_ids = []
+		all_errs = []
+
+		for retry_info in retry_infos:
+			resp, fatal_err = _download_metrc_data_for_one_customer(
+				cur_date=retry_info['cur_date'], 
+				company_id=retry_info['company_id'], 
+				current_app=current_app)
+			company_ids.append(retry_info['company_id'])
+
+			if fatal_err:
+				all_errs.append(fatal_err)
+				failed_company_ids.append(retry_info['company_id'])
+
+		email_success, err = _handle_errs_after_metrc_downloads(
+			before=before,
+			trigger_name='rerun_failed_metrc_downloads',
+			company_ids=company_ids,
+			failed_company_ids=failed_company_ids,
+			all_errs=all_errs,
+		)
+
+		if err:
+			return handler_util.make_error_response(err)
+
+		logging.info(f"Finished rerunning download metrc data for needs_retry download summaries")
 
 		return make_response(json.dumps({
 			"status": "OK",
-			"errors": [],
+			"errors": ['{}'.format(err) for err in all_errs],
 		}))
 
 class SetDirtyCompanyBalancesView(MethodView):
@@ -252,9 +321,6 @@ class DownloadMetrcDataView(MethodView):
 	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
 		logging.info("Received request to download metrc data for all customers")
-		cfg = cast(Config, current_app.app_config)
-		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
-
 		data = json.loads(request.data)
 
 		TIME_WINDOW_IN_DAYS = 2
@@ -292,15 +358,9 @@ class DownloadMetrcDataView(MethodView):
 			cur_date = start_date
 
 			while cur_date <= end_date:
-				resp, fatal_err = metrc_util.download_data_for_one_customer(
-					auth_provider=cfg.get_metrc_auth_provider(),
-					security_cfg=cfg.get_security_config(),
-					worker_cfg=cfg.get_metrc_worker_config(),
-					sendgrid_client=sendgrid_client,
-					cur_date=cur_date,
-					company_id=company_id,
-					session_maker=current_app.session_maker
-				)
+				resp, fatal_err = _download_metrc_data_for_one_customer(
+					cur_date, company_id, current_app)
+
 				if fatal_err:
 					all_errs.append(fatal_err)
 					failed_company_ids.append(company_id)
@@ -309,26 +369,23 @@ class DownloadMetrcDataView(MethodView):
 
 				cur_date = cur_date + timedelta(days=1)
 
-		descriptive_errors = ['{}'.format(err) for err in all_errs]
-		after = time.time()
-		additional_info = 'Took {:.2f} seconds'.format(after - before)
-		final_fatal_err = errors.Error('All companies failed') if len(failed_company_ids) == len(company_ids) else None
 
-		err = _send_ops_notification(_prepare_notification_data(
-			'download_metrc_data',
-			final_fatal_err,
-			descriptive_errors,
-			additional_info
-		))
+		email_success, err = _handle_errs_after_metrc_downloads(
+			before=before,
+			trigger_name='download_metrc_data',
+			company_ids=company_ids,
+			failed_company_ids=failed_company_ids,
+			all_errs=all_errs,
+		)
+
 		if err:
-			return handler_util.make_error_response(
-				f"Failed sending download_metrc_data trigger notification. Error: '{err}'")
+			return handler_util.make_error_response(err)
 
 		logging.info(f"Finished downloading metrc data for all customers")
 
 		return make_response(json.dumps({
 			'status': 'OK',
-			'errors': descriptive_errors
+			'errors': ['{}'.format(err) for err in all_errs]
 		}))
 
 class CompanyLicensesModifiedView(MethodView):
