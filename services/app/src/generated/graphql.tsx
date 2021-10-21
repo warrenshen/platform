@@ -3046,7 +3046,7 @@ export type CompanyLicenses = {
   /** An object relationship */
   company?: Maybe<Companies>;
   company_id?: Maybe<Scalars["uuid"]>;
-  created_at?: Maybe<Scalars["timestamptz"]>;
+  created_at: Scalars["timestamptz"];
   expiration_date?: Maybe<Scalars["date"]>;
   /** An object relationship */
   file?: Maybe<Files>;
@@ -3060,7 +3060,7 @@ export type CompanyLicenses = {
   license_number?: Maybe<Scalars["String"]>;
   license_status?: Maybe<Scalars["String"]>;
   rollup_id?: Maybe<Scalars["String"]>;
-  updated_at?: Maybe<Scalars["timestamptz"]>;
+  updated_at: Scalars["timestamptz"];
   us_state?: Maybe<Scalars["String"]>;
 };
 
