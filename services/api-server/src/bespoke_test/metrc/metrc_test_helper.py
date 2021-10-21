@@ -64,7 +64,8 @@ def create_download_context(
 		sendgrid_client=None,
 		worker_cfg=MetrcWorkerConfig(
 			num_parallel_licenses=1,
-			num_parallel_sales_transactions=2
+			num_parallel_sales_transactions=2,
+			force_fetch_missing_sales_transactions=False
 		),
 		cur_date=date_util.load_date_str(cur_date),
 		company_details=metrc_common_util.CompanyDetailsDict(

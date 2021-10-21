@@ -44,7 +44,9 @@ REQUIRED_ENV_VARS = [
 	'METRC_USER_KEY',
 ]
 
-def main(company_identifier: str, start_date: str, end_date: str) -> None:
+def main(
+	company_identifier: str, start_date: str, end_date: str,
+	force_fetch_missing_sales_transactions: bool) -> None:
 	for env_var in REQUIRED_ENV_VARS:
 		if not os.environ.get(env_var):
 			print(f'You must set "{env_var}" in the environment to use this script')
@@ -88,6 +90,7 @@ def main(company_identifier: str, start_date: str, end_date: str) -> None:
 			worker_cfg=MetrcWorkerConfig(
 				num_parallel_licenses=5,
 				num_parallel_sales_transactions=4,
+				force_fetch_missing_sales_transactions=force_fetch_missing_sales_transactions
 			),
 			security_cfg=config.get_security_config(),
 			sendgrid_client=sendgrid_client,
@@ -108,6 +111,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('company_identifier', help='Identifier of company to sync metrc data for')
 parser.add_argument('start_date', help='Start date to sync metrc data for')
 parser.add_argument('end_date', help='End date to sync metrc data for')
+parser.add_argument('--force_fetch_missing_sales_transactions', dest='force_fetch_missing_sales_transactions', action='store_true')
 
 if __name__ == '__main__':
 	args = parser.parse_args()
@@ -115,4 +119,5 @@ if __name__ == '__main__':
 		company_identifier=args.company_identifier,
 		start_date=args.start_date,
 		end_date=args.end_date,
+		force_fetch_missing_sales_transactions=args.force_fetch_missing_sales_transactions
 	)

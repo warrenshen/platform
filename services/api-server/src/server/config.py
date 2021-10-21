@@ -109,7 +109,8 @@ class Config(object):
 	def get_metrc_worker_config(self) -> MetrcWorkerConfig:
 		return MetrcWorkerConfig(
 			num_parallel_licenses=1,
-			num_parallel_sales_transactions=1
+			num_parallel_sales_transactions=1,
+			force_fetch_missing_sales_transactions=False
 		)
 
 	def get_metrc_auth_provider(self) -> MetrcAuthProvider:

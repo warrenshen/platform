@@ -116,6 +116,12 @@ class SalesReceipts(object):
 			This prevents us from querying sales transactions where we know the
 			sales receipt hasn't changed.
 		"""
+		if ctx.worker_cfg.force_fetch_missing_sales_transactions:
+			# If we want to force fetch transactions for all sales receipts,
+			# then there is no need to run any filtering logic, and we essentially
+			# process all sales receipts anew
+			return self
+
 		us_state = ctx.license['us_state']
 		receipt_numbers = [s['ReceiptNumber'] for s in self._sales_receipts]
 		prev_sales_receipts = []
