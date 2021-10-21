@@ -118,6 +118,12 @@ def _handle_errs_after_metrc_downloads(
 	company_ids: List[str],
 	failed_company_ids: List[str]
 ) -> Tuple[bool, errors.Error]:
+	
+	if not company_ids:
+		# If we didnt run any downloads for any companies, no need to
+		# send any email or error messages
+		return True, None
+
 	descriptive_errors = ['{}'.format(err) for err in all_errs]
 	after = time.time()
 	additional_info = 'Took {:.2f} seconds'.format(after - before)
@@ -243,7 +249,7 @@ class RerunFailedMetrcDownloadsView(MethodView):
 				num_to_fetch=2
 			)
 			if err:
-				return handler_util.make_error_response(err)
+				return handler_util.make_error_response(err, status_code=500)
 
 		company_ids = []
 		failed_company_ids = []
@@ -269,9 +275,13 @@ class RerunFailedMetrcDownloadsView(MethodView):
 		)
 
 		if err:
-			return handler_util.make_error_response(err)
+			return handler_util.make_error_response(err, status_code=500)
 
 		logging.info(f"Finished rerunning download metrc data for needs_retry download summaries")
+
+		if all_errs:
+			err_msg = ', '.join(['{}'.format(err) for err in all_errs])
+			return handler_util.make_error_response(err_msg, status_code=500)
 
 		return make_response(json.dumps({
 			"status": "OK",
@@ -379,7 +389,7 @@ class DownloadMetrcDataView(MethodView):
 		)
 
 		if err:
-			return handler_util.make_error_response(err)
+			return handler_util.make_error_response(err, status_code=500)
 
 		logging.info(f"Finished downloading metrc data for all customers")
 
@@ -442,7 +452,7 @@ class CompanyLicensesModifiedView(MethodView):
 				)
 			]
 		else:
-			return handler_util.make_error_response('Unrecognized operation to company licenses modified trigger: {}'.format(op))
+			return handler_util.make_error_response('Unrecognized operation to company licenses modified trigger: {}'.format(op), status_code=500)
 
 		for mod in mods:
 			if not mod['license_row_id']:
