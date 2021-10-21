@@ -246,7 +246,10 @@ def _process_inventory(cfg: Dict) -> None:
 
 	wb = WorkbookWriter(xlwt.Workbook())
 	sheet = wb.add_sheet('Inventory')
-	header = ['Name', 'Unit Price', 'Unit value', 'In stock', 'Total Quantity']
+	header = [
+		'Name', 'Category', 'Is cannabis',
+		'Unit Price', 'Unit value', 'In stock', 'Total Quantity'
+	]
 	sheet.add_row(header)
 
 	filenames = os.listdir(out_dir)
@@ -258,6 +261,8 @@ def _process_inventory(cfg: Dict) -> None:
 			total_quantity = sum([q['quantity'] for q in item['quantities']])
 			el_list = [
 				item['name'],
+				'{}'.format(item['category']['name']),
+				'{}'.format(item['category']['cannabis']),
 				'{}'.format(item['unitPrice']),
 				'{}'.format(item['unitValue']),
 				'{}'.format(item['instock']),
