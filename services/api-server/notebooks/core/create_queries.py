@@ -1,3 +1,43 @@
+def create_company_licenses_query(company_identifier):
+    return f"""
+        select
+            company_licenses.us_state,
+            company_licenses.license_number,
+            company_licenses.license_category,
+            company_licenses.legal_name,
+            company_licenses.is_current,
+            company_licenses.license_status,
+            company_licenses.rollup_id,
+            company_licenses.license_description
+        from
+            company_licenses
+            inner join companies on company_licenses.company_id = companies.id
+        where
+            True
+            and companies.identifier = '{company_identifier}'
+    """
+
+def create_download_summaries_query(company_identifier, start_date, end_date=None):
+    end_date_where_clause = f"""
+        and metrc_download_summaries.date <= '{end_date}'
+    """ if end_date else ''
+    return f"""
+        select
+            metrc_download_summaries.license_number,
+            metrc_download_summaries.date,
+            metrc_download_summaries.status
+        from
+            metrc_download_summaries
+            inner join companies on metrc_download_summaries.company_id = companies.id
+        where
+            True
+            and companies.identifier = '{company_identifier}'
+            and metrc_download_summaries.date >= '{start_date}'
+            {end_date_where_clause}
+        order by
+            date desc
+    """
+
 def create_company_incoming_transfer_packages_query(company_identifier, start_date, end_date=None):
     end_date_where_clause = f"""
         and metrc_transfers.created_date <= '{end_date}'
@@ -110,6 +150,28 @@ def create_company_outgoing_transfer_packages_query(company_identifier, start_da
             and metrc_transfers.created_date >= '{start_date}'
         order by
             metrc_transfers.created_date desc
+    """
+
+def create_company_sales_receipts_query(company_identifier, start_date):
+    return f"""
+        select
+            metrc_sales_receipts.id,
+            metrc_sales_receipts.license_number,
+            metrc_sales_receipts.receipt_number,
+            metrc_sales_receipts.type,
+            metrc_sales_receipts.sales_customer_type,
+            metrc_sales_receipts.sales_datetime,
+            metrc_sales_receipts.total_packages,
+            metrc_sales_receipts.total_price
+        from
+            metrc_sales_receipts
+            inner join companies on metrc_sales_receipts.company_id = companies.id
+        where
+            True
+            and companies.identifier = '{company_identifier}'
+            and metrc_sales_receipts.sales_datetime >= '{start_date}'
+        order by
+            metrc_sales_receipts.sales_datetime desc
     """
 
 def create_company_sales_receipts_with_transactions_query(company_identifier, start_date):
