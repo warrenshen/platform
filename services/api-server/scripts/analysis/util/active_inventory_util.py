@@ -5,13 +5,13 @@ import pandas
 import xlwt
 
 from pathlib import Path
-from typing import Dict, List, Tuple, Union, Set, cast
+from typing import Any, Dict, List, Tuple, Union, Set, cast
 from dateutil import parser
 from collections import OrderedDict
 
 from bespoke.excel import excel_writer
 
-def date_to_str(dt: datetime.datetime) -> str:
+def date_to_str(dt: Union[datetime.datetime, datetime.date]) -> str:
 	return dt.strftime('%m/%d/%Y')
 
 def parse_to_date(cur_date: Union[str, datetime.date, datetime.datetime]) -> datetime.date:
@@ -21,23 +21,23 @@ def parse_to_date(cur_date: Union[str, datetime.date, datetime.datetime]) -> dat
 	if type(cur_date) == str:
 		return parser.parse(cast(str, cur_date)).date()
 	elif type(cur_date) == datetime.datetime:
-		cur_date = cur_date.date()
+		cur_date = cast(datetime.datetime, cur_date).date()
 
 	return cast(datetime.date, cur_date)
 
 class Download(object):
 		
-	def __init__(self):
-		self.incoming_records = None
-		self.outgoing_records = None
-		self.sales_tx_records = None
+	def __init__(self) -> None:
+		self.incoming_records: List[Dict] = None
+		self.outgoing_records: List[Dict] = None
+		self.sales_tx_records: List[Dict] = None
 
 	def download_dataframes(
 		self,
-		incoming_transfer_packages_dataframe,
-		outgoing_transfer_packages_dataframe,
-		sales_transactions_dataframe
-	):
+		incoming_transfer_packages_dataframe: Any,
+		outgoing_transfer_packages_dataframe: Any,
+		sales_transactions_dataframe: Any
+	) -> None:
 		self.incoming_records = incoming_transfer_packages_dataframe.to_dict('records')
 		self.outgoing_records = outgoing_transfer_packages_dataframe.to_dict('records')
 		self.sales_tx_records = sales_transactions_dataframe.to_dict('records')
@@ -49,7 +49,7 @@ class Download(object):
 		incoming_files: List[str],
 		outgoing_files: List[str],
 		sales_transactions_files: List[str],
-	):
+	) -> None:
 		self.incoming_records = self._file_as_dict_records(incoming_files)
 		self.outgoing_records = self._file_as_dict_records(outgoing_files)
 		self.sales_tx_records = self._file_as_dict_records(sales_transactions_files)
@@ -151,12 +151,12 @@ class PackageHistory(object):
 
 	def get_inventory_column_names(self) -> List[str]:
 		return [
-			'Package ID',
-			'Arrived Date',
-			'Product Category',
-			'Product Name',
-			'Current Quantity',
-			'Sold Date',
+			'package_id',
+			'arrived_date',
+			'product_category_name',
+			'product_name',
+			'quantity',
+			'sold_date',
 		]
 
 	def get_inventory_output_row(self, inventory_date_str: str) -> List[str]:
@@ -228,7 +228,7 @@ class PackageHistory(object):
 		shipped_quantity = int(incoming_pkg['shipped_quantity'])
 		price_of_pkg = incoming_pkg['shipper_wholesale_price']
 		
-		date_to_quantity: Dict[datetime.datetime, int] = {
+		date_to_quantity: Dict[datetime.date, int] = {
 			parse_to_date(arrived_date): shipped_quantity
 		}
 		
@@ -241,7 +241,7 @@ class PackageHistory(object):
 		
 		self.sales_txs.sort(key = lambda x: x['sales_datetime'])
 
-		date_to_txs: Dict[datetime.datetime, List[Dict]] = OrderedDict()
+		date_to_txs: Dict[datetime.date, List[Dict]] = OrderedDict()
 		for tx in self.sales_txs:
 			cur_date = parse_to_date(tx['sales_datetime'])
 			cur_txs = date_to_txs.get(cur_date, [])
@@ -277,7 +277,7 @@ class PackageHistory(object):
 				if revenue_from_pkg != 0:
 					profit_margin = '{:.2f}'.format((revenue_from_pkg - price_of_pkg) / revenue_from_pkg * 100)
 				else:
-					profit_margin = 0
+					profit_margin = '0'
 						
 				if is_sold:
 					days_delta = (is_sold_date - arrived_date).days
@@ -378,7 +378,7 @@ def print_counts(id_to_history: Dict[str, PackageHistory]) -> None:
 def create_inventory_dataframe_by_date(
 	package_id_to_history: Dict[str, PackageHistory],
 	date: str,
-):
+) -> List[List[str]]:
 	i = 0
 	num_excluded = 0
 	num_total = 0
@@ -419,7 +419,7 @@ def create_inventory_dataframe_by_date(
 def create_inventory_dataframes(
 	package_id_to_history: Dict[str, PackageHistory],
 	q: Query,
-):
+) -> Dict[str, List[List[str]]]:
 	i = 0
 	num_excluded = 0
 	num_total = 0
@@ -461,6 +461,13 @@ def create_inventory_dataframes(
 		date_to_inventory_records[inventory_date] = package_records
 
 	return date_to_inventory_records
+
+def compare_inventory_dataframes(computed: Any, actual: Any) -> None:
+	print('Computed:')
+	print(computed.columns)
+
+	print('Actual:')
+	print(actual.columns)
 
 def create_inventory_xlsx(
 	id_to_history: Dict[str, PackageHistory], q: Query) -> None:

@@ -38,10 +38,10 @@ def main() -> None:
 	q.inventory_dates = inventory_dates
 	q.company_name = 'Royal_Apothecary'
 
-	d = util.Download(
+	d = util.Download()
+	d.download_files(
 		incoming_files=[INCOMING_TRANSFERS_FILE],
 		outgoing_files=[OUTGOING_TRANSFERS_FILE],
-		packages_files=[PACKAGES_FILE],
 		sales_transactions_files=[SALES_TRANSACTIONS_FILE],
 	)
 	id_to_history = util.get_histories(cast(Any, d))
