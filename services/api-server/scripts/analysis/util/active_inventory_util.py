@@ -263,10 +263,21 @@ class PackageHistory(object):
 		dates.sort()
 		remaining_quantity = shipped_quantity
 
+		seen_receipt_numbers = set([])
+
 		for cur_date in dates:
 			txs = date_to_txs[cur_date]
+			# There may be duplicate transactions, so we need to make sure
+			# we only see 1 receipt number per package_id
 
 			for tx in txs:
+				if tx['receipt_number'] in seen_receipt_numbers:
+					if verbose:
+						lines.append(f"WARN: Got duplicate transaction for package {self.package_id} receipt number {tx['receipt_number']}")
+					continue
+
+				seen_receipt_numbers.add(tx['receipt_number'])
+
 				if verbose:
 					lines.append(f"Package {self.package_id} sold on {date_to_str(tx['sales_datetime'])} {tx['tx_quantity_sold']} ({tx['tx_unit_of_measure']}) for ${tx['tx_total_price']}")
 					if math.isclose(tx['tx_total_price'], 0.0):
@@ -301,9 +312,13 @@ class PackageHistory(object):
 
 			date_to_quantity[parse_to_date(cur_date)] = remaining_quantity
 
+		if verbose and remaining_quantity > 0:
+			lines.append(f'Package {self.package_id} has a remaining quantity of {remaining_quantity}')
+
 		p.info('\n'.join(lines))
 
 		self.computed_info['date_to_quantity'] = date_to_quantity
+
 				
 		return is_sold
 		
