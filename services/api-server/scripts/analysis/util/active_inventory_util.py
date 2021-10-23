@@ -463,11 +463,52 @@ def create_inventory_dataframes(
 	return date_to_inventory_records
 
 def compare_inventory_dataframes(computed: Any, actual: Any) -> None:
-	print('Computed:')
-	print(computed.columns)
+	#print('Computed:')
+	#print(computed.columns)
 
-	print('Actual:')
-	print(actual.columns)
+	#print('Actual:')
+	#print(actual.columns)
+
+	package_id_to_computed_row = {}
+	unseen_package_ids = set([])
+	for index, row in computed.iterrows():
+		package_id_to_computed_row[row['package_id']] = row
+		unseen_package_ids.add(row['package_id'])
+
+	# How many package IDs are common
+	# Of those package IDs that are common, what is the average quantity
+	# delta that this is off by
+	computed_missing_package_ids = set([])
+	quantities = []
+	delta_quantities = []
+	num_matching_packages = 0
+	num_packages = 0
+
+	for index, row in actual.iterrows():
+		num_packages += 1
+		if row['package_id'] not in package_id_to_computed_row:
+			computed_missing_package_ids.add(row['package_id'])
+		else:
+			computed_row = package_id_to_computed_row[row['package_id']]
+			
+			unseen_package_ids.remove(row['package_id'])
+			num_matching_packages += 1
+			delta_quantities.append(abs(float(row['quantity']) - float(computed_row['quantity'])))
+			quantities.append(row['quantity'])
+
+	quantity_delta = sum(delta_quantities) / len(delta_quantities)
+	quantity_avg = sum(quantities) / len(quantities)
+
+	print('Pct of inventory matching: {:.2f}%'.format(num_matching_packages / num_packages * 100))
+	print('Accuracy of quantities: {:.2f}%'.format((quantity_avg - quantity_delta) / quantity_avg * 100))
+	print('')
+	print('Avg quantity delta: {:.2f}'.format(quantity_delta))
+	print('Avg quantity: {:.2f}'.format(quantity_avg))
+	print('')
+	print('Num matching packages: {}'.format(num_matching_packages))
+	print('Num actual packages not computed: {}'.format(len(computed_missing_package_ids)))
+	print('Num computed packages not in actual: {}'.format(len(unseen_package_ids)))
+
 
 def create_inventory_xlsx(
 	id_to_history: Dict[str, PackageHistory], q: Query) -> None:
