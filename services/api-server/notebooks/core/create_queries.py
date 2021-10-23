@@ -227,7 +227,8 @@ def create_company_sales_transactions_query(company_identifier, start_date):
             metrc_sales_transactions.product_category_name as tx_product_category_name,
             metrc_sales_transactions.unit_of_measure as tx_unit_of_measure,
             metrc_sales_transactions.quantity_sold as tx_quantity_sold,
-            metrc_sales_transactions.total_price as tx_total_price
+            metrc_sales_transactions.total_price as tx_total_price,
+            metrc_sales_transactions.is_deleted as tx_is_deleted
         from
             metrc_sales_receipts
             inner join companies on metrc_sales_receipts.company_id = companies.id
