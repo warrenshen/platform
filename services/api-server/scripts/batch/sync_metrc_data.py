@@ -45,8 +45,13 @@ REQUIRED_ENV_VARS = [
 ]
 
 def main(
-	company_identifier: str, start_date: str, end_date: str,
-	force_fetch_missing_sales_transactions: bool) -> None:
+	company_identifier: str,
+	start_date: str,
+	end_date: str,
+	force_fetch_missing_sales_transactions: bool,
+	num_parallel_licenses: int,
+	num_parallel_sales_transactions: int,
+) -> None:
 	for env_var in REQUIRED_ENV_VARS:
 		if not os.environ.get(env_var):
 			print(f'You must set "{env_var}" in the environment to use this script')
@@ -82,15 +87,21 @@ def main(
 	parsed_start_date = date_util.load_date_str(start_date)
 	parsed_end_date = date_util.load_date_str(end_date)
 
+	print('STARTING!')
+	print('Running sync metrc data with args...')
+	print(f'Number of parallel licenses: {num_parallel_licenses}')
+	print(f'Number of parallel sales transactions: {num_parallel_sales_transactions}')
+	print(f'Force fetch missing sales transactions? {force_fetch_missing_sales_transactions}')
+
 	cur_date = parsed_start_date
 	while cur_date <= parsed_end_date:
 		resp, fatal_err = metrc_util.download_data_for_one_customer(
 			company_id=company_id,
 			auth_provider=config.get_metrc_auth_provider(),
 			worker_cfg=MetrcWorkerConfig(
-				num_parallel_licenses=5,
-				num_parallel_sales_transactions=4,
-				force_fetch_missing_sales_transactions=force_fetch_missing_sales_transactions
+				force_fetch_missing_sales_transactions=force_fetch_missing_sales_transactions,
+				num_parallel_licenses=num_parallel_licenses,
+				num_parallel_sales_transactions=num_parallel_sales_transactions,
 			),
 			security_cfg=config.get_security_config(),
 			sendgrid_client=sendgrid_client,
@@ -108,10 +119,33 @@ def main(
 	print('SUCCESS!')
 
 parser = argparse.ArgumentParser()
-parser.add_argument('company_identifier', help='Identifier of company to sync metrc data for')
-parser.add_argument('start_date', help='Start date to sync metrc data for')
-parser.add_argument('end_date', help='End date to sync metrc data for')
-parser.add_argument('--force_fetch_missing_sales_transactions', dest='force_fetch_missing_sales_transactions', action='store_true')
+parser.add_argument(
+	'company_identifier',
+	help='Identifier of company to sync metrc data for',
+)
+parser.add_argument(
+	'start_date',
+	help='Start date to sync metrc data for',
+)
+parser.add_argument(
+	'end_date',
+	help='End date to sync metrc data for',
+)
+parser.add_argument(
+	'--force_fetch_missing_sales_transactions',
+	dest='force_fetch_missing_sales_transactions',
+	action='store_true',
+)
+parser.add_argument(
+	'--num_parallel_licenses',
+	help='Number of parallel threads to run at license level',
+	type=int,
+)
+parser.add_argument(
+	'--num_parallel_sales_transactions',
+	help='Number of parallel threads to run at sales transactions level',
+	type=int,
+)
 
 if __name__ == '__main__':
 	args = parser.parse_args()
@@ -119,5 +153,7 @@ if __name__ == '__main__':
 		company_identifier=args.company_identifier,
 		start_date=args.start_date,
 		end_date=args.end_date,
-		force_fetch_missing_sales_transactions=args.force_fetch_missing_sales_transactions
+		force_fetch_missing_sales_transactions=args.force_fetch_missing_sales_transactions or False,
+		num_parallel_licenses=args.num_parallel_licenses or 5,
+		num_parallel_sales_transactions=args.num_parallel_sales_transactions or 4,
 	)
