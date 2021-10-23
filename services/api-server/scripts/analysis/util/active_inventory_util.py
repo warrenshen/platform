@@ -1,5 +1,6 @@
 import datetime
 import glob
+import math
 import numpy
 import pandas
 import xlwt
@@ -8,8 +9,15 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple, Union, Set, cast
 from dateutil import parser
 from collections import OrderedDict
+from mypy_extensions import TypedDict
 
 from bespoke.excel import excel_writer
+
+DEFAULT_SOLD_THRESHOLD = 0.95
+
+AnalysisParamsDict = TypedDict('AnalysisParamsDict', {
+	'sold_threshold': float
+})
 
 def date_to_str(dt: Union[datetime.datetime, datetime.date]) -> str:
 	return dt.strftime('%m/%d/%Y')
@@ -203,11 +211,10 @@ class PackageHistory(object):
 		else:
 			return False
 
-	def run_is_sold_logic(self, p: Printer) -> bool:
+	def run_is_sold_logic(self, p: Printer, sold_threshold: float) -> bool:
 		# Fills in the 'sold' value for self.computed_info
 		#
 		# Tells us when a package was sold
-		sold_threshold = 0.95
 		
 		# It's only considered sold if it was an incoming package
 		# and we see there are sales transactions.
@@ -262,7 +269,9 @@ class PackageHistory(object):
 			for tx in txs:
 				if verbose:
 					lines.append(f"Package {self.package_id} sold on {date_to_str(tx['sales_datetime'])} {tx['tx_quantity_sold']} ({tx['tx_unit_of_measure']}) for ${tx['tx_total_price']}")
-	
+					if math.isclose(tx['tx_total_price'], 0.0):
+						lines.append('WARN: tx has no total_price')
+
 				amount_sold += tx['tx_quantity_sold']
 				remaining_quantity -= tx['tx_quantity_sold']
 				revenue_from_pkg += tx['tx_total_price']
@@ -298,7 +307,7 @@ class PackageHistory(object):
 				
 		return is_sold
 		
-	def compute_additional_fields(self, run_filter: bool, p: Printer) -> None:
+	def compute_additional_fields(self, run_filter: bool, p: Printer, params: AnalysisParamsDict) -> None:
 		if run_filter:
 			self.filter_out_unhandled_packages(p)
 					
@@ -306,7 +315,7 @@ class PackageHistory(object):
 			return
 			
 		self.when_it_arrived(p)
-		self.run_is_sold_logic(p)
+		self.run_is_sold_logic(p, sold_threshold=params.get('sold_threshold', DEFAULT_SOLD_THRESHOLD))
 				
 		
 def get_histories(d: Download) -> Dict[str, PackageHistory]:
@@ -339,6 +348,20 @@ def get_histories(d: Download) -> Dict[str, PackageHistory]:
 	return package_id_to_history
 
 ##### DEBUG ######
+
+def analyze_specific_package_histories(
+	d: Download,
+	package_ids: List[str],
+	params: AnalysisParamsDict) -> None:
+
+	package_id_to_history = get_histories(d)
+	package_ids_set = set(package_ids)
+	p = Printer(verbose=True, show_info=True)
+
+	for package_id, history in package_id_to_history.items():
+	    if package_id not in package_ids_set:
+	        continue
+	    history.compute_additional_fields(run_filter=True, p=p, params=params)
 
 def print_counts(id_to_history: Dict[str, PackageHistory]) -> None:
 	only_incoming = 0
@@ -378,6 +401,7 @@ def print_counts(id_to_history: Dict[str, PackageHistory]) -> None:
 def create_inventory_dataframe_by_date(
 	package_id_to_history: Dict[str, PackageHistory],
 	date: str,
+	params: AnalysisParamsDict
 ) -> List[List[str]]:
 	i = 0
 	num_excluded = 0
@@ -388,7 +412,7 @@ def create_inventory_dataframe_by_date(
 	exclude_reason_to_count: Dict[str, int] = OrderedDict()
 
 	for package_id, history in package_id_to_history.items():
-		history.compute_additional_fields(run_filter=True, p=p)
+		history.compute_additional_fields(run_filter=True, p=p, params=params)
 		num_total += 1
 		if history.should_exclude:
 			num_excluded += 1
@@ -419,6 +443,7 @@ def create_inventory_dataframe_by_date(
 def create_inventory_dataframes(
 	package_id_to_history: Dict[str, PackageHistory],
 	q: Query,
+	params: AnalysisParamsDict,
 ) -> Dict[str, List[List[str]]]:
 	i = 0
 	num_excluded = 0
@@ -429,7 +454,7 @@ def create_inventory_dataframes(
 	exclude_reason_to_count: Dict[str, int] = OrderedDict()
 
 	for package_id, history in package_id_to_history.items():
-		history.compute_additional_fields(run_filter=True, p=p)
+		history.compute_additional_fields(run_filter=True, p=p, params=params)
 		num_total += 1
 		if history.should_exclude:
 			num_excluded += 1
@@ -468,7 +493,6 @@ def compare_inventory_dataframes(computed: Any, actual: Any) -> None:
 
 	#print('Actual:')
 	#print(actual.columns)
-
 	package_id_to_computed_row = {}
 	unseen_package_ids = set([])
 	for index, row in computed.iterrows():
@@ -509,9 +533,18 @@ def compare_inventory_dataframes(computed: Any, actual: Any) -> None:
 	print('Num actual packages not computed: {}'.format(len(computed_missing_package_ids)))
 	print('Num computed packages not in actual: {}'.format(len(unseen_package_ids)))
 
+	print('')
+	print('Missing package IDs first 100')
+	i = 0
+	for package_id in computed_missing_package_ids:
+		if i > 100:
+			break
+
+		print(package_id)
+		i += 1
 
 def create_inventory_xlsx(
-	id_to_history: Dict[str, PackageHistory], q: Query) -> None:
+	id_to_history: Dict[str, PackageHistory], q: Query, params: AnalysisParamsDict) -> None:
 		
 	i = 0
 	num_excluded = 0
@@ -522,7 +555,7 @@ def create_inventory_xlsx(
 	exclude_reason_to_count: Dict[str, int] = OrderedDict()
 
 	for package_id, history in id_to_history.items():
-		history.compute_additional_fields(run_filter=True, p=p)
+		history.compute_additional_fields(run_filter=True, p=p, params=params)
 		num_total += 1
 		if history.should_exclude:
 			num_excluded += 1

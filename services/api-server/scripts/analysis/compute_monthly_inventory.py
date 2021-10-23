@@ -45,7 +45,9 @@ def main() -> None:
 		sales_transactions_files=[SALES_TRANSACTIONS_FILE],
 	)
 	id_to_history = util.get_histories(cast(Any, d))
-	util.create_inventory_xlsx(id_to_history, q)
+	util.create_inventory_xlsx(id_to_history, q, params={
+			'sold_threshold': util.DEFAULT_SOLD_THRESHOLD
+	})
 
 
 if __name__ == "__main__":
