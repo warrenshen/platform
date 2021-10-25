@@ -137,6 +137,11 @@ class PackageHistory(object):
 		if sold_date and cur_date > sold_date:
 			# We know it's not in your possession after the sales date
 			return False
+
+		cur_quantity = self._get_current_quantity(cur_date_str)
+		if cur_quantity <= 0:
+			# No quantity left even if it wasn't fully sold
+			return False
 		
 		# Knowing nothing else, assume you have the package at this date
 		return True
@@ -234,9 +239,14 @@ class PackageHistory(object):
 
 		shipped_quantity = int(incoming_pkg['shipped_quantity'])
 		price_of_pkg = incoming_pkg['shipper_wholesale_price']
-		
+		shipment_package_state = incoming_pkg['shipment_package_state']
+
+		initial_quantity = shipped_quantity
+		if shipment_package_state == 'Returned':
+			initial_quantity = 0
+
 		date_to_quantity: Dict[datetime.date, int] = {
-			parse_to_date(arrived_date): shipped_quantity
+			parse_to_date(arrived_date): initial_quantity
 		}
 		
 		lines = []
@@ -244,7 +254,7 @@ class PackageHistory(object):
 		
 		if verbose:
 			lines.append('')
-			lines.append(f'Package {self.package_id} arrived on {date_to_str(arrived_date)} with quantity {shipped_quantity} and price ${price_of_pkg}')
+			lines.append(f'Package {self.package_id} arrived on {date_to_str(arrived_date)} with quantity {shipped_quantity} and price ${price_of_pkg}. {incoming_pkg}')
 		
 		self.sales_txs.sort(key = lambda x: x['sales_datetime'])
 
@@ -273,8 +283,10 @@ class PackageHistory(object):
 			for tx in txs:
 				if tx['receipt_number'] in seen_receipt_numbers:
 					if verbose:
-						lines.append(f"WARN: Got duplicate transaction for package {self.package_id} receipt number {tx['receipt_number']}")
+						#lines.append(f"WARN: Got duplicate transaction for package {self.package_id} receipt number {tx['receipt_number']}")
 						#lines.append(f"Delta in txs sold is {tx['tx_is_deleted']}, {seen_receipt_numbers[tx['receipt_number']]['tx_is_deleted']}")
+						pass
+
 					continue
 
 				seen_receipt_numbers[tx['receipt_number']] = tx
@@ -319,8 +331,6 @@ class PackageHistory(object):
 		p.info('\n'.join(lines))
 
 		self.computed_info['date_to_quantity'] = date_to_quantity
-
-				
 		return is_sold
 		
 	def compute_additional_fields(self, run_filter: bool, p: Printer, params: AnalysisParamsDict) -> None:
@@ -526,6 +536,11 @@ def compare_inventory_dataframes(computed: Any, actual: Any) -> None:
 	num_packages = 0
 
 	for index, row in actual.iterrows():
+		if math.isclose(row['quantity'], 0.0):
+			# Packages with no quantity do not need to be considered, since they
+			# should be filtered in the computed packages
+			continue
+
 		num_packages += 1
 		package_id_to_actual_row[row['package_id']] = row
 
@@ -565,7 +580,7 @@ def compare_inventory_dataframes(computed: Any, actual: Any) -> None:
 		if i > 20:
 			break
 
-		print('{}; quantity {}'.format(package_id, package_id_to_computed_row[package_id]['quantity']))
+		print('{}; computed quantity {}'.format(package_id, package_id_to_computed_row[package_id]['quantity']))
 		print
 
 		i += 1
