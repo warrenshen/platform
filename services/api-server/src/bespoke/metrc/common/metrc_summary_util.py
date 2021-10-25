@@ -118,6 +118,9 @@ def _copy_over_summary(prev: models.MetrcDownloadSummary, cur: models.MetrcDownl
 	prev.sales_status = cur.sales_status
 	prev.transfers_status = cur.transfers_status
 
+	if prev.status == MetrcDownloadSummaryStatus.COMPLETED:
+		prev.num_retries = 0
+
 	if prev.num_retries > 3:
 		# We dont allow a summary to retry more than 3 times
 		prev.status = MetrcDownloadSummaryStatus.FAILURE
