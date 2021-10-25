@@ -70,7 +70,7 @@ export default function MetrcApiKeys({ companyId }: Props) {
         cellRender: (params: ValueFormatterParams) => (
           <DatetimeDataGridCell
             isTimeVisible
-            datetimeString={params.row.data.created_at}
+            datetimeString={params.row.data.last_used_at}
           />
         ),
       },
