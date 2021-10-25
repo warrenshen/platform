@@ -288,7 +288,7 @@ class PackageHistory(object):
 				remaining_quantity -= tx['tx_quantity_sold']
 				revenue_from_pkg += tx['tx_total_price']
 
-				if not is_sold and (amount_sold / shipped_quantity) > sold_threshold:
+				if not is_sold and (amount_sold / shipped_quantity) >= sold_threshold:
 					if verbose:
 						lines.append(f'Package {self.package_id} marked as SOLD since it is more than {sold_threshold * 100}% sold')
 
@@ -519,6 +519,7 @@ def compare_inventory_dataframes(computed: Any, actual: Any) -> None:
 	# Of those package IDs that are common, what is the average quantity
 	# delta that this is off by
 	computed_missing_package_ids = set([])
+	package_id_to_actual_row = {}
 	quantities = []
 	delta_quantities = []
 	num_matching_packages = 0
@@ -526,6 +527,8 @@ def compare_inventory_dataframes(computed: Any, actual: Any) -> None:
 
 	for index, row in actual.iterrows():
 		num_packages += 1
+		package_id_to_actual_row[row['package_id']] = row
+
 		if row['package_id'] not in package_id_to_computed_row:
 			computed_missing_package_ids.add(row['package_id'])
 		else:
@@ -536,12 +539,18 @@ def compare_inventory_dataframes(computed: Any, actual: Any) -> None:
 			delta_quantities.append(abs(float(row['quantity']) - float(computed_row['quantity'])))
 			quantities.append(row['quantity'])
 
-	quantity_delta = sum(delta_quantities) / len(delta_quantities)
-	quantity_avg = sum(quantities) / len(quantities)
+	extra_quantity = 0.0
+	for package_id in unseen_package_ids:
+		extra_quantity += float(package_id_to_computed_row[package_id]['quantity'])
 
-	print('Pct of inventory matching: {:.2f}%'.format(num_matching_packages / num_packages * 100))
+	quantity_delta = sum(delta_quantities) / len(delta_quantities)
+	total_quantity = sum(quantities)
+	quantity_avg = total_quantity / len(quantities)
+
+	print('Pct of # inventory matching: {:.2f}%'.format(num_matching_packages / num_packages * 100))
 	print('Accuracy of quantities: {:.2f}%'.format((quantity_avg - quantity_delta) / quantity_avg * 100))
-	print('')
+	print('Pct of # inventory packages over-estimated: {:.2f}%'.format(len(unseen_package_ids) / num_packages * 100))
+	print('Pct of # quantity over-estimated: {:.2f}%'.format(extra_quantity / total_quantity))
 	print('Avg quantity delta: {:.2f}'.format(quantity_delta))
 	print('Avg quantity: {:.2f}'.format(quantity_avg))
 	print('')
@@ -550,13 +559,25 @@ def compare_inventory_dataframes(computed: Any, actual: Any) -> None:
 	print('Num computed packages not in actual: {}'.format(len(unseen_package_ids)))
 
 	print('')
-	print('Missing package IDs first 100')
+	print('Computed has these extra package IDs; first 20')
 	i = 0
-	for package_id in computed_missing_package_ids:
-		if i > 100:
+	for package_id in unseen_package_ids:
+		if i > 20:
 			break
 
-		print(package_id)
+		print('{}; quantity {}'.format(package_id, package_id_to_computed_row[package_id]['quantity']))
+		print
+
+		i += 1
+
+	print('')
+	print('Computed is missing these package IDs; first 20')
+	i = 0
+	for package_id in computed_missing_package_ids:
+		if i > 20:
+			break
+
+		print('{}; quantity: {}'.format(package_id, package_id_to_actual_row[package_id]['quantity']))
 		i += 1
 
 def create_inventory_xlsx(
