@@ -115,20 +115,27 @@ class SalesReceipts(object):
 			This prevents us from querying sales transactions where we know the
 			sales receipt hasn't changed.
 		"""
-		if ctx.worker_cfg.force_fetch_missing_sales_transactions:
-			# If we want to force fetch transactions for all sales receipts,
-			# then there is no need to run any filtering logic, and we essentially
-			# process all sales receipts anew
-			return self
-
 		us_state = ctx.license['us_state']
-		receipt_numbers = [s['ReceiptNumber'] for s in self._sales_receipts]
 		prev_sales_receipts = []
+		receipt_id_to_tx_count = {}
 
 		BATCH_SIZE = 50
-		for receipt_numbers_chunk in cast(Iterable[List[str]], chunker(receipt_numbers, BATCH_SIZE)):
+		for sales_receipts_chunk in cast(Iterable[List[Dict]], chunker(self._sales_receipts, BATCH_SIZE)):
+			receipt_numbers_chunk = [s['ReceiptNumber'] for s in sales_receipts_chunk]
 			prev_sales_receipts_chunk = _get_prev_sales_receipts(receipt_numbers_chunk, us_state, session)
 			prev_sales_receipts += prev_sales_receipts_chunk
+
+			cur_receipt_ids = ['{}'.format(s['Id']) for s in sales_receipts_chunk]
+
+			query = session.query(models.MetrcSalesTransaction.receipt_id, func.count(models.MetrcSalesTransaction.receipt_id)).filter(
+				models.MetrcSalesTransaction.us_state == us_state
+			).filter(
+				models.MetrcSalesTransaction.receipt_id.in_(cur_receipt_ids)
+			).group_by(models.MetrcSalesTransaction.receipt_id)
+
+			results = query.all()
+			for (receipt_id, tx_count) in results:
+				receipt_id_to_tx_count[receipt_id] = tx_count
 
 		receipt_number_to_sales_receipt = {}
 		for prev_sales_receipt in prev_sales_receipts:
@@ -138,9 +145,14 @@ class SalesReceipts(object):
 		for s in self._sales_receipts:
 			if s['ReceiptNumber'] in receipt_number_to_sales_receipt:
 				prev_receipt = receipt_number_to_sales_receipt[s['ReceiptNumber']]
-				if prev_receipt.last_modified_at >= parser.parse(s['LastModified']):
+				cur_receipt_id = '{}'.format(s['Id'])
+				num_prev_txs = receipt_id_to_tx_count.get(cur_receipt_id, 0)
+
+				if num_prev_txs > 0 and prev_receipt.last_modified_at >= parser.parse(s['LastModified']):
 					# If we've seen a previous receipt that's at the same last_modified_at
 					# or newer than what we just fetched, no need to use it again
+					#
+					# Also we need to make sure we have more than 0 transactions associated with the sales receipt
 					continue
 			
 			new_sales_receipts.append(s)
