@@ -99,7 +99,7 @@ def load_date_str(date_str: str) -> datetime.date:
 def calculate_ebba_application_expires_at(application_date: datetime.datetime) -> datetime.datetime:
 	return (application_date + relativedelta.relativedelta(months=1)).replace(15)
 
-def is_past_due(expires_at: datetime.date, timezone: str = DEFAULT_TIMEZONE) -> bool:
+def is_past_due(expires_at: datetime.date, timezone: str) -> bool:
 	return now_as_date(timezone) >= expires_at
 
 def has_expired(expires_at: datetime.datetime) -> bool:
