@@ -109,7 +109,6 @@ class Printer(object):
 			print(msg)
 
 class ExcludeReason(object):
-	MANY_INCOMING = 'MANY_INCOMING'
 	MISSING_INCOMING = 'MISSING_INCOMING'
 
 class PackageHistory(object):
@@ -191,13 +190,7 @@ class PackageHistory(object):
 			date_to_str(sold_date) if sold_date else '',
 		]
 				
-	def filter_out_unhandled_packages(self, p: Printer) -> None:
-		if len(self.incomings) > 1:
-			p.info(f'Excluding package {self.package_id} because it has multiple incoming packages')
-			self.should_exclude = True
-			self.exclude_reason = ExcludeReason.MANY_INCOMING
-			return
-		
+	def filter_out_unhandled_packages(self, p: Printer) -> None:		
 		if not self.incomings:
 			p.info(f'Excluding package {self.package_id} because it doesnt have an incoming package')
 			self.should_exclude = True
@@ -227,11 +220,15 @@ class PackageHistory(object):
 		
 		if not self.incomings:
 			return False
-				
+
+		# Get the most recent incoming package
+		self.incomings.sort(key=lambda x: x['created_date'])
 		incoming_pkg = self.incomings[-1]
 		
 		if len(self.incomings) > 1:
-				p.warn(f'package #{self.package_id} has multiple incoming transfers', package_id=self.package_id)
+			#	for incoming in self.incomings:
+			#		print(incoming['created_date'])
+			pass
 
 		arrived_date = parse_to_date(incoming_pkg['created_date'])
 		if not incoming_pkg['shipped_quantity'] or numpy.isnan(incoming_pkg['shipped_quantity']):
@@ -464,10 +461,11 @@ def create_inventory_dataframe_by_date(
 		if history.should_exclude:
 			continue
 
-		if not history.in_inventory_at_date(date):
-			continue
+		is_in_inventory = history.in_inventory_at_date(date)
+		is_in_inventory_str = 'true' if is_in_inventory else ''
 
 		package_record = history.get_inventory_output_row(date)
+		package_record.append(is_in_inventory_str)
 		package_records += [package_record]
 
 	return package_records
@@ -520,14 +518,18 @@ def create_inventory_dataframes(
 	return date_to_inventory_records
 
 def compare_inventory_dataframes(computed: Any, actual: Any) -> None:
-	#print('Computed:')
-	#print(computed.columns)
-
-	#print('Actual:')
-	#print(actual.columns)
 	package_id_to_computed_row = {}
 	unseen_package_ids = set([])
+	all_computed_package_ids_ever_seen = set([])
+
 	for index, row in computed.iterrows():
+		if not row['is_in_inventory']:
+			# Even though the row is not in the inventory, we've at least seen it
+			# historically, which helps us with keeping track of different types of 
+			# miscalculations.
+			all_computed_package_ids_ever_seen.add(row['package_id'])
+			continue
+
 		package_id_to_computed_row[row['package_id']] = row
 		unseen_package_ids.add(row['package_id'])
 
@@ -535,6 +537,8 @@ def compare_inventory_dataframes(computed: Any, actual: Any) -> None:
 	# Of those package IDs that are common, what is the average quantity
 	# delta that this is off by
 	computed_missing_package_ids = set([])
+	computed_missing_package_ids_but_seen_before = set([])
+	all_actual_package_ids_even_seen = set([])
 	package_id_to_actual_row = {}
 	quantities = []
 	delta_quantities = []
@@ -542,6 +546,8 @@ def compare_inventory_dataframes(computed: Any, actual: Any) -> None:
 	num_packages = 0
 
 	for index, row in actual.iterrows():
+		all_actual_package_ids_even_seen.add(row['package_id'])
+
 		if math.isclose(row['quantity'], 0.0):
 			# Packages with no quantity do not need to be considered, since they
 			# should be filtered in the computed packages
@@ -552,6 +558,10 @@ def compare_inventory_dataframes(computed: Any, actual: Any) -> None:
 
 		if row['package_id'] not in package_id_to_computed_row:
 			computed_missing_package_ids.add(row['package_id'])
+			# Was this ever computed but just not in the current inventory though?
+			if row['package_id'] in all_computed_package_ids_ever_seen:
+				computed_missing_package_ids_but_seen_before.add(row['package_id'])
+
 		else:
 			computed_row = package_id_to_computed_row[row['package_id']]
 			
@@ -561,12 +571,22 @@ def compare_inventory_dataframes(computed: Any, actual: Any) -> None:
 			quantities.append(row['quantity'])
 
 	extra_quantity = 0.0
+	unseen_package_ids_in_inventory_at_some_point = set([])
+
 	for package_id in unseen_package_ids:
 		extra_quantity += float(package_id_to_computed_row[package_id]['quantity'])
+		if package_id in all_actual_package_ids_even_seen:
+			unseen_package_ids_in_inventory_at_some_point.add(package_id)
 
 	quantity_delta = sum(delta_quantities) / len(delta_quantities)
 	total_quantity = sum(quantities)
 	quantity_avg = total_quantity / len(quantities)
+
+	quantities_not_in_computed = []
+	for package_id in computed_missing_package_ids_but_seen_before:
+		quantities_not_in_computed.append(float(package_id_to_actual_row[package_id]['quantity']))
+
+	quantity_not_computed_avg = sum(quantities_not_in_computed) / len(quantities_not_in_computed)
 
 	print('Pct of # inventory matching: {:.2f}%'.format(num_matching_packages / num_packages * 100))
 	print('Accuracy of quantities: {:.2f}%'.format((quantity_avg - quantity_delta) / quantity_avg * 100))
@@ -576,29 +596,51 @@ def compare_inventory_dataframes(computed: Any, actual: Any) -> None:
 	print('Avg quantity: {:.2f}'.format(quantity_avg))
 	print('')
 	print('Num matching packages: {}'.format(num_matching_packages))
+
 	print('Num actual packages not computed: {}'.format(len(computed_missing_package_ids)))
+	print('  but computed at some point: {}, e.g., {:.2f}% of non-computed packages'.format(
+		len(computed_missing_package_ids_but_seen_before), len(computed_missing_package_ids_but_seen_before) / len(computed_missing_package_ids) * 100))
+	print('  avg quantity from actual packages {:.2f}'.format(quantity_not_computed_avg))
+
 	print('Num computed packages not in actual: {}'.format(len(unseen_package_ids)))
+	print('  but in actual inventory at some point: {}'.format(
+		len(unseen_package_ids_in_inventory_at_some_point)))
 
 	print('')
-	print('Computed has these extra package IDs; first 20')
+	print('Computed has these extra package IDs; first 40')
 	i = 0
+	unseen_quantity_tuples = []
+
 	for package_id in unseen_package_ids:
-		if i > 20:
+		cur_row = package_id_to_computed_row[package_id]
+		unseen_quantity_tuples.append((package_id, int(cur_row['quantity'])))
+
+	unseen_quantity_tuples.sort(key=lambda x: x[1], reverse=True) # sort quantity, largest to smallest
+
+	for (package_id, quantity) in unseen_quantity_tuples:
+		if i > 40:
 			break
 
-		print('{}; computed quantity {}'.format(package_id, package_id_to_computed_row[package_id]['quantity']))
-		print
+		print('{}; computed quantity {}'.format(package_id, quantity))
 
 		i += 1
 
 	print('')
-	print('Computed is missing these package IDs; first 20')
+	print('Computed is missing these package IDs; first 40')
+	computed_missing_tuples = []
+
 	i = 0
 	for package_id in computed_missing_package_ids:
-		if i > 20:
+		cur_row = package_id_to_actual_row[package_id]
+		computed_missing_tuples.append((package_id, cur_row['quantity']))
+
+	computed_missing_tuples.sort(key=lambda x: x[1], reverse=True) # sort quantity, largest to smallest
+
+	for (package_id, quantity) in computed_missing_tuples:
+		if i > 40:
 			break
 
-		print('{}; quantity: {}'.format(package_id, package_id_to_actual_row[package_id]['quantity']))
+		print('{}; quantity: {}'.format(package_id, quantity))
 		i += 1
 
 def create_inventory_xlsx(
