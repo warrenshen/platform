@@ -26,6 +26,7 @@ import BankCustomerAccountFeesCreditsSubpage from "./AccountFeesCredits";
 import BankCustomerEbbaApplicationsSubpage from "./EbbaApplications";
 import BankCustomerInvoicesSubpage from "./Invoices";
 import BankCustomerLoansSubpage from "./Loans";
+import BankCustomerReportsSubpage from "./Reports";
 import BankCustomerMetrcSubpage from "./Metrc";
 import BankCustomerOverviewSubpage from "./Overview";
 import BankCustomerPayorsSubpage from "./Payors";
@@ -102,6 +103,12 @@ const getCustomerPaths = (
         label: "Loans",
         path: bankRoutes.company.loans,
         component: BankCustomerLoansSubpage,
+      },
+      {
+        dataCy: "customer-reports",
+        label: "Reports",
+        path: bankRoutes.company.reports,
+        component: BankCustomerReportsSubpage,
       },
       {
         visible:

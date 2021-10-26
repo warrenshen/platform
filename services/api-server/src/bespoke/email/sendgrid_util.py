@@ -76,6 +76,12 @@ class TemplateNames(object):
 	OPS_TRIGGER_NOTIFICATION = 'ops_trigger_notification'
 	SYNC_METRC_DATA_ERROR_CREATED = 'sync_metrc_data_error_created'
 
+	## REPORTS
+	REPORT_LOANS_COMING_DUE = "report_loans_coming_due"
+	REPORT_LOANS_PAST_DUE = "report_loans_past_due"
+	REPORT_MONTHLY_SUMMARY_LOC = "report_monthly_summary_loc"
+	REPORT_MONTHLY_SUMMARY_NON_LOC = "report_monthly_summary_non_loc"
+
 
 TemplateConfigDict = TypedDict('TemplateConfigDict', {
 	'id': str,
@@ -224,6 +230,14 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 	},
 	TemplateNames.SYNC_METRC_DATA_ERROR_CREATED: {
 		'id': 'd-8bceeac2b1e440b2808ed6a6e8884c15',
+		'requires_secure_link': False,
+	},
+	TemplateNames.REPORT_LOANS_COMING_DUE: {
+		'id': 'd-f7daf0ed53184346a160ea9850791275',
+		'requires_secure_link': False,
+	},
+	TemplateNames.REPORT_LOANS_PAST_DUE: {
+		'id': 'd-ed08344d414c48f58a98e517023491fa',
 		'requires_secure_link': False,
 	},
 }

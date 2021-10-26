@@ -181,6 +181,22 @@ export function computeEbbaApplicationExpiresAt(dateString: string): string {
   return format(expirationDate, DateFormatServer);
 }
 
+export function isLoanComingOrPastDue(dueDate: string): [boolean, boolean] {
+  const date = parse(dueDate, DateFormatServer, new Date());
+  const now = new Date();
+
+  // When due date is after current day, result will be negative
+  // We don't track coming due loans for this purpose earlier than 14 days
+  // Past due days will be any positive number
+  const dateDiff = differenceInDays(now, date);
+  const isComingDue = dateDiff <= 0 && dateDiff > -14;
+  const isPastDue = dateDiff > 0;
+
+  console.log("Date Diff:", dateDiff, "Due Date:", dueDate);
+
+  return [isComingDue, isPastDue];
+}
+
 export function withinNDaysOfNowOrBefore(
   dateString: string,
   days: number

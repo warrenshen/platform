@@ -44,6 +44,7 @@ import CustomerContractPage from "pages/Customer/Contract";
 import CustomerEbbaApplicationsPage from "pages/Customer/EbbaApplications";
 import CustomerInvoicesPages from "pages/Customer/Invoices";
 import CustomerLoansPage from "pages/Customer/Loans";
+import CustomerReportsPage from "pages/Customer/Reports";
 import CustomerOverviewPage from "pages/Customer/Overview";
 import CustomerPayorsPage from "pages/Customer/Payors";
 import CustomerPurchaseOrdersPage from "pages/Customer/PurchaseOrders";
@@ -141,6 +142,7 @@ export default function App() {
         >
           <UserProfile />
         </PrivateRoute>
+
         {/* Customer user routes */}
         <PrivateRoute
           exact
@@ -161,6 +163,16 @@ export default function App() {
           ]}
         >
           <CustomerContractPage />
+        </PrivateRoute>
+        <PrivateRoute
+          exact
+          path={customerRoutes.reports}
+          requiredRoles={[
+            UserRolesEnum.CompanyAdmin,
+            UserRolesEnum.CompanyReadOnly,
+          ]}
+        >
+          <CustomerReportsPage />
         </PrivateRoute>
         <PrivateRoute
           exact

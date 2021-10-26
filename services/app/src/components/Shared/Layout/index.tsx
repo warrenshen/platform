@@ -128,6 +128,13 @@ const getCustomerNavItems = (
       link: customerRoutes.loans,
     },
     {
+      dataCy: "reports",
+      visible: !!productType,
+      iconNode: ReportsIcon,
+      text: "Reports",
+      link: customerRoutes.reports,
+    },
+    {
       dataCy: "purchase-orders",
       visible:
         !!productType &&

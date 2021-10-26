@@ -99,6 +99,11 @@ class Config(object):
 		# Diagnostics
 		self.SERVER_TYPE = "api"
 
+		# Base App URL per environment
+		self.PROD_DOMAIN = os.environ.get('PROD_DOMAIN', 'https://app.bespokefinancial.com')
+		self.TEST_DOMAIN = os.environ.get('TEST_DOMAIN', 'https://bespoke-app-staging.herokuapp.com')
+		self.DEV_DOMAIN = os.environ.get('DEV_DOMAIN', 'http://localhost:3005')
+
 	def get_security_config(self) -> security_util.ConfigDict:
 		return security_util.ConfigDict(
 			URL_SECRET_KEY=self.URL_SECRET_KEY,
@@ -138,6 +143,12 @@ class Config(object):
 
 	def is_development_env(self) -> bool:
 		return is_development_env(self.FLASK_ENV)
+
+	def is_test_env(self) -> bool:
+		return is_test_env(self.FLASK_ENV)
+
+	def is_prod_env(self) -> bool:
+		return is_prod_env(self.FLASK_ENV)
 
 	def as_dict(self) -> Dict:
 		attr_names = dir(self)

@@ -114,7 +114,9 @@ export default function EditRepaymentDatesModal({
             <Typography variant="subtitle2" color="textSecondary">
               Repayment ID
             </Typography>
-            <Typography variant={"body1"}>{payment.id}</Typography>
+            <Typography
+              variant={"body1"}
+            >{`R${payment.settlement_identifier}`}</Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={4}>
             <DateInput

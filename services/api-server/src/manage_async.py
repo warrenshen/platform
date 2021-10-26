@@ -12,6 +12,7 @@ from bespoke.db import models
 from bespoke.email import sendgrid_util
 from server.config import get_config, get_email_client, is_development_env
 from server.views import triggers, healthcheck
+from server.views import report_generation
 
 
 if is_development_env(os.environ.get('FLASK_ENV')):
@@ -46,6 +47,7 @@ app.config.update(config.as_dict())
 # Register the blueprints
 app.register_blueprint(triggers.handler, url_prefix='/triggers')
 app.register_blueprint(healthcheck.handler, url_prefix='/healthcheck')
+app.register_blueprint(report_generation.handler, url_prefix='/reports')
 
 app.app_config = config
 # For async server, set SQL statement timeout to 10 seconds.
