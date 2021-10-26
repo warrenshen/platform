@@ -89,6 +89,7 @@ def create_company_incoming_transfer_packages_query(company_identifier, start_da
             and companies.identifier = '{company_identifier}'
             and (
                 company_deliveries.delivery_type = 'INCOMING_FROM_VENDOR' or
+                company_deliveries.delivery_type = 'INCOMING_INTERNAL' or
                 company_deliveries.delivery_type = 'INCOMING_UNKNOWN'
             )
             and metrc_transfers.created_date >= '{start_date}'
@@ -145,6 +146,7 @@ def create_company_outgoing_transfer_packages_query(company_identifier, start_da
             and companies.identifier = '{company_identifier}'
             and (
                 company_deliveries.delivery_type = 'OUTGOING_TO_PAYOR' or
+                company_deliveries.delivery_type = 'OUTGOING_INTERNAL' or
                 company_deliveries.delivery_type = 'OUTGOING_UNKNOWN'
             )
             and metrc_transfers.created_date >= '{start_date}'
