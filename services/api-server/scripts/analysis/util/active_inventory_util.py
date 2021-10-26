@@ -183,6 +183,7 @@ class PackageHistory(object):
 
 		return [
 			self.package_id,
+			incoming_pkg['license_number'],
 			date_to_str(self.computed_info['arrived']['date']),
 			incoming_pkg['product_category_name'],
 			incoming_pkg['product_name'],
@@ -390,11 +391,12 @@ def analyze_specific_package_histories(
 	    history.compute_additional_fields(run_filter=True, p=p, params=params)
 
 def print_counts(id_to_history: Dict[str, PackageHistory]) -> None:
-	only_incoming = 0
-	only_outgoing = 0
-	outgoing_and_incoming = 0
+	only_incoming = 0 # Only incoming transfer package(s)
+	only_outgoing = 0 # Only outgoing transfer package(s)
+	outgoing_and_incoming = 0 # Both incoming and outgoing transfer package(s)
 	in_and_sold_at_least_once = 0
 	in_and_sold_many_times = 0
+	only_sold = 0 # No incoming transfer package(s) but yes sales transaction(s)
 	current_inventory = 0
 	inventory_with_no_transfers = 0
 	total_seen = 0
@@ -405,6 +407,9 @@ def print_counts(id_to_history: Dict[str, PackageHistory]) -> None:
 
 		if history.incomings and not history.outgoings and not history.sales_txs:
 			only_incoming += 1
+
+		if not history.incomings and history.sales_txs:
+			only_sold += 1
 
 		if history.incomings and history.sales_txs:
 			in_and_sold_at_least_once += 1
@@ -419,6 +424,7 @@ def print_counts(id_to_history: Dict[str, PackageHistory]) -> None:
 
 	print(f'Only outgoing: {only_outgoing}')
 	print(f'Only incoming: {only_incoming}')
+	print(f'Only sold: {only_sold}')
 	print(f'In and out: {outgoing_and_incoming}')
 	print(f'In and sold at least once {in_and_sold_at_least_once}')
 	print(f'In and sold many times {in_and_sold_many_times}')
