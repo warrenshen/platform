@@ -500,7 +500,6 @@ class MetrcTransfer(Base):
 
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
 	us_state = Column(String)
-	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	transfer_id = Column(String) # From Metrc info
 	shipper_facility_license_number = Column(String)
 	shipper_facility_name = Column(String)
@@ -631,7 +630,6 @@ class MetrcSalesTransaction(Base):
 	type = Column(Text)
 	license_number = Column(String, nullable=False)
 	us_state = Column(String, nullable=False)
-	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	receipt_id = Column(String) # From parent Metrc info
 	receipt_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_sales_receipts.id')))
 	package_id = Column(String) # From Metrc info

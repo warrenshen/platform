@@ -52,7 +52,6 @@ class TestPopulateSalesTable(db_unittest.TestCase):
 				self.assertEqual(exp['type'], p.type)
 				self.assertEqual('abcd', p.license_number)
 				self.assertEqual('CA', p.us_state)
-				self.assertEqual(exp['company_id'], str(p.company_id))
 				self.assertEqual(str(exp['receipt_id']), p.receipt_id)
 				self.assertIsNotNone(p.receipt_row_id)
 				self.assertEqual(str(cast(Dict, p.payload)['Id'] + 1), p.package_id)

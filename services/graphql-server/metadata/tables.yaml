@@ -427,13 +427,6 @@
         table:
           schema: public
           name: metrc_api_keys
-  - name: metrc_transfers
-    using:
-      foreign_key_constraint_on:
-        column: company_id
-        table:
-          schema: public
-          name: metrc_transfers
   - name: payments
     using:
       foreign_key_constraint_on:
@@ -2845,10 +2838,14 @@
   - name: metrc_transfer
     using:
       foreign_key_constraint_on: transfer_row_id
-  - name: payor
-    using:
-      foreign_key_constraint_on: payor_id
   array_relationships:
+  - name: company_deliveries
+    using:
+      foreign_key_constraint_on:
+        column: delivery_row_id
+        table:
+          schema: public
+          name: company_deliveries
   - name: metrc_transfer_packages
     using:
       foreign_key_constraint_on:
@@ -2865,7 +2862,6 @@
       - delivery_payload
       - delivery_type
       - id
-      - payor_id
       - received_datetime
       - recipient_facility_license_number
       - recipient_facility_name
@@ -2883,7 +2879,6 @@
       - delivery_payload
       - delivery_type
       - id
-      - payor_id
       - received_datetime
       - recipient_facility_license_number
       - recipient_facility_name
@@ -2901,7 +2896,6 @@
       - delivery_payload
       - delivery_type
       - id
-      - payor_id
       - received_datetime
       - recipient_facility_license_number
       - recipient_facility_name
@@ -2911,11 +2905,12 @@
       - updated_at
       - us_state
       filter:
-        metrc_transfer:
-          _or:
-          - company_id:
+        _or:
+        - company_deliveries:
+            company_id:
               _eq: X-Hasura-Company-Id
-          - vendor_id:
+        - company_deliveries:
+            vendor_id:
               _eq: X-Hasura-Company-Id
   - role: company_read_only
     permission:
@@ -2925,7 +2920,6 @@
       - delivery_payload
       - delivery_type
       - id
-      - payor_id
       - received_datetime
       - recipient_facility_license_number
       - recipient_facility_name
@@ -2935,11 +2929,12 @@
       - updated_at
       - us_state
       filter:
-        metrc_transfer:
-          _or:
-          - company_id:
+        _or:
+        - company_deliveries:
+            company_id:
               _eq: X-Hasura-Company-Id
-          - vendor_id:
+        - company_deliveries:
+            vendor_id:
               _eq: X-Hasura-Company-Id
   - role: purchase_order_reviewer
     permission:
@@ -2948,7 +2943,6 @@
       - delivery_payload
       - delivery_type
       - id
-      - payor_id
       - received_datetime
       - recipient_facility_license_number
       - recipient_facility_name
@@ -2957,11 +2951,12 @@
       - transfer_row_id
       - us_state
       filter:
-        metrc_transfer:
-          _or:
-          - company_id:
+        _or:
+        - company_deliveries:
+            company_id:
               _eq: X-Hasura-Company-Id
-          - vendor_id:
+        - company_deliveries:
+            vendor_id:
               _eq: X-Hasura-Company-Id
 - table:
     schema: public
@@ -3230,7 +3225,6 @@
   - role: bank_admin
     permission:
       columns:
-      - company_id
       - id
       - last_modified_at
       - license_number
@@ -3251,7 +3245,6 @@
   - role: bank_read_only
     permission:
       columns:
-      - company_id
       - id
       - last_modified_at
       - license_number
@@ -3369,10 +3362,12 @@
       filter:
         metrc_transfer:
           _or:
-          - company_id:
-              _eq: X-Hasura-Company-Id
-          - vendor_id:
-              _eq: X-Hasura-Company-Id
+          - company_deliveries:
+              company_id:
+                _eq: X-Hasura-Company-Id
+          - company_deliveries:
+              vendor_id:
+                _eq: X-Hasura-Company-Id
   - role: company_read_only
     permission:
       columns:
@@ -3404,10 +3399,12 @@
       filter:
         metrc_transfer:
           _or:
-          - company_id:
-              _eq: X-Hasura-Company-Id
-          - vendor_id:
-              _eq: X-Hasura-Company-Id
+          - company_deliveries:
+              company_id:
+                _eq: X-Hasura-Company-Id
+          - company_deliveries:
+              vendor_id:
+                _eq: X-Hasura-Company-Id
   - role: purchase_order_reviewer
     permission:
       columns:
@@ -3436,26 +3433,16 @@
       - us_state
       filter:
         metrc_transfer:
-          vendor_id:
-            _eq: X-Hasura-Company-Id
+          _or:
+          - company_deliveries:
+              company_id:
+                _eq: X-Hasura-Company-Id
+          - company_deliveries:
+              vendor_id:
+                _eq: X-Hasura-Company-Id
 - table:
     schema: public
     name: metrc_transfers
-  object_relationships:
-  - name: company
-    using:
-      foreign_key_constraint_on: company_id
-  - name: company_license
-    using:
-      foreign_key_constraint_on: license_id
-  - name: vendor
-    using:
-      manual_configuration:
-        remote_table:
-          schema: public
-          name: vendors
-        column_mapping:
-          vendor_id: id
   array_relationships:
   - name: company_deliveries
     using:
@@ -3482,13 +3469,11 @@
   - role: bank_admin
     permission:
       columns:
-      - company_id
       - created_at
       - created_date
       - id
       - lab_results_status
       - last_modified_at
-      - license_id
       - license_number
       - manifest_number
       - shipment_transaction_type
@@ -3501,18 +3486,15 @@
       - type
       - updated_at
       - us_state
-      - vendor_id
       filter: {}
   - role: bank_read_only
     permission:
       columns:
-      - company_id
       - created_at
       - created_date
       - id
       - lab_results_status
       - last_modified_at
-      - license_id
       - license_number
       - manifest_number
       - shipment_transaction_type
@@ -3525,18 +3507,15 @@
       - type
       - updated_at
       - us_state
-      - vendor_id
       filter: {}
   - role: company_admin
     permission:
       columns:
-      - company_id
       - created_at
       - created_date
       - id
       - lab_results_status
       - last_modified_at
-      - license_id
       - license_number
       - manifest_number
       - shipment_transaction_type
@@ -3549,7 +3528,6 @@
       - type
       - updated_at
       - us_state
-      - vendor_id
       filter:
         _or:
         - company_deliveries:
@@ -3561,13 +3539,11 @@
   - role: company_read_only
     permission:
       columns:
-      - company_id
       - created_at
       - created_date
       - id
       - lab_results_status
       - last_modified_at
-      - license_id
       - license_number
       - manifest_number
       - shipment_transaction_type
@@ -3580,7 +3556,6 @@
       - type
       - updated_at
       - us_state
-      - vendor_id
       filter:
         _or:
         - company_deliveries:
@@ -3592,12 +3567,10 @@
   - role: purchase_order_reviewer
     permission:
       columns:
-      - company_id
       - created_date
       - id
       - lab_results_status
       - last_modified_at
-      - license_id
       - license_number
       - manifest_number
       - shipment_transaction_type
@@ -3609,7 +3582,6 @@
       - transfer_type
       - type
       - us_state
-      - vendor_id
       filter:
         company_deliveries:
           vendor_id:
@@ -4517,14 +4489,6 @@
           name: company_licenses
         column_mapping:
           id: company_id
-  - name: metrc_transfers
-    using:
-      manual_configuration:
-        remote_table:
-          schema: public
-          name: metrc_transfers
-        column_mapping:
-          id: vendor_id
   - name: users
     using:
       manual_configuration:

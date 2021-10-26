@@ -1565,10 +1565,6 @@ export type Companies = {
   metrc_api_keys: Array<MetrcApiKeys>;
   /** An aggregated array relationship */
   metrc_api_keys_aggregate: MetrcApiKeysAggregate;
-  /** An array relationship */
-  metrc_transfers: Array<MetrcTransfers>;
-  /** An aggregated array relationship */
-  metrc_transfers_aggregate: MetrcTransfersAggregate;
   name: Scalars["String"];
   needs_balance_recomputed: Scalars["Boolean"];
   /** An array relationship */
@@ -1848,24 +1844,6 @@ export type CompaniesMetrcApiKeysAggregateArgs = {
 };
 
 /** columns and relationships of "companies" */
-export type CompaniesMetrcTransfersArgs = {
-  distinct_on?: Maybe<Array<MetrcTransfersSelectColumn>>;
-  limit?: Maybe<Scalars["Int"]>;
-  offset?: Maybe<Scalars["Int"]>;
-  order_by?: Maybe<Array<MetrcTransfersOrderBy>>;
-  where?: Maybe<MetrcTransfersBoolExp>;
-};
-
-/** columns and relationships of "companies" */
-export type CompaniesMetrcTransfersAggregateArgs = {
-  distinct_on?: Maybe<Array<MetrcTransfersSelectColumn>>;
-  limit?: Maybe<Scalars["Int"]>;
-  offset?: Maybe<Scalars["Int"]>;
-  order_by?: Maybe<Array<MetrcTransfersOrderBy>>;
-  where?: Maybe<MetrcTransfersBoolExp>;
-};
-
-/** columns and relationships of "companies" */
 export type CompaniesPaymentsArgs = {
   distinct_on?: Maybe<Array<PaymentsSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -2037,7 +2015,6 @@ export type CompaniesBoolExp = {
   licenses?: Maybe<CompanyLicensesBoolExp>;
   loans?: Maybe<LoansBoolExp>;
   metrc_api_keys?: Maybe<MetrcApiKeysBoolExp>;
-  metrc_transfers?: Maybe<MetrcTransfersBoolExp>;
   name?: Maybe<StringComparisonExp>;
   needs_balance_recomputed?: Maybe<BooleanComparisonExp>;
   payments?: Maybe<PaymentsBoolExp>;
@@ -2101,7 +2078,6 @@ export type CompaniesInsertInput = {
   licenses?: Maybe<CompanyLicensesArrRelInsertInput>;
   loans?: Maybe<LoansArrRelInsertInput>;
   metrc_api_keys?: Maybe<MetrcApiKeysArrRelInsertInput>;
-  metrc_transfers?: Maybe<MetrcTransfersArrRelInsertInput>;
   name?: Maybe<Scalars["String"]>;
   needs_balance_recomputed?: Maybe<Scalars["Boolean"]>;
   payments?: Maybe<PaymentsArrRelInsertInput>;
@@ -2263,7 +2239,6 @@ export type CompaniesOrderBy = {
   licenses_aggregate?: Maybe<CompanyLicensesAggregateOrderBy>;
   loans_aggregate?: Maybe<LoansAggregateOrderBy>;
   metrc_api_keys_aggregate?: Maybe<MetrcApiKeysAggregateOrderBy>;
-  metrc_transfers_aggregate?: Maybe<MetrcTransfersAggregateOrderBy>;
   name?: Maybe<OrderBy>;
   needs_balance_recomputed?: Maybe<OrderBy>;
   payments_aggregate?: Maybe<PaymentsAggregateOrderBy>;
@@ -10143,6 +10118,10 @@ export enum MetrcApiKeysUpdateColumn {
 
 /** columns and relationships of "metrc_deliveries" */
 export type MetrcDeliveries = {
+  /** An array relationship */
+  company_deliveries: Array<CompanyDeliveries>;
+  /** An aggregated array relationship */
+  company_deliveries_aggregate: CompanyDeliveriesAggregate;
   created_at: Scalars["timestamptz"];
   /** From Metrc */
   delivery_id: Scalars["String"];
@@ -10155,9 +10134,6 @@ export type MetrcDeliveries = {
   metrc_transfer_packages: Array<MetrcTransferPackages>;
   /** An aggregated array relationship */
   metrc_transfer_packages_aggregate: MetrcTransferPackagesAggregate;
-  /** An object relationship */
-  payor?: Maybe<Companies>;
-  payor_id?: Maybe<Scalars["uuid"]>;
   received_datetime?: Maybe<Scalars["timestamptz"]>;
   recipient_facility_license_number: Scalars["String"];
   recipient_facility_name: Scalars["String"];
@@ -10166,6 +10142,24 @@ export type MetrcDeliveries = {
   transfer_row_id: Scalars["uuid"];
   updated_at: Scalars["timestamptz"];
   us_state: Scalars["String"];
+};
+
+/** columns and relationships of "metrc_deliveries" */
+export type MetrcDeliveriesCompanyDeliveriesArgs = {
+  distinct_on?: Maybe<Array<CompanyDeliveriesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyDeliveriesOrderBy>>;
+  where?: Maybe<CompanyDeliveriesBoolExp>;
+};
+
+/** columns and relationships of "metrc_deliveries" */
+export type MetrcDeliveriesCompanyDeliveriesAggregateArgs = {
+  distinct_on?: Maybe<Array<CompanyDeliveriesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyDeliveriesOrderBy>>;
+  where?: Maybe<CompanyDeliveriesBoolExp>;
 };
 
 /** columns and relationships of "metrc_deliveries" */
@@ -10228,6 +10222,7 @@ export type MetrcDeliveriesBoolExp = {
   _and?: Maybe<Array<Maybe<MetrcDeliveriesBoolExp>>>;
   _not?: Maybe<MetrcDeliveriesBoolExp>;
   _or?: Maybe<Array<Maybe<MetrcDeliveriesBoolExp>>>;
+  company_deliveries?: Maybe<CompanyDeliveriesBoolExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   delivery_id?: Maybe<StringComparisonExp>;
   delivery_payload?: Maybe<JsonComparisonExp>;
@@ -10235,8 +10230,6 @@ export type MetrcDeliveriesBoolExp = {
   id?: Maybe<UuidComparisonExp>;
   metrc_transfer?: Maybe<MetrcTransfersBoolExp>;
   metrc_transfer_packages?: Maybe<MetrcTransferPackagesBoolExp>;
-  payor?: Maybe<CompaniesBoolExp>;
-  payor_id?: Maybe<UuidComparisonExp>;
   received_datetime?: Maybe<TimestamptzComparisonExp>;
   recipient_facility_license_number?: Maybe<StringComparisonExp>;
   recipient_facility_name?: Maybe<StringComparisonExp>;
@@ -10257,6 +10250,7 @@ export enum MetrcDeliveriesConstraint {
 
 /** input type for inserting data into table "metrc_deliveries" */
 export type MetrcDeliveriesInsertInput = {
+  company_deliveries?: Maybe<CompanyDeliveriesArrRelInsertInput>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   delivery_id?: Maybe<Scalars["String"]>;
   delivery_payload?: Maybe<Scalars["json"]>;
@@ -10264,8 +10258,6 @@ export type MetrcDeliveriesInsertInput = {
   id?: Maybe<Scalars["uuid"]>;
   metrc_transfer?: Maybe<MetrcTransfersObjRelInsertInput>;
   metrc_transfer_packages?: Maybe<MetrcTransferPackagesArrRelInsertInput>;
-  payor?: Maybe<CompaniesObjRelInsertInput>;
-  payor_id?: Maybe<Scalars["uuid"]>;
   received_datetime?: Maybe<Scalars["timestamptz"]>;
   recipient_facility_license_number?: Maybe<Scalars["String"]>;
   recipient_facility_name?: Maybe<Scalars["String"]>;
@@ -10282,7 +10274,6 @@ export type MetrcDeliveriesMaxFields = {
   delivery_id?: Maybe<Scalars["String"]>;
   delivery_type?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
-  payor_id?: Maybe<Scalars["uuid"]>;
   received_datetime?: Maybe<Scalars["timestamptz"]>;
   recipient_facility_license_number?: Maybe<Scalars["String"]>;
   recipient_facility_name?: Maybe<Scalars["String"]>;
@@ -10299,7 +10290,6 @@ export type MetrcDeliveriesMaxOrderBy = {
   delivery_id?: Maybe<OrderBy>;
   delivery_type?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
-  payor_id?: Maybe<OrderBy>;
   received_datetime?: Maybe<OrderBy>;
   recipient_facility_license_number?: Maybe<OrderBy>;
   recipient_facility_name?: Maybe<OrderBy>;
@@ -10316,7 +10306,6 @@ export type MetrcDeliveriesMinFields = {
   delivery_id?: Maybe<Scalars["String"]>;
   delivery_type?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
-  payor_id?: Maybe<Scalars["uuid"]>;
   received_datetime?: Maybe<Scalars["timestamptz"]>;
   recipient_facility_license_number?: Maybe<Scalars["String"]>;
   recipient_facility_name?: Maybe<Scalars["String"]>;
@@ -10333,7 +10322,6 @@ export type MetrcDeliveriesMinOrderBy = {
   delivery_id?: Maybe<OrderBy>;
   delivery_type?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
-  payor_id?: Maybe<OrderBy>;
   received_datetime?: Maybe<OrderBy>;
   recipient_facility_license_number?: Maybe<OrderBy>;
   recipient_facility_name?: Maybe<OrderBy>;
@@ -10367,6 +10355,7 @@ export type MetrcDeliveriesOnConflict = {
 
 /** ordering options when selecting data from "metrc_deliveries" */
 export type MetrcDeliveriesOrderBy = {
+  company_deliveries_aggregate?: Maybe<CompanyDeliveriesAggregateOrderBy>;
   created_at?: Maybe<OrderBy>;
   delivery_id?: Maybe<OrderBy>;
   delivery_payload?: Maybe<OrderBy>;
@@ -10374,8 +10363,6 @@ export type MetrcDeliveriesOrderBy = {
   id?: Maybe<OrderBy>;
   metrc_transfer?: Maybe<MetrcTransfersOrderBy>;
   metrc_transfer_packages_aggregate?: Maybe<MetrcTransferPackagesAggregateOrderBy>;
-  payor?: Maybe<CompaniesOrderBy>;
-  payor_id?: Maybe<OrderBy>;
   received_datetime?: Maybe<OrderBy>;
   recipient_facility_license_number?: Maybe<OrderBy>;
   recipient_facility_name?: Maybe<OrderBy>;
@@ -10404,8 +10391,6 @@ export enum MetrcDeliveriesSelectColumn {
   /** column name */
   Id = "id",
   /** column name */
-  PayorId = "payor_id",
-  /** column name */
   ReceivedDatetime = "received_datetime",
   /** column name */
   RecipientFacilityLicenseNumber = "recipient_facility_license_number",
@@ -10430,7 +10415,6 @@ export type MetrcDeliveriesSetInput = {
   delivery_payload?: Maybe<Scalars["json"]>;
   delivery_type?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
-  payor_id?: Maybe<Scalars["uuid"]>;
   received_datetime?: Maybe<Scalars["timestamptz"]>;
   recipient_facility_license_number?: Maybe<Scalars["String"]>;
   recipient_facility_name?: Maybe<Scalars["String"]>;
@@ -10453,8 +10437,6 @@ export enum MetrcDeliveriesUpdateColumn {
   DeliveryType = "delivery_type",
   /** column name */
   Id = "id",
-  /** column name */
-  PayorId = "payor_id",
   /** column name */
   ReceivedDatetime = "received_datetime",
   /** column name */
@@ -12656,7 +12638,6 @@ export type MetrcSalesReceiptsVarianceOrderBy = {
 
 /** columns and relationships of "metrc_sales_transactions" */
 export type MetrcSalesTransactions = {
-  company_id: Scalars["uuid"];
   created_at: Scalars["timestamptz"];
   id: Scalars["uuid"];
   is_deleted?: Maybe<Scalars["Boolean"]>;
@@ -12750,7 +12731,6 @@ export type MetrcSalesTransactionsBoolExp = {
   _and?: Maybe<Array<Maybe<MetrcSalesTransactionsBoolExp>>>;
   _not?: Maybe<MetrcSalesTransactionsBoolExp>;
   _or?: Maybe<Array<Maybe<MetrcSalesTransactionsBoolExp>>>;
-  company_id?: Maybe<UuidComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   is_deleted?: Maybe<BooleanComparisonExp>;
@@ -12787,7 +12767,6 @@ export type MetrcSalesTransactionsIncInput = {
 
 /** input type for inserting data into table "metrc_sales_transactions" */
 export type MetrcSalesTransactionsInsertInput = {
-  company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
@@ -12812,7 +12791,6 @@ export type MetrcSalesTransactionsInsertInput = {
 
 /** aggregate max on columns */
 export type MetrcSalesTransactionsMaxFields = {
-  company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   last_modified_at?: Maybe<Scalars["timestamptz"]>;
@@ -12834,7 +12812,6 @@ export type MetrcSalesTransactionsMaxFields = {
 
 /** order by max() on columns of table "metrc_sales_transactions" */
 export type MetrcSalesTransactionsMaxOrderBy = {
-  company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   last_modified_at?: Maybe<OrderBy>;
@@ -12856,7 +12833,6 @@ export type MetrcSalesTransactionsMaxOrderBy = {
 
 /** aggregate min on columns */
 export type MetrcSalesTransactionsMinFields = {
-  company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   last_modified_at?: Maybe<Scalars["timestamptz"]>;
@@ -12878,7 +12854,6 @@ export type MetrcSalesTransactionsMinFields = {
 
 /** order by min() on columns of table "metrc_sales_transactions" */
 export type MetrcSalesTransactionsMinOrderBy = {
-  company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   last_modified_at?: Maybe<OrderBy>;
@@ -12921,7 +12896,6 @@ export type MetrcSalesTransactionsOnConflict = {
 
 /** ordering options when selecting data from "metrc_sales_transactions" */
 export type MetrcSalesTransactionsOrderBy = {
-  company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   is_deleted?: Maybe<OrderBy>;
@@ -12951,8 +12925,6 @@ export type MetrcSalesTransactionsPkColumnsInput = {
 
 /** select columns of table "metrc_sales_transactions" */
 export enum MetrcSalesTransactionsSelectColumn {
-  /** column name */
-  CompanyId = "company_id",
   /** column name */
   CreatedAt = "created_at",
   /** column name */
@@ -12995,7 +12967,6 @@ export enum MetrcSalesTransactionsSelectColumn {
 
 /** input type for updating data in table "metrc_sales_transactions" */
 export type MetrcSalesTransactionsSetInput = {
-  company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
@@ -13067,8 +13038,6 @@ export type MetrcSalesTransactionsSumOrderBy = {
 
 /** update columns of table "metrc_sales_transactions" */
 export enum MetrcSalesTransactionsUpdateColumn {
-  /** column name */
-  CompanyId = "company_id",
   /** column name */
   CreatedAt = "created_at",
   /** column name */
@@ -13738,21 +13707,15 @@ export type MetrcTransferPackagesVarianceOrderBy = {
  * columns and relationships of "metrc_transfers"
  */
 export type MetrcTransfers = {
-  /** An object relationship */
-  company?: Maybe<Companies>;
   /** An array relationship */
   company_deliveries: Array<CompanyDeliveries>;
   /** An aggregated array relationship */
   company_deliveries_aggregate: CompanyDeliveriesAggregate;
-  company_id?: Maybe<Scalars["uuid"]>;
-  /** An object relationship */
-  company_license?: Maybe<CompanyLicenses>;
   created_at: Scalars["timestamptz"];
   created_date: Scalars["date"];
   id: Scalars["uuid"];
   lab_results_status?: Maybe<Scalars["String"]>;
   last_modified_at?: Maybe<Scalars["timestamptz"]>;
-  license_id?: Maybe<Scalars["uuid"]>;
   license_number?: Maybe<Scalars["String"]>;
   manifest_number: Scalars["String"];
   /** An array relationship */
@@ -13774,9 +13737,6 @@ export type MetrcTransfers = {
   type?: Maybe<Scalars["String"]>;
   updated_at: Scalars["timestamptz"];
   us_state: Scalars["String"];
-  /** An object relationship */
-  vendor?: Maybe<Vendors>;
-  vendor_id?: Maybe<Scalars["uuid"]>;
 };
 
 /**
@@ -13910,16 +13870,12 @@ export type MetrcTransfersBoolExp = {
   _and?: Maybe<Array<Maybe<MetrcTransfersBoolExp>>>;
   _not?: Maybe<MetrcTransfersBoolExp>;
   _or?: Maybe<Array<Maybe<MetrcTransfersBoolExp>>>;
-  company?: Maybe<CompaniesBoolExp>;
   company_deliveries?: Maybe<CompanyDeliveriesBoolExp>;
-  company_id?: Maybe<UuidComparisonExp>;
-  company_license?: Maybe<CompanyLicensesBoolExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   created_date?: Maybe<DateComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   lab_results_status?: Maybe<StringComparisonExp>;
   last_modified_at?: Maybe<TimestamptzComparisonExp>;
-  license_id?: Maybe<UuidComparisonExp>;
   license_number?: Maybe<StringComparisonExp>;
   manifest_number?: Maybe<StringComparisonExp>;
   metrc_deliveries?: Maybe<MetrcDeliveriesBoolExp>;
@@ -13934,8 +13890,6 @@ export type MetrcTransfersBoolExp = {
   type?: Maybe<StringComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
   us_state?: Maybe<StringComparisonExp>;
-  vendor?: Maybe<VendorsBoolExp>;
-  vendor_id?: Maybe<UuidComparisonExp>;
 };
 
 /** unique or primary key constraints on table "metrc_transfers" */
@@ -13948,16 +13902,12 @@ export enum MetrcTransfersConstraint {
 
 /** input type for inserting data into table "metrc_transfers" */
 export type MetrcTransfersInsertInput = {
-  company?: Maybe<CompaniesObjRelInsertInput>;
   company_deliveries?: Maybe<CompanyDeliveriesArrRelInsertInput>;
-  company_id?: Maybe<Scalars["uuid"]>;
-  company_license?: Maybe<CompanyLicensesObjRelInsertInput>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   created_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   lab_results_status?: Maybe<Scalars["String"]>;
   last_modified_at?: Maybe<Scalars["timestamptz"]>;
-  license_id?: Maybe<Scalars["uuid"]>;
   license_number?: Maybe<Scalars["String"]>;
   manifest_number?: Maybe<Scalars["String"]>;
   metrc_deliveries?: Maybe<MetrcDeliveriesArrRelInsertInput>;
@@ -13972,19 +13922,15 @@ export type MetrcTransfersInsertInput = {
   type?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   us_state?: Maybe<Scalars["String"]>;
-  vendor?: Maybe<VendorsObjRelInsertInput>;
-  vendor_id?: Maybe<Scalars["uuid"]>;
 };
 
 /** aggregate max on columns */
 export type MetrcTransfersMaxFields = {
-  company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   created_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   lab_results_status?: Maybe<Scalars["String"]>;
   last_modified_at?: Maybe<Scalars["timestamptz"]>;
-  license_id?: Maybe<Scalars["uuid"]>;
   license_number?: Maybe<Scalars["String"]>;
   manifest_number?: Maybe<Scalars["String"]>;
   shipment_transaction_type?: Maybe<Scalars["String"]>;
@@ -13996,18 +13942,15 @@ export type MetrcTransfersMaxFields = {
   type?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   us_state?: Maybe<Scalars["String"]>;
-  vendor_id?: Maybe<Scalars["uuid"]>;
 };
 
 /** order by max() on columns of table "metrc_transfers" */
 export type MetrcTransfersMaxOrderBy = {
-  company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   created_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   lab_results_status?: Maybe<OrderBy>;
   last_modified_at?: Maybe<OrderBy>;
-  license_id?: Maybe<OrderBy>;
   license_number?: Maybe<OrderBy>;
   manifest_number?: Maybe<OrderBy>;
   shipment_transaction_type?: Maybe<OrderBy>;
@@ -14019,18 +13962,15 @@ export type MetrcTransfersMaxOrderBy = {
   type?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   us_state?: Maybe<OrderBy>;
-  vendor_id?: Maybe<OrderBy>;
 };
 
 /** aggregate min on columns */
 export type MetrcTransfersMinFields = {
-  company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   created_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   lab_results_status?: Maybe<Scalars["String"]>;
   last_modified_at?: Maybe<Scalars["timestamptz"]>;
-  license_id?: Maybe<Scalars["uuid"]>;
   license_number?: Maybe<Scalars["String"]>;
   manifest_number?: Maybe<Scalars["String"]>;
   shipment_transaction_type?: Maybe<Scalars["String"]>;
@@ -14042,18 +13982,15 @@ export type MetrcTransfersMinFields = {
   type?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   us_state?: Maybe<Scalars["String"]>;
-  vendor_id?: Maybe<Scalars["uuid"]>;
 };
 
 /** order by min() on columns of table "metrc_transfers" */
 export type MetrcTransfersMinOrderBy = {
-  company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   created_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   lab_results_status?: Maybe<OrderBy>;
   last_modified_at?: Maybe<OrderBy>;
-  license_id?: Maybe<OrderBy>;
   license_number?: Maybe<OrderBy>;
   manifest_number?: Maybe<OrderBy>;
   shipment_transaction_type?: Maybe<OrderBy>;
@@ -14065,7 +14002,6 @@ export type MetrcTransfersMinOrderBy = {
   type?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   us_state?: Maybe<OrderBy>;
-  vendor_id?: Maybe<OrderBy>;
 };
 
 /** response of any mutation on the table "metrc_transfers" */
@@ -14091,16 +14027,12 @@ export type MetrcTransfersOnConflict = {
 
 /** ordering options when selecting data from "metrc_transfers" */
 export type MetrcTransfersOrderBy = {
-  company?: Maybe<CompaniesOrderBy>;
   company_deliveries_aggregate?: Maybe<CompanyDeliveriesAggregateOrderBy>;
-  company_id?: Maybe<OrderBy>;
-  company_license?: Maybe<CompanyLicensesOrderBy>;
   created_at?: Maybe<OrderBy>;
   created_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   lab_results_status?: Maybe<OrderBy>;
   last_modified_at?: Maybe<OrderBy>;
-  license_id?: Maybe<OrderBy>;
   license_number?: Maybe<OrderBy>;
   manifest_number?: Maybe<OrderBy>;
   metrc_deliveries_aggregate?: Maybe<MetrcDeliveriesAggregateOrderBy>;
@@ -14115,8 +14047,6 @@ export type MetrcTransfersOrderBy = {
   type?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   us_state?: Maybe<OrderBy>;
-  vendor?: Maybe<VendorsOrderBy>;
-  vendor_id?: Maybe<OrderBy>;
 };
 
 /** primary key columns input for table: "metrc_transfers" */
@@ -14127,8 +14057,6 @@ export type MetrcTransfersPkColumnsInput = {
 /** select columns of table "metrc_transfers" */
 export enum MetrcTransfersSelectColumn {
   /** column name */
-  CompanyId = "company_id",
-  /** column name */
   CreatedAt = "created_at",
   /** column name */
   CreatedDate = "created_date",
@@ -14138,8 +14066,6 @@ export enum MetrcTransfersSelectColumn {
   LabResultsStatus = "lab_results_status",
   /** column name */
   LastModifiedAt = "last_modified_at",
-  /** column name */
-  LicenseId = "license_id",
   /** column name */
   LicenseNumber = "license_number",
   /** column name */
@@ -14164,19 +14090,15 @@ export enum MetrcTransfersSelectColumn {
   UpdatedAt = "updated_at",
   /** column name */
   UsState = "us_state",
-  /** column name */
-  VendorId = "vendor_id",
 }
 
 /** input type for updating data in table "metrc_transfers" */
 export type MetrcTransfersSetInput = {
-  company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   created_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   lab_results_status?: Maybe<Scalars["String"]>;
   last_modified_at?: Maybe<Scalars["timestamptz"]>;
-  license_id?: Maybe<Scalars["uuid"]>;
   license_number?: Maybe<Scalars["String"]>;
   manifest_number?: Maybe<Scalars["String"]>;
   shipment_transaction_type?: Maybe<Scalars["String"]>;
@@ -14189,13 +14111,10 @@ export type MetrcTransfersSetInput = {
   type?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   us_state?: Maybe<Scalars["String"]>;
-  vendor_id?: Maybe<Scalars["uuid"]>;
 };
 
 /** update columns of table "metrc_transfers" */
 export enum MetrcTransfersUpdateColumn {
-  /** column name */
-  CompanyId = "company_id",
   /** column name */
   CreatedAt = "created_at",
   /** column name */
@@ -14206,8 +14125,6 @@ export enum MetrcTransfersUpdateColumn {
   LabResultsStatus = "lab_results_status",
   /** column name */
   LastModifiedAt = "last_modified_at",
-  /** column name */
-  LicenseId = "license_id",
   /** column name */
   LicenseNumber = "license_number",
   /** column name */
@@ -14232,8 +14149,6 @@ export enum MetrcTransfersUpdateColumn {
   UpdatedAt = "updated_at",
   /** column name */
   UsState = "us_state",
-  /** column name */
-  VendorId = "vendor_id",
 }
 
 /** mutation root */
@@ -23616,10 +23531,6 @@ export type Vendors = {
   licenses: Array<CompanyLicenses>;
   /** An aggregated array relationship */
   licenses_aggregate: CompanyLicensesAggregate;
-  /** An array relationship */
-  metrc_transfers: Array<MetrcTransfers>;
-  /** An aggregated array relationship */
-  metrc_transfers_aggregate: MetrcTransfersAggregate;
   name?: Maybe<Scalars["String"]>;
   needs_balance_recomputed?: Maybe<Scalars["Boolean"]>;
   phone_number?: Maybe<Scalars["String"]>;
@@ -23686,24 +23597,6 @@ export type VendorsLicensesAggregateArgs = {
   offset?: Maybe<Scalars["Int"]>;
   order_by?: Maybe<Array<CompanyLicensesOrderBy>>;
   where?: Maybe<CompanyLicensesBoolExp>;
-};
-
-/** columns and relationships of "vendors" */
-export type VendorsMetrcTransfersArgs = {
-  distinct_on?: Maybe<Array<MetrcTransfersSelectColumn>>;
-  limit?: Maybe<Scalars["Int"]>;
-  offset?: Maybe<Scalars["Int"]>;
-  order_by?: Maybe<Array<MetrcTransfersOrderBy>>;
-  where?: Maybe<MetrcTransfersBoolExp>;
-};
-
-/** columns and relationships of "vendors" */
-export type VendorsMetrcTransfersAggregateArgs = {
-  distinct_on?: Maybe<Array<MetrcTransfersSelectColumn>>;
-  limit?: Maybe<Scalars["Int"]>;
-  offset?: Maybe<Scalars["Int"]>;
-  order_by?: Maybe<Array<MetrcTransfersOrderBy>>;
-  where?: Maybe<MetrcTransfersBoolExp>;
 };
 
 /** columns and relationships of "vendors" */
@@ -23800,7 +23693,6 @@ export type VendorsBoolExp = {
   identifier?: Maybe<StringComparisonExp>;
   latest_loan_identifier?: Maybe<IntComparisonExp>;
   licenses?: Maybe<CompanyLicensesBoolExp>;
-  metrc_transfers?: Maybe<MetrcTransfersBoolExp>;
   name?: Maybe<StringComparisonExp>;
   needs_balance_recomputed?: Maybe<BooleanComparisonExp>;
   phone_number?: Maybe<StringComparisonExp>;
@@ -23832,7 +23724,6 @@ export type VendorsInsertInput = {
   identifier?: Maybe<Scalars["String"]>;
   latest_loan_identifier?: Maybe<Scalars["Int"]>;
   licenses?: Maybe<CompanyLicensesArrRelInsertInput>;
-  metrc_transfers?: Maybe<MetrcTransfersArrRelInsertInput>;
   name?: Maybe<Scalars["String"]>;
   needs_balance_recomputed?: Maybe<Scalars["Boolean"]>;
   phone_number?: Maybe<Scalars["String"]>;
@@ -23952,7 +23843,6 @@ export type VendorsOrderBy = {
   identifier?: Maybe<OrderBy>;
   latest_loan_identifier?: Maybe<OrderBy>;
   licenses_aggregate?: Maybe<CompanyLicensesAggregateOrderBy>;
-  metrc_transfers_aggregate?: Maybe<MetrcTransfersAggregateOrderBy>;
   name?: Maybe<OrderBy>;
   needs_balance_recomputed?: Maybe<OrderBy>;
   phone_number?: Maybe<OrderBy>;
@@ -34161,7 +34051,7 @@ export type GetMetrcTransfersByUsStateManifestNumberQueryResult = Apollo.QueryRe
 export const GetMetrcTransfersByCompanyIdDocument = gql`
   query GetMetrcTransfersByCompanyId($company_id: uuid!) {
     metrc_transfers(
-      where: { company_id: { _eq: $company_id } }
+      where: { company_deliveries: { company_id: { _eq: $company_id } } }
       order_by: { manifest_number: desc }
     ) {
       id
@@ -34280,7 +34170,11 @@ export type GetMetrcTransferPackageQueryResult = Apollo.QueryResult<
 export const GetMetrcTransferPackagesByCompanyIdDocument = gql`
   query GetMetrcTransferPackagesByCompanyId($company_id: uuid!) {
     metrc_transfer_packages(
-      where: { metrc_transfer: { company_id: { _eq: $company_id } } }
+      where: {
+        metrc_transfer: {
+          company_deliveries: { company_id: { _eq: $company_id } }
+        }
+      }
       order_by: [
         { metrc_transfer: { manifest_number: desc } }
         { package_id: asc }

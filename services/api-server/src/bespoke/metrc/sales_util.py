@@ -32,7 +32,6 @@ class SalesTransactions(object):
 			sales_tx.type = self._type
 			sales_tx.license_number = ctx.license['license_number']
 			sales_tx.us_state = ctx.license['us_state']
-			sales_tx.company_id = cast(Any, ctx.company_details['company_id'])
 			sales_tx.package_id = '{}'.format(tx['PackageId'])
 			sales_tx.package_label = tx['PackageLabel']
 			sales_tx.product_name = tx['ProductName']
@@ -226,7 +225,6 @@ def _update_sales_transaction(prev: models.MetrcSalesTransaction, cur: models.Me
 	prev.type = cur.type
 	prev.license_number = cur.license_number
 	prev.us_state = cur.us_state
-	prev.company_id = cur.company_id
 	prev.receipt_id = cur.receipt_id
 	prev.receipt_row_id = cur.receipt_row_id
 	prev.package_id = cur.package_id
@@ -247,15 +245,12 @@ def _write_sales_transactions_chunk(
 	if not sales_transactions:
 		return
 
-	company_id = sales_transactions[0].company_id
 	us_state = sales_transactions[0].us_state
 
 	query = session.query(func.count(models.MetrcSalesTransaction.id)).filter(
 		models.MetrcSalesTransaction.us_state == us_state
 	).filter(
 		models.MetrcSalesTransaction.receipt_id == receipt_id
-	).filter(
-		models.MetrcSalesTransaction.company_id == company_id
 	)
 	num_prev_txs = cast(Callable, query.scalar)()
 	if num_prev_txs > 0:
@@ -263,8 +258,6 @@ def _write_sales_transactions_chunk(
 			models.MetrcSalesTransaction.us_state == us_state
 		).filter(
 			models.MetrcSalesTransaction.receipt_id == receipt_id
-		).filter(
-			models.MetrcSalesTransaction.company_id == company_id
 		).all()
 		package_id_to_prev_tx = {}
 		prev_txs_to_delete = {}
@@ -304,7 +297,6 @@ def _write_sales_transactions_chunk(
 			'type': sales_tx.type,
 			'license_number': sales_tx.license_number,
 			'us_state': sales_tx.us_state,
-			'company_id': sales_tx.company_id,
 			'receipt_id': sales_tx.receipt_id,
 			'receipt_row_id': sales_tx.receipt_row_id,
 			'package_id': sales_tx.package_id,
