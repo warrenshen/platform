@@ -34,10 +34,10 @@ class ReportsLoansComingDueView(MethodView):
 			rows_html += "<tr>"
 			rows_html += "<td>L" + str(l.identifier) + "</td>"
 			rows_html += "<td>" + str(l.maturity_date) + "</td>"
-			rows_html += "<td>$" + '${:.2f}'.format(loan_total) + "</td>"
-			rows_html += "<td>$" + '${:.2f}'.format(l.outstanding_principal_balance) + "</td>"
-			rows_html += "<td>$" + '${:.2f}'.format(l.outstanding_interest) + "</td>"
-			rows_html += "<td>$" + '${:.2f}'.format(l.outstanding_fees) + "</td>"
+			rows_html += "<td>" + '${:.2f}'.format(loan_total) + "</td>"
+			rows_html += "<td>" + '${:.2f}'.format(l.outstanding_principal_balance) + "</td>"
+			rows_html += "<td>" + '${:.2f}'.format(l.outstanding_interest) + "</td>"
+			rows_html += "<td>" + '${:.2f}'.format(l.outstanding_fees) + "</td>"
 			rows_html += "</tr>"
 
 		return running_total, rows_html
@@ -138,10 +138,10 @@ class ReportsLoansPastDueView(MethodView):
 			rows_html += "<tr>"
 			rows_html += "<td>L" + str(l.identifier) + "</td>"
 			rows_html += "<td>" + str(days_past_due) + "</td>"
-			rows_html += "<td>$" + '${:.2f}'.format(loan_total) + "</td>"
-			rows_html += "<td>$" + '${:.2f}'.format(l.outstanding_principal_balance) + "</td>"
-			rows_html += "<td>$" + '${:.2f}'.format(l.outstanding_interest) + "</td>"
-			rows_html += "<td>$" + '${:.2f}'.format(l.outstanding_fees) + "</td>"
+			rows_html += "<td>" + '${:.2f}'.format(loan_total) + "</td>"
+			rows_html += "<td>" + '${:.2f}'.format(l.outstanding_principal_balance) + "</td>"
+			rows_html += "<td>" + '${:.2f}'.format(l.outstanding_interest) + "</td>"
+			rows_html += "<td>" + '${:.2f}'.format(l.outstanding_fees) + "</td>"
 			rows_html += "</tr>"
 
 		return running_total, rows_html
