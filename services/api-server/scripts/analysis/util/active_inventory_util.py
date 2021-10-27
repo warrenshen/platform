@@ -11,6 +11,7 @@ from dateutil import parser
 from collections import OrderedDict
 from mypy_extensions import TypedDict
 
+from bespoke.db.db_constants import DeliveryType
 from bespoke.excel import excel_writer
 
 DEFAULT_SOLD_THRESHOLD = 0.95
@@ -221,120 +222,196 @@ class PackageHistory(object):
 		if not self.incomings:
 			return False
 
-		# Get the most recent incoming package
-		self.incomings.sort(key=lambda x: x['created_date'])
-		incoming_pkg = self.incomings[-1]
+		# Organize things by their incoming, outgoing order
+		all_transfer_pkgs = self.incomings + self.outgoings
+		all_transfer_pkgs.sort(key=lambda x: x['created_date'])
 		
-		if len(self.incomings) > 1:
-			#	for incoming in self.incomings:
-			#		print(incoming['created_date'])
-			pass
+		def _find_insertion(cur_date: datetime.date) -> Dict:
+			# Find the transfer pkog to associate these transactions with, e.g.,
+			#
+			# INCOMING #1
+			#    date_to_txs: {}
+			#
+			# this will tell us all the transactions that occurred after
+			# our incoming transfer, and presumably before an outgoing transfer
+			# occurred.
+			for i in range(len(all_transfer_pkgs)):
+				cur_transfer_pkg = all_transfer_pkgs[i]
+				cur_transfer_date = parse_to_date(cur_transfer_pkg['created_date'])
 
-		arrived_date = parse_to_date(incoming_pkg['created_date'])
-		if not incoming_pkg['shipped_quantity'] or numpy.isnan(incoming_pkg['shipped_quantity']):
-			p.warn(f'package #{self.package_id} does not have a shipped quantity', package_id=self.package_id)
-			return False
+				if (i + 1) >= len(all_transfer_pkgs):
+					# We reached the end of the array, so just put some enormously
+					# large date
+					next_transfer_date = datetime.date(3000, 1, 1)
+				else:
+					next_transfer_date = parse_to_date(all_transfer_pkgs[i+1]['created_date'])
 
-		shipped_quantity = int(incoming_pkg['shipped_quantity'])
-		price_of_pkg = incoming_pkg['shipper_wholesale_price']
-		shipment_package_state = incoming_pkg['shipment_package_state']
+				if cur_date >= cur_transfer_date and cur_date <= next_transfer_date:
+					# We found the transfer we will insert this transaction into
+					# TODO(dlluncor): Make sure to check for the delivery_type, and make
+					# sure that the customer can be selling this item when its an 
+					# internal transfer.
+					#if cur_transfer['']
+					return cur_transfer_pkg
 
-		initial_quantity = shipped_quantity
-		if shipment_package_state == 'Returned':
-			initial_quantity = 0
+			raise Exception('FATAL error, could not find a transfer to insert a tx with date {} into'.format(cur_date))
 
-		date_to_quantity: Dict[datetime.date, int] = {
-			parse_to_date(arrived_date): initial_quantity
-		}
-		
+		# Insert transactions based on the corresponding incoming transfer they
+		# are associated with
+		for transfer_pkg in all_transfer_pkgs:
+			transfer_pkg['date_to_txs'] = OrderedDict()
+
+		self.sales_txs.sort(key = lambda x: x['sales_datetime'])
+
+		for tx in self.sales_txs:
+			cur_date = parse_to_date(tx['sales_datetime'])
+			cur_transfer_pkg = _find_insertion(cur_date)
+			cur_txs = cur_transfer_pkg['date_to_txs'].get(cur_date, [])
+			cur_txs.append(tx)
+			cur_transfer_pkg['date_to_txs'][cur_date] = cur_txs
+
 		lines = []
 		verbose = p.verbose
 		
-		if verbose:
-			lines.append('')
-			lines.append(f'Package {self.package_id} arrived on {date_to_str(arrived_date)} with quantity {shipped_quantity} and price ${price_of_pkg}. {incoming_pkg}')
-		
-		self.sales_txs.sort(key = lambda x: x['sales_datetime'])
-
-		date_to_txs: Dict[datetime.date, List[Dict]] = OrderedDict()
-		for tx in self.sales_txs:
-			cur_date = parse_to_date(tx['sales_datetime'])
-			cur_txs = date_to_txs.get(cur_date, [])
-			cur_txs.append(tx)
-			date_to_txs[cur_date] = cur_txs
-
 		amount_sold = 0
 		is_sold = False
 		revenue_from_pkg = 0
-		
-		dates = list(date_to_txs.keys())
-		dates.sort()
-		remaining_quantity = shipped_quantity
-
+		remaining_quantity = 0
 		seen_receipt_numbers = {}
 		seen_sales_datetimes = {}
+		date_to_quantity: Dict[datetime.date, int] = {}
 
-		for cur_date in dates:
-			txs = date_to_txs[cur_date]
-			# There may be duplicate transactions, so we need to make sure
-			# we only see 1 receipt number per package_id
+		def _is_incoming(transfer_pkg: Dict) -> bool:
+			# For the purposes of this inventory exercise, incoming means its
+			# still in the posession of the company
 
-			for tx in txs:
-				if tx['receipt_number'] in seen_receipt_numbers:
-					if verbose:
-						#lines.append(f"WARN: Got duplicate transaction for package {self.package_id} receipt number {tx['receipt_number']}")
-						#lines.append(f"Delta in txs sold is {tx['tx_is_deleted']}, {seen_receipt_numbers[tx['receipt_number']]['tx_is_deleted']}")
-						pass
+			return transfer_pkg['delivery_type'] in set([
+				DeliveryType.INTERNAL, 
+				DeliveryType.INCOMING_INTERNAL, 
+				DeliveryType.OUTGOING_INTERNAL,
+				DeliveryType.INCOMING_FROM_VENDOR,
+				DeliveryType.INCOMING_UNKNOWN
+			])
 
-					continue
+		def _is_outgoing(transfer_pkg: Dict) -> bool:
+			# For the purposes of this inventory exercise, outgoing means its
+			# no onger in the posession of the company
+			return transfer_pkg['delivery_type'] in set([
+				DeliveryType.OUTGOING_TO_PAYOR,
+				DeliveryType.OUTGOING_UNKNOWN
+			])
+		
+		for transfer_pkg in all_transfer_pkgs:
+			
+			if _is_incoming(transfer_pkg):
+				incoming_pkg = transfer_pkg
 
-				if tx['sales_datetime'] in seen_sales_datetimes:
-					continue
+				arrived_date = parse_to_date(incoming_pkg['created_date'])
+				if not incoming_pkg['shipped_quantity'] or numpy.isnan(incoming_pkg['shipped_quantity']):
+					p.warn(f'package #{self.package_id} does not have a shipped quantity', package_id=self.package_id)
+					return False
 
-				seen_receipt_numbers[tx['receipt_number']] = tx
-				seen_sales_datetimes[tx['sales_datetime']] = True
+				shipped_quantity = int(incoming_pkg['shipped_quantity'])
+				price_of_pkg = incoming_pkg['shipper_wholesale_price']
+				shipment_package_state = incoming_pkg['shipment_package_state']
+
+				initial_quantity = shipped_quantity
+				if shipment_package_state == 'Returned':
+					initial_quantity = 0
+
+				date_to_quantity[arrived_date] = initial_quantity
+				remaining_quantity = initial_quantity
 
 				if verbose:
-					lines.append(f"Package {self.package_id} sold on {date_to_str(tx['sales_datetime'])} {tx['tx_quantity_sold']} ({tx['tx_unit_of_measure']}) for ${tx['tx_total_price']}")
-					if math.isclose(tx['tx_total_price'], 0.0):
-						lines.append('WARN: tx has no total_price')
+					lines.append('')
+					lines.append(f'Package {self.package_id} arrived on {date_to_str(arrived_date)} with quantity {shipped_quantity} and price ${price_of_pkg}.')
 
-				amount_sold += tx['tx_quantity_sold']
-				remaining_quantity -= tx['tx_quantity_sold']
-				revenue_from_pkg += tx['tx_total_price']
+			elif _is_outgoing(transfer_pkg):
+				outgoing_pkg = transfer_pkg
+				outgoing_date = parse_to_date(outgoing_pkg['created_date'])
 
-				if not is_sold and (amount_sold / shipped_quantity) >= sold_threshold:
+				# TODO(dlluncor): Do we set the quantity to 0 on the day it's sent
+				# or the day after?
+				date_to_quantity[outgoing_date] = 0
+				remaining_quantity = 0
+
+				if len(transfer_pkg['date_to_txs'].keys()) > 0:
+					raise Exception('There should be no transactions associated with an outgoing transfer')
+
+				if not outgoing_pkg['shipped_quantity'] or numpy.isnan(outgoing_pkg['shipped_quantity']):
+					p.warn(f'package #{self.package_id} does not have a outgoing shipped quantity', package_id=self.package_id)
+					return False
+
+				shipped_quantity = int(incoming_pkg['shipped_quantity'])
+
+				if verbose:
+					lines.append('')
+					lines.append(f'Package {self.package_id} is outgoing on {date_to_str(outgoing_date)} with quantity {shipped_quantity}')
+
+			else:
+				raise Exception('Seeing a transfer with unhandled deliver type {}'.format(transfer_pkg))
+
+			dates = list(transfer_pkg['date_to_txs'].keys())
+			dates.sort()
+
+			for cur_date in dates:
+				txs = transfer_pkg['date_to_txs'][cur_date]
+				# There may be duplicate transactions, so we need to make sure
+				# we only see 1 receipt number per package_id
+
+				for tx in txs:
+					if tx['receipt_number'] in seen_receipt_numbers:
+						if verbose:
+							#lines.append(f"WARN: Got duplicate transaction for package {self.package_id} receipt number {tx['receipt_number']}")
+							#lines.append(f"Delta in txs sold is {tx['tx_is_deleted']}, {seen_receipt_numbers[tx['receipt_number']]['tx_is_deleted']}")
+							pass
+
+						continue
+
+					if tx['sales_datetime'] in seen_sales_datetimes:
+						continue
+
+					seen_receipt_numbers[tx['receipt_number']] = tx
+					seen_sales_datetimes[tx['sales_datetime']] = True
+
 					if verbose:
-						lines.append(f'Package {self.package_id} marked as SOLD since it is more than {sold_threshold * 100}% sold')
+						lines.append(f"Package {self.package_id} sold on {date_to_str(tx['sales_datetime'])} {tx['tx_quantity_sold']} ({tx['tx_unit_of_measure']}) for ${tx['tx_total_price']}")
+						if math.isclose(tx['tx_total_price'], 0.0):
+							lines.append('WARN: tx has no total_price')
 
-					is_sold = True
-					is_sold_date = parse_to_date(tx['sales_datetime'])
+					amount_sold += tx['tx_quantity_sold']
+					remaining_quantity -= tx['tx_quantity_sold']
+					revenue_from_pkg += tx['tx_total_price']
 
-				if revenue_from_pkg != 0:
-					profit_margin = '{:.2f}'.format((revenue_from_pkg - price_of_pkg) / revenue_from_pkg * 100)
-				else:
-					profit_margin = '0'
+					if not is_sold and (amount_sold / shipped_quantity) >= sold_threshold:
+						if verbose:
+							lines.append(f'Package {self.package_id} marked as SOLD since it is more than {sold_threshold * 100}% sold')
+
+						is_sold = True
+						is_sold_date = parse_to_date(tx['sales_datetime'])
+
+					if revenue_from_pkg != 0:
+						profit_margin = '{:.2f}'.format((revenue_from_pkg - price_of_pkg) / revenue_from_pkg * 100)
+					else:
+						profit_margin = '0'
+							
+					if is_sold:
+						days_delta = (is_sold_date - arrived_date).days
 						
-				if is_sold:
-					days_delta = (is_sold_date - arrived_date).days
-					
-					# (Revenue - Expenses) / Revenue
-					#print(f'Revenue {revenue_from_pkg}')
-					#print(f'Price {price_of_pkg}')
-					lines.append(f'Package {self.package_id} took {days_delta} days to sell with profit margin {profit_margin}%')
-					self.computed_info['sold'] = {
-						'date': is_sold_date
-					}
+						# (Revenue - Expenses) / Revenue
+						#print(f'Revenue {revenue_from_pkg}')
+						#print(f'Price {price_of_pkg}')
+						lines.append(f'Package {self.package_id} took {days_delta} days to sell with profit margin {profit_margin}%')
+						self.computed_info['sold'] = {
+							'date': is_sold_date
+						}
 
-			date_to_quantity[parse_to_date(cur_date)] = remaining_quantity
+				date_to_quantity[parse_to_date(cur_date)] = remaining_quantity
 
 		if verbose:
 			lines.append(f'Package {self.package_id} has a remaining quantity of {remaining_quantity}')
 
 		p.info('\n'.join(lines))
-		#print('Outgoing packages')
-		#for outgoing_pkg in self.outgoings:
-		#	print(outgoing_pkg)
 
 		self.computed_info['date_to_quantity'] = date_to_quantity
 		return is_sold
