@@ -460,17 +460,28 @@ def get_histories(d: Download) -> Dict[str, PackageHistory]:
 
 def analyze_specific_package_histories(
 	d: Download,
+	package_id_to_actual_row: Dict[str, Dict],
 	package_ids: List[str],
 	params: AnalysisParamsDict) -> None:
 
 	package_id_to_history = get_histories(d)
 	package_ids_set = set(package_ids)
-	p = Printer(verbose=True, show_info=True)
+	p = Printer(verbose=True, show_info=True) 
 
-	for package_id, history in package_id_to_history.items():
-			if package_id not in package_ids_set:
-					continue
-			history.compute_additional_fields(run_filter=True, p=p, params=params)
+	for package_id in package_ids:
+			if package_id in package_id_to_actual_row:
+				print('Matching metrc_package')
+				print(package_id_to_actual_row[package_id])
+				print('')
+			else:
+				print('! Missing in metrc_packages')
+
+			if package_id not in package_id_to_history:
+				print(f'! Package ID {package_id} not in computed')
+			else:
+				history = package_id_to_history[package_id]
+				history.compute_additional_fields(run_filter=True, p=p, params=params)
+
 
 def print_counts(id_to_history: Dict[str, PackageHistory]) -> None:
 	only_incoming = 0 # Only incoming transfer package(s)
@@ -657,7 +668,7 @@ def compare_inventory_dataframes(computed: Any, actual: Any, options: CompareOpt
 	for index, row in actual.iterrows():
 		all_actual_package_ids_even_seen.add(row['package_id'])
 
-		if math.isclose(row['quantity'], 0.0):
+		if float(row['quantity']) < 0.0 or math.isclose(float(row['quantity']), 0.0):
 			# Packages with no quantity do not need to be considered, since they
 			# should be filtered in the computed packages
 			continue
@@ -708,7 +719,11 @@ def compare_inventory_dataframes(computed: Any, actual: Any, options: CompareOpt
 	else:
 		quantity_not_computed_avg = 0.0
 
-	print('Pct of # inventory matching: {:.2f}%'.format(num_matching_packages / num_packages * 100))
+	print('Pct of # inventory matching: {:.2f}% ({} / {})'.format(
+		num_matching_packages / num_packages * 100,
+		num_matching_packages,
+		num_packages
+	))
 	print('Accuracy of quantities: {:.2f}%'.format((quantity_avg - quantity_delta) / quantity_avg * 100))
 	print('Pct of # inventory packages over-estimated: {:.2f}%'.format(len(unseen_package_ids) / num_packages * 100))
 	print('Pct of # quantity over-estimated: {:.2f}%'.format(extra_quantity / total_quantity))

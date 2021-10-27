@@ -243,7 +243,8 @@ def create_company_sales_transactions_query(company_identifier, start_date):
             metrc_sales_receipts.sales_datetime desc
     """
 
-def create_company_inventory_packages_query(company_identifier):
+def create_company_inventory_packages_query(company_identifier, include_quantity_zero = False):
+    extra_and_str = '' if include_quantity_zero else 'and metrc_packages.quantity > 0'
     return f"""
         select
             metrc_packages.license_number,
@@ -271,7 +272,7 @@ def create_company_inventory_packages_query(company_identifier):
                 metrc_packages.type = 'active' or
                 metrc_packages.type = 'onhold'
             )
-            and metrc_packages.quantity > 0
+            {extra_and_str}
         order by
             metrc_packages.packaged_date desc
     """
