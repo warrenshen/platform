@@ -206,7 +206,6 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 			BESPOKE_DOMAIN='https://app.bespokefinancial.com'
 		)
 		self.auth_provider = MetrcAuthProvider(
-			user_key='metrc-user-key',
 			state_to_vendor_key={
 				'CA': 'ca-vendorkey',
 				'OR': 'or-vendorkey',

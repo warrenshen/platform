@@ -1,6 +1,7 @@
 import datetime
 import json
 import logging
+import os
 import requests
 import time
 from datetime import timedelta
@@ -10,6 +11,7 @@ from requests.auth import HTTPBasicAuth
 from typing import Any, Dict, Iterable, List, Tuple, cast
 from sqlalchemy.orm.session import Session
 
+from bespoke.config import config_util
 from bespoke.config.config_util import MetrcWorkerConfig
 from bespoke import errors
 from bespoke.date import date_util
@@ -261,7 +263,6 @@ class FacilitiesFetcher(FacilitiesFetcherInterface):
 		facilities_arr = json.loads(resp.content)
 		return facilities_arr, None
 
-
 class REST(object):
 
 	def __init__(self, 
@@ -340,15 +341,16 @@ class REST(object):
 		)
 
 		# After retries, we are unsuccessful: raise the last error we saw
-		self.sendgrid_client.send(
-			template_name=sendgrid_util.TemplateNames.SYNC_METRC_DATA_ERROR_CREATED,
-			template_data={
-				'msg': str(e),
-				'traceback': e.traceback,
-				'details': '{}'.format(e.details)
-			},
-			recipients=self.sendgrid_client.get_ops_email_addresses()
-		)
+		if self.sendgrid_client:
+			self.sendgrid_client.send(
+				template_name=sendgrid_util.TemplateNames.SYNC_METRC_DATA_ERROR_CREATED,
+				template_data={
+					'msg': str(e),
+					'traceback': e.traceback,
+					'details': '{}'.format(e.details)
+				},
+				recipients=self.sendgrid_client.get_ops_email_addresses()
+			)
 		raise e
 
 	def get(self, path: str, time_range: List[str] = None, split_time_by: str = None) -> HTTPResponse:
@@ -380,6 +382,32 @@ class REST(object):
 			i += 1
 
 		return HTTPResponse(response=None, results=all_results)
+
+def get_rest_helper_for_debug(
+	us_state: str, 
+	license_number: str
+) -> REST:
+	error_catcher = ErrorCatcher()
+	auth_provider = config_util.get_metrc_auth_provider()
+	vendor_key, err = auth_provider.get_vendor_key_by_state(us_state.upper())
+	if err:
+		raise err
+	user_key = os.environ.get('JUPYTER_NOTEBOOK_METRC_API_KEY')
+	if not user_key:
+		raise Exception('Set JUPYTER_NOTEBOOK_METRC_API_KEY for the customer you are debugging in your .env file')
+
+	auth_dict = AuthDict(
+		vendor_key=vendor_key,
+		user_key=user_key
+	)
+	return REST(
+			sendgrid_client=None, 
+			auth_dict=auth_dict, 
+			license_number=license_number,
+			us_state=us_state, 
+			error_catcher=error_catcher,
+			debug=True
+	)
 
 def chunker(seq: List, size: int) -> Iterable[List]:
 	return (seq[pos:pos + size] for pos in range(0, len(seq), size))
