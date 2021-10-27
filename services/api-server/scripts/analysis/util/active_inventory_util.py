@@ -272,6 +272,7 @@ class PackageHistory(object):
 		remaining_quantity = shipped_quantity
 
 		seen_receipt_numbers = {}
+		seen_sales_datetimes = {}
 
 		for cur_date in dates:
 			txs = date_to_txs[cur_date]
@@ -287,7 +288,11 @@ class PackageHistory(object):
 
 					continue
 
+				if tx['sales_datetime'] in seen_sales_datetimes:
+					continue
+
 				seen_receipt_numbers[tx['receipt_number']] = tx
+				seen_sales_datetimes[tx['sales_datetime']] = True
 
 				if verbose:
 					lines.append(f"Package {self.package_id} sold on {date_to_str(tx['sales_datetime'])} {tx['tx_quantity_sold']} ({tx['tx_unit_of_measure']}) for ${tx['tx_total_price']}")
@@ -327,6 +332,9 @@ class PackageHistory(object):
 			lines.append(f'Package {self.package_id} has a remaining quantity of {remaining_quantity}')
 
 		p.info('\n'.join(lines))
+		#print('Outgoing packages')
+		#for outgoing_pkg in self.outgoings:
+		#	print(outgoing_pkg)
 
 		self.computed_info['date_to_quantity'] = date_to_quantity
 		return is_sold
@@ -383,9 +391,9 @@ def analyze_specific_package_histories(
 	p = Printer(verbose=True, show_info=True)
 
 	for package_id, history in package_id_to_history.items():
-	    if package_id not in package_ids_set:
-	        continue
-	    history.compute_additional_fields(run_filter=True, p=p, params=params)
+			if package_id not in package_ids_set:
+					continue
+			history.compute_additional_fields(run_filter=True, p=p, params=params)
 
 def print_counts(id_to_history: Dict[str, PackageHistory]) -> None:
 	only_incoming = 0 # Only incoming transfer package(s)
@@ -517,7 +525,31 @@ def create_inventory_dataframes(
 
 	return date_to_inventory_records
 
-def compare_inventory_dataframes(computed: Any, actual: Any) -> None:
+def are_packages_inactive_query(package_ids: List[str]) -> str:
+	package_ids_str = ','.join([f"'{package_id}'" for package_id in list(package_ids)])
+
+	return f"""
+			select
+					companies.identifier,
+					metrc_packages.type,
+					metrc_packages.package_id,
+					metrc_packages.package_label,
+					metrc_packages.quantity
+			from
+					metrc_packages
+					inner join companies on metrc_packages.company_id = companies.id
+			where
+					True
+					and metrc_packages.package_id in ({package_ids_str})
+					and metrc_packages.type = 'inactive'
+	"""
+
+CompareOptionsDict = TypedDict('CompareOptionsDict', {
+	'num_errors_to_show': int,
+	'accept_computed_when_sold_out': bool
+})
+
+def compare_inventory_dataframes(computed: Any, actual: Any, options: CompareOptionsDict) -> Dict:
 	package_id_to_computed_row = {}
 	unseen_package_ids = set([])
 	all_computed_package_ids_ever_seen = set([])
@@ -557,10 +589,18 @@ def compare_inventory_dataframes(computed: Any, actual: Any) -> None:
 		package_id_to_actual_row[row['package_id']] = row
 
 		if row['package_id'] not in package_id_to_computed_row:
-			computed_missing_package_ids.add(row['package_id'])
-			# Was this ever computed but just not in the current inventory though?
-			if row['package_id'] in all_computed_package_ids_ever_seen:
-				computed_missing_package_ids_but_seen_before.add(row['package_id'])
+			if options['accept_computed_when_sold_out'] and row['package_id'] in all_computed_package_ids_ever_seen:
+				# When this flag is turned on, we trust that the computed calculation, because
+				# we have seen the package before, we just saw that it sold out due to
+				# sales transactions.
+				num_matching_packages += 1
+				delta_quantities.append(0.0)
+				quantities.append(0)
+			else:
+				computed_missing_package_ids.add(row['package_id'])
+				# Was this ever computed but just not in the current inventory though?
+				if row['package_id'] in all_computed_package_ids_ever_seen:
+					computed_missing_package_ids_but_seen_before.add(row['package_id'])
 
 		else:
 			computed_row = package_id_to_computed_row[row['package_id']]
@@ -586,7 +626,10 @@ def compare_inventory_dataframes(computed: Any, actual: Any) -> None:
 	for package_id in computed_missing_package_ids_but_seen_before:
 		quantities_not_in_computed.append(float(package_id_to_actual_row[package_id]['quantity']))
 
-	quantity_not_computed_avg = sum(quantities_not_in_computed) / len(quantities_not_in_computed)
+	if quantities_not_in_computed:
+		quantity_not_computed_avg = sum(quantities_not_in_computed) / len(quantities_not_in_computed)
+	else:
+		quantity_not_computed_avg = 0.0
 
 	print('Pct of # inventory matching: {:.2f}%'.format(num_matching_packages / num_packages * 100))
 	print('Accuracy of quantities: {:.2f}%'.format((quantity_avg - quantity_delta) / quantity_avg * 100))
@@ -606,8 +649,9 @@ def compare_inventory_dataframes(computed: Any, actual: Any) -> None:
 	print('  but in actual inventory at some point: {}'.format(
 		len(unseen_package_ids_in_inventory_at_some_point)))
 
+	num_errors_to_show = options['num_errors_to_show']
 	print('')
-	print('Computed has these extra package IDs; first 40')
+	print(f'Computed has these extra package IDs; first {num_errors_to_show}')
 	i = 0
 	unseen_quantity_tuples = []
 
@@ -618,7 +662,7 @@ def compare_inventory_dataframes(computed: Any, actual: Any) -> None:
 	unseen_quantity_tuples.sort(key=lambda x: x[1], reverse=True) # sort quantity, largest to smallest
 
 	for (package_id, quantity) in unseen_quantity_tuples:
-		if i > 40:
+		if i > num_errors_to_show:
 			break
 
 		print('{}; computed quantity {}'.format(package_id, quantity))
@@ -626,7 +670,7 @@ def compare_inventory_dataframes(computed: Any, actual: Any) -> None:
 		i += 1
 
 	print('')
-	print('Computed is missing these package IDs; first 40')
+	print(f'Computed is missing these package IDs; first {num_errors_to_show}')
 	computed_missing_tuples = []
 
 	i = 0
@@ -637,11 +681,15 @@ def compare_inventory_dataframes(computed: Any, actual: Any) -> None:
 	computed_missing_tuples.sort(key=lambda x: x[1], reverse=True) # sort quantity, largest to smallest
 
 	for (package_id, quantity) in computed_missing_tuples:
-		if i > 40:
+		if i > num_errors_to_show:
 			break
 
 		print('{}; quantity: {}'.format(package_id, quantity))
 		i += 1
+
+	return {
+		'computed_extra_package_ids': unseen_package_ids
+	}
 
 def create_inventory_xlsx(
 	id_to_history: Dict[str, PackageHistory], q: Query, params: AnalysisParamsDict) -> None:

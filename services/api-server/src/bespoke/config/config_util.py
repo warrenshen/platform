@@ -1,3 +1,4 @@
+import os
 from mypy_extensions import TypedDict
 from typing import Tuple, Dict
 
@@ -29,18 +30,24 @@ class MetrcWorkerConfig(object):
 class MetrcAuthProvider(object):
 	"""For providing the right API key given a state"""
 
-	def __init__(self, user_key: str, state_to_vendor_key: Dict[str, str]) -> None:
-		self._user_key = user_key
+	def __init__(self, state_to_vendor_key: Dict[str, str]) -> None:
 		self._state_to_vendor_key = state_to_vendor_key
-
-	def get_default_user_key(self) -> str:
-		return self._user_key
 
 	def get_vendor_key_by_state(self, us_state: str) -> Tuple[str, errors.Error]:
 		if us_state not in self._state_to_vendor_key:
 			return None, errors.Error('No vendor key registered for state {}'.format(us_state))
 
 		return self._state_to_vendor_key[us_state], None
+
+def get_metrc_auth_provider() -> MetrcAuthProvider:
+	return MetrcAuthProvider(
+			state_to_vendor_key={
+				'CA': os.environ.get('METRC_VENDOR_KEY_CA'),
+				'CO': os.environ.get('METRC_VENDOR_KEY_CO'),
+				'MA': os.environ.get('METRC_VENDOR_KEY_MA'),
+				'OR': os.environ.get('METRC_VENDOR_KEY_OR'),
+			}
+	)
 
 FCSConfigDict = TypedDict('FCSConfigDict', {
 	'use_prod': bool,

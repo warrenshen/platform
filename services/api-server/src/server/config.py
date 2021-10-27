@@ -4,7 +4,8 @@ from typing import Dict
 
 from bespoke.config.config_util import (
 	is_prod_env, is_development_env, is_test_env, 
-	MetrcAuthProvider, MetrcWorkerConfig, FCSConfigDict)
+	MetrcWorkerConfig, FCSConfigDict)
+from bespoke.config import config_util
 from bespoke.email import email_manager
 from bespoke.email.email_manager import EmailConfigDict, EmailSender, SendGridConfigDict
 from bespoke.security import security_util
@@ -74,10 +75,6 @@ class Config(object):
 			'BESPOKE_DOMAIN', 'http://localhost:3005')
 
 		# Metrc
-		self.METRC_VENDOR_KEY_CA = os.environ.get('METRC_VENDOR_KEY_CA')
-		self.METRC_VENDOR_KEY_CO = os.environ.get('METRC_VENDOR_KEY_CO')
-		self.METRC_VENDOR_KEY_MA = os.environ.get('METRC_VENDOR_KEY_MA')
-		self.METRC_VENDOR_KEY_OR = os.environ.get('METRC_VENDOR_KEY_OR')
 		self.METRC_USER_KEY = os.environ.get('METRC_USER_KEY')
 
 		# FCS
@@ -118,16 +115,8 @@ class Config(object):
 			force_fetch_missing_sales_transactions=False
 		)
 
-	def get_metrc_auth_provider(self) -> MetrcAuthProvider:
-		return MetrcAuthProvider(
-			user_key=self.METRC_USER_KEY,
-			state_to_vendor_key={
-				'CA': self.METRC_VENDOR_KEY_CA,
-				'CO': self.METRC_VENDOR_KEY_CO,
-				'MA': self.METRC_VENDOR_KEY_MA,
-				'OR': self.METRC_VENDOR_KEY_OR,
-			}
-		)
+	def get_metrc_auth_provider(self) -> config_util.MetrcAuthProvider:
+		return config_util.get_metrc_auth_provider()
 
 	def get_fcs_config(self) -> FCSConfigDict:
 		return FCSConfigDict(
