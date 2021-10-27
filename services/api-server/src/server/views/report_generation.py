@@ -46,16 +46,16 @@ class ReportsLoansComingDueView(MethodView):
 		self, session : Session, 
 		sendgrid_client : sendgrid_util.Client, 
 		report_link : str, 
-		loans_chunk : List[models.Loan]
+		loans_chunk : List[models.Loan],
+		today : datetime.datetime
 		) -> Tuple[Dict[str, List[models.Loan]], Response]:
 		# filter for loans that have platform team specified numbers of days
 		# before loan maturity, group by company_id to make sending out
 		# a unified email to each company more straightforward
-		today = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
 		loans_to_notify : Dict[str, List[models.Loan] ] = {}
 		for l in loans_chunk:
 			if l.origination_date is not None and l.maturity_date is not None:
-				days_until_maturity = date_util.num_calendar_days_passed(today, l.maturity_date);
+				days_until_maturity = date_util.num_calendar_days_passed(today.date(), l.maturity_date);
 				if days_until_maturity == 1 or days_until_maturity == 3 or \
 					days_until_maturity == 7 or days_until_maturity == 14:
 					if l.company_id not in loans_to_notify:
@@ -106,6 +106,7 @@ class ReportsLoansComingDueView(MethodView):
 		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
 		report_link = cfg.BESPOKE_DOMAIN + "/1/reports"
+		today = date_util.now()
 		
 		loans : List[models.Loan] = []
 		with models.session_scope(current_app.session_maker) as session:
@@ -117,7 +118,7 @@ class ReportsLoansComingDueView(MethodView):
 
 			BATCH_SIZE = 50
 			for loans_chunk in cast(Iterable[List[models.Loan]], chunker(all_open_loans, BATCH_SIZE)):
-				_, err = self.process_loan_chunk(session, sendgrid_client, report_link, loans_chunk)
+				_, err = self.process_loan_chunk(session, sendgrid_client, report_link, loans_chunk, today)
 
 				if err:
 					return err;
@@ -149,16 +150,16 @@ class ReportsLoansPastDueView(MethodView):
 		self, session : Session, 
 		sendgrid_client : sendgrid_util.Client, 
 		report_link : str, 
-		loans_chunk : List[models.Loan]
+		loans_chunk : List[models.Loan],
+		today : datetime.datetime
 		) -> Tuple[Dict[str, List[models.Loan]], Response]:
 		# filter for loans that have platform team specified numbers of days
 		# before loan maturity, group by company_id to make sending out
 		# a unified email to each company more straightforward
-		today = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
 		loans_to_notify : Dict[str, List[models.Loan] ] = {}
 		for l in loans_chunk:
 			if l.origination_date is not None and l.maturity_date is not None:
-				if date_util.is_past_due(l.maturity_date, date_util.DEFAULT_TIMEZONE):
+				if date_util.is_past_due(today.date(), l.maturity_date, date_util.DEFAULT_TIMEZONE):
 					if l.company_id not in loans_to_notify:
 						loans_to_notify[l.company_id] = [];
 					loans_to_notify[l.company_id].append(l)
@@ -207,6 +208,7 @@ class ReportsLoansPastDueView(MethodView):
 		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
 		report_link = cfg.BESPOKE_DOMAIN + "/1/reports"
+		today = date_util.now()
 		
 		loans : List[models.Loan] = []
 		with models.session_scope(current_app.session_maker) as session:
@@ -216,7 +218,7 @@ class ReportsLoansPastDueView(MethodView):
 
 			BATCH_SIZE = 50
 			for loans_chunk in cast(Iterable[List[models.Loan]], chunker(all_open_loans, BATCH_SIZE)):
-				_, err = self.process_loan_chunk(session, sendgrid_client, report_link, loans_chunk)
+				_, err = self.process_loan_chunk(session, sendgrid_client, report_link, loans_chunk, today)
 
 				if err:
 					return err;

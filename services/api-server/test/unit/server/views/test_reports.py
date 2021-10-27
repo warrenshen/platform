@@ -20,8 +20,9 @@ from bespoke_test import auth_helper
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
 from server.views import report_generation
+from dateutil import parser
 
-TODAY = datetime.date.today()
+TODAY = parser.parse('2020-10-01T16:33:27.69-08:00')
 # coming due report sent 1, 3, 7, or 14 days away, make sure to subtract 1
 TWO_DAYS_FROM_TODAY = TODAY + date_util.timedelta(days=2)
 FOUR_DAYS_BEFORE_TODAY = TODAY - date_util.timedelta(days=4)
@@ -150,7 +151,8 @@ class TestReportsLoansPastDueView(db_unittest.TestCase):
 			notified_loans, _ = past_due_report.process_loan_chunk(session, 
 				sendgrid_client = None, 
 				report_link = "http://localhost:3005/1/reports", 
-				loans_chunk = all_open_loans
+				loans_chunk = all_open_loans,
+				today = parser.parse('2020-10-01T16:33:27.69-08:00')
 			)
 
 			notified_loan_count = 0
@@ -185,7 +187,8 @@ class TestReportsLoansComingDueView(db_unittest.TestCase):
 			notified_loans, _ = coming_due_report.process_loan_chunk(session, 
 				sendgrid_client = None, 
 				report_link = "http://localhost:3005/1/reports", 
-				loans_chunk = all_open_loans
+				loans_chunk = all_open_loans,
+				today = parser.parse('2020-10-01T16:33:27.69-08:00')
 			)
 
 			notified_loan_count = 0
