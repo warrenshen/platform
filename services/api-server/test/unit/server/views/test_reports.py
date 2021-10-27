@@ -135,7 +135,7 @@ class TestReportsLoansPastDueView(db_unittest.TestCase):
 		days_due_html = rows_html.find("<td>0</td>")
 		self.assertNotEqual(days_due_html, -1)
 
-		total_pos = rows_html.find("10750")
+		total_pos = rows_html.find("10,750")
 		self.assertNotEqual(total_pos, -1)
 
 		self.reset()
@@ -171,7 +171,7 @@ class TestReportsLoansComingDueView(db_unittest.TestCase):
 		loan.outstanding_fees = Decimal(250)
 
 		running_total, rows_html = coming_due_report.prepare_email_rows([loan])
-		total_pos = rows_html.find("10750")
+		total_pos = rows_html.find("10,750")
 		self.assertNotEqual(total_pos, -1)
 
 		self.reset()
