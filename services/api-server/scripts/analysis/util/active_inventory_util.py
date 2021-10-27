@@ -327,6 +327,9 @@ class PackageHistory(object):
 			lines.append(f'Package {self.package_id} has a remaining quantity of {remaining_quantity}')
 
 		p.info('\n'.join(lines))
+		print('Outgoing packages')
+		for outgoing_pkg in self.outgoings:
+			print(outgoing_pkg)
 
 		self.computed_info['date_to_quantity'] = date_to_quantity
 		return is_sold
@@ -383,9 +386,9 @@ def analyze_specific_package_histories(
 	p = Printer(verbose=True, show_info=True)
 
 	for package_id, history in package_id_to_history.items():
-	    if package_id not in package_ids_set:
-	        continue
-	    history.compute_additional_fields(run_filter=True, p=p, params=params)
+			if package_id not in package_ids_set:
+					continue
+			history.compute_additional_fields(run_filter=True, p=p, params=params)
 
 def print_counts(id_to_history: Dict[str, PackageHistory]) -> None:
 	only_incoming = 0 # Only incoming transfer package(s)
@@ -517,7 +520,26 @@ def create_inventory_dataframes(
 
 	return date_to_inventory_records
 
-def compare_inventory_dataframes(computed: Any, actual: Any) -> None:
+def are_packages_inactive_query(package_ids: List[str]) -> str:
+	package_ids_str = ','.join([f"'{package_id}'" for package_id in list(package_ids)])
+
+	return f"""
+			select
+					companies.identifier,
+					metrc_packages.type,
+					metrc_packages.package_id,
+					metrc_packages.package_label,
+					metrc_packages.quantity
+			from
+					metrc_packages
+					inner join companies on metrc_packages.company_id = companies.id
+			where
+					True
+					and metrc_packages.package_id in ({package_ids_str})
+					and metrc_packages.type = 'inactive'
+	"""
+
+def compare_inventory_dataframes(computed: Any, actual: Any) -> Dict:
 	package_id_to_computed_row = {}
 	unseen_package_ids = set([])
 	all_computed_package_ids_ever_seen = set([])
@@ -642,6 +664,10 @@ def compare_inventory_dataframes(computed: Any, actual: Any) -> None:
 
 		print('{}; quantity: {}'.format(package_id, quantity))
 		i += 1
+
+	return {
+		'computed_extra_package_ids': unseen_package_ids
+	}
 
 def create_inventory_xlsx(
 	id_to_history: Dict[str, PackageHistory], q: Query, params: AnalysisParamsDict) -> None:
