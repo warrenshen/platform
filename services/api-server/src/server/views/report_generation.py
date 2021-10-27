@@ -3,10 +3,12 @@ import logging
 import time
 import datetime
 import typing
+import math
 from typing import Any, Callable, Iterable, Dict, List, Tuple, cast
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from sqlalchemy.orm.session import Session
+from decimal import *
 
 from bespoke.date import date_util
 from bespoke.db import models, models_util
@@ -20,7 +22,6 @@ from server.views.common import auth_util, handler_util
 
 handler = Blueprint('report_generation', __name__)
 
-
 class ReportsLoansComingDueView(MethodView):
 	decorators = [auth_util.requires_async_magic_header]
 
@@ -33,10 +34,10 @@ class ReportsLoansComingDueView(MethodView):
 			rows_html += "<tr>"
 			rows_html += "<td>L" + str(l.identifier) + "</td>"
 			rows_html += "<td>" + str(l.maturity_date) + "</td>"
-			rows_html += "<td>$" + str(loan_total) + "</td>"
-			rows_html += "<td>$" + str(l.outstanding_principal_balance) + "</td>"
-			rows_html += "<td>$" + str(l.outstanding_interest) + "</td>"
-			rows_html += "<td>$" + str(l.outstanding_fees) + "</td>"
+			rows_html += "<td>$" + '${:.2f}'.format(loan_total) + "</td>"
+			rows_html += "<td>$" + '${:.2f}'.format(l.outstanding_principal_balance) + "</td>"
+			rows_html += "<td>$" + '${:.2f}'.format(l.outstanding_interest) + "</td>"
+			rows_html += "<td>$" + '${:.2f}'.format(l.outstanding_fees) + "</td>"
 			rows_html += "</tr>"
 
 		return running_total, rows_html
@@ -136,10 +137,10 @@ class ReportsLoansPastDueView(MethodView):
 			rows_html += "<tr>"
 			rows_html += "<td>L" + str(l.identifier) + "</td>"
 			rows_html += "<td>" + str(days_past_due) + "</td>"
-			rows_html += "<td>$" + str(loan_total) + "</td>"
-			rows_html += "<td>$" + str(l.outstanding_principal_balance) + "</td>"
-			rows_html += "<td>$" + str(l.outstanding_interest) + "</td>"
-			rows_html += "<td>$" + str(l.outstanding_fees) + "</td>"
+			rows_html += "<td>$" + '${:.2f}'.format(loan_total) + "</td>"
+			rows_html += "<td>$" + '${:.2f}'.format(l.outstanding_principal_balance) + "</td>"
+			rows_html += "<td>$" + '${:.2f}'.format(l.outstanding_interest) + "</td>"
+			rows_html += "<td>$" + '${:.2f}'.format(l.outstanding_fees) + "</td>"
 			rows_html += "</tr>"
 
 		return running_total, rows_html
