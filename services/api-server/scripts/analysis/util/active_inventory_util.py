@@ -260,7 +260,7 @@ class PackageHistory(object):
 			if in_debug_mode:
 				print(incoming_pkg)
 
-			if str(incoming_pkg['received_datetime']) == 'NaT':
+			if str(incoming_pkg['received_datetime']) == 'NaT' or str(incoming_pkg['received_datetime']) == 'NaTType':
 				#p.warn('seeing an incoming package for #{} with no received_datetime'.format(self.package_id))
 				incoming_pkg['received_datetime'] = _date_to_datetime(incoming_pkg['created_date'])
 				continue
