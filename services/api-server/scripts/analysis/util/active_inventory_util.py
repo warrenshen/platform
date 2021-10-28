@@ -3,6 +3,7 @@ import glob
 import math
 import numpy
 import pandas
+import pytz
 import xlwt
 
 from pathlib import Path
@@ -21,9 +22,22 @@ AnalysisParamsDict = TypedDict('AnalysisParamsDict', {
 })
 
 def date_to_str(dt: Union[datetime.datetime, datetime.date]) -> str:
+	if not dt:
+		return ''
 	return dt.strftime('%m/%d/%Y')
 
-def parse_to_date(cur_date: Union[str, datetime.date, datetime.datetime]) -> datetime.date:
+def parse_to_datetime(cur_datetime: Any) -> datetime.datetime:
+	if not cur_datetime:
+		return None
+
+	if type(cur_datetime) == str:
+		return parser.parse(cast(str, cur_datetime))
+	elif str(type(cur_datetime)) == "<class 'pandas._libs.tslibs.timestamps.Timestamp'>":
+		return cur_datetime.to_pydatetime()
+
+	return cast(datetime.datetime, cur_datetime)	
+
+def parse_to_date(cur_date: Any) -> datetime.date:
 	if not cur_date:
 		return None
 
@@ -31,6 +45,8 @@ def parse_to_date(cur_date: Union[str, datetime.date, datetime.datetime]) -> dat
 		return parser.parse(cast(str, cur_date)).date()
 	elif type(cur_date) == datetime.datetime:
 		cur_date = cast(datetime.datetime, cur_date).date()
+	elif str(type(cur_date)) == "<class 'pandas._libs.tslibs.timestamps.Timestamp'>":
+		cur_date = cur_date.date()
 
 	return cast(datetime.date, cur_date)
 
@@ -111,12 +127,17 @@ class Printer(object):
 
 class ExcludeReason(object):
 	MISSING_INCOMING = 'MISSING_INCOMING'
+	MISSING_TIMESTAMP = 'MISSING_TIMESTAMP'
+	OUT_OF_ORDER_DATES = 'OUT_OF_ORDER_DATES'
+
+def _date_to_datetime(date: datetime.date) -> datetime.datetime:
+	return datetime.datetime.combine(date.today(), datetime.datetime.min.time()).replace(tzinfo=pytz.UTC)
 
 class PackageHistory(object):
 	"""
 		Grab all the information we know about this package, and then compute multiple fields on it
 	"""
-		
+
 	def __init__(self, package_id: str) -> None:
 		self.incomings: List[Dict] = []
 		self.outgoings: List[Dict] = []
@@ -202,7 +223,7 @@ class PackageHistory(object):
 		# Fills in the 'arrived' value for self.computed_info
 		if self.incomings:
 			incoming_pkg = self.incomings[-1]
-			arrived_date = parse_to_date(incoming_pkg['created_date'])
+			arrived_date = parse_to_date(incoming_pkg['received_datetime'])
 			self.computed_info['arrived'] = {
 				'reason': 'incoming',
 				'date': arrived_date
@@ -211,22 +232,65 @@ class PackageHistory(object):
 		else:
 			return False
 
-	def run_is_sold_logic(self, p: Printer, sold_threshold: float) -> bool:
+	def run_is_sold_logic(self, p: Printer, sold_threshold: float, skip_over_errors: bool) -> bool:
 		# Fills in the 'sold' value for self.computed_info
 		#
 		# Tells us when a package was sold
 		
 		# It's only considered sold if it was an incoming package
 		# and we see there are sales transactions.
+		in_debug_mode = skip_over_errors
 		
 		if not self.incomings:
 			return False
 
+		# Insert transactions based on the corresponding incoming transfer they
+		# are associated with
+		for transfer_pkg in self.incomings:
+			transfer_pkg['date_to_txs'] = OrderedDict()
+
+		for transfer_pkg in self.outgoings:
+			transfer_pkg['date_to_txs'] = OrderedDict()
+
 		# Organize things by their incoming, outgoing order
-		all_transfer_pkgs = self.incomings + self.outgoings
-		all_transfer_pkgs.sort(key=lambda x: x['created_date'])
-		
-		def _find_insertion(cur_date: datetime.date) -> Dict:
+		incoming_pkgs = []
+		for incoming_pkg in self.incomings:
+			# Make sure we cleared out any previous transactions associated with these packages
+			assert len(incoming_pkg['date_to_txs'].keys()) == 0
+			if in_debug_mode:
+				print(incoming_pkg)
+
+			if str(incoming_pkg['received_datetime']) == 'NaT':
+				#p.warn('seeing an incoming package for #{} with no received_datetime'.format(self.package_id))
+				incoming_pkg['received_datetime'] = _date_to_datetime(incoming_pkg['created_date'])
+				continue
+			elif type(incoming_pkg['received_datetime']) == datetime.datetime:
+				incoming_pkg['received_datetime'] = incoming_pkg['received_datetime'].replace(tzinfo=pytz.UTC)
+
+			incoming_pkgs.append(incoming_pkg)
+
+		outgoing_pkgs = []
+		for outgoing_pkg in self.outgoings:
+			# Make sure we cleared out any previous transactions associated with these packages
+			assert len(outgoing_pkg['date_to_txs'].keys()) == 0
+
+			if str(outgoing_pkg['received_datetime']) == 'NaT':
+				#p.warn('seeing an outgoing package for #{} with no received_datetime'.format(self.package_id))
+				outgoing_pkg['received_datetime'] = _date_to_datetime(outgoing_pkg['created_date'])
+				continue
+			elif type(outgoing_pkg['received_datetime']) == datetime.datetime:
+				# If it's already a datetime.datetime, we need to make it timezone aware
+				outgoing_pkg['received_datetime'] = outgoing_pkg['received_datetime'].replace(tzinfo=pytz.UTC)
+
+			outgoing_pkgs.append(outgoing_pkg)
+
+		if not incoming_pkgs:
+			return False
+
+		all_transfer_pkgs = incoming_pkgs + outgoing_pkgs
+		all_transfer_pkgs.sort(key=lambda x: x['received_datetime'])
+
+		def _find_insertion(sales_datetime: datetime.datetime) -> Dict:
 			# Find the transfer pkog to associate these transactions with, e.g.,
 			#
 			# INCOMING #1
@@ -237,35 +301,57 @@ class PackageHistory(object):
 			# occurred.
 			for i in range(len(all_transfer_pkgs)):
 				cur_transfer_pkg = all_transfer_pkgs[i]
-				cur_transfer_date = parse_to_date(cur_transfer_pkg['created_date'])
+				cur_transfer_datetime = cur_transfer_pkg['received_datetime']
+
+				if (i + 1) >= len(all_transfer_pkgs):
+					# We reached the end of the array, so just put some enormously
+					# large date
+					next_transfer_datetime = datetime.datetime(3000, 1, 1).replace(tzinfo=pytz.UTC)
+				else:
+					next_transfer_datetime = all_transfer_pkgs[i+1]['received_datetime']
+
+				if sales_datetime >= cur_transfer_datetime and sales_datetime <= next_transfer_datetime:
+					return cur_transfer_pkg
+
+			# If no package was still found to match to, assume that a transaction which
+			# occurred in the same day as an incoming package is still OK, even if it
+			# technically happened minutes or hours before arriving according to metrc
+			sales_date = parse_to_date(sales_datetime)
+
+			for i in range(len(all_transfer_pkgs)):
+				cur_transfer_pkg = all_transfer_pkgs[i]
+				cur_transfer_date = parse_to_date(cur_transfer_pkg['received_datetime'])
 
 				if (i + 1) >= len(all_transfer_pkgs):
 					# We reached the end of the array, so just put some enormously
 					# large date
 					next_transfer_date = datetime.date(3000, 1, 1)
 				else:
-					next_transfer_date = parse_to_date(all_transfer_pkgs[i+1]['created_date'])
+					next_transfer_date = parse_to_date(all_transfer_pkgs[i+1]['received_datetime'])
 
-				if cur_date >= cur_transfer_date and cur_date <= next_transfer_date:
-					# We found the transfer we will insert this transaction into
-					# TODO(dlluncor): Make sure to check for the delivery_type, and make
-					# sure that the customer can be selling this item when its an 
-					# internal transfer.
-					#if cur_transfer['']
+				if sales_date >= cur_transfer_date and sales_date <= next_transfer_date:
 					return cur_transfer_pkg
 
-			raise Exception('FATAL error, could not find a transfer to insert a tx with date {} into'.format(cur_date))
-
-		# Insert transactions based on the corresponding incoming transfer they
-		# are associated with
-		for transfer_pkg in all_transfer_pkgs:
-			transfer_pkg['date_to_txs'] = OrderedDict()
+			if skip_over_errors:
+				# If we are just using this for debugging, insert this transaction into
+				# the last transfer package we see
+				return cur_transfer_pkg
+			else:
+				return None
 
 		self.sales_txs.sort(key = lambda x: x['sales_datetime'])
 
 		for tx in self.sales_txs:
 			cur_date = parse_to_date(tx['sales_datetime'])
-			cur_transfer_pkg = _find_insertion(cur_date)
+			cur_transfer_pkg = _find_insertion(tx['sales_datetime'])
+
+			if not cur_transfer_pkg:
+				self.should_exclude = True
+				self.exclude_reason = ExcludeReason.OUT_OF_ORDER_DATES
+				p.info('Excluding package {}, could not find a transfer to insert a tx with date {}'.format(
+					self.package_id, tx['sales_datetime']))
+				return False
+
 			cur_txs = cur_transfer_pkg['date_to_txs'].get(cur_date, [])
 			cur_txs.append(tx)
 			cur_transfer_pkg['date_to_txs'][cur_date] = cur_txs
@@ -306,7 +392,7 @@ class PackageHistory(object):
 			if _is_incoming(transfer_pkg):
 				incoming_pkg = transfer_pkg
 
-				arrived_date = parse_to_date(incoming_pkg['created_date'])
+				arrived_date = parse_to_date(incoming_pkg['received_datetime'])
 				if not incoming_pkg['shipped_quantity'] or numpy.isnan(incoming_pkg['shipped_quantity']):
 					p.warn(f'package #{self.package_id} does not have a shipped quantity', package_id=self.package_id)
 					return False
@@ -328,15 +414,15 @@ class PackageHistory(object):
 
 			elif _is_outgoing(transfer_pkg):
 				outgoing_pkg = transfer_pkg
-				outgoing_date = parse_to_date(outgoing_pkg['created_date'])
+				outgoing_date = parse_to_date(outgoing_pkg['received_datetime'])
 
 				# TODO(dlluncor): Do we set the quantity to 0 on the day it's sent
 				# or the day after?
 				date_to_quantity[outgoing_date] = 0
 				remaining_quantity = 0
 
-				if len(transfer_pkg['date_to_txs'].keys()) > 0:
-					raise Exception('There should be no transactions associated with an outgoing transfer')
+				if not skip_over_errors and len(transfer_pkg['date_to_txs'].keys()) > 0:
+					raise Exception(f'There should be no transactions associated with an outgoing transfer. Package ID: {self.package_id}, outgoing transfer package on {outgoing_date}')
 
 				if not outgoing_pkg['shipped_quantity'] or numpy.isnan(outgoing_pkg['shipped_quantity']):
 					p.warn(f'package #{self.package_id} does not have a outgoing shipped quantity', package_id=self.package_id)
@@ -416,7 +502,7 @@ class PackageHistory(object):
 		self.computed_info['date_to_quantity'] = date_to_quantity
 		return is_sold
 		
-	def compute_additional_fields(self, run_filter: bool, p: Printer, params: AnalysisParamsDict) -> None:
+	def compute_additional_fields(self, p: Printer, params: AnalysisParamsDict, run_filter: bool, skip_over_errors: bool) -> None:
 		if run_filter:
 			self.filter_out_unhandled_packages(p)
 					
@@ -424,7 +510,10 @@ class PackageHistory(object):
 			return
 			
 		self.when_it_arrived(p)
-		self.run_is_sold_logic(p, sold_threshold=params.get('sold_threshold', DEFAULT_SOLD_THRESHOLD))
+		self.run_is_sold_logic(
+			p, 
+			sold_threshold=params.get('sold_threshold', DEFAULT_SOLD_THRESHOLD),
+			skip_over_errors=skip_over_errors)
 				
 		
 def get_histories(d: Download) -> Dict[str, PackageHistory]:
@@ -480,7 +569,8 @@ def analyze_specific_package_histories(
 				print(f'! Package ID {package_id} not in computed')
 			else:
 				history = package_id_to_history[package_id]
-				history.compute_additional_fields(run_filter=True, p=p, params=params)
+				history.compute_additional_fields(
+					p=p, params=params, run_filter=True, skip_over_errors=True)
 
 
 def print_counts(id_to_history: Dict[str, PackageHistory]) -> None:
@@ -537,7 +627,7 @@ def create_inventory_dataframe_by_date(
 	exclude_reason_to_count: Dict[str, int] = OrderedDict()
 
 	for package_id, history in package_id_to_history.items():
-		history.compute_additional_fields(run_filter=True, p=p, params=params)
+		history.compute_additional_fields(p=p, params=params, run_filter=True, skip_over_errors=False)
 		num_total += 1
 		if history.should_exclude:
 			num_excluded += 1
@@ -580,7 +670,7 @@ def create_inventory_dataframes(
 	exclude_reason_to_count: Dict[str, int] = OrderedDict()
 
 	for package_id, history in package_id_to_history.items():
-		history.compute_additional_fields(run_filter=True, p=p, params=params)
+		history.compute_additional_fields(p=p, params=params, run_filter=True, skip_over_errors=False)
 		num_total += 1
 		if history.should_exclude:
 			num_excluded += 1
@@ -795,7 +885,7 @@ def create_inventory_xlsx(
 	exclude_reason_to_count: Dict[str, int] = OrderedDict()
 
 	for package_id, history in id_to_history.items():
-		history.compute_additional_fields(run_filter=True, p=p, params=params)
+		history.compute_additional_fields(p=p, params=params, run_filter=True, skip_over_errors=False)
 		num_total += 1
 		if history.should_exclude:
 			num_excluded += 1
