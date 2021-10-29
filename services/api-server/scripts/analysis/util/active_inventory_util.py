@@ -21,6 +21,13 @@ AnalysisParamsDict = TypedDict('AnalysisParamsDict', {
 	'sold_threshold': float
 })
 
+def _is_time_null(cur_time: Any) -> bool:
+	if not cur_time:
+		return None
+
+	cur_time_str = str(cur_time)
+	return cur_time_str == 'NaT' or cur_time_str == 'NaTType'
+
 def date_to_str(dt: Union[datetime.datetime, datetime.date]) -> str:
 	if not dt:
 		return ''
@@ -30,23 +37,31 @@ def parse_to_datetime(cur_datetime: Any) -> datetime.datetime:
 	if not cur_datetime:
 		return None
 
-	if type(cur_datetime) == str:
-		return parser.parse(cast(str, cur_datetime))
-	elif str(type(cur_datetime)) == "<class 'pandas._libs.tslibs.timestamps.Timestamp'>":
-		return cur_datetime.to_pydatetime()
+	cur_type = type(cur_datetime)
 
-	return cast(datetime.datetime, cur_datetime)	
+	if cur_type == str:
+		return parser.parse(cast(str, cur_datetime))
+	elif str(cur_type) == "<class 'pandas._libs.tslibs.timestamps.Timestamp'>":
+		return cur_datetime.to_pydatetime()
+	elif _is_time_null(cur_datetime):
+		return None
+
+	return cast(datetime.datetime, cur_datetime)
 
 def parse_to_date(cur_date: Any) -> datetime.date:
 	if not cur_date:
 		return None
 
-	if type(cur_date) == str:
+	cur_type = type(cur_date)
+
+	if cur_type == str:
 		return parser.parse(cast(str, cur_date)).date()
-	elif type(cur_date) == datetime.datetime:
+	elif cur_type == datetime.datetime:
 		cur_date = cast(datetime.datetime, cur_date).date()
-	elif str(type(cur_date)) == "<class 'pandas._libs.tslibs.timestamps.Timestamp'>":
+	elif str(cur_type) == "<class 'pandas._libs.tslibs.timestamps.Timestamp'>":
 		cur_date = cur_date.date()
+	elif _is_time_null(cur_date):
+		return None
 
 	return cast(datetime.date, cur_date)
 
@@ -68,6 +83,17 @@ class Download(object):
 		self.sales_tx_records = sales_transactions_dataframe.to_dict('records')
 		for sales_tx_record in self.sales_tx_records:
 			sales_tx_record['sales_datetime'] = sales_tx_record['sales_datetime'].to_pydatetime()
+			sales_tx_record['sales_date'] = parse_to_date(sales_tx_record['sales_datetime'])
+
+		for incoming_r in self.incoming_records:
+			incoming_r['received_datetime'] = parse_to_datetime(incoming_r['received_datetime'])
+			incoming_r['received_date'] = parse_to_date(incoming_r['received_datetime'])
+			incoming_r['created_date'] = parse_to_date(incoming_r['created_date'])
+
+		for outgoing_r in self.outgoing_records:
+			outgoing_r['received_datetime'] = parse_to_datetime(outgoing_r['received_datetime'])
+			outgoing_r['received_date'] = parse_to_date(outgoing_r['received_datetime'])
+			outgoing_r['created_date'] = parse_to_date(outgoing_r['created_date'])
 
 	def download_files(
 		self,
@@ -150,11 +176,11 @@ class PackageHistory(object):
 	def in_inventory_at_date(self, cur_date_str: str) -> bool:
 		# Was this package in the company's possession at this date?
 		cur_date = parse_to_date(cur_date_str)    
-		arrived_date = parse_to_date(self.computed_info['arrived']['date'])
+		arrived_date = self.computed_info['arrived']['date']
 		if cur_date < arrived_date:
 			return False
 		
-		sold_date = parse_to_date(self.computed_info.get('sold', {}).get('date'))
+		sold_date = self.computed_info.get('sold', {}).get('date')
 		if sold_date and cur_date > sold_date:
 			# We know it's not in your possession after the sales date
 			return False
@@ -195,7 +221,7 @@ class PackageHistory(object):
 
 	def get_inventory_output_row(self, inventory_date_str: str) -> List[str]:
 		incoming_pkg = self.incomings[-1] if self.incomings else None 
-		sold_date = parse_to_date(self.computed_info.get('sold', {}).get('date'))
+		sold_date = self.computed_info.get('sold', {}).get('date')
 		
 		if not incoming_pkg:
 			return []
@@ -212,7 +238,7 @@ class PackageHistory(object):
 			date_to_str(sold_date) if sold_date else '',
 		]
 				
-	def filter_out_unhandled_packages(self, p: Printer) -> None:		
+	def filter_out_unhandled_packages(self, p: Printer) -> None:    
 		if not self.incomings:
 			p.info(f'Excluding package {self.package_id} because it doesnt have an incoming package')
 			self.should_exclude = True
@@ -223,7 +249,7 @@ class PackageHistory(object):
 		# Fills in the 'arrived' value for self.computed_info
 		if self.incomings:
 			incoming_pkg = self.incomings[-1]
-			arrived_date = parse_to_date(incoming_pkg['received_datetime'])
+			arrived_date = incoming_pkg['received_datetime']
 			self.computed_info['arrived'] = {
 				'reason': 'incoming',
 				'date': arrived_date
@@ -260,12 +286,15 @@ class PackageHistory(object):
 			if in_debug_mode:
 				print(incoming_pkg)
 
-			if str(incoming_pkg['received_datetime']) == 'NaT' or str(incoming_pkg['received_datetime']) == 'NaTType':
+			if _is_time_null(incoming_pkg['received_datetime']):
 				#p.warn('seeing an incoming package for #{} with no received_datetime'.format(self.package_id))
 				incoming_pkg['received_datetime'] = _date_to_datetime(incoming_pkg['created_date'])
 				continue
 			elif type(incoming_pkg['received_datetime']) == datetime.datetime:
 				incoming_pkg['received_datetime'] = incoming_pkg['received_datetime'].replace(tzinfo=pytz.UTC)
+
+			if not incoming_pkg['received_datetime']:
+				continue
 
 			incoming_pkgs.append(incoming_pkg)
 
@@ -274,13 +303,16 @@ class PackageHistory(object):
 			# Make sure we cleared out any previous transactions associated with these packages
 			assert len(outgoing_pkg['date_to_txs'].keys()) == 0
 
-			if str(outgoing_pkg['received_datetime']) == 'NaT':
+			if _is_time_null(outgoing_pkg['received_datetime']):
 				#p.warn('seeing an outgoing package for #{} with no received_datetime'.format(self.package_id))
 				outgoing_pkg['received_datetime'] = _date_to_datetime(outgoing_pkg['created_date'])
 				continue
 			elif type(outgoing_pkg['received_datetime']) == datetime.datetime:
 				# If it's already a datetime.datetime, we need to make it timezone aware
 				outgoing_pkg['received_datetime'] = outgoing_pkg['received_datetime'].replace(tzinfo=pytz.UTC)
+
+			if not outgoing_pkg['received_datetime']:
+				continue
 
 			outgoing_pkgs.append(outgoing_pkg)
 
@@ -316,18 +348,18 @@ class PackageHistory(object):
 			# If no package was still found to match to, assume that a transaction which
 			# occurred in the same day as an incoming package is still OK, even if it
 			# technically happened minutes or hours before arriving according to metrc
-			sales_date = parse_to_date(sales_datetime)
+			sales_date = sales_datetime.date()
 
 			for i in range(len(all_transfer_pkgs)):
 				cur_transfer_pkg = all_transfer_pkgs[i]
-				cur_transfer_date = parse_to_date(cur_transfer_pkg['received_datetime'])
+				cur_transfer_date = cur_transfer_pkg['received_date']
 
 				if (i + 1) >= len(all_transfer_pkgs):
 					# We reached the end of the array, so just put some enormously
 					# large date
 					next_transfer_date = datetime.date(3000, 1, 1)
 				else:
-					next_transfer_date = parse_to_date(all_transfer_pkgs[i+1]['received_datetime'])
+					next_transfer_date = all_transfer_pkgs[i+1]['received_date']
 
 				if sales_date >= cur_transfer_date and sales_date <= next_transfer_date:
 					return cur_transfer_pkg
@@ -342,7 +374,7 @@ class PackageHistory(object):
 		self.sales_txs.sort(key = lambda x: x['sales_datetime'])
 
 		for tx in self.sales_txs:
-			cur_date = parse_to_date(tx['sales_datetime'])
+			cur_date = tx['sales_date']
 			cur_transfer_pkg = _find_insertion(tx['sales_datetime'])
 
 			if not cur_transfer_pkg:
@@ -392,7 +424,7 @@ class PackageHistory(object):
 			if _is_incoming(transfer_pkg):
 				incoming_pkg = transfer_pkg
 
-				arrived_date = parse_to_date(incoming_pkg['received_datetime'])
+				arrived_date = incoming_pkg['received_date']
 				if not incoming_pkg['shipped_quantity'] or numpy.isnan(incoming_pkg['shipped_quantity']):
 					p.warn(f'package #{self.package_id} does not have a shipped quantity', package_id=self.package_id)
 					return False
@@ -414,7 +446,7 @@ class PackageHistory(object):
 
 			elif _is_outgoing(transfer_pkg):
 				outgoing_pkg = transfer_pkg
-				outgoing_date = parse_to_date(outgoing_pkg['received_datetime'])
+				outgoing_date = outgoing_pkg['received_date']
 
 				# TODO(dlluncor): Do we set the quantity to 0 on the day it's sent
 				# or the day after?
@@ -474,7 +506,7 @@ class PackageHistory(object):
 							lines.append(f'Package {self.package_id} marked as SOLD since it is more than {sold_threshold * 100}% sold')
 
 						is_sold = True
-						is_sold_date = parse_to_date(tx['sales_datetime'])
+						is_sold_date = tx['sales_date']
 
 					if revenue_from_pkg != 0:
 						profit_margin = '{:.2f}'.format((revenue_from_pkg - price_of_pkg) / revenue_from_pkg * 100)
