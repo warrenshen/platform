@@ -5,6 +5,7 @@ __pycache__/
 *.log
 tmp/
 notebooks/**/data/
+notebooks/**/*.xlsx
 out*
 .vscode
 .direnv
