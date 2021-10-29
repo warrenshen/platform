@@ -7,7 +7,7 @@ from typing import Callable, Dict, List, Text, Tuple, cast
 from bespoke import errors
 from bespoke.config.config_util import is_development_env, is_prod_env
 from bespoke.date import date_util
-from bespoke.db import models
+from bespoke.db import models, models_util
 from bespoke.db.models import session_scope
 from bespoke.email import email_manager
 from bespoke.security import security_util, two_factor_util
@@ -272,6 +272,7 @@ def _maybe_add_or_remove_recipients(
 	recipients: List[str],
 	cfg: email_manager.EmailConfigDict,
 	template_name: str,
+	session_maker: Callable
 ) -> List[str]:
 	if not is_prod_env(cfg['flask_env']):
 		# In non-production environments, only send emails to people with @bespokefinancial.com
@@ -284,6 +285,11 @@ def _maybe_add_or_remove_recipients(
 				logging.info(f'Email "{template_name}" not sent to {recipient} due to non-prod environment')
 		recipients = new_recipients
 
+	# Remove deactivated users
+	# We are using get_active_users, but a bug appeared where we weren't in one or more places
+	# This check is put in place as a defensive measure of last resort
+	models_util.get_active_emails(recipients, session_maker)
+	
 	# For staging and production environments, if email template is not
 	# in blacklist then we send a copy of email to the no_reply_email_addr.
 	if (
@@ -337,7 +343,7 @@ class Client(object):
 			template_name, self._cfg)
 
 		recipients = _maybe_add_or_remove_recipients(
-			recipients, self._cfg, template_name)
+			recipients, self._cfg, template_name, self._session_maker)
 
 		if not recipients:
 			return None, errors.Error('Cannot send an email when no recipients are specified')

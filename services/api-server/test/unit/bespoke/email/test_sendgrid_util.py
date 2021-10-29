@@ -1,10 +1,12 @@
 
 import unittest
 from typing import List, Dict
+from flask import Flask, current_app
 
 from bespoke.email import sendgrid_util
+from bespoke_test.db import db_unittest
 
-class TestSendGridClient(unittest.TestCase):
+class TestSendGridClient(db_unittest.TestCase):
 
 	def test_maybe_add_or_remove_recipients(self) -> None:
 		tests: List[Dict] = [
@@ -68,6 +70,7 @@ class TestSendGridClient(unittest.TestCase):
 				sendgrid_util._maybe_add_or_remove_recipients(
 					test['recipients'],
 					test['cfg'],
-					test['template_name']
+					test['template_name'],
+					self.session_maker
 				)
 			)

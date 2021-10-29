@@ -71,31 +71,28 @@ class ReportsLoansComingDueView(MethodView):
 					models.Company.id == company_id)
 				.first())
 			
-			contact_user = cast(
-				models.User,
-				session.query(models.User).filter(
-					models.User.company_id == company_id)
-				.first())
-			contact_user_full_name = contact_user.first_name + " " + contact_user.last_name
-			
-			running_total, rows_html = self.prepare_email_rows(loans)	
+			all_users = models_util.get_active_users(company_id=company_id, session=session)
+			for contact_user in all_users:
+				contact_user_full_name = contact_user.first_name + " " + contact_user.last_name
+				
+				running_total, rows_html = self.prepare_email_rows(loans)	
 
-			template_data = {
-				"company_user": contact_user_full_name,
-			    "company_name": company.name,
-			    "balance_due": running_total,
-			    "rows": rows_html,
-			    "report_link": report_link
-			}
-			if sendgrid_client is not None:
-				_, err = sendgrid_client.send(
-					template_name=sendgrid_util.TemplateNames.REPORT_LOANS_COMING_DUE,
-					template_data=template_data,
-					recipients=[contact_user.email],
-				)
+				template_data = {
+					"company_user": contact_user_full_name,
+				    "company_name": company.name,
+				    "balance_due": running_total,
+				    "rows": rows_html,
+				    "report_link": report_link
+				}
+				if sendgrid_client is not None:
+					_, err = sendgrid_client.send(
+						template_name=sendgrid_util.TemplateNames.REPORT_LOANS_COMING_DUE,
+						template_data=template_data,
+						recipients=[contact_user.email],
+					)
 
-				if err:
-					return loans_to_notify, make_response(json.dumps({ 'status': 'FAILED', 'resp': "Sendgrid client failed: " + repr(err) }))
+					if err:
+						return loans_to_notify, make_response(json.dumps({ 'status': 'FAILED', 'resp': "Sendgrid client failed: " + repr(err) }))
 
 		return loans_to_notify, None
 
@@ -173,31 +170,28 @@ class ReportsLoansPastDueView(MethodView):
 					models.Company.id == company_id)
 				.first())
 			
-			contact_user = cast(
-				models.User,
-				session.query(models.User).filter(
-					models.User.company_id == company_id)
-				.first())
-			contact_user_full_name = contact_user.first_name + " " + contact_user.last_name
+			all_users = models_util.get_active_users(company_id=company_id, session=session)
+			for contact_user in all_users:
+				contact_user_full_name = contact_user.first_name + " " + contact_user.last_name
 
-			running_total, rows_html = self.prepare_email_rows(loans)
+				running_total, rows_html = self.prepare_email_rows(loans)
 
-			template_data = {
-				"company_user": contact_user_full_name,
-			    "company_name": company.name,
-			    "balance_due": running_total,
-			    "rows": rows_html,
-			    "report_link": report_link
-			}
-			if sendgrid_client is not None:
-				_, err = sendgrid_client.send(
-					template_name=sendgrid_util.TemplateNames.REPORT_LOANS_PAST_DUE,
-					template_data=template_data,
-					recipients=[contact_user.email],
-				)
+				template_data = {
+					"company_user": contact_user_full_name,
+				    "company_name": company.name,
+				    "balance_due": running_total,
+				    "rows": rows_html,
+				    "report_link": report_link
+				}
+				if sendgrid_client is not None:
+					_, err = sendgrid_client.send(
+						template_name=sendgrid_util.TemplateNames.REPORT_LOANS_PAST_DUE,
+						template_data=template_data,
+						recipients=[contact_user.email],
+					)
 
-				if err:
-					return loans_to_notify, make_response(json.dumps({ 'status': 'FAILED', 'resp': "Sendgrid client failed: " + repr(err) }))
+					if err:
+						return loans_to_notify, make_response(json.dumps({ 'status': 'FAILED', 'resp': "Sendgrid client failed: " + repr(err) }))
 
 		return loans_to_notify, None
 
