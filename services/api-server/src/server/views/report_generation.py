@@ -15,6 +15,7 @@ from bespoke.db import models, models_util
 from bespoke.db.db_constants import DBOperation
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
+from bespoke.finance import number_util
 from bespoke.finance.loans import reports_util
 from bespoke.metrc.common.metrc_common_util import chunker
 from server.config import Config
@@ -34,10 +35,10 @@ class ReportsLoansComingDueView(MethodView):
 			rows_html += "<tr>"
 			rows_html += "<td>L" + str(l.identifier) + "</td>"
 			rows_html += "<td>" + str(l.maturity_date) + "</td>"
-			rows_html += "<td>" + '${:,.2f}'.format(loan_total) + "</td>"
-			rows_html += "<td>" + '${:,.2f}'.format(l.outstanding_principal_balance) + "</td>"
-			rows_html += "<td>" + '${:,.2f}'.format(l.outstanding_interest) + "</td>"
-			rows_html += "<td>" + '${:,.2f}'.format(l.outstanding_fees) + "</td>"
+			rows_html += "<td>" + number_util.to_dollar_format(float(loan_total)) + "</td>"
+			rows_html += "<td>" + number_util.to_dollar_format(float(l.outstanding_principal_balance)) + "</td>"
+			rows_html += "<td>" + number_util.to_dollar_format(float(l.outstanding_interest)) + "</td>"
+			rows_html += "<td>" + number_util.to_dollar_format(float(l.outstanding_fees)) + "</td>"
 			rows_html += "</tr>"
 
 		return running_total, rows_html
@@ -75,12 +76,13 @@ class ReportsLoansComingDueView(MethodView):
 			for contact_user in all_users:
 				contact_user_full_name = contact_user.first_name + " " + contact_user.last_name
 				
-				running_total, rows_html = self.prepare_email_rows(loans)	
+				running_total, rows_html = self.prepare_email_rows(loans)
+				total_string = number_util.to_dollar_format(running_total)
 
 				template_data = {
 					"company_user": contact_user_full_name,
 				    "company_name": company.name,
-				    "balance_due": running_total,
+				    "balance_due": total_string,
 				    "rows": rows_html,
 				    "report_link": report_link
 				}
@@ -135,10 +137,10 @@ class ReportsLoansPastDueView(MethodView):
 			rows_html += "<tr>"
 			rows_html += "<td>L" + str(l.identifier) + "</td>"
 			rows_html += "<td>" + str(days_past_due) + "</td>"
-			rows_html += "<td>" + '${:,.2f}'.format(loan_total) + "</td>"
-			rows_html += "<td>" + '${:,.2f}'.format(l.outstanding_principal_balance) + "</td>"
-			rows_html += "<td>" + '${:,.2f}'.format(l.outstanding_interest) + "</td>"
-			rows_html += "<td>" + '${:,.2f}'.format(l.outstanding_fees) + "</td>"
+			rows_html += "<td>" + number_util.to_dollar_format(float(loan_total)) + "</td>"
+			rows_html += "<td>" + number_util.to_dollar_format(float(l.outstanding_principal_balance)) + "</td>"
+			rows_html += "<td>" + number_util.to_dollar_format(float(l.outstanding_interest)) + "</td>"
+			rows_html += "<td>" + number_util.to_dollar_format(float(l.outstanding_fees)) + "</td>"
 			rows_html += "</tr>"
 
 		return running_total, rows_html
@@ -175,11 +177,12 @@ class ReportsLoansPastDueView(MethodView):
 				contact_user_full_name = contact_user.first_name + " " + contact_user.last_name
 
 				running_total, rows_html = self.prepare_email_rows(loans)
+				total_string = number_util.to_dollar_format(running_total)
 
 				template_data = {
 					"company_user": contact_user_full_name,
 				    "company_name": company.name,
-				    "balance_due": running_total,
+				    "balance_due": total_string,
 				    "rows": rows_html,
 				    "report_link": report_link
 				}
