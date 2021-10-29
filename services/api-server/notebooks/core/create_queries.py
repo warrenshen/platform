@@ -154,6 +154,52 @@ def create_company_outgoing_transfer_packages_query(company_identifier, start_da
             metrc_transfers.created_date desc
     """
 
+def create_company_grouped_gmv_by_receipts_query(company_identifier, start_date, group_type):
+    if group_type not in ['week', 'month']:
+        return 'Invalid group type'
+    return f"""
+        select
+            date_trunc(metrc_sales_receipts.sales_datetime, {group_type}) as sales_{group_type},
+            sum(metrc_sales_receipts.total_price) as month_gmv
+        from
+            metrc_sales_receipts
+            inner join companies on metrc_sales_receipts.company_id = companies.id
+        where
+            True
+            and companies.identifier = '{company_identifier}'
+            and metrc_sales_receipts.sales_datetime >= '{start_date}'
+        group by
+            1
+        order by
+            1
+    """
+
+def create_company_weekly_gmv_by_receipts_query(company_identifier, start_date):
+    return create_company_grouped_gmv_by_receipts_query(company_identifier, start_date, 'week')
+
+def create_company_monthly_gmv_by_receipts_query(company_identifier, start_date):
+    return create_company_grouped_gmv_by_receipts_query(company_identifier, start_date, 'month')
+
+def create_company_monthly_units_sold_query(company_identifier, start_date):
+    return f"""
+        select
+            date_trunc(metrc_sales_receipts.sales_datetime, month) as sales_month,
+            sum(metrc_sales_transactions.quantity_sold) as month_units_sold
+        from
+            metrc_sales_receipts
+            inner join companies on metrc_sales_receipts.company_id = companies.id
+            inner join metrc_sales_transactions on metrc_sales_receipts.id = metrc_sales_transactions.receipt_row_id
+        where
+            True
+            and companies.identifier = '{company_identifier}'
+            and metrc_sales_receipts.sales_datetime >= '{start_date}'
+            and metrc_sales_transactions.unit_of_measure = 'Each'
+        group by
+            1
+        order by
+            1
+    """
+
 def create_company_sales_receipts_query(company_identifier, start_date):
     return f"""
         select
