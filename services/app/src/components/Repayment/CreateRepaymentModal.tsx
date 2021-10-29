@@ -253,7 +253,7 @@ export default function CreateRepaymentModal({
       isPrimaryActionDisabled={
         isOnSelectLoans ? isNextButtonDisabled : isSubmitButtonDisabled
       }
-      title={"Make Repaymentssssss"}
+      title={"Make Repayment"}
       subtitle={isOnSelectLoans ? "Step 1 of 2" : "Step 2 of 2"}
       contentWidth={1000}
       primaryActionText={isOnSelectLoans ? "Next step" : submitButtonText}
