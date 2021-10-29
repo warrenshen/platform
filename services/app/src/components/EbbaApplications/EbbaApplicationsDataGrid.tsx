@@ -129,6 +129,18 @@ export default function EbbaApplicationsDataGrid({
         width: ColumnWidths.UserName,
       },
       {
+        dataField: "created_at",
+        caption: "Submitted At",
+        width: ColumnWidths.Date,
+        alignment: "center",
+        cellRender: (params: ValueFormatterParams) => (
+          <DatetimeDataGridCell
+            isTimeVisible={false}
+            datetimeString={params.row.data.created_at}
+          />
+        ),
+      },
+      {
         dataField: "application_date",
         caption: "Certification Date",
         width: ColumnWidths.Date,
