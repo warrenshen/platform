@@ -21,6 +21,17 @@ AnalysisParamsDict = TypedDict('AnalysisParamsDict', {
 	'sold_threshold': float
 })
 
+InactivePackageDict = TypedDict('InactivePackageDict', {
+	'package_id': str,
+	'archiveddate': datetime.date,
+	'finisheddate': datetime.date,
+})
+
+CompareOptionsDict = TypedDict('CompareOptionsDict', {
+	'num_errors_to_show': int,
+	'accept_computed_when_sold_out': bool
+})
+
 def _is_time_null(cur_time: Any) -> bool:
 	if not cur_time:
 		return None
@@ -169,6 +180,7 @@ class PackageHistory(object):
 		self.outgoings: List[Dict] = []
 		self.sales_txs: List[Dict] = []
 		self.package_id = package_id
+		self.inactive_pkg: InactivePackageDict = None
 		self.computed_info: Dict = {}
 		self.should_exclude = False
 		self.exclude_reason = ''
@@ -184,6 +196,11 @@ class PackageHistory(object):
 		sold_date = self.computed_info.get('sold', {}).get('date')
 		if sold_date and cur_date > sold_date:
 			# We know it's not in your possession after the sales date
+			return False
+
+		finished_date = self.computed_info.get('finished', {}).get('date')
+		if finished_date and cur_date > finished_date:
+			# Its no longer in your possession the day after it's finished
 			return False
 
 		cur_quantity = self._get_current_quantity(cur_date_str)
@@ -245,12 +262,37 @@ class PackageHistory(object):
 			self.should_exclude = True
 			self.exclude_reason = ExcludeReason.MISSING_INCOMING
 			return
-				
+	
+	def when_it_finished(self, p: Printer) -> bool:
+		if self.inactive_pkg:
+			reason = ''
+			finished_date = None
+
+			if self.inactive_pkg['finisheddate']:
+				reason = 'finished'
+				finished_date = parse_to_date(self.inactive_pkg['finisheddate'])
+			elif self.inactive_pkg['archiveddate']:
+				reason = 'archived'
+				finished_date = parse_to_date(self.inactive_pkg['archiveddate'])
+
+			if not reason:
+				return False
+
+			self.computed_info['finished'] = {
+				'reason': reason,
+				'date': finished_date
+			}
+			return True
+		else:
+			return False
+
+
 	def when_it_arrived(self, p: Printer) -> bool:
 		# Fills in the 'arrived' value for self.computed_info
 		if self.incomings:
 			incoming_pkg = self.incomings[-1]
-			arrived_date = incoming_pkg['received_datetime']
+			arrived_date = parse_to_date(incoming_pkg['received_datetime'])
+
 			self.computed_info['arrived'] = {
 				'reason': 'incoming',
 				'date': arrived_date
@@ -543,6 +585,7 @@ class PackageHistory(object):
 			return
 			
 		self.when_it_arrived(p)
+		self.when_it_finished(p)
 		self.run_is_sold_logic(
 			p, 
 			sold_threshold=params.get('sold_threshold', DEFAULT_SOLD_THRESHOLD),
@@ -692,7 +735,7 @@ def create_inventory_dataframe_by_date(
 def create_inventory_dataframes(
 	package_id_to_history: Dict[str, PackageHistory],
 	q: Query,
-	params: AnalysisParamsDict,
+	params: AnalysisParamsDict
 ) -> Dict[str, List[List[str]]]:
 	i = 0
 	num_excluded = 0
@@ -701,6 +744,8 @@ def create_inventory_dataframes(
 
 	p = Printer(verbose=False, show_info=False)
 	exclude_reason_to_count: Dict[str, int] = OrderedDict()
+
+	computed_package_ids = list(package_id_to_history.keys())
 
 	for package_id, history in package_id_to_history.items():
 		history.compute_additional_fields(p=p, params=params, run_filter=True, skip_over_errors=False)
@@ -735,35 +780,6 @@ def create_inventory_dataframes(
 		date_to_inventory_records[inventory_date] = package_records
 
 	return date_to_inventory_records
-
-def are_packages_inactive_query(package_ids: List[str]) -> str:
-	package_ids_str = ','.join([f"'{package_id}'" for package_id in list(package_ids)])
-
-	return f"""
-			select
-					companies.identifier,
-					metrc_packages.license_number,
-					metrc_packages.type,
-					metrc_packages.package_id,
-					metrc_packages.package_label,
-					metrc_packages.product_category_name,
-					metrc_packages.product_name,
-					metrc_packages.package_payload.archiveddate,
-					metrc_packages.package_payload.finisheddate,
-					metrc_packages.quantity
-			from
-					metrc_packages
-					inner join companies on metrc_packages.company_id = companies.id
-			where
-					True
-					and metrc_packages.package_id in ({package_ids_str})
-					and metrc_packages.type = 'inactive'
-	"""
-
-CompareOptionsDict = TypedDict('CompareOptionsDict', {
-	'num_errors_to_show': int,
-	'accept_computed_when_sold_out': bool
-})
 
 def compare_inventory_dataframes(computed: Any, actual: Any, options: CompareOptionsDict) -> Dict:
 	package_id_to_computed_row = {}
@@ -971,3 +987,28 @@ def create_inventory_xlsx(
 	print(f'Excluded {num_excluded} / {num_total} packages from consideration ({pct_excluded}%)')
 	for reason, count in exclude_reason_to_count.items():
 		print(f'  {reason}: {count} times')
+
+
+def are_packages_inactive_query(package_ids: List[str]) -> str:
+	package_ids_str = ','.join([f"'{package_id}'" for package_id in list(package_ids)])
+
+	return f"""
+			select
+					companies.identifier,
+					metrc_packages.license_number,
+					metrc_packages.type,
+					metrc_packages.package_id,
+					metrc_packages.package_label,
+					metrc_packages.product_category_name,
+					metrc_packages.product_name,
+					metrc_packages.package_payload.archiveddate,
+					metrc_packages.package_payload.finisheddate,
+					metrc_packages.quantity
+			from
+					metrc_packages
+					inner join companies on metrc_packages.company_id = companies.id
+			where
+					True
+					and metrc_packages.package_id in ({package_ids_str})
+					and metrc_packages.type = 'inactive'
+	"""
