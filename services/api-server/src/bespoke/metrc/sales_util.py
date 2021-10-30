@@ -109,8 +109,9 @@ class SalesReceipts(object):
 
 	def filter_new_only(self, ctx: metrc_common_util.DownloadContext, session: Session) -> 'SalesReceipts':
 		"""
-			Only keep sales receipts which are newly updated, e.g.,
-			last_modified_at > db.last_modified_at.
+			Only keep sales receipts in which either of the following is true:
+			1. Sales receipt is updated: last_modified_at > db.last_modified_at.
+			2. Sales receipt is missing transactions.
 
 			This prevents us from querying sales transactions where we know the
 			sales receipt hasn't changed.

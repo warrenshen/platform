@@ -1,3 +1,4 @@
+# Company queries: get data for a specific-company.
 def create_company_licenses_query(company_identifier):
     return f"""
         select
@@ -17,7 +18,7 @@ def create_company_licenses_query(company_identifier):
             and companies.identifier = '{company_identifier}'
     """
 
-def create_download_summaries_query(company_identifier, start_date, end_date=None):
+def create_company_download_summaries_query(company_identifier, start_date, end_date=None):
     end_date_where_clause = f"""
         and metrc_download_summaries.date <= '{end_date}'
     """ if end_date else ''
@@ -321,4 +322,119 @@ def create_company_inventory_packages_query(company_identifier, include_quantity
             {extra_and_str}
         order by
             metrc_packages.packaged_date desc
+    """
+
+# ID queries: get data by IDs.
+def create_sales_transactions_by_package_id_query(package_id):
+    return f"""
+        select
+            companies.identifier,
+            metrc_sales_receipts.license_number,
+            metrc_sales_receipts.sales_datetime,
+            metrc_sales_transactions.package_id,
+            metrc_sales_transactions.product_category_name,
+            metrc_sales_transactions.product_name,
+            metrc_sales_transactions.total_price
+        from
+            metrc_sales_transactions
+            left outer join metrc_sales_receipts on metrc_sales_transactions.receipt_row_id = metrc_sales_receipts.id
+            left outer join companies on metrc_sales_receipts.company_id = companies.id
+        where
+            True
+            and metrc_sales_transactions.package_id = '{package_id}'
+    """
+
+def create_transfer_packages_by_package_id_query(package_id):
+    return f"""
+        select
+            companies.identifier,
+            company_deliveries.delivery_type,
+            company_deliveries.updated_at,
+            metrc_deliveries.received_datetime,
+            metrc_transfer_packages.package_id,
+            metrc_transfer_packages.package_label,
+            metrc_transfer_packages.package_payload.packagetype,
+            metrc_transfer_packages.shipped_quantity,
+            metrc_transfer_packages.shipper_wholesale_price,
+            metrc_transfer_packages.received_quantity,
+            metrc_transfers.shipper_facility_name,
+            metrc_transfers.shipper_facility_license_number,
+            metrc_deliveries.recipient_facility_name,
+            metrc_deliveries.recipient_facility_license_number
+        from
+            metrc_transfer_packages
+            inner join metrc_deliveries on metrc_transfer_packages.delivery_row_id = metrc_deliveries.id
+            inner join metrc_transfers on metrc_deliveries.transfer_row_id = metrc_transfers.id
+            left outer join company_deliveries on metrc_transfers.id = company_deliveries.transfer_row_id
+            left outer join companies on company_deliveries.company_id = companies.id
+        where
+            True
+            and metrc_transfer_packages.package_id = '{package_id}'
+    """
+
+def create_packages_by_package_id_query(package_id):
+    return f"""
+        select
+            companies.identifier,
+            metrc_packages.license_number,
+            metrc_packages.type,
+            metrc_packages.package_type,
+            metrc_packages.product_category_name,
+            metrc_packages.product_name,
+            metrc_packages.package_id,
+            metrc_packages.package_label,
+            metrc_packages.quantity,
+            metrc_packages.unit_of_measure,
+            metrc_packages.*
+        from
+            metrc_packages
+            left outer join companies on metrc_packages.company_id = companies.id
+        where
+            True
+            and metrc_packages.package_id = '{package_id}'
+    """
+
+# Other identifier queries: get data by non-ID identifiers.
+def create_packages_by_production_batch_number_query(production_batch_number):
+    return f"""
+        select
+            companies.identifier,
+            metrc_packages.license_number,
+            metrc_packages.type,
+            metrc_packages.package_type,
+            metrc_packages.product_category_name,
+            metrc_packages.product_name,
+            metrc_packages.package_id,
+            metrc_packages.package_label,
+            metrc_packages.quantity,
+            metrc_packages.unit_of_measure,
+            metrc_packages.*
+        from
+            metrc_packages
+            left outer join companies on metrc_packages.company_id = companies.id
+        where
+            True
+            and metrc_packages.package_payload.productionbatchnumber = '{production_batch_number}'
+    """
+
+def create_packages_by_source_production_batch_number_query(source_production_batch_number):
+    return f"""
+        select
+            companies.identifier,
+            metrc_packages.license_number,
+            metrc_packages.type,
+            metrc_packages.package_type,
+            metrc_packages.product_category_name,
+            metrc_packages.product_name,
+            metrc_packages.package_id,
+            metrc_packages.package_label,
+            metrc_packages.quantity,
+            metrc_packages.unit_of_measure,
+            metrc_packages.*
+        from
+            metrc_packages
+            left outer join companies on metrc_packages.company_id = companies.id
+        where
+            True
+            and metrc_packages.package_payload.sourceproductionbatchnumbers like '%{source_production_batch_number}%'
     """

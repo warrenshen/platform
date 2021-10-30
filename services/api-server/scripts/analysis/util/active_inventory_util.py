@@ -741,9 +741,14 @@ def are_packages_inactive_query(package_ids: List[str]) -> str:
 	return f"""
 			select
 					companies.identifier,
+					metrc_packages.license_number,
 					metrc_packages.type,
 					metrc_packages.package_id,
 					metrc_packages.package_label,
+					metrc_packages.product_category_name,
+					metrc_packages.product_name,
+					metrc_packages.package_payload.archiveddate,
+					metrc_packages.package_payload.finisheddate,
 					metrc_packages.quantity
 			from
 					metrc_packages

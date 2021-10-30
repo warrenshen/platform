@@ -9,6 +9,7 @@ A package may be returned in transfer A and then may be returned again in transf
 
 ## Packages
 Packages quantity may be greater than 0 even though sales transactions indicate quantity is 0.
+Package A may have not have any corresponding incoming transfer and instead may be a child package of package B. Check the "source production batch number" of package A and search for a package with a matching "production batch number" - this matching package is package B.
 
 ## Calculate inventory based on transfer packages and sales transactions
 1. Packages-based inventory may have packages with non-zero quantity even though calculated-inventory contains same packages with zero quantity.
