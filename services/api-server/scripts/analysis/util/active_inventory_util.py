@@ -177,7 +177,8 @@ class PackageHistory(object):
 		# Was this package in the company's possession at this date?
 		cur_date = parse_to_date(cur_date_str)    
 		arrived_date = self.computed_info['arrived']['date']
-		if cur_date < arrived_date:
+
+		if arrived_date and cur_date < arrived_date:
 			return False
 		
 		sold_date = self.computed_info.get('sold', {}).get('date')
