@@ -7,7 +7,7 @@ import pytz
 import xlwt
 
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Union, Set, cast
+from typing import Any, Dict, List, Tuple, Union, Iterable, Set, cast
 from dateutil import parser
 from collections import OrderedDict
 from mypy_extensions import TypedDict
@@ -82,16 +82,21 @@ class Download(object):
 		self.incoming_records: List[Dict] = None
 		self.outgoing_records: List[Dict] = None
 		self.sales_tx_records: List[Dict] = None
+		self.inactive_packages_records: List[Dict] = None
 
 	def download_dataframes(
 		self,
 		incoming_transfer_packages_dataframe: Any,
 		outgoing_transfer_packages_dataframe: Any,
-		sales_transactions_dataframe: Any
+		sales_transactions_dataframe: Any,
+		engine: Any
 	) -> None:
 		self.incoming_records = incoming_transfer_packages_dataframe.to_dict('records')
 		self.outgoing_records = outgoing_transfer_packages_dataframe.to_dict('records')
 		self.sales_tx_records = sales_transactions_dataframe.to_dict('records')
+
+		all_package_ids = set([])
+
 		for sales_tx_record in self.sales_tx_records:
 			sales_tx_record['sales_datetime'] = sales_tx_record['sales_datetime'].to_pydatetime()
 			sales_tx_record['sales_date'] = parse_to_date(sales_tx_record['sales_datetime'])
@@ -100,11 +105,19 @@ class Download(object):
 			incoming_r['received_datetime'] = parse_to_datetime(incoming_r['received_datetime'])
 			incoming_r['received_date'] = parse_to_date(incoming_r['received_datetime'])
 			incoming_r['created_date'] = parse_to_date(incoming_r['created_date'])
+			all_package_ids.add(incoming_r['package_id'])
 
 		for outgoing_r in self.outgoing_records:
 			outgoing_r['received_datetime'] = parse_to_datetime(outgoing_r['received_datetime'])
 			outgoing_r['received_date'] = parse_to_date(outgoing_r['received_datetime'])
 			outgoing_r['created_date'] = parse_to_date(outgoing_r['created_date'])
+			all_package_ids.add(outgoing_r['package_id'])
+
+		all_inactive_packages_df = cast(Any, pandas).read_sql_query(
+		    are_packages_inactive_query(all_package_ids),
+		    engine
+		)
+		self.inactive_packages_records = all_inactive_packages_df.to_dict('records')
 
 	def download_files(
 		self,
@@ -619,6 +632,14 @@ def get_histories(d: Download) -> Dict[str, PackageHistory]:
 		history = package_id_to_history[package_id]
 		history.sales_txs.append(tx_r)
 
+	for inactive_pkg in d.inactive_packages_records:
+		package_id = inactive_pkg['package_id']
+		if package_id not in package_id_to_history:
+			package_id_to_history[package_id] = PackageHistory(package_id)
+
+		history = package_id_to_history[package_id]
+		history.inactive_pkg = cast(InactivePackageDict, inactive_pkg)
+
 	return package_id_to_history
 
 ##### DEBUG ######
@@ -989,7 +1010,7 @@ def create_inventory_xlsx(
 		print(f'  {reason}: {count} times')
 
 
-def are_packages_inactive_query(package_ids: List[str]) -> str:
+def are_packages_inactive_query(package_ids: Iterable[str]) -> str:
 	package_ids_str = ','.join([f"'{package_id}'" for package_id in list(package_ids)])
 
 	return f"""
