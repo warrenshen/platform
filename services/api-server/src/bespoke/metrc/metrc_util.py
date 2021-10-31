@@ -339,7 +339,7 @@ def _download_data_for_license(
 	if ctx.apis_to_use.get('sales_receipts', False):
 		try:
 			sales_receipts_models = sales_util.download_sales_info(ctx, session_maker)
-			sales_util.write_sales_info(sales_receipts_models, session_maker)
+			sales_util.write_sales_info(sales_receipts_models, ctx, session_maker)
 		except Exception as e:
 			_catch_exception(e, '/sales')
 

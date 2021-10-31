@@ -421,7 +421,7 @@ class TestPopulateSalesTable(db_unittest.TestCase):
 			}
 		))
 		sales_info_objects = sales_util.download_sales_info(ctx, session_maker)
-		sales_util.write_sales_info(sales_info_objects, session_maker, BATCH_SIZE=4)
+		sales_util.write_sales_info(sales_info_objects, ctx, session_maker, BATCH_SIZE=4)
 		
 		expected_receipts: List[Dict] = [
 			{
@@ -575,7 +575,7 @@ class TestPopulateSalesTable(db_unittest.TestCase):
 
 		# Run it a 2nd time
 		sales_info_objects = sales_util.download_sales_info(ctx, session_maker)
-		sales_util.write_sales_info(sales_info_objects, session_maker, BATCH_SIZE=4)
+		sales_util.write_sales_info(sales_info_objects, ctx, session_maker, BATCH_SIZE=4)
 
 		# Let's test that we fetch the tranactions a second time, we delete all
 		# the previous ones and just keep the  most recent ones

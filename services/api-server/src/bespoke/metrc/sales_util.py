@@ -83,7 +83,7 @@ def _download_sales_receipt(
 	receipt.payload = s
 
 	if i % LOG_EVERY == 0:
-		logging.info('Downloading sales transaction #{} for company {} on day {}'.format(i, company_id, ctx.cur_date))
+		logging.info('Downloading transactions for sales receipt #{} for company {} on day {}'.format(i, company_id, ctx.cur_date))
 
 	if ctx.apis_to_use['sales_transactions']:
 		resp = ctx.rest.get('/sales/v1/receipts/{}'.format(receipt.receipt_id))
@@ -101,11 +101,40 @@ def _download_sales_receipt(
 		transactions=transactions
 	)
 
+def get_sales_receipt_models(
+	receipt_type: str,
+	start_i: int,
+	cur_sales_receipts: List[Dict], 
+	ctx: metrc_common_util.DownloadContext) -> List[SalesReceiptObj]:
+	cur_date = ctx.cur_date
+	company_info = ctx.company_details['company_id']
+	sales_receipt_objs = []
+
+	with ThreadPoolExecutor(max_workers=ctx.worker_cfg.num_parallel_sales_transactions) as executor:
+		future_to_i = {}
+
+		for i in range(len(cur_sales_receipts)):
+			s = cur_sales_receipts[i]
+			future_to_i[executor.submit(_download_sales_receipt, receipt_type, s, start_i + i, ctx)] = i
+			
+		for future in concurrent.futures.as_completed(future_to_i):
+			sales_receipt_obj = future.result()
+			sales_receipt_objs.append(sales_receipt_obj)
+
+	return sales_receipt_objs
+
 class SalesReceipts(object):
 
 	def __init__(self, sales_receipts: List[Dict], receipt_type: str) -> None:
 		self._sales_receipts = sales_receipts
 		self._type = receipt_type
+
+	@property
+	def num_receipts(self) -> int:
+		return len(self._sales_receipts)
+
+	def get_sales_receipts_dicts(self) -> List[Dict]:
+		return self._sales_receipts
 
 	def filter_new_only(self, ctx: metrc_common_util.DownloadContext, session: Session) -> 'SalesReceipts':
 		"""
@@ -161,23 +190,8 @@ class SalesReceipts(object):
 		self._sales_receipts = new_sales_receipts
 		return self
 
-	def get_sales_receipt_models(self, ctx: metrc_common_util.DownloadContext, company_id: str, cur_date: datetime.date) -> List[SalesReceiptObj]:
-		sales_receipt_objs = []
 
-		with ThreadPoolExecutor(max_workers=ctx.worker_cfg.num_parallel_sales_transactions) as executor:
-			future_to_i = {}
-
-			for i in range(len(self._sales_receipts)):
-				s = self._sales_receipts[i]
-				future_to_i[executor.submit(_download_sales_receipt, self._type, s, i, ctx)] = i
-				
-			for future in concurrent.futures.as_completed(future_to_i):
-				sales_receipt_obj = future.result()
-				sales_receipt_objs.append(sales_receipt_obj)
-
-		return sales_receipt_objs
-
-def download_sales_info(ctx: metrc_common_util.DownloadContext, session_maker: Callable) -> List[SalesReceiptObj]:
+def download_sales_info(ctx: metrc_common_util.DownloadContext, session_maker: Callable) -> Tuple[SalesReceipts, SalesReceipts]:
 	# NOTE: Sometimes there are a lot of inactive receipts to pull for a single day
 	# and this makes it look like the sync is stuck / hanging - could be good to
 	# change this logic to use smaller (intraday) time ranges to prevent this.
@@ -196,6 +210,9 @@ def download_sales_info(ctx: metrc_common_util.DownloadContext, session_maker: C
 	except errors.Error as e:
 		metrc_common_util.update_if_all_are_unsuccessful(request_status, 'receipts_api', e)
 
+	with session_scope(session_maker) as session:
+		inactive_sales_receipts = SalesReceipts(inactive_sales_receipts_arr, 'inactive').filter_new_only(ctx, session)
+
 	try:
 		resp = rest.get('/sales/v1/receipts/active', time_range=[cur_date_str], split_time_by=SplitTimeBy.HOUR)
 		active_sales_receipts_arr = resp.results
@@ -206,33 +223,15 @@ def download_sales_info(ctx: metrc_common_util.DownloadContext, session_maker: C
 	with session_scope(session_maker) as session:
 		active_sales_receipts = SalesReceipts(active_sales_receipts_arr, 'active').filter_new_only(ctx, session)
 
-	active_sales_receipts_models = active_sales_receipts.get_sales_receipt_models(
-		ctx=ctx,
-		company_id=company_details['company_id'],
-		cur_date=ctx.cur_date
-	)
-
-	with session_scope(session_maker) as session:
-		inactive_sales_receipts = SalesReceipts(inactive_sales_receipts_arr, 'inactive').filter_new_only(ctx, session)
-
-	inactive_sales_receipts_models = inactive_sales_receipts.get_sales_receipt_models(
-		ctx=ctx,
-		company_id=company_details['company_id'],
-		cur_date=ctx.cur_date
-	)
-
-	num_transactions = sum([len(sales_receipt_model.transactions) for sales_receipt_model in active_sales_receipts_models])
-
-	if active_sales_receipts_models:
-		logging.info('Downloaded {} new active sales receipts with {} transactions for {} on {}'.format(
-			len(active_sales_receipts_models), num_transactions, company_details['name'], ctx.cur_date))
-	
-	if inactive_sales_receipts_models:
+	if inactive_sales_receipts:
 		logging.info('Downloaded {} inactive sales receipts for {} on {}'.format(
-			len(inactive_sales_receipts_models), company_details['name'], ctx.cur_date))
+			inactive_sales_receipts.num_receipts, company_details['name'], ctx.cur_date))
 
-	sales_receipts_models = active_sales_receipts_models + inactive_sales_receipts_models
-	return sales_receipts_models
+	if active_sales_receipts:
+		logging.info('Downloaded {} new active sales receipts for {} on {}'.format(
+			active_sales_receipts.num_receipts, company_details['name'], ctx.cur_date))
+	
+	return (inactive_sales_receipts, active_sales_receipts)
 
 def _update_sales_transaction(prev: models.MetrcSalesTransaction, cur: models.MetrcSalesTransaction) -> None:
 	prev.type = cur.type
@@ -377,13 +376,60 @@ def _write_sales_receipts_chunk(
 		_write_sales_transactions_chunk(
 			sales_receipt.receipt_id, sales_receipt_obj.transactions, session)
 
-def write_sales_info(sales_receipts_models: List[SalesReceiptObj], session_maker: Callable, BATCH_SIZE: int = 50) -> None:
+def _write_inactive_sales_info(sales_receipts: SalesReceipts, ctx: metrc_common_util.DownloadContext, session_maker: Callable, BATCH_SIZE: int) -> None:
+	# Do inactive sales receipts, while also fetching their transactions
+	sales_receipts_dicts = sales_receipts.get_sales_receipts_dicts()
+	batches_count = len(sales_receipts_dicts) // BATCH_SIZE + 1
+
+	i = 0
 	batch_index = 1
 
-	batches_count = len(sales_receipts_models) // BATCH_SIZE + 1
-	for sales_chunk in cast(Iterable[List[SalesReceiptObj]], chunker(sales_receipts_models, BATCH_SIZE)):
-		logging.info(f'Writing sales receipts batch {batch_index} of {batches_count}...')
+	for sales_dicts_chunk in cast(Iterable[List[Dict]], chunker(sales_receipts_dicts, BATCH_SIZE)):
+		logging.info(f'Downloading and writing inactive sales receipts batch {batch_index} of {batches_count}...')
+		
+		sales_receipt_models = get_sales_receipt_models(
+			receipt_type='inactive',
+			start_i=i,
+			cur_sales_receipts=sales_dicts_chunk, 
+			ctx=ctx)
+
 		with session_scope(session_maker) as session:
-			_write_sales_receipts_chunk(sales_chunk, session)
+			_write_sales_receipts_chunk(sales_receipt_models, session)
+
+		i += len(sales_receipt_models)
 		batch_index += 1
+
+def _write_active_sales_info(sales_receipts: SalesReceipts, ctx: metrc_common_util.DownloadContext, session_maker: Callable, BATCH_SIZE: int) -> None:
+	
+	# Do inactive sales receipts, while also fetching their transactions
+	sales_receipts_dicts = sales_receipts.get_sales_receipts_dicts()
+	batches_count = len(sales_receipts_dicts) // BATCH_SIZE + 1
+	
+	i = 0
+	batch_index = 1
+
+	for sales_dicts_chunk in cast(Iterable[List[Dict]], chunker(sales_receipts_dicts, BATCH_SIZE)):
+		logging.info(f'Downloading and writing active sales receipts batch {batch_index} of {batches_count}...')
+		
+		sales_receipt_models = get_sales_receipt_models(
+			receipt_type='active',
+			start_i=i,
+			cur_sales_receipts=sales_dicts_chunk, 
+			ctx=ctx)
+
+		with session_scope(session_maker) as session:
+			_write_sales_receipts_chunk(sales_receipt_models, session)
+
+		i += len(sales_receipt_models)
+		batch_index += 1
+
+def write_sales_info(
+	sales_receipts_tuple: Tuple[SalesReceipts, SalesReceipts], 
+	ctx: metrc_common_util.DownloadContext,
+	session_maker: Callable, 
+	BATCH_SIZE: int = 50) -> None:
+
+	inactive_sales_receipts, active_sales_receipts = sales_receipts_tuple[0], sales_receipts_tuple[1]
+	_write_inactive_sales_info(inactive_sales_receipts, ctx, session_maker, BATCH_SIZE)
+	_write_active_sales_info(active_sales_receipts, ctx, session_maker, BATCH_SIZE)
 
