@@ -83,6 +83,8 @@ class Download(object):
 		self.outgoing_records: List[Dict] = None
 		self.sales_tx_records: List[Dict] = None
 		self.inactive_packages_records: List[Dict] = None
+		self.missing_incoming_pkg_package_records: List[Dict] = None
+		self.parent_packages_records: List[Dict] = None
 
 	def download_dataframes(
 		self,
@@ -96,16 +98,21 @@ class Download(object):
 		self.sales_tx_records = sales_transactions_dataframe.to_dict('records')
 
 		all_package_ids = set([])
+		missing_incoming_pkg_package_ids = set([])
 
 		for sales_tx_record in self.sales_tx_records:
 			sales_tx_record['sales_datetime'] = sales_tx_record['sales_datetime'].to_pydatetime()
 			sales_tx_record['sales_date'] = parse_to_date(sales_tx_record['sales_datetime'])
+			all_package_ids.add(sales_tx_record['tx_package_id'])
+			missing_incoming_pkg_package_ids.add(sales_tx_record['tx_package_id'])
 
 		for incoming_r in self.incoming_records:
 			incoming_r['received_datetime'] = parse_to_datetime(incoming_r['received_datetime'])
 			incoming_r['received_date'] = parse_to_date(incoming_r['received_datetime'])
 			incoming_r['created_date'] = parse_to_date(incoming_r['created_date'])
 			all_package_ids.add(incoming_r['package_id'])
+			if incoming_r['package_id'] in missing_incoming_pkg_package_ids:
+				missing_incoming_pkg_package_ids.remove(incoming_r['package_id'])
 
 		for outgoing_r in self.outgoing_records:
 			outgoing_r['received_datetime'] = parse_to_datetime(outgoing_r['received_datetime'])
@@ -114,10 +121,38 @@ class Download(object):
 			all_package_ids.add(outgoing_r['package_id'])
 
 		all_inactive_packages_df = cast(Any, pandas).read_sql_query(
-		    are_packages_inactive_query(all_package_ids),
-		    engine
+				are_packages_inactive_query(all_package_ids),
+				engine
 		)
 		self.inactive_packages_records = all_inactive_packages_df.to_dict('records')
+
+		# For packages missing an incoming_pkg, we query the metrc_packages table to
+		# see if there is a parent-child relationship between the original incoming_pkg
+		# and this current package.
+		missing_incoming_pkg_packages_df = cast(Any, pandas).read_sql_query(
+			create_packages_by_package_ids_query(missing_incoming_pkg_package_ids),
+			engine
+		)
+		self.missing_incoming_pkg_package_records = missing_incoming_pkg_packages_df.to_dict('records')
+
+		# Find the original packages with these production batch numbers.
+		production_batch_numbers = set([])
+		for pkg in self.missing_incoming_pkg_package_records:
+			source_no = pkg['package_payload']['sourceproductionbatchnumbers']
+			if not source_no:
+				print(f"WARN: package {pkg['package_id']} is missing a sourceproductionbatchnumber and an incoming pkg")
+				continue
+
+			production_batch_numbers.add(source_no)
+
+		# For packages missing an incoming_pkg, we query the metrc_packages table to
+		# see if there is a parent-child relationship between the original incoming_pkg
+		# and this current package.
+		parent_packages_df = cast(Any, pandas).read_sql_query(
+			create_packages_by_production_batch_numbers_query(production_batch_numbers),
+			engine
+		)
+		self.parent_packages_records = parent_packages_df.to_dict('records')
 
 	def download_files(
 		self,
@@ -182,6 +217,26 @@ class ExcludeReason(object):
 
 def _date_to_datetime(date: datetime.date) -> datetime.datetime:
 	return datetime.datetime.combine(date.today(), datetime.datetime.min.time()).replace(tzinfo=pytz.UTC)
+
+def _is_incoming(transfer_pkg: Dict) -> bool:
+	# For the purposes of this inventory exercise, incoming means its
+	# still in the posession of the company
+
+	return transfer_pkg['delivery_type'] in set([
+		DeliveryType.INTERNAL, 
+		DeliveryType.INCOMING_INTERNAL, 
+		DeliveryType.OUTGOING_INTERNAL,
+		DeliveryType.INCOMING_FROM_VENDOR,
+		DeliveryType.INCOMING_UNKNOWN
+	])
+
+def _is_outgoing(transfer_pkg: Dict) -> bool:
+	# For the purposes of this inventory exercise, outgoing means its
+	# no onger in the posession of the company
+	return transfer_pkg['delivery_type'] in set([
+		DeliveryType.OUTGOING_TO_PAYOR,
+		DeliveryType.OUTGOING_UNKNOWN
+	])
 
 class PackageHistory(object):
 	"""
@@ -340,7 +395,9 @@ class PackageHistory(object):
 			# Make sure we cleared out any previous transactions associated with these packages
 			assert len(incoming_pkg['date_to_txs'].keys()) == 0
 			if in_debug_mode:
+				print('INCOMING')
 				print(incoming_pkg)
+				print('')
 
 			if _is_time_null(incoming_pkg['received_datetime']):
 				#p.warn('seeing an incoming package for #{} with no received_datetime'.format(self.package_id))
@@ -358,6 +415,11 @@ class PackageHistory(object):
 		for outgoing_pkg in self.outgoings:
 			# Make sure we cleared out any previous transactions associated with these packages
 			assert len(outgoing_pkg['date_to_txs'].keys()) == 0
+
+			if in_debug_mode:
+				print('OUTGOING')
+				print(outgoing_pkg)
+				print('')
 
 			if _is_time_null(outgoing_pkg['received_datetime']):
 				#p.warn('seeing an outgoing package for #{} with no received_datetime'.format(self.package_id))
@@ -398,6 +460,10 @@ class PackageHistory(object):
 				else:
 					next_transfer_datetime = all_transfer_pkgs[i+1]['received_datetime']
 
+				if _is_outgoing(cur_transfer_pkg):
+					# Dont insert a transaction associated with an outgoint transaction
+					continue
+
 				if sales_datetime >= cur_transfer_datetime and sales_datetime <= next_transfer_datetime:
 					return cur_transfer_pkg
 
@@ -416,6 +482,10 @@ class PackageHistory(object):
 					next_transfer_date = datetime.date(3000, 1, 1)
 				else:
 					next_transfer_date = all_transfer_pkgs[i+1]['received_date']
+
+				if _is_outgoing(cur_transfer_pkg):
+					# Dont insert a transaction associated with an outgoint transaction
+					continue
 
 				if sales_date >= cur_transfer_date and sales_date <= next_transfer_date:
 					return cur_transfer_pkg
@@ -454,26 +524,6 @@ class PackageHistory(object):
 		seen_receipt_numbers = {}
 		seen_sales_datetimes = {}
 		date_to_quantity: Dict[datetime.date, int] = {}
-
-		def _is_incoming(transfer_pkg: Dict) -> bool:
-			# For the purposes of this inventory exercise, incoming means its
-			# still in the posession of the company
-
-			return transfer_pkg['delivery_type'] in set([
-				DeliveryType.INTERNAL, 
-				DeliveryType.INCOMING_INTERNAL, 
-				DeliveryType.OUTGOING_INTERNAL,
-				DeliveryType.INCOMING_FROM_VENDOR,
-				DeliveryType.INCOMING_UNKNOWN
-			])
-
-		def _is_outgoing(transfer_pkg: Dict) -> bool:
-			# For the purposes of this inventory exercise, outgoing means its
-			# no onger in the posession of the company
-			return transfer_pkg['delivery_type'] in set([
-				DeliveryType.OUTGOING_TO_PAYOR,
-				DeliveryType.OUTGOING_UNKNOWN
-			])
 		
 		for transfer_pkg in all_transfer_pkgs:
 			
@@ -639,6 +689,10 @@ def get_histories(d: Download) -> Dict[str, PackageHistory]:
 
 		history = package_id_to_history[package_id]
 		history.inactive_pkg = cast(InactivePackageDict, inactive_pkg)
+
+	#for pkg in d.missing_incoming_pkg_package_records:
+	#	pkg['sourceproductionbatchnumbers']
+
 
 	return package_id_to_history
 
@@ -1032,4 +1086,52 @@ def are_packages_inactive_query(package_ids: Iterable[str]) -> str:
 					True
 					and metrc_packages.package_id in ({package_ids_str})
 					and metrc_packages.type = 'inactive'
+	"""
+
+def create_packages_by_package_ids_query(package_ids: Iterable[str]) -> str:
+	package_ids_str = ','.join([f"'{package_id}'" for package_id in list(package_ids)])
+
+	return f"""
+			select
+					companies.identifier,
+					metrc_packages.license_number,
+					metrc_packages.type,
+					metrc_packages.package_type,
+					metrc_packages.product_category_name,
+					metrc_packages.product_name,
+					metrc_packages.package_id,
+					metrc_packages.package_label,
+					metrc_packages.quantity,
+					metrc_packages.unit_of_measure,
+					metrc_packages.*
+			from
+					metrc_packages
+					left outer join companies on metrc_packages.company_id = companies.id
+			where
+					True
+					and metrc_packages.package_id in ({package_ids_str})
+	"""
+
+def create_packages_by_production_batch_numbers_query(production_batch_numbers: Iterable[str]) -> str:
+	production_batch_numbers_str = ','.join([f"'{production_batch_number}'" for production_batch_number in list(production_batch_numbers)])
+
+	return f"""
+			select
+					companies.identifier,
+					metrc_packages.license_number,
+					metrc_packages.type,
+					metrc_packages.package_type,
+					metrc_packages.product_category_name,
+					metrc_packages.product_name,
+					metrc_packages.package_id,
+					metrc_packages.package_label,
+					metrc_packages.quantity,
+					metrc_packages.unit_of_measure,
+					metrc_packages.*
+			from
+					metrc_packages
+					left outer join companies on metrc_packages.company_id = companies.id
+			where
+					True
+					and metrc_packages.package_payload.productionbatchnumber in ({production_batch_numbers_str})
 	"""
