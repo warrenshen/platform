@@ -353,6 +353,7 @@ def create_company_inventory_packages_query(company_identifier, include_quantity
             metrc_packages.package_label,
             metrc_packages.type,
             metrc_packages.packaged_date,
+            metrc_packages.last_modified_at,
             metrc_packages.package_type,
             metrc_packages.product_name,
             metrc_packages.product_category_name,
