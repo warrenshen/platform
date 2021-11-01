@@ -579,7 +579,38 @@ def populate_transfers_table(
 			session=session
 		)
 
-	metrc_transfer_objs = incoming_metrc_transfer_objs + outgoing_metrc_transfer_objs
+	# Rejected
+	rejected_transfers_arr = []
+	if apis_to_use['rejected_transfers']:
+		try:
+			resp = rest.get('/transfers/v1/rejected', time_range=[cur_date_str])
+			rejected_transfers_arr = json.loads(resp.content)
+			request_status['transfers_api'] = 200
+		except errors.Error as e:
+			request_status['transfers_api'] = e.details.get('status_code')
+			return False, e		
+
+	with session_scope(session_maker) as session:
+		rejected_transfers = Transfers.build(rejected_transfers_arr).filter_new_only(
+			ctx, session
+		)
+
+	rejected_metrc_transfer_objs = rejected_transfers.get_transfer_objs(
+		rest=rest,
+		ctx=ctx,
+		transfer_type=db_constants.TransferType.REJECTED,
+	)
+
+	with session_scope(session_maker) as session:
+		licenses_util.populate_vendor_details(
+			_get_company_delivery_objs(rejected_metrc_transfer_objs),
+			session=session
+		)
+
+	# Fetch delivery details for all the transfers
+
+	metrc_transfer_objs = incoming_metrc_transfer_objs + outgoing_metrc_transfer_objs + \
+												rejected_metrc_transfer_objs
 
 	## Fetch packages and lab results
 	all_metrc_transfer_package_objs: List[TransferPackageObj] = []

@@ -233,6 +233,7 @@ class MetrcDownloadSummaryStatus(object):
 class TransferType(object):
 	INCOMING = 'INCOMING'
 	OUTGOING = 'OUTGOING'
+	REJECTED = 'REJECTED'
 	INTERNAL = 'INTERNAL'
 	UNKNOWN = 'UNKNOWN'
 

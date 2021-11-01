@@ -97,6 +97,7 @@ class TestFns(unittest.TestCase):
 			sales_transactions=True,
 			incoming_transfers=True,
 			outgoing_transfers=True,
+			rejected_transfers=False,
 			packages=True,
 			lab_tests=True,
 			harvests=True,
