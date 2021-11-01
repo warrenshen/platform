@@ -49,7 +49,8 @@ def main(is_test_run: bool, company_identifier: str) -> None:
 
 	while not is_done:
 		with models.session_scope(session_maker) as session:
-			print(f'[Page {current_page + 1}] Resetting company_deliveries delivery_type...')
+			offset = current_page * BATCH_SIZE
+			print(f'[Page {current_page + 1} offset {offset}] Resetting company_deliveries delivery_type...')
 
 			try:
 				company_deliveries_batch = cast(
@@ -57,7 +58,7 @@ def main(is_test_run: bool, company_identifier: str) -> None:
 					session.query(models.CompanyDelivery).filter(
 						models.CompanyDelivery.company_id == company_id
 					).order_by(
-						models.CompanyDelivery.id
+						models.CompanyDelivery.delivery_type
 					).offset(
 						current_page * BATCH_SIZE
 					).limit(BATCH_SIZE).all())

@@ -140,7 +140,7 @@ class Download(object):
 		for pkg in self.missing_incoming_pkg_package_records:
 			source_no = pkg['package_payload']['sourceproductionbatchnumbers']
 			if not source_no:
-				print(f"WARN: package {pkg['package_id']} is missing a sourceproductionbatchnumber and an incoming pkg")
+				# print(f"WARN: package {pkg['package_id']} is missing a sourceproductionbatchnumber and an incoming pkg")
 				continue
 
 			production_batch_numbers.add(source_no)
@@ -238,6 +238,19 @@ def _is_outgoing(transfer_pkg: Dict) -> bool:
 		DeliveryType.OUTGOING_UNKNOWN
 	])
 
+def get_inventory_column_names() -> List[str]:
+	return [
+		'package_id',
+		'license_number',
+		'arrived_date',
+		'product_category_name',
+		'product_name',
+		'quantity',
+		'unit_of_measure',
+		'sold_date',
+		'is_in_inventory',
+	]
+
 class PackageHistory(object):
 	"""
 		Grab all the information we know about this package, and then compute multiple fields on it
@@ -295,16 +308,6 @@ class PackageHistory(object):
 
 		return int(cur_quantity)
 
-	def get_inventory_column_names(self) -> List[str]:
-		return [
-			'package_id',
-			'arrived_date',
-			'product_category_name',
-			'product_name',
-			'quantity',
-			'sold_date',
-		]
-
 	def get_inventory_output_row(self, inventory_date_str: str) -> List[str]:
 		incoming_pkg = self.incomings[-1] if self.incomings else None 
 		sold_date = self.computed_info.get('sold', {}).get('date')
@@ -321,6 +324,7 @@ class PackageHistory(object):
 			incoming_pkg['product_category_name'],
 			incoming_pkg['product_name'],
 			'{}'.format(cur_quantity) if cur_quantity != -1 else '',
+			incoming_pkg['received_unit_of_measure'],
 			date_to_str(sold_date) if sold_date else '',
 		]
 				
@@ -710,7 +714,7 @@ def analyze_specific_package_histories(
 
 	for package_id in package_ids:
 			if package_id in package_id_to_actual_row:
-				print('Matching metrc_package')
+				print('Matching metrc_package:')
 				print(package_id_to_actual_row[package_id])
 				print('')
 			else:
@@ -968,15 +972,15 @@ def compare_inventory_dataframes(computed: Any, actual: Any, options: CompareOpt
 
 	for package_id in unseen_package_ids:
 		cur_row = package_id_to_computed_row[package_id]
-		unseen_quantity_tuples.append((package_id, int(cur_row['quantity'])))
+		unseen_quantity_tuples.append((package_id, int(cur_row['quantity']), cur_row['unit_of_measure']))
 
 	unseen_quantity_tuples.sort(key=lambda x: x[1], reverse=True) # sort quantity, largest to smallest
 
-	for (package_id, quantity) in unseen_quantity_tuples:
+	for (package_id, quantity, unit_of_measure) in unseen_quantity_tuples:
 		if i > num_errors_to_show:
 			break
 
-		print('{}; computed quantity {}'.format(package_id, quantity))
+		print(f'{package_id}: computed quantity {quantity} ({unit_of_measure})')
 
 		i += 1
 
@@ -987,15 +991,15 @@ def compare_inventory_dataframes(computed: Any, actual: Any, options: CompareOpt
 	i = 0
 	for package_id in computed_missing_package_ids:
 		cur_row = package_id_to_actual_row[package_id]
-		computed_missing_tuples.append((package_id, cur_row['quantity']))
+		computed_missing_tuples.append((package_id, cur_row['quantity'], cur_row['unit_of_measure']))
 
 	computed_missing_tuples.sort(key=lambda x: x[1], reverse=True) # sort quantity, largest to smallest
 
-	for (package_id, quantity) in computed_missing_tuples:
+	for (package_id, quantity, unit_of_measure) in computed_missing_tuples:
 		if i > num_errors_to_show:
 			break
 
-		print('{}; quantity: {}'.format(package_id, quantity))
+		print(f'{package_id}: actual quantity {quantity} ({unit_of_measure})')
 		i += 1
 
 	return {
@@ -1045,7 +1049,7 @@ def create_inventory_xlsx(
 				continue
 
 			if first:
-				sheet.add_row(history.get_inventory_column_names())
+				sheet.add_row(get_inventory_column_names())
 				first = False
 			
 			row = history.get_inventory_output_row(inventory_date)

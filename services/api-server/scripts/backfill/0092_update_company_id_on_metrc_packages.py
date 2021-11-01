@@ -38,7 +38,7 @@ def main(is_test_run: bool = True) -> None:
 					session.query(models.MetrcPackage).filter(
 						models.MetrcPackage.company_id == demo_inventory_company_id
 					).order_by(
-					  models.MetrcPackage.last_modified_at.asc() # Order by is necessary for batch-based iteration to work.
+						models.MetrcPackage.last_modified_at.asc() # Order by is necessary for batch-based iteration to work.
 					).offset( 
 						current_page * BATCH_SIZE 
 					).limit(BATCH_SIZE).all())
