@@ -80,69 +80,82 @@ export default function BankReportsFinancialsByCustomerTab() {
             />
           </FormControl>
         </Box>
-        <Box display="flex" flexDirection="row-reverse" mb={2}>
-          <Can perform={Action.RunBalances}>
-            <Box>
-              <ModalButton
-                isDisabled={!companyId}
-                label={"Run Balances"}
-                color={"default"}
-                modal={({ handleClose }) => (
-                  <RunCustomerBalancesModal
-                    companyId={companyId}
-                    handleClose={() => {
-                      financialSummariesByCompanyIdRefetch();
-                      handleClose();
-                    }}
-                  />
-                )}
-              />
-            </Box>
-          </Can>
-        </Box>
-        <Box display="flex" flexDirection="column">
-          <Box mb={2}>
-            <Alert severity="info">
-              <Box display="flex" flexDirection="column">
+        {!!companyId && (
+          <Box display="flex" flexDirection="column">
+            <Box display="flex" flexDirection="row-reverse" mb={2}>
+              <Can perform={Action.RunBalances}>
                 <Box>
-                  <Typography variant="body2">
-                    Principal Balance (PB): total outstanding principal with
-                    payments applied on <b>deposit date</b> as of{" "}
-                    <b>end of date</b>
-                  </Typography>
+                  <ModalButton
+                    isDisabled={!companyId}
+                    label={"Run Balances"}
+                    color={"default"}
+                    modal={({ handleClose }) => (
+                      <RunCustomerBalancesModal
+                        companyId={companyId}
+                        handleClose={() => {
+                          financialSummariesByCompanyIdRefetch();
+                          handleClose();
+                        }}
+                      />
+                    )}
+                  />
                 </Box>
-                <Box mt={1}>
-                  <Typography variant="body2">
-                    PB Including Clearance Days: total outstanding principal
-                    with payments applied on <b>settlement date</b> as of{" "}
-                    <b>end of date</b>
-                  </Typography>
-                </Box>
-                <Box mt={1}>
-                  <Typography variant="body2">
-                    Amount to Pay Interest On: total outstanding principal as of{" "}
-                    <b>start of date</b> (no payments applied yet)
-                  </Typography>
-                </Box>
-                <Box mt={1}>
-                  <Typography variant="body2">
-                    Interest Accrued Today = Amount to Pay Interest On *
-                    Interest Rate
-                  </Typography>
-                </Box>
+              </Can>
+            </Box>
+            <Box display="flex" flexDirection="column">
+              <Box mb={2}>
+                <Alert severity="info">
+                  <Box display="flex" flexDirection="column">
+                    <Box>
+                      <Typography variant="body2">
+                        Principal Balance (PB): total outstanding principal with
+                        payments applied on <strong>deposit date</strong> as of{" "}
+                        <strong>end of date</strong>
+                      </Typography>
+                    </Box>
+                    <Box mt={1}>
+                      <Typography variant="body2">
+                        PB Including Clearance Days: total outstanding principal
+                        with payments applied on{" "}
+                        <strong>settlement date</strong> as of{" "}
+                        <strong>end of date</strong>
+                      </Typography>
+                    </Box>
+                    <Box mt={1}>
+                      <Typography variant="body2">
+                        Amount to Pay Interest On: total outstanding principal
+                        as of <strong>start of date</strong> (no payments
+                        applied yet)
+                      </Typography>
+                    </Box>
+                    <Box mt={1}>
+                      <Typography variant="body2">
+                        Interest Accrued Today = Amount to Pay Interest On *
+                        Interest Rate
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Alert>
               </Box>
-            </Alert>
+              {financialSummariesByCompanyId.length > 0 ? (
+                <FinancialSummariesDataGrid
+                  isProductTypeVisible
+                  financialSummaries={financialSummariesByCompanyId}
+                  handleClickCustomer={(customerId) =>
+                    history.push(
+                      getBankCompanyRoute(
+                        customerId,
+                        BankCompanyRouteEnum.Overview
+                      )
+                    )
+                  }
+                />
+              ) : (
+                <Typography variant="body2">No financial summaries</Typography>
+              )}
+            </Box>
           </Box>
-          <FinancialSummariesDataGrid
-            isProductTypeVisible
-            financialSummaries={financialSummariesByCompanyId}
-            handleClickCustomer={(customerId) =>
-              history.push(
-                getBankCompanyRoute(customerId, BankCompanyRouteEnum.Overview)
-              )
-            }
-          />
-        </Box>
+        )}
       </Box>
     </Box>
   );

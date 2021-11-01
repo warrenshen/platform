@@ -12,13 +12,18 @@ import { todayAsDateStringServer } from "lib/date";
 import { runCustomerBalancesMutation } from "lib/finance/loans/reports";
 import LoanFinancialSummariesDataGrid from "components/Loans/LoanFinancialSummariesDataGrid";
 import { orderBy, zipObject } from "lodash";
-import { createLoanDisbursementIdentifier } from "lib/loans";
+import {
+  createLoanCustomerIdentifier,
+  createLoanDisbursementIdentifier,
+} from "lib/loans";
 import { useMemo, useState } from "react";
 
 export default function BankReportsFinancialsByCustomerTab() {
   const snackbar = useSnackbar();
 
+  // Company ID is empty until user selects a company from dropdown.
   const [companyId, setCompanyId] = useState<Companies["id"]>("");
+  // Loan ID is empty until user selects a loan from dropdown.
   const [loanId, setLoanId] = useState<Loans["id"]>("");
   const [
     loanIdToFinancialSummaries,
@@ -27,6 +32,7 @@ export default function BankReportsFinancialsByCustomerTab() {
 
   const {
     data: customersData,
+    loading: isCustomersLoading,
     error: customersError,
   } = useGetCustomersWithMetadataQuery({
     fetchPolicy: "network-only",
@@ -100,8 +106,6 @@ export default function BankReportsFinancialsByCustomerTab() {
     }
   };
 
-  const isResultsFetched = !!loanIdToFinancialSummaries;
-
   const financialSummaries = useMemo(() => {
     if (!loanIdToFinancialSummaries) {
       return null;
@@ -136,6 +140,10 @@ export default function BankReportsFinancialsByCustomerTab() {
     return orderBy(zippedFinancialSummaries, "date", "desc");
   }, [loanId, loanIdToFinancialSummaries]);
 
+  const isLoanOptionsLoading =
+    isCustomersLoading || isRunCustomerBalancesLoading;
+  const isResultsFetched = !!loanIdToFinancialSummaries;
+
   return (
     <Box display="flex" flexDirection="column">
       <Box display="flex" flexDirection="column" mt={4}>
@@ -145,7 +153,7 @@ export default function BankReportsFinancialsByCustomerTab() {
               <Autocomplete
                 autoHighlight
                 blurOnSelect
-                disabled={customers.length <= 0 || isRunCustomerBalancesLoading}
+                disabled={customers.length <= 0 || isLoanOptionsLoading}
                 options={customers}
                 getOptionLabel={(customer) => customer.name}
                 renderInput={(params) => (
@@ -168,7 +176,7 @@ export default function BankReportsFinancialsByCustomerTab() {
               />
             </FormControl>
           </Box>
-          {isRunCustomerBalancesLoading && (
+          {isLoanOptionsLoading && (
             <Typography variant="body1">Loading...</Typography>
           )}
         </Box>
@@ -187,9 +195,13 @@ export default function BankReportsFinancialsByCustomerTab() {
                     blurOnSelect
                     disabled={loans.length <= 0}
                     options={loans}
-                    getOptionLabel={(loan) =>
-                      `${createLoanDisbursementIdentifier(loan)} (${loan.id})`
-                    }
+                    getOptionLabel={(loan) => {
+                      // Show both customer and disbursement identifier so user
+                      // can search through options for either loan identifier.
+                      return `${createLoanCustomerIdentifier(
+                        loan
+                      )} | ${createLoanDisbursementIdentifier(loan)}`;
+                    }}
                     renderInput={(params) => (
                       <TextField
                         {...params}
@@ -204,13 +216,20 @@ export default function BankReportsFinancialsByCustomerTab() {
             </Box>
           </>
         )}
-        <Box display="flex" flexDirection="column">
-          {financialSummaries && (
-            <LoanFinancialSummariesDataGrid
-              financialSummaries={financialSummaries}
-            />
-          )}
-        </Box>
+        {!!loanId && (
+          <Box display="flex" flexDirection="column">
+            <Box mb={2}>
+              <Typography variant="body2">{`Platform ID: ${loanId}`}</Typography>
+            </Box>
+            {financialSummaries ? (
+              <LoanFinancialSummariesDataGrid
+                financialSummaries={financialSummaries}
+              />
+            ) : (
+              <Typography>{`No financial summaries`}</Typography>
+            )}
+          </Box>
+        )}
       </Box>
     </Box>
   );
