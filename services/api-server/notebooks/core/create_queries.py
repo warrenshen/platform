@@ -350,21 +350,25 @@ def create_transfer_packages_by_package_id_query(package_id):
             companies.identifier,
             company_deliveries.delivery_type,
             company_deliveries.updated_at,
+            metrc_transfers.manifest_number,
+            metrc_transfers.shipper_facility_name,
+            metrc_transfers.shipper_facility_license_number,
+            metrc_deliveries.recipient_facility_name,
+            metrc_deliveries.recipient_facility_license_number,
             metrc_deliveries.received_datetime,
             metrc_transfer_packages.package_id,
             metrc_transfer_packages.package_label,
             metrc_transfer_packages.package_payload.packagetype,
+            metrc_transfer_packages.product_category_name,
+            metrc_transfer_packages.product_name,
             metrc_transfer_packages.shipped_quantity,
             metrc_transfer_packages.shipper_wholesale_price,
             metrc_transfer_packages.received_quantity,
-            metrc_transfers.shipper_facility_name,
-            metrc_transfers.shipper_facility_license_number,
-            metrc_deliveries.recipient_facility_name,
-            metrc_deliveries.recipient_facility_license_number
+            metrc_transfer_packages.*
         from
             metrc_transfer_packages
-            inner join metrc_deliveries on metrc_transfer_packages.delivery_row_id = metrc_deliveries.id
-            inner join metrc_transfers on metrc_deliveries.transfer_row_id = metrc_transfers.id
+            left outer join metrc_deliveries on metrc_transfer_packages.delivery_row_id = metrc_deliveries.id
+            left outer join metrc_transfers on metrc_deliveries.transfer_row_id = metrc_transfers.id
             left outer join company_deliveries on metrc_transfers.id = company_deliveries.transfer_row_id
             left outer join companies on company_deliveries.company_id = companies.id
         where
@@ -437,4 +441,26 @@ def create_packages_by_source_production_batch_number_query(source_production_ba
         where
             True
             and metrc_packages.package_payload.sourceproductionbatchnumbers like '%{source_production_batch_number}%'
+    """
+
+def create_packages_by_product_name_query(product_name):
+    return f"""
+        select
+            companies.identifier,
+            metrc_packages.license_number,
+            metrc_packages.type,
+            metrc_packages.package_type,
+            metrc_packages.product_category_name,
+            metrc_packages.product_name,
+            metrc_packages.package_id,
+            metrc_packages.package_label,
+            metrc_packages.quantity,
+            metrc_packages.unit_of_measure,
+            metrc_packages.*
+        from
+            metrc_packages
+            left outer join companies on metrc_packages.company_id = companies.id
+        where
+            True
+            and metrc_packages.product_name like '%{product_name}%'
     """
