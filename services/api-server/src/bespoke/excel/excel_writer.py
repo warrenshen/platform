@@ -18,10 +18,13 @@ class Worksheet(object):
 	def add_row(self, values: List[str]) -> None:
 		for colx, value in enumerate(values):
 			# Excel cell doesn't support more than 32767 characters.
-			if len(value) > self.MAX_ALLOWED_XL_CELL_CHARS:
-				value = value[:self.ALLOWED_VALUE_LEN] + self.TRUNCATION_MSG
-
-			self._ws.write(self._rowx, colx, value[:self.MAX_ALLOWED_XL_CELL_CHARS])
+			if not value:
+				self._ws.write(self._rowx, colx, '')
+			else:
+				if len(value) > self.MAX_ALLOWED_XL_CELL_CHARS:
+					value = value[:self.ALLOWED_VALUE_LEN] + self.TRUNCATION_MSG
+				self._ws.write(self._rowx, colx, value[:self.MAX_ALLOWED_XL_CELL_CHARS])
+		
 		self._rowx += 1
 
 class WorkbookWriter(object):

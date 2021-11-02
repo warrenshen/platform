@@ -1,4 +1,5 @@
 import datetime
+import copy
 import glob
 import math
 import numpy
@@ -18,12 +19,15 @@ from bespoke.excel import excel_writer
 DEFAULT_SOLD_THRESHOLD = 0.95
 
 PackagePayloadDict = TypedDict('PackagePayloadDict', {
-	'sourceproductionbatchnumbers': str
+	'sourceproductionbatchnumbers': str,
+	'productionbatchnumber': str,
 })
 
 # Types coming from the BigQuery pull
 ActivePackageDict = TypedDict('ActivePackageDict', {
-	'package_payload': PackagePayloadDict
+	'package_payload': PackagePayloadDict,
+	'package_id': str,
+	'quantity': float
 })
 
 InactivePackageDict = TypedDict('InactivePackageDict', {
@@ -48,7 +52,7 @@ TransferPackageDict = TypedDict('TransferPackageDict', {
 	'product_category_name': str,
 	'product_name': str,
 	'received_unit_of_measure': str,
-	'shipped_quantity': str,
+	'shipped_quantity': Union[float, str],
 	'shipper_wholesale_price': float,
 	'shipment_package_state': str,
 	'delivery_type': str,
@@ -125,12 +129,47 @@ def parse_to_date(cur_date: Any) -> datetime.date:
 
 	return cast(datetime.date, cur_date)
 
+def get_inventory_column_names() -> List[str]:
+	return [
+		'package_id',
+		'license_number',
+		'arrived_date',
+		'product_category_name',
+		'product_name',
+		'quantity',
+		'unit_of_measure',
+		'sold_date',
+		'is_in_inventory'
+	]
+
+def _get_inventory_output_row(history: 'PackageHistory', inventory_date_str: str) -> List[str]:
+	incoming_pkg = history.incomings[-1] if history.incomings else None 
+	sold_date = history.computed_info.get('sold', {}).get('date')
+	
+	if not incoming_pkg:
+		return []
+
+	cur_quantity = history._get_current_quantity(inventory_date_str)
+
+	return [
+		history.package_id,
+		incoming_pkg['license_number'],
+		date_to_str(history.computed_info['arrived']['date']),
+		incoming_pkg['product_category_name'],
+		incoming_pkg['product_name'],
+		'{}'.format(cur_quantity) if cur_quantity != -1 else '',
+		incoming_pkg['received_unit_of_measure'] or '',
+		date_to_str(sold_date) if sold_date else '',
+	]
+
 class Download(object):
 		
 	def __init__(self) -> None:
 		self.incoming_records: List[TransferPackageDict] = None
 		self.outgoing_records: List[TransferPackageDict] = None
 		self.sales_tx_records: List[SalesTransactionDict] = None
+
+		self.inventory_packages_records: List[ActivePackageDict] = None
 		self.inactive_packages_records: List[InactivePackageDict] = None
 		self.missing_incoming_pkg_package_records: List[ActivePackageDict] = None
 		self.parent_packages_records: List[ActivePackageDict] = None
@@ -140,11 +179,13 @@ class Download(object):
 		incoming_transfer_packages_dataframe: Any,
 		outgoing_transfer_packages_dataframe: Any,
 		sales_transactions_dataframe: Any,
+		inventory_packages_dataframe: Any,
 		engine: Any
 	) -> None:
 		self.incoming_records = incoming_transfer_packages_dataframe.to_dict('records')
 		self.outgoing_records = outgoing_transfer_packages_dataframe.to_dict('records')
 		self.sales_tx_records = sales_transactions_dataframe.to_dict('records')
+		self.inventory_packages_records = inventory_packages_dataframe.to_dict('records')
 
 		all_package_ids = set([])
 		missing_incoming_pkg_package_ids = set([])
@@ -267,6 +308,7 @@ class Printer(object):
 
 class ExcludeReason(object):
 	MISSING_INCOMING = 'MISSING_INCOMING'
+	CHILD_MISSING_INVENTORY_PACKAGE = 'CHILD_MISSING_INVENTORY_PACKAGE'
 	MISSING_TIMESTAMP = 'MISSING_TIMESTAMP'
 	OUT_OF_ORDER_DATES = 'OUT_OF_ORDER_DATES'
 
@@ -293,19 +335,6 @@ def _is_outgoing(transfer_pkg: TransferPackageDict) -> bool:
 		DeliveryType.OUTGOING_UNKNOWN
 	])
 
-def get_inventory_column_names() -> List[str]:
-	return [
-		'package_id',
-		'license_number',
-		'arrived_date',
-		'product_category_name',
-		'product_name',
-		'quantity',
-		'unit_of_measure',
-		'sold_date',
-		'is_in_inventory',
-	]
-
 class PackageHistory(object):
 	"""
 		Grab all the information we know about this package, and then compute multiple fields on it
@@ -317,7 +346,13 @@ class PackageHistory(object):
 		self.sales_txs: List[SalesTransactionDict] = []
 		self.package_id = package_id
 		self.inactive_pkg: InactivePackageDict = None
+		# We need the actual package pulled directly from metrc_packages for
+		# the child package quantity computations 
+		self.actual_inventory_pkg: ActivePackageDict = None 
+		
 		self.computed_info: ComputedInfoDict = {}
+		self.is_parent = False # Whether this package is a parent of spawned child packages
+		self.is_child_of_parent = False # Whether this package is a child spawned from a parent package
 		self.should_exclude = False
 		self.exclude_reason = ''
 				
@@ -364,24 +399,7 @@ class PackageHistory(object):
 		return int(cur_quantity)
 
 	def get_inventory_output_row(self, inventory_date_str: str) -> List[str]:
-		incoming_pkg = self.incomings[-1] if self.incomings else None 
-		sold_date = self.computed_info.get('sold', {}).get('date')
-		
-		if not incoming_pkg:
-			return []
-
-		cur_quantity = self._get_current_quantity(inventory_date_str)
-
-		return [
-			self.package_id,
-			incoming_pkg['license_number'],
-			date_to_str(self.computed_info['arrived']['date']),
-			incoming_pkg['product_category_name'],
-			incoming_pkg['product_name'],
-			'{}'.format(cur_quantity) if cur_quantity != -1 else '',
-			incoming_pkg['received_unit_of_measure'] or '',
-			date_to_str(sold_date) if sold_date else '',
-		]
+		return _get_inventory_output_row(self, inventory_date_str)
 				
 	def filter_out_unhandled_packages(self, p: Printer) -> None:    
 		if not self.incomings:
@@ -558,6 +576,20 @@ class PackageHistory(object):
 
 		self.sales_txs.sort(key = lambda x: x['sales_datetime'])
 
+		if self.is_child_of_parent and not self.actual_inventory_pkg:
+			if in_debug_mode:
+				print(f'We should always have the actual inventory package for a child package. Package ID {self.package_id}')
+			
+			self.should_exclude = True
+			self.exclude_reason = ExcludeReason.CHILD_MISSING_INVENTORY_PACKAGE
+			return False
+
+		# Estimate the original quantity of a package by taking how much of it we have in
+		# metrc_packages
+		estimated_original_quantity = 0.0
+		if self.actual_inventory_pkg:
+			estimated_original_quantity = float(self.actual_inventory_pkg['quantity'])
+
 		for tx in self.sales_txs:
 			cur_date = tx['sales_date']
 			cur_transfer_pkg = _find_insertion(tx['sales_datetime'])
@@ -572,6 +604,33 @@ class PackageHistory(object):
 			cur_txs = cur_transfer_pkg['date_to_txs'].get(cur_date, [])
 			cur_txs.append(tx)
 			cur_transfer_pkg['date_to_txs'][cur_date] = cur_txs
+
+			estimated_original_quantity += tx['tx_quantity_sold']
+
+		if self.is_child_of_parent:
+			assert len(self.incomings) == 1
+			for incoming_pkg in self.incomings:
+				# We copied the parent's incoming_pkg into the child's incoming_pkg, and
+				# we take the chance here to modify it according to the percentage
+				# that this child contributed to the overall parent,
+				# e.g.,
+				#
+				# parent may have been shipped_quantity 100, price $1000
+				#
+				# child now has a quantity of 2, and it was sold 8 times, therefore
+				# we believe the child started off with quantity 10, and its "cost"
+				# is $1000 / 10, and its shipped_quantity is 10
+
+				parent_original_quantity = float(incoming_pkg['shipped_quantity'])
+				parent_wholesale_price = float(incoming_pkg['shipper_wholesale_price'])
+				child_original_quantity = estimated_original_quantity
+				incoming_pkg['shipped_quantity'] = child_original_quantity
+				# shipper_wholesale_price = parent['shipper_wholesale_price'] * estimated_original_quantity / parent['shipped_quantity']
+				incoming_pkg['shipper_wholesale_price'] = parent_wholesale_price * child_original_quantity / parent_original_quantity
+				pass
+
+		# TODO(dlluncor):
+		# Use received_quantity, if not there, then back off to shipped_quantity
 
 		lines = []
 		verbose = p.verbose
@@ -713,8 +772,48 @@ class PackageHistory(object):
 			p, 
 			sold_threshold=params.get('sold_threshold', DEFAULT_SOLD_THRESHOLD),
 			skip_over_errors=skip_over_errors)
-				
+
+MatchingParentRespDict = TypedDict('MatchingParentRespDict', {
+	'num_orphans': int,
+	'has_number_but_no_parent': int,
+	'child_to_parent_package_id': Dict[str, str]
+})
+
+def _match_child_packages_to_parents(d: Download) -> MatchingParentRespDict:
+	productionbatchnum_to_package_id = {}
+
+	for parent_record in d.parent_packages_records:
+		production_batch_num = parent_record['package_payload']['productionbatchnumber']
+		package_id = parent_record['package_id']
+		if not production_batch_num:
+				print(f'Parent package {package_id} is missing a productionbatchnumber')
+				continue
+		productionbatchnum_to_package_id[parent_record['package_payload']['productionbatchnumber']] = package_id
+
+	child_to_parent_package_id = {}
+	num_orphans = 0
+	has_number_but_no_parent = 0
+
+	for pkg in d.missing_incoming_pkg_package_records:
+		batch_no = pkg['package_payload']['sourceproductionbatchnumbers']
+		if not batch_no:
+				num_orphans += 1
+				continue
 		
+		if batch_no not in productionbatchnum_to_package_id:
+				has_number_but_no_parent += 1
+				#print(batch_no)
+				continue
+		
+		parent_package_id = productionbatchnum_to_package_id[batch_no]
+		child_to_parent_package_id[pkg['package_id']] = parent_package_id
+
+	return MatchingParentRespDict(
+		child_to_parent_package_id=child_to_parent_package_id,
+		has_number_but_no_parent=has_number_but_no_parent,
+		num_orphans=num_orphans
+	)
+
 def get_histories(d: Download) -> Dict[str, PackageHistory]:
 	package_id_to_history = {}
 	
@@ -750,13 +849,49 @@ def get_histories(d: Download) -> Dict[str, PackageHistory]:
 		history = package_id_to_history[package_id]
 		history.inactive_pkg = cast(InactivePackageDict, inactive_pkg)
 
-	#for pkg in d.missing_incoming_pkg_package_records:
-	#	pkg['sourceproductionbatchnumbers']
+	for inventory_pkg in d.inventory_packages_records:
+		package_id = inventory_pkg['package_id']
+		if package_id not in package_id_to_history:
+			# Dont create PackageHistory when there are no historical details associated with this package
+			continue
 
+		package_id_to_history[package_id].actual_inventory_pkg = inventory_pkg
+
+	# Perform parent-child relationship pairing. 
+	# Children are packages with no incoming packages
+	parent_resp = _match_child_packages_to_parents(d)
+	for child_package_id, parent_package_id in parent_resp['child_to_parent_package_id'].items():
+		if child_package_id not in package_id_to_history:
+			continue
+
+		if parent_package_id not in package_id_to_history:
+			continue
+
+		parent_history = package_id_to_history[parent_package_id] 
+		child_history = package_id_to_history[child_package_id]
+
+		if not parent_history.incomings:
+			print(f'WARN: Parent package {parent_history.package_id} has no incoming package, so the child wont have any incoming history either')
+			continue
+
+		parent_history.is_parent = True
+
+		child_history.incomings.append(copy.deepcopy(parent_history.incomings[-1]))
+		child_history.is_child_of_parent = True
 
 	return package_id_to_history
 
 ##### DEBUG ######
+
+def run_orphan_analysis(d: Download) -> None:
+	# Child to parent package_id
+	resp = _match_child_packages_to_parents(d)
+
+	print('{} - Number of parent packages'.format(len(d.parent_packages_records)))
+	print('')
+	print('{} - Child packages with parents'.format(len(resp['child_to_parent_package_id'].keys())))
+	print('{} - orphans; child packages with (no source product batch num)'.format(resp['num_orphans']))
+	print('{} - no matching parent; child packages that have a source batch number, but no parent'.format(resp['has_number_but_no_parent']))
 
 def analyze_specific_package_histories(
 	d: Download,
@@ -794,6 +929,8 @@ def print_counts(id_to_history: Dict[str, PackageHistory]) -> None:
 	current_inventory = 0
 	inventory_with_no_transfers = 0
 	total_seen = 0
+	num_parent_packages = 0
+	num_child_packages = 0
 
 	for package_id, history in id_to_history.items():
 		if history.outgoings and not history.incomings:
@@ -814,14 +951,24 @@ def print_counts(id_to_history: Dict[str, PackageHistory]) -> None:
 		if history.outgoings and history.incomings:
 			outgoing_and_incoming += 1
 
+		if history.is_parent:
+			num_parent_packages += 1
+
+		if history.is_child_of_parent:
+			num_child_packages += 1
+
 		total_seen += 1
 
 	print(f'Only outgoing: {only_outgoing}')
-	print(f'Only incoming: {only_incoming}')
-	print(f'Only sold: {only_sold}')
+	print(f'Only incoming: {only_incoming}')	
+	print(f'Only sold, no incoming: {only_sold}')
 	print(f'In and out: {outgoing_and_incoming}')
 	print(f'In and sold at least once {in_and_sold_at_least_once}')
 	print(f'In and sold many times {in_and_sold_many_times}')
+	print('')
+	print(f' Num parent packages: {num_parent_packages}')
+	print(f' num matched child packages: {num_child_packages}')
+
 	print(f'Total pkgs: {total_seen}')
 
 def create_inventory_dataframe_by_date(
