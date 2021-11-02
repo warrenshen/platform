@@ -17,8 +17,13 @@ from bespoke.excel import excel_writer
 
 DEFAULT_SOLD_THRESHOLD = 0.95
 
-AnalysisParamsDict = TypedDict('AnalysisParamsDict', {
-	'sold_threshold': float
+PackagePayloadDict = TypedDict('PackagePayloadDict', {
+	'sourceproductionbatchnumbers': str
+})
+
+# Types coming from the BigQuery pull
+ActivePackageDict = TypedDict('ActivePackageDict', {
+	'package_payload': PackagePayloadDict
 })
 
 InactivePackageDict = TypedDict('InactivePackageDict', {
@@ -27,10 +32,54 @@ InactivePackageDict = TypedDict('InactivePackageDict', {
 	'finisheddate': datetime.date,
 })
 
+TransferPackageDict = TypedDict('TransferPackageDict', {
+	'package_id': str,
+	'license_number': str,
+ 	'product_category_name': str,
+	'product_name': str,
+	'received_unit_of_measure': str,
+	'shipped_quantity': str,
+	'shipper_wholesale_price': float,
+	'shipment_package_state': str,
+	'delivery_type': str,
+	'created_date': datetime.date,
+	'received_datetime': datetime.datetime,
+	'received_date': datetime.date, # added by us
+	'date_to_txs': Dict[datetime.date, List[SalesTransactionDict]] # added by us
+})
+
+SalesTransactionDict = TypedDict('SalesTransactionDict', {
+	'sales_datetime': datetime.datetime,
+	'sales_date': datetime.date, # added by us
+	'tx_package_id': str,
+	'receipt_number': str,
+	'tx_quantity_sold': int,
+	'tx_total_price': float,
+	'tx_unit_of_measure': str
+})
+
+# Types used for analysis
+
+AnalysisParamsDict = TypedDict('AnalysisParamsDict', {
+	'sold_threshold': float
+})
+
 CompareOptionsDict = TypedDict('CompareOptionsDict', {
 	'num_errors_to_show': int,
 	'accept_computed_when_sold_out': bool
 })
+
+NotableEventDict = TypedDict('NotableEventDict', {
+	'date': datetime.date,
+	'reason': str
+})
+
+ComputedInfoDict = TypedDict('ComputedInfoDict', {
+	'arrived': NotableEventDict,
+	'sold': NotableEventDict,
+	'finished': NotableEventDict,
+	'date_to_quantity': Dict[datetime.date, int]
+}, total=False)
 
 def _is_time_null(cur_time: Any) -> bool:
 	if not cur_time:
@@ -79,12 +128,12 @@ def parse_to_date(cur_date: Any) -> datetime.date:
 class Download(object):
 		
 	def __init__(self) -> None:
-		self.incoming_records: List[Dict] = None
-		self.outgoing_records: List[Dict] = None
-		self.sales_tx_records: List[Dict] = None
-		self.inactive_packages_records: List[Dict] = None
-		self.missing_incoming_pkg_package_records: List[Dict] = None
-		self.parent_packages_records: List[Dict] = None
+		self.incoming_records: List[TransferPackageDict] = None
+		self.outgoing_records: List[TransferPackageDict] = None
+		self.sales_tx_records: List[SalesTransactionDict] = None
+		self.inactive_packages_records: List[InactivePackageDict] = None
+		self.missing_incoming_pkg_package_records: List[ActivePackageDict] = None
+		self.parent_packages_records: List[ActivePackageDict] = None
 
 	def download_dataframes(
 		self,
@@ -101,7 +150,7 @@ class Download(object):
 		missing_incoming_pkg_package_ids = set([])
 
 		for sales_tx_record in self.sales_tx_records:
-			sales_tx_record['sales_datetime'] = sales_tx_record['sales_datetime'].to_pydatetime()
+			sales_tx_record['sales_datetime'] = cast(Any, sales_tx_record['sales_datetime']).to_pydatetime()
 			sales_tx_record['sales_date'] = parse_to_date(sales_tx_record['sales_datetime'])
 			all_package_ids.add(sales_tx_record['tx_package_id'])
 			missing_incoming_pkg_package_ids.add(sales_tx_record['tx_package_id'])
@@ -160,9 +209,9 @@ class Download(object):
 		outgoing_files: List[str],
 		sales_transactions_files: List[str],
 	) -> None:
-		self.incoming_records = self._file_as_dict_records(incoming_files)
-		self.outgoing_records = self._file_as_dict_records(outgoing_files)
-		self.sales_tx_records = self._file_as_dict_records(sales_transactions_files)
+		self.incoming_records = cast(List[TransferPackageDict], self._file_as_dict_records(incoming_files))
+		self.outgoing_records = cast(List[TransferPackageDict], self._file_as_dict_records(outgoing_files))
+		self.sales_tx_records = cast(List[SalesTransactionDict], self._file_as_dict_records(sales_transactions_files))
 
 	def _file_as_dict_records(self, filepaths: List[str]) -> List[Dict]:
 		all_records = []
@@ -218,7 +267,7 @@ class ExcludeReason(object):
 def _date_to_datetime(date: datetime.date) -> datetime.datetime:
 	return datetime.datetime.combine(date.today(), datetime.datetime.min.time()).replace(tzinfo=pytz.UTC)
 
-def _is_incoming(transfer_pkg: Dict) -> bool:
+def _is_incoming(transfer_pkg: TransferPackageDict) -> bool:
 	# For the purposes of this inventory exercise, incoming means its
 	# still in the posession of the company
 
@@ -230,7 +279,7 @@ def _is_incoming(transfer_pkg: Dict) -> bool:
 		DeliveryType.INCOMING_UNKNOWN
 	])
 
-def _is_outgoing(transfer_pkg: Dict) -> bool:
+def _is_outgoing(transfer_pkg: TransferPackageDict) -> bool:
 	# For the purposes of this inventory exercise, outgoing means its
 	# no onger in the posession of the company
 	return transfer_pkg['delivery_type'] in set([
@@ -257,12 +306,12 @@ class PackageHistory(object):
 	"""
 
 	def __init__(self, package_id: str) -> None:
-		self.incomings: List[Dict] = []
-		self.outgoings: List[Dict] = []
-		self.sales_txs: List[Dict] = []
+		self.incomings: List[TransferPackageDict] = []
+		self.outgoings: List[TransferPackageDict] = []
+		self.sales_txs: List[SalesTransactionDict] = []
 		self.package_id = package_id
 		self.inactive_pkg: InactivePackageDict = None
-		self.computed_info: Dict = {}
+		self.computed_info: ComputedInfoDict = {}
 		self.should_exclude = False
 		self.exclude_reason = ''
 				
@@ -444,7 +493,7 @@ class PackageHistory(object):
 		all_transfer_pkgs = incoming_pkgs + outgoing_pkgs
 		all_transfer_pkgs.sort(key=lambda x: x['received_datetime'])
 
-		def _find_insertion(sales_datetime: datetime.datetime) -> Dict:
+		def _find_insertion(sales_datetime: datetime.datetime) -> TransferPackageDict:
 			# Find the transfer pkog to associate these transactions with, e.g.,
 			#
 			# INCOMING #1
@@ -523,7 +572,7 @@ class PackageHistory(object):
 		
 		amount_sold = 0
 		is_sold = False
-		revenue_from_pkg = 0
+		revenue_from_pkg = 0.0
 		remaining_quantity = 0
 		seen_receipt_numbers = {}
 		seen_sales_datetimes = {}
@@ -631,7 +680,8 @@ class PackageHistory(object):
 						#print(f'Price {price_of_pkg}')
 						lines.append(f'Package {self.package_id} took {days_delta} days to sell with profit margin {profit_margin}%')
 						self.computed_info['sold'] = {
-							'date': is_sold_date
+							'date': is_sold_date,
+							'reason': 'sold'
 						}
 
 				date_to_quantity[parse_to_date(cur_date)] = remaining_quantity
