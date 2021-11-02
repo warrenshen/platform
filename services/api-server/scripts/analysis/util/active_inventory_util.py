@@ -32,10 +32,20 @@ InactivePackageDict = TypedDict('InactivePackageDict', {
 	'finisheddate': datetime.date,
 })
 
+SalesTransactionDict = TypedDict('SalesTransactionDict', {
+	'sales_datetime': datetime.datetime,
+	'sales_date': datetime.date, # added by us
+	'tx_package_id': str,
+	'receipt_number': str,
+	'tx_quantity_sold': int,
+	'tx_total_price': float,
+	'tx_unit_of_measure': str
+})
+
 TransferPackageDict = TypedDict('TransferPackageDict', {
 	'package_id': str,
 	'license_number': str,
- 	'product_category_name': str,
+	'product_category_name': str,
 	'product_name': str,
 	'received_unit_of_measure': str,
 	'shipped_quantity': str,
@@ -46,16 +56,6 @@ TransferPackageDict = TypedDict('TransferPackageDict', {
 	'received_datetime': datetime.datetime,
 	'received_date': datetime.date, # added by us
 	'date_to_txs': Dict[datetime.date, List[SalesTransactionDict]] # added by us
-})
-
-SalesTransactionDict = TypedDict('SalesTransactionDict', {
-	'sales_datetime': datetime.datetime,
-	'sales_date': datetime.date, # added by us
-	'tx_package_id': str,
-	'receipt_number': str,
-	'tx_quantity_sold': int,
-	'tx_total_price': float,
-	'tx_unit_of_measure': str
 })
 
 # Types used for analysis
@@ -178,11 +178,14 @@ class Download(object):
 		# For packages missing an incoming_pkg, we query the metrc_packages table to
 		# see if there is a parent-child relationship between the original incoming_pkg
 		# and this current package.
-		missing_incoming_pkg_packages_df = cast(Any, pandas).read_sql_query(
-			create_packages_by_package_ids_query(missing_incoming_pkg_package_ids),
-			engine
-		)
-		self.missing_incoming_pkg_package_records = missing_incoming_pkg_packages_df.to_dict('records')
+		if missing_incoming_pkg_package_ids:
+			missing_incoming_pkg_packages_df = cast(Any, pandas).read_sql_query(
+				create_packages_by_package_ids_query(missing_incoming_pkg_package_ids),
+				engine
+			)
+			self.missing_incoming_pkg_package_records = missing_incoming_pkg_packages_df.to_dict('records')
+		else:
+			self.missing_incoming_pkg_package_records = []
 
 		# Find the original packages with these production batch numbers.
 		production_batch_numbers = set([])
@@ -197,11 +200,14 @@ class Download(object):
 		# For packages missing an incoming_pkg, we query the metrc_packages table to
 		# see if there is a parent-child relationship between the original incoming_pkg
 		# and this current package.
-		parent_packages_df = cast(Any, pandas).read_sql_query(
-			create_packages_by_production_batch_numbers_query(production_batch_numbers),
-			engine
-		)
-		self.parent_packages_records = parent_packages_df.to_dict('records')
+		if production_batch_numbers:
+			parent_packages_df = cast(Any, pandas).read_sql_query(
+				create_packages_by_production_batch_numbers_query(production_batch_numbers),
+				engine
+			)
+			self.parent_packages_records = parent_packages_df.to_dict('records')
+		else:
+			self.parent_packages_records = []
 
 	def download_files(
 		self,
@@ -373,7 +379,7 @@ class PackageHistory(object):
 			incoming_pkg['product_category_name'],
 			incoming_pkg['product_name'],
 			'{}'.format(cur_quantity) if cur_quantity != -1 else '',
-			incoming_pkg['received_unit_of_measure'],
+			incoming_pkg['received_unit_of_measure'] or '',
 			date_to_str(sold_date) if sold_date else '',
 		]
 				

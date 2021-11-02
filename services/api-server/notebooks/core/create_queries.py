@@ -255,6 +255,29 @@ def create_company_monthly_units_sold_query(company_identifier, start_date):
             1
     """
 
+def create_company_monthly_units_sold_by_product_category_name_query(company_identifier, start_date):
+    return f"""
+        select
+            date_trunc(metrc_sales_receipts.sales_datetime, month) as sales_month,
+            metrc_sales_transactions.product_category_name,
+            sum(metrc_sales_transactions.quantity_sold) as month_units_sold
+        from
+            metrc_sales_receipts
+            inner join companies on metrc_sales_receipts.company_id = companies.id
+            inner join metrc_sales_transactions on metrc_sales_receipts.id = metrc_sales_transactions.receipt_row_id
+        where
+            True
+            and companies.identifier = '{company_identifier}'
+            and metrc_sales_receipts.sales_datetime >= '{start_date}'
+            and metrc_sales_transactions.unit_of_measure = 'Each'
+        group by
+            1,
+            2
+        order by
+            1,
+            2
+    """
+
 def create_company_sales_receipts_query(company_identifier, start_date):
     return f"""
         select
@@ -277,10 +300,16 @@ def create_company_sales_receipts_query(company_identifier, start_date):
             metrc_sales_receipts.sales_datetime desc
     """
 
-def create_company_sales_receipts_with_transactions_query(company_identifier, start_date):
+def create_company_sales_receipts_with_transactions_query(company_identifier, start_date, unit_of_measure=None):
     """
     Note the left outer join of metrc_sales_transactions.
     """
+    if unit_of_measure and unit_of_measure not in ['Each']:
+        print('[ERROR] Given unit of measure is not valid')
+        return None
+    unit_of_measure_where_clause = f"""
+        and metrc_sales_transactions.unit_of_measure = '{unit_of_measure}'
+    """ if unit_of_measure else ''
     return f"""
         select
             metrc_sales_receipts.id as rt_id,
@@ -289,6 +318,7 @@ def create_company_sales_receipts_with_transactions_query(company_identifier, st
             metrc_sales_receipts.type as rt_type,
             metrc_sales_receipts.sales_customer_type,
             metrc_sales_receipts.sales_datetime,
+            date_trunc(metrc_sales_receipts.sales_datetime, month) as sales_month,
             metrc_sales_receipts.total_packages,
             metrc_sales_receipts.total_price as rt_total_price,
             metrc_sales_transactions.id as tx_id,
@@ -308,6 +338,7 @@ def create_company_sales_receipts_with_transactions_query(company_identifier, st
             True
             and companies.identifier = '{company_identifier}'
             and metrc_sales_receipts.sales_datetime >= '{start_date}'
+            {unit_of_measure_where_clause}
         order by
             metrc_sales_receipts.sales_datetime desc
     """
@@ -455,6 +486,9 @@ def create_packages_by_package_id_query(package_id):
 
 # Other identifier queries: get data by non-ID identifiers.
 def create_packages_by_production_batch_number_query(production_batch_number):
+    if not production_batch_number:
+        print('[ERROR] Given production batch number is not valid')
+        return None
     return f"""
         select
             companies.identifier,
@@ -518,4 +552,26 @@ def create_packages_by_product_name_query(product_name):
         where
             True
             and metrc_packages.product_name like '%{product_name}%'
+    """
+
+def create_packages_by_package_label_query(package_label):
+    return f"""
+        select
+            companies.identifier,
+            metrc_packages.license_number,
+            metrc_packages.type,
+            metrc_packages.package_type,
+            metrc_packages.product_category_name,
+            metrc_packages.product_name,
+            metrc_packages.package_id,
+            metrc_packages.package_label,
+            metrc_packages.quantity,
+            metrc_packages.unit_of_measure,
+            metrc_packages.*
+        from
+            metrc_packages
+            left outer join companies on metrc_packages.company_id = companies.id
+        where
+            True
+            and metrc_packages.package_label = '{package_label}'
     """
