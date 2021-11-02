@@ -743,8 +743,8 @@ class Payment(Base):
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	company_id = Column(GUID, nullable=False)
 
-	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	created_at = Column(DateTime, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 	# Identifier of payment, unique under scope (company_id, type, settlement_identifier).
 	# Essentially denotes the 1st, 2nd, etc advance of a company
@@ -823,6 +823,10 @@ class Transaction(Base):
 	__tablename__ = 'transactions'
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+
+	created_at = Column(DateTime, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, default=datetime.datetime.utcnow)
+
 	type = Column(Text, nullable=False)
 	subtype = Column(Text)
 	amount = Column(Numeric, nullable=False)
@@ -876,8 +880,8 @@ class Loan(Base):
 	company_id = Column(GUID, nullable=False)
 	loan_report_id = cast(GUID, Column(GUID, ForeignKey('loan_reports.id')))
 
-	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	created_at = Column(DateTime, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 	identifier = Column(String)
 	disbursement_identifier = Column(String)
