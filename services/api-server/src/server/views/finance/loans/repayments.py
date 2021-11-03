@@ -6,7 +6,7 @@ from typing import Any, Callable, Dict, List, Tuple, cast
 from bespoke import errors
 from bespoke.audit import events
 from bespoke.date import date_util
-from bespoke.db import db_constants, models
+from bespoke.db import db_constants, models, model_types
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.finance import number_util
@@ -40,10 +40,15 @@ def _send_customer_requested_repayment_emails(
 			models.Company,
 			session.query(models.Company).get(payment.company_id))
 
+		account_fee_amount = cast(model_types.PaymentItemsCoveredDict, payment.items_covered).get("requested_to_account_fees", 0)
+		is_paying_account_fees = account_fee_amount > 0
+		
 		template_data = {
 			'customer_name': customer.get_display_name(),
 			'payment_amount': number_util.to_dollar_format(float(payment.requested_amount)),
 			'payment_method': payment.method,
+			'is_paying_account_fees': is_paying_account_fees,
+			'account_fee_amount': account_fee_amount,
 			'requested_payment_date': date_util.date_to_str(payment.requested_payment_date),
 		}
 		_, err = sendgrid_client.send(
