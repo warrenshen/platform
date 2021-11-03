@@ -12,7 +12,7 @@ from decimal import *
 
 from bespoke.date import date_util
 from bespoke.db import models, models_util
-from bespoke.db.db_constants import DBOperation
+from bespoke.db.db_constants import DBOperation, LoanTypeEnum
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.finance import number_util
@@ -26,7 +26,30 @@ handler = Blueprint('report_generation', __name__)
 class ReportsLoansComingDueView(MethodView):
 	decorators = [auth_util.requires_async_magic_header]
 
-	def prepare_email_rows(self, loans : List[models.Loan]) -> Tuple[float, str]:
+	def get_artifact_string(self, loan: models.Loan, session : Session) -> str:
+		artifact_string = "<td></td>"
+		if loan.loan_type == LoanTypeEnum.INVOICE:
+			invoice = cast(
+				models.Invoice,
+				session.query(models.Invoice).filter(
+					models.Invoice.id == loan.artifact_id)
+				.first())
+
+			if invoice is not None:
+				artifact_string = "<td>" + invoice.invoice_number + "</td>"
+		else:
+			po = cast(
+				models.PurchaseOrder,
+				session.query(models.PurchaseOrder).filter(
+					models.PurchaseOrder.id == loan.artifact_id)
+				.first())
+
+			if po is not None:
+				artifact_string = "<td>P" + po.order_number + "</td>"
+
+		return artifact_string
+
+	def prepare_email_rows(self, loans : List[models.Loan], session : Session) -> Tuple[float, str]:
 		running_total = 0.0
 		rows_html = ""
 		for l in loans:
@@ -34,6 +57,8 @@ class ReportsLoansComingDueView(MethodView):
 			running_total += float(loan_total)
 			rows_html += "<tr>"
 			rows_html += "<td>L" + str(l.identifier) + "</td>"
+			if l.loan_type != LoanTypeEnum.LINE_OF_CREDIT:
+				rows_html += self.get_artifact_string(l, session)
 			rows_html += "<td>" + str(l.maturity_date) + "</td>"
 			rows_html += "<td>" + number_util.to_dollar_format(float(loan_total)) + "</td>"
 			rows_html += "<td>" + number_util.to_dollar_format(float(l.outstanding_principal_balance)) + "</td>"
@@ -44,9 +69,11 @@ class ReportsLoansComingDueView(MethodView):
 		return running_total, rows_html
 
 	def process_loan_chunk(
-		self, session : Session, 
+		self,
+		session : Session, 
 		sendgrid_client : sendgrid_util.Client, 
 		report_link : str, 
+		payment_link : str, 
 		loans_chunk : List[models.Loan],
 		today : datetime.datetime
 		) -> Tuple[Dict[str, List[models.Loan]], Response]:
@@ -65,6 +92,10 @@ class ReportsLoansComingDueView(MethodView):
 
 		emails_sent = 0;
 		for company_id, loans in loans_to_notify.items():
+			# line of credit loans are slated for a different flow as part of future work
+			if loans[0].loan_type == LoanTypeEnum.LINE_OF_CREDIT:
+				continue
+
 			# get company contact email, company name
 			company = cast(
 				models.Company,
@@ -76,15 +107,29 @@ class ReportsLoansComingDueView(MethodView):
 			for contact_user in all_users:
 				contact_user_full_name = contact_user.first_name + " " + contact_user.last_name
 				
-				running_total, rows_html = self.prepare_email_rows(loans)
+				running_total, rows_html = self.prepare_email_rows(loans, session)
 				total_string = number_util.to_dollar_format(running_total)
+
+				# SendGrid worked inconsistently when using booleans as input data
+				# "True" vs "" works consistently
+				show_invoice_column = ""
+				show_purchase_order_column = ""
+				if loans[0].loan_type == LoanTypeEnum.INVOICE:
+					show_invoice_column = "True"
+				else:
+					show_purchase_order_column = "True"
 
 				template_data = {
 					"company_user": contact_user_full_name,
 				    "company_name": company.name,
 				    "balance_due": total_string,
+				    "report_link": report_link,
 				    "rows": rows_html,
-				    "report_link": report_link
+				    "send_date": date_util.human_readable_yearmonthday(date_util.now()),
+				    "payment_link": payment_link,
+				    "support_email": "<a href='mailto:support@bespokefinancial.com'>support@bespokefinancial.com</a>",
+				    "show_invoice_column": show_invoice_column,
+				    "show_purchase_order_column": show_purchase_order_column,
 				}
 				if sendgrid_client is not None:
 					_, err = sendgrid_client.send(
@@ -105,6 +150,7 @@ class ReportsLoansComingDueView(MethodView):
 		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
 		report_link = cfg.BESPOKE_DOMAIN + "/1/reports"
+		payment_link = cfg.BESPOKE_DOMAIN + "/1/loans"
 		today = date_util.now()
 		
 		loans : List[models.Loan] = []
@@ -117,7 +163,7 @@ class ReportsLoansComingDueView(MethodView):
 
 			BATCH_SIZE = 50
 			for loans_chunk in cast(Iterable[List[models.Loan]], chunker(all_open_loans, BATCH_SIZE)):
-				_, err = self.process_loan_chunk(session, sendgrid_client, report_link, loans_chunk, today)
+				_, err = self.process_loan_chunk(session, sendgrid_client, report_link, payment_link, loans_chunk, today)
 
 				if err:
 					return err;
@@ -127,7 +173,30 @@ class ReportsLoansComingDueView(MethodView):
 class ReportsLoansPastDueView(MethodView):
 	decorators = [auth_util.requires_async_magic_header]
 
-	def prepare_email_rows(self, loans : List[models.Loan]) -> Tuple[float, str]:
+	def get_artifact_string(self, loan: models.Loan, session : Session) -> str:
+		artifact_string = "<td></td>"
+		if loan.loan_type == LoanTypeEnum.INVOICE:
+			invoice = cast(
+				models.Invoice,
+				session.query(models.Invoice).filter(
+					models.Invoice.id == loan.artifact_id)
+				.first())
+
+			if invoice is not None:
+				artifact_string = "<td>" + invoice.invoice_number + "</td>"
+		else:
+			po = cast(
+				models.PurchaseOrder,
+				session.query(models.PurchaseOrder).filter(
+					models.PurchaseOrder.id == loan.artifact_id)
+				.first())
+
+			if po is not None:
+				artifact_string = "<td>P" + po.order_number + "</td>"
+
+		return artifact_string
+
+	def prepare_email_rows(self, loans : List[models.Loan], session : Session) -> Tuple[float, str]:
 		running_total = 0.0
 		rows_html = ""
 		for l in loans:
@@ -136,6 +205,8 @@ class ReportsLoansPastDueView(MethodView):
 			days_past_due = date_util.number_days_between_dates(date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE), l.maturity_date)
 			rows_html += "<tr>"
 			rows_html += "<td>L" + str(l.identifier) + "</td>"
+			if l.loan_type != LoanTypeEnum.LINE_OF_CREDIT:
+				rows_html += self.get_artifact_string(l, session)
 			rows_html += "<td>" + str(days_past_due) + "</td>"
 			rows_html += "<td>" + number_util.to_dollar_format(float(loan_total)) + "</td>"
 			rows_html += "<td>" + number_util.to_dollar_format(float(l.outstanding_principal_balance)) + "</td>"
@@ -146,9 +217,11 @@ class ReportsLoansPastDueView(MethodView):
 		return running_total, rows_html
 
 	def process_loan_chunk(
-		self, session : Session, 
+		self, 
+		session : Session, 
 		sendgrid_client : sendgrid_util.Client, 
 		report_link : str, 
+		payment_link: str,
 		loans_chunk : List[models.Loan],
 		today : datetime.datetime
 		) -> Tuple[Dict[str, List[models.Loan]], Response]:
@@ -165,6 +238,11 @@ class ReportsLoansPastDueView(MethodView):
 
 		emails_sent = 0;
 		for company_id, loans in loans_to_notify.items():
+			# line of credit loans are slated for a different flow as part of future work
+			if loans[0].loan_type == LoanTypeEnum.LINE_OF_CREDIT:
+				logging.info("LOOK AT ME")
+				continue
+
 			# get company contact email, company name
 			company = cast(
 				models.Company,
@@ -176,15 +254,29 @@ class ReportsLoansPastDueView(MethodView):
 			for contact_user in all_users:
 				contact_user_full_name = contact_user.first_name + " " + contact_user.last_name
 
-				running_total, rows_html = self.prepare_email_rows(loans)
+				running_total, rows_html = self.prepare_email_rows(loans, session)
 				total_string = number_util.to_dollar_format(running_total)
+
+				# SendGrid worked inconsistently when using booleans as input data
+				# "True" vs "" works consistently
+				show_invoice_column = ""
+				show_purchase_order_column = ""
+				if loans[0].loan_type == LoanTypeEnum.INVOICE:
+					show_invoice_column = "True"
+				else:
+					show_purchase_order_column = "True"
 
 				template_data = {
 					"company_user": contact_user_full_name,
 				    "company_name": company.name,
 				    "balance_due": total_string,
+				    "report_link": report_link,
 				    "rows": rows_html,
-				    "report_link": report_link
+				    "send_date": date_util.human_readable_yearmonthday(date_util.now()),
+				    "payment_link": "<a href='" + payment_link + "'>click here</a>",
+				    "support_email": "<a href='mailto:support@bespokefinancial.com'>support@bespokefinancial.com</a>",
+				    "show_invoice_column": show_invoice_column,
+				    "show_purchase_order_column": show_purchase_order_column,
 				}
 				if sendgrid_client is not None:
 					_, err = sendgrid_client.send(
@@ -205,6 +297,7 @@ class ReportsLoansPastDueView(MethodView):
 		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
 		report_link = cfg.BESPOKE_DOMAIN + "/1/reports"
+		payment_link = cfg.BESPOKE_DOMAIN + "/1/loans"
 		today = date_util.now()
 		
 		loans : List[models.Loan] = []
@@ -215,7 +308,7 @@ class ReportsLoansPastDueView(MethodView):
 
 			BATCH_SIZE = 50
 			for loans_chunk in cast(Iterable[List[models.Loan]], chunker(all_open_loans, BATCH_SIZE)):
-				_, err = self.process_loan_chunk(session, sendgrid_client, report_link, loans_chunk, today)
+				_, err = self.process_loan_chunk(session, sendgrid_client, report_link, payment_link, loans_chunk, today)
 
 				if err:
 					return err;

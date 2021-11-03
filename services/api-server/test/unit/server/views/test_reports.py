@@ -122,27 +122,28 @@ class TestReportsLoansPastDueView(db_unittest.TestCase):
 	def test_past_due_loans_report_generation(self) -> None:
 		past_due_report = report_generation.ReportsLoansPastDueView()
 
-		loan = models.Loan()
-		loan.maturity_date = date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
-		loan.outstanding_principal_balance = Decimal(10000)
-		loan.outstanding_interest = Decimal(500)
-		loan.outstanding_fees = Decimal(250)
-		
-		running_total, rows_html = past_due_report.prepare_email_rows([loan])
-
-		# since the maturity_date is set to now in this test
-		# days due will always be zero
-		days_due_html = rows_html.find("<td>0</td>")
-		self.assertNotEqual(days_due_html, -1)
-
-		total_pos = rows_html.find("10,750")
-		self.assertNotEqual(total_pos, -1)
-
-		self.reset()
-		seed = test_helper.BasicSeed.create(self.session_maker, self)
-		seed.initialize()
-
 		with session_scope(self.session_maker) as session:
+
+			loan = models.Loan()
+			loan.maturity_date = date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
+			loan.outstanding_principal_balance = Decimal(10000)
+			loan.outstanding_interest = Decimal(500)
+			loan.outstanding_fees = Decimal(250)
+			
+			running_total, rows_html = past_due_report.prepare_email_rows([loan], session)
+
+			# since the maturity_date is set to now in this test
+			# days due will always be zero
+			days_due_html = rows_html.find("<td>0</td>")
+			self.assertNotEqual(days_due_html, -1)
+
+			total_pos = rows_html.find("10,750")
+			self.assertNotEqual(total_pos, -1)
+
+			self.reset()
+			seed = test_helper.BasicSeed.create(self.session_maker, self)
+			seed.initialize()
+		
 			add_loans_for_company(session, seed.get_company_id('company_admin', index=0), ProductType.PURCHASE_MONEY_FINANCING)
 			all_open_loans = cast(
 				List[models.Loan],
@@ -150,7 +151,8 @@ class TestReportsLoansPastDueView(db_unittest.TestCase):
 
 			notified_loans, _ = past_due_report.process_loan_chunk(session, 
 				sendgrid_client = None, 
-				report_link = "http://localhost:3005/1/reports", 
+				report_link = "http://localhost:3005/1/reports",
+				payment_link = "http://localhost:3005/1/loans", 
 				loans_chunk = all_open_loans,
 				today = parser.parse('2020-10-01T16:33:27.69-08:00')
 			)
@@ -165,20 +167,21 @@ class TestReportsLoansComingDueView(db_unittest.TestCase):
 	def test_coming_due_loans_report_generation(self) -> None:
 		coming_due_report = report_generation.ReportsLoansComingDueView()
 
-		loan = models.Loan()
-		loan.outstanding_principal_balance = Decimal(10000)
-		loan.outstanding_interest = Decimal(500)
-		loan.outstanding_fees = Decimal(250)
-
-		running_total, rows_html = coming_due_report.prepare_email_rows([loan])
-		total_pos = rows_html.find("10,750")
-		self.assertNotEqual(total_pos, -1)
-
-		self.reset()
-		seed = test_helper.BasicSeed.create(self.session_maker, self)
-		seed.initialize()
-
 		with session_scope(self.session_maker) as session:
+
+			loan = models.Loan()
+			loan.outstanding_principal_balance = Decimal(10000)
+			loan.outstanding_interest = Decimal(500)
+			loan.outstanding_fees = Decimal(250)
+
+			running_total, rows_html = coming_due_report.prepare_email_rows([loan], session)
+			total_pos = rows_html.find("10,750")
+			self.assertNotEqual(total_pos, -1)
+
+			self.reset()
+			seed = test_helper.BasicSeed.create(self.session_maker, self)
+			seed.initialize()
+		
 			add_loans_for_company(session, seed.get_company_id('company_admin', index=0), ProductType.PURCHASE_MONEY_FINANCING)
 			all_open_loans = cast(
 				List[models.Loan],
@@ -186,7 +189,8 @@ class TestReportsLoansComingDueView(db_unittest.TestCase):
 
 			notified_loans, _ = coming_due_report.process_loan_chunk(session, 
 				sendgrid_client = None, 
-				report_link = "http://localhost:3005/1/reports", 
+				report_link = "http://localhost:3005/1/reports",
+				payment_link = "http://localhost:3005/1/loans", 
 				loans_chunk = all_open_loans,
 				today = parser.parse('2020-10-01T16:33:27.69-08:00')
 			)
