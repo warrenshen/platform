@@ -14,7 +14,6 @@ import {
   PaymentsInsertInput,
   ProductTypeEnum,
   useGetCompanyWithDetailsByCompanyIdQuery,
-  useGetCustomerAccountQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -93,36 +92,12 @@ export default function CreateRepaymentModal({
     },
     company_bank_account_id: null,
   });
-  const [
-    isPayAccountFeesVisible,
-    setIsPayAccountFeesVisible,
-  ] = useState<boolean>(false);
   const [repaymentEffectData, setRepaymentEffectData] = useState<
     CalculateRepaymentEffectResp["data"] | null
   >(null);
   const [loansBeforeAfterPayment, setLoansBeforeAfterPayment] = useState<
     LoanBeforeAfterPayment[]
   >([]);
-
-  // Select Account Fees
-  const accountQuery = useGetCustomerAccountQuery({
-    fetchPolicy: "network-only",
-    skip: !payment,
-    variables: {
-      company_id: payment?.company_id || "",
-    },
-  });
-
-  if (accountQuery.error) {
-    alert(`Error in query (details in console): ${accountQuery.error.message}`);
-  }
-
-  const companyForFees = accountQuery.data?.companies_by_pk;
-  const accountFees = companyForFees?.fee_payments || [];
-  const accountFeeTotal = accountFees.reduce(
-    (total, fee) => total + fee.amount,
-    0.0
-  );
 
   const paymentOption = payment.items_covered.payment_option;
 
@@ -220,21 +195,6 @@ export default function CreateRepaymentModal({
       }
     }
 
-    // Double check to make sure selected account fee payment is not greater than amount owed
-    if (isPayAccountFeesVisible) {
-      const accountFeePayment =
-        payment.items_covered["requested_to_account_fees"];
-
-      if (accountFeePayment > accountFeeTotal) {
-        setErrMsg(
-          `You have enter $${accountFeePayment} for paying your account fees. ` +
-            `This is higher than than the total amount owed of $${accountFeeTotal}. ` +
-            `Please set your amount at or below the total owed.`
-        );
-      }
-    }
-
-    // Loan Repayment
     const response = await createRepayment({
       variables: {
         company_id: companyId,
@@ -265,9 +225,7 @@ export default function CreateRepaymentModal({
       setErrMsg(response.msg);
     } else {
       setErrMsg("");
-      snackbar.showSuccess(
-        "Repayment submitted for review by Bespoke Financial."
-      );
+      snackbar.showSuccess("Payment submitted for review by Bespoke.");
       handleClose();
     }
   };
@@ -280,14 +238,9 @@ export default function CreateRepaymentModal({
     !payment.requested_payment_date ||
     !payment.settlement_date ||
     (productType !== ProductTypeEnum.LineOfCredit && !paymentOption) ||
-    (paymentOption === "custom_amount" && !payment.requested_amount) ||
+    (paymentOption === "custom" && !payment.requested_amount) ||
     (payment.method === PaymentMethodEnum.ReverseDraftACH &&
-      !payment.company_bank_account_id) ||
-    (isPayAccountFeesVisible &&
-      !payment.items_covered["requested_to_account_fees"]) ||
-    (isPayAccountFeesVisible &&
-      payment.items_covered["requested_to_account_fees"] &&
-      payment.items_covered["requested_to_account_fees"] > accountFeeTotal);
+      !payment.company_bank_account_id);
   const isSubmitButtonDisabled =
     isNextButtonDisabled || payment.requested_amount <= 0;
   const submitButtonText =
@@ -328,9 +281,6 @@ export default function CreateRepaymentModal({
             financialSummary={financialSummary}
             payment={payment}
             setPayment={setPayment}
-            isPayAccountFeesVisible={isPayAccountFeesVisible}
-            setIsPayAccountFeesVisible={setIsPayAccountFeesVisible}
-            accountFeeTotal={accountFeeTotal}
           />
         ) : (
           <CreateRepaymentConfirmEffect

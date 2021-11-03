@@ -1,9 +1,7 @@
 import {
   Box,
-  Checkbox,
   Divider,
   FormControl,
-  FormControlLabel,
   InputLabel,
   MenuItem,
   Select,
@@ -12,7 +10,6 @@ import {
 import SelectLoanAutocomplete from "components/Loan/SelectLoanAutocomplete";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
-import { formatCurrency } from "lib/currency";
 import {
   LoanTypeEnum,
   PaymentsInsertInput,
@@ -24,26 +21,19 @@ import {
   PaymentOptionToLabel,
   ProductTypeToLoanType,
 } from "lib/enum";
-import { useMemo, ChangeEvent, Dispatch, SetStateAction } from "react";
+import { useMemo } from "react";
 
 interface Props {
   productType: ProductTypeEnum;
   payment: PaymentsInsertInput;
   setPayment: (payment: PaymentsInsertInput) => void;
-  isPayAccountFeesVisible: boolean;
-  setIsPayAccountFeesVisible: Dispatch<SetStateAction<boolean>>;
-  accountFeeTotal: number;
 }
 
 export default function CreateRepaymentDefaultSection({
   productType,
   payment,
   setPayment,
-  isPayAccountFeesVisible,
-  setIsPayAccountFeesVisible,
-  accountFeeTotal,
 }: Props) {
-  // Select Loans
   const loanType = ProductTypeToLoanType[productType];
 
   const { data, error } = useGetFundedLoansByCompanyAndLoanTypeQuery({
@@ -80,27 +70,9 @@ export default function CreateRepaymentDefaultSection({
   return (
     <Box display="flex" flexDirection="column">
       <Box>
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="flex-end"
-        >
-          <Typography variant="body1">
-            Which loan(s) would you like to pay for?
-          </Typography>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={isPayAccountFeesVisible}
-                onChange={(_: ChangeEvent<HTMLInputElement>) =>
-                  setIsPayAccountFeesVisible(!isPayAccountFeesVisible)
-                }
-                color="primary"
-              />
-            }
-            label={"Pay account fees"}
-          />
-        </Box>
+        <Typography variant="body2">
+          Which loan(s) would you like to pay for?
+        </Typography>
         <LoansDataGrid
           isArtifactVisible
           isDaysPastDueVisible
@@ -129,7 +101,7 @@ export default function CreateRepaymentDefaultSection({
       </Box>
       <Box>
         <Typography variant="subtitle2">
-          How much of these outstanding loans would you like to pay for?
+          How much would you like to pay?
         </Typography>
         <Box display="flex" flexDirection="column" mt={1}>
           <FormControl>
@@ -165,50 +137,13 @@ export default function CreateRepaymentDefaultSection({
                 label={"Custom Amount"}
                 value={payment.requested_amount}
                 handleChange={(value) =>
-                  setPayment({
-                    ...payment,
-                    requested_amount:
-                      (value || 0.0) +
-                      (payment.items_covered.requested_to_account_fees || 0.0),
-                  })
+                  setPayment({ ...payment, requested_amount: value })
                 }
               />
             </FormControl>
           </Box>
         )}
       </Box>
-
-      {isPayAccountFeesVisible ? (
-        <Box my={6}>
-          <Typography variant="body2">
-            How much of your outstanding acount fees (
-            {formatCurrency(accountFeeTotal)}) would you like to pay for?
-          </Typography>
-          <Box display="flex" flexDirection="column" mt={3}>
-            <FormControl>
-              <CurrencyInput
-                label={"Account Fee Amount"}
-                value={payment.items_covered["requested_to_account_fees"]}
-                handleChange={(value) => {
-                  setPayment({
-                    ...payment,
-                    requested_amount:
-                      (value || 0.0) +
-                      (payment.items_covered.requested_to_principal || 0.0) +
-                      (payment.items_covered.requested_to_interest || 0.0),
-                    items_covered: {
-                      ...payment.items_covered,
-                      requested_to_account_fees: value,
-                    },
-                  });
-                }}
-              />
-            </FormControl>
-          </Box>
-        </Box>
-      ) : (
-        <></>
-      )}
     </Box>
   );
 }

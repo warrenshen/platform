@@ -13,35 +13,25 @@ import {
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { todayAsDateStringClient } from "lib/date";
-import { ChangeEvent, useState, Dispatch, SetStateAction } from "react";
+import { ChangeEvent, useState } from "react";
 
 interface Props {
   financialSummary: FinancialSummaryFragment | null;
   payment: PaymentsInsertInput;
   setPayment: (payment: PaymentsInsertInput) => void;
-  isPayAccountFeesVisible: boolean;
-  setIsPayAccountFeesVisible: Dispatch<SetStateAction<boolean>>;
-  accountFeeTotal: number;
 }
 
 export default function CreateRepaymentLineofCreditSection({
   financialSummary,
   payment,
   setPayment,
-  isPayAccountFeesVisible,
-  setIsPayAccountFeesVisible,
-  accountFeeTotal,
 }: Props) {
   const [isInterestVisible, setIsInterestVisible] = useState(false);
 
   return (
     <>
       <Box display="flex" flexDirection="column">
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="flex-end"
-        >
+        <Box>
           <Typography variant="body1">
             {`As of today, ${todayAsDateStringClient()}...`}
           </Typography>
@@ -75,32 +65,18 @@ export default function CreateRepaymentLineofCreditSection({
       <Box>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="body1">Specify payment amount</Typography>
-          <Box>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={isPayAccountFeesVisible}
-                  onChange={(_: ChangeEvent<HTMLInputElement>) =>
-                    setIsPayAccountFeesVisible(!isPayAccountFeesVisible)
-                  }
-                  color="primary"
-                />
-              }
-              label={"Pay account fees"}
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={isInterestVisible}
-                  onChange={(_: ChangeEvent<HTMLInputElement>) =>
-                    setIsInterestVisible(!isInterestVisible)
-                  }
-                  color="primary"
-                />
-              }
-              label={"Pay interest"}
-            />
-          </Box>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={isInterestVisible}
+                onChange={(_: ChangeEvent<HTMLInputElement>) =>
+                  setIsInterestVisible(!isInterestVisible)
+                }
+                color="primary"
+              />
+            }
+            label={"Pay interest"}
+          />
         </Box>
         <Box mt={4}>
           <Typography variant="subtitle2">
@@ -116,8 +92,7 @@ export default function CreateRepaymentLineofCreditSection({
                     ...payment,
                     requested_amount:
                       (value || 0.0) +
-                      (payment.items_covered.requested_to_interest || 0.0) +
-                      (payment.items_covered.requested_to_account_fees || 0.0),
+                      (payment.items_covered.requested_to_interest || 0.0),
                     items_covered: {
                       ...payment.items_covered,
                       requested_to_principal: value,
@@ -143,9 +118,7 @@ export default function CreateRepaymentLineofCreditSection({
                       ...payment,
                       requested_amount:
                         (value || 0.0) +
-                        (payment.items_covered.requested_to_principal || 0.0) +
-                        (payment.items_covered.requested_to_account_fees ||
-                          0.0),
+                        (payment.items_covered.requested_to_principal || 0.0),
                       items_covered: {
                         ...payment.items_covered,
                         requested_to_interest: value,
@@ -156,37 +129,6 @@ export default function CreateRepaymentLineofCreditSection({
               </FormControl>
             </Box>
           </Box>
-        )}
-        {isPayAccountFeesVisible ? (
-          <Box my={6}>
-            <Typography variant="body2">
-              How much of your outstanding acount fees (
-              {formatCurrency(accountFeeTotal)}) would you like to pay for?
-            </Typography>
-            <Box display="flex" flexDirection="column" mt={3}>
-              <FormControl>
-                <CurrencyInput
-                  label={"Account Fee Amount"}
-                  value={payment.items_covered["requested_to_account_fees"]}
-                  handleChange={(value) => {
-                    setPayment({
-                      ...payment,
-                      requested_amount:
-                        (value || 0.0) +
-                        (payment.items_covered.requested_to_principal || 0.0) +
-                        (payment.items_covered.requested_to_interest || 0.0),
-                      items_covered: {
-                        ...payment.items_covered,
-                        requested_to_account_fees: value,
-                      },
-                    });
-                  }}
-                />
-              </FormControl>
-            </Box>
-          </Box>
-        ) : (
-          <></>
         )}
       </Box>
     </>

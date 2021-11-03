@@ -27,16 +27,12 @@ import {
   PaymentMethodEnum,
   PaymentMethodToLabel,
 } from "lib/enum";
-import { Dispatch, SetStateAction } from "react";
 
 interface Props {
   productType: ProductTypeEnum;
   financialSummary: FinancialSummaryFragment | null;
   payment: PaymentsInsertInput;
   setPayment: (payment: PaymentsInsertInput) => void;
-  isPayAccountFeesVisible: boolean;
-  setIsPayAccountFeesVisible: Dispatch<SetStateAction<boolean>>;
-  accountFeeTotal: number;
 }
 
 export default function CreateRepaymentSelectLoans({
@@ -44,9 +40,6 @@ export default function CreateRepaymentSelectLoans({
   financialSummary,
   payment,
   setPayment,
-  isPayAccountFeesVisible,
-  setIsPayAccountFeesVisible,
-  accountFeeTotal,
 }: Props) {
   const isReverseDraftACH =
     payment.method === PaymentMethodEnum.ReverseDraftACH;
@@ -71,18 +64,12 @@ export default function CreateRepaymentSelectLoans({
             financialSummary={financialSummary}
             payment={payment}
             setPayment={setPayment}
-            isPayAccountFeesVisible={isPayAccountFeesVisible}
-            setIsPayAccountFeesVisible={setIsPayAccountFeesVisible}
-            accountFeeTotal={accountFeeTotal}
           />
         ) : (
           <CreateRepaymentDefaultSection
             productType={productType}
             payment={payment}
             setPayment={setPayment}
-            isPayAccountFeesVisible={isPayAccountFeesVisible}
-            setIsPayAccountFeesVisible={setIsPayAccountFeesVisible}
-            accountFeeTotal={accountFeeTotal}
           />
         )}
       </Box>
