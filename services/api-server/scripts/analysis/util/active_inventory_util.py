@@ -134,11 +134,17 @@ def get_inventory_column_names() -> List[str]:
 		'package_id',
 		'license_number',
 		'arrived_date',
+		'incoming_cost',
+		'incoming_quantity',
+		'is_child_package',
+
 		'product_category_name',
 		'product_name',
+
 		'quantity',
 		'unit_of_measure',
 		'sold_date',
+		
 		'is_in_inventory'
 	]
 
@@ -155,8 +161,13 @@ def _get_inventory_output_row(history: 'PackageHistory', inventory_date_str: str
 		history.package_id,
 		incoming_pkg['license_number'],
 		date_to_str(history.computed_info['arrived']['date']),
+		'{:.2f}'.format(float(incoming_pkg['shipper_wholesale_price'])),
+		'{:.2f}'.format(float(incoming_pkg['shipped_quantity'])),
+		'{}'.format(history.is_child_of_parent),
+
 		incoming_pkg['product_category_name'],
 		incoming_pkg['product_name'],
+
 		'{}'.format(cur_quantity) if cur_quantity != -1 else '',
 		incoming_pkg['received_unit_of_measure'] or '',
 		date_to_str(sold_date) if sold_date else '',
