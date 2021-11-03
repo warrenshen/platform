@@ -16,6 +16,8 @@ from mypy_extensions import TypedDict
 from bespoke.db.db_constants import DeliveryType
 from bespoke.excel import excel_writer
 
+from bespoke.inventory.analysis.shared.inventory_types import Query
+
 DEFAULT_SOLD_THRESHOLD = 0.95
 
 PackagePayloadDict = TypedDict('PackagePayloadDict', {
@@ -179,6 +181,7 @@ class Download(object):
 		self.incoming_records: List[TransferPackageDict] = None
 		self.outgoing_records: List[TransferPackageDict] = None
 		self.sales_tx_records: List[SalesTransactionDict] = None
+		self.sales_receipts_dataframe: Any = None
 
 		self.inventory_packages_records: List[ActivePackageDict] = None
 		self.inactive_packages_records: List[InactivePackageDict] = None
@@ -190,12 +193,14 @@ class Download(object):
 		incoming_transfer_packages_dataframe: Any,
 		outgoing_transfer_packages_dataframe: Any,
 		sales_transactions_dataframe: Any,
+		sales_receipts_dataframe: Any,
 		inventory_packages_dataframe: Any,
 		engine: Any
 	) -> None:
 		self.incoming_records = incoming_transfer_packages_dataframe.to_dict('records')
 		self.outgoing_records = outgoing_transfer_packages_dataframe.to_dict('records')
 		self.sales_tx_records = sales_transactions_dataframe.to_dict('records')
+		self.sales_receipts_dataframe = sales_receipts_dataframe
 		self.inventory_packages_records = inventory_packages_dataframe.to_dict('records')
 
 		all_package_ids = set([])
@@ -221,21 +226,23 @@ class Download(object):
 			outgoing_r['created_date'] = parse_to_date(outgoing_r['created_date'])
 			all_package_ids.add(outgoing_r['package_id'])
 
-		all_inactive_packages_df = cast(Any, pandas).read_sql_query(
+		all_inactive_packages_df = pandas.read_sql_query(
 				are_packages_inactive_query(all_package_ids),
 				engine
 		)
-		self.inactive_packages_records = all_inactive_packages_df.to_dict('records')
+		self.inactive_packages_records = cast(
+			List[InactivePackageDict], all_inactive_packages_df.to_dict('records'))
 
 		# For packages missing an incoming_pkg, we query the metrc_packages table to
 		# see if there is a parent-child relationship between the original incoming_pkg
 		# and this current package.
 		if missing_incoming_pkg_package_ids:
-			missing_incoming_pkg_packages_df = cast(Any, pandas).read_sql_query(
+			missing_incoming_pkg_packages_df = pandas.read_sql_query(
 				create_packages_by_package_ids_query(missing_incoming_pkg_package_ids),
 				engine
 			)
-			self.missing_incoming_pkg_package_records = missing_incoming_pkg_packages_df.to_dict('records')
+			self.missing_incoming_pkg_package_records = cast(
+				List[ActivePackageDict], missing_incoming_pkg_packages_df.to_dict('records'))
 		else:
 			self.missing_incoming_pkg_package_records = []
 
@@ -253,11 +260,12 @@ class Download(object):
 		# see if there is a parent-child relationship between the original incoming_pkg
 		# and this current package.
 		if production_batch_numbers:
-			parent_packages_df = cast(Any, pandas).read_sql_query(
+			parent_packages_df = pandas.read_sql_query(
 				create_packages_by_production_batch_numbers_query(production_batch_numbers),
 				engine
 			)
-			self.parent_packages_records = parent_packages_df.to_dict('records')
+			self.parent_packages_records = cast(
+				List[ActivePackageDict], parent_packages_df.to_dict('records'))
 		else:
 			self.parent_packages_records = []
 
@@ -290,12 +298,6 @@ class Download(object):
 			all_records.extend(df_records)
 
 		return all_records
-
-class Query(object):
-
-	def __init__(self) -> None:
-		self.inventory_dates: List[str] = []
-		self.company_name = ''
 
 class Printer(object):
 

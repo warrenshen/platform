@@ -8,7 +8,7 @@ from typing import cast
 
 from bespoke.db import models
 from bespoke.db import db_constants, models
-from bespoke.fcs import fcs_util
+from bespoke.external.fcs import fcs_util
 from bespoke.db.models import session_scope
 from server.config import Config
 from server.views.common.auth_util import UserSession
