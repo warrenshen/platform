@@ -12,8 +12,6 @@ This monorepo includes
 - Hasura/GraphQL API server
 - React/Typescript static app
 
-TEST2
-
 ## Installing
 
 1. Clone the repos
