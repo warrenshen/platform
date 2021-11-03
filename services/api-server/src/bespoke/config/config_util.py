@@ -45,6 +45,9 @@ def get_metrc_auth_provider() -> MetrcAuthProvider:
 				'CA': os.environ.get('METRC_VENDOR_KEY_CA'),
 				'CO': os.environ.get('METRC_VENDOR_KEY_CO'),
 				'MA': os.environ.get('METRC_VENDOR_KEY_MA'),
+				'ME': os.environ.get('METRC_VENDOR_KEY_ME'),
+				'MT': os.environ.get('METRC_VENDOR_KEY_MT'),
+				'OH': os.environ.get('METRC_VENDOR_KEY_OH'),
 				'OR': os.environ.get('METRC_VENDOR_KEY_OR'),
 			}
 	)
