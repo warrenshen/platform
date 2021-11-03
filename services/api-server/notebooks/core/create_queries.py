@@ -45,7 +45,6 @@ def create_company_incoming_transfer_packages_query(company_identifier, start_da
     """ if end_date else ''
     return f"""
         select
-            metrc_transfer_packages.id as package_row_id,
             case
                 when company_deliveries.delivery_type = 'INCOMING_UNKNOWN' then 'INCOMING_FROM_VENDOR'
                 when company_deliveries.delivery_type = 'INCOMING_FROM_VENDOR' then 'INCOMING_FROM_VENDOR'
@@ -102,7 +101,6 @@ def create_company_incoming_transfer_packages_query(company_identifier, start_da
 def create_company_outgoing_transfer_packages_query(company_identifier, start_date):
     return f"""
         select
-            metrc_transfer_packages.id as package_row_id,
             case
                 when company_deliveries.delivery_type = 'INCOMING_FROM_VENDOR' then 'INCOMING_FROM_VENDOR'
                 when company_deliveries.delivery_type = 'INCOMING_UNKNOWN' then 'INCOMING_FROM_VENDOR'
@@ -158,7 +156,6 @@ def create_company_outgoing_transfer_packages_query(company_identifier, start_da
 def create_company_unknown_transfer_packages_query(company_identifier, start_date):
     return f"""
         select
-            metrc_transfer_packages.id as package_row_id,
             case
                 when company_deliveries.delivery_type = 'INCOMING_FROM_VENDOR' then 'INCOMING_FROM_VENDOR'
                 when company_deliveries.delivery_type = 'INCOMING_UNKNOWN' then 'INCOMING_FROM_VENDOR'
@@ -311,7 +308,6 @@ def create_company_sales_receipts_with_transactions_query(company_identifier, st
     """ if unit_of_measure else ''
     return f"""
         select
-            metrc_sales_receipts.id as rt_id,
             metrc_sales_receipts.license_number,
             metrc_sales_receipts.receipt_number,
             metrc_sales_receipts.type as rt_type,
@@ -320,7 +316,6 @@ def create_company_sales_receipts_with_transactions_query(company_identifier, st
             date_trunc(metrc_sales_receipts.sales_datetime, month) as sales_month,
             metrc_sales_receipts.total_packages,
             metrc_sales_receipts.total_price as rt_total_price,
-            metrc_sales_transactions.id as tx_id,
             metrc_sales_transactions.type as tx_type,
             metrc_sales_transactions.package_id as tx_package_id,
             metrc_sales_transactions.package_label as tx_package_label,
