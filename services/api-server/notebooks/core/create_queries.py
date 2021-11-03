@@ -281,7 +281,6 @@ def create_company_monthly_units_sold_by_product_category_name_query(company_ide
 def create_company_sales_receipts_query(company_identifier, start_date):
     return f"""
         select
-            metrc_sales_receipts.id,
             metrc_sales_receipts.license_number,
             metrc_sales_receipts.receipt_number,
             metrc_sales_receipts.type,
@@ -346,7 +345,6 @@ def create_company_sales_receipts_with_transactions_query(company_identifier, st
 def create_company_sales_transactions_query(company_identifier, start_date):
     return f"""
         select
-            metrc_sales_receipts.id,
             metrc_sales_receipts.license_number,
             metrc_sales_receipts.receipt_number,
             metrc_sales_receipts.type as rt_type,
@@ -530,6 +528,28 @@ def create_packages_by_source_production_batch_number_query(source_production_ba
         where
             True
             and metrc_packages.package_payload.sourceproductionbatchnumbers like '%{source_production_batch_number}%'
+    """
+
+def create_packages_by_source_harvest_name_query(source_harvest_name):
+    return f"""
+        select
+            companies.identifier,
+            metrc_packages.license_number,
+            metrc_packages.type,
+            metrc_packages.package_type,
+            metrc_packages.product_category_name,
+            metrc_packages.product_name,
+            metrc_packages.package_id,
+            metrc_packages.package_label,
+            metrc_packages.quantity,
+            metrc_packages.unit_of_measure,
+            metrc_packages.*
+        from
+            metrc_packages
+            left outer join companies on metrc_packages.company_id = companies.id
+        where
+            True
+            and metrc_packages.package_payload.sourceharvestnames like '%{source_harvest_name}%'
     """
 
 def create_packages_by_product_name_query(product_name):
