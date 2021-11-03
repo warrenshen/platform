@@ -12,7 +12,7 @@ from decimal import *
 
 from bespoke.date import date_util
 from bespoke.db import models, models_util
-from bespoke.db.db_constants import DBOperation, LoanTypeEnum
+from bespoke.db.db_constants import DBOperation, LoanTypeEnum, LoanStatusEnum
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.finance import number_util
@@ -53,17 +53,21 @@ class ReportsLoansComingDueView(MethodView):
 		running_total = 0.0
 		rows_html = ""
 		for l in loans:
-			loan_total = l.outstanding_principal_balance + l.outstanding_interest + l.outstanding_fees
+			principal = float(l.outstanding_principal_balance) if l.outstanding_principal_balance is not None else 0.0
+			interest = float(l.outstanding_interest) if l.outstanding_interest is not None else 0.0
+			fees = float(l.outstanding_fees) if l.outstanding_fees is not None else 0.0
+
+			loan_total = principal + interest + fees
 			running_total += float(loan_total)
 			rows_html += "<tr>"
 			rows_html += "<td>L" + str(l.identifier) + "</td>"
 			if l.loan_type != LoanTypeEnum.LINE_OF_CREDIT:
 				rows_html += self.get_artifact_string(l, session)
 			rows_html += "<td>" + str(l.maturity_date) + "</td>"
-			rows_html += "<td>" + number_util.to_dollar_format(float(loan_total)) + "</td>"
-			rows_html += "<td>" + number_util.to_dollar_format(float(l.outstanding_principal_balance)) + "</td>"
-			rows_html += "<td>" + number_util.to_dollar_format(float(l.outstanding_interest)) + "</td>"
-			rows_html += "<td>" + number_util.to_dollar_format(float(l.outstanding_fees)) + "</td>"
+			rows_html += "<td>" + number_util.to_dollar_format(loan_total) + "</td>"
+			rows_html += "<td>" + number_util.to_dollar_format(principal) + "</td>"
+			rows_html += "<td>" + number_util.to_dollar_format(interest) + "</td>"
+			rows_html += "<td>" + number_util.to_dollar_format(fees) + "</td>"
 			rows_html += "</tr>"
 
 		return running_total, rows_html
@@ -82,7 +86,8 @@ class ReportsLoansComingDueView(MethodView):
 		# a unified email to each company more straightforward
 		loans_to_notify : Dict[str, List[models.Loan] ] = {}
 		for l in loans_chunk:
-			if l.origination_date is not None and l.maturity_date is not None:
+			if l.origination_date is not None and l.maturity_date is not None and \
+				l.status == LoanStatusEnum.APPROVED and l.closed_at is None and l.rejected_at is None:
 				days_until_maturity = date_util.num_calendar_days_passed(today.date(), l.maturity_date);
 				if days_until_maturity == 1 or days_until_maturity == 3 or \
 					days_until_maturity == 7 or days_until_maturity == 14:
@@ -159,6 +164,8 @@ class ReportsLoansComingDueView(MethodView):
 				List[models.Loan],
 				session.query(models.Loan).filter(
 					models.Loan.closed_at == None
+				).filter(
+					models.Loan.origination_date != None
 				).all())
 
 			BATCH_SIZE = 50
@@ -200,7 +207,11 @@ class ReportsLoansPastDueView(MethodView):
 		running_total = 0.0
 		rows_html = ""
 		for l in loans:
-			loan_total = l.outstanding_principal_balance + l.outstanding_interest + l.outstanding_fees
+			principal = float(l.outstanding_principal_balance) if l.outstanding_principal_balance is not None else 0.0
+			interest = float(l.outstanding_interest) if l.outstanding_interest is not None else 0.0
+			fees = float(l.outstanding_fees) if l.outstanding_fees is not None else 0.0
+
+			loan_total = principal + interest + fees
 			running_total += float(loan_total)
 			days_past_due = date_util.number_days_between_dates(date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE), l.maturity_date)
 			rows_html += "<tr>"
@@ -208,10 +219,10 @@ class ReportsLoansPastDueView(MethodView):
 			if l.loan_type != LoanTypeEnum.LINE_OF_CREDIT:
 				rows_html += self.get_artifact_string(l, session)
 			rows_html += "<td>" + str(days_past_due) + "</td>"
-			rows_html += "<td>" + number_util.to_dollar_format(float(loan_total)) + "</td>"
-			rows_html += "<td>" + number_util.to_dollar_format(float(l.outstanding_principal_balance)) + "</td>"
-			rows_html += "<td>" + number_util.to_dollar_format(float(l.outstanding_interest)) + "</td>"
-			rows_html += "<td>" + number_util.to_dollar_format(float(l.outstanding_fees)) + "</td>"
+			rows_html += "<td>" + number_util.to_dollar_format(loan_total) + "</td>"
+			rows_html += "<td>" + number_util.to_dollar_format(principal) + "</td>"
+			rows_html += "<td>" + number_util.to_dollar_format(interest) + "</td>"
+			rows_html += "<td>" + number_util.to_dollar_format(fees) + "</td>"
 			rows_html += "</tr>"
 
 		return running_total, rows_html
@@ -230,7 +241,8 @@ class ReportsLoansPastDueView(MethodView):
 		# a unified email to each company more straightforward
 		loans_to_notify : Dict[str, List[models.Loan] ] = {}
 		for l in loans_chunk:
-			if l.origination_date is not None and l.maturity_date is not None:
+			if l.origination_date is not None and l.maturity_date is not None and \
+				l.status == LoanStatusEnum.APPROVED and l.closed_at is None and l.rejected_at is None:
 				if date_util.is_past_due(today.date(), l.maturity_date, date_util.DEFAULT_TIMEZONE):
 					if l.company_id not in loans_to_notify:
 						loans_to_notify[l.company_id] = [];
@@ -304,7 +316,11 @@ class ReportsLoansPastDueView(MethodView):
 		with models.session_scope(current_app.session_maker) as session:
 			all_open_loans = cast(
 				List[models.Loan],
-				session.query(models.Loan).all())
+				session.query(models.Loan).filter(
+					models.Loan.closed_at == None
+				).filter(
+					models.Loan.origination_date != None
+				).all())
 
 			BATCH_SIZE = 50
 			for loans_chunk in cast(Iterable[List[models.Loan]], chunker(all_open_loans, BATCH_SIZE)):
