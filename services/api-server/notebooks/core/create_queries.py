@@ -15,12 +15,12 @@ def create_company_licenses_query(company_identifier):
             inner join companies on company_licenses.company_id = companies.id
         where
             True
-            and companies.identifier = '{company_identifier}'
+            and companies.identifier = "{company_identifier}"
     """
 
 def create_company_download_summaries_query(company_identifier, start_date, end_date=None):
     end_date_where_clause = f"""
-        and metrc_download_summaries.date <= '{end_date}'
+        and metrc_download_summaries.date <= "{end_date}"
     """ if end_date else ''
     return f"""
         select
@@ -32,8 +32,8 @@ def create_company_download_summaries_query(company_identifier, start_date, end_
             inner join companies on metrc_download_summaries.company_id = companies.id
         where
             True
-            and companies.identifier = '{company_identifier}'
-            and metrc_download_summaries.date >= '{start_date}'
+            and companies.identifier = "{company_identifier}"
+            and metrc_download_summaries.date >= "{start_date}"
             {end_date_where_clause}
         order by
             date desc
@@ -41,7 +41,7 @@ def create_company_download_summaries_query(company_identifier, start_date, end_
 
 def create_company_incoming_transfer_packages_query(company_identifier, start_date, end_date=None):
     end_date_where_clause = f"""
-        and metrc_transfers.created_date <= '{end_date}'
+        and metrc_transfers.created_date <= "{end_date}"
     """ if end_date else ''
     return f"""
         select
@@ -88,13 +88,13 @@ def create_company_incoming_transfer_packages_query(company_identifier, start_da
             inner join metrc_transfer_packages on metrc_deliveries.id = metrc_transfer_packages.delivery_row_id
         where
             True
-            and companies.identifier = '{company_identifier}'
+            and companies.identifier = "{company_identifier}"
             and (
                 company_deliveries.delivery_type = 'INCOMING_FROM_VENDOR' or
                 company_deliveries.delivery_type = 'INCOMING_INTERNAL' or
                 company_deliveries.delivery_type = 'INCOMING_UNKNOWN'
             )
-            and metrc_transfers.created_date >= '{start_date}'
+            and metrc_transfers.created_date >= "{start_date}"
             {end_date_where_clause}
         order by
             created_date desc
@@ -146,13 +146,13 @@ def create_company_outgoing_transfer_packages_query(company_identifier, start_da
             inner join metrc_transfer_packages on metrc_deliveries.id = metrc_transfer_packages.delivery_row_id
         where
             True
-            and companies.identifier = '{company_identifier}'
+            and companies.identifier = "{company_identifier}"
             and (
                 company_deliveries.delivery_type = 'OUTGOING_TO_PAYOR' or
                 company_deliveries.delivery_type = 'OUTGOING_INTERNAL' or
                 company_deliveries.delivery_type = 'OUTGOING_UNKNOWN'
             )
-            and metrc_transfers.created_date >= '{start_date}'
+            and metrc_transfers.created_date >= "{start_date}"
         order by
             metrc_transfers.created_date desc
     """
@@ -201,11 +201,11 @@ def create_company_unknown_transfer_packages_query(company_identifier, start_dat
             inner join metrc_transfer_packages on metrc_deliveries.id = metrc_transfer_packages.delivery_row_id
         where
             True
-            and companies.identifier = '{company_identifier}'
+            and companies.identifier = "{company_identifier}"
             and (
                 company_deliveries.delivery_type = 'UNKNOWN'
             )
-            and metrc_transfers.created_date >= '{start_date}'
+            and metrc_transfers.created_date >= "{start_date}"
         order by
             metrc_transfers.created_date desc
     """
@@ -222,8 +222,8 @@ def create_company_grouped_gmv_by_receipts_query(company_identifier, start_date,
             inner join companies on metrc_sales_receipts.company_id = companies.id
         where
             True
-            and companies.identifier = '{company_identifier}'
-            and metrc_sales_receipts.sales_datetime >= '{start_date}'
+            and companies.identifier = "{company_identifier}"
+            and metrc_sales_receipts.sales_datetime >= "{start_date}"
         group by
             1
         order by
@@ -247,8 +247,8 @@ def create_company_monthly_units_sold_query(company_identifier, start_date):
             inner join metrc_sales_transactions on metrc_sales_receipts.id = metrc_sales_transactions.receipt_row_id
         where
             True
-            and companies.identifier = '{company_identifier}'
-            and metrc_sales_receipts.sales_datetime >= '{start_date}'
+            and companies.identifier = "{company_identifier}"
+            and metrc_sales_receipts.sales_datetime >= "{start_date}"
             and metrc_sales_transactions.unit_of_measure = 'Each'
         group by
             1
@@ -268,8 +268,8 @@ def create_company_monthly_units_sold_by_product_category_name_query(company_ide
             inner join metrc_sales_transactions on metrc_sales_receipts.id = metrc_sales_transactions.receipt_row_id
         where
             True
-            and companies.identifier = '{company_identifier}'
-            and metrc_sales_receipts.sales_datetime >= '{start_date}'
+            and companies.identifier = "{company_identifier}"
+            and metrc_sales_receipts.sales_datetime >= "{start_date}"
             and metrc_sales_transactions.unit_of_measure = 'Each'
         group by
             1,
@@ -294,8 +294,8 @@ def create_company_sales_receipts_query(company_identifier, start_date):
             inner join companies on metrc_sales_receipts.company_id = companies.id
         where
             True
-            and companies.identifier = '{company_identifier}'
-            and metrc_sales_receipts.sales_datetime >= '{start_date}'
+            and companies.identifier = "{company_identifier}"
+            and metrc_sales_receipts.sales_datetime >= "{start_date}"
         order by
             metrc_sales_receipts.sales_datetime desc
     """
@@ -308,7 +308,7 @@ def create_company_sales_receipts_with_transactions_query(company_identifier, st
         print('[ERROR] Given unit of measure is not valid')
         return None
     unit_of_measure_where_clause = f"""
-        and metrc_sales_transactions.unit_of_measure = '{unit_of_measure}'
+        and metrc_sales_transactions.unit_of_measure = "{unit_of_measure}"
     """ if unit_of_measure else ''
     return f"""
         select
@@ -334,8 +334,8 @@ def create_company_sales_receipts_with_transactions_query(company_identifier, st
             left outer join metrc_sales_transactions on metrc_sales_receipts.id = metrc_sales_transactions.receipt_row_id
         where
             True
-            and companies.identifier = '{company_identifier}'
-            and metrc_sales_receipts.sales_datetime >= '{start_date}'
+            and companies.identifier = "{company_identifier}"
+            and metrc_sales_receipts.sales_datetime >= "{start_date}"
             {unit_of_measure_where_clause}
         order by
             metrc_sales_receipts.sales_datetime desc
@@ -366,8 +366,8 @@ def create_company_sales_transactions_query(company_identifier, start_date):
             inner join metrc_sales_transactions on metrc_sales_receipts.id = metrc_sales_transactions.receipt_row_id
         where
             True
-            and companies.identifier = '{company_identifier}'
-            and metrc_sales_receipts.sales_datetime >= '{start_date}'
+            and companies.identifier = "{company_identifier}"
+            and metrc_sales_receipts.sales_datetime >= "{start_date}"
         order by
             metrc_sales_receipts.sales_datetime desc
     """
@@ -400,7 +400,7 @@ def create_company_inventory_packages_query(company_identifier, include_quantity
             inner join metrc_packages on companies.id = metrc_packages.company_id
         where
             True
-            and companies.identifier = '{company_identifier}'
+            and companies.identifier = "{company_identifier}"
             and (
                 metrc_packages.type = 'active' or
                 metrc_packages.type = 'onhold'
@@ -427,7 +427,7 @@ def create_sales_transactions_by_package_id_query(package_id):
             left outer join companies on metrc_sales_receipts.company_id = companies.id
         where
             True
-            and metrc_sales_transactions.package_id = '{package_id}'
+            and metrc_sales_transactions.package_id = "{package_id}"
     """
 
 def create_transfer_packages_by_package_id_query(package_id):
@@ -459,7 +459,7 @@ def create_transfer_packages_by_package_id_query(package_id):
             left outer join companies on company_deliveries.company_id = companies.id
         where
             True
-            and metrc_transfer_packages.package_id = '{package_id}'
+            and metrc_transfer_packages.package_id = "{package_id}"
     """
 
 def create_packages_by_package_id_query(package_id):
@@ -481,7 +481,7 @@ def create_packages_by_package_id_query(package_id):
             left outer join companies on metrc_packages.company_id = companies.id
         where
             True
-            and metrc_packages.package_id = '{package_id}'
+            and metrc_packages.package_id = "{package_id}"
     """
 
 # Other identifier queries: get data by non-ID identifiers.
@@ -507,7 +507,7 @@ def create_packages_by_production_batch_number_query(production_batch_number):
             left outer join companies on metrc_packages.company_id = companies.id
         where
             True
-            and metrc_packages.package_payload.productionbatchnumber = '{production_batch_number}'
+            and metrc_packages.package_payload.productionbatchnumber = "{production_batch_number}"
     """
 
 def create_packages_by_source_production_batch_number_query(source_production_batch_number):
@@ -529,7 +529,7 @@ def create_packages_by_source_production_batch_number_query(source_production_ba
             left outer join companies on metrc_packages.company_id = companies.id
         where
             True
-            and metrc_packages.package_payload.sourceproductionbatchnumbers like '%{source_production_batch_number}%'
+            and metrc_packages.package_payload.sourceproductionbatchnumbers like "%{source_production_batch_number}%"
     """
 
 def create_packages_by_source_harvest_name_query(source_harvest_name):
@@ -551,7 +551,7 @@ def create_packages_by_source_harvest_name_query(source_harvest_name):
             left outer join companies on metrc_packages.company_id = companies.id
         where
             True
-            and metrc_packages.package_payload.sourceharvestnames like '%{source_harvest_name}%'
+            and metrc_packages.package_payload.sourceharvestnames like "%{source_harvest_name}%"
     """
 
 def create_packages_by_product_name_query(product_name):
@@ -573,7 +573,7 @@ def create_packages_by_product_name_query(product_name):
             left outer join companies on metrc_packages.company_id = companies.id
         where
             True
-            and metrc_packages.product_name like '%{product_name}%'
+            and metrc_packages.product_name like "%{product_name}%"
     """
 
 def create_packages_by_package_label_query(package_label):
@@ -595,5 +595,56 @@ def create_packages_by_package_label_query(package_label):
             left outer join companies on metrc_packages.company_id = companies.id
         where
             True
-            and metrc_packages.package_label = '{package_label}'
+            and metrc_packages.package_label = "{package_label}"
+    """
+
+def create_transfer_packages_by_source_harvest_name_query(source_harvest_name):
+    return f"""
+        select
+            case
+                when company_deliveries.delivery_type = 'INCOMING_UNKNOWN' then 'INCOMING_FROM_VENDOR'
+                when company_deliveries.delivery_type = 'INCOMING_FROM_VENDOR' then 'INCOMING_FROM_VENDOR'
+                when company_deliveries.delivery_type = 'OUTGOING_UNKNOWN' then 'OUTGOING_TO_PAYOR'
+                when company_deliveries.delivery_type = 'OUTGOING_TO_PAYOR' then 'OUTGOING_TO_PAYOR'
+                else company_deliveries.delivery_type
+            end as delivery_type,
+            company_deliveries.license_number,
+            metrc_transfers.manifest_number,
+            metrc_transfers.created_date,
+            metrc_deliveries.received_datetime,
+            metrc_transfers.shipper_facility_license_number,
+            metrc_transfers.shipper_facility_name,
+            metrc_deliveries.recipient_facility_license_number,
+            metrc_deliveries.recipient_facility_name,
+            metrc_deliveries.shipment_type_name,
+            metrc_deliveries.shipment_transaction_type,
+            metrc_transfer_packages.package_id,
+            metrc_transfer_packages.package_label,
+            metrc_transfer_packages.type,
+            metrc_transfer_packages.package_payload.sourcepackagelabels as source_package_labels,
+            metrc_transfer_packages.package_payload.sourceharvestnames as source_harvest_names,
+            metrc_transfer_packages.package_payload.shipmentpackagestate as shipment_package_state,
+            metrc_transfer_packages.package_payload.istestingsample as is_testing_sample,
+            metrc_transfer_packages.package_payload.istradesample as is_trade_sample,
+            metrc_transfer_packages.product_category_name,
+            metrc_transfer_packages.product_name,
+            metrc_transfer_packages.lab_results_status as package_lab_results_status,
+            metrc_transfer_packages.shipper_wholesale_price,
+            metrc_transfer_packages.shipped_quantity,
+            metrc_transfer_packages.shipped_unit_of_measure,
+            metrc_transfer_packages.received_quantity,
+            metrc_transfer_packages.received_unit_of_measure,
+            metrc_transfer_packages.package_payload.itemunitweight as item_unit_weight,
+            metrc_transfer_packages.package_payload.itemunitweightunitofmeasurename as item_unit_weight_unit_of_measure_name
+        from
+            metrc_transfers
+            inner join company_deliveries on metrc_transfers.id = company_deliveries.transfer_row_id
+            inner join companies on company_deliveries.company_id = companies.id
+            inner join metrc_deliveries on metrc_transfers.id = metrc_deliveries.transfer_row_id
+            inner join metrc_transfer_packages on metrc_deliveries.id = metrc_transfer_packages.delivery_row_id
+        where
+            True
+            and metrc_transfer_packages.package_payload.sourceharvestnames like "%{source_harvest_name}%"
+        order by
+            created_date desc
     """
