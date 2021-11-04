@@ -23,6 +23,7 @@ DEFAULT_SOLD_THRESHOLD = 0.95
 PackagePayloadDict = TypedDict('PackagePayloadDict', {
 	'sourceproductionbatchnumbers': str,
 	'productionbatchnumber': str,
+	'sourceharvestnames': str
 })
 
 # Types coming from the BigQuery pull
@@ -60,6 +61,7 @@ TransferPackageDict = TypedDict('TransferPackageDict', {
 	'delivery_type': str,
 	'created_date': datetime.date,
 	'received_datetime': datetime.datetime,
+	'source_harvest_names': str,
 	'received_date': datetime.date, # added by us
 	'date_to_txs': Dict[datetime.date, List[SalesTransactionDict]] # added by us
 })
@@ -187,6 +189,7 @@ class Download(object):
 		self.inactive_packages_records: List[InactivePackageDict] = None
 		self.missing_incoming_pkg_package_records: List[ActivePackageDict] = None
 		self.parent_packages_records: List[ActivePackageDict] = None
+		self.child_to_parent_package_id_override: Dict[str, str] = {}
 
 	def download_dataframes(
 		self,
@@ -792,9 +795,11 @@ MatchingParentRespDict = TypedDict('MatchingParentRespDict', {
 	'child_to_parent_package_id': Dict[str, str]
 })
 
-def _match_child_packages_to_parents(d: Download) -> MatchingParentRespDict:
+def _match_child_packages_to_parents(
+	d: Download, package_id_to_history: Dict[str, PackageHistory]) -> MatchingParentRespDict:
+	
 	productionbatchnum_to_package_id = {}
-
+	
 	for parent_record in d.parent_packages_records:
 		production_batch_num = parent_record['package_payload']['productionbatchnumber']
 		package_id = parent_record['package_id']
@@ -803,23 +808,80 @@ def _match_child_packages_to_parents(d: Download) -> MatchingParentRespDict:
 				continue
 		productionbatchnum_to_package_id[parent_record['package_payload']['productionbatchnumber']] = package_id
 
+	# For those packages which are incoming only, those are also candidates
+	# to be parents to those transactions which were spawned from those packages
+	# (they are linked to their children via the harvest number)
+	sourceharvestnum_to_package_ids: Dict[str, List[str]] = {}
+
+	for package_id, history in package_id_to_history.items():
+		if history.incomings and not history.outgoings and not history.sales_txs:
+			# INCOMING_ONLY package
+			sourceharvetname = history.incomings[0]['source_harvest_names']
+			if sourceharvetname not in sourceharvestnum_to_package_ids:
+				sourceharvestnum_to_package_ids[sourceharvetname] = []
+
+			sourceharvestnum_to_package_ids[sourceharvetname].append(package_id)
+
+	for sourceharvestnum, package_ids in sourceharvestnum_to_package_ids.items():	
+		if len(package_ids) > 1:
+			#print(sourceharvestnum)
+			pass
+
 	child_to_parent_package_id = {}
 	num_orphans = 0
 	has_number_but_no_parent = 0
-
+	orphan_child_package_ids = []
+	children_with_source_missing_parents = []
+	
 	for pkg in d.missing_incoming_pkg_package_records:
+		# These are packages with a missing incoming package, so we need to find their parent
+
+		child_package_id = pkg['package_id']
+
+		# Allow the user to specifically provide child and parent relationships
+		# if we needed to manually compute them.
+		parent_package_id_override = d.child_to_parent_package_id_override.get(child_package_id)
+		if parent_package_id_override:
+			child_to_parent_package_id[child_package_id] = parent_package_id_override
+			continue
+
+		# Try to match on harvest number
+		cur_harvestnames = pkg['package_payload']['sourceharvestnames']
+		if cur_harvestnames in sourceharvestnum_to_package_ids:
+			if len(sourceharvestnum_to_package_ids[cur_harvestnames]) == 1:
+				# Here we've found one unique incoming parent package, so we can assume
+				# its the parent of this child.
+				parent_package_id = sourceharvestnum_to_package_ids[cur_harvestnames][0]
+				child_to_parent_package_id[child_package_id] = parent_package_id 
+				continue
+
 		batch_no = pkg['package_payload']['sourceproductionbatchnumbers']
 		if not batch_no:
-				num_orphans += 1
-				continue
+			orphan_child_package_ids.append(child_package_id)
+			#print(pkg['package_id'])
+			
+			#harvest_names = pkg['package_payload']['sourceharvestnames']
+			#if harvest_names:
+			#	print(pkg['package_payload']['sourceharvestnames'])
+			#else:
+			#	print('<empty>')
+
+			num_orphans += 1
+			continue
 		
 		if batch_no not in productionbatchnum_to_package_id:
-				has_number_but_no_parent += 1
-				#print(batch_no)
-				continue
+			has_number_but_no_parent += 1
+			children_with_source_missing_parents.append(child_package_id)
+			continue
 		
 		parent_package_id = productionbatchnum_to_package_id[batch_no]
-		child_to_parent_package_id[pkg['package_id']] = parent_package_id
+		child_to_parent_package_id[child_package_id] = parent_package_id
+
+	#print('Children missing source batch number: {}'.format(orphan_child_package_ids))
+	#print('')
+	#print('Children with source missing parent: {}'.format(children_with_source_missing_parents))
+	#print('')
+	#print('Product batch num to parent id {}'.format(productionbatchnum_to_package_id))
 
 	return MatchingParentRespDict(
 		child_to_parent_package_id=child_to_parent_package_id,
@@ -872,7 +934,7 @@ def get_histories(d: Download) -> Dict[str, PackageHistory]:
 
 	# Perform parent-child relationship pairing. 
 	# Children are packages with no incoming packages
-	parent_resp = _match_child_packages_to_parents(d)
+	parent_resp = _match_child_packages_to_parents(d, package_id_to_history)
 	for child_package_id, parent_package_id in parent_resp['child_to_parent_package_id'].items():
 		if child_package_id not in package_id_to_history:
 			continue
@@ -896,9 +958,9 @@ def get_histories(d: Download) -> Dict[str, PackageHistory]:
 
 ##### DEBUG ######
 
-def run_orphan_analysis(d: Download) -> None:
+def run_orphan_analysis(d: Download, package_id_to_history: Dict[str, PackageHistory]) -> None:
 	# Child to parent package_id
-	resp = _match_child_packages_to_parents(d)
+	resp = _match_child_packages_to_parents(d, package_id_to_history)
 
 	print('{} - Number of parent packages'.format(len(d.parent_packages_records)))
 	print('')
@@ -951,6 +1013,7 @@ def print_counts(id_to_history: Dict[str, PackageHistory]) -> None:
 
 		if history.incomings and not history.outgoings and not history.sales_txs:
 			only_incoming += 1
+			#print(history.incomings[0]['source_harvest_names'])
 
 		if not history.incomings and history.sales_txs:
 			only_sold += 1
