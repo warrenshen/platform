@@ -85,13 +85,17 @@ def populate_frozen_loan_reports_for_customer(
 
 						cur_loan_update = loan_id_to_update[str(loan.id)]
 
-						loan_report = loan_report_id_to_loan_report.get(str(loan.id), None)
-
-						if not loan_report:
+						if not loan.loan_report_id:
 							loan_report = models.LoanReport()
 							session.add(loan_report)
 							session.flush()
 							loan.loan_report_id = loan_report.id
+						else:
+							loan_report = loan_report_id_to_loan_report.get(str(loan.loan_report_id), None)
+							if not loan_report:
+								print(f'Error for customer {customer_dict["name"]}')
+								print(f'Loan report {str(loan.loan_report_id)} for loan {str(loan.id)} does not exist')
+								return False
 
 						loan_report.repayment_date = cur_loan_update['repayment_date']
 						loan_report.financing_period = cur_loan_update['financing_period']

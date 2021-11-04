@@ -485,7 +485,8 @@ class CustomerBalance(object):
 			if cur_loan_update['should_close_loan']:
 				payment_util.close_loan(loan)
 
-			loan_report = loan_report_id_to_loan_report.get(str(loan.id), None)
+			loan_report_id = str(loan.loan_report_id) if loan.loan_report_id else None
+			loan_report = loan_report_id_to_loan_report.get(loan_report_id, None)
 			if not loan_report:
 				loan_report = models.LoanReport()
 				session.add(loan_report)

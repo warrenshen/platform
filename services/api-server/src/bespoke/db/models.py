@@ -940,6 +940,11 @@ class Loan(Base):
 		)
 
 class LoanReport(Base):
+	"""
+	Records loan information shown in reports for bank users.
+	One-to-one relationship with loans.
+	"""
+
 	__tablename__ = 'loan_reports'
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
