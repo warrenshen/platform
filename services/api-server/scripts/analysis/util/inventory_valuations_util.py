@@ -48,10 +48,14 @@ def _get_gmv_for_inventory_dates(
 		gmv_date_to_val[gmv_date] = gmv_by_month_dataframe[gmv_date]
 
 	specific_gmv_vals = []
+
 	for inventory_date_str in q.inventory_dates:
 		inventory_date = parser.parse(inventory_date_str)
 		key = inventory_date.strftime('%Y-%m')
-		specific_gmv_vals.append(gmv_date_to_val[key]) 	
+		if key in gmv_date_to_val:
+			specific_gmv_vals.append(gmv_date_to_val[key])
+		else:
+			specific_gmv_vals.append(0.0)
 	
 	return specific_gmv_vals
 
