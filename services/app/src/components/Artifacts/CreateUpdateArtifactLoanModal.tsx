@@ -18,7 +18,7 @@ import {
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { submitLoanMutation } from "lib/api/loans";
+import { submitLoanMutation, deleteLoanMutation } from "lib/api/loans";
 import { formatCurrency } from "lib/currency";
 import { ActionType, LoanStatusEnum } from "lib/enum";
 import {
@@ -90,6 +90,10 @@ export default function CreateUpdateArtifactLoanModal({
       }
     },
   });
+
+  const [deleteLoan, { loading: isDeleteLoanLoading }] = useCustomMutation(
+    deleteLoanMutation
+  );
 
   let amountUsedOnArtifact = 0.0;
   let totalAmountForArtifact = 0.0;
@@ -192,7 +196,9 @@ export default function CreateUpdateArtifactLoanModal({
     } else {
       const nextLoanIdentifier = await getNextLoanIdentifierByCompanyId();
       if (!nextLoanIdentifier) {
-        snackbar.showError("Error! Something went wrong.");
+        snackbar.showError(
+          "Error! Something went wrong while saving the loan draft."
+        );
       } else {
         const response = await addLoan({
           variables: {
@@ -206,6 +212,7 @@ export default function CreateUpdateArtifactLoanModal({
             },
           },
         });
+
         return response.data?.insert_loans_one;
       }
     }
@@ -222,32 +229,52 @@ export default function CreateUpdateArtifactLoanModal({
   };
 
   const handleClickSaveSubmit = async () => {
-    const savedLoan = await upsertArtifactLoan();
-    if (!savedLoan) {
-      snackbar.showError(`Could not upsert loan.`);
+    const nextLoanIdentifier = await getNextLoanIdentifierByCompanyId();
+    if (!nextLoanIdentifier) {
+      snackbar.showError(
+        "Error! Something went wrong while preparing the loan submission."
+      );
     } else {
-      // Since this is a SAVE AND SUBMIT action,
-      // hit the SubmitForApproval endpoint.
-
-      // Make sure to save the loan ID so we remember that this loan already exists
-      // in the DB.
-      setLoan({
-        ...loan,
-        id: savedLoan.id,
-      });
-
-      const response = await submitLoan({
+      const addLoanResponse = await addLoan({
         variables: {
-          loan_id: savedLoan.id,
+          loan: {
+            company_id: isBankUser ? companyId : undefined,
+            identifier: nextLoanIdentifier.toString(),
+            loan_type: loanType,
+            artifact_id: loan.artifact_id,
+            requested_payment_date: loan.requested_payment_date || null,
+            amount: loan.amount || null,
+          },
         },
       });
-      if (response.status !== "OK") {
-        snackbar.showError(`Could not submit loan. Reason: ${response.msg}`);
+
+      if (!addLoanResponse.data?.insert_loans_one) {
+        snackbar.showError(`Error! Could not add new loan. Please try again.`);
       } else {
-        snackbar.showSuccess(
-          "Loan saved and submitted to Bespoke - you may view this financing request on the Loans page."
-        );
-        handleClose();
+        const loanToSubmitID = addLoanResponse.data?.insert_loans_one.id;
+
+        const response = await submitLoan({
+          variables: {
+            loan_id: loanToSubmitID,
+          },
+        });
+        if (response.status !== "OK") {
+          snackbar.showError(`Could not submit loan. Reason: ${response.msg}`);
+
+          // In addition to alerting the user, we should clean up the loan we set up
+          // for submission. If the user fixes the error, we simply create a new loan
+          // for submission
+          await deleteLoan({
+            variables: {
+              loan_id: loanToSubmitID,
+            },
+          });
+        } else {
+          snackbar.showSuccess(
+            "Loan saved and submitted to Bespoke - you may view this financing request on the Loans page."
+          );
+          handleClose();
+        }
       }
     }
   };
@@ -255,7 +282,10 @@ export default function CreateUpdateArtifactLoanModal({
   const isDialogReady = !isExistingLoanLoading;
   const isFormValid = !!loan.artifact_id;
   const isFormLoading =
-    isAddLoanLoading || isUpdateLoanLoading || isSubmitLoanLoading;
+    isAddLoanLoading ||
+    isUpdateLoanLoading ||
+    isSubmitLoanLoading ||
+    isDeleteLoanLoading;
   const isSaveDraftDisabled = !isFormValid || isFormLoading;
 
   const disabledSubmitReasons = [];
