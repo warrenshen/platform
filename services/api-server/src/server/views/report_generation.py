@@ -131,7 +131,7 @@ class ReportsLoansComingDueView(MethodView):
 				    "report_link": report_link,
 				    "rows": rows_html,
 				    "send_date": date_util.human_readable_yearmonthday(date_util.now()),
-				    "payment_link": payment_link,
+				    "payment_link": "<a href='" + payment_link + "'>click here</a>",
 				    "support_email": "<a href='mailto:support@bespokefinancial.com'>support@bespokefinancial.com</a>",
 				    "show_invoice_column": show_invoice_column,
 				    "show_purchase_order_column": show_purchase_order_column,
