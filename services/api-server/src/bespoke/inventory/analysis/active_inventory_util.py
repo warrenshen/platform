@@ -16,6 +16,7 @@ from mypy_extensions import TypedDict
 from bespoke.db.db_constants import DeliveryType
 from bespoke.excel import excel_writer
 
+from bespoke.inventory.analysis.shared import create_queries
 from bespoke.inventory.analysis.shared.inventory_types import Query
 
 DEFAULT_SOLD_THRESHOLD = 0.95
@@ -179,6 +180,40 @@ def _get_inventory_output_row(history: 'PackageHistory', inventory_date_str: str
 		date_to_str(sold_date) if sold_date else '',
 	]
 
+class SQLHelper(object):
+
+	def get_packages(self, package_ids: Iterable[str]) -> pandas.DataFrame:
+		pass
+
+	def get_inactive_packages(self, package_ids: Iterable[str]) -> pandas.DataFrame:
+		pass
+
+	def get_packages_by_production_batch_numbers(self, production_batch_numbers: Iterable[str]) -> pandas.DataFrame:
+		pass
+
+class BigQuerySQLHelper(object):
+
+	def __init__(self, engine: Any) -> None:
+		self.engine = engine
+
+	def get_packages(self, package_ids: Iterable[str]) -> pandas.DataFrame:
+		return pandas.read_sql_query(
+				create_queries.create_packages_by_package_ids_query(package_ids),
+				self.engine
+			)
+
+	def get_inactive_packages(self, package_ids: Iterable[str]) -> pandas.DataFrame:
+		return pandas.read_sql_query(
+				create_queries.are_packages_inactive_query(package_ids),
+				self.engine
+		)
+
+	def get_packages_by_production_batch_numbers(self, production_batch_numbers: Iterable[str]) -> pandas.DataFrame:
+		return pandas.read_sql_query(
+				create_queries.create_packages_by_production_batch_numbers_query(production_batch_numbers),
+				self.engine
+			)
+
 class Download(object):
 		
 	def __init__(self) -> None:
@@ -200,7 +235,7 @@ class Download(object):
 		sales_transactions_dataframe: Any,
 		sales_receipts_dataframe: Any,
 		inventory_packages_dataframe: Any,
-		engine: Any
+		sql_helper: SQLHelper,
 	) -> None:
 		self.incoming_records = incoming_transfer_packages_dataframe.to_dict('records')
 		self.outgoing_records = outgoing_transfer_packages_dataframe.to_dict('records')
@@ -231,10 +266,7 @@ class Download(object):
 			outgoing_r['created_date'] = parse_to_date(outgoing_r['created_date'])
 			all_package_ids.add(outgoing_r['package_id'])
 
-		all_inactive_packages_df = pandas.read_sql_query(
-				are_packages_inactive_query(all_package_ids),
-				engine
-		)
+		all_inactive_packages_df = sql_helper.get_inactive_packages(all_package_ids)
 		self.inactive_packages_records = cast(
 			List[InactivePackageDict], all_inactive_packages_df.to_dict('records'))
 
@@ -242,10 +274,7 @@ class Download(object):
 		# see if there is a parent-child relationship between the original incoming_pkg
 		# and this current package.
 		if missing_incoming_pkg_package_ids:
-			missing_incoming_pkg_packages_df = pandas.read_sql_query(
-				create_packages_by_package_ids_query(missing_incoming_pkg_package_ids),
-				engine
-			)
+			missing_incoming_pkg_packages_df = sql_helper.get_packages(missing_incoming_pkg_package_ids)
 			self.missing_incoming_pkg_package_records = cast(
 				List[ActivePackageDict], missing_incoming_pkg_packages_df.to_dict('records'))
 		else:
@@ -265,10 +294,7 @@ class Download(object):
 		# see if there is a parent-child relationship between the original incoming_pkg
 		# and this current package.
 		if production_batch_numbers:
-			parent_packages_df = pandas.read_sql_query(
-				create_packages_by_production_batch_numbers_query(production_batch_numbers),
-				engine
-			)
+			parent_packages_df = sql_helper.get_packages_by_production_batch_numbers(production_batch_numbers)
 			self.parent_packages_records = cast(
 				List[ActivePackageDict], parent_packages_df.to_dict('records'))
 		else:
@@ -1489,96 +1515,3 @@ def create_inventory_xlsx(
 	print(f'Excluded {num_excluded} / {num_total} packages from consideration ({pct_excluded}%)')
 	for reason, count in exclude_reason_to_count.items():
 		print(f'  {reason}: {count} times')
-
-
-def are_packages_inactive_query(package_ids: Iterable[str]) -> str:
-	package_ids_str = ','.join([f"'{package_id}'" for package_id in list(package_ids)])
-
-	return f"""
-			select
-					companies.identifier,
-					metrc_packages.license_number,
-					metrc_packages.type,
-					metrc_packages.package_id,
-					metrc_packages.package_label,
-					metrc_packages.product_category_name,
-					metrc_packages.product_name,
-					metrc_packages.quantity,
-					metrc_packages.unit_of_measure,
-					metrc_packages.package_payload.itemid as item_id,
-          metrc_packages.package_payload.itemproductcategorytype as item_product_category_type,
-          metrc_packages.package_payload.productionbatchnumber as production_batch_number,
-          metrc_packages.package_payload.sourceproductionbatchnumbers as source_production_batch_numbers,
-          metrc_packages.package_payload.sourceharvestnames as source_harvest_names,
-          metrc_packages.package_payload.istestingsample as is_testing_sample,
-          metrc_packages.package_payload.istradesample as is_trade_sample,
-					metrc_packages.package_payload.archiveddate,
-					metrc_packages.package_payload.finisheddate
-			from
-					metrc_packages
-					inner join companies on metrc_packages.company_id = companies.id
-			where
-					True
-					and metrc_packages.package_id in ({package_ids_str})
-					and metrc_packages.type = 'inactive'
-	"""
-
-def create_packages_by_package_ids_query(package_ids: Iterable[str]) -> str:
-	package_ids_str = ','.join([f"'{package_id}'" for package_id in list(package_ids)])
-
-	return f"""
-			select
-					companies.identifier,
-					metrc_packages.license_number,
-					metrc_packages.type,
-					metrc_packages.package_type,
-					metrc_packages.product_category_name,
-					metrc_packages.product_name,
-					metrc_packages.package_id,
-					metrc_packages.package_label,
-					metrc_packages.quantity,
-					metrc_packages.unit_of_measure,
-					metrc_packages.package_payload.itemid as item_id,
-          metrc_packages.package_payload.itemproductcategorytype as item_product_category_type,
-          metrc_packages.package_payload.productionbatchnumber as production_batch_number,
-          metrc_packages.package_payload.sourceproductionbatchnumbers as source_production_batch_numbers,
-          metrc_packages.package_payload.sourceharvestnames as source_harvest_names,
-          metrc_packages.package_payload.istestingsample as is_testing_sample,
-          metrc_packages.package_payload.istradesample as is_trade_sample	
-			from
-					metrc_packages
-					left outer join companies on metrc_packages.company_id = companies.id
-			where
-					True
-					and metrc_packages.package_id in ({package_ids_str})
-	"""
-
-def create_packages_by_production_batch_numbers_query(production_batch_numbers: Iterable[str]) -> str:
-	production_batch_numbers_str = ','.join([f"'{production_batch_number}'" for production_batch_number in list(production_batch_numbers)])
-
-	return f"""
-			select
-					companies.identifier,
-					metrc_packages.license_number,
-					metrc_packages.type,
-					metrc_packages.package_type,
-					metrc_packages.product_category_name,
-					metrc_packages.product_name,
-					metrc_packages.package_id,
-					metrc_packages.package_label,
-					metrc_packages.quantity,
-					metrc_packages.unit_of_measure,
-					metrc_packages.package_payload.itemid as item_id,
-          metrc_packages.package_payload.itemproductcategorytype as item_product_category_type,
-          metrc_packages.package_payload.productionbatchnumber as production_batch_number,
-          metrc_packages.package_payload.sourceproductionbatchnumbers as source_production_batch_numbers,
-          metrc_packages.package_payload.sourceharvestnames as source_harvest_names,
-          metrc_packages.package_payload.istestingsample as is_testing_sample,
-          metrc_packages.package_payload.istradesample as is_trade_sample
-			from
-					metrc_packages
-					left outer join companies on metrc_packages.company_id = companies.id
-			where
-					True
-					and metrc_packages.package_payload.productionbatchnumber in ({production_batch_numbers_str})
-	"""

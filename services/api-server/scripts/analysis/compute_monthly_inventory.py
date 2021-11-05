@@ -15,8 +15,8 @@ from sqlalchemy.orm.session import Session
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 
 from bespoke.db import models
-from util import active_inventory_util as util
-from util import inventory_valuations_util # so that it triggers mypy to verify the types
+from bespoke.inventory.analysis import active_inventory_util as util
+from bespoke.inventory.analysis import inventory_valuations_util # so that it triggers mypy to verify the types
 	
 def main() -> None:
 
