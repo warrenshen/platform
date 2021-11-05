@@ -342,8 +342,12 @@ export default function CreateRepaymentModal({
             payableAmountInterest={
               repaymentEffectData?.payable_amount_interest || 0
             }
+            payableAmountAccountFee={
+              payment?.items_covered["requested_to_account_fees"] || 0
+            }
             payment={payment}
             loansBeforeAfterPayment={loansBeforeAfterPayment}
+            isPayAccountFeesVisible={isPayAccountFeesVisible}
           />
         )}
         {errMsg && (

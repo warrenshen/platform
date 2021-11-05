@@ -17,8 +17,10 @@ interface Props {
   productType: ProductTypeEnum | null;
   payableAmountPrincipal: number;
   payableAmountInterest: number;
+  payableAmountAccountFee: number;
   payment: PaymentsInsertInput;
   loansBeforeAfterPayment: LoanBeforeAfterPayment[];
+  isPayAccountFeesVisible: boolean;
 }
 
 function getAlertText(payment: PaymentsInsertInput) {
@@ -75,8 +77,10 @@ export default function CreateRepaymentConfirmEffect({
   productType,
   payableAmountPrincipal,
   payableAmountInterest,
+  payableAmountAccountFee,
   loansBeforeAfterPayment,
   payment,
+  isPayAccountFeesVisible,
 }: Props) {
   const { data } = useBankAccountsForTransferQuery({
     fetchPolicy: "network-only",
@@ -119,14 +123,32 @@ export default function CreateRepaymentConfirmEffect({
                 "$0.00"
               )}`}
             </Typography>
+            {isPayAccountFeesVisible && (
+              <Typography variant="body2">
+                {`To Account Fees: ${formatCurrency(
+                  payment.items_covered.requested_to_account_fees,
+                  "$0.00"
+                )}`}
+              </Typography>
+            )}
           </Box>
         ) : (
           <>
             <Box>
               <Box mb={2}>
                 <Typography variant="body1">
-                  {`Total Amount: ${formatCurrency(payment.requested_amount)}`}
+                  {`Total Loan Amount: ${formatCurrency(
+                    payment.requested_amount
+                  )}`}
                 </Typography>
+                {isPayAccountFeesVisible && (
+                  <Typography variant="body1">
+                    {`Account Fees Amount: ${formatCurrency(
+                      payment.items_covered.requested_to_account_fees,
+                      "$0.00"
+                    )}`}
+                  </Typography>
+                )}
               </Box>
             </Box>
             <LoansBeforeAfterPaymentPreview

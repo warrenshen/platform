@@ -167,9 +167,7 @@ export default function CreateRepaymentDefaultSection({
                 handleChange={(value) =>
                   setPayment({
                     ...payment,
-                    requested_amount:
-                      (value || 0.0) +
-                      (payment.items_covered.requested_to_account_fees || 0.0),
+                    requested_amount: value || 0.0,
                   })
                 }
               />
@@ -184,18 +182,14 @@ export default function CreateRepaymentDefaultSection({
             How much of your outstanding acount fees (
             {formatCurrency(accountFeeTotal)}) would you like to pay for?
           </Typography>
-          <Box display="flex" flexDirection="column" mt={3}>
+          <Box display="flex" flexDirection="column" mt={4}>
             <FormControl>
               <CurrencyInput
-                label={"Account Fee Amount"}
+                label={"Payment Amount to Account Fees"}
                 value={payment.items_covered["requested_to_account_fees"]}
                 handleChange={(value) => {
                   setPayment({
                     ...payment,
-                    requested_amount:
-                      (value || 0.0) +
-                      (payment.items_covered.requested_to_principal || 0.0) +
-                      (payment.items_covered.requested_to_interest || 0.0),
                     items_covered: {
                       ...payment.items_covered,
                       requested_to_account_fees: value,

@@ -163,10 +163,10 @@ export default function CreateRepaymentLineofCreditSection({
               How much of your outstanding acount fees (
               {formatCurrency(accountFeeTotal)}) would you like to pay for?
             </Typography>
-            <Box display="flex" flexDirection="column" mt={3}>
+            <Box display="flex" flexDirection="column" mt={1}>
               <FormControl>
                 <CurrencyInput
-                  label={"Account Fee Amount"}
+                  label={"Payment Amount to Account Fees"}
                   value={payment.items_covered["requested_to_account_fees"]}
                   handleChange={(value) => {
                     setPayment({
