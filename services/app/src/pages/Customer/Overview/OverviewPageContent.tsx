@@ -6,9 +6,11 @@ import {
   Typography,
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
-import CustomerFinancialSummaryOverview from "components/CustomerFinancialSummary/CustomerFinancialSummaryOverview";
-import CreateUpdatePolymorphicLoanModal from "components/Loan/CreateUpdatePolymorphicLoanModal";
 import CreateAdjustmentModal from "components/Loans/CreateAdjustmentModal";
+import CreateUpdateInvoiceModal from "components/Invoices/CreateUpdateInvoiceModal";
+import CreateUpdatePolymorphicLoanModal from "components/Loan/CreateUpdatePolymorphicLoanModal";
+import CreateUpdatePurchaseOrderModal from "components/PurchaseOrder/CreateUpdatePurchaseOrderModal";
+import CustomerFinancialSummaryOverview from "components/CustomerFinancialSummary/CustomerFinancialSummaryOverview";
 import PolymorphicLoansDataGrid from "components/Loans/PolymorphicLoansDataGrid";
 import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal";
 import DeletePaymentModal from "components/Payment/DeletePaymentModal";
@@ -32,6 +34,12 @@ import {
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { ActionType, CustomMessageEnum, ProductTypeToLoanType } from "lib/enum";
+import {
+  isInventoryFinancingProductType,
+  isInvoiceFinancingProductType,
+  isLineOfCreditProductType,
+  isPurchaseMoneyFinancingProductType,
+} from "lib/settings";
 import { useContext, useMemo, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -125,6 +133,14 @@ export default function CustomerOverviewPageContent({
     [setSelectedPaymentIds]
   );
 
+  /**
+   * Customer Overview page shows 2 customer actions.
+   * 1. Create artifact action.
+   * - If Inventory Financing or Purchase Money Financing, "Create PO".
+   * - If Invoice Financing, "Create Invoice".
+   * - If Line of Credit, "Request New Loan" (this creates LineOfCredit row and Loan row).
+   * 2. Make repayment action, "Make Repayment".
+   */
   return (
     <PageContent
       title={"Overview"}
@@ -189,31 +205,80 @@ export default function CustomerOverviewPageContent({
               />
             </Box>
           </Can>
-          <Can perform={Action.AddPurchaseOrderLoan}>
-            <Box mr={2}>
-              <ModalButton
-                isDisabled={
-                  !canCreateUpdateNewLoan || selectedLoanIds.length !== 0
-                }
-                color={"default"}
-                variant={"outlined"}
-                label={"Request New Loan"}
-                modal={({ handleClose }) => (
-                  <CreateUpdatePolymorphicLoanModal
-                    companyId={companyId}
-                    productType={productType}
-                    actionType={ActionType.New}
-                    artifactId={null}
-                    loanId={null}
-                    handleClose={() => {
-                      refetch();
-                      handleClose();
-                    }}
-                  />
-                )}
-              />
-            </Box>
-          </Can>
+          {(isInventoryFinancingProductType(productType) ||
+            isPurchaseMoneyFinancingProductType(productType)) && (
+            <Can perform={Action.AddPurchaseOrders}>
+              <Box mr={2}>
+                <ModalButton
+                  color={"default"}
+                  variant={"outlined"}
+                  label={"Create PO"}
+                  modal={({ handleClose }) => (
+                    <CreateUpdatePurchaseOrderModal
+                      actionType={ActionType.New}
+                      companyId={companyId}
+                      purchaseOrderId={null}
+                      handleClose={() => {
+                        refetch();
+                        handleClose();
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+            </Can>
+          )}
+          {isInvoiceFinancingProductType(productType) && (
+            <Can perform={Action.AddInvoices}>
+              <Box mr={2}>
+                <ModalButton
+                  color={"default"}
+                  variant={"outlined"}
+                  label={"Create Invoice"}
+                  modal={({ handleClose }) => (
+                    <CreateUpdateInvoiceModal
+                      isInvoiceForLoan
+                      actionType={ActionType.New}
+                      companyId={companyId}
+                      invoiceId={null}
+                      productType={productType}
+                      handleClose={() => {
+                        refetch();
+                        handleClose();
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+            </Can>
+          )}
+          {isLineOfCreditProductType(productType) && (
+            <Can perform={Action.AddPurchaseOrderLoan}>
+              <Box mr={2}>
+                <ModalButton
+                  isDisabled={
+                    !canCreateUpdateNewLoan || selectedLoanIds.length !== 0
+                  }
+                  color={"default"}
+                  variant={"outlined"}
+                  label={"Request New Loan"}
+                  modal={({ handleClose }) => (
+                    <CreateUpdatePolymorphicLoanModal
+                      companyId={companyId}
+                      productType={productType}
+                      actionType={ActionType.New}
+                      artifactId={null}
+                      loanId={null}
+                      handleClose={() => {
+                        refetch();
+                        handleClose();
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+            </Can>
+          )}
         </>
       }
     >

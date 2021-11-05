@@ -33,6 +33,16 @@ export function isPayorsTabVisible(productType: ProductTypeEnum | null) {
   );
 }
 
+export function isInventoryFinancingProductType(
+  productType: ProductTypeEnum | null
+) {
+  return productType === ProductTypeEnum.InventoryFinancing;
+}
+
+export function isLineOfCreditProductType(productType: ProductTypeEnum | null) {
+  return productType === ProductTypeEnum.LineOfCredit;
+}
+
 export function isInvoiceFinancingProductType(
   productType: ProductTypeEnum | null
 ) {
