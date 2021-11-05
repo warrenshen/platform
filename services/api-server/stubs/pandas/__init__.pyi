@@ -10,6 +10,9 @@ class DataFrame(Sequence):
 	def copy(self) -> 'DataFrame':
 		pass
 
+	def isin(self, *args: Any, **kwargs: Any) -> 'DataFrame':
+		pass
+
 	def astype(self, *args: Any, **kwargs: Any) -> 'DataFrame':
 		pass
 

@@ -1164,7 +1164,19 @@ def analyze_specific_package_histories(
 					p=p, params=params, run_filter=True, skip_over_errors=True)
 
 
-def print_counts(id_to_history: Dict[str, PackageHistory]) -> None:
+PrintCountsDict = TypedDict('PrintCountsDict', {
+	'only_incoming': int,
+	'only_outgoing': int,
+	'only_sold': int,
+	'outgoing_and_incoming': int,
+	'in_and_sold_at_least_once': int,
+	'in_and_sold_many_times': int,
+	'num_parent_packages': int,
+	'num_child_packages': int,
+	'total_seen': int
+})
+
+def print_counts(id_to_history: Dict[str, PackageHistory], should_print: bool = True) -> PrintCountsDict:
 	only_incoming = 0 # Only incoming transfer package(s)
 	only_outgoing = 0 # Only outgoing transfer package(s)
 	outgoing_and_incoming = 0 # Both incoming and outgoing transfer package(s)
@@ -1205,17 +1217,30 @@ def print_counts(id_to_history: Dict[str, PackageHistory]) -> None:
 
 		total_seen += 1
 
-	print(f'Only outgoing: {only_outgoing}')
-	print(f'Only incoming: {only_incoming}')	
-	print(f'Only sold, no incoming: {only_sold}')
-	print(f'In and out: {outgoing_and_incoming}')
-	print(f'In and sold at least once {in_and_sold_at_least_once}')
-	print(f'In and sold many times {in_and_sold_many_times}')
-	print('')
-	print(f' Num parent packages: {num_parent_packages}')
-	print(f' num matched child packages: {num_child_packages}')
+	if should_print:
+		print(f'Only outgoing: {only_outgoing}')
+		print(f'Only incoming: {only_incoming}')	
+		print(f'Only sold, no incoming: {only_sold}')
+		print(f'In and out: {outgoing_and_incoming}')
+		print(f'In and sold at least once {in_and_sold_at_least_once}')
+		print(f'In and sold many times {in_and_sold_many_times}')
+		print('')
+		print(f' Num parent packages: {num_parent_packages}')
+		print(f' num matched child packages: {num_child_packages}')
 
-	print(f'Total pkgs: {total_seen}')
+		print(f'Total pkgs: {total_seen}')
+
+	return PrintCountsDict(
+		only_outgoing=only_outgoing,
+		only_incoming=only_incoming,
+		only_sold=only_sold,
+		outgoing_and_incoming=outgoing_and_incoming,
+		in_and_sold_at_least_once=in_and_sold_at_least_once,
+		in_and_sold_many_times=in_and_sold_many_times,
+		num_parent_packages=num_parent_packages,
+		num_child_packages=num_child_packages,
+		total_seen=total_seen
+	)
 
 def create_inventory_dataframe_by_date(
 	package_id_to_history: Dict[str, PackageHistory],
