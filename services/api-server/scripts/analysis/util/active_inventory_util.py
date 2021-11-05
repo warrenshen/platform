@@ -20,23 +20,23 @@ from bespoke.inventory.analysis.shared.inventory_types import Query
 
 DEFAULT_SOLD_THRESHOLD = 0.95
 
-PackagePayloadDict = TypedDict('PackagePayloadDict', {
-	'sourceproductionbatchnumbers': str,
-	'productionbatchnumber': str,
-	'sourceharvestnames': str
-})
-
 # Types coming from the BigQuery pull
 ActivePackageDict = TypedDict('ActivePackageDict', {
-	'package_payload': PackagePayloadDict,
 	'package_id': str,
-	'quantity': float
+	'quantity': float,
+	'item_product_category_type': str,
+	'item_id': str,
+	'source_production_batch_numbers': str,
+	'production_batch_number': str,
+	'source_harvest_names': str
 })
 
 InactivePackageDict = TypedDict('InactivePackageDict', {
 	'package_id': str,
 	'archiveddate': datetime.date,
 	'finisheddate': datetime.date,
+	'item_product_category_type': str,
+	'item_id': str
 })
 
 SalesTransactionDict = TypedDict('SalesTransactionDict', {
@@ -141,6 +141,7 @@ def get_inventory_column_names() -> List[str]:
 		'incoming_cost',
 		'incoming_quantity',
 		'is_child_package',
+		'are_prices_inferred',
 
 		'product_category_name',
 		'product_name',
@@ -168,6 +169,7 @@ def _get_inventory_output_row(history: 'PackageHistory', inventory_date_str: str
 		'{:.2f}'.format(float(incoming_pkg['shipper_wholesale_price'])),
 		'{:.2f}'.format(float(incoming_pkg['shipped_quantity'])),
 		'{}'.format(history.is_child_of_parent),
+		'{}'.format(history.are_prices_inferred),
 
 		incoming_pkg['product_category_name'],
 		incoming_pkg['product_name'],
@@ -252,7 +254,7 @@ class Download(object):
 		# Find the original packages with these production batch numbers.
 		production_batch_numbers = set([])
 		for pkg in self.missing_incoming_pkg_package_records:
-			source_no = pkg['package_payload']['sourceproductionbatchnumbers']
+			source_no = pkg['source_production_batch_numbers']
 			if not source_no:
 				# print(f"WARN: package {pkg['package_id']} is missing a sourceproductionbatchnumber and an incoming pkg")
 				continue
@@ -369,6 +371,7 @@ class PackageHistory(object):
 		self.computed_info: ComputedInfoDict = {}
 		self.is_parent = False # Whether this package is a parent of spawned child packages
 		self.is_child_of_parent = False # Whether this package is a child spawned from a parent package
+		self.are_prices_inferred = False # When we have to make a guess about the cost of the child by inferring what the parent was
 		self.should_exclude = False
 		self.exclude_reason = ''
 				
@@ -641,7 +644,6 @@ class PackageHistory(object):
 				parent_wholesale_price = float(incoming_pkg['shipper_wholesale_price'])
 				child_original_quantity = estimated_original_quantity
 				incoming_pkg['shipped_quantity'] = child_original_quantity
-				# shipper_wholesale_price = parent['shipper_wholesale_price'] * estimated_original_quantity / parent['shipped_quantity']
 				incoming_pkg['shipper_wholesale_price'] = parent_wholesale_price * child_original_quantity / parent_original_quantity
 				pass
 
@@ -789,24 +791,125 @@ class PackageHistory(object):
 			sold_threshold=params.get('sold_threshold', DEFAULT_SOLD_THRESHOLD),
 			skip_over_errors=skip_over_errors)
 
+ParentDetailsDict = TypedDict('ParentDetailsDict', {
+	'incoming_pkg': TransferPackageDict,
+	'parent_package_id': str,
+	'is_synthetic': bool
+})
+
 MatchingParentRespDict = TypedDict('MatchingParentRespDict', {
 	'num_orphans': int,
 	'has_number_but_no_parent': int,
-	'child_to_parent_package_id': Dict[str, str]
+	'child_to_parent_details': Dict[str, ParentDetailsDict]
 })
 
+HarvestMatchRespDict = TypedDict('HarvestMatchRespDict', {
+	'has_match': bool,
+	'incoming_pkg': TransferPackageDict
+})
+
+def _create_new_with_average_price(incoming_pkgs: List[TransferPackageDict]) -> TransferPackageDict:
+	
+	new_incoming_pkg = copy.deepcopy(incoming_pkgs[-1])
+	total_cost = 0.0
+	total_quantity = 0.0
+
+	for incoming_pkg in incoming_pkgs:
+
+		if math.isclose(incoming_pkg['shipper_wholesale_price'], 0.01):
+			continue
+
+		# NOTE: Assume same units for now
+		total_cost += float(incoming_pkg['shipper_wholesale_price'])
+		total_quantity += float(incoming_pkg['shipped_quantity'])
+
+	new_incoming_pkg['shipper_wholesale_price'] = total_cost
+	new_incoming_pkg['shipped_quantity'] = total_quantity
+
+	return new_incoming_pkg
+
+def _determine_match_based_on_harvest(
+	pkg: ActivePackageDict, parent_package_ids: List[str], package_id_to_history: Dict[str, PackageHistory]) -> HarvestMatchRespDict:
+
+	item_id_to_count = {}
+	parent_incoming_pkgs = []
+
+	child_product_category_type = pkg['item_product_category_type']
+	matching_parent_incoming_pkgs = []
+
+	for parent_package_id in parent_package_ids:
+		cur_parent_history = package_id_to_history[parent_package_id]
+		
+		if cur_parent_history.incomings: 
+			parent_incoming_pkgs.append(cur_parent_history.incomings[-1])
+
+		item_id = ''
+		parent_product_category_type = ''
+
+		cur_parent_pkg = cur_parent_history.actual_inventory_pkg
+		if cur_parent_pkg:
+			item_id = cur_parent_pkg['item_id']
+			parent_product_category_type = cur_parent_pkg['item_product_category_type']
+
+		if cur_parent_history.inactive_pkg:
+			item_id = cur_parent_history.inactive_pkg['item_id']
+			parent_product_category_type = cur_parent_history.inactive_pkg['item_product_category_type']
+
+		if not item_id:
+			# We need the current inventory package to make determinations about whether its
+			# the parent of this child.
+			#
+			# Unfortunately the transfer package doesnt 
+			return HarvestMatchRespDict(
+				has_match=False,
+				incoming_pkg=None
+			)
+
+		if parent_product_category_type == child_product_category_type:
+			# Also try to match the parent based on the product category type
+			matching_parent_incoming_pkgs.append(cur_parent_history.incomings[-1])
+
+		if item_id not in item_id_to_count:
+			item_id_to_count[item_id] = 0
+
+		item_id_to_count[item_id] += 1
+
+	child_package_id = pkg['package_id']
+
+	if len(list(item_id_to_count.keys())) == 1:
+		final_incoming_pkg = _create_new_with_average_price(parent_incoming_pkgs)
+		return HarvestMatchRespDict(
+			has_match=True,
+			incoming_pkg=final_incoming_pkg
+		)
+
+	if matching_parent_incoming_pkgs:
+		#print('FOUND MATCHING PARENTS {} for type {}'.format(
+		#	len(matching_parent_incoming_pkgs), child_product_category_type))
+		final_incoming_pkg = _create_new_with_average_price(matching_parent_incoming_pkgs)
+		return HarvestMatchRespDict(
+			has_match=True,
+			incoming_pkg=final_incoming_pkg
+		)
+
+	return HarvestMatchRespDict(
+		has_match=False,
+		incoming_pkg=None
+	)
+
 def _match_child_packages_to_parents(
-	d: Download, package_id_to_history: Dict[str, PackageHistory]) -> MatchingParentRespDict:
+	d: Download, 
+	package_id_to_history: Dict[str, PackageHistory]) -> MatchingParentRespDict:
 	
 	productionbatchnum_to_package_id = {}
 	
 	for parent_record in d.parent_packages_records:
-		production_batch_num = parent_record['package_payload']['productionbatchnumber']
+		production_batch_num = parent_record['production_batch_number']
 		package_id = parent_record['package_id']
 		if not production_batch_num:
 				print(f'Parent package {package_id} is missing a productionbatchnumber')
 				continue
-		productionbatchnum_to_package_id[parent_record['package_payload']['productionbatchnumber']] = package_id
+		productionbatchnum_to_package_id[parent_record['production_batch_number']] = package_id
 
 	# For those packages which are incoming only, those are also candidates
 	# to be parents to those transactions which were spawned from those packages
@@ -827,7 +930,18 @@ def _match_child_packages_to_parents(
 			#print(sourceharvestnum)
 			pass
 
-	child_to_parent_package_id = {}
+	def _get_incoming_pkg(package_id: str) -> TransferPackageDict:
+		if package_id not in package_id_to_history:
+			raise Exception('Trying to get an incoming package ID for parent package_id={} which has no incoming transfer'.format(package_id))
+
+		parent_history = package_id_to_history[package_id]
+		if not parent_history.incomings:
+			print(f'WARN: Parent package {parent_history.package_id} has no incoming package, so the child wont have any incoming history either')
+			return None
+
+		return copy.deepcopy(parent_history.incomings[-1])
+
+	child_to_parent_details: Dict[str, ParentDetailsDict] = {}
 	num_orphans = 0
 	has_number_but_no_parent = 0
 	orphan_child_package_ids = []
@@ -842,22 +956,45 @@ def _match_child_packages_to_parents(
 		# if we needed to manually compute them.
 		parent_package_id_override = d.child_to_parent_package_id_override.get(child_package_id)
 		if parent_package_id_override:
-			child_to_parent_package_id[child_package_id] = parent_package_id_override
+			child_to_parent_details[child_package_id] = {
+				'incoming_pkg': _get_incoming_pkg(parent_package_id_override),
+				'parent_package_id': parent_package_id_override,
+				'is_synthetic': False
+			}
 			continue
 
 		# Try to match on harvest number
-		cur_harvestnames = pkg['package_payload']['sourceharvestnames']
+		cur_harvestnames = pkg['source_harvest_names']
+		parent_package_ids = []
+
 		if cur_harvestnames in sourceharvestnum_to_package_ids:
 			if len(sourceharvestnum_to_package_ids[cur_harvestnames]) == 1:
 				# Here we've found one unique incoming parent package, so we can assume
 				# its the parent of this child.
 				parent_package_id = sourceharvestnum_to_package_ids[cur_harvestnames][0]
-				child_to_parent_package_id[child_package_id] = parent_package_id 
+				child_to_parent_details[child_package_id] = {
+					'incoming_pkg': _get_incoming_pkg(parent_package_id),
+					'parent_package_id': parent_package_id,
+					'is_synthetic': False
+				}
 				continue
+			else:
+				parent_package_ids = sourceharvestnum_to_package_ids[cur_harvestnames]
+				match_resp = _determine_match_based_on_harvest(
+					pkg, parent_package_ids, package_id_to_history
+				)
+				if match_resp['has_match']:
+					child_to_parent_details[child_package_id] = {
+						'incoming_pkg': match_resp['incoming_pkg'],
+						'parent_package_id': None,
+						'is_synthetic': True
+					}
+					continue
 
-		batch_no = pkg['package_payload']['sourceproductionbatchnumbers']
+		batch_no = pkg['source_production_batch_numbers']
 		if not batch_no:
 			orphan_child_package_ids.append(child_package_id)
+			#print(parent_package_ids)
 			#print(pkg['package_id'])
 			
 			#harvest_names = pkg['package_payload']['sourceharvestnames']
@@ -875,7 +1012,11 @@ def _match_child_packages_to_parents(
 			continue
 		
 		parent_package_id = productionbatchnum_to_package_id[batch_no]
-		child_to_parent_package_id[child_package_id] = parent_package_id
+		child_to_parent_details[child_package_id] = {
+			'incoming_pkg': _get_incoming_pkg(parent_package_id),
+			'parent_package_id': parent_package_id,
+			'is_synthetic': False
+		}
 
 	#print('Children missing source batch number: {}'.format(orphan_child_package_ids))
 	#print('')
@@ -884,7 +1025,7 @@ def _match_child_packages_to_parents(
 	#print('Product batch num to parent id {}'.format(productionbatchnum_to_package_id))
 
 	return MatchingParentRespDict(
-		child_to_parent_package_id=child_to_parent_package_id,
+		child_to_parent_details=child_to_parent_details,
 		has_number_but_no_parent=has_number_but_no_parent,
 		num_orphans=num_orphans
 	)
@@ -927,32 +1068,35 @@ def get_histories(d: Download) -> Dict[str, PackageHistory]:
 	for inventory_pkg in d.inventory_packages_records:
 		package_id = inventory_pkg['package_id']
 		if package_id not in package_id_to_history:
-			# Dont create PackageHistory when there are no historical details associated with this package
-			continue
+			package_id_to_history[package_id] = PackageHistory(package_id)
 
-		package_id_to_history[package_id].actual_inventory_pkg = inventory_pkg
+		history = package_id_to_history[package_id]
+		history.actual_inventory_pkg = inventory_pkg
 
 	# Perform parent-child relationship pairing. 
 	# Children are packages with no incoming packages
 	parent_resp = _match_child_packages_to_parents(d, package_id_to_history)
-	for child_package_id, parent_package_id in parent_resp['child_to_parent_package_id'].items():
+
+	for child_package_id, parent_info in parent_resp['child_to_parent_details'].items():
 		if child_package_id not in package_id_to_history:
 			continue
 
-		if parent_package_id not in package_id_to_history:
-			continue
+		if parent_info['is_synthetic']:
+			parent_history = None
+		else:
+			parent_package_id = parent_info['parent_package_id']
+			if parent_package_id not in package_id_to_history:
+				continue
 
-		parent_history = package_id_to_history[parent_package_id] 
+			parent_history = package_id_to_history[parent_package_id] 
+		
+		if parent_history:
+			parent_history.is_parent = True
+
 		child_history = package_id_to_history[child_package_id]
-
-		if not parent_history.incomings:
-			print(f'WARN: Parent package {parent_history.package_id} has no incoming package, so the child wont have any incoming history either')
-			continue
-
-		parent_history.is_parent = True
-
-		child_history.incomings.append(copy.deepcopy(parent_history.incomings[-1]))
+		child_history.incomings.append(parent_info['incoming_pkg'])
 		child_history.is_child_of_parent = True
+		child_history.are_prices_inferred = parent_info['is_synthetic']
 
 	return package_id_to_history
 
@@ -964,7 +1108,7 @@ def run_orphan_analysis(d: Download, package_id_to_history: Dict[str, PackageHis
 
 	print('{} - Number of parent packages'.format(len(d.parent_packages_records)))
 	print('')
-	print('{} - Child packages with parents'.format(len(resp['child_to_parent_package_id'].keys())))
+	print('{} - Child packages with parents'.format(len(resp['child_to_parent_details'].keys())))
 	print('{} - orphans; child packages with (no source product batch num)'.format(resp['num_orphans']))
 	print('{} - no matching parent; child packages that have a source batch number, but no parent'.format(resp['has_number_but_no_parent']))
 
@@ -1359,9 +1503,17 @@ def are_packages_inactive_query(package_ids: Iterable[str]) -> str:
 					metrc_packages.package_label,
 					metrc_packages.product_category_name,
 					metrc_packages.product_name,
+					metrc_packages.quantity,
+					metrc_packages.unit_of_measure,
+					metrc_packages.package_payload.itemid as item_id,
+          metrc_packages.package_payload.itemproductcategorytype as item_product_category_type,
+          metrc_packages.package_payload.productionbatchnumber as production_batch_number,
+          metrc_packages.package_payload.sourceproductionbatchnumbers as source_production_batch_numbers,
+          metrc_packages.package_payload.sourceharvestnames as source_harvest_names,
+          metrc_packages.package_payload.istestingsample as is_testing_sample,
+          metrc_packages.package_payload.istradesample as is_trade_sample,
 					metrc_packages.package_payload.archiveddate,
-					metrc_packages.package_payload.finisheddate,
-					metrc_packages.quantity
+					metrc_packages.package_payload.finisheddate
 			from
 					metrc_packages
 					inner join companies on metrc_packages.company_id = companies.id
@@ -1386,7 +1538,13 @@ def create_packages_by_package_ids_query(package_ids: Iterable[str]) -> str:
 					metrc_packages.package_label,
 					metrc_packages.quantity,
 					metrc_packages.unit_of_measure,
-					metrc_packages.*
+					metrc_packages.package_payload.itemid as item_id,
+          metrc_packages.package_payload.itemproductcategorytype as item_product_category_type,
+          metrc_packages.package_payload.productionbatchnumber as production_batch_number,
+          metrc_packages.package_payload.sourceproductionbatchnumbers as source_production_batch_numbers,
+          metrc_packages.package_payload.sourceharvestnames as source_harvest_names,
+          metrc_packages.package_payload.istestingsample as is_testing_sample,
+          metrc_packages.package_payload.istradesample as is_trade_sample	
 			from
 					metrc_packages
 					left outer join companies on metrc_packages.company_id = companies.id
@@ -1410,7 +1568,13 @@ def create_packages_by_production_batch_numbers_query(production_batch_numbers: 
 					metrc_packages.package_label,
 					metrc_packages.quantity,
 					metrc_packages.unit_of_measure,
-					metrc_packages.*
+					metrc_packages.package_payload.itemid as item_id,
+          metrc_packages.package_payload.itemproductcategorytype as item_product_category_type,
+          metrc_packages.package_payload.productionbatchnumber as production_batch_number,
+          metrc_packages.package_payload.sourceproductionbatchnumbers as source_production_batch_numbers,
+          metrc_packages.package_payload.sourceharvestnames as source_harvest_names,
+          metrc_packages.package_payload.istestingsample as is_testing_sample,
+          metrc_packages.package_payload.istradesample as is_trade_sample
 			from
 					metrc_packages
 					left outer join companies on metrc_packages.company_id = companies.id

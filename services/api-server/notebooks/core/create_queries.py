@@ -78,6 +78,7 @@ def create_company_incoming_transfer_packages_query(company_identifier, start_da
             metrc_transfer_packages.shipped_unit_of_measure,
             metrc_transfer_packages.received_quantity,
             metrc_transfer_packages.received_unit_of_measure,
+            metrc_transfer_packages.package_payload.receiverwholesaleprice as receiver_wholesale_price,
             metrc_transfer_packages.package_payload.itemunitweight as item_unit_weight,
             metrc_transfer_packages.package_payload.itemunitweightunitofmeasurename as item_unit_weight_unit_of_measure_name
         from
@@ -136,6 +137,7 @@ def create_company_outgoing_transfer_packages_query(company_identifier, start_da
             metrc_transfer_packages.shipped_unit_of_measure,
             metrc_transfer_packages.received_quantity,
             metrc_transfer_packages.received_unit_of_measure,
+            metrc_transfer_packages.package_payload.receiverwholesaleprice as receiver_wholesale_price,
             metrc_transfer_packages.package_payload.itemunitweight as item_unit_weight,
             metrc_transfer_packages.package_payload.itemunitweightunitofmeasurename as item_unit_weight_unit_of_measure_name
         from
@@ -387,6 +389,8 @@ def create_company_inventory_packages_query(company_identifier, include_quantity
             metrc_packages.product_category_name,
             metrc_packages.quantity,
             metrc_packages.unit_of_measure,
+            metrc_packages.package_payload.itemid as item_id,
+            metrc_packages.package_payload.itemproductcategorytype as item_product_category_type,
             metrc_packages.package_payload.productionbatchnumber as production_batch_number,
             metrc_packages.package_payload.sourceproductionbatchnumbers as source_production_batch_numbers,
             metrc_packages.package_payload.sourceharvestnames as source_harvest_names,
