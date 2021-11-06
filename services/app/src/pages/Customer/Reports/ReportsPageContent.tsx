@@ -1,19 +1,34 @@
 import { Box, Typography } from "@material-ui/core";
 import PageContent from "components/Shared/Page/PageContent";
-import { useGetAllLoansForCompanyQuery } from "generated/graphql";
+import {
+  LoanTypeEnum,
+  ProductTypeEnum,
+  useGetFundedLoansByCompanyAndLoanTypeQuery,
+} from "generated/graphql";
 import ReportLoansDataGrid from "components/Reports/ReportLoansDataGrid";
 import { isLoanComingOrPastDue } from "lib/date";
+import { ProductTypeToLoanType } from "lib/enum";
 
 interface Props {
   companyId: string;
+  productType: ProductTypeEnum;
 }
 
-export default function CustomerReportsPageContent({ companyId }: Props) {
-  const { data: loansData, error: loansError } = useGetAllLoansForCompanyQuery({
-    skip: !companyId,
+export default function CustomerReportsPageContent({
+  companyId,
+  productType,
+}: Props) {
+  const loanType = ProductTypeToLoanType[productType];
+
+  const {
+    data: loansData,
+    error: loansError,
+  } = useGetFundedLoansByCompanyAndLoanTypeQuery({
+    skip: !loanType,
     fetchPolicy: "network-only",
     variables: {
-      companyId,
+      companyId: companyId || "",
+      loanType: loanType || LoanTypeEnum.PurchaseOrder,
     },
   });
 

@@ -105,12 +105,6 @@ const getCustomerPaths = (
         component: BankCustomerLoansSubpage,
       },
       {
-        dataCy: "customer-reports",
-        label: "Reports",
-        path: bankRoutes.company.reports,
-        component: BankCustomerReportsSubpage,
-      },
-      {
         visible:
           !!productType &&
           [
@@ -168,6 +162,19 @@ const getCustomerPaths = (
         label: "Contract",
         path: bankRoutes.company.contract,
         component: BankCustomerContractPage,
+      },
+      {
+        visible:
+          !!productType &&
+          [
+            ProductTypeEnum.InventoryFinancing,
+            ProductTypeEnum.InvoiceFinancing,
+            ProductTypeEnum.PurchaseMoneyFinancing,
+          ].includes(productType),
+        dataCy: "customer-reports",
+        label: "Reports",
+        path: bankRoutes.company.reports,
+        component: BankCustomerReportsSubpage,
       },
       {
         visible: false,
