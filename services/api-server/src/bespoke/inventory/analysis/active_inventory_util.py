@@ -84,7 +84,6 @@ NotableEventDict = TypedDict('NotableEventDict', {
 })
 
 ComputedInfoDict = TypedDict('ComputedInfoDict', {
-	'arrived': NotableEventDict,
 	'sold': NotableEventDict,
 	'finished': NotableEventDict,
 	'date_to_quantity': Dict[datetime.date, int]
@@ -154,19 +153,35 @@ def get_inventory_column_names() -> List[str]:
 		'is_in_inventory'
 	]
 
-def _get_inventory_output_row(history: 'PackageHistory', inventory_date_str: str) -> List[str]:
-	incoming_pkg = history.incomings[-1] if history.incomings else None 
+def _get_incoming_pkg_for_date(incomings: List[TransferPackageDict], inventory_date: datetime.date) -> TransferPackageDict:
+	if not incomings:
+		return None
+
+	incomings.sort(key=lambda x: x['received_datetime'])
+
+	for incoming_pkg in incomings:
+		if incoming_pkg['shipment_package_state'] == 'Returned':
+			continue
+
+		if incoming_pkg['received_datetime'].date() >= inventory_date:
+			# Find the first incoming package that was received after this inventory date
+			return incoming_pkg
+
+	return None
+
+def _get_inventory_output_row(history: 'PackageHistory', inventory_date: datetime.date) -> List[str]:
+	incoming_pkg = _get_incoming_pkg_for_date(history.incomings, inventory_date)
 	sold_date = history.computed_info.get('sold', {}).get('date')
 	
 	if not incoming_pkg:
 		return []
 
-	cur_quantity = history._get_current_quantity(inventory_date_str)
+	cur_quantity = history._get_current_quantity(inventory_date)
 
 	return [
 		history.package_id,
 		incoming_pkg['license_number'],
-		date_to_str(history.computed_info['arrived']['date']),
+		date_to_str(incoming_pkg['received_datetime'].date()),
 		'{:.2f}'.format(float(incoming_pkg['shipper_wholesale_price'])),
 		'{:.2f}'.format(float(incoming_pkg['shipped_quantity'])),
 		'{}'.format(history.is_child_of_parent),
@@ -353,6 +368,8 @@ class Printer(object):
 class ExcludeReason(object):
 	MISSING_INCOMING = 'MISSING_INCOMING'
 	CHILD_MISSING_INVENTORY_PACKAGE = 'CHILD_MISSING_INVENTORY_PACKAGE'
+	INCOMING_MISSING_QUANTITY = 'INCOMING_MISSING_QUANTITY'
+	OUTGOING_MISSING_QUANTITY = 'OUTGOING_MISSING_QUANTITY'
 	MISSING_TIMESTAMP = 'MISSING_TIMESTAMP'
 	OUT_OF_ORDER_DATES = 'OUT_OF_ORDER_DATES'
 
@@ -401,14 +418,14 @@ class PackageHistory(object):
 		self.should_exclude = False
 		self.exclude_reason = ''
 				
-	def in_inventory_at_date(self, cur_date_str: str) -> bool:
+	def in_inventory_at_date(self, cur_date: datetime.date) -> bool:
 		# Was this package in the company's possession at this date?
-		cur_date = parse_to_date(cur_date_str)    
-		arrived_date = self.computed_info['arrived']['date']
+		incoming_pkg = _get_incoming_pkg_for_date(self.incomings, cur_date)
+		arrived_date = incoming_pkg['received_date']
 
 		if arrived_date and cur_date < arrived_date:
 			return False
-		
+
 		sold_date = self.computed_info.get('sold', {}).get('date')
 		if sold_date and cur_date > sold_date:
 			# We know it's not in your possession after the sales date
@@ -419,32 +436,34 @@ class PackageHistory(object):
 			# Its no longer in your possession the day after it's finished
 			return False
 
-		cur_quantity = self._get_current_quantity(cur_date_str)
-		if cur_quantity <= 0:
+		cur_quantity = self._get_current_quantity(cur_date)
+		if cur_quantity <= 0.0:
 			# No quantity left even if it wasn't fully sold
 			return False
 		
 		# Knowing nothing else, assume you have the package at this date
 		return True
 	
-	def _get_current_quantity(self, inventory_date_str: str) -> int:
+	def _get_current_quantity(self, inventory_date: datetime.date) -> float:
 		if 'date_to_quantity' not in self.computed_info:
 			return -1
 
 		dates = list(self.computed_info['date_to_quantity'].keys())
 		dates.sort()
-		inventory_date = parse_to_date(inventory_date_str)
 		cur_quantity = 0
 
 		for cur_date in dates:
-			if parse_to_date(cur_date) < inventory_date:
+			if cur_date <= inventory_date:
 				# Keep updating what the quantity is until we reach the inventory date
 				cur_quantity = self.computed_info['date_to_quantity'][cur_date]
+			else:
+				# We've reached a date that is beyond the inventory date
+				break
 
-		return int(cur_quantity)
+		return float(cur_quantity)
 
-	def get_inventory_output_row(self, inventory_date_str: str) -> List[str]:
-		return _get_inventory_output_row(self, inventory_date_str)
+	def get_inventory_output_row(self, inventory_date: datetime.date) -> List[str]:
+		return _get_inventory_output_row(self, inventory_date)
 				
 	def filter_out_unhandled_packages(self, p: Printer) -> None:    
 		if not self.incomings:
@@ -476,21 +495,6 @@ class PackageHistory(object):
 		else:
 			return False
 
-
-	def when_it_arrived(self, p: Printer) -> bool:
-		# Fills in the 'arrived' value for self.computed_info
-		if self.incomings:
-			incoming_pkg = self.incomings[-1]
-			arrived_date = parse_to_date(incoming_pkg['received_datetime'])
-
-			self.computed_info['arrived'] = {
-				'reason': 'incoming',
-				'date': arrived_date
-			}
-			return True
-		else:
-			return False
-
 	def run_is_sold_logic(self, p: Printer, sold_threshold: float, skip_over_errors: bool) -> bool:
 		# Fills in the 'sold' value for self.computed_info
 		#
@@ -498,6 +502,7 @@ class PackageHistory(object):
 		
 		# It's only considered sold if it was an incoming package
 		# and we see there are sales transactions.
+
 		in_debug_mode = skip_over_errors
 		
 		if not self.incomings:
@@ -694,7 +699,9 @@ class PackageHistory(object):
 
 				arrived_date = incoming_pkg['received_date']
 				if not incoming_pkg['shipped_quantity'] or numpy.isnan(incoming_pkg['shipped_quantity']):
-					p.warn(f'package #{self.package_id} does not have a shipped quantity', package_id=self.package_id)
+					self.should_exclude = True
+					self.exclude_reason = ExcludeReason.INCOMING_MISSING_QUANTITY
+					p.warn(f'incoming package #{self.package_id} does not have a shipped quantity', package_id=self.package_id)
 					return False
 
 				shipped_quantity = int(incoming_pkg['shipped_quantity'])
@@ -725,7 +732,9 @@ class PackageHistory(object):
 					raise Exception(f'There should be no transactions associated with an outgoing transfer. Package ID: {self.package_id}, outgoing transfer package on {outgoing_date}')
 
 				if not outgoing_pkg['shipped_quantity'] or numpy.isnan(outgoing_pkg['shipped_quantity']):
-					p.warn(f'package #{self.package_id} does not have a outgoing shipped quantity', package_id=self.package_id)
+					self.should_exclude = True
+					self.exclude_reason = ExcludeReason.OUTGOING_MISSING_QUANTITY
+					p.warn(f'outgoing package #{self.package_id} does not have a outgoing shipped quantity', package_id=self.package_id)
 					return False
 
 				shipped_quantity = int(incoming_pkg['shipped_quantity'])
@@ -809,8 +818,7 @@ class PackageHistory(object):
 					
 		if self.should_exclude:
 			return
-			
-		self.when_it_arrived(p)
+
 		self.when_it_finished(p)
 		self.run_is_sold_logic(
 			p, 
@@ -1244,7 +1252,7 @@ def print_counts(id_to_history: Dict[str, PackageHistory], should_print: bool = 
 
 def create_inventory_dataframe_by_date(
 	package_id_to_history: Dict[str, PackageHistory],
-	date: str,
+	date_str: str,
 	params: AnalysisParamsDict
 ) -> List[List[str]]:
 	i = 0
@@ -1271,15 +1279,16 @@ def create_inventory_dataframe_by_date(
 		i += 1
 
 	package_records = []
+	inventory_date = parse_to_date(date_str)
 
 	for package_id, history in package_id_to_history.items():
 		if history.should_exclude:
 			continue
 
-		is_in_inventory = history.in_inventory_at_date(date)
+		is_in_inventory = history.in_inventory_at_date(inventory_date)
 		is_in_inventory_str = 'true' if is_in_inventory else ''
 
-		package_record = history.get_inventory_output_row(date)
+		package_record = history.get_inventory_output_row(inventory_date)
 		package_record.append(is_in_inventory_str)
 		package_records += [package_record]
 
@@ -1317,8 +1326,9 @@ def create_inventory_dataframes(
 
 	date_to_inventory_records = {}
 
-	for inventory_date in q.inventory_dates:
+	for inventory_date_str in q.inventory_dates:
 		package_records = []
+		inventory_date = parse_to_date(inventory_date_str)
 
 		for package_id, history in package_id_to_history.items():
 			if history.should_exclude:
@@ -1330,7 +1340,7 @@ def create_inventory_dataframes(
 			package_record = history.get_inventory_output_row(inventory_date)
 			package_records += [package_record]
 
-		date_to_inventory_records[inventory_date] = package_records
+		date_to_inventory_records[inventory_date_str] = package_records
 
 	return date_to_inventory_records
 
@@ -1508,8 +1518,9 @@ def create_inventory_xlsx(
 
 	wb = excel_writer.WorkbookWriter(xlwt.Workbook())
 	
-	for inventory_date in q.inventory_dates:
-		sheet_name = inventory_date.replace('/', '-')
+	for inventory_date_str in q.inventory_dates:
+		inventory_date = parse_to_date(inventory_date_str)
+		sheet_name = inventory_date_str.replace('/', '-')
 		sheet = wb.add_sheet(sheet_name)
 		
 		# Determine whether this package belongs in the inventory for this date
