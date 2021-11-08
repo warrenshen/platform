@@ -1,4 +1,11 @@
+import os
+import sys
+
+from os import path
 from typing import Iterable
+
+sys.path.append(path.realpath(path.join(os.getcwd(), "../../src")))
+from bespoke.inventory.analysis.shared.create_queries import *
 
 # Company queries: get data for a specific-company.
 def create_company_licenses_query(company_identifier: str) -> str:
