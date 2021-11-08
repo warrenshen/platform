@@ -22,22 +22,16 @@ from bespoke.inventory.analysis.shared.inventory_types import Query
 DEFAULT_SOLD_THRESHOLD = 0.95
 
 # Types coming from the BigQuery pull
-ActivePackageDict = TypedDict('ActivePackageDict', {
+InventoryPackageDict = TypedDict('InventoryPackageDict', {
 	'package_id': str,
 	'quantity': float,
 	'item_product_category_type': str,
 	'item_id': str,
 	'source_production_batch_numbers': str,
 	'production_batch_number': str,
-	'source_harvest_names': str
-})
-
-InactivePackageDict = TypedDict('InactivePackageDict', {
-	'package_id': str,
-	'archiveddate': datetime.date,
-	'finisheddate': datetime.date,
-	'item_product_category_type': str,
-	'item_id': str
+	'source_harvest_names': str,
+	'archived_date': str,
+	'finished_date': str
 })
 
 SalesTransactionDict = TypedDict('SalesTransactionDict', {
@@ -133,6 +127,35 @@ def parse_to_date(cur_date: Any) -> datetime.date:
 
 	return cast(datetime.date, cur_date)
 
+def _find_matching_package_by_date(
+	all_transfer_pkgs: List[TransferPackageDict],
+	cur_date: datetime.date,
+	include_outgoing: bool) -> TransferPackageDict:
+	
+	for i in range(len(all_transfer_pkgs)):
+		cur_transfer_pkg = all_transfer_pkgs[i]
+		cur_transfer_date = cur_transfer_pkg['received_date']
+
+		if (i + 1) >= len(all_transfer_pkgs):
+			# We reached the end of the array, so just put some enormously
+			# large date
+			next_transfer_date = datetime.date(3000, 1, 1)
+		else:
+			next_transfer_date = all_transfer_pkgs[i+1]['received_date']
+
+		if _is_outgoing(cur_transfer_pkg) and include_outgoing:
+			return cur_transfer_pkg
+
+		elif _is_outgoing(cur_transfer_pkg):
+			# Dont insert a transaction associated with an outgoing transaction
+			# if were not supposed to include it
+			continue
+
+		if cur_date >= cur_transfer_date and cur_date <= next_transfer_date:
+			return cur_transfer_pkg
+
+	return None
+
 def get_inventory_column_names() -> List[str]:
 	return [
 		'package_id',
@@ -169,14 +192,20 @@ def _get_incoming_pkg_for_date(incomings: List[TransferPackageDict], inventory_d
 
 	return None
 
-def _get_inventory_output_row(history: 'PackageHistory', inventory_date: datetime.date) -> List[str]:
+def _get_inventory_output_row(history: 'PackageHistory', inventory_date: datetime.date, is_in_inventory: bool) -> List[str]:
 	incoming_pkg = _get_incoming_pkg_for_date(history.incomings, inventory_date)
 	sold_date = history.computed_info.get('sold', {}).get('date')
 	
 	if not incoming_pkg:
-		return []
+		# If we dont have an incoming package, use the latest one just so
+		# we can show the caller some details about this package.
+		#
+		# The inventory will end up being 0
+		incoming_pkg = history.incomings[-1]
 
-	cur_quantity = history._get_current_quantity(inventory_date)
+	cur_quantity = 0.0
+	if is_in_inventory:
+		cur_quantity = history._get_current_quantity(inventory_date)
 
 	return [
 		history.package_id,
@@ -237,10 +266,10 @@ class Download(object):
 		self.sales_tx_records: List[SalesTransactionDict] = None
 		self.sales_receipts_dataframe: Any = None
 
-		self.inventory_packages_records: List[ActivePackageDict] = None
-		self.inactive_packages_records: List[InactivePackageDict] = None
-		self.missing_incoming_pkg_package_records: List[ActivePackageDict] = None
-		self.parent_packages_records: List[ActivePackageDict] = None
+		self.inventory_packages_records: List[InventoryPackageDict] = None
+		self.inactive_packages_records: List[InventoryPackageDict] = None
+		self.missing_incoming_pkg_package_records: List[InventoryPackageDict] = None
+		self.parent_packages_records: List[InventoryPackageDict] = None
 		self.child_to_parent_package_id_override: Dict[str, str] = {}
 
 	def download_dataframes(
@@ -283,7 +312,7 @@ class Download(object):
 
 		all_inactive_packages_df = sql_helper.get_inactive_packages(all_package_ids)
 		self.inactive_packages_records = cast(
-			List[InactivePackageDict], all_inactive_packages_df.to_dict('records'))
+			List[InventoryPackageDict], all_inactive_packages_df.to_dict('records'))
 
 		# For packages missing an incoming_pkg, we query the metrc_packages table to
 		# see if there is a parent-child relationship between the original incoming_pkg
@@ -291,7 +320,7 @@ class Download(object):
 		if missing_incoming_pkg_package_ids:
 			missing_incoming_pkg_packages_df = sql_helper.get_packages(missing_incoming_pkg_package_ids)
 			self.missing_incoming_pkg_package_records = cast(
-				List[ActivePackageDict], missing_incoming_pkg_packages_df.to_dict('records'))
+				List[InventoryPackageDict], missing_incoming_pkg_packages_df.to_dict('records'))
 		else:
 			self.missing_incoming_pkg_package_records = []
 
@@ -311,7 +340,7 @@ class Download(object):
 		if production_batch_numbers:
 			parent_packages_df = sql_helper.get_packages_by_production_batch_numbers(production_batch_numbers)
 			self.parent_packages_records = cast(
-				List[ActivePackageDict], parent_packages_df.to_dict('records'))
+				List[InventoryPackageDict], parent_packages_df.to_dict('records'))
 		else:
 			self.parent_packages_records = []
 
@@ -404,12 +433,13 @@ class PackageHistory(object):
 	def __init__(self, package_id: str) -> None:
 		self.incomings: List[TransferPackageDict] = []
 		self.outgoings: List[TransferPackageDict] = []
+		self.all_transfer_pkgs: List[TransferPackageDict] = [] # Sorted when computing information about history
 		self.sales_txs: List[SalesTransactionDict] = []
 		self.package_id = package_id
-		self.inactive_pkg: InactivePackageDict = None
+		self.inactive_pkg: InventoryPackageDict = None
 		# We need the actual package pulled directly from metrc_packages for
 		# the child package quantity computations 
-		self.actual_inventory_pkg: ActivePackageDict = None 
+		self.actual_inventory_pkg: InventoryPackageDict = None 
 		
 		self.computed_info: ComputedInfoDict = {}
 		self.is_parent = False # Whether this package is a parent of spawned child packages
@@ -420,20 +450,32 @@ class PackageHistory(object):
 				
 	def in_inventory_at_date(self, cur_date: datetime.date) -> bool:
 		# Was this package in the company's possession at this date?
-		incoming_pkg = _get_incoming_pkg_for_date(self.incomings, cur_date)
-		arrived_date = incoming_pkg['received_date']
+		matching_transfer_pkg = _find_matching_package_by_date(
+				self.all_transfer_pkgs, cur_date=cur_date, include_outgoing=True)
 
-		if arrived_date and cur_date < arrived_date:
+		if not matching_transfer_pkg:
+			# There will be many cases when we are looking at a date where the package
+			# hasn't come in yet.
 			return False
 
-		sold_date = self.computed_info.get('sold', {}).get('date')
-		if sold_date and cur_date > sold_date:
-			# We know it's not in your possession after the sales date
+		if _is_incoming(matching_transfer_pkg):
+			incoming_pkg = matching_transfer_pkg
+			arrived_date = incoming_pkg['received_date']
+
+			if arrived_date and cur_date < arrived_date:
+				return False
+
+		if _is_outgoing(matching_transfer_pkg):
 			return False
 
 		finished_date = self.computed_info.get('finished', {}).get('date')
 		if finished_date and cur_date > finished_date:
 			# Its no longer in your possession the day after it's finished
+			return False
+
+		sold_date = self.computed_info.get('sold', {}).get('date')
+		if sold_date and cur_date > sold_date:
+			# We know it's not in your possession after the sales date
 			return False
 
 		cur_quantity = self._get_current_quantity(cur_date)
@@ -462,8 +504,8 @@ class PackageHistory(object):
 
 		return float(cur_quantity)
 
-	def get_inventory_output_row(self, inventory_date: datetime.date) -> List[str]:
-		return _get_inventory_output_row(self, inventory_date)
+	def get_inventory_output_row(self, inventory_date: datetime.date, is_in_inventory: bool) -> List[str]:
+		return _get_inventory_output_row(self, inventory_date, is_in_inventory)
 				
 	def filter_out_unhandled_packages(self, p: Printer) -> None:    
 		if not self.incomings:
@@ -477,12 +519,12 @@ class PackageHistory(object):
 			reason = ''
 			finished_date = None
 
-			if self.inactive_pkg['finisheddate']:
+			if self.inactive_pkg['finished_date']:
 				reason = 'finished'
-				finished_date = parse_to_date(self.inactive_pkg['finisheddate'])
-			elif self.inactive_pkg['archiveddate']:
+				finished_date = parse_to_date(self.inactive_pkg['finished_date'])
+			elif self.inactive_pkg['archived_date']:
 				reason = 'archived'
-				finished_date = parse_to_date(self.inactive_pkg['archiveddate'])
+				finished_date = parse_to_date(self.inactive_pkg['archived_date'])
 
 			if not reason:
 				return False
@@ -564,8 +606,9 @@ class PackageHistory(object):
 		if not incoming_pkgs:
 			return False
 
-		all_transfer_pkgs = incoming_pkgs + outgoing_pkgs
-		all_transfer_pkgs.sort(key=lambda x: x['received_datetime'])
+		self.all_transfer_pkgs = incoming_pkgs + outgoing_pkgs
+		self.all_transfer_pkgs.sort(key=lambda x: x['received_datetime'])
+		all_transfer_pkgs = self.all_transfer_pkgs
 
 		def _find_insertion(sales_datetime: datetime.datetime) -> TransferPackageDict:
 			# Find the transfer pkog to associate these transactions with, e.g.,
@@ -599,28 +642,15 @@ class PackageHistory(object):
 			# technically happened minutes or hours before arriving according to metrc
 			sales_date = sales_datetime.date()
 
-			for i in range(len(all_transfer_pkgs)):
-				cur_transfer_pkg = all_transfer_pkgs[i]
-				cur_transfer_date = cur_transfer_pkg['received_date']
-
-				if (i + 1) >= len(all_transfer_pkgs):
-					# We reached the end of the array, so just put some enormously
-					# large date
-					next_transfer_date = datetime.date(3000, 1, 1)
-				else:
-					next_transfer_date = all_transfer_pkgs[i+1]['received_date']
-
-				if _is_outgoing(cur_transfer_pkg):
-					# Dont insert a transaction associated with an outgoint transaction
-					continue
-
-				if sales_date >= cur_transfer_date and sales_date <= next_transfer_date:
-					return cur_transfer_pkg
+			matching_transfer_pkg = _find_matching_package_by_date(
+				all_transfer_pkgs, cur_date=sales_date, include_outgoing=False)
+			if matching_transfer_pkg:
+				return matching_transfer_pkg
 
 			if skip_over_errors:
 				# If we are just using this for debugging, insert this transaction into
 				# the last transfer package we see
-				return cur_transfer_pkg
+				return all_transfer_pkgs[-1]
 			else:
 				return None
 
@@ -675,7 +705,8 @@ class PackageHistory(object):
 				parent_wholesale_price = float(incoming_pkg['shipper_wholesale_price'])
 				child_original_quantity = estimated_original_quantity
 				incoming_pkg['shipped_quantity'] = child_original_quantity
-				incoming_pkg['shipper_wholesale_price'] = parent_wholesale_price * child_original_quantity / parent_original_quantity
+				per_unit_price = parent_wholesale_price / parent_original_quantity
+				incoming_pkg['shipper_wholesale_price'] = per_unit_price * child_original_quantity
 				pass
 
 		# TODO(dlluncor):
@@ -863,7 +894,7 @@ def _create_new_with_average_price(incoming_pkgs: List[TransferPackageDict]) -> 
 	return new_incoming_pkg
 
 def _determine_match_based_on_harvest(
-	pkg: ActivePackageDict, parent_package_ids: List[str], package_id_to_history: Dict[str, PackageHistory]) -> HarvestMatchRespDict:
+	pkg: InventoryPackageDict, parent_package_ids: List[str], package_id_to_history: Dict[str, PackageHistory]) -> HarvestMatchRespDict:
 
 	item_id_to_count = {}
 	parent_incoming_pkgs = []
@@ -1097,7 +1128,7 @@ def get_histories(d: Download) -> Dict[str, PackageHistory]:
 			package_id_to_history[package_id] = PackageHistory(package_id)
 
 		history = package_id_to_history[package_id]
-		history.inactive_pkg = cast(InactivePackageDict, inactive_pkg)
+		history.inactive_pkg = cast(InventoryPackageDict, inactive_pkg)
 
 	for inventory_pkg in d.inventory_packages_records:
 		package_id = inventory_pkg['package_id']
@@ -1288,7 +1319,7 @@ def create_inventory_dataframe_by_date(
 		is_in_inventory = history.in_inventory_at_date(inventory_date)
 		is_in_inventory_str = 'true' if is_in_inventory else ''
 
-		package_record = history.get_inventory_output_row(inventory_date)
+		package_record = history.get_inventory_output_row(inventory_date, is_in_inventory)
 		package_record.append(is_in_inventory_str)
 		package_records += [package_record]
 
@@ -1337,7 +1368,7 @@ def create_inventory_dataframes(
 			if not history.in_inventory_at_date(inventory_date):
 				continue
 
-			package_record = history.get_inventory_output_row(inventory_date)
+			package_record = history.get_inventory_output_row(inventory_date, is_in_inventory=True)
 			package_records += [package_record]
 
 		date_to_inventory_records[inventory_date_str] = package_records
@@ -1537,7 +1568,7 @@ def create_inventory_xlsx(
 				sheet.add_row(get_inventory_column_names())
 				first = False
 			
-			row = history.get_inventory_output_row(inventory_date)
+			row = history.get_inventory_output_row(inventory_date, is_in_inventory=True)
 			sheet.add_row(row)
 	
 	Path('out').mkdir(parents=True, exist_ok=True)

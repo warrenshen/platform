@@ -1,5 +1,5 @@
 
-from typing import List, Dict, Any
+from typing import List, Dict, Tuple, Any
 from collections.abc import Sequence
 
 class DataFrame(Sequence):
@@ -23,6 +23,9 @@ class DataFrame(Sequence):
 		pass
 
 	def groupby(self, *args: Any, **kwargs: Any) -> Any:
+		pass
+
+	def iterrows(self) -> Tuple[int, Any]:
 		pass
 
 	def __getitem__(self, idx: Any) -> Any:
