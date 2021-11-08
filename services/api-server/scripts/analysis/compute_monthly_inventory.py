@@ -15,6 +15,7 @@ from sqlalchemy.orm.session import Session
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 
 from bespoke.db import models
+from bespoke.inventory.analysis.shared import package_history
 from bespoke.inventory.analysis import active_inventory_util as util
 from bespoke.inventory.analysis import inventory_valuations_util # so that it triggers mypy to verify the types
 	
@@ -45,7 +46,7 @@ def main() -> None:
 		sales_transactions_files=[SALES_TRANSACTIONS_FILE],
 	)
 	params = util.AnalysisParamsDict(
-		sold_threshold=util.DEFAULT_SOLD_THRESHOLD,
+		sold_threshold=package_history.DEFAULT_SOLD_THRESHOLD,
 		find_parent_child_relationships=True
 	)
 	id_to_history = util.get_histories(cast(Any, d), params=params)

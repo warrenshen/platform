@@ -19,150 +19,24 @@ from bespoke.excel.excel_writer import CellValue
 from bespoke.finance.types import finance_types
 
 from bespoke.inventory.analysis.shared import create_queries
-from bespoke.inventory.analysis.shared.inventory_types import Query
-
-DEFAULT_SOLD_THRESHOLD = 0.95
-
-# Types coming from the BigQuery pull
-InventoryPackageDict = TypedDict('InventoryPackageDict', {
-	'package_id': str,
-	'quantity': float,
-	'product_category_name': str,
-	'item_product_category_type': str,
-	'item_id': str,
-	'source_production_batch_numbers': str,
-	'production_batch_number': str,
-	'source_harvest_names': str,
-	'archived_date': str,
-	'finished_date': str
-})
-
-SalesTransactionDict = TypedDict('SalesTransactionDict', {
-	'sales_datetime': datetime.datetime,
-	'sales_date': datetime.date, # added by us
-	'tx_package_id': str,
-	'receipt_number': str,
-	'tx_quantity_sold': int,
-	'tx_total_price': float,
-	'tx_unit_of_measure': str
-})
-
-TransferPackageDict = TypedDict('TransferPackageDict', {
-	'package_id': str,
-	'license_number': str,
-	'product_category_name': str,
-	'product_name': str,
-	'received_unit_of_measure': str,
-	'shipped_quantity': Union[float, str],
-	'shipper_wholesale_price': float,
-	'shipment_package_state': str,
-	'delivery_type': str,
-	'created_date': datetime.date,
-	'received_datetime': datetime.datetime,
-	'source_harvest_names': str,
-	'received_date': datetime.date, # added by us
-	'date_to_txs': Dict[datetime.date, List[SalesTransactionDict]] # added by us
-})
-
-# Types used for analysis
-
-AnalysisParamsDict = TypedDict('AnalysisParamsDict', {
-	'sold_threshold': float,
-	'find_parent_child_relationships': bool
-})
+from bespoke.inventory.analysis.shared.package_history import PackageHistory
+from bespoke.inventory.analysis.shared.inventory_common_util import (
+	parse_to_date, parse_to_datetime, date_to_str, print_if,
+	is_outgoing
+)
+from bespoke.inventory.analysis.shared.inventory_types import (
+	Printer,
+	Query,
+	InventoryPackageDict,
+	TransferPackageDict,
+	AnalysisParamsDict,
+	SalesTransactionDict
+)
 
 CompareOptionsDict = TypedDict('CompareOptionsDict', {
 	'num_errors_to_show': int,
 	'accept_computed_when_sold_out': bool
 })
-
-NotableEventDict = TypedDict('NotableEventDict', {
-	'date': datetime.date,
-	'reason': str
-})
-
-ComputedInfoDict = TypedDict('ComputedInfoDict', {
-	'sold': NotableEventDict,
-	'finished': NotableEventDict,
-	'date_to_quantity': Dict[datetime.date, float]
-}, total=False)
-
-def _print_if(s: str, predicate: bool) -> None:
-	if predicate:
-		print(s)
-
-def _is_time_null(cur_time: Any) -> bool:
-	if not cur_time:
-		return None
-
-	cur_time_str = str(cur_time)
-	return cur_time_str == 'NaT' or cur_time_str == 'NaTType'
-
-def date_to_str(dt: Union[datetime.datetime, datetime.date]) -> str:
-	if not dt:
-		return ''
-	return dt.strftime('%m/%d/%Y')
-
-def parse_to_datetime(cur_datetime: Any) -> datetime.datetime:
-	if not cur_datetime:
-		return None
-
-	cur_type = type(cur_datetime)
-
-	if cur_type == str:
-		return parser.parse(cast(str, cur_datetime))
-	elif str(cur_type) == "<class 'pandas._libs.tslibs.timestamps.Timestamp'>":
-		return cur_datetime.to_pydatetime()
-	elif _is_time_null(cur_datetime):
-		return None
-
-	return cast(datetime.datetime, cur_datetime)
-
-def parse_to_date(cur_date: Any) -> datetime.date:
-	if not cur_date:
-		return None
-
-	cur_type = type(cur_date)
-
-	if cur_type == str:
-		return parser.parse(cast(str, cur_date)).date()
-	elif cur_type == datetime.datetime:
-		cur_date = cast(datetime.datetime, cur_date).date()
-	elif str(cur_type) == "<class 'pandas._libs.tslibs.timestamps.Timestamp'>":
-		cur_date = cur_date.date()
-	elif _is_time_null(cur_date):
-		return None
-
-	return cast(datetime.date, cur_date)
-
-def _find_matching_package_by_date(
-	all_transfer_pkgs: List[TransferPackageDict],
-	cur_date: datetime.date,
-	include_outgoing: bool) -> TransferPackageDict:
-	
-	for i in range(len(all_transfer_pkgs)):
-		cur_transfer_pkg = all_transfer_pkgs[i]
-		cur_transfer_date = cur_transfer_pkg['received_date']
-
-		if (i + 1) >= len(all_transfer_pkgs):
-			# We reached the end of the array, so just put some enormously
-			# large date
-			next_transfer_date = datetime.date(3000, 1, 1)
-		else:
-			next_transfer_date = all_transfer_pkgs[i+1]['received_date']
-
-		if _is_outgoing(cur_transfer_pkg) and include_outgoing:
-			return cur_transfer_pkg
-
-		elif _is_outgoing(cur_transfer_pkg):
-			# Dont insert a transaction associated with an outgoing transaction
-			# if were not supposed to include it
-			continue
-
-		if cur_date >= cur_transfer_date and cur_date <= next_transfer_date:
-			return cur_transfer_pkg
-
-	return None
 
 def get_inventory_column_names() -> List[str]:
 	return [
@@ -385,511 +259,11 @@ class Download(object):
 
 		return all_records
 
-class Printer(object):
-
-	def __init__(self, verbose: bool, show_info: bool) -> None:
-		self.verbose = verbose
-		self.show_info = show_info
-		self.packages_with_warnings: Set[str] = set([])
-			
-	def warn(self, msg: str, package_id: str = None) -> None:
-		print('WARN: {}'.format(msg))
-		if package_id:
-				self.packages_with_warnings.add(package_id)
-			
-	def debug(self, msg: str) -> None:
-		if self.verbose:
-			print(msg)
-					
-	def info(self, msg: str) -> None:
-		if self.show_info:
-			print(msg)
-
-class ExcludeReason(object):
-	MISSING_INCOMING = 'MISSING_INCOMING'
-	CHILD_MISSING_INVENTORY_PACKAGE = 'CHILD_MISSING_INVENTORY_PACKAGE'
-	PARENT_HAS_ZERO_QUANTITY = 'PARENT_HAS_ZERO_QUANTITY'
-	INCOMING_MISSING_QUANTITY = 'INCOMING_MISSING_QUANTITY'
-	OUTGOING_MISSING_QUANTITY = 'OUTGOING_MISSING_QUANTITY'
-	INCOMING_MISSING_PRICE = 'INCOMING_MISSING_PRICE'
-	MISSING_TIMESTAMP = 'MISSING_TIMESTAMP'
-	OUT_OF_ORDER_DATES = 'OUT_OF_ORDER_DATES'
-
-def _date_to_datetime(date: datetime.date) -> datetime.datetime:
-	return datetime.datetime.combine(date.today(), datetime.datetime.min.time()).replace(tzinfo=pytz.UTC)
-
 def _is_internal_transfer(transfer_pkg: TransferPackageDict) -> bool:
 	return transfer_pkg['delivery_type'] in set([
 		DeliveryType.INCOMING_INTERNAL,
 		DeliveryType.OUTGOING_INTERNAL
 	])
-
-def _is_incoming(transfer_pkg: TransferPackageDict) -> bool:
-	# For the purposes of this inventory exercise, incoming means its
-	# still in the posession of the company
-
-	return transfer_pkg['delivery_type'] in set([
-		DeliveryType.INTERNAL, 
-		DeliveryType.INCOMING_INTERNAL, 
-		DeliveryType.OUTGOING_INTERNAL,
-		DeliveryType.INCOMING_FROM_VENDOR,
-		DeliveryType.INCOMING_UNKNOWN
-	])
-
-def _is_outgoing(transfer_pkg: TransferPackageDict) -> bool:
-	# For the purposes of this inventory exercise, outgoing means its
-	# no onger in the posession of the company
-	return transfer_pkg['delivery_type'] in set([
-		DeliveryType.OUTGOING_TO_PAYOR,
-		DeliveryType.OUTGOING_UNKNOWN
-	])
-
-class PackageHistory(object):
-	"""
-		Grab all the information we know about this package, and then compute multiple fields on it
-	"""
-
-	def __init__(self, package_id: str) -> None:
-		self.incomings: List[TransferPackageDict] = []
-		self.outgoings: List[TransferPackageDict] = []
-		self.all_transfer_pkgs: List[TransferPackageDict] = [] # Sorted when computing information about history
-		self.sales_txs: List[SalesTransactionDict] = []
-		self.package_id = package_id
-		self.inactive_pkg: InventoryPackageDict = None
-		# We need the active package pulled directly from metrc_packages for
-		# the child package quantity computations 
-		self.active_inventory_pkg: InventoryPackageDict = None 
-		
-		self.computed_info: ComputedInfoDict = {}
-		self.is_parent = False # Whether this package is a parent of spawned child packages
-		self.is_child_of_parent = False # Whether this package is a child spawned from a parent package
-		self.are_prices_inferred = False # When we have to make a guess about the cost of the child by inferring what the parent was
-		self.should_exclude = False
-		self.exclude_reason = ''
-				
-	def in_inventory_at_date(self, cur_date: datetime.date) -> bool:
-		# Was this package in the company's possession at this date?
-		matching_transfer_pkg = _find_matching_package_by_date(
-				self.all_transfer_pkgs, cur_date=cur_date, include_outgoing=True)
-
-		if not matching_transfer_pkg:
-			# There will be many cases when we are looking at a date where the package
-			# hasn't come in yet.
-			return False
-
-		if _is_incoming(matching_transfer_pkg):
-			incoming_pkg = matching_transfer_pkg
-			arrived_date = incoming_pkg['received_date']
-
-			if arrived_date and cur_date < arrived_date:
-				return False
-
-		if _is_outgoing(matching_transfer_pkg):
-			return False
-
-		finished_date = self.computed_info.get('finished', {}).get('date')
-		if finished_date and cur_date > finished_date:
-			# Its no longer in your possession the day after it's finished
-			return False
-
-		sold_date = self.computed_info.get('sold', {}).get('date')
-		if sold_date and cur_date > sold_date:
-			# We know it's not in your possession after the sales date
-			return False
-
-		cur_quantity = self._get_current_quantity(cur_date)
-		if cur_quantity <= 0.0:
-			# No quantity left even if it wasn't fully sold
-			return False
-		
-		# Knowing nothing else, assume you have the package at this date
-		return True
-	
-	def _get_current_quantity(self, inventory_date: datetime.date) -> float:
-		if 'date_to_quantity' not in self.computed_info:
-			return -1
-
-		dates = list(self.computed_info['date_to_quantity'].keys())
-		dates.sort()
-		cur_quantity = 0.0
-
-		for cur_date in dates:
-			if cur_date <= inventory_date:
-				# Keep updating what the quantity is until we reach the inventory date
-				cur_quantity = self.computed_info['date_to_quantity'][cur_date]
-			else:
-				# We've reached a date that is beyond the inventory date
-				break
-
-		return cur_quantity
-
-	def get_inventory_output_row(self, inventory_date: datetime.date, is_in_inventory: bool) -> List[str]:
-		return _get_inventory_output_row(self, inventory_date, is_in_inventory)
-				
-	def filter_out_unhandled_packages(self, p: Printer) -> None:    
-		if not self.incomings:
-			p.info(f'Excluding package {self.package_id} because it doesnt have an incoming package')
-			self.should_exclude = True
-			self.exclude_reason = ExcludeReason.MISSING_INCOMING
-			return
-	
-	def when_it_finished(self, p: Printer) -> bool:
-		if self.inactive_pkg:
-			reason = ''
-			finished_date = None
-
-			if self.inactive_pkg['finished_date']:
-				reason = 'finished'
-				finished_date = parse_to_date(self.inactive_pkg['finished_date'])
-			elif self.inactive_pkg['archived_date']:
-				reason = 'archived'
-				finished_date = parse_to_date(self.inactive_pkg['archived_date'])
-
-			if not reason:
-				return False
-
-			self.computed_info['finished'] = {
-				'reason': reason,
-				'date': finished_date
-			}
-			return True
-		else:
-			return False
-
-	def run_is_sold_logic(self, p: Printer, sold_threshold: float, skip_over_errors: bool) -> bool:
-		# Fills in the 'sold' value for self.computed_info
-		#
-		# Tells us when a package was sold
-		
-		# It's only considered sold if it was an incoming package
-		# and we see there are sales transactions.
-
-		in_debug_mode = skip_over_errors
-		
-		if not self.incomings:
-			return False
-
-		# Insert transactions based on the corresponding incoming transfer they
-		# are associated with
-		for transfer_pkg in self.incomings:
-			transfer_pkg['date_to_txs'] = OrderedDict()
-
-		for transfer_pkg in self.outgoings:
-			transfer_pkg['date_to_txs'] = OrderedDict()
-
-		# Organize things by their incoming, outgoing order
-		incoming_pkgs = []
-		for incoming_pkg in self.incomings:
-			# Make sure we cleared out any previous transactions associated with these packages
-			assert len(incoming_pkg['date_to_txs'].keys()) == 0
-			if in_debug_mode:
-				print('INCOMING')
-				print(incoming_pkg)
-				print('')
-
-			if _is_time_null(incoming_pkg['received_datetime']):
-				#p.warn('seeing an incoming package for #{} with no received_datetime'.format(self.package_id))
-				incoming_pkg['received_datetime'] = _date_to_datetime(incoming_pkg['created_date'])
-				continue
-			elif type(incoming_pkg['received_datetime']) == datetime.datetime:
-				incoming_pkg['received_datetime'] = incoming_pkg['received_datetime'].replace(tzinfo=pytz.UTC)
-
-			if not incoming_pkg['received_datetime']:
-				continue
-
-			incoming_pkgs.append(incoming_pkg)
-
-		outgoing_pkgs = []
-		for outgoing_pkg in self.outgoings:
-			# Make sure we cleared out any previous transactions associated with these packages
-			assert len(outgoing_pkg['date_to_txs'].keys()) == 0
-
-			if in_debug_mode:
-				print('OUTGOING')
-				print(outgoing_pkg)
-				print('')
-
-			if _is_time_null(outgoing_pkg['received_datetime']):
-				#p.warn('seeing an outgoing package for #{} with no received_datetime'.format(self.package_id))
-				outgoing_pkg['received_datetime'] = _date_to_datetime(outgoing_pkg['created_date'])
-				continue
-			elif type(outgoing_pkg['received_datetime']) == datetime.datetime:
-				# If it's already a datetime.datetime, we need to make it timezone aware
-				outgoing_pkg['received_datetime'] = outgoing_pkg['received_datetime'].replace(tzinfo=pytz.UTC)
-
-			if not outgoing_pkg['received_datetime']:
-				continue
-
-			outgoing_pkgs.append(outgoing_pkg)
-
-		if not incoming_pkgs:
-			return False
-
-		self.all_transfer_pkgs = incoming_pkgs + outgoing_pkgs
-		self.all_transfer_pkgs.sort(key=lambda x: x['received_datetime'])
-		all_transfer_pkgs = self.all_transfer_pkgs
-
-		def _find_insertion(sales_datetime: datetime.datetime) -> TransferPackageDict:
-			# Find the transfer pkog to associate these transactions with, e.g.,
-			#
-			# INCOMING #1
-			#    date_to_txs: {}
-			#
-			# this will tell us all the transactions that occurred after
-			# our incoming transfer, and presumably before an outgoing transfer
-			# occurred.
-			for i in range(len(all_transfer_pkgs)):
-				cur_transfer_pkg = all_transfer_pkgs[i]
-				cur_transfer_datetime = cur_transfer_pkg['received_datetime']
-
-				if (i + 1) >= len(all_transfer_pkgs):
-					# We reached the end of the array, so just put some enormously
-					# large date
-					next_transfer_datetime = datetime.datetime(3000, 1, 1).replace(tzinfo=pytz.UTC)
-				else:
-					next_transfer_datetime = all_transfer_pkgs[i+1]['received_datetime']
-
-				if _is_outgoing(cur_transfer_pkg):
-					# Dont insert a transaction associated with an outgoint transaction
-					continue
-
-				if sales_datetime >= cur_transfer_datetime and sales_datetime <= next_transfer_datetime:
-					return cur_transfer_pkg
-
-			# If no package was still found to match to, assume that a transaction which
-			# occurred in the same day as an incoming package is still OK, even if it
-			# technically happened minutes or hours before arriving according to metrc
-			sales_date = sales_datetime.date()
-
-			matching_transfer_pkg = _find_matching_package_by_date(
-				all_transfer_pkgs, cur_date=sales_date, include_outgoing=False)
-			if matching_transfer_pkg:
-				return matching_transfer_pkg
-
-			if skip_over_errors:
-				# If we are just using this for debugging, insert this transaction into
-				# the last transfer package we see
-				return all_transfer_pkgs[-1]
-			else:
-				return None
-
-		self.sales_txs.sort(key = lambda x: x['sales_datetime'])
-
-		if self.is_child_of_parent and not self.active_inventory_pkg and not self.inactive_pkg:
-			if in_debug_mode:
-				print(f'We should always have the actual inventory or inactive package for a child package. Package ID {self.package_id}')
-			
-			self.should_exclude = True
-			self.exclude_reason = ExcludeReason.CHILD_MISSING_INVENTORY_PACKAGE
-			return False
-
-		# Estimate the original quantity of a package by taking how much of it we have in
-		# metrc_packages
-		estimated_original_quantity = 0.0
-		if self.active_inventory_pkg:
-			estimated_original_quantity = float(self.active_inventory_pkg['quantity'])
-		elif self.inactive_pkg:
-			estimated_original_quantity = float(self.inactive_pkg['quantity'])
-
-		for tx in self.sales_txs:
-			cur_date = tx['sales_date']
-			cur_transfer_pkg = _find_insertion(tx['sales_datetime'])
-
-			if not cur_transfer_pkg:
-				self.should_exclude = True
-				self.exclude_reason = ExcludeReason.OUT_OF_ORDER_DATES
-				p.info('Excluding package {}, could not find a transfer to insert a tx with date {}'.format(
-					self.package_id, tx['sales_datetime']))
-				return False
-
-			cur_txs = cur_transfer_pkg['date_to_txs'].get(cur_date, [])
-			cur_txs.append(tx)
-			cur_transfer_pkg['date_to_txs'][cur_date] = cur_txs
-
-			estimated_original_quantity += tx['tx_quantity_sold']
-
-		if self.is_child_of_parent:
-			assert len(self.incomings) == 1
-			for incoming_pkg in self.incomings:
-				# We copied the parent's incoming_pkg into the child's incoming_pkg, and
-				# we take the chance here to modify it according to the percentage
-				# that this child contributed to the overall parent,
-				# e.g.,
-				#
-				# parent may have been shipped_quantity 100, price $1000
-				#
-				# child now has a quantity of 2, and it was sold 8 times, therefore
-				# we believe the child started off with quantity 10, and its "cost"
-				# is $1000 / 10, and its shipped_quantity is 10
-
-				parent_original_quantity = float(incoming_pkg['shipped_quantity'])
-				parent_wholesale_price = float(incoming_pkg['shipper_wholesale_price'])
-				child_original_quantity = estimated_original_quantity
-				incoming_pkg['shipped_quantity'] = child_original_quantity
-				if math.isclose(parent_original_quantity, 0.0):
-					self.should_exclude = True
-					self.exclude_reason = ExcludeReason.PARENT_HAS_ZERO_QUANTITY
-					p.info('Excluding package {} because parent has 0 original quantity and cant divide by zero'.format(
-						self.package_id))
-					return False
-
-				per_unit_price = parent_wholesale_price / parent_original_quantity
-				incoming_pkg['shipper_wholesale_price'] = per_unit_price * child_original_quantity
-				pass
-
-		# TODO(dlluncor):
-		# Use received_quantity, if not there, then back off to shipped_quantity
-
-		lines = []
-		verbose = p.verbose
-		
-		amount_sold = 0.0
-		is_sold = False
-		shipped_quantity = 0.0
-		revenue_from_pkg = 0.0
-		remaining_quantity = 0.0
-		seen_receipt_numbers = {}
-		seen_sales_datetimes = {}
-		date_to_quantity: Dict[datetime.date, float] = {}
-		
-		for transfer_pkg in all_transfer_pkgs:
-			
-			if _is_incoming(transfer_pkg):
-				incoming_pkg = transfer_pkg
-
-				arrived_date = incoming_pkg['received_date']
-				if not incoming_pkg['shipped_quantity'] or numpy.isnan(incoming_pkg['shipped_quantity']):
-					self.should_exclude = True
-					self.exclude_reason = ExcludeReason.INCOMING_MISSING_QUANTITY
-					p.warn(f'incoming package #{self.package_id} does not have a shipped quantity', package_id=self.package_id)
-					return False
-
-				shipped_quantity = float(incoming_pkg['shipped_quantity'])
-				price_of_pkg = incoming_pkg['shipper_wholesale_price']
-				if not price_of_pkg or numpy.isnan(price_of_pkg):
-					self.should_exclude = True
-					self.exclude_reason = ExcludeReason.INCOMING_MISSING_PRICE
-					p.warn(f'incoming package #{self.package_id} does not have a shipped price', package_id=self.package_id)
-					return False
-
-				shipment_package_state = incoming_pkg['shipment_package_state']
-
-				initial_quantity = shipped_quantity
-				if shipment_package_state == 'Returned':
-					initial_quantity = 0.0
-
-				date_to_quantity[arrived_date] = initial_quantity
-				remaining_quantity = initial_quantity
-
-				if verbose:
-					lines.append('')
-					lines.append(f'Package {self.package_id} arrived on {date_to_str(arrived_date)} with quantity {shipped_quantity} and price ${price_of_pkg}.')
-
-			elif _is_outgoing(transfer_pkg):
-				outgoing_pkg = transfer_pkg
-				outgoing_date = outgoing_pkg['received_date']
-
-				# TODO(dlluncor): Do we set the quantity to 0 on the day it's sent
-				# or the day after?
-				date_to_quantity[outgoing_date] = 0
-				remaining_quantity = 0
-
-				if not skip_over_errors and len(transfer_pkg['date_to_txs'].keys()) > 0:
-					raise Exception(f'There should be no transactions associated with an outgoing transfer. Package ID: {self.package_id}, outgoing transfer package on {outgoing_date}')
-
-				if not outgoing_pkg['shipped_quantity'] or numpy.isnan(outgoing_pkg['shipped_quantity']):
-					self.should_exclude = True
-					self.exclude_reason = ExcludeReason.OUTGOING_MISSING_QUANTITY
-					p.warn(f'outgoing package #{self.package_id} does not have a outgoing shipped quantity', package_id=self.package_id)
-					return False
-
-				shipped_quantity = float(incoming_pkg['shipped_quantity'])
-
-				if verbose:
-					lines.append('')
-					lines.append(f'Package {self.package_id} is outgoing on {date_to_str(outgoing_date)} with quantity {shipped_quantity}')
-
-			else:
-				raise Exception('Seeing a transfer with unhandled deliver type {}'.format(transfer_pkg))
-
-			dates = list(transfer_pkg['date_to_txs'].keys())
-			dates.sort()
-
-			for cur_date in dates:
-				txs = transfer_pkg['date_to_txs'][cur_date]
-				# There may be duplicate transactions, so we need to make sure
-				# we only see 1 receipt number per package_id
-
-				for tx in txs:
-					if tx['receipt_number'] in seen_receipt_numbers:
-						if verbose:
-							#lines.append(f"WARN: Got duplicate transaction for package {self.package_id} receipt number {tx['receipt_number']}")
-							#lines.append(f"Delta in txs sold is {tx['tx_is_deleted']}, {seen_receipt_numbers[tx['receipt_number']]['tx_is_deleted']}")
-							pass
-
-						continue
-
-					if tx['sales_datetime'] in seen_sales_datetimes:
-						continue
-
-					seen_receipt_numbers[tx['receipt_number']] = tx
-					seen_sales_datetimes[tx['sales_datetime']] = True
-
-					if verbose:
-						lines.append(f"Package {self.package_id} sold on {date_to_str(tx['sales_datetime'])} {tx['tx_quantity_sold']} ({tx['tx_unit_of_measure']}) for ${tx['tx_total_price']}")
-						if math.isclose(tx['tx_total_price'], 0.0):
-							lines.append('WARN: tx has no total_price')
-
-					amount_sold += tx['tx_quantity_sold']
-					remaining_quantity -= tx['tx_quantity_sold']
-					revenue_from_pkg += tx['tx_total_price']
-
-					if not is_sold and (amount_sold / shipped_quantity) >= sold_threshold:
-						if verbose:
-							lines.append(f'Package {self.package_id} marked as SOLD since it is more than {sold_threshold * 100}% sold')
-
-						is_sold = True
-						is_sold_date = tx['sales_date']
-
-					if not math.isclose(revenue_from_pkg, 0.0):
-						profit_margin = '{:.2f}'.format((revenue_from_pkg - price_of_pkg) / revenue_from_pkg * 100)
-					else:
-						profit_margin = '0'
-							
-					if is_sold:
-						days_delta = (is_sold_date - arrived_date).days
-						
-						# (Revenue - Expenses) / Revenue
-						#print(f'Revenue {revenue_from_pkg}')
-						#print(f'Price {price_of_pkg}')
-						lines.append(f'Package {self.package_id} took {days_delta} days to sell with profit margin {profit_margin}%')
-						self.computed_info['sold'] = {
-							'date': is_sold_date,
-							'reason': 'sold'
-						}
-
-				date_to_quantity[parse_to_date(cur_date)] = remaining_quantity
-
-		if verbose:
-			lines.append(f'Package {self.package_id} has a remaining quantity of {remaining_quantity}')
-
-		p.info('\n'.join(lines))
-
-		self.computed_info['date_to_quantity'] = date_to_quantity
-		return is_sold
-		
-	def compute_additional_fields(self, p: Printer, params: AnalysisParamsDict, run_filter: bool, skip_over_errors: bool) -> None:
-		if run_filter:
-			self.filter_out_unhandled_packages(p)
-					
-		if self.should_exclude:
-			return
-
-		self.when_it_finished(p)
-		self.run_is_sold_logic(
-			p, 
-			sold_threshold=params.get('sold_threshold', DEFAULT_SOLD_THRESHOLD),
-			skip_over_errors=skip_over_errors)
 
 ParentDetailsDict = TypedDict('ParentDetailsDict', {
 	'incoming_pkg': TransferPackageDict,
@@ -1067,16 +441,16 @@ def _match_child_packages_to_parents(
 		# Try to match on harvest number
 		cur_harvestnames = pkg['source_harvest_names']
 		is_matching_debug_pkg = debug_package_id == pkg['package_id']
-		_print_if(f'Child has source harvest names {cur_harvestnames}', is_matching_debug_pkg)
+		print_if(f'Child has source harvest names {cur_harvestnames}', is_matching_debug_pkg)
 
 		parent_package_ids = []
 
 		if cur_harvestnames in sourceharvestnum_to_package_ids:
 			for possible_parent_pkg_id in sourceharvestnum_to_package_ids[cur_harvestnames]:
-				_print_if(f'Possible parent based on source harvest names {possible_parent_pkg_id}', is_matching_debug_pkg)
+				print_if(f'Possible parent based on source harvest names {possible_parent_pkg_id}', is_matching_debug_pkg)
 				#possible_parent_history = package_id_to_history[possible_parent_pkg_id]
-				#_print_if(possible_parent_history.incomings[-1], is_matching_debug_pkg)
-				#_print_if(possible_parent_history.active_inventory_pkg, is_matching_debug_pkg)
+				#print_if(possible_parent_history.incomings[-1], is_matching_debug_pkg)
+				#print_if(possible_parent_history.active_inventory_pkg, is_matching_debug_pkg)
 
 			if len(sourceharvestnum_to_package_ids[cur_harvestnames]) == 1:
 				# Here we've found one unique incoming parent package, so we can assume
@@ -1087,7 +461,7 @@ def _match_child_packages_to_parents(
 					'parent_package_id': parent_package_id,
 					'is_synthetic': False
 				}
-				_print_if('Found parent based on single parent matching harvest name', is_matching_debug_pkg)
+				print_if('Found parent based on single parent matching harvest name', is_matching_debug_pkg)
 				continue
 			else:
 				parent_package_ids = sourceharvestnum_to_package_ids[cur_harvestnames]
@@ -1095,7 +469,7 @@ def _match_child_packages_to_parents(
 					pkg, parent_package_ids, package_id_to_history
 				)
 				if match_resp['has_match']:
-					_print_if('Found parent based on inference logic using harvest name', is_matching_debug_pkg)
+					print_if('Found parent based on inference logic using harvest name', is_matching_debug_pkg)
 					child_to_parent_details[child_package_id] = {
 						'incoming_pkg': match_resp['incoming_pkg'],
 						'parent_package_id': None,
@@ -1119,14 +493,14 @@ def _match_child_packages_to_parents(
 			continue
 		
 		if batch_no:
-			_print_if(f'Has a source production batch number no parent found with that batch number', is_matching_debug_pkg)
+			print_if(f'Has a source production batch number no parent found with that batch number', is_matching_debug_pkg)
 
 		if batch_no not in productionbatchnum_to_package_id:
 			has_number_but_no_parent += 1
 			children_with_source_missing_parents.append(child_package_id)
 			continue
 		
-		_print_if('Found parent based on production batch num', is_matching_debug_pkg)
+		print_if('Found parent based on production batch num', is_matching_debug_pkg)
 		parent_package_id = productionbatchnum_to_package_id[batch_no]
 		child_to_parent_details[child_package_id] = {
 			'incoming_pkg': _get_incoming_pkg(parent_package_id),
@@ -1545,7 +919,7 @@ def create_inventory_dataframe_by_date(
 		is_in_inventory = history.in_inventory_at_date(inventory_date)
 		is_in_inventory_str = 'true' if is_in_inventory else ''
 
-		package_record = history.get_inventory_output_row(inventory_date, is_in_inventory)
+		package_record = _get_inventory_output_row(history, inventory_date, is_in_inventory)
 		package_record.append(is_in_inventory_str)
 		package_records += [package_record]
 
@@ -1594,7 +968,7 @@ def create_inventory_dataframes(
 			if not history.in_inventory_at_date(inventory_date):
 				continue
 
-			package_record = history.get_inventory_output_row(inventory_date, is_in_inventory=True)
+			package_record = _get_inventory_output_row(history, inventory_date, is_in_inventory=True)
 			package_records += [package_record]
 
 		date_to_inventory_records[inventory_date_str] = package_records
@@ -1801,7 +1175,7 @@ def create_inventory_xlsx(
 				sheet.add_row(get_inventory_column_names())
 				first = False
 			
-			row = history.get_inventory_output_row(inventory_date, is_in_inventory=True)
+			row = _get_inventory_output_row(history, inventory_date, is_in_inventory=True)
 			sheet.add_row(row)
 	
 	Path('out').mkdir(parents=True, exist_ok=True)
