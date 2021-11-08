@@ -67,7 +67,8 @@ TransferPackageDict = TypedDict('TransferPackageDict', {
 # Types used for analysis
 
 AnalysisParamsDict = TypedDict('AnalysisParamsDict', {
-	'sold_threshold': float
+	'sold_threshold': float,
+	'find_parent_child_relationships': bool
 })
 
 CompareOptionsDict = TypedDict('CompareOptionsDict', {
@@ -1138,7 +1139,7 @@ def _match_child_packages_to_parents(
 		num_orphans=num_orphans
 	)
 
-def get_histories(d: Download) -> Dict[str, PackageHistory]:
+def get_histories(d: Download, params: AnalysisParamsDict) -> Dict[str, PackageHistory]:
 	package_id_to_history = {}
 	
 	for in_r in d.incoming_records:
@@ -1183,28 +1184,29 @@ def get_histories(d: Download) -> Dict[str, PackageHistory]:
 
 	# Perform parent-child relationship pairing. 
 	# Children are packages with no incoming packages
-	parent_resp = _match_child_packages_to_parents(d, package_id_to_history)
+	if params['find_parent_child_relationships']:
+		parent_resp = _match_child_packages_to_parents(d, package_id_to_history)
 
-	for child_package_id, parent_info in parent_resp['child_to_parent_details'].items():
-		if child_package_id not in package_id_to_history:
-			continue
-
-		if parent_info['is_synthetic']:
-			parent_history = None
-		else:
-			parent_package_id = parent_info['parent_package_id']
-			if parent_package_id not in package_id_to_history:
+		for child_package_id, parent_info in parent_resp['child_to_parent_details'].items():
+			if child_package_id not in package_id_to_history:
 				continue
 
-			parent_history = package_id_to_history[parent_package_id] 
-		
-		if parent_history:
-			parent_history.is_parent = True
+			if parent_info['is_synthetic']:
+				parent_history = None
+			else:
+				parent_package_id = parent_info['parent_package_id']
+				if parent_package_id not in package_id_to_history:
+					continue
 
-		child_history = package_id_to_history[child_package_id]
-		child_history.incomings.append(parent_info['incoming_pkg'])
-		child_history.is_child_of_parent = True
-		child_history.are_prices_inferred = parent_info['is_synthetic']
+				parent_history = package_id_to_history[parent_package_id] 
+			
+			if parent_history:
+				parent_history.is_parent = True
+
+			child_history = package_id_to_history[child_package_id]
+			child_history.incomings.append(parent_info['incoming_pkg'])
+			child_history.is_child_of_parent = True
+			child_history.are_prices_inferred = parent_info['is_synthetic']
 
 	return package_id_to_history
 
@@ -1226,7 +1228,7 @@ def analyze_specific_package_histories(
 	package_ids: List[str],
 	params: AnalysisParamsDict) -> None:
 
-	package_id_to_history = get_histories(d)
+	package_id_to_history = get_histories(d, params)
 	package_ids_set = set(package_ids)
 	p = Printer(verbose=True, show_info=True) 
 

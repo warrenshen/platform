@@ -44,10 +44,12 @@ def main() -> None:
 		outgoing_files=[OUTGOING_TRANSFERS_FILE],
 		sales_transactions_files=[SALES_TRANSACTIONS_FILE],
 	)
-	id_to_history = util.get_histories(cast(Any, d))
-	util.create_inventory_xlsx(id_to_history, q, params={
-			'sold_threshold': util.DEFAULT_SOLD_THRESHOLD
-	})
+	params = util.AnalysisParamsDict(
+		sold_threshold=util.DEFAULT_SOLD_THRESHOLD,
+		find_parent_child_relationships=True
+	)
+	id_to_history = util.get_histories(cast(Any, d), params=params)
+	util.create_inventory_xlsx(id_to_history, q, params=params)
 
 
 if __name__ == "__main__":

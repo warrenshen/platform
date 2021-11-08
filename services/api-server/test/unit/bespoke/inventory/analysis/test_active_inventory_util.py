@@ -7,6 +7,7 @@ from typing import cast, List, Any, Dict, Iterable
 
 from bespoke.db.db_constants import DeliveryType
 from bespoke.inventory.analysis import active_inventory_util as util
+from bespoke.inventory.analysis.active_inventory_util import AnalysisParamsDict
 
 TRANSFER_PACKAGE_COLS = [
 	'package_id', 
@@ -172,7 +173,10 @@ class TestInventoryCounts(unittest.TestCase):
 
 	def _run_test(self, test: Dict) -> None:
 		dl = _create_download(test)
-		package_id_to_history = util.get_histories(dl)
+		package_id_to_history = util.get_histories(dl, params=AnalysisParamsDict(
+			sold_threshold=1.0,
+			find_parent_child_relationships=True
+		))
 		counts_dict = util.print_counts(package_id_to_history, should_print=False)
 		self.assertDictEqual(cast(Dict, counts_dict), test['expected_counts_dict'])
 
@@ -270,9 +274,10 @@ class TestInventoryPackages(unittest.TestCase):
 		dl = _create_download(test)
 
 		ANALYSIS_PARAMS = util.AnalysisParamsDict(
-			sold_threshold=1.0
+			sold_threshold=1.0,
+			find_parent_child_relationships=True
 		)
-		package_id_to_history = util.get_histories(dl)
+		package_id_to_history = util.get_histories(dl, ANALYSIS_PARAMS)
 		computed_inventory_package_records = util.create_inventory_dataframe_by_date(
 				package_id_to_history, test['inventory_date'], params=ANALYSIS_PARAMS)
 
