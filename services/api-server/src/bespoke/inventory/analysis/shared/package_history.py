@@ -68,9 +68,6 @@ def _find_matching_package_by_date(
 
 	return None
 
-def _date_to_datetime(date: datetime.date) -> datetime.datetime:
-	return datetime.datetime.combine(date.today(), datetime.datetime.min.time()).replace(tzinfo=pytz.UTC)
-
 class PackageHistory(object):
 	"""
 		Grab all the information we know about this package, and then compute multiple fields on it
@@ -211,13 +208,6 @@ class PackageHistory(object):
 				print(incoming_pkg)
 				print('')
 
-			if is_time_null(incoming_pkg['received_datetime']):
-				#p.warn('seeing an incoming package for #{} with no received_datetime'.format(self.package_id))
-				incoming_pkg['received_datetime'] = _date_to_datetime(incoming_pkg['created_date'])
-				continue
-			elif type(incoming_pkg['received_datetime']) == datetime.datetime:
-				incoming_pkg['received_datetime'] = incoming_pkg['received_datetime'].replace(tzinfo=pytz.UTC)
-
 			if not incoming_pkg['received_datetime']:
 				continue
 
@@ -232,14 +222,6 @@ class PackageHistory(object):
 				print('OUTGOING')
 				print(outgoing_pkg)
 				print('')
-
-			if is_time_null(outgoing_pkg['received_datetime']):
-				#p.warn('seeing an outgoing package for #{} with no received_datetime'.format(self.package_id))
-				outgoing_pkg['received_datetime'] = _date_to_datetime(outgoing_pkg['created_date'])
-				continue
-			elif type(outgoing_pkg['received_datetime']) == datetime.datetime:
-				# If it's already a datetime.datetime, we need to make it timezone aware
-				outgoing_pkg['received_datetime'] = outgoing_pkg['received_datetime'].replace(tzinfo=pytz.UTC)
 
 			if not outgoing_pkg['received_datetime']:
 				continue

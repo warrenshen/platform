@@ -22,7 +22,7 @@ from bespoke.inventory.analysis.shared import create_queries
 from bespoke.inventory.analysis.shared.package_history import PackageHistory
 from bespoke.inventory.analysis.shared.inventory_common_util import (
 	parse_to_date, parse_to_datetime, date_to_str, print_if,
-	is_outgoing
+	is_outgoing, is_time_null
 )
 from bespoke.inventory.analysis.shared.inventory_types import (
 	Printer,
@@ -140,6 +140,16 @@ class BigQuerySQLHelper(object):
 				self.engine
 			)
 
+def _date_to_datetime(date: datetime.date) -> datetime.datetime:
+	return datetime.datetime.combine(date.today(), datetime.datetime.min.time()).replace(tzinfo=pytz.UTC)
+
+def _fix_received_date_and_timezone(pkg: TransferPackageDict) -> None:
+	if is_time_null(pkg['received_datetime']):
+		#p.warn('seeing an incoming package for #{} with no received_datetime'.format(self.package_id))
+		pkg['received_datetime'] = _date_to_datetime(pkg['created_date'])	
+	elif type(pkg['received_datetime']) == datetime.datetime:
+		pkg['received_datetime'] = pkg['received_datetime'].replace(tzinfo=pytz.UTC)
+
 class Download(object):
 		
 	def __init__(self) -> None:
@@ -183,6 +193,7 @@ class Download(object):
 
 		for incoming_r in self.incoming_records:
 			incoming_r['received_datetime'] = parse_to_datetime(incoming_r['received_datetime'])
+			_fix_received_date_and_timezone(incoming_r)
 			incoming_r['received_date'] = parse_to_date(incoming_r['received_datetime'])
 			incoming_r['created_date'] = parse_to_date(incoming_r['created_date'])
 			all_package_ids.add(incoming_r['package_id'])
@@ -191,6 +202,7 @@ class Download(object):
 
 		for outgoing_r in self.outgoing_records:
 			outgoing_r['received_datetime'] = parse_to_datetime(outgoing_r['received_datetime'])
+			_fix_received_date_and_timezone(outgoing_r)
 			outgoing_r['received_date'] = parse_to_date(outgoing_r['received_datetime'])
 			outgoing_r['created_date'] = parse_to_date(outgoing_r['created_date'])
 			all_package_ids.add(outgoing_r['package_id'])
