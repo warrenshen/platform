@@ -1,5 +1,5 @@
 import { Box, Typography } from "@material-ui/core";
-import MetrcApiKeys from "components/Metrc/MetrcApiKeys";
+import MetrcApiKeysList from "components/Metrc/MetrcApiKeysList";
 import SyncMetrcData from "components/Metrc/SyncMetrcData";
 import { Companies } from "generated/graphql";
 
@@ -12,7 +12,7 @@ export default function CustomerMetrcApiKeysTab({ companyId }: Props) {
     <Box mt={3}>
       <Box display="flex" flexDirection="column" mt={4}>
         <Typography variant="subtitle1">
-          <b>Sync Metrc Data</b>
+          <strong>Sync Metrc Data</strong>
         </Typography>
         <Box display="flex">
           <SyncMetrcData companyId={companyId} />
@@ -20,9 +20,9 @@ export default function CustomerMetrcApiKeysTab({ companyId }: Props) {
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <Typography variant="subtitle1">
-          <b>Metrc API Keys</b>
+          <strong>Metrc API Keys</strong>
         </Typography>
-        <MetrcApiKeys companyId={companyId} />
+        <MetrcApiKeysList companyId={companyId} />
       </Box>
     </Box>
   );

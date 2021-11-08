@@ -12,7 +12,8 @@ import VerificationChip from "components/Vendors/VerificationChip";
 import {
   Companies,
   MetrcApiKeyFragment,
-  useGetMetrcApiKeysPerCompanyQuery,
+  MetrcApiKeys,
+  useGetMetrcApiKeysByCompanyIdQuery,
 } from "generated/graphql";
 import { ColumnWidths } from "lib/tables";
 import { useMemo, useState } from "react";
@@ -28,14 +29,16 @@ function getRows(metrcApiKeys: MetrcApiKeyFragment[]): RowsProp {
   }));
 }
 
-export default function MetrcApiKeys({ companyId }: Props) {
-  const { data, refetch } = useGetMetrcApiKeysPerCompanyQuery({
+export default function MetrcApiKeysList({ companyId }: Props) {
+  const { data, refetch } = useGetMetrcApiKeysByCompanyIdQuery({
     variables: {
       companyId: companyId,
     },
   });
 
-  const [selectedMetrcKeyIds, setSelectedMetrcKeyIds] = useState<string[]>([]);
+  const [selectedMetrcKeyIds, setSelectedMetrcKeyIds] = useState<
+    MetrcApiKeys["id"]
+  >([]);
   const metrcApiKeys = useMemo(() => data?.metrc_api_keys || [], [data]);
   const rows = useMemo(() => getRows(metrcApiKeys), [metrcApiKeys]);
 

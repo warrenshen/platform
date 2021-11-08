@@ -1,10 +1,16 @@
-query GetMetrcApiKeysPerCompany($companyId: uuid!) {
+query GetMetrcApiKeysByCompanyId($companyId: uuid!) {
   metrc_api_keys(where: { company_id: { _eq: $companyId } }) {
     id
     ...MetrcApiKey
-    metrc_download_summaries(order_by: { date: desc }) {
-      id
-      ...MetrcDownloadSummaryLimited
-    }
+  }
+}
+
+query GetMetrcDownloadSummariesByMetrcApiKeyId($metrcApiKeyId: uuid!) {
+  metrc_download_summaries(
+    where: { metrc_api_key_id: { _eq: $metrcApiKeyId } }
+    order_by: { date: desc }
+  ) {
+    id
+    ...MetrcDownloadSummaryLimited
   }
 }

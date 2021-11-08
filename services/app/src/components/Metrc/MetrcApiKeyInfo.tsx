@@ -1,8 +1,12 @@
-import { Box, Typography } from "@material-ui/core";
+import { Box, CircularProgress, Typography } from "@material-ui/core";
 import APIStatusChip from "components/Shared/Chip/APIStatusChip";
 import MetrcDownloadSummariesGrid from "components/Metrc/MetrcDownloadSummariesGrid";
-import { GetMetrcApiKeysPerCompanyQuery } from "generated/graphql";
+import {
+  GetMetrcApiKeysByCompanyIdQuery,
+  useGetMetrcDownloadSummariesByMetrcApiKeyIdQuery,
+} from "generated/graphql";
 import { formatDatetimeString } from "lib/date";
+import { useMemo } from "react";
 
 function MetrcApiStatusChip({
   label,
@@ -25,15 +29,26 @@ function MetrcApiStatusChip({
 
 interface Props {
   number: number;
-  metrcApiKey: GetMetrcApiKeysPerCompanyQuery["metrc_api_keys"][0];
+  metrcApiKey: GetMetrcApiKeysByCompanyIdQuery["metrc_api_keys"][0];
 }
 
 export default function MetrcApiKeyInfo({ number, metrcApiKey }: Props) {
+  const { data, loading } = useGetMetrcDownloadSummariesByMetrcApiKeyIdQuery({
+    variables: {
+      metrcApiKeyId: metrcApiKey.id,
+    },
+  });
+
+  const metrcDownloadSummaries = useMemo(
+    () => data?.metrc_download_summaries || [],
+    [data]
+  );
+
   return (
     <Box mt={2}>
       <Box>
         <Typography variant="subtitle1">
-          <b>{`Key #${number}`}</b>
+          <strong>{`Key #${number}`}</strong>
         </Typography>
       </Box>
       <Box mt={2}>
@@ -67,87 +82,92 @@ export default function MetrcApiKeyInfo({ number, metrcApiKey }: Props) {
               </Box>
               <Box display="flex" flexDirection="column" mt={2}>
                 <Typography variant="body1">{`Download summaries:`}</Typography>
-                <MetrcDownloadSummariesGrid
-                  metrcDownloadSummaries={metrcApiKey.metrc_download_summaries.filter(
-                    (metrcDownloadSummary) =>
-                      metrcDownloadSummary.license_number === licenseNumber
-                  )}
-                />
+                {loading ? (
+                  <Box my={1}>
+                    <CircularProgress />
+                  </Box>
+                ) : (
+                  <MetrcDownloadSummariesGrid
+                    metrcDownloadSummaries={metrcDownloadSummaries.filter(
+                      (metrcDownloadSummary) =>
+                        metrcDownloadSummary.license_number === licenseNumber
+                    )}
+                  />
+                )}
               </Box>
-              <Box
-                display="flex"
-                flexDirection="column"
-                width={500}
-                pl={2}
-                mt={2}
-              >
+              <Box display="flex" flexDirection="column" width={500} mt={2}>
                 <Box mb={2}>
-                  <Box mb={1}>
-                    <Typography variant="subtitle2">
-                      <b>Transfers</b>
-                    </Typography>
-                  </Box>
-                  <MetrcApiStatusChip
-                    label={"Transfers"}
-                    statusCode={statusesObj.transfers_api}
-                  />
-                  <MetrcApiStatusChip
-                    label={"Transfer Packages"}
-                    statusCode={statusesObj.transfer_packages_api}
-                  />
-                  <MetrcApiStatusChip
-                    label={"Transfer Packages Wholesale"}
-                    statusCode={statusesObj.transfer_packages_wholesale_api}
-                  />
-                  <MetrcApiStatusChip
-                    label={"Lab Results"}
-                    statusCode={statusesObj.lab_results_api}
-                  />
+                  <Typography variant="body1">{`API Statuses:`}</Typography>
                 </Box>
-                <Box mb={2}>
-                  <Box mb={1}>
-                    <Typography variant="subtitle2">
-                      <b>Packages (Inventory)</b>
-                    </Typography>
+                <Box display="flex" flexDirection="column" pl={2}>
+                  <Box mb={2}>
+                    <Box mb={1}>
+                      <Typography variant="subtitle2">
+                        <strong>Transfers</strong>
+                      </Typography>
+                    </Box>
+                    <MetrcApiStatusChip
+                      label={"Transfers"}
+                      statusCode={statusesObj.transfers_api}
+                    />
+                    <MetrcApiStatusChip
+                      label={"Transfer Packages"}
+                      statusCode={statusesObj.transfer_packages_api}
+                    />
+                    <MetrcApiStatusChip
+                      label={"Transfer Packages Wholesale"}
+                      statusCode={statusesObj.transfer_packages_wholesale_api}
+                    />
+                    <MetrcApiStatusChip
+                      label={"Lab Results"}
+                      statusCode={statusesObj.lab_results_api}
+                    />
                   </Box>
-                  <MetrcApiStatusChip
-                    label={"Packages"}
-                    statusCode={statusesObj.packages_api}
-                  />
-                </Box>
-                <Box mb={2}>
-                  <Box mb={1}>
-                    <Typography variant="subtitle2">
-                      <b>Cultivation</b>
-                    </Typography>
+                  <Box mb={2}>
+                    <Box mb={1}>
+                      <Typography variant="subtitle2">
+                        <strong>Packages (Inventory)</strong>
+                      </Typography>
+                    </Box>
+                    <MetrcApiStatusChip
+                      label={"Packages"}
+                      statusCode={statusesObj.packages_api}
+                    />
                   </Box>
-                  <MetrcApiStatusChip
-                    label={"Plants"}
-                    statusCode={statusesObj.plants_api}
-                  />
-                  <MetrcApiStatusChip
-                    label={"Plant Batches"}
-                    statusCode={statusesObj.plant_batches_api}
-                  />
-                  <MetrcApiStatusChip
-                    label={"Harvests"}
-                    statusCode={statusesObj.harvests_api}
-                  />
-                </Box>
-                <Box mb={2}>
-                  <Box mb={1}>
-                    <Typography variant="subtitle2">
-                      <b>Sales</b>
-                    </Typography>
+                  <Box mb={2}>
+                    <Box mb={1}>
+                      <Typography variant="subtitle2">
+                        <strong>Cultivation</strong>
+                      </Typography>
+                    </Box>
+                    <MetrcApiStatusChip
+                      label={"Plants"}
+                      statusCode={statusesObj.plants_api}
+                    />
+                    <MetrcApiStatusChip
+                      label={"Plant Batches"}
+                      statusCode={statusesObj.plant_batches_api}
+                    />
+                    <MetrcApiStatusChip
+                      label={"Harvests"}
+                      statusCode={statusesObj.harvests_api}
+                    />
                   </Box>
-                  <MetrcApiStatusChip
-                    label={"Sales Receipts"}
-                    statusCode={statusesObj.sales_receipts_api}
-                  />
-                  <MetrcApiStatusChip
-                    label={"Sales Transactions"}
-                    statusCode={statusesObj.sales_transactions_api}
-                  />
+                  <Box mb={2}>
+                    <Box mb={1}>
+                      <Typography variant="subtitle2">
+                        <strong>Sales</strong>
+                      </Typography>
+                    </Box>
+                    <MetrcApiStatusChip
+                      label={"Sales Receipts"}
+                      statusCode={statusesObj.sales_receipts_api}
+                    />
+                    <MetrcApiStatusChip
+                      label={"Sales Transactions"}
+                      statusCode={statusesObj.sales_transactions_api}
+                    />
+                  </Box>
                 </Box>
               </Box>
             </Box>
