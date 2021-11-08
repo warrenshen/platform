@@ -8,13 +8,15 @@ import pytz
 import xlwt
 
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Union, Iterable, Set, cast
+from typing import Any, Dict, List, Sequence, Tuple, Union, Iterable, Set, cast
 from dateutil import parser
 from collections import OrderedDict
 from mypy_extensions import TypedDict
 
 from bespoke.db.db_constants import DeliveryType
 from bespoke.excel import excel_writer
+from bespoke.excel.excel_writer import CellValue
+from bespoke.finance.types import finance_types
 
 from bespoke.inventory.analysis.shared import create_queries
 from bespoke.inventory.analysis.shared.inventory_types import Query
@@ -413,6 +415,12 @@ class ExcludeReason(object):
 
 def _date_to_datetime(date: datetime.date) -> datetime.datetime:
 	return datetime.datetime.combine(date.today(), datetime.datetime.min.time()).replace(tzinfo=pytz.UTC)
+
+def _is_internal_transfer(transfer_pkg: TransferPackageDict) -> bool:
+	return transfer_pkg['delivery_type'] in set([
+		DeliveryType.INCOMING_INTERNAL,
+		DeliveryType.OUTGOING_INTERNAL
+	])
 
 def _is_incoming(transfer_pkg: TransferPackageDict) -> bool:
 	# For the purposes of this inventory exercise, incoming means its
@@ -1326,6 +1334,169 @@ def print_counts(id_to_history: Dict[str, PackageHistory], should_print: bool = 
 		num_child_packages=num_child_packages,
 		total_seen=total_seen
 	)
+
+CogsSummaryDict = TypedDict('CogsSummaryDict', {
+	'cogs': float,
+	'revenue': float,
+	'incoming_pkg_ids_seen': Set[str],
+	'sold_pkg_ids_seen': Set[str]
+})
+
+def _to_cogs_summary_rows(year_month_to_summary: Dict[finance_types.Month, CogsSummaryDict]) -> List[List[CellValue]]:
+	keys = list(year_month_to_summary.keys())
+	keys.sort(key=lambda x: datetime.date(year=x.year, month=x.month, day=1))
+
+	rows: List[List[CellValue]] = []
+	rows.append(['year_month', 'revenue', 'cogs', 'margin_$', 'margin_%',
+		 'total_count_incoming', 'total_count', 'coverage'])
+	for key in keys:
+		summary = year_month_to_summary[key]
+
+		margin_pct = 0.0
+		if not math.isclose(summary['revenue'], 0.0):
+			margin_pct = (summary['revenue'] - summary['cogs']) / summary['revenue']
+
+		total_count_incoming = len(summary['incoming_pkg_ids_seen'])
+		total_count = len(summary['sold_pkg_ids_seen'])
+		coverage = 0.0
+		if not math.isclose(total_count, 0.0):
+			coverage = total_count_incoming / total_count
+
+		row: List[CellValue] = [
+			'{}-{}'.format(key.year, str(key.month).zfill(2)),
+			round(summary['revenue'], 2),
+			round(summary['cogs'], 2),
+			round(summary['revenue'] - summary['cogs'], 2),
+			round(margin_pct, 2),
+			total_count_incoming,
+			total_count,
+			round(coverage, 2),
+		]
+		rows.append(row)
+
+	return rows
+
+def create_cogs_summary_for_all_dates(
+	package_id_to_history: Dict[str, PackageHistory],
+	params: AnalysisParamsDict
+) -> List[List[CellValue]]:
+
+	year_month_to_summary: Dict[finance_types.Month, CogsSummaryDict] = {}
+
+	def _get_summary(cur_date: datetime.date) -> CogsSummaryDict:
+		month = finance_types.Month(
+			month=cur_date.month,
+			year=cur_date.year
+		)
+		if month not in year_month_to_summary:
+			year_month_to_summary[month] = CogsSummaryDict(
+				cogs=0.0,
+				revenue=0.0,
+				incoming_pkg_ids_seen=set(),
+				sold_pkg_ids_seen=set(),
+			)
+
+		return year_month_to_summary[month]
+
+	for package_id, history in package_id_to_history.items():
+
+		if history.incomings and history.sales_txs:
+			# Needs at least 1 sales tx to be considered part of COGS
+			incoming_pkg = history.incomings[-1]
+			summary = _get_summary(incoming_pkg['received_date'])
+			summary['cogs'] += incoming_pkg['shipper_wholesale_price']
+			summary['incoming_pkg_ids_seen'].add(incoming_pkg['package_id'])
+
+		for sales_tx in history.sales_txs:
+			summary = _get_summary(sales_tx['sales_date'])
+			summary['revenue'] += sales_tx['tx_total_price']
+			summary['sold_pkg_ids_seen'].add(sales_tx['tx_package_id'])
+
+	return _to_cogs_summary_rows(year_month_to_summary)
+
+def create_top_down_cogs_summary_for_all_dates(
+	d: Download,
+	params: AnalysisParamsDict
+) -> List[List[CellValue]]:
+
+	year_month_to_summary: Dict[finance_types.Month, CogsSummaryDict] = {}
+
+	def _get_summary(cur_date: datetime.date) -> CogsSummaryDict:
+		month = finance_types.Month(
+			month=cur_date.month,
+			year=cur_date.year
+		)
+		if month not in year_month_to_summary:
+			year_month_to_summary[month] = CogsSummaryDict(
+				cogs=0.0,
+				revenue=0.0,
+				incoming_pkg_ids_seen=set(),
+				sold_pkg_ids_seen=set(),
+			)
+
+		return year_month_to_summary[month]
+
+	for sales_tx in d.sales_tx_records:
+		summary = _get_summary(sales_tx['sales_date'])
+		summary['revenue'] += sales_tx['tx_total_price']
+		summary['sold_pkg_ids_seen'].add(sales_tx['tx_package_id'])
+
+
+	for incoming_pkg in d.incoming_records:
+		if incoming_pkg['shipment_package_state'] == 'Returned':
+			continue
+
+		if _is_internal_transfer(incoming_pkg):
+			continue
+
+		summary = _get_summary(incoming_pkg['received_date'])
+		summary['cogs'] += incoming_pkg['shipper_wholesale_price']
+		summary['incoming_pkg_ids_seen'].add(incoming_pkg['package_id'])
+
+	return _to_cogs_summary_rows(year_month_to_summary)
+
+def write_cogs_xlsx(
+	topdown_cogs_rows: List[List[CellValue]],
+	bottoms_up_cogs_rows: List[List[CellValue]],
+	company_name: str) -> None:
+
+	assert len(bottoms_up_cogs_rows) == len(topdown_cogs_rows)
+	wb = excel_writer.WorkbookWriter(xlwt.Workbook())
+
+	sheet = wb.add_sheet('Topdown')
+	for row in topdown_cogs_rows:
+		sheet.add_row(row)
+
+	sheet = wb.add_sheet('Bottomsup')
+	for row in bottoms_up_cogs_rows:
+		sheet.add_row(row)
+
+	sheet = wb.add_sheet('Delta')
+	for i in range(len(bottoms_up_cogs_rows)):
+		if i == 0:
+			# Header row
+			sheet.add_row(bottoms_up_cogs_rows[0])
+			continue
+
+		topdown = topdown_cogs_rows[i]
+		bottomsup = bottoms_up_cogs_rows[i]
+
+		delta_row = [topdown[0]]
+
+		for j in range(len(topdown)):
+			if j == 0:
+				continue
+
+			delta_row.append(cast(float, topdown[j]) - cast(float, bottomsup[j]))
+
+		sheet.add_row(delta_row)
+
+	Path('out').mkdir(parents=True, exist_ok=True)
+
+	filepath = f'out/{company_name}_cogs_summary.xls'
+	with open(filepath, 'wb') as f:
+		wb.save(f)
+		print('Wrote result to {}'.format(filepath))
 
 def create_inventory_dataframe_by_date(
 	package_id_to_history: Dict[str, PackageHistory],

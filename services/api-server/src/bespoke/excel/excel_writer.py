@@ -1,7 +1,9 @@
 import xlwt
 
-from typing import Dict, List, BinaryIO
+from typing import Dict, List, Sequence, Union, BinaryIO
 from xlwt.Worksheet import Worksheet as xlwt_Worksheet
+
+CellValue = Union[float, int, str]
 
 class Worksheet(object):
 	"""A single sheet inside a spreadsheet."""
@@ -15,16 +17,14 @@ class Worksheet(object):
 		self._ws = ws
 		self._rowx = 0
 
-	def add_row(self, values: List[str]) -> None:
+	def add_row(self, values: Sequence[CellValue]) -> None:
 		for colx, value in enumerate(values):
 			# Excel cell doesn't support more than 32767 characters.
-			if not value:
+			if value is None:
 				self._ws.write(self._rowx, colx, '')
 			else:
-				if len(value) > self.MAX_ALLOWED_XL_CELL_CHARS:
-					value = value[:self.ALLOWED_VALUE_LEN] + self.TRUNCATION_MSG
-				self._ws.write(self._rowx, colx, value[:self.MAX_ALLOWED_XL_CELL_CHARS])
-		
+				self._ws.write(self._rowx, colx, value)
+
 		self._rowx += 1
 
 class WorkbookWriter(object):
@@ -40,7 +40,7 @@ class WorkbookWriter(object):
 		self._sheet_map[sheet_name] = ws
 		return ws
 
-	def write_records(self, sheet_name: str, records: List[str]) -> None:
+	def write_records(self, sheet_name: str, records: List[CellValue]) -> None:
 		ws = self._sheet_map[sheet_name]
 		ws.add_row(records)
 
