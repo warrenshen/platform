@@ -411,6 +411,7 @@ class ExcludeReason(object):
 	PARENT_HAS_ZERO_QUANTITY = 'PARENT_HAS_ZERO_QUANTITY'
 	INCOMING_MISSING_QUANTITY = 'INCOMING_MISSING_QUANTITY'
 	OUTGOING_MISSING_QUANTITY = 'OUTGOING_MISSING_QUANTITY'
+	INCOMING_MISSING_PRICE = 'INCOMING_MISSING_PRICE'
 	MISSING_TIMESTAMP = 'MISSING_TIMESTAMP'
 	OUT_OF_ORDER_DATES = 'OUT_OF_ORDER_DATES'
 
@@ -765,6 +766,12 @@ class PackageHistory(object):
 
 				shipped_quantity = float(incoming_pkg['shipped_quantity'])
 				price_of_pkg = incoming_pkg['shipper_wholesale_price']
+				if not price_of_pkg or numpy.isnan(price_of_pkg):
+					self.should_exclude = True
+					self.exclude_reason = ExcludeReason.INCOMING_MISSING_PRICE
+					p.warn(f'incoming package #{self.package_id} does not have a shipped price', package_id=self.package_id)
+					return False
+
 				shipment_package_state = incoming_pkg['shipment_package_state']
 
 				initial_quantity = shipped_quantity
