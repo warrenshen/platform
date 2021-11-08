@@ -224,12 +224,12 @@ def download_sales_info(ctx: metrc_common_util.DownloadContext, session_maker: C
 		active_sales_receipts = SalesReceipts(active_sales_receipts_arr, 'active').filter_new_only(ctx, session)
 
 	if inactive_sales_receipts:
-		logging.info('Downloaded {} inactive sales receipts for {} on {}'.format(
-			inactive_sales_receipts.num_receipts, company_details['name'], ctx.cur_date))
+		logging.info('Downloaded {} new inactive sales receipts ({} original inactive sales receipts) for {} on {}'.format(
+			inactive_sales_receipts.num_receipts, len(inactive_sales_receipts_arr), company_details['name'], ctx.cur_date))
 
 	if active_sales_receipts:
-		logging.info('Downloaded {} new active sales receipts for {} on {}'.format(
-			active_sales_receipts.num_receipts, company_details['name'], ctx.cur_date))
+		logging.info('Downloaded {} new active sales receipts ({} original active sales receipts) for {} on {}'.format(
+			active_sales_receipts.num_receipts, len(active_sales_receipts_arr), company_details['name'], ctx.cur_date))
 	
 	return (inactive_sales_receipts, active_sales_receipts)
 
