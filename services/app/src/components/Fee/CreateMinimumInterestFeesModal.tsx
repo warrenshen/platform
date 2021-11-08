@@ -133,7 +133,9 @@ export default function CreateMinimumInterestFeesModal({ handleClose }: Props) {
           <Box>
             <Box mt={2}>
               <Typography variant="body1">
-                <b>{`Selected month: ${formatDateStringAsMonth(dateStr)}`}</b>
+                <strong>{`Selected month: ${formatDateStringAsMonth(
+                  dateStr
+                )}`}</strong>
               </Typography>
             </Box>
             <Box mt={4}>

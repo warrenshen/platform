@@ -192,9 +192,9 @@ export default function CustomerPurchaseOrdersOpenTab({
             <Alert severity="info">
               <Typography variant="body1">
                 IMPORTANT: After a purchase order is approved,{" "}
-                <b>
+                <strong>
                   the next step is to select it and press "Request PO Financing"
-                </b>{" "}
+                </strong>{" "}
                 below to submit your financing request to Bespoke Financial.
               </Typography>
             </Alert>

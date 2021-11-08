@@ -175,7 +175,7 @@ export default function UpdatePayorContactsModal({
           <>
             <Box mt={4}>
               <Typography variant="body2">
-                <b>Selected payor contacts</b>
+                <strong>Selected payor contacts</strong>
               </Typography>
               <UsersDataGrid
                 pager={false}
@@ -185,7 +185,7 @@ export default function UpdatePayorContactsModal({
             </Box>
             <Box mt={4}>
               <Typography variant="body2">
-                <b>Not selected payor contacts</b>
+                <strong>Not selected payor contacts</strong>
               </Typography>
               <UsersDataGrid
                 pager={false}

@@ -93,7 +93,7 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
         </Box>
         <Box display="flex" flexDirection="column" mt={4}>
           <Typography variant="h6">
-            <b>Bespoke Financial Bank Accounts</b>
+            <strong>Bespoke Financial Bank Accounts</strong>
           </Typography>
           <Typography variant="body2">
             BF Advances Bank Account: BF bank account that BF sends advances
@@ -126,7 +126,7 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
         </Box>
         <Box mt={4}>
           <Typography variant="h6">
-            <b>Licenses</b>
+            <strong>Licenses</strong>
           </Typography>
           <Box mt={1} mb={1}>
             {companyLicenses.map((companyLicense) => (
@@ -159,7 +159,7 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
         </Box>
         <Box mt={4}>
           <Typography variant="h6">
-            <b>Supported Features</b>
+            <strong>Supported Features</strong>
           </Typography>
           <Box mt={2}>
             <ModalButton
@@ -201,7 +201,7 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
         </Box>
         <Box mt={4}>
           <Typography variant="h6">
-            <b>Custom Messages</b>
+            <strong>Custom Messages</strong>
           </Typography>
           <Typography variant="body2" color="textSecondary">
             Custom messages are messages configured by a bank user that are
@@ -231,7 +231,7 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
               <Box key={customMessage} mt={2}>
                 <Box>
                   <Typography variant="body2" color="textSecondary">
-                    <b>{getCustomMessageName(customMessage)}</b>
+                    <strong>{getCustomMessageName(customMessage)}</strong>
                   </Typography>
                 </Box>
                 <Box pl={2} mt={1}>
@@ -245,7 +245,7 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
         </Box>
         <Box mt={4}>
           <Typography variant="h6">
-            <b>2FA Method</b>
+            <strong>2FA Method</strong>
           </Typography>
           <Typography variant="body2" color="textSecondary">
             Which 2FA method will be used for vendor partnership related
@@ -278,7 +278,7 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
         </Box>
         <Box mt={4}>
           <Typography variant="h6">
-            <b>Is Dummy Account</b>
+            <strong>Is Dummy Account</strong>
           </Typography>
           <Typography variant="body2" color="textSecondary">
             Enabling "is dummy account" excludes this customer from all

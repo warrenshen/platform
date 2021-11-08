@@ -142,7 +142,7 @@ export default function CreateCustomerModal({ handleClose }: Props) {
         </Box>
         <Box display="flex" flexDirection="column">
           <Typography variant={"body2"}>
-            <b>Select existing company</b>
+            <strong>Select existing company</strong>
           </Typography>
           <Typography variant={"subtitle2"} color={"textSecondary"}>
             Does the company you want to create a customer profile for ALREADY
@@ -167,7 +167,7 @@ export default function CreateCustomerModal({ handleClose }: Props) {
             </Box>
             <Box mt={2}>
               <Typography variant={"body2"}>
-                <b>Create new company</b>
+                <strong>Create new company</strong>
               </Typography>
             </Box>
             <Box mt={2}>

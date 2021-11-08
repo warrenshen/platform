@@ -66,7 +66,7 @@ export default function SelectLoanAutocomplete({
                   width={ColumnWidths.Identifier}
                 >
                   <Typography variant="subtitle2" color="textSecondary">
-                    <b>Loan</b>
+                    <strong>Loan</strong>
                   </Typography>
                   <Typography variant="body2">
                     {createLoanCustomerIdentifier(loan)}
@@ -83,7 +83,7 @@ export default function SelectLoanAutocomplete({
                   width={ColumnWidths.Status}
                 >
                   <Typography variant="subtitle2" color="textSecondary">
-                    <b>Repayment Status</b>
+                    <strong>Repayment Status</strong>
                   </Typography>
                   <LoanPaymentStatusChip
                     paymentStatus={loan.payment_status as LoanPaymentStatusEnum}
@@ -95,7 +95,7 @@ export default function SelectLoanAutocomplete({
                   width={ColumnWidths.Currency}
                 >
                   <Typography variant="subtitle2" color="textSecondary">
-                    <b>Amount</b>
+                    <strong>Amount</strong>
                   </Typography>
                   <Typography variant="body2">
                     {formatCurrency(loan.amount)}
@@ -107,7 +107,7 @@ export default function SelectLoanAutocomplete({
                   width={ColumnWidths.MinWidth}
                 >
                   <Typography variant="subtitle2" color="textSecondary">
-                    <b>PO / Invoice</b>
+                    <strong>PO / Invoice</strong>
                   </Typography>
                   <Typography variant="body2">{artifactName}</Typography>
                 </Box>
@@ -117,7 +117,7 @@ export default function SelectLoanAutocomplete({
                   width={ColumnWidths.MinWidth}
                 >
                   <Typography variant="subtitle2" color="textSecondary">
-                    <b>Vendor</b>
+                    <strong>Vendor</strong>
                   </Typography>
                   <Typography variant="body2">{vendorName}</Typography>
                 </Box>
@@ -127,7 +127,7 @@ export default function SelectLoanAutocomplete({
                   width={ColumnWidths.Date}
                 >
                   <Typography variant="subtitle2" color="textSecondary">
-                    <b>Origination Date</b>
+                    <strong>Origination Date</strong>
                   </Typography>
                   <Typography variant="body2">
                     {formatDateString(loan.origination_date)}
@@ -139,7 +139,7 @@ export default function SelectLoanAutocomplete({
                   width={ColumnWidths.Date}
                 >
                   <Typography variant="subtitle2" color="textSecondary">
-                    <b>Maturity Date</b>
+                    <strong>Maturity Date</strong>
                   </Typography>
                   <Typography variant="body2">
                     {formatDateString(loan.adjusted_maturity_date)}
@@ -151,7 +151,7 @@ export default function SelectLoanAutocomplete({
                   width={ColumnWidths.Currency}
                 >
                   <Typography variant="subtitle2" color="textSecondary">
-                    <b>Outstanding Principal</b>
+                    <strong>Outstanding Principal</strong>
                   </Typography>
                   <Typography variant="body2">
                     {formatCurrency(loan.outstanding_principal_balance)}
@@ -163,7 +163,7 @@ export default function SelectLoanAutocomplete({
                   width={ColumnWidths.Currency}
                 >
                   <Typography variant="subtitle2" color="textSecondary">
-                    <b>Outstanding Interest</b>
+                    <strong>Outstanding Interest</strong>
                   </Typography>
                   <Typography variant="body2">
                     {formatCurrency(loan.outstanding_interest)}
@@ -175,7 +175,7 @@ export default function SelectLoanAutocomplete({
                   width={ColumnWidths.Currency}
                 >
                   <Typography variant="subtitle2" color="textSecondary">
-                    <b>Outstanding Late Fees</b>
+                    <strong>Outstanding Late Fees</strong>
                   </Typography>
                   <Typography variant="body2">
                     {formatCurrency(loan.outstanding_fees)}

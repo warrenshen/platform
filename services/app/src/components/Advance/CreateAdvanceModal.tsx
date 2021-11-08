@@ -178,10 +178,10 @@ export default function CreateAdvanceModal({
       ) : (
         <Box>
           <Alert severity="warning">
-            You've selected loans corresponding to <b>MULTIPLE</b> recipient
-            bank accounts. This is not allowed: an advance may only be sent to
-            one recipient bank account. Please select different loans and try
-            again.
+            You've selected loans corresponding to <strong>MULTIPLE</strong>{" "}
+            recipient bank accounts. This is not allowed: an advance may only be
+            sent to one recipient bank account. Please select different loans
+            and try again.
           </Alert>
         </Box>
       )}

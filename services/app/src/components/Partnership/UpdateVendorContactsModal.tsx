@@ -175,7 +175,7 @@ export default function UpdateVendorContactsModal({
           <>
             <Box mt={4}>
               <Typography variant="body2">
-                <b>Selected vendor contacts</b>
+                <strong>Selected vendor contacts</strong>
               </Typography>
               <UsersDataGrid
                 pager={false}
@@ -185,7 +185,7 @@ export default function UpdateVendorContactsModal({
             </Box>
             <Box mt={4}>
               <Typography variant="body2">
-                <b>Not selected vendor contacts</b>
+                <strong>Not selected vendor contacts</strong>
               </Typography>
               <UsersDataGrid
                 pager={false}

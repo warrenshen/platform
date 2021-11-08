@@ -266,7 +266,7 @@ export default function BankCompanyPage() {
                 >
                   <Box mb={1}>
                     <Typography variant="subtitle2" color="textSecondary">
-                      <b>{section.label.toUpperCase()}</b>
+                      <strong>{section.label.toUpperCase()}</strong>
                     </Typography>
                   </Box>
                   <List>

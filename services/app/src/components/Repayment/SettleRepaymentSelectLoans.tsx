@@ -238,7 +238,7 @@ export default function SettleRepaymentSelectLoans({
           </Box>
           <Box mt={2}>
             <Typography variant="subtitle1" color="textSecondary">
-              <b>Selected loans</b>
+              <strong>Selected loans</strong>
             </Typography>
             <LoansDataGrid
               isArtifactVisible
@@ -254,7 +254,7 @@ export default function SettleRepaymentSelectLoans({
           </Box>
           <Box mt={4}>
             <Typography variant="subtitle1" color="textSecondary">
-              <b>Not selected loans</b>
+              <strong>Not selected loans</strong>
             </Typography>
             <LoansDataGrid
               isArtifactVisible
