@@ -47,7 +47,9 @@ def main() -> None:
 	)
 	params = util.AnalysisParamsDict(
 		sold_threshold=package_history.DEFAULT_SOLD_THRESHOLD,
-		find_parent_child_relationships=True
+		find_parent_child_relationships=True,
+		use_prices_to_fill_missing_incoming=False,
+		external_pricing_data_config=None
 	)
 	id_to_history = util.get_histories(cast(Any, d), params=params)
 	util.create_inventory_xlsx(id_to_history, q, params=params)

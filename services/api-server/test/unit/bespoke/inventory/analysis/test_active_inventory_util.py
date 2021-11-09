@@ -179,7 +179,9 @@ class TestInventoryCounts(unittest.TestCase):
 		dl = _create_download(test)
 		package_id_to_history = util.get_histories(dl, params=AnalysisParamsDict(
 			sold_threshold=1.0,
-			find_parent_child_relationships=True
+			find_parent_child_relationships=True,
+			use_prices_to_fill_missing_incoming=False,
+			external_pricing_data_config=None
 		))
 		counts_dict = util.print_counts(package_id_to_history, should_print=False)
 		self.assertDictEqual(cast(Dict, counts_dict), test['expected_counts_dict'])
@@ -279,7 +281,9 @@ class TestInventoryPackages(unittest.TestCase):
 
 		ANALYSIS_PARAMS = util.AnalysisParamsDict(
 			sold_threshold=1.0,
-			find_parent_child_relationships=True
+			find_parent_child_relationships=True,
+			use_prices_to_fill_missing_incoming=False,
+			external_pricing_data_config=None
 		)
 		package_id_to_history = util.get_histories(dl, ANALYSIS_PARAMS)
 		computed_inventory_package_records = util.create_inventory_dataframe_by_date(

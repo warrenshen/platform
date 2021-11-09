@@ -10,6 +10,7 @@ import xlwt
 from pathlib import Path
 from typing import Any, Dict, List, Sequence, Tuple, Union, Iterable, Set, cast
 from dateutil import parser
+from datetime import timedelta
 from collections import OrderedDict
 from mypy_extensions import TypedDict
 
@@ -30,7 +31,8 @@ from bespoke.inventory.analysis.shared.inventory_types import (
 	InventoryPackageDict,
 	TransferPackageDict,
 	AnalysisParamsDict,
-	SalesTransactionDict
+	SalesTransactionDict,
+	PricingDataConfigDict
 )
 
 CompareOptionsDict = TypedDict('CompareOptionsDict', {
@@ -407,11 +409,11 @@ def _determine_match_based_on_harvest(
 		incoming_pkg=None
 	)
 
-def _match_child_packages_to_parents(
-	d: Download, 
-	package_id_to_history: Dict[str, PackageHistory],
-	debug_package_id: str = None) -> MatchingParentRespDict:
-	
+def _find_parents_by_productionbatch_and_harvest(
+	d: Download, package_id_to_history: Dict[str, PackageHistory],
+	resp: MatchingParentRespDict, debug_package_id: str) -> None:
+
+	child_to_parent_details = resp['child_to_parent_details']
 	productionbatchnum_to_package_id = {}
 	
 	for parent_record in d.parent_packages_records:
@@ -452,9 +454,6 @@ def _match_child_packages_to_parents(
 
 		return copy.deepcopy(parent_history.incomings[-1])
 
-	child_to_parent_details: Dict[str, ParentDetailsDict] = {}
-	num_orphans = 0
-	has_number_but_no_parent = 0
 	orphan_child_package_ids = []
 	children_with_source_missing_parents = []
 
@@ -525,14 +524,14 @@ def _match_child_packages_to_parents(
 			#else:
 			#	print('<empty>')
 
-			num_orphans += 1
+			resp['num_orphans'] += 1
 			continue
 		
 		if batch_no:
 			print_if(f'Has a source production batch number no parent found with that batch number', is_matching_debug_pkg)
 
 		if batch_no not in productionbatchnum_to_package_id:
-			has_number_but_no_parent += 1
+			resp['has_number_but_no_parent'] += 1
 			children_with_source_missing_parents.append(child_package_id)
 			continue
 		
@@ -544,17 +543,114 @@ def _match_child_packages_to_parents(
 			'is_synthetic': False
 		}
 
+
 	#print('Children missing source batch number: {}'.format(orphan_child_package_ids))
 	#print('')
 	#print('Children with source missing parent: {}'.format(children_with_source_missing_parents))
 	#print('')
 	#print('Product batch num to parent id {}'.format(productionbatchnum_to_package_id))
 
-	return MatchingParentRespDict(
-		child_to_parent_details=child_to_parent_details,
-		has_number_but_no_parent=has_number_but_no_parent,
-		num_orphans=num_orphans
+def _create_incoming_pkg_using_external_pricing(
+	pkg: InventoryPackageDict, history: PackageHistory, external_pricing_data_config: PricingDataConfigDict) -> TransferPackageDict:
+
+	if pkg['product_category_name'] not in external_pricing_data_config['category_to_fixed_prices']:
+		print(f"WARN: Could not find {pkg['product_category_name']} in the external pricing data config")
+		return None
+
+	pricing_for_category = external_pricing_data_config['category_to_fixed_prices'][pkg['product_category_name']]
+	if pkg['unit_of_measure'].lower() not in pricing_for_category:
+		print(f"WARN: Could not find {pkg['unit_of_measure'].lower()} in the external pricing table for category {pkg['product_category_name']}")
+		return None
+
+	price = pricing_for_category[pkg['unit_of_measure'].lower()]
+	unit_of_measure = pkg['unit_of_measure']
+	quantity = 1.0
+
+	history.sales_txs.sort(key=lambda x: x['sales_datetime'])
+
+	# if we dont have any sales transactions, then assume weve had this
+	# package for an arbitrary number of days in the past.
+	# otherwise
+	# say we had the package 1 day before the first time it was sold
+	received_datetime = datetime.datetime.now() - timedelta(days=90)
+	if history.sales_txs:
+		received_datetime = history.sales_txs[0]['sales_datetime'] - timedelta(days=1)
+
+	new_incoming_pkg = TransferPackageDict(
+		package_id=pkg['package_id'],
+		license_number=pkg['license_number'],
+		product_category_name=pkg['product_category_name'],
+		product_name=pkg['product_name'],
+		received_unit_of_measure=unit_of_measure,
+		received_quantity=quantity,
+		receiver_wholesale_price=price,
+		shipped_unit_of_measure=unit_of_measure,
+		shipped_quantity=quantity,
+		shipper_wholesale_price=price,
+		shipment_package_state='Accepted',
+		delivery_type=DeliveryType.INCOMING_FROM_VENDOR,
+		created_date=received_datetime.date(),
+		received_datetime=received_datetime,
+		source_harvest_names='',
+		price=price,
+		quantity=quantity,
+		unit_of_measure=unit_of_measure,
+		received_date=received_datetime.date(),
+		date_to_txs=dict()
 	)
+	return new_incoming_pkg
+
+def _match_child_packages_to_parents(
+	d: Download, 
+	package_id_to_history: Dict[str, PackageHistory],
+	params: AnalysisParamsDict,
+	debug_package_id: str = None) -> MatchingParentRespDict:
+
+	resp = MatchingParentRespDict(
+		child_to_parent_details={},
+		has_number_but_no_parent=0,
+		num_orphans=0
+	)
+
+	if params['find_parent_child_relationships']:
+		_find_parents_by_productionbatch_and_harvest(
+			d, package_id_to_history, resp, debug_package_id)
+
+	if params['use_prices_to_fill_missing_incoming']:
+		if not params['external_pricing_data_config']:
+			raise Exception('external_pricing_data_config must be filled in when the use_prices_to_fill_missing_incoming is set')
+
+		category_to_fixed_prices = params['external_pricing_data_config']['category_to_fixed_prices']
+		toplevel_keys = list(category_to_fixed_prices.keys())
+		for k in toplevel_keys:
+			# lowercase all the category names for easier matching
+			v = category_to_fixed_prices[k]
+			category_to_fixed_prices[k.lower()] = v
+
+			secondlevel_keys = list(v.keys())
+			for sub_key in secondlevel_keys:
+				# lowercase the unit of measure for easier matching
+				v[sub_key.lower()] = v[sub_key]
+
+		for pkg in d.missing_incoming_pkg_package_records:
+			if pkg['package_id'] in resp['child_to_parent_details']:
+				# Already has a matching parent
+				continue
+
+			child_history = package_id_to_history.get(pkg['package_id'])
+			if not child_history:
+				continue
+
+			new_incoming_pkg = _create_incoming_pkg_using_external_pricing(
+					pkg, child_history, params['external_pricing_data_config'])
+			if new_incoming_pkg:	
+				resp['child_to_parent_details'][pkg['package_id']] = {
+					'incoming_pkg': new_incoming_pkg,
+					'parent_package_id': None,
+					'is_synthetic': True
+				}
+
+	return resp
 
 def get_histories(d: Download, params: AnalysisParamsDict) -> Dict[str, PackageHistory]:
 	package_id_to_history = {}
@@ -601,35 +697,34 @@ def get_histories(d: Download, params: AnalysisParamsDict) -> Dict[str, PackageH
 
 	# Perform parent-child relationship pairing. 
 	# Children are packages with no incoming packages
-	if params['find_parent_child_relationships']:
-		parent_resp = _match_child_packages_to_parents(d, package_id_to_history)
+	parent_resp = _match_child_packages_to_parents(d, package_id_to_history, params)
 
-		for child_package_id, parent_info in parent_resp['child_to_parent_details'].items():
-			if child_package_id not in package_id_to_history:
+	for child_package_id, parent_info in parent_resp['child_to_parent_details'].items():
+		if child_package_id not in package_id_to_history:
+			continue
+
+		if parent_info['is_synthetic']:
+			parent_history = None
+		else:
+			parent_package_id = parent_info['parent_package_id']
+			if parent_package_id not in package_id_to_history:
 				continue
 
-			if parent_info['is_synthetic']:
-				parent_history = None
-			else:
-				parent_package_id = parent_info['parent_package_id']
-				if parent_package_id not in package_id_to_history:
-					continue
+			parent_history = package_id_to_history[parent_package_id] 
+		
+		if parent_history:
+			parent_history.is_parent = True
 
-				parent_history = package_id_to_history[parent_package_id] 
-			
-			if parent_history:
-				parent_history.is_parent = True
-
-			child_history = package_id_to_history[child_package_id]
-			child_history.incomings.append(parent_info['incoming_pkg'])
-			child_history.is_child_of_parent = True
-			child_history.are_prices_inferred = parent_info['is_synthetic']
+		child_history = package_id_to_history[child_package_id]
+		child_history.incomings.append(parent_info['incoming_pkg'])
+		child_history.is_child_of_parent = True
+		child_history.are_prices_inferred = parent_info['is_synthetic']
 
 	return package_id_to_history
 
-def run_orphan_analysis(d: Download, package_id_to_history: Dict[str, PackageHistory]) -> None:
+def run_orphan_analysis(d: Download, package_id_to_history: Dict[str, PackageHistory], params: AnalysisParamsDict) -> None:
 	# Child to parent package_id
-	resp = _match_child_packages_to_parents(d, package_id_to_history)
+	resp = _match_child_packages_to_parents(d, package_id_to_history, params)
 
 	print('{} - Number of parent packages'.format(len(d.parent_packages_records)))
 	print('')
@@ -667,7 +762,7 @@ def analyze_specific_package_histories(
 				print('CHILD TO PARENT MATCHING ANALYSIS')
 				# Lets see why we cant find the parent of this package
 				_match_child_packages_to_parents(
-					d, package_id_to_history, debug_package_id=history.package_id)
+					d, package_id_to_history, params, debug_package_id=history.package_id)
 
 		print('')
 
@@ -1120,9 +1215,13 @@ def compare_inventory_dataframes(computed: Any, actual: Any, options: CompareOpt
 	print('')
 	print('Num matching packages: {}'.format(num_matching_packages))
 
+	computed_missing_but_seen_before_pct = 0.0
+	if len(computed_missing_package_ids) != 0:
+		computed_missing_but_seen_before_pct = len(computed_missing_package_ids_but_seen_before) / len(computed_missing_package_ids) * 100
+
 	print('Num actual packages not computed: {}'.format(len(computed_missing_package_ids)))
 	print('  but computed at some point: {}, e.g., {:.2f}% of non-computed packages'.format(
-		len(computed_missing_package_ids_but_seen_before), len(computed_missing_package_ids_but_seen_before) / len(computed_missing_package_ids) * 100))
+		len(computed_missing_package_ids_but_seen_before), computed_missing_but_seen_before_pct))
 	print('  avg quantity from actual packages {:.2f}'.format(quantity_not_computed_avg))
 
 	print('Num computed packages not in actual: {}'.format(len(unseen_package_ids)))

@@ -5,8 +5,11 @@ from typing import Union, List, Dict, Set
 # Types coming from the BigQuery pull
 InventoryPackageDict = TypedDict('InventoryPackageDict', {
 	'package_id': str,
+	'license_number': str,
 	'quantity': float,
 	'product_category_name': str,
+	'product_name': str,
+	'unit_of_measure': str,
 	'item_product_category_type': str,
 	'item_id': str,
 	'source_production_batch_numbers': str,
@@ -51,9 +54,16 @@ TransferPackageDict = TypedDict('TransferPackageDict', {
 
 # Types used for analysis
 
+# So we can assume prices
+PricingDataConfigDict = TypedDict('PricingDataConfigDict', {
+	'category_to_fixed_prices': Dict[str, Dict[str, float]]
+})
+
 AnalysisParamsDict = TypedDict('AnalysisParamsDict', {
 	'sold_threshold': float,
-	'find_parent_child_relationships': bool
+	'find_parent_child_relationships': bool,
+	'use_prices_to_fill_missing_incoming': bool,
+	'external_pricing_data_config': PricingDataConfigDict
 })
 
 NotableEventDict = TypedDict('NotableEventDict', {
