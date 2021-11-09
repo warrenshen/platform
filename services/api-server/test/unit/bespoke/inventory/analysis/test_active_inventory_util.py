@@ -41,11 +41,15 @@ SALES_RECEIPTS_COLS = [
 
 PACKAGE_COLS = [
 	'package_id',
+	'license_number',
 	'type',
 	'quantity',
 	'item_product_category_type',
 	'item_id',
 	'source_production_batch_numbers',
+	'product_name',
+	'product_category_name',
+	'unit_of_measure',
 	'production_batch_number',
 	'source_harvest_names',
 	'archived_date',
@@ -58,13 +62,18 @@ def _transfer_pkg(
 		received_datetime: datetime.datetime,
 		quantity: float = 0.0,
 		wholesale_price: float = 0.0,
+		product_category_name: str = '',
 		received_unit_of_measure: str = 'grams',
 		source_harvest_names: str = ''
 	) -> Dict:
+
+	if not product_category_name:
+		product_category_name = f'categoryname-{id}'
+
 	return {
 		'package_id': f'p{id}',
 		'license_number': 'abcd',
-		'product_category_name': f'categoryname-{id}',
+		'product_category_name': product_category_name,
 		'product_name': f'productname-{id}',
 		'received_unit_of_measure': received_unit_of_measure,
 		'received_quantity': quantity,
@@ -82,6 +91,9 @@ def _inventory_pkg(
 	id: int,
 	package_type: str,
 	quantity: float,
+	product_name: str = '',
+	product_category_name: str = '',
+	unit_of_measure: str = '',
 	finished_date: str = '',
 	source_production_batch_numbers: str = '',
 	production_batch_number: str = '',
@@ -98,10 +110,14 @@ def _inventory_pkg(
 
 	return {
 		'package_id': f'p{id}',
+		'license_number': 'abcd',
 		'type': package_type,
 		'quantity': quantity,
 		'item_product_category_type': item_product_category_type,
 		'item_id': item_id,
+		'product_name': product_name,
+		'product_category_name': product_category_name,
+		'unit_of_measure': unit_of_measure,
 		'source_production_batch_numbers': source_production_batch_numbers,
 		'production_batch_number': production_batch_number,
 		'source_harvest_names': source_harvest_names,
@@ -272,6 +288,14 @@ class TestInventoryCounts(unittest.TestCase):
 		}
 		self._run_test(test)
 
+def get_default_params() -> util.AnalysisParamsDict:
+	return util.AnalysisParamsDict(
+		sold_threshold=1.0,
+		find_parent_child_relationships=True,
+		use_prices_to_fill_missing_incoming=False,
+		external_pricing_data_config=None
+	)
+
 class TestInventoryPackages(unittest.TestCase):
 
 	maxDiff = None
@@ -279,15 +303,9 @@ class TestInventoryPackages(unittest.TestCase):
 	def _run_test(self, test: Dict) -> None:
 		dl = _create_download(test)
 
-		ANALYSIS_PARAMS = util.AnalysisParamsDict(
-			sold_threshold=1.0,
-			find_parent_child_relationships=True,
-			use_prices_to_fill_missing_incoming=False,
-			external_pricing_data_config=None
-		)
-		package_id_to_history = util.get_histories(dl, ANALYSIS_PARAMS)
+		package_id_to_history = util.get_histories(dl, test['analysis_params'])
 		computed_inventory_package_records = util.create_inventory_dataframe_by_date(
-				package_id_to_history, test['inventory_date'], params=ANALYSIS_PARAMS)
+				package_id_to_history, test['inventory_date'], params=test['analysis_params'])
 
 		computed_inventory_packages_dataframe = pd.DataFrame(
 				computed_inventory_package_records,
@@ -303,7 +321,6 @@ class TestInventoryPackages(unittest.TestCase):
 			if test.get('simplified_check'):
 				del inventory_records[i]['license_number']
 				del inventory_records[i]['arrived_date']
-				del inventory_records[i]['incoming_cost']
 				del inventory_records[i]['incoming_quantity']
 				del inventory_records[i]['is_child_package']
 				del inventory_records[i]['are_prices_inferred']
@@ -382,6 +399,7 @@ class TestInventoryPackages(unittest.TestCase):
 			'inventory_packages': [
 			],
 			'inventory_date': '10/1/2020',
+			'analysis_params': get_default_params(),
 			'expected_inventory_records': [
 				{
 					'package_id': 'p1',
@@ -434,11 +452,13 @@ class TestInventoryPackages(unittest.TestCase):
 			'inventory_packages': [
 			],
 			'inventory_date': '10/3/2020',
+			'analysis_params': get_default_params(),
 			'simplified_check': True,
 			'expected_inventory_records': [
 				{
 					'package_id': 'p1',
 					'quantity': '0.0',
+					'incoming_cost': '120.00',
 					'unit_of_measure': 'Each',
 					'sold_date': '',
 					'is_in_inventory': ''
@@ -475,11 +495,13 @@ class TestInventoryPackages(unittest.TestCase):
 				)
 			],
 			'inventory_date': '10/4/2020',
+			'analysis_params': get_default_params(),
 			'simplified_check': True,
 			'expected_inventory_records': [
 				{
 					'package_id': 'p1',
 					'quantity': '0.0',
+					'incoming_cost': '120.00',
 					'unit_of_measure': 'Each',
 					'sold_date': '',
 					'is_in_inventory': ''
@@ -539,11 +561,13 @@ class TestInventoryPackages(unittest.TestCase):
 				)
 			],
 			'inventory_date': '10/5/2020',
+			'analysis_params': get_default_params(),
 			'simplified_check': True,
 			'expected_inventory_records': [
 				{
 					'package_id': 'p1',
 					'quantity': '0.0',
+					'incoming_cost': '120.00',
 					'unit_of_measure': 'Each',
 					'sold_date': '',
 					'is_in_inventory': ''
@@ -551,6 +575,7 @@ class TestInventoryPackages(unittest.TestCase):
 				{
 					'package_id': 'p2',
 					'quantity': '6.0', # Start from the original quantity and backtrack based on sales
+					'incoming_cost': '84.00',
 					'unit_of_measure': 'Each',
 					'sold_date': '',
 					'is_in_inventory': 'true'
@@ -611,11 +636,13 @@ class TestInventoryPackages(unittest.TestCase):
 				)
 			],
 			'inventory_date': '10/5/2020',
+			'analysis_params': get_default_params(),
 			'simplified_check': True,
 			'expected_inventory_records': [
 				{
 					'package_id': 'p1',
 					'quantity': '0.0',
+					'incoming_cost': '120.00',
 					'unit_of_measure': 'Each',
 					'sold_date': '',
 					'is_in_inventory': ''
@@ -623,6 +650,7 @@ class TestInventoryPackages(unittest.TestCase):
 				{
 					'package_id': 'p2',
 					'quantity': '6.0', # Start from the original quantity and backtrack based on sales
+					'incoming_cost': '84.00', # 7 * 12
 					'unit_of_measure': 'Each',
 					'sold_date': '',
 					'is_in_inventory': 'true'
@@ -702,18 +730,21 @@ class TestInventoryPackages(unittest.TestCase):
 				)
 			],
 			'inventory_date': '10/5/2020',
+			'analysis_params': get_default_params(),
 			'simplified_check': True,
 			'expected_inventory_records': [
 				{
 					'package_id': 'p1',
 					'quantity': '0.0',
 					'unit_of_measure': 'Each',
+					'incoming_cost': '120.00',
 					'sold_date': '',
 					'is_in_inventory': ''
 				},
 				{
 					'package_id': 'p2',
 					'quantity': '6.0', # Start from the original quantity and backtrack based on sales
+					'incoming_cost': '84.00', # 12 * 7
 					'unit_of_measure': 'Each',
 					'sold_date': '',
 					'is_in_inventory': 'true'
@@ -721,6 +752,7 @@ class TestInventoryPackages(unittest.TestCase):
 				{
 					'package_id': 'p3',
 					'quantity': '0.0',
+					'incoming_cost': '240.00',
 					'unit_of_measure': 'Each',
 					'sold_date': '',
 					'is_in_inventory': ''
@@ -801,6 +833,7 @@ class TestInventoryPackages(unittest.TestCase):
 				)
 			],
 			'inventory_date': '10/5/2020',
+			'analysis_params': get_default_params(),
 			'expected_inventory_records': [
 				{
 					'package_id': 'p1',
@@ -920,11 +953,13 @@ class TestInventoryPackages(unittest.TestCase):
 				)
 			],
 			'inventory_date': '10/5/2020',
+			'analysis_params': get_default_params(),
 			'simplified_check': True,
 			'expected_inventory_records': [
 				{
 					'package_id': 'p1',
 					'quantity': '0.0',
+					'incoming_cost': '120.00',
 					'unit_of_measure': 'Each',
 					'sold_date': '',
 					'is_in_inventory': ''
@@ -933,9 +968,134 @@ class TestInventoryPackages(unittest.TestCase):
 				{
 					'package_id': 'p3',
 					'quantity': '0.0',
+					'incoming_cost': '240.00',
 					'unit_of_measure': 'Each',
 					'sold_date': '',
 					'is_in_inventory': ''
+				}
+			]
+		}
+		self._run_test(test)
+
+	def test_child_with_missing_incoming_filled_in_with_pricing_table(self) -> None:
+		# This package has no incoming, but based on the pricing table,
+		# we create a synthetic incoming package to estimate what details
+		# there were.
+		test: Dict = {
+			'incoming_transfer_packages': [
+			],
+			'outgoing_transfer_packages': [
+			],
+			'sales_transactions': [
+				{
+					'sales_datetime': parser.parse('10/1/2020'),
+					'tx_package_id': 'p2',
+					'receipt_number': 'r1',
+					'tx_quantity_sold': 1,
+					'tx_total_price': 1.50,
+					'tx_unit_of_measure': 'Each'
+				},
+				{
+					'sales_datetime': parser.parse('10/6/2020'),
+					'tx_package_id': 'p2',
+					'receipt_number': 'r2',
+					'tx_quantity_sold': 2,
+					'tx_total_price': 2.50,
+					'tx_unit_of_measure': 'Each'
+				},
+			],
+			'sales_receipts': [
+			],
+			'inventory_packages': [
+				_inventory_pkg(
+					id=2,
+					package_type='inactive',
+					quantity=2.0,
+					product_name='Cookies Buds',
+					product_category_name='Buds',
+					unit_of_measure='pounds',
+					finished_date='10/3/2020',
+					source_harvest_names='source1-harvest-num',
+				)
+			],
+			'inventory_date': '9/30/2020',
+			'analysis_params': util.AnalysisParamsDict(
+				sold_threshold=1.0,
+				find_parent_child_relationships=False,
+				use_prices_to_fill_missing_incoming=True,
+				external_pricing_data_config=util.PricingDataConfigDict(
+					category_to_fixed_prices={
+						'Buds': {
+							'Pounds': 4.0
+						}
+					}
+				)
+			),
+			'expected_inventory_records': [
+				{
+					'package_id': 'p2',
+					'quantity': '5.0',
+					'license_number': 'abcd',
+					'product_category_name': 'Buds',
+					'product_name': 'Cookies Buds',
+					'unit_of_measure': 'pounds',
+					'sold_date': '',
+					'are_prices_inferred': 'True',
+  				'arrived_date': '09/30/2020',
+  				'incoming_cost': '20.00', # 5 pounds came in (inferred) * $4 per pound (pricing table)
+  				'incoming_quantity': '5.00',
+					'is_child_package': 'True',
+					'is_in_inventory': 'true'
+				}
+			]
+		}
+		self._run_test(test)
+
+	def test_package_with_missing_price_filled_in_with_pricing_table(self) -> None:
+		# The package has a parent, but that parent has missing price information
+		# so we use the pricing table to fill in that detail.
+		test: Dict = {
+			'incoming_transfer_packages': [
+				_transfer_pkg(
+					id=2, 
+					delivery_type=DeliveryType.INCOMING_INTERNAL,
+					quantity=20.0,
+					wholesale_price=0.0,
+					product_category_name='Buds',
+					received_unit_of_measure='Pounds',
+					received_datetime=parser.parse('9/30/2020'),
+					source_harvest_names='source1-harvest-num'
+				),
+			],
+			'outgoing_transfer_packages': [
+			],
+			'sales_transactions': [
+			],
+			'sales_receipts': [
+			],
+			'inventory_packages': [],
+			'inventory_date': '9/30/2020',
+			'analysis_params': util.AnalysisParamsDict(
+				sold_threshold=1.0,
+				find_parent_child_relationships=False,
+				use_prices_to_fill_missing_incoming=True,
+				external_pricing_data_config=util.PricingDataConfigDict(
+					category_to_fixed_prices={
+						'Buds': {
+							'Pounds': 4.0
+						}
+					}
+				)
+			),
+			'simplified_check': True,
+			'expected_inventory_records': [
+				{
+					'package_id': 'p2',
+					'quantity': '20.0',
+					'incoming_cost': '80.00',
+					'unit_of_measure': 'Pounds',
+					'sold_date': '',
+					'is_in_inventory': 'true'
 				}
 			]
 		}

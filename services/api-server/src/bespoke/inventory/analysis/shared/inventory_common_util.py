@@ -1,10 +1,11 @@
 import datetime
 from dateutil import parser
-from typing import Any, Union, cast
+from typing import Any, Union, Tuple, cast
 
 from bespoke.db.db_constants import DeliveryType
 from bespoke.inventory.analysis.shared.inventory_types import (
-	TransferPackageDict
+	TransferPackageDict,
+	PricingDataConfigDict
 )
 
 def print_if(s: str, predicate: bool) -> None:
@@ -74,3 +75,20 @@ def is_outgoing(transfer_pkg: TransferPackageDict) -> bool:
 		DeliveryType.OUTGOING_TO_PAYOR,
 		DeliveryType.OUTGOING_UNKNOWN
 	])
+
+def get_estimated_price_per_unit_of_measure(
+	product_category_name: str,
+	unit_of_measure: str,
+	external_pricing_data_config: PricingDataConfigDict
+) -> Tuple[float, str]:
+
+	if product_category_name not in external_pricing_data_config['category_to_fixed_prices']:
+		return None, f"WARN: Could not find {product_category_name} in the external pricing data config"
+
+	pricing_for_category = external_pricing_data_config['category_to_fixed_prices'][product_category_name]
+	if unit_of_measure.lower() not in pricing_for_category:
+		return None, f"WARN: Could not find {unit_of_measure.lower()} in the external pricing table for category {product_category_name}"
+
+	price = pricing_for_category[unit_of_measure.lower()]
+	return price, None
+

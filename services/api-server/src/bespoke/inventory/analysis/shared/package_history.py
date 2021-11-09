@@ -22,6 +22,7 @@ from bespoke.inventory.analysis.shared.inventory_types import (
 	SalesTransactionDict,
 	ComputedInfoDict
 )
+from bespoke.inventory.analysis.shared import inventory_common_util
 from bespoke.inventory.analysis.shared.inventory_common_util import (
 	parse_to_date, parse_to_datetime, date_to_str, print_if,
 	is_outgoing, is_incoming, is_time_null
@@ -177,13 +178,14 @@ class PackageHistory(object):
 		else:
 			return False
 
-	def run_is_sold_logic(self, p: Printer, sold_threshold: float, skip_over_errors: bool) -> bool:
+	def run_is_sold_logic(self, p: Printer, params: AnalysisParamsDict, skip_over_errors: bool) -> bool:
 		# Fills in the 'sold' value for self.computed_info
 		#
 		# Tells us when a package was sold
 		
 		# It's only considered sold if it was an incoming package
 		# and we see there are sales transactions.
+		sold_threshold = params.get('sold_threshold', DEFAULT_SOLD_THRESHOLD)
 
 		in_debug_mode = skip_over_errors
 		
@@ -370,6 +372,18 @@ class PackageHistory(object):
 				shipped_quantity = incoming_pkg['quantity']
 				price_of_pkg = incoming_pkg['price']
 				if not price_of_pkg or numpy.isnan(price_of_pkg):
+					# Try to find the price if there is an external pricing config specified
+					if params['use_prices_to_fill_missing_incoming']:
+						price_per_unit_of_measure, err = inventory_common_util.get_estimated_price_per_unit_of_measure(
+							product_category_name=incoming_pkg['product_category_name'],
+							unit_of_measure=incoming_pkg['unit_of_measure'],
+							external_pricing_data_config=params['external_pricing_data_config']
+						)
+						if not err:
+							price_of_pkg = incoming_pkg['quantity'] * price_per_unit_of_measure
+							incoming_pkg['price'] = price_of_pkg
+
+				if not price_of_pkg or numpy.isnan(price_of_pkg):
 					self.should_exclude = True
 					self.exclude_reason = ExcludeReason.INCOMING_MISSING_PRICE
 					p.warn(f'incoming package #{self.package_id} does not have a price', package_id=self.package_id)
@@ -489,5 +503,5 @@ class PackageHistory(object):
 		self.when_it_finished(p)
 		self.run_is_sold_logic(
 			p, 
-			sold_threshold=params.get('sold_threshold', DEFAULT_SOLD_THRESHOLD),
+			params=params,
 			skip_over_errors=skip_over_errors)

@@ -21,6 +21,7 @@ from bespoke.finance.types import finance_types
 
 from bespoke.inventory.analysis.shared import create_queries
 from bespoke.inventory.analysis.shared.package_history import PackageHistory
+from bespoke.inventory.analysis.shared import inventory_common_util
 from bespoke.inventory.analysis.shared.inventory_common_util import (
 	parse_to_date, parse_to_datetime, date_to_str, print_if,
 	is_outgoing, is_time_null
@@ -553,16 +554,15 @@ def _find_parents_by_productionbatch_and_harvest(
 def _create_incoming_pkg_using_external_pricing(
 	pkg: InventoryPackageDict, history: PackageHistory, external_pricing_data_config: PricingDataConfigDict) -> TransferPackageDict:
 
-	if pkg['product_category_name'] not in external_pricing_data_config['category_to_fixed_prices']:
-		print(f"WARN: Could not find {pkg['product_category_name']} in the external pricing data config")
+	price, err = inventory_common_util.get_estimated_price_per_unit_of_measure(
+		product_category_name=pkg['product_category_name'],
+		unit_of_measure=pkg['unit_of_measure'],
+		external_pricing_data_config=external_pricing_data_config
+	)
+	if err:
+		print(err)
 		return None
 
-	pricing_for_category = external_pricing_data_config['category_to_fixed_prices'][pkg['product_category_name']]
-	if pkg['unit_of_measure'].lower() not in pricing_for_category:
-		print(f"WARN: Could not find {pkg['unit_of_measure'].lower()} in the external pricing table for category {pkg['product_category_name']}")
-		return None
-
-	price = pricing_for_category[pkg['unit_of_measure'].lower()]
 	unit_of_measure = pkg['unit_of_measure']
 	quantity = 1.0
 
@@ -1037,15 +1037,17 @@ def create_inventory_dataframe_by_date(
 	max_to_see = -1
 
 	p = Printer(verbose=False, show_info=False)
-	exclude_reason_to_count: Dict[str, int] = OrderedDict()
+	exclude_reason_to_package_ids: Dict[str, Set[str]] = OrderedDict()
 
 	for package_id, history in package_id_to_history.items():
 		history.compute_additional_fields(p=p, params=params, run_filter=True, skip_over_errors=False)
 		num_total += 1
 		if history.should_exclude:
 			num_excluded += 1
-			reason_count = exclude_reason_to_count.get(history.exclude_reason, 0)
-			exclude_reason_to_count[history.exclude_reason] = reason_count + 1
+			if history.exclude_reason not in exclude_reason_to_package_ids:
+				exclude_reason_to_package_ids[history.exclude_reason] = set([])
+
+			exclude_reason_to_package_ids[history.exclude_reason].add(history.package_id)
 
 		if max_to_see > 0 and i >= max_to_see:
 			# NOTE: remove this break, using this so I can debug 1 package
@@ -1278,7 +1280,8 @@ def compare_inventory_dataframes(computed: Any, actual: Any, options: CompareOpt
 	}
 
 def create_inventory_xlsx(
-	id_to_history: Dict[str, PackageHistory], q: Query, params: AnalysisParamsDict) -> None:
+	id_to_history: Dict[str, PackageHistory], q: Query, params: AnalysisParamsDict,
+	show_debug_package_ids: bool = False) -> None:
 		
 	i = 0
 	num_excluded = 0
@@ -1286,15 +1289,19 @@ def create_inventory_xlsx(
 	max_to_see = -1
 
 	p = Printer(verbose=False, show_info=False)
-	exclude_reason_to_count: Dict[str, int] = OrderedDict()
+
+	exclude_reason_to_package_ids: Dict[str, Set[str]] = OrderedDict()
 
 	for package_id, history in id_to_history.items():
 		history.compute_additional_fields(p=p, params=params, run_filter=True, skip_over_errors=False)
 		num_total += 1
 		if history.should_exclude:
 			num_excluded += 1
-			reason_count = exclude_reason_to_count.get(history.exclude_reason, 0)
-			exclude_reason_to_count[history.exclude_reason] = reason_count + 1
+			
+			if history.exclude_reason not in exclude_reason_to_package_ids:
+				exclude_reason_to_package_ids[history.exclude_reason] = set([])
+
+			exclude_reason_to_package_ids[history.exclude_reason].add(history.package_id)
 
 		if max_to_see > 0 and i >= max_to_see:
 			# NOTE: remove this break, using this so I can debug 1 package
@@ -1336,5 +1343,9 @@ def create_inventory_xlsx(
 			
 	pct_excluded = '{:.2f}'.format(num_excluded / num_total * 100)
 	print(f'Excluded {num_excluded} / {num_total} packages from consideration ({pct_excluded}%)')
-	for reason, count in exclude_reason_to_count.items():
+	for reason, package_ids in exclude_reason_to_package_ids.items():
+		count = len(package_ids)
 		print(f'  {reason}: {count} times')
+		if show_debug_package_ids:
+			print(package_ids)
+
