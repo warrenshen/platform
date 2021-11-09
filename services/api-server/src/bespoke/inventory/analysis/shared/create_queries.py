@@ -1,6 +1,6 @@
 from typing import Iterable
 
-def create_company_incoming_transfer_packages_query(company_identifier: str, start_date: str, end_date:str=None) -> str:
+def create_company_incoming_transfer_packages_query(company_identifier: str, start_date: str, end_date: str=None) -> str:
 	end_date_where_clause = f"""
 		and metrc_transfers.created_date <= "{end_date}"
 	""" if end_date else ''
@@ -194,7 +194,7 @@ def create_company_sales_receipts_query(company_identifier: str, start_date: str
 			metrc_sales_receipts.sales_datetime desc
 	"""
 
-def create_company_sales_receipts_with_transactions_query(company_identifier: str, start_date: str, unit_of_measure:str=None) -> str:
+def create_company_sales_receipts_with_transactions_query(company_identifier: str, start_date: str, unit_of_measure: str=None) -> str:
 	"""
 	Note the left outer join of metrc_sales_transactions.
 	"""
