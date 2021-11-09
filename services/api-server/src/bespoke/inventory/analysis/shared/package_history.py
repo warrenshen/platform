@@ -353,8 +353,6 @@ class PackageHistory(object):
 		shipped_quantity = 0.0
 		revenue_from_pkg = 0.0
 		remaining_quantity = 0.0
-		seen_receipt_numbers = {}
-		seen_sales_datetimes = {}
 		date_to_quantity: Dict[datetime.date, float] = {}
 		
 		for transfer_pkg in all_transfer_pkgs:
@@ -432,23 +430,8 @@ class PackageHistory(object):
 
 			for cur_date in dates:
 				txs = transfer_pkg['date_to_txs'][cur_date]
-				# There may be duplicate transactions, so we need to make sure
-				# we only see 1 receipt number per package_id
 
 				for tx in txs:
-					if tx['receipt_number'] in seen_receipt_numbers:
-						if verbose:
-							#lines.append(f"WARN: Got duplicate transaction for package {self.package_id} receipt number {tx['receipt_number']}")
-							#lines.append(f"Delta in txs sold is {tx['tx_is_deleted']}, {seen_receipt_numbers[tx['receipt_number']]['tx_is_deleted']}")
-							pass
-
-						continue
-
-					if tx['sales_datetime'] in seen_sales_datetimes:
-						continue
-
-					seen_receipt_numbers[tx['receipt_number']] = tx
-					seen_sales_datetimes[tx['sales_datetime']] = True
 
 					if verbose:
 						lines.append(f"Package {self.package_id} sold on {date_to_str(tx['sales_datetime'])} {tx['tx_quantity_sold']} ({tx['tx_unit_of_measure']}) for ${tx['tx_total_price']}")

@@ -268,7 +268,7 @@ class TestInventoryCounts(unittest.TestCase):
 					'tx_quantity_sold': 1,
 					'tx_total_price': 3.50,
 					'tx_unit_of_measure': 'Each'
-				},
+				}, # duplicate
 			],
 			'sales_receipts': [
 			],
@@ -280,7 +280,7 @@ class TestInventoryCounts(unittest.TestCase):
 				'only_sold': 1,
 				'outgoing_and_incoming': 1,
 				'in_and_sold_at_least_once': 2,
-				'in_and_sold_many_times': 1,
+				'in_and_sold_many_times': 0,
 				'num_parent_packages': 0,
 				'num_child_packages': 0,
 				'total_seen': 7

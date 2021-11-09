@@ -4,6 +4,8 @@ from collections.abc import Sequence
 
 class DataFrame(Sequence):
 
+	columns: List[str]
+
 	def __init__(self, *args: Any, **kwargs: Any) -> None:
 		pass
 

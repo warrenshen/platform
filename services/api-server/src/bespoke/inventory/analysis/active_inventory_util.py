@@ -19,7 +19,7 @@ from bespoke.excel import excel_writer
 from bespoke.excel.excel_writer import CellValue
 from bespoke.finance.types import finance_types
 
-from bespoke.inventory.analysis.shared import create_queries
+from bespoke.inventory.analysis.shared import create_queries, prepare_data
 from bespoke.inventory.analysis.shared.package_history import PackageHistory
 from bespoke.inventory.analysis.shared import inventory_common_util
 from bespoke.inventory.analysis.shared.inventory_common_util import (
@@ -204,7 +204,8 @@ class Download(object):
 	) -> None:
 		self.incoming_records = incoming_transfer_packages_dataframe.to_dict('records')
 		self.outgoing_records = outgoing_transfer_packages_dataframe.to_dict('records')
-		self.sales_tx_records = sales_transactions_dataframe.to_dict('records')
+		self.sales_tx_records = cast(List[SalesTransactionDict], prepare_data.dedupe_sales_transactions(
+			sales_transactions_dataframe).to_dict('records'))
 		self.sales_receipts_dataframe = sales_receipts_dataframe
 		self.inventory_packages_records = inventory_packages_dataframe.to_dict('records')
 
@@ -799,6 +800,7 @@ def print_counts(id_to_history: Dict[str, PackageHistory], should_print: bool = 
 	num_child_packages = 0
 
 	for package_id, history in id_to_history.items():
+
 		if history.outgoings and not history.incomings:
 			only_outgoing += 1
 
