@@ -47,6 +47,7 @@ export enum Action {
 
   // Invoices
   AddInvoices = "invoices:add",
+  ApproveInvoices = "invoices:approve",
   EditInvoices = "invoices:add",
   FundInvoices = "invoices:fund",
   ViewInvoicesActionMenu = "invoices:view-action-menu",
@@ -170,6 +171,7 @@ const rules: Rules = {
       Action.FundPurchaseOrders,
 
       Action.AddInvoices,
+      Action.ApproveInvoices,
       Action.EditInvoices,
       Action.DeleteInvoices,
       Action.FundInvoices,

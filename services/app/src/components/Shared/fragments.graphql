@@ -33,6 +33,12 @@ fragment CompanyLicense on company_licenses {
   license_number
 }
 
+fragment ContractLimited on contracts {
+  id
+  company_id
+  product_type
+}
+
 fragment CompanyLimited on companies {
   id
   name
@@ -172,6 +178,7 @@ fragment Invoice on invoices {
   id
   ...InvoiceLimited
 }
+
 
 fragment CompanyDelivery on company_deliveries {
   id

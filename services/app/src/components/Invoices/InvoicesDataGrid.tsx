@@ -9,12 +9,15 @@ import DataGridActionMenu, {
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import {
+  Companies,
   InvoiceFragment,
   Invoices,
   RequestStatusEnum,
+  ProductTypeEnum,
 } from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
 import { ColumnWidths } from "lib/tables";
+import { ProductTypeToLabel } from "lib/enum";
 import { useMemo } from "react";
 
 interface Props {
@@ -24,6 +27,7 @@ interface Props {
   invoices: InvoiceFragment[];
   actionItems?: DataGridActionItem[];
   selectedInvoiceIds?: Invoices["id"][];
+  handleClickCustomer?: (customerId: Companies["id"]) => void;
   handleSelectedInvoices?: (invoices: InvoiceFragment[]) => void;
 }
 
@@ -43,6 +47,7 @@ export default function InvoicesDataGrid({
   invoices,
   actionItems,
   selectedInvoiceIds,
+  handleClickCustomer,
   handleSelectedInvoices,
   isExcelExport = true,
 }: Props) {
@@ -90,6 +95,21 @@ export default function InvoicesDataGrid({
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
           <TextDataGridCell label={params.row.data.company_name} />
+        ),
+      },
+      {
+        visible: isCompanyVisible,
+        dataField: "product_type",
+        caption: "Product Type",
+        minWidth: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) => (
+          <TextDataGridCell
+            label={
+              ProductTypeToLabel[
+                params.row.data.company.contract.product_type as ProductTypeEnum
+              ]
+            }
+          />
         ),
       },
       {

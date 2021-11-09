@@ -86,20 +86,27 @@ class RespondToApprovalRequestView(MethodView):
 			raise errors.Error('Rejection note is required if response is rejected')
 
 		with models.session_scope(current_app.session_maker) as session:
-			info, err = two_factor_util.get_two_factor_link(
-				link_val,
-				current_app.app_config.get_security_config(),
-				max_age_in_seconds=security_util.SECONDS_IN_DAY * 7,
-				session=session
-			)
-			if err:
-				raise err
+			if user_session.is_bank_admin():
+				user = session.query(models.User) \
+					.filter(models.User.email == user_session.get_user_id()) \
+					.first()
+				if user:
+					event.user_id(str(user.id))
+			else:
+				info, err = two_factor_util.get_two_factor_link(
+					link_val,
+					current_app.app_config.get_security_config(),
+					max_age_in_seconds=security_util.SECONDS_IN_DAY * 7,
+					session=session
+				)
+				if err:
+					raise err
 
-			user = session.query(models.User).filter(
-				models.User.email == info['email'].lower()
-			).first()
-			if user:
-				event.user_id(str(user.id))
+				user = session.query(models.User).filter(
+					models.User.email == info['email'].lower()
+				).first()
+				if user:
+					event.user_id(str(user.id))
 
 			invoice = session.query(models.Invoice).get(invoice_id)
 			invoice.status = new_request_status
@@ -173,7 +180,8 @@ class RespondToApprovalRequestView(MethodView):
 				if err:
 					raise err
 
-			cast(Callable, session.delete)(info['link'])
+			if not user_session.is_bank_admin():
+				cast(Callable, session.delete)(info['link'])
 
 		return make_response(json.dumps({
 			'status': 'OK',

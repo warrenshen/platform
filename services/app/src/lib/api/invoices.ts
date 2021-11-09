@@ -149,6 +149,33 @@ export async function respondToInvoicePaymentMutation(
     );
 }
 
+export type RespondToInvoiceApprovalReq = {
+  variables: {
+    invoice_id: Invoices["id"];
+    new_request_status: RequestStatusEnum;
+    rejection_note: string;
+    link_val: string;
+  };
+};
+
+export async function respondToInvoiceApprovalRequestMutation(
+  req: RespondToInvoiceApprovalReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(invoicesRoutes.respondToApprovalRequest, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not respond to invoice approval request",
+        };
+      }
+    );
+}
+
 export async function submitNewInvoiceForPaymentMutation(
   request: SubmitNewInvoiceForPaymentRequest
 ): Promise<CustomMutationResponse> {

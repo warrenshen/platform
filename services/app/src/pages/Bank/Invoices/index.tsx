@@ -1,37 +1,37 @@
-import { Box } from "@material-ui/core";
-import InvoicesDataGrid from "components/Invoices/InvoicesDataGrid";
+import { Box, Tab, Tabs } from "@material-ui/core";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { useGetInvoicesQuery } from "generated/graphql";
-import { Action, check } from "lib/auth/rbac-rules";
-import { useContext } from "react";
+import InvoicesActiveTab from "pages/Bank/Invoices/InvoicesActiveTab";
+import InvoicesAllTab from "pages/Bank/Invoices/InvoicesAllTab";
+import InvoicesClosedTab from "pages/Bank/Invoices/InvoicesClosedTab";
+import { useState } from "react";
 
 export default function BankInvoicesPage() {
-  const {
-    user: { role },
-  } = useContext(CurrentUserContext);
-
-  const { data, error } = useGetInvoicesQuery({
-    fetchPolicy: "network-only",
-  });
-
-  if (error) {
-    console.error({ error });
-    alert(`Error in query (details in console): ${error.message}`);
-  }
-
-  const invoices = data?.invoices || [];
+  const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
   return (
     <Page appBarTitle="Invoices">
       <PageContent title={"Invoices"}>
         <Box display="flex" flexDirection="column">
-          <InvoicesDataGrid
-            isCompanyVisible
-            invoices={invoices}
-            actionItems={check(role, Action.ViewInvoicesActionMenu) ? [] : []}
-          />
+          <Tabs
+            value={selectedTabIndex}
+            indicatorColor="primary"
+            textColor="primary"
+            onChange={(_event: any, value: number) =>
+              setSelectedTabIndex(value)
+            }
+          >
+            <Tab label="Not Confirmed Invoices" />
+            <Tab label="Confirmed Invoices" />
+            <Tab label="All Invoices" />
+          </Tabs>
+          {selectedTabIndex === 0 ? (
+            <InvoicesActiveTab />
+          ) : selectedTabIndex === 1 ? (
+            <InvoicesClosedTab />
+          ) : (
+            <InvoicesAllTab />
+          )}
         </Box>
       </PageContent>
     </Page>
