@@ -328,10 +328,10 @@ class PackageHistory(object):
 				# we believe the child started off with quantity 10, and its "cost"
 				# is $1000 / 10, and its shipped_quantity is 10
 
-				parent_original_quantity = float(incoming_pkg['shipped_quantity'])
-				parent_wholesale_price = float(incoming_pkg['shipper_wholesale_price'])
+				parent_original_quantity = incoming_pkg['quantity']
+				parent_wholesale_price = incoming_pkg['price']
 				child_original_quantity = estimated_original_quantity
-				incoming_pkg['shipped_quantity'] = child_original_quantity
+				incoming_pkg['quantity'] = child_original_quantity
 				if math.isclose(parent_original_quantity, 0.0):
 					self.should_exclude = True
 					self.exclude_reason = ExcludeReason.PARENT_HAS_ZERO_QUANTITY
@@ -340,11 +340,8 @@ class PackageHistory(object):
 					return False
 
 				per_unit_price = parent_wholesale_price / parent_original_quantity
-				incoming_pkg['shipper_wholesale_price'] = per_unit_price * child_original_quantity
+				incoming_pkg['price'] = per_unit_price * child_original_quantity
 				pass
-
-		# TODO(dlluncor):
-		# Use received_quantity, if not there, then back off to shipped_quantity
 
 		lines = []
 		verbose = p.verbose
@@ -364,18 +361,18 @@ class PackageHistory(object):
 				incoming_pkg = transfer_pkg
 
 				arrived_date = incoming_pkg['received_date']
-				if not incoming_pkg['shipped_quantity'] or numpy.isnan(incoming_pkg['shipped_quantity']):
+				if not incoming_pkg['quantity'] or numpy.isnan(incoming_pkg['quantity']):
 					self.should_exclude = True
 					self.exclude_reason = ExcludeReason.INCOMING_MISSING_QUANTITY
-					p.warn(f'incoming package #{self.package_id} does not have a shipped quantity', package_id=self.package_id)
+					p.warn(f'incoming package #{self.package_id} does not have a quantity', package_id=self.package_id)
 					return False
 
-				shipped_quantity = float(incoming_pkg['shipped_quantity'])
-				price_of_pkg = incoming_pkg['shipper_wholesale_price']
+				shipped_quantity = incoming_pkg['quantity']
+				price_of_pkg = incoming_pkg['price']
 				if not price_of_pkg or numpy.isnan(price_of_pkg):
 					self.should_exclude = True
 					self.exclude_reason = ExcludeReason.INCOMING_MISSING_PRICE
-					p.warn(f'incoming package #{self.package_id} does not have a shipped price', package_id=self.package_id)
+					p.warn(f'incoming package #{self.package_id} does not have a price', package_id=self.package_id)
 					return False
 
 				shipment_package_state = incoming_pkg['shipment_package_state']
@@ -395,21 +392,19 @@ class PackageHistory(object):
 				outgoing_pkg = transfer_pkg
 				outgoing_date = outgoing_pkg['received_date']
 
-				# TODO(dlluncor): Do we set the quantity to 0 on the day it's sent
-				# or the day after?
 				date_to_quantity[outgoing_date] = 0
 				remaining_quantity = 0
 
 				if not skip_over_errors and len(transfer_pkg['date_to_txs'].keys()) > 0:
 					raise Exception(f'There should be no transactions associated with an outgoing transfer. Package ID: {self.package_id}, outgoing transfer package on {outgoing_date}')
 
-				if not outgoing_pkg['shipped_quantity'] or numpy.isnan(outgoing_pkg['shipped_quantity']):
+				if not outgoing_pkg['quantity'] or numpy.isnan(outgoing_pkg['quantity']):
 					self.should_exclude = True
 					self.exclude_reason = ExcludeReason.OUTGOING_MISSING_QUANTITY
 					p.warn(f'outgoing package #{self.package_id} does not have a outgoing shipped quantity', package_id=self.package_id)
 					return False
 
-				shipped_quantity = float(incoming_pkg['shipped_quantity'])
+				shipped_quantity = float(incoming_pkg['quantity'])
 
 				if verbose:
 					lines.append('')

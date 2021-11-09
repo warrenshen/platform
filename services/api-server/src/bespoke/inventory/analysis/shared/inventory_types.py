@@ -32,6 +32,9 @@ TransferPackageDict = TypedDict('TransferPackageDict', {
 	'product_category_name': str,
 	'product_name': str,
 	'received_unit_of_measure': str,
+	'received_quantity': Union[float, str],
+	'receiver_wholesale_price': float,
+	'shipped_unit_of_measure': str,
 	'shipped_quantity': Union[float, str],
 	'shipper_wholesale_price': float,
 	'shipment_package_state': str,
@@ -39,6 +42,9 @@ TransferPackageDict = TypedDict('TransferPackageDict', {
 	'created_date': datetime.date,
 	'received_datetime': datetime.datetime,
 	'source_harvest_names': str,
+	'price': float, # added by us
+	'quantity': float, # added by us
+	'unit_of_measure': str, # added by us
 	'received_date': datetime.date, # added by us
 	'date_to_txs': Dict[datetime.date, List[SalesTransactionDict]] # added by us
 })

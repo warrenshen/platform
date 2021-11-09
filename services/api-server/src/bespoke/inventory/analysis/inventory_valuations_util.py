@@ -28,10 +28,10 @@ def get_total_valuation_for_date(
 	total_valuation_cost = 0.0
 
 	for inventory_with_cost_record in inventory_with_cost_records:
-			incoming_shipped_price = inventory_with_cost_record['shipper_wholesale_price']
+			incoming_shipped_price = inventory_with_cost_record['receiver_wholesale_price']
 			if math.isnan(incoming_shipped_price):
 					incoming_shipped_price = 0
-			incoming_shipped_quantity = inventory_with_cost_record['shipped_quantity']
+			incoming_shipped_quantity = inventory_with_cost_record['received_quantity']
 			current_quantity = inventory_with_cost_record['quantity']
 			total_valuation_cost += float(current_quantity) * (incoming_shipped_price / incoming_shipped_quantity)
 

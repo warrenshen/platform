@@ -92,9 +92,9 @@ def _get_inventory_output_row(history: 'PackageHistory', inventory_date: datetim
 	return [
 		history.package_id,
 		incoming_pkg['license_number'],
-		date_to_str(incoming_pkg['received_datetime'].date()),
-		'{:.2f}'.format(float(incoming_pkg['shipper_wholesale_price'])),
-		'{:.2f}'.format(float(incoming_pkg['shipped_quantity'])),
+		date_to_str(incoming_pkg['received_date']),
+		'{:.2f}'.format(float(incoming_pkg['price'])),
+		'{:.2f}'.format(float(incoming_pkg['quantity'])),
 		'{}'.format(history.is_child_of_parent),
 		'{}'.format(history.are_prices_inferred),
 
@@ -102,7 +102,7 @@ def _get_inventory_output_row(history: 'PackageHistory', inventory_date: datetim
 		incoming_pkg['product_name'],
 
 		'{}'.format(cur_quantity) if cur_quantity != -1 else '',
-		incoming_pkg['received_unit_of_measure'] or '',
+		incoming_pkg['unit_of_measure'] or '',
 		date_to_str(sold_date) if sold_date else '',
 	]
 
@@ -149,6 +149,22 @@ def _fix_received_date_and_timezone(pkg: TransferPackageDict) -> None:
 		pkg['received_datetime'] = _date_to_datetime(pkg['created_date'])	
 	elif type(pkg['received_datetime']) == datetime.datetime:
 		pkg['received_datetime'] = pkg['received_datetime'].replace(tzinfo=pytz.UTC)
+
+def _set_quantity_and_unit(pkg: TransferPackageDict) -> None:
+
+	if pkg['received_quantity'] and not numpy.isnan(pkg['received_quantity']):
+		pkg['quantity'] = float(pkg['received_quantity'])
+		pkg['unit_of_measure'] = pkg['received_unit_of_measure']
+		pkg['price'] = float(pkg['receiver_wholesale_price'])
+	elif pkg['shipped_quantity'] and not numpy.isnan(pkg['shipped_quantity']):
+		# Fall back to shipped quantity if needed
+		pkg['quantity'] = float(pkg['shipped_quantity'])
+		pkg['unit_of_measure'] = pkg['shipped_unit_of_measure']
+		pkg['price'] = float(pkg['shipper_wholesale_price'])
+	else:
+		pkg['quantity'] = 0.0
+		pkg['unit_of_measure'] = 'unknown'
+		pkg['price'] = 0.0
 
 class Download(object):
 		
@@ -197,6 +213,8 @@ class Download(object):
 			incoming_r['received_date'] = parse_to_date(incoming_r['received_datetime'])
 			incoming_r['created_date'] = parse_to_date(incoming_r['created_date'])
 			all_package_ids.add(incoming_r['package_id'])
+			_set_quantity_and_unit(incoming_r)
+
 			if incoming_r['package_id'] in missing_incoming_pkg_package_ids:
 				missing_incoming_pkg_package_ids.remove(incoming_r['package_id'])
 
@@ -205,6 +223,7 @@ class Download(object):
 			_fix_received_date_and_timezone(outgoing_r)
 			outgoing_r['received_date'] = parse_to_date(outgoing_r['received_datetime'])
 			outgoing_r['created_date'] = parse_to_date(outgoing_r['created_date'])
+			_set_quantity_and_unit(outgoing_r)
 			all_package_ids.add(outgoing_r['package_id'])
 
 		all_inactive_packages_df = sql_helper.get_inactive_packages(all_package_ids)
@@ -304,15 +323,15 @@ def _create_new_with_average_price(incoming_pkgs: List[TransferPackageDict]) -> 
 
 	for incoming_pkg in incoming_pkgs:
 
-		if math.isclose(incoming_pkg['shipper_wholesale_price'], 0.01):
+		if math.isclose(incoming_pkg['price'], 0.01):
 			continue
 
 		# NOTE: Assume same units for now
-		total_cost += float(incoming_pkg['shipper_wholesale_price'])
-		total_quantity += float(incoming_pkg['shipped_quantity'])
+		total_cost += incoming_pkg['price']
+		total_quantity += incoming_pkg['quantity']
 
-	new_incoming_pkg['shipper_wholesale_price'] = total_cost
-	new_incoming_pkg['shipped_quantity'] = total_quantity
+	new_incoming_pkg['price'] = total_cost
+	new_incoming_pkg['quantity'] = total_quantity
 
 	return new_incoming_pkg
 
