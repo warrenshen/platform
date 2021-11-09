@@ -324,6 +324,7 @@ class TestInventoryPackages(unittest.TestCase):
 				del inventory_records[i]['incoming_quantity']
 				del inventory_records[i]['is_child_package']
 				del inventory_records[i]['are_prices_inferred']
+				del inventory_records[i]['current_value']
 				del inventory_records[i]['product_category_name']
 				del inventory_records[i]['product_name']
 
@@ -405,18 +406,19 @@ class TestInventoryPackages(unittest.TestCase):
 					'package_id': 'p1',
 					'license_number': 'abcd',
 					'arrived_date': '10/01/2020',
-					'incoming_cost': '120.00',
-					'incoming_quantity': '10.00',
+					'incoming_cost': 120.00,
+					'incoming_quantity': 10.00,
 					'is_child_package': 'False',
 					'are_prices_inferred': 'False',
 
 					'product_category_name': 'categoryname-1',
 					'product_name': 'productname-1',
 
-					'quantity': '9.0',
+					'quantity': 9.0,
 					'unit_of_measure': 'Each',
+					'current_value': 108.00,
 					'sold_date': '10/05/2020',
-	
+
 					'is_in_inventory': 'true'
 				}
 			]
@@ -457,8 +459,8 @@ class TestInventoryPackages(unittest.TestCase):
 			'expected_inventory_records': [
 				{
 					'package_id': 'p1',
-					'quantity': '0.0',
-					'incoming_cost': '120.00',
+					'quantity': 0.0,
+					'incoming_cost': 120.00,
 					'unit_of_measure': 'Each',
 					'sold_date': '',
 					'is_in_inventory': ''
@@ -500,8 +502,8 @@ class TestInventoryPackages(unittest.TestCase):
 			'expected_inventory_records': [
 				{
 					'package_id': 'p1',
-					'quantity': '0.0',
-					'incoming_cost': '120.00',
+					'quantity': 0.0,
+					'incoming_cost': 120.00,
 					'unit_of_measure': 'Each',
 					'sold_date': '',
 					'is_in_inventory': ''
@@ -566,16 +568,16 @@ class TestInventoryPackages(unittest.TestCase):
 			'expected_inventory_records': [
 				{
 					'package_id': 'p1',
-					'quantity': '0.0',
-					'incoming_cost': '120.00',
+					'quantity': 0.0,
+					'incoming_cost': 120.00,
 					'unit_of_measure': 'Each',
 					'sold_date': '',
 					'is_in_inventory': ''
 				},
 				{
 					'package_id': 'p2',
-					'quantity': '6.0', # Start from the original quantity and backtrack based on sales
-					'incoming_cost': '84.00',
+					'quantity': 6.0, # Start from the original quantity and backtrack based on sales
+					'incoming_cost': 84.00,
 					'unit_of_measure': 'Each',
 					'sold_date': '',
 					'is_in_inventory': 'true'
@@ -641,16 +643,16 @@ class TestInventoryPackages(unittest.TestCase):
 			'expected_inventory_records': [
 				{
 					'package_id': 'p1',
-					'quantity': '0.0',
-					'incoming_cost': '120.00',
+					'quantity': 0.0,
+					'incoming_cost': 120.00,
 					'unit_of_measure': 'Each',
 					'sold_date': '',
 					'is_in_inventory': ''
 				},
 				{
 					'package_id': 'p2',
-					'quantity': '6.0', # Start from the original quantity and backtrack based on sales
-					'incoming_cost': '84.00', # 7 * 12
+					'quantity': 6.0, # Start from the original quantity and backtrack based on sales
+					'incoming_cost': 84.00, # 7 * 12
 					'unit_of_measure': 'Each',
 					'sold_date': '',
 					'is_in_inventory': 'true'
@@ -735,24 +737,24 @@ class TestInventoryPackages(unittest.TestCase):
 			'expected_inventory_records': [
 				{
 					'package_id': 'p1',
-					'quantity': '0.0',
+					'quantity': 0.0,
 					'unit_of_measure': 'Each',
-					'incoming_cost': '120.00',
+					'incoming_cost': 120.00,
 					'sold_date': '',
 					'is_in_inventory': ''
 				},
 				{
 					'package_id': 'p2',
-					'quantity': '6.0', # Start from the original quantity and backtrack based on sales
-					'incoming_cost': '84.00', # 12 * 7
+					'quantity': 6.0, # Start from the original quantity and backtrack based on sales
+					'incoming_cost': 84.00, # 12 * 7
 					'unit_of_measure': 'Each',
 					'sold_date': '',
 					'is_in_inventory': 'true'
 				},
 				{
 					'package_id': 'p3',
-					'quantity': '0.0',
-					'incoming_cost': '240.00',
+					'quantity': 0.0,
+					'incoming_cost': 240.00,
 					'unit_of_measure': 'Each',
 					'sold_date': '',
 					'is_in_inventory': ''
@@ -837,13 +839,14 @@ class TestInventoryPackages(unittest.TestCase):
 			'expected_inventory_records': [
 				{
 					'package_id': 'p1',
-					'quantity': '0.0',
+					'quantity': 0.0,
+					'current_value': 0.0,
 					'unit_of_measure': 'Each',
 					'sold_date': '',
 					'is_in_inventory': '',
 				  'arrived_date': '10/01/2020',
-				  'incoming_cost': '100.00',
-				  'incoming_quantity': '10.00',
+				  'incoming_cost': 100.00,
+				  'incoming_quantity': 10.00,
 				  'is_child_package': 'False',
 				  'are_prices_inferred': 'False',
 				  'license_number': 'abcd',
@@ -852,13 +855,14 @@ class TestInventoryPackages(unittest.TestCase):
 				},
 				{
 					'package_id': 'p2',
-					'quantity': '6.0', # Start from the original quantity and backtrack based on sales
+					'quantity': 6.0, # Start from the original quantity and backtrack based on sales
+					'current_value': round(46.67 / 7.00 * 6.0, 2),
 					'unit_of_measure': 'Each',
 					'sold_date': '',
 					'is_in_inventory': 'true',
 				  'arrived_date': '10/01/2020',
-				  'incoming_cost': '46.67', # 7 * 200 / 30, incoming=7, and blended unit price of parent packages
-				  'incoming_quantity': '7.00',
+				  'incoming_cost': 46.67, # 7 * 200 / 30, incoming=7, and blended unit price of parent packages
+				  'incoming_quantity': 7.00,
 				  'is_child_package': 'True',
 				  'are_prices_inferred': 'True',
 				  'license_number': 'abcd',
@@ -867,13 +871,14 @@ class TestInventoryPackages(unittest.TestCase):
 				},
 				{
 					'package_id': 'p3',
-					'quantity': '0.0',
+					'quantity': 0.0,
+					'current_value': 0.0,
 					'unit_of_measure': 'Each',
 					'sold_date': '',
 					'is_in_inventory': '',
 				  'arrived_date': '10/01/2020',
-				  'incoming_cost': '100.00',
-				  'incoming_quantity': '20.00',
+				  'incoming_cost': 100.00,
+				  'incoming_quantity': 20.00,
 				  'is_child_package': 'False',
 				  'are_prices_inferred': 'False',
 				  'license_number': 'abcd',
@@ -958,8 +963,8 @@ class TestInventoryPackages(unittest.TestCase):
 			'expected_inventory_records': [
 				{
 					'package_id': 'p1',
-					'quantity': '0.0',
-					'incoming_cost': '120.00',
+					'quantity': 0.0,
+					'incoming_cost': 120.00,
 					'unit_of_measure': 'Each',
 					'sold_date': '',
 					'is_in_inventory': ''
@@ -967,8 +972,8 @@ class TestInventoryPackages(unittest.TestCase):
 				# p2 is missing because it has ambigious parents.
 				{
 					'package_id': 'p3',
-					'quantity': '0.0',
-					'incoming_cost': '240.00',
+					'quantity': 0.0,
+					'incoming_cost': 240.00,
 					'unit_of_measure': 'Each',
 					'sold_date': '',
 					'is_in_inventory': ''
@@ -1034,7 +1039,8 @@ class TestInventoryPackages(unittest.TestCase):
 			'expected_inventory_records': [
 				{
 					'package_id': 'p2',
-					'quantity': '5.0',
+					'quantity': 5.0,
+					'current_value': 20.00,
 					'license_number': 'abcd',
 					'product_category_name': 'Buds',
 					'product_name': 'Cookies Buds',
@@ -1042,8 +1048,8 @@ class TestInventoryPackages(unittest.TestCase):
 					'sold_date': '',
 					'are_prices_inferred': 'True',
   				'arrived_date': '09/30/2020',
-  				'incoming_cost': '20.00', # 5 pounds came in (inferred) * $4 per pound (pricing table)
-  				'incoming_quantity': '5.00',
+  				'incoming_cost': 20.00, # 5 pounds came in (inferred) * $4 per pound (pricing table)
+  				'incoming_quantity': 5.00,
 					'is_child_package': 'True',
 					'is_in_inventory': 'true'
 				}
@@ -1091,8 +1097,8 @@ class TestInventoryPackages(unittest.TestCase):
 			'expected_inventory_records': [
 				{
 					'package_id': 'p2',
-					'quantity': '20.0',
-					'incoming_cost': '80.00',
+					'quantity': 20.0,
+					'incoming_cost': 80.00,
 					'unit_of_measure': 'Pounds',
 					'sold_date': '',
 					'is_in_inventory': 'true'

@@ -56,6 +56,7 @@ def get_inventory_column_names() -> List[str]:
 
 		'quantity',
 		'unit_of_measure',
+		'current_value',
 		'sold_date',
 		
 		'is_in_inventory'
@@ -80,7 +81,7 @@ def _get_incoming_pkg_for_date(incomings: List[TransferPackageDict], inventory_d
 
 	return None
 
-def _get_inventory_output_row(history: 'PackageHistory', inventory_date: datetime.date, is_in_inventory: bool) -> List[str]:
+def _get_inventory_output_row(history: 'PackageHistory', inventory_date: datetime.date, is_in_inventory: bool) -> List[CellValue]:
 	incoming_pkg = _get_incoming_pkg_for_date(history.incomings, inventory_date)
 	sold_date = history.computed_info.get('sold', {}).get('date')
 	
@@ -92,23 +93,29 @@ def _get_inventory_output_row(history: 'PackageHistory', inventory_date: datetim
 		incoming_pkg = history.incomings[-1]
 
 	cur_quantity = 0.0
+
 	if is_in_inventory:
 		cur_quantity = history._get_current_quantity(inventory_date)
+
+	current_value = 0.0
+	if incoming_pkg['quantity']:
+		current_value = incoming_pkg['price'] / incoming_pkg['quantity'] * cur_quantity
 
 	return [
 		history.package_id,
 		incoming_pkg['license_number'],
 		date_to_str(incoming_pkg['received_date']),
-		'{:.2f}'.format(float(incoming_pkg['price'])),
-		'{:.2f}'.format(float(incoming_pkg['quantity'])),
+		round(incoming_pkg['price'], 2),
+		round(incoming_pkg['quantity'], 2),
 		'{}'.format(history.is_child_of_parent),
 		'{}'.format(history.are_prices_inferred),
 
 		incoming_pkg['product_category_name'],
 		incoming_pkg['product_name'],
 
-		'{}'.format(cur_quantity) if cur_quantity != -1 else '',
+		cur_quantity if cur_quantity != -1 else 0,
 		incoming_pkg['unit_of_measure'] or '',
+		round(current_value, 2),
 		date_to_str(sold_date) if sold_date else '',
 	]
 
@@ -860,7 +867,7 @@ def _to_cogs_summary_rows(year_month_to_summary: Dict[finance_types.Month, CogsS
 
 	rows: List[List[CellValue]] = []
 	rows.append(['year_month', 'revenue', 'cogs', 'margin_$', 'margin_%',
-		 					 'txs_with_incoming', 'num_txs', 'coverage'])
+							 'txs_with_incoming', 'num_txs', 'coverage'])
 	for key in keys:
 		summary = year_month_to_summary[key]
 
@@ -913,15 +920,22 @@ def create_cogs_summary_for_all_dates(
 
 	for package_id, history in package_id_to_history.items():
 
+		# Previous COGS code
+		"""
 		if history.incomings and history.sales_txs:
 			# Needs at least 1 sales tx to be considered part of COGS
 			incoming_pkg = history.incomings[-1]
 			summary = _get_summary(incoming_pkg['received_date'])
 			if not numpy.isnan(incoming_pkg['shipper_wholesale_price']):
 				summary['cogs'] += incoming_pkg['shipper_wholesale_price']
+		"""
 
 		has_price_info = len(history.incomings) > 0
-
+		per_unit_cost = 0.0
+		if has_price_info:
+			incoming_pkg = history.incomings[-1]	
+			per_unit_cost = incoming_pkg['price'] / incoming_pkg['quantity']
+				
 		for sales_tx in history.sales_txs:
 			summary = _get_summary(sales_tx['sales_date'])
 			if not numpy.isnan(sales_tx['tx_total_price']):
@@ -929,6 +943,7 @@ def create_cogs_summary_for_all_dates(
 
 			summary['num_transactions_total'] += 1
 			if has_price_info:
+				summary['cogs'] += sales_tx['tx_quantity_sold'] * per_unit_cost 
 				summary['num_transactions_with_price_info'] += 1
 
 	return _to_cogs_summary_rows(year_month_to_summary)
@@ -986,7 +1001,7 @@ def write_cogs_xlsx(
 	bottoms_up_cogs_rows: List[List[CellValue]],
 	company_name: str) -> None:
 
-	assert len(bottoms_up_cogs_rows) == len(topdown_cogs_rows)
+	#assert len(bottoms_up_cogs_rows) == len(topdown_cogs_rows)
 	wb = excel_writer.WorkbookWriter(xlwt.Workbook())
 
 	sheet = wb.add_sheet('Topdown')
@@ -997,6 +1012,8 @@ def write_cogs_xlsx(
 	for row in bottoms_up_cogs_rows:
 		sheet.add_row(row)
 
+	"""
+	# TODO(dlluncor): Fix
 	sheet = wb.add_sheet('Delta')
 	for i in range(len(bottoms_up_cogs_rows)):
 		if i == 0:
@@ -1016,6 +1033,7 @@ def write_cogs_xlsx(
 			delta_row.append(cast(float, topdown[j]) - cast(float, bottomsup[j]))
 
 		sheet.add_row(delta_row)
+	"""
 
 	Path('out').mkdir(parents=True, exist_ok=True)
 
@@ -1030,7 +1048,7 @@ def create_inventory_dataframe_by_date(
 	package_id_to_history: Dict[str, PackageHistory],
 	date_str: str,
 	params: AnalysisParamsDict
-) -> List[List[str]]:
+) -> List[List[CellValue]]:
 	i = 0
 	num_excluded = 0
 	num_total = 0
@@ -1076,7 +1094,7 @@ def create_inventory_dataframes(
 	package_id_to_history: Dict[str, PackageHistory],
 	q: Query,
 	params: AnalysisParamsDict
-) -> Dict[str, List[List[str]]]:
+) -> Dict[str, List[List[CellValue]]]:
 	i = 0
 	num_excluded = 0
 	num_total = 0
