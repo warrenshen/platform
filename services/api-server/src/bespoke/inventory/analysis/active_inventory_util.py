@@ -277,6 +277,8 @@ def _is_internal_transfer(transfer_pkg: TransferPackageDict) -> bool:
 		DeliveryType.OUTGOING_INTERNAL
 	])
 
+## CHILD AND PARENT LOGIC
+
 ParentDetailsDict = TypedDict('ParentDetailsDict', {
 	'incoming_pkg': TransferPackageDict,
 	'parent_package_id': str,
@@ -603,8 +605,6 @@ def get_histories(d: Download, params: AnalysisParamsDict) -> Dict[str, PackageH
 
 	return package_id_to_history
 
-##### DEBUG ######
-
 def run_orphan_analysis(d: Download, package_id_to_history: Dict[str, PackageHistory]) -> None:
 	# Child to parent package_id
 	resp = _match_child_packages_to_parents(d, package_id_to_history)
@@ -648,8 +648,6 @@ def analyze_specific_package_histories(
 					d, package_id_to_history, debug_package_id=history.package_id)
 
 		print('')
-
-
 
 PrintCountsDict = TypedDict('PrintCountsDict', {
 	'only_incoming': int,
@@ -730,11 +728,13 @@ def print_counts(id_to_history: Dict[str, PackageHistory], should_print: bool = 
 		total_seen=total_seen
 	)
 
+## COGS ANALYSIS
+
 CogsSummaryDict = TypedDict('CogsSummaryDict', {
 	'cogs': float,
 	'revenue': float,
-	'incoming_pkg_ids_seen': Set[str],
-	'sold_pkg_ids_seen': Set[str]
+	'num_transactions_with_price_info': int,
+	'num_transactions_total': int,
 })
 
 def _to_cogs_summary_rows(year_month_to_summary: Dict[finance_types.Month, CogsSummaryDict]) -> List[List[CellValue]]:
@@ -743,7 +743,7 @@ def _to_cogs_summary_rows(year_month_to_summary: Dict[finance_types.Month, CogsS
 
 	rows: List[List[CellValue]] = []
 	rows.append(['year_month', 'revenue', 'cogs', 'margin_$', 'margin_%',
-		 'total_count_incoming', 'total_count', 'coverage'])
+		 					 'txs_with_incoming', 'num_txs', 'coverage'])
 	for key in keys:
 		summary = year_month_to_summary[key]
 
@@ -751,11 +751,11 @@ def _to_cogs_summary_rows(year_month_to_summary: Dict[finance_types.Month, CogsS
 		if not math.isclose(summary['revenue'], 0.0):
 			margin_pct = (summary['revenue'] - summary['cogs']) / summary['revenue']
 
-		total_count_incoming = len(summary['incoming_pkg_ids_seen'])
-		total_count = len(summary['sold_pkg_ids_seen'])
+		txs_with_incoming = summary['num_transactions_with_price_info']
+		num_txs = summary['num_transactions_total']
 		coverage = 0.0
-		if not math.isclose(total_count, 0.0):
-			coverage = total_count_incoming / total_count
+		if not math.isclose(num_txs, 0.0):
+			coverage = txs_with_incoming / num_txs
 
 		row: List[CellValue] = [
 			'{}-{}'.format(key.year, str(key.month).zfill(2)),
@@ -763,9 +763,10 @@ def _to_cogs_summary_rows(year_month_to_summary: Dict[finance_types.Month, CogsS
 			round(summary['cogs'], 2),
 			round(summary['revenue'] - summary['cogs'], 2),
 			round(margin_pct, 2),
-			total_count_incoming,
-			total_count,
-			round(coverage, 2),
+
+			txs_with_incoming,
+			num_txs,
+			round(coverage, 2)
 		]
 		rows.append(row)
 
@@ -787,8 +788,8 @@ def create_cogs_summary_for_all_dates(
 			year_month_to_summary[month] = CogsSummaryDict(
 				cogs=0.0,
 				revenue=0.0,
-				incoming_pkg_ids_seen=set(),
-				sold_pkg_ids_seen=set(),
+				num_transactions_with_price_info=0,
+				num_transactions_total=0
 			)
 
 		return year_month_to_summary[month]
@@ -799,13 +800,19 @@ def create_cogs_summary_for_all_dates(
 			# Needs at least 1 sales tx to be considered part of COGS
 			incoming_pkg = history.incomings[-1]
 			summary = _get_summary(incoming_pkg['received_date'])
-			summary['cogs'] += incoming_pkg['shipper_wholesale_price']
-			summary['incoming_pkg_ids_seen'].add(incoming_pkg['package_id'])
+			if not numpy.isnan(incoming_pkg['shipper_wholesale_price']):
+				summary['cogs'] += incoming_pkg['shipper_wholesale_price']
+
+		has_price_info = len(history.incomings) > 0
 
 		for sales_tx in history.sales_txs:
 			summary = _get_summary(sales_tx['sales_date'])
-			summary['revenue'] += sales_tx['tx_total_price']
-			summary['sold_pkg_ids_seen'].add(sales_tx['tx_package_id'])
+			if not numpy.isnan(sales_tx['tx_total_price']):
+				summary['revenue'] += sales_tx['tx_total_price']
+
+			summary['num_transactions_total'] += 1
+			if has_price_info:
+				summary['num_transactions_with_price_info'] += 1
 
 	return _to_cogs_summary_rows(year_month_to_summary)
 
@@ -825,28 +832,35 @@ def create_top_down_cogs_summary_for_all_dates(
 			year_month_to_summary[month] = CogsSummaryDict(
 				cogs=0.0,
 				revenue=0.0,
-				incoming_pkg_ids_seen=set(),
-				sold_pkg_ids_seen=set(),
+				num_transactions_with_price_info=0,
+				num_transactions_total=0
 			)
 
 		return year_month_to_summary[month]
 
-	for sales_tx in d.sales_tx_records:
-		summary = _get_summary(sales_tx['sales_date'])
-		summary['revenue'] += sales_tx['tx_total_price']
-		summary['sold_pkg_ids_seen'].add(sales_tx['tx_package_id'])
-
+	incoming_pkg_ids_seen = set([])
 
 	for incoming_pkg in d.incoming_records:
 		if incoming_pkg['shipment_package_state'] == 'Returned':
 			continue
 
-		if _is_internal_transfer(incoming_pkg):
-			continue
-
 		summary = _get_summary(incoming_pkg['received_date'])
-		summary['cogs'] += incoming_pkg['shipper_wholesale_price']
-		summary['incoming_pkg_ids_seen'].add(incoming_pkg['package_id'])
+		
+		if not numpy.isnan(incoming_pkg['shipper_wholesale_price']):
+			summary['cogs'] += incoming_pkg['shipper_wholesale_price']
+
+		incoming_pkg_ids_seen.add(incoming_pkg['package_id'])
+
+	for sales_tx in d.sales_tx_records:
+		summary = _get_summary(sales_tx['sales_date'])
+		
+		if not numpy.isnan(sales_tx['tx_total_price']):
+			summary['revenue'] += sales_tx['tx_total_price']
+
+		summary['num_transactions_total'] += 1
+		has_price_info = sales_tx['tx_package_id'] in incoming_pkg_ids_seen
+		if has_price_info:
+			summary['num_transactions_with_price_info'] += 1
 
 	return _to_cogs_summary_rows(year_month_to_summary)
 
@@ -892,6 +906,8 @@ def write_cogs_xlsx(
 	with open(filepath, 'wb') as f:
 		wb.save(f)
 		print('Wrote result to {}'.format(filepath))
+
+### CREATE AND COMPARE INVENTORY
 
 def create_inventory_dataframe_by_date(
 	package_id_to_history: Dict[str, PackageHistory],
