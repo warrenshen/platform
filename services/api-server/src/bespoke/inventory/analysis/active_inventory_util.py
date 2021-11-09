@@ -68,7 +68,10 @@ def _get_incoming_pkg_for_date(incomings: List[TransferPackageDict], inventory_d
 		if incoming_pkg['shipment_package_state'] == 'Returned':
 			continue
 
-		if incoming_pkg['received_datetime'].date() >= inventory_date:
+		if not incoming_pkg['received_date']:
+			continue
+
+		if incoming_pkg['received_date'] >= inventory_date:
 			# Find the first incoming package that was received after this inventory date
 			return incoming_pkg
 
