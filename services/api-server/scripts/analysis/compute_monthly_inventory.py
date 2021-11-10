@@ -17,8 +17,10 @@ sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 from bespoke.db import models
 from bespoke.inventory.analysis.shared import package_history
 from bespoke.inventory.analysis import active_inventory_util as util
+from bespoke.inventory.analysis import inventory_cogs_util as cogs_util
 from bespoke.inventory.analysis import inventory_valuations_util # so that it triggers mypy to verify the types
 	
+
 def main() -> None:
 
 	company_name = 'Royal_Apothecary'
@@ -54,6 +56,19 @@ def main() -> None:
 	id_to_history = util.get_histories(cast(Any, d), params=params)
 	util.create_inventory_xlsx(id_to_history, q, params=params)
 
+	# Do the COGS summary too
+	topdown_cogs_rows = cogs_util.create_top_down_cogs_summary_for_all_dates(
+	    d, params
+	)
+
+	bottomsup_cogs_rows = cogs_util.create_cogs_summary_for_all_dates(
+	  id_to_history, params
+	)
+	cogs_util.write_cogs_xlsx(
+	    topdown_cogs_rows=topdown_cogs_rows, 
+	    bottoms_up_cogs_rows=bottomsup_cogs_rows,
+	    company_name=q.company_name
+	)
 
 if __name__ == "__main__":
 	main()

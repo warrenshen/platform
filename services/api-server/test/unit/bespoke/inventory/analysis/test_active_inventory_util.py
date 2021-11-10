@@ -6,6 +6,7 @@ from dateutil import parser
 from typing import cast, List, Any, Dict, Iterable
 
 from bespoke.db.db_constants import DeliveryType
+from bespoke.inventory.analysis.shared import download_util 
 from bespoke.inventory.analysis import active_inventory_util as util
 from bespoke.inventory.analysis.active_inventory_util import AnalysisParamsDict
 
@@ -139,7 +140,7 @@ def _get_dataframe(input_dict_rows: List[Dict], columns: List[str]) -> pd.DataFr
 
 	return pd.DataFrame(array_rows, columns=columns)
 
-class FakeSQLHelper(util.SQLHelper):
+class FakeSQLHelper(download_util.SQLHelper):
 
 	def __init__(self, packages_df: pd.DataFrame) -> None:
 		self._packages_df = packages_df
