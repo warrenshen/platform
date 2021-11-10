@@ -214,7 +214,6 @@ def run_orphan_analysis(d: Download, package_id_to_history: Dict[str, PackageHis
 
 def analyze_specific_package_histories(
 	d: Download,
-	package_id_to_actual_row: Dict[str, Dict],
 	package_ids: List[str],
 	params: AnalysisParamsDict) -> None:
 
@@ -224,12 +223,21 @@ def analyze_specific_package_histories(
 
 	for package_id in package_ids:
 		print(f'DEBUGGING PACKAGE_ID={package_id}')
-		if package_id in package_id_to_actual_row:
-			print('Matching metrc_package:')
-			print(package_id_to_actual_row[package_id])
+		history = package_id_to_history.get(package_id)
+		if not history:
+			print('No PackageHistory for {}'.format(package_id))
+			return
+
+		if history.active_inventory_pkg:
+			print('Matching active metrc_package:')
+			print(history.active_inventory_pkg)
+			print('')
+		elif history.inactive_pkg:
+			print('Matching inactive metrc_package:')
+			print(history.inactive_pkg)
 			print('')
 		else:
-			print('! Missing in metrc_packages')
+			print('! Missing in metrc_packages, both inactive and active')
 
 		if package_id not in package_id_to_history:
 			print(f'! Package ID {package_id} not in computed')
@@ -250,6 +258,7 @@ PrintCountsDict = TypedDict('PrintCountsDict', {
 	'only_incoming': int,
 	'only_outgoing': int,
 	'only_sold': int,
+	'incoming_missing_prices': int,
 	'outgoing_and_incoming': int,
 	'in_and_sold_at_least_once': int,
 	'in_and_sold_many_times': int,
@@ -270,6 +279,8 @@ def print_counts(id_to_history: Dict[str, PackageHistory], should_print: bool = 
 	total_seen = 0
 	num_parent_packages = 0
 	num_child_packages = 0
+	num_incoming_missing_price = 0
+	num_incoming_pkgs = 0
 
 	for package_id, history in id_to_history.items():
 
@@ -279,6 +290,11 @@ def print_counts(id_to_history: Dict[str, PackageHistory], should_print: bool = 
 		if history.incomings and not history.outgoings and not history.sales_txs:
 			only_incoming += 1
 			#print(history.incomings[0]['source_harvest_names'])
+
+		if history.incomings:
+			num_incoming_pkgs += 1
+			if not history.incomings[-1]['price'] or numpy.isnan(history.incomings[-1]['price']):
+				num_incoming_missing_price += 1
 
 		if not history.incomings and history.sales_txs:
 			only_sold += 1
@@ -303,8 +319,11 @@ def print_counts(id_to_history: Dict[str, PackageHistory], should_print: bool = 
 	if should_print:
 		print(f'Only outgoing: {only_outgoing}')
 		print(f'Only incoming: {only_incoming}')	
-		print('Sold packages missing pricing information: {} ({:.2f}% of packages)'.format(
+		print('Sold packages missing incoming_pkg: {} ({:.2f}% of packages)'.format(
 					only_sold, only_sold / total_seen * 100))
+		print('Incoming packages missing price {} ({:.2f}% of incoming packages)'.format(
+					num_incoming_missing_price, num_incoming_missing_price / num_incoming_pkgs * 100
+		))
 		print(f'In and out: {outgoing_and_incoming}')
 		print(f'In and sold at least once {in_and_sold_at_least_once}')
 		print(f'In and sold many times {in_and_sold_many_times}')
@@ -319,6 +338,7 @@ def print_counts(id_to_history: Dict[str, PackageHistory], should_print: bool = 
 		only_incoming=only_incoming,
 		only_sold=only_sold,
 		outgoing_and_incoming=outgoing_and_incoming,
+		incoming_missing_prices=num_incoming_missing_price,
 		in_and_sold_at_least_once=in_and_sold_at_least_once,
 		in_and_sold_many_times=in_and_sold_many_times,
 		num_parent_packages=num_parent_packages,
@@ -451,6 +471,7 @@ def compare_inventory_dataframes(computed: Any, actual: Any, options: CompareOpt
 	package_id_to_actual_row = {}
 	quantities = []
 	delta_quantities = []
+	delta_tuples = []
 	num_matching_packages = 0
 	num_packages = 0
 
@@ -472,19 +493,22 @@ def compare_inventory_dataframes(computed: Any, actual: Any, options: CompareOpt
 				# sales transactions.
 				num_matching_packages += 1
 				delta_quantities.append(0.0)
+				delta_tuples.append((row['package_id'], 0.0))
 				quantities.append(0)
 			else:
+				# We completely missed the package
 				computed_missing_package_ids.add(row['package_id'])
 				# Was this ever computed but just not in the current inventory though?
 				if row['package_id'] in all_computed_package_ids_ever_seen:
 					computed_missing_package_ids_but_seen_before.add(row['package_id'])
-
 		else:
 			computed_row = package_id_to_computed_row[row['package_id']]
 			
 			unseen_package_ids.remove(row['package_id'])
 			num_matching_packages += 1
-			delta_quantities.append(abs(float(row['quantity']) - float(computed_row['quantity'])))
+			abs_delta = abs(float(row['quantity']) - float(computed_row['quantity']))
+			delta_quantities.append(abs_delta)
+			delta_tuples.append((row['package_id'], abs_delta))
 			quantities.append(row['quantity'])
 
 	extra_quantity = 0.0
@@ -513,7 +537,7 @@ def compare_inventory_dataframes(computed: Any, actual: Any, options: CompareOpt
 		num_matching_packages,
 		num_packages
 	))
-	print('Accuracy of quantities: {:.2f}%'.format((quantity_avg - quantity_delta) / quantity_avg * 100))
+	print('Accuracy of quantities for matching packages: {:.2f}%'.format((quantity_avg - quantity_delta) / quantity_avg * 100))
 	print('Pct of # inventory packages over-estimated: {:.2f}%'.format(len(unseen_package_ids) / num_packages * 100))
 	print('Pct of # quantity over-estimated: {:.2f}%'.format(extra_quantity / total_quantity))
 	print('Avg quantity delta: {:.2f}'.format(quantity_delta))
@@ -576,6 +600,18 @@ def compare_inventory_dataframes(computed: Any, actual: Any, options: CompareOpt
 
 		print(f'{package_id}: actual quantity {quantity} ({unit_of_measure}) of {product_category_name}')
 		computed_missing_actual_package_ids.append(package_id)
+		i += 1
+
+	print('')
+	print(f'Largest delta in quantities; first {num_errors_to_show}')
+	delta_tuples.sort(key=lambda x: x[1], reverse=True)
+
+	i = 0
+	for (package_id, delta) in delta_tuples:
+		if i > num_errors_to_show:
+			break
+
+		print('Delta {:.2f} for package_id {}'.format(delta, package_id))
 		i += 1
 
 	return {

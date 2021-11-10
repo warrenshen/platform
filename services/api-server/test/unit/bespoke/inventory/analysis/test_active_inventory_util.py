@@ -208,7 +208,9 @@ class TestInventoryCounts(unittest.TestCase):
 			'incoming_transfer_packages': [
 				_transfer_pkg(
 					id=1, delivery_type=DeliveryType.INCOMING_INTERNAL, 
-					received_datetime=parser.parse('10/1/2020')
+					received_datetime=parser.parse('10/1/2020'),
+					quantity=1.0,
+					wholesale_price=2.0,
 				),
 				_transfer_pkg(
 					id=2, delivery_type=DeliveryType.INCOMING_INTERNAL, # sold
@@ -278,6 +280,7 @@ class TestInventoryCounts(unittest.TestCase):
 			'expected_counts_dict': {
 				'only_outgoing': 2,
 				'only_incoming': 2,
+				'incoming_missing_prices': 3,
 				'only_sold': 1,
 				'outgoing_and_incoming': 1,
 				'in_and_sold_at_least_once': 2,
