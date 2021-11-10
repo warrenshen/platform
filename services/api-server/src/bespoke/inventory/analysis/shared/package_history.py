@@ -371,7 +371,7 @@ class PackageHistory(object):
 				price_of_pkg = incoming_pkg['price']
 				if not price_of_pkg or numpy.isnan(price_of_pkg):
 					# Try to find the price if there is an external pricing config specified
-					if params['use_prices_to_fill_missing_incoming']:
+					if params.get('use_prices_to_fill_missing_incoming', False):
 						price_per_unit_of_measure, err = inventory_common_util.get_estimated_price_per_unit_of_measure(
 							product_category_name=incoming_pkg['product_category_name'],
 							unit_of_measure=incoming_pkg['unit_of_measure'],

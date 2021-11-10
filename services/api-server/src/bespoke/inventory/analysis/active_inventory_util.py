@@ -620,11 +620,11 @@ def _match_child_packages_to_parents(
 		num_orphans=0
 	)
 
-	if params['find_parent_child_relationships']:
+	if params.get('find_parent_child_relationships', False):
 		_find_parents_by_productionbatch_and_harvest(
 			d, package_id_to_history, resp, debug_package_id)
 
-	if params['use_prices_to_fill_missing_incoming']:
+	if params.get('use_prices_to_fill_missing_incoming', False):
 		if not params['external_pricing_data_config']:
 			raise Exception('external_pricing_data_config must be filled in when the use_prices_to_fill_missing_incoming is set')
 

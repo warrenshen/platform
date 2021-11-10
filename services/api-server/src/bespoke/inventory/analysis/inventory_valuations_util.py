@@ -11,7 +11,7 @@ def get_total_valuation_for_date(
 	company_incoming_transfer_packages_dataframe: pandas.DataFrame) -> float:
 
 	in_inventory_computed_inventory_packages_dataframe = computed_inventory_packages_dataframe[computed_inventory_packages_dataframe['is_in_inventory'] == 'true']
-		
+
 	print(f'# packages in inventory: {len(in_inventory_computed_inventory_packages_dataframe.index)}')
 	
 	inventory_with_incoming_transfer_packages_dataframe = in_inventory_computed_inventory_packages_dataframe \
@@ -28,12 +28,17 @@ def get_total_valuation_for_date(
 	total_valuation_cost = 0.0
 
 	for inventory_with_cost_record in inventory_with_cost_records:
-			incoming_shipped_price = inventory_with_cost_record['receiver_wholesale_price']
-			if math.isnan(incoming_shipped_price):
-					incoming_shipped_price = 0
-			incoming_shipped_quantity = inventory_with_cost_record['received_quantity']
+			incoming_receiver_price = inventory_with_cost_record['receiver_wholesale_price']
+			incoming_received_quantity = inventory_with_cost_record['received_quantity']
 			current_quantity = inventory_with_cost_record['quantity']
-			total_valuation_cost += float(current_quantity) * (incoming_shipped_price / incoming_shipped_quantity)
+
+			# Incoming price and / or quantity may be NaN.
+			if math.isnan(incoming_receiver_price) or math.isnan(incoming_received_quantity):
+					continue
+
+			total_valuation_cost += float(current_quantity) * (incoming_receiver_price / incoming_received_quantity)
+
+	print(f'valuation cost: {total_valuation_cost}')
 
 	return total_valuation_cost
 			
