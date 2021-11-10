@@ -898,6 +898,19 @@ def _to_cogs_summary_rows(year_month_to_summary: Dict[finance_types.Month, CogsS
 
 	return rows
 
+def _get_empty_cogs_row(date_str: str) -> List[CellValue]:
+	return [
+		date_str,
+		0.0,
+		0.0,
+		0.0,
+		0.0,
+
+		0.0,
+		0.0,
+		0.0
+	]
+
 def create_cogs_summary_for_all_dates(
 	package_id_to_history: Dict[str, PackageHistory],
 	params: AnalysisParamsDict
@@ -978,6 +991,9 @@ def create_top_down_cogs_summary_for_all_dates(
 		if incoming_pkg['shipment_package_state'] == 'Returned':
 			continue
 
+		if not incoming_pkg['received_date']:
+			continue
+
 		summary = _get_summary(incoming_pkg['received_date'])
 		
 		if not numpy.isnan(incoming_pkg['shipper_wholesale_price']):
@@ -1003,39 +1019,47 @@ def write_cogs_xlsx(
 	bottoms_up_cogs_rows: List[List[CellValue]],
 	company_name: str) -> None:
 
-	#assert len(bottoms_up_cogs_rows) == len(topdown_cogs_rows)
 	wb = excel_writer.WorkbookWriter(xlwt.Workbook())
 
-	sheet = wb.add_sheet('Topdown')
-	for row in topdown_cogs_rows:
-		sheet.add_row(row)
+	topdown_sheet = wb.add_sheet('Topdown')
+	all_date_set = set([])
+	date_to_topdown_row = {}
+	for i in range(len(topdown_cogs_rows)):
+		row = topdown_cogs_rows[i]
+		if i != 0:
+			date_to_topdown_row[row[0]] = row
+			all_date_set.add(cast(str, row[0]))
 
-	sheet = wb.add_sheet('Bottomsup')
-	for row in bottoms_up_cogs_rows:
-		sheet.add_row(row)
-
-	"""
-	# TODO(dlluncor): Fix
-	sheet = wb.add_sheet('Delta')
+	bottomsup_sheet = wb.add_sheet('Bottomsup')
+	date_to_bottomsup_row = {}
 	for i in range(len(bottoms_up_cogs_rows)):
-		if i == 0:
-			# Header row
-			sheet.add_row(bottoms_up_cogs_rows[0])
-			continue
+		row = bottoms_up_cogs_rows[i]
+		if i != 0:
+			date_to_bottomsup_row[row[0]] = row
+			all_date_set.add(cast(str, row[0]))
 
-		topdown = topdown_cogs_rows[i]
-		bottomsup = bottoms_up_cogs_rows[i]
+	all_dates = list(all_date_set)
+	all_dates.sort()
 
-		delta_row = [topdown[0]]
+	delta_sheet = wb.add_sheet('Delta')
+	delta_sheet.add_row(bottoms_up_cogs_rows[0]) # header
 
-		for j in range(len(topdown)):
+	for date_str in all_dates:
+
+		topdown_row = date_to_topdown_row.get(date_str, _get_empty_cogs_row(date_str))
+		bottomsup_row = date_to_bottomsup_row.get(date_str, _get_empty_cogs_row(date_str))
+
+		delta_row = [topdown_row[0]]
+
+		for j in range(len(topdown_row)):
 			if j == 0:
 				continue
 
-			delta_row.append(cast(float, topdown[j]) - cast(float, bottomsup[j]))
+			delta_row.append(cast(float, topdown_row[j]) - cast(float, bottomsup_row[j]))
 
-		sheet.add_row(delta_row)
-	"""
+		topdown_sheet.add_row(topdown_row)
+		bottomsup_sheet.add_row(bottomsup_row)
+		delta_sheet.add_row(delta_row)
 
 	Path('out').mkdir(parents=True, exist_ok=True)
 
