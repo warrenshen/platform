@@ -358,7 +358,6 @@ def _download_data_for_license(
 	if err:
 		logging.error(f'Error thrown for company {ctx.company_details["name"]} for date {cur_date} and license {license["license_number"]}!')
 		logging.error(f'Error: {err}')
-		return None, err
 
 	return {
 		'api_key_has_err': err is not None, # Record whether there was an error with the Metrc API for this license
