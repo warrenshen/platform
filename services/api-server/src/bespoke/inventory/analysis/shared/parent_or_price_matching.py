@@ -1,6 +1,7 @@
 import copy
 import datetime
 import math
+import pytz
 
 from typing import Any, Dict, List, Sequence, Tuple, Union, Iterable, Set, cast
 from dateutil import parser
@@ -303,6 +304,9 @@ def _create_incoming_pkg_using_external_pricing(
 	received_datetime = datetime.datetime.now() - timedelta(days=90)
 	if history.sales_txs:
 		received_datetime = history.sales_txs[0]['sales_datetime'] - timedelta(days=1)
+
+	if not received_datetime.tzinfo:
+		received_datetime = received_datetime.replace(tzinfo=pytz.UTC)
 
 	new_incoming_pkg = TransferPackageDict(
 		package_id=pkg['package_id'],

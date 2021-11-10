@@ -14,7 +14,7 @@ def print_if(s: str, predicate: bool) -> None:
 
 def is_time_null(cur_time: Any) -> bool:
 	if not cur_time:
-		return None
+		return True
 
 	cur_time_str = str(cur_time)
 	return cur_time_str == 'NaT' or cur_time_str == 'NaTType'
