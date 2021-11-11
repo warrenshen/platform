@@ -1,9 +1,18 @@
-from typing import Iterable
+from typing import Iterable, List
 
-def create_company_incoming_transfer_packages_query(company_identifier: str, start_date: str, end_date: str=None) -> str:
+def create_company_incoming_transfer_packages_query(
+	company_identifier: str,
+	start_date: str,
+	end_date: str=None,
+	license_numbers: List[str]=None,
+) -> str:
 	end_date_where_clause = f"""
 		and metrc_transfers.created_date <= "{end_date}"
 	""" if end_date else ''
+	license_numbers = [f"'{license_number}'" for license_number in license_numbers] if license_numbers else None
+	license_numbers_where_clause = f"""
+		and company_deliveries.license_number in ({','.join(license_numbers)})
+	""" if license_numbers else ''
 	return f"""
 		select
 			case
@@ -17,6 +26,7 @@ def create_company_incoming_transfer_packages_query(company_identifier: str, sta
 			metrc_transfers.manifest_number,
 			metrc_transfers.created_date,
 			metrc_deliveries.received_datetime,
+			metrc_transfers.transfer_payload.shipmenttransactiontype as shipment_transaction_type,
 			metrc_transfers.shipper_facility_license_number,
 			metrc_transfers.shipper_facility_name,
 			metrc_deliveries.recipient_facility_license_number,
@@ -37,6 +47,7 @@ def create_company_incoming_transfer_packages_query(company_identifier: str, sta
 			metrc_transfer_packages.shipper_wholesale_price,
 			metrc_transfer_packages.shipped_quantity,
 			metrc_transfer_packages.shipped_unit_of_measure,
+            metrc_transfer_packages.package_payload.receiverwholesaleprice as receiver_wholesale_price,
 			metrc_transfer_packages.received_quantity,
 			metrc_transfer_packages.received_unit_of_measure,
 			metrc_transfer_packages.package_payload.receiverwholesaleprice as receiver_wholesale_price,
@@ -58,11 +69,24 @@ def create_company_incoming_transfer_packages_query(company_identifier: str, sta
 			)
 			and metrc_transfers.created_date >= "{start_date}"
 			{end_date_where_clause}
+			{license_numbers_where_clause}
 		order by
 			created_date desc
 	"""
 
-def create_company_outgoing_transfer_packages_query(company_identifier: str, start_date: str) -> str:
+def create_company_outgoing_transfer_packages_query(
+	company_identifier: str,
+	start_date: str,
+	end_date: str=None,
+	license_numbers: List[str]=None,
+) -> str:
+	end_date_where_clause = f"""
+		and metrc_transfers.created_date <= "{end_date}"
+	""" if end_date else ''
+	license_numbers = [f"'{license_number}'" for license_number in license_numbers] if license_numbers else None
+	license_numbers_where_clause = f"""
+		and company_deliveries.license_number in ({','.join(license_numbers)})
+	""" if license_numbers else ''
 	return f"""
 		select
 			case
@@ -116,6 +140,8 @@ def create_company_outgoing_transfer_packages_query(company_identifier: str, sta
 				company_deliveries.delivery_type = 'OUTGOING_UNKNOWN'
 			)
 			and metrc_transfers.created_date >= "{start_date}"
+			{end_date_where_clause}
+			{license_numbers_where_clause}
 		order by
 			metrc_transfers.created_date desc
 	"""
@@ -266,8 +292,16 @@ def create_company_sales_transactions_query(company_identifier: str, start_date:
 			metrc_sales_receipts.sales_datetime desc
 	"""
 
-def create_company_inventory_packages_query(company_identifier: str, include_quantity_zero: bool = False) -> str:
-	extra_and_str = '' if include_quantity_zero else 'and metrc_packages.quantity > 0'
+def create_company_inventory_packages_query(
+	company_identifier: str,
+	license_numbers: List[str]=None,
+	include_quantity_zero: bool = False,
+) -> str:
+	license_numbers = [f"'{license_number}'" for license_number in license_numbers] if license_numbers else None
+	license_numbers_where_clause = f"""
+		and metrc_packages.license_number in ({','.join(license_numbers)})
+	""" if license_numbers else ''
+	include_quantity_zero_where_clause = '' if include_quantity_zero else 'and metrc_packages.quantity > 0'
 	return f"""
 		select
 			metrc_packages.license_number,
@@ -301,7 +335,8 @@ def create_company_inventory_packages_query(company_identifier: str, include_qua
 				metrc_packages.type = 'active' or
 				metrc_packages.type = 'onhold'
 			)
-			{extra_and_str}
+			{license_numbers_where_clause}
+			{include_quantity_zero_where_clause}
 		order by
 			metrc_packages.packaged_date desc
 	"""

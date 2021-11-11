@@ -63,19 +63,23 @@ def _fix_received_date_and_timezone(pkg: TransferPackageDict) -> None:
 		pkg['received_datetime'] = pkg['received_datetime'].replace(tzinfo=pytz.UTC)
 
 def _set_quantity_and_unit(pkg: TransferPackageDict) -> None:
-
 	if pkg['received_quantity'] and not numpy.isnan(pkg['received_quantity']):
 		pkg['quantity'] = float(pkg['received_quantity'])
 		pkg['unit_of_measure'] = pkg['received_unit_of_measure']
-		pkg['price'] = float(pkg['receiver_wholesale_price'])
 	elif pkg['shipped_quantity'] and not numpy.isnan(pkg['shipped_quantity']):
 		# Fall back to shipped quantity if needed
 		pkg['quantity'] = float(pkg['shipped_quantity'])
 		pkg['unit_of_measure'] = pkg['shipped_unit_of_measure']
-		pkg['price'] = float(pkg['shipper_wholesale_price'])
 	else:
 		pkg['quantity'] = 0.0
 		pkg['unit_of_measure'] = 'unknown'
+
+	if pkg['receiver_wholesale_price'] and not numpy.isnan(pkg['receiver_wholesale_price']):
+		pkg['price'] = float(pkg['receiver_wholesale_price'])
+	elif pkg['shipper_wholesale_price'] and not numpy.isnan(pkg['shipper_wholesale_price']):
+		# Fall back to shipper wholesale price if needed
+		pkg['price'] = float(pkg['shipper_wholesale_price'])
+	else:
 		pkg['price'] = 0.0
 
 class Download(object):
