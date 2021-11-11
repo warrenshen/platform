@@ -4,7 +4,7 @@ import glob
 import pandas
 import pytz
 
-from typing import Dict, List, Iterable, Any, cast
+from typing import Dict, List, Optional, Iterable, Any, cast
 from bespoke.inventory.analysis.shared import create_queries, prepare_data
 
 from bespoke.inventory.analysis.shared.inventory_common_util import (
@@ -17,6 +17,15 @@ from bespoke.inventory.analysis.shared.inventory_types import (
 	TransferPackageDict,
 	SalesTransactionDict,
 )
+
+def _get_float_or_none(val: Any) -> Optional[float]:
+	if not val:
+		return None
+
+	if numpy.isnan(val):
+		return None
+
+	return float(val)
 
 class SQLHelper(object):
 
@@ -62,7 +71,7 @@ def _fix_received_date_and_timezone(pkg: TransferPackageDict) -> None:
 	elif type(pkg['received_datetime']) == datetime.datetime:
 		pkg['received_datetime'] = pkg['received_datetime'].replace(tzinfo=pytz.UTC)
 
-def _set_quantity_and_unit(pkg: TransferPackageDict) -> None:
+def _set_quantity_and_unit_when_measurement_matches(pkg: TransferPackageDict) -> None:
 	if pkg['received_quantity'] and not numpy.isnan(pkg['received_quantity']):
 		pkg['quantity'] = float(pkg['received_quantity'])
 		pkg['unit_of_measure'] = pkg['received_unit_of_measure']
@@ -81,6 +90,33 @@ def _set_quantity_and_unit(pkg: TransferPackageDict) -> None:
 		pkg['price'] = float(pkg['shipper_wholesale_price'])
 	else:
 		pkg['price'] = 0.0
+
+def _set_quantity_and_unit_when_measurement_differs(pkg: TransferPackageDict) -> None:
+	# When the measurement differs, we don't allow mix and matching of the price
+	# based on which is filled in
+
+	if pkg['received_quantity'] and not numpy.isnan(pkg['received_quantity']):
+		pkg['quantity'] = _get_float_or_none(pkg['received_quantity'])
+		pkg['unit_of_measure'] = pkg['received_unit_of_measure']
+		pkg['price'] = _get_float_or_none(pkg['receiver_wholesale_price'])
+	elif pkg['shipped_quantity'] and not numpy.isnan(pkg['shipped_quantity']):
+		# Fall back to shipped quantity if needed
+		pkg['quantity'] = _get_float_or_none(pkg['shipped_quantity'])
+		pkg['unit_of_measure'] = pkg['shipped_unit_of_measure']
+		pkg['price'] = _get_float_or_none(pkg['shipper_wholesale_price'])
+	else:
+		pkg['quantity'] = 0.0
+		pkg['unit_of_measure'] = 'unknown'
+
+def _set_quantity_and_unit(pkg: TransferPackageDict) -> None:
+	if not pkg['received_unit_of_measure'] and not pkg['shipped_unit_of_measure']:
+		raise Exception('Both received and shipped unit of measure are empty for package_id {}'.format(pkg['package_id']))
+
+	if pkg['received_unit_of_measure'] and pkg['shipped_unit_of_measure'] \
+			and pkg['received_unit_of_measure'].lower() == pkg['shipped_unit_of_measure'].lower():
+		_set_quantity_and_unit_when_measurement_matches(pkg)
+	else:
+		_set_quantity_and_unit_when_measurement_differs(pkg)
 
 class Download(object):
 		
