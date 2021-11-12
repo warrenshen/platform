@@ -1,4 +1,5 @@
 import datetime
+import logging
 import math
 import numpy
 import xlwt
@@ -226,4 +227,4 @@ def write_cogs_xlsx(
 	filepath = f'out/{company_name}_cogs_summary.xls'
 	with open(filepath, 'wb') as f:
 		wb.save(f)
-		print('Wrote result to {}'.format(filepath))
+		logging.info('Wrote result to {}'.format(filepath))

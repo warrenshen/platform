@@ -1,5 +1,6 @@
 import datetime
 import copy
+import logging
 import math
 import numpy
 import pandas
@@ -623,7 +624,8 @@ def compare_inventory_dataframes(computed: Any, actual: Any, options: CompareOpt
 def compute_inventory_across_dates(
 	d: Download,
 	inventory_dates: List[str],
-	params: AnalysisParamsDict
+	params: AnalysisParamsDict,
+	using_nb: bool = False
 ) -> Dict:
 	date_to_inventory_packages_dataframe = {}
 
@@ -641,7 +643,8 @@ def compute_inventory_across_dates(
 		inventory_valuations.append(valuations_util.get_total_valuation_for_date(
 				computed_inventory_packages_dataframe=computed_inventory_packages_dataframe,
 				company_incoming_transfer_packages_dataframe=d.incoming_transfer_packages_dataframe,
-				inventory_date=inventory_date
+				inventory_date=inventory_date,
+				using_nb=using_nb
 		))
 			
 	return {
@@ -728,7 +731,7 @@ def create_inventory_xlsx(
 	filepath = f'out/{q.company_name}_inventory_by_month.xls'
 	with open(filepath, 'wb') as f:
 		wb.save(f)
-		print('Wrote result to {}'.format(filepath))
+		logging.info('Wrote result to {}'.format(filepath))
 			
 	pct_excluded = '{:.2f}'.format(num_excluded / num_total * 100)
 	print(f'Excluded {num_excluded} / {num_total} packages from consideration ({pct_excluded}%)')

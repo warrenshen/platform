@@ -239,15 +239,18 @@ def get_bigquery_engine(engine_url: str) -> Any:
 	engine = create_engine(engine_url, credentials_path=os.path.expanduser(BIGQUERY_CREDENTIALS_PATH))
 	return engine
 
-def get_dataframes_for_analysis(q: Query, engine: Any) -> AllDataframesDict:
+def get_dataframes_for_analysis(q: Query, engine: Any, dry_run: bool) -> AllDataframesDict:
 	# Download packages, sales transactions, incoming / outgoing tranfers
-	company_incoming_transfer_packages_query = create_queries.create_company_incoming_transfer_packages_query(q.company_identifier, q.transfer_packages_start_date)
-	company_outgoing_transfer_packages_query = create_queries.create_company_outgoing_transfer_packages_query(q.company_identifier, q.transfer_packages_start_date)
-	company_sales_receipts_query = create_queries.create_company_sales_receipts_query(q.company_identifier, q.sales_transactions_start_date)
-	company_sales_transactions_query = create_queries.create_company_sales_transactions_query(q.company_identifier, q.sales_transactions_start_date)
+	limit = 50 if dry_run else None
+
+	company_incoming_transfer_packages_query = create_queries.create_company_incoming_transfer_packages_query(q.company_identifier, q.transfer_packages_start_date, limit=limit)
+	company_outgoing_transfer_packages_query = create_queries.create_company_outgoing_transfer_packages_query(q.company_identifier, q.transfer_packages_start_date, limit=limit)
+	company_sales_receipts_query = create_queries.create_company_sales_receipts_query(q.company_identifier, q.sales_transactions_start_date, limit=limit)
+	company_sales_transactions_query = create_queries.create_company_sales_transactions_query(q.company_identifier, q.sales_transactions_start_date, limit=limit)
 	company_inventory_packages_query = create_queries.create_company_inventory_packages_query(
 			q.company_identifier,
 			include_quantity_zero=True,
+			limit=limit
 	)
 
 	company_incoming_transfer_packages_dataframe = pd.read_sql_query(company_incoming_transfer_packages_query, engine)

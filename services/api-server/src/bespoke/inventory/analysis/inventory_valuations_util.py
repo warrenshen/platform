@@ -1,3 +1,4 @@
+import logging
 import math
 import pandas
 import matplotlib.pyplot as plt
@@ -9,7 +10,8 @@ from bespoke.inventory.analysis.shared.inventory_types import Query
 def get_total_valuation_for_date(
 	computed_inventory_packages_dataframe: pandas.DataFrame,
 	company_incoming_transfer_packages_dataframe: pandas.DataFrame,
-	inventory_date: str) -> float:
+	inventory_date: str,
+	using_nb: bool) -> float:
 
 	in_inventory_computed_inventory_packages_dataframe = computed_inventory_packages_dataframe[computed_inventory_packages_dataframe['is_in_inventory'] == 'true']
 
@@ -37,7 +39,8 @@ def get_total_valuation_for_date(
 
 			total_valuation_cost += float(current_quantity) * (incoming_receiver_price / incoming_received_quantity)
 
-	print(f'On {inventory_date} # packages in inventory: {len(in_inventory_computed_inventory_packages_dataframe.index)}, valuation cost: {round(total_valuation_cost, 2)}')
+	if using_nb:
+		logging.info(f'On {inventory_date} # packages in inventory: {len(in_inventory_computed_inventory_packages_dataframe.index)}, valuation cost: {round(total_valuation_cost, 2)}')
 
 	return total_valuation_cost
 			
@@ -78,12 +81,12 @@ def plot_inventory_and_revenue(
 	specific_gmv_vals = _get_gmv_for_inventory_dates(gmv_by_month_dataframe, q)
 
 	if len(q.inventory_dates) != len(inventory_valuations):
-		print('Inventory dates: len {} != inventory_valuations len {}'.format(
+		logging.error('Inventory dates: len {} != inventory_valuations len {}'.format(
 			len(q.inventory_dates), len(inventory_valuations)))
 		return
 
 	if len(inventory_valuations) != len(specific_gmv_vals):
-		print('inventory_valuations: len {} != gmv_by_month len {}'.format(
+		logging.error('inventory_valuations: len {} != gmv_by_month len {}'.format(
 			len(q.inventory_dates), len(gmv_by_month_dataframe.array)))
 		return
 

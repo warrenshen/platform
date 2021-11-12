@@ -1,6 +1,7 @@
 import datetime
 import copy
 import glob
+import logging
 import math
 import numpy
 import pandas
@@ -285,7 +286,7 @@ class PackageHistory(object):
 
 		if self.is_child_of_parent and not self.active_inventory_pkg and not self.inactive_pkg:
 			if in_debug_mode:
-				print(f'We should always have the actual inventory or inactive package for a child package. Package ID {self.package_id}')
+				logging.info(f'We should always have the actual inventory or inactive package for a child package. Package ID {self.package_id}')
 			
 			self.should_exclude = True
 			self.exclude_reason = ExcludeReason.CHILD_MISSING_INVENTORY_PACKAGE
@@ -364,7 +365,8 @@ class PackageHistory(object):
 				if not incoming_pkg['quantity'] or numpy.isnan(incoming_pkg['quantity']):
 					self.should_exclude = True
 					self.exclude_reason = ExcludeReason.INCOMING_MISSING_QUANTITY
-					p.warn(f'incoming package #{self.package_id} does not have a quantity', package_id=self.package_id)
+					if in_debug_mode:
+						logging.info(f'WARN: incoming package #{self.package_id} does not have a quantity', package_id=self.package_id)
 					return False
 
 				shipped_quantity = incoming_pkg['quantity']
@@ -384,7 +386,8 @@ class PackageHistory(object):
 				if not price_of_pkg or numpy.isnan(price_of_pkg):
 					self.should_exclude = True
 					self.exclude_reason = ExcludeReason.INCOMING_MISSING_PRICE
-					p.warn(f'incoming package #{self.package_id} does not have a price', package_id=self.package_id)
+					if in_debug_mode:
+						logging.info(f'WARN: incoming package #{self.package_id} does not have a price', package_id=self.package_id)
 					return False
 
 				shipment_package_state = incoming_pkg['shipment_package_state']
@@ -413,7 +416,8 @@ class PackageHistory(object):
 				if not outgoing_pkg['quantity'] or numpy.isnan(outgoing_pkg['quantity']):
 					self.should_exclude = True
 					self.exclude_reason = ExcludeReason.OUTGOING_MISSING_QUANTITY
-					p.warn(f'outgoing package #{self.package_id} does not have a outgoing shipped quantity', package_id=self.package_id)
+					if in_debug_mode:
+						logging.info(f'WARN: outgoing package #{self.package_id} does not have a outgoing shipped quantity', package_id=self.package_id)
 					return False
 
 				shipped_quantity = float(incoming_pkg['quantity'])

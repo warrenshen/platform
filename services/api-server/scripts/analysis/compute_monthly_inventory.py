@@ -8,6 +8,8 @@ DATABASE_URL=postgres+psycopg2://postgres:postgrespassword@localhost:5432/postgr
 import datetime
 import os
 import sys
+import logging
+from dotenv import load_dotenv
 from os import path
 from typing import List, Dict, Any, cast
 from sqlalchemy.orm.session import Session
@@ -25,8 +27,15 @@ from bespoke.inventory.analysis.shared.inventory_types import (
 	AnalysisParamsDict
 )
 
+logging.basicConfig(format='%(asctime)s [%(levelname)s] - %(message)s',
+					datefmt='%m/%d/%Y %H:%M:%S',
+					level=logging.INFO)
+dotenv_path = os.path.join(os.environ.get('SERVER_ROOT_DIR', '.'), '.env')
+load_dotenv(dotenv_path)
+
 def _run_analysis_for_customer(d: download_util.Download, q: Query, params: AnalysisParamsDict) -> None:
 	## Analyze counts for the dataset
+	logging.info('Analyzing counts for {}'.format(q.company_name))
 	today_date = date_util.load_date_str(q.inventory_dates[-1]) # the most recent day is the one we want to compare the actual inventory to.
 	id_to_history = util.get_histories(d, params=params)
 
@@ -35,12 +44,13 @@ def _run_analysis_for_customer(d: download_util.Download, q: Query, params: Anal
 	util.create_inventory_xlsx(id_to_history, q, params=params)
 
 	## Compute accuracy numbers for COGS and inventory
-
+	logging.info('Computing inventory for {}'.format(q.company_name))
+	
 	computed_resp = util.compute_inventory_across_dates(
 			d, q.inventory_dates, params
 	)
 
-	today_date_str = today_date.strftime('%d/%m/%Y')
+	today_date_str = today_date.strftime('%m/%d/%Y')
 	util.compare_computed_vs_actual_inventory(
 			computed=computed_resp['date_to_computed_inventory_dataframe'][today_date_str],
 			actual=d.inventory_packages_dataframe,
@@ -71,7 +81,7 @@ def _run_analysis_for_customer(d: download_util.Download, q: Query, params: Anal
 	)
 
 def _compute_inventory_for_customer(
-	company_identifier: str, params_list: List[AnalysisParamsDict]) -> None:
+	company_identifier: str, params_list: List[AnalysisParamsDict], dry_run: bool) -> None:
 	identifier_to_name = {
 		'RA': 'Royal_Apothecary'
 	}
@@ -93,9 +103,9 @@ def _compute_inventory_for_customer(
 	)
 
 	## Download the data
-
+	logging.info('About to download all inventory history for {}'.format(q.company_name))
 	engine = download_util.get_bigquery_engine('bigquery://bespoke-financial/ProdMetrcData')
-	all_dataframes_dict = download_util.get_dataframes_for_analysis(q, engine)
+	all_dataframes_dict = download_util.get_dataframes_for_analysis(q, engine, dry_run=dry_run)
 	d = util.Download()
 	d.download_dataframes(all_dataframes_dict, sql_helper=download_util.BigQuerySQLHelper(engine))
 	q.inventory_dates = download_util.get_inventory_dates(
@@ -105,13 +115,14 @@ def _compute_inventory_for_customer(
 		_run_analysis_for_customer(d, q, params)
 
 def main() -> None:
+	dry_run = True
 	params = util.AnalysisParamsDict(
 		sold_threshold=package_history.DEFAULT_SOLD_THRESHOLD,
 		find_parent_child_relationships=True,
 		use_prices_to_fill_missing_incoming=False,
 		external_pricing_data_config=None
 	)
-	_compute_inventory_for_customer('RA', [params])
+	_compute_inventory_for_customer('RA', [params], dry_run=dry_run)
 
 if __name__ == "__main__":
 	main()

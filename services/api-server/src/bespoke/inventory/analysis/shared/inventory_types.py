@@ -1,4 +1,5 @@
 import datetime
+import logging
 from mypy_extensions import TypedDict
 from typing import Union, List, Dict, Set
 
@@ -98,17 +99,7 @@ class Printer(object):
 	def __init__(self, verbose: bool, show_info: bool) -> None:
 		self.verbose = verbose
 		self.show_info = show_info
-		self.packages_with_warnings: Set[str] = set([])
-			
-	def warn(self, msg: str, package_id: str = None) -> None:
-		print('WARN: {}'.format(msg))
-		if package_id:
-				self.packages_with_warnings.add(package_id)
-			
-	def debug(self, msg: str) -> None:
-		if self.verbose:
-			print(msg)
 					
 	def info(self, msg: str) -> None:
 		if self.show_info:
-			print(msg)
+			logging.info(msg)

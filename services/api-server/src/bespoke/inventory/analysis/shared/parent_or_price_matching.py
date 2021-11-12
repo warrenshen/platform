@@ -1,5 +1,6 @@
 import copy
 import datetime
+import logging
 import math
 import pytz
 
@@ -148,8 +149,8 @@ def _find_parents_by_productionbatch_and_harvest(
 	for parent_record in d['parent_packages_records']:
 		production_batch_num = parent_record['production_batch_number']
 		package_id = parent_record['package_id']
-		if not production_batch_num:
-				print(f'Parent package {package_id} is missing a productionbatchnumber')
+		if debug_package_id:
+				logging.debug(f'Parent package {package_id} is missing a productionbatchnumber')
 				continue
 		productionbatchnum_to_package_id[parent_record['production_batch_number']] = package_id
 
@@ -178,7 +179,7 @@ def _find_parents_by_productionbatch_and_harvest(
 
 		parent_history = package_id_to_history[package_id]
 		if not parent_history.incomings:
-			print(f'WARN: Parent package {parent_history.package_id} has no incoming package, so the child wont have any incoming history either')
+			logging.info(f'WARN: Parent package {parent_history.package_id} has no incoming package, so the child wont have any incoming history either')
 			return None
 
 		return copy.deepcopy(parent_history.incomings[-1])
@@ -281,7 +282,10 @@ def _find_parents_by_productionbatch_and_harvest(
 
 
 def _create_incoming_pkg_using_external_pricing(
-	pkg: InventoryPackageDict, history: PackageHistory, external_pricing_data_config: PricingDataConfigDict) -> TransferPackageDict:
+	pkg: InventoryPackageDict, 
+	history: PackageHistory, 
+	external_pricing_data_config: PricingDataConfigDict,
+	debug_package_id: str) -> TransferPackageDict:
 
 	price, err = inventory_common_util.get_estimated_price_per_unit_of_measure(
 		product_category_name=pkg['product_category_name'],
@@ -289,7 +293,8 @@ def _create_incoming_pkg_using_external_pricing(
 		external_pricing_data_config=external_pricing_data_config
 	)
 	if err:
-		print(err)
+		if debug_package_id:
+			logging.info(err)
 		return None
 
 	unit_of_measure = pkg['unit_of_measure']
@@ -374,7 +379,7 @@ def match_child_packages_to_parents(
 				continue
 
 			new_incoming_pkg = _create_incoming_pkg_using_external_pricing(
-					pkg, child_history, params['external_pricing_data_config'])
+					pkg, child_history, params['external_pricing_data_config'], debug_package_id)
 			if new_incoming_pkg:	
 				resp['child_to_parent_details'][pkg['package_id']] = {
 					'incoming_pkg': new_incoming_pkg,

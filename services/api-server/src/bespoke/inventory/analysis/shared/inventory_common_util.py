@@ -1,4 +1,5 @@
 import datetime
+import logging
 from dateutil import parser
 from typing import Any, Union, Tuple, cast
 
@@ -10,7 +11,7 @@ from bespoke.inventory.analysis.shared.inventory_types import (
 
 def print_if(s: str, predicate: bool) -> None:
 	if predicate:
-		print(s)
+		logging.info(s)
 
 def is_time_null(cur_time: Any) -> bool:
 	if not cur_time:
