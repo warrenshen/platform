@@ -8,12 +8,11 @@ from bespoke.inventory.analysis.shared.inventory_types import Query
 
 def get_total_valuation_for_date(
 	computed_inventory_packages_dataframe: pandas.DataFrame,
-	company_incoming_transfer_packages_dataframe: pandas.DataFrame) -> float:
+	company_incoming_transfer_packages_dataframe: pandas.DataFrame,
+	inventory_date: str) -> float:
 
 	in_inventory_computed_inventory_packages_dataframe = computed_inventory_packages_dataframe[computed_inventory_packages_dataframe['is_in_inventory'] == 'true']
 
-	print(f'# packages in inventory: {len(in_inventory_computed_inventory_packages_dataframe.index)}')
-	
 	inventory_with_incoming_transfer_packages_dataframe = in_inventory_computed_inventory_packages_dataframe \
 			.astype({'package_id': 'int64'}) \
 			.merge(
@@ -38,7 +37,7 @@ def get_total_valuation_for_date(
 
 			total_valuation_cost += float(current_quantity) * (incoming_receiver_price / incoming_received_quantity)
 
-	print(f'valuation cost: {total_valuation_cost}')
+	print(f'On {inventory_date} # packages in inventory: {len(in_inventory_computed_inventory_packages_dataframe.index)}, valuation cost: {round(total_valuation_cost, 2)}')
 
 	return total_valuation_cost
 			

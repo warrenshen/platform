@@ -34,6 +34,7 @@ from bespoke.inventory.analysis.shared.inventory_types import (
 	SalesTransactionDict,
 	PricingDataConfigDict
 )
+from bespoke.inventory.analysis import inventory_valuations_util as valuations_util
 
 CompareOptionsDict = TypedDict('CompareOptionsDict', {
 	'num_errors_to_show': int,
@@ -618,6 +619,54 @@ def compare_inventory_dataframes(computed: Any, actual: Any, options: CompareOpt
 		'computed_extra_package_ids': unseen_package_ids,
 		'computed_missing_actual_package_ids': computed_missing_actual_package_ids
 	}
+
+def compute_inventory_across_dates(
+	d: Download,
+	inventory_dates: List[str],
+	params: AnalysisParamsDict
+) -> Dict:
+	date_to_inventory_packages_dataframe = {}
+
+	id_to_history = get_histories(d, params)
+	inventory_valuations = []
+
+	for inventory_date in inventory_dates:
+		computed_inventory_package_records = create_inventory_dataframe_by_date(
+				id_to_history, inventory_date, params=params)    
+		computed_inventory_packages_dataframe = pandas.DataFrame(
+				computed_inventory_package_records,
+				columns=get_inventory_column_names()
+		)
+		date_to_inventory_packages_dataframe[inventory_date] = computed_inventory_packages_dataframe
+		inventory_valuations.append(valuations_util.get_total_valuation_for_date(
+				computed_inventory_packages_dataframe=computed_inventory_packages_dataframe,
+				company_incoming_transfer_packages_dataframe=d.incoming_transfer_packages_dataframe,
+				inventory_date=inventory_date
+		))
+			
+	return {
+		'inventory_valuations': inventory_valuations,
+		'date_to_computed_inventory_dataframe': date_to_inventory_packages_dataframe
+	}
+
+def compare_computed_vs_actual_inventory(
+	computed: pandas.DataFrame,
+	actual: pandas.DataFrame, 
+	compare_options: CompareOptionsDict) -> None:
+	from_packages_inventory_dataframe = actual[[
+			'package_id',
+			'packaged_date',
+			'unit_of_measure',
+			'product_category_name',
+			'product_name',
+			'quantity',
+	]].sort_values('package_id')
+
+	res = compare_inventory_dataframes(
+			computed=computed,
+			actual=from_packages_inventory_dataframe,
+			options=compare_options
+	)
 
 def create_inventory_xlsx(
 	id_to_history: Dict[str, PackageHistory], q: Query, params: AnalysisParamsDict,

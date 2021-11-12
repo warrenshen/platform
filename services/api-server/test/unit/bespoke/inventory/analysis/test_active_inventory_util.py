@@ -178,16 +178,21 @@ def _create_download(test: Dict) -> util.Download:
 
 	inventory_df = _get_dataframe(test['inventory_packages'], columns=PACKAGE_COLS)
 	sql_helper = FakeSQLHelper(inventory_df)
-	dl.download_dataframes(
+
+	all_dataframes_dict = download_util.AllDataframesDict(
 		incoming_transfer_packages_dataframe=_get_dataframe(
 			test['incoming_transfer_packages'], columns=TRANSFER_PACKAGE_COLS),
 		outgoing_transfer_packages_dataframe=_get_dataframe(
 			test['outgoing_transfer_packages'], columns=TRANSFER_PACKAGE_COLS),
-		sales_transactions_dataframe=_get_dataframe(
-			test['sales_transactions'], columns=SALES_TX_COLS),
 		sales_receipts_dataframe=_get_dataframe(
 			test['sales_receipts'], columns=SALES_RECEIPTS_COLS),
+		sales_transactions_dataframe=_get_dataframe(
+			test['sales_transactions'], columns=SALES_TX_COLS),
 		inventory_packages_dataframe=sql_helper._get_active_packages(),
+	)
+
+	dl.download_dataframes(
+		all_dataframes_dict=all_dataframes_dict,
 		sql_helper=sql_helper
 	)
 	return dl

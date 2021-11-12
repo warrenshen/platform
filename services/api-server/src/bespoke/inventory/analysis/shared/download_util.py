@@ -1,12 +1,17 @@
+import calendar
 import datetime
 import numpy
 import glob
-import pandas
+import os
+import pandas as pd
 import pytz
+import pyarrow
 
+from sqlalchemy import create_engine
 from typing import Dict, List, Optional, Iterable, Any, cast
-from bespoke.inventory.analysis.shared import create_queries, prepare_data
+from mypy_extensions import TypedDict
 
+from bespoke.inventory.analysis.shared import create_queries, prepare_data
 from bespoke.inventory.analysis.shared.inventory_common_util import (
 	parse_to_date, parse_to_datetime, is_time_null
 )
@@ -17,6 +22,7 @@ from bespoke.inventory.analysis.shared.inventory_types import (
 	TransferPackageDict,
 	SalesTransactionDict,
 )
+
 
 def _get_float_or_none(val: Any) -> Optional[float]:
 	if not val:
@@ -29,34 +35,34 @@ def _get_float_or_none(val: Any) -> Optional[float]:
 
 class SQLHelper(object):
 
-	def get_packages(self, package_ids: Iterable[str]) -> pandas.DataFrame:
+	def get_packages(self, package_ids: Iterable[str]) -> pd.DataFrame:
 		pass
 
-	def get_inactive_packages(self, package_ids: Iterable[str]) -> pandas.DataFrame:
+	def get_inactive_packages(self, package_ids: Iterable[str]) -> pd.DataFrame:
 		pass
 
-	def get_packages_by_production_batch_numbers(self, production_batch_numbers: Iterable[str]) -> pandas.DataFrame:
+	def get_packages_by_production_batch_numbers(self, production_batch_numbers: Iterable[str]) -> pd.DataFrame:
 		pass
 
-class BigQuerySQLHelper(object):
+class BigQuerySQLHelper(SQLHelper):
 
 	def __init__(self, engine: Any) -> None:
 		self.engine = engine
 
-	def get_packages(self, package_ids: Iterable[str]) -> pandas.DataFrame:
-		return pandas.read_sql_query(
+	def get_packages(self, package_ids: Iterable[str]) -> pd.DataFrame:
+		return pd.read_sql_query(
 				create_queries.create_packages_by_package_ids_query(package_ids),
 				self.engine
 			)
 
-	def get_inactive_packages(self, package_ids: Iterable[str]) -> pandas.DataFrame:
-		return pandas.read_sql_query(
+	def get_inactive_packages(self, package_ids: Iterable[str]) -> pd.DataFrame:
+		return pd.read_sql_query(
 				create_queries.are_packages_inactive_query(package_ids),
 				self.engine
 		)
 
-	def get_packages_by_production_batch_numbers(self, production_batch_numbers: Iterable[str]) -> pandas.DataFrame:
-		return pandas.read_sql_query(
+	def get_packages_by_production_batch_numbers(self, production_batch_numbers: Iterable[str]) -> pd.DataFrame:
+		return pd.read_sql_query(
 				create_queries.create_packages_by_production_batch_numbers_query(production_batch_numbers),
 				self.engine
 			)
@@ -118,13 +124,23 @@ def _set_quantity_and_unit(pkg: TransferPackageDict) -> None:
 	else:
 		_set_quantity_and_unit_when_measurement_differs(pkg)
 
+AllDataframesDict = TypedDict('AllDataframesDict', {
+	'incoming_transfer_packages_dataframe': pd.DataFrame,
+	'outgoing_transfer_packages_dataframe': pd.DataFrame,
+	'sales_receipts_dataframe': pd.DataFrame,
+	'sales_transactions_dataframe': pd.DataFrame,
+	'inventory_packages_dataframe': pd.DataFrame,
+})
+
 class Download(object):
 		
 	def __init__(self) -> None:
 		self.incoming_records: List[TransferPackageDict] = None
 		self.outgoing_records: List[TransferPackageDict] = None
 		self.sales_tx_records: List[SalesTransactionDict] = None
-		self.sales_receipts_dataframe: Any = None
+		self.sales_receipts_dataframe: pd.DataFrame = None
+		self.inventory_packages_dataframe: pd.DataFrame = None
+		self.incoming_transfer_packages_dataframe: pd.DataFrame = None
 
 		self.inventory_packages_records: List[InventoryPackageDict] = None
 		self.inactive_packages_records: List[InventoryPackageDict] = None
@@ -134,19 +150,24 @@ class Download(object):
 
 	def download_dataframes(
 		self,
-		incoming_transfer_packages_dataframe: Any,
-		outgoing_transfer_packages_dataframe: Any,
-		sales_transactions_dataframe: Any,
-		sales_receipts_dataframe: Any,
-		inventory_packages_dataframe: Any,
+		all_dataframes_dict: AllDataframesDict,
 		sql_helper: SQLHelper,
 	) -> None:
-		self.incoming_records = incoming_transfer_packages_dataframe.to_dict('records')
-		self.outgoing_records = outgoing_transfer_packages_dataframe.to_dict('records')
+		incoming_transfer_packages_dataframe = all_dataframes_dict['incoming_transfer_packages_dataframe']
+		outgoing_transfer_packages_dataframe = all_dataframes_dict['outgoing_transfer_packages_dataframe']
+		sales_transactions_dataframe = all_dataframes_dict['sales_transactions_dataframe']
+		sales_receipts_dataframe = all_dataframes_dict['sales_receipts_dataframe']
+		inventory_packages_dataframe = all_dataframes_dict['inventory_packages_dataframe']
+
+		self.incoming_records = cast(List[TransferPackageDict], incoming_transfer_packages_dataframe.to_dict('records'))
+		self.outgoing_records = cast(List[TransferPackageDict], outgoing_transfer_packages_dataframe.to_dict('records'))
 		self.sales_tx_records = cast(List[SalesTransactionDict], prepare_data.dedupe_sales_transactions(
 			sales_transactions_dataframe).to_dict('records'))
 		self.sales_receipts_dataframe = sales_receipts_dataframe
-		self.inventory_packages_records = inventory_packages_dataframe.to_dict('records')
+		self.inventory_packages_dataframe = inventory_packages_dataframe
+		self.incoming_transfer_packages_dataframe = incoming_transfer_packages_dataframe
+		self.inventory_packages_records = cast(
+			List[InventoryPackageDict], inventory_packages_dataframe.to_dict('records'))
 
 		all_package_ids = set([])
 		missing_incoming_pkg_package_ids = set([])
@@ -213,32 +234,64 @@ class Download(object):
 		else:
 			self.parent_packages_records = []
 
-	def download_files(
-		self,
-		incoming_files: List[str],
-		outgoing_files: List[str],
-		sales_transactions_files: List[str],
-	) -> None:
-		self.incoming_records = cast(List[TransferPackageDict], self._file_as_dict_records(incoming_files))
-		self.outgoing_records = cast(List[TransferPackageDict], self._file_as_dict_records(outgoing_files))
-		self.sales_tx_records = cast(List[SalesTransactionDict], self._file_as_dict_records(sales_transactions_files))
+def get_bigquery_engine(engine_url: str) -> Any:
+	BIGQUERY_CREDENTIALS_PATH = os.environ.get('BIGQUERY_CREDENTIALS_PATH')
+	engine = create_engine(engine_url, credentials_path=os.path.expanduser(BIGQUERY_CREDENTIALS_PATH))
+	return engine
 
-	def _file_as_dict_records(self, filepaths: List[str]) -> List[Dict]:
-		all_records = []
+def get_dataframes_for_analysis(q: Query, engine: Any) -> AllDataframesDict:
+	# Download packages, sales transactions, incoming / outgoing tranfers
+	company_incoming_transfer_packages_query = create_queries.create_company_incoming_transfer_packages_query(q.company_identifier, q.transfer_packages_start_date)
+	company_outgoing_transfer_packages_query = create_queries.create_company_outgoing_transfer_packages_query(q.company_identifier, q.transfer_packages_start_date)
+	company_sales_receipts_query = create_queries.create_company_sales_receipts_query(q.company_identifier, q.sales_transactions_start_date)
+	company_sales_transactions_query = create_queries.create_company_sales_transactions_query(q.company_identifier, q.sales_transactions_start_date)
+	company_inventory_packages_query = create_queries.create_company_inventory_packages_query(
+			q.company_identifier,
+			include_quantity_zero=True,
+	)
 
-		expanded_filepaths = []
-		for filepath in filepaths:
-			# Expand any wildcards, e.g., if the filepath is "incoming_transfers*.ipynb"
-			expanded_filepaths.extend(list(glob.iglob(filepath)))
+	company_incoming_transfer_packages_dataframe = pd.read_sql_query(company_incoming_transfer_packages_query, engine)
+	company_outgoing_transfer_packages_dataframe = pd.read_sql_query(company_outgoing_transfer_packages_query, engine)
+	company_sales_receipts_dataframe = pd.read_sql_query(company_sales_receipts_query, engine)
+	company_sales_transactions_dataframe = pd.read_sql_query(company_sales_transactions_query, engine)
+	company_inventory_packages_dataframe = pd.read_sql_query(company_inventory_packages_query, engine)
 
-		for filepath in expanded_filepaths:
-			df = pandas.read_excel(filepath, converters={
-				'package_id': str,
-				'tx_package_id': str
-			})
-			df_records = df.to_dict('records')
-			print(f'Opened file {filepath} with {len(df.columns)} columns and {len(df_records)} rows')
-			print(f'Dataframe columns:\n{df.columns}')
-			all_records.extend(df_records)
+	return AllDataframesDict(
+		incoming_transfer_packages_dataframe=company_incoming_transfer_packages_dataframe,
+		outgoing_transfer_packages_dataframe=company_outgoing_transfer_packages_dataframe,
+		sales_receipts_dataframe=company_sales_receipts_dataframe,
+		sales_transactions_dataframe=company_sales_transactions_dataframe,
+		inventory_packages_dataframe=company_inventory_packages_dataframe,
+	)
 
-		return all_records
+def get_inventory_dates(all_df_dict: AllDataframesDict, today_date: datetime.date) -> List[str]:
+	TODAY_DATE = today_date.strftime('%Y-%m-%d')
+
+	company_incoming_transfer_packages_dataframe = all_df_dict['incoming_transfer_packages_dataframe']
+	company_sales_receipts_dataframe = all_df_dict['sales_receipts_dataframe']
+
+	company_incoming_transfer_packages_dataframe['created_month'] = pd.to_datetime(company_incoming_transfer_packages_dataframe['created_date']).dt.strftime('%Y-%m')
+	unique_incoming_transfer_package_months = company_incoming_transfer_packages_dataframe['created_month'].unique()
+	company_sales_receipts_dataframe['sales_month'] = pd.to_datetime(company_sales_receipts_dataframe['sales_datetime']).dt.strftime('%Y-%m')
+	unique_company_sales_receipt_months = company_sales_receipts_dataframe['sales_month'].unique()
+	aggregate_unique_months = []
+	for month in unique_incoming_transfer_package_months:
+			if month not in aggregate_unique_months:
+					aggregate_unique_months.append(month)
+	for month in unique_company_sales_receipt_months:
+			if month not in aggregate_unique_months:
+					aggregate_unique_months.append(month)
+	aggregate_unique_months.sort()
+
+	unique_inventory_dates = []
+	for month in aggregate_unique_months:
+			date_object = datetime.datetime.strptime(month, '%Y-%m')
+			date_object = date_object.replace(day = calendar.monthrange(date_object.year, date_object.month)[1])
+			eom_date_str = datetime.datetime.strftime(date_object, '%Y-%m-%d')
+			if eom_date_str < TODAY_DATE:
+					unique_inventory_dates.append(eom_date_str)
+
+	unique_inventory_dates.append(TODAY_DATE)
+	unique_inventory_dates = [datetime.datetime.strftime(datetime.datetime.strptime(unique_inventory_date, '%Y-%m-%d'), '%m/%d/%Y') for unique_inventory_date in unique_inventory_dates]
+
+	return unique_inventory_dates

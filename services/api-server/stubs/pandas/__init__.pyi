@@ -33,11 +33,17 @@ class DataFrame(Sequence):
 	def __getitem__(self, idx: Any) -> Any:
 		pass
 
+	def __setitem__(self, idx: Any, val: Any) -> Any:
+		pass
+
 	def __len__(self) -> int:
 		pass
 
 	def to_dict(self, el: str) -> List[Dict]:
 		pass
+
+def to_datetime(df: DataFrame) -> Any:
+	pass
 
 def read_excel(filepath: str, converters: Dict) -> Any:
 	pass
