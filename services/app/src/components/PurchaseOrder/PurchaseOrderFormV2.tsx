@@ -78,8 +78,6 @@ export default function PurchaseOrderFormV2({
     selectedCompanyDeliveries.length > 0 &&
     selectedCompanyDeliveries[0].metrc_transfer.lab_results_status === "passed";
 
-  // TODO(warrenshen): once at least one Metrc transfer is selected, user should
-  // only be able to add additional Metrc transfers belonging to the same vendor.
   return (
     <Box display="flex" flexDirection="column">
       <Box display="flex" flexDirection="column">

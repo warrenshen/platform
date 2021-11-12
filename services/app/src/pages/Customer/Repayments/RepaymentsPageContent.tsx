@@ -1,5 +1,4 @@
 import { Box } from "@material-ui/core";
-import PaymentBlock from "components/Payment/PaymentBlock";
 import RepaymentTransactionsDataGrid from "components/Payment/RepaymentTransactionsDataGrid";
 import PageContent from "components/Shared/Page/PageContent";
 import {
@@ -33,7 +32,6 @@ export default function CustomerRepaymentsPageContent({
   const company = data?.companies_by_pk;
   const payments = useMemo(() => company?.payments || [], [company]);
 
-  // TODO(warrenshen): pagination is necessary for the list of PaymentBlocks rendered below.
   return (
     <PageContent
       title={"Repayments"}
@@ -44,15 +42,6 @@ export default function CustomerRepaymentsPageContent({
           isLineOfCredit={productType === ProductTypeEnum.LineOfCredit}
           payments={payments}
         />
-      </Box>
-      <Box mt={4}>
-        {false &&
-          payments.map((payment, index) => (
-            <Box key={payment.id}>
-              {index > 0 && <Box mt={8} />}
-              <PaymentBlock payment={payment} />
-            </Box>
-          ))}
       </Box>
     </PageContent>
   );

@@ -136,7 +136,8 @@ describe("Create inventory financing contract for existing customer", () => {
   );
 });
 
-// TODO(warrenshen): a vendor partnership for the customer is missing to get the below to work.
+// Note: a vendor partnership for the customer is missing to get the below to work.
+
 // describe("Create purchase order", () => {
 //   it("can create and save purchase order as draft", () => {
 //     cy.loginCustomerAdmin();

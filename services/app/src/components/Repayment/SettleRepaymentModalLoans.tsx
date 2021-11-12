@@ -233,12 +233,25 @@ export default function SettleRepaymentModalLoans({
 
   const isFormLoading =
     isCalculateRepaymentEffectLoading || isSettleRepaymentLoading;
+  /**
+   * Do NOT allow bank user to go to next step if:
+   * 1. Form is loading.
+   * 2. Repayment amount is empty or 0.
+   * 3. Repayment deposit date is empty.
+   * 4. Settlement date is empty.
+   * 5. Product type is non-LOC and no loans are selected AND amount to account fees is empty or 0.
+   *    Essentially, repayment amount must go towards something: either loans or account fees (or both).
+   */
   const isNextButtonDisabled =
     isFormLoading ||
     !payment?.amount ||
     !payment?.deposit_date ||
-    !payment?.settlement_date;
-  // TODO(warrenshen): also check if payment.items_covered is valid.
+    !payment?.settlement_date ||
+    !(
+      productType === ProductTypeEnum.LineOfCredit ||
+      (payment.items_covered?.loan_ids || []).length > 0 ||
+      payment?.items_covered?.to_account_fees
+    );
   const isSubmitButtonDisabled = isNextButtonDisabled;
 
   if (!payment || !customer) {

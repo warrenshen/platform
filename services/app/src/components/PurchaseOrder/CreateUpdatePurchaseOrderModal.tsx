@@ -248,17 +248,34 @@ export default function CreateUpdatePurchaseOrderModal({
     [allCompanyDeliveries, purchaseOrderMetrcTransfers]
   ) as GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery["company_deliveries"];
 
-  const selectableCompanyDeliveries = useMemo(
-    () =>
-      allCompanyDeliveries.filter(
-        (companyDelivery) =>
-          !selectedCompanyDeliveries.find(
-            (selectedCompanyDelivery) =>
-              selectedCompanyDelivery.id === companyDelivery.id
-          )
-      ),
-    [allCompanyDeliveries, selectedCompanyDeliveries]
-  );
+  /**
+   * Company deliveries which are selectable are those where:
+   * 1. Company delivery is not selected already.
+   * 2. If there are company deliveries already selected, company delivery's
+   *    vendor ID is the same as the vendor ID of the selected company deliveries.
+   *    This is because each PO can correspond with only one vendor, so all
+   *    company deliveries for a PO must be for the same vendor.
+   */
+  const selectableCompanyDeliveries = useMemo(() => {
+    const selectedVendorId =
+      selectedCompanyDeliveries.length > 0
+        ? selectedCompanyDeliveries[0].vendor_id
+        : null;
+    const notSelectedCompanyDeliveries = allCompanyDeliveries.filter(
+      (companyDelivery) =>
+        !selectedCompanyDeliveries.find(
+          (selectedCompanyDelivery) =>
+            selectedCompanyDelivery.id === companyDelivery.id
+        )
+    );
+    if (selectedVendorId) {
+      return notSelectedCompanyDeliveries.filter(
+        (companyDelivery) => companyDelivery.vendor_id === selectedVendorId
+      );
+    } else {
+      return notSelectedCompanyDeliveries;
+    }
+  }, [allCompanyDeliveries, selectedCompanyDeliveries]);
 
   const metrcApiKeys = data?.companies_by_pk?.metrc_api_keys || [];
   const isMetrcEnabled =

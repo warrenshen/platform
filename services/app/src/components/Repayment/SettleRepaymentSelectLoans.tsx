@@ -302,9 +302,19 @@ export default function SettleRepaymentSelectLoans({
           control={
             <Checkbox
               checked={isAmountToLoansChecked}
-              onChange={(event) =>
-                setIsAmountToLoansChecked(event.target.checked)
-              }
+              onChange={(event) => {
+                if (!event.target.checked) {
+                  // Since user un-selected this checkbox, reset loan_ids.
+                  setPayment({
+                    ...payment,
+                    items_covered: {
+                      ...payment.items_covered,
+                      loan_ids: [],
+                    },
+                  });
+                }
+                setIsAmountToLoansChecked(event.target.checked);
+              }}
               color="primary"
             />
           }
@@ -314,9 +324,19 @@ export default function SettleRepaymentSelectLoans({
           control={
             <Checkbox
               checked={isAmountToAccountFeesChecked}
-              onChange={(event) =>
-                setIsAmountToAccountFeesChecked(event.target.checked)
-              }
+              onChange={(event) => {
+                if (!event.target.checked) {
+                  // Since user un-selected this checkbox, reset to_account_fees to 0.
+                  setPayment({
+                    ...payment,
+                    items_covered: {
+                      ...payment.items_covered,
+                      to_account_fees: 0.0,
+                    },
+                  });
+                }
+                setIsAmountToAccountFeesChecked(event.target.checked);
+              }}
               color="primary"
             />
           }

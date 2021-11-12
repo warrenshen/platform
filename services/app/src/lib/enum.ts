@@ -204,7 +204,6 @@ export const AllProductTypes = [
   ProductTypeEnum.LineOfCredit,
   ProductTypeEnum.InventoryFinancing,
   ProductTypeEnum.InvoiceFinancing,
-  // TODO(warren): Hiding these for now because things blow up when we allow a user to select it.
   ProductTypeEnum.PurchaseMoneyFinancing,
 ];
 
