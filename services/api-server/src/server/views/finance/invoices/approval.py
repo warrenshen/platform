@@ -151,10 +151,16 @@ class RespondToApprovalRequestView(MethodView):
 				invoice.rejected_at = date_util.now()
 				invoice.rejection_note = rejection_note
 
+			invoice_requested_date = None
+			if invoice.requested_at is not None:
+				invoice_requested_date = date_util.human_readable_yearmonthday(invoice.requested_at)
+			else:
+				invoice_requested_date = date_util.human_readable_yearmonthday(date_util.now())
+
 			invoices = [{
 				'invoice_number': invoice.invoice_number,
 				'subtotal_amount': number_util.to_dollar_format(float(invoice.subtotal_amount)),
-				'requested_at_date': date_util.human_readable_yearmonthday(invoice.requested_at),
+				'requested_at_date': invoice_requested_date,
 			}]
 
 			customer_users = models_util.get_active_users(company_id=invoice.company_id, session=session)

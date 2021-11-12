@@ -253,7 +253,10 @@ class RespondToApprovalRequestView(MethodView):
 
 			purchase_order_number = purchase_order.order_number
 			purchase_order_amount = number_util.to_dollar_format(float(purchase_order.amount))
-			purchase_order_requested_date = date_util.human_readable_yearmonthday(purchase_order.requested_at)
+			if purchase_order.requested_at is not None:
+				purchase_order_requested_date = date_util.human_readable_yearmonthday(purchase_order.requested_at)
+			else:
+				purchase_order_requested_date = date_util.human_readable_yearmonthday(date_util.now())
 
 			customer_users = cast(List[models.User], session.query(
 				models.User).filter_by(company_id=purchase_order.company_id).all())
