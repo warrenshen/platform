@@ -7,7 +7,6 @@ import {
   Companies,
   Loans,
   PaymentsInsertInput,
-  ProductTypeEnum,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -15,6 +14,7 @@ import {
   PaymentMethodEnum,
   PaymentMethodToLabel,
   PaymentOptionEnum,
+  ProductTypeEnum,
 } from "lib/enum";
 import {
   computeSettlementDateForPayment,
@@ -290,7 +290,7 @@ export default function SettleRepaymentModalLoans({
         />
       ) : (
         <SettleRepaymentConfirmEffect
-          productType={productType}
+          productType={productType as ProductTypeEnum}
           payableAmountPrincipal={
             repaymentEffectData?.payable_amount_principal || 0
           }

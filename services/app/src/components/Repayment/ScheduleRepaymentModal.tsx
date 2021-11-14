@@ -6,14 +6,13 @@ import {
   Companies,
   Payments,
   PaymentsInsertInput,
-  ProductTypeEnum,
   useGetPaymentForSettlementQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { scheduleAccountLevelFeeRepaymentMutation } from "lib/api/payments";
 import { addBizDays, subtractBizDays, todayAsDateStringServer } from "lib/date";
-import { PaymentTypeEnum, PaymentOptionEnum } from "lib/enum";
+import { PaymentTypeEnum, PaymentOptionEnum, ProductTypeEnum } from "lib/enum";
 import {
   computeSettlementDateForPayment,
   getSettlementTimelineConfigFromContract,

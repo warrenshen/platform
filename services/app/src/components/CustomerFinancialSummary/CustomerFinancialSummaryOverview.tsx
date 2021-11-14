@@ -11,17 +11,14 @@ import {
   CurrentUserContext,
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
-import {
-  Companies,
-  FinancialSummaryFragment,
-  ProductTypeEnum,
-} from "generated/graphql";
+import { Companies, FinancialSummaryFragment } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import {
   BankCompanyRouteEnum,
   getBankCompanyRoute,
   customerRoutes,
 } from "lib/routes";
+import { ProductTypeEnum } from "lib/enum";
 import { round } from "lodash";
 import { useContext } from "react";
 import { Link } from "react-router-dom";

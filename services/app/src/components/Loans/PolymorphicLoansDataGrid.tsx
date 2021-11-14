@@ -5,7 +5,7 @@ import {
 import InvoiceLoansDataGrid from "components/Invoices/InvoiceLoansDataGrid";
 import LineOfCreditLoansDataGrid from "components/Loans/LineOfCreditLoansDataGrid";
 import PurchaseOrderLoansDataGrid from "components/Loans/PurchaseOrderLoansDataGrid";
-import { ProductTypeEnum } from "generated/graphql";
+import { ProductTypeEnum } from "lib/enum";
 
 interface Props {
   productType: ProductTypeEnum | null;

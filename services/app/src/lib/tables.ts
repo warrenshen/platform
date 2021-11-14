@@ -10,6 +10,7 @@ export const ColumnWidths = {
   Identifier: 110,
   Open: 90,
   PhoneNumber: 150,
+  ProductType: 180,
   MetrcId: 140,
   Status: 170,
   Type: 160,

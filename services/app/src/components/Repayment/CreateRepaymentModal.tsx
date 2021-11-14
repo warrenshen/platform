@@ -12,13 +12,12 @@ import {
   Companies,
   Loans,
   PaymentsInsertInput,
-  ProductTypeEnum,
   useGetCompanyWithDetailsByCompanyIdQuery,
   useGetCustomerAccountQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { PaymentMethodEnum, PaymentTypeEnum } from "lib/enum";
+import { PaymentMethodEnum, PaymentTypeEnum, ProductTypeEnum } from "lib/enum";
 import {
   computeSettlementDateForPayment,
   getSettlementTimelineConfigFromContract,

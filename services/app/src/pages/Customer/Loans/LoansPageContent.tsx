@@ -2,7 +2,7 @@ import { Box, Tab, Tabs, Typography } from "@material-ui/core";
 import PageContent from "components/Shared/Page/PageContent";
 import LinearProgressBar from "components/Shared/ProgressBar/LinearProgressBar";
 import { CurrentCustomerContext } from "contexts/CurrentCustomerContext";
-import { ProductTypeEnum } from "generated/graphql";
+import { ProductTypeEnum } from "lib/enum";
 import { round } from "lodash";
 import CustomerLoansActiveTab from "pages/Customer/Loans/LoansActiveTab";
 import CustomerLoansClosedTab from "pages/Customer/Loans/LoansClosedTab";

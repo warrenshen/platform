@@ -3924,10 +3924,6 @@
       filter: {}
 - table:
     schema: public
-    name: product_type
-  is_enum: true
-- table:
-    schema: public
     name: purchase_order_file_type
   is_enum: true
 - table:

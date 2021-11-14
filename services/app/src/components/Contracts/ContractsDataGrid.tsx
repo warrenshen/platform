@@ -2,13 +2,9 @@ import { ValueFormatterParams } from "@material-ui/data-grid";
 import ContractDrawerLauncher from "components/Contract/ContractDrawerLauncher";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
-import {
-  ContractFragment,
-  Contracts,
-  ProductTypeEnum,
-} from "generated/graphql";
+import { ContractFragment, Contracts } from "generated/graphql";
 import { formatDateString } from "lib/date";
-import { ProductTypeToLabel } from "lib/enum";
+import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
@@ -48,7 +44,7 @@ export default function ContractsDataGrid({
       {
         dataField: "product_type",
         caption: "Product Type",
-        width: ColumnWidths.Type,
+        width: ColumnWidths.ProductType,
         cellRender: (params: ValueFormatterParams) =>
           ProductTypeToLabel[params.row.data.product_type as ProductTypeEnum],
       },

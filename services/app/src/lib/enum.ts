@@ -1,14 +1,14 @@
 import {
   CompanyTypeEnum,
   LoanTypeEnum,
-  ProductTypeEnum,
   RequestStatusEnum,
   UserRolesEnum,
 } from "generated/graphql";
+import DispensaryContractTermsJson from "./contract_terms_dispensary.json";
 import InventoryContractTermsJson from "./contract_terms_inventory.json";
 import InvoiceContractTermsJson from "./contract_terms_invoice.json";
 import LineOfCreditContractTermsJson from "./contract_terms_line_of_credit.json";
-import PMFContractTermsJson from "./contract_terms_purchase_money_financing.json";
+import PMFContractTermsJson from "./contract_terms_purchase_money.json";
 
 // Action Type enum related.
 export enum ActionType {
@@ -179,7 +179,19 @@ export const PaymentOptionToLabel = {
 };
 
 // Product Type enum related.
+export enum ProductTypeEnum {
+  DispensaryFinancing = "dispensary_financing",
+  InventoryFinancing = "inventory_financing",
+  InvoiceFinancing = "invoice_financing",
+  LineOfCredit = "line_of_credit",
+  PurchaseMoneyFinancing = "purchase_money_financing",
+  None = "none",
+}
+
 export const ProductTypeToContractTermsJson = {
+  [ProductTypeEnum.DispensaryFinancing]: JSON.stringify(
+    DispensaryContractTermsJson
+  ),
   [ProductTypeEnum.InventoryFinancing]: JSON.stringify(
     InventoryContractTermsJson
   ),
@@ -192,6 +204,7 @@ export const ProductTypeToContractTermsJson = {
 };
 
 export const ProductTypeToLabel = {
+  [ProductTypeEnum.DispensaryFinancing]: "Dispensary Financing",
   [ProductTypeEnum.InventoryFinancing]: "Inventory Financing",
   [ProductTypeEnum.InvoiceFinancing]: "Invoice Financing",
   [ProductTypeEnum.LineOfCredit]: "Line of Credit",
@@ -205,6 +218,7 @@ export const AllProductTypes = [
   ProductTypeEnum.InventoryFinancing,
   ProductTypeEnum.InvoiceFinancing,
   ProductTypeEnum.PurchaseMoneyFinancing,
+  ProductTypeEnum.DispensaryFinancing,
 ];
 
 // Request status enum related.
@@ -252,9 +266,10 @@ export const PartnerCompanyUserRoles = [UserRolesEnum.CompanyContactOnly];
 
 // Mapping for when we look up loans based on ProductType
 export const ProductTypeToLoanType = {
+  [ProductTypeEnum.DispensaryFinancing]: LoanTypeEnum.PurchaseOrder,
   [ProductTypeEnum.InventoryFinancing]: LoanTypeEnum.PurchaseOrder,
-  [ProductTypeEnum.LineOfCredit]: LoanTypeEnum.LineOfCredit,
   [ProductTypeEnum.InvoiceFinancing]: LoanTypeEnum.Invoice,
+  [ProductTypeEnum.LineOfCredit]: LoanTypeEnum.LineOfCredit,
   // PMF loans are associated with a purchase order and invoices are used to
   // repay those loans
   [ProductTypeEnum.PurchaseMoneyFinancing]: LoanTypeEnum.PurchaseOrder,

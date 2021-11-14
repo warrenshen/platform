@@ -1,7 +1,7 @@
 subscription GetBankFinancialSummariesByDate($date: date!) {
   bank_financial_summaries(
     where: { date: { _eq: $date } }
-    order_by: { date: desc }
+    order_by: { total_outstanding_principal: desc }
   ) {
     id
     ...BankFinancialSummary

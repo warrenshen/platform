@@ -5,12 +5,8 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import {
-  Companies,
-  ProductTypeEnum,
-  useGetActiveLoansForCompanyQuery,
-} from "generated/graphql";
-import { ProductTypeToLoanType } from "lib/enum";
+import { Companies, useGetActiveLoansForCompanyQuery } from "generated/graphql";
+import { ProductTypeEnum, ProductTypeToLoanType } from "lib/enum";
 import LoansFunded from "pages/Customer/Loans/LoansFunded";
 import LoansNotFunded from "pages/Customer/Loans/LoansNotFunded";
 

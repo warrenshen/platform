@@ -22,6 +22,7 @@ import {
   isProductConfigFieldInvalid,
   ProductConfigField,
 } from "lib/contracts";
+import { ProductTypeEnum } from "lib/enum";
 import { useEffect, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -71,7 +72,9 @@ export default function CreateCustomerModal({ handleClose }: Props) {
   useEffect(() => {
     if (contract.product_type) {
       setCurrentJSONConfig(
-        createProductConfigFieldsFromProductType(contract.product_type)
+        createProductConfigFieldsFromProductType(
+          contract.product_type as ProductTypeEnum
+        )
       );
     }
   }, [contract.product_type]);
@@ -104,7 +107,7 @@ export default function CreateCustomerModal({ handleClose }: Props) {
         start_date: contract.start_date,
         end_date: contract.end_date,
         product_config: createProductConfigForServer(
-          contract.product_type,
+          contract.product_type as ProductTypeEnum,
           currentJSONConfig
         ),
       },

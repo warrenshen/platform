@@ -9,13 +9,9 @@ import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
 import VerificationChip from "components/Vendors/VerificationChip";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import {
-  Companies,
-  ProductTypeEnum,
-  useGetCompaniesWithMetadataQuery,
-} from "generated/graphql";
+import { Companies, useGetCompaniesWithMetadataQuery } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
-import { ProductTypeToLabel } from "lib/enum";
+import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ColumnWidths } from "lib/tables";
 import { filter, sortBy } from "lodash";

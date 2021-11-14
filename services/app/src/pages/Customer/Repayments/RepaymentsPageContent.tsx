@@ -1,11 +1,8 @@
 import { Box } from "@material-ui/core";
 import RepaymentTransactionsDataGrid from "components/Payment/RepaymentTransactionsDataGrid";
 import PageContent from "components/Shared/Page/PageContent";
-import {
-  Companies,
-  ProductTypeEnum,
-  useGetRepaymentsForCompanyQuery,
-} from "generated/graphql";
+import { Companies, useGetRepaymentsForCompanyQuery } from "generated/graphql";
+import { ProductTypeEnum } from "lib/enum";
 import { useMemo } from "react";
 
 interface Props {

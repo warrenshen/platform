@@ -13,11 +13,10 @@ import {
   Companies,
   EbbaApplicationFragment,
   EbbaApplications,
-  ProductTypeEnum,
   useGetCompanyForCustomerBorrowingBaseQuery,
 } from "generated/graphql";
 import { withinNDaysOfNowOrBefore } from "lib/date";
-import { ActionType } from "lib/enum";
+import { ActionType, ProductTypeEnum } from "lib/enum";
 import { useMemo, useState } from "react";
 
 interface Props {

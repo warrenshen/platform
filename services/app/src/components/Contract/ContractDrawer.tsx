@@ -23,7 +23,7 @@ import {
 } from "lib/contracts";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
-import { ProductTypeToLabel } from "lib/enum";
+import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
 import { groupBy } from "lodash";
 import { useContext } from "react";
 
@@ -113,7 +113,7 @@ function ContractDrawer({ contractId, handleClose }: Props) {
               Product Type
             </Typography>
             <Typography variant={"body1"}>
-              {ProductTypeToLabel[contract.product_type]}
+              {ProductTypeToLabel[contract.product_type as ProductTypeEnum]}
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>

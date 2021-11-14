@@ -1,6 +1,7 @@
 import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
-import { ProductTypeEnum, UserRolesEnum, Users } from "generated/graphql";
+import { UserRolesEnum, Users } from "generated/graphql";
 import { createContext } from "react";
+import { ProductTypeEnum } from "lib/enum";
 
 export function isRoleBankUser(role?: UserRolesEnum | null) {
   return (

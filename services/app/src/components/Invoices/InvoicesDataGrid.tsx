@@ -13,11 +13,10 @@ import {
   InvoiceFragment,
   Invoices,
   RequestStatusEnum,
-  ProductTypeEnum,
 } from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
 import { ColumnWidths } from "lib/tables";
-import { ProductTypeToLabel } from "lib/enum";
+import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
 import { useMemo } from "react";
 
 interface Props {

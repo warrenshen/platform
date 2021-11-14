@@ -6,10 +6,10 @@ import PrivateRoute from "components/Shared/PrivateRoute";
 import {
   Companies,
   GetCompanyForBankCompanyPageQuery,
-  ProductTypeEnum,
   useGetCompanyForBankCompanyPageQuery,
   UserRolesEnum,
 } from "generated/graphql";
+import { ProductTypeEnum } from "lib/enum";
 import { bankRoutes } from "lib/routes";
 import { isPayorsTabVisible, isVendorsTabVisible } from "lib/settings";
 import BankCustomerContractPage from "pages/Bank/Company/Contract";
@@ -245,7 +245,8 @@ export default function BankCompanyPage() {
 
   const company = data?.companies_by_pk || null;
   const companyName = company?.name;
-  const productType = company?.contract?.product_type || null;
+  const productType =
+    (company?.contract?.product_type as ProductTypeEnum) || null;
 
   return (
     <Page appBarTitle={companyName || ""}>

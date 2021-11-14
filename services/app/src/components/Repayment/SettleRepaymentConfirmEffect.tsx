@@ -2,15 +2,11 @@ import { Box, Divider, FormControl, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import LoansBeforeAfterPaymentPreview from "components/Repayment/LoansBeforeAfterPaymentPreview";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
-import {
-  Companies,
-  Loans,
-  PaymentsInsertInput,
-  ProductTypeEnum,
-} from "generated/graphql";
+import { Companies, Loans, PaymentsInsertInput } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
 import { LoanBeforeAfterPayment } from "lib/finance/payments/repayment";
+import { ProductTypeEnum } from "lib/enum";
 
 interface Props {
   productType: ProductTypeEnum | null;

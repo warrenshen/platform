@@ -18,11 +18,11 @@ import PageContent from "components/Shared/Page/PageContent";
 import { CurrentCustomerContext } from "contexts/CurrentCustomerContext";
 import {
   Payments,
-  ProductTypeEnum,
   useGetCustomerAccountQuery,
   PaymentLimitedFragment,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
+import { ProductTypeEnum } from "lib/enum";
 import { formatCurrency } from "lib/currency";
 import { useContext, useMemo, useState } from "react";
 

@@ -16,7 +16,7 @@ import ModalButton from "components/Shared/Modal/ModalButton";
 import { ContractFragment } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { formatDateString } from "lib/date";
-import { ActionType, ProductTypeToLabel } from "lib/enum";
+import { ActionType, ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
 
 interface Props {
   contract: ContractFragment;
@@ -45,7 +45,9 @@ export default function ContractCard({ contract, handleDataChange }: Props) {
         <Box display="flex" flexDirection="column">
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Product Type</Box>
-            <Box>{ProductTypeToLabel[contract.product_type]}</Box>
+            <Box>
+              {ProductTypeToLabel[contract.product_type as ProductTypeEnum]}
+            </Box>
           </Box>
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Contract Start Date</Box>

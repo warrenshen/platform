@@ -8,11 +8,10 @@ import {
   Companies,
   InvoiceFragment,
   Invoices,
-  ProductTypeEnum,
   useGetInvoicesByCompanyIdQuery,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
-import { ActionType } from "lib/enum";
+import { ActionType, ProductTypeEnum } from "lib/enum";
 import { useMemo, useState } from "react";
 import styled from "styled-components";
 

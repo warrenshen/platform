@@ -1,4 +1,4 @@
-import { ProductTypeEnum } from "generated/graphql";
+import { ProductTypeEnum } from "lib/enum";
 import AllInvoicesList from "pages/Customer/Invoices/AllInvoicesList";
 import InvoicesFundedUnfundedLists from "pages/Customer/Invoices/InvoicesFundedUnfundedLists";
 

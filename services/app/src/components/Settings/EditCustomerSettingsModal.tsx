@@ -19,6 +19,7 @@ import {
   useUpdateCustomerSettingsMutation,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
+import { ProductTypeEnum } from "lib/enum";
 import { SettingsHelper } from "lib/settings";
 import { ChangeEvent, useState } from "react";
 
@@ -94,7 +95,9 @@ export default function EditCustomerSettingsModal({
   }
 
   const isSaveDisabled = false;
-  const settingsHelper = new SettingsHelper(contract.product_type);
+  const settingsHelper = new SettingsHelper(
+    contract.product_type as ProductTypeEnum
+  );
 
   return (
     <Dialog

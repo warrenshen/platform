@@ -7,15 +7,11 @@ import {
   CurrentUserContext,
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
-import {
-  Companies,
-  PaymentsInsertInput,
-  ProductTypeEnum,
-} from "generated/graphql";
+import { Companies, PaymentsInsertInput } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { createAccountLevelFeeRepaymentMutation } from "lib/api/payments";
-import { PaymentTypeEnum } from "lib/enum";
+import { PaymentTypeEnum, ProductTypeEnum } from "lib/enum";
 import { useContext, useState } from "react";
 
 interface Props {

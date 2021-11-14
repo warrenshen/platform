@@ -3,11 +3,10 @@ import PurchaseOrderInfoCardById from "components/PurchaseOrder/PurchaseOrderInf
 import {
   Companies,
   LoanTypeEnum,
-  ProductTypeEnum,
   Scalars,
   useGetFundablePurchaseOrdersByCompanyIdQuery,
 } from "generated/graphql";
-import { ActionType } from "lib/enum";
+import { ActionType, ProductTypeEnum } from "lib/enum";
 
 interface Props {
   actionType: ActionType;

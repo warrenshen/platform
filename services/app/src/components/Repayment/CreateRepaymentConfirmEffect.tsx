@@ -5,11 +5,14 @@ import LoansBeforeAfterPaymentPreview from "components/Repayment/LoansBeforeAfte
 import {
   Companies,
   PaymentsInsertInput,
-  ProductTypeEnum,
   useBankAccountsForTransferQuery,
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
-import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
+import {
+  PaymentMethodEnum,
+  PaymentMethodToLabel,
+  ProductTypeEnum,
+} from "lib/enum";
 import { LoanBeforeAfterPayment } from "lib/finance/payments/repayment";
 
 interface Props {

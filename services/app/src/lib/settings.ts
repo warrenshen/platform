@@ -1,4 +1,4 @@
-import { ProductTypeEnum } from "generated/graphql";
+import { ProductTypeEnum } from "lib/enum";
 
 function isProductTypeNone(productType: ProductTypeEnum | null) {
   return productType === ProductTypeEnum.None || productType === null;

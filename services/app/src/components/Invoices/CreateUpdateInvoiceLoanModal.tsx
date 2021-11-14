@@ -3,11 +3,10 @@ import InvoiceInfoCardById from "components/Invoices/InvoicesInfoCardById";
 import {
   Companies,
   LoanTypeEnum,
-  ProductTypeEnum,
   Scalars,
   useGetApprovedInvoicesByCompanyIdQuery,
 } from "generated/graphql";
-import { ActionType } from "lib/enum";
+import { ActionType, ProductTypeEnum } from "lib/enum";
 
 interface Props {
   actionType: ActionType;

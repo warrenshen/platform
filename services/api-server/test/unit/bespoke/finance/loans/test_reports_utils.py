@@ -91,7 +91,6 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 
 			if statements is not None:
 				self.assertEqual(len(list(statements)), len(PRODUCT_TYPES))
-
 				for received, expected in zip(list(sorted(statements, key=lambda x: x.product_type)), expected_summaries):
 					self.assertEqual(expected.date, received.date)
 					self.assertEqual(expected.product_type, received.product_type)
@@ -206,6 +205,18 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 		self._run_compute_test(populate, expected_summaries=[
 			models.BankFinancialSummary(
 				date=TODAY,
+				product_type=ProductType.DISPENSARY_FINANCING,
+				total_limit=decimal.Decimal(0),
+				adjusted_total_limit=decimal.Decimal(0),
+				total_outstanding_principal=decimal.Decimal(0),
+				total_outstanding_interest=decimal.Decimal(0),
+				total_outstanding_fees=decimal.Decimal(0),
+				total_principal_in_requested_state=decimal.Decimal(0),
+				interest_accrued_today=decimal.Decimal(0),
+				available_limit=decimal.Decimal(0)
+			),
+			models.BankFinancialSummary(
+				date=TODAY,
 				product_type=ProductType.INVENTORY_FINANCING,
 				total_limit=decimal.Decimal(0),
 				adjusted_total_limit=decimal.Decimal(0),
@@ -261,6 +272,18 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=2), ProductType.INVENTORY_FINANCING)
 
 		self._run_compute_test(populate, expected_summaries=[
+			models.BankFinancialSummary(
+				date=TODAY,
+				product_type=ProductType.DISPENSARY_FINANCING,
+				total_limit=decimal.Decimal(0),
+				adjusted_total_limit=decimal.Decimal(0),
+				total_outstanding_principal=decimal.Decimal(0),
+				total_outstanding_interest=decimal.Decimal(0),
+				total_outstanding_fees=decimal.Decimal(0),
+				total_principal_in_requested_state=decimal.Decimal(0),
+				interest_accrued_today=decimal.Decimal(0),
+				available_limit=decimal.Decimal(0)
+			),
 			models.BankFinancialSummary(
 				date=TODAY,
 				product_type=ProductType.INVENTORY_FINANCING,
@@ -321,6 +344,18 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 			)
 
 		self._run_compute_test(populate, expected_summaries=[
+			models.BankFinancialSummary(
+				date=TODAY,
+				product_type=ProductType.DISPENSARY_FINANCING,
+				total_limit=decimal.Decimal(0),
+				adjusted_total_limit=decimal.Decimal(0),
+				total_outstanding_principal=decimal.Decimal(0),
+				total_outstanding_interest=decimal.Decimal(0),
+				total_outstanding_fees=decimal.Decimal(0),
+				total_principal_in_requested_state=decimal.Decimal(0),
+				interest_accrued_today=decimal.Decimal(0),
+				available_limit=decimal.Decimal(0)
+			),
 			models.BankFinancialSummary(
 				date=TODAY,
 				product_type=ProductType.INVENTORY_FINANCING,

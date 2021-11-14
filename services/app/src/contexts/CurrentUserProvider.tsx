@@ -6,9 +6,9 @@ import {
   CurrentUserContext,
   User,
 } from "contexts/CurrentUserContext";
-import { ProductTypeEnum } from "generated/graphql";
 import JwtDecode from "jwt-decode";
 import { authenticatedApi, authRoutes, unAuthenticatedApi } from "lib/api";
+import { ProductTypeEnum } from "lib/enum";
 import {
   getAccessToken,
   getRefreshToken,

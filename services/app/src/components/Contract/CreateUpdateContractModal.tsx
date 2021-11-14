@@ -18,7 +18,7 @@ import {
   isProductConfigFieldInvalid,
   ProductConfigField,
 } from "lib/contracts";
-import { ActionType } from "lib/enum";
+import { ActionType, ProductTypeEnum } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useEffect, useState } from "react";
 
@@ -77,7 +77,9 @@ export default function CreateUpdateContractModal({
   useEffect(() => {
     if (actionType === ActionType.New && contract.product_type) {
       setCurrentJSONConfig(
-        createProductConfigFieldsFromProductType(contract.product_type)
+        createProductConfigFieldsFromProductType(
+          contract.product_type as ProductTypeEnum
+        )
       );
     }
   }, [actionType, contract.product_type]);
@@ -109,7 +111,7 @@ export default function CreateUpdateContractModal({
     setErrMsg("");
 
     const productConfig = createProductConfigForServer(
-      contract.product_type,
+      contract.product_type as ProductTypeEnum,
       currentJSONConfig
     );
 

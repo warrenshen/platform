@@ -25,13 +25,13 @@ import {
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
 import {
-  ProductTypeEnum,
   useGetCompanyForCustomerBorrowingBaseQuery,
   useGetEbbaApplicationsCountForBankSubscription,
   useGetLoansCountForBankSubscription,
   useGetPartnershipRequestsCountForBankSubscription,
   useGetRepaymentsCountForBankSubscription,
 } from "generated/graphql";
+import { ProductTypeEnum } from "lib/enum";
 import { withinNDaysOfNowOrBefore } from "lib/date";
 import { bankRoutes, customerRoutes, routes } from "lib/routes";
 import { isPayorsTabVisible, isVendorsTabVisible } from "lib/settings";

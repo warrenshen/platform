@@ -6,6 +6,7 @@ import {
   useGetCompanyWithDetailsByCompanyIdQuery,
   UserRolesEnum,
 } from "generated/graphql";
+import { ProductTypeEnum } from "lib/enum";
 import { routes } from "lib/routes";
 import { useContext, useEffect } from "react";
 import { Redirect, Route, RouteProps } from "react-router-dom";
@@ -44,7 +45,7 @@ export default function PrivateRoute(props: Props & RouteProps) {
 
   useEffect(() => {
     if (!isRoleBankUser(role) && company?.contract?.product_type) {
-      setUserProductType(company?.contract?.product_type);
+      setUserProductType(company?.contract?.product_type as ProductTypeEnum);
     }
   }, [role, company?.contract?.product_type, setUserProductType]);
 

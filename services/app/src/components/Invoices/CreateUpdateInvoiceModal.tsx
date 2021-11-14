@@ -12,7 +12,6 @@ import {
   InvoiceFileTypeEnum,
   Invoices,
   InvoicesInsertInput,
-  ProductTypeEnum,
   RequestStatusEnum,
   useGetInvoiceByIdQuery,
   usePayorsByPartnerCompanyQuery,
@@ -25,7 +24,7 @@ import {
   submitInvoiceForApproval,
   submitNewInvoiceForPaymentMutation,
 } from "lib/api/invoices";
-import { ActionType } from "lib/enum";
+import { ActionType, ProductTypeEnum } from "lib/enum";
 import { isInvoiceFinancingProductType } from "lib/settings";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useState } from "react";

@@ -7,9 +7,8 @@ import {
   Companies,
   FinancialSummaries,
   PaymentFragment,
-  ProductTypeEnum,
 } from "generated/graphql";
-import { ProductTypeToLabel } from "lib/enum";
+import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
@@ -29,8 +28,9 @@ function getRows(
       product_type:
         ProductTypeToLabel[
           (payment as PaymentWithFinancialSummary).company?.financial_summaries
-            ? (payment as PaymentWithFinancialSummary).company
-                ?.financial_summaries[0]?.product_type || ProductTypeEnum.None
+            ? ((payment as PaymentWithFinancialSummary).company
+                ?.financial_summaries[0]?.product_type as ProductTypeEnum) ||
+              ProductTypeEnum.None
             : ProductTypeEnum.None
         ],
     };

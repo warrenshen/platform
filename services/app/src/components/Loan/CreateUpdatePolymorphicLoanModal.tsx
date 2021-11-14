@@ -1,8 +1,8 @@
 import CreateUpdateInvoiceLoanModal from "components/Invoices/CreateUpdateInvoiceLoanModal";
 import CreateUpdateLineOfCreditLoanModal from "components/Loan/CreateUpdateLineOfCreditLoanModal";
 import CreateUpdatePurchaseOrderLoanModal from "components/Loan/CreateUpdatePurchaseOrderLoanModal";
-import { Companies, Loans, ProductTypeEnum, Scalars } from "generated/graphql";
-import { ActionType } from "lib/enum";
+import { Companies, Loans, Scalars } from "generated/graphql";
+import { ActionType, ProductTypeEnum } from "lib/enum";
 
 interface Props {
   companyId: Companies["id"];

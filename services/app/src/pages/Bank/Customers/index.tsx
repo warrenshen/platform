@@ -13,14 +13,10 @@ import ModalButton from "components/Shared/Modal/ModalButton";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import {
-  Companies,
-  ProductTypeEnum,
-  useGetCustomersWithMetadataQuery,
-} from "generated/graphql";
+import { Companies, useGetCustomersWithMetadataQuery } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { todayAsDateStringServer } from "lib/date";
-import { ProductTypeToLabel } from "lib/enum";
+import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ColumnWidths } from "lib/tables";
 import { filter, sortBy } from "lodash";

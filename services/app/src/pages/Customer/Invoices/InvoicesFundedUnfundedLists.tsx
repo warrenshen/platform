@@ -1,6 +1,7 @@
 import { Tab, Tabs } from "@material-ui/core";
 import PageContent from "components/Shared/Page/PageContent";
-import { Companies, ProductTypeEnum } from "generated/graphql";
+import { Companies } from "generated/graphql";
+import { ProductTypeEnum } from "lib/enum";
 import CustomerInvoicesClosedTab from "pages/Customer/Invoices/InvoicesClosedTab";
 import CustomerInvoicesOpenTab from "pages/Customer/Invoices/InvoicesOpenTab";
 import { useState } from "react";

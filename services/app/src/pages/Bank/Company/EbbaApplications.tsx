@@ -1,5 +1,6 @@
 import CustomerEbbaApplicationsPageContent from "pages/Customer/EbbaApplications/EbbaApplicationsPageContent";
-import { Companies, ProductTypeEnum } from "generated/graphql";
+import { Companies } from "generated/graphql";
+import { ProductTypeEnum } from "lib/enum";
 
 interface Props {
   companyId: Companies["id"];

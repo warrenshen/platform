@@ -7,9 +7,8 @@ import {
   Companies,
   FinancialSummaryFragment,
   GetFinancialSummariesByCompanyIdQuery,
-  ProductTypeEnum,
 } from "generated/graphql";
-import { ProductTypeToLabel } from "lib/enum";
+import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
@@ -74,7 +73,7 @@ export default function FinancialSummariesDataGrid({
         visible: isProductTypeVisible,
         dataField: "product_type",
         caption: "Product Type",
-        width: ColumnWidths.Type,
+        width: ColumnWidths.ProductType,
       },
       {
         dataField: "total_outstanding_principal",

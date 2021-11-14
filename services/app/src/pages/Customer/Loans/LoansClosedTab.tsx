@@ -10,12 +10,9 @@ import {
   CurrentUserContext,
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
-import {
-  ProductTypeEnum,
-  useGetClosedLoansForCompanyQuery,
-} from "generated/graphql";
+import { useGetClosedLoansForCompanyQuery } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
-import { ProductTypeToLoanType } from "lib/enum";
+import { ProductTypeEnum, ProductTypeToLoanType } from "lib/enum";
 import { useContext } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>

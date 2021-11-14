@@ -17,7 +17,7 @@ import {
   ContractFragment,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
-import { ProductTypeToLabel } from "lib/enum";
+import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
 import { SettingsHelper } from "lib/settings";
 
 interface Props {
@@ -46,7 +46,9 @@ function CompanySettingsCard({ contract, settings, handleClick }: Props) {
     return null;
   }
 
-  const settingsHelper = new SettingsHelper(contract.product_type);
+  const settingsHelper = new SettingsHelper(
+    contract.product_type as ProductTypeEnum
+  );
 
   return (
     <Card className={classes.card}>
@@ -56,7 +58,9 @@ function CompanySettingsCard({ contract, settings, handleClick }: Props) {
             <Box className={classes.label}>Product Type</Box>
             <Box>
               <Typography variant="body2">
-                {contract ? ProductTypeToLabel[contract.product_type] : "TBD"}
+                {contract
+                  ? ProductTypeToLabel[contract.product_type as ProductTypeEnum]
+                  : "TBD"}
               </Typography>
             </Box>
           </Box>

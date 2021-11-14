@@ -1,5 +1,6 @@
 import { Box } from "@material-ui/core";
-import { Companies, ProductTypeEnum } from "generated/graphql";
+import { Companies } from "generated/graphql";
+import { ProductTypeEnum } from "lib/enum";
 import CustomerInvoicesPageContent from "pages/Customer/Invoices/InvoicesPageContent";
 
 interface Props {

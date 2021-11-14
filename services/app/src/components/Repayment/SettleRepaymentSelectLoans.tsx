@@ -19,10 +19,9 @@ import {
   Loans,
   LoanTypeEnum,
   PaymentsInsertInput,
-  ProductTypeEnum,
   useGetFundedLoansByCompanyAndLoanTypeQuery,
 } from "generated/graphql";
-import { ProductTypeToLoanType } from "lib/enum";
+import { ProductTypeEnum, ProductTypeToLoanType } from "lib/enum";
 import { useMemo } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -65,7 +64,7 @@ export default function SettleRepaymentSelectLoans({
 
   const loanType =
     !!productType && productType in ProductTypeToLoanType
-      ? ProductTypeToLoanType[productType]
+      ? ProductTypeToLoanType[productType as ProductTypeEnum]
       : null;
 
   const { data, error } = useGetFundedLoansByCompanyAndLoanTypeQuery({

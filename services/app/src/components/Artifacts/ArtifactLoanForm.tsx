@@ -9,7 +9,8 @@ import {
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import LinearProgressBar from "components/Shared/ProgressBar/LinearProgressBar";
-import { LoansInsertInput, ProductTypeEnum } from "generated/graphql";
+import { LoansInsertInput } from "generated/graphql";
+import { ProductTypeEnum } from "lib/enum";
 import { formatCurrency } from "lib/currency";
 import { Artifact } from "lib/finance/loans/artifacts";
 import { round } from "lodash";

@@ -18,10 +18,9 @@ import {
   InvoiceFileTypeEnum,
   InvoicesInsertInput,
   PayorsByPartnerCompanyQuery,
-  ProductTypeEnum,
 } from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
-import { FileTypeEnum } from "lib/enum";
+import { FileTypeEnum, ProductTypeEnum } from "lib/enum";
 import { isInvoiceFinancingProductType } from "lib/settings";
 import { ChangeEvent, useMemo } from "react";
 

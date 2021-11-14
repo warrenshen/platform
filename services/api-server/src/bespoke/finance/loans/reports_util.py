@@ -286,18 +286,18 @@ def compute_bank_financial_summaries(
 	# are not any customers using a given product type
 	for product_type in db_constants.PRODUCT_TYPES:
 		product_type_to_bank_summary[product_type] = models.BankFinancialSummary(
-				date=report_date,
-				product_type=product_type,
-				total_limit=decimal.Decimal(0.0),
-				adjusted_total_limit=decimal.Decimal(0.0),
-				total_outstanding_principal=decimal.Decimal(0.0),
-				total_outstanding_principal_for_interest=decimal.Decimal(0.0),
-				total_outstanding_interest=decimal.Decimal(0.0),
-				total_outstanding_fees=decimal.Decimal(0.0),
-				total_principal_in_requested_state=decimal.Decimal(0.0),
-				interest_accrued_today=decimal.Decimal(0.0),
-				available_limit=decimal.Decimal(0.0)
-			)
+			date=report_date,
+			product_type=product_type,
+			total_limit=decimal.Decimal(0.0),
+			adjusted_total_limit=decimal.Decimal(0.0),
+			total_outstanding_principal=decimal.Decimal(0.0),
+			total_outstanding_principal_for_interest=decimal.Decimal(0.0),
+			total_outstanding_interest=decimal.Decimal(0.0),
+			total_outstanding_fees=decimal.Decimal(0.0),
+			total_principal_in_requested_state=decimal.Decimal(0.0),
+			interest_accrued_today=decimal.Decimal(0.0),
+			available_limit=decimal.Decimal(0.0),
+		)
 
 	# Sum up all the financial summaries across customers
 	for summary in financial_summaries:

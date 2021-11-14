@@ -16,7 +16,6 @@ import {
   BankAccounts,
   FinancialSummaryFragment,
   PaymentsInsertInput,
-  ProductTypeEnum,
 } from "generated/graphql";
 import {
   computeRequestedWithdrawCutoffDate,
@@ -26,6 +25,7 @@ import {
   AllPaymentMethods,
   PaymentMethodEnum,
   PaymentMethodToLabel,
+  ProductTypeEnum,
 } from "lib/enum";
 import { Dispatch, SetStateAction } from "react";
 

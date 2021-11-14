@@ -29,11 +29,15 @@ import {
   LoanFragment,
   PaymentLimitedFragment,
   Payments,
-  ProductTypeEnum,
   useGetCustomerOverviewQuery,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
-import { ActionType, CustomMessageEnum, ProductTypeToLoanType } from "lib/enum";
+import {
+  ActionType,
+  CustomMessageEnum,
+  ProductTypeEnum,
+  ProductTypeToLoanType,
+} from "lib/enum";
 import {
   isInventoryFinancingProductType,
   isInvoiceFinancingProductType,
@@ -206,7 +210,9 @@ export default function CustomerOverviewPageContent({
             </Box>
           </Can>
           {(isInventoryFinancingProductType(productType) ||
-            isPurchaseMoneyFinancingProductType(productType)) && (
+            isPurchaseMoneyFinancingProductType(
+              productType as ProductTypeEnum
+            )) && (
             <Can perform={Action.AddPurchaseOrders}>
               <Box mr={2}>
                 <ModalButton

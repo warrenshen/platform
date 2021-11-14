@@ -1,0 +1,137 @@
+{
+  "version": "v1",
+  "product_type": "inventory_financing",
+  "v1": {
+    "fields": [
+      {
+        "section": "Limits",
+        "type": "integer",
+        "format": "number",
+        "internal_name": "contract_financing_terms",
+        "display_name": "Financing Days",
+        "value": null,
+        "nullable": false
+      },
+      {
+        "section": "Limits",
+        "type": "float",
+        "format": "currency",
+        "internal_name": "maximum_amount",
+        "display_name": "Maximum Credit Limit",
+        "value": null,
+        "nullable": false
+      },
+      {
+        "section": "Financing Terms",
+        "type": "float",
+        "format": "percentage",
+        "internal_name": "advance_rate",
+        "display_name": "Advance Rate",
+        "value": null,
+        "nullable": false
+      },
+      {
+        "section": "Financing Terms",
+        "type": "float",
+        "format": "percentage",
+        "internal_name": "factoring_fee_percentage",
+        "display_name": "Daily Interest Rate (%)",
+        "value": null,
+        "nullable": true
+      },
+      {
+        "section": "Financing Terms",
+        "type": "json",
+        "fields": [
+          {
+            "display_name": "Days Past Due",
+            "nullable": false
+          },
+          {
+            "display_name": "% of Interest",
+            "nullable": false,
+            "type": "float",
+            "format": "percentage"
+          }
+        ],
+        "internal_name": "late_fee_structure",
+        "display_name": "Late Fee Structure",
+        "value": null
+      },
+      {
+        "section": "Financing Terms",
+        "type": "float",
+        "format": "currency",
+        "internal_name": "wire_fee",
+        "display_name": "Wire Fee",
+        "value": null,
+        "nullable": false
+      },
+      {
+        "section": "Financing Terms",
+        "type": "boolean",
+        "internal_name": "preceeding_business_day",
+        "display_name": "Preceeding Business Day",
+        "value": null,
+        "nullable": true,
+        "is_hidden": true
+      },
+      {
+        "section": "Location",
+        "type": "timezone",
+        "internal_name": "timezone",
+        "display_name": "Timezone",
+        "value": null,
+        "nullable": false
+      },
+      {
+        "section": "Location",
+        "type": "us_state",
+        "internal_name": "us_state",
+        "display_name": "US State:",
+        "value": null,
+        "nullable": false
+      },
+      {
+        "section": "Settlement",
+        "type": "json",
+        "fields": [
+          {
+            "display_name": "Payment Method",
+            "nullable": false,
+            "options": [
+              {
+                "value": "ach",
+                "display_name": "ACH"
+              },
+              {
+                "value": "reverse_draft_ach",
+                "display_name": "Reverse Draft ACH"
+              },
+              {
+                "value": "wire",
+                "display_name": "Wire"
+              },
+              {
+                "value": "check",
+                "display_name": "Check"
+              },
+              {
+                "value": "cash",
+                "display_name": "Cash"
+              }
+            ]
+          },
+          {
+            "display_name": "Clearance Days",
+            "nullable": false,
+            "type": "integer"
+          }
+        ],
+        "internal_name": "repayment_type_settlement_timeline",
+        "display_name": "Clearance Days ",
+        "value": null
+      }
+    ]
+  }
+}

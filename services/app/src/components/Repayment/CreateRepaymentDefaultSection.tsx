@@ -16,13 +16,13 @@ import { formatCurrency } from "lib/currency";
 import {
   LoanTypeEnum,
   PaymentsInsertInput,
-  ProductTypeEnum,
   useGetFundedLoansByCompanyAndLoanTypeQuery,
 } from "generated/graphql";
 import {
   CustomerPaymentOptions,
   PaymentOptionToLabel,
   ProductTypeToLoanType,
+  ProductTypeEnum,
 } from "lib/enum";
 import { useMemo, ChangeEvent, Dispatch, SetStateAction } from "react";
 

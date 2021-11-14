@@ -2,12 +2,11 @@ import { Box, Typography } from "@material-ui/core";
 import PageContent from "components/Shared/Page/PageContent";
 import {
   LoanTypeEnum,
-  ProductTypeEnum,
   useGetFundedLoansByCompanyAndLoanTypeQuery,
 } from "generated/graphql";
 import ReportLoansDataGrid from "components/Reports/ReportLoansDataGrid";
 import { isLoanComingOrPastDue } from "lib/date";
-import { ProductTypeToLoanType } from "lib/enum";
+import { ProductTypeEnum, ProductTypeToLoanType } from "lib/enum";
 
 interface Props {
   companyId: string;

@@ -12,8 +12,8 @@ import {
   GetActiveLoansForCompanyQuery,
   LoanFragment,
   Loans,
-  ProductTypeEnum,
 } from "generated/graphql";
+import { ProductTypeEnum } from "lib/enum";
 import useSnackbar from "hooks/useSnackbar";
 import { Action, check } from "lib/auth/rbac-rules";
 import { useContext, useMemo, useState } from "react";

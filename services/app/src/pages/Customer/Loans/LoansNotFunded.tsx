@@ -14,10 +14,9 @@ import {
   GetActiveLoansForCompanyQuery,
   LoanFragment,
   Loans,
-  ProductTypeEnum,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
-import { ActionType } from "lib/enum";
+import { ActionType, ProductTypeEnum } from "lib/enum";
 import { useContext, useMemo, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>

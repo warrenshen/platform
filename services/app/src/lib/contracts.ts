@@ -1,5 +1,5 @@
-import { ContractFragment, ProductTypeEnum } from "generated/graphql";
-import { ProductTypeToContractTermsJson } from "lib/enum";
+import { ContractFragment } from "generated/graphql";
+import { ProductTypeToContractTermsJson, ProductTypeEnum } from "lib/enum";
 
 export enum ContractTermConfigs {
   BankDescription = "bank",
@@ -371,8 +371,9 @@ const formatValueForServer = (field: ProductConfigField) => {
 export function createProductConfigFieldsFromProductType(
   productType: ProductTypeEnum
 ): ProductConfigField[] {
-  const templateFields = JSON.parse(ProductTypeToContractTermsJson[productType])
-    .v1.fields as ProductConfigField[];
+  const templateFields = JSON.parse(
+    ProductTypeToContractTermsJson[productType as ProductTypeEnum]
+  ).v1.fields as ProductConfigField[];
   return templateFields;
 }
 

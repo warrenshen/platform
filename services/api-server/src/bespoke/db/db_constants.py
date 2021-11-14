@@ -68,15 +68,17 @@ class TwoFactorMessageMethod(object):
 # Contracts
 
 class ProductType(object):
+	DISPENSARY_FINANCING = 'dispensary_financing'
 	INVENTORY_FINANCING = 'inventory_financing'
-	LINE_OF_CREDIT = 'line_of_credit'
 	INVOICE_FINANCING = 'invoice_financing'
+	LINE_OF_CREDIT = 'line_of_credit'
 	PURCHASE_MONEY_FINANCING = 'purchase_money_financing'
 
 PRODUCT_TYPES = [
+	ProductType.DISPENSARY_FINANCING,
 	ProductType.INVENTORY_FINANCING,
-	ProductType.LINE_OF_CREDIT,
 	ProductType.INVOICE_FINANCING,
+	ProductType.LINE_OF_CREDIT,
 	ProductType.PURCHASE_MONEY_FINANCING,
 ]
 

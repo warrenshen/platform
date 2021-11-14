@@ -1,11 +1,8 @@
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
-import {
-  BankFinancialSummaryFragment,
-  ProductTypeEnum,
-} from "generated/graphql";
-import { ProductTypeToLabel } from "lib/enum";
+import { BankFinancialSummaryFragment } from "generated/graphql";
+import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 import CSS from "csstype";
@@ -49,7 +46,7 @@ export default function BankFinancialSummariesDataGrid({
       {
         dataField: "product_type",
         caption: "Product Type",
-        width: ColumnWidths.Type,
+        width: ColumnWidths.ProductType,
         cellRender: (params: ValueFormatterParams) =>
           ProductTypeToLabel[params.row.data.product_type as ProductTypeEnum],
       },

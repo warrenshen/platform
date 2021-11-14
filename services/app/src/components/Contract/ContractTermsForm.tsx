@@ -15,7 +15,7 @@ import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import JsonFormInput from "components/Shared/FormInputs/JsonFormInput";
 import { format, parse } from "date-fns";
-import { ContractsInsertInput, ProductTypeEnum } from "generated/graphql";
+import { ContractsInsertInput } from "generated/graphql";
 import {
   ContractTermNames,
   getContractTermBankDescription,
@@ -26,7 +26,7 @@ import {
   ProductConfigField,
 } from "lib/contracts";
 import { DateFormatServer } from "lib/date";
-import { AllProductTypes, ProductTypeToLabel } from "lib/enum";
+import { AllProductTypes, ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
 import { groupBy } from "lodash";
 import { ChangeEvent, useMemo } from "react";
 import SelectTimezoneMaterialUi from "select-timezone-material-ui";

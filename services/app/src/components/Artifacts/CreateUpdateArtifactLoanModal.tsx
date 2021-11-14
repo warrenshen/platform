@@ -9,7 +9,6 @@ import {
   Companies,
   LoansInsertInput,
   LoanTypeEnum,
-  ProductTypeEnum,
   Scalars,
   useAddLoanMutation,
   useGetCompanyNextLoanIdentifierMutation,
@@ -20,7 +19,7 @@ import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { submitLoanMutation, deleteLoanMutation } from "lib/api/loans";
 import { formatCurrency } from "lib/currency";
-import { ActionType, LoanStatusEnum } from "lib/enum";
+import { ActionType, LoanStatusEnum, ProductTypeEnum } from "lib/enum";
 import {
   Artifact,
   listArtifactsForCreateLoan,
@@ -408,6 +407,7 @@ export default function CreateUpdateArtifactLoanModal({
 
 const getProductTypeCopy = (productType: ProductTypeEnum) => {
   switch (productType) {
+    case ProductTypeEnum.DispensaryFinancing:
     case ProductTypeEnum.InventoryFinancing:
     case ProductTypeEnum.PurchaseMoneyFinancing:
       return "purchase order";
@@ -420,6 +420,7 @@ const getProductTypeCopy = (productType: ProductTypeEnum) => {
 
 const getProductTypeArtifactTitle = (productType: ProductTypeEnum) => {
   switch (productType) {
+    case ProductTypeEnum.DispensaryFinancing:
     case ProductTypeEnum.InventoryFinancing:
     case ProductTypeEnum.PurchaseMoneyFinancing:
       return "Purchase Order";

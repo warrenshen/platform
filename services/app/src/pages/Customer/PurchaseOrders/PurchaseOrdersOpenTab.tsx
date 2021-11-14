@@ -16,7 +16,6 @@ import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   Companies,
-  ProductTypeEnum,
   PurchaseOrderFragment,
   PurchaseOrders,
   useGetOpenPurchaseOrdersByCompanyIdQuery,
@@ -25,7 +24,7 @@ import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { submitPurchaseOrderMutation } from "lib/api/purchaseOrders";
 import { Action } from "lib/auth/rbac-rules";
-import { ActionType } from "lib/enum";
+import { ActionType, ProductTypeEnum } from "lib/enum";
 import { useMemo, useState } from "react";
 import styled from "styled-components";
 
