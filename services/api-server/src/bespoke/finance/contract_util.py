@@ -315,12 +315,15 @@ class Contract(object):
 
 		return False, errors.Error('{} was not found as a field to set'.format(internal_name))
 
-	def _get_field(self, internal_name: str) -> Tuple[FullFieldDict, errors.Error]:
+	def _get_field(self, internal_name: str, is_optional: bool = False) -> Tuple[FullFieldDict, errors.Error]:
 		self._populate()
 		if internal_name not in self._internal_name_to_field:
-			return None, errors.Error(
-				'Non-existent field "{}" provided to get contract field'.format(internal_name),
-				details={'contract_config': self._config})
+			if is_optional:
+				return None, None
+			else:
+				return None, errors.Error(
+					'Non-existent field "{}" provided to get contract field'.format(internal_name),
+					details={'contract_config': self._config})
 
 		return self._internal_name_to_field[internal_name], None
 
@@ -338,9 +341,12 @@ class Contract(object):
 		return field['value'], None
 
 	def _get_float_value(self, internal_name: str, default_if_null: float = None) -> Tuple[float, errors.Error]:
-		field, err = self._get_field(internal_name)
+		field, err = self._get_field(internal_name, is_optional=default_if_null != None)
 		if err:
 			return None, err
+
+		if not field:
+			return default_if_null, err
 
 		if field['value'] is None and default_if_null is not None:
 			return default_if_null, None

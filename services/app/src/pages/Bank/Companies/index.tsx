@@ -104,7 +104,7 @@ export default function BankcompaniesPage() {
       {
         dataField: "contract.product_type",
         caption: "Product Type",
-        width: ColumnWidths.Type,
+        width: ColumnWidths.ProductType,
         calculateCellValue: (data: Companies) =>
           data.contract
             ? ProductTypeToLabel[data.contract.product_type as ProductTypeEnum]

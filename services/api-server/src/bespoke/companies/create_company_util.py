@@ -190,8 +190,9 @@ def create_customer(
 		company_identifier = req['company']['identifier']
 		company_contract_name = req['company']['contract_name']
 		company_dba_name = req['company']['dba_name']
+		company_id = req['company']['id']
 
-		should_create_company = req['company']['id'] is None
+		should_create_company = company_id is None
 
 		if should_create_company:
 			success, err = _check_is_company_name_already_used(
@@ -231,7 +232,7 @@ def create_customer(
 			)
 		else:
 			company = session.query(models.Company).filter(
-				models.Company.id == req['company']['id']
+				models.Company.id == company_id
 			).first()
 			if not company:
 				raise errors.Error('Company ID provided does not exist')

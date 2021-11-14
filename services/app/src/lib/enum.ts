@@ -214,11 +214,11 @@ export const ProductTypeToLabel = {
 
 // List of all supported product types, note that we do NOT include "None".
 export const AllProductTypes = [
-  ProductTypeEnum.LineOfCredit,
+  ProductTypeEnum.DispensaryFinancing,
   ProductTypeEnum.InventoryFinancing,
   ProductTypeEnum.InvoiceFinancing,
+  ProductTypeEnum.LineOfCredit,
   ProductTypeEnum.PurchaseMoneyFinancing,
-  ProductTypeEnum.DispensaryFinancing,
 ];
 
 // Request status enum related.

@@ -37,7 +37,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function BankOverviewPage() {
+export default function BankOverviewPage() {
   const classes = useStyles();
 
   const {
@@ -197,5 +197,3 @@ function BankOverviewPage() {
     </Page>
   );
 }
-
-export default BankOverviewPage;

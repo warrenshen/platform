@@ -74,7 +74,7 @@ export default function AdvancesDataGrid({
         visible: isProductTypeVisible,
         caption: "Product Type",
         dataField: "product_type",
-        minWidth: ColumnWidths.MinWidth,
+        minWidth: ColumnWidths.ProductType,
       },
       {
         caption: "Total Amount",

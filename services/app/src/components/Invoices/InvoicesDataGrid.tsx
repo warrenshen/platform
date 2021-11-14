@@ -100,7 +100,7 @@ export default function InvoicesDataGrid({
         visible: isCompanyVisible,
         dataField: "product_type",
         caption: "Product Type",
-        minWidth: ColumnWidths.MinWidth,
+        minWidth: ColumnWidths.ProductType,
         cellRender: (params: ValueFormatterParams) => (
           <TextDataGridCell
             label={
