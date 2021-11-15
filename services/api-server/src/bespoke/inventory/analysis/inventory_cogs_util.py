@@ -12,19 +12,20 @@ from bespoke.excel import excel_writer
 from bespoke.excel.excel_writer import CellValue
 from bespoke.finance.types import finance_types
 from bespoke.inventory.analysis.shared.inventory_types import (
-	AnalysisParamsDict
+	AnalysisParamsDict,
+	CogsSummaryDict
 )
 from bespoke.inventory.analysis.shared.download_util import Download
 from bespoke.inventory.analysis.shared.package_history import PackageHistory
 
-CogsSummaryDict = TypedDict('CogsSummaryDict', {
+MonthSummaryDict = TypedDict('MonthSummaryDict', {
 	'cogs': float,
 	'revenue': float,
 	'num_transactions_with_price_info': int,
 	'num_transactions_total': int,
 })
 
-def _to_cogs_summary_rows(year_month_to_summary: Dict[finance_types.Month, CogsSummaryDict]) -> List[List[CellValue]]:
+def _to_cogs_summary_rows(year_month_to_summary: Dict[finance_types.Month, MonthSummaryDict]) -> List[List[CellValue]]:
 	keys = list(year_month_to_summary.keys())
 	keys.sort(key=lambda x: datetime.date(year=x.year, month=x.month, day=1))
 
@@ -72,20 +73,26 @@ def _get_empty_cogs_row(date_str: str) -> List[CellValue]:
 		0.0
 	]
 
-def create_cogs_summary_for_all_dates(
+BottomsupDetailsDict = TypedDict('BottomsupDetailsDict', {
+	'bottomsup_cogs_rows': List[List[CellValue]],
+	'bottomsup_total_cogs': float,
+	'pct_transactions_with_cost': float
+})
+
+def _create_cogs_summary_for_all_dates(
 	package_id_to_history: Dict[str, PackageHistory],
 	params: AnalysisParamsDict
-) -> List[List[CellValue]]:
+) -> BottomsupDetailsDict:
 
-	year_month_to_summary: Dict[finance_types.Month, CogsSummaryDict] = {}
+	year_month_to_summary: Dict[finance_types.Month, MonthSummaryDict] = {}
 
-	def _get_summary(cur_date: datetime.date) -> CogsSummaryDict:
+	def _get_summary(cur_date: datetime.date) -> MonthSummaryDict:
 		month = finance_types.Month(
 			month=cur_date.month,
 			year=cur_date.year
 		)
 		if month not in year_month_to_summary:
-			year_month_to_summary[month] = CogsSummaryDict(
+			year_month_to_summary[month] = MonthSummaryDict(
 				cogs=0.0,
 				revenue=0.0,
 				num_transactions_with_price_info=0,
@@ -122,22 +129,40 @@ def create_cogs_summary_for_all_dates(
 				summary['cogs'] += sales_tx['tx_quantity_sold'] * per_unit_cost 
 				summary['num_transactions_with_price_info'] += 1
 
-	return _to_cogs_summary_rows(year_month_to_summary)
+	bottomsup_total_cogs = 0.0
+	num_transactions_total = 0
+	num_transactions_with_price_info = 0
 
-def create_top_down_cogs_summary_for_all_dates(
+	for month, summary in year_month_to_summary.items():
+		bottomsup_total_cogs += summary['cogs']
+		num_transactions_total += summary['num_transactions_total']
+		num_transactions_with_price_info += summary['num_transactions_with_price_info']
+
+	return BottomsupDetailsDict(
+		bottomsup_cogs_rows=_to_cogs_summary_rows(year_month_to_summary),
+		bottomsup_total_cogs=bottomsup_total_cogs,
+		pct_transactions_with_cost=round(num_transactions_with_price_info / num_transactions_total * 100, 2)
+	)
+
+TopdownDetailsDict = TypedDict('TopdownDetailsDict', {
+	'topdown_cogs_rows': List[List[CellValue]],
+	'topdown_total_cogs': float
+})
+
+def _create_top_down_cogs_summary_for_all_dates(
 	d: Download,
 	params: AnalysisParamsDict
-) -> List[List[CellValue]]:
+) -> TopdownDetailsDict:
 
-	year_month_to_summary: Dict[finance_types.Month, CogsSummaryDict] = {}
+	year_month_to_summary: Dict[finance_types.Month, MonthSummaryDict] = {}
 
-	def _get_summary(cur_date: datetime.date) -> CogsSummaryDict:
+	def _get_summary(cur_date: datetime.date) -> MonthSummaryDict:
 		month = finance_types.Month(
 			month=cur_date.month,
 			year=cur_date.year
 		)
 		if month not in year_month_to_summary:
-			year_month_to_summary[month] = CogsSummaryDict(
+			year_month_to_summary[month] = MonthSummaryDict(
 				cogs=0.0,
 				revenue=0.0,
 				num_transactions_with_price_info=0,
@@ -173,7 +198,15 @@ def create_top_down_cogs_summary_for_all_dates(
 		if has_price_info:
 			summary['num_transactions_with_price_info'] += 1
 
-	return _to_cogs_summary_rows(year_month_to_summary)
+	topdown_total_cogs = 0.0
+
+	for month, summary in year_month_to_summary.items():
+		topdown_total_cogs += summary['cogs']
+
+	return TopdownDetailsDict(
+		topdown_cogs_rows=_to_cogs_summary_rows(year_month_to_summary),
+		topdown_total_cogs=topdown_total_cogs
+	)
 
 def write_cogs_xlsx(
 	topdown_cogs_rows: List[List[CellValue]],
@@ -228,3 +261,20 @@ def write_cogs_xlsx(
 	with open(filepath, 'wb') as f:
 		wb.save(f)
 		logging.info('Wrote result to {}'.format(filepath))
+
+def create_cogs_summary(d: Download, id_to_history: Dict[str, PackageHistory], params: AnalysisParamsDict) -> CogsSummaryDict:
+	topdown_details = _create_top_down_cogs_summary_for_all_dates(
+			d, params 
+	)
+
+	bottomsup_details = _create_cogs_summary_for_all_dates(
+		id_to_history, params
+	)
+
+	return CogsSummaryDict(
+		topdown_cogs_rows=topdown_details['topdown_cogs_rows'],
+		bottomsup_cogs_rows=bottomsup_details['bottomsup_cogs_rows'],
+		pct_transactions_with_cost=bottomsup_details['pct_transactions_with_cost'],
+		bottomsup_total_cogs=bottomsup_details['bottomsup_total_cogs'],
+		topdown_total_cogs=topdown_details['topdown_total_cogs']
+	)

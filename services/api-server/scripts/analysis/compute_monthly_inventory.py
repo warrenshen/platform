@@ -4,6 +4,17 @@ It demands the 'DATABASE_URL' environment be set to connect to the database.
 For example:
 
 DATABASE_URL=postgres+psycopg2://postgres:postgrespassword@localhost:5432/postgres python scripts/0000_example.py
+
+When we run this script, we want to process the inventory, valuation for many customers
+for their entire history.
+
+	out/
+		company_identifier1/results.txt
+												graphs.png
+		company_identifier2.results.txt
+												graphs.png
+
+		summary.xls
 """
 import datetime
 import os
@@ -22,9 +33,11 @@ from bespoke.inventory.analysis.shared import package_history, download_util
 from bespoke.inventory.analysis import active_inventory_util as util
 from bespoke.inventory.analysis import inventory_cogs_util as cogs_util
 from bespoke.inventory.analysis import inventory_valuations_util as valuations_util
+from bespoke.inventory.analysis import inventory_summary_util
 from bespoke.inventory.analysis.shared.inventory_types import (
 	Query,
-	AnalysisParamsDict
+	AnalysisParamsDict,
+	AnalysisSummaryDict
 )
 
 logging.basicConfig(format='%(asctime)s [%(levelname)s] - %(message)s',
@@ -33,7 +46,7 @@ logging.basicConfig(format='%(asctime)s [%(levelname)s] - %(message)s',
 dotenv_path = os.path.join(os.environ.get('SERVER_ROOT_DIR', '.'), '.env')
 load_dotenv(dotenv_path)
 
-def _run_analysis_for_customer(d: download_util.Download, q: Query, params: AnalysisParamsDict) -> None:
+def _run_analysis_for_customer(d: download_util.Download, q: Query, params: AnalysisParamsDict) -> AnalysisSummaryDict:
 	## Analyze counts for the dataset
 	logging.info('Analyzing counts for {}'.format(q.company_name))
 	today_date = date_util.load_date_str(q.inventory_dates[-1]) # the most recent day is the one we want to compare the actual inventory to.
@@ -41,7 +54,7 @@ def _run_analysis_for_customer(d: download_util.Download, q: Query, params: Anal
 
 	util.print_counts(id_to_history)
 	util.run_orphan_analysis(d, id_to_history, params)
-	util.create_inventory_xlsx(id_to_history, q, params=params)
+	counts_analysis_dict = util.create_inventory_xlsx(id_to_history, q, params=params)
 
 	## Compute accuracy numbers for COGS and inventory
 	logging.info('Computing inventory for {}'.format(q.company_name))
@@ -51,7 +64,7 @@ def _run_analysis_for_customer(d: download_util.Download, q: Query, params: Anal
 	)
 
 	today_date_str = today_date.strftime('%m/%d/%Y')
-	util.compare_computed_vs_actual_inventory(
+	compare_inventory_res = util.compare_computed_vs_actual_inventory(
 			computed=computed_resp['date_to_computed_inventory_dataframe'][today_date_str],
 			actual=d.inventory_packages_dataframe,
 			compare_options={
@@ -60,16 +73,10 @@ def _run_analysis_for_customer(d: download_util.Download, q: Query, params: Anal
 			}
 	)
 
-	topdown_cogs_rows = cogs_util.create_top_down_cogs_summary_for_all_dates(
-			d, params 
-	)
-
-	bottomsup_cogs_rows = cogs_util.create_cogs_summary_for_all_dates(
-		id_to_history, params
-	)
+	cogs_summary = cogs_util.create_cogs_summary(d, id_to_history, params)
 	cogs_util.write_cogs_xlsx(
-			topdown_cogs_rows=topdown_cogs_rows, 
-			bottoms_up_cogs_rows=bottomsup_cogs_rows,
+			topdown_cogs_rows=cogs_summary['topdown_cogs_rows'], 
+			bottoms_up_cogs_rows=cogs_summary['bottomsup_cogs_rows'],
 			company_name=q.company_name
 	)
 
@@ -80,8 +87,17 @@ def _run_analysis_for_customer(d: download_util.Download, q: Query, params: Anal
 			inventory_valuations=computed_resp['inventory_valuations']
 	)
 
+	return AnalysisSummaryDict(
+		company_name=q.company_name,
+		company_identifier=q.company_identifier,
+		analysis_params=params,
+		counts_analysis=counts_analysis_dict,
+		compare_inventory_results=compare_inventory_res,
+		cogs_summary=cogs_summary
+	)
+
 def _compute_inventory_for_customer(
-	company_identifier: str, params_list: List[AnalysisParamsDict], dry_run: bool) -> None:
+	company_identifier: str, params_list: List[AnalysisParamsDict], dry_run: bool) -> List[AnalysisSummaryDict]:
 	identifier_to_name = {
 		'RA': 'Royal_Apothecary'
 	}
@@ -111,18 +127,37 @@ def _compute_inventory_for_customer(
 	q.inventory_dates = download_util.get_inventory_dates(
 		all_dataframes_dict, today_date)
 
+	summaries = []
 	for params in params_list:
-		_run_analysis_for_customer(d, q, params)
+		summaries.append(_run_analysis_for_customer(d, q, params))
+
+	return summaries
 
 def main() -> None:
 	dry_run = True
+	# Dont infer anything
 	params = util.AnalysisParamsDict(
 		sold_threshold=package_history.DEFAULT_SOLD_THRESHOLD,
-		find_parent_child_relationships=True,
+		find_parent_child_relationships=False,
 		use_prices_to_fill_missing_incoming=False,
 		external_pricing_data_config=None
 	)
-	_compute_inventory_for_customer('RA', [params], dry_run=dry_run)
+	# Pricing table only
+	params2 = util.AnalysisParamsDict(
+		sold_threshold=package_history.DEFAULT_SOLD_THRESHOLD,
+		find_parent_child_relationships=False,
+		use_prices_to_fill_missing_incoming=True,
+		external_pricing_data_config=None
+	)
+	# Pricing table + parenting logic
+	params3 = util.AnalysisParamsDict(
+		sold_threshold=package_history.DEFAULT_SOLD_THRESHOLD,
+		find_parent_child_relationships=True,
+		use_prices_to_fill_missing_incoming=True,
+		external_pricing_data_config=None
+	)
+	summaries = _compute_inventory_for_customer('RA', [params, params2, params3], dry_run=dry_run)
+	inventory_summary_util.write_excel_for_summaries(summaries)
 
 if __name__ == "__main__":
 	main()

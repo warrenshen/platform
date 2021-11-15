@@ -29,6 +29,9 @@ from bespoke.inventory.analysis.shared.inventory_common_util import (
 from bespoke.inventory.analysis.shared.inventory_types import (
 	Printer,
 	Query,
+	PrintCountsDict,
+	CountsAnalysisDict,
+	CompareInventoryResultsDict,
 	InventoryPackageDict,
 	TransferPackageDict,
 	AnalysisParamsDict,
@@ -256,19 +259,6 @@ def analyze_specific_package_histories(
 
 		print('')
 
-PrintCountsDict = TypedDict('PrintCountsDict', {
-	'only_incoming': int,
-	'only_outgoing': int,
-	'only_sold': int,
-	'incoming_missing_prices': int,
-	'outgoing_and_incoming': int,
-	'in_and_sold_at_least_once': int,
-	'in_and_sold_many_times': int,
-	'num_parent_packages': int,
-	'num_child_packages': int,
-	'total_seen': int
-})
-
 def print_counts(id_to_history: Dict[str, PackageHistory], should_print: bool = True) -> PrintCountsDict:
 	only_incoming = 0 # Only incoming transfer package(s)
 	only_outgoing = 0 # Only outgoing transfer package(s)
@@ -448,7 +438,7 @@ def create_inventory_dataframes(
 
 	return date_to_inventory_records
 
-def compare_inventory_dataframes(computed: Any, actual: Any, options: CompareOptionsDict) -> Dict:
+def compare_inventory_dataframes(computed: pandas.DataFrame, actual: pandas.DataFrame, options: CompareOptionsDict) -> CompareInventoryResultsDict:
 	package_id_to_computed_row = {}
 	unseen_package_ids = set([])
 	all_computed_package_ids_ever_seen = set([])
@@ -471,11 +461,13 @@ def compare_inventory_dataframes(computed: Any, actual: Any, options: CompareOpt
 	computed_missing_package_ids_but_seen_before = set([])
 	all_actual_package_ids_even_seen = set([])
 	package_id_to_actual_row = {}
-	quantities = []
+	quantities = [] # Only includes quantities for matching packages
+	total_quantity_all_inventory_packages = 0.0
 	delta_quantities = []
 	delta_tuples = []
 	num_matching_packages = 0
 	num_packages = 0
+	current_inventory_value = 0.0
 
 	for index, row in actual.iterrows():
 		all_actual_package_ids_even_seen.add(row['package_id'])
@@ -487,9 +479,13 @@ def compare_inventory_dataframes(computed: Any, actual: Any, options: CompareOpt
 
 		num_packages += 1
 		package_id_to_actual_row[row['package_id']] = row
+		total_quantity_all_inventory_packages += row['quantity']
 
 		if row['package_id'] not in package_id_to_computed_row:
 			if options['accept_computed_when_sold_out'] and row['package_id'] in all_computed_package_ids_ever_seen:
+				if row['package_id'] in unseen_package_ids:
+					unseen_package_ids.remove(row['package_id'])
+
 				# When this flag is turned on, we trust that the computed calculation, because
 				# we have seen the package before, we just saw that it sold out due to
 				# sales transactions.
@@ -505,13 +501,26 @@ def compare_inventory_dataframes(computed: Any, actual: Any, options: CompareOpt
 					computed_missing_package_ids_but_seen_before.add(row['package_id'])
 		else:
 			computed_row = package_id_to_computed_row[row['package_id']]
-			
 			unseen_package_ids.remove(row['package_id'])
 			num_matching_packages += 1
-			abs_delta = abs(float(row['quantity']) - float(computed_row['quantity']))
-			delta_quantities.append(abs_delta)
-			delta_tuples.append((row['package_id'], abs_delta))
-			quantities.append(row['quantity'])
+			
+			# Only the computed row as the current value associated with the actual package
+			# by using pricing data associated with the computed row 
+			if computed_row['incoming_quantity'] > 0.0 and computed_row['incoming_cost'] > 0.0:
+				current_inventory_value += computed_row['incoming_cost'] / computed_row['incoming_quantity'] * row['quantity']
+			
+			if options['accept_computed_when_sold_out'] and math.isclose(computed_row['quantity'], 0.0):
+				# When this flag is turned on, we trust that the computed calculation, because
+				# we have seen the package before, we just saw that it sold out due to
+				# sales transactions.
+				delta_quantities.append(0.0)
+				delta_tuples.append((row['package_id'], 0.0))
+				quantities.append(0)	
+			else:
+				abs_delta = abs(float(row['quantity']) - float(computed_row['quantity']))
+				delta_quantities.append(abs_delta)
+				delta_tuples.append((row['package_id'], abs_delta))
+				quantities.append(row['quantity'])
 
 	extra_quantity = 0.0
 	unseen_package_ids_in_inventory_at_some_point = set([])
@@ -521,9 +530,8 @@ def compare_inventory_dataframes(computed: Any, actual: Any, options: CompareOpt
 		if package_id in all_actual_package_ids_even_seen:
 			unseen_package_ids_in_inventory_at_some_point.add(package_id)
 
-	quantity_delta = sum(delta_quantities) / len(delta_quantities)
-	total_quantity = sum(quantities)
-	quantity_avg = total_quantity / len(quantities)
+	matching_quantity_delta = sum(delta_quantities) / len(delta_quantities)
+	matching_quantity_avg = sum(quantities) / len(quantities)
 
 	quantities_not_in_computed = []
 	for package_id in computed_missing_package_ids_but_seen_before:
@@ -534,16 +542,23 @@ def compare_inventory_dataframes(computed: Any, actual: Any, options: CompareOpt
 	else:
 		quantity_not_computed_avg = 0.0
 
+	pct_inventory_matching = num_matching_packages / num_packages * 100
 	print('Pct of # inventory matching: {:.2f}% ({} / {})'.format(
-		num_matching_packages / num_packages * 100,
+		pct_inventory_matching,
 		num_matching_packages,
 		num_packages
 	))
-	print('Accuracy of quantities for matching packages: {:.2f}%'.format((quantity_avg - quantity_delta) / quantity_avg * 100))
-	print('Pct of # inventory packages over-estimated: {:.2f}%'.format(len(unseen_package_ids) / num_packages * 100))
-	print('Pct of # quantity over-estimated: {:.2f}%'.format(extra_quantity / total_quantity))
-	print('Avg quantity delta: {:.2f}'.format(quantity_delta))
-	print('Avg quantity: {:.2f}'.format(quantity_avg))
+
+	pct_accuracy_of_quantity = (matching_quantity_avg - matching_quantity_delta) / matching_quantity_avg * 100
+	print('Accuracy of quantities for matching packages: {:.2f}%'.format(pct_accuracy_of_quantity))
+	
+	pct_inventory_overestimate = len(unseen_package_ids) / num_packages * 100
+	print('Pct of # inventory packages over-estimated: {:.2f}%'.format(pct_inventory_overestimate))
+	
+	pct_quantity_overestimated = extra_quantity / total_quantity_all_inventory_packages
+	print('Pct of # quantity over-estimated: {:.2f}%'.format(pct_quantity_overestimated))
+	print('Avg quantity delta of matching packages: {:.2f}'.format(matching_quantity_delta))
+	print('Avg quantity of matching packages: {:.2f}'.format(matching_quantity_avg))
 	print('')
 	print('Num matching packages: {}'.format(num_matching_packages))
 
@@ -616,10 +631,15 @@ def compare_inventory_dataframes(computed: Any, actual: Any, options: CompareOpt
 		print('Delta {:.2f} for package_id {}'.format(delta, package_id))
 		i += 1
 
-	return {
-		'computed_extra_package_ids': unseen_package_ids,
-		'computed_missing_actual_package_ids': computed_missing_actual_package_ids
-	}
+	return CompareInventoryResultsDict(
+		computed_extra_package_ids=list(unseen_package_ids),
+		computed_missing_actual_package_ids=computed_missing_actual_package_ids,
+		pct_inventory_matching=round(pct_inventory_matching, 2),
+		pct_accuracy_of_quantity=round(pct_accuracy_of_quantity, 2),
+		pct_inventory_overestimate=round(pct_inventory_overestimate, 2),
+		pct_quantity_overestimated=round(pct_quantity_overestimated, 2),
+		current_inventory_value=round(current_inventory_value, 2)
+	)
 
 def compute_inventory_across_dates(
 	d: Download,
@@ -655,14 +675,14 @@ def compute_inventory_across_dates(
 def compare_computed_vs_actual_inventory(
 	computed: pandas.DataFrame,
 	actual: pandas.DataFrame, 
-	compare_options: CompareOptionsDict) -> None:
+	compare_options: CompareOptionsDict) -> CompareInventoryResultsDict:
 	from_packages_inventory_dataframe = actual[[
 			'package_id',
 			'packaged_date',
 			'unit_of_measure',
 			'product_category_name',
 			'product_name',
-			'quantity',
+			'quantity'
 	]].sort_values('package_id')
 
 	res = compare_inventory_dataframes(
@@ -670,10 +690,11 @@ def compare_computed_vs_actual_inventory(
 			actual=from_packages_inventory_dataframe,
 			options=compare_options
 	)
+	return res
 
 def create_inventory_xlsx(
 	id_to_history: Dict[str, PackageHistory], q: Query, params: AnalysisParamsDict,
-	show_debug_package_ids: bool = False) -> None:
+	show_debug_package_ids: bool = False) -> CountsAnalysisDict:
 		
 	i = 0
 	num_excluded = 0
@@ -733,11 +754,16 @@ def create_inventory_xlsx(
 		wb.save(f)
 		logging.info('Wrote result to {}'.format(filepath))
 			
-	pct_excluded = '{:.2f}'.format(num_excluded / num_total * 100)
-	print(f'Excluded {num_excluded} / {num_total} packages from consideration ({pct_excluded}%)')
+	pct_excluded = num_excluded / num_total * 100
+	pct_excluded_str = '{:.2f}'.format(pct_excluded)
+	print(f'Excluded {num_excluded} / {num_total} packages from consideration ({pct_excluded_str}%)')
 	for reason, package_ids in exclude_reason_to_package_ids.items():
 		count = len(package_ids)
 		print(f'  {reason}: {count} times')
 		if show_debug_package_ids:
 			print(package_ids)
+
+	return CountsAnalysisDict(
+		pct_excluded=round(pct_excluded, 2)
+	)
 

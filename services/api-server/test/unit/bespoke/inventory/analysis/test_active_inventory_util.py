@@ -307,6 +307,170 @@ def get_default_params() -> util.AnalysisParamsDict:
 		external_pricing_data_config=None
 	)
 
+def _inventory_row(
+	id: int,
+	quantity: int,
+	is_in_inventory: bool = True
+) -> Dict:
+	# Entries that have hardcoded values here means that its not
+	# very interesting to test the delta between these values when
+	# comparing inventory dataframes
+	incoming_cost = 120.00
+	incoming_quantity = 10.00
+	per_unit_cost = incoming_cost / incoming_quantity
+
+	return {
+		'package_id': f'p{id}',
+		'license_number': 'abcd',
+		'arrived_date': '10/01/2020',
+		'incoming_cost': incoming_cost,
+		'incoming_quantity': incoming_quantity,
+		'is_child_package': 'False',
+		'are_prices_inferred': 'False',
+
+		'product_category_name': f'categoryname-{id}',
+		'product_name': f'productname-{id}',
+
+		'quantity': quantity,
+		'unit_of_measure': 'Each',
+		'current_value': quantity * per_unit_cost,
+		'sold_date': '10/05/2020',
+
+		'is_in_inventory': is_in_inventory
+	}
+
+class TestCompareInventoryDataframes(unittest.TestCase):
+
+	maxDiff = None
+
+	def _run_test(self, test: Dict) -> None:
+		actual_res = util.compare_inventory_dataframes(
+			computed=_get_dataframe(
+			test['computed_rows'], columns=util.get_inventory_column_names()),
+			actual=_get_dataframe(
+				test['actual_rows'], util.get_inventory_column_names()),
+			options=test['options']
+		)
+		expected = test['expected_res']
+		actual_res['computed_extra_package_ids'].sort()
+		actual_res['computed_missing_actual_package_ids'].sort()
+
+		self.assertEqual(
+			expected['computed_extra_package_ids'], actual_res['computed_extra_package_ids'])
+		self.assertEqual(
+			expected['computed_missing_actual_package_ids'], actual_res['computed_missing_actual_package_ids'])
+
+		self.assertAlmostEqual(
+			expected['pct_inventory_matching'], actual_res['pct_inventory_matching'])
+		self.assertAlmostEqual(
+			expected['pct_accuracy_of_quantity'], actual_res['pct_accuracy_of_quantity'])
+		self.assertAlmostEqual(
+			expected['pct_inventory_overestimate'], actual_res['pct_inventory_overestimate'])
+		self.assertAlmostEqual(
+			expected['pct_quantity_overestimated'], actual_res['pct_quantity_overestimated'])
+		self.assertAlmostEqual(
+			expected['current_inventory_value'], actual_res['current_inventory_value'])
+
+	def test_perfect_match(self) -> None:
+		test: Dict = {
+			'computed_rows': [
+				_inventory_row(
+					id=1,
+					quantity=1
+				),
+				_inventory_row(
+					id=2,
+					quantity=2
+				),
+			],
+			'actual_rows': [
+				_inventory_row(
+					id=1,
+					quantity=1
+				),
+				_inventory_row(
+					id=2,
+					quantity=2
+				)
+			],
+			'options': {
+				'num_errors_to_show': 10,
+				'accept_computed_when_sold_out': False
+			},
+			'expected_res': {
+				'computed_extra_package_ids': [],
+				'computed_missing_actual_package_ids': [],
+				'pct_inventory_matching': 100.0,
+				'pct_accuracy_of_quantity': 100.0,
+				'pct_inventory_overestimate': 0.0,
+				'pct_quantity_overestimated': 0.0,
+				'current_inventory_value': 3 * 12.0
+			}
+		}
+		self._run_test(test)
+
+	def test_inventory_and_quantity_mismatch(self) -> None:
+		test: Dict = {
+			'computed_rows': [
+				_inventory_row(
+					id=1,
+					quantity=1
+				),
+				_inventory_row(
+					id=2,
+					quantity=4 # matching but quantity mismatch
+				),
+				_inventory_row(
+					id=5,
+					quantity=5 # overestimation, as there is no actual row here at all
+				),
+				_inventory_row(
+					id=6,
+					is_in_inventory=False,
+					quantity=0 # computed is said to be sold out, so with the options
+					           # trust it is sold out, even though the actual has some
+					           # residual quantity
+				),
+				_inventory_row(
+					id=7,
+					quantity=5 # overestimation, as there is no actual row here at all
+				),
+			],
+			'actual_rows': [
+				_inventory_row(
+					id=1,
+					quantity=1
+				),
+				_inventory_row(
+					id=2,
+					quantity=2
+				),
+				_inventory_row(
+					id=3,
+					quantity=3 # never showed up in the computed
+				),
+				_inventory_row(
+					id=6,
+					quantity=3 # not a mismatch due to the accept_computed_when_sold_out=True flag
+				),
+			],
+			'options': {
+				'num_errors_to_show': 10,
+				'accept_computed_when_sold_out': True
+			},
+			'expected_res': {
+				'computed_extra_package_ids': ['p5', 'p7'],
+				'computed_missing_actual_package_ids': ['p3'],
+				'pct_inventory_matching': 75.0, # 3 / 4 matching
+				# 2 is the average quantity is actual, 2 / 3 is average delta 
+				'pct_accuracy_of_quantity': round(2 / 3 / 2 * 100.0, 2), 
+				'pct_inventory_overestimate': round(2 / 4 * 100, 2),
+				'pct_quantity_overestimated': round (10 / 9, 2),
+				'current_inventory_value': 3 * 12.0 # Could only find quantity=3 matching with the computed
+			}
+		}
+		self._run_test(test)
+
 class TestInventoryPackages(unittest.TestCase):
 
 	maxDiff = None

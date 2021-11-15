@@ -3,6 +3,8 @@ import logging
 from mypy_extensions import TypedDict
 from typing import Union, List, Dict, Set
 
+from bespoke.excel.excel_writer import CellValue
+
 # Types coming from the BigQuery pull
 InventoryPackageDict = TypedDict('InventoryPackageDict', {
 	'package_id': str,
@@ -77,6 +79,52 @@ ComputedInfoDict = TypedDict('ComputedInfoDict', {
 	'finished': NotableEventDict,
 	'date_to_quantity': Dict[datetime.date, float]
 }, total=False)
+
+CountsAnalysisDict = TypedDict('CountsAnalysisDict', {
+	'pct_excluded': float
+})
+
+PrintCountsDict = TypedDict('PrintCountsDict', {
+	'only_incoming': int,
+	'only_outgoing': int,
+	'only_sold': int,
+	'incoming_missing_prices': int,
+	'outgoing_and_incoming': int,
+	'in_and_sold_at_least_once': int,
+	'in_and_sold_many_times': int,
+	'num_parent_packages': int,
+	'num_child_packages': int,
+	'total_seen': int
+})
+
+CompareInventoryResultsDict = TypedDict('CompareInventoryResultsDict', {
+	'computed_extra_package_ids': List[str],
+	'computed_missing_actual_package_ids': List[str],
+	'pct_inventory_matching': float,
+	'pct_accuracy_of_quantity': float,
+	'pct_inventory_overestimate': float,
+	'pct_quantity_overestimated': float,
+	'current_inventory_value': float
+})
+
+CogsSummaryDict = TypedDict('CogsSummaryDict', {
+	'topdown_cogs_rows': List[List[CellValue]],
+	'bottomsup_cogs_rows': List[List[CellValue]],
+	'pct_transactions_with_cost': float,
+	'bottomsup_total_cogs': float,
+	'topdown_total_cogs': float
+})
+
+# Summary of information that we get about the entire inventory summary
+# for a customer
+AnalysisSummaryDict = TypedDict('AnalysisSummaryDict', {
+	'company_name': str,
+	'company_identifier': str,
+	'analysis_params': AnalysisParamsDict,
+	'counts_analysis': CountsAnalysisDict,
+	'compare_inventory_results': CompareInventoryResultsDict,
+	'cogs_summary': CogsSummaryDict
+})
 
 class Query(object):
 	"""Describes the date ranges and company we are doing the analysis for"""
