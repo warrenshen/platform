@@ -204,7 +204,7 @@ def submit_for_approval(
 	customer_name = None
 	loan_html = None
 
-	if loan.loan_type == LoanTypeEnum.INVENTORY or loan.loan_type == LoanTypeEnum.DISPENSARY:
+	if loan.loan_type == LoanTypeEnum.INVENTORY:
 		purchase_order = cast(
 			models.PurchaseOrder,
 			session.query(models.PurchaseOrder).filter_by(
@@ -228,24 +228,14 @@ def submit_for_approval(
 		if err:
 			raise err
 
-		if loan.loan_type == LoanTypeEnum.INVENTORY:
-			loan_html = f"""<ul>
+		loan_html = f"""<ul>
 <li>Loan type: Inventory Financing</li>
 <li>Company: {customer_name}</li>
 <li>Purchase order: {purchase_order.order_number}</li>
 <li>Requested payment date: {loan.requested_payment_date}</li>
 <li>Amount: {loan.amount}</li>
 </ul>
-			"""
-		elif loan.loan_type == LoanTypeEnum.DISPENSARY:
-				loan_html = f"""<ul>
-<li>Loan type: Dispensary Financing</li>
-<li>Company: {customer_name}</li>
-<li>Purchase order: {purchase_order.order_number}</li>
-<li>Requested payment date: {loan.requested_payment_date}</li>
-<li>Amount: {loan.amount}</li>
-</ul>
-			"""
+		"""
 
 	elif loan.loan_type == LoanTypeEnum.LINE_OF_CREDIT:
 		line_of_credit = cast(

@@ -138,13 +138,11 @@ class LoanTypeEnum(object):
 	LINE_OF_CREDIT = 'line_of_credit'
 	INVENTORY = 'purchase_order'
 	INVOICE = 'invoice'
-	DISPENSARY = 'dispensary'
 
 ALL_LOAN_TYPES = [
 	LoanTypeEnum.LINE_OF_CREDIT,
 	LoanTypeEnum.INVENTORY,
 	LoanTypeEnum.INVOICE,
-	LoanTypeEnum.DISPENSARY,
 ]
 
 PRODUCT_TYPE_TO_LOAN_TYPE = {
@@ -152,7 +150,7 @@ PRODUCT_TYPE_TO_LOAN_TYPE = {
 	ProductType.LINE_OF_CREDIT: LoanTypeEnum.LINE_OF_CREDIT,
 	ProductType.INVOICE_FINANCING: LoanTypeEnum.INVOICE,
 	ProductType.PURCHASE_MONEY_FINANCING: LoanTypeEnum.INVENTORY,
-	ProductType.DISPENSARY_FINANCING: LoanTypeEnum.DISPENSARY,
+	ProductType.DISPENSARY_FINANCING: LoanTypeEnum.INVENTORY,
 }
 
 # Fees

@@ -257,13 +257,13 @@ class TestListArtifactsForCreateLoan(db_unittest.TestCase):
 			'product_type': db_constants.ProductType.DISPENSARY_FINANCING,
 			'loans': [
 				models.Loan(
-					loan_type=db_constants.LoanTypeEnum.DISPENSARY,
+					loan_type=db_constants.LoanTypeEnum.INVENTORY,
 					requested_payment_date=date_util.load_date_str('10/01/2020'),
 					amount=decimal.Decimal(200.02),
 					status=db_constants.LoanStatusEnum.APPROVAL_REQUESTED
 				),
 				models.Loan(
-					loan_type=db_constants.LoanTypeEnum.DISPENSARY,
+					loan_type=db_constants.LoanTypeEnum.INVENTORY,
 					requested_payment_date=date_util.load_date_str('10/01/2020'),
 					amount=decimal.Decimal(130.02),
 					status=db_constants.LoanStatusEnum.APPROVED,
