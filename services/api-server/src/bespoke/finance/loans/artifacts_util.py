@@ -131,7 +131,8 @@ def list_artifacts_for_create_loan(
 		return ListArtifactsResp(artifacts=[], status='OK'), None
 
 	elif product_type == db_constants.ProductType.INVENTORY_FINANCING \
-		or product_type == db_constants.ProductType.PURCHASE_MONEY_FINANCING:
+		or product_type == db_constants.ProductType.PURCHASE_MONEY_FINANCING \
+		or product_type == db_constants.ProductType.DISPENSARY_FINANCING:
 		artifacts = _list_artifacts_for_inventory(company_id, loan_id, session_maker)
 		return ListArtifactsResp(artifacts=artifacts, status='OK'), None
 
@@ -139,4 +140,4 @@ def list_artifacts_for_create_loan(
 		artifacts = _list_artifacts_for_invoice(company_id, loan_id, session_maker)
 		return ListArtifactsResp(artifacts=artifacts, status='OK'), None
 
-	raise errors.Error('Invalid product type provided')
+	raise errors.Error('Provided product type is not valid')

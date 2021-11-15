@@ -28,7 +28,8 @@ function PolymorphicLoansDataGrid({
 }: ArtifactLoansDataGridFlagProps & ArtifactLoansDataGridLoansProps & Props) {
   if (
     productType === ProductTypeEnum.InventoryFinancing ||
-    productType === ProductTypeEnum.PurchaseMoneyFinancing
+    productType === ProductTypeEnum.PurchaseMoneyFinancing ||
+    productType === ProductTypeEnum.DispensaryFinancing
   ) {
     return (
       <PurchaseOrderLoansDataGrid

@@ -252,6 +252,41 @@ class TestListArtifactsForCreateLoan(db_unittest.TestCase):
 		}
 		self._run_test(test)
 
+	def test_dispensary_financing_exclude_deleted_loan(self) -> None:
+		test: Dict = {
+			'product_type': db_constants.ProductType.DISPENSARY_FINANCING,
+			'loans': [
+				models.Loan(
+					loan_type=db_constants.LoanTypeEnum.DISPENSARY,
+					requested_payment_date=date_util.load_date_str('10/01/2020'),
+					amount=decimal.Decimal(200.02),
+					status=db_constants.LoanStatusEnum.APPROVAL_REQUESTED
+				),
+				models.Loan(
+					loan_type=db_constants.LoanTypeEnum.DISPENSARY,
+					requested_payment_date=date_util.load_date_str('10/01/2020'),
+					amount=decimal.Decimal(130.02),
+					status=db_constants.LoanStatusEnum.APPROVED,
+					is_deleted=True,
+				)
+			],
+			'artifacts': [
+				models.PurchaseOrder(
+					amount=decimal.Decimal(700.0)
+				),
+			],
+			'loan_artifact_indices': [0, 0],
+			'loan_id_index': 0,
+			'expected_artifacts': [
+				{
+					'artifact_id': None, # filled in by test
+					'total_amount': 700.0,
+					'amount_remaining': 700.0,
+				}
+			]
+		}
+		self._run_test(test)
+
 	def test_invoice_financing_many_loans_from_two_purchase_orders(self) -> None:
 		ADVANCE_RATE = 0.8
 

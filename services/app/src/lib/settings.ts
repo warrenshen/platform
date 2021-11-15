@@ -15,6 +15,7 @@ export function isVendorsTabVisible(productType: ProductTypeEnum | null) {
         ProductTypeEnum.InventoryFinancing,
         ProductTypeEnum.LineOfCredit,
         ProductTypeEnum.PurchaseMoneyFinancing,
+        ProductTypeEnum.DispensaryFinancing,
       ].includes(productType))
   );
 }

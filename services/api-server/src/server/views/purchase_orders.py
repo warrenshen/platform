@@ -279,7 +279,10 @@ class RespondToApprovalRequestView(MethodView):
 					session=session
 				)
 				if err:
-					raise err
+					if err.msg.find("psycopg2.errors.ForeignKeyViolation"):
+						raise errors.Error('Unable to submit autofinanced loan.')
+					else:
+						raise err
 
 				if submit_resp:
 					# Only trigger the email if indeed we performed autofinancing

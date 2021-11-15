@@ -54,6 +54,29 @@ def _get_line_of_credit_contract() -> models.Contract:
 		)
 	)
 
+def _get_dispensary_contract(
+	use_preceeding_business_day: bool,
+	days_until_repayment: int,
+	wire_fee: float = 0.0
+) -> models.Contract:
+	return models.Contract(
+		product_type=ProductType.DISPENSARY_FINANCING,
+		start_date=date_util.load_date_str('10/01/2020'),
+		end_date=date_util.load_date_str('12/31/2020'),
+		adjusted_end_date=date_util.load_date_str('12/31/2020'),
+		product_config=contract_test_helper.create_contract_config(
+			product_type=ProductType.DISPENSARY_FINANCING,
+			input_dict=ContractInputDict(
+				wire_fee=wire_fee,
+				interest_rate=0.05,
+				maximum_principal_amount=120000.01,
+				max_days_until_repayment=days_until_repayment,
+				late_fee_structure='', # unused
+				preceeding_business_day=use_preceeding_business_day
+			)
+		)
+	)
+
 class TestFundLoansWithAdvance(db_unittest.TestCase):
 
 	def _run_test(self, test: Dict) -> None:
@@ -721,6 +744,124 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'subtype': 'wire_fee'
 					}
 				]
+			}
+		]
+
+		for test in tests:
+			self._run_test(test)
+
+	def test_successful_dispensary_financing_loan(self) -> None:
+		tests: List[Dict] = [
+			{
+				'comment': 'Test multiple dispensary loans approved from one customer',
+				'company_settings_by_company_index': {
+					0: {
+						'advances_bespoke_bank_account_id': 'dc12e58e-6378-450c-a753-943533f7ae88',
+						'advances_bank_account_id': 'cc12e58e-6378-450c-a753-943533f7ae88',
+					},
+				},
+				'contracts_by_company_index': {
+					0: [
+						_get_dispensary_contract(
+							use_preceeding_business_day=False,
+							days_until_repayment=10,
+							wire_fee=50.0,
+						)
+					],
+					1: [
+						_get_dispensary_contract(
+							use_preceeding_business_day=False,
+							days_until_repayment=20,
+							wire_fee=60.0
+						)
+					]
+				},
+				'vendors': [
+					{
+						'id': 'c012e58e-6378-450c-a753-943533f7ae88',
+						'company_index': 0,
+						'vendor_bank_id': 'ba12e58e-6378-450c-a753-943533f7ae88',
+					},
+				],
+				'purchase_orders': [
+					{
+						'id': 'a012e58e-6378-450c-a753-943533f7ae88',
+						'vendor_id': 'c012e58e-6378-450c-a753-943533f7ae88',
+						'amount': 40.04,
+					},
+				],
+				'loans': [
+					{
+						'amount': 10.01,
+						'artifact_id': 'a012e58e-6378-450c-a753-943533f7ae88',
+					},
+					{
+						'amount': 20.02,
+						'artifact_id': 'a012e58e-6378-450c-a753-943533f7ae88',
+					}
+				],
+				'company_indices': [0, 0],
+				'advances': [
+					{
+						'should_charge_wire_fee': True,
+						'payment_method': PaymentMethodEnum.WIRE,
+						'payment_date': '10/18/2020',
+						'settlement_date': '10/20/2020',
+						'payment_input_amount': 30.03,
+						'loan_indices': [0, 1]
+					}
+				],
+				'expected_loans': [
+					{
+						'disbursement_identifier': '1A',
+						'amount': 10.01,
+						'maturity_date': '10/30/2020',
+						'adjusted_maturity_date': '10/30/2020'
+					},
+					{
+						'disbursement_identifier': '1B',
+						'amount': 20.02,
+						'maturity_date': '10/30/2020',
+						'adjusted_maturity_date': '10/30/2020'
+					}
+				],
+				'expected_payments': [
+					{
+						'settlement_identifier': '1',
+						'amount': 30.03,
+						'company_index': 0,
+						'type': 'advance',
+						'method': PaymentMethodEnum.WIRE,
+						'recipient_bank_account_id': 'ba12e58e-6378-450c-a753-943533f7ae88',
+						'bank_note': 'D0-1A,D0-1B'
+					},
+					{
+						'amount': 50.00,
+						'company_index': 0,
+						'type': 'fee'
+					}
+				],
+				'expected_transactions': [
+					{
+						'amount': 10.01,
+						'loan_index': 0,
+						'payment_index': 0,
+						'type': 'advance'
+					},
+					{
+						'amount': 20.02,
+						'loan_index': 1,
+						'payment_index': 0,
+						'type': 'advance'
+					},
+					{
+						'amount': 50.00,
+						'loan_index': None,
+						'payment_index': 1,
+						'type': 'fee',
+						'subtype': 'wire_fee'
+					}
+				],
 			}
 		]
 
