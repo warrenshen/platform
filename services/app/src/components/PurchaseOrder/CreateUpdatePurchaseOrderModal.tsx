@@ -30,9 +30,9 @@ import {
   createUpdatePurchaseOrderAsDraftMutation,
   updatePurchaseOrderMutation,
 } from "lib/api/purchaseOrders";
-import { ActionType, FeatureFlagEnum } from "lib/enum";
 import { isFeatureFlagEnabled } from "lib/companies";
 import { todayMinusXDaysDateStringServer } from "lib/date";
+import { ActionType, FeatureFlagEnum, ProductTypeEnum } from "lib/enum";
 import { isNull, mergeWith, uniqBy } from "lodash";
 import { useContext, useMemo, useState } from "react";
 import styled from "styled-components";
@@ -51,7 +51,7 @@ const StyledButton = styled(Button)`
 
   height: 128px;
   padding: 8px 0px;
-  background-color: rgba(0, 0, 0, 0.07);
+  background-color: rgba(0, 0, 0, 0.07) !important;
 `;
 
 const Banner = styled.div`
@@ -64,13 +64,14 @@ const Banner = styled.div`
   padding-left: 16px;
   padding-right: 8px;
 
-  background-color: rgb(232, 244, 253);
+  background-color: rgb(232, 244, 253) !important;
 `;
 
 interface Props {
   actionType: ActionType;
   companyId: Companies["id"];
   purchaseOrderId: PurchaseOrders["id"] | null;
+  productType: ProductTypeEnum;
   handleClose: () => void;
 }
 
@@ -78,6 +79,7 @@ export default function CreateUpdatePurchaseOrderModal({
   actionType,
   companyId,
   purchaseOrderId,
+  productType,
   handleClose,
 }: Props) {
   const snackbar = useSnackbar();
@@ -195,6 +197,21 @@ export default function CreateUpdatePurchaseOrderModal({
     variables: {
       company_id: companyId,
     },
+    onCompleted: (data) => {
+      /**
+       * If product type is Dispensary Financing and Metrc key(s) are configured,
+       * then default to the "create purchase order from Metrc transfers" flow.
+       */
+      if (productType === ProductTypeEnum.DispensaryFinancing) {
+        const metrcApiKeys = data?.companies_by_pk?.metrc_api_keys || [];
+        if (metrcApiKeys.length > 0) {
+          setPurchaseOrder({
+            ...purchaseOrder,
+            is_metrc_based: true,
+          });
+        }
+      }
+    },
   });
 
   if (selectableVendorsError) {
@@ -203,6 +220,25 @@ export default function CreateUpdatePurchaseOrderModal({
       `Error in query (details in console): ${selectableVendorsError.message}`
     );
   }
+
+  const companySettings = data?.companies_by_pk?.settings;
+  const selectableVendors = data?.vendors || [];
+
+  const metrcApiKeys = data?.companies_by_pk?.metrc_api_keys || [];
+  /**
+   * Flow "create purchase order from Metrc transfers" is enabled if:
+   * 1. Metrc key(s) are configured.
+   * 2. Product type is Dispensary Financing OR appropriate feature flag is enabled.
+   */
+  const isMetrcEnabled =
+    metrcApiKeys.length > 0 &&
+    (productType === ProductTypeEnum.DispensaryFinancing ||
+      (companySettings &&
+        isFeatureFlagEnabled(
+          companySettings,
+          FeatureFlagEnum.CREATE_PURCHASE_ORDER_FROM_METRC_TRANSFERS
+        )));
+  const isMetrcBased = purchaseOrder.is_metrc_based;
 
   const {
     data: companyDeliveriesData,
@@ -221,9 +257,6 @@ export default function CreateUpdatePurchaseOrderModal({
       `Error in query (details in console): ${companyDeliveriesError.message}`
     );
   }
-
-  const companySettings = data?.companies_by_pk?.settings;
-  const selectableVendors = data?.vendors || [];
 
   const allCompanyDeliveries = useMemo(
     () =>
@@ -276,16 +309,6 @@ export default function CreateUpdatePurchaseOrderModal({
       return notSelectedCompanyDeliveries;
     }
   }, [allCompanyDeliveries, selectedCompanyDeliveries]);
-
-  const metrcApiKeys = data?.companies_by_pk?.metrc_api_keys || [];
-  const isMetrcEnabled =
-    companySettings &&
-    isFeatureFlagEnabled(
-      companySettings,
-      FeatureFlagEnum.CREATE_PURCHASE_ORDER_FROM_METRC_TRANSFERS
-    ) &&
-    metrcApiKeys.length > 0;
-  const isMetrcBased = purchaseOrder.is_metrc_based;
 
   const [
     createUpdatePurchaseOrderAsDraft,

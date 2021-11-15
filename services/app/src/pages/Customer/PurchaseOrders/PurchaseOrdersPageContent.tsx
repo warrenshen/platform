@@ -39,7 +39,10 @@ export default function CustomerPurchaseOrdersPageContent({
           productType={productType}
         />
       ) : (
-        <CustomerPurchaseOrdersClosedTab companyId={companyId} />
+        <CustomerPurchaseOrdersClosedTab
+          companyId={companyId}
+          productType={productType}
+        />
       )}
     </PageContent>
   );

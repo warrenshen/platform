@@ -12,14 +12,14 @@ import { CompanyFragment } from "generated/graphql";
 
 const useStyles = makeStyles({
   card: {
-    width: 350,
+    width: 400,
     minHeight: 100,
   },
   baseInput: {
     width: 300,
   },
   label: {
-    width: 150,
+    width: 200,
     color: grey[600],
   },
 });

@@ -21,7 +21,7 @@ const Manifest = styled.div`
 
 const CloseButton = styled(Button)`
   width: 36px;
-  min-width: 36px;
+  min-width: 36px !important;
   height: 36px;
 `;
 

@@ -54,6 +54,20 @@ export function isPurchaseMoneyFinancingProductType(
 ) {
   return productType === ProductTypeEnum.PurchaseMoneyFinancing;
 }
+
+export function isPurchaseOrderProductType(
+  productType: ProductTypeEnum | null
+) {
+  return (
+    !!productType &&
+    [
+      ProductTypeEnum.DispensaryFinancing,
+      ProductTypeEnum.InventoryFinancing,
+      ProductTypeEnum.PurchaseMoneyFinancing,
+    ].includes(productType)
+  );
+}
+
 export class SettingsHelper {
   _productType: ProductTypeEnum;
 

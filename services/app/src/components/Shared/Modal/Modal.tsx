@@ -41,10 +41,10 @@ const CloseButtonContainer = styled.div`
 
 const CloseButton = styled(Button)`
   width: 48px;
-  min-width: 48px;
+  min-width: 48px !important;
   height: 48px;
-  border: 1px solid #c7c7c7;
-  border-radius: 24px;
+  border: 1px solid #c7c7c7 !important;
+  border-radius: 24px !important;
 `;
 
 const HeaderContent = styled.div`

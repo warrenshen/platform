@@ -210,6 +210,7 @@ export default function CustomerPurchaseOrdersOpenTab({
                   actionType={ActionType.New}
                   companyId={companyId}
                   purchaseOrderId={null}
+                  productType={productType}
                   handleClose={() => {
                     refetch();
                     handleClose();
@@ -228,6 +229,7 @@ export default function CustomerPurchaseOrdersOpenTab({
                     actionType={ActionType.Update}
                     companyId={companyId}
                     purchaseOrderId={selectedNotApprovedPurchaseOrder?.id}
+                    productType={productType}
                     handleClose={() => {
                       refetch();
                       handleClose();
@@ -326,6 +328,7 @@ export default function CustomerPurchaseOrdersOpenTab({
                       actionType={ActionType.Update}
                       companyId={companyId}
                       purchaseOrderId={selectedApprovedPurchaseOrder?.id}
+                      productType={productType}
                       handleClose={() => {
                         refetch();
                         handleClose();

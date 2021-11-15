@@ -99,15 +99,10 @@ const getCustomerPaths = (
         component: BankCustomerOverviewSubpage,
       },
       {
-        dataCy: "customer-loans",
-        label: "Loans",
-        path: bankRoutes.company.loans,
-        component: BankCustomerLoansSubpage,
-      },
-      {
         visible:
           !!productType &&
           [
+            ProductTypeEnum.DispensaryFinancing,
             ProductTypeEnum.InventoryFinancing,
             ProductTypeEnum.PurchaseMoneyFinancing,
           ].includes(productType),
@@ -115,15 +110,6 @@ const getCustomerPaths = (
         label: "Purchase Orders",
         path: bankRoutes.company.purchaseOrders,
         component: BankCustomerPurchaseOrdersSubpage,
-      },
-      {
-        dataCy: "customer-financials",
-        label:
-          !!productType && [ProductTypeEnum.LineOfCredit].includes(productType)
-            ? "Borrowing Base"
-            : "Financial Certifications",
-        path: bankRoutes.company.ebbaApplications,
-        component: BankCustomerEbbaApplicationsSubpage,
       },
       {
         visible:
@@ -138,10 +124,25 @@ const getCustomerPaths = (
         component: BankCustomerInvoicesSubpage,
       },
       {
+        dataCy: "customer-loans",
+        label: "Loans",
+        path: bankRoutes.company.loans,
+        component: BankCustomerLoansSubpage,
+      },
+      {
         dataCy: "customer-repayments",
         label: "Repayments",
         path: bankRoutes.company.payments,
         component: BankCustomerPaymentsSubpage,
+      },
+      {
+        dataCy: "customer-financials",
+        label:
+          !!productType && [ProductTypeEnum.LineOfCredit].includes(productType)
+            ? "Borrowing Base"
+            : "Financial Certifications",
+        path: bankRoutes.company.ebbaApplications,
+        component: BankCustomerEbbaApplicationsSubpage,
       },
       {
         visible: isVendorsTabVisible(productType),

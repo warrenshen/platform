@@ -121,17 +121,11 @@ const getCustomerNavItems = (
       link: customerRoutes.overview,
     },
     {
-      dataCy: "loans",
-      visible: !!productType,
-      iconNode: LoansIcon,
-      text: "Loans",
-      link: customerRoutes.loans,
-    },
-    {
       dataCy: "purchase-orders",
       visible:
         !!productType &&
         [
+          ProductTypeEnum.DispensaryFinancing,
           ProductTypeEnum.InventoryFinancing,
           ProductTypeEnum.PurchaseMoneyFinancing,
         ].includes(productType),
@@ -150,6 +144,13 @@ const getCustomerNavItems = (
       iconNode: InvoicesIcon,
       text: "Invoices",
       link: customerRoutes.invoices,
+    },
+    {
+      dataCy: "loans",
+      visible: !!productType,
+      iconNode: LoansIcon,
+      text: "Loans",
+      link: customerRoutes.loans,
     },
     {
       dataCy: "repayments",

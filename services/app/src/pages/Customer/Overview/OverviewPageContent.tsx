@@ -39,10 +39,9 @@ import {
   ProductTypeToLoanType,
 } from "lib/enum";
 import {
-  isInventoryFinancingProductType,
   isInvoiceFinancingProductType,
   isLineOfCreditProductType,
-  isPurchaseMoneyFinancingProductType,
+  isPurchaseOrderProductType,
 } from "lib/settings";
 import { useContext, useMemo, useState } from "react";
 
@@ -140,7 +139,7 @@ export default function CustomerOverviewPageContent({
   /**
    * Customer Overview page shows 2 customer actions.
    * 1. Create artifact action.
-   * - If Inventory Financing or Purchase Money Financing, "Create PO".
+   * - If Dispensary Financing, Inventory Financing, or Purchase Money Financing, "Create PO".
    * - If Invoice Financing, "Create Invoice".
    * - If Line of Credit, "Request New Loan" (this creates LineOfCredit row and Loan row).
    * 2. Make repayment action, "Make Repayment".
@@ -209,10 +208,7 @@ export default function CustomerOverviewPageContent({
               />
             </Box>
           </Can>
-          {(isInventoryFinancingProductType(productType) ||
-            isPurchaseMoneyFinancingProductType(
-              productType as ProductTypeEnum
-            )) && (
+          {isPurchaseOrderProductType(productType) && (
             <Can perform={Action.AddPurchaseOrders}>
               <Box mr={2}>
                 <ModalButton
@@ -224,6 +220,7 @@ export default function CustomerOverviewPageContent({
                       actionType={ActionType.New}
                       companyId={companyId}
                       purchaseOrderId={null}
+                      productType={productType}
                       handleClose={() => {
                         refetch();
                         handleClose();

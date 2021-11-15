@@ -10,7 +10,7 @@ import {
   useGetClosedPurchaseOrdersByCompanyIdQuery,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
-import { ActionType } from "lib/enum";
+import { ActionType, ProductTypeEnum } from "lib/enum";
 import { useMemo, useState } from "react";
 import styled from "styled-components";
 
@@ -35,9 +35,13 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   companyId: Companies["id"];
+  productType: ProductTypeEnum;
 }
 
-export default function CustomerPurchaseOrdersClosedTab({ companyId }: Props) {
+export default function CustomerPurchaseOrdersClosedTab({
+  companyId,
+  productType,
+}: Props) {
   const classes = useStyles();
 
   const { data, error, refetch } = useGetClosedPurchaseOrdersByCompanyIdQuery({
@@ -94,6 +98,7 @@ export default function CustomerPurchaseOrdersClosedTab({ companyId }: Props) {
                       actionType={ActionType.Update}
                       companyId={companyId}
                       purchaseOrderId={selectedPurchaseOrder?.id}
+                      productType={productType}
                       handleClose={() => {
                         refetch();
                         handleClose();
