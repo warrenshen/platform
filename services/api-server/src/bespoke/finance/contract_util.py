@@ -712,6 +712,7 @@ class Contract(object):
 			ProductType.INVENTORY_FINANCING: InventoryFinancingContract,
 			ProductType.INVOICE_FINANCING: InvoiceFinancingContract,
 			ProductType.PURCHASE_MONEY_FINANCING: PMFContract,
+			ProductType.DISPENSARY_FINANCING: DispensaryFinancingContract
 		}.get(product_type)
 
 		if not Constructor:
@@ -761,6 +762,19 @@ class InventoryFinancingContract(Contract):
 		_, err = self.get_fee_multiplier(days_past_due=1)
 		return err
 
+class DispensaryFinancingContract(Contract):
+	"""Stubbed subclass so that we can start handling the vagaries of
+	different contract types"""
+
+	def __init__(self, c: models.ContractDict, private: bool) -> None:
+		super(DispensaryFinancingContract, self).__init__(c, private)
+
+	def validate(self) -> errors.Error:
+		err = super().validate()
+		if err:
+			return err
+		_, err = self.get_fee_multiplier(days_past_due=1)
+		return err
 
 class InvoiceFinancingContract(Contract):
 

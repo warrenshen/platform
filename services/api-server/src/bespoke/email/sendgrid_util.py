@@ -24,6 +24,8 @@ class TemplateNames(object):
 	VENDOR_APPROVED_NOTIFY_VENDOR = 'vendor_approved_notify_vendor' # to vendor
 	VENDOR_TO_APPROVE_PURCHASE_ORDER = 'vendor_to_approve_purchase_order' # to vendor
 
+	DISPENSARY_VENDOR_AGREEMENT = 'dispensary_vendor_agreement'
+
 	# Email sent to Bespoke when a customer requests approval from a vendor who does not have a bank account set up.
 	CUSTOMER_REQUESTED_APPROVAL_NO_VENDOR_BANK_ACCOUNT = 'customer_requested_approval_no_vendor_bank_account'
 
@@ -113,7 +115,10 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 		'id': 'd-17349ff8699a44f18da7144452d3731a',
 		'requires_secure_link': True
 	},
-
+	TemplateNames.DISPENSARY_VENDOR_AGREEMENT: {
+		'id': 'd-5777d853722d49dabb1f4461895f0742',
+		'requires_secure_link': False
+	},
 	TemplateNames.CUSTOMER_REQUESTED_APPROVAL_NO_VENDOR_BANK_ACCOUNT: {
 		'id': 'd-9d47d43627704e85b422f351db2769bc',
 		'requires_secure_link': False

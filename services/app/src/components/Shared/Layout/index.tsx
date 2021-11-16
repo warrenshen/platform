@@ -196,6 +196,7 @@ const getCustomerNavItems = (
           ProductTypeEnum.InventoryFinancing,
           ProductTypeEnum.InvoiceFinancing,
           ProductTypeEnum.PurchaseMoneyFinancing,
+          ProductTypeEnum.DispensaryFinancing,
         ].includes(productType),
       iconNode: ReportsIcon,
       text: "Reports",
@@ -295,7 +296,7 @@ const getBankNavItems = (
       link: bankRoutes.reports,
     },
     {
-      dataCy: "reports",
+      dataCy: "metrc",
       iconNode: MetrcIcon,
       text: "Metrc",
       link: bankRoutes.metrcRoot,

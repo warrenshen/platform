@@ -299,6 +299,13 @@ class CreatePartnershipView(MethodView):
 					models.Company.id == customer_id
 				).first())
 
+			partner_id = resp['company_id']
+			partner = cast(
+				models.Company,
+				session.query(models.Company).filter(
+					models.Company.id == partner_id
+				).first())
+
 			customer_settings = cast(
 				models.CompanySettings,
 				session.query(models.CompanySettings).filter(
@@ -326,6 +333,7 @@ class CreatePartnershipView(MethodView):
 			if err:
 				raise err
 			is_loc_customer = product_type == db_constants.ProductType.LINE_OF_CREDIT
+			is_dispensary_customer = product_type == db_constants.ProductType.DISPENSARY_FINANCING
 
 			if resp['company_type'] == db_constants.CompanyType.Payor:
 				docusign_link = customer_settings.payor_agreement_docusign_template
@@ -333,21 +341,39 @@ class CreatePartnershipView(MethodView):
 			elif is_loc_customer and resp['company_type'] == db_constants.CompanyType.Vendor:
 				docusign_link = customer_settings.vendor_onboarding_link
 				template_name = sendgrid_util.TemplateNames.VENDOR_ONBOARDING_LINE_OF_CREDIT
+			elif is_dispensary_customer and resp['company_type'] == db_constants.CompanyType.Vendor:
+				docusign_link = None
+				template_name = sendgrid_util.TemplateNames.DISPENSARY_VENDOR_AGREEMENT
+
+				onboarding_link = customer_settings.vendor_onboarding_link \
+					if customer_settings.vendor_onboarding_link is not None else ""
+				show_onboarding = "True" if onboarding_link is not None else ""
 			elif resp['company_type'] == db_constants.CompanyType.Vendor: 
 				docusign_link = customer_settings.vendor_agreement_docusign_template
 				template_name = sendgrid_util.TemplateNames.VENDOR_AGREEMENT_WITH_CUSTOMER
 			else:
 				raise errors.Error('Unexpected company_type {}'.format(resp['company_type']))
 
-			template_data = {
-				'customer_name': customer.get_display_name(),
-				'docusign_link': docusign_link,
-			}
+			if is_dispensary_customer:
+				template_data = {
+					'customer_name': customer.get_display_name(),
+					'partner_name': partner.get_display_name(),
+					'show_onboarding': show_onboarding,
+					'onboarding_link': '<a href="' + onboarding_link + '" target="_blank">guide for new partners</a>',
+					'support_email': '<a href="mailto:support@bespokefinancial.com">support@bespokefinancial.com</a>'
+				}
+			else:
+				template_data = {
+					'customer_name': customer.get_display_name(),
+					'docusign_link': docusign_link,
+				}
 			recipients = company_emails
 			_, err = sendgrid_client.send(
 				template_name, template_data, recipients)
 			if err:
 				raise err
+
+			raise errors.Error("Error for testing")
 
 		return make_response(json.dumps({
 			'status': 'OK',

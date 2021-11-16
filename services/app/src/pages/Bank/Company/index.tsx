@@ -171,6 +171,7 @@ const getCustomerPaths = (
             ProductTypeEnum.InventoryFinancing,
             ProductTypeEnum.InvoiceFinancing,
             ProductTypeEnum.PurchaseMoneyFinancing,
+            ProductTypeEnum.DispensaryFinancing,
           ].includes(productType),
         dataCy: "customer-reports",
         label: "Reports",
