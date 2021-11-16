@@ -54,7 +54,7 @@ def _run_analysis_for_customer(d: download_util.Download, q: Query, params: Anal
 
 	util.print_counts(id_to_history)
 	util.run_orphan_analysis(d, id_to_history, params)
-	counts_analysis_dict = util.create_inventory_xlsx(id_to_history, q, params=params)
+	counts_analysis_dict = util.create_inventory_xlsx(d, id_to_history, q, params=params)
 
 	## Compute accuracy numbers for COGS and inventory
 	logging.info('Computing inventory for {}'.format(q.company_name))
@@ -142,7 +142,8 @@ def main() -> None:
 		use_prices_to_fill_missing_incoming=False,
 		external_pricing_data_config=None,
 		use_margin_estimate_config=False,
-		margin_estimate_config=None
+		margin_estimate_config=None,
+		cogs_analysis_params=None
 	)
 	# Pricing table only
 	params2 = util.AnalysisParamsDict(
@@ -151,7 +152,8 @@ def main() -> None:
 		use_prices_to_fill_missing_incoming=True,
 		external_pricing_data_config=None,
 		use_margin_estimate_config=False,
-		margin_estimate_config=None
+		margin_estimate_config=None,
+		cogs_analysis_params=None
 	)
 	# Pricing table + parenting logic
 	params3 = util.AnalysisParamsDict(
@@ -160,7 +162,8 @@ def main() -> None:
 		use_prices_to_fill_missing_incoming=True,
 		external_pricing_data_config=None,
 		use_margin_estimate_config=False,
-		margin_estimate_config=None
+		margin_estimate_config=None,
+		cogs_analysis_params=None
 	)
 	summaries = _compute_inventory_for_customer('RA', [params, params2, params3], dry_run=dry_run)
 	inventory_summary_util.write_excel_for_summaries(summaries)

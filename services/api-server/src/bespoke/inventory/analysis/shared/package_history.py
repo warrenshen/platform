@@ -70,6 +70,25 @@ def _find_matching_package_by_date(
 
 	return None
 
+def estimate_price_of_package_using_margin(
+	original_quantity: float,
+	margin_estimate: float,
+	history: 'PackageHistory'
+) -> float:
+	revenue_from_pkg = 0.0
+	quantity_sold = 0.0
+	for sales_tx in history.sales_txs:
+		revenue_from_pkg += sales_tx['tx_total_price']
+		quantity_sold += sales_tx['tx_quantity_sold']
+
+	price = 0.0
+	if quantity_sold > 0:
+		unit_revenue = revenue_from_pkg / quantity_sold
+		unit_cogs = unit_revenue * (1 - margin_estimate)
+		price = unit_cogs * original_quantity
+
+	return price
+
 class PackageHistory(object):
 	"""
 		Grab all the information we know about this package, and then compute multiple fields on it
@@ -314,6 +333,7 @@ class PackageHistory(object):
 			cur_txs.append(tx)
 			cur_transfer_pkg['date_to_txs'][cur_date] = cur_txs
 			revenue_from_pkg += tx['tx_total_price']
+			estimated_original_quantity += tx['tx_quantity_sold']
 
 		lines = []
 		verbose = p.verbose
@@ -340,18 +360,22 @@ class PackageHistory(object):
 
 				shipped_quantity = incoming_pkg['quantity']
 				price_of_pkg = incoming_pkg['price']
+
 				if not price_of_pkg or numpy.isnan(price_of_pkg):
 					# Try to find the price if there is margin estimate provided
-					if params.get('use_margin_estimate_config', False) and estimated_original_quantity:
+					if params.get('use_margin_estimate_config', False) and shipped_quantity:
 
 						margin_estimate = params['margin_estimate_config']['category_to_margin_estimate'].get(
 							incoming_pkg['product_category_name']
 						)
 						if margin_estimate is not None:
-							price_of_pkg = revenue_from_pkg * (1 - margin_estimate)
+							price_of_pkg = estimate_price_of_package_using_margin(
+								original_quantity=estimated_original_quantity,
+								margin_estimate=margin_estimate,
+								history=self
+							)
 							incoming_pkg['price'] = price_of_pkg
-							incoming_pkg['shipper_wholesale_price'] = price_of_pkg
-							incoming_pkg['receiver_wholesale_price'] = price_of_pkg
+							self.are_prices_inferred = True
 
 				if not price_of_pkg or numpy.isnan(price_of_pkg):
 					self.should_exclude = True

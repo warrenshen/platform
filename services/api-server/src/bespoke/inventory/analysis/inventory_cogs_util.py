@@ -79,12 +79,23 @@ BottomsupDetailsDict = TypedDict('BottomsupDetailsDict', {
 	'pct_transactions_with_cost': float
 })
 
+# TODO(dlluncor): Need tests for COGs summary code
 def _create_cogs_summary_for_all_dates(
 	package_id_to_history: Dict[str, PackageHistory],
-	params: AnalysisParamsDict
+	params: AnalysisParamsDict,
+	debug_package_id: str,
+	debug_profit_threshold: float
 ) -> BottomsupDetailsDict:
 
 	year_month_to_summary: Dict[finance_types.Month, MonthSummaryDict] = {}
+
+	def _get_dummy_summary() -> MonthSummaryDict:
+		return MonthSummaryDict(
+				cogs=0.0,
+				revenue=0.0,
+				num_transactions_with_price_info=0,
+				num_transactions_total=0
+		)
 
 	def _get_summary(cur_date: datetime.date) -> MonthSummaryDict:
 		month = finance_types.Month(
@@ -101,33 +112,96 @@ def _create_cogs_summary_for_all_dates(
 
 		return year_month_to_summary[month]
 
-	for package_id, history in package_id_to_history.items():
-
-		# Previous COGS code
-		"""
-		if history.incomings and history.sales_txs:
-			# Needs at least 1 sales tx to be considered part of COGS
-			incoming_pkg = history.incomings[-1]
-			summary = _get_summary(incoming_pkg['received_date'])
-			if not numpy.isnan(incoming_pkg['shipper_wholesale_price']):
-				summary['cogs'] += incoming_pkg['shipper_wholesale_price']
-		"""
-
+	def _calculate_cogs_for_package(
+		history: PackageHistory, add_to_summary: bool, increase_cost_by_quantity: bool = False) -> float:
 		has_price_info = len(history.incomings) > 0
 		per_unit_cost = 0.0
 		if has_price_info:
-			incoming_pkg = history.incomings[-1]	
-			per_unit_cost = incoming_pkg['price'] / incoming_pkg['quantity']
-				
+			incoming_pkg = history.incomings[-1]
+			if increase_cost_by_quantity:
+				per_unit_cost = incoming_pkg['price'] # The price is the price for one quantity when using this flag
+			else:
+				per_unit_cost = incoming_pkg['price'] / incoming_pkg['quantity']
+
+		pkg_revenue = 0.0
+		pkg_cogs = 0.0
+
 		for sales_tx in history.sales_txs:
-			summary = _get_summary(sales_tx['sales_date'])
+			summary = _get_summary(sales_tx['sales_date']) if add_to_summary else _get_dummy_summary()
+
+			cur_revenue = 0.0
 			if not numpy.isnan(sales_tx['tx_total_price']):
 				summary['revenue'] += sales_tx['tx_total_price']
+				cur_revenue = sales_tx['tx_total_price']
+				pkg_revenue += cur_revenue
 
 			summary['num_transactions_total'] += 1
 			if has_price_info:
-				summary['cogs'] += sales_tx['tx_quantity_sold'] * per_unit_cost 
+				cur_cogs = sales_tx['tx_quantity_sold'] * per_unit_cost 
+				summary['cogs'] += cur_cogs
 				summary['num_transactions_with_price_info'] += 1
+				pkg_cogs += cur_cogs
+
+		if pkg_revenue:
+			pkg_profit_margin = round(1 - (pkg_cogs / pkg_revenue), 2)
+		else:
+			pkg_profit_margin = 0.0
+
+		if debug_package_id or (debug_profit_threshold and pkg_profit_margin > debug_profit_threshold):
+			inferred_str = ' INFERRED' if history.are_prices_inferred else ''
+			print('PKG PROFIT MARGIN{} {}. ID={}, incoming as {}'.format(
+				inferred_str, pkg_profit_margin, history.package_id,
+				history.incomings[-1]['unit_of_measure']))
+
+		return pkg_profit_margin
+
+
+	readjust_profit_threshold = params.get('cogs_analysis_params', {}).get('readjust_profit_threshold')
+	readjust_type = params.get('cogs_analysis_params', {}).get('readjust_type', '')
+	total_packages = 0
+	total_packages_filtered = 0
+
+	if debug_package_id:
+		_calculate_cogs_for_package(package_id_to_history[debug_package_id], add_to_summary=True)
+	else:
+		for package_id, history in package_id_to_history.items():
+			total_packages += 1
+			# This first call is to just calculate the profit margin before we make
+			# any updates to the COGs summary
+			pkg_profit_margin = _calculate_cogs_for_package(history, add_to_summary=False)			
+			above_profit_threshold = pkg_profit_margin > readjust_profit_threshold if readjust_profit_threshold else False
+			should_skip = False
+			increase_cost_by_quantity = False
+
+			if readjust_type == 'remove':
+				should_skip = bool(readjust_profit_threshold) and above_profit_threshold
+			elif readjust_type == 'adjust':
+				# If the profit threshold is very high (say above 90 to 95%) its likely
+				# that this number is misreported in Metrc, and that the cost is really
+				# a per unit cost, not the cost of the entire package.	
+				increase_cost_by_quantity = bool(readjust_profit_threshold) and above_profit_threshold
+			elif readjust_type == '':
+				pass
+			else:
+				raise Exception('Invalid readjust_type provided in the cogs_analysis_params. Got {}. Valid options are "remove" or "adjust"'.format(
+					readjust_type))
+
+			if not should_skip:
+				_calculate_cogs_for_package(
+					history, 
+					add_to_summary=True, 
+					increase_cost_by_quantity=increase_cost_by_quantity
+				)
+			else:
+				total_packages_filtered += 1
+
+	if readjust_type == 'remove':
+		logging.info('{}% packages filtered from COGS analysis ({} / {}) due to having a profit margin above {}'.format(
+			round(total_packages_filtered / total_packages * 100, 2),
+			total_packages_filtered, 
+			total_packages, 
+			readjust_profit_threshold
+		))
 
 	bottomsup_total_cogs = 0.0
 	num_transactions_total = 0
@@ -182,8 +256,8 @@ def _create_top_down_cogs_summary_for_all_dates(
 
 		summary = _get_summary(incoming_pkg['received_date'])
 		
-		if not numpy.isnan(incoming_pkg['shipper_wholesale_price']):
-			summary['cogs'] += incoming_pkg['shipper_wholesale_price']
+		if not numpy.isnan(incoming_pkg['price']):
+			summary['cogs'] += incoming_pkg['price']
 
 		incoming_pkg_ids_seen.add(incoming_pkg['package_id'])
 
@@ -262,13 +336,21 @@ def write_cogs_xlsx(
 		wb.save(f)
 		logging.info('Wrote result to {}'.format(filepath))
 
-def create_cogs_summary(d: Download, id_to_history: Dict[str, PackageHistory], params: AnalysisParamsDict) -> CogsSummaryDict:
+def create_cogs_summary(
+	d: Download, 
+	id_to_history: Dict[str, PackageHistory], 
+	params: AnalysisParamsDict,
+	debug_package_id: str = None,
+	debug_profit_threshold: float = None
+	) -> CogsSummaryDict:
 	topdown_details = _create_top_down_cogs_summary_for_all_dates(
 			d, params 
 	)
 
 	bottomsup_details = _create_cogs_summary_for_all_dates(
-		id_to_history, params
+		id_to_history, params, 
+		debug_package_id=debug_package_id, 
+		debug_profit_threshold=debug_profit_threshold
 	)
 
 	return CogsSummaryDict(

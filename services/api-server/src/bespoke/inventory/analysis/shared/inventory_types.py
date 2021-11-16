@@ -18,6 +18,7 @@ InventoryPackageDict = TypedDict('InventoryPackageDict', {
 	'source_production_batch_numbers': str,
 	'production_batch_number': str,
 	'source_harvest_names': str,
+	'packaged_date': str,
 	'archived_date': str,
 	'finished_date': str
 })
@@ -66,13 +67,23 @@ MarginEstimateConfigDict = TypedDict('MarginEstimateConfigDict', {
 	'category_to_margin_estimate': Dict[str, float]
 })
 
+CogsAnalysisParamsDict = TypedDict('CogsAnalysisParamsDict', {
+	# Anything above this threshold is assumed to be unreliable
+	'readjust_profit_threshold': float,
+	# So using the readjust_type, we either assume this item was priced
+	# on a per-unit basis (so we need to multiply the cost by the number of items purchased)
+	# or, we just ignore certain packages that have profits above a certain threshold
+	'readjust_type': str
+})
+
 AnalysisParamsDict = TypedDict('AnalysisParamsDict', {
 	'sold_threshold': float,
 	'find_parent_child_relationships': bool,
 	'use_prices_to_fill_missing_incoming': bool,
 	'external_pricing_data_config': PricingDataConfigDict,
 	'use_margin_estimate_config': bool,
-	'margin_estimate_config': MarginEstimateConfigDict
+	'margin_estimate_config': MarginEstimateConfigDict,
+	'cogs_analysis_params': CogsAnalysisParamsDict
 })
 
 NotableEventDict = TypedDict('NotableEventDict', {

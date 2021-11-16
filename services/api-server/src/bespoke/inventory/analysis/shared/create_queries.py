@@ -619,6 +619,7 @@ def are_packages_inactive_query(package_ids: Iterable[str]) -> str:
 					metrc_packages.type,
 					metrc_packages.package_id,
 					metrc_packages.package_label,
+					metrc_packages.packaged_date,
 					metrc_packages.product_category_name,
 					metrc_packages.product_name,
 					metrc_packages.quantity,

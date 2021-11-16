@@ -11,7 +11,10 @@ from collections import OrderedDict
 from mypy_extensions import TypedDict
 
 from bespoke.db.db_constants import DeliveryType
-from bespoke.inventory.analysis.shared.package_history import PackageHistory
+from bespoke.inventory.analysis.shared.package_history import (
+	PackageHistory,
+	estimate_price_of_package_using_margin
+)
 from bespoke.inventory.analysis.shared import inventory_common_util
 from bespoke.inventory.analysis.shared.inventory_common_util import (
 	parse_to_date, parse_to_datetime, date_to_str, print_if,
@@ -52,117 +55,6 @@ DataframesForMatchingDict = TypedDict('DataframesForMatchingDict', {
 	'child_to_parent_package_id_override': Dict[str, str]
 })
 
-def _create_new_with_average_price(incoming_pkgs: List[TransferPackageDict]) -> TransferPackageDict:
-	
-	new_incoming_pkg = copy.deepcopy(incoming_pkgs[-1])
-	total_cost = 0.0
-	total_quantity = 0.0
-
-	for incoming_pkg in incoming_pkgs:
-
-		if math.isclose(incoming_pkg['price'], 0.01):
-			continue
-
-		# NOTE: Assume same units for now
-		total_cost += incoming_pkg['price']
-		total_quantity += incoming_pkg['quantity']
-
-	new_incoming_pkg['price'] = total_cost
-	new_incoming_pkg['quantity'] = total_quantity
-
-	return new_incoming_pkg
-
-def _determine_match_based_on_harvest(
-	pkg: InventoryPackageDict, parent_package_ids: List[str], package_id_to_history: Dict[str, PackageHistory]) -> HarvestMatchRespDict:
-
-	item_id_to_count = {}
-	parent_incoming_pkgs = []
-
-	child_product_category_type = pkg['item_product_category_type']
-	matching_parent_incoming_pkgs = []
-
-	for parent_package_id in parent_package_ids:
-		cur_parent_history = package_id_to_history[parent_package_id]
-		
-		if cur_parent_history.incomings: 
-			parent_incoming_pkgs.append(cur_parent_history.incomings[-1])
-
-		item_id = ''
-		parent_product_category_type = ''
-
-		cur_parent_pkg = cur_parent_history.active_inventory_pkg
-		if cur_parent_pkg:
-			item_id = cur_parent_pkg['item_id']
-			parent_product_category_type = cur_parent_pkg['item_product_category_type']
-
-		if cur_parent_history.inactive_pkg:
-			item_id = cur_parent_history.inactive_pkg['item_id']
-			parent_product_category_type = cur_parent_history.inactive_pkg['item_product_category_type']
-
-		if not item_id:
-			# We need the current inventory package to make determinations about whether its
-			# the parent of this child.
-			#
-			# Unfortunately the transfer package doesnt 
-			return HarvestMatchRespDict(
-				has_match=False,
-				incoming_pkg=None
-			)
-
-		if parent_product_category_type == child_product_category_type:
-			# Also try to match the parent based on the product category type
-			matching_parent_incoming_pkgs.append(cur_parent_history.incomings[-1])
-
-		if item_id not in item_id_to_count:
-			item_id_to_count[item_id] = 0
-
-		item_id_to_count[item_id] += 1
-
-	child_package_id = pkg['package_id']
-
-	if len(list(item_id_to_count.keys())) == 1:
-		final_incoming_pkg = _create_new_with_average_price(parent_incoming_pkgs)
-		return HarvestMatchRespDict(
-			has_match=True,
-			incoming_pkg=final_incoming_pkg
-		)
-
-	if matching_parent_incoming_pkgs:
-		#print('FOUND MATCHING PARENTS {} for type {}'.format(
-		#	len(matching_parent_incoming_pkgs), child_product_category_type))
-		final_incoming_pkg = _create_new_with_average_price(matching_parent_incoming_pkgs)
-		return HarvestMatchRespDict(
-			has_match=True,
-			incoming_pkg=final_incoming_pkg
-		)
-
-	return HarvestMatchRespDict(
-		has_match=False,
-		incoming_pkg=None
-	)
-
-
-# TODO(dlluncor): The whole parenting thing is broken until we can
-# construct a proper incoming package when we find a parent
-
-def _set_price_from_parent_package(
-	incoming_pkg: TransferPackageDict,
-	parent_incoming_pkg: TransferPackageDict,
-	child_original_quantity: float,
-) -> Tuple[bool, str]:
-	parent_original_quantity = parent_incoming_pkg['quantity']
-	parent_wholesale_price = parent_incoming_pkg['price']
-	
-	incoming_pkg['quantity'] = child_original_quantity
-
-	if math.isclose(parent_original_quantity, 0.0):
-		return False, 'Excluding package {} because parent has 0 original quantity and cant divide by zero'.format(
-			incoming_pkg['package_id'])
-
-	per_unit_price = parent_wholesale_price / parent_original_quantity
-	incoming_pkg['price'] = per_unit_price * child_original_quantity
-	return True, None
-
 def _find_parents_by_productionbatch_and_harvest(
 	d: DataframesForMatchingDict, package_id_to_history: Dict[str, PackageHistory],
 	resp: MatchingParentRespDict, debug_package_id: str) -> None:
@@ -197,7 +89,7 @@ def _find_parents_by_productionbatch_and_harvest(
 			#print(sourceharvestnum)
 			pass
 
-	def _get_incoming_pkg(package_id: str) -> TransferPackageDict:
+	def _get_copy_of_incoming_pkg(package_id: str) -> TransferPackageDict:
 		if package_id not in package_id_to_history:
 			raise Exception('Trying to get an incoming package ID for parent package_id={} which has no incoming transfer'.format(package_id))
 
@@ -207,6 +99,35 @@ def _find_parents_by_productionbatch_and_harvest(
 			return None
 
 		return copy.deepcopy(parent_history.incomings[-1])
+
+	def _create_incoming_pkg_for_child(
+		child_package_id: str, parent_package_id: str) -> TransferPackageDict:
+		
+		parent_incoming_pkg = _get_copy_of_incoming_pkg(parent_package_id)
+		child_incoming_pkg = parent_incoming_pkg
+		child_history = package_id_to_history[child_package_id]
+
+		# The child is a copy of the parent package with a few modifications
+		# mostly to the quantity and price estimate.
+		original_quantity, err = _get_original_quantity(child_history)
+		if err:
+			logging.error(err)
+			return None
+
+		parent_original_quantity = parent_incoming_pkg['quantity']
+		parent_wholesale_price = parent_incoming_pkg['price']
+		
+		child_incoming_pkg['quantity'] = original_quantity
+
+		if math.isclose(parent_original_quantity, 0.0):
+			per_unit_price = 0.0
+		else:
+			per_unit_price = parent_wholesale_price / parent_original_quantity
+		
+		child_incoming_pkg['price'] = per_unit_price * original_quantity
+
+		return child_incoming_pkg
+
 
 	orphan_child_package_ids = []
 	children_with_source_missing_parents = []
@@ -221,7 +142,8 @@ def _find_parents_by_productionbatch_and_harvest(
 		parent_package_id_override = d['child_to_parent_package_id_override'].get(child_package_id)
 		if parent_package_id_override:
 			child_to_parent_details[child_package_id] = {
-				'incoming_pkg': _get_incoming_pkg(parent_package_id_override),
+				'incoming_pkg': _create_incoming_pkg_for_child(
+					child_package_id, parent_package_id_override),
 				'parent_package_id': parent_package_id_override,
 				'is_synthetic': False,
 				'uses_parenting_logic': True
@@ -232,8 +154,6 @@ def _find_parents_by_productionbatch_and_harvest(
 		cur_harvestnames = pkg['source_harvest_names']
 		is_matching_debug_pkg = debug_package_id == pkg['package_id']
 		print_if(f'Child has source harvest names {cur_harvestnames}', is_matching_debug_pkg)
-
-		parent_package_ids = []
 
 		if cur_harvestnames in sourceharvestnum_to_package_ids:
 			for possible_parent_pkg_id in sourceharvestnum_to_package_ids[cur_harvestnames]:
@@ -247,7 +167,8 @@ def _find_parents_by_productionbatch_and_harvest(
 				# its the parent of this child.
 				parent_package_id = sourceharvestnum_to_package_ids[cur_harvestnames][0]
 				child_to_parent_details[child_package_id] = {
-					'incoming_pkg': _get_incoming_pkg(parent_package_id),
+					'incoming_pkg': _create_incoming_pkg_for_child(
+						child_package_id, parent_package_id),
 					'parent_package_id': parent_package_id,
 					'is_synthetic': False,
 					'uses_parenting_logic': True
@@ -255,32 +176,12 @@ def _find_parents_by_productionbatch_and_harvest(
 				print_if('Found parent based on single parent matching harvest name', is_matching_debug_pkg)
 				continue
 			else:
-				parent_package_ids = sourceharvestnum_to_package_ids[cur_harvestnames]
-				match_resp = _determine_match_based_on_harvest(
-					pkg, parent_package_ids, package_id_to_history
-				)
-				if match_resp['has_match']:
-					print_if('Found parent based on inference logic using harvest name', is_matching_debug_pkg)
-					child_to_parent_details[child_package_id] = {
-						'incoming_pkg': match_resp['incoming_pkg'],
-						'parent_package_id': None,
-						'is_synthetic': True,
-						'uses_parenting_logic': True
-					}
-					continue
+				# Dont infer when things are ambiguous
+				pass
 
 		batch_no = pkg['source_production_batch_numbers']
 		if not batch_no:
 			orphan_child_package_ids.append(child_package_id)
-			#print(parent_package_ids)
-			#print(pkg['package_id'])
-			
-			#harvest_names = pkg['package_payload']['sourceharvestnames']
-			#if harvest_names:
-			#	print(pkg['package_payload']['sourceharvestnames'])
-			#else:
-			#	print('<empty>')
-
 			resp['num_orphans'] += 1
 			continue
 		
@@ -295,7 +196,8 @@ def _find_parents_by_productionbatch_and_harvest(
 		print_if('Found parent based on production batch num', is_matching_debug_pkg)
 		parent_package_id = productionbatchnum_to_package_id[batch_no]
 		child_to_parent_details[child_package_id] = {
-			'incoming_pkg': _get_incoming_pkg(parent_package_id),
+			'incoming_pkg': _create_incoming_pkg_for_child(
+				child_package_id, parent_package_id),
 			'parent_package_id': parent_package_id,
 			'is_synthetic': False,
 			'uses_parenting_logic': True
@@ -427,17 +329,11 @@ def _create_incoming_pkg_using_margin_estimate(
 			history.package_id, err))
 		return None
 
-	revenue_from_pkg = 0.0
-	quantity_sold = 0.0
-	for sales_tx in history.sales_txs:
-		revenue_from_pkg += sales_tx['tx_total_price']
-		quantity_sold += sales_tx['tx_quantity_sold']
-
-	price = 0.0
-	if quantity_sold > 0:
-		unit_revenue = revenue_from_pkg / quantity_sold
-		unit_cogs = unit_revenue * (1 - margin_estimate)
-		price = unit_cogs * quantity
+	price = estimate_price_of_package_using_margin(
+		original_quantity=quantity,
+		margin_estimate=margin_estimate,
+		history=history
+	)
 
 	received_datetime = _get_one_day_before_first_sale(history)
 

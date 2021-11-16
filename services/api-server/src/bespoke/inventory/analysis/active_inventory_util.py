@@ -103,7 +103,7 @@ def _get_inventory_output_row(history: 'PackageHistory', inventory_date: datetim
 
 	current_value = 0.0
 	if incoming_pkg['quantity']:
-		current_value = incoming_pkg['price'] / incoming_pkg['quantity'] * cur_quantity
+		current_value = incoming_pkg['price'] / incoming_pkg['quantity'] * cur_quantity 
 
 	return [
 		history.package_id,
@@ -121,6 +121,48 @@ def _get_inventory_output_row(history: 'PackageHistory', inventory_date: datetim
 		incoming_pkg['unit_of_measure'] or '',
 		round(current_value, 2),
 		date_to_str(sold_date) if sold_date else '',
+		'true' if is_in_inventory else ''
+	]
+
+def _get_inventory_output_row_for_actual_inventory(
+	history: 'PackageHistory', 
+	inventory_date: datetime.date,
+	inventory_pkg: InventoryPackageDict) -> List[CellValue]:
+	incoming_pkg = _get_incoming_pkg_for_date(history.incomings, inventory_date)
+	sold_date = history.computed_info.get('sold', {}).get('date')
+	
+	if not incoming_pkg and history.incomings:
+		# If we dont have an incoming package, use the latest one just so
+		# we can show the caller some details about this package.
+		#
+		# The inventory will end up being 0
+		incoming_pkg = history.incomings[-1]	
+
+	cur_quantity = inventory_pkg['quantity']
+	current_value = 0.0
+	if incoming_pkg and incoming_pkg['quantity']:
+		current_value = incoming_pkg['price'] / incoming_pkg['quantity'] * cur_quantity
+
+	pkg = inventory_pkg
+	
+	return [
+		history.package_id,
+		incoming_pkg['license_number'] if incoming_pkg else pkg['license_number'],
+		date_to_str(incoming_pkg['received_date']) if incoming_pkg else date_to_str(
+			parse_to_date(pkg['packaged_date'])),
+		round(incoming_pkg['price'], 2) if incoming_pkg else 0.0,
+		round(incoming_pkg['quantity'], 2) if incoming_pkg else 0.0,
+		'{}'.format(history.uses_parenting_logic),
+		'{}'.format(history.are_prices_inferred),
+
+		incoming_pkg['product_category_name'] if incoming_pkg else pkg['product_category_name'],
+		incoming_pkg['product_name'] if incoming_pkg else pkg['product_name'],
+
+		cur_quantity if cur_quantity != -1 else 0,
+		incoming_pkg['unit_of_measure'] or '',
+		round(current_value, 2),
+		date_to_str(sold_date) if sold_date else '',
+		'true'
 	]
 
 def _to_dataframes_for_matching(d: Download) -> parent_util.DataframesForMatchingDict:
@@ -202,7 +244,7 @@ def get_histories(d: Download, params: AnalysisParamsDict) -> Dict[str, PackageH
 
 		child_history = package_id_to_history[child_package_id]
 		child_history.incomings.append(parent_info['incoming_pkg'])
-		child_history.uses_parenting_logic = True
+		child_history.uses_parenting_logic = parent_info['uses_parenting_logic']
 		child_history.are_prices_inferred = parent_info['is_synthetic']
 
 	return package_id_to_history
@@ -380,10 +422,7 @@ def create_inventory_dataframe_by_date(
 			continue
 
 		is_in_inventory = history.in_inventory_at_date(inventory_date)
-		is_in_inventory_str = 'true' if is_in_inventory else ''
-
 		package_record = _get_inventory_output_row(history, inventory_date, is_in_inventory)
-		package_record.append(is_in_inventory_str)
 		package_records += [package_record]
 
 	return package_records
@@ -692,10 +731,45 @@ def compare_computed_vs_actual_inventory(
 	)
 	return res
 
+def _write_current_inventory(
+	q: Query,
+	inventory_packages_records: List[InventoryPackageDict],
+	id_to_history: Dict[str, PackageHistory]) -> None:
+
+	# Write the current inventory in the same format we do the computed packages
+	wb = excel_writer.WorkbookWriter(xlwt.Workbook())
+	sheet = wb.add_sheet('Current inventory')
+	first = True
+
+	for inventory_pkg in inventory_packages_records:
+		history = id_to_history.get(inventory_pkg['package_id'])
+		if not history:
+			logging.info(f'WARN: {inventory_pkg["package_id"]} does not have a history but is in the current inventory')
+			continue
+
+		if first:
+			sheet.add_row(get_inventory_column_names())
+			first = False
+
+		row = _get_inventory_output_row_for_actual_inventory(
+			history=history,
+			inventory_date=parse_to_date(q.inventory_dates[-1]),
+			inventory_pkg=inventory_pkg
+		)
+		sheet.add_row(row)
+
+	filepath = f'out/{q.company_name}_current_inventory.xls'
+	with open(filepath, 'wb') as f:
+		wb.save(f)
+		logging.info('Wrote result to {}'.format(filepath))
+
 def create_inventory_xlsx(
-	id_to_history: Dict[str, PackageHistory], q: Query, params: AnalysisParamsDict,
+	d: Download,
+	id_to_history: Dict[str, PackageHistory], 
+	q: Query, 
+	params: AnalysisParamsDict,
 	show_debug_package_ids: bool = False) -> CountsAnalysisDict:
-		
+
 	i = 0
 	num_excluded = 0
 	num_total = 0
@@ -749,11 +823,17 @@ def create_inventory_xlsx(
 	
 	Path('out').mkdir(parents=True, exist_ok=True)
 
-	filepath = f'out/{q.company_name}_inventory_by_month.xls'
+	filepath = f'out/{q.company_name}_computed_inventory_by_month.xls'
 	with open(filepath, 'wb') as f:
 		wb.save(f)
 		logging.info('Wrote result to {}'.format(filepath))
 			
+	_write_current_inventory(
+		q=q,
+		inventory_packages_records=d.inventory_packages_records,
+		id_to_history=id_to_history
+	)
+
 	pct_excluded = num_excluded / num_total * 100
 	pct_excluded_str = '{:.2f}'.format(pct_excluded)
 	print(f'Excluded {num_excluded} / {num_total} packages from consideration ({pct_excluded_str}%)')
