@@ -11,7 +11,11 @@ import {
   CurrentUserContext,
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
-import { Companies, FinancialSummaryFragment } from "generated/graphql";
+import {
+  Companies,
+  ContractFragment,
+  FinancialSummaryFragment,
+} from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import {
   BankCompanyRouteEnum,
@@ -19,8 +23,9 @@ import {
   customerRoutes,
 } from "lib/routes";
 import { ProductTypeEnum } from "lib/enum";
+import { isMinimumInterestFeeActive } from "lib/contracts";
 import { round } from "lodash";
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
@@ -32,13 +37,14 @@ const LinkText = styled.span`
 interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum;
+  contract: ContractFragment | null;
   financialSummary: FinancialSummaryFragment | null;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     box: {
-      width: "20%",
+      flex: 1,
       paddingRight: 12,
     },
   })
@@ -47,6 +53,7 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function CustomerFinancialSummaryOverview({
   companyId,
   productType,
+  contract,
   financialSummary,
 }: Props) {
   const classes = useStyles();
@@ -55,6 +62,11 @@ export default function CustomerFinancialSummaryOverview({
     user: { role },
   } = useContext(CurrentUserContext);
   const isBankUser = isRoleBankUser(role);
+
+  const isMinimumInterestFeeDueVisible = useMemo(
+    () => (contract ? isMinimumInterestFeeActive(contract) : false),
+    [contract]
+  );
 
   const minimumFeePayload = financialSummary?.minimum_monthly_payload;
 
@@ -185,17 +197,19 @@ export default function CustomerFinancialSummaryOverview({
             </Typography>
           </Box>
         </Box>
-        <Box className={classes.box}>
-          <Box display="flex" flexDirection="column">
-            <Typography variant="h5">
-              {minimumFee !== -1 ? formatCurrency(minimumFee) : "TBD"}
-            </Typography>
-            <Typography variant="subtitle1" color="textSecondary">
-              Minimum Interest Fee
-              {minimumFee !== -1 ? " Due " + feeDuration : ""}
-            </Typography>
+        {isMinimumInterestFeeDueVisible && (
+          <Box className={classes.box}>
+            <Box display="flex" flexDirection="column">
+              <Typography variant="h5">
+                {minimumFee !== -1 ? formatCurrency(minimumFee) : "TBD"}
+              </Typography>
+              <Typography variant="subtitle1" color="textSecondary">
+                Minimum Interest Fee
+                {minimumFee !== -1 ? " Due " + feeDuration : ""}
+              </Typography>
+            </Box>
           </Box>
-        </Box>
+        )}
         <Box className={classes.box}>
           <Box display="flex" flexDirection="column">
             <Typography variant="h5">

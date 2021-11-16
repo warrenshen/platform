@@ -23861,6 +23861,7 @@ export type GetCustomerOverviewQueryVariables = Exact<{
 export type GetCustomerOverviewQuery = {
   companies_by_pk?: Maybe<
     Pick<Companies, "id"> & {
+      contract?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
       outstanding_loans: Array<
         Pick<Loans, "id"> & LoanLimitedFragment & LoanArtifactLimitedFragment
       >;
@@ -25145,11 +25146,6 @@ export type CompanyLicenseFragment = Pick<
   "id" | "company_id" | "file_id" | "license_number"
 >;
 
-export type ContractLimitedFragment = Pick<
-  Contracts,
-  "id" | "company_id" | "product_type"
->;
-
 export type CompanyLimitedFragment = Pick<
   Companies,
   "id" | "name" | "dba_name"
@@ -26161,13 +26157,6 @@ export const CompanyAgreementFragmentDoc = gql`
     id
     company_id
     file_id
-  }
-`;
-export const ContractLimitedFragmentDoc = gql`
-  fragment ContractLimited on contracts {
-    id
-    company_id
-    product_type
   }
 `;
 export const CompanyLimitedFragmentDoc = gql`
@@ -27403,6 +27392,10 @@ export const GetCustomerOverviewDocument = gql`
   query GetCustomerOverview($company_id: uuid!, $loan_type: loan_type_enum) {
     companies_by_pk(id: $company_id) {
       id
+      contract {
+        id
+        ...Contract
+      }
       outstanding_loans: loans(
         where: {
           _and: [
@@ -27453,6 +27446,7 @@ export const GetCustomerOverviewDocument = gql`
       }
     }
   }
+  ${ContractFragmentDoc}
   ${LoanLimitedFragmentDoc}
   ${LoanArtifactLimitedFragmentDoc}
   ${PaymentLimitedFragmentDoc}

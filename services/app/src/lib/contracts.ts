@@ -432,3 +432,29 @@ export function createProductConfigForServer(
     },
   };
 }
+
+/**
+ * Returns boolean of whether a minimum interest fee is set up in given contract.
+ */
+export function isMinimumInterestFeeActive(contract: ContractFragment) {
+  const existingContractFields = contract
+    ? contract.product_config.v1.fields
+    : [];
+  const minimumMonthlyAmount =
+    existingContractFields.find(
+      (field: any) => field.internal_name === "minimum_monthly_amount"
+    )?.value || null;
+  const minimumQuarterlyAmount =
+    existingContractFields.find(
+      (field: any) => field.internal_name === "minimum_quarterly_amount"
+    )?.value || null;
+  const minimumAnnualAmount =
+    existingContractFields.find(
+      (field: any) => field.internal_name === "minimum_annual_amount"
+    )?.value || null;
+  return !!(
+    minimumMonthlyAmount ||
+    minimumQuarterlyAmount ||
+    minimumAnnualAmount
+  );
+}

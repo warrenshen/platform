@@ -101,6 +101,7 @@ export default function CustomerOverviewPageContent({
   }
 
   const company = data?.companies_by_pk;
+  const contract = company?.contract || null;
   const payments = company?.pending_payments || [];
   const loans = company?.outstanding_loans || [];
   const settings = company?.settings || null;
@@ -297,6 +298,7 @@ export default function CustomerOverviewPageContent({
           <CustomerFinancialSummaryOverview
             companyId={companyId}
             productType={productType}
+            contract={contract}
             financialSummary={financialSummary}
           />
         </Box>

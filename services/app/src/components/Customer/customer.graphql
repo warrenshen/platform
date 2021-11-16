@@ -17,6 +17,10 @@ query GetCustomerOverview(
 ) {
   companies_by_pk(id: $company_id) {
     id
+    contract {
+      id
+      ...Contract
+    }
     outstanding_loans: loans(
       where: {
         _and: [
