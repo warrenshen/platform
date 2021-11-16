@@ -77,7 +77,10 @@ export class SettingsHelper {
   }
 
   shouldShowVendorOnboardingLink(): boolean {
-    return this._productType === ProductTypeEnum.LineOfCredit;
+    return (
+      this._productType === ProductTypeEnum.LineOfCredit ||
+      this._productType === ProductTypeEnum.DispensaryFinancing
+    );
   }
 
   shouldShowVendorAgreement(): boolean {
