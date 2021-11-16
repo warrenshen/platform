@@ -359,7 +359,7 @@ class CreatePartnershipView(MethodView):
 					'customer_name': customer.get_display_name(),
 					'partner_name': partner.get_display_name(),
 					'show_onboarding': show_onboarding,
-					'onboarding_link': '<a href="' + onboarding_link + '" target="_blank">guide for new partners</a>',
+					'onboarding_link': '<a href="' + onboarding_link + '" target="_blank">Bespoke Vendor Onboarding Form</a>',
 					'support_email': '<a href="mailto:support@bespokefinancial.com">support@bespokefinancial.com</a>'
 				}
 			else:
