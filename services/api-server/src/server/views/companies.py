@@ -373,8 +373,6 @@ class CreatePartnershipView(MethodView):
 			if err:
 				raise err
 
-			raise errors.Error("Error for testing")
-
 		return make_response(json.dumps({
 			'status': 'OK',
 			'company_id': resp['company_id'],
