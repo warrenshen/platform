@@ -30,7 +30,7 @@ describe("Create line of credit contract for existing customer", () => {
 
       // Enter contract non-terms information.
       cy.dataCy("contract-form-input-product-type").click();
-      cy.dataCy("contract-form-input-product-type-menu-item-0").click();
+      cy.dataCy("contract-form-input-product-type-menu-item-3").click();
       cy.dataCySelector("contract-form-input-start-date", "input").type(
         "05/19/2021"
       );

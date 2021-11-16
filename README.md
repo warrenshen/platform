@@ -48,7 +48,7 @@ Note: please configure your Docker service to have AT LEAST 4GB of memory.
 From the `services` directory, to start up hot-reloading services to be used by Cypress integration tests...
 
 ```
-docker-compose -f docker-compose.cypress.yaml up
+docker-compose -f docker-compose.cypress.yaml -p cypress up
 ```
 
 From the `services/app` directory, to start up the Cypress service...
