@@ -88,7 +88,7 @@ class PackageHistory(object):
 		
 		self.computed_info: ComputedInfoDict = {}
 		self.is_parent = False # Whether this package is a parent of spawned child packages
-		self.is_child_of_parent = False # Whether this package is a child spawned from a parent package
+		self.uses_parenting_logic = False # Whether this package is a child spawned from a parent package
 		self.are_prices_inferred = False # When we have to make a guess about the cost of the child by inferring what the parent was
 		self.should_exclude = False
 		self.exclude_reason = ''
@@ -284,7 +284,7 @@ class PackageHistory(object):
 
 		self.sales_txs.sort(key = lambda x: x['sales_datetime'])
 
-		if self.is_child_of_parent and not self.active_inventory_pkg and not self.inactive_pkg:
+		if self.uses_parenting_logic and not self.active_inventory_pkg and not self.inactive_pkg:
 			if in_debug_mode:
 				logging.info(f'We should always have the actual inventory or inactive package for a child package. Package ID {self.package_id}')
 			
@@ -292,8 +292,7 @@ class PackageHistory(object):
 			self.exclude_reason = ExcludeReason.CHILD_MISSING_INVENTORY_PACKAGE
 			return False
 
-		# Estimate the original quantity of a package by taking how much of it we have in
-		# metrc_packages
+		revenue_from_pkg = 0.0
 		estimated_original_quantity = 0.0
 		if self.active_inventory_pkg:
 			estimated_original_quantity = float(self.active_inventory_pkg['quantity'])
@@ -314,37 +313,7 @@ class PackageHistory(object):
 			cur_txs = cur_transfer_pkg['date_to_txs'].get(cur_date, [])
 			cur_txs.append(tx)
 			cur_transfer_pkg['date_to_txs'][cur_date] = cur_txs
-
-			estimated_original_quantity += tx['tx_quantity_sold']
-
-		if self.is_child_of_parent:
-			assert len(self.incomings) == 1
-			for incoming_pkg in self.incomings:
-				# We copied the parent's incoming_pkg into the child's incoming_pkg, and
-				# we take the chance here to modify it according to the percentage
-				# that this child contributed to the overall parent,
-				# e.g.,
-				#
-				# parent may have been shipped_quantity 100, price $1000
-				#
-				# child now has a quantity of 2, and it was sold 8 times, therefore
-				# we believe the child started off with quantity 10, and its "cost"
-				# is $1000 / 10, and its shipped_quantity is 10
-
-				parent_original_quantity = incoming_pkg['quantity']
-				parent_wholesale_price = incoming_pkg['price']
-				child_original_quantity = estimated_original_quantity
-				incoming_pkg['quantity'] = child_original_quantity
-				if math.isclose(parent_original_quantity, 0.0):
-					self.should_exclude = True
-					self.exclude_reason = ExcludeReason.PARENT_HAS_ZERO_QUANTITY
-					p.info('Excluding package {} because parent has 0 original quantity and cant divide by zero'.format(
-						self.package_id))
-					return False
-
-				per_unit_price = parent_wholesale_price / parent_original_quantity
-				incoming_pkg['price'] = per_unit_price * child_original_quantity
-				pass
+			revenue_from_pkg += tx['tx_total_price']
 
 		lines = []
 		verbose = p.verbose
@@ -372,16 +341,17 @@ class PackageHistory(object):
 				shipped_quantity = incoming_pkg['quantity']
 				price_of_pkg = incoming_pkg['price']
 				if not price_of_pkg or numpy.isnan(price_of_pkg):
-					# Try to find the price if there is an external pricing config specified
-					if params.get('use_prices_to_fill_missing_incoming', False):
-						price_per_unit_of_measure, err = inventory_common_util.get_estimated_price_per_unit_of_measure(
-							product_category_name=incoming_pkg['product_category_name'],
-							unit_of_measure=incoming_pkg['unit_of_measure'],
-							external_pricing_data_config=params['external_pricing_data_config']
+					# Try to find the price if there is margin estimate provided
+					if params.get('use_margin_estimate_config', False) and estimated_original_quantity:
+
+						margin_estimate = params['margin_estimate_config']['category_to_margin_estimate'].get(
+							incoming_pkg['product_category_name']
 						)
-						if not err:
-							price_of_pkg = incoming_pkg['quantity'] * price_per_unit_of_measure
+						if margin_estimate is not None:
+							price_of_pkg = revenue_from_pkg * (1 - margin_estimate)
 							incoming_pkg['price'] = price_of_pkg
+							incoming_pkg['shipper_wholesale_price'] = price_of_pkg
+							incoming_pkg['receiver_wholesale_price'] = price_of_pkg
 
 				if not price_of_pkg or numpy.isnan(price_of_pkg):
 					self.should_exclude = True

@@ -140,21 +140,27 @@ def main() -> None:
 		sold_threshold=package_history.DEFAULT_SOLD_THRESHOLD,
 		find_parent_child_relationships=False,
 		use_prices_to_fill_missing_incoming=False,
-		external_pricing_data_config=None
+		external_pricing_data_config=None,
+		use_margin_estimate_config=False,
+		margin_estimate_config=None
 	)
 	# Pricing table only
 	params2 = util.AnalysisParamsDict(
 		sold_threshold=package_history.DEFAULT_SOLD_THRESHOLD,
 		find_parent_child_relationships=False,
 		use_prices_to_fill_missing_incoming=True,
-		external_pricing_data_config=None
+		external_pricing_data_config=None,
+		use_margin_estimate_config=False,
+		margin_estimate_config=None
 	)
 	# Pricing table + parenting logic
 	params3 = util.AnalysisParamsDict(
 		sold_threshold=package_history.DEFAULT_SOLD_THRESHOLD,
 		find_parent_child_relationships=True,
 		use_prices_to_fill_missing_incoming=True,
-		external_pricing_data_config=None
+		external_pricing_data_config=None,
+		use_margin_estimate_config=False,
+		margin_estimate_config=None
 	)
 	summaries = _compute_inventory_for_customer('RA', [params, params2, params3], dry_run=dry_run)
 	inventory_summary_util.write_excel_for_summaries(summaries)

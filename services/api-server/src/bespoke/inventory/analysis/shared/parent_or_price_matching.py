@@ -24,13 +24,15 @@ from bespoke.inventory.analysis.shared.inventory_types import (
 	TransferPackageDict,
 	AnalysisParamsDict,
 	SalesTransactionDict,
-	PricingDataConfigDict
+	PricingDataConfigDict,
+	MarginEstimateConfigDict
 )
 
 ParentDetailsDict = TypedDict('ParentDetailsDict', {
 	'incoming_pkg': TransferPackageDict,
 	'parent_package_id': str,
-	'is_synthetic': bool
+	'is_synthetic': bool,
+	'uses_parenting_logic': bool
 })
 
 MatchingParentRespDict = TypedDict('MatchingParentRespDict', {
@@ -139,6 +141,28 @@ def _determine_match_based_on_harvest(
 		incoming_pkg=None
 	)
 
+
+# TODO(dlluncor): The whole parenting thing is broken until we can
+# construct a proper incoming package when we find a parent
+
+def _set_price_from_parent_package(
+	incoming_pkg: TransferPackageDict,
+	parent_incoming_pkg: TransferPackageDict,
+	child_original_quantity: float,
+) -> Tuple[bool, str]:
+	parent_original_quantity = parent_incoming_pkg['quantity']
+	parent_wholesale_price = parent_incoming_pkg['price']
+	
+	incoming_pkg['quantity'] = child_original_quantity
+
+	if math.isclose(parent_original_quantity, 0.0):
+		return False, 'Excluding package {} because parent has 0 original quantity and cant divide by zero'.format(
+			incoming_pkg['package_id'])
+
+	per_unit_price = parent_wholesale_price / parent_original_quantity
+	incoming_pkg['price'] = per_unit_price * child_original_quantity
+	return True, None
+
 def _find_parents_by_productionbatch_and_harvest(
 	d: DataframesForMatchingDict, package_id_to_history: Dict[str, PackageHistory],
 	resp: MatchingParentRespDict, debug_package_id: str) -> None:
@@ -199,7 +223,8 @@ def _find_parents_by_productionbatch_and_harvest(
 			child_to_parent_details[child_package_id] = {
 				'incoming_pkg': _get_incoming_pkg(parent_package_id_override),
 				'parent_package_id': parent_package_id_override,
-				'is_synthetic': False
+				'is_synthetic': False,
+				'uses_parenting_logic': True
 			}
 			continue
 
@@ -224,7 +249,8 @@ def _find_parents_by_productionbatch_and_harvest(
 				child_to_parent_details[child_package_id] = {
 					'incoming_pkg': _get_incoming_pkg(parent_package_id),
 					'parent_package_id': parent_package_id,
-					'is_synthetic': False
+					'is_synthetic': False,
+					'uses_parenting_logic': True
 				}
 				print_if('Found parent based on single parent matching harvest name', is_matching_debug_pkg)
 				continue
@@ -238,7 +264,8 @@ def _find_parents_by_productionbatch_and_harvest(
 					child_to_parent_details[child_package_id] = {
 						'incoming_pkg': match_resp['incoming_pkg'],
 						'parent_package_id': None,
-						'is_synthetic': True
+						'is_synthetic': True,
+						'uses_parenting_logic': True
 					}
 					continue
 
@@ -270,9 +297,9 @@ def _find_parents_by_productionbatch_and_harvest(
 		child_to_parent_details[child_package_id] = {
 			'incoming_pkg': _get_incoming_pkg(parent_package_id),
 			'parent_package_id': parent_package_id,
-			'is_synthetic': False
+			'is_synthetic': False,
+			'uses_parenting_logic': True
 		}
-
 
 	#print('Children missing source batch number: {}'.format(orphan_child_package_ids))
 	#print('')
@@ -280,40 +307,14 @@ def _find_parents_by_productionbatch_and_harvest(
 	#print('')
 	#print('Product batch num to parent id {}'.format(productionbatchnum_to_package_id))
 
-
-def _create_incoming_pkg_using_external_pricing(
-	pkg: InventoryPackageDict, 
-	history: PackageHistory, 
-	external_pricing_data_config: PricingDataConfigDict,
-	debug_package_id: str) -> TransferPackageDict:
-
-	price, err = inventory_common_util.get_estimated_price_per_unit_of_measure(
-		product_category_name=pkg['product_category_name'],
-		unit_of_measure=pkg['unit_of_measure'],
-		external_pricing_data_config=external_pricing_data_config
-	)
-	if err:
-		if debug_package_id:
-			logging.info(err)
-		return None
-
-	unit_of_measure = pkg['unit_of_measure']
-	quantity = 1.0
-
-	history.sales_txs.sort(key=lambda x: x['sales_datetime'])
-
-	# if we dont have any sales transactions, then assume weve had this
-	# package for an arbitrary number of days in the past.
-	# otherwise
-	# say we had the package 1 day before the first time it was sold
-	received_datetime = datetime.datetime.now() - timedelta(days=90)
-	if history.sales_txs:
-		received_datetime = history.sales_txs[0]['sales_datetime'] - timedelta(days=1)
-
-	if not received_datetime.tzinfo:
-		received_datetime = received_datetime.replace(tzinfo=pytz.UTC)
-
-	new_incoming_pkg = TransferPackageDict(
+def _create_transfer_pkg(
+	pkg: InventoryPackageDict,
+	unit_of_measure: str,
+	quantity: float,
+	price: float,
+	received_datetime: datetime.datetime,
+) -> TransferPackageDict:
+	return TransferPackageDict(
 		package_id=pkg['package_id'],
 		license_number=pkg['license_number'],
 		product_category_name=pkg['product_category_name'],
@@ -335,7 +336,133 @@ def _create_incoming_pkg_using_external_pricing(
 		received_date=received_datetime.date(),
 		date_to_txs=dict()
 	)
+
+def _get_one_day_before_first_sale(history: PackageHistory) -> datetime.datetime:
+	history.sales_txs.sort(key=lambda x: x['sales_datetime'])
+
+	# if we dont have any sales transactions, then assume weve had this
+	# package for an arbitrary number of days in the past.
+	# otherwise
+	# say we had the package 1 day before the first time it was sold
+	received_datetime = datetime.datetime.now() - timedelta(days=90)
+	if history.sales_txs:
+		received_datetime = history.sales_txs[0]['sales_datetime'] - timedelta(days=1)
+
+	if not received_datetime.tzinfo:
+		received_datetime = received_datetime.replace(tzinfo=pytz.UTC)
+
+	return received_datetime
+
+def _get_original_quantity(history: PackageHistory) -> Tuple[float, str]:
+
+	estimated_original_quantity = 0.0
+	if history.active_inventory_pkg:
+		estimated_original_quantity = float(history.active_inventory_pkg['quantity'])
+	elif history.inactive_pkg:
+		estimated_original_quantity = float(history.inactive_pkg['quantity'])
+	else:
+		return None, 'No active or inactive package found to estimate the original quantity'
+
+	for sales_tx in history.sales_txs:
+		estimated_original_quantity += sales_tx['tx_quantity_sold']
+
+	return estimated_original_quantity, None
+
+def _create_incoming_pkg_using_external_pricing(
+	pkg: InventoryPackageDict, 
+	history: PackageHistory, 
+	external_pricing_data_config: PricingDataConfigDict,
+	debug_package_id: str) -> TransferPackageDict:
+
+	price_per_unit, err = inventory_common_util.get_estimated_price_per_unit_of_measure(
+		product_category_name=pkg['product_category_name'],
+		unit_of_measure=pkg['unit_of_measure'],
+		external_pricing_data_config=external_pricing_data_config
+	)
+	if err:
+		if debug_package_id:
+			logging.info(err)
+		return None
+
+	unit_of_measure = pkg['unit_of_measure']
+	quantity, err = _get_original_quantity(history)
+	if err:
+		logging.info('Could not determine original quantity of package_id: {}. Err: {}'.format(
+			history.package_id, err))
+		return None
+
+	price = quantity * price_per_unit
+	received_datetime = _get_one_day_before_first_sale(history)
+
+	new_incoming_pkg = _create_transfer_pkg(
+		pkg=pkg,
+		unit_of_measure=unit_of_measure,
+		quantity=quantity,
+		price=price,
+		received_datetime=received_datetime
+	)
 	return new_incoming_pkg
+
+def _create_incoming_pkg_using_margin_estimate(
+	pkg: InventoryPackageDict, 
+	history: PackageHistory, 
+	margin_estimate_config: MarginEstimateConfigDict,
+	debug_package_id: str) -> TransferPackageDict:
+
+	margin_estimate = margin_estimate_config['category_to_margin_estimate'].get(
+		pkg['product_category_name'].lower()
+	)
+	if margin_estimate is None:
+		#if debug_package_id:
+		logging.info('Could not find a margin estimate for product category {}'.format(pkg['product_category_name']))
+		return None
+
+	# total_cost == price
+
+	# (1 - profit_margin) = total_cost / total_revenue
+	# total_cost = (1 - profit_margin) * total_revenue
+	quantity, err = _get_original_quantity(history)
+	if err:
+		logging.info('Could not determine original quantity of package_id: {}. Err: {}'.format(
+			history.package_id, err))
+		return None
+
+	revenue_from_pkg = 0.0
+	quantity_sold = 0.0
+	for sales_tx in history.sales_txs:
+		revenue_from_pkg += sales_tx['tx_total_price']
+		quantity_sold += sales_tx['tx_quantity_sold']
+
+	price = 0.0
+	if quantity_sold > 0:
+		unit_revenue = revenue_from_pkg / quantity_sold
+		unit_cogs = unit_revenue * (1 - margin_estimate)
+		price = unit_cogs * quantity
+
+	received_datetime = _get_one_day_before_first_sale(history)
+
+	new_incoming_pkg = _create_transfer_pkg(
+		pkg=pkg,
+		unit_of_measure=pkg['unit_of_measure'],
+		quantity=quantity,
+		price=price,
+		received_datetime=received_datetime
+	)
+	return new_incoming_pkg
+
+def _lowercase_keys(d: Dict, level: int) -> None:
+	toplevel_keys = list(d.keys())
+
+	for k in toplevel_keys:
+		# lowercase all the category names for easier matching
+		v = d[k]
+		d[k.lower()] = v
+
+		if level == 2:
+			secondlevel_keys = list(v.keys())
+			for sub_key in secondlevel_keys:
+				# lowercase the unit of measure for easier matching
+				v[sub_key.lower()] = v[sub_key]
 
 def match_child_packages_to_parents(
 	d: DataframesForMatchingDict, 
@@ -353,21 +480,43 @@ def match_child_packages_to_parents(
 		_find_parents_by_productionbatch_and_harvest(
 			d, package_id_to_history, resp, debug_package_id)
 
+	if params.get('use_prices_to_fill_missing_incoming') and params.get('use_margin_estimate_config'):
+		raise Exception('Cannot use use_prices_to_fill_missing_incoming and use_margin_estimate_config. Must be one or the other')
+
+	if params.get('use_margin_estimate_config', False):
+		if not params.get('margin_estimate_config'):
+			raise Exception('margin_estimate_config must be filled in when use_margin_estimate_config is True')
+
+		margin_estimate_config = params['margin_estimate_config']
+		_lowercase_keys(margin_estimate_config['category_to_margin_estimate'], level=1)
+
+		for pkg in d['missing_incoming_pkg_package_records']:
+			if pkg['package_id'] in resp['child_to_parent_details']:
+				# Already has a matching parent
+				continue
+
+			child_history = package_id_to_history.get(pkg['package_id'])
+			if not child_history:
+				continue
+
+			new_incoming_pkg = _create_incoming_pkg_using_margin_estimate(
+					pkg, child_history, params['margin_estimate_config'], debug_package_id)
+			if new_incoming_pkg:	
+				resp['child_to_parent_details'][pkg['package_id']] = {
+					'incoming_pkg': new_incoming_pkg,
+					'parent_package_id': None,
+					'is_synthetic': True,
+					'uses_parenting_logic': False
+				}
+			else:
+				print('Incoming margin estimate yielded nothing {}'.format(pkg['package_id']))	
+
 	if params.get('use_prices_to_fill_missing_incoming', False):
 		if not params['external_pricing_data_config']:
 			raise Exception('external_pricing_data_config must be filled in when the use_prices_to_fill_missing_incoming is set')
 
 		category_to_fixed_prices = params['external_pricing_data_config']['category_to_fixed_prices']
-		toplevel_keys = list(category_to_fixed_prices.keys())
-		for k in toplevel_keys:
-			# lowercase all the category names for easier matching
-			v = category_to_fixed_prices[k]
-			category_to_fixed_prices[k.lower()] = v
-
-			secondlevel_keys = list(v.keys())
-			for sub_key in secondlevel_keys:
-				# lowercase the unit of measure for easier matching
-				v[sub_key.lower()] = v[sub_key]
+		_lowercase_keys(category_to_fixed_prices, level=2)
 
 		for pkg in d['missing_incoming_pkg_package_records']:
 			if pkg['package_id'] in resp['child_to_parent_details']:
@@ -384,7 +533,8 @@ def match_child_packages_to_parents(
 				resp['child_to_parent_details'][pkg['package_id']] = {
 					'incoming_pkg': new_incoming_pkg,
 					'parent_package_id': None,
-					'is_synthetic': True
+					'is_synthetic': True,
+					'uses_parenting_logic': False
 				}
 
 	return resp

@@ -62,11 +62,17 @@ PricingDataConfigDict = TypedDict('PricingDataConfigDict', {
 	'category_to_fixed_prices': Dict[str, Dict[str, float]]
 })
 
+MarginEstimateConfigDict = TypedDict('MarginEstimateConfigDict', {
+	'category_to_margin_estimate': Dict[str, float]
+})
+
 AnalysisParamsDict = TypedDict('AnalysisParamsDict', {
 	'sold_threshold': float,
 	'find_parent_child_relationships': bool,
 	'use_prices_to_fill_missing_incoming': bool,
-	'external_pricing_data_config': PricingDataConfigDict
+	'external_pricing_data_config': PricingDataConfigDict,
+	'use_margin_estimate_config': bool,
+	'margin_estimate_config': MarginEstimateConfigDict
 })
 
 NotableEventDict = TypedDict('NotableEventDict', {

@@ -52,7 +52,7 @@ def get_inventory_column_names() -> List[str]:
 		'arrived_date',
 		'incoming_cost',
 		'incoming_quantity',
-		'is_child_package',
+		'uses_parenting_logic',
 		'are_prices_inferred',
 
 		'product_category_name',
@@ -111,7 +111,7 @@ def _get_inventory_output_row(history: 'PackageHistory', inventory_date: datetim
 		date_to_str(incoming_pkg['received_date']),
 		round(incoming_pkg['price'], 2),
 		round(incoming_pkg['quantity'], 2),
-		'{}'.format(history.is_child_of_parent),
+		'{}'.format(history.uses_parenting_logic),
 		'{}'.format(history.are_prices_inferred),
 
 		incoming_pkg['product_category_name'],
@@ -202,7 +202,7 @@ def get_histories(d: Download, params: AnalysisParamsDict) -> Dict[str, PackageH
 
 		child_history = package_id_to_history[child_package_id]
 		child_history.incomings.append(parent_info['incoming_pkg'])
-		child_history.is_child_of_parent = True
+		child_history.uses_parenting_logic = True
 		child_history.are_prices_inferred = parent_info['is_synthetic']
 
 	return package_id_to_history
@@ -303,7 +303,7 @@ def print_counts(id_to_history: Dict[str, PackageHistory], should_print: bool = 
 		if history.is_parent:
 			num_parent_packages += 1
 
-		if history.is_child_of_parent:
+		if history.uses_parenting_logic:
 			num_child_packages += 1
 
 		total_seen += 1
