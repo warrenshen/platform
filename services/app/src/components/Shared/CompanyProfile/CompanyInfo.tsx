@@ -15,9 +15,6 @@ const useStyles = makeStyles({
     width: 400,
     minHeight: 100,
   },
-  baseInput: {
-    width: 300,
-  },
   label: {
     width: 200,
     color: grey[600],

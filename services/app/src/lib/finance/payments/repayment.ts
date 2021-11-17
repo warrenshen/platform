@@ -167,7 +167,7 @@ export async function editRepaymentMutation(req: {
         console.log("error", error);
         return {
           status: "ERROR",
-          msg: "Could not edit payment for the loan(s)",
+          msg: "Could not edit repayment for the loan(s)",
         };
       }
     );

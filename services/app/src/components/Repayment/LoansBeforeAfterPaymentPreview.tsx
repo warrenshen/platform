@@ -57,7 +57,7 @@ interface Props {
   ) => void;
 }
 
-function LoansBeforeAfterPaymentPreview({
+export default function LoansBeforeAfterPaymentPreview({
   isSettlePayment,
   loansBeforeAfterPayment,
   setLoanBeforeAfterPayment,
@@ -285,7 +285,7 @@ function LoansBeforeAfterPaymentPreview({
                 color="default"
                 onClick={() => setIsEditMode(!isEditMode)}
               >
-                {isEditMode ? "Stop Editing" : "Edit Payment"}
+                {isEditMode ? "Stop Editing" : "Edit Repayment"}
               </Button>
             </Box>
           )}
@@ -294,5 +294,3 @@ function LoansBeforeAfterPaymentPreview({
     </Box>
   );
 }
-
-export default LoansBeforeAfterPaymentPreview;

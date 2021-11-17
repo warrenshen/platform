@@ -6,13 +6,13 @@ from bespoke.db.model_types import (
 	PaymentItemsCoveredDict
 )
 ################################
-# requested_to_principal: how much of payment customer wants to go to principal (relevant for Line of Credit payments only)
-# requested_to_interest: how much of payment customer wants to go to interest (relevant for Line of Credit payments only)
-# requested_to_account_fees: how much of payment customer wants to go to account-level fees (relevant for all payments)
+# requested_to_principal: how much of payment customer wants to go to principal (relevant for Line of Credit repayments only)
+# requested_to_interest: how much of payment customer wants to go to interest (relevant for Line of Credit repayments only)
+# requested_to_account_fees: how much of payment customer wants to go to account-level fees (relevant for all repayments)
 # "requested_to_" fields are set during the "create repayment" step.
 #
-# to_principal: how much of payment went to principal (relevant for Line of Credit payments only)
-# to_interest: how much of payment went to interest (relevant for Line of Credit payments only)
+# to_principal: how much of payment went to principal (relevant for Line of Credit repayments only)
+# to_interest: how much of payment went to interest (relevant for Line of Credit repayments only)
 # to_account_fees: how much of payment went to account fees (relevant for all payments)
 # to_user_credit: how much of payment went to user credit (relevant for all payments)
 # "to_" fields are set during the "settle repayment" step.
