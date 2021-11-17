@@ -1,4 +1,4 @@
-import { Box, Tooltip, Typography } from "@material-ui/core";
+import { Box, Button, Tooltip, Typography } from "@material-ui/core";
 import MetrcDownloadSummaryModal from "components/Metrc/MetrcDownloadSummaryModal";
 import {
   MetrcDownloadSummaries,
@@ -12,8 +12,11 @@ import {
   previousDayAsDateStringServer,
 } from "lib/date";
 import { MetrcDownloadSummaryStatusEnum } from "lib/enum";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
+
+// Show 90 MetrcDownloadSummaries per page.
+const PageSize = 90;
 
 const Cells = styled.div`
   display: flex;
@@ -163,69 +166,100 @@ interface Props {
 export default function MetrcDownloadSummariesGrid({
   metrcDownloadSummaries,
 }: Props) {
+  const [pageNumber, setPageNumber] = useState(1);
+  const [allMetrcDownloadSummaries, setAllMetrcDownloadSummaries] = useState<
+    MetrcDownloadSummaryLimitedFragment[]
+  >([]);
+
   // Fill in missing dates, if applicable.
   // For example, we may only have download summaries for October 2021 and November 2020
   // and none for any of the months in between (those months have not been backfilled yet).
-  const filledMetrcDownloadSummaries = useMemo(() => {
-    const result: MetrcDownloadSummaryLimitedFragment[] = [];
+  useEffect(() => {
+    const resultMetrcDownloadSummaries: MetrcDownloadSummaryLimitedFragment[] = [];
 
-    if (metrcDownloadSummaries.length <= 0) {
-      return result;
-    }
+    if (metrcDownloadSummaries.length > 0) {
+      const firstMetrcDownloadSummary = metrcDownloadSummaries[0];
+      const endDate = firstMetrcDownloadSummary.date;
+      const startDate =
+        metrcDownloadSummaries[metrcDownloadSummaries.length - 1].date;
 
-    const firstMetrcDownloadSummary = metrcDownloadSummaries[0];
-    const endDate = firstMetrcDownloadSummary.date;
-    const startDate =
-      metrcDownloadSummaries[metrcDownloadSummaries.length - 1].date;
+      let currentDate = endDate;
+      let rawIndex = 0;
 
-    let currentDate = endDate;
-    let rawIndex = 0;
-
-    while (currentDate >= startDate) {
-      if (metrcDownloadSummaries[rawIndex].date === currentDate) {
-        result.push(metrcDownloadSummaries[rawIndex]);
-        rawIndex += 1;
-      } else {
-        result.push({
-          id: currentDate,
-          company_id: firstMetrcDownloadSummary.company_id,
-          metrc_api_key_id: firstMetrcDownloadSummary.metrc_api_key_id,
-          license_number: firstMetrcDownloadSummary.license_number,
-          date: currentDate,
-          status: "",
-          harvests_status: "",
-          packages_status: "",
-          plant_batches_status: "",
-          plants_status: "",
-          sales_status: "",
-          transfers_status: "",
-          updated_at: undefined,
-        } as MetrcDownloadSummaryLimitedFragment);
+      while (currentDate >= startDate) {
+        if (metrcDownloadSummaries[rawIndex].date === currentDate) {
+          resultMetrcDownloadSummaries.push(metrcDownloadSummaries[rawIndex]);
+          rawIndex += 1;
+        } else {
+          resultMetrcDownloadSummaries.push({
+            id: currentDate,
+            company_id: firstMetrcDownloadSummary.company_id,
+            metrc_api_key_id: firstMetrcDownloadSummary.metrc_api_key_id,
+            license_number: firstMetrcDownloadSummary.license_number,
+            date: currentDate,
+            status: "",
+            harvests_status: "",
+            packages_status: "",
+            plant_batches_status: "",
+            plants_status: "",
+            sales_status: "",
+            transfers_status: "",
+            updated_at: undefined,
+          } as MetrcDownloadSummaryLimitedFragment);
+        }
+        currentDate = previousDayAsDateStringServer(currentDate);
       }
-      currentDate = previousDayAsDateStringServer(currentDate);
     }
 
-    return result;
+    setAllMetrcDownloadSummaries(resultMetrcDownloadSummaries);
   }, [metrcDownloadSummaries]);
+
+  const visibleMetrcDownloadSummaries = allMetrcDownloadSummaries.slice(
+    (pageNumber - 1) * PageSize,
+    pageNumber * PageSize
+  );
 
   return (
     <Box display="flex" flexDirection="column">
-      <Box mt={2}>
+      <Box display="flex" justifyContent="space-between">
         <Typography variant="body2">
-          {filledMetrcDownloadSummaries.length > 0
-            ? `Date range: ${formatDateString(
-                filledMetrcDownloadSummaries[0].date
+          {visibleMetrcDownloadSummaries.length > 0
+            ? `Selected date range: ${formatDateString(
+                visibleMetrcDownloadSummaries[0].date
               )} (left) -> ${formatDateString(
-                filledMetrcDownloadSummaries[
-                  filledMetrcDownloadSummaries.length - 1
+                visibleMetrcDownloadSummaries[
+                  visibleMetrcDownloadSummaries.length - 1
                 ].date
               )} (right)`
             : ""}
         </Typography>
+        <Box display="flex" alignItems="center">
+          <Button
+            disabled={pageNumber <= 1}
+            color="default"
+            size="small"
+            variant="outlined"
+            onClick={() => setPageNumber(pageNumber - 1)}
+          >
+            {"<"}
+          </Button>
+          <Box mx={1}>
+            <Typography variant="body2">{`Page ${pageNumber}`}</Typography>
+          </Box>
+          <Button
+            disabled={pageNumber * PageSize > allMetrcDownloadSummaries.length}
+            color="default"
+            size="small"
+            variant="outlined"
+            onClick={() => setPageNumber(pageNumber + 1)}
+          >
+            {">"}
+          </Button>
+        </Box>
       </Box>
       <Box display="flex" flexDirection="column" mt={2} overflow="scroll">
         <Box display="flex">
-          {filledMetrcDownloadSummaries.map((metrcDownloadSummary) => (
+          {visibleMetrcDownloadSummaries.map((metrcDownloadSummary) => (
             <MetrcDownloadSummaryColumn
               key={metrcDownloadSummary.id}
               metrcDownloadSummary={metrcDownloadSummary}

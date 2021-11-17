@@ -80,6 +80,14 @@ export default function MetrcDownloadSummaryModal({
         </Box>
         <Box display="flex" flexDirection="column" mt={2}>
           <Typography variant="subtitle2" color="textSecondary">
+            Number of Retries
+          </Typography>
+          <Typography variant="body2">
+            {metrcDownloadSummary.num_retries}
+          </Typography>
+        </Box>
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Typography variant="subtitle2" color="textSecondary">
             Status
           </Typography>
           <Typography variant="body2">{metrcDownloadSummary.status}</Typography>

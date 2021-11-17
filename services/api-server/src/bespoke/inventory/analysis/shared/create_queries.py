@@ -222,6 +222,7 @@ def create_company_sales_receipts_query(
 	return f"""
 		select
 			metrc_sales_receipts.license_number,
+			metrc_sales_receipts.receipt_id,
 			metrc_sales_receipts.receipt_number,
 			metrc_sales_receipts.type,
 			metrc_sales_receipts.sales_customer_type,

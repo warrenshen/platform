@@ -25861,7 +25861,7 @@ export type MetrcDownloadSummaryLimitedFragment = Pick<
 
 export type MetrcDownloadSummaryFragment = Pick<
   MetrcDownloadSummaries,
-  "id" | "err_details"
+  "id" | "num_retries" | "err_details"
 > &
   MetrcDownloadSummaryLimitedFragment;
 
@@ -26936,6 +26936,7 @@ export const MetrcDownloadSummaryFragmentDoc = gql`
   fragment MetrcDownloadSummary on metrc_download_summaries {
     id
     ...MetrcDownloadSummaryLimited
+    num_retries
     err_details
   }
   ${MetrcDownloadSummaryLimitedFragmentDoc}

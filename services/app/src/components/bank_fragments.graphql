@@ -242,5 +242,6 @@ fragment MetrcDownloadSummaryLimited on metrc_download_summaries{
 fragment MetrcDownloadSummary on metrc_download_summaries{
   id
   ...MetrcDownloadSummaryLimited
+  num_retries
   err_details
 }

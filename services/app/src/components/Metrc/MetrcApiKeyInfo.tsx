@@ -5,7 +5,7 @@ import {
   GetMetrcApiKeysByCompanyIdQuery,
   useGetMetrcDownloadSummariesByMetrcApiKeyIdQuery,
 } from "generated/graphql";
-import { formatDatetimeString } from "lib/date";
+import { formatDateString, formatDatetimeString } from "lib/date";
 import { useMemo } from "react";
 
 function MetrcApiStatusChip({
@@ -81,18 +81,30 @@ export default function MetrcApiKeyInfo({ number, metrcApiKey }: Props) {
                 </Typography>
               </Box>
               <Box display="flex" flexDirection="column" mt={2}>
-                <Typography variant="body1">{`Download summaries:`}</Typography>
+                <Typography variant="body1">{`Download summaries: ${
+                  metrcDownloadSummaries.length > 0
+                    ? `Date range: ${formatDateString(
+                        metrcDownloadSummaries[0].date
+                      )} - ${formatDateString(
+                        metrcDownloadSummaries[
+                          metrcDownloadSummaries.length - 1
+                        ].date
+                      )}`
+                    : ""
+                }`}</Typography>
                 {loading ? (
                   <Box my={1}>
                     <CircularProgress />
                   </Box>
                 ) : (
-                  <MetrcDownloadSummariesGrid
-                    metrcDownloadSummaries={metrcDownloadSummaries.filter(
-                      (metrcDownloadSummary) =>
-                        metrcDownloadSummary.license_number === licenseNumber
-                    )}
-                  />
+                  <Box mt={2}>
+                    <MetrcDownloadSummariesGrid
+                      metrcDownloadSummaries={metrcDownloadSummaries.filter(
+                        (metrcDownloadSummary) =>
+                          metrcDownloadSummary.license_number === licenseNumber
+                      )}
+                    />
+                  </Box>
                 )}
               </Box>
               <Box display="flex" flexDirection="column" width={500} mt={2}>
