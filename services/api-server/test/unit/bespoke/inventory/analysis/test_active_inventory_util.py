@@ -6,204 +6,20 @@ from dateutil import parser
 from typing import cast, List, Any, Dict, Iterable
 
 from bespoke.db.db_constants import DeliveryType
-from bespoke.inventory.analysis.shared import download_util 
+from bespoke_test.inventory.analysis import inventory_test_helper
+from bespoke_test.inventory.analysis.inventory_test_helper import (
+	transfer_pkg, inventory_pkg, get_default_params
+)
 from bespoke.inventory.analysis import active_inventory_util as util
 from bespoke.inventory.analysis.shared.inventory_types import (
 	AnalysisParamsDict,
 	MarginEstimateConfigDict
 )
 
-TRANSFER_PACKAGE_COLS = [
-	'package_id', 
-	'license_number', 
-	'product_name',
-	'product_category_name',
-	'received_unit_of_measure',
-	'receiver_wholesale_price',
-	'received_quantity',
-	'shipped_quantity', 
-	'shipped_unit_of_measure',
-	'shipper_wholesale_price',
-	'shipment_package_state',
-	'delivery_type', 
-	'created_date',
-	'received_datetime', 
-	'source_harvest_names'
-]
-
-SALES_TX_COLS = [
-	'sales_datetime',
-	'tx_package_id',
-	'receipt_number',
-	'tx_quantity_sold',
-	'tx_total_price',
-	'tx_unit_of_measure'
-]
-
-SALES_RECEIPTS_COLS = [
-	'package_id'
-]
-
-PACKAGE_COLS = [
-	'package_id',
-	'license_number',
-	'type',
-	'quantity',
-	'item_product_category_type',
-	'item_id',
-	'source_production_batch_numbers',
-	'product_name',
-	'product_category_name',
-	'unit_of_measure',
-	'production_batch_number',
-	'source_harvest_names',
-	'archived_date',
-	'finished_date'
-]
-
-def _transfer_pkg(
-		id: int,
-		delivery_type: str,
-		received_datetime: datetime.datetime,
-		quantity: float = 0.0,
-		wholesale_price: float = 0.0,
-		product_category_name: str = '',
-		received_unit_of_measure: str = 'grams',
-		source_harvest_names: str = ''
-	) -> Dict:
-
-	if not product_category_name:
-		product_category_name = f'categoryname-{id}'
-
-	return {
-		'package_id': f'p{id}',
-		'license_number': 'abcd',
-		'product_category_name': product_category_name,
-		'product_name': f'productname-{id}',
-		'received_unit_of_measure': received_unit_of_measure,
-		'shipped_unit_of_measure': received_unit_of_measure,
-		'received_quantity': quantity,
-		'receiver_wholesale_price': wholesale_price,
-		'shipped_quantity': 0.0,
-		'shipper_wholesale_price': 0.0,
-		'shipment_package_state': 'Accepted',
-		'delivery_type': delivery_type,
-		'created_date': received_datetime.date(),
-		'received_datetime': received_datetime,
-		'source_harvest_names': source_harvest_names
-	}
-
-def _inventory_pkg(
-	id: int,
-	package_type: str,
-	quantity: float,
-	product_name: str = '',
-	product_category_name: str = '',
-	unit_of_measure: str = '',
-	finished_date: str = '',
-	source_production_batch_numbers: str = '',
-	production_batch_number: str = '',
-	source_harvest_names: str = '',
-	item_id: str = None,
-	item_product_category_type: str = None
-) -> Dict:
-
-	if not item_id:
-		item_id = f'item-{id}'
-
-	if not item_product_category_type:
-		item_product_category_type = f'item-product-category-{id}'
-
-	return {
-		'package_id': f'p{id}',
-		'license_number': 'abcd',
-		'type': package_type,
-		'quantity': quantity,
-		'item_product_category_type': item_product_category_type,
-		'item_id': item_id,
-		'product_name': product_name,
-		'product_category_name': product_category_name,
-		'unit_of_measure': unit_of_measure,
-		'source_production_batch_numbers': source_production_batch_numbers,
-		'production_batch_number': production_batch_number,
-		'source_harvest_names': source_harvest_names,
-		'archived_date': '',
-		'finished_date': finished_date
-	}
-
-def _dict_to_array(input_dict: Dict[str, Any], columns: List[str]) -> List:
-	array_row = []
-	for col in columns:
-		array_row.append(input_dict[col])
-	return array_row
-
-def _get_dataframe(input_dict_rows: List[Dict], columns: List[str]) -> pd.DataFrame:
-	array_rows = []
-
-	for input_dict_row in input_dict_rows:
-		array_rows.append(_dict_to_array(input_dict_row, columns))
-
-	return pd.DataFrame(array_rows, columns=columns)
-
-class FakeSQLHelper(download_util.SQLHelper):
-
-	def __init__(self, packages_df: pd.DataFrame) -> None:
-		self._packages_df = packages_df
-
-	def get_packages(self, package_ids: Iterable[str]) -> pd.DataFrame:
-		new_df_rows = []
-		for index, row in self._packages_df.iterrows():
-			if row['package_id'] in package_ids:
-				new_df_rows.append(row)
-
-		return pd.DataFrame(new_df_rows, columns=PACKAGE_COLS)
-
-	def _get_active_packages(self) -> pd.DataFrame:
-		return self._packages_df[self._packages_df['type'] != 'inactive']
-
-	def get_inactive_packages(self, package_ids: Iterable[str]) -> pd.DataFrame:
-		all_matching_packages_df = self.get_packages(package_ids)
-		return all_matching_packages_df[all_matching_packages_df['type'] == 'inactive']
-
-	def get_packages_by_production_batch_numbers(self, production_batch_numbers: Iterable[str]) -> pd.DataFrame:
-		new_df_rows = []
-		for index, row in self._packages_df.iterrows():
-			if row['production_batch_number'] in production_batch_numbers:
-				new_df_rows.append(row)
-
-		return pd.DataFrame(new_df_rows, columns=PACKAGE_COLS)
-
-def _create_download(test: Dict) -> util.Download:
-	dl = util.Download()
-
-	for tx in test['sales_transactions']:
-		tx['sales_datetime'] = tx['sales_datetime'].replace(tzinfo=pytz.UTC)
-
-	inventory_df = _get_dataframe(test['inventory_packages'], columns=PACKAGE_COLS)
-	sql_helper = FakeSQLHelper(inventory_df)
-
-	all_dataframes_dict = download_util.AllDataframesDict(
-		incoming_transfer_packages_dataframe=_get_dataframe(
-			test['incoming_transfer_packages'], columns=TRANSFER_PACKAGE_COLS),
-		outgoing_transfer_packages_dataframe=_get_dataframe(
-			test['outgoing_transfer_packages'], columns=TRANSFER_PACKAGE_COLS),
-		sales_receipts_dataframe=_get_dataframe(
-			test['sales_receipts'], columns=SALES_RECEIPTS_COLS),
-		sales_transactions_dataframe=_get_dataframe(
-			test['sales_transactions'], columns=SALES_TX_COLS),
-		inventory_packages_dataframe=sql_helper._get_active_packages(),
-	)
-
-	dl.download_dataframes(
-		all_dataframes_dict=all_dataframes_dict,
-		sql_helper=sql_helper
-	)
-	return dl
-
 class TestInventoryCounts(unittest.TestCase):
 
 	def _run_test(self, test: Dict) -> None:
-		dl = _create_download(test)
+		dl = inventory_test_helper.create_download(test)
 		package_id_to_history = util.get_histories(dl, params=AnalysisParamsDict(
 			sold_threshold=1.0,
 			find_parent_child_relationships=True,
@@ -219,35 +35,35 @@ class TestInventoryCounts(unittest.TestCase):
 	def test_print_counts(self) -> None:
 		test: Dict = {
 			'incoming_transfer_packages': [
-				_transfer_pkg(
+				transfer_pkg(
 					id=1, delivery_type=DeliveryType.INCOMING_INTERNAL, 
 					received_datetime=parser.parse('10/1/2020'),
 					quantity=1.0,
 					wholesale_price=2.0,
 				),
-				_transfer_pkg(
+				transfer_pkg(
 					id=2, delivery_type=DeliveryType.INCOMING_INTERNAL, # sold
 					received_datetime=parser.parse('10/1/2020')
 				),
-				_transfer_pkg(
+				transfer_pkg(
 					id=3, delivery_type=DeliveryType.INCOMING_INTERNAL, 
 					received_datetime=parser.parse('10/1/2020') # incoming and outgoing
 				),
-				_transfer_pkg(
+				transfer_pkg(
 					id=10, delivery_type=DeliveryType.INCOMING_INTERNAL, 
 					received_datetime=parser.parse('10/1/2020') # incoming and outgoing
 				)
 			],
 			'outgoing_transfer_packages': [
-				_transfer_pkg(
+				transfer_pkg(
 					id=3, delivery_type=DeliveryType.OUTGOING_INTERNAL, 
 					received_datetime=parser.parse('10/2/2020')
 				),
-				_transfer_pkg(
+				transfer_pkg(
 					id=4, delivery_type=DeliveryType.OUTGOING_INTERNAL, 
 					received_datetime=parser.parse('10/2/2020')
 				),
-				_transfer_pkg(
+				transfer_pkg(
 					id=5, delivery_type=DeliveryType.OUTGOING_INTERNAL, 
 					received_datetime=parser.parse('10/2/2020')
 				)
@@ -305,17 +121,6 @@ class TestInventoryCounts(unittest.TestCase):
 		}
 		self._run_test(test)
 
-def get_default_params() -> util.AnalysisParamsDict:
-	return util.AnalysisParamsDict(
-		sold_threshold=1.0,
-		find_parent_child_relationships=True,
-		use_prices_to_fill_missing_incoming=False,
-		external_pricing_data_config=None,
-		use_margin_estimate_config=False,
-		margin_estimate_config=None,
-		cogs_analysis_params=None
-	)
-
 def _inventory_row(
 	id: int,
 	quantity: int,
@@ -354,9 +159,9 @@ class TestCompareInventoryDataframes(unittest.TestCase):
 
 	def _run_test(self, test: Dict) -> None:
 		actual_res = util.compare_inventory_dataframes(
-			computed=_get_dataframe(
+			computed=inventory_test_helper.get_dataframe(
 			test['computed_rows'], columns=util.get_inventory_column_names()),
-			actual=_get_dataframe(
+			actual=inventory_test_helper.get_dataframe(
 				test['actual_rows'], util.get_inventory_column_names()),
 			options=test['options']
 		)
@@ -485,7 +290,7 @@ class TestInventoryPackages(unittest.TestCase):
 	maxDiff = None
 
 	def _run_test(self, test: Dict) -> None:
-		dl = _create_download(test)
+		dl = inventory_test_helper.create_download(test)
 
 		package_id_to_history = util.get_histories(dl, test['analysis_params'])
 		computed_inventory_package_records = util.create_inventory_dataframe_by_date(
@@ -519,7 +324,7 @@ class TestInventoryPackages(unittest.TestCase):
 		# incoming, outgoing, then incoming again.
 		test: Dict = {
 			'incoming_transfer_packages': [
-				_transfer_pkg(
+				transfer_pkg(
 					id=1, 
 					delivery_type=DeliveryType.INCOMING_INTERNAL,
 					quantity=10.0,
@@ -527,7 +332,7 @@ class TestInventoryPackages(unittest.TestCase):
 					received_unit_of_measure='Each',
 					received_datetime=parser.parse('10/1/2020')
 				),
-				_transfer_pkg(
+				transfer_pkg(
 					id=1, 
 					# still considered internal because the company is keeping possession
 					delivery_type=DeliveryType.OUTGOING_INTERNAL,
@@ -538,7 +343,7 @@ class TestInventoryPackages(unittest.TestCase):
 				),
 			],
 			'outgoing_transfer_packages': [
-				_transfer_pkg(
+				transfer_pkg(
 					id=1, 
 					quantity=3.0,
 					delivery_type=DeliveryType.OUTGOING_UNKNOWN, 
@@ -614,7 +419,7 @@ class TestInventoryPackages(unittest.TestCase):
 		# incoming, outgoing, then incoming again.
 		test: Dict = {
 			'incoming_transfer_packages': [
-				_transfer_pkg(
+				transfer_pkg(
 					id=1, 
 					delivery_type=DeliveryType.INCOMING_INTERNAL,
 					quantity=10.0,
@@ -624,7 +429,7 @@ class TestInventoryPackages(unittest.TestCase):
 				),
 			],
 			'outgoing_transfer_packages': [
-				_transfer_pkg(
+				transfer_pkg(
 					id=1, 
 					quantity=3.0,
 					delivery_type=DeliveryType.OUTGOING_UNKNOWN, 
@@ -658,7 +463,7 @@ class TestInventoryPackages(unittest.TestCase):
 		# incoming, outgoing, then incoming again.
 		test: Dict = {
 			'incoming_transfer_packages': [
-				_transfer_pkg(
+				transfer_pkg(
 					id=1, 
 					delivery_type=DeliveryType.INCOMING_INTERNAL,
 					quantity=10.0,
@@ -673,7 +478,7 @@ class TestInventoryPackages(unittest.TestCase):
 			'sales_receipts': [
 			],
 			'inventory_packages': [
-				_inventory_pkg(
+				inventory_pkg(
 					id=1,
 					package_type='inactive',
 					quantity=2.0,
@@ -700,7 +505,7 @@ class TestInventoryPackages(unittest.TestCase):
 		# Package 1 is the parent of Package 2
 		test: Dict = {
 			'incoming_transfer_packages': [
-				_transfer_pkg(
+				transfer_pkg(
 					id=1, 
 					delivery_type=DeliveryType.INCOMING_INTERNAL,
 					quantity=10.0,
@@ -732,14 +537,14 @@ class TestInventoryPackages(unittest.TestCase):
 			'sales_receipts': [
 			],
 			'inventory_packages': [
-				_inventory_pkg(
+				inventory_pkg(
 					id=1,
 					package_type='inactive',
 					quantity=2.0,
 					finished_date='10/3/2020',
 					production_batch_number='source1'
 				),
-				_inventory_pkg(
+				inventory_pkg(
 					id=2,
 					package_type='active',
 					quantity=4.0,
@@ -774,7 +579,7 @@ class TestInventoryPackages(unittest.TestCase):
 		# Package 1 is the parent of Package 2
 		test: Dict = {
 			'incoming_transfer_packages': [
-				_transfer_pkg(
+				transfer_pkg(
 					id=1, 
 					delivery_type=DeliveryType.INCOMING_INTERNAL,
 					quantity=10.0,
@@ -807,14 +612,14 @@ class TestInventoryPackages(unittest.TestCase):
 			'sales_receipts': [
 			],
 			'inventory_packages': [
-				_inventory_pkg(
+				inventory_pkg(
 					id=1,
 					package_type='inactive',
 					quantity=2.0,
 					finished_date='10/3/2020',
 					source_harvest_names='source1-harvest-num'
 				),
-				_inventory_pkg(
+				inventory_pkg(
 					id=2,
 					package_type='active',
 					quantity=4.0,
@@ -850,7 +655,7 @@ class TestInventoryPackages(unittest.TestCase):
 		# the same product category type.
 		test: Dict = {
 			'incoming_transfer_packages': [
-				_transfer_pkg(
+				transfer_pkg(
 					id=1, 
 					delivery_type=DeliveryType.INCOMING_INTERNAL,
 					quantity=10.0,
@@ -859,7 +664,7 @@ class TestInventoryPackages(unittest.TestCase):
 					received_datetime=parser.parse('10/1/2020'),
 					source_harvest_names='source1-harvest-num'
 				),
-				_transfer_pkg(
+				transfer_pkg(
 					id=3, 
 					delivery_type=DeliveryType.INCOMING_INTERNAL,
 					quantity=20.0,
@@ -892,20 +697,20 @@ class TestInventoryPackages(unittest.TestCase):
 			'sales_receipts': [
 			],
 			'inventory_packages': [
-				_inventory_pkg(
+				inventory_pkg(
 					id=1,
 					package_type='inactive',
 					quantity=2.0,
 					finished_date='10/3/2020',
 					source_harvest_names='source1-harvest-num',
 				),
-				_inventory_pkg(
+				inventory_pkg(
 					id=2,
 					package_type='active',
 					quantity=4.0,
 					source_harvest_names='source1-harvest-num',
 				),
-				_inventory_pkg(
+				inventory_pkg(
 					id=3,
 					package_type='inactive',
 					quantity=5.0,
@@ -968,7 +773,7 @@ class TestInventoryPackages(unittest.TestCase):
 			'sales_receipts': [
 			],
 			'inventory_packages': [
-				_inventory_pkg(
+				inventory_pkg(
 					id=2,
 					package_type='inactive',
 					quantity=2.0,
@@ -1021,7 +826,7 @@ class TestInventoryPackages(unittest.TestCase):
 		# so we use the pricing table to fill in that detail.
 		test: Dict = {
 			'incoming_transfer_packages': [
-				_transfer_pkg(
+				transfer_pkg(
 					id=2, 
 					delivery_type=DeliveryType.INCOMING_INTERNAL,
 					quantity=2.0,
@@ -1047,7 +852,7 @@ class TestInventoryPackages(unittest.TestCase):
 			'sales_receipts': [
 			],
 			'inventory_packages': [
-				_inventory_pkg(
+				inventory_pkg(
 					id=2,
 					package_type='inactive',
 					quantity=2.0,
@@ -1105,7 +910,7 @@ class TestInventoryPackages(unittest.TestCase):
 			'sales_receipts': [
 			],
 			'inventory_packages': [
-				_inventory_pkg(
+				inventory_pkg(
 					id=2,
 					package_type='inactive',
 					quantity=2.0,

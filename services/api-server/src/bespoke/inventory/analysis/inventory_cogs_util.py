@@ -25,13 +25,18 @@ MonthSummaryDict = TypedDict('MonthSummaryDict', {
 	'num_transactions_total': int,
 })
 
+def get_cogs_summary_columns() -> List[str]:
+	return [
+		'year_month', 'revenue', 'cogs', 'margin_$', 'margin_%',
+		'txs_with_incoming', 'num_txs', 'coverage'
+	]
+
 def _to_cogs_summary_rows(year_month_to_summary: Dict[finance_types.Month, MonthSummaryDict]) -> List[List[CellValue]]:
 	keys = list(year_month_to_summary.keys())
 	keys.sort(key=lambda x: datetime.date(year=x.year, month=x.month, day=1))
 
 	rows: List[List[CellValue]] = []
-	rows.append(['year_month', 'revenue', 'cogs', 'margin_$', 'margin_%',
-							 'txs_with_incoming', 'num_txs', 'coverage'])
+	rows.append(cast(List[CellValue], get_cogs_summary_columns()))
 	for key in keys:
 		summary = year_month_to_summary[key]
 
@@ -79,7 +84,6 @@ BottomsupDetailsDict = TypedDict('BottomsupDetailsDict', {
 	'pct_transactions_with_cost': float
 })
 
-# TODO(dlluncor): Need tests for COGs summary code
 def _create_cogs_summary_for_all_dates(
 	package_id_to_history: Dict[str, PackageHistory],
 	params: AnalysisParamsDict,
@@ -156,8 +160,15 @@ def _create_cogs_summary_for_all_dates(
 		return pkg_profit_margin
 
 
-	readjust_profit_threshold = params.get('cogs_analysis_params', {}).get('readjust_profit_threshold')
-	readjust_type = params.get('cogs_analysis_params', {}).get('readjust_type', '')
+	cogs_analysis_params = params.get('cogs_analysis_params')
+	if not cogs_analysis_params:
+		cogs_analysis_params = {
+			'readjust_profit_threshold': None,
+			'readjust_type': ''
+		}
+
+	readjust_profit_threshold = cogs_analysis_params.get('readjust_profit_threshold')
+	readjust_type = cogs_analysis_params.get('readjust_type', '')
 	total_packages = 0
 	total_packages_filtered = 0
 
@@ -169,6 +180,7 @@ def _create_cogs_summary_for_all_dates(
 			# This first call is to just calculate the profit margin before we make
 			# any updates to the COGs summary
 			pkg_profit_margin = _calculate_cogs_for_package(history, add_to_summary=False)			
+			#print('Profit of {} on {}'.format(pkg_profit_margin, package_id))
 			above_profit_threshold = pkg_profit_margin > readjust_profit_threshold if readjust_profit_threshold else False
 			should_skip = False
 			increase_cost_by_quantity = False
@@ -212,10 +224,14 @@ def _create_cogs_summary_for_all_dates(
 		num_transactions_total += summary['num_transactions_total']
 		num_transactions_with_price_info += summary['num_transactions_with_price_info']
 
+	pct_txs_with_cost = 0.0
+	if num_transactions_total > 0.0:
+		pct_txs_with_cost = round(num_transactions_with_price_info / num_transactions_total * 100, 2)
+
 	return BottomsupDetailsDict(
 		bottomsup_cogs_rows=_to_cogs_summary_rows(year_month_to_summary),
 		bottomsup_total_cogs=bottomsup_total_cogs,
-		pct_transactions_with_cost=round(num_transactions_with_price_info / num_transactions_total * 100, 2)
+		pct_transactions_with_cost=pct_txs_with_cost
 	)
 
 TopdownDetailsDict = TypedDict('TopdownDetailsDict', {
@@ -310,7 +326,11 @@ def write_cogs_xlsx(
 	all_dates.sort()
 
 	delta_sheet = wb.add_sheet('Delta')
-	delta_sheet.add_row(bottoms_up_cogs_rows[0]) # header
+
+	header_row = get_cogs_summary_columns()
+	topdown_sheet.add_row(header_row)
+	bottomsup_sheet.add_row(header_row)
+	delta_sheet.add_row(header_row)
 
 	for date_str in all_dates:
 
