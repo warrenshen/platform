@@ -159,7 +159,7 @@ def _get_inventory_output_row_for_actual_inventory(
 		incoming_pkg['product_name'] if incoming_pkg else pkg['product_name'],
 
 		cur_quantity if cur_quantity != -1 else 0,
-		incoming_pkg['unit_of_measure'] or '',
+		incoming_pkg['unit_of_measure'] or '' if incoming_pkg else pkg['unit_of_measure'],
 		round(current_value, 2),
 		date_to_str(sold_date) if sold_date else '',
 		'true'
@@ -820,6 +820,10 @@ def create_inventory_xlsx(
 			
 			row = _get_inventory_output_row(history, inventory_date, is_in_inventory=True)
 			sheet.add_row(row)
+
+		if first:
+			# To handle when no rows were written for this date
+			sheet.add_row(get_inventory_column_names())
 	
 	Path('out').mkdir(parents=True, exist_ok=True)
 

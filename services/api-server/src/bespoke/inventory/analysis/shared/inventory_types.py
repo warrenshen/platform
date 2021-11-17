@@ -152,12 +152,14 @@ class Query(object):
 		sales_transactions_start_date: str,
 		company_identifier: str,
 		company_name: str,
+		license_numbers: List[str]
 	) -> None:
 		self.inventory_dates = inventory_dates
 		self.transfer_packages_start_date = transfer_packages_start_date
 		self.sales_transactions_start_date = sales_transactions_start_date
 		self.company_identifier = company_identifier
 		self.company_name = company_name
+		self.license_numbers = license_numbers
 
 class Printer(object):
 

@@ -115,7 +115,8 @@ def _compute_inventory_for_customer(
 		transfer_packages_start_date=transfer_packages_start_date,
 		sales_transactions_start_date=sales_transactions_start_date,
 		company_name=company_name,
-		company_identifier=company_identifier
+		company_identifier=company_identifier,
+		license_numbers=[] # No licenses means use all licenses associated with this customer
 	)
 
 	## Download the data

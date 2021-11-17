@@ -208,7 +208,15 @@ def create_company_unknown_transfer_packages_query(company_identifier: str, star
 			metrc_transfers.created_date desc
 	"""
 
-def create_company_sales_receipts_query(company_identifier: str, start_date: str, limit: int = None) -> str:
+def create_company_sales_receipts_query(
+	company_identifier: str, start_date: str, 
+	license_numbers: List[str]=None,
+	limit: int = None) -> str:
+
+	license_numbers = [f"'{license_number}'" for license_number in license_numbers] if license_numbers else None
+	license_numbers_where_clause = f"""
+		and metrc_sales_receipts.license_number in ({','.join(license_numbers)})
+	""" if license_numbers else ''
 	limit_clause = f"LIMIT {limit}" if limit else ""
 
 	return f"""
@@ -227,14 +235,17 @@ def create_company_sales_receipts_query(company_identifier: str, start_date: str
 			True
 			and companies.identifier = "{company_identifier}"
 			and metrc_sales_receipts.sales_datetime >= "{start_date}"
+			{license_numbers_where_clause}
 		order by
 			metrc_sales_receipts.sales_datetime desc
 		{limit_clause}
 	"""
 
 def create_company_sales_receipts_with_transactions_query(
-	company_identifier: str, start_date: str, 
+	company_identifier: str, 
+	start_date: str, 
 	unit_of_measure: str= None,
+	license_numbers: List[str]=None,
 	limit: int = None) -> str:
 	"""
 	Note the left outer join of metrc_sales_transactions.
@@ -246,6 +257,10 @@ def create_company_sales_receipts_with_transactions_query(
 		and metrc_sales_transactions.unit_of_measure = "{unit_of_measure}"
 	""" if unit_of_measure else ''
 
+	license_numbers = [f"'{license_number}'" for license_number in license_numbers] if license_numbers else None
+	license_numbers_where_clause = f"""
+		and metrc_sales_receipts.license_number in ({','.join(license_numbers)})
+	""" if license_numbers else ''
 	limit_clause = f"LIMIT {limit}" if limit else ""
 
 	return f"""
@@ -275,13 +290,22 @@ def create_company_sales_receipts_with_transactions_query(
 			and companies.identifier = "{company_identifier}"
 			and metrc_sales_receipts.sales_datetime >= "{start_date}"
 			{unit_of_measure_where_clause}
+			{license_numbers_where_clause}
 		order by
 			metrc_sales_receipts.sales_datetime desc
 		{limit_clause}
 	"""
 
 def create_company_sales_transactions_query(
-	company_identifier: str, start_date: str, limit: int = None) -> str:
+	company_identifier: str, 
+	start_date: str,
+	license_numbers: List[str]=None,
+	limit: int = None) -> str:
+
+	license_numbers = [f"'{license_number}'" for license_number in license_numbers] if license_numbers else None
+	license_numbers_where_clause = f"""
+		and metrc_sales_receipts.license_number in ({','.join(license_numbers)})
+	""" if license_numbers else ''
 	limit_clause = f"LIMIT {limit}" if limit else ""
 
 	return f"""
@@ -310,6 +334,7 @@ def create_company_sales_transactions_query(
 			True
 			and companies.identifier = "{company_identifier}"
 			and metrc_sales_receipts.sales_datetime >= "{start_date}"
+			{license_numbers_where_clause}
 		order by
 			metrc_sales_receipts.sales_datetime desc
 		{limit_clause}

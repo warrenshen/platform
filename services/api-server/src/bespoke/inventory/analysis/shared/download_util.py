@@ -243,13 +243,24 @@ def get_dataframes_for_analysis(q: Query, engine: Any, dry_run: bool) -> AllData
 	# Download packages, sales transactions, incoming / outgoing tranfers
 	limit = 50 if dry_run else None
 
-	company_incoming_transfer_packages_query = create_queries.create_company_incoming_transfer_packages_query(q.company_identifier, q.transfer_packages_start_date, limit=limit)
-	company_outgoing_transfer_packages_query = create_queries.create_company_outgoing_transfer_packages_query(q.company_identifier, q.transfer_packages_start_date, limit=limit)
-	company_sales_receipts_query = create_queries.create_company_sales_receipts_query(q.company_identifier, q.sales_transactions_start_date, limit=limit)
-	company_sales_transactions_query = create_queries.create_company_sales_transactions_query(q.company_identifier, q.sales_transactions_start_date, limit=limit)
+	company_incoming_transfer_packages_query = create_queries.create_company_incoming_transfer_packages_query(
+		q.company_identifier, q.transfer_packages_start_date, 
+		license_numbers=q.license_numbers, limit=limit)
+	company_outgoing_transfer_packages_query = create_queries.create_company_outgoing_transfer_packages_query(
+		q.company_identifier, q.transfer_packages_start_date, 
+		license_numbers=q.license_numbers, limit=limit)
+	company_sales_receipts_query = create_queries.create_company_sales_receipts_query(
+		q.company_identifier, q.sales_transactions_start_date, 
+		license_numbers=q.license_numbers,
+		limit=limit)
+	company_sales_transactions_query = create_queries.create_company_sales_transactions_query(
+		q.company_identifier, q.sales_transactions_start_date, 
+		license_numbers=q.license_numbers,
+		limit=limit)
 	company_inventory_packages_query = create_queries.create_company_inventory_packages_query(
 			q.company_identifier,
 			include_quantity_zero=True,
+			license_numbers=q.license_numbers,
 			limit=limit
 	)
 
