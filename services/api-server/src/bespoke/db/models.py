@@ -429,7 +429,7 @@ class MetrcDownloadSummary(Base):
 	license_number = Column(String)
 	date = Column(Date)
 
-	status = Column(String) # completed, failure, needs_retry
+	status = Column(String) # Enum: db_constants.MetrcDownloadSummaryStatus.
 	harvests_status = Column(String)
 	packages_status = Column(String)
 	plant_batches_status = Column(String)
