@@ -317,7 +317,7 @@ export default function SettleRepaymentSelectLoans({
               color="primary"
             />
           }
-          label={"Apply portion of payment to loan(s)?"}
+          label={"Apply portion of repayment to loan(s)?"}
         />
         <FormControlLabel
           control={
@@ -339,7 +339,7 @@ export default function SettleRepaymentSelectLoans({
               color="primary"
             />
           }
-          label={"Apply portion of payment to account-level fees?"}
+          label={"Apply portion of repayment to account-level fees?"}
         />
         <FormControlLabel
           control={
@@ -352,7 +352,7 @@ export default function SettleRepaymentSelectLoans({
             />
           }
           label={
-            "Apply payment in the following non-standard order: principal, interest, fees?"
+            "Apply repayment in the following non-standard order: principal, interest, fees?"
           }
         />
       </Box>

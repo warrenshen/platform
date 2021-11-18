@@ -91,11 +91,11 @@ export default function SettleRepaymentModal({
             to_user_credit: 0.0,
           },
         } as PaymentsInsertInput);
-        // Initialize starting value for "Apply portion of payment to account-level fees?".
+        // Initialize starting value for "Apply portion of repayment to account-level fees?".
         if (!!existingPayment.items_covered.requested_to_account_fees) {
           setIsAmountToAccountFeesChecked(true);
         }
-        // Initialize starting value for "Apply portion of payment to loan(s)?".
+        // Initialize starting value for "Apply portion of repayment to loan(s)?".
         if (!!existingPayment.items_covered.loan_ids) {
           setIsAmountToLoansChecked(true);
         }
@@ -111,7 +111,7 @@ export default function SettleRepaymentModal({
       !!payment.items_covered?.loan_ids &&
       payment.items_covered.loan_ids.length > 0
     ) {
-      // If "Apply portion of payment to loan(s)" is not checked,
+      // If "Apply portion of repayment to loan(s)" is not checked,
       // ensure that no loans are selected in payment.items_covered.
       setPayment((payment) => ({
         ...payment,
