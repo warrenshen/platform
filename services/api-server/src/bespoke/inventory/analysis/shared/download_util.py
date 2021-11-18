@@ -18,6 +18,7 @@ from bespoke.inventory.analysis.shared.inventory_common_util import (
 from bespoke.inventory.analysis.shared.inventory_types import (
 	Printer,
 	Query,
+	AnalysisContext,
 	InventoryPackageDict,
 	TransferPackageDict,
 	SalesTransactionDict,
@@ -46,26 +47,51 @@ class SQLHelper(object):
 
 class BigQuerySQLHelper(SQLHelper):
 
-	def __init__(self, engine: Any) -> None:
+	def __init__(self, ctx: AnalysisContext, engine: Any) -> None:
+		self.ctx = ctx
 		self.engine = engine
 
 	def get_packages(self, package_ids: Iterable[str]) -> pd.DataFrame:
-		return pd.read_sql_query(
-				create_queries.create_packages_by_package_ids_query(package_ids),
-				self.engine
+		if self.ctx.read_params['use_cached_dataframes']:
+			df = pd.read_pickle(self.ctx.get_output_path('download/get_packages.pickle'))
+		else:
+			df = pd.read_sql_query(
+					create_queries.create_packages_by_package_ids_query(package_ids),
+					self.engine
 			)
 
+		if self.ctx.write_params['save_download_dataframes']:
+			df.to_pickle(self.ctx.get_output_path('download/get_packages.pickle'))
+
+		return df 
+
 	def get_inactive_packages(self, package_ids: Iterable[str]) -> pd.DataFrame:
-		return pd.read_sql_query(
+		if self.ctx.read_params['use_cached_dataframes']:
+			df = pd.read_pickle(self.ctx.get_output_path('download/get_inactive_packages.pickle'))
+		else:
+			df = pd.read_sql_query(
 				create_queries.are_packages_inactive_query(package_ids),
 				self.engine
 		)
 
+		if self.ctx.write_params['save_download_dataframes']:
+			df.to_pickle(self.ctx.get_output_path('download/get_inactive_packages.pickle'))
+
+		return df
+
 	def get_packages_by_production_batch_numbers(self, production_batch_numbers: Iterable[str]) -> pd.DataFrame:
-		return pd.read_sql_query(
+		if self.ctx.read_params['use_cached_dataframes']:
+			df = pd.read_pickle(self.ctx.get_output_path('download/get_packages_by_production_batch_numbers.pickle'))
+		else:
+			df = pd.read_sql_query(
 				create_queries.create_packages_by_production_batch_numbers_query(production_batch_numbers),
 				self.engine
 			)
+
+		if self.ctx.write_params['save_download_dataframes']:
+			df.to_pickle(self.ctx.get_output_path('download/get_packages_by_production_batch_numbers.pickle'))
+
+		return df
 
 def _date_to_datetime(date: datetime.date) -> datetime.datetime:
 	return datetime.datetime.combine(date.today(), datetime.datetime.min.time()).replace(tzinfo=pytz.UTC)
@@ -239,7 +265,7 @@ def get_bigquery_engine(engine_url: str) -> Any:
 	engine = create_engine(engine_url, credentials_path=os.path.expanduser(BIGQUERY_CREDENTIALS_PATH))
 	return engine
 
-def get_dataframes_for_analysis(q: Query, engine: Any, dry_run: bool) -> AllDataframesDict:
+def get_dataframes_for_analysis(q: Query, ctx: AnalysisContext, engine: Any, dry_run: bool) -> AllDataframesDict:
 	# Download packages, sales transactions, incoming / outgoing tranfers
 	limit = 50 if dry_run else None
 
@@ -264,11 +290,47 @@ def get_dataframes_for_analysis(q: Query, engine: Any, dry_run: bool) -> AllData
 			limit=limit
 	)
 
-	company_incoming_transfer_packages_dataframe = pd.read_sql_query(company_incoming_transfer_packages_query, engine)
-	company_outgoing_transfer_packages_dataframe = pd.read_sql_query(company_outgoing_transfer_packages_query, engine)
-	company_sales_receipts_dataframe = pd.read_sql_query(company_sales_receipts_query, engine)
-	company_sales_transactions_dataframe = pd.read_sql_query(company_sales_transactions_query, engine)
-	company_inventory_packages_dataframe = pd.read_sql_query(company_inventory_packages_query, engine)
+
+	if ctx.read_params['use_cached_dataframes']:
+		company_incoming_transfer_packages_dataframe = pd.read_pickle(ctx.get_output_path(
+			'download/incoming_transfers.pickle'
+		))
+		company_outgoing_transfer_packages_dataframe = pd.read_pickle(ctx.get_output_path(
+			'download/outgoing_transfers.pickle'
+		))
+		company_sales_receipts_dataframe = pd.read_pickle(ctx.get_output_path(
+			'download/sales_receipts.pickle'
+		))
+		company_sales_transactions_dataframe = pd.read_pickle(ctx.get_output_path(
+			'download/sales_transactions.pickle'
+		))
+		company_inventory_packages_dataframe = pd.read_pickle(ctx.get_output_path(
+			'download/inventory_packages.pickle'
+		))
+	else:
+		company_incoming_transfer_packages_dataframe = pd.read_sql_query(company_incoming_transfer_packages_query, engine)
+		company_outgoing_transfer_packages_dataframe = pd.read_sql_query(company_outgoing_transfer_packages_query, engine)
+		company_sales_receipts_dataframe = pd.read_sql_query(company_sales_receipts_query, engine)
+		company_sales_transactions_dataframe = pd.read_sql_query(company_sales_transactions_query, engine)
+		company_inventory_packages_dataframe = pd.read_sql_query(company_inventory_packages_query, engine)
+
+	if ctx.write_params['save_download_dataframes']:
+		ctx.mkdir('download')
+		company_incoming_transfer_packages_dataframe.to_pickle(ctx.get_output_path(
+			'download/incoming_transfers.pickle'
+		))
+		company_outgoing_transfer_packages_dataframe.to_pickle(ctx.get_output_path(
+			'download/outgoing_transfers.pickle'
+		))
+		company_sales_receipts_dataframe.to_pickle(ctx.get_output_path(
+			'download/sales_receipts.pickle'
+		))
+		company_sales_transactions_dataframe.to_pickle(ctx.get_output_path(
+			'download/sales_transactions.pickle'
+		))
+		company_inventory_packages_dataframe.to_pickle(ctx.get_output_path(
+			'download/inventory_packages.pickle'
+		))
 
 	return AllDataframesDict(
 		incoming_transfer_packages_dataframe=company_incoming_transfer_packages_dataframe,

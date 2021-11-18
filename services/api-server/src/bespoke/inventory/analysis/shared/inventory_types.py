@@ -1,5 +1,7 @@
 import datetime
 import logging
+import os
+from pathlib import Path
 from mypy_extensions import TypedDict
 from typing import Union, List, Dict, Set
 
@@ -142,6 +144,28 @@ AnalysisSummaryDict = TypedDict('AnalysisSummaryDict', {
 	'compare_inventory_results': CompareInventoryResultsDict,
 	'cogs_summary': CogsSummaryDict
 })
+
+ReadParams = TypedDict('ReadParams', {
+	'use_cached_dataframes': bool
+})
+
+WriteOutputParams = TypedDict('WriteOutputParams', {
+	'save_download_dataframes': bool
+})
+
+class AnalysisContext(object):
+	"""Object for passing around bunch of information about the inventory analysis being run"""
+
+	def __init__(self, output_root_dir: str, read_params: ReadParams, write_params: WriteOutputParams) -> None:
+		self.output_root_dir = output_root_dir
+		self.read_params = read_params
+		self.write_params = write_params
+
+	def mkdir(self, rel_path: str) -> None:
+		Path(os.path.join(self.output_root_dir, rel_path)).mkdir(parents=True, exist_ok=True)
+
+	def get_output_path(self, rel_path: str) -> str:
+		return os.path.join(self.output_root_dir, rel_path)
 
 class Query(object):
 	"""Describes the date ranges and company we are doing the analysis for"""

@@ -21,6 +21,9 @@ class DataFrame(Sequence):
 	def merge(self, *args: Any, **kwargs: Any) -> 'DataFrame':
 		pass
 
+	def to_pickle(self, path: str) -> Any:
+		pass
+
 	def apply(self, *args: Any, **kwargs: Any) -> Any:
 		pass
 
@@ -46,6 +49,10 @@ class DataFrame(Sequence):
 		pass
 
 def to_datetime(df: DataFrame) -> Any:
+	pass
+
+
+def read_pickle(filepath: str) -> DataFrame:
 	pass
 
 def read_excel(filepath: str, converters: Dict) -> Any:

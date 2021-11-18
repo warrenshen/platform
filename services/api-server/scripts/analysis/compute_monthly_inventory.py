@@ -22,6 +22,7 @@ import datetime
 import logging
 import os
 import sys
+import time
 import logging
 from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
@@ -42,6 +43,9 @@ from bespoke.inventory.analysis import inventory_valuations_util as valuations_u
 from bespoke.inventory.analysis import inventory_summary_util
 from bespoke.inventory.analysis.shared.inventory_types import (
 	Query,
+	AnalysisContext,
+	ReadParams,
+	WriteOutputParams,
 	AnalysisParamsDict,
 	AnalysisSummaryDict
 )
@@ -139,8 +143,15 @@ CompanyInputDict = TypedDict('CompanyInputDict', {
 	'start_date': datetime.date
 })
 
+ArgsDict = TypedDict('ArgsDict', {
+	'dry_run': bool,
+	'save_dataframes': bool,
+	'use_cached_dataframes': bool
+})
+
 def _compute_inventory_for_customer(
-	company_input: CompanyInputDict, dry_run: bool) -> List[AnalysisSummaryDict]:
+	company_input: CompanyInputDict, 
+	args_dict: ArgsDict) -> List[AnalysisSummaryDict]:
 
 	company_name = company_input['company_name']
 	company_identifier = company_input['company_identifier']
@@ -151,6 +162,16 @@ def _compute_inventory_for_customer(
 	## Setup input parameters
 
 	today_date = datetime.date.today()
+
+	ctx = AnalysisContext(
+		output_root_dir='out/{}'.format(company_identifier),
+		read_params=ReadParams(
+			use_cached_dataframes=args_dict['use_cached_dataframes']
+		),
+		write_params=WriteOutputParams(
+			save_download_dataframes=args_dict['save_dataframes']
+		)
+	)
 
 	q = util.Query(
 		inventory_dates=[], # gets filled in once we have the dataframes
@@ -163,10 +184,19 @@ def _compute_inventory_for_customer(
 
 	## Download the data
 	logging.info('About to download all inventory history for {}'.format(q.company_name))
+	
+	before = time.time()
 	engine = download_util.get_bigquery_engine('bigquery://bespoke-financial/ProdMetrcData')
-	all_dataframes_dict = download_util.get_dataframes_for_analysis(q, engine, dry_run=dry_run)
+	all_dataframes_dict = download_util.get_dataframes_for_analysis(q, ctx, engine, dry_run=args_dict['dry_run'])
+	after = time.time()
+	logging.info('Took {} seconds to run sql queries'.format(round(after - before, 2)))
+	
+	before = time.time()
 	d = util.Download()
-	d.download_dataframes(all_dataframes_dict, sql_helper=download_util.BigQuerySQLHelper(engine))
+	d.download_dataframes(all_dataframes_dict, sql_helper=download_util.BigQuerySQLHelper(ctx, engine))
+	after = time.time()
+	logging.info('Took {} seconds to process dataframes'.format(round(after - before, 2)))
+
 	q.inventory_dates = download_util.get_inventory_dates(
 		all_dataframes_dict, today_date)
 
@@ -189,6 +219,16 @@ def main() -> None:
 		dest='pull_all_data',
 		action='store_true',
 	)
+	parser.add_argument(
+		'--use_cached_files',
+		dest='use_cached_files',
+		action='store_true',
+	)
+	parser.add_argument(
+		'--save_dataframes',
+		dest='save_dataframes',
+		action='store_true',
+	)
 	args = parser.parse_args()
 
 	workbook, err = excel_reader.ExcelWorkbook.load_xlsx(args.input_file)
@@ -198,6 +238,9 @@ def main() -> None:
 	sheet, err = workbook.get_sheet_by_index(0)
 	if err:
 		raise Exception(err)
+
+	if args.pull_all_data and args.use_cached_files:
+		raise Exception('Cannot have both set: --use_cached_files and --pull_all_data. Must be one or the other')
 
 	dry_run = False if args.pull_all_data else True
 	logging.info('Processing {} companies with dry_run={}'.format(len(sheet['rows']) - 1, dry_run))
@@ -218,12 +261,21 @@ def main() -> None:
 
 	index_to_summary = {}
 
+	args_dict = ArgsDict(
+		dry_run=dry_run,
+		use_cached_dataframes=args.use_cached_files,
+		save_dataframes=args.save_dataframes,
+	)
+
 	with ThreadPoolExecutor(max_workers=3) as executor:
 		future_to_i = {}
 
 		for i in range(len(company_inputs)):
 			company_input = company_inputs[i]
-			future_to_i[executor.submit(_compute_inventory_for_customer, company_input, dry_run)] = i
+			future_to_i[executor.submit(
+				_compute_inventory_for_customer, 
+				company_input,
+				args_dict)] = i
 
 		for future in concurrent.futures.as_completed(future_to_i):
 			summary = future.result()

@@ -21,14 +21,20 @@ def write_excel_for_summaries(summaries: List[AnalysisSummaryDict]) -> None:
 		 'pct_excluded', 'counts_summary',
 
 		 # Inventory
-		 'pct_inventory_match', 'pct_accuracy_of_quantity',
-		 'pct_inventory_overestimate', 'pct_quantity_overestimated',
+		 'pct_inventory_match', 
+		 'pct_accuracy_of_quantity',
+		 'pct_inventory_overestimate', 
+		 'pct_quantity_overestimated',
 		 
 		 # Revenue
+		 # TODO(dlluncor):
+		 # Average trailing 10 months of COGS * 12 = yearly COGS
+		 # want a inventory_turnover = yearly COGS / inventory_valuation
 		 'pct_transactions_with_cost',
 		 'topdown_total_cogs', 
 		 'bottomsup_total_cogs', 
-		 'current_inventory_value', 'cogs_reconciled_delta_as_pct', 
+		 'current_inventory_value', 
+		 'cogs_reconciled_delta_as_pct', 
 		 'cogs_summary'
 		])
 
