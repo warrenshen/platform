@@ -395,6 +395,52 @@ def create_company_inventory_packages_query(
 		{limit_clause}
 	"""
 
+def create_company_all_packages_query(
+	company_identifier: str,
+	license_numbers: List[str]=None,
+	limit: int = None,
+) -> str:
+	license_numbers = [f"'{license_number}'" for license_number in license_numbers] if license_numbers else None
+	license_numbers_where_clause = f"""
+		and metrc_packages.license_number in ({','.join(license_numbers)})
+	""" if license_numbers else ''
+	limit_clause = f"LIMIT {limit}" if limit else ""
+
+	return f"""
+		select
+			metrc_packages.license_number,
+			metrc_packages.package_id,
+			metrc_packages.package_label,
+			metrc_packages.type,
+			metrc_packages.packaged_date,
+			metrc_packages.last_modified_at,
+			metrc_packages.package_type,
+			metrc_packages.product_name,
+			metrc_packages.product_category_name,
+			metrc_packages.quantity,
+			metrc_packages.unit_of_measure,
+			metrc_packages.package_payload.itemid as item_id,
+			metrc_packages.package_payload.itemproductcategorytype as item_product_category_type,
+			metrc_packages.package_payload.productionbatchnumber as production_batch_number,
+			metrc_packages.package_payload.sourceproductionbatchnumbers as source_production_batch_numbers,
+			metrc_packages.package_payload.sourceharvestnames as source_harvest_names,
+			metrc_packages.package_payload.istestingsample as is_testing_sample,
+			metrc_packages.package_payload.istradesample as is_trade_sample,
+			metrc_packages.package_payload.isonhold as is_on_hold,
+			metrc_packages.package_payload.archiveddate as archived_date,
+			metrc_packages.package_payload.finisheddate as finished_date
+		from
+			companies
+			inner join metrc_packages on companies.id = metrc_packages.company_id
+		where
+			True
+			and companies.identifier = "{company_identifier}"
+			{license_numbers_where_clause}
+		order by
+			metrc_packages.packaged_date desc
+		{limit_clause}
+	"""
+
 # ID queries: get data by IDs.
 def create_sales_transactions_by_package_id_query(package_id: str) -> str:
 	return f"""
@@ -639,95 +685,95 @@ def are_packages_inactive_query(package_ids: Iterable[str]) -> str:
 	package_ids_str = ','.join([f"'{package_id}'" for package_id in list(package_ids)])
 
 	return f"""
-			select
-					companies.identifier,
-					metrc_packages.license_number,
-					metrc_packages.type,
-					metrc_packages.package_id,
-					metrc_packages.package_label,
-					metrc_packages.packaged_date,
-					metrc_packages.product_category_name,
-					metrc_packages.product_name,
-					metrc_packages.quantity,
-					metrc_packages.unit_of_measure,
-					metrc_packages.package_payload.itemid as item_id,
-					metrc_packages.package_payload.itemproductcategorytype as item_product_category_type,
-					metrc_packages.package_payload.productionbatchnumber as production_batch_number,
-					metrc_packages.package_payload.sourceproductionbatchnumbers as source_production_batch_numbers,
-					metrc_packages.package_payload.sourceharvestnames as source_harvest_names,
-					metrc_packages.package_payload.istestingsample as is_testing_sample,
-					metrc_packages.package_payload.istradesample as is_trade_sample,
-					metrc_packages.package_payload.archiveddate as archived_date,
-					metrc_packages.package_payload.finisheddate as finished_date
-			from
-					metrc_packages
-					inner join companies on metrc_packages.company_id = companies.id
-			where
-					True
-					and metrc_packages.package_id in ({package_ids_str})
-					and metrc_packages.type = 'inactive'
+		select
+			companies.identifier,
+			metrc_packages.license_number,
+			metrc_packages.type,
+			metrc_packages.package_id,
+			metrc_packages.package_label,
+			metrc_packages.packaged_date,
+			metrc_packages.product_category_name,
+			metrc_packages.product_name,
+			metrc_packages.quantity,
+			metrc_packages.unit_of_measure,
+			metrc_packages.package_payload.itemid as item_id,
+			metrc_packages.package_payload.itemproductcategorytype as item_product_category_type,
+			metrc_packages.package_payload.productionbatchnumber as production_batch_number,
+			metrc_packages.package_payload.sourceproductionbatchnumbers as source_production_batch_numbers,
+			metrc_packages.package_payload.sourceharvestnames as source_harvest_names,
+			metrc_packages.package_payload.istestingsample as is_testing_sample,
+			metrc_packages.package_payload.istradesample as is_trade_sample,
+			metrc_packages.package_payload.archiveddate as archived_date,
+			metrc_packages.package_payload.finisheddate as finished_date
+		from
+			metrc_packages
+			inner join companies on metrc_packages.company_id = companies.id
+		where
+			True
+			and metrc_packages.package_id in ({package_ids_str})
+			and metrc_packages.type = 'inactive'
 	"""
 
 def create_packages_by_package_ids_query(package_ids: Iterable[str]) -> str:
 	package_ids_str = ','.join([f"'{package_id}'" for package_id in list(package_ids)])
 
 	return f"""
-			select
-					companies.identifier,
-					metrc_packages.license_number,
-					metrc_packages.type,
-					metrc_packages.package_type,
-					metrc_packages.product_category_name,
-					metrc_packages.product_name,
-					metrc_packages.package_id,
-					metrc_packages.package_label,
-					metrc_packages.quantity,
-					metrc_packages.unit_of_measure,
-					metrc_packages.package_payload.itemid as item_id,
-					metrc_packages.package_payload.itemproductcategorytype as item_product_category_type,
-					metrc_packages.package_payload.productionbatchnumber as production_batch_number,
-					metrc_packages.package_payload.sourceproductionbatchnumbers as source_production_batch_numbers,
-					metrc_packages.package_payload.sourceharvestnames as source_harvest_names,
-					metrc_packages.package_payload.istestingsample as is_testing_sample,
-					metrc_packages.package_payload.istradesample as is_trade_sample,
-					metrc_packages.package_payload.archiveddate as archived_date,
-					metrc_packages.package_payload.finisheddate as finished_date   
-			from
-					metrc_packages
-					left outer join companies on metrc_packages.company_id = companies.id
-			where
-					True
-					and metrc_packages.package_id in ({package_ids_str})
+		select
+			companies.identifier,
+			metrc_packages.license_number,
+			metrc_packages.type,
+			metrc_packages.package_type,
+			metrc_packages.product_category_name,
+			metrc_packages.product_name,
+			metrc_packages.package_id,
+			metrc_packages.package_label,
+			metrc_packages.quantity,
+			metrc_packages.unit_of_measure,
+			metrc_packages.package_payload.itemid as item_id,
+			metrc_packages.package_payload.itemproductcategorytype as item_product_category_type,
+			metrc_packages.package_payload.productionbatchnumber as production_batch_number,
+			metrc_packages.package_payload.sourceproductionbatchnumbers as source_production_batch_numbers,
+			metrc_packages.package_payload.sourceharvestnames as source_harvest_names,
+			metrc_packages.package_payload.istestingsample as is_testing_sample,
+			metrc_packages.package_payload.istradesample as is_trade_sample,
+			metrc_packages.package_payload.archiveddate as archived_date,
+			metrc_packages.package_payload.finisheddate as finished_date   
+		from
+			metrc_packages
+			left outer join companies on metrc_packages.company_id = companies.id
+		where
+			True
+			and metrc_packages.package_id in ({package_ids_str})
 	"""
 
 def create_packages_by_production_batch_numbers_query(production_batch_numbers: Iterable[str]) -> str:
 	production_batch_numbers_str = ','.join([f"'{production_batch_number}'" for production_batch_number in list(production_batch_numbers)])
 
 	return f"""
-			select
-					companies.identifier,
-					metrc_packages.license_number,
-					metrc_packages.type,
-					metrc_packages.package_type,
-					metrc_packages.product_category_name,
-					metrc_packages.product_name,
-					metrc_packages.package_id,
-					metrc_packages.package_label,
-					metrc_packages.quantity,
-					metrc_packages.unit_of_measure,
-					metrc_packages.package_payload.itemid as item_id,
-					metrc_packages.package_payload.itemproductcategorytype as item_product_category_type,
-					metrc_packages.package_payload.productionbatchnumber as production_batch_number,
-					metrc_packages.package_payload.sourceproductionbatchnumbers as source_production_batch_numbers,
-					metrc_packages.package_payload.sourceharvestnames as source_harvest_names,
-					metrc_packages.package_payload.istestingsample as is_testing_sample,
-					metrc_packages.package_payload.istradesample as is_trade_sample,
-					metrc_packages.package_payload.archiveddate as archived_date,
-					metrc_packages.package_payload.finisheddate as finished_date
-			from
-					metrc_packages
-					left outer join companies on metrc_packages.company_id = companies.id
-			where
-					True
-					and metrc_packages.package_payload.productionbatchnumber in ({production_batch_numbers_str})
+		select
+			companies.identifier,
+			metrc_packages.license_number,
+			metrc_packages.type,
+			metrc_packages.package_type,
+			metrc_packages.product_category_name,
+			metrc_packages.product_name,
+			metrc_packages.package_id,
+			metrc_packages.package_label,
+			metrc_packages.quantity,
+			metrc_packages.unit_of_measure,
+			metrc_packages.package_payload.itemid as item_id,
+			metrc_packages.package_payload.itemproductcategorytype as item_product_category_type,
+			metrc_packages.package_payload.productionbatchnumber as production_batch_number,
+			metrc_packages.package_payload.sourceproductionbatchnumbers as source_production_batch_numbers,
+			metrc_packages.package_payload.sourceharvestnames as source_harvest_names,
+			metrc_packages.package_payload.istestingsample as is_testing_sample,
+			metrc_packages.package_payload.istradesample as is_trade_sample,
+			metrc_packages.package_payload.archiveddate as archived_date,
+			metrc_packages.package_payload.finisheddate as finished_date
+		from
+			metrc_packages
+			left outer join companies on metrc_packages.company_id = companies.id
+		where
+			True
+			and metrc_packages.package_payload.productionbatchnumber in ({production_batch_numbers_str})
 	"""

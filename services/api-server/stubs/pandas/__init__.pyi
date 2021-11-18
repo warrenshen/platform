@@ -18,6 +18,9 @@ class DataFrame(Sequence):
 	def astype(self, *args: Any, **kwargs: Any) -> 'DataFrame':
 		pass
 
+	def merge(self, *args: Any, **kwargs: Any) -> 'DataFrame':
+		pass
+
 	def apply(self, *args: Any, **kwargs: Any) -> Any:
 		pass
 
