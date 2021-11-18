@@ -16,12 +16,17 @@ for their entire history.
 
 		summary.xls
 """
+import argparse
+import concurrent
 import datetime
+import logging
 import os
 import sys
 import logging
+from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
 from os import path
+from mypy_extensions import TypedDict
 from typing import List, Dict, Any, cast
 from sqlalchemy.orm.session import Session
 # Path hack before we try to import bespoke
@@ -29,6 +34,7 @@ sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 
 from bespoke.date import date_util
 from bespoke.db import models
+from bespoke.excel import excel_reader
 from bespoke.inventory.analysis.shared import package_history, download_util
 from bespoke.inventory.analysis import active_inventory_util as util
 from bespoke.inventory.analysis import inventory_cogs_util as cogs_util
@@ -81,11 +87,12 @@ def _run_analysis_for_customer(d: download_util.Download, q: Query, params: Anal
 	)
 
 	# Plot graphs
-	valuations_util.plot_inventory_and_revenue(
-			q=q,
-			sales_receipts_dataframe=d.sales_receipts_dataframe,
-			inventory_valuations=computed_resp['inventory_valuations']
-	)
+	# TODO(dlluncor): Has to happen in the main thread to plot these graphs
+	#valuations_util.plot_inventory_and_revenue(
+	#		q=q,
+	#		sales_receipts_dataframe=d.sales_receipts_dataframe,
+	#		inventory_valuations=computed_resp['inventory_valuations']
+	#)
 
 	return AnalysisSummaryDict(
 		company_name=q.company_name,
@@ -96,15 +103,50 @@ def _run_analysis_for_customer(d: download_util.Download, q: Query, params: Anal
 		cogs_summary=cogs_summary
 	)
 
-def _compute_inventory_for_customer(
-	company_identifier: str, params_list: List[AnalysisParamsDict], dry_run: bool) -> List[AnalysisSummaryDict]:
-	identifier_to_name = {
-		'RA': 'Royal_Apothecary'
-	}
-	transfer_packages_start_date = '2020-01-01'
-	sales_transactions_start_date = '2020-01-01'
+def _get_params_list() -> List[util.AnalysisParamsDict]:
 
-	company_name = identifier_to_name.get(company_identifier, company_identifier)
+	# Default args, no inference
+	params = util.AnalysisParamsDict(
+		sold_threshold=package_history.DEFAULT_SOLD_THRESHOLD,
+		find_parent_child_relationships=False,
+		use_prices_to_fill_missing_incoming=False,
+		external_pricing_data_config=None,
+		use_margin_estimate_config=False,
+		margin_estimate_config=None,
+		cogs_analysis_params=None
+	)
+	"""
+	# COGS add the flag 
+	params2 = util.AnalysisParamsDict(
+		sold_threshold=package_history.DEFAULT_SOLD_THRESHOLD,
+		find_parent_child_relationships=False,
+		use_prices_to_fill_missing_incoming=False,
+		external_pricing_data_config=None,
+		use_margin_estimate_config=False,
+		margin_estimate_config=None,
+		cogs_analysis_params={
+			'readjust_profit_threshold': 0.9,
+			'readjust_type': 'remove'
+		}
+	)
+	"""
+	return [params]
+
+CompanyInputDict = TypedDict('CompanyInputDict', {
+	'company_name': str,
+	'company_identifier': str,
+	'license_numbers': List[str],
+	'start_date': datetime.date
+})
+
+def _compute_inventory_for_customer(
+	company_input: CompanyInputDict, dry_run: bool) -> List[AnalysisSummaryDict]:
+
+	company_name = company_input['company_name']
+	company_identifier = company_input['company_identifier']
+	transfer_packages_start_date = company_input['start_date'].strftime('%Y-%m-%d')
+	sales_transactions_start_date = company_input['start_date'].strftime('%Y-%m-%d')
+	license_numbers = company_input['license_numbers']
 
 	## Setup input parameters
 
@@ -116,7 +158,7 @@ def _compute_inventory_for_customer(
 		sales_transactions_start_date=sales_transactions_start_date,
 		company_name=company_name,
 		company_identifier=company_identifier,
-		license_numbers=[] # No licenses means use all licenses associated with this customer
+		license_numbers=license_numbers
 	)
 
 	## Download the data
@@ -128,6 +170,8 @@ def _compute_inventory_for_customer(
 	q.inventory_dates = download_util.get_inventory_dates(
 		all_dataframes_dict, today_date)
 
+	params_list = _get_params_list()
+
 	summaries = []
 	for params in params_list:
 		summaries.append(_run_analysis_for_customer(d, q, params))
@@ -135,38 +179,64 @@ def _compute_inventory_for_customer(
 	return summaries
 
 def main() -> None:
-	dry_run = True
-	# Dont infer anything
-	params = util.AnalysisParamsDict(
-		sold_threshold=package_history.DEFAULT_SOLD_THRESHOLD,
-		find_parent_child_relationships=False,
-		use_prices_to_fill_missing_incoming=False,
-		external_pricing_data_config=None,
-		use_margin_estimate_config=False,
-		margin_estimate_config=None,
-		cogs_analysis_params=None
+	parser = argparse.ArgumentParser()
+	parser.add_argument(
+		'--input_file',
+		help='Input file that specifies all the companies to run for',
 	)
-	# Pricing table only
-	params2 = util.AnalysisParamsDict(
-		sold_threshold=package_history.DEFAULT_SOLD_THRESHOLD,
-		find_parent_child_relationships=False,
-		use_prices_to_fill_missing_incoming=True,
-		external_pricing_data_config=None,
-		use_margin_estimate_config=False,
-		margin_estimate_config=None,
-		cogs_analysis_params=None
+	parser.add_argument(
+		'--pull_all_data',
+		dest='pull_all_data',
+		action='store_true',
 	)
-	# Pricing table + parenting logic
-	params3 = util.AnalysisParamsDict(
-		sold_threshold=package_history.DEFAULT_SOLD_THRESHOLD,
-		find_parent_child_relationships=True,
-		use_prices_to_fill_missing_incoming=True,
-		external_pricing_data_config=None,
-		use_margin_estimate_config=False,
-		margin_estimate_config=None,
-		cogs_analysis_params=None
-	)
-	summaries = _compute_inventory_for_customer('RA', [params, params2, params3], dry_run=dry_run)
+	args = parser.parse_args()
+
+	workbook, err = excel_reader.ExcelWorkbook.load_xlsx(args.input_file)
+	if err:
+		raise Exception(err)
+
+	sheet, err = workbook.get_sheet_by_index(0)
+	if err:
+		raise Exception(err)
+
+	dry_run = False if args.pull_all_data else True
+	logging.info('Processing {} companies with dry_run={}'.format(len(sheet['rows']) - 1, dry_run))
+
+	company_inputs = []
+	for i in range(len(sheet['rows'])):
+		if i == 0:
+			# skip header
+			continue
+
+		row = cast(List[Any], sheet['rows'][i])
+		company_inputs.append(CompanyInputDict(
+			company_name=row[0].strip(),
+			company_identifier=row[1].strip(),
+			license_numbers=[el.strip() for el in row[2].strip().split(';')],
+			start_date=row[3]
+		))
+
+	index_to_summary = {}
+
+	with ThreadPoolExecutor(max_workers=3) as executor:
+		future_to_i = {}
+
+		for i in range(len(company_inputs)):
+			company_input = company_inputs[i]
+			future_to_i[executor.submit(_compute_inventory_for_customer, company_input, dry_run)] = i
+
+		for future in concurrent.futures.as_completed(future_to_i):
+			summary = future.result()
+			index = future_to_i[future]
+			index_to_summary[index] = summary
+
+	indices = list(index_to_summary.keys())
+	indices.sort()
+
+	summaries = []
+	for index in indices:
+		summaries.extend(index_to_summary[index])
+
 	inventory_summary_util.write_excel_for_summaries(summaries)
 
 if __name__ == "__main__":

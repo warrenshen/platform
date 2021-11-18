@@ -3,7 +3,7 @@ import xlwt
 from typing import Dict, List, Sequence, Union, BinaryIO
 from xlwt.Worksheet import Worksheet as xlwt_Worksheet
 
-CellValue = Union[float, int, str]
+from bespoke.excel.excel_types import CellValue
 
 class Worksheet(object):
 	"""A single sheet inside a spreadsheet."""
