@@ -86,6 +86,10 @@ def write_excel_for_summaries(summaries: List[AnalysisSummaryDict]) -> None:
 	for row in rows:
 		summary_sheet.add_row(row)
 
+	if not company_names:
+		logging.error('No company summaries were generated successfully')
+		return
+
 	for_one_company = len(company_names) == 1
 	company_name = list(company_names)[0]
 

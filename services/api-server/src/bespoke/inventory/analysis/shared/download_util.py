@@ -16,6 +16,7 @@ from bespoke.inventory.analysis.shared import create_queries, prepare_data
 from bespoke.inventory.analysis.shared.inventory_common_util import (
 	parse_to_date, parse_to_datetime, is_time_null, safe_isnan
 )
+from bespoke.db.models_util import chunker
 from bespoke.inventory.analysis.shared.inventory_types import (
 	Printer,
 	Query,
@@ -57,10 +58,16 @@ class BigQuerySQLHelper(SQLHelper):
 		if self.ctx.read_params['use_cached_dataframes'] and os.path.exists(df_path):
 			df = pd.read_pickle(df_path)
 		else:
-			df = pd.read_sql_query(
-					create_queries.create_packages_by_package_ids_query(package_ids),
-					self.engine
-			)
+			package_ids_list = chunker(list(package_ids), size=500)
+			dfs = []
+			for cur_package_ids in package_ids_list:
+				cur_df = pd.read_sql_query(
+						create_queries.create_packages_by_package_ids_query(cur_package_ids),
+						self.engine
+				)
+				dfs.append(cur_df)
+
+			df = pd.concat(dfs, axis=0)
 
 		if self.ctx.write_params['save_download_dataframes']:
 			df.to_pickle(df_path)
@@ -73,10 +80,16 @@ class BigQuerySQLHelper(SQLHelper):
 		if self.ctx.read_params['use_cached_dataframes'] and os.path.exists(df_path):
 			df = pd.read_pickle(df_path)
 		else:
-			df = pd.read_sql_query(
-				create_queries.are_packages_inactive_query(package_ids),
-				self.engine
-		)
+			package_ids_list = chunker(list(package_ids), size=500)
+			dfs = []
+			for cur_package_ids in package_ids_list:
+				cur_df = pd.read_sql_query(
+					create_queries.are_packages_inactive_query(cur_package_ids),
+					self.engine
+				)
+				dfs.append(cur_df)
+
+			df = pd.concat(dfs, axis=0)
 
 		if self.ctx.write_params['save_download_dataframes']:
 			df.to_pickle(df_path)
@@ -88,10 +101,17 @@ class BigQuerySQLHelper(SQLHelper):
 		if self.ctx.read_params['use_cached_dataframes'] and os.path.exists(df_path):
 			df = pd.read_pickle(df_path)
 		else:
-			df = pd.read_sql_query(
-				create_queries.create_packages_by_production_batch_numbers_query(production_batch_numbers),
-				self.engine
-			)
+			batch_numbers_list = chunker(list(production_batch_numbers), size=500)
+			dfs = []
+			for cur_batch_numbers in batch_numbers_list:
+				cur_df = pd.read_sql_query(
+					create_queries.create_packages_by_production_batch_numbers_query(cur_batch_numbers),
+					self.engine
+				)
+				dfs.append(cur_df)
+
+			# Combine all the rows together into one DF
+			df = pd.concat(dfs, axis=0)
 
 		if self.ctx.write_params['save_download_dataframes']:
 			df.to_pickle(df_path)

@@ -48,9 +48,11 @@ class DataFrame(Sequence):
 	def to_dict(self, el: str) -> List[Dict]:
 		pass
 
-def to_datetime(df: DataFrame) -> Any:
+def concat(dfs: List[DataFrame], axis: int) -> DataFrame:
 	pass
 
+def to_datetime(df: DataFrame) -> Any:
+	pass
 
 def read_pickle(filepath: str) -> DataFrame:
 	pass

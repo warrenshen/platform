@@ -285,11 +285,7 @@ def main() -> None:
 	if err:
 		raise Exception(err)
 
-	if args.pull_all_data and args.use_cached_files:
-		raise Exception('Cannot have both set: --use_cached_files and --pull_all_data. Must be one or the other')
-
 	dry_run = False if args.pull_all_data else True
-	logging.info('Processing {} companies with dry_run={}'.format(len(sheet['rows']) - 1, dry_run))
 
 	company_inputs = []
 	for i in range(len(sheet['rows'])):
@@ -298,12 +294,15 @@ def main() -> None:
 			continue
 
 		row = cast(List[Any], sheet['rows'][i])
+
 		company_inputs.append(CompanyInputDict(
 			company_name=row[0].strip(),
 			company_identifier=row[1].strip(),
 			license_numbers=[el.strip() for el in row[2].strip().split(';')],
 			start_date=row[3]
 		))
+
+	logging.info('Processing {} companies with dry_run={}'.format(len(company_inputs), dry_run))
 
 	index_to_summary = {}
 

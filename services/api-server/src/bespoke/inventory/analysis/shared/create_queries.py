@@ -747,7 +747,7 @@ def create_packages_by_package_ids_query(package_ids: Iterable[str]) -> str:
 	"""
 
 def create_packages_by_production_batch_numbers_query(production_batch_numbers: Iterable[str]) -> str:
-	production_batch_numbers_str = ','.join([f"'{production_batch_number}'" for production_batch_number in list(production_batch_numbers)])
+	production_batch_numbers_str = ','.join(["'{}'".format(num.replace("'", "\\'")) for num in list(production_batch_numbers)])
 
 	return f"""
 		select
