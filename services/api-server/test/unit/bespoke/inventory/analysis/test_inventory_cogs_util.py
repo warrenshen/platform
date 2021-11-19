@@ -10,6 +10,11 @@ from bespoke_test.inventory.analysis.inventory_test_helper import (
 from bespoke.db.db_constants import DeliveryType
 from bespoke.inventory.analysis import active_inventory_util as util
 from bespoke.inventory.analysis import inventory_cogs_util as cogs_util
+from bespoke.inventory.analysis.shared.inventory_types import (
+	AnalysisContext,
+	ReadParams,
+	WriteOutputParams,
+)
 
 class TestCreateCogsSummary(unittest.TestCase):
 
@@ -21,6 +26,15 @@ class TestCreateCogsSummary(unittest.TestCase):
 		package_id_to_history = util.get_histories(dl, test['analysis_params'])
 		cogs_summary = cogs_util.create_cogs_summary(
 			d=dl,
+			ctx=AnalysisContext(
+				output_root_dir='tmp',
+				read_params=ReadParams(
+					use_cached_dataframes=False
+				),
+				write_params=WriteOutputParams(
+					save_download_dataframes=False
+				)
+			),
 			id_to_history=package_id_to_history,
 			params=test['analysis_params']
 		)

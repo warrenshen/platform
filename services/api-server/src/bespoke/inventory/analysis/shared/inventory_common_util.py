@@ -1,5 +1,6 @@
 import datetime
 import logging
+import numpy
 from dateutil import parser
 from typing import Any, Union, Tuple, cast
 
@@ -19,6 +20,24 @@ def is_time_null(cur_time: Any) -> bool:
 
 	cur_time_str = str(cur_time)
 	return cur_time_str == 'NaT' or cur_time_str == 'NaTType'
+
+def safe_isnan(val: Any) -> bool:
+	try:
+		return numpy.isnan(val)
+	except Exception as e:
+		# If its some non-coercible type, then in practice it is NaN
+		# because we couldn't parse it.
+		return True
+
+def is_not_number(num: Any) -> bool:
+	return num is None or safe_isnan(num)
+
+def is_number(num: Any) -> bool:
+	return not is_not_number(num)
+
+def val_if_not_num(num: Any, default: float) -> float:
+	return default if is_not_number(num) else cast(float, num)
+
 
 def date_to_str(dt: Union[datetime.datetime, datetime.date]) -> str:
 	if not dt:

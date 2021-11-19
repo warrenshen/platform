@@ -12,8 +12,12 @@ from bespoke.excel import excel_writer
 from bespoke.excel.excel_writer import CellValue
 from bespoke.finance.types import finance_types
 from bespoke.inventory.analysis.shared.inventory_types import (
+	AnalysisContext,
 	AnalysisParamsDict,
 	CogsSummaryDict
+)
+from bespoke.inventory.analysis.shared.inventory_common_util import (
+	safe_isnan, is_not_number
 )
 from bespoke.inventory.analysis.shared.download_util import Download
 from bespoke.inventory.analysis.shared.package_history import PackageHistory
@@ -122,9 +126,11 @@ def _create_cogs_summary_for_all_dates(
 		per_unit_cost = 0.0
 		if has_price_info:
 			incoming_pkg = history.incomings[-1]
-			if increase_cost_by_quantity:
+			if is_not_number(incoming_pkg['price']) or is_not_number(incoming_pkg['quantity']):
+				per_unit_cost = 0.0
+			elif increase_cost_by_quantity:
 				per_unit_cost = incoming_pkg['price'] # The price is the price for one quantity when using this flag
-			else:
+			elif incoming_pkg['quantity'] > 0:
 				per_unit_cost = incoming_pkg['price'] / incoming_pkg['quantity']
 
 		pkg_revenue = 0.0
@@ -134,7 +140,7 @@ def _create_cogs_summary_for_all_dates(
 			summary = _get_summary(sales_tx['sales_date']) if add_to_summary else _get_dummy_summary()
 
 			cur_revenue = 0.0
-			if not numpy.isnan(sales_tx['tx_total_price']):
+			if not safe_isnan(sales_tx['tx_total_price']):
 				summary['revenue'] += sales_tx['tx_total_price']
 				cur_revenue = sales_tx['tx_total_price']
 				pkg_revenue += cur_revenue
@@ -272,7 +278,7 @@ def _create_top_down_cogs_summary_for_all_dates(
 
 		summary = _get_summary(incoming_pkg['received_date'])
 		
-		if not numpy.isnan(incoming_pkg['price']):
+		if not safe_isnan(incoming_pkg['price']):
 			summary['cogs'] += incoming_pkg['price']
 
 		incoming_pkg_ids_seen.add(incoming_pkg['package_id'])
@@ -280,7 +286,7 @@ def _create_top_down_cogs_summary_for_all_dates(
 	for sales_tx in d.sales_tx_records:
 		summary = _get_summary(sales_tx['sales_date'])
 		
-		if not numpy.isnan(sales_tx['tx_total_price']):
+		if not safe_isnan(sales_tx['tx_total_price']):
 			summary['revenue'] += sales_tx['tx_total_price']
 
 		summary['num_transactions_total'] += 1
@@ -299,6 +305,7 @@ def _create_top_down_cogs_summary_for_all_dates(
 	)
 
 def write_cogs_xlsx(
+	ctx: AnalysisContext,
 	topdown_cogs_rows: List[List[CellValue]],
 	bottoms_up_cogs_rows: List[List[CellValue]],
 	company_name: str) -> None:
@@ -351,13 +358,14 @@ def write_cogs_xlsx(
 
 	Path('out').mkdir(parents=True, exist_ok=True)
 
-	filepath = f'out/{company_name}_cogs_summary.xls'
+	filepath = ctx.get_output_path(f'reports/{company_name}_cogs_summary.xls')
 	with open(filepath, 'wb') as f:
 		wb.save(f)
 		logging.info('Wrote result to {}'.format(filepath))
 
 def create_cogs_summary(
-	d: Download, 
+	d: Download,
+	ctx: AnalysisContext,
 	id_to_history: Dict[str, PackageHistory], 
 	params: AnalysisParamsDict,
 	debug_package_id: str = None,

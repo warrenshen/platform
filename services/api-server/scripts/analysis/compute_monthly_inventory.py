@@ -19,11 +19,13 @@ for their entire history.
 import argparse
 import concurrent
 import datetime
+import json
 import logging
 import os
 import sys
 import time
 import logging
+import traceback
 from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
 from os import path
@@ -56,7 +58,7 @@ logging.basicConfig(format='%(asctime)s [%(levelname)s] - %(message)s',
 dotenv_path = os.path.join(os.environ.get('SERVER_ROOT_DIR', '.'), '.env')
 load_dotenv(dotenv_path)
 
-def _run_analysis_for_customer(d: download_util.Download, q: Query, params: AnalysisParamsDict) -> AnalysisSummaryDict:
+def _run_analysis_for_customer(d: download_util.Download, ctx: AnalysisContext, q: Query, params: AnalysisParamsDict) -> AnalysisSummaryDict:
 	## Analyze counts for the dataset
 	logging.info('Analyzing counts for {}'.format(q.company_name))
 	today_date = date_util.load_date_str(q.inventory_dates[-1]) # the most recent day is the one we want to compare the actual inventory to.
@@ -64,7 +66,7 @@ def _run_analysis_for_customer(d: download_util.Download, q: Query, params: Anal
 
 	util.print_counts(id_to_history)
 	util.run_orphan_analysis(d, id_to_history, params)
-	counts_analysis_dict = util.create_inventory_xlsx(d, id_to_history, q, params=params)
+	counts_analysis_dict = util.create_inventory_xlsx(d, ctx, id_to_history, q, params=params)
 
 	## Compute accuracy numbers for COGS and inventory
 	logging.info('Computing inventory for {}'.format(q.company_name))
@@ -83,11 +85,12 @@ def _run_analysis_for_customer(d: download_util.Download, q: Query, params: Anal
 			}
 	)
 
-	cogs_summary = cogs_util.create_cogs_summary(d, id_to_history, params)
+	cogs_summary = cogs_util.create_cogs_summary(d, ctx, id_to_history, params)
 	cogs_util.write_cogs_xlsx(
-			topdown_cogs_rows=cogs_summary['topdown_cogs_rows'], 
-			bottoms_up_cogs_rows=cogs_summary['bottomsup_cogs_rows'],
-			company_name=q.company_name
+		ctx=ctx,
+		topdown_cogs_rows=cogs_summary['topdown_cogs_rows'], 
+		bottoms_up_cogs_rows=cogs_summary['bottomsup_cogs_rows'],
+		company_name=q.company_name
 	)
 
 	# Plot graphs
@@ -146,7 +149,8 @@ CompanyInputDict = TypedDict('CompanyInputDict', {
 ArgsDict = TypedDict('ArgsDict', {
 	'dry_run': bool,
 	'save_dataframes': bool,
-	'use_cached_dataframes': bool
+	'use_cached_dataframes': bool,
+	'use_cached_summaries': bool
 })
 
 def _compute_inventory_for_customer(
@@ -159,10 +163,6 @@ def _compute_inventory_for_customer(
 	sales_transactions_start_date = company_input['start_date'].strftime('%Y-%m-%d')
 	license_numbers = company_input['license_numbers']
 
-	## Setup input parameters
-
-	today_date = datetime.date.today()
-
 	ctx = AnalysisContext(
 		output_root_dir='out/{}'.format(company_identifier),
 		read_params=ReadParams(
@@ -172,6 +172,22 @@ def _compute_inventory_for_customer(
 			save_download_dataframes=args_dict['save_dataframes']
 		)
 	)
+
+	if args_dict['use_cached_summaries']:
+		summaries_file = ctx.get_output_path('backup/summaries.json')
+
+		if os.path.exists(summaries_file):
+			logging.info('Reading cached summaries for {}'.format(company_name))
+			with open(summaries_file, 'r') as f:
+				return json.loads(f.read())['summaries']
+
+	## Setup input parameters
+
+	today_date = datetime.date.today()
+
+	ctx.mkdir('reports')
+	ctx.mkdir('download')
+	ctx.mkdir('backup')
 
 	q = util.Query(
 		inventory_dates=[], # gets filled in once we have the dataframes
@@ -184,27 +200,46 @@ def _compute_inventory_for_customer(
 
 	## Download the data
 	logging.info('About to download all inventory history for {}'.format(q.company_name))
-	
-	before = time.time()
-	engine = download_util.get_bigquery_engine('bigquery://bespoke-financial/ProdMetrcData')
-	all_dataframes_dict = download_util.get_dataframes_for_analysis(q, ctx, engine, dry_run=args_dict['dry_run'])
-	after = time.time()
-	logging.info('Took {} seconds to run sql queries'.format(round(after - before, 2)))
-	
-	before = time.time()
-	d = util.Download()
-	d.download_dataframes(all_dataframes_dict, sql_helper=download_util.BigQuerySQLHelper(ctx, engine))
-	after = time.time()
-	logging.info('Took {} seconds to process dataframes'.format(round(after - before, 2)))
 
-	q.inventory_dates = download_util.get_inventory_dates(
-		all_dataframes_dict, today_date)
+	try:
+		before = time.time()
+		engine = download_util.get_bigquery_engine('bigquery://bespoke-financial/ProdMetrcData')
+		all_dataframes_dict = download_util.get_dataframes_for_analysis(q, ctx, engine, dry_run=args_dict['dry_run'])
+		after = time.time()
+		logging.info('Took {} seconds to run sql queries for {}'.format(
+			round(after - before, 2), q.company_name))
+		
+		before = time.time()
+		d = util.Download()
+		d.download_dataframes(all_dataframes_dict, sql_helper=download_util.BigQuerySQLHelper(ctx, engine))
+		after = time.time()
+		logging.info('Took {} seconds to process dataframes for {}'.format(
+			round(after - before, 2), q.company_name))
 
-	params_list = _get_params_list()
+		q.inventory_dates = download_util.get_inventory_dates(
+			all_dataframes_dict, today_date)
+
+		params_list = _get_params_list()
+	except Exception as e:
+		logging.error(f'Error downloading data for {q.company_name}. Err: {e}')
+		logging.error(traceback.format_exc())
+		return []
 
 	summaries = []
-	for params in params_list:
-		summaries.append(_run_analysis_for_customer(d, q, params))
+
+	try:
+		for params in params_list:
+			summaries.append(_run_analysis_for_customer(d, ctx, q, params))
+	except Exception as e:
+		logging.error(f'Error running analysis logic for {q.company_name}. Err: {e}')
+		logging.error(traceback.format_exc())
+		return []
+
+	logging.info(f'Writing analysis summaries for {q.company_name}')
+	with open(ctx.get_output_path('backup/summaries.json'), 'w') as f:
+		f.write(json.dumps({
+			'summaries': summaries
+		}))
 
 	return summaries
 
@@ -214,21 +249,32 @@ def main() -> None:
 		'--input_file',
 		help='Input file that specifies all the companies to run for',
 	)
+
 	parser.add_argument(
 		'--pull_all_data',
 		dest='pull_all_data',
 		action='store_true',
-	)
+
+	) # Must be set to not run in dryrun mode
+
 	parser.add_argument(
-		'--use_cached_files',
-		dest='use_cached_files',
+		'--use_cached_dataframes',
+		dest='use_cached_dataframes',
 		action='store_true',
-	)
+	) # Whether to use pre-downloaded dataframes from BigQuery
+
 	parser.add_argument(
 		'--save_dataframes',
 		dest='save_dataframes',
 		action='store_true',
-	)
+	) # Whether to save those dataframes to a file
+
+	parser.add_argument(
+		'--use_cached_summaries',
+		dest='use_cached_summaries',
+		action='store_true',
+	) # Whether to use the summaries we stored for a customer
+
 	args = parser.parse_args()
 
 	workbook, err = excel_reader.ExcelWorkbook.load_xlsx(args.input_file)
@@ -263,8 +309,9 @@ def main() -> None:
 
 	args_dict = ArgsDict(
 		dry_run=dry_run,
-		use_cached_dataframes=args.use_cached_files,
+		use_cached_dataframes=args.use_cached_dataframes,
 		save_dataframes=args.save_dataframes,
+		use_cached_summaries=args.use_cached_summaries
 	)
 
 	with ThreadPoolExecutor(max_workers=3) as executor:

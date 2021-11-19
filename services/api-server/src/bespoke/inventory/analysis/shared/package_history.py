@@ -26,7 +26,7 @@ from bespoke.inventory.analysis.shared.inventory_types import (
 from bespoke.inventory.analysis.shared import inventory_common_util
 from bespoke.inventory.analysis.shared.inventory_common_util import (
 	parse_to_date, parse_to_datetime, date_to_str, print_if,
-	is_outgoing, is_incoming, is_time_null
+	is_outgoing, is_incoming, is_time_null, safe_isnan
 )
 
 DEFAULT_SOLD_THRESHOLD = 0.95
@@ -351,7 +351,7 @@ class PackageHistory(object):
 				incoming_pkg = transfer_pkg
 
 				arrived_date = incoming_pkg['received_date']
-				if not incoming_pkg['quantity'] or numpy.isnan(incoming_pkg['quantity']):
+				if not incoming_pkg['quantity'] or safe_isnan(incoming_pkg['quantity']):
 					self.should_exclude = True
 					self.exclude_reason = ExcludeReason.INCOMING_MISSING_QUANTITY
 					if in_debug_mode:
@@ -361,7 +361,7 @@ class PackageHistory(object):
 				shipped_quantity = incoming_pkg['quantity']
 				price_of_pkg = incoming_pkg['price']
 
-				if not price_of_pkg or numpy.isnan(price_of_pkg):
+				if not price_of_pkg or safe_isnan(price_of_pkg):
 					# Try to find the price if there is margin estimate provided
 					if params.get('use_margin_estimate_config', False) and shipped_quantity:
 
@@ -377,7 +377,7 @@ class PackageHistory(object):
 							incoming_pkg['price'] = price_of_pkg
 							self.are_prices_inferred = True
 
-				if not price_of_pkg or numpy.isnan(price_of_pkg):
+				if not price_of_pkg or safe_isnan(price_of_pkg):
 					self.should_exclude = True
 					self.exclude_reason = ExcludeReason.INCOMING_MISSING_PRICE
 					if in_debug_mode:
@@ -407,7 +407,7 @@ class PackageHistory(object):
 				if not skip_over_errors and len(transfer_pkg['date_to_txs'].keys()) > 0:
 					raise Exception(f'There should be no transactions associated with an outgoing transfer. Package ID: {self.package_id}, outgoing transfer package on {outgoing_date}')
 
-				if not outgoing_pkg['quantity'] or numpy.isnan(outgoing_pkg['quantity']):
+				if not outgoing_pkg['quantity'] or safe_isnan(outgoing_pkg['quantity']):
 					self.should_exclude = True
 					self.exclude_reason = ExcludeReason.OUTGOING_MISSING_QUANTITY
 					if in_debug_mode:

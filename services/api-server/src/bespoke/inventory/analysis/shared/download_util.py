@@ -1,6 +1,7 @@
 import calendar
 import datetime
 import numpy
+import logging
 import glob
 import os
 import pandas as pd
@@ -13,7 +14,7 @@ from mypy_extensions import TypedDict
 
 from bespoke.inventory.analysis.shared import create_queries, prepare_data
 from bespoke.inventory.analysis.shared.inventory_common_util import (
-	parse_to_date, parse_to_datetime, is_time_null
+	parse_to_date, parse_to_datetime, is_time_null, safe_isnan
 )
 from bespoke.inventory.analysis.shared.inventory_types import (
 	Printer,
@@ -29,7 +30,7 @@ def _get_float_or_none(val: Any) -> Optional[float]:
 	if not val:
 		return None
 
-	if numpy.isnan(val):
+	if safe_isnan(val):
 		return None
 
 	return float(val)
@@ -52,8 +53,9 @@ class BigQuerySQLHelper(SQLHelper):
 		self.engine = engine
 
 	def get_packages(self, package_ids: Iterable[str]) -> pd.DataFrame:
-		if self.ctx.read_params['use_cached_dataframes']:
-			df = pd.read_pickle(self.ctx.get_output_path('download/get_packages.pickle'))
+		df_path = self.ctx.get_output_path('download/get_packages.pickle')
+		if self.ctx.read_params['use_cached_dataframes'] and os.path.exists(df_path):
+			df = pd.read_pickle(df_path)
 		else:
 			df = pd.read_sql_query(
 					create_queries.create_packages_by_package_ids_query(package_ids),
@@ -61,13 +63,15 @@ class BigQuerySQLHelper(SQLHelper):
 			)
 
 		if self.ctx.write_params['save_download_dataframes']:
-			df.to_pickle(self.ctx.get_output_path('download/get_packages.pickle'))
+			df.to_pickle(df_path)
 
 		return df 
 
 	def get_inactive_packages(self, package_ids: Iterable[str]) -> pd.DataFrame:
-		if self.ctx.read_params['use_cached_dataframes']:
-			df = pd.read_pickle(self.ctx.get_output_path('download/get_inactive_packages.pickle'))
+		df_path = self.ctx.get_output_path('download/get_inactive_packages.pickle')
+
+		if self.ctx.read_params['use_cached_dataframes'] and os.path.exists(df_path):
+			df = pd.read_pickle(df_path)
 		else:
 			df = pd.read_sql_query(
 				create_queries.are_packages_inactive_query(package_ids),
@@ -75,13 +79,14 @@ class BigQuerySQLHelper(SQLHelper):
 		)
 
 		if self.ctx.write_params['save_download_dataframes']:
-			df.to_pickle(self.ctx.get_output_path('download/get_inactive_packages.pickle'))
+			df.to_pickle(df_path)
 
 		return df
 
 	def get_packages_by_production_batch_numbers(self, production_batch_numbers: Iterable[str]) -> pd.DataFrame:
-		if self.ctx.read_params['use_cached_dataframes']:
-			df = pd.read_pickle(self.ctx.get_output_path('download/get_packages_by_production_batch_numbers.pickle'))
+		df_path = self.ctx.get_output_path('download/get_packages_by_production_batch_numbers.pickle')
+		if self.ctx.read_params['use_cached_dataframes'] and os.path.exists(df_path):
+			df = pd.read_pickle(df_path)
 		else:
 			df = pd.read_sql_query(
 				create_queries.create_packages_by_production_batch_numbers_query(production_batch_numbers),
@@ -89,7 +94,7 @@ class BigQuerySQLHelper(SQLHelper):
 			)
 
 		if self.ctx.write_params['save_download_dataframes']:
-			df.to_pickle(self.ctx.get_output_path('download/get_packages_by_production_batch_numbers.pickle'))
+			df.to_pickle(df_path)
 
 		return df
 
@@ -104,10 +109,10 @@ def _fix_received_date_and_timezone(pkg: TransferPackageDict) -> None:
 		pkg['received_datetime'] = pkg['received_datetime'].replace(tzinfo=pytz.UTC)
 
 def _set_quantity_and_unit_when_measurement_matches(pkg: TransferPackageDict) -> None:
-	if pkg['received_quantity'] and not numpy.isnan(pkg['received_quantity']):
+	if pkg['received_quantity'] and not safe_isnan(pkg['received_quantity']):
 		pkg['quantity'] = float(pkg['received_quantity'])
 		pkg['unit_of_measure'] = pkg['received_unit_of_measure']
-	elif pkg['shipped_quantity'] and not numpy.isnan(pkg['shipped_quantity']):
+	elif pkg['shipped_quantity'] and not safe_isnan(pkg['shipped_quantity']):
 		# Fall back to shipped quantity if needed
 		pkg['quantity'] = float(pkg['shipped_quantity'])
 		pkg['unit_of_measure'] = pkg['shipped_unit_of_measure']
@@ -115,9 +120,9 @@ def _set_quantity_and_unit_when_measurement_matches(pkg: TransferPackageDict) ->
 		pkg['quantity'] = 0.0
 		pkg['unit_of_measure'] = 'unknown'
 
-	if pkg['receiver_wholesale_price'] and not numpy.isnan(pkg['receiver_wholesale_price']):
+	if pkg['receiver_wholesale_price'] and not safe_isnan(pkg['receiver_wholesale_price']):
 		pkg['price'] = float(pkg['receiver_wholesale_price'])
-	elif pkg['shipper_wholesale_price'] and not numpy.isnan(pkg['shipper_wholesale_price']):
+	elif pkg['shipper_wholesale_price'] and not safe_isnan(pkg['shipper_wholesale_price']):
 		# Fall back to shipper wholesale price if needed
 		pkg['price'] = float(pkg['shipper_wholesale_price'])
 	else:
@@ -127,22 +132,27 @@ def _set_quantity_and_unit_when_measurement_differs(pkg: TransferPackageDict) ->
 	# When the measurement differs, we don't allow mix and matching of the price
 	# based on which is filled in
 
-	if pkg['received_quantity'] and not numpy.isnan(pkg['received_quantity']):
+	if pkg['received_quantity'] and not safe_isnan(pkg['received_quantity']):
 		pkg['quantity'] = _get_float_or_none(pkg['received_quantity'])
 		pkg['unit_of_measure'] = pkg['received_unit_of_measure']
 		pkg['price'] = _get_float_or_none(pkg['receiver_wholesale_price'])
-	elif pkg['shipped_quantity'] and not numpy.isnan(pkg['shipped_quantity']):
+	elif pkg['shipped_quantity'] and not safe_isnan(pkg['shipped_quantity']):
 		# Fall back to shipped quantity if needed
 		pkg['quantity'] = _get_float_or_none(pkg['shipped_quantity'])
 		pkg['unit_of_measure'] = pkg['shipped_unit_of_measure']
 		pkg['price'] = _get_float_or_none(pkg['shipper_wholesale_price'])
 	else:
+		pkg['price'] = 0.0
 		pkg['quantity'] = 0.0
 		pkg['unit_of_measure'] = 'unknown'
 
 def _set_quantity_and_unit(pkg: TransferPackageDict) -> None:
 	if not pkg['received_unit_of_measure'] and not pkg['shipped_unit_of_measure']:
-		raise Exception('Both received and shipped unit of measure are empty for package_id {}'.format(pkg['package_id']))
+		logging.error('Both received and shipped unit of measure are empty for package_id {}'.format(pkg['package_id']))
+		pkg['price'] = 0.0
+		pkg['quantity'] = 0.0
+		pkg['unit_of_measure'] = 'unknown'
+		return
 
 	if pkg['received_unit_of_measure'] and pkg['shipped_unit_of_measure'] \
 			and pkg['received_unit_of_measure'].lower() == pkg['shipped_unit_of_measure'].lower():
@@ -291,7 +301,11 @@ def get_dataframes_for_analysis(q: Query, ctx: AnalysisContext, engine: Any, dry
 	)
 
 
-	if ctx.read_params['use_cached_dataframes']:
+	if ctx.read_params['use_cached_dataframes'] and os.path.exists(ctx.get_output_path(
+			'download/incoming_transfers.pickle'
+	)):
+		# Make sure one of the dataframes was at least written once if we're reading 
+		# from the cached dataframes
 		company_incoming_transfer_packages_dataframe = pd.read_pickle(ctx.get_output_path(
 			'download/incoming_transfers.pickle'
 		))

@@ -24,9 +24,11 @@ from bespoke.inventory.analysis.shared import parent_or_price_matching as parent
 from bespoke.inventory.analysis.shared.download_util import Download, BigQuerySQLHelper
 from bespoke.inventory.analysis.shared.inventory_common_util import (
 	parse_to_date, parse_to_datetime, date_to_str, print_if,
-	is_outgoing, is_time_null
+	is_outgoing, is_time_null, safe_isnan, is_number, is_not_number,
+	val_if_not_num
 )
 from bespoke.inventory.analysis.shared.inventory_types import (
+	AnalysisContext,
 	Printer,
 	Query,
 	PrintCountsDict,
@@ -140,7 +142,7 @@ def _get_inventory_output_row_for_actual_inventory(
 
 	cur_quantity = inventory_pkg['quantity']
 	current_value = 0.0
-	if incoming_pkg and incoming_pkg['quantity']:
+	if incoming_pkg and is_number(incoming_pkg['quantity']) and incoming_pkg['quantity'] > 0 and is_number(incoming_pkg['price']):
 		current_value = incoming_pkg['price'] / incoming_pkg['quantity'] * cur_quantity
 
 	pkg = inventory_pkg
@@ -150,8 +152,8 @@ def _get_inventory_output_row_for_actual_inventory(
 		incoming_pkg['license_number'] if incoming_pkg else pkg['license_number'],
 		date_to_str(incoming_pkg['received_date']) if incoming_pkg else date_to_str(
 			parse_to_date(pkg['packaged_date'])),
-		round(incoming_pkg['price'], 2) if incoming_pkg else 0.0,
-		round(incoming_pkg['quantity'], 2) if incoming_pkg else 0.0,
+		round(val_if_not_num(incoming_pkg['price'], 0.0), 2) if incoming_pkg else 0.0,
+		round(val_if_not_num(incoming_pkg['quantity'], 0.0), 2) if incoming_pkg else 0.0,
 		'{}'.format(history.uses_parenting_logic),
 		'{}'.format(history.are_prices_inferred),
 
@@ -327,7 +329,7 @@ def print_counts(id_to_history: Dict[str, PackageHistory], should_print: bool = 
 
 		if history.incomings:
 			num_incoming_pkgs += 1
-			if not history.incomings[-1]['price'] or numpy.isnan(history.incomings[-1]['price']):
+			if is_not_number(history.incomings[-1]['price']) or math.isclose(history.incomings[-1]['price'], 0.0):
 				num_incoming_missing_price += 1
 
 		if not history.incomings and history.sales_txs:
@@ -733,6 +735,7 @@ def compare_computed_vs_actual_inventory(
 
 def _write_current_inventory(
 	q: Query,
+	ctx: AnalysisContext,
 	inventory_packages_records: List[InventoryPackageDict],
 	id_to_history: Dict[str, PackageHistory]) -> None:
 
@@ -758,13 +761,14 @@ def _write_current_inventory(
 		)
 		sheet.add_row(row)
 
-	filepath = f'out/{q.company_name}_current_inventory.xls'
+	filepath = ctx.get_output_path(f'reports/{q.company_name}_current_inventory.xls')
 	with open(filepath, 'wb') as f:
 		wb.save(f)
 		logging.info('Wrote result to {}'.format(filepath))
 
 def create_inventory_xlsx(
 	d: Download,
+	ctx: AnalysisContext,
 	id_to_history: Dict[str, PackageHistory], 
 	q: Query, 
 	params: AnalysisParamsDict,
@@ -827,13 +831,14 @@ def create_inventory_xlsx(
 	
 	Path('out').mkdir(parents=True, exist_ok=True)
 
-	filepath = f'out/{q.company_name}_computed_inventory_by_month.xls'
+	filepath = ctx.get_output_path(f'reports/{q.company_name}_computed_inventory_by_month.xls')
 	with open(filepath, 'wb') as f:
 		wb.save(f)
 		logging.info('Wrote result to {}'.format(filepath))
 			
 	_write_current_inventory(
 		q=q,
+		ctx=ctx,
 		inventory_packages_records=d.inventory_packages_records,
 		id_to_history=id_to_history
 	)
