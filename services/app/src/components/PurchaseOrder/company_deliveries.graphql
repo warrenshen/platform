@@ -13,6 +13,10 @@ query GetCompanyDelivery(
         ...MetrcTransferPackage
       }
     }
+    metrc_delivery {
+      id
+      ...MetrcDeliveryLimited
+    }
     vendor {
       id
       name
@@ -43,6 +47,10 @@ query GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDate(
     metrc_transfer {
       id
       ...MetrcTransfer
+    }
+    metrc_delivery {
+      id
+      ...MetrcDeliveryLimited
     }
     vendor {
       id

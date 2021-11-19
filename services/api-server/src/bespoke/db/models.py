@@ -481,6 +481,7 @@ class MetrcPlantBatch(Base):
 
 class MetrcHarvest(Base):
 	__tablename__ = 'metrc_harvests'
+
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	license_number = Column(String)
@@ -507,9 +508,10 @@ class MetrcTransfer(Base):
 	manifest_number = Column(String) # From Metrc info
 	shipment_type_name = Column(String) # Deprecated: use Metrc delivery
 	shipment_transaction_type = Column(String) # Deprecated: use Metrc delivery
-	transfer_payload = Column(JSON) # From Metrc info
 	lab_results_status = Column(String) # Computed based on Metrc info
 	last_modified_at = Column(DateTime) # From Metrc info
+	# transfer_payload records the entire raw JSON returned by Metrc API.
+	transfer_payload = Column(JSON) # From Metrc info
 
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
@@ -521,12 +523,13 @@ class MetrcDelivery(Base):
 	transfer_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_transfers.id')))
 	delivery_id = Column(String) # From Metrc info
 	us_state = Column(String, nullable=False)
-	recipient_facility_license_number = Column(String)
-	recipient_facility_name = Column(String)
-	shipment_type_name = Column(String)
-	shipment_transaction_type = Column(String)
-	received_datetime = Column(DateTime)
-	delivery_payload = Column(JSON)
+	recipient_facility_license_number = Column(String) # From Metrc info
+	recipient_facility_name = Column(String) # From Metrc info
+	shipment_type_name = Column(String) # From Metrc info
+	shipment_transaction_type = Column(String) # From Metrc info
+	received_datetime = Column(DateTime) # From Metrc info
+	# delivery_payload records the entire raw JSON returned by Metrc API.
+	delivery_payload = Column(JSON) # From Metrc info
 
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)

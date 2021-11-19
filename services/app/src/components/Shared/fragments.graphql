@@ -187,7 +187,8 @@ fragment CompanyDelivery on company_deliveries {
   delivery_type
 }
 
-fragment MetrcTransfer on metrc_transfers {
+# Limited version does NOT include metrc_tranfers.transfer_payload.
+fragment MetrcTransferLimited on metrc_transfers {
   id
   us_state
   transfer_id
@@ -197,10 +198,16 @@ fragment MetrcTransfer on metrc_transfers {
   shipper_facility_name
   lab_results_status
   last_modified_at
-  transfer_payload
 }
 
-fragment MetrcDelivery on metrc_deliveries {
+fragment MetrcTransfer on metrc_transfers {
+  id
+  transfer_payload
+  ...MetrcTransferLimited
+}
+
+# Limited version does NOT include metrc_tranfers.delivery_payload.
+fragment MetrcDeliveryLimited on metrc_deliveries {
   id
   us_state
   delivery_id
@@ -210,6 +217,12 @@ fragment MetrcDelivery on metrc_deliveries {
   shipment_type_name
   shipment_transaction_type
   received_datetime
+}
+
+fragment MetrcDelivery on metrc_deliveries {
+  id
+  delivery_payload
+  ...MetrcDeliveryLimited
 }
 
 fragment MetrcTransferPackage on metrc_transfer_packages {

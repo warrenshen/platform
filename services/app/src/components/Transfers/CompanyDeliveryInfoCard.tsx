@@ -56,6 +56,7 @@ export default function CompanyDeliveryInfoCard({
   }
 
   const metrcTransfer = companyDelivery.metrc_transfer;
+  const metrcDelivery = companyDelivery.metrc_delivery;
   const metrcTransferPayload = metrcTransfer.transfer_payload;
   return (
     <Manifest>
@@ -64,14 +65,14 @@ export default function CompanyDeliveryInfoCard({
           {`Manifest #${metrcTransfer.manifest_number}`}
         </Typography>
         <Typography variant="body2">
-          {`License from -> to: ${metrcTransferPayload.ShipperFacilityLicenseNumber} -> ${metrcTransferPayload.RecipientFacilityLicenseNumber}`}
+          {`License from -> to: ${metrcTransfer.shipper_facility_license_number} -> ${metrcDelivery.recipient_facility_license_number}`}
         </Typography>
         <Typography variant="body2">
           {`Vendor: ${getCompanyDeliveryVendorDescription(companyDelivery)}`}
         </Typography>
         <Typography variant="body2">
           {`Received at: ${formatDatetimeString(
-            metrcTransferPayload.ReceivedDateTime
+            metrcDelivery.received_datetime
           )}`}
         </Typography>
         <Typography variant="body2">

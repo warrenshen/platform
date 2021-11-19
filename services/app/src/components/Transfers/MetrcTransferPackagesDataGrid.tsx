@@ -91,8 +91,8 @@ export default function MetrcTransferPackagesDataGrid({
         ),
       },
       {
-        dataField: "type",
-        caption: "Type",
+        dataField: "package_type",
+        caption: "Package Type",
         minWidth: ColumnWidths.MinWidth,
       },
       {

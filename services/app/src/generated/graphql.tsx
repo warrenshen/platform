@@ -24499,6 +24499,8 @@ export type GetCompanyDeliveryQuery = {
           Pick<MetrcTransferPackages, "id"> & MetrcTransferPackageFragment
         >;
       } & MetrcTransferFragment;
+      metrc_delivery: Pick<MetrcDeliveries, "id"> &
+        MetrcDeliveryLimitedFragment;
       vendor?: Maybe<
         Pick<Vendors, "id" | "name"> & {
           company_vendor_partnerships: Array<
@@ -24519,6 +24521,8 @@ export type GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery = 
   company_deliveries: Array<
     Pick<CompanyDeliveries, "id"> & {
       metrc_transfer: Pick<MetrcTransfers, "id"> & MetrcTransferFragment;
+      metrc_delivery: Pick<MetrcDeliveries, "id"> &
+        MetrcDeliveryLimitedFragment;
       vendor?: Maybe<
         Pick<Vendors, "id" | "name"> & {
           company_vendor_partnerships: Array<
@@ -25274,7 +25278,7 @@ export type CompanyDeliveryFragment = Pick<
   | "delivery_type"
 >;
 
-export type MetrcTransferFragment = Pick<
+export type MetrcTransferLimitedFragment = Pick<
   MetrcTransfers,
   | "id"
   | "us_state"
@@ -25288,7 +25292,13 @@ export type MetrcTransferFragment = Pick<
   | "transfer_payload"
 >;
 
-export type MetrcDeliveryFragment = Pick<
+export type MetrcTransferFragment = Pick<
+  MetrcTransfers,
+  "id" | "transfer_payload"
+> &
+  MetrcTransferLimitedFragment;
+
+export type MetrcDeliveryLimitedFragment = Pick<
   MetrcDeliveries,
   | "id"
   | "us_state"
@@ -25300,6 +25310,12 @@ export type MetrcDeliveryFragment = Pick<
   | "shipment_transaction_type"
   | "received_datetime"
 >;
+
+export type MetrcDeliveryFragment = Pick<
+  MetrcDeliveries,
+  "id" | "delivery_payload"
+> &
+  MetrcDeliveryLimitedFragment;
 
 export type MetrcTransferPackageFragment = Pick<
   MetrcTransferPackages,
@@ -25381,6 +25397,9 @@ export type GetMetrcTransferQueryVariables = Exact<{
 export type GetMetrcTransferQuery = {
   metrc_transfers_by_pk?: Maybe<
     Pick<MetrcTransfers, "id"> & {
+      metrc_deliveries: Array<
+        Pick<MetrcDeliveries, "id"> & MetrcDeliveryFragment
+      >;
       metrc_transfer_packages: Array<
         Pick<MetrcTransferPackages, "id"> & MetrcTransferPackageFragment
       >;
@@ -26306,8 +26325,8 @@ export const CompanyDeliveryFragmentDoc = gql`
     delivery_type
   }
 `;
-export const MetrcTransferFragmentDoc = gql`
-  fragment MetrcTransfer on metrc_transfers {
+export const MetrcTransferLimitedFragmentDoc = gql`
+  fragment MetrcTransferLimited on metrc_transfers {
     id
     us_state
     transfer_id
@@ -26320,8 +26339,16 @@ export const MetrcTransferFragmentDoc = gql`
     transfer_payload
   }
 `;
-export const MetrcDeliveryFragmentDoc = gql`
-  fragment MetrcDelivery on metrc_deliveries {
+export const MetrcTransferFragmentDoc = gql`
+  fragment MetrcTransfer on metrc_transfers {
+    id
+    transfer_payload
+    ...MetrcTransferLimited
+  }
+  ${MetrcTransferLimitedFragmentDoc}
+`;
+export const MetrcDeliveryLimitedFragmentDoc = gql`
+  fragment MetrcDeliveryLimited on metrc_deliveries {
     id
     us_state
     delivery_id
@@ -26332,6 +26359,14 @@ export const MetrcDeliveryFragmentDoc = gql`
     shipment_transaction_type
     received_datetime
   }
+`;
+export const MetrcDeliveryFragmentDoc = gql`
+  fragment MetrcDelivery on metrc_deliveries {
+    id
+    delivery_payload
+    ...MetrcDeliveryLimited
+  }
+  ${MetrcDeliveryLimitedFragmentDoc}
 `;
 export const MetrcTransferPackageFragmentDoc = gql`
   fragment MetrcTransferPackage on metrc_transfer_packages {
@@ -30726,6 +30761,10 @@ export const GetCompanyDeliveryDocument = gql`
           ...MetrcTransferPackage
         }
       }
+      metrc_delivery {
+        id
+        ...MetrcDeliveryLimited
+      }
       vendor {
         id
         name
@@ -30741,6 +30780,7 @@ export const GetCompanyDeliveryDocument = gql`
   ${CompanyDeliveryFragmentDoc}
   ${MetrcTransferFragmentDoc}
   ${MetrcTransferPackageFragmentDoc}
+  ${MetrcDeliveryLimitedFragmentDoc}
 `;
 
 /**
@@ -30813,6 +30853,10 @@ export const GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateDocumen
         id
         ...MetrcTransfer
       }
+      metrc_delivery {
+        id
+        ...MetrcDeliveryLimited
+      }
       vendor {
         id
         name
@@ -30827,6 +30871,7 @@ export const GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateDocumen
   }
   ${CompanyDeliveryFragmentDoc}
   ${MetrcTransferFragmentDoc}
+  ${MetrcDeliveryLimitedFragmentDoc}
 `;
 
 /**
@@ -33917,6 +33962,10 @@ export const GetMetrcTransferDocument = gql`
     metrc_transfers_by_pk(id: $id) {
       id
       ...MetrcTransfer
+      metrc_deliveries {
+        id
+        ...MetrcDelivery
+      }
       metrc_transfer_packages {
         id
         ...MetrcTransferPackage
@@ -33924,6 +33973,7 @@ export const GetMetrcTransferDocument = gql`
     }
   }
   ${MetrcTransferFragmentDoc}
+  ${MetrcDeliveryFragmentDoc}
   ${MetrcTransferPackageFragmentDoc}
 `;
 

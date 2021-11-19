@@ -90,11 +90,11 @@ export default function PurchaseOrderFormV2({
           value={null}
           getOptionLabel={(companyDelivery) => {
             const metrcTransfer = companyDelivery.metrc_transfer;
-            const metrcTransferPayload = metrcTransfer.transfer_payload as MetrcTransferPayload;
+            const metrcDelivery = companyDelivery.metrc_delivery;
             return `${metrcTransfer.manifest_number} ${
               companyDelivery.vendor?.name || ""
             } ${formatDatetimeString(
-              metrcTransferPayload.ReceivedDateTime
+              metrcDelivery.received_datetime
             )} ${formatDateString(metrcTransfer.created_date)}`;
           }}
           renderInput={(params) => (
@@ -106,6 +106,7 @@ export default function PurchaseOrderFormV2({
           )}
           renderOption={(companyDelivery) => {
             const metrcTransfer = companyDelivery.metrc_transfer;
+            const metrcDelivery = companyDelivery.metrc_delivery;
             const metrcTransferPayload = metrcTransfer.transfer_payload as MetrcTransferPayload;
             return (
               <Box py={0.5}>
@@ -113,7 +114,7 @@ export default function PurchaseOrderFormV2({
                   {`Manifest #${metrcTransfer.manifest_number}`}
                 </Typography>
                 <Typography variant="body2">
-                  {`License from -> to: ${metrcTransferPayload.ShipperFacilityLicenseNumber} -> ${metrcTransferPayload.RecipientFacilityLicenseNumber}`}
+                  {`License from -> to: ${metrcTransfer.shipper_facility_license_number} -> ${metrcDelivery.recipient_facility_license_number}`}
                 </Typography>
                 <Typography variant="body2">
                   {`Vendor: ${getCompanyDeliveryVendorDescription(
@@ -122,7 +123,7 @@ export default function PurchaseOrderFormV2({
                 </Typography>
                 <Typography variant="body2">
                   {`Received at: ${formatDatetimeString(
-                    metrcTransferPayload.ReceivedDateTime
+                    metrcDelivery.received_datetime
                   )}`}
                 </Typography>
                 <Typography variant="body2">
