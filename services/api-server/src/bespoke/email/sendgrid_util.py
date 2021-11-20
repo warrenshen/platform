@@ -44,10 +44,6 @@ class TemplateNames(object):
 	PAYOR_TO_PAY_INVOICE = 'payor_to_pay_invoice' # to payor
 
 	CUSTOMER_SUBMITTED_EBBA_APPLICATION = 'customer_submitted_ebba_application'
-	# TODO(warrenshen): remove this template in the future.
-	BANK_USER_APPROVES_OR_REJECTS_EBBA_APPLICATION = 'bank_user_approves_or_rejects_ebba_application'
-	BANK_APPROVED_EBBA_APPLICATION = 'bank_approved_ebba_application'
-	BANK_REJECTED_EBBA_APPLICATION = 'bank_rejected_ebba_application'
 
 	CUSTOMER_REQUESTED_LOAN = 'customer_requests_loan'
 
@@ -165,11 +161,6 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 	TemplateNames.PAYOR_TO_PAY_INVOICE: {
 		'id': 'd-62fbb49f06254e11a2b04f3f0fee6bbd',
 		'requires_secure_link': True,
-	},
-
-	TemplateNames.BANK_USER_APPROVES_OR_REJECTS_EBBA_APPLICATION: {
-		'id': '',
-		'requires_secure_link': False
 	},
 
 	TemplateNames.CUSTOMER_REQUESTED_LOAN: {

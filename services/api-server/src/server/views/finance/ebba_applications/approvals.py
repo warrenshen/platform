@@ -84,37 +84,35 @@ class RespondToEbbaApplicationApprovalRequest(MethodView):
 				ebba_application.rejection_note = rejection_note
 				action_type = 'Rejected'
 
-			ebba_application_dicts = [{
-				'application_date': ebba_application.application_date,
-				'requested_at_date': date_util.human_readable_yearmonthday(ebba_application.requested_at)
-			}]
-
 			customer_users = cast(List[models.User], session.query(
 				models.User).filter_by(company_id=ebba_application.company_id).all())
 
 			if not customer_users:
 				raise errors.Error('There are no users configured for this customer')
 
-			customer_name = ebba_application.company.name
-			customer_emails = [user.email for user in customer_users]
-
-		template_name = sendgrid_util.TemplateNames.BANK_USER_APPROVES_OR_REJECTS_EBBA_APPLICATION
-		template_data = {
-			'customer_name': customer_name,
-			'ebba_applications': ebba_application_dicts,
-			'action_type': action_type
-		}
-		# recipients = customer_emails
-		# _, err = sendgrid_client.send(
-		# 	template_name, template_data, recipients)
-		# if err:
-		# 	return handler_util.make_error_response(err)
+			# Below code can be used for sending out emails to users when an EbbaApplication is approved / rejected.
+			#
+			# customer_name = ebba_application.company.name
+			# customer_emails = [user.email for user in customer_users]
+			#
+			# template_name = None
+			# template_data = {
+			# 	'customer_name': customer_name,
+			# 	'application_date': date_util.human_readable_yearmonthday(ebba_application.application_date),
+			# 	'requested_at_date': date_util.human_readable_yearmonthday(ebba_application.requested_at),
+			# 	'action_type': action_type,
+			# }
+			# recipients = customer_emails
+			# _, err = sendgrid_client.send(
+			# 	template_name, template_data, recipients
+			# )
+			# if err:
+			# 	raise err
 
 		return make_response(json.dumps({
 			'status': 'OK',
-			'msg': 'Borrowing Base {} approval request responded to'.format(ebba_application_id)
+			'msg': ''
 		}), 200)
-
 
 class SubmitEbbaApplicationForApproval(MethodView):
 	decorators = [auth_util.login_required]
