@@ -251,15 +251,21 @@ def get_histories(d: Download, params: AnalysisParamsDict) -> Dict[str, PackageH
 
 	return package_id_to_history
 
-def run_orphan_analysis(d: Download, package_id_to_history: Dict[str, PackageHistory], params: AnalysisParamsDict) -> None:
+def run_orphan_analysis(d: Download, ctx: AnalysisContext, package_id_to_history: Dict[str, PackageHistory], params: AnalysisParamsDict) -> None:
 	# Child to parent package_id
 	resp = parent_util.match_child_packages_to_parents(_to_dataframes_for_matching(d), package_id_to_history, params)
 
-	print('{} - Number of parent packages'.format(len(d.parent_packages_records)))
-	print('')
-	print('{} - Child packages with parents'.format(len(resp['child_to_parent_details'].keys())))
-	print('{} - orphans; child packages with (no source product batch num)'.format(resp['num_orphans']))
-	print('{} - no matching parent; child packages that have a source batch number, but no parent'.format(resp['has_number_but_no_parent']))
+	lines = []
+	lines.append('{} - Number of parent packages'.format(len(d.parent_packages_records)))
+	lines.append('')
+	lines.append('{} - Child packages with parents'.format(len(resp['child_to_parent_details'].keys())))
+	lines.append('{} - orphans; child packages with (no source product batch num)'.format(resp['num_orphans']))
+	lines.append('{} - no matching parent; child packages that have a source batch number, but no parent'.format(resp['has_number_but_no_parent']))
+
+	print('\n'.join(lines))
+
+	with open(ctx.get_output_path('log.txt'), 'a+') as f:
+		f.write('\n'.join(lines))
 
 def analyze_specific_package_histories(
 	d: Download,
@@ -303,7 +309,7 @@ def analyze_specific_package_histories(
 
 		print('')
 
-def print_counts(id_to_history: Dict[str, PackageHistory], should_print: bool = True) -> PrintCountsDict:
+def print_counts(ctx: AnalysisContext, id_to_history: Dict[str, PackageHistory], should_print: bool = True) -> PrintCountsDict:
 	only_incoming = 0 # Only incoming transfer package(s)
 	only_outgoing = 0 # Only outgoing transfer package(s)
 	outgoing_and_incoming = 0 # Both incoming and outgoing transfer package(s)
@@ -325,7 +331,6 @@ def print_counts(id_to_history: Dict[str, PackageHistory], should_print: bool = 
 
 		if history.incomings and not history.outgoings and not history.sales_txs:
 			only_incoming += 1
-			#print(history.incomings[0]['source_harvest_names'])
 
 		if history.incomings:
 			num_incoming_pkgs += 1
@@ -352,22 +357,28 @@ def print_counts(id_to_history: Dict[str, PackageHistory], should_print: bool = 
 
 		total_seen += 1
 
-	if should_print:
-		print(f'Only outgoing: {only_outgoing}')
-		print(f'Only incoming: {only_incoming}')	
-		print('Sold packages missing incoming_pkg: {} ({:.2f}% of packages)'.format(
-					only_sold, only_sold / total_seen * 100))
-		print('Incoming packages missing price {} ({:.2f}% of incoming packages)'.format(
-					num_incoming_missing_price, num_incoming_missing_price / num_incoming_pkgs * 100
-		))
-		print(f'In and out: {outgoing_and_incoming}')
-		print(f'In and sold at least once {in_and_sold_at_least_once}')
-		print(f'In and sold many times {in_and_sold_many_times}')
-		print('')
-		print(f' Num parent packages: {num_parent_packages}')
-		print(f' num matched child packages: {num_child_packages}')
+	lines = []
+	lines.append(f'Only outgoing: {only_outgoing}')
+	lines.append(f'Only incoming: {only_incoming}')	
+	lines.append('Sold packages missing incoming_pkg: {} ({:.2f}% of packages)'.format(
+				only_sold, only_sold / total_seen * 100))
+	lines.append('Incoming packages missing price {} ({:.2f}% of incoming packages)'.format(
+				num_incoming_missing_price, num_incoming_missing_price / num_incoming_pkgs * 100
+	))
+	lines.append(f'In and out: {outgoing_and_incoming}')
+	lines.append(f'In and sold at least once {in_and_sold_at_least_once}')
+	lines.append(f'In and sold many times {in_and_sold_many_times}')
+	lines.append('')
+	lines.append(f' Num parent packages: {num_parent_packages}')
+	lines.append(f' num matched child packages: {num_child_packages}')
 
-		print(f'Total pkgs: {total_seen}')
+	lines.append(f'Total pkgs: {total_seen}')
+
+	if should_print:
+		print('\n'.join(lines))
+
+	with open(ctx.get_output_path('log.txt'), 'a+') as f:
+		f.write('\n'.join(lines))
 
 	return PrintCountsDict(
 		only_outgoing=only_outgoing,
@@ -479,7 +490,8 @@ def create_inventory_dataframes(
 
 	return date_to_inventory_records
 
-def compare_inventory_dataframes(computed: pandas.DataFrame, actual: pandas.DataFrame, options: CompareOptionsDict) -> CompareInventoryResultsDict:
+def compare_inventory_dataframes(
+	ctx: AnalysisContext, computed: pandas.DataFrame, actual: pandas.DataFrame, options: CompareOptionsDict) -> CompareInventoryResultsDict:
 	package_id_to_computed_row = {}
 	unseen_package_ids = set([])
 	all_computed_package_ids_ever_seen = set([])
@@ -584,41 +596,45 @@ def compare_inventory_dataframes(computed: pandas.DataFrame, actual: pandas.Data
 		quantity_not_computed_avg = 0.0
 
 	pct_inventory_matching = num_matching_packages / num_packages * 100
-	print('Pct of # inventory matching: {:.2f}% ({} / {})'.format(
+
+	lines = []
+	lines.append('')
+	lines.append('')
+	lines.append('Pct of # inventory matching: {:.2f}% ({} / {})'.format(
 		pct_inventory_matching,
 		num_matching_packages,
 		num_packages
 	))
 
 	pct_accuracy_of_quantity = (matching_quantity_avg - matching_quantity_delta) / matching_quantity_avg * 100
-	print('Accuracy of quantities for matching packages: {:.2f}%'.format(pct_accuracy_of_quantity))
+	lines.append('Accuracy of quantities for matching packages: {:.2f}%'.format(pct_accuracy_of_quantity))
 	
 	pct_inventory_overestimate = len(unseen_package_ids) / num_packages * 100
-	print('Pct of # inventory packages over-estimated: {:.2f}%'.format(pct_inventory_overestimate))
+	lines.append('Pct of # inventory packages over-estimated: {:.2f}%'.format(pct_inventory_overestimate))
 	
 	pct_quantity_overestimated = extra_quantity / total_quantity_all_inventory_packages
-	print('Pct of # quantity over-estimated: {:.2f}%'.format(pct_quantity_overestimated))
-	print('Avg quantity delta of matching packages: {:.2f}'.format(matching_quantity_delta))
-	print('Avg quantity of matching packages: {:.2f}'.format(matching_quantity_avg))
-	print('')
-	print('Num matching packages: {}'.format(num_matching_packages))
+	lines.append('Pct of # quantity over-estimated: {:.2f}%'.format(pct_quantity_overestimated))
+	lines.append('Avg quantity delta of matching packages: {:.2f}'.format(matching_quantity_delta))
+	lines.append('Avg quantity of matching packages: {:.2f}'.format(matching_quantity_avg))
+	lines.append('')
+	lines.append('Num matching packages: {}'.format(num_matching_packages))
 
 	computed_missing_but_seen_before_pct = 0.0
 	if len(computed_missing_package_ids) != 0:
 		computed_missing_but_seen_before_pct = len(computed_missing_package_ids_but_seen_before) / len(computed_missing_package_ids) * 100
 
-	print('Num actual packages not computed: {}'.format(len(computed_missing_package_ids)))
-	print('  but computed at some point: {}, e.g., {:.2f}% of non-computed packages'.format(
+	lines.append('Num actual packages not computed: {}'.format(len(computed_missing_package_ids)))
+	lines.append('  but computed at some point: {}, e.g., {:.2f}% of non-computed packages'.format(
 		len(computed_missing_package_ids_but_seen_before), computed_missing_but_seen_before_pct))
-	print('  avg quantity from actual packages {:.2f}'.format(quantity_not_computed_avg))
+	lines.append('  avg quantity from actual packages {:.2f}'.format(quantity_not_computed_avg))
 
-	print('Num computed packages not in actual: {}'.format(len(unseen_package_ids)))
-	print('  but in actual inventory at some point: {}'.format(
+	lines.append('Num computed packages not in actual: {}'.format(len(unseen_package_ids)))
+	lines.append('  but in actual inventory at some point: {}'.format(
 		len(unseen_package_ids_in_inventory_at_some_point)))
 
 	num_errors_to_show = options['num_errors_to_show']
-	print('')
-	print(f'Computed has these extra package IDs; first {num_errors_to_show}')
+	lines.append('')
+	lines.append(f'Computed has these extra package IDs; first {num_errors_to_show}')
 	i = 0
 	unseen_quantity_tuples = []
 
@@ -632,12 +648,12 @@ def compare_inventory_dataframes(computed: pandas.DataFrame, actual: pandas.Data
 		if i > num_errors_to_show:
 			break
 
-		print(f'{package_id}: computed quantity {quantity} ({unit_of_measure})')
+		lines.append(f'{package_id}: computed quantity {quantity} ({unit_of_measure})')
 
 		i += 1
 
-	print('')
-	print(f'Computed is missing these package IDs; first {num_errors_to_show}')
+	lines.append('')
+	lines.append(f'Computed is missing these package IDs; first {num_errors_to_show}')
 	computed_missing_tuples: List[Tuple[str, InventoryPackageDict]] = []
 
 	i = 0
@@ -656,12 +672,12 @@ def compare_inventory_dataframes(computed: pandas.DataFrame, actual: pandas.Data
 		unit_of_measure = cur_row['unit_of_measure']
 		product_category_name = cur_row['product_category_name']
 
-		print(f'{package_id}: actual quantity {quantity} ({unit_of_measure}) of {product_category_name}')
+		lines.append(f'{package_id}: actual quantity {quantity} ({unit_of_measure}) of {product_category_name}')
 		computed_missing_actual_package_ids.append(package_id)
 		i += 1
 
-	print('')
-	print(f'Largest delta in quantities; first {num_errors_to_show}')
+	lines.append('')
+	lines.append(f'Largest delta in quantities; first {num_errors_to_show}')
 	delta_tuples.sort(key=lambda x: x[1], reverse=True)
 
 	i = 0
@@ -669,8 +685,13 @@ def compare_inventory_dataframes(computed: pandas.DataFrame, actual: pandas.Data
 		if i > num_errors_to_show:
 			break
 
-		print('Delta {:.2f} for package_id {}'.format(delta, package_id))
+		lines.append('Delta {:.2f} for package_id {}'.format(delta, package_id))
 		i += 1
+
+	print('\n'.join(lines))
+
+	with open(ctx.get_output_path('log.txt'), 'a+') as f:
+		f.write('\n'.join(lines))
 
 	return CompareInventoryResultsDict(
 		computed_extra_package_ids=list(unseen_package_ids),
@@ -714,6 +735,7 @@ def compute_inventory_across_dates(
 	}
 
 def compare_computed_vs_actual_inventory(
+	ctx: AnalysisContext,
 	computed: pandas.DataFrame,
 	actual: pandas.DataFrame, 
 	compare_options: CompareOptionsDict) -> CompareInventoryResultsDict:
@@ -727,6 +749,7 @@ def compare_computed_vs_actual_inventory(
 	]].sort_values('package_id')
 
 	res = compare_inventory_dataframes(
+			ctx=ctx,
 			computed=computed,
 			actual=from_packages_inventory_dataframe,
 			options=compare_options
@@ -845,12 +868,21 @@ def create_inventory_xlsx(
 
 	pct_excluded = num_excluded / num_total * 100
 	pct_excluded_str = '{:.2f}'.format(pct_excluded)
-	print(f'Excluded {num_excluded} / {num_total} packages from consideration ({pct_excluded_str}%)')
+
+	lines = []
+	lines.append('')
+	lines.append('')
+	lines.append(f'Excluded {num_excluded} / {num_total} packages from consideration ({pct_excluded_str}%)')
 	for reason, package_ids in exclude_reason_to_package_ids.items():
 		count = len(package_ids)
-		print(f'  {reason}: {count} times')
+		lines.append(f'  {reason}: {count} times')
 		if show_debug_package_ids:
-			print(package_ids)
+			lines.append('{}'.format(package_ids))
+
+	print('\n'.join(lines))
+
+	with open(ctx.get_output_path('log.txt'), 'a+') as fw:
+		fw.write('\n'.join(lines))
 
 	return CountsAnalysisDict(
 		pct_excluded=round(pct_excluded, 2)

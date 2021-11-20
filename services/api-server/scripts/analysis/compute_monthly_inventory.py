@@ -64,8 +64,8 @@ def _run_analysis_for_customer(d: download_util.Download, ctx: AnalysisContext, 
 	today_date = date_util.load_date_str(q.inventory_dates[-1]) # the most recent day is the one we want to compare the actual inventory to.
 	id_to_history = util.get_histories(d, params=params)
 
-	util.print_counts(id_to_history)
-	util.run_orphan_analysis(d, id_to_history, params)
+	util.print_counts(ctx, id_to_history)
+	util.run_orphan_analysis(d, ctx, id_to_history, params)
 	counts_analysis_dict = util.create_inventory_xlsx(d, ctx, id_to_history, q, params=params)
 
 	## Compute accuracy numbers for COGS and inventory
@@ -77,6 +77,7 @@ def _run_analysis_for_customer(d: download_util.Download, ctx: AnalysisContext, 
 
 	today_date_str = today_date.strftime('%m/%d/%Y')
 	compare_inventory_res = util.compare_computed_vs_actual_inventory(
+			ctx=ctx,
 			computed=computed_resp['date_to_computed_inventory_dataframe'][today_date_str],
 			actual=d.inventory_packages_dataframe,
 			compare_options={

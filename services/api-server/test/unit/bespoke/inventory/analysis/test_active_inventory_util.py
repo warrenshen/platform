@@ -12,9 +12,21 @@ from bespoke_test.inventory.analysis.inventory_test_helper import (
 )
 from bespoke.inventory.analysis import active_inventory_util as util
 from bespoke.inventory.analysis.shared.inventory_types import (
+	AnalysisContext,
 	AnalysisParamsDict,
 	MarginEstimateConfigDict
 )
+
+def _get_analysis_context() -> AnalysisContext:
+	return AnalysisContext(
+		output_root_dir='tmp',
+		read_params={
+			'use_cached_dataframes': False
+		},
+		write_params={
+			'save_download_dataframes': False
+		}
+	)
 
 class TestInventoryCounts(unittest.TestCase):
 
@@ -29,7 +41,8 @@ class TestInventoryCounts(unittest.TestCase):
 			margin_estimate_config=None,
 			cogs_analysis_params=None
 		))
-		counts_dict = util.print_counts(package_id_to_history, should_print=False)
+		ctx = _get_analysis_context()
+		counts_dict = util.print_counts(ctx, package_id_to_history, should_print=False)
 		self.assertDictEqual(cast(Dict, counts_dict), test['expected_counts_dict'])
 
 	def test_print_counts(self) -> None:
@@ -158,7 +171,9 @@ class TestCompareInventoryDataframes(unittest.TestCase):
 	maxDiff = None
 
 	def _run_test(self, test: Dict) -> None:
+		ctx = _get_analysis_context()
 		actual_res = util.compare_inventory_dataframes(
+			ctx=ctx,
 			computed=inventory_test_helper.get_dataframe(
 			test['computed_rows'], columns=util.get_inventory_column_names()),
 			actual=inventory_test_helper.get_dataframe(
@@ -242,8 +257,8 @@ class TestCompareInventoryDataframes(unittest.TestCase):
 					id=6,
 					is_in_inventory=False,
 					quantity=0 # computed is said to be sold out, so with the options
-					           # trust it is sold out, even though the actual has some
-					           # residual quantity
+										 # trust it is sold out, even though the actual has some
+										 # residual quantity
 				),
 				_inventory_row(
 					id=7,
@@ -811,9 +826,9 @@ class TestInventoryPackages(unittest.TestCase):
 					'unit_of_measure': 'pounds',
 					'sold_date': '',
 					'are_prices_inferred': 'True',
-  				'arrived_date': '09/30/2020',
-  				'incoming_cost': 20.00, # 5 pounds came in (inferred) * $4 per pound (pricing table)
-  				'incoming_quantity': 5.00,
+					'arrived_date': '09/30/2020',
+					'incoming_cost': 20.00, # 5 pounds came in (inferred) * $4 per pound (pricing table)
+					'incoming_quantity': 5.00,
 					'uses_parenting_logic': 'False',
 					'is_in_inventory': 'true'
 				}
