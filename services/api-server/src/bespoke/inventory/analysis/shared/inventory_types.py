@@ -129,6 +129,8 @@ CompareInventoryResultsDict = TypedDict('CompareInventoryResultsDict', {
 CogsSummaryDict = TypedDict('CogsSummaryDict', {
 	'topdown_cogs_rows': List[List[CellValue]],
 	'bottomsup_cogs_rows': List[List[CellValue]],
+	'avg_monthly_cogs': float,
+	'avg_monthly_revenue': float,
 	'pct_transactions_with_cost': float,
 	'bottomsup_total_cogs': float,
 	'topdown_total_cogs': float

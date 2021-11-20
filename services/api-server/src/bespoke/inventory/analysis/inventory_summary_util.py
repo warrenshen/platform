@@ -27,12 +27,12 @@ def write_excel_for_summaries(summaries: List[AnalysisSummaryDict]) -> None:
 		 'pct_quantity_overestimated',
 		 
 		 # Revenue
-		 # TODO(dlluncor):
-		 # Average trailing 10 months of COGS * 12 = yearly COGS
 		 # want a inventory_turnover = yearly COGS / inventory_valuation
 		 'pct_transactions_with_cost',
 		 'topdown_total_cogs', 
-		 'bottomsup_total_cogs', 
+		 'bottomsup_total_cogs',
+		 'avg_monthly_cogs',
+		 'avg_monthly_revenue',
 		 'current_inventory_value', 
 		 'cogs_reconciled_delta_as_pct', 
 		 'cogs_summary'
@@ -73,8 +73,10 @@ def write_excel_for_summaries(summaries: List[AnalysisSummaryDict]) -> None:
 			cogs_summary['pct_transactions_with_cost'],
 			cogs_summary['topdown_total_cogs'],
 			cogs_summary['bottomsup_total_cogs'],
+			cogs_summary['avg_monthly_cogs'],
+			cogs_summary['avg_monthly_revenue'],
 			inventory_res['current_inventory_value'],
-			cogs_reconciled_delta_as_pct,
+			round(cogs_reconciled_delta_as_pct, 2),
 			''
 		]
 

@@ -85,7 +85,9 @@ def _get_empty_cogs_row(date_str: str) -> List[CellValue]:
 BottomsupDetailsDict = TypedDict('BottomsupDetailsDict', {
 	'bottomsup_cogs_rows': List[List[CellValue]],
 	'bottomsup_total_cogs': float,
-	'pct_transactions_with_cost': float
+	'pct_transactions_with_cost': float,
+	'avg_monthly_cogs': float,
+	'avg_monthly_revenue': float
 })
 
 def _create_cogs_summary_for_all_dates(
@@ -225,10 +227,24 @@ def _create_cogs_summary_for_all_dates(
 	num_transactions_total = 0
 	num_transactions_with_price_info = 0
 
-	for month, summary in year_month_to_summary.items():
+	month_keys = list(year_month_to_summary.keys())
+	month_keys.sort(key=lambda x: datetime.date(year=x.year, month=x.month, day=1))
+
+	for month in month_keys:
+		summary = year_month_to_summary[month]
 		bottomsup_total_cogs += summary['cogs']
 		num_transactions_total += summary['num_transactions_total']
 		num_transactions_with_price_info += summary['num_transactions_with_price_info']
+
+	trailing_twelve_month_keys = month_keys[-12:]
+	sum_monthly_cogs = []
+	sum_monthly_revenue = []
+	for month in trailing_twelve_month_keys:
+		sum_monthly_cogs.append(year_month_to_summary[month]['cogs'])
+		sum_monthly_revenue.append(year_month_to_summary[month]['revenue'])
+
+	avg_monthly_cogs = sum(sum_monthly_cogs) / len(sum_monthly_cogs)
+	avg_monthly_revenue = sum(sum_monthly_revenue) / len(sum_monthly_revenue)
 
 	pct_txs_with_cost = 0.0
 	if num_transactions_total > 0.0:
@@ -237,6 +253,8 @@ def _create_cogs_summary_for_all_dates(
 	return BottomsupDetailsDict(
 		bottomsup_cogs_rows=_to_cogs_summary_rows(year_month_to_summary),
 		bottomsup_total_cogs=bottomsup_total_cogs,
+		avg_monthly_cogs=avg_monthly_cogs,
+		avg_monthly_revenue=avg_monthly_revenue,
 		pct_transactions_with_cost=pct_txs_with_cost
 	)
 
@@ -385,6 +403,8 @@ def create_cogs_summary(
 		topdown_cogs_rows=topdown_details['topdown_cogs_rows'],
 		bottomsup_cogs_rows=bottomsup_details['bottomsup_cogs_rows'],
 		pct_transactions_with_cost=bottomsup_details['pct_transactions_with_cost'],
+		avg_monthly_cogs=bottomsup_details['avg_monthly_cogs'],
+		avg_monthly_revenue=bottomsup_details['avg_monthly_revenue'],
 		bottomsup_total_cogs=bottomsup_details['bottomsup_total_cogs'],
 		topdown_total_cogs=topdown_details['topdown_total_cogs']
 	)
