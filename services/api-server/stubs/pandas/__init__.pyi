@@ -5,6 +5,7 @@ from collections.abc import Sequence
 class DataFrame(Sequence):
 
 	columns: List[str]
+	index: Any
 
 	def __init__(self, *args: Any, **kwargs: Any) -> None:
 		pass
