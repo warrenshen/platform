@@ -1,6 +1,6 @@
 import { Box, TextField } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
-import CreateProspectiveCustomerModal from "components/Customer/CreateProspectiveCustomerModal";
+import CreateCompanyModal from "components/Customer/CreateCompanyModal";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
@@ -139,7 +139,7 @@ export default function BankcompaniesPage() {
                   label={"Create Company"}
                   color={"primary"}
                   modal={({ handleClose }) => (
-                    <CreateProspectiveCustomerModal
+                    <CreateCompanyModal
                       handleClose={() => {
                         refetch();
                         handleClose();

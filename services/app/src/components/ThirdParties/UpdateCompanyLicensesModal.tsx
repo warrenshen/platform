@@ -1,6 +1,7 @@
 import { Box, Button, Divider, TextField, Typography } from "@material-ui/core";
 import FileUploader from "components/Shared/File/FileUploader";
 import Modal from "components/Shared/Modal/Modal";
+import CompanyLicenseAutocomplete from "components/ThirdParties/CompanyLicenseAutocomplete";
 import {
   Companies,
   CompanyLicensesInsertInput,
@@ -77,10 +78,12 @@ function CompanyLicenseForm({
         display="flex"
         flexDirection="row"
         justifyContent="space-between"
+        alignItems="center"
         mb={2}
       >
         <TextField
           required
+          disabled={!!companyLicense.id}
           label={"License #"}
           value={companyLicense.license_number || ""}
           onChange={({ target: { value } }) =>
@@ -94,15 +97,18 @@ function CompanyLicenseForm({
             ])
           }
         />
-        <Box>
-          <Button
-            variant={"outlined"}
-            color={"default"}
-            onClick={handleDeleteCompanyLicense}
-          >
-            x
-          </Button>
-        </Box>
+        {!companyLicense.id && (
+          <Box>
+            <Button
+              disabled={!!companyLicense.id}
+              variant={"outlined"}
+              color={"default"}
+              onClick={handleDeleteCompanyLicense}
+            >
+              x
+            </Button>
+          </Box>
+        )}
       </Box>
       <FileUploader
         isCountVisible={false}
@@ -131,8 +137,7 @@ export default function UpdateCompanyLicensesModal({
   >([]);
 
   const {
-    data,
-    loading: isVendorCompanyFileAttachmentsLoading,
+    loading: isCompanyLicensesLoading,
     error,
   } = useGetVendorCompanyFileAttachmentsQuery({
     fetchPolicy: "network-only",
@@ -140,9 +145,9 @@ export default function UpdateCompanyLicensesModal({
       company_id: companyId,
     },
     onCompleted: (data) => {
-      const existingVendorCompany = data?.companies_by_pk;
-      if (existingVendorCompany) {
-        setCompanyLicenses(existingVendorCompany.licenses);
+      const company = data?.companies_by_pk;
+      if (company) {
+        setCompanyLicenses(company.licenses);
       }
     },
   });
@@ -151,8 +156,6 @@ export default function UpdateCompanyLicensesModal({
     alert(`Error in query: ${error.message}`);
     console.error({ error });
   }
-
-  const vendor = data?.companies_by_pk || null;
 
   const [
     createUpdateLicenses,
@@ -176,9 +179,9 @@ export default function UpdateCompanyLicensesModal({
   };
 
   const isSubmitDisabled =
-    isVendorCompanyFileAttachmentsLoading || isCreateUpdateLicensesLoading;
+    isCompanyLicensesLoading || isCreateUpdateLicensesLoading;
 
-  return vendor ? (
+  return (
     <Modal
       isPrimaryActionDisabled={isSubmitDisabled}
       title={"Update Licenses"}
@@ -187,10 +190,14 @@ export default function UpdateCompanyLicensesModal({
       handlePrimaryAction={handleClickSave}
     >
       <Box display="flex" flexDirection="column">
-        <Box>
+        <Box display="flex" flexDirection="column">
           <Typography variant="h6">Licenses</Typography>
+          <Typography variant="body2" color="textSecondary">
+            Please reach out to the Bespoke Financial engineering team if you
+            would like to DELETE an existing license.
+          </Typography>
         </Box>
-        <Box mt={1} mb={2}>
+        <Box mt={2}>
           {companyLicenses.map((companyLicense, index) => (
             <CompanyLicenseForm
               key={index}
@@ -200,6 +207,11 @@ export default function UpdateCompanyLicensesModal({
               setCompanyLicenses={setCompanyLicenses}
             />
           ))}
+        </Box>
+        <Box mt={2}>
+          <Typography variant="body1">
+            Two options to add a license to this company:
+          </Typography>
         </Box>
         <Box mt={2}>
           <Button
@@ -220,7 +232,31 @@ export default function UpdateCompanyLicensesModal({
             New License
           </Button>
         </Box>
+        <Box mt={2}>
+          <Typography variant="body1">OR</Typography>
+        </Box>
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Box mb={1}>
+            <Typography variant="body2" color="textSecondary">
+              Search for an existing license in the system that is NOT assigned
+              to a company yet.
+            </Typography>
+          </Box>
+          <CompanyLicenseAutocomplete
+            handleSelectCompanyLicense={(companyLicense) =>
+              setCompanyLicenses([
+                ...companyLicenses,
+                {
+                  id: companyLicense.id,
+                  company_id: companyLicense.id,
+                  file_id: companyLicense.file_id,
+                  license_number: companyLicense.license_number,
+                },
+              ])
+            }
+          />
+        </Box>
       </Box>
     </Modal>
-  ) : null;
+  );
 }

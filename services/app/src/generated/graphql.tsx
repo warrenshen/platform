@@ -25062,6 +25062,14 @@ export type GetCompanyNextLoanIdentifierMutation = {
   >;
 };
 
+export type GetCompanyLicensesByLicenseNumberQueryVariables = Exact<{
+  license_number: Scalars["String"];
+}>;
+
+export type GetCompanyLicensesByLicenseNumberQuery = {
+  company_licenses: Array<Pick<CompanyLicenses, "id"> & CompanyLicenseFragment>;
+};
+
 export type GetCompanyForBankQueryVariables = Exact<{
   companyId: Scalars["uuid"];
 }>;
@@ -25289,7 +25297,6 @@ export type MetrcTransferLimitedFragment = Pick<
   | "shipper_facility_name"
   | "lab_results_status"
   | "last_modified_at"
-  | "transfer_payload"
 >;
 
 export type MetrcTransferFragment = Pick<
@@ -26336,7 +26343,6 @@ export const MetrcTransferLimitedFragmentDoc = gql`
     shipper_facility_name
     lab_results_status
     last_modified_at
-    transfer_payload
   }
 `;
 export const MetrcTransferFragmentDoc = gql`
@@ -33594,6 +33600,77 @@ export type GetCompanyNextLoanIdentifierMutationResult = Apollo.MutationResult<G
 export type GetCompanyNextLoanIdentifierMutationOptions = Apollo.BaseMutationOptions<
   GetCompanyNextLoanIdentifierMutation,
   GetCompanyNextLoanIdentifierMutationVariables
+>;
+export const GetCompanyLicensesByLicenseNumberDocument = gql`
+  query GetCompanyLicensesByLicenseNumber($license_number: String!) {
+    company_licenses(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { company_id: { _is_null: true } }
+          { license_number: { _eq: $license_number } }
+        ]
+      }
+    ) {
+      id
+      ...CompanyLicense
+    }
+  }
+  ${CompanyLicenseFragmentDoc}
+`;
+
+/**
+ * __useGetCompanyLicensesByLicenseNumberQuery__
+ *
+ * To run a query within a React component, call `useGetCompanyLicensesByLicenseNumberQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCompanyLicensesByLicenseNumberQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCompanyLicensesByLicenseNumberQuery({
+ *   variables: {
+ *      license_number: // value for 'license_number'
+ *   },
+ * });
+ */
+export function useGetCompanyLicensesByLicenseNumberQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetCompanyLicensesByLicenseNumberQuery,
+    GetCompanyLicensesByLicenseNumberQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetCompanyLicensesByLicenseNumberQuery,
+    GetCompanyLicensesByLicenseNumberQueryVariables
+  >(GetCompanyLicensesByLicenseNumberDocument, baseOptions);
+}
+export function useGetCompanyLicensesByLicenseNumberLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetCompanyLicensesByLicenseNumberQuery,
+    GetCompanyLicensesByLicenseNumberQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetCompanyLicensesByLicenseNumberQuery,
+    GetCompanyLicensesByLicenseNumberQueryVariables
+  >(GetCompanyLicensesByLicenseNumberDocument, baseOptions);
+}
+export type GetCompanyLicensesByLicenseNumberQueryHookResult = ReturnType<
+  typeof useGetCompanyLicensesByLicenseNumberQuery
+>;
+export type GetCompanyLicensesByLicenseNumberLazyQueryHookResult = ReturnType<
+  typeof useGetCompanyLicensesByLicenseNumberLazyQuery
+>;
+export type GetCompanyLicensesByLicenseNumberQueryResult = Apollo.QueryResult<
+  GetCompanyLicensesByLicenseNumberQuery,
+  GetCompanyLicensesByLicenseNumberQueryVariables
 >;
 export const GetCompanyForBankDocument = gql`
   query GetCompanyForBank($companyId: uuid!) {
