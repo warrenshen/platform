@@ -12,6 +12,7 @@ InventoryPackageDict = TypedDict('InventoryPackageDict', {
 	'package_id': str,
 	'license_number': str,
 	'quantity': float,
+	'package_type': str,
 	'product_category_name': str,
 	'product_name': str,
 	'unit_of_measure': str,
@@ -22,7 +23,10 @@ InventoryPackageDict = TypedDict('InventoryPackageDict', {
 	'source_harvest_names': str,
 	'packaged_date': str,
 	'archived_date': str,
-	'finished_date': str
+	'finished_date': str,
+
+	'category': str, # added by us in stale inventory util
+	'master_product_category': str # added by us in stale inventory util
 })
 
 SalesTransactionDict = TypedDict('SalesTransactionDict', {

@@ -63,3 +63,5 @@ def read_excel(filepath: str, converters: Dict) -> Any:
 
 def read_sql_query(sql_query: str, engine: Any) -> DataFrame:
 	pass
+
+Timestamp: Any = None

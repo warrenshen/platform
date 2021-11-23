@@ -43,6 +43,7 @@ from bespoke.inventory.analysis import active_inventory_util as util
 from bespoke.inventory.analysis import inventory_cogs_util as cogs_util
 from bespoke.inventory.analysis import inventory_valuations_util as valuations_util
 from bespoke.inventory.analysis import inventory_summary_util
+from bespoke.inventory.analysis import stale_inventory_util
 from bespoke.inventory.analysis.shared.inventory_types import (
 	Query,
 	AnalysisContext,
@@ -93,6 +94,9 @@ def _run_analysis_for_customer(d: download_util.Download, ctx: AnalysisContext, 
 		bottoms_up_cogs_rows=cogs_summary['bottomsup_cogs_rows'],
 		company_name=q.company_name
 	)
+
+	stale_inventory_util.compute_stale_inventory(
+		ctx, d.inventory_packages_records)
 
 	# Plot graphs
 	# TODO(dlluncor): Has to happen in the main thread to plot these graphs
@@ -189,6 +193,8 @@ def _compute_inventory_for_customer(
 	ctx.mkdir('reports')
 	ctx.mkdir('download')
 	ctx.mkdir('backup')
+	with open(ctx.get_output_path('log.txt'), 'w') as f:
+		f.write('')
 
 	q = util.Query(
 		inventory_dates=[], # gets filled in once we have the dataframes
@@ -276,6 +282,11 @@ def main() -> None:
 		action='store_true',
 	) # Whether to use the summaries we stored for a customer
 
+	parser.add_argument(
+		'--company_identifier',
+		help='The single company to run this script for'
+	) # Whether to use the summaries we stored for a customer
+
 	args = parser.parse_args()
 
 	workbook, err = excel_reader.ExcelWorkbook.load_xlsx(args.input_file)
@@ -295,10 +306,15 @@ def main() -> None:
 			continue
 
 		row = cast(List[Any], sheet['rows'][i])
+		company_name = row[0].strip()
+		company_identifier = row[1].strip()
+
+		if args.company_identifier and company_identifier != args.company_identifier:
+			continue
 
 		company_inputs.append(CompanyInputDict(
-			company_name=row[0].strip(),
-			company_identifier=row[1].strip(),
+			company_name=company_name,
+			company_identifier=company_identifier,
 			license_numbers=[el.strip() for el in row[2].strip().split(';')],
 			start_date=row[3]
 		))
@@ -314,7 +330,7 @@ def main() -> None:
 		use_cached_summaries=args.use_cached_summaries
 	)
 
-	with ThreadPoolExecutor(max_workers=3) as executor:
+	with ThreadPoolExecutor(max_workers=1) as executor:
 		future_to_i = {}
 
 		for i in range(len(company_inputs)):
