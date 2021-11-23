@@ -34,8 +34,10 @@ export default function MetrcTransferPackagesDataGrid({
           item_category: packagePayload["ItemCategory"],
           item_strain_name: packagePayload["ItemStrainName"],
           item_state: packagePayload["ItemState"],
+          shipment_package_state: packagePayload["ShipmentPackageState"],
           shipped_quantity: `${packagePayload["ShippedQuantity"]} (${packagePayload["ShippedUnitOfMeasureName"]})`,
           received_quantity: `${packagePayload["ReceivedQuantity"]} (${packagePayload["ReceivedUnitOfMeasureName"]})`,
+          receiver_wholesale_price: packagePayload["ReceiverWholesalePrice"],
           item_unit_quantity: packagePayload["ItemUnitQuantity"],
           item_unit_weight: packagePayload["ItemUnitWeight"],
           is_testing_sample: packagePayload["IsTestingSample"],
@@ -49,7 +51,7 @@ export default function MetrcTransferPackagesDataGrid({
       {
         fixed: true,
         dataField: "package_id",
-        caption: "Metrc ID",
+        caption: "Package ID (Metrc)",
         width: ColumnWidths.MetrcId,
         cellRender: (params: ValueFormatterParams) => (
           <MetrcPackageDrawerLauncher
@@ -91,13 +93,18 @@ export default function MetrcTransferPackagesDataGrid({
         ),
       },
       {
-        dataField: "package_type",
-        caption: "Package Type",
+        dataField: "shipment_package_state",
+        caption: "Shipment Package State",
         minWidth: ColumnWidths.MinWidth,
       },
       {
-        dataField: "product_name",
-        caption: "Product Name",
+        dataField: "lab_results_status",
+        caption: "Lab Results Status",
+        minWidth: ColumnWidths.MinWidth,
+      },
+      {
+        dataField: "package_type",
+        caption: "Package Type",
         minWidth: ColumnWidths.MinWidth,
       },
       {
@@ -106,8 +113,13 @@ export default function MetrcTransferPackagesDataGrid({
         minWidth: ColumnWidths.MinWidth,
       },
       {
+        dataField: "product_name",
+        caption: "Product Name",
+        minWidth: ColumnWidths.MinWidth,
+      },
+      {
         dataField: "shipped_quantity",
-        caption: "Shipped Quantity",
+        caption: "Shipped Quantity (UoM)",
         width: ColumnWidths.Count,
       },
       {
@@ -122,14 +134,20 @@ export default function MetrcTransferPackagesDataGrid({
         ),
       },
       {
-        dataField: "lab_results_status",
-        caption: "Lab Results Status",
-        minWidth: ColumnWidths.MinWidth,
+        dataField: "received_quantity",
+        caption: "Received Quantity (UoM)",
+        width: ColumnWidths.Count,
       },
       {
-        dataField: "label",
-        caption: "Label",
-        minWidth: ColumnWidths.MinWidth,
+        dataField: "receiver_wholesale_price",
+        caption: "Receiver Wholesale Price",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell
+            value={params.row.data.receiver_wholesale_price}
+          />
+        ),
       },
       {
         dataField: "item",
@@ -149,11 +167,6 @@ export default function MetrcTransferPackagesDataGrid({
       {
         dataField: "item_state",
         caption: "Item State",
-        minWidth: ColumnWidths.MinWidth,
-      },
-      {
-        dataField: "received_quantity",
-        caption: "Received Quantity",
         minWidth: ColumnWidths.MinWidth,
       },
       // {

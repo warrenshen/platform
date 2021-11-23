@@ -38,7 +38,7 @@ export default function MetrcPackagesDataGrid({
       {
         fixed: true,
         dataField: "package_id",
-        caption: "Metrc ID",
+        caption: "Package ID (Metrc)",
         width: ColumnWidths.MetrcId,
         cellRender: (params: ValueFormatterParams) => (
           <MetrcPackageDrawerLauncher

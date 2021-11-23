@@ -115,10 +115,13 @@ export type MetrcPackagePayload = {
   ItemCategory: string;
   ItemStrainName: string;
   ItemState: string;
+  ShipmentPackageState: string;
   ShippedQuantity: string;
   ShippedUnitOfMeasureName: string;
+  ShipperWholesalePrice: number;
   ReceivedQuantity: string;
   ReceivedUnitOfMeasureName: string;
+  ReceiverWholesalePrice: number;
   ItemUnitQuantity: string;
   ItemUnitWeight: string;
   IsTestingSample: string;

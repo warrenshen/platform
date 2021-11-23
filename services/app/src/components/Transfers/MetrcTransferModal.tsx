@@ -82,14 +82,6 @@ export default function MetrcTransferModal({
           {`${transferPayload.RecipientFacilityName} (${transferPayload.RecipientFacilityLicenseNumber})`}
         </Typography>
       </Box>
-      {/* <Box display="flex" flexDirection="column" mt={2}>
-        <Typography variant="subtitle2" color="textSecondary">
-          Vendor
-        </Typography>
-        <Typography variant="body1">
-          {getCompanyDisplayName(metrcTransfer.vendor)}
-        </Typography>
-      </Box> */}
       <Box display="flex" flexDirection="column" mt={2}>
         <Typography variant="subtitle2" color="textSecondary">
           Estimated Departure Time

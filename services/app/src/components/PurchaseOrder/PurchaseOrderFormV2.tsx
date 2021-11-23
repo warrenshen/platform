@@ -123,7 +123,9 @@ export default function PurchaseOrderFormV2({
                 </Typography>
                 <Typography variant="body2">
                   {`Received at: ${formatDatetimeString(
-                    metrcDelivery.received_datetime
+                    metrcDelivery.received_datetime,
+                    true,
+                    "Not received yet"
                   )}`}
                 </Typography>
                 <Typography variant="body2">

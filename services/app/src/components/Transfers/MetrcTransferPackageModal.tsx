@@ -49,13 +49,13 @@ export default function MetrcTransferPackageModal({
     >
       <Box display="flex" flexDirection="column" mt={2}>
         <Typography variant="subtitle2" color="textSecondary">
-          Metrc ID
+          Package ID (Metrc)
         </Typography>
         <Typography variant="body1">{metrcPackage.package_id}</Typography>
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>
         <Typography variant="subtitle2" color="textSecondary">
-          Label
+          Package Label
         </Typography>
         <Typography variant="body1">{metrcPackage.package_label}</Typography>
       </Box>

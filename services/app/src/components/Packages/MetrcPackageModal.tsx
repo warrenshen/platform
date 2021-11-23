@@ -46,7 +46,7 @@ export default function MetrcPackageModal({
     >
       <Box display="flex" flexDirection="column" mt={2}>
         <Typography variant="subtitle2" color="textSecondary">
-          Metrc ID
+          Package ID (Metrc)
         </Typography>
         <Typography variant="body1">{metrcPackage.package_id}</Typography>
       </Box>

@@ -55,10 +55,11 @@ export function previousDayAsDateStringServer(dateString: string) {
 
 export function formatDateString(
   dateString: string,
-  formatString: string = DateFormatClient
+  formatString: string = DateFormatClient,
+  defaultIfNull: string = "Invalid Date"
 ) {
   if (!dateString) {
-    return "Invalid Date";
+    return defaultIfNull;
   } else {
     try {
       return format(
@@ -94,10 +95,11 @@ export function formatDateStringAsMonth(dateString: string) {
 
 export function formatDatetimeString(
   datetimeString: string,
-  isTimeVisible: boolean = true
+  isTimeVisible: boolean = true,
+  defaultIfNull: string = "Invalid Datetime"
 ) {
   if (!datetimeString) {
-    return "Invalid Datetime";
+    return defaultIfNull;
   } else {
     try {
       return format(

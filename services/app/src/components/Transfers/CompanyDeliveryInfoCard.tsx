@@ -58,6 +58,7 @@ export default function CompanyDeliveryInfoCard({
   const metrcTransfer = companyDelivery.metrc_transfer;
   const metrcDelivery = companyDelivery.metrc_delivery;
   const metrcTransferPayload = metrcTransfer.transfer_payload;
+
   return (
     <Manifest>
       <Box display="flex" flexDirection="column" flex={1}>
@@ -72,7 +73,9 @@ export default function CompanyDeliveryInfoCard({
         </Typography>
         <Typography variant="body2">
           {`Received at: ${formatDatetimeString(
-            metrcDelivery.received_datetime
+            metrcDelivery.received_datetime,
+            true,
+            "Not received yet"
           )}`}
         </Typography>
         <Typography variant="body2">
