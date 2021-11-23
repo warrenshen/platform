@@ -209,6 +209,7 @@ class Download(object):
 		self.outgoing_records: List[TransferPackageDict] = None
 		self.sales_tx_records: List[SalesTransactionDict] = None
 		self.sales_receipts_dataframe: pd.DataFrame = None
+		self.sales_transactions_dataframe: pd.DataFrame = None
 		self.inventory_packages_dataframe: pd.DataFrame = None
 		self.incoming_transfer_packages_dataframe: pd.DataFrame = None
 
@@ -236,6 +237,7 @@ class Download(object):
 		self.sales_receipts_dataframe = sales_receipts_dataframe
 		self.inventory_packages_dataframe = inventory_packages_dataframe
 		self.incoming_transfer_packages_dataframe = incoming_transfer_packages_dataframe
+		self.sales_transactions_dataframe = sales_transactions_dataframe
 		self.inventory_packages_records = cast(
 			List[InventoryPackageDict], inventory_packages_dataframe.to_dict('records'))
 

@@ -95,8 +95,7 @@ def _run_analysis_for_customer(d: download_util.Download, ctx: AnalysisContext, 
 		company_name=q.company_name
 	)
 
-	stale_inventory_util.compute_stale_inventory(
-		ctx, d.inventory_packages_records)
+	stale_inventory_util.compute_stale_inventory(d, ctx)
 
 	# Plot graphs
 	# TODO(dlluncor): Has to happen in the main thread to plot these graphs

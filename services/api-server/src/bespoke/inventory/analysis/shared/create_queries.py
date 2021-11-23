@@ -319,6 +319,7 @@ def create_company_sales_transactions_query(
 			metrc_sales_receipts.total_packages,
 			metrc_sales_receipts.total_price as rt_total_price,
 			metrc_sales_transactions.type as tx_type,
+			metrc_sales_transactions.package_id as package_id,
 			metrc_sales_transactions.package_id as tx_package_id,
 			metrc_sales_transactions.package_label as tx_package_label,
 			metrc_sales_transactions.product_name as tx_product_name,
