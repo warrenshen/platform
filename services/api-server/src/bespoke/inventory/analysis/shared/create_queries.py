@@ -3,8 +3,9 @@ from typing import Iterable, List
 def create_company_incoming_transfer_packages_query(
 	company_identifier: str,
 	start_date: str,
-	end_date: str=None,
-	license_numbers: List[str]=None,
+	end_date: str = None,
+	license_numbers: List[str] = None,
+	product_name: str = None,
 	limit: int = None,
 ) -> str:
 	end_date_where_clause = f"""
@@ -14,6 +15,9 @@ def create_company_incoming_transfer_packages_query(
 	license_numbers_where_clause = f"""
 		and company_deliveries.license_number in ({','.join(license_numbers)})
 	""" if license_numbers else ''
+	product_name_where_clause = f"""
+		and metrc_transfer_packages.product_name = "{product_name}"
+	""" if product_name else ''
 
 	limit_clause = f"LIMIT {limit}" if limit else ""
 
@@ -74,6 +78,7 @@ def create_company_incoming_transfer_packages_query(
 			and metrc_transfers.created_date >= "{start_date}"
 			{end_date_where_clause}
 			{license_numbers_where_clause}
+			{product_name_where_clause}
 		order by
 			created_date desc
 		{limit_clause}
@@ -82,8 +87,9 @@ def create_company_incoming_transfer_packages_query(
 def create_company_outgoing_transfer_packages_query(
 	company_identifier: str,
 	start_date: str,
-	end_date: str=None,
-	license_numbers: List[str]=None,
+	end_date: str = None,
+	license_numbers: List[str] = None,
+	product_name: str = None,
 	limit: int = None,
 ) -> str:
 	end_date_where_clause = f"""
@@ -93,6 +99,10 @@ def create_company_outgoing_transfer_packages_query(
 	license_numbers_where_clause = f"""
 		and company_deliveries.license_number in ({','.join(license_numbers)})
 	""" if license_numbers else ''
+	product_name_where_clause = f"""
+		and metrc_transfer_packages.product_name = "{product_name}"
+	""" if product_name else ''
+
 	limit_clause = f"LIMIT {limit}" if limit else ""
 
 	return f"""
@@ -150,6 +160,7 @@ def create_company_outgoing_transfer_packages_query(
 			and metrc_transfers.created_date >= "{start_date}"
 			{end_date_where_clause}
 			{license_numbers_where_clause}
+			{product_name_where_clause}
 		order by
 			metrc_transfers.created_date desc
 		{limit_clause}
@@ -344,15 +355,19 @@ def create_company_sales_transactions_query(
 
 def create_company_inventory_packages_query(
 	company_identifier: str,
-	license_numbers: List[str]=None,
 	include_quantity_zero: bool = False,
+	license_numbers: List[str] = None,
+	product_name: str = None,
 	limit: int = None
 ) -> str:
+	include_quantity_zero_where_clause = '' if include_quantity_zero else 'and metrc_packages.quantity > 0'
 	license_numbers = [f"'{license_number}'" for license_number in license_numbers] if license_numbers else None
 	license_numbers_where_clause = f"""
 		and metrc_packages.license_number in ({','.join(license_numbers)})
 	""" if license_numbers else ''
-	include_quantity_zero_where_clause = '' if include_quantity_zero else 'and metrc_packages.quantity > 0'
+	product_name_where_clause = f"""
+		and metrc_packages.product_name = "{product_name}"
+	""" if product_name else ''
 	
 	limit_clause = f"LIMIT {limit}" if limit else ""
 
@@ -389,8 +404,9 @@ def create_company_inventory_packages_query(
 				metrc_packages.type = 'active' or
 				metrc_packages.type = 'onhold'
 			)
-			{license_numbers_where_clause}
 			{include_quantity_zero_where_clause}
+			{license_numbers_where_clause}
+			{product_name_where_clause}
 		order by
 			metrc_packages.packaged_date desc
 		{limit_clause}
@@ -440,6 +456,32 @@ def create_company_all_packages_query(
 		order by
 			metrc_packages.packaged_date desc
 		{limit_clause}
+	"""
+
+def create_company_sales_transactions_by_product_name(
+	company_identifier: str,
+	product_name: str,
+) -> str:
+	return f"""
+		select
+			companies.identifier,
+			metrc_sales_receipts.license_number,
+			metrc_sales_receipts.sales_datetime,
+			metrc_sales_transactions.package_id,
+			metrc_sales_transactions.product_category_name,
+			metrc_sales_transactions.product_name,
+			metrc_sales_transactions.quantity_sold,
+			metrc_sales_transactions.total_price
+		from
+			metrc_sales_transactions
+			left outer join metrc_sales_receipts on metrc_sales_transactions.receipt_row_id = metrc_sales_receipts.id
+			left outer join companies on metrc_sales_receipts.company_id = companies.id
+		where
+			True
+			and companies.identifier = "{company_identifier}"
+			and metrc_sales_transactions.product_name = "{product_name}"
+		order by
+			metrc_sales_receipts.sales_datetime desc
 	"""
 
 # ID queries: get data by IDs.
