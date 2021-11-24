@@ -41,17 +41,19 @@ class MetrcAuthProvider(object):
 
 def get_metrc_auth_provider() -> MetrcAuthProvider:
 	return MetrcAuthProvider(
-			state_to_vendor_key={
-				'AK': os.environ.get('METRC_VENDOR_KEY_AK'),
-				'CA': os.environ.get('METRC_VENDOR_KEY_CA'),
-				'CO': os.environ.get('METRC_VENDOR_KEY_CO'),
-				'MA': os.environ.get('METRC_VENDOR_KEY_MA'),
-				'MD': os.environ.get('METRC_VENDOR_KEY_MD'),
-				'ME': os.environ.get('METRC_VENDOR_KEY_ME'),
-				'MT': os.environ.get('METRC_VENDOR_KEY_MT'),
-				'OH': os.environ.get('METRC_VENDOR_KEY_OH'),
-				'OR': os.environ.get('METRC_VENDOR_KEY_OR'),
-			}
+		state_to_vendor_key={
+			'AK': os.environ.get('METRC_VENDOR_KEY_AK'),
+			'CA': os.environ.get('METRC_VENDOR_KEY_CA'),
+			'CO': os.environ.get('METRC_VENDOR_KEY_CO'),
+			'MA': os.environ.get('METRC_VENDOR_KEY_MA'),
+			'MD': os.environ.get('METRC_VENDOR_KEY_MD'),
+			'ME': os.environ.get('METRC_VENDOR_KEY_ME'),
+			'MI': os.environ.get('METRC_VENDOR_KEY_MI'),
+			'MT': os.environ.get('METRC_VENDOR_KEY_MT'),
+			'OH': os.environ.get('METRC_VENDOR_KEY_OH'),
+			'OR': os.environ.get('METRC_VENDOR_KEY_OR'),
+			'WV': os.environ.get('METRC_VENDOR_KEY_WV'),
+		}
 	)
 
 FCSConfigDict = TypedDict('FCSConfigDict', {
