@@ -123,8 +123,8 @@ def update_packages(
 	for prev_metrc_package in prev_metrc_packages:
 		# Package key is package_id - the same package
 		# may show up across different transfers.
-		metrc_package_key = prev_metrc_package.package_id
-		package_id_to_prev_package[metrc_package_key] = prev_metrc_package
+		prev_metrc_package_key = prev_metrc_package.package_id
+		package_id_to_prev_package[prev_metrc_package_key] = prev_metrc_package
 
 	# Write the packages
 	for metrc_package in packages:
@@ -140,6 +140,9 @@ def update_packages(
 		else:
 			# add
 			session.add(metrc_package)
+			# In some rare cases, a new package may show up twice in the same day.
+			# The following line prevents an attempt to insert a duplicate.
+			package_id_to_prev_package[metrc_package_key] = metrc_package
 			session.flush()
 
 def update_packages_from_sales_transactions(

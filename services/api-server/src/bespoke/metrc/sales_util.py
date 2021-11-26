@@ -149,7 +149,7 @@ class SalesReceipts(object):
 		prev_sales_receipts = []
 		receipt_id_to_tx_count = {}
 
-		BATCH_SIZE = 50
+		BATCH_SIZE = 1
 		for sales_receipts_chunk in cast(Iterable[List[Dict]], chunker(self._sales_receipts, BATCH_SIZE)):
 			receipt_numbers_chunk = [s['ReceiptNumber'] for s in sales_receipts_chunk]
 			prev_sales_receipts_chunk = _get_prev_sales_receipts(receipt_numbers_chunk, us_state, session)
@@ -427,7 +427,8 @@ def write_sales_info(
 	sales_receipts_tuple: Tuple[SalesReceipts, SalesReceipts], 
 	ctx: metrc_common_util.DownloadContext,
 	session_maker: Callable, 
-	BATCH_SIZE: int = 50) -> None:
+	BATCH_SIZE: int = 1,
+) -> None:
 
 	inactive_sales_receipts, active_sales_receipts = sales_receipts_tuple[0], sales_receipts_tuple[1]
 	_write_inactive_sales_info(inactive_sales_receipts, ctx, session_maker, BATCH_SIZE)
