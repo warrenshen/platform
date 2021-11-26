@@ -99,22 +99,30 @@ def maybe_merge_into_prev_package(
 	prev.unit_of_measure = cur.unit_of_measure
 	_merge_common_fields(source=cur, dest=prev)
 
+def _get_prev_metrc_packages(
+	us_state: str,
+	package_ids: List[str],
+	session: Session,
+) -> List[models.MetrcPackage]:
+	# Note: metrc_packages are unique on (us_state, package_id).
+	return session.query(models.MetrcPackage).filter(
+		models.MetrcPackage.us_state == us_state
+	).filter(
+		models.MetrcPackage.package_id.in_(package_ids)
+	).all()
+
 def update_packages(
 	packages: List[models.MetrcPackage],
 	session: Session) -> None:
 	package_ids = [package.package_id for package in packages] 
 
-	# metrc_packages are unique on package_id, when they 
-	# are not associated with a delivery.
-	# Note the following query may return more than BATCH_SIZE number of results.
-	prev_metrc_packages = cast(List[models.MetrcPackage], session.query(models.MetrcPackage).filter(
-		models.MetrcPackage.package_id.in_(package_ids)
-	).all())
+	us_state = packages[0].us_state
+	prev_metrc_packages = _get_prev_metrc_packages(us_state, package_ids, session)
 
 	package_id_to_prev_package = {}
 	for prev_metrc_package in prev_metrc_packages:
-		# Package key is package_id - the same package may show up across different
-		# transfers.
+		# Package key is package_id - the same package
+		# may show up across different transfers.
 		metrc_package_key = prev_metrc_package.package_id
 		package_id_to_prev_package[metrc_package_key] = prev_metrc_package
 
@@ -137,8 +145,8 @@ def update_packages(
 def update_packages_from_sales_transactions(
 	sales_transactions: List[models.MetrcSalesTransaction],
 	session: Session
-	) -> None:
-
+) -> None:
+	us_state = sales_transactions[0].us_state
 	package_ids = [tx.package_id for tx in sales_transactions] 
 
 	BATCH_SIZE = 50
@@ -146,10 +154,8 @@ def update_packages_from_sales_transactions(
 
 	# metrc_packages are unique on package_id, when they 
 	# are not associated with a delivery.
-	for package_ids_chunk in cast(Iterable[List[models.MetrcPackage]], chunker(package_ids, BATCH_SIZE)):
-		prev_metrc_packages_chunk = cast(List[models.MetrcPackage], session.query(models.MetrcPackage).filter(
-			models.MetrcPackage.package_id.in_(package_ids_chunk)
-		).all())
+	for package_ids_chunk in chunker(package_ids, BATCH_SIZE):
+		prev_metrc_packages_chunk = _get_prev_metrc_packages(us_state, package_ids_chunk, session)
 		prev_metrc_packages += prev_metrc_packages_chunk
 
 	package_id_to_prev_package = {}
@@ -173,15 +179,15 @@ def update_packages_from_sales_transactions(
 
 def update_packages_from_transfer_packages(
 	transfer_package_objs: List[TransferPackageObj],
-	session: Session) -> None:
+	session: Session,
+) -> None:
+	us_state = transfer_package_objs[0].transfer_package.us_state
 	package_ids = [package_obj.transfer_package.package_id for package_obj in transfer_package_objs] 
 
 	# metrc_packages are unique on package_id, when they 
 	# are not associated with a delivery.
 	# Note the following query may return more than BATCH_SIZE number of results.
-	prev_metrc_packages = cast(List[models.MetrcPackage], session.query(models.MetrcPackage).filter(
-		models.MetrcPackage.package_id.in_(package_ids)
-	).all())
+	prev_metrc_packages = _get_prev_metrc_packages(us_state, package_ids, session)
 
 	package_id_to_prev_package = {}
 	for prev_metrc_package in prev_metrc_packages:

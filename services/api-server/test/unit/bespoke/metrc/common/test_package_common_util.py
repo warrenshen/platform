@@ -251,54 +251,73 @@ class TestUpdatePackages(db_unittest.TestCase):
 		seed = test_helper.BasicSeed.create(self.session_maker, self)
 		seed.initialize()
 
-		company_id = seed.get_company_id('company_admin', index=0)
+		ca_company_id = seed.get_company_id('company_admin', index=0)
+		or_company_id = seed.get_company_id('company_admin', index=1)
+
 		with session_scope(session_maker) as session:
-			cur = models.MetrcPackage(
-				type='type-2',
+			ca_package = models.MetrcPackage(
+				type='type-1',
 				license_number='abcd',
 				us_state='CA',
-				package_id='2',
+				package_id='1',
 				package_label='A',
-				package_type='2-type',
-				product_name='2-name',
-				product_category_name='2-category-name',
+				package_type='1-type',
+				product_name='1-name',
+				product_category_name='1-category-name',
 				package_payload={'Label': 'A'},
-				last_modified_at=parser.parse('01/02/2020'),
+				last_modified_at=parser.parse('01/01/2020'),
 				packaged_date=parser.parse('01/04/2020'),
 				updated_at=parser.parse('01/05/2020')
 			)
-			cur.company_id = cast(Any, company_id)
-			session.add(cur)
+			ca_package.company_id = cast(Any, ca_company_id)
+			session.add(ca_package)
+
+			or_package = models.MetrcPackage(
+				type='type-2',
+				license_number='efgh',
+				us_state='OR',
+				package_id='2',
+				package_label='B',
+				package_type='2-type',
+				product_name='2-name',
+				product_category_name='2-category-name',
+				package_payload={'Label': 'B'},
+				last_modified_at=parser.parse('01/04/2020'),
+				packaged_date=parser.parse('01/04/2020'),
+				updated_at=parser.parse('01/05/2020')
+			)
+			or_package.company_id = cast(Any, or_company_id)
+			session.add(or_package)
 
 		with session_scope(session_maker) as session:
 			metrc_packages = cast(List[models.MetrcPackage], session.query(
 				models.MetrcPackage).order_by(models.MetrcPackage.last_modified_at).all())
-			self.assertEqual(1, len(metrc_packages))
+			self.assertEqual(2, len(metrc_packages))
 
-			new_packages = [
+			new_ca_packages = [
 				models.MetrcPackage(
-					type='type-2',
+					type='type-1',
 					license_number='abcd',
 					us_state='CA',
-					package_id='2',
+					package_id='1',
 					package_label='A',
-					package_type='2-type',
-					product_name='2-name-NEW',
-					product_category_name='2-category-name',
+					package_type='1-type',
+					product_name='1-name-NEW',
+					product_category_name='1-category-name',
 					package_payload={'Label': 'A-NEW'},
 					last_modified_at=parser.parse('01/02/2020'),
 					packaged_date=parser.parse('01/04/2020'),
 					updated_at=parser.parse('01/05/2020')
 				),
 				models.MetrcPackage(
-					type='type-3',
+					type='type-2',
 					license_number='abcd',
 					us_state='CA',
-					package_id='3',
+					package_id='2',
 					package_label='B',
-					package_type='3-type',
-					product_name='3-name',
-					product_category_name='3-category-name',
+					package_type='2-type',
+					product_name='2-name',
+					product_category_name='2-category-name',
 					package_payload={'Label': 'B'},
 					last_modified_at=parser.parse('01/03/2020'),
 					packaged_date=parser.parse('01/05/2020'),
@@ -306,18 +325,40 @@ class TestUpdatePackages(db_unittest.TestCase):
 				)
 			]
 			package_common_util.update_packages(
-				new_packages, 
+				new_ca_packages,
+				session=session)
+
+			new_or_packages = [
+				models.MetrcPackage(
+					type='type-2',
+					license_number='efgh',
+					us_state='OR',
+					package_id='2',
+					package_label='B',
+					package_type='2-type',
+					product_name='2-name-NEW',
+					product_category_name='2-category-name',
+					package_payload={'Label': 'B-NEW'},
+					last_modified_at=parser.parse('01/05/2020'),
+					packaged_date=parser.parse('01/04/2020'),
+					updated_at=parser.parse('01/05/2020')
+				)
+			]
+			package_common_util.update_packages(
+				new_or_packages,
 				session=session)
 
 		with session_scope(session_maker) as session:
 			metrc_packages = cast(List[models.MetrcPackage], session.query(
 				models.MetrcPackage).order_by(models.MetrcPackage.last_modified_at).all())
-			self.assertEqual(2, len(metrc_packages))
+			self.assertEqual(3, len(metrc_packages))
 
 			# One package gets overwritten with a new field
-			self.assertEqual('2-name-NEW', metrc_packages[0].product_name)
+			self.assertEqual('1-name-NEW', metrc_packages[0].product_name)
 			self.assertEqual({'Label': 'A-NEW'}, metrc_packages[0].package_payload)
 
+			self.assertEqual('2-name', metrc_packages[1].product_name)
+			self.assertEqual({'Label': 'B'}, metrc_packages[1].package_payload)
 
-
-
+			self.assertEqual('2-name-NEW', metrc_packages[2].product_name)
+			self.assertEqual({'Label': 'B-NEW'}, metrc_packages[2].package_payload)
