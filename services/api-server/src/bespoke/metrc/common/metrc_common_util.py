@@ -197,6 +197,7 @@ class DownloadContext(object):
 				vendor_key=license_auth['vendor_key'],
 				user_key=license_auth['user_key']
 			),
+			company_details=company_details,
 			license_number=license_auth['license_number'],
 			us_state=license_auth['us_state'],
 			error_catcher=self.error_catcher,
@@ -269,13 +270,17 @@ class FacilitiesFetcher(FacilitiesFetcherInterface):
 class REST(object):
 
 	def __init__(self, 
-			sendgrid_client: sendgrid_util.Client, auth_dict: AuthDict, 
-			license_number: str, us_state: str, 
+			sendgrid_client: sendgrid_util.Client, 
+			auth_dict: AuthDict, 
+			company_details: CompanyDetailsDict,
+			license_number: str, 
+			us_state: str, 
 			error_catcher: ErrorCatcher,
 			debug: bool = False
 	) -> None:
 		self.auth = HTTPBasicAuth(auth_dict['vendor_key'], auth_dict['user_key'])
 		self.license_number = license_number
+		self._company_details = company_details
 		self.base_url = _get_base_url(us_state)
 		self.debug = debug
 		self._error_catcher = error_catcher
@@ -312,9 +317,9 @@ class REST(object):
 			if resp.ok:
 				return HTTPResponse(resp)
 
-			e = errors.Error('Metrc error: URL: {}. Code: {}. Reason: {}. Response: {}. License num: {}. Time range: {}'.format(
+			e = errors.Error('Metrc error: URL: {}. Code: {}. Reason: {}. Response: {}. License num: {}. Company: {}. Time range: {}'.format(
 					url, resp.status_code, resp.reason, resp.content.decode('utf-8'),
-					self.license_number, time_range),
+					self.license_number, self._company_details['name'], time_range),
 					details={'status_code': resp.status_code})
 
 			if resp.status_code in NON_RETRY_STATUSES:
@@ -388,7 +393,8 @@ class REST(object):
 
 def get_rest_helper_for_debug(
 	us_state: str, 
-	license_number: str
+	license_number: str,
+	company_name: str = '<fill in company name>'
 ) -> REST:
 	error_catcher = ErrorCatcher()
 	auth_provider = config_util.get_metrc_auth_provider()
@@ -406,6 +412,10 @@ def get_rest_helper_for_debug(
 	return REST(
 			sendgrid_client=None, 
 			auth_dict=auth_dict, 
+			company_details=CompanyDetailsDict(
+				name=company_name,
+				company_id=''
+			),
 			license_number=license_number,
 			us_state=us_state, 
 			error_catcher=error_catcher,
