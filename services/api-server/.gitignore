@@ -11,3 +11,5 @@ out*
 .vscode
 .direnv
 .envrc
+src/**/*.pdf
+scripts/one_off/files

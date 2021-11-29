@@ -1307,6 +1307,14 @@ class AsyncPipeline(Base):
 			params=cast(Dict, self.params)
 		)
 
+class MonthlySummaryCalculation(Base):
+	__tablename__ = "monthly_summary_calculations"
+
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id'), nullable=True))
+	report_month = Column(Date)
+	minimum_payment = Column(Numeric)
+
 class RetryingQuery(_Query):
 	__retry_count__ = 4
 

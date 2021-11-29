@@ -114,3 +114,105 @@ class TestDateUtil(unittest.TestCase):
 				date_util.load_date_str(test['expected_date']), 
 				date_util.get_nearest_business_day(d1, preceeding=test['preceeding'])
 			)
+
+	def test_get_report_month(self) -> None:
+		"""
+			
+		"""
+		tests: List[Dict] = [
+			{
+				'report_send_date': date_util.load_date_str('1/5/2021'),
+				'expected_raw_statement_date': date_util.load_date_str('12/31/2020'),
+				'expected_human_readable_statement_date': 'December 2020'
+			},
+			{
+				'report_send_date': date_util.load_date_str('2/5/2021'),
+				'expected_raw_statement_date': date_util.load_date_str('1/31/2021'),
+				'expected_human_readable_statement_date': 'January 2021'
+			},
+			{
+				'report_send_date': date_util.load_date_str('3/5/2021'),
+				'expected_raw_statement_date': date_util.load_date_str('2/28/2021'),
+				'expected_human_readable_statement_date': 'February 2021'
+			},
+			{
+				'report_send_date': date_util.load_date_str('4/5/2021'),
+				'expected_raw_statement_date': date_util.load_date_str('3/31/2021'),
+				'expected_human_readable_statement_date': 'March 2021'
+			},
+			{
+				'report_send_date': date_util.load_date_str('5/5/2021'),
+				'expected_raw_statement_date': date_util.load_date_str('4/30/2021'),
+				'expected_human_readable_statement_date': 'April 2021'
+			},
+			{
+				'report_send_date': date_util.load_date_str('6/5/2021'),
+				'expected_raw_statement_date': date_util.load_date_str('5/31/2021'),
+				'expected_human_readable_statement_date': 'May 2021'
+			},
+			{
+				'report_send_date': date_util.load_date_str('7/5/2021'),
+				'expected_raw_statement_date': date_util.load_date_str('6/30/2021'),
+				'expected_human_readable_statement_date': 'June 2021'
+			},
+			{
+				'report_send_date': date_util.load_date_str('8/5/2021'),
+				'expected_raw_statement_date': date_util.load_date_str('7/31/2021'),
+				'expected_human_readable_statement_date': 'July 2021'
+			},
+			{
+				'report_send_date': date_util.load_date_str('9/5/2021'),
+				'expected_raw_statement_date': date_util.load_date_str('8/31/2021'),
+				'expected_human_readable_statement_date': 'August 2021'
+			},
+			{
+				'report_send_date': date_util.load_date_str('10/5/2021'),
+				'expected_raw_statement_date': date_util.load_date_str('9/30/2021'),
+				'expected_human_readable_statement_date': 'September 2021'
+			},
+			{
+				'report_send_date': date_util.load_date_str('11/5/2021'),
+				'expected_raw_statement_date': date_util.load_date_str('10/31/2021'),
+				'expected_human_readable_statement_date': 'October 2021'
+			},
+			{
+				'report_send_date': date_util.load_date_str('12/5/2021'),
+				'expected_raw_statement_date': date_util.load_date_str('11/30/2021'),
+				'expected_human_readable_statement_date': 'November 2021'
+			},
+			{
+				'report_send_date': date_util.load_date_str('3/5/2020'),
+				'expected_raw_statement_date': date_util.load_date_str('2/29/2020'),
+				'expected_human_readable_statement_date': 'February 2020'
+			},		
+		]
+
+		for test in tests:
+			report_month_raw = date_util.get_report_month_last_day(test['report_send_date'])
+
+			self.assertEqual(
+				test['expected_raw_statement_date'], 
+				report_month_raw
+			)
+
+			report_month_display = date_util.human_readable_monthyear(report_month_raw)
+			self.assertEqual(
+				test['expected_human_readable_statement_date'],
+				report_month_display
+			)
+
+	def test_is_leap_year(self) -> None:
+		self.assertEqual(True, date_util.is_leap_year(2000))
+		self.assertEqual(True, date_util.is_leap_year(2004))
+		self.assertEqual(True, date_util.is_leap_year(2008))
+		self.assertEqual(True, date_util.is_leap_year(2012))
+		self.assertEqual(True, date_util.is_leap_year(2016))
+		self.assertEqual(True, date_util.is_leap_year(2020))
+		self.assertEqual(True, date_util.is_leap_year(2024))
+
+		self.assertEqual(False, date_util.is_leap_year(2017))
+		self.assertEqual(False, date_util.is_leap_year(2018))
+		self.assertEqual(False, date_util.is_leap_year(2019))
+		self.assertEqual(False, date_util.is_leap_year(2021))
+		self.assertEqual(False, date_util.is_leap_year(2022))
+		self.assertEqual(False, date_util.is_leap_year(2023))

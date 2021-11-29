@@ -15,7 +15,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 import boto3
 from mypy_extensions import TypedDict
-from sendgrid.helpers.mail import Content, Email, Mail, To
+from sendgrid.helpers.mail import Attachment, Content, Email, Mail, To
 from sendgrid.sendgrid import SendGridAPIClient
 
 SendGridConfigDict = TypedDict('SendGridConfigDict', {
@@ -121,7 +121,7 @@ class EmailSender(object):
 
 	def send_dynamic_email_template(
 			self, to_: EmailDestination, template_id: str,
-			template_data: Dict, async_: bool = False) -> Optional[Future]:
+			template_data: Dict, async_: bool = False, attachment: Attachment = None) -> Optional[Future]:
 		_to: Union[To, List[To]] = None
 		if isinstance(to_, str):
 			_to = [To(cast(str, to_))]
@@ -131,6 +131,9 @@ class EmailSender(object):
 		mail = Mail(from_email=self._from, to_emails=_to)
 		mail.dynamic_template_data = template_data
 		mail.template_id = template_id
+
+		if attachment is not None:
+			mail.attachment = attachment
 
 		if async_:
 			return self._thread_pool.submit(self._send_email, mail)

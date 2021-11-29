@@ -15,6 +15,9 @@ DEFAULT_TIMEZONE = 'US/Pacific'
 def human_readable_yearmonthday(dt: datetime.datetime) -> str:
 	return dt.strftime('%m/%d/%Y')
 
+def human_readable_monthyear(date: datetime.date) -> str:
+	return date.strftime('%B %Y')
+
 def hours_from_today(hours: int) -> datetime.datetime:
 	"""
 		Returns a datetime N hours ahead of right now, e.g.,
@@ -39,6 +42,64 @@ def now_as_date(timezone: str, now: datetime.datetime = None) -> datetime.date:
 
 	dt = now.astimezone(pytz.timezone(timezone))
 	return dt.date()
+
+def get_report_month_last_day(send_date : datetime.date) -> datetime.date:
+	"""
+		Please use human_readable_monthyear for display formatting
+
+		Select Use Cases:
+		- Monthly reporting where email is send out for previous month
+			- Example:
+				- Send Date: 10/5/2021
+				- Report Month: September 2021
+		- Monthly reporting to get the last day of the month for financial summary queries
+	"""
+	first_of_current_month = send_date.replace(day = 1)
+	report_month = first_of_current_month - datetime.timedelta(days = 1)
+
+	return report_month
+
+def is_leap_year(year: int) -> bool:
+	year_match = False
+
+	if (year % 4) == 0:
+		if (year % 100) == 0:
+			if (year % 400) == 0:
+				year_match = True
+		else:
+			year_match = True
+
+	return year_match
+
+def get_days_in_month(target : datetime.date) -> int:
+	"""
+		Select Use Cases:
+		- Days in cycle field of monthly summary reporting
+	"""
+	month = target.month
+	year = target.year
+	
+	month_mapping = {
+		1: 31,
+		2: 28,
+		3: 31,
+		4: 30,
+		5: 31,
+		6: 30,
+		7: 31,
+		8: 31,
+		9: 30,
+		10: 31,
+		11: 30,
+		12: 31,
+	}
+
+	days_in_month = month_mapping[month]
+
+	if month == 2 and is_leap_year(year):
+		days_in_month = 29
+
+	return days_in_month
 
 def meets_noon_cutoff(requested_date: datetime.date, timezone: str, now: datetime.datetime = None) -> Tuple[bool, errors.Error]:
 	if now is None:
@@ -79,6 +140,10 @@ def get_earliest_requested_payment_date(timezone: str) -> datetime.date:
 	# the next day being the earliest possible day.
 	next_date = requested_date + timedelta(days=1)
 	return get_nearest_business_day(next_date, preceeding=False)
+
+def get_automated_debit_date(send_date: datetime.date) -> datetime.date:
+	fifth_of_current_month = send_date.replace(day = 5)
+	return get_nearest_business_day(fifth_of_current_month, preceeding=False)
 
 def datetime_to_str(dt: datetime.datetime) -> str:
 	return dt.isoformat()

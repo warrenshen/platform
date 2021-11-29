@@ -3,6 +3,13 @@ FROM python:3.7
 ADD . /app
 WORKDIR /app
 RUN pip install -r requirements.txt
+
+# Used for pdfkit to add attachments for report generation
+RUN apt-get update && apt-get install -y software-properties-common && \
+	add-apt-repository -y ppa:ecometrica/servers && \
+	apt-get update && \
+	apt-get install -y wkhtmltopdf 
+
 ENV PYTHONPATH=/app/src/
 
 EXPOSE 7001

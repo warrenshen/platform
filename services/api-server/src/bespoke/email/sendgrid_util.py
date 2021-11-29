@@ -3,6 +3,7 @@ import datetime
 import logging
 from datetime import timedelta, timezone
 from typing import Callable, Dict, List, Text, Tuple, cast
+from sendgrid.helpers.mail import Attachment
 
 from bespoke import errors
 from bespoke.config.config_util import is_development_env, is_prod_env
@@ -79,6 +80,7 @@ class TemplateNames(object):
 	REPORT_LOANS_PAST_DUE = "report_loans_past_due"
 	REPORT_MONTHLY_SUMMARY_LOC = "report_monthly_summary_loc"
 	REPORT_MONTHLY_SUMMARY_NON_LOC = "report_monthly_summary_non_loc"
+	AUTOMATIC_DEBIT_COURTESY_ALERT = "automatic_debit_courtesy_alert"
 
 
 TemplateConfigDict = TypedDict('TemplateConfigDict', {
@@ -236,6 +238,18 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 		'id': 'd-ed08344d414c48f58a98e517023491fa',
 		'requires_secure_link': False,
 	},
+	TemplateNames.REPORT_MONTHLY_SUMMARY_LOC: {
+		'id': 'd-836f93ffe3e64e398bde9be76d5d4e33',
+		'requires_secure_link': False,
+	},
+	TemplateNames.REPORT_MONTHLY_SUMMARY_NON_LOC: {
+		'id': 'd-1d808af559ac4303a2d55fe042b647b9',
+		'requires_secure_link': False,
+	},
+	TemplateNames.AUTOMATIC_DEBIT_COURTESY_ALERT: {
+		'id': 'd-be192545412a4717b521219641ad563c',
+		'requires_secure_link': False,
+	},
 }
 
 def _get_template_id(template_name: str) -> str:
@@ -327,6 +341,7 @@ class Client(object):
 		template_data: Dict,
 		recipients: List[str],
 		two_factor_payload: TwoFactorPayloadDict = None,
+		attachment: Attachment = None,
 	) -> Tuple[bool, errors.Error]:
 
 		# Validate whether recipient emails are valid.
@@ -358,6 +373,7 @@ class Client(object):
 					to_=recipients,
 					template_id=template_id,
 					template_data=template_data,
+					attachment=attachment,
 				)
 			except Exception as e:
 				err_details['error'] = '{}'.format(e)
@@ -398,7 +414,8 @@ class Client(object):
 				self._email_client.send_dynamic_email_template(
 					to_=cur_recipient,
 					template_id=template_id,
-					template_data=cur_template_data
+					template_data=cur_template_data,
+					attachment=attachment
 				)
 			except Exception as e:
 				err_details['error'] = '{}'.format(e)
