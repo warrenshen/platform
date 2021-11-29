@@ -465,7 +465,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 				)
 
 		interest_rate, err = contract._get_fixed_interest_rate()
-		interest_rate = float(interest_rate)
+		interest_rate = float(interest_rate if interest_rate is not None else 0.0)
 		if err:
 			return "", "", (0.0, 0.0, 0.0), err
 		
