@@ -31,10 +31,13 @@ class DataFrame(Sequence):
 	def assign(self, *args: Any, **kwargs: Any) -> Any:
 		pass
 
-	def groupby(self, *args: Any, **kwargs: Any) -> Any:
+	def groupby(self, *args: Any, **kwargs: Any) -> 'DataFrame':
 		pass
 
 	def iterrows(self) -> Tuple[int, Any]:
+		pass
+
+	def to_excel(self, filename: str) -> None:
 		pass
 
 	def __getitem__(self, idx: Any) -> Any:

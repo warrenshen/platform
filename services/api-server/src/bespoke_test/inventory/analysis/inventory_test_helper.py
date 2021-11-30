@@ -134,7 +134,8 @@ def get_default_params() -> util.AnalysisParamsDict:
 		external_pricing_data_config=None,
 		use_margin_estimate_config=False,
 		margin_estimate_config=None,
-		cogs_analysis_params=None
+		cogs_analysis_params=None,
+		stale_inventory_params=None
 	)
 
 def dict_to_array(input_dict: Dict[str, Any], columns: List[str]) -> List:

@@ -95,7 +95,7 @@ def _run_analysis_for_customer(d: download_util.Download, ctx: AnalysisContext, 
 		company_name=q.company_name
 	)
 
-	stale_inventory_util.compute_stale_inventory(d, ctx)
+	stale_inventory_util.compute_stale_inventory(d, ctx, params)
 
 	# Plot graphs
 	# TODO(dlluncor): Has to happen in the main thread to plot these graphs
@@ -124,7 +124,8 @@ def _get_params_list() -> List[util.AnalysisParamsDict]:
 		external_pricing_data_config=None,
 		use_margin_estimate_config=False,
 		margin_estimate_config=None,
-		cogs_analysis_params=None
+		cogs_analysis_params=None,
+		stale_inventory_params=None
 	)
 	"""
 	# COGS add the flag 

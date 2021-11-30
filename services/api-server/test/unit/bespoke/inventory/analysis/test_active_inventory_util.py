@@ -39,7 +39,8 @@ class TestInventoryCounts(unittest.TestCase):
 			external_pricing_data_config=None,
 			use_margin_estimate_config=False,
 			margin_estimate_config=None,
-			cogs_analysis_params=None
+			cogs_analysis_params=None,
+			stale_inventory_params=None
 		))
 		ctx = _get_analysis_context()
 		counts_dict = util.print_counts(ctx, package_id_to_history, should_print=False)
@@ -813,7 +814,8 @@ class TestInventoryPackages(unittest.TestCase):
 				),
 				use_margin_estimate_config=False,
 				margin_estimate_config=None,
-				cogs_analysis_params=None
+				cogs_analysis_params=None,
+				stale_inventory_params=None
 			),
 			'expected_inventory_records': [
 				{
@@ -889,7 +891,8 @@ class TestInventoryPackages(unittest.TestCase):
 						'Buds': 0.4
 					}
 				),
-				cogs_analysis_params=None
+				cogs_analysis_params=None,
+				stale_inventory_params=None
 			),
 			'simplified_check': True,
 			'expected_inventory_records': [
@@ -947,7 +950,8 @@ class TestInventoryPackages(unittest.TestCase):
 						'Buds': 0.4
 					}
 				),
-				cogs_analysis_params=None
+				cogs_analysis_params=None,
+				stale_inventory_params=None
 			),
 			'simplified_check': True,
 			'expected_inventory_records': [

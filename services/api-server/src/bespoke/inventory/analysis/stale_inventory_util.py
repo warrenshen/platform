@@ -3,18 +3,19 @@ import pandas
 import logging
 
 from datetime import date
-from typing import List
+from typing import List, Dict
 from bespoke.inventory.analysis.shared.metrc_constants import PRODUCT_CATEGORY_NAME_TO_PRODUCT_CATEGORY
 from bespoke.inventory.analysis.shared.download_util import Download
 from bespoke.inventory.analysis.shared.inventory_types import (
 	AnalysisContext,
+	AnalysisParamsDict,
 	InventoryPackageDict
 )
 from bespoke.inventory.analysis.shared.inventory_common_util import (
 	parse_to_date
 )
 
-master_product_category_to_shelf_life = {
+DEFAULT_MASTER_PRODUCT_CATEGORY_TO_SHELF_LIFE = {
 	"Flower": 6,
 	"Trim": 6,
 	"Fresh Frozen": 0,
@@ -27,16 +28,28 @@ master_product_category_to_shelf_life = {
 	"Concentrates": 12,
 	"Rosin": 12,
 	"Beverages": None,
+	"unknown": 12
 }
 
 def get_master_product_category(metrc_product_category_name: str) -> str:
 	return PRODUCT_CATEGORY_NAME_TO_PRODUCT_CATEGORY.get(metrc_product_category_name, "unknown")
 
-def get_shelf_life_in_months(metrc_product_category_name: str) -> int:
+def _get_product_category_to_shelf_life(params: AnalysisParamsDict) -> Dict[str, int]:
+	if not params.get('stale_inventory_params'):
+		return DEFAULT_MASTER_PRODUCT_CATEGORY_TO_SHELF_LIFE
+
+	if not params['stale_inventory_params'].get('product_category_to_shelf_life'):
+		return DEFAULT_MASTER_PRODUCT_CATEGORY_TO_SHELF_LIFE
+
+	return params['stale_inventory_params']['product_category_to_shelf_life']
+
+def get_shelf_life_in_months(metrc_product_category_name: str, params: AnalysisParamsDict) -> int:
 	master_product_category = PRODUCT_CATEGORY_NAME_TO_PRODUCT_CATEGORY.get(metrc_product_category_name)
 	if not master_product_category:
 			logging.info('Unknown shelf life for product category {}'.format(metrc_product_category_name))
 			return None
+
+	master_product_category_to_shelf_life = _get_product_category_to_shelf_life(params)
 
 	return master_product_category_to_shelf_life[
 			master_product_category
@@ -91,13 +104,13 @@ def _write_products_by_profit(d: Download, ctx: AnalysisContext) -> None:
 			'package_label',
 			'created_month',
 			'created_date',
-			'shipper_facility',
+			#'shipper_facility',
 			'shipper_facility_license_number',
 			'shipper_facility_name',
 			'shipper_wholesale_price',
 			'shipped_quantity',
-			'sales_month',
-			'sales_date',
+			#'sales_month',
+			#'sales_date',
 			'sales_datetime',
 			'tx_product_name',
 			'tx_product_category_name',
@@ -164,7 +177,8 @@ def _write_products_by_profit(d: Download, ctx: AnalysisContext) -> None:
 
 def compute_stale_inventory(
 	d: Download,
-	ctx: AnalysisContext) -> None:
+	ctx: AnalysisContext,
+	params: AnalysisParamsDict) -> None:
 	stale_count = 0
 	unknown_count = 0
 	total_count = 0
@@ -193,7 +207,7 @@ def compute_stale_inventory(
 			continue
 
 		master_product_category = get_master_product_category(product_category_name)
-		shelf_life_in_months = get_shelf_life_in_months(product_category_name)
+		shelf_life_in_months = get_shelf_life_in_months(product_category_name, params)
 		is_stale = is_packaged_date_stale(parse_to_date(packaged_date), shelf_life_in_months)
 		
 		if is_stale:
@@ -211,6 +225,7 @@ def compute_stale_inventory(
 		total_quantity += quantity
 		
 		active_inventory_package_record['master_product_category'] = master_product_category
+		active_inventory_package_record['last_modified_at_notz'] = active_inventory_package_record['last_modified_at'].replace(tzinfo=None)
 		categorized_active_inventory_package_records += [active_inventory_package_record]
 
 	fresh_count = total_count - stale_count - unknown_count
@@ -221,7 +236,7 @@ def compute_stale_inventory(
 		columns=[
 			'identifier',
 			'license_number',
-			'last_modified_at',
+			'last_modified_at_notz',
 			'package_id',
 			'package_label',
 			'type',
@@ -236,17 +251,20 @@ def compute_stale_inventory(
 		],
 	)
 
+	xlsx_file_name = ctx.get_output_path('reports/stale_categorized_active_inventory_packages.xlsx')
+	categorized_active_inventory_packages_dataframe.to_excel(xlsx_file_name)
+
 	lines = []
 	lines.append(f'')
-	lines.append(f'# packages stale: {stale_count} ({stale_count / total_count * 100}%)')
-	lines.append(f'# packages unknown: {unknown_count} ({unknown_count / total_count * 100}%)')
-	lines.append(f'# packages fresh: {fresh_count} ({fresh_count / total_count * 100}%)')
-	lines.append(f'# packages total: {total_count}')
+	lines.append(f'# packages stale: {round(stale_count, 2)} ({round(stale_count / total_count * 100, 2)}%)')
+	lines.append(f'# packages unknown: {round(unknown_count, 2)} ({round(unknown_count / total_count * 100, 2)}%)')
+	lines.append(f'# packages fresh: {round(fresh_count, 2)} ({round(fresh_count / total_count * 100, 2)}%)')
+	lines.append(f'# packages total: {round(total_count, 2)}')
 	lines.append(f'')
-	lines.append(f'# units stale: {stale_quantity} ({stale_quantity / total_quantity * 100}%)')
-	lines.append(f'# units unknown: {unknown_quantity} ({unknown_quantity / total_quantity * 100}%)')
-	lines.append(f'# units fresh: {fresh_quantity} ({fresh_quantity / total_quantity * 100}%)')
-	lines.append(f'# units total: {total_quantity}')
+	lines.append(f'# units stale: {round(stale_quantity, 2)} ({round(stale_quantity / total_quantity * 100, 2)}%)')
+	lines.append(f'# units unknown: {round(unknown_quantity, 2)} ({round(unknown_quantity / total_quantity * 100, 2)}%)')
+	lines.append(f'# units fresh: {round(fresh_quantity, 2)} ({round(fresh_quantity / total_quantity * 100, 2)}%)')
+	lines.append(f'# units total: {round(total_quantity, 2)}')
 
 	with open(ctx.get_output_path('log.txt'), 'a+') as f:
 		f.write('\n'.join(lines))

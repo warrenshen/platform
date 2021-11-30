@@ -24,7 +24,9 @@ InventoryPackageDict = TypedDict('InventoryPackageDict', {
 	'packaged_date': str,
 	'archived_date': str,
 	'finished_date': str,
+	'last_modified_at': datetime.datetime,
 
+	'last_modified_at_notz': datetime.datetime, # added by stale inventory util
 	'category': str, # added by us in stale inventory util
 	'master_product_category': str # added by us in stale inventory util
 })
@@ -82,6 +84,10 @@ CogsAnalysisParamsDict = TypedDict('CogsAnalysisParamsDict', {
 	'readjust_type': str
 })
 
+StaleInventoryParamsDict = TypedDict('StaleInventoryParamsDict', {
+	'product_category_to_shelf_life': Dict[str, int]
+})
+
 AnalysisParamsDict = TypedDict('AnalysisParamsDict', {
 	'sold_threshold': float,
 	'find_parent_child_relationships': bool,
@@ -89,7 +95,8 @@ AnalysisParamsDict = TypedDict('AnalysisParamsDict', {
 	'external_pricing_data_config': PricingDataConfigDict,
 	'use_margin_estimate_config': bool,
 	'margin_estimate_config': MarginEstimateConfigDict,
-	'cogs_analysis_params': CogsAnalysisParamsDict
+	'cogs_analysis_params': CogsAnalysisParamsDict,
+	'stale_inventory_params': StaleInventoryParamsDict
 })
 
 NotableEventDict = TypedDict('NotableEventDict', {

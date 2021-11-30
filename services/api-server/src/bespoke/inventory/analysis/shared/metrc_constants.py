@@ -5,11 +5,11 @@ PRODUCT_CATEGORY_NAME_TO_PRODUCT_CATEGORY = {
     "Buds": "Flower",
     "Buds (by strain)": "Flower",
     
-    "Capsule (weight - each)": "",
-    "Clone - Cutting": "",
-    "Clone - Tissue Culture": "",
-    "Combined Category": "",
-    "Combined Category (each)": "",
+    "Capsule (weight - each)": "unknown",
+    "Clone - Cutting": "unknown",
+    "Clone - Tissue Culture": "unknown",
+    "Combined Category": "unknown",
+    "Combined Category (each)": "unknown",
     
     "Concentrate": "Concentrates",
     "Concentrate (each)": "Concentrates",
@@ -55,8 +55,8 @@ PRODUCT_CATEGORY_NAME_TO_PRODUCT_CATEGORY = {
     "Inhalable Cannabinoid Product with Non-Cannabis Additives (each)": "Concentrates",
     "Inhalable Cannabinoid Product with Non-Cannabis Additives (with ingredients)": "Concentrates",
 
-    "Kief": "",
-    "Leaf": "",
+    "Kief": "unknown",
+    "Leaf": "Flower",
     
     "Non-Infused (Plain) Pre-Roll": "Flower",
     
@@ -70,8 +70,8 @@ PRODUCT_CATEGORY_NAME_TO_PRODUCT_CATEGORY = {
     "Pre-Roll Leaf": "Flower",
     "Raw Pre-Rolls": "Flower",
     
-    "Seeds": "",
-    "Seeds (each)": "",
+    "Seeds": "unknown",
+    "Seeds (each)": "unknown",
     
     "Shake": "Flower",
     "Shake (Packaged Eighth - each)": "Flower",
@@ -93,6 +93,6 @@ PRODUCT_CATEGORY_NAME_TO_PRODUCT_CATEGORY = {
     "Vape Cartridge (weight - each)": "Vapes",
     "Vape Product": "Vapes",
     
-    "Waste": "",
+    "Waste": "unknown",
     "Whole Harvested Plant": "Flower",
 }
