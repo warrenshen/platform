@@ -901,13 +901,14 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 				    "minimum_payment_due": minimum_payment_due,
 				}
 				html = self.prepare_html_for_attachment(template_data)
-				attached_report = self.prepare_email_attachment(company.name, statement_month, html)
+				# TODO(JR): note for sending html to standalone service
+				#attached_report = self.prepare_email_attachment(company.name, statement_month, html)
 				if sendgrid_client is not None:
 					_, err = sendgrid_client.send(
 						template_name=sendgrid_util.TemplateNames.REPORT_MONTHLY_SUMMARY_LOC,
 						template_data=template_data,
 						recipients=[contact_user.email],
-						attachment=attached_report
+						#attachment=attached_report
 					)
 
 					if err:
@@ -1311,13 +1312,14 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 				    "statement_month": statement_month,
 				}
 				html = self.prepare_html_for_attachment(session, template_data, loans, company_lookup)
-				attached_report = self.prepare_email_attachment(company.name, statement_month, html)
+				# TODO(JR): note for sending html to standalone
+				#attached_report = self.prepare_email_attachment(company.name, statement_month, html)
 				if sendgrid_client is not None:
 					_, err = sendgrid_client.send(
 						template_name=sendgrid_util.TemplateNames.REPORT_MONTHLY_SUMMARY_NON_LOC,
 						template_data=template_data,
 						recipients=[contact_user.email],
-						attachment=attached_report
+						#attachment=attached_report
 					)
 
 					if err:
