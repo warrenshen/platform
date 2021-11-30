@@ -116,3 +116,39 @@ def create_company_monthly_units_sold_by_product_category_name_query(company_ide
             1,
             2
     """
+
+def create_metrc_download_summary_companies_query():
+    return f"""
+        select
+            distinct
+            companies.name,
+            companies.identifier
+        from
+            companies
+            inner join metrc_download_summaries on companies.id = metrc_download_summaries.company_id
+        where
+            True
+        group by
+            1,
+            2
+        order by
+            1,
+            2
+    """
+
+def create_company_count_metrc_sales_receipts_query(company_identifier):
+    return f"""
+        select
+            companies.name,
+            companies.identifier,
+            count(metrc_sales_receipts.receipt_id) as count
+        from
+            companies
+            inner join metrc_sales_receipts on companies.id = metrc_sales_receipts.company_id
+        where
+            True
+            and companies.identifier = "{company_identifier}"
+        group by
+            1,
+            2
+    """
