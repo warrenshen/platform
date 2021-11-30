@@ -49,11 +49,18 @@ class SalesTransactions(object):
 		return sales_transactions
 
 def _get_prev_sales_receipts(receipt_numbers: List[str], us_state: str, session: Session) -> List[models.MetrcSalesReceipt]:
-	return session.query(models.MetrcSalesReceipt).filter(
-		models.MetrcSalesReceipt.us_state == us_state
-	).filter(
-		models.MetrcSalesReceipt.receipt_number.in_(receipt_numbers)
-	).all()
+	sales_receipts = []
+
+	for receipt_number in receipt_numbers:
+		sales_receipt = session.query(models.MetrcSalesReceipt).filter(
+			models.MetrcSalesReceipt.us_state == us_state
+		).filter(
+			models.MetrcSalesReceipt.receipt_number == receipt_number
+		).first()
+		if sales_receipt:
+			sales_receipts.append(sales_receipt)
+
+	return sales_receipts
 
 class SalesReceiptObj(object):
 
@@ -149,7 +156,7 @@ class SalesReceipts(object):
 		prev_sales_receipts = []
 		receipt_id_to_tx_count = {}
 
-		BATCH_SIZE = 1
+		BATCH_SIZE = 10
 		for sales_receipts_chunk in cast(Iterable[List[Dict]], chunker(self._sales_receipts, BATCH_SIZE)):
 			receipt_numbers_chunk = [s['ReceiptNumber'] for s in sales_receipts_chunk]
 			prev_sales_receipts_chunk = _get_prev_sales_receipts(receipt_numbers_chunk, us_state, session)
@@ -157,15 +164,17 @@ class SalesReceipts(object):
 
 			cur_receipt_ids = ['{}'.format(s['Id']) for s in sales_receipts_chunk]
 
-			query = session.query(models.MetrcSalesTransaction.receipt_id, func.count(models.MetrcSalesTransaction.receipt_id)).filter(
-				models.MetrcSalesTransaction.us_state == us_state
-			).filter(
-				models.MetrcSalesTransaction.receipt_id.in_(cur_receipt_ids)
-			).group_by(models.MetrcSalesTransaction.receipt_id)
+			for cur_receipt_id in cur_receipt_ids:
 
-			results = query.all()
-			for (receipt_id, tx_count) in results:
-				receipt_id_to_tx_count[receipt_id] = tx_count
+				query = session.query(func.count(models.MetrcSalesTransaction.receipt_id)).filter(
+					models.MetrcSalesTransaction.us_state == us_state
+				).filter(
+					models.MetrcSalesTransaction.receipt_id == cur_receipt_id
+				)
+
+				results = query.all()
+				for (tx_count, ) in results:
+					receipt_id_to_tx_count[cur_receipt_id] = tx_count
 
 		receipt_number_to_sales_receipt = {}
 		for prev_sales_receipt in prev_sales_receipts:

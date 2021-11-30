@@ -115,11 +115,18 @@ class TransferPackages(object):
 		return metrc_packages, get_final_lab_status(lab_statuses)
 
 def _get_prev_metrc_transfers(transfer_ids: List[str], us_state: str, session: Session) -> List[models.MetrcTransfer]:
-	return session.query(models.MetrcTransfer).filter(
-		models.MetrcTransfer.us_state == us_state
-	).filter(
-		models.MetrcTransfer.transfer_id.in_(transfer_ids)
-	).all()
+	metrc_transfers = []
+
+	for transfer_id in transfer_ids:
+		metrc_transfer = session.query(models.MetrcTransfer).filter(
+			models.MetrcTransfer.us_state == us_state
+		).filter(
+			models.MetrcTransfer.transfer_id == transfer_id
+		).first()
+		if metrc_transfer:
+			metrc_transfers.append(metrc_transfer)
+
+	return metrc_transfers
 
 class Transfers(object):
 
@@ -386,22 +393,24 @@ def _write_deliveries(
 	delivery_id_to_transfer_row_id: Dict,
 	delivery_id_to_delivery_row_id: Dict, 
 	session: Session) -> None:
-	delivery_ids = [metrc_delivery.delivery_id for metrc_delivery in deliveries]
-	# In reality, all the deliveries will be from the same state.
-	us_states = [metrc_delivery.us_state for metrc_delivery in deliveries]
 
 	transfer_row_ids = []
+	prev_metrc_deliveries = []
+
 	for metrc_delivery in deliveries:
 		cur_transfer_row_id = delivery_id_to_transfer_row_id[metrc_delivery.delivery_id]
 		transfer_row_ids.append(cur_transfer_row_id)
 
-	prev_metrc_deliveries = session.query(models.MetrcDelivery).filter(
-		models.MetrcDelivery.us_state.in_(us_states)
-	).filter(
-		models.MetrcDelivery.transfer_row_id.in_(transfer_row_ids)
-	).filter(
-		models.MetrcDelivery.delivery_id.in_(delivery_ids)
-	)
+		prev_metrc_delivery = session.query(models.MetrcDelivery).filter(
+				models.MetrcDelivery.us_state == metrc_delivery.us_state
+			).filter(
+				models.MetrcDelivery.transfer_row_id == cur_transfer_row_id
+			).filter(
+				models.MetrcDelivery.delivery_id == metrc_delivery.delivery_id
+			).first()
+		if prev_metrc_delivery:
+			prev_metrc_deliveries.append(prev_metrc_delivery)
+
 	delivery_key_to_prev_delivery: Dict[Tuple[str, str], models.MetrcDelivery] = {}
 	for prev_delivery in prev_metrc_deliveries:
 		cur_transfer_row_id = delivery_id_to_transfer_row_id[prev_delivery.delivery_id]
@@ -448,16 +457,19 @@ def _write_transfer_packages(
 
 	# Note the de-dupe here, there may be multiple packages with the same package_id from the
 	# packages collected above (this is because multiple deliveries may have the same package).
-	package_ids = list(set([pkg.package_id for pkg in metrc_packages]))
-	delivery_ids = list(set([pkg.delivery_id for pkg in metrc_packages]))
-
 	# Since metrc_packages are unique on (delivery_id, package_id), note
 	# the following query may return more than BATCH_SIZE number of results.
-	prev_metrc_packages = cast(List[models.MetrcTransferPackage], session.query(models.MetrcTransferPackage).filter(
-		models.MetrcTransferPackage.delivery_id.in_(delivery_ids)
-	).filter(
-		models.MetrcTransferPackage.package_id.in_(package_ids)
-	).all())
+	prev_metrc_packages = []
+
+	for pkg in metrc_packages:
+		prev_metrc_package = cast(models.MetrcTransferPackage, session.query(models.MetrcTransferPackage).filter(
+			models.MetrcTransferPackage.delivery_id == pkg.delivery_id
+		).filter(
+			models.MetrcTransferPackage.package_id == pkg.package_id
+		).first())
+
+		if prev_metrc_package:
+			prev_metrc_packages.append(prev_metrc_package)
 
 	delivery_id_package_id_to_prev_package = {}
 	for prev_metrc_package in prev_metrc_packages:
