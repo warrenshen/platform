@@ -2,7 +2,7 @@ import os
 import sys
 
 from os import path
-from typing import Iterable
+from typing import Iterable, List
 
 sys.path.append(path.realpath(path.join(os.getcwd(), "../../src")))
 from bespoke.inventory.analysis.shared.create_queries import *
@@ -152,3 +152,73 @@ def create_company_count_metrc_sales_receipts_query(company_identifier):
             1,
             2
     """
+
+def create_company_incoming_transfer_packages_for_analysis_query(
+    company_identifier: str,
+    license_numbers: List[str] = None,
+) -> str:
+	license_numbers = [f"'{license_number}'" for license_number in license_numbers] if license_numbers else None
+	license_numbers_where_clause = f"""
+		and company_deliveries.license_number in ({','.join(license_numbers)})
+	""" if license_numbers else ''
+
+	return f"""
+		select
+			case
+				when company_deliveries.delivery_type = 'INCOMING_UNKNOWN' then 'INCOMING_FROM_VENDOR'
+				when company_deliveries.delivery_type = 'INCOMING_FROM_VENDOR' then 'INCOMING_FROM_VENDOR'
+				when company_deliveries.delivery_type = 'OUTGOING_UNKNOWN' then 'OUTGOING_TO_PAYOR'
+				when company_deliveries.delivery_type = 'OUTGOING_TO_PAYOR' then 'OUTGOING_TO_PAYOR'
+				else company_deliveries.delivery_type
+			end as delivery_type,
+			company_deliveries.license_number,
+			metrc_deliveries.shipment_type_name,
+			metrc_deliveries.shipment_transaction_type,
+            metrc_transfer_packages.package_id,
+            metrc_transfer_packages.package_payload.shipmentpackagestate as shipment_package_state,
+            metrc_transfer_packages.package_payload.receiverwholesaleprice as receiver_wholesale_price,
+			metrc_transfer_packages.received_quantity,
+			metrc_transfer_packages.received_unit_of_measure
+		from
+			metrc_transfers
+			inner join company_deliveries on metrc_transfers.id = company_deliveries.transfer_row_id
+			inner join companies on company_deliveries.company_id = companies.id
+			inner join metrc_deliveries on metrc_transfers.id = metrc_deliveries.transfer_row_id
+			inner join metrc_transfer_packages on metrc_deliveries.id = metrc_transfer_packages.delivery_row_id
+		where
+			True
+			and companies.identifier = "{company_identifier}"
+			and (
+				company_deliveries.delivery_type = 'INCOMING_FROM_VENDOR' or
+				company_deliveries.delivery_type = 'INCOMING_INTERNAL' or
+				company_deliveries.delivery_type = 'INCOMING_UNKNOWN'
+			)
+			{license_numbers_where_clause}
+		order by
+			metrc_transfers.created_date desc
+	"""
+
+def create_company_inventory_packages_for_analysis_query(
+	company_identifier: str,
+	license_numbers: List[str] = None,
+) -> str:
+	license_numbers = [f"'{license_number}'" for license_number in license_numbers] if license_numbers else None
+	license_numbers_where_clause = f"""
+		and metrc_packages.license_number in ({','.join(license_numbers)})
+	""" if license_numbers else ''
+
+	return f"""
+		select
+			metrc_packages.license_number,
+			metrc_packages.package_id,
+			metrc_packages.package_type
+		from
+			companies
+			inner join metrc_packages on companies.id = metrc_packages.company_id
+		where
+			True
+			and companies.identifier = "{company_identifier}"
+			{license_numbers_where_clause}
+		order by
+			metrc_packages.packaged_date desc
+	"""
