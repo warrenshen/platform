@@ -36,7 +36,7 @@ query GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDate(
     where: {
       _and: [
         { company_id: { _eq: $company_id } }
-        { delivery_type: { _eq: "INCOMING_FROM_VENDOR" } }
+        { delivery_type: { _in: ["INCOMING_FROM_VENDOR", "INCOMING_UNKNOWN"] } }
         { metrc_transfer: { created_date: { _gte: $start_created_date } } }
       ]
     }

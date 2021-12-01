@@ -272,7 +272,7 @@ export function getCompanyDeliveryVendorDescription(
 ) {
   const vendor = companyDelivery.vendor || null;
   if (!vendor) {
-    return "";
+    return "Not configured yet";
   } else {
     return `${vendor.name} ${
       !!vendor.company_vendor_partnerships[0]?.approved_at

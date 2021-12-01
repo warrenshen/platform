@@ -11327,9 +11327,9 @@ export type MetrcPackagesBoolExp = {
 /** unique or primary key constraints on table "metrc_packages" */
 export enum MetrcPackagesConstraint {
   /** unique or primary key constraint */
-  MetrcPackagesPackageIdKey = "metrc_packages_package_id_key",
-  /** unique or primary key constraint */
   MetrcPackagesPkey = "metrc_packages_pkey",
+  /** unique or primary key constraint */
+  MetrcPackagesUsStatePackageIdKey = "metrc_packages_us_state_package_id_key",
 }
 
 /** input type for incrementing integer column in table "metrc_packages" */
@@ -14185,6 +14185,275 @@ export enum MetrcTransfersUpdateColumn {
   UsState = "us_state",
 }
 
+/** columns and relationships of "monthly_summary_calculations" */
+export type MonthlySummaryCalculations = {
+  /** An object relationship */
+  company: Companies;
+  company_id: Scalars["uuid"];
+  id: Scalars["uuid"];
+  minimum_payment: Scalars["numeric"];
+  report_month: Scalars["date"];
+};
+
+/** aggregated selection of "monthly_summary_calculations" */
+export type MonthlySummaryCalculationsAggregate = {
+  aggregate?: Maybe<MonthlySummaryCalculationsAggregateFields>;
+  nodes: Array<MonthlySummaryCalculations>;
+};
+
+/** aggregate fields of "monthly_summary_calculations" */
+export type MonthlySummaryCalculationsAggregateFields = {
+  avg?: Maybe<MonthlySummaryCalculationsAvgFields>;
+  count?: Maybe<Scalars["Int"]>;
+  max?: Maybe<MonthlySummaryCalculationsMaxFields>;
+  min?: Maybe<MonthlySummaryCalculationsMinFields>;
+  stddev?: Maybe<MonthlySummaryCalculationsStddevFields>;
+  stddev_pop?: Maybe<MonthlySummaryCalculationsStddevPopFields>;
+  stddev_samp?: Maybe<MonthlySummaryCalculationsStddevSampFields>;
+  sum?: Maybe<MonthlySummaryCalculationsSumFields>;
+  var_pop?: Maybe<MonthlySummaryCalculationsVarPopFields>;
+  var_samp?: Maybe<MonthlySummaryCalculationsVarSampFields>;
+  variance?: Maybe<MonthlySummaryCalculationsVarianceFields>;
+};
+
+/** aggregate fields of "monthly_summary_calculations" */
+export type MonthlySummaryCalculationsAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<MonthlySummaryCalculationsSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** order by aggregate values of table "monthly_summary_calculations" */
+export type MonthlySummaryCalculationsAggregateOrderBy = {
+  avg?: Maybe<MonthlySummaryCalculationsAvgOrderBy>;
+  count?: Maybe<OrderBy>;
+  max?: Maybe<MonthlySummaryCalculationsMaxOrderBy>;
+  min?: Maybe<MonthlySummaryCalculationsMinOrderBy>;
+  stddev?: Maybe<MonthlySummaryCalculationsStddevOrderBy>;
+  stddev_pop?: Maybe<MonthlySummaryCalculationsStddevPopOrderBy>;
+  stddev_samp?: Maybe<MonthlySummaryCalculationsStddevSampOrderBy>;
+  sum?: Maybe<MonthlySummaryCalculationsSumOrderBy>;
+  var_pop?: Maybe<MonthlySummaryCalculationsVarPopOrderBy>;
+  var_samp?: Maybe<MonthlySummaryCalculationsVarSampOrderBy>;
+  variance?: Maybe<MonthlySummaryCalculationsVarianceOrderBy>;
+};
+
+/** input type for inserting array relation for remote table "monthly_summary_calculations" */
+export type MonthlySummaryCalculationsArrRelInsertInput = {
+  data: Array<MonthlySummaryCalculationsInsertInput>;
+  on_conflict?: Maybe<MonthlySummaryCalculationsOnConflict>;
+};
+
+/** aggregate avg on columns */
+export type MonthlySummaryCalculationsAvgFields = {
+  minimum_payment?: Maybe<Scalars["Float"]>;
+};
+
+/** order by avg() on columns of table "monthly_summary_calculations" */
+export type MonthlySummaryCalculationsAvgOrderBy = {
+  minimum_payment?: Maybe<OrderBy>;
+};
+
+/** Boolean expression to filter rows from the table "monthly_summary_calculations". All fields are combined with a logical 'AND'. */
+export type MonthlySummaryCalculationsBoolExp = {
+  _and?: Maybe<Array<Maybe<MonthlySummaryCalculationsBoolExp>>>;
+  _not?: Maybe<MonthlySummaryCalculationsBoolExp>;
+  _or?: Maybe<Array<Maybe<MonthlySummaryCalculationsBoolExp>>>;
+  company?: Maybe<CompaniesBoolExp>;
+  company_id?: Maybe<UuidComparisonExp>;
+  id?: Maybe<UuidComparisonExp>;
+  minimum_payment?: Maybe<NumericComparisonExp>;
+  report_month?: Maybe<DateComparisonExp>;
+};
+
+/** unique or primary key constraints on table "monthly_summary_calculations" */
+export enum MonthlySummaryCalculationsConstraint {
+  /** unique or primary key constraint */
+  MonthlySummaryCalculationsPkey = "monthly_summary_calculations_pkey",
+}
+
+/** input type for incrementing integer column in table "monthly_summary_calculations" */
+export type MonthlySummaryCalculationsIncInput = {
+  minimum_payment?: Maybe<Scalars["numeric"]>;
+};
+
+/** input type for inserting data into table "monthly_summary_calculations" */
+export type MonthlySummaryCalculationsInsertInput = {
+  company?: Maybe<CompaniesObjRelInsertInput>;
+  company_id?: Maybe<Scalars["uuid"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  minimum_payment?: Maybe<Scalars["numeric"]>;
+  report_month?: Maybe<Scalars["date"]>;
+};
+
+/** aggregate max on columns */
+export type MonthlySummaryCalculationsMaxFields = {
+  company_id?: Maybe<Scalars["uuid"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  minimum_payment?: Maybe<Scalars["numeric"]>;
+  report_month?: Maybe<Scalars["date"]>;
+};
+
+/** order by max() on columns of table "monthly_summary_calculations" */
+export type MonthlySummaryCalculationsMaxOrderBy = {
+  company_id?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  minimum_payment?: Maybe<OrderBy>;
+  report_month?: Maybe<OrderBy>;
+};
+
+/** aggregate min on columns */
+export type MonthlySummaryCalculationsMinFields = {
+  company_id?: Maybe<Scalars["uuid"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  minimum_payment?: Maybe<Scalars["numeric"]>;
+  report_month?: Maybe<Scalars["date"]>;
+};
+
+/** order by min() on columns of table "monthly_summary_calculations" */
+export type MonthlySummaryCalculationsMinOrderBy = {
+  company_id?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  minimum_payment?: Maybe<OrderBy>;
+  report_month?: Maybe<OrderBy>;
+};
+
+/** response of any mutation on the table "monthly_summary_calculations" */
+export type MonthlySummaryCalculationsMutationResponse = {
+  /** number of affected rows by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data of the affected rows by the mutation */
+  returning: Array<MonthlySummaryCalculations>;
+};
+
+/** input type for inserting object relation for remote table "monthly_summary_calculations" */
+export type MonthlySummaryCalculationsObjRelInsertInput = {
+  data: MonthlySummaryCalculationsInsertInput;
+  on_conflict?: Maybe<MonthlySummaryCalculationsOnConflict>;
+};
+
+/** on conflict condition type for table "monthly_summary_calculations" */
+export type MonthlySummaryCalculationsOnConflict = {
+  constraint: MonthlySummaryCalculationsConstraint;
+  update_columns: Array<MonthlySummaryCalculationsUpdateColumn>;
+  where?: Maybe<MonthlySummaryCalculationsBoolExp>;
+};
+
+/** ordering options when selecting data from "monthly_summary_calculations" */
+export type MonthlySummaryCalculationsOrderBy = {
+  company?: Maybe<CompaniesOrderBy>;
+  company_id?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  minimum_payment?: Maybe<OrderBy>;
+  report_month?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: "monthly_summary_calculations" */
+export type MonthlySummaryCalculationsPkColumnsInput = {
+  id: Scalars["uuid"];
+};
+
+/** select columns of table "monthly_summary_calculations" */
+export enum MonthlySummaryCalculationsSelectColumn {
+  /** column name */
+  CompanyId = "company_id",
+  /** column name */
+  Id = "id",
+  /** column name */
+  MinimumPayment = "minimum_payment",
+  /** column name */
+  ReportMonth = "report_month",
+}
+
+/** input type for updating data in table "monthly_summary_calculations" */
+export type MonthlySummaryCalculationsSetInput = {
+  company_id?: Maybe<Scalars["uuid"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  minimum_payment?: Maybe<Scalars["numeric"]>;
+  report_month?: Maybe<Scalars["date"]>;
+};
+
+/** aggregate stddev on columns */
+export type MonthlySummaryCalculationsStddevFields = {
+  minimum_payment?: Maybe<Scalars["Float"]>;
+};
+
+/** order by stddev() on columns of table "monthly_summary_calculations" */
+export type MonthlySummaryCalculationsStddevOrderBy = {
+  minimum_payment?: Maybe<OrderBy>;
+};
+
+/** aggregate stddev_pop on columns */
+export type MonthlySummaryCalculationsStddevPopFields = {
+  minimum_payment?: Maybe<Scalars["Float"]>;
+};
+
+/** order by stddev_pop() on columns of table "monthly_summary_calculations" */
+export type MonthlySummaryCalculationsStddevPopOrderBy = {
+  minimum_payment?: Maybe<OrderBy>;
+};
+
+/** aggregate stddev_samp on columns */
+export type MonthlySummaryCalculationsStddevSampFields = {
+  minimum_payment?: Maybe<Scalars["Float"]>;
+};
+
+/** order by stddev_samp() on columns of table "monthly_summary_calculations" */
+export type MonthlySummaryCalculationsStddevSampOrderBy = {
+  minimum_payment?: Maybe<OrderBy>;
+};
+
+/** aggregate sum on columns */
+export type MonthlySummaryCalculationsSumFields = {
+  minimum_payment?: Maybe<Scalars["numeric"]>;
+};
+
+/** order by sum() on columns of table "monthly_summary_calculations" */
+export type MonthlySummaryCalculationsSumOrderBy = {
+  minimum_payment?: Maybe<OrderBy>;
+};
+
+/** update columns of table "monthly_summary_calculations" */
+export enum MonthlySummaryCalculationsUpdateColumn {
+  /** column name */
+  CompanyId = "company_id",
+  /** column name */
+  Id = "id",
+  /** column name */
+  MinimumPayment = "minimum_payment",
+  /** column name */
+  ReportMonth = "report_month",
+}
+
+/** aggregate var_pop on columns */
+export type MonthlySummaryCalculationsVarPopFields = {
+  minimum_payment?: Maybe<Scalars["Float"]>;
+};
+
+/** order by var_pop() on columns of table "monthly_summary_calculations" */
+export type MonthlySummaryCalculationsVarPopOrderBy = {
+  minimum_payment?: Maybe<OrderBy>;
+};
+
+/** aggregate var_samp on columns */
+export type MonthlySummaryCalculationsVarSampFields = {
+  minimum_payment?: Maybe<Scalars["Float"]>;
+};
+
+/** order by var_samp() on columns of table "monthly_summary_calculations" */
+export type MonthlySummaryCalculationsVarSampOrderBy = {
+  minimum_payment?: Maybe<OrderBy>;
+};
+
+/** aggregate variance on columns */
+export type MonthlySummaryCalculationsVarianceFields = {
+  minimum_payment?: Maybe<Scalars["Float"]>;
+};
+
+/** order by variance() on columns of table "monthly_summary_calculations" */
+export type MonthlySummaryCalculationsVarianceOrderBy = {
+  minimum_payment?: Maybe<OrderBy>;
+};
+
 /** mutation root */
 export type MutationRoot = {
   /** delete data from the table: "async_pipelines" */
@@ -14339,6 +14608,10 @@ export type MutationRoot = {
   delete_metrc_transfers?: Maybe<MetrcTransfersMutationResponse>;
   /** delete single row from the table: "metrc_transfers" */
   delete_metrc_transfers_by_pk?: Maybe<MetrcTransfers>;
+  /** delete data from the table: "monthly_summary_calculations" */
+  delete_monthly_summary_calculations?: Maybe<MonthlySummaryCalculationsMutationResponse>;
+  /** delete single row from the table: "monthly_summary_calculations" */
+  delete_monthly_summary_calculations_by_pk?: Maybe<MonthlySummaryCalculations>;
   /** delete data from the table: "payments" */
   delete_payments?: Maybe<PaymentsMutationResponse>;
   /** delete single row from the table: "payments" */
@@ -14539,6 +14812,10 @@ export type MutationRoot = {
   insert_metrc_transfers?: Maybe<MetrcTransfersMutationResponse>;
   /** insert a single row into the table: "metrc_transfers" */
   insert_metrc_transfers_one?: Maybe<MetrcTransfers>;
+  /** insert data into the table: "monthly_summary_calculations" */
+  insert_monthly_summary_calculations?: Maybe<MonthlySummaryCalculationsMutationResponse>;
+  /** insert a single row into the table: "monthly_summary_calculations" */
+  insert_monthly_summary_calculations_one?: Maybe<MonthlySummaryCalculations>;
   /** insert data into the table: "payments" */
   insert_payments?: Maybe<PaymentsMutationResponse>;
   /** insert a single row into the table: "payments" */
@@ -14743,6 +15020,10 @@ export type MutationRoot = {
   update_metrc_transfers?: Maybe<MetrcTransfersMutationResponse>;
   /** update single row of the table: "metrc_transfers" */
   update_metrc_transfers_by_pk?: Maybe<MetrcTransfers>;
+  /** update data of the table: "monthly_summary_calculations" */
+  update_monthly_summary_calculations?: Maybe<MonthlySummaryCalculationsMutationResponse>;
+  /** update single row of the table: "monthly_summary_calculations" */
+  update_monthly_summary_calculations_by_pk?: Maybe<MonthlySummaryCalculations>;
   /** update data of the table: "payments" */
   update_payments?: Maybe<PaymentsMutationResponse>;
   /** update single row of the table: "payments" */
@@ -15172,6 +15453,16 @@ export type MutationRootDeleteMetrcTransfersArgs = {
 
 /** mutation root */
 export type MutationRootDeleteMetrcTransfersByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** mutation root */
+export type MutationRootDeleteMonthlySummaryCalculationsArgs = {
+  where: MonthlySummaryCalculationsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteMonthlySummaryCalculationsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -15750,6 +16041,18 @@ export type MutationRootInsertMetrcTransfersArgs = {
 export type MutationRootInsertMetrcTransfersOneArgs = {
   object: MetrcTransfersInsertInput;
   on_conflict?: Maybe<MetrcTransfersOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertMonthlySummaryCalculationsArgs = {
+  objects: Array<MonthlySummaryCalculationsInsertInput>;
+  on_conflict?: Maybe<MonthlySummaryCalculationsOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertMonthlySummaryCalculationsOneArgs = {
+  object: MonthlySummaryCalculationsInsertInput;
+  on_conflict?: Maybe<MonthlySummaryCalculationsOnConflict>;
 };
 
 /** mutation root */
@@ -16424,6 +16727,20 @@ export type MutationRootUpdateMetrcTransfersArgs = {
 export type MutationRootUpdateMetrcTransfersByPkArgs = {
   _set?: Maybe<MetrcTransfersSetInput>;
   pk_columns: MetrcTransfersPkColumnsInput;
+};
+
+/** mutation root */
+export type MutationRootUpdateMonthlySummaryCalculationsArgs = {
+  _inc?: Maybe<MonthlySummaryCalculationsIncInput>;
+  _set?: Maybe<MonthlySummaryCalculationsSetInput>;
+  where: MonthlySummaryCalculationsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateMonthlySummaryCalculationsByPkArgs = {
+  _inc?: Maybe<MonthlySummaryCalculationsIncInput>;
+  _set?: Maybe<MonthlySummaryCalculationsSetInput>;
+  pk_columns: MonthlySummaryCalculationsPkColumnsInput;
 };
 
 /** mutation root */
@@ -19114,6 +19431,12 @@ export type QueryRoot = {
   metrc_transfers_aggregate: MetrcTransfersAggregate;
   /** fetch data from the table: "metrc_transfers" using primary key columns */
   metrc_transfers_by_pk?: Maybe<MetrcTransfers>;
+  /** fetch data from the table: "monthly_summary_calculations" */
+  monthly_summary_calculations: Array<MonthlySummaryCalculations>;
+  /** fetch aggregated fields from the table: "monthly_summary_calculations" */
+  monthly_summary_calculations_aggregate: MonthlySummaryCalculationsAggregate;
+  /** fetch data from the table: "monthly_summary_calculations" using primary key columns */
+  monthly_summary_calculations_by_pk?: Maybe<MonthlySummaryCalculations>;
   /** fetch data from the table: "payments" */
   payments: Array<Payments>;
   /** fetch aggregated fields from the table: "payments" */
@@ -20067,6 +20390,29 @@ export type QueryRootMetrcTransfersByPkArgs = {
 };
 
 /** query root */
+export type QueryRootMonthlySummaryCalculationsArgs = {
+  distinct_on?: Maybe<Array<MonthlySummaryCalculationsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MonthlySummaryCalculationsOrderBy>>;
+  where?: Maybe<MonthlySummaryCalculationsBoolExp>;
+};
+
+/** query root */
+export type QueryRootMonthlySummaryCalculationsAggregateArgs = {
+  distinct_on?: Maybe<Array<MonthlySummaryCalculationsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MonthlySummaryCalculationsOrderBy>>;
+  where?: Maybe<MonthlySummaryCalculationsBoolExp>;
+};
+
+/** query root */
+export type QueryRootMonthlySummaryCalculationsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** query root */
 export type QueryRootPaymentsArgs = {
   distinct_on?: Maybe<Array<PaymentsSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -20906,6 +21252,12 @@ export type SubscriptionRoot = {
   metrc_transfers_aggregate: MetrcTransfersAggregate;
   /** fetch data from the table: "metrc_transfers" using primary key columns */
   metrc_transfers_by_pk?: Maybe<MetrcTransfers>;
+  /** fetch data from the table: "monthly_summary_calculations" */
+  monthly_summary_calculations: Array<MonthlySummaryCalculations>;
+  /** fetch aggregated fields from the table: "monthly_summary_calculations" */
+  monthly_summary_calculations_aggregate: MonthlySummaryCalculationsAggregate;
+  /** fetch data from the table: "monthly_summary_calculations" using primary key columns */
+  monthly_summary_calculations_by_pk?: Maybe<MonthlySummaryCalculations>;
   /** fetch data from the table: "payments" */
   payments: Array<Payments>;
   /** fetch aggregated fields from the table: "payments" */
@@ -21855,6 +22207,29 @@ export type SubscriptionRootMetrcTransfersAggregateArgs = {
 
 /** subscription root */
 export type SubscriptionRootMetrcTransfersByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** subscription root */
+export type SubscriptionRootMonthlySummaryCalculationsArgs = {
+  distinct_on?: Maybe<Array<MonthlySummaryCalculationsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MonthlySummaryCalculationsOrderBy>>;
+  where?: Maybe<MonthlySummaryCalculationsBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootMonthlySummaryCalculationsAggregateArgs = {
+  distinct_on?: Maybe<Array<MonthlySummaryCalculationsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MonthlySummaryCalculationsOrderBy>>;
+  where?: Maybe<MonthlySummaryCalculationsBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootMonthlySummaryCalculationsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -30847,7 +31222,9 @@ export const GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateDocumen
       where: {
         _and: [
           { company_id: { _eq: $company_id } }
-          { delivery_type: { _eq: "INCOMING_FROM_VENDOR" } }
+          {
+            delivery_type: { _in: ["INCOMING_FROM_VENDOR", "INCOMING_UNKNOWN"] }
+          }
           { metrc_transfer: { created_date: { _gte: $start_created_date } } }
         ]
       }
