@@ -84,18 +84,10 @@ export default function DeleteMetrcKeyModal({
         </Box>
         <Box display="flex" flexDirection="column" mb={2}>
           <TextField
-            autoFocus
+            disabled
             label="Platform ID"
             required
             value={metrcApiKey?.id || ""}
-          />
-        </Box>
-        <Box display="flex" flexDirection="column">
-          <TextField
-            autoFocus
-            label="US State"
-            required
-            value={metrcApiKey?.us_state || ""}
           />
         </Box>
       </DialogContent>
