@@ -15,6 +15,21 @@ for their entire history.
 												graphs.png
 
 		summary.xls
+
+Steps to run it:
+
+1. Download all dataframes, save them
+
+python scripts/analysis/compute_monthly_inventory.py --input_file=<.xlsx> --download_only --save_dataframes --max_workers=5
+
+2. Run the code for all customers
+
+python scripts/analysis/compute_monthly_inventory.py --input_file=<.xlsx> --use_cached_dataframes --max_workers=1
+
+3. If some succeeded, some failed and you need to make code edits, use:
+
+python scripts/analysis/compute_monthly_inventory.py --input_file=<.xlsx> --use_cached_dataframes --use_cached_summaries --max_workers=1
+
 """
 import argparse
 import concurrent
@@ -153,6 +168,7 @@ CompanyInputDict = TypedDict('CompanyInputDict', {
 })
 
 ArgsDict = TypedDict('ArgsDict', {
+	'download_only': bool,
 	'dry_run': bool,
 	'save_dataframes': bool,
 	'use_cached_dataframes': bool,
@@ -169,8 +185,15 @@ def _compute_inventory_for_customer(
 	sales_transactions_start_date = company_input['start_date'].strftime('%Y-%m-%d')
 	license_numbers = company_input['license_numbers']
 
+	# We dont want to mix up when we do dry runs with all the valuable
+	# information we store when --pull_all_data is set
+	if args_dict['dry_run']:
+		output_root_dir = 'out/dryrun/{}'.format(company_identifier)
+	else:
+		output_root_dir = 'out/{}'.format(company_identifier)
+
 	ctx = AnalysisContext(
-		output_root_dir='out/{}'.format(company_identifier),
+		output_root_dir=output_root_dir,
 		read_params=ReadParams(
 			use_cached_dataframes=args_dict['use_cached_dataframes']
 		),
@@ -233,6 +256,9 @@ def _compute_inventory_for_customer(
 		logging.error(traceback.format_exc())
 		return []
 
+	if args_dict['download_only']:
+		return []
+
 	summaries = []
 
 	try:
@@ -259,8 +285,8 @@ def main() -> None:
 	)
 
 	parser.add_argument(
-		'--pull_all_data',
-		dest='pull_all_data',
+		'--dry_run',
+		dest='dry_run',
 		action='store_true',
 
 	) # Must be set to not run in dryrun mode
@@ -284,6 +310,18 @@ def main() -> None:
 	) # Whether to use the summaries we stored for a customer
 
 	parser.add_argument(
+		'--download_only',
+		dest='download_only',
+		action='store_true',
+
+	) # To download data only, dont run any analysis
+
+	parser.add_argument(
+		'--max_workers',
+		help='Number of max workers to use for parallel processing',
+	)
+
+	parser.add_argument(
 		'--company_identifier',
 		help='The single company to run this script for'
 	) # Whether to use the summaries we stored for a customer
@@ -298,7 +336,7 @@ def main() -> None:
 	if err:
 		raise Exception(err)
 
-	dry_run = False if args.pull_all_data else True
+	dry_run = True if args.dry_run else False
 
 	company_inputs = []
 	for i in range(len(sheet['rows'])):
@@ -325,13 +363,15 @@ def main() -> None:
 	index_to_summary = {}
 
 	args_dict = ArgsDict(
+		download_only=args.download_only,
 		dry_run=dry_run,
 		use_cached_dataframes=args.use_cached_dataframes,
 		save_dataframes=args.save_dataframes,
 		use_cached_summaries=args.use_cached_summaries
 	)
 
-	with ThreadPoolExecutor(max_workers=1) as executor:
+	max_workers = int(args.max_workers) if args.max_workers else 1
+	with ThreadPoolExecutor(max_workers=max_workers) as executor:
 		future_to_i = {}
 
 		for i in range(len(company_inputs)):
