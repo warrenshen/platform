@@ -6,16 +6,16 @@ import {
   Typography,
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
+import CompanyLicensesDataGrid from "components/CompanyLicenses/CompanyLicensesDataGrid";
 import ChangeIsDummyAccountModal from "components/Settings/Bank/ChangeIsDummyAccountModal";
 import UpsertCustomMessagesModal from "components/Settings/Bank/UpsertCustomMessagesModal";
 import UpsertFeatureFlagsModal from "components/Settings/Bank/UpsertFeatureFlagsModal";
 import CustomerSettings from "components/Settings/CustomerSettings";
 import AssignAdvancesBespokeBankAccount from "components/Shared/BankAssignment/AssignAdvancesBespokeBankAccount";
 import AssignCollectionsBespokeBankAccount from "components/Shared/BankAssignment/AssignCollectionsBespokeBankAccount";
-import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import PageContent from "components/Shared/Page/PageContent";
-import UpdateCompanyLicensesModal from "components/ThirdParties/UpdateCompanyLicensesModal";
+import UpdateCompanyLicensesModal from "components/CompanyLicenses/UpdateCompanyLicensesModal";
 import UpdateThirdPartyCompanySettingsModal from "components/ThirdParties/UpdateThirdPartyCompanySettingsModal";
 import {
   Companies,
@@ -30,7 +30,6 @@ import {
 import {
   AllCustomMessages,
   AllFeatureFlags,
-  FileTypeEnum,
   TwoFactorMessageMethodEnum,
   TwoFactorMessageMethodToLabel,
 } from "lib/enum";
@@ -125,57 +124,60 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
           </Box>
         </Box>
         <Box mt={4}>
-          <Typography variant="h6">
-            <strong>Licenses</strong>
-          </Typography>
-          <Box mt={1} mb={1}>
-            {companyLicenses.map((companyLicense) => (
-              <Box key={companyLicense.id}>
-                <Typography>
-                  {companyLicense.license_number || "License Number TBD"}
-                </Typography>
-                {!!companyLicense.file_id && (
-                  <DownloadThumbnail
-                    isCountVisible={false}
-                    fileIds={[companyLicense.file_id]}
-                    fileType={FileTypeEnum.COMPANY_LICENSE}
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={2}
+          >
+            <Typography variant="h6">
+              <strong>Licenses</strong>
+            </Typography>
+            <Box display="flex" flexDirection="row-reverse">
+              <ModalButton
+                label={"Edit Licenses"}
+                modal={({ handleClose }) => (
+                  <UpdateCompanyLicensesModal
+                    companyId={companyId}
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                    }}
                   />
                 )}
-              </Box>
-            ))}
-          </Box>
-          <ModalButton
-            label={"Edit Licenses"}
-            modal={({ handleClose }) => (
-              <UpdateCompanyLicensesModal
-                companyId={companyId}
-                handleClose={() => {
-                  refetch();
-                  handleClose();
-                }}
               />
-            )}
-          />
+            </Box>
+          </Box>
+          <Box>
+            <CompanyLicensesDataGrid companyLicenses={companyLicenses} />
+          </Box>
         </Box>
         <Box mt={4}>
-          <Typography variant="h6">
-            <strong>Supported Features</strong>
-          </Typography>
-          <Box mt={2}>
-            <ModalButton
-              label={"Edit Features"}
-              color={"primary"}
-              modal={({ handleClose }) => (
-                <UpsertFeatureFlagsModal
-                  companySettingsId={settings.id}
-                  featureFlagsPayload={featureFlagsPayload}
-                  handleClose={() => {
-                    refetch();
-                    handleClose();
-                  }}
-                />
-              )}
-            />
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={2}
+          >
+            <Typography variant="h6">
+              <strong>Supported Features</strong>
+            </Typography>
+            <Box display="flex" flexDirection="row-reverse">
+              <ModalButton
+                label={"Edit Features"}
+                color={"primary"}
+                modal={({ handleClose }) => (
+                  <UpsertFeatureFlagsModal
+                    companySettingsId={settings.id}
+                    featureFlagsPayload={featureFlagsPayload}
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                    }}
+                  />
+                )}
+              />
+            </Box>
           </Box>
           <Box display="flex" flexDirection="column">
             {AllFeatureFlags.map((featureFlag) => (
@@ -200,9 +202,32 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
           </Box>
         </Box>
         <Box mt={4}>
-          <Typography variant="h6">
-            <strong>Custom Messages</strong>
-          </Typography>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={2}
+          >
+            <Typography variant="h6">
+              <strong>Custom Messages</strong>
+            </Typography>
+            <Box display="flex" flexDirection="row-reverse">
+              <ModalButton
+                label={"Edit Custom Messages"}
+                color={"primary"}
+                modal={({ handleClose }) => (
+                  <UpsertCustomMessagesModal
+                    companySettingsId={settings.id}
+                    customMessagesPayload={customMessagesPayload}
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                    }}
+                  />
+                )}
+              />
+            </Box>
+          </Box>
           <Typography variant="body2" color="textSecondary">
             Custom messages are messages configured by a bank user that are
             shown to the customer. The name / type of the custom message
@@ -210,22 +235,6 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
             of a custom message blank, in which case no message will be shown to
             the customer.
           </Typography>
-          <Box mt={2}>
-            <ModalButton
-              label={"Edit Custom Messages"}
-              color={"primary"}
-              modal={({ handleClose }) => (
-                <UpsertCustomMessagesModal
-                  companySettingsId={settings.id}
-                  customMessagesPayload={customMessagesPayload}
-                  handleClose={() => {
-                    refetch();
-                    handleClose();
-                  }}
-                />
-              )}
-            />
-          </Box>
           <Box display="flex" flexDirection="column">
             {AllCustomMessages.map((customMessage) => (
               <Box key={customMessage} mt={2}>
@@ -244,9 +253,30 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
           </Box>
         </Box>
         <Box mt={4}>
-          <Typography variant="h6">
-            <strong>2FA Method</strong>
-          </Typography>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={2}
+          >
+            <Typography variant="h6">
+              <strong>2FA Method</strong>
+            </Typography>
+            <Box display="flex" flexDirection="row-reverse">
+              <ModalButton
+                label={"Edit 2FA Method"}
+                modal={({ handleClose }) => (
+                  <UpdateThirdPartyCompanySettingsModal
+                    companySettingsId={settings.id}
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                    }}
+                  />
+                )}
+              />
+            </Box>
+          </Box>
           <Typography variant="body2" color="textSecondary">
             Which 2FA method will be used for vendor partnership related
             communication.
@@ -261,25 +291,34 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
                 ]
               : "None"}
           </Box>
-          <Box mt={2}>
-            <ModalButton
-              label={"Edit 2FA Method"}
-              modal={({ handleClose }) => (
-                <UpdateThirdPartyCompanySettingsModal
-                  companySettingsId={settings.id}
-                  handleClose={() => {
-                    refetch();
-                    handleClose();
-                  }}
-                />
-              )}
-            />
-          </Box>
         </Box>
         <Box mt={4}>
-          <Typography variant="h6">
-            <strong>Is Dummy Account</strong>
-          </Typography>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={2}
+          >
+            <Typography variant="h6">
+              <strong>Is Dummy Account</strong>
+            </Typography>
+            <Box display="flex" flexDirection="row-reverse">
+              <ModalButton
+                label={"Change Dummy Account Status"}
+                color={"primary"}
+                modal={({ handleClose }) => (
+                  <ChangeIsDummyAccountModal
+                    companySettingsId={settings.id}
+                    isDummyAccountInitially={isDummyAccount}
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                    }}
+                  />
+                )}
+              />
+            </Box>
+          </Box>
           <Typography variant="body2" color="textSecondary">
             Enabling "is dummy account" excludes this customer from all
             financial calculations.
@@ -297,22 +336,6 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
               </Alert>
             </Box>
           )}
-          <Box mt={2}>
-            <ModalButton
-              label={"Change Dummy Account Status"}
-              color={"primary"}
-              modal={({ handleClose }) => (
-                <ChangeIsDummyAccountModal
-                  companySettingsId={settings.id}
-                  isDummyAccountInitially={isDummyAccount}
-                  handleClose={() => {
-                    refetch();
-                    handleClose();
-                  }}
-                />
-              )}
-            />
-          </Box>
         </Box>
       </Box>
     </PageContent>

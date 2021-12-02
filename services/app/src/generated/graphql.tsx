@@ -24767,7 +24767,7 @@ export type GetBankPayorPartnershipQuery = {
       } & CompanyFragment;
       payor?: Maybe<
         Pick<Payors, "id"> & {
-          licenses: Array<CompanyLicenseFragment>;
+          licenses: Array<CompanyLicenseLimitedFragment>;
           settings?: Maybe<
             Pick<CompanySettings, "id"> & {
               collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
@@ -25442,7 +25442,9 @@ export type GetCompanyLicensesByLicenseNumberQueryVariables = Exact<{
 }>;
 
 export type GetCompanyLicensesByLicenseNumberQuery = {
-  company_licenses: Array<Pick<CompanyLicenses, "id"> & CompanyLicenseFragment>;
+  company_licenses: Array<
+    Pick<CompanyLicenses, "id"> & CompanyLicenseLimitedFragment
+  >;
 };
 
 export type GetCompanyForBankQueryVariables = Exact<{
@@ -25530,8 +25532,15 @@ export type CompanyAgreementFragment = Pick<
 
 export type CompanyLicenseFragment = Pick<
   CompanyLicenses,
-  "id" | "company_id" | "file_id" | "license_number"
->;
+  | "id"
+  | "legal_name"
+  | "license_category"
+  | "license_description"
+  | "license_status"
+  | "us_state"
+  | "expiration_date"
+> &
+  CompanyLicenseLimitedFragment;
 
 export type CompanyLimitedFragment = Pick<
   Companies,
@@ -26280,6 +26289,11 @@ export type CompanySettingsLimitedFragment = Pick<
   | "has_autofinancing"
 >;
 
+export type CompanyLicenseLimitedFragment = Pick<
+  CompanyLicenses,
+  "id" | "company_id" | "file_id" | "license_number"
+>;
+
 export type BankAccountLimitedFragment = Pick<
   BankAccounts,
   | "id"
@@ -26303,10 +26317,10 @@ export type BankAccountLimitedFragment = Pick<
 export type VendorLimitedFragment = Pick<
   Vendors,
   "id" | "name" | "dba_name"
-> & { licenses: Array<CompanyLicenseFragment> };
+> & { licenses: Array<CompanyLicenseLimitedFragment> };
 
 export type PayorLimitedFragment = Pick<Payors, "id" | "name" | "dba_name"> & {
-  licenses: Array<CompanyLicenseFragment>;
+  licenses: Array<CompanyLicenseLimitedFragment>;
 };
 
 export type VendorPartnershipLimitedFragment = Pick<
@@ -26559,6 +26573,27 @@ export const CompanyAgreementFragmentDoc = gql`
     company_id
     file_id
   }
+`;
+export const CompanyLicenseLimitedFragmentDoc = gql`
+  fragment CompanyLicenseLimited on company_licenses {
+    id
+    company_id
+    file_id
+    license_number
+  }
+`;
+export const CompanyLicenseFragmentDoc = gql`
+  fragment CompanyLicense on company_licenses {
+    id
+    legal_name
+    license_category
+    license_description
+    license_status
+    us_state
+    expiration_date
+    ...CompanyLicenseLimited
+  }
+  ${CompanyLicenseLimitedFragmentDoc}
 `;
 export const CompanyLimitedFragmentDoc = gql`
   fragment CompanyLimited on companies {
@@ -26880,14 +26915,6 @@ export const MetrcApiKeyFragmentDoc = gql`
     us_state
   }
 `;
-export const CompanyLicenseFragmentDoc = gql`
-  fragment CompanyLicense on company_licenses {
-    id
-    company_id
-    file_id
-    license_number
-  }
-`;
 export const VendorLimitedFragmentDoc = gql`
   fragment VendorLimited on vendors {
     id
@@ -26901,10 +26928,10 @@ export const VendorLimitedFragmentDoc = gql`
         ]
       }
     ) {
-      ...CompanyLicense
+      ...CompanyLicenseLimited
     }
   }
-  ${CompanyLicenseFragmentDoc}
+  ${CompanyLicenseLimitedFragmentDoc}
 `;
 export const VendorFragmentDoc = gql`
   fragment Vendor on vendors {
@@ -26984,10 +27011,10 @@ export const PayorLimitedFragmentDoc = gql`
         ]
       }
     ) {
-      ...CompanyLicense
+      ...CompanyLicenseLimited
     }
   }
-  ${CompanyLicenseFragmentDoc}
+  ${CompanyLicenseLimitedFragmentDoc}
 `;
 export const InvoiceLimitedFragmentDoc = gql`
   fragment InvoiceLimited on invoices {
@@ -30677,7 +30704,7 @@ export const GetBankPayorPartnershipDocument = gql`
             ]
           }
         ) {
-          ...CompanyLicense
+          ...CompanyLicenseLimited
         }
         settings {
           id
@@ -30702,7 +30729,7 @@ export const GetBankPayorPartnershipDocument = gql`
   ${CompanyFragmentDoc}
   ${ContactFragmentDoc}
   ${CompanySettingsFragmentDoc}
-  ${CompanyLicenseFragmentDoc}
+  ${CompanyLicenseLimitedFragmentDoc}
   ${BankAccountFragmentDoc}
   ${CompanyAgreementFragmentDoc}
   ${CompanyPayorContactFragmentDoc}
@@ -33995,10 +34022,10 @@ export const GetCompanyLicensesByLicenseNumberDocument = gql`
       }
     ) {
       id
-      ...CompanyLicense
+      ...CompanyLicenseLimited
     }
   }
-  ${CompanyLicenseFragmentDoc}
+  ${CompanyLicenseLimitedFragmentDoc}
 `;
 
 /**
@@ -34069,6 +34096,7 @@ export const GetCompanyForBankDocument = gql`
             { is_deleted: { _eq: false } }
           ]
         }
+        order_by: { license_number: asc }
       ) {
         id
         ...CompanyLicense

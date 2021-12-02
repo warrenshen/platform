@@ -17,6 +17,7 @@ query GetCompanyForBank($companyId: uuid!) {
           { is_deleted: { _eq: false } }
         ]
       }
+      order_by: { license_number: asc }
     ) {
       id
       ...CompanyLicense

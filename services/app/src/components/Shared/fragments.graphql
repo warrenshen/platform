@@ -25,12 +25,16 @@ fragment CompanyAgreement on company_agreements {
   file_id
 }
 
-# A company license is a license that corresponds to licenses for a customer or a vendor
+# A company license is a cannabis license belonging to a company.
 fragment CompanyLicense on company_licenses {
   id
-  company_id
-  file_id
-  license_number
+  legal_name
+  license_category
+  license_description
+  license_status
+  us_state
+  expiration_date
+  ...CompanyLicenseLimited
 }
 
 fragment CompanyLimited on companies {

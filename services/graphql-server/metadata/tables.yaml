@@ -814,41 +814,44 @@
   - name: file
     using:
       foreign_key_constraint_on: file_id
-  insert_permissions:
-  - role: bank_admin
-    permission:
-      check: {}
-      columns:
-      - company_id
-      - file_id
-      - license_number
-      backend_only: false
-  - role: company_admin
-    permission:
-      check: {}
-      set:
-        company_id: x-hasura-Company-Id
-      columns:
-      - file_id
-      backend_only: false
   select_permissions:
   - role: bank_admin
     permission:
       columns:
+      - id
       - company_id
       - file_id
-      - id
-      - is_deleted
       - license_number
+      - is_deleted
+      - rollup_id
+      - legal_name
+      - license_status
+      - is_current
+      - license_description
+      - us_state
+      - expiration_date
+      - created_at
+      - updated_at
+      - license_category
       filter: {}
   - role: bank_read_only
     permission:
       columns:
+      - is_current
+      - is_deleted
+      - expiration_date
+      - legal_name
+      - license_category
+      - license_description
+      - license_number
+      - license_status
+      - rollup_id
+      - us_state
+      - created_at
+      - updated_at
       - company_id
       - file_id
       - id
-      - is_deleted
-      - license_number
       filter: {}
   - role: company_admin
     permission:

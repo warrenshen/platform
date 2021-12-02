@@ -15,6 +15,6 @@ query GetCompanyLicensesByLicenseNumber($license_number: String!) {
     }
   ) {
     id
-    ...CompanyLicense
+    ...CompanyLicenseLimited
   }
 }

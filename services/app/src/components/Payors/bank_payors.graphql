@@ -20,7 +20,7 @@ query GetBankPayorPartnership($id: uuid!) {
           ]
         }
       ) {
-        ...CompanyLicense
+        ...CompanyLicenseLimited
       }
       settings {
         id

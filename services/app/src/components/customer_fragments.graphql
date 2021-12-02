@@ -16,6 +16,13 @@ fragment CompanySettingsLimited on company_settings {
   has_autofinancing
 }
 
+fragment CompanyLicenseLimited on company_licenses {
+  id
+  company_id
+  file_id
+  license_number
+}
+
 fragment BankAccountLimited on bank_accounts {
   id
   company_id
@@ -44,7 +51,7 @@ fragment VendorLimited on vendors {
       _or: [{ is_deleted: { _is_null: true } }, { is_deleted: { _eq: false } }]
     }
   ) {
-    ...CompanyLicense
+    ...CompanyLicenseLimited
   }
 }
 
@@ -57,7 +64,7 @@ fragment PayorLimited on payors {
       _or: [{ is_deleted: { _is_null: true } }, { is_deleted: { _eq: false } }]
     }
   ) {
-    ...CompanyLicense
+    ...CompanyLicenseLimited
   }
 }
 
