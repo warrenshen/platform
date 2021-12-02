@@ -526,7 +526,7 @@ class Contract(object):
 
 			return dynamic_helper.get_interest_rate(cur_date)
 
-		return self._get_float_value('factoring_fee_percentage')
+		return self._get_fixed_interest_rate()
 
 	def get_wire_fee(self) -> Tuple[float, errors.Error]:
 		return self._get_float_value('wire_fee')

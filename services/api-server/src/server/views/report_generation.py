@@ -447,7 +447,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 		# Current Monthly Interest
 		# The finance team noted that "CMI is interest accrued during the month, regardless of if it is paid or not"
 		# As such, the CMI calculation is comprised of two parts:
-		#     1. outstanding principle * (daily interest rate * days in cycle)
+		#     1. outstanding principal * (daily interest rate * days in cycle)
 		#     2. loans started in report month * (daily interest rate * prorated days in cycle)
 
 		# Part 1
@@ -464,7 +464,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 					msg = "Query for month start summary in get_cmi_and_mmf retuned with None."
 				)
 
-		interest_rate, err = contract._get_fixed_interest_rate()
+		interest_rate, err = contract.get_interest_rate(report_month_last_day)
 		interest_rate = float(interest_rate if interest_rate is not None else 0.0)
 		if err:
 			return "", "", (0.0, 0.0, 0.0), err
@@ -675,8 +675,8 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 		total_credit_line: float
 		) -> float:
 		# lesser of:
-		#	a. borrowing base - current principle balance
-		#	b. total credit line - current principle balance
+		#	a. borrowing base - current principal balance
+		#	b. total credit line - current principal balance
 		company_settings = cast(
 			models.CompanySettings,
 			session.query(models.CompanySettings).filter(
@@ -690,12 +690,14 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 			session.query(models.EbbaApplication).filter(
 				models.EbbaApplication.id == active_ebba_application_id
 			).first())
-		borrowing_base = float(ebba_application.calculated_borrowing_base)
 
-		bb_cpb = borrowing_base - current_principal_balance
 		tcl_cpb = total_credit_line - current_principal_balance
-
-		available_credit = bb_cpb if bb_cpb < tcl_cpb else tcl_cpb
+		if ebba_application is None:
+			available_credit = tcl_cpb
+		else:
+			borrowing_base = float(ebba_application.calculated_borrowing_base)
+			bb_cpb = borrowing_base - current_principal_balance	
+			available_credit = bb_cpb if bb_cpb < tcl_cpb else tcl_cpb
 
 		return available_credit
 
@@ -781,7 +783,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 				).first())
 
 			# We need to gather all repayments for the report month to calculate
-			# principle and interest & fee repayment total
+			# principal and interest & fee repayment total
 			report_month_first_day = fees_due_util._get_first_day_of_month_date(date_util.date_to_str(report_month_last_day))
 
 			advances = self.get_report_month_advances(session, company_id, report_month_first_day, report_month_last_day)
@@ -845,7 +847,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 			if err:
 				return loans_to_notify, make_response(json.dumps({ 'status': 'FAILED', 'resp': "Failed to calculate current monthly interest and minimum monthly fee " + repr(err) }))
 			
-			payment_due_date = min_monthly_payload["prorated_info"]["day_to_pay"] if min_monthly_payload is not None else None
+			payment_due_date = date_util.date_to_str(fees_due_util._get_first_day_of_month_date(automatic_debit_date))
 			minimum_payment_due, minimum_payment_amount = self.get_minimum_payment_due(cmi_mmf_scores, interest_repayments, interest_fee_balance)
 
 			msc = cast(
