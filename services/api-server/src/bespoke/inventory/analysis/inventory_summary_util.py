@@ -14,11 +14,15 @@ def write_excel_for_summaries(summaries: List[AnalysisSummaryDict]) -> None:
 
 	rows: List[List[CellValue]] = []
 	rows.append(
-		['company_name', 'identifier', 
-		 'uses_pricing_table', 'uses_parenting',
+		[
+			'company_name', 
+			'identifier', 
+		  'uses_pricing_table', 
+		  'uses_parenting',
 
-		 # Counts
-		 'pct_excluded', 'counts_summary',
+		 	# Counts
+		 	'pct_excluded', 
+		 	'counts_summary',
 
 		 # Inventory
 		 'pct_inventory_match', 
@@ -36,6 +40,10 @@ def write_excel_for_summaries(summaries: List[AnalysisSummaryDict]) -> None:
 		 'current_inventory_value', 
 		 'cogs_reconciled_delta_as_pct', 
 		 'cogs_summary'
+
+		 # Stale report
+		 'current_nonstale_inventory_value',
+		 'pct_stale_packages'
 		])
 
 	company_names = set([])
@@ -80,9 +88,15 @@ def write_excel_for_summaries(summaries: List[AnalysisSummaryDict]) -> None:
 			''
 		]
 
+		stale_info_row: List[CellValue] = [
+			inventory_res['current_nonstale_inventory_value'],
+			inventory_res['pct_stale_packages']
+		]
+
 		row.extend(count_row)
 		row.extend(inventory_row)
 		row.extend(revenue_row)
+		row.extend(stale_info_row)
 		rows.append(row)
 
 	for row in rows:

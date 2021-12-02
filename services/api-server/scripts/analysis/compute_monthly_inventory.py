@@ -81,6 +81,7 @@ def _run_analysis_for_customer(d: download_util.Download, ctx: AnalysisContext, 
 			ctx=ctx,
 			computed=computed_resp['date_to_computed_inventory_dataframe'][today_date_str],
 			actual=d.inventory_packages_dataframe,
+			params=params,
 			compare_options={
 					'num_errors_to_show': 10,
 					'accept_computed_when_sold_out': True

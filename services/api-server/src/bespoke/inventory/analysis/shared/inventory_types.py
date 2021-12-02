@@ -134,7 +134,9 @@ CompareInventoryResultsDict = TypedDict('CompareInventoryResultsDict', {
 	'pct_accuracy_of_quantity': float,
 	'pct_inventory_overestimate': float,
 	'pct_quantity_overestimated': float,
-	'current_inventory_value': float
+	'current_inventory_value': float,
+	'current_nonstale_inventory_value': float,
+	'pct_stale_packages': float
 })
 
 CogsSummaryDict = TypedDict('CogsSummaryDict', {

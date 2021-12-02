@@ -151,6 +151,7 @@ def _inventory_row(
 		'package_id': f'p{id}',
 		'license_number': 'abcd',
 		'arrived_date': '10/01/2020',
+		'packaged_date': '10/01/2020',
 		'incoming_cost': incoming_cost,
 		'incoming_quantity': incoming_quantity,
 		'uses_parenting_logic': 'False',
@@ -173,12 +174,14 @@ class TestCompareInventoryDataframes(unittest.TestCase):
 
 	def _run_test(self, test: Dict) -> None:
 		ctx = _get_analysis_context()
+		extra_cols = ['packaged_date']
 		actual_res = util.compare_inventory_dataframes(
 			ctx=ctx,
 			computed=inventory_test_helper.get_dataframe(
-			test['computed_rows'], columns=util.get_inventory_column_names()),
+			test['computed_rows'], columns=util.get_inventory_column_names() + extra_cols),
 			actual=inventory_test_helper.get_dataframe(
-				test['actual_rows'], util.get_inventory_column_names()),
+				test['actual_rows'], util.get_inventory_column_names() + extra_cols),
+			params=get_default_params(),
 			options=test['options']
 		)
 		expected = test['expected_res']

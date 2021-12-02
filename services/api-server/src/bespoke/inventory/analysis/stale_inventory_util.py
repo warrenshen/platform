@@ -66,6 +66,14 @@ def is_packaged_date_stale(packaged_date: datetime.date, shelf_life_in_months: i
 	months_difference = (today.year - packaged_date.year) * 12 + (today.month - packaged_date.month)
 	return shelf_life_in_months < months_difference
 
+def is_package_stale(active_inventory_package_record: InventoryPackageDict, params: AnalysisParamsDict) -> bool:
+	product_category_name = active_inventory_package_record['product_category_name']
+	packaged_date = active_inventory_package_record['packaged_date']
+
+	master_product_category = get_master_product_category(product_category_name)
+	shelf_life_in_months = get_shelf_life_in_months(product_category_name, params)
+	return is_packaged_date_stale(parse_to_date(packaged_date), shelf_life_in_months)
+		
 def _write_products_by_profit(d: Download, ctx: AnalysisContext) -> None:
 
 	lines = []
@@ -206,10 +214,8 @@ def compute_stale_inventory(
 			print('Got an invalid quantity', package_type, product_category_name, quantity)
 			continue
 
-		master_product_category = get_master_product_category(product_category_name)
-		shelf_life_in_months = get_shelf_life_in_months(product_category_name, params)
-		is_stale = is_packaged_date_stale(parse_to_date(packaged_date), shelf_life_in_months)
-		
+		is_stale = is_package_stale(active_inventory_package_record, params)
+
 		if is_stale:
 			stale_count += 1
 			stale_quantity += quantity
@@ -224,6 +230,7 @@ def compute_stale_inventory(
 		total_count += 1
 		total_quantity += quantity
 		
+		master_product_category = get_master_product_category(product_category_name)
 		active_inventory_package_record['master_product_category'] = master_product_category
 		active_inventory_package_record['last_modified_at_notz'] = active_inventory_package_record['last_modified_at'].replace(tzinfo=None)
 		categorized_active_inventory_package_records += [active_inventory_package_record]

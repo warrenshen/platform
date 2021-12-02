@@ -40,6 +40,7 @@ from bespoke.inventory.analysis.shared.inventory_types import (
 	SalesTransactionDict,
 	PricingDataConfigDict
 )
+from bespoke.inventory.analysis import stale_inventory_util
 from bespoke.inventory.analysis import inventory_valuations_util as valuations_util
 
 CompareOptionsDict = TypedDict('CompareOptionsDict', {
@@ -491,7 +492,11 @@ def create_inventory_dataframes(
 	return date_to_inventory_records
 
 def compare_inventory_dataframes(
-	ctx: AnalysisContext, computed: pandas.DataFrame, actual: pandas.DataFrame, options: CompareOptionsDict) -> CompareInventoryResultsDict:
+	ctx: AnalysisContext, 
+	computed: pandas.DataFrame, 
+	actual: pandas.DataFrame, 
+	params: AnalysisParamsDict,
+	options: CompareOptionsDict) -> CompareInventoryResultsDict:
 	package_id_to_computed_row = {}
 	unseen_package_ids = set([])
 	all_computed_package_ids_ever_seen = set([])
@@ -521,6 +526,8 @@ def compare_inventory_dataframes(
 	num_matching_packages = 0
 	num_packages = 0
 	current_inventory_value = 0.0
+	current_nonstale_inventory_value = 0.0
+	num_stale_packages = 0
 
 	for index, row in actual.iterrows():
 		all_actual_package_ids_even_seen.add(row['package_id'])
@@ -557,18 +564,25 @@ def compare_inventory_dataframes(
 			unseen_package_ids.remove(row['package_id'])
 			num_matching_packages += 1
 			
+			is_stale = stale_inventory_util.is_package_stale(row, params)
+
 			# Only the computed row as the current value associated with the actual package
 			# by using pricing data associated with the computed row 
 			if computed_row['incoming_quantity'] > 0.0 and computed_row['incoming_cost'] > 0.0:
-				current_inventory_value += computed_row['incoming_cost'] / computed_row['incoming_quantity'] * row['quantity']
-			
+				cur_pkg_value = computed_row['incoming_cost'] / computed_row['incoming_quantity'] * row['quantity']
+				current_inventory_value += cur_pkg_value
+				if is_stale:
+					num_stale_packages += 1
+				else:
+					current_nonstale_inventory_value += cur_pkg_value
+
 			if options['accept_computed_when_sold_out'] and math.isclose(computed_row['quantity'], 0.0):
 				# When this flag is turned on, we trust that the computed calculation, because
 				# we have seen the package before, we just saw that it sold out due to
 				# sales transactions.
 				delta_quantities.append(0.0)
 				delta_tuples.append((row['package_id'], 0.0))
-				quantities.append(0)	
+				quantities.append(0)
 			else:
 				abs_delta = abs(float(row['quantity']) - float(computed_row['quantity']))
 				delta_quantities.append(abs_delta)
@@ -700,7 +714,9 @@ def compare_inventory_dataframes(
 		pct_accuracy_of_quantity=round(pct_accuracy_of_quantity, 2),
 		pct_inventory_overestimate=round(pct_inventory_overestimate, 2),
 		pct_quantity_overestimated=round(pct_quantity_overestimated, 2),
-		current_inventory_value=round(current_inventory_value, 2)
+		current_inventory_value=round(current_inventory_value, 2),
+		current_nonstale_inventory_value=round(current_nonstale_inventory_value, 2),
+		pct_stale_packages=round(num_stale_packages / num_packages * 100, 2),
 	)
 
 def compute_inventory_across_dates(
@@ -737,7 +753,8 @@ def compute_inventory_across_dates(
 def compare_computed_vs_actual_inventory(
 	ctx: AnalysisContext,
 	computed: pandas.DataFrame,
-	actual: pandas.DataFrame, 
+	actual: pandas.DataFrame,
+	params: AnalysisParamsDict,
 	compare_options: CompareOptionsDict) -> CompareInventoryResultsDict:
 	from_packages_inventory_dataframe = actual[[
 			'package_id',
@@ -752,6 +769,7 @@ def compare_computed_vs_actual_inventory(
 			ctx=ctx,
 			computed=computed,
 			actual=from_packages_inventory_dataframe,
+			params=params,
 			options=compare_options
 	)
 	return res
