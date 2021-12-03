@@ -203,6 +203,7 @@ def create_download(test: Dict) -> util.Download:
 
 	dl.download_dataframes(
 		all_dataframes_dict=all_dataframes_dict,
-		sql_helper=sql_helper
+		sql_helper=sql_helper,
+		ctx=test['ctx']
 	)
 	return dl

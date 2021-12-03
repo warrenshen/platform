@@ -31,6 +31,8 @@ def _get_analysis_context() -> AnalysisContext:
 class TestInventoryCounts(unittest.TestCase):
 
 	def _run_test(self, test: Dict) -> None:
+		ctx = _get_analysis_context()
+		test['ctx'] = ctx
 		dl = inventory_test_helper.create_download(test)
 		package_id_to_history = util.get_histories(dl, params=AnalysisParamsDict(
 			sold_threshold=1.0,
@@ -42,7 +44,6 @@ class TestInventoryCounts(unittest.TestCase):
 			cogs_analysis_params=None,
 			stale_inventory_params=None
 		))
-		ctx = _get_analysis_context()
 		counts_dict = util.print_counts(ctx, package_id_to_history, should_print=False)
 		self.assertDictEqual(cast(Dict, counts_dict), test['expected_counts_dict'])
 
@@ -174,6 +175,7 @@ class TestCompareInventoryDataframes(unittest.TestCase):
 
 	def _run_test(self, test: Dict) -> None:
 		ctx = _get_analysis_context()
+		test['ctx'] = ctx
 		extra_cols = ['packaged_date']
 		actual_res = util.compare_inventory_dataframes(
 			ctx=ctx,
@@ -309,6 +311,7 @@ class TestInventoryPackages(unittest.TestCase):
 	maxDiff = None
 
 	def _run_test(self, test: Dict) -> None:
+		test['ctx'] = _get_analysis_context()
 		dl = inventory_test_helper.create_download(test)
 
 		package_id_to_history = util.get_histories(dl, test['analysis_params'])

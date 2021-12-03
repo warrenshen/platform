@@ -12,6 +12,14 @@ def write_excel_for_summaries(summaries: List[AnalysisSummaryDict]) -> None:
 	wb = excel_writer.WorkbookWriter(xlwt.Workbook())
 	summary_sheet = wb.add_sheet('Summary')
 
+	# TODO(dlluncor): Use the word 'methodology' to describe the params
+	# that we used.
+	# company, date, methodology, default_methodology
+	#
+	# default_methodology == '10'
+	#
+	# default_methodology == methodology
+
 	rows: List[List[CellValue]] = []
 	rows.append(
 		[
@@ -39,7 +47,7 @@ def write_excel_for_summaries(summaries: List[AnalysisSummaryDict]) -> None:
 		 'avg_monthly_revenue',
 		 'current_inventory_value', 
 		 'cogs_reconciled_delta_as_pct', 
-		 'cogs_summary'
+		 'cogs_summary',
 
 		 # Stale report
 		 'current_nonstale_inventory_value',

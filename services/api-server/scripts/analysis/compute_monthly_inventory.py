@@ -78,19 +78,38 @@ def _run_analysis_for_customer(d: download_util.Download, ctx: AnalysisContext, 
 	## Analyze counts for the dataset
 	logging.info('Analyzing counts for {}'.format(q.company_name))
 	today_date = date_util.load_date_str(q.inventory_dates[-1]) # the most recent day is the one we want to compare the actual inventory to.
+	
+	before = time.time()
 	id_to_history = util.get_histories(d, params=params)
+	after = time.time()
+	ctx.log_timing(f'Took {round(after - before, 2)} seconds for get_histories')
 
+	before = time.time()
 	util.print_counts(ctx, id_to_history)
+	after = time.time()
+	ctx.log_timing(f'Took {round(after - before, 2)} seconds for print_counts')
+
+	before = time.time()
 	util.run_orphan_analysis(d, ctx, id_to_history, params)
+	after = time.time()
+	ctx.log_timing(f'Took {round(after - before, 2)} seconds for orphan analysis')
+
+	before = time.time()
 	counts_analysis_dict = util.create_inventory_xlsx(d, ctx, id_to_history, q, params=params)
+	after = time.time()
+	ctx.log_timing(f'Took {round(after - before, 2)} seconds for create_inventory_xlsx')
 
 	## Compute accuracy numbers for COGS and inventory
 	logging.info('Computing inventory for {}'.format(q.company_name))
 	
+	before = time.time()
 	computed_resp = util.compute_inventory_across_dates(
 			d, q.inventory_dates, params
 	)
+	after = time.time()
+	ctx.log_timing(f'Took {round(after - before, 2)} seconds for compute_inventory_across_dates')
 
+	before = time.time()
 	today_date_str = today_date.strftime('%m/%d/%Y')
 	compare_inventory_res = util.compare_computed_vs_actual_inventory(
 			ctx=ctx,
@@ -102,7 +121,10 @@ def _run_analysis_for_customer(d: download_util.Download, ctx: AnalysisContext, 
 					'accept_computed_when_sold_out': True
 			}
 	)
+	after = time.time()
+	ctx.log_timing(f'Took {round(after - before, 2)} seconds for compare_computed_vs_actual_inventory')
 
+	before = time.time()
 	cogs_summary = cogs_util.create_cogs_summary(d, ctx, id_to_history, params)
 	cogs_util.write_cogs_xlsx(
 		ctx=ctx,
@@ -110,8 +132,13 @@ def _run_analysis_for_customer(d: download_util.Download, ctx: AnalysisContext, 
 		bottoms_up_cogs_rows=cogs_summary['bottomsup_cogs_rows'],
 		company_name=q.company_name
 	)
+	after = time.time()
+	ctx.log_timing(f'Took {round(after - before, 2)} seconds for create_cogs_summary')
 
+	before = time.time()
 	stale_inventory_util.compute_stale_inventory(d, ctx, params)
+	after = time.time()
+	ctx.log_timing(f'Took {round(after - before, 2)} seconds for compute_stale_inventory')
 
 	# Plot graphs
 	# TODO(dlluncor): Has to happen in the main thread to plot these graphs
@@ -179,6 +206,8 @@ def _compute_inventory_for_customer(
 	company_input: CompanyInputDict, 
 	args_dict: ArgsDict) -> List[AnalysisSummaryDict]:
 
+	initial_before = time.time()
+
 	company_name = company_input['company_name']
 	company_identifier = company_input['company_identifier']
 	transfer_packages_start_date = company_input['start_date'].strftime('%Y-%m-%d')
@@ -220,6 +249,9 @@ def _compute_inventory_for_customer(
 	with open(ctx.get_output_path('log.txt'), 'w') as f:
 		f.write('')
 
+	with open(ctx.get_output_path('timing.txt'), 'w') as f:
+		f.write('')
+
 	q = util.Query(
 		inventory_dates=[], # gets filled in once we have the dataframes
 		transfer_packages_start_date=transfer_packages_start_date,
@@ -237,14 +269,18 @@ def _compute_inventory_for_customer(
 		engine = download_util.get_bigquery_engine('bigquery://bespoke-financial/ProdMetrcData')
 		all_dataframes_dict = download_util.get_dataframes_for_analysis(q, ctx, engine, dry_run=args_dict['dry_run'])
 		after = time.time()
-		logging.info('Took {} seconds to run sql queries for {}'.format(
+		ctx.log_timing('Took {} seconds to run sql queries for {}'.format(
 			round(after - before, 2), q.company_name))
 		
 		before = time.time()
 		d = util.Download()
-		d.download_dataframes(all_dataframes_dict, sql_helper=download_util.BigQuerySQLHelper(ctx, engine))
+		d.download_dataframes(
+			all_dataframes_dict, 
+			sql_helper=download_util.BigQuerySQLHelper(ctx, engine),
+			ctx=ctx
+		)
 		after = time.time()
-		logging.info('Took {} seconds to process dataframes for {}'.format(
+		ctx.log_timing('\nTook {} seconds to process dataframes for {}'.format(
 			round(after - before, 2), q.company_name))
 
 		q.inventory_dates = download_util.get_inventory_dates(
@@ -274,6 +310,9 @@ def _compute_inventory_for_customer(
 		f.write(json.dumps({
 			'summaries': summaries
 		}))
+
+	initial_after = time.time()
+	ctx.log_timing(f'\nTook {round(initial_after - initial_before, 2)} seconds for computing e2e summary for {q.company_name}')
 
 	return summaries
 

@@ -4,6 +4,7 @@ import numpy
 import logging
 import glob
 import os
+import time
 import pandas as pd
 import pytz
 import pyarrow
@@ -223,12 +224,20 @@ class Download(object):
 		self,
 		all_dataframes_dict: AllDataframesDict,
 		sql_helper: SQLHelper,
+		ctx: AnalysisContext
 	) -> None:
+		before = time.time()
 		incoming_transfer_packages_dataframe = all_dataframes_dict['incoming_transfer_packages_dataframe']
 		outgoing_transfer_packages_dataframe = all_dataframes_dict['outgoing_transfer_packages_dataframe']
 		sales_transactions_dataframe = all_dataframes_dict['sales_transactions_dataframe']
 		sales_receipts_dataframe = all_dataframes_dict['sales_receipts_dataframe']
 		inventory_packages_dataframe = all_dataframes_dict['inventory_packages_dataframe']
+
+		ctx.log('Processing {} incoming transfer packages'.format(len(incoming_transfer_packages_dataframe.index)))
+		ctx.log('Processing {} outgoing transfer packages'.format(len(outgoing_transfer_packages_dataframe.index)))
+		ctx.log('Processing {} inventory packages'.format(len(inventory_packages_dataframe.index)))
+		ctx.log('Processing {} sales receipts'.format(len(sales_receipts_dataframe.index)))
+		ctx.log('Processing {} sales transactions'.format(len(sales_transactions_dataframe.index)))
 
 		self.incoming_records = cast(List[TransferPackageDict], incoming_transfer_packages_dataframe.to_dict('records'))
 		self.outgoing_records = cast(List[TransferPackageDict], outgoing_transfer_packages_dataframe.to_dict('records'))
@@ -247,11 +256,21 @@ class Download(object):
 		for inv_pkg in self.inventory_packages_records:
 			missing_incoming_pkg_package_ids.add(inv_pkg['package_id'])
 
+		after = time.time()
+		ctx.log_timing(f'  Took {round(after - before, 2)} seconds for converting to records')
+
+		before = time.time()
+
 		for sales_tx_record in self.sales_tx_records:
 			sales_tx_record['sales_datetime'] = cast(Any, sales_tx_record['sales_datetime']).to_pydatetime()
 			sales_tx_record['sales_date'] = parse_to_date(sales_tx_record['sales_datetime'])
 			all_package_ids.add(sales_tx_record['tx_package_id'])
 			missing_incoming_pkg_package_ids.add(sales_tx_record['tx_package_id'])
+
+		after = time.time()
+		ctx.log_timing(f'  Took {round(after - before, 2)} seconds to iterate through sales txs')
+
+		before = time.time()
 
 		for incoming_r in self.incoming_records:
 			incoming_r['received_datetime'] = parse_to_datetime(incoming_r['received_datetime'])
@@ -264,6 +283,10 @@ class Download(object):
 			if incoming_r['package_id'] in missing_incoming_pkg_package_ids:
 				missing_incoming_pkg_package_ids.remove(incoming_r['package_id'])
 
+		after = time.time()
+		ctx.log_timing(f'  Took {round(after - before, 2)} seconds to iterate through incoming records')
+
+		before = time.time()
 		for outgoing_r in self.outgoing_records:
 			outgoing_r['received_datetime'] = parse_to_datetime(outgoing_r['received_datetime'])
 			_fix_received_date_and_timezone(outgoing_r)
@@ -271,6 +294,11 @@ class Download(object):
 			outgoing_r['created_date'] = parse_to_date(outgoing_r['created_date'])
 			_set_quantity_and_unit(outgoing_r)
 			all_package_ids.add(outgoing_r['package_id'])
+
+		after = time.time()
+		ctx.log_timing(f'  Took {round(after - before, 2)} seconds to iterate through outgoing records')
+
+		before = time.time()
 
 		all_inactive_packages_df = sql_helper.get_inactive_packages(all_package_ids)
 		self.inactive_packages_records = cast(
@@ -305,6 +333,9 @@ class Download(object):
 				List[InventoryPackageDict], parent_packages_df.to_dict('records'))
 		else:
 			self.parent_packages_records = []
+
+		after = time.time()
+		ctx.log_timing(f'  Took {round(after - before, 2)} seconds to iterate through rest of records')
 
 def get_bigquery_engine(engine_url: str) -> Any:
 	BIGQUERY_CREDENTIALS_PATH = os.environ.get('BIGQUERY_CREDENTIALS_PATH')

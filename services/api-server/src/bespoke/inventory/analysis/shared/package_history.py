@@ -475,6 +475,10 @@ class PackageHistory(object):
 		return is_sold
 		
 	def compute_additional_fields(self, p: Printer, params: AnalysisParamsDict, run_filter: bool, skip_over_errors: bool) -> None:
+		if self.computed_info:
+			# If we've already computed information for this history, no need to compute it again
+			return
+
 		if run_filter:
 			self.filter_out_unhandled_packages(p)
 					

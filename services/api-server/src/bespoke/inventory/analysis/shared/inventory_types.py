@@ -176,6 +176,18 @@ class AnalysisContext(object):
 		self.read_params = read_params
 		self.write_params = write_params
 
+	def log(self, s: str) -> None:
+		with open(self.get_output_path('log.txt'), 'a+') as f:
+			f.write(s + '\n')
+
+		logging.info(s)
+
+	def log_timing(self, s: str) -> None:
+		with open(self.get_output_path('timing.txt'), 'a+') as f:
+			f.write(s + '\n')
+
+		logging.info(s)
+
 	def mkdir(self, rel_path: str) -> None:
 		Path(os.path.join(self.output_root_dir, rel_path)).mkdir(parents=True, exist_ok=True)
 

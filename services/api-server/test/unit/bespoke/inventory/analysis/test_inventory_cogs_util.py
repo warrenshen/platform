@@ -16,11 +16,23 @@ from bespoke.inventory.analysis.shared.inventory_types import (
 	WriteOutputParams,
 )
 
+def _get_analysis_context() -> AnalysisContext:
+	return AnalysisContext(
+		output_root_dir='tmp',
+		read_params={
+			'use_cached_dataframes': False
+		},
+		write_params={
+			'save_download_dataframes': False
+		}
+	)
+
 class TestCreateCogsSummary(unittest.TestCase):
 
 	maxDiff = None
 
 	def _run_test(self, test: Dict) -> None:
+		test['ctx'] = _get_analysis_context()
 		dl = inventory_test_helper.create_download(test)
 
 		package_id_to_history = util.get_histories(dl, test['analysis_params'])
