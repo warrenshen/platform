@@ -190,6 +190,7 @@ class TestWriteDownloadSummaryAndNeedsRerun(db_unittest.TestCase):
 				api_key='the-api-key',
 				security_cfg=security_cfg,
 				us_state='OR',
+				use_saved_licenses_only=False,
 				session=session
 			)
 			self.assertIsNone(err)

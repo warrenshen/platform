@@ -1,11 +1,13 @@
 import {
   Box,
   Button,
+  Checkbox,
   createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControlLabel,
   makeStyles,
   TextField,
   Theme,
@@ -15,7 +17,7 @@ import { Companies, MetrcApiKeyFragment } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { upsertApiKeyMutation, viewApiKey } from "lib/api/metrc";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -46,6 +48,9 @@ export default function UpsertMetrcKeyModal({
 
   const [apiKey, setApiKey] = useState<string>("");
   const [usState, setUsState] = useState<string>("");
+  const [useSavedLicensesOnly, setUseSavedLicensesOnly] = useState<boolean>(
+    false
+  );
   const hasKey = !!metrcApiKey;
 
   const [upsertApiKey, { loading: isUpsertKeyLoading }] = useCustomMutation(
@@ -65,6 +70,7 @@ export default function UpsertMetrcKeyModal({
       if (resp.status === "OK") {
         setApiKey(resp.data?.api_key || "Invalid");
         setUsState(resp.data?.us_state || "");
+        setUseSavedLicensesOnly(resp.data?.use_saved_licenses_only || false);
       }
     }
 
@@ -80,6 +86,7 @@ export default function UpsertMetrcKeyModal({
         metrc_api_key_id: metrcApiKey ? metrcApiKey.id : null,
         api_key: apiKey.trim(),
         us_state: usState?.trim(),
+        use_saved_licenses_only: useSavedLicensesOnly,
       },
     });
 
@@ -125,6 +132,20 @@ export default function UpsertMetrcKeyModal({
             required
             value={usState}
             onChange={({ target: { value } }) => setUsState(value)}
+          />
+        </Box>
+        <Box display="flex" flexDirection="column">
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={useSavedLicensesOnly}
+                onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                  setUseSavedLicensesOnly(event.target.checked)
+                }
+                color="primary"
+              />
+            }
+            label={"Use Saved Licenses Only?"}
           />
         </Box>
       </DialogContent>

@@ -409,6 +409,7 @@ class MetrcApiKey(Base):
 	us_state = Column(String)
 	facilities_payload = Column(JSON)
 	status_codes_payload = Column(JSON)
+	use_saved_licenses_only = Column(Boolean)
 
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)

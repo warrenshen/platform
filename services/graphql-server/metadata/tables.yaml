@@ -2796,6 +2796,7 @@
       - status_codes_payload
       - updated_at
       - us_state
+      - use_saved_licenses_only
       filter: {}
   - role: bank_read_only
     permission:
@@ -2809,6 +2810,7 @@
       - status_codes_payload
       - updated_at
       - us_state
+      - use_saved_licenses_only
       filter: {}
   - role: company_admin
     permission:
@@ -2819,6 +2821,7 @@
       - is_functioning
       - last_used_at
       - us_state
+      - use_saved_licenses_only
       filter:
         company_id:
           _eq: X-Hasura-Company-Id
@@ -2831,6 +2834,7 @@
       - is_functioning
       - last_used_at
       - us_state
+      - use_saved_licenses_only
       filter:
         company_id:
           _eq: X-Hasura-Company-Id

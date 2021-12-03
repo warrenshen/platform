@@ -9882,6 +9882,7 @@ export type MetrcApiKeys = {
   status_codes_payload?: Maybe<Scalars["json"]>;
   updated_at: Scalars["timestamptz"];
   us_state?: Maybe<Scalars["String"]>;
+  use_saved_licenses_only: Scalars["Boolean"];
 };
 
 /**
@@ -9980,6 +9981,7 @@ export type MetrcApiKeysBoolExp = {
   status_codes_payload?: Maybe<JsonComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
   us_state?: Maybe<StringComparisonExp>;
+  use_saved_licenses_only?: Maybe<BooleanComparisonExp>;
 };
 
 /** unique or primary key constraints on table "metrc_api_keys" */
@@ -10001,6 +10003,7 @@ export type MetrcApiKeysInsertInput = {
   status_codes_payload?: Maybe<Scalars["json"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   us_state?: Maybe<Scalars["String"]>;
+  use_saved_licenses_only?: Maybe<Scalars["Boolean"]>;
 };
 
 /** aggregate max on columns */
@@ -10081,6 +10084,7 @@ export type MetrcApiKeysOrderBy = {
   status_codes_payload?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   us_state?: Maybe<OrderBy>;
+  use_saved_licenses_only?: Maybe<OrderBy>;
 };
 
 /** primary key columns input for table: "metrc_api_keys" */
@@ -10110,6 +10114,8 @@ export enum MetrcApiKeysSelectColumn {
   UpdatedAt = "updated_at",
   /** column name */
   UsState = "us_state",
+  /** column name */
+  UseSavedLicensesOnly = "use_saved_licenses_only",
 }
 
 /** input type for updating data in table "metrc_api_keys" */
@@ -10124,6 +10130,7 @@ export type MetrcApiKeysSetInput = {
   status_codes_payload?: Maybe<Scalars["json"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   us_state?: Maybe<Scalars["String"]>;
+  use_saved_licenses_only?: Maybe<Scalars["Boolean"]>;
 };
 
 /** update columns of table "metrc_api_keys" */
@@ -10148,6 +10155,8 @@ export enum MetrcApiKeysUpdateColumn {
   UpdatedAt = "updated_at",
   /** column name */
   UsState = "us_state",
+  /** column name */
+  UseSavedLicensesOnly = "use_saved_licenses_only",
 }
 
 /** columns and relationships of "metrc_deliveries" */
@@ -26144,6 +26153,7 @@ export type MetrcApiKeyFragment = Pick<
   | "is_functioning"
   | "status_codes_payload"
   | "us_state"
+  | "use_saved_licenses_only"
 >;
 
 export type VendorFragment = Pick<
@@ -26913,6 +26923,7 @@ export const MetrcApiKeyFragmentDoc = gql`
     is_functioning
     status_codes_payload
     us_state
+    use_saved_licenses_only
   }
 `;
 export const VendorLimitedFragmentDoc = gql`

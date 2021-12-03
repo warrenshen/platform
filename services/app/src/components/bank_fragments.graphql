@@ -73,6 +73,7 @@ fragment MetrcApiKey on metrc_api_keys {
   is_functioning
   status_codes_payload
   us_state
+  use_saved_licenses_only
 }
 
 ## Purchase Order Financing
@@ -223,23 +224,23 @@ fragment AsyncPipeline on async_pipelines {
   id
 }
 
-fragment MetrcDownloadSummaryLimited on metrc_download_summaries{
+fragment MetrcDownloadSummaryLimited on metrc_download_summaries {
   id
   company_id
   metrc_api_key_id
   license_number
   date
   status
-	harvests_status
-	packages_status
-	plant_batches_status
-	plants_status
-	sales_status
-	transfers_status
+  harvests_status
+  packages_status
+  plant_batches_status
+  plants_status
+  sales_status
+  transfers_status
   updated_at
 }
 
-fragment MetrcDownloadSummary on metrc_download_summaries{
+fragment MetrcDownloadSummary on metrc_download_summaries {
   id
   ...MetrcDownloadSummaryLimited
   num_retries

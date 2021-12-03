@@ -44,7 +44,8 @@ DownloadDataRespDict = TypedDict('DownloadDataRespDict', {
 
 ViewApiKeyRespDict = TypedDict('ViewApiKeyRespDict', {
 	'api_key': str,
-	'us_state': str
+	'us_state': str,
+	'use_saved_licenses_only': bool
 })
 
 @errors.return_error_tuple
@@ -72,6 +73,7 @@ def upsert_api_key(
 	api_key: str,
 	security_cfg: security_util.ConfigDict,
 	us_state: str,
+	use_saved_licenses_only: bool,
 	session: Session
 ) -> Tuple[str, errors.Error]:
 
@@ -98,6 +100,7 @@ def upsert_api_key(
 			raise errors.Error('Previously existing Metrc API Key does not exist in the database')
 		
 		metrc_api_key.us_state = us_state
+		metrc_api_key.use_saved_licenses_only = use_saved_licenses_only
 		metrc_api_key.encrypted_api_key = security_util.encode_secret_string(
 			security_cfg, api_key
 		)
@@ -110,6 +113,7 @@ def upsert_api_key(
 		)
 		metrc_api_key.company_id = company.id
 		metrc_api_key.us_state = us_state
+		metrc_api_key.use_saved_licenses_only = use_saved_licenses_only
 		session.add(metrc_api_key)
 		session.flush()
 		return str(metrc_api_key.id), None
@@ -135,7 +139,8 @@ def view_api_key(
 
 	return ViewApiKeyRespDict(
 		api_key=api_key,
-		us_state=metrc_api_key.us_state
+		us_state=metrc_api_key.us_state,
+		use_saved_licenses_only=metrc_api_key.use_saved_licenses_only
 	), None
 
 ### Download logic
@@ -215,7 +220,6 @@ def _get_metrc_company_info(
 			licenses_map[license.license_number] = license.as_dict()
 
 		company_name = company.name
-		use_unsaved_licenses = True # Can change to False for debugging, such as when a customer has many licenses
 		state_to_company_infos: Dict[str, List[CompanyStateInfoDict]] = {}
 
 		for us_state in us_states_set:
@@ -240,18 +244,19 @@ def _get_metrc_company_info(
 					continue
 
 				license_auths = []
+				use_saved_licenses_only = cur_metrc_api_key.use_saved_licenses_only # Can change to False for debugging, such as when a customer has many licenses
 
 				for facility_info in facilities_arr:
 					license_number = facility_info['License']['Number']
 					license_id = None
 					if license_number in licenses_map:
 						license_id = licenses_map[license_number]['id']
-					elif use_unsaved_licenses:
-						logging.warn(f'Company "{company_name}" has license "{license_number}" in Metrc which is not stored in our Postgres DB')
-					else:
-						# If use_unsaved_licenses is false, then skip over this particular
+					elif use_saved_licenses_only:
+						# If use_saved_licenses_only is true, then skip over this particular
 						# license number
 						continue
+					else:
+						logging.warn(f'Company "{company_name}" has license "{license_number}" in Metrc which is not stored in our Postgres DB')
 
 					license_auths.append(LicenseAuthDict(
 						license_id=license_id,

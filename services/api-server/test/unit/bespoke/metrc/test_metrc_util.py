@@ -90,6 +90,7 @@ class TestDeleteKey(db_unittest.TestCase):
 				api_key='the-api-key', 
 				security_cfg=self.security_cfg,
 				us_state='CA',
+				use_saved_licenses_only=False,
 				session=session
 			)
 			self.assertIsNone(err)
@@ -144,6 +145,7 @@ class TestUpsertApiKey(db_unittest.TestCase):
 				api_key='the-api-key',
 				security_cfg=self.security_cfg,
 				us_state='CA',
+				use_saved_licenses_only=False,
 				session=session
 			)
 			self.assertIsNone(err)
@@ -173,6 +175,7 @@ class TestUpsertApiKey(db_unittest.TestCase):
 				api_key='the-api-key',
 				security_cfg=self.security_cfg,
 				us_state='CA',
+				use_saved_licenses_only=False,
 				session=session
 			)
 			self.assertIsNone(err)
@@ -183,6 +186,7 @@ class TestUpsertApiKey(db_unittest.TestCase):
 				api_key='the-api-key2',
 				security_cfg=self.security_cfg,
 				us_state='CA',
+				use_saved_licenses_only=False,
 				session=session
 			)
 			self.assertIsNone(err)
@@ -193,6 +197,7 @@ class TestUpsertApiKey(db_unittest.TestCase):
 				api_key='the-api-key2',
 				security_cfg=self.security_cfg,
 				us_state='CA', # disallowed because the default state is CA
+				use_saved_licenses_only=False,
 				session=session
 			)
 			self.assertIsNone(err)
@@ -252,6 +257,7 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 				api_key='the-api-key',
 				security_cfg=self.security_cfg,
 				us_state='CA',
+				use_saved_licenses_only=False,
 				session=session
 			)
 			self.assertIsNone(err)
@@ -308,6 +314,7 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 				api_key='the-api-key',
 				security_cfg=self.security_cfg,
 				us_state='CA',
+				use_saved_licenses_only=False,
 				session=session
 			)
 			self.assertIsNone(err)
@@ -404,6 +411,7 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 				api_key='the-api-key2',
 				security_cfg=self.security_cfg,
 				us_state='OR',
+				use_saved_licenses_only=False,
 				session=session
 			)
 			self.assertIsNone(err)
@@ -416,6 +424,7 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 				api_key='the-api-key',
 				security_cfg=self.security_cfg,
 				us_state='CA',
+				use_saved_licenses_only=False,
 				session=session
 			)
 			self.assertIsNone(err)
@@ -426,6 +435,7 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 				api_key='the-api-key3',
 				security_cfg=self.security_cfg,
 				us_state='FL',
+				use_saved_licenses_only=False,
 				session=session
 			)
 			self.assertIsNone(err)

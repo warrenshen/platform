@@ -1,12 +1,12 @@
 import { Box } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import { Alert } from "@material-ui/lab";
+import MetrcApiKeyInfo from "components/Metrc/MetrcApiKeyInfo";
 import DeleteMetrcKeyModal from "components/Settings/Bank/DeleteMetrcKeyModal";
 import UpsertMetrcKeyModal from "components/Settings/Bank/UpsertMetrcKeyModal";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
 import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
-import MetrcApiKeyInfo from "components/Metrc/MetrcApiKeyInfo";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import VerificationChip from "components/Vendors/VerificationChip";
 import {
@@ -85,6 +85,16 @@ export default function MetrcApiKeysList({ companyId }: Props) {
           <DatetimeDataGridCell
             isTimeVisible
             datetimeString={params.row.data.created_at}
+          />
+        ),
+      },
+      {
+        dataField: "use_saved_licenses_only",
+        caption: "Use Saved Licenses Only",
+        minWidth: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) => (
+          <TextDataGridCell
+            label={params.row.data.use_saved_licenses_only ? "Y" : "N"}
           />
         ),
       },

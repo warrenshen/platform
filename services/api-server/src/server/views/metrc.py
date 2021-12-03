@@ -51,6 +51,7 @@ class UpsertApiKeyView(MethodView):
 				metrc_api_key_id=form['metrc_api_key_id'],
 				api_key=form['api_key'],
 				us_state=form['us_state'],
+				use_saved_licenses_only=form.get('use_saved_licenses_only'),
 				security_cfg=cfg.get_security_config(),
 				session=session
 			)
