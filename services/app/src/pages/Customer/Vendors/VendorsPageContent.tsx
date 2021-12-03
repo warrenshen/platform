@@ -9,13 +9,19 @@ import {
   useGetVendorPartnershipsByCompanyIdQuery,
 } from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
+import { ProductTypeEnum } from "lib/enum";
+import { isVendorAgreementProductType } from "lib/settings";
 import { sortBy } from "lodash";
 
 interface Props {
   companyId: Companies["id"];
+  productType: ProductTypeEnum;
 }
 
-export default function CustomerVendorsPageContent({ companyId }: Props) {
+export default function CustomerVendorsPageContent({
+  companyId,
+  productType,
+}: Props) {
   const { data, refetch, error } = useGetVendorPartnershipsByCompanyIdQuery({
     variables: {
       companyId,
@@ -41,7 +47,10 @@ export default function CustomerVendorsPageContent({ companyId }: Props) {
         </Box>
       </Can>
       <Box display="flex">
-        <VendorPartnershipsDataGrid vendorPartnerships={vendorPartnerships} />
+        <VendorPartnershipsDataGrid
+          isVendorAgreementVisible={isVendorAgreementProductType(productType)}
+          vendorPartnerships={vendorPartnerships}
+        />
       </Box>
     </PageContent>
   );

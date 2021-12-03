@@ -4,6 +4,14 @@ function isProductTypeNone(productType: ProductTypeEnum | null) {
   return productType === ProductTypeEnum.None || productType === null;
 }
 
+// Returns whether product type requires vendor agreements for vendors.
+export function isVendorAgreementProductType(productType: ProductTypeEnum) {
+  return [
+    ProductTypeEnum.InventoryFinancing,
+    ProductTypeEnum.PurchaseMoneyFinancing,
+  ].includes(productType);
+}
+
 export function isVendorsTabVisible(productType: ProductTypeEnum | null) {
   // Vendors tab is visible if either
   // 1. Product type is None OR
@@ -40,7 +48,7 @@ export function isInventoryFinancingProductType(
   return productType === ProductTypeEnum.InventoryFinancing;
 }
 
-export function isLineOfCreditProductType(productType: ProductTypeEnum | null) {
+export function isLineOfCreditProductType(productType: ProductTypeEnum) {
   return productType === ProductTypeEnum.LineOfCredit;
 }
 
@@ -51,14 +59,12 @@ export function isInvoiceFinancingProductType(
 }
 
 export function isPurchaseMoneyFinancingProductType(
-  productType: ProductTypeEnum | null
+  productType: ProductTypeEnum
 ) {
   return productType === ProductTypeEnum.PurchaseMoneyFinancing;
 }
 
-export function isPurchaseOrderProductType(
-  productType: ProductTypeEnum | null
-) {
+export function isPurchaseOrderProductType(productType: ProductTypeEnum) {
   return (
     !!productType &&
     [

@@ -36,6 +36,7 @@ interface Props {
   isDrilldownByCustomer?: boolean;
   isExcelExport?: boolean;
   isRoleBankUser?: boolean;
+  isVendorAgreementVisible?: boolean;
   vendorPartnerships: (
     | VendorPartnershipFragment
     | VendorPartnershipLimitedFragment
@@ -46,6 +47,7 @@ export default function VendorPartnershipsDataGrid({
   isExcelExport = true,
   isDrilldownByCustomer = false,
   isRoleBankUser = false,
+  isVendorAgreementVisible = true,
   vendorPartnerships,
 }: Props) {
   const [
@@ -106,6 +108,7 @@ export default function VendorPartnershipsDataGrid({
         ),
       },
       {
+        visible: isVendorAgreementVisible,
         dataField: "vendor_agreement_id",
         caption: "Signed Vendor Agreement",
         alignment: "center",
@@ -135,7 +138,12 @@ export default function VendorPartnershipsDataGrid({
         cellRender: verificationCellRenderer,
       },
     ],
-    [isRoleBankUser, isDrilldownByCustomer, verificationCellRenderer]
+    [
+      isDrilldownByCustomer,
+      isRoleBankUser,
+      isVendorAgreementVisible,
+      verificationCellRenderer,
+    ]
   );
 
   // Example of columns sorting callback

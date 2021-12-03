@@ -5,12 +5,17 @@ import { useContext } from "react";
 
 export default function CustomerVendorsPage() {
   const {
-    user: { companyId },
+    user: { companyId, productType },
   } = useContext(CurrentUserContext);
 
   return (
     <Page appBarTitle={"Vendors"}>
-      {companyId && <CustomerVendorsPageContent companyId={companyId} />}
+      {companyId && productType && (
+        <CustomerVendorsPageContent
+          companyId={companyId}
+          productType={productType}
+        />
+      )}
     </Page>
   );
 }

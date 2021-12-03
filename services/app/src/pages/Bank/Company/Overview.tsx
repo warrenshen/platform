@@ -1,7 +1,7 @@
 import { Companies } from "generated/graphql";
-import { ProductTypeEnum } from "lib/enum";
 import CurrentCustomerProvider from "contexts/CurrentCustomerProvider";
 import CustomerOverviewPageContent from "pages/Customer/Overview/OverviewPageContent";
+import { ProductTypeEnum } from "lib/enum";
 
 interface Props {
   companyId: Companies["id"];
