@@ -40,6 +40,9 @@ class DataFrame(Sequence):
 	def to_excel(self, filename: str) -> None:
 		pass
 
+	def drop_duplicates(self, *args: Any, **kwargs: Any) -> None:
+		pass
+
 	def __getitem__(self, idx: Any) -> Any:
 		pass
 
