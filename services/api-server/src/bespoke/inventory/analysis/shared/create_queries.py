@@ -250,7 +250,6 @@ def create_company_sales_receipts_query(
 			{license_numbers_where_clause}
 		order by
 			metrc_sales_receipts.sales_datetime desc
-			metrc_sales_transactions.updated_at asc
 		{limit_clause}
 	"""
 
@@ -306,7 +305,6 @@ def create_company_sales_receipts_with_transactions_query(
 			{license_numbers_where_clause}
 		order by
 			metrc_sales_receipts.sales_datetime desc
-			metrc_sales_transactions.updated_at asc
 		{limit_clause}
 	"""
 
@@ -352,7 +350,6 @@ def create_company_sales_transactions_query(
 			{license_numbers_where_clause}
 		order by
 			metrc_sales_receipts.sales_datetime desc
-			metrc_sales_transactions.updated_at asc
 		{limit_clause}
 	"""
 
