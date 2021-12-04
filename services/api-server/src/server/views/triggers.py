@@ -2,6 +2,7 @@ import json
 import logging
 import time
 import datetime
+import os
 import typing
 from datetime import timedelta
 from typing import Any, Callable, Iterable, Dict, List, Tuple, cast
@@ -332,6 +333,12 @@ class DownloadMetrcDataView(MethodView):
 	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
 		logging.info("Received request to download metrc data for all customers")
+		if os.environ.get('FLASK_ENV') != 'production':
+			logging.info('Skipping downloading metrc data because we are not running in production')
+			return make_response(json.dumps({
+				'status': 'OK'
+			}))
+
 		data = json.loads(request.data)
 
 		TIME_WINDOW_IN_DAYS = 2
