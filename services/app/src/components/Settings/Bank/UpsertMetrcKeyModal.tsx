@@ -111,13 +111,6 @@ export default function UpsertMetrcKeyModal({
       <DialogTitle>{hasKey ? "Edit Metrc Key" : "Add Metrc Key"}</DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="column">
-          {!!errorMessage && (
-            <Typography color="error" gutterBottom={true}>
-              {errorMessage}
-            </Typography>
-          )}
-        </Box>
-        <Box display="flex" flexDirection="column" mb={2}>
           <TextField
             autoFocus
             label="API Key"
@@ -126,7 +119,7 @@ export default function UpsertMetrcKeyModal({
             onChange={({ target: { value } }) => setApiKey(value)}
           />
         </Box>
-        <Box display="flex" flexDirection="column">
+        <Box display="flex" flexDirection="column" mt={2}>
           <TextField
             label="US State"
             required
@@ -134,7 +127,7 @@ export default function UpsertMetrcKeyModal({
             onChange={({ target: { value } }) => setUsState(value)}
           />
         </Box>
-        <Box display="flex" flexDirection="column">
+        <Box display="flex" flexDirection="column" mt={2}>
           <FormControlLabel
             control={
               <Checkbox
@@ -147,6 +140,19 @@ export default function UpsertMetrcKeyModal({
             }
             label={"Use Saved Licenses Only?"}
           />
+          <Typography variant="body2" color="textSecondary">
+            If checked, system will ONLY pull data for the licenses associated
+            with this company - even if this Metrc API key grants permission to
+            access additional licenses. This is intended to be used in the case
+            two companies share the same Metrc API key.
+          </Typography>
+        </Box>
+        <Box display="flex" flexDirection="column" mt={2}>
+          {!!errorMessage && (
+            <Typography color="error" gutterBottom={true}>
+              {errorMessage}
+            </Typography>
+          )}
         </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>

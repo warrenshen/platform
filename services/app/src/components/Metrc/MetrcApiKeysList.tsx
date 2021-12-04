@@ -50,20 +50,28 @@ export default function MetrcApiKeysList({ companyId }: Props) {
         alignment: "left",
       },
       {
+        dataField: "us_state",
+        caption: "US State",
+        minWidth: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) => (
+          <TextDataGridCell label={params.row.data.us_state} />
+        ),
+      },
+      {
+        dataField: "use_saved_licenses_only",
+        caption: "Use Saved Licenses Only?",
+        minWidth: ColumnWidths.MinWidth,
+        cellRender: ({ value }: { value: string }) => (
+          <VerificationChip value={value} />
+        ),
+      },
+      {
         dataField: "is_functioning",
         caption: "Functioning?",
         alignment: "center",
         width: ColumnWidths.Checkbox,
         cellRender: ({ value }: { value: string }) => (
           <VerificationChip value={value} />
-        ),
-      },
-      {
-        dataField: "us_state",
-        caption: "US State",
-        minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
-          <TextDataGridCell label={params.row.data.us_state} />
         ),
       },
       {
@@ -85,16 +93,6 @@ export default function MetrcApiKeysList({ companyId }: Props) {
           <DatetimeDataGridCell
             isTimeVisible
             datetimeString={params.row.data.created_at}
-          />
-        ),
-      },
-      {
-        dataField: "use_saved_licenses_only",
-        caption: "Use Saved Licenses Only",
-        minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
-          <TextDataGridCell
-            label={params.row.data.use_saved_licenses_only ? "Y" : "N"}
           />
         ),
       },
