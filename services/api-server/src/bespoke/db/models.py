@@ -535,9 +535,42 @@ class MetrcDelivery(Base):
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 
+class MetrcTransferPackage(Base):
+	__tablename__ = 'metrc_transfer_packages'
+
+	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
+
+	transfer_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_transfers.id')))
+	delivery_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_deliveries.id')))
+	delivery_id = Column(String) # From Metrc info
+
+	type = Column(String)
+	us_state = Column(String, nullable=False)
+	package_id = Column(String) # From Metrc info
+	package_label = Column(String) # From Metrc info
+	package_type = Column(String) # From Metrc info
+	product_name = Column(String) # From Metrc info
+	product_category_name = Column(String) # From Metrc info
+	package_payload = Column(JSON) # From Metrc info
+	last_modified_at = Column(DateTime) # From Metrc info
+	created_date = Column(Date) # From Metrc info (the transfer)
+
+	shipped_quantity = Column(Numeric) # From Metrc info
+	received_quantity = Column(Numeric) # From Metrc info
+	shipped_unit_of_measure = Column(Text) # From Metrc info
+	received_unit_of_measure = Column(Text) # From Metrc info
+	shipper_wholesale_price = Column(Numeric) # From Metrc info
+	shipment_package_state = Column(String) # From Metrc info
+	lab_results_status = Column(String) # Derived from Metrc info
+
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+
 class CompanyDelivery(Base):
 	__tablename__ = 'company_deliveries'
+
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
+
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	license_number = Column(String, nullable=False)
 	us_state = Column(String, nullable=False)
@@ -571,37 +604,6 @@ class MetrcPackage(Base):
 	packaged_date = Column(Date, nullable=False) # From Metrc info
 	quantity = Column(Numeric) # From Metrc info
 	unit_of_measure = Column(Text) # From Metrc info
-
-	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-
-class MetrcTransferPackage(Base):
-	__tablename__ = 'metrc_transfer_packages'
-
-	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
-	
-	transfer_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_transfers.id')))
-	delivery_row_id = cast(GUID, Column(GUID, ForeignKey('metrc_deliveries.id')))
-	delivery_id = Column(String) # From Metrc info
-
-	type = Column(String)
-	us_state = Column(String, nullable=False)
-	package_id = Column(String) # From Metrc info
-	package_label = Column(String) # From Metrc info
-	package_type = Column(String) # From Metrc info
-	product_name = Column(String) # From Metrc info
-	product_category_name = Column(String) # From Metrc info
-	package_payload = Column(JSON) # From Metrc info
-	last_modified_at = Column(DateTime) # From Metrc info
-	created_date = Column(Date) # From Metrc info (the transfer)
-
-	shipped_quantity = Column(Numeric) # From Metrc info
-	received_quantity = Column(Numeric) # From Metrc info
-	shipped_unit_of_measure = Column(Text) # From Metrc info
-	received_unit_of_measure = Column(Text) # From Metrc info
-	shipper_wholesale_price = Column(Numeric) # From Metrc info
-	shipment_package_state = Column(String) # From Metrc info
-	lab_results_status = Column(String) # Derived from Metrc info
 
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
