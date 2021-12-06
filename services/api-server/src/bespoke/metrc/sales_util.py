@@ -48,14 +48,14 @@ class SalesTransactions(object):
 
 		return sales_transactions
 
-def _get_prev_sales_receipts(receipt_numbers: List[str], us_state: str, session: Session) -> List[models.MetrcSalesReceipt]:
+def _get_prev_sales_receipts(receipt_ids: List[str], us_state: str, session: Session) -> List[models.MetrcSalesReceipt]:
 	sales_receipts = []
 
-	for receipt_number in receipt_numbers:
+	for receipt_id in receipt_ids:
 		sales_receipt = session.query(models.MetrcSalesReceipt).filter(
 			models.MetrcSalesReceipt.us_state == us_state
 		).filter(
-			models.MetrcSalesReceipt.receipt_number == receipt_number
+			models.MetrcSalesReceipt.receipt_id == receipt_id
 		).first()
 		if sales_receipt:
 			sales_receipts.append(sales_receipt)
@@ -158,14 +158,11 @@ class SalesReceipts(object):
 
 		BATCH_SIZE = 10
 		for sales_receipts_chunk in cast(Iterable[List[Dict]], chunker(self._sales_receipts, BATCH_SIZE)):
-			receipt_numbers_chunk = [s['ReceiptNumber'] for s in sales_receipts_chunk]
-			prev_sales_receipts_chunk = _get_prev_sales_receipts(receipt_numbers_chunk, us_state, session)
+			cur_receipt_ids = ['{}'.format(s['Id']) for s in sales_receipts_chunk]
+			prev_sales_receipts_chunk = _get_prev_sales_receipts(cur_receipt_ids, us_state, session)
 			prev_sales_receipts += prev_sales_receipts_chunk
 
-			cur_receipt_ids = ['{}'.format(s['Id']) for s in sales_receipts_chunk]
-
 			for cur_receipt_id in cur_receipt_ids:
-
 				query = session.query(func.count(models.MetrcSalesTransaction.receipt_id)).filter(
 					models.MetrcSalesTransaction.us_state == us_state
 				).filter(
@@ -343,10 +340,10 @@ def _write_sales_receipts_chunk(
 	if not sales_receipt_objs:
 		return
 
-	receipt_numbers = [receipt_obj.metrc_receipt.receipt_number for receipt_obj in sales_receipt_objs] 
+	receipt_ids = [receipt_obj.metrc_receipt.receipt_id for receipt_obj in sales_receipt_objs]
 	us_state = sales_receipt_objs[0].metrc_receipt.us_state
 
-	prev_sales_receipts = _get_prev_sales_receipts(receipt_numbers, us_state, session)
+	prev_sales_receipts = _get_prev_sales_receipts(receipt_ids, us_state, session)
 
 	receipt_number_to_sales_receipt = {}
 	for prev_sales_receipt in prev_sales_receipts:
