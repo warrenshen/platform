@@ -1263,16 +1263,17 @@ def settle_repayment(
 			#print('Balance before {}'.format(balance_before))
 			#print('To principal: {}. To interest: {}. To fees {}'.format(to_principal, to_interest, to_fees))
 			#print('=====')
+			# Allow for penny rounding where in practice this loan was paid off correctly
 
-			if new_outstanding_interest < 0:
+			if new_outstanding_interest < -0.01:
 				raise errors.Error(
 					f'Interest on a loan may not be negative: you must reduce the amount applied to interest on {cur_loan_id} by {-1 * new_outstanding_interest}')
 
-			if new_outstanding_fees < 0:
+			if new_outstanding_fees < -0.01:
 				raise errors.Error(
 					f'Fees on a loan may not be negative after payment: you must reduce the amount applied to fees on {cur_loan_id} by {-1 * new_outstanding_fees}')
 
-			if new_outstanding_principal_balance < 0:
+			if new_outstanding_principal_balance < -0.01:
 				raise errors.Error(
 					f'Principal on a loan may not be negative after payment: you must reduce the amount applied to principal on {cur_loan_id} by {-1 * new_outstanding_principal_balance}')
 
