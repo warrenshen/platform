@@ -1,1 +1,1 @@
-alter table "public"."contracts" drop constraint "contracts_product_type_fkey";
+ALTER TABLE "public"."contracts" DROP CONSTRAINT IF EXISTS "contracts_product_type_fkey";

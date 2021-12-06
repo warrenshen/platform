@@ -178,7 +178,7 @@ export default function LoanDrawer({ loanId, handleClose }: Props) {
           </Typography>
           <Typography variant={"body1"}>
             {loan.loan_type
-              ? LoanTypeToLabel[loan.loan_type]
+              ? LoanTypeToLabel[loan.loan_type as LoanTypeEnum]
               : "Invalid Loan Type"}
           </Typography>
         </Box>

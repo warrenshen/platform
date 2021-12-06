@@ -9,6 +9,7 @@ import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridC
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
+import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
@@ -97,6 +98,40 @@ export default function BankCustomersPage() {
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
           <TextDataGridCell label={params.row.data.dba_name} />
+        ),
+      },
+      {
+        dataField: "adjusted_total_limit",
+        caption: "Borrowing Limit",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        calculateCellValue: (data: any) =>
+          data.financial_summaries[0]
+            ? data.financial_summaries[0]?.adjusted_total_limit
+            : null,
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell
+            value={
+              params.row.data.financial_summaries[0]
+                ? params.row.data.financial_summaries[0]?.adjusted_total_limit
+                : null
+            }
+          />
+        ),
+      },
+      {
+        dataField: "application_date",
+        caption: "Most Recent Certification Date",
+        minWidth: ColumnWidths.Date,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <DateDataGridCell
+            dateString={
+              params.row.data.ebba_applications[0]
+                ? params.row.data.ebba_applications[0]?.application_date
+                : null
+            }
+          />
         ),
       },
       {

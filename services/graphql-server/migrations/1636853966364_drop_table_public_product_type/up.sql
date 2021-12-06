@@ -1,1 +1,1 @@
-DROP TABLE "public"."product_type";
+DROP TABLE IF EXISTS "public"."product_type";

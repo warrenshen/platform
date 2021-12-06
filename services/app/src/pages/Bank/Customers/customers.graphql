@@ -17,6 +17,21 @@ query GetCustomersWithMetadata($date: date) {
       id
       ...CompanySettings
     }
+    ebba_applications(
+      limit: 1, 
+      order_by: [ 
+        { 
+          application_date: desc 
+        }, 
+        { 
+          created_at: desc 
+        } 
+      ],
+      where: {status: {_eq: approved}}
+    ) {
+      id
+      ...EbbaApplication
+    }
   }
 }
 
