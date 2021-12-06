@@ -3,6 +3,7 @@ import copy
 import logging
 import math
 import numpy
+import time
 import pandas
 import pytz
 import xlwt
@@ -824,7 +825,11 @@ def create_inventory_xlsx(
 
 	exclude_reason_to_package_ids: Dict[str, Set[str]] = OrderedDict()
 
+	before = time.time()
+	num_loops = 0
+
 	for package_id, history in id_to_history.items():
+		num_loops += 1
 		history.compute_additional_fields(p=p, params=params, run_filter=True, skip_over_errors=False)
 		num_total += 1
 		if history.should_exclude:
@@ -842,8 +847,14 @@ def create_inventory_xlsx(
 				
 		i += 1
 
+	after = time.time()
+	ctx.log_timing(f'  Took {round(after - before, 2)} seconds for computing additional fields. num_loops={num_loops}')
+
+	before = time.time()
+
 	wb = excel_writer.WorkbookWriter(xlwt.Workbook())
-	
+	num_loops = 0
+
 	for inventory_date_str in q.inventory_dates:
 		inventory_date = parse_to_date(inventory_date_str)
 		sheet_name = inventory_date_str.replace('/', '-')
@@ -855,6 +866,8 @@ def create_inventory_xlsx(
 		for package_id, history in id_to_history.items():
 			if history.should_exclude:
 				continue
+
+			num_loops += 1
 
 			if not history.in_inventory_at_date(inventory_date):
 				continue
@@ -870,19 +883,26 @@ def create_inventory_xlsx(
 			# To handle when no rows were written for this date
 			sheet.add_row(get_inventory_column_names())
 	
+	after = time.time()
+	ctx.log_timing(f'  Took {round(after - before, 2)} seconds checking if its in the inventory. num_loops={num_loops}')
+
 	Path('out').mkdir(parents=True, exist_ok=True)
 
 	filepath = ctx.get_output_path(f'reports/{q.company_name}_computed_inventory_by_month.xls')
 	with open(filepath, 'wb') as f:
 		wb.save(f)
 		logging.info('Wrote result to {}'.format(filepath))
-			
+
+	before = time.time()			
 	_write_current_inventory(
 		q=q,
 		ctx=ctx,
 		inventory_packages_records=d.inventory_packages_records,
 		id_to_history=id_to_history
 	)
+
+	after = time.time()
+	ctx.log_timing(f'  Took {round(after - before, 2)} seconds to write current inventory')
 
 	pct_excluded = num_excluded / num_total * 100
 	pct_excluded_str = '{:.2f}'.format(pct_excluded)

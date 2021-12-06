@@ -102,6 +102,8 @@ def _run_analysis_for_customer(d: download_util.Download, ctx: AnalysisContext, 
 	## Compute accuracy numbers for COGS and inventory
 	logging.info('Computing inventory for {}'.format(q.company_name))
 	
+	# TODO(dlluncor): This is actually duplicated logic which is already run
+	# in create_inventory_xlsx
 	before = time.time()
 	computed_resp = util.compute_inventory_across_dates(
 			d, q.inventory_dates, params

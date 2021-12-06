@@ -243,8 +243,15 @@ def _create_cogs_summary_for_all_dates(
 		sum_monthly_cogs.append(year_month_to_summary[month]['cogs'])
 		sum_monthly_revenue.append(year_month_to_summary[month]['revenue'])
 
-	avg_monthly_cogs = sum(sum_monthly_cogs) / len(sum_monthly_cogs)
-	avg_monthly_revenue = sum(sum_monthly_revenue) / len(sum_monthly_revenue)
+	if len(sum_monthly_cogs) > 0:
+		avg_monthly_cogs = sum(sum_monthly_cogs) / len(sum_monthly_cogs)
+	else:
+		avg_monthly_cogs = 0.0
+
+	if len(sum_monthly_revenue) > 0:
+		avg_monthly_revenue = sum(sum_monthly_revenue) / len(sum_monthly_revenue)
+	else:
+		avg_monthly_revenue = 0.0
 
 	pct_txs_with_cost = 0.0
 	if num_transactions_total > 0.0:
