@@ -59,7 +59,7 @@ class BigQuerySQLHelper(SQLHelper):
 		if self.ctx.read_params['use_cached_dataframes'] and os.path.exists(df_path):
 			df = pd.read_pickle(df_path)
 		else:
-			package_ids_list = chunker(list(package_ids), size=500)
+			package_ids_list = chunker(list(package_ids), size=50000)
 
 			dfs = []
 			for cur_package_ids in package_ids_list:
@@ -86,7 +86,7 @@ class BigQuerySQLHelper(SQLHelper):
 		if self.ctx.read_params['use_cached_dataframes'] and os.path.exists(df_path):
 			df = pd.read_pickle(df_path)
 		else:
-			package_ids_list = chunker(list(package_ids), size=500)
+			package_ids_list = chunker(list(package_ids), size=50000)
 			dfs = []
 			for cur_package_ids in package_ids_list:
 				cur_df = pd.read_sql_query(
@@ -111,7 +111,7 @@ class BigQuerySQLHelper(SQLHelper):
 		if self.ctx.read_params['use_cached_dataframes'] and os.path.exists(df_path):
 			df = pd.read_pickle(df_path)
 		else:
-			batch_numbers_list = chunker(list(production_batch_numbers), size=500)
+			batch_numbers_list = chunker(list(production_batch_numbers), size=50000)
 
 			dfs = []
 			for cur_batch_numbers in batch_numbers_list:

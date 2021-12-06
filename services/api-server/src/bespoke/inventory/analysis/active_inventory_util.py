@@ -33,6 +33,7 @@ from bespoke.inventory.analysis.shared.inventory_types import (
 	Printer,
 	Query,
 	PrintCountsDict,
+	ComputeInventoryDict,
 	CountsAnalysisDict,
 	CompareInventoryResultsDict,
 	InventoryPackageDict,
@@ -67,7 +68,7 @@ def get_inventory_column_names() -> List[str]:
 		'current_value',
 		'sold_date',
 		
-		'is_in_inventory'
+		'is_in_inventory' # NOTE: this column must come last
 	]
 
 def _get_incoming_pkg_for_date(incomings: List[TransferPackageDict], inventory_date: datetime.date) -> TransferPackageDict:
@@ -399,99 +400,6 @@ def print_counts(ctx: AnalysisContext, id_to_history: Dict[str, PackageHistory],
 
 ### CREATE AND COMPARE INVENTORY
 
-def create_inventory_dataframe_by_date(
-	package_id_to_history: Dict[str, PackageHistory],
-	date_str: str,
-	params: AnalysisParamsDict
-) -> List[List[CellValue]]:
-	i = 0
-	num_excluded = 0
-	num_total = 0
-	max_to_see = -1
-
-	p = Printer(verbose=False, show_info=False)
-	exclude_reason_to_package_ids: Dict[str, Set[str]] = OrderedDict()
-
-	for package_id, history in package_id_to_history.items():
-		history.compute_additional_fields(p=p, params=params, run_filter=True, skip_over_errors=False)
-		num_total += 1
-		if history.should_exclude:
-			num_excluded += 1
-			if history.exclude_reason not in exclude_reason_to_package_ids:
-				exclude_reason_to_package_ids[history.exclude_reason] = set([])
-
-			exclude_reason_to_package_ids[history.exclude_reason].add(history.package_id)
-
-		if max_to_see > 0 and i >= max_to_see:
-			# NOTE: remove this break, using this so I can debug 1 package
-			# at a time
-			break
-
-		i += 1
-
-	package_records = []
-	inventory_date = parse_to_date(date_str)
-
-	for package_id, history in package_id_to_history.items():
-		if history.should_exclude:
-			continue
-
-		is_in_inventory = history.in_inventory_at_date(inventory_date)
-		package_record = _get_inventory_output_row(history, inventory_date, is_in_inventory)
-		package_records += [package_record]
-
-	return package_records
-
-def create_inventory_dataframes(
-	package_id_to_history: Dict[str, PackageHistory],
-	q: Query,
-	params: AnalysisParamsDict
-) -> Dict[str, List[List[CellValue]]]:
-	i = 0
-	num_excluded = 0
-	num_total = 0
-	max_to_see = -1
-
-	p = Printer(verbose=False, show_info=False)
-	exclude_reason_to_count: Dict[str, int] = OrderedDict()
-
-	computed_package_ids = list(package_id_to_history.keys())
-
-	for package_id, history in package_id_to_history.items():
-		history.compute_additional_fields(p=p, params=params, run_filter=True, skip_over_errors=False)
-		num_total += 1
-		if history.should_exclude:
-			num_excluded += 1
-			reason_count = exclude_reason_to_count.get(history.exclude_reason, 0)
-			exclude_reason_to_count[history.exclude_reason] = reason_count + 1
-
-		if max_to_see > 0 and i >= max_to_see:
-			# NOTE: remove this break, using this so I can debug 1 package
-			# at a time
-			break
-
-		i += 1
-
-	date_to_inventory_records = {}
-
-	for inventory_date_str in q.inventory_dates:
-		package_records = []
-		inventory_date = parse_to_date(inventory_date_str)
-
-		for package_id, history in package_id_to_history.items():
-			if history.should_exclude:
-				continue
-
-			if not history.in_inventory_at_date(inventory_date):
-				continue
-
-			package_record = _get_inventory_output_row(history, inventory_date, is_in_inventory=True)
-			package_records += [package_record]
-
-		date_to_inventory_records[inventory_date_str] = package_records
-
-	return date_to_inventory_records
-
 def compare_inventory_dataframes(
 	ctx: AnalysisContext, 
 	computed: pandas.DataFrame, 
@@ -720,37 +628,6 @@ def compare_inventory_dataframes(
 		pct_stale_packages=round(num_stale_packages / num_packages * 100, 2),
 	)
 
-def compute_inventory_across_dates(
-	d: Download,
-	inventory_dates: List[str],
-	params: AnalysisParamsDict,
-	using_nb: bool = False
-) -> Dict:
-	date_to_inventory_packages_dataframe = {}
-
-	id_to_history = get_histories(d, params)
-	inventory_valuations = []
-
-	for inventory_date in inventory_dates:
-		computed_inventory_package_records = create_inventory_dataframe_by_date(
-				id_to_history, inventory_date, params=params)    
-		computed_inventory_packages_dataframe = pandas.DataFrame(
-				computed_inventory_package_records,
-				columns=get_inventory_column_names()
-		)
-		date_to_inventory_packages_dataframe[inventory_date] = computed_inventory_packages_dataframe
-		inventory_valuations.append(valuations_util.get_total_valuation_for_date(
-				computed_inventory_packages_dataframe=computed_inventory_packages_dataframe,
-				company_incoming_transfer_packages_dataframe=d.incoming_transfer_packages_dataframe,
-				inventory_date=inventory_date,
-				using_nb=using_nb
-		))
-			
-	return {
-		'inventory_valuations': inventory_valuations,
-		'date_to_computed_inventory_dataframe': date_to_inventory_packages_dataframe
-	}
-
 def compare_computed_vs_actual_inventory(
 	ctx: AnalysisContext,
 	computed: pandas.DataFrame,
@@ -808,22 +685,68 @@ def _write_current_inventory(
 		wb.save(f)
 		logging.info('Wrote result to {}'.format(filepath))
 
-def create_inventory_xlsx(
-	d: Download,
-	ctx: AnalysisContext,
-	id_to_history: Dict[str, PackageHistory], 
-	q: Query, 
-	params: AnalysisParamsDict,
-	show_debug_package_ids: bool = False) -> CountsAnalysisDict:
 
+def create_inventory_dataframe_by_date(
+	package_id_to_history: Dict[str, PackageHistory],
+	date_str: str,
+	params: AnalysisParamsDict
+) -> List[List[CellValue]]:
 	i = 0
 	num_excluded = 0
 	num_total = 0
 	max_to_see = -1
 
 	p = Printer(verbose=False, show_info=False)
+	exclude_reason_to_package_ids: Dict[str, Set[str]] = OrderedDict()
+
+	for package_id, history in package_id_to_history.items():
+		history.compute_additional_fields(p=p, params=params, run_filter=True, skip_over_errors=False)
+		num_total += 1
+		if history.should_exclude:
+			num_excluded += 1
+			if history.exclude_reason not in exclude_reason_to_package_ids:
+				exclude_reason_to_package_ids[history.exclude_reason] = set([])
+
+			exclude_reason_to_package_ids[history.exclude_reason].add(history.package_id)
+
+		if max_to_see > 0 and i >= max_to_see:
+			# NOTE: remove this break, using this so I can debug 1 package
+			# at a time
+			break
+
+		i += 1
+
+	package_records = []
+	inventory_date = parse_to_date(date_str)
+
+	for package_id, history in package_id_to_history.items():
+		if history.should_exclude:
+			continue
+
+		is_in_inventory = history.in_inventory_at_date(inventory_date)
+		package_record = _get_inventory_output_row(history, inventory_date, is_in_inventory)
+		package_records += [package_record]
+
+	return package_records
+
+def create_inventory_xlsx(
+	d: Download,
+	ctx: AnalysisContext,
+	id_to_history: Dict[str, PackageHistory], 
+	q: Query, 
+	params: AnalysisParamsDict,
+	show_debug_package_ids: bool = False,
+	using_nb: bool = False) -> ComputeInventoryDict:
+
+	i = 0
+	num_excluded = 0
+	num_total = 0
+	max_to_see = -1
+	p = Printer(verbose=False, show_info=False)
 
 	exclude_reason_to_package_ids: Dict[str, Set[str]] = OrderedDict()
+	date_to_inventory_packages_dataframe = {}
+	inventory_valuations = []
 
 	before = time.time()
 	num_loops = 0
@@ -856,27 +779,38 @@ def create_inventory_xlsx(
 	num_loops = 0
 
 	for inventory_date_str in q.inventory_dates:
+		# Compute the packages which are in the inventory at this particular date
+		computed_inventory_package_records = create_inventory_dataframe_by_date(
+				id_to_history, inventory_date_str, params=params)    
+		computed_inventory_packages_dataframe = pandas.DataFrame(
+				computed_inventory_package_records,
+				columns=get_inventory_column_names()
+		)
+		date_to_inventory_packages_dataframe[inventory_date_str] = computed_inventory_packages_dataframe
+		inventory_valuations.append(valuations_util.get_total_valuation_for_date(
+				computed_inventory_packages_dataframe=computed_inventory_packages_dataframe,
+				company_incoming_transfer_packages_dataframe=d.incoming_transfer_packages_dataframe,
+				inventory_date=inventory_date_str,
+				using_nb=using_nb
+		))
+
 		inventory_date = parse_to_date(inventory_date_str)
 		sheet_name = inventory_date_str.replace('/', '-')
 		sheet = wb.add_sheet(sheet_name)
 		
 		# Determine whether this package belongs in the inventory for this date
 		first = True
-		
-		for package_id, history in id_to_history.items():
-			if history.should_exclude:
-				continue
 
-			num_loops += 1
-
-			if not history.in_inventory_at_date(inventory_date):
-				continue
+		for row in computed_inventory_package_records:
 
 			if first:
 				sheet.add_row(get_inventory_column_names())
 				first = False
-			
-			row = _get_inventory_output_row(history, inventory_date, is_in_inventory=True)
+
+			is_in_inventory = row[-1] == 'true'
+			if not is_in_inventory:
+				continue
+
 			sheet.add_row(row)
 
 		if first:
@@ -922,7 +856,11 @@ def create_inventory_xlsx(
 	with open(ctx.get_output_path('log.txt'), 'a+') as fw:
 		fw.write('\n'.join(lines))
 
-	return CountsAnalysisDict(
-		pct_excluded=round(pct_excluded, 2)
+	return ComputeInventoryDict(
+		counts_analysis=CountsAnalysisDict(
+			pct_excluded=round(pct_excluded, 2),
+		),
+		inventory_valuations=inventory_valuations,
+		date_to_computed_inventory_dataframe=date_to_inventory_packages_dataframe
 	)
 

@@ -1,5 +1,6 @@
 import datetime
 import logging
+import pandas
 import os
 from pathlib import Path
 from mypy_extensions import TypedDict
@@ -112,6 +113,12 @@ ComputedInfoDict = TypedDict('ComputedInfoDict', {
 
 CountsAnalysisDict = TypedDict('CountsAnalysisDict', {
 	'pct_excluded': float
+})
+
+ComputeInventoryDict = TypedDict('ComputeInventoryDict', {
+	'counts_analysis': CountsAnalysisDict,
+	'inventory_valuations': List[float], 
+	'date_to_computed_inventory_dataframe': Dict[str, pandas.DataFrame]
 })
 
 PrintCountsDict = TypedDict('PrintCountsDict', {

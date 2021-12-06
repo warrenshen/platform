@@ -95,27 +95,18 @@ def _run_analysis_for_customer(d: download_util.Download, ctx: AnalysisContext, 
 	ctx.log_timing(f'Took {round(after - before, 2)} seconds for orphan analysis')
 
 	before = time.time()
-	counts_analysis_dict = util.create_inventory_xlsx(d, ctx, id_to_history, q, params=params)
+	compute_inventory_dict = util.create_inventory_xlsx(d, ctx, id_to_history, q, params=params)
 	after = time.time()
 	ctx.log_timing(f'Took {round(after - before, 2)} seconds for create_inventory_xlsx')
 
 	## Compute accuracy numbers for COGS and inventory
 	logging.info('Computing inventory for {}'.format(q.company_name))
-	
-	# TODO(dlluncor): This is actually duplicated logic which is already run
-	# in create_inventory_xlsx
-	before = time.time()
-	computed_resp = util.compute_inventory_across_dates(
-			d, q.inventory_dates, params
-	)
-	after = time.time()
-	ctx.log_timing(f'Took {round(after - before, 2)} seconds for compute_inventory_across_dates')
 
 	before = time.time()
 	today_date_str = today_date.strftime('%m/%d/%Y')
 	compare_inventory_res = util.compare_computed_vs_actual_inventory(
 			ctx=ctx,
-			computed=computed_resp['date_to_computed_inventory_dataframe'][today_date_str],
+			computed=compute_inventory_dict['date_to_computed_inventory_dataframe'][today_date_str],
 			actual=d.inventory_packages_dataframe,
 			params=params,
 			compare_options={
@@ -154,7 +145,7 @@ def _run_analysis_for_customer(d: download_util.Download, ctx: AnalysisContext, 
 		company_name=q.company_name,
 		company_identifier=q.company_identifier,
 		analysis_params=params,
-		counts_analysis=counts_analysis_dict,
+		counts_analysis=compute_inventory_dict['counts_analysis'],
 		compare_inventory_results=compare_inventory_res,
 		cogs_summary=cogs_summary
 	)
