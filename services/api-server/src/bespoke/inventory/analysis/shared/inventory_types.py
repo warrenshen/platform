@@ -156,11 +156,16 @@ CogsSummaryDict = TypedDict('CogsSummaryDict', {
 	'topdown_total_cogs': float
 })
 
+CompanyInfoDict = TypedDict('CompanyInfoDict', {
+	'company_id': str,
+	'company_name': str,
+	'company_identifier': str,
+})
+
 # Summary of information that we get about the entire inventory summary
 # for a customer
 AnalysisSummaryDict = TypedDict('AnalysisSummaryDict', {
-	'company_name': str,
-	'company_identifier': str,
+	'company_info': CompanyInfoDict,
 	'analysis_params': AnalysisParamsDict,
 	'counts_analysis': CountsAnalysisDict,
 	'compare_inventory_results': CompareInventoryResultsDict,

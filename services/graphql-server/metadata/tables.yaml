@@ -2774,6 +2774,9 @@
       value_from_env: ASYNC_SERVER_API_KEY
 - table:
     schema: public
+    name: metrc_analysis_summaries
+- table:
+    schema: public
     name: metrc_api_keys
   array_relationships:
   - name: metrc_download_summaries

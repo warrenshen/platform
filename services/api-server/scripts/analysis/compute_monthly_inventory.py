@@ -65,7 +65,8 @@ from bespoke.inventory.analysis.shared.inventory_types import (
 	ReadParams,
 	WriteOutputParams,
 	AnalysisParamsDict,
-	AnalysisSummaryDict
+	AnalysisSummaryDict,
+	CompanyInfoDict,
 )
 
 logging.basicConfig(format='%(asctime)s [%(levelname)s] - %(message)s',
@@ -142,8 +143,11 @@ def _run_analysis_for_customer(d: download_util.Download, ctx: AnalysisContext, 
 	#)
 
 	return AnalysisSummaryDict(
-		company_name=q.company_name,
-		company_identifier=q.company_identifier,
+		company_info=CompanyInfoDict(
+			company_id='',
+			company_name=q.company_name,
+			company_identifier=q.company_identifier,
+		),
 		analysis_params=params,
 		counts_analysis=compute_inventory_dict['counts_analysis'],
 		compare_inventory_results=compare_inventory_res,
@@ -309,6 +313,37 @@ def _compute_inventory_for_customer(
 
 	return summaries
 
+def _get_company_inputs_from_xlsx(filepath: str, restrict_to_company_indentifier: str) -> List[CompanyInputDict]:
+	workbook, err = excel_reader.ExcelWorkbook.load_xlsx(filepath)
+	if err:
+		raise Exception(err)
+
+	sheet, err = workbook.get_sheet_by_index(0)
+	if err:
+		raise Exception(err)
+
+	company_inputs = []
+	for i in range(len(sheet['rows'])):
+		if i == 0:
+			# skip header
+			continue
+
+		row = cast(List[Any], sheet['rows'][i])
+		company_name = row[0].strip()
+		company_identifier = row[1].strip()
+
+		if restrict_to_company_indentifier and company_identifier != restrict_to_company_indentifier:
+			continue
+
+		company_inputs.append(CompanyInputDict(
+			company_name=company_name,
+			company_identifier=company_identifier,
+			license_numbers=[el.strip() for el in row[2].strip().split(';')],
+			start_date=row[3]
+		))
+
+	return company_inputs
+
 def main() -> None:
 	parser = argparse.ArgumentParser()
 	parser.add_argument(
@@ -360,39 +395,14 @@ def main() -> None:
 
 	args = parser.parse_args()
 
-	workbook, err = excel_reader.ExcelWorkbook.load_xlsx(args.input_file)
-	if err:
-		raise Exception(err)
-
-	sheet, err = workbook.get_sheet_by_index(0)
-	if err:
-		raise Exception(err)
-
-	dry_run = True if args.dry_run else False
-
-	company_inputs = []
-	for i in range(len(sheet['rows'])):
-		if i == 0:
-			# skip header
-			continue
-
-		row = cast(List[Any], sheet['rows'][i])
-		company_name = row[0].strip()
-		company_identifier = row[1].strip()
-
-		if args.company_identifier and company_identifier != args.company_identifier:
-			continue
-
-		company_inputs.append(CompanyInputDict(
-			company_name=company_name,
-			company_identifier=company_identifier,
-			license_numbers=[el.strip() for el in row[2].strip().split(';')],
-			start_date=row[3]
-		))
-
-	logging.info('Processing {} companies with dry_run={}'.format(len(company_inputs), dry_run))
+	if args.input_file:
+		company_inputs = _get_company_inputs_from_xlsx(args.input_file, args.company_identifier)
+	else:
+		company_inputs = []
 
 	index_to_summary = {}
+	dry_run = True if args.dry_run else False
+	logging.info('Processing {} companies with dry_run={}'.format(len(company_inputs), dry_run))
 
 	args_dict = ArgsDict(
 		download_only=args.download_only,

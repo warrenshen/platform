@@ -1,24 +1,98 @@
+import datetime
 import logging
 import xlwt
-from typing import List
+from sqlalchemy.orm.session import Session
+from typing import List, Any, cast
 
 from bespoke.excel import excel_writer
 from bespoke.excel.excel_writer import CellValue
 from bespoke.inventory.analysis.shared.inventory_types import (
 	AnalysisSummaryDict
 )
+from bespoke.db import models
+
+DEFAULT_METHODOLOGY = 'noflags_v1'
+
+def _underscore(s: str) -> str:
+	return '_' if s else ''
+
+def _get_methodology(summary: AnalysisSummaryDict) -> str:
+	params = summary['analysis_params']
+
+	if not params['find_parent_child_relationships'] and \
+		not params['use_prices_to_fill_missing_incoming'] and \
+		not params['use_margin_estimate_config']:
+		return DEFAULT_METHODOLOGY			
+
+	approach = ''
+	if params['find_parent_child_relationships']:
+		approach += _underscore(approach) + 'parent'
+
+	if params['use_prices_to_fill_missing_incoming']:
+		approach += _underscore(approach) + 'pricing_table'
+
+	if params['use_margin_estimate_config']:
+		approach += _underscore(approach) + 'margin_estimate'
+
+	return approach
+
+def write_summary_to_db(
+	cur_date: datetime.date, summary: AnalysisSummaryDict, session: Session) -> None:
+	
+	methodology = _get_methodology(summary)
+	inventory_res = summary['compare_inventory_results']
+	cogs_summary = summary['cogs_summary']
+
+	db_summary = models.MetrcAnalysisSummary()
+	db_summary.company_id = cast(Any, summary['company_info']['company_id'])
+	db_summary.date = cur_date
+	db_summary.methodology = methodology
+	db_summary.default_methodology = DEFAULT_METHODOLOGY
+	db_summary.counts_payload = {
+		'pct_packages_excluded': summary['counts_analysis']['pct_excluded'],
+	}
+	db_summary.inventory_accuracy_payload = {
+		'pct_inventory_matching': inventory_res['pct_inventory_matching'],
+		'pct_accuracy_of_quantity': inventory_res['pct_accuracy_of_quantity'],
+		'pct_inventory_overestimate': inventory_res['pct_inventory_overestimate'],
+		'pct_quantity_overestimated': inventory_res['pct_quantity_overestimated']
+	}
+	db_summary.inventory_payload = {
+		'current_inventory_value':	inventory_res['current_inventory_value'],
+	}
+
+	db_summary.cogs_revenue_payload = {
+		'pct_transactions_with_cost':	cogs_summary['pct_transactions_with_cost'],
+		'topdown_total_cogs':	cogs_summary['topdown_total_cogs'],
+		'bottomsup_total_cogs':	cogs_summary['bottomsup_total_cogs'],
+		'avg_monthly_cogs':	cogs_summary['avg_monthly_cogs'],
+		'avg_monthly_revenue':	cogs_summary['avg_monthly_revenue'],
+	}
+	db_summary.stale_info_payload = {
+		'current_nonstale_inventory_value': inventory_res['current_nonstale_inventory_value'],
+		'pct_stale_packages': inventory_res['pct_stale_packages']
+	}
+
+	prev = session.query(models.MetrcAnalysisSummary).filter(
+		models.MetrcAnalysisSummary.company_id == summary['company_info']['company_id']
+	).filter(
+		models.MetrcAnalysisSummary.date == cur_date
+	).filter(
+		models.MetrcAnalysisSummary.methodology == methodology
+	).first()
+
+	if prev:
+		prev.counts_payload = db_summary.counts_payload
+		prev.inventory_accuracy_payload = db_summary.inventory_accuracy_payload
+		prev.cogs_revenue_payload = db_summary.cogs_revenue_payload
+		prev.stale_info_payload = db_summary.stale_info_payload
+	else:
+		session.add(db_summary)
+
 def write_excel_for_summaries(summaries: List[AnalysisSummaryDict]) -> None:
 	
 	wb = excel_writer.WorkbookWriter(xlwt.Workbook())
 	summary_sheet = wb.add_sheet('Summary')
-
-	# TODO(dlluncor): Use the word 'methodology' to describe the params
-	# that we used.
-	# company, date, methodology, default_methodology
-	#
-	# default_methodology == '10'
-	#
-	# default_methodology == methodology
 
 	rows: List[List[CellValue]] = []
 	rows.append(
@@ -57,12 +131,13 @@ def write_excel_for_summaries(summaries: List[AnalysisSummaryDict]) -> None:
 	company_names = set([])
 
 	for summary in summaries:
-		company_names.add(summary['company_name'])
+		company_info = summary['company_info']
+		company_names.add(company_info['company_name'])
 		cur_params = summary['analysis_params']
 
 		row: List[CellValue] = [
-			summary['company_name'],
-			summary['company_identifier'],
+			company_info['company_name'],
+			company_info['company_identifier'],
 			'true' if cur_params['use_prices_to_fill_missing_incoming'] else '',
 			'true' if cur_params['find_parent_child_relationships'] else ''
 		]

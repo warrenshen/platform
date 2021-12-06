@@ -175,7 +175,6 @@ def update_packages_from_sales_transactions(
 		if metrc_package_key in package_id_to_prev_package:
 			# update
 			prev_metrc_package = package_id_to_prev_package[metrc_package_key]
-			# TODO(dlluncor): Have another column which represents IS_PARTIALLY_SOLD
 		else:
 			logging.warn('We observed a sales transaction referring to package #{} which is not registered in our DB as a regular package'.format(
 										tx.package_id))

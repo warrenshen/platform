@@ -420,6 +420,21 @@ class MetrcApiKey(Base):
 			us_state=self.us_state if self.us_state else None
 		)
 
+class MetrcAnalysisSummary(Base):
+	__tablename__ = 'metrc_analysis_summaries'
+
+	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	date = Column(Date)
+	methodology = Column(String)
+	default_methodology = Column(String)
+
+	counts_payload = Column(JSON)
+	inventory_accuracy_payload = Column(JSON)
+	inventory_payload = Column(JSON)
+	cogs_revenue_payload = Column(JSON)
+	stale_info_payload = Column(JSON)
+
 class MetrcDownloadSummary(Base):
 	__tablename__ = 'metrc_download_summaries'
 
