@@ -7,26 +7,6 @@ from typing import Iterable, List
 sys.path.append(path.realpath(path.join(os.getcwd(), "../../src")))
 from bespoke.inventory.analysis.shared.create_queries import *
 
-# Company queries: get data for a specific-company.
-def create_company_licenses_query(company_identifier: str) -> str:
-    return f"""
-        select
-            company_licenses.us_state,
-            company_licenses.license_number,
-            company_licenses.license_category,
-            company_licenses.legal_name,
-            company_licenses.is_current,
-            company_licenses.license_status,
-            company_licenses.rollup_id,
-            company_licenses.license_description
-        from
-            company_licenses
-            inner join companies on company_licenses.company_id = companies.id
-        where
-            True
-            and companies.identifier = "{company_identifier}"
-    """
-
 def create_company_download_summaries_query(company_identifier: str, start_date: str, end_date:str=None) -> str:
     end_date_where_clause = f"""
         and metrc_download_summaries.date <= "{end_date}"
@@ -113,42 +93,6 @@ def create_company_monthly_units_sold_by_product_category_name_query(company_ide
             1,
             2
         order by
-            1,
-            2
-    """
-
-def create_metrc_download_summary_companies_query():
-    return f"""
-        select
-            distinct
-            companies.name,
-            companies.identifier
-        from
-            companies
-            inner join metrc_download_summaries on companies.id = metrc_download_summaries.company_id
-        where
-            True
-        group by
-            1,
-            2
-        order by
-            1,
-            2
-    """
-
-def create_company_count_metrc_sales_receipts_query(company_identifier):
-    return f"""
-        select
-            companies.name,
-            companies.identifier,
-            count(metrc_sales_receipts.receipt_id) as count
-        from
-            companies
-            inner join metrc_sales_receipts on companies.id = metrc_sales_receipts.company_id
-        where
-            True
-            and companies.identifier = "{company_identifier}"
-        group by
             1,
             2
     """

@@ -27,7 +27,6 @@ from bespoke.inventory.analysis.shared.inventory_types import (
 	SalesTransactionDict,
 )
 
-
 def _get_float_or_none(val: Any) -> Optional[float]:
 	if not val:
 		return None

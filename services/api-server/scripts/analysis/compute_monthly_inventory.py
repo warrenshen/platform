@@ -37,6 +37,7 @@ import datetime
 import json
 import logging
 import os
+import pandas
 import sys
 import time
 import logging
@@ -45,15 +46,18 @@ from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
 from os import path
 from mypy_extensions import TypedDict
-from typing import List, Dict, Any, cast
+from typing import Tuple, List, Dict, Any, cast
 from sqlalchemy.orm.session import Session
 # Path hack before we try to import bespoke
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 
 from bespoke.date import date_util
 from bespoke.db import models
+from bespoke.db.models import session_scope
 from bespoke.excel import excel_reader
-from bespoke.inventory.analysis.shared import package_history, download_util
+from bespoke.inventory.analysis.shared import (
+	package_history, download_util, create_queries
+)
 from bespoke.inventory.analysis import active_inventory_util as util
 from bespoke.inventory.analysis import inventory_cogs_util as cogs_util
 from bespoke.inventory.analysis import inventory_valuations_util as valuations_util
@@ -74,6 +78,9 @@ logging.basicConfig(format='%(asctime)s [%(levelname)s] - %(message)s',
 					level=logging.INFO)
 dotenv_path = os.path.join(os.environ.get('SERVER_ROOT_DIR', '.'), '.env')
 load_dotenv(dotenv_path)
+
+BIGQUERY_ENGINE_URL = 'bigquery://bespoke-financial/ProdMetrcData'
+DEFAULT_START_DATE_STR = '2020-01-01'
 
 def _run_analysis_for_customer(d: download_util.Download, ctx: AnalysisContext, q: Query, params: AnalysisParamsDict) -> AnalysisSummaryDict:
 	## Analyze counts for the dataset
@@ -144,7 +151,7 @@ def _run_analysis_for_customer(d: download_util.Download, ctx: AnalysisContext, 
 
 	return AnalysisSummaryDict(
 		company_info=CompanyInfoDict(
-			company_id='',
+			company_id=q.company_id,
 			company_name=q.company_name,
 			company_identifier=q.company_identifier,
 		),
@@ -187,6 +194,7 @@ def _get_params_list() -> List[util.AnalysisParamsDict]:
 CompanyInputDict = TypedDict('CompanyInputDict', {
 	'company_name': str,
 	'company_identifier': str,
+	'company_id': str,
 	'license_numbers': List[str],
 	'start_date': datetime.date
 })
@@ -196,7 +204,8 @@ ArgsDict = TypedDict('ArgsDict', {
 	'dry_run': bool,
 	'save_dataframes': bool,
 	'use_cached_dataframes': bool,
-	'use_cached_summaries': bool
+	'use_cached_summaries': bool,
+	'write_to_db': bool
 })
 
 def _compute_inventory_for_customer(
@@ -253,6 +262,7 @@ def _compute_inventory_for_customer(
 		inventory_dates=[], # gets filled in once we have the dataframes
 		transfer_packages_start_date=transfer_packages_start_date,
 		sales_transactions_start_date=sales_transactions_start_date,
+		company_id=company_input['company_id'],
 		company_name=company_name,
 		company_identifier=company_identifier,
 		license_numbers=license_numbers
@@ -263,8 +273,9 @@ def _compute_inventory_for_customer(
 
 	try:
 		before = time.time()
-		engine = download_util.get_bigquery_engine('bigquery://bespoke-financial/ProdMetrcData')
-		all_dataframes_dict = download_util.get_dataframes_for_analysis(q, ctx, engine, dry_run=args_dict['dry_run'])
+		bigquery_engine = download_util.get_bigquery_engine(BIGQUERY_ENGINE_URL)
+		all_dataframes_dict = download_util.get_dataframes_for_analysis(
+			q, ctx, bigquery_engine, dry_run=args_dict['dry_run'])
 		after = time.time()
 		ctx.log_timing('Took {} seconds to run sql queries for {}'.format(
 			round(after - before, 2), q.company_name))
@@ -273,7 +284,7 @@ def _compute_inventory_for_customer(
 		d = util.Download()
 		d.download_dataframes(
 			all_dataframes_dict, 
-			sql_helper=download_util.BigQuerySQLHelper(ctx, engine),
+			sql_helper=download_util.BigQuerySQLHelper(ctx, bigquery_engine),
 			ctx=ctx
 		)
 		after = time.time()
@@ -296,7 +307,19 @@ def _compute_inventory_for_customer(
 
 	try:
 		for params in params_list:
-			summaries.append(_run_analysis_for_customer(d, ctx, q, params))
+			summary = _run_analysis_for_customer(d, ctx, q, params)
+			summaries.append(summary)
+
+			if args_dict['write_to_db']:
+				engine = models.create_engine(is_prod_default=False)
+				session_maker = models.new_sessionmaker(engine)
+				with session_scope(session_maker) as session:
+					inventory_summary_util.write_summary_to_db(
+						cur_date=date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE),
+						summary=summary,
+						session=session
+					)
+
 	except Exception as e:
 		logging.error(f'Error running analysis logic for {q.company_name}. Err: {e}')
 		logging.error(traceback.format_exc())
@@ -338,8 +361,78 @@ def _get_company_inputs_from_xlsx(filepath: str, restrict_to_company_indentifier
 		company_inputs.append(CompanyInputDict(
 			company_name=company_name,
 			company_identifier=company_identifier,
+			company_id='',
 			license_numbers=[el.strip() for el in row[2].strip().split(';')],
 			start_date=row[3]
+		))
+
+	return company_inputs
+
+def _get_company_inputs_from_db(restrict_to_company_indentifier: str) -> List[CompanyInputDict]:
+	bigquery_engine = download_util.get_bigquery_engine(BIGQUERY_ENGINE_URL)
+	metrc_download_summary_companies_query = create_queries.create_metrc_download_summary_companies_query()
+	metrc_download_summary_companies_dataframe = pandas.read_sql_query(metrc_download_summary_companies_query, bigquery_engine)
+	company_records = metrc_download_summary_companies_dataframe.to_dict('records')
+
+	# Query for licenses
+
+	company_identifiers = []
+	company_id_to_name = {}
+	for company_record in company_records:
+		company_identifiers.append(company_record['identifier'])
+		company_id_to_name[company_record['id']] = company_record['name']
+
+	company_licenses_query = create_queries.create_company_licenses_query(company_identifiers)
+	company_licenses_dataframe = pandas.read_sql_query(company_licenses_query, bigquery_engine)
+	company_license_records = company_licenses_dataframe.to_dict('records')
+
+	company_to_retailer_licenses: Dict[Tuple[str, str], List[str]] = {}
+	for company_license_record in company_license_records:
+		company_id = company_license_record['company_id']
+
+		license_number = company_license_record['license_number']
+		license_category = company_license_record['license_category']
+		if license_category in ['Multiple', 'Retailer']:
+			if company_id not in company_to_retailer_licenses:
+				company_to_retailer_licenses[company_id] = []
+			
+			company_to_retailer_licenses[company_id].append(license_number)
+
+	# Query for sales receipts
+	company_count_metrc_sales_receipts_query = create_queries.create_company_count_metrc_sales_receipts_query(company_identifiers)
+	company_count_metrc_sales_receipts_dataframe = pandas.read_sql_query(company_count_metrc_sales_receipts_query, bigquery_engine)
+	count_sales_receipt_records = company_count_metrc_sales_receipts_dataframe.to_dict('records')
+	identifier_to_receipt_count = {}
+
+	for count_sales_receipt_record in count_sales_receipt_records:
+		identifier_to_receipt_count[count_sales_receipt_record['identifier']] = count_sales_receipt_record['count'] 
+
+	company_inputs = []
+	for company_record in company_records:
+		company_identifier = company_record['identifier']
+
+		if restrict_to_company_indentifier and company_identifier != restrict_to_company_indentifier:
+			continue
+
+		company_name = company_record['name']
+		company_id = company_record['id']
+		license_numbers = company_to_retailer_licenses.get(company_id, [])
+		if not license_numbers:
+			continue
+		
+		has_sales_receipts = identifier_to_receipt_count.get(company_identifier, 0) > 0
+
+		if not has_sales_receipts:
+			print(f'WARNING!!!')
+			print(f'WARNING: found company {company_name} ({company_identifier}) with 0 sales receipts but with retailer license(s)!')
+			continue
+
+		company_inputs.append(CompanyInputDict(
+			company_name=company_name,
+			company_identifier=company_identifier,
+			company_id=company_id,
+			license_numbers=license_numbers,
+			start_date=date_util.load_date_str(DEFAULT_START_DATE_STR)
 		))
 
 	return company_inputs
@@ -384,6 +477,13 @@ def main() -> None:
 	) # To download data only, dont run any analysis
 
 	parser.add_argument(
+		'--write_to_db',
+		dest='write_to_db',
+		action='store_true',
+
+	) # If true, then the summaries will be written to the DB
+
+	parser.add_argument(
 		'--max_workers',
 		help='Number of max workers to use for parallel processing',
 	)
@@ -398,7 +498,7 @@ def main() -> None:
 	if args.input_file:
 		company_inputs = _get_company_inputs_from_xlsx(args.input_file, args.company_identifier)
 	else:
-		company_inputs = []
+		company_inputs = _get_company_inputs_from_db(args.company_identifier)
 
 	index_to_summary = {}
 	dry_run = True if args.dry_run else False
@@ -409,7 +509,8 @@ def main() -> None:
 		dry_run=dry_run,
 		use_cached_dataframes=args.use_cached_dataframes,
 		save_dataframes=args.save_dataframes,
-		use_cached_summaries=args.use_cached_summaries
+		use_cached_summaries=args.use_cached_summaries,
+		write_to_db=args.write_to_db
 	)
 
 	max_workers = int(args.max_workers) if args.max_workers else 1

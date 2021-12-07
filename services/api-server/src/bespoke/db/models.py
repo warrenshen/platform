@@ -64,8 +64,12 @@ def get_db_url() -> str:
 
 
 # statement_timeout: timeout (in ms) for a single SQL statement.
-def create_engine(statement_timeout: int = 3000) -> Engine:
-	is_prod = is_prod_env(os.environ.get('FLASK_ENV'))
+def create_engine(statement_timeout: int = 3000, is_prod_default: bool = None) -> Engine:
+	if is_prod_default is None:
+		is_prod = is_prod_env(os.environ.get('FLASK_ENV'))
+	else:
+		is_prod = is_prod_default
+
 	default_max_overflow = 2 if is_prod else 1
 	default_pool_size = 3 if is_prod else 1
 

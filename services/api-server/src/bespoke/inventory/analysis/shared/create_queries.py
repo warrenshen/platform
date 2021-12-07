@@ -1,4 +1,4 @@
-from typing import Iterable, List
+from typing import Iterable, List, Union, cast
 
 def create_company_incoming_transfer_packages_query(
 	company_identifier: str,
@@ -55,7 +55,7 @@ def create_company_incoming_transfer_packages_query(
 			metrc_transfer_packages.shipper_wholesale_price,
 			metrc_transfer_packages.shipped_quantity,
 			metrc_transfer_packages.shipped_unit_of_measure,
-            metrc_transfer_packages.package_payload.receiverwholesaleprice as receiver_wholesale_price,
+						metrc_transfer_packages.package_payload.receiverwholesaleprice as receiver_wholesale_price,
 			metrc_transfer_packages.received_quantity,
 			metrc_transfer_packages.received_unit_of_measure,
 			metrc_transfer_packages.package_payload.receiverwholesaleprice as receiver_wholesale_price,
@@ -819,4 +819,83 @@ def create_packages_by_production_batch_numbers_query(production_batch_numbers: 
 		where
 			True
 			and metrc_packages.package_payload.productionbatchnumber in ({production_batch_numbers_str})
+	"""
+
+####### For licenses
+
+def create_metrc_download_summary_companies_query() -> str:
+		return f"""
+				select
+						distinct
+						companies.name,
+						companies.identifier,
+						companies.id
+				from
+						companies
+						inner join metrc_download_summaries on companies.id = metrc_download_summaries.company_id
+				where
+						True
+				group by
+						1,
+						2,
+						3
+				order by
+						1,
+						2
+		"""
+
+# Company queries: get data for a specific-company.
+def create_company_licenses_query(company_identifier: Union[str, List[str]]) -> str:
+	identifiers = []
+
+	if type(company_identifier) == str:
+		identifiers.append(cast(str, company_identifier))
+	else:
+		identifiers = cast(List[str], company_identifier)
+
+	identifiers = ['"{}"'.format(iden) for iden in identifiers]
+
+	return f"""
+			select
+					company_licenses.us_state,
+					company_licenses.license_number,
+					company_licenses.license_category,
+					company_licenses.legal_name,
+					company_licenses.is_current,
+					company_licenses.license_status,
+					company_licenses.rollup_id,
+					company_licenses.license_description,
+					company_licenses.company_id
+			from
+					company_licenses
+					inner join companies on company_licenses.company_id = companies.id
+			where
+					True
+					and companies.identifier in ({','.join(identifiers)})
+	"""
+
+def create_company_count_metrc_sales_receipts_query(company_identifier: Union[str, List[str]]) -> str:
+	identifiers = []
+
+	if type(company_identifier) == str:
+		identifiers.append(cast(str, company_identifier))
+	else:
+		identifiers = cast(List[str], company_identifier)
+
+	identifiers = ['"{}"'.format(iden) for iden in identifiers]
+
+	return f"""
+			select
+					companies.name,
+					companies.identifier,
+					count(metrc_sales_receipts.receipt_id) as count
+			from
+					companies
+					inner join metrc_sales_receipts on companies.id = metrc_sales_receipts.company_id
+			where
+					True
+					and companies.identifier in ({','.join(identifiers)})
+			group by
+					1,
+					2
 	"""
