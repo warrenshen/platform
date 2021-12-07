@@ -160,6 +160,7 @@ CompanyInfoDict = TypedDict('CompanyInfoDict', {
 	'company_id': str,
 	'company_name': str,
 	'company_identifier': str,
+	'index': int
 })
 
 # Summary of information that we get about the entire inventory summary

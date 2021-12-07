@@ -95,6 +95,7 @@ pip-tools==5.4.0          # via -r requirements.in
 promise==2.3              # via gql, graphql-core, graphql-relay, graphql-server-core
 proto-plus==1.19.8        # via google-cloud-bigquery, google-cloud-bigquery-storage
 protobuf==3.19.1          # via dagster, google-api-core, google-cloud-bigquery, googleapis-common-protos, grpcio-health-checking, grpcio-status, proto-plus, ray
+psutil==5.8.0             # via -r requirements.in
 psycopg2-binary==2.8.5    # via -r requirements.in
 pyarrow==5.0.0            # via -r requirements.in
 pyasn1-modules==0.2.8     # via google-auth

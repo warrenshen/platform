@@ -38,22 +38,24 @@ import json
 import logging
 import os
 import pandas
+import psutil
+import ray
 import sys
 import time
 import logging
 import traceback
+
 from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
 from os import path
 from mypy_extensions import TypedDict
-from typing import Tuple, List, Dict, Any, cast
+from typing import Tuple, List, Dict, Any, Iterator, cast
 from sqlalchemy.orm.session import Session
-# Path hack before we try to import bespoke
-sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
+from bespoke.db.models_util import chunker
 from bespoke.excel import excel_reader
 from bespoke.inventory.analysis.shared import (
 	package_history, download_util, create_queries
@@ -73,16 +75,24 @@ from bespoke.inventory.analysis.shared.inventory_types import (
 	CompanyInfoDict,
 )
 
-logging.basicConfig(format='%(asctime)s [%(levelname)s] - %(message)s',
-					datefmt='%m/%d/%Y %H:%M:%S',
-					level=logging.INFO)
-dotenv_path = os.path.join(os.environ.get('SERVER_ROOT_DIR', '.'), '.env')
-load_dotenv(dotenv_path)
-
 BIGQUERY_ENGINE_URL = 'bigquery://bespoke-financial/ProdMetrcData'
 DEFAULT_START_DATE_STR = '2020-01-01'
 
-def _run_analysis_for_customer(d: download_util.Download, ctx: AnalysisContext, q: Query, params: AnalysisParamsDict) -> AnalysisSummaryDict:
+logging.basicConfig(format='%(asctime)s [%(levelname)s] - %(message)s',
+					datefmt='%m/%d/%Y %H:%M:%S',
+					level=logging.INFO)
+
+num_cpus = psutil.cpu_count(logical=False)
+ray.init(num_cpus=num_cpus)
+
+def _setup() -> None:
+	load_dotenv(dotenv_path)
+
+logging.info(f'Running with {num_cpus} cpus')
+dotenv_path = os.path.join(os.environ.get('SERVER_ROOT_DIR', '.'), '.env')
+_setup()
+
+def _run_analysis_with_params(d: download_util.Download, ctx: AnalysisContext, q: Query, params: AnalysisParamsDict, index: int) -> AnalysisSummaryDict:
 	## Analyze counts for the dataset
 	logging.info('Analyzing counts for {}'.format(q.company_name))
 	today_date = date_util.load_date_str(q.inventory_dates[-1]) # the most recent day is the one we want to compare the actual inventory to.
@@ -154,6 +164,7 @@ def _run_analysis_for_customer(d: download_util.Download, ctx: AnalysisContext, 
 			company_id=q.company_id,
 			company_name=q.company_name,
 			company_identifier=q.company_identifier,
+			index=index
 		),
 		analysis_params=params,
 		counts_analysis=compute_inventory_dict['counts_analysis'],
@@ -205,12 +216,17 @@ ArgsDict = TypedDict('ArgsDict', {
 	'save_dataframes': bool,
 	'use_cached_dataframes': bool,
 	'use_cached_summaries': bool,
-	'write_to_db': bool
+	'write_to_db': bool,
+	'num_threads': int
 })
 
-def _compute_inventory_for_customer(
+@ray.remote # type: ignore
+def _run_analysis_per_customer( # type: ignore
 	company_input: CompanyInputDict, 
-	args_dict: ArgsDict) -> List[AnalysisSummaryDict]:
+	args_dict: ArgsDict,
+	index: int) -> List[AnalysisSummaryDict]: # type: ignore
+
+	_setup()
 
 	initial_before = time.time()
 
@@ -273,6 +289,7 @@ def _compute_inventory_for_customer(
 
 	try:
 		before = time.time()
+		logging.info('ENGINE URL IS {}'.format(BIGQUERY_ENGINE_URL))
 		bigquery_engine = download_util.get_bigquery_engine(BIGQUERY_ENGINE_URL)
 		all_dataframes_dict = download_util.get_dataframes_for_analysis(
 			q, ctx, bigquery_engine, dry_run=args_dict['dry_run'])
@@ -307,7 +324,7 @@ def _compute_inventory_for_customer(
 
 	try:
 		for params in params_list:
-			summary = _run_analysis_for_customer(d, ctx, q, params)
+			summary = _run_analysis_with_params(d, ctx, q, params, index)
 			summaries.append(summary)
 
 			if args_dict['write_to_db']:
@@ -484,8 +501,8 @@ def main() -> None:
 	) # If true, then the summaries will be written to the DB
 
 	parser.add_argument(
-		'--max_workers',
-		help='Number of max workers to use for parallel processing',
+		'--num_threads',
+		help='Number of max threads to use for parallel processing',
 	)
 
 	parser.add_argument(
@@ -500,7 +517,6 @@ def main() -> None:
 	else:
 		company_inputs = _get_company_inputs_from_db(args.company_identifier)
 
-	index_to_summary = {}
 	dry_run = True if args.dry_run else False
 	logging.info('Processing {} companies with dry_run={}'.format(len(company_inputs), dry_run))
 
@@ -510,32 +526,30 @@ def main() -> None:
 		use_cached_dataframes=args.use_cached_dataframes,
 		save_dataframes=args.save_dataframes,
 		use_cached_summaries=args.use_cached_summaries,
-		write_to_db=args.write_to_db
+		write_to_db=args.write_to_db,
+		num_threads=args.num_threads
 	)
 
-	max_workers = int(args.max_workers) if args.max_workers else 1
-	with ThreadPoolExecutor(max_workers=max_workers) as executor:
-		future_to_i = {}
-
-		for i in range(len(company_inputs)):
-			company_input = company_inputs[i]
-			future_to_i[executor.submit(
-				_compute_inventory_for_customer, 
-				company_input,
-				args_dict)] = i
-
-		for future in concurrent.futures.as_completed(future_to_i):
-			summary = future.result()
-			index = future_to_i[future]
-			index_to_summary[index] = summary
-
-	indices = list(index_to_summary.keys())
-	indices.sort()
-
+	company_input_chunks = cast(Iterator[List[CompanyInputDict]], chunker(company_inputs, size=num_cpus))
+	
+	index = 0
 	summaries = []
-	for index in indices:
-		summaries.extend(index_to_summary[index])
+	before = time.time()
 
+	for company_input_chunk in company_input_chunks:
+		results_list = ray.get([
+			_run_analysis_per_customer.remote(
+				company_input_chunk[j], args_dict, index + j
+		) for j in range(len(company_input_chunk))])
+
+		index += len(company_input_chunk)
+		for summary_results in results_list:
+			summaries.extend(summary_results)
+
+	summaries.sort(key=lambda x: x['company_info']['index'])
+	after = time.time()
+
+	logging.info(f'Took {round(after - before, 2)} seconds to run analysis for all companies')
 	inventory_summary_util.write_excel_for_summaries(summaries)
 
 if __name__ == "__main__":

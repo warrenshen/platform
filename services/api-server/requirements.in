@@ -15,6 +15,7 @@ Flask-Cors==3.0.9
 dagit==0.12.3
 dagster==0.12.3
 ray==1.9.0
+psutil==5.8.0
 
 # DB
 SQLAlchemy==1.3.17

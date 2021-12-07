@@ -23,4 +23,4 @@ vi .env
 #
 # 
 
-python3.7 scripts/analysis/compute_monthly_inventory.py --use_cached_dataframes --save_dataframes
+PYTHONPATH=src python3.7 scripts/analysis/compute_monthly_inventory.py --use_cached_dataframes --save_dataframes
