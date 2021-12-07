@@ -12,6 +12,7 @@ bleach==3.3.1             # via nbconvert
 blinker==1.4              # via sentry-sdk
 boto3==1.16.50            # via -r requirements.in
 botocore==1.19.50         # via boto3, s3transfer
+cachetools==4.2.4         # via google-auth
 certifi==2020.12.5        # via requests, sentry-sdk
 chardet==4.0.0            # via requests
 click==7.1.2              # via dagit, dagster, flask, pip-tools, ray, safety
@@ -40,6 +41,14 @@ flask==1.1.2              # via -r requirements.in, dagit, flask-cors, flask-gra
 future==0.18.2            # via dagster
 gevent-websocket==0.10.1  # via dagit, dagster-graphql, flask-sockets
 gevent==21.1.2            # via dagit, dagster-graphql, flask-sockets, gevent-websocket
+google-api-core[grpc]==2.2.2  # via google-cloud-bigquery, google-cloud-bigquery-storage, google-cloud-core
+google-auth==2.3.3        # via google-api-core, google-cloud-core
+google-cloud-bigquery-storage==2.9.1  # via -r requirements.in
+google-cloud-bigquery==2.28.1  # via -r requirements.in
+google-cloud-core==2.2.1  # via google-cloud-bigquery
+google-crc32c==1.3.0      # via google-resumable-media
+google-resumable-media==2.1.0  # via google-cloud-bigquery
+googleapis-common-protos==1.53.0  # via google-api-core, grpcio-status
 gql==2.0.0                # via dagster-graphql
 graphene==2.1.9           # via dagster-graphql
 graphql-core==2.3.2       # via dagster-graphql, flask-graphql, gql, graphene, graphql-relay, graphql-server-core, graphql-ws
@@ -48,7 +57,8 @@ graphql-server-core==1.2.0  # via flask-graphql
 graphql-ws==0.3.1         # via dagit
 greenlet==1.1.0           # via gevent
 grpcio-health-checking==1.39.0  # via dagster
-grpcio==1.39.0            # via dagster, grpcio-health-checking, ray
+grpcio-status==1.42.0     # via google-api-core
+grpcio==1.42.0            # via dagster, google-api-core, google-cloud-bigquery, grpcio-health-checking, grpcio-status, ray
 gunicorn==20.0.4          # via -r requirements.in
 holidays==0.10.3          # via -r requirements.in
 humanfriendly==9.2        # via coloredlogs
@@ -62,18 +72,19 @@ jsonschema==3.2.0         # via nbformat, ray
 jupyter-core==4.7.1       # via nbconvert, nbformat
 kiwisolver==1.3.2         # via matplotlib
 korean-lunar-calendar==0.2.1  # via holidays
+libcst==0.3.23            # via google-cloud-bigquery-storage
 mako==1.1.4               # via alembic
 markupsafe==1.1.1         # via jinja2, mako
 matplotlib==3.4.3         # via -r requirements.in
 mistune==0.8.4            # via nbconvert
 msgpack==1.0.3            # via ray
-mypy-extensions==0.4.3    # via mypy
+mypy-extensions==0.4.3    # via mypy, typing-inspect
 mypy==0.800               # via -r requirements.in, sqlalchemy-stubs
 nbconvert==5.6.1          # via dagit
 nbformat==5.1.3           # via nbconvert
 numpy==1.20               # via -r requirements.in, matplotlib, pandas, pyarrow, ray
 openpyxl==3.0.7           # via -r requirements.in
-packaging==21.0           # via bleach, dagster, dparse, safety
+packaging==21.0           # via bleach, dagster, dparse, google-cloud-bigquery, google-cloud-bigquery-storage, safety
 pandas==1.3.2             # via -r requirements.in
 pandocfilters==1.4.3      # via nbconvert
 passlib==1.7.4            # via -r requirements.in
@@ -82,9 +93,12 @@ pendulum==2.1.2           # via dagster
 pillow==8.4.0             # via matplotlib
 pip-tools==5.4.0          # via -r requirements.in
 promise==2.3              # via gql, graphql-core, graphql-relay, graphql-server-core
-protobuf==3.17.3          # via dagster, grpcio-health-checking, ray
+proto-plus==1.19.8        # via google-cloud-bigquery, google-cloud-bigquery-storage
+protobuf==3.19.1          # via dagster, google-api-core, google-cloud-bigquery, googleapis-common-protos, grpcio-health-checking, grpcio-status, proto-plus, ray
 psycopg2-binary==2.8.5    # via -r requirements.in
 pyarrow==5.0.0            # via -r requirements.in
+pyasn1-modules==0.2.8     # via google-auth
+pyasn1==0.4.8             # via pyasn1-modules, rsa
 pydantic==1.7.3           # via fastapi, fastapi-utils
 pygments==2.9.0           # via nbconvert
 pyjwt==1.7.1              # via -r requirements.in, flask-jwt-extended, twilio
@@ -97,16 +111,17 @@ python-editor==1.0.4      # via alembic
 python-http-client==3.3.1  # via sendgrid
 pytz==2021.1              # via convertdate, pandas, twilio
 pytzdata==2020.1          # via pendulum
-pyyaml==5.3.1             # via dagit, dagster, dparse, ray
+pyyaml==5.3.1             # via dagit, dagster, dparse, libcst, ray
 ray==1.9.0                # via -r requirements.in
 redis==4.0.2              # via ray
-requests==2.25.1          # via dagit, dagster-graphql, gql, safety, twilio
+requests==2.25.1          # via dagit, dagster-graphql, google-api-core, google-cloud-bigquery, gql, safety, twilio
+rsa==4.8                  # via google-auth
 rx==1.6.1                 # via dagster, graphql-core
 s3transfer==0.3.3         # via boto3
 safety==1.9.0             # via -r requirements.in
 sendgrid==6.4.8           # via -r requirements.in
 sentry-sdk[flask]==0.19.5  # via -r requirements.in
-six==1.15.0               # via bleach, flask-cors, flask-jwt-extended, gql, graphene, graphql-core, graphql-relay, grpcio, holidays, jsonschema, pip-tools, promise, protobuf, python-dateutil, sqlalchemy-utils, twilio
+six==1.15.0               # via bleach, flask-cors, flask-jwt-extended, google-auth, gql, graphene, graphql-core, graphql-relay, grpcio, holidays, jsonschema, pip-tools, promise, python-dateutil, sqlalchemy-utils, twilio
 soupsieve==2.3.1          # via beautifulsoup4
 sqlalchemy-stubs==0.4     # via -r requirements.in
 sqlalchemy-utils==0.36.8  # via -r requirements.in
@@ -122,7 +137,8 @@ traitlets==5.0.5          # via jupyter-core, nbconvert, nbformat
 twilio==6.55.0            # via -r requirements.in
 typed-ast==1.4.1          # via mypy
 typing-compat==0.1.0      # via dagster
-typing-extensions==3.7.4.3  # via importlib-metadata, mypy, sqlalchemy-stubs
+typing-extensions==3.7.4.3  # via importlib-metadata, libcst, mypy, sqlalchemy-stubs, typing-inspect
+typing-inspect==0.7.1     # via libcst
 urllib3==1.26.2           # via botocore, requests, sentry-sdk
 watchdog==2.1.3           # via dagit, dagster
 webencodings==0.5.1       # via bleach
