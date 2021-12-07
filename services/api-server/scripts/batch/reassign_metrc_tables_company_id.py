@@ -115,7 +115,7 @@ def main(is_test_run: bool, company_identifier: str) -> None:
 		('metrc_packages', models.MetrcPackage),
 		('metrc_plant_batches', models.MetrcPlantBatch),
 		# ('metrc_plants', models.MetrcPlant),
-		# ('metrc_sales_receipts', models.MetrcSalesReceipt),
+		('metrc_sales_receipts', models.MetrcSalesReceipt),
 	]
 
 	for company_license_tuple in company_license_tuples:
