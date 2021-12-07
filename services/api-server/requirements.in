@@ -23,6 +23,7 @@ psycopg2-binary==2.8.5
 pyarrow==5.0.0
 google-cloud-bigquery==2.28.1
 google-cloud-bigquery-storage==2.9.1
+sqlalchemy-bigquery==1.2.0
 
 # Typing
 mypy==0.800
