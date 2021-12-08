@@ -749,10 +749,10 @@ def create_inventory_xlsx(
 	inventory_valuations = []
 
 	before = time.time()
-	num_loops = 0
+	len_package_id_to_history = len(id_to_history)
+	num_loops = len_package_id_to_history
 
 	for package_id, history in id_to_history.items():
-		num_loops += 1
 		history.compute_additional_fields(p=p, params=params, run_filter=True, skip_over_errors=False)
 		num_total += 1
 		if history.should_exclude:
@@ -779,6 +779,7 @@ def create_inventory_xlsx(
 	num_loops = 0
 
 	for inventory_date_str in q.inventory_dates:
+		num_loops += len_package_id_to_history
 		# Compute the packages which are in the inventory at this particular date
 		computed_inventory_package_records = create_inventory_dataframe_by_date(
 				id_to_history, inventory_date_str, params=params)    

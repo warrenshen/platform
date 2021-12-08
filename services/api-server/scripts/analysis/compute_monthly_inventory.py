@@ -92,11 +92,13 @@ def _setup() -> None:
 _setup()
 logging.info(f'Running with {num_cpus} cpus')
 
-def _run_analysis_with_params(d: download_util.Download, ctx: AnalysisContext, q: Query, params: AnalysisParamsDict, index: int) -> AnalysisSummaryDict:
+def _run_analysis_with_params(d: download_util.Download, ctx: AnalysisContext, q: Query, params: AnalysisParamsDict, index: int, initial_timing_info: Dict) -> AnalysisSummaryDict:
 	## Analyze counts for the dataset
 	logging.info('Analyzing counts for {}'.format(q.company_name))
 	today_date = date_util.load_date_str(q.inventory_dates[-1]) # the most recent day is the one we want to compare the actual inventory to.
 	
+	total_before = time.time()
+
 	before = time.time()
 	id_to_history = util.get_histories(d, params=params)
 	after = time.time()
@@ -115,7 +117,8 @@ def _run_analysis_with_params(d: download_util.Download, ctx: AnalysisContext, q
 	before = time.time()
 	compute_inventory_dict = util.create_inventory_xlsx(d, ctx, id_to_history, q, params=params)
 	after = time.time()
-	ctx.log_timing(f'Took {round(after - before, 2)} seconds for create_inventory_xlsx')
+	compute_inventory_timing = round(after - before, 2)
+	ctx.log_timing(f'Took {compute_inventory_timing} seconds for create_inventory_xlsx')
 
 	## Compute accuracy numbers for COGS and inventory
 	logging.info('Computing inventory for {}'.format(q.company_name))
@@ -151,6 +154,8 @@ def _run_analysis_with_params(d: download_util.Download, ctx: AnalysisContext, q
 	after = time.time()
 	ctx.log_timing(f'Took {round(after - before, 2)} seconds for compute_stale_inventory')
 
+	total_after = time.time()
+
 	# Plot graphs
 	# TODO(dlluncor): Has to happen in the main thread to plot these graphs
 	#valuations_util.plot_inventory_and_revenue(
@@ -158,6 +163,9 @@ def _run_analysis_with_params(d: download_util.Download, ctx: AnalysisContext, q
 	#		sales_receipts_dataframe=d.sales_receipts_dataframe,
 	#		inventory_valuations=computed_resp['inventory_valuations']
 	#)
+	timing_info = initial_timing_info
+	timing_info['3_compute_inventory'] = compute_inventory_timing
+	timing_info['run_analysis_excluding_download'] = round(total_after - total_before, 2)
 
 	return AnalysisSummaryDict(
 		company_info=CompanyInfoDict(
@@ -166,6 +174,7 @@ def _run_analysis_with_params(d: download_util.Download, ctx: AnalysisContext, q
 			company_identifier=q.company_identifier,
 			index=index
 		),
+		timing_info=timing_info,
 		analysis_params=params,
 		counts_analysis=compute_inventory_dict['counts_analysis'],
 		compare_inventory_results=compare_inventory_res,
@@ -295,8 +304,8 @@ def _run_analysis_per_customer( # type: ignore
 		all_dataframes_dict = download_util.get_dataframes_for_analysis(
 			q, ctx, bigquery_engine, dry_run=args_dict['dry_run'], num_threads=args_dict['num_threads'])
 		after = time.time()
-		ctx.log_timing('Took {} seconds to run sql queries for {}'.format(
-			round(after - before, 2), q.company_name))
+		run_sql_queries_timing = round(after - before, 2)
+		ctx.log_timing('Took {} seconds to run sql queries for {}'.format(run_sql_queries_timing, q.company_name))
 		
 		before = time.time()
 		d = util.Download()
@@ -306,8 +315,9 @@ def _run_analysis_per_customer( # type: ignore
 			ctx=ctx
 		)
 		after = time.time()
+		process_dataframes_timing = round(after - before, 2)
 		ctx.log_timing('\nTook {} seconds to process dataframes for {}'.format(
-			round(after - before, 2), q.company_name))
+			process_dataframes_timing, q.company_name))
 
 		q.inventory_dates = download_util.get_inventory_dates(
 			all_dataframes_dict, today_date)
@@ -325,7 +335,12 @@ def _run_analysis_per_customer( # type: ignore
 
 	try:
 		for params in params_list:
-			summary = _run_analysis_with_params(d, ctx, q, params, index)
+			# So the Dict doesnt get copied across the multiple params runs
+			initial_timing_info = {
+				'0_run_sql_queries': run_sql_queries_timing,
+				'1_process_dataframes': process_dataframes_timing
+			}
+			summary = _run_analysis_with_params(d, ctx, q, params, index, initial_timing_info)
 			summaries.append(summary)
 
 			if args_dict['write_to_db']:

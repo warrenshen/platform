@@ -50,6 +50,7 @@ def write_summary_to_db(
 	db_summary.default_methodology = DEFAULT_METHODOLOGY
 	db_summary.counts_payload = {
 		'pct_packages_excluded': summary['counts_analysis']['pct_excluded'],
+		'timing_info': summary['timing_info']
 	}
 	db_summary.inventory_accuracy_payload = {
 		'pct_inventory_matching': inventory_res['pct_inventory_matching'],

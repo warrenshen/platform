@@ -168,6 +168,7 @@ CompanyInfoDict = TypedDict('CompanyInfoDict', {
 AnalysisSummaryDict = TypedDict('AnalysisSummaryDict', {
 	'company_info': CompanyInfoDict,
 	'analysis_params': AnalysisParamsDict,
+	'timing_info': Dict,
 	'counts_analysis': CountsAnalysisDict,
 	'compare_inventory_results': CompareInventoryResultsDict,
 	'cogs_summary': CogsSummaryDict
