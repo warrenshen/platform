@@ -613,7 +613,7 @@ def main() -> None:
 	))
 	email_sender.send_dynamic_email_template(
 		to_=[config_util.BESPOKE_OPS_EMAIL_ADDRESS],
-		template_id=sendgrid_util.TemplateNames.OPS_TRIGGER_NOTIFICATION,
+		template_id=sendgrid_util.get_template_id(sendgrid_util.TemplateNames.OPS_TRIGGER_NOTIFICATION),
 		template_data=cast(Dict, template_data),
 	)
 

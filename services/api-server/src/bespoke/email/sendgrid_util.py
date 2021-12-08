@@ -252,7 +252,7 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 	},
 }
 
-def _get_template_id(template_name: str) -> str:
+def get_template_id(template_name: str) -> str:
 	if template_name not in _TEMPLATE_NAME_TO_SENDGRID_CONFIG:
 		raise Exception(
 			'Template name "{}" requested is not configured'.format(template_name))
@@ -359,7 +359,7 @@ class Client(object):
 			if not recipient_email or '@' not in recipient_email:
 				return None, errors.Error(f'Invalid recipient email: "{recipient_email}"')
 
-		template_id = _get_template_id(template_name)
+		template_id = get_template_id(template_name)
 		template_data['defaults'] = _get_template_defaults(
 			template_name, self._email_cfg)
 

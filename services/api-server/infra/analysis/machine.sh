@@ -18,9 +18,10 @@ python3.7 -m pip install -r requirements.txt
 # Setup env variables and secrets
 vi .env
 # Key variables to include
+# SENDGRID_API_KEY=
 # DATABASE_URL=
 # BIGQUERY_CREDENTIALS_PATH=/home/ubuntu/creds/bespoke-financial-80c0458dcaab_biquery_credentials.json
 #
 # 
-
-PYTHONPATH=src python3.7 scripts/analysis/compute_monthly_inventory.py --use_cached_dataframes --save_dataframes
+# Use --use_cached_dataframes if doing a re-run where you are fixing a bug
+PYTHONPATH=src python3.7 scripts/analysis/compute_monthly_inventory.py --save_dataframes --num_threads=5 --write_to_db
