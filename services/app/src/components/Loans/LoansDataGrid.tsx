@@ -305,24 +305,21 @@ export default function LoansDataGrid({
         dataField: "artifact_name",
         caption: "Purchase Order / Invoice",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
-          <Box display="flex" alignItems="center">
-            {params.row.data.purchase_order && (
-              <PurchaseOrderDrawerLauncher
-                label={params.row.data.artifact_name}
-                isMetrcBased={params.row.data.purchase_order.is_metrc_based}
-                purchaseOrderId={params.row.data.purchase_order.id}
-              />
-            )}
-            {params.row.data.invoice && (
-              <InvoiceDrawerLauncher
-                label={params.row.data.artifact_name}
-                invoiceId={params.row.data.invoice.id}
-              />
-            )}
-            {params.row.data.line_of_credit && "N/A"}
-          </Box>
-        ),
+        cellRender: (params: ValueFormatterParams) =>
+          params.row.data.purchase_order ? (
+            <PurchaseOrderDrawerLauncher
+              label={params.row.data.artifact_name}
+              isMetrcBased={params.row.data.purchase_order.is_metrc_based}
+              purchaseOrderId={params.row.data.purchase_order.id}
+            />
+          ) : params.row.data.invoice ? (
+            <InvoiceDrawerLauncher
+              label={params.row.data.artifact_name}
+              invoiceId={params.row.data.invoice.id}
+            />
+          ) : params.row.data.line_of_credit ? (
+            "N/A"
+          ) : null,
       },
       {
         dataField: "vendor_name",

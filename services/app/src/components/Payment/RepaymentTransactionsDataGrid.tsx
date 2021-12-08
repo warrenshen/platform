@@ -211,24 +211,23 @@ export default function RepaymentTransactionsDataGrid({
         dataField: "transaction.loan.artifact_name",
         caption: "Purchase Order / Invoice",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
-          <Box display="flex" alignItems="center">
-            {params.row.data.transaction?.loan?.purchase_order && (
-              <PurchaseOrderDrawerLauncher
-                label={params.row.data.transaction.loan.artifact_name}
-                isMetrcBased={params.row.data.purchase_order.is_metrc_based}
-                purchaseOrderId={params.row.data.transaction.loan.artifact_id}
-              />
-            )}
-            {params.row.data.transaction?.loan?.invoice && (
-              <InvoiceDrawerLauncher
-                label={params.row.data.transaction.loan.artifact_name}
-                invoiceId={params.row.data.transaction.loan.artifact_id}
-              />
-            )}
-            {params.row.data.line_of_credit && "N/A"}
-          </Box>
-        ),
+        cellRender: (params: ValueFormatterParams) =>
+          params.row.data.transaction?.loan?.purchase_order ? (
+            <PurchaseOrderDrawerLauncher
+              label={params.row.data.transaction.loan.artifact_name}
+              isMetrcBased={
+                params.row.data.transaction.loan.purchase_order.is_metrc_based
+              }
+              purchaseOrderId={params.row.data.transaction.loan.artifact_id}
+            />
+          ) : params.row.data.transaction?.loan?.invoice ? (
+            <InvoiceDrawerLauncher
+              label={params.row.data.transaction.loan.artifact_name}
+              invoiceId={params.row.data.transaction.loan.artifact_id}
+            />
+          ) : params.row.data.line_of_credit ? (
+            "N/A"
+          ) : null,
       },
       {
         visible: !isLineOfCredit,
