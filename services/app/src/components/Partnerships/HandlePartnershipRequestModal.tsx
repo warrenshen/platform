@@ -42,7 +42,7 @@ export default function HandlePartnershipRequestModal({
     });
     if (response.status !== "OK") {
       snackbar.showError(
-        `Error! Could not create partnership. Reason: ${response.msg}`
+        `Could not create partnership. Reason: ${response.msg}`
       );
     } else {
       snackbar.showSuccess(

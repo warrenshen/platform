@@ -2,9 +2,10 @@ import { Box, Button, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import PurchaseOrderForm from "components/PurchaseOrder/PurchaseOrderForm";
 import PurchaseOrderFormV2 from "components/PurchaseOrder/PurchaseOrderFormV2";
-import { ReactComponent as CloudDownloadIcon } from "components/Shared/Layout/Icons/CloudDownload.svg";
 import { ReactComponent as KeyboardIcon } from "components/Shared/Layout/Icons/Keyboard.svg";
+import MetrcLogo from "components/Shared/Images/MetrcLogo.png";
 import Modal from "components/Shared/Modal/Modal";
+
 import {
   CurrentUserContext,
   isRoleBankUser,
@@ -432,7 +433,7 @@ export default function CreateUpdatePurchaseOrderModal({
   const isDialogReady =
     !isExistingPurchaseOrderLoading && !isSelectableVendorsLoading;
   // The minimum amount of information to save as draft is:
-  // If Metrc based: Metrc manifest(s) and order number
+  // If Metrc based: Metrc manifest and order number
   // If not Metrc based: vendor and order number
   const isFormValidMetrcBased =
     purchaseOrderMetrcTransfers.length > 0 && !!purchaseOrder.order_number;
@@ -511,7 +512,7 @@ export default function CreateUpdatePurchaseOrderModal({
                 }
               >
                 <Box display="flex" flexDirection="column" alignItems="center">
-                  <Box mb={0.5}>
+                  <Box height={40} mb={0.5}>
                     <KeyboardIcon
                       width={36}
                       height={36}
@@ -532,16 +533,16 @@ export default function CreateUpdatePurchaseOrderModal({
                 }
               >
                 <Box display="flex" flexDirection="column" alignItems="center">
-                  <Box mb={0.5}>
-                    <CloudDownloadIcon
-                      width={36}
-                      height={36}
-                      fill={false ? "rgba(203, 166, 121, 1.0)" : "#2c3e50"}
-                      stroke={false ? "rgba(203, 166, 121, 1.0)" : "#2c3e50"}
+                  <Box height={40} mb={0.5}>
+                    <img
+                      src={MetrcLogo}
+                      alt="Metrc Logo"
+                      width={40}
+                      height={40}
                     />
                   </Box>
                   <Typography variant="body1">
-                    Create from Metrc manifest(s)
+                    Create from Metrc manifest
                   </Typography>
                   <Typography variant="body2" color="textPrimary">
                     (faster, recommended)
@@ -554,9 +555,12 @@ export default function CreateUpdatePurchaseOrderModal({
           <Box display="flex" flexDirection="column" mb={4}>
             <Banner>
               <Typography variant="body2" color="textSecondary">
-                {isMetrcBased
-                  ? '"Create purchase order from Metrc manifest(s)" selected'
-                  : '"Create purchase order from scratch" selected'}
+                {isMetrcBased ? (
+                  <strong>Create purchase order from Metrc manifest</strong>
+                ) : (
+                  <strong>Create purchase order from scratch</strong>
+                )}
+                {" selected"}
               </Typography>
               <Button onClick={() => setPurchaseOrder({ ...newPurchaseOrder })}>
                 Change

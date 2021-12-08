@@ -183,7 +183,7 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
             {isMetrcBased && (
               <Box display="flex" flexDirection="column" mt={2}>
                 <Typography variant="body2" color="textSecondary">
-                  Related manifest(s) from Metrc
+                  Related Metrc manifest
                 </Typography>
                 {metrcTransfers.map((metrcTransfer) => (
                   <Box

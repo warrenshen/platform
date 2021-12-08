@@ -78,8 +78,9 @@ export default function PurchaseOrdersDataGrid({
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
           <PurchaseOrderDrawerLauncher
-            label={params.row.data.order_number as string}
-            purchaseOrderId={params.row.data.id as string}
+            label={params.row.data.order_number}
+            isMetrcBased={params.row.data.is_metrc_based}
+            purchaseOrderId={params.row.data.id}
           />
         ),
       },

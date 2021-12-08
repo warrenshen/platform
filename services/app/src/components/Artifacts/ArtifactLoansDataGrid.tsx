@@ -158,6 +158,7 @@ export default function ArtifactLoansDataGrid({
             {params.row.data.purchase_order && (
               <PurchaseOrderDrawerLauncher
                 label={params.row.data.artifact_name}
+                isMetrcBased={params.row.data.purchase_order.is_metrc_based}
                 purchaseOrderId={params.row.data.purchase_order.id}
               />
             )}

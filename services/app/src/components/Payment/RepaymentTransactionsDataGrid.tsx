@@ -215,18 +215,15 @@ export default function RepaymentTransactionsDataGrid({
           <Box display="flex" alignItems="center">
             {params.row.data.transaction?.loan?.purchase_order && (
               <PurchaseOrderDrawerLauncher
-                label={params.row.data.transaction.loan.artifact_name as string}
-                purchaseOrderId={
-                  params.row.data.transaction.loan.artifact_id as string
-                }
+                label={params.row.data.transaction.loan.artifact_name}
+                isMetrcBased={params.row.data.purchase_order.is_metrc_based}
+                purchaseOrderId={params.row.data.transaction.loan.artifact_id}
               />
             )}
             {params.row.data.transaction?.loan?.invoice && (
               <InvoiceDrawerLauncher
-                label={params.row.data.transaction.loan.artifact_name as string}
-                invoiceId={
-                  params.row.data.transaction.loan.artifact_id as string
-                }
+                label={params.row.data.transaction.loan.artifact_name}
+                invoiceId={params.row.data.transaction.loan.artifact_id}
               />
             )}
             {params.row.data.line_of_credit && "N/A"}

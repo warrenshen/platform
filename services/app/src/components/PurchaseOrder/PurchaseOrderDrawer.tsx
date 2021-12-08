@@ -124,14 +124,14 @@ export default function PurchaseOrderDrawer({
       <Box display="flex" flexDirection="column" mt={2}>
         <FormControlLabel
           control={<Checkbox disabled={true} checked={isMetrcBased} />}
-          label={"Order based on Metrc manifest(s)?"}
+          label={"Order based on Metrc manifest?"}
         />
       </Box>
       {isMetrcBased && (
         <Box display="flex" flexDirection="column" mt={2}>
           <Box>
             <Typography variant="body2" color="textSecondary">
-              Metrc Manifest(s)
+              Metrc Manifest
             </Typography>
           </Box>
           {purchaseOrder.purchase_order_metrc_transfers.map(

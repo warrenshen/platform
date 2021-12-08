@@ -1,4 +1,4 @@
-import BespokeFinancialLogo from "components/Shared/Layout/logo.png";
+import BespokeFinancialLogo from "components/Shared/Images/BespokeFinancialLogo.png";
 import { ReactNode } from "react";
 import styled from "styled-components";
 

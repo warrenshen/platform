@@ -191,7 +191,7 @@ export default function PurchaseOrderFormV2({
         ) : (
           <Box mt={1}>
             <Typography variant="body2" color="textSecondary">
-              Selectable manifests correspond to Metrc transfers created within
+              Selectable manifests correspond to Metrc manifests created within
               the last 60 days and from vendors you are partnered with
             </Typography>
           </Box>
@@ -201,7 +201,7 @@ export default function PurchaseOrderFormV2({
         <Box display="flex" flexDirection="column" mt={2}>
           <Alert severity="success">
             <Typography variant="body2">
-              Since the selected Metrc manifest(s) passed lab tests, you do not
+              Since the selected Metrc manifest passed lab tests, you do not
               have to upload Certificate of Analysis (COA) files for this
               purchase order.
             </Typography>

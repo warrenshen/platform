@@ -16,7 +16,7 @@ import { ReactComponent as RepaymentsIcon } from "components/Shared/Layout/Icons
 import { ReactComponent as ReportsIcon } from "components/Shared/Layout/Icons/Reports.svg";
 import { ReactComponent as SettingsIcon } from "components/Shared/Layout/Icons/Settings.svg";
 import { ReactComponent as VendorsIcon } from "components/Shared/Layout/Icons/Vendors.svg";
-import BespokeFinancialLogo from "components/Shared/Layout/logo.png";
+import BespokeFinancialLogo from "components/Shared/Images/BespokeFinancialLogo.png";
 import NestedListItem from "components/Shared/Layout/NestedListItem";
 import SidebarItem from "components/Shared/Layout/SidebarItem";
 import UserMenu from "components/Shared/User/UserMenu";
