@@ -78,19 +78,19 @@ from bespoke.inventory.analysis.shared.inventory_types import (
 BIGQUERY_ENGINE_URL = 'bigquery://bespoke-financial/ProdMetrcData'
 DEFAULT_START_DATE_STR = '2020-01-01'
 
-logging.basicConfig(format='%(asctime)s [%(levelname)s] - %(message)s',
-					datefmt='%m/%d/%Y %H:%M:%S',
-					level=logging.INFO)
-
 num_cpus = psutil.cpu_count(logical=False)
 ray.init(num_cpus=num_cpus)
 
 def _setup() -> None:
+	logging.basicConfig(format='%(asctime)s [%(levelname)s] - %(message)s',
+					datefmt='%m/%d/%Y %H:%M:%S',
+					level=logging.INFO)
+
+	dotenv_path = os.path.join(os.environ.get('SERVER_ROOT_DIR', '.'), '.env')
 	load_dotenv(dotenv_path)
 
-logging.info(f'Running with {num_cpus} cpus')
-dotenv_path = os.path.join(os.environ.get('SERVER_ROOT_DIR', '.'), '.env')
 _setup()
+logging.info(f'Running with {num_cpus} cpus')
 
 def _run_analysis_with_params(d: download_util.Download, ctx: AnalysisContext, q: Query, params: AnalysisParamsDict, index: int) -> AnalysisSummaryDict:
 	## Analyze counts for the dataset
@@ -207,7 +207,8 @@ CompanyInputDict = TypedDict('CompanyInputDict', {
 	'company_identifier': str,
 	'company_id': str,
 	'license_numbers': List[str],
-	'start_date': datetime.date
+	'start_date': datetime.date,
+	'num_sales_receipts': int
 })
 
 ArgsDict = TypedDict('ArgsDict', {
@@ -292,7 +293,7 @@ def _run_analysis_per_customer( # type: ignore
 		logging.info('ENGINE URL IS {}'.format(BIGQUERY_ENGINE_URL))
 		bigquery_engine = download_util.get_bigquery_engine(BIGQUERY_ENGINE_URL)
 		all_dataframes_dict = download_util.get_dataframes_for_analysis(
-			q, ctx, bigquery_engine, dry_run=args_dict['dry_run'])
+			q, ctx, bigquery_engine, dry_run=args_dict['dry_run'], num_threads=args_dict['num_threads'])
 		after = time.time()
 		ctx.log_timing('Took {} seconds to run sql queries for {}'.format(
 			round(after - before, 2), q.company_name))
@@ -380,7 +381,8 @@ def _get_company_inputs_from_xlsx(filepath: str, restrict_to_company_indentifier
 			company_identifier=company_identifier,
 			company_id='',
 			license_numbers=[el.strip() for el in row[2].strip().split(';')],
-			start_date=row[3]
+			start_date=row[3],
+			num_sales_receipts=1
 		))
 
 	return company_inputs
@@ -437,7 +439,8 @@ def _get_company_inputs_from_db(restrict_to_company_indentifier: str) -> List[Co
 		if not license_numbers:
 			continue
 		
-		has_sales_receipts = identifier_to_receipt_count.get(company_identifier, 0) > 0
+		num_sales_receipts = identifier_to_receipt_count.get(company_identifier, 0)
+		has_sales_receipts = num_sales_receipts > 0
 
 		if not has_sales_receipts:
 			print(f'WARNING!!!')
@@ -449,7 +452,8 @@ def _get_company_inputs_from_db(restrict_to_company_indentifier: str) -> List[Co
 			company_identifier=company_identifier,
 			company_id=company_id,
 			license_numbers=license_numbers,
-			start_date=date_util.load_date_str(DEFAULT_START_DATE_STR)
+			start_date=date_util.load_date_str(DEFAULT_START_DATE_STR),
+			num_sales_receipts=num_sales_receipts
 		))
 
 	return company_inputs
@@ -503,6 +507,7 @@ def main() -> None:
 	parser.add_argument(
 		'--num_threads',
 		help='Number of max threads to use for parallel processing',
+		type=int
 	)
 
 	parser.add_argument(
@@ -527,9 +532,13 @@ def main() -> None:
 		save_dataframes=args.save_dataframes,
 		use_cached_summaries=args.use_cached_summaries,
 		write_to_db=args.write_to_db,
-		num_threads=args.num_threads
+		num_threads=args.num_threads if args.num_threads else 1
 	)
 
+	# We want to keep tasks that take a similar amount of time grouped together
+	# We use the number of sales receipts a customer has a proxy for how long the total
+	# analysis will take for that customer.
+	company_inputs.sort(key=lambda x: x['num_sales_receipts'])
 	company_input_chunks = cast(Iterator[List[CompanyInputDict]], chunker(company_inputs, size=num_cpus))
 	
 	index = 0

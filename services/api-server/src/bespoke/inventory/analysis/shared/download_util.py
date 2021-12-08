@@ -1,4 +1,5 @@
 import calendar
+import concurrent
 import datetime
 import numpy
 import logging
@@ -9,6 +10,7 @@ import pandas as pd
 import pytz
 import pyarrow
 
+from concurrent.futures import ThreadPoolExecutor
 from sqlalchemy import create_engine
 from typing import Dict, List, Optional, Iterable, Any, cast
 from mypy_extensions import TypedDict
@@ -341,7 +343,7 @@ def get_bigquery_engine(engine_url: str) -> Any:
 	engine = create_engine(engine_url, credentials_path=os.path.expanduser(BIGQUERY_CREDENTIALS_PATH))
 	return engine
 
-def get_dataframes_for_analysis(q: Query, ctx: AnalysisContext, engine: Any, dry_run: bool) -> AllDataframesDict:
+def get_dataframes_for_analysis(q: Query, ctx: AnalysisContext, engine: Any, dry_run: bool, num_threads: int) -> AllDataframesDict:
 	# Download packages, sales transactions, incoming / outgoing tranfers
 	limit = 50 if dry_run else None
 
@@ -388,11 +390,44 @@ def get_dataframes_for_analysis(q: Query, ctx: AnalysisContext, engine: Any, dry
 			'download/inventory_packages.pickle'
 		))
 	else:
-		company_incoming_transfer_packages_dataframe = pd.read_sql_query(company_incoming_transfer_packages_query, engine)
-		company_outgoing_transfer_packages_dataframe = pd.read_sql_query(company_outgoing_transfer_packages_query, engine)
-		company_sales_receipts_dataframe = pd.read_sql_query(company_sales_receipts_query, engine)
-		company_sales_transactions_dataframe = pd.read_sql_query(company_sales_transactions_query, engine)
-		company_inventory_packages_dataframe = pd.read_sql_query(company_inventory_packages_query, engine)
+		if num_threads > 1:
+			with ThreadPoolExecutor(max_workers=num_threads) as executor:
+				dataframe_args_list = [
+					('incoming_transfer_packages', company_incoming_transfer_packages_query),
+					('outgoing_transfer_packages', company_outgoing_transfer_packages_query),
+					('sales_receipts', company_sales_receipts_query),
+					('sales_transactions', company_sales_transactions_query),
+					('inventory_packages', company_inventory_packages_query)
+				]
+				future_to_name = {}
+				for i in range(len(dataframe_args_list)):
+					(dataframe_name, query_str) = dataframe_args_list[i]
+
+					future_to_name[executor.submit(
+						pd.read_sql_query,
+						query_str,
+						engine
+						)] = dataframe_name
+
+				for future in concurrent.futures.as_completed(future_to_name):
+					dataframe = future.result()
+					df_name = future_to_name[future]
+					if df_name == 'incoming_transfer_packages':
+						company_incoming_transfer_packages_dataframe = dataframe
+					elif df_name == 'outgoing_transfer_packages':
+						company_outgoing_transfer_packages_dataframe = dataframe
+					elif df_name == 'sales_receipts':
+						company_sales_receipts_dataframe = dataframe
+					elif df_name == 'sales_transactions':
+						company_sales_transactions_dataframe = dataframe
+					elif df_name == 'inventory_packages':
+						company_inventory_packages_dataframe = dataframe
+		else:
+			company_incoming_transfer_packages_dataframe = pd.read_sql_query(company_incoming_transfer_packages_query, engine)
+			company_outgoing_transfer_packages_dataframe = pd.read_sql_query(company_outgoing_transfer_packages_query, engine)
+			company_sales_receipts_dataframe = pd.read_sql_query(company_sales_receipts_query, engine)
+			company_sales_transactions_dataframe = pd.read_sql_query(company_sales_transactions_query, engine)
+			company_inventory_packages_dataframe = pd.read_sql_query(company_inventory_packages_query, engine)
 
 	if ctx.write_params['save_download_dataframes']:
 		ctx.mkdir('download')
