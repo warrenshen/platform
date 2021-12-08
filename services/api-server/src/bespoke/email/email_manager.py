@@ -22,6 +22,12 @@ SendGridConfigDict = TypedDict('SendGridConfigDict', {
 	'api_key': str
 })
 
+# Trimmed down config only needed to construct the EmailSender object
+EmailSenderConfigDict = TypedDict('EmailSenderConfigDict', {
+	'sendgrid_api_key': str,
+	'from_addr': str
+})
+
 EmailConfigDict = TypedDict(
 	'EmailConfigDict', {
 		'email_provider': str,
@@ -51,7 +57,7 @@ class EmailSender(object):
 	threads that do the waiting.
 	"""
 
-	def __init__(self, config: EmailConfigDict, max_workers: int = 2):
+	def __init__(self, config: EmailSenderConfigDict, max_workers: int = 2):
 		"""
 		:param api_key: SendGrid API key obtained from SendGrid account.
 		:param from_:
@@ -59,7 +65,7 @@ class EmailSender(object):
 				address of in fom "Example Name <example@example.com>".
 		:param max_workers: Max number of thread workers for async mode.
 		"""
-		api_key = config['sendgrid_config']['api_key']
+		api_key = config['sendgrid_api_key']
 		from_ = config['from_addr']
 
 		self.config = config
@@ -168,4 +174,8 @@ class EmailSendingException(Exception):
 
 
 def new_client(config: EmailConfigDict) -> EmailSender:
-	return EmailSender(config)
+	sender_config = EmailSenderConfigDict(
+		sendgrid_api_key=config['sendgrid_config']['api_key'],
+		from_addr=config['from_addr']
+	)
+	return EmailSender(sender_config)

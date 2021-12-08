@@ -26,7 +26,7 @@ from typing import List, cast
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
 
-from server.config import get_config, get_email_client
+from server.config import get_config, get_email_client_config
 
 from bespoke.config.config_util import MetrcWorkerConfig
 from bespoke.date import date_util
@@ -66,9 +66,9 @@ def main(
 	engine = models.create_engine(statement_timeout=10000)
 	session_maker = models.new_sessionmaker(engine)
 
-	email_client = get_email_client(config)
+	email_client_config = get_email_client_config(config)
 	sendgrid_client = sendgrid_util.Client(
-		email_client,
+		email_client_config,
 		session_maker,
 		config.get_security_config(),
 	)

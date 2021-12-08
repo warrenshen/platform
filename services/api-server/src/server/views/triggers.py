@@ -32,24 +32,13 @@ from bespoke.config.config_util import (
 
 handler = Blueprint('triggers', __name__)
 
-
-NotificationTemplateData = TypedDict('NotificationTemplateData', {
-	'trigger_name': str,
-	'domain': str,
-	'outcome': str,
-	'fatal_error': str,
-	'descriptive_errors': typing.List[str],
-	'additional_info': str
-}, total=False)
-
-
 def _prepare_notification_data(
 	trigger_name: str,
 	fatal_error: errors.Error,
 	descriptive_errors: typing.List[str],
-	additional_info: str) -> NotificationTemplateData:
+	additional_info: str) -> sendgrid_util.NotificationTemplateData:
 
-	data = NotificationTemplateData(
+	data = sendgrid_util.NotificationTemplateData(
 		trigger_name=trigger_name,
 		domain=current_app.app_config.BESPOKE_DOMAIN,
 		outcome='FAILED' if fatal_error else 'SUCCEEDED',
@@ -65,7 +54,7 @@ def _prepare_notification_data(
 	return data
 
 
-def _send_ops_notification(data: NotificationTemplateData) -> errors.Error:
+def _send_ops_notification(data: sendgrid_util.NotificationTemplateData) -> errors.Error:
 	if current_app.app_config.DONT_SEND_OPS_EMAILS:
 		return None
 

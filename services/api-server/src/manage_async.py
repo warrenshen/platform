@@ -10,7 +10,7 @@ from flask_script import Manager
 
 from bespoke.db import models
 from bespoke.email import sendgrid_util
-from server.config import get_config, get_email_client, is_development_env
+from server.config import get_config, get_email_client_config, is_development_env
 from server.views import triggers, healthcheck
 from server.views import report_generation
 
@@ -54,9 +54,9 @@ app.app_config = config
 app.engine = models.create_engine(statement_timeout=10000)
 app.session_maker = models.new_sessionmaker(app.engine)
 
-email_client = get_email_client(config)
+email_client_config = get_email_client_config(config)
 app.sendgrid_client = sendgrid_util.Client(
-	email_client, app.session_maker,
+	email_client_config, app.session_maker,
 	config.get_security_config())
 
 if __name__ == "__main__":

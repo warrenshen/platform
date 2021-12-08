@@ -52,10 +52,13 @@ from mypy_extensions import TypedDict
 from typing import Tuple, List, Dict, Any, Iterator, cast
 from sqlalchemy.orm.session import Session
 
+from bespoke.config import config_util
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.db.models_util import chunker
+from bespoke import errors
+from bespoke.email import email_manager, sendgrid_util
 from bespoke.excel import excel_reader
 from bespoke.inventory.analysis.shared import (
 	package_history, download_util, create_queries
@@ -234,7 +237,7 @@ ArgsDict = TypedDict('ArgsDict', {
 def _run_analysis_per_customer( # type: ignore
 	company_input: CompanyInputDict, 
 	args_dict: ArgsDict,
-	index: int) -> List[AnalysisSummaryDict]: # type: ignore
+	index: int) -> Tuple[List[AnalysisSummaryDict], errors.Error]: # type: ignore
 
 	_setup()
 
@@ -324,12 +327,15 @@ def _run_analysis_per_customer( # type: ignore
 
 		params_list = _get_params_list()
 	except Exception as e:
-		logging.error(f'Error downloading data for {q.company_name}. Err: {e}')
-		logging.error(traceback.format_exc())
-		return []
+		msg = f'Error downloading data for {q.company_name}. Err: {e}'
+		logging.error(msg)
+		err = errors.Error(msg)
+		err.traceback = traceback.format_exc()
+		logging.error(err.traceback)
+		return [], err
 
 	if args_dict['download_only']:
-		return []
+		return [], None
 
 	summaries = []
 
@@ -354,9 +360,12 @@ def _run_analysis_per_customer( # type: ignore
 					)
 
 	except Exception as e:
-		logging.error(f'Error running analysis logic for {q.company_name}. Err: {e}')
-		logging.error(traceback.format_exc())
-		return []
+		msg = f'Error running analysis logic for {q.company_name}. Err: {e}'
+		logging.error(msg)
+		err = errors.Error(msg)
+		err.traceback = traceback.format_exc()
+		logging.error(err.traceback)
+		return [], err
 
 	logging.info(f'Writing analysis summaries for {q.company_name}')
 	with open(ctx.get_output_path('backup/summaries.json'), 'w') as f:
@@ -367,7 +376,7 @@ def _run_analysis_per_customer( # type: ignore
 	initial_after = time.time()
 	ctx.log_timing(f'\nTook {round(initial_after - initial_before, 2)} seconds for computing e2e summary for {q.company_name}')
 
-	return summaries
+	return summaries, None
 
 def _get_company_inputs_from_xlsx(filepath: str, restrict_to_company_indentifier: str) -> List[CompanyInputDict]:
 	workbook, err = excel_reader.ExcelWorkbook.load_xlsx(filepath)
@@ -537,8 +546,12 @@ def main() -> None:
 	else:
 		company_inputs = _get_company_inputs_from_db(args.company_identifier)
 
+	if args.write_to_db and not os.environ.get('SENDGRID_API_KEY'):
+		raise Exception('When writing to the DB, we expect to use the email client to notify us of completion')
+
 	dry_run = True if args.dry_run else False
-	logging.info('Processing {} companies with dry_run={}'.format(len(company_inputs), dry_run))
+	line1 = 'Processing {} companies with dry_run={}'.format(len(company_inputs), dry_run)
+	logging.info(line1)
 
 	args_dict = ArgsDict(
 		download_only=args.download_only,
@@ -558,6 +571,7 @@ def main() -> None:
 	
 	index = 0
 	summaries = []
+	errors_list: List[errors.Error] = []
 	before = time.time()
 
 	for company_input_chunk in company_input_chunks:
@@ -567,14 +581,41 @@ def main() -> None:
 		) for j in range(len(company_input_chunk))])
 
 		index += len(company_input_chunk)
-		for summary_results in results_list:
-			summaries.extend(summary_results)
+		for (summary_results, err) in results_list:
+			if err:
+				errors_list.append(err)
+			else:
+				summaries.extend(summary_results)
 
 	summaries.sort(key=lambda x: x['company_info']['index'])
 	after = time.time()
 
-	logging.info(f'Took {round(after - before, 2)} seconds to run analysis for all companies')
+	line2 = f'Took {round(after - before, 2)} seconds to run analysis for all companies'
+	logging.info(line2)
 	inventory_summary_util.write_excel_for_summaries(summaries)
+	additional_info = f'{line1}\n{line2}'
+
+	if not args.write_to_db:
+		return
+
+	template_data = sendgrid_util.NotificationTemplateData(
+		trigger_name='run_metrc_analysis_for_all_customers',
+		domain='',
+		outcome='FAILED' if len(errors_list) > 0 else 'SUCCEEDED',
+		additional_info=additional_info
+	)
+	if errors_list:
+		template_data['descriptive_errors'] = [f'{err}\n{err.traceback}' for err in errors_list]
+
+	email_sender = email_manager.EmailSender(email_manager.EmailSenderConfigDict(
+		sendgrid_api_key=os.environ.get('SENDGRID_API_KEY'),
+		from_addr=config_util.BESPOKE_NO_REPLY_EMAIL_ADDRESS
+	))
+	email_sender.send_dynamic_email_template(
+		to_=[config_util.BESPOKE_OPS_EMAIL_ADDRESS],
+		template_id=sendgrid_util.TemplateNames.OPS_TRIGGER_NOTIFICATION,
+		template_data=cast(Dict, template_data),
+	)
 
 if __name__ == "__main__":
 	main()

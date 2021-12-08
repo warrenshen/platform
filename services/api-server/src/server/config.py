@@ -52,7 +52,7 @@ class Config(object):
 		else:
 			self.NO_REPLY_EMAIL_ADDRESS = os.environ.get(
 				'NO_REPLY_EMAIL_ADDRESS',
-				'do-not-reply@bespokefinancial.com')
+				config_util.BESPOKE_NO_REPLY_EMAIL_ADDRESS)
 
 		# List of emails reviewed by Bespoke Financial's operations team.
 		bank_notify_email_addresses_str = os.environ.get('BANK_NOTIFY_EMAIL_ADDRESSES', '')
@@ -61,7 +61,7 @@ class Config(object):
 		# List of emails reviewed by development team of this App.
 		self.OPS_EMAIL_ADDRESSES = list(map(
 			lambda s: s.strip(),
-			os.environ.get('OPS_EMAIL_ADDRESSES', 'bespoke-ops@sweatequity.vc').split(',')))
+			os.environ.get('OPS_EMAIL_ADDRESSES', config_util.BESPOKE_OPS_EMAIL_ADDRESS).split(',')))
 
 		self.DONT_SEND_OPS_EMAILS = bool(int(os.environ.get('DONT_SEND_OPS_EMAILS', '0')))
 
@@ -152,7 +152,7 @@ class Config(object):
 def get_config() -> Config:
 	return Config()
 
-def get_email_client(config: Config) -> EmailSender:
+def get_email_client_config(config: Config) -> EmailConfigDict:
 	email_config = EmailConfigDict(
 		email_provider=config.EMAIL_PROVIDER,
 		from_addr=config.NO_REPLY_EMAIL_ADDRESS,
@@ -165,5 +165,4 @@ def get_email_client(config: Config) -> EmailSender:
 		ops_email_addresses=config.OPS_EMAIL_ADDRESSES,
 		bank_notify_email_addresses=config.BANK_NOTIFY_EMAIL_ADDRESSES,
 	)
-	email_client = email_manager.new_client(email_config)
-	return email_client
+	return email_config

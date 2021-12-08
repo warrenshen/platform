@@ -273,6 +273,16 @@ def _get_template_defaults(template_name: str, config: email_manager.EmailConfig
 		'bespoke_contact_email': config['support_email_addr']
 	}
 
+NotificationTemplateData = TypedDict('NotificationTemplateData', {
+	'trigger_name': str,
+	'domain': str,
+	'outcome': str,
+	'fatal_error': str,
+	'descriptive_errors': List[str],
+	'additional_info': str
+}, total=False)
+
+
 TwoFactorPayloadDict = TypedDict('TwoFactorPayloadDict', {
 	'form_info': models.TwoFactorFormInfoDict,
 	'expires_at': datetime.datetime
@@ -320,20 +330,20 @@ class Client(object):
 
 	def __init__(
 		self,
-		email_client: email_manager.EmailSender,
+		email_config: email_manager.EmailConfigDict,
 		session_maker: Callable,
 		security_config: security_util.ConfigDict,
 	) -> None:
-		self._email_client = email_client
-		self._cfg = email_client.config
+		self._email_cfg = email_config
+		self._email_client = email_manager.new_client(email_config)
 		self._security_cfg = security_config
 		self._session_maker = session_maker
 
 	def get_bank_notify_email_addresses(self) -> List[str]:
-		return self._cfg['bank_notify_email_addresses']
+		return self._email_cfg['bank_notify_email_addresses']
 
 	def get_ops_email_addresses(self) -> List[str]:
-		return self._cfg['ops_email_addresses']
+		return self._email_cfg['ops_email_addresses']
 
 	def send(
 		self,
@@ -351,10 +361,10 @@ class Client(object):
 
 		template_id = _get_template_id(template_name)
 		template_data['defaults'] = _get_template_defaults(
-			template_name, self._cfg)
+			template_name, self._email_cfg)
 
 		recipients = _maybe_add_or_remove_recipients(
-			recipients, self._cfg, template_name, self._session_maker)
+			recipients, self._email_cfg, template_name, self._session_maker)
 
 		if not recipients:
 			return None, errors.Error('Cannot send an email when no recipients are specified')
@@ -365,7 +375,7 @@ class Client(object):
 			'template_data': template_data,
 		}
 
-		is_prod = is_prod_env(self._cfg['flask_env'])
+		is_prod = is_prod_env(self._email_cfg['flask_env'])
 
 		if not _requires_secure_link(template_name):
 			try:

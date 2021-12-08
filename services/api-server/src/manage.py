@@ -15,7 +15,7 @@ from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.security import two_factor_util
-from server.config import get_config, get_email_client, is_development_env, is_test_env
+from server.config import get_config, get_email_client_config, is_development_env, is_test_env
 from server.views import (
 	auth,
 	companies,
@@ -122,10 +122,12 @@ app.engine = models.create_engine()
 app.session_maker = models.new_sessionmaker(app.engine)
 app.jwt_manager = JWTManager(app)
 
-email_client = get_email_client(config)
+email_client_config = get_email_client_config(config)
 app.sendgrid_client = sendgrid_util.Client(
-	email_client, app.session_maker,
-	config.get_security_config())
+	email_client_config, 
+	app.session_maker,
+	config.get_security_config()
+)
 
 if not config.IS_TEST_ENV:
 	app.sms_client = two_factor_util.SMSClient(
