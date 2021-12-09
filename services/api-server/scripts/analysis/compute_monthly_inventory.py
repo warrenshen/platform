@@ -588,6 +588,7 @@ def main() -> None:
 	summaries = []
 	errors_list: List[errors.Error] = []
 	before = time.time()
+	cur_date = datetime.date.today()
 
 	for company_input_chunk in company_input_chunks:
 		if num_processes > 1:
@@ -614,7 +615,7 @@ def main() -> None:
 
 	line2 = f'Took {round(after - before, 2)} seconds to run analysis for all companies'
 	logging.info(line2)
-	inventory_summary_util.write_excel_for_summaries(summaries)
+	inventory_summary_util.write_excel_for_summaries(summaries, cur_date)
 	additional_info = f'{line1}\n{line2}'
 
 	if not args.write_to_db:

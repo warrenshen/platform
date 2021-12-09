@@ -90,7 +90,7 @@ def write_summary_to_db(
 	else:
 		session.add(db_summary)
 
-def write_excel_for_summaries(summaries: List[AnalysisSummaryDict]) -> None:
+def write_excel_for_summaries(summaries: List[AnalysisSummaryDict], cur_date: datetime.date) -> None:
 	
 	wb = excel_writer.WorkbookWriter(xlwt.Workbook())
 	summary_sheet = wb.add_sheet('Summary')
@@ -196,7 +196,7 @@ def write_excel_for_summaries(summaries: List[AnalysisSummaryDict]) -> None:
 	if for_one_company:
 		filepath = f'out/{company_name}_analysis_summary.xls'
 	else:
-		filepath = f'out/many_companies_analysis_summary.xls'
+		filepath = f'out/many_companies_analysis_summary_{cur_date.isoformat()}.xls'
 
 	with open(filepath, 'wb') as f:
 		wb.save(f)

@@ -225,7 +225,7 @@ class Query(object):
 		self.sales_transactions_start_date = sales_transactions_start_date
 		self.company_id = company_id
 		self.company_identifier = company_identifier
-		self.company_name = company_name
+		self.company_name = company_name.replace(' ', '_') # because its used in filenames
 		self.license_numbers = license_numbers
 
 class Printer(object):
