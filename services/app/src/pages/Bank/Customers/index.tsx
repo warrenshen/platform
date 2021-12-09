@@ -1,5 +1,5 @@
 import { Box, TextField } from "@material-ui/core";
-import { ValueFormatterParams } from "@material-ui/data-grid";
+import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import CreateCustomerModal from "components/Customer/CreateCustomerModal";
 import CreateBulkMinimumMonthlyFeeModal from "components/Fee/CreateMinimumInterestFeesModal";
 import CreateMonthEndPaymentsModal from "components/Fee/CreateMonthEndPaymentsModal";
@@ -14,14 +14,47 @@ import ModalButton from "components/Shared/Modal/ModalButton";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { Companies, useGetCustomersWithMetadataQuery } from "generated/graphql";
+import {
+  GetCustomersWithMetadataQuery,
+  useGetCustomersWithMetadataQuery,
+} from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { todayAsDateStringServer } from "lib/date";
 import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ColumnWidths } from "lib/tables";
-import { filter, sortBy } from "lodash";
 import { useContext, useMemo, useState } from "react";
+
+function getRows(data: GetCustomersWithMetadataQuery): RowsProp {
+  return (
+    data?.customers.map((company) => ({
+      ...company,
+      company_url: getBankCompanyRoute(
+        company.id,
+        BankCompanyRouteEnum.Overview
+      ),
+      cy_identififier: `customers-data-grid-view-customer-button-${company.identifier}`,
+      product_type: company.contract
+        ? ProductTypeToLabel[company.contract.product_type as ProductTypeEnum]
+        : "None",
+      adjusted_total_limit: !!company.financial_summaries[0]
+        ? company.financial_summaries[0]?.adjusted_total_limit
+        : null,
+      application_date: !!company.ebba_applications[0]
+        ? company.ebba_applications[0]?.application_date
+        : null,
+      total_outstanding_principal: !!company.financial_summaries[0]
+        ? company.financial_summaries[0]?.total_outstanding_principal
+        : null,
+      total_outstanding_interest: !!company.financial_summaries[0]
+        ? company.financial_summaries[0]?.total_outstanding_interest
+        : null,
+      total_outstanding_fees: !!company.financial_summaries[0]
+        ? company.financial_summaries[0]?.total_outstanding_fees
+        : null,
+    })) || []
+  );
+}
 
 export default function BankCustomersPage() {
   const {
@@ -42,16 +75,7 @@ export default function BankCustomersPage() {
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  const customers = useMemo(() => {
-    const filteredCustomers = filter(
-      data?.customers || [],
-      (customer) =>
-        `${customer.name} ${customer.dba_name} ${customer.identifier}`
-          .toLowerCase()
-          .indexOf(searchQuery.toLowerCase()) >= 0
-    );
-    return sortBy(filteredCustomers, (customer) => customer.name);
-  }, [searchQuery, data?.customers]);
+  const rows = data ? getRows(data) : [];
 
   const columns = useMemo(
     () => [
@@ -62,8 +86,8 @@ export default function BankCustomersPage() {
         minWidth: ColumnWidths.MinWidth,
         cellRender: ({ value, data }: { value: string; data: any }) => (
           <ClickableDataGridCell
-            dataCy={`customers-data-grid-view-customer-button-${data.identifier}`}
-            url={getBankCompanyRoute(data.id, BankCompanyRouteEnum.Overview)}
+            dataCy={data.cy_identifier}
+            url={data.company_url}
             label={value}
           />
         ),
@@ -76,13 +100,11 @@ export default function BankCustomersPage() {
         width: ColumnWidths.Type,
       },
       {
-        dataField: "contract.product_type",
+        dataField: "product_type",
         caption: "Product Type",
         width: ColumnWidths.ProductType,
-        calculateCellValue: (data: Companies) =>
-          data.contract
-            ? ProductTypeToLabel[data.contract.product_type as ProductTypeEnum]
-            : "None",
+        cellRender: (params: ValueFormatterParams) =>
+          params.row.data.product_type,
       },
       {
         dataField: "contract_name",
@@ -105,18 +127,8 @@ export default function BankCustomersPage() {
         caption: "Borrowing Limit",
         width: ColumnWidths.Currency,
         alignment: "right",
-        calculateCellValue: (data: any) =>
-          data.financial_summaries[0]
-            ? data.financial_summaries[0]?.adjusted_total_limit
-            : null,
         cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell
-            value={
-              params.row.data.financial_summaries[0]
-                ? params.row.data.financial_summaries[0]?.adjusted_total_limit
-                : null
-            }
-          />
+          <CurrencyDataGridCell value={params.row.data.adjusted_total_limit} />
         ),
       },
       {
@@ -125,13 +137,7 @@ export default function BankCustomersPage() {
         minWidth: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell
-            dateString={
-              params.row.data.ebba_applications[0]
-                ? params.row.data.ebba_applications[0]?.application_date
-                : null
-            }
-          />
+          <DateDataGridCell dateString={params.row.data.application_date} />
         ),
       },
       {
@@ -139,18 +145,9 @@ export default function BankCustomersPage() {
         caption: "Total Outstanding Principal",
         width: ColumnWidths.Currency,
         alignment: "right",
-        calculateCellValue: (data: any) =>
-          data.financial_summaries[0]
-            ? data.financial_summaries[0]?.total_outstanding_principal
-            : null,
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell
-            value={
-              params.row.data.financial_summaries[0]
-                ? params.row.data.financial_summaries[0]
-                    ?.total_outstanding_principal
-                : null
-            }
+            value={params.row.data.total_outstanding_principal}
           />
         ),
       },
@@ -159,18 +156,9 @@ export default function BankCustomersPage() {
         caption: "Total Outstanding Interest",
         width: ColumnWidths.Currency,
         alignment: "right",
-        calculateCellValue: (data: any) =>
-          data.financial_summaries[0]
-            ? data.financial_summaries[0]?.total_outstanding_interest
-            : null,
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell
-            value={
-              params.row.data.financial_summaries[0]
-                ? params.row.data.financial_summaries[0]
-                    ?.total_outstanding_interest
-                : null
-            }
+            value={params.row.data.total_outstanding_interest}
           />
         ),
       },
@@ -179,17 +167,9 @@ export default function BankCustomersPage() {
         caption: "Total Outstanding Late Fees",
         width: ColumnWidths.Currency,
         alignment: "right",
-        calculateCellValue: (data: any) =>
-          data.financial_summaries[0]
-            ? data.financial_summaries[0]?.total_outstanding_fees
-            : null,
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell
-            value={
-              params.row.data.financial_summaries[0]
-                ? params.row.data.financial_summaries[0]?.total_outstanding_fees
-                : null
-            }
+            value={params.row.data.total_outstanding_fees}
           />
         ),
       },
@@ -295,7 +275,7 @@ export default function BankCustomersPage() {
           <ControlledDataGrid
             isExcelExport
             pager
-            dataSource={customers}
+            dataSource={rows}
             columns={columns}
           />
         </Box>
