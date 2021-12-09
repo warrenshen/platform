@@ -343,9 +343,18 @@ def get_bigquery_engine(engine_url: str) -> Any:
 	engine = create_engine(engine_url, credentials_path=os.path.expanduser(BIGQUERY_CREDENTIALS_PATH))
 	return engine
 
-def get_dataframes_for_analysis(q: Query, ctx: AnalysisContext, engine: Any, dry_run: bool, num_threads: int) -> AllDataframesDict:
+def get_dataframes_for_analysis(
+	q: Query, ctx: AnalysisContext, engine: Any, 
+	dry_run: bool, num_threads: int, use_incremental_querying: bool) -> AllDataframesDict:
 	# Download packages, sales transactions, incoming / outgoing tranfers
 	limit = 50 if dry_run else None
+
+	# TODO(dlluncor): For incremental querying
+	# 1. Pull from cached dataframe
+	# 2. Determine the latest updated_at value
+	# 3. Query for updated_at values after that in the DB
+	# 4. Join by the unique column in each dataframe to create the final dataframe
+	#    to then save.
 
 	company_incoming_transfer_packages_query = create_queries.create_company_incoming_transfer_packages_query(
 		q.company_identifier, q.transfer_packages_start_date, 
@@ -367,7 +376,6 @@ def get_dataframes_for_analysis(q: Query, ctx: AnalysisContext, engine: Any, dry
 			license_numbers=q.license_numbers,
 			limit=limit
 	)
-
 
 	if ctx.read_params['use_cached_dataframes'] and os.path.exists(ctx.get_output_path(
 			'download/incoming_transfers.pickle'

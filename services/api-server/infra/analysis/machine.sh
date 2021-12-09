@@ -24,7 +24,7 @@ vi .env
 #
 # 
 # Use --use_cached_dataframes if doing a re-run where you are fixing a bug
-PYTHONPATH=src python3.7 scripts/analysis/compute_monthly_inventory.py --save_dataframes --num_threads=5 --write_to_db
+PYTHONPATH=src python3.7 scripts/analysis/compute_monthly_inventory.py --save_dataframes --num_threads=2 --num_processes=2 --write_to_db
 
 # Then to grab the files onto your local computer
 scp -i  ~/.ssh/bespoke_ec2_machine.pem ubuntu@54.218.119.190:/home/ubuntu/platform/services/api-server/out/many_companies_analysis_summary.xls ~/Downloads/many_companies_analysis_summary_12_09_2021.xls

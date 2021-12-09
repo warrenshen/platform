@@ -229,6 +229,7 @@ ArgsDict = TypedDict('ArgsDict', {
 	'save_dataframes': bool,
 	'use_cached_dataframes': bool,
 	'use_cached_summaries': bool,
+	'use_incremental_querying': bool,
 	'write_to_db': bool,
 	'num_threads': int
 })
@@ -302,7 +303,11 @@ def _run_analysis_per_customer(
 		logging.info('ENGINE URL IS {}'.format(BIGQUERY_ENGINE_URL))
 		bigquery_engine = download_util.get_bigquery_engine(BIGQUERY_ENGINE_URL)
 		all_dataframes_dict = download_util.get_dataframes_for_analysis(
-			q, ctx, bigquery_engine, dry_run=args_dict['dry_run'], num_threads=args_dict['num_threads'])
+			q, ctx, bigquery_engine, 
+			dry_run=args_dict['dry_run'],
+			num_threads=args_dict['num_threads'],
+			use_incremental_querying=args_dict['use_incremental_querying']
+		)
 		after = time.time()
 		run_sql_queries_timing = round(after - before, 2)
 		ctx.log_timing('Took {} seconds to run sql queries for {}'.format(run_sql_queries_timing, q.company_name))
@@ -499,13 +504,19 @@ def main() -> None:
 		dest='dry_run',
 		action='store_true',
 
-	) # Must be set to not run in dryrun mode
+	) # This will only query a small number of rows from the DB, for testing
 
 	parser.add_argument(
 		'--use_cached_dataframes',
 		dest='use_cached_dataframes',
 		action='store_true',
 	) # Whether to use pre-downloaded dataframes from BigQuery
+
+	parser.add_argument(
+		'--use_incremental_querying',
+		dest='use_incremental_querying',
+		action='store_true',
+	) # Whether to query for additional days of data and use the cached dataframes for previously pulled data
 
 	parser.add_argument(
 		'--save_dataframes',
@@ -560,6 +571,12 @@ def main() -> None:
 	if args.write_to_db and not os.environ.get('SENDGRID_API_KEY'):
 		raise Exception('When writing to the DB, we expect to use the email client to notify us of completion')
 
+	if args.use_incremental_querying and not args.use_cached_dataframes:
+		raise Exception('To use --use_incremental_querying you must also set that you are using the cached_dataframes')
+
+	if args.use_incremental_querying and not args.save_dataframes:
+		raise Exception('To use --use_incremental_querying you must also --save_dataframes because we need to use those saved dataframes to add the recently fetched data onto')
+
 	dry_run = True if args.dry_run else False
 	num_threads = args.num_threads if args.num_threads else 1
 	num_processes = args.num_processes if args.num_processes else 1
@@ -574,6 +591,7 @@ def main() -> None:
 		use_cached_dataframes=args.use_cached_dataframes,
 		save_dataframes=args.save_dataframes,
 		use_cached_summaries=args.use_cached_summaries,
+		use_incremental_querying=args.use_incremental_querying,
 		write_to_db=args.write_to_db,
 		num_threads=num_threads
 	)
