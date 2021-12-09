@@ -5,6 +5,7 @@ import string
 from typing import cast, Tuple, List
 
 from itsdangerous import URLSafeTimedSerializer
+from itsdangerous.serializer import Serializer
 from mypy_extensions import TypedDict
 from passlib.hash import pbkdf2_sha256 as sha256
 
@@ -21,6 +22,9 @@ ConfigDict = TypedDict('ConfigDict', {
 	'BESPOKE_DOMAIN': str
 })
 
+class SerializerType(object):
+	URL_SAFE_TIMED_SERIALIZER = 'timed_serializer'
+	SERIALIZER = 'serializer'
 
 def get_secure_link(cfg: ConfigDict, two_factor_row_id: str, is_url_relative: bool) -> str:
 	relative_url = '/get-secure-link?val=' + two_factor_row_id
@@ -29,6 +33,9 @@ def get_secure_link(cfg: ConfigDict, two_factor_row_id: str, is_url_relative: bo
 	else:
 		return cfg['BESPOKE_DOMAIN'] + relative_url
 
+def _get_serializer(cfg: ConfigDict) -> Serializer:
+	return Serializer(cfg['URL_SECRET_KEY'])
+
 def get_url_serializer(cfg: ConfigDict) -> URLSafeTimedSerializer:
 	secret_key = cfg['URL_SECRET_KEY']
 	signer_kwargs = dict(key_derivation='hmac', digest_method=hashlib.sha256)
@@ -36,11 +43,27 @@ def get_url_serializer(cfg: ConfigDict) -> URLSafeTimedSerializer:
 		secret_key, salt=cfg['URL_SALT'], signer_kwargs=signer_kwargs
 	)
 
-def encode_secret_string(cfg: ConfigDict, original_string: str) -> str:
-	return get_url_serializer(cfg).dumps(original_string)
+def encode_secret_string(cfg: ConfigDict, original_string: str, serializer_type: str = None) -> str:
+	if not serializer_type:
+		serializer_type = SerializerType.URL_SAFE_TIMED_SERIALIZER
 
-def decode_secret_string(cfg: ConfigDict, encoded_string: str) -> str:
-	return get_url_serializer(cfg).loads(encoded_string)
+	if serializer_type == SerializerType.URL_SAFE_TIMED_SERIALIZER:
+		return get_url_serializer(cfg).dumps(original_string)
+	elif serializer_type == SerializerType.SERIALIZER:
+		return _get_serializer(cfg).dumps(original_string)
+	else:
+		raise errors.Error(f'Unexpected serializer type {serializer_type}')
+
+def decode_secret_string(cfg: ConfigDict, encoded_string: str, serializer_type: str = None) -> str:
+	if not serializer_type:
+		serializer_type = SerializerType.URL_SAFE_TIMED_SERIALIZER
+
+	if serializer_type == SerializerType.URL_SAFE_TIMED_SERIALIZER:
+		return get_url_serializer(cfg).loads(encoded_string)
+	elif serializer_type == SerializerType.SERIALIZER:
+		return _get_serializer(cfg).loads(encoded_string)
+	else:
+		raise errors.Error(f'Unexpected serializer type {serializer_type}')
 
 def get_link_info_from_url(val: str, cfg: ConfigDict, max_age_in_seconds: int) -> Tuple[LinkInfoDict, errors.Error]:
 	url_serializer = get_url_serializer(cfg)

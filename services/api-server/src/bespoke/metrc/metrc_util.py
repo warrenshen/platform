@@ -89,6 +89,17 @@ def upsert_api_key(
 	if not us_state:
 		raise errors.Error('US state must be specified to create or update a metrc API key')
 
+	hashed_key = security_util.encode_secret_string(
+		security_cfg, api_key, serializer_type=security_util.SerializerType.SERIALIZER
+	)
+	prev_metrc_api_key = cast(
+		models.MetrcApiKey,
+		session.query(models.MetrcApiKey).filter(
+			models.MetrcApiKey.hashed_key == hashed_key
+		).first())
+	if prev_metrc_api_key:
+		raise errors.Error(f'Cannot store a duplicate metrc API key that is already registered to company_id="{prev_metrc_api_key.company_id}"')
+
 	if metrc_api_key_id:
 		# The "edit" case
 		metrc_api_key = cast(
@@ -101,6 +112,7 @@ def upsert_api_key(
 		
 		metrc_api_key.us_state = us_state
 		metrc_api_key.use_saved_licenses_only = use_saved_licenses_only
+		metrc_api_key.hashed_key = hashed_key
 		metrc_api_key.encrypted_api_key = security_util.encode_secret_string(
 			security_cfg, api_key
 		)
@@ -111,6 +123,7 @@ def upsert_api_key(
 		metrc_api_key.encrypted_api_key = security_util.encode_secret_string(
 			security_cfg, api_key
 		)
+		metrc_api_key.hashed_key = hashed_key
 		metrc_api_key.company_id = company.id
 		metrc_api_key.us_state = us_state
 		metrc_api_key.use_saved_licenses_only = use_saved_licenses_only

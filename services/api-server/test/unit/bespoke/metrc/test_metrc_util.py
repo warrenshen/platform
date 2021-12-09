@@ -196,11 +196,11 @@ class TestUpsertApiKey(db_unittest.TestCase):
 				metrc_api_key_id=None,
 				api_key='the-api-key2',
 				security_cfg=self.security_cfg,
-				us_state='CA', # disallowed because the default state is CA
+				us_state='CA', # disallowed beacuse its a duplicate
 				use_saved_licenses_only=False,
 				session=session
 			)
-			self.assertIsNone(err)
+			self.assertIsNotNone(err)
 
 class TestGetCompanyInfo(db_unittest.TestCase):
 

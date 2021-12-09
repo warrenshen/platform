@@ -408,6 +408,7 @@ class MetrcApiKey(Base):
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	encrypted_api_key = Column(String)
+	hashed_key = Column(String) # The one we can use for duplicate metrc key detection
 	last_used_at = Column(DateTime)
 	is_functioning = Column(Boolean)
 	us_state = Column(String)

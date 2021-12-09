@@ -187,7 +187,7 @@ class TestWriteDownloadSummaryAndNeedsRerun(db_unittest.TestCase):
 			metrc_api_key_id, err = metrc_util.upsert_api_key(
 				company_id=company_id,
 				metrc_api_key_id=None,
-				api_key='the-api-key',
+				api_key=f'the-api-key{str(uuid.uuid4())}',
 				security_cfg=security_cfg,
 				us_state='OR',
 				use_saved_licenses_only=False,

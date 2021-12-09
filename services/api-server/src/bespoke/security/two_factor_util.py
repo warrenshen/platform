@@ -71,10 +71,10 @@ def get_url_to_prompt_user(
 	is_url_relative: bool = False,
 ) -> str:
 	serializer = security_util.get_url_serializer(security_cfg)
-	signed_val = serializer.dumps(security_util.LinkInfoDict(
+	signed_val = serializer.dumps(cast(Dict, security_util.LinkInfoDict(
 		link_id=link_id,
 		email=user_email
-	))
+	)))
 	return security_util.get_secure_link(security_cfg, signed_val, is_url_relative)
 
 def get_two_factor_link(
