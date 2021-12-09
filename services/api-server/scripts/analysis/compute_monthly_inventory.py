@@ -49,7 +49,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
 from os import path
 from mypy_extensions import TypedDict
-from typing import Tuple, List, Dict, Any, Iterator, cast
+from typing import Callable, Tuple, List, Dict, Any, Iterator, cast
 from sqlalchemy.orm.session import Session
 
 from bespoke.config import config_util
@@ -233,13 +233,10 @@ ArgsDict = TypedDict('ArgsDict', {
 	'num_threads': int
 })
 
-@ray.remote # type: ignore
-def _run_analysis_per_customer( # type: ignore
+def _run_analysis_per_customer(
 	company_input: CompanyInputDict, 
 	args_dict: ArgsDict,
-	index: int) -> Tuple[List[AnalysisSummaryDict], errors.Error]: # type: ignore
-
-	_setup()
+	index: int) -> Tuple[List[AnalysisSummaryDict], errors.Error]:
 
 	initial_before = time.time()
 
@@ -377,6 +374,14 @@ def _run_analysis_per_customer( # type: ignore
 	ctx.log_timing(f'\nTook {round(initial_after - initial_before, 2)} seconds for computing e2e summary for {q.company_name}')
 
 	return summaries, None
+
+@ray.remote # type: ignore
+def _run_analysis_per_customer_for_ray( # type: ignore
+	company_input: CompanyInputDict, 
+	args_dict: ArgsDict,
+	index: int) -> Tuple[List[AnalysisSummaryDict], errors.Error]: # type: ignore
+	_setup()
+	return _run_analysis_per_customer(company_input, args_dict, index)
 
 def _get_company_inputs_from_xlsx(filepath: str, restrict_to_company_indentifier: str) -> List[CompanyInputDict]:
 	workbook, err = excel_reader.ExcelWorkbook.load_xlsx(filepath)
@@ -529,6 +534,12 @@ def main() -> None:
 	) # If true, then the summaries will be written to the DB
 
 	parser.add_argument(
+		'--num_processes',
+		help='Number of max processes to use for parallel processing',
+		type=int
+	)
+
+	parser.add_argument(
 		'--num_threads',
 		help='Number of max threads to use for parallel processing',
 		type=int
@@ -550,9 +561,13 @@ def main() -> None:
 		raise Exception('When writing to the DB, we expect to use the email client to notify us of completion')
 
 	dry_run = True if args.dry_run else False
-	line1 = 'Processing {} companies with dry_run={}'.format(len(company_inputs), dry_run)
-	logging.info(line1)
+	num_threads = args.num_threads if args.num_threads else 1
+	num_processes = args.num_processes if args.num_processes else 1
 
+	line1 = 'Processing {} companies with dry_run={}, num_threads={}, num_processes={}'.format(
+		len(company_inputs), dry_run, num_threads, num_processes)
+	logging.info(line1)
+	
 	args_dict = ArgsDict(
 		download_only=args.download_only,
 		dry_run=dry_run,
@@ -560,7 +575,7 @@ def main() -> None:
 		save_dataframes=args.save_dataframes,
 		use_cached_summaries=args.use_cached_summaries,
 		write_to_db=args.write_to_db,
-		num_threads=args.num_threads if args.num_threads else 1
+		num_threads=num_threads
 	)
 
 	# We want to keep tasks that take a similar amount of time grouped together
@@ -575,10 +590,17 @@ def main() -> None:
 	before = time.time()
 
 	for company_input_chunk in company_input_chunks:
-		results_list = ray.get([
-			_run_analysis_per_customer.remote(
-				company_input_chunk[j], args_dict, index + j
-		) for j in range(len(company_input_chunk))])
+		if num_processes > 1:
+			results_list = cast(List[Tuple[List[AnalysisSummaryDict], errors.Error]], ray.get([
+				_run_analysis_per_customer_for_ray.remote(
+					company_input_chunk[j], args_dict, index + j
+			) for j in range(len(company_input_chunk))]))
+		else:
+			results_list = []
+			for j in range(len(company_input_chunk)):
+				results_list.append(cast(Callable, _run_analysis_per_customer)(
+					company_input_chunk[j], args_dict, index + j
+				))
 
 		index += len(company_input_chunk)
 		for (summary_results, err) in results_list:
