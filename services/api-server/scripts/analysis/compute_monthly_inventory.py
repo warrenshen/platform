@@ -272,7 +272,7 @@ def _run_analysis_per_customer( # type: ignore
 		if os.path.exists(summaries_file):
 			logging.info('Reading cached summaries for {}'.format(company_name))
 			with open(summaries_file, 'r') as f:
-				return json.loads(f.read())['summaries']
+				return json.loads(f.read())['summaries'], None
 
 	## Setup input parameters
 
