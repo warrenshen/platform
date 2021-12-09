@@ -298,7 +298,6 @@ def upsert_custom_messages_payload(
 # Just create the partnership with a company_id
 
 def _create_user(user_input: Dict, company_id: str, session: Session) -> str:
-	# Note: Payor / Vendor users do not have any role for now.
 	user_first_name = user_input['first_name']
 	user_last_name = user_input['last_name']
 	user_email = user_input['email']
@@ -321,8 +320,29 @@ def _create_user(user_input: Dict, company_id: str, session: Session) -> str:
 	user.phone_number = user_phone_number
 	user.role = db_constants.UserRoles.COMPANY_CONTACT_ONLY
 	user.login_method = db_constants.LoginMethod.SIMPLE
-	session.add(user)
-	session.flush()
+
+	existing_user = cast(
+		models.User,
+		session.query(models.User).filter(
+			models.User.email == user_email.lower()
+		).first())
+
+	if existing_user is not None:
+		existing_company = cast(
+			models.Company,
+			session.query(models.Company).filter(
+				models.Company.id == existing_user.company_id
+			).first())
+
+		raise errors.Error(f'{existing_company.name} already exists and has a partnership in the platform. \
+			Please select from the list of existing companies.')
+	
+	try:
+		session.add(user)
+		session.flush()
+	except:
+		raise errors.Error("User violates uniqueness constraint.")
+
 	return str(user.id)
 
 def _create_partner_company_and_its_first_user(
@@ -355,10 +375,18 @@ def _create_partner_company_and_its_first_user(
 	existing_user = session.query(models.User).filter(
 		models.User.email == user_input['email'].lower()
 	).first()
-	if existing_user:
-		raise errors.Error('Email is already taken')
-
-	_create_user(user_input, company_id, session)
+	if existing_user and company.id == existing_user.company_id:
+		pass
+	elif existing_user and company.id != existing_user.company_id:
+		existing_company = cast(
+			models.Company,
+			session.query(models.Company).filter(
+				models.Company.id == existing_user.company_id
+			).first())
+		raise errors.Error(f'Email is already in use for company {existing_company.name}. \
+			Please select from the list of existing companies.')
+	else:
+		_create_user(user_input, company_id, session)
 
 	if partnership_req.license_info:
 		# Add any licenses the user might have specified.

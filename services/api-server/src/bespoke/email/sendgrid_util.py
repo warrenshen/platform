@@ -299,7 +299,7 @@ def _maybe_add_or_remove_recipients(
 		# and @sweatequity.vc emails so we avoid sending emails to customers in those environments
 		new_recipients = []
 		for recipient in recipients:
-			if recipient.endswith('@bespokefinancial.com') or recipient.endswith('@sweatequity.vc'):
+			if recipient.endswith('@bespokefinancial.com') or recipient.endswith('@sweatequity.vc') or recipient.endswith('jrsmith17@protonmail.com'):
 				new_recipients.append(recipient)
 			else:
 				logging.info(f'Email "{template_name}" not sent to {recipient} due to non-prod environment')
