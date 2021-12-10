@@ -23,37 +23,35 @@ import { todayAsDateStringServer } from "lib/date";
 import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ColumnWidths } from "lib/tables";
+import { filter, sortBy } from "lodash";
 import { useContext, useMemo, useState } from "react";
 
-function getRows(data: GetCustomersWithMetadataQuery): RowsProp {
-  return (
-    data?.customers.map((company) => ({
-      ...company,
-      company_url: getBankCompanyRoute(
-        company.id,
-        BankCompanyRouteEnum.Overview
-      ),
-      cy_identififier: `customers-data-grid-view-customer-button-${company.identifier}`,
-      product_type: company.contract
-        ? ProductTypeToLabel[company.contract.product_type as ProductTypeEnum]
-        : "None",
-      adjusted_total_limit: !!company.financial_summaries[0]
-        ? company.financial_summaries[0]?.adjusted_total_limit
-        : null,
-      application_date: !!company.ebba_applications[0]
-        ? company.ebba_applications[0]?.application_date
-        : null,
-      total_outstanding_principal: !!company.financial_summaries[0]
-        ? company.financial_summaries[0]?.total_outstanding_principal
-        : null,
-      total_outstanding_interest: !!company.financial_summaries[0]
-        ? company.financial_summaries[0]?.total_outstanding_interest
-        : null,
-      total_outstanding_fees: !!company.financial_summaries[0]
-        ? company.financial_summaries[0]?.total_outstanding_fees
-        : null,
-    })) || []
-  );
+function getRows(
+  customers: GetCustomersWithMetadataQuery["customers"]
+): RowsProp {
+  return customers.map((company) => ({
+    ...company,
+    company_url: getBankCompanyRoute(company.id, BankCompanyRouteEnum.Overview),
+    cy_identififier: `customers-data-grid-view-customer-button-${company.identifier}`,
+    product_type: company.contract
+      ? ProductTypeToLabel[company.contract.product_type as ProductTypeEnum]
+      : "None",
+    adjusted_total_limit: !!company.financial_summaries
+      ? company.financial_summaries[0]?.adjusted_total_limit
+      : null,
+    application_date: !!company.ebba_applications
+      ? company.ebba_applications[0]?.application_date
+      : null,
+    total_outstanding_principal: !!company.financial_summaries
+      ? company.financial_summaries[0]?.total_outstanding_principal
+      : null,
+    total_outstanding_interest: !!company.financial_summaries
+      ? company.financial_summaries[0]?.total_outstanding_interest
+      : null,
+    total_outstanding_fees: !!company.financial_summaries
+      ? company.financial_summaries[0]?.total_outstanding_fees
+      : null,
+  }));
 }
 
 export default function BankCustomersPage() {
@@ -75,7 +73,18 @@ export default function BankCustomersPage() {
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  const rows = data ? getRows(data) : [];
+  const customers = useMemo(() => {
+    const filteredCustomers = filter(
+      data?.customers || [],
+      (customer) =>
+        `${customer.name} ${customer.dba_name} ${customer.identifier}`
+          .toLowerCase()
+          .indexOf(searchQuery.toLowerCase()) >= 0
+    );
+    return sortBy(filteredCustomers, (customer) => customer.name);
+  }, [searchQuery, data?.customers]);
+
+  const rows = customers ? getRows(customers) : [];
 
   const columns = useMemo(
     () => [
