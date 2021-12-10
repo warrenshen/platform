@@ -35,6 +35,7 @@ from bespoke.db import db_constants, metrc_models_util, models, models_util
 def reassign_table_by_license(
 	table_name: str,
 	model: Any,
+	unique_key_columns: List[Any],
 	us_state: str,
 	license_number: str,
 	company_id: str,
@@ -72,6 +73,23 @@ def reassign_table_by_license(
 			else:
 				for metrc_table_row in metrc_table_rows_batch:
 					if str(metrc_table_row.company_id) != company_id:
+						# Check if duplicate row exists or not.
+						if unique_key_columns and len(unique_key_columns) > 0:
+							duplicate_metrc_table_row_query = session.query(model)
+							for unique_key_column in unique_key_columns:
+								if unique_key_column.key == 'company_id':
+									duplicate_metrc_table_row_query = duplicate_metrc_table_row_query.filter(model.company_id == company_id)
+								else:
+									duplicate_metrc_table_row_query = duplicate_metrc_table_row_query.filter(unique_key_column == getattr(metrc_table_row, unique_key_column.key))
+							duplicate_metrc_table_row = duplicate_metrc_table_row_query.first()
+
+							if duplicate_metrc_table_row:
+								# Correct row already exists, delete this unnecessary one.
+								print(f'Destroying {table_name} {str(metrc_table_row.id)}...')
+								if not is_test_run:
+									session.delete(metrc_table_row)
+								return
+
 						print(f'Updating {table_name} {str(metrc_table_row.id)} company_id from {str(metrc_table_row.company_id)} to {str(company_id)}...')
 						if not is_test_run:
 							metrc_table_row.company_id = company_id
@@ -110,23 +128,35 @@ def main(is_test_run: bool, company_identifier: str) -> None:
 			company_license_tuples.append((company_license.us_state, company_license.license_number))
 
 	table_tuples = [
-		('company_deliveries', models.CompanyDelivery),
-		('metrc_harvests', models.MetrcHarvest),
-		('metrc_packages', models.MetrcPackage),
-		('metrc_plant_batches', models.MetrcPlantBatch),
-		# ('metrc_plants', models.MetrcPlant),
-		('metrc_sales_receipts', models.MetrcSalesReceipt),
+		(
+			'company_deliveries',
+			models.CompanyDelivery,
+			[
+				models.CompanyDelivery.us_state,
+				models.CompanyDelivery.license_number,
+				models.CompanyDelivery.company_id,
+				models.CompanyDelivery.transfer_row_id,
+				models.CompanyDelivery.delivery_row_id,
+			],
+		),
+		('metrc_harvests', models.MetrcHarvest, None),
+		('metrc_packages', models.MetrcPackage, None),
+		('metrc_plant_batches', models.MetrcPlantBatch, None),
+		('metrc_plants', models.MetrcPlant, None),
+		('metrc_sales_receipts', models.MetrcSalesReceipt, None),
 	]
 
 	for company_license_tuple in company_license_tuples:
 		company_us_state, company_license_number = company_license_tuple
 
 		table_count = 0
-		for table_name, model in table_tuples:
+		for table_tuple in table_tuples:
+			table_name, model, unique_key_columns = table_tuple
 			print(f'[Table {table_count + 1}] Reassigning {table_name} company_id...')
 			reassign_table_by_license(
 				table_name,
 				model,
+				unique_key_columns,
 				company_us_state,
 				company_license_number,
 				company_id,
