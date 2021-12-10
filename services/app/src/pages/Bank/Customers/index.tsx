@@ -32,7 +32,7 @@ function getRows(
   return customers.map((company) => ({
     ...company,
     company_url: getBankCompanyRoute(company.id, BankCompanyRouteEnum.Overview),
-    cy_identififier: `customers-data-grid-view-customer-button-${company.identifier}`,
+    cy_identifier: `customers-data-grid-view-customer-button-${company.identifier}`,
     product_type: company.contract
       ? ProductTypeToLabel[company.contract.product_type as ProductTypeEnum]
       : "None",
