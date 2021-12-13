@@ -851,6 +851,9 @@
   - name: company
     using:
       foreign_key_constraint_on: company_id
+  - name: company_facility
+    using:
+      foreign_key_constraint_on: facility_row_id
   - name: file
     using:
       foreign_key_constraint_on: file_id
@@ -858,45 +861,48 @@
   - role: bank_admin
     permission:
       columns:
-      - id
       - company_id
-      - file_id
-      - license_number
-      - is_deleted
-      - rollup_id
-      - legal_name
-      - license_status
-      - is_current
-      - license_description
-      - us_state
-      - expiration_date
       - created_at
-      - updated_at
+      - expiration_date
+      - facility_row_id
+      - file_id
+      - id
+      - is_current
+      - is_deleted
+      - legal_name
       - license_category
+      - license_description
+      - license_number
+      - license_status
+      - rollup_id
+      - updated_at
+      - us_state
       filter: {}
   - role: bank_read_only
     permission:
       columns:
+      - company_id
+      - created_at
+      - expiration_date
+      - facility_row_id
+      - file_id
+      - id
       - is_current
       - is_deleted
-      - expiration_date
       - legal_name
       - license_category
       - license_description
       - license_number
       - license_status
       - rollup_id
-      - us_state
-      - created_at
       - updated_at
-      - company_id
-      - file_id
-      - id
+      - us_state
       filter: {}
   - role: company_admin
     permission:
       columns:
       - company_id
+      - facility_row_id
       - file_id
       - id
       - is_deleted
@@ -917,6 +923,7 @@
     permission:
       columns:
       - company_id
+      - facility_row_id
       - file_id
       - id
       - is_deleted
@@ -2815,6 +2822,13 @@
 - table:
     schema: public
     name: metrc_analysis_summaries
+  object_relationships:
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  - name: company_facility
+    using:
+      foreign_key_constraint_on: facility_row_id
 - table:
     schema: public
     name: metrc_api_keys

@@ -165,6 +165,7 @@ CompanyInfoDict = TypedDict('CompanyInfoDict', {
 
 FacilityDetailsDict = TypedDict('FacilityDetailsDict', {
 	'name': str,
+	'facility_row_id': str,
 	'license_numbers': List[str]
 })
 

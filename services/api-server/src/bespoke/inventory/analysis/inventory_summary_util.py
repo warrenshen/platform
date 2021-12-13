@@ -43,9 +43,9 @@ def write_summary_to_db(
 	inventory_res = summary['compare_inventory_results']
 	cogs_summary = summary['cogs_summary']
 
-	# TODO(dlluncor): Associate the db_summary with the facility_row_id as well
 	db_summary = models.MetrcAnalysisSummary()
 	db_summary.company_id = cast(Any, summary['company_info']['company_id'])
+	db_summary.facility_row_id = cast(Any, summary['facility_details']['facility_row_id'])
 	db_summary.date = cur_date
 	db_summary.methodology = methodology
 	db_summary.default_methodology = DEFAULT_METHODOLOGY

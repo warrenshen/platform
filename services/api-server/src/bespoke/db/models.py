@@ -251,6 +251,14 @@ class CompanySettings(Base):
 			active_ebba_application_id=str(self.active_ebba_application_id) if self.active_ebba_application_id else None,
 		)
 
+class CompanyFacility(Base):
+	__tablename__ = 'company_facilities'
+
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	company_id = Column(GUID)
+	name = Column(String)
+	address = Column(String)
+
 ContractDict = TypedDict('ContractDict', {
 	'id': str,
 	'product_type': str,
@@ -430,6 +438,7 @@ class MetrcAnalysisSummary(Base):
 
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	facility_row_id = cast(GUID, Column(GUID, ForeignKey('company_facilities.id')))
 	date = Column(Date)
 	methodology = Column(String)
 	default_methodology = Column(String)

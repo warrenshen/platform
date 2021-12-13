@@ -462,6 +462,7 @@ def _get_company_inputs_from_xlsx(filepath: str, restrict_to_company_indentifier
 			facility_details_list=[
 				FacilityDetailsDict(
 					name='default',
+					facility_row_id=None,
 					license_numbers=[el.strip() for el in row[2].strip().split(';')]
 				)
 			],
@@ -481,15 +482,34 @@ def _get_company_inputs_from_db(restrict_to_company_indentifier: str, use_facili
 
 	company_identifiers = []
 	company_id_to_name = {}
-	for company_record in company_records:
-		company_identifiers.append(company_record['identifier'])
-		company_id_to_name[company_record['id']] = company_record['name']
+	company_ids_set = set([])
 
+	for company_record in company_records:
+		company_id = company_record['id']
+		company_identifiers.append(company_record['identifier'])
+		company_id_to_name[company_id] = company_record['name']
+		company_ids_set.add(company_id)
+
+	facility_id_to_name = {}
+	company_facilities_records = []
+
+	if use_facilities:
+		company_facilities_query = create_queries.create_company_facilities_query(list(company_ids_set))
+		company_facilities_dataframe = pandas.read_sql_query(company_facilities_query, bigquery_engine)
+		company_facilities_records = company_facilities_dataframe.to_dict('records')
+		for facility_record in company_facilities_records:
+			facility_id_to_name[facility_record['facility_row_id']] = facility_record['facility_name']
+
+	# TODO(dlluncor): Add facility_row_id to the company_licenses query when that
+	# change has propogated to Hevo and Postgres
 	company_licenses_query = create_queries.create_company_licenses_query(company_identifiers)
 	company_licenses_dataframe = pandas.read_sql_query(company_licenses_query, bigquery_engine)
 	company_license_records = company_licenses_dataframe.to_dict('records')
 
 	company_to_retailer_licenses: Dict[Tuple[str, str], List[str]] = {}
+	# company_id -> facility_id -> licenses
+	company_id_to_licenses_by_facility_id: Dict[str, Dict[str, List[str]]] = {}
+
 	for company_license_record in company_license_records:
 		company_id = company_license_record['company_id']
 
@@ -500,6 +520,48 @@ def _get_company_inputs_from_db(restrict_to_company_indentifier: str, use_facili
 				company_to_retailer_licenses[company_id] = []
 			
 			company_to_retailer_licenses[company_id].append(license_number)
+
+			# Populate facility details
+			# facility_id = company_license_record['facility_row_id']
+			facility_id = None
+			if facility_id == None:
+				continue
+
+			if company_id not in company_id_to_licenses_by_facility_id:
+				company_id_to_licenses_by_facility_id[company_id] = {}
+
+			license_by_facility_id = company_id_to_licenses_by_facility_id[company_id]
+			if facility_id not in license_by_facility_id:
+				license_by_facility_id[facility_id] = []
+
+			license_by_facility_id[facility_id].append(license_number)
+
+	# Build a map of the company_id to facilities they have
+	company_id_to_facilities: Dict[str, List[FacilityDetailsDict]] = {}
+	for company_id in company_ids_set:
+		has_facilities = company_id in company_id_to_licenses_by_facility_id
+
+		if use_facilities and has_facilities:
+			licenses_by_facility_id = company_id_to_licenses_by_facility_id[company_id]
+			cur_facilities = []
+			for facility_row_id, license_numbers in licenses_by_facility_id.items():
+				facility_name = facility_id_to_name[facility_row_id]
+				cur_facilities.append(FacilityDetailsDict(
+					name=facility_name,
+					facility_row_id=facility_row_id,
+					license_numbers=license_numbers,
+				))
+
+			company_id_to_facilities[company_id] = cur_facilities
+		else:
+			license_numbers = company_to_retailer_licenses.get(company_id, [])
+			company_id_to_facilities[company_id] = [
+				FacilityDetailsDict(
+					name='default',
+					facility_row_id=None,
+					license_numbers=license_numbers
+				)
+			]
 
 	# Query for sales receipts
 	company_count_metrc_sales_receipts_query = create_queries.create_company_count_metrc_sales_receipts_query(company_identifiers)
@@ -531,18 +593,11 @@ def _get_company_inputs_from_db(restrict_to_company_indentifier: str, use_facili
 			print(f'WARNING: found company {company_name} ({company_identifier}) with 0 sales receipts but with retailer license(s)!')
 			continue
 
-		facility_details_list = [
-			FacilityDetailsDict(
-				name='default',
-				license_numbers=license_numbers
-			)
-		]
-
 		company_inputs.append(CompanyInputDict(
 			company_name=company_name,
 			company_identifier=company_identifier,
 			company_id=company_id,
-			facility_details_list=facility_details_list,
+			facility_details_list=company_id_to_facilities[company_id],
 			start_date=date_util.load_date_str(DEFAULT_START_DATE_STR),
 			num_sales_receipts=num_sales_receipts
 		))
