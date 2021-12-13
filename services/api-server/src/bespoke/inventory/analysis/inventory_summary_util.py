@@ -43,6 +43,7 @@ def write_summary_to_db(
 	inventory_res = summary['compare_inventory_results']
 	cogs_summary = summary['cogs_summary']
 
+	# TODO(dlluncor): Associate the db_summary with the facility_row_id as well
 	db_summary = models.MetrcAnalysisSummary()
 	db_summary.company_id = cast(Any, summary['company_info']['company_id'])
 	db_summary.date = cur_date
@@ -99,7 +100,8 @@ def write_excel_for_summaries(summaries: List[AnalysisSummaryDict], cur_date: da
 	rows.append(
 		[
 			'company_name', 
-			'identifier', 
+			'identifier',
+			'facility_name',
 		  'uses_pricing_table', 
 		  'uses_parenting',
 
@@ -139,6 +141,7 @@ def write_excel_for_summaries(summaries: List[AnalysisSummaryDict], cur_date: da
 		row: List[CellValue] = [
 			company_info['company_name'],
 			company_info['company_identifier'],
+			summary['facility_details']['name'],
 			'true' if cur_params['use_prices_to_fill_missing_incoming'] else '',
 			'true' if cur_params['find_parent_child_relationships'] else ''
 		]

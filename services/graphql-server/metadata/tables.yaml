@@ -806,6 +806,46 @@
             _eq: X-Hasura-Company-Id
 - table:
     schema: public
+    name: company_facilities
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - id
+      - company_id
+      - name
+      - address
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - address
+      - name
+      - company_id
+      - id
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+      - address
+      - name
+      - company_id
+      - id
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+      - address
+      - name
+      - company_id
+      - id
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+- table:
+    schema: public
     name: company_licenses
   object_relationships:
   - name: company

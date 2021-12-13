@@ -14,11 +14,17 @@ from bespoke.inventory.analysis import active_inventory_util as util
 from bespoke.inventory.analysis.shared.inventory_types import (
 	AnalysisContext,
 	AnalysisParamsDict,
+	DataframeDownloadContext,
 	MarginEstimateConfigDict
 )
 
 def _get_analysis_context() -> AnalysisContext:
 	return AnalysisContext(
+		output_root_dir='tmp'
+	)
+
+def _get_download_context() -> DataframeDownloadContext:
+	return DataframeDownloadContext(
 		output_root_dir='tmp',
 		read_params={
 			'use_cached_dataframes': False
@@ -33,6 +39,7 @@ class TestInventoryCounts(unittest.TestCase):
 	def _run_test(self, test: Dict) -> None:
 		ctx = _get_analysis_context()
 		test['ctx'] = ctx
+		test['download_ctx'] = _get_download_context()
 		dl = inventory_test_helper.create_download(test)
 		package_id_to_history = util.get_histories(dl, params=AnalysisParamsDict(
 			sold_threshold=1.0,

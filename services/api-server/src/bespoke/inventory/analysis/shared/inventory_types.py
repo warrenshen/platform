@@ -163,10 +163,16 @@ CompanyInfoDict = TypedDict('CompanyInfoDict', {
 	'index': int
 })
 
+FacilityDetailsDict = TypedDict('FacilityDetailsDict', {
+	'name': str,
+	'license_numbers': List[str]
+})
+
 # Summary of information that we get about the entire inventory summary
 # for a customer
 AnalysisSummaryDict = TypedDict('AnalysisSummaryDict', {
 	'company_info': CompanyInfoDict,
+	'facility_details': FacilityDetailsDict,
 	'analysis_params': AnalysisParamsDict,
 	'timing_info': Dict,
 	'counts_analysis': CountsAnalysisDict,
@@ -184,6 +190,30 @@ WriteOutputParams = TypedDict('WriteOutputParams', {
 
 class AnalysisContext(object):
 	"""Object for passing around bunch of information about the inventory analysis being run"""
+
+	def __init__(self, output_root_dir: str) -> None:
+		self.output_root_dir = output_root_dir
+
+	def log(self, s: str) -> None:
+		with open(self.get_output_path('log.txt'), 'a+') as f:
+			f.write(s + '\n')
+
+		logging.info(s)
+
+	def log_timing(self, s: str) -> None:
+		with open(self.get_output_path('timing.txt'), 'a+') as f:
+			f.write(s + '\n')
+
+		logging.info(s)
+
+	def mkdir(self, rel_path: str) -> None:
+		Path(os.path.join(self.output_root_dir, rel_path)).mkdir(parents=True, exist_ok=True)
+
+	def get_output_path(self, rel_path: str) -> str:
+		return os.path.join(self.output_root_dir, rel_path)
+
+class DataframeDownloadContext(object):
+	"""Object for context for the dataframe download"""
 
 	def __init__(self, output_root_dir: str, read_params: ReadParams, write_params: WriteOutputParams) -> None:
 		self.output_root_dir = output_root_dir
@@ -213,20 +243,14 @@ class Query(object):
 
 	def __init__(self, 
 		inventory_dates: List[str],
-		transfer_packages_start_date: str,
-		sales_transactions_start_date: str,
 		company_id: str,
 		company_identifier: str,
 		company_name: str,
-		license_numbers: List[str]
 	) -> None:
 		self.inventory_dates = inventory_dates
-		self.transfer_packages_start_date = transfer_packages_start_date
-		self.sales_transactions_start_date = sales_transactions_start_date
 		self.company_id = company_id
 		self.company_identifier = company_identifier
 		self.company_name = company_name.replace(' ', '_') # because its used in filenames
-		self.license_numbers = license_numbers
 
 class Printer(object):
 

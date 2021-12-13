@@ -12,12 +12,18 @@ from bespoke.inventory.analysis import active_inventory_util as util
 from bespoke.inventory.analysis import inventory_cogs_util as cogs_util
 from bespoke.inventory.analysis.shared.inventory_types import (
 	AnalysisContext,
+	DataframeDownloadContext,
 	ReadParams,
 	WriteOutputParams,
 )
 
 def _get_analysis_context() -> AnalysisContext:
 	return AnalysisContext(
+		output_root_dir='tmp'
+	)
+
+def _get_download_context() -> DataframeDownloadContext:
+	return DataframeDownloadContext(
 		output_root_dir='tmp',
 		read_params={
 			'use_cached_dataframes': False
@@ -33,20 +39,13 @@ class TestCreateCogsSummary(unittest.TestCase):
 
 	def _run_test(self, test: Dict) -> None:
 		test['ctx'] = _get_analysis_context()
+		test['download_ctx'] = _get_download_context()
 		dl = inventory_test_helper.create_download(test)
 
 		package_id_to_history = util.get_histories(dl, test['analysis_params'])
 		cogs_summary = cogs_util.create_cogs_summary(
 			d=dl,
-			ctx=AnalysisContext(
-				output_root_dir='tmp',
-				read_params=ReadParams(
-					use_cached_dataframes=False
-				),
-				write_params=WriteOutputParams(
-					save_download_dataframes=False
-				)
-			),
+			ctx=test['ctx'],
 			id_to_history=package_id_to_history,
 			params=test['analysis_params']
 		)

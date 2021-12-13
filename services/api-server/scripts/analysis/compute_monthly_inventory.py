@@ -70,7 +70,9 @@ from bespoke.inventory.analysis import inventory_summary_util
 from bespoke.inventory.analysis import stale_inventory_util
 from bespoke.inventory.analysis.shared.inventory_types import (
 	Query,
+	DataframeDownloadContext,
 	AnalysisContext,
+	FacilityDetailsDict,
 	ReadParams,
 	WriteOutputParams,
 	AnalysisParamsDict,
@@ -95,7 +97,10 @@ def _setup() -> None:
 _setup()
 logging.info(f'Running with {num_cpus} cpus')
 
-def _run_analysis_with_params(d: download_util.Download, ctx: AnalysisContext, q: Query, params: AnalysisParamsDict, index: int, initial_timing_info: Dict) -> AnalysisSummaryDict:
+def _run_analysis_with_params(
+		d: download_util.Download, ctx: AnalysisContext, q: Query, 
+		params: AnalysisParamsDict, index: int, initial_timing_info: Dict,
+		facility_details: FacilityDetailsDict) -> AnalysisSummaryDict:
 	## Analyze counts for the dataset
 	logging.info('Analyzing counts for {}'.format(q.company_name))
 	today_date = date_util.load_date_str(q.inventory_dates[-1]) # the most recent day is the one we want to compare the actual inventory to.
@@ -177,6 +182,7 @@ def _run_analysis_with_params(d: download_util.Download, ctx: AnalysisContext, q
 			company_identifier=q.company_identifier,
 			index=index
 		),
+		facility_details=facility_details,
 		timing_info=timing_info,
 		analysis_params=params,
 		counts_analysis=compute_inventory_dict['counts_analysis'],
@@ -218,7 +224,7 @@ CompanyInputDict = TypedDict('CompanyInputDict', {
 	'company_name': str,
 	'company_identifier': str,
 	'company_id': str,
-	'license_numbers': List[str],
+	'facility_details_list': List[FacilityDetailsDict],
 	'start_date': datetime.date,
 	'num_sales_receipts': int
 })
@@ -230,6 +236,7 @@ ArgsDict = TypedDict('ArgsDict', {
 	'use_cached_dataframes': bool,
 	'use_cached_summaries': bool,
 	'use_incremental_querying': bool,
+	'use_facilities': bool,
 	'write_to_db': bool,
 	'num_threads': int
 })
@@ -243,19 +250,13 @@ def _run_analysis_per_customer(
 
 	company_name = company_input['company_name']
 	company_identifier = company_input['company_identifier']
-	transfer_packages_start_date = company_input['start_date'].strftime('%Y-%m-%d')
-	sales_transactions_start_date = company_input['start_date'].strftime('%Y-%m-%d')
-	license_numbers = company_input['license_numbers']
 
 	# We dont want to mix up when we do dry runs with all the valuable
 	# information we store when --pull_all_data is set
-	if args_dict['dry_run']:
-		output_root_dir = 'out/dryrun/{}'.format(company_identifier)
-	else:
-		output_root_dir = 'out/{}'.format(company_identifier)
+	output_prefix = 'out/dryrun' if args_dict['dry_run'] else 'out'
 
-	ctx = AnalysisContext(
-		output_root_dir=output_root_dir,
+	download_ctx = DataframeDownloadContext(
+		output_root_dir=output_prefix + '/' + company_identifier,
 		read_params=ReadParams(
 			use_cached_dataframes=args_dict['use_cached_dataframes']
 		),
@@ -265,7 +266,7 @@ def _run_analysis_per_customer(
 	)
 
 	if args_dict['use_cached_summaries']:
-		summaries_file = ctx.get_output_path('backup/summaries.json')
+		summaries_file = download_ctx.get_output_path('backup/summaries.json')
 
 		if os.path.exists(summaries_file):
 			logging.info('Reading cached summaries for {}'.format(company_name))
@@ -273,63 +274,68 @@ def _run_analysis_per_customer(
 				return json.loads(f.read())['summaries'], None
 
 	## Setup input parameters
+	with open(download_ctx.get_output_path('log.txt'), 'w') as f:
+		f.write('')
+
+	with open(download_ctx.get_output_path('timing.txt'), 'w') as f:
+		f.write('')
 
 	today_date = datetime.date.today()
+	download_ctx.mkdir('download')
+	download_ctx.mkdir('backup')
 
-	ctx.mkdir('reports')
-	ctx.mkdir('download')
-	ctx.mkdir('backup')
-	with open(ctx.get_output_path('log.txt'), 'w') as f:
-		f.write('')
+	# When downloading, we want to download the data for all licenses associated
+	# with the customer.
+	#
+	# Then, we will split up that downloaded dataframe into each set of licenses
+	# that correspond to a particular facility.
+	all_licenses_for_customer_set = set([])
+	for facility_details in company_input['facility_details_list']:
+		for license_number in facility_details['license_numbers']:
+			all_licenses_for_customer_set.add(license_number)
 
-	with open(ctx.get_output_path('timing.txt'), 'w') as f:
-		f.write('')
-
-	q = util.Query(
-		inventory_dates=[], # gets filled in once we have the dataframes
+	transfer_packages_start_date = company_input['start_date'].strftime('%Y-%m-%d')
+	sales_transactions_start_date = company_input['start_date'].strftime('%Y-%m-%d')
+	df_query_params = download_util.DataFrameQueryParams(
+		company_identifier=company_identifier,
 		transfer_packages_start_date=transfer_packages_start_date,
 		sales_transactions_start_date=sales_transactions_start_date,
-		company_id=company_input['company_id'],
-		company_name=company_name,
-		company_identifier=company_identifier,
-		license_numbers=license_numbers
+		license_numbers=list(all_licenses_for_customer_set)
 	)
 
 	## Download the data
-	logging.info('About to download all inventory history for {}'.format(q.company_name))
+	logging.info('About to download all inventory history for {}'.format(company_name))
 
 	try:
 		before = time.time()
 		logging.info('ENGINE URL IS {}'.format(BIGQUERY_ENGINE_URL))
 		bigquery_engine = download_util.get_bigquery_engine(BIGQUERY_ENGINE_URL)
+		sql_helper = download_util.BigQuerySQLHelper(download_ctx, bigquery_engine)
+
 		all_dataframes_dict = download_util.get_dataframes_for_analysis(
-			q, ctx, bigquery_engine, 
+			df_query_params, download_ctx, sql_helper, 
 			dry_run=args_dict['dry_run'],
 			num_threads=args_dict['num_threads'],
 			use_incremental_querying=args_dict['use_incremental_querying']
 		)
 		after = time.time()
 		run_sql_queries_timing = round(after - before, 2)
-		ctx.log_timing('Took {} seconds to run sql queries for {}'.format(run_sql_queries_timing, q.company_name))
-		
+		download_ctx.log_timing('Took {} seconds to run sql queries for {}'.format(run_sql_queries_timing, company_name))
+
+		facility_and_df_list = []
 		before = time.time()
-		d = util.Download()
-		d.download_dataframes(
-			all_dataframes_dict, 
-			sql_helper=download_util.BigQuerySQLHelper(ctx, bigquery_engine),
-			ctx=ctx
-		)
+
+		for facility_details in company_input['facility_details_list']:
+			cur_dataframes_dict = download_util.restrict_dataframe_to_licenses(
+				all_dataframes_dict, facility_details['name'], facility_details['license_numbers']
+			)
+			facility_and_df_list.append((facility_details, cur_dataframes_dict))
+
 		after = time.time()
-		process_dataframes_timing = round(after - before, 2)
-		ctx.log_timing('\nTook {} seconds to process dataframes for {}'.format(
-			process_dataframes_timing, q.company_name))
+		download_ctx.log_timing('Took {} seconds to filter dataframes by facility licenses {}'.format(round(after - before), company_name))
 
-		q.inventory_dates = download_util.get_inventory_dates(
-			all_dataframes_dict, today_date)
-
-		params_list = _get_params_list()
 	except Exception as e:
-		msg = f'Error downloading data for {q.company_name}. Err: {e}'
+		msg = f'Error downloading data for {company_name}. Err: {e}'
 		logging.error(msg)
 		err = errors.Error(msg)
 		err.traceback = traceback.format_exc()
@@ -342,24 +348,63 @@ def _run_analysis_per_customer(
 	summaries = []
 
 	try:
-		for params in params_list:
-			# So the Dict doesnt get copied across the multiple params runs
-			initial_timing_info = {
-				'0_run_sql_queries': run_sql_queries_timing,
-				'1_process_dataframes': process_dataframes_timing
-			}
-			summary = _run_analysis_with_params(d, ctx, q, params, index, initial_timing_info)
-			summaries.append(summary)
 
-			if args_dict['write_to_db']:
-				engine = models.create_engine(is_prod_default=False)
-				session_maker = models.new_sessionmaker(engine)
-				with session_scope(session_maker) as session:
-					inventory_summary_util.write_summary_to_db(
-						cur_date=date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE),
-						summary=summary,
-						session=session
-					)
+		for (facility_details, cur_dataframes_dict) in facility_and_df_list:
+			# Run the analysis for each facility that is under this customer umbrella
+			uses_facilities = facility_details['name'] != 'default'
+			company_facility_dir = f"{company_identifier}/{facility_details['name']}" if uses_facilities else company_identifier
+
+			ctx = AnalysisContext(
+				output_root_dir=f'{output_prefix}/{company_facility_dir}'
+			)
+			ctx.mkdir('reports')
+
+			if uses_facilities:
+				# If we're not using facilites, then this log.txt and timing.txt
+				# file end up being the same as the download file, and we dont
+				# want to remove the timing data from there.
+				with open(ctx.get_output_path('log.txt'), 'w') as f:
+					f.write('')
+
+				with open(ctx.get_output_path('timing.txt'), 'w') as f:
+					f.write('')
+
+			before = time.time()
+			d = util.Download()
+			d.process_dataframes(cur_dataframes_dict, ctx=ctx)
+			after = time.time()
+			process_dataframes_timing = round(after - before, 2)
+			ctx.log_timing('\nTook {} seconds to process dataframes for {}, facility={}'.format(
+				process_dataframes_timing, company_name, facility_details['name']))
+
+			q = util.Query(
+				inventory_dates=download_util.get_inventory_dates(
+					all_dataframes_dict, today_date
+				),
+				company_id=company_input['company_id'],
+				company_name=company_name,
+				company_identifier=company_identifier
+			)
+			params_list = _get_params_list()
+
+			for params in params_list:
+				# So the Dict doesnt get copied across the multiple params runs
+				initial_timing_info = {
+					'0_run_sql_queries': run_sql_queries_timing,
+					'1_process_dataframes': process_dataframes_timing
+				}
+				summary = _run_analysis_with_params(d, ctx, q, params, index, initial_timing_info, facility_details)
+				summaries.append(summary)
+
+				if args_dict['write_to_db']:
+					engine = models.create_engine(is_prod_default=False)
+					session_maker = models.new_sessionmaker(engine)
+					with session_scope(session_maker) as session:
+						inventory_summary_util.write_summary_to_db(
+							cur_date=date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE),
+							summary=summary,
+							session=session
+						)
 
 	except Exception as e:
 		msg = f'Error running analysis logic for {q.company_name}. Err: {e}'
@@ -369,14 +414,14 @@ def _run_analysis_per_customer(
 		logging.error(err.traceback)
 		return [], err
 
-	logging.info(f'Writing analysis summaries for {q.company_name}')
-	with open(ctx.get_output_path('backup/summaries.json'), 'w') as f:
+	logging.info(f'Writing analysis summaries for {company_name}')
+	with open(download_ctx.get_output_path('backup/summaries.json'), 'w') as f:
 		f.write(json.dumps({
 			'summaries': summaries
 		}))
 
 	initial_after = time.time()
-	ctx.log_timing(f'\nTook {round(initial_after - initial_before, 2)} seconds for computing e2e summary for {q.company_name}')
+	ctx.log_timing(f'\nTook {round(initial_after - initial_before, 2)} seconds for computing e2e summary for {company_name}')
 
 	return summaries, None
 
@@ -414,14 +459,19 @@ def _get_company_inputs_from_xlsx(filepath: str, restrict_to_company_indentifier
 			company_name=company_name,
 			company_identifier=company_identifier,
 			company_id='',
-			license_numbers=[el.strip() for el in row[2].strip().split(';')],
+			facility_details_list=[
+				FacilityDetailsDict(
+					name='default',
+					license_numbers=[el.strip() for el in row[2].strip().split(';')]
+				)
+			],
 			start_date=row[3],
 			num_sales_receipts=1
 		))
 
 	return company_inputs
 
-def _get_company_inputs_from_db(restrict_to_company_indentifier: str) -> List[CompanyInputDict]:
+def _get_company_inputs_from_db(restrict_to_company_indentifier: str, use_facilities: bool) -> List[CompanyInputDict]:
 	bigquery_engine = download_util.get_bigquery_engine(BIGQUERY_ENGINE_URL)
 	metrc_download_summary_companies_query = create_queries.create_metrc_download_summary_companies_query()
 	metrc_download_summary_companies_dataframe = pandas.read_sql_query(metrc_download_summary_companies_query, bigquery_engine)
@@ -481,11 +531,18 @@ def _get_company_inputs_from_db(restrict_to_company_indentifier: str) -> List[Co
 			print(f'WARNING: found company {company_name} ({company_identifier}) with 0 sales receipts but with retailer license(s)!')
 			continue
 
+		facility_details_list = [
+			FacilityDetailsDict(
+				name='default',
+				license_numbers=license_numbers
+			)
+		]
+
 		company_inputs.append(CompanyInputDict(
 			company_name=company_name,
 			company_identifier=company_identifier,
 			company_id=company_id,
-			license_numbers=license_numbers,
+			facility_details_list=facility_details_list,
 			start_date=date_util.load_date_str(DEFAULT_START_DATE_STR),
 			num_sales_receipts=num_sales_receipts
 		))
@@ -494,17 +551,17 @@ def _get_company_inputs_from_db(restrict_to_company_indentifier: str) -> List[Co
 
 def main() -> None:
 	parser = argparse.ArgumentParser()
+
+	## Determines input companies to process
+
 	parser.add_argument(
 		'--input_file',
 		help='Input file that specifies all the companies to run for',
-	)
+	) # Specifying this flag tells us the specific companies to use
+	  # if this flag is not specified, then we pull from the list of
+	  # retailer licenses / companies we have in the DB
 
-	parser.add_argument(
-		'--dry_run',
-		dest='dry_run',
-		action='store_true',
-
-	) # This will only query a small number of rows from the DB, for testing
+	## To speed up your re-runs
 
 	parser.add_argument(
 		'--use_cached_dataframes',
@@ -524,18 +581,7 @@ def main() -> None:
 		action='store_true',
 	) # Whether to save those dataframes to a file
 
-	parser.add_argument(
-		'--use_cached_summaries',
-		dest='use_cached_summaries',
-		action='store_true',
-	) # Whether to use the summaries we stored for a customer
-
-	parser.add_argument(
-		'--download_only',
-		dest='download_only',
-		action='store_true',
-
-	) # To download data only, dont run any analysis
+	## Prod flags
 
 	parser.add_argument(
 		'--write_to_db',
@@ -543,6 +589,8 @@ def main() -> None:
 		action='store_true',
 
 	) # If true, then the summaries will be written to the DB
+
+	## Performance tuning
 
 	parser.add_argument(
 		'--num_processes',
@@ -556,17 +604,50 @@ def main() -> None:
 		type=int
 	)
 
+	## Feature flags
+
+	parser.add_argument(
+		'--use_facilities',
+		dest='use_facilities',
+		action='store_true',
+	) # Whether to use facilities to group information about a customer
+
+	## Debug flags
+
+	parser.add_argument(
+		'--dry_run',
+		dest='dry_run',
+		action='store_true',
+
+	) # This will only query a small number of rows from the DB, for testing
+
 	parser.add_argument(
 		'--company_identifier',
 		help='The single company to run this script for'
 	) # Whether to use the summaries we stored for a customer
+
+
+	parser.add_argument(
+		'--use_cached_summaries',
+		dest='use_cached_summaries',
+		action='store_true',
+	) # Whether to use the summaries we stored for a customer
+
+
+	parser.add_argument(
+		'--download_only',
+		dest='download_only',
+		action='store_true',
+
+	) # To download data only, dont run any analysis
 
 	args = parser.parse_args()
 
 	if args.input_file:
 		company_inputs = _get_company_inputs_from_xlsx(args.input_file, args.company_identifier)
 	else:
-		company_inputs = _get_company_inputs_from_db(args.company_identifier)
+		company_inputs = _get_company_inputs_from_db(
+			args.company_identifier, args.use_facilities)
 
 	if args.write_to_db and not os.environ.get('SENDGRID_API_KEY'):
 		raise Exception('When writing to the DB, we expect to use the email client to notify us of completion')
@@ -593,6 +674,7 @@ def main() -> None:
 		use_cached_summaries=args.use_cached_summaries,
 		use_incremental_querying=args.use_incremental_querying,
 		write_to_db=args.write_to_db,
+		use_facilities=args.use_facilities,
 		num_threads=num_threads
 	)
 

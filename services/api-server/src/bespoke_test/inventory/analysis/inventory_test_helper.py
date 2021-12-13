@@ -199,11 +199,15 @@ def create_download(test: Dict) -> util.Download:
 		sales_transactions_dataframe=get_dataframe(
 			test['sales_transactions'], columns=SALES_TX_COLS),
 		inventory_packages_dataframe=sql_helper._get_active_packages(),
+		inactive_packages_dataframe=None,
+		missing_incoming_pkg_packages_dataframe=None,
+		parent_packages_dataframe=None
 	)
 
-	dl.download_dataframes(
+	download_util._fetch_inactive_and_package_info_for_dataframes(all_dataframes_dict, sql_helper)
+
+	dl.process_dataframes(
 		all_dataframes_dict=all_dataframes_dict,
-		sql_helper=sql_helper,
 		ctx=test['ctx']
 	)
 	return dl

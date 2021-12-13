@@ -24,10 +24,18 @@ from bespoke.inventory.analysis.shared.inventory_types import (
 	Printer,
 	Query,
 	AnalysisContext,
+	DataframeDownloadContext,
 	InventoryPackageDict,
 	TransferPackageDict,
 	SalesTransactionDict,
 )
+
+DataFrameQueryParams = TypedDict('DataFrameQueryParams', {
+	'company_identifier': str,
+	'transfer_packages_start_date': str,
+	'sales_transactions_start_date': str,
+	'license_numbers': List[str]
+})
 
 def _get_float_or_none(val: Any) -> Optional[float]:
 	if not val:
@@ -51,7 +59,7 @@ class SQLHelper(object):
 
 class BigQuerySQLHelper(SQLHelper):
 
-	def __init__(self, ctx: AnalysisContext, engine: Any) -> None:
+	def __init__(self, ctx: DataframeDownloadContext, engine: Any) -> None:
 		self.ctx = ctx
 		self.engine = engine
 
@@ -202,6 +210,10 @@ AllDataframesDict = TypedDict('AllDataframesDict', {
 	'sales_receipts_dataframe': pd.DataFrame,
 	'sales_transactions_dataframe': pd.DataFrame,
 	'inventory_packages_dataframe': pd.DataFrame,
+	# Extra ones we query for once weve gotten the original bunch
+	'inactive_packages_dataframe': pd.DataFrame,
+	'missing_incoming_pkg_packages_dataframe': pd.DataFrame,
+	'parent_packages_dataframe': pd.DataFrame
 })
 
 class Download(object):
@@ -221,10 +233,9 @@ class Download(object):
 		self.parent_packages_records: List[InventoryPackageDict] = None
 		self.child_to_parent_package_id_override: Dict[str, str] = {}
 
-	def download_dataframes(
+	def process_dataframes(
 		self,
 		all_dataframes_dict: AllDataframesDict,
-		sql_helper: SQLHelper,
 		ctx: AnalysisContext
 	) -> None:
 		before = time.time()
@@ -251,12 +262,6 @@ class Download(object):
 		self.inventory_packages_records = cast(
 			List[InventoryPackageDict], inventory_packages_dataframe.to_dict('records'))
 
-		all_package_ids = set([])
-		missing_incoming_pkg_package_ids = set([])
-
-		for inv_pkg in self.inventory_packages_records:
-			missing_incoming_pkg_package_ids.add(inv_pkg['package_id'])
-
 		after = time.time()
 		ctx.log_timing(f'  Took {round(after - before, 2)} seconds for converting to records')
 
@@ -265,8 +270,6 @@ class Download(object):
 		for sales_tx_record in self.sales_tx_records:
 			sales_tx_record['sales_datetime'] = cast(Any, sales_tx_record['sales_datetime']).to_pydatetime()
 			sales_tx_record['sales_date'] = parse_to_date(sales_tx_record['sales_datetime'])
-			all_package_ids.add(sales_tx_record['tx_package_id'])
-			missing_incoming_pkg_package_ids.add(sales_tx_record['tx_package_id'])
 
 		after = time.time()
 		ctx.log_timing(f'  Took {round(after - before, 2)} seconds to iterate through sales txs')
@@ -278,11 +281,7 @@ class Download(object):
 			_fix_received_date_and_timezone(incoming_r)
 			incoming_r['received_date'] = parse_to_date(incoming_r['received_datetime'])
 			incoming_r['created_date'] = parse_to_date(incoming_r['created_date'])
-			all_package_ids.add(incoming_r['package_id'])
 			_set_quantity_and_unit(incoming_r)
-
-			if incoming_r['package_id'] in missing_incoming_pkg_package_ids:
-				missing_incoming_pkg_package_ids.remove(incoming_r['package_id'])
 
 		after = time.time()
 		ctx.log_timing(f'  Took {round(after - before, 2)} seconds to iterate through incoming records')
@@ -294,42 +293,24 @@ class Download(object):
 			outgoing_r['received_date'] = parse_to_date(outgoing_r['received_datetime'])
 			outgoing_r['created_date'] = parse_to_date(outgoing_r['created_date'])
 			_set_quantity_and_unit(outgoing_r)
-			all_package_ids.add(outgoing_r['package_id'])
 
 		after = time.time()
 		ctx.log_timing(f'  Took {round(after - before, 2)} seconds to iterate through outgoing records')
 
 		before = time.time()
 
-		all_inactive_packages_df = sql_helper.get_inactive_packages(all_package_ids)
 		self.inactive_packages_records = cast(
-			List[InventoryPackageDict], all_inactive_packages_df.to_dict('records'))
+			List[InventoryPackageDict], all_dataframes_dict['inactive_packages_dataframe'].to_dict('records'))
 
-		# For packages missing an incoming_pkg, we query the metrc_packages table to
-		# see if there is a parent-child relationship between the original incoming_pkg
-		# and this current package.
-		if missing_incoming_pkg_package_ids:
-			missing_incoming_pkg_packages_df = sql_helper.get_packages(missing_incoming_pkg_package_ids)
+		missing_incoming_pkg_packages_df = all_dataframes_dict['missing_incoming_pkg_packages_dataframe']
+		if len(missing_incoming_pkg_packages_df.index) > 0:
 			self.missing_incoming_pkg_package_records = cast(
 				List[InventoryPackageDict], missing_incoming_pkg_packages_df.to_dict('records'))
 		else:
 			self.missing_incoming_pkg_package_records = []
 
-		# Find the original packages with these production batch numbers.
-		production_batch_numbers = set([])
-		for pkg in self.missing_incoming_pkg_package_records:
-			source_no = pkg['source_production_batch_numbers']
-			if not source_no:
-				# print(f"WARN: package {pkg['package_id']} is missing a sourceproductionbatchnumber and an incoming pkg")
-				continue
-
-			production_batch_numbers.add(source_no)
-
-		# For packages missing an incoming_pkg, we query the metrc_packages table to
-		# see if there is a parent-child relationship between the original incoming_pkg
-		# and this current package.
-		if production_batch_numbers:
-			parent_packages_df = sql_helper.get_packages_by_production_batch_numbers(production_batch_numbers)
+		parent_packages_df = all_dataframes_dict['parent_packages_dataframe']
+		if len(parent_packages_df.index) > 0:
 			self.parent_packages_records = cast(
 				List[InventoryPackageDict], parent_packages_df.to_dict('records'))
 		else:
@@ -343,8 +324,57 @@ def get_bigquery_engine(engine_url: str) -> Any:
 	engine = create_engine(engine_url, credentials_path=os.path.expanduser(BIGQUERY_CREDENTIALS_PATH))
 	return engine
 
+def _fetch_inactive_and_package_info_for_dataframes(
+	dataframes_dict: AllDataframesDict, sql_helper: SQLHelper) -> None:
+	# Step 2: download dataframes that are dependent on the first set of queries
+	# we made.
+	sales_tx_package_ids = dataframes_dict['sales_transactions_dataframe']['tx_package_id'].tolist()
+	incoming_package_ids = dataframes_dict['incoming_transfer_packages_dataframe']['package_id'].tolist()
+
+	# Query for potentially inactive packages
+	possibly_inactive_package_ids = set([])
+	possibly_inactive_package_ids.update(sales_tx_package_ids)
+	possibly_inactive_package_ids.update(incoming_package_ids)
+	possibly_inactive_package_ids.update(dataframes_dict['outgoing_transfer_packages_dataframe']['package_id'].tolist())
+	all_inactive_packages_df = sql_helper.get_inactive_packages(possibly_inactive_package_ids)
+
+	# For packages missing an incoming_pkg, we query the metrc_packages table to
+	# see if there is a parent-child relationship between the original incoming_pkg
+	# and this current package.
+	sold_package_ids_set = set(sales_tx_package_ids)
+	incoming_package_ids_set = set(incoming_package_ids)
+	missing_incoming_pkg_package_ids = sold_package_ids_set - incoming_package_ids_set
+
+	if missing_incoming_pkg_package_ids:
+		missing_incoming_pkg_packages_df = sql_helper.get_packages(missing_incoming_pkg_package_ids)
+	else:
+		missing_incoming_pkg_packages_df = pd.DataFrame()
+
+	# For packages missing an incoming_pkg, we query the metrc_packages table to
+	# see if there is a parent-child relationship between the original incoming_pkg
+	# and this current package.
+	# Find the original packages with these production batch numbers.
+	production_batch_numbers = set([])
+	source_batch_numbers = []
+	if len(missing_incoming_pkg_packages_df.index) > 0:
+		source_batch_numbers = missing_incoming_pkg_packages_df['source_production_batch_numbers'].tolist()
+	
+	for source_no in source_batch_numbers:
+		if not source_no:
+			# print(f"WARN: package {pkg['package_id']} is missing a sourceproductionbatchnumber and an incoming pkg")
+			continue
+		production_batch_numbers.add(source_no)
+	if production_batch_numbers:
+		parent_packages_df = sql_helper.get_packages_by_production_batch_numbers(production_batch_numbers)
+	else:
+		parent_packages_df = pd.DataFrame()
+
+	dataframes_dict['inactive_packages_dataframe'] = all_inactive_packages_df
+	dataframes_dict['missing_incoming_pkg_packages_dataframe'] = missing_incoming_pkg_packages_df
+	dataframes_dict['parent_packages_dataframe'] = parent_packages_df
+
 def get_dataframes_for_analysis(
-	q: Query, ctx: AnalysisContext, engine: Any, 
+	q_params: DataFrameQueryParams, ctx: DataframeDownloadContext, sql_helper: BigQuerySQLHelper, 
 	dry_run: bool, num_threads: int, use_incremental_querying: bool) -> AllDataframesDict:
 	# Download packages, sales transactions, incoming / outgoing tranfers
 	limit = 50 if dry_run else None
@@ -357,23 +387,23 @@ def get_dataframes_for_analysis(
 	#    to then save.
 
 	company_incoming_transfer_packages_query = create_queries.create_company_incoming_transfer_packages_query(
-		q.company_identifier, q.transfer_packages_start_date, 
-		license_numbers=q.license_numbers, limit=limit)
+		q_params['company_identifier'], q_params['transfer_packages_start_date'], 
+		license_numbers=q_params['license_numbers'], limit=limit)
 	company_outgoing_transfer_packages_query = create_queries.create_company_outgoing_transfer_packages_query(
-		q.company_identifier, q.transfer_packages_start_date, 
-		license_numbers=q.license_numbers, limit=limit)
+		q_params['company_identifier'], q_params['transfer_packages_start_date'], 
+		license_numbers=q_params['license_numbers'], limit=limit)
 	company_sales_receipts_query = create_queries.create_company_sales_receipts_query(
-		q.company_identifier, q.sales_transactions_start_date, 
-		license_numbers=q.license_numbers,
+		q_params['company_identifier'], q_params['sales_transactions_start_date'], 
+		license_numbers=q_params['license_numbers'],
 		limit=limit)
 	company_sales_transactions_query = create_queries.create_company_sales_transactions_query(
-		q.company_identifier, q.sales_transactions_start_date, 
-		license_numbers=q.license_numbers,
+		q_params['company_identifier'], q_params['sales_transactions_start_date'], 
+		license_numbers=q_params['license_numbers'],
 		limit=limit)
 	company_inventory_packages_query = create_queries.create_company_inventory_packages_query(
-			q.company_identifier,
+			q_params['company_identifier'],
 			include_quantity_zero=True,
-			license_numbers=q.license_numbers,
+			license_numbers=q_params['license_numbers'],
 			limit=limit
 	)
 
@@ -398,6 +428,7 @@ def get_dataframes_for_analysis(
 			'download/inventory_packages.pickle'
 		))
 	else:
+		engine = sql_helper.engine
 		if num_threads > 1:
 			with ThreadPoolExecutor(max_workers=num_threads) as executor:
 				dataframe_args_list = [
@@ -455,13 +486,26 @@ def get_dataframes_for_analysis(
 			'download/inventory_packages.pickle'
 		))
 
-	return AllDataframesDict(
+	dataframes_dict = AllDataframesDict(
 		incoming_transfer_packages_dataframe=company_incoming_transfer_packages_dataframe,
 		outgoing_transfer_packages_dataframe=company_outgoing_transfer_packages_dataframe,
 		sales_receipts_dataframe=company_sales_receipts_dataframe,
 		sales_transactions_dataframe=company_sales_transactions_dataframe,
 		inventory_packages_dataframe=company_inventory_packages_dataframe,
+		inactive_packages_dataframe=None,
+		missing_incoming_pkg_packages_dataframe=None,
+		parent_packages_dataframe=None
 	)
+
+	_fetch_inactive_and_package_info_for_dataframes(dataframes_dict, sql_helper)
+	return dataframes_dict
+
+def restrict_dataframe_to_licenses(all_dfs_dict: AllDataframesDict, facility_name: str, license_numbers: List[str]) -> AllDataframesDict:
+	if facility_name == 'default':
+		return all_dfs_dict
+
+	# TODO(dlluncor): Implement the filter based on license numbers
+	return None
 
 def get_inventory_dates(all_df_dict: AllDataframesDict, today_date: datetime.date) -> List[str]:
 	TODAY_DATE = today_date.strftime('%Y-%m-%d')
