@@ -20,6 +20,10 @@ query GetCompanyForBank($companyId: uuid!) {
       order_by: { license_number: asc }
     ) {
       id
+      company_facility {
+        id
+        name
+      }
       ...CompanyLicense
     }
     settings {

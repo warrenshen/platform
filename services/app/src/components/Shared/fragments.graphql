@@ -177,7 +177,6 @@ fragment Invoice on invoices {
   ...InvoiceLimited
 }
 
-
 fragment CompanyDelivery on company_deliveries {
   id
   company_id

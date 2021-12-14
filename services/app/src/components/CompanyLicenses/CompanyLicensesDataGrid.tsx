@@ -1,10 +1,11 @@
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
+import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import { CompanyLicenseFragment } from "generated/graphql";
-import { ColumnWidths } from "lib/tables";
 import { FileTypeEnum } from "lib/enum";
+import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
 interface Props {
@@ -49,6 +50,14 @@ export default function CompanyLicensesDataGrid({
         dataField: "license_status",
         caption: "License Status",
         minWidth: ColumnWidths.MinWidth,
+      },
+      {
+        caption: "Facility Name",
+        dataField: "facility_name",
+        width: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) => (
+          <TextDataGridCell label={params.row.data.company_facility?.name} />
+        ),
       },
       {
         caption: "Expiration Date",
