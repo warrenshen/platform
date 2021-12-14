@@ -62,7 +62,10 @@ def delete_api_key(
 	if not metrc_api_key:
 		raise errors.Error('Metrc API Key to delete does not exist in the database')
 	
-	cast(Callable, session.delete)(metrc_api_key)
+	if metrc_api_key.is_deleted:
+		raise errors.Error('The key is already deleted')
+
+	metrc_api_key.is_deleted = True
 
 	return True, None
 
@@ -97,6 +100,10 @@ def upsert_api_key(
 		session.query(models.MetrcApiKey).filter(
 			models.MetrcApiKey.hashed_key == hashed_key
 		).first())
+
+	# NOTE: we dont want a duplicate metrc_api_key value even in the case
+	# of a "is_deleted=True" metrc key. This means that the user should
+	# set is_deleted=False to that key which was previously associated with this customer.
 	if prev_metrc_api_key:
 		raise errors.Error(f'Cannot store a duplicate metrc API key that is already registered to company_id="{prev_metrc_api_key.company_id}"')
 
@@ -146,6 +153,9 @@ def view_api_key(
 	if not metrc_api_key:
 		raise errors.Error('No metrc api key found, so we could not present the underlying key')
 
+	if metrc_api_key.is_deleted:
+		raise errors.Error('Metrc api key is deleted, so we could not present the underlying key')
+
 	api_key = security_util.decode_secret_string(
 		security_cfg, metrc_api_key.encrypted_api_key
 	)
@@ -166,6 +176,8 @@ def get_companies_with_metrc_keys(session_maker: Callable) -> List[str]:
 			List[models.MetrcApiKey],
 			session.query(models.MetrcApiKey).all())
 		for metrc_api_key in metrc_api_keys:
+			if metrc_api_key.is_deleted:
+				continue
 			company_ids_set.add(str(metrc_api_key.company_id))
 
 	return list(company_ids_set)
@@ -207,6 +219,9 @@ def _get_metrc_company_info(
 		us_states_set = set([])
 		
 		for metrc_api_key in metrc_api_keys:
+
+			if metrc_api_key.is_deleted:
+				continue
 	
 			if not metrc_api_key.us_state:
 				raise errors.Error('Metrc key {} is missing the us_state. It must be specified explicitly to download data from Metrc'.format(

@@ -2848,6 +2848,7 @@
       - created_at
       - facilities_payload
       - id
+      - is_deleted
       - is_functioning
       - last_used_at
       - status_codes_payload
@@ -2862,6 +2863,7 @@
       - created_at
       - facilities_payload
       - id
+      - is_deleted
       - is_functioning
       - last_used_at
       - status_codes_payload
@@ -2875,6 +2877,7 @@
       - company_id
       - created_at
       - id
+      - is_deleted
       - is_functioning
       - last_used_at
       - us_state
@@ -2888,6 +2891,7 @@
       - company_id
       - created_at
       - id
+      - is_deleted
       - is_functioning
       - last_used_at
       - us_state
