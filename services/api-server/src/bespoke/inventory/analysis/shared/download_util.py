@@ -502,7 +502,7 @@ def get_dataframes_for_analysis(
 
 def _filter_by_licenses(df: pd.DataFrame, license_numbers: List[str]) -> pd.DataFrame:
 	if len(df.index) > 0:
-		return df[cast(Any, df).license_number.isin(license_numbers)]
+		return df[cast(Any, df).license_number.isin(license_numbers)].copy()
 	else:
 		# Nothing to filter so just return an empty data array
 		return pd.DataFrame()

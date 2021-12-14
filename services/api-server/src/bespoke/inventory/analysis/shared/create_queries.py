@@ -880,13 +880,13 @@ def create_company_facilities_query(company_ids: List[str]) -> str:
 
 	return f"""
 			select
-					company_facilities.id as facility_row_id
+					company_facilities.id as facility_row_id,
 					company_facilities.name as facility_name
 			from
 					company_facilities
 			where
 					True
-					and company_facilities.id in ({','.join(company_ids_list)})
+					and company_facilities.company_id in ({','.join(company_ids_list)})
 	"""
 
 def create_company_count_metrc_sales_receipts_query(company_identifier: Union[str, List[str]]) -> str:

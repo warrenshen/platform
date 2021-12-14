@@ -46,7 +46,7 @@ def _get_product_category_to_shelf_life(params: AnalysisParamsDict) -> Dict[str,
 def get_shelf_life_in_months(metrc_product_category_name: str, params: AnalysisParamsDict) -> int:
 	master_product_category = PRODUCT_CATEGORY_NAME_TO_PRODUCT_CATEGORY.get(metrc_product_category_name)
 	if not master_product_category:
-			logging.info('Unknown shelf life for product category {}'.format(metrc_product_category_name))
+			#logging.info('Unknown shelf life for product category {}'.format(metrc_product_category_name))
 			return None
 
 	master_product_category_to_shelf_life = _get_product_category_to_shelf_life(params)
@@ -110,7 +110,7 @@ def _write_products_by_profit(d: Download, ctx: AnalysisContext) -> None:
 	#     'manifest_number',
 			'package_id',
 			'package_label',
-			'created_month',
+			#'created_month',
 			'created_date',
 			#'shipper_facility',
 			'shipper_facility_license_number',

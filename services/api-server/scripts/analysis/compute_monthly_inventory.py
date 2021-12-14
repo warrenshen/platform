@@ -352,7 +352,7 @@ def _run_analysis_per_customer(
 		for (facility_details, cur_dataframes_dict) in facility_and_df_list:
 			# Run the analysis for each facility that is under this customer umbrella
 			uses_facilities = facility_details['name'] != 'default'
-			company_facility_dir = f"{company_identifier}/{facility_details['name']}" if uses_facilities else company_identifier
+			company_facility_dir = f"{company_identifier}/{facility_details['name'].replace(' ', '_')}" if uses_facilities else company_identifier
 
 			ctx = AnalysisContext(
 				output_root_dir=f'{output_prefix}/{company_facility_dir}'
@@ -485,8 +485,13 @@ def _get_company_inputs_from_db(restrict_to_company_indentifier: str, use_facili
 	company_ids_set = set([])
 
 	for company_record in company_records:
+		company_identifier = company_record['identifier']
+
+		if restrict_to_company_indentifier and company_identifier != restrict_to_company_indentifier:
+			continue
+
 		company_id = company_record['id']
-		company_identifiers.append(company_record['identifier'])
+		company_identifiers.append(company_identifier)
 		company_id_to_name[company_id] = company_record['name']
 		company_ids_set.add(company_id)
 
@@ -500,8 +505,6 @@ def _get_company_inputs_from_db(restrict_to_company_indentifier: str, use_facili
 		for facility_record in company_facilities_records:
 			facility_id_to_name[facility_record['facility_row_id']] = facility_record['facility_name']
 
-	# TODO(dlluncor): Add facility_row_id to the company_licenses query when that
-	# change has propogated to Hevo and Postgres
 	company_licenses_query = create_queries.create_company_licenses_query(company_identifiers)
 	company_licenses_dataframe = pandas.read_sql_query(company_licenses_query, bigquery_engine)
 	company_license_records = company_licenses_dataframe.to_dict('records')
@@ -515,33 +518,39 @@ def _get_company_inputs_from_db(restrict_to_company_indentifier: str, use_facili
 
 		license_number = company_license_record['license_number']
 		license_category = company_license_record['license_category']
-		if license_category in ['Multiple', 'Retailer']:
-			if company_id not in company_to_retailer_licenses:
-				company_to_retailer_licenses[company_id] = []
-			
-			company_to_retailer_licenses[company_id].append(license_number)
+		if license_category not in ['Multiple', 'Retailer']:
+			continue
 
-			# Populate facility details
-			facility_id = company_license_record['facility_row_id']
-			if not facility_id:
-				# If there is no facility associated with this license, then
-				# bucket it into the "default" facility ID which is not a real
-				# row but a way to organize the licenses by default.
-				facility_id = 'default'
+		if company_id not in company_to_retailer_licenses:
+			company_to_retailer_licenses[company_id] = []
+		
+		company_to_retailer_licenses[company_id].append(license_number)
 
-			if company_id not in company_id_to_licenses_by_facility_id:
-				company_id_to_licenses_by_facility_id[company_id] = {}
+		# Populate facility details
+		facility_id = company_license_record['facility_row_id']
+		if not facility_id:
+			# If there is no facility associated with this license, then
+			# bucket it into the "default" facility ID which is not a real
+			# row but a way to organize the licenses by default.
+			facility_id = 'default'
 
-			license_by_facility_id = company_id_to_licenses_by_facility_id[company_id]
-			if facility_id not in license_by_facility_id:
-				license_by_facility_id[facility_id] = []
+		if company_id not in company_id_to_licenses_by_facility_id:
+			company_id_to_licenses_by_facility_id[company_id] = {}
 
-			license_by_facility_id[facility_id].append(license_number)
+		license_by_facility_id = company_id_to_licenses_by_facility_id[company_id]
+		if facility_id not in license_by_facility_id:
+			license_by_facility_id[facility_id] = []
+
+		license_by_facility_id[facility_id].append(license_number)
 
 	# Build a map of the company_id to facilities they have
 	company_id_to_facilities: Dict[str, List[FacilityDetailsDict]] = {}
 	for company_id in company_ids_set:
-		has_facilities = company_id in company_id_to_licenses_by_facility_id
+		facility_ids = []
+		if company_id in company_id_to_licenses_by_facility_id:
+			facility_ids = list(company_id_to_licenses_by_facility_id[company_id].keys())
+
+		has_facilities = len(facility_ids) > 0 and facility_ids != ['default']
 
 		if use_facilities and has_facilities:
 			licenses_by_facility_id = company_id_to_licenses_by_facility_id[company_id]
