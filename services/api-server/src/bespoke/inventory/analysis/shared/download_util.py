@@ -500,12 +500,50 @@ def get_dataframes_for_analysis(
 	_fetch_inactive_and_package_info_for_dataframes(dataframes_dict, sql_helper)
 	return dataframes_dict
 
-def restrict_dataframe_to_licenses(all_dfs_dict: AllDataframesDict, facility_name: str, license_numbers: List[str]) -> AllDataframesDict:
-	if facility_name == 'default':
-		return all_dfs_dict
+def _filter_by_licenses(df: pd.DataFrame, license_numbers: List[str]) -> pd.DataFrame:
+	if len(df.index) > 0:
+		return df[cast(Any, df).license_number.isin(license_numbers)]
+	else:
+		# Nothing to filter so just return an empty data array
+		return pd.DataFrame()
 
-	# TODO(dlluncor): Implement the filter based on license numbers
-	return None
+def restrict_dataframe_to_licenses(all_dfs_dict: AllDataframesDict, facility_name: str, license_numbers: List[str]) -> AllDataframesDict:
+	new_df_dict = AllDataframesDict(
+		incoming_transfer_packages_dataframe=None,
+		outgoing_transfer_packages_dataframe=None,
+		sales_receipts_dataframe=None,
+		sales_transactions_dataframe=None,
+		inventory_packages_dataframe=None,
+		inactive_packages_dataframe=None,
+		missing_incoming_pkg_packages_dataframe=None,
+		parent_packages_dataframe=None		
+	)
+
+	new_df_dict['incoming_transfer_packages_dataframe'] = _filter_by_licenses(
+		all_dfs_dict['incoming_transfer_packages_dataframe'], license_numbers)
+
+	new_df_dict['outgoing_transfer_packages_dataframe'] = _filter_by_licenses(
+		all_dfs_dict['outgoing_transfer_packages_dataframe'], license_numbers)
+
+	new_df_dict['sales_receipts_dataframe'] = _filter_by_licenses(
+		all_dfs_dict['sales_receipts_dataframe'], license_numbers)
+
+	new_df_dict['sales_transactions_dataframe'] = _filter_by_licenses(
+		all_dfs_dict['sales_transactions_dataframe'], license_numbers)
+
+	new_df_dict['inventory_packages_dataframe'] = _filter_by_licenses(
+		all_dfs_dict['inventory_packages_dataframe'], license_numbers)
+
+	new_df_dict['inactive_packages_dataframe'] = _filter_by_licenses(
+		all_dfs_dict['inactive_packages_dataframe'], license_numbers)
+
+	new_df_dict['missing_incoming_pkg_packages_dataframe'] = _filter_by_licenses(
+		all_dfs_dict['missing_incoming_pkg_packages_dataframe'], license_numbers)
+
+	new_df_dict['parent_packages_dataframe'] = _filter_by_licenses(
+		all_dfs_dict['parent_packages_dataframe'], license_numbers)
+
+	return new_df_dict
 
 def get_inventory_dates(all_df_dict: AllDataframesDict, today_date: datetime.date) -> List[str]:
 	TODAY_DATE = today_date.strftime('%Y-%m-%d')

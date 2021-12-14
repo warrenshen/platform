@@ -522,10 +522,12 @@ def _get_company_inputs_from_db(restrict_to_company_indentifier: str, use_facili
 			company_to_retailer_licenses[company_id].append(license_number)
 
 			# Populate facility details
-			# facility_id = company_license_record['facility_row_id']
-			facility_id = None
-			if facility_id == None:
-				continue
+			facility_id = company_license_record['facility_row_id']
+			if not facility_id:
+				# If there is no facility associated with this license, then
+				# bucket it into the "default" facility ID which is not a real
+				# row but a way to organize the licenses by default.
+				facility_id = 'default'
 
 			if company_id not in company_id_to_licenses_by_facility_id:
 				company_id_to_licenses_by_facility_id[company_id] = {}
@@ -545,10 +547,14 @@ def _get_company_inputs_from_db(restrict_to_company_indentifier: str, use_facili
 			licenses_by_facility_id = company_id_to_licenses_by_facility_id[company_id]
 			cur_facilities = []
 			for facility_row_id, license_numbers in licenses_by_facility_id.items():
-				facility_name = facility_id_to_name[facility_row_id]
+				if facility_row_id == 'default':
+					facility_name = 'default'
+				else:
+					facility_name = facility_id_to_name[facility_row_id]
+
 				cur_facilities.append(FacilityDetailsDict(
 					name=facility_name,
-					facility_row_id=facility_row_id,
+					facility_row_id=None if facility_row_id == 'default' else facility_row_id,
 					license_numbers=license_numbers,
 				))
 

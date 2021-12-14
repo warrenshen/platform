@@ -865,7 +865,8 @@ def create_company_licenses_query(company_identifier: Union[str, List[str]]) -> 
 					company_licenses.license_status,
 					company_licenses.rollup_id,
 					company_licenses.license_description,
-					company_licenses.company_id
+					company_licenses.company_id,
+					company_licenses.facility_row_id
 			from
 					company_licenses
 					inner join companies on company_licenses.company_id = companies.id
