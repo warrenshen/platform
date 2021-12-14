@@ -188,6 +188,7 @@ class CompanyLicense(Base):
 	id = cast(GUID, Column(GUID, nullable=False, primary_key=True, default=GUID_DEFAULT, unique=True))
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	file_id = cast(GUID, Column(GUID, ForeignKey('files.id')))
+	facility_row_id = cast(GUID, Column(GUID, ForeignKey('company_facilities.id')))
 	license_number = Column(Text)
 	is_deleted = Column(Boolean, nullable=False, default=False)
 	rollup_id = Column(Text)
