@@ -97,15 +97,13 @@ def _write_plant_batches_chunk(
 	plant_batches: List[PlantBatchObj],
 	session: Session) -> None:
 
-	plant_batch_ids = [batch.metrc_plant_batch.plant_batch_id for batch in plant_batches] 
-
-	prev_plant_batches = session.query(models.MetrcPlantBatch).filter(
-		models.MetrcPlantBatch.plant_batch_id.in_(plant_batch_ids)
-	).all()
-
 	key_to_plant_batch = {}
-	for prev_plant_batch in prev_plant_batches:
-		key_to_plant_batch[prev_plant_batch.plant_batch_id] = prev_plant_batch
+	for batch in plant_batches:
+		prev_plant_batch = session.query(models.MetrcPlantBatch).filter(
+			models.MetrcPlantBatch.plant_batch_id == batch.metrc_plant_batch.plant_batch_id
+		).first()
+		if prev_plant_batch:
+			key_to_plant_batch[prev_plant_batch.plant_batch_id] = prev_plant_batch
 
 	for plant_batch in plant_batches:
 		metrc_batch = plant_batch.metrc_plant_batch

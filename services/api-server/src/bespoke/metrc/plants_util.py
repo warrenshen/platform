@@ -126,15 +126,17 @@ def download_plants(ctx: metrc_common_util.DownloadContext) -> List[PlantObj]:
 def _write_plants_chunk(
 	plants: List[PlantObj],
 	session: Session) -> None:
-	plant_ids = [plant.metrc_plant.plant_id for plant in plants] 
-
-	prev_plants = session.query(models.MetrcPlant).filter(
-		models.MetrcPlant.plant_id.in_(plant_ids)
-	).all()
 
 	key_to_plant = {}
-	for prev_plant in prev_plants:
-		key_to_plant[prev_plant.plant_id] = prev_plant
+
+	for plant in plants:
+		prev_plant = session.query(models.MetrcPlant).filter(
+			models.MetrcPlant.us_state == plant.metrc_plant.us_state
+		).filter(
+			models.MetrcPlant.plant_id == plant.metrc_plant.plant_id
+		).first()
+		if prev_plant:
+			key_to_plant[prev_plant.plant_id] = prev_plant
 
 	for plant in plants:
 		metrc_plant = plant.metrc_plant

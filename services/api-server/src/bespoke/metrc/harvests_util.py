@@ -110,15 +110,15 @@ def download_harvests(ctx: metrc_common_util.DownloadContext) -> List[HarvestObj
 def _write_harvests_chunk(
 	harvests: List[HarvestObj],
 	session: Session) -> None:
-	harvest_ids = [harvest.metrc_harvest.harvest_id for harvest in harvests] 
-
-	prev_harvests = session.query(models.MetrcHarvest).filter(
-		models.MetrcHarvest.harvest_id.in_(harvest_ids)
-	).all()
 
 	key_to_harvest = {}
-	for prev_harvest in prev_harvests:
-		key_to_harvest[prev_harvest.harvest_id] = prev_harvest
+	for harvest in harvests:
+		prev_harvest = session.query(models.MetrcHarvest).filter(
+			models.MetrcHarvest.harvest_id == harvest.metrc_harvest.harvest_id
+		).first()
+
+		if prev_harvest:
+			key_to_harvest[prev_harvest.harvest_id] = prev_harvest
 
 	for harvest in harvests:
 		metrc_harvest = harvest.metrc_harvest
