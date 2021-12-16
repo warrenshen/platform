@@ -149,6 +149,11 @@ export const metrcRoutes = {
   syncMetrcDataPerCustomer: "/metrc/sync_metrc_data_per_customer",
 };
 
+export const reportsRoutes = {
+  monthlySummaryLOC: "/reports/generate_monthly_loans_summary_loc",
+  monthlySummaryNonLOC: "/reports/generate_monthly_loans_summary_non_loc",
+};
+
 const api = axios.create({
   baseURL: process.env.REACT_APP_BESPOKE_API_ENDPOINT,
 });

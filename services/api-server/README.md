@@ -57,14 +57,22 @@ source ~/GitHub/venvs/bespoke/bin/activate
 
 5. From `platform/`, run `make setup`. If you have Ubuntu, call `make setup-for-linux`.
 
-6. Once you have virtualenv, system libraries and pyenv setup, you can now install your requirements inside that environment:
+6. Please edit your `~/.zshrc` file to include the following lines necessary for our dependencies based on your computer's architecture:
+
+```
+# M1 only
+export GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=1
+export GRPC_PYTHON_BUILD_SYSTEM_ZLIB=1
+```
+
+7. Once you have virtualenv, system libraries and pyenv setup, you can now install your requirements inside that environment:
 
 ```
 cd services/api-server
 pip3 install -r requirements.txt
 ```
 
-7. NOTE: Update requirements.in, and then use `make update-requirements` which will generate the requirements.txt file.
+8. NOTE: Update requirements.in, and then use `make update-requirements` which will generate the requirements.txt file.
 
 # Running
 

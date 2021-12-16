@@ -20,7 +20,8 @@ import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { createBankCustomerUserMutation } from "lib/api/users";
 import { UserRoleToLabel } from "lib/enum";
-import { useMemo, useState } from "react";
+import { isEmailValid } from "lib/validation";
+import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -68,14 +69,6 @@ export default function InviteUserModal({
     { loading: isCreateBankCustomerUserLoading },
   ] = useCustomMutation(createBankCustomerUserMutation);
 
-  const isEmailValid = useMemo(
-    () =>
-      user.email &&
-      user.email.length &&
-      !!user.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/gi),
-    [user.email]
-  );
-
   const handleClickSubmit = async () => {
     const response = await createBankCustomerUser({
       variables: {
@@ -108,7 +101,7 @@ export default function InviteUserModal({
     !user.first_name ||
     !user.last_name ||
     !user.email ||
-    !isEmailValid ||
+    !isEmailValid(user.email) ||
     isCreateBankCustomerUserLoading;
 
   return (
@@ -170,7 +163,7 @@ export default function InviteUserModal({
             <TextField
               required
               label="Email"
-              error={!!user.email && !isEmailValid}
+              error={!!user.email && !isEmailValid(user.email)}
               value={user.email}
               onChange={({ target: { value } }) =>
                 setUser({

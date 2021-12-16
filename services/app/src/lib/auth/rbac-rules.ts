@@ -88,6 +88,9 @@ export enum Action {
 
   // Catch-all for whether the person is a bank admin
   IsBankAdmin = "perm:is_bank_admin",
+
+  // Reports
+  KickoffMonthlySummaryEmails = "reports:generate",
 }
 
 export interface ActionData {
@@ -215,6 +218,8 @@ const rules: Rules = {
       Action.ManipulateUser,
 
       Action.IsBankAdmin,
+
+      Action.KickoffMonthlySummaryEmails,
     ],
     dynamic: [],
   },

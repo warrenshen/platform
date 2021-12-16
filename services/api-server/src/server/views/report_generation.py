@@ -7,6 +7,7 @@ import math
 import pdfkit
 import base64
 import os
+import requests
 from typing import Any, Callable, Iterable, Dict, List, Tuple, cast, Optional
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
@@ -28,6 +29,7 @@ from bespoke.metrc.common.metrc_common_util import chunker
 from server.config import Config
 from server.views.common import auth_util, handler_util
 from bespoke.finance.types.payment_types import PaymentItemsCoveredDict
+from bespoke.reports.reports_util import prepare_email_attachment
 
 handler = Blueprint('report_generation', __name__)
 
@@ -341,7 +343,7 @@ class ReportsLoansPastDueView(MethodView):
 		return make_response(json.dumps({'status': 'OK', 'resp': "Successfully sent email alert(s) for loans past due."}))
 
 class ReportsMonthlyLoanSummaryLOCView(MethodView):
-	decorators = [auth_util.requires_async_magic_header]
+	decorators = [auth_util.bank_admin_required]
 
 	def get_end_of_report_month_financial_summary(
 		self,
@@ -518,27 +520,33 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 			tested in it's own repo, so there's more value in testing the in house generated html
 			string for validity than (re)testing the generated pdf for validity
 		"""
+		# if statement so that we can access the css file during unit tests with minimal changes
+		css_path = '../src/server/views/css/monthly_report.css' if 'api-server/test' in os.getcwd() else 'server/views/css/monthly_report.css'
+		with open(css_path, 'r') as file:
+			css_file = file.read().rstrip()
+
 		html = f"""
 <!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
+	<style>{ css_file }</style>
 </head>
 <body>
 	<header>
-		<div><img class="logo" src="/app/src/server/views/images/bespoke-logo.png" alt="Bespoke Financial Logo" /></div>
+		<div><img class="logo" src="images/bespoke-logo.png" alt="Bespoke Financial Logo" /></div>
 		<div class="contact">
 		<ul>
 			<li>
-				<img class="icon" src="/app/src/server/views/images/email.png" alt="Email Icon"/>
+				<img class="icon" src="images/email.png" alt="Email Icon"/>
 				<a href="mailto:info@bespokefinancial">info@bespokefinancial.com</a>
 			</li>
 			<li>
-				<img class="icon" src="/app/src/server/views/images/internet.png" alt="Internet Icon"/>
+				<img class="icon" src="images/internet.png" alt="Internet Icon"/>
 				<a href="https://bespokefinancial.com/" target="_blank">www.bespokefinancial.com</a>
 			</li>
 			<li>
-				<img class="icon" src="/app/src/server/views/images/phone.png" alt="Phone Icon"/>
+				<img class="icon" src="images/phone.png" alt="Phone Icon"/>
 				<span>+1 213-282-8411</span>
 			</li>
 		</ul>
@@ -627,46 +635,6 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 
 		return html
 
-	def prepare_email_attachment(
-		self,
-		company_name: str,
-		statement_month: str,
-		html: str	
-		) -> Attachment:
-		# XDG_RUNTIME_DIR was defaulting to some tmp directory, this allows us to set
-		# the path relative to the root of the docker container
-		os.environ["XDG_RUNTIME_DIR"] = "/"
-		
-
-		options = {
-		    'enable-local-file-access': None
-		}
-		css = ["/app/src/server/views/css/monthly_report.css"]
-
-		# Convert generated html to pdf, read pdf, and encode for attachment
-		company_name = company_name.replace(" ", "-")
-		while company_name.find("--") != -1:
-			company_name = company_name.replace("--", "-")
-		statement_month = statement_month.replace(" ", "-")
-		temp_pdf_name = f'{company_name}-{statement_month}-monthly_loc_customer_summary.pdf'
-		final_pdf_name = f'{company_name}-{statement_month}-Summary-Report.pdf'
-		# ignoring mypy warning of "Module has no attribute "from_string" because this function
-		# works as expected
-		pdfkit.from_string(html, temp_pdf_name, options=options, css=css) # type: ignore
-		with open(temp_pdf_name, 'rb') as f:
-		    data = f.read()
-		    f.close()
-		encoded_file = base64.b64encode(data).decode()
-
-		attached_report = Attachment(
-			FileContent(encoded_file),
-			FileName(final_pdf_name),
-			FileType("application/pdf"),
-			Disposition("attachment")
-		)
-
-		return attached_report
-
 	def get_available_credit(
 		self,
 		session: Session,
@@ -724,8 +692,14 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 		report_link : str, 
 		payment_link: str,
 		loans_chunk : List[models.Loan],
-		today : datetime.date
+		today : datetime.date,
+		is_test: bool,
+		test_email: str
 		) -> Tuple[Dict[str, List[models.Loan]], Response]:
+		if sendgrid_client is None:
+			return loans_to_notify, make_response(json.dumps({ 'status': 'FAILED', 'resp': "Sendgrid client does not exist." }))
+
+
 		# LOC vs non-LOC split handled at query level
 		# This is for organizing loans on a per company basis to make emails easier
 		loans_to_notify : Dict[str, List[models.Loan] ] = {}
@@ -868,59 +842,76 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 
 			statement_month = date_util.human_readable_monthyear(report_month_last_day)
 
-			all_users = models_util.get_active_users(company_id=company_id, session=session)
-			for contact_user in all_users:
-				contact_user_full_name = contact_user.first_name + " " + contact_user.last_name
+			template_data: Dict[str, object] = {
+				# Greeting and preamble
+				"automatic_debit_date": automatic_debit_date,
 
-				
-				template_data = {
-					# Greeting and preamble
-					"company_user": contact_user_full_name,
-				    "automatic_debit_date": automatic_debit_date,
+			    # Table Header/Footer
+			    "company_name": company.name,
+			    "statement_month": statement_month,
+			    "support_email": "<a href='mailto:support@bespokefinancial.com'>support@bespokefinancial.com</a>",
 
-				    # Table Header/Footer
-				    "company_name": company.name,
-				    "statement_month": statement_month,
-				    "support_email": "<a href='mailto:support@bespokefinancial.com'>support@bespokefinancial.com</a>",
+			    # First Row
+			    "previous_principal_balance": previous_principal_balance,
+			    "principal_repayments": "(" + principal_repayments_display + ")",
+			    "principal_advanced": principal_advanced,
+			    "current_principal_balance": current_principal_balance,
+			    
+			    # Second Row
+			    "previous_interest_and_fees_billed": previous_interest_and_fees,
+			    "interest_and_fee_payments": "(" + interest_fee_repayments_display + ")",
+			    "total_credit_line": total_credit_line,
+			    "available_credit": available_credit,
+			    
+			    # Summary Row
+			    "days_in_cycle": date_util.get_days_in_month(report_month_last_day),
+			    "cmi_or_mmf_title": cmi_or_mmf_title,
+			    "cmi_or_mmf_amount": cmi_or_mmf_amount,
+			    "payment_due_date": payment_due_date,
+			    "minimum_payment_due": minimum_payment_due,
+			}
+			html = self.prepare_html_for_attachment(template_data)
+			attached_report = prepare_email_attachment(company.name, statement_month, html, is_landscape = False)
 
-				    # First Row
-				    "previous_principal_balance": previous_principal_balance,
-				    "principal_repayments": "(" + principal_repayments_display + ")",
-				    "principal_advanced": principal_advanced,
-				    "current_principal_balance": current_principal_balance,
-				    
-				    # Second Row
-				    "previous_interest_and_fees_billed": previous_interest_and_fees,
-				    "interest_and_fee_payments": "(" + interest_fee_repayments_display + ")",
-				    "total_credit_line": total_credit_line,
-				    "available_credit": available_credit,
-				    
-				    # Summary Row
-				    "days_in_cycle": date_util.get_days_in_month(report_month_last_day),
-				    "cmi_or_mmf_title": cmi_or_mmf_title,
-				    "cmi_or_mmf_amount": cmi_or_mmf_amount,
-				    "payment_due_date": payment_due_date,
-				    "minimum_payment_due": minimum_payment_due,
-				}
-				html = self.prepare_html_for_attachment(template_data)
-				# TODO(JR): note for sending html to standalone service
-				#attached_report = self.prepare_email_attachment(company.name, statement_month, html)
-				if sendgrid_client is not None:
+			if is_test is False:
+				all_users = models_util.get_active_users(company_id=company_id, session=session)
+				for contact_user in all_users:
+					template_data["company_user"] = contact_user.first_name + " " + contact_user.last_name
+
 					_, err = sendgrid_client.send(
 						template_name=sendgrid_util.TemplateNames.REPORT_MONTHLY_SUMMARY_LOC,
 						template_data=template_data,
 						recipients=[contact_user.email],
-						#attachment=attached_report
+						attachment=attached_report
 					)
 
 					if err:
 						return loans_to_notify, make_response(json.dumps({ 'status': 'FAILED', 'resp': "Sendgrid client failed: " + repr(err) }))
+			else:
+				template_data["company_user"] = "Test Email"
+
+				_, err = sendgrid_client.send(
+					template_name=sendgrid_util.TemplateNames.REPORT_MONTHLY_SUMMARY_LOC,
+					template_data=template_data,
+					recipients=[test_email],
+					attachment=attached_report
+				)
+
+				if err:
+					return loans_to_notify, make_response(json.dumps({ 'status': 'FAILED', 'resp': "Sendgrid client failed: " + repr(err) }))
 
 		return loans_to_notify, None
 
 	@handler_util.catch_bad_json_request
-	def post(self) -> Response:
-		logging.info("Sending out monthly summary report emails for LOC customers")
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+		variables = form.get("variables", None)
+		is_test = variables.get("isTest", False) if variables else False
+		test_email = variables.get("email", None) if variables else None
+
+		print("Sending out monthly summary report emails for LOC customers")
 		cfg = cast(Config, current_app.app_config)
 		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
@@ -941,7 +932,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 
 			BATCH_SIZE = 50
 			for loans_chunk in cast(Iterable[List[models.Loan]], chunker(all_open_loans, BATCH_SIZE)):
-				_, err = self.process_loan_chunk(session, sendgrid_client, report_link, payment_link, loans_chunk, today)
+				_, err = self.process_loan_chunk(session, sendgrid_client, report_link, payment_link, loans_chunk, today, is_test, test_email)
 
 				if err:
 					return err;
@@ -1040,7 +1031,7 @@ class AutomaticDebitCourtesyView(MethodView):
 		return make_response(json.dumps({'status': 'OK', 'resp': "Successfully sent out courtesy alert for automatic monthly debits."}))
 
 class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
-	decorators = [auth_util.requires_async_magic_header]
+	decorators = [auth_util.bank_admin_required]
 
 	def prepare_html_for_attachment(
 		self,
@@ -1150,30 +1141,35 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
         		<td>{ outstanding_principal_display }</td>
         	</tr>"""
 
+        # if statement so that we can access the css file during unit tests with minimal changes
+		css_path = '../src/server/views/css/monthly_report.css' if 'api-server/test' in os.getcwd() else 'server/views/css/monthly_report.css'
+		with open(css_path, 'r') as file:
+			css_file = file.read().rstrip()
+
 		# Generate HTML for report attachment
 		html = f"""
 <!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<meta name="pdfkit-orientation" content="Landscape"/>
 	<title>Monthly Summary Report</title>
+	<style>{ css_file }</style>
 </head>
 <body>
 	<header>
-		<div><img class="logo" src="/app/src/server/views/images/bespoke-logo.png" alt="Bespoke Financial Logo" /></div>
+		<div><img class="logo" src="images/bespoke-logo.png" alt="Bespoke Financial Logo" /></div>
 		<div class="contact">
 		<ul>
 			<li>
-				<img class="icon" src="/app/src/server/views/images/email.png" alt="Email Icon"/>
+				<img class="icon" src="images/email.png" alt="Email Icon"/>
 				<a href="mailto:info@bespokefinancial">info@bespokefinancial.com</a>
 			</li>
 			<li>
-				<img class="icon" src="/app/src/server/views/images/internet.png" alt="Internet Icon"/>
+				<img class="icon" src="images/internet.png" alt="Internet Icon"/>
 				<a href="https://bespokefinancial.com/" target="_blank">www.bespokefinancial.com</a>
 			</li>
 			<li>
-				<img class="icon" src="/app/src/server/views/images/phone.png" alt="Phone Icon"/>
+				<img class="icon" src="images/phone.png" alt="Phone Icon"/>
 				<span>+1 213-282-8411</span>
 			</li>
 		</ul>
@@ -1227,50 +1223,6 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 
 		return html
 
-	def prepare_email_attachment(
-		self,
-		company_name: str,
-		statement_month: str,
-		html: str
-	) -> Attachment:
-		"""
-			The attachment function returns a tuple to make testing easier
-			In the cron run use case, we should not expect to use the returned html str
-			In the unit test case, we want to test the str for html validation
-		"""
-		# XDG_RUNTIME_DIR was defaulting to some tmp directory, this allows us to set
-		# the path relative to the root of the docker container
-		os.environ["XDG_RUNTIME_DIR"] = "/"
-
-		options = {
-		    'enable-local-file-access': None
-		}
-		css = ["/app/src/server/views/css/monthly_report.css"]
-
-		# Convert generated html to pdf, read pdf, and encode for attachment
-		company_name = company_name.replace(" ", "-")
-		while company_name.find("--") != -1:
-			company_name = company_name.replace("--", "-")
-		statement_month = statement_month.replace(" ", "-")
-		temp_pdf_name = f'{company_name}-{statement_month}-monthly_non_loc_customer_summary.pdf'
-		final_pdf_name = f'{company_name}-{statement_month}-Summary-Report.pdf'
-		# ignoring mypy warning of "Module has no attribute "from_string" because this function
-		# works as expected
-		pdfkit.from_string(html, temp_pdf_name, options=options, css=css) # type: ignore
-		with open(temp_pdf_name, 'rb') as f:
-		    data = f.read()
-		    f.close()
-		encoded_file = base64.b64encode(data).decode()
-
-		attached_report = Attachment(
-			FileContent(encoded_file),
-			FileName(final_pdf_name),
-			FileType("application/pdf"),
-			Disposition("attachment")
-		)
-
-		return attached_report
-
 	def process_loan_chunk(
 		self, 
 		session : Session, 
@@ -1279,7 +1231,9 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 		payment_link: str,
 		loans_chunk : List[models.Loan],
 		today : datetime.datetime,
-		company_lookup: Dict[str, str]
+		company_lookup: Dict[str, str],
+		is_test: bool,
+		test_email: str
 		) -> Tuple[Dict[str, List[models.Loan]], Response]:
 		# LOC vs non-LOC split handled at query level
 		# This is for organizing loans on a per company basis to make emails easier
@@ -1293,6 +1247,9 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 
 		report_month_last_day = date_util.get_report_month_last_day(today)
 
+		if sendgrid_client is None:
+			return loans_to_notify, make_response(json.dumps({ 'status': 'FAILED', 'resp': "Cannot find sendgrid client"}))
+
 		for company_id, loans in loans_to_notify.items():
 			# get company contact email, company name
 			company = cast(
@@ -1302,36 +1259,56 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 				.first())
 
 			statement_month = date_util.human_readable_monthyear(report_month_last_day)
-			all_users = models_util.get_active_users(company_id=company_id, session=session)
-			for contact_user in all_users:
-				contact_user_full_name = contact_user.first_name + " " + contact_user.last_name
 
-				template_data: Dict[str, object] = {
-					"company_user": contact_user_full_name,
-					"company_name": company.name,
-					"send_date": date_util.human_readable_monthyear(date_util.now_as_date(timezone = date_util.DEFAULT_TIMEZONE)),
-				    "support_email": "<a href='mailto:support@bespokefinancial.com'>support@bespokefinancial.com</a>",
-				    "statement_month": statement_month,
-				}
-				html = self.prepare_html_for_attachment(session, template_data, loans, company_lookup)
-				# TODO(JR): note for sending html to standalone
-				#attached_report = self.prepare_email_attachment(company.name, statement_month, html)
-				if sendgrid_client is not None:
+			template_data: Dict[str, object] = {
+				"company_name": company.name,
+				"send_date": date_util.human_readable_monthyear(date_util.now_as_date(timezone = date_util.DEFAULT_TIMEZONE)),
+			    "support_email": "<a href='mailto:support@bespokefinancial.com'>support@bespokefinancial.com</a>",
+			    "statement_month": statement_month,
+			}
+			html = self.prepare_html_for_attachment(session, template_data, loans, company_lookup)
+			attached_report = prepare_email_attachment(company.name, statement_month, html, is_landscape = True)
+
+			if is_test is False:
+				all_users = models_util.get_active_users(company_id=company_id, session=session)
+				for contact_user in all_users:
+					template_data["company_user"] = contact_user.first_name + " " + contact_user.last_name
+					
 					_, err = sendgrid_client.send(
 						template_name=sendgrid_util.TemplateNames.REPORT_MONTHLY_SUMMARY_NON_LOC,
 						template_data=template_data,
 						recipients=[contact_user.email],
-						#attachment=attached_report
+						attachment=attached_report
 					)
 
 					if err:
 						return loans_to_notify, make_response(json.dumps({ 'status': 'FAILED', 'resp': "Sendgrid client failed: " + repr(err) }))
+			else:
+				template_data["company_user"] = "Test Email"
+					
+				_, err = sendgrid_client.send(
+					template_name=sendgrid_util.TemplateNames.REPORT_MONTHLY_SUMMARY_NON_LOC,
+					template_data=template_data,
+					recipients=[test_email],
+					attachment=attached_report
+				)
+
+				if err:
+					return loans_to_notify, make_response(json.dumps({ 'status': 'FAILED', 'resp': "Sendgrid client failed: " + repr(err) }))
+
 
 		return loans_to_notify, None
 
 	@handler_util.catch_bad_json_request
-	def post(self) -> Response:
-		logging.info("Sending out monthly summary report emails for non-LOC customers")
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+		variables = form.get("variables", None)
+		is_test = variables.get("isTest", False) if variables else False
+		test_email = variables.get("email", None) if variables else None
+		
+		print("Sending out monthly summary report emails for non-LOC customers")
 		cfg = cast(Config, current_app.app_config)
 		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
@@ -1366,7 +1343,7 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 			BATCH_SIZE = 50
 			for loans_chunk in cast(Iterable[List[models.Loan]], chunker(all_open_loans, BATCH_SIZE)):
 				_, err = self.process_loan_chunk(session, sendgrid_client, report_link, payment_link, \
-					loans_chunk, today, company_lookup)
+					loans_chunk, today, company_lookup, is_test, test_email)
 
 				if err:
 					return err;

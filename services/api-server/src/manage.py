@@ -31,6 +31,7 @@ from server.views import (
     purchase_orders,
 	two_factor,
 	users,
+	report_generation,
 )
 from server.views.api import licenses as licenses_api
 from server.views.finance import credits, fees, liens
@@ -116,6 +117,9 @@ app.register_blueprint(licenses_api.handler, url_prefix='/api/v1/licenses')
 
 # healthcheck
 app.register_blueprint(healthcheck.handler, url_prefix='/healthcheck')
+
+# Report Generation
+app.register_blueprint(report_generation.handler, url_prefix='/reports')
 
 app.app_config = config
 app.engine = models.create_engine()

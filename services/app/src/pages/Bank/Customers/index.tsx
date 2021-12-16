@@ -4,6 +4,7 @@ import CreateCustomerModal from "components/Customer/CreateCustomerModal";
 import CreateBulkMinimumMonthlyFeeModal from "components/Fee/CreateMinimumInterestFeesModal";
 import CreateMonthEndPaymentsModal from "components/Fee/CreateMonthEndPaymentsModal";
 import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal";
+import KickoffMonthlySummaryEmailsModal from "components/Reports/KickoffMonthlySummaryEmailsModal";
 import Can from "components/Shared/Can";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
@@ -192,6 +193,22 @@ export default function BankCustomersPage() {
         title={"Customers"}
         bankActions={
           <>
+            <Can perform={Action.KickoffMonthlySummaryEmails}>
+              <Box mr={2}>
+                <ModalButton
+                  label={"Kickoff Monthly Summary Emails"}
+                  color={"default"}
+                  variant={"outlined"}
+                  modal={({ handleClose }) => (
+                    <KickoffMonthlySummaryEmailsModal
+                      handleClose={() => {
+                        handleClose();
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+            </Can>
             <Can perform={Action.BookFees}>
               <Box mr={2}>
                 <ModalButton
