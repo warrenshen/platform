@@ -4373,6 +4373,57 @@
     name: revoked_tokens
 - table:
     schema: public
+    name: sync_pipelines
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - internal_state
+      - params
+      - name
+      - status
+      - created_at
+      - updated_at
+      - id
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - internal_state
+      - params
+      - name
+      - status
+      - created_at
+      - updated_at
+      - id
+      filter: {}
+  update_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - internal_state
+      - params
+      - name
+      - status
+      - created_at
+      - updated_at
+      - id
+      filter: {}
+      check: null
+  insert_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - internal_state
+      - params
+      - name
+      - status
+      - created_at
+      - updated_at
+      filter: {}
+      check: {}
+- table:
+    schema: public
     name: transactions
   object_relationships:
   - name: loan
