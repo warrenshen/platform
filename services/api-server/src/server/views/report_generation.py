@@ -446,13 +446,8 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 		mmf_tuple = contract.get_minimum_amount_owed_per_duration()
 		mmf = mmf_tuple[0]["amount"] if mmf_tuple is not None else 0
 		
-		# Current Monthly Interest
-		# The finance team noted that "CMI is interest accrued during the month, regardless of if it is paid or not"
-		# As such, the CMI calculation is comprised of two parts:
-		#     1. outstanding principal * (daily interest rate * days in cycle)
-		#     2. loans started in report month * (daily interest rate * prorated days in cycle)
-
-		# Part 1
+		# Used later in get_minimum_payment_due, queried here since
+		# we're already getting financial summary information
 		month_start_summary = cast(
 			models.FinancialSummary,
 			session.query(models.FinancialSummary).filter(
@@ -461,36 +456,23 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 				models.FinancialSummary.date == report_month_first_day
 			).first())
 
-		if month_start_summary is None:
-			return "", "", (0.0, 0.0, 0.0), errors.Error(
-					msg = "Query for month start summary in get_cmi_and_mmf retuned with None."
-				)
 
-		interest_rate, err = contract.get_interest_rate(report_month_last_day)
-		interest_rate = float(interest_rate if interest_rate is not None else 0.0)
-		if err:
-			return "", "", (0.0, 0.0, 0.0), err
+		# Current Monthly Interest
+		# The finance team noted that "CMI is interest accrued during the month, regardless of if it is paid or not"
+		# As such, the CMI calculation is comprised of two parts:
+		#     1. outstanding principal * (daily interest rate * days in cycle)
+		#     2. loans started in report month * (daily interest rate * prorated days in cycle)
+		# Those parts are accounted in the financial summaries table, so we can just sum them up here
+		cmi = session.query(models.FinancialSummary).with_entities( # type: ignore
+				func.sum(models.FinancialSummary.interest_accrued_today)
+			).filter(
+				models.FinancialSummary.company_id == company_id
+			).filter(
+				models.FinancialSummary.date >= report_month_first_day
+			).filter(
+				models.FinancialSummary.date <= report_month_last_day
+			).first()[0]
 		
-		days_in_month = date_util.get_days_in_month(report_month_first_day)
-
-		cmi = float(month_start_summary.total_outstanding_principal_for_interest) * (interest_rate * days_in_month)
-
-		# Part 2
-		new_loans_in_report_month = cast(
-			List[models.Loan],
-			session.query(models.Loan).filter(
-				models.Loan.company_id == company_id
-			).filter(
-				models.Loan.origination_date >= report_month_first_day
-			).filter(
-				models.Loan.origination_date <= report_month_last_day
-			).all())
-
-		for l in new_loans_in_report_month:
-			diff_days = date_util.number_days_between_dates(l.origination_date, report_month_last_day)
-			if diff_days:
-				cmi += float(l.outstanding_principal_balance) * (interest_rate * diff_days)
-
 		cmi = float(cmi)
 		mmf = float(mmf)
 

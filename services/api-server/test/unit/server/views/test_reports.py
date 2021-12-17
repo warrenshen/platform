@@ -418,7 +418,8 @@ def add_loans_for_loc_summary(
 
 def setup_data_for_cmi_and_mmf(
 	session: Session,
-	company_id: str
+	company_id: str,
+	cmi_should_be_higher: bool
 	) -> None:
 	# this is for the interest balance calculation that gets fed into cmi_and_mmf
 	# The 30 and 31 offsets in the date field assumes TODAY remains as October 1st
@@ -461,11 +462,78 @@ def setup_data_for_cmi_and_mmf(
 		minimum_monthly_payload = {},
 		account_level_balance_payload = {},
 		day_volume_threshold_met = None,
-		interest_accrued_today = Decimal(0.0),
+		interest_accrued_today = Decimal(7000.0),
 		product_type = None,
 		needs_recompute = False,
 		days_to_compute_back = None
 	))
+	session.add(models.FinancialSummary(
+		date = get_relative_date(TODAY, -29).date(),
+		company_id = company_id,
+		total_limit = Decimal(10000.0),
+		total_outstanding_principal = Decimal(8000.0),
+		total_outstanding_principal_for_interest = Decimal(18000.0),
+		total_outstanding_interest = Decimal(80.0),
+		total_outstanding_fees = Decimal(200.0),
+		total_principal_in_requested_state = Decimal(0.0),
+		total_amount_to_pay_interest_on = Decimal(0.0),
+		total_interest_paid_adjustment_today = Decimal(0.0),
+		total_fees_paid_adjustment_today = Decimal(0.0),
+		available_limit = Decimal(0.0),
+		adjusted_total_limit = Decimal(0.0),
+		minimum_monthly_payload = {},
+		account_level_balance_payload = {},
+		day_volume_threshold_met = None,
+		interest_accrued_today = Decimal(10000.0),
+		product_type = None,
+		needs_recompute = False,
+		days_to_compute_back = None
+	))
+	if cmi_should_be_higher == True:
+		session.add(models.FinancialSummary(
+			date = get_relative_date(TODAY, -28).date(),
+			company_id = company_id,
+			total_limit = Decimal(10000.0),
+			total_outstanding_principal = Decimal(8000.0),
+			total_outstanding_principal_for_interest = Decimal(18000.0),
+			total_outstanding_interest = Decimal(80.0),
+			total_outstanding_fees = Decimal(200.0),
+			total_principal_in_requested_state = Decimal(0.0),
+			total_amount_to_pay_interest_on = Decimal(0.0),
+			total_interest_paid_adjustment_today = Decimal(0.0),
+			total_fees_paid_adjustment_today = Decimal(0.0),
+			available_limit = Decimal(0.0),
+			adjusted_total_limit = Decimal(0.0),
+			minimum_monthly_payload = {},
+			account_level_balance_payload = {},
+			day_volume_threshold_met = None,
+			interest_accrued_today = Decimal(5000.0),
+			product_type = None,
+			needs_recompute = False,
+			days_to_compute_back = None
+		))
+		session.add(models.FinancialSummary(
+			date = get_relative_date(TODAY, -27).date(),
+			company_id = company_id,
+			total_limit = Decimal(10000.0),
+			total_outstanding_principal = Decimal(8000.0),
+			total_outstanding_principal_for_interest = Decimal(18000.0),
+			total_outstanding_interest = Decimal(80.0),
+			total_outstanding_fees = Decimal(200.0),
+			total_principal_in_requested_state = Decimal(0.0),
+			total_amount_to_pay_interest_on = Decimal(0.0),
+			total_interest_paid_adjustment_today = Decimal(0.0),
+			total_fees_paid_adjustment_today = Decimal(0.0),
+			available_limit = Decimal(0.0),
+			adjusted_total_limit = Decimal(0.0),
+			minimum_monthly_payload = {},
+			account_level_balance_payload = {},
+			day_volume_threshold_met = None,
+			interest_accrued_today = Decimal(5000.0),
+			product_type = None,
+			needs_recompute = False,
+			days_to_compute_back = None
+		))
 
 	contract_id = uuid.uuid4()
 	product_config = {
@@ -679,7 +747,7 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 			seed.initialize()
 
 			company_id = seed.get_company_id('company_admin', index=0)
-			setup_data_for_cmi_and_mmf(session, company_id)
+			setup_data_for_cmi_and_mmf(session, company_id, cmi_should_be_higher = False)
 
 
 			contract, err = contract_util.get_active_contract_by_company_id(company_id, session)
@@ -698,10 +766,10 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 
 			# In this case, CMI is larger
 			cmi, mmf, total_outstanding_interest = cmi_mmf_scores
-			self.assertEqual(cmi, 27000.0)
+			self.assertEqual(cmi, 17000.0)
 			self.assertEqual(mmf, 20000.0)
 			self.assertEqual(total_outstanding_interest, 80.0)
-			self.assertEqual(cmi_or_mmf_amount, "$26,976.26")
+			self.assertEqual(cmi_or_mmf_amount, "$19,976.26")
 
 			# Reuse previous setup and tweak month start financial summary for the case
 			# when minimum monthly fee is larger
@@ -726,7 +794,7 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 			)
 
 			cmi, mmf, total_outstanding_interest = cmi_mmf_scores
-			self.assertEqual(cmi, 120.0)
+			self.assertEqual(cmi, 17000.0)
 			self.assertEqual(mmf, 20000.0)
 			self.assertEqual(total_outstanding_interest, 80.0)
 			self.assertEqual(cmi_or_mmf_amount, "$20,000.00")
@@ -771,7 +839,7 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 			seed.initialize()
 
 			company_id = seed.get_company_id('company_admin', index=0)
-			setup_data_for_cmi_and_mmf(session, company_id)
+			setup_data_for_cmi_and_mmf(session, company_id, cmi_should_be_higher = True)
 
 			# This was taken from the cmf test above
 			cmi_mmf_scores = (27000.0, 20000.0, 80.0)
