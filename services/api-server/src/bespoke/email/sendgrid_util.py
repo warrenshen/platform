@@ -299,7 +299,7 @@ def _maybe_add_or_remove_recipients(
 		# and @sweatequity.vc emails so we avoid sending emails to customers in those environments
 		new_recipients = []
 		for recipient in recipients:
-			if recipient.endswith('@bespokefinancial.com') or recipient.endswith('@sweatequity.vc') or recipient.endswith('jrsmith17@protonmail.com'):
+			if recipient.endswith('@bespokefinancial.com') or recipient.endswith('@sweatequity.vc'):
 				new_recipients.append(recipient)
 			else:
 				logging.info(f'Email "{template_name}" not sent to {recipient} due to non-prod environment')
@@ -321,6 +321,25 @@ def _maybe_add_or_remove_recipients(
 			# We use list concatenation and NOT .append() so
 			# that we do not mutate the given recipients parameter.
 			recipients = recipients + [no_reply_email_addr]
+
+
+	# This check queries all the users associated with the recipients list as a last-pass
+	# filter to remove any deactivated users
+	with models.session_scope(session_maker) as session:
+		deactivated_users = cast(
+			List[models.User],
+			session.query(models.User).filter(
+				models.User.email.in_(recipients) 
+			).filter(
+				models.User.is_deleted == True
+			).all())
+
+		for du in deactivated_users:
+			while du.email in recipients:
+				recipients.remove(du.email)
+
+		if not recipients:
+			raise errors.Error("Email recipients lists is empty after last pass filter")
 
 	# De-duplicate the list of emails as a safety measure to prevent duplicates.
 	# This is because duplicate emails cause the request to SendGrid to fail.
