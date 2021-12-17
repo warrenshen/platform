@@ -29,7 +29,7 @@ from bespoke.metrc.common.metrc_common_util import chunker
 from server.config import Config
 from server.views.common import auth_util, handler_util
 from bespoke.finance.types.payment_types import PaymentItemsCoveredDict
-from bespoke.reports.reports_util import prepare_email_attachment
+from bespoke.reports.reports_util import prepare_email_attachment, record_report_run_metadata
 
 handler = Blueprint('report_generation', __name__)
 
@@ -920,6 +920,11 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 		today = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
 
 		with models.session_scope(current_app.session_maker) as session:
+			user_session = auth_util.UserSession.from_session()
+			user = session.query(models.User).filter(
+			  models.User.id == user_session.get_user_id()
+			).first()
+
 			all_open_loans = cast(
 				List[models.Loan],
 				session.query(models.Loan).filter(
@@ -936,6 +941,19 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 
 				if err:
 					return err;
+
+			# Once all emails have been sent, record a successful live run if applicable
+			if is_test is False:
+				recorded_state : Dict[str, object] = {
+					"user_name": user.first_name + " " + user.last_name,
+					"user_id": str(user.id)
+				}
+				record_report_run_metadata(
+					name = "monthly_summary_live_run",
+					status = "succeeded",
+					internal_state = recorded_state,
+					params = {}
+				)
 
 		return make_response(json.dumps({'status': 'OK', 'resp': "Successfully sent email alert(s) for monthly LOC loan summaries."}))
 
@@ -1317,6 +1335,11 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 		today = date_util.now()
 
 		with models.session_scope(current_app.session_maker) as session:
+			user_session = auth_util.UserSession.from_session()
+			user = session.query(models.User).filter(
+			  models.User.id == user_session.get_user_id()
+			).first()
+
 			all_open_loans = cast(
 				List[models.Loan],
 				session.query(models.Loan).filter(
@@ -1347,6 +1370,19 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 
 				if err:
 					return err;
+
+			# Once all emails have been sent, record a successful live run if applicable
+			if is_test is False:
+				recorded_state : Dict[str, object] = {
+					"user_name": user.first_name + " " + user.last_name,
+					"user_id": str(user.id)
+				}
+				record_report_run_metadata(
+					name = "monthly_summary_live_run",
+					status = "succeeded",
+					internal_state = recorded_state,
+					params = {}
+				)
 
 		return make_response(json.dumps({'status': 'OK', 'resp': "Successfully sent email alert(s) for monthly non-LOC loan summary."}))
 

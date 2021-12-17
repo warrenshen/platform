@@ -11,6 +11,8 @@ import {
   sendMonthlySummaryLOCReport,
   sendMonthlySummaryNonLOCReport,
 } from "lib/api/reports";
+import { useLastMonthlySummaryReportLiveRunQuery } from "generated/graphql";
+import { formatDatetimeString } from "lib/date";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { isEmailValid } from "lib/validation";
@@ -20,10 +22,23 @@ interface Props {
   handleClose: () => void;
 }
 
-export default function CreateCustomerModal({ handleClose }: Props) {
+export default function KickoffMonthlySummaryEmailsModal({
+  handleClose,
+}: Props) {
   const snackbar = useSnackbar();
   const [email, setEmail] = useState("");
   const [isTestRun, setIsTestRun] = useState(false);
+
+  // Display who last ran the live report button and when
+  const { data: lastRun } = useLastMonthlySummaryReportLiveRunQuery();
+  const lastRunUser =
+    !!lastRun && lastRun?.sync_pipelines.length > 0
+      ? lastRun?.sync_pipelines[0].internal_state?.user_name
+      : null;
+  const lastRunDatetime =
+    !!lastRun && lastRun?.sync_pipelines.length > 0
+      ? formatDatetimeString(lastRun?.sync_pipelines[0].created_at)
+      : null;
 
   const [
     sendLOCReport,
@@ -102,8 +117,19 @@ export default function CreateCustomerModal({ handleClose }: Props) {
           }
           label={"Is this an email test run?"}
         />
+        {!!lastRunUser && lastRunDatetime && (
+          <Box display="flex" flexDirection="column" mt={4}>
+            <Typography variant={"body2"}>
+              <strong>Last Live Run</strong>
+            </Typography>
+            <Typography variant={"subtitle2"} color={"textSecondary"}>
+              The <strong>live</strong> report generation function was last run
+              on {lastRunDatetime} by {lastRunUser}.
+            </Typography>
+          </Box>
+        )}
         {isTestRun && (
-          <>
+          <Box display="flex" flexDirection="column" mt={4}>
             <Typography variant={"body2"}>
               <strong>Email Recipient</strong>
             </Typography>
@@ -118,10 +144,10 @@ export default function CreateCustomerModal({ handleClose }: Props) {
               required={isTestRun}
               onChange={({ target: { value } }) => setEmail(value)}
             />
-          </>
+          </Box>
         )}
         {(isSendLOCReportLoading || isSendNonLOCReportLoading) && (
-          <>
+          <Box display="flex" flexDirection="column" mt={4}>
             <Typography variant={"body2"}>
               <strong>Job Submitted</strong>
             </Typography>
@@ -130,7 +156,7 @@ export default function CreateCustomerModal({ handleClose }: Props) {
               while this runs. The modal will automatically close once the job
               is finished.
             </Typography>
-          </>
+          </Box>
         )}
       </Box>
     </Modal>

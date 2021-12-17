@@ -1341,6 +1341,34 @@ class AsyncPipeline(Base):
 			params=cast(Dict, self.params)
 		)
 
+SyncPipelineDict = TypedDict('SyncPipelineDict', {
+	'id': str,
+	'name': str,
+	'status': str,
+	'internal_state': Dict,
+	'params': Dict
+})
+
+class SyncPipeline(Base):
+	__tablename__ = 'sync_pipelines'
+
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	name = Column(String)
+	status = Column(String)
+	internal_state = Column(JSON)
+	params = Column(JSON)
+	created_at = Column(DateTime, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+	def as_dict(self) -> SyncPipelineDict:
+		return SyncPipelineDict(
+			id=str(self.id),
+			name=self.name,
+			status=self.status,
+			internal_state=cast(Dict, self.internal_state),
+			params=cast(Dict, self.params)
+		)
+
 class MonthlySummaryCalculation(Base):
 	__tablename__ = "monthly_summary_calculations"
 

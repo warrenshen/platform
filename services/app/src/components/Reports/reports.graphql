@@ -1,0 +1,15 @@
+query LastMonthlySummaryReportLiveRun {
+  sync_pipelines (
+  	where: { name: { _eq: "monthly_summary_live_run" } }
+    order_by: [
+      { created_at: desc }
+    ]
+    limit: 1
+  ) {
+    id
+    name
+    internal_state
+    params
+    created_at
+  }
+}

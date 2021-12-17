@@ -3,6 +3,8 @@ import json
 import os
 import requests
 from typing import Dict
+from flask import current_app
+from bespoke.db import models
 from sendgrid.helpers.mail import Attachment, FileContent, FileName, FileType, Disposition
 
 from bespoke.config.config_util import is_prod_env
@@ -47,3 +49,21 @@ def prepare_email_attachment(
 	)
 
 	return attached_report
+
+def record_report_run_metadata(
+	name: str,
+	status: str,
+	internal_state: Dict[str, object],
+	params: Dict[str, object]
+	) -> None:
+	with models.session_scope(current_app.session_maker) as session:
+		sync_pipeline_entry = models.SyncPipeline(
+			name = name,
+			status = status,
+			internal_state = internal_state,
+			params = params
+		)
+		session.add(sync_pipeline_entry)
+
+
+
