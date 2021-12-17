@@ -6,6 +6,7 @@ import requests
 import time
 from datetime import timedelta
 from dateutil import parser
+from itertools import islice
 from mypy_extensions import TypedDict
 from requests.auth import HTTPBasicAuth
 from typing import Any, Dict, Iterable, List, Tuple, cast
@@ -424,6 +425,11 @@ def get_rest_helper_for_debug(
 
 def chunker(seq: List, size: int) -> Iterable[List]:
 	return (seq[pos:pos + size] for pos in range(0, len(seq), size))
+
+def chunker_dict(data: Dict, size: int) -> Iterable[Dict]:
+	data_itr = iter(data)
+	for i in range(0, len(data), size):
+		yield {k:data[k] for k in islice(data_itr, size)}
 
 def update_if_all_are_unsuccessful(request_status: RequestStatusesDict, key: str, e: errors.Error) -> None:
 	d = cast(Dict, request_status)

@@ -25,7 +25,7 @@ from bespoke.email import sendgrid_util
 from bespoke.finance import number_util, contract_util
 from bespoke.finance.loans import reports_util
 from bespoke.finance.payments import fees_due_util
-from bespoke.metrc.common.metrc_common_util import chunker
+from bespoke.metrc.common.metrc_common_util import chunker, chunker_dict
 from server.config import Config
 from server.views.common import auth_util, handler_util
 from bespoke.finance.types.payment_types import PaymentItemsCoveredDict
@@ -673,26 +673,13 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 		sendgrid_client : sendgrid_util.Client, 
 		report_link : str, 
 		payment_link: str,
-		loans_chunk : List[models.Loan],
+		loans_to_notify : Dict[str, List[models.Loan] ],
 		today : datetime.date,
 		is_test: bool,
 		test_email: str
 		) -> Tuple[Dict[str, List[models.Loan]], Response]:
 		if sendgrid_client is None:
 			return loans_to_notify, make_response(json.dumps({ 'status': 'FAILED', 'resp': "Sendgrid client does not exist." }))
-
-
-		# LOC vs non-LOC split handled at query level
-		# This is for organizing loans on a per company basis to make emails easier
-		loans_to_notify : Dict[str, List[models.Loan] ] = {}
-		for l in loans_chunk:
-			if l.origination_date is not None and l.maturity_date is not None and \
-				l.status == LoanStatusEnum.APPROVED and l.closed_at is None and l.rejected_at is None:
-				company_id = str(l.company_id)
-				if company_id is not None:
-					if company_id not in loans_to_notify:
-						loans_to_notify[company_id] = [];
-					loans_to_notify[company_id].append(l)
 
 		# Report Month is the basis for "Current *" amounts in the email
 		report_month_last_day = date_util.get_report_month_last_day(today)
@@ -917,9 +904,21 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 					models.Loan.loan_type == LoanTypeEnum.LINE_OF_CREDIT
 				).all())
 
+			# LOC vs non-LOC split handled at query level
+			# This is for organizing loans on a per company basis to make emails easier
+			loans_to_notify : Dict[str, List[models.Loan] ] = {}
+			for l in all_open_loans:
+				if l.origination_date is not None and l.maturity_date is not None and \
+					l.status == LoanStatusEnum.APPROVED and l.closed_at is None and l.rejected_at is None:
+					company_id = str(l.company_id)
+					if company_id is not None:
+						if company_id not in loans_to_notify:
+							loans_to_notify[company_id] = [];
+						loans_to_notify[company_id].append(l)
+
 			BATCH_SIZE = 50
-			for loans_chunk in cast(Iterable[List[models.Loan]], chunker(all_open_loans, BATCH_SIZE)):
-				_, err = self.process_loan_chunk(session, sendgrid_client, report_link, payment_link, loans_chunk, today, is_test, test_email)
+			for loans_chunk in cast(Iterable[ Dict[str, List[models.Loan]] ], chunker_dict(loans_to_notify, BATCH_SIZE)):
+				_, err = self.process_loan_chunk(session, sendgrid_client, report_link, payment_link, loans_to_notify, today, is_test, test_email)
 
 				if err:
 					return err;
@@ -1229,22 +1228,12 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 		sendgrid_client : sendgrid_util.Client, 
 		report_link : str, 
 		payment_link: str,
-		loans_chunk : List[models.Loan],
+		loans_to_notify : Dict[str, List[models.Loan] ],
 		today : datetime.datetime,
 		company_lookup: Dict[str, str],
 		is_test: bool,
 		test_email: str
 		) -> Tuple[Dict[str, List[models.Loan]], Response]:
-		# LOC vs non-LOC split handled at query level
-		# This is for organizing loans on a per company basis to make emails easier
-		loans_to_notify : Dict[str, List[models.Loan] ] = {}
-		for l in loans_chunk:
-			if l.origination_date is not None and l.maturity_date is not None and \
-				l.status == LoanStatusEnum.APPROVED and l.closed_at is None and l.rejected_at is None:
-				if l.company_id not in loans_to_notify:
-					loans_to_notify[l.company_id] = [];
-				loans_to_notify[l.company_id].append(l)
-
 		report_month_last_day = date_util.get_report_month_last_day(today)
 
 		if sendgrid_client is None:
@@ -1332,6 +1321,16 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 					models.Loan.loan_type != LoanTypeEnum.LINE_OF_CREDIT
 				).all())
 
+			# LOC vs non-LOC split handled at query level
+			# This is for organizing loans on a per company basis to make emails easier
+			loans_to_notify : Dict[str, List[models.Loan] ] = {}
+			for l in all_open_loans:
+				if l.origination_date is not None and l.maturity_date is not None and \
+					l.status == LoanStatusEnum.APPROVED and l.closed_at is None and l.rejected_at is None:
+					if l.company_id not in loans_to_notify:
+						loans_to_notify[l.company_id] = [];
+					loans_to_notify[l.company_id].append(l)
+
 			# We generate a (potentially) long table later on for the attachment
 			# with each row possibly having a different vendor/payor. So, in the interest
 			# of limiting the number of queries, we first grab all companies (since vendors/payors are there, too)
@@ -1346,7 +1345,7 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 				company_lookup[str(c.id)] = c.name
 			
 			BATCH_SIZE = 50
-			for loans_chunk in cast(Iterable[List[models.Loan]], chunker(all_open_loans, BATCH_SIZE)):
+			for loans_chunk in cast(Iterable[ Dict[str, List[models.Loan]] ], chunker_dict(loans_to_notify, BATCH_SIZE)):
 				_, err = self.process_loan_chunk(session, sendgrid_client, report_link, payment_link, \
 					loans_chunk, today, company_lookup, is_test, test_email)
 
