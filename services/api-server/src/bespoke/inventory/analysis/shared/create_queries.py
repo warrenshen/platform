@@ -1,4 +1,8 @@
 from typing import Iterable, List, Union, cast
+import datetime
+
+def _get_updated_at_where_clause(table_name: str, min_updated_at: datetime.datetime) -> str:
+	return f'and {table_name}.updated_at >={min_updated_at.isoformat()}' if min_updated_at else ''
 
 def create_company_incoming_transfer_packages_query(
 	company_identifier: str,
@@ -7,6 +11,7 @@ def create_company_incoming_transfer_packages_query(
 	license_numbers: List[str] = None,
 	product_name: str = None,
 	limit: int = None,
+	min_updated_at: datetime.datetime = None
 ) -> str:
 	end_date_where_clause = f"""
 		and metrc_transfers.created_date <= "{end_date}"
@@ -20,6 +25,7 @@ def create_company_incoming_transfer_packages_query(
 	""" if product_name else ''
 
 	limit_clause = f"LIMIT {limit}" if limit else ""
+	updated_at_where_clause = _get_updated_at_where_clause('metrc_transfers', min_updated_at)
 
 	return f"""
 		select
@@ -79,6 +85,7 @@ def create_company_incoming_transfer_packages_query(
 			{end_date_where_clause}
 			{license_numbers_where_clause}
 			{product_name_where_clause}
+			{updated_at_where_clause}
 		order by
 			created_date desc
 		{limit_clause}
@@ -91,6 +98,7 @@ def create_company_outgoing_transfer_packages_query(
 	license_numbers: List[str] = None,
 	product_name: str = None,
 	limit: int = None,
+	min_updated_at: datetime.datetime = None
 ) -> str:
 	end_date_where_clause = f"""
 		and metrc_transfers.created_date <= "{end_date}"
@@ -104,6 +112,7 @@ def create_company_outgoing_transfer_packages_query(
 	""" if product_name else ''
 
 	limit_clause = f"LIMIT {limit}" if limit else ""
+	updated_at_where_clause = _get_updated_at_where_clause('metrc_transfers', min_updated_at)
 
 	return f"""
 		select
@@ -161,6 +170,7 @@ def create_company_outgoing_transfer_packages_query(
 			{end_date_where_clause}
 			{license_numbers_where_clause}
 			{product_name_where_clause}
+			{updated_at_where_clause}
 		order by
 			metrc_transfers.created_date desc
 		{limit_clause}
@@ -222,13 +232,15 @@ def create_company_unknown_transfer_packages_query(company_identifier: str, star
 def create_company_sales_receipts_query(
 	company_identifier: str, start_date: str, 
 	license_numbers: List[str]=None,
-	limit: int = None) -> str:
+	limit: int = None,
+	min_updated_at: datetime.datetime = None) -> str:
 
 	license_numbers = [f"'{license_number}'" for license_number in license_numbers] if license_numbers else None
 	license_numbers_where_clause = f"""
 		and metrc_sales_receipts.license_number in ({','.join(license_numbers)})
 	""" if license_numbers else ''
 	limit_clause = f"LIMIT {limit}" if limit else ""
+	updated_at_where_clause = _get_updated_at_where_clause('metrc_sales_receipts', min_updated_at)
 
 	return f"""
 		select
@@ -248,6 +260,7 @@ def create_company_sales_receipts_query(
 			and companies.identifier = "{company_identifier}"
 			and metrc_sales_receipts.sales_datetime >= "{start_date}"
 			{license_numbers_where_clause}
+			{updated_at_where_clause}
 		order by
 			metrc_sales_receipts.sales_datetime desc
 		{limit_clause}
@@ -312,13 +325,15 @@ def create_company_sales_transactions_query(
 	company_identifier: str, 
 	start_date: str,
 	license_numbers: List[str]=None,
-	limit: int = None) -> str:
+	limit: int = None,
+	min_updated_at: datetime.datetime = None) -> str:
 
 	license_numbers = [f"'{license_number}'" for license_number in license_numbers] if license_numbers else None
 	license_numbers_where_clause = f"""
 		and metrc_sales_receipts.license_number in ({','.join(license_numbers)})
 	""" if license_numbers else ''
 	limit_clause = f"LIMIT {limit}" if limit else ""
+	updated_at_where_clause = _get_updated_at_where_clause('metrc_sales_receipts', min_updated_at)
 
 	return f"""
 		select
@@ -348,6 +363,7 @@ def create_company_sales_transactions_query(
 			and companies.identifier = "{company_identifier}"
 			and metrc_sales_receipts.sales_datetime >= "{start_date}"
 			{license_numbers_where_clause}
+			{updated_at_where_clause}
 		order by
 			metrc_sales_receipts.sales_datetime desc
 		{limit_clause}
@@ -358,7 +374,8 @@ def create_company_inventory_packages_query(
 	include_quantity_zero: bool = False,
 	license_numbers: List[str] = None,
 	product_name: str = None,
-	limit: int = None
+	limit: int = None,
+	min_updated_at: datetime.datetime = None
 ) -> str:
 	include_quantity_zero_where_clause = '' if include_quantity_zero else 'and metrc_packages.quantity > 0'
 	license_numbers = [f"'{license_number}'" for license_number in license_numbers] if license_numbers else None
@@ -370,6 +387,7 @@ def create_company_inventory_packages_query(
 	""" if product_name else ''
 	
 	limit_clause = f"LIMIT {limit}" if limit else ""
+	updated_at_where_clause = _get_updated_at_where_clause('metrc_packages', min_updated_at)
 
 	return f"""
 		select
@@ -407,6 +425,7 @@ def create_company_inventory_packages_query(
 			{include_quantity_zero_where_clause}
 			{license_numbers_where_clause}
 			{product_name_where_clause}
+			{updated_at_where_clause}
 		order by
 			metrc_packages.packaged_date desc
 		{limit_clause}

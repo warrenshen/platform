@@ -373,129 +373,130 @@ def _fetch_inactive_and_package_info_for_dataframes(
 	dataframes_dict['missing_incoming_pkg_packages_dataframe'] = missing_incoming_pkg_packages_df
 	dataframes_dict['parent_packages_dataframe'] = parent_packages_df
 
+def _get_latest_updated_at(orig_df: pd.DataFrame) -> datetime.datetime:
+	# TODO(dlluncor): Implement
+	return None
+
+def _join_in_new_dataframe(df_name: str, cur_df: pd.DataFrame, incremental_df: pd.DataFrame) -> pd.DataFrame:
+	# TODO(dlluncor): Implement
+	return None
+
+class DfNames(object):
+	INCOMING_TRANSFER_PACKAGES = 'incoming_transfer_packages'
+	OUTGOING_TRANSFER_PACKAGES = 'outgoing_transfer_packages'
+	SALES_RECEIPTS = 'sales_receipts'
+	SALES_TRANSACTIONS = 'sales_transactions'
+	INVENTORY_PACKAGES = 'inventory_packages'
+
 def get_dataframes_for_analysis(
 	q_params: DataFrameQueryParams, ctx: DataframeDownloadContext, sql_helper: BigQuerySQLHelper, 
 	dry_run: bool, num_threads: int, use_incremental_querying: bool) -> AllDataframesDict:
 	# Download packages, sales transactions, incoming / outgoing tranfers
 	limit = 50 if dry_run else None
 
-	# TODO(dlluncor): For incremental querying
-	# 1. Pull from cached dataframe
-	# 2. Determine the latest updated_at value
-	# 3. Query for updated_at values after that in the DB
-	# 4. Join by the unique column in each dataframe to create the final dataframe
-	#    to then save.
+	dataframe_names = [
+		DfNames.INCOMING_TRANSFER_PACKAGES,
+		DfNames.OUTGOING_TRANSFER_PACKAGES,
+		DfNames.SALES_RECEIPTS,
+		DfNames.SALES_TRANSACTIONS,
+		DfNames.INVENTORY_PACKAGES
+	]
 
-	company_incoming_transfer_packages_query = create_queries.create_company_incoming_transfer_packages_query(
-		q_params['company_identifier'], q_params['transfer_packages_start_date'], 
-		license_numbers=q_params['license_numbers'], limit=limit)
-	company_outgoing_transfer_packages_query = create_queries.create_company_outgoing_transfer_packages_query(
-		q_params['company_identifier'], q_params['transfer_packages_start_date'], 
-		license_numbers=q_params['license_numbers'], limit=limit)
-	company_sales_receipts_query = create_queries.create_company_sales_receipts_query(
-		q_params['company_identifier'], q_params['sales_transactions_start_date'], 
-		license_numbers=q_params['license_numbers'],
-		limit=limit)
-	company_sales_transactions_query = create_queries.create_company_sales_transactions_query(
-		q_params['company_identifier'], q_params['sales_transactions_start_date'], 
-		license_numbers=q_params['license_numbers'],
-		limit=limit)
-	company_inventory_packages_query = create_queries.create_company_inventory_packages_query(
-			q_params['company_identifier'],
-			include_quantity_zero=True,
-			license_numbers=q_params['license_numbers'],
-			limit=limit
-	)
-
-	if ctx.read_params['use_cached_dataframes'] and os.path.exists(ctx.get_output_path(
-			'download/incoming_transfers.pickle'
-	)):
-		# Make sure one of the dataframes was at least written once if we're reading 
-		# from the cached dataframes
-		company_incoming_transfer_packages_dataframe = pd.read_pickle(ctx.get_output_path(
-			'download/incoming_transfers.pickle'
-		))
-		company_outgoing_transfer_packages_dataframe = pd.read_pickle(ctx.get_output_path(
-			'download/outgoing_transfers.pickle'
-		))
-		company_sales_receipts_dataframe = pd.read_pickle(ctx.get_output_path(
-			'download/sales_receipts.pickle'
-		))
-		company_sales_transactions_dataframe = pd.read_pickle(ctx.get_output_path(
-			'download/sales_transactions.pickle'
-		))
-		company_inventory_packages_dataframe = pd.read_pickle(ctx.get_output_path(
-			'download/inventory_packages.pickle'
-		))
-	else:
-		engine = sql_helper.engine
-		if num_threads > 1:
-			with ThreadPoolExecutor(max_workers=num_threads) as executor:
-				dataframe_args_list = [
-					('incoming_transfer_packages', company_incoming_transfer_packages_query),
-					('outgoing_transfer_packages', company_outgoing_transfer_packages_query),
-					('sales_receipts', company_sales_receipts_query),
-					('sales_transactions', company_sales_transactions_query),
-					('inventory_packages', company_inventory_packages_query)
-				]
-				future_to_name = {}
-				for i in range(len(dataframe_args_list)):
-					(dataframe_name, query_str) = dataframe_args_list[i]
-
-					future_to_name[executor.submit(
-						pd.read_sql_query,
-						query_str,
-						engine
-						)] = dataframe_name
-
-				for future in concurrent.futures.as_completed(future_to_name):
-					dataframe = future.result()
-					df_name = future_to_name[future]
-					if df_name == 'incoming_transfer_packages':
-						company_incoming_transfer_packages_dataframe = dataframe
-					elif df_name == 'outgoing_transfer_packages':
-						company_outgoing_transfer_packages_dataframe = dataframe
-					elif df_name == 'sales_receipts':
-						company_sales_receipts_dataframe = dataframe
-					elif df_name == 'sales_transactions':
-						company_sales_transactions_dataframe = dataframe
-					elif df_name == 'inventory_packages':
-						company_inventory_packages_dataframe = dataframe
+	def _get_query(df_name: str, min_updated_at: datetime.datetime = None) -> str:
+		if df_name == DfNames.INCOMING_TRANSFER_PACKAGES:
+			return create_queries.create_company_incoming_transfer_packages_query(
+				q_params['company_identifier'], q_params['transfer_packages_start_date'], 
+				license_numbers=q_params['license_numbers'], limit=limit, min_updated_at=min_updated_at
+			)
+		elif df_name == DfNames.OUTGOING_TRANSFER_PACKAGES:
+			return create_queries.create_company_outgoing_transfer_packages_query(
+				q_params['company_identifier'], q_params['transfer_packages_start_date'], 
+				license_numbers=q_params['license_numbers'], limit=limit, min_updated_at=min_updated_at
+		)
+		elif df_name == DfNames.SALES_RECEIPTS:
+			return create_queries.create_company_sales_receipts_query(
+				q_params['company_identifier'], q_params['sales_transactions_start_date'], 
+				license_numbers=q_params['license_numbers'],
+				limit=limit, min_updated_at=min_updated_at
+			)
+		elif df_name == DfNames.SALES_TRANSACTIONS:
+			return create_queries.create_company_sales_transactions_query(
+				q_params['company_identifier'], q_params['sales_transactions_start_date'], 
+				license_numbers=q_params['license_numbers'],
+				limit=limit, min_updated_at=min_updated_at
+			)
+		elif df_name == DfNames.INVENTORY_PACKAGES:
+			return create_queries.create_company_inventory_packages_query(
+				q_params['company_identifier'],
+				include_quantity_zero=True,
+				license_numbers=q_params['license_numbers'],
+				limit=limit, min_updated_at=min_updated_at
+			)
 		else:
-			company_incoming_transfer_packages_dataframe = pd.read_sql_query(company_incoming_transfer_packages_query, engine)
-			company_outgoing_transfer_packages_dataframe = pd.read_sql_query(company_outgoing_transfer_packages_query, engine)
-			company_sales_receipts_dataframe = pd.read_sql_query(company_sales_receipts_query, engine)
-			company_sales_transactions_dataframe = pd.read_sql_query(company_sales_transactions_query, engine)
-			company_inventory_packages_dataframe = pd.read_sql_query(company_inventory_packages_query, engine)
-
-	if ctx.write_params['save_download_dataframes']:
-		ctx.mkdir('download')
-		company_incoming_transfer_packages_dataframe.to_pickle(ctx.get_output_path(
-			'download/incoming_transfers.pickle'
-		))
-		company_outgoing_transfer_packages_dataframe.to_pickle(ctx.get_output_path(
-			'download/outgoing_transfers.pickle'
-		))
-		company_sales_receipts_dataframe.to_pickle(ctx.get_output_path(
-			'download/sales_receipts.pickle'
-		))
-		company_sales_transactions_dataframe.to_pickle(ctx.get_output_path(
-			'download/sales_transactions.pickle'
-		))
-		company_inventory_packages_dataframe.to_pickle(ctx.get_output_path(
-			'download/inventory_packages.pickle'
-		))
+			raise Exception('Unregistered dataframe name {}'.format(df_name))
 
 	dataframes_dict = AllDataframesDict(
-		incoming_transfer_packages_dataframe=company_incoming_transfer_packages_dataframe,
-		outgoing_transfer_packages_dataframe=company_outgoing_transfer_packages_dataframe,
-		sales_receipts_dataframe=company_sales_receipts_dataframe,
-		sales_transactions_dataframe=company_sales_transactions_dataframe,
-		inventory_packages_dataframe=company_inventory_packages_dataframe,
+		incoming_transfer_packages_dataframe=None,
+		outgoing_transfer_packages_dataframe=None,
+		sales_receipts_dataframe=None,
+		sales_transactions_dataframe=None,
+		inventory_packages_dataframe=None,
 		inactive_packages_dataframe=None,
 		missing_incoming_pkg_packages_dataframe=None,
 		parent_packages_dataframe=None
 	)
+	engine = sql_helper.engine
+
+	def _set_dataframe(df_name: str, df: pd.DataFrame) -> None:
+		cast(Dict, dataframes_dict)[f'{df_name}_dataframe'] = df
+
+	def _get_dataframe(df_name: str) -> pd.DataFrame:
+		return cast(Dict, dataframes_dict)[f'{df_name}_dataframe']
+
+	if ctx.read_params['use_cached_dataframes'] and os.path.exists(ctx.get_output_path(
+			'download/incoming_transfer_packages.pickle'
+	)):
+		# Make sure one of the dataframes was at least written once if we're reading 
+		# from the cached dataframes
+		for df_name in dataframe_names:
+			_set_dataframe(df_name, pd.read_pickle(ctx.get_output_path(
+				f'download/{df_name}.pickle'
+			)))
+	else:
+		# Pull from BigQuery to get all the rows for a particular dataframe
+		with ThreadPoolExecutor(max_workers=num_threads) as executor:
+			future_to_name = {}
+			for i in range(len(dataframe_names)):
+				dataframe_name = dataframe_names[i]
+
+				future_to_name[executor.submit(
+					pd.read_sql_query, _get_query(dataframe_name), engine
+				)] = dataframe_name
+
+			for future in concurrent.futures.as_completed(future_to_name):
+				dataframe = future.result()
+				df_name = future_to_name[future]
+				_set_dataframe(df_name, dataframe)
+
+	# For incremental querying
+	# Determine the latest updated_at value (_get_latest_updated_at)
+	# Query for updated_at values after that in the DB (incremental_df)
+	# Join by the unique column in each dataframe to create the final dataframe (_join_in_new_dataframe)
+	if use_incremental_querying:
+		for df_name in dataframe_names:
+			cur_df = _get_dataframe(df_name)
+			cur_query = _get_query(df_name=df_name, min_updated_at=_get_latest_updated_at(cur_df))
+			incremental_df = pd.read_sql_query(cur_query, engine)
+
+			updated_df = _join_in_new_dataframe(df_name, cur_df, incremental_df)
+			_set_dataframe(df_name, updated_df)
+
+	if ctx.write_params['save_download_dataframes']:
+		ctx.mkdir('download')
+		for df_name in dataframe_names:
+			_get_dataframe(df_name).to_pickle(ctx.get_output_path(
+				f'download/{df_name}.pickle'
+			))
 
 	_fetch_inactive_and_package_info_for_dataframes(dataframes_dict, sql_helper)
 	return dataframes_dict
