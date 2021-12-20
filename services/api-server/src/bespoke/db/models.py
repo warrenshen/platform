@@ -420,7 +420,7 @@ class MetrcApiKey(Base):
 	hashed_key = Column(String) # The one we can use for duplicate metrc key detection
 	last_used_at = Column(DateTime)
 	is_functioning = Column(Boolean)
-	is_deleted = Column(Boolean)
+	is_deleted = Column(Boolean, default=False)
 	us_state = Column(String)
 	facilities_payload = Column(JSON)
 	status_codes_payload = Column(JSON)
