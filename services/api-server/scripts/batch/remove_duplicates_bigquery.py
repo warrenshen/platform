@@ -140,7 +140,7 @@ def main(is_test_run: bool = True):
 				metrc_sales_receipts
 				inner join companies on metrc_sales_receipts.company_id = companies.id
 				inner join metrc_sales_transactions on metrc_sales_receipts.id = metrc_sales_transactions.receipt_row_id
-			WHERE companies.identifier = "{identifier}" AND metrc_sales_transactions.is_deleted != true
+			WHERE companies.identifier = "{identifier}" AND (metrc_sales_transactions.is_deleted = false or metrc_sales_transactions.is_deleted is null)
 			GROUP BY metrc_sales_transactions.package_id, metrc_sales_receipts.receipt_number
 			HAVING count(*)>1
 		"""
