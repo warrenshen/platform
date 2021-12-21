@@ -746,7 +746,6 @@ def create_inventory_xlsx(
 
 	exclude_reason_to_package_ids: Dict[str, Set[str]] = OrderedDict()
 	date_to_inventory_packages_dataframe = {}
-	inventory_valuations = []
 
 	before = time.time()
 	len_package_id_to_history = len(id_to_history)
@@ -777,6 +776,8 @@ def create_inventory_xlsx(
 
 	wb = excel_writer.WorkbookWriter(xlwt.Workbook())
 	num_loops = 0
+	inventory_valuations = []
+	fresh_inventory_valuations = []
 
 	for inventory_date_str in q.inventory_dates:
 		num_loops += len_package_id_to_history
@@ -788,12 +789,15 @@ def create_inventory_xlsx(
 				columns=get_inventory_column_names()
 		)
 		date_to_inventory_packages_dataframe[inventory_date_str] = computed_inventory_packages_dataframe
-		inventory_valuations.append(valuations_util.get_total_valuation_for_date(
+		valuation_res = valuations_util.get_total_valuation_for_date(
 				computed_inventory_packages_dataframe=computed_inventory_packages_dataframe,
 				company_incoming_transfer_packages_dataframe=d.incoming_transfer_packages_dataframe,
 				inventory_date=inventory_date_str,
+				params=params,
 				using_nb=using_nb
-		))
+		)
+		inventory_valuations.append(valuation_res['total_valuation'])
+		fresh_inventory_valuations.append(valuation_res['total_fresh_valuation'])
 
 		inventory_date = parse_to_date(inventory_date_str)
 		sheet_name = inventory_date_str.replace('/', '-')
@@ -862,6 +866,7 @@ def create_inventory_xlsx(
 			pct_excluded=round(pct_excluded, 2),
 		),
 		inventory_valuations=inventory_valuations,
+		fresh_inventory_valuations=fresh_inventory_valuations,
 		date_to_computed_inventory_dataframe=date_to_inventory_packages_dataframe
 	)
 

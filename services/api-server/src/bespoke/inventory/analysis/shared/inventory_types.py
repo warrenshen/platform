@@ -117,7 +117,8 @@ CountsAnalysisDict = TypedDict('CountsAnalysisDict', {
 
 ComputeInventoryDict = TypedDict('ComputeInventoryDict', {
 	'counts_analysis': CountsAnalysisDict,
-	'inventory_valuations': List[float], 
+	'inventory_valuations': List[float],
+	'fresh_inventory_valuations': List[float],
 	'date_to_computed_inventory_dataframe': Dict[str, pandas.DataFrame]
 })
 

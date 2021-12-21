@@ -169,7 +169,8 @@ def _run_analysis_with_params(
 	#valuations_util.plot_inventory_and_revenue(
 	#		q=q,
 	#		sales_receipts_dataframe=d.sales_receipts_dataframe,
-	#		inventory_valuations=computed_resp['inventory_valuations']
+	#		inventory_valuations=computed_resp['inventory_valuations'],
+	#   fresh_inventory_valuations=computed_resp['fresh_inventory_valuations']
 	#)
 	timing_info = initial_timing_info
 	timing_info['3_compute_inventory'] = compute_inventory_timing
