@@ -78,7 +78,7 @@ def reassign_table_by_license(
 							duplicate_metrc_table_row_query = session.query(model)
 							for unique_key_column in unique_key_columns:
 								if unique_key_column.key == 'company_id':
-									duplicate_metrc_table_row_query = duplicate_metrc_table_row_query.filter(model.company_id == company_id)
+									duplicate_metrc_table_row_query = duplicate_metrc_table_row_query.filter(unique_key_column == company_id)
 								else:
 									duplicate_metrc_table_row_query = duplicate_metrc_table_row_query.filter(unique_key_column == getattr(metrc_table_row, unique_key_column.key))
 							duplicate_metrc_table_row = duplicate_metrc_table_row_query.first()

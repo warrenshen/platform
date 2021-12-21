@@ -379,17 +379,23 @@ def _update_metrc_rows_based_on_shipper(company_id: str, op: str, license_number
 
 		transfer_row_ids = [str(metrc_transfer.id) for metrc_transfer in matching_transfers]
 		
-		matching_deliveries = cast(
-			List[models.MetrcDelivery],
-			session.query(models.MetrcDelivery).filter(
-				models.MetrcDelivery.transfer_row_id.in_(transfer_row_ids)).all())
+		matching_deliveries = []
+		for transfer_row_id in transfer_row_ids:
+			matching_deliveries_chunk = cast(
+				List[models.MetrcDelivery],
+				session.query(models.MetrcDelivery).filter(
+					models.MetrcDelivery.transfer_row_id == transfer_row_id
+				).all())
+			matching_deliveries += matching_deliveries_chunk
 
-		delivery_row_ids = [str(metrc_delivery.id) for metrc_delivery in matching_deliveries]
-
-		matching_company_deliveries = cast(
-			List[models.CompanyDelivery],
-			session.query(models.CompanyDelivery).filter(
-				models.CompanyDelivery.delivery_row_id.in_(delivery_row_ids)).all())
+		matching_company_deliveries = []
+		for transfer_row_id in transfer_row_ids:
+			matching_company_deliveries_chunk = cast(
+				List[models.CompanyDelivery],
+				session.query(models.CompanyDelivery).filter(
+					models.CompanyDelivery.transfer_row_id == transfer_row_id
+				).all())
+			matching_company_deliveries += matching_company_deliveries_chunk
 
 		for company_delivery in matching_company_deliveries:
 			company_delivery.vendor_id = cast(Any, company_id)
@@ -424,18 +430,26 @@ def _update_metrc_rows_based_on_recipient(company_id: str, op: str, license_numb
 			transfer_row_ids.add(str(metrc_delivery.transfer_row_id))
 			delivery_row_ids.add(str(metrc_delivery.id))
 
-		matching_company_deliveries = cast(
-			List[models.CompanyDelivery],
-			session.query(models.CompanyDelivery).filter(
-				models.CompanyDelivery.delivery_row_id.in_(delivery_row_ids)).all())
+		matching_company_deliveries = []
+		for transfer_row_id in transfer_row_ids:
+			matching_company_deliveries_chunk = cast(
+				List[models.CompanyDelivery],
+				session.query(models.CompanyDelivery).filter(
+					models.CompanyDelivery.transfer_row_id == transfer_row_id
+				).all())
+			matching_company_deliveries += matching_company_deliveries_chunk
 
 		for company_delivery in matching_company_deliveries:
 			company_delivery.payor_id = cast(Any, company_id)
 
-		matching_transfers = cast(
-			List[models.MetrcTransfer],
-			session.query(models.MetrcTransfer).filter(
-				models.MetrcTransfer.id.in_(transfer_row_ids)).all())
+		matching_transfers = []
+		for transfer_row_id in transfer_row_ids:
+			matching_transfers_chunk = cast(
+				List[models.MetrcTransfer],
+				session.query(models.MetrcTransfer).filter(
+					models.MetrcTransfer.id == transfer_row_id
+				).all())
+			matching_transfers += matching_transfers_chunk
 
 		_update_matching_transfers_and_deliveries(
 			matching_transfers, matching_deliveries, matching_company_deliveries, session)
