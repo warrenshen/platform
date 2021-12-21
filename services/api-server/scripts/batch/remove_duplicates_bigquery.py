@@ -8,7 +8,7 @@ import pandas
 import time
 import traceback
 from os import path
-from typing import List, cast
+from typing import Iterable, List, Any, cast
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 from google.cloud import bigquery
@@ -22,17 +22,90 @@ from bespoke.db import models, models_util
 
 BIGQUERY_ENGINE_URL = 'bigquery://bespoke-financial/ProdMetrcData'
 
+def chunker(seq: List, size: int) -> Iterable[List]:
+	return (seq[pos:pos + size] for pos in range(0, len(seq), size))
+
+def _delete_duplicates_for_company(
+	client: Any,
+	bigquery_engine: Any,
+	company_identifier: str,
+	package_ids: List[str],
+	receipt_numbers: List[str]
+) -> None:
+
+	package_ids_list = [f"'{package_id}'" for package_id in package_ids]
+	receipt_numbers_list = [f"'{receipt_number}'" for receipt_number in receipt_numbers]
+	
+	print('Fetching rows to delete for {}'.format(company_identifier))
+
+	query = f"""
+		select metrc_sales_transactions.id, metrc_sales_transactions.updated_at, metrc_sales_transactions.package_id, metrc_sales_receipts.receipt_number
+		from
+			metrc_sales_receipts
+			inner join companies on metrc_sales_receipts.company_id = companies.id
+			inner join metrc_sales_transactions on metrc_sales_receipts.id = metrc_sales_transactions.receipt_row_id
+		WHERE companies.identifier = '{company_identifier}' AND metrc_sales_transactions.package_id in ({','.join(package_ids_list)}) AND metrc_sales_receipts.receipt_number in ({','.join(receipt_numbers_list)})
+	"""
+
+	df = pandas.read_sql_query(query, bigquery_engine)
+	query_records = df.to_dict('records')
+
+	key_to_dups = {}
+	for record in query_records:
+		key = (record['package_id'], record['receipt_number'])
+		if key not in key_to_dups:
+			key_to_dups[key] = []
+
+		key_to_dups[key].append(record)
+
+	keys = list(key_to_dups.keys())
+
+	all_ids_to_delete = []
+
+	for key in keys:
+		records = key_to_dups[key]
+		if len(records) < 2:
+			continue
+		records.sort(key=lambda x: x['updated_at'])
+		to_delete_records = records[0:len(records) - 1] # Dont delete the last one
+		ids_to_delete = [f"'{cur_record['id']}'" for cur_record in to_delete_records]
+		all_ids_to_delete.extend(ids_to_delete)
+
+	NUM_TO_CHUNK = 1000
+
+	print('Going to set is_deleted on {} rows in total for {}'.format(
+		len(all_ids_to_delete), company_identifier))
+
+	for keys_to_delete in chunker(all_ids_to_delete, NUM_TO_CHUNK):
+		print('Setting is_deleted on {} rows for {}'.format(NUM_TO_CHUNK, company_identifier))
+		dml_statement = (
+				"UPDATE ProdMetrcData.metrc_sales_transactions "
+				"SET is_deleted = true "
+				f"WHERE id in ({','.join(keys_to_delete)})")
+		query_job = client.query(dml_statement)
+		query_job.result()
+
 def read_queries():
 	load_dotenv('.env')
 	# Need to set GOOGLE_APPLICATION_CREDENTIALS to the same
 	# variable as BIGQUERY_CREDENTIALS_PATH
 	client = bigquery.Client()
-
+	bigquery_engine = download_util.get_bigquery_engine(BIGQUERY_ENGINE_URL)
+	
 	dirs = os.listdir('out/duplicates')
 	for dirname in dirs:
+		company_identifier = dirname.replace('.pickle', '')
 		df = pandas.read_pickle(f'out/duplicates/{dirname}')
 		records = df.to_dict('records')
-		print(records)
+		
+		_delete_duplicates_for_company(
+			client=client,
+			bigquery_engine=bigquery_engine,
+			company_identifier=company_identifier,
+			package_ids=[record['package_id'] for record in records],
+			receipt_numbers=[record['receipt_number'] for record in records]
+		)
+		break
 
 def main(is_test_run: bool = True):
 	load_dotenv('.env')
@@ -67,7 +140,7 @@ def main(is_test_run: bool = True):
 				metrc_sales_receipts
 				inner join companies on metrc_sales_receipts.company_id = companies.id
 				inner join metrc_sales_transactions on metrc_sales_receipts.id = metrc_sales_transactions.receipt_row_id
-			WHERE companies.identifier = "{identifier}"
+			WHERE companies.identifier = "{identifier}" AND metrc_sales_transactions.is_deleted != true
 			GROUP BY metrc_sales_transactions.package_id, metrc_sales_receipts.receipt_number
 			HAVING count(*)>1
 		"""
@@ -87,5 +160,5 @@ if __name__ == '__main__':
 	else:
 		is_test_run = False
 
-	#main(is_test_run)
-	read_queries()
+	main(is_test_run)
+	#read_queries()
