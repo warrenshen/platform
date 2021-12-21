@@ -653,7 +653,8 @@ class TestSubmitInvoicesForPayment(db_unittest.TestCase):
 				role='peter the payor',
 				first_name='Peter',
 				last_name='Payor',
-				login_method='simple'
+				login_method='simple',
+				is_deleted=False
 			))
 
 		invoice_id = None
@@ -661,7 +662,7 @@ class TestSubmitInvoicesForPayment(db_unittest.TestCase):
 		with models.session_scope(self.session_maker) as session:
 			p(session)
 			invoice_id = p.invoices[0].id
-
+			
 			client = DumbSendgridClient()
 
 			success, err = invoices_util.submit_invoices_for_payment(
