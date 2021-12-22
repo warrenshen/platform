@@ -44,13 +44,8 @@ def _get_vendor_contacts(partnership_id: str, session: Session) -> Tuple[List[Co
 
 	# If users specific to the company / vendor relationship are not set, then default to all
 	# all users associated with this vendor
-	vendor_users = cast(
-		List[models.User], 
-		session.query(models.User).filter_by(
-			company_id=partnership.vendor_id
-		).filter(
-			models.User.is_deleted != True
-		).all())
+	vendor_users = cast(List[models.User], session.query(
+		models.User).filter_by(company_id=partnership.vendor_id).all())
 
 	return _users_to_contacts(vendor_users), None
 
@@ -74,13 +69,8 @@ def _get_payor_contacts(partnership_id: str, session: Session) -> Tuple[List[Con
 
 	# If users specific to the company / payor relationship are not set, then default to all
 	# all users associated with this payor
-	payor_users = cast(
-		List[models.User], 
-		session.query(models.User).filter_by(
-			company_id=partnership.payor_id
-		).filter(
-			models.User.is_deleted != True
-		).all())
+	payor_users = cast(List[models.User], session.query(
+		models.User).filter_by(company_id=partnership.payor_id).all())
 
 	return _users_to_contacts(payor_users), None
 
