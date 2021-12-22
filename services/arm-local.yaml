@@ -64,6 +64,23 @@ services:
       DATABASE_URL: postgres://postgres:postgrespassword@bespoke-postgres:5432/postgres
       ASYNC_SERVER_API_KEY: bespoke-async-server-api-key
       DONT_SEND_OPS_EMAILS: 1
+  bespoke-async-server-fast:
+    build:
+      context: api-server
+      dockerfile: Dockerfile-async-fast
+    container_name: bespoke-async-server-fast
+    ports:
+      - 7003:7003
+    depends_on:
+      - bespoke-postgres
+      - bespoke-graphql-engine
+    volumes:
+      - ./api-server/src:/app/src/
+    restart: always
+    environment:
+      DATABASE_URL: postgres://postgres:postgrespassword@bespoke-postgres:5432/postgres
+      ASYNC_SERVER_API_KEY: bespoke-async-server-api-key
+      DONT_SEND_OPS_EMAILS: 1
 
 volumes:
   bespoke_db_data:

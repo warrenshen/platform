@@ -26,6 +26,9 @@ run-cypress-local:
 run-async-local:
 	cd src && FLASK_ENV=development PYTHONPATH=$(PYTHONPATH) SERVER_ROOT_DIR=$(server_root_dir) gunicorn --reload --bind 0.0.0.0:7001 --timeout 300 --threads 2 manage_async:app
 
+run-async-local-fast:
+	cd src && FLASK_ENV=development PYTHONPATH=$(PYTHONPATH) SERVER_ROOT_DIR=$(server_root_dir) gunicorn --reload --bind 0.0.0.0:7003 --timeout 300 --threads 2 manage_async_fast:app
+
 # Scripts
 run-metrc-script:
 	cd src && PYTHONPATH=$(PYTHONPATH) SERVER_ROOT_DIR=$(server_root_dir) python3 bespoke/metrc/metrc_util.py
@@ -50,6 +53,7 @@ mypy:
 	MYPYPATH=stubs mypy src/bespoke/db/main.py --config-file=mypy.ini
 	MYPYPATH=stubs mypy src/manage.py --config-file=mypy.ini
 	MYPYPATH=stubs mypy src/manage_async.py --config-file=mypy.ini
+	MYPYPATH=stubs mypy src/manage_async_fast.py --config-file=mypy.ini
 	$(MAKE) mypy-scripts
 
 mypy-tests:
