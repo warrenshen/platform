@@ -25,23 +25,6 @@ def get_active_users(company_id: Union[GUID, str], session: Session) -> List[mod
 					cast(Callable, models.User.is_deleted.isnot)(True)
 				).all())
 
-def get_active_emails(recipients : List[str], session_maker: Callable) -> List[str]:
-	active_emails : List[str] = []
-	
-	with session_scope(session_maker) as session:
-		users = cast(
-			List[models.User],
-			session.query(models.User).filter(
-				cast(Callable, models.User.is_deleted.isnot)(True)
-			).filter(
-				models.User.email.in_(recipients)
-			).all())
-
-		for u in users:
-			active_emails.append(u.email)
-
-	return active_emails
-
 def get_licenses_base_query(session: Session) -> Any:
 	return session.query(models.CompanyLicense).filter(
 		cast(Callable, models.CompanyLicense.is_deleted.isnot)(True)

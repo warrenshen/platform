@@ -2,6 +2,7 @@ import copy
 import datetime
 import logging
 from datetime import timedelta, timezone
+from sqlalchemy.orm.session import Session
 from typing import Callable, Dict, List, Text, Tuple, cast
 from sendgrid.helpers.mail import Attachment
 
@@ -288,6 +289,21 @@ TwoFactorPayloadDict = TypedDict('TwoFactorPayloadDict', {
 	'expires_at': datetime.datetime
 })
 
+def _remove_deactived_emails(recipients : List[str], session: Session) -> List[str]:
+	deactived_users = cast(
+		List[models.User],
+		session.query(models.User).filter(
+			cast(Callable, models.User.is_deleted.is_)(True)
+		).filter(
+			models.User.email.in_(recipients)
+		).all())
+
+	for u in deactived_users:
+		if u.email in recipients:
+			recipients.remove(u.email)
+
+	return recipients
+
 def _maybe_add_or_remove_recipients(
 	recipients: List[str],
 	cfg: email_manager.EmailConfigDict,
@@ -308,8 +324,9 @@ def _maybe_add_or_remove_recipients(
 	# Remove deactivated users
 	# We are using get_active_users, but a bug appeared where we weren't in one or more places
 	# This check is put in place as a defensive measure of last resort
-	models_util.get_active_emails(recipients, session_maker)
-	
+	with session_scope(session_maker) as session:
+		recipients = _remove_deactived_emails(recipients, session)
+
 	# For staging and production environments, if email template is not
 	# in blacklist then we send a copy of email to the no_reply_email_addr.
 	if (
