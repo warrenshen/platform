@@ -1,6 +1,6 @@
 import datetime
 import json
-from typing import Any, Dict, List, Tuple, cast
+from typing import Any, Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.audit import events
@@ -57,6 +57,8 @@ def _send_bank_created_advances_emails(
 				List[models.User],
 				session.query(models.User).filter_by(
 					company_id=customer_id
+				).filter(
+					cast(Callable, models.User.is_deleted.isnot)(True)
 				).all())
 
 			if not customer_users:
@@ -131,6 +133,8 @@ def _send_bank_created_advances_emails(
 						List[models.User],
 						session.query(models.User).filter_by(
 							company_id=vendor_id
+						).filter(
+							cast(Callable, models.User.is_deleted.isnot)(True)
 						).all())
 
 					if not vendor_users:
@@ -171,6 +175,8 @@ def _send_bank_created_advances_emails(
 							List[models.User],
 							session.query(models.User).filter_by(
 								company_id=vendor_id
+							).filter(
+								cast(Callable, models.User.is_deleted.isnot)(True)
 							).all())
 
 						if not vendor_users:

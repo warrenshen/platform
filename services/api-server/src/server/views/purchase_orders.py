@@ -258,8 +258,13 @@ class RespondToApprovalRequestView(MethodView):
 			else:
 				purchase_order_requested_date = date_util.human_readable_yearmonthday(date_util.now())
 
-			customer_users = cast(List[models.User], session.query(
-				models.User).filter_by(company_id=purchase_order.company_id).all())
+			customer_users = cast(
+				List[models.User], 
+				session.query(models.User).filter_by(
+					company_id=purchase_order.company_id
+				).filter(
+					cast(Callable, models.User.is_deleted.isnot)(True)
+				).all())
 
 			if not customer_users:
 				raise errors.Error('There are no users configured for this customer')

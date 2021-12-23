@@ -668,6 +668,7 @@ class TestSubmitInvoicesForPayment(db_unittest.TestCase):
 				self.session_maker,
 				client,
 				invoices_util.SubmitForPaymentRequest([invoice_id]))
+
 			self.assertIsNone(err)
 			self.assertEqual(client.count, 1)
 
