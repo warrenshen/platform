@@ -124,7 +124,7 @@ class TestPopulateHarvestsTable(db_unittest.TestCase):
 				},
 			}
 		))
-		harvest_objects = harvests_util.download_harvests(ctx)
+		harvest_objects = harvests_util.download_harvests(ctx, session_maker)
 		harvests_util.write_harvests(harvest_objects, session_maker, BATCH_SIZE=4)
 		
 		expected_harvests: List[Dict] = [

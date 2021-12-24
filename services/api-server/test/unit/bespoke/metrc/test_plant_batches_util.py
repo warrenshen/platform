@@ -100,7 +100,7 @@ class TestPopulatePlantBatchesTable(db_unittest.TestCase):
 				},
 			}
 		))
-		plant_batches_objects = plant_batches_util.download_plant_batches(ctx)
+		plant_batches_objects = plant_batches_util.download_plant_batches(ctx, session_maker)
 		plant_batches_util.write_plant_batches(plant_batches_objects, session_maker, BATCH_SIZE=4)
 		
 		expected_plant_batches: List[Dict] = [

@@ -339,21 +339,21 @@ def _download_data_for_license(
 
 	if ctx.apis_to_use.get('packages', False):
 		try:
-			package_models = packages_util.download_packages(ctx)
+			package_models = packages_util.download_packages(ctx, session_maker)
 			packages_util.write_packages(package_models, session_maker)
 		except Exception as e:
 			_catch_exception(e, '/packages')
 
 	if ctx.apis_to_use.get('harvests', False):
 		try:
-			harvest_models = harvests_util.download_harvests(ctx)
+			harvest_models = harvests_util.download_harvests(ctx, session_maker)
 			harvests_util.write_harvests(harvest_models, session_maker)
 		except Exception as e:
 			_catch_exception(e, '/harvests')
 
 	if ctx.apis_to_use.get('plant_batches', False):
 		try:
-			plant_batches_models = plant_batches_util.download_plant_batches(ctx)
+			plant_batches_models = plant_batches_util.download_plant_batches(ctx, session_maker)
 			plant_batches_util.write_plant_batches(plant_batches_models, session_maker)
 		except Exception as e:
 			_catch_exception(e, '/plantbatches')
@@ -362,7 +362,7 @@ def _download_data_for_license(
 	# must come after fetching plant_batches and harvests
 	if ctx.apis_to_use.get('plants', False):
 		try:
-			plants_models = plants_util.download_plants(ctx)
+			plants_models = plants_util.download_plants(ctx, session_maker)
 			plants_util.write_plants(plants_models, session_maker)
 		except Exception as e:
 			_catch_exception(e, '/plants')

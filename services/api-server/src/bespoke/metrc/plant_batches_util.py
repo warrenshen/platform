@@ -19,11 +19,54 @@ class PlantBatchObj(object):
 	def __init__(self, batch: models.MetrcPlantBatch) -> None:
 		self.metrc_plant_batch = batch
 
+def _get_prev_plant_batches(plant_batch_ids: List[str], session: Session) -> List[models.MetrcPlantBatch]:
+	prev_plant_batches = []
+
+	for batch_id in plant_batch_ids:
+		prev_plant_batch = session.query(models.MetrcPlantBatch).filter(
+			models.MetrcPlantBatch.plant_batch_id == batch_id
+		).first()
+		if prev_plant_batch:
+			prev_plant_batches.append(prev_plant_batch)
+
+	return prev_plant_batches
+
 class PlantBatches(object):
 
 	def __init__(self, plant_batches: List[Dict], api_type: str) -> None:
 		self._plant_batches = plant_batches
 		self._api_type = api_type
+
+	def filter_new_only(self, ctx: metrc_common_util.DownloadContext, session: Session) -> 'PlantBatches':
+		"""
+			Only keep plant batches which are newly updated, e.g.,
+			last_modified_at > db.last_modified_at.
+
+			This prevents us from modifying plant batches where we know they haven't changed.
+		"""
+
+		plant_ids = ['{}'.format(p['Id']) for p in self._plant_batches]
+		prev_plants = _get_prev_plant_batches(plant_ids, session)
+
+		plant_id_to_plant = {}
+		for prev_plant in prev_plants:
+			plant_id_to_plant[prev_plant.plant_batch_id] = prev_plant
+
+		new_plant_batches = []
+		for p in self._plant_batches:
+			cur_plant_id = '{}'.format(p['Id']) 
+			if cur_plant_id in plant_id_to_plant:
+				prev_plant = plant_id_to_plant[cur_plant_id]
+				if prev_plant.last_modified_at >= parser.parse(p['LastModified']):
+					# If we've seen a previous plant batch that's at the same last_modified_at
+					# or newer than what we just fetched, no need to use it again
+					continue
+			
+			new_plant_batches.append(p)
+
+		self._plant_batches = new_plant_batches		
+
+		return self
 
 	def get_models(self, ctx: metrc_common_util.DownloadContext) -> List[PlantBatchObj]:
 		company_id = ctx.company_details['company_id']
@@ -50,7 +93,7 @@ class PlantBatches(object):
 
 		return plant_batches
 
-def download_plant_batches(ctx: metrc_common_util.DownloadContext) -> List[PlantBatchObj]:
+def download_plant_batches(ctx: metrc_common_util.DownloadContext, session_maker: Callable) -> List[PlantBatchObj]:
 	active_batches: List[Dict] = []
 	inactive_batches: List[Dict] = []
 
@@ -73,13 +116,13 @@ def download_plant_batches(ctx: metrc_common_util.DownloadContext) -> List[Plant
 	except errors.Error as e:
 		metrc_common_util.update_if_all_are_unsuccessful(request_status, 'plant_batches_api', e)
 
-	inactive_plant_batch_models = PlantBatches(inactive_batches, 'inactive').get_models(
-		ctx=ctx,
-	)
+	with session_scope(session_maker) as session:
+		inactive_plant_batch_models = PlantBatches(inactive_batches, 'inactive').filter_new_only(
+			ctx, session).get_models(ctx=ctx)
 
-	active_plant_batch_models = PlantBatches(active_batches, 'active').get_models(
-		ctx=ctx,
-	)
+	with session_scope(session_maker) as session:
+		active_plant_batch_models = PlantBatches(active_batches, 'active').filter_new_only(
+			ctx, session).get_models(ctx=ctx)
 
 	if inactive_batches:
 		logging.info('Downloaded {} inactive batches for {} on {}'.format(
@@ -98,10 +141,10 @@ def _write_plant_batches_chunk(
 	session: Session) -> None:
 
 	key_to_plant_batch = {}
-	for batch in plant_batches:
-		prev_plant_batch = session.query(models.MetrcPlantBatch).filter(
-			models.MetrcPlantBatch.plant_batch_id == batch.metrc_plant_batch.plant_batch_id
-		).first()
+	plant_batch_ids = [batch.metrc_plant_batch.plant_batch_id for batch in plant_batches]
+	prev_plant_batches = _get_prev_plant_batches(plant_batch_ids, session)
+
+	for prev_plant_batch in prev_plant_batches:
 		if prev_plant_batch:
 			key_to_plant_batch[prev_plant_batch.plant_batch_id] = prev_plant_batch
 

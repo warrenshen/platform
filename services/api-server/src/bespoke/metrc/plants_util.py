@@ -19,11 +19,57 @@ class PlantObj(object):
 	def __init__(self, plant: models.MetrcPlant) -> None:
 		self.metrc_plant = plant
 
+def _get_prev_plants(us_state: str, plant_ids: List[str], session: Session) -> List[models.MetrcPlant]:
+	prev_plants = []
+
+	for plant_id in plant_ids:
+		prev_plant = session.query(models.MetrcPlant).filter(
+			models.MetrcPlant.us_state == us_state
+		).filter(
+			models.MetrcPlant.plant_id == plant_id
+		).first()
+		if prev_plant:
+			prev_plants.append(prev_plant)
+
+	return prev_plants
+
 class Plants(object):
 
 	def __init__(self, plants: List[Dict], api_type: str) -> None:
 		self._plants = plants
 		self._api_type = api_type
+
+	def filter_new_only(self, ctx: metrc_common_util.DownloadContext, session: Session) -> 'Plants':
+		"""
+			Only keep plants which are newly updated, e.g.,
+			last_modified_at > db.last_modified_at.
+
+			This prevents us from modifying plants where we know they haven't changed.
+		"""
+
+		us_state = ctx.license['us_state']
+		plant_ids = ['{}'.format(p['Id']) for p in self._plants]
+		prev_plants = _get_prev_plants(us_state, plant_ids, session)
+
+		plant_id_to_plant = {}
+		for prev_plant in prev_plants:
+			plant_id_to_plant[prev_plant.plant_id] = prev_plant
+
+		new_plants = []
+		for p in self._plants:
+			cur_plant_id = '{}'.format(p['Id']) 
+			if cur_plant_id in plant_id_to_plant:
+				prev_plant = plant_id_to_plant[cur_plant_id]
+				if prev_plant.last_modified_at >= parser.parse(p['LastModified']):
+					# If we've seen a previous plant that's at the same last_modified_at
+					# or newer than what we just fetched, no need to use it again
+					continue
+			
+			new_plants.append(p)
+
+		self._plants = new_plants		
+
+		return self
 
 	def get_models(self, ctx: metrc_common_util.DownloadContext) -> List[PlantObj]:
 		plants = []
@@ -50,7 +96,7 @@ class Plants(object):
 
 		return plants
 
-def download_plants(ctx: metrc_common_util.DownloadContext) -> List[PlantObj]:
+def download_plants(ctx: metrc_common_util.DownloadContext, session_maker: Callable) -> List[PlantObj]:
 	vegetative_plants: List[Dict] = []
 	flowering_plants: List[Dict] = []
 	inactive_plants: List[Dict] = []
@@ -91,18 +137,21 @@ def download_plants(ctx: metrc_common_util.DownloadContext) -> List[PlantObj]:
 
 	license_number = ctx.license['license_number']
 
-	vegetative_plant_models = Plants(vegetative_plants, 'vegetative').get_models(
-		ctx=ctx,
-	)
-	flowering_plant_models = Plants(flowering_plants, 'flowering').get_models(
-		ctx=ctx,
-	)
-	inactive_plant_models = Plants(inactive_plants, 'inactive').get_models(
-		ctx=ctx,
-	)
-	onhold_plant_models = Plants(onhold_plants, 'onhold').get_models(
-		ctx=ctx,
-	)
+	with session_scope(session_maker) as session:
+		vegetative_plant_models = Plants(vegetative_plants, 'vegetative').filter_new_only(
+			ctx, session).get_models(ctx=ctx)
+
+	with session_scope(session_maker) as session:
+		flowering_plant_models = Plants(flowering_plants, 'flowering').filter_new_only(
+			ctx, session).get_models(ctx=ctx)
+
+	with session_scope(session_maker) as session:
+		inactive_plant_models = Plants(inactive_plants, 'inactive').filter_new_only(
+			ctx, session).get_models(ctx=ctx)
+
+	with session_scope(session_maker) as session:
+		onhold_plant_models = Plants(onhold_plants, 'onhold').filter_new_only(
+				ctx, session).get_models(ctx=ctx)
 
 	if vegetative_plants:
 		logging.info('Downloaded {} vegetative plants for {} on {}'.format(
@@ -126,17 +175,17 @@ def download_plants(ctx: metrc_common_util.DownloadContext) -> List[PlantObj]:
 def _write_plants_chunk(
 	plants: List[PlantObj],
 	session: Session) -> None:
+	if not plants:
+		return
 
 	key_to_plant = {}
 
-	for plant in plants:
-		prev_plant = session.query(models.MetrcPlant).filter(
-			models.MetrcPlant.us_state == plant.metrc_plant.us_state
-		).filter(
-			models.MetrcPlant.plant_id == plant.metrc_plant.plant_id
-		).first()
-		if prev_plant:
-			key_to_plant[prev_plant.plant_id] = prev_plant
+	us_state = plants[0].metrc_plant.us_state
+	plant_ids = [plant.metrc_plant.plant_id for plant in plants]
+
+	prev_plants = _get_prev_plants(us_state, plant_ids, session)
+	for prev_plant in prev_plants:
+		key_to_plant[prev_plant.plant_id] = prev_plant
 
 	for plant in plants:
 		metrc_plant = plant.metrc_plant

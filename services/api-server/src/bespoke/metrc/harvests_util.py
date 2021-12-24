@@ -19,11 +19,54 @@ class HarvestObj(object):
 	def __init__(self, harvest: models.MetrcHarvest) -> None:
 		self.metrc_harvest = harvest
 
+def _get_prev_harvests(harvest_ids: List[str], session: Session) -> List[models.MetrcHarvest]:
+	prev_harvests = []
+
+	for harvest_id in harvest_ids:
+		prev_harvest = session.query(models.MetrcHarvest).filter(
+			models.MetrcHarvest.harvest_id == harvest_id
+		).first()
+		if prev_harvest:
+			prev_harvests.append(prev_harvest)
+
+	return prev_harvests
+
 class Harvests(object):
 
 	def __init__(self, harvests: List[Dict], api_type: str) -> None:
 		self._harvests = harvests
 		self._api_type = api_type
+
+	def filter_new_only(self, ctx: metrc_common_util.DownloadContext, session: Session) -> 'Harvests':
+		"""
+			Only keep harvests which are newly updated, e.g.,
+			last_modified_at > db.last_modified_at.
+
+			This prevents us from modifying harvests where we know they haven't changed.
+		"""
+
+		harvest_ids = ['{}'.format(h['Id']) for h in self._harvests]
+		prev_harvests = _get_prev_harvests(harvest_ids, session)
+
+		harvest_id_to_harvest = {}
+		for prev_harvest in prev_harvests:
+			harvest_id_to_harvest[prev_harvest.harvest_id] = prev_harvest
+
+		new_harvests = []
+		for h in self._harvests:
+			cur_harvest_id = '{}'.format(h['Id']) 
+			if cur_harvest_id in harvest_id_to_harvest:
+				prev_harvest = harvest_id_to_harvest[cur_harvest_id]
+				if prev_harvest.last_modified_at >= parser.parse(h['LastModified']):
+					# If we've seen a previous harvests that's at the same last_modified_at
+					# or newer than what we just fetched, no need to use it again
+					continue
+			
+			new_harvests.append(h)
+
+		self._harvests = new_harvests		
+
+		return self
 
 	def get_models(self, ctx: metrc_common_util.DownloadContext) -> List[HarvestObj]:
 		company_id = ctx.company_details['company_id']
@@ -49,7 +92,7 @@ class Harvests(object):
 
 		return harvests
 
-def download_harvests(ctx: metrc_common_util.DownloadContext) -> List[HarvestObj]:
+def download_harvests(ctx: metrc_common_util.DownloadContext, session_maker: Callable) -> List[HarvestObj]:
 	active_harvests: List[Dict] = []
 	inactive_harvests: List[Dict] = []
 	onhold_harvests: List[Dict] = []
@@ -82,15 +125,17 @@ def download_harvests(ctx: metrc_common_util.DownloadContext) -> List[HarvestObj
 
 	license_number = ctx.license['license_number']
 
-	active_harvests_models = Harvests(active_harvests, 'active').get_models(
-		ctx=ctx,
-	)
-	inactive_harvests_models = Harvests(inactive_harvests, 'inactive').get_models(
-		ctx=ctx,
-	)
-	onhold_harvests_models = Harvests(onhold_harvests, 'onhold').get_models(
-		ctx=ctx,
-	)
+	with session_scope(session_maker) as session:
+		active_harvests_models = Harvests(active_harvests, 'active').filter_new_only(
+			ctx, session).get_models(ctx=ctx)
+
+	with session_scope(session_maker) as session:
+		inactive_harvests_models = Harvests(inactive_harvests, 'inactive').filter_new_only(
+			ctx, session).get_models(ctx=ctx)
+
+	with session_scope(session_maker) as session:
+		onhold_harvests_models = Harvests(onhold_harvests, 'onhold').filter_new_only(
+			ctx, session).get_models(ctx=ctx)
 
 	if active_harvests:
 		logging.info('Downloaded {} active harvests for {} on {}'.format(
@@ -112,11 +157,10 @@ def _write_harvests_chunk(
 	session: Session) -> None:
 
 	key_to_harvest = {}
-	for harvest in harvests:
-		prev_harvest = session.query(models.MetrcHarvest).filter(
-			models.MetrcHarvest.harvest_id == harvest.metrc_harvest.harvest_id
-		).first()
+	harvest_ids = [harvest.metrc_harvest.harvest_id for harvest in harvests]
+	prev_harvests = _get_prev_harvests(harvest_ids, session)
 
+	for prev_harvest in prev_harvests:
 		if prev_harvest:
 			key_to_harvest[prev_harvest.harvest_id] = prev_harvest
 

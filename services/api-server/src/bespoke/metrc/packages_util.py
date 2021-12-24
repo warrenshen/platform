@@ -46,6 +46,39 @@ class Packages(object):
 
 		return payload
 
+	def filter_new_only(self, ctx: metrc_common_util.DownloadContext, session: Session) -> 'Packages':
+		"""
+			Only keep packages which are newly updated, e.g.,
+			last_modified_at > db.last_modified_at.
+
+			This prevents us from modifying packages where we know they haven't changed.
+		"""
+
+		us_state = ctx.license['us_state']
+		package_ids = ['{}'.format(p['Id']) for p in self._packages]
+		prev_packages = package_common_util.get_prev_metrc_packages(
+			us_state, package_ids, session)
+
+		package_id_to_package = {}
+		for prev_metrc_package in prev_packages:
+			package_id_to_package[prev_metrc_package.package_id] = prev_metrc_package
+
+		new_packages = []
+		for p in self._packages:
+			cur_package_id = '{}'.format(p['Id']) 
+			if cur_package_id in package_id_to_package:
+				prev_package = package_id_to_package[cur_package_id]
+				if prev_package.last_modified_at >= parser.parse(p['LastModified']):
+					# If we've seen a previous package that's at the same last_modified_at
+					# or newer than what we just fetched, no need to use it again
+					continue
+			
+			new_packages.append(p)
+
+		self._packages = new_packages		
+
+		return self
+
 	def get_models(self, ctx: metrc_common_util.DownloadContext) -> List[PackageObject]:
 		company_id = ctx.company_details['company_id']
 		license_number = ctx.license['license_number']
@@ -80,7 +113,7 @@ class Packages(object):
 
 
 
-def download_packages(ctx: metrc_common_util.DownloadContext) -> List[PackageObject]:
+def download_packages(ctx: metrc_common_util.DownloadContext, session_maker: Callable) -> List[PackageObject]:
 	# NOTE: Sometimes there are a lot of inactive packages to pull for a single day
 	# and this makes it look like the sync is stuck / hanging - could be good to
 	# change this logic to use smaller (intraday) time ranges to prevent this.
@@ -117,15 +150,17 @@ def download_packages(ctx: metrc_common_util.DownloadContext) -> List[PackageObj
 
 	license_number = ctx.license['license_number']
 
-	active_package_models = Packages(active_packages, PackageType.ACTIVE).get_models(
-		ctx=ctx,
-	)
-	inactive_package_models = Packages(inactive_packages, PackageType.INACTIVE).get_models(
-		ctx=ctx,
-	)
-	onhold_package_models = Packages(onhold_packages, PackageType.ONHOLD).get_models(
-		ctx=ctx,
-	)
+	with session_scope(session_maker) as session:
+		active_package_models = Packages(
+			active_packages, PackageType.ACTIVE).filter_new_only(ctx, session).get_models(ctx=ctx)
+	
+	with session_scope(session_maker) as session:
+		inactive_package_models = Packages(
+			inactive_packages, PackageType.INACTIVE).filter_new_only(ctx, session).get_models(ctx=ctx)
+	
+	with session_scope(session_maker) as session:
+		onhold_package_models = Packages(
+			onhold_packages, PackageType.ONHOLD).filter_new_only(ctx, session).get_models(ctx=ctx)
 
 	if active_packages:
 		logging.info('Downloaded {} active packages for {} on {}'.format(

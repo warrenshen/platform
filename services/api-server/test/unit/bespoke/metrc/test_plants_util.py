@@ -140,7 +140,7 @@ class TestPopulatePlantsTable(db_unittest.TestCase):
 				},
 			}
 		))
-		plants_objects = plants_util.download_plants(ctx)
+		plants_objects = plants_util.download_plants(ctx, session_maker)
 		plants_util.write_plants(plants_objects, session_maker, BATCH_SIZE=4)
 		
 		expected_plants: List[Dict] = [

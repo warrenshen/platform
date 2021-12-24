@@ -129,7 +129,7 @@ class TestPopulatePackagesTable(db_unittest.TestCase):
 				},
 			}
 		))
-		package_objects = packages_util.download_packages(ctx)
+		package_objects = packages_util.download_packages(ctx, session_maker)
 		packages_util.write_packages(package_objects, session_maker, BATCH_SIZE=4)
 		
 		expected_packages: List[Dict] = [
