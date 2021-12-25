@@ -181,7 +181,7 @@ def _run_analysis_with_params(
 			company_id=q.company_id,
 			company_name=q.company_name,
 			company_identifier=q.company_identifier,
-			index=index
+			index=index,
 		),
 		facility_details=facility_details,
 		timing_info=timing_info,
@@ -464,7 +464,8 @@ def _get_company_inputs_from_xlsx(filepath: str, restrict_to_company_indentifier
 				FacilityDetailsDict(
 					name='default',
 					facility_row_id=None,
-					license_numbers=[el.strip() for el in row[2].strip().split(';')]
+					license_numbers=[el.strip() for el in row[2].strip().split(';')],
+					num_bad_download_summaries=0
 				)
 			],
 			start_date=row[3],
@@ -472,6 +473,26 @@ def _get_company_inputs_from_xlsx(filepath: str, restrict_to_company_indentifier
 		))
 
 	return company_inputs
+
+def _get_num_bad_download_summaries(
+		company_id_license_to_summaries: Dict[Tuple[str, str], List[Dict]], 
+		company_id: str, 
+		license_numbers: List[str]
+	) -> int:
+	num_bad_summaries = 0
+
+	for license_number in license_numbers:
+		key = (company_id, license_number)
+		if key not in company_id_license_to_summaries:
+			logging.error(f'[ERROR]: {key} has no download summaries in the DB')
+			continue
+
+		summaries = company_id_license_to_summaries[key]
+		for summary in summaries:
+			if summary['status'] != 'completed':
+				num_bad_summaries += 1
+
+	return num_bad_summaries
 
 def _get_company_inputs_from_db(restrict_to_company_indentifier: str, use_facilities: bool) -> List[CompanyInputDict]:
 	bigquery_engine = download_util.get_bigquery_engine(BIGQUERY_ENGINE_URL)
@@ -513,6 +534,21 @@ def _get_company_inputs_from_db(restrict_to_company_indentifier: str, use_facili
 	company_to_retailer_licenses: Dict[Tuple[str, str], List[str]] = {}
 	# company_id -> facility_id -> licenses
 	company_id_to_licenses_by_facility_id: Dict[str, Dict[str, List[str]]] = {}
+
+	start_date_str = DEFAULT_START_DATE_STR
+	start_date = date_util.load_date_str(start_date_str)
+
+	download_summaries_query = create_queries.create_company_download_summaries_query(company_identifiers, start_date_str)
+	company_download_summaries_dataframe = pandas.read_sql_query(download_summaries_query, bigquery_engine)
+	download_summary_records = company_download_summaries_dataframe.to_dict('records')
+	company_id_license_to_summaries: Dict[Tuple[str, str], List[Dict]] = {}
+
+	for summary_record in download_summary_records:
+		key = (summary_record['company_id'], summary_record['license_number'])
+		if key not in company_id_license_to_summaries:
+			company_id_license_to_summaries[key] = []
+
+		company_id_license_to_summaries[key].append(summary_record)
 
 	for company_license_record in company_license_records:
 		company_id = company_license_record['company_id']
@@ -566,6 +602,9 @@ def _get_company_inputs_from_db(restrict_to_company_indentifier: str, use_facili
 					name=facility_name,
 					facility_row_id=None if facility_row_id == 'default' else facility_row_id,
 					license_numbers=license_numbers,
+					num_bad_download_summaries=_get_num_bad_download_summaries(
+						company_id_license_to_summaries, company_id, license_numbers
+					)
 				))
 
 			company_id_to_facilities[company_id] = cur_facilities
@@ -575,7 +614,10 @@ def _get_company_inputs_from_db(restrict_to_company_indentifier: str, use_facili
 				FacilityDetailsDict(
 					name='default',
 					facility_row_id=None,
-					license_numbers=license_numbers
+					license_numbers=license_numbers,
+					num_bad_download_summaries=_get_num_bad_download_summaries(
+						company_id_license_to_summaries, company_id, license_numbers
+					)
 				)
 			]
 
@@ -614,7 +656,7 @@ def _get_company_inputs_from_db(restrict_to_company_indentifier: str, use_facili
 			company_identifier=company_identifier,
 			company_id=company_id,
 			facility_details_list=company_id_to_facilities[company_id],
-			start_date=date_util.load_date_str(DEFAULT_START_DATE_STR),
+			start_date=start_date,
 			num_sales_receipts=num_sales_receipts
 		))
 

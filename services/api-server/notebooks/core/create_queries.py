@@ -8,27 +8,6 @@ sys.path.append(path.realpath(path.join(os.getcwd(), "../../src")))
 
 from bespoke.inventory.analysis.shared.create_queries import *
 
-def create_company_download_summaries_query(company_identifier: str, start_date: str, end_date:str=None) -> str:
-	end_date_where_clause = f"""
-		and metrc_download_summaries.date <= "{end_date}"
-	""" if end_date else ''
-	return f"""
-		select
-			metrc_download_summaries.license_number,
-			metrc_download_summaries.date,
-			metrc_download_summaries.status
-		from
-			metrc_download_summaries
-			inner join companies on metrc_download_summaries.company_id = companies.id
-		where
-			True
-			and companies.identifier = "{company_identifier}"
-			and metrc_download_summaries.date >= "{start_date}"
-			{end_date_where_clause}
-		order by
-			date desc
-	"""
-
 def create_company_grouped_gmv_by_receipts_query(company_identifier: str, start_date: str, group_type: str) -> str:
 	if group_type not in ['week', 'month']:
 		return 'Invalid group type'

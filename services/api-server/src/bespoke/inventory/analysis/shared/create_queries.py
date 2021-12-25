@@ -4,6 +4,16 @@ import datetime
 def _get_updated_at_where_clause(table_name: str, min_updated_at: datetime.datetime) -> str:
 	return f'and {table_name}.updated_at >={min_updated_at.isoformat()}' if min_updated_at else ''
 
+def _get_identifiers_for_where_clause(company_identifier: Union[str, List[str]]) -> List[str]:
+	identifiers = []
+
+	if type(company_identifier) == str:
+		identifiers.append(cast(str, company_identifier))
+	else:
+		identifiers = cast(List[str], company_identifier)
+
+	return ['"{}"'.format(iden) for iden in identifiers]
+
 def create_company_incoming_transfer_packages_query(
 	company_identifier: str,
 	start_date: str,
@@ -842,6 +852,31 @@ def create_packages_by_production_batch_numbers_query(production_batch_numbers: 
 
 ####### For licenses
 
+def create_company_download_summaries_query(company_identifier: Union[List[str], str], start_date: str, end_date:str=None) -> str:
+	identifiers = _get_identifiers_for_where_clause(company_identifier)
+
+	end_date_where_clause = f"""
+		and metrc_download_summaries.date <= "{end_date}"
+	""" if end_date else ''
+	return f"""
+		select
+			companies.id as company_id,
+			companies.identifier as company_identifier,
+			metrc_download_summaries.license_number,
+			metrc_download_summaries.date,
+			metrc_download_summaries.status
+		from
+			metrc_download_summaries
+			inner join companies on metrc_download_summaries.company_id = companies.id
+		where
+			True
+			and companies.identifier in ({','.join(identifiers)})
+			and metrc_download_summaries.date >= "{start_date}"
+			{end_date_where_clause}
+		order by
+			date desc
+	"""
+
 def create_metrc_download_summary_companies_query() -> str:
 		return f"""
 				select
@@ -865,14 +900,7 @@ def create_metrc_download_summary_companies_query() -> str:
 
 # Company queries: get data for a specific-company.
 def create_company_licenses_query(company_identifier: Union[str, List[str]]) -> str:
-	identifiers = []
-
-	if type(company_identifier) == str:
-		identifiers.append(cast(str, company_identifier))
-	else:
-		identifiers = cast(List[str], company_identifier)
-
-	identifiers = ['"{}"'.format(iden) for iden in identifiers]
+	identifiers = _get_identifiers_for_where_clause(company_identifier)
 
 	return f"""
 			select
@@ -909,14 +937,7 @@ def create_company_facilities_query(company_ids: List[str]) -> str:
 	"""
 
 def create_company_count_metrc_sales_receipts_query(company_identifier: Union[str, List[str]]) -> str:
-	identifiers = []
-
-	if type(company_identifier) == str:
-		identifiers.append(cast(str, company_identifier))
-	else:
-		identifiers = cast(List[str], company_identifier)
-
-	identifiers = ['"{}"'.format(iden) for iden in identifiers]
+	identifiers = _get_identifiers_for_where_clause(company_identifier)
 
 	return f"""
 			select

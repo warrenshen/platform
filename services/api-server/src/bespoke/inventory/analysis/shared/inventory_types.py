@@ -167,7 +167,8 @@ CompanyInfoDict = TypedDict('CompanyInfoDict', {
 FacilityDetailsDict = TypedDict('FacilityDetailsDict', {
 	'name': str,
 	'facility_row_id': str,
-	'license_numbers': List[str]
+	'license_numbers': List[str],
+	'num_bad_download_summaries': int
 })
 
 # Summary of information that we get about the entire inventory summary

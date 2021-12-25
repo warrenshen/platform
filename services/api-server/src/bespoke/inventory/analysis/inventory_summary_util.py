@@ -49,6 +49,8 @@ def write_summary_to_db(
 	db_summary.date = cur_date
 	db_summary.methodology = methodology
 	db_summary.default_methodology = DEFAULT_METHODOLOGY
+	# TODO(dlluncor): Store the num_bad_download_summaries somewhere here.
+	# Do we want to query on it or can we store it in the JSON?
 	db_summary.counts_payload = {
 		'pct_packages_excluded': summary['counts_analysis']['pct_excluded'],
 		'timing_info': summary['timing_info']
@@ -106,6 +108,7 @@ def write_excel_for_summaries(summaries: List[AnalysisSummaryDict], cur_date: da
 		  'uses_parenting',
 
 		 	# Counts
+		 	'num_bad_download_summaries',
 		 	'pct_excluded', 
 		 	'counts_summary',
 
@@ -147,6 +150,7 @@ def write_excel_for_summaries(summaries: List[AnalysisSummaryDict], cur_date: da
 		]
 
 		count_row: List[CellValue] = [
+			summary['facility_details']['num_bad_download_summaries'],
 			summary['counts_analysis']['pct_excluded'], 
 			''
 		]
