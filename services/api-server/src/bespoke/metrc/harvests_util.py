@@ -150,6 +150,11 @@ def download_harvests(ctx: metrc_common_util.DownloadContext, session_maker: Cal
 			len(onhold_harvests), company_details['name'], ctx.cur_date))
 
 	harvest_models = active_harvests_models + inactive_harvests_models + onhold_harvests_models
+	if not harvest_models:
+		logging.info('No new harvests to write for {} on {}'.format(
+			company_details['name'], ctx.cur_date
+		))
+
 	return harvest_models
 
 def _write_harvests_chunk(

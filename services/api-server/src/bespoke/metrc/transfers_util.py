@@ -624,6 +624,11 @@ def populate_transfers_table(
 	metrc_transfer_objs = incoming_metrc_transfer_objs + outgoing_metrc_transfer_objs + \
 												rejected_metrc_transfer_objs
 
+	if not metrc_transfer_objs:
+		logging.info('No new transfers to write for {} on {}'.format(
+			company_details['name'], ctx.cur_date
+		))
+
 	## Fetch packages and lab results
 	all_metrc_transfer_package_objs: List[TransferPackageObj] = []
 	# So we can map a package back to its parent transfer's delivery ID

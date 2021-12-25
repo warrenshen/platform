@@ -236,6 +236,11 @@ def download_sales_info(ctx: metrc_common_util.DownloadContext, session_maker: C
 	if active_sales_receipts:
 		logging.info('Downloaded {} new active sales receipts ({} original active sales receipts) for {} on {}'.format(
 			active_sales_receipts.num_receipts, len(active_sales_receipts_arr), company_details['name'], ctx.cur_date))
+
+	if not inactive_sales_receipts and not active_sales_receipts:
+		logging.info('No new sales receipts to write for {} on {}'.format(
+			company_details['name'], ctx.cur_date
+		))
 	
 	return (inactive_sales_receipts, active_sales_receipts)
 

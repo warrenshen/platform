@@ -133,6 +133,12 @@ def download_plant_batches(ctx: metrc_common_util.DownloadContext, session_maker
 			len(active_batches), company_details['name'], ctx.cur_date))
 
 	batch_models = inactive_plant_batch_models + active_plant_batch_models
+
+	if not batch_models:
+		logging.info('No new plant batches to write for {} on {}'.format(
+			company_details['name'], ctx.cur_date
+		))
+
 	return batch_models
 
 

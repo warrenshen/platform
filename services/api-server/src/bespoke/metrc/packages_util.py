@@ -175,6 +175,12 @@ def download_packages(ctx: metrc_common_util.DownloadContext, session_maker: Cal
 			len(onhold_package_models), company_details['name'], ctx.cur_date))
 
 	package_models = active_package_models + inactive_package_models + onhold_package_models
+	
+	if not package_models:
+		logging.info('No new packages to write for {} on {}'.format(
+			company_details['name'], ctx.cur_date
+		))
+
 	return package_models
 
 def write_packages(packages_models: List[PackageObject], session_maker: Callable, BATCH_SIZE: int = 50) -> None:

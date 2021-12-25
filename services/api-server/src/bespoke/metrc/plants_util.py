@@ -170,6 +170,12 @@ def download_plants(ctx: metrc_common_util.DownloadContext, session_maker: Calla
 			len(onhold_plants), company_details['name'], ctx.cur_date))
 
 	plant_models = vegetative_plant_models + flowering_plant_models + inactive_plant_models + onhold_plant_models
+	
+	if not plant_models:
+		logging.info('No new plants to write for {} on {}'.format(
+			company_details['name'], ctx.cur_date
+		))
+
 	return plant_models
 
 def _write_plants_chunk(
