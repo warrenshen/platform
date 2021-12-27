@@ -754,6 +754,7 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 
 			report_month_last_day = date_util.get_report_month_last_day(TODAY.date())
 			report_month_first_day = fees_due_util._get_first_day_of_month_date(date_util.date_to_str(report_month_last_day))
+			previous_report_month_last_day = date_util.get_report_month_last_day(report_month_last_day)
 
 			cmi_or_mmf_title, cmi_or_mmf_amount, cmi_mmf_scores, err = loc_summary.get_cmi_and_mmf(
 				session, 
@@ -761,15 +762,16 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 				company_id, 
 				report_month_first_day, 
 				report_month_last_day,
-				interest_fee_balance = 23.74
+				interest_fee_balance = 23.74,
+				previous_report_month_last_day = previous_report_month_last_day
 			)
 
 			# In this case, CMI is larger
 			cmi, mmf, total_outstanding_interest = cmi_mmf_scores
 			self.assertEqual(cmi, 17000.0)
 			self.assertEqual(mmf, 20000.0)
-			self.assertEqual(total_outstanding_interest, 80.0)
-			self.assertEqual(cmi_or_mmf_amount, "$19,976.26")
+			self.assertEqual(total_outstanding_interest, 1800.0)
+			self.assertEqual(cmi_or_mmf_amount, "$20,000.00")
 
 			# Reuse previous setup and tweak month start financial summary for the case
 			# when minimum monthly fee is larger
@@ -790,13 +792,14 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 				company_id, 
 				report_month_first_day, 
 				report_month_last_day,
-				interest_fee_balance = 0.0
+				interest_fee_balance = 0.0,
+				previous_report_month_last_day = previous_report_month_last_day
 			)
 
 			cmi, mmf, total_outstanding_interest = cmi_mmf_scores
 			self.assertEqual(cmi, 17000.0)
 			self.assertEqual(mmf, 20000.0)
-			self.assertEqual(total_outstanding_interest, 80.0)
+			self.assertEqual(total_outstanding_interest, 1800.0)
 			self.assertEqual(cmi_or_mmf_amount, "$20,000.00")
 
 	def test_prepare_html_for_attachment(self) -> None:
@@ -848,8 +851,8 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 				interest_repayments = 20.0, 
 				interest_fee_balance = 23.74)
 
-			self.assertEqual(minimum_payment_due, '$27,036.26')
-			self.assertEqual(minimum_payment_amount, 27036.26)
+			self.assertEqual(minimum_payment_due, '$27,060.00')
+			self.assertEqual(minimum_payment_amount, 27060.00)
 
 	def test_get_available_credit(self) -> None:
 		loc_summary = report_generation.ReportsMonthlyLoanSummaryLOCView()

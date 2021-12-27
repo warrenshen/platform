@@ -432,7 +432,8 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 		company_id : str,
 		report_month_first_day : datetime.date,
 		report_month_last_day : datetime.date,
-		interest_fee_balance: float
+		interest_fee_balance: float,
+		previous_report_month_last_day: datetime.date,
 		) -> Tuple[str, str, Tuple[float, float, float], errors.Error]:
 		"""
 		- The queries for current monthly interest and minimum monthly fee are combined
@@ -443,17 +444,36 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 			SHOULD call get_cmi_and_mmf BEFORE get_minimum_payment_due
 		"""
 		# Minimum Monthly Fee
-		mmf_tuple = contract.get_minimum_amount_owed_per_duration()
-		mmf = mmf_tuple[0]["amount"] if mmf_tuple is not None else 0
+		# IMPORTANT/TODO(JR): Brittney wanted to punt on how to handle quarterly and annual contract minimums until next month for 2 reasons
+		# 1. New comptroller begins Jan 5th, wanted her opinion on the best way to handle the business logic
+		# 2. We currently have no quarterly customers and our one annual customer, Standard Holding, has already met their minimum
+		#    so defaulting to zero for the minimum_monthly_fee (mmf) is fine because then it will just report the CMI by default, which is desired
+		#mmf_tuple = contract.get_minimum_amount_owed_per_duration()
+		#mmf = mmf_tuple[0]["amount"] if mmf_tuple is not None else 0
+		mmf_tuple = contract._get_minimum_monthly_amount()
+		
+		mmf = mmf_tuple[0] if mmf_tuple[0] is not None else 0.0
+
+		# Prorating the minimum monthly fee if contract started during report month
+		contract_start_date, start_date_err = contract.get_start_date()
+		if contract_start_date >= report_month_first_day and \
+			contract_start_date <= report_month_last_day:
+			days_for_monthly_fee = date_util.number_days_between_dates(
+				report_month_last_day,
+				contract_start_date
+			)
+			days_in_month = date_util.get_days_in_month(report_month_last_day)
+			mmf = mmf * (float(days_for_monthly_fee) / float(days_in_month))
+		
 		
 		# Used later in get_minimum_payment_due, queried here since
 		# we're already getting financial summary information
-		month_start_summary = cast(
+		previous_month_end_summary = cast(
 			models.FinancialSummary,
 			session.query(models.FinancialSummary).filter(
 				models.FinancialSummary.company_id == company_id
 			).filter(
-				models.FinancialSummary.date == report_month_first_day
+				models.FinancialSummary.date == previous_report_month_last_day
 			).first())
 
 
@@ -484,12 +504,11 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 			cmi_or_mmf_title = "Minimum Monthly Fee"
 			cmi_or_mmf_amount = mmf
 
-		# interest_fee_balance corresponds to the difference between previous interest/fees and paid interest/fees
-		cmi_or_mmf_amount -= interest_fee_balance
+		total_outstanding_interest = float(previous_month_end_summary.total_outstanding_interest) if previous_month_end_summary is not None else 0.0
 
 		return cmi_or_mmf_title, \
 			number_util.to_dollar_format(cmi_or_mmf_amount), \
-			(cmi, mmf, float(month_start_summary.total_outstanding_interest)), \
+			(cmi, mmf, total_outstanding_interest), \
 			None
 
 	def prepare_html_for_attachment(
@@ -659,11 +678,8 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 		) -> Tuple[str, float]:
 		cmi, mmf, outstanding_interest = cmi_mmf_scores
 
-		cmi_total = outstanding_interest - interest_repayments + cmi
-		minimum_payment_due = cmi_total if cmi_total > mmf else mmf
-
-		# interest_fee_balance corresponds to the difference between previous interest/fees and paid interest/fees
-		minimum_payment_due -= interest_fee_balance
+		cmi_or_mmf = cmi if cmi > mmf else mmf
+		minimum_payment_due = outstanding_interest - interest_repayments + cmi_or_mmf
 		
 		return number_util.to_dollar_format(minimum_payment_due), minimum_payment_due
 
@@ -785,7 +801,8 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 				company_id, 
 				report_month_first_day, 
 				report_month_last_day,
-				interest_fee_balance
+				interest_fee_balance,
+				previous_report_month_last_day
 			)
 			if err:
 				return loans_to_notify, make_response(json.dumps({ 'status': 'FAILED', 'resp': "Failed to calculate current monthly interest and minimum monthly fee " + repr(err) }))

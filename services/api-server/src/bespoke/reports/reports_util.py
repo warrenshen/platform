@@ -2,6 +2,7 @@ import base64
 import json
 import os
 import requests
+import time
 from typing import Dict
 from flask import current_app
 from bespoke.db import models
@@ -27,14 +28,28 @@ def prepare_email_attachment(
 	is_prod = is_prod_env(os.environ.get('FLASK_ENV'))
 	pdf_endpoint = "https://bespoke-pdf-generator.herokuapp.com/pdf-generate" if is_prod is True else \
 		"https://bespoke-pdf-generator-staging.herokuapp.com/pdf-generate"
-	response = requests.post(
-		pdf_endpoint, 
-		data = json.dumps(request_details), # dumps needs for Bool -> bool (json) conversion
-		headers = {
-			"Content-Type": "application/json"
-		}
-	)
-	response.raise_for_status()
+
+	request_attempt_count = 0
+	request_successful = False
+	MAX_ATTEMPT_COUNT = 5
+	while request_attempt_count < MAX_ATTEMPT_COUNT and request_successful is False:
+		response = requests.post(
+			pdf_endpoint, 
+			data = json.dumps(request_details), # dumps needs for Bool -> bool (json) conversion
+			headers = {
+				"Content-Type": "application/json"
+			}
+		)
+
+		request_attempt_count += 1
+
+		if response.status_code == 503 and request_attempt_count < MAX_ATTEMPT_COUNT:
+			time.sleep(1)
+		elif response.status_code // 200 == 2: # all 2xx status codes are acceptable
+			request_successful = True
+		else:
+			response.raise_for_status()
+
 	encoded_file = base64.b64encode(response.content).decode()
 	company_name = company_name.replace(" ", "-")
 	while company_name.find("--") != -1:
