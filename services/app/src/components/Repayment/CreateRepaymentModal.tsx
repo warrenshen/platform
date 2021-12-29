@@ -17,6 +17,10 @@ import {
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
+import {
+  computeRequestedWithdrawCutoffDate,
+  todayAsDateStringServer,
+} from "lib/date";
 import { PaymentMethodEnum, PaymentTypeEnum, ProductTypeEnum } from "lib/enum";
 import {
   computeSettlementDateForPayment,
@@ -31,10 +35,6 @@ import {
   LoanToShow,
 } from "lib/finance/payments/repayment";
 import { useContext, useEffect, useState } from "react";
-import {
-  computeRequestedWithdrawCutoffDate,
-  todayAsDateStringServer,
-} from "lib/date";
 
 interface Props {
   companyId: Companies["id"];

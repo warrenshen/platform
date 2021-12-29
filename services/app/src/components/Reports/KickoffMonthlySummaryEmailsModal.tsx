@@ -6,15 +6,15 @@ import {
   Typography,
 } from "@material-ui/core";
 import Modal from "components/Shared/Modal/Modal";
+import { useLastMonthlySummaryReportLiveRunQuery } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
+import useSnackbar from "hooks/useSnackbar";
 import {
   ReportGenerationReq,
   sendMonthlySummaryLOCReport,
   sendMonthlySummaryNonLOCReport,
 } from "lib/api/reports";
-import { useLastMonthlySummaryReportLiveRunQuery } from "generated/graphql";
 import { formatDatetimeString } from "lib/date";
-import useCustomMutation from "hooks/useCustomMutation";
-import useSnackbar from "hooks/useSnackbar";
 import { isEmailValid } from "lib/validation";
 import { ChangeEvent, useState } from "react";
 
@@ -109,9 +109,10 @@ export default function KickoffMonthlySummaryEmailsModal({
           control={
             <Checkbox
               checked={isTestRun}
-              onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                setIsTestRun(event.target.checked)
-              }
+              onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                setEmail("");
+                setIsTestRun(event.target.checked);
+              }}
               color="primary"
             />
           }

@@ -1,11 +1,13 @@
 import {
   Box,
   Button,
+  Checkbox,
   createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControlLabel,
   makeStyles,
   Theme,
   Typography,
@@ -16,7 +18,7 @@ import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { todayAsDateStringServer } from "lib/date";
 import { runCustomerBalancesMutation } from "lib/finance/loans/reports";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -40,7 +42,10 @@ interface Props {
   handleClose: () => void;
 }
 
-function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
+export default function RunCustomerBalancesModal({
+  companyId,
+  handleClose,
+}: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
 
@@ -50,6 +55,7 @@ function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
   const [reportDate, setReportDate] = useState<string | null>(
     todayAsDateStringServer()
   );
+  const [isRunImmediately, setIsRunImmediately] = useState(false);
 
   const [
     runCustomerBalances,
@@ -67,7 +73,7 @@ function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
           company_id: companyId,
           start_date: startDate,
           report_date: reportDate,
-          include_debug_info: false,
+          include_debug_info: isRunImmediately,
         },
       });
 
@@ -125,6 +131,22 @@ function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
             onChange={(value) => setReportDate(value)}
           />
         </Box>
+        {!!companyId && (
+          <Box display="flex" flexDirection="column" mt={4}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={isRunImmediately}
+                  onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                    setIsRunImmediately(event.target.checked)
+                  }
+                  color="primary"
+                />
+              }
+              label={"Run Immediately?"}
+            />
+          </Box>
+        )}
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
         <Box>
@@ -145,5 +167,3 @@ function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
     </Dialog>
   );
 }
-
-export default RunCustomerBalancesModal;
