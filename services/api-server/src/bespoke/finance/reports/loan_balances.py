@@ -28,7 +28,8 @@ from bespoke.finance import contract_util, number_util
 from bespoke.finance.fetchers import per_customer_fetcher
 from bespoke.finance.loans import fee_util, loan_calculator
 from bespoke.finance.loans.fee_util import FeeDict
-from bespoke.finance.loans.loan_calculator import LoanUpdateDict, LoanUpdateDebugInfoDict
+from bespoke.finance.loans.loan_calculator import (LoanUpdateDebugInfoDict,
+                                                   LoanUpdateDict)
 from bespoke.finance.payments import payment_util
 from bespoke.finance.types import finance_types, per_customer_types
 from mypy_extensions import TypedDict
@@ -118,7 +119,10 @@ def _get_active_ebba_application_update(
 			calculated_borrowing_base=number_util.round_currency(calculated_borrowing_base),
 		), None
 
-def _get_account_level_balance(customer_info: per_customer_types.CustomerFinancials) -> Tuple[finance_types.AccountBalanceDict, errors.Error]:
+def _get_account_level_balance(
+	customer_info: per_customer_types.CustomerFinancials,
+	today: datetime.date,
+) -> Tuple[finance_types.AccountBalanceDict, errors.Error]:
 	fees_total = 0.0
 	credits_total = 0.0
 
@@ -126,11 +130,15 @@ def _get_account_level_balance(customer_info: per_customer_types.CustomerFinanci
 		tx = aug_tx['transaction']
 		if tx['loan_id'] is not None:
 			continue
+		if tx['effective_date'] > today:
+			continue
 
 		tx_type = tx['type']
 		# Account level transactions have no loan_id associated with them
 		if tx_type in db_constants.FEE_TYPES:
 			fees_total += tx['amount']
+		elif tx_type == db_constants.PaymentType.FEE_WAIVER:
+			fees_total -= tx['amount']
 		elif tx_type == db_constants.PaymentType.REPAYMENT_OF_ACCOUNT_FEE:
 			fees_total -= tx['amount']
 		elif tx_type in db_constants.CREDIT_TO_USER_TYPES:
@@ -155,8 +163,8 @@ def _get_summary_update(
 	loan_updates: List[LoanUpdateDict],
 	active_ebba_application_update: EbbaApplicationUpdateDict,
 	fee_accumulator: fee_util.FeeAccumulator,
-	today: datetime.date
-	) -> Tuple[SummaryUpdateDict, errors.Error]:
+	today: datetime.date,
+) -> Tuple[SummaryUpdateDict, errors.Error]:
 	cur_contract, err = contract_helper.get_contract(today)
 	if err:
 		return None, err
@@ -206,7 +214,7 @@ def _get_summary_update(
 	if err:
 		return None, err
 
-	account_level_balance, err = _get_account_level_balance(customer_info)
+	account_level_balance, err = _get_account_level_balance(customer_info, today)
 	if err:
 		return None, err
 

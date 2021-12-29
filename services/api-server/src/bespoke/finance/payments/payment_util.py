@@ -4,14 +4,14 @@
 """
 import datetime
 import decimal
-import pytz
 from typing import Any, Callable, Dict, List, Tuple, Union, cast
 
+import pytz
 from bespoke import errors
 from bespoke.date import date_util
-from bespoke.db import db_constants, models, model_types, models_util
+from bespoke.db import db_constants, model_types, models, models_util
 from bespoke.finance import financial_summary_util
-from bespoke.finance.types import payment_types, finance_types
+from bespoke.finance.types import finance_types, payment_types
 from sqlalchemy.orm.session import Session
 
 
@@ -343,7 +343,9 @@ def create_and_add_credit_to_user(
 	session.add(t)
 	return payment_id, None
 
-def create_and_add_account_level_fee(
+# Used for both account fee and account fee waiver.
+def _create_and_add_account_level_transaction(
+	payment_type: str, # Either FEE or FEE_WAIVER
 	company_id: str,
 	subtype: str,
 	amount: float,
@@ -352,12 +354,12 @@ def create_and_add_account_level_fee(
 	deposit_date: datetime.date,
 	effective_date: datetime.date,
 	items_covered: model_types.ItemsCoveredDict,
-	session: Session) -> str:
-
+	session: Session,
+) -> str:
 	payment = create_payment(
 		company_id=company_id,
 		payment_input=payment_types.PaymentInputDict(
-			type=db_constants.PaymentType.FEE,
+			type=payment_type,
 			payment_method='', # Not needed since its a fee, you can look up the originating payment_id
 			amount=amount
 		),
@@ -375,7 +377,7 @@ def create_and_add_account_level_fee(
 	payment_id = str(payment.id)
 
 	t = models.Transaction()
-	t.type = db_constants.PaymentType.FEE
+	t.type = payment_type
 	t.subtype = subtype
 	t.amount = decimal.Decimal(amount)
 	t.to_principal = decimal.Decimal(0.0)
@@ -388,6 +390,54 @@ def create_and_add_account_level_fee(
 
 	session.add(t)
 	return payment_id
+
+def create_and_add_account_level_fee(
+	company_id: str,
+	subtype: str,
+	amount: float,
+	originating_payment_id: str,
+	created_by_user_id: str,
+	deposit_date: datetime.date,
+	effective_date: datetime.date,
+	items_covered: model_types.ItemsCoveredDict,
+	session: Session,
+) -> str:
+	return _create_and_add_account_level_transaction(
+		payment_type=db_constants.PaymentType.FEE,
+		company_id=company_id,
+		subtype=subtype,
+		amount=amount,
+		originating_payment_id=originating_payment_id,
+		created_by_user_id=created_by_user_id,
+		deposit_date=deposit_date,
+		effective_date=effective_date,
+		items_covered=items_covered,
+		session=session,
+	)
+
+def create_and_add_account_level_fee_waiver(
+	company_id: str,
+	subtype: str,
+	amount: float,
+	originating_payment_id: str,
+	created_by_user_id: str,
+	deposit_date: datetime.date,
+	effective_date: datetime.date,
+	items_covered: model_types.ItemsCoveredDict,
+	session: Session,
+) -> str:
+	return _create_and_add_account_level_transaction(
+		payment_type=db_constants.PaymentType.FEE_WAIVER,
+		company_id=company_id,
+		subtype=subtype,
+		amount=amount,
+		originating_payment_id=originating_payment_id,
+		created_by_user_id=created_by_user_id,
+		deposit_date=deposit_date,
+		effective_date=effective_date,
+		items_covered=items_covered,
+		session=session,
+	)
 
 def _reset_payment_status_on_loans(loan_ids: List[str], session: Session) -> None:
 	loans = cast(

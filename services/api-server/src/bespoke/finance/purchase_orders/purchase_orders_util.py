@@ -384,7 +384,7 @@ def submit_purchase_order_for_approval(
 			).all())
 
 		if len(purchase_order_metrc_transfers) <= 0:
-			raise errors.Error('Purchase order Metrc manifest(s) are required')
+			raise errors.Error('Purchase order Metrc manifest is required')
 
 		# TODO(warrenshen): separate validations based on whether
 		# metrc_transfer.lab_results_status is equal to "passed" or not.

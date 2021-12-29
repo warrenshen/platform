@@ -111,7 +111,7 @@ class User(Base):
 	first_name = Column(Text, nullable=False)
 	last_name = Column(Text, nullable=False)
 	phone_number = Column(Text)
-	is_deleted = Column(Boolean)
+	is_deleted = Column(Boolean, default=False)
 	login_method = Column(Text, nullable=False)
 
 

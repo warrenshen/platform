@@ -1,13 +1,13 @@
 import datetime
 import decimal
 import json
-import pytz
 import uuid
 from datetime import timedelta
 from typing import Any, Callable, Dict, List, cast
 
+import pytz
 from bespoke.date import date_util
-from bespoke.db import db_constants, models, model_types
+from bespoke.db import db_constants, model_types, models
 from bespoke.db.db_constants import ProductType
 from bespoke.db.models import session_scope
 from bespoke.finance import financial_summary_util, number_util
@@ -15,12 +15,13 @@ from bespoke.finance.loans import reports_util
 from bespoke.finance.payments import (payment_util, repayment_util,
                                       repayment_util_fees)
 from bespoke.finance.reports import loan_balances
+from bespoke.finance.types import payment_types
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest, test_helper
 from bespoke_test.finance import finance_test_helper
 from bespoke_test.payments import payment_test_helper
-from bespoke.finance.types import payment_types
+
 
 def _get_late_fee_structure() -> str:
 	return json.dumps({
@@ -1496,7 +1497,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'adjusted_maturity_date': date_util.load_date_str('10/30/2020'),
 						'outstanding_principal': 20.0,
 						'outstanding_principal_for_interest': 20.0,
-						 # 3 additional days of interest that resumed on 11/5, 11/6, 11/7 on the 20.0 outstanding_principal_for_interest
+						# 3 additional days of interest that resumed on 11/5, 11/6, 11/7 on the 20.0 outstanding_principal_for_interest
 						'outstanding_interest': number_util.round_currency((5 * 0.05 * 500.03) + ((4 + 6) * 0.05 * 100.00) + (3 * 0.05 * 20.00) - 30.0),
 						# 0.25 fee_multiplier, late fee on 10/31, 11/1, 11/2, 11/3, 11/4 on 100.0 outstanding_principal_for_interest
 						# 0.25 fee_multiplier, late fee on 11/5, 11/6, 11/7 on 20.0 outstanding principal
@@ -1512,6 +1513,142 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				'expected_day_volume_threshold_met': None
 			}
 		]
+		i = 0
+		for test in tests:
+			self._run_test(test)
+			i += 1
+
+	def test_success_account_fees_and_waivers(self) -> None:
+
+		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+			session.add(models.Contract(
+				company_id=company_id,
+				product_type=ProductType.INVENTORY_FINANCING,
+				product_config=contract_test_helper.create_contract_config(
+					product_type=ProductType.INVENTORY_FINANCING,
+					input_dict=ContractInputDict(
+						interest_rate=0.002,
+						maximum_principal_amount=120000.01,
+						minimum_monthly_amount=1.03,
+						max_days_until_repayment=0, # unused
+						late_fee_structure=_get_late_fee_structure(),
+					)
+				),
+				start_date=date_util.load_date_str('1/1/2020'),
+				adjusted_end_date=date_util.load_date_str('12/1/2020')
+			))
+			financial_summary = finance_test_helper.get_default_financial_summary(
+				total_limit=100.0,
+				available_limit=100.0,
+				product_type=ProductType.INVENTORY_FINANCING
+			)
+			financial_summary.date = date_util.load_date_str('01/01/1960')
+			financial_summary.account_level_balance_payload = {
+				'fees_total': 200.0, # This will get overwritten by the test, but is needed for some of the settle fee functions to pass validlation
+				'credits_total': 200.0 # This will get overwritten by the test, but is needed for some of the settle fee functions to pass validlation
+			}
+			financial_summary.company_id = company_id
+			session.add(financial_summary)
+
+			# Book an account-level fee and a credit, and make sure it doesnt influence
+			# any of the loan updates
+			payment_util.create_and_add_account_level_fee(
+				company_id=company_id,
+				subtype=db_constants.TransactionSubType.MINIMUM_INTEREST_FEE,
+				amount=1000.01,
+				originating_payment_id=None,
+				created_by_user_id=seed.get_user_id('bank_admin'),
+				deposit_date=date_util.load_date_str('10/01/2020'),
+				effective_date=date_util.load_date_str('10/01/2020'),
+				items_covered=model_types.FeeItemsCoveredDict(),
+				session=session
+			)
+
+			payment_util.create_and_add_account_level_fee(
+				company_id=company_id,
+				subtype=db_constants.TransactionSubType.MINIMUM_INTEREST_FEE,
+				amount=2000.01,
+				originating_payment_id=None,
+				created_by_user_id=seed.get_user_id('bank_admin'),
+				deposit_date=date_util.load_date_str('11/01/2020'),
+				effective_date=date_util.load_date_str('11/01/2020'),
+				items_covered=model_types.FeeItemsCoveredDict(),
+				session=session
+			)
+
+			payment_util.create_and_add_account_level_fee_waiver(
+				company_id=company_id,
+				subtype=None,
+				amount=3000.02,
+				originating_payment_id=None,
+				created_by_user_id=seed.get_user_id('bank_admin'),
+				deposit_date=date_util.load_date_str('11/30/2020'),
+				effective_date=date_util.load_date_str('11/30/2020'),
+				items_covered=model_types.FeeItemsCoveredDict(),
+				session=session
+			)
+
+		tests: List[Dict] = [
+			{
+				'today': '10/30/2020',
+				'populate_fn': populate_fn,
+				'expected_loan_updates': [],
+				'expected_summary_update': {
+					'product_type': 'inventory_financing',
+					'total_limit': 120000.01,
+					'adjusted_total_limit': 120000.01,
+					'total_outstanding_principal': 0.0,
+					'total_outstanding_principal_for_interest': 0.0,
+					'total_outstanding_interest': 0.0,
+					'total_outstanding_fees': 0.0,
+					'total_principal_in_requested_state': 0.0,
+					'total_amount_to_pay_interest_on': 0.0,
+					'total_interest_accrued_today': 0.0,
+					'available_limit': 120000.01,
+					'minimum_monthly_payload': {
+						'minimum_amount': 1.03,
+						'amount_accrued': number_util.round_currency(2 * 0.002 * 500.03),
+						'amount_short': 0.0,
+						'duration': 'monthly'
+					},
+					'account_level_balance_payload': {
+						'fees_total': 1000.01, # Fees and fee waivers tie out
+						'credits_total': 0.0,
+					},
+					'day_volume_threshold_met': None
+				}
+			},
+			{
+				'today': '11/30/2020',
+				'populate_fn': populate_fn,
+				'expected_loan_updates': [],
+				'expected_summary_update': {
+					'product_type': 'inventory_financing',
+					'total_limit': 120000.01,
+					'adjusted_total_limit': 120000.01,
+					'total_outstanding_principal': 0.0,
+					'total_outstanding_principal_for_interest': 0.0,
+					'total_outstanding_interest': 0.0,
+					'total_outstanding_fees': 0.0,
+					'total_principal_in_requested_state': 0.0,
+					'total_amount_to_pay_interest_on': 0.0,
+					'total_interest_accrued_today': 0.0,
+					'available_limit': 120000.01,
+					'minimum_monthly_payload': {
+						'minimum_amount': 1.03,
+						'amount_accrued': number_util.round_currency(2 * 0.002 * 500.03),
+						'amount_short': 0.0,
+						'duration': 'monthly'
+					},
+					'account_level_balance_payload': {
+						'fees_total': 0.0, # Fees and fee waivers tie out
+						'credits_total': 0.0,
+					},
+					'day_volume_threshold_met': None
+				}
+			},
+		]
+
 		i = 0
 		for test in tests:
 			self._run_test(test)

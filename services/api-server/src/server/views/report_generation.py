@@ -1,35 +1,38 @@
+import base64
+import datetime
 import json
 import logging
-import time
-import datetime
-import typing
 import math
-import pdfkit
-import base64
 import os
-import requests
-from typing import Any, Callable, Iterable, Dict, List, Tuple, cast, Optional
-from flask import Blueprint, Response, current_app, make_response, request
-from flask.views import MethodView
-from sqlalchemy import func
-from sqlalchemy.orm.session import Session
+import time
+import typing
 from decimal import *
-from sendgrid.helpers.mail import Attachment, FileContent, FileName, FileType, Disposition
+from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, cast
 
+import pdfkit
+import requests
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models, models_util
-from bespoke.db.db_constants import DBOperation, LoanTypeEnum, LoanStatusEnum, PaymentType
+from bespoke.db.db_constants import (DBOperation, LoanStatusEnum, LoanTypeEnum,
+                                     PaymentType)
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
-from bespoke.finance import number_util, contract_util
+from bespoke.finance import contract_util, number_util
 from bespoke.finance.loans import reports_util
 from bespoke.finance.payments import fees_due_util
+from bespoke.finance.types.payment_types import PaymentItemsCoveredDict
 from bespoke.metrc.common.metrc_common_util import chunker, chunker_dict
+from bespoke.reports.reports_util import (prepare_email_attachment,
+                                          record_report_run_metadata)
+from flask import Blueprint, Response, current_app, make_response, request
+from flask.views import MethodView
+from sendgrid.helpers.mail import (Attachment, Disposition, FileContent,
+                                   FileName, FileType)
 from server.config import Config
 from server.views.common import auth_util, handler_util
-from bespoke.finance.types.payment_types import PaymentItemsCoveredDict
-from bespoke.reports.reports_util import prepare_email_attachment, record_report_run_metadata
+from sqlalchemy import func
+from sqlalchemy.orm.session import Session
 
 handler = Blueprint('report_generation', __name__)
 
@@ -498,7 +501,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 
 		# Compare and determine output
 		if cmi > mmf:	
-			cmi_or_mmf_title = "Current Month's Intest"
+			cmi_or_mmf_title = "Current Month's Interest"
 			cmi_or_mmf_amount = cmi
 		else:
 			cmi_or_mmf_title = "Minimum Monthly Fee"

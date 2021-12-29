@@ -5,10 +5,10 @@ from typing import Any, Dict, List, Tuple, cast
 from bespoke import errors
 from bespoke.audit import events
 from bespoke.date import date_util
-from bespoke.db import db_constants, models, model_types
+from bespoke.db import db_constants, model_types, models
 from bespoke.db.models import session_scope
-from bespoke.finance.payments import (payment_util, repayment_util,
-                                      repayment_util_fees, fees_due_util)
+from bespoke.finance.payments import (fees_due_util, payment_util,
+                                      repayment_util, repayment_util_fees)
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from mypy_extensions import TypedDict
@@ -51,6 +51,54 @@ class MakeAccountLevelFeeView(MethodView):
 			payment_id = payment_util.create_and_add_account_level_fee(
 				company_id=form['company_id'],
 				subtype=form['subtype'],
+				amount=form['amount'],
+				originating_payment_id=None,
+				created_by_user_id=user_session.get_user_id(),
+				deposit_date=date_util.load_date_str(form['deposit_date']),
+				effective_date=date_util.load_date_str(form['settlement_date']),
+				items_covered=cast(model_types.FeeItemsCoveredDict, form.get('items_covered', {})),
+				session=session
+			)
+
+		resp = {
+			'status': 'OK',
+			'payment_id': payment_id
+		}
+		return make_response(json.dumps(resp), 200)
+
+class MakeAccountLevelFeeWaiverView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@events.wrap(events.Actions.FINANCE_MAKE_ACCOUNT_LEVEL_FEE_WAIVER)
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		user_session = auth_util.UserSession.from_session()
+
+		required_keys = [
+			'company_id',
+			# 'subtype',
+			'amount',
+			'deposit_date',
+			'settlement_date',
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(
+					'Missing key {} from make account level fee request'.format(key))
+
+		if "effective_month" in form["items_covered"]:
+			selected_date = date_util.load_date_str(form["items_covered"]["effective_month"])
+			form["items_covered"]["effective_month"] = selected_date.strftime('%m/%Y')
+
+		with models.session_scope(current_app.session_maker) as session:
+			payment_id = payment_util.create_and_add_account_level_fee_waiver(
+				company_id=form['company_id'],
+				subtype=None,
 				amount=form['amount'],
 				originating_payment_id=None,
 				created_by_user_id=user_session.get_user_id(),
