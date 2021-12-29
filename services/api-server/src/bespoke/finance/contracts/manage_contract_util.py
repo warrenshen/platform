@@ -42,18 +42,24 @@ AddNewContractReqDict = TypedDict('AddNewContractReqDict', {
 	'contract_fields': ContractFieldsDict
 })
 
-def _update_fields_based_on_new_dates(contract: models.Contract, new_start_date: datetime.date, new_end_date: datetime.date) -> Tuple[bool, errors.Error]:
-	# We need to update fields based on the contract date ending. We have to set validate=False
-	# so we don't error out when building the contract object
+def _update_fields_based_on_new_dates(
+	contract: models.Contract,
+	new_start_date: datetime.date,
+	new_end_date: datetime.date,
+) -> Tuple[bool, errors.Error]:
+	# We need to update fields based on the contract date ending.
+	# We have to set validate=False so we don't error out when building the contract object
 	contract_obj, err = contract_util.Contract.build(contract.as_dict(), validate=False)
 	if err:
 		return None, err
+
 	success, err = contract_obj.update_fields_dependent_on_contract_dates(
 		new_contract_start_date=new_start_date,
 		new_contract_end_date=new_end_date
 	)
 	if err:
 		return None, err
+
 	contract.product_config = contract_obj.get_product_config()
 	return True, None
 
@@ -190,7 +196,10 @@ def update_contract(
 
 @errors.return_error_tuple
 def terminate_contract(
-	req: TerminateContractReqDict, bank_admin_user_id: str, session_maker: Callable) -> Tuple[bool, errors.Error]:
+	req: TerminateContractReqDict,
+	bank_admin_user_id: str,
+	session_maker: Callable,
+) -> Tuple[bool, errors.Error]:
 	err_details = {'req': req, 'method': 'terminate_contract'}
 
 	with session_scope(session_maker) as session:
@@ -218,7 +227,7 @@ def terminate_contract(
 		if termination_date > date_util.now_as_date(date_util.DEFAULT_TIMEZONE):
 			raise errors.Error('Cannot set contract termination date to a date in the future', details=err_details)
 
-		contract.adjusted_end_date = date_util.load_date_str(req['termination_date'])
+		contract.adjusted_end_date = termination_date
 		contract.terminated_at = date_util.now()
 		contract.terminated_by_user_id = bank_admin_user_id # type: ignore
 

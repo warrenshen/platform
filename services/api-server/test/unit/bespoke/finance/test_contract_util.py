@@ -9,6 +9,7 @@ from bespoke.finance import contract_util
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
 
+
 def _get_default_contract_config(product_type: str, overrides: Dict) -> Dict:
 	contract_dict = ContractInputDict(
 		maximum_principal_amount=120000.01,
@@ -252,8 +253,8 @@ class TestDynamicInterestRate(unittest.TestCase):
 				product_type=ProductType.INVENTORY_FINANCING,
 				product_config=config,
 				start_date=date_util.load_date_str('2/10/2020'),
-				end_date=date_util.load_date_str('2/11/2020'),
-				adjusted_end_date=date_util.load_date_str('2/11/2020'),
+				end_date=date_util.load_date_str('11/05/2020'),
+				adjusted_end_date=date_util.load_date_str('11/05/2020'),
 				terminated_at=None
 		)
 
@@ -292,7 +293,7 @@ class TestDynamicInterestRate(unittest.TestCase):
 					}),
 					start_date=date_util.load_date_str('2/16/2020'),
 					end_date=None,
-					adjusted_end_date=date_util.load_date_str('2/28/2020'),
+					adjusted_end_date=date_util.load_date_str('11/05/2020'),
 					terminated_at=None
 				),
 				'in_err_msg': 'one day after the previous'

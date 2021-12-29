@@ -8,7 +8,7 @@ from typing import Any, Callable, Dict, List, NamedTuple, Tuple, cast
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
-from bespoke.db.db_constants import ProductType, MinimumAmountDuration
+from bespoke.db.db_constants import MinimumAmountDuration, ProductType
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
 
@@ -120,7 +120,10 @@ DynamicInterestRate = TypedDict('DynamicInterestRate', {
 	'interest_rate': float
 })
 
-def _get_sorted_interest_rates(dynamic_interest_rate_dict: Dict[str, float]) -> Tuple[List[DynamicInterestRate], errors.Error]:
+def _get_sorted_interest_rates(
+	dynamic_interest_rate_dict: Dict[str, float],
+	adjusted_end_date: datetime.date,
+) -> Tuple[List[DynamicInterestRate], errors.Error]:
 	sorted_dynamic_interest_rates = []
 	keys = list(dynamic_interest_rate_dict.keys())
 	for i in range(len(keys)):
@@ -132,6 +135,7 @@ def _get_sorted_interest_rates(dynamic_interest_rate_dict: Dict[str, float]) -> 
 
 		start_date_str = parts[0]
 		end_date_str = parts[1]
+
 		try:
 			start_date = date_util.load_date_str(start_date_str)
 		except Exception as e:
@@ -141,6 +145,12 @@ def _get_sorted_interest_rates(dynamic_interest_rate_dict: Dict[str, float]) -> 
 			end_date = date_util.load_date_str(end_date_str)
 		except Exception as e:
 			return None, errors.Error('Invalid end date provided: {}'.format(end_date_str))
+
+		# When a contract is terminated, it may have an adjusted end date before
+		# portions of the dynamic interest rate. In these cases, we toss out the
+		# portion of the dynamic interest rate that are no longer applicable.
+		if adjusted_end_date and adjusted_end_date < start_date:
+			continue
 
 		rate = DynamicInterestRate(
 			start_date=start_date,
@@ -168,11 +178,16 @@ class DynamicInterestRateHelper(object):
 		return None, errors.Error(f'There is no interest rate configured for the date {cur_date}')
 
 	@staticmethod
-	def update_with_new_contract_dates(dynamic_interest_rate_dict: Dict[str, float],
+	def update_with_new_contract_dates(
+		dynamic_interest_rate_dict: Dict[str, float],
 		new_contract_start_date: datetime.date,
-		new_contract_end_date: datetime.date) -> Tuple[Dict[str, float], errors.Error]:
+		new_contract_end_date: datetime.date,
+	) -> Tuple[Dict[str, float], errors.Error]:
 
-		sorted_dynamic_interest_rates, err = _get_sorted_interest_rates(dynamic_interest_rate_dict)		
+		sorted_dynamic_interest_rates, err = _get_sorted_interest_rates(
+			dynamic_interest_rate_dict,
+			new_contract_end_date,
+		)
 		if err:
 			return None, err
 
@@ -193,9 +208,9 @@ class DynamicInterestRateHelper(object):
 	def build(
 		dynamic_interest_rate_dict: Dict[str, float],
 		contract_start_date: datetime.date,
-		contract_end_date: datetime.date) -> Tuple['DynamicInterestRateHelper', errors.Error]:
-
-		sorted_dynamic_interest_rates, err = _get_sorted_interest_rates(dynamic_interest_rate_dict)		
+		contract_end_date: datetime.date,
+	) -> Tuple['DynamicInterestRateHelper', errors.Error]:
+		sorted_dynamic_interest_rates, err = _get_sorted_interest_rates(dynamic_interest_rate_dict, contract_end_date)
 		if err:
 			return None, err
 
@@ -629,15 +644,17 @@ class Contract(object):
 		return self._field_dicts
 
 	def update_fields_dependent_on_contract_dates(self, 
-	new_contract_start_date: datetime.date,
-	new_contract_end_date: datetime.date) -> Tuple[bool, errors.Error]:
+		new_contract_start_date: datetime.date,
+		new_contract_end_date: datetime.date,
+	) -> Tuple[bool, errors.Error]:
 
 		dynamic_interest_rate_dict = self._get_dynamic_interest_rate_dict()
 		if dynamic_interest_rate_dict:
 			new_dynamic_interest_rate_dict, err = DynamicInterestRateHelper.update_with_new_contract_dates(
 				dynamic_interest_rate_dict,
 				new_contract_start_date=new_contract_start_date,
-				new_contract_end_date=new_contract_end_date)
+				new_contract_end_date=new_contract_end_date
+			)
 			if err:
 				return None, err
 
@@ -669,7 +686,10 @@ class Contract(object):
 				return None, err
 
 			_, err = DynamicInterestRateHelper.build(
-				dynamic_interest_rate_dict, contract_start_date, contract_end_date)
+				dynamic_interest_rate_dict,
+				contract_start_date,
+				contract_end_date
+			)
 			if err:
 				return None, err
 
@@ -730,9 +750,8 @@ class Contract(object):
 			Optionally, it will validate the structure and validity of how the contract
 			was setup.
 
-			This function may update fields
-			that may not have existed on this contract due to schema changes or additional
-			fields added to the contract.
+			This function may update fields that may not have existed on this contract
+			due to schema changes or additional fields added to the contract.
 		"""
 		contract = Contract(contract_dict, private=True)
 

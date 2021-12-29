@@ -1,10 +1,10 @@
 import json
-from typing import cast, Any
+from typing import Any, cast
 
 from bespoke import errors
+from bespoke.audit import events
 from bespoke.db import db_constants, models, models_util
 from bespoke.db.models import session_scope
-from bespoke.audit import events
 from bespoke.finance import contract_util
 from bespoke.finance.contracts import manage_contract_util
 from flask import Blueprint, Response, current_app, make_response, request
@@ -69,7 +69,8 @@ class TerminateContractView(MethodView):
 			return handler_util.make_error_response('No data provided')
 
 		required_keys = [
-			'contract_id', 'termination_date'
+			'contract_id',
+			'termination_date',
 		]
 		for key in required_keys:
 			if key not in form:
