@@ -6,6 +6,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import CreateAccountLevelFeeModal from "components/Fee/CreateAccountLevelFeeModal";
+import CreateAccountLevelFeeWaiverModal from "components/Fee/CreateAccountLevelFeeWaiverModal";
 import CreateHoldingAccountCreditModal from "components/Fee/CreateHoldingAccountCreditModal";
 import PayoutHoldingAccountModal from "components/Fee/PayoutHoldingAccountModal";
 import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal";
@@ -17,13 +18,13 @@ import ModalButton from "components/Shared/Modal/ModalButton";
 import PageContent from "components/Shared/Page/PageContent";
 import { CurrentCustomerContext } from "contexts/CurrentCustomerContext";
 import {
+  PaymentLimitedFragment,
   Payments,
   useGetCustomerAccountQuery,
-  PaymentLimitedFragment,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
-import { ProductTypeEnum } from "lib/enum";
 import { formatCurrency } from "lib/currency";
+import { ProductTypeEnum } from "lib/enum";
 import { useContext, useMemo, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -147,7 +148,25 @@ export default function CustomerAccountPageContent({
           <Can perform={Action.RunBalances}>
             <Box mr={2}>
               <ModalButton
-                label={"Create Account Fee"}
+                label={"Create Fee Waiver"}
+                color={"default"}
+                variant={"outlined"}
+                modal={({ handleClose }) => (
+                  <CreateAccountLevelFeeWaiverModal
+                    companyId={companyId}
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                    }}
+                  />
+                )}
+              />
+            </Box>
+          </Can>
+          <Can perform={Action.RunBalances}>
+            <Box mr={2}>
+              <ModalButton
+                label={"Create Fee"}
                 color={"default"}
                 variant={"outlined"}
                 modal={({ handleClose }) => (

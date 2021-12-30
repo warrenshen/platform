@@ -119,6 +119,7 @@ export const feesRoutes = {
   createAccountLevelFee: "/finance/fees/make_account_level_fee",
   createAccountLevelFeeRepayment:
     "/finance/fees/make_account_level_fee_repayment",
+  createAccountLevelFeeWaiver: "finance/fees/make_account_level_fee_waiver",
   scheduleAccountLevelFeeRepayment:
     "finance/fees/schedule_account_level_fee_repayment",
   settleAccountLevelFeeRepayment:

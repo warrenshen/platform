@@ -67,7 +67,7 @@ export type CreateAccountLevelFeeReq = {
     company_id: Companies["id"];
     subtype: string;
     amount: number;
-    payment_date: string;
+    deposit_date: string;
     settlement_date: string;
   };
 };
@@ -85,6 +85,33 @@ export async function createAccountLevelFeeMutation(
         return {
           status: "ERROR",
           msg: "Could not create account fee",
+        };
+      }
+    );
+}
+
+export type CreateAccountLevelFeeWaiverReq = {
+  variables: {
+    company_id: Companies["id"];
+    amount: number;
+    deposit_date: string;
+    settlement_date: string;
+  };
+};
+
+export async function createAccountLevelFeeWaiverMutation(
+  req: CreateAccountLevelFeeReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(feesRoutes.createAccountLevelFeeWaiver, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not create account fee waiver",
         };
       }
     );

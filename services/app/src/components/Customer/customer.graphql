@@ -1,6 +1,6 @@
 subscription GetCustomerFinancialSummaryByDate(
-  $company_id: uuid!,
-  $date: date!,
+  $company_id: uuid!
+  $date: date!
 ) {
   companies_by_pk(id: $company_id) {
     id
@@ -11,10 +11,7 @@ subscription GetCustomerFinancialSummaryByDate(
   }
 }
 
-query GetCustomerOverview(
-  $company_id: uuid!,
-  $loan_type: loan_type_enum,
-) {
+query GetCustomerOverview($company_id: uuid!, $loan_type: loan_type_enum) {
   companies_by_pk(id: $company_id) {
     id
     contract {
@@ -84,10 +81,14 @@ query GetCustomerAccount($company_id: uuid!) {
               { is_deleted: { _eq: false } }
             ]
           }
-          { type: { _eq: "fee" } }
+          { type: { _in: ["fee", "fee_waiver"] } }
         ]
       }
-      order_by: [{ deposit_date: desc }, { settlement_date: desc }]
+      order_by: [
+        { deposit_date: desc }
+        { settlement_date: desc }
+        { submitted_at: desc }
+      ]
     ) {
       id
       ...PaymentLimited

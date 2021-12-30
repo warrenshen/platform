@@ -36,10 +36,22 @@ export enum PaymentTypeEnum {
   Advance = "advance",
   CreditToUser = "credit_to_user",
   Fee = "fee",
+  FeeWaiver = "fee_waiver",
   PayoutUserCreditToCustomer = "payout_user_credit_to_customer",
   Repayment = "repayment",
   RepaymentOfAccountFee = "repayment_account_fee",
 }
+
+export const PaymentTypeToLabel = {
+  [PaymentTypeEnum.Adjustment]: "Adjustment",
+  [PaymentTypeEnum.Advance]: "Advance",
+  [PaymentTypeEnum.CreditToUser]: "Credit To Borrower",
+  [PaymentTypeEnum.Fee]: "Account Fee",
+  [PaymentTypeEnum.FeeWaiver]: "Account Fee Waiver",
+  [PaymentTypeEnum.PayoutUserCreditToCustomer]: "Payout To Borrower",
+  [PaymentTypeEnum.Repayment]: "Repayment",
+  [PaymentTypeEnum.RepaymentOfAccountFee]: "Repayment",
+};
 
 export enum PaymentStatusEnum {
   // Awaiting submit by bank user.
@@ -142,6 +154,19 @@ export const AllPaymentMethods = [
   PaymentMethodEnum.Cash,
   PaymentMethodEnum.Check,
 ];
+
+// Transaction sub type enum related.
+export enum TransactionSubTypeEnum {
+  CustomFee = "custom_fee",
+  MinimumInterestFee = "minimum_interest_fee",
+  WireFee = "wire_fee",
+}
+
+export const TransactionSubTypeToLabel = {
+  [TransactionSubTypeEnum.CustomFee]: "Custom Fee",
+  [TransactionSubTypeEnum.MinimumInterestFee]: "Minimum Interest Fee",
+  [TransactionSubTypeEnum.WireFee]: "Wire Fee",
+};
 
 // Payment methods that bank (Bespoke Financial) may pay with.
 export const BankPaymentMethods = [

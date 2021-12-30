@@ -11,6 +11,12 @@ import {
   TransactionFragment,
   Transactions,
 } from "generated/graphql";
+import {
+  PaymentTypeEnum,
+  PaymentTypeToLabel,
+  TransactionSubTypeEnum,
+  TransactionSubTypeToLabel,
+} from "lib/enum";
 import { ColumnWidths } from "lib/tables";
 import { useMemo, useState } from "react";
 
@@ -42,7 +48,13 @@ function getRows(
 ): RowsProp {
   return fees.map((fee) => ({
     ...fee,
-    fee_name: fee.transactions[0]?.subtype,
+    fee_type: PaymentTypeToLabel[fee.type as PaymentTypeEnum],
+    fee_name: fee.transactions[0]?.subtype
+      ? TransactionSubTypeToLabel[
+          fee.transactions[0]?.subtype as TransactionSubTypeEnum
+        ]
+      : "",
+    amount: (fee.type === PaymentTypeEnum.FeeWaiver ? -1 : 1) * fee.amount,
   }));
 }
 
@@ -61,7 +73,12 @@ export default function FeesDataGrid({
   const columns = useMemo(
     () => [
       {
-        caption: "Fee",
+        caption: "",
+        dataField: "fee_type",
+        minWidth: ColumnWidths.MinWidth,
+      },
+      {
+        caption: "Description",
         dataField: "fee_name",
         minWidth: ColumnWidths.MinWidth,
       },
@@ -101,7 +118,7 @@ export default function FeesDataGrid({
           ),
       },
       {
-        caption: "Fee Date",
+        caption: "Effective Date",
         width: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
@@ -110,7 +127,7 @@ export default function FeesDataGrid({
       },
       {
         dataField: "amount",
-        caption: "Fee Amount",
+        caption: "Amount",
         width: ColumnWidths.Currency,
         alignment: "right",
         calculateCellValue: ({ amount }: PaymentLimitedFragment) => amount,
