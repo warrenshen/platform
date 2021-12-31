@@ -34,7 +34,6 @@ class MakeAccountLevelFeeView(MethodView):
 			'company_id',
 			'subtype',
 			'amount',
-			'deposit_date',
 			'settlement_date',
 		]
 
@@ -43,10 +42,6 @@ class MakeAccountLevelFeeView(MethodView):
 				return handler_util.make_error_response(
 					'Missing key {} from make account level fee request'.format(key))
 
-		if "effective_month" in form["items_covered"]:
-			selected_date = date_util.load_date_str(form["items_covered"]["effective_month"])
-			form["items_covered"]["effective_month"] = selected_date.strftime('%m/%Y');
-
 		with models.session_scope(current_app.session_maker) as session:
 			payment_id = payment_util.create_and_add_account_level_fee(
 				company_id=form['company_id'],
@@ -54,9 +49,7 @@ class MakeAccountLevelFeeView(MethodView):
 				amount=form['amount'],
 				originating_payment_id=None,
 				created_by_user_id=user_session.get_user_id(),
-				deposit_date=date_util.load_date_str(form['deposit_date']),
 				effective_date=date_util.load_date_str(form['settlement_date']),
-				items_covered=cast(model_types.FeeItemsCoveredDict, form.get('items_covered', {})),
 				session=session
 			)
 
@@ -80,9 +73,8 @@ class MakeAccountLevelFeeWaiverView(MethodView):
 
 		required_keys = [
 			'company_id',
-			# 'subtype',
+			'subtype',
 			'amount',
-			'deposit_date',
 			'settlement_date',
 		]
 
@@ -91,20 +83,14 @@ class MakeAccountLevelFeeWaiverView(MethodView):
 				return handler_util.make_error_response(
 					'Missing key {} from make account level fee request'.format(key))
 
-		if "effective_month" in form["items_covered"]:
-			selected_date = date_util.load_date_str(form["items_covered"]["effective_month"])
-			form["items_covered"]["effective_month"] = selected_date.strftime('%m/%Y')
-
 		with models.session_scope(current_app.session_maker) as session:
 			payment_id = payment_util.create_and_add_account_level_fee_waiver(
 				company_id=form['company_id'],
-				subtype=None,
+				subtype=form['subtype'],
 				amount=form['amount'],
 				originating_payment_id=None,
 				created_by_user_id=user_session.get_user_id(),
-				deposit_date=date_util.load_date_str(form['deposit_date']),
 				effective_date=date_util.load_date_str(form['settlement_date']),
-				items_covered=cast(model_types.FeeItemsCoveredDict, form.get('items_covered', {})),
 				session=session
 			)
 
@@ -486,6 +472,9 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/make_account_level_fee', view_func=MakeAccountLevelFeeView.as_view(name='make_account_level_fee_view'))
+
+handler.add_url_rule(
+	'/make_account_level_fee_waiver', view_func=MakeAccountLevelFeeWaiverView.as_view(name='make_account_level_fee_waiver_view'))
 
 handler.add_url_rule(
 	'/get_all_minimum_interest_fees_due', view_func=GetAllMinimumInterestFeesDueView.as_view(name='get_all_minimum_interest_fees_due_view'))

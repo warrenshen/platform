@@ -1,3 +1,4 @@
+import calendar
 import datetime
 from datetime import timedelta, timezone
 from typing import Tuple
@@ -31,7 +32,6 @@ def get_last_day_of_month(year: int, month: int) -> int:
 
 def is_last_day_of_month(day: datetime.date) -> int:
 	return get_last_day_of_month(year=day.year, month=day.month) == day.day
-
 
 def now() -> datetime.datetime:
 	return datetime.datetime.now(timezone.utc)
@@ -204,3 +204,14 @@ def number_days_between_dates(
 ) -> int:
 	result = (later_date - earlier_date).days + (1 if inclusive_later_date else 0)
 	return result if result >= 0 else None
+
+def get_first_day_of_month_date(date_str: str) -> datetime.date:
+	# Find the last date of this month
+	chosen_date = load_date_str(date_str)
+	return datetime.date(chosen_date.year, chosen_date.month, 1)
+
+def get_last_day_of_month_date(date_str: str) -> datetime.date:
+	# Find the last date of this month
+	chosen_date = load_date_str(date_str)
+	last_day_of_month = calendar.monthrange(chosen_date.year, chosen_date.month)[1]
+	return datetime.date(chosen_date.year, chosen_date.month, last_day_of_month)

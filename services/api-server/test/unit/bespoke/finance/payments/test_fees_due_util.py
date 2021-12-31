@@ -7,13 +7,12 @@ from sqlalchemy.orm.session import Session
 from typing import Any, Dict, List, cast
 
 from bespoke.date import date_util
-from bespoke.db import db_constants, models
+from bespoke.db import db_constants, models, model_types
 from bespoke.db.db_constants import (PaymentMethodEnum, PaymentStatusEnum,
                                      ProductType, MinimumAmountDuration)
 from bespoke.db.models import session_scope
 from bespoke.finance import number_util
-from bespoke.finance.payments import fees_due_util
-from bespoke.finance.types import payment_types
+from bespoke.finance.payments import fees_due_util, payment_util
 
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
@@ -414,11 +413,11 @@ class TestMonthEndRepayments(db_unittest.TestCase):
 
 			# You create minimum interest fees before determining their month end payment
 			minimum_due_resp, err = fees_due_util.get_all_minimum_interest_fees_due(
-				'1/30/2020',
+				'1/31/2020',
 				session
 			) 
 			success, err = fees_due_util.create_minimum_due_fee_for_customers(
-				date_str='1/30/2020',
+				date_str='1/31/2020',
 				minimum_due_resp=minimum_due_resp,
 				user_id=seed.get_user_id('bank_admin'),
 				session=session
@@ -426,7 +425,7 @@ class TestMonthEndRepayments(db_unittest.TestCase):
 			self.assertIsNone(err)
 
 			resp, err = fees_due_util.get_all_month_end_payments(
-				'1/30/2020',
+				'1/31/2020',
 				session
 			)
 			self.assertIsNone(err)
@@ -456,7 +455,7 @@ class TestMonthEndRepayments(db_unittest.TestCase):
 			}, cast(Dict, resp))
 
 			success, err = fees_due_util.create_month_end_payments_for_customers(
-				date_str='1/30/2020',
+				date_str='1/31/2020',
 				minimum_due_resp=resp,
 				user_id=seed.get_user_id('bank_admin'),
 				session=session
@@ -507,3 +506,101 @@ class TestMonthEndRepayments(db_unittest.TestCase):
 				self.assertEqual(db_constants.PaymentMethodEnum.REVERSE_DRAFT_ACH, p.method)
 				self.assertDictEqual(exp['items_covered'], cast(Dict, p.items_covered))
 
+	def test_get_and_create_month_end_repayments_with_minimum_interest_fee_waiver(self) -> None:
+		self.reset()
+		session_maker = self.session_maker
+		seed = test_helper.BasicSeed.create(self.session_maker, self)
+		seed.initialize()
+		company_id = seed.get_company_id('company_admin', index=0)
+
+		amount_short = 4.0
+
+		with session_scope(session_maker) as session:
+			# Customer 1
+			minimum_monthly_payload = models.FeeDict(
+				amount_accrued=6.0, # unused
+				minimum_amount=10.0, # unused
+				amount_short=amount_short,
+				duration=MinimumAmountDuration.MONTHLY,
+				prorated_info=models.ProratedFeeInfoDict(
+					numerator=0,
+					denom=0,
+					fraction=0.0,
+					day_to_pay='1/31/2020'
+				)
+			)
+
+			summary_day1 = finance_test_helper.get_default_financial_summary(
+				total_limit=100.0,
+				available_limit=80.0,
+				product_type=ProductType.INVENTORY_FINANCING,
+				date_str='1/01/2020',
+				company_id=company_id,
+				minimum_monthly_payload=minimum_monthly_payload
+			)
+			session.add(summary_day1)
+
+			summary = finance_test_helper.get_default_financial_summary(
+				total_limit=100.0,
+				available_limit=80.0,
+				product_type=ProductType.INVENTORY_FINANCING,
+				date_str='1/31/2020',
+				company_id=company_id,
+				minimum_monthly_payload=minimum_monthly_payload
+			)
+			session.add(summary)
+
+			contract = self._get_contract(company_id, product_type=ProductType.INVENTORY_FINANCING)
+			contract_test_helper.set_and_add_contract_for_company(contract, company_id, session)
+
+		with session_scope(session_maker) as session:
+			# You create minimum interest fees before determining their month end payment
+			minimum_due_resp, err = fees_due_util.get_all_minimum_interest_fees_due(
+				'1/30/2020',
+				session
+			)
+			success, err = fees_due_util.create_minimum_due_fee_for_customers(
+				date_str='1/30/2020',
+				minimum_due_resp=minimum_due_resp,
+				user_id=seed.get_user_id('bank_admin'),
+				session=session
+			)
+			self.assertIsNone(err)
+
+			# Create fee waiver which cancels out minimum interest fee
+			payment_id = payment_util.create_and_add_account_level_fee_waiver(
+				company_id=company_id,
+				subtype=db_constants.TransactionSubType.MINIMUM_INTEREST_FEE,
+				amount=amount_short,
+				originating_payment_id=None,
+				created_by_user_id=seed.get_user_id('bank_admin'),
+				effective_date=date_util.load_date_str('1/30/2020'),
+				session=session
+			)
+			self.assertIsNotNone(payment_id)
+
+			resp, err = fees_due_util.get_all_month_end_payments(
+				'1/30/2020',
+				session
+			)
+			self.assertIsNone(err)
+			self.assertDictEqual({
+				'company_due_to_financial_info': {}
+			}, cast(Dict, resp))
+
+		expected_payments: List[Dict] = []
+
+		with session_scope(session_maker) as session:
+			# There are 2 transactions from the 1 companies where minimum fees were booked
+			transactions = cast(
+				List[models.Transaction],
+				session.query(models.Transaction).order_by(models.Transaction.amount).all())
+			self.assertEqual(2, len(transactions))
+
+			# There are no payments created
+			payments = cast(
+				List[models.Payment],
+				session.query(models.Payment).filter(
+					models.Payment.amount == None
+				).order_by(models.Payment.requested_amount).all())
+			self.assertEqual(len(expected_payments), len(payments))

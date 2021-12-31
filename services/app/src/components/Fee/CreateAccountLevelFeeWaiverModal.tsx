@@ -1,6 +1,10 @@
 import FeeWaiverForm from "components/Fee/FeeWaiverForm";
 import Modal from "components/Shared/Modal/Modal";
-import { Companies, PaymentsInsertInput } from "generated/graphql";
+import {
+  Companies,
+  PaymentsInsertInput,
+  TransactionsInsertInput,
+} from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { createAccountLevelFeeWaiverMutation } from "lib/api/payments";
@@ -25,7 +29,11 @@ export default function CreateAccountLevelFeeWaiverModal({
     amount: null,
     deposit_date: null,
     settlement_date: null,
-    items_covered: {},
+  });
+
+  const [transaction, setTransaction] = useState<TransactionsInsertInput>({
+    type: PaymentTypeEnum.FeeWaiver,
+    subtype: null,
   });
 
   const [
@@ -37,8 +45,8 @@ export default function CreateAccountLevelFeeWaiverModal({
     const response = await createAccountLevelFeeWaiver({
       variables: {
         company_id: companyId,
+        subtype: transaction.subtype,
         amount: payment.amount,
-        deposit_date: payment.deposit_date,
         settlement_date: payment.settlement_date,
         items_covered: payment.items_covered,
       },
@@ -61,12 +69,17 @@ export default function CreateAccountLevelFeeWaiverModal({
   return (
     <Modal
       isPrimaryActionDisabled={isSubmitDisabled}
-      title={"Create Account Fee"}
+      title={"Create Account Fee Waiver"}
       primaryActionText={"Submit"}
       handleClose={handleClose}
       handlePrimaryAction={handleClickSubmit}
     >
-      <FeeWaiverForm payment={payment} setPayment={setPayment} />
+      <FeeWaiverForm
+        payment={payment}
+        transaction={transaction}
+        setPayment={setPayment}
+        setTransaction={setTransaction}
+      />
     </Modal>
   );
 }

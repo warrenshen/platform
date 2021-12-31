@@ -1,6 +1,6 @@
 import json
-from typing import List, cast
 from datetime import timedelta
+from typing import List, cast
 
 from bespoke import errors
 from bespoke.date import date_util
@@ -11,7 +11,6 @@ from bespoke.finance.reports import loan_balances
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from server.views.common import auth_util, handler_util
-from sqlalchemy.orm.session import Session
 
 handler = Blueprint('finance_loans_reports', __name__)
 
@@ -63,7 +62,39 @@ class RunCustomerBalancesView(MethodView):
 		if include_debug_info and no_company_id_specified:
 			return handler_util.make_error_response('Cannot provide debug information when running reports for all companies')
 
-		if not include_debug_info:
+		if include_debug_info:
+			# We only run customer balances for 1 customer and 1 date when fetching debug information
+			loan_id_to_debug_info = None
+			customer_balance = loan_balances.CustomerBalance(company_dicts[0], session_maker)
+			day_to_customer_update_dict, err = customer_balance.update(
+				start_date_for_storing_updates=report_date,
+				today=report_date,
+				include_debug_info=True,
+				is_past_date_default_val=False
+			)
+
+			today = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
+
+			customer_update_dict = day_to_customer_update_dict[report_date]
+			success, err = customer_balance.write(customer_update_dict, report_date == today)
+
+			if err:
+				return handler_util.make_error_response(err)
+
+			# When we get debug information, we only allow it for one customer
+			# at a time.
+			update_dict = day_to_customer_update_dict[report_date]
+			loan_id_to_debug_info = update_dict['loan_id_to_debug_info'] 
+
+			resp = {
+				'status': 'OK',
+				'errors': [],
+				'data': {
+					'loan_id_to_debug_info': loan_id_to_debug_info
+				}
+			}
+			return make_response(json.dumps(resp), 200)
+		else:
 			# Trigger an async job when there's no debug info requested.
 			company_ids = [company_dict['id'] for company_dict in company_dicts]
 			cur_date = report_date
@@ -73,7 +104,8 @@ class RunCustomerBalancesView(MethodView):
 				cur_date, days_to_compute_back = date_range_tuples[i]
 				with session_scope(current_app.session_maker) as session:
 					reports_util.set_needs_balance_recomputed(
-						company_ids, cur_date, 
+						company_ids,
+						cur_date, 
 						create_if_missing=True, 
 						days_to_compute_back=days_to_compute_back, 
 						session=session)
@@ -84,34 +116,6 @@ class RunCustomerBalancesView(MethodView):
 					'msg': 'Sent request to server for balances to be recomputed in the background'
 				}
 			}, 200)
-
-		# We only run customer balances for 1 customer and 1 date when fetching debug information
-		loan_id_to_debug_info = None
-		customer_balance = loan_balances.CustomerBalance(company_dicts[0], session_maker)
-		day_to_customer_update_dict, err = customer_balance.update(
-			start_date_for_storing_updates=report_date,
-			today=report_date,
-			include_debug_info=True,
-			is_past_date_default_val=False
-		)
-
-		if err:
-			return handler_util.make_error_response(err)
-
-		# When we get debug information, we only allow it for one customer
-		# at a time.
-		update_dict = day_to_customer_update_dict[report_date]
-		loan_id_to_debug_info = update_dict['loan_id_to_debug_info'] 
-
-		resp = {
-			'status': 'OK',
-			'errors': [],
-			'data': {
-				'loan_id_to_debug_info': loan_id_to_debug_info
-			}
-		}
-		return make_response(json.dumps(resp), 200)
-
 
 handler.add_url_rule(
 	'/run_customer_balances', view_func=RunCustomerBalancesView.as_view(name='run_customer_balances_view'))

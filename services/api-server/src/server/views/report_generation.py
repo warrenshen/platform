@@ -746,7 +746,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 
 			# We need to gather all repayments for the report month to calculate
 			# principal and interest & fee repayment total
-			report_month_first_day = fees_due_util._get_first_day_of_month_date(date_util.date_to_str(report_month_last_day))
+			report_month_first_day = date_util.get_first_day_of_month_date(date_util.date_to_str(report_month_last_day))
 
 			advances = self.get_report_month_advances(session, company_id, report_month_first_day, report_month_last_day)
 			principal_advanced = number_util.to_dollar_format(advances)
@@ -810,7 +810,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 			if err:
 				return loans_to_notify, make_response(json.dumps({ 'status': 'FAILED', 'resp': "Failed to calculate current monthly interest and minimum monthly fee " + repr(err) }))
 			
-			payment_due_date = date_util.date_to_str(fees_due_util._get_first_day_of_month_date(automatic_debit_date))
+			payment_due_date = date_util.date_to_str(date_util.get_first_day_of_month_date(automatic_debit_date))
 			minimum_payment_due, minimum_payment_amount = self.get_minimum_payment_due(cmi_mmf_scores, interest_repayments, interest_fee_balance)
 
 			msc = cast(

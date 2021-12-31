@@ -397,11 +397,20 @@ def create_and_add_account_level_fee(
 	amount: float,
 	originating_payment_id: str,
 	created_by_user_id: str,
-	deposit_date: datetime.date,
 	effective_date: datetime.date,
-	items_covered: model_types.ItemsCoveredDict,
 	session: Session,
 ) -> str:
+	# If account level fee is for a minimum interest fee,
+	# force its effective date to be the last day of the month.
+	if subtype == db_constants.TransactionSubType.MINIMUM_INTEREST_FEE:
+		effective_date = date_util.get_last_day_of_month_date(effective_date.strftime('%m/%d/%Y'))
+		effective_month = effective_date.strftime('%m/%Y')
+		items_covered = cast(model_types.FeeItemsCoveredDict, {
+			'effective_month': effective_month
+		})
+	else:
+		items_covered = cast(model_types.FeeItemsCoveredDict, {})
+
 	return _create_and_add_account_level_transaction(
 		payment_type=db_constants.PaymentType.FEE,
 		company_id=company_id,
@@ -409,7 +418,7 @@ def create_and_add_account_level_fee(
 		amount=amount,
 		originating_payment_id=originating_payment_id,
 		created_by_user_id=created_by_user_id,
-		deposit_date=deposit_date,
+		deposit_date=effective_date,
 		effective_date=effective_date,
 		items_covered=items_covered,
 		session=session,
@@ -421,11 +430,20 @@ def create_and_add_account_level_fee_waiver(
 	amount: float,
 	originating_payment_id: str,
 	created_by_user_id: str,
-	deposit_date: datetime.date,
 	effective_date: datetime.date,
-	items_covered: model_types.ItemsCoveredDict,
 	session: Session,
 ) -> str:
+	# If account level fee waiver is for a minimum interest fee,
+	# force its effective date to be the last day of the month.
+	if subtype == db_constants.TransactionSubType.MINIMUM_INTEREST_FEE:
+		effective_date = date_util.get_last_day_of_month_date(effective_date.strftime('%m/%d/%Y'))
+		effective_month = effective_date.strftime('%m/%Y')
+		items_covered = cast(model_types.FeeItemsCoveredDict, {
+			'effective_month': effective_month
+		})
+	else:
+		items_covered = cast(model_types.FeeItemsCoveredDict, {})
+
 	return _create_and_add_account_level_transaction(
 		payment_type=db_constants.PaymentType.FEE_WAIVER,
 		company_id=company_id,
@@ -433,7 +451,7 @@ def create_and_add_account_level_fee_waiver(
 		amount=amount,
 		originating_payment_id=originating_payment_id,
 		created_by_user_id=created_by_user_id,
-		deposit_date=deposit_date,
+		deposit_date=effective_date,
 		effective_date=effective_date,
 		items_covered=items_covered,
 		session=session,

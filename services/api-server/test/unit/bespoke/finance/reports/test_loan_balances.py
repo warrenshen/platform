@@ -1558,9 +1558,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				amount=1000.01,
 				originating_payment_id=None,
 				created_by_user_id=seed.get_user_id('bank_admin'),
-				deposit_date=date_util.load_date_str('10/01/2020'),
-				effective_date=date_util.load_date_str('10/01/2020'),
-				items_covered=model_types.FeeItemsCoveredDict(),
+				effective_date=date_util.load_date_str('10/01/2020'), # This will create a fee effective on 10/31/2020
 				session=session
 			)
 
@@ -1570,27 +1568,23 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				amount=2000.01,
 				originating_payment_id=None,
 				created_by_user_id=seed.get_user_id('bank_admin'),
-				deposit_date=date_util.load_date_str('11/01/2020'),
-				effective_date=date_util.load_date_str('11/01/2020'),
-				items_covered=model_types.FeeItemsCoveredDict(),
+				effective_date=date_util.load_date_str('11/01/2020'), # This will create a fee effective on 11/30/2020
 				session=session
 			)
 
 			payment_util.create_and_add_account_level_fee_waiver(
 				company_id=company_id,
-				subtype=None,
+				subtype=db_constants.TransactionSubType.MINIMUM_INTEREST_FEE,
 				amount=3000.02,
 				originating_payment_id=None,
 				created_by_user_id=seed.get_user_id('bank_admin'),
-				deposit_date=date_util.load_date_str('11/30/2020'),
 				effective_date=date_util.load_date_str('11/30/2020'),
-				items_covered=model_types.FeeItemsCoveredDict(),
 				session=session
 			)
 
 		tests: List[Dict] = [
 			{
-				'today': '10/30/2020',
+				'today': '10/31/2020',
 				'populate_fn': populate_fn,
 				'expected_loan_updates': [],
 				'expected_summary_update': {
@@ -1612,7 +1606,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'duration': 'monthly'
 					},
 					'account_level_balance_payload': {
-						'fees_total': 1000.01, # Fees and fee waivers tie out
+						'fees_total': 1000.01,
 						'credits_total': 0.0,
 					},
 					'day_volume_threshold_met': None
@@ -1718,9 +1712,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				amount=1000.01,
 				originating_payment_id=advance_tx.payment_id,
 				created_by_user_id=seed.get_user_id('bank_admin'),
-				deposit_date=date_util.load_date_str('10/01/2020'),
 				effective_date=date_util.load_date_str('10/01/2020'),
-				items_covered=model_types.FeeItemsCoveredDict(),
 				session=session
 			)
 
@@ -1730,9 +1722,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				amount=2000.01,
 				originating_payment_id=advance_tx.payment_id,
 				created_by_user_id=seed.get_user_id('bank_admin'),
-				deposit_date=date_util.load_date_str('10/01/2020'),
 				effective_date=date_util.load_date_str('10/01/2020'),
-				items_covered=model_types.FeeItemsCoveredDict(),
 				session=session
 			)
 

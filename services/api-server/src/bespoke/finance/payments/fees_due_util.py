@@ -1,5 +1,6 @@
 import calendar
 import datetime
+import decimal
 import logging
 
 from datetime import timedelta
@@ -36,17 +37,6 @@ AllMonthlyMinimumDueRespDict = TypedDict('AllMonthlyMinimumDueRespDict', {
 	'company_due_to_financial_info': Dict[str, PerCompanyRespInfo]
 })
 
-def _get_first_day_of_month_date(date_str: str) -> datetime.date:
-	# Find the last date of this month
-	chosen_date = date_util.load_date_str(date_str)
-	return datetime.date(chosen_date.year, chosen_date.month, 1)
-
-def _get_last_day_of_month_date(date_str: str) -> datetime.date:
-	# Find the last date of this month
-	chosen_date = date_util.load_date_str(date_str)
-	last_day_of_month = calendar.monthrange(chosen_date.year, chosen_date.month)[1]
-	return datetime.date(chosen_date.year, chosen_date.month, last_day_of_month)
-
 def _is_in_same_month(d1: datetime.date, d2: datetime.date) -> bool:
 	return d1.year == d2.year and d1.month == d2.month
 
@@ -67,9 +57,11 @@ def _should_pay_this_month(fee_payload: models.FeeDict, cur_date: datetime.date)
 		raise errors.Error('Unrecognized fee payload duration "{}"'.format(fee_payload['duration']))
 
 def get_all_minimum_interest_fees_due(
-	date_str: str, session: Session) -> Tuple[AllMonthlyMinimumDueRespDict, errors.Error]:
+	date_str: str,
+	session: Session,
+) -> Tuple[AllMonthlyMinimumDueRespDict, errors.Error]:
 	
-	last_day_of_month_date = _get_last_day_of_month_date(date_str)
+	last_day_of_month_date = date_util.get_last_day_of_month_date(date_str)
 
 	company_settings_list = cast(
 		List[models.CompanySettings],
@@ -107,7 +99,6 @@ def get_all_minimum_interest_fees_due(
 
 	for financial_summary in financial_summaries:
 		cur_company_id = str(financial_summary.company_id)
-		company_dict = company_id_to_dict[cur_company_id]
 
 		if not financial_summary.minimum_monthly_payload:
 			continue
@@ -130,14 +121,17 @@ def get_all_minimum_interest_fees_due(
 	), None
 
 def create_minimum_due_fee_for_customers(
-	date_str: str, minimum_due_resp: AllMonthlyMinimumDueRespDict,
-	user_id: str, session: Session) -> Tuple[bool, errors.Error]:
+	date_str: str,
+	minimum_due_resp: AllMonthlyMinimumDueRespDict,
+	user_id: str,
+	session: Session,
+) -> Tuple[bool, errors.Error]:
 
 	if not minimum_due_resp['company_due_to_financial_info']:
 		return None, errors.Error('No companies provided to book minimum due fees')
 
 	selected_date = date_util.load_date_str(date_str)
-	effective_date = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
+	last_day_of_month_date = date_util.get_last_day_of_month_date(date_str)
 
 	# Find minimum fee payments which were booked this month
 	effective_month = selected_date.strftime('%m/%Y')
@@ -168,11 +162,7 @@ def create_minimum_due_fee_for_customers(
 			amount=amount_due,
 			originating_payment_id=None,
 			created_by_user_id=user_id,
-			deposit_date=effective_date,
-			effective_date=effective_date,
-			items_covered={
-				'effective_month': effective_month
-			},
+			effective_date=last_day_of_month_date,
 			session=session,
 		)
 
@@ -180,11 +170,13 @@ def create_minimum_due_fee_for_customers(
 
 
 def get_all_month_end_payments(
-	date_str: str, session: Session) -> Tuple[AllMonthlyDueRespDict, errors.Error]:
+	date_str: str,
+	session: Session,
+) -> Tuple[AllMonthlyDueRespDict, errors.Error]:
 
 	selected_date = date_util.load_date_str(date_str)
-	first_day_of_month_date = _get_first_day_of_month_date(date_str)
-	last_day_of_month_date = _get_last_day_of_month_date(date_str)
+	first_day_of_month_date = date_util.get_first_day_of_month_date(date_str)
+	last_day_of_month_date = date_util.get_last_day_of_month_date(date_str)
 
 	company_settings_list = cast(
 		List[models.CompanySettings],
@@ -235,18 +227,33 @@ def get_all_month_end_payments(
 
 	company_id_to_financial_info = {}
 
-	# Find minimum fee payments which were booked this month
+	effective_month = selected_date.strftime('%m/%Y')
+
+	# Find minimum interest fees which were booked this month
 	booked_minimum_fees = cast(
 		List[models.Payment],
 		session.query(models.Payment).filter(
 			models.Payment.type == db_constants.PaymentType.FEE
 		).filter(models.Payment.items_covered == {
-			'effective_month': selected_date.strftime('%m/%Y')
+			'effective_month': effective_month
+		}).all())
+
+	# Find minimum interest fee waivers which were booked this month
+	booked_minimum_fee_waivers = cast(
+		List[models.Payment],
+		session.query(models.Payment).filter(
+			models.Payment.type == db_constants.PaymentType.FEE_WAIVER
+		).filter(models.Payment.items_covered == {
+			'effective_month': effective_month
 		}).all())
 
 	company_id_to_fee = {}
-	for payment in booked_minimum_fees:
-		company_id_to_fee[str(payment.company_id)] = payment
+	for fee in booked_minimum_fees:
+		company_id_to_fee[str(fee.company_id)] = fee
+
+	company_id_to_fee_waiver = {}
+	for fee_waiver in booked_minimum_fee_waivers:
+		company_id_to_fee_waiver[str(fee_waiver.company_id)] = fee_waiver
 
 	for financial_summary in financial_summaries:
 		cur_company_id = str(financial_summary.company_id)
@@ -266,10 +273,14 @@ def get_all_month_end_payments(
 		fee_amount = float(financial_summary.total_outstanding_interest) if is_loc_customer else 0.0
 
 		booked_fee = company_id_to_fee.get(cur_company_id)
-		owes_fee = booked_fee is not None
+		booked_fee_waiver = company_id_to_fee_waiver.get(cur_company_id)
+
+		amount_after_waiver = (booked_fee.amount if booked_fee else decimal.Decimal(0.0)) - (booked_fee_waiver.amount if booked_fee_waiver else decimal.Decimal(0.0))
+		owes_fee = amount_after_waiver > 0
 
 		if owes_fee:
-			fee_amount += float(booked_fee.amount)
+			fee_amount += float(amount_after_waiver)
+			minimum_monthly_payload['amount_short'] = float(amount_after_waiver)
 		else:
 			# Amount short means how much the customer should pay this month.
 			# In the quarterly and annual case, they may not owe this minimum fee,
@@ -296,8 +307,11 @@ def get_all_month_end_payments(
 	), None
 
 def create_month_end_payments_for_customers(
-	date_str: str, minimum_due_resp: AllMonthlyDueRespDict,
-	user_id: str, session: Session) -> Tuple[bool, errors.Error]:
+	date_str: str,
+	minimum_due_resp: AllMonthlyDueRespDict,
+	user_id: str,
+	session: Session,
+) -> Tuple[bool, errors.Error]:
 
 	if not minimum_due_resp['company_due_to_financial_info']:
 		return None, errors.Error('No companies provided to book minimum due fees')

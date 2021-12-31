@@ -231,10 +231,7 @@ def fund_loans_with_advance(
 						amount=cur_wire_fee,
 						originating_payment_id=payment_id,
 						created_by_user_id=bank_admin_user_id,
-						deposit_date=settlement_date,
 						effective_date=settlement_date,
-						items_covered=model_types.FeeItemsCoveredDict(
-						),
 						session=session
 					)
 

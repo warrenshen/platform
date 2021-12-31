@@ -708,7 +708,7 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 			add_payments_for_company(session, company_id)
 
 			report_month_last_day = date_util.get_report_month_last_day(TODAY.date())
-			report_month_first_day = fees_due_util._get_first_day_of_month_date(date_util.date_to_str(report_month_last_day))
+			report_month_first_day = date_util.get_first_day_of_month_date(date_util.date_to_str(report_month_last_day))
 			principal_repayments, interest_repayments, fee_repayments = loc_summary.get_report_month_repayments(
 				session,
 				company_id,
@@ -730,7 +730,7 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 			add_loans_for_loc_summary(session, company_id)
 
 			report_month_last_day = date_util.get_report_month_last_day(TODAY)
-			report_month_first_day = fees_due_util._get_first_day_of_month_date(date_util.date_to_str(report_month_last_day))
+			report_month_first_day = date_util.get_first_day_of_month_date(date_util.date_to_str(report_month_last_day))
 			advanced_amount = loc_summary.get_report_month_advances(
 				session,
 				company_id,
@@ -753,7 +753,7 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 			contract, err = contract_util.get_active_contract_by_company_id(company_id, session)
 
 			report_month_last_day = date_util.get_report_month_last_day(TODAY.date())
-			report_month_first_day = fees_due_util._get_first_day_of_month_date(date_util.date_to_str(report_month_last_day))
+			report_month_first_day = date_util.get_first_day_of_month_date(date_util.date_to_str(report_month_last_day))
 			previous_report_month_last_day = date_util.get_report_month_last_day(report_month_last_day)
 
 			cmi_or_mmf_title, cmi_or_mmf_amount, cmi_mmf_scores, err = loc_summary.get_cmi_and_mmf(

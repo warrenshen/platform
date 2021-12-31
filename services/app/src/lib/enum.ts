@@ -347,6 +347,18 @@ export const AllFeeTypes = [
   FeeTypeEnum.CustomFee,
 ];
 
+export const FeeWaiverTypeToLabel = {
+  [FeeTypeEnum.MinimumInterestFee]: "Minimum Interest Fee Waiver",
+  [FeeTypeEnum.WireFee]: "Wire Fee Waiver",
+  [FeeTypeEnum.CustomFee]: "Custom Fee Waiver",
+};
+
+export const AllFeeWaiverTypes = [
+  FeeTypeEnum.MinimumInterestFee,
+  FeeTypeEnum.WireFee,
+  FeeTypeEnum.CustomFee,
+];
+
 export enum FeatureFlagEnum {
   CREATE_PURCHASE_ORDER_FROM_METRC_TRANSFERS = "create_purchase_order_from_metrc_transfers",
 }

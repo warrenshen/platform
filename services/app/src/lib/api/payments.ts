@@ -67,7 +67,6 @@ export type CreateAccountLevelFeeReq = {
     company_id: Companies["id"];
     subtype: string;
     amount: number;
-    deposit_date: string;
     settlement_date: string;
   };
 };
@@ -94,7 +93,6 @@ export type CreateAccountLevelFeeWaiverReq = {
   variables: {
     company_id: Companies["id"];
     amount: number;
-    deposit_date: string;
     settlement_date: string;
   };
 };
