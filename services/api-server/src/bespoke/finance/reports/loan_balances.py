@@ -567,7 +567,7 @@ class CustomerBalance(object):
 			financial_summary.total_outstanding_fees = decimal.Decimal(number_util.round_currency(summary_update['total_outstanding_fees']))
 			financial_summary.total_principal_in_requested_state = decimal.Decimal(number_util.round_currency(summary_update['total_principal_in_requested_state']))
 			financial_summary.total_amount_to_pay_interest_on = decimal.Decimal(number_util.round_currency(summary_update['total_amount_to_pay_interest_on']))
-			financial_summary.interest_accrued_today = decimal.Decimal(number_util.round_currency(summary_update['total_interest_accrued_today']))
+			financial_summary.interest_accrued_today = decimal.Decimal(number_util.round_currency_to_five_digits(summary_update['total_interest_accrued_today']))
 			financial_summary.total_interest_paid_adjustment_today = decimal.Decimal(number_util.round_currency(summary_update['total_interest_paid_adjustment_today']))
 			financial_summary.total_fees_paid_adjustment_today = decimal.Decimal(number_util.round_currency(summary_update['total_fees_paid_adjustment_today']))
 			financial_summary.available_limit = decimal.Decimal(number_util.round_currency(summary_update['available_limit']))
