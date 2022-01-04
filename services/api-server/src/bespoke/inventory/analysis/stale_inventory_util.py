@@ -55,24 +55,23 @@ def get_shelf_life_in_months(metrc_product_category_name: str, params: AnalysisP
 			master_product_category
 	]
 
-def is_packaged_date_stale(packaged_date: datetime.date, shelf_life_in_months: int) -> bool:
+def is_packaged_date_stale(packaged_date: datetime.date, shelf_life_in_months: int, today: datetime.date) -> bool:
 	if shelf_life_in_months == 0:
 		return False
 	
 	if shelf_life_in_months == None:
 		return None
-	
-	today = pandas.Timestamp.today()
+
 	months_difference = (today.year - packaged_date.year) * 12 + (today.month - packaged_date.month)
 	return shelf_life_in_months < months_difference
 
-def is_package_stale(active_inventory_package_record: InventoryPackageDict, params: AnalysisParamsDict) -> bool:
+def is_package_stale(active_inventory_package_record: InventoryPackageDict, params: AnalysisParamsDict, today: datetime.date) -> bool:
 	product_category_name = active_inventory_package_record['product_category_name']
 	packaged_date = active_inventory_package_record['packaged_date']
 
 	master_product_category = get_master_product_category(product_category_name)
 	shelf_life_in_months = get_shelf_life_in_months(product_category_name, params)
-	return is_packaged_date_stale(parse_to_date(packaged_date), shelf_life_in_months)
+	return is_packaged_date_stale(parse_to_date(packaged_date), shelf_life_in_months, today)
 		
 def _write_products_by_profit(d: Download, ctx: AnalysisContext) -> None:
 
@@ -186,7 +185,8 @@ def _write_products_by_profit(d: Download, ctx: AnalysisContext) -> None:
 def compute_stale_inventory(
 	d: Download,
 	ctx: AnalysisContext,
-	params: AnalysisParamsDict) -> None:
+	params: AnalysisParamsDict,
+	today: datetime.date) -> None:
 	stale_count = 0
 	unknown_count = 0
 	total_count = 0
@@ -214,7 +214,7 @@ def compute_stale_inventory(
 			print('Got an invalid quantity', package_type, product_category_name, quantity)
 			continue
 
-		is_stale = is_package_stale(active_inventory_package_record, params)
+		is_stale = is_package_stale(active_inventory_package_record, params, today)
 
 		if is_stale:
 			stale_count += 1

@@ -15,6 +15,7 @@ from datetime import timedelta
 from collections import OrderedDict
 from mypy_extensions import TypedDict
 
+from bespoke.date import date_util
 from bespoke.db.db_constants import DeliveryType
 from bespoke.excel import excel_writer
 from bespoke.excel.excel_writer import CellValue
@@ -405,7 +406,8 @@ def compare_inventory_dataframes(
 	computed: pandas.DataFrame, 
 	actual: pandas.DataFrame, 
 	params: AnalysisParamsDict,
-	options: CompareOptionsDict) -> CompareInventoryResultsDict:
+	options: CompareOptionsDict,
+	today: datetime.date) -> CompareInventoryResultsDict:
 	package_id_to_computed_row = {}
 	unseen_package_ids = set([])
 	all_computed_package_ids_ever_seen = set([])
@@ -473,7 +475,7 @@ def compare_inventory_dataframes(
 			unseen_package_ids.remove(row['package_id'])
 			num_matching_packages += 1
 			
-			is_stale = stale_inventory_util.is_package_stale(row, params)
+			is_stale = stale_inventory_util.is_package_stale(row, params, today)
 
 			# Only the computed row as the current value associated with the actual package
 			# by using pricing data associated with the computed row 
@@ -633,7 +635,8 @@ def compare_computed_vs_actual_inventory(
 	computed: pandas.DataFrame,
 	actual: pandas.DataFrame,
 	params: AnalysisParamsDict,
-	compare_options: CompareOptionsDict) -> CompareInventoryResultsDict:
+	compare_options: CompareOptionsDict,
+	today: datetime.date) -> CompareInventoryResultsDict:
 	from_packages_inventory_dataframe = actual[[
 			'package_id',
 			'packaged_date',
@@ -648,7 +651,8 @@ def compare_computed_vs_actual_inventory(
 			computed=computed,
 			actual=from_packages_inventory_dataframe,
 			params=params,
-			options=compare_options
+			options=compare_options,
+			today=today
 	)
 	return res
 
@@ -794,6 +798,7 @@ def create_inventory_xlsx(
 				company_incoming_transfer_packages_dataframe=d.incoming_transfer_packages_dataframe,
 				inventory_date=inventory_date_str,
 				params=params,
+				today=date_util.load_date_str(inventory_date_str),
 				using_nb=using_nb
 		)
 		inventory_valuations.append(valuation_res['total_valuation'])

@@ -1,3 +1,4 @@
+import datetime
 import logging
 import math
 import pandas
@@ -21,6 +22,7 @@ def get_inventory_valuation(
 	inventory_packages_dataframe: pandas.DataFrame,
 	incoming_transfer_packages_dataframe: pandas.DataFrame,
 	params: AnalysisParamsDict,
+	today: datetime.date
 ) -> InventoryValuationDict:
 	inventory_with_incoming_transfer_packages_dataframe = inventory_packages_dataframe \
 		.astype({'package_id': 'int64'}) \
@@ -31,7 +33,9 @@ def get_inventory_valuation(
 			suffixes=('', '_r')
 		)
 
-	inventory_with_incoming_transfer_packages_dataframe['packaged_date'] = inventory_with_incoming_transfer_packages_dataframe['arrived_date']
+	if 'arrived_date' in inventory_with_incoming_transfer_packages_dataframe.columns:
+		inventory_with_incoming_transfer_packages_dataframe['packaged_date'] = inventory_with_incoming_transfer_packages_dataframe['arrived_date']
+	
 	inventory_with_cost_records = inventory_with_incoming_transfer_packages_dataframe.to_dict('records')
 
 	total_valuation_cost = 0.0
@@ -49,7 +53,8 @@ def get_inventory_valuation(
 		cur_valuation_cost = float(current_quantity) * (incoming_receiver_price / incoming_received_quantity)
 
 		total_valuation_cost += cur_valuation_cost
-		if not stale_inventory_util.is_package_stale(cast(Any, inventory_with_cost_record), params):
+		if not stale_inventory_util.is_package_stale(
+			cast(Any, inventory_with_cost_record), params, today):
 			total_fresh_valuation_cost += cur_valuation_cost
 
 	return InventoryValuationDict(
@@ -62,6 +67,7 @@ def get_total_valuation_for_date(
 	company_incoming_transfer_packages_dataframe: pandas.DataFrame,
 	inventory_date: str,
 	params: AnalysisParamsDict,
+	today: datetime.date,
 	using_nb: bool) -> InventoryValuationDict:
 
 	in_inventory_computed_inventory_packages_dataframe = computed_inventory_packages_dataframe[computed_inventory_packages_dataframe['is_in_inventory'] == 'true']
@@ -69,7 +75,8 @@ def get_total_valuation_for_date(
 	valuation_res = get_inventory_valuation(
 		inventory_packages_dataframe=in_inventory_computed_inventory_packages_dataframe,
 		incoming_transfer_packages_dataframe=company_incoming_transfer_packages_dataframe,
-		params=params
+		params=params,
+		today=today
 	)
 
 	if using_nb:

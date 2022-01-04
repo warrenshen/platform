@@ -141,7 +141,8 @@ def _run_analysis_with_params(
 			compare_options={
 					'num_errors_to_show': 10,
 					'accept_computed_when_sold_out': True
-			}
+			},
+			today=today_date
 	)
 	after = time.time()
 	ctx.log_timing(f'Took {round(after - before, 2)} seconds for compare_computed_vs_actual_inventory')
@@ -158,7 +159,7 @@ def _run_analysis_with_params(
 	ctx.log_timing(f'Took {round(after - before, 2)} seconds for create_cogs_summary')
 
 	before = time.time()
-	stale_inventory_util.compute_stale_inventory(d, ctx, params)
+	stale_inventory_util.compute_stale_inventory(d, ctx, params, today=today_date)
 	after = time.time()
 	ctx.log_timing(f'Took {round(after - before, 2)} seconds for compute_stale_inventory')
 

@@ -191,7 +191,8 @@ class TestCompareInventoryDataframes(unittest.TestCase):
 			actual=inventory_test_helper.get_dataframe(
 				test['actual_rows'], util.get_inventory_column_names() + extra_cols),
 			params=get_default_params(),
-			options=test['options']
+			options=test['options'],
+			today=datetime.datetime.today()
 		)
 		expected = test['expected_res']
 		actual_res['computed_extra_package_ids'].sort()
