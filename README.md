@@ -35,7 +35,11 @@ sudo rm -rf /Library/Developer/CommandLineTools
 sudo xcode-select --install
 ```
 
-3. Follow instructions [here](https://docs.google.com/document/d/1fIoWutW-oksJabg2mDH3E7Ot4Vc1XMavUblGC0D0F-4/edit)
+3. Adjust shell resource file
+
+Please refer to `reference.zshrc` in the root of this project for changes you will need for your own `~/.zshrc` file. This file was originally created for local development on an M1 Macbook.
+
+4. Follow instructions [here](https://docs.google.com/document/d/1fIoWutW-oksJabg2mDH3E7Ot4Vc1XMavUblGC0D0F-4/edit)
 
 ## Running
 
