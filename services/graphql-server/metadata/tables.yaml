@@ -4374,6 +4374,17 @@
 - table:
     schema: public
     name: sync_pipelines
+  insert_permissions:
+  - role: bank_admin
+    permission:
+      check: {}
+      columns:
+      - internal_state
+      - params
+      - name
+      - status
+      - created_at
+      - updated_at
   select_permissions:
   - role: bank_admin
     permission:
@@ -4410,18 +4421,6 @@
       - id
       filter: {}
       check: null
-  insert_permissions:
-  - role: bank_admin
-    permission:
-      columns:
-      - internal_state
-      - params
-      - name
-      - status
-      - created_at
-      - updated_at
-      filter: {}
-      check: {}
 - table:
     schema: public
     name: transactions
