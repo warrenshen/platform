@@ -9,7 +9,11 @@ import {
   useGetOpenEbbaApplicationsByCategoryQuery,
 } from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
-import { ActionType, ClientSurveillanceCategoryEnum } from "lib/enum";
+import {
+  ActionType,
+  ClientSurveillanceCategoryEnum,
+  ProductTypeEnum,
+} from "lib/enum";
 import { filter } from "lodash";
 import { useMemo, useState } from "react";
 
@@ -94,6 +98,10 @@ export default function EbbaApplicationsFinancialReportsTab() {
                     refetch();
                     handleClose();
                   }}
+                  productType={
+                    selectedEbbaApplication?.company?.contract
+                      ?.product_type as ProductTypeEnum
+                  }
                 />
               )}
             />

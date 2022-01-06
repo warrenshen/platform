@@ -62,6 +62,10 @@ query GetOpenEbbaApplicationsByCategory($category: String!) {
     company {
       id
       name
+      contract {
+        id
+        product_type
+      }
     }
     ebba_application_files {
       ebba_application_id
@@ -90,6 +94,10 @@ query GetClosedEbbaApplications {
     company {
       id
       name
+      contract {
+        id
+        product_type
+      }
     }
     ebba_application_files {
       ebba_application_id

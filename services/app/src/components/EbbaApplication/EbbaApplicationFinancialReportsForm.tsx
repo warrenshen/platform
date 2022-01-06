@@ -22,7 +22,8 @@ import {
   formatDateStringAsMonth,
   previousXMonthsCertificationDates,
 } from "lib/date";
-import { FileTypeEnum } from "lib/enum";
+import { FileTypeEnum, ProductTypeEnum } from "lib/enum";
+import { isDispensaryFinancingProductType } from "lib/settings";
 import { useMemo } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -44,6 +45,7 @@ interface Props {
   setEbbaApplicationFiles: (
     ebbaApplicationFiles: EbbaApplicationFilesInsertInput[]
   ) => void;
+  productType: ProductTypeEnum;
 }
 
 export default function EbbaApplicationFinancialReportsForm({
@@ -55,6 +57,7 @@ export default function EbbaApplicationFinancialReportsForm({
   ebbaApplicationFiles,
   setEbbaApplication,
   setEbbaApplicationFiles,
+  productType,
 }: Props) {
   const classes = useStyles();
 
@@ -151,26 +154,49 @@ export default function EbbaApplicationFinancialReportsForm({
               Please upload the following required financial reports:
             </Typography>
           </Box>
-          <Box mt={0.5}>
-            <Typography variant="body1">
-              {`Balance Sheet as of: ${selectedCertificationDate}`}
-            </Typography>
-          </Box>
-          <Box mt={0.5}>
-            <Typography variant="body1">
-              {`Monthly Income Statement as of: ${selectedCertificationDate}`}
-            </Typography>
-          </Box>
-          <Box mt={0.5}>
-            <Typography variant="body1">
-              {`A/R Aging Summary Report as of: ${selectedCertificationDate}`}
-            </Typography>
-          </Box>
-          <Box mt={0.5}>
-            <Typography variant="body1">
-              {`A/P Aging Summary Report as of: ${selectedCertificationDate}`}
-            </Typography>
-          </Box>
+          {productType &&
+          isDispensaryFinancingProductType(productType as ProductTypeEnum) ? (
+            <>
+              <Box mt={0.5}>
+                <Typography variant="body1">
+                  {`POS Data as of: ${selectedCertificationDate}`}
+                </Typography>
+              </Box>
+              <Box mt={0.5}>
+                <Typography variant="body1">
+                  {`Inventory Report as of: ${selectedCertificationDate}`}
+                </Typography>
+              </Box>
+              <Box mt={0.5}>
+                <Typography variant="body1">
+                  {`A/P Aging Summary Report as of: ${selectedCertificationDate}`}
+                </Typography>
+              </Box>
+            </>
+          ) : (
+            <>
+              <Box mt={0.5}>
+                <Typography variant="body1">
+                  {`Balance Sheet as of: ${selectedCertificationDate}`}
+                </Typography>
+              </Box>
+              <Box mt={0.5}>
+                <Typography variant="body1">
+                  {`Monthly Income Statement as of: ${selectedCertificationDate}`}
+                </Typography>
+              </Box>
+              <Box mt={0.5}>
+                <Typography variant="body1">
+                  {`A/R Aging Summary Report as of: ${selectedCertificationDate}`}
+                </Typography>
+              </Box>
+              <Box mt={0.5}>
+                <Typography variant="body1">
+                  {`A/P Aging Summary Report as of: ${selectedCertificationDate}`}
+                </Typography>
+              </Box>
+            </>
+          )}
         </Box>
         <FileUploader
           companyId={companyId}

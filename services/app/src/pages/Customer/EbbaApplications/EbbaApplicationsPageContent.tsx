@@ -112,6 +112,7 @@ export default function CustomerEbbaApplicationsPageContent({
                     refetch();
                     handleClose();
                   }}
+                  productType={productType}
                 />
               )
             }
@@ -197,6 +198,7 @@ export default function CustomerEbbaApplicationsPageContent({
                         refetch();
                         handleClose();
                       }}
+                      productType={productType}
                     />
                   )
                 }

@@ -42,6 +42,12 @@ export function isPayorsTabVisible(productType: ProductTypeEnum | null) {
   );
 }
 
+export function isDispensaryFinancingProductType(
+  productType: ProductTypeEnum | null
+) {
+  return productType === ProductTypeEnum.DispensaryFinancing;
+}
+
 export function isInventoryFinancingProductType(
   productType: ProductTypeEnum | null
 ) {

@@ -20,7 +20,11 @@ import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { submitEbbaApplicationMutation } from "lib/api/ebbaApplications";
 import { computeEbbaApplicationExpiresAt } from "lib/date";
-import { ActionType, ClientSurveillanceCategoryEnum } from "lib/enum";
+import {
+  ActionType,
+  ClientSurveillanceCategoryEnum,
+  ProductTypeEnum,
+} from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useState } from "react";
 
@@ -29,6 +33,7 @@ interface Props {
   companyId: Companies["id"];
   ebbaApplicationId: EbbaApplications["id"] | null;
   handleClose: () => void;
+  productType: ProductTypeEnum;
 }
 
 export default function CreateUpdateFinancialReportsCertificationModal({
@@ -36,6 +41,7 @@ export default function CreateUpdateFinancialReportsCertificationModal({
   companyId,
   ebbaApplicationId = null,
   handleClose,
+  productType,
 }: Props) {
   const snackbar = useSnackbar();
 
@@ -215,6 +221,7 @@ export default function CreateUpdateFinancialReportsCertificationModal({
         ebbaApplicationFiles={ebbaApplicationFiles}
         setEbbaApplication={setEbbaApplication}
         setEbbaApplicationFiles={setEbbaApplicationFiles}
+        productType={productType}
       />
       <Box mt={4}>
         <Alert severity="warning">
