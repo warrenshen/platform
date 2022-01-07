@@ -12,7 +12,7 @@ from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import db_constants, models, model_types, models_util
 from bespoke.db.models import session_scope
-from bespoke.finance import contract_util, number_util
+from bespoke.finance import contract_util, number_util, financial_summary_util
 from bespoke.finance.loans import sibling_util
 from bespoke.finance.payments import payment_util
 from mypy_extensions import TypedDict
@@ -89,10 +89,33 @@ def fund_loans_with_advance(
 		if len(loans) != len(loan_ids):
 			raise errors.Error('Not all loans were found to fund in database', details=err_details)
 
+		company_ids = set([])
+		for loan in loans:
+			company_ids.add(loan.company_id)
+
+		company_id_to_available_limit = {}
+
+		for company_id in company_ids:
+			fin_summary = financial_summary_util.get_latest_financial_summary(company_id, session)
+			if not fin_summary:
+				raise errors.Error('Financial summary missing for company {}. Cannot approve loan'.format(company_id))
+			if fin_summary.needs_recompute is True:
+				raise errors.Error('The latest financials for this company are currently being recomputed. Please resubmit your request shortly.')
+			company_id_to_available_limit[company_id] = fin_summary.available_limit
+
 		already_funded_loan_ids: List[str] = []
 		already_set_dates_loan_ids: List[str] = []
 		not_approved_loan_ids: List[str] = []
+		all_loans_total = 0
 		for loan in loans:
+			# Check whether a customer has gone over their allotted amount of principal.
+			available_limit = company_id_to_available_limit[loan.company_id]
+
+			all_loans_total += int(loan.amount)
+			if loan.amount > available_limit:
+				raise errors.Error('Loan amount requested exceeds the maximum limit for company {}. Loan amount: {}. Remaining limit: {}'.format(
+					loan.company_id, loan.amount, available_limit))
+
 			loan_id = str(loan.id)
 			if loan.funded_at:
 				already_funded_loan_ids.append(loan_id)
@@ -102,6 +125,10 @@ def fund_loans_with_advance(
 
 			if not loan.approved_at:
 				not_approved_loan_ids.append(loan_id)
+
+		if all_loans_total > available_limit:
+			raise errors.Error('Total amount across all loans in request exceeds the maximum limit for company {}. Loan total: {}. Remaining limit: {}'.format(
+					loan.company_id, all_loans_total, available_limit))
 
 		if not_approved_loan_ids:
 			raise errors.Error('These loans are not approved yet. Please remove them from the advances process: {}'.format(

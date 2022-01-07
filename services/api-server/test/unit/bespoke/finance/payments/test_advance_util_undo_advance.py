@@ -18,6 +18,7 @@ from bespoke.finance.types import payment_types
 from fastapi_utils.guid_type import GUID
 
 INTEREST_RATE = 0.002 # 0.2%
+TODAY = datetime.date.today()
 
 def _get_late_fee_structure() -> str:
 	return json.dumps({
@@ -114,6 +115,25 @@ class TestUndoAdvance(db_unittest.TestCase):
 			session.flush()
 			loan_id = str(loan.id)
 			loan_ids = [loan_id]
+
+			financial_summary = models.FinancialSummary(
+				date=TODAY,
+				company_id=company_id,
+				total_limit=decimal.Decimal(100.0),
+				adjusted_total_limit=decimal.Decimal(100.0),
+				total_outstanding_principal=decimal.Decimal(50.0),
+				total_outstanding_principal_for_interest=decimal.Decimal(60.0),
+				total_outstanding_interest=decimal.Decimal(12.50),
+				total_outstanding_fees=decimal.Decimal(5.25),
+				total_principal_in_requested_state=decimal.Decimal(3.15),
+				available_limit=decimal.Decimal(1000.00),
+				interest_accrued_today=decimal.Decimal(2.1),
+				minimum_monthly_payload={},
+				account_level_balance_payload={},
+				product_type="Inventory Financing"
+			)
+			session.add(financial_summary)
+			session.flush()
 
 		bank_admin_user_id = seed.get_user_id('bank_admin', index=0)
 

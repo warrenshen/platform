@@ -14,6 +14,7 @@ from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest, test_helper
 
+TODAY = datetime.date.today()
 
 def _get_default_contract(
 	use_preceeding_business_day: bool,
@@ -92,6 +93,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		vendors = test.get("vendors", [])
 		purchase_orders = test.get("purchase_orders", [])
 		line_of_credits = test.get("line_of_credits", [])
+		financial_summaries = test.get("financial_summaries", [])
 		bank_admin_user_id = seed.get_user_id('bank_admin')
 
 		company_ids = []
@@ -158,6 +160,27 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					id=line_of_credit["id"],
 				)
 				session.add(loc)
+				session.flush()
+
+			for summary in financial_summaries:
+				local_company_index = summary["company_index"] if "company_index" in summary else 0
+				fs = models.FinancialSummary(
+					date=summary["date"],
+					company_id=seed.get_company_id('company_admin', index=local_company_index),
+					total_limit=summary["total_limit"],
+					adjusted_total_limit=summary["adjusted_total_limit"],
+					total_outstanding_principal=summary["total_outstanding_principal"],
+					total_outstanding_principal_for_interest=summary["total_outstanding_principal_for_interest"],
+					total_outstanding_interest=summary["total_outstanding_interest"],
+					total_outstanding_fees=summary["total_outstanding_fees"],
+					total_principal_in_requested_state=summary["total_principal_in_requested_state"],
+					available_limit=summary["available_limit"],
+					interest_accrued_today=summary["interest_accrued_today"],
+					minimum_monthly_payload=summary["minimum_monthly_payload"],
+					account_level_balance_payload=summary["account_level_balance_payload"],
+					product_type=summary["product_type"]
+				)
+				session.add(fs)
 				session.flush()
 
 			for i in range(len(input_loans)):
@@ -452,6 +475,24 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'subtype': 'wire_fee'
 					}
 				],
+				'financial_summaries': [
+					{
+						'date': TODAY,
+						'company_id': 'placeholder', # later filled by seed function inside run_tests
+						'total_limit': decimal.Decimal(100.0),
+						'adjusted_total_limit': decimal.Decimal(100.0),
+						'total_outstanding_principal': decimal.Decimal(50.0),
+						'total_outstanding_principal_for_interest': decimal.Decimal(60.0),
+						'total_outstanding_interest': decimal.Decimal(12.50),
+						'total_outstanding_fees': decimal.Decimal(5.25),
+						'total_principal_in_requested_state': decimal.Decimal(3.15),
+						'available_limit': decimal.Decimal(1000.00),
+						'interest_accrued_today': decimal.Decimal(2.1),
+						'minimum_monthly_payload': {},
+						'account_level_balance_payload': {},
+						'product_type': 'Inventory Financing'
+					}
+				]
 			}
 		]
 
@@ -559,6 +600,24 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'type': 'advance'
 					}
 				],
+				'financial_summaries': [
+					{
+						'date': TODAY,
+						'company_id': 'placeholder', # later filled by seed function inside run_tests
+						'total_limit': decimal.Decimal(100.0),
+						'adjusted_total_limit': decimal.Decimal(100.0),
+						'total_outstanding_principal': decimal.Decimal(50.0),
+						'total_outstanding_principal_for_interest': decimal.Decimal(60.0),
+						'total_outstanding_interest': decimal.Decimal(12.50),
+						'total_outstanding_fees': decimal.Decimal(5.25),
+						'total_principal_in_requested_state': decimal.Decimal(3.15),
+						'available_limit': decimal.Decimal(1000.00),
+						'interest_accrued_today': decimal.Decimal(2.1),
+						'minimum_monthly_payload': {},
+						'account_level_balance_payload': {},
+						'product_type': 'Inventory Financing'
+					}
+				]
 			}
 		]
 
@@ -743,6 +802,42 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'type': 'fee',
 						'subtype': 'wire_fee'
 					}
+				],
+				'financial_summaries': [
+					{
+						'date': TODAY,
+						'company_id': 'placeholder', # later filled by seed function inside run_tests
+						'total_limit': decimal.Decimal(100.0),
+						'adjusted_total_limit': decimal.Decimal(100.0),
+						'total_outstanding_principal': decimal.Decimal(50.0),
+						'total_outstanding_principal_for_interest': decimal.Decimal(60.0),
+						'total_outstanding_interest': decimal.Decimal(12.50),
+						'total_outstanding_fees': decimal.Decimal(5.25),
+						'total_principal_in_requested_state': decimal.Decimal(3.15),
+						'available_limit': decimal.Decimal(10000.00),
+						'interest_accrued_today': decimal.Decimal(2.1),
+						'minimum_monthly_payload': {},
+						'account_level_balance_payload': {},
+						'product_type': 'Inventory Financing',
+						'company_index': 0,
+					},
+					{
+						'date': TODAY,
+						'company_id': 'placeholder', # later filled by seed function inside run_tests
+						'total_limit': decimal.Decimal(100.0),
+						'adjusted_total_limit': decimal.Decimal(100.0),
+						'total_outstanding_principal': decimal.Decimal(50.0),
+						'total_outstanding_principal_for_interest': decimal.Decimal(60.0),
+						'total_outstanding_interest': decimal.Decimal(12.50),
+						'total_outstanding_fees': decimal.Decimal(5.25),
+						'total_principal_in_requested_state': decimal.Decimal(3.15),
+						'available_limit': decimal.Decimal(10000.00),
+						'interest_accrued_today': decimal.Decimal(2.1),
+						'minimum_monthly_payload': {},
+						'account_level_balance_payload': {},
+						'product_type': 'Inventory Financing',
+						'company_index': 1,
+					}
 				]
 			}
 		]
@@ -862,6 +957,24 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'subtype': 'wire_fee'
 					}
 				],
+				'financial_summaries': [
+					{
+						'date': TODAY,
+						'company_id': 'placeholder', # later filled by seed function inside run_tests
+						'total_limit': decimal.Decimal(100.0),
+						'adjusted_total_limit': decimal.Decimal(100.0),
+						'total_outstanding_principal': decimal.Decimal(50.0),
+						'total_outstanding_principal_for_interest': decimal.Decimal(60.0),
+						'total_outstanding_interest': decimal.Decimal(12.50),
+						'total_outstanding_fees': decimal.Decimal(5.25),
+						'total_principal_in_requested_state': decimal.Decimal(3.15),
+						'available_limit': decimal.Decimal(1000.00),
+						'interest_accrued_today': decimal.Decimal(2.1),
+						'minimum_monthly_payload': {},
+						'account_level_balance_payload': {},
+						'product_type': 'Inventory Financing'
+					}
+				]
 			}
 		]
 
@@ -929,6 +1042,24 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'loan_index': 0,
 						'payment_index': 0,
 						'type': 'advance'
+					}
+				],
+				'financial_summaries': [
+					{
+						'date': TODAY,
+						'company_id': 'placeholder', # later filled by seed function inside run_tests
+						'total_limit': decimal.Decimal(100.0),
+						'adjusted_total_limit': decimal.Decimal(100.0),
+						'total_outstanding_principal': decimal.Decimal(50.0),
+						'total_outstanding_principal_for_interest': decimal.Decimal(60.0),
+						'total_outstanding_interest': decimal.Decimal(12.50),
+						'total_outstanding_fees': decimal.Decimal(5.25),
+						'total_principal_in_requested_state': decimal.Decimal(3.15),
+						'available_limit': decimal.Decimal(1000.00),
+						'interest_accrued_today': decimal.Decimal(2.1),
+						'minimum_monthly_payload': {},
+						'account_level_balance_payload': {},
+						'product_type': 'Inventory Financing'
 					}
 				],
 			}
@@ -1020,6 +1151,25 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 			session.flush()
 			loan_ids.append(str(loan.id))
 
+			financial_summary = models.FinancialSummary(
+				date=TODAY,
+				company_id=company_id,
+				total_limit=decimal.Decimal(100.0),
+				adjusted_total_limit=decimal.Decimal(100.0),
+				total_outstanding_principal=decimal.Decimal(50.0),
+				total_outstanding_principal_for_interest=decimal.Decimal(60.0),
+				total_outstanding_interest=decimal.Decimal(12.50),
+				total_outstanding_fees=decimal.Decimal(5.25),
+				total_principal_in_requested_state=decimal.Decimal(3.15),
+				available_limit=decimal.Decimal(1000.00),
+				interest_accrued_today=decimal.Decimal(2.1),
+				minimum_monthly_payload={},
+				account_level_balance_payload={},
+				product_type="Inventory Financing"
+			)
+			session.add(financial_summary)
+			session.flush()
+
 		resp, err = advance_util.fund_loans_with_advance(
 			req=advance_util.FundLoansReqDict(
 				loan_ids=loan_ids,
@@ -1058,6 +1208,25 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 			session.add(loan)
 			session.flush()
 			loan_ids.append(str(loan.id))
+
+			financial_summary = models.FinancialSummary(
+				date=TODAY,
+				company_id=company_id,
+				total_limit=decimal.Decimal(100.0),
+				adjusted_total_limit=decimal.Decimal(100.0),
+				total_outstanding_principal=decimal.Decimal(50.0),
+				total_outstanding_principal_for_interest=decimal.Decimal(60.0),
+				total_outstanding_interest=decimal.Decimal(12.50),
+				total_outstanding_fees=decimal.Decimal(5.25),
+				total_principal_in_requested_state=decimal.Decimal(3.15),
+				available_limit=decimal.Decimal(1000.00),
+				interest_accrued_today=decimal.Decimal(2.1),
+				minimum_monthly_payload={},
+				account_level_balance_payload={},
+				product_type="Inventory Financing"
+			)
+			session.add(financial_summary)
+			session.flush()
 
 		resp, err = advance_util.fund_loans_with_advance(
 			req=advance_util.FundLoansReqDict(
@@ -1101,6 +1270,25 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				session.flush()
 				loan_ids.append(str(loan.id))
 
+			financial_summary = models.FinancialSummary(
+				date=TODAY,
+				company_id=company_id,
+				total_limit=decimal.Decimal(100.0),
+				adjusted_total_limit=decimal.Decimal(100.0),
+				total_outstanding_principal=decimal.Decimal(50.0),
+				total_outstanding_principal_for_interest=decimal.Decimal(60.0),
+				total_outstanding_interest=decimal.Decimal(12.50),
+				total_outstanding_fees=decimal.Decimal(5.25),
+				total_principal_in_requested_state=decimal.Decimal(3.15),
+				available_limit=decimal.Decimal(1000.00),
+				interest_accrued_today=decimal.Decimal(2.1),
+				minimum_monthly_payload={},
+				account_level_balance_payload={},
+				product_type="Inventory Financing"
+			)
+			session.add(financial_summary)
+			session.flush()
+
 		resp, err = advance_util.fund_loans_with_advance(
 			req=advance_util.FundLoansReqDict(
 				payment=payment_types.PaymentInsertInputDict(
@@ -1124,6 +1312,191 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 			session_maker=self.session_maker
 		)
 		self.assertIn('Advance amount must be equal to', err.msg)
+
+	
+	def test_failure_advance_would_exceed_available_limit(self) -> None:
+		seed = test_helper.BasicSeed.create(self.session_maker, self)
+		seed.initialize()
+
+		loan_ids = []
+		amounts = [20.02, 30.03]
+		with session_scope(self.session_maker) as session:
+			company_id = seed.get_company_id('company_admin', index=0)
+			for amount in amounts:
+				loan = models.Loan(
+					company_id=company_id,
+					amount=decimal.Decimal(amount),
+					approved_at=date_util.now()
+				)
+				session.add(loan)
+				session.flush()
+				loan_ids.append(str(loan.id))
+
+			financial_summary = models.FinancialSummary(
+				date=TODAY,
+				company_id=company_id,
+				total_limit=decimal.Decimal(100.0),
+				adjusted_total_limit=decimal.Decimal(100.0),
+				total_outstanding_principal=decimal.Decimal(50.0),
+				total_outstanding_principal_for_interest=decimal.Decimal(60.0),
+				total_outstanding_interest=decimal.Decimal(12.50),
+				total_outstanding_fees=decimal.Decimal(5.25),
+				total_principal_in_requested_state=decimal.Decimal(3.15),
+				available_limit=decimal.Decimal(25.00),
+				interest_accrued_today=decimal.Decimal(2.1),
+				minimum_monthly_payload={},
+				account_level_balance_payload={},
+				product_type="Inventory Financing"
+			)
+			session.add(financial_summary)
+			session.flush()
+
+		resp, err = advance_util.fund_loans_with_advance(
+			req=advance_util.FundLoansReqDict(
+				payment=payment_types.PaymentInsertInputDict(
+					company_id='unused',
+					type='unused',
+					method='ach',
+					requested_amount=None,
+					amount=0.2,
+					requested_payment_date=None,
+					payment_date='10/28/2020',
+					settlement_date='10/30/2020',
+					items_covered={'loan_ids': loan_ids},
+					company_bank_account_id=None,
+					customer_note='',
+					bank_note=''
+				),
+				loan_ids=loan_ids,
+				should_charge_wire_fee=False
+			),
+			bank_admin_user_id='',
+			session_maker=self.session_maker
+		)
+		self.assertIn('Loan amount requested exceeds the maximum limit for company', err.msg)
+
+	def test_failure_aggregate_advances_would_exceed_available_limit(self) -> None:
+		seed = test_helper.BasicSeed.create(self.session_maker, self)
+		seed.initialize()
+
+		loan_ids = []
+		amounts = [20.02, 7.03]
+		with session_scope(self.session_maker) as session:
+			company_id = seed.get_company_id('company_admin', index=0)
+			for amount in amounts:
+				loan = models.Loan(
+					company_id=company_id,
+					amount=decimal.Decimal(amount),
+					approved_at=date_util.now()
+				)
+				session.add(loan)
+				session.flush()
+				loan_ids.append(str(loan.id))
+
+			financial_summary = models.FinancialSummary(
+				date=TODAY,
+				company_id=company_id,
+				total_limit=decimal.Decimal(100.0),
+				adjusted_total_limit=decimal.Decimal(100.0),
+				total_outstanding_principal=decimal.Decimal(50.0),
+				total_outstanding_principal_for_interest=decimal.Decimal(60.0),
+				total_outstanding_interest=decimal.Decimal(12.50),
+				total_outstanding_fees=decimal.Decimal(5.25),
+				total_principal_in_requested_state=decimal.Decimal(3.15),
+				available_limit=decimal.Decimal(25.00),
+				interest_accrued_today=decimal.Decimal(2.1),
+				minimum_monthly_payload={},
+				account_level_balance_payload={},
+				product_type="Inventory Financing"
+			)
+			session.add(financial_summary)
+			session.flush()
+
+		resp, err = advance_util.fund_loans_with_advance(
+			req=advance_util.FundLoansReqDict(
+				payment=payment_types.PaymentInsertInputDict(
+					company_id='unused',
+					type='unused',
+					method='ach',
+					requested_amount=None,
+					amount=0.2,
+					requested_payment_date=None,
+					payment_date='10/28/2020',
+					settlement_date='10/30/2020',
+					items_covered={'loan_ids': loan_ids},
+					company_bank_account_id=None,
+					customer_note='',
+					bank_note=''
+				),
+				loan_ids=loan_ids,
+				should_charge_wire_fee=False
+			),
+			bank_admin_user_id='',
+			session_maker=self.session_maker
+		)
+		self.assertIn('Total amount across all loans in request exceeds the maximum limit for company', err.msg)
+	
+	def test_failure_financial_summary_needs_recompute(self) -> None:
+		seed = test_helper.BasicSeed.create(self.session_maker, self)
+		seed.initialize()
+
+		loan_ids = []
+		amounts = [20.02, 30.03]
+		with session_scope(self.session_maker) as session:
+			company_id = seed.get_company_id('company_admin', index=0)
+			for amount in amounts:
+				loan = models.Loan(
+					company_id=company_id,
+					amount=decimal.Decimal(amount),
+					approved_at=date_util.now()
+				)
+				session.add(loan)
+				session.flush()
+				loan_ids.append(str(loan.id))
+
+			financial_summary = models.FinancialSummary(
+				date=TODAY,
+				company_id=company_id,
+				total_limit=decimal.Decimal(100.0),
+				adjusted_total_limit=decimal.Decimal(100.0),
+				total_outstanding_principal=decimal.Decimal(50.0),
+				total_outstanding_principal_for_interest=decimal.Decimal(60.0),
+				total_outstanding_interest=decimal.Decimal(12.50),
+				total_outstanding_fees=decimal.Decimal(5.25),
+				total_principal_in_requested_state=decimal.Decimal(3.15),
+				available_limit=decimal.Decimal(25.00),
+				interest_accrued_today=decimal.Decimal(2.1),
+				minimum_monthly_payload={},
+				account_level_balance_payload={},
+				product_type="Inventory Financing",
+				needs_recompute=True
+			)
+			session.add(financial_summary)
+			session.flush()
+
+		resp, err = advance_util.fund_loans_with_advance(
+			req=advance_util.FundLoansReqDict(
+				payment=payment_types.PaymentInsertInputDict(
+					company_id='unused',
+					type='unused',
+					method='ach',
+					requested_amount=None,
+					amount=0.2,
+					requested_payment_date=None,
+					payment_date='10/28/2020',
+					settlement_date='10/30/2020',
+					items_covered={'loan_ids': loan_ids},
+					company_bank_account_id=None,
+					customer_note='',
+					bank_note=''
+				),
+				loan_ids=loan_ids,
+				should_charge_wire_fee=False
+			),
+			bank_admin_user_id='',
+			session_maker=self.session_maker
+		)
+		self.assertIn('The latest financials for this company are currently being recomputed.', err.msg)
 
 	def test_successful_purchase_order_fully_funded(self) -> None:
 		tests: List[Dict] = [
@@ -1224,6 +1597,24 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				],
 				'expected_funded_purchase_order_ids': [
 					'a012e58e-6378-450c-a753-943533f7ae88',
+				],
+				'financial_summaries': [
+					{
+						'date': TODAY,
+						'company_id': 'placeholder', # later filled by seed function inside run_tests
+						'total_limit': decimal.Decimal(100.0),
+						'adjusted_total_limit': decimal.Decimal(100.0),
+						'total_outstanding_principal': decimal.Decimal(50.0),
+						'total_outstanding_principal_for_interest': decimal.Decimal(60.0),
+						'total_outstanding_interest': decimal.Decimal(12.50),
+						'total_outstanding_fees': decimal.Decimal(5.25),
+						'total_principal_in_requested_state': decimal.Decimal(3.15),
+						'available_limit': decimal.Decimal(1000.00),
+						'interest_accrued_today': decimal.Decimal(2.1),
+						'minimum_monthly_payload': {},
+						'account_level_balance_payload': {},
+						'product_type': 'Inventory Financing'
+					}
 				]
 			}
 		]
@@ -1294,6 +1685,24 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'settlement_date': '10/20/2020',
 						'payment_input_amount': 30.03,
 						'loan_indices': [0, 1]
+					}
+				],
+				'financial_summaries': [
+					{
+						'date': TODAY,
+						'company_id': 'placeholder', # later filled by seed function inside run_tests
+						'total_limit': decimal.Decimal(100.0),
+						'adjusted_total_limit': decimal.Decimal(100.0),
+						'total_outstanding_principal': decimal.Decimal(50.0),
+						'total_outstanding_principal_for_interest': decimal.Decimal(60.0),
+						'total_outstanding_interest': decimal.Decimal(12.50),
+						'total_outstanding_fees': decimal.Decimal(5.25),
+						'total_principal_in_requested_state': decimal.Decimal(3.15),
+						'available_limit': decimal.Decimal(1000.00),
+						'interest_accrued_today': decimal.Decimal(2.1),
+						'minimum_monthly_payload': {},
+						'account_level_balance_payload': {},
+						'product_type': 'Inventory Financing'
 					}
 				],
 				'expected_loans': [
@@ -1445,6 +1854,24 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'type': 'advance'
 					}
 				],
+				'financial_summaries': [
+					{
+						'date': TODAY,
+						'company_id': 'placeholder', # later filled by seed function inside run_tests
+						'total_limit': decimal.Decimal(100.0),
+						'adjusted_total_limit': decimal.Decimal(100.0),
+						'total_outstanding_principal': decimal.Decimal(50.0),
+						'total_outstanding_principal_for_interest': decimal.Decimal(60.0),
+						'total_outstanding_interest': decimal.Decimal(12.50),
+						'total_outstanding_fees': decimal.Decimal(5.25),
+						'total_principal_in_requested_state': decimal.Decimal(3.15),
+						'available_limit': decimal.Decimal(1000.00),
+						'interest_accrued_today': decimal.Decimal(2.1),
+						'minimum_monthly_payload': {},
+						'account_level_balance_payload': {},
+						'product_type': 'Inventory Financing'
+					}
+				]
 			}
 		]
 
@@ -1716,6 +2143,24 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'type': 'advance'
 					}
 				],
+				'financial_summaries': [
+					{
+						'date': TODAY,
+						'company_id': 'placeholder', # later filled by seed function inside run_tests
+						'total_limit': decimal.Decimal(100.0),
+						'adjusted_total_limit': decimal.Decimal(100.0),
+						'total_outstanding_principal': decimal.Decimal(50.0),
+						'total_outstanding_principal_for_interest': decimal.Decimal(60.0),
+						'total_outstanding_interest': decimal.Decimal(12.50),
+						'total_outstanding_fees': decimal.Decimal(5.25),
+						'total_principal_in_requested_state': decimal.Decimal(3.15),
+						'available_limit': decimal.Decimal(1000.00),
+						'interest_accrued_today': decimal.Decimal(2.1),
+						'minimum_monthly_payload': {},
+						'account_level_balance_payload': {},
+						'product_type': 'Inventory Financing'
+					}
+				]
 			}
 		]
 
