@@ -136,10 +136,14 @@ export function addBizDays(dateString: string, days: number) {
   }
   // Add days to given date, skipping non-business days.
   // Non-business days are weekends and bank holidays.
+  // If given date is not a business day, start counting from soonest business day.
   // Ex. 05/28/21 + 2 business days = 06/02/21, since
   // 05/29/21 and 05/30/21 are weekend days and 05/31/21 is a holiday.
   const inputDate = parse(dateString, DateFormatServer, new Date());
   let resultDate = inputDate;
+  while (isBankHoliday(resultDate)) {
+    resultDate = addBusinessDays(resultDate, 1);
+  }
   while (days > 0) {
     resultDate = addBusinessDays(resultDate, 1);
     while (isBankHoliday(resultDate)) {

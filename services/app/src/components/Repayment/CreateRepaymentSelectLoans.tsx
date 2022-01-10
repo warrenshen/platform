@@ -53,8 +53,14 @@ export default function CreateRepaymentSelectLoans({
   /**
    * If payment method is reverse draft ACH and today's date is X,
    * the earliest the payment date of repayment may be is:
-   * 1. 1 business day after X, if it is currently before 12pm (user's timezone).
-   * 2. 2 business days after X, if it is currently after 12pm (user's timezone).
+   *
+   * Step 1: figure out Y (the 1st business day starting from X).
+   * 1. X is a business day, Y equals X.
+   * 2. X is a NOT a business day, Y equals the soonest business day after X.
+   *
+   * Step 2: calculate earliest payment date based on Y.
+   * 1. 1 business day after Y, if it is currently before 12pm (user's timezone).
+   * 2. 2 business days after Y, if it is currently after 12pm (user's timezone).
    *
    * The above rules give Bespoke Financial's Operations team time to
    * set up a reverse draft ACH repayment with the desired payment date.
