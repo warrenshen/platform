@@ -1,15 +1,5 @@
 """
-DATABASE_URL=postgres+psycopg2://postgres:postgrespassword@localhost:5432/postgres python po_attachment_gathering.py
-
-1. Gather all purchase orders so we can collate the attachement locations
-	- query purchase_order_files
-		- make sure to batch
-2. once you have all the file ids, hit the file tables, the s3 location is stored in the path column
-		- use an "in" query with sqlalchemy
-3. use boto's s3 functionality to grab the files
-	- file names might overlap, probably worth renaming to <company_id>_<date>_original_name.pdf (or something like that)
-4. zip up the pdfs
-5. ask where to put it
+DATABASE_URL=postgres+psycopg2://postgres:postgrespassword@localhost:5432/postgres python scripts/batch/
 """
 
 import os
@@ -26,17 +16,14 @@ sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
 
 from sqlalchemy.orm.session import Session
-from bespoke.db import models, models_util
+from bespoke.db import models
 
+# company_identifier: [(license_number, facility_name)]
 company_identifier_to_license_facilities = {
-	# company_identifier: [(license_number, facility_name)]
-	'GLNR': [
-		('AU-R-000559', 'Retailer 1'),
-		('PC-000722', 'Retailer 1'),
-		('AU-R-000182', 'Retailer 2'),
-		('PC-000334', 'Retailer 2'),
-		('PC-000613', 'Retailer 3'),
-		('AU-R-000461', 'Retailer 3'),
+	'EM': [
+		('C10-0000695-LIC', 'Embarc Tahoe'),
+		('C10-0000774-LIC', 'Embarc Alameda'),
+		('C10-0000786-LIC', 'Embarc Martinez'),
 	]
 }
 
