@@ -10,7 +10,7 @@ import {
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { settleAccountLevelFeeRepaymentMutation } from "lib/api/payments";
-import { formatCurrency } from "lib/currency";
+import { formatCurrency } from "lib/number";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
 import { useState } from "react";
 

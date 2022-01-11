@@ -3,7 +3,7 @@ import Modal from "components/Shared/Modal/Modal";
 import { PurchaseOrders, useGetPaymentQuery } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { formatCurrency } from "lib/currency";
+import { formatCurrency } from "lib/number";
 import { formatDateString } from "lib/date";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
 import { reverseRepaymentMutation } from "lib/finance/payments/repayment";

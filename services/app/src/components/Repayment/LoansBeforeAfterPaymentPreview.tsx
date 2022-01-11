@@ -12,7 +12,7 @@ import {
 import { ArrowRightAlt } from "@material-ui/icons";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import { Loans } from "generated/graphql";
-import { formatCurrency } from "lib/currency";
+import { formatCurrency } from "lib/number";
 import { LoanBeforeAfterPayment } from "lib/finance/payments/repayment";
 import { useState } from "react";
 

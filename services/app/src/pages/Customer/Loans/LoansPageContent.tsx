@@ -6,7 +6,7 @@ import { ProductTypeEnum } from "lib/enum";
 import { round } from "lodash";
 import CustomerLoansActiveTab from "pages/Customer/Loans/LoansActiveTab";
 import CustomerLoansClosedTab from "pages/Customer/Loans/LoansClosedTab";
-import { formatCurrency } from "lib/currency";
+import { formatCurrency } from "lib/number";
 import { useContext, useState } from "react";
 
 interface Props {

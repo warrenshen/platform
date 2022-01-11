@@ -14,7 +14,7 @@ import {
   useGetPurchaseOrderForReviewQuery,
 } from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
-import { formatCurrency } from "lib/currency";
+import { formatCurrency } from "lib/number";
 import { formatDateString } from "lib/date";
 import { FileTypeEnum } from "lib/enum";
 import { anonymousRoutes } from "lib/routes";

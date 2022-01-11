@@ -11,7 +11,7 @@ import { grey } from "@material-ui/core/colors";
 import EbbaApplicationDrawerLauncher from "components/EbbaApplication/EbbaApplicationDrawerLauncher";
 import EbbaApplicationStatusChip from "components/EbbaApplication/EbbaApplicationStatusChip";
 import { EbbaApplicationFragment } from "generated/graphql";
-import { formatCurrency } from "lib/currency";
+import { formatCurrency } from "lib/number";
 import { formatDateString } from "lib/date";
 import { ClientSurveillanceCategoryEnum } from "lib/enum";
 

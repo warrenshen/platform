@@ -1,7 +1,7 @@
 import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import { PaymentsInsertInput } from "generated/graphql";
-import { formatCurrency } from "lib/currency";
+import { formatCurrency } from "lib/number";
 import { formatDateString } from "lib/date";
 import {
   PaymentMethodEnum,

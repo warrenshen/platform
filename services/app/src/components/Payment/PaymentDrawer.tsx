@@ -15,7 +15,7 @@ import {
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
 import { Payments, useGetPaymentQuery } from "generated/graphql";
-import { formatCurrency } from "lib/currency";
+import { formatCurrency } from "lib/number";
 import { formatDateString, formatDatetimeString } from "lib/date";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
 import { getPaymentStatus } from "lib/finance/payments/repayment";

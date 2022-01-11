@@ -21,7 +21,7 @@ import {
   RequestStatusEnum,
 } from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
-import { formatCurrency } from "lib/currency";
+import { formatCurrency } from "lib/number";
 import { ColumnWidths, truncateString } from "lib/tables";
 import { useMemo } from "react";
 

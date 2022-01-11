@@ -9,7 +9,7 @@ import { PurchaseOrders, useGetPaymentQuery } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { deleteRepaymentMutation } from "lib/api/payments";
-import { formatCurrency } from "lib/currency";
+import { formatCurrency } from "lib/number";
 import { formatDateString } from "lib/date";
 import {
   PaymentMethodEnum,

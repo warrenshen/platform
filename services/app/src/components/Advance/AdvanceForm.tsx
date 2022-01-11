@@ -14,7 +14,7 @@ import {
 } from "@material-ui/core";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import { PaymentsInsertInput } from "generated/graphql";
-import { formatCurrency } from "lib/currency";
+import { formatCurrency } from "lib/number";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
 import { ChangeEvent } from "react";
 

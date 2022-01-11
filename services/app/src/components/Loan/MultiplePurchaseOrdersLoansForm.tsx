@@ -4,7 +4,7 @@ import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import DateInput from "components/Shared/FormInputs/DateInput";
-import { formatCurrency } from "lib/currency";
+import { formatCurrency } from "lib/number";
 import { PurchaseOrderLoanUpsert } from "lib/finance/loans/purchaseOrders";
 import { ColumnWidths } from "lib/tables";
 

@@ -5,7 +5,7 @@ import {
   LoanArtifactLimitedFragment,
   LoanLimitedFragment,
 } from "generated/graphql";
-import { formatCurrency } from "lib/currency";
+import { formatCurrency } from "lib/number";
 import { formatDateString } from "lib/date";
 import { LoanPaymentStatusEnum } from "lib/enum";
 import {

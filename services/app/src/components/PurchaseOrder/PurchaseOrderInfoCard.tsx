@@ -9,7 +9,7 @@ import { grey } from "@material-ui/core/colors";
 import { CheckCircle } from "@material-ui/icons";
 import { PurchaseOrderLimitedFragment } from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
-import { formatCurrency } from "lib/currency";
+import { formatCurrency } from "lib/number";
 import { formatDateString } from "lib/date";
 
 const useStyles = makeStyles({

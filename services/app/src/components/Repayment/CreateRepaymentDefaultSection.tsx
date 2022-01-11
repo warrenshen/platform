@@ -12,7 +12,7 @@ import {
 import SelectLoanAutocomplete from "components/Loan/SelectLoanAutocomplete";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
-import { formatCurrency } from "lib/currency";
+import { formatCurrency } from "lib/number";
 import {
   LoanTypeEnum,
   PaymentsInsertInput,

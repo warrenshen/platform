@@ -11,7 +11,7 @@ import DateInput from "components/Shared/FormInputs/DateInput";
 import LinearProgressBar from "components/Shared/ProgressBar/LinearProgressBar";
 import { LoansInsertInput } from "generated/graphql";
 import { ProductTypeEnum } from "lib/enum";
-import { formatCurrency } from "lib/currency";
+import { formatCurrency } from "lib/number";
 import { Artifact } from "lib/finance/loans/artifacts";
 import { round } from "lodash";
 import { IdComponent } from "./interfaces";

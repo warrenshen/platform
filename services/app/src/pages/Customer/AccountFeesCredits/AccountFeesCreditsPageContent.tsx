@@ -23,7 +23,7 @@ import {
   useGetCustomerAccountQuery,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
-import { formatCurrency } from "lib/currency";
+import { formatCurrency } from "lib/number";
 import { ProductTypeEnum } from "lib/enum";
 import { useContext, useMemo, useState } from "react";
 

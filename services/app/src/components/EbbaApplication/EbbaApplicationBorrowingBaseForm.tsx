@@ -16,7 +16,7 @@ import {
   EbbaApplicationsInsertInput,
   Files,
 } from "generated/graphql";
-import { formatCurrency } from "lib/currency";
+import { formatCurrency } from "lib/number";
 import { FileTypeEnum } from "lib/enum";
 import { useMemo } from "react";
 

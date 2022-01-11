@@ -15,7 +15,7 @@ import {
   FinancialSummaryFragment,
   PaymentsInsertInput,
 } from "generated/graphql";
-import { formatCurrency } from "lib/currency";
+import { formatCurrency } from "lib/number";
 import {
   AllPaymentMethods,
   PaymentMethodEnum,

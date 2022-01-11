@@ -1,5 +1,5 @@
 import { Box } from "@material-ui/core";
-import { formatCurrency } from "lib/currency";
+import { formatCurrency } from "lib/number";
 
 interface Props {
   value: number | null;

@@ -18,7 +18,7 @@ import {
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { submitLoanMutation, deleteLoanMutation } from "lib/api/loans";
-import { formatCurrency } from "lib/currency";
+import { formatCurrency } from "lib/number";
 import { ActionType, LoanStatusEnum, ProductTypeEnum } from "lib/enum";
 import {
   Artifact,

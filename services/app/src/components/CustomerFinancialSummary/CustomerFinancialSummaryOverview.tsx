@@ -16,7 +16,7 @@ import {
   ContractFragment,
   FinancialSummaryFragment,
 } from "generated/graphql";
-import { formatCurrency } from "lib/currency";
+import { formatCurrency } from "lib/number";
 import {
   BankCompanyRouteEnum,
   getBankCompanyRoute,

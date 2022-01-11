@@ -21,7 +21,7 @@ import {
   getContractTermCustomerDescription,
   getContractTermIsHiddenIfNull,
 } from "lib/contracts";
-import { formatCurrency } from "lib/currency";
+import { formatCurrency } from "lib/number";
 import { formatDateString } from "lib/date";
 import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
 import { groupBy } from "lodash";
@@ -73,7 +73,7 @@ const renderSwitch = (item: any) => {
   }
 };
 
-function ContractDrawer({ contractId, handleClose }: Props) {
+export default function ContractDrawer({ contractId, handleClose }: Props) {
   const classes = useStyles();
 
   const {
@@ -192,5 +192,3 @@ function ContractDrawer({ contractId, handleClose }: Props) {
     </Drawer>
   ) : null;
 }
-
-export default ContractDrawer;

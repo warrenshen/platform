@@ -23,7 +23,7 @@ import {
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { getCompanyDisplayName } from "lib/companies";
-import { formatCurrency } from "lib/currency";
+import { formatCurrency } from "lib/number";
 import { formatDateString } from "lib/date";
 import { FileTypeEnum } from "lib/enum";
 import { useContext, useMemo, useState } from "react";

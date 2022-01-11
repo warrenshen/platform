@@ -12,7 +12,7 @@ import {
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { deleteEbbaApplicationMutation } from "lib/api/ebbaApplications";
-import { formatCurrency } from "lib/currency";
+import { formatCurrency } from "lib/number";
 import { ClientSurveillanceCategoryEnum } from "lib/enum";
 import { useContext } from "react";
 

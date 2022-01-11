@@ -7,7 +7,7 @@ import {
   PaymentsInsertInput,
   useBankAccountsForTransferQuery,
 } from "generated/graphql";
-import { formatCurrency } from "lib/currency";
+import { formatCurrency } from "lib/number";
 import {
   PaymentMethodEnum,
   PaymentMethodToLabel,

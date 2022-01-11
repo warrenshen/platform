@@ -1,5 +1,6 @@
 import { ContractFragment } from "generated/graphql";
 import { ProductTypeToContractTermsJson, ProductTypeEnum } from "lib/enum";
+import { roundToFiveDigits } from "lib/number";
 
 export enum ContractTermConfigs {
   BankDescription = "bank",
@@ -293,10 +294,12 @@ const formatValueForClient = (
     Object.keys(parsedValue).forEach((field) => {
       const value = parsedValue[field] as number;
       if (fields[1]?.format === "percentage") {
-        parsedValue[field] = value * 100 <= 100 ? value * 100 : null;
+        parsedValue[field] =
+          value * 100 <= 100 ? roundToFiveDigits(value * 100) : null;
       }
       if (fields[2]?.format === "percentage") {
-        parsedValue[field] = value * 100 <= 100 ? value * 100 : null;
+        parsedValue[field] =
+          value * 100 <= 100 ? roundToFiveDigits(value * 100) : null;
       }
     });
     return parsedValue;
@@ -307,7 +310,7 @@ const formatValueForClient = (
     const parsedValue = typeof value === "string" ? parseFloat(value) : value;
     if (format === "percentage") {
       const parsedPercent = parsedValue * 100;
-      return parsedPercent <= 100 ? parsedPercent : null;
+      return parsedPercent <= 100 ? roundToFiveDigits(parsedPercent) : null;
     } else {
       return parsedValue;
     }

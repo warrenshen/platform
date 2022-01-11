@@ -6,7 +6,7 @@ import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 import CSS from "csstype";
-import { formatCurrency } from "lib/currency";
+import { formatCurrency } from "lib/number";
 
 interface Props {
   bankFinancialSummaries: BankFinancialSummaryFragment[];
