@@ -239,7 +239,9 @@ class Download(object):
 		ctx: AnalysisContext
 	) -> None:
 		before = time.time()
-		incoming_transfer_packages_dataframe = all_dataframes_dict['incoming_transfer_packages_dataframe']
+
+		# drop shipments that got returned
+		incoming_transfer_packages_dataframe = all_dataframes_dict['incoming_transfer_packages_dataframe'].pipe(lambda df: df[df['shipment_package_state'] != 'Returned'])
 		outgoing_transfer_packages_dataframe = all_dataframes_dict['outgoing_transfer_packages_dataframe']
 		sales_transactions_dataframe = all_dataframes_dict['sales_transactions_dataframe']
 		sales_receipts_dataframe = all_dataframes_dict['sales_receipts_dataframe']

@@ -55,6 +55,9 @@ class DataFrame(Sequence):
 	def to_dict(self, el: str) -> List[Dict]:
 		pass
 
+	def pipe(self, *args: Any, **kwargs: Any) -> Any:
+		pass
+
 def concat(dfs: List[DataFrame], axis: int) -> DataFrame:
 	pass
 
