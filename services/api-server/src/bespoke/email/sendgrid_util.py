@@ -11,6 +11,7 @@ from bespoke.config.config_util import is_development_env, is_prod_env
 from bespoke.date import date_util
 from bespoke.db import models, models_util
 from bespoke.db.models import session_scope
+from bespoke.db.db_constants import UserRoles
 from bespoke.email import email_manager
 from bespoke.security import security_util, two_factor_util
 from mypy_extensions import TypedDict
@@ -304,11 +305,27 @@ def _remove_deactived_emails(recipients : List[str], session: Session) -> List[s
 
 	return recipients
 
+def _filter_out_contact_only_emails(recipients : List[str], session: Session) -> List[str]:
+	contact_only_users = cast(
+		List[models.User],
+		session.query(models.User).filter(
+			models.User.email.in_(recipients)
+		).filter(
+			models.User.role == UserRoles.COMPANY_CONTACT_ONLY
+		).all())
+
+	for u in contact_only_users:
+		if u.email in recipients:
+			recipients.remove(u.email)
+
+	return recipients
+
 def _maybe_add_or_remove_recipients(
 	recipients: List[str],
 	cfg: email_manager.EmailConfigDict,
 	template_name: str,
-	session_maker: Callable
+	session_maker: Callable,
+	filter_out_contact_only: bool
 ) -> List[str]:
 	if not is_prod_env(cfg['flask_env']):
 		# In non-production environments, only send emails to people with @bespokefinancial.com
@@ -326,6 +343,8 @@ def _maybe_add_or_remove_recipients(
 	# This check is put in place as a defensive measure of last resort
 	with session_scope(session_maker) as session:
 		recipients = _remove_deactived_emails(recipients, session)
+		if filter_out_contact_only is True:
+			recipients = _filter_out_contact_only_emails(recipients, session)
 
 	# For staging and production environments, if email template is not
 	# in blacklist then we send a copy of email to the no_reply_email_addr.
@@ -367,6 +386,7 @@ class Client(object):
 		template_name: str,
 		template_data: Dict,
 		recipients: List[str],
+		filter_out_contact_only: bool = False,
 		two_factor_payload: TwoFactorPayloadDict = None,
 		attachment: Attachment = None,
 	) -> Tuple[bool, errors.Error]:
@@ -381,7 +401,7 @@ class Client(object):
 			template_name, self._email_cfg)
 
 		recipients = _maybe_add_or_remove_recipients(
-			recipients, self._email_cfg, template_name, self._session_maker)
+			recipients, self._email_cfg, template_name, self._session_maker, filter_out_contact_only)
 
 		if not recipients:
 			return None, errors.Error('Cannot send an email when no recipients are specified')

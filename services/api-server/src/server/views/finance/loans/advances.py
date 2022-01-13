@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict, List, Tuple, cast
 from bespoke import errors
 from bespoke.audit import events
 from bespoke.date import date_util
-from bespoke.db import db_constants, models
+from bespoke.db import db_constants, models, models_util
 from bespoke.db.db_constants import ProductType
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
@@ -53,13 +53,11 @@ def _send_bank_created_advances_emails(
 					models.Company.id == customer_id
 				).first())
 
-			customer_users = cast(
-				List[models.User],
-				session.query(models.User).filter_by(
-					company_id=customer_id
-				).filter(
-					cast(Callable, models.User.is_deleted.isnot)(True)
-				).all())
+			customer_users = models_util.get_active_users(
+				customer_id,
+				session,
+				filter_contact_only=True
+			)
 
 			if not customer_users:
 				raise errors.Error(f'There are no users configured for customer {customer.name}')
@@ -107,6 +105,7 @@ def _send_bank_created_advances_emails(
 				template_name=sendgrid_util.TemplateNames.BANK_SENT_ADVANCES_FOR_LOANS,
 				template_data=template_data,
 				recipients=customer_emails,
+				filter_out_contact_only=True
 			)
 			if err:
 				raise err

@@ -75,7 +75,8 @@ class TestSendGridClient(db_unittest.TestCase):
 					test['recipients'],
 					test['cfg'],
 					test['template_name'],
-					self.session_maker
+					self.session_maker,
+					filter_out_contact_only = False
 				)
 			)
 
@@ -104,6 +105,31 @@ def setup_users_for_deactivated_email_test(
 		is_deleted = None
 	))
 
+def setup_users_for_filtering_out_contact_only_test(
+	session: Session
+	) -> None:
+	session.add(models.User(
+		company_id = str(uuid.uuid4()),
+		email = 'roger@blazeit.com',
+		password = 'xxxx',
+		role = 'company_admin',
+		first_name = 'Roger',
+		last_name = 'Federer',
+		login_method = 'simple',
+		is_deleted = True
+	))
+
+	session.add(models.User(
+		company_id = str(uuid.uuid4()),
+		email = 'clifford@blazeit.com',
+		password = 'xxxx',
+		role = 'company_contact_only',
+		first_name = 'Clifford',
+		last_name = 'The Dog',
+		login_method = 'simple',
+		is_deleted = None
+	))
+
 class TestSendGridUtilityFunctions(db_unittest.TestCase):
 
 	def test_remove_deactived_emails(self) -> None:
@@ -115,3 +141,13 @@ class TestSendGridUtilityFunctions(db_unittest.TestCase):
 
 			self.assertEqual(False, "roger@blazeit.com" in recipients)
 			self.assertEqual(True, "clifford@blazeit.com" in recipients)
+
+	def test_filter_out_contact_only_emails(self) -> None:
+		with session_scope(self.session_maker) as session:
+			setup_users_for_filtering_out_contact_only_test(session)
+
+			recipients = ["roger@blazeit.com", "clifford@blazeit.com"]
+			recipients = sendgrid_util._filter_out_contact_only_emails(recipients, session)
+
+			self.assertEqual(True, "roger@blazeit.com" in recipients)
+			self.assertEqual(False, "clifford@blazeit.com" in recipients)

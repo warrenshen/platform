@@ -289,7 +289,11 @@ class SendNotificationView(MethodView):
 			recipient_emails = [recipient['email'] for recipient in recipients]
 
 			_, err = sendgrid_client.send(
-				template_name, template_data, recipient_emails)
+				template_name, 
+				template_data, 
+				recipient_emails,
+				filter_out_contact_only=True
+			)
 			if err:
 				return handler_util.make_error_response(err)
 

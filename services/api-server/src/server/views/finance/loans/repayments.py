@@ -55,6 +55,7 @@ def _send_customer_requested_repayment_emails(
 			template_name=sendgrid_util.TemplateNames.CUSTOMER_REQUESTED_REPAYMENT,
 			template_data=template_data,
 			recipients=sendgrid_client.get_bank_notify_email_addresses(),
+			filter_out_contact_only=True,
 		)
 		if err:
 			raise err
@@ -90,6 +91,7 @@ def _send_bank_settled_repayment_emails(
 			template_name=sendgrid_util.TemplateNames.BANK_SETTLED_REPAYMENT,
 			template_data=template_data,
 			recipients=sendgrid_client.get_bank_notify_email_addresses(),
+			filter_out_contact_only=True,
 		)
 		if err:
 			raise err

@@ -4,7 +4,7 @@ from typing import Any, Callable, List, cast
 from bespoke import errors
 from bespoke.audit import events
 from bespoke.date import date_util
-from bespoke.db import models
+from bespoke.db import models, models_util
 from bespoke.db.db_constants import RequestStatusEnum
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
@@ -258,13 +258,11 @@ class RespondToApprovalRequestView(MethodView):
 			else:
 				purchase_order_requested_date = date_util.human_readable_yearmonthday(date_util.now())
 
-			customer_users = cast(
-				List[models.User], 
-				session.query(models.User).filter_by(
-					company_id=purchase_order.company_id
-				).filter(
-					cast(Callable, models.User.is_deleted.isnot)(True)
-				).all())
+			customer_users = models_util.get_active_users(
+				purchase_order.company_id, 
+				session, 
+				filter_contact_only=True
+			)
 
 			if not customer_users:
 				raise errors.Error('There are no users configured for this customer')

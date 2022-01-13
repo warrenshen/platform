@@ -163,7 +163,11 @@ class RespondToApprovalRequestView(MethodView):
 				'requested_at_date': invoice_requested_date,
 			}]
 
-			customer_users = models_util.get_active_users(company_id=invoice.company_id, session=session)
+			customer_users = models_util.get_active_users(
+				company_id=invoice.company_id, 
+				session=session,
+				filter_contact_only=True
+			)
 
 			if not customer_users:
 				raise errors.Error("No users configured for this customer")
@@ -181,7 +185,8 @@ class RespondToApprovalRequestView(MethodView):
 				_, err = sendgrid_client.send(
 					template_name,
 					template_data,
-					emails
+					emails,
+					filter_out_contact_only=True
 				)
 				if err:
 					raise err

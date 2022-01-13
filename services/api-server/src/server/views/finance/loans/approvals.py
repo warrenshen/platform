@@ -50,7 +50,11 @@ def _send_bank_approved_loans_emails(
 					models.Company.id == customer_id
 				).first())
 
-			customer_users = models_util.get_active_users(company_id=customer_id, session=session)
+			customer_users = models_util.get_active_users(
+				company_id=customer_id, 
+				session=session,
+				filter_contact_only=True
+			)
 			if not customer_users:
 				raise errors.Error('There are no users configured for this customer')
 
@@ -71,7 +75,11 @@ def _send_bank_approved_loans_emails(
 			customer_emails = [user.email for user in customer_users]
 			recipients = customer_emails
 			_, err = sendgrid_client.send(
-				template_name, template_data, recipients)
+				template_name, 
+				template_data, 
+				recipients,
+				filter_out_contact_only=True
+			)
 			if err:
 				raise err
 
@@ -190,7 +198,11 @@ class RejectLoanView(MethodView):
 
 		recipients = customer_emails
 		_, err = sendgrid_client.send(
-			template_name, template_data, recipients)
+			template_name, 
+			template_data, 
+			recipients,
+			filter_out_contact_only=True,
+		)
 		if err:
 			raise err
 

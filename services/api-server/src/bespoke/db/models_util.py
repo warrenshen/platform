@@ -11,19 +11,32 @@ from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
 from bespoke.finance.types.payment_types import PaymentItemsCoveredDict
 from fastapi_utils.guid_type import GUID
+from sqlalchemy.sql import or_, and_
 from sqlalchemy.orm.session import Session
 
 def chunker(seq: List, size: int) -> Iterable[List]:
 	return (seq[pos:pos + size] for pos in range(0, len(seq), size))
 
-def get_active_users(company_id: Union[GUID, str], session: Session) -> List[models.User]:
+def get_active_users(
+	company_id: Union[GUID, str], 
+	session: Session, 
+	filter_contact_only: bool = False
+	) -> List[models.User]:
 	return cast(
-				List[models.User],
-				session.query(models.User).filter_by(
-					company_id=company_id
-				).filter(
-					cast(Callable, models.User.is_deleted.isnot)(True)
-				).all())
+		List[models.User],
+		session.query(models.User).filter_by(
+			company_id=company_id
+		).filter(
+			cast(Callable, models.User.is_deleted.isnot)(True)
+		).filter(
+			or_( # If filter_contact_only set to False, treat this filter as passthrough
+				and_(
+					filter_contact_only == True,
+					models.User.role != "company_contact_only"
+				),
+				filter_contact_only == False
+			)
+		).all())
 
 def get_licenses_base_query(session: Session) -> Any:
 	return session.query(models.CompanyLicense).filter(

@@ -120,7 +120,11 @@ class ReportsLoansComingDueView(MethodView):
 					models.Company.id == company_id)
 				.first())
 			
-			all_users = models_util.get_active_users(company_id=company_id, session=session)
+			all_users = models_util.get_active_users(
+				company_id=company_id, 
+				session=session,
+				filter_contact_only=True
+			)
 			for contact_user in all_users:
 				contact_user_full_name = contact_user.first_name + " " + contact_user.last_name
 				
@@ -153,6 +157,7 @@ class ReportsLoansComingDueView(MethodView):
 						template_name=sendgrid_util.TemplateNames.REPORT_LOANS_COMING_DUE,
 						template_data=template_data,
 						recipients=[contact_user.email],
+						filter_out_contact_only=True
 					)
 
 					if err:
@@ -274,7 +279,11 @@ class ReportsLoansPastDueView(MethodView):
 					models.Company.id == company_id)
 				.first())
 			
-			all_users = models_util.get_active_users(company_id=company_id, session=session)
+			all_users = models_util.get_active_users(
+				company_id=company_id, 
+				session=session,
+				filter_contact_only=True
+			)
 			for contact_user in all_users:
 				contact_user_full_name = contact_user.first_name + " " + contact_user.last_name
 
@@ -307,6 +316,7 @@ class ReportsLoansPastDueView(MethodView):
 						template_name=sendgrid_util.TemplateNames.REPORT_LOANS_PAST_DUE,
 						template_data=template_data,
 						recipients=[contact_user.email],
+						filter_out_contact_only=True
 					)
 
 					if err:
@@ -863,7 +873,11 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 			attached_report = prepare_email_attachment(company.name, statement_month, html, is_landscape = False)
 
 			if is_test is False:
-				all_users = models_util.get_active_users(company_id=company_id, session=session)
+				all_users = models_util.get_active_users(
+					company_id=company_id, 
+					session=session,
+					filter_contact_only=True
+				)
 				for contact_user in all_users:
 					template_data["company_user"] = contact_user.first_name + " " + contact_user.last_name
 
@@ -871,6 +885,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 						template_name=sendgrid_util.TemplateNames.REPORT_MONTHLY_SUMMARY_LOC,
 						template_data=template_data,
 						recipients=[contact_user.email],
+						filter_out_contact_only=True,
 						attachment=attached_report
 					)
 
@@ -883,6 +898,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 					template_name=sendgrid_util.TemplateNames.REPORT_MONTHLY_SUMMARY_LOC,
 					template_data=template_data,
 					recipients=[test_email],
+					filter_out_contact_only=True,
 					attachment=attached_report
 				)
 
@@ -990,7 +1006,11 @@ class AutomaticDebitCourtesyView(MethodView):
 					models.MonthlySummaryCalculation.report_month == report_month_last_day
 				).first())
 
-			all_users = models_util.get_active_users(company_id=company_id, session=session)
+			all_users = models_util.get_active_users(
+				company_id=company_id, 
+				session=session,
+				filter_contact_only=True
+			)
 			for contact_user in all_users:
 				contact_user_full_name = contact_user.first_name + " " + contact_user.last_name
 
@@ -1012,7 +1032,8 @@ class AutomaticDebitCourtesyView(MethodView):
 					_, err = sendgrid_client.send(
 						template_name=sendgrid_util.TemplateNames.AUTOMATIC_DEBIT_COURTESY_ALERT,
 						template_data=template_data,
-						recipients=[contact_user.email]
+						recipients=[contact_user.email],
+						filter_out_contact_only=True
 					)
 
 					if err:
@@ -1279,7 +1300,11 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 			attached_report = prepare_email_attachment(company.name, statement_month, html, is_landscape = True)
 
 			if is_test is False:
-				all_users = models_util.get_active_users(company_id=company_id, session=session)
+				all_users = models_util.get_active_users(
+					company_id=company_id, 
+					session=session,
+					filter_contact_only=True
+				)
 				for contact_user in all_users:
 					template_data["company_user"] = contact_user.first_name + " " + contact_user.last_name
 					
@@ -1287,6 +1312,7 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 						template_name=sendgrid_util.TemplateNames.REPORT_MONTHLY_SUMMARY_NON_LOC,
 						template_data=template_data,
 						recipients=[contact_user.email],
+						filter_out_contact_only=True,
 						attachment=attached_report
 					)
 
@@ -1299,6 +1325,7 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 					template_name=sendgrid_util.TemplateNames.REPORT_MONTHLY_SUMMARY_NON_LOC,
 					template_data=template_data,
 					recipients=[test_email],
+					filter_out_contact_only=True,
 					attachment=attached_report
 				)
 
