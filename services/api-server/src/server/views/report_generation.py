@@ -103,7 +103,8 @@ class ReportsLoansComingDueView(MethodView):
 				l.status == LoanStatusEnum.APPROVED and l.closed_at is None and l.rejected_at is None:
 				days_until_maturity = date_util.num_calendar_days_passed(today.date(), l.maturity_date);
 				if days_until_maturity == 1 or days_until_maturity == 3 or \
-					days_until_maturity == 7 or days_until_maturity == 14:
+					days_until_maturity == 7 or days_until_maturity == 14 or \
+					str(l.company_id) == '9f23403e-d5ca-4e36-b66b-b8e69297c2eb':
 					if l.company_id not in loans_to_notify:
 						loans_to_notify[l.company_id] = [];
 					loans_to_notify[l.company_id].append(l)
@@ -184,7 +185,7 @@ class ReportsLoansComingDueView(MethodView):
 				).filter(
 					models.Loan.origination_date != None
 				).filter(
-					models.Loan.loan_type == LoanTypeEnum.LINE_OF_CREDIT
+					models.Loan.loan_type != LoanTypeEnum.LINE_OF_CREDIT
 				).all())
 
 			BATCH_SIZE = 50
