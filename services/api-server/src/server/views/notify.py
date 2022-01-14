@@ -292,7 +292,7 @@ class SendNotificationView(MethodView):
 				template_name, 
 				template_data, 
 				recipient_emails,
-				filter_out_contact_only=True
+				filter_out_contact_only=False
 			)
 			if err:
 				return handler_util.make_error_response(err)
