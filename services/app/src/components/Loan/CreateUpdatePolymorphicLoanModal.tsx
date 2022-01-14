@@ -22,6 +22,7 @@ function CreateUpdatePolymorphicLoanModal({
   handleClose,
 }: Props) {
   if (
+    productType === ProductTypeEnum.DispensaryFinancing ||
     productType === ProductTypeEnum.InventoryFinancing ||
     productType === ProductTypeEnum.PurchaseMoneyFinancing
   ) {
@@ -56,6 +57,7 @@ function CreateUpdatePolymorphicLoanModal({
       />
     );
   } else {
+    console.log({ error: "Developer error: unsupported product type" });
     return null;
   }
 }
