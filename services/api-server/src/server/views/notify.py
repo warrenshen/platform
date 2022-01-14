@@ -45,10 +45,17 @@ ThirdPartyInfoDict = TypedDict('ThirdPartyInfoDict', {
 
 class SendPayload(object):
 
-	def __init__(self, template_name: str, template_data: Dict, recipients: List[RecipientDict]) -> None:
+	def __init__(
+		self, 
+		template_name: str, 
+		template_data: Dict, 
+		recipients: List[RecipientDict], 
+		filter_out_contact_only: bool
+	) -> None:
 		self.template_name = template_name
 		self.template_data = template_data
 		self.recipients = recipients
+		self.filter_out_contact_only = filter_out_contact_only
 
 
 def _user_to_recipient(user: models.User) -> RecipientDict:
@@ -177,12 +184,14 @@ class NotifyHelper(object):
 			to_customer_payload = SendPayload(
 				template_name=TemplateNames.VENDOR_APPROVED_NOTIFY_CUSTOMER,
 				template_data=template_data,
-				recipients=company_info['recipients']
+				recipients=company_info['recipients'],
+				filter_out_contact_only=True
 			)
 			to_vendor_payload = SendPayload(
 				template_name=TemplateNames.VENDOR_APPROVED_NOTIFY_VENDOR,
 				template_data=template_data,
-				recipients=vendor_info['recipients']
+				recipients=vendor_info['recipients'],
+				filter_out_contact_only=False
 			)
 			return [to_customer_payload, to_vendor_payload], None
 
@@ -195,7 +204,8 @@ class NotifyHelper(object):
 			to_vendor_payload = SendPayload(
 				template_name=TemplateNames.VENDOR_AGREEMENT_WITH_CUSTOMER,
 				template_data=template_data,
-				recipients=[primary_vendor_recipient]
+				recipients=[primary_vendor_recipient],
+				filter_out_contact_only=False
 			)
 			return [to_vendor_payload], None
 
@@ -208,12 +218,14 @@ class NotifyHelper(object):
 			to_customer_payload = SendPayload(
 				template_name=TemplateNames.PAYOR_APPROVED_NOTIFY_CUSTOMER,
 				template_data=template_data,
-				recipients=company_info['recipients']
+				recipients=company_info['recipients'],
+				filter_out_contact_only=True
 			)
 			to_payor_payload = SendPayload(
 				template_name=TemplateNames.PAYOR_APPROVED_NOTIFY_PAYOR,
 				template_data=template_data,
-				recipients=payor_info['recipients']
+				recipients=payor_info['recipients'],
+				filter_out_contact_only=False
 			)
 			return [to_customer_payload, to_payor_payload], None
 
@@ -227,7 +239,8 @@ class NotifyHelper(object):
 			to_payor_payload = SendPayload(
 				template_name=TemplateNames.PAYOR_AGREEMENT_WITH_CUSTOMER,
 				template_data=template_data,
-				recipients=[primary_payor_recipient]
+				recipients=[primary_payor_recipient],
+				filter_out_contact_only=False
 			)
 			return [to_payor_payload], None
 
@@ -285,6 +298,7 @@ class SendNotificationView(MethodView):
 			template_name = send_payload.template_name
 			template_data = send_payload.template_data
 			recipients = send_payload.recipients
+			filter_out_contact_only = send_payload.filter_out_contact_only
 
 			recipient_emails = [recipient['email'] for recipient in recipients]
 
@@ -292,7 +306,7 @@ class SendNotificationView(MethodView):
 				template_name, 
 				template_data, 
 				recipient_emails,
-				filter_out_contact_only=False
+				filter_out_contact_only=filter_out_contact_only
 			)
 			if err:
 				return handler_util.make_error_response(err)
