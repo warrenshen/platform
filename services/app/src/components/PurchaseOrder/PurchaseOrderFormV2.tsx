@@ -262,7 +262,6 @@ export default function PurchaseOrderFormV2({
           dataCy={"purchase-order-form-file-uploader-purchase-order-file"}
           companyId={companyId}
           fileType={FileTypeEnum.PURCHASE_ORDER}
-          maxFilesAllowed={1}
           fileIds={purchaseOrderFileIds}
           frozenFileIds={frozenPurchaseOrderFileIds}
           handleDeleteFileById={(fileId) =>
