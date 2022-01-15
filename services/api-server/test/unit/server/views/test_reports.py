@@ -607,6 +607,7 @@ class TestReportsLoansPastDueView(db_unittest.TestCase):
 
 			loan = models.Loan()
 			loan.maturity_date = date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
+			loan.adjusted_maturity_date = date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
 			loan.outstanding_principal_balance = Decimal(10000)
 			loan.outstanding_interest = Decimal(500)
 			loan.outstanding_fees = Decimal(250)
@@ -630,11 +631,22 @@ class TestReportsLoansPastDueView(db_unittest.TestCase):
 				List[models.Loan],
 				session.query(models.Loan).all())
 
+			loans_to_notify : Dict[str, List[models.Loan] ] = {}
+			for l in all_open_loans:
+				if l.origination_date is not None and l.adjusted_maturity_date is not None and \
+					l.status == LoanStatusEnum.APPROVED and l.closed_at is None and l.rejected_at is None:
+					days_until_maturity = date_util.num_calendar_days_passed(TODAY.date(), l.adjusted_maturity_date);
+					if days_until_maturity == 1 or days_until_maturity == 3 or \
+						days_until_maturity == 7 or days_until_maturity == 14:
+						if l.company_id not in loans_to_notify:
+							loans_to_notify[l.company_id] = [];
+						loans_to_notify[l.company_id].append(l)
+
 			notified_loans, _ = past_due_report.process_loan_chunk(session, 
 				sendgrid_client = None, 
 				report_link = "http://localhost:3005/1/reports",
 				payment_link = "http://localhost:3005/1/loans", 
-				loans_chunk = all_open_loans,
+				loans_to_notify= loans_to_notify,
 				today = parser.parse('2020-10-01T16:33:27.69-08:00')
 			)
 
@@ -651,6 +663,7 @@ class TestReportsLoansComingDueView(db_unittest.TestCase):
 		with session_scope(self.session_maker) as session:
 
 			loan = models.Loan()
+			loan.adjusted_maturity_date = TWO_DAYS_FROM_TODAY
 			loan.outstanding_principal_balance = Decimal(10000)
 			loan.outstanding_interest = Decimal(500)
 			loan.outstanding_fees = Decimal(250)
@@ -668,11 +681,22 @@ class TestReportsLoansComingDueView(db_unittest.TestCase):
 				List[models.Loan],
 				session.query(models.Loan).all())
 
+			loans_to_notify : Dict[str, List[models.Loan] ] = {}
+			for l in all_open_loans:
+				if l.origination_date is not None and l.adjusted_maturity_date is not None and \
+					l.status == LoanStatusEnum.APPROVED and l.closed_at is None and l.rejected_at is None:
+					days_until_maturity = date_util.num_calendar_days_passed(TODAY.date(), l.adjusted_maturity_date);
+					if days_until_maturity == 1 or days_until_maturity == 3 or \
+						days_until_maturity == 7 or days_until_maturity == 14:
+						if l.company_id not in loans_to_notify:
+							loans_to_notify[l.company_id] = [];
+						loans_to_notify[l.company_id].append(l)
+
 			notified_loans, _ = coming_due_report.process_loan_chunk(session, 
 				sendgrid_client = None, 
 				report_link = "http://localhost:3005/1/reports",
 				payment_link = "http://localhost:3005/1/loans", 
-				loans_chunk = all_open_loans,
+				loans_to_notify = loans_to_notify,
 				today = parser.parse('2020-10-01T16:33:27.69-08:00')
 			)
 

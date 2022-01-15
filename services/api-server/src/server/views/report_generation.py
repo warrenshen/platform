@@ -69,6 +69,8 @@ class ReportsLoansComingDueView(MethodView):
 			principal = float(l.outstanding_principal_balance) if l.outstanding_principal_balance is not None else 0.0
 			interest = float(l.outstanding_interest) if l.outstanding_interest is not None else 0.0
 			fees = float(l.outstanding_fees) if l.outstanding_fees is not None else 0.0
+			maturity_date_display = date_util.date_to_str(l.adjusted_maturity_date) \
+				if l.adjusted_maturity_date is not None else ""
 
 			loan_total = principal + interest + fees
 			running_total += float(loan_total)
@@ -76,7 +78,7 @@ class ReportsLoansComingDueView(MethodView):
 			rows_html += "<td>L" + str(l.identifier) + "</td>"
 			if l.loan_type != LoanTypeEnum.LINE_OF_CREDIT:
 				rows_html += self.get_artifact_string(l, session)
-			rows_html += "<td>" + str(l.maturity_date) + "</td>"
+			rows_html += "<td>" + maturity_date_display + "</td>"
 			rows_html += "<td>" + number_util.to_dollar_format(loan_total) + "</td>"
 			rows_html += "<td>" + number_util.to_dollar_format(principal) + "</td>"
 			rows_html += "<td>" + number_util.to_dollar_format(interest) + "</td>"
@@ -91,23 +93,9 @@ class ReportsLoansComingDueView(MethodView):
 		sendgrid_client : sendgrid_util.Client, 
 		report_link : str, 
 		payment_link : str, 
-		loans_chunk : List[models.Loan],
+		loans_to_notify : Dict[str, List[models.Loan] ],
 		today : datetime.datetime
 		) -> Tuple[Dict[str, List[models.Loan]], Response]:
-		# filter for loans that have platform team specified numbers of days
-		# before loan maturity, group by company_id to make sending out
-		# a unified email to each company more straightforward
-		loans_to_notify : Dict[str, List[models.Loan] ] = {}
-		for l in loans_chunk:
-			if l.origination_date is not None and l.maturity_date is not None and \
-				l.status == LoanStatusEnum.APPROVED and l.closed_at is None and l.rejected_at is None:
-				days_until_maturity = date_util.num_calendar_days_passed(today.date(), l.maturity_date);
-				if days_until_maturity == 1 or days_until_maturity == 3 or \
-					days_until_maturity == 7 or days_until_maturity == 14:
-					if l.company_id not in loans_to_notify:
-						loans_to_notify[l.company_id] = [];
-					loans_to_notify[l.company_id].append(l)
-
 		for company_id, loans in loans_to_notify.items():
 			# line of credit loans are slated for a different flow as part of future work
 			if loans[0].loan_type == LoanTypeEnum.LINE_OF_CREDIT:
@@ -185,10 +173,28 @@ class ReportsLoansComingDueView(MethodView):
 					models.Loan.origination_date != None
 				).filter(
 					models.Loan.loan_type != LoanTypeEnum.LINE_OF_CREDIT
+				).filter(
+					models.Loan.adjusted_maturity_date != None
+				).filter(
+					models.Loan.adjusted_maturity_date >= today
 				).all())
 
+			# filter for loans that have platform team specified numbers of days
+			# before loan maturity, group by company_id to make sending out
+			# a unified email to each company more straightforward
+			loans_to_notify : Dict[str, List[models.Loan] ] = {}
+			for l in all_open_loans:
+				if l.origination_date is not None and l.adjusted_maturity_date is not None and \
+					l.status == LoanStatusEnum.APPROVED and l.closed_at is None and l.rejected_at is None:
+					days_until_maturity = date_util.num_calendar_days_passed(today.date(), l.adjusted_maturity_date);
+					if days_until_maturity == 1 or days_until_maturity == 3 or \
+						days_until_maturity == 7 or days_until_maturity == 14:
+						if l.company_id not in loans_to_notify:
+							loans_to_notify[l.company_id] = [];
+						loans_to_notify[l.company_id].append(l)
+
 			BATCH_SIZE = 50
-			for loans_chunk in cast(Iterable[List[models.Loan]], chunker(all_open_loans, BATCH_SIZE)):
+			for loans_chunk in cast(Iterable[ Dict[str, List[models.Loan]] ], chunker_dict(loans_to_notify, BATCH_SIZE)):
 				_, err = self.process_loan_chunk(session, sendgrid_client, report_link, payment_link, loans_chunk, today)
 
 				if err:
@@ -232,7 +238,7 @@ class ReportsLoansPastDueView(MethodView):
 
 			loan_total = principal + interest + fees
 			running_total += float(loan_total)
-			days_past_due = date_util.number_days_between_dates(date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE), l.maturity_date)
+			days_past_due = date_util.number_days_between_dates(date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE), l.adjusted_maturity_date)
 			rows_html += "<tr>"
 			rows_html += "<td>L" + str(l.identifier) + "</td>"
 			if l.loan_type != LoanTypeEnum.LINE_OF_CREDIT:
@@ -252,21 +258,9 @@ class ReportsLoansPastDueView(MethodView):
 		sendgrid_client : sendgrid_util.Client, 
 		report_link : str, 
 		payment_link: str,
-		loans_chunk : List[models.Loan],
+		loans_to_notify : Dict[str, List[models.Loan] ],
 		today : datetime.datetime
 		) -> Tuple[Dict[str, List[models.Loan]], Response]:
-		# filter for loans that have platform team specified numbers of days
-		# before loan maturity, group by company_id to make sending out
-		# a unified email to each company more straightforward
-		loans_to_notify : Dict[str, List[models.Loan] ] = {}
-		for l in loans_chunk:
-			if l.origination_date is not None and l.maturity_date is not None and \
-				l.status == LoanStatusEnum.APPROVED and l.closed_at is None and l.rejected_at is None:
-				if date_util.is_past_due(today.date(), l.maturity_date, date_util.DEFAULT_TIMEZONE):
-					if l.company_id not in loans_to_notify:
-						loans_to_notify[l.company_id] = [];
-					loans_to_notify[l.company_id].append(l)
-
 		for company_id, loans in loans_to_notify.items():
 			# line of credit loans are slated for a different flow as part of future work
 			if loans[0].loan_type == LoanTypeEnum.LINE_OF_CREDIT:
@@ -344,10 +338,26 @@ class ReportsLoansPastDueView(MethodView):
 					models.Loan.origination_date != None
 				).filter(
 					models.Loan.loan_type != LoanTypeEnum.LINE_OF_CREDIT
+				).filter(
+					models.Loan.adjusted_maturity_date != None
+				).filter(
+					models.Loan.adjusted_maturity_date < today
 				).all())
 
+			# filter for loans that have platform team specified numbers of days
+			# before loan maturity, group by company_id to make sending out
+			# a unified email to each company more straightforward
+			loans_to_notify : Dict[str, List[models.Loan] ] = {}
+			for l in all_open_loans:
+				if l.origination_date is not None and l.adjusted_maturity_date is not None and \
+					l.status == LoanStatusEnum.APPROVED and l.closed_at is None and l.rejected_at is None:
+					if date_util.is_past_due(today.date(), l.adjusted_maturity_date, date_util.DEFAULT_TIMEZONE):
+						if l.company_id not in loans_to_notify:
+							loans_to_notify[l.company_id] = [];
+						loans_to_notify[l.company_id].append(l)
+
 			BATCH_SIZE = 50
-			for loans_chunk in cast(Iterable[List[models.Loan]], chunker(all_open_loans, BATCH_SIZE)):
+			for loans_chunk in cast(Iterable[ Dict[str, List[models.Loan]] ], chunker_dict(loans_to_notify, BATCH_SIZE)):
 				_, err = self.process_loan_chunk(session, sendgrid_client, report_link, payment_link, loans_chunk, today)
 
 				if err:
@@ -1065,7 +1075,7 @@ class AutomaticDebitCourtesyView(MethodView):
 				_, err = self.process_loan_chunk(session, sendgrid_client, loans_chunk, today)
 				
 				if err:
-					return err;
+					return err
 		
 
 		return make_response(json.dumps({'status': 'OK', 'resp': "Successfully sent out courtesy alert for automatic monthly debits."}))
