@@ -137,7 +137,7 @@ export default function EditCustomerSettingsModal({
             <Box mb={2}>
               <TextField
                 fullWidth
-                label="Vendor Agreement"
+                label="Vendor Onboarding Link"
                 placeholder="http://docusign.com/vendor-agreement"
                 value={settings.vendor_agreement_docusign_template || ""}
                 onChange={({ target: { value } }) => {

@@ -196,9 +196,31 @@ class NotifyHelper(object):
 			return [to_customer_payload, to_vendor_payload], None
 
 		elif vendor_info and notification_name == 'vendor_agreement_with_customer':
+			with session_scope(self._session_maker) as session:
+				partner = cast(
+					models.Company,
+					session.query(models.Company).filter(
+						models.Company.id == self._input_data['vendor_id']
+					).first())
+
+				customer_settings = cast(
+					models.CompanySettings,
+					session.query(models.CompanySettings).filter(
+						models.CompanySettings.company_id == self._input_data['company_id']
+					).first())
+
+			# due to the interim period where we are infomring our clients that we're moving away
+			# from the vendor agreement and seeking their buyin, we should still default to the 
+			# customer settings' docusign link unless the onboarding link is set
+			onboarding_link = customer_settings.vendor_onboarding_link \
+				if customer_settings.vendor_onboarding_link is not None else ""
+			docusign_link = onboarding_link if onboarding_link != "" else company_info['settings']['vendor_agreement_docusign_template']
+
 			template_data = {
 				'customer_name': company_info['name'],
-				'docusign_link': company_info['settings']['vendor_agreement_docusign_template']
+				'partner_name': partner.get_display_name(),
+				'onboarding_link': '<a href="' + docusign_link + '" target="_blank">Bespoke Vendor Onboarding Form</a>',
+				'support_email': '<a href="mailto:support@bespokefinancial.com">support@bespokefinancial.com</a>'
 			}
 			primary_vendor_recipient = vendor_info['recipients'][0]
 			to_vendor_payload = SendPayload(

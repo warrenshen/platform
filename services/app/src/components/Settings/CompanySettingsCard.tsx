@@ -66,7 +66,7 @@ function CompanySettingsCard({ contract, settings, handleClick }: Props) {
           </Box>
           {settingsHelper.shouldShowVendorAgreement() && (
             <Box display="flex" pb={0.25}>
-              <Box className={classes.label}>Vendor Agreement</Box>
+              <Box className={classes.label}>Vendor Onboarding Link</Box>
               <Box>
                 {settings.vendor_agreement_docusign_template ? (
                   <Link

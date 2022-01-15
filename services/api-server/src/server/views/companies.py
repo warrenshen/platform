@@ -344,28 +344,37 @@ class CreatePartnershipView(MethodView):
 			elif is_dispensary_customer and resp['company_type'] == db_constants.CompanyType.Vendor:
 				docusign_link = None
 				template_name = sendgrid_util.TemplateNames.DISPENSARY_VENDOR_AGREEMENT
-
-				onboarding_link = customer_settings.vendor_onboarding_link \
-					if customer_settings.vendor_onboarding_link is not None else ""
-				show_onboarding = "True" if onboarding_link is not None else ""
 			elif resp['company_type'] == db_constants.CompanyType.Vendor: 
 				docusign_link = customer_settings.vendor_agreement_docusign_template
 				template_name = sendgrid_util.TemplateNames.VENDOR_AGREEMENT_WITH_CUSTOMER
 			else:
 				raise errors.Error('Unexpected company_type {}'.format(resp['company_type']))
 
+			# due to the interim period where we are infomring our clients that we're moving away
+			# from the vendor agreement and seeking their buyin, we should still default to the 
+			# customer settings' docusign link unless the onboarding link is set
+			onboarding_link = customer_settings.vendor_onboarding_link \
+				if customer_settings.vendor_onboarding_link is not None else ""
+			docusign_link = onboarding_link if onboarding_link != "" else docusign_link
+				
 			if is_dispensary_customer:
 				template_data = {
 					'customer_name': customer.get_display_name(),
 					'partner_name': partner.get_display_name(),
-					'show_onboarding': show_onboarding,
 					'onboarding_link': '<a href="' + onboarding_link + '" target="_blank">Bespoke Vendor Onboarding Form</a>',
 					'support_email': '<a href="mailto:support@bespokefinancial.com">support@bespokefinancial.com</a>'
 				}
-			else:
+			elif resp['company_type'] == db_constants.CompanyType.Payor:
 				template_data = {
 					'customer_name': customer.get_display_name(),
 					'docusign_link': docusign_link,
+				} 
+			else:
+				template_data = {
+					'customer_name': customer.get_display_name(),
+					'partner_name': partner.get_display_name(),
+					'onboarding_link': '<a href="' + docusign_link + '" target="_blank">Bespoke Vendor Onboarding Form</a>',
+					'support_email': '<a href="mailto:support@bespokefinancial.com">support@bespokefinancial.com</a>'
 				}
 			recipients = company_emails
 			_, err = sendgrid_client.send(
