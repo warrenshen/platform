@@ -2831,8 +2831,10 @@ export enum CompanyDeliveriesUpdateColumn {
 export type CompanyFacilities = {
   address: Scalars["String"];
   company_id: Scalars["uuid"];
+  created_at: Scalars["timestamptz"];
   id: Scalars["uuid"];
   name: Scalars["String"];
+  updated_at: Scalars["timestamptz"];
 };
 
 /** aggregated selection of "company_facilities" */
@@ -2861,8 +2863,10 @@ export type CompanyFacilitiesBoolExp = {
   _or?: Maybe<Array<CompanyFacilitiesBoolExp>>;
   address?: Maybe<StringComparisonExp>;
   company_id?: Maybe<UuidComparisonExp>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   name?: Maybe<StringComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
 };
 
 /** unique or primary key constraints on table "company_facilities" */
@@ -2877,24 +2881,30 @@ export enum CompanyFacilitiesConstraint {
 export type CompanyFacilitiesInsertInput = {
   address?: Maybe<Scalars["String"]>;
   company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   name?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** aggregate max on columns */
 export type CompanyFacilitiesMaxFields = {
   address?: Maybe<Scalars["String"]>;
   company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   name?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** aggregate min on columns */
 export type CompanyFacilitiesMinFields = {
   address?: Maybe<Scalars["String"]>;
   company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   name?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** response of any mutation on the table "company_facilities" */
@@ -2923,8 +2933,10 @@ export type CompanyFacilitiesOnConflict = {
 export type CompanyFacilitiesOrderBy = {
   address?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   name?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
 };
 
 /** primary key columns input for table: company_facilities */
@@ -2939,17 +2951,23 @@ export enum CompanyFacilitiesSelectColumn {
   /** column name */
   CompanyId = "company_id",
   /** column name */
+  CreatedAt = "created_at",
+  /** column name */
   Id = "id",
   /** column name */
   Name = "name",
+  /** column name */
+  UpdatedAt = "updated_at",
 }
 
 /** input type for updating data in table "company_facilities" */
 export type CompanyFacilitiesSetInput = {
   address?: Maybe<Scalars["String"]>;
   company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   name?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** update columns of table "company_facilities" */
@@ -2959,9 +2977,13 @@ export enum CompanyFacilitiesUpdateColumn {
   /** column name */
   CompanyId = "company_id",
   /** column name */
+  CreatedAt = "created_at",
+  /** column name */
   Id = "id",
   /** column name */
   Name = "name",
+  /** column name */
+  UpdatedAt = "updated_at",
 }
 
 /**
@@ -34663,7 +34685,14 @@ export const GetVendorPartnershipForContactsDocument = gql`
       ...VendorPartnership
       vendor {
         id
-        users {
+        users(
+          where: {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+        ) {
           id
           ...Contact
         }
