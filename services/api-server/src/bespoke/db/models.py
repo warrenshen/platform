@@ -1297,20 +1297,33 @@ class BankAccount(Base):
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id'), nullable=True))
 
-	bank_name = Column(String, nullable=False)
-	account_type = Column(String, nullable=False)
-	account_title = Column(String)
+	bank_name = Column(String, nullable=False) # Bank name
+	account_title = Column(String) # Account name
+	account_type = Column(String, nullable=False) # Account type
 	account_number = Column(String, nullable=False)
-	routing_number = Column(String, nullable=False)
-	can_ach = Column(Boolean, nullable=True)
-	can_wire = Column(Boolean, nullable=True)
-	bank_address = Column(String)
-	recipient_name = Column(String)
+
+	# ACH related fields below.
+	can_ach = Column(Boolean)
+	routing_number = Column(String) # ACH routing number
+	ach_default_memo = Column(String) # ACH default memo
+	torrey_pines_template_name = Column(Text) # ACH template name
+
+	# Wire related fields below.
+	can_wire = Column(Boolean)
+	is_wire_intermediary = Column(Boolean)
+	intermediary_bank_name = Column(String) # Only used if wire is done via intermediary bank.
+	intermediary_bank_address = Column(String) # Only used if wire is done via intermediary bank.
+	intermediary_account_name = Column(String) # Only used if wire is done via intermediary bank.
+	intermediary_account_number = Column(String) # Only used if wire is done via intermediary bank.
+	wire_routing_number = Column(String) # Wire routing number
 	recipient_address = Column(Text)
 	recipient_address_2 = Column(Text)
-	torrey_pines_template_name = Column(Text)
-	verified_date = Column(Date)
+	wire_default_memo = Column(String) # Wire default memo
+	wire_template_name = Column(String) # Wire template name
+	bank_address = Column(String) # Deprecated: consider dropping this column in the future.
+
 	is_cannabis_compliant = Column(Boolean, default=False)
+	verified_date = Column(Date)
 	verified_at = Column(DateTime)
 
 AsyncPipelineDict = TypedDict('AsyncPipelineDict', {

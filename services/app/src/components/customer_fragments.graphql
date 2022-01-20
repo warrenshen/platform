@@ -26,20 +26,32 @@ fragment CompanyLicenseLimited on company_licenses {
 fragment BankAccountLimited on bank_accounts {
   id
   company_id
+
   bank_name
-  bank_address
   account_title
   account_type
   account_number
-  routing_number
+  bank_address
+
   can_ach
+  routing_number
+  ach_default_memo
+
   can_wire
+  is_wire_intermediary
+  intermediary_bank_name
+  intermediary_bank_address
+  intermediary_account_name
+  intermediary_account_number
+  wire_routing_number
   recipient_name
   recipient_address
   recipient_address_2
+  wire_default_memo
+
+  is_cannabis_compliant
   verified_at
   verified_date
-  is_cannabis_compliant
 }
 
 fragment VendorLimited on vendors {

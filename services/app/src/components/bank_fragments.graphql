@@ -63,6 +63,7 @@ fragment CompanySettings on company_settings {
 fragment BankAccount on bank_accounts {
   id
   torrey_pines_template_name
+  wire_template_name
   ...BankAccountLimited
 }
 

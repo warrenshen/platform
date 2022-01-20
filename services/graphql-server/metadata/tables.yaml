@@ -59,12 +59,18 @@
       - account_number
       - account_title
       - account_type
+      - ach_default_memo
       - bank_address
       - bank_name
       - can_ach
       - can_wire
       - company_id
+      - intermediary_account_name
+      - intermediary_account_number
+      - intermediary_bank_address
+      - intermediary_bank_name
       - is_cannabis_compliant
+      - is_wire_intermediary
       - recipient_address
       - recipient_address_2
       - recipient_name
@@ -72,6 +78,9 @@
       - torrey_pines_template_name
       - verified_at
       - verified_date
+      - wire_default_memo
+      - wire_routing_number
+      - wire_template_name
       backend_only: false
   - role: company_admin
     permission:
@@ -84,15 +93,23 @@
       - account_number
       - account_title
       - account_type
+      - ach_default_memo
       - bank_address
       - bank_name
       - can_ach
       - can_wire
+      - intermediary_account_name
+      - intermediary_account_number
+      - intermediary_bank_address
+      - intermediary_bank_name
       - is_cannabis_compliant
+      - is_wire_intermediary
       - recipient_address
       - recipient_address_2
       - recipient_name
       - routing_number
+      - wire_default_memo
+      - wire_routing_number
       backend_only: false
   select_permissions:
   - role: bank_admin
@@ -101,6 +118,7 @@
       - account_number
       - account_title
       - account_type
+      - ach_default_memo
       - bank_address
       - bank_name
       - can_ach
@@ -108,7 +126,12 @@
       - company_id
       - created_at
       - id
+      - intermediary_account_name
+      - intermediary_account_number
+      - intermediary_bank_address
+      - intermediary_bank_name
       - is_cannabis_compliant
+      - is_wire_intermediary
       - recipient_address
       - recipient_address_2
       - recipient_name
@@ -117,6 +140,9 @@
       - updated_at
       - verified_at
       - verified_date
+      - wire_default_memo
+      - wire_routing_number
+      - wire_template_name
       filter: {}
   - role: bank_read_only
     permission:
@@ -124,6 +150,7 @@
       - account_number
       - account_title
       - account_type
+      - ach_default_memo
       - bank_address
       - bank_name
       - can_ach
@@ -131,7 +158,12 @@
       - company_id
       - created_at
       - id
+      - intermediary_account_name
+      - intermediary_account_number
+      - intermediary_bank_address
+      - intermediary_bank_name
       - is_cannabis_compliant
+      - is_wire_intermediary
       - recipient_address
       - recipient_address_2
       - recipient_name
@@ -140,6 +172,9 @@
       - updated_at
       - verified_at
       - verified_date
+      - wire_default_memo
+      - wire_routing_number
+      - wire_template_name
       filter: {}
   - role: company_admin
     permission:
@@ -147,6 +182,7 @@
       - account_number
       - account_title
       - account_type
+      - ach_default_memo
       - bank_address
       - bank_name
       - can_ach
@@ -154,7 +190,12 @@
       - company_id
       - created_at
       - id
+      - intermediary_account_name
+      - intermediary_account_number
+      - intermediary_bank_address
+      - intermediary_bank_name
       - is_cannabis_compliant
+      - is_wire_intermediary
       - recipient_address
       - recipient_address_2
       - recipient_name
@@ -162,6 +203,8 @@
       - updated_at
       - verified_at
       - verified_date
+      - wire_default_memo
+      - wire_routing_number
       filter:
         _or:
         - company_id:
@@ -175,6 +218,7 @@
       - account_number
       - account_title
       - account_type
+      - ach_default_memo
       - bank_address
       - bank_name
       - can_ach
@@ -182,7 +226,12 @@
       - company_id
       - created_at
       - id
+      - intermediary_account_name
+      - intermediary_account_number
+      - intermediary_bank_address
+      - intermediary_bank_name
       - is_cannabis_compliant
+      - is_wire_intermediary
       - recipient_address
       - recipient_address_2
       - recipient_name
@@ -190,6 +239,8 @@
       - updated_at
       - verified_at
       - verified_date
+      - wire_default_memo
+      - wire_routing_number
       filter:
         _or:
         - company_id:
@@ -209,13 +260,19 @@
       - can_wire
       - company_id
       - id
+      - intermediary_account_name
+      - intermediary_account_number
+      - intermediary_bank_address
+      - intermediary_bank_name
       - is_cannabis_compliant
+      - is_wire_intermediary
       - recipient_address
       - recipient_address_2
       - recipient_name
       - routing_number
       - verified_at
       - verified_date
+      - wire_routing_number
       filter:
         assigned_companies_for_collection_in_settings:
           company:
@@ -231,10 +288,16 @@
       - bank_name
       - company_id
       - id
+      - intermediary_account_name
+      - intermediary_account_number
+      - intermediary_bank_address
+      - intermediary_bank_name
+      - is_wire_intermediary
       - recipient_address
       - recipient_address_2
       - recipient_name
       - routing_number
+      - wire_routing_number
       filter:
         company_id:
           _eq: X-Hasura-Company-Id
@@ -245,11 +308,17 @@
       - account_number
       - account_title
       - account_type
+      - ach_default_memo
       - bank_address
       - bank_name
       - can_ach
       - can_wire
+      - intermediary_account_name
+      - intermediary_account_number
+      - intermediary_bank_address
+      - intermediary_bank_name
       - is_cannabis_compliant
+      - is_wire_intermediary
       - recipient_address
       - recipient_address_2
       - recipient_name
@@ -257,6 +326,9 @@
       - torrey_pines_template_name
       - verified_at
       - verified_date
+      - wire_default_memo
+      - wire_routing_number
+      - wire_template_name
       filter: {}
       check: null
   - role: company_admin
@@ -265,15 +337,23 @@
       - account_number
       - account_title
       - account_type
+      - ach_default_memo
       - bank_address
       - bank_name
       - can_ach
       - can_wire
+      - intermediary_account_name
+      - intermediary_account_number
+      - intermediary_bank_address
+      - intermediary_bank_name
       - is_cannabis_compliant
+      - is_wire_intermediary
       - recipient_address
       - recipient_address_2
       - recipient_name
       - routing_number
+      - wire_default_memo
+      - wire_routing_number
       filter:
         company_id:
           _eq: X-Hasura-Company-Id

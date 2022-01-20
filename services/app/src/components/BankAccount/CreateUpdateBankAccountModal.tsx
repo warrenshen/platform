@@ -60,21 +60,33 @@ export default function CreateUpdateBankAccountModal({
     () =>
       ({
         company_id: companyId,
+
         bank_name: "",
         account_title: "",
         account_type: "",
-        routing_number: "",
         account_number: "",
+
         can_ach: false,
+        routing_number: "",
+        ach_default_memo: "",
+        torrey_pines_template_name: "",
+
         can_wire: false,
-        bank_address: "",
-        recipient_name: "",
+        is_wire_intermediary: false,
+        intermediary_bank_name: "",
+        intermediary_bank_address: "",
+        intermediary_account_name: "",
+        intermediary_account_number: "",
+        wire_routing_number: "",
         recipient_address: "",
         recipient_address_2: "",
-        torrey_pines_template_name: "",
-        verified_at: null,
-        verified_date: null,
+        wire_default_memo: "",
+        wire_template_name: "",
+        bank_address: "",
+
         is_cannabis_compliant: false,
+        verified_date: null,
+        verified_at: null,
       } as BankAccountsInsertInput),
     [companyId]
   );
@@ -104,20 +116,30 @@ export default function CreateUpdateBankAccountModal({
       account_title: bankAccount.account_title,
       account_type: bankAccount.account_type,
       account_number: bankAccount.account_number,
-      routing_number: bankAccount.routing_number,
-      can_ach: bankAccount.can_ach,
-      can_wire: bankAccount.can_wire,
-      bank_address: bankAccount.bank_address,
-      recipient_name: bankAccount.recipient_name,
-      recipient_address: bankAccount.recipient_address,
-      recipient_address_2: bankAccount.recipient_address_2,
-      is_cannabis_compliant: bankAccount.is_cannabis_compliant,
 
+      can_ach: bankAccount.can_ach,
+      routing_number: bankAccount.routing_number, // ACH routing number.
+      ach_default_memo: bankAccount.ach_default_memo,
       torrey_pines_template_name: isBankUser
         ? bankAccount.torrey_pines_template_name
         : undefined,
-      verified_at: isBankUser ? bankAccount.verified_at : undefined,
+
+      can_wire: bankAccount.can_wire,
+      is_wire_intermediary: bankAccount.is_wire_intermediary,
+      intermediary_bank_name: bankAccount.intermediary_bank_name,
+      intermediary_bank_address: bankAccount.intermediary_bank_address,
+      intermediary_account_name: bankAccount.intermediary_account_name,
+      intermediary_account_number: bankAccount.intermediary_account_number,
+      wire_routing_number: bankAccount.wire_routing_number, // Wire routing number.
+      recipient_address: bankAccount.recipient_address,
+      recipient_address_2: bankAccount.recipient_address_2,
+      wire_default_memo: bankAccount.wire_default_memo,
+      wire_template_name: bankAccount.wire_template_name,
+      bank_address: bankAccount.bank_address,
+
+      is_cannabis_compliant: bankAccount.is_cannabis_compliant,
       verified_date: isBankUser ? bankAccount.verified_date : undefined,
+      verified_at: isBankUser ? bankAccount.verified_at : undefined,
     };
   };
 
