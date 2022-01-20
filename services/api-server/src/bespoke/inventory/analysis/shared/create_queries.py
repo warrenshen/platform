@@ -15,26 +15,32 @@ def _get_identifiers_for_where_clause(company_identifier: Union[str, List[str]])
 	return ['"{}"'.format(iden) for iden in identifiers]
 
 def create_company_incoming_transfer_packages_query(
-	company_identifier: str,
 	start_date: str,
+	company_identifier: Union[str, List[str]],
 	end_date: str = None,
 	license_numbers: List[str] = None,
 	product_name: str = None,
 	limit: int = None,
 	min_updated_at: datetime.datetime = None
 ) -> str:
+	# end_date_where_clause
 	end_date_where_clause = f"""
 		and metrc_transfers.created_date <= "{end_date}"
 	""" if end_date else ''
+	# license_numbers_where_clause
 	license_numbers = [f"'{license_number}'" for license_number in license_numbers] if license_numbers else None
 	license_numbers_where_clause = f"""
 		and company_deliveries.license_number in ({','.join(license_numbers)})
 	""" if license_numbers else ''
+	# product_name_where_clause
 	product_name_where_clause = f"""
 		and metrc_transfer_packages.product_name = "{product_name}"
 	""" if product_name else ''
-
+	# company_identifier_where_clause
+	identifiers = _get_identifiers_for_where_clause(company_identifier)
+	# limit_clause
 	limit_clause = f"LIMIT {limit}" if limit else ""
+	# updated_at_where_clause
 	updated_at_where_clause = _get_updated_at_where_clause('metrc_transfers', min_updated_at)
 
 	return f"""
@@ -85,7 +91,7 @@ def create_company_incoming_transfer_packages_query(
 			inner join metrc_transfer_packages on metrc_deliveries.id = metrc_transfer_packages.delivery_row_id
 		where
 			True
-			and companies.identifier = "{company_identifier}"
+			and companies.identifier in ({','.join(identifiers)})
 			and (
 				company_deliveries.delivery_type = 'INCOMING_FROM_VENDOR' or
 				company_deliveries.delivery_type = 'INCOMING_INTERNAL' or
@@ -102,8 +108,8 @@ def create_company_incoming_transfer_packages_query(
 	"""
 
 def create_company_outgoing_transfer_packages_query(
-	company_identifier: str,
 	start_date: str,
+	company_identifier: Union[str, List[str]],
 	end_date: str = None,
 	license_numbers: List[str] = None,
 	product_name: str = None,
@@ -120,7 +126,8 @@ def create_company_outgoing_transfer_packages_query(
 	product_name_where_clause = f"""
 		and metrc_transfer_packages.product_name = "{product_name}"
 	""" if product_name else ''
-
+	# company_identifier_where_clause
+	identifiers = _get_identifiers_for_where_clause(company_identifier)
 	limit_clause = f"LIMIT {limit}" if limit else ""
 	updated_at_where_clause = _get_updated_at_where_clause('metrc_transfers', min_updated_at)
 
@@ -170,7 +177,7 @@ def create_company_outgoing_transfer_packages_query(
 			inner join metrc_transfer_packages on metrc_deliveries.id = metrc_transfer_packages.delivery_row_id
 		where
 			True
-			and companies.identifier = "{company_identifier}"
+			and companies.identifier in ({','.join(identifiers)})
 			and (
 				company_deliveries.delivery_type = 'OUTGOING_TO_PAYOR' or
 				company_deliveries.delivery_type = 'OUTGOING_INTERNAL' or
@@ -186,7 +193,9 @@ def create_company_outgoing_transfer_packages_query(
 		{limit_clause}
 	"""
 
-def create_company_unknown_transfer_packages_query(company_identifier: str, start_date: str) -> str:
+def create_company_unknown_transfer_packages_query(start_date: str,company_identifier: Union[str, List[str]]) -> str:
+	# company_identifier_where_clause
+	identifiers = _get_identifiers_for_where_clause(company_identifier)
 	return f"""
 		select
 			case
@@ -230,7 +239,7 @@ def create_company_unknown_transfer_packages_query(company_identifier: str, star
 			inner join metrc_transfer_packages on metrc_deliveries.id = metrc_transfer_packages.delivery_row_id
 		where
 			True
-			and companies.identifier = "{company_identifier}"
+			and companies.identifier in ({','.join(identifiers)})
 			and (
 				company_deliveries.delivery_type = 'UNKNOWN'
 			)
@@ -240,7 +249,8 @@ def create_company_unknown_transfer_packages_query(company_identifier: str, star
 	"""
 
 def create_company_sales_receipts_query(
-	company_identifier: str, start_date: str, 
+	start_date: str,
+	company_identifier: Union[str, List[str]],
 	license_numbers: List[str]=None,
 	limit: int = None,
 	min_updated_at: datetime.datetime = None) -> str:
@@ -249,6 +259,8 @@ def create_company_sales_receipts_query(
 	license_numbers_where_clause = f"""
 		and metrc_sales_receipts.license_number in ({','.join(license_numbers)})
 	""" if license_numbers else ''
+	# company_identifier_where_clause
+	identifiers = _get_identifiers_for_where_clause(company_identifier)
 	limit_clause = f"LIMIT {limit}" if limit else ""
 	updated_at_where_clause = _get_updated_at_where_clause('metrc_sales_receipts', min_updated_at)
 
@@ -267,7 +279,7 @@ def create_company_sales_receipts_query(
 			inner join companies on metrc_sales_receipts.company_id = companies.id
 		where
 			True
-			and companies.identifier = "{company_identifier}"
+			and companies.identifier in ({','.join(identifiers)})
 			and metrc_sales_receipts.sales_datetime >= "{start_date}"
 			{license_numbers_where_clause}
 			{updated_at_where_clause}
@@ -277,8 +289,8 @@ def create_company_sales_receipts_query(
 	"""
 
 def create_company_sales_receipts_with_transactions_query(
-	company_identifier: str, 
-	start_date: str, 
+	start_date: str,
+	company_identifier: Union[str, List[str]],
 	unit_of_measure: str= None,
 	license_numbers: List[str]=None,
 	limit: int = None) -> str:
@@ -296,6 +308,8 @@ def create_company_sales_receipts_with_transactions_query(
 	license_numbers_where_clause = f"""
 		and metrc_sales_receipts.license_number in ({','.join(license_numbers)})
 	""" if license_numbers else ''
+	# company_identifier_where_clause
+	identifiers = _get_identifiers_for_where_clause(company_identifier)
 	limit_clause = f"LIMIT {limit}" if limit else ""
 
 	return f"""
@@ -322,7 +336,7 @@ def create_company_sales_receipts_with_transactions_query(
 			left outer join metrc_sales_transactions on metrc_sales_receipts.id = metrc_sales_transactions.receipt_row_id
 		where
 			True
-			and companies.identifier = "{company_identifier}"
+			and companies.identifier in ({','.join(identifiers)})
 			and metrc_sales_receipts.sales_datetime >= "{start_date}"
 			{unit_of_measure_where_clause}
 			{license_numbers_where_clause}
@@ -332,8 +346,8 @@ def create_company_sales_receipts_with_transactions_query(
 	"""
 
 def create_company_sales_transactions_query(
-	company_identifier: str, 
 	start_date: str,
+	company_identifier: Union[str, List[str]],
 	license_numbers: List[str]=None,
 	limit: int = None,
 	min_updated_at: datetime.datetime = None) -> str:
@@ -342,6 +356,8 @@ def create_company_sales_transactions_query(
 	license_numbers_where_clause = f"""
 		and metrc_sales_receipts.license_number in ({','.join(license_numbers)})
 	""" if license_numbers else ''
+	# company_identifier_where_clause
+	identifiers = _get_identifiers_for_where_clause(company_identifier)
 	limit_clause = f"LIMIT {limit}" if limit else ""
 	updated_at_where_clause = _get_updated_at_where_clause('metrc_sales_receipts', min_updated_at)
 
@@ -370,7 +386,7 @@ def create_company_sales_transactions_query(
 			inner join metrc_sales_transactions on metrc_sales_receipts.id = metrc_sales_transactions.receipt_row_id
 		where
 			True
-			and companies.identifier = "{company_identifier}"
+			and companies.identifier in ({','.join(identifiers)})
 			and metrc_sales_receipts.sales_datetime >= "{start_date}"
 			{license_numbers_where_clause}
 			{updated_at_where_clause}
@@ -380,7 +396,7 @@ def create_company_sales_transactions_query(
 	"""
 
 def create_company_inventory_packages_query(
-	company_identifier: str,
+	company_identifier: Union[str, List[str]],
 	include_quantity_zero: bool = False,
 	license_numbers: List[str] = None,
 	product_name: str = None,
@@ -395,7 +411,8 @@ def create_company_inventory_packages_query(
 	product_name_where_clause = f"""
 		and metrc_packages.product_name = "{product_name}"
 	""" if product_name else ''
-	
+	# company_identifier_where_clause
+	identifiers = _get_identifiers_for_where_clause(company_identifier)
 	limit_clause = f"LIMIT {limit}" if limit else ""
 	updated_at_where_clause = _get_updated_at_where_clause('metrc_packages', min_updated_at)
 
@@ -427,7 +444,7 @@ def create_company_inventory_packages_query(
 			inner join metrc_packages on companies.id = metrc_packages.company_id
 		where
 			True
-			and companies.identifier = "{company_identifier}"
+			and companies.identifier in ({','.join(identifiers)})
 			and (
 				metrc_packages.type = 'active' or
 				metrc_packages.type = 'onhold'
@@ -442,7 +459,7 @@ def create_company_inventory_packages_query(
 	"""
 
 def create_company_all_packages_query(
-	company_identifier: str,
+	company_identifier: Union[str, List[str]],
 	license_numbers: List[str]=None,
 	limit: int = None,
 ) -> str:
@@ -450,6 +467,8 @@ def create_company_all_packages_query(
 	license_numbers_where_clause = f"""
 		and metrc_packages.license_number in ({','.join(license_numbers)})
 	""" if license_numbers else ''
+	# company_identifier_where_clause
+	identifiers = _get_identifiers_for_where_clause(company_identifier)
 	limit_clause = f"LIMIT {limit}" if limit else ""
 
 	return f"""
@@ -480,7 +499,7 @@ def create_company_all_packages_query(
 			inner join metrc_packages on companies.id = metrc_packages.company_id
 		where
 			True
-			and companies.identifier = "{company_identifier}"
+			and companies.identifier in ({','.join(identifiers)})
 			{license_numbers_where_clause}
 		order by
 			metrc_packages.packaged_date desc
@@ -488,9 +507,11 @@ def create_company_all_packages_query(
 	"""
 
 def create_company_sales_transactions_by_product_name(
-	company_identifier: str,
 	product_name: str,
+	company_identifier: Union[str, List[str]]
 ) -> str:
+	# company_identifier_where_clause
+	identifiers = _get_identifiers_for_where_clause(company_identifier)
 	return f"""
 		select
 			companies.identifier,
@@ -507,7 +528,7 @@ def create_company_sales_transactions_by_product_name(
 			left outer join companies on metrc_sales_receipts.company_id = companies.id
 		where
 			True
-			and companies.identifier = "{company_identifier}"
+			and companies.identifier in ({','.join(identifiers)})
 			and metrc_sales_transactions.product_name = "{product_name}"
 		order by
 			metrc_sales_receipts.sales_datetime desc

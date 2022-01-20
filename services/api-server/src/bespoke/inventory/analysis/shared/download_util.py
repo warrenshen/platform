@@ -12,7 +12,7 @@ import pyarrow
 
 from concurrent.futures import ThreadPoolExecutor
 from sqlalchemy import create_engine
-from typing import Dict, List, Optional, Iterable, Any, cast
+from typing import Dict, List, Optional, Iterable, Any, cast, Union
 from mypy_extensions import TypedDict
 
 from bespoke.inventory.analysis.shared import create_queries, prepare_data
@@ -31,7 +31,7 @@ from bespoke.inventory.analysis.shared.inventory_types import (
 )
 
 DataFrameQueryParams = TypedDict('DataFrameQueryParams', {
-	'company_identifier': str,
+	'company_identifier': Union[str, List[str]],
 	'transfer_packages_start_date': str,
 	'sales_transactions_start_date': str,
 	'license_numbers': List[str]
@@ -407,29 +407,29 @@ def get_dataframes_for_analysis(
 	def _get_query(df_name: str, min_updated_at: datetime.datetime = None) -> str:
 		if df_name == DfNames.INCOMING_TRANSFER_PACKAGES:
 			return create_queries.create_company_incoming_transfer_packages_query(
-				q_params['company_identifier'], q_params['transfer_packages_start_date'], 
+			    start_date = q_params['transfer_packages_start_date'], company_identifier = q_params['company_identifier'],
 				license_numbers=q_params['license_numbers'], limit=limit, min_updated_at=min_updated_at
-			)
+		)
 		elif df_name == DfNames.OUTGOING_TRANSFER_PACKAGES:
 			return create_queries.create_company_outgoing_transfer_packages_query(
-				q_params['company_identifier'], q_params['transfer_packages_start_date'], 
+				company_identifier = q_params['company_identifier'], start_date = q_params['transfer_packages_start_date'],
 				license_numbers=q_params['license_numbers'], limit=limit, min_updated_at=min_updated_at
 		)
 		elif df_name == DfNames.SALES_RECEIPTS:
 			return create_queries.create_company_sales_receipts_query(
-				q_params['company_identifier'], q_params['sales_transactions_start_date'], 
+				company_identifier = q_params['company_identifier'], start_date = q_params['sales_transactions_start_date'],
 				license_numbers=q_params['license_numbers'],
 				limit=limit, min_updated_at=min_updated_at
 			)
 		elif df_name == DfNames.SALES_TRANSACTIONS:
 			return create_queries.create_company_sales_transactions_query(
-				q_params['company_identifier'], q_params['sales_transactions_start_date'], 
+				company_identifier = q_params['company_identifier'], start_date = q_params['sales_transactions_start_date'],
 				license_numbers=q_params['license_numbers'],
 				limit=limit, min_updated_at=min_updated_at
 			)
 		elif df_name == DfNames.INVENTORY_PACKAGES:
 			return create_queries.create_company_inventory_packages_query(
-				q_params['company_identifier'],
+				company_identifier = q_params['company_identifier'],
 				include_quantity_zero=True,
 				license_numbers=q_params['license_numbers'],
 				limit=limit, min_updated_at=min_updated_at
