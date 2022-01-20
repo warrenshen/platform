@@ -100,21 +100,19 @@ export default function BankAccountForm({
               }
             />
           </Box>
-          {role === UserRolesEnum.BankAdmin && (
-            <Box display="flex" flexDirection="column" mt={2}>
-              <TextField
-                label="ACH Memo"
-                className={classes.form}
-                value={bankAccount.ach_default_memo}
-                onChange={({ target: { value } }) =>
-                  setBankAccount({
-                    ...bankAccount,
-                    ach_default_memo: value,
-                  })
-                }
-              />
-            </Box>
-          )}
+          <Box display="flex" flexDirection="column" mt={2}>
+            <TextField
+              label="ACH Memo"
+              className={classes.form}
+              value={bankAccount.ach_default_memo}
+              onChange={({ target: { value } }) =>
+                setBankAccount({
+                  ...bankAccount,
+                  ach_default_memo: value,
+                })
+              }
+            />
+          </Box>
           {role === UserRolesEnum.BankAdmin && (
             <Box display="flex" flexDirection="column" mt={2}>
               <TextField
@@ -263,21 +261,19 @@ export default function BankAccountForm({
               }
             />
           </Box>
-          {role === UserRolesEnum.BankAdmin && (
-            <Box display="flex" flexDirection="column" mt={2}>
-              <TextField
-                label="Wire Memo"
-                className={classes.form}
-                value={bankAccount.wire_default_memo}
-                onChange={({ target: { value } }) =>
-                  setBankAccount({
-                    ...bankAccount,
-                    wire_default_memo: value,
-                  })
-                }
-              />
-            </Box>
-          )}
+          <Box display="flex" flexDirection="column" mt={2}>
+            <TextField
+              label="Wire Memo"
+              className={classes.form}
+              value={bankAccount.wire_default_memo}
+              onChange={({ target: { value } }) =>
+                setBankAccount({
+                  ...bankAccount,
+                  wire_default_memo: value,
+                })
+              }
+            />
+          </Box>
           {role === UserRolesEnum.BankAdmin && (
             <Box display="flex" flexDirection="column" mt={2}>
               <TextField

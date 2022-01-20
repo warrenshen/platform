@@ -134,7 +134,9 @@ export default function CreateUpdateBankAccountModal({
       recipient_address: bankAccount.recipient_address,
       recipient_address_2: bankAccount.recipient_address_2,
       wire_default_memo: bankAccount.wire_default_memo,
-      wire_template_name: bankAccount.wire_template_name,
+      wire_template_name: isBankUser
+        ? bankAccount.wire_template_name
+        : undefined,
       bank_address: bankAccount.bank_address,
 
       is_cannabis_compliant: bankAccount.is_cannabis_compliant,
@@ -174,7 +176,7 @@ export default function CreateUpdateBankAccountModal({
       snackbar.showSuccess(successMessage);
       handleClose();
     } catch (err) {
-      snackbar.showError(`Error: ${err}`);
+      snackbar.showError(`${err}`);
       console.error(err);
     }
   };
