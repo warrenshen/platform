@@ -36426,7 +36426,14 @@ export const GetVendorPartnershipForBankDocument = gql`
             ...BankAccount
           }
         }
-        users {
+        users(
+          where: {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+        ) {
           id
           ...Contact
         }
