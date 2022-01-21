@@ -44,12 +44,6 @@ export default function AdvanceForm({
   return (
     <Box display="flex" flexDirection="column">
       <Box mt={4}>
-        <Typography>
-          You are creating an advance for the loan(s) shown above. Please enter
-          in information for the advance and then press "Submit".
-        </Typography>
-      </Box>
-      <Box mt={4}>
         <Typography variant="body2" color="textSecondary">
           Total Amount
         </Typography>
@@ -145,7 +139,7 @@ export default function AdvanceForm({
       <Box display="flex" flexDirection="column" mt={4}>
         <TextField
           inputProps={{
-            maxlength: 140,
+            maxLength: 140,
           }}
           multiline
           label={"Memo (additional info for recipient)"}
@@ -161,7 +155,7 @@ export default function AdvanceForm({
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">
             If Memo is left blank, the loan disbursement identifier(s) will be
-            used
+            used.
           </Typography>
         </Box>
       </Box>

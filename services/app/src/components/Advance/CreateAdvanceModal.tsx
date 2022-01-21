@@ -1,12 +1,15 @@
-import { Box } from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import AdvanceForm from "components/Advance/AdvanceForm";
+import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import Modal from "components/Shared/Modal/Modal";
 import {
+  BankAccountFragment,
   Loans,
   LoanTypeEnum,
   PaymentsInsertInput,
+  useGetAdvancesBankAccountsForCustomerQuery,
   useGetLoansByLoanIdsQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -43,7 +46,7 @@ export default function CreateAdvanceModal({
   const [payment, setPayment] = useState(newPayment);
   const [shouldChargeWireFee, setShouldChargeWireFee] = useState(false);
 
-  const { data, error } = useGetLoansByLoanIdsQuery({
+  const { data: loansData, error: loansError } = useGetLoansByLoanIdsQuery({
     variables: {
       loan_ids: selectedLoanIds,
     },
@@ -56,12 +59,73 @@ export default function CreateAdvanceModal({
     },
   });
 
-  if (error) {
-    console.error({ error });
-    alert(`Error in query (details in console): ${error.message}`);
+  if (loansError) {
+    console.error({ error: loansError });
+    alert(`Error in query (details in console): ${loansError.message}`);
   }
 
-  const selectedLoans = data?.loans || [];
+  const selectedLoans = loansData?.loans || [];
+
+  const allCustomerIds = selectedLoans.map((loan) => loan.company_id);
+  const allRecipientIds = selectedLoans.map((loan) => {
+    if (loan.loan_type === LoanTypeEnum.PurchaseOrder) {
+      return loan.purchase_order?.vendor_id;
+    }
+    if (loan.loan_type === LoanTypeEnum.LineOfCredit) {
+      return loan.line_of_credit?.recipient_vendor_id || loan.company_id;
+    }
+    return loan.company_id;
+  });
+  const uniqueCustomerIds = uniq(allCustomerIds);
+  const uniqueRecipientIds = uniq(allRecipientIds);
+  const isOnlyOneCustomer = uniqueCustomerIds.length <= 1;
+  const isOnlyOneRecipient = uniqueRecipientIds.length <= 1;
+
+  const customerId = isOnlyOneCustomer ? uniqueCustomerIds[0] : null;
+  const recipientCompanyId = isOnlyOneRecipient ? uniqueRecipientIds[0] : null;
+  const vendorId =
+    recipientCompanyId && recipientCompanyId !== customerId
+      ? recipientCompanyId
+      : null;
+
+  const {
+    data: advancesBankAccountData,
+    error: advancesBankAccountError,
+  } = useGetAdvancesBankAccountsForCustomerQuery({
+    skip: !recipientCompanyId,
+    variables: {
+      customerId: customerId,
+      vendorId: vendorId,
+    },
+  });
+
+  if (advancesBankAccountError) {
+    console.error({ error: advancesBankAccountError });
+    alert(
+      `Error in query (details in console): ${advancesBankAccountError.message}`
+    );
+  }
+
+  /*
+   * Two cases to consider for which bank account is recipient bank account:
+   * 1. Purchase order loan: recipient is vendor.
+   * 2. Line of credit loan: recipient is customer OR vendor.
+   */
+  const isRecipientVendor = !!vendorId;
+  let recipientCompany = null;
+  let advancesBankAccount: BankAccountFragment | null = null;
+  if (isRecipientVendor) {
+    recipientCompany =
+      advancesBankAccountData?.companies_by_pk?.company_vendor_partnerships[0]
+        ?.vendor || null;
+    advancesBankAccount =
+      advancesBankAccountData?.companies_by_pk?.company_vendor_partnerships[0]
+        ?.vendor_bank_account || null;
+  } else {
+    recipientCompany = advancesBankAccountData?.companies_by_pk || null;
+    advancesBankAccount =
+      recipientCompany?.settings?.advances_bank_account || null;
+  }
 
   const [
     createAdvance,
@@ -98,7 +162,36 @@ export default function CreateAdvanceModal({
       // Do not show a snackbar here since the "Charge Wire Fee?" checkbox
       // is not shown when advance method is not Wire.
     }
+
+    if (!!advancesBankAccount) {
+      if (
+        payment.method === PaymentMethodEnum.ACH &&
+        advancesBankAccount.ach_default_memo
+      ) {
+        setPayment((payment) => ({
+          ...payment,
+          bank_note: (advancesBankAccount as BankAccountFragment)
+            .ach_default_memo,
+        }));
+        snackbar.showInfo(
+          '"Memo" auto-filled to default ACH memo configured on recipient bank account.'
+        );
+      } else if (
+        payment.method === PaymentMethodEnum.Wire &&
+        advancesBankAccount.wire_default_memo
+      ) {
+        setPayment((payment) => ({
+          ...payment,
+          bank_note: (advancesBankAccount as BankAccountFragment)
+            .wire_default_memo,
+        }));
+        snackbar.showInfo(
+          '"Memo" auto-filled to default Wire memo configured on recipient bank account.'
+        );
+      }
+    }
   }, [
+    advancesBankAccount,
     payment.method,
     payment.amount,
     snackbar,
@@ -134,18 +227,6 @@ export default function CreateAdvanceModal({
   const isFormLoading = isCreateAdvanceLoading;
   const isSubmitDisabled = !isFormValid || isFormLoading;
 
-  const allRecipients = selectedLoans.map((loan) => {
-    if (loan.loan_type === LoanTypeEnum.PurchaseOrder) {
-      return loan.purchase_order?.vendor_id;
-    }
-    if (loan.loan_type === LoanTypeEnum.LineOfCredit) {
-      return loan.line_of_credit?.recipient_vendor_id || loan.company_id;
-    }
-    return loan.company_id;
-  });
-  const uniqueRecipients = uniq(allRecipients);
-  const isOnlyOneRecipient = uniqueRecipients.length <= 1;
-
   if (!isDialogReady) {
     return null;
   }
@@ -160,6 +241,12 @@ export default function CreateAdvanceModal({
       handlePrimaryAction={handleClickSubmit}
     >
       <Box mt={4}>
+        <Typography>
+          You are creating an advance for the loan(s) shown below. Please enter
+          in information for the advance and then press "Submit".
+        </Typography>
+      </Box>
+      <Box mt={4}>
         <LoansDataGrid
           isArtifactVisible
           isCompanyVisible
@@ -169,12 +256,38 @@ export default function CreateAdvanceModal({
         />
       </Box>
       {isOnlyOneRecipient ? (
-        <AdvanceForm
-          payment={payment}
-          setPayment={setPayment}
-          shouldChargeWireFee={shouldChargeWireFee}
-          setShouldChargeWireFee={setShouldChargeWireFee}
-        />
+        <Box>
+          <AdvanceForm
+            payment={payment}
+            setPayment={setPayment}
+            shouldChargeWireFee={shouldChargeWireFee}
+            setShouldChargeWireFee={setShouldChargeWireFee}
+          />
+          {!!advancesBankAccount && (
+            <Box mt={4}>
+              <Typography>{`Recipient bank information`}</Typography>
+              <Box mt={1}>
+                <Typography variant="body2" color="textSecondary">
+                  {`Recipient category (Customer or Vendor): ${
+                    isRecipientVendor ? "Vendor" : "Customer"
+                  }`}
+                </Typography>
+              </Box>
+              <Box mt={1}>
+                <Typography variant="body2" color="textSecondary">
+                  {`Recipient name: ${recipientCompany?.name}`}
+                </Typography>
+              </Box>
+              <Box mt={1}>
+                <BankAccountInfoCard
+                  isTemplateNameVisible
+                  isVerificationVisible
+                  bankAccount={advancesBankAccount}
+                />
+              </Box>
+            </Box>
+          )}
+        </Box>
       ) : (
         <Box>
           <Alert severity="warning">

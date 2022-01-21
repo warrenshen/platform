@@ -66,7 +66,8 @@ export default function CreateRepaymentSelectLoans({
    * set up a reverse draft ACH repayment with the desired payment date.
    */
   const disabledBefore = isReverseDraftACH
-    ? computeRequestedWithdrawCutoffDate(todayAsDateStringServer())
+    ? // ? computeRequestedWithdrawCutoffDate(todayAsDateStringServer())
+      computeRequestedWithdrawCutoffDate("2022-01-15")
     : undefined;
 
   return (
@@ -142,16 +143,15 @@ export default function CreateRepaymentSelectLoans({
                 label={
                   isReverseDraftACH ? "Requested Withdraw Date" : "Deposit Date"
                 }
-                disablePast
                 disableNonBankDays
                 disabledBefore={disabledBefore}
                 value={payment.requested_payment_date}
-                onChange={(value) => {
+                onChange={(value) =>
                   setPayment({
                     ...payment,
                     requested_payment_date: value,
-                  });
-                }}
+                  })
+                }
               />
             </Box>
           </Box>

@@ -10,6 +10,31 @@ query GetBankAccountsByCompanyId($companyId: uuid!) {
   }
 }
 
+query GetAdvancesBankAccountsForCustomer($customerId: uuid!, $vendorId: uuid) {
+  companies_by_pk(id: $customerId) {
+    id
+    name
+    company_vendor_partnerships(where: { vendor_id: { _eq: $vendorId } }) {
+      id
+      vendor {
+        id
+        name
+      }
+      vendor_bank_account {
+        id
+        ...BankAccount
+      }
+    }
+    settings {
+      id
+      advances_bank_account {
+        id
+        ...BankAccount
+      }
+    }
+  }
+}
+
 query BankAccountsForTransfer($companyId: uuid!) {
   bank_accounts(where: { company_id: { _is_null: true } }) {
     ...BankAccount
