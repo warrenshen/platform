@@ -211,6 +211,10 @@ class InvoiceFileTypeEnum(object):
 	Invoice = 'invoice'
 	Cannabis = 'cannabis'
 
+class DebtFacilityEventCategory(object):
+	WAIVER = 'waiver'
+	REPURCHASE = 'repurchase'
+
 # Hasura
 
 class DBOperation(object):

@@ -1656,6 +1656,40 @@
       value_from_env: ASYNC_SERVER_API_KEY
 - table:
     schema: public
+    name: debt_facility_events
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - id
+      - loan_report_id
+      - event_category
+      - event_date
+      - event_comments
+      - event_amount
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - event_date
+      - id
+      - event_amount
+      - event_category
+      - event_comments
+      - loan_report_id
+      filter: {}
+  update_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - event_amount
+      - event_comments
+      - event_date
+      - loan_report_id
+      filter: {}
+      check: null
+- table:
+    schema: public
     name: ebba_application_files
   object_relationships:
   - name: ebba_application
