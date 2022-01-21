@@ -14,6 +14,7 @@ from bespoke.db import models
 from lib import dedupe_companies
 
 DEDUPE_TUPLES = [
+	# (replacing_company_id, to_delete_company_id, partnership_type)
 	('e79fda63-42dd-493d-b180-f16923db4bdb', '970d612a-e068-4a0a-8f58-a10d6050fa4f', 'vendor'),
 ]
 
