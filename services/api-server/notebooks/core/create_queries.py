@@ -177,6 +177,23 @@ def create_company_sales_transactions_for_analysis_query(
 			metrc_sales_receipts.sales_datetime desc
 	"""
 
+def create_wow_counts_for_analysis_query() -> str:
+	return f"""
+		select
+			date_trunc(metrc_sales_receipts.created_at, week) as created_week,
+			metrc_sales_receipts.us_state,
+			count(metrc_sales_receipts.receipt_id) as count
+		from
+			metrc_sales_receipts
+		where
+			True
+		group by
+			1,
+			2
+		order by
+			1 asc
+	"""
+
 def create_sales_receipts_for_analysis_query() -> str:
 	return f"""
 		select
@@ -185,6 +202,42 @@ def create_sales_receipts_for_analysis_query() -> str:
 			count(metrc_sales_receipts.receipt_id) as count
 		from
 			metrc_sales_receipts
+		where
+			True
+		group by
+			1,
+			2
+		order by
+			1 asc
+	"""
+
+def create_transfers_for_analysis_query() -> str:
+	return f"""
+		select
+			date_trunc(metrc_transfers.created_at, week) as created_week,
+			metrc_transfers.us_state,
+			count(metrc_transfers.manifest_number) as count
+		from
+			metrc_transfers
+		where
+			True
+		group by
+			1,
+			2
+		order by
+			1 asc
+	"""
+
+def create_incoming_transfer_packages_for_analysis_query() -> str:
+	return f"""
+		select
+			date_trunc(metrc_transfer_packages.created_at, week) as created_week,
+			metrc_transfer_packages.us_state,
+			count(metrc_transfer_packages.package_id) as count
+		from
+			metrc_transfers
+			inner join metrc_deliveries on metrc_transfers.id = metrc_deliveries.transfer_row_id
+			inner join metrc_transfer_packages on metrc_deliveries.id = metrc_transfer_packages.delivery_row_id
 		where
 			True
 		group by
