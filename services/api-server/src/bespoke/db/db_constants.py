@@ -109,6 +109,14 @@ ALL_CUSTOM_MESSAGES = [
 	CustomMessageEnum.OVERVIEW_PAGE,
 ]
 
+class CompanyDebtFacilityStatus(object):
+	GOOD_STANDING = 'good_standing'
+	ON_PROBATION = 'on_probation'
+	OUT_OF_COMPLIANCE = 'out_of_compliance'
+	DEFAULTING = 'defaulting'
+	# must be default state for dispensary financing clients
+	INELIGIBLE_FOR_FACILITY = 'ineligible_for_facility'
+
 # Artifacts
 
 class RequestStatusEnum(object):

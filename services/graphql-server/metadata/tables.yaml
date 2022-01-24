@@ -560,6 +560,7 @@
       - state
       - updated_at
       - zip_code
+      - debt_facility_status
       filter: {}
   - role: bank_read_only
     permission:
@@ -585,6 +586,7 @@
       - state
       - updated_at
       - zip_code
+      - debt_facility_status
       filter: {}
   - role: company_admin
     permission:
