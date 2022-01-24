@@ -161,6 +161,15 @@ PRODUCT_TYPE_TO_LOAN_TYPE = {
 	ProductType.DISPENSARY_FINANCING: LoanTypeEnum.INVENTORY,
 }
 
+# Loan Reports
+
+class LoanDebtFacilityStatus(object):
+	SOLD_INTO_DEBT_FACILITY = 'sold_into_debt_facility'
+	BESPOKE_BALANCE_SHEET = 'bespoke_balance_sheet'
+	REPURCHASED = 'repurchased'
+	# for when a loan is in the deb facility but beyond their 30 days late grace period
+	UPDATE_REQUIRED = 'update_required'
+
 # Fees
 
 class MinimumAmountDuration(object):

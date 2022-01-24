@@ -2649,6 +2649,7 @@
       - total_fees_paid
       - financing_period
       - financing_day_limit
+      - debt_facility_status
       filter: {}
   - role: bank_read_only
     permission:
@@ -2660,6 +2661,7 @@
       - total_interest_paid
       - total_principal_paid
       - id
+      - debt_facility_status
       filter: {}
 - table:
     schema: public
