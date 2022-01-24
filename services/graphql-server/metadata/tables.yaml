@@ -2638,6 +2638,14 @@
 - table:
     schema: public
     name: loan_reports
+  object_relationships:
+  - name: loan
+    using:
+      foreign_key_constraint_on:
+        column: loan_report_id
+        table:
+          schema: public
+          name: loans
   select_permissions:
   - role: bank_admin
     permission:
