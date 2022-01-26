@@ -1,14 +1,37 @@
 import base64
+import datetime
 import json
 import os
 import requests
 import time
+from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, cast
 from typing import Dict
 from flask import current_app
+from bespoke.date import date_util
 from bespoke.db import models
 from sendgrid.helpers.mail import Attachment, FileContent, FileName, FileType, Disposition
 
 from bespoke.config.config_util import is_prod_env
+from server.config import Config
+
+class ReportGenerationContext:
+	def __init__(
+		self, 
+		company_lookup: Dict[str, models.Company],
+		today: datetime.datetime,
+		as_of_date: str
+	):
+		self.company_lookup = company_lookup
+
+		self.today = today
+		self.report_month_last_day = date_util.get_report_month_last_day(today) if as_of_date is None else \
+			date_util.load_date_str(as_of_date)
+		self.report_month_first_day = date_util.get_first_day_of_month_date(
+			date_util.date_to_str(self.report_month_last_day)
+		)
+		self.statement_month = date_util.human_readable_monthyear(
+			self.report_month_last_day
+		)
 
 def prepare_email_attachment(
 	company_name: str,

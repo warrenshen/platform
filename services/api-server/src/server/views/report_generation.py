@@ -23,8 +23,7 @@ from bespoke.finance.loans import reports_util
 from bespoke.finance.payments import fees_due_util
 from bespoke.finance.types.payment_types import PaymentItemsCoveredDict
 from bespoke.metrc.common.metrc_common_util import chunker, chunker_dict
-from bespoke.reports.reports_util import (prepare_email_attachment,
-                                          record_report_run_metadata)
+from bespoke.reports.report_generation_util import *
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from sendgrid.helpers.mail import (Attachment, Disposition, FileContent,
@@ -372,7 +371,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 		self,
 		session : Session,
 		company_id : str,
-		summary_date : datetime.date,
+		rgc: ReportGenerationContext
 		) -> Optional[models.FinancialSummary]:
 		
 		financial_summary = cast(
@@ -380,7 +379,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 			session.query(models.FinancialSummary).filter(
 				models.FinancialSummary.company_id == company_id
 			).filter(
-				models.FinancialSummary.date == summary_date
+				models.FinancialSummary.date == rgc.report_month_last_day
 			).first())
 
 		return financial_summary
@@ -389,8 +388,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 		self,
 		session : Session,
 		company_id : str,
-		report_month_first_day : datetime.date,
-		report_month_last_day : datetime.date
+		rgc: ReportGenerationContext,
 		) -> Tuple[float, float, float]:
 		principal_repayments = 0.0
 		interest_repayments = 0.0
@@ -401,9 +399,9 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 			session.query(models.Payment).filter(
 				models.Payment.company_id == company_id
 			).filter(
-				models.Payment.payment_date >= report_month_first_day
+				models.Payment.payment_date >= rgc.report_month_first_day
 			).filter(
-				models.Payment.payment_date <= report_month_last_day
+				models.Payment.payment_date <= rgc.report_month_last_day
 			).filter(
 				models.Payment.type == PaymentType.REPAYMENT
 			).all())
@@ -430,8 +428,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 		self,
 		session : Session,
 		company_id : str,
-		report_month_first_day : datetime.date,
-		report_month_last_day : datetime.date
+		rgc: ReportGenerationContext,
 		) -> float:
 		# using type ignore here for "Call to untyped function "with_entities" in typed context"
 		advanced_amount = session.query(models.Loan).with_entities( # type: ignore
@@ -441,9 +438,9 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 			).filter(
 				cast(Callable, models.Loan.is_deleted.isnot)(True)
 			).filter(
-				models.Loan.origination_date >= report_month_first_day
+				models.Loan.origination_date >= rgc.report_month_first_day
 			).filter(
-				models.Loan.origination_date <= report_month_last_day
+				models.Loan.origination_date <= rgc.report_month_last_day
 			).first()[0]
 
 		return advanced_amount or 0.0
@@ -453,8 +450,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 		session : Session,
 		contract : contract_util.Contract,
 		company_id : str,
-		report_month_first_day : datetime.date,
-		report_month_last_day : datetime.date,
+		rgc: ReportGenerationContext,
 		interest_fee_balance: float,
 		previous_report_month_last_day: datetime.date,
 		) -> Tuple[str, str, Tuple[float, float, float], errors.Error]:
@@ -479,13 +475,13 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 
 		# Prorating the minimum monthly fee if contract started during report month
 		contract_start_date, start_date_err = contract.get_start_date()
-		if contract_start_date >= report_month_first_day and \
-			contract_start_date <= report_month_last_day:
+		if contract_start_date >= rgc.report_month_first_day and \
+			contract_start_date <= rgc.report_month_last_day:
 			days_for_monthly_fee = date_util.number_days_between_dates(
-				report_month_last_day,
+				rgc.report_month_last_day,
 				contract_start_date
 			)
-			days_in_month = date_util.get_days_in_month(report_month_last_day)
+			days_in_month = date_util.get_days_in_month(rgc.report_month_last_day)
 			mmf = mmf * (float(days_for_monthly_fee) / float(days_in_month))
 		
 		
@@ -511,9 +507,9 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 			).filter(
 				models.FinancialSummary.company_id == company_id
 			).filter(
-				models.FinancialSummary.date >= report_month_first_day
+				models.FinancialSummary.date >= rgc.report_month_first_day
 			).filter(
-				models.FinancialSummary.date <= report_month_last_day
+				models.FinancialSummary.date <= rgc.report_month_last_day
 			).first()[0]
 		
 		cmi = float(cmi)
@@ -709,19 +705,12 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 	def process_loan_chunk(
 		self, 
 		session : Session, 
-		sendgrid_client : sendgrid_util.Client, 
-		report_link : str, 
-		payment_link: str,
+		sendgrid_client : sendgrid_util.Client,
 		loans_to_notify : Dict[str, List[models.Loan] ],
-		today : datetime.date,
+		rgc: ReportGenerationContext,
 		is_test: bool,
 		test_email: str
 		) -> Tuple[Dict[str, List[models.Loan]], Response]:
-		if sendgrid_client is None:
-			return loans_to_notify, make_response(json.dumps({ 'status': 'FAILED', 'resp': "Sendgrid client does not exist." }))
-
-		# Report Month is the basis for "Current *" amounts in the email
-		report_month_last_day = date_util.get_report_month_last_day(today)
 
 		for company_id, loans in loans_to_notify.items():
 			# get company contact email, company name
@@ -742,9 +731,13 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 			for pc in product_config:
 				contract_dict[pc["internal_name"]] = pc["value"] if pc["value"] is not None else ""
 			
-			automatic_debit_date = date_util.date_to_str(date_util.get_automated_debit_date(today))
+			automatic_debit_date = date_util.date_to_str(
+				date_util.get_automated_debit_date(
+					rgc.report_month_last_day
+				)
+			)
 			
-			financial_summary = self.get_end_of_report_month_financial_summary(session, company_id, report_month_last_day)
+			financial_summary = self.get_end_of_report_month_financial_summary(session, company_id, rgc)
 
 			# Checks for edge case where LoC has started a contract right before this email gets sent
 			# (e.g. contract starts 10/1, email sent 10/5, there won't be a report to send)
@@ -755,7 +748,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 				float(financial_summary.total_outstanding_fees)
 
 			# Report Previous Month is the basis for "Previous *" amounts in the email
-			previous_report_month_last_day = date_util.get_report_month_last_day(report_month_last_day)
+			previous_report_month_last_day = date_util.get_report_month_last_day(rgc.report_month_last_day)
 			previous_financial_summary = cast(
 				models.FinancialSummary,
 				session.query(models.FinancialSummary).filter(
@@ -764,18 +757,13 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 					models.FinancialSummary.date == previous_report_month_last_day
 				).first())
 
-			# We need to gather all repayments for the report month to calculate
-			# principal and interest & fee repayment total
-			report_month_first_day = date_util.get_first_day_of_month_date(date_util.date_to_str(report_month_last_day))
-
-			advances = self.get_report_month_advances(session, company_id, report_month_first_day, report_month_last_day)
+			advances = self.get_report_month_advances(session, company_id, rgc)
 			principal_advanced = number_util.to_dollar_format(advances)
 
 			principal_repayments, interest_repayments, fee_repayments = self.get_report_month_repayments(
 				session, 
 				company_id, 
-				report_month_first_day, 
-				report_month_last_day
+				rgc
 			)
 			principal_repayments_display = number_util.to_dollar_format(principal_repayments)
 			interest_fee_repayments_display = number_util.to_dollar_format(interest_repayments + fee_repayments)
@@ -822,8 +810,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 				session, 
 				contract, 
 				company_id, 
-				report_month_first_day, 
-				report_month_last_day,
+				rgc,
 				interest_fee_balance,
 				previous_report_month_last_day
 			)
@@ -838,18 +825,16 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 				session.query(models.MonthlySummaryCalculation).filter(
 					models.MonthlySummaryCalculation.company_id == company_id
 				).filter(
-					models.MonthlySummaryCalculation.report_month == report_month_last_day
+					models.MonthlySummaryCalculation.report_month == rgc.report_month_last_day
 				).first())
 			if msc is None:
 				session.add(models.MonthlySummaryCalculation( # type: ignore
 					company_id = company_id,
-					report_month = report_month_last_day,
+					report_month = rgc.report_month_last_day,
 					minimum_payment = Decimal(minimum_payment_amount)
 				))
 			else:
 				msc.minimum_payment = Decimal(minimum_payment_amount)
-
-			statement_month = date_util.human_readable_monthyear(report_month_last_day)
 
 			template_data: Dict[str, object] = {
 				# Greeting and preamble
@@ -857,7 +842,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 
 			    # Table Header/Footer
 			    "company_name": company.name,
-			    "statement_month": statement_month,
+			    "statement_month": rgc.statement_month,
 			    "support_email": "<a href='mailto:support@bespokefinancial.com'>support@bespokefinancial.com</a>",
 
 			    # First Row
@@ -873,14 +858,14 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 			    "available_credit": available_credit,
 			    
 			    # Summary Row
-			    "days_in_cycle": date_util.get_days_in_month(report_month_last_day),
+			    "days_in_cycle": date_util.get_days_in_month(rgc.report_month_last_day),
 			    "cmi_or_mmf_title": cmi_or_mmf_title,
 			    "cmi_or_mmf_amount": cmi_or_mmf_amount,
 			    "payment_due_date": payment_due_date,
 			    "minimum_payment_due": minimum_payment_due,
 			}
 			html = self.prepare_html_for_attachment(template_data)
-			attached_report = prepare_email_attachment(company.name, statement_month, html, is_landscape = False)
+			attached_report = prepare_email_attachment(company.name, rgc.statement_month, html, is_landscape = False)
 
 			if is_test is False:
 				all_users = models_util.get_active_users(
@@ -925,14 +910,13 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 		variables = form.get("variables", None)
 		is_test = variables.get("isTest", False) if variables else False
 		test_email = variables.get("email", None) if variables else None
+		as_of_date = variables.get("asOfDate", None) if variables else None
 
 		print("Sending out monthly summary report emails for LOC customers")
 		cfg = cast(Config, current_app.app_config)
 		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
-
-		report_link = cfg.BESPOKE_DOMAIN + "/1/reports"
-		payment_link = cfg.BESPOKE_DOMAIN + "/1/loans"
-		today = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
+		if sendgrid_client is None:
+			return handler_util.make_error_response('Cannot find sendgrid client')
 
 		with models.session_scope(current_app.session_maker) as session:
 			user_session = auth_util.UserSession.from_session()
@@ -962,9 +946,15 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 							loans_to_notify[company_id] = [];
 						loans_to_notify[company_id].append(l)
 
+			rgc = ReportGenerationContext(
+				company_lookup = None,
+				today = date_util.now(),
+				as_of_date = as_of_date
+			)
+
 			BATCH_SIZE = 50
 			for loans_chunk in cast(Iterable[ Dict[str, List[models.Loan]] ], chunker_dict(loans_to_notify, BATCH_SIZE)):
-				_, err = self.process_loan_chunk(session, sendgrid_client, report_link, payment_link, loans_to_notify, today, is_test, test_email)
+				_, err = self.process_loan_chunk(session, sendgrid_client, loans_to_notify, rgc, is_test, test_email)
 
 				if err:
 					return err;
@@ -1088,7 +1078,7 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 		session: Session,
 		template_data: Dict[str, object],
 		loans : List[models.Loan],
-		company_lookup: Dict[str, str]
+		rgc: ReportGenerationContext
 		) -> str:
 		"""
 			HTML attachment is split out to make testing easier. Specifically, so we don't have to
@@ -1171,12 +1161,11 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 
 			partner_id = str(vendor_lookup[str(l.artifact_id)]["id"]) if l.loan_type == "purchase_order" \
 				else str(payor_lookup[str(l.artifact_id)]["id"])
-			partner_name = company_lookup[partner_id]
+			partner_name = rgc.company_lookup[partner_id]
 
 			amount_advanced = float(l.amount)
-			today = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
 			funded_at = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE, now = l.funded_at)
-			days_factored = str(date_util.number_days_between_dates(today, funded_at))
+			days_factored = str(date_util.number_days_between_dates(rgc.today.date(), funded_at))
 			rows += f"""<tr>
         		<td>{ l.disbursement_identifier }</td>
         		<td>{ artifact_number }</td>
@@ -1277,37 +1266,23 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 		self, 
 		session : Session, 
 		sendgrid_client : sendgrid_util.Client, 
-		report_link : str, 
-		payment_link: str,
+		rgc: ReportGenerationContext,
 		loans_to_notify : Dict[str, List[models.Loan] ],
-		today : datetime.datetime,
-		company_lookup: Dict[str, str],
 		is_test: bool,
 		test_email: str
 		) -> Tuple[Dict[str, List[models.Loan]], Response]:
-		report_month_last_day = date_util.get_report_month_last_day(today)
-
-		if sendgrid_client is None:
-			return loans_to_notify, make_response(json.dumps({ 'status': 'FAILED', 'resp': "Cannot find sendgrid client"}))
 
 		for company_id, loans in loans_to_notify.items():
-			# get company contact email, company name
-			company = cast(
-				models.Company,
-				session.query(models.Company).filter(
-					models.Company.id == company_id)
-				.first())
-
-			statement_month = date_util.human_readable_monthyear(report_month_last_day)
+			company = rgc.company_lookup[str(company_id)]
 
 			template_data: Dict[str, object] = {
 				"company_name": company.name,
 				"send_date": date_util.human_readable_monthyear(date_util.now_as_date(timezone = date_util.DEFAULT_TIMEZONE)),
 			    "support_email": "<a href='mailto:support@bespokefinancial.com'>support@bespokefinancial.com</a>",
-			    "statement_month": statement_month,
+			    "statement_month": rgc.statement_month,
 			}
-			html = self.prepare_html_for_attachment(session, template_data, loans, company_lookup)
-			attached_report = prepare_email_attachment(company.name, statement_month, html, is_landscape = True)
+			html = self.prepare_html_for_attachment(session, template_data, loans, rgc)
+			attached_report = prepare_email_attachment(company.name, rgc.statement_month, html, is_landscape = True)
 
 			if is_test is False:
 				all_users = models_util.get_active_users(
@@ -1353,14 +1328,13 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 		variables = form.get("variables", None)
 		is_test = variables.get("isTest", False) if variables else False
 		test_email = variables.get("email", None) if variables else None
+		as_of_date = variables.get("asOfDate", None) if variables else None
 		
 		print("Sending out monthly summary report emails for non-LOC customers")
 		cfg = cast(Config, current_app.app_config)
 		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
-
-		report_link = cfg.BESPOKE_DOMAIN + "/1/reports"
-		payment_link = cfg.BESPOKE_DOMAIN + "/1/loans"
-		today = date_util.now()
+		if sendgrid_client is None:
+			return handler_util.make_error_response('Cannot find sendgrid client')
 
 		with models.session_scope(current_app.session_maker) as session:
 			user_session = auth_util.UserSession.from_session()
@@ -1392,19 +1366,24 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 			# with each row possibly having a different vendor/payor. So, in the interest
 			# of limiting the number of queries, we first grab all companies (since vendors/payors are there, too)
 			# and turn them into lookup tables and pass those into the generation functions
-
 			all_companies = cast(
 				List[models.Company],
 				session.query(models.Company)
 				.all())
 			company_lookup = {}
-			for c in all_companies:
-				company_lookup[str(c.id)] = c.name
+			for company in all_companies:
+				company_lookup[str(company.id)] = company
+
+			rgc = ReportGenerationContext(
+				company_lookup = company_lookup,
+				today = date_util.now(),
+				as_of_date = as_of_date
+			)
 			
 			BATCH_SIZE = 50
 			for loans_chunk in cast(Iterable[ Dict[str, List[models.Loan]] ], chunker_dict(loans_to_notify, BATCH_SIZE)):
-				_, err = self.process_loan_chunk(session, sendgrid_client, report_link, payment_link, \
-					loans_chunk, today, company_lookup, is_test, test_email)
+				_, err = self.process_loan_chunk(session, sendgrid_client, rgc, \
+					loans_chunk, is_test, test_email)
 
 				if err:
 					return err;

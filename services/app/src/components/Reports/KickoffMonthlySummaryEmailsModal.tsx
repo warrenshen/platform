@@ -2,9 +2,11 @@ import {
   Box,
   Checkbox,
   FormControlLabel,
+  makeStyles,
   TextField,
   Typography,
 } from "@material-ui/core";
+import DateInput from "components/Shared/FormInputs/DateInput";
 import Modal from "components/Shared/Modal/Modal";
 import { useLastMonthlySummaryReportLiveRunQuery } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -22,11 +24,21 @@ interface Props {
   handleClose: () => void;
 }
 
+const useStyles = makeStyles({
+  datePicker: {
+    width: 300,
+    marginTop: 0,
+    marginBottom: 0,
+  },
+});
+
 export default function KickoffMonthlySummaryEmailsModal({
   handleClose,
 }: Props) {
+  const classes = useStyles();
   const snackbar = useSnackbar();
   const [email, setEmail] = useState("");
+  const [asOfDate, setAsOfDate] = useState("");
   const [isTestRun, setIsTestRun] = useState(false);
 
   // Display who last ran the live report button and when
@@ -55,6 +67,7 @@ export default function KickoffMonthlySummaryEmailsModal({
       variables: {
         isTest: isTestRun,
         email: email,
+        asOfDate: asOfDate,
       },
     };
     const nonLOCResponse = await sendNonLOCReport(request);
@@ -130,22 +143,47 @@ export default function KickoffMonthlySummaryEmailsModal({
           </Box>
         )}
         {isTestRun && (
-          <Box display="flex" flexDirection="column" mt={4}>
-            <Typography variant={"body2"}>
-              <strong>Email Recipient</strong>
-            </Typography>
-            <Typography variant={"subtitle2"} color={"textSecondary"}>
-              If the checkbox for if test run is selected, please make sure to
-              enter an email below that will receive the test run.
-            </Typography>
-            <TextField
-              label="Email"
-              value={email}
-              disabled={!isTestRun}
-              required={isTestRun}
-              onChange={({ target: { value } }) => setEmail(value)}
-            />
-          </Box>
+          <>
+            <Box display="flex" flexDirection="column" mt={4}>
+              <Typography variant={"body2"}>
+                <strong>Email Recipient</strong>
+              </Typography>
+              <Typography variant={"subtitle2"} color={"textSecondary"}>
+                If the checkbox for if test run is selected, please make sure to
+                enter an email below that will receive the test run.
+              </Typography>
+              <TextField
+                label="Email"
+                value={email}
+                disabled={!isTestRun}
+                required={isTestRun}
+                onChange={({ target: { value } }) => setEmail(value)}
+              />
+            </Box>
+            <Box display="flex" flexDirection="column" mt={4}>
+              <Typography variant={"body2"}>
+                <strong>As of Date</strong>
+              </Typography>
+              <Typography variant={"subtitle2"} color={"textSecondary"}>
+                This is used if you want to test the results of the loan
+                generation before the month's end. (e.g. You want to test the
+                report for January 2022, but it's only Jan 20th.)
+              </Typography>
+              <Typography variant={"subtitle2"} color={"textSecondary"}>
+                If unset, the test run will default to generating reports for
+                the previous month.
+              </Typography>
+              <DateInput
+                dataCy={"cy-report-as-of-date"}
+                className={classes.datePicker}
+                id={"report-as-of-date"}
+                label={"Report Generation as of Date"}
+                required={false}
+                value={asOfDate || null}
+                onChange={(value: any) => setAsOfDate(value)}
+              />
+            </Box>
+          </>
         )}
         {(isSendLOCReportLoading || isSendNonLOCReportLoading) && (
           <Box display="flex" flexDirection="column" mt={4}>

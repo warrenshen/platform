@@ -142,7 +142,12 @@ def get_earliest_requested_payment_date(timezone: str) -> datetime.date:
 	return get_nearest_business_day(next_date, preceeding=False)
 
 def get_automated_debit_date(send_date: datetime.date) -> datetime.date:
-	fifth_of_current_month = send_date.replace(day = 5)
+	"""
+	This function expects the last day of the report month. Given the as of date
+	testing feature, that may not always be the last day of the calendar month
+	As such, we set the day to 5, increment the month by 1, and find the nearest business day
+	"""
+	fifth_of_current_month = datetime.date(send_date.year, send_date.month, 5) + relativedelta.relativedelta(months=1)
 	return get_nearest_business_day(fifth_of_current_month, preceeding=False)
 
 def datetime_to_str(dt: datetime.datetime) -> str:

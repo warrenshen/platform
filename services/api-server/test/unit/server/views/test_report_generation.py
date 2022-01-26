@@ -21,6 +21,7 @@ from bespoke.db.model_types import (
 from bespoke.email import sendgrid_util
 from bespoke.finance import contract_util
 from bespoke.finance.payments import fees_due_util
+from bespoke.reports.report_generation_util import *
 from bespoke_test.db import db_unittest
 from bespoke_test.db import test_helper
 from bespoke_test import auth_helper
@@ -716,8 +717,13 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 			company_id = seed.get_company_id('company_admin', index=0)
 			add_financial_summaries_for_company(session, company_id)
 
-			report_month_last_day = date_util.get_report_month_last_day(TODAY.date())
-			fs = loc_summary.get_end_of_report_month_financial_summary(session, company_id, report_month_last_day)
+			rgc = ReportGenerationContext(
+				company_lookup = None,
+				today = TODAY,
+				as_of_date = "2020-09-30"
+			)
+
+			fs = loc_summary.get_end_of_report_month_financial_summary(session, company_id, rgc)
 			
 			self.assertEqual(fs.date, get_relative_date(TODAY, -1).date())
 		
@@ -731,13 +737,15 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 			company_id = seed.get_company_id('company_admin', index=0)
 			add_payments_for_company(session, company_id)
 
-			report_month_last_day = date_util.get_report_month_last_day(TODAY.date())
-			report_month_first_day = date_util.get_first_day_of_month_date(date_util.date_to_str(report_month_last_day))
+			rgc = ReportGenerationContext(
+				company_lookup = None,
+				today = TODAY,
+				as_of_date = "2020-09-30"
+			)
 			principal_repayments, interest_repayments, fee_repayments = loc_summary.get_report_month_repayments(
 				session,
 				company_id,
-				report_month_first_day,
-				report_month_last_day
+				rgc
 			)
 			self.assertEqual(principal_repayments, 7000.0)
 			self.assertEqual(interest_repayments, 1500.0)
@@ -753,13 +761,15 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 			company_id = seed.get_company_id('company_admin', index=0)
 			add_loans_for_loc_summary(session, company_id)
 
-			report_month_last_day = date_util.get_report_month_last_day(TODAY)
-			report_month_first_day = date_util.get_first_day_of_month_date(date_util.date_to_str(report_month_last_day))
+			rgc = ReportGenerationContext(
+				company_lookup = None,
+				today = TODAY,
+				as_of_date = "2020-09-30"
+			)
 			advanced_amount = loc_summary.get_report_month_advances(
 				session,
 				company_id,
-				report_month_first_day,
-				report_month_last_day
+				rgc
 			)
 			self.assertEqual(advanced_amount, 30000.0)
 
@@ -776,16 +786,18 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 
 			contract, err = contract_util.get_active_contract_by_company_id(company_id, session)
 
-			report_month_last_day = date_util.get_report_month_last_day(TODAY.date())
-			report_month_first_day = date_util.get_first_day_of_month_date(date_util.date_to_str(report_month_last_day))
-			previous_report_month_last_day = date_util.get_report_month_last_day(report_month_last_day)
+			rgc = ReportGenerationContext(
+				company_lookup = None,
+				today = TODAY,
+				as_of_date = "2020-09-30"
+			)
+			previous_report_month_last_day = date_util.get_report_month_last_day(rgc.report_month_last_day)
 
 			cmi_or_mmf_title, cmi_or_mmf_amount, cmi_mmf_scores, err = loc_summary.get_cmi_and_mmf(
 				session, 
 				contract, 
 				company_id, 
-				report_month_first_day, 
-				report_month_last_day,
+				rgc,
 				interest_fee_balance = 23.74,
 				previous_report_month_last_day = previous_report_month_last_day
 			)
@@ -804,7 +816,7 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 				session.query(models.FinancialSummary).filter(
 					models.FinancialSummary.company_id == company_id
 				).filter(
-					models.FinancialSummary.date == report_month_first_day
+					models.FinancialSummary.date == rgc.report_month_first_day
 				).first())
 			fs.total_outstanding_principal_for_interest = Decimal(80.0)
 			session.add(fs)
@@ -814,8 +826,7 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 				session, 
 				contract, 
 				company_id, 
-				report_month_first_day, 
-				report_month_last_day,
+				rgc,
 				interest_fee_balance = 0.0,
 				previous_report_month_last_day = previous_report_month_last_day
 			)
@@ -894,11 +905,11 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 def setup_loans_for_non_loc_html_generation(
 	session: Session,
 	company_id: str
-	) -> Tuple[List[models.Loan], Dict[str, str]]:
+	) -> Tuple[List[models.Loan], Dict[str, models.Company]]:
 	loans = []
 
 	vendor_id = uuid.uuid4()
-	session.add(models.Company(
+	test_company = models.Company(
 		id = vendor_id,
 		is_customer = False, # because vendor
 		name = "Best Nuggies",
@@ -906,7 +917,8 @@ def setup_loans_for_non_loc_html_generation(
 		contract_name = "Best Nuggies",
 		dba_name = "Best Nuggies, Inc.",
 		company_settings_id = None
-	))
+	)
+	session.add(test_company)
 
 	po_id = uuid.uuid4()
 	session.add(models.PurchaseOrder( # type: ignore
@@ -935,7 +947,7 @@ def setup_loans_for_non_loc_html_generation(
 	))
 
 	company_lookup = {}
-	company_lookup[str(vendor_id)] = "Best Nuggies"
+	company_lookup[str(vendor_id)] = test_company
 
 	return loans, company_lookup
 
@@ -950,6 +962,12 @@ class TestReportsMonthlyLoanSummaryNoneLOCView(db_unittest.TestCase):
 			company_id = seed.get_company_id('company_admin', index=0)
 			loans, company_lookup = setup_loans_for_non_loc_html_generation(session, company_id)
 
+			rgc = ReportGenerationContext(
+				company_lookup = company_lookup,
+				today = TODAY,
+				as_of_date = "2020-09-30"
+			)
+
 			template_data : Dict[str, object] = {
 				"company_user": "JR Smith",
 				"company_name": "Colorado Cliffs",
@@ -957,7 +975,7 @@ class TestReportsMonthlyLoanSummaryNoneLOCView(db_unittest.TestCase):
 				"support_email": "<a href='mailto:support@bespokefinancial.com'>support@bespokefinancial.com</a>",
 				"statement_month": "October 2021"
 			}
-			html = non_loc_summary.prepare_html_for_attachment(session, template_data, loans, company_lookup)
+			html = non_loc_summary.prepare_html_for_attachment(session, template_data, loans, rgc)
 			is_valid_html = bool(BeautifulSoup(html, "html.parser").find())
 
 			self.assertEqual(is_valid_html, True)

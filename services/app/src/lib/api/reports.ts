@@ -8,6 +8,7 @@ export type ReportGenerationReq = {
   variables: {
     isTest: boolean;
     email: String;
+    asOfDate: String;
   };
 };
 
