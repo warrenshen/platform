@@ -57,6 +57,7 @@ function ReviewPurchaseOrderApproveModal({
   const {
     data,
     loading: isCompanyVendorPartnershipLoading,
+    error,
   } = useCompanyVendorPartnershipForVendorQuery({
     fetchPolicy: "network-only",
     variables: {
@@ -64,6 +65,11 @@ function ReviewPurchaseOrderApproveModal({
       vendorId: purchaseOrder.vendor_id,
     },
   });
+
+  if (error) {
+    alert(`Error in query: ${error.message}`);
+    console.error({ error });
+  }
 
   const [
     respondToApprovalRequest,

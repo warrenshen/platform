@@ -254,6 +254,7 @@
       - account_number
       - account_title
       - account_type
+      - ach_default_memo
       - bank_address
       - bank_name
       - can_ach
@@ -272,6 +273,7 @@
       - routing_number
       - verified_at
       - verified_date
+      - wire_default_memo
       - wire_routing_number
       filter:
         assigned_companies_for_collection_in_settings:
@@ -284,8 +286,11 @@
       - account_number
       - account_title
       - account_type
+      - ach_default_memo
       - bank_address
       - bank_name
+      - can_ach
+      - can_wire
       - company_id
       - id
       - intermediary_account_name
@@ -297,6 +302,7 @@
       - recipient_address_2
       - recipient_name
       - routing_number
+      - wire_default_memo
       - wire_routing_number
       filter:
         company_id:

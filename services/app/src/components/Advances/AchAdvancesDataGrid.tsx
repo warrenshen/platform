@@ -16,11 +16,11 @@ function getRows(
       ...payment,
       bespoke_routing_number: payment.company_bank_account?.routing_number,
       bespoke_account_number: payment.company_bank_account?.account_number,
-      template_name: payment.recipient_bank_account?.torrey_pines_template_name,
       recipient_routing_number: payment.recipient_bank_account?.routing_number,
       recipient_bank_name: payment.recipient_bank_account?.bank_name,
       recipient_account_number: payment.recipient_bank_account?.account_number,
       recipient_account_type: payment.recipient_bank_account?.account_type,
+      recipient_account_name: payment.recipient_bank_account?.account_title,
       recipient_name: payment.recipient_bank_account?.recipient_name,
       recipient_address: payment.recipient_bank_account?.recipient_address,
       recipient_address_2: payment.recipient_bank_account?.recipient_address_2,
@@ -72,8 +72,8 @@ export default function AchAdvancesDataGrid({
         width: 140,
       },
       {
-        dataField: "template_name",
-        caption: "Template Name",
+        dataField: "recipient_account_name",
+        caption: "Account Name",
         width: 140,
       },
       {

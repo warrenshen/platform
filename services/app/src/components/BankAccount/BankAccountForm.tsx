@@ -80,6 +80,9 @@ export default function BankAccountForm({
                 setBankAccount({
                   ...bankAccount,
                   can_ach: event.target.checked,
+                  routing_number: null,
+                  ach_default_memo: null,
+                  torrey_pines_template_name: null,
                 })
               }
               color="primary"
@@ -102,7 +105,7 @@ export default function BankAccountForm({
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
             <TextField
-              label="ACH Memo"
+              label="ACH Default Memo"
               className={classes.form}
               value={bankAccount.ach_default_memo}
               onChange={({ target: { value } }) =>
@@ -142,6 +145,17 @@ export default function BankAccountForm({
                 setBankAccount({
                   ...bankAccount,
                   can_wire: event.target.checked,
+                  is_wire_intermediary: null,
+                  intermediary_bank_name: null,
+                  intermediary_bank_address: null,
+                  intermediary_account_name: null,
+                  intermediary_account_number: null,
+                  wire_routing_number: null,
+                  recipient_address: null,
+                  recipient_address_2: null,
+                  wire_default_memo: null,
+                  wire_template_name: null,
+                  bank_address: null,
                 })
               }
               color="primary"
@@ -161,6 +175,10 @@ export default function BankAccountForm({
                     setBankAccount({
                       ...bankAccount,
                       is_wire_intermediary: event.target.checked,
+                      intermediary_bank_name: null,
+                      intermediary_bank_address: null,
+                      intermediary_account_name: null,
+                      intermediary_account_number: null,
                     })
                   }
                   color="primary"
@@ -263,7 +281,7 @@ export default function BankAccountForm({
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
             <TextField
-              label="Wire Memo"
+              label="Wire Default Memo"
               className={classes.form}
               value={bankAccount.wire_default_memo}
               onChange={({ target: { value } }) =>
