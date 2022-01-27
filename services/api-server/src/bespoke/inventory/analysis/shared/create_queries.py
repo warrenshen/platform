@@ -15,8 +15,101 @@ def _get_identifiers_for_where_clause(company_identifier: Union[str, List[str]])
 	return ['"{}"'.format(iden) for iden in identifiers]
 
 def create_company_incoming_transfer_packages_query(
-	start_date: str,
 	company_identifier: Union[str, List[str]],
+	start_date: str,
+	end_date: str = None,
+	license_numbers: List[str] = None,
+	product_name: str = None,
+	limit: int = None,
+	min_updated_at: datetime.datetime = None
+) -> str:
+	# end_date_where_clause
+	end_date_where_clause = f"""
+		and metrc_transfers.created_date <= "{end_date}"
+	""" if end_date else ''
+	# license_numbers_where_clause
+	license_numbers = [f"'{license_number}'" for license_number in license_numbers] if license_numbers else None
+	license_numbers_where_clause = f"""
+		and company_deliveries.license_number in ({','.join(license_numbers)})
+	""" if license_numbers else ''
+	# product_name_where_clause
+	product_name_where_clause = f"""
+		and metrc_transfer_packages.product_name = "{product_name}"
+	""" if product_name else ''
+	# company_identifier_where_clause
+	identifiers = _get_identifiers_for_where_clause(company_identifier)
+	# limit_clause
+	limit_clause = f"LIMIT {limit}" if limit else ""
+	# updated_at_where_clause
+	updated_at_where_clause = _get_updated_at_where_clause('metrc_transfers', min_updated_at)
+
+	return f"""
+		select
+			case
+				when company_deliveries.delivery_type = 'INCOMING_UNKNOWN' then 'INCOMING_FROM_VENDOR'
+				when company_deliveries.delivery_type = 'INCOMING_FROM_VENDOR' then 'INCOMING_FROM_VENDOR'
+				when company_deliveries.delivery_type = 'OUTGOING_UNKNOWN' then 'OUTGOING_TO_PAYOR'
+				when company_deliveries.delivery_type = 'OUTGOING_TO_PAYOR' then 'OUTGOING_TO_PAYOR'
+				else company_deliveries.delivery_type
+			end as delivery_type,
+			company_deliveries.license_number,
+			metrc_transfers.manifest_number,
+			metrc_transfers.created_date,
+			metrc_deliveries.received_datetime,
+			metrc_transfers.transfer_payload.shipmenttransactiontype as shipment_transaction_type,
+			metrc_transfers.shipper_facility_license_number,
+			metrc_transfers.shipper_facility_name,
+			metrc_deliveries.recipient_facility_license_number,
+			metrc_deliveries.recipient_facility_name,
+			metrc_deliveries.shipment_type_name,
+			metrc_deliveries.shipment_transaction_type,
+			metrc_transfer_packages.package_id,
+			metrc_transfer_packages.package_label,
+			metrc_transfer_packages.type,
+			metrc_transfer_packages.package_payload.sourcepackagelabels as source_package_labels,
+			metrc_transfer_packages.package_payload.sourceharvestnames as source_harvest_names,
+			metrc_transfer_packages.package_payload.shipmentpackagestate as shipment_package_state,
+			metrc_transfer_packages.package_payload.istestingsample as is_testing_sample,
+			metrc_transfer_packages.package_payload.istradesample as is_trade_sample,
+			metrc_transfer_packages.product_category_name,
+			metrc_transfer_packages.product_name,
+			metrc_transfer_packages.lab_results_status as package_lab_results_status,
+			metrc_transfer_packages.shipper_wholesale_price,
+			metrc_transfer_packages.shipped_quantity,
+			metrc_transfer_packages.shipped_unit_of_measure,
+			metrc_transfer_packages.package_payload.receiverwholesaleprice as receiver_wholesale_price,
+			metrc_transfer_packages.received_quantity,
+			metrc_transfer_packages.received_unit_of_measure,
+			metrc_transfer_packages.package_payload.receiverwholesaleprice as receiver_wholesale_price,
+			metrc_transfer_packages.package_payload.itemunitweight as item_unit_weight,
+			metrc_transfer_packages.package_payload.itemunitweightunitofmeasurename as item_unit_weight_unit_of_measure_name
+		from
+			metrc_transfers
+			inner join company_deliveries on metrc_transfers.id = company_deliveries.transfer_row_id
+			inner join companies on company_deliveries.company_id = companies.id
+			inner join metrc_deliveries on metrc_transfers.id = metrc_deliveries.transfer_row_id
+			inner join metrc_transfer_packages on metrc_deliveries.id = metrc_transfer_packages.delivery_row_id
+		where
+			True
+			and companies.identifier in ({','.join(identifiers)})
+			and (
+				company_deliveries.delivery_type = 'INCOMING_FROM_VENDOR' or
+				company_deliveries.delivery_type = 'INCOMING_INTERNAL' or
+				company_deliveries.delivery_type = 'INCOMING_UNKNOWN'
+			)
+			and metrc_transfers.created_date >= "{start_date}"
+			{end_date_where_clause}
+			{license_numbers_where_clause}
+			{product_name_where_clause}
+			{updated_at_where_clause}
+		order by
+			created_date desc
+		{limit_clause}
+	"""
+
+def create_company_incoming_transfer_packages_query(
+	company_identifier: Union[str, List[str]],
+	start_date: str,
 	end_date: str = None,
 	license_numbers: List[str] = None,
 	product_name: str = None,
@@ -108,8 +201,8 @@ def create_company_incoming_transfer_packages_query(
 	"""
 
 def create_company_outgoing_transfer_packages_query(
-	start_date: str,
 	company_identifier: Union[str, List[str]],
+	start_date: str,
 	end_date: str = None,
 	license_numbers: List[str] = None,
 	product_name: str = None,
@@ -193,7 +286,10 @@ def create_company_outgoing_transfer_packages_query(
 		{limit_clause}
 	"""
 
-def create_company_unknown_transfer_packages_query(start_date: str,company_identifier: Union[str, List[str]]) -> str:
+def create_company_unknown_transfer_packages_query(
+	company_identifier: Union[str, List[str]],
+	start_date: str,
+) -> str:
 	# company_identifier_where_clause
 	identifiers = _get_identifiers_for_where_clause(company_identifier)
 	return f"""
@@ -249,11 +345,12 @@ def create_company_unknown_transfer_packages_query(start_date: str,company_ident
 	"""
 
 def create_company_sales_receipts_query(
-	start_date: str,
 	company_identifier: Union[str, List[str]],
+	start_date: str,
 	license_numbers: List[str]=None,
 	limit: int = None,
-	min_updated_at: datetime.datetime = None) -> str:
+	min_updated_at: datetime.datetime = None,
+) -> str:
 
 	license_numbers = [f"'{license_number}'" for license_number in license_numbers] if license_numbers else None
 	license_numbers_where_clause = f"""
@@ -289,11 +386,12 @@ def create_company_sales_receipts_query(
 	"""
 
 def create_company_sales_receipts_with_transactions_query(
-	start_date: str,
 	company_identifier: Union[str, List[str]],
+	start_date: str,
 	unit_of_measure: str= None,
 	license_numbers: List[str]=None,
-	limit: int = None) -> str:
+	limit: int = None,
+) -> str:
 	"""
 	Note the left outer join of metrc_sales_transactions.
 	"""
@@ -346,11 +444,12 @@ def create_company_sales_receipts_with_transactions_query(
 	"""
 
 def create_company_sales_transactions_query(
-	start_date: str,
 	company_identifier: Union[str, List[str]],
+	start_date: str,
 	license_numbers: List[str]=None,
 	limit: int = None,
-	min_updated_at: datetime.datetime = None) -> str:
+	min_updated_at: datetime.datetime = None,
+) -> str:
 
 	license_numbers = [f"'{license_number}'" for license_number in license_numbers] if license_numbers else None
 	license_numbers_where_clause = f"""
@@ -873,7 +972,11 @@ def create_packages_by_production_batch_numbers_query(production_batch_numbers: 
 
 ####### For licenses
 
-def create_company_download_summaries_query(company_identifier: Union[List[str], str], start_date: str, end_date:str=None) -> str:
+def create_company_download_summaries_query(
+	company_identifier: Union[List[str], str],
+	start_date: str,
+	end_date:str=None,
+) -> str:
 	identifiers = _get_identifiers_for_where_clause(company_identifier)
 
 	end_date_where_clause = f"""

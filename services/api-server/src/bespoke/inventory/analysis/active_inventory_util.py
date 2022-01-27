@@ -740,7 +740,8 @@ def create_inventory_xlsx(
 	q: Query, 
 	params: AnalysisParamsDict,
 	show_debug_package_ids: bool = False,
-	using_nb: bool = False) -> ComputeInventoryDict:
+	using_nb: bool = False,
+) -> ComputeInventoryDict:
 
 	i = 0
 	num_excluded = 0
