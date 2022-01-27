@@ -346,10 +346,18 @@ def _maybe_add_or_remove_recipients(
 		if filter_out_contact_only is True:
 			recipients = _filter_out_contact_only_emails(recipients, session)
 
-	# For staging and production environments, if email template is not
+	# Remove do-not-reply-development@bespokefinancial.com until that email is setup
+	# Once that email is setup, we can and should remove this snippet
+	new_recipients = []
+	for recipient in recipients:
+		if recipient != "do-not-reply-development@bespokefinancial.com":
+			new_recipients.append(recipient)
+	recipients = new_recipients
+
+	# For the production environment only, if email template is not
 	# in blacklist then we send a copy of email to the no_reply_email_addr.
 	if (
-		not is_development_env(cfg['flask_env']) and
+		is_prod_env(cfg['flask_env']) and
 		template_name not in TEMPLATES_TO_EXCLUDE_FROM_BESPOKE_NOTIFICATIONS
 	):
 		no_reply_email_addr = cfg['no_reply_email_addr']

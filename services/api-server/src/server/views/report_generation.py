@@ -378,7 +378,6 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 		company_id : str,
 		rgc: ReportGenerationContext
 		) -> Optional[models.FinancialSummary]:
-		
 		financial_summary = cast(
 			models.FinancialSummary,
 			session.query(models.FinancialSummary).filter(
@@ -783,9 +782,9 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 				).order_by(
 					models.EbbaApplication.application_date.desc()
 				).first())
-			cbb = float(most_recent_ebba_application.calculated_borrowing_base)
+			cbb = float(most_recent_ebba_application.calculated_borrowing_base) if most_recent_ebba_application is not None else None
 			tcl = float(contract_dict["maximum_amount"])
-			tcl_raw = min(tcl, cbb)
+			tcl_raw = min(tcl, cbb) if cbb is not None else tcl
 			#total_credit_line = number_util.to_dollar_format(tcl_raw)
 			total_credit_line = number_util.to_dollar_format(float(financial_summary.adjusted_total_limit))
 			print("TCL ANCHOR:",tcl_raw,float(financial_summary.adjusted_total_limit))
@@ -938,6 +937,9 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 		is_test = variables.get("isTest", False) if variables else False
 		test_email = variables.get("email", None) if variables else None
 		as_of_date = variables.get("asOfDate", None) if variables else None
+		if as_of_date is None:
+			return handler_util.make_error_response('Please set the as of date for month end report generation.')
+
 
 		print("Sending out monthly summary report emails for LOC customers")
 		cfg = cast(Config, current_app.app_config)
@@ -975,7 +977,6 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 
 			rgc = ReportGenerationContext(
 				company_lookup = None,
-				today = date_util.now(),
 				as_of_date = as_of_date
 			)
 
@@ -1488,6 +1489,8 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 		is_test = variables.get("isTest", False) if variables else False
 		test_email = variables.get("email", None) if variables else None
 		as_of_date = variables.get("asOfDate", None) if variables else None
+		if as_of_date is None:
+			return handler_util.make_error_response('Please set the as of date for month end report generation.')
 		
 		print("Sending out monthly summary report emails for non-LOC customers")
 		cfg = cast(Config, current_app.app_config)
@@ -1517,7 +1520,6 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 
 			rgc = ReportGenerationContext(
 				company_lookup = company_lookup,
-				today = date_util.now(),
 				as_of_date = as_of_date
 			)
 

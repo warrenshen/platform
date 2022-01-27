@@ -355,7 +355,8 @@ class CreatePartnershipView(MethodView):
 			# customer settings' docusign link unless the onboarding link is set
 			onboarding_link = customer_settings.vendor_onboarding_link \
 				if customer_settings.vendor_onboarding_link is not None else ""
-			docusign_link = onboarding_link if onboarding_link != "" else docusign_link
+			docusign_link = onboarding_link if onboarding_link != "" else docusign_link \
+				if docusign_link is not None else ""
 				
 			if is_dispensary_customer:
 				template_data = {

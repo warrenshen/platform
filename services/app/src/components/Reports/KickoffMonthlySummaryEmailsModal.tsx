@@ -97,6 +97,7 @@ export default function KickoffMonthlySummaryEmailsModal({
       isPrimaryActionDisabled={
         isSendNonLOCReportLoading ||
         isSendLOCReportLoading ||
+        asOfDate === "" ||
         (isTestRun && !isEmailValid(email))
       }
       primaryActionText={isTestRun ? "Send Test Reports" : "Send Live Reports"}
@@ -143,48 +144,44 @@ export default function KickoffMonthlySummaryEmailsModal({
           </Box>
         )}
         {isTestRun && (
-          <>
-            <Box display="flex" flexDirection="column" mt={4}>
-              <Typography variant={"body2"}>
-                <strong>Email Recipient</strong>
-              </Typography>
-              <Typography variant={"subtitle2"} color={"textSecondary"}>
-                If the checkbox for if test run is selected, please make sure to
-                enter an email below that will receive the test run.
-              </Typography>
-              <TextField
-                label="Email"
-                value={email}
-                disabled={!isTestRun}
-                required={isTestRun}
-                onChange={({ target: { value } }) => setEmail(value)}
-              />
-            </Box>
-            <Box display="flex" flexDirection="column" mt={4}>
-              <Typography variant={"body2"}>
-                <strong>As of Date</strong>
-              </Typography>
-              <Typography variant={"subtitle2"} color={"textSecondary"}>
-                This is used if you want to test the results of the loan
-                generation before the month's end. (e.g. You want to test the
-                report for January 2022, but it's only Jan 20th.)
-              </Typography>
-              <Typography variant={"subtitle2"} color={"textSecondary"}>
-                If unset, the test run will default to generating reports for
-                the previous month.
-              </Typography>
-              <DateInput
-                dataCy={"cy-report-as-of-date"}
-                className={classes.datePicker}
-                id={"report-as-of-date"}
-                label={"Report Generation as of Date"}
-                required={false}
-                value={asOfDate || null}
-                onChange={(value: any) => setAsOfDate(value)}
-              />
-            </Box>
-          </>
+          <Box display="flex" flexDirection="column" mt={4}>
+            <Typography variant={"body2"}>
+              <strong>Email Recipient</strong>
+            </Typography>
+            <Typography variant={"subtitle2"} color={"textSecondary"}>
+              If the checkbox for if test run is selected, please make sure to
+              enter an email below that will receive the test run.
+            </Typography>
+            <TextField
+              label="Email"
+              value={email}
+              disabled={!isTestRun}
+              required={isTestRun}
+              onChange={({ target: { value } }) => setEmail(value)}
+            />
+          </Box>
         )}
+        <Box display="flex" flexDirection="column" mt={4}>
+          <Typography variant={"body2"}>
+            <strong>As of Date</strong>
+          </Typography>
+          <Typography variant={"subtitle2"} color={"textSecondary"}>
+            Please use the data picker to select a data to run the report
+            generation up until. For example, if you select 1/31/2022, you will
+            generate and send reports for January 2022. If you select 1/20/2022,
+            the generated reports will only include up to January 20th.
+          </Typography>
+          <DateInput
+            dataCy={"cy-report-as-of-date"}
+            className={classes.datePicker}
+            id={"report-as-of-date"}
+            label={"Report Generation as of Date"}
+            required={false}
+            value={asOfDate || null}
+            onChange={(value: any) => setAsOfDate(value)}
+            disableFuture={true}
+          />
+        </Box>
         {(isSendLOCReportLoading || isSendNonLOCReportLoading) && (
           <Box display="flex" flexDirection="column" mt={4}>
             <Typography variant={"body2"}>

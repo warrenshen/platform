@@ -37,7 +37,7 @@ class TestSendGridClient(db_unittest.TestCase):
 					'no_reply_email_addr': 'no-reply@bespokefinancial.com'
 				},
 				'template_name': '',
-				'expected_recipients': ['b@sweatequity.vc', 'no-reply@bespokefinancial.com']
+				'expected_recipients': ['b@sweatequity.vc']
 			},
 			{
 				'recipients': ['a@gmail.com', 'b@sweatequity.vc', 'c@bespokefinancial.com'],
@@ -46,7 +46,7 @@ class TestSendGridClient(db_unittest.TestCase):
 					'no_reply_email_addr': 'no-reply@bespokefinancial.com'
 				},
 				'template_name': '',
-				'expected_recipients': ['b@sweatequity.vc', 'c@bespokefinancial.com', 'no-reply@bespokefinancial.com']
+				'expected_recipients': ['b@sweatequity.vc', 'c@bespokefinancial.com']
 			},
 			{
 				'recipients': ['a@gmail.com'],

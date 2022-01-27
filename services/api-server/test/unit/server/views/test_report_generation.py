@@ -720,7 +720,6 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 
 			rgc = ReportGenerationContext(
 				company_lookup = None,
-				today = TODAY,
 				as_of_date = "2020-09-30"
 			)
 
@@ -740,7 +739,6 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 
 			rgc = ReportGenerationContext(
 				company_lookup = None,
-				today = TODAY,
 				as_of_date = "2020-09-30"
 			)
 			principal_repayments, interest_repayments, fee_repayments = loc_summary.get_report_month_repayments(
@@ -764,7 +762,6 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 
 			rgc = ReportGenerationContext(
 				company_lookup = None,
-				today = TODAY,
 				as_of_date = "2020-09-30"
 			)
 			advanced_amount = loc_summary.get_report_month_advances(
@@ -789,7 +786,6 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 
 			rgc = ReportGenerationContext(
 				company_lookup = None,
-				today = TODAY,
 				as_of_date = "2020-09-30"
 			)
 			previous_report_month_last_day = date_util.get_report_month_last_day(rgc.report_month_last_day)
@@ -975,7 +971,6 @@ class TestReportsMonthlyLoanSummaryNoneLOCView(db_unittest.TestCase):
 
 			rgc = ReportGenerationContext(
 				company_lookup = company_lookup,
-				today = TODAY,
 				as_of_date = "2020-09-30"
 			)
 

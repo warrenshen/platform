@@ -18,14 +18,14 @@ class ReportGenerationContext:
 	def __init__(
 		self, 
 		company_lookup: Dict[str, models.Company],
-		today: datetime.datetime,
 		as_of_date: str
 	):
 		self.company_lookup = company_lookup
 
-		self.today = today
-		self.report_month_last_day = date_util.get_report_month_last_day(today) if as_of_date is None else \
+		self.today = date_util.date_to_datetime(
 			date_util.load_date_str(as_of_date)
+		)
+		self.report_month_last_day = date_util.load_date_str(as_of_date)
 		self.report_month_first_day = date_util.get_first_day_of_month_date(
 			date_util.date_to_str(self.report_month_last_day)
 		)
