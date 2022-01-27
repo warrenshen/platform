@@ -386,11 +386,12 @@ class Client(object):
 		template_name: str,
 		template_data: Dict,
 		recipients: List[str],
+		cc_recipients: List[str] = [],
 		filter_out_contact_only: bool = False,
 		two_factor_payload: TwoFactorPayloadDict = None,
 		attachment: Attachment = None,
 	) -> Tuple[bool, errors.Error]:
-
+		
 		# Validate whether recipient emails are valid.
 		for recipient_email in recipients:
 			if not recipient_email or '@' not in recipient_email:
@@ -405,6 +406,10 @@ class Client(object):
 
 		if not recipients:
 			return None, errors.Error('Cannot send an email when no recipients are specified')
+
+		if len(cc_recipients) > 0:
+			cc_recipients = _maybe_add_or_remove_recipients(
+				cc_recipients, self._email_cfg, template_name, self._session_maker, filter_out_contact_only)
 
 		err_details = {
 			'template_name': template_name,
@@ -421,6 +426,7 @@ class Client(object):
 					template_id=template_id,
 					template_data=template_data,
 					attachment=attachment,
+					cc_recipients=cc_recipients
 				)
 			except Exception as e:
 				err_details['error'] = '{}'.format(e)
@@ -462,7 +468,8 @@ class Client(object):
 					to_=cur_recipient,
 					template_id=template_id,
 					template_data=cur_template_data,
-					attachment=attachment
+					attachment=attachment,
+					cc_recipients=cc_recipients
 				)
 			except Exception as e:
 				err_details['error'] = '{}'.format(e)

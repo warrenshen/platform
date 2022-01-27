@@ -15,12 +15,14 @@ from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models, models_util
 from bespoke.db.db_constants import (DBOperation, LoanStatusEnum, LoanTypeEnum,
-                                     PaymentType)
+                                     PaymentType, FinancialSummaryPayloadField)
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.finance import contract_util, number_util
 from bespoke.finance.loans import reports_util
+from bespoke.finance.loans.loan_calculator import (LoanUpdateDict)
 from bespoke.finance.payments import fees_due_util
+from bespoke.finance.reports import loan_balances
 from bespoke.finance.types.payment_types import PaymentItemsCoveredDict
 from bespoke.metrc.common.metrc_common_util import chunker, chunker_dict
 from bespoke.reports.report_generation_util import *
@@ -28,12 +30,13 @@ from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from sendgrid.helpers.mail import (Attachment, Disposition, FileContent,
                                    FileName, FileType)
-from server.config import Config
+from server.config import Config, get_config
 from server.views.common import auth_util, handler_util
 from sqlalchemy import func
 from sqlalchemy.orm.session import Session
 
 handler = Blueprint('report_generation', __name__)
+config = get_config()
 
 class ReportsLoansComingDueView(MethodView):
 	decorators = [auth_util.requires_async_magic_header]
@@ -144,7 +147,8 @@ class ReportsLoansComingDueView(MethodView):
 						template_name=sendgrid_util.TemplateNames.REPORT_LOANS_COMING_DUE,
 						template_data=template_data,
 						recipients=[contact_user.email],
-						filter_out_contact_only=True
+						filter_out_contact_only=True,
+						cc_recipients=[config.NO_REPLY_EMAIL_ADDRESS]
 					)
 
 					if err:
@@ -309,7 +313,8 @@ class ReportsLoansPastDueView(MethodView):
 						template_name=sendgrid_util.TemplateNames.REPORT_LOANS_PAST_DUE,
 						template_data=template_data,
 						recipients=[contact_user.email],
-						filter_out_contact_only=True
+						filter_out_contact_only=True,
+						cc_recipients=[config.NO_REPLY_EMAIL_ADDRESS]
 					)
 
 					if err:
@@ -517,7 +522,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 
 		# Compare and determine output
 		if cmi > mmf:	
-			cmi_or_mmf_title = "Current Month's Interest"
+			cmi_or_mmf_title = "Current Month's Interest and Fees"
 			cmi_or_mmf_amount = cmi
 		else:
 			cmi_or_mmf_title = "Minimum Monthly Fee"
@@ -692,13 +697,14 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 	def get_minimum_payment_due(
 		self,
 		cmi_mmf_scores: Tuple[float, float, float],
+		outstanding_account_fees: float,
 		interest_repayments: float, 
 		interest_fee_balance: float
 		) -> Tuple[str, float]:
 		cmi, mmf, outstanding_interest = cmi_mmf_scores
 
 		cmi_or_mmf = cmi if cmi > mmf else mmf
-		minimum_payment_due = outstanding_interest - interest_repayments + cmi_or_mmf
+		minimum_payment_due = max(outstanding_interest + outstanding_account_fees - interest_repayments + cmi_or_mmf, 0.0)
 		
 		return number_util.to_dollar_format(minimum_payment_due), minimum_payment_due
 
@@ -736,8 +742,10 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 					rgc.report_month_last_day
 				)
 			)
-			
+
 			financial_summary = self.get_end_of_report_month_financial_summary(session, company_id, rgc)
+			account_level_balance_payload = cast(Dict[str, Any], financial_summary.account_level_balance_payload)
+			outstanding_account_fees = account_level_balance_payload.get(FinancialSummaryPayloadField.FEES_TOTAL, 0)
 
 			# Checks for edge case where LoC has started a contract right before this email gets sent
 			# (e.g. contract starts 10/1, email sent 10/5, there won't be a report to send)
@@ -768,8 +776,19 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 			principal_repayments_display = number_util.to_dollar_format(principal_repayments)
 			interest_fee_repayments_display = number_util.to_dollar_format(interest_repayments + fee_repayments)
 
+			most_recent_ebba_application = cast(
+				models.EbbaApplication,
+				session.query(models.EbbaApplication).filter(
+					models.EbbaApplication.company_id == company_id
+				).order_by(
+					models.EbbaApplication.application_date.desc()
+				).first())
+			cbb = float(most_recent_ebba_application.calculated_borrowing_base)
 			tcl = float(contract_dict["maximum_amount"])
-			total_credit_line = number_util.to_dollar_format(tcl)
+			tcl_raw = min(tcl, cbb)
+			#total_credit_line = number_util.to_dollar_format(tcl_raw)
+			total_credit_line = number_util.to_dollar_format(float(financial_summary.adjusted_total_limit))
+			print("TCL ANCHOR:",tcl_raw,float(financial_summary.adjusted_total_limit))
 
 			# if guard for when LoC customers are just starting out and won't have a previous month
 			if previous_financial_summary is not None:
@@ -779,7 +798,8 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 				previous_fees = float(previous_financial_summary.total_outstanding_fees)
 				previous_interest_and_fees = number_util.to_dollar_format( \
 					previous_interest + \
-					previous_fees)
+					previous_fees + \
+					outstanding_account_fees)
 
 				interest_fee_balance = (interest_repayments + fee_repayments) - previous_interest - previous_fees
 			else:
@@ -818,7 +838,12 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 				return loans_to_notify, make_response(json.dumps({ 'status': 'FAILED', 'resp': "Failed to calculate current monthly interest and minimum monthly fee " + repr(err) }))
 			
 			payment_due_date = date_util.date_to_str(date_util.get_first_day_of_month_date(automatic_debit_date))
-			minimum_payment_due, minimum_payment_amount = self.get_minimum_payment_due(cmi_mmf_scores, interest_repayments, interest_fee_balance)
+			minimum_payment_due, minimum_payment_amount = self.get_minimum_payment_due(
+				cmi_mmf_scores,
+				outstanding_account_fees,
+				interest_repayments, 
+				interest_fee_balance
+			)
 
 			msc = cast(
 				models.MonthlySummaryCalculation,
@@ -880,6 +905,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 						template_name=sendgrid_util.TemplateNames.REPORT_MONTHLY_SUMMARY_LOC,
 						template_data=template_data,
 						recipients=[contact_user.email],
+						cc_recipients=[config.NO_REPLY_EMAIL_ADDRESS],
 						filter_out_contact_only=True,
 						attachment=attached_report
 					)
@@ -893,10 +919,11 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 					template_name=sendgrid_util.TemplateNames.REPORT_MONTHLY_SUMMARY_LOC,
 					template_data=template_data,
 					recipients=[test_email],
+					cc_recipients=[config.NO_REPLY_EMAIL_ADDRESS],
 					filter_out_contact_only=True,
 					attachment=attached_report
 				)
-
+				
 				if err:
 					return loans_to_notify, make_response(json.dumps({ 'status': 'FAILED', 'resp': "Sendgrid client failed: " + repr(err) }))
 
@@ -1033,7 +1060,8 @@ class AutomaticDebitCourtesyView(MethodView):
 						template_name=sendgrid_util.TemplateNames.AUTOMATIC_DEBIT_COURTESY_ALERT,
 						template_data=template_data,
 						recipients=[contact_user.email],
-						filter_out_contact_only=True
+						filter_out_contact_only=True,
+						cc_recipients=[config.NO_REPLY_EMAIL_ADDRESS]
 					)
 
 					if err:
@@ -1073,12 +1101,79 @@ class AutomaticDebitCourtesyView(MethodView):
 class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
+	def calculate_outstanding_loan_principal_for_report_month(
+		self,
+		session: Session,
+		loan: models.Loan,
+		transactions_after_report_month: List[models.Transaction],
+		) -> float:
+		"""
+		Since our financial summaries currently only track outstanding principal/interest/fees
+		in aggregrate as opposed to per loan, we need to work backward against any transactions
+		that occurred between the end of the report month and when the actual report was generated
+		"""
+		report_month_end_outstanding_principal = float(loan.outstanding_principal_balance)
+		for tarm in transactions_after_report_month:
+			report_month_end_outstanding_principal += float(tarm.to_principal)
+		
+		return report_month_end_outstanding_principal
+
+	def calculate_outstanding_loan_interest_for_report_month(
+		self,
+		session: Session,
+		loan: models.Loan,
+		transactions_after_report_month: List[models.Transaction],
+		contract: models.Contract,
+		report_month_end_outstanding_principal: float,
+		days_factored : int,
+		company_id: str,
+		loan_update_lookup: Dict[str, Dict[datetime.date, LoanUpdateDict]],
+		rgc: ReportGenerationContext,
+		) -> float:
+		"""
+		Since our financial summaries currently only track outstanding principal/interest/fees
+		in aggregrate as opposed to per loan, we need to work backward against any transactions
+		that occurred between the end of the report month and when the actual report was generated
+		"""
+		# First Approach
+		contract_lookup = contract_util.Contract(contract.as_dict(), private = False)
+		interest_rate, err = contract_lookup.get_interest_rate(rgc.report_month_last_day)
+		if err:
+			print(err)
+		report_month_end_outstanding_interest = report_month_end_outstanding_principal * \
+			interest_rate * float(days_factored)
+
+		# NOTE FOR WARREN: The second, feedback based approach seems fine. I just want to run
+		# them both at least once against prod data since Josef and I already did a lot of legwork
+		# verifying against the first. It would be useful for me to compare both numbers
+		# in case the second method has some discrepancy against a given master files.
+		# 
+		# Once I have verified the numbers, I would remove the first approach and just return
+		# outstanding_interest as defined below
+		# Second Approach
+		outstanding_interest = 0.0
+		loan_updates = loan_update_lookup[str(loan.id)]
+		for lu_date, lu in loan_updates.items():
+			if loan.funded_at.date() <= lu_date:
+				interest_accrued_on_day = float(lu["interest_accrued_today"]) if "interest_accrued_today" in lu else 0.0
+				outstanding_interest += interest_accrued_on_day
+
+
+		print("\n\n\n")
+		print("LOAN ID:", loan.id)
+		print("FIRST:",report_month_end_outstanding_interest)
+		print("SECOND:",outstanding_interest)
+
+		return report_month_end_outstanding_interest
+
 	def prepare_html_for_attachment(
 		self,
 		session: Session,
+		company_id: str,
 		template_data: Dict[str, object],
 		loans : List[models.Loan],
-		rgc: ReportGenerationContext
+		rgc: ReportGenerationContext,
+		company_balance_lookup: Dict[str, loan_balances.CustomerBalance],
 		) -> str:
 		"""
 			HTML attachment is split out to make testing easier. Specifically, so we don't have to
@@ -1135,23 +1230,84 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 				"amount": float(inv.total_amount)
 			}
 
+		# The customer balance update function returns in a format that
+		# isn't a natural fit for adding up interest accrued on a given day
+		# This section rearranges the data to be per loan -and- filters
+		# to only include updates for the report month
+		loan_update_lookup: Dict[str, Dict[datetime.date, LoanUpdateDict]] = {}
+		if str(company_id) in company_balance_lookup: 
+			update_tuple, err = company_balance_lookup[str(company_id)].update(
+				rgc.report_month_first_day,
+				rgc.today.date(),
+				include_debug_info = False, # 
+				is_past_date_default_val = False, #
+			)
+			if err:
+				raise err
+			for tuple_date, update_data in update_tuple.items():
+				if tuple_date >= rgc.report_month_first_day and \
+					tuple_date <= rgc.report_month_last_day:
+					loan_updates = update_data.get("loan_updates", None)
+					
+					if loan_updates:
+						for update in loan_updates:
+							#print("UPDATE:",update)
+							loan_id = update.get("loan_id", "")
+							if loan_id != "":
+								if loan_id not in loan_update_lookup:
+									loan_update_lookup[str(loan_id)] = {}
+								loan_update_lookup[str(loan_id)][tuple_date] = update
+		
 		total_accrued_interest = 0.0
 		total_accrued_principal = 0.0
 		temp_count = 0
 		for l in loans:
-			if l.outstanding_interest is not None:
-				outstanding_interest = float(l.outstanding_interest)
-				total_accrued_interest += outstanding_interest
-				outstanding_interest_display = number_util.to_dollar_format(outstanding_interest)
-			else:
-				outstanding_interest_display = ""
+			days_factored = date_util.number_days_between_dates(rgc.report_month_last_day, l.funded_at.date()) \
+				if l.funded_at is not None else 0 
+			transactions_after_report_month = cast(
+				List[models.Transaction],
+				session.query(models.Transaction).filter(
+					models.Transaction.loan_id == l.id
+				).filter(
+					models.Transaction.effective_date > rgc.report_month_last_day
+				).filter(
+					models.Transaction.effective_date <= rgc.today
+				).order_by(
+					models.Transaction.effective_date.asc()
+				).all())
+
+			contract = cast(
+				models.Contract,
+				session.query(models.Contract).filter(
+					models.Contract.company_id == company_id
+				).order_by(
+					models.Contract.start_date.desc()
+				).first())
+
 			if l.outstanding_principal_balance is not None:
-				outstanding_principal = float(l.outstanding_principal_balance)
+				outstanding_principal = self.calculate_outstanding_loan_principal_for_report_month(session, l, transactions_after_report_month)
 				total_accrued_principal += outstanding_principal
 				outstanding_principal_display = number_util.to_dollar_format(outstanding_principal)
 			else:
 				outstanding_principal_display = ""
 
+			if l.outstanding_interest is not None:
+				outstanding_interest = self.calculate_outstanding_loan_interest_for_report_month(
+					session, 
+					l, 
+					transactions_after_report_month, 
+					contract,
+					outstanding_principal,
+					days_factored,
+					company_id,
+					loan_update_lookup,
+					rgc
+				)
+				total_accrued_interest += outstanding_interest
+				outstanding_interest_display = number_util.to_dollar_format(outstanding_interest)
+			else:
+				outstanding_interest_display = ""
+			
 			artifact_prefix = "PO" if l.loan_type == "purchase_order" else "I"
 			artifact_number = artifact_prefix + l.identifier
 			artifact_date = vendor_lookup[str(l.artifact_id)]["date"] if l.loan_type == "purchase_order" \
@@ -1165,7 +1321,6 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 
 			amount_advanced = float(l.amount)
 			funded_at = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE, now = l.funded_at)
-			days_factored = str(date_util.number_days_between_dates(rgc.today.date(), funded_at))
 			rows += f"""<tr>
         		<td>{ l.disbursement_identifier }</td>
         		<td>{ artifact_number }</td>
@@ -1175,7 +1330,7 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
         		<td>{ date_util.date_to_str(funded_at) if l.funded_at is not None else '' }
         		<td>{ date_util.date_to_str(l.maturity_date) if l.maturity_date is not None else '' }</td>
         		<td>{ number_util.to_dollar_format(amount_advanced) }</td>
-        		<td>{ days_factored }</td>
+        		<td>{ str(days_factored) }</td>
         		<td>{ outstanding_interest_display }</td>
         		<td>{ outstanding_principal_display }</td>
         	</tr>"""
@@ -1268,6 +1423,7 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 		sendgrid_client : sendgrid_util.Client, 
 		rgc: ReportGenerationContext,
 		loans_to_notify : Dict[str, List[models.Loan] ],
+		company_balance_lookup: Dict[str, loan_balances.CustomerBalance],
 		is_test: bool,
 		test_email: str
 		) -> Tuple[Dict[str, List[models.Loan]], Response]:
@@ -1281,7 +1437,8 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 			    "support_email": "<a href='mailto:support@bespokefinancial.com'>support@bespokefinancial.com</a>",
 			    "statement_month": rgc.statement_month,
 			}
-			html = self.prepare_html_for_attachment(session, template_data, loans, rgc)
+
+			html = self.prepare_html_for_attachment(session, company_id, template_data, loans, rgc, company_balance_lookup)
 			attached_report = prepare_email_attachment(company.name, rgc.statement_month, html, is_landscape = True)
 
 			if is_test is False:
@@ -1298,7 +1455,8 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 						template_data=template_data,
 						recipients=[contact_user.email],
 						filter_out_contact_only=True,
-						attachment=attached_report
+						attachment=attached_report,
+						cc_recipients=[config.NO_REPLY_EMAIL_ADDRESS]
 					)
 
 					if err:
@@ -1311,7 +1469,8 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 					template_data=template_data,
 					recipients=[test_email],
 					filter_out_contact_only=True,
-					attachment=attached_report
+					attachment=attached_report,
+					cc_recipients=[config.NO_REPLY_EMAIL_ADDRESS]
 				)
 
 				if err:
@@ -1342,12 +1501,34 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 			  models.User.id == user_session.get_user_id()
 			).first()
 
+			# We generate a (potentially) long table later on for the attachment
+			# with each row possibly having a different vendor/payor. So, in the interest
+			# of limiting the number of queries, we first grab all companies (since vendors/payors are there, too)
+			# and turn them into lookup tables and pass those into the generation functions
+			all_companies = cast(
+				List[models.Company],
+				session.query(models.Company)
+				.all())
+			company_lookup = {}
+			company_balance_lookup = {}
+			for company in all_companies:
+				company_lookup[str(company.id)] = company
+				company_balance_lookup[str(company.id)] = loan_balances.CustomerBalance(company.as_dict(), current_app.session_maker)
+
+			rgc = ReportGenerationContext(
+				company_lookup = company_lookup,
+				today = date_util.now(),
+				as_of_date = as_of_date
+			)
+
 			all_open_loans = cast(
 				List[models.Loan],
 				session.query(models.Loan).filter(
 					models.Loan.closed_at == None
 				).filter(
 					models.Loan.origination_date != None
+				).filter(
+					models.Loan.origination_date <= rgc.report_month_last_day
 				).filter(
 					models.Loan.loan_type != LoanTypeEnum.LINE_OF_CREDIT
 				).all())
@@ -1362,28 +1543,24 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 						loans_to_notify[l.company_id] = [];
 					loans_to_notify[l.company_id].append(l)
 
-			# We generate a (potentially) long table later on for the attachment
-			# with each row possibly having a different vendor/payor. So, in the interest
-			# of limiting the number of queries, we first grab all companies (since vendors/payors are there, too)
-			# and turn them into lookup tables and pass those into the generation functions
-			all_companies = cast(
-				List[models.Company],
-				session.query(models.Company)
-				.all())
-			company_lookup = {}
-			for company in all_companies:
-				company_lookup[str(company.id)] = company
+			# Sort the loans for each company based on disbursement identifier
+			# We use the two join-ed keys to make sure the correct ordering when
+			# the disbursement identifiers also have letters in them, e.g. "3" should come before "10A"
+			# and "11A" should come before "11B"
+			# ###############
+			# For the two type: ignores below, if SupportsLessThan is integrated into typing (see linked issue)
+			# then we should consider revisiting (https://github.com/python/typing/issues/760)
+			for cid in loans_to_notify:
+				loans_to_notify[cid].sort(key = lambda x: # type: ignore
+					( int(''.join(n for n in x.disbursement_identifier if n.isdigit())), # type: ignore
+						''.join(n for n in x.disbursement_identifier if n.isalpha()))
+					if x.disbursement_identifier is not None else 0)
 
-			rgc = ReportGenerationContext(
-				company_lookup = company_lookup,
-				today = date_util.now(),
-				as_of_date = as_of_date
-			)
+			
 			
 			BATCH_SIZE = 50
 			for loans_chunk in cast(Iterable[ Dict[str, List[models.Loan]] ], chunker_dict(loans_to_notify, BATCH_SIZE)):
-				_, err = self.process_loan_chunk(session, sendgrid_client, rgc, \
-					loans_chunk, is_test, test_email)
+				_, err = self.process_loan_chunk(session, sendgrid_client, rgc, loans_chunk, company_balance_lookup, is_test, test_email)
 
 				if err:
 					return err;

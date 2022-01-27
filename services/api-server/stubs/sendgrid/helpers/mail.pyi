@@ -46,6 +46,17 @@ class Attachment(object):
 		disposition: Optional[Disposition] = None, content_id: Optional[ContentId] = None) -> None:
 		pass
 
+class Personalization(object):
+
+	def __init__(self) -> None:
+		pass
+
+	def add_to(self, email: Email) -> None:
+		pass
+
+	def add_cc(self, email: Email) -> None:
+		pass
+
 class Mail(object):
 
 	def __init__(self, from_email: Email, to_emails: Union[To, List[To]], 
@@ -54,3 +65,11 @@ class Mail(object):
 		self.dynamic_template_data: Dict = None
 		self.template_id: str = None
 		self.attachment: Attachment = None
+
+	def add_personalization(self, personalization: Personalization, index: int = 0) -> None:
+		pass
+
+class Substitution(object):
+
+	def __init__(self, key: str = None, value: str = None, p: Personalization = None) -> None:
+		pass

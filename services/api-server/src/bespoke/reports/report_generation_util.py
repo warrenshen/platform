@@ -75,6 +75,7 @@ def prepare_email_attachment(
 
 	encoded_file = base64.b64encode(response.content).decode()
 	company_name = company_name.replace(" ", "-")
+	statement_month = statement_month.replace(" ", "-")
 	while company_name.find("--") != -1:
 		company_name = company_name.replace("--", "-")
 	temp_pdf_name = f'{company_name}-{statement_month}-monthly_loc_customer_summary.pdf'

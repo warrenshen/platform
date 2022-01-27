@@ -21,6 +21,7 @@ from bespoke.db.model_types import (
 from bespoke.email import sendgrid_util
 from bespoke.finance import contract_util
 from bespoke.finance.payments import fees_due_util
+from bespoke.finance.reports import loan_balances
 from bespoke.reports.report_generation_util import *
 from bespoke_test.db import db_unittest
 from bespoke_test.db import test_helper
@@ -883,6 +884,7 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 			cmi_mmf_scores = (27000.0, 20000.0, 80.0)
 			minimum_payment_due, minimum_payment_amount = loc_summary.get_minimum_payment_due(
 				cmi_mmf_scores, 
+				outstanding_account_fees = 0.0,
 				interest_repayments = 20.0, 
 				interest_fee_balance = 23.74)
 
@@ -902,56 +904,62 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 			available_credit = loc_summary.get_available_credit(session, company_id, 4000.00, 50000.00)
 			self.assertEqual(available_credit, 46000.0)
 
-def setup_loans_for_non_loc_html_generation(
-	session: Session,
-	company_id: str
-	) -> Tuple[List[models.Loan], Dict[str, models.Company]]:
-	loans = []
-
-	vendor_id = uuid.uuid4()
-	test_company = models.Company(
-		id = vendor_id,
-		is_customer = False, # because vendor
-		name = "Best Nuggies",
-		identifier = "BNGS",
-		contract_name = "Best Nuggies",
-		dba_name = "Best Nuggies, Inc.",
-		company_settings_id = None
-	)
-	session.add(test_company)
-
-	po_id = uuid.uuid4()
-	session.add(models.PurchaseOrder( # type: ignore
-		id = po_id,
-		company_id = company_id,
-		vendor_id = vendor_id,
-		order_number = str(1),
-		order_date = get_relative_date(TODAY, -4),
-		delivery_date = get_relative_date(TODAY, -3),
-		amount = Decimal(10000.0),
-		is_cannabis = True,
-		is_metrc_based = False,
-		customer_note = "I'm a note",
-		status = RequestStatusEnum.APPROVED,
-	))
-
-	loans.append(models.Loan(
-		company_id = company_id,
-		loan_type = LoanTypeEnum.INVENTORY,
-		status = LoanStatusEnum.APPROVED,
-		artifact_id = po_id,
-		origination_date = None,
-		identifier = str(1),
-		amount = Decimal(10000.0),
-		requested_payment_date = get_relative_date(TODAY, -4),
-	))
-
-	company_lookup = {}
-	company_lookup[str(vendor_id)] = test_company
-
-	return loans, company_lookup
-
 class TestReportsMonthlyLoanSummaryNoneLOCView(db_unittest.TestCase):
+	def setup_loans_for_non_loc_html_generation(
+		self,
+		session: Session,
+		company_id: str
+		) -> Tuple[List[models.Loan], Dict[str, models.Company], Dict[str, loan_balances.CustomerBalance]]:
+		loans = []
+
+		vendor_id = uuid.uuid4()
+		test_company = models.Company(
+			id = vendor_id,
+			is_customer = False, # because vendor
+			name = "Best Nuggies",
+			identifier = "BNGS",
+			contract_name = "Best Nuggies",
+			dba_name = "Best Nuggies, Inc.",
+			company_settings_id = None
+		)
+		session.add(test_company)
+
+		po_id = uuid.uuid4()
+		session.add(models.PurchaseOrder( # type: ignore
+			id = po_id,
+			company_id = company_id,
+			vendor_id = vendor_id,
+			order_number = str(1),
+			order_date = get_relative_date(TODAY, -4),
+			delivery_date = get_relative_date(TODAY, -3),
+			amount = Decimal(10000.0),
+			is_cannabis = True,
+			is_metrc_based = False,
+			customer_note = "I'm a note",
+			status = RequestStatusEnum.APPROVED,
+		))
+
+		loan_id = uuid.uuid4()
+		loans.append(models.Loan(
+			id = loan_id,
+			company_id = company_id,
+			loan_type = LoanTypeEnum.INVENTORY,
+			status = LoanStatusEnum.APPROVED,
+			artifact_id = po_id,
+			origination_date = get_relative_date(TODAY, -29),
+			funded_at = get_relative_date(TODAY, -28),
+			identifier = str(1),
+			amount = Decimal(10000.0),
+			requested_payment_date = get_relative_date(TODAY, -4),
+		))
+
+		company_lookup = {}
+		company_lookup[str(vendor_id)] = test_company
+
+		company_balance_lookup: Dict[str, loan_balances.CustomerBalance] = {}
+
+		return loans, company_lookup, company_balance_lookup
+
 	def test_prepare_html_for_attachment(self) -> None:
 		non_loc_summary = report_generation.ReportsMonthlyLoanSummaryNonLOCView()
 		
@@ -960,7 +968,10 @@ class TestReportsMonthlyLoanSummaryNoneLOCView(db_unittest.TestCase):
 			seed.initialize()
 
 			company_id = seed.get_company_id('company_admin', index=0)
-			loans, company_lookup = setup_loans_for_non_loc_html_generation(session, company_id)
+			loans, company_lookup, company_balance_lookup = self.setup_loans_for_non_loc_html_generation(session, company_id)
+
+			report_month_last_day = date_util.get_report_month_last_day(TODAY.date())
+			report_month_first_day = date_util.get_first_day_of_month_date(date_util.date_to_str(report_month_last_day))
 
 			rgc = ReportGenerationContext(
 				company_lookup = company_lookup,
@@ -975,7 +986,7 @@ class TestReportsMonthlyLoanSummaryNoneLOCView(db_unittest.TestCase):
 				"support_email": "<a href='mailto:support@bespokefinancial.com'>support@bespokefinancial.com</a>",
 				"statement_month": "October 2021"
 			}
-			html = non_loc_summary.prepare_html_for_attachment(session, template_data, loans, rgc)
+			html = non_loc_summary.prepare_html_for_attachment(session, company_id, template_data, loans, rgc, company_balance_lookup)
 			is_valid_html = bool(BeautifulSoup(html, "html.parser").find())
 
 			self.assertEqual(is_valid_html, True)

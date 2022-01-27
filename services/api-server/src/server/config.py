@@ -47,12 +47,12 @@ class Config(object):
 		self.EMAIL_PROVIDER = os.environ.get('EMAIL_PROVIDER', 'sendgrid')
 
 		# Email
-		if is_development_env(self.FLASK_ENV):
-			self.NO_REPLY_EMAIL_ADDRESS = 'do-not-reply-development@bespokefinancial.com'
-		else:
+		if is_prod_env(self.FLASK_ENV):
 			self.NO_REPLY_EMAIL_ADDRESS = os.environ.get(
 				'NO_REPLY_EMAIL_ADDRESS',
 				config_util.BESPOKE_NO_REPLY_EMAIL_ADDRESS)
+		else:
+			self.NO_REPLY_EMAIL_ADDRESS = 'do-not-reply-development@bespokefinancial.com'
 
 		# List of emails reviewed by Bespoke Financial's operations team.
 		bank_notify_email_addresses_str = os.environ.get('BANK_NOTIFY_EMAIL_ADDRESSES', '')

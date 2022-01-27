@@ -15,7 +15,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 import boto3
 from mypy_extensions import TypedDict
-from sendgrid.helpers.mail import Attachment, Content, Email, Mail, To
+from sendgrid.helpers.mail import Attachment, Content, Email, Mail, To, Personalization, Substitution
 from sendgrid.sendgrid import SendGridAPIClient
 
 SendGridConfigDict = TypedDict('SendGridConfigDict', {
@@ -126,8 +126,14 @@ class EmailSender(object):
 		return None
 
 	def send_dynamic_email_template(
-			self, to_: EmailDestination, template_id: str,
-			template_data: Dict, async_: bool = False, attachment: Attachment = None) -> Optional[Future]:
+			self, 
+			to_: EmailDestination, 
+			template_id: str,
+			template_data: Dict, 
+			async_: bool = False, 
+			attachment: Attachment = None,
+			cc_recipients: List[str] = []
+		) -> Optional[Future]:
 		_to: Union[To, List[To]] = None
 		if isinstance(to_, str):
 			_to = [To(cast(str, to_))]
@@ -140,6 +146,28 @@ class EmailSender(object):
 
 		if attachment is not None:
 			mail.attachment = attachment
+
+		if len(cc_recipients) > 0:
+			sendgrid_personalization = Personalization()
+
+			for cc in cc_recipients:
+				# To(cc, cc) because one field is the actual email and the other is the display name
+				sendgrid_personalization.add_cc( Email(cc) )
+
+			# According to the docs, you must include one "to" recipient in the personalization array
+			# Personalizations are the docs recommended way of adding cc, bcc, and a few other things
+			# Hence the repeat of adding "to" here
+			# Ref: https://docs.sendgrid.com/for-developers/sending-email/personalizations#sending-a-single-email-to-a-single-recipient-with-a-cc-and-a-bcc
+			for to_recipient in to_:
+				sendgrid_personalization.add_to( Email(to_recipient) )
+
+			mail.add_personalization(sendgrid_personalization)
+
+			# It's not 100% clear why using add_personalization cleared the set template_data
+			# However, this re-sets the data properly after adding a personalization
+			# We opened a Github issue to raise this up for sendgrid's awareness
+			# Ref: https://github.com/sendgrid/sendgrid-python/issues/1037
+			mail.dynamic_template_data = template_data
 
 		if async_:
 			return self._thread_pool.submit(self._send_email, mail)

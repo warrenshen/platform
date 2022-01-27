@@ -177,6 +177,12 @@ class MinimumAmountDuration(object):
 	QUARTERLY = 'quarterly'
 	ANNUALLY = 'annually'
 
+# Financial Summaries
+
+class FinancialSummaryPayloadField(object):
+	FEES_TOTAL = 'fees_total'
+	CREDITS_TOTAL = 'credits_total'
+
 # Payments
 
 class PaymentMethodEnum(object):

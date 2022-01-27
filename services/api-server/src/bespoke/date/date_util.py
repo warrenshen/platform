@@ -150,6 +150,9 @@ def get_automated_debit_date(send_date: datetime.date) -> datetime.date:
 	fifth_of_current_month = datetime.date(send_date.year, send_date.month, 5) + relativedelta.relativedelta(months=1)
 	return get_nearest_business_day(fifth_of_current_month, preceeding=False)
 
+def date_to_datetime(date: datetime.date) -> datetime.datetime:
+	return datetime.datetime(year = date.year, month = date.month, day = date.day).replace(tzinfo=pytz.timezone(DEFAULT_TIMEZONE))
+
 def datetime_to_str(dt: datetime.datetime) -> str:
 	return dt.isoformat()
 
