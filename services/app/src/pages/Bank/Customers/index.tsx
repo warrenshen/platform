@@ -52,6 +52,10 @@ function getRows(
     total_outstanding_fees: !!company.financial_summaries
       ? company.financial_summaries[0]?.total_outstanding_fees
       : null,
+    outstanding_account_fees: !!company.financial_summaries
+      ? company.financial_summaries[company.financial_summaries.length - 1]
+          ?.account_level_balance_payload?.fees_total
+      : null,
   }));
 }
 
@@ -180,6 +184,17 @@ export default function BankCustomersPage() {
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell
             value={params.row.data.total_outstanding_fees}
+          />
+        ),
+      },
+      {
+        dataField: "outstanding_account_fees",
+        caption: "Outstanding Account Fees",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell
+            value={params.row.data.outstanding_account_fees || 0}
           />
         ),
       },
