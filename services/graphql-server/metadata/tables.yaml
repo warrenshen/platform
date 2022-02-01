@@ -1,6 +1,29 @@
 - table:
     schema: public
     name: async_pipelines
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - id
+      - name
+      - created_at
+      - updated_at
+      - internal_state
+      - params
+      - status
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - internal_state
+      - params
+      - name
+      - status
+      - created_at
+      - updated_at
+      - id
+      filter: {}
   event_triggers:
   - name: async_pipelines_changed
     definition:

@@ -223,6 +223,10 @@ fragment BankFinancialSummary on bank_financial_summaries {
 
 fragment AsyncPipeline on async_pipelines {
   id
+  created_at
+  updated_at
+  name
+  status
 }
 
 fragment MetrcDownloadSummaryLimited on metrc_download_summaries {

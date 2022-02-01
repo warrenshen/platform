@@ -23,7 +23,7 @@ import ReviewPurchaseOrderCompletePage from "pages/Anonymous/ReviewPurchaseOrder
 import AnonymousSecureLinkPage from "pages/Anonymous/SecureLink";
 import SignIn from "pages/Anonymous/SignIn";
 import BankAdvancesPage from "pages/Bank/Advances";
-import BankAsyncJobsPage from "pages/Bank/Async/Jobs";
+import BankAsyncPage from "pages/Bank/Async";
 import BankCompaniesPage from "pages/Bank/Companies";
 import BankCompanyPage from "pages/Bank/Company";
 import BankCustomersPage from "pages/Bank/Customers";
@@ -288,10 +288,10 @@ export default function App() {
         </PrivateRoute>
         <PrivateRoute
           exact
-          path={bankRoutes.asyncJobs}
+          path={bankRoutes.async}
           requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
         >
-          <BankAsyncJobsPage />
+          <BankAsyncPage />
         </PrivateRoute>
         <PrivateRoute
           path={bankRoutes.purchaseOrders}

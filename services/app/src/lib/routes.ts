@@ -58,7 +58,7 @@ export enum BankCompanyRouteEnum {
 // Bank user routes are not prefixed.
 export const bankRoutes = {
   overview: "/overview",
-  asyncJobs: "/async/jobs",
+  async: "/async",
   companies: "/companies",
   companyRoot: "/companies/:companyId",
   company: {
