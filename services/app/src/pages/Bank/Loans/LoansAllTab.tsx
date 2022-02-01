@@ -4,6 +4,7 @@ import { useGetLoansForBankSubscription } from "generated/graphql";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
+import { PartnerEnum } from "lib/enum";
 
 const Container = styled.div`
   display: flex;
@@ -37,6 +38,7 @@ export default function BankLoansAllTab() {
           isFilteringEnabled
           isMaturityVisible
           isReportingVisible
+          partnerType={PartnerEnum.BOTH}
           loans={loans}
           handleClickCustomer={(customerId) =>
             history.push(

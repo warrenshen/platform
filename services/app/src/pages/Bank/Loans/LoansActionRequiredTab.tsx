@@ -19,6 +19,7 @@ import { LoanStatusEnum } from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useContext, useMemo, useState } from "react";
 import styled from "styled-components";
+import { PartnerEnum } from "lib/enum";
 
 const Container = styled.div`
   display: flex;
@@ -183,6 +184,7 @@ export default function BankLoansActionRequiredTab() {
           isMaturityVisible={false}
           isMultiSelectEnabled={check(role, Action.SelectLoan)}
           isFilteringEnabled
+          partnerType={PartnerEnum.BOTH}
           loans={loans}
           selectedLoanIds={selectedLoanIds}
           handleClickCustomer={(customerId) =>

@@ -384,3 +384,9 @@ export enum MetrcDownloadSummaryStatusEnum {
   NoAccess = "no_access",
   Success = "success",
 }
+
+export enum PartnerEnum {
+  VENDOR = "Vendor",
+  PAYOR = "Payor",
+  BOTH = "Vendor / Payor",
+}

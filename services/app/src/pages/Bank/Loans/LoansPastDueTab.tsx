@@ -5,6 +5,7 @@ import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useMemo } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
+import { PartnerEnum } from "lib/enum";
 
 const Container = styled.div`
   display: flex;
@@ -47,6 +48,7 @@ export default function BankLoansPastDueTab() {
           isFilteringEnabled
           isMaturityVisible
           isReportingVisible
+          partnerType={PartnerEnum.BOTH}
           loans={pastDueLoans}
           handleClickCustomer={(customerId) =>
             history.push(

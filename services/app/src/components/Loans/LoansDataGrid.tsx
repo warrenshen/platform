@@ -41,6 +41,9 @@ import {
 } from "lib/loans";
 import { ColumnWidths, truncateString } from "lib/tables";
 import { useEffect, useMemo, useState } from "react";
+import { PartnerEnum } from "lib/enum";
+
+type Loan = LoanFragment & (LoanArtifactFragment | LoanArtifactLimitedFragment);
 
 interface Props {
   isArtifactVisible?: boolean;
@@ -55,12 +58,12 @@ interface Props {
   isReportingVisible?: boolean;
   isSortingDisabled?: boolean;
   isStatusVisible?: boolean;
+  partnerType?: PartnerEnum;
   pager?: boolean;
   matureDays?: number;
   pageSize?: number;
   filterByStatus?: RequestStatusEnum;
-  loans: (LoanFragment &
-    (LoanArtifactFragment | LoanArtifactLimitedFragment))[];
+  loans: Loan[];
   actionItems?: DataGridActionItem[];
   selectedLoanIds?: Loans["id"][];
   handleClickCustomer?: (customerId: Companies["id"]) => void;
@@ -121,6 +124,7 @@ export default function LoansDataGrid({
   pager = true,
   matureDays = 0,
   pageSize = 10,
+  partnerType = PartnerEnum.VENDOR,
   filterByStatus,
   loans,
   actionItems,
@@ -323,7 +327,7 @@ export default function LoansDataGrid({
       },
       {
         dataField: "vendor_name",
-        caption: "Vendor Name",
+        caption: `${partnerType} Name`,
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
           <TextDataGridCell label={params.row.data.vendor_name} />
