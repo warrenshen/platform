@@ -18,6 +18,9 @@ function getRows(financialSummaries: FinancialSummaryFragment[]): RowsProp {
       ...financialSummary,
       product_type:
         ProductTypeToLabel[financialSummary.product_type as ProductTypeEnum],
+      outstanding_account_fees: !!financialSummary
+        ? financialSummary?.account_level_balance_payload?.fees_total
+        : null,
     };
   });
 }
@@ -196,6 +199,17 @@ export default function FinancialSummariesDataGrid({
             : null;
           return <CurrencyDataGridCell value={value} />;
         },
+      },
+      {
+        dataField: "outstanding_account_fees",
+        caption: "Outstanding Account Fees",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell
+            value={params.row.data.outstanding_account_fees || 0}
+          />
+        ),
       },
     ],
     [isCustomerNameFixed, isProductTypeVisible, handleClickCustomer]
