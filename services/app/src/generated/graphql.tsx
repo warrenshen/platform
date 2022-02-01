@@ -34307,7 +34307,19 @@ export type LastMonthlySummaryReportLiveRunQueryResult = Apollo.QueryResult<
 >;
 export const GetMetrcApiKeysByCompanyIdDocument = gql`
   query GetMetrcApiKeysByCompanyId($companyId: uuid!) {
-    metrc_api_keys(where: { company_id: { _eq: $companyId } }) {
+    metrc_api_keys(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { company_id: { _eq: $companyId } }
+        ]
+      }
+    ) {
       id
       ...MetrcApiKey
     }

@@ -1,10 +1,10 @@
 import { Companies } from "generated/graphql";
-import CustomerMetrcPageContent from "pages/Customer/Metrc/MetrcPageContent";
+import BankCompanyMetrcPageContent from "pages/Bank/Company/Metrc/MetrcPageContent";
 
 interface Props {
   companyId: Companies["id"];
 }
 
 export default function BankCustomerMetrcSubPage({ companyId }: Props) {
-  return <CustomerMetrcPageContent companyId={companyId} />;
+  return <BankCompanyMetrcPageContent companyId={companyId} />;
 }

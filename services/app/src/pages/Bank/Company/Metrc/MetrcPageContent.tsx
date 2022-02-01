@@ -1,17 +1,17 @@
 import { Tab, Tabs } from "@material-ui/core";
 import PageContent from "components/Shared/Page/PageContent";
 import { Companies } from "generated/graphql";
-import CustomerMetrcActivePackagesTab from "pages/Customer/Metrc/MetrcActivePackagesTab";
-import CustomerMetrcApiKeysTab from "pages/Customer/Metrc/MetrcApiKeysTab";
-import CustomerMetrcTransferPackagesTab from "pages/Customer/Metrc/MetrcTransferPackagesTab";
-import CustomerMetrcTransfersTab from "pages/Customer/Metrc/MetrcTransfersTab";
+import CompanyMetrcActivePackagesTab from "pages/Bank/Company/Metrc/MetrcActivePackagesTab";
+import CompanyMetrcApiKeysTab from "pages/Bank/Company/Metrc/MetrcApiKeysTab";
+import CompanyMetrcTransferPackagesTab from "pages/Bank/Company/Metrc/MetrcTransferPackagesTab";
+import CompanyMetrcTransfersTab from "pages/Bank/Company/Metrc/MetrcTransfersTab";
 import { useState } from "react";
 
 interface Props {
   companyId: Companies["id"];
 }
 
-export default function CustomerMetrcPageContent({ companyId }: Props) {
+export default function BankCompanyMetrcPageContent({ companyId }: Props) {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
   return (
@@ -28,13 +28,13 @@ export default function CustomerMetrcPageContent({ companyId }: Props) {
         <Tab label="Metrc Inventory (Active Packages)" />
       </Tabs>
       {selectedTabIndex === 0 ? (
-        <CustomerMetrcApiKeysTab companyId={companyId} />
+        <CompanyMetrcApiKeysTab companyId={companyId} />
       ) : selectedTabIndex === 1 ? (
-        <CustomerMetrcTransfersTab companyId={companyId} />
+        <CompanyMetrcTransfersTab companyId={companyId} />
       ) : selectedTabIndex === 2 ? (
-        <CustomerMetrcTransferPackagesTab companyId={companyId} />
+        <CompanyMetrcTransferPackagesTab companyId={companyId} />
       ) : (
-        <CustomerMetrcActivePackagesTab companyId={companyId} />
+        <CompanyMetrcActivePackagesTab companyId={companyId} />
       )}
     </PageContent>
   );

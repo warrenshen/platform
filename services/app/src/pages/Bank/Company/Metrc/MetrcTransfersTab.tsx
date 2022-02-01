@@ -14,7 +14,7 @@ interface Props {
   companyId: Companies["id"];
 }
 
-export default function CustomerMetrcTransfersTab({ companyId }: Props) {
+export default function CompanyMetrcTransfersTab({ companyId }: Props) {
   const { data, error } = useGetMetrcTransfersByCompanyIdQuery({
     fetchPolicy: "network-only",
     variables: {

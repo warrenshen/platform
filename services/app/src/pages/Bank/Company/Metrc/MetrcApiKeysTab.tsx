@@ -7,7 +7,7 @@ interface Props {
   companyId: Companies["id"];
 }
 
-export default function CustomerMetrcApiKeysTab({ companyId }: Props) {
+export default function CompanyMetrcApiKeysTab({ companyId }: Props) {
   return (
     <Box mt={3}>
       <Box display="flex" flexDirection="column" mt={4}>
