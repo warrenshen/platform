@@ -1250,7 +1250,7 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 
 			partner_id = str(vendor_lookup[str(l.artifact_id)]["id"]) if l.loan_type == LoanTypeEnum.INVENTORY \
 				else str(payor_lookup[str(l.artifact_id)]["id"])
-			partner_name = rgc.company_lookup[partner_id]
+			partner_name = rgc.company_lookup[partner_id].name
 
 			amount_advanced = float(l.amount)
 			funded_at = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE, now = l.funded_at)
@@ -1259,8 +1259,8 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
         		<td>{ artifact_number }</td>
         		<td>{ number_util.to_dollar_format(artifact_amount) }</td>
         		<td>{ partner_name }</td>
-        		<td>{ artifact_date }</td>
-        		<td>{ date_util.date_to_str(funded_at) if l.funded_at is not None else '' }
+        		<td>{ date_util.date_to_str(artifact_date) if artifact_date is not None else '' }</td>
+        		<td>{ date_util.date_to_str(funded_at) if funded_at is not None else '' }
         		<td>{ date_util.date_to_str(l.maturity_date) if l.maturity_date is not None else '' }</td>
         		<td>{ number_util.to_dollar_format(amount_advanced) }</td>
         		<td>{ str(days_factored) }</td>
