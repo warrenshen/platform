@@ -491,6 +491,31 @@ def setup_data_for_cmi_and_mmf(
 		needs_recompute = False,
 		days_to_compute_back = None
 	))
+	session.add(models.FinancialSummary(
+		date = get_relative_date(TODAY, -1).date(),
+		company_id = company_id,
+		total_limit = Decimal(10000.0),
+		total_outstanding_principal = Decimal(8000.0),
+		total_outstanding_principal_for_interest = Decimal(18000.0),
+		total_outstanding_interest = Decimal(80.0),
+		total_outstanding_fees = Decimal(200.0),
+		total_principal_in_requested_state = Decimal(0.0),
+		total_amount_to_pay_interest_on = Decimal(0.0),
+		total_interest_paid_adjustment_today = Decimal(0.0),
+		total_fees_paid_adjustment_today = Decimal(0.0),
+		available_limit = Decimal(0.0),
+		adjusted_total_limit = Decimal(0.0),
+		minimum_monthly_payload = {},
+		account_level_balance_payload = {
+			"fees_total": 25, 
+			"credits_total": 0
+		},
+		day_volume_threshold_met = None,
+		interest_accrued_today = Decimal(5000.0),
+		product_type = None,
+		needs_recompute = False,
+		days_to_compute_back = None
+	))
 	if cmi_should_be_higher == True:
 		session.add(models.FinancialSummary(
 			date = get_relative_date(TODAY, -28).date(),
@@ -741,7 +766,7 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 				company_lookup = None,
 				as_of_date = "2020-09-30"
 			)
-			principal_repayments, interest_repayments, fee_repayments = loc_summary.get_report_month_repayments(
+			principal_repayments, interest_repayments, fee_repayments, account_fee_repayments = loc_summary.get_report_month_repayments(
 				session,
 				company_id,
 				rgc
@@ -790,21 +815,24 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 			)
 			previous_report_month_last_day = date_util.get_report_month_last_day(rgc.report_month_last_day)
 
+			financial_summary = loc_summary.get_end_of_report_month_financial_summary(session, company_id, rgc)
+			
 			cmi_or_mmf_title, cmi_or_mmf_amount, cmi_mmf_scores, err = loc_summary.get_cmi_and_mmf(
 				session, 
 				contract, 
 				company_id, 
 				rgc,
 				interest_fee_balance = 23.74,
-				previous_report_month_last_day = previous_report_month_last_day
+				previous_report_month_last_day = previous_report_month_last_day,
+				financial_summary = financial_summary
 			)
 
 			# In this case, CMI is larger
 			cmi, mmf, total_outstanding_interest = cmi_mmf_scores
-			self.assertEqual(cmi, 17000.0)
+			self.assertEqual(cmi, 22000.0)
 			self.assertEqual(mmf, 20000.0)
 			self.assertEqual(total_outstanding_interest, 1800.0)
-			self.assertEqual(cmi_or_mmf_amount, "$20,000.00")
+			self.assertEqual(cmi_or_mmf_amount, 22025.00)
 
 			# Reuse previous setup and tweak month start financial summary for the case
 			# when minimum monthly fee is larger
@@ -825,14 +853,15 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 				company_id, 
 				rgc,
 				interest_fee_balance = 0.0,
-				previous_report_month_last_day = previous_report_month_last_day
+				previous_report_month_last_day = previous_report_month_last_day,
+				financial_summary = financial_summary
 			)
 
 			cmi, mmf, total_outstanding_interest = cmi_mmf_scores
-			self.assertEqual(cmi, 17000.0)
+			self.assertEqual(cmi, 22000.0)
 			self.assertEqual(mmf, 20000.0)
 			self.assertEqual(total_outstanding_interest, 1800.0)
-			self.assertEqual(cmi_or_mmf_amount, "$20,000.00")
+			self.assertEqual(cmi_or_mmf_amount, 22025.00)
 
 	def test_prepare_html_for_attachment(self) -> None:
 		# This is just the template data stubs from sendgrid
@@ -878,11 +907,17 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 
 			# This was taken from the cmf test above
 			cmi_mmf_scores = (27000.0, 20000.0, 80.0)
+			"""
 			minimum_payment_due, minimum_payment_amount = loc_summary.get_minimum_payment_due(
 				cmi_mmf_scores, 
-				outstanding_account_fees = 0.0,
+				previous_outstanding_account_fees = 0.0,
 				interest_repayments = 20.0, 
 				interest_fee_balance = 23.74)
+			"""
+			minimum_payment_due, minimum_payment_amount = loc_summary.get_minimum_payment_due(
+				previous_interest_and_fees_billed = 20.0,
+				interest_and_fee_repayments = 20.0,
+				cmi_or_mmf_amount = 27060.00)
 
 			self.assertEqual(minimum_payment_due, '$27,060.00')
 			self.assertEqual(minimum_payment_amount, 27060.00)

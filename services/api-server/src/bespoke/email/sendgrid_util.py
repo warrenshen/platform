@@ -389,6 +389,15 @@ class Client(object):
 	def get_ops_email_addresses(self) -> List[str]:
 		return self._email_cfg['ops_email_addresses']
 
+	def _remove_to_recipients_if_also_cc_recipients(self, to_recipients: List[str], cc_recipients: List[str]) -> List[str]:
+		new_recipients = []
+		for recipient in to_recipients:
+			if recipient not in cc_recipients:
+				new_recipients.append(recipient)
+		recipients = new_recipients
+
+		return recipients
+
 	def send(
 		self,
 		template_name: str,
@@ -418,6 +427,8 @@ class Client(object):
 		if len(cc_recipients) > 0:
 			cc_recipients = _maybe_add_or_remove_recipients(
 				cc_recipients, self._email_cfg, template_name, self._session_maker, filter_out_contact_only)
+
+			recipients = self._remove_to_recipients_if_also_cc_recipients(recipients, cc_recipients)
 
 		err_details = {
 			'template_name': template_name,

@@ -32,7 +32,8 @@ from sendgrid.helpers.mail import (Attachment, Disposition, FileContent,
                                    FileName, FileType)
 from server.config import Config, get_config
 from server.views.common import auth_util, handler_util
-from sqlalchemy import func
+#from sqlalchemy import func
+from sqlalchemy import func, or_
 from sqlalchemy.orm.session import Session
 
 handler = Blueprint('report_generation', __name__)
@@ -393,10 +394,11 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 		session : Session,
 		company_id : str,
 		rgc: ReportGenerationContext,
-		) -> Tuple[float, float, float]:
+		) -> Tuple[float, float, float, float]:
 		principal_repayments = 0.0
 		interest_repayments = 0.0
 		fee_repayments = 0.0
+		account_fee_repayments = 0.0
 
 		repayments = cast(
 			List[models.Payment],
@@ -408,6 +410,10 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 				models.Payment.payment_date <= rgc.report_month_last_day
 			).filter(
 				models.Payment.type == PaymentType.REPAYMENT
+			).filter(
+				models.Payment.reversed_at == None
+			).filter(
+				models.Payment.settled_at != None
 			).all())
 
 		# To get final amounts, we need to query transactions
@@ -422,11 +428,21 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 			).all())
 
 		for t in transactions:
-			principal_repayments += float(t.to_principal) if t.to_principal is not None else 0.0
-			interest_repayments += float(t.to_interest) if t.to_interest is not None else 0.0
-			fee_repayments += float(t.to_fees) if t.to_fees is not None else 0.0
+			to_principal = float(t.to_principal) if t.to_principal is not None else 0.0
+			principal_repayments += to_principal
 
-		return principal_repayments, interest_repayments, fee_repayments
+			to_interest = float(t.to_interest) if t.to_interest is not None else 0.0
+			interest_repayments += to_interest
+
+			to_fees = float(t.to_fees) if t.to_fees is not None else 0.0
+			fee_repayments += to_fees
+
+			# Acount fees are not separately tracked in a to_* field for transactions
+			# As such, to figure out account_fee repayments, you need to use the below formula
+			to_acount_fees = float(t.amount) - to_principal - to_interest - to_fees
+			account_fee_repayments += to_acount_fees
+
+		return principal_repayments, interest_repayments, fee_repayments, account_fee_repayments
 
 	def get_report_month_advances(
 		self,
@@ -457,7 +473,8 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 		rgc: ReportGenerationContext,
 		interest_fee_balance: float,
 		previous_report_month_last_day: datetime.date,
-		) -> Tuple[str, str, Tuple[float, float, float], errors.Error]:
+		financial_summary: models.FinancialSummary
+		) -> Tuple[str, float, Tuple[float, float, float], errors.Error]:
 		"""
 		- The queries for current monthly interest and minimum monthly fee are combined
 			in order to save a save a contract query, but also to abstract away the comparison
@@ -519,10 +536,13 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 		cmi = float(cmi)
 		mmf = float(mmf)
 
+		payload = financial_summary.account_level_balance_payload
+		account_fees = float(cast(Dict[str, Any], payload).get(FinancialSummaryPayloadField.FEES_TOTAL, 0.0))
+
 		# Compare and determine output
-		if cmi > mmf:	
+		if cmi > mmf:
 			cmi_or_mmf_title = "Current Month's Interest and Fees"
-			cmi_or_mmf_amount = cmi
+			cmi_or_mmf_amount = cmi + account_fees
 		else:
 			cmi_or_mmf_title = "Minimum Monthly Fee"
 			cmi_or_mmf_amount = mmf
@@ -530,7 +550,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 		total_outstanding_interest = float(previous_month_end_summary.total_outstanding_interest) if previous_month_end_summary is not None else 0.0
 
 		return cmi_or_mmf_title, \
-			number_util.to_dollar_format(cmi_or_mmf_amount), \
+			cmi_or_mmf_amount, \
 			(cmi, mmf, total_outstanding_interest), \
 			None
 
@@ -693,18 +713,29 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 
 		return available_credit
 
+	"""
 	def get_minimum_payment_due(
 		self,
 		cmi_mmf_scores: Tuple[float, float, float],
-		outstanding_account_fees: float,
+		previous_outstanding_account_fees: float,
 		interest_repayments: float, 
 		interest_fee_balance: float
 		) -> Tuple[str, float]:
 		cmi, mmf, outstanding_interest = cmi_mmf_scores
 
 		cmi_or_mmf = cmi if cmi > mmf else mmf
-		minimum_payment_due = max(outstanding_interest + outstanding_account_fees - interest_repayments + cmi_or_mmf, 0.0)
+		minimum_payment_due = max(outstanding_interest + previous_outstanding_account_fees - interest_repayments + cmi_or_mmf, 0.0)
 		
+		return number_util.to_dollar_format(minimum_payment_due), minimum_payment_due
+	"""
+	def get_minimum_payment_due(
+		self,
+		previous_interest_and_fees_billed: float,
+		interest_and_fee_repayments: float,
+		cmi_or_mmf_amount: float,
+		) -> Tuple[str, float]:
+		minimum_payment_due = previous_interest_and_fees_billed - interest_and_fee_repayments + cmi_or_mmf_amount
+
 		return number_util.to_dollar_format(minimum_payment_due), minimum_payment_due
 
 	def process_loan_chunk(
@@ -726,16 +757,10 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 				).first())
 
 			contract, err = contract_util.get_active_contract_by_company_id(company_id, session)
-			
 			if err:
 				return loans_to_notify, make_response(json.dumps({ 'status': 'FAILED', 'resp': \
 					"Could not query contract for company " + company.name + ": " + repr(err) }))
 
-			product_config = contract.get_product_config()["v1"]["fields"] if contract is not None else []
-			contract_dict = {}
-			for pc in product_config:
-				contract_dict[pc["internal_name"]] = pc["value"] if pc["value"] is not None else ""
-			
 			automatic_debit_date = date_util.date_to_str(
 				date_util.get_automated_debit_date(
 					rgc.report_month_last_day
@@ -764,30 +789,23 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 					models.FinancialSummary.date == previous_report_month_last_day
 				).first())
 
+			account_level_balance_payload = cast(Dict[str, Any], previous_financial_summary.account_level_balance_payload)
+			previous_outstanding_account_fees = account_level_balance_payload.get(FinancialSummaryPayloadField.FEES_TOTAL, 0)
+
 			advances = self.get_report_month_advances(session, company_id, rgc)
 			principal_advanced = number_util.to_dollar_format(advances)
 
-			principal_repayments, interest_repayments, fee_repayments = self.get_report_month_repayments(
+			principal_repayments, interest_repayments, fee_repayments, account_fee_repayments = self.get_report_month_repayments(
 				session, 
 				company_id, 
 				rgc
 			)
 			principal_repayments_display = number_util.to_dollar_format(principal_repayments)
-			interest_fee_repayments_display = number_util.to_dollar_format(interest_repayments + fee_repayments)
+			interest_fee_repayments_amount = interest_repayments + fee_repayments + account_fee_repayments
+			interest_fee_repayments_display = number_util.to_dollar_format(interest_fee_repayments_amount)
 
-			most_recent_ebba_application = cast(
-				models.EbbaApplication,
-				session.query(models.EbbaApplication).filter(
-					models.EbbaApplication.company_id == company_id
-				).order_by(
-					models.EbbaApplication.application_date.desc()
-				).first())
-			cbb = float(most_recent_ebba_application.calculated_borrowing_base) if most_recent_ebba_application is not None else None
-			tcl = float(contract_dict["maximum_amount"])
-			tcl_raw = min(tcl, cbb) if cbb is not None else tcl
-			#total_credit_line = number_util.to_dollar_format(tcl_raw)
-			total_credit_line = number_util.to_dollar_format(float(financial_summary.adjusted_total_limit))
-			print("TCL ANCHOR:",tcl_raw,float(financial_summary.adjusted_total_limit))
+			tcl = float(financial_summary.adjusted_total_limit)
+			total_credit_line = number_util.to_dollar_format(tcl)
 
 			# if guard for when LoC customers are just starting out and won't have a previous month
 			if previous_financial_summary is not None:
@@ -795,22 +813,22 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 				previous_principal_balance = number_util.to_dollar_format(previous_pb)
 				previous_interest = float(previous_financial_summary.total_outstanding_interest)
 				previous_fees = float(previous_financial_summary.total_outstanding_fees)
-				previous_interest_and_fees = number_util.to_dollar_format( \
-					previous_interest + \
+				previous_interest_and_fees_amount = previous_interest + \
 					previous_fees + \
-					outstanding_account_fees)
+					previous_outstanding_account_fees
+				previous_interest_and_fees = number_util.to_dollar_format(previous_interest_and_fees_amount)
 
 				interest_fee_balance = (interest_repayments + fee_repayments) - previous_interest - previous_fees
 			else:
 				# Set defaults that make it obvious that there isn't a previous month to pull from
+				previous_interest_and_fees_amount = 0.0
 				previous_principal_balance = "N/A"
 				previous_interest_and_fees = "N/A"
 
 				interest_fee_balance = (interest_repayments + fee_repayments)
 
 
-			current_pb = (float(previous_pb) if previous_pb is not None else 0.0) +  \
-					float(advances) - float(principal_repayments)
+			current_pb = float(financial_summary.total_outstanding_principal) if financial_summary is not None else 0.0
 			current_principal_balance = number_util.to_dollar_format(current_pb)
 
 			available_credit = number_util.to_dollar_format(
@@ -831,17 +849,27 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 				company_id, 
 				rgc,
 				interest_fee_balance,
-				previous_report_month_last_day
+				previous_report_month_last_day,
+				financial_summary
 			)
+			cmi_or_mmf_amount_display = number_util.to_dollar_format(cmi_or_mmf_amount)
 			if err:
 				return loans_to_notify, make_response(json.dumps({ 'status': 'FAILED', 'resp': "Failed to calculate current monthly interest and minimum monthly fee " + repr(err) }))
 			
+			
 			payment_due_date = date_util.date_to_str(date_util.get_first_day_of_month_date(automatic_debit_date))
+			"""
 			minimum_payment_due, minimum_payment_amount = self.get_minimum_payment_due(
 				cmi_mmf_scores,
-				outstanding_account_fees,
+				previous_outstanding_account_fees,
 				interest_repayments, 
 				interest_fee_balance
+			)
+			"""
+			minimum_payment_due, minimum_payment_amount = self.get_minimum_payment_due(
+				previous_interest_and_fees_amount,
+				interest_fee_repayments_amount,
+				cmi_or_mmf_amount
 			)
 
 			msc = cast(
@@ -884,7 +912,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 			    # Summary Row
 			    "days_in_cycle": date_util.get_days_in_month(rgc.report_month_last_day),
 			    "cmi_or_mmf_title": cmi_or_mmf_title,
-			    "cmi_or_mmf_amount": cmi_or_mmf_amount,
+			    "cmi_or_mmf_amount": cmi_or_mmf_amount_display,
 			    "payment_due_date": payment_due_date,
 			    "minimum_payment_due": minimum_payment_due,
 			}
@@ -1131,41 +1159,16 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 		loan_update_lookup: Dict[str, Dict[datetime.date, LoanUpdateDict]],
 		rgc: ReportGenerationContext,
 		) -> float:
-		"""
-		Since our financial summaries currently only track outstanding principal/interest/fees
-		in aggregrate as opposed to per loan, we need to work backward against any transactions
-		that occurred between the end of the report month and when the actual report was generated
-		"""
-		# First Approach
-		contract_lookup = contract_util.Contract(contract.as_dict(), private = False)
-		interest_rate, err = contract_lookup.get_interest_rate(rgc.report_month_last_day)
-		if err:
-			print(err)
-		report_month_end_outstanding_interest = report_month_end_outstanding_principal * \
-			interest_rate * float(days_factored)
-
-		# NOTE FOR WARREN: The second, feedback based approach seems fine. I just want to run
-		# them both at least once against prod data since Josef and I already did a lot of legwork
-		# verifying against the first. It would be useful for me to compare both numbers
-		# in case the second method has some discrepancy against a given master files.
-		# 
-		# Once I have verified the numbers, I would remove the first approach and just return
-		# outstanding_interest as defined below
-		# Second Approach
 		outstanding_interest = 0.0
+		outstanding_late_fees = 0.0
 		loan_updates = loan_update_lookup[str(loan.id)]
 		for lu_date, lu in loan_updates.items():
 			if loan.funded_at.date() <= lu_date:
-				interest_accrued_on_day = float(lu["interest_accrued_today"]) if "interest_accrued_today" in lu else 0.0
-				outstanding_interest += interest_accrued_on_day
+				outstanding_interest += float(lu["outstanding_interest"]) if "outstanding_interest" in lu else 0.0
+				outstanding_late_fees += float(lu["outstanding_fees"]) if "outstanding_fees" in lu else 0.0
+				
 
-
-		print("\n\n\n")
-		print("LOAN ID:", loan.id)
-		print("FIRST:",report_month_end_outstanding_interest)
-		print("SECOND:",outstanding_interest)
-
-		return report_month_end_outstanding_interest
+		return (outstanding_interest + outstanding_late_fees)
 
 	def prepare_html_for_attachment(
 		self,
@@ -1216,7 +1219,8 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 			vendor_lookup[str(po.id)] = {
 				"id": str(po.vendor_id),
 				"date": po.order_date,
-				"amount": float(po.amount)
+				"amount": float(po.amount),
+				"order_number": po.order_number
 			}
 		invoice_list = cast(
 			List[models.Invoice],
@@ -1228,7 +1232,8 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 			payor_lookup[str(inv.id)] = {
 				"id": str(inv.payor_id),
 				"date": inv.invoice_date,
-				"amount": float(inv.total_amount)
+				"amount": float(inv.total_amount),
+				"invoice_number": inv.invoice_number
 			}
 
 		# The customer balance update function returns in a format that
@@ -1246,13 +1251,14 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 			if err:
 				raise err
 			for tuple_date, update_data in update_tuple.items():
-				if tuple_date >= rgc.report_month_first_day and \
-					tuple_date <= rgc.report_month_last_day:
+				if update_data is None:
+					continue
+
+				if tuple_date == rgc.report_month_last_day:
 					loan_updates = update_data.get("loan_updates", None)
 					
 					if loan_updates:
 						for update in loan_updates:
-							#print("UPDATE:",update)
 							loan_id = update.get("loan_id", "")
 							if loan_id != "":
 								if loan_id not in loan_update_lookup:
@@ -1309,14 +1315,14 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 			else:
 				outstanding_interest_display = ""
 			
-			artifact_prefix = "PO" if l.loan_type == "purchase_order" else "I"
-			artifact_number = artifact_prefix + l.identifier
-			artifact_date = vendor_lookup[str(l.artifact_id)]["date"] if l.loan_type == "purchase_order" \
+			artifact_number = str(vendor_lookup[str(l.artifact_id)]["order_number"]) if l.loan_type == LoanTypeEnum.INVENTORY \
+				else str(payor_lookup[str(l.artifact_id)]["invoice_number"])
+			artifact_date = vendor_lookup[str(l.artifact_id)]["date"] if l.loan_type == LoanTypeEnum.INVENTORY \
 				else payor_lookup[str(l.artifact_id)]["date"]
-			artifact_amount = float(str(vendor_lookup[str(l.artifact_id)]["amount"])) if l.loan_type == "purchase_order" \
+			artifact_amount = float(str(vendor_lookup[str(l.artifact_id)]["amount"])) if l.loan_type == LoanTypeEnum.INVENTORY \
 				else float(str(payor_lookup[str(l.artifact_id)]["amount"])) # float(str(blah)) because mypy
 
-			partner_id = str(vendor_lookup[str(l.artifact_id)]["id"]) if l.loan_type == "purchase_order" \
+			partner_id = str(vendor_lookup[str(l.artifact_id)]["id"]) if l.loan_type == LoanTypeEnum.INVENTORY \
 				else str(payor_lookup[str(l.artifact_id)]["id"])
 			partner_name = rgc.company_lookup[partner_id]
 
@@ -1434,7 +1440,7 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 
 			template_data: Dict[str, object] = {
 				"company_name": company.name,
-				"send_date": date_util.human_readable_monthyear(date_util.now_as_date(timezone = date_util.DEFAULT_TIMEZONE)),
+				"send_date": date_util.human_readable_monthyear(rgc.today),
 			    "support_email": "<a href='mailto:support@bespokefinancial.com'>support@bespokefinancial.com</a>",
 			    "statement_month": rgc.statement_month,
 			}
@@ -1526,7 +1532,7 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 			all_open_loans = cast(
 				List[models.Loan],
 				session.query(models.Loan).filter(
-					models.Loan.closed_at == None
+					or_(models.Loan.closed_at == None, models.Loan.closed_at > rgc.report_month_last_day)
 				).filter(
 					models.Loan.origination_date != None
 				).filter(
