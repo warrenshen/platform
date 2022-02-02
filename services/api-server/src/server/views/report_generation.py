@@ -32,7 +32,6 @@ from sendgrid.helpers.mail import (Attachment, Disposition, FileContent,
                                    FileName, FileType)
 from server.config import Config, get_config
 from server.views.common import auth_util, handler_util
-#from sqlalchemy import func
 from sqlalchemy import func, or_
 from sqlalchemy.orm.session import Session
 
@@ -1130,46 +1129,6 @@ class AutomaticDebitCourtesyView(MethodView):
 class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
-	def calculate_outstanding_loan_principal_for_report_month(
-		self,
-		session: Session,
-		loan: models.Loan,
-		transactions_after_report_month: List[models.Transaction],
-		) -> float:
-		"""
-		Since our financial summaries currently only track outstanding principal/interest/fees
-		in aggregrate as opposed to per loan, we need to work backward against any transactions
-		that occurred between the end of the report month and when the actual report was generated
-		"""
-		report_month_end_outstanding_principal = float(loan.outstanding_principal_balance)
-		for tarm in transactions_after_report_month:
-			report_month_end_outstanding_principal += float(tarm.to_principal)
-		
-		return report_month_end_outstanding_principal
-
-	def calculate_outstanding_loan_interest_for_report_month(
-		self,
-		session: Session,
-		loan: models.Loan,
-		transactions_after_report_month: List[models.Transaction],
-		contract: models.Contract,
-		report_month_end_outstanding_principal: float,
-		days_factored : int,
-		company_id: str,
-		loan_update_lookup: Dict[str, Dict[datetime.date, LoanUpdateDict]],
-		rgc: ReportGenerationContext,
-		) -> float:
-		outstanding_interest = 0.0
-		outstanding_late_fees = 0.0
-		loan_updates = loan_update_lookup[str(loan.id)]
-		for lu_date, lu in loan_updates.items():
-			if loan.funded_at.date() <= lu_date:
-				outstanding_interest += float(lu["outstanding_interest"]) if "outstanding_interest" in lu else 0.0
-				outstanding_late_fees += float(lu["outstanding_fees"]) if "outstanding_fees" in lu else 0.0
-				
-
-		return (outstanding_interest + outstanding_late_fees)
-
 	def prepare_html_for_attachment(
 		self,
 		session: Session,
@@ -1250,6 +1209,7 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 			)
 			if err:
 				raise err
+
 			for tuple_date, update_data in update_tuple.items():
 				if update_data is None:
 					continue
@@ -1267,54 +1227,20 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 		
 		total_accrued_interest = 0.0
 		total_accrued_principal = 0.0
-		temp_count = 0
 		for l in loans:
+			loan_update_dict = loan_update_lookup[str(l.id)][rgc.report_month_last_day]
+
 			days_factored = date_util.number_days_between_dates(rgc.report_month_last_day, l.funded_at.date()) \
 				if l.funded_at is not None else 0 
-			transactions_after_report_month = cast(
-				List[models.Transaction],
-				session.query(models.Transaction).filter(
-					models.Transaction.loan_id == l.id
-				).filter(
-					models.Transaction.effective_date > rgc.report_month_last_day
-				).filter(
-					models.Transaction.effective_date <= rgc.today
-				).order_by(
-					models.Transaction.effective_date.asc()
-				).all())
 
-			contract = cast(
-				models.Contract,
-				session.query(models.Contract).filter(
-					models.Contract.company_id == company_id
-				).order_by(
-					models.Contract.start_date.desc()
-				).first())
+			outstanding_principal = loan_update_dict['outstanding_principal'] or 0
+			outstanding_principal_display = number_util.to_dollar_format(outstanding_principal)
+			total_accrued_principal += outstanding_principal
 
-			if l.outstanding_principal_balance is not None:
-				outstanding_principal = self.calculate_outstanding_loan_principal_for_report_month(session, l, transactions_after_report_month)
-				total_accrued_principal += outstanding_principal
-				outstanding_principal_display = number_util.to_dollar_format(outstanding_principal)
-			else:
-				outstanding_principal_display = ""
+			outstanding_interest = (loan_update_dict['outstanding_interest'] or 0) + (loan_update_dict['outstanding_fees'] or 0)
+			outstanding_interest_display = number_util.to_dollar_format(outstanding_interest)
+			total_accrued_interest += outstanding_interest
 
-			if l.outstanding_interest is not None:
-				outstanding_interest = self.calculate_outstanding_loan_interest_for_report_month(
-					session, 
-					l, 
-					transactions_after_report_month, 
-					contract,
-					outstanding_principal,
-					days_factored,
-					company_id,
-					loan_update_lookup,
-					rgc
-				)
-				total_accrued_interest += outstanding_interest
-				outstanding_interest_display = number_util.to_dollar_format(outstanding_interest)
-			else:
-				outstanding_interest_display = ""
-			
 			artifact_number = str(vendor_lookup[str(l.artifact_id)]["order_number"]) if l.loan_type == LoanTypeEnum.INVENTORY \
 				else str(payor_lookup[str(l.artifact_id)]["invoice_number"])
 			artifact_date = vendor_lookup[str(l.artifact_id)]["date"] if l.loan_type == LoanTypeEnum.INVENTORY \
@@ -1507,7 +1433,7 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 		with models.session_scope(current_app.session_maker) as session:
 			user_session = auth_util.UserSession.from_session()
 			user = session.query(models.User).filter(
-			  models.User.id == user_session.get_user_id()
+				models.User.id == user_session.get_user_id()
 			).first()
 
 			# We generate a (potentially) long table later on for the attachment
