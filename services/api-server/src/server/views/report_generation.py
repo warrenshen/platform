@@ -1471,11 +1471,9 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 			# This is for organizing loans on a per company basis to make emails easier
 			loans_to_notify : Dict[str, List[models.Loan] ] = {}
 			for l in all_open_loans:
-				if l.origination_date is not None and l.maturity_date is not None and \
-					l.status == LoanStatusEnum.APPROVED and l.closed_at is None and l.rejected_at is None:
-					if l.company_id not in loans_to_notify:
-						loans_to_notify[l.company_id] = [];
-					loans_to_notify[l.company_id].append(l)
+				if l.company_id not in loans_to_notify:
+					loans_to_notify[l.company_id] = [];
+				loans_to_notify[l.company_id].append(l)
 
 			# Sort the loans for each company based on disbursement identifier
 			# We use the two join-ed keys to make sure the correct ordering when
