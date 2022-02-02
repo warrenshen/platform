@@ -788,7 +788,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 					models.FinancialSummary.date == previous_report_month_last_day
 				).first())
 
-			account_level_balance_payload = cast(Dict[str, Any], previous_financial_summary.account_level_balance_payload)
+			account_level_balance_payload = cast(Dict[str, Any], previous_financial_summary.account_level_balance_payload if previous_financial_summary else {})
 			previous_outstanding_account_fees = account_level_balance_payload.get(FinancialSummaryPayloadField.FEES_TOTAL, 0)
 
 			advances = self.get_report_month_advances(session, company_id, rgc)
