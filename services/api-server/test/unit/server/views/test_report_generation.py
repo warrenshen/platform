@@ -943,8 +943,14 @@ class TestReportsMonthlyLoanSummaryNoneLOCView(db_unittest.TestCase):
 		) -> Tuple[List[models.Loan], Dict[str, models.Company], Dict[str, loan_balances.CustomerBalance]]:
 		loans = []
 
+		test_company = cast(
+			models.Company,
+			session.query(models.Company).filter(
+				models.Company.id == company_id
+			).first())
+		
 		vendor_id = uuid.uuid4()
-		test_company = models.Company(
+		test_vendor = models.Company(
 			id = vendor_id,
 			is_customer = False, # because vendor
 			name = "Best Nuggies",
@@ -953,7 +959,7 @@ class TestReportsMonthlyLoanSummaryNoneLOCView(db_unittest.TestCase):
 			dba_name = "Best Nuggies, Inc.",
 			company_settings_id = None
 		)
-		session.add(test_company)
+		session.add(test_vendor)
 
 		po_id = uuid.uuid4()
 		session.add(models.PurchaseOrder( # type: ignore
@@ -985,9 +991,12 @@ class TestReportsMonthlyLoanSummaryNoneLOCView(db_unittest.TestCase):
 		))
 
 		company_lookup = {}
-		company_lookup[str(vendor_id)] = test_company
+		company_lookup[str(vendor_id)] = test_vendor
+		company_lookup[str(company_id)] = test_company
 
+		customer_balance = loan_balances.CustomerBalance(test_company.as_dict(), self.session_maker)
 		company_balance_lookup: Dict[str, loan_balances.CustomerBalance] = {}
+		company_balance_lookup[company_id] = customer_balance
 
 		return loans, company_lookup, company_balance_lookup
 
@@ -1000,6 +1009,7 @@ class TestReportsMonthlyLoanSummaryNoneLOCView(db_unittest.TestCase):
 
 			company_id = seed.get_company_id('company_admin', index=0)
 			loans, company_lookup, company_balance_lookup = self.setup_loans_for_non_loc_html_generation(session, company_id)
+
 
 			report_month_last_day = date_util.get_report_month_last_day(TODAY.date())
 			report_month_first_day = date_util.get_first_day_of_month_date(date_util.date_to_str(report_month_last_day))
@@ -1016,7 +1026,15 @@ class TestReportsMonthlyLoanSummaryNoneLOCView(db_unittest.TestCase):
 				"support_email": "<a href='mailto:support@bespokefinancial.com'>support@bespokefinancial.com</a>",
 				"statement_month": "October 2021"
 			}
-			html = non_loc_summary.prepare_html_for_attachment(session, company_id, template_data, loans, rgc, company_balance_lookup)
+			html = non_loc_summary.prepare_html_for_attachment(
+				session, 
+				company_id, 
+				template_data, 
+				loans, 
+				rgc, 
+				company_balance_lookup,
+				is_unit_test=True
+			)
 			is_valid_html = bool(BeautifulSoup(html, "html.parser").find())
 
 			self.assertEqual(is_valid_html, True)
