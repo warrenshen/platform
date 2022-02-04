@@ -12,6 +12,10 @@ from os import path
 from typing import List, Dict, Tuple
 from collections import defaultdict
 
+# Path hack before we try to import bespoke
+sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
+sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
+
 from bespoke.inventory.analysis.shared import create_queries, prepare_data
 from bespoke.inventory.analysis.shared import download_util, inventory_types
 from bespoke.inventory.analysis import active_inventory_util as util
@@ -173,39 +177,40 @@ def main(
     )
     company_incoming_transfer_packages_query = (
         create_queries.create_company_incoming_transfer_packages_query(
-            transfer_packages_start_date,
             company_identifier,
+            transfer_packages_start_date,
             license_numbers=license_numbers,
         )
     )
     company_outgoing_transfer_packages_query = (
         create_queries.create_company_outgoing_transfer_packages_query(
-            transfer_packages_start_date,
             company_identifier,
+            transfer_packages_start_date,
             license_numbers=license_numbers,
         )
     )
     company_unknown_transfer_packages_query = (
         create_queries.create_company_unknown_transfer_packages_query(
-            transfer_packages_start_date, company_identifier
+            company_identifier,
+            transfer_packages_start_date,
         )
     )
     company_sales_transactions_query = (
         create_queries.create_company_sales_transactions_query(
-            sales_transactions_start_date,
             company_identifier,
+            sales_transactions_start_date,
             license_numbers=license_numbers,
         )
     )
     company_sales_receipts_query = create_queries.create_company_sales_receipts_query(
-        sales_transactions_start_date,
         company_identifier,
+        sales_transactions_start_date,
         license_numbers=license_numbers,
     )
     company_sales_receipts_with_transactions_query = (
         create_queries.create_company_sales_receipts_with_transactions_query(
-            sales_transactions_start_date,
             company_identifier,
+            sales_transactions_start_date,
             license_numbers=license_numbers,
         )
     )
