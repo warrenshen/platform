@@ -31,7 +31,7 @@ export default function AsyncPage() {
               setSelectedTabIndex(value)
             }
           >
-            <Tab label="Async Jobs" />
+            <Tab label="Async Pipelines" />
             <Tab label="Async Jobs" />
           </Tabs>
           <SectionSpace />

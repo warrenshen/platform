@@ -1,6 +1,7 @@
 import { Tab, Tabs } from "@material-ui/core";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
+import BankMetrcApiKeysTab from "pages/Bank/Metrc/MetrcApiKeysTab";
 import BankMetrcTransfersTab from "pages/Bank/Metrc/MetrcTransfersTab";
 import { useState } from "react";
 import styled from "styled-components";
@@ -33,11 +34,14 @@ export default function BankMetrcPage() {
               setSelectedTabIndex(value)
             }
           >
+            <Tab label="Metrc Api Keys" />
             <Tab label="Metrc Transfers" />
             <Tab label="Metrc Packages" />
           </Tabs>
           <SectionSpace />
           {selectedTabIndex === 0 ? (
+            <BankMetrcApiKeysTab />
+          ) : selectedTabIndex === 1 ? (
             <BankMetrcTransfersTab />
           ) : (
             <BankMetrcTransfersTab />

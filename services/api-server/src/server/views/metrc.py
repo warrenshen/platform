@@ -3,22 +3,17 @@ import json
 from datetime import timedelta
 from typing import Any, List, cast
 
-from bespoke import errors
 from bespoke.date import date_util
-from bespoke.audit import events
 from bespoke.async_util.pipeline_constants import PipelineName, PipelineState
 from bespoke.db import db_constants, models, models_util
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
-from bespoke.metrc import metrc_util, transfers_util
-from bespoke.metrc.common import metrc_common_util
-from dateutil import parser
+from bespoke.metrc import metrc_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from mypy_extensions import TypedDict
 from server.config import Config
 from server.views.common import auth_util, handler_util
-from server.views.common.auth_util import UserSession
 
 handler = Blueprint('metrc', __name__)
 
@@ -129,12 +124,12 @@ class ViewApiKeyView(MethodView):
 			'data': view_api_key_resp,
 		}), 200)
 
-class SyncMetrcDataPerCustomerView(MethodView):
+class DownloadMetrcDataForCompanyView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
 	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
-		logging.info("Received request to download metrc data for 1 customer using the SYNC endpoint")
+		logging.info("Received request to download metrc data for 1 customer...")
 		cfg = cast(Config, current_app.app_config)
 		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
@@ -143,28 +138,7 @@ class SyncMetrcDataPerCustomerView(MethodView):
 		start_date = date_util.load_date_str(data['start_date'])
 		end_date = date_util.load_date_str(data['end_date'])
 
-		if data.get('use_async'):
-			logging.info(f"Submitting request to sync metrc data for 1 customer [async]")
-		
-			with session_scope(current_app.session_maker) as session:
-				pipeline = models.AsyncPipeline()
-				pipeline.name = PipelineName.SYNC_METRC_DATA_PER_CUSTOMER
-				pipeline.internal_state = {}
-				pipeline.status = PipelineState.SUBMITTED
-				pipeline.params = {
-					'company_id': data['company_id'],
-					'start_date': data['start_date'],
-					'end_date': data['end_date']
-				}
-				session.add(pipeline)
-				session.flush()
-				pipeline_id = str(pipeline.id)
-
-			return make_response(json.dumps({
-				'status': 'OK',
-				'pipeline_id': pipeline_id
-			}))
-		else:
+		if data.get('is_sync'):
 			cur_date = start_date
 			while cur_date <= end_date:
 				resp, fatal_err = metrc_util.download_data_for_one_customer(
@@ -189,6 +163,60 @@ class SyncMetrcDataPerCustomerView(MethodView):
 				'status': 'OK',
 				'errors': ['{}'.format(err) for err in resp['all_errs']]
 			}))
+		else:
+			logging.info(f"Submitting request to sync metrc data for 1 customer [async]")
+
+			with session_scope(current_app.session_maker) as session:
+				pipeline = models.AsyncPipeline()
+				pipeline.name = PipelineName.SYNC_METRC_DATA_PER_CUSTOMER
+				pipeline.internal_state = {}
+				pipeline.status = PipelineState.SUBMITTED
+				pipeline.params = {
+					'company_id': data['company_id'],
+					'start_date': data['start_date'],
+					'end_date': data['end_date'],
+				}
+				session.add(pipeline)
+				session.flush()
+				pipeline_id = str(pipeline.id)
+
+			return make_response(json.dumps({
+				'status': 'OK',
+				'pipeline_id': pipeline_id
+			}))
+
+class DownloadMetrcDataAllCompaniesView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self) -> Response:
+		logging.info("Received request to download metrc data for all customers")
+
+		TIME_WINDOW_IN_DAYS = 2
+		todays_date = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
+
+		start_date = todays_date - timedelta(days=TIME_WINDOW_IN_DAYS)
+		end_date = todays_date
+
+		company_ids = metrc_util.get_companies_with_metrc_keys(current_app.session_maker)
+
+		logging.info(f"Submitting request to download metrc data for all customers [async]")
+
+		with session_scope(current_app.session_maker) as session:
+			pipeline = models.AsyncPipeline()
+			pipeline.name = PipelineName.SYNC_METRC_DATA_ALL_CUSTOMERS
+			pipeline.internal_state = {}
+			pipeline.status = PipelineState.SUBMITTED
+			pipeline.params = {
+				'company_ids': company_ids,
+				'start_date': date_util.date_to_str(start_date),
+				'end_date': date_util.date_to_str(end_date),
+			}
+			session.add(pipeline)
+			session.flush()
+			pipeline_id = str(pipeline.id)
+
+		return make_response(json.dumps({'status': 'OK', 'pipeline_id': pipeline_id}))
 
 handler.add_url_rule(
 	'/upsert_api_key', view_func=UpsertApiKeyView.as_view(name='upsert_api_key_view'))
@@ -200,4 +228,7 @@ handler.add_url_rule(
 	'/delete_api_key', view_func=DeleteApiKeyView.as_view(name='delete_api_key_view'))
 
 handler.add_url_rule(
-	'/sync_metrc_data_per_customer', view_func=SyncMetrcDataPerCustomerView.as_view(name='sync_metrc_data_per_customer_view'))
+	'/download_metrc_data_for_company', view_func=DownloadMetrcDataForCompanyView.as_view(name='download_metrc_data_for_company_view'))
+
+handler.add_url_rule(
+	'/download_metrc_data_all_companies', view_func=DownloadMetrcDataAllCompaniesView.as_view(name='download_metrc_data_all_companies_view'))

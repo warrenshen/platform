@@ -38,7 +38,7 @@ def _sync_metrc_data_all_customers(p: models.AsyncPipelineDict, ctx: Context) ->
 	cur_customer_index = None
 
 	if p['status'] == PipelineState.SUBMITTED:
-		cur_comster_index = 0
+		cur_customer_index = 0
 	elif p['status'] == PipelineState.IN_PROGRESS:
 		cur_customer_index = p['internal_state'].get('cur_customer_index')
 		if cur_customer_index is None:
@@ -145,11 +145,14 @@ def _process_pipeline(p: models.AsyncPipelineDict, ctx: Context) -> None:
 		pipeline.internal_state = update['internal_state']
 
 def handle_async_tasks(ctx: Context) -> Dict:
-	# The api-server submits a "request"
-	# The async-server reads the most recent request from the queue, executes one step of it,
-	# saves its current state back to the DB, then continues on
+	# Process:
+	# 1. The api-server submits a "request", which is put into the queue.
+	# 2. The async-server reads the most recent request(s) from the queue.
+	# 3. For each request, the async-server executes one step of it, saves
+	#    its current state back to the DB, and then continues on. If request
+	#    is now complete (all steps are completed), then it is marked complete.
 
-	# Pull N requests in queue
+	# Pull 2 requests from the queue
 	# Execute them in parallel
 	# Write the result back to the DB
 	# Run the next sequence of the function
@@ -157,12 +160,12 @@ def handle_async_tasks(ctx: Context) -> Dict:
 
 	with session_scope(ctx.session_maker) as session:
 		pipelines = cast(
-					List[models.AsyncPipeline],
-				session.query(models.AsyncPipeline).filter(
-					models.AsyncPipeline.status.in_([PipelineState.SUBMITTED, PipelineState.IN_PROGRESS])
-				).order_by(
-						models.AsyncPipeline.updated_at.asc()
-				).limit(2).all())
+			List[models.AsyncPipeline],
+		session.query(models.AsyncPipeline).filter(
+			models.AsyncPipeline.status.in_([PipelineState.SUBMITTED, PipelineState.IN_PROGRESS])
+		).order_by(
+			models.AsyncPipeline.updated_at.asc()
+		).limit(2).all())
 
 		if not pipelines:
 			return {'msg': 'No pipelines to process'}
@@ -182,7 +185,3 @@ def handle_async_tasks(ctx: Context) -> Dict:
 		'msg': 'Have these pipelines to process {}'.format(pipeline_dicts),
 		'times': times
 	}
-
-
-
-		

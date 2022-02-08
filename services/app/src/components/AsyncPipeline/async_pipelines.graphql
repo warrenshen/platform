@@ -1,0 +1,16 @@
+query GetAsyncPipelines {
+  async_pipelines: async_pipelines(
+    order_by: { updated_at: desc }
+    limit: 100
+  ) {
+    id
+    ...AsyncPipelineLimited
+  }
+}
+
+query GetAsyncPipeline($id: uuid!) {
+  async_pipelines_by_pk(id: $id) {
+    id
+    ...AsyncPipeline
+  }
+}

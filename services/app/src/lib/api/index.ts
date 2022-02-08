@@ -147,7 +147,8 @@ export const metrcRoutes = {
   upsertApiKey: "/metrc/upsert_api_key",
   deleteApiKey: "/metrc/delete_api_key",
   viewApiKey: "/metrc/view_api_key",
-  syncMetrcDataPerCustomer: "/metrc/sync_metrc_data_per_customer",
+  downloadMetrcDataForCompany: "/metrc/download_metrc_data_for_company",
+  downloadMetrcDataAllCompanies: "/metrc/download_metrc_data_all_companies",
 };
 
 export const reportsRoutes = {

@@ -11,7 +11,10 @@ import {
 import DateInput from "components/Shared/FormInputs/DateInput";
 import { Companies } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
-import { syncMetrcDataPerCustomer } from "lib/api/metrc";
+import {
+  downloadMetrcDataAllCompanies,
+  downloadMetrcDataForCompany,
+} from "lib/api/metrc";
 import { todayAsDateStringServer } from "lib/date";
 import { ChangeEvent, useState } from "react";
 
@@ -24,7 +27,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
-  companyId: Companies["id"];
+  companyId: Companies["id"] | null; // If null, download Metrc data for ALL companies.
 }
 
 export default function SyncMetrcData({ companyId }: Props) {
@@ -33,24 +36,28 @@ export default function SyncMetrcData({ companyId }: Props) {
 
   const [startDate, setStartDate] = useState<string>(todayAsDateStringServer());
   const [endDate, setEndDate] = useState<string>(todayAsDateStringServer());
-  const [useAsync, setUseAsync] = useState<boolean>(true);
+  const [isSync, setIsSync] = useState<boolean>(false);
 
   const handleSubmit = async () => {
-    const response = await syncMetrcDataPerCustomer({
-      variables: {
-        company_id: companyId,
-        start_date: startDate,
-        end_date: endDate,
-        use_async: useAsync,
-      },
-    });
+    const response = !!companyId
+      ? await downloadMetrcDataForCompany({
+          variables: {
+            company_id: companyId,
+            start_date: startDate,
+            end_date: endDate,
+            is_sync: isSync,
+          },
+        })
+      : await downloadMetrcDataAllCompanies({ variables: {} });
 
     if (response.status !== "OK") {
       snackbar.showError(
-        `Could not sync data. Error: ${(response?.errors || []).join(", ")}`
+        `Could not download data. Error: ${(response?.errors || []).join(", ")}`
       );
     } else {
-      const msg = useAsync ? "Metrc sync job scheduled" : "Metrc data synced";
+      const msg = isSync
+        ? "Metrc data downloaded successfully"
+        : "Metrc download data job scheduled successfully";
       snackbar.showSuccess(msg);
     }
   };
@@ -67,43 +74,49 @@ export default function SyncMetrcData({ companyId }: Props) {
             Metrc that was last modified between 06/14 and 06/18.
           </Typography>
         </Box>
-        <Box mb={2}>
-          <DateInput
-            className={classes.inputField}
-            id="start-date-date-picker"
-            label="Start Date"
-            disableFuture
-            value={startDate}
-            onChange={(value) =>
-              setStartDate(value || todayAsDateStringServer())
-            }
-          />
-        </Box>
-        <Box mb={2}>
-          <DateInput
-            className={classes.inputField}
-            id="end-date-date-picker"
-            label="End Date"
-            disableFuture
-            value={endDate}
-            onChange={(value) => setEndDate(value || todayAsDateStringServer())}
-          />
-        </Box>
-        <Box mt={1}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={useAsync}
-                onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                  setUseAsync(event.target.checked)
+        {!!companyId && (
+          <>
+            <Box mb={2}>
+              <DateInput
+                className={classes.inputField}
+                id="start-date-date-picker"
+                label="Start Date"
+                disableFuture
+                value={startDate}
+                onChange={(value) =>
+                  setStartDate(value || todayAsDateStringServer())
                 }
-                color="primary"
               />
-            }
-            label={"Run Async? [experimental]"}
-          />
-        </Box>
-        <Box mt={1}>
+            </Box>
+            <Box mb={2}>
+              <DateInput
+                className={classes.inputField}
+                id="end-date-date-picker"
+                label="End Date"
+                disableFuture
+                value={endDate}
+                onChange={(value) =>
+                  setEndDate(value || todayAsDateStringServer())
+                }
+              />
+            </Box>
+            <Box mb={2}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={isSync}
+                    onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                      setIsSync(event.target.checked)
+                    }
+                    color="primary"
+                  />
+                }
+                label={"Run Immediately (Blocking)?"}
+              />
+            </Box>
+          </>
+        )}
+        <Box>
           <Button
             disabled={isSubmitDisabled}
             variant="contained"

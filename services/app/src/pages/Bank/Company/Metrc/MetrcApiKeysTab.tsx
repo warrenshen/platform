@@ -12,7 +12,7 @@ export default function CompanyMetrcApiKeysTab({ companyId }: Props) {
     <Box mt={3}>
       <Box display="flex" flexDirection="column" mt={4}>
         <Typography variant="subtitle1">
-          <strong>Sync Metrc Data</strong>
+          <strong>Download Metrc Data</strong>
         </Typography>
         <Box display="flex">
           <SyncMetrcData companyId={companyId} />

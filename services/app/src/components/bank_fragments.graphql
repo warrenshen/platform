@@ -209,12 +209,19 @@ fragment BankFinancialSummary on bank_financial_summaries {
   interest_accrued_today
 }
 
-fragment AsyncPipeline on async_pipelines {
+fragment AsyncPipelineLimited on async_pipelines {
   id
   created_at
   updated_at
   name
   status
+}
+
+fragment AsyncPipeline on async_pipelines {
+  id
+  ...AsyncPipelineLimited
+  internal_state
+  params
 }
 
 fragment MetrcDownloadSummaryLimited on metrc_download_summaries {

@@ -35,6 +35,7 @@ export default function BankAdvancesExportAchsTab() {
 
   const payments = data?.payments || [];
 
+  // Add a filter to filter by state.
   return (
     <Container>
       <Box mb={2}>

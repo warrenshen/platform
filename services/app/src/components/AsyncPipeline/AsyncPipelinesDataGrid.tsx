@@ -1,13 +1,19 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
-import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
+import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
+import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
+import {
+  AsyncPipelineLimitedFragment,
+  AsyncPipelines,
+} from "generated/graphql";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
 interface Props {
   pager?: boolean;
   pageSize?: number;
-  asyncPipelines: any[];
+  asyncPipelines: AsyncPipelineLimitedFragment[];
+  handleClickAsyncPipeline: (asyncPipelineId: AsyncPipelines["id"]) => void;
 }
 
 function getRows(asyncPipelines: any[]): RowsProp {
@@ -20,17 +26,22 @@ export default function AsyncPipelinesDataGrid({
   pager = true,
   pageSize = 10,
   asyncPipelines,
+  handleClickAsyncPipeline,
 }: Props) {
   const rows = useMemo(() => getRows(asyncPipelines), [asyncPipelines]);
-
   const columns = useMemo(
     () => [
       {
         visible: true,
-        caption: "Platform ID",
         dataField: "id",
-        width: ColumnWidths.Date,
-        alignment: "right",
+        caption: "Platform ID",
+        width: 140,
+        cellRender: (params: ValueFormatterParams) => (
+          <ClickableDataGridCell
+            onClick={() => handleClickAsyncPipeline(params.row.data.id)}
+            label={params.row.data.id}
+          />
+        ),
       },
       {
         dataField: "created_at",
@@ -65,7 +76,7 @@ export default function AsyncPipelinesDataGrid({
         minWidth: ColumnWidths.MinWidth,
       },
     ],
-    []
+    [handleClickAsyncPipeline]
   );
 
   const allowedPageSizes = useMemo(() => [], []);

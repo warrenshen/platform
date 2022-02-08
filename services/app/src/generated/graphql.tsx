@@ -25780,7 +25780,9 @@ export type GetAdvancesByMethodAndPaymentDateQuery = {
 export type GetAsyncPipelinesQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GetAsyncPipelinesQuery = {
-  async_pipelines: Array<Pick<AsyncPipelines, "id"> & AsyncPipelineFragment>;
+  async_pipelines: Array<
+    Pick<AsyncPipelines, "id"> & AsyncPipelineLimitedFragment
+  >;
 };
 
 export type GetAsyncPipelineQueryVariables = Exact<{
@@ -27916,10 +27918,16 @@ export type BankFinancialSummaryFragment = Pick<
   | "interest_accrued_today"
 >;
 
-export type AsyncPipelineFragment = Pick<
+export type AsyncPipelineLimitedFragment = Pick<
   AsyncPipelines,
   "id" | "created_at" | "updated_at" | "name" | "status"
 >;
+
+export type AsyncPipelineFragment = Pick<
+  AsyncPipelines,
+  "id" | "internal_state" | "params"
+> &
+  AsyncPipelineLimitedFragment;
 
 export type MetrcDownloadSummaryLimitedFragment = Pick<
   MetrcDownloadSummaries,
@@ -28994,14 +29002,23 @@ export const BankFinancialSummaryFragmentDoc = gql`
     interest_accrued_today
   }
 `;
-export const AsyncPipelineFragmentDoc = gql`
-  fragment AsyncPipeline on async_pipelines {
+export const AsyncPipelineLimitedFragmentDoc = gql`
+  fragment AsyncPipelineLimited on async_pipelines {
     id
     created_at
     updated_at
     name
     status
   }
+`;
+export const AsyncPipelineFragmentDoc = gql`
+  fragment AsyncPipeline on async_pipelines {
+    id
+    ...AsyncPipelineLimited
+    internal_state
+    params
+  }
+  ${AsyncPipelineLimitedFragmentDoc}
 `;
 export const MetrcDownloadSummaryLimitedFragmentDoc = gql`
   fragment MetrcDownloadSummaryLimited on metrc_download_summaries {
@@ -29264,10 +29281,10 @@ export const GetAsyncPipelinesDocument = gql`
       limit: 100
     ) {
       id
-      ...AsyncPipeline
+      ...AsyncPipelineLimited
     }
   }
-  ${AsyncPipelineFragmentDoc}
+  ${AsyncPipelineLimitedFragmentDoc}
 `;
 
 /**

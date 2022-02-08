@@ -1,9 +1,0 @@
-query GetAsyncPipelines {
-  async_pipelines: async_pipelines(
-    order_by: { updated_at: asc }
-    limit: 100
-  ) {
-    id
-    ...AsyncPipeline
-  }
-}

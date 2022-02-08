@@ -1,6 +1,8 @@
 import { Box } from "@material-ui/core";
-import { useGetAsyncPipelinesQuery } from "generated/graphql";
-import AsyncPipelinesDataGrid from "pages/Bank/Async/AsyncPipelinesDataGrid";
+import { AsyncPipelines, useGetAsyncPipelinesQuery } from "generated/graphql";
+import AsyncPipelineDrawer from "components/AsyncPipeline/AsyncPipelineDrawer";
+import AsyncPipelinesDataGrid from "components/AsyncPipeline/AsyncPipelinesDataGrid";
+import { useState } from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -20,13 +22,25 @@ export default function AsyncJobsTab() {
     alert(`Error in query (details in console): ${error.message}`);
   }
 
+  const [selectedAsyncPipelineId, setSelectedAsyncPipelineId] = useState<
+    AsyncPipelines["id"]
+  >(null);
+
   return (
     <Container>
       <Box display="flex" flexDirection="column">
         <Box display="flex" flexDirection="column">
-          <h3>Async Pipelines</h3>
+          {!!selectedAsyncPipelineId && (
+            <AsyncPipelineDrawer
+              asyncPipelineId={selectedAsyncPipelineId}
+              handleClose={() => setSelectedAsyncPipelineId(null)}
+            />
+          )}
           <AsyncPipelinesDataGrid
             asyncPipelines={data?.async_pipelines || []}
+            handleClickAsyncPipeline={(asyncPipelineId) =>
+              setSelectedAsyncPipelineId(asyncPipelineId)
+            }
           />
         </Box>
       </Box>
