@@ -5,6 +5,7 @@ import os
 import pandas as pd
 import pyarrow
 import sys
+import math
 from datetime import date
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
@@ -22,7 +23,7 @@ from bespoke.inventory.analysis import active_inventory_util as util
 from bespoke.inventory.analysis import inventory_valuations_util as valuations_util
 
 
-load_dotenv(verbose=True)  # TODO: to figure out how to properly do this
+load_dotenv('/Users/victoria/dev/platform/services/api-server/notebooks/.env')  # TODO: to figure out how to properly do this
 BIGQUERY_CREDENTIALS_PATH = os.environ.get("BIGQUERY_CREDENTIALS_PATH")
 
 ########################
@@ -120,6 +121,75 @@ def check_incoming_transfer_package_coverage(
     print(f"# transactions total: {count_total_trxn}")
     return missed_ratio, package_transfer_sales_merged_missed
 
+#5. check_receipts_missing_sales_trxns
+def float_eq(receipt_total_price: float, transactions_total_price: float, num_transactions: int) -> bool:
+    # For every additional transaction, increase threshold by 0.01 (a penny).
+    threshold = num_transactions * 0.1
+    return math.isclose(receipt_total_price, transactions_total_price, abs_tol=threshold)
+
+def check_receipts_missing_sales_trxns(sales_trxn_df: pd.DataFrame) -> float:
+    sales_receipt_with_transactions_records = sales_trxn_df.to_dict('records')
+    receipt_number_to_transactions = {}
+    for sales_receipt_with_transaction_record in sales_receipt_with_transactions_records:
+        receipt_number = sales_receipt_with_transaction_record['receipt_number']
+        if receipt_number in receipt_number_to_transactions:
+            receipt_number_to_transactions[receipt_number] += [sales_receipt_with_transaction_record]
+        else:
+            receipt_number_to_transactions[receipt_number] = [sales_receipt_with_transaction_record]
+    mismatch_count = 0  # Count of receipts where receipt total price does not match transactions total price.
+    missing_count = 0  # Count of receipts with no transactions.
+    total_count = 0  # Count of receipts (including those missing transactions).
+
+    mismatch_over_count = 0
+    mismatch_under_count = 0
+
+    month_to_mismatch_count = {}
+    month_to_missing_count = {}
+
+    month_to_mismatch_over_count = {}
+    month_to_mismatch_under_count = {}
+
+    example_mismatch_over_receipts = []
+    example_mismatch_under_receipts = []
+
+    for receipt_number, receipt_transactions in list(receipt_number_to_transactions.items()):
+        receipt_total_price = receipt_transactions[0]['rt_total_price']
+        receipt_sales_month = receipt_transactions[0]['sales_month']
+        receipt_total_packages = receipt_transactions[0]['total_packages']
+
+        total_count += 1
+
+        if len(receipt_transactions) == 1 and receipt_transactions[0]['tx_package_id'] == None:
+            missing_count += 1
+            if receipt_sales_month not in month_to_missing_count:
+                month_to_missing_count[receipt_sales_month] = 0
+            month_to_missing_count[receipt_sales_month] += 1
+            continue
+
+        # Check whether 'total_packages' field of sales receipt matches number of transactions related to receipt.
+        if receipt_total_packages != len(receipt_transactions):
+            missing_count += 1
+            if receipt_sales_month not in month_to_missing_count:
+                month_to_missing_count[receipt_sales_month] = 0
+            month_to_missing_count[receipt_sales_month] += 1
+            continue
+
+        transactions_total_price = sum(
+            receipt_transaction['tx_total_price'] for receipt_transaction in receipt_transactions)
+        if not float_eq(receipt_total_price, transactions_total_price, len(receipt_transactions)):
+            mismatch_count += 1
+            if receipt_total_price < transactions_total_price:
+                mismatch_over_count += 1
+                example_mismatch_over_receipts += [(receipt_number, receipt_transactions)]
+            else:
+                mismatch_under_count += 1
+                example_mismatch_under_receipts += [(receipt_number, receipt_transactions)]
+
+            if receipt_sales_month not in month_to_mismatch_count:
+                month_to_mismatch_count[receipt_sales_month] = 0
+            month_to_mismatch_count[receipt_sales_month] += 1
+            continue
+    return mismatch_count / total_count
 
 ########################
 # main
@@ -285,6 +355,11 @@ def main(
         incoming_transfer_package_coverage <= 1
     ), f"{incoming_transfer_package_coverage} of transactions missing incoming transfer package"
 
+    #5. check_receipts_missing_sales_trxns
+    perc_receipts_missing_sales_trxns = check_receipts_missing_sales_trxns(deduped_sales_receipts_with_transactions_dataframe)
+    assert (
+        perc_receipts_missing_sales_trxns <= 0.1
+    ), f"{perc_receipts_missing_sales_trxns} of receipts missing sales transactions"
 
 if __name__ == "__main__":
     main()
