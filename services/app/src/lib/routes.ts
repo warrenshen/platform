@@ -81,6 +81,7 @@ export const bankRoutes = {
   },
   customers: "/customers",
   ebbaApplications: "/client-surveillance",
+  debtFacility: "/debt-facility",
   loans: "/loans",
   partnerships: "/partnerships",
   advances: "/advances",

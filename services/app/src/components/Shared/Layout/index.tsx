@@ -265,6 +265,12 @@ const getBankNavItems = (
       counter: ebbaApplicationsCount,
     },
     {
+      dataCy: "debt-facility",
+      iconNode: LoansIcon,
+      text: "Debt Facility",
+      link: bankRoutes.debtFacility,
+    },
+    {
       dataCy: "customers",
       iconNode: CustomersIcon,
       text: "Customers",
