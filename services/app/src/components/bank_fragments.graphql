@@ -181,18 +181,6 @@ fragment Payment on payments {
   ...PaymentLimited
 }
 
-fragment PaymentBankAccounts on payments {
-  id
-  company_bank_account {
-    id
-    ...BankAccount
-  }
-  recipient_bank_account {
-    id
-    ...BankAccount
-  }
-}
-
 fragment Transaction on transactions {
   id
   created_at

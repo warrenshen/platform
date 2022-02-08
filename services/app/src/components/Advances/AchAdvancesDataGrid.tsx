@@ -1,15 +1,12 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import PaymentDrawerLauncher from "components/Payment/PaymentDrawerLauncher";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import {
-  PaymentFragment,
-  PaymentBankAccountsFragment,
-} from "generated/graphql";
+import { GetAdvancesByMethodAndPaymentDateQuery } from "generated/graphql";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
 function getRows(
-  payments: (PaymentFragment & PaymentBankAccountsFragment)[]
+  payments: GetAdvancesByMethodAndPaymentDateQuery["payments"]
 ): RowsProp {
   return payments.map((payment) => {
     return {
@@ -20,7 +17,10 @@ function getRows(
       recipient_bank_name: payment.recipient_bank_account?.bank_name,
       recipient_account_number: payment.recipient_bank_account?.account_number,
       recipient_account_type: payment.recipient_bank_account?.account_type,
-      recipient_account_name: payment.recipient_bank_account?.account_title,
+      // Note: Torrey Pines (who the export of this data grid is sent to) requires account name be max 22 characters.
+      recipient_account_name: (
+        payment.recipient_bank_account?.account_title || ""
+      ).substring(0, 22),
       recipient_name: payment.recipient_bank_account?.recipient_name,
       recipient_address: payment.recipient_bank_account?.recipient_address,
       recipient_address_2: payment.recipient_bank_account?.recipient_address_2,
@@ -31,7 +31,7 @@ function getRows(
 
 interface Props {
   isExcelExport?: boolean;
-  payments: (PaymentFragment & PaymentBankAccountsFragment)[];
+  payments: GetAdvancesByMethodAndPaymentDateQuery["payments"];
 }
 
 export default function AchAdvancesDataGrid({

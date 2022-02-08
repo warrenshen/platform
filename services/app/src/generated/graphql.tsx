@@ -25766,7 +25766,30 @@ export type GetAdvancesByMethodAndPaymentDateQueryVariables = Exact<{
 
 export type GetAdvancesByMethodAndPaymentDateQuery = {
   payments: Array<
-    Pick<Payments, "id"> & PaymentFragment & PaymentBankAccountsFragment
+    Pick<Payments, "id"> & {
+      company_bank_account?: Maybe<
+        Pick<BankAccounts, "id"> & BankAccountFragment
+      >;
+      recipient_bank_account?: Maybe<
+        Pick<BankAccounts, "id"> & BankAccountFragment
+      >;
+    } & PaymentFragment
+  >;
+};
+
+export type GetAsyncPipelinesQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetAsyncPipelinesQuery = {
+  async_pipelines: Array<Pick<AsyncPipelines, "id"> & AsyncPipelineFragment>;
+};
+
+export type GetAsyncPipelineQueryVariables = Exact<{
+  id: Scalars["uuid"];
+}>;
+
+export type GetAsyncPipelineQuery = {
+  async_pipelines_by_pk?: Maybe<
+    Pick<AsyncPipelines, "id"> & AsyncPipelineFragment
   >;
 };
 
@@ -27863,13 +27886,6 @@ export type PaymentFragment = Pick<
 > &
   PaymentLimitedFragment;
 
-export type PaymentBankAccountsFragment = Pick<Payments, "id"> & {
-  company_bank_account?: Maybe<Pick<BankAccounts, "id"> & BankAccountFragment>;
-  recipient_bank_account?: Maybe<
-    Pick<BankAccounts, "id"> & BankAccountFragment
-  >;
-};
-
 export type TransactionFragment = Pick<
   Transactions,
   | "id"
@@ -28088,12 +28104,6 @@ export type PaymentLimitedFragment = Pick<
     Pick<Invoices, "id"> & { payor?: Maybe<Pick<Payors, "id" | "name">> }
   >;
   submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
-};
-
-export type GetAsyncPipelinesQueryVariables = Exact<{ [key: string]: never }>;
-
-export type GetAsyncPipelinesQuery = {
-  async_pipelines: Array<Pick<AsyncPipelines, "id"> & AsyncPipelineFragment>;
 };
 
 export type GetCustomersWithMetadataQueryVariables = Exact<{
@@ -28533,6 +28543,50 @@ export const CompanySettingsFragmentDoc = gql`
   }
   ${CompanySettingsLimitedFragmentDoc}
 `;
+export const BankAccountForVendorFragmentDoc = gql`
+  fragment BankAccountForVendor on bank_accounts {
+    id
+    company_id
+    bank_name
+    account_title
+    account_type
+    account_number
+    bank_address
+    can_ach
+    routing_number
+    ach_default_memo
+    can_wire
+    is_wire_intermediary
+    intermediary_bank_name
+    intermediary_bank_address
+    intermediary_account_name
+    intermediary_account_number
+    wire_routing_number
+    recipient_name
+    recipient_address
+    recipient_address_2
+    wire_default_memo
+  }
+`;
+export const BankAccountLimitedFragmentDoc = gql`
+  fragment BankAccountLimited on bank_accounts {
+    id
+    is_cannabis_compliant
+    verified_at
+    verified_date
+    ...BankAccountForVendor
+  }
+  ${BankAccountForVendorFragmentDoc}
+`;
+export const BankAccountFragmentDoc = gql`
+  fragment BankAccount on bank_accounts {
+    id
+    torrey_pines_template_name
+    wire_template_name
+    ...BankAccountLimited
+  }
+  ${BankAccountLimitedFragmentDoc}
+`;
 export const MetrcApiKeyFragmentDoc = gql`
   fragment MetrcApiKey on metrc_api_keys {
     id
@@ -28910,64 +28964,6 @@ export const PaymentFragmentDoc = gql`
   }
   ${PaymentLimitedFragmentDoc}
 `;
-export const BankAccountForVendorFragmentDoc = gql`
-  fragment BankAccountForVendor on bank_accounts {
-    id
-    company_id
-    bank_name
-    account_title
-    account_type
-    account_number
-    bank_address
-    can_ach
-    routing_number
-    ach_default_memo
-    can_wire
-    is_wire_intermediary
-    intermediary_bank_name
-    intermediary_bank_address
-    intermediary_account_name
-    intermediary_account_number
-    wire_routing_number
-    recipient_name
-    recipient_address
-    recipient_address_2
-    wire_default_memo
-  }
-`;
-export const BankAccountLimitedFragmentDoc = gql`
-  fragment BankAccountLimited on bank_accounts {
-    id
-    is_cannabis_compliant
-    verified_at
-    verified_date
-    ...BankAccountForVendor
-  }
-  ${BankAccountForVendorFragmentDoc}
-`;
-export const BankAccountFragmentDoc = gql`
-  fragment BankAccount on bank_accounts {
-    id
-    torrey_pines_template_name
-    wire_template_name
-    ...BankAccountLimited
-  }
-  ${BankAccountLimitedFragmentDoc}
-`;
-export const PaymentBankAccountsFragmentDoc = gql`
-  fragment PaymentBankAccounts on payments {
-    id
-    company_bank_account {
-      id
-      ...BankAccount
-    }
-    recipient_bank_account {
-      id
-      ...BankAccount
-    }
-  }
-  ${BankAccountFragmentDoc}
-`;
 export const TransactionFragmentDoc = gql`
   fragment Transaction on transactions {
     id
@@ -29198,11 +29194,18 @@ export const GetAdvancesByMethodAndPaymentDateDocument = gql`
     ) {
       id
       ...Payment
-      ...PaymentBankAccounts
+      company_bank_account {
+        id
+        ...BankAccount
+      }
+      recipient_bank_account {
+        id
+        ...BankAccount
+      }
     }
   }
   ${PaymentFragmentDoc}
-  ${PaymentBankAccountsFragmentDoc}
+  ${BankAccountFragmentDoc}
 `;
 
 /**
@@ -29253,6 +29256,124 @@ export type GetAdvancesByMethodAndPaymentDateLazyQueryHookResult = ReturnType<
 export type GetAdvancesByMethodAndPaymentDateQueryResult = Apollo.QueryResult<
   GetAdvancesByMethodAndPaymentDateQuery,
   GetAdvancesByMethodAndPaymentDateQueryVariables
+>;
+export const GetAsyncPipelinesDocument = gql`
+  query GetAsyncPipelines {
+    async_pipelines: async_pipelines(
+      order_by: { updated_at: desc }
+      limit: 100
+    ) {
+      id
+      ...AsyncPipeline
+    }
+  }
+  ${AsyncPipelineFragmentDoc}
+`;
+
+/**
+ * __useGetAsyncPipelinesQuery__
+ *
+ * To run a query within a React component, call `useGetAsyncPipelinesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAsyncPipelinesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAsyncPipelinesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetAsyncPipelinesQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetAsyncPipelinesQuery,
+    GetAsyncPipelinesQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetAsyncPipelinesQuery,
+    GetAsyncPipelinesQueryVariables
+  >(GetAsyncPipelinesDocument, baseOptions);
+}
+export function useGetAsyncPipelinesLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetAsyncPipelinesQuery,
+    GetAsyncPipelinesQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetAsyncPipelinesQuery,
+    GetAsyncPipelinesQueryVariables
+  >(GetAsyncPipelinesDocument, baseOptions);
+}
+export type GetAsyncPipelinesQueryHookResult = ReturnType<
+  typeof useGetAsyncPipelinesQuery
+>;
+export type GetAsyncPipelinesLazyQueryHookResult = ReturnType<
+  typeof useGetAsyncPipelinesLazyQuery
+>;
+export type GetAsyncPipelinesQueryResult = Apollo.QueryResult<
+  GetAsyncPipelinesQuery,
+  GetAsyncPipelinesQueryVariables
+>;
+export const GetAsyncPipelineDocument = gql`
+  query GetAsyncPipeline($id: uuid!) {
+    async_pipelines_by_pk(id: $id) {
+      id
+      ...AsyncPipeline
+    }
+  }
+  ${AsyncPipelineFragmentDoc}
+`;
+
+/**
+ * __useGetAsyncPipelineQuery__
+ *
+ * To run a query within a React component, call `useGetAsyncPipelineQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAsyncPipelineQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAsyncPipelineQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetAsyncPipelineQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetAsyncPipelineQuery,
+    GetAsyncPipelineQueryVariables
+  >
+) {
+  return Apollo.useQuery<GetAsyncPipelineQuery, GetAsyncPipelineQueryVariables>(
+    GetAsyncPipelineDocument,
+    baseOptions
+  );
+}
+export function useGetAsyncPipelineLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetAsyncPipelineQuery,
+    GetAsyncPipelineQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetAsyncPipelineQuery,
+    GetAsyncPipelineQueryVariables
+  >(GetAsyncPipelineDocument, baseOptions);
+}
+export type GetAsyncPipelineQueryHookResult = ReturnType<
+  typeof useGetAsyncPipelineQuery
+>;
+export type GetAsyncPipelineLazyQueryHookResult = ReturnType<
+  typeof useGetAsyncPipelineLazyQuery
+>;
+export type GetAsyncPipelineQueryResult = Apollo.QueryResult<
+  GetAsyncPipelineQuery,
+  GetAsyncPipelineQueryVariables
 >;
 export const GetBespokeBankAccountsDocument = gql`
   query GetBespokeBankAccounts {
@@ -37748,66 +37869,6 @@ export type CompanyVendorPartnershipForVendorLazyQueryHookResult = ReturnType<
 export type CompanyVendorPartnershipForVendorQueryResult = Apollo.QueryResult<
   CompanyVendorPartnershipForVendorQuery,
   CompanyVendorPartnershipForVendorQueryVariables
->;
-export const GetAsyncPipelinesDocument = gql`
-  query GetAsyncPipelines {
-    async_pipelines: async_pipelines(
-      order_by: { updated_at: asc }
-      limit: 100
-    ) {
-      id
-      ...AsyncPipeline
-    }
-  }
-  ${AsyncPipelineFragmentDoc}
-`;
-
-/**
- * __useGetAsyncPipelinesQuery__
- *
- * To run a query within a React component, call `useGetAsyncPipelinesQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetAsyncPipelinesQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetAsyncPipelinesQuery({
- *   variables: {
- *   },
- * });
- */
-export function useGetAsyncPipelinesQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    GetAsyncPipelinesQuery,
-    GetAsyncPipelinesQueryVariables
-  >
-) {
-  return Apollo.useQuery<
-    GetAsyncPipelinesQuery,
-    GetAsyncPipelinesQueryVariables
-  >(GetAsyncPipelinesDocument, baseOptions);
-}
-export function useGetAsyncPipelinesLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetAsyncPipelinesQuery,
-    GetAsyncPipelinesQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<
-    GetAsyncPipelinesQuery,
-    GetAsyncPipelinesQueryVariables
-  >(GetAsyncPipelinesDocument, baseOptions);
-}
-export type GetAsyncPipelinesQueryHookResult = ReturnType<
-  typeof useGetAsyncPipelinesQuery
->;
-export type GetAsyncPipelinesLazyQueryHookResult = ReturnType<
-  typeof useGetAsyncPipelinesLazyQuery
->;
-export type GetAsyncPipelinesQueryResult = Apollo.QueryResult<
-  GetAsyncPipelinesQuery,
-  GetAsyncPipelinesQueryVariables
 >;
 export const GetCustomersWithMetadataDocument = gql`
   query GetCustomersWithMetadata($date: date) {

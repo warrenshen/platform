@@ -82,6 +82,13 @@ query GetAdvancesByMethodAndPaymentDate($method: String!, $date: date!) {
   ) {
     id
     ...Payment
-    ...PaymentBankAccounts
+    company_bank_account {
+      id
+      ...BankAccount
+    }
+    recipient_bank_account {
+      id
+      ...BankAccount
+    }
   }
 }

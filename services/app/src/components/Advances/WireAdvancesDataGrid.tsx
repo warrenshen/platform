@@ -1,40 +1,45 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import PaymentDrawerLauncher from "components/Payment/PaymentDrawerLauncher";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import {
-  PaymentFragment,
-  PaymentBankAccountsFragment,
-} from "generated/graphql";
+import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
+import { GetAdvancesByMethodAndPaymentDateQuery } from "generated/graphql";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
 function getRows(
-  payments: (PaymentFragment & PaymentBankAccountsFragment)[]
+  payments: GetAdvancesByMethodAndPaymentDateQuery["payments"]
 ): RowsProp {
   return payments.map((payment) => {
+    const bespokeBankAccount = payment.company_bank_account;
+    const recipientBankAccount = payment.recipient_bank_account;
+    const isIntermediaryBankAccount = !!recipientBankAccount?.is_wire_intermediary;
     return {
       ...payment,
+      bespoke_routing_number: bespokeBankAccount?.wire_routing_number,
+      bespoke_account_type: bespokeBankAccount?.account_type,
+      bespoke_account_number: bespokeBankAccount?.account_number,
       currency: "USD",
-      bespoke_bank_type: "ABA",
-      blank_1: "",
-      blank_2: "",
-      bespoke_routing_number: payment.company_bank_account?.routing_number,
-      bespoke_account_number: payment.company_bank_account?.account_number,
-      template_name: payment.recipient_bank_account?.torrey_pines_template_name,
-      recipient_routing_number: payment.recipient_bank_account?.routing_number,
-      recipient_bank_name: payment.recipient_bank_account?.bank_name,
-      recipient_account_number: payment.recipient_bank_account?.account_number,
-      recipient_name: payment.recipient_bank_account?.recipient_name,
-      recipient_address: payment.recipient_bank_account?.recipient_address,
-      recipient_address_2: payment.recipient_bank_account?.recipient_address_2,
-      additional_info_for_recipient: payment.bank_note,
+      recipient_bank_type: "ABA",
+      recipient_routing_number: recipientBankAccount?.routing_number,
+      recipient_bank_name: isIntermediaryBankAccount
+        ? recipientBankAccount?.intermediary_bank_name
+        : recipientBankAccount?.bank_name,
+      recipient_account_number: isIntermediaryBankAccount
+        ? recipientBankAccount?.intermediary_account_number
+        : recipientBankAccount?.account_number,
+      recipient_account_name: isIntermediaryBankAccount
+        ? recipientBankAccount?.intermediary_account_name
+        : recipientBankAccount?.recipient_name,
+      recipient_address: recipientBankAccount?.recipient_address,
+      recipient_address_2: recipientBankAccount?.recipient_address_2,
+      wire_memo: payment.bank_note,
     };
   });
 }
 
 interface Props {
   isExcelExport?: boolean;
-  payments: (PaymentFragment & PaymentBankAccountsFragment)[];
+  payments: GetAdvancesByMethodAndPaymentDateQuery["payments"];
 }
 
 export default function WireAdvancesDataGrid({
@@ -60,19 +65,33 @@ export default function WireAdvancesDataGrid({
         minWidth: ColumnWidths.MinWidth,
       },
       {
-        dataField: "template_name",
-        caption: "Template Name",
+        dataField: "bespoke_routing_number",
+        caption: "Bespoke - Routing Number",
         width: 140,
       },
       {
-        dataField: "bespoke_routing_number",
-        caption: "Bank ID",
+        dataField: "bespoke_account_type",
+        caption: "Bespoke - Account Type",
         width: 140,
       },
       {
         dataField: "bespoke_account_number",
-        caption: "Account",
+        caption: "Bespoke - Account Number",
         width: 140,
+      },
+      {
+        dataField: "amount",
+        caption: "Amount",
+        width: 140,
+      },
+      {
+        dataField: "settlement_date",
+        caption: "Send On Date",
+        width: ColumnWidths.Date,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <DateDataGridCell dateString={params.row.data.settlement_date} />
+        ),
       },
       {
         dataField: "currency",
@@ -80,53 +99,43 @@ export default function WireAdvancesDataGrid({
         width: 140,
       },
       {
-        dataField: "bespoke_bank_type",
+        dataField: "recipient_bank_type",
         caption: "Bank ID Type",
         width: 140,
       },
       {
         dataField: "recipient_routing_number",
-        caption: "Bank ID",
+        caption: "Recipient - Wire Routing Number",
         width: 140,
       },
       {
         dataField: "recipient_bank_name",
-        caption: "Bank Name",
-        width: 140,
-      },
-      {
-        dataField: "blank_1",
-        caption: "",
-        width: 140,
-      },
-      {
-        dataField: "blank_2",
-        caption: "",
+        caption: "Recipient - Bank Name",
         width: 140,
       },
       {
         dataField: "recipient_account_number",
-        caption: "Recipient account",
+        caption: "Recipient - Account Number",
         width: 140,
       },
       {
-        dataField: "recipient_name",
-        caption: "Recipient name",
+        dataField: "recipient_account_name",
+        caption: "Recipient - Account Name",
         width: 140,
       },
       {
         dataField: "recipient_address",
-        caption: "Recipient address",
+        caption: "Recipient - Address 1",
         width: 140,
       },
       {
         dataField: "recipient_address_2",
-        caption: "Recipient address 2",
+        caption: "Recipient - Address 2",
         width: 140,
       },
       {
-        dataField: "additional_info_for_recipient",
-        caption: "Additional information for recipient",
+        dataField: "wire_memo",
+        caption: "Wire Memo",
         width: 140,
       },
     ],
