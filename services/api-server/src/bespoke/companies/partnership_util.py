@@ -10,7 +10,8 @@ from bespoke import errors
 
 ContactDict = TypedDict('ContactDict', {
 	'email': str,
-	'phone_number': str
+	'phone_number': str,
+	'first_name': str
 })
 
 def _users_to_contacts(users: List[models.User]) -> List[ContactDict]:
@@ -20,7 +21,8 @@ def _users_to_contacts(users: List[models.User]) -> List[ContactDict]:
 	return [
 		ContactDict(
 			email=user.email,
-			phone_number=user.phone_number
+			phone_number=user.phone_number,
+			first_name=user.first_name
 		) for user in users
 	]
 

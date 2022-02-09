@@ -323,8 +323,7 @@ class CreatePartnershipView(MethodView):
 
 			if not partner_contacts:
 				raise errors.Error('There are no users configured for this payor or vendor')
-			company_emails = [contact['email'] for contact in partner_contacts]
-
+			
 			contract, err = contract_util.get_active_contract_by_company_id(customer_id, session)
 			if err:
 				raise err
@@ -377,11 +376,13 @@ class CreatePartnershipView(MethodView):
 					'onboarding_link': '<a href="' + docusign_link + '" target="_blank">Bespoke Vendor Onboarding Form</a>',
 					'support_email': '<a href="mailto:support@bespokefinancial.com">support@bespokefinancial.com</a>'
 				}
-			recipients = company_emails
-			_, err = sendgrid_client.send(
-				template_name, template_data, recipients)
-			if err:
-				raise err
+			for contact in partner_contacts:
+				template_data["recipient_first_name"] = contact["first_name"]
+				recipients = [contact['email']]
+				_, err = sendgrid_client.send(
+					template_name, template_data, recipients)
+				if err:
+					raise err
 
 		return make_response(json.dumps({
 			'status': 'OK',
