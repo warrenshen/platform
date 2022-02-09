@@ -86,7 +86,6 @@ query GetActiveLoansForCompany($companyId: uuid!, $loanType: loan_type_enum) {
               { is_deleted: { _eq: false } }
             ]
           }
-          { loan_type: { _eq: $loanType } }
           { closed_at: { _is_null: true } }
         ]
       }
@@ -116,7 +115,6 @@ query GetClosedLoansForCompany($companyId: uuid!, $loanType: loan_type_enum) {
               { is_deleted: { _eq: false } }
             ]
           }
-          { loan_type: { _eq: $loanType } }
           { closed_at: { _is_null: false } }
         ]
       }
