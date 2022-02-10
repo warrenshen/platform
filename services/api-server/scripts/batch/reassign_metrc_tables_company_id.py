@@ -17,6 +17,7 @@ Metrc sales receipt
 
 Why:
 You can run this script when you reassign a license from one company to another and need to reassign the associated company deliveries.
+For example if you moved a license from EMA to EMT, you can run this script for EMT to move over Metrc-related rows to EMT.
 '''
 
 import argparse
@@ -52,12 +53,15 @@ def reassign_table_by_license(
 			print(f'[Page {current_page + 1} offset {offset}] Reassigning {table_name} for license {license_number}...')
 
 			try:
+				# TODO(warrenshen): an order by is necessary / missing here.
 				metrc_table_rows_batch = cast(
 					List[model],
 					session.query(model).filter(
 						model.us_state == us_state
 					).filter(
 						model.license_number == license_number
+					).filter(
+						model.company_id != company_id
 					).offset(
 						current_page * BATCH_SIZE
 					).limit(BATCH_SIZE).all())
