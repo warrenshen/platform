@@ -79,7 +79,12 @@ def upsert_api_key(
 	use_saved_licenses_only: bool,
 	session: Session
 ) -> Tuple[str, errors.Error]:
-
+	"""
+	use_saved_licenses_only
+	- If True, only download Metrc data for licenses that are connected to company in the database.
+	- This is intended to be used in situations where multiple companies share the same Metrc API key,
+	- for example when each company relates to one location.
+	"""
 	company = cast(
 		models.Company,
 		session.query(models.Company).filter(
@@ -95,17 +100,16 @@ def upsert_api_key(
 	hashed_key = security_util.encode_secret_string(
 		security_cfg, api_key, serializer_type=security_util.SerializerType.SERIALIZER
 	)
-	prev_metrc_api_key = cast(
+	existing_metrc_api_key = cast(
 		models.MetrcApiKey,
 		session.query(models.MetrcApiKey).filter(
 			models.MetrcApiKey.hashed_key == hashed_key
 		).first())
 
-	# NOTE: we dont want a duplicate metrc_api_key value even in the case
-	# of a "is_deleted=True" metrc key. This means that the user should
-	# set is_deleted=False to that key which was previously associated with this customer.
-	if prev_metrc_api_key:
-		raise errors.Error(f'Cannot store a duplicate metrc API key that is already registered to company_id="{prev_metrc_api_key.company_id}"')
+	# NOTE: if NOT use_saved_licenses_only, prevent duplicate Metrc API keys,
+	# even in the case where previous key is soft-deleted.
+	if existing_metrc_api_key and str(existing_metrc_api_key.id) != metrc_api_key_id and not use_saved_licenses_only:
+		raise errors.Error(f'Cannot store a duplicate metrc API key that is already registered to company_id="{existing_metrc_api_key.company_id}"')
 
 	if metrc_api_key_id:
 		# The "edit" case
@@ -116,22 +120,21 @@ def upsert_api_key(
 			).first())
 		if not metrc_api_key:
 			raise errors.Error('Previously existing Metrc API Key does not exist in the database')
-		
-		metrc_api_key.us_state = us_state
-		metrc_api_key.use_saved_licenses_only = use_saved_licenses_only
+
 		metrc_api_key.hashed_key = hashed_key
 		metrc_api_key.encrypted_api_key = security_util.encode_secret_string(
 			security_cfg, api_key
 		)
+		metrc_api_key.us_state = us_state
+		metrc_api_key.use_saved_licenses_only = use_saved_licenses_only
+
 		return str(metrc_api_key.id), None
 	else:
 		# The "add" case
 		metrc_api_key = models.MetrcApiKey()
-		metrc_api_key.encrypted_api_key = security_util.encode_secret_string(
-			security_cfg, api_key
-		)
-		metrc_api_key.hashed_key = hashed_key
 		metrc_api_key.company_id = company.id
+		metrc_api_key.hashed_key = hashed_key
+		metrc_api_key.encrypted_api_key = security_util.encode_secret_string(security_cfg, api_key)
 		metrc_api_key.us_state = us_state
 		metrc_api_key.use_saved_licenses_only = use_saved_licenses_only
 		session.add(metrc_api_key)
