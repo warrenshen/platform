@@ -143,6 +143,25 @@ class PurchaseOrderUpsertRequest:
 			purchase_order_metrc_transfers=[PurchaseOrderMetrcTransferItem.from_dict(item) for item in d.get('purchase_order_metrc_transfers', [])]
 		), None
 
+def _check_for_duplicate_purchase_order(
+	request: PurchaseOrderUpsertRequest,
+	session: Session
+) -> errors.Error:
+	duplicate_purchase_order = cast(
+		models.PurchaseOrder,
+		session.query(models.PurchaseOrder).filter(
+			cast(Callable, models.PurchaseOrder.is_deleted.isnot)(True)
+		).filter(
+			models.PurchaseOrder.vendor_id == request.purchase_order.vendor_id
+		).filter(
+			models.PurchaseOrder.order_number == request.purchase_order.order_number
+		).first())
+
+	if duplicate_purchase_order is not None:
+		return errors.Error(f'A purchase order with this vendor and PO number already exists')
+
+	return None
+
 @errors.return_error_tuple
 def create_update_purchase_order(
 	request: PurchaseOrderUpsertRequest,
@@ -167,6 +186,11 @@ def create_update_purchase_order(
 			models.PurchaseOrder,
 			session.query(models.PurchaseOrder).get(request.purchase_order.id))
 
+		if existing_purchase_order.order_number != request.purchase_order.order_number:
+			duplicate_err = _check_for_duplicate_purchase_order(request, session)
+			if duplicate_err:
+				raise duplicate_err
+
 		for field in fields(PurchaseOrderData):
 			value = getattr(request.purchase_order, field.name)
 			setattr(existing_purchase_order, field.name, value)
@@ -174,18 +198,9 @@ def create_update_purchase_order(
 		session.flush()
 		purchase_order = existing_purchase_order
 	else:
-		duplicate_purchase_order = cast(
-			models.PurchaseOrder,
-			session.query(models.PurchaseOrder).filter(
-				cast(Callable, models.PurchaseOrder.is_deleted.isnot)(True)
-			).filter(
-				models.PurchaseOrder.vendor_id == request.purchase_order.vendor_id
-			).filter(
-				models.PurchaseOrder.order_number == request.purchase_order.order_number
-			).first())
-
-		if duplicate_purchase_order is not None:
-			raise errors.Error(f'A purchase order with this vendor and PO number already exists')
+		duplicate_err = _check_for_duplicate_purchase_order(request, session)
+		if duplicate_err:
+			raise duplicate_err
 
 		purchase_order = request.purchase_order.to_model()
 		session.add(purchase_order)
