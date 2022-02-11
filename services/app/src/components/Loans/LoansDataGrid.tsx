@@ -1,4 +1,4 @@
-import { Box, Typography } from "@material-ui/core";
+import { Button, Box, Typography } from "@material-ui/core";
 import CommentIcon from "@material-ui/icons/Comment";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
@@ -13,8 +13,6 @@ import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
-import UpdatePurchaseOrderBankNote from "components/PurchaseOrder/UpdatePurchaseOrderBankNote";
-import ModalButton from "components/Shared/Modal/ModalButton";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import {
   Companies,
@@ -25,6 +23,7 @@ import {
   Loans,
   LoanTypeEnum,
   Maybe,
+  PurchaseOrders,
   RequestStatusEnum,
 } from "generated/graphql";
 import {
@@ -67,6 +66,9 @@ interface Props {
   actionItems?: DataGridActionItem[];
   selectedLoanIds?: Loans["id"][];
   handleClickCustomer?: (customerId: Companies["id"]) => void;
+  handleClickPurchaseOrderBankNote?: (
+    purchaseOrderId: PurchaseOrders["id"]
+  ) => void;
   handleSelectLoans?: (loans: LoanFragment[]) => void;
 }
 
@@ -130,6 +132,7 @@ export default function LoansDataGrid({
   actionItems,
   selectedLoanIds,
   handleClickCustomer,
+  handleClickPurchaseOrderBankNote,
   handleSelectLoans,
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
@@ -340,29 +343,29 @@ export default function LoansDataGrid({
         width: 340,
         cellRender: (params: ValueFormatterParams) =>
           params.row.data.artifact_bank_note !== "N/A" ? (
-            <ModalButton
-              label={
-                <Box display="flex" alignItems="center">
-                  <CommentIcon />
-                  {!!params.row.data.artifact_bank_note && (
-                    <Box ml={1}>
-                      <Typography variant="body2">
-                        {params.row.data.artifact_bank_note}
-                      </Typography>
-                    </Box>
-                  )}
-                </Box>
-              }
+            <Button
               color="default"
-              textAlign="left"
               variant="text"
-              modal={({ handleClose }) => (
-                <UpdatePurchaseOrderBankNote
-                  purchaseOrderId={params.row.data.artifact_id}
-                  handleClose={handleClose}
-                />
-              )}
-            />
+              style={{
+                minWidth: 0,
+                textAlign: "left",
+              }}
+              onClick={() =>
+                !!handleClickPurchaseOrderBankNote &&
+                handleClickPurchaseOrderBankNote(params.row.data.artifact_id)
+              }
+            >
+              <Box display="flex" alignItems="center">
+                <CommentIcon />
+                {!!params.row.data.bank_note && (
+                  <Box ml={1}>
+                    <Typography variant="body2">
+                      {params.row.data.bank_note}
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
+            </Button>
           ) : (
             params.row.data.artifact_bank_note
           ),
@@ -498,7 +501,9 @@ export default function LoansDataGrid({
       isReportingVisible,
       isStatusVisible,
       actionItems,
+      partnerType,
       handleClickCustomer,
+      handleClickPurchaseOrderBankNote,
     ]
   );
 

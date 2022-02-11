@@ -47,7 +47,7 @@ interface Props {
   handleClose: () => void;
 }
 
-export default function UpdatePurchaseOrderBankNote({
+export default function UpdatePurchaseOrderBankNoteModal({
   purchaseOrderId,
   handleClose,
 }: Props) {

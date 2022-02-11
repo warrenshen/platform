@@ -5,13 +5,12 @@ import {
   MenuItem,
   Select,
 } from "@material-ui/core";
-import LoansDataGrid from "components/Loans/LoansDataGrid";
+import BankLoansDataGrid from "components/Loans/BankLoansDataGrid";
 import { useGetFundedLoansForBankSubscription } from "generated/graphql";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
-import { PartnerEnum } from "lib/enum";
 
 const Container = styled.div`
   display: flex;
@@ -77,14 +76,7 @@ export default function BankLoansMaturingSoonTab() {
         </FormControl>
       </Box>
       <Box display="flex" flexDirection="column">
-        <LoansDataGrid
-          isArtifactVisible
-          isCompanyVisible
-          isDisbursementIdentifierVisible
-          isFilteringEnabled
-          isMaturityVisible
-          isReportingVisible
-          partnerType={PartnerEnum.BOTH}
+        <BankLoansDataGrid
           loans={maturingLoans}
           matureDays={matureDays}
           handleClickCustomer={(customerId) =>

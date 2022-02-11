@@ -1,6 +1,6 @@
 import { Box, TextField } from "@material-ui/core";
+import BankPurchaseOrdersDataGrid from "components/PurchaseOrder/BankPurchaseOrdersDataGrid";
 import DeletePurchaseOrderModal from "components/PurchaseOrder/DeletePurchaseOrderModal";
-import PurchaseOrdersDataGrid from "components/PurchaseOrder/PurchaseOrdersDataGrid";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
@@ -101,10 +101,7 @@ export default function BankPurchaseOrdersAllTab() {
         </Box>
       </Box>
       <Box display="flex" flexDirection="column">
-        <PurchaseOrdersDataGrid
-          isBankNoteVisible
-          isCompanyVisible
-          isCustomerNoteVisible={false}
+        <BankPurchaseOrdersDataGrid
           purchaseOrders={purchaseOrders}
           selectedPurchaseOrderIds={selectedPurchaseOrderIds}
           handleClickCustomer={(customerId) =>

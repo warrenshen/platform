@@ -1,8 +1,7 @@
-import { Box, Typography } from "@material-ui/core";
+import { Button, Box, Typography } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import CommentIcon from "@material-ui/icons/Comment";
 import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
-import UpdatePurchaseOrderBankNote from "components/PurchaseOrder/UpdatePurchaseOrderBankNote";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
@@ -13,7 +12,6 @@ import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
-import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   Companies,
   PurchaseOrderFragment,
@@ -49,6 +47,9 @@ interface Props {
   actionItems?: DataGridActionItem[];
   selectedPurchaseOrderIds?: PurchaseOrders["id"][];
   handleClickCustomer?: (customerId: Companies["id"]) => void;
+  handleClickPurchaseOrderBankNote?: (
+    purchaseOrderId: PurchaseOrders["id"]
+  ) => void;
   handleSelectPurchaseOrders?: (
     purchaseOrders: PurchaseOrderFragment[]
   ) => void;
@@ -66,6 +67,7 @@ export default function PurchaseOrdersDataGrid({
   actionItems,
   selectedPurchaseOrderIds,
   handleClickCustomer,
+  handleClickPurchaseOrderBankNote,
   handleSelectPurchaseOrders,
 }: Props) {
   const rows = getRows(purchaseOrders);
@@ -183,29 +185,29 @@ export default function PurchaseOrdersDataGrid({
         dataField: "bank_note",
         width: 340,
         cellRender: (params: ValueFormatterParams) => (
-          <ModalButton
-            label={
-              <Box display="flex" alignItems="center">
-                <CommentIcon />
-                {!!params.row.data.bank_note && (
-                  <Box ml={1}>
-                    <Typography variant="body2">
-                      {params.row.data.bank_note}
-                    </Typography>
-                  </Box>
-                )}
-              </Box>
-            }
+          <Button
             color="default"
-            textAlign="left"
             variant="text"
-            modal={({ handleClose }) => (
-              <UpdatePurchaseOrderBankNote
-                purchaseOrderId={params.row.data.id}
-                handleClose={handleClose}
-              />
-            )}
-          />
+            style={{
+              minWidth: 0,
+              textAlign: "left",
+            }}
+            onClick={() =>
+              !!handleClickPurchaseOrderBankNote &&
+              handleClickPurchaseOrderBankNote(params.row.data.id)
+            }
+          >
+            <Box display="flex" alignItems="center">
+              <CommentIcon />
+              {!!params.row.data.bank_note && (
+                <Box ml={1}>
+                  <Typography variant="body2">
+                    {params.row.data.bank_note}
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+          </Button>
         ),
       },
     ],
@@ -217,6 +219,7 @@ export default function PurchaseOrdersDataGrid({
       isDeliveryDateVisible,
       actionItems,
       handleClickCustomer,
+      handleClickPurchaseOrderBankNote,
     ]
   );
 

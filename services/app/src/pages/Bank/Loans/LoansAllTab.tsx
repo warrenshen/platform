@@ -1,10 +1,9 @@
 import { Box } from "@material-ui/core";
-import LoansDataGrid from "components/Loans/LoansDataGrid";
+import BankLoansDataGrid from "components/Loans/BankLoansDataGrid";
 import { useGetLoansForBankSubscription } from "generated/graphql";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
-import { PartnerEnum } from "lib/enum";
 
 const Container = styled.div`
   display: flex;
@@ -30,15 +29,7 @@ export default function BankLoansAllTab() {
   return (
     <Container>
       <Box display="flex" flexDirection="column">
-        <LoansDataGrid
-          isArtifactVisible
-          isArtifactBankNoteVisible
-          isCompanyVisible
-          isDisbursementIdentifierVisible
-          isFilteringEnabled
-          isMaturityVisible
-          isReportingVisible
-          partnerType={PartnerEnum.BOTH}
+        <BankLoansDataGrid
           loans={loans}
           handleClickCustomer={(customerId) =>
             history.push(

@@ -1,11 +1,10 @@
 import { Box } from "@material-ui/core";
-import LoansDataGrid from "components/Loans/LoansDataGrid";
+import BankLoansDataGrid from "components/Loans/BankLoansDataGrid";
 import { useGetFundedLoansForBankSubscription } from "generated/graphql";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useMemo } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
-import { PartnerEnum } from "lib/enum";
 
 const Container = styled.div`
   display: flex;
@@ -40,15 +39,7 @@ export default function BankLoansPastDueTab() {
   return (
     <Container>
       <Box display="flex" flexDirection="column">
-        <LoansDataGrid
-          isArtifactVisible
-          isCompanyVisible
-          isDaysPastDueVisible
-          isDisbursementIdentifierVisible
-          isFilteringEnabled
-          isMaturityVisible
-          isReportingVisible
-          partnerType={PartnerEnum.BOTH}
+        <BankLoansDataGrid
           loans={pastDueLoans}
           handleClickCustomer={(customerId) =>
             history.push(

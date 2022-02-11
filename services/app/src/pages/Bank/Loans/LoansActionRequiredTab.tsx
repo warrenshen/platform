@@ -1,8 +1,8 @@
 import { Box, Button } from "@material-ui/core";
+import BankLoansDataGrid from "components/Loans/BankLoansDataGrid";
 import CreateAdvanceModal from "components/Advance/CreateAdvanceModal";
 import DeleteLoanModal from "components/Loan/DeleteLoanModal";
 import ReviewLoanRejectModal from "components/Loan/ReviewLoanRejectModal";
-import LoansDataGrid from "components/Loans/LoansDataGrid";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
@@ -19,7 +19,6 @@ import { LoanStatusEnum } from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useContext, useMemo, useState } from "react";
 import styled from "styled-components";
-import { PartnerEnum } from "lib/enum";
 
 const Container = styled.div`
   display: flex;
@@ -177,14 +176,8 @@ export default function BankLoansActionRequiredTab() {
         )}
       </Box>
       <Box display="flex" flexDirection="column">
-        <LoansDataGrid
-          isArtifactVisible
-          isArtifactBankNoteVisible
-          isCompanyVisible
-          isMaturityVisible={false}
+        <BankLoansDataGrid
           isMultiSelectEnabled={check(role, Action.SelectLoan)}
-          isFilteringEnabled
-          partnerType={PartnerEnum.BOTH}
           loans={loans}
           selectedLoanIds={selectedLoanIds}
           handleClickCustomer={(customerId) =>

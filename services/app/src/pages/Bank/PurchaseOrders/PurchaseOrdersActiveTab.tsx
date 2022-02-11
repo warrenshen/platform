@@ -1,7 +1,7 @@
 import { Box, TextField } from "@material-ui/core";
 import ApprovePurchaseOrderModal from "components/PurchaseOrder/ApprovePurchaseOrderModal";
+import BankPurchaseOrdersDataGrid from "components/PurchaseOrder/BankPurchaseOrdersDataGrid";
 import DeletePurchaseOrderModal from "components/PurchaseOrder/DeletePurchaseOrderModal";
-import PurchaseOrdersDataGrid from "components/PurchaseOrder/PurchaseOrdersDataGrid";
 import RejectPurchaseOrderModal from "components/PurchaseOrder/RejectPurchaseOrderModal";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
@@ -141,12 +141,7 @@ export default function BankPurchaseOrdersActiveTab() {
         </Box>
       </Box>
       <Box display="flex" flexDirection="column">
-        <PurchaseOrdersDataGrid
-          isApprovedByVendor={false}
-          isBankNoteVisible
-          isCompanyVisible
-          isCustomerNoteVisible={false}
-          isMultiSelectEnabled
+        <BankPurchaseOrdersDataGrid
           purchaseOrders={purchaseOrders}
           selectedPurchaseOrderIds={selectedPurchaseOrderIds}
           handleClickCustomer={(customerId) =>
