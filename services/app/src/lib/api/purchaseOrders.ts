@@ -187,3 +187,51 @@ export async function deletePurchaseOrderMutation(
       }
     );
 }
+
+export type ClosePurchaseOrderReq = {
+  variables: {
+    purchase_order_id: PurchaseOrders["id"];
+  };
+};
+
+export async function closePurchaseOrderMutation(
+  req: ClosePurchaseOrderReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(purchaseOrdersRoutes.close, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not close purchase order",
+        };
+      }
+    );
+}
+
+export type ReopenPurchaseOrderReq = {
+  variables: {
+    purchase_order_id: PurchaseOrders["id"];
+  };
+};
+
+export async function reopenPurchaseOrderMutation(
+  req: ReopenPurchaseOrderReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(purchaseOrdersRoutes.reopen, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not reopen purchase order",
+        };
+      }
+    );
+}

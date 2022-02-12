@@ -7,6 +7,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
+import ClosePurchaseOrderModal from "components/PurchaseOrder/ClosePurchaseOrderModal";
 import CreateMultiplePurchaseOrdersLoansModal from "components/Loan/CreateMultiplePurchaseOrdersLoansModal";
 import CreateUpdatePurchaseOrderLoanModal from "components/Loan/CreateUpdatePurchaseOrderLoanModal";
 import CreateUpdatePurchaseOrderModal from "components/PurchaseOrder/CreateUpdatePurchaseOrderModal";
@@ -329,6 +330,25 @@ export default function CustomerPurchaseOrdersOpenTab({
                       companyId={companyId}
                       purchaseOrderId={selectedApprovedPurchaseOrder?.id}
                       productType={productType}
+                      handleClose={() => {
+                        refetch();
+                        handleClose();
+                        setSelectedApprovedPurchaseOrderIds([]);
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+            </Can>
+            <Can perform={Action.ClosePurchaseOrders}>
+              <Box mr={2}>
+                <ModalButton
+                  isDisabled={!selectedApprovedPurchaseOrder}
+                  label={"Close PO"}
+                  variant={"outlined"}
+                  modal={({ handleClose }) => (
+                    <ClosePurchaseOrderModal
+                      purchaseOrder={selectedApprovedPurchaseOrder || null}
                       handleClose={() => {
                         refetch();
                         handleClose();

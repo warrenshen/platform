@@ -84,6 +84,7 @@ query GetOpenPurchaseOrdersByCompanyId($company_id: uuid!) {
         }
         { company_id: { _eq: $company_id } }
         { funded_at: { _is_null: true } }
+        { closed_at: { _is_null: true } }
       ]
     }
   ) {
@@ -102,7 +103,12 @@ query GetClosedPurchaseOrdersByCompanyId($company_id: uuid!) {
           ]
         }
         { company_id: { _eq: $company_id } }
-        { funded_at: { _is_null: false } }
+        {
+          _or: [
+            { closed_at: { _is_null: false } }
+            { funded_at: { _is_null: false } }
+          ]
+        }
       ]
     }
   ) {

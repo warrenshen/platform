@@ -72,6 +72,8 @@ export const purchaseOrdersRoutes = {
   respondToApprovalRequest: "/purchase_orders/respond_to_approval_request",
   updateBankFields: "/purchase_orders/update_bank_fields",
   delete: "/purchase_orders/delete",
+  close: "/purchase_orders/close",
+  reopen: "/purchase_orders/reopen",
 };
 
 export const invoicesRoutes = {

@@ -1,5 +1,6 @@
 import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
 import CreateUpdatePurchaseOrderModal from "components/PurchaseOrder/CreateUpdatePurchaseOrderModal";
+import ReopenPurchaseOrderModal from "components/PurchaseOrder/ReopenPurchaseOrderModal";
 import PurchaseOrdersDataGrid from "components/PurchaseOrder/PurchaseOrdersDataGrid";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
@@ -99,6 +100,25 @@ export default function CustomerPurchaseOrdersClosedTab({
                       companyId={companyId}
                       purchaseOrderId={selectedPurchaseOrder?.id}
                       productType={productType}
+                      handleClose={() => {
+                        refetch();
+                        handleClose();
+                        setSelectedPurchaseOrderIds([]);
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+            </Can>
+            <Can perform={Action.ReopenPurchaseOrders}>
+              <Box mr={2}>
+                <ModalButton
+                  isDisabled={!selectedPurchaseOrder}
+                  label={"Reopen PO"}
+                  variant={"outlined"}
+                  modal={({ handleClose }) => (
+                    <ReopenPurchaseOrderModal
+                      purchaseOrder={selectedPurchaseOrder || null}
                       handleClose={() => {
                         refetch();
                         handleClose();

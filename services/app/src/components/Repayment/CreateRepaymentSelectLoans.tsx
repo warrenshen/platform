@@ -17,10 +17,7 @@ import {
   FinancialSummaryFragment,
   PaymentsInsertInput,
 } from "generated/graphql";
-import {
-  computeRequestedWithdrawCutoffDate,
-  todayAsDateStringServer,
-} from "lib/date";
+import { computeRequestedWithdrawCutoffDate } from "lib/date";
 import {
   AllPaymentMethods,
   PaymentMethodEnum,

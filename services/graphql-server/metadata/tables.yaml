@@ -4395,6 +4395,7 @@
       - status
       - updated_at
       - vendor_id
+      - closed_at
       filter: {}
   - role: bank_read_only
     permission:
@@ -4421,6 +4422,7 @@
       - status
       - updated_at
       - vendor_id
+      - closed_at
       filter: {}
   - role: company_admin
     permission:
@@ -4445,6 +4447,7 @@
       - status
       - updated_at
       - vendor_id
+      - closed_at
       filter:
         _or:
         - company_id:
@@ -4474,6 +4477,7 @@
       - status
       - updated_at
       - vendor_id
+      - closed_at
       filter:
         _or:
         - company_id:
@@ -4500,6 +4504,7 @@
       - status
       - updated_at
       - vendor_id
+      - closed_at
       filter:
         vendor_id:
           _eq: X-Hasura-Company-Id

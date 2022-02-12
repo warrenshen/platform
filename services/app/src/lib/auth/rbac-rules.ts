@@ -38,6 +38,8 @@ export enum Action {
   DeletePurchaseOrders = "purchase-orders:delete",
   FundPurchaseOrders = "purchase-orders:fund",
   ViewPurchaseOrdersActionMenu = "purchase-orders:view-action-menu",
+  ClosePurchaseOrders = "purchase-orders:close",
+  ReopenPurchaseOrders = "purchase-orders:reopen",
 
   // Purchase Order Loans
   AddPurchaseOrderLoan = "purchase-order-loan:add",
@@ -172,6 +174,8 @@ const rules: Rules = {
       Action.EditPurchaseOrders,
       Action.DeletePurchaseOrders,
       Action.FundPurchaseOrders,
+      Action.ClosePurchaseOrders,
+      Action.ReopenPurchaseOrders,
 
       Action.AddInvoices,
       Action.ApproveInvoices,
@@ -241,6 +245,8 @@ const rules: Rules = {
       Action.EditPurchaseOrders,
       Action.DeletePurchaseOrders,
       Action.FundPurchaseOrders,
+      Action.ClosePurchaseOrders,
+      Action.ReopenPurchaseOrders,
 
       Action.AddInvoices,
       Action.EditInvoices,

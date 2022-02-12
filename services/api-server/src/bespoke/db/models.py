@@ -730,6 +730,7 @@ class PurchaseOrder(Artifact):
 	is_metrc_based = Column(Boolean)
 	customer_note = Column(Text)
 	bank_note = Column(Text)
+	closed_at = Column(DateTime)
 
 	vendor = relationship(
 		'Company',

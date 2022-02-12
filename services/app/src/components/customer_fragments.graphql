@@ -108,6 +108,7 @@ fragment PurchaseOrderLimited on purchase_orders {
   requested_at
   approved_at
   funded_at
+  closed_at
   company {
     id
     ...CompanyLimited

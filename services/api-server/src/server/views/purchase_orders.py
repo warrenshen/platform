@@ -427,6 +427,75 @@ class DeleteView(MethodView):
 			'msg': 'Purchase Order {} deleted'.format(purchase_order_id)
 		}), 200)
 
+class CloseView(MethodView):
+	decorators = [auth_util.login_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		data = json.loads(request.data)
+		if not data:
+			raise errors.Error('No data provided')
+
+		purchase_order_id = data['purchase_order_id']
+
+		if not purchase_order_id:
+			raise errors.Error('No Purchase Order ID provided')
+
+		user_session = auth_util.UserSession.from_session()
+
+		with session_scope(current_app.session_maker) as session:
+			purchase_order = cast(
+				models.PurchaseOrder,
+				session.query(models.PurchaseOrder).filter_by(
+					id=purchase_order_id
+				).first())
+
+			if not user_session.is_bank_or_this_company_admin(str(purchase_order.company_id)):
+				return handler_util.make_error_response('Access Denied')
+
+			purchase_order.closed_at = date_util.now()
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Purchase Order {} closed'.format(purchase_order_id)
+		}), 200)
+
+class ReopenView(MethodView):
+	decorators = [auth_util.login_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		data = json.loads(request.data)
+		if not data:
+			raise errors.Error('No data provided')
+
+		purchase_order_id = data['purchase_order_id']
+
+		if not purchase_order_id:
+			raise errors.Error('No Purchase Order ID provided')
+
+		user_session = auth_util.UserSession.from_session()
+
+		with session_scope(current_app.session_maker) as session:
+			purchase_order = cast(
+				models.PurchaseOrder,
+				session.query(models.PurchaseOrder).filter_by(
+					id=purchase_order_id
+				).first())
+
+			if not user_session.is_bank_or_this_company_admin(str(purchase_order.company_id)):
+				return handler_util.make_error_response('Access Denied')
+
+			if purchase_order.funded_at is not None:
+				return handler_util.make_error_response('Cannot reopen a fully funded purchase order')
+
+			purchase_order.closed_at = None
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Purchase Order {} reopened'.format(purchase_order_id)
+		}), 200)
+
 handler.add_url_rule(
 	'/create_update_as_draft',
 	view_func=CreateUpdateAsDraftView.as_view(
@@ -465,4 +534,14 @@ handler.add_url_rule(
 handler.add_url_rule(
 	'/delete',
 	view_func=DeleteView.as_view(name='delete')
+)
+
+handler.add_url_rule(
+	'/close',
+	view_func=CloseView.as_view(name='close')
+)
+
+handler.add_url_rule(
+	'/reopen',
+	view_func=ReopenView.as_view(name='reopen')
 )
