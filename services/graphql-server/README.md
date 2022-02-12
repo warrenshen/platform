@@ -62,6 +62,22 @@ hasura migrate apply --admin-secret=myadminsecretkey
 hasura metadata apply --admin-secret=myadminsecretkey
 ```
 
+Sometimes you will need to manually reapply migrations or cleanup dead migrations. This is especially true on an M1 Macbook. To determine if you need to do this, run `hasura migrate status --admin-secret=myadminsecretkey`.
+
+In your migrate status results, check to see if you have `SOURCE STATUS` as Present and `DATABASE STATUS` as Not Present. If that is true and you can see the component of the migration in your console, then you should use the command below.
+
+```bash
+hasura migrate apply --version <number from hasura status> --type up --skip-execution --admin-secret=myadminsecretkey
+```
+
+ If you made a change in hasura console but then backed it out (e.g. add a column, delete a column) it may leave a migration entry with `NAME` of "-" and a `SOURCE STATUS` as Not Present and `DATABASE STATUS` as Present. In that case, run the following steps:
+
+```bash
+mkdir <root>/services/graphql-server/migrations/<number from hasura status>_dummy
+# in that directory make a down.sql file with a dummy query, e.g. "select * from users limit 1;"
+hasura migrate apply --version 1644519103585 --type down --skip-execution --admin-secret=myadminsecretkey
+```
+
 ## GraphQL Code Generation
 
 Repeatedly generate GraphQL Apollo React hooks:
