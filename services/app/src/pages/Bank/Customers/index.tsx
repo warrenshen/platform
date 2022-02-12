@@ -8,6 +8,7 @@ import KickoffMonthlySummaryEmailsModal from "components/Reports/KickoffMonthlyS
 import Can from "components/Shared/Can";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
+import PercentageDataGridCell from "components/Shared/DataGrid/PercentageDataGridCell";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
@@ -56,6 +57,11 @@ function getRows(
       ? company.financial_summaries[company.financial_summaries.length - 1]
           ?.account_level_balance_payload?.fees_total
       : null,
+    daily_interest_rate: !!company.contract
+      ? company.contract.product_config.v1.fields.find(
+          (field: any) => field.internal_name === "factoring_fee_percentage"
+        )?.value * 100
+      : 0,
   }));
 }
 
@@ -152,6 +158,15 @@ export default function BankCustomersPage() {
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.application_date} />
+        ),
+      },
+      {
+        dataField: "daily_interest_rate",
+        caption: "Daily Interest Rate",
+        minWidth: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <PercentageDataGridCell value={params.row.data.daily_interest_rate} />
         ),
       },
       {
