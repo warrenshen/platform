@@ -357,10 +357,10 @@ export default function LoansDataGrid({
             >
               <Box display="flex" alignItems="center">
                 <CommentIcon />
-                {!!params.row.data.bank_note && (
+                {!!params.row.data.artifact_bank_note && (
                   <Box ml={1}>
                     <Typography variant="body2">
-                      {params.row.data.bank_note}
+                      {params.row.data.artifact_bank_note}
                     </Typography>
                   </Box>
                 )}
