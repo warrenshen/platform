@@ -113,6 +113,7 @@ export default function BankPurchaseOrdersClosedTab() {
             )
           }
           handleSelectPurchaseOrders={handleSelectPurchaseOrders}
+          isApprovedByVendor={true}
         />
       </Box>
     </Box>

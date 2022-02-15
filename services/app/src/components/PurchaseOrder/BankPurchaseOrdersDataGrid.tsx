@@ -15,6 +15,7 @@ interface Props {
   handleSelectPurchaseOrders?: (
     purchaseOrders: PurchaseOrderFragment[]
   ) => void;
+  isApprovedByVendor: boolean;
 }
 
 export default function BankPurchaseOrdersDataGrid({
@@ -22,6 +23,7 @@ export default function BankPurchaseOrdersDataGrid({
   selectedPurchaseOrderIds,
   handleClickCustomer,
   handleSelectPurchaseOrders,
+  isApprovedByVendor,
 }: Props) {
   const [selectedPurchaseOrderId, setSelectedPurchaseOrderId] = useState(null);
 
@@ -34,7 +36,7 @@ export default function BankPurchaseOrdersDataGrid({
         />
       )}
       <PurchaseOrdersDataGrid
-        isApprovedByVendor={false}
+        isApprovedByVendor={isApprovedByVendor}
         isBankNoteVisible
         isCompanyVisible
         isCustomerNoteVisible={false}

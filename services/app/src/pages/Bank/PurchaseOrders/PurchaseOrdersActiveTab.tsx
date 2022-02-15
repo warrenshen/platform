@@ -153,6 +153,7 @@ export default function BankPurchaseOrdersActiveTab() {
             )
           }
           handleSelectPurchaseOrders={handleSelectPurchaseOrders}
+          isApprovedByVendor={false}
         />
       </Box>
     </Box>
