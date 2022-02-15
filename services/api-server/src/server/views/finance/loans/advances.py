@@ -113,7 +113,7 @@ def _send_bank_created_advances_emails(
 			# Step 2
 			# Email appropriate vendor(s).
 			# Vendors do NOT receive advances for the INVOICE_FINANCING product type.
-			if product_type in [ProductType.INVENTORY_FINANCING, ProductType.PURCHASE_MONEY_FINANCING]:
+			if product_type in [ProductType.INVENTORY_FINANCING, ProductType.PURCHASE_MONEY_FINANCING, ProductType.DISPENSARY_FINANCING]:
 				# Email each vendor who received an advance.
 				for loan in customer_loans:
 					purchase_order = cast(
