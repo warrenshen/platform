@@ -1001,6 +1001,7 @@ class LoanReport(Base):
 	total_fees_paid = Column(Numeric)
 	financing_period = Column(Integer)
 	financing_day_limit = Column(Integer)
+	debt_facility_status = Column(Text)
 
 class BankFinancialSummary(Base):
 	__tablename__ = 'bank_financial_summaries'
