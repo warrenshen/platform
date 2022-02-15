@@ -197,8 +197,11 @@ class CompanyLicense(Base):
 	license_status = Column(Text)
 	license_category = Column(Text)
 	license_description = Column(Text)
-	us_state = Column(Text)
 	expiration_date = Column(Date)
+	us_state = Column(Text)
+	estimate_zip = Column(Text)
+	estimate_latitude = Column(Numeric(precision=9, scale=7))
+	estimate_longitude = Column(Numeric(precision=10, scale=7))
 
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)

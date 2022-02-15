@@ -1,3 +1,4 @@
+import decimal
 import logging
 
 from typing import Any, Callable, Dict, List, Tuple, cast
@@ -26,8 +27,11 @@ CompanyLicenseInsertInputDict = TypedDict('CompanyLicenseInsertInputDict', {
 	'license_status': str,
 	'license_category': str,
 	'license_description': str,
-	'us_state': str,
 	'expiration_date': str,
+	'us_state': str,
+	'estimate_zip': str,
+	'estimate_latitude': float,
+	'estimate_longitude': float,
 }, total=False)
 
 LicenseModificationDict = TypedDict('LicenseModificationDict', {
@@ -63,7 +67,8 @@ def add_licenses(
 
 def _update_license(
 	existing: models.CompanyLicense, 
-	license_input: CompanyLicenseInsertInputDict) -> str:
+	license_input: CompanyLicenseInsertInputDict,
+) -> str:
 	l = license_input
 	if l.get('company_id'):
 		existing.company_id = cast(Any, l['company_id'])
@@ -79,10 +84,16 @@ def _update_license(
 		existing.license_category = l['license_category']
 	if l.get('license_description'):
 		existing.license_description = l['license_description']
-	if l.get('us_state'):
-		existing.us_state = l['us_state']
 	if l.get('expiration_date'):
 		existing.expiration_date = date_util.load_date_str(l['expiration_date'])
+	if l.get('us_state'):
+		existing.us_state = l['us_state']
+	if l.get('estimate_zip'):
+		existing.estimate_zip = l['estimate_zip']
+	if l.get('estimate_latitude'):
+		existing.estimate_latitude = decimal.Decimal(l['estimate_latitude'])
+	if l.get('estimate_longitude'):
+		existing.estimate_longitude = decimal.Decimal(l['estimate_longitude'])
 	if l.get('file_id'):
 		existing.file_id = cast(Any, l.get('file_id'))
 
@@ -102,9 +113,15 @@ def _add_license(license_input: CompanyLicenseInsertInputDict, session: Session)
 	license.license_status = l.get('license_status')
 	license.license_category = l.get('license_category')
 	license.license_description = l.get('license_description')
-	license.us_state = l.get('us_state')
 	if l.get('expiration_date'):
 		license.expiration_date = date_util.load_date_str(l['expiration_date'])
+	license.us_state = l.get('us_state')
+	if l.get('estimate_zip'):
+		license.estimate_zip = l.get('estimate_zip')
+	if l.get('estimate_latitude'):
+		license.estimate_latitude = decimal.Decimal(l.get('estimate_latitude'))
+	if l.get('estimate_longitude'):
+		license.estimate_longitude = decimal.Decimal(l.get('estimate_longitude'))
 
 	session.add(license)
 	session.flush()
@@ -352,8 +369,8 @@ def _update_matching_transfers_and_deliveries(
 	matching_transfers: List[models.MetrcTransfer], 
 	matching_deliveries: List[models.MetrcDelivery],
 	matching_company_deliveries: List[models.CompanyDelivery],
-	session: Session) -> None:
-
+	session: Session,
+) -> None:
 	company_delivery_objs = _get_company_delivery_objs(
 		matching_transfers, matching_deliveries, matching_company_deliveries)
 	populate_vendor_details(company_delivery_objs, session)

@@ -381,8 +381,9 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 						license_status='status1',
 						license_category='processor',
 						license_description='desc1',
-						us_state='CA',
 						expiration_date='01/05/2020',
+						us_state='CA',
+						estimate_zip='95014',
 					),
 					CompanyLicenseInsertInputDict(
 						company_id=company_id,
@@ -393,8 +394,8 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 						license_status='status2',
 						license_category='retailer',
 						license_description='desc2',
-						us_state='OR',
 						expiration_date='01/06/2020',
+						us_state='OR',
 					),
 					CompanyLicenseInsertInputDict(
 						company_id=None,
@@ -405,8 +406,11 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 						license_status='status3',
 						license_category='retailer',
 						license_description=None,
-						us_state='CA',
 						expiration_date=None,
+						us_state='CA',
+						estimate_zip='94025',
+						estimate_latitude=37.452961,
+						estimate_longitude=-122.181725,
 					)
 				],
 				session=session
@@ -423,8 +427,9 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 				license_status='status1',
 				license_category='processor',
 				license_description='desc1',
-				us_state='CA',
 				expiration_date='01/05/2020',
+				us_state='CA',
+				estimate_zip='95014',
 			),
 			dict(
 				company_id=company_id,
@@ -435,8 +440,8 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 				license_status='status2',
 				license_category='retailer',
 				license_description='desc2',
-				us_state='OR',
 				expiration_date='01/06/2020',
+				us_state='OR',
 			),
 			dict(
 				company_id=None,
@@ -447,14 +452,18 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 				license_status='status3',
 				license_category='retailer',
 				license_description=None,
-				us_state='CA',
 				expiration_date=None,
+				us_state='CA',
+				estimate_zip='94025',
+				estimate_latitude=37.452961,
+				estimate_longitude=-122.181725,
 			),
 		]
 
 		with session_scope(session_maker) as session:
 			licenses = session.query(models.CompanyLicense).order_by(
-				models.CompanyLicense.created_at).all()
+				models.CompanyLicense.created_at
+			).all()
 			self.assertEqual(len(expected_licenses), len(licenses))
 
 			for i in range(len(expected_licenses)):
@@ -470,5 +479,14 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 				self.assertEqual(exp['license_status'], actual.license_status)
 				self.assertEqual(exp['license_category'], actual.license_category)
 				self.assertEqual(exp['license_description'], actual.license_description)
-				self.assertEqual(exp['us_state'], actual.us_state)
 				self.assertEqual(exp['expiration_date'], date_util.date_to_str(actual.expiration_date) if actual.expiration_date else None)
+				self.assertEqual(exp['us_state'], actual.us_state)
+				self.assertEqual(exp['estimate_zip'] if 'estimate_zip' in exp else None, actual.estimate_zip)
+				self.assertEqual(
+					exp['estimate_latitude'] if 'estimate_latitude' in exp else None,
+					float(actual.estimate_latitude) if actual.estimate_latitude else None
+				)
+				self.assertEqual(
+					exp['estimate_longitude'] if 'estimate_longitude' in exp else None,
+					float(actual.estimate_longitude) if actual.estimate_longitude else None
+				)

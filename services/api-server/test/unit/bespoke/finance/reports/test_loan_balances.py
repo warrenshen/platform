@@ -884,6 +884,155 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			self._run_test(test)
 			i += 1
 
+	def test_success_repayment_after_report_date(self) -> None:
+		# Shows that the repayment that crosses over the month boundary works
+		# when we've paid off the entire loan
+
+		def get_populate_fn(threshold_starting_value: float) -> Callable:
+
+			def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+				session.add(models.Contract(
+					company_id=company_id,
+					product_type=ProductType.INVENTORY_FINANCING,
+					product_config=contract_test_helper.create_contract_config(
+						product_type=ProductType.INVENTORY_FINANCING,
+						input_dict=ContractInputDict(
+							interest_rate=0.05,
+							maximum_principal_amount=100000,
+							minimum_monthly_amount=200,
+							# factoring_fee_threshold=1000.0,
+							# factoring_fee_threshold_starting_value=threshold_starting_value,
+							# adjusted_factoring_fee_percentage=0.01, # reduced rate once you hit 1000 in principal owed
+							max_days_until_repayment=0, # unused
+							late_fee_structure=_get_late_fee_structure(), # unused
+						)
+					),
+					start_date=date_util.load_date_str('1/1/2020'),
+					adjusted_end_date=date_util.load_date_str('12/30/2020')
+				))
+				loan = models.Loan(
+					company_id=company_id,
+					origination_date=date_util.load_date_str('10/21/2020'),
+					adjusted_maturity_date=date_util.load_date_str('10/30/2020'),
+					amount=decimal.Decimal(500.03)
+				)
+				session.add(loan)
+				payment_test_helper.make_advance(
+					session, loan, amount=500.03, 
+					payment_date='10/21/2020', 
+					effective_date='10/21/2020')
+
+				payment_test_helper.make_repayment(
+					session, loan,
+					to_principal=400.03,
+					to_interest=0,
+					to_fees=0.0,
+					payment_date='10/25/2020',
+					effective_date='10/25/2020'
+				)
+
+				# The repayment crosses the October to November month, but we want
+				# to book all the fees and interest in the month of October
+				#
+				# The user also safely pays off all the principal, interest and fees
+				payment_test_helper.make_repayment(
+					session, loan,
+					to_principal=100.00,
+					to_interest=number_util.round_currency((5 * 0.05 * 500.03) + ((4 + 6) * 0.05 * 100.00)),
+					to_fees=0.0,
+					payment_date='10/30/2020',
+					effective_date='11/04/2020'
+				)
+			return populate_fn
+
+		tests: List[Dict] = [
+			{
+				'today': '10/29/2020',
+				'populate_fn': get_populate_fn(threshold_starting_value=0.0),
+				'expected_loan_updates': [
+					{
+						'adjusted_maturity_date': date_util.load_date_str('10/30/2020'),
+						'outstanding_principal': 100.0,
+						'outstanding_principal_for_interest': 100.0,
+						'outstanding_interest': number_util.round_currency((5 * 0.05 * 500.03) + (4 * 0.05 * 100.00)),
+						'outstanding_fees': 0.0,
+						'amount_to_pay_interest_on': 100.0,
+						'interest_accrued_today': number_util.round_currency(0.05 * 100.00),
+						'day_last_repayment_settles': date_util.load_date_str('10/25/2020'),
+						'financing_period': 9,
+						'should_close_loan': False
+					},
+				],
+				'expected_day_volume_threshold_met': None
+			},
+			{
+				# By end of the month, you owe all the interest that's collecting during
+				# the settlement period 
+				'today': '10/31/2020',
+				'populate_fn': get_populate_fn(threshold_starting_value=0.0),
+				'expected_loan_updates': [
+					{
+						'adjusted_maturity_date': date_util.load_date_str('10/30/2020'),
+						'outstanding_principal': 0.0,
+						'outstanding_principal_for_interest': 100.0,
+						'outstanding_interest': -20.0,
+						'outstanding_fees': 0.0,
+						'amount_to_pay_interest_on': 100.0,
+						'interest_accrued_today': number_util.round_currency(0.05 * 100.00),
+						'interest_paid_daily_adjustment': number_util.round_currency(0.05 * 100.00 * 4), # You paid an extra 4 days of interest that we report for this month
+						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
+						'financing_period': 15,
+						'should_close_loan': True
+					},
+				],
+				'expected_day_volume_threshold_met': None
+			},
+			{
+				'today': '11/01/2020',
+				'populate_fn': get_populate_fn(threshold_starting_value=0.0),
+				'expected_loan_updates': [
+					{
+						'adjusted_maturity_date': date_util.load_date_str('10/30/2020'),
+						'outstanding_principal': 0.0,
+						'outstanding_principal_for_interest': 100.0,
+						'outstanding_interest': -15.0,
+						'outstanding_fees': 0.0,
+						'amount_to_pay_interest_on': 100.0,
+						'interest_accrued_today': 5.0,
+						'interest_paid_daily_adjustment': number_util.round_currency(-0.05 * 100.00 * 4), # THe extra 4 days of interest paid off is subtracted on the first of the month
+						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
+						'financing_period': 15,
+						'should_close_loan': True
+					},
+				],
+				'expected_day_volume_threshold_met': None
+			},
+			{
+				'today': '11/04/2020',
+				'populate_fn': get_populate_fn(threshold_starting_value=0.0),
+				'expected_loan_updates': [
+					{
+						'adjusted_maturity_date': date_util.load_date_str('10/30/2020'),
+						'outstanding_principal': 0.0,
+						'outstanding_principal_for_interest': 0.0,
+						'outstanding_interest': 0.0,
+						'outstanding_fees': 0.0,
+						'amount_to_pay_interest_on': 100.0,
+						'interest_accrued_today': 5.0,
+						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
+						'financing_period': 15,
+						'should_close_loan': True
+					},
+				],
+				'expected_day_volume_threshold_met': None
+			}
+		]
+		i = 0
+		for test in tests:
+			print('I={}'.format(i))
+			self._run_test(test)
+			i += 1
+
 	def test_success_repayment_cross_month_boundary_full_loan_repayment(self) -> None:
 		# Shows that the repayment that crosses over the month boundary works
 		# when we've paid off the entire loan
@@ -2289,7 +2438,6 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		with session_scope(self.session_maker) as session:
 			contract = session.query(models.Contract).first()
 			self.assertEqual('10/01/2021', date_util.date_to_str(contract.adjusted_end_date))
-
 
 	def test_success_extend_ending_contract_dynamic_interest_rate(self) -> None:
 		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:

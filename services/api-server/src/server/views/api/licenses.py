@@ -36,8 +36,9 @@ class BulkUpdateLicensesView(MethodView):
 					'Missing key {} in request'.format(key))
 
 		company_license_inputs = form['company_licenses']
-		input_chunks = cast(Iterable[List[CompanyLicenseInsertInputDict]], 
-												models_util.chunker(company_license_inputs, size=20))
+		input_chunks = cast(
+			Iterable[List[CompanyLicenseInsertInputDict]], 
+			models_util.chunker(company_license_inputs, size=20))
 
 		for cur_license_inputs in input_chunks:
 			with session_scope(current_app.session_maker) as session:
