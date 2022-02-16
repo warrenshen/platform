@@ -30,6 +30,9 @@ export default function BankLoansAllTab() {
     <Container>
       <Box display="flex" flexDirection="column">
         <BankLoansDataGrid
+          isDisbursementIdentifierVisible
+          isMaturityVisible
+          isReportingVisible
           loans={loans}
           handleClickCustomer={(customerId) =>
             history.push(

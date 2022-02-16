@@ -40,6 +40,10 @@ export default function BankLoansPastDueTab() {
     <Container>
       <Box display="flex" flexDirection="column">
         <BankLoansDataGrid
+          isDaysPastDueVisible
+          isDisbursementIdentifierVisible
+          isMaturityVisible
+          isReportingVisible
           loans={pastDueLoans}
           handleClickCustomer={(customerId) =>
             history.push(

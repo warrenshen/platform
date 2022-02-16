@@ -6,7 +6,11 @@ import { PartnerEnum } from "lib/enum";
 import { useState } from "react";
 
 interface Props {
+  isDaysPastDueVisible?: boolean;
+  isDisbursementIdentifierVisible?: boolean;
+  isMaturityVisible?: boolean;
   isMultiSelectEnabled?: boolean;
+  isReportingVisible?: boolean;
   matureDays?: number;
   loans: LoanFragment[];
   selectedLoanIds?: Loans["id"][];
@@ -15,7 +19,11 @@ interface Props {
 }
 
 export default function BankLoansDataGrid({
+  isDaysPastDueVisible = false,
+  isDisbursementIdentifierVisible = false,
+  isMaturityVisible = false,
   isMultiSelectEnabled = false,
+  isReportingVisible,
   matureDays,
   loans,
   selectedLoanIds,
@@ -36,9 +44,12 @@ export default function BankLoansDataGrid({
         isArtifactVisible
         isArtifactBankNoteVisible
         isCompanyVisible
-        isMaturityVisible={false}
-        isMultiSelectEnabled={isMultiSelectEnabled}
+        isDaysPastDueVisible={isDaysPastDueVisible}
+        isDisbursementIdentifierVisible={isDisbursementIdentifierVisible}
         isFilteringEnabled
+        isMaturityVisible={isMaturityVisible}
+        isMultiSelectEnabled={isMultiSelectEnabled}
+        isReportingVisible={isReportingVisible}
         partnerType={PartnerEnum.BOTH}
         matureDays={matureDays}
         loans={loans}

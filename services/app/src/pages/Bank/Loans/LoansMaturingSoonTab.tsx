@@ -77,6 +77,9 @@ export default function BankLoansMaturingSoonTab() {
       </Box>
       <Box display="flex" flexDirection="column">
         <BankLoansDataGrid
+          isDisbursementIdentifierVisible
+          isMaturityVisible
+          isReportingVisible
           loans={maturingLoans}
           matureDays={matureDays}
           handleClickCustomer={(customerId) =>
