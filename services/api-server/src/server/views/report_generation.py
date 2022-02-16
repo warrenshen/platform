@@ -136,7 +136,7 @@ class ReportsLoansComingDueView(MethodView):
 				    "balance_due": total_string,
 				    "report_link": report_link,
 				    "rows": rows_html,
-				    "send_date": date_util.human_readable_yearmonthday(date_util.now()),
+				    "send_date": date_util.date_to_str(date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)),
 				    "payment_link": "<a href='" + payment_link + "'>click here</a>",
 				    "support_email": "<a href='mailto:support@bespokefinancial.com'>support@bespokefinancial.com</a>",
 				    "show_invoice_column": show_invoice_column,
@@ -247,6 +247,7 @@ class ReportsLoansPastDueView(MethodView):
 			if l.loan_type != LoanTypeEnum.LINE_OF_CREDIT:
 				rows_html += self.get_artifact_string(l, session)
 			rows_html += "<td>" + str(days_past_due) + "</td>"
+			rows_html += "<td>" + str(l.adjusted_maturity_date) + "</td>"
 			rows_html += "<td>" + number_util.to_dollar_format(loan_total) + "</td>"
 			rows_html += "<td>" + number_util.to_dollar_format(principal) + "</td>"
 			rows_html += "<td>" + number_util.to_dollar_format(interest) + "</td>"
@@ -302,7 +303,7 @@ class ReportsLoansPastDueView(MethodView):
 				    "balance_due": total_string,
 				    "report_link": report_link,
 				    "rows": rows_html,
-				    "send_date": date_util.human_readable_yearmonthday(date_util.now()),
+				    "send_date": date_util.date_to_str(date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)),
 				    "payment_link": "<a href='" + payment_link + "'>click here</a>",
 				    "support_email": "<a href='mailto:support@bespokefinancial.com'>support@bespokefinancial.com</a>",
 				    "show_invoice_column": show_invoice_column,
@@ -1055,7 +1056,7 @@ class AutomaticDebitCourtesyView(MethodView):
 					"company_name": company.name,
 					"report_month": date_util.human_readable_monthyear(report_month_last_day),
 					"debit_amount": number_util.to_dollar_format(float(msc.minimum_payment)),
-					"summary_send_date": date_util.human_readable_yearmonthday(date_util.now())
+					"summary_send_date": date_util.date_to_str(date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE))
 				}
 				if sendgrid_client is not None:
 					_, err = sendgrid_client.send(
