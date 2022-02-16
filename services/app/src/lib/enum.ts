@@ -390,3 +390,17 @@ export enum PartnerEnum {
   PAYOR = "Payor",
   BOTH = "Vendor / Payor",
 }
+
+export enum DebtFacilityStatusEnum {
+  SOLD_INTO_DEBT_FACILITY = "sold_into_debt_facility",
+  BESPOKE_BALANCE_SHEET = "bespoke_balance_sheet",
+  REPURCHASED = "repurchased",
+  UPDATE_REQUIRED = "update_required",
+}
+
+export const DebtFacilityStatusToLabel = {
+  [DebtFacilityStatusEnum.SOLD_INTO_DEBT_FACILITY]: "Debt Facility",
+  [DebtFacilityStatusEnum.BESPOKE_BALANCE_SHEET]: "Bespoke",
+  [DebtFacilityStatusEnum.REPURCHASED]: "Repurchased",
+  [DebtFacilityStatusEnum.UPDATE_REQUIRED]: "Update Required",
+};

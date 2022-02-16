@@ -1,1 +1,32 @@
-# Stub
+subscription GetOpenLoansByDebtFacilityStatuses($statuses: [String!]) {
+  loans ( where: {
+    _and: [
+      { loan_report: { debt_facility_status: { _in: $statuses } } },
+      {
+        _or: [
+          { is_deleted: { _is_null: true } },
+          { is_deleted: { _eq: false } }
+        ]
+      },
+      { closed_at: { _is_null: true } }
+    ]
+  }) {
+    id
+    ...Loan
+    loan_report {
+      id
+      ...LoanReport
+    }
+    company {
+      id
+      ...CompanyLimited
+    }
+    purchase_order {
+      id
+      vendor {
+        id
+        name
+      }
+    }
+  }
+}

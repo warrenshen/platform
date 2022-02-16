@@ -111,6 +111,7 @@ fragment LoanReport on loan_reports {
   total_fees_paid
   financing_period
   financing_day_limit
+  debt_facility_status
 }
 
 fragment LoanArtifact on loans {
