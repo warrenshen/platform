@@ -357,6 +357,11 @@ class CompanyPayorContact(Base):
 		foreign_keys=[payor_user_id]
 	)
 
+class DebtFacility(Base):
+	__tablename__ = "debt_facilities"
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	name = Column(String)
+
 class DebtFacilityEvent(Base):
 	__tablename__ = "debt_facility_events"
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
@@ -366,6 +371,13 @@ class DebtFacilityEvent(Base):
 	event_comments = Column(String, nullable=True)
 	event_amount = Column(Numeric, nullable=True)
 
+class DebtFacilityCapacity(Base):
+	__tablename__ = "debt_facility_capacities"
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	amount = Column(Numeric)
+	changed_at = Column(DateTime)
+	changed_by = Column(String)
+	debt_facility_id = cast(GUID, Column(GUID, ForeignKey('debt_facilities.id')))
 
 PurchaseOrderFileDict = TypedDict('PurchaseOrderFileDict', {
 	'purchase_order_id': str,

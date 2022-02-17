@@ -30,3 +30,29 @@ subscription GetOpenLoansByDebtFacilityStatuses($statuses: [String!]) {
     }
   }
 }
+
+subscription GetDebtFacilityCapacity {
+  debt_facility_capacities (
+    order_by: [{ changed_at: desc }]
+  ) {
+    id
+    ...DebtFacilityCapacityLimited
+    debt_facility {
+      id
+      ...DebtFacilityLimited
+    }
+  }
+}
+
+subscription GetDebtFacilities {
+  debt_facilities (
+    order_by: [{ name: desc }]
+  ) {
+    id
+    ...DebtFacilityLimited
+    debt_facility_capacities {
+      id
+      ...DebtFacilityCapacityLimited
+    }
+  }
+}

@@ -21,6 +21,7 @@ from server.views import (
 	companies,
 	contracts,
 	cypress,
+	debt_facility,
 	files,
     healthcheck,
     inventory,
@@ -120,6 +121,9 @@ app.register_blueprint(healthcheck.handler, url_prefix='/healthcheck')
 
 # Report Generation
 app.register_blueprint(report_generation.handler, url_prefix='/reports')
+
+# Debt Facility
+app.register_blueprint(debt_facility.handler, url_prefix='/debt_facility')
 
 app.app_config = config
 app.engine = models.create_engine()

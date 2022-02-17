@@ -158,6 +158,11 @@ export const reportsRoutes = {
   monthlySummaryNonLOC: "/reports/generate_monthly_loans_summary_non_loc",
 };
 
+export const debtFacilityRoutes = {
+  updateCapacity: "/debt_facility/update_capacity",
+  createUpdateFacility: "debt_facility/create_update_facility",
+};
+
 const api = axios.create({
   baseURL: process.env.REACT_APP_BESPOKE_API_ENDPOINT,
 });

@@ -247,3 +247,16 @@ fragment MetrcDownloadSummary on metrc_download_summaries {
   num_retries
   err_details
 }
+
+fragment DebtFacilityLimited on debt_facilities {
+  id
+  name
+}
+
+fragment DebtFacilityCapacityLimited on debt_facility_capacities {
+  id
+  amount
+  changed_at
+  changed_by
+  debt_facility_id
+}

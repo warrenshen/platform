@@ -93,6 +93,11 @@ export enum Action {
 
   // Reports
   KickoffMonthlySummaryEmails = "reports:generate",
+
+  // Debt Facility
+  UpdateDebtFacilityCapacity = "debt_facility:update_capacity",
+  AddDebtFacility = "debt_facility:add_facility",
+  UpdateDebtFacility = "debt_facility:update_facility",
 }
 
 export interface ActionData {
@@ -224,6 +229,10 @@ const rules: Rules = {
       Action.IsBankAdmin,
 
       Action.KickoffMonthlySummaryEmails,
+
+      Action.UpdateDebtFacilityCapacity,
+      Action.AddDebtFacility,
+      Action.UpdateDebtFacility,
     ],
     dynamic: [],
   },

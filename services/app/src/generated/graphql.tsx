@@ -5647,11 +5647,152 @@ export type DateComparisonExp = {
   _nin?: Maybe<Array<Scalars["date"]>>;
 };
 
+/** columns and relationships of "debt_facilities" */
+export type DebtFacilities = {
+  /** An array relationship */
+  debt_facility_capacities: Array<DebtFacilityCapacities>;
+  /** An aggregate relationship */
+  debt_facility_capacities_aggregate: DebtFacilityCapacitiesAggregate;
+  id: Scalars["uuid"];
+  name: Scalars["String"];
+};
+
+/** columns and relationships of "debt_facilities" */
+export type DebtFacilitiesDebtFacilityCapacitiesArgs = {
+  distinct_on?: Maybe<Array<DebtFacilityCapacitiesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<DebtFacilityCapacitiesOrderBy>>;
+  where?: Maybe<DebtFacilityCapacitiesBoolExp>;
+};
+
+/** columns and relationships of "debt_facilities" */
+export type DebtFacilitiesDebtFacilityCapacitiesAggregateArgs = {
+  distinct_on?: Maybe<Array<DebtFacilityCapacitiesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<DebtFacilityCapacitiesOrderBy>>;
+  where?: Maybe<DebtFacilityCapacitiesBoolExp>;
+};
+
+/** aggregated selection of "debt_facilities" */
+export type DebtFacilitiesAggregate = {
+  aggregate?: Maybe<DebtFacilitiesAggregateFields>;
+  nodes: Array<DebtFacilities>;
+};
+
+/** aggregate fields of "debt_facilities" */
+export type DebtFacilitiesAggregateFields = {
+  count: Scalars["Int"];
+  max?: Maybe<DebtFacilitiesMaxFields>;
+  min?: Maybe<DebtFacilitiesMinFields>;
+};
+
+/** aggregate fields of "debt_facilities" */
+export type DebtFacilitiesAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<DebtFacilitiesSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** Boolean expression to filter rows from the table "debt_facilities". All fields are combined with a logical 'AND'. */
+export type DebtFacilitiesBoolExp = {
+  _and?: Maybe<Array<DebtFacilitiesBoolExp>>;
+  _not?: Maybe<DebtFacilitiesBoolExp>;
+  _or?: Maybe<Array<DebtFacilitiesBoolExp>>;
+  debt_facility_capacities?: Maybe<DebtFacilityCapacitiesBoolExp>;
+  id?: Maybe<UuidComparisonExp>;
+  name?: Maybe<StringComparisonExp>;
+};
+
+/** unique or primary key constraints on table "debt_facilities" */
+export enum DebtFacilitiesConstraint {
+  /** unique or primary key constraint */
+  DebtFacilitiesPkey = "debt_facilities_pkey",
+}
+
+/** input type for inserting data into table "debt_facilities" */
+export type DebtFacilitiesInsertInput = {
+  debt_facility_capacities?: Maybe<DebtFacilityCapacitiesArrRelInsertInput>;
+  id?: Maybe<Scalars["uuid"]>;
+  name?: Maybe<Scalars["String"]>;
+};
+
+/** aggregate max on columns */
+export type DebtFacilitiesMaxFields = {
+  id?: Maybe<Scalars["uuid"]>;
+  name?: Maybe<Scalars["String"]>;
+};
+
+/** aggregate min on columns */
+export type DebtFacilitiesMinFields = {
+  id?: Maybe<Scalars["uuid"]>;
+  name?: Maybe<Scalars["String"]>;
+};
+
+/** response of any mutation on the table "debt_facilities" */
+export type DebtFacilitiesMutationResponse = {
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data from the rows affected by the mutation */
+  returning: Array<DebtFacilities>;
+};
+
+/** input type for inserting object relation for remote table "debt_facilities" */
+export type DebtFacilitiesObjRelInsertInput = {
+  data: DebtFacilitiesInsertInput;
+  /** on conflict condition */
+  on_conflict?: Maybe<DebtFacilitiesOnConflict>;
+};
+
+/** on conflict condition type for table "debt_facilities" */
+export type DebtFacilitiesOnConflict = {
+  constraint: DebtFacilitiesConstraint;
+  update_columns?: Array<DebtFacilitiesUpdateColumn>;
+  where?: Maybe<DebtFacilitiesBoolExp>;
+};
+
+/** Ordering options when selecting data from "debt_facilities". */
+export type DebtFacilitiesOrderBy = {
+  debt_facility_capacities_aggregate?: Maybe<DebtFacilityCapacitiesAggregateOrderBy>;
+  id?: Maybe<OrderBy>;
+  name?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: debt_facilities */
+export type DebtFacilitiesPkColumnsInput = {
+  id: Scalars["uuid"];
+};
+
+/** select columns of table "debt_facilities" */
+export enum DebtFacilitiesSelectColumn {
+  /** column name */
+  Id = "id",
+  /** column name */
+  Name = "name",
+}
+
+/** input type for updating data in table "debt_facilities" */
+export type DebtFacilitiesSetInput = {
+  id?: Maybe<Scalars["uuid"]>;
+  name?: Maybe<Scalars["String"]>;
+};
+
+/** update columns of table "debt_facilities" */
+export enum DebtFacilitiesUpdateColumn {
+  /** column name */
+  Id = "id",
+  /** column name */
+  Name = "name",
+}
+
 /** columns and relationships of "debt_facility_capacities" */
 export type DebtFacilityCapacities = {
   amount: Scalars["numeric"];
   changed_at: Scalars["timestamptz"];
   changed_by?: Maybe<Scalars["String"]>;
+  /** An object relationship */
+  debt_facility?: Maybe<DebtFacilities>;
+  debt_facility_id?: Maybe<Scalars["uuid"]>;
   id: Scalars["uuid"];
 };
 
@@ -5682,9 +5823,36 @@ export type DebtFacilityCapacitiesAggregateFieldsCountArgs = {
   distinct?: Maybe<Scalars["Boolean"]>;
 };
 
+/** order by aggregate values of table "debt_facility_capacities" */
+export type DebtFacilityCapacitiesAggregateOrderBy = {
+  avg?: Maybe<DebtFacilityCapacitiesAvgOrderBy>;
+  count?: Maybe<OrderBy>;
+  max?: Maybe<DebtFacilityCapacitiesMaxOrderBy>;
+  min?: Maybe<DebtFacilityCapacitiesMinOrderBy>;
+  stddev?: Maybe<DebtFacilityCapacitiesStddevOrderBy>;
+  stddev_pop?: Maybe<DebtFacilityCapacitiesStddevPopOrderBy>;
+  stddev_samp?: Maybe<DebtFacilityCapacitiesStddevSampOrderBy>;
+  sum?: Maybe<DebtFacilityCapacitiesSumOrderBy>;
+  var_pop?: Maybe<DebtFacilityCapacitiesVarPopOrderBy>;
+  var_samp?: Maybe<DebtFacilityCapacitiesVarSampOrderBy>;
+  variance?: Maybe<DebtFacilityCapacitiesVarianceOrderBy>;
+};
+
+/** input type for inserting array relation for remote table "debt_facility_capacities" */
+export type DebtFacilityCapacitiesArrRelInsertInput = {
+  data: Array<DebtFacilityCapacitiesInsertInput>;
+  /** on conflict condition */
+  on_conflict?: Maybe<DebtFacilityCapacitiesOnConflict>;
+};
+
 /** aggregate avg on columns */
 export type DebtFacilityCapacitiesAvgFields = {
   amount?: Maybe<Scalars["Float"]>;
+};
+
+/** order by avg() on columns of table "debt_facility_capacities" */
+export type DebtFacilityCapacitiesAvgOrderBy = {
+  amount?: Maybe<OrderBy>;
 };
 
 /** Boolean expression to filter rows from the table "debt_facility_capacities". All fields are combined with a logical 'AND'. */
@@ -5695,6 +5863,8 @@ export type DebtFacilityCapacitiesBoolExp = {
   amount?: Maybe<NumericComparisonExp>;
   changed_at?: Maybe<TimestamptzComparisonExp>;
   changed_by?: Maybe<StringComparisonExp>;
+  debt_facility?: Maybe<DebtFacilitiesBoolExp>;
+  debt_facility_id?: Maybe<UuidComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
 };
 
@@ -5714,6 +5884,8 @@ export type DebtFacilityCapacitiesInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
   changed_at?: Maybe<Scalars["timestamptz"]>;
   changed_by?: Maybe<Scalars["String"]>;
+  debt_facility?: Maybe<DebtFacilitiesObjRelInsertInput>;
+  debt_facility_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
 };
 
@@ -5722,7 +5894,17 @@ export type DebtFacilityCapacitiesMaxFields = {
   amount?: Maybe<Scalars["numeric"]>;
   changed_at?: Maybe<Scalars["timestamptz"]>;
   changed_by?: Maybe<Scalars["String"]>;
+  debt_facility_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
+};
+
+/** order by max() on columns of table "debt_facility_capacities" */
+export type DebtFacilityCapacitiesMaxOrderBy = {
+  amount?: Maybe<OrderBy>;
+  changed_at?: Maybe<OrderBy>;
+  changed_by?: Maybe<OrderBy>;
+  debt_facility_id?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
 };
 
 /** aggregate min on columns */
@@ -5730,7 +5912,17 @@ export type DebtFacilityCapacitiesMinFields = {
   amount?: Maybe<Scalars["numeric"]>;
   changed_at?: Maybe<Scalars["timestamptz"]>;
   changed_by?: Maybe<Scalars["String"]>;
+  debt_facility_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
+};
+
+/** order by min() on columns of table "debt_facility_capacities" */
+export type DebtFacilityCapacitiesMinOrderBy = {
+  amount?: Maybe<OrderBy>;
+  changed_at?: Maybe<OrderBy>;
+  changed_by?: Maybe<OrderBy>;
+  debt_facility_id?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
 };
 
 /** response of any mutation on the table "debt_facility_capacities" */
@@ -5753,6 +5945,8 @@ export type DebtFacilityCapacitiesOrderBy = {
   amount?: Maybe<OrderBy>;
   changed_at?: Maybe<OrderBy>;
   changed_by?: Maybe<OrderBy>;
+  debt_facility?: Maybe<DebtFacilitiesOrderBy>;
+  debt_facility_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
 };
 
@@ -5770,6 +5964,8 @@ export enum DebtFacilityCapacitiesSelectColumn {
   /** column name */
   ChangedBy = "changed_by",
   /** column name */
+  DebtFacilityId = "debt_facility_id",
+  /** column name */
   Id = "id",
 }
 
@@ -5778,6 +5974,7 @@ export type DebtFacilityCapacitiesSetInput = {
   amount?: Maybe<Scalars["numeric"]>;
   changed_at?: Maybe<Scalars["timestamptz"]>;
   changed_by?: Maybe<Scalars["String"]>;
+  debt_facility_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
 };
 
@@ -5786,9 +5983,19 @@ export type DebtFacilityCapacitiesStddevFields = {
   amount?: Maybe<Scalars["Float"]>;
 };
 
+/** order by stddev() on columns of table "debt_facility_capacities" */
+export type DebtFacilityCapacitiesStddevOrderBy = {
+  amount?: Maybe<OrderBy>;
+};
+
 /** aggregate stddev_pop on columns */
 export type DebtFacilityCapacitiesStddevPopFields = {
   amount?: Maybe<Scalars["Float"]>;
+};
+
+/** order by stddev_pop() on columns of table "debt_facility_capacities" */
+export type DebtFacilityCapacitiesStddevPopOrderBy = {
+  amount?: Maybe<OrderBy>;
 };
 
 /** aggregate stddev_samp on columns */
@@ -5796,9 +6003,19 @@ export type DebtFacilityCapacitiesStddevSampFields = {
   amount?: Maybe<Scalars["Float"]>;
 };
 
+/** order by stddev_samp() on columns of table "debt_facility_capacities" */
+export type DebtFacilityCapacitiesStddevSampOrderBy = {
+  amount?: Maybe<OrderBy>;
+};
+
 /** aggregate sum on columns */
 export type DebtFacilityCapacitiesSumFields = {
   amount?: Maybe<Scalars["numeric"]>;
+};
+
+/** order by sum() on columns of table "debt_facility_capacities" */
+export type DebtFacilityCapacitiesSumOrderBy = {
+  amount?: Maybe<OrderBy>;
 };
 
 /** update columns of table "debt_facility_capacities" */
@@ -5810,6 +6027,8 @@ export enum DebtFacilityCapacitiesUpdateColumn {
   /** column name */
   ChangedBy = "changed_by",
   /** column name */
+  DebtFacilityId = "debt_facility_id",
+  /** column name */
   Id = "id",
 }
 
@@ -5818,14 +6037,29 @@ export type DebtFacilityCapacitiesVarPopFields = {
   amount?: Maybe<Scalars["Float"]>;
 };
 
+/** order by var_pop() on columns of table "debt_facility_capacities" */
+export type DebtFacilityCapacitiesVarPopOrderBy = {
+  amount?: Maybe<OrderBy>;
+};
+
 /** aggregate var_samp on columns */
 export type DebtFacilityCapacitiesVarSampFields = {
   amount?: Maybe<Scalars["Float"]>;
 };
 
+/** order by var_samp() on columns of table "debt_facility_capacities" */
+export type DebtFacilityCapacitiesVarSampOrderBy = {
+  amount?: Maybe<OrderBy>;
+};
+
 /** aggregate variance on columns */
 export type DebtFacilityCapacitiesVarianceFields = {
   amount?: Maybe<Scalars["Float"]>;
+};
+
+/** order by variance() on columns of table "debt_facility_capacities" */
+export type DebtFacilityCapacitiesVarianceOrderBy = {
+  amount?: Maybe<OrderBy>;
 };
 
 /** columns and relationships of "debt_facility_events" */
@@ -14696,6 +14930,10 @@ export type MutationRoot = {
   delete_contracts?: Maybe<ContractsMutationResponse>;
   /** delete single row from the table: "contracts" */
   delete_contracts_by_pk?: Maybe<Contracts>;
+  /** delete data from the table: "debt_facilities" */
+  delete_debt_facilities?: Maybe<DebtFacilitiesMutationResponse>;
+  /** delete single row from the table: "debt_facilities" */
+  delete_debt_facilities_by_pk?: Maybe<DebtFacilities>;
   /** delete data from the table: "debt_facility_capacities" */
   delete_debt_facility_capacities?: Maybe<DebtFacilityCapacitiesMutationResponse>;
   /** delete single row from the table: "debt_facility_capacities" */
@@ -14920,6 +15158,10 @@ export type MutationRoot = {
   insert_contracts?: Maybe<ContractsMutationResponse>;
   /** insert a single row into the table: "contracts" */
   insert_contracts_one?: Maybe<Contracts>;
+  /** insert data into the table: "debt_facilities" */
+  insert_debt_facilities?: Maybe<DebtFacilitiesMutationResponse>;
+  /** insert a single row into the table: "debt_facilities" */
+  insert_debt_facilities_one?: Maybe<DebtFacilities>;
   /** insert data into the table: "debt_facility_capacities" */
   insert_debt_facility_capacities?: Maybe<DebtFacilityCapacitiesMutationResponse>;
   /** insert a single row into the table: "debt_facility_capacities" */
@@ -15148,6 +15390,10 @@ export type MutationRoot = {
   update_contracts?: Maybe<ContractsMutationResponse>;
   /** update single row of the table: "contracts" */
   update_contracts_by_pk?: Maybe<Contracts>;
+  /** update data of the table: "debt_facilities" */
+  update_debt_facilities?: Maybe<DebtFacilitiesMutationResponse>;
+  /** update single row of the table: "debt_facilities" */
+  update_debt_facilities_by_pk?: Maybe<DebtFacilities>;
   /** update data of the table: "debt_facility_capacities" */
   update_debt_facility_capacities?: Maybe<DebtFacilityCapacitiesMutationResponse>;
   /** update single row of the table: "debt_facility_capacities" */
@@ -15473,6 +15719,16 @@ export type MutationRootDeleteContractsArgs = {
 
 /** mutation root */
 export type MutationRootDeleteContractsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** mutation root */
+export type MutationRootDeleteDebtFacilitiesArgs = {
+  where: DebtFacilitiesBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteDebtFacilitiesByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -16071,6 +16327,18 @@ export type MutationRootInsertContractsArgs = {
 export type MutationRootInsertContractsOneArgs = {
   object: ContractsInsertInput;
   on_conflict?: Maybe<ContractsOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertDebtFacilitiesArgs = {
+  objects: Array<DebtFacilitiesInsertInput>;
+  on_conflict?: Maybe<DebtFacilitiesOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertDebtFacilitiesOneArgs = {
+  object: DebtFacilitiesInsertInput;
+  on_conflict?: Maybe<DebtFacilitiesOnConflict>;
 };
 
 /** mutation root */
@@ -16787,6 +17055,18 @@ export type MutationRootUpdateContractsByPkArgs = {
   _prepend?: Maybe<ContractsPrependInput>;
   _set?: Maybe<ContractsSetInput>;
   pk_columns: ContractsPkColumnsInput;
+};
+
+/** mutation root */
+export type MutationRootUpdateDebtFacilitiesArgs = {
+  _set?: Maybe<DebtFacilitiesSetInput>;
+  where: DebtFacilitiesBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateDebtFacilitiesByPkArgs = {
+  _set?: Maybe<DebtFacilitiesSetInput>;
+  pk_columns: DebtFacilitiesPkColumnsInput;
 };
 
 /** mutation root */
@@ -19758,9 +20038,15 @@ export type QueryRoot = {
   contracts_aggregate: ContractsAggregate;
   /** fetch data from the table: "contracts" using primary key columns */
   contracts_by_pk?: Maybe<Contracts>;
-  /** fetch data from the table: "debt_facility_capacities" */
+  /** fetch data from the table: "debt_facilities" */
+  debt_facilities: Array<DebtFacilities>;
+  /** fetch aggregated fields from the table: "debt_facilities" */
+  debt_facilities_aggregate: DebtFacilitiesAggregate;
+  /** fetch data from the table: "debt_facilities" using primary key columns */
+  debt_facilities_by_pk?: Maybe<DebtFacilities>;
+  /** An array relationship */
   debt_facility_capacities: Array<DebtFacilityCapacities>;
-  /** fetch aggregated fields from the table: "debt_facility_capacities" */
+  /** An aggregate relationship */
   debt_facility_capacities_aggregate: DebtFacilityCapacitiesAggregate;
   /** fetch data from the table: "debt_facility_capacities" using primary key columns */
   debt_facility_capacities_by_pk?: Maybe<DebtFacilityCapacities>;
@@ -20333,6 +20619,26 @@ export type QueryRootContractsAggregateArgs = {
 };
 
 export type QueryRootContractsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+export type QueryRootDebtFacilitiesArgs = {
+  distinct_on?: Maybe<Array<DebtFacilitiesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<DebtFacilitiesOrderBy>>;
+  where?: Maybe<DebtFacilitiesBoolExp>;
+};
+
+export type QueryRootDebtFacilitiesAggregateArgs = {
+  distinct_on?: Maybe<Array<DebtFacilitiesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<DebtFacilitiesOrderBy>>;
+  where?: Maybe<DebtFacilitiesBoolExp>;
+};
+
+export type QueryRootDebtFacilitiesByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -21488,9 +21794,15 @@ export type SubscriptionRoot = {
   contracts_aggregate: ContractsAggregate;
   /** fetch data from the table: "contracts" using primary key columns */
   contracts_by_pk?: Maybe<Contracts>;
-  /** fetch data from the table: "debt_facility_capacities" */
+  /** fetch data from the table: "debt_facilities" */
+  debt_facilities: Array<DebtFacilities>;
+  /** fetch aggregated fields from the table: "debt_facilities" */
+  debt_facilities_aggregate: DebtFacilitiesAggregate;
+  /** fetch data from the table: "debt_facilities" using primary key columns */
+  debt_facilities_by_pk?: Maybe<DebtFacilities>;
+  /** An array relationship */
   debt_facility_capacities: Array<DebtFacilityCapacities>;
-  /** fetch aggregated fields from the table: "debt_facility_capacities" */
+  /** An aggregate relationship */
   debt_facility_capacities_aggregate: DebtFacilityCapacitiesAggregate;
   /** fetch data from the table: "debt_facility_capacities" using primary key columns */
   debt_facility_capacities_by_pk?: Maybe<DebtFacilityCapacities>;
@@ -22063,6 +22375,26 @@ export type SubscriptionRootContractsAggregateArgs = {
 };
 
 export type SubscriptionRootContractsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+export type SubscriptionRootDebtFacilitiesArgs = {
+  distinct_on?: Maybe<Array<DebtFacilitiesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<DebtFacilitiesOrderBy>>;
+  where?: Maybe<DebtFacilitiesBoolExp>;
+};
+
+export type SubscriptionRootDebtFacilitiesAggregateArgs = {
+  distinct_on?: Maybe<Array<DebtFacilitiesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<DebtFacilitiesOrderBy>>;
+  where?: Maybe<DebtFacilitiesBoolExp>;
+};
+
+export type SubscriptionRootDebtFacilitiesByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -24726,6 +25058,34 @@ export type GetOpenLoansByDebtFacilityStatusesSubscription = {
   >;
 };
 
+export type GetDebtFacilityCapacitySubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetDebtFacilityCapacitySubscription = {
+  debt_facility_capacities: Array<
+    Pick<DebtFacilityCapacities, "id"> & {
+      debt_facility?: Maybe<
+        Pick<DebtFacilities, "id"> & DebtFacilityLimitedFragment
+      >;
+    } & DebtFacilityCapacityLimitedFragment
+  >;
+};
+
+export type GetDebtFacilitiesSubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetDebtFacilitiesSubscription = {
+  debt_facilities: Array<
+    Pick<DebtFacilities, "id"> & {
+      debt_facility_capacities: Array<
+        Pick<DebtFacilityCapacities, "id"> & DebtFacilityCapacityLimitedFragment
+      >;
+    } & DebtFacilityLimitedFragment
+  >;
+};
+
 export type GetEbbaApplicationQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -26735,6 +27095,13 @@ export type MetrcDownloadSummaryFragment = Pick<
 > &
   MetrcDownloadSummaryLimitedFragment;
 
+export type DebtFacilityLimitedFragment = Pick<DebtFacilities, "id" | "name">;
+
+export type DebtFacilityCapacityLimitedFragment = Pick<
+  DebtFacilityCapacities,
+  "id" | "amount" | "changed_at" | "changed_by" | "debt_facility_id"
+>;
+
 export type CompanySettingsLimitedFragment = Pick<
   CompanySettings,
   | "id"
@@ -27831,6 +28198,21 @@ export const MetrcDownloadSummaryFragmentDoc = gql`
     err_details
   }
   ${MetrcDownloadSummaryLimitedFragmentDoc}
+`;
+export const DebtFacilityLimitedFragmentDoc = gql`
+  fragment DebtFacilityLimited on debt_facilities {
+    id
+    name
+  }
+`;
+export const DebtFacilityCapacityLimitedFragmentDoc = gql`
+  fragment DebtFacilityCapacityLimited on debt_facility_capacities {
+    id
+    amount
+    changed_at
+    changed_by
+    debt_facility_id
+  }
 `;
 export const GetAdvancesDocument = gql`
   subscription GetAdvances {
@@ -28964,6 +29346,96 @@ export type GetOpenLoansByDebtFacilityStatusesSubscriptionHookResult = ReturnTyp
   typeof useGetOpenLoansByDebtFacilityStatusesSubscription
 >;
 export type GetOpenLoansByDebtFacilityStatusesSubscriptionResult = Apollo.SubscriptionResult<GetOpenLoansByDebtFacilityStatusesSubscription>;
+export const GetDebtFacilityCapacityDocument = gql`
+  subscription GetDebtFacilityCapacity {
+    debt_facility_capacities(order_by: [{ changed_at: desc }]) {
+      id
+      ...DebtFacilityCapacityLimited
+      debt_facility {
+        id
+        ...DebtFacilityLimited
+      }
+    }
+  }
+  ${DebtFacilityCapacityLimitedFragmentDoc}
+  ${DebtFacilityLimitedFragmentDoc}
+`;
+
+/**
+ * __useGetDebtFacilityCapacitySubscription__
+ *
+ * To run a query within a React component, call `useGetDebtFacilityCapacitySubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetDebtFacilityCapacitySubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetDebtFacilityCapacitySubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetDebtFacilityCapacitySubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    GetDebtFacilityCapacitySubscription,
+    GetDebtFacilityCapacitySubscriptionVariables
+  >
+) {
+  return Apollo.useSubscription<
+    GetDebtFacilityCapacitySubscription,
+    GetDebtFacilityCapacitySubscriptionVariables
+  >(GetDebtFacilityCapacityDocument, baseOptions);
+}
+export type GetDebtFacilityCapacitySubscriptionHookResult = ReturnType<
+  typeof useGetDebtFacilityCapacitySubscription
+>;
+export type GetDebtFacilityCapacitySubscriptionResult = Apollo.SubscriptionResult<GetDebtFacilityCapacitySubscription>;
+export const GetDebtFacilitiesDocument = gql`
+  subscription GetDebtFacilities {
+    debt_facilities(order_by: [{ name: desc }]) {
+      id
+      ...DebtFacilityLimited
+      debt_facility_capacities {
+        id
+        ...DebtFacilityCapacityLimited
+      }
+    }
+  }
+  ${DebtFacilityLimitedFragmentDoc}
+  ${DebtFacilityCapacityLimitedFragmentDoc}
+`;
+
+/**
+ * __useGetDebtFacilitiesSubscription__
+ *
+ * To run a query within a React component, call `useGetDebtFacilitiesSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetDebtFacilitiesSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetDebtFacilitiesSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetDebtFacilitiesSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    GetDebtFacilitiesSubscription,
+    GetDebtFacilitiesSubscriptionVariables
+  >
+) {
+  return Apollo.useSubscription<
+    GetDebtFacilitiesSubscription,
+    GetDebtFacilitiesSubscriptionVariables
+  >(GetDebtFacilitiesDocument, baseOptions);
+}
+export type GetDebtFacilitiesSubscriptionHookResult = ReturnType<
+  typeof useGetDebtFacilitiesSubscription
+>;
+export type GetDebtFacilitiesSubscriptionResult = Apollo.SubscriptionResult<GetDebtFacilitiesSubscription>;
 export const GetEbbaApplicationDocument = gql`
   query GetEbbaApplication($id: uuid!) {
     ebba_applications_by_pk(id: $id) {
