@@ -1,8 +1,8 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import PaymentDrawerLauncher from "components/Payment/PaymentDrawerLauncher";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import { GetAdvancesByMethodAndPaymentDateQuery } from "generated/graphql";
+import { formatDateString } from "lib/date";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
@@ -18,9 +18,10 @@ function getRows(
       bespoke_routing_number: bespokeBankAccount?.wire_routing_number,
       bespoke_account_type: bespokeBankAccount?.account_type,
       bespoke_account_number: bespokeBankAccount?.account_number,
+      settlement_date: formatDateString(payment.settlement_date),
       currency: "USD",
       recipient_bank_type: "ABA",
-      recipient_routing_number: recipientBankAccount?.routing_number,
+      recipient_routing_number: recipientBankAccount?.wire_routing_number,
       recipient_bank_name: isIntermediaryBankAccount
         ? recipientBankAccount?.intermediary_bank_name
         : recipientBankAccount?.bank_name,
@@ -29,7 +30,7 @@ function getRows(
         : recipientBankAccount?.account_number,
       recipient_account_name: isIntermediaryBankAccount
         ? recipientBankAccount?.intermediary_account_name
-        : recipientBankAccount?.recipient_name,
+        : recipientBankAccount?.account_title,
       recipient_address: recipientBankAccount?.recipient_address,
       recipient_address_2: recipientBankAccount?.recipient_address_2,
       wire_memo: payment.bank_note,
@@ -88,10 +89,6 @@ export default function WireAdvancesDataGrid({
         dataField: "settlement_date",
         caption: "Send On Date",
         width: ColumnWidths.Date,
-        alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell dateString={params.row.data.settlement_date} />
-        ),
       },
       {
         dataField: "currency",
