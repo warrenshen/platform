@@ -52,18 +52,18 @@ def check_company_license_download(
         license_number,
         download_summary_records,
     ) in license_number_to_download_summary_records.items():
-        # print(f"Verifying download summaries for license {license_number}...")
-        # print(f'Earliest download summary: {download_summary_records[-1]["date"]}')
-        # print(f'Latest download summary: {download_summary_records[0]["date"]}')
+        print(f"Verifying download summaries for license {license_number}...")
+        print(f'Earliest download summary: {download_summary_records[-1]["date"]}')
+        print(f'Latest download summary: {download_summary_records[0]["date"]}')
         for download_summary_record in download_summary_records:
             if download_summary_record["status"] != "completed":
                 bad_count += 1
-                # print(
-                #     f'Found bad download summary for license {license_number} on date {download_summary_record["date"]}'
-                # )
+                print(
+                    f'Found bad download summary for license {license_number} on date {download_summary_record["date"]}'
+                )
                 bad_history[license_number].append(download_summary_record["date"])
 
-        #print("")
+        print("")
     if bad_count > 0:
         print(f"[FAILURE] Found a total of {bad_count} bad download summaries")
     else:
