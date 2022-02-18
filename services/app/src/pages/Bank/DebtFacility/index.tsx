@@ -6,6 +6,7 @@ import DebtFacilityActionRequiredTab from "pages/Bank/DebtFacility/DebtFacilityA
 import DebtFacilityAllTab from "pages/Bank/DebtFacility/DebtFacilityAllTab";
 import DebtFacilityReportTab from "pages/Bank/DebtFacility/DebtFacilityReportTab";
 import DebtFacilityAdminTab from "pages/Bank/DebtFacility/DebtFacilityAdminTab";
+import { useGetOpenLoansByDebtFacilityStatusesSubscription } from "generated/graphql";
 import { useState } from "react";
 import styled from "styled-components";
 
@@ -24,6 +25,18 @@ const SectionSpace = styled.div`
 
 export default function BankDebtFacilityPage() {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
+
+  const { data, error } = useGetOpenLoansByDebtFacilityStatusesSubscription({
+    variables: {
+      statuses: ["update_required"],
+    },
+  });
+  if (error) {
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
+  }
+  const loansWithRequiredUpdate = data?.loans || [];
+  const updateRequiredCount = loansWithRequiredUpdate.length;
 
   return (
     <Page appBarTitle={"Debt Facility"}>
@@ -46,7 +59,7 @@ export default function BankDebtFacilityPage() {
             }
           >
             <Tab label="Open" />
-            <Tab label="Action Required" />
+            <Tab label={`Action Required (${updateRequiredCount})`} />
             <Tab label="All" />
             <Tab label="Report" />
             <Tab label="Admin" />
@@ -55,7 +68,7 @@ export default function BankDebtFacilityPage() {
           {selectedTabIndex === 0 ? (
             <DebtFacilityOpenTab />
           ) : selectedTabIndex === 1 ? (
-            <DebtFacilityActionRequiredTab />
+            <DebtFacilityActionRequiredTab loans={loansWithRequiredUpdate} />
           ) : selectedTabIndex === 2 ? (
             <DebtFacilityAllTab />
           ) : selectedTabIndex === 3 ? (

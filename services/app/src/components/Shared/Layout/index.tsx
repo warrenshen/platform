@@ -28,6 +28,7 @@ import {
   useGetCompanyForCustomerBorrowingBaseQuery,
   useGetEbbaApplicationsCountForBankSubscription,
   useGetLoansCountForBankSubscription,
+  useGetOpenLoansByDebtFacilityStatusesSubscription,
   useGetPartnershipRequestsCountForBankSubscription,
   useGetRepaymentsCountForBankSubscription,
 } from "generated/graphql";
@@ -215,7 +216,8 @@ const getBankNavItems = (
   loansCount: number,
   repaymentsCount: number,
   ebbaApplicationsCount: number,
-  partnershipRequestsCount: number
+  partnershipRequestsCount: number,
+  debtFacilityUpdateCount: number
 ): NavItem[] => {
   return [
     {
@@ -269,6 +271,7 @@ const getBankNavItems = (
       iconNode: LoansIcon,
       text: "Debt Facility",
       link: bankRoutes.debtFacility,
+      counter: debtFacilityUpdateCount,
     },
     {
       dataCy: "customers",
@@ -354,12 +357,22 @@ export default function Layout({ appBarTitle, children }: Props) {
     skip: !isBankUser,
   });
 
+  const {
+    data: debtFacilityUpdateCountData,
+  } = useGetOpenLoansByDebtFacilityStatusesSubscription({
+    variables: {
+      statuses: ["update_required"],
+    },
+  });
+
   const loansCount = loansCountData?.loans?.length || 0;
   const repaymentsCount = repaymentsCountData?.payments?.length || 0;
   const ebbaApplicationsCount =
     ebbaApplicationsCountData?.ebba_applications?.length || 0;
   const partnershipRequestsCount =
     partnershipRequestsCountData?.company_partnership_requests?.length || 0;
+  const debtFacilityUpdateCount =
+    debtFacilityUpdateCountData?.loans?.length || 0;
 
   const {
     data,
@@ -384,7 +397,8 @@ export default function Layout({ appBarTitle, children }: Props) {
         loansCount,
         repaymentsCount,
         ebbaApplicationsCount,
-        partnershipRequestsCount
+        partnershipRequestsCount,
+        debtFacilityUpdateCount
       )
     : getCustomerNavItems(productType, showEbbaApplicationsChip);
 

@@ -43,7 +43,6 @@ class DebtFacilityUpdateCapacityView(MethodView):
 		new_capacity = variables.get("newCapacity", None) if variables else None
 		if new_capacity is None:
 			return handler_util.make_error_response('Invalid capacity provided')
-
 		facility_id = variables.get("debtFacilityId", None) if variables else None
 		if facility_id is None or facility_id == "":
 			return handler_util.make_error_response('Invalid debt facility id provided')

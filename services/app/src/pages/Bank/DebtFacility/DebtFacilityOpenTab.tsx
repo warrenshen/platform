@@ -14,7 +14,7 @@ const Container = styled.div`
   width: 100%;
 `;
 
-export default function BankLoansAllTab() {
+export default function DebtFacilityOpenTab() {
   const history = useHistory();
 
   // Get loans currently on the debt facility's books

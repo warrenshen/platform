@@ -18,8 +18,6 @@ interface Props {
   pageSize?: number;
 }
 
-// debt_facility_name: capacity.debt_facility?.name,
-
 function getRows(
   capacities: GetDebtFacilityCapacitySubscription["debt_facility_capacities"]
 ): RowsProp {
