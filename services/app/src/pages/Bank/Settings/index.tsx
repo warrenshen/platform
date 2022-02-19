@@ -1,5 +1,4 @@
 import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
-import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import CreateUpdateBankAccountModal from "components/BankAccount/CreateUpdateBankAccountModal";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
@@ -8,16 +7,18 @@ import PageContent from "components/Shared/Page/PageContent";
 import EditUserProfileModal from "components/Users/EditUserProfileModal";
 import InviteUserModal from "components/Users/InviteUserModal";
 import UsersDataGrid from "components/Users/UsersDataGrid";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import BankAccountsDataGrid from "components/BankAccounts/BankAccountsDataGrid";
 import {
   useGetBespokeBankAccountsQuery,
   useGetUsersByRolesQuery,
   UserRolesEnum,
   Users,
+  BankAccounts,
+  BankAccountFragment,
 } from "generated/graphql";
-import { Action, check } from "lib/auth/rbac-rules";
+import { Action } from "lib/auth/rbac-rules";
 import { BankUserRoles } from "lib/enum";
-import { useCallback, useContext, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -44,14 +45,12 @@ export default function BankSettingsPage() {
   const classes = useStyles();
 
   const {
-    user: { role },
-  } = useContext(CurrentUserContext);
-
-  const {
     data: bankAccountsData,
     refetch: refetchBankAccounts,
   } = useGetBespokeBankAccountsQuery();
-  const accounts = bankAccountsData?.bank_accounts || [];
+  const accounts = useMemo(() => bankAccountsData?.bank_accounts || [], [
+    bankAccountsData,
+  ]);
 
   const { data: usersData, refetch: refetchUsers } = useGetUsersByRolesQuery({
     variables: {
@@ -79,42 +78,90 @@ export default function BankSettingsPage() {
     [setSelectedUsers]
   );
 
+  const [selectedBankAccountIds, setSelectedBankAccountIds] = useState<
+    BankAccounts["id"]
+  >([]);
+
+  const selectedBankAccount = useMemo(
+    () =>
+      selectedBankAccountIds.length === 1
+        ? accounts.find((account) => account.id === selectedBankAccountIds[0])
+        : null,
+    [accounts, selectedBankAccountIds]
+  );
+
+  const handleSelectBankAccounts = useMemo(
+    () => (accounts: BankAccountFragment[]) => {
+      setSelectedBankAccountIds(accounts.map((account) => account.id));
+    },
+    [setSelectedBankAccountIds]
+  );
+
   return (
     <Page appBarTitle={"Settings"}>
       <PageContent title={"Settings"}>
         <Box className={classes.section}>
           <h2>Bespoke Financial Bank Accounts</h2>
-          <Can perform={Action.AddBankAccount}>
-            <Box display="flex" flexDirection="row-reverse" mb={3}>
-              <ModalButton
-                label={"Add BF Bank Account"}
-                modal={({ handleClose }) => (
-                  <CreateUpdateBankAccountModal
-                    companyId={null}
-                    existingBankAccount={null}
-                    handleClose={() => {
-                      refetch();
-                      handleClose();
-                    }}
-                  />
-                )}
-              />
-            </Box>
-          </Can>
-          <Box display="flex" flexWrap="wrap">
-            {accounts.map((account, index) => (
-              <Box key={index} mr={2} mb={2}>
-                <BankAccountInfoCard
-                  isCannabisCompliantVisible
-                  isEditAllowed={check(role, Action.EditBankAccount)}
-                  isVerificationVisible
-                  bankAccount={account}
-                  handleDataChange={refetchBankAccounts}
+
+          <Box mb={2} display="flex" flexDirection="row-reverse">
+            <Can perform={Action.AddBankAccount}>
+              <Box>
+                <ModalButton
+                  label={"Add BF Bank Account"}
+                  modal={({ handleClose }) => (
+                    <CreateUpdateBankAccountModal
+                      companyId={null}
+                      existingBankAccount={null}
+                      handleClose={() => {
+                        refetch();
+                        handleClose();
+                      }}
+                    />
+                  )}
                 />
               </Box>
-            ))}
+            </Can>
+            <Can perform={Action.EditBankAccount}>
+              <Box mr={2}>
+                <ModalButton
+                  isDisabled={selectedBankAccountIds.length !== 1}
+                  label={"Edit Bank Account"}
+                  modal={({ handleClose }) => (
+                    <CreateUpdateBankAccountModal
+                      companyId={null}
+                      existingBankAccount={
+                        selectedBankAccount as BankAccountFragment
+                      }
+                      handleClose={() => {
+                        refetchBankAccounts();
+                        handleClose();
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+            </Can>
+            <Can perform={Action.DeleteBankAccount}>
+              <Box mr={2}>
+                <ModalButton
+                  isDisabled={selectedBankAccountIds.length !== 1}
+                  label={"Delete Bank Account"}
+                  variant={"outlined"}
+                  modal={({ handleClose }) => null}
+                />
+              </Box>
+            </Can>
           </Box>
         </Box>
+
+        <Box display="flex" flexDirection="column">
+          <BankAccountsDataGrid
+            bankAccounts={accounts}
+            selectedBankAccountIds={selectedBankAccountIds}
+            handleSelectBankAccounts={handleSelectBankAccounts}
+          />
+        </Box>
+
         <Box className={classes.sectionSpace} />
         <Box className={classes.section}>
           <h2>Bespoke Financial Users</h2>

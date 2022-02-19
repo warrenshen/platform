@@ -1,5 +1,5 @@
 import { Box, Typography } from "@material-ui/core";
-import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
+import BankAccountsDataGrid from "components/BankAccounts/BankAccountsDataGrid";
 import CreateUpdateBankAccountModal from "components/BankAccount/CreateUpdateBankAccountModal";
 import CompanySettingsCard from "components/Settings/CompanySettingsCard";
 import EditCustomerSettingsModal from "components/Settings/EditCustomerSettingsModal";
@@ -12,11 +12,12 @@ import ModalButton from "components/Shared/Modal/ModalButton";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   BankAccountFragment,
+  BankAccounts,
   ContractFragment,
   GetCompanyForCustomerQuery,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 
 interface Props {
   companyId: string;
@@ -42,6 +43,27 @@ export default function CustomerSettings({
   } = useContext(CurrentUserContext);
 
   const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
+
+  const [selectedBankAccountIds, setSelectedBankAccountIds] = useState<
+    BankAccounts["id"]
+  >([]);
+
+  const selectedBankAccount = useMemo(
+    () =>
+      selectedBankAccountIds.length === 1
+        ? bankAccounts.find(
+            (bankAccount) => bankAccount.id === selectedBankAccountIds[0]
+          )
+        : null,
+    [bankAccounts, selectedBankAccountIds]
+  );
+
+  const handleSelectBankAccounts = useMemo(
+    () => (accounts: BankAccountFragment[]) => {
+      setSelectedBankAccountIds(accounts.map((account) => account.id));
+    },
+    [setSelectedBankAccountIds]
+  );
 
   if (!settings) {
     return null;
@@ -110,40 +132,62 @@ export default function CustomerSettings({
       </Can>
       <Box mt={4}>
         <h2>All Bank Accounts</h2>
-        <Can perform={Action.AddBankAccount}>
-          <Box mt={2}>
-            <ModalButton
-              label={"Add Bank Account"}
-              modal={({ handleClose }) => (
-                <CreateUpdateBankAccountModal
-                  companyId={companyId}
-                  existingBankAccount={null}
-                  handleClose={() => {
-                    handleDataChange();
-                    handleClose();
-                  }}
-                />
-              )}
-            />
-          </Box>
-        </Can>
+        <Box mb={2} display="flex" flexDirection="row-reverse">
+          <Can perform={Action.AddBankAccount}>
+            <Box>
+              <ModalButton
+                label={"Add Bank Account"}
+                modal={({ handleClose }) => (
+                  <CreateUpdateBankAccountModal
+                    companyId={companyId}
+                    existingBankAccount={null}
+                    handleClose={() => {
+                      handleDataChange();
+                      handleClose();
+                    }}
+                  />
+                )}
+              />
+            </Box>
+          </Can>
+          <Can perform={Action.EditBankAccount}>
+            <Box mr={2}>
+              <ModalButton
+                isDisabled={selectedBankAccountIds.length !== 1}
+                label={"Edit Bank Account"}
+                modal={({ handleClose }) => (
+                  <CreateUpdateBankAccountModal
+                    companyId={companyId}
+                    existingBankAccount={
+                      selectedBankAccount as BankAccountFragment
+                    }
+                    handleClose={() => {
+                      handleDataChange();
+                      handleClose();
+                    }}
+                  />
+                )}
+              />
+            </Box>
+          </Can>
+          <Can perform={Action.DeleteBankAccount}>
+            <Box mr={2}>
+              <ModalButton
+                isDisabled={selectedBankAccountIds.length !== 1}
+                label={"Delete Bank Account"}
+                variant={"outlined"}
+                modal={({ handleClose }) => null}
+              />
+            </Box>
+          </Can>
+        </Box>
+
         <Box display="flex" mt={3}>
-          {bankAccounts.length > 0 ? (
-            bankAccounts.map((bankAccount, index) => (
-              <Box mr={2} key={index}>
-                <BankAccountInfoCard
-                  isCannabisCompliantVisible
-                  isEditAllowed={check(role, Action.EditBankAccount)}
-                  isTemplateNameVisible
-                  isVerificationVisible
-                  bankAccount={bankAccount}
-                  handleDataChange={handleDataChange}
-                />
-              </Box>
-            ))
-          ) : (
-            <Typography variant="body2">No bank accounts set up yet</Typography>
-          )}
+          <BankAccountsDataGrid
+            bankAccounts={bankAccounts}
+            selectedBankAccountIds={selectedBankAccountIds}
+            handleSelectBankAccounts={handleSelectBankAccounts}
+          />
         </Box>
       </Box>
       <Box mt={4}>
