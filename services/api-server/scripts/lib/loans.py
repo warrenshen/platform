@@ -80,9 +80,6 @@ def populate_frozen_loan_reports_for_customer(
 						loan_report_id_to_loan_report[str(loan_report.id)] = loan_report
 
 					for loan in loans:
-						if not loan.is_frozen:
-							continue
-
 						cur_loan_update = loan_id_to_update[str(loan.id)]
 
 						if not loan.loan_report_id:
