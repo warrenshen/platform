@@ -985,3 +985,22 @@ def create_company_count_metrc_sales_receipts_query(company_identifier: Union[st
 					1,
 					2
 	"""
+
+def create_not_completed_metrc_download_summaries_query() -> str:
+	return f"""
+		select
+			metrc_download_summaries.id,
+			companies.name as company_name,
+			companies.identifier as company_identifier,
+			metrc_download_summaries.date,
+			metrc_download_summaries.status,
+			metrc_download_summaries.license_number,
+		from
+			metrc_download_summaries
+			inner join companies on metrc_download_summaries.company_id = companies.id
+		where
+			True
+			and metrc_download_summaries.status != 'completed'
+		order by
+			3
+	"""
