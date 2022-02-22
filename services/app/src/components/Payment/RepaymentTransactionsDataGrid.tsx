@@ -158,6 +158,16 @@ export default function RepaymentTransactionsDataGrid({
         }) => PaymentMethodToLabel[payment.method as PaymentMethodEnum],
       },
       {
+        dataField: "transaction.to_principal",
+        caption: "Applied to Principle",
+        width: ColumnWidths.MinWidth,
+      },
+      {
+        dataField: "transaction.to_interest",
+        caption: "Applied to Interest",
+        width: ColumnWidths.MinWidth,
+      },
+      {
         dataField: "payment.amount",
         caption: "Total Amount",
         minWidth: ColumnWidths.Currency,
