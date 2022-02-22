@@ -13,6 +13,13 @@ import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ColumnWidths } from "lib/tables";
 import { useMemo, useState } from "react";
 
+const getIsVerifiedLicenseValue = (vendor: any) => {
+  if (!vendor || vendor?.is_cannabis === null) {
+    return null;
+  }
+  return vendor?.licenses.length > 0;
+};
+
 function getRows(
   vendorPartnerships: (
     | VendorPartnershipFragment
@@ -25,8 +32,7 @@ function getRows(
       vendor_name: getCompanyDisplayName(vendorPartnership.vendor),
       is_verified_bank_account: !!(vendorPartnership as VendorPartnershipFragment)
         .vendor_bank_account?.verified_at,
-      is_verified_license:
-        (vendorPartnership.vendor?.licenses || []).length > 0,
+      is_verified_license: getIsVerifiedLicenseValue(vendorPartnership.vendor),
       is_approved: !!vendorPartnership.approved_at,
     };
   });
@@ -57,6 +63,12 @@ export default function VendorPartnershipsDataGrid({
 
   const verificationCellRenderer = useMemo(
     () => ({ value }: { value: string }) => <VerificationChip value={value} />,
+    []
+  );
+
+  const verifiedLicenseCheckboxRenderer = useMemo(
+    () => ({ value }: { value: string }) =>
+      value === null ? "N/A" : <VerificationChip value={value} />,
     []
   );
 
@@ -120,7 +132,7 @@ export default function VendorPartnershipsDataGrid({
         caption: "Verified License",
         alignment: "center",
         width: ColumnWidths.Checkbox,
-        cellRender: verificationCellRenderer,
+        cellRender: verifiedLicenseCheckboxRenderer,
       },
       {
         visible: !!isRoleBankUser,
@@ -143,6 +155,7 @@ export default function VendorPartnershipsDataGrid({
       isRoleBankUser,
       isVendorAgreementVisible,
       verificationCellRenderer,
+      verifiedLicenseCheckboxRenderer,
     ]
   );
 

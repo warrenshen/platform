@@ -24471,6 +24471,7 @@ export type Vendors = {
   employer_identification_number?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
   identifier?: Maybe<Scalars["String"]>;
+  is_cannabis?: Maybe<Scalars["Boolean"]>;
   latest_loan_identifier?: Maybe<Scalars["Int"]>;
   /** An array relationship */
   licenses: Array<CompanyLicenses>;
@@ -24611,6 +24612,7 @@ export type VendorsBoolExp = {
   employer_identification_number?: Maybe<StringComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   identifier?: Maybe<StringComparisonExp>;
+  is_cannabis?: Maybe<BooleanComparisonExp>;
   latest_loan_identifier?: Maybe<IntComparisonExp>;
   licenses?: Maybe<CompanyLicensesBoolExp>;
   name?: Maybe<StringComparisonExp>;
@@ -24642,6 +24644,7 @@ export type VendorsInsertInput = {
   employer_identification_number?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
   identifier?: Maybe<Scalars["String"]>;
+  is_cannabis?: Maybe<Scalars["Boolean"]>;
   latest_loan_identifier?: Maybe<Scalars["Int"]>;
   licenses?: Maybe<CompanyLicensesArrRelInsertInput>;
   name?: Maybe<Scalars["String"]>;
@@ -24721,6 +24724,7 @@ export type VendorsOrderBy = {
   employer_identification_number?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   identifier?: Maybe<OrderBy>;
+  is_cannabis?: Maybe<OrderBy>;
   latest_loan_identifier?: Maybe<OrderBy>;
   licenses_aggregate?: Maybe<CompanyLicensesAggregateOrderBy>;
   name?: Maybe<OrderBy>;
@@ -24756,6 +24760,8 @@ export enum VendorsSelectColumn {
   /** column name */
   Identifier = "identifier",
   /** column name */
+  IsCannabis = "is_cannabis",
+  /** column name */
   LatestLoanIdentifier = "latest_loan_identifier",
   /** column name */
   Name = "name",
@@ -24783,6 +24789,7 @@ export type VendorsSetInput = {
   employer_identification_number?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
   identifier?: Maybe<Scalars["String"]>;
+  is_cannabis?: Maybe<Scalars["Boolean"]>;
   latest_loan_identifier?: Maybe<Scalars["Int"]>;
   name?: Maybe<Scalars["String"]>;
   needs_balance_recomputed?: Maybe<Scalars["Boolean"]>;
@@ -26965,7 +26972,14 @@ export type MetrcApiKeyFragment = Pick<
 
 export type VendorFragment = Pick<
   Vendors,
-  "id" | "address" | "country" | "state" | "city" | "zip_code" | "phone_number"
+  | "id"
+  | "address"
+  | "country"
+  | "state"
+  | "city"
+  | "zip_code"
+  | "phone_number"
+  | "is_cannabis"
 > &
   VendorLimitedFragment;
 
@@ -27784,6 +27798,7 @@ export const VendorFragmentDoc = gql`
     city
     zip_code
     phone_number
+    is_cannabis
     ...VendorLimited
   }
   ${VendorLimitedFragmentDoc}

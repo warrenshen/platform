@@ -87,6 +87,7 @@ fragment Vendor on vendors {
   city
   zip_code
   phone_number
+  is_cannabis
   ...VendorLimited
 }
 
