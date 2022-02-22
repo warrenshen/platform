@@ -2,7 +2,14 @@ query GetCompanyForBank($companyId: uuid!) {
   companies_by_pk(id: $companyId) {
     id
     ...Company
-    bank_accounts {
+    bank_accounts(
+      where: {
+        _or: [
+          { is_deleted: { _is_null: true } }
+          { is_deleted: { _eq: false } }
+        ]
+      }
+    ) {
       id
       ...BankAccount
     }

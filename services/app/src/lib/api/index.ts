@@ -134,6 +134,10 @@ export const feesRoutes = {
   submitMonthEndPayments: "/finance/fees/submit_month_end_payments",
 };
 
+export const bankAccountsRoutes = {
+  deleteBankAccount: "/bank_accounts/delete_bank_account",
+};
+
 export const creditsRoutes = {
   createCreditForCustomer: "/finance/credits/create_credit_for_customer",
   disburseCreditToCustomer: "/finance/credits/disburse_credit_to_customer",

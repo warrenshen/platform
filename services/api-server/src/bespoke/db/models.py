@@ -1352,6 +1352,9 @@ class BankAccount(Base):
 	verified_date = Column(Date)
 	verified_at = Column(DateTime)
 
+	# This is used to perform the soft delete.
+	is_deleted = Column(Boolean, default=False)
+
 AsyncPipelineDict = TypedDict('AsyncPipelineDict', {
 	'id': str,
 	'name': str,

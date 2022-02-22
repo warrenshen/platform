@@ -1,5 +1,6 @@
 import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
 import CreateUpdateBankAccountModal from "components/BankAccount/CreateUpdateBankAccountModal";
+import DeleteBankAccountModal from "components/BankAccount/DeleteBankAccountModal";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import Page from "components/Shared/Page";
@@ -147,7 +148,15 @@ export default function BankSettingsPage() {
                   isDisabled={selectedBankAccountIds.length !== 1}
                   label={"Delete Bank Account"}
                   variant={"outlined"}
-                  modal={({ handleClose }) => null}
+                  modal={({ handleClose }) => (
+                    <DeleteBankAccountModal
+                      bankAccount={selectedBankAccount as BankAccountFragment}
+                      handleClose={() => {
+                        refetchBankAccounts();
+                        handleClose();
+                      }}
+                    />
+                  )}
                 />
               </Box>
             </Can>

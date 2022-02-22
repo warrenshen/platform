@@ -498,6 +498,7 @@ export type BankAccounts = {
   intermediary_bank_address?: Maybe<Scalars["String"]>;
   intermediary_bank_name?: Maybe<Scalars["String"]>;
   is_cannabis_compliant: Scalars["Boolean"];
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   is_wire_intermediary?: Maybe<Scalars["Boolean"]>;
   recipient_address?: Maybe<Scalars["String"]>;
   recipient_address_2?: Maybe<Scalars["String"]>;
@@ -605,6 +606,7 @@ export type BankAccountsBoolExp = {
   intermediary_bank_address?: Maybe<StringComparisonExp>;
   intermediary_bank_name?: Maybe<StringComparisonExp>;
   is_cannabis_compliant?: Maybe<BooleanComparisonExp>;
+  is_deleted?: Maybe<BooleanComparisonExp>;
   is_wire_intermediary?: Maybe<BooleanComparisonExp>;
   recipient_address?: Maybe<StringComparisonExp>;
   recipient_address_2?: Maybe<StringComparisonExp>;
@@ -646,6 +648,7 @@ export type BankAccountsInsertInput = {
   intermediary_bank_address?: Maybe<Scalars["String"]>;
   intermediary_bank_name?: Maybe<Scalars["String"]>;
   is_cannabis_compliant?: Maybe<Scalars["Boolean"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   is_wire_intermediary?: Maybe<Scalars["Boolean"]>;
   recipient_address?: Maybe<Scalars["String"]>;
   recipient_address_2?: Maybe<Scalars["String"]>;
@@ -815,6 +818,7 @@ export type BankAccountsOrderBy = {
   intermediary_bank_address?: Maybe<OrderBy>;
   intermediary_bank_name?: Maybe<OrderBy>;
   is_cannabis_compliant?: Maybe<OrderBy>;
+  is_deleted?: Maybe<OrderBy>;
   is_wire_intermediary?: Maybe<OrderBy>;
   recipient_address?: Maybe<OrderBy>;
   recipient_address_2?: Maybe<OrderBy>;
@@ -869,6 +873,8 @@ export enum BankAccountsSelectColumn {
   /** column name */
   IsCannabisCompliant = "is_cannabis_compliant",
   /** column name */
+  IsDeleted = "is_deleted",
+  /** column name */
   IsWireIntermediary = "is_wire_intermediary",
   /** column name */
   RecipientAddress = "recipient_address",
@@ -912,6 +918,7 @@ export type BankAccountsSetInput = {
   intermediary_bank_address?: Maybe<Scalars["String"]>;
   intermediary_bank_name?: Maybe<Scalars["String"]>;
   is_cannabis_compliant?: Maybe<Scalars["Boolean"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   is_wire_intermediary?: Maybe<Scalars["Boolean"]>;
   recipient_address?: Maybe<Scalars["String"]>;
   recipient_address_2?: Maybe<Scalars["String"]>;
@@ -960,6 +967,8 @@ export enum BankAccountsUpdateColumn {
   IntermediaryBankName = "intermediary_bank_name",
   /** column name */
   IsCannabisCompliant = "is_cannabis_compliant",
+  /** column name */
+  IsDeleted = "is_deleted",
   /** column name */
   IsWireIntermediary = "is_wire_intermediary",
   /** column name */
@@ -28577,7 +28586,19 @@ export type GetAsyncPipelineQueryResult = Apollo.QueryResult<
 >;
 export const GetBespokeBankAccountsDocument = gql`
   query GetBespokeBankAccounts {
-    bank_accounts(where: { company_id: { _is_null: true } }) {
+    bank_accounts(
+      where: {
+        _and: [
+          { company_id: { _is_null: true } }
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+        ]
+      }
+    ) {
       ...BankAccount
     }
   }
@@ -35383,7 +35404,14 @@ export const GetCompanyForBankDocument = gql`
     companies_by_pk(id: $companyId) {
       id
       ...Company
-      bank_accounts {
+      bank_accounts(
+        where: {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+      ) {
         id
         ...BankAccount
       }

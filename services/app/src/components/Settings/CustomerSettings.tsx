@@ -1,6 +1,7 @@
 import { Box, Typography } from "@material-ui/core";
 import BankAccountsDataGrid from "components/BankAccounts/BankAccountsDataGrid";
 import CreateUpdateBankAccountModal from "components/BankAccount/CreateUpdateBankAccountModal";
+import DeleteBankAccountModal from "components/BankAccount/DeleteBankAccountModal";
 import CompanySettingsCard from "components/Settings/CompanySettingsCard";
 import EditCustomerSettingsModal from "components/Settings/EditCustomerSettingsModal";
 import ManageUsersArea from "components/Settings/ManageUsersArea";
@@ -176,7 +177,15 @@ export default function CustomerSettings({
                 isDisabled={selectedBankAccountIds.length !== 1}
                 label={"Delete Bank Account"}
                 variant={"outlined"}
-                modal={({ handleClose }) => null}
+                modal={({ handleClose }) => (
+                  <DeleteBankAccountModal
+                    bankAccount={selectedBankAccount as BankAccountFragment}
+                    handleClose={() => {
+                      handleDataChange();
+                      handleClose();
+                    }}
+                  />
+                )}
               />
             </Box>
           </Can>
