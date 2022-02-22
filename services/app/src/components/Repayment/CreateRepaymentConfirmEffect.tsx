@@ -24,6 +24,7 @@ interface Props {
   payment: PaymentsInsertInput;
   loansBeforeAfterPayment: LoanBeforeAfterPayment[];
   isPayAccountFeesVisible: boolean;
+  showAddress?: boolean;
 }
 
 function getAlertText(payment: PaymentsInsertInput) {
@@ -76,6 +77,19 @@ function getAlertText(payment: PaymentsInsertInput) {
   }
 }
 
+function getAddressDetails(bespokeCollectionsBankAccount: any) {
+  return (
+    <Box mt={4}>
+      <Typography variant="h6">Address</Typography>
+      <Typography variant="body1">
+        {bespokeCollectionsBankAccount.recipient_address}
+        <br />
+        {bespokeCollectionsBankAccount.recipient_address_2}
+      </Typography>
+    </Box>
+  );
+}
+
 export default function CreateRepaymentConfirmEffect({
   companyId,
   productType,
@@ -85,6 +99,7 @@ export default function CreateRepaymentConfirmEffect({
   loansBeforeAfterPayment,
   payment,
   isPayAccountFeesVisible,
+  showAddress = false,
 }: Props) {
   const { data } = useBankAccountsForTransferQuery({
     fetchPolicy: "network-only",
@@ -94,6 +109,11 @@ export default function CreateRepaymentConfirmEffect({
   });
   const bespokeCollectionsBankAccount =
     data?.companies_by_pk?.settings?.collections_bespoke_bank_account;
+
+  const showBankAccountAddressDetails =
+    showAddress &&
+    payment.method === PaymentMethodEnum.Wire &&
+    bespokeCollectionsBankAccount;
 
   return (
     <Box>
@@ -193,6 +213,10 @@ export default function CreateRepaymentConfirmEffect({
                 </Box>
               </>
             )}
+
+            {showBankAccountAddressDetails &&
+              getAddressDetails(bespokeCollectionsBankAccount)}
+
             <Box mt={4}>
               <Alert severity="info">
                 <Typography variant="body1">{getAlertText(payment)}</Typography>

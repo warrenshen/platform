@@ -347,6 +347,7 @@ export default function CreateRepaymentModal({
             payment={payment}
             loansBeforeAfterPayment={loansBeforeAfterPayment}
             isPayAccountFeesVisible={isPayAccountFeesVisible}
+            showAddress={true}
           />
         )}
         {errMsg && (
