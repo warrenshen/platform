@@ -204,33 +204,33 @@
   - role: company_admin
     permission:
       columns:
-      - account_number
-      - account_title
-      - account_type
-      - ach_default_memo
-      - bank_address
-      - bank_name
-      - can_ach
-      - can_wire
-      - company_id
-      - created_at
-      - id
-      - intermediary_account_name
-      - intermediary_account_number
-      - intermediary_bank_address
-      - intermediary_bank_name
-      - is_cannabis_compliant
-      - is_deleted
-      - is_wire_intermediary
-      - recipient_address
-      - recipient_address_2
-      - recipient_name
-      - routing_number
-      - updated_at
-      - verified_at
-      - verified_date
-      - wire_default_memo
-      - wire_routing_number
+        - account_number
+        - account_title
+        - account_type
+        - ach_default_memo
+        - bank_address
+        - bank_name
+        - can_ach
+        - can_wire
+        - company_id
+        - created_at
+        - id
+        - intermediary_account_name
+        - intermediary_account_number
+        - intermediary_bank_address
+        - intermediary_bank_name
+        - is_cannabis_compliant
+        - is_deleted
+        - is_wire_intermediary
+        - recipient_address
+        - recipient_address_2
+        - recipient_name
+        - routing_number
+        - updated_at
+        - verified_at
+        - verified_date
+        - wire_default_memo
+        - wire_routing_number
       filter:
         _or:
         - company_id:
@@ -241,37 +241,102 @@
   - role: company_read_only
     permission:
       columns:
-      - account_number
-      - account_title
-      - account_type
-      - ach_default_memo
-      - bank_address
-      - bank_name
-      - can_ach
-      - can_wire
-      - company_id
-      - created_at
-      - id
-      - intermediary_account_name
-      - intermediary_account_number
-      - intermediary_bank_address
-      - intermediary_bank_name
-      - is_cannabis_compliant
-      - is_deleted
-      - is_wire_intermediary
-      - recipient_address
-      - recipient_address_2
-      - recipient_name
-      - routing_number
-      - updated_at
-      - verified_at
-      - verified_date
-      - wire_default_memo
-      - wire_routing_number
+        - account_number
+        - account_title
+        - account_type
+        - ach_default_memo
+        - bank_address
+        - bank_name
+        - can_ach
+        - can_wire
+        - company_id
+        - created_at
+        - id
+        - intermediary_account_name
+        - intermediary_account_number
+        - intermediary_bank_address
+        - intermediary_bank_name
+        - is_cannabis_compliant
+        - is_deleted
+        - is_wire_intermediary
+        - recipient_address
+        - recipient_address_2
+        - recipient_name
+        - routing_number
+        - updated_at
+        - verified_at
+        - verified_date
+        - wire_default_memo
+        - wire_routing_number
       filter:
         _or:
         - company_id:
             _eq: X-Hasura-Company-Id
+        - assigned_companies_for_collection_in_settings:
+            company_id:
+              _eq: X-Hasura-Company-Id
+  - role: invoice_reviewer
+    permission:
+      columns:
+        - account_number
+        - account_title
+        - account_type
+        - ach_default_memo
+        - bank_address
+        - bank_name
+        - can_ach
+        - can_wire
+        - company_id
+        - id
+        - intermediary_account_name
+        - intermediary_account_number
+        - intermediary_bank_address
+        - intermediary_bank_name
+        - is_cannabis_compliant
+        - is_deleted
+        - is_wire_intermediary
+        - recipient_address
+        - recipient_address_2
+        - recipient_name
+        - routing_number
+        - verified_at
+        - verified_date
+        - wire_default_memo
+        - wire_routing_number
+      filter:
+        assigned_companies_for_collection_in_settings:
+          company:
+            id:
+              _eq: X-Hasura-Company-Id
+  - role: purchase_order_reviewer
+    permission:
+      columns:
+        - account_number
+        - account_title
+        - account_type
+        - ach_default_memo
+        - bank_address
+        - bank_name
+        - can_ach
+        - can_wire
+        - company_id
+        - id
+        - intermediary_account_name
+        - intermediary_account_number
+        - intermediary_bank_address
+        - intermediary_bank_name
+        - is_cannabis_compliant
+        - is_deleted
+        - is_wire_intermediary
+        - recipient_address
+        - recipient_address_2
+        - recipient_name
+        - routing_number
+        - wire_default_memo
+        - wire_routing_number
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
   update_permissions:
     - role: bank_admin
       permission:
