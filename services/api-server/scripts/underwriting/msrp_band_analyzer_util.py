@@ -1,0 +1,20 @@
+TRANSFER_PACKAGES_START_DATE = '2020-01-01'
+SALES_TRANSACTIONS_START_DATE = '2020-01-01'
+CURRENT_MONTH = '2022-01'
+
+COMPANY_IDENTIFIER_LIST = [
+    'RA',
+    'HPCC',
+    'SFVPC',
+    'EMA',
+    'EMF',
+    'EMM',
+    'EMT',
+    'GRG',
+    'ST',
+    'EL'
+]
+
+CONFIDENCE_LEVEL = 95
+ERROR_STYLE = 'band'
+
