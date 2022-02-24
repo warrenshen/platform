@@ -1,4 +1,4 @@
-import { Box, Tab, Tabs } from "@material-ui/core";
+import { Tab, Tabs } from "@material-ui/core";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
 import DebtFacilityOpenTab from "pages/Bank/DebtFacility/DebtFacilityOpenTab";
@@ -6,7 +6,11 @@ import DebtFacilityActionRequiredTab from "pages/Bank/DebtFacility/DebtFacilityA
 import DebtFacilityAllTab from "pages/Bank/DebtFacility/DebtFacilityAllTab";
 import DebtFacilityReportTab from "pages/Bank/DebtFacility/DebtFacilityReportTab";
 import DebtFacilityAdminTab from "pages/Bank/DebtFacility/DebtFacilityAdminTab";
-import { useGetOpenLoansByDebtFacilityStatusesSubscription } from "generated/graphql";
+import DebtFacilityCapacitySummary from "components/DebtFacility/DebtFacilityCapacitySummary";
+import {
+  useGetDebtFacilityCurrentCapacitiesSubscription,
+  useGetOpenLoansByDebtFacilityStatusesSubscription,
+} from "generated/graphql";
 import { useState } from "react";
 import styled from "styled-components";
 
@@ -26,6 +30,7 @@ const SectionSpace = styled.div`
 export default function BankDebtFacilityPage() {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
+  // Pulls data for action required tab, grabs data here to update count in tab
   const { data, error } = useGetOpenLoansByDebtFacilityStatusesSubscription({
     variables: {
       statuses: ["update_required"],
@@ -38,18 +43,49 @@ export default function BankDebtFacilityPage() {
   const loansWithRequiredUpdate = data?.loans || [];
   const updateRequiredCount = loansWithRequiredUpdate.length;
 
+  // Get maximum capacity number
+  const {
+    data: capacityData,
+    error: capacityError,
+  } = useGetDebtFacilityCurrentCapacitiesSubscription();
+  if (capacityError) {
+    console.error({ capacityError });
+  }
+  const debtFacilities = capacityData?.debt_facilities || [];
+  const totalCapacity = debtFacilities
+    .map((facility) => {
+      return facility.debt_facility_capacities[0]?.amount;
+    })
+    .reduce((a, b) => a + b, 0);
+
+  // Get total of loans currently in the debt facility
+  const {
+    data: debtFacilityData,
+    error: debtFacilityError,
+  } = useGetOpenLoansByDebtFacilityStatusesSubscription({
+    variables: {
+      statuses: ["sold_into_debt_facility"],
+    },
+  });
+  if (debtFacilityError) {
+    console.error({ debtFacilityError });
+    alert(`Error in query (details in console): ${debtFacilityError.message}`);
+  }
+  const debtFacilityLoans = debtFacilityData?.loans || [];
+  const currentUsage = debtFacilityLoans
+    .map((loan) => {
+      return loan.outstanding_principal_balance;
+    })
+    .reduce((a, b) => a + b, 0);
+
   return (
     <Page appBarTitle={"Debt Facility"}>
       <PageContent title={"Debt Facility"}>
         <Container>
-          <Box display="flex" flexDirection="row">
-            <Box width="50%" flexDirection="row">
-              Stub for numerical debt facility capacity
-            </Box>
-            <Box width="50%" flexDirection="row" alignItems="right">
-              Stub for percentage debt facility capacity
-            </Box>
-          </Box>
+          <DebtFacilityCapacitySummary
+            currentUsage={currentUsage}
+            maxCapacity={totalCapacity}
+          />
           <Tabs
             value={selectedTabIndex}
             indicatorColor="primary"

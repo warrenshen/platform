@@ -27184,6 +27184,20 @@ export type GetDebtFacilitiesSubscription = {
   >;
 };
 
+export type GetDebtFacilityCurrentCapacitiesSubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetDebtFacilityCurrentCapacitiesSubscription = {
+  debt_facilities: Array<
+    Pick<DebtFacilities, "id"> & {
+      debt_facility_capacities: Array<
+        Pick<DebtFacilityCapacities, "id"> & DebtFacilityCapacityLimitedFragment
+      >;
+    } & DebtFacilityLimitedFragment
+  >;
+};
+
 export type GetEbbaApplicationQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -31717,6 +31731,51 @@ export type GetDebtFacilitiesSubscriptionHookResult = ReturnType<
   typeof useGetDebtFacilitiesSubscription
 >;
 export type GetDebtFacilitiesSubscriptionResult = Apollo.SubscriptionResult<GetDebtFacilitiesSubscription>;
+export const GetDebtFacilityCurrentCapacitiesDocument = gql`
+  subscription GetDebtFacilityCurrentCapacities {
+    debt_facilities {
+      id
+      ...DebtFacilityLimited
+      debt_facility_capacities(order_by: [{ changed_at: desc }], limit: 1) {
+        id
+        ...DebtFacilityCapacityLimited
+      }
+    }
+  }
+  ${DebtFacilityLimitedFragmentDoc}
+  ${DebtFacilityCapacityLimitedFragmentDoc}
+`;
+
+/**
+ * __useGetDebtFacilityCurrentCapacitiesSubscription__
+ *
+ * To run a query within a React component, call `useGetDebtFacilityCurrentCapacitiesSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetDebtFacilityCurrentCapacitiesSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetDebtFacilityCurrentCapacitiesSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetDebtFacilityCurrentCapacitiesSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    GetDebtFacilityCurrentCapacitiesSubscription,
+    GetDebtFacilityCurrentCapacitiesSubscriptionVariables
+  >
+) {
+  return Apollo.useSubscription<
+    GetDebtFacilityCurrentCapacitiesSubscription,
+    GetDebtFacilityCurrentCapacitiesSubscriptionVariables
+  >(GetDebtFacilityCurrentCapacitiesDocument, baseOptions);
+}
+export type GetDebtFacilityCurrentCapacitiesSubscriptionHookResult = ReturnType<
+  typeof useGetDebtFacilityCurrentCapacitiesSubscription
+>;
+export type GetDebtFacilityCurrentCapacitiesSubscriptionResult = Apollo.SubscriptionResult<GetDebtFacilityCurrentCapacitiesSubscription>;
 export const GetEbbaApplicationDocument = gql`
   query GetEbbaApplication($id: uuid!) {
     ebba_applications_by_pk(id: $id) {

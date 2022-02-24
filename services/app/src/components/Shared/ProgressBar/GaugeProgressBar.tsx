@@ -9,8 +9,6 @@ const Container = styled.div`
 
 const Gauge = styled.div`
   position: relative;
-  width: 300px;
-  height: 300px;
   transform: rotate(-90deg);
 `;
 
@@ -30,7 +28,6 @@ const Copy = styled.div`
 
 const TitleText = styled(Typography)`
   color: rgba(118, 147, 98, 1);
-  font-size: 40px;
   font-weight: 400;
 `;
 
@@ -78,32 +75,53 @@ const useStyles = makeStyles((theme) => ({
 
 interface Props {
   value: number | null;
+  valueFontSize: number;
+  caption: string;
+  circleSize: number;
 }
 
-export default function GaugeProgressBar({ value }: Props) {
+export default function GaugeProgressBar({
+  value,
+  valueFontSize,
+  caption,
+  circleSize,
+}: Props) {
   const classes = useStyles();
+  const gaugeWidth = circleSize.toString() + "px";
+  const valueFont = valueFontSize.toString() + "px";
 
   return (
     <Container>
-      <Gauge>
+      <Gauge
+        style={{
+          width: gaugeWidth,
+          height: gaugeWidth,
+        }}
+      >
         <BorderCircularBackground
           variant={"determinate"}
-          size={300}
+          size={circleSize}
           thickness={1}
           value={50}
           className={classes.bottom}
         />
         <BorderCircularProgress
           variant={"determinate"}
-          size={300}
+          size={circleSize}
           thickness={1}
           value={(value || 0.0) * 0.5}
         />
       </Gauge>
       <Copy>
-        <TitleText>{value !== null ? `${value}%` : "TBD"}</TitleText>
+        <TitleText
+          style={{
+            fontSize: valueFont,
+          }}
+        >
+          {value !== null ? `${value}%` : "TBD"}
+        </TitleText>
         <Typography variant="body1" color="textSecondary">
-          Borrowing Limit Used
+          {caption}
         </Typography>
       </Copy>
     </Container>

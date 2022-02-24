@@ -162,7 +162,12 @@ export default function CustomerFinancialSummaryOverview({
           </Box>
         </Box>
         <Box>
-          <GaugeProgressBar value={roundedLimitPercent} />
+          <GaugeProgressBar
+            value={roundedLimitPercent}
+            valueFontSize={40}
+            caption={"Borrowing Limit Used"}
+            circleSize={300}
+          />
         </Box>
       </Box>
       <Box mb={8}>

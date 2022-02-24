@@ -62,3 +62,18 @@ subscription GetDebtFacilities {
     }
   }
 }
+
+subscription  GetDebtFacilityCurrentCapacities {
+  debt_facilities {
+    id
+    ...DebtFacilityLimited
+    debt_facility_capacities (
+      order_by: [{ changed_at: desc }],
+      limit: 1,
+    ) {
+      id
+      ...DebtFacilityCapacityLimited
+
+    }
+  }
+}
