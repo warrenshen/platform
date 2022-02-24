@@ -40,7 +40,6 @@ def _delete_db() -> None:
 	engine = models.create_engine()
 
 	models.User.__table__.drop(engine)
-	models.Customer.__table__.drop(engine)
 	models.PurchaseOrder.__table__.drop(engine)
 
 

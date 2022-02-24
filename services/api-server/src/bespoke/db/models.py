@@ -104,6 +104,7 @@ class User(Base):
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	parent_company_id = Column(GUID, nullable=True) # TODO(warrenshen): remove nullable=True in the future.
 	company_id = Column(GUID, nullable=True)
 	email = Column(String(120), unique=True, nullable=False)
 	password = Column(Text, nullable=False)
@@ -121,14 +122,21 @@ class UserRole(Base):
 	value = Column(String, primary_key=True)
 	display_name = Column(String)
 
-
-class Customer(Base):
-	__tablename__ = 'customer'
+class ParentCompany(Base):
+	"""
+	A ParentCompany (entity run by a single operator) has many Companies
+	(subentities under the aforementioned entity). For example:
+	- ParentCompany: Embarc
+	- Company 1: Embarc Alameda (Location 1)
+	- Company 2: Embarc Martinez (Location 2)
+	- Company 3: Embarc Tahoe (Location 3)
+	"""
+	__tablename__ = 'parent_companies'
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	name = Column(String)
-	phone = Column(String)
-	email = Column(String)
 
 CompanyDict = TypedDict('CompanyDict', {
 	'id': str,
@@ -138,10 +146,12 @@ CompanyDict = TypedDict('CompanyDict', {
 
 class Company(Base):
 	"""
+	A Company belongs to a ParentCompany.
 	"""
 	__tablename__ = 'companies'
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	parent_company_id = Column(GUID, nullable=True) # TODO(warrenshen): remove nullable=True in the future.
 	company_settings_id = Column(GUID)
 	contract_id = Column(GUID)
 	name = Column(String)
