@@ -152,6 +152,7 @@ class Company(Base):
 	is_customer = Column(Boolean)
 	is_vendor = Column(Boolean)
 	is_payor = Column(Boolean)
+	debt_facility_status = Column(String)
 
 	# Last created identifier for a loan belonging to this company.
 	latest_loan_identifier = Column(Integer, nullable=False, default=0)
