@@ -391,11 +391,14 @@ export enum PartnerEnum {
   BOTH = "Vendor / Payor",
 }
 
+// Debt Facility Loan Status
+
 export enum DebtFacilityStatusEnum {
   SOLD_INTO_DEBT_FACILITY = "sold_into_debt_facility",
   BESPOKE_BALANCE_SHEET = "bespoke_balance_sheet",
   REPURCHASED = "repurchased",
   UPDATE_REQUIRED = "update_required",
+  WAIVER = "waiver",
 }
 
 export const DebtFacilityStatusToLabel = {
@@ -403,4 +406,58 @@ export const DebtFacilityStatusToLabel = {
   [DebtFacilityStatusEnum.BESPOKE_BALANCE_SHEET]: "Bespoke",
   [DebtFacilityStatusEnum.REPURCHASED]: "Repurchased",
   [DebtFacilityStatusEnum.UPDATE_REQUIRED]: "Update Required",
+  [DebtFacilityStatusEnum.WAIVER]: "Waiver",
+};
+
+/*
+  Company Debt Facility status supercedes loan debt facility status
+  i.e. If a company is ineligible, then that supercedes whether or not
+  a specific loan can be sold into the debt facility
+  Caveat: If there is a waiver, it is eligible regardless
+*/
+export const DebtFacilityStatusToEligibility = {
+  [DebtFacilityStatusEnum.SOLD_INTO_DEBT_FACILITY]: "Eligible",
+  [DebtFacilityStatusEnum.BESPOKE_BALANCE_SHEET]: "Eligible",
+  // Repurchased is for when  company goes from good standing to bad standing
+  // If/when a company reverses and is in good standing again, remaining open loans should
+  // be automatically changed to the bespoke balance sheet status
+  [DebtFacilityStatusEnum.REPURCHASED]: "Ineligible",
+  [DebtFacilityStatusEnum.UPDATE_REQUIRED]: "Ineligible",
+  [DebtFacilityStatusEnum.WAIVER]: "Waiver",
+};
+
+// Debt Facility Company Status
+
+export enum DebtFacilityCompanyStatusEnum {
+  GOOD_STANDING = "good_standing",
+  ON_PROBATION = "on_probation",
+  OUT_OF_COMPLIANCE = "out_of_compliance",
+  DEFAULTING = "defaulting",
+  // must be default state for dispensary financing clients
+  INELIGIBLE_FOR_FACILITY = "ineligible_for_facility",
+  WAIVER = "waiver",
+}
+
+export const DebtFacilityCompanyStatusToLabel = {
+  [DebtFacilityCompanyStatusEnum.GOOD_STANDING]: "Good Standing",
+  [DebtFacilityCompanyStatusEnum.ON_PROBATION]: "On Probation",
+  [DebtFacilityCompanyStatusEnum.OUT_OF_COMPLIANCE]: "Out of Compliance",
+  [DebtFacilityCompanyStatusEnum.DEFAULTING]: "Defaulting",
+  [DebtFacilityCompanyStatusEnum.INELIGIBLE_FOR_FACILITY]:
+    "Ineligible for Facility",
+  [DebtFacilityCompanyStatusEnum.WAIVER]: "Waiver",
+};
+
+/* 
+Splitting this out because while we have multiple "bad" states, that summarizes
+to less buckets for the report we send to the debt facility. However, the mutliple
+bad states is still useful for internal purposes
+*/
+export const DebtFacilityCompanyStatusToEligibility = {
+  [DebtFacilityCompanyStatusEnum.GOOD_STANDING]: "Eligible",
+  [DebtFacilityCompanyStatusEnum.ON_PROBATION]: "Ineligible",
+  [DebtFacilityCompanyStatusEnum.OUT_OF_COMPLIANCE]: "Ineligible",
+  [DebtFacilityCompanyStatusEnum.DEFAULTING]: "Ineligible",
+  [DebtFacilityCompanyStatusEnum.INELIGIBLE_FOR_FACILITY]: "Ineligible",
+  [DebtFacilityCompanyStatusEnum.WAIVER]: "Waiver",
 };

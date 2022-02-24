@@ -12,21 +12,27 @@ subscription GetOpenLoansByDebtFacilityStatuses($statuses: [String!]) {
     ]
   }) {
     id
-    ...Loan
+    ...LoanForDebtFacility
     loan_report {
       id
       ...LoanReport
     }
-    company {
-      id
-      ...CompanyLimited
-    }
     purchase_order {
       id
-      vendor {
-        id
-        name
-      }
+      ...PurchaseOrderForDebtFacility
+    }
+    invoice {
+      id
+      ...Invoice
+    }
+    transactions ( where: {
+      _and: [
+        { type: { _eq: "advance"} },
+        # This was the date requested by the finance team w.r.t. CoVenture
+        { effective_date: { _gt: "2021-11-24" }}
+      ]
+    }) {
+      id
     }
   }
 }

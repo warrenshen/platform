@@ -67,6 +67,46 @@ fragment BankAccount on bank_accounts {
   ...BankAccountLimited
 }
 
+fragment CompanyForDebtFacility on companies {
+  id
+  identifier
+  name
+  contract_name
+  employer_identification_number
+  dba_name
+  address
+  country
+  state
+  city
+  zip_code
+  phone_number
+  debt_facility_status
+  licenses (
+    where: {
+      _or: [
+        { is_deleted: { _is_null: true } }
+        { is_deleted: { _eq: false } }
+      ]
+    },
+    order_by: { created_at: desc }
+  ) {
+    id
+    ...CompanyLicense
+  }
+  contracts(
+    where: {
+      _or: [
+        { is_deleted: { _is_null: true } }
+        { is_deleted: { _eq: false } }
+      ]
+    },
+    order_by: { start_date: desc }
+  ) {
+    id
+    ...Contract
+  }
+}
+
 fragment MetrcApiKey on metrc_api_keys {
   id
   created_at
@@ -97,11 +137,56 @@ fragment PurchaseOrder on purchase_orders {
   ...PurchaseOrderLimited
 }
 
+fragment PurchaseOrderForDebtFacility on purchase_orders {
+  id
+  bank_note
+  ...PurchaseOrderLimited
+  purchase_order_metrc_transfers {
+    id
+    metrc_transfer {
+      id
+      created_date
+    }
+  }
+}
+
 fragment Loan on loans {
   id
   loan_report_id
   notes
   ...LoanLimited
+}
+
+fragment LoanForDebtFacility on loans {
+  id
+  loan_report_id
+  notes
+  company_id
+  loan_type
+  artifact_id
+  identifier
+  disbursement_identifier
+  status
+  rejection_note
+  payment_status
+  amount
+  requested_payment_date
+  origination_date
+  maturity_date
+  adjusted_maturity_date
+  outstanding_principal_balance
+  outstanding_interest
+  outstanding_fees
+  requested_at
+  approved_at
+  rejected_at
+  funded_at
+  closed_at
+  company {
+    id
+    identifier
+    ...CompanyForDebtFacility
+  }
 }
 
 fragment LoanReport on loan_reports {
