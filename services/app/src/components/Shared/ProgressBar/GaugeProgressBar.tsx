@@ -7,8 +7,10 @@ const Container = styled.div`
   position: relative;
 `;
 
-const Gauge = styled.div`
+const Gauge = styled.div<{ circleSize: number }>`
   position: relative;
+  width: ${(props) => props.circleSize.toString() + "px"};
+  height: ${(props) => props.circleSize.toString() + "px"};
   transform: rotate(-90deg);
 `;
 
@@ -26,8 +28,9 @@ const Copy = styled.div`
   justify-content: center;
 `;
 
-const TitleText = styled(Typography)`
+const TitleText = styled(Typography)<{ valueFontSize: number }>`
   color: rgba(118, 147, 98, 1);
+  font-size: ${(props) => props.valueFontSize.toString() + "px"};
   font-weight: 400;
 `;
 
@@ -87,17 +90,10 @@ export default function GaugeProgressBar({
   circleSize,
 }: Props) {
   const classes = useStyles();
-  const gaugeWidth = circleSize.toString() + "px";
-  const valueFont = valueFontSize.toString() + "px";
 
   return (
     <Container>
-      <Gauge
-        style={{
-          width: gaugeWidth,
-          height: gaugeWidth,
-        }}
-      >
+      <Gauge circleSize={circleSize}>
         <BorderCircularBackground
           variant={"determinate"}
           size={circleSize}
@@ -113,11 +109,7 @@ export default function GaugeProgressBar({
         />
       </Gauge>
       <Copy>
-        <TitleText
-          style={{
-            fontSize: valueFont,
-          }}
-        >
+        <TitleText valueFontSize={valueFontSize}>
           {value !== null ? `${value}%` : "TBD"}
         </TitleText>
         <Typography variant="body1" color="textSecondary">

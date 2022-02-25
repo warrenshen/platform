@@ -376,11 +376,13 @@ class DebtFacility(Base):
 class DebtFacilityEvent(Base):
 	__tablename__ = "debt_facility_events"
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
-	loan_report_id = cast(GUID, Column(GUID, ForeignKey('loan_reports.id')))
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id'), nullable=True))
+	loan_report_id = cast(GUID, Column(GUID, ForeignKey('loan_reports.id'), nullable=True))
 	event_category = Column(String) # see DebtFacilityEventCategory in db_constants.py
 	event_date = Column(DateTime)
 	event_comments = Column(String, nullable=True)
 	event_amount = Column(Numeric, nullable=True)
+	event_payload = Column(JSON, nullable=True)
 
 class DebtFacilityCapacity(Base):
 	__tablename__ = "debt_facility_capacities"

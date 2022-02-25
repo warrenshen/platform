@@ -48,6 +48,7 @@ fragment CustomerForBank on companies {
   city
   zip_code
   phone_number
+  debt_facility_status
 }
 
 fragment CompanySettings on company_settings {

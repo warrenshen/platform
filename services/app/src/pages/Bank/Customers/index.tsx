@@ -5,6 +5,7 @@ import CreateBulkMinimumMonthlyFeeModal from "components/Fee/CreateMinimumIntere
 import CreateMonthEndPaymentsModal from "components/Fee/CreateMonthEndPaymentsModal";
 import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal";
 import KickoffMonthlySummaryEmailsModal from "components/Reports/KickoffMonthlySummaryEmailsModal";
+import UpdateCompanyDebtFacilityStatusModal from "components/DebtFacility/UpdateCompanyDebtFacilityStatusModal";
 import Can from "components/Shared/Can";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
@@ -17,12 +18,19 @@ import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
+  Companies,
+  CustomerForBankFragment,
   GetCustomersWithMetadataQuery,
   useGetCustomersWithMetadataQuery,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { todayAsDateStringServer } from "lib/date";
-import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
+import {
+  ProductTypeEnum,
+  ProductTypeToLabel,
+  DebtFacilityCompanyStatusEnum,
+  DebtFacilityCompanyStatusToLabel,
+} from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ColumnWidths } from "lib/tables";
 import { filter, sortBy } from "lodash";
@@ -62,10 +70,19 @@ function getRows(
           (field: any) => field.internal_name === "factoring_fee_percentage"
         )?.value * 100
       : 0,
+    debt_facility_status: !!company.debt_facility_status
+      ? DebtFacilityCompanyStatusToLabel[
+          company.debt_facility_status as DebtFacilityCompanyStatusEnum
+        ]
+      : null,
   }));
 }
 
 export default function BankCustomersPage() {
+  const [selectedCompanyIds, setSelectedCompanyIds] = useState<Companies["id"]>(
+    []
+  );
+
   const {
     user: { role },
   } = useContext(CurrentUserContext);
@@ -118,6 +135,13 @@ export default function BankCustomersPage() {
         caption: "Identifier",
         minWidth: ColumnWidths.Identifier,
         width: ColumnWidths.Type,
+      },
+      {
+        dataField: "debt_facility_status",
+        caption: "Debt Facility Status",
+        width: ColumnWidths.ProductType,
+        cellRender: (params: ValueFormatterParams) =>
+          params.row.data.debt_facility_status,
       },
       {
         dataField: "product_type",
@@ -217,6 +241,28 @@ export default function BankCustomersPage() {
     []
   );
 
+  const handleSelectCompanies = useMemo(
+    () => (companies: CustomerForBankFragment[]) => {
+      setSelectedCompanyIds(companies.map((company) => company.id));
+    },
+    [setSelectedCompanyIds]
+  );
+
+  const handleSelectionChanged = useMemo(
+    () => ({ selectedRowsData }: any) =>
+      handleSelectCompanies &&
+      handleSelectCompanies(selectedRowsData as CustomerForBankFragment[]),
+    [handleSelectCompanies]
+  );
+
+  const selectedCompany = useMemo(
+    () =>
+      selectedCompanyIds.length === 1
+        ? customers.find((company) => company.id === selectedCompanyIds[0])
+        : null,
+    [customers, selectedCompanyIds]
+  );
+
   return (
     <Page appBarTitle={"Customers"}>
       <PageContent
@@ -309,7 +355,7 @@ export default function BankCustomersPage() {
           </Box>
           <Box display="flex" flexDirection="row-reverse">
             {check(role, Action.EditCustomerSettings) && (
-              <Box>
+              <Box mr={2}>
                 <ModalButton
                   dataCy={"create-customer-button"}
                   label={"Create Customer"}
@@ -325,14 +371,38 @@ export default function BankCustomersPage() {
                 />
               </Box>
             )}
+            {!!selectedCompany && (
+              <Can perform={Action.UpdateCompanyDebtFacilityStatus}>
+                <Box mr={2}>
+                  <ModalButton
+                    dataCy={"edit-company-debt-facility-status-button"}
+                    label={"Edit Debt Facility Status"}
+                    color={"primary"}
+                    modal={({ handleClose }) => (
+                      <UpdateCompanyDebtFacilityStatusModal
+                        handleClose={() => {
+                          refetch();
+                          handleClose();
+                          setSelectedCompanyIds([]);
+                        }}
+                        selectedCompany={selectedCompany}
+                      />
+                    )}
+                  />
+                </Box>
+              </Can>
+            )}
           </Box>
         </Box>
         <Box display="flex" flexDirection="column">
           <ControlledDataGrid
             isExcelExport
             pager
+            select
             dataSource={rows}
             columns={columns}
+            selectedRowKeys={selectedCompanyIds}
+            onSelectionChanged={handleSelectionChanged}
           />
         </Box>
       </PageContent>

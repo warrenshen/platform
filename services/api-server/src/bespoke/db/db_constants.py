@@ -241,6 +241,7 @@ class InvoiceFileTypeEnum(object):
 class DebtFacilityEventCategory(object):
 	WAIVER = 'waiver'
 	REPURCHASE = 'repurchase'
+	COMPANY_STATUS_CHANGE = 'company_status_change'
 
 # Hasura
 

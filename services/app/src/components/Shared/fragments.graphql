@@ -41,7 +41,6 @@ fragment CompanyLimited on companies {
   id
   name
   dba_name
-  debt_facility_status
 }
 
 fragment Company on companies {

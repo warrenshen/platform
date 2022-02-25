@@ -165,6 +165,7 @@ export const reportsRoutes = {
 export const debtFacilityRoutes = {
   updateCapacity: "/debt_facility/update_capacity",
   createUpdateFacility: "debt_facility/create_update_facility",
+  updateCompanyStatus: "debt_facility/update_company_status",
 };
 
 const api = axios.create({
