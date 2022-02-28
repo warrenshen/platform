@@ -19,7 +19,7 @@ DEDUPE_TUPLES = [
 	# (new_parent_company_id, old_parent_company_id)
 ]
 
-def main() -> None:
+def main(is_test_run: bool = True) -> None:
 	if not os.environ.get("DATABASE_URL"):
 		print("You must set 'DATABASE_URL' in the environment to use this script")
 		exit(1)
@@ -35,13 +35,13 @@ def main() -> None:
 		new_parent_company_id = row[0]
 		old_parent_company_id = row[1]
 
-		print(f'[{index + 1} of {rows_count}] Merging old parent company {old_parent_company_id} into new parent company {new_parent_company_id}')
+		print(f'[{index + 1} of {rows_count}] Begin process to merge old parent company {old_parent_company_id} into new parent company {new_parent_company_id}')
 
 		with models.session_scope(session_maker) as session:
 			new_parent_company = cast(
 				models.ParentCompany,
 				session.query(models.ParentCompany).filter(
-					models.ParentCompany == new_parent_company_id
+					models.ParentCompany.id == new_parent_company_id
 				).first())
 
 			if not new_parent_company:
@@ -50,31 +50,50 @@ def main() -> None:
 			old_parent_company = cast(
 				models.ParentCompany,
 				session.query(models.ParentCompany).filter(
-					models.ParentCompany == old_parent_company_id
+					models.ParentCompany.id == old_parent_company_id
 				).first())
 
 			if not old_parent_company:
 				raise errors.Error(f'No parent company found with ID {old_parent_company_id} (old_parent_company_id)')
 
-			old_companies = cast(
-				models.Company,
-				session.query(models.Company).filter(
-					models.Company.parent_company_id == old_parent_company_id
-				))
+			print(f'[{index + 1} of {rows_count}] Ready to merge... found old parent company {old_parent_company.name} ({old_parent_company_id}) and new parent company {new_parent_company.name} ({new_parent_company_id})')
 
-			old_users = cast(
-				models.User,
-				session.query(models.User).filter(
-					models.User.parent_company_id == old_parent_company_id
-				))
+			if not is_test_run:
+				print(f'[{index + 1} of {rows_count}] Merging old parent company {old_parent_company.name} ({old_parent_company_id}) into new parent company {new_parent_company.name} ({new_parent_company_id})...')
 
-			for old_company in old_companies:
-				old_company.parent_company_id = new_parent_company_id
+				old_companies = cast(
+					models.Company,
+					session.query(models.Company).filter(
+						models.Company.parent_company_id == old_parent_company_id
+					))
 
-			for old_user in old_users:
-				old_user.parent_company_id = new_parent_company_id
+				old_users = cast(
+					models.User,
+					session.query(models.User).filter(
+						models.User.parent_company_id == old_parent_company_id
+					))
 
-			session.delete(old_parent_company)
+				for old_company in old_companies:
+					old_company.parent_company_id = new_parent_company_id
+
+				for old_user in old_users:
+					old_user.parent_company_id = new_parent_company_id
+
+				session.delete(old_parent_company)
+
+				print(f'[{index + 1} of {rows_count}] Successful merge!')
 
 if __name__ == "__main__":
-	main()
+	if not os.environ.get("DATABASE_URL"):
+		print("You must set 'DATABASE_URL' in the environment to use this script")
+		exit(1)
+
+	is_test_run = True
+
+	if not os.environ.get("CONFIRM"):
+		print("This script CHANGES information in the database")
+		print("You must set 'CONFIRM=1' as an environment variable to actually perform database changes with this script")
+	else:
+		is_test_run = False
+
+	main(is_test_run)
