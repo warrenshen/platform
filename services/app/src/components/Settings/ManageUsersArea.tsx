@@ -8,8 +8,8 @@ import ReactivateUserModal from "components/Users/ReactivateUserModal";
 import UsersDataGrid from "components/Users/UsersDataGrid";
 import {
   GetCompanyForCustomerQuery,
-  useListDeactivatedUsersByCompanyIdQuery,
-  useListUsersByCompanyIdQuery,
+  useGetDeactivatedUsersForCompanyQuery,
+  useGetUsersForCompanyQuery,
   Users,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
@@ -25,13 +25,14 @@ interface ActiveUsersTabProps {
 }
 
 interface DeactivatedUsersTabProps {
-  companyId: string;
+  company: NonNullable<GetCompanyForCustomerQuery["companies_by_pk"]>;
 }
 
 function ActiveUsersTab({ company }: ActiveUsersTabProps) {
-  const { data, refetch } = useListUsersByCompanyIdQuery({
+  const { data, refetch } = useGetUsersForCompanyQuery({
     variables: {
-      companyId: company.id,
+      parent_company_id: company.parent_company_id,
+      company_id: company.id,
     },
   });
 
@@ -127,10 +128,11 @@ function ActiveUsersTab({ company }: ActiveUsersTabProps) {
   );
 }
 
-function DeactivatedUsersTab({ companyId }: DeactivatedUsersTabProps) {
-  const { data, refetch } = useListDeactivatedUsersByCompanyIdQuery({
+function DeactivatedUsersTab({ company }: DeactivatedUsersTabProps) {
+  const { data, refetch } = useGetDeactivatedUsersForCompanyQuery({
     variables: {
-      companyId,
+      parent_company_id: company.parent_company_id,
+      company_id: company.id,
     },
   });
 
@@ -159,7 +161,7 @@ function DeactivatedUsersTab({ companyId }: DeactivatedUsersTabProps) {
               label={"Re-activate User"}
               modal={({ handleClose }) => (
                 <ReactivateUserModal
-                  companyId={companyId}
+                  companyId={company.id}
                   user={selectedUsers[0]}
                   handleClose={() => {
                     refetch();
@@ -207,7 +209,7 @@ export default function ManageUsersArea({ company }: Props) {
       {selectedTabIndex === 0 ? (
         <ActiveUsersTab company={company} />
       ) : (
-        <DeactivatedUsersTab companyId={company.id} />
+        <DeactivatedUsersTab company={company} />
       )}
     </Box>
   );

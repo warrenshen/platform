@@ -39,6 +39,7 @@ fragment CompanyLicense on company_licenses {
 
 fragment CompanyLimited on companies {
   id
+  parent_company_id
   name
   dba_name
 }

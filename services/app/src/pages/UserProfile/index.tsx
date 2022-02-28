@@ -12,7 +12,7 @@ import {
   CurrentUserContext,
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
-import { useUserByIdQuery } from "generated/graphql";
+import { useGetUserByIdQuery } from "generated/graphql";
 import { useContext } from "react";
 
 const useStyles = makeStyles({
@@ -27,7 +27,7 @@ export default function UserProfile() {
 
   const { user: currentUser } = useContext(CurrentUserContext);
 
-  const { data } = useUserByIdQuery({
+  const { data } = useGetUserByIdQuery({
     fetchPolicy: "network-only",
     variables: {
       id: currentUser.id,

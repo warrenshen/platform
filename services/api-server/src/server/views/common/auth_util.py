@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Any, Callable, List, cast
+from typing import Any, Callable, List, Optional, cast
 
 from bespoke import errors
 from bespoke.db import db_constants, models
@@ -12,14 +12,19 @@ from server.views.common import handler_util
 from server.views.common.session_util import UserSession, UserPayloadDict
 
 
-def get_claims_payload(user: models.User) -> UserPayloadDict:
+def get_claims_payload(
+	user: models.User,
+	company_id: Optional[str],
+) -> UserPayloadDict:
 	user_id = str(user.id) if user.id else ''
-	company_id = str(user.company_id) if user.company_id else ''
+	parent_company_id = str(user.parent_company_id) if user.parent_company_id else ''
+	company_id = company_id if company_id else ''
 
 	claims_payload: UserPayloadDict = {
 		'X-Hasura-User-Id': user_id,
 		'X-Hasura-Default-Role': user.role,
 		'X-Hasura-Allowed-Roles': [user.role],
+		'X-Hasura-Parent-Company-Id': parent_company_id,
 		'X-Hasura-Company-Id': company_id,
 	}
 	return claims_payload

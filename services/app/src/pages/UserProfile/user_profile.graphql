@@ -1,0 +1,45 @@
+query GetUserById($id: uuid!) {
+  users_by_pk(id: $id) {
+    id
+    ...User
+    parent_company {
+      id
+      companies {
+        id
+        name
+      }
+    }
+    company {
+      id
+      name
+    }
+  }
+}
+
+query GetUserMenuInfo($user_id: uuid!) {
+  users_by_pk(id: $user_id) {
+    id
+    ...User
+    parent_company {
+      id
+      companies {
+        id
+        name
+      }
+    }
+  }
+}
+
+query UsersByEmail($email: String!) {
+  users(where: { email: { _eq: $email } }) {
+    id
+    company_id
+    role
+  }
+}
+
+mutation UpdateUser($id: uuid!, $user: users_set_input!) {
+  update_users_by_pk(pk_columns: { id: $id }, _set: $user) {
+    ...User
+  }
+}

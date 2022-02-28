@@ -3,17 +3,34 @@ import {
   NormalizedCacheObject,
   useApolloClient,
 } from "@apollo/client";
-import { Box, IconButton, Menu, MenuItem, Typography } from "@material-ui/core";
+import {
+  Box,
+  Button,
+  IconButton,
+  Menu,
+  MenuItem,
+  Typography,
+} from "@material-ui/core";
 import { AccountCircle } from "@material-ui/icons";
 import {
   CurrentUserContext,
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
-import { useUserByIdQuery } from "generated/graphql";
-import { routes } from "lib/routes";
+import { useGetUserMenuInfoQuery } from "generated/graphql";
+import { customerRoutes, routes } from "lib/routes";
 import { useContext, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import styled from "styled-components";
+
+const LocationBanner = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 8px 12px;
+  background-color: rgba(203, 166, 121, 1);
+  color: white;
+`;
 
 const Email = styled.span`
   width: 100%;
@@ -22,18 +39,42 @@ const Email = styled.span`
   text-overflow: ellipsis;
 `;
 
-function UserMenu() {
+const LocationName = styled.span`
+  color: white;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+`;
+
+const Switch = styled.span`
+  color: white;
+`;
+
+interface Props {
+  isLocationsPage?: boolean;
+}
+
+export default function UserMenu({ isLocationsPage }: Props) {
   const client = useApolloClient() as ApolloClient<NormalizedCacheObject>;
   const { user: currentUser, signOut } = useContext(CurrentUserContext);
+  const history = useHistory();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-  const { data } = useUserByIdQuery({
+  const { data, error } = useGetUserMenuInfoQuery({
     variables: {
-      id: currentUser.id,
+      user_id: currentUser.id,
     },
   });
 
+  if (error) {
+    alert(`Error in query: ${error.message}`);
+    console.error({ error });
+  }
+
   const user = data?.users_by_pk;
+  const companies = user?.parent_company?.companies || [];
+  const company =
+    companies.find((company) => company.id === currentUser.companyId) || null;
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -44,7 +85,17 @@ function UserMenu() {
   };
 
   return (
-    <Box>
+    <Box display="flex" flexDirection="column">
+      {!isLocationsPage && company && (
+        <LocationBanner>
+          <LocationName>{company.name}</LocationName>
+          <Button onClick={() => history.push(customerRoutes.locations)}>
+            <Switch>
+              <strong>Switch</strong>
+            </Switch>
+          </Button>
+        </LocationBanner>
+      )}
       <Box display="flex" flexDirection="row" alignItems="center" py={2} px={1}>
         <Box>
           <IconButton onClick={handleClick}>
@@ -59,11 +110,11 @@ function UserMenu() {
           ml={1}
           overflow="hidden"
         >
-          <Typography variant="button">
-            {isRoleBankUser(user?.role)
-              ? "Bespoke (Bank)"
-              : user?.company?.name}
-          </Typography>
+          {!isLocationsPage && (
+            <Typography variant="button">
+              {isRoleBankUser(user?.role) ? "Bespoke (Bank)" : company?.name}
+            </Typography>
+          )}
           <Email>{user?.email}</Email>
         </Box>
       </Box>
@@ -92,5 +143,3 @@ function UserMenu() {
     </Box>
   );
 }
-
-export default UserMenu;

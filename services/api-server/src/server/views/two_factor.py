@@ -204,8 +204,11 @@ class GetSecureLinkPayloadView(MethodView):
 
 		with session_scope(current_app.session_maker) as session:
 			two_factor_info, err = two_factor_util.get_two_factor_link(
-				link_signed_val, cfg.get_security_config(),
-				max_age_in_seconds=security_util.SECONDS_IN_DAY * 7, session=session)
+				link_signed_val,
+				cfg.get_security_config(),
+				max_age_in_seconds=security_util.SECONDS_IN_DAY * 7,
+				session=session,
+			)
 			if err:
 				raise err
 
@@ -244,7 +247,7 @@ class GetSecureLinkPayloadView(MethodView):
 				company_id=company_id,
 				login_method=None # Not used because we create this User for get_claims_payload
 			)
-			claims_payload = auth_util.get_claims_payload(user)
+			claims_payload = auth_util.get_claims_payload(user, company_id)
 			access_token = create_access_token(identity=claims_payload)
 			refresh_expires_delta = datetime.timedelta(minutes=15)
 			refresh_token = create_refresh_token(
@@ -260,7 +263,7 @@ class GetSecureLinkPayloadView(MethodView):
 			if user.is_deleted:
 				raise errors.Error('User {} does not exist'.format(email))
 
-			claims_payload = auth_util.get_claims_payload(user)
+			claims_payload = auth_util.get_claims_payload(user, company_id)
 			access_token = create_access_token(identity=claims_payload)
 			refresh_token = create_refresh_token(identity=claims_payload)
 

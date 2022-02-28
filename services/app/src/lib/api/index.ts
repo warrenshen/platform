@@ -8,6 +8,7 @@ export const authRoutes = {
   refreshToken: "/auth/token/refresh",
   revokeAccessToken: "/auth/sign-out/access",
   revokeRefreshToken: "/auth/sign-out/refresh",
+  switchLocation: "/auth/switch-location",
 };
 
 export const fileRoutes = {

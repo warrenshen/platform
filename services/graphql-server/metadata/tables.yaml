@@ -658,6 +658,9 @@
         _or:
         - id:
             _eq: X-Hasura-Company-Id
+        - parent_company:
+            id:
+              _eq: X-Hasura-Parent-Company-Id
         - company_vendor_partnerships_by_vendor:
             company_id:
               _eq: X-Hasura-Company-Id
@@ -693,6 +696,9 @@
         _or:
         - id:
             _eq: X-Hasura-Company-Id
+        - parent_company:
+            id:
+              _eq: X-Hasura-Parent-Company-Id
         - company_vendor_partnerships_by_vendor:
             company_id:
               _eq: X-Hasura-Company-Id
@@ -844,7 +850,6 @@
         remote_table:
           schema: public
           name: payors
-        insertion_order: null
         column_mapping:
           payor_id: id
   - name: vendor
@@ -853,7 +858,6 @@
         remote_table:
           schema: public
           name: vendors
-        insertion_order: null
         column_mapping:
           vendor_id: id
   select_permissions:
@@ -1202,7 +1206,6 @@
         remote_table:
           schema: public
           name: payors
-        insertion_order: null
         column_mapping:
           payor_id: id
   - name: payor_agreement
@@ -1214,7 +1217,6 @@
         remote_table:
           schema: public
           name: payors
-        insertion_order: null
         column_mapping:
           payor_id: id
   array_relationships:
@@ -1469,7 +1471,6 @@
         remote_table:
           schema: public
           name: vendors
-        insertion_order: null
         column_mapping:
           vendor_id: id
   - name: vendor_agreement
@@ -1484,7 +1485,6 @@
         remote_table:
           schema: public
           name: vendors
-        insertion_order: null
         column_mapping:
           vendor_id: id
   array_relationships:
@@ -1715,7 +1715,6 @@
         remote_table:
           schema: public
           name: debt_facility_capacities
-        insertion_order: null
         column_mapping:
           id: debt_facility_id
   select_permissions:
@@ -1741,7 +1740,6 @@
         remote_table:
           schema: public
           name: debt_facilities
-        insertion_order: null
         column_mapping:
           debt_facility_id: id
   select_permissions:
@@ -2283,8 +2281,13 @@
       - id
       - day_volume_threshold_met
       filter:
-        company_id:
-          _eq: X-Hasura-Company-Id
+        _or:
+        - company_id:
+            _eq: X-Hasura-Company-Id
+        - company:
+            parent_company:
+              id:
+                _eq: X-Hasura-Parent-Company-Id
   - role: company_read_only
     permission:
       columns:
@@ -2311,8 +2314,13 @@
       - id
       - day_volume_threshold_met
       filter:
-        company_id:
-          _eq: X-Hasura-Company-Id
+        _or:
+        - company_id:
+            _eq: X-Hasura-Company-Id
+        - company:
+            parent_company:
+              id:
+                _eq: X-Hasura-Parent-Company-Id
 - table:
     schema: public
     name: invoice_file_type
@@ -2419,7 +2427,6 @@
         remote_table:
           schema: public
           name: payors
-        insertion_order: null
         column_mapping:
           payor_id: id
   array_relationships:
@@ -2436,7 +2443,6 @@
         remote_table:
           schema: public
           name: loans
-        insertion_order: null
         column_mapping:
           id: artifact_id
   insert_permissions:
@@ -2758,7 +2764,6 @@
         remote_table:
           schema: public
           name: loans
-        insertion_order: null
         column_mapping:
           id: loan_report_id
   select_permissions:
@@ -2803,7 +2808,6 @@
         remote_table:
           schema: public
           name: invoices
-        insertion_order: null
         column_mapping:
           artifact_id: id
   - name: line_of_credit
@@ -2812,7 +2816,6 @@
         remote_table:
           schema: public
           name: line_of_credits
-        insertion_order: null
         column_mapping:
           artifact_id: id
   - name: loan_report
@@ -2824,7 +2827,6 @@
         remote_table:
           schema: public
           name: purchase_orders
-        insertion_order: null
         column_mapping:
           artifact_id: id
   array_relationships:
@@ -4009,7 +4011,6 @@
         remote_table:
           schema: public
           name: invoices
-        insertion_order: null
         column_mapping:
           id: payment_id
   - name: recipient_bank_account
@@ -4197,7 +4198,6 @@
         remote_table:
           schema: public
           name: company_settings
-        insertion_order: null
         column_mapping:
           company_settings_id: id
   array_relationships:
@@ -4207,7 +4207,6 @@
         remote_table:
           schema: public
           name: company_payor_partnerships
-        insertion_order: null
         column_mapping:
           id: payor_id
   - name: licenses
@@ -4216,7 +4215,6 @@
         remote_table:
           schema: public
           name: company_licenses
-        insertion_order: null
         column_mapping:
           id: company_id
   - name: users
@@ -4225,7 +4223,6 @@
         remote_table:
           schema: public
           name: users
-        insertion_order: null
         column_mapping:
           id: company_id
   select_permissions:
@@ -4494,7 +4491,6 @@
         remote_table:
           schema: public
           name: vendors
-        insertion_order: null
         column_mapping:
           vendor_id: id
   array_relationships:
@@ -4504,7 +4500,6 @@
         remote_table:
           schema: public
           name: loans
-        insertion_order: null
         column_mapping:
           id: artifact_id
   - name: purchase_order_files
@@ -4850,8 +4845,11 @@
       - id
       - is_deleted
       - last_name
+      - login_method
+      - parent_company_id
       - phone_number
       - role
+      - updated_at
       filter: {}
   - role: bank_read_only
     permission:
@@ -4864,8 +4862,11 @@
       - id
       - is_deleted
       - last_name
+      - login_method
+      - parent_company_id
       - phone_number
       - role
+      - updated_at
       filter: {}
   - role: company_admin
     permission:
@@ -4878,11 +4879,16 @@
       - id
       - is_deleted
       - last_name
+      - parent_company_id
       - phone_number
       - role
+      - updated_at
       filter:
-        company_id:
-          _eq: X-Hasura-Company-Id
+        _or:
+        - company_id:
+            _eq: X-Hasura-Company-Id
+        - parent_company_id:
+            _eq: X-Hasura-Parent-Company-Id
   - role: company_read_only
     permission:
       columns:
@@ -4894,11 +4900,16 @@
       - id
       - is_deleted
       - last_name
+      - parent_company_id
       - phone_number
       - role
+      - updated_at
       filter:
-        company_id:
-          _eq: X-Hasura-Company-Id
+        _or:
+        - company_id:
+            _eq: X-Hasura-Company-Id
+        - parent_company_id:
+            _eq: X-Hasura-Parent-Company-Id
   update_permissions:
   - role: bank_admin
     permission:
@@ -4917,8 +4928,11 @@
       - last_name
       - phone_number
       filter:
-        company_id:
-          _eq: X-Hasura-Company-Id
+        _or:
+        - company_id:
+            _eq: X-Hasura-Company-Id
+        - parent_company_id:
+            _eq: X-Hasura-Parent-Company-Id
       check: null
 - table:
     schema: public
@@ -4930,7 +4944,6 @@
         remote_table:
           schema: public
           name: company_settings
-        insertion_order: null
         column_mapping:
           company_settings_id: id
   array_relationships:
@@ -4940,7 +4953,6 @@
         remote_table:
           schema: public
           name: company_deliveries
-        insertion_order: null
         column_mapping:
           id: vendor_id
   - name: company_vendor_partnerships
@@ -4949,7 +4961,6 @@
         remote_table:
           schema: public
           name: company_vendor_partnerships
-        insertion_order: null
         column_mapping:
           id: vendor_id
   - name: licenses
@@ -4958,7 +4969,6 @@
         remote_table:
           schema: public
           name: company_licenses
-        insertion_order: null
         column_mapping:
           id: company_id
   - name: users
@@ -4967,7 +4977,6 @@
         remote_table:
           schema: public
           name: users
-        insertion_order: null
         column_mapping:
           id: company_id
   select_permissions:

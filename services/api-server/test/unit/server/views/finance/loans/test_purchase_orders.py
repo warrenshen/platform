@@ -27,10 +27,10 @@ class TestUpsertPurchaseOrdersLoansView(db_unittest.TestCase):
 		PurchaseOrderConfig('00000000-0000-0000-0000-000000000002', 100000),
 	)
 
-	def _get_request_headers(self, user_id: str) -> Dict:
+	def _get_request_headers(self, user_id: str, company_id: str) -> Dict:
 		with app.app_context():
 			with session_scope(self.session_maker) as session:
-				headers = auth_helper.get_user_auth_headers(session, user_id)
+				headers = auth_helper.get_user_auth_headers(session, user_id, company_id)
 				headers.update({"Content-Type": "application/json"})
 				return headers
 
@@ -49,8 +49,9 @@ class TestUpsertPurchaseOrdersLoansView(db_unittest.TestCase):
 		return seed
 
 	def _make_request(self, seed: test_helper.BasicSeed, request: Dict) -> Dict:
-		user_id = str(seed.data['company_admins'][0]["user"]["user_id"])
-		headers = self._get_request_headers(user_id)
+		user_id = str(seed.data['company_admins'][0]['user']['user_id'])
+		company_id = str(seed.data['company_admins'][0]['user']['company_id'])
+		headers = self._get_request_headers(user_id, company_id)
 
 		with app.test_client() as client:
 			response = client.post("/finance/loans/purchase_orders/upsert",

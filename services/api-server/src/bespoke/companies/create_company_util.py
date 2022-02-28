@@ -91,13 +91,18 @@ def _check_is_company_name_already_used(company_name: str, company_identifier: s
 
 	return True, None
 
-def create_customer_company(
+def _create_company(
 	name: str,
 	identifier: str,
-	contract_name: str,
 	dba_name: str,
 	session: Session,
 ) -> models.Company:
+	parent_company = models.ParentCompany(name=name)
+	session.add(parent_company)
+
+	session.flush()
+	parent_company_id = str(parent_company.id)
+
 	company_settings = models.CompanySettings()
 	session.add(company_settings)
 
@@ -105,10 +110,9 @@ def create_customer_company(
 	company_settings_id = str(company_settings.id)
 
 	company = models.Company(
-		is_customer=True,
+		parent_company_id=parent_company_id,
 		name=name,
 		identifier=identifier,
-		contract_name=contract_name,
 		dba_name=dba_name,
 		company_settings_id=company_settings_id,
 	)
@@ -121,6 +125,17 @@ def create_customer_company(
 
 	return company
 
+def create_customer_company(
+	name: str,
+	identifier: str,
+	contract_name: str,
+	dba_name: str,
+	session: Session,
+) -> models.Company:
+	company = _create_company(name, identifier, dba_name, session)
+	company.is_customer = True
+	company.contract_name = contract_name
+	return company
 
 def create_prospective_company(
 	name: str,
@@ -128,27 +143,7 @@ def create_prospective_company(
 	dba_name: str,
 	session: Session,
 ) -> models.Company:
-	company_settings = models.CompanySettings()
-	session.add(company_settings)
-
-	session.flush()
-	company_settings_id = str(company_settings.id)
-
-	company = models.Company(
-		#  "is_prospect" just has False for all the types of customer
-		# that it could be.
-		name=name,
-		identifier=identifier,
-		dba_name=dba_name,
-		company_settings_id=company_settings_id,
-	)
-
-	session.add(company)
-	session.flush()
-
-	company_id = str(company.id)
-	company_settings.company_id = company_id
-
+	company = _create_company(name, identifier, dba_name, session)
 	return company
 
 @errors.return_error_tuple

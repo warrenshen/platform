@@ -45,6 +45,7 @@ import CustomerContractPage from "pages/Customer/Contract";
 import CustomerEbbaApplicationsPage from "pages/Customer/EbbaApplications";
 import CustomerInvoicesPages from "pages/Customer/Invoices";
 import CustomerLoansPage from "pages/Customer/Loans";
+import CustomerLocationsPage from "pages/Customer/Locations";
 import CustomerReportsPage from "pages/Customer/Reports";
 import CustomerOverviewPage from "pages/Customer/Overview";
 import CustomerPayorsPage from "pages/Customer/Payors";
@@ -194,6 +195,16 @@ export default function App() {
           ]}
         >
           <CustomerLoansPage />
+        </PrivateRoute>
+        <PrivateRoute
+          exact
+          path={customerRoutes.locations}
+          requiredRoles={[
+            UserRolesEnum.CompanyAdmin,
+            UserRolesEnum.CompanyReadOnly,
+          ]}
+        >
+          <CustomerLocationsPage />
         </PrivateRoute>
         <PrivateRoute
           exact

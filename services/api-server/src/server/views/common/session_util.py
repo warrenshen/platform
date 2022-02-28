@@ -8,7 +8,8 @@ UserPayloadDict = TypedDict('UserPayloadDict', {
 	'X-Hasura-User-Id': str,
 	'X-Hasura-Default-Role': str,
 	'X-Hasura-Allowed-Roles': List[str],
-	'X-Hasura-Company-Id': str
+	'X-Hasura-Parent-Company-Id': str,
+	'X-Hasura-Company-Id': str,
 })
 
 class UserSession(object):

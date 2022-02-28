@@ -320,11 +320,16 @@ const getBankNavItems = (
 };
 
 interface Props {
+  isLocationsPage?: boolean;
   appBarTitle: string;
   children: ReactNode;
 }
 
-export default function Layout({ appBarTitle, children }: Props) {
+export default function Layout({
+  isLocationsPage = false,
+  appBarTitle,
+  children,
+}: Props) {
   useTitle(`${appBarTitle} | Bespoke`);
 
   const classes = useStyles();
@@ -421,34 +426,36 @@ export default function Layout({ appBarTitle, children }: Props) {
           />
         </Logo>
         <SidebarItems>
-          <List className={classes.list}>
-            {navItems
-              .filter((customerPath) => customerPath.visible !== false)
-              .map((item, index) =>
-                item.link ? (
-                  <SidebarItem
-                    key={item.text + index}
-                    dataCy={item.dataCy}
-                    isSelected={Boolean(
-                      matchPath(location.pathname, item.link)
-                    )}
-                    chipCount={item.counter || null}
-                    IconNode={item.iconNode || null}
-                    label={item.text}
-                    to={item.link}
-                  />
-                ) : (
-                  <NestedListItem key={item.text + index} item={item} />
-                )
-              )}
-          </List>
+          {!isLocationsPage && (
+            <List className={classes.list}>
+              {navItems
+                .filter((customerPath) => customerPath.visible !== false)
+                .map((item, index) =>
+                  item.link ? (
+                    <SidebarItem
+                      key={item.text + index}
+                      dataCy={item.dataCy}
+                      isSelected={Boolean(
+                        matchPath(location.pathname, item.link)
+                      )}
+                      chipCount={item.counter || null}
+                      IconNode={item.iconNode || null}
+                      label={item.text}
+                      to={item.link}
+                    />
+                  ) : (
+                    <NestedListItem key={item.text + index} item={item} />
+                  )
+                )}
+            </List>
+          )}
         </SidebarItems>
         <Footer>
           <Box>
             <EnvironmentChip />
           </Box>
           <Box>
-            <UserMenu />
+            <UserMenu isLocationsPage={isLocationsPage} />
           </Box>
         </Footer>
       </Drawer>

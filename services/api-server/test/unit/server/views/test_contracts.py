@@ -46,10 +46,10 @@ class TestUpdateContractView(db_unittest.TestCase):
 		return seed
 
 
-	def _get_request_headers(self, user_id: str) -> Dict:
+	def _get_request_headers(self, user_id: str, company_id: str) -> Dict:
 		with app.app_context():
 			with session_scope(self.session_maker) as session:
-				headers = auth_helper.get_user_auth_headers(session, user_id)
+				headers = auth_helper.get_user_auth_headers(session, user_id, company_id)
 				headers.update({"Content-Type": "application/json"})
 				return headers
 
@@ -78,7 +78,7 @@ class TestUpdateContractView(db_unittest.TestCase):
 			session.refresh(contract)
 			contract_id = contract.id
 
-		headers = self._get_request_headers(str(seed.data['bank_admins'][0]["user"]["user_id"]))
+		headers = self._get_request_headers(str(seed.data['bank_admins'][0]["user"]["user_id"]), company_id)
 		request_data = {
 			"contract_id": str(contract_id),
 			"contract_fields": {
@@ -136,10 +136,14 @@ class TestTerminateContractView(db_unittest.TestCase):
 		return seed
 
 
-	def _get_request_headers(self, user_id: str) -> Dict:
+	def _get_request_headers(self, user_id: str, company_id: str) -> Dict:
 		with app.app_context():
 			with session_scope(self.session_maker) as session:
-				headers = auth_helper.get_user_auth_headers(session, user_id)
+				headers = auth_helper.get_user_auth_headers(
+					session,
+					user_id,
+					company_id,
+				)
 				headers.update({"Content-Type": "application/json"})
 				return headers
 
@@ -165,7 +169,7 @@ class TestTerminateContractView(db_unittest.TestCase):
 			session.refresh(contract)
 			contract_id = contract.id
 
-		headers = self._get_request_headers(str(seed.data['bank_admins'][0]["user"]["user_id"]))
+		headers = self._get_request_headers(str(seed.data['bank_admins'][0]["user"]["user_id"]), company_id)
 		request_data = {
 			"contract_id": str(contract_id),
 			"termination_date": '06/02/2020',
@@ -206,7 +210,7 @@ class TestTerminateContractView(db_unittest.TestCase):
 			session.refresh(contract)
 			contract_id = contract.id
 
-		headers = self._get_request_headers(str(seed.data['bank_admins'][0]["user"]["user_id"]))
+		headers = self._get_request_headers(str(seed.data['bank_admins'][0]["user"]["user_id"]), company_id)
 		request_data = {
 			"contract_id": str(contract_id),
 			"termination_date": '03/03/2020',
@@ -247,7 +251,7 @@ class TestTerminateContractView(db_unittest.TestCase):
 			session.refresh(contract)
 			contract_id = contract.id
 
-		headers = self._get_request_headers(str(seed.data['bank_admins'][0]["user"]["user_id"]))
+		headers = self._get_request_headers(str(seed.data['bank_admins'][0]["user"]["user_id"]), company_id)
 		request_data = {
 			"contract_id": str(contract_id),
 			"termination_date": '02/20/2020',

@@ -12,6 +12,7 @@ export function isRoleBankUser(role?: UserRolesEnum | null) {
 
 export type User = {
   id: Users["id"];
+  parentCompanyId: Users["parent_company_id"] | null;
   companyId: Users["company_id"] | null;
   role: UserRolesEnum;
   productType: ProductTypeEnum | null;
@@ -32,6 +33,7 @@ export type CurrentUserContextType = {
 
 export const BlankUser = {
   id: "",
+  parentCompanyId: null,
   companyId: null,
   role: UserRolesEnum.CompanyAdmin,
   productType: null,

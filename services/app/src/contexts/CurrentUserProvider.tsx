@@ -29,6 +29,11 @@ function userFieldsFromToken(token: string) {
   // "X-Hasura-Company-Id" equals "" or "None" for bank users.
   return {
     id: claims["X-Hasura-User-Id"] || null,
+    parentCompanyId:
+      claims["X-Hasura-Parent-Company-Id"] !== "" &&
+      claims["X-Hasura-Parent-Company-Id"] !== "None"
+        ? claims["X-Hasura-Parent-Company-Id"]
+        : null,
     companyId:
       claims["X-Hasura-Company-Id"] !== "" &&
       claims["X-Hasura-Company-Id"] !== "None"

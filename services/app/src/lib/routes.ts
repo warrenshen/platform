@@ -32,6 +32,7 @@ export const customerRoutes = {
   contract: "/1/contract",
   ebbaApplications: "/1/borrowing-base",
   loans: "/1/loans",
+  locations: "/1/locations",
   reports: "/1/reports",
   overview: "/1/overview",
   payments: "/1/payments",

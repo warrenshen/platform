@@ -24,7 +24,10 @@ query GetUsersByRoles($roles: [user_roles_enum!]!) {
   }
 }
 
-query ListUsersByCompanyId($companyId: uuid!) {
+query GetUsersForCompany(
+  $parent_company_id: uuid!,
+  $company_id: uuid!,
+) {
   users(
     where: {
       _and: [
@@ -34,7 +37,12 @@ query ListUsersByCompanyId($companyId: uuid!) {
             { is_deleted: { _eq: false } }
           ]
         }
-        { company_id: { _eq: $companyId } }
+        {
+          _or: [
+            { parent_company_id: { _eq: $parent_company_id } }
+            { company_id: { _eq: $company_id } }
+          ]
+        }
       ]
     }
     order_by: { full_name: asc }
@@ -43,11 +51,23 @@ query ListUsersByCompanyId($companyId: uuid!) {
   }
 }
 
-query ListDeactivatedUsersByCompanyId($companyId: uuid!) {
+query GetDeactivatedUsersForCompany(
+  $parent_company_id: uuid!,
+  $company_id: uuid!,
+) {
   users(
     where: {
-      _and: [{ is_deleted: { _eq: true } }, { company_id: { _eq: $companyId } }]
+      _and: [
+        { is_deleted: { _eq: true } }
+        {
+          _or: [
+            { parent_company_id: { _eq: $parent_company_id } }
+            { company_id: { _eq: $company_id } }
+          ]
+        }
+      ]
     }
+    order_by: { full_name: asc }
   ) {
     ...User
   }

@@ -48,12 +48,36 @@ class SignInView(MethodView):
 			if not security_util.verify_password(cfg.PASSWORD_SALT, password_guess, user.password):
 				return handler_util.make_error_response(f'Invalid password provided', 401)
 
+			parent_company_id = str(user.parent_company_id) if user.parent_company_id else None # Note: bank users do not have a parent company.
+			company_id = None # Note: bank users do not have a company.
+
+			if parent_company_id:
+				parent_company = cast(
+					models.ParentCompany,
+					session.query(models.ParentCompany).filter(
+						models.ParentCompany.id == parent_company_id
+					).first())
+
+				if not parent_company:
+					return handler_util.make_error_response('No parent company found')
+
+				companies = cast(
+					List[models.Company],
+					session.query(models.Company).filter(
+						models.Company.parent_company_id == parent_company.id
+					).all())
+
+				if not companies:
+					return handler_util.make_error_response('No companies found')
+
+				company_id = str(companies[0].id)
+
 			# Note: all users use simple login method in the test environment.
 			is_test_env = cfg.IS_TEST_ENV
 			login_method = user.login_method if not is_test_env else db_constants.LoginMethod.SIMPLE
 
 			if login_method == db_constants.LoginMethod.SIMPLE:
-				claims_payload = auth_util.get_claims_payload(user)
+				claims_payload = auth_util.get_claims_payload(user, company_id)
 				access_token = create_access_token(identity=claims_payload)
 				refresh_token = create_refresh_token(identity=claims_payload)
 
@@ -259,6 +283,65 @@ class TokenRefreshView(MethodView):
 			'access_token': access_token
 		}), 200)
 
+class SwitchLocationView(MethodView):
+
+	@jwt_refresh_token_required
+	def post(self) -> Response:
+		cur_user = get_jwt_identity()
+		user_session = session_util.UserSession(cur_user)
+		
+		data = json.loads(request.data)
+		company_id = data['company_id']
+
+		user = None
+		claims_payload = None
+
+		with session_scope(current_app.session_maker) as session:
+			existing_user = session.query(models.User).filter(
+				models.User.id == user_session.get_user_id()
+			).first()
+
+			if not existing_user:
+				return handler_util.make_error_response('No user found')
+
+			if existing_user.is_deleted:
+				return handler_util.make_error_response('Access Denied')
+
+			existing_company = cast(
+				models.Company,
+				session.query(models.Company).filter(
+					models.Company.id == company_id
+				).first())
+
+			if not existing_company:
+				return handler_util.make_error_response('No company found')
+
+			existing_parent_company = cast(
+				models.ParentCompany,
+				session.query(models.ParentCompany).filter(
+					models.ParentCompany.id == existing_company.parent_company_id
+				).first())
+
+			if not existing_parent_company:
+				return handler_util.make_error_response('No parent company found')
+
+			if existing_user.parent_company_id != existing_parent_company.id:
+				return handler_util.make_error_response('Access Denied')
+
+			user = existing_user
+			claims_payload = auth_util.get_claims_payload(existing_user, company_id)
+
+		access_token = create_access_token(identity=claims_payload)
+		refresh_token = create_refresh_token(identity=claims_payload)
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Switched location successfully',
+			'data': {
+				'access_token': access_token,
+				'refresh_token': refresh_token,
+			},
+		}), 200)
 
 handler.add_url_rule(
 	'/sign-in', view_func=SignInView.as_view(name='sign_in_view'))
@@ -277,3 +360,6 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/token/refresh', view_func=TokenRefreshView.as_view(name='token_refresh_view'))
+
+handler.add_url_rule(
+	'/switch-location', view_func=SwitchLocationView.as_view(name='switch_location_view'))

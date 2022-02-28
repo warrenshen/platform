@@ -35,6 +35,9 @@ export const setAccessToken = (token: string) => {
 
 export const getAccessToken = async (): Promise<string | null> => {
   const accessToken = localStorage.getItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY);
+  if (!accessToken && accessToken === "undefined") {
+    return null;
+  }
   const refreshToken = getRefreshToken();
 
   const isRefreshTokenSet =
