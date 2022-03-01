@@ -44,8 +44,8 @@ def _get_vendor_contacts(partnership_id: str, session: Session) -> Tuple[List[Co
 	if contacts:
 		return _users_to_contacts([contact.vendor_user for contact in contacts]), None
 
-	# If users specific to the company / vendor relationship are not set, then default to all
-	# all users associated with this vendor
+	# If users specific to the company / vendor relationship are not set,
+	# then default to all all users associated with this vendor.
 	vendor_users = cast(
 		List[models.User], 
 		session.query(models.User).filter_by(

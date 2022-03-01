@@ -4,7 +4,7 @@
 import logging
 import traceback
 import unittest
-from typing import Any, Callable, Dict, List, cast
+from typing import Any, Callable, Dict, List, Optional, cast
 
 from bespoke.db import models
 from bespoke.db.models import session_scope
@@ -57,7 +57,8 @@ def assertDeepAlmostEqual(
 
 TestUser = TypedDict('TestUser', {
 	'user_id': str,
-	'company_id': str
+	'parent_company_id': Optional[str],
+	'company_id': str,
 })
 
 TestAccountInfo = TypedDict('TestAccountInfo', {
@@ -112,9 +113,10 @@ class BasicSeed(object):
 			session.flush()
 			bank_admin = TestAccountInfo(
 				user=TestUser(
-			  	user_id=bank_user.id,
-			  	company_id=bank_company.id
-		  	)
+					parent_company_id=None,
+					company_id=bank_company.id,
+					user_id=bank_user.id,
+				)
 			)
 			self.data['bank_admins'].append(bank_admin)
 
@@ -141,10 +143,19 @@ class BasicSeed(object):
 			session.flush()
 			company_settings_id = str(company_settings.id)
 
+			customer_parent_company = models.ParentCompany(
+				name=f'Distributor_{i} (Parent Company)',
+			)
+			session.add(customer_parent_company)
+			session.flush()
+			parent_company_id = customer_parent_company.id
+
 			customer_company = models.Company(
+				parent_company_id=parent_company_id,
+				is_customer=True,
 				name=f'Distributor_{i}',
 				identifier=f'D{i}',
-				company_settings_id=company_settings_id
+				company_settings_id=company_settings_id,
 			)
 			session.add(customer_company)
 			session.flush()
@@ -165,6 +176,7 @@ class BasicSeed(object):
 			company_admin = TestAccountInfo(
 				user=TestUser(
 					user_id=company_user.id,
+					parent_company_id=parent_company_id,
 					company_id=company_id
 				)
 			)
@@ -188,6 +200,16 @@ class BasicSeed(object):
 		with session_scope(self.session_maker) as session:
 			self._setup_bank_users(session)
 			self._setup_company_users(session)
+
+	def get_parent_company_id(self, account_role: str, index: int = 0) -> str:
+		"""
+			When account_role='company_admin' and index = 0, this will get the company ID for
+			first bank_admin setup in the system, and so on and so forth.
+		"""
+		if account_role == 'company_admin':
+			return str(self.data['company_admins'][index]['user']['parent_company_id'])
+
+		raise Exception('Unsupported account_role for get_parent_company_id')
 
 	def get_company_id(self, account_role: str, index: int = 0) -> str:
 		"""

@@ -143,6 +143,7 @@ class CreateBankCustomerUserView(MethodView):
 			'status': 'OK'
 		}), 200)
 
+# This view is deprecated and is no longer used.
 class CreatePayorVendorUserView(MethodView):
 	"""
 	Creates a user under a Payor or a Vendor account.
@@ -218,6 +219,7 @@ class CreatePayorVendorUserView(MethodView):
 		create_user_resp['status'] = 'OK'
 		return make_response(json.dumps(create_user_resp))
 
+# This view is deprecated and is no longer used.
 class UpdatePayorVendorUserView(MethodView):
 	"""
 	Updates a user under a Payor or a Vendor account.

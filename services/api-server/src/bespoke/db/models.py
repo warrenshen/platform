@@ -107,7 +107,7 @@ class User(Base):
 	parent_company_id = Column(GUID, nullable=True) # TODO(warrenshen): remove nullable=True in the future.
 	company_id = Column(GUID, nullable=True)
 	email = Column(String(120), unique=True, nullable=False)
-	password = Column(Text, nullable=False)
+	password = Column(Text)
 	role = Column(String(120))
 	first_name = Column(Text, nullable=False)
 	last_name = Column(Text, nullable=False)

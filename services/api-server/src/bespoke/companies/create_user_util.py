@@ -71,6 +71,7 @@ def create_bank_or_customer_user(
 	is_bank_user = db_constants.is_bank_user([role])
 
 	with session_scope(session_maker) as session:
+		parent_company_id = None
 		if company_id:
 			company = session.query(models.Company) \
 				.filter(models.Company.id == company_id) \
@@ -85,6 +86,8 @@ def create_bank_or_customer_user(
 				if not company.is_customer:
 					raise errors.Error('Company is not Customer company type')
 
+			parent_company_id = company.parent_company_id
+
 		existing_user = session.query(models.User).filter(
 			models.User.email == email.lower()
 		).first()
@@ -92,6 +95,7 @@ def create_bank_or_customer_user(
 			raise errors.Error('Email is already taken')
 
 		user = models.User()
+		user.parent_company_id = parent_company_id
 		user.company_id = company_id
 		user.role = role
 		user.first_name = first_name
@@ -106,6 +110,7 @@ def create_bank_or_customer_user(
 
 	return user_id, None
 
+# This method is deprecated and is no longer used.
 @errors.return_error_tuple
 def create_third_party_user(
 	req: CreateThirdPartyUserInputDict,
@@ -145,6 +150,7 @@ def create_third_party_user(
 			raise errors.Error('Email is already taken')
 
 		user = models.User()
+		user.parent_company_id = company.parent_company_id
 		user.company_id = company_id
 		user.first_name = first_name
 		user.last_name = last_name
