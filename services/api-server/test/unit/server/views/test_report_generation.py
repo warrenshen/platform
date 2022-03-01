@@ -829,7 +829,7 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 
 			# In this case, CMI is larger
 			cmi, mmf, total_outstanding_interest = cmi_mmf_scores
-			self.assertEqual(cmi, 22000.0)
+			self.assertEqual(cmi, 22025.0)
 			self.assertEqual(mmf, 20000.0)
 			self.assertEqual(total_outstanding_interest, 1800.0)
 			self.assertEqual(cmi_or_mmf_amount, 22025.00)
@@ -858,7 +858,7 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 			)
 
 			cmi, mmf, total_outstanding_interest = cmi_mmf_scores
-			self.assertEqual(cmi, 22000.0)
+			self.assertEqual(cmi, 22025.0)
 			self.assertEqual(mmf, 20000.0)
 			self.assertEqual(total_outstanding_interest, 1800.0)
 			self.assertEqual(cmi_or_mmf_amount, 22025.00)

@@ -500,7 +500,8 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 			contract_start_date <= rgc.report_month_last_day:
 			days_for_monthly_fee = date_util.number_days_between_dates(
 				rgc.report_month_last_day,
-				contract_start_date
+				contract_start_date,
+				inclusive_later_date = True
 			)
 			days_in_month = date_util.get_days_in_month(rgc.report_month_last_day)
 			mmf = mmf * (float(days_for_monthly_fee) / float(days_in_month))
@@ -533,16 +534,16 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 				models.FinancialSummary.date <= rgc.report_month_last_day
 			).first()[0]
 		
-		cmi = float(cmi)
-		mmf = float(mmf)
-
 		payload = financial_summary.account_level_balance_payload
 		account_fees = float(cast(Dict[str, Any], payload).get(FinancialSummaryPayloadField.FEES_TOTAL, 0.0))
+
+		cmi = float(cmi) + account_fees
+		mmf = float(mmf)
 
 		# Compare and determine output
 		if cmi > mmf:
 			cmi_or_mmf_title = "Current Month's Interest and Fees"
-			cmi_or_mmf_amount = cmi + account_fees
+			cmi_or_mmf_amount = cmi
 		else:
 			cmi_or_mmf_title = "Minimum Monthly Fee"
 			cmi_or_mmf_amount = mmf
