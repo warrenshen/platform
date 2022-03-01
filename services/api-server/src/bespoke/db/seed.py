@@ -44,6 +44,7 @@ def setup_db_test(app: Any) -> None:
 	with session_scope(session_maker) as session:
 		companies = session.query(models.Company).all()
 		for company in companies:
+			company.parent_company_id = None
 			company.company_settings_id = None
 			company.contract_id = None
 		session.flush()
