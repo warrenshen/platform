@@ -4194,6 +4194,14 @@
     schema: public
     name: payors
   object_relationships:
+  - name: parent_company
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: parent_companies
+        column_mapping:
+          parent_company_id: id
   - name: settings
     using:
       manual_configuration:
@@ -4248,10 +4256,13 @@
       - identifier
       - latest_loan_identifier
       - needs_balance_recomputed
+      - is_cannabis
+      - parent_company_id
       filter: {}
   - role: bank_read_only
     permission:
       columns:
+      - is_cannabis
       - needs_balance_recomputed
       - latest_loan_identifier
       - address
@@ -4269,6 +4280,7 @@
       - company_settings_id
       - contract_id
       - id
+      - parent_company_id
       filter: {}
   - role: company_admin
     permission:
@@ -4277,6 +4289,7 @@
       - dba_name
       - id
       - name
+      - parent_company_id
       - phone_number
       filter:
         company_payor_partnerships:
@@ -4289,6 +4302,7 @@
       - dba_name
       - id
       - name
+      - parent_company_id
       - phone_number
       filter:
         company_payor_partnerships:
@@ -4302,6 +4316,7 @@
       - dba_name
       - id
       - name
+      - parent_company_id
       - phone_number
       filter:
         id:
@@ -4940,6 +4955,14 @@
     schema: public
     name: vendors
   object_relationships:
+  - name: parent_company
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: parent_companies
+        column_mapping:
+          parent_company_id: id
   - name: settings
     using:
       manual_configuration:
@@ -4985,46 +5008,48 @@
   - role: bank_admin
     permission:
       columns:
+      - id
+      - name
+      - employer_identification_number
       - address
+      - country
+      - state
       - city
+      - zip_code
+      - created_at
+      - updated_at
+      - dba_name
+      - phone_number
       - company_settings_id
       - contract_id
-      - country
-      - created_at
-      - dba_name
-      - employer_identification_number
-      - id
       - identifier
-      - is_cannabis
       - latest_loan_identifier
-      - name
       - needs_balance_recomputed
-      - phone_number
-      - state
-      - updated_at
-      - zip_code
+      - is_cannabis
+      - parent_company_id
       filter: {}
   - role: bank_read_only
     permission:
       columns:
+      - is_cannabis
+      - needs_balance_recomputed
+      - latest_loan_identifier
       - address
       - city
-      - company_settings_id
-      - contract_id
       - country
-      - created_at
       - dba_name
       - employer_identification_number
-      - id
       - identifier
-      - is_cannabis
-      - latest_loan_identifier
       - name
-      - needs_balance_recomputed
       - phone_number
       - state
-      - updated_at
       - zip_code
+      - created_at
+      - updated_at
+      - company_settings_id
+      - contract_id
+      - id
+      - parent_company_id
       filter: {}
   - role: company_admin
     permission:
@@ -5035,6 +5060,7 @@
       - identifier
       - is_cannabis
       - name
+      - parent_company_id
       - phone_number
       filter:
         _or:
@@ -5053,6 +5079,7 @@
       - identifier
       - is_cannabis
       - name
+      - parent_company_id
       - phone_number
       filter:
         _or:
@@ -5070,6 +5097,7 @@
       - id
       - identifier
       - name
+      - parent_company_id
       - phone_number
       filter:
         id:

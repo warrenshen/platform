@@ -9,6 +9,8 @@ from bespoke.db import models, db_constants
 from bespoke import errors
 
 ContactDict = TypedDict('ContactDict', {
+	'parent_company_id': str,
+	'company_id': str,
 	'email': str,
 	'phone_number': str,
 	'first_name': str
@@ -20,6 +22,8 @@ def _users_to_contacts(users: List[models.User]) -> List[ContactDict]:
 
 	return [
 		ContactDict(
+			parent_company_id=str(user.parent_company_id),
+			company_id=str(user.company_id),
 			email=user.email,
 			phone_number=user.phone_number,
 			first_name=user.first_name
@@ -44,12 +48,20 @@ def _get_vendor_contacts(partnership_id: str, session: Session) -> Tuple[List[Co
 	if contacts:
 		return _users_to_contacts([contact.vendor_user for contact in contacts]), None
 
-	# If users specific to the company / vendor relationship are not set,
-	# then default to all all users associated with this vendor.
+	# If users specific to the company / vendor relationship are NOT set,
+	# then default to all users associated with this vendor (through its parent company).
+	vendor = cast(
+		models.Company,
+		session.query(models.Company).filter(
+			models.Company.id == partnership.vendor_id
+		).first())
+	if not vendor:
+		return None, errors.Error('Could not determine vendor contacts because the vendor was not found')
+
 	vendor_users = cast(
 		List[models.User], 
-		session.query(models.User).filter_by(
-			company_id=partnership.vendor_id
+		session.query(models.User).filter(
+			models.User.parent_company_id == vendor.parent_company_id
 		).filter(
 			cast(Callable, models.User.is_deleted.isnot)(True)
 		).all())
@@ -74,12 +86,20 @@ def _get_payor_contacts(partnership_id: str, session: Session) -> Tuple[List[Con
 	if contacts:
 		return _users_to_contacts([contact.payor_user for contact in contacts]), None
 
-	# If users specific to the company / payor relationship are not set, then default to all
-	# all users associated with this payor
+	# If users specific to the company / payor relationship are NOT set,
+	# then default to all all users associated with this payor (through its parent company).
+	payor = cast(
+		models.Company,
+		session.query(models.Company).filter(
+			models.Company.id == partnership.payor_id
+		).first())
+	if not payor:
+		return None, errors.Error('Could not determine payor contacts because the payor was not found')
+
 	payor_users = cast(
 		List[models.User], 
-		session.query(models.User).filter_by(
-			company_id=partnership.payor_id
+		session.query(models.User).filter(
+			models.User.parent_company_id == payor.parent_company_id
 		).filter(
 			cast(Callable, models.User.is_deleted.isnot)(True)
 		).all())
@@ -87,7 +107,10 @@ def _get_payor_contacts(partnership_id: str, session: Session) -> Tuple[List[Con
 	return _users_to_contacts(payor_users), None
 
 def get_partner_contacts(
-	partnership_id: str, partnership_type: str, session: Session) -> Tuple[List[ContactDict], errors.Error]:
+	partnership_id: str,
+	partnership_type: str,
+	session: Session,
+) -> Tuple[List[ContactDict], errors.Error]:
 	"""
 	In this case, the partner is either the vendor or the payor. 
 	"""

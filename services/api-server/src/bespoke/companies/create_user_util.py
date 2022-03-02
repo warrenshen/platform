@@ -45,6 +45,7 @@ UpdateThirdPartyUserRespDict = TypedDict('UpdateThirdPartyUserRespDict', {
 	'user_id': str,
 })
 
+# Note: this method name is misleading, we use this for vendor / payor users too.
 @errors.return_error_tuple
 def create_bank_or_customer_user(
 	req: CreateBankOrCustomerUserInputDict,

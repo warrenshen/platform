@@ -72,7 +72,7 @@ BasicSeedData = TypedDict('BasicSeedData', {
 
 class BasicSeed(object):
 	"""
-	  A basic seed setup that includes bank admins and company_admins at different companies
+	A basic seed setup that includes bank admins and company_admins at different companies
 	"""
 
 	def __init__(self, session_maker: Callable, test_self: Any, private: bool) -> None:
@@ -126,7 +126,7 @@ class BasicSeed(object):
 			test_self.assertIsNotNone(self.data['bank_admins'][i]['user']['company_id'])
 
 	def _setup_company_users(self, session: Any) -> None:
-			# Setup the company admin (for the distributor account)
+		# Setup the company admin (for the distributor account)
 
 		num_companies = 4
 		for i in range(num_companies):
