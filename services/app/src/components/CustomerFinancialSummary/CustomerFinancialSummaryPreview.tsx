@@ -73,7 +73,8 @@ export default function CustomerFinancialSummaryPreview({
           value={roundedLimitPercent}
           valueFontSize={30}
           caption={"Borrowing Limit Used"}
-          circleSize={200}
+          containerWidth={300}
+          containerHeight={200}
         />
       </Box>
     </Box>

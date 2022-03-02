@@ -41,7 +41,7 @@ function DebtFacilityCapacitySummary(props: Props) {
           value={roundedLimitPercent}
           valueFontSize={20}
           caption={"Capacity Usage"}
-          circleSize={200}
+          containerWidth={200}
         />
       </Box>
     </Box>

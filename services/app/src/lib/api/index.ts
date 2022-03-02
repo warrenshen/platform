@@ -48,8 +48,6 @@ export const contractRoutes = {
 export const userRoutes = {
   createLogin: "/users/create_login",
   createBankCustomerUser: "/users/create_bank_customer_user",
-  createPayorVendorUser: "/users/create_payor_vendor_user",
-  updatePayorVendorUser: "/users/update_payor_vendor_user",
   deactivateCustomerUser: "/users/deactivate_customer_user",
   reactivateCustomerUser: "/users/reactivate_customer_user",
 };

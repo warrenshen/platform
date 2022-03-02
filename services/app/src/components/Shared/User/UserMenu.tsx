@@ -72,7 +72,8 @@ export default function UserMenu({ isLocationsPage }: Props) {
   }
 
   const user = data?.users_by_pk;
-  const companies = user?.parent_company?.companies || [];
+  const parentCompany = user?.parent_company;
+  const companies = parentCompany?.companies || [];
   const company =
     companies.find((company) => company.id === currentUser.companyId) || null;
 
@@ -86,7 +87,7 @@ export default function UserMenu({ isLocationsPage }: Props) {
 
   return (
     <Box display="flex" flexDirection="column">
-      {!isLocationsPage && company && (
+      {!isLocationsPage && parentCompany && company && (
         <LocationBanner>
           <LocationName>{company.name}</LocationName>
           <Button onClick={() => history.push(customerRoutes.locations)}>
@@ -110,11 +111,13 @@ export default function UserMenu({ isLocationsPage }: Props) {
           ml={1}
           overflow="hidden"
         >
-          {!isLocationsPage && (
-            <Typography variant="button">
-              {isRoleBankUser(user?.role) ? "Bespoke (Bank)" : company?.name}
-            </Typography>
-          )}
+          <Typography variant="button">
+            {isRoleBankUser(user?.role)
+              ? "Bespoke (Bank)"
+              : companies.length > 1
+              ? `${parentCompany?.name} (${companies.length} locations)`
+              : company?.name}
+          </Typography>
           <Email>{user?.email}</Email>
         </Box>
       </Box>

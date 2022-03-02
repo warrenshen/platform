@@ -3,14 +3,26 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 import styled from "styled-components";
 
-const Container = styled.div`
+const Container = styled.div<{
+  containerWidth: number;
+  containerHeight: number;
+}>`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
   position: relative;
+  width: ${(props) => props.containerWidth.toString() + "px"};
+  height: ${(props) => props.containerHeight.toString() + "px"};
 `;
 
-const Gauge = styled.div<{ circleSize: number }>`
-  position: relative;
-  width: ${(props) => props.circleSize.toString() + "px"};
-  height: ${(props) => props.circleSize.toString() + "px"};
+const Gauge = styled.div<{ gaugeWidth: number }>`
+  position: absolute;
+  top: 0px;
+  left: 0px;
+
+  width: ${(props) => props.gaugeWidth.toString() + "px"};
+  height: ${(props) => props.gaugeWidth.toString() + "px"};
   transform: rotate(-90deg);
 `;
 
@@ -80,30 +92,35 @@ interface Props {
   value: number | null;
   valueFontSize: number;
   caption: string;
-  circleSize: number;
+  containerWidth: number;
+  containerHeight?: number;
 }
 
 export default function GaugeProgressBar({
   value,
   valueFontSize,
   caption,
-  circleSize,
+  containerWidth,
+  containerHeight,
 }: Props) {
   const classes = useStyles();
 
   return (
-    <Container>
-      <Gauge circleSize={circleSize}>
+    <Container
+      containerWidth={containerWidth}
+      containerHeight={containerHeight || containerWidth}
+    >
+      <Gauge gaugeWidth={containerWidth}>
         <BorderCircularBackground
           variant={"determinate"}
-          size={circleSize}
+          size={containerWidth}
           thickness={1}
           value={50}
           className={classes.bottom}
         />
         <BorderCircularProgress
           variant={"determinate"}
-          size={circleSize}
+          size={containerWidth}
           thickness={1}
           value={(value || 0.0) * 0.5}
         />

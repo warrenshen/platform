@@ -27117,10 +27117,15 @@ export type GetCustomerOverviewQueryVariables = Exact<{
 
 export type GetCustomerOverviewQuery = {
   companies_by_pk?: Maybe<
-    Pick<Companies, "id"> & {
+    Pick<Companies, "id" | "name"> & {
       contract?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
       outstanding_loans: Array<
         Pick<Loans, "id"> & LoanLimitedFragment & LoanArtifactLimitedFragment
+      >;
+      parent_company?: Maybe<
+        Pick<ParentCompanies, "id" | "name"> & {
+          companies: Array<Pick<Companies, "id">>;
+        }
       >;
       pending_payments: Array<Pick<Payments, "id"> & PaymentLimitedFragment>;
       settings?: Maybe<
@@ -29611,7 +29616,7 @@ export type GetUserMenuInfoQuery = {
   users_by_pk?: Maybe<
     Pick<Users, "id"> & {
       parent_company?: Maybe<
-        Pick<ParentCompanies, "id"> & {
+        Pick<ParentCompanies, "id" | "name"> & {
           companies: Array<Pick<Companies, "id" | "name">>;
         }
       >;
@@ -31246,6 +31251,7 @@ export const GetCustomerOverviewDocument = gql`
   query GetCustomerOverview($company_id: uuid!, $loan_type: loan_type_enum) {
     companies_by_pk(id: $company_id) {
       id
+      name
       contract {
         id
         ...Contract
@@ -31274,6 +31280,13 @@ export const GetCustomerOverviewDocument = gql`
         id
         ...LoanLimited
         ...LoanArtifactLimited
+      }
+      parent_company {
+        id
+        name
+        companies {
+          id
+        }
       }
       pending_payments: payments(
         where: {
@@ -40184,6 +40197,7 @@ export const GetUserMenuInfoDocument = gql`
       ...User
       parent_company {
         id
+        name
         companies {
           id
           name

@@ -34,13 +34,6 @@ const LinkText = styled.span`
   font-size: 14px;
 `;
 
-interface Props {
-  companyId: Companies["id"];
-  productType: ProductTypeEnum;
-  contract: ContractFragment | null;
-  financialSummary: FinancialSummaryFragment | null;
-}
-
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     box: {
@@ -50,7 +43,16 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
+interface Props {
+  label?: string;
+  companyId: Companies["id"];
+  productType: ProductTypeEnum;
+  contract: ContractFragment | null;
+  financialSummary: FinancialSummaryFragment | null;
+}
+
 export default function CustomerFinancialSummaryOverview({
+  label = "",
   companyId,
   productType,
   contract,
@@ -115,8 +117,13 @@ export default function CustomerFinancialSummaryOverview({
     <Box display="flex" flexDirection="column" mt={2}>
       <Box display="flex" width="100%" justifyContent="space-between">
         <Box display="flex" flexDirection="column">
-          <Box display="flex">
-            <Box display="flex" flexDirection="column" mb={6}>
+          <Box mb={4}>
+            <Typography variant={"h5"}>
+              <strong>{label}</strong>
+            </Typography>
+          </Box>
+          <Box display="flex" mb={4}>
+            <Box display="flex" flexDirection="column">
               <Typography variant="h2">
                 {financialSummary !== null
                   ? formatCurrency(financialSummary.total_outstanding_principal)
@@ -166,7 +173,8 @@ export default function CustomerFinancialSummaryOverview({
             value={roundedLimitPercent}
             valueFontSize={40}
             caption={"Borrowing Limit Used"}
-            circleSize={300}
+            containerWidth={400}
+            containerHeight={325}
           />
         </Box>
       </Box>

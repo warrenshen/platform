@@ -101,6 +101,7 @@ export default function CustomerOverviewPageContent({
   }
 
   const company = data?.companies_by_pk;
+  const parentCompany = company?.parent_company;
   const contract = company?.contract || null;
   const payments = company?.pending_payments || [];
   const loans = company?.outstanding_loans || [];
@@ -296,6 +297,11 @@ export default function CustomerOverviewPageContent({
         )}
         <Box className={classes.section}>
           <CustomerFinancialSummaryOverview
+            label={
+              (parentCompany?.companies || []).length > 1
+                ? `${parentCompany?.name}: ${company?.name}`
+                : company?.name
+            }
             companyId={companyId}
             productType={productType}
             contract={contract}
