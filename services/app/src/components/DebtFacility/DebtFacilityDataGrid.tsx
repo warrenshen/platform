@@ -1,19 +1,21 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
-import { DebtFacilityLimitedFragment } from "generated/graphql";
+import { GetDebtFacilitiesSubscription } from "generated/graphql";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
+type Facilities = GetDebtFacilitiesSubscription["debt_facilities"];
+
 interface Props {
-  facilities: DebtFacilityLimitedFragment[];
+  facilities: Facilities;
   isExcelExport?: boolean;
   isSortingDisabled?: boolean;
   pager?: boolean;
   pageSize?: number;
 }
 
-function getRows(facilities: DebtFacilityLimitedFragment[]): RowsProp {
+function getRows(facilities: Facilities): RowsProp {
   return facilities.map((facility) => ({
     ...facility,
   }));

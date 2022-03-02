@@ -199,6 +199,7 @@ fragment LoanReport on loan_reports {
   financing_period
   financing_day_limit
   debt_facility_status
+  debt_facility_id
 }
 
 fragment LoanArtifact on loans {
@@ -346,4 +347,29 @@ fragment DebtFacilityCapacityLimited on debt_facility_capacities {
   changed_at
   changed_by
   debt_facility_id
+}
+
+fragment OpenLoansForDebtFacility on loans {
+  ...LoanForDebtFacility
+  loan_report {
+    id
+    ...LoanReport
+  }
+  purchase_order {
+    id
+    ...PurchaseOrderForDebtFacility
+  }
+  invoice {
+    id
+    ...Invoice
+  }
+  transactions ( where: {
+    _and: [
+      { type: { _eq: "advance"} },
+      # This was the date requested by the finance team w.r.t. CoVenture
+      { effective_date: { _gt: "2021-11-24" }}
+    ]
+  }) {
+    id
+  }
 }

@@ -10,6 +10,7 @@ import DebtFacilityCapacitySummary from "components/DebtFacility/DebtFacilityCap
 import {
   useGetDebtFacilityCurrentCapacitiesSubscription,
   useGetOpenLoansByDebtFacilityStatusesSubscription,
+  useGetDebtFacilitiesSubscription,
 } from "generated/graphql";
 import { useState } from "react";
 import styled from "styled-components";
@@ -78,6 +79,18 @@ export default function BankDebtFacilityPage() {
     })
     .reduce((a, b) => a + b, 0);
 
+  // Get debt facilities to pass around for autocomplete and admin tab
+  const {
+    data: facilityData,
+    error: facilityError,
+  } = useGetDebtFacilitiesSubscription();
+  if (facilityError) {
+    console.error({ facilityError });
+    alert(`Error in query (details in console): ${facilityError.message}`);
+  }
+
+  const facilities = facilityData?.debt_facilities || [];
+
   return (
     <Page appBarTitle={"Debt Facility"}>
       <PageContent title={"Debt Facility"}>
@@ -102,15 +115,15 @@ export default function BankDebtFacilityPage() {
           </Tabs>
           <SectionSpace />
           {selectedTabIndex === 0 ? (
-            <DebtFacilityOpenTab />
+            <DebtFacilityOpenTab facilities={facilities} />
           ) : selectedTabIndex === 1 ? (
             <DebtFacilityActionRequiredTab loans={loansWithRequiredUpdate} />
           ) : selectedTabIndex === 2 ? (
             <DebtFacilityAllTab />
           ) : selectedTabIndex === 3 ? (
-            <DebtFacilityReportTab />
+            <DebtFacilityReportTab facilities={facilities} />
           ) : (
-            <DebtFacilityAdminTab />
+            <DebtFacilityAdminTab facilities={facilities} />
           )}
         </Container>
       </PageContent>

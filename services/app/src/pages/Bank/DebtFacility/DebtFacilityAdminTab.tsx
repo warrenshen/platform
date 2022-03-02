@@ -7,8 +7,8 @@ import DebtFacilityDataGrid from "components/DebtFacility/DebtFacilityDataGrid";
 import UpdateDebtFacilityCapacityModal from "components/DebtFacility/UpdateDebtFacilityCapacityModal";
 import CreateUpdateDebtFacilityModal from "components/DebtFacility/CreateUpdateDebtFacilityModal";
 import {
+  GetDebtFacilitiesSubscription,
   useGetDebtFacilityCapacitySubscription,
-  useGetDebtFacilitiesSubscription,
 } from "generated/graphql";
 import styled from "styled-components";
 
@@ -21,7 +21,13 @@ const Container = styled.div`
   width: 100%;
 `;
 
-export default function DebtFacilityAdminTab() {
+type Facilities = GetDebtFacilitiesSubscription["debt_facilities"];
+
+interface Props {
+  facilities: Facilities;
+}
+
+export default function DebtFacilityAdminTab({ facilities }: Props) {
   const {
     data: capacityData,
     error: capacityError,
@@ -33,17 +39,6 @@ export default function DebtFacilityAdminTab() {
 
   const capacities = capacityData?.debt_facility_capacities || [];
   const currentCapacity = capacities[0]?.amount || 0.0;
-
-  const {
-    data: facilityData,
-    error: facilityError,
-  } = useGetDebtFacilitiesSubscription();
-  if (facilityError) {
-    console.error({ facilityError });
-    alert(`Error in query (details in console): ${facilityError.message}`);
-  }
-
-  const facilities = facilityData?.debt_facilities || [];
 
   return (
     <Container>
