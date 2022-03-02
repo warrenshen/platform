@@ -187,7 +187,6 @@ export default function CreateUpdateBankAccountModal({
     !bankAccount.bank_name ||
     !bankAccount.account_title ||
     !bankAccount.account_type ||
-    !bankAccount.routing_number ||
     !bankAccount.account_number ||
     (bankAccount.verified_at && !bankAccount.verified_date);
 
