@@ -25442,15 +25442,6 @@ export type GetFinancialSummariesByDateQuery = {
   >;
 };
 
-export type OpenLoansForDebtFacilityFragment = {
-  loan_report?: Maybe<Pick<LoanReports, "id"> & LoanReportFragment>;
-  purchase_order?: Maybe<
-    Pick<PurchaseOrders, "id"> & PurchaseOrderForDebtFacilityFragment
-  >;
-  invoice?: Maybe<Pick<Invoices, "id"> & InvoiceFragment>;
-  transactions: Array<Pick<Transactions, "id">>;
-} & LoanForDebtFacilityFragment;
-
 export type GetOpenLoansByDebtFacilityStatusesSubscriptionVariables = Exact<{
   statuses?: Maybe<Array<Scalars["String"]>>;
 }>;
@@ -27617,6 +27608,15 @@ export type DebtFacilityCapacityLimitedFragment = Pick<
   "id" | "amount" | "changed_at" | "changed_by" | "debt_facility_id"
 >;
 
+export type OpenLoansForDebtFacilityFragment = {
+  loan_report?: Maybe<Pick<LoanReports, "id"> & LoanReportFragment>;
+  purchase_order?: Maybe<
+    Pick<PurchaseOrders, "id"> & PurchaseOrderForDebtFacilityFragment
+  >;
+  invoice?: Maybe<Pick<Invoices, "id"> & InvoiceFragment>;
+  transactions: Array<Pick<Transactions, "id">>;
+} & LoanForDebtFacilityFragment;
+
 export type CompanySettingsLimitedFragment = Pick<
   CompanySettings,
   | "id"
@@ -27902,290 +27902,6 @@ export type UpdateUserMutationVariables = Exact<{
 
 export type UpdateUserMutation = { update_users_by_pk?: Maybe<UserFragment> };
 
-export const CompanyLicenseLimitedFragmentDoc = gql`
-  fragment CompanyLicenseLimited on company_licenses {
-    id
-    company_id
-    file_id
-    license_number
-  }
-`;
-export const CompanyLicenseFragmentDoc = gql`
-  fragment CompanyLicense on company_licenses {
-    id
-    legal_name
-    license_category
-    license_description
-    license_status
-    us_state
-    expiration_date
-    ...CompanyLicenseLimited
-  }
-  ${CompanyLicenseLimitedFragmentDoc}
-`;
-export const ContractFragmentDoc = gql`
-  fragment Contract on contracts {
-    id
-    company_id
-    product_type
-    product_config
-    start_date
-    end_date
-    adjusted_end_date
-    terminated_at
-  }
-`;
-export const CompanyForDebtFacilityFragmentDoc = gql`
-  fragment CompanyForDebtFacility on companies {
-    id
-    identifier
-    name
-    contract_name
-    employer_identification_number
-    dba_name
-    address
-    country
-    state
-    city
-    zip_code
-    phone_number
-    debt_facility_status
-    licenses(
-      where: {
-        _or: [
-          { is_deleted: { _is_null: true } }
-          { is_deleted: { _eq: false } }
-        ]
-      }
-      order_by: { created_at: desc }
-    ) {
-      id
-      ...CompanyLicense
-    }
-    contracts(
-      where: {
-        _or: [
-          { is_deleted: { _is_null: true } }
-          { is_deleted: { _eq: false } }
-        ]
-      }
-      order_by: { start_date: desc }
-    ) {
-      id
-      ...Contract
-    }
-  }
-  ${CompanyLicenseFragmentDoc}
-  ${ContractFragmentDoc}
-`;
-export const LoanForDebtFacilityFragmentDoc = gql`
-  fragment LoanForDebtFacility on loans {
-    id
-    loan_report_id
-    notes
-    company_id
-    loan_type
-    artifact_id
-    identifier
-    disbursement_identifier
-    status
-    rejection_note
-    payment_status
-    amount
-    requested_payment_date
-    origination_date
-    maturity_date
-    adjusted_maturity_date
-    outstanding_principal_balance
-    outstanding_interest
-    outstanding_fees
-    requested_at
-    approved_at
-    rejected_at
-    funded_at
-    closed_at
-    company {
-      id
-      identifier
-      ...CompanyForDebtFacility
-    }
-  }
-  ${CompanyForDebtFacilityFragmentDoc}
-`;
-export const LoanReportFragmentDoc = gql`
-  fragment LoanReport on loan_reports {
-    id
-    repayment_date
-    total_principal_paid
-    total_interest_paid
-    total_fees_paid
-    financing_period
-    financing_day_limit
-    debt_facility_status
-    debt_facility_id
-  }
-`;
-export const CompanyLimitedFragmentDoc = gql`
-  fragment CompanyLimited on companies {
-    id
-    parent_company_id
-    name
-    dba_name
-  }
-`;
-export const VendorLimitedFragmentDoc = gql`
-  fragment VendorLimited on vendors {
-    id
-    name
-    dba_name
-    licenses(
-      where: {
-        _or: [
-          { is_deleted: { _is_null: true } }
-          { is_deleted: { _eq: false } }
-        ]
-      }
-    ) {
-      ...CompanyLicenseLimited
-    }
-  }
-  ${CompanyLicenseLimitedFragmentDoc}
-`;
-export const PurchaseOrderLimitedFragmentDoc = gql`
-  fragment PurchaseOrderLimited on purchase_orders {
-    id
-    company_id
-    vendor_id
-    order_number
-    order_date
-    delivery_date
-    amount
-    amount_funded
-    is_cannabis
-    is_metrc_based
-    status
-    rejection_note
-    bank_rejection_note
-    customer_note
-    created_at
-    requested_at
-    approved_at
-    funded_at
-    closed_at
-    company {
-      id
-      ...CompanyLimited
-    }
-    vendor {
-      id
-      ...VendorLimited
-    }
-  }
-  ${CompanyLimitedFragmentDoc}
-  ${VendorLimitedFragmentDoc}
-`;
-export const PurchaseOrderForDebtFacilityFragmentDoc = gql`
-  fragment PurchaseOrderForDebtFacility on purchase_orders {
-    id
-    bank_note
-    ...PurchaseOrderLimited
-    purchase_order_metrc_transfers {
-      id
-      metrc_transfer {
-        id
-        created_date
-      }
-    }
-  }
-  ${PurchaseOrderLimitedFragmentDoc}
-`;
-export const PayorLimitedFragmentDoc = gql`
-  fragment PayorLimited on payors {
-    id
-    name
-    dba_name
-    licenses(
-      where: {
-        _or: [
-          { is_deleted: { _is_null: true } }
-          { is_deleted: { _eq: false } }
-        ]
-      }
-    ) {
-      ...CompanyLicenseLimited
-    }
-  }
-  ${CompanyLicenseLimitedFragmentDoc}
-`;
-export const InvoiceLimitedFragmentDoc = gql`
-  fragment InvoiceLimited on invoices {
-    id
-    company_id
-    payor_id
-    invoice_number
-    subtotal_amount
-    total_amount
-    taxes_amount
-    invoice_date
-    invoice_due_date
-    is_cannabis
-    status
-    created_at
-    approved_at
-    funded_at
-    payment_requested_at
-    payment_confirmed_at
-    payment_rejected_at
-    company {
-      id
-      ...CompanyLimited
-    }
-    payor {
-      id
-      ...PayorLimited
-    }
-  }
-  ${CompanyLimitedFragmentDoc}
-  ${PayorLimitedFragmentDoc}
-`;
-export const InvoiceFragmentDoc = gql`
-  fragment Invoice on invoices {
-    id
-    ...InvoiceLimited
-  }
-  ${InvoiceLimitedFragmentDoc}
-`;
-export const OpenLoansForDebtFacilityFragmentDoc = gql`
-  fragment OpenLoansForDebtFacility on loans {
-    ...LoanForDebtFacility
-    loan_report {
-      id
-      ...LoanReport
-    }
-    purchase_order {
-      id
-      ...PurchaseOrderForDebtFacility
-    }
-    invoice {
-      id
-      ...Invoice
-    }
-    transactions(
-      where: {
-        _and: [
-          { type: { _eq: "advance" } }
-          { effective_date: { _gt: "2021-11-24" } }
-        ]
-      }
-    ) {
-      id
-    }
-  }
-  ${LoanForDebtFacilityFragmentDoc}
-  ${LoanReportFragmentDoc}
-  ${PurchaseOrderForDebtFacilityFragmentDoc}
-  ${InvoiceFragmentDoc}
-`;
 export const UserFragmentDoc = gql`
   fragment User on users {
     id
@@ -28203,6 +27919,14 @@ export const CompanyAgreementFragmentDoc = gql`
     id
     company_id
     file_id
+  }
+`;
+export const CompanyLimitedFragmentDoc = gql`
+  fragment CompanyLimited on companies {
+    id
+    parent_company_id
+    name
+    dba_name
   }
 `;
 export const CompanyFragmentDoc = gql`
@@ -28538,6 +28262,32 @@ export const MetrcApiKeyFragmentDoc = gql`
     use_saved_licenses_only
   }
 `;
+export const CompanyLicenseLimitedFragmentDoc = gql`
+  fragment CompanyLicenseLimited on company_licenses {
+    id
+    company_id
+    file_id
+    license_number
+  }
+`;
+export const VendorLimitedFragmentDoc = gql`
+  fragment VendorLimited on vendors {
+    id
+    name
+    dba_name
+    licenses(
+      where: {
+        _or: [
+          { is_deleted: { _is_null: true } }
+          { is_deleted: { _eq: false } }
+        ]
+      }
+    ) {
+      ...CompanyLicenseLimited
+    }
+  }
+  ${CompanyLicenseLimitedFragmentDoc}
+`;
 export const VendorFragmentDoc = gql`
   fragment Vendor on vendors {
     id
@@ -28593,6 +28343,62 @@ export const LoanFragmentDoc = gql`
   }
   ${LoanLimitedFragmentDoc}
 `;
+export const PayorLimitedFragmentDoc = gql`
+  fragment PayorLimited on payors {
+    id
+    name
+    dba_name
+    licenses(
+      where: {
+        _or: [
+          { is_deleted: { _is_null: true } }
+          { is_deleted: { _eq: false } }
+        ]
+      }
+    ) {
+      ...CompanyLicenseLimited
+    }
+  }
+  ${CompanyLicenseLimitedFragmentDoc}
+`;
+export const InvoiceLimitedFragmentDoc = gql`
+  fragment InvoiceLimited on invoices {
+    id
+    company_id
+    payor_id
+    invoice_number
+    subtotal_amount
+    total_amount
+    taxes_amount
+    invoice_date
+    invoice_due_date
+    is_cannabis
+    status
+    created_at
+    approved_at
+    funded_at
+    payment_requested_at
+    payment_confirmed_at
+    payment_rejected_at
+    company {
+      id
+      ...CompanyLimited
+    }
+    payor {
+      id
+      ...PayorLimited
+    }
+  }
+  ${CompanyLimitedFragmentDoc}
+  ${PayorLimitedFragmentDoc}
+`;
+export const InvoiceFragmentDoc = gql`
+  fragment Invoice on invoices {
+    id
+    ...InvoiceLimited
+  }
+  ${InvoiceLimitedFragmentDoc}
+`;
 export const LineOfCreditFragmentDoc = gql`
   fragment LineOfCredit on line_of_credits {
     id
@@ -28606,6 +28412,39 @@ export const LineOfCreditFragmentDoc = gql`
     }
   }
   ${CompanyLimitedFragmentDoc}
+`;
+export const PurchaseOrderLimitedFragmentDoc = gql`
+  fragment PurchaseOrderLimited on purchase_orders {
+    id
+    company_id
+    vendor_id
+    order_number
+    order_date
+    delivery_date
+    amount
+    amount_funded
+    is_cannabis
+    is_metrc_based
+    status
+    rejection_note
+    bank_rejection_note
+    customer_note
+    created_at
+    requested_at
+    approved_at
+    funded_at
+    closed_at
+    company {
+      id
+      ...CompanyLimited
+    }
+    vendor {
+      id
+      ...VendorLimited
+    }
+  }
+  ${CompanyLimitedFragmentDoc}
+  ${VendorLimitedFragmentDoc}
 `;
 export const PurchaseOrderFragmentDoc = gql`
   fragment PurchaseOrder on purchase_orders {
@@ -28876,6 +28715,167 @@ export const DebtFacilityCapacityLimitedFragmentDoc = gql`
     changed_by
     debt_facility_id
   }
+`;
+export const CompanyLicenseFragmentDoc = gql`
+  fragment CompanyLicense on company_licenses {
+    id
+    legal_name
+    license_category
+    license_description
+    license_status
+    us_state
+    expiration_date
+    ...CompanyLicenseLimited
+  }
+  ${CompanyLicenseLimitedFragmentDoc}
+`;
+export const ContractFragmentDoc = gql`
+  fragment Contract on contracts {
+    id
+    company_id
+    product_type
+    product_config
+    start_date
+    end_date
+    adjusted_end_date
+    terminated_at
+  }
+`;
+export const CompanyForDebtFacilityFragmentDoc = gql`
+  fragment CompanyForDebtFacility on companies {
+    id
+    identifier
+    name
+    contract_name
+    employer_identification_number
+    dba_name
+    address
+    country
+    state
+    city
+    zip_code
+    phone_number
+    debt_facility_status
+    licenses(
+      where: {
+        _or: [
+          { is_deleted: { _is_null: true } }
+          { is_deleted: { _eq: false } }
+        ]
+      }
+      order_by: { created_at: desc }
+    ) {
+      id
+      ...CompanyLicense
+    }
+    contracts(
+      where: {
+        _or: [
+          { is_deleted: { _is_null: true } }
+          { is_deleted: { _eq: false } }
+        ]
+      }
+      order_by: { start_date: desc }
+    ) {
+      id
+      ...Contract
+    }
+  }
+  ${CompanyLicenseFragmentDoc}
+  ${ContractFragmentDoc}
+`;
+export const LoanForDebtFacilityFragmentDoc = gql`
+  fragment LoanForDebtFacility on loans {
+    id
+    loan_report_id
+    notes
+    company_id
+    loan_type
+    artifact_id
+    identifier
+    disbursement_identifier
+    status
+    rejection_note
+    payment_status
+    amount
+    requested_payment_date
+    origination_date
+    maturity_date
+    adjusted_maturity_date
+    outstanding_principal_balance
+    outstanding_interest
+    outstanding_fees
+    requested_at
+    approved_at
+    rejected_at
+    funded_at
+    closed_at
+    company {
+      id
+      identifier
+      ...CompanyForDebtFacility
+    }
+  }
+  ${CompanyForDebtFacilityFragmentDoc}
+`;
+export const LoanReportFragmentDoc = gql`
+  fragment LoanReport on loan_reports {
+    id
+    repayment_date
+    total_principal_paid
+    total_interest_paid
+    total_fees_paid
+    financing_period
+    financing_day_limit
+    debt_facility_status
+    debt_facility_id
+  }
+`;
+export const PurchaseOrderForDebtFacilityFragmentDoc = gql`
+  fragment PurchaseOrderForDebtFacility on purchase_orders {
+    id
+    bank_note
+    ...PurchaseOrderLimited
+    purchase_order_metrc_transfers {
+      id
+      metrc_transfer {
+        id
+        created_date
+      }
+    }
+  }
+  ${PurchaseOrderLimitedFragmentDoc}
+`;
+export const OpenLoansForDebtFacilityFragmentDoc = gql`
+  fragment OpenLoansForDebtFacility on loans {
+    ...LoanForDebtFacility
+    loan_report {
+      id
+      ...LoanReport
+    }
+    purchase_order {
+      id
+      ...PurchaseOrderForDebtFacility
+    }
+    invoice {
+      id
+      ...Invoice
+    }
+    transactions(
+      where: {
+        _and: [
+          { type: { _eq: "advance" } }
+          { effective_date: { _gt: "2021-11-24" } }
+        ]
+      }
+    ) {
+      id
+    }
+  }
+  ${LoanForDebtFacilityFragmentDoc}
+  ${LoanReportFragmentDoc}
+  ${PurchaseOrderForDebtFacilityFragmentDoc}
+  ${InvoiceFragmentDoc}
 `;
 export const GetAdvancesDocument = gql`
   subscription GetAdvances {
