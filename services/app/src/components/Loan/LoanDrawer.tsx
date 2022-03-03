@@ -6,16 +6,19 @@ import LoanPaymentStatusChip from "components/Shared/Chip/LoanPaymentStatusChip"
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import Modal from "components/Shared/Modal/Modal";
 import ModalButton from "components/Shared/Modal/ModalButton";
+import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import TransactionsDataGrid from "components/Transactions/TransactionsDataGrid";
 import {
   CurrentUserContext,
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
+import { BankAccounts, useGetLoansByLoanIdsQuery } from "generated/graphql";
 import {
   Loans,
   LoanTypeEnum,
   useGetLoanWithArtifactForBankQuery,
   useGetLoanWithArtifactForCustomerQuery,
+  useGetAdvancesBankAccountsForCustomerQuery,
   useGetTransactionsForLoanQuery,
 } from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
@@ -29,6 +32,9 @@ import {
 import {
   createLoanCustomerIdentifier,
   createLoanDisbursementIdentifier,
+  extractCustomerId,
+  extractRecipientCompanyId,
+  extractVendorId,
 } from "lib/loans";
 import { useContext } from "react";
 
@@ -87,9 +93,65 @@ export default function LoanDrawer({ loanId, handleClose }: Props) {
   const bankLoan = bankData?.loans_by_pk;
   const transactions = transactionsData?.transactions;
 
+  const { data: loansData, error: loansError } = useGetLoansByLoanIdsQuery({
+    variables: {
+      loan_ids: [loanId],
+    },
+  });
+
+  if (loansError) {
+    console.error({ error: loansError });
+    alert(`Error in query (details in console): ${loansError.message}`);
+  }
+  const selectedLoans = loansData?.loans || [];
+
+  const customerId = extractCustomerId(selectedLoans);
+  const recipientCompanyId = extractRecipientCompanyId(selectedLoans);
+  const vendorId = extractVendorId(customerId, recipientCompanyId);
+
+  const {
+    data: advancesBankAccountData,
+    error: advancesBankAccountError,
+  } = useGetAdvancesBankAccountsForCustomerQuery({
+    skip: !recipientCompanyId,
+    variables: {
+      customerId,
+      vendorId,
+    },
+  });
+
+  if (advancesBankAccountError) {
+    console.error({ error: advancesBankAccountError });
+    alert(
+      `Error in query (details in console): ${advancesBankAccountError.message}`
+    );
+  }
+
   if (!loan) {
     return null;
   }
+
+  const renderRecipientBankInfoBox = () => {
+    const vendorBankAccount = advancesBankAccountData?.companies_by_pk
+      ?.company_vendor_partnerships[0].vendor_bank_account as BankAccounts;
+
+    return (
+      !!advancesBankAccountData && (
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Typography variant="subtitle2" color="textSecondary">
+            Recipient Bank Information
+          </Typography>
+          {!!vendorBankAccount && !advancesBankAccountError ? (
+            <Box mt={1}>
+              <BankAccountInfoCard bankAccount={vendorBankAccount} />
+            </Box>
+          ) : (
+            <Typography variant="body1">Not found</Typography>
+          )}
+        </Box>
+      )
+    );
+  };
 
   const isMaturityVisible = !!loan.origination_date;
 
@@ -314,6 +376,7 @@ export default function LoanDrawer({ loanId, handleClose }: Props) {
           {formatCurrency(loan.outstanding_fees)}
         </Typography>
       </Box>
+      {renderRecipientBankInfoBox()}
       {false && isBankUser && (
         <>
           <Box display="flex" flexDirection="column" mt={2}>

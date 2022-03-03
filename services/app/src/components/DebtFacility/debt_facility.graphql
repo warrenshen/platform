@@ -1,52 +1,71 @@
 subscription GetOpenLoansByDebtFacilityStatuses($statuses: [String!]) {
-  loans ( where: {
-    _and: [
-      {
-        _or: [
-          { is_deleted: { _is_null: true } },
-          { is_deleted: { _eq: false } }
-        ]
-      },
-      { closed_at: { _is_null: true } },
-      { loan_report: { debt_facility_status: { _in: $statuses  } } },
-    ]
-  }) {
+  loans(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { closed_at: { _is_null: true } }
+        { loan_report: { debt_facility_status: { _in: $statuses } } }
+      ]
+    }
+  ) {
     id
     ...OpenLoansForDebtFacility
   }
 }
 
-subscription GetOpenLoansByDebtFacilityId($statuses: [String!], $target_facility_id: uuid!) {
-  loans ( where: {
-    _and: [
-      {
-        _or: [
-          { is_deleted: { _is_null: true } },
-          { is_deleted: { _eq: false } }
-        ]
-      },
-      { closed_at: { _is_null: true } },
-      {
-        _or: [
-          # This part of the where clause is not immediately obvious what it covers. Here are the two cases:
-          # 1. Open tab loans in the debt facility, only uses the top _or conditional based on statuses passed in
-          # 2. Report tab where we want the loans specific to a facility *and* the available loans to go into the facility
-          {
-            _and: [
-              { loan_report: { debt_facility_status: { _eq: "sold_into_debt_facility"  } } },
-              { loan_report: { debt_facility_id: { _eq: $target_facility_id } } }
-            ]
-          },
-          {
-            _and: [
-              { loan_report: { debt_facility_status: { _in: $statuses  } } },
-              { loan_report: { debt_facility_status: { _neq: "sold_into_debt_facility" } } }
-            ]
-          }
-        ]
-      }
-    ]
-  }) {
+subscription GetOpenLoansByDebtFacilityId(
+  $statuses: [String!]
+  $target_facility_id: uuid!
+) {
+  loans(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { closed_at: { _is_null: true } }
+        {
+          _or: [
+            # This part of the where clause is not immediately obvious what it covers. Here are the two cases:
+            # 1. Open tab loans in the debt facility, only uses the top _or conditional based on statuses passed in
+            # 2. Report tab where we want the loans specific to a facility *and* the available loans to go into the facility
+            {
+              _and: [
+                {
+                  loan_report: {
+                    debt_facility_status: { _eq: "sold_into_debt_facility" }
+                  }
+                }
+                {
+                  loan_report: {
+                    debt_facility_id: { _eq: $target_facility_id }
+                  }
+                }
+              ]
+            }
+            {
+              _and: [
+                { loan_report: { debt_facility_status: { _in: $statuses } } }
+                {
+                  loan_report: {
+                    debt_facility_status: { _neq: "sold_into_debt_facility" }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ) {
     id
     ...OpenLoansForDebtFacility
   }
@@ -54,9 +73,7 @@ subscription GetOpenLoansByDebtFacilityId($statuses: [String!], $target_facility
 
 # change to plural please
 subscription GetDebtFacilityCapacity {
-  debt_facility_capacities (
-    order_by: [{ changed_at: desc }]
-  ) {
+  debt_facility_capacities(order_by: [{ changed_at: desc }]) {
     id
     ...DebtFacilityCapacityLimited
     debt_facility {
@@ -67,9 +84,7 @@ subscription GetDebtFacilityCapacity {
 }
 
 subscription GetDebtFacilities {
-  debt_facilities (
-    order_by: [{ name: desc }]
-  ) {
+  debt_facilities(order_by: [{ name: desc }]) {
     id
     ...DebtFacilityLimited
     debt_facility_capacities {
@@ -79,17 +94,13 @@ subscription GetDebtFacilities {
   }
 }
 
-subscription  GetDebtFacilityCurrentCapacities {
+subscription GetDebtFacilityCurrentCapacities {
   debt_facilities {
     id
     ...DebtFacilityLimited
-    debt_facility_capacities (
-      order_by: [{ changed_at: desc }],
-      limit: 1,
-    ) {
+    debt_facility_capacities(order_by: [{ changed_at: desc }], limit: 1) {
       id
       ...DebtFacilityCapacityLimited
-
     }
   }
 }

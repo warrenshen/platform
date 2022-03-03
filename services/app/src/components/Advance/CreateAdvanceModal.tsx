@@ -6,8 +6,8 @@ import LoansDataGrid from "components/Loans/LoansDataGrid";
 import Modal from "components/Shared/Modal/Modal";
 import {
   BankAccountFragment,
+  GetAdvancesBankAccountsForCustomerQuery,
   Loans,
-  LoanTypeEnum,
   PaymentsInsertInput,
   useGetAdvancesBankAccountsForCustomerQuery,
   useGetLoansByLoanIdsQuery,
@@ -22,7 +22,12 @@ import {
   SettlementTimelineConfigForBankAdvance,
 } from "lib/finance/payments/advance";
 import { useEffect, useState } from "react";
-import { uniq } from "lodash";
+import {
+  extractVendorId,
+  extractCustomerId,
+  extractRecipientCompanyId,
+  extractRecipientCompanyIdAndBankAccountFromPartnership,
+} from "lib/loans";
 
 interface Props {
   selectedLoanIds: Loans["id"];
@@ -63,30 +68,11 @@ export default function CreateAdvanceModal({
     console.error({ error: loansError });
     alert(`Error in query (details in console): ${loansError.message}`);
   }
-
   const selectedLoans = loansData?.loans || [];
 
-  const allCustomerIds = selectedLoans.map((loan) => loan.company_id);
-  const allRecipientIds = selectedLoans.map((loan) => {
-    if (loan.loan_type === LoanTypeEnum.PurchaseOrder) {
-      return loan.purchase_order?.vendor_id;
-    }
-    if (loan.loan_type === LoanTypeEnum.LineOfCredit) {
-      return loan.line_of_credit?.recipient_vendor_id || loan.company_id;
-    }
-    return loan.company_id;
-  });
-  const uniqueCustomerIds = uniq(allCustomerIds);
-  const uniqueRecipientIds = uniq(allRecipientIds);
-  const isOnlyOneCustomer = uniqueCustomerIds.length <= 1;
-  const isOnlyOneRecipient = uniqueRecipientIds.length <= 1;
-
-  const customerId = isOnlyOneCustomer ? uniqueCustomerIds[0] : null;
-  const recipientCompanyId = isOnlyOneRecipient ? uniqueRecipientIds[0] : null;
-  const vendorId =
-    recipientCompanyId && recipientCompanyId !== customerId
-      ? recipientCompanyId
-      : null;
+  const customerId = extractCustomerId(selectedLoans);
+  const recipientCompanyId = extractRecipientCompanyId(selectedLoans);
+  const vendorId = extractVendorId(customerId, recipientCompanyId);
 
   const {
     data: advancesBankAccountData,
@@ -94,8 +80,8 @@ export default function CreateAdvanceModal({
   } = useGetAdvancesBankAccountsForCustomerQuery({
     skip: !recipientCompanyId,
     variables: {
-      customerId: customerId,
-      vendorId: vendorId,
+      customerId,
+      vendorId,
     },
   });
 
@@ -111,21 +97,14 @@ export default function CreateAdvanceModal({
    * 1. Purchase order loan: recipient is vendor.
    * 2. Line of credit loan: recipient is customer OR vendor.
    */
+  const {
+    recipientCompany,
+    advancesBankAccount,
+  } = extractRecipientCompanyIdAndBankAccountFromPartnership(
+    vendorId,
+    advancesBankAccountData as GetAdvancesBankAccountsForCustomerQuery
+  );
   const isRecipientVendor = !!vendorId;
-  let recipientCompany = null;
-  let advancesBankAccount: BankAccountFragment | null = null;
-  if (isRecipientVendor) {
-    recipientCompany =
-      advancesBankAccountData?.companies_by_pk?.company_vendor_partnerships[0]
-        ?.vendor || null;
-    advancesBankAccount =
-      advancesBankAccountData?.companies_by_pk?.company_vendor_partnerships[0]
-        ?.vendor_bank_account || null;
-  } else {
-    recipientCompany = advancesBankAccountData?.companies_by_pk || null;
-    advancesBankAccount =
-      recipientCompany?.settings?.advances_bank_account || null;
-  }
 
   const [
     createAdvance,
@@ -255,7 +234,7 @@ export default function CreateAdvanceModal({
           loans={selectedLoans}
         />
       </Box>
-      {isOnlyOneRecipient ? (
+      {recipientCompanyId ? (
         <Box>
           <AdvanceForm
             payment={payment}
