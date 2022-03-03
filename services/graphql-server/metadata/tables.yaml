@@ -715,6 +715,7 @@
       - is_payor
       - is_vendor
       - name
+      - parent_company_id
       filter:
         invoices:
           payor_id:
@@ -729,6 +730,7 @@
       - is_payor
       - is_vendor
       - name
+      - parent_company_id
       filter:
         purchase_orders:
           vendor_id:
