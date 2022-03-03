@@ -21,7 +21,7 @@ import {
   getLoanArtifactName,
 } from "lib/loans";
 import { ColumnWidths } from "lib/tables";
-import { flatten } from "lodash";
+import { flatten, sumBy } from "lodash";
 import { useMemo } from "react";
 
 function getRows(
@@ -38,6 +38,12 @@ function getRows(
       company_name: payment.company.name,
       status: !!payment.reversed_at ? "Reversed" : "Settled",
       payment: payment,
+      to_principle_sum: payment.transactions?.length
+        ? sumBy(payment.transactions, "to_principle")
+        : null,
+      to_interest_sum: payment.transactions?.length
+        ? sumBy(payment.transactions, "to_interest")
+        : null,
     }));
   } else {
     return flatten(
@@ -158,15 +164,6 @@ export default function RepaymentTransactionsDataGrid({
         }) => PaymentMethodToLabel[payment.method as PaymentMethodEnum],
       },
       {
-        dataField: "payment.amount",
-        caption: "Total Amount",
-        minWidth: ColumnWidths.Currency,
-        alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.payment.amount} />
-        ),
-      },
-      {
         dataField: "payment.deposit_date",
         caption: "Deposit Date",
         width: ColumnWidths.Date,
@@ -231,6 +228,16 @@ export default function RepaymentTransactionsDataGrid({
       },
       {
         visible: !isLineOfCredit,
+        dataField: "payment.amount",
+        caption: "Total Repayment Amount",
+        minWidth: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.payment.amount} />
+        ),
+      },
+      {
+        visible: !isLineOfCredit,
         dataField: "transaction.amount",
         caption: "Transaction Total Amount",
         width: ColumnWidths.Currency,
@@ -287,6 +294,36 @@ export default function RepaymentTransactionsDataGrid({
                 : null
             }
           />
+        ),
+      },
+      {
+        visible: isLineOfCredit,
+        dataField: "payment.amount",
+        caption: "Total Repayment Amount",
+        minWidth: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.payment.amount} />
+        ),
+      },
+      {
+        visible: isLineOfCredit,
+        dataField: "transaction.to_principle",
+        caption: "Applied to Principle",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.to_principle_sum} />
+        ),
+      },
+      {
+        visible: isLineOfCredit,
+        dataField: "transaction.to_interest",
+        caption: "Applied to Interest",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.to_interest_sum} />
         ),
       },
     ],
