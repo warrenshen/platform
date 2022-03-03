@@ -1,7 +1,7 @@
 """
 	Logic to help create a company.
 """
-from typing import Any, Callable, Dict, List, Tuple, cast
+from typing import Any, Callable, Dict, List, Optional, Tuple, cast
 
 from bespoke import errors
 from bespoke.companies import create_user_util
@@ -93,8 +93,9 @@ def _check_is_company_name_already_used(company_name: str, company_identifier: s
 
 def _create_company(
 	name: str,
-	identifier: str,
-	dba_name: str,
+	identifier: Optional[str],
+	dba_name: Optional[str],
+	two_factor_message_method: Optional[str],
 	session: Session,
 ) -> models.Company:
 	parent_company = models.ParentCompany(name=name)
@@ -104,6 +105,11 @@ def _create_company(
 	parent_company_id = str(parent_company.id)
 
 	company_settings = models.CompanySettings()
+	if two_factor_message_method:
+		company_settings.two_factor_message_method = two_factor_message_method
+	else:
+		# Default 2FA method to PHONE.
+		company_settings.two_factor_message_method = TwoFactorMessageMethod.PHONE
 	session.add(company_settings)
 
 	session.flush()
@@ -132,7 +138,13 @@ def create_customer_company(
 	dba_name: str,
 	session: Session,
 ) -> models.Company:
-	company = _create_company(name, identifier, dba_name, session)
+	company = _create_company(
+		name=name,
+		identifier=identifier,
+		dba_name=dba_name,
+		two_factor_message_method=None,
+		session=session,
+	)
 	company.is_customer = True
 	company.contract_name = contract_name
 	return company
@@ -143,7 +155,13 @@ def create_prospective_company(
 	dba_name: str,
 	session: Session,
 ) -> models.Company:
-	company = _create_company(name, identifier, dba_name, session)
+	company = _create_company(
+		name=name,
+		identifier=identifier,
+		dba_name=dba_name,
+		two_factor_message_method=None,
+		session=session,
+	)
 	return company
 
 @errors.return_error_tuple
@@ -292,7 +310,12 @@ def upsert_custom_messages_payload(
 #
 # Just create the partnership with a company_id
 
-def _create_user(user_input: Dict, company_id: str, session: Session) -> str:
+def _create_user(
+	user_input: Dict,
+	parent_company_id: str,
+	company_id: str,
+	session: Session,
+) -> str:
 	# Note: Payor / Vendor users do not have any role for now.
 	user_first_name = user_input['first_name']
 	user_last_name = user_input['last_name']
@@ -309,6 +332,7 @@ def _create_user(user_input: Dict, company_id: str, session: Session) -> str:
 		raise errors.Error('User phone number must be specified')
 
 	user = models.User()
+	user.parent_company_id = parent_company_id
 	user.company_id = company_id
 	user.first_name = user_first_name
 	user.last_name = user_last_name
@@ -329,23 +353,20 @@ def _create_partner_company_and_its_first_user(
 	if not user_input.get('email'):
 		raise errors.Error('User email must be specified')
 
-	company_settings = models.CompanySettings()
-	company_settings.two_factor_message_method = partnership_req.two_factor_message_method
-	session.add(company_settings)
-	session.flush()
-	company_settings_id = str(company_settings.id)
-
-	company = models.Company(
-		company_settings_id=company_settings_id,
-		is_customer=False,
-		is_payor=partnership_req.company_type == CompanyType.Payor,
-		is_vendor=partnership_req.company_type == CompanyType.Vendor,
+	company = _create_company(
 		name=partnership_req.company_name,
-		is_cannabis=partnership_req.is_cannabis,
+		identifier=None,
+		dba_name=None,
+		two_factor_message_method=partnership_req.two_factor_message_method,
+		session=session,
 	)
-	session.add(company)
-	session.flush()
+	company.is_customer = False
+	company.is_payor = partnership_req.company_type == CompanyType.Payor
+	company.is_vendor = partnership_req.company_type == CompanyType.Vendor
+	company.is_cannabis = partnership_req.is_cannabis
+
 	company_id = str(company.id)
+	parent_company_id = str(company.parent_company_id)
 
 	existing_user = session.query(models.User).filter(
 		models.User.email == user_input['email'].lower()
@@ -353,7 +374,12 @@ def _create_partner_company_and_its_first_user(
 	if existing_user:
 		raise errors.Error('Email is already taken')
 
-	_create_user(user_input, company_id, session)
+	_create_user(
+		user_input=user_input,
+		parent_company_id=parent_company_id,
+		company_id=company_id,
+		session=session,
+	)
 
 	if partnership_req.license_info:
 		# Add any licenses the user might have specified.
@@ -383,7 +409,11 @@ def _create_partner_company_and_its_first_user(
 	return company_id
 
 def _setup_users_for_existing_company(
-	company_id: str, partnership_req: models.CompanyPartnershipRequest, session: Session) -> str:
+	parent_company_id: str,
+	company_id: str,
+	partnership_req: models.CompanyPartnershipRequest,
+	session: Session,
+) -> str:
 	
 	user_input = cast(Dict, partnership_req.user_info)
 
@@ -399,7 +429,12 @@ def _setup_users_for_existing_company(
 		user_id = str(existing_user.id)
 	else:
 		# Only create the user if it doesn't exist by email
-		user_id = _create_user(user_input, company_id, session)
+		user_id = _create_user(
+			user_input=user_input,
+			parent_company_id=parent_company_id,
+			company_id=company_id,
+			session=session,
+		)
 
 	return user_id
 
@@ -433,8 +468,20 @@ def create_partnership(
 		if not company_id:
 			raise errors.Error('partner_company_id must be specified because the partnership is based on a pre-existing company')
 
+		company = cast(
+			models.Company,
+			session.query(models.Company).filter(
+				models.Company.id == company_id
+			).first())
+		if not company or not company.parent_company_id:
+			raise errors.Error('company and parent company must be exist because the partnership is based on a pre-existing company')
+
 		_setup_users_for_existing_company(
-			company_id, partnership_req, session)
+			parent_company_id=str(company.parent_company_id),
+			company_id=company_id,
+			partnership_req=partnership_req,
+			session=session,
+		)
 
 	company = cast(
 		models.Company,
