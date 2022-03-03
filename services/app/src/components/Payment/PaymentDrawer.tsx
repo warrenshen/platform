@@ -14,12 +14,18 @@ import {
   CurrentUserContext,
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
-import { Payments, useGetPaymentQuery } from "generated/graphql";
+import {
+  BankAccounts,
+  Payments,
+  useGetPaymentForSettlementQuery,
+} from "generated/graphql";
 import { formatCurrency } from "lib/number";
 import { formatDateString, formatDatetimeString } from "lib/date";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
 import { getPaymentStatus } from "lib/finance/payments/repayment";
 import { useContext } from "react";
+import { todayAsDateStringServer } from "lib/date";
+import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -33,19 +39,24 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
   paymentId: Payments["id"];
   handleClose: () => void;
+  showBankInfo?: boolean;
 }
 
-export default function PaymentDrawer({ paymentId, handleClose }: Props) {
+export default function PaymentDrawer({
+  paymentId,
+  handleClose,
+  showBankInfo = false,
+}: Props) {
   const classes = useStyles();
 
   const {
     user: { role },
   } = useContext(CurrentUserContext);
   const isBankUser = isRoleBankUser(role);
-
-  const { data, refetch } = useGetPaymentQuery({
+  const { data, refetch } = useGetPaymentForSettlementQuery({
     variables: {
       id: paymentId,
+      today: todayAsDateStringServer(),
     },
   });
 
@@ -54,6 +65,20 @@ export default function PaymentDrawer({ paymentId, handleClose }: Props) {
   if (!payment) {
     return null;
   }
+
+  const renderBankAccountInfoCard = () =>
+    showBankInfo ? (
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2" color="textSecondary">
+          Recipient Bank Information
+        </Typography>
+        <BankAccountInfoCard
+          bankAccount={
+            data?.payments_by_pk?.company_bank_account as BankAccounts
+          }
+        />
+      </Box>
+    ) : null;
 
   return (
     <Drawer open anchor="right" onClose={handleClose}>
@@ -160,6 +185,7 @@ export default function PaymentDrawer({ paymentId, handleClose }: Props) {
             {formatDatetimeString(payment.submitted_at)}
           </Typography>
         </Box>
+        {renderBankAccountInfoCard()}
         <Box display="flex" flexDirection="column" mt={2}>
           <Typography variant="subtitle2" color="textSecondary">
             Submitted By

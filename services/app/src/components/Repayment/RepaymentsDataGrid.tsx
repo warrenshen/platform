@@ -75,7 +75,7 @@ export default function RepaymentsDataGrid({
         caption: "Payment ID",
         width: 140,
         cellRender: (params: ValueFormatterParams) => (
-          <PaymentDrawerLauncher paymentId={params.row.data.id} />
+          <PaymentDrawerLauncher paymentId={params.row.data.id} showBankInfo />
         ),
       },
       {

@@ -26365,6 +26365,7 @@ export type GetPaymentForSettlementQuery = {
           payor?: Maybe<Pick<Payors, "id"> & PayorFragment>;
         }
       >;
+      settled_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
     } & PaymentFragment
   >;
 };

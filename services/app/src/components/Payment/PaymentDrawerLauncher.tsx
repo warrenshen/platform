@@ -6,10 +6,15 @@ import { useState } from "react";
 
 interface Props {
   label?: string;
+  showBankInfo?: boolean;
   paymentId: PurchaseOrders["id"];
 }
 
-export default function PaymentDrawerLauncher({ label, paymentId }: Props) {
+export default function PaymentDrawerLauncher({
+  label,
+  paymentId,
+  showBankInfo = false,
+}: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -18,6 +23,7 @@ export default function PaymentDrawerLauncher({ label, paymentId }: Props) {
         <PaymentDrawer
           paymentId={paymentId}
           handleClose={() => setIsOpen(false)}
+          showBankInfo={showBankInfo}
         />
       )}
       <ClickableDataGridCell
