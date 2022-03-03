@@ -12,6 +12,19 @@ def setup_users_for_get_active_users(
 	session: Session,
 	company_id: str
 	) -> None:
+
+	parent_company_id = str(uuid.uuid4())
+	session.add(models.Company(
+		id = parent_company_id,
+		name = "AA Milne",
+	))
+
+	session.add(models.Company(
+		id = company_id,
+		name = "Christopher Robin",
+		parent_company_id = parent_company_id
+	))
+
 	session.add(models.User(
 		company_id = company_id,
 		email = 'winnie@100acrewood.com',
@@ -31,7 +44,8 @@ def setup_users_for_get_active_users(
 		first_name = 'Rabbit',
 		last_name = 'Daws',
 		login_method = 'simple',
-		is_deleted = None
+		is_deleted = None,
+		parent_company_id = parent_company_id
 	))
 
 	session.add(models.User(
@@ -42,7 +56,8 @@ def setup_users_for_get_active_users(
 		first_name = 'Eeyore',
 		last_name = 'Gloomy',
 		login_method = 'simple',
-		is_deleted = None
+		is_deleted = None,
+		parent_company_id = parent_company_id
 	))
 
 class TestModelsUtil(db_unittest.TestCase):

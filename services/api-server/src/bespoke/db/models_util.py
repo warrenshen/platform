@@ -22,10 +22,16 @@ def get_active_users(
 	session: Session, 
 	filter_contact_only: bool = False
 	) -> List[models.User]:
+	company = cast(
+		models.Company,
+		session.query(models.Company).filter_by(
+			id=company_id
+		).first())
+
 	return cast(
 		List[models.User],
 		session.query(models.User).filter_by(
-			company_id=company_id
+			parent_company_id=company.parent_company_id
 		).filter(
 			cast(Callable, models.User.is_deleted.isnot)(True)
 		).filter(
