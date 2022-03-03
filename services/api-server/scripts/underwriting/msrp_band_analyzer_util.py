@@ -15,6 +15,14 @@ COMPANY_IDENTIFIER_LIST = [
     'EL'
 ]
 
-CONFIDENCE_LEVEL = 95
+CONFIDENCE_LEVEL = 'sd'
 ERROR_STYLE = 'band'
 
+MEASUREMENT_DICT = {
+    'gram': 1,
+    'eighth': 3.5,
+    'quarter': 7,
+    'half ounce': 14,
+    'ounce': 28,
+    # 'pound': 448
+}
