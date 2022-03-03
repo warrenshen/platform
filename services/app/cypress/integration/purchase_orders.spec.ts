@@ -180,3 +180,139 @@ describe("Create inventory financing contract for existing customer", () => {
 //     cy.dataCy("create-purchase-order-modal").should("not.exist");
 //   });
 // });
+
+describe("Customer admin creates the purchase order and bank admin approves it", () => {
+  it("Create and approve purchase order", () => {
+    // Login as customer admin
+    cy.loginCustomerAdmin();
+
+    // Visit purchase orders page
+    cy.visit("/1/purchase-orders");
+    cy.url().should("include", "purchase-orders");
+
+    // Create purchase order
+    cy.dataCy("create-purchase-order-button").click();
+
+    cy.dataCy("create-purchase-order-modal").should("be.visible");
+
+    // Select the first approved vendor
+    cy.dataCy("purchase-order-form-input-vendor").click();
+    cy.dataCy("purchase-order-form-input-vendor").type("{enter}");
+
+    // Fill the rest of the form and hit submit
+    cy.dataCySelector("purchase-order-form-input-order-number", "input").type(
+      "PO-CYPRESS"
+    );
+    cy.dataCySelector("purchase-order-form-input-order-date", "input").type(
+      "05/05/2021"
+    );
+    cy.dataCySelector("purchase-order-form-input-delivery-date", "input").type(
+      "05/05/2021"
+    );
+    cy.dataCySelector("purchase-order-form-input-amount", "input").type(
+      "42000"
+    );
+    cy.dataCySelector("purchase-order-form-input-is-cannabis", "input").check();
+    cy.dataCySelector(
+      "purchase-order-form-file-uploader-purchase-order-file",
+      "input"
+    ).attachFile("files/sample.pdf");
+
+    cy.dataCySelector(
+      "purchase-order-form-file-uploader-cannabis-file-attachments",
+      "input"
+    ).attachFile("files/sample.pdf");
+
+    // The button will be enabled once the upload of the above attachments is done
+    // This takes more than the default 4000 ms timeout
+    cy.get('[data-cy="create-purchase-order-modal-primary-button"]', {
+      timeout: 20000,
+    })
+      .should("not.be.disabled")
+      .click();
+
+    cy.dataCy("create-purchase-order-modal").should("not.exist");
+
+    // Now login as bank admin and approve the purchase order
+    cy.logout();
+    cy.loginBankAdmin();
+
+    // Approve purchase order
+    cy.visit("/purchase-orders");
+
+    cy.get(
+      "table tr[aria-rowindex='1'] td[aria-colindex='1'] .dx-select-checkbox"
+    ).click();
+
+    cy.dataCy("approve-po-button").click();
+    cy.dataCy("approve-po-confirm-button").click();
+  });
+});
+
+describe("Bank admin creates the purchase order and approves it", () => {
+  it("Create and approve purchase order", () => {
+    // Login as customer admin
+    cy.loginBankAdmin();
+
+    // Open the first customer
+    cy.dataCy("sidebar-item-customers").click();
+    cy.url().should("include", "customers");
+
+    cy.dataCy("customers-data-grid-view-customer-button-C1-IF")
+      .first()
+      .click({ force: true });
+
+    // Create purchase order
+    cy.dataCy("create-po-button").click();
+
+    cy.dataCy("create-purchase-order-modal").should("be.visible");
+
+    // Select the first approved vendor
+    cy.dataCy("purchase-order-form-input-vendor").click();
+    cy.dataCy("purchase-order-form-input-vendor").type("{enter}");
+
+    // Fill the rest of the form and hit submit
+    cy.dataCySelector("purchase-order-form-input-order-number", "input").type(
+      "PO-CYPRESS2"
+    );
+    cy.dataCySelector("purchase-order-form-input-order-date", "input").type(
+      "05/05/2021"
+    );
+    cy.dataCySelector("purchase-order-form-input-delivery-date", "input").type(
+      "05/05/2021"
+    );
+    cy.dataCySelector("purchase-order-form-input-amount", "input").type(
+      "42000"
+    );
+    cy.dataCySelector("purchase-order-form-input-is-cannabis", "input").check();
+    cy.dataCySelector(
+      "purchase-order-form-file-uploader-purchase-order-file",
+      "input"
+    ).attachFile("files/sample.pdf");
+
+    cy.dataCySelector(
+      "purchase-order-form-file-uploader-cannabis-file-attachments",
+      "input"
+    ).attachFile("files/sample.pdf");
+
+    // The button will be enabled once the upload of the above attachments is done
+    // This takes more than the default 4000 ms timeout
+    cy.get('[data-cy="create-purchase-order-modal-primary-button"]', {
+      timeout: 20000,
+    })
+      .should("not.be.disabled")
+      .click();
+
+    cy.dataCy("create-purchase-order-modal").should("not.exist");
+
+    // Approve purchase order
+    cy.visit("/purchase-orders");
+
+    cy.get(
+      "table tr[aria-rowindex='1'] td[aria-colindex='1'] .dx-select-checkbox"
+    ).click();
+
+    cy.dataCy("approve-po-button").click();
+    cy.dataCy("approve-po-confirm-button").click();
+  });
+});

@@ -123,6 +123,7 @@ function ApprovePurchaseOrderModal({ purchaseOrder, handleClose }: Props) {
           Cancel
         </Button>
         <Button
+          data-cy={"approve-po-confirm-button"}
           disabled={isSubmitDisabled}
           variant={"contained"}
           color={"primary"}

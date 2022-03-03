@@ -1,10 +1,12 @@
 import copy
+import os
 import datetime
 import logging
 from datetime import timedelta, timezone
 from sqlalchemy.orm.session import Session
 from typing import Callable, Dict, List, Text, Tuple, cast
 from sendgrid.helpers.mail import Attachment
+from server.config import is_test_env
 
 from bespoke import errors
 from bespoke.config.config_util import is_development_env, is_prod_env
@@ -332,7 +334,7 @@ def _maybe_add_or_remove_recipients(
 		# and @sweatequity.vc emails so we avoid sending emails to customers in those environments
 		new_recipients = []
 		for recipient in recipients:
-			if recipient.endswith('@bespokefinancial.com') or recipient.endswith('@sweatequity.vc') or recipient.endswith('jrsmith17@protonmail.com') or recipient.endswith('@uplift.ltd'):
+			if recipient.endswith('@bespokefinancial.com') or recipient.endswith('@sweatequity.vc') or recipient.endswith('jrsmith17@protonmail.com') or recipient.endswith('@uplift.ltd') or recipient.endswith('@customer.com'):
 				new_recipients.append(recipient)
 			else:
 				logging.info(f'Email "{template_name}" not sent to {recipient} due to non-prod environment')
@@ -408,7 +410,6 @@ class Client(object):
 		two_factor_payload: TwoFactorPayloadDict = None,
 		attachment: Attachment = None,
 	) -> Tuple[bool, errors.Error]:
-		
 		# Validate whether recipient emails are valid.
 		for recipient_email in recipients:
 			if not recipient_email or '@' not in recipient_email:
@@ -435,6 +436,10 @@ class Client(object):
 			'template_id': template_id,
 			'template_data': template_data,
 		}
+
+		# This is to prevent sending emails in the test environment
+		if is_test_env(os.environ.get('FLASK_ENV')):
+			return True, None
 
 		is_prod = is_prod_env(self._email_cfg['flask_env'])
 

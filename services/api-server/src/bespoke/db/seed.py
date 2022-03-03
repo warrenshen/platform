@@ -8,6 +8,7 @@ from bespoke.companies import create_company_util, create_user_util
 from bespoke.db import models
 from bespoke.db.db_constants import ALL_USER_ROLES, UserRoles
 from bespoke.db.models import session_scope
+from bespoke.db.seed_utils import create_partnership_req, create_company_settings_and_company, create_user_inside_a_company, create_company_license, create_company_vendor_partnership
 from server.config import is_test_env
 from server.views.common import auth_util
 from sqlalchemy.orm import sessionmaker
@@ -30,6 +31,10 @@ SEED_USER_TUPLES = [
 	('C2-LOC', UserRoles.COMPANY_ADMIN, 'lineofcredit@customer.com', SEED_USER_PASSWORD),
 ]
 
+CUSTOMER_IDENTIFIER_INVENTORY_FINANCING = 'C1-IF'
+
+USER_EMAIL_INVENTORY_FINANCING = 'inventoryfinancing@customer.com'
+
 def setup_db_test(app: Any) -> None:
 	if not is_test_env(os.environ.get('FLASK_ENV')):
 		logging.warning(f'Reset database not allowed in {os.environ.get("FLASK_ENV")} env...')
@@ -47,7 +52,24 @@ def setup_db_test(app: Any) -> None:
 			company.parent_company_id = None
 			company.company_settings_id = None
 			company.contract_id = None
+			company.parent_company_id = None
 		session.flush()
+	
+	# Delete Vendor, Files, Purchase Order Files
+	with session_scope(session_maker) as session:
+		company_partnerships = session.query(models.CompanyPartnershipRequest).all()
+		for company_partnership in company_partnerships:
+			cast(Callable, session.delete)(company_partnership)
+		session.flush()
+
+		po_files = session.query(models.PurchaseOrderFile).all()
+		for po_file in po_files:
+			cast(Callable, session.delete)(po_file)
+		session.flush()
+
+		files = session.query(models.File).all()
+		for file in files:
+			cast(Callable, session.delete)(file)
 
 	# Delete all rows in all tables, but do NOT drop the tables.
 	with contextlib.closing(engine.connect()) as con:
@@ -120,3 +142,36 @@ def setup_db_test(app: Any) -> None:
 
 					if err:
 						print(err)
+		
+		# Create an approved vendor for a company
+		with session_scope(session_maker) as session:
+			requesting_company = session.query(models.Company).filter_by(
+				identifier=CUSTOMER_IDENTIFIER_INVENTORY_FINANCING,
+			).first()
+			user = session.query(models.User).filter_by(
+				email=USER_EMAIL_INVENTORY_FINANCING,
+			).first()
+
+			create_partnership_req(
+				requesting_company_id=requesting_company.id,
+				requested_by_user_id=user.id,
+				session=session,
+			)
+
+			company = create_company_settings_and_company(session=session)
+
+			create_user_inside_a_company(
+				company_id=company.id,
+				session=session,
+			)
+
+			create_company_license(
+				company_id=company.id,
+				session=session,
+			)
+
+			create_company_vendor_partnership(
+				company_id=requesting_company.id,
+				vendor_id=company.id,
+				session=session,
+			)

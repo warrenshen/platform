@@ -212,6 +212,9 @@ export default function PurchaseOrderForm({
             </Typography>
           </Box>
           <FileUploader
+            dataCy={
+              "purchase-order-form-file-uploader-cannabis-file-attachments"
+            }
             companyId={companyId}
             fileType={FileTypeEnum.PURCHASE_ORDER}
             fileIds={purchaseOrderCannabisFileIds}

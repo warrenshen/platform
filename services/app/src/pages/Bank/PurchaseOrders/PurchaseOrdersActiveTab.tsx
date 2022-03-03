@@ -84,6 +84,7 @@ export default function BankPurchaseOrdersActiveTab() {
             <>
               <Box>
                 <ModalButton
+                  dataCy="approve-po-button"
                   isDisabled={selectedPurchaseOrderIds.length !== 1}
                   label={"Approve PO"}
                   modal={({ handleClose }) =>

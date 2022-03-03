@@ -1,6 +1,7 @@
 import datetime
 import decimal
 import json
+import os
 from dataclasses import dataclass, fields
 from sqlalchemy.orm.session import Session
 from typing import Any, Callable, Dict, List, Optional, Tuple, cast
@@ -18,7 +19,8 @@ from bespoke.finance.loans import approval_util
 from bespoke.security import security_util, two_factor_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
-from server.config import Config
+from server.config import Config, is_test_env
+
 from server.views.common import auth_util, handler_util
 
 
@@ -314,7 +316,11 @@ def create_update_purchase_order(
 		_, err = sendgrid_client.send(
 			template_name=sendgrid_util.TemplateNames.CUSTOMER_CREATED_PURCHASE_ORDER,
 			template_data=template_data,
-			recipients=current_app.app_config.BANK_NOTIFY_EMAIL_ADDRESSES,
+			recipients=(
+				["user@customer.com"]
+				if is_test_env(os.environ.get("FLASK_ENV"))
+				else current_app.app_config.BANK_NOTIFY_EMAIL_ADDRESSES
+			),
 		)
 		if err:
 			raise err
@@ -466,7 +472,11 @@ def submit_purchase_order_for_approval(
 		_, err = sendgrid_client.send(
 			template_name=sendgrid_util.TemplateNames.CUSTOMER_REQUESTED_APPROVAL_NO_VENDOR_BANK_ACCOUNT,
 			template_data=template_data,
-			recipients=current_app.app_config.BANK_NOTIFY_EMAIL_ADDRESSES + current_app.app_config.OPS_EMAIL_ADDRESSES,
+			recipients=(
+				["user@customer.com"]
+				if is_test_env(os.environ.get("FLASK_ENV"))
+				else current_app.app_config.BANK_NOTIFY_EMAIL_ADDRESSES
+			) + current_app.app_config.OPS_EMAIL_ADDRESSES,
 		)
 		if err:
 			raise err

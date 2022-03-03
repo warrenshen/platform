@@ -99,7 +99,10 @@ export default function UserMenu({ isLocationsPage }: Props) {
       )}
       <Box display="flex" flexDirection="row" alignItems="center" py={2} px={1}>
         <Box>
-          <IconButton onClick={handleClick}>
+          <IconButton
+            onClick={handleClick}
+            data-cy={"user-profile-icon-button"}
+          >
             <AccountCircle />
           </IconButton>
         </Box>
@@ -135,6 +138,7 @@ export default function UserMenu({ isLocationsPage }: Props) {
           Profile
         </MenuItem>
         <MenuItem
+          data-cy={"user-logout-button"}
           onClick={() => {
             signOut(client);
             handleClose();

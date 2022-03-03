@@ -31,6 +31,7 @@ declare global {
     interface Chainable {
       loginBankAdmin: typeof loginBankAdmin;
       loginCustomerAdmin: typeof loginCustomerAdmin;
+      logout: typeof logout;
       resetDatabase: typeof resetDatabase;
       todayAsDateStringClient: typeof todayAsDateStringClient;
     }
@@ -67,6 +68,15 @@ function loginCustomerAdmin() {
   cy.url().should("include", "overview");
 }
 
+function logout() {
+  cy.visit("/", { timeout: 5 * 60 * 1000 });
+
+  cy.dataCy("user-profile-icon-button").click();
+  cy.dataCy("user-logout-button").click();
+
+  cy.url().should("include", "sign-in");
+}
+
 function resetDatabase() {
   cy.request("POST", `${Cypress.env("apiServerUrl")}/cypress/reset_database`);
 }
@@ -79,5 +89,6 @@ function todayAsDateStringClient(): string {
 
 Cypress.Commands.add("loginBankAdmin", loginBankAdmin);
 Cypress.Commands.add("loginCustomerAdmin", loginCustomerAdmin);
+Cypress.Commands.add("logout", logout);
 Cypress.Commands.add("resetDatabase", resetDatabase);
 Cypress.Commands.add("todayAsDateStringClient", todayAsDateStringClient);

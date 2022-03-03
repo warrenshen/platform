@@ -214,6 +214,7 @@ export default function CustomerOverviewPageContent({
             <Can perform={Action.AddPurchaseOrders}>
               <Box mr={2}>
                 <ModalButton
+                  dataCy={"create-po-button"}
                   color={"default"}
                   variant={"outlined"}
                   label={"Create PO"}
