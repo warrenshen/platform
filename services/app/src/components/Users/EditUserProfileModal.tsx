@@ -16,14 +16,12 @@ import {
 } from "@material-ui/core";
 import PhoneInput from "components/Shared/FormInputs/PhoneInput";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import {
-  UserFragment,
-  UserRolesEnum,
-  useUpdateUserMutation,
-} from "generated/graphql";
+import { UserFragment, UserRolesEnum } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { UserRoleToLabel } from "lib/enum";
 import { useContext, useState } from "react";
+import useCustomMutation from "hooks/useCustomMutation";
+import { updateUser } from "lib/api/users";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -64,7 +62,37 @@ function EditUserProfileModal({
 
   const [userProfile, setUserProfile] = useState(originalUserProfile);
 
-  const [updateUser] = useUpdateUserMutation();
+  const [
+    updateUserDetails,
+    { loading: isUpdateUserLoading },
+  ] = useCustomMutation(updateUser);
+
+  const handleSubmit = async () => {
+    const response = await updateUserDetails({
+      variables: {
+        id: userProfile.id,
+        role: userProfile.role,
+        first_name: userProfile.first_name,
+        last_name: userProfile.last_name,
+        phone_number: userProfile.phone_number,
+        email: userProfile.email,
+      },
+    });
+
+    if (response.status === "ERROR") {
+      snackbar.showError(response.msg);
+    } else {
+      snackbar.showSuccess("User details updated.");
+      handleClose();
+    }
+  };
+
+  const updateButtonDisabled =
+    !userProfile.role ||
+    !userProfile.first_name ||
+    !userProfile.last_name ||
+    !userProfile.email ||
+    isUpdateUserLoading;
 
   return (
     <Dialog
@@ -125,7 +153,6 @@ function EditUserProfileModal({
           </Box>
           <Box display="flex" flexDirection="column" mt={4}>
             <TextField
-              disabled={true}
               label="Email"
               value={userProfile.email}
               onChange={({ target: { value } }) =>
@@ -154,35 +181,8 @@ function EditUserProfileModal({
           <Button onClick={handleClose}>Cancel</Button>
           <Button
             className={classes.submitButton}
-            disabled={
-              !userProfile.role ||
-              !userProfile.first_name ||
-              !userProfile.last_name ||
-              !userProfile.email
-            }
-            onClick={async () => {
-              const response = await updateUser({
-                variables: {
-                  id: userProfile.id,
-                  user: {
-                    role:
-                      role === UserRolesEnum.BankAdmin
-                        ? userProfile.role
-                        : undefined,
-                    first_name: userProfile.first_name,
-                    last_name: userProfile.last_name,
-                    phone_number: userProfile.phone_number,
-                  },
-                },
-              });
-              const savedUser = response.data?.update_users_by_pk;
-              if (!savedUser) {
-                snackbar.showError("Could not update user.");
-              } else {
-                snackbar.showSuccess("User updated.");
-                handleClose();
-              }
-            }}
+            disabled={updateButtonDisabled}
+            onClick={handleSubmit}
             variant="contained"
             color="primary"
           >

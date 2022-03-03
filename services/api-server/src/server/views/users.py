@@ -1,5 +1,6 @@
 import json
 from typing import Any, Dict, cast
+import logging
 
 from bespoke import errors
 from bespoke.audit import events
@@ -329,6 +330,69 @@ class ReactivateCustomerUserView(MethodView):
 			'status': 'OK'
 		}), 200)
 
+class UpdateUserView(MethodView):
+    decorators = [auth_util.login_required]
+
+    @handler_util.catch_bad_json_request
+    def post(self, **kwargs: Any) -> Response:
+        logging.info("Updating user")
+        form = json.loads(request.data)
+        if not form:
+            return handler_util.make_error_response("No data provided")
+        variables = form.get("variables", None)
+
+        user_id = variables.get("id", None) if variables else None
+        if not user_id:
+            return handler_util.make_error_response("userId is required to be set for this request")
+
+        email = variables.get("email", None)
+        if not email:
+            return handler_util.make_error_response("email is required to be set for this request")
+		
+        first_name = variables.get("first_name", None)
+        if not first_name:
+            return handler_util.make_error_response("firstName is required to be set for this request")
+
+        last_name = variables.get("last_name", None)
+        if not last_name:
+            return handler_util.make_error_response("lastName is required to be set for this request")
+
+        role = variables.get("role", None)
+        if not role:
+            return handler_util.make_error_response("role is required to be set for this request")
+
+        with models.session_scope(current_app.session_maker) as session:
+            user = cast(
+                models.User,
+                session.query(models.User).filter_by(id=user_id).first(),
+            )
+
+            if not user:
+                return handler_util.make_error_response("Invalid user id provided")
+
+            if email and email != user.email:
+				# Check if there is already a user with this email
+                if cast(
+					models.User,
+					session.query(models.User).filter_by(email=email).first(),
+				):
+                    return handler_util.make_error_response("User with email already exists")
+                user.email = email
+
+            user.first_name = first_name
+            user.last_name = last_name
+            user.role = role
+
+            phone_number = variables.get("phone_number", None)
+            if phone_number:
+                user.phone_number = phone_number
+
+        return make_response(
+            json.dumps(
+                {"status": "OK", "resp": "Successfully updated the user."}
+            )
+        )
+
 handler.add_url_rule(
 	'/create_login', view_func=CreateLoginView.as_view(name='create_login_view'))
 
@@ -346,3 +410,6 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/reactivate_customer_user', view_func=ReactivateCustomerUserView.as_view(name='reactivate_customer_user_view'))
+
+handler.add_url_rule(
+    '/update_user', view_func=UpdateUserView.as_view(name='update_user_view'))
