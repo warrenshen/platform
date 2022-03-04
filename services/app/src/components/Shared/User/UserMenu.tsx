@@ -87,7 +87,7 @@ export default function UserMenu({ isLocationsPage }: Props) {
 
   return (
     <Box display="flex" flexDirection="column">
-      {!isLocationsPage && parentCompany && company && (
+      {!isLocationsPage && companies.length > 1 && parentCompany && company && (
         <LocationBanner>
           <LocationName>{company.name}</LocationName>
           <Button onClick={() => history.push(customerRoutes.locations)}>

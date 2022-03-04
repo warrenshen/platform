@@ -35650,7 +35650,7 @@ export const GetParentCompanyWithCompaniesDocument = gql`
   query GetParentCompanyWithCompanies($parent_company_id: uuid!, $date: date!) {
     parent_companies_by_pk(id: $parent_company_id) {
       id
-      companies {
+      companies(order_by: { name: asc }) {
         id
         name
         contract {

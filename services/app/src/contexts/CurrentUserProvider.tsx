@@ -48,22 +48,6 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
   const [isTokenLoaded, setIsTokenLoaded] = useState(false);
   const isSignedIn = !!(user.id && user.role);
 
-  useEffect(() => {
-    async function setUserFromAccessToken() {
-      const accessToken = await getAccessToken();
-      if (accessToken) {
-        setUser((user) => ({
-          ...user,
-          ...userFieldsFromToken(accessToken),
-        }));
-      }
-      setIsTokenLoaded(true);
-    }
-    if (isTokenLoaded === false) {
-      setUserFromAccessToken();
-    }
-  }, [isTokenLoaded]);
-
   const resetUser = useCallback(() => setIsTokenLoaded(false), []);
   const setUserProductType = useCallback(
     (productType: ProductTypeEnum) => {
@@ -134,11 +118,30 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
         removeAccessToken();
         removeRefreshToken();
         client.clearStore();
-        setUser(BlankUser);
+        // Note: the following line forces a hard refresh, which does two things:
+        // 1. Resets the state of the App so the user is not signed in.
+        // 2. Guarantees that the user gets the latest version of the App.
+        window.location.href = routes.signIn;
       }
     },
     []
   );
+
+  useEffect(() => {
+    async function setUserFromAccessToken() {
+      const accessToken = await getAccessToken();
+      if (accessToken) {
+        setUser((user) => ({
+          ...user,
+          ...userFieldsFromToken(accessToken),
+        }));
+      }
+      setIsTokenLoaded(true);
+    }
+    if (isTokenLoaded === false) {
+      setUserFromAccessToken();
+    }
+  }, [isTokenLoaded]);
 
   return isTokenLoaded ? (
     <CurrentUserContext.Provider
