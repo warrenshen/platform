@@ -8,7 +8,7 @@ import UpdateDebtFacilityCapacityModal from "components/DebtFacility/UpdateDebtF
 import CreateUpdateDebtFacilityModal from "components/DebtFacility/CreateUpdateDebtFacilityModal";
 import {
   GetDebtFacilitiesSubscription,
-  useGetDebtFacilityCapacitySubscription,
+  useGetDebtFacilityCapacitiesSubscription,
 } from "generated/graphql";
 import styled from "styled-components";
 
@@ -31,7 +31,7 @@ export default function DebtFacilityAdminTab({ facilities }: Props) {
   const {
     data: capacityData,
     error: capacityError,
-  } = useGetDebtFacilityCapacitySubscription();
+  } = useGetDebtFacilityCapacitiesSubscription();
   if (capacityError) {
     console.error({ capacityError });
     alert(`Error in query (details in console): ${capacityError.message}`);

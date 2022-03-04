@@ -1,16 +1,22 @@
 import { Box, FormControl, TextField, Typography } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
+import Can from "components/Shared/Can";
+import ModalButton from "components/Shared/Modal/ModalButton";
+import { Action } from "lib/auth/rbac-rules";
 import DebtFacilityLoansDataGrid from "components/DebtFacility/DebtFacilityLoansDataGrid";
 import {
   DebtFacilities,
   GetDebtFacilitiesSubscription,
+  LoanFragment,
   useGetOpenLoansByDebtFacilityIdSubscription,
   useGetOpenLoansByDebtFacilityStatusesSubscription,
 } from "generated/graphql";
+import MoveDebtFacilityLoanModal from "components/DebtFacility/MoveDebtFacilityLoanModal";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
+import { DebtFacilityStatusEnum } from "lib/enum";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 const Container = styled.div`
   display: flex;
@@ -33,13 +39,35 @@ export default function DebtFacilityOpenTab({ facilities }: Props) {
     DebtFacilities["id"]
   >("");
 
+  // Handle selection for loans in debt facility datagrid
+  const [selectedFacilityLoans, setSelectedFacilityLoans] = useState<
+    LoanFragment[]
+  >([]);
+  const handleSelectFacilityLoans = useMemo(
+    () => (loans: LoanFragment[]) => {
+      setSelectedFacilityLoans(loans);
+    },
+    [setSelectedFacilityLoans]
+  );
+
+  // Handle selection for loans in bespoke datagrid
+  const [selectedBespokeLoans, setSelectedBespokeLoans] = useState<
+    LoanFragment[]
+  >([]);
+  const handleSelectBespokeLoans = useMemo(
+    () => (loans: LoanFragment[]) => {
+      setSelectedBespokeLoans(loans);
+    },
+    [setSelectedBespokeLoans]
+  );
+
   const {
     data: debtFacilityData,
     error: debtFacilityError,
   } = useGetOpenLoansByDebtFacilityIdSubscription({
     skip: selectedDebtFacilityId === "",
     variables: {
-      statuses: ["sold_into_debt_facility"],
+      statuses: [DebtFacilityStatusEnum.SOLD_INTO_DEBT_FACILITY],
       target_facility_id: selectedDebtFacilityId,
     },
   });
@@ -55,7 +83,10 @@ export default function DebtFacilityOpenTab({ facilities }: Props) {
     error: bespokeError,
   } = useGetOpenLoansByDebtFacilityStatusesSubscription({
     variables: {
-      statuses: ["bespoke_balance_sheet", "repurchased"],
+      statuses: [
+        DebtFacilityStatusEnum.BESPOKE_BALANCE_SHEET,
+        DebtFacilityStatusEnum.REPURCHASED,
+      ],
     },
   });
   if (bespokeError) {
@@ -92,33 +123,85 @@ export default function DebtFacilityOpenTab({ facilities }: Props) {
         {!!selectedDebtFacilityId && (
           <Box display="flex" flexDirection="column">
             <Typography variant="h6">Debt Facility Balance Sheet</Typography>
+            <Box my={2} display="flex" flexDirection="row-reverse">
+              <Can perform={Action.MoveDebtFacilityLoan}>
+                <Box mr={2}>
+                  <ModalButton
+                    isDisabled={selectedFacilityLoans.length === 0}
+                    label={"Move to Bespoke Balance Sheet"}
+                    modal={({ handleClose }) => {
+                      const handler = () => {
+                        handleClose();
+                        setSelectedFacilityLoans([]);
+                      };
+                      return (
+                        <MoveDebtFacilityLoanModal
+                          isMovingToFacility={false}
+                          selectedLoans={selectedFacilityLoans}
+                          facilities={facilities}
+                          handleClose={handler}
+                        />
+                      );
+                    }}
+                  />
+                </Box>
+              </Can>
+            </Box>
             <DebtFacilityLoansDataGrid
+              isMultiSelectEnabled
               loans={debtFacilityLoans}
-              isCompanyVisible={true}
-              isStatusVisible={true}
-              isMaturityVisible={true}
-              isDisbursementIdentifierVisible={true}
+              isCompanyVisible
+              isStatusVisible
+              isMaturityVisible
+              isDisbursementIdentifierVisible
               handleClickCustomer={(customerId) =>
                 history.push(
                   getBankCompanyRoute(customerId, BankCompanyRouteEnum.Loans)
                 )
               }
+              handleSelectLoans={handleSelectFacilityLoans}
             />
           </Box>
         )}
         <Box display="flex" flexDirection="column">
           <Typography variant="h6">Bespoke Balance Sheet</Typography>
+          <Box my={2} display="flex" flexDirection="row-reverse">
+            <Can perform={Action.MoveDebtFacilityLoan}>
+              <Box mr={2}>
+                <ModalButton
+                  isDisabled={selectedBespokeLoans.length === 0}
+                  label={"Move to Debt Facility"}
+                  modal={({ handleClose }) => {
+                    const handler = () => {
+                      handleClose();
+                      setSelectedBespokeLoans([]);
+                    };
+                    return (
+                      <MoveDebtFacilityLoanModal
+                        isMovingToFacility
+                        selectedLoans={selectedBespokeLoans}
+                        facilities={facilities}
+                        handleClose={handler}
+                      />
+                    );
+                  }}
+                />
+              </Box>
+            </Can>
+          </Box>
           <DebtFacilityLoansDataGrid
+            isMultiSelectEnabled
             loans={bespokeLoans}
-            isCompanyVisible={true}
-            isStatusVisible={true}
-            isMaturityVisible={true}
-            isDisbursementIdentifierVisible={true}
+            isCompanyVisible
+            isStatusVisible
+            isMaturityVisible
+            isDisbursementIdentifierVisible
             handleClickCustomer={(customerId) =>
               history.push(
                 getBankCompanyRoute(customerId, BankCompanyRouteEnum.Loans)
               )
             }
+            handleSelectLoans={handleSelectBespokeLoans}
           />
         </Box>
       </Box>

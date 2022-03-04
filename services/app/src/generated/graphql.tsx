@@ -19625,7 +19625,6 @@ export type PurchaseOrders = {
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
-  bank_incomplete_note?: Maybe<Scalars["String"]>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<Scalars["String"]>;
   /** When bank rejects purchase order, this mandatory note explains the rejection */
@@ -19640,8 +19639,6 @@ export type PurchaseOrders = {
   delivery_date?: Maybe<Scalars["date"]>;
   funded_at?: Maybe<Scalars["timestamptz"]>;
   id: Scalars["uuid"];
-  incomplete_note?: Maybe<Scalars["String"]>;
-  incompleted_at?: Maybe<Scalars["timestamptz"]>;
   /** Whether this purchase order includes "cannabis or derivatives"; NULL means unknown (neither true nor false) */
   is_cannabis?: Maybe<Scalars["Boolean"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
@@ -19797,7 +19794,6 @@ export type PurchaseOrdersBoolExp = {
   amount?: Maybe<NumericComparisonExp>;
   amount_funded?: Maybe<NumericComparisonExp>;
   approved_at?: Maybe<TimestamptzComparisonExp>;
-  bank_incomplete_note?: Maybe<StringComparisonExp>;
   bank_note?: Maybe<StringComparisonExp>;
   bank_rejection_note?: Maybe<StringComparisonExp>;
   closed_at?: Maybe<TimestamptzComparisonExp>;
@@ -19808,8 +19804,6 @@ export type PurchaseOrdersBoolExp = {
   delivery_date?: Maybe<DateComparisonExp>;
   funded_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
-  incomplete_note?: Maybe<StringComparisonExp>;
-  incompleted_at?: Maybe<TimestamptzComparisonExp>;
   is_cannabis?: Maybe<BooleanComparisonExp>;
   is_deleted?: Maybe<BooleanComparisonExp>;
   is_metrc_based?: Maybe<BooleanComparisonExp>;
@@ -19846,7 +19840,6 @@ export type PurchaseOrdersInsertInput = {
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
-  bank_incomplete_note?: Maybe<Scalars["String"]>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<Scalars["String"]>;
   /** When bank rejects purchase order, this mandatory note explains the rejection */
@@ -19860,8 +19853,6 @@ export type PurchaseOrdersInsertInput = {
   delivery_date?: Maybe<Scalars["date"]>;
   funded_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
-  incomplete_note?: Maybe<Scalars["String"]>;
-  incompleted_at?: Maybe<Scalars["timestamptz"]>;
   /** Whether this purchase order includes "cannabis or derivatives"; NULL means unknown (neither true nor false) */
   is_cannabis?: Maybe<Scalars["Boolean"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
@@ -19888,7 +19879,6 @@ export type PurchaseOrdersMaxFields = {
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
-  bank_incomplete_note?: Maybe<Scalars["String"]>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<Scalars["String"]>;
   /** When bank rejects purchase order, this mandatory note explains the rejection */
@@ -19901,8 +19891,6 @@ export type PurchaseOrdersMaxFields = {
   delivery_date?: Maybe<Scalars["date"]>;
   funded_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
-  incomplete_note?: Maybe<Scalars["String"]>;
-  incompleted_at?: Maybe<Scalars["timestamptz"]>;
   order_date?: Maybe<Scalars["date"]>;
   order_number?: Maybe<Scalars["String"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
@@ -19919,7 +19907,6 @@ export type PurchaseOrdersMaxOrderBy = {
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
-  bank_incomplete_note?: Maybe<OrderBy>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<OrderBy>;
   /** When bank rejects purchase order, this mandatory note explains the rejection */
@@ -19932,8 +19919,6 @@ export type PurchaseOrdersMaxOrderBy = {
   delivery_date?: Maybe<OrderBy>;
   funded_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
-  incomplete_note?: Maybe<OrderBy>;
-  incompleted_at?: Maybe<OrderBy>;
   order_date?: Maybe<OrderBy>;
   order_number?: Maybe<OrderBy>;
   rejected_at?: Maybe<OrderBy>;
@@ -19950,7 +19935,6 @@ export type PurchaseOrdersMinFields = {
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
-  bank_incomplete_note?: Maybe<Scalars["String"]>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<Scalars["String"]>;
   /** When bank rejects purchase order, this mandatory note explains the rejection */
@@ -19963,8 +19947,6 @@ export type PurchaseOrdersMinFields = {
   delivery_date?: Maybe<Scalars["date"]>;
   funded_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
-  incomplete_note?: Maybe<Scalars["String"]>;
-  incompleted_at?: Maybe<Scalars["timestamptz"]>;
   order_date?: Maybe<Scalars["date"]>;
   order_number?: Maybe<Scalars["String"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
@@ -19981,7 +19963,6 @@ export type PurchaseOrdersMinOrderBy = {
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
-  bank_incomplete_note?: Maybe<OrderBy>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<OrderBy>;
   /** When bank rejects purchase order, this mandatory note explains the rejection */
@@ -19994,8 +19975,6 @@ export type PurchaseOrdersMinOrderBy = {
   delivery_date?: Maybe<OrderBy>;
   funded_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
-  incomplete_note?: Maybe<OrderBy>;
-  incompleted_at?: Maybe<OrderBy>;
   order_date?: Maybe<OrderBy>;
   order_number?: Maybe<OrderBy>;
   rejected_at?: Maybe<OrderBy>;
@@ -20033,7 +20012,6 @@ export type PurchaseOrdersOrderBy = {
   amount?: Maybe<OrderBy>;
   amount_funded?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
-  bank_incomplete_note?: Maybe<OrderBy>;
   bank_note?: Maybe<OrderBy>;
   bank_rejection_note?: Maybe<OrderBy>;
   closed_at?: Maybe<OrderBy>;
@@ -20044,8 +20022,6 @@ export type PurchaseOrdersOrderBy = {
   delivery_date?: Maybe<OrderBy>;
   funded_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
-  incomplete_note?: Maybe<OrderBy>;
-  incompleted_at?: Maybe<OrderBy>;
   is_cannabis?: Maybe<OrderBy>;
   is_deleted?: Maybe<OrderBy>;
   is_metrc_based?: Maybe<OrderBy>;
@@ -20077,8 +20053,6 @@ export enum PurchaseOrdersSelectColumn {
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
-  BankIncompleteNote = "bank_incomplete_note",
-  /** column name */
   BankNote = "bank_note",
   /** column name */
   BankRejectionNote = "bank_rejection_note",
@@ -20096,10 +20070,6 @@ export enum PurchaseOrdersSelectColumn {
   FundedAt = "funded_at",
   /** column name */
   Id = "id",
-  /** column name */
-  IncompleteNote = "incomplete_note",
-  /** column name */
-  IncompletedAt = "incompleted_at",
   /** column name */
   IsCannabis = "is_cannabis",
   /** column name */
@@ -20130,7 +20100,6 @@ export type PurchaseOrdersSetInput = {
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
-  bank_incomplete_note?: Maybe<Scalars["String"]>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<Scalars["String"]>;
   /** When bank rejects purchase order, this mandatory note explains the rejection */
@@ -20143,8 +20112,6 @@ export type PurchaseOrdersSetInput = {
   delivery_date?: Maybe<Scalars["date"]>;
   funded_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
-  incomplete_note?: Maybe<Scalars["String"]>;
-  incompleted_at?: Maybe<Scalars["timestamptz"]>;
   /** Whether this purchase order includes "cannabis or derivatives"; NULL means unknown (neither true nor false) */
   is_cannabis?: Maybe<Scalars["Boolean"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
@@ -20226,8 +20193,6 @@ export enum PurchaseOrdersUpdateColumn {
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
-  BankIncompleteNote = "bank_incomplete_note",
-  /** column name */
   BankNote = "bank_note",
   /** column name */
   BankRejectionNote = "bank_rejection_note",
@@ -20245,10 +20210,6 @@ export enum PurchaseOrdersUpdateColumn {
   FundedAt = "funded_at",
   /** column name */
   Id = "id",
-  /** column name */
-  IncompleteNote = "incomplete_note",
-  /** column name */
-  IncompletedAt = "incompleted_at",
   /** column name */
   IsCannabis = "is_cannabis",
   /** column name */
@@ -25533,11 +25494,11 @@ export type GetOpenLoansByDebtFacilityIdSubscription = {
   loans: Array<Pick<Loans, "id"> & OpenLoansForDebtFacilityFragment>;
 };
 
-export type GetDebtFacilityCapacitySubscriptionVariables = Exact<{
+export type GetDebtFacilityCapacitiesSubscriptionVariables = Exact<{
   [key: string]: never;
 }>;
 
-export type GetDebtFacilityCapacitySubscription = {
+export type GetDebtFacilityCapacitiesSubscription = {
   debt_facility_capacities: Array<
     Pick<DebtFacilityCapacities, "id"> & {
       debt_facility?: Maybe<
@@ -25566,6 +25527,20 @@ export type GetDebtFacilityCurrentCapacitiesSubscriptionVariables = Exact<{
 }>;
 
 export type GetDebtFacilityCurrentCapacitiesSubscription = {
+  debt_facilities: Array<
+    Pick<DebtFacilities, "id"> & {
+      debt_facility_capacities: Array<
+        Pick<DebtFacilityCapacities, "id"> & DebtFacilityCapacityLimitedFragment
+      >;
+    } & DebtFacilityLimitedFragment
+  >;
+};
+
+export type GetDebtFacilityCurrentCapacitySubscriptionVariables = Exact<{
+  target_facility_id: Scalars["uuid"];
+}>;
+
+export type GetDebtFacilityCurrentCapacitySubscription = {
   debt_facilities: Array<
     Pick<DebtFacilities, "id"> & {
       debt_facility_capacities: Array<
@@ -26365,7 +26340,6 @@ export type GetPaymentForSettlementQuery = {
           payor?: Maybe<Pick<Payors, "id"> & PayorFragment>;
         }
       >;
-      settled_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
     } & PaymentFragment
   >;
 };
@@ -27853,6 +27827,7 @@ export type PaymentLimitedFragment = Pick<
     Pick<Invoices, "id"> & { payor?: Maybe<Pick<Payors, "id" | "name">> }
   >;
   submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
+  settled_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
 };
 
 export type GetCustomersWithMetadataQueryVariables = Exact<{
@@ -28688,6 +28663,10 @@ export const PaymentLimitedFragmentDoc = gql`
       }
     }
     submitted_by_user {
+      id
+      full_name
+    }
+    settled_by_user {
       id
       full_name
     }
@@ -30172,8 +30151,8 @@ export type GetOpenLoansByDebtFacilityIdSubscriptionHookResult = ReturnType<
   typeof useGetOpenLoansByDebtFacilityIdSubscription
 >;
 export type GetOpenLoansByDebtFacilityIdSubscriptionResult = Apollo.SubscriptionResult<GetOpenLoansByDebtFacilityIdSubscription>;
-export const GetDebtFacilityCapacityDocument = gql`
-  subscription GetDebtFacilityCapacity {
+export const GetDebtFacilityCapacitiesDocument = gql`
+  subscription GetDebtFacilityCapacities {
     debt_facility_capacities(order_by: [{ changed_at: desc }]) {
       id
       ...DebtFacilityCapacityLimited
@@ -30188,35 +30167,35 @@ export const GetDebtFacilityCapacityDocument = gql`
 `;
 
 /**
- * __useGetDebtFacilityCapacitySubscription__
+ * __useGetDebtFacilityCapacitiesSubscription__
  *
- * To run a query within a React component, call `useGetDebtFacilityCapacitySubscription` and pass it any options that fit your needs.
- * When your component renders, `useGetDebtFacilityCapacitySubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetDebtFacilityCapacitiesSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetDebtFacilityCapacitiesSubscription` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetDebtFacilityCapacitySubscription({
+ * const { data, loading, error } = useGetDebtFacilityCapacitiesSubscription({
  *   variables: {
  *   },
  * });
  */
-export function useGetDebtFacilityCapacitySubscription(
+export function useGetDebtFacilityCapacitiesSubscription(
   baseOptions?: Apollo.SubscriptionHookOptions<
-    GetDebtFacilityCapacitySubscription,
-    GetDebtFacilityCapacitySubscriptionVariables
+    GetDebtFacilityCapacitiesSubscription,
+    GetDebtFacilityCapacitiesSubscriptionVariables
   >
 ) {
   return Apollo.useSubscription<
-    GetDebtFacilityCapacitySubscription,
-    GetDebtFacilityCapacitySubscriptionVariables
-  >(GetDebtFacilityCapacityDocument, baseOptions);
+    GetDebtFacilityCapacitiesSubscription,
+    GetDebtFacilityCapacitiesSubscriptionVariables
+  >(GetDebtFacilityCapacitiesDocument, baseOptions);
 }
-export type GetDebtFacilityCapacitySubscriptionHookResult = ReturnType<
-  typeof useGetDebtFacilityCapacitySubscription
+export type GetDebtFacilityCapacitiesSubscriptionHookResult = ReturnType<
+  typeof useGetDebtFacilityCapacitiesSubscription
 >;
-export type GetDebtFacilityCapacitySubscriptionResult = Apollo.SubscriptionResult<GetDebtFacilityCapacitySubscription>;
+export type GetDebtFacilityCapacitiesSubscriptionResult = Apollo.SubscriptionResult<GetDebtFacilityCapacitiesSubscription>;
 export const GetDebtFacilitiesDocument = gql`
   subscription GetDebtFacilities {
     debt_facilities(order_by: [{ name: desc }]) {
@@ -30307,6 +30286,52 @@ export type GetDebtFacilityCurrentCapacitiesSubscriptionHookResult = ReturnType<
   typeof useGetDebtFacilityCurrentCapacitiesSubscription
 >;
 export type GetDebtFacilityCurrentCapacitiesSubscriptionResult = Apollo.SubscriptionResult<GetDebtFacilityCurrentCapacitiesSubscription>;
+export const GetDebtFacilityCurrentCapacityDocument = gql`
+  subscription GetDebtFacilityCurrentCapacity($target_facility_id: uuid!) {
+    debt_facilities(where: { id: { _eq: $target_facility_id } }) {
+      id
+      ...DebtFacilityLimited
+      debt_facility_capacities(order_by: [{ changed_at: desc }], limit: 1) {
+        id
+        ...DebtFacilityCapacityLimited
+      }
+    }
+  }
+  ${DebtFacilityLimitedFragmentDoc}
+  ${DebtFacilityCapacityLimitedFragmentDoc}
+`;
+
+/**
+ * __useGetDebtFacilityCurrentCapacitySubscription__
+ *
+ * To run a query within a React component, call `useGetDebtFacilityCurrentCapacitySubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetDebtFacilityCurrentCapacitySubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetDebtFacilityCurrentCapacitySubscription({
+ *   variables: {
+ *      target_facility_id: // value for 'target_facility_id'
+ *   },
+ * });
+ */
+export function useGetDebtFacilityCurrentCapacitySubscription(
+  baseOptions: Apollo.SubscriptionHookOptions<
+    GetDebtFacilityCurrentCapacitySubscription,
+    GetDebtFacilityCurrentCapacitySubscriptionVariables
+  >
+) {
+  return Apollo.useSubscription<
+    GetDebtFacilityCurrentCapacitySubscription,
+    GetDebtFacilityCurrentCapacitySubscriptionVariables
+  >(GetDebtFacilityCurrentCapacityDocument, baseOptions);
+}
+export type GetDebtFacilityCurrentCapacitySubscriptionHookResult = ReturnType<
+  typeof useGetDebtFacilityCurrentCapacitySubscription
+>;
+export type GetDebtFacilityCurrentCapacitySubscriptionResult = Apollo.SubscriptionResult<GetDebtFacilityCurrentCapacitySubscription>;
 export const GetEbbaApplicationDocument = gql`
   query GetEbbaApplication($id: uuid!) {
     ebba_applications_by_pk(id: $id) {

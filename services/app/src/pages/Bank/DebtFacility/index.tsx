@@ -12,6 +12,7 @@ import {
   useGetOpenLoansByDebtFacilityStatusesSubscription,
   useGetDebtFacilitiesSubscription,
 } from "generated/graphql";
+import { DebtFacilityStatusEnum } from "lib/enum";
 import { useState } from "react";
 import styled from "styled-components";
 
@@ -34,7 +35,7 @@ export default function BankDebtFacilityPage() {
   // Pulls data for action required tab, grabs data here to update count in tab
   const { data, error } = useGetOpenLoansByDebtFacilityStatusesSubscription({
     variables: {
-      statuses: ["update_required"],
+      statuses: [DebtFacilityStatusEnum.UPDATE_REQUIRED],
     },
   });
   if (error) {
@@ -65,7 +66,7 @@ export default function BankDebtFacilityPage() {
     error: debtFacilityError,
   } = useGetOpenLoansByDebtFacilityStatusesSubscription({
     variables: {
-      statuses: ["sold_into_debt_facility"],
+      statuses: [DebtFacilityStatusEnum.SOLD_INTO_DEBT_FACILITY],
     },
   });
   if (debtFacilityError) {

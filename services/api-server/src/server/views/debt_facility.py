@@ -12,7 +12,8 @@ from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, cast
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models, models_util
-from bespoke.db.db_constants import (CompanyDebtFacilityStatus, DBOperation, ProductType, DebtFacilityEventCategory)
+from bespoke.db.db_constants import (CompanyDebtFacilityStatus, DebtFacilityEventCategory, 
+	DBOperation, LoanDebtFacilityStatus, ProductType, DebtFacilityEventCategory)
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.metrc.common.metrc_common_util import chunker, chunker_dict
@@ -176,6 +177,113 @@ class DebtFacilityUpdateCompanyStatusView(MethodView):
 
 		return make_response(json.dumps({'status': 'OK', 'resp': "Successfully updated company's debt facility status."}))
 
+class DebtFacilityMoveLoanView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		logging.info("Moving loans between bespoke's books and a debt facility")
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+		variables = form.get("variables", None)
+
+		loan_ids = variables.get("loanIds", None) if variables else None
+		if loan_ids is None:
+			return handler_util.make_error_response('loanIds is required to be set for this request')
+
+		facility_id = variables.get("facilityId", None) if variables else None
+		if facility_id is None:
+			return handler_util.make_error_response('facilityId is required to be set for this request')
+
+		is_moving_to_facility = variables.get("isMovingToFacility", None) if variables else None
+		if is_moving_to_facility is None:
+			return handler_util.make_error_response('isMovingToFacility is required to be set for this request')
+
+		move_comments = variables.get("moveComments", None) if variables else None
+		if move_comments is None:
+			return handler_util.make_error_response('moveComments is required to be set for this request')
+
+		with models.session_scope(current_app.session_maker) as session:
+			user_session = auth_util.UserSession.from_session()
+			user = session.query(models.User).filter(
+				models.User.id == user_session.get_user_id()
+			).first()
+
+			# Regardless of the to and from, we will need to gather the 
+			# relevant loans and loan reports
+			loans = cast(
+				List[models.Loan],
+				session.query(models.Loan).filter(
+					models.Loan.id.in_(loan_ids)
+			).all())
+
+			loan_report_ids = []
+			for loan in loans:
+				loan_report_ids.append(loan.loan_report_id)
+
+			loan_reports = cast(
+				List[models.LoanReport],
+				session.query(models.LoanReport).filter(
+					models.LoanReport.id.in_(loan_report_ids)
+			).all())
+
+			report_to_loan_lookup : Dict[str, models.Loan] = {}
+			for loan_report in loan_reports:
+				for loan in loans:
+					if loan.loan_report_id == loan_report.id:
+						report_to_loan_lookup[loan_report.id] = loan
+
+			if is_moving_to_facility:
+				debt_facility = cast(
+					models.DebtFacility,
+					session.query(models.DebtFacility).filter(
+						models.DebtFacility.id == facility_id
+				).first())
+
+				for loan_report in loan_reports:
+					loan_report.debt_facility_id = facility_id
+					old_debt_facility_status = loan_report.debt_facility_status
+					loan_report.debt_facility_status = LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY
+
+					to_facility_payload : Dict[str, object] = {
+						"user_name": user.first_name + " " + user.last_name,
+						"user_id": str(user.id),
+						"old_status": old_debt_facility_status,
+						"new_status": LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY,
+						"debt_facility": debt_facility.name
+					}
+					session.add(models.DebtFacilityEvent( # type: ignore
+						loan_report_id = loan_report.id,
+						event_category = DebtFacilityEventCategory.MOVE_TO_DEBT_FACILITY,
+						event_date = date_util.now(),
+						event_comments = move_comments,
+						event_amount = report_to_loan_lookup[loan_report.id].outstanding_principal_balance,
+						event_payload = to_facility_payload
+					))
+			else:
+				for loan_report in loan_reports:
+					loan_report.debt_facility_id = None
+					old_debt_facility_status = loan_report.debt_facility_status
+					loan_report.debt_facility_status = LoanDebtFacilityStatus.REPURCHASED
+
+					from_facility_payload : Dict[str, object] = {
+						"user_name": user.first_name + " " + user.last_name,
+						"user_id": str(user.id),
+						"old_status": old_debt_facility_status,
+						"new_status": LoanDebtFacilityStatus.REPURCHASED
+					}
+					session.add(models.DebtFacilityEvent( # type: ignore
+						loan_report_id = loan_report.id,
+						event_category = DebtFacilityEventCategory.REPURCHASE,
+						event_date = date_util.now(),
+						event_comments = move_comments,
+						event_amount = report_to_loan_lookup[loan_report.id].outstanding_principal_balance,
+						event_payload = from_facility_payload 
+					))
+
+		return make_response(json.dumps({'status': 'OK', 'resp': "Successfully moved loan."}))
+
 handler.add_url_rule(
 	"/update_capacity",
 	view_func=DebtFacilityUpdateCapacityView.as_view(name='update_capacity'))
@@ -187,3 +295,7 @@ handler.add_url_rule(
 handler.add_url_rule(
 	"/update_company_status",
 	view_func=DebtFacilityUpdateCompanyStatusView.as_view(name='update_company_status'))
+
+handler.add_url_rule(
+	"/move_loans",
+	view_func=DebtFacilityMoveLoanView.as_view(name='move_loans'))

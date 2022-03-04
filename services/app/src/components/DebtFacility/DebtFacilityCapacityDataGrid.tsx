@@ -5,7 +5,7 @@ import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
 import {
   DebtFacilityCapacityLimitedFragment,
-  GetDebtFacilityCapacitySubscription,
+  GetDebtFacilityCapacitiesSubscription,
 } from "generated/graphql";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
@@ -19,7 +19,7 @@ interface Props {
 }
 
 function getRows(
-  capacities: GetDebtFacilityCapacitySubscription["debt_facility_capacities"]
+  capacities: GetDebtFacilityCapacitiesSubscription["debt_facility_capacities"]
 ): RowsProp {
   return capacities.map((capacity) => ({
     ...capacity,

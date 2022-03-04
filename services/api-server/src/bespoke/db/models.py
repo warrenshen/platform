@@ -1030,6 +1030,7 @@ class LoanReport(Base):
 	financing_period = Column(Integer)
 	financing_day_limit = Column(Integer)
 	debt_facility_status = Column(Text)
+	debt_facility_id = cast(GUID, Column(GUID, ForeignKey('debt_facilities.id')))
 
 class BankFinancialSummary(Base):
 	__tablename__ = 'bank_financial_summaries'

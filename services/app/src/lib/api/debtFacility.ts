@@ -92,3 +92,34 @@ export async function updateCompanyDebtFacilityStatus(
       }
     );
 }
+
+export type MoveLoansForDebtFacilityReq = {
+  variables: {
+    loanIds: string;
+    facilityId: string;
+    isMovingToFacility: boolean;
+    moveComments: string;
+  };
+};
+
+export async function moveLoansForDebtFacility(
+  req: MoveLoansForDebtFacilityReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(debtFacilityRoutes.moveLoans, req)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not create/update the debt facility",
+        };
+      }
+    );
+}

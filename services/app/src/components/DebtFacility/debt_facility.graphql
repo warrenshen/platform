@@ -71,8 +71,7 @@ subscription GetOpenLoansByDebtFacilityId(
   }
 }
 
-# change to plural please
-subscription GetDebtFacilityCapacity {
+subscription GetDebtFacilityCapacities {
   debt_facility_capacities(order_by: [{ changed_at: desc }]) {
     id
     ...DebtFacilityCapacityLimited
@@ -96,6 +95,19 @@ subscription GetDebtFacilities {
 
 subscription GetDebtFacilityCurrentCapacities {
   debt_facilities {
+    id
+    ...DebtFacilityLimited
+    debt_facility_capacities(order_by: [{ changed_at: desc }], limit: 1) {
+      id
+      ...DebtFacilityCapacityLimited
+    }
+  }
+}
+
+subscription GetDebtFacilityCurrentCapacity($target_facility_id: uuid!) {
+  debt_facilities(
+    where: { id: { _eq: $target_facility_id }}
+  ) {
     id
     ...DebtFacilityLimited
     debt_facility_capacities(order_by: [{ changed_at: desc }], limit: 1) {

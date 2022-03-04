@@ -1,6 +1,7 @@
 import { Box } from "@material-ui/core";
 import DebtFacilityLoansDataGrid from "components/DebtFacility/DebtFacilityLoansDataGrid";
 import { useGetOpenLoansByDebtFacilityStatusesSubscription } from "generated/graphql";
+import { DebtFacilityStatusEnum } from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
@@ -20,10 +21,11 @@ export default function DebtFacilityAllTab() {
   const { data, error } = useGetOpenLoansByDebtFacilityStatusesSubscription({
     variables: {
       statuses: [
-        "sold_into_debt_facility",
-        "bespoke_balance_sheet",
-        "repurchased",
-        "update_required",
+        DebtFacilityStatusEnum.SOLD_INTO_DEBT_FACILITY,
+        DebtFacilityStatusEnum.BESPOKE_BALANCE_SHEET,
+        DebtFacilityStatusEnum.REPURCHASED,
+        DebtFacilityStatusEnum.UPDATE_REQUIRED,
+        DebtFacilityStatusEnum.WAIVER,
       ],
     },
   });

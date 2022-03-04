@@ -6,6 +6,7 @@ import {
   GetDebtFacilitiesSubscription,
   useGetOpenLoansByDebtFacilityIdSubscription,
 } from "generated/graphql";
+import { DebtFacilityStatusEnum } from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
@@ -36,11 +37,11 @@ export default function DebtFacilityReportTab({ facilities }: Props) {
     skip: selectedDebtFacilityId === "",
     variables: {
       statuses: [
-        "sold_into_debt_facility",
-        "bespoke_balance_sheet",
-        "repurchased",
-        "update_required",
-        "waiver",
+        DebtFacilityStatusEnum.SOLD_INTO_DEBT_FACILITY,
+        DebtFacilityStatusEnum.BESPOKE_BALANCE_SHEET,
+        DebtFacilityStatusEnum.REPURCHASED,
+        DebtFacilityStatusEnum.UPDATE_REQUIRED,
+        DebtFacilityStatusEnum.WAIVER,
       ],
       target_facility_id: selectedDebtFacilityId,
     },
