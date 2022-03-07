@@ -38,8 +38,8 @@ function getRows(
       company_name: payment.company.name,
       status: !!payment.reversed_at ? "Reversed" : "Settled",
       payment: payment,
-      to_principle_sum: payment.transactions?.length
-        ? sumBy(payment.transactions, "to_principle")
+      to_principal_sum: payment.transactions?.length
+        ? sumBy(payment.transactions, "to_principal")
         : null,
       to_interest_sum: payment.transactions?.length
         ? sumBy(payment.transactions, "to_interest")
@@ -308,17 +308,17 @@ export default function RepaymentTransactionsDataGrid({
       },
       {
         visible: isLineOfCredit,
-        dataField: "transaction.to_principle",
-        caption: "Applied to Principle",
+        dataField: "to_principal_sum",
+        caption: "Applied to Principal",
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.to_principle_sum} />
+          <CurrencyDataGridCell value={params.row.data.to_principal_sum} />
         ),
       },
       {
         visible: isLineOfCredit,
-        dataField: "transaction.to_interest",
+        dataField: "to_interest_sum",
         caption: "Applied to Interest",
         width: ColumnWidths.Currency,
         alignment: "right",
