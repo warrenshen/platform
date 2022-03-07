@@ -76,6 +76,7 @@ export default function UserMenu({ isLocationsPage }: Props) {
   const companies = parentCompany?.companies || [];
   const company =
     companies.find((company) => company.id === currentUser.companyId) || null;
+  const isMultiLocation = companies.length > 1;
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -87,7 +88,7 @@ export default function UserMenu({ isLocationsPage }: Props) {
 
   return (
     <Box display="flex" flexDirection="column">
-      {!isLocationsPage && companies.length > 1 && parentCompany && company && (
+      {!isLocationsPage && isMultiLocation && parentCompany && company && (
         <LocationBanner>
           <LocationName>{company.name}</LocationName>
           <Button onClick={() => history.push(customerRoutes.locations)}>
@@ -117,7 +118,7 @@ export default function UserMenu({ isLocationsPage }: Props) {
           <Typography variant="button">
             {isRoleBankUser(user?.role)
               ? "Bespoke (Bank)"
-              : companies.length > 1
+              : isMultiLocation
               ? `${parentCompany?.name} (${companies.length} locations)`
               : company?.name}
           </Typography>
