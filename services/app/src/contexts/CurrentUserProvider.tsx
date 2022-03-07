@@ -1,3 +1,4 @@
+import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
 import * as Sentry from "@sentry/react";
 import axios from "axios";
 import {
@@ -95,55 +96,52 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
     []
   );
 
-  const signOut = useCallback(async () => {
-    try {
-      const refreshToken = getRefreshToken();
-      await axios.all([
-        authenticatedApi.post(authRoutes.revokeAccessToken),
-        unAuthenticatedApi.post(
-          authRoutes.revokeRefreshToken,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${refreshToken}`,
-            },
-          }
-        ),
-      ]);
-    } catch (e) {
-      Sentry.captureException(e);
-    } finally {
-      removeAccessToken();
-      removeRefreshToken();
-      // Note: the following line forces a hard refresh, which does two things:
-      // 1. Resets the state of the App so the user is not signed in.
-      // 2. Guarantees that the user gets the latest version of the App.
-      window.location.href = routes.signIn;
-    }
-  }, []);
+  const signOut = useCallback(
+    async (client: ApolloClient<NormalizedCacheObject>) => {
+      try {
+        const refreshToken = getRefreshToken();
+        await axios.all([
+          authenticatedApi.post(authRoutes.revokeAccessToken),
+          unAuthenticatedApi.post(
+            authRoutes.revokeRefreshToken,
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${refreshToken}`,
+              },
+            }
+          ),
+        ]);
+      } catch (e) {
+        Sentry.captureException(e);
+      } finally {
+        removeAccessToken();
+        removeRefreshToken();
+        client.clearStore();
+        // Note: the following line forces a hard refresh, which does two things:
+        // 1. Resets the state of the App so the user is not signed in.
+        // 2. Guarantees that the user gets the latest version of the App.
+        window.location.href = routes.signIn;
+      }
+    },
+    []
+  );
 
   useEffect(() => {
     async function setUserFromAccessToken() {
       const accessToken = await getAccessToken();
       if (accessToken) {
-        const userFields = userFieldsFromToken(accessToken);
-        // If JWT companyId is set but parentCompanyId is not, JWT is invalid (deprecated format).
-        // Force sign out the user in this case to get a valid JWT on next sign in.
-        if (!!userFields.companyId && !userFields.parentCompanyId) {
-          signOut();
-        } else {
-          setUser((user) => ({
-            ...user,
-            ...userFieldsFromToken(accessToken),
-          }));
-        }
+        setUser((user) => ({
+          ...user,
+          ...userFieldsFromToken(accessToken),
+        }));
       }
       setIsTokenLoaded(true);
     }
     if (isTokenLoaded === false) {
       setUserFromAccessToken();
     }
-  }, [isTokenLoaded, signOut]);
+  }, [isTokenLoaded]);
 
   return isTokenLoaded ? (
     <CurrentUserContext.Provider

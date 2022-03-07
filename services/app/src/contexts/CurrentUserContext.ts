@@ -1,3 +1,4 @@
+import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
 import { UserRolesEnum, Users } from "generated/graphql";
 import { createContext } from "react";
 import { ProductTypeEnum } from "lib/enum";
@@ -27,7 +28,7 @@ export type CurrentUserContextType = {
     password: string,
     handleSuccess: (successUrl: string) => void
   ) => void;
-  signOut: () => void;
+  signOut: (client: ApolloClient<NormalizedCacheObject>) => void;
 };
 
 export const BlankUser = {

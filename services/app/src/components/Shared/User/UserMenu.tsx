@@ -1,4 +1,9 @@
 import {
+  ApolloClient,
+  NormalizedCacheObject,
+  useApolloClient,
+} from "@apollo/client";
+import {
   Box,
   Button,
   IconButton,
@@ -50,6 +55,7 @@ interface Props {
 }
 
 export default function UserMenu({ isLocationsPage }: Props) {
+  const client = useApolloClient() as ApolloClient<NormalizedCacheObject>;
   const { user: currentUser, signOut } = useContext(CurrentUserContext);
   const history = useHistory();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -135,7 +141,7 @@ export default function UserMenu({ isLocationsPage }: Props) {
         <MenuItem
           data-cy={"user-logout-button"}
           onClick={() => {
-            signOut();
+            signOut(client);
             handleClose();
           }}
         >
