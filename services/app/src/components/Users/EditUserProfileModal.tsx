@@ -20,6 +20,7 @@ import { UserFragment, UserRolesEnum } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { UserRoleToLabel } from "lib/enum";
 import { useContext, useState } from "react";
+import { isEmailValid } from "lib/validation";
 import useCustomMutation from "hooks/useCustomMutation";
 import { updateUser } from "lib/api/users";
 
@@ -92,6 +93,7 @@ function EditUserProfileModal({
     !userProfile.first_name ||
     !userProfile.last_name ||
     !userProfile.email ||
+    !isEmailValid(userProfile.email) ||
     isUpdateUserLoading;
 
   return (

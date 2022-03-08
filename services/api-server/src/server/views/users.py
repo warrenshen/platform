@@ -57,7 +57,7 @@ class CreateLoginView(MethodView):
 				return handler_util.make_error_response('No user id found')
 
 			auth_util.create_login_for_user(existing_user, password)
-			user_email = existing_user.email
+			user_email = existing_user.email.strip()
 
 			template_data = {
 				'email': user_email,
@@ -125,7 +125,7 @@ class CreateBankCustomerUserView(MethodView):
 
 				existing_user.password = security_util.hash_password(
 					cfg.PASSWORD_SALT, password)
-				user_email = existing_user.email
+				user_email = existing_user.email.strip()
 
 				template_data = {
 					'email': user_email,
@@ -189,7 +189,7 @@ class CreatePayorVendorUserView(MethodView):
 		company_id = form['company_id']
 		first_name = form['user']['first_name']
 		last_name = form['user']['last_name']
-		email = form['user']['email']
+		email = form['user']['email'].strip()
 
 		with session_scope(current_app.session_maker) as session:
 			company = cast(
@@ -348,6 +348,8 @@ class UpdateUserView(MethodView):
         email = variables.get("email", None)
         if not email:
             return handler_util.make_error_response("email is required to be set for this request")
+        else:
+        	email = email.strip()
 		
         first_name = variables.get("first_name", None)
         if not first_name:
