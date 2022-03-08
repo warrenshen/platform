@@ -1,0 +1,16 @@
+query GetAllCompanyLicenses {
+  company_licenses(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+      ]
+    }
+  ) {
+    ...CompanyLicense
+  }
+}

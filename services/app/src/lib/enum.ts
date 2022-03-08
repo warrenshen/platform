@@ -461,3 +461,23 @@ export const DebtFacilityCompanyStatusToEligibility = {
   [DebtFacilityCompanyStatusEnum.INELIGIBLE_FOR_FACILITY]: "Ineligible",
   [DebtFacilityCompanyStatusEnum.WAIVER]: "Waiver",
 };
+
+export enum MetrcTabLabel {
+  MetrcApiKeys = "Metrc Api Keys",
+  MetrcTransfers = "Metrc Transfers",
+  MetrcPackages = "Metrc Packages",
+  CannabisLicenses = "Cannabis Licenses",
+}
+
+export type TabLabel =
+  | typeof MetrcTabLabel.MetrcApiKeys
+  | typeof MetrcTabLabel.MetrcTransfers
+  | typeof MetrcTabLabel.MetrcPackages
+  | typeof MetrcTabLabel.CannabisLicenses;
+
+export const tabLabels: TabLabel[] = [
+  MetrcTabLabel.MetrcApiKeys,
+  MetrcTabLabel.MetrcTransfers,
+  MetrcTabLabel.MetrcPackages,
+  MetrcTabLabel.CannabisLicenses,
+];

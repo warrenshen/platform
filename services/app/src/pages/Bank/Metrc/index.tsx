@@ -1,8 +1,10 @@
 import { Tab, Tabs } from "@material-ui/core";
 import Page from "components/Shared/Page";
+import { MetrcTabLabel, tabLabels, TabLabel } from "lib/enum";
 import PageContent from "components/Shared/Page/PageContent";
 import BankMetrcApiKeysTab from "pages/Bank/Metrc/MetrcApiKeysTab";
 import BankMetrcTransfersTab from "pages/Bank/Metrc/MetrcTransfersTab";
+import CannabisLicensesTab from "pages/Bank/Metrc/CannabisLicensesTab";
 import { useState } from "react";
 import styled from "styled-components";
 
@@ -19,6 +21,13 @@ const SectionSpace = styled.div`
   height: 24px;
 `;
 
+const MetrcComponentMap: { [key in MetrcTabLabel]: JSX.Element } = {
+  [MetrcTabLabel.MetrcApiKeys]: <BankMetrcApiKeysTab />,
+  [MetrcTabLabel.MetrcTransfers]: <BankMetrcTransfersTab />,
+  [MetrcTabLabel.MetrcPackages]: <BankMetrcTransfersTab />,
+  [MetrcTabLabel.CannabisLicenses]: <CannabisLicensesTab />,
+};
+
 export default function BankMetrcPage() {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
@@ -34,18 +43,12 @@ export default function BankMetrcPage() {
               setSelectedTabIndex(value)
             }
           >
-            <Tab label="Metrc Api Keys" />
-            <Tab label="Metrc Transfers" />
-            <Tab label="Metrc Packages" />
+            {tabLabels.map((label: TabLabel) => (
+              <Tab key={label} label={label} />
+            ))}
           </Tabs>
           <SectionSpace />
-          {selectedTabIndex === 0 ? (
-            <BankMetrcApiKeysTab />
-          ) : selectedTabIndex === 1 ? (
-            <BankMetrcTransfersTab />
-          ) : (
-            <BankMetrcTransfersTab />
-          )}
+          {MetrcComponentMap[tabLabels[selectedTabIndex]]}
         </Container>
       </PageContent>
     </Page>

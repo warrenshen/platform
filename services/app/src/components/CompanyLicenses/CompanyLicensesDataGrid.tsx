@@ -3,6 +3,7 @@ import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
+import CompanyLicenseDrawerLauncher from "components/CompanyLicenses/CompanyLicenseDrawerLauncher";
 import { CompanyLicenseFragment } from "generated/graphql";
 import { FileTypeEnum } from "lib/enum";
 import { ColumnWidths } from "lib/tables";
@@ -25,6 +26,12 @@ export default function CompanyLicensesDataGrid({
         caption: "License Number",
         dataField: "license_number",
         width: ColumnWidths.License,
+        cellRender: (params: ValueFormatterParams) => (
+          <CompanyLicenseDrawerLauncher
+            label={params.row.data.license_number}
+            companyLicense={params.row.data as CompanyLicenseFragment}
+          />
+        ),
       },
       {
         dataField: "us_state",
