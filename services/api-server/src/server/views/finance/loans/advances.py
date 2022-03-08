@@ -4,6 +4,7 @@ from typing import Any, Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.audit import events
+from bespoke.companies import partnership_util
 from bespoke.date import date_util
 from bespoke.db import db_constants, models, models_util
 from bespoke.db.db_constants import ProductType
@@ -128,13 +129,21 @@ def _send_bank_created_advances_emails(
 						models.Company,
 						session.query(models.Company).get(vendor_id))
 
-					vendor_users = cast(
-						List[models.User],
-						session.query(models.User).filter_by(
-							company_id=vendor_id
+					partnership = cast(
+						models.CompanyVendorPartnership,
+						session.query(models.CompanyVendorPartnership).filter(
+							models.CompanyVendorPartnership.company_id == customer_id
 						).filter(
-							cast(Callable, models.User.is_deleted.isnot)(True)
-						).all())
+							models.CompanyVendorPartnership.vendor_id == vendor_id
+					).first())
+
+					vendor_users, err = partnership_util.get_partner_contacts(
+						partnership_id=str(partnership.id),
+						partnership_type=db_constants.CompanyType.Vendor,
+						session=session
+					)
+					if err:
+						raise err
 
 					if not vendor_users:
 						raise errors.Error(f'There are no users configured for vendor {vendor.name}')
@@ -145,7 +154,7 @@ def _send_bank_created_advances_emails(
 						'purchase_order_number': purchase_order.order_number,
 						'advance_amount': number_util.to_dollar_format(float(loan.amount)),
 					}
-					vendor_emails = [user.email for user in vendor_users]
+					vendor_emails = [user['email'] for user in vendor_users]
 
 					_, err = sendgrid_client.send(
 						template_name=sendgrid_util.TemplateNames.BANK_SENT_ADVANCE_TO_VENDOR,
@@ -170,13 +179,21 @@ def _send_bank_created_advances_emails(
 							models.Company,
 							session.query(models.Company).get(vendor_id))
 
-						vendor_users = cast(
-							List[models.User],
-							session.query(models.User).filter_by(
-								company_id=vendor_id
+						partnership = cast(
+							models.CompanyVendorPartnership,
+							session.query(models.CompanyVendorPartnership).filter(
+								models.CompanyVendorPartnership.company_id == customer_id
 							).filter(
-								cast(Callable, models.User.is_deleted.isnot)(True)
-							).all())
+								models.CompanyVendorPartnership.vendor_id == vendor_id
+						).first())
+
+						vendor_users, err = partnership_util.get_partner_contacts(
+							partnership_id=str(partnership.id),
+							partnership_type=db_constants.CompanyType.Vendor,
+							session=session
+						)
+						if err:
+							raise err
 
 						if not vendor_users:
 							raise errors.Error(f'There are no users configured for vendor {vendor.name}')
@@ -186,7 +203,7 @@ def _send_bank_created_advances_emails(
 							'vendor_name': vendor.get_display_name(),
 							'advance_amount': number_util.to_dollar_format(float(loan.amount)),
 						}
-						vendor_emails = [user.email for user in vendor_users]
+						vendor_emails = [user['email'] for user in vendor_users]
 
 						_, err = sendgrid_client.send(
 							template_name=sendgrid_util.TemplateNames.BANK_SENT_ADVANCE_TO_VENDOR,
