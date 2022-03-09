@@ -38,6 +38,7 @@ class MSRPBand:
         self.msrp_summary_table_by_time = None
         self.default_price_column = 'tx_price_per_unit'
         self.outlier_df = None
+        self.confidence_band_multiplier = mba_util.CONFIDENCE_BAND_MULTIPLIER
 
     def fetch_data(
             self,
@@ -121,8 +122,7 @@ class MSRPBand:
     ):
         temp_df = self.select_df_by_transaction_type(transaction_type)
         temp_df = temp_df[temp_df[category_column_name] == column_name_identifier]
-        sns.boxplot(y=category_column_name, x=self.default_price_column, data=temp_df, orient='h')
-        plt.show()
+        box = sns.boxplot(y=category_column_name, x=self.default_price_column, data=temp_df, orient='h')
         median = temp_df[self.default_price_column].median()
         q1 = temp_df[self.default_price_column].quantile(.25)
         q3 = temp_df[self.default_price_column].quantile(.75)
@@ -139,9 +139,10 @@ class MSRPBand:
             self.company_sales_df = self.company_sales_df[~self.company_sales_df.index.isin(outlier_df.index)]
 
         print("Number of transactions outliers below Boxplot Whisker Minimum is {} %".format(
-            (temp_df[self.default_price_column] < minn).mean()))
+            (temp_df[self.default_price_column] < minn).mean()*100))
         print("Number of transactions outliers above Boxplot Whisker Maximum is {} %".format(
-            (temp_df[self.default_price_column] > maxx).mean()))
+            (temp_df[self.default_price_column] > maxx).mean()*100))
+        return box
 
     def select_df_by_transaction_type(self, transaction_type):
         """
@@ -172,9 +173,8 @@ class MSRPBand:
         temp_df = temp_df[temp_df[category_column_name] == column_name_identifier]
         print("Total number of transactions for {} in {} : {}".format(
             column_name_identifier, category_column_name, temp_df.shape[0]))
-        sns.histplot(data=temp_df, x=self.default_price_column)
-        plt.show()
-        return
+        histplot = sns.histplot(data=temp_df, x=self.default_price_column)
+        return histplot
 
     def summary_table_by_category(
             self,
@@ -188,7 +188,6 @@ class MSRPBand:
         temp_df = self.select_df_by_transaction_type(transaction_type)
         msrp_summary_table_agg = temp_df.groupby(category_column_name)[self.default_price_column].describe()
         self.msrp_summary_table = msrp_summary_table_agg.loc[column_name_identifier].round(2)
-        print(self.msrp_summary_table)
 
     def summary_table_by_category_time(
             self,
@@ -202,7 +201,6 @@ class MSRPBand:
         temp_df = self.select_df_by_transaction_type(transaction_type)
         msrp_summary_table_by_time_agg = temp_df.groupby([category_column_name, 'date_in_month'])[self.default_price_column].describe()
         self.msrp_summary_table_by_time = msrp_summary_table_by_time_agg.loc[column_name_identifier].round(2)
-        print(self.msrp_summary_table_by_time)
 
     def sort_time_by_month(self):
         self.company_costs_df.sort_values('date_in_month', inplace=True)
@@ -222,9 +220,8 @@ class MSRPBand:
         temp_df = self.select_df_by_transaction_type(transaction_type)
         msrp_category_df = temp_df[temp_df[category_column_name] == column_name_identifier]
         msrp_mean_df = msrp_category_df.groupby('date_in_month')[self.default_price_column].mean().reset_index()
-        self.msrp_summary_table_by_time['lower_confidence_band'] = self.msrp_summary_table_by_time['mean'] - self.msrp_summary_table_by_time['std']
-        self.msrp_summary_table_by_time['upper_confidence_band'] = self.msrp_summary_table_by_time['mean'] + self.msrp_summary_table_by_time['std']
-        print(self.msrp_summary_table_by_time[['lower_confidence_band', 'upper_confidence_band']])
+        self.msrp_summary_table_by_time['lower_confidence_band'] = self.msrp_summary_table_by_time['mean'] - self.msrp_summary_table_by_time['std'] * self.confidence_band_multiplier
+        self.msrp_summary_table_by_time['upper_confidence_band'] = self.msrp_summary_table_by_time['mean'] + self.msrp_summary_table_by_time['std'] * self.confidence_band_multiplier
         ax = sns.lineplot(
             data=msrp_category_df,
             x='date_in_month',
@@ -238,16 +235,16 @@ class MSRPBand:
             fontweight='light',
             fontsize='x-large'
         )
-        ax.set(title='MSRP for {}: {} over time by month'.format(category_column_name, column_name_identifier))
+        ax.set(title="MSRP for {}: '{}' over time by month".format(category_column_name, column_name_identifier))
         # label points on the plot
         for x, y in zip(msrp_mean_df['date_in_month'], msrp_mean_df[self.default_price_column]):
             plt.text(x=x,
-                     y=y-y*.05,
+                     y=y-y*.01,
                      s='{: .1f}'.format(y),
                      color='red')
         for x, y in zip(self.msrp_summary_table_by_time.index, self.msrp_summary_table_by_time.lower_confidence_band):
             plt.text(x=x,
-                     y=y-y*.05,
+                     y=y-y*.01,
                      s='{: .1f}'.format(y),
                      color='purple')
         for x, y in zip(self.msrp_summary_table_by_time.index, self.msrp_summary_table_by_time.upper_confidence_band):
@@ -283,7 +280,7 @@ class MSRPBand:
 
     def breakdown_product_category_into_brands(self, transaction_type):
         """
-        Plots times series line plot broken down by specified category
+        Create new column that breaks down category name into brands
         """
         return
 
@@ -308,16 +305,20 @@ class MSRPBand:
         else:
             self.default_price_column = 'tx_price_per_unit'
         print("### Outputting boxplot distribution plot and finding outliers outside of Whisksers ### \t")
-        self.boxplot_distribution_outlier_check(category_column_name, column_name_identifier, transaction_type)
+        box = self.boxplot_distribution_outlier_check(category_column_name, column_name_identifier, transaction_type)
+        plt.show()
 
         print("### Checking histogram distribution of MSRP for given {} ### \t".format(category_column_name))
-        self.histogram_distribution_check(category_column_name, column_name_identifier, transaction_type)
+        histogram = self.histogram_distribution_check(category_column_name, column_name_identifier, transaction_type)
+        plt.show()
 
         print("### Outputting summary table ### \t")
         self.summary_table_by_category(category_column_name, column_name_identifier, transaction_type)
+        print(self.msrp_summary_table)
 
         print("### Outputting summary table by time broken down in months ### \t")
         self.summary_table_by_category_time(category_column_name, column_name_identifier, transaction_type)
+        print(self.msrp_summary_table_by_time)
 
         print("### Outputting time series line plot of MSRP along with confidence bands ### \t")
         self.line_plot_time_series_msrp_by_category(
@@ -327,5 +328,46 @@ class MSRPBand:
             mba_util.CONFIDENCE_LEVEL,
             mba_util.ERROR_STYLE
         )
+        print(self.msrp_summary_table_by_time[['lower_confidence_band', 'upper_confidence_band']])
 
+    def run_time_series_plot_analysis_multi_category(
+        self,
+        category_column_name: str,
+        column_name_identifier_list: str,
+        transaction_type: str
+    ):
+        """
+        Runs all functions for analysis on multiple categories together.
+
+        Parameters
+        ----------
+        category_column_name: Category level to use for analysis
+        column_name_identifier_list: Names of list of category to indice
+        transaction_type: Using costs df or sales df
+        ----------
+        """
+        if category_column_name == 'product_category_combined':
+            self.default_price_column = 'adjusted_tx_price_per_unit'
+        else:
+            self.default_price_column = 'tx_price_per_unit'
+        for column_name_identifier in column_name_identifier_list:
+            print('### RUN ANALYSIS FOR PRODUCT CATEGORY {} ###'.format(column_name_identifier))
+            # In case there are no transactions for this specific category type, we will skip.
+            try:
+                self.boxplot_distribution_outlier_check(category_column_name, column_name_identifier, transaction_type)
+            except ValueError:
+                print("### There are 0 rows with category name of {} ###".format(column_name_identifier))
+                print("### SKIPPING PRODUCT CATEGORY {} ###".format(column_name_identifier))
+                continue
+            self.histogram_distribution_check(category_column_name, column_name_identifier, transaction_type)
+            plt.clf()
+            self.summary_table_by_category(category_column_name, column_name_identifier, transaction_type)
+            self.summary_table_by_category_time(category_column_name, column_name_identifier, transaction_type)
+            self.line_plot_time_series_msrp_by_category(
+                category_column_name,
+                column_name_identifier,
+                transaction_type,
+                mba_util.CONFIDENCE_LEVEL,
+                mba_util.ERROR_STYLE
+            )
 

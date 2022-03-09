@@ -26,3 +26,5 @@ MEASUREMENT_DICT = {
     'ounce': 28,
     # 'pound': 448
 }
+
+CONFIDENCE_BAND_MULTIPLIER = 1
