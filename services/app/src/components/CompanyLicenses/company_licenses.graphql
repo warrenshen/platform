@@ -1,4 +1,4 @@
-query GetAllCompanyLicenses {
+query GetAllCompanyLicenses($license_number: String!) {
   company_licenses(
     where: {
       _and: [
@@ -8,6 +8,7 @@ query GetAllCompanyLicenses {
             { is_deleted: { _eq: false } }
           ]
         }
+        { license_number: { _eq: $license_number } }
       ]
     }
   ) {

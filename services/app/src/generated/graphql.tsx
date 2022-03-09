@@ -27148,7 +27148,7 @@ export type BankAccountsForTransferQuery = {
 };
 
 export type GetAllCompanyLicensesQueryVariables = Exact<{
-  [key: string]: never;
+  license_number: Scalars["String"];
 }>;
 
 export type GetAllCompanyLicensesQuery = {
@@ -31321,7 +31321,7 @@ export type BankAccountsForTransferQueryResult = Apollo.QueryResult<
   BankAccountsForTransferQueryVariables
 >;
 export const GetAllCompanyLicensesDocument = gql`
-  query GetAllCompanyLicenses {
+  query GetAllCompanyLicenses($license_number: String!) {
     company_licenses(
       where: {
         _and: [
@@ -31331,6 +31331,7 @@ export const GetAllCompanyLicensesDocument = gql`
               { is_deleted: { _eq: false } }
             ]
           }
+          { license_number: { _eq: $license_number } }
         ]
       }
     ) {
@@ -31352,11 +31353,12 @@ export const GetAllCompanyLicensesDocument = gql`
  * @example
  * const { data, loading, error } = useGetAllCompanyLicensesQuery({
  *   variables: {
+ *      license_number: // value for 'license_number'
  *   },
  * });
  */
 export function useGetAllCompanyLicensesQuery(
-  baseOptions?: Apollo.QueryHookOptions<
+  baseOptions: Apollo.QueryHookOptions<
     GetAllCompanyLicensesQuery,
     GetAllCompanyLicensesQueryVariables
   >

@@ -37,33 +37,78 @@ export default function CompanyLicensesDataGrid({
         dataField: "us_state",
         caption: "US State",
         minWidth: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) => (
+          <TextDataGridCell
+            label={params.row.data.us_state ? params.row.data.us_state : "-"}
+          />
+        ),
       },
       {
         caption: "Legal Name",
         dataField: "legal_name",
         minWidth: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) => (
+          <TextDataGridCell
+            label={
+              params.row.data.legal_name ? params.row.data.legal_name : "-"
+            }
+          />
+        ),
       },
       {
         dataField: "license_category",
         caption: "License Category",
         minWidth: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) => (
+          <TextDataGridCell
+            label={
+              params.row.data.license_category
+                ? params.row.data.license_category
+                : "-"
+            }
+          />
+        ),
       },
       {
         dataField: "license_description",
         caption: "License Description",
         minWidth: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) => (
+          <TextDataGridCell
+            label={
+              params.row.data.license_description
+                ? params.row.data.license_description
+                : "-"
+            }
+          />
+        ),
       },
       {
         dataField: "license_status",
         caption: "License Status",
         minWidth: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) => (
+          <TextDataGridCell
+            label={
+              params.row.data.license_status
+                ? params.row.data.license_status
+                : "-"
+            }
+          />
+        ),
       },
       {
         caption: "Facility Name",
         dataField: "facility_name",
         width: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
-          <TextDataGridCell label={params.row.data.company_facility?.name} />
+          <TextDataGridCell
+            label={
+              params.row.data.company_facility?.name
+                ? params.row.data.company_facility.name
+                : "-"
+            }
+          />
         ),
       },
       {

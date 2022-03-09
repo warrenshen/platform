@@ -1,9 +1,8 @@
 import { Box, TextField } from "@material-ui/core";
 import CompanyLicensesDataGrid from "components/CompanyLicenses/CompanyLicensesDataGrid";
 import { useGetAllCompanyLicensesQuery } from "generated/graphql";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import styled from "styled-components";
-import { filter } from "lodash";
 
 const Container = styled.div`
   display: flex;
@@ -19,18 +18,12 @@ export default function CannabisLicensesTab() {
 
   const { data } = useGetAllCompanyLicensesQuery({
     fetchPolicy: "network-only",
+    variables: {
+      license_number: licenseNumber,
+    },
   });
 
-  const companyLicenses = useMemo(() => {
-    const filteredCompanyLicenses = filter(
-      data?.company_licenses || [],
-      (companyLicense: any) =>
-        companyLicense.license_number
-          .toLowerCase()
-          .indexOf(licenseNumber.toLowerCase()) >= 0
-    );
-    return filteredCompanyLicenses;
-  }, [licenseNumber, data?.company_licenses]);
+  const companyLicenses = data?.company_licenses || [];
 
   return (
     <Container>
