@@ -7,9 +7,10 @@ from bespoke import errors
 from bespoke.companies import create_user_util
 from bespoke.date import date_util
 from bespoke.db import models, db_constants
-from bespoke.db.db_constants import CompanyType, TwoFactorMessageMethod
+from bespoke.db.db_constants import CompanyType, TwoFactorMessageMethod, UserRoles
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util
+from flask import current_app
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
 
@@ -492,6 +493,40 @@ def create_partnership(
 	partnership_id = None
 	partnership_type = None
 
+	# Later on in this function we will create a default contact for the partnership
+	# This section either grabs the existing user based off the request's contact email or creates a user
+	user_info = partnership_req.user_info
+
+	existing_user = cast(
+		models.User,
+		session.query(models.User).filter(
+			models.User.email == cast(Dict[str, Any], user_info).get("email", "")
+	).first())
+
+	if existing_user is None:
+		create_user_util.create_bank_or_customer_user(
+			req = create_user_util.CreateBankOrCustomerUserInputDict(
+				company_id = company_id,
+				user = create_user_util.UserInsertInputDict(
+					role = UserRoles.COMPANY_CONTACT_ONLY,
+					first_name = cast(Dict[str, Any], user_info).get("first_name", ""),
+					last_name = cast(Dict[str, Any], user_info).get("last_name", ""),
+					email = cast(Dict[str, Any], user_info).get("email", ""),
+					phone_number = cast(Dict[str, Any], user_info).get("phone_number", "")
+				),
+			),
+			session_maker = current_app.session_maker
+		)
+
+		session.flush()
+
+		# Requerying new created user to get the generated id later for partnership contact
+		existing_user = cast(
+			models.User,
+			session.query(models.User).filter(
+				models.User.email == cast(Dict[str, Any], user_info).get("email", "")
+		).first())
+
 	if company_type == CompanyType.Payor:
 		prev_partnership = cast(
 			models.CompanyPayorPartnership,
@@ -517,6 +552,13 @@ def create_partnership(
 		if not should_create_company:
 			company.is_payor = True
 
+		# Create a default user for the partnership based on who was submitted with the request
+		company_payor_contact = models.CompanyPayorContact()
+		company_payor_contact.partnership_id = company_payor_partnership.id
+		company_payor_contact.payor_user_id = existing_user.id
+		session.add(company_payor_contact)
+		session.flush()
+
 	elif company_type == CompanyType.Vendor:
 		prev_vendor_partnership = cast(
 			models.CompanyVendorPartnership,
@@ -541,6 +583,13 @@ def create_partnership(
 		# for example it may only have is_customer set to True.
 		if not should_create_company:
 			company.is_vendor = True
+
+		# Create a default user for the partnership based on who was submitted with the request
+		company_vendor_contact = models.CompanyVendorContact()
+		company_vendor_contact.partnership_id = company_vendor_partnership.id
+		company_vendor_contact.vendor_user_id = existing_user.id
+		session.add(company_vendor_contact)
+		session.flush()
 
 	else:
 		raise errors.Error('Unexpected company_type {}'.format(company_type))
