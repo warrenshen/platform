@@ -19,7 +19,8 @@ import {
   Companies,
   PurchaseOrderFragment,
   PurchaseOrders,
-  useGetOpenPurchaseOrdersByCompanyIdQuery,
+  RequestStatusEnum,
+  useGetPurchaseOrdersByCompanyIdAndStatusesQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -58,10 +59,19 @@ export default function CustomerPurchaseOrdersOpenTab({
   const classes = useStyles();
   const snackbar = useSnackbar();
 
-  const { data, error, refetch } = useGetOpenPurchaseOrdersByCompanyIdQuery({
+  const {
+    data,
+    error,
+    refetch,
+  } = useGetPurchaseOrdersByCompanyIdAndStatusesQuery({
     fetchPolicy: "network-only",
     variables: {
       company_id: companyId,
+      statuses: [
+        RequestStatusEnum.ApprovalRequested,
+        RequestStatusEnum.Rejected,
+        RequestStatusEnum.Drafted,
+      ],
     },
   });
 

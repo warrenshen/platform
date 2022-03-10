@@ -28,6 +28,7 @@ function getRows(purchaseOrders: PurchaseOrderFragment[]): RowsProp {
     ...purchaseOrder,
     company_name: purchaseOrder.company.name,
     vendor_name: getCompanyDisplayName(purchaseOrder.vendor),
+    status: purchaseOrder.status,
     percent_funded:
       ((purchaseOrder.amount_funded || 0) / (purchaseOrder.amount || 1)) * 100,
     customer_note: truncateString(purchaseOrder?.customer_note || "-"),
@@ -38,6 +39,7 @@ function getRows(purchaseOrders: PurchaseOrderFragment[]): RowsProp {
 interface Props {
   isApprovedByVendor?: boolean;
   isBankNoteVisible?: boolean;
+  isBankView?: boolean;
   isCompanyVisible: boolean;
   isCustomerNoteVisible?: boolean;
   isDeliveryDateVisible?: boolean;

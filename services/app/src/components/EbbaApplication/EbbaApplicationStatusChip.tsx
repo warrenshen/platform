@@ -34,6 +34,10 @@ const StatusToColor = {
 };
 
 export default function EbbaApplicationStatusChip({ requestStatus }: Props) {
+  if (requestStatus === RequestStatusEnum.Incomplete) {
+    return null;
+  }
+
   return (
     <Chip backgroundColor={StatusToColor[requestStatus]}>
       <Text>{EbbaApplicationStatusToLabel[requestStatus]}</Text>

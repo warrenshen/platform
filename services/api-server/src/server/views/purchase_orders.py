@@ -340,6 +340,120 @@ class RespondToApprovalRequestView(MethodView):
 			'msg': 'Purchase Order {} approval request responded to'.format(purchase_order_id)
 		}), 200)
 
+class RespondToIncompleteRequestView(MethodView):
+	"""
+	POST request that handles the following:
+	1. Bank user marks a purchase order as incomplete - note is recorded in purchase_order.bank_incomplete_note.
+	"""
+	decorators = [auth_util.login_required]
+
+	@events.wrap(events.Actions.PURCHASE_ORDER_RESPOND_TO_INCOMPLETE)
+	@handler_util.catch_bad_json_request
+	def post(self, event: events.Event, **kwargs: Any) -> Response:
+		sendgrid_client = cast(
+			sendgrid_util.Client,
+			current_app.sendgrid_client,
+		)
+
+		data = json.loads(request.data)
+		if not data:
+			raise errors.Error('No data provided')
+
+		required_keys = [
+			'purchase_order_id',
+			'new_request_status',
+			'incomplete_note',
+			'link_val',
+		]
+		for key in required_keys:
+			if key not in data:
+				raise errors.Error(f'Missing {key} in respond to mark incomplete request')
+
+		purchase_order_id = data['purchase_order_id']
+		new_request_status = data['new_request_status']
+		incomplete_note = data['incomplete_note']
+
+		if not purchase_order_id:
+			raise errors.Error('No Purchase Order ID provided')
+
+		if new_request_status != RequestStatusEnum.INCOMPLETE:
+			raise errors.Error('Invalid new request status provided')
+
+		if new_request_status == RequestStatusEnum.INCOMPLETE and not incomplete_note:
+			raise errors.Error('Incomplete note is required if response is incomplete')
+
+		customer_name = ''
+		purchase_order_number = ''
+		purchase_order_amount = ''
+		purchase_order_requested_date = ''
+
+		user_session = auth_util.UserSession.from_session()
+
+		with session_scope(current_app.session_maker) as session:
+			if user_session.is_bank_admin():
+				user = session.query(models.User) \
+					.filter(models.User.email == user_session.get_user_id()) \
+					.first()
+				if user:
+					event.user_id(str(user.id))
+
+			purchase_order = cast(
+				models.PurchaseOrder,
+				session.query(models.PurchaseOrder).filter_by(
+					id=purchase_order_id).first()
+			)
+
+			purchase_order.status = RequestStatusEnum.INCOMPLETE
+			purchase_order.incompleted_at = date_util.now()
+			purchase_order.bank_incomplete_note = incomplete_note
+
+			purchase_order_number = purchase_order.order_number
+			purchase_order_amount = number_util.to_dollar_format(float(purchase_order.amount))
+			if purchase_order.requested_at is not None:
+				purchase_order_requested_date = date_util.human_readable_yearmonthday(purchase_order.requested_at)
+			else:
+				purchase_order_requested_date = date_util.human_readable_yearmonthday(date_util.now())
+
+			customer_users = models_util.get_active_users(
+				purchase_order.company_id, 
+				session, 
+				filter_contact_only=True
+			)
+
+			if not customer_users:
+				raise errors.Error('There are no users configured for this customer')
+
+			customer_name = purchase_order.company.get_display_name()
+			customer_emails = [user.email for user in customer_users]
+
+			baseUrl = Config().get_env_base_url()
+			template_name = sendgrid_util.TemplateNames.PURCHASE_ORDER_INCOMPLETE_NOTIFICATION
+			template_data = {
+				"company_name": purchase_order.company.get_display_name(),
+				"company_user": customer_name,
+				"vendor_name":  purchase_order.vendor.get_display_name(),
+				"support_email": "<a href='mailto:support@bespokefinancial.com'>support@bespokefinancial.com</a>",
+				"purchase_order_number": purchase_order_number,
+				"purchase_order_amount": purchase_order_amount,
+				"purchase_order_requested_date": purchase_order_requested_date,
+    			"purchase_order_title": purchase_order.order_number,
+   				"purchase_order_link": f"{baseUrl}/companies/{purchase_order.company.id}/purchase-orders/",
+				"incomplete_note": incomplete_note,
+			}
+
+		recipients = customer_emails
+		_, err = sendgrid_client.send(
+			template_name=template_name,
+			template_data=template_data,
+			recipients=recipients,
+		)
+		if err:
+			raise err
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Purchase Order {} incompletion request responded to'.format(purchase_order_id)
+	}), 200)
+
 class UpdateBankFieldsView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
@@ -525,6 +639,11 @@ handler.add_url_rule(
 	view_func=RespondToApprovalRequestView.as_view(
 		name='respond_to_approval_request')
 )
+
+handler.add_url_rule(
+	'/respond_to_incomplete_request',
+	view_func=RespondToIncompleteRequestView.as_view('respond_to_incomplete_request'))
+
 
 handler.add_url_rule(
 	'/update_bank_fields',

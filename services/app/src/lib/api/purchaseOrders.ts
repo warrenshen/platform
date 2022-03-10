@@ -139,6 +139,33 @@ export async function respondToPurchaseOrderApprovalRequestMutation(
     );
 }
 
+export type RespondToPurchaseOrderIncompleteReq = {
+  variables: {
+    purchase_order_id: PurchaseOrders["id"];
+    new_request_status: RequestStatusEnum;
+    incomplete_note: string;
+    link_val: string;
+  };
+};
+
+export async function respondToPurchaseOrderIncompleteRequestMutation(
+  req: RespondToPurchaseOrderIncompleteReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(purchaseOrdersRoutes.respondToIncompleteRequest, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not respond to purchase order incomplete request",
+        };
+      }
+    );
+}
+
 export type UpdateBankFieldsReq = {
   variables: {
     purchase_order_id: PurchaseOrders["id"];

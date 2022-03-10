@@ -29,6 +29,7 @@ interface Props {
 const StatusToColor = {
   [RequestStatusEnum.Drafted]: "#bdc3c7", // Gray
   [RequestStatusEnum.ApprovalRequested]: "#f1c40f", // Yellow
+  [RequestStatusEnum.Incomplete]: "#e67e22", // Orange
   [RequestStatusEnum.Approved]: "rgba(118, 147, 98, 1)", // Green
   [RequestStatusEnum.Rejected]: "#e67e22", // Orange
 };

@@ -123,6 +123,7 @@ class CompanyDebtFacilityStatus(object):
 class RequestStatusEnum(object):
 	APPROVAL_REQUESTED = 'approval_requested'
 	APPROVED = 'approved'
+	INCOMPLETE = 'incomplete'
 	DRAFTED = 'drafted'
 	REJECTED = 'rejected'
 

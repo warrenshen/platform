@@ -115,6 +115,14 @@ class Config(object):
 			force_fetch_missing_sales_transactions=False
 		)
 
+	def get_env_base_url(self) -> str:
+		if is_test_env(os.environ.get('FLASK_ENV')):
+			return self.TEST_DOMAIN
+		elif is_development_env(os.environ.get('FLASK_ENV')):
+			return self.DEV_DOMAIN
+		return self.PROD_DOMAIN
+
+
 	def get_metrc_auth_provider(self) -> config_util.MetrcAuthProvider:
 		return config_util.get_metrc_auth_provider()
 

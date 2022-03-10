@@ -38,6 +38,7 @@ class TemplateNames(object):
 	VENDOR_APPROVED_PURCHASE_ORDER = 'vendor_approved_purchase_order'
 	VENDOR_REJECTED_PURCHASE_ORDER = 'vendor_rejected_purchase_order'
 	BANK_REJECTED_PURCHASE_ORDER = 'bank_rejected_purchase_order'
+	PURCHASE_ORDER_INCOMPLETE_NOTIFICATION = 'purchase_order_incomplete_notification'
 
 	# Email sent to payor: Payor Agreement (Notice of Assignment) for Invoice Financing customers.
 	PAYOR_AGREEMENT_WITH_CUSTOMER = 'payor_agreement_with_customer' # to payor
@@ -140,6 +141,11 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 	},
 	TemplateNames.BANK_REJECTED_PURCHASE_ORDER: {
 		'id': 'd-6da1a83e7e9648c5a7bff5005da76103',
+		'requires_secure_link': False
+	},
+
+	TemplateNames.PURCHASE_ORDER_INCOMPLETE_NOTIFICATION: {
+		'id': 'd-bed5946b594644b2a9bd537e2f30d25f',
 		'requires_secure_link': False
 	},
 

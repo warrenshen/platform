@@ -21877,6 +21877,8 @@ export enum RequestStatusEnum {
   Approved = "approved",
   /** Draft */
   Drafted = "drafted",
+  /** Incomplete */
+  Incomplete = "incomplete",
   /** Rejected */
   Rejected = "rejected",
 }
@@ -26260,51 +26262,25 @@ export type GetPurchaseOrdersSubscription = {
   purchase_orders: Array<Pick<PurchaseOrders, "id"> & PurchaseOrderFragment>;
 };
 
-export type GetNotConfirmedPurchaseOrdersSubscriptionVariables = Exact<{
-  [key: string]: never;
+export type GetPurchaseOrdersByStatusesSubscriptionVariables = Exact<{
+  statuses?: Maybe<Array<RequestStatusEnum>>;
 }>;
 
-export type GetNotConfirmedPurchaseOrdersSubscription = {
+export type GetPurchaseOrdersByStatusesSubscription = {
   purchase_orders: Array<Pick<PurchaseOrders, "id"> & PurchaseOrderFragment>;
 };
 
-export type GetConfirmedPurchaseOrdersSubscriptionVariables = Exact<{
-  [key: string]: never;
-}>;
-
-export type GetConfirmedPurchaseOrdersSubscription = {
-  purchase_orders: Array<Pick<PurchaseOrders, "id"> & PurchaseOrderFragment>;
-};
-
-export type UpdatePurchaseOrderMutationVariables = Exact<{
-  id: Scalars["uuid"];
-  purchaseOrder: PurchaseOrdersSetInput;
-}>;
-
-export type UpdatePurchaseOrderMutation = {
-  update_purchase_orders_by_pk?: Maybe<
-    Pick<PurchaseOrders, "id"> & PurchaseOrderFragment
-  >;
-};
-
-export type GetOpenPurchaseOrdersByCompanyIdQueryVariables = Exact<{
+export type GetPurchaseOrdersByCompanyIdAndStatusesQueryVariables = Exact<{
   company_id: Scalars["uuid"];
+  statuses?: Maybe<Array<RequestStatusEnum>>;
 }>;
 
-export type GetOpenPurchaseOrdersByCompanyIdQuery = {
+export type GetPurchaseOrdersByCompanyIdAndStatusesQuery = {
   companies_by_pk?: Maybe<
     Pick<Companies, "id"> & {
       settings?: Maybe<Pick<CompanySettings, "id" | "has_autofinancing">>;
     }
   >;
-  purchase_orders: Array<PurchaseOrderLimitedFragment>;
-};
-
-export type GetClosedPurchaseOrdersByCompanyIdQueryVariables = Exact<{
-  company_id: Scalars["uuid"];
-}>;
-
-export type GetClosedPurchaseOrdersByCompanyIdQuery = {
   purchase_orders: Array<PurchaseOrderLimitedFragment>;
 };
 
@@ -26351,6 +26327,7 @@ export type GetPaymentForSettlementQuery = {
           payor?: Maybe<Pick<Payors, "id"> & PayorFragment>;
         }
       >;
+      settled_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
     } & PaymentFragment
   >;
 };
@@ -33691,71 +33668,18 @@ export type GetPurchaseOrdersSubscriptionHookResult = ReturnType<
   typeof useGetPurchaseOrdersSubscription
 >;
 export type GetPurchaseOrdersSubscriptionResult = Apollo.SubscriptionResult<GetPurchaseOrdersSubscription>;
-export const GetNotConfirmedPurchaseOrdersDocument = gql`
-  subscription GetNotConfirmedPurchaseOrders {
+export const GetPurchaseOrdersByStatusesDocument = gql`
+  subscription GetPurchaseOrdersByStatuses($statuses: [request_status_enum!]) {
     purchase_orders(
       where: {
         _and: [
+          { status: { _in: $statuses } }
           {
             _or: [
               { is_deleted: { _is_null: true } }
               { is_deleted: { _eq: false } }
             ]
           }
-          { approved_at: { _is_null: true } }
-        ]
-      }
-      order_by: [{ requested_at: desc }, { created_at: desc }]
-    ) {
-      id
-      ...PurchaseOrder
-    }
-  }
-  ${PurchaseOrderFragmentDoc}
-`;
-
-/**
- * __useGetNotConfirmedPurchaseOrdersSubscription__
- *
- * To run a query within a React component, call `useGetNotConfirmedPurchaseOrdersSubscription` and pass it any options that fit your needs.
- * When your component renders, `useGetNotConfirmedPurchaseOrdersSubscription` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetNotConfirmedPurchaseOrdersSubscription({
- *   variables: {
- *   },
- * });
- */
-export function useGetNotConfirmedPurchaseOrdersSubscription(
-  baseOptions?: Apollo.SubscriptionHookOptions<
-    GetNotConfirmedPurchaseOrdersSubscription,
-    GetNotConfirmedPurchaseOrdersSubscriptionVariables
-  >
-) {
-  return Apollo.useSubscription<
-    GetNotConfirmedPurchaseOrdersSubscription,
-    GetNotConfirmedPurchaseOrdersSubscriptionVariables
-  >(GetNotConfirmedPurchaseOrdersDocument, baseOptions);
-}
-export type GetNotConfirmedPurchaseOrdersSubscriptionHookResult = ReturnType<
-  typeof useGetNotConfirmedPurchaseOrdersSubscription
->;
-export type GetNotConfirmedPurchaseOrdersSubscriptionResult = Apollo.SubscriptionResult<GetNotConfirmedPurchaseOrdersSubscription>;
-export const GetConfirmedPurchaseOrdersDocument = gql`
-  subscription GetConfirmedPurchaseOrders {
-    purchase_orders(
-      where: {
-        _and: [
-          {
-            _or: [
-              { is_deleted: { _is_null: true } }
-              { is_deleted: { _eq: false } }
-            ]
-          }
-          { approved_at: { _is_null: false } }
         ]
       }
       order_by: [{ approved_at: desc }, { created_at: desc }]
@@ -33768,94 +33692,41 @@ export const GetConfirmedPurchaseOrdersDocument = gql`
 `;
 
 /**
- * __useGetConfirmedPurchaseOrdersSubscription__
+ * __useGetPurchaseOrdersByStatusesSubscription__
  *
- * To run a query within a React component, call `useGetConfirmedPurchaseOrdersSubscription` and pass it any options that fit your needs.
- * When your component renders, `useGetConfirmedPurchaseOrdersSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetPurchaseOrdersByStatusesSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetPurchaseOrdersByStatusesSubscription` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetConfirmedPurchaseOrdersSubscription({
+ * const { data, loading, error } = useGetPurchaseOrdersByStatusesSubscription({
  *   variables: {
+ *      statuses: // value for 'statuses'
  *   },
  * });
  */
-export function useGetConfirmedPurchaseOrdersSubscription(
+export function useGetPurchaseOrdersByStatusesSubscription(
   baseOptions?: Apollo.SubscriptionHookOptions<
-    GetConfirmedPurchaseOrdersSubscription,
-    GetConfirmedPurchaseOrdersSubscriptionVariables
+    GetPurchaseOrdersByStatusesSubscription,
+    GetPurchaseOrdersByStatusesSubscriptionVariables
   >
 ) {
   return Apollo.useSubscription<
-    GetConfirmedPurchaseOrdersSubscription,
-    GetConfirmedPurchaseOrdersSubscriptionVariables
-  >(GetConfirmedPurchaseOrdersDocument, baseOptions);
+    GetPurchaseOrdersByStatusesSubscription,
+    GetPurchaseOrdersByStatusesSubscriptionVariables
+  >(GetPurchaseOrdersByStatusesDocument, baseOptions);
 }
-export type GetConfirmedPurchaseOrdersSubscriptionHookResult = ReturnType<
-  typeof useGetConfirmedPurchaseOrdersSubscription
+export type GetPurchaseOrdersByStatusesSubscriptionHookResult = ReturnType<
+  typeof useGetPurchaseOrdersByStatusesSubscription
 >;
-export type GetConfirmedPurchaseOrdersSubscriptionResult = Apollo.SubscriptionResult<GetConfirmedPurchaseOrdersSubscription>;
-export const UpdatePurchaseOrderDocument = gql`
-  mutation UpdatePurchaseOrder(
-    $id: uuid!
-    $purchaseOrder: purchase_orders_set_input!
+export type GetPurchaseOrdersByStatusesSubscriptionResult = Apollo.SubscriptionResult<GetPurchaseOrdersByStatusesSubscription>;
+export const GetPurchaseOrdersByCompanyIdAndStatusesDocument = gql`
+  query GetPurchaseOrdersByCompanyIdAndStatuses(
+    $company_id: uuid!
+    $statuses: [request_status_enum!]
   ) {
-    update_purchase_orders_by_pk(
-      pk_columns: { id: $id }
-      _set: $purchaseOrder
-    ) {
-      id
-      ...PurchaseOrder
-    }
-  }
-  ${PurchaseOrderFragmentDoc}
-`;
-export type UpdatePurchaseOrderMutationFn = Apollo.MutationFunction<
-  UpdatePurchaseOrderMutation,
-  UpdatePurchaseOrderMutationVariables
->;
-
-/**
- * __useUpdatePurchaseOrderMutation__
- *
- * To run a mutation, you first call `useUpdatePurchaseOrderMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdatePurchaseOrderMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updatePurchaseOrderMutation, { data, loading, error }] = useUpdatePurchaseOrderMutation({
- *   variables: {
- *      id: // value for 'id'
- *      purchaseOrder: // value for 'purchaseOrder'
- *   },
- * });
- */
-export function useUpdatePurchaseOrderMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UpdatePurchaseOrderMutation,
-    UpdatePurchaseOrderMutationVariables
-  >
-) {
-  return Apollo.useMutation<
-    UpdatePurchaseOrderMutation,
-    UpdatePurchaseOrderMutationVariables
-  >(UpdatePurchaseOrderDocument, baseOptions);
-}
-export type UpdatePurchaseOrderMutationHookResult = ReturnType<
-  typeof useUpdatePurchaseOrderMutation
->;
-export type UpdatePurchaseOrderMutationResult = Apollo.MutationResult<UpdatePurchaseOrderMutation>;
-export type UpdatePurchaseOrderMutationOptions = Apollo.BaseMutationOptions<
-  UpdatePurchaseOrderMutation,
-  UpdatePurchaseOrderMutationVariables
->;
-export const GetOpenPurchaseOrdersByCompanyIdDocument = gql`
-  query GetOpenPurchaseOrdersByCompanyId($company_id: uuid!) {
     companies_by_pk(id: $company_id) {
       id
       settings {
@@ -33866,15 +33737,8 @@ export const GetOpenPurchaseOrdersByCompanyIdDocument = gql`
     purchase_orders(
       where: {
         _and: [
-          {
-            _or: [
-              { is_deleted: { _is_null: true } }
-              { is_deleted: { _eq: false } }
-            ]
-          }
+          { status: { _in: $statuses } }
           { company_id: { _eq: $company_id } }
-          { funded_at: { _is_null: true } }
-          { closed_at: { _is_null: true } }
         ]
       }
     ) {
@@ -33885,127 +33749,53 @@ export const GetOpenPurchaseOrdersByCompanyIdDocument = gql`
 `;
 
 /**
- * __useGetOpenPurchaseOrdersByCompanyIdQuery__
+ * __useGetPurchaseOrdersByCompanyIdAndStatusesQuery__
  *
- * To run a query within a React component, call `useGetOpenPurchaseOrdersByCompanyIdQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetOpenPurchaseOrdersByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetPurchaseOrdersByCompanyIdAndStatusesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPurchaseOrdersByCompanyIdAndStatusesQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetOpenPurchaseOrdersByCompanyIdQuery({
+ * const { data, loading, error } = useGetPurchaseOrdersByCompanyIdAndStatusesQuery({
  *   variables: {
  *      company_id: // value for 'company_id'
+ *      statuses: // value for 'statuses'
  *   },
  * });
  */
-export function useGetOpenPurchaseOrdersByCompanyIdQuery(
+export function useGetPurchaseOrdersByCompanyIdAndStatusesQuery(
   baseOptions: Apollo.QueryHookOptions<
-    GetOpenPurchaseOrdersByCompanyIdQuery,
-    GetOpenPurchaseOrdersByCompanyIdQueryVariables
+    GetPurchaseOrdersByCompanyIdAndStatusesQuery,
+    GetPurchaseOrdersByCompanyIdAndStatusesQueryVariables
   >
 ) {
   return Apollo.useQuery<
-    GetOpenPurchaseOrdersByCompanyIdQuery,
-    GetOpenPurchaseOrdersByCompanyIdQueryVariables
-  >(GetOpenPurchaseOrdersByCompanyIdDocument, baseOptions);
+    GetPurchaseOrdersByCompanyIdAndStatusesQuery,
+    GetPurchaseOrdersByCompanyIdAndStatusesQueryVariables
+  >(GetPurchaseOrdersByCompanyIdAndStatusesDocument, baseOptions);
 }
-export function useGetOpenPurchaseOrdersByCompanyIdLazyQuery(
+export function useGetPurchaseOrdersByCompanyIdAndStatusesLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    GetOpenPurchaseOrdersByCompanyIdQuery,
-    GetOpenPurchaseOrdersByCompanyIdQueryVariables
+    GetPurchaseOrdersByCompanyIdAndStatusesQuery,
+    GetPurchaseOrdersByCompanyIdAndStatusesQueryVariables
   >
 ) {
   return Apollo.useLazyQuery<
-    GetOpenPurchaseOrdersByCompanyIdQuery,
-    GetOpenPurchaseOrdersByCompanyIdQueryVariables
-  >(GetOpenPurchaseOrdersByCompanyIdDocument, baseOptions);
+    GetPurchaseOrdersByCompanyIdAndStatusesQuery,
+    GetPurchaseOrdersByCompanyIdAndStatusesQueryVariables
+  >(GetPurchaseOrdersByCompanyIdAndStatusesDocument, baseOptions);
 }
-export type GetOpenPurchaseOrdersByCompanyIdQueryHookResult = ReturnType<
-  typeof useGetOpenPurchaseOrdersByCompanyIdQuery
+export type GetPurchaseOrdersByCompanyIdAndStatusesQueryHookResult = ReturnType<
+  typeof useGetPurchaseOrdersByCompanyIdAndStatusesQuery
 >;
-export type GetOpenPurchaseOrdersByCompanyIdLazyQueryHookResult = ReturnType<
-  typeof useGetOpenPurchaseOrdersByCompanyIdLazyQuery
+export type GetPurchaseOrdersByCompanyIdAndStatusesLazyQueryHookResult = ReturnType<
+  typeof useGetPurchaseOrdersByCompanyIdAndStatusesLazyQuery
 >;
-export type GetOpenPurchaseOrdersByCompanyIdQueryResult = Apollo.QueryResult<
-  GetOpenPurchaseOrdersByCompanyIdQuery,
-  GetOpenPurchaseOrdersByCompanyIdQueryVariables
->;
-export const GetClosedPurchaseOrdersByCompanyIdDocument = gql`
-  query GetClosedPurchaseOrdersByCompanyId($company_id: uuid!) {
-    purchase_orders(
-      where: {
-        _and: [
-          {
-            _or: [
-              { is_deleted: { _is_null: true } }
-              { is_deleted: { _eq: false } }
-            ]
-          }
-          { company_id: { _eq: $company_id } }
-          {
-            _or: [
-              { closed_at: { _is_null: false } }
-              { funded_at: { _is_null: false } }
-            ]
-          }
-        ]
-      }
-    ) {
-      ...PurchaseOrderLimited
-    }
-  }
-  ${PurchaseOrderLimitedFragmentDoc}
-`;
-
-/**
- * __useGetClosedPurchaseOrdersByCompanyIdQuery__
- *
- * To run a query within a React component, call `useGetClosedPurchaseOrdersByCompanyIdQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetClosedPurchaseOrdersByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetClosedPurchaseOrdersByCompanyIdQuery({
- *   variables: {
- *      company_id: // value for 'company_id'
- *   },
- * });
- */
-export function useGetClosedPurchaseOrdersByCompanyIdQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    GetClosedPurchaseOrdersByCompanyIdQuery,
-    GetClosedPurchaseOrdersByCompanyIdQueryVariables
-  >
-) {
-  return Apollo.useQuery<
-    GetClosedPurchaseOrdersByCompanyIdQuery,
-    GetClosedPurchaseOrdersByCompanyIdQueryVariables
-  >(GetClosedPurchaseOrdersByCompanyIdDocument, baseOptions);
-}
-export function useGetClosedPurchaseOrdersByCompanyIdLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetClosedPurchaseOrdersByCompanyIdQuery,
-    GetClosedPurchaseOrdersByCompanyIdQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<
-    GetClosedPurchaseOrdersByCompanyIdQuery,
-    GetClosedPurchaseOrdersByCompanyIdQueryVariables
-  >(GetClosedPurchaseOrdersByCompanyIdDocument, baseOptions);
-}
-export type GetClosedPurchaseOrdersByCompanyIdQueryHookResult = ReturnType<
-  typeof useGetClosedPurchaseOrdersByCompanyIdQuery
->;
-export type GetClosedPurchaseOrdersByCompanyIdLazyQueryHookResult = ReturnType<
-  typeof useGetClosedPurchaseOrdersByCompanyIdLazyQuery
->;
-export type GetClosedPurchaseOrdersByCompanyIdQueryResult = Apollo.QueryResult<
-  GetClosedPurchaseOrdersByCompanyIdQuery,
-  GetClosedPurchaseOrdersByCompanyIdQueryVariables
+export type GetPurchaseOrdersByCompanyIdAndStatusesQueryResult = Apollo.QueryResult<
+  GetPurchaseOrdersByCompanyIdAndStatusesQuery,
+  GetPurchaseOrdersByCompanyIdAndStatusesQueryVariables
 >;
 export const GetFundablePurchaseOrdersByCompanyIdDocument = gql`
   query GetFundablePurchaseOrdersByCompanyId($company_id: uuid!) {
@@ -34169,6 +33959,10 @@ export const GetPaymentForSettlementDocument = gql`
           id
           ...Payor
         }
+      }
+      settled_by_user {
+        id
+        full_name
       }
     }
   }

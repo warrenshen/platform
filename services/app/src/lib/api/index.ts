@@ -70,6 +70,7 @@ export const purchaseOrdersRoutes = {
   update: "/purchase_orders/update",
   submit: "/purchase_orders/submit",
   respondToApprovalRequest: "/purchase_orders/respond_to_approval_request",
+  respondToIncompleteRequest: "/purchase_orders/respond_to_incomplete_request",
   updateBankFields: "/purchase_orders/update_bank_fields",
   delete: "/purchase_orders/delete",
   close: "/purchase_orders/close",

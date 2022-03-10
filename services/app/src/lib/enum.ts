@@ -42,6 +42,32 @@ export enum PaymentTypeEnum {
   RepaymentOfAccountFee = "repayment_account_fee",
 }
 
+export enum BankPurchaseOrdersTabLabel {
+  IncompletePOs = "Incomplete POs",
+  NotConfirmedPOs = "Not Confirmed POs",
+  ConfirmedPOs = "Confirmed POs",
+  AllPOs = "All POs",
+}
+
+export const BankPurchaseOrdersTabLabels = [
+  BankPurchaseOrdersTabLabel.IncompletePOs,
+  BankPurchaseOrdersTabLabel.NotConfirmedPOs,
+  BankPurchaseOrdersTabLabel.ConfirmedPOs,
+  BankPurchaseOrdersTabLabel.AllPOs,
+];
+
+export enum CustomerPurchaseOrdersTabLabel {
+  ActivePOs = "Active POs",
+  ClosedPOs = "Closed POs",
+  IncompletePOs = "Incomplete POs",
+}
+
+export const CustomerPurchaseOrdersTabLabels = [
+  CustomerPurchaseOrdersTabLabel.ActivePOs,
+  CustomerPurchaseOrdersTabLabel.IncompletePOs,
+  CustomerPurchaseOrdersTabLabel.ClosedPOs,
+];
+
 export const PaymentTypeToLabel = {
   [PaymentTypeEnum.Adjustment]: "Adjustment",
   [PaymentTypeEnum.Advance]: "Advance",
@@ -250,6 +276,7 @@ export const AllProductTypes = [
 export const RequestStatusToLabel = {
   [RequestStatusEnum.Drafted]: "Draft",
   [RequestStatusEnum.ApprovalRequested]: "Pending Review",
+  [RequestStatusEnum.Incomplete]: "Changes Required",
   [RequestStatusEnum.Approved]: "Confirmed",
   [RequestStatusEnum.Rejected]: "Action Required",
 };

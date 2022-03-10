@@ -1,15 +1,52 @@
 import { Tab, Tabs } from "@material-ui/core";
 import PageContent from "components/Shared/Page/PageContent";
 import { Companies } from "generated/graphql";
-import { ProductTypeEnum } from "lib/enum";
+import {
+  CustomerPurchaseOrdersTabLabel,
+  CustomerPurchaseOrdersTabLabels,
+  ProductTypeEnum,
+} from "lib/enum";
 import CustomerPurchaseOrdersClosedTab from "pages/Customer/PurchaseOrders/PurchaseOrdersClosedTab";
 import CustomerPurchaseOrdersOpenTab from "pages/Customer/PurchaseOrders/PurchaseOrdersOpenTab";
 import { useState } from "react";
+import CustomerPurchaseOrdersIncompleteTab from "./PurchaseOrdersIncompleteTab";
 
 interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum;
 }
+
+const PurchaseOrderComponentMap: {
+  [key in CustomerPurchaseOrdersTabLabel]: (props: Props) => JSX.Element;
+} = {
+  [CustomerPurchaseOrdersTabLabel.ActivePOs]: ({
+    companyId,
+    productType,
+  }: Props) => (
+    <CustomerPurchaseOrdersOpenTab
+      companyId={companyId}
+      productType={productType}
+    />
+  ),
+  [CustomerPurchaseOrdersTabLabel.ClosedPOs]: ({
+    companyId,
+    productType,
+  }: Props) => (
+    <CustomerPurchaseOrdersClosedTab
+      companyId={companyId}
+      productType={productType}
+    />
+  ),
+  [CustomerPurchaseOrdersTabLabel.IncompletePOs]: ({
+    companyId,
+    productType,
+  }: Props) => (
+    <CustomerPurchaseOrdersIncompleteTab
+      companyId={companyId}
+      productType={productType}
+    />
+  ),
+};
 
 export default function CustomerPurchaseOrdersPageContent({
   companyId,
@@ -28,22 +65,20 @@ export default function CustomerPurchaseOrdersPageContent({
         value={selectedTabIndex}
         indicatorColor="primary"
         textColor="primary"
-        onChange={(_event: any, value: number) => setSelectedTabIndex(value)}
+        onChange={(_: any, value: number) => setSelectedTabIndex(value)}
       >
-        <Tab label="Active POs" />
-        <Tab label="Closed POs" />
+        {CustomerPurchaseOrdersTabLabels.map(
+          (label: CustomerPurchaseOrdersTabLabel) => (
+            <Tab key={label} label={label} />
+          )
+        )}
       </Tabs>
-      {selectedTabIndex === 0 ? (
-        <CustomerPurchaseOrdersOpenTab
-          companyId={companyId}
-          productType={productType}
-        />
-      ) : (
-        <CustomerPurchaseOrdersClosedTab
-          companyId={companyId}
-          productType={productType}
-        />
-      )}
+      {PurchaseOrderComponentMap[
+        CustomerPurchaseOrdersTabLabels[selectedTabIndex]
+      ]({
+        companyId,
+        productType,
+      })}
     </PageContent>
   );
 }

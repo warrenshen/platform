@@ -8,18 +8,31 @@ import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   PurchaseOrderFragment,
   PurchaseOrders,
-  useGetNotConfirmedPurchaseOrdersSubscription,
+  RequestStatusEnum,
+  useGetPurchaseOrdersByStatusesSubscription,
 } from "generated/graphql";
 import { useHistory } from "react-router-dom";
 import { Action } from "lib/auth/rbac-rules";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
-import { filter } from "lodash";
 import { useMemo, useState } from "react";
+import IncompletePurchaseOrderModal from "components/PurchaseOrder/IncompletePurchaseOrderModal";
+import {
+  useFilterPurchaseOrderBySearchQuery,
+  useFilterPurchaseOrdersBySelectedIds,
+} from "hooks/useFilterPurchaseOrders";
 
 export default function BankPurchaseOrdersActiveTab() {
   const history = useHistory();
 
-  const { data, error } = useGetNotConfirmedPurchaseOrdersSubscription();
+  const { data, error } = useGetPurchaseOrdersByStatusesSubscription({
+    variables: {
+      statuses: [
+        RequestStatusEnum.ApprovalRequested,
+        RequestStatusEnum.Drafted,
+        RequestStatusEnum.Rejected,
+      ],
+    },
+  });
 
   if (error) {
     console.error({ error });
@@ -28,29 +41,15 @@ export default function BankPurchaseOrdersActiveTab() {
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  const purchaseOrders = useMemo(() => {
-    const filteredPurchaseOrders = filter(
-      data?.purchase_orders || [],
-      (purchaseOrder) =>
-        `${purchaseOrder.company.name} ${purchaseOrder.order_number}`
-          .toLowerCase()
-          .indexOf(searchQuery.toLowerCase()) >= 0
-    );
-    return filteredPurchaseOrders;
-  }, [searchQuery, data?.purchase_orders]);
+  const purchaseOrders = useFilterPurchaseOrderBySearchQuery(searchQuery, data);
 
   const [selectedPurchaseOrderIds, setSelectedPurchaseOrderIds] = useState<
     PurchaseOrders["id"]
   >([]);
 
-  const selectedPurchaseOrder = useMemo(
-    () =>
-      selectedPurchaseOrderIds.length === 1
-        ? purchaseOrders.find(
-            (purchaseOrder) => purchaseOrder.id === selectedPurchaseOrderIds[0]
-          )
-        : null,
-    [purchaseOrders, selectedPurchaseOrderIds]
+  const selectedPurchaseOrder = useFilterPurchaseOrdersBySelectedIds(
+    purchaseOrders,
+    selectedPurchaseOrderIds
   );
 
   const handleSelectPurchaseOrders = useMemo(
@@ -91,6 +90,23 @@ export default function BankPurchaseOrdersActiveTab() {
                     selectedPurchaseOrder ? (
                       <ApprovePurchaseOrderModal
                         purchaseOrder={selectedPurchaseOrder}
+                        handleClose={() => {
+                          handleClose();
+                          setSelectedPurchaseOrderIds([]);
+                        }}
+                      />
+                    ) : null
+                  }
+                />
+              </Box>
+              <Box mr={2}>
+                <ModalButton
+                  isDisabled={selectedPurchaseOrderIds.length !== 1}
+                  label={"Mark PO Incomplete"}
+                  modal={({ handleClose }) =>
+                    selectedPurchaseOrder ? (
+                      <IncompletePurchaseOrderModal
+                        purchaseOrderId={selectedPurchaseOrder.id}
                         handleClose={() => {
                           handleClose();
                           setSelectedPurchaseOrderIds([]);

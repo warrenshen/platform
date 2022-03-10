@@ -40,6 +40,7 @@ class Actions(object):
 	PURCHASE_ORDER_CREATE_UPDATE = 'purchase_order_create_update'
 	PURCHASE_ORDER_SUBMIT_FOR_APPROVAL = 'purchase_order_submit_for_approval'
 	PURCHASE_ORDER_RESPOND_TO_APPROVAL = 'purchase_order_respond_to_approval'
+	PURCHASE_ORDER_RESPOND_TO_INCOMPLETE = 'purchase_order_respond_to_incomplete'
 	PURCHASE_ORDER_DELETE = 'purchase_order_delete'
 
 	EBBA_APPLICATION_SUBMIT_FOR_APPROVAL = 'ebba_application_submit_for_approval'
