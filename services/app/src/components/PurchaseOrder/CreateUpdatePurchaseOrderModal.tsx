@@ -199,17 +199,19 @@ export default function CreateUpdatePurchaseOrderModal({
       company_id: companyId,
     },
     onCompleted: (data) => {
-      /**
-       * If product type is Dispensary Financing and Metrc key(s) are configured,
-       * then default to the "create purchase order from Metrc transfers" flow.
-       */
-      if (productType === ProductTypeEnum.DispensaryFinancing) {
-        const metrcApiKeys = data?.companies_by_pk?.metrc_api_keys || [];
-        if (metrcApiKeys.length > 0) {
-          setPurchaseOrder({
-            ...purchaseOrder,
-            is_metrc_based: true,
-          });
+      if (!isActionTypeUpdate) {
+        /**
+         * If product type is Dispensary Financing and Metrc key(s) are configured,
+         * then default to the "create purchase order from Metrc transfers" flow.
+         */
+        if (productType === ProductTypeEnum.DispensaryFinancing) {
+          const metrcApiKeys = data?.companies_by_pk?.metrc_api_keys || [];
+          if (metrcApiKeys.length > 0) {
+            setPurchaseOrder({
+              ...purchaseOrder,
+              is_metrc_based: true,
+            });
+          }
         }
       }
     },

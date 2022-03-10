@@ -4,42 +4,9 @@ query PayorsByPartnerCompany($companyId: uuid!) {
   ) {
     id
     ...PayorLimited
-    company_payor_partnerships {
+    company_payor_partnerships(where: { company_id: { _eq: $companyId } }) {
       id
       approved_at
     }
-  }
-}
-
-query ApprovedPayorsByPartnerCompanyId($companyId: uuid!) {
-  payors(
-    where: {
-      company_payor_partnerships: {
-        _and: [
-          { company_id: { _eq: $companyId } }
-          { approved_at: { _is_null: false } }
-        ]
-      }
-    }
-  ) {
-    id
-    ...PayorLimited
-    company_payor_partnerships {
-      id
-      approved_at
-    }
-  }
-}
-
-query CompanyPayorPartnershipForPayor($companyId: uuid!, $payorId: uuid!) {
-  company_payor_partnerships(
-    where: {
-      _and: [
-        { company_id: { _eq: $companyId } }
-        { payor_id: { _eq: $payorId } }
-      ]
-    }
-  ) {
-    id
   }
 }
