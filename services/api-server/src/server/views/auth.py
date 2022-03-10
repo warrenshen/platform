@@ -48,8 +48,9 @@ class SignInView(MethodView):
 			if not security_util.verify_password(cfg.PASSWORD_SALT, password_guess, user.password):
 				return handler_util.make_error_response(f'Invalid password provided', 401)
 
-			parent_company_id = str(user.parent_company_id) if user.parent_company_id else None # Note: bank users do not have a parent company.
-			company_id = None # Note: bank users do not have a company.
+			# Note: bank users do not have a parent company or company.
+			parent_company_id = str(user.parent_company_id) if user.parent_company_id else None
+			company_id = None
 
 			if parent_company_id:
 				parent_company = cast(
@@ -65,11 +66,14 @@ class SignInView(MethodView):
 					List[models.Company],
 					session.query(models.Company).filter(
 						models.Company.parent_company_id == parent_company.id
+					).order_by(
+						models.Company.name.asc()
 					).all())
 
 				if not companies:
 					return handler_util.make_error_response('No companies found')
 
+				# Default to the 1st company (alphabetically) belonging to the parent company.
 				company_id = str(companies[0].id)
 
 			# Note: all users use simple login method in the test environment.
@@ -77,7 +81,11 @@ class SignInView(MethodView):
 			login_method = user.login_method if not is_test_env else db_constants.LoginMethod.SIMPLE
 
 			if login_method == db_constants.LoginMethod.SIMPLE:
-				claims_payload = auth_util.get_claims_payload(user, company_id)
+				claims_payload = auth_util.get_claims_payload(
+					user=user,
+					role=user.role,
+					company_id=company_id,
+				)
 				access_token = create_access_token(identity=claims_payload)
 				refresh_token = create_refresh_token(identity=claims_payload)
 
@@ -329,7 +337,11 @@ class SwitchLocationView(MethodView):
 				return handler_util.make_error_response('Access Denied')
 
 			user = existing_user
-			claims_payload = auth_util.get_claims_payload(existing_user, company_id)
+			claims_payload = auth_util.get_claims_payload(
+				user=user,
+				role=user.role,
+				company_id=company_id,
+			)
 
 		access_token = create_access_token(identity=claims_payload)
 		refresh_token = create_refresh_token(identity=claims_payload)

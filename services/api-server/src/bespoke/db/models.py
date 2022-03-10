@@ -330,6 +330,9 @@ class CompanyVendorPartnership(Base):
 	__tablename__ = 'company_vendor_partnerships'
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+
 	company_id = Column(GUID, nullable=False)
 	vendor_id = Column(GUID, nullable=False)
 	vendor_bank_id = Column(GUID)
@@ -341,6 +344,9 @@ class CompanyPayorPartnership(Base):
 	__tablename__ = 'company_payor_partnerships'
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+
 	company_id = Column(GUID, nullable=False)
 	payor_id = Column(GUID, nullable=False)
 	approved_at = Column(DateTime)

@@ -12,8 +12,13 @@ from server.views.common import handler_util
 from server.views.common.session_util import UserSession, UserPayloadDict
 
 
+"""
+Company ID and Role-related headers do not come from the
+User model to support cases where these headers are overriden.
+"""
 def get_claims_payload(
 	user: models.User,
+	role: str,
 	company_id: Optional[str],
 ) -> UserPayloadDict:
 	user_id = str(user.id) if user.id else ''
@@ -22,8 +27,8 @@ def get_claims_payload(
 
 	claims_payload: UserPayloadDict = {
 		'X-Hasura-User-Id': user_id,
-		'X-Hasura-Default-Role': user.role,
-		'X-Hasura-Allowed-Roles': [user.role],
+		'X-Hasura-Default-Role': role,
+		'X-Hasura-Allowed-Roles': [role],
 		'X-Hasura-Parent-Company-Id': parent_company_id,
 		'X-Hasura-Company-Id': company_id,
 	}

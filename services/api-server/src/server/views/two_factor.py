@@ -199,7 +199,7 @@ class GetSecureLinkPayloadView(MethodView):
 			raise errors.Error('Link provided is empty')
 
 		provided_token_val = form.get('provided_token_val')
-		company_id = None
+		claims_payload = None
 		form_info = None
 
 		with session_scope(current_app.session_maker) as session:
@@ -221,8 +221,8 @@ class GetSecureLinkPayloadView(MethodView):
 			user = cast(models.User, session.query(models.User).filter(
 				models.User.email == email.lower()
 			).first())
-			if not user:
-				raise errors.Error('User opening this link does not exist in the system at all')
+			if not user or user.is_deleted:
+				raise errors.Error(f'User {email} does not exist')
 
 			link_type = form_info.get('type')
 
@@ -232,41 +232,30 @@ class GetSecureLinkPayloadView(MethodView):
 				if err:
 					raise err
 
-			company_id = user.company_id
+			if link_type in db_constants.REVIEWER_LINK_TYPE_TO_ROLE:
+				# This overrides the COMPANY_CONTACT_ONLY role with INVOICE_REVIEWER / PURCHASE_ORDER_REVIEWER.
+				user_role = db_constants.REVIEWER_LINK_TYPE_TO_ROLE[link_type]
+			else:
+				user_role = user.role
+			claims_payload = auth_util.get_claims_payload(
+				user=user,
+				role=user_role,
+				company_id=str(user.company_id) if user.company_id else None,
+			)
 
 		access_token = None
 		refresh_token = None
 
 		if link_type in db_constants.REVIEWER_LINK_TYPE_TO_ROLE:
-			user_role = db_constants.REVIEWER_LINK_TYPE_TO_ROLE[link_type]
-			user = models.User(
-				email=email,
-				password='',
-				id=None,
-				role=user_role,
-				company_id=company_id,
-				login_method=None # Not used because we create this User for get_claims_payload
-			)
-			claims_payload = auth_util.get_claims_payload(user, company_id)
 			access_token = create_access_token(identity=claims_payload)
 			refresh_expires_delta = datetime.timedelta(minutes=15)
 			refresh_token = create_refresh_token(
-				identity=claims_payload, expires_delta=refresh_expires_delta)
+				identity=claims_payload,
+				expires_delta=refresh_expires_delta,
+			)
 		elif link_type == db_constants.TwoFactorLinkType.LOGIN:
-			# Now we get the access and refresh token now that the user has
-			# verified their 2FA code.
-			user = cast(models.User, session.query(models.User).filter(
-				models.User.email == email.lower()).first())
-			if not user:
-				raise errors.Error('User {} does not exist'.format(email))
-
-			if user.is_deleted:
-				raise errors.Error('User {} does not exist'.format(email))
-
-			claims_payload = auth_util.get_claims_payload(user, company_id)
 			access_token = create_access_token(identity=claims_payload)
 			refresh_token = create_refresh_token(identity=claims_payload)
-
 		elif link_type == db_constants.TwoFactorLinkType.FORGOT_PASSWORD:
 			pass
 		else:
@@ -277,7 +266,7 @@ class GetSecureLinkPayloadView(MethodView):
 			'form_info': form_info,
 			'link_val': link_signed_val,
 			'access_token': access_token,
-			'refresh_token': refresh_token
+			'refresh_token': refresh_token,
 		}), 200)
 
 
