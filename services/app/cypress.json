@@ -9,5 +9,6 @@
   "reporter": "junit",
   "reporterOptions": {
     "mochaFile": "cypress/results/output.xml"
-  }
+  },
+  "defaultCommandTimeout": 10000
 }

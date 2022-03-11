@@ -34,7 +34,13 @@ export default function BankPurchaseOrdersPage() {
             onChange={(_: any, value: number) => setSelectedTabIndex(value)}
           >
             {BankPurchaseOrdersTabLabels.map((label) => (
-              <Tab key={label} label={label} />
+              <Tab
+                // Replace space with underscore and change to lower case
+                // eg:- Not Confirmed Pos to not-confirmed-pos
+                data-cy={label.replace(/\s+/g, "-").toLowerCase()}
+                key={label}
+                label={label}
+              />
             ))}
           </Tabs>
           {

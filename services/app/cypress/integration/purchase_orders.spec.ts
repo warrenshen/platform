@@ -227,6 +227,9 @@ function approvePurchaseOrderAsBankAdmin() {
   // Approve purchase order
   cy.visit("/purchase-orders");
 
+  // Open the Not Confirmed Pos tab
+  cy.dataCy("not-confirmed-pos").click();
+
   cy.get(
     "table tr[aria-rowindex='1'] td[aria-colindex='1'] .dx-select-checkbox"
   ).click();
