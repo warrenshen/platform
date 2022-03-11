@@ -462,6 +462,21 @@
         table:
           schema: public
           name: bank_accounts
+  - name: company_facilities
+    using:
+      foreign_key_constraint_on:
+        column: company_id
+        table:
+          schema: public
+          name: company_facilities
+  - name: company_licenses
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: company_licenses
+        column_mapping:
+          id: company_id
   - name: company_payor_partnerships
     using:
       foreign_key_constraint_on:
@@ -948,20 +963,29 @@
       - company_id
       - name
       - address
+      - created_at
+      - updated_at
+      - is_deleted
       filter: {}
   - role: bank_read_only
     permission:
       columns:
+      - is_deleted
       - address
       - name
+      - created_at
+      - updated_at
       - company_id
       - id
       filter: {}
   - role: company_admin
     permission:
       columns:
+      - is_deleted
       - address
       - name
+      - created_at
+      - updated_at
       - company_id
       - id
       filter:
@@ -970,8 +994,11 @@
   - role: company_read_only
     permission:
       columns:
+      - is_deleted
       - address
       - name
+      - created_at
+      - updated_at
       - company_id
       - id
       filter:

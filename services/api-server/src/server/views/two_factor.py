@@ -234,6 +234,7 @@ class GetSecureLinkPayloadView(MethodView):
 
 			if link_type in db_constants.REVIEWER_LINK_TYPE_TO_ROLE:
 				# This overrides the COMPANY_CONTACT_ONLY role with INVOICE_REVIEWER / PURCHASE_ORDER_REVIEWER.
+				# This allows us to use the _REVIEWER roles to control permissions (in Hasura) for the two reviewer types.
 				user_role = db_constants.REVIEWER_LINK_TYPE_TO_ROLE[link_type]
 			else:
 				user_role = user.role
