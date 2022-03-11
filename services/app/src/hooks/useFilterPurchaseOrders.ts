@@ -1,26 +1,77 @@
 import { filter } from "lodash";
 import { useMemo } from "react";
 import {
-  GetPurchaseOrdersByStatusesSubscription,
+  GetIncompletePurchaseOrdersSubscription,
+  GetNotConfirmedPurchaseOrdersSubscription,
+  GetConfirmedPurchaseOrdersSubscription,
+  GetPurchaseOrdersSubscription,
   PurchaseOrderFragment,
 } from "generated/graphql";
 
-export const useFilterPurchaseOrderBySearchQuery = (
+export const useFilterIncompletePurchaseOrders = (
   searchQuery: string,
-  data: GetPurchaseOrdersByStatusesSubscription | undefined
+  data: GetIncompletePurchaseOrdersSubscription | undefined
 ): PurchaseOrderFragment[] => {
   return useMemo(() => {
-    const doesSearchQueryExistInPurchaseOrderNameOrNumber = ({
+    const doesSearchQueryExistInIncompletePurchaseOrder = ({
       company,
-      order_number,
     }: PurchaseOrderFragment) =>
-      `${company.name} ${order_number}`
-        .toLowerCase()
-        .indexOf(searchQuery.toLowerCase()) >= 0;
+      `${company.name}`.toLowerCase().indexOf(searchQuery.toLowerCase()) >= 0;
 
     return filter(
       data?.purchase_orders || [],
-      doesSearchQueryExistInPurchaseOrderNameOrNumber
+      doesSearchQueryExistInIncompletePurchaseOrder
+    );
+  }, [searchQuery, data?.purchase_orders]);
+};
+
+export const useFilterNotConfirmedPurchaseOrders = (
+  searchQuery: string,
+  data: GetNotConfirmedPurchaseOrdersSubscription | undefined
+): PurchaseOrderFragment[] => {
+  return useMemo(() => {
+    const doesSearchQueryExistInNotConfirmedPurchaseOrder = ({
+      company,
+    }: PurchaseOrderFragment) =>
+      `${company.name}`.toLowerCase().indexOf(searchQuery.toLowerCase()) >= 0;
+
+    return filter(
+      data?.purchase_orders || [],
+      doesSearchQueryExistInNotConfirmedPurchaseOrder
+    );
+  }, [searchQuery, data?.purchase_orders]);
+};
+
+export const useFilterConfirmedPurchaseOrders = (
+  searchQuery: string,
+  data: GetConfirmedPurchaseOrdersSubscription | undefined
+): PurchaseOrderFragment[] => {
+  return useMemo(() => {
+    const doesSearchQueryExistInConfirmedPurchaseOrder = ({
+      company,
+    }: PurchaseOrderFragment) =>
+      `${company.name}`.toLowerCase().indexOf(searchQuery.toLowerCase()) >= 0;
+
+    return filter(
+      data?.purchase_orders || [],
+      doesSearchQueryExistInConfirmedPurchaseOrder
+    );
+  }, [searchQuery, data?.purchase_orders]);
+};
+
+export const useFilterPurchaseOrders = (
+  searchQuery: string,
+  data: GetPurchaseOrdersSubscription | undefined
+): PurchaseOrderFragment[] => {
+  return useMemo(() => {
+    const doesSearchQueryExistInPurchaseOrder = ({
+      company,
+    }: PurchaseOrderFragment) =>
+      `${company.name}`.toLowerCase().indexOf(searchQuery.toLowerCase()) >= 0;
+
+    return filter(
+      data?.purchase_orders || [],
+      doesSearchQueryExistInPurchaseOrder
     );
   }, [searchQuery, data?.purchase_orders]);
 };

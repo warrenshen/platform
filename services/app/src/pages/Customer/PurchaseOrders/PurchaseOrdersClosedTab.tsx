@@ -8,8 +8,7 @@ import {
   Companies,
   PurchaseOrderFragment,
   PurchaseOrders,
-  RequestStatusEnum,
-  useGetPurchaseOrdersByCompanyIdAndStatusesQuery,
+  useGetClosedPurchaseOrdersByCompanyIdQuery,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { ActionType, ProductTypeEnum } from "lib/enum";
@@ -46,15 +45,10 @@ export default function CustomerPurchaseOrdersClosedTab({
 }: Props) {
   const classes = useStyles();
 
-  const {
-    data,
-    error,
-    refetch,
-  } = useGetPurchaseOrdersByCompanyIdAndStatusesQuery({
+  const { data, error, refetch } = useGetClosedPurchaseOrdersByCompanyIdQuery({
     fetchPolicy: "network-only",
     variables: {
       company_id: companyId,
-      statuses: [RequestStatusEnum.Approved],
     },
   });
 

@@ -59,12 +59,10 @@ export const BankPurchaseOrdersTabLabels = [
 export enum CustomerPurchaseOrdersTabLabel {
   ActivePOs = "Active POs",
   ClosedPOs = "Closed POs",
-  IncompletePOs = "Incomplete POs",
 }
 
 export const CustomerPurchaseOrdersTabLabels = [
   CustomerPurchaseOrdersTabLabel.ActivePOs,
-  CustomerPurchaseOrdersTabLabel.IncompletePOs,
   CustomerPurchaseOrdersTabLabel.ClosedPOs,
 ];
 

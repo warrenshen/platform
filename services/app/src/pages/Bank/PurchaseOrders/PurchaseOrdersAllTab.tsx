@@ -13,7 +13,7 @@ import { Action } from "lib/auth/rbac-rules";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useMemo, useState } from "react";
 import {
-  useFilterPurchaseOrderBySearchQuery,
+  useFilterPurchaseOrders,
   useFilterPurchaseOrdersBySelectedIds,
 } from "hooks/useFilterPurchaseOrders";
 
@@ -29,7 +29,7 @@ export default function BankPurchaseOrdersAllTab() {
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  const purchaseOrders = useFilterPurchaseOrderBySearchQuery(searchQuery, data);
+  const purchaseOrders = useFilterPurchaseOrders(searchQuery, data);
 
   const [selectedPurchaseOrderIds, setSelectedPurchaseOrderIds] = useState<
     PurchaseOrders["id"]

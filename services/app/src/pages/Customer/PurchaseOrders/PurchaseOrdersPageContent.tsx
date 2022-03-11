@@ -9,7 +9,6 @@ import {
 import CustomerPurchaseOrdersClosedTab from "pages/Customer/PurchaseOrders/PurchaseOrdersClosedTab";
 import CustomerPurchaseOrdersOpenTab from "pages/Customer/PurchaseOrders/PurchaseOrdersOpenTab";
 import { useState } from "react";
-import CustomerPurchaseOrdersIncompleteTab from "./PurchaseOrdersIncompleteTab";
 
 interface Props {
   companyId: Companies["id"];
@@ -33,15 +32,6 @@ const PurchaseOrderComponentMap: {
     productType,
   }: Props) => (
     <CustomerPurchaseOrdersClosedTab
-      companyId={companyId}
-      productType={productType}
-    />
-  ),
-  [CustomerPurchaseOrdersTabLabel.IncompletePOs]: ({
-    companyId,
-    productType,
-  }: Props) => (
-    <CustomerPurchaseOrdersIncompleteTab
       companyId={companyId}
       productType={productType}
     />

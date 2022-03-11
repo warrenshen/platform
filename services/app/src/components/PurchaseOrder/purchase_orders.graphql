@@ -2,7 +2,10 @@
 subscription GetPurchaseOrders {
   purchase_orders(
     where: {
-      _or: [{ is_deleted: { _is_null: true } }, { is_deleted: { _eq: false } }]
+      _or: [
+        { is_deleted: { _is_null: true } }, 
+        { is_deleted: { _eq: false } }
+      ]
     }
     order_by: [{ updated_at: desc }]
   ) {
@@ -11,17 +14,56 @@ subscription GetPurchaseOrders {
   }
 }
 
-subscription GetPurchaseOrdersByStatuses($statuses: [request_status_enum!]) {
+subscription GetIncompletePurchaseOrders {
   purchase_orders(
     where: {
       _and: [
-        { status: { _in: $statuses } }
         {
           _or: [
             { is_deleted: { _is_null: true } }
             { is_deleted: { _eq: false } }
           ]
         }
+        { incompleted_at: { _is_null: false } }
+      ]
+    }
+  ) {
+    ...PurchaseOrder
+  }
+}
+
+subscription GetNotConfirmedPurchaseOrders {
+  purchase_orders(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { approved_at: { _is_null: true } }
+        { incompleted_at: { _is_null: true } }
+      ]
+    }
+    order_by: [{ requested_at: desc }, { created_at: desc }]
+  ) {
+    id
+    ...PurchaseOrder
+  }
+}
+
+subscription GetConfirmedPurchaseOrders {
+  purchase_orders(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { approved_at: { _is_null: false } }
       ]
     }
     order_by: [{ approved_at: desc }, { created_at: desc }]
@@ -32,10 +74,7 @@ subscription GetPurchaseOrdersByStatuses($statuses: [request_status_enum!]) {
 }
 
 # Customer users
-query GetPurchaseOrdersByCompanyIdAndStatuses(
-  $company_id: uuid!
-  $statuses: [request_status_enum!]
-) {
+query GetOpenPurchaseOrdersByCompanyId($company_id: uuid!) {
   companies_by_pk(id: $company_id) {
     id
     settings {
@@ -46,8 +85,39 @@ query GetPurchaseOrdersByCompanyIdAndStatuses(
   purchase_orders(
     where: {
       _and: [
-        { status: { _in: $statuses } }
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
         { company_id: { _eq: $company_id } }
+        { funded_at: { _is_null: true } }
+        { closed_at: { _is_null: true } }
+      ]
+    }
+  ) {
+    ...PurchaseOrderLimited
+  }
+}
+
+query GetClosedPurchaseOrdersByCompanyId($company_id: uuid!) {
+  purchase_orders(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { company_id: { _eq: $company_id } }
+        {
+          _or: [
+            { closed_at: { _is_null: false } }
+            { funded_at: { _is_null: false } }
+          ]
+        }
       ]
     }
   ) {

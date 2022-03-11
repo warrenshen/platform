@@ -213,6 +213,7 @@ def create_update_purchase_order(
 		vendor = purchase_order.vendor
 		customer = purchase_order.company
 
+	purchase_order.incompleted_at = None
 	purchase_order_id = str(purchase_order.id)
 
 	# Purchase order files
@@ -430,6 +431,7 @@ def submit_purchase_order_for_approval(
 
 	purchase_order.status = RequestStatusEnum.APPROVAL_REQUESTED
 	purchase_order.requested_at = date_util.now()
+	purchase_order.incompleted_at = None
 
 	sendgrid_client = cast(
 		sendgrid_util.Client,

@@ -8,48 +8,40 @@ import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   PurchaseOrderFragment,
   PurchaseOrders,
-  RequestStatusEnum,
-  useGetPurchaseOrdersByStatusesSubscription,
+  useGetNotConfirmedPurchaseOrdersSubscription,
 } from "generated/graphql";
 import { useHistory } from "react-router-dom";
 import { Action } from "lib/auth/rbac-rules";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useMemo, useState } from "react";
 import IncompletePurchaseOrderModal from "components/PurchaseOrder/IncompletePurchaseOrderModal";
-import {
-  useFilterPurchaseOrderBySearchQuery,
-  useFilterPurchaseOrdersBySelectedIds,
-} from "hooks/useFilterPurchaseOrders";
+import { useFilterNotConfirmedPurchaseOrders } from "hooks/useFilterPurchaseOrders";
 
 export default function BankPurchaseOrdersActiveTab() {
   const history = useHistory();
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const { data, error } = useGetPurchaseOrdersByStatusesSubscription({
-    variables: {
-      statuses: [
-        RequestStatusEnum.ApprovalRequested,
-        RequestStatusEnum.Drafted,
-        RequestStatusEnum.Rejected,
-      ],
-    },
-  });
+  const { data, error } = useGetNotConfirmedPurchaseOrdersSubscription();
 
   if (error) {
     console.error({ error });
     alert(`Error in query (details in console): ${error.message}`);
   }
 
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const purchaseOrders = useFilterPurchaseOrderBySearchQuery(searchQuery, data);
+  const purchaseOrders = useFilterNotConfirmedPurchaseOrders(searchQuery, data);
 
   const [selectedPurchaseOrderIds, setSelectedPurchaseOrderIds] = useState<
     PurchaseOrders["id"]
   >([]);
 
-  const selectedPurchaseOrder = useFilterPurchaseOrdersBySelectedIds(
-    purchaseOrders,
-    selectedPurchaseOrderIds
+  const selectedPurchaseOrder = useMemo(
+    () =>
+      selectedPurchaseOrderIds.length === 1
+        ? purchaseOrders.find(
+            (purchaseOrder) => purchaseOrder.id === selectedPurchaseOrderIds[0]
+          )
+        : null,
+    [purchaseOrders, selectedPurchaseOrderIds]
   );
 
   const handleSelectPurchaseOrders = useMemo(

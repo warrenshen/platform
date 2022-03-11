@@ -10,31 +10,25 @@ import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   PurchaseOrderFragment,
   PurchaseOrders,
-  RequestStatusEnum,
-  useGetPurchaseOrdersByStatusesSubscription,
+  useGetIncompletePurchaseOrdersSubscription,
 } from "generated/graphql";
 import {
-  useFilterPurchaseOrderBySearchQuery,
+  useFilterIncompletePurchaseOrders,
   useFilterPurchaseOrdersBySelectedIds,
 } from "hooks/useFilterPurchaseOrders";
 
 export default function BankPurchaseOrdersIncompleteTab() {
   const history = useHistory();
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const { data, error } = useGetPurchaseOrdersByStatusesSubscription({
-    variables: {
-      statuses: [RequestStatusEnum.Incomplete],
-    },
-  });
+  const { data, error } = useGetIncompletePurchaseOrdersSubscription();
 
   if (error) {
     console.error({ error });
     alert(`Error in query (details in console): ${error.message}`);
   }
 
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const purchaseOrders = useFilterPurchaseOrderBySearchQuery(searchQuery, data);
+  const purchaseOrders = useFilterIncompletePurchaseOrders(searchQuery, data);
 
   const [selectedPurchaseOrderIds, setSelectedPurchaseOrderIds] = useState<
     PurchaseOrders["id"]

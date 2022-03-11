@@ -19,8 +19,7 @@ import {
   Companies,
   PurchaseOrderFragment,
   PurchaseOrders,
-  RequestStatusEnum,
-  useGetPurchaseOrdersByCompanyIdAndStatusesQuery,
+  useGetOpenPurchaseOrdersByCompanyIdQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -59,20 +58,10 @@ export default function CustomerPurchaseOrdersOpenTab({
   const classes = useStyles();
   const snackbar = useSnackbar();
 
-  const {
-    data,
-    error,
-    refetch,
-  } = useGetPurchaseOrdersByCompanyIdAndStatusesQuery({
+  const { data, error, refetch } = useGetOpenPurchaseOrdersByCompanyIdQuery({
     fetchPolicy: "network-only",
     variables: {
       company_id: companyId,
-      statuses: [
-        RequestStatusEnum.ApprovalRequested,
-        RequestStatusEnum.Rejected,
-        RequestStatusEnum.Drafted,
-        RequestStatusEnum.Approved,
-      ],
     },
   });
 
@@ -189,7 +178,7 @@ export default function CustomerPurchaseOrdersOpenTab({
     <Container>
       <Box flex={1} display="flex" flexDirection="column" width="100%">
         <Box className={classes.sectionSpace} />
-        <Typography variant="h6">Not Approved by Vendor Yet</Typography>
+        <Typography variant="h6">Not Ready to Request Financing</Typography>
         <Box mt={2}>
           {hasAutofinancing ? (
             <Alert severity="info">

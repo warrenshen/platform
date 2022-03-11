@@ -4569,14 +4569,17 @@
       - amount
       - amount_funded
       - approved_at
+      - bank_incomplete_note
       - bank_note
       - bank_rejection_note
+      - closed_at
       - company_id
       - created_at
       - customer_note
       - delivery_date
       - funded_at
       - id
+      - incompleted_at
       - is_cannabis
       - is_deleted
       - is_metrc_based
@@ -4588,7 +4591,6 @@
       - status
       - updated_at
       - vendor_id
-      - closed_at
       filter: {}
   - role: bank_read_only
     permission:
@@ -4596,14 +4598,17 @@
       - amount
       - amount_funded
       - approved_at
+      - bank_incomplete_note
       - bank_note
       - bank_rejection_note
+      - closed_at
       - company_id
       - created_at
       - customer_note
       - delivery_date
       - funded_at
       - id
+      - incompleted_at
       - is_cannabis
       - is_deleted
       - is_metrc_based
@@ -4615,7 +4620,6 @@
       - status
       - updated_at
       - vendor_id
-      - closed_at
       filter: {}
   - role: company_admin
     permission:
