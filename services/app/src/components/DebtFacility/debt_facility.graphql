@@ -14,7 +14,7 @@ subscription GetOpenLoansByDebtFacilityStatuses($statuses: [String!]) {
     }
   ) {
     id
-    ...OpenLoansForDebtFacility
+    ...OpenLoanForDebtFacility
   }
 }
 
@@ -67,7 +67,7 @@ subscription GetOpenLoansByDebtFacilityId(
     }
   ) {
     id
-    ...OpenLoansForDebtFacility
+    ...OpenLoanForDebtFacility
   }
 }
 

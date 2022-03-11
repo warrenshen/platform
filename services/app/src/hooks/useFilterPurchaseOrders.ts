@@ -9,22 +9,20 @@ export const useFilterPurchaseOrderBySearchQuery = (
   searchQuery: string,
   data: GetPurchaseOrdersByStatusesSubscription | undefined
 ): PurchaseOrderFragment[] => {
-  const doesSearchQueryExistInPurchaseOrderNameOrNumber = ({
-    company,
-    order_number,
-  }: PurchaseOrderFragment) =>
-    `${company.name} ${order_number}`
-      .toLowerCase()
-      .indexOf(searchQuery.toLowerCase()) >= 0;
+  return useMemo(() => {
+    const doesSearchQueryExistInPurchaseOrderNameOrNumber = ({
+      company,
+      order_number,
+    }: PurchaseOrderFragment) =>
+      `${company.name} ${order_number}`
+        .toLowerCase()
+        .indexOf(searchQuery.toLowerCase()) >= 0;
 
-  return useMemo(
-    () =>
-      filter(
-        data?.purchase_orders || [],
-        doesSearchQueryExistInPurchaseOrderNameOrNumber
-      ),
-    [searchQuery, data?.purchase_orders]
-  );
+    return filter(
+      data?.purchase_orders || [],
+      doesSearchQueryExistInPurchaseOrderNameOrNumber
+    );
+  }, [searchQuery, data?.purchase_orders]);
 };
 
 export const useFilterPurchaseOrdersBySelectedIds = (

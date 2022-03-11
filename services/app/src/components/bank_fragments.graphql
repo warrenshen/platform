@@ -349,7 +349,7 @@ fragment DebtFacilityCapacityLimited on debt_facility_capacities {
   debt_facility_id
 }
 
-fragment OpenLoansForDebtFacility on loans {
+fragment OpenLoanForDebtFacility on loans {
   ...LoanForDebtFacility
   loan_report {
     id

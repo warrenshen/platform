@@ -17,6 +17,7 @@ import { DebtFacilityStatusEnum } from "lib/enum";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import { useMemo, useState } from "react";
+import { useFilterDebtFacilityLoansBySearchQuery } from "hooks/useFilterDebtFacilityLoans";
 
 const Container = styled.div`
   display: flex;
@@ -38,6 +39,8 @@ export default function DebtFacilityOpenTab({ facilities }: Props) {
   const [selectedDebtFacilityId, setSelectedDebtFacilityId] = useState<
     DebtFacilities["id"]
   >("");
+  const [debtFacilitySearchQuery, setDebtFacilitySearchQuery] = useState("");
+  const [bespokeSearchQuery, setBespokeSearchQuery] = useState("");
 
   // Handle selection for loans in debt facility datagrid
   const [selectedFacilityLoans, setSelectedFacilityLoans] = useState<
@@ -75,7 +78,10 @@ export default function DebtFacilityOpenTab({ facilities }: Props) {
     console.error({ debtFacilityError });
     alert(`Error in query (details in console): ${debtFacilityError.message}`);
   }
-  const debtFacilityLoans = debtFacilityData?.loans || [];
+  const debtFacilityLoans = useFilterDebtFacilityLoansBySearchQuery(
+    debtFacilitySearchQuery,
+    debtFacilityData
+  );
 
   // Get loans currently on bespoke's books (or repurchased)
   const {
@@ -93,7 +99,10 @@ export default function DebtFacilityOpenTab({ facilities }: Props) {
     console.error({ bespokeError });
     alert(`Error in query (details in console): ${bespokeError.message}`);
   }
-  const bespokeLoans = bespokeData?.loans || [];
+  const bespokeLoans = useFilterDebtFacilityLoansBySearchQuery(
+    bespokeSearchQuery,
+    bespokeData
+  );
 
   return (
     <Container>
@@ -123,29 +132,47 @@ export default function DebtFacilityOpenTab({ facilities }: Props) {
         {!!selectedDebtFacilityId && (
           <Box display="flex" flexDirection="column">
             <Typography variant="h6">Debt Facility Balance Sheet</Typography>
-            <Box my={2} display="flex" flexDirection="row-reverse">
-              <Can perform={Action.MoveDebtFacilityLoan}>
-                <Box mr={2}>
-                  <ModalButton
-                    isDisabled={selectedFacilityLoans.length === 0}
-                    label={"Move to Bespoke Balance Sheet"}
-                    modal={({ handleClose }) => {
-                      const handler = () => {
-                        handleClose();
-                        setSelectedFacilityLoans([]);
-                      };
-                      return (
-                        <MoveDebtFacilityLoanModal
-                          isMovingToFacility={false}
-                          selectedLoans={selectedFacilityLoans}
-                          facilities={facilities}
-                          handleClose={handler}
-                        />
-                      );
-                    }}
-                  />
-                </Box>
-              </Can>
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="flex-end"
+              mb={2}
+            >
+              <Box display="flex">
+                <TextField
+                  autoFocus
+                  label="Search by customer name"
+                  value={debtFacilitySearchQuery}
+                  onChange={({ target: { value } }) =>
+                    setDebtFacilitySearchQuery(value)
+                  }
+                  style={{ width: 400 }}
+                />
+              </Box>
+              <Box my={2} display="flex" flexDirection="row-reverse">
+                <Can perform={Action.MoveDebtFacilityLoan}>
+                  <Box mr={2}>
+                    <ModalButton
+                      isDisabled={selectedFacilityLoans.length === 0}
+                      label={"Move to Bespoke Balance Sheet"}
+                      modal={({ handleClose }) => {
+                        const handler = () => {
+                          handleClose();
+                          setSelectedFacilityLoans([]);
+                        };
+                        return (
+                          <MoveDebtFacilityLoanModal
+                            isMovingToFacility={false}
+                            selectedLoans={selectedFacilityLoans}
+                            facilities={facilities}
+                            handleClose={handler}
+                          />
+                        );
+                      }}
+                    />
+                  </Box>
+                </Can>
+              </Box>
             </Box>
             <DebtFacilityLoansDataGrid
               isMultiSelectEnabled
@@ -165,29 +192,46 @@ export default function DebtFacilityOpenTab({ facilities }: Props) {
         )}
         <Box display="flex" flexDirection="column">
           <Typography variant="h6">Bespoke Balance Sheet</Typography>
-          <Box my={2} display="flex" flexDirection="row-reverse">
-            <Can perform={Action.MoveDebtFacilityLoan}>
-              <Box mr={2}>
-                <ModalButton
-                  isDisabled={selectedBespokeLoans.length === 0}
-                  label={"Move to Debt Facility"}
-                  modal={({ handleClose }) => {
-                    const handler = () => {
-                      handleClose();
-                      setSelectedBespokeLoans([]);
-                    };
-                    return (
-                      <MoveDebtFacilityLoanModal
-                        isMovingToFacility
-                        selectedLoans={selectedBespokeLoans}
-                        facilities={facilities}
-                        handleClose={handler}
-                      />
-                    );
-                  }}
-                />
-              </Box>
-            </Can>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="flex-end"
+            mb={2}
+          >
+            <Box display="flex">
+              <TextField
+                autoFocus
+                label="Search by customer name"
+                value={bespokeSearchQuery}
+                onChange={({ target: { value } }) =>
+                  setBespokeSearchQuery(value)
+                }
+                style={{ width: 400 }}
+              />
+            </Box>
+            <Box my={2} display="flex" flexDirection="row-reverse">
+              <Can perform={Action.MoveDebtFacilityLoan}>
+                <Box mr={2}>
+                  <ModalButton
+                    isDisabled={selectedBespokeLoans.length === 0}
+                    label={"Move to Debt Facility"}
+                    modal={({ handleClose }) => {
+                      return (
+                        <MoveDebtFacilityLoanModal
+                          isMovingToFacility
+                          selectedLoans={selectedBespokeLoans}
+                          facilities={facilities}
+                          handleClose={() => {
+                            handleClose();
+                            setSelectedBespokeLoans([]);
+                          }}
+                        />
+                      );
+                    }}
+                  />
+                </Box>
+              </Can>
+            </Box>
           </Box>
           <DebtFacilityLoansDataGrid
             isMultiSelectEnabled

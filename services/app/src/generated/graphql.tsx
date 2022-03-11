@@ -9339,6 +9339,8 @@ export enum LineOfCreditsUpdateColumn {
 /** columns and relationships of "loan_reports" */
 export type LoanReports = {
   created_at: Scalars["timestamptz"];
+  /** An object relationship */
+  debt_facility?: Maybe<DebtFacilities>;
   debt_facility_id?: Maybe<Scalars["uuid"]>;
   debt_facility_status?: Maybe<Scalars["String"]>;
   financing_day_limit?: Maybe<Scalars["Int"]>;
@@ -9395,6 +9397,7 @@ export type LoanReportsBoolExp = {
   _not?: Maybe<LoanReportsBoolExp>;
   _or?: Maybe<Array<LoanReportsBoolExp>>;
   created_at?: Maybe<TimestamptzComparisonExp>;
+  debt_facility?: Maybe<DebtFacilitiesBoolExp>;
   debt_facility_id?: Maybe<UuidComparisonExp>;
   debt_facility_status?: Maybe<StringComparisonExp>;
   financing_day_limit?: Maybe<IntComparisonExp>;
@@ -9426,6 +9429,7 @@ export type LoanReportsIncInput = {
 /** input type for inserting data into table "loan_reports" */
 export type LoanReportsInsertInput = {
   created_at?: Maybe<Scalars["timestamptz"]>;
+  debt_facility?: Maybe<DebtFacilitiesObjRelInsertInput>;
   debt_facility_id?: Maybe<Scalars["uuid"]>;
   debt_facility_status?: Maybe<Scalars["String"]>;
   financing_day_limit?: Maybe<Scalars["Int"]>;
@@ -9494,6 +9498,7 @@ export type LoanReportsOnConflict = {
 /** Ordering options when selecting data from "loan_reports". */
 export type LoanReportsOrderBy = {
   created_at?: Maybe<OrderBy>;
+  debt_facility?: Maybe<DebtFacilitiesOrderBy>;
   debt_facility_id?: Maybe<OrderBy>;
   debt_facility_status?: Maybe<OrderBy>;
   financing_day_limit?: Maybe<OrderBy>;
@@ -25518,7 +25523,7 @@ export type GetOpenLoansByDebtFacilityStatusesSubscriptionVariables = Exact<{
 }>;
 
 export type GetOpenLoansByDebtFacilityStatusesSubscription = {
-  loans: Array<Pick<Loans, "id"> & OpenLoansForDebtFacilityFragment>;
+  loans: Array<Pick<Loans, "id"> & OpenLoanForDebtFacilityFragment>;
 };
 
 export type GetOpenLoansByDebtFacilityIdSubscriptionVariables = Exact<{
@@ -25527,7 +25532,7 @@ export type GetOpenLoansByDebtFacilityIdSubscriptionVariables = Exact<{
 }>;
 
 export type GetOpenLoansByDebtFacilityIdSubscription = {
-  loans: Array<Pick<Loans, "id"> & OpenLoansForDebtFacilityFragment>;
+  loans: Array<Pick<Loans, "id"> & OpenLoanForDebtFacilityFragment>;
 };
 
 export type GetDebtFacilityCapacitiesSubscriptionVariables = Exact<{
@@ -27645,7 +27650,7 @@ export type DebtFacilityCapacityLimitedFragment = Pick<
   "id" | "amount" | "changed_at" | "changed_by" | "debt_facility_id"
 >;
 
-export type OpenLoansForDebtFacilityFragment = {
+export type OpenLoanForDebtFacilityFragment = {
   loan_report?: Maybe<Pick<LoanReports, "id"> & LoanReportFragment>;
   purchase_order?: Maybe<
     Pick<PurchaseOrders, "id"> & PurchaseOrderForDebtFacilityFragment
@@ -28888,8 +28893,8 @@ export const PurchaseOrderForDebtFacilityFragmentDoc = gql`
   }
   ${PurchaseOrderLimitedFragmentDoc}
 `;
-export const OpenLoansForDebtFacilityFragmentDoc = gql`
-  fragment OpenLoansForDebtFacility on loans {
+export const OpenLoanForDebtFacilityFragmentDoc = gql`
+  fragment OpenLoanForDebtFacility on loans {
     ...LoanForDebtFacility
     loan_report {
       id
@@ -30086,10 +30091,10 @@ export const GetOpenLoansByDebtFacilityStatusesDocument = gql`
       }
     ) {
       id
-      ...OpenLoansForDebtFacility
+      ...OpenLoanForDebtFacility
     }
   }
-  ${OpenLoansForDebtFacilityFragmentDoc}
+  ${OpenLoanForDebtFacilityFragmentDoc}
 `;
 
 /**
@@ -30170,10 +30175,10 @@ export const GetOpenLoansByDebtFacilityIdDocument = gql`
       }
     ) {
       id
-      ...OpenLoansForDebtFacility
+      ...OpenLoanForDebtFacility
     }
   }
-  ${OpenLoansForDebtFacilityFragmentDoc}
+  ${OpenLoanForDebtFacilityFragmentDoc}
 `;
 
 /**

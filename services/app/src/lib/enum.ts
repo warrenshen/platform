@@ -489,6 +489,29 @@ export const DebtFacilityCompanyStatusToEligibility = {
   [DebtFacilityCompanyStatusEnum.WAIVER]: "Waiver",
 };
 
+export enum DebtFacilityTabLabel {
+  Open = "Open",
+  ActionRequired = "Action Required",
+  All = "All",
+  Report = "Report",
+  Admin = "Admin",
+}
+
+export type DebtFacilityTabLabelType =
+  | typeof DebtFacilityTabLabel.Open
+  | typeof DebtFacilityTabLabel.ActionRequired
+  | typeof DebtFacilityTabLabel.All
+  | typeof DebtFacilityTabLabel.Report
+  | typeof DebtFacilityTabLabel.Admin;
+
+export const DebtFacilityTabLabels: DebtFacilityTabLabelType[] = [
+  DebtFacilityTabLabel.Open,
+  DebtFacilityTabLabel.ActionRequired,
+  DebtFacilityTabLabel.All,
+  DebtFacilityTabLabel.Report,
+  DebtFacilityTabLabel.Admin,
+];
+
 export enum MetrcTabLabel {
   MetrcApiKeys = "Metrc Api Keys",
   MetrcTransfers = "Metrc Transfers",

@@ -12,9 +12,15 @@ import {
   useGetOpenLoansByDebtFacilityStatusesSubscription,
   useGetDebtFacilitiesSubscription,
 } from "generated/graphql";
-import { DebtFacilityStatusEnum } from "lib/enum";
+import {
+  DebtFacilityStatusEnum,
+  DebtFacilityTabLabel,
+  DebtFacilityTabLabels,
+  DebtFacilityTabLabelType,
+} from "lib/enum";
 import { useState } from "react";
 import styled from "styled-components";
+import { useFilterDebtFacilityLoansBySearchQuery } from "hooks/useFilterDebtFacilityLoans";
 
 const Container = styled.div`
   display: flex;
@@ -31,6 +37,9 @@ const SectionSpace = styled.div`
 
 export default function BankDebtFacilityPage() {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
+  const [actionRequiredSearchQuery, setActionRequiredSearchQuery] = useState(
+    ""
+  );
 
   // Pulls data for action required tab, grabs data here to update count in tab
   const { data, error } = useGetOpenLoansByDebtFacilityStatusesSubscription({
@@ -42,7 +51,10 @@ export default function BankDebtFacilityPage() {
     console.error({ error });
     alert(`Error in query (details in console): ${error.message}`);
   }
-  const loansWithRequiredUpdate = data?.loans || [];
+  const loansWithRequiredUpdate = useFilterDebtFacilityLoansBySearchQuery(
+    actionRequiredSearchQuery,
+    data
+  );
   const updateRequiredCount = loansWithRequiredUpdate.length;
 
   // Get maximum capacity number
@@ -108,17 +120,19 @@ export default function BankDebtFacilityPage() {
               setSelectedTabIndex(value)
             }
           >
-            <Tab label="Open" />
-            <Tab label={`Action Required (${updateRequiredCount})`} />
-            <Tab label="All" />
-            <Tab label="Report" />
-            <Tab label="Admin" />
+            {DebtFacilityTabLabels.map((label: DebtFacilityTabLabel) => (
+              <Tab key={label} label={label} />
+            ))}
           </Tabs>
           <SectionSpace />
           {selectedTabIndex === 0 ? (
             <DebtFacilityOpenTab facilities={facilities} />
           ) : selectedTabIndex === 1 ? (
-            <DebtFacilityActionRequiredTab loans={loansWithRequiredUpdate} />
+            <DebtFacilityActionRequiredTab
+              loans={loansWithRequiredUpdate}
+              searchQuery={actionRequiredSearchQuery}
+              setSearchQuery={setActionRequiredSearchQuery}
+            />
           ) : selectedTabIndex === 2 ? (
             <DebtFacilityAllTab />
           ) : selectedTabIndex === 3 ? (
