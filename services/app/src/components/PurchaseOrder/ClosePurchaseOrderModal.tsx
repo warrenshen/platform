@@ -38,7 +38,7 @@ export default function ClosePurchaseOrderModal({
   ] = useCustomMutation(closePurchaseOrderMutation);
 
   const isPrimaryActionDisabled =
-    !isClosePurchaseOrderLoading && !!purchaseOrderId;
+    isClosePurchaseOrderLoading || !purchaseOrderId;
 
   const handleClickClosePurchaseOrder = async () => {
     const response = await closePurchaseOrder({

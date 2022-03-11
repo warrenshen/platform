@@ -15,8 +15,11 @@ export const useFilterIncompletePurchaseOrders = (
   return useMemo(() => {
     const doesSearchQueryExistInIncompletePurchaseOrder = ({
       company,
+      order_number,
     }: PurchaseOrderFragment) =>
-      `${company.name}`.toLowerCase().indexOf(searchQuery.toLowerCase()) >= 0;
+      `${company.name} ${order_number}`
+        .toLowerCase()
+        .indexOf(searchQuery.toLowerCase()) >= 0;
 
     return filter(
       data?.purchase_orders || [],
@@ -32,8 +35,11 @@ export const useFilterNotConfirmedPurchaseOrders = (
   return useMemo(() => {
     const doesSearchQueryExistInNotConfirmedPurchaseOrder = ({
       company,
+      order_number,
     }: PurchaseOrderFragment) =>
-      `${company.name}`.toLowerCase().indexOf(searchQuery.toLowerCase()) >= 0;
+      `${company.name} ${order_number}`
+        .toLowerCase()
+        .indexOf(searchQuery.toLowerCase()) >= 0;
 
     return filter(
       data?.purchase_orders || [],
@@ -49,8 +55,11 @@ export const useFilterConfirmedPurchaseOrders = (
   return useMemo(() => {
     const doesSearchQueryExistInConfirmedPurchaseOrder = ({
       company,
+      order_number,
     }: PurchaseOrderFragment) =>
-      `${company.name}`.toLowerCase().indexOf(searchQuery.toLowerCase()) >= 0;
+      `${company.name} ${order_number}`
+        .toLowerCase()
+        .indexOf(searchQuery.toLowerCase()) >= 0;
 
     return filter(
       data?.purchase_orders || [],
@@ -66,8 +75,11 @@ export const useFilterPurchaseOrders = (
   return useMemo(() => {
     const doesSearchQueryExistInPurchaseOrder = ({
       company,
+      order_number,
     }: PurchaseOrderFragment) =>
-      `${company.name}`.toLowerCase().indexOf(searchQuery.toLowerCase()) >= 0;
+      `${company.name} ${order_number}`
+        .toLowerCase()
+        .indexOf(searchQuery.toLowerCase()) >= 0;
 
     return filter(
       data?.purchase_orders || [],

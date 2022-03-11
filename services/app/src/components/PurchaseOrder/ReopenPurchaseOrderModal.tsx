@@ -38,7 +38,9 @@ export default function ReopenPurchaseOrderModal({
   ] = useCustomMutation(reopenPurchaseOrderMutation);
 
   const isPrimaryActionDisabled =
-    !isReopenPurchaseOrderLoading && !!purchaseOrderId;
+    isReopenPurchaseOrderLoading ||
+    !purchaseOrderId ||
+    purchaseOrder?.amount === purchaseOrder?.amount_funded;
 
   const handleClickClosePurchaseOrder = async () => {
     const response = await reopenPurchaseOrder({
