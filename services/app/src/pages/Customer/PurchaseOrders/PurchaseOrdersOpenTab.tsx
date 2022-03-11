@@ -71,6 +71,7 @@ export default function CustomerPurchaseOrdersOpenTab({
         RequestStatusEnum.ApprovalRequested,
         RequestStatusEnum.Rejected,
         RequestStatusEnum.Drafted,
+        RequestStatusEnum.Approved,
       ],
     },
   });
