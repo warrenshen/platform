@@ -213,6 +213,7 @@ class CompanyLicense(Base):
 	estimate_zip = Column(Text)
 	estimate_latitude = Column(Numeric(precision=9, scale=7))
 	estimate_longitude = Column(Numeric(precision=10, scale=7))
+	is_underwriting_enabled = Column(Boolean)
 
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
@@ -273,6 +274,7 @@ class CompanyFacility(Base):
 	company_id = Column(GUID)
 	name = Column(String)
 	address = Column(String)
+	is_deleted = Column(Boolean)
 
 ContractDict = TypedDict('ContractDict', {
 	'id': str,

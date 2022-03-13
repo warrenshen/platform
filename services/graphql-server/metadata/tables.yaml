@@ -1023,12 +1023,16 @@
       columns:
       - company_id
       - created_at
+      - estimate_latitude
+      - estimate_longitude
+      - estimate_zip
       - expiration_date
       - facility_row_id
       - file_id
       - id
       - is_current
       - is_deleted
+      - is_underwriting_enabled
       - legal_name
       - license_category
       - license_description
@@ -1043,12 +1047,16 @@
       columns:
       - company_id
       - created_at
+      - estimate_latitude
+      - estimate_longitude
+      - estimate_zip
       - expiration_date
       - facility_row_id
       - file_id
       - id
       - is_current
       - is_deleted
+      - is_underwriting_enabled
       - legal_name
       - license_category
       - license_description
@@ -4566,60 +4574,60 @@
   - role: bank_admin
     permission:
       columns:
-      - amount
-      - amount_funded
-      - approved_at
-      - bank_incomplete_note
-      - bank_note
-      - bank_rejection_note
-      - closed_at
-      - company_id
-      - created_at
-      - customer_note
-      - delivery_date
-      - funded_at
       - id
-      - incompleted_at
-      - is_cannabis
-      - is_deleted
-      - is_metrc_based
+      - company_id
+      - vendor_id
       - order_date
+      - delivery_date
+      - amount
+      - status
+      - created_at
+      - updated_at
       - order_number
+      - approved_at
+      - requested_at
       - rejected_at
       - rejection_note
-      - requested_at
-      - status
-      - updated_at
-      - vendor_id
+      - is_cannabis
+      - funded_at
+      - is_deleted
+      - bank_rejection_note
+      - is_metrc_based
+      - customer_note
+      - bank_note
+      - amount_funded
+      - closed_at
+      - incompleted_at
+      - bank_incomplete_note
       filter: {}
   - role: bank_read_only
     permission:
       columns:
-      - amount
-      - amount_funded
-      - approved_at
-      - bank_incomplete_note
-      - bank_note
-      - bank_rejection_note
-      - closed_at
-      - company_id
-      - created_at
-      - customer_note
-      - delivery_date
-      - funded_at
-      - id
-      - incompleted_at
-      - is_cannabis
       - is_deleted
-      - is_metrc_based
+      - delivery_date
       - order_date
+      - amount
+      - bank_incomplete_note
       - order_number
-      - rejected_at
-      - rejection_note
-      - requested_at
       - status
+      - approved_at
+      - closed_at
+      - created_at
+      - funded_at
+      - incompleted_at
+      - rejected_at
+      - requested_at
       - updated_at
+      - company_id
+      - id
       - vendor_id
+      - bank_note
+      - customer_note
+      - amount_funded
+      - bank_rejection_note
+      - rejection_note
+      - is_cannabis
+      - is_metrc_based
       filter: {}
   - role: company_admin
     permission:
@@ -4627,13 +4635,16 @@
       - amount
       - amount_funded
       - approved_at
+      - bank_incomplete_note
       - bank_rejection_note
+      - closed_at
       - company_id
       - created_at
       - customer_note
       - delivery_date
       - funded_at
       - id
+      - incompleted_at
       - is_cannabis
       - is_deleted
       - is_metrc_based
@@ -4644,7 +4655,6 @@
       - status
       - updated_at
       - vendor_id
-      - closed_at
       filter:
         _or:
         - company_id:
@@ -4657,13 +4667,16 @@
       - amount
       - amount_funded
       - approved_at
+      - bank_incomplete_note
       - bank_rejection_note
+      - closed_at
       - company_id
       - created_at
       - customer_note
       - delivery_date
       - funded_at
       - id
+      - incompleted_at
       - is_cannabis
       - is_deleted
       - is_metrc_based
@@ -4674,7 +4687,6 @@
       - status
       - updated_at
       - vendor_id
-      - closed_at
       filter:
         _or:
         - company_id:

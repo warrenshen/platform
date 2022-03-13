@@ -1,0 +1,6 @@
+query GetCompanyFacility($id: uuid!) {
+  company_facilities_by_pk(id: $id) {
+    id
+    ...CompanyFacility
+  }
+}

@@ -19,6 +19,7 @@ from server.config import get_config, get_email_client_config, is_development_en
 from server.views import (
 	auth,
 	companies,
+	company_facilities,
 	contracts,
 	cypress,
 	debt_facility,
@@ -79,6 +80,7 @@ if is_test_env(os.environ.get('FLASK_ENV')) or is_development_env(os.environ.get
 
 app.register_blueprint(auth.handler, url_prefix='/auth')
 app.register_blueprint(companies.handler, url_prefix='/companies')
+app.register_blueprint(company_facilities.handler, url_prefix='/company_facilities')
 app.register_blueprint(contracts.handler, url_prefix='/contracts')
 app.register_blueprint(files.handler, url_prefix='/files')
 app.register_blueprint(licenses.handler, url_prefix='/licenses')

@@ -169,23 +169,21 @@ export default function MetrcApiKeysList({ companyId }: Props) {
             />
           </Box>
           <Box mr={2}>
-            <Box>
-              <ModalButton
-                isDisabled={selectedMetrcKeyIds.length !== 1}
-                label={"Delete API Key"}
-                variant={"outlined"}
-                modal={({ handleClose }) => (
-                  <DeleteMetrcKeyModal
-                    companyId={companyId}
-                    metrcApiKey={selectedMetrcApiKey}
-                    handleClose={() => {
-                      handleClose();
-                      refetch();
-                    }}
-                  />
-                )}
-              />
-            </Box>
+            <ModalButton
+              isDisabled={selectedMetrcKeyIds.length !== 1}
+              label={"Delete API Key"}
+              variant={"outlined"}
+              modal={({ handleClose }) => (
+                <DeleteMetrcKeyModal
+                  companyId={companyId}
+                  metrcApiKey={selectedMetrcApiKey}
+                  handleClose={() => {
+                    handleClose();
+                    refetch();
+                  }}
+                />
+              )}
+            />
           </Box>
         </Box>
       </Box>

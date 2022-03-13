@@ -28,6 +28,12 @@ export const companyRoutes = {
   upsertFeatureFlags: "/companies/upsert_feature_flags",
 };
 
+export const companyFacilitiesRoutes = {
+  createUpdateCompanyFacility:
+    "/company_facilities/create_update_company_facility",
+  deleteCompanyFacility: "/company_facilities/delete_company_facility",
+};
+
 export const partnershipRoutes = {
   updatePartnershipContacts: "/partnerships/update_partnership_contacts",
 };

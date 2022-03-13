@@ -5,7 +5,6 @@ import PurchaseOrderFormV2 from "components/PurchaseOrder/PurchaseOrderFormV2";
 import { ReactComponent as KeyboardIcon } from "components/Shared/Layout/Icons/Keyboard.svg";
 import MetrcLogo from "components/Shared/Images/MetrcLogo.png";
 import Modal from "components/Shared/Modal/Modal";
-
 import {
   CurrentUserContext,
   isRoleBankUser,

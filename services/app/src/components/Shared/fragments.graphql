@@ -25,6 +25,13 @@ fragment CompanyAgreement on company_agreements {
   file_id
 }
 
+# A company facility is a facility (company location) associated with a company.
+fragment CompanyFacility on company_facilities {
+  id
+  name
+  address
+}
+
 # A company license is a cannabis license belonging to a company.
 fragment CompanyLicense on company_licenses {
   id
@@ -34,6 +41,7 @@ fragment CompanyLicense on company_licenses {
   license_status
   us_state
   expiration_date
+  is_underwriting_enabled
   ...CompanyLicenseLimited
 }
 

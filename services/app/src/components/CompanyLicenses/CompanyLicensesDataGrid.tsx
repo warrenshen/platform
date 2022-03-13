@@ -1,4 +1,4 @@
-import { ValueFormatterParams } from "@material-ui/data-grid";
+import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
@@ -9,16 +9,27 @@ import { FileTypeEnum } from "lib/enum";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
+function getRows(companyLicenses: CompanyLicenseFragment[]): RowsProp {
+  return companyLicenses.map((companyLicense) => {
+    return {
+      ...companyLicense,
+      is_underwriting_enabled: !!companyLicense.is_underwriting_enabled,
+    };
+  });
+}
+
 interface Props {
   isExcelExport?: boolean;
+  isUnderwritingInfoVisible?: boolean;
   companyLicenses: CompanyLicenseFragment[];
 }
 
 export default function CompanyLicensesDataGrid({
   isExcelExport = true,
+  isUnderwritingInfoVisible = false,
   companyLicenses,
 }: Props) {
-  const rows = companyLicenses;
+  const rows = getRows(companyLicenses);
   const columns = useMemo(
     () => [
       {
@@ -34,6 +45,7 @@ export default function CompanyLicensesDataGrid({
         ),
       },
       {
+        fixed: true,
         dataField: "us_state",
         caption: "US State",
         minWidth: ColumnWidths.MinWidth,
@@ -44,16 +56,25 @@ export default function CompanyLicensesDataGrid({
         ),
       },
       {
-        caption: "Legal Name",
-        dataField: "legal_name",
-        minWidth: ColumnWidths.MinWidth,
+        isVisible: isUnderwritingInfoVisible,
+        caption: "Facility Name",
+        dataField: "facility_name",
+        width: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
           <TextDataGridCell
             label={
-              params.row.data.legal_name ? params.row.data.legal_name : "-"
+              params.row.data.company_facility?.name
+                ? params.row.data.company_facility.name
+                : "-"
             }
           />
         ),
+      },
+      {
+        isVisible: isUnderwritingInfoVisible,
+        caption: "UW Enabled?",
+        dataField: "is_underwriting_enabled",
+        width: ColumnWidths.MinWidth,
       },
       {
         dataField: "license_category",
@@ -98,26 +119,24 @@ export default function CompanyLicensesDataGrid({
         ),
       },
       {
-        caption: "Facility Name",
-        dataField: "facility_name",
-        width: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
-          <TextDataGridCell
-            label={
-              params.row.data.company_facility?.name
-                ? params.row.data.company_facility.name
-                : "-"
-            }
-          />
-        ),
-      },
-      {
         caption: "Expiration Date",
         dataField: "expiration_date",
         width: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.expiration_date} />
+        ),
+      },
+      {
+        caption: "Legal Name",
+        dataField: "legal_name",
+        minWidth: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) => (
+          <TextDataGridCell
+            label={
+              params.row.data.legal_name ? params.row.data.legal_name : "-"
+            }
+          />
         ),
       },
       {
@@ -134,7 +153,7 @@ export default function CompanyLicensesDataGrid({
         ),
       },
     ],
-    []
+    [isUnderwritingInfoVisible]
   );
 
   return (
