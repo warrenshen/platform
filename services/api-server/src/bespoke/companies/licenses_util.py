@@ -16,7 +16,7 @@ from bespoke.db.metrc_models_util import (
 )
 
 
-CompanyLicenseInsertInputDict = TypedDict('CompanyLicenseInsertInputDict', {
+CompanyLicenseInputDict = TypedDict('CompanyLicenseInputDict', {
 	'id': str,
 	'company_id': str,
 	'file_id': str,
@@ -32,6 +32,8 @@ CompanyLicenseInsertInputDict = TypedDict('CompanyLicenseInsertInputDict', {
 	'estimate_zip': str,
 	'estimate_latitude': float,
 	'estimate_longitude': float,
+	'facility_row_id': str,
+	'is_underwriting_enabled': bool,
 }, total=False)
 
 LicenseModificationDict = TypedDict('LicenseModificationDict', {
@@ -67,7 +69,7 @@ def add_licenses(
 
 def _update_license(
 	existing: models.CompanyLicense, 
-	license_input: CompanyLicenseInsertInputDict,
+	license_input: CompanyLicenseInputDict,
 ) -> str:
 	l = license_input
 	if l.get('company_id'):
@@ -94,13 +96,17 @@ def _update_license(
 		existing.estimate_latitude = decimal.Decimal(l['estimate_latitude'])
 	if l.get('estimate_longitude'):
 		existing.estimate_longitude = decimal.Decimal(l['estimate_longitude'])
-	if l.get('file_id'):
-		existing.file_id = cast(Any, l.get('file_id'))
+	if l.get('facility_row_id'):
+		existing.facility_row_id = cast(Any, l.get('facility_row_id'))
+	if l.get('is_underwriting_enabled') is not None:
+		existing.is_underwriting_enabled = l['is_underwriting_enabled']
 
+	existing.file_id = cast(Any, l.get('file_id')) if l.get('file_id') else None
 	existing.license_number = l['license_number']
+
 	return str(existing.id)
 
-def _add_license(license_input: CompanyLicenseInsertInputDict, session: Session) -> str:
+def _add_license(license_input: CompanyLicenseInputDict, session: Session) -> str:
 	l = license_input
 
 	license = models.CompanyLicense()
@@ -122,15 +128,40 @@ def _add_license(license_input: CompanyLicenseInsertInputDict, session: Session)
 		license.estimate_latitude = decimal.Decimal(l.get('estimate_latitude'))
 	if l.get('estimate_longitude'):
 		license.estimate_longitude = decimal.Decimal(l.get('estimate_longitude'))
+	license.facility_row_id = cast(Any, l.get('facility_row_id'))
+	license.is_underwriting_enabled = l.get('is_underwriting_enabled')
 
 	session.add(license)
 	session.flush()
 	return str(license.id)
 
+
+@errors.return_error_tuple
+def create_update_license(
+	company_license_input: CompanyLicenseInputDict,
+	session: Session,
+) -> Tuple[str, errors.Error]:
+	company_license_id = company_license_input['id']
+
+	if company_license_id:
+		company_license = cast(
+			models.CompanyLicense,
+			session.query(models.CompanyLicense).get(company_license_id))
+
+		if not company_license:
+			raise errors.Error('Could not find company license')
+
+		license_id = _update_license(company_license, company_license_input)
+	else:
+		license_id = _add_license(company_license_input, session)
+
+	return license_id, None
+
+
 @errors.return_error_tuple
 def create_update_licenses(
 	company_id: str,
-	company_license_inputs: List[CompanyLicenseInsertInputDict],
+	company_license_inputs: List[CompanyLicenseInputDict],
 	session: Session,
 ) -> Tuple[List[str], errors.Error]:
 	license_ids = []
@@ -190,7 +221,7 @@ def create_update_licenses(
 
 @errors.return_error_tuple
 def bulk_update_licenses(
-	company_license_inputs: List[CompanyLicenseInsertInputDict],
+	company_license_inputs: List[CompanyLicenseInputDict],
 	session: Session,
 ) -> Tuple[List[str], errors.Error]:
 

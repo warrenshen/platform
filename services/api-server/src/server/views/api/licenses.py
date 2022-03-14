@@ -5,7 +5,7 @@ from typing import Any, List, Iterable, cast
 from bespoke import errors
 from bespoke.audit import events
 from bespoke.companies import licenses_util
-from bespoke.companies.licenses_util import CompanyLicenseInsertInputDict
+from bespoke.companies.licenses_util import CompanyLicenseInputDict
 from bespoke.db import db_constants, models, models_util
 from bespoke.db.models import session_scope
 from dateutil import parser
@@ -37,7 +37,7 @@ class BulkUpdateLicensesView(MethodView):
 
 		company_license_inputs = form['company_licenses']
 		input_chunks = cast(
-			Iterable[List[CompanyLicenseInsertInputDict]], 
+			Iterable[List[CompanyLicenseInputDict]], 
 			models_util.chunker(company_license_inputs, size=20))
 
 		for cur_license_inputs in input_chunks:

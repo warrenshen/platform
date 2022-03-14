@@ -6,11 +6,13 @@ import CompanyLicensesDataGrid from "components/CompanyLicenses/CompanyLicensesD
 import MetrcApiKeysList from "components/Metrc/MetrcApiKeysList";
 import SyncMetrcData from "components/Metrc/SyncMetrcData";
 import ModalButton from "components/Shared/Modal/ModalButton";
-import UpdateCompanyLicensesModal from "components/CompanyLicenses/UpdateCompanyLicensesModal";
+import CreateUpdateCompanyLicenseModal from "components/CompanyLicenses/CreateUpdateCompanyLicenseModal";
 import {
   Companies,
-  CompanyFacilities,
   CompanyFacilityFragment,
+  CompanyFacilities,
+  CompanyLicenseFragment,
+  CompanyLicenses,
   useGetMetrcMetadataByCompanyIdQuery,
 } from "generated/graphql";
 import { ActionType } from "lib/enum";
@@ -106,6 +108,80 @@ function CompanyFacilitiesSection({
   );
 }
 
+function CompanyLicensesSection({
+  companyId,
+  companyLicenses,
+  refetch,
+}: {
+  companyId: Companies["id"];
+  companyLicenses: CompanyLicenseFragment[];
+  refetch: () => void;
+}) {
+  const [selectedCompanyLicensesIds, setSelectedCompanyLicensesIds] = useState<
+    CompanyLicenses["id"]
+  >([]);
+
+  const handleSelectCompanyLicenses = useMemo(
+    () => (companyLicenses: CompanyLicenseFragment[]) => {
+      setSelectedCompanyLicensesIds(
+        companyLicenses.map((companyLicense) => companyLicense.id)
+      );
+    },
+    []
+  );
+
+  return (
+    <Box>
+      <Box display="flex" flexDirection="row-reverse" mb={2}>
+        <Box>
+          <ModalButton
+            isDisabled={selectedCompanyLicensesIds.length !== 0}
+            label={"Create License"}
+            color={"primary"}
+            modal={({ handleClose }) => (
+              <CreateUpdateCompanyLicenseModal
+                actionType={ActionType.New}
+                companyId={companyId}
+                companyLicenseId={null}
+                handleClose={() => {
+                  refetch();
+                  handleClose();
+                }}
+              />
+            )}
+          />
+        </Box>
+        <Box mr={2}>
+          <ModalButton
+            isDisabled={selectedCompanyLicensesIds.length !== 1}
+            label={"Edit License"}
+            color={"primary"}
+            modal={({ handleClose }) => (
+              <CreateUpdateCompanyLicenseModal
+                actionType={ActionType.Update}
+                companyId={companyId}
+                companyLicenseId={selectedCompanyLicensesIds[0]}
+                handleClose={() => {
+                  refetch();
+                  handleClose();
+                }}
+              />
+            )}
+          />
+        </Box>
+      </Box>
+      <Box>
+        <CompanyLicensesDataGrid
+          isUnderwritingInfoVisible
+          companyLicenses={companyLicenses}
+          selectedCompanyLicensesIds={selectedCompanyLicensesIds}
+          handleSelectCompanyLicenses={handleSelectCompanyLicenses}
+        />
+      </Box>
+    </Box>
+  );
+}
+
 interface Props {
   companyId: Companies["id"];
 }
@@ -146,26 +222,11 @@ export default function CompanyMetrcApiKeysTab({ companyId }: Props) {
         <Typography variant="h6">
           <strong>Licenses</strong>
         </Typography>
-        <Box display="flex" flexDirection="row-reverse" mb={2}>
-          <ModalButton
-            label={"Edit Licenses"}
-            modal={({ handleClose }) => (
-              <UpdateCompanyLicensesModal
-                companyId={companyId}
-                handleClose={() => {
-                  refetch();
-                  handleClose();
-                }}
-              />
-            )}
-          />
-        </Box>
-        <Box>
-          <CompanyLicensesDataGrid
-            isUnderwritingInfoVisible
-            companyLicenses={companyLicenses}
-          />
-        </Box>
+        <CompanyLicensesSection
+          companyId={companyId}
+          companyLicenses={companyLicenses}
+          refetch={refetch}
+        />
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <Typography variant="h6">

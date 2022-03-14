@@ -39,7 +39,7 @@ export const partnershipRoutes = {
 };
 
 export const licenseRoutes = {
-  addLicenses: "/licenses/add_licenses",
+  createUpdateLicense: "/licenses/create_update_license",
   createUpdateLicenses: "/licenses/create_update_licenses",
   deleteLicense: "/licenses/delete_license",
 };

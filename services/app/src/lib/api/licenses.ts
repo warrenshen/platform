@@ -1,5 +1,6 @@
 import {
   Companies,
+  CompanyLicenses,
   CompanyLicensesInsertInput,
   Files,
 } from "generated/graphql";
@@ -9,25 +10,22 @@ import {
   licenseRoutes,
 } from "lib/api";
 
-export type AddLicensesReq = {
+export type CreateUpdateCompanyLicenseReq = {
   variables: {
-    company_id: Companies["id"];
-    file_ids: Array<Files["id"]>;
+    id: CompanyLicenses["id"];
+    company_id: CompanyLicenses["company_id"];
+    license_number: CompanyLicenses["license_number"];
+    file_id: CompanyLicenses["file_id"];
+    facility_row_id: CompanyLicenses["facility_row_id"];
+    is_underwriting_enabled: CompanyLicenses["is_underwriting_enabled"];
   };
 };
 
-export type DeleteLicenseReq = {
-  variables: {
-    company_id: Companies["id"];
-    file_id: Files["id"];
-  };
-};
-
-export async function addLicensesMutation(
-  req: AddLicensesReq
+export async function createUpdateCompanyLicenseMutation(
+  req: CreateUpdateCompanyLicenseReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(licenseRoutes.addLicenses, req.variables)
+    .post(licenseRoutes.createUpdateLicense, req.variables)
     .then((res) => {
       return res.data;
     })
@@ -37,7 +35,7 @@ export async function addLicensesMutation(
         console.log("error", error);
         return {
           status: "ERROR",
-          msg: "Could not add licenses",
+          msg: "Could not save license",
         };
       }
     );
@@ -69,6 +67,13 @@ export async function createUpdateLicensesMutation(
       }
     );
 }
+
+export type DeleteLicenseReq = {
+  variables: {
+    company_id: Companies["id"];
+    file_id: Files["id"];
+  };
+};
 
 export async function deleteLicenseMutation(
   req: DeleteLicenseReq

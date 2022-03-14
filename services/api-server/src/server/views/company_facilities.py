@@ -36,7 +36,7 @@ class CreateUpdateCompanyFacilityView(MethodView):
 					company_facilities_util.CompanyFacilityInputDict,
 					form,
 				),
-				session=session
+				session=session,
 			)
 			if err:
 				raise err

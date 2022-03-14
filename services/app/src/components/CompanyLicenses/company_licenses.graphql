@@ -1,3 +1,47 @@
+query GetCompanyLicense($id: uuid!) {
+  company_licenses_by_pk(id: $id) {
+    id
+    ...CompanyLicense
+  }
+}
+
+query GetCompanyLicenseRelationsByCompanyId($company_id: uuid!) {
+  companies_by_pk(id: $company_id) {
+    id
+    company_facilities(
+      where: {
+        _or: [
+          { is_deleted: { _is_null: true } }
+          { is_deleted: { _eq: false } }
+        ]
+      }
+    ) {
+      id
+      ...CompanyFacility
+    }
+  }
+}
+
+query GetCompanyLicensesByLicenseNumber($license_number: String!) {
+  company_licenses(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { company_id: { _is_null: true } }
+        { license_number: { _eq: $license_number } }
+      ]
+    }
+  ) {
+    id
+    ...CompanyLicenseLimited
+  }
+}
+
 query GetAllCompanyLicenses($license_number: String!) {
   company_licenses(
     where: {

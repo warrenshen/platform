@@ -51,6 +51,43 @@ class AddLicensesView(MethodView):
 			'license_ids': license_ids
 		}), 200)
 
+class CreateUpdateLicenseView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'id',
+			'company_id',
+			'license_number',
+			'facility_row_id',
+			'is_underwriting_enabled',
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(
+					'Missing key {} in request'.format(key))
+
+		with session_scope(current_app.session_maker) as session:
+			company_license_id, err = licenses_util.create_update_license(
+				company_license_input=cast(
+					licenses_util.CompanyLicenseInputDict,
+					form,
+				),
+				session=session,
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
+
 class CreateUpdateLicensesView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
@@ -116,10 +153,10 @@ class DeleteLicenseView(MethodView):
 		}), 200)
 
 handler.add_url_rule(
-	'/delete_license', view_func=DeleteLicenseView.as_view(name='delete_license_view'))
-
-handler.add_url_rule(
-	'/add_licenses', view_func=AddLicensesView.as_view(name='add_licenses_view'))
+	'/create_update_license', view_func=CreateUpdateLicenseView.as_view(name='create_update_license_view'))
 
 handler.add_url_rule(
 	'/create_update_licenses', view_func=CreateUpdateLicensesView.as_view(name='create_update_licenses_view'))
+
+handler.add_url_rule(
+	'/delete_license', view_func=DeleteLicenseView.as_view(name='delete_license_view'))

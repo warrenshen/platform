@@ -11,7 +11,7 @@ import {
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { FileTypeEnum } from "lib/enum";
-import { createUpdateLicensesMutation } from "lib/licenses";
+import { createUpdateLicensesMutation } from "lib/api/licenses";
 import { useMemo, useState } from "react";
 
 interface Props {

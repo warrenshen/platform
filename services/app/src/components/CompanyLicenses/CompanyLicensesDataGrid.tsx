@@ -2,10 +2,8 @@ import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
-import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import CompanyLicenseDrawerLauncher from "components/CompanyLicenses/CompanyLicenseDrawerLauncher";
-import { CompanyLicenseFragment } from "generated/graphql";
-import { FileTypeEnum } from "lib/enum";
+import { CompanyLicenseFragment, CompanyLicenses } from "generated/graphql";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
@@ -13,6 +11,7 @@ function getRows(companyLicenses: CompanyLicenseFragment[]): RowsProp {
   return companyLicenses.map((companyLicense) => {
     return {
       ...companyLicense,
+      is_file_attached: !!companyLicense.file_id,
       is_underwriting_enabled: !!companyLicense.is_underwriting_enabled,
     };
   });
@@ -22,12 +21,18 @@ interface Props {
   isExcelExport?: boolean;
   isUnderwritingInfoVisible?: boolean;
   companyLicenses: CompanyLicenseFragment[];
+  selectedCompanyLicensesIds?: CompanyLicenses["id"][];
+  handleSelectCompanyLicenses?: (
+    CompanyLicenses: CompanyLicenseFragment[]
+  ) => void;
 }
 
 export default function CompanyLicensesDataGrid({
   isExcelExport = true,
   isUnderwritingInfoVisible = false,
   companyLicenses,
+  selectedCompanyLicensesIds,
+  handleSelectCompanyLicenses,
 }: Props) {
   const rows = getRows(companyLicenses);
   const columns = useMemo(
@@ -56,7 +61,7 @@ export default function CompanyLicensesDataGrid({
         ),
       },
       {
-        isVisible: isUnderwritingInfoVisible,
+        visible: isUnderwritingInfoVisible,
         caption: "Facility Name",
         dataField: "facility_name",
         width: ColumnWidths.MinWidth,
@@ -71,7 +76,7 @@ export default function CompanyLicensesDataGrid({
         ),
       },
       {
-        isVisible: isUnderwritingInfoVisible,
+        visible: isUnderwritingInfoVisible,
         caption: "UW Enabled?",
         dataField: "is_underwriting_enabled",
         width: ColumnWidths.MinWidth,
@@ -140,28 +145,30 @@ export default function CompanyLicensesDataGrid({
         ),
       },
       {
-        caption: "File Attachment",
-        dataField: "file_id",
-        width: ColumnWidths.FileAttachment,
-        alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <DownloadThumbnail
-            isCountVisible={false}
-            fileIds={[params.row.data.file_id]}
-            fileType={FileTypeEnum.COMPANY_LICENSE}
-          />
-        ),
+        caption: "File Attachment?",
+        dataField: "is_file_attached",
+        minWidth: ColumnWidths.MinWidth,
       },
     ],
     [isUnderwritingInfoVisible]
+  );
+
+  const handleSelectionChanged = useMemo(
+    () => ({ selectedRowsData }: any) =>
+      !!handleSelectCompanyLicenses &&
+      handleSelectCompanyLicenses(selectedRowsData as CompanyLicenseFragment[]),
+    [handleSelectCompanyLicenses]
   );
 
   return (
     <ControlledDataGrid
       isExcelExport={isExcelExport}
       pager
+      select={!!handleSelectCompanyLicenses}
       dataSource={rows}
       columns={columns}
+      selectedRowKeys={selectedCompanyLicensesIds}
+      onSelectionChanged={handleSelectionChanged}
     />
   );
 }

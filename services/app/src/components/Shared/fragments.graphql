@@ -41,6 +41,7 @@ fragment CompanyLicense on company_licenses {
   license_status
   us_state
   expiration_date
+  facility_row_id
   is_underwriting_enabled
   ...CompanyLicenseLimited
 }

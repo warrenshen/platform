@@ -12,7 +12,7 @@ from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
 from bespoke.companies import licenses_util
-from bespoke.companies.licenses_util import LicenseModificationDict, CompanyLicenseInsertInputDict
+from bespoke.companies.licenses_util import LicenseModificationDict, CompanyLicenseInputDict
 from bespoke_test.db import db_unittest, test_helper
 
 def _add_license(company_id: str, session: Session, license_number: str) -> str:
@@ -318,11 +318,11 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 		with session_scope(session_maker) as session:
 			_, err = licenses_util.bulk_update_licenses(
 				company_license_inputs=[
-					CompanyLicenseInsertInputDict(
+					CompanyLicenseInputDict(
 						company_id=company_id2,
 						license_number='abcd',
 					),
-					CompanyLicenseInsertInputDict(
+					CompanyLicenseInputDict(
 						company_id=company_id,
 						license_number='efgh',
 					)
@@ -372,7 +372,7 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 		with session_scope(session_maker) as session:
 			_, err = licenses_util.bulk_update_licenses(
 				company_license_inputs=[
-					CompanyLicenseInsertInputDict(
+					CompanyLicenseInputDict(
 						company_id=company_id2,
 						license_number='abcd',
 						rollup_id='id1',
@@ -385,7 +385,7 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 						us_state='CA',
 						estimate_zip='95014',
 					),
-					CompanyLicenseInsertInputDict(
+					CompanyLicenseInputDict(
 						company_id=company_id,
 						license_number='efgh',
 						rollup_id='id2',
@@ -397,7 +397,7 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 						expiration_date='01/06/2020',
 						us_state='OR',
 					),
-					CompanyLicenseInsertInputDict(
+					CompanyLicenseInputDict(
 						company_id=None,
 						license_number='ijkl',
 						rollup_id='id3',

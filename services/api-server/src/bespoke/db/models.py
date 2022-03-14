@@ -274,7 +274,7 @@ class CompanyFacility(Base):
 	company_id = Column(GUID)
 	name = Column(String)
 	address = Column(String)
-	is_deleted = Column(Boolean)
+	is_deleted = Column(Boolean, nullable=False, default=False)
 
 ContractDict = TypedDict('ContractDict', {
 	'id': str,
