@@ -174,6 +174,7 @@ export const debtFacilityRoutes = {
   createUpdateFacility: "debt_facility/create_update_facility",
   updateCompanyStatus: "debt_facility/update_company_status",
   moveLoans: "debt_facility/move_loans",
+  resolveLoans: "debt_facility/resolve_update_required",
 };
 
 const api = axios.create({

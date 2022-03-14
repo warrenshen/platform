@@ -284,6 +284,73 @@ class DebtFacilityMoveLoanView(MethodView):
 
 		return make_response(json.dumps({'status': 'OK', 'resp': "Successfully moved loan."}))
 
+class DebtFacilityResolveUpdateRequiredView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		logging.info("Resolve loan with a debt facility status of update required")
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+		variables = form.get("variables", None)
+
+		loan_id = variables.get("loanId", None) if variables else None
+		if loan_id is None:
+			return handler_util.make_error_response('loanId is required to be set for this request')
+
+		facility_id = variables.get("facilityId", None) if variables else None
+		if facility_id is None:
+			return handler_util.make_error_response('facilityId is required to be set for this request')
+
+		resolve_note = variables.get("resolveNote", None) if variables else None
+		if resolve_note is None:
+			return handler_util.make_error_response('resolveNote is required to be set for this request')
+
+		resolve_status = variables.get("resolveStatus", None) if variables else None
+		if resolve_status is None:
+			return handler_util.make_error_response('resolveStatus is required to be set for this request')
+
+		with models.session_scope(current_app.session_maker) as session:
+			user_session = auth_util.UserSession.from_session()
+			user = session.query(models.User).filter(
+				models.User.id == user_session.get_user_id()
+			).first()
+
+			loan = cast(
+				models.Loan,
+				session.query(models.Loan).filter(
+					models.Loan.id == loan_id
+			).first())
+
+			loan_report = cast(
+				models.LoanReport,
+				session.query(models.LoanReport).filter(
+					models.LoanReport.id == loan.loan_report_id
+			).first())
+
+			loan_report.debt_facility_status = resolve_status
+			if resolve_status == resolve_status == LoanDebtFacilityStatus.REPURCHASED:
+				loan_report.debt_facility_id = None
+
+			resolve_update_payload : Dict[str, object] = {
+				"user_name": user.first_name + " " + user.last_name,
+				"user_id": str(user.id),
+				"old_status": LoanDebtFacilityStatus.UPDATE_REQUIRED,
+				"new_status": cast(LoanDebtFacilityStatus, resolve_status)
+			}
+			session.add(models.DebtFacilityEvent( # type: ignore
+				loan_report_id = loan_report.id,
+				event_category = DebtFacilityEventCategory.REPURCHASE if resolve_status == LoanDebtFacilityStatus.REPURCHASED \
+					else DebtFacilityEventCategory.WAIVER,
+				event_date = date_util.now(),
+				event_comments = resolve_note,
+				event_amount = loan.outstanding_principal_balance,
+				event_payload = resolve_update_payload
+			))
+
+		return make_response(json.dumps({'status': 'OK', 'resp': "Successfully moved loan."}))
+
 handler.add_url_rule(
 	"/update_capacity",
 	view_func=DebtFacilityUpdateCapacityView.as_view(name='update_capacity'))
@@ -299,3 +366,7 @@ handler.add_url_rule(
 handler.add_url_rule(
 	"/move_loans",
 	view_func=DebtFacilityMoveLoanView.as_view(name='move_loans'))
+
+handler.add_url_rule(
+	"/resolve_update_required",
+	view_func=DebtFacilityResolveUpdateRequiredView.as_view(name='resolve_update_required'))

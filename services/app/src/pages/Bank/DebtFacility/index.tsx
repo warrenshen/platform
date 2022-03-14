@@ -16,7 +16,6 @@ import {
   DebtFacilityStatusEnum,
   DebtFacilityTabLabel,
   DebtFacilityTabLabels,
-  DebtFacilityTabLabelType,
 } from "lib/enum";
 import { useState } from "react";
 import styled from "styled-components";
@@ -121,7 +120,14 @@ export default function BankDebtFacilityPage() {
             }
           >
             {DebtFacilityTabLabels.map((label: DebtFacilityTabLabel) => (
-              <Tab key={label} label={label} />
+              <Tab
+                key={label}
+                label={
+                  label === DebtFacilityTabLabel.ActionRequired
+                    ? `Action Required (${updateRequiredCount})`
+                    : label
+                }
+              />
             ))}
           </Tabs>
           <SectionSpace />

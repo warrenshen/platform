@@ -354,6 +354,10 @@ fragment OpenLoanForDebtFacility on loans {
   loan_report {
     id
     ...LoanReport
+    debt_facility {
+      id
+      ...DebtFacilityLimited
+    }
   }
   purchase_order {
     id

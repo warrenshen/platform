@@ -31,7 +31,7 @@ const StatusToColor = {
   [DebtFacilityStatusEnum.BESPOKE_BALANCE_SHEET]: "#cba679", // Bespoke's gold/brown
   [DebtFacilityStatusEnum.REPURCHASED]: "#cba679", // Bespoke's gold/brown
   [DebtFacilityStatusEnum.UPDATE_REQUIRED]: "#ff9999", // pink
-  [DebtFacilityStatusEnum.WAIVER]: "#ff9999", // pink
+  [DebtFacilityStatusEnum.WAIVER]: "#769362", // Bespoke's green
 };
 
 export default function DebtFacilityStatusChip({ debtFacilityStatus }: Props) {
@@ -58,6 +58,7 @@ export default function DebtFacilityStatusChip({ debtFacilityStatus }: Props) {
             DebtFacilityStatusEnum.BESPOKE_BALANCE_SHEET,
             DebtFacilityStatusEnum.REPURCHASED,
             DebtFacilityStatusEnum.UPDATE_REQUIRED,
+            DebtFacilityStatusEnum.WAIVER,
           ].includes(debtFacilityStatus)
             ? DebtFacilityStatusToLabel[debtFacilityStatus]
             : "No Debt Facility Status"}

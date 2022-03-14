@@ -2795,6 +2795,9 @@
     schema: public
     name: loan_reports
   object_relationships:
+  - name: debt_facility
+    using:
+      foreign_key_constraint_on: debt_facility_id
   - name: loan
     using:
       manual_configuration:

@@ -14,12 +14,9 @@ import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import {
   Companies,
   LoanArtifactFragment,
-  LoanArtifactLimitedFragment,
-  LoanFragment,
-  LoanReportFragment,
   Loans,
   LoanTypeEnum,
-  Maybe,
+  OpenLoanForDebtFacilityFragment,
   PurchaseOrders,
   RequestStatusEnum,
 } from "generated/graphql";
@@ -38,8 +35,6 @@ import { ColumnWidths, truncateString } from "lib/tables";
 import { useEffect, useMemo, useState } from "react";
 import { PartnerEnum } from "lib/enum";
 
-type Loan = LoanReportFragment & LoanFragment;
-
 interface Props {
   isArtifactVisible?: boolean;
   isArtifactBankNoteVisible?: boolean;
@@ -57,20 +52,16 @@ interface Props {
   pager?: boolean;
   pageSize?: number;
   filterByStatus?: RequestStatusEnum;
-  loans: Loan[];
+  loans: OpenLoanForDebtFacilityFragment[];
   selectedLoanIds?: Loans["id"][];
   handleClickCustomer?: (customerId: Companies["id"]) => void;
   handleClickPurchaseOrderBankNote?: (
     purchaseOrderId: PurchaseOrders["id"]
   ) => void;
-  handleSelectLoans?: (loans: LoanFragment[]) => void;
+  handleSelectLoans?: (loans: OpenLoanForDebtFacilityFragment[]) => void;
 }
 
-function getRows(
-  loans: (LoanFragment & {
-    loan_report?: Maybe<LoanReportFragment>;
-  } & (LoanArtifactFragment | LoanArtifactLimitedFragment))[]
-): RowsProp {
+function getRows(loans: OpenLoanForDebtFacilityFragment[]): RowsProp {
   return loans.map((loan) => ({
     ...loan,
     customer_identifier: createLoanCustomerIdentifier(loan),
@@ -459,7 +450,7 @@ export default function DebtFacilityLoansDataGrid({
   const handleSelectionChanged = useMemo(
     () => ({ selectedRowsData }: any) =>
       handleSelectLoans &&
-      handleSelectLoans(selectedRowsData as LoanFragment[]),
+      handleSelectLoans(selectedRowsData as OpenLoanForDebtFacilityFragment[]),
     [handleSelectLoans]
   );
 

@@ -7,7 +7,7 @@ import DebtFacilityLoansDataGrid from "components/DebtFacility/DebtFacilityLoans
 import {
   DebtFacilities,
   GetDebtFacilitiesSubscription,
-  LoanFragment,
+  OpenLoanForDebtFacilityFragment,
   useGetOpenLoansByDebtFacilityIdSubscription,
   useGetOpenLoansByDebtFacilityStatusesSubscription,
 } from "generated/graphql";
@@ -44,10 +44,10 @@ export default function DebtFacilityOpenTab({ facilities }: Props) {
 
   // Handle selection for loans in debt facility datagrid
   const [selectedFacilityLoans, setSelectedFacilityLoans] = useState<
-    LoanFragment[]
+    OpenLoanForDebtFacilityFragment[]
   >([]);
   const handleSelectFacilityLoans = useMemo(
-    () => (loans: LoanFragment[]) => {
+    () => (loans: OpenLoanForDebtFacilityFragment[]) => {
       setSelectedFacilityLoans(loans);
     },
     [setSelectedFacilityLoans]
@@ -55,10 +55,10 @@ export default function DebtFacilityOpenTab({ facilities }: Props) {
 
   // Handle selection for loans in bespoke datagrid
   const [selectedBespokeLoans, setSelectedBespokeLoans] = useState<
-    LoanFragment[]
+    OpenLoanForDebtFacilityFragment[]
   >([]);
   const handleSelectBespokeLoans = useMemo(
-    () => (loans: LoanFragment[]) => {
+    () => (loans: OpenLoanForDebtFacilityFragment[]) => {
       setSelectedBespokeLoans(loans);
     },
     [setSelectedBespokeLoans]
@@ -70,7 +70,10 @@ export default function DebtFacilityOpenTab({ facilities }: Props) {
   } = useGetOpenLoansByDebtFacilityIdSubscription({
     skip: selectedDebtFacilityId === "",
     variables: {
-      statuses: [DebtFacilityStatusEnum.SOLD_INTO_DEBT_FACILITY],
+      statuses: [
+        DebtFacilityStatusEnum.SOLD_INTO_DEBT_FACILITY,
+        DebtFacilityStatusEnum.WAIVER,
+      ],
       target_facility_id: selectedDebtFacilityId,
     },
   });

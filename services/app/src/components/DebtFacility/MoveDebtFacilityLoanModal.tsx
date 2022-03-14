@@ -8,8 +8,8 @@ import DebtFacilityLoansDataGrid from "components/DebtFacility/DebtFacilityLoans
 import { moveLoansForDebtFacility } from "lib/api/debtFacility";
 import { DebtFacilityStatusEnum } from "lib/enum";
 import {
-  LoanFragment,
   GetDebtFacilitiesSubscription,
+  OpenLoanForDebtFacilityFragment,
   useGetDebtFacilityCurrentCapacitySubscription,
   useGetOpenLoansByDebtFacilityIdSubscription,
 } from "generated/graphql";
@@ -20,7 +20,7 @@ type Facilities = GetDebtFacilitiesSubscription["debt_facilities"];
 
 interface Props {
   isMovingToFacility: boolean;
-  selectedLoans: LoanFragment[];
+  selectedLoans: OpenLoanForDebtFacilityFragment[];
   facilities: Facilities;
   handleClose: () => void;
 }

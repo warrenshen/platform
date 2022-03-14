@@ -87,7 +87,7 @@ export async function updateCompanyDebtFacilityStatus(
         console.log("error", error);
         return {
           status: "ERROR",
-          msg: "Could not create/update the debt facility",
+          msg: "Could not update the company's debt facility status",
         };
       }
     );
@@ -118,7 +118,39 @@ export async function moveLoansForDebtFacility(
         console.log("error", error);
         return {
           status: "ERROR",
-          msg: "Could not create/update the debt facility",
+          msg: "Could not move the loans for the debt facility",
+        };
+      }
+    );
+}
+
+export type ResolveLoansForDebtFacilityReq = {
+  variables: {
+    loanId: string;
+    facilityId: string;
+    resolveNote: string;
+    resolveStatus: string;
+  };
+};
+
+export async function resolveLoansForDebtFacility(
+  req: ResolveLoansForDebtFacilityReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(debtFacilityRoutes.resolveLoans, req)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg:
+            "Could not resolve the debt facility action required for this loan",
         };
       }
     );

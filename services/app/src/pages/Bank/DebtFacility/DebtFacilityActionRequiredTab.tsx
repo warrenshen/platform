@@ -1,9 +1,14 @@
 import { Box, TextField } from "@material-ui/core";
 import DebtFacilityLoansDataGrid from "components/DebtFacility/DebtFacilityLoansDataGrid";
-import { LoanFragment, LoanReportFragment } from "generated/graphql";
+import Can from "components/Shared/Can";
+import ModalButton from "components/Shared/Modal/ModalButton";
+import { Action } from "lib/auth/rbac-rules";
+import { OpenLoanForDebtFacilityFragment } from "generated/graphql";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
+import ResolveDebtFacilityLoanModal from "components/DebtFacility/ResolveDebtFacilityLoanModal";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
+import { useMemo, useState } from "react";
 
 const Container = styled.div`
   display: flex;
@@ -14,10 +19,8 @@ const Container = styled.div`
   width: 100%;
 `;
 
-type Loan = LoanReportFragment & LoanFragment;
-
 interface Props {
-  loans: Loan[];
+  loans: OpenLoanForDebtFacilityFragment[];
   searchQuery: string;
   setSearchQuery: (newQuery: string) => void;
 }
@@ -28,6 +31,16 @@ export default function DebtFacilityActionRequiredTab({
   setSearchQuery,
 }: Props) {
   const history = useHistory();
+
+  const [selectedLoans, setSelectedLoans] = useState<
+    OpenLoanForDebtFacilityFragment[]
+  >([]);
+  const handleSelectLoans = useMemo(
+    () => (loans: OpenLoanForDebtFacilityFragment[]) => {
+      setSelectedLoans(loans);
+    },
+    [setSelectedLoans]
+  );
 
   return (
     <Container>
@@ -47,9 +60,33 @@ export default function DebtFacilityActionRequiredTab({
               style={{ width: 400 }}
             />
           </Box>
+          <Box my={2} display="flex" flexDirection="row-reverse">
+            <Can perform={Action.ResolveDebtFacilityLoan}>
+              <Box mr={2}>
+                <ModalButton
+                  isDisabled={selectedLoans.length !== 1}
+                  label={"Resolve Loan Status"}
+                  modal={({ handleClose }) => {
+                    const handler = () => {
+                      handleClose();
+                      setSelectedLoans([]);
+                    };
+                    return (
+                      <ResolveDebtFacilityLoanModal
+                        selectedLoan={selectedLoans[0]}
+                        facilityId={"PLACEHOLDER"}
+                        handleClose={handler}
+                      />
+                    );
+                  }}
+                />
+              </Box>
+            </Can>
+          </Box>
         </Box>
         <Box display="flex" flexDirection="column">
           <DebtFacilityLoansDataGrid
+            isMultiSelectEnabled
             loans={loans}
             isCompanyVisible={true}
             isMaturityVisible={true}
@@ -59,6 +96,7 @@ export default function DebtFacilityActionRequiredTab({
                 getBankCompanyRoute(customerId, BankCompanyRouteEnum.Loans)
               )
             }
+            handleSelectLoans={handleSelectLoans}
           />
         </Box>
       </Box>
