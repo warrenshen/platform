@@ -10,7 +10,6 @@ from bespoke.db import models, db_constants
 from bespoke.db.db_constants import CompanyType, TwoFactorMessageMethod, UserRoles
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util
-from flask import current_app
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
 
@@ -504,7 +503,7 @@ def create_partnership(
 	).first())
 
 	if existing_user is None:
-		create_user_util.create_bank_or_customer_user(
+		create_user_util.create_bank_or_customer_user_with_session(
 			req = create_user_util.CreateBankOrCustomerUserInputDict(
 				company_id = company_id,
 				user = create_user_util.UserInsertInputDict(
@@ -515,7 +514,7 @@ def create_partnership(
 					phone_number = cast(Dict[str, Any], user_info).get("phone_number", "")
 				),
 			),
-			session_maker = current_app.session_maker
+			session = session
 		)
 
 		session.flush()

@@ -10,6 +10,7 @@ from bespoke.db.db_constants import LoginMethod
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util
 from mypy_extensions import TypedDict
+from sqlalchemy.orm.session import Session
 
 UserInsertInputDict = TypedDict('UserInsertInputDict', {
 	'role': str,
@@ -45,11 +46,10 @@ UpdateThirdPartyUserRespDict = TypedDict('UpdateThirdPartyUserRespDict', {
 	'user_id': str,
 })
 
-# Note: this method name is misleading, we use this for vendor / payor users too.
 @errors.return_error_tuple
-def create_bank_or_customer_user(
+def create_bank_or_customer_user_with_session(
 	req: CreateBankOrCustomerUserInputDict,
-	session_maker: Callable,
+	session: Session,
 ) -> Tuple[str, errors.Error]:
 	company_id = req['company_id']
 	user_input = req['user']
@@ -71,45 +71,56 @@ def create_bank_or_customer_user(
 	user_id = None
 	is_bank_user = db_constants.is_bank_user([role])
 
-	with session_scope(session_maker) as session:
-		parent_company_id = None
-		if company_id:
-			company = session.query(models.Company) \
-				.filter(models.Company.id == company_id) \
-				.first()
-			if not company:
-				raise errors.Error('Could not find company')
+	
+	parent_company_id = None
+	if company_id:
+		company = session.query(models.Company) \
+			.filter(models.Company.id == company_id) \
+			.first()
+		if not company:
+			raise errors.Error('Could not find company')
 
-			if role == db_constants.UserRoles.COMPANY_CONTACT_ONLY:
-				if not company.is_payor and not company.is_vendor:
-					raise errors.Error('Company is neither Payor or Vendor company type')
-			else:
-				if not company.is_customer:
-					raise errors.Error('Company is not Customer company type')
+		if role == db_constants.UserRoles.COMPANY_CONTACT_ONLY:
+			if not company.is_payor and not company.is_vendor:
+				raise errors.Error('Company is neither Payor or Vendor company type')
+		else:
+			if not company.is_customer:
+				raise errors.Error('Company is not Customer company type')
 
-			parent_company_id = company.parent_company_id
+		parent_company_id = company.parent_company_id
 
-		existing_user = session.query(models.User).filter(
-			models.User.email == email.lower()
-		).first()
-		if existing_user:
-			raise errors.Error('Email is already taken')
+	existing_user = session.query(models.User).filter(
+		models.User.email == email.lower()
+	).first()
+	if existing_user:
+		raise errors.Error('Email is already taken')
 
-		user = models.User()
-		user.parent_company_id = parent_company_id
-		user.company_id = company_id
-		user.role = role
-		user.first_name = first_name
-		user.last_name = last_name
-		user.email = email.lower()
-		user.phone_number = phone_number
-		user.login_method = LoginMethod.TWO_FA if is_bank_user else LoginMethod.SIMPLE
+	user = models.User()
+	user.parent_company_id = parent_company_id
+	user.company_id = company_id
+	user.role = role
+	user.first_name = first_name
+	user.last_name = last_name
+	user.email = email.lower()
+	user.phone_number = phone_number
+	user.login_method = LoginMethod.TWO_FA if is_bank_user else LoginMethod.SIMPLE
 
-		session.add(user)
-		session.flush()
-		user_id = str(user.id)
+	session.add(user)
+	session.flush()
+	user_id = str(user.id)
 
 	return user_id, None
+
+# Note: this method name is misleading, we use this for vendor / payor users too.
+@errors.return_error_tuple
+def create_bank_or_customer_user(
+	req: CreateBankOrCustomerUserInputDict,
+	session_maker: Callable,
+) -> Tuple[str, errors.Error]:
+	with session_scope(session_maker) as session:
+		return create_bank_or_customer_user_with_session(req, session)
+
+	raise errors.Error("Could not create session")
 
 # This method is deprecated and is no longer used.
 @errors.return_error_tuple
