@@ -499,11 +499,11 @@ def create_partnership(
 	existing_user = cast(
 		models.User,
 		session.query(models.User).filter(
-			models.User.email == cast(Dict[str, Any], user_info).get("email", "")
+			models.User.email == cast(Dict[str, Any], user_info).get("email", "").lower()
 	).first())
 
 	if existing_user is None:
-		create_user_util.create_bank_or_customer_user_with_session(
+		user_id, err = create_user_util.create_bank_or_customer_user_with_session(
 			req = create_user_util.CreateBankOrCustomerUserInputDict(
 				company_id = company_id,
 				user = create_user_util.UserInsertInputDict(
@@ -517,14 +517,10 @@ def create_partnership(
 			session = session
 		)
 
-		session.flush()
+	contact_user_id = existing_user.id if existing_user is not None else user_id
 
-		# Requerying new created user to get the generated id later for partnership contact
-		existing_user = cast(
-			models.User,
-			session.query(models.User).filter(
-				models.User.email == cast(Dict[str, Any], user_info).get("email", "")
-		).first())
+	if not contact_user_id:
+		raise errors.Error("Cannot find contact user id")
 
 	if company_type == CompanyType.Payor:
 		prev_partnership = cast(
@@ -554,7 +550,7 @@ def create_partnership(
 		# Create a default user for the partnership based on who was submitted with the request
 		company_payor_contact = models.CompanyPayorContact()
 		company_payor_contact.partnership_id = company_payor_partnership.id
-		company_payor_contact.payor_user_id = existing_user.id
+		company_payor_contact.payor_user_id = contact_user_id
 		session.add(company_payor_contact)
 		session.flush()
 
@@ -586,7 +582,7 @@ def create_partnership(
 		# Create a default user for the partnership based on who was submitted with the request
 		company_vendor_contact = models.CompanyVendorContact()
 		company_vendor_contact.partnership_id = company_vendor_partnership.id
-		company_vendor_contact.vendor_user_id = existing_user.id
+		company_vendor_contact.vendor_user_id = contact_user_id
 		session.add(company_vendor_contact)
 		session.flush()
 
