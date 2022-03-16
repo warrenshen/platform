@@ -1978,6 +1978,8 @@
       - is_deleted
       - submitted_by_user_id
       - category
+      - amount_custom
+      - amount_custom_note
       filter: {}
   - role: bank_read_only
     permission:
@@ -1986,10 +1988,12 @@
       - application_date
       - expires_at
       - amount_cash_in_daca
+      - amount_custom
       - calculated_borrowing_base
       - monthly_accounts_receivable
       - monthly_cash
       - monthly_inventory
+      - amount_custom_note
       - category
       - rejection_note
       - status
@@ -2009,10 +2013,12 @@
       - application_date
       - expires_at
       - amount_cash_in_daca
+      - amount_custom
       - calculated_borrowing_base
       - monthly_accounts_receivable
       - monthly_cash
       - monthly_inventory
+      - amount_custom_note
       - category
       - rejection_note
       - status
@@ -2034,10 +2040,12 @@
       - application_date
       - expires_at
       - amount_cash_in_daca
+      - amount_custom
       - calculated_borrowing_base
       - monthly_accounts_receivable
       - monthly_cash
       - monthly_inventory
+      - amount_custom_note
       - category
       - rejection_note
       - status
@@ -2057,6 +2065,8 @@
     permission:
       columns:
       - amount_cash_in_daca
+      - amount_custom
+      - amount_custom_note
       - application_date
       - calculated_borrowing_base
       - expires_at

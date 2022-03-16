@@ -3,6 +3,7 @@ import {
   createStyles,
   FormControl,
   makeStyles,
+  TextField,
   Theme,
   Typography,
 } from "@material-ui/core";
@@ -34,6 +35,7 @@ interface Props {
   isInventoryVisible: boolean;
   isCashVisible: boolean;
   isCashInDacaVisible: boolean;
+  isCustomAmountVisible: boolean;
   companyId: Companies["id"];
   frozenFileIds?: Files["id"][];
   calculatedBorrowingBase: number | null;
@@ -51,6 +53,7 @@ export default function EbbaApplicationBorrowingBaseForm({
   isInventoryVisible,
   isCashVisible,
   isCashInDacaVisible,
+  isCustomAmountVisible,
   companyId,
   frozenFileIds,
   calculatedBorrowingBase,
@@ -187,7 +190,7 @@ export default function EbbaApplicationBorrowingBaseForm({
             <FormControl className={classes.inputField}>
               <CurrencyInput
                 isRequired
-                label={"Cash in DACA "}
+                label={"Cash in DACA"}
                 value={ebbaApplication.amount_cash_in_daca}
                 handleChange={(value) =>
                   setEbbaApplication({
@@ -197,6 +200,45 @@ export default function EbbaApplicationBorrowingBaseForm({
                 }
               />
             </FormControl>
+          </Box>
+        </Box>
+      )}
+      {isCustomAmountVisible && (
+        <Box display="flex" flexDirection="column" mt={4}>
+          <Typography variant="subtitle2">
+            <strong>
+              [BANK ADMIN ONLY] OPTIONAL custom borrowing base adjustment.
+              Please leave a description for the adjustment (description is
+              visible to the client).
+            </strong>
+          </Typography>
+          <Box display="flex" flexDirection="column" mt={1}>
+            <FormControl>
+              <CurrencyInput
+                isRequired
+                label={"Adjustment Amount"}
+                value={ebbaApplication.amount_custom}
+                handleChange={(value) =>
+                  setEbbaApplication({
+                    ...ebbaApplication,
+                    amount_custom: value,
+                  })
+                }
+              />
+            </FormControl>
+          </Box>
+          <Box display="flex" flexDirection="column" mt={1}>
+            <TextField
+              label={"Adjustment Amount Description / Note"}
+              required
+              value={ebbaApplication.amount_custom_note}
+              onChange={({ target: { value } }) =>
+                setEbbaApplication({
+                  ...ebbaApplication,
+                  amount_custom_note: value,
+                })
+              }
+            />
           </Box>
         </Box>
       )}

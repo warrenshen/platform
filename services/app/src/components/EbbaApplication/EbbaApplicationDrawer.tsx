@@ -159,6 +159,14 @@ export default function EbbaApplicationDrawer({
           <>
             <Box display="flex" flexDirection="column" mt={2}>
               <Typography variant="subtitle2" color="textSecondary">
+                Calculated Borrowing Base
+              </Typography>
+              <Typography variant={"body1"}>
+                {formatCurrency(ebbaApplication.calculated_borrowing_base)}
+              </Typography>
+            </Box>
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
                 Accounts Receivable Balance
               </Typography>
               <Typography variant={"body1"}>
@@ -189,14 +197,26 @@ export default function EbbaApplicationDrawer({
                 {formatCurrency(ebbaApplication.amount_cash_in_daca)}
               </Typography>
             </Box>
-            <Box display="flex" flexDirection="column" mt={2}>
-              <Typography variant="subtitle2" color="textSecondary">
-                Calculated Borrowing Base
-              </Typography>
-              <Typography variant={"body1"}>
-                {formatCurrency(ebbaApplication.calculated_borrowing_base)}
-              </Typography>
-            </Box>
+            {!!ebbaApplication.amount_custom && (
+              <>
+                <Box display="flex" flexDirection="column" mt={2}>
+                  <Typography variant="subtitle2" color="textSecondary">
+                    Adjustment Amount
+                  </Typography>
+                  <Typography variant={"body1"}>
+                    {formatCurrency(ebbaApplication.amount_custom)}
+                  </Typography>
+                </Box>
+                <Box display="flex" flexDirection="column" mt={2}>
+                  <Typography variant="subtitle2" color="textSecondary">
+                    Adjustment Note
+                  </Typography>
+                  <Typography variant={"body1"}>
+                    {ebbaApplication.amount_custom_note}
+                  </Typography>
+                </Box>
+              </>
+            )}
           </>
         )}
         <Box display="flex" flexDirection="column" mt={2}>

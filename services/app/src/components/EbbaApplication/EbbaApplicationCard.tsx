@@ -96,6 +96,24 @@ export default function EbbaApplicationCard({ ebbaApplication }: Props) {
                 {formatCurrency(ebbaApplication.amount_cash_in_daca)}
               </Typography>
             </Box>
+            {!!ebbaApplication.amount_custom && (
+              <>
+                <Box display="flex" mb={0.5}>
+                  <Typography className={classes.label}>
+                    Adjustment Amount
+                  </Typography>
+                  <Typography>
+                    {formatCurrency(ebbaApplication.amount_custom)}
+                  </Typography>
+                </Box>
+                <Box display="flex" mb={0.5}>
+                  <Typography className={classes.label}>
+                    Adjustment Note
+                  </Typography>
+                  <Typography>{ebbaApplication.amount_custom_note}</Typography>
+                </Box>
+              </>
+            )}
           </>
         )}
         <Box display="flex" flexDirection="column" pb={0.25}>

@@ -1178,10 +1178,13 @@ class EbbaApplication(Base):
 	is_deleted = Column(Boolean, nullable=False, default=False)
 	submitted_by_user_id = Column(GUID)
 
-	monthly_accounts_receivable = Column(Numeric)
-	monthly_inventory = Column(Numeric)
-	monthly_cash = Column(Numeric)
-	amount_cash_in_daca = Column(Numeric)
+	monthly_accounts_receivable = Column(Numeric) # Component of borrowing base.
+	monthly_inventory = Column(Numeric) # Component of borrowing base.
+	monthly_cash = Column(Numeric) # Component of borrowing base.
+	amount_cash_in_daca = Column(Numeric) # Component of borrowing base.
+	amount_custom = Column(Numeric) # Component of borrowing base: custom amount only bank user can change.
+	amount_custom_note = Column(Text)
+
 	calculated_borrowing_base = Column(Numeric)
 	rejection_note = Column(Text)
 	expires_at = Column(Date)

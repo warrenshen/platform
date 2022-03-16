@@ -97,6 +97,7 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
   const isInventoryVisible = inventoryPercentage > 0;
   const isCashVisible = cashPercentage > 0;
   const isCashInDacaVisible = cashInDacaPercentage > 0;
+  const isCustomAmountVisible = isBankUser; // Only bank users can edit custom amount / note.
 
   // Default EbbaApplication for CREATE case.
   const newEbbaApplication = {
@@ -105,6 +106,8 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
     monthly_inventory: null,
     monthly_cash: null,
     amount_cash_in_daca: null,
+    amount_custom: null,
+    amount_custom_note: "",
     calculated_borrowing_base: null,
   } as EbbaApplicationsInsertInput;
 
@@ -164,11 +167,19 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
     { loading: isSubmitEbbaApplicationLoading },
   ] = useCustomMutation(submitEbbaApplicationMutation);
 
+  /**
+   * Calculated borrowing base is the sum of the individual components,
+   * with each individual component weighted by a corresponding percentage
+   * from the customer's active contract.
+   *
+   * Bank admins may add an adjustment value which is not weighted.
+   */
   const calculatedBorrowingBase =
     ebbaApplication.monthly_accounts_receivable * accountsReceivablePercentage +
     ebbaApplication.monthly_inventory * inventoryPercentage +
     ebbaApplication.monthly_cash * cashPercentage +
-    ebbaApplication.amount_cash_in_daca * cashInDacaPercentage;
+    ebbaApplication.amount_cash_in_daca * cashInDacaPercentage +
+    ebbaApplication.amount_custom;
 
   const computedExpiresAt = computeEbbaApplicationExpiresAt(
     ebbaApplication.application_date
@@ -186,6 +197,12 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
             monthly_inventory: ebbaApplication.monthly_inventory,
             monthly_cash: ebbaApplication.monthly_cash,
             amount_cash_in_daca: ebbaApplication.amount_cash_in_daca,
+            amount_custom: isCustomAmountVisible
+              ? ebbaApplication.amount_custom
+              : undefined,
+            amount_custom_note: isCustomAmountVisible
+              ? ebbaApplication.amount_custom_note
+              : undefined,
             calculated_borrowing_base: calculatedBorrowingBase,
             expires_at: computedExpiresAt,
           },
@@ -205,6 +222,12 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
             monthly_inventory: ebbaApplication.monthly_inventory,
             monthly_cash: ebbaApplication.monthly_cash,
             amount_cash_in_daca: ebbaApplication.amount_cash_in_daca,
+            amount_custom: isCustomAmountVisible
+              ? ebbaApplication.amount_custom
+              : undefined,
+            amount_custom_note: isCustomAmountVisible
+              ? ebbaApplication.amount_custom_note
+              : undefined,
             calculated_borrowing_base: calculatedBorrowingBase,
             expires_at: computedExpiresAt,
             ebba_application_files: {
@@ -253,6 +276,7 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
     isSubmitEbbaApplicationLoading;
   const isSubmitDisabled =
     isFormLoading ||
+    !ebbaApplication.application_date ||
     (isAccountsReceivableVisible &&
       ebbaApplication.monthly_accounts_receivable === null) ||
     (isInventoryVisible && ebbaApplication.monthly_inventory === null) ||
@@ -294,6 +318,7 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
         isInventoryVisible={isInventoryVisible}
         isCashVisible={isCashVisible}
         isCashInDacaVisible={isCashInDacaVisible}
+        isCustomAmountVisible={isCustomAmountVisible}
         companyId={companyId}
         frozenFileIds={frozenFileIds}
         calculatedBorrowingBase={calculatedBorrowingBase}

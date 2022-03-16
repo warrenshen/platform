@@ -133,6 +133,8 @@ fragment EbbaApplication on ebba_applications {
   monthly_inventory
   monthly_cash
   amount_cash_in_daca
+  amount_custom
+  amount_custom_note
   calculated_borrowing_base
   status
   rejection_note

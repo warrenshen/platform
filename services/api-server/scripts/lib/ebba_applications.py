@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Tuple, Union, cast
 # Path hack before we try to import bespoke
 from bespoke.date import date_util
 from bespoke.db import models
-from bespoke.db.db_constants import CompanyType, ProductType, RequestStatusEnum
+from bespoke.db.db_constants import ProductType, RequestStatusEnum
 from bespoke.excel import excel_reader
 from bespoke.finance import contract_util
 from sqlalchemy.orm.session import Session
