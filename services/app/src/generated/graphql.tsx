@@ -15,6 +15,7 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  _text: any;
   bigint: any;
   date: any;
   json: any;
@@ -82,6 +83,19 @@ export type StringComparisonExp = {
   _regex?: Maybe<Scalars["String"]>;
   /** does the column match the given SQL regular expression */
   _similar?: Maybe<Scalars["String"]>;
+};
+
+/** Boolean expression to compare columns of type "_text". All fields are combined with logical 'AND'. */
+export type TextComparisonExp = {
+  _eq?: Maybe<Scalars["_text"]>;
+  _gt?: Maybe<Scalars["_text"]>;
+  _gte?: Maybe<Scalars["_text"]>;
+  _in?: Maybe<Array<Scalars["_text"]>>;
+  _is_null?: Maybe<Scalars["Boolean"]>;
+  _lt?: Maybe<Scalars["_text"]>;
+  _lte?: Maybe<Scalars["_text"]>;
+  _neq?: Maybe<Scalars["_text"]>;
+  _nin?: Maybe<Array<Scalars["_text"]>>;
 };
 
 /** columns and relationships of "async_pipelines" */
@@ -5784,6 +5798,7 @@ export type DebtFacilities = {
   debt_facility_capacities_aggregate: DebtFacilityCapacitiesAggregate;
   id: Scalars["uuid"];
   name: Scalars["String"];
+  supported_product_types?: Maybe<Scalars["_text"]>;
 };
 
 /** columns and relationships of "debt_facilities" */
@@ -5831,6 +5846,7 @@ export type DebtFacilitiesBoolExp = {
   debt_facility_capacities?: Maybe<DebtFacilityCapacitiesBoolExp>;
   id?: Maybe<UuidComparisonExp>;
   name?: Maybe<StringComparisonExp>;
+  supported_product_types?: Maybe<TextComparisonExp>;
 };
 
 /** unique or primary key constraints on table "debt_facilities" */
@@ -5844,6 +5860,7 @@ export type DebtFacilitiesInsertInput = {
   debt_facility_capacities?: Maybe<DebtFacilityCapacitiesArrRelInsertInput>;
   id?: Maybe<Scalars["uuid"]>;
   name?: Maybe<Scalars["String"]>;
+  supported_product_types?: Maybe<Scalars["_text"]>;
 };
 
 /** aggregate max on columns */
@@ -5885,6 +5902,7 @@ export type DebtFacilitiesOrderBy = {
   debt_facility_capacities_aggregate?: Maybe<DebtFacilityCapacitiesAggregateOrderBy>;
   id?: Maybe<OrderBy>;
   name?: Maybe<OrderBy>;
+  supported_product_types?: Maybe<OrderBy>;
 };
 
 /** primary key columns input for table: debt_facilities */
@@ -5898,12 +5916,15 @@ export enum DebtFacilitiesSelectColumn {
   Id = "id",
   /** column name */
   Name = "name",
+  /** column name */
+  SupportedProductTypes = "supported_product_types",
 }
 
 /** input type for updating data in table "debt_facilities" */
 export type DebtFacilitiesSetInput = {
   id?: Maybe<Scalars["uuid"]>;
   name?: Maybe<Scalars["String"]>;
+  supported_product_types?: Maybe<Scalars["_text"]>;
 };
 
 /** update columns of table "debt_facilities" */
@@ -5912,6 +5933,8 @@ export enum DebtFacilitiesUpdateColumn {
   Id = "id",
   /** column name */
   Name = "name",
+  /** column name */
+  SupportedProductTypes = "supported_product_types",
 }
 
 /** columns and relationships of "debt_facility_capacities" */

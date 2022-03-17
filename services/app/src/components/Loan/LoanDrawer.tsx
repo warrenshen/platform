@@ -132,8 +132,9 @@ export default function LoanDrawer({ loanId, handleClose }: Props) {
   }
 
   const renderRecipientBankInfoBox = () => {
-    const vendorBankAccount = advancesBankAccountData?.companies_by_pk
-      ?.company_vendor_partnerships[0].vendor_bank_account as BankAccounts;
+    const vendorBankAccount =
+      (advancesBankAccountData?.companies_by_pk?.company_vendor_partnerships[0]
+        ?.vendor_bank_account as BankAccounts) || undefined;
 
     return (
       !!advancesBankAccountData && (
