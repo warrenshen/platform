@@ -110,6 +110,7 @@ export default function CreateUpdateCompanyFacilityModal({
       <Box display="flex" flexDirection="column" mt={2}>
         <FormControl>
           <TextField
+            autoFocus
             required
             label={"Facility Name"}
             value={companyFacility.name}

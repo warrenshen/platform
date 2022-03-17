@@ -38,6 +38,7 @@ query GetMetrcMetadataByCompanyId($company_id: uuid!) {
           { is_deleted: { _eq: false } }
         ]
       }
+      order_by: { license_number: asc }
     ) {
       id
       company_facility {

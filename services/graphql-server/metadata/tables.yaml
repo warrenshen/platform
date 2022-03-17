@@ -1929,6 +1929,8 @@
       check: {}
       columns:
       - amount_cash_in_daca
+      - amount_custom
+      - amount_custom_note
       - application_date
       - calculated_borrowing_base
       - category

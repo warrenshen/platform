@@ -53,7 +53,7 @@ export default function CompanyLicensesDataGrid({
         fixed: true,
         dataField: "us_state",
         caption: "US State",
-        minWidth: ColumnWidths.MinWidth,
+        width: ColumnWidths.UsState,
         cellRender: (params: ValueFormatterParams) => (
           <TextDataGridCell
             label={params.row.data.us_state ? params.row.data.us_state : "-"}
