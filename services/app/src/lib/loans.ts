@@ -6,6 +6,7 @@ import {
   LoanLimitedFragment,
   LoanTypeEnum,
 } from "generated/graphql";
+import { UUIDEnum } from "lib/enum";
 import { getCompanyDisplayName } from "lib/companies";
 import { uniq } from "lodash";
 
@@ -71,7 +72,7 @@ export const extractVendorId = (
 ) =>
   recipientCompanyId && recipientCompanyId !== customerId
     ? recipientCompanyId
-    : null;
+    : UUIDEnum.None;
 
 const extractRecipientCompanyAndBankAccountFromVendor = (
   company_vendor_partnerships: CompanyVendorPartnerships[] | undefined

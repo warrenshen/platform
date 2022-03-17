@@ -136,6 +136,9 @@ export default function LoanDrawer({ loanId, handleClose }: Props) {
       (advancesBankAccountData?.companies_by_pk?.company_vendor_partnerships[0]
         ?.vendor_bank_account as BankAccounts) || undefined;
 
+    const customerBankAccount = advancesBankAccountData?.companies_by_pk
+      ?.settings?.advances_bank_account as BankAccounts;
+
     return (
       !!advancesBankAccountData && (
         <Box display="flex" flexDirection="column" mt={2}>
@@ -145,6 +148,10 @@ export default function LoanDrawer({ loanId, handleClose }: Props) {
           {!!vendorBankAccount && !advancesBankAccountError ? (
             <Box mt={1}>
               <BankAccountInfoCard bankAccount={vendorBankAccount} />
+            </Box>
+          ) : !!customerBankAccount ? (
+            <Box mt={1}>
+              <BankAccountInfoCard bankAccount={customerBankAccount} />
             </Box>
           ) : (
             <Typography variant="body1">Not found</Typography>

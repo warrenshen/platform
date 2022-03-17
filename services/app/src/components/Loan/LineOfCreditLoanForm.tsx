@@ -45,6 +45,7 @@ export default function LineOfCreditLoanForm({
                 setLineOfCredit({
                   ...lineOfCredit,
                   is_credit_for_vendor: event.target.checked,
+                  recipient_vendor_id: null,
                 });
               }}
               color="primary"
