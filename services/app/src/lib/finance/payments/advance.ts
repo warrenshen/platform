@@ -9,7 +9,6 @@ export const DefaultSettlementTimelineConfigForCustomer = {
   [PaymentMethodEnum.ReverseDraftACH]: 2,
   [PaymentMethodEnum.Wire]: 2,
   [PaymentMethodEnum.Check]: 5,
-  [PaymentMethodEnum.Cash]: 5,
 };
 
 // For an advance created by a bank user.

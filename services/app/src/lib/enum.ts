@@ -162,16 +162,17 @@ export enum PaymentMethodEnum {
   ReverseDraftACH = "reverse_draft_ach",
   Wire = "wire",
   Check = "check",
-  Cash = "cash",
   Unknown = "unknown",
 }
 
 export const PaymentMethodToLabel = {
-  [PaymentMethodEnum.ACH]: "ACH",
-  [PaymentMethodEnum.ReverseDraftACH]: "Reverse Draft ACH",
-  [PaymentMethodEnum.Wire]: "Wire",
+  [PaymentMethodEnum.ACH]:
+    "Customer ACH (you send repayment from your banking software)",
+  [PaymentMethodEnum.ReverseDraftACH]:
+    "Reverse Draft (we pull repayment from your account)",
+  [PaymentMethodEnum.Wire]:
+    "Wire (you send repayment from your banking software)",
   [PaymentMethodEnum.Check]: "Check",
-  [PaymentMethodEnum.Cash]: "Cash",
   [PaymentMethodEnum.Unknown]: "Unknown",
 };
 
@@ -179,7 +180,6 @@ export const AllPaymentMethods = [
   PaymentMethodEnum.ReverseDraftACH,
   PaymentMethodEnum.ACH,
   PaymentMethodEnum.Wire,
-  PaymentMethodEnum.Cash,
   PaymentMethodEnum.Check,
 ];
 
@@ -206,7 +206,6 @@ export const BankPaymentMethods = [
 export const PayorPaymentMethods = [
   PaymentMethodEnum.ACH,
   PaymentMethodEnum.Wire,
-  PaymentMethodEnum.Cash,
   PaymentMethodEnum.Check,
 ];
 

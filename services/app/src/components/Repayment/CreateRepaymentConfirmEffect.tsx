@@ -56,15 +56,6 @@ function getAlertText(payment: PaymentsInsertInput) {
         accordingly.
       </>
     );
-  } else if (payment.method === PaymentMethodEnum.Cash) {
-    return (
-      <>
-        After you press "Notify Bespoke Financial", Bespoke Financial will
-        coordinate with you on the collection of{" "}
-        <strong>{formatCurrency(payment.requested_amount)}</strong>. This method
-        of payment will incur a $100 fee.
-      </>
-    );
   } else {
     return (
       <>
