@@ -215,7 +215,6 @@ export default function EbbaApplicationBorrowingBaseForm({
           <Box display="flex" flexDirection="column" mt={1}>
             <FormControl>
               <CurrencyInput
-                isRequired
                 label={"Adjustment Amount"}
                 value={ebbaApplication.amount_custom}
                 handleChange={(value) =>
@@ -230,7 +229,6 @@ export default function EbbaApplicationBorrowingBaseForm({
           <Box display="flex" flexDirection="column" mt={1}>
             <TextField
               label={"Adjustment Amount Description / Note"}
-              required
               value={ebbaApplication.amount_custom_note}
               onChange={({ target: { value } }) =>
                 setEbbaApplication({
