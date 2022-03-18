@@ -25,7 +25,19 @@ query GetLoanWithArtifactForBank($id: uuid!) {
 }
 
 query GetTransactionsForLoan($loan_id: uuid!) {
-  transactions(where: { loan_id: { _eq: $loan_id } }) {
+  transactions(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { loan_id: { _eq: $loan_id } }
+      ]
+    }
+  ) {
     ...Transaction
     payment {
       id
