@@ -13,15 +13,15 @@ cp .env.example .env
 ```
 @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "[System.Net.ServicePointManager]::SecurityProtocol = 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))" && SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
 choco install pyenv-win
-pyenv install 3.7.7
-pyenv global 3.7.7
+pyenv install 3.8.12
+pyenv global 3.8.12
 
 ```
 
 ## OSX / Linux Installation
 
 ```
-pyenv install 3.7.7
+pyenv install 3.8.12
 ```
 
 Installation may fail on Big Sur (OS X 11.0.1); to fix...
@@ -29,15 +29,15 @@ Installation may fail on Big Sur (OS X 11.0.1); to fix...
 ```
 brew reinstall zlib bzip2
 
-LDFLAGS="-L/usr/local/opt/zlib/lib -L/usr/local/opt/bzip2/lib" CPPFLAGS="-I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include" CFLAGS="-I$(brew --prefix openssl)/include -I$(brew --prefix bzip2)/include -I$(brew --prefix readline)/include -I$(xcrun --show-sdk-path)/usr/include" LDFLAGS="-L$(brew --prefix openssl)/lib -L$(brew --prefix readline)/lib -L$(brew --prefix zlib)/lib -L$(brew --prefix bzip2)/lib" pyenv install --patch 3.7.7 < <(curl -sSL https://github.com/python/cpython/commit/8ea6353.patch\?full_index\=1)
+LDFLAGS="-L/usr/local/opt/zlib/lib -L/usr/local/opt/bzip2/lib" CPPFLAGS="-I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include" CFLAGS="-I$(brew --prefix openssl)/include -I$(brew --prefix bzip2)/include -I$(brew --prefix readline)/include -I$(xcrun --show-sdk-path)/usr/include" LDFLAGS="-L$(brew --prefix openssl)/lib -L$(brew --prefix readline)/lib -L$(brew --prefix zlib)/lib -L$(brew --prefix bzip2)/lib" pyenv install --patch 3.8.12 < <(curl -sSL https://github.com/python/cpython/commit/8ea6353.patch\?full_index\=1)
 ```
 
 More information on this [here](https://github.com/pyenv/pyenv/issues/1740).
 
-After python 3.7.7 is installed,
+After python 3.8.12 is installed,
 
 ```
-pyenv global 3.7.7
+pyenv global 3.8.12
 ```
 
 Follow post-install instructions for pyenv [here](https://github.com/pyenv/pyenv#homebrew-on-macos).
