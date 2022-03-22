@@ -155,7 +155,14 @@ export function addBizDays(dateString: string, days: number) {
 }
 
 export function computeRequestedWithdrawCutoffDate(dateString: string) {
-  return addBizDays(dateString, new Date().getHours() >= 12 ? 2 : 1);
+  const currentHour = parseInt(
+    new Date().toLocaleString("en-US", {
+      timeZone: "America/Los_Angeles",
+      hour: "numeric",
+      hour12: false,
+    })
+  );
+  return addBizDays(dateString, currentHour >= 12 ? 2 : 1);
 }
 
 export function subtractBizDays(dateString: string, days: number) {

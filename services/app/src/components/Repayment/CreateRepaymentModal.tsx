@@ -20,6 +20,7 @@ import useSnackbar from "hooks/useSnackbar";
 import {
   computeRequestedWithdrawCutoffDate,
   todayAsDateStringServer,
+  formatDateString,
 } from "lib/date";
 import { PaymentMethodEnum, PaymentTypeEnum, ProductTypeEnum } from "lib/enum";
 import {
@@ -153,6 +154,23 @@ export default function CreateRepaymentModal({
   ] = useCustomMutation(createRepaymentMutation);
 
   const handleClickNext = async () => {
+    const dateAdjustmentAtSubmission = computeRequestedWithdrawCutoffDate(
+      todayAsDateStringServer()
+    );
+
+    if (payment.method === PaymentMethodEnum.ReverseDraftACH) {
+      if (dateAdjustmentAtSubmission > payment.requested_payment_date) {
+        setErrMsg(
+          `The selected Requested Withdraw Date of ${formatDateString(
+            payment.requested_payment_date
+          )} is invalid. Based on the current time, the earliest valid date is ${formatDateString(
+            dateAdjustmentAtSubmission
+          )}.`
+        );
+        return;
+      }
+    }
+
     const response = await calculateRepaymentEffect({
       variables: {
         company_id: companyId,
@@ -204,19 +222,6 @@ export default function CreateRepaymentModal({
     if (payment.requested_amount <= 0) {
       setErrMsg("Payment amount must be larger than 0");
       return;
-    }
-
-    const dateAdjustmentAtSubmission = computeRequestedWithdrawCutoffDate(
-      todayAsDateStringServer()
-    );
-
-    if (payment.method === PaymentMethodEnum.ReverseDraftACH) {
-      if (dateAdjustmentAtSubmission > payment.requested_payment_date) {
-        setErrMsg(
-          `Your submission has now passed the 12pm deadline. Please adjust your requested withdraw date of #${payment.requested_payment_date} to something on or after #${dateAdjustmentAtSubmission}.`
-        );
-        return;
-      }
     }
 
     // Double check to make sure selected account fee payment is not greater than amount owed
