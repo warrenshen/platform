@@ -134,7 +134,7 @@ export default function DebtFacilityOpenTab({ facilities }: Props) {
         </Box>
         {!!selectedDebtFacilityId && (
           <Box display="flex" flexDirection="column">
-            <Typography variant="h6">Debt Facility Balance Sheet</Typography>
+            <Typography variant="h6">Debt Facility</Typography>
             <Box
               display="flex"
               justifyContent="space-between"

@@ -296,7 +296,6 @@ def fund_loans_with_advance(
 				bank_note=bank_note,
 			)
 
-		loan_reports = []
 		loan_reports = cast(
 			List[models.LoanReport],
 			session.query(models.LoanReport).filter(

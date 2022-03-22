@@ -468,9 +468,9 @@ export enum DebtFacilityCompanyStatusEnum {
 
 export const DebtFacilityCompanyStatusToLabel = {
   [DebtFacilityCompanyStatusEnum.GOOD_STANDING]: "Good Standing",
-  [DebtFacilityCompanyStatusEnum.ON_PROBATION]: "On Probation",
-  [DebtFacilityCompanyStatusEnum.OUT_OF_COMPLIANCE]: "Out of Compliance",
-  [DebtFacilityCompanyStatusEnum.DEFAULTING]: "Defaulting",
+  [DebtFacilityCompanyStatusEnum.ON_PROBATION]: "Probation",
+  [DebtFacilityCompanyStatusEnum.OUT_OF_COMPLIANCE]: "Paused",
+  [DebtFacilityCompanyStatusEnum.DEFAULTING]: "Defaulted",
   [DebtFacilityCompanyStatusEnum.INELIGIBLE_FOR_FACILITY]:
     "Ineligible for Facility",
   [DebtFacilityCompanyStatusEnum.WAIVER]: "Waiver",
@@ -483,7 +483,7 @@ bad states is still useful for internal purposes
 */
 export const DebtFacilityCompanyStatusToEligibility = {
   [DebtFacilityCompanyStatusEnum.GOOD_STANDING]: "Eligible",
-  [DebtFacilityCompanyStatusEnum.ON_PROBATION]: "Ineligible",
+  [DebtFacilityCompanyStatusEnum.ON_PROBATION]: "Eligible",
   [DebtFacilityCompanyStatusEnum.OUT_OF_COMPLIANCE]: "Ineligible",
   [DebtFacilityCompanyStatusEnum.DEFAULTING]: "Ineligible",
   [DebtFacilityCompanyStatusEnum.INELIGIBLE_FOR_FACILITY]: "Ineligible",
