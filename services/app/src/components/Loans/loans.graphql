@@ -194,5 +194,13 @@ query GetLoansByLoanIds($loan_ids: [uuid!]!) {
     id
     ...Loan
     ...LoanArtifact
+    company {
+      id
+      ...Company
+      contract {
+        id
+        ...Contract
+      }
+    }
   }
 }

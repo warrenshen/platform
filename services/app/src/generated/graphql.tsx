@@ -26224,7 +26224,14 @@ export type GetLoansByLoanIdsQueryVariables = Exact<{
 }>;
 
 export type GetLoansByLoanIdsQuery = {
-  loans: Array<Pick<Loans, "id"> & LoanFragment & LoanArtifactFragment>;
+  loans: Array<
+    Pick<Loans, "id"> & {
+      company: Pick<Companies, "id"> & {
+        contract?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
+      } & CompanyFragment;
+    } & LoanFragment &
+      LoanArtifactFragment
+  >;
 };
 
 export type GetBankPayorPartnershipQueryVariables = Exact<{
@@ -27888,7 +27895,10 @@ export type MetrcDownloadSummaryFragment = Pick<
 > &
   MetrcDownloadSummaryLimitedFragment;
 
-export type DebtFacilityLimitedFragment = Pick<DebtFacilities, "id" | "name">;
+export type DebtFacilityLimitedFragment = Pick<
+  DebtFacilities,
+  "id" | "name" | "product_types"
+>;
 
 export type DebtFacilityCapacityLimitedFragment = Pick<
   DebtFacilityCapacities,
@@ -29138,6 +29148,7 @@ export const DebtFacilityLimitedFragmentDoc = gql`
   fragment DebtFacilityLimited on debt_facilities {
     id
     name
+    product_types
   }
 `;
 export const PurchaseOrderForDebtFacilityFragmentDoc = gql`
@@ -33190,10 +33201,20 @@ export const GetLoansByLoanIdsDocument = gql`
       id
       ...Loan
       ...LoanArtifact
+      company {
+        id
+        ...Company
+        contract {
+          id
+          ...Contract
+        }
+      }
     }
   }
   ${LoanFragmentDoc}
   ${LoanArtifactFragmentDoc}
+  ${CompanyFragmentDoc}
+  ${ContractFragmentDoc}
 `;
 
 /**

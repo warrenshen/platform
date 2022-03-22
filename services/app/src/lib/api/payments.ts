@@ -17,6 +17,7 @@ export type CreateAdvanceReq = {
     payment: PaymentsInsertInput;
     loan_ids: Loans["id"][];
     should_charge_wire_fee: boolean;
+    debt_facility_id: string;
   };
 };
 

@@ -147,7 +147,8 @@ class TestDeleteLoan(db_unittest.TestCase):
 					customer_note='',
 					bank_note=''
 				),
-				should_charge_wire_fee=True
+				should_charge_wire_fee=True,
+				debt_facility_id="",
 			),
 			bank_admin_user_id=bank_admin_user_id,
 			session_maker=self.session_maker

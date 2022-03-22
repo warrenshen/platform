@@ -4,6 +4,7 @@ import AdvanceForm from "components/Advance/AdvanceForm";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import Modal from "components/Shared/Modal/Modal";
+import AutocompleteDebtFacility from "components/DebtFacility/AutocompleteDebtFacility";
 import {
   BankAccountFragment,
   GetAdvancesBankAccountsForCustomerQuery,
@@ -50,6 +51,7 @@ export default function CreateAdvanceModal({
 
   const [payment, setPayment] = useState(newPayment);
   const [shouldChargeWireFee, setShouldChargeWireFee] = useState(false);
+  const [debtFacility, setDebtFacility] = useState("");
 
   const { data: loansData, error: loansError } = useGetLoansByLoanIdsQuery({
     variables: {
@@ -69,6 +71,10 @@ export default function CreateAdvanceModal({
     alert(`Error in query (details in console): ${loansError.message}`);
   }
   const selectedLoans = loansData?.loans || [];
+  // Since bulk advances must have the same target bank account, we can
+  // assume all advances are going to the same company / product type
+  const selectedProductType =
+    selectedLoans[0]?.company?.contract?.product_type || undefined;
 
   const customerId = extractCustomerId(selectedLoans);
   const recipientCompanyId = extractRecipientCompanyId(selectedLoans);
@@ -190,6 +196,7 @@ export default function CreateAdvanceModal({
         },
         loan_ids: selectedLoanIds,
         should_charge_wire_fee: shouldChargeWireFee,
+        debt_facility_id: debtFacility,
       },
     });
 
@@ -266,6 +273,34 @@ export default function CreateAdvanceModal({
               </Box>
             </Box>
           )}
+          <Box mt={4}>
+            <Box>
+              <Typography>{`Debt Facility`}</Typography>
+              <Box display="flex" flexDirection="column" mt={1}>
+                <AutocompleteDebtFacility
+                  textFieldLabel="Select existing debt facility by name"
+                  onChange={(selectedDebtFacility) => {
+                    setDebtFacility(selectedDebtFacility);
+                  }}
+                  setupMessage={
+                    "Loans will automatically default to Bespoke's books " +
+                    "until a debt facility has been set up that supports this customer's product type"
+                  }
+                  productType={selectedProductType}
+                />
+              </Box>
+            </Box>
+            {!!debtFacility && (
+              <Box mt={4}>
+                <Alert severity="info">
+                  If you selected a debt facility above, the loan will be added
+                  to that debt facility's books if there is capacity. Otherwise,
+                  the loan will default to Bespoke's books. This can be changed
+                  later, if desired.
+                </Alert>
+              </Box>
+            )}
+          </Box>
         </Box>
       ) : (
         <Box>

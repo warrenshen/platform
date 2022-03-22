@@ -1760,12 +1760,14 @@
       columns:
       - id
       - name
+      - product_types
       filter: {}
   - role: bank_read_only
     permission:
       columns:
-      - name
       - id
+      - name
+      - product_types
       filter: {}
 - table:
     schema: public

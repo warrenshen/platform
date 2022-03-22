@@ -380,6 +380,7 @@ class DebtFacility(Base):
 	__tablename__ = "debt_facilities"
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	name = Column(String)
+	product_types = Column(JSON, nullable=True)
 
 class DebtFacilityEvent(Base):
 	__tablename__ = "debt_facility_events"

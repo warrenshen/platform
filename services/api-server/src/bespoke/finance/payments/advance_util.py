@@ -24,7 +24,8 @@ ASCII_CHARACTERS = list(string.ascii_uppercase)
 FundLoansReqDict = TypedDict('FundLoansReqDict', {
 	'loan_ids': List[str],
 	'payment': payment_types.PaymentInsertInputDict,
-	'should_charge_wire_fee': bool
+	'should_charge_wire_fee': bool,
+	'debt_facility_id': str
 })
 
 FundLoansRespDict = TypedDict('FundLoansRespDict', {
@@ -46,6 +47,7 @@ def fund_loans_with_advance(
 
 	payment_input = req['payment']
 	loan_ids = req['loan_ids']
+	debt_facility_id = req['debt_facility_id']
 
 	if len(loan_ids) > len(ASCII_CHARACTERS):
 		raise errors.Error(f'Cannot create an advance on greater than {len(ASCII_CHARACTERS)} loans at the same time, please remove some loans')
@@ -72,6 +74,17 @@ def fund_loans_with_advance(
 	bank_note = payment_input['bank_note']
 
 	with session_scope(session_maker) as session:
+
+		if debt_facility_id != "":
+			debt_facility = cast(
+				models.DebtFacility,
+				session.query(models.DebtFacility).filter(
+					models.DebtFacility.id == debt_facility_id
+			).first())
+
+			if not debt_facility:
+				raise errors.Error("Debt facility ID set but no matching debt facility found")
+
 		# Note we order loans by [amount, created_at]. This order by
 		# impacts which disbursement identifiers are assigned to which loans.
 		loans = cast(
@@ -107,6 +120,7 @@ def fund_loans_with_advance(
 		already_set_dates_loan_ids: List[str] = []
 		not_approved_loan_ids: List[str] = []
 		all_loans_total = 0
+		loan_report_ids: List[str] = []
 		for loan in loans:
 			# Check whether a customer has gone over their allotted amount of principal.
 			available_limit = company_id_to_available_limit[loan.company_id]
@@ -125,6 +139,9 @@ def fund_loans_with_advance(
 
 			if not loan.approved_at:
 				not_approved_loan_ids.append(loan_id)
+
+			if loan.loan_report_id is not None:
+				loan_report_ids.append(str(loan.loan_report_id)) 
 
 		if all_loans_total > available_limit:
 			raise errors.Error('Total amount across all loans in request exceeds the maximum limit for company {}. Loan total: {}. Remaining limit: {}'.format(
@@ -279,6 +296,16 @@ def fund_loans_with_advance(
 				bank_note=bank_note,
 			)
 
+		loan_reports = []
+		loan_reports = cast(
+			List[models.LoanReport],
+			session.query(models.LoanReport).filter(
+				models.LoanReport.id.in_(loan_report_ids)
+		).all())
+		loan_report_dict: Dict[str, models.LoanReport] = {}
+		for loan_report in loan_reports:
+			loan_report_dict[str(loan_report.id)] = loan_report
+
 		for loan in loans:
 			cur_contract = contracts_by_company_id[str(loan.company_id)]
 			maturity_date, err = cur_contract.get_maturity_date(settlement_date)
@@ -300,6 +327,20 @@ def fund_loans_with_advance(
 
 			if loan.loan_type in artifact_ids_index:
 				artifact_ids_index[loan.loan_type].add(loan.artifact_id)
+
+			if str(loan.loan_report_id) in loan_report_dict:
+				loan_report = loan_report_dict[str(loan.loan_report_id)]
+				loan_report.debt_facility_id = debt_facility.id if debt_facility_id != "" else None
+				loan_report.debt_facility_status = db_constants.LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY \
+					if debt_facility_id != "" else db_constants.LoanDebtFacilityStatus.BESPOKE_BALANCE_SHEET
+			else:
+				loan_report = models.LoanReport()
+				loan_report.debt_facility_id = debt_facility.id if debt_facility_id != "" else None
+				loan_report.debt_facility_status = db_constants.LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY \
+					if debt_facility_id != "" else db_constants.LoanDebtFacilityStatus.BESPOKE_BALANCE_SHEET
+				session.add(loan_report)
+				session.flush()
+				loan.loan_report_id = loan_report.id
 
 	# Once all of those writes are complete, we check if any of the associated
 	# artifacts are fully funded and mark them so

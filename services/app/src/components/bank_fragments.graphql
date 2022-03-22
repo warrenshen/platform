@@ -339,6 +339,7 @@ fragment MetrcDownloadSummary on metrc_download_summaries {
 fragment DebtFacilityLimited on debt_facilities {
   id
   name
+  product_types
 }
 
 fragment DebtFacilityCapacityLimited on debt_facility_capacities {
