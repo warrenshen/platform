@@ -1,5 +1,14 @@
 # Installing
 
+1. Install NVM:
+https://github.com/nvm-sh/nvm#installing-and-updating
+
+2. Install Node:
+```
+nvm install v15.10.0
+```
+
+3. Activate Node environment and install dependencies:
 ```
 nvm use
 cp .env.example .env

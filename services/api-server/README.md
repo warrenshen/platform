@@ -84,9 +84,13 @@ Start up hot-reloading Python server on localhost:7000...
 make runlocal
 ```
 
-To stat up the hot-reloading Python server for asynchronous tasks on localhost:7001...
+Start up the hot-reloading Python server for asynchronous tasks on localhost:7001...
 
+```
 make run-async-local
+```
+
+If you run into the issue "port 7000 already is use", the new AirPlay Receiver may have started on this port. You can disable the AirPlay Receiver to free up the port in System Preferences > Sharing.
 
 # Contributing
 
