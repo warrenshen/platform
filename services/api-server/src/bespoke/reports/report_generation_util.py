@@ -9,7 +9,9 @@ from typing import Dict
 from flask import current_app
 from bespoke.date import date_util
 from bespoke.db import models
+from bespoke.db.db_constants import LoanStatusEnum, LoanTypeEnum
 from sendgrid.helpers.mail import Attachment, FileContent, FileName, FileType, Disposition
+from sqlalchemy.orm.session import Session
 
 from bespoke.config.config_util import is_prod_env
 from server.config import Config
@@ -104,5 +106,29 @@ def record_report_run_metadata(
 		)
 		session.add(sync_pipeline_entry)
 
+def get_all_open_loans(
+		session: Session,
+		today_date: datetime.date,
+		is_past_due: bool
+	) -> List[models.Loan]:
+	queries = [
+		models.Loan.closed_at == None,
+		models.Loan.rejected_at == None,
+		models.Loan.origination_date != None,
+		models.Loan.adjusted_maturity_date != None,
+		models.Loan.status == LoanStatusEnum.APPROVED,
+		models.Loan.loan_type != LoanTypeEnum.LINE_OF_CREDIT
+	]
 
+	if is_past_due:
+		queries.append(models.Loan.adjusted_maturity_date < today_date)
+	else:
+		queries.append(models.Loan.adjusted_maturity_date >= today_date)
 
+	all_open_loans = cast(
+		List[models.Loan],
+		session.query(models.Loan).filter(
+			*queries
+		).all())
+
+	return all_open_loans

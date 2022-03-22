@@ -32,12 +32,7 @@ from server.views import report_generation
 from dateutil import parser
 
 TODAY = parser.parse('2020-10-01T16:33:27.69-08:00')
-# coming due report sent 1, 3, 7, or 14 days away, make sure to subtract 1
-
-TWO_DAYS_FROM_TODAY = TODAY + date_util.timedelta(days=2)
-FOUR_DAYS_BEFORE_TODAY = TODAY - date_util.timedelta(days=4)
-MONTH_FROM_TODAY = TODAY + date_util.timedelta(days=30)
-LAST_YEAR = TODAY - date_util.timedelta(days=365)
+TODAY_DATE = TODAY.date()
 
 def get_relative_date(base_date: datetime.datetime, offset: int) -> datetime.datetime:
 	return base_date + date_util.timedelta(days=offset)
@@ -48,88 +43,6 @@ def _get_late_fee_structure() -> str:
 		'15-29': 0.50,
 		'30+': 1.0
 	})
-
-def add_loans_for_company(
-	session: Session, 
-	company_id: str,
-	product_type: str,
-	has_contract: bool = True,
-	is_dummy_account: bool = False) -> None:
-
-	if has_contract:
-		contract = models.Contract(
-			company_id=company_id,
-			product_type=product_type,
-			product_config=contract_test_helper.create_contract_config(
-				product_type=product_type,
-				input_dict=ContractInputDict(
-					interest_rate=5.00,
-					maximum_principal_amount=120000.01,
-					max_days_until_repayment=0, # unused
-					late_fee_structure=_get_late_fee_structure(), # unused
-				)
-			),
-			start_date=date_util.load_date_str('1/1/2020'),
-			adjusted_end_date=date_util.load_date_str('12/1/2024')
-		)
-		session.add(contract)
-		session.commit()
-		session.refresh(contract)
-
-	company = session.query(models.Company).get(company_id)
-
-	if has_contract:
-		company.contract_id = contract.id
-
-	company_settings = session.query(models.CompanySettings).get(company.company_settings_id)
-	company_settings.is_dummy_account = is_dummy_account
-	session.commit()
-
-
-	# Add coming due loan
-	session.add(models.Loan(
-		company_id = company_id,
-		amount = Decimal(10000.0),
-		maturity_date = TWO_DAYS_FROM_TODAY,
-		adjusted_maturity_date = TWO_DAYS_FROM_TODAY,
-		origination_date = LAST_YEAR,
-		outstanding_principal_balance = Decimal(5000.0),
-		outstanding_interest = Decimal(500.0),
-		outstanding_fees = Decimal(100.0),
-		status = "approved",
-		loan_type = "purchase_order",
-		identifier = "1"
-	))
-
-	# Add past due loan
-	session.add(models.Loan(
-		company_id = company_id,
-		amount = Decimal(10000.0),
-		maturity_date = FOUR_DAYS_BEFORE_TODAY,
-		adjusted_maturity_date = FOUR_DAYS_BEFORE_TODAY,
-		origination_date = LAST_YEAR,
-		outstanding_principal_balance = Decimal(5000.0),
-		outstanding_interest = Decimal(500.0),
-		outstanding_fees = Decimal(100.0),
-		status = "approved",
-		loan_type = "purchase_order",
-		identifier = "1"
-	))
-
-	# Add loan that isn't past or coming due
-	session.add(models.Loan(
-		company_id = company_id,
-		amount = Decimal(10000.0),
-		maturity_date = MONTH_FROM_TODAY,
-		adjusted_maturity_date = MONTH_FROM_TODAY,
-		origination_date = LAST_YEAR,
-		outstanding_principal_balance = Decimal(5000.0),
-		outstanding_interest = Decimal(500.0),
-		outstanding_fees = Decimal(100.0),
-		status = "approved",
-		loan_type = "purchase_order",
-		identifier = "1"
-	))
 
 def add_financial_summaries_for_company(
 	session: Session, 
@@ -626,111 +539,326 @@ def setup_data_for_available_credit(
 	company_settings.active_ebba_application_id = ebba_id # type: ignore
 	session.add(company_settings)
 	
+def setup_for_past_or_coming_due_test(
+	session: Session,
+	num_happy_path_loans: int,
+	is_past_due: bool,
+	) -> List[str]:
+	company_ids = [
+		uuid.uuid4(),
+		uuid.uuid4(),
+		uuid.uuid4(),
+	]
+
+	# needed for the notified 
+	for i in range(len(company_ids)):
+		session.add(models.Company(
+			id = company_ids[i],
+			parent_company_id = uuid.uuid4(),
+			name = "Company " + str(i)
+		))
+
+	# we return this to make testing the next step, get_loans_to_notify, easier to test
+	company_id_strings = [
+		str(company_ids[0]),
+		str(company_ids[1]),
+		str(company_ids[2]),
+	]
+
+	for i in range(num_happy_path_loans):
+		if is_past_due:
+			calculated_date = TODAY.date() + datetime.timedelta(-1 * i)
+			earlier_date = calculated_date + datetime.timedelta(-60)
+		else:
+			calculated_date = TODAY.date() + datetime.timedelta(i)
+			earlier_date = calculated_date + datetime.timedelta(60)
+
+		test_amount = Decimal(12000 * (i + 1))
+
+		purchase_order_id = uuid.uuid4()
+		session.add(models.PurchaseOrder(
+			id = purchase_order_id,
+			order_number = "TESTPO-" + str(i),
+			approved_at = TODAY + datetime.timedelta(-65),
+			amount = test_amount,
+			amount_funded = test_amount,
+			status = RequestStatusEnum.APPROVED,
+			delivery_date = calculated_date
+		))
+
+		loan = models.Loan()
+		loan.company_id = company_ids[i % len(company_ids)]
+		loan.artifact_id = purchase_order_id
+		loan.identifier = str(i)
+		loan.origination_date = earlier_date
+		loan.maturity_date = calculated_date
+		loan.adjusted_maturity_date = calculated_date
+		loan.status = LoanStatusEnum.APPROVED
+		loan.loan_type = LoanTypeEnum.INVENTORY
+		loan.amount = test_amount
+		loan.outstanding_principal_balance = Decimal(10000 * (i + 1))
+		loan.outstanding_interest = Decimal(500)
+		loan.outstanding_fees = Decimal(25)
+
+		session.add(loan)
+
+	# Adding loans that should *NOT* be picked up by the query
+	# This tests to make sure our filters are setup properly
+
+	rejected_loan = models.Loan()
+	rejected_loan.company_id = company_ids[0]
+	rejected_loan.origination_date = TODAY.date() + datetime.timedelta(-7)
+	rejected_loan.rejected_at = TODAY + datetime.timedelta(-7)
+	rejected_loan.status = LoanStatusEnum.REJECTED
+	rejected_loan.loan_type = LoanTypeEnum.INVENTORY
+	rejected_loan.amount = Decimal(12000)
+	rejected_loan.outstanding_principal_balance = Decimal(10000)
+	rejected_loan.outstanding_interest = Decimal(500)
+	rejected_loan.outstanding_fees = Decimal(25)
+	session.add(rejected_loan)
+
+	closed_loan = models.Loan()
+	closed_loan.company_id = company_ids[1]
+	closed_loan.origination_date = TODAY.date() + datetime.timedelta(-65)
+	closed_loan.maturity_date = TODAY.date() + datetime.timedelta(-60)
+	closed_loan.adjusted_maturity_date = TODAY.date() + datetime.timedelta(-60)
+	closed_loan.closed_at = TODAY + datetime.timedelta(-60)
+	closed_loan.status = LoanStatusEnum.CLOSED
+	closed_loan.loan_type = LoanTypeEnum.INVENTORY
+	closed_loan.amount = Decimal(12000)
+	closed_loan.outstanding_principal_balance = Decimal(10000)
+	closed_loan.outstanding_interest = Decimal(500)
+	closed_loan.outstanding_fees = Decimal(25)
+	session.add(closed_loan)
+
+	no_origination_date_loan = models.Loan()
+	no_origination_date_loan.company_id = company_ids[2]
+	no_origination_date_loan.maturity_date = TODAY.date() + datetime.timedelta(-7)
+	no_origination_date_loan.adjusted_maturity_date = TODAY.date() + datetime.timedelta(-7)
+	no_origination_date_loan.status = LoanStatusEnum.APPROVED
+	no_origination_date_loan.loan_type = LoanTypeEnum.INVENTORY
+	no_origination_date_loan.amount = Decimal(12000)
+	no_origination_date_loan.outstanding_principal_balance = Decimal(10000)
+	no_origination_date_loan.outstanding_interest = Decimal(500)
+	no_origination_date_loan.outstanding_fees = Decimal(25)
+	session.add(no_origination_date_loan)
+
+	no_adjusted_maturity_date_loan = models.Loan()
+	no_adjusted_maturity_date_loan.company_id = company_ids[0]
+	no_adjusted_maturity_date_loan.origination_date = TODAY.date() + datetime.timedelta(-65)
+	no_adjusted_maturity_date_loan.maturity_date = TODAY.date() + datetime.timedelta(-7)
+	no_adjusted_maturity_date_loan.status = LoanStatusEnum.APPROVED
+	no_adjusted_maturity_date_loan.loan_type = LoanTypeEnum.INVENTORY
+	no_adjusted_maturity_date_loan.amount = Decimal(12000)
+	no_adjusted_maturity_date_loan.outstanding_principal_balance = Decimal(10000)
+	no_adjusted_maturity_date_loan.outstanding_interest = Decimal(500)
+	no_adjusted_maturity_date_loan.outstanding_fees = Decimal(25)
+	session.add(no_adjusted_maturity_date_loan)
+
+	draft_loan = models.Loan()
+	draft_loan.company_id = company_ids[1]
+	draft_loan.origination_date = TODAY.date() + datetime.timedelta(6)
+	draft_loan.maturity_date = TODAY.date() + datetime.timedelta(66)
+	draft_loan.adjusted_maturity_date = TODAY.date() + datetime.timedelta(66)
+	draft_loan.status = LoanStatusEnum.DRAFTED
+	draft_loan.loan_type = LoanTypeEnum.INVENTORY
+	draft_loan.amount = Decimal(12000)
+	draft_loan.outstanding_principal_balance = Decimal(10000)
+	draft_loan.outstanding_interest = Decimal(500)
+	draft_loan.outstanding_fees = Decimal(25)
+	session.add(draft_loan)
+
+	line_of_credit_loan = models.Loan()
+	line_of_credit_loan.company_id = company_ids[2]
+	line_of_credit_loan.origination_date = TODAY.date() + datetime.timedelta(-6)
+	line_of_credit_loan.maturity_date = TODAY.date() + datetime.timedelta(66)
+	line_of_credit_loan.adjusted_maturity_date = TODAY.date() + datetime.timedelta(66)
+	line_of_credit_loan.status = LoanStatusEnum.APPROVED
+	line_of_credit_loan.loan_type = LoanTypeEnum.LINE_OF_CREDIT
+	line_of_credit_loan.amount = Decimal(12000)
+	line_of_credit_loan.outstanding_principal_balance = Decimal(10000)
+	line_of_credit_loan.outstanding_interest = Decimal(500)
+	line_of_credit_loan.outstanding_fees = Decimal(25)
+	session.add(line_of_credit_loan)
+
+	return company_id_strings
+
 class TestReportsLoansPastDueView(db_unittest.TestCase):
 	def test_past_due_loans_report_generation(self) -> None:
 		past_due_report = report_generation.ReportsLoansPastDueView()
 
 		with session_scope(self.session_maker) as session:
+			company_id_strings = setup_for_past_or_coming_due_test(
+				session, 
+				num_happy_path_loans = 14, 
+				is_past_due = True
+			)
+			session.flush()
 
-			loan = models.Loan()
-			loan.maturity_date = date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
-			loan.adjusted_maturity_date = date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
-			loan.outstanding_principal_balance = Decimal(10000)
-			loan.outstanding_interest = Decimal(500)
-			loan.outstanding_fees = Decimal(250)
+			all_open_loans = get_all_open_loans(session, TODAY.date(), is_past_due = True)
+			# 13 because the first generated loan should be for constant TODAY, which won't be past due
+			self.assertEqual(len(all_open_loans), 13)
+
+			# loans assigned to companies based of a mod divided range iterator
+			loans_to_notify = past_due_report.get_loans_to_notify(session, TODAY.date())
+			self.assertEqual(len(loans_to_notify[company_id_strings[0]]), 4)
+			self.assertEqual(len(loans_to_notify[company_id_strings[1]]), 5)
+			self.assertEqual(len(loans_to_notify[company_id_strings[2]]), 4)
 			
-			running_total, rows_html = past_due_report.prepare_email_rows([loan], session)
+			# check the generated table html for all the pertinent loan details
+			email_row_loans = loans_to_notify[company_id_strings[0]]
+			running_total, rows_html = past_due_report.prepare_email_rows(session, email_row_loans, TODAY_DATE)
+			self.assertEqual(running_total, 342100.0)
 
-			# since the maturity_date is set to now in this test
-			# days due will always be zero
-			days_due_html = rows_html.find("<td>0</td>")
-			self.assertNotEqual(days_due_html, -1)
+			# check first loan
+			first_loan_identifier = rows_html.find("<td>L3</td>")
+			first_loan_days_past_due = rows_html.find("<td>3</td>")
+			first_loan_maturity_date = rows_html.find("<td>09/28/2020</td>")
+			first_loan_outstanding_total = rows_html.find("<td>$40,525.00</td>")
+			first_loan_outstanding_principal = rows_html.find("<td>$40,000.00</td>")
+			first_loan_outstanding_interest = rows_html.find("<td>$500.00</td>")
+			first_loan_outstanding_fees = rows_html.find("<td>$25.00</td>")
+			self.assertNotEqual(first_loan_identifier, -1)
+			self.assertNotEqual(first_loan_days_past_due, -1)
+			self.assertNotEqual(first_loan_maturity_date, -1)
+			self.assertNotEqual(first_loan_outstanding_total, -1)
+			self.assertNotEqual(first_loan_outstanding_principal, -1)
+			self.assertNotEqual(first_loan_outstanding_interest, -1)
+			self.assertNotEqual(first_loan_outstanding_fees, -1)
 
-			total_pos = rows_html.find("10,750")
-			self.assertNotEqual(total_pos, -1)
+			# check second loan
+			second_loan_identifier = rows_html.find("<td>L6</td>")
+			second_loan_days_past_due = rows_html.find("<td>6</td>")
+			second_loan_maturity_date = rows_html.find("<td>09/22/2020</td>")
+			second_loan_outstanding_total = rows_html.find("<td>$70,525.00</td>")
+			second_loan_outstanding_principal = rows_html.find("<td>$70,000.00</td>")
+			second_loan_outstanding_interest = rows_html.find("<td>$500.00</td>")
+			second_loan_outstanding_fees = rows_html.find("<td>$25.00</td>")
+			self.assertNotEqual(second_loan_identifier, -1)
+			self.assertNotEqual(second_loan_days_past_due, -1)
+			self.assertNotEqual(second_loan_maturity_date, -1)
+			self.assertNotEqual(second_loan_outstanding_total, -1)
+			self.assertNotEqual(second_loan_outstanding_principal, -1)
+			self.assertNotEqual(second_loan_outstanding_interest, -1)
+			self.assertNotEqual(second_loan_outstanding_fees, -1)
 
-			self.reset()
-			seed = test_helper.BasicSeed.create(self.session_maker, self)
-			seed.initialize()
-		
-			add_loans_for_company(session, seed.get_company_id('company_admin', index=0), ProductType.PURCHASE_MONEY_FINANCING)
-			all_open_loans = cast(
-				List[models.Loan],
-				session.query(models.Loan).all())
+			# check third loan
+			third_loan_identifier = rows_html.find("<td>L9</td>")
+			third_loan_days_past_due = rows_html.find("<td>9</td>")
+			third_loan_maturity_date = rows_html.find("<td>09/22/2020</td>")
+			third_loan_outstanding_total = rows_html.find("<td>$100,525.00</td>")
+			third_loan_outstanding_principal = rows_html.find("<td>$100,000.00</td>")
+			third_loan_outstanding_interest = rows_html.find("<td>$500.00</td>")
+			third_loan_outstanding_fees = rows_html.find("<td>$25.00</td>")
+			self.assertNotEqual(third_loan_identifier, -1)
+			self.assertNotEqual(third_loan_days_past_due, -1)
+			self.assertNotEqual(third_loan_maturity_date, -1)
+			self.assertNotEqual(third_loan_outstanding_total, -1)
+			self.assertNotEqual(third_loan_outstanding_principal, -1)
+			self.assertNotEqual(third_loan_outstanding_interest, -1)
+			self.assertNotEqual(third_loan_outstanding_fees, -1)
 
-			loans_to_notify : Dict[str, List[models.Loan] ] = {}
-			for l in all_open_loans:
-				if l.origination_date is not None and l.adjusted_maturity_date is not None and \
-					l.status == LoanStatusEnum.APPROVED and l.closed_at is None and l.rejected_at is None:
-					days_until_maturity = date_util.num_calendar_days_passed(TODAY.date(), l.adjusted_maturity_date);
-					if days_until_maturity == 1 or days_until_maturity == 3 or \
-						days_until_maturity == 7 or days_until_maturity == 14:
-						if l.company_id not in loans_to_notify:
-							loans_to_notify[l.company_id] = [];
-						loans_to_notify[l.company_id].append(l)
-
+			# check fourth loan
+			fourth_loan_identifier = rows_html.find("<td>L12</td>")
+			fourth_loan_days_past_due = rows_html.find("<td>12</td>")
+			fourth_loan_maturity_date = rows_html.find("<td>09/19/2020</td>")
+			fourth_loan_outstanding_total = rows_html.find("<td>$130,525.00</td>")
+			fourth_loan_outstanding_principal = rows_html.find("<td>$130,000.00</td>")
+			fourth_loan_outstanding_interest = rows_html.find("<td>$500.00</td>")
+			fourth_loan_outstanding_fees = rows_html.find("<td>$25.00</td>")
+			self.assertNotEqual(fourth_loan_identifier, -1)
+			self.assertNotEqual(fourth_loan_days_past_due, -1)
+			self.assertNotEqual(fourth_loan_maturity_date, -1)
+			self.assertNotEqual(fourth_loan_outstanding_total, -1)
+			self.assertNotEqual(fourth_loan_outstanding_principal, -1)
+			self.assertNotEqual(fourth_loan_outstanding_interest, -1)
+			self.assertNotEqual(fourth_loan_outstanding_fees, -1)		
+			
+			# check notified_loan_count
 			notified_loans, _ = past_due_report.process_loan_chunk(session, 
 				sendgrid_client = None, 
 				report_link = "http://localhost:3005/1/reports",
 				payment_link = "http://localhost:3005/1/loans", 
-				loans_to_notify= loans_to_notify,
-				today = parser.parse('2020-10-01T16:33:27.69-08:00')
+				loans_to_notify = loans_to_notify
 			)
 
 			notified_loan_count = 0
 			for _, loans in notified_loans.items():
 				notified_loan_count += len(loans)
-			self.assertEqual(notified_loan_count, 1)
-
+			self.assertEqual(notified_loan_count, 13)
 
 class TestReportsLoansComingDueView(db_unittest.TestCase):
 	def test_coming_due_loans_report_generation(self) -> None:
 		coming_due_report = report_generation.ReportsLoansComingDueView()
 
 		with session_scope(self.session_maker) as session:
+			company_id_strings = setup_for_past_or_coming_due_test(
+				session, 
+				num_happy_path_loans = 15, 
+				is_past_due = False
+			)
+			session.flush()
 
-			loan = models.Loan()
-			loan.adjusted_maturity_date = TWO_DAYS_FROM_TODAY
-			loan.outstanding_principal_balance = Decimal(10000)
-			loan.outstanding_interest = Decimal(500)
-			loan.outstanding_fees = Decimal(250)
+			all_open_loans = get_all_open_loans(session, TODAY.date(), is_past_due = False)
+			# 15 because the first generated loan should be for constant TODAY
+			# which is included in the calculation for coming due
+			self.assertEqual(len(all_open_loans), 15)
 
-			running_total, rows_html = coming_due_report.prepare_email_rows([loan], session)
-			total_pos = rows_html.find("10,750")
-			self.assertNotEqual(total_pos, -1)
+			# loans assigned to companies based of a mod divided range iterator
+			# and are also filtered if their days before loan due is in [1, 3, 7, 14]
+			loans_to_notify = coming_due_report.get_loans_to_notify(session, TODAY.date())
+			self.assertEqual(len(loans_to_notify[company_id_strings[0]]), 2)
+			self.assertEqual(len(loans_to_notify[company_id_strings[1]]), 1)
+			self.assertEqual(len(loans_to_notify[company_id_strings[2]]), 1)
 
-			self.reset()
-			seed = test_helper.BasicSeed.create(self.session_maker, self)
-			seed.initialize()
-		
-			add_loans_for_company(session, seed.get_company_id('company_admin', index=0), ProductType.PURCHASE_MONEY_FINANCING)
-			all_open_loans = cast(
-				List[models.Loan],
-				session.query(models.Loan).all())
+			email_row_loans = loans_to_notify[company_id_strings[0]]
+			running_total, rows_html = coming_due_report.prepare_email_rows(session, email_row_loans)
+			self.assertEqual(running_total, 81050.0)
 
-			loans_to_notify : Dict[str, List[models.Loan] ] = {}
-			for l in all_open_loans:
-				if l.origination_date is not None and l.adjusted_maturity_date is not None and \
-					l.status == LoanStatusEnum.APPROVED and l.closed_at is None and l.rejected_at is None:
-					days_until_maturity = date_util.num_calendar_days_passed(TODAY.date(), l.adjusted_maturity_date);
-					if days_until_maturity == 1 or days_until_maturity == 3 or \
-						days_until_maturity == 7 or days_until_maturity == 14:
-						if l.company_id not in loans_to_notify:
-							loans_to_notify[l.company_id] = [];
-						loans_to_notify[l.company_id].append(l)
+			# check first loan
+			first_loan_identifier = rows_html.find("<td>L0</td>")
+			first_loan_artifact_identifier = rows_html.find("<td>PTESTPO-0</td>")
+			first_loan_maturity_date = rows_html.find("<td>10/01/2020</td>")
+			first_loan_outstanding_total = rows_html.find("<td>$10,525.00</td>")
+			first_loan_outstanding_principal = rows_html.find("<td>$10,000.00</td>")
+			first_loan_outstanding_interest = rows_html.find("<td>$500.00</td>")
+			first_loan_outstanding_fees = rows_html.find("<td>$25.00</td>")
+			self.assertNotEqual(first_loan_identifier, -1)
+			self.assertNotEqual(first_loan_artifact_identifier, -1)
+			self.assertNotEqual(first_loan_maturity_date, -1)
+			self.assertNotEqual(first_loan_outstanding_total, -1)
+			self.assertNotEqual(first_loan_outstanding_principal, -1)
+			self.assertNotEqual(first_loan_outstanding_interest, -1)
+			self.assertNotEqual(first_loan_outstanding_fees, -1)
 
+			# check second loan
+			second_loan_identifier = rows_html.find("<td>L6</td>")
+			second_loan_artifact_identifier = rows_html.find("<td>PTESTPO-6</td>")
+			second_loan_maturity_date = rows_html.find("<td>10/07/2020</td>")
+			second_loan_outstanding_total = rows_html.find("<td>$70,525.00</td>")
+			second_loan_outstanding_principal = rows_html.find("<td>$70,000.00</td>")
+			second_loan_outstanding_interest = rows_html.find("<td>$500.00</td>")
+			second_loan_outstanding_fees = rows_html.find("<td>$25.00</td>")
+			self.assertNotEqual(second_loan_identifier, -1)
+			self.assertNotEqual(second_loan_artifact_identifier, -1)
+			self.assertNotEqual(second_loan_maturity_date, -1)
+			self.assertNotEqual(second_loan_outstanding_total, -1)
+			self.assertNotEqual(second_loan_outstanding_principal, -1)
+			self.assertNotEqual(second_loan_outstanding_interest, -1)
+			self.assertNotEqual(second_loan_outstanding_fees, -1)
+
+			# check notified_loan_count
 			notified_loans, _ = coming_due_report.process_loan_chunk(session, 
 				sendgrid_client = None, 
 				report_link = "http://localhost:3005/1/reports",
 				payment_link = "http://localhost:3005/1/loans", 
-				loans_to_notify = loans_to_notify,
-				today = parser.parse('2020-10-01T16:33:27.69-08:00')
+				loans_to_notify = loans_to_notify
 			)
 
 			notified_loan_count = 0
 			for _, loans in notified_loans.items():
 				notified_loan_count += len(loans)
-			self.assertEqual(notified_loan_count, 1)
+			self.assertEqual(notified_loan_count, 4)
 
 class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 	def test_get_end_of_report_month_financial_summary(self) -> None:

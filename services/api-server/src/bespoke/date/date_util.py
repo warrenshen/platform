@@ -16,6 +16,9 @@ DEFAULT_TIMEZONE = 'US/Pacific'
 def human_readable_yearmonthday(dt: datetime.datetime) -> str:
 	return dt.strftime('%m/%d/%Y')
 
+def human_readable_yearmonthday_from_date(date: datetime.date) -> str:
+	return date.strftime('%m/%d/%Y')
+
 def human_readable_monthyear(date: datetime.date) -> str:
 	return date.strftime('%B %Y')
 
