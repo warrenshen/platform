@@ -25,7 +25,7 @@ import useSnackbar from "hooks/useSnackbar";
 import { Action } from "lib/auth/rbac-rules";
 import { FileTypeEnum } from "lib/enum";
 import { InventoryNotifier } from "lib/notifications/inventory";
-import { consolidateUsers } from "lib/users";
+import { consolidateCompanyUsers } from "lib/users";
 import { useMemo } from "react";
 import SendVendorAgreements from "components/Vendors/VendorDrawer/Notifications/SendVendorAgreements";
 
@@ -57,7 +57,7 @@ export default function VendorPartnershipDrawer({
 
   const companyVendorPartnership = data?.company_vendor_partnerships_by_pk;
   const customer = companyVendorPartnership?.company;
-  const customerUsers = consolidateUsers(
+  const customerUsers = consolidateCompanyUsers(
     customer?.users || [],
     customer?.parent_company?.users || []
   );
@@ -88,10 +88,7 @@ export default function VendorPartnershipDrawer({
   const notifier = new InventoryNotifier();
   const isVendorBankAccountValid = !!companyVendorPartnership?.vendor_bank_account;
   const hasNoContactsSetup =
-    !vendor.users ||
-    vendor?.users.length === 0 ||
-    !customerUsers ||
-    customerUsers.length === 0;
+    !vendor.users || vendor?.users.length === 0 || customerUsers.length === 0;
 
   return (
     <Modal

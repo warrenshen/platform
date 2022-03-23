@@ -1,6 +1,6 @@
 import { ContactFragment } from "generated/graphql";
 
-export const consolidateUsers = (
+export const consolidateCompanyUsers = (
   companyUsers: ContactFragment[],
   parentCompanyUsers: ContactFragment[]
 ) => {
