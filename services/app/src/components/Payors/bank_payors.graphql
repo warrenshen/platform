@@ -3,9 +3,7 @@ query GetBankPayorPartnership($id: uuid!) {
     ...PayorPartnership
     company {
       ...Company
-      users {
-        ...Contact
-      }
+      ...AllCompanyUsersForBank
       settings {
         ...CompanySettings
       }

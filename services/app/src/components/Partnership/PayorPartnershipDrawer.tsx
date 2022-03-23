@@ -24,6 +24,7 @@ import {
 import { Action } from "lib/auth/rbac-rules";
 import { FileTypeEnum } from "lib/enum";
 import { InventoryNotifier } from "lib/notifications/inventory";
+import { consolidateUsers } from "lib/users";
 import { useMemo } from "react";
 
 interface Props {
@@ -52,6 +53,10 @@ export default function PayorPartnershipDrawer({
 
   const companyPayorPartnership = data?.company_payor_partnerships_by_pk;
   const customer = companyPayorPartnership?.company;
+  const customerUsers = consolidateUsers(
+    customer?.users || [],
+    customer?.parent_company?.users || []
+  );
   const payor = companyPayorPartnership?.payor;
   const agreementFileId = companyPayorPartnership?.payor_agreement?.file_id;
 
@@ -81,8 +86,8 @@ export default function PayorPartnershipDrawer({
     !payor ||
     !payor.users ||
     payor.users.length === 0 ||
-    !customer?.users ||
-    customer.users.length === 0;
+    !customerUsers ||
+    customerUsers.length === 0;
   const hasNoCollectionsBankAccount = !payor.settings
     ?.collections_bespoke_bank_account;
 

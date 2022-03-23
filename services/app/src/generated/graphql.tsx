@@ -26241,10 +26241,8 @@ export type GetBankPayorPartnershipQueryVariables = Exact<{
 export type GetBankPayorPartnershipQuery = {
   company_payor_partnerships_by_pk?: Maybe<
     {
-      company: {
-        users: Array<ContactFragment>;
-        settings?: Maybe<CompanySettingsFragment>;
-      } & CompanyFragment;
+      company: { settings?: Maybe<CompanySettingsFragment> } & CompanyFragment &
+        AllCompanyUsersForBankFragment;
       payor?: Maybe<
         Pick<Payors, "id"> & {
           licenses: Array<CompanyLicenseLimitedFragment>;
@@ -27434,10 +27432,8 @@ export type GetVendorPartnershipForBankQueryVariables = Exact<{
 export type GetVendorPartnershipForBankQuery = {
   company_vendor_partnerships_by_pk?: Maybe<
     {
-      company: {
-        users: Array<ContactFragment>;
-        settings?: Maybe<CompanySettingsFragment>;
-      } & CompanyFragment;
+      company: { settings?: Maybe<CompanySettingsFragment> } & CompanyFragment &
+        AllCompanyUsersForBankFragment;
       vendor?: Maybe<
         Pick<Vendors, "id"> & {
           licenses: Array<CompanyLicenseFragment>;
@@ -27638,6 +27634,13 @@ export type ContactFragment = Pick<
   | "phone_number"
   | "created_at"
 >;
+
+export type AllCompanyUsersForBankFragment = {
+  parent_company?: Maybe<
+    Pick<ParentCompanies, "id"> & { users: Array<ContactFragment> }
+  >;
+  users: Array<ContactFragment>;
+};
 
 export type CompanyPayorContactFragment = Pick<
   CompanyPayorContacts,
@@ -28455,6 +28458,20 @@ export const ContactFragmentDoc = gql`
     phone_number
     created_at
   }
+`;
+export const AllCompanyUsersForBankFragmentDoc = gql`
+  fragment AllCompanyUsersForBank on companies {
+    parent_company {
+      id
+      users {
+        ...Contact
+      }
+    }
+    users {
+      ...Contact
+    }
+  }
+  ${ContactFragmentDoc}
 `;
 export const CompanyPayorContactFragmentDoc = gql`
   fragment CompanyPayorContact on company_payor_contacts {
@@ -33271,9 +33288,7 @@ export const GetBankPayorPartnershipDocument = gql`
       ...PayorPartnership
       company {
         ...Company
-        users {
-          ...Contact
-        }
+        ...AllCompanyUsersForBank
         settings {
           ...CompanySettings
         }
@@ -33311,10 +33326,11 @@ export const GetBankPayorPartnershipDocument = gql`
   }
   ${PayorPartnershipFragmentDoc}
   ${CompanyFragmentDoc}
-  ${ContactFragmentDoc}
+  ${AllCompanyUsersForBankFragmentDoc}
   ${CompanySettingsFragmentDoc}
   ${CompanyLicenseLimitedFragmentDoc}
   ${BankAccountFragmentDoc}
+  ${ContactFragmentDoc}
   ${CompanyAgreementFragmentDoc}
   ${CompanyPayorContactFragmentDoc}
 `;
@@ -37820,9 +37836,7 @@ export const GetVendorPartnershipForBankDocument = gql`
       ...VendorPartnership
       company {
         ...Company
-        users {
-          ...Contact
-        }
+        ...AllCompanyUsersForBank
         settings {
           ...CompanySettings
         }
@@ -37873,10 +37887,11 @@ export const GetVendorPartnershipForBankDocument = gql`
   }
   ${VendorPartnershipFragmentDoc}
   ${CompanyFragmentDoc}
-  ${ContactFragmentDoc}
+  ${AllCompanyUsersForBankFragmentDoc}
   ${CompanySettingsFragmentDoc}
   ${CompanyLicenseFragmentDoc}
   ${BankAccountFragmentDoc}
+  ${ContactFragmentDoc}
   ${CompanyAgreementFragmentDoc}
   ${CompanyVendorContactFragmentDoc}
 `;

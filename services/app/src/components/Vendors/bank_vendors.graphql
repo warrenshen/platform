@@ -23,9 +23,7 @@ query GetVendorPartnershipForBank($id: uuid!) {
     ...VendorPartnership
     company {
       ...Company
-      users {
-        ...Contact
-      }
+      ...AllCompanyUsersForBank
       settings {
         ...CompanySettings
       }
