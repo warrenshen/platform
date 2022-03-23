@@ -17,7 +17,7 @@ import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { createAdvanceMutation } from "lib/api/payments";
 import { todayAsDateStringServer } from "lib/date";
-import { PaymentMethodEnum } from "lib/enum";
+import { AdvanceMethodEnum } from "lib/enum";
 import {
   computeSettlementDateForPayment,
   SettlementTimelineConfigForBankAdvance,
@@ -137,12 +137,12 @@ export default function CreateAdvanceModal({
   useEffect(() => {
     // If user selects advance method Wire and amount less than $25,000,
     // automatically check the "Charge Wire Fee" checkbox.
-    if (payment.method === PaymentMethodEnum.Wire && payment.amount < 25000) {
+    if (payment.method === AdvanceMethodEnum.Wire && payment.amount < 25000) {
       setShouldChargeWireFee(true);
       snackbar.showInfo(
         '"Charge Wire Fee?" auto-checked because amount is less than $25,000.'
       );
-    } else if (payment.method !== PaymentMethodEnum.Wire) {
+    } else if (payment.method !== AdvanceMethodEnum.Wire) {
       setShouldChargeWireFee(false);
       // Do not show a snackbar here since the "Charge Wire Fee?" checkbox
       // is not shown when advance method is not Wire.
@@ -150,7 +150,7 @@ export default function CreateAdvanceModal({
 
     if (!!advancesBankAccount) {
       if (
-        payment.method === PaymentMethodEnum.ACH &&
+        payment.method === AdvanceMethodEnum.ACH &&
         advancesBankAccount.ach_default_memo
       ) {
         setPayment((payment) => ({
@@ -162,7 +162,7 @@ export default function CreateAdvanceModal({
           '"Memo" auto-filled to default ACH memo configured on recipient bank account.'
         );
       } else if (
-        payment.method === PaymentMethodEnum.Wire &&
+        payment.method === AdvanceMethodEnum.Wire &&
         advancesBankAccount.wire_default_memo
       ) {
         setPayment((payment) => ({

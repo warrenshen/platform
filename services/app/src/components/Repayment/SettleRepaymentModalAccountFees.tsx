@@ -11,7 +11,7 @@ import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { settleAccountLevelFeeRepaymentMutation } from "lib/api/payments";
 import { formatCurrency } from "lib/number";
-import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
+import { RepaymentMethodEnum, RepaymentMethodToLabel } from "lib/enum";
 import { useState } from "react";
 
 interface Props {
@@ -83,7 +83,7 @@ export default function SettleRepaymentModalAccountFees({
     <Modal
       isPrimaryActionDisabled={isSubmitButtonDisabled}
       title={`Settle ${
-        PaymentMethodToLabel[payment.method as PaymentMethodEnum]
+        RepaymentMethodToLabel[payment.method as RepaymentMethodEnum]
       } Repayment of Account Fees`}
       contentWidth={1000}
       primaryActionText={"Settle repayment"}

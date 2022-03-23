@@ -11,8 +11,8 @@ import DateInput from "components/Shared/FormInputs/DateInput";
 import { PaymentsInsertInput } from "generated/graphql";
 import {
   BankPaymentMethods,
-  PaymentMethodEnum,
-  PaymentMethodToLabel,
+  RepaymentMethodEnum,
+  RepaymentMethodToLabel,
 } from "lib/enum";
 
 interface Props {
@@ -91,14 +91,14 @@ export default function AdjustmentForm({ payment, setPayment }: Props) {
               onChange={({ target: { value } }) =>
                 setPayment({
                   ...payment,
-                  method: value as PaymentMethodEnum,
+                  method: value as RepaymentMethodEnum,
                 })
               }
             >
               {BankPaymentMethods.map((paymentType) => {
                 return (
                   <MenuItem key={paymentType} value={paymentType}>
-                    {PaymentMethodToLabel[paymentType]}
+                    {RepaymentMethodToLabel[paymentType]}
                   </MenuItem>
                 );
               })}

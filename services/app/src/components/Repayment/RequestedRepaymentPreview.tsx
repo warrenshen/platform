@@ -4,8 +4,8 @@ import { PaymentsInsertInput } from "generated/graphql";
 import { formatCurrency } from "lib/number";
 import { formatDateString } from "lib/date";
 import {
-  PaymentMethodEnum,
-  PaymentMethodToLabel,
+  RepaymentMethodEnum,
+  RepaymentMethodToLabel,
   PaymentOptionEnum,
   PaymentOptionToLabel,
 } from "lib/enum";
@@ -23,7 +23,7 @@ export default function RequestedRepaymentPreview({ payment }: Props) {
         <Box>
           <Typography variant="body1">
             {`Requested Repayment Method: ${
-              PaymentMethodToLabel[payment.method as PaymentMethodEnum]
+              RepaymentMethodToLabel[payment.method as RepaymentMethodEnum]
             }`}
           </Typography>
         </Box>

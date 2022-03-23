@@ -21,7 +21,7 @@ import {
 } from "generated/graphql";
 import { formatCurrency } from "lib/number";
 import { formatDateString, formatDatetimeString } from "lib/date";
-import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
+import { RepaymentMethodEnum, RepaymentMethodToLabel } from "lib/enum";
 import { getPaymentStatus } from "lib/finance/payments/repayment";
 import { useContext } from "react";
 import { todayAsDateStringServer } from "lib/date";
@@ -116,7 +116,7 @@ export default function PaymentDrawer({
             Method
           </Typography>
           <Typography variant={"body1"}>
-            {PaymentMethodToLabel[payment.method as PaymentMethodEnum]}
+            {RepaymentMethodToLabel[payment.method as RepaymentMethodEnum]}
           </Typography>
         </Box>
         <Box display="flex" flexDirection="column" mt={2}>

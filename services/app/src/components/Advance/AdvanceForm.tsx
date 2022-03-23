@@ -15,7 +15,11 @@ import {
 import DateInput from "components/Shared/FormInputs/DateInput";
 import { PaymentsInsertInput } from "generated/graphql";
 import { formatCurrency } from "lib/number";
-import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
+import {
+  AdvanceMethodEnum,
+  AdvanceMethodToLabel,
+  AllAdvanceMethods,
+} from "lib/enum";
 import { ChangeEvent } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -63,21 +67,19 @@ export default function AdvanceForm({
             onChange={({ target: { value } }) =>
               setPayment({
                 ...payment,
-                method: value as PaymentMethodEnum,
+                method: value as AdvanceMethodEnum,
               })
             }
           >
-            {[PaymentMethodEnum.ACH, PaymentMethodEnum.Wire].map(
-              (paymentMethod) => (
-                <MenuItem key={paymentMethod} value={paymentMethod}>
-                  {PaymentMethodToLabel[paymentMethod]}
-                </MenuItem>
-              )
-            )}
+            {AllAdvanceMethods.map((advanceMethod) => (
+              <MenuItem key={advanceMethod} value={advanceMethod}>
+                {AdvanceMethodToLabel[advanceMethod]}
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
       </Box>
-      {payment.method === PaymentMethodEnum.Wire && (
+      {payment.method === AdvanceMethodEnum.Wire && (
         <Box mt={4}>
           <FormControlLabel
             control={

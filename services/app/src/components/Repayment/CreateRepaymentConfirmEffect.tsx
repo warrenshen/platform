@@ -9,8 +9,8 @@ import {
 } from "generated/graphql";
 import { formatCurrency } from "lib/number";
 import {
-  PaymentMethodEnum,
-  PaymentMethodToLabel,
+  RepaymentMethodEnum,
+  RepaymentMethodToLabel,
   ProductTypeEnum,
 } from "lib/enum";
 import { LoanBeforeAfterPayment } from "lib/finance/payments/repayment";
@@ -29,8 +29,8 @@ interface Props {
 
 function getAlertText(payment: PaymentsInsertInput) {
   if (
-    [PaymentMethodEnum.ACH, PaymentMethodEnum.Wire].includes(
-      payment.method as PaymentMethodEnum
+    [RepaymentMethodEnum.ACH, RepaymentMethodEnum.Wire].includes(
+      payment.method as RepaymentMethodEnum
     )
   ) {
     return (
@@ -42,7 +42,7 @@ function getAlertText(payment: PaymentsInsertInput) {
         towards outstanding loans and fees accordingly.
       </>
     );
-  } else if (payment.method === PaymentMethodEnum.ReverseDraftACH) {
+  } else if (payment.method === RepaymentMethodEnum.ReverseDraftACH) {
     return (
       <>
         After you press "Schedule repayment", Bespoke Financial will initiate a
@@ -103,7 +103,7 @@ export default function CreateRepaymentConfirmEffect({
 
   const showBankAccountAddressDetails =
     showAddress &&
-    payment.method === PaymentMethodEnum.Wire &&
+    payment.method === RepaymentMethodEnum.Wire &&
     bespokeCollectionsBankAccount;
 
   return (
@@ -186,13 +186,15 @@ export default function CreateRepaymentConfirmEffect({
                 Important payment instructions
               </Typography>
             </Box>
-            {[PaymentMethodEnum.ACH, PaymentMethodEnum.Wire].includes(
-              payment.method as PaymentMethodEnum
+            {[RepaymentMethodEnum.ACH, RepaymentMethodEnum.Wire].includes(
+              payment.method as RepaymentMethodEnum
             ) && (
               <>
                 <Typography variant="body2">
                   {`Please send your ${
-                    PaymentMethodToLabel[payment.method as PaymentMethodEnum]
+                    RepaymentMethodToLabel[
+                      payment.method as RepaymentMethodEnum
+                    ]
                   } repayment to the following bank account:`}
                 </Typography>
                 <Box mt={2}>

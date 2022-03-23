@@ -12,8 +12,8 @@ import { deleteRepaymentMutation } from "lib/api/payments";
 import { formatCurrency } from "lib/number";
 import { formatDateString } from "lib/date";
 import {
-  PaymentMethodEnum,
-  PaymentMethodToLabel,
+  RepaymentMethodEnum,
+  RepaymentMethodToLabel,
   PaymentTypeEnum,
 } from "lib/enum";
 import { useContext } from "react";
@@ -113,7 +113,9 @@ function DeletePaymentModal({ paymentId, handleClose }: Props) {
               </Typography>
               <Typography variant={"body1"}>
                 {payment.method
-                  ? PaymentMethodToLabel[payment.method as PaymentMethodEnum]
+                  ? RepaymentMethodToLabel[
+                      payment.method as RepaymentMethodEnum
+                    ]
                   : "Unknown"}
               </Typography>
             </Box>

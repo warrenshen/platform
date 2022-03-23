@@ -5,7 +5,7 @@ import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { formatCurrency } from "lib/number";
 import { formatDateString } from "lib/date";
-import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
+import { RepaymentMethodEnum, RepaymentMethodToLabel } from "lib/enum";
 import { reverseRepaymentMutation } from "lib/finance/payments/repayment";
 
 interface Props {
@@ -89,7 +89,7 @@ export default function ReverseRepaymentModal({
             </Typography>
             <Typography variant={"body1"}>
               {payment.method
-                ? PaymentMethodToLabel[payment.method as PaymentMethodEnum]
+                ? RepaymentMethodToLabel[payment.method as RepaymentMethodEnum]
                 : "Unknown"}
             </Typography>
           </Box>

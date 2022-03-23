@@ -22,7 +22,11 @@ import {
   todayAsDateStringServer,
   formatDateString,
 } from "lib/date";
-import { PaymentMethodEnum, PaymentTypeEnum, ProductTypeEnum } from "lib/enum";
+import {
+  RepaymentMethodEnum,
+  PaymentTypeEnum,
+  ProductTypeEnum,
+} from "lib/enum";
 import {
   computeSettlementDateForPayment,
   getSettlementTimelineConfigFromContract,
@@ -158,7 +162,7 @@ export default function CreateRepaymentModal({
       todayAsDateStringServer()
     );
 
-    if (payment.method === PaymentMethodEnum.ReverseDraftACH) {
+    if (payment.method === RepaymentMethodEnum.ReverseDraftACH) {
       if (dateAdjustmentAtSubmission > payment.requested_payment_date) {
         setErrMsg(
           `The selected Requested Withdraw Date of ${formatDateString(
@@ -285,7 +289,7 @@ export default function CreateRepaymentModal({
     !payment.settlement_date ||
     (productType !== ProductTypeEnum.LineOfCredit && !paymentOption) ||
     (paymentOption === "custom_amount" && !payment.requested_amount) ||
-    (payment.method === PaymentMethodEnum.ReverseDraftACH &&
+    (payment.method === RepaymentMethodEnum.ReverseDraftACH &&
       !payment.company_bank_account_id) ||
     (isPayAccountFeesVisible &&
       !payment.items_covered["requested_to_account_fees"]) ||
@@ -295,7 +299,7 @@ export default function CreateRepaymentModal({
   const isSubmitButtonDisabled =
     isNextButtonDisabled || payment.requested_amount <= 0;
   const submitButtonText =
-    payment.method === PaymentMethodEnum.ReverseDraftACH
+    payment.method === RepaymentMethodEnum.ReverseDraftACH
       ? "Schedule repayment"
       : "Notify Bespoke Financial";
 

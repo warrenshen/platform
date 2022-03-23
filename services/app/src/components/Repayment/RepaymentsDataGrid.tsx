@@ -9,7 +9,7 @@ import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import { Companies, PaymentLimitedFragment, Payments } from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
 import { addBizDays } from "lib/date";
-import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
+import { RepaymentMethodEnum, RepaymentMethodToLabel } from "lib/enum";
 import { ColumnWidths } from "lib/tables";
 import { useMemo, useState } from "react";
 
@@ -57,7 +57,7 @@ export default function RepaymentsDataGrid({
         expected_deposit_date: !!payment.payment_date
           ? addBizDays(
               payment.payment_date,
-              payment.method === PaymentMethodEnum.ReverseDraftACH ? 1 : 0
+              payment.method === RepaymentMethodEnum.ReverseDraftACH ? 1 : 0
             )
           : null,
         submitted_by_name: payment.submitted_by_user?.full_name,
@@ -158,7 +158,7 @@ export default function RepaymentsDataGrid({
         caption: "Method",
         minWidth: ColumnWidths.MinWidth,
         calculateCellValue: ({ method }: PaymentLimitedFragment) =>
-          PaymentMethodToLabel[method as PaymentMethodEnum],
+          RepaymentMethodToLabel[method as RepaymentMethodEnum],
       },
       {
         dataField: "submitted_at",

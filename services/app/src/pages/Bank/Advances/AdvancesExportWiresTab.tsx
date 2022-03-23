@@ -4,7 +4,7 @@ import WireAdvancesDataGrid from "components/Advances/WireAdvancesDataGrid";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import { useGetAdvancesByMethodAndPaymentDateQuery } from "generated/graphql";
 import { todayAsDateStringServer } from "lib/date";
-import { PaymentMethodEnum } from "lib/enum";
+import { AdvanceMethodEnum } from "lib/enum";
 import { useState } from "react";
 import styled from "styled-components";
 
@@ -23,7 +23,7 @@ export default function BankAdvancesExportWiresTab() {
   const { data, error } = useGetAdvancesByMethodAndPaymentDateQuery({
     fetchPolicy: "network-only",
     variables: {
-      method: PaymentMethodEnum.Wire,
+      method: AdvanceMethodEnum.Wire,
       date: selectedDate,
     },
   });

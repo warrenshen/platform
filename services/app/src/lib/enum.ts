@@ -157,7 +157,7 @@ export const LoanTypeToLabel = {
 };
 
 // Payment Method enum related.
-export enum PaymentMethodEnum {
+export enum RepaymentMethodEnum {
   ACH = "ach",
   ReverseDraftACH = "reverse_draft_ach",
   Wire = "wire",
@@ -165,22 +165,49 @@ export enum PaymentMethodEnum {
   Unknown = "unknown",
 }
 
-export const PaymentMethodToLabel = {
-  [PaymentMethodEnum.ACH]:
+// Splitting the labels was necessary as we use RepaymentMethodToLabel
+// in several places that are not a dropdown and the annotations
+// do not make sense in that context
+export const RepaymentMethodToDropdownLabel = {
+  [RepaymentMethodEnum.ACH]:
     "Customer ACH (you send repayment from your banking software)",
-  [PaymentMethodEnum.ReverseDraftACH]:
+  [RepaymentMethodEnum.ReverseDraftACH]:
     "Reverse Draft (we pull repayment from your account)",
-  [PaymentMethodEnum.Wire]:
+  [RepaymentMethodEnum.Wire]:
     "Wire (you send repayment from your banking software)",
-  [PaymentMethodEnum.Check]: "Check",
-  [PaymentMethodEnum.Unknown]: "Unknown",
+  [RepaymentMethodEnum.Check]: "Check",
+  [RepaymentMethodEnum.Unknown]: "Unknown",
 };
 
-export const AllPaymentMethods = [
-  PaymentMethodEnum.ReverseDraftACH,
-  PaymentMethodEnum.ACH,
-  PaymentMethodEnum.Wire,
-  PaymentMethodEnum.Check,
+export const RepaymentMethodToLabel = {
+  [RepaymentMethodEnum.ACH]: "ACH",
+  [RepaymentMethodEnum.ReverseDraftACH]: "Reverse Draft",
+  [RepaymentMethodEnum.Wire]: "Wire",
+  [RepaymentMethodEnum.Check]: "Check",
+  [RepaymentMethodEnum.Unknown]: "Unknown",
+};
+
+export const AllRepaymentMethods = [
+  RepaymentMethodEnum.ReverseDraftACH,
+  RepaymentMethodEnum.ACH,
+  RepaymentMethodEnum.Wire,
+  RepaymentMethodEnum.Check,
+];
+
+// Advance Method enum related
+export enum AdvanceMethodEnum {
+  ACH = "ach",
+  Wire = "wire",
+}
+
+export const AdvanceMethodToLabel = {
+  [AdvanceMethodEnum.ACH]: "ACH",
+  [AdvanceMethodEnum.Wire]: "Wire",
+};
+
+export const AllAdvanceMethods = [
+  AdvanceMethodEnum.ACH,
+  AdvanceMethodEnum.Wire,
 ];
 
 // Transaction sub type enum related.
@@ -198,15 +225,15 @@ export const TransactionSubTypeToLabel = {
 
 // Payment methods that bank (Bespoke Financial) may pay with.
 export const BankPaymentMethods = [
-  PaymentMethodEnum.ACH,
-  PaymentMethodEnum.Wire,
+  RepaymentMethodEnum.ACH,
+  RepaymentMethodEnum.Wire,
 ];
 
 // Payment methods that a Payor may pay with.
 export const PayorPaymentMethods = [
-  PaymentMethodEnum.ACH,
-  PaymentMethodEnum.Wire,
-  PaymentMethodEnum.Check,
+  RepaymentMethodEnum.ACH,
+  RepaymentMethodEnum.Wire,
+  RepaymentMethodEnum.Check,
 ];
 
 // Payment Option enum related.
@@ -227,7 +254,7 @@ export const PaymentOptionToLabel = {
   [PaymentOptionEnum.InFull]: "Pay in full",
   [PaymentOptionEnum.MinimumDue]: "Pay minimum due",
   [PaymentOptionEnum.CustomAmount]: "Pay custom amount",
-  [PaymentMethodEnum.Unknown]: "Unknown",
+  [RepaymentMethodEnum.Unknown]: "Unknown",
 };
 
 // Product Type enum related.

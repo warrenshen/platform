@@ -17,9 +17,9 @@ import {
 } from "generated/graphql";
 import { formatCurrency } from "lib/number";
 import {
-  AllPaymentMethods,
-  PaymentMethodEnum,
-  PaymentMethodToLabel,
+  AllRepaymentMethods,
+  RepaymentMethodEnum,
+  RepaymentMethodToDropdownLabel,
 } from "lib/enum";
 
 interface Props {
@@ -36,7 +36,7 @@ export default function AccountFeesRepaymentForm({
   setPayment,
 }: Props) {
   const isReverseDraftACH =
-    payment.method === PaymentMethodEnum.ReverseDraftACH;
+    payment.method === RepaymentMethodEnum.ReverseDraftACH;
 
   const accountBalancePayload = financialSummary?.account_level_balance_payload;
   const accountFees =
@@ -87,15 +87,15 @@ export default function AccountFeesRepaymentForm({
               onChange={({ target: { value } }) =>
                 setPayment({
                   ...payment,
-                  method: value as PaymentMethodEnum,
+                  method: value as RepaymentMethodEnum,
                   requested_payment_date: null,
                 })
               }
             >
-              {AllPaymentMethods.map((paymentType) => {
+              {AllRepaymentMethods.map((paymentType) => {
                 return (
                   <MenuItem key={paymentType} value={paymentType}>
-                    {PaymentMethodToLabel[paymentType]}
+                    {RepaymentMethodToDropdownLabel[paymentType]}
                   </MenuItem>
                 );
               })}
@@ -131,7 +131,7 @@ export default function AccountFeesRepaymentForm({
           </Box>
         </>
       )}
-      {payment.method === PaymentMethodEnum.ReverseDraftACH && (
+      {payment.method === RepaymentMethodEnum.ReverseDraftACH && (
         <Box mt={4}>
           <Box>
             <Typography variant="subtitle2">

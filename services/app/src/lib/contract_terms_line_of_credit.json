@@ -194,10 +194,6 @@
               {
                 "value": "check",
                 "display_name": "Check"
-              },
-              {
-                "value": "cash",
-                "display_name": "Cash"
               }
             ]
           },

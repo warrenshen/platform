@@ -11,8 +11,8 @@ import {
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import {
-  PaymentMethodEnum,
-  PaymentMethodToLabel,
+  RepaymentMethodEnum,
+  RepaymentMethodToLabel,
   PaymentOptionEnum,
   ProductTypeEnum,
 } from "lib/enum";
@@ -264,7 +264,7 @@ export default function SettleRepaymentModalLoans({
         isOnSelectLoans ? isNextButtonDisabled : isSubmitButtonDisabled
       }
       title={`Settle ${
-        PaymentMethodToLabel[payment.method as PaymentMethodEnum]
+        RepaymentMethodToLabel[payment.method as RepaymentMethodEnum]
       } Repayment`}
       contentWidth={1000}
       primaryActionText={isOnSelectLoans ? "Next step" : "Settle repayment"}

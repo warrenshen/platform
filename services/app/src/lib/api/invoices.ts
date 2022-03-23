@@ -8,7 +8,7 @@ import {
   CustomMutationResponse,
   invoicesRoutes,
 } from "lib/api";
-import { PaymentMethodEnum } from "lib/enum";
+import { RepaymentMethodEnum } from "lib/enum";
 
 export type SubmitInvoiceForApprovalRequest = {
   variables: {
@@ -49,7 +49,7 @@ export type RespondToInvoicePaymentRequest = {
     link_val: string;
     amount: number | null;
     anticipated_payment_date: string | null;
-    payment_method: PaymentMethodEnum | null;
+    payment_method: RepaymentMethodEnum | null;
   };
 };
 

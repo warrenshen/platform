@@ -25,7 +25,7 @@ import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { respondToInvoicePaymentMutation } from "lib/api/invoices";
 import { todayAsDateStringServer } from "lib/date";
-import { PaymentMethodToLabel, PayorPaymentMethods } from "lib/enum";
+import { RepaymentMethodToDropdownLabel, PayorPaymentMethods } from "lib/enum";
 import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -150,7 +150,7 @@ export default function ReviewInvoicePaymentConfirmModal({
               {PayorPaymentMethods.map((method) => {
                 return (
                   <MenuItem key={method} value={method}>
-                    {PaymentMethodToLabel[method]}
+                    {RepaymentMethodToDropdownLabel[method]}
                   </MenuItem>
                 );
               })}

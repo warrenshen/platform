@@ -1,20 +1,20 @@
 import { ContractFragment } from "generated/graphql";
 import { addBizDays } from "lib/date";
-import { PaymentMethodEnum } from "lib/enum";
+import { AdvanceMethodEnum, RepaymentMethodEnum } from "lib/enum";
 
 // For a customer, these default values are used when the there is no
 // timeline config passed to the computeSettlementDateForPayment function.
 export const DefaultSettlementTimelineConfigForCustomer = {
-  [PaymentMethodEnum.ACH]: 2,
-  [PaymentMethodEnum.ReverseDraftACH]: 2,
-  [PaymentMethodEnum.Wire]: 2,
-  [PaymentMethodEnum.Check]: 5,
+  [RepaymentMethodEnum.ACH]: 2,
+  [RepaymentMethodEnum.ReverseDraftACH]: 2,
+  [RepaymentMethodEnum.Wire]: 2,
+  [RepaymentMethodEnum.Check]: 5,
 };
 
 // For an advance created by a bank user.
 export const SettlementTimelineConfigForBankAdvance = {
-  [PaymentMethodEnum.ACH]: 1,
-  [PaymentMethodEnum.Wire]: 0,
+  [AdvanceMethodEnum.ACH]: 1,
+  [AdvanceMethodEnum.Wire]: 0,
 };
 
 // If someone attempts to pay with a method for which their contract isn't configured

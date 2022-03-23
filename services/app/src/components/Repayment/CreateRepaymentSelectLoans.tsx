@@ -19,9 +19,9 @@ import {
 } from "generated/graphql";
 import { computeRequestedWithdrawCutoffDate } from "lib/date";
 import {
-  AllPaymentMethods,
-  PaymentMethodEnum,
-  PaymentMethodToLabel,
+  AllRepaymentMethods,
+  RepaymentMethodEnum,
+  RepaymentMethodToDropdownLabel,
   ProductTypeEnum,
 } from "lib/enum";
 import { Dispatch, SetStateAction } from "react";
@@ -46,7 +46,7 @@ export default function CreateRepaymentSelectLoans({
   accountFeeTotal,
 }: Props) {
   const isReverseDraftACH =
-    payment.method === PaymentMethodEnum.ReverseDraftACH;
+    payment.method === RepaymentMethodEnum.ReverseDraftACH;
   /**
    * If payment method is reverse draft ACH and today's date is X,
    * the earliest the payment date of repayment may be is:
@@ -109,16 +109,16 @@ export default function CreateRepaymentSelectLoans({
               onChange={({ target: { value } }) =>
                 setPayment({
                   ...payment,
-                  method: value as PaymentMethodEnum,
+                  method: value as RepaymentMethodEnum,
                   requested_payment_date: null,
                   settlement_date: null,
                 })
               }
             >
-              {AllPaymentMethods.map((paymentType) => {
+              {AllRepaymentMethods.map((paymentType) => {
                 return (
                   <MenuItem key={paymentType} value={paymentType}>
-                    {PaymentMethodToLabel[paymentType]}
+                    {RepaymentMethodToDropdownLabel[paymentType]}
                   </MenuItem>
                 );
               })}
@@ -171,7 +171,7 @@ export default function CreateRepaymentSelectLoans({
           )}
         </>
       )}
-      {payment.method === PaymentMethodEnum.ReverseDraftACH && (
+      {payment.method === RepaymentMethodEnum.ReverseDraftACH && (
         <Box mt={4}>
           <Box>
             <Typography variant="subtitle2">

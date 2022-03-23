@@ -9,7 +9,7 @@ import {
 } from "generated/graphql";
 import { addBizDays, todayAsDateStringServer } from "lib/date";
 import {
-  PaymentMethodEnum,
+  RepaymentMethodEnum,
   PaymentTypeEnum,
   PaymentOptionEnum,
 } from "lib/enum";
@@ -52,7 +52,7 @@ export default function SettleRepaymentModal({
         );
         const initialDepositDate = addBizDays(
           existingPayment.payment_date,
-          existingPayment.method === PaymentMethodEnum.ReverseDraftACH ? 1 : 0
+          existingPayment.method === RepaymentMethodEnum.ReverseDraftACH ? 1 : 0
         );
         setPayment({
           id: existingPayment.id,

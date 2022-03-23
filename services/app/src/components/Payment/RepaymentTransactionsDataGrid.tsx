@@ -15,7 +15,7 @@ import {
   PaymentLimitedFragment,
   Payments,
 } from "generated/graphql";
-import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
+import { RepaymentMethodEnum, RepaymentMethodToLabel } from "lib/enum";
 import {
   createLoanDisbursementIdentifier,
   getLoanArtifactName,
@@ -161,7 +161,7 @@ export default function RepaymentTransactionsDataGrid({
           payment,
         }: {
           payment: PaymentLimitedFragment;
-        }) => PaymentMethodToLabel[payment.method as PaymentMethodEnum],
+        }) => RepaymentMethodToLabel[payment.method as RepaymentMethodEnum],
       },
       {
         dataField: "payment.deposit_date",
