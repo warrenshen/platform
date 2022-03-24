@@ -1,14 +1,17 @@
-import { Box } from "@material-ui/core";
+import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import DebtFacilityReportDataGrid from "components/DebtFacility/DebtFacilityReportDataGrid";
 import {
   DebtFacilities,
   GetDebtFacilitiesSubscription,
   useGetReportLoansByDebtFacilityIdSubscription,
 } from "generated/graphql";
-import { DebtFacilityStatusEnum } from "lib/enum";
+import DateInput from "components/Shared/FormInputs/DateInput";
+import { DebtFacilityStatusEnum, ProductTypeEnum } from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
+import { useState } from "react";
 
 const Container = styled.div`
   display: flex;
@@ -19,20 +22,33 @@ const Container = styled.div`
   width: 100%;
 `;
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    inputField: {
+      width: 300,
+    },
+  })
+);
+
 type Facilities = GetDebtFacilitiesSubscription["debt_facilities"];
 
 interface Props {
   facilities: Facilities;
   selectedDebtFacilityId: DebtFacilities["id"];
-  allFacilityIds: DebtFacilities["id"][];
+  supportedProductTypes: ProductTypeEnum[];
 }
 
 export default function DebtFacilityReportTab({
   facilities,
   selectedDebtFacilityId,
-  allFacilityIds,
+  supportedProductTypes,
 }: Props) {
   const history = useHistory();
+  const classes = useStyles();
+
+  const [lastDebtFacilityReportDate, setLastDebtFacilityReportDate] = useState(
+    ""
+  );
 
   const { data, error } = useGetReportLoansByDebtFacilityIdSubscription({
     variables: {
@@ -47,7 +63,7 @@ export default function DebtFacilityReportTab({
       ],
       target_facility_ids: !!selectedDebtFacilityId
         ? [selectedDebtFacilityId]
-        : allFacilityIds,
+        : [],
     },
   });
   if (error) {
@@ -59,8 +75,18 @@ export default function DebtFacilityReportTab({
   return (
     <Container>
       <Box display="flex" flexDirection="column">
-        {
+        {!!selectedDebtFacilityId && (
           <Box display="flex" flexDirection="column">
+            <Box display="flex" flexDirection="column" mb={4}>
+              <DateInput
+                disableNonBankDays
+                className={classes.inputField}
+                id="debt-facility-report-tab-date-picker"
+                label="Last Report Date"
+                value={lastDebtFacilityReportDate}
+                onChange={(value) => setLastDebtFacilityReportDate(value || "")}
+              />
+            </Box>
             <DebtFacilityReportDataGrid
               loans={loans}
               isCompanyVisible
@@ -74,9 +100,17 @@ export default function DebtFacilityReportTab({
                   getBankCompanyRoute(customerId, BankCompanyRouteEnum.Loans)
                 )
               }
+              supportedProductTypes={supportedProductTypes}
+              lastDebtFacilityReportDate={lastDebtFacilityReportDate}
             />
           </Box>
-        }
+        )}
+        {!selectedDebtFacilityId && (
+          <Alert severity="info">
+            Please select a debt facility from the above dropdown to bring up a
+            report.
+          </Alert>
+        )}
       </Box>
     </Container>
   );

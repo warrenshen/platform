@@ -27423,7 +27423,7 @@ export type CompanyForDebtFacilityFragment = Pick<
   | "debt_facility_status"
 > & {
   licenses: Array<Pick<CompanyLicenses, "id"> & CompanyLicenseFragment>;
-  contracts: Array<Pick<Contracts, "id"> & ContractFragment>;
+  contract?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
 };
 
 export type MetrcApiKeyFragment = Pick<
@@ -27509,6 +27509,7 @@ export type LoanReportFragment = Pick<
   | "financing_day_limit"
   | "debt_facility_status"
   | "debt_facility_id"
+  | "debt_facility_added_date"
 >;
 
 export type LoanArtifactFragment = Pick<Loans, "id"> & {
@@ -28819,15 +28820,7 @@ export const CompanyForDebtFacilityFragmentDoc = gql`
       id
       ...CompanyLicense
     }
-    contracts(
-      where: {
-        _or: [
-          { is_deleted: { _is_null: true } }
-          { is_deleted: { _eq: false } }
-        ]
-      }
-      order_by: { start_date: desc }
-    ) {
+    contract {
       id
       ...Contract
     }
@@ -28880,6 +28873,7 @@ export const LoanReportFragmentDoc = gql`
     financing_day_limit
     debt_facility_status
     debt_facility_id
+    debt_facility_added_date
   }
 `;
 export const DebtFacilityLimitedFragmentDoc = gql`

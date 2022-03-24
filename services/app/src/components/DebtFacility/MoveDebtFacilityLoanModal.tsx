@@ -6,7 +6,7 @@ import useSnackbar from "hooks/useSnackbar";
 import AutocompleteDebtFacility from "components/DebtFacility/AutocompleteDebtFacility";
 import DebtFacilityLoansDataGrid from "components/DebtFacility/DebtFacilityLoansDataGrid";
 import { moveLoansForDebtFacility } from "lib/api/debtFacility";
-import { DebtFacilityStatusEnum } from "lib/enum";
+import { DebtFacilityStatusEnum, ProductTypeEnum } from "lib/enum";
 import {
   GetDebtFacilitiesSubscription,
   OpenLoanForDebtFacilityFragment,
@@ -23,6 +23,7 @@ interface Props {
   selectedLoans: OpenLoanForDebtFacilityFragment[];
   facilities: Facilities;
   handleClose: () => void;
+  supportedProductTypes: ProductTypeEnum[];
 }
 
 export default function MoveDebtFacilityLoanModal({
@@ -30,10 +31,15 @@ export default function MoveDebtFacilityLoanModal({
   selectedLoans,
   facilities,
   handleClose,
+  supportedProductTypes,
 }: Props) {
   const snackbar = useSnackbar();
   const [debtFacilityId, setDebtFacilityId] = useState("");
   const [moveComments, setMoveComments] = useState("");
+
+  const productType = !!selectedLoans[0]?.company?.contract?.product_type
+    ? selectedLoans[0].company.contract.product_type
+    : "";
 
   // Calculate the total outstanding principal for the loans being requested to move
   // If we're moving *from* the debt facility to bespoke, we don't need to calculate this at the moment
@@ -173,10 +179,11 @@ export default function MoveDebtFacilityLoanModal({
             onChange={(selectedDebtFacilityId) => {
               setDebtFacilityId(selectedDebtFacilityId);
             }}
+            productType={productType}
           />
         </Box>
       )}
-      {isMovingToFacility && !!debtFacilityId && (
+      {isMovingToFacility && (
         <>
           <Box mt={4}>
             <Typography variant="body2" color="textSecondary">
@@ -192,6 +199,7 @@ export default function MoveDebtFacilityLoanModal({
             isDisbursementIdentifierVisible
             isSortingDisabled
             isExcelExport={false}
+            supportedProductTypes={supportedProductTypes}
           />
         </>
       )}
@@ -211,6 +219,7 @@ export default function MoveDebtFacilityLoanModal({
             isDisbursementIdentifierVisible
             isSortingDisabled
             isExcelExport={false}
+            supportedProductTypes={supportedProductTypes}
           />
         </>
       )}

@@ -255,6 +255,7 @@ class DebtFacilityMoveLoanView(MethodView):
 					loan_report.debt_facility_id = facility_id
 					old_debt_facility_status = loan_report.debt_facility_status
 					loan_report.debt_facility_status = LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY
+					loan_report.debt_facility_added_date = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
 
 					to_facility_payload : Dict[str, object] = {
 						"user_name": user.first_name + " " + user.last_name,

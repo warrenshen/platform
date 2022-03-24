@@ -332,12 +332,13 @@ def fund_loans_with_advance(
 				loan_report.debt_facility_id = debt_facility.id if debt_facility_id != "" else None
 				loan_report.debt_facility_status = db_constants.LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY \
 					if debt_facility_id != "" else db_constants.LoanDebtFacilityStatus.BESPOKE_BALANCE_SHEET
+				loan_report.debt_facility_added_date = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
 			else:
 				loan_report = models.LoanReport()
 				loan_report.debt_facility_id = debt_facility.id if debt_facility_id != "" else None
 				loan_report.debt_facility_status = db_constants.LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY \
 					if debt_facility_id != "" else db_constants.LoanDebtFacilityStatus.BESPOKE_BALANCE_SHEET
-				session.add(loan_report)
+				loan_report.debt_facility_added_date = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
 				session.flush()
 				loan.loan_report_id = loan_report.id
 

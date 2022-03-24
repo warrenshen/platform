@@ -12,7 +12,7 @@ import {
 } from "generated/graphql";
 import MoveDebtFacilityLoanModal from "components/DebtFacility/MoveDebtFacilityLoanModal";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
-import { DebtFacilityStatusEnum } from "lib/enum";
+import { DebtFacilityStatusEnum, ProductTypeEnum } from "lib/enum";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import { useMemo, useState } from "react";
@@ -33,12 +33,14 @@ interface Props {
   facilities: Facilities;
   selectedDebtFacilityId: DebtFacilities["id"];
   allFacilityIds: DebtFacilities["id"][];
+  supportedProductTypes: ProductTypeEnum[];
 }
 
 export default function DebtFacilityOpenTab({
   facilities,
   selectedDebtFacilityId,
   allFacilityIds,
+  supportedProductTypes,
 }: Props) {
   const history = useHistory();
   const [debtFacilitySearchQuery, setDebtFacilitySearchQuery] = useState("");
@@ -150,6 +152,7 @@ export default function DebtFacilityOpenTab({
                             selectedLoans={selectedFacilityLoans}
                             facilities={facilities}
                             handleClose={handler}
+                            supportedProductTypes={supportedProductTypes}
                           />
                         );
                       }}
@@ -210,6 +213,7 @@ export default function DebtFacilityOpenTab({
                             handleClose();
                             setSelectedBespokeLoans([]);
                           }}
+                          supportedProductTypes={supportedProductTypes}
                         />
                       );
                     }}

@@ -2824,28 +2824,30 @@
   - role: bank_admin
     permission:
       columns:
+      - debt_facility_added_date
+      - debt_facility_id
+      - debt_facility_status
+      - financing_day_limit
+      - financing_period
       - id
       - repayment_date
-      - total_principal_paid
-      - total_interest_paid
       - total_fees_paid
-      - financing_period
-      - financing_day_limit
-      - debt_facility_status
-      - debt_facility_id
+      - total_interest_paid
+      - total_principal_paid
       filter: {}
   - role: bank_read_only
     permission:
       columns:
-      - repayment_date
+      - debt_facility_added_date
+      - debt_facility_id
+      - debt_facility_status
       - financing_day_limit
       - financing_period
+      - id
+      - repayment_date
       - total_fees_paid
       - total_interest_paid
       - total_principal_paid
-      - id
-      - debt_facility_status
-      - debt_facility_id
       filter: {}
 - table:
     schema: public

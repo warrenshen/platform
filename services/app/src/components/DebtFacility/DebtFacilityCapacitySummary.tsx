@@ -5,6 +5,7 @@ import {
   DebtFacilities,
   GetDebtFacilitiesSubscription,
 } from "generated/graphql";
+import { ProductTypeEnum } from "lib/enum";
 import { formatCurrency } from "lib/number";
 import { round } from "lodash";
 
@@ -15,6 +16,9 @@ interface Props {
   maxCapacity: number;
   facilities: Facilities;
   setSelectedDebtFacilityId: (value: DebtFacilities["id"]) => void;
+  setSelectedDebtFacilitySupportedProductTypes: (
+    value: ProductTypeEnum[]
+  ) => void;
 }
 
 function DebtFacilityCapacitySummary({
@@ -22,6 +26,7 @@ function DebtFacilityCapacitySummary({
   maxCapacity,
   facilities,
   setSelectedDebtFacilityId,
+  setSelectedDebtFacilitySupportedProductTypes,
 }: Props) {
   const rawLimitPercent =
     !!maxCapacity && maxCapacity !== 0 ? (100 * currentUsage) / maxCapacity : 0;
@@ -61,6 +66,12 @@ function DebtFacilityCapacitySummary({
             )}
             onChange={(_event, debtFacility) => {
               setSelectedDebtFacilityId(debtFacility?.id || "");
+              const supported_product_types = (debtFacility?.product_types
+                ? debtFacility?.product_types["supported"]
+                : []) as ProductTypeEnum[];
+              setSelectedDebtFacilitySupportedProductTypes(
+                supported_product_types
+              );
             }}
           />
         </FormControl>

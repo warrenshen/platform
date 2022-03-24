@@ -106,15 +106,7 @@ fragment CompanyForDebtFacility on companies {
     id
     ...CompanyLicense
   }
-  contracts(
-    where: {
-      _or: [
-        { is_deleted: { _is_null: true } }
-        { is_deleted: { _eq: false } }
-      ]
-    },
-    order_by: { start_date: desc }
-  ) {
+  contract {
     id
     ...Contract
   }
@@ -212,6 +204,7 @@ fragment LoanReport on loan_reports {
   financing_day_limit
   debt_facility_status
   debt_facility_id
+  debt_facility_added_date
 }
 
 fragment LoanArtifact on loans {

@@ -135,7 +135,6 @@ export default function CreateUpdateDebtFacilityModal({
                     <Checkbox
                       checked={selectionState[value]}
                       onChange={(event: ChangeEvent<HTMLInputElement>) => {
-                        console.log(event.target.checked);
                         setSelectionState({
                           ...selectionState,
                           [value]: event.target.checked,

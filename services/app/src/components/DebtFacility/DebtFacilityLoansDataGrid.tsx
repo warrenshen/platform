@@ -27,6 +27,7 @@ import {
   DebtFacilityStatusEnum,
   DebtFacilityCompanyStatusEnum,
   DebtFacilityCompanyStatusToEligibility,
+  ProductTypeEnum,
 } from "lib/enum";
 import {
   createLoanCustomerIdentifier,
@@ -65,9 +66,13 @@ interface Props {
     purchaseOrderId: PurchaseOrders["id"]
   ) => void;
   handleSelectLoans?: (loans: OpenLoanForDebtFacilityFragment[]) => void;
+  supportedProductTypes?: ProductTypeEnum[];
 }
 
-function getRows(loans: OpenLoanForDebtFacilityFragment[]): RowsProp {
+function getRows(
+  loans: OpenLoanForDebtFacilityFragment[],
+  supportedProductTypes: ProductTypeEnum[]
+): RowsProp {
   return loans.map((loan) => ({
     ...loan,
     customer_identifier: createLoanCustomerIdentifier(loan),
@@ -103,10 +108,13 @@ function getRows(loans: OpenLoanForDebtFacilityFragment[]): RowsProp {
           loan.company.debt_facility_status as DebtFacilityCompanyStatusEnum
         ]
       : null,
-    loan_eligibility: determineLoanEligibility(loan),
+    loan_eligibility: determineLoanEligibility(loan, supportedProductTypes),
     debt_facility: !!loan.loan_report?.debt_facility
       ? loan.loan_report?.debt_facility.name
       : "-",
+    debt_facility_added_date: !!loan.loan_report?.debt_facility_added_date
+      ? loan.loan_report.debt_facility_added_date
+      : "",
     new_on_balance_sheet:
       !!loan.origination_date &&
       withinNDaysOfNowOrBefore(loan.origination_date, 30, true) === true
@@ -142,9 +150,13 @@ export default function DebtFacilityLoansDataGrid({
   handleClickCustomer,
   handleClickPurchaseOrderBankNote,
   handleSelectLoans,
+  supportedProductTypes = [] as ProductTypeEnum[],
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
-  const rows = useMemo(() => getRows(loans), [loans]);
+  const rows = useMemo(() => getRows(loans, supportedProductTypes), [
+    loans,
+    supportedProductTypes,
+  ]);
 
   useEffect(() => {
     if (!dataGrid) {
@@ -265,6 +277,18 @@ export default function DebtFacilityLoansDataGrid({
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
           <TextDataGridCell label={params.row.data.debt_facility} />
+        ),
+      },
+      {
+        visible: isDebtFacilityVisible,
+        caption: "Added to Debt Facility Date",
+        dataField: "debt_facility_added_date",
+        width: ColumnWidths.Type,
+        alignment: "center",
+        cellRender: (params: ValueFormatterParams) => (
+          <DateDataGridCell
+            dateString={params.row.data.debt_facility_added_date}
+          />
         ),
       },
       {

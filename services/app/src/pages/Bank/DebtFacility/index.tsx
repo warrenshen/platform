@@ -17,6 +17,7 @@ import {
   DebtFacilityStatusEnum,
   DebtFacilityTabLabel,
   DebtFacilityTabLabels,
+  ProductTypeEnum,
 } from "lib/enum";
 import { useState } from "react";
 import styled from "styled-components";
@@ -43,6 +44,10 @@ export default function BankDebtFacilityPage() {
   const [selectedDebtFacilityId, setSelectedDebtFacilityId] = useState<
     DebtFacilities["id"]
   >("");
+  const [
+    selectedDebtFacilitySupportedProductTypes,
+    setSelectedDebtFacilitySupportedProductTypes,
+  ] = useState<ProductTypeEnum[]>([]);
 
   // Pulls data for action required tab, grabs data here to update count in tab
   const { data, error } = useGetOpenLoansByDebtFacilityStatusesSubscription({
@@ -116,6 +121,9 @@ export default function BankDebtFacilityPage() {
             maxCapacity={totalCapacity}
             facilities={facilities}
             setSelectedDebtFacilityId={setSelectedDebtFacilityId}
+            setSelectedDebtFacilitySupportedProductTypes={
+              setSelectedDebtFacilitySupportedProductTypes
+            }
           />
           <Tabs
             value={selectedTabIndex}
@@ -142,6 +150,7 @@ export default function BankDebtFacilityPage() {
               facilities={facilities}
               selectedDebtFacilityId={selectedDebtFacilityId}
               allFacilityIds={allFacilityIds}
+              supportedProductTypes={selectedDebtFacilitySupportedProductTypes}
             />
           ) : selectedTabIndex === 1 ? (
             <DebtFacilityActionRequiredTab
@@ -155,7 +164,7 @@ export default function BankDebtFacilityPage() {
             <DebtFacilityReportTab
               facilities={facilities}
               selectedDebtFacilityId={selectedDebtFacilityId}
-              allFacilityIds={allFacilityIds}
+              supportedProductTypes={selectedDebtFacilitySupportedProductTypes}
             />
           ) : (
             <DebtFacilityAdminTab facilities={facilities} />

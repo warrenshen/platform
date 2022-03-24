@@ -18,8 +18,6 @@ import {
 import { formatDateString, formatDatetimeString } from "lib/date";
 import {
   LoanPaymentStatusEnum,
-  DebtFacilityCompanyStatusEnum,
-  DebtFacilityCompanyStatusToEligibility,
   PartnerEnum,
   ProductTypeEnum,
   ProductTypeToLabel,
@@ -30,7 +28,11 @@ import {
   getLoanArtifactName,
   getLoanVendorName,
 } from "lib/loans";
-import { determineLoanEligibility } from "lib/debtFacility";
+import {
+  determineBorrowerEligibility,
+  determineLoanEligibility,
+  getProductTypeFromOpenLoanForDebtFacilityFragment,
+} from "lib/debtFacility";
 import { ColumnWidths, truncateString } from "lib/tables";
 import { useEffect, useMemo, useState } from "react";
 
@@ -58,6 +60,8 @@ interface Props {
     purchaseOrderId: PurchaseOrders["id"]
   ) => void;
   handleSelectLoans?: (loans: LoanFragment[]) => void;
+  supportedProductTypes: ProductTypeEnum[];
+  lastDebtFacilityReportDate: string;
 }
 
 const getOriginationOrCreatedDate = (loan: OpenLoanForDebtFacilityFragment) => {
@@ -76,7 +80,7 @@ const getOriginationOrCreatedDate = (loan: OpenLoanForDebtFacilityFragment) => {
 };
 
 const calculateGrossMarginValue = (loan: OpenLoanForDebtFacilityFragment) => {
-  const productType = loan.company.contracts[0].product_type as ProductTypeEnum;
+  const productType = getProductTypeFromOpenLoanForDebtFacilityFragment(loan);
   // NOTE(JR): the finance team would eventually like this to be configurable
   const grossMarginMultiplier =
     productType === ProductTypeEnum.InvoiceFinancing ? 2.0 : 1.5;
@@ -85,9 +89,8 @@ const calculateGrossMarginValue = (loan: OpenLoanForDebtFacilityFragment) => {
 };
 
 const countAdvancesSent = (loan: OpenLoanForDebtFacilityFragment) => {
-  if (!!loan.transactions && loan.company.contracts[0].product_type) {
-    const productType = loan.company.contracts[0]
-      .product_type as ProductTypeEnum;
+  if (!!loan.transactions && !!loan?.company?.contract?.product_type) {
+    const productType = getProductTypeFromOpenLoanForDebtFacilityFragment(loan);
     if (productType === ProductTypeEnum.LineOfCredit) {
       return loan.transactions.length;
     } else {
@@ -99,7 +102,21 @@ const countAdvancesSent = (loan: OpenLoanForDebtFacilityFragment) => {
   }
 };
 
-function getRows(loans: OpenLoanForDebtFacilityFragment[]): RowsProp {
+const determineIfPreviouslyAssigned = (
+  loan: OpenLoanForDebtFacilityFragment,
+  lastDebtFacilityReportDate: string
+) => {
+  return !!loan.loan_report?.debt_facility_added_date
+    ? new Date(loan.loan_report?.debt_facility_added_date) <
+        new Date(lastDebtFacilityReportDate)
+    : false;
+};
+
+function getRows(
+  loans: OpenLoanForDebtFacilityFragment[],
+  supportedProductTypes: ProductTypeEnum[],
+  lastDebtFacilityReportDate: string
+): RowsProp {
   return loans.map((loan) => ({
     ...loan,
     customer_identifier: createLoanCustomerIdentifier(loan),
@@ -130,31 +147,36 @@ function getRows(loans: OpenLoanForDebtFacilityFragment[]): RowsProp {
     total_fees_paid: !!loan.loan_report
       ? loan.loan_report.total_fees_paid
       : null,
-    previously_assigned: "PLACEHOLDER",
-    product_type:
-      !!loan.company?.contracts && loan.company?.contracts.length > 0
-        ? ProductTypeToLabel[
-            loan.company.contracts[0].product_type as ProductTypeEnum
-          ]
-        : null,
+    previously_assigned: determineIfPreviouslyAssigned(
+      loan,
+      lastDebtFacilityReportDate
+    )
+      ? "Yes"
+      : "No",
+    product_type: !!loan.company?.contract
+      ? ProductTypeToLabel[
+          loan.company.contract.product_type as ProductTypeEnum
+        ]
+      : null,
     us_state:
       !!loan.company?.licenses && loan.company?.licenses.length > 0
         ? loan.company?.licenses[0].us_state
         : null,
-    borrower_eligibility: !!loan.company?.debt_facility_status
-      ? DebtFacilityCompanyStatusToEligibility[
-          loan.company.debt_facility_status as DebtFacilityCompanyStatusEnum
-        ]
-      : null,
-    loan_eligibility: determineLoanEligibility(loan),
+    borrower_eligibility: determineBorrowerEligibility(
+      loan,
+      supportedProductTypes
+    ),
+    loan_eligibility: determineLoanEligibility(loan, supportedProductTypes),
+    debt_facility_added_date: !!loan.loan_report?.debt_facility_added_date
+      ? loan.loan_report.debt_facility_added_date
+      : "",
     invoice_date: getOriginationOrCreatedDate(loan),
     // until we start tracking purchase order due dates, we pull the same date as invoice_date
     // according to the finance team, this is a reason assumption for most purchase orders
     invoice_due_date: getOriginationOrCreatedDate(loan),
-    gmv_financed:
-      !!loan.company?.contracts && loan.company?.contracts.length > 0
-        ? calculateGrossMarginValue(loan)
-        : null,
+    gmv_financed: !!loan.company?.contract
+      ? calculateGrossMarginValue(loan)
+      : null,
     loan_count: countAdvancesSent(loan),
   }));
 }
@@ -184,9 +206,14 @@ export default function DebtFacilityReportDataGrid({
   handleClickCustomer,
   handleClickPurchaseOrderBankNote,
   handleSelectLoans,
+  supportedProductTypes,
+  lastDebtFacilityReportDate,
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
-  const rows = useMemo(() => getRows(loans), [loans]);
+  const rows = useMemo(
+    () => getRows(loans, supportedProductTypes, lastDebtFacilityReportDate),
+    [loans, supportedProductTypes, lastDebtFacilityReportDate]
+  );
 
   useEffect(() => {
     if (!dataGrid) {
@@ -291,6 +318,17 @@ export default function DebtFacilityReportDataGrid({
         ),
       },
       {
+        caption: "Added to Debt Facility Date",
+        dataField: "debt_facility_added_date",
+        width: ColumnWidths.Type,
+        alignment: "center",
+        cellRender: (params: ValueFormatterParams) => (
+          <DateDataGridCell
+            dateString={params.row.data.debt_facility_added_date}
+          />
+        ),
+      },
+      {
         caption: "Borrower Eligibility",
         dataField: "borrower_eligibility",
         width: ColumnWidths.Type,
@@ -301,7 +339,7 @@ export default function DebtFacilityReportDataGrid({
       },
       {
         caption: "Loan Eligibility",
-        dataField: "previously_eligible",
+        dataField: "loan_eligibility",
         width: ColumnWidths.Type,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
