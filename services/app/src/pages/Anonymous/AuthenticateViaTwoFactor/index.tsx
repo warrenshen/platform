@@ -178,6 +178,7 @@ export default function AuthenticateViaTwoFactorPage({
               </Box>
               <Box display="flex" flexDirection="column" mt={3}>
                 <TextField
+                  data-cy={"2fa-input"}
                   autoFocus
                   label="Enter 2FA code"
                   value={codeEntered}
@@ -186,6 +187,7 @@ export default function AuthenticateViaTwoFactorPage({
               </Box>
               <Box display="flex" flexDirection="column" mt={4}>
                 <Button
+                  data-cy={"continue-review-po"}
                   disabled={isSubmitDisabled}
                   variant={"contained"}
                   color={"primary"}

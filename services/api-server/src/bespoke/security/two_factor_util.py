@@ -2,10 +2,13 @@
 	A file to keep common logic on how to handle two-factor links
 """
 import datetime
+import os
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
 from typing import Callable, List, Dict, Tuple, cast
 from twilio.rest import Client
+
+from server.config import is_test_env
 
 from bespoke import errors
 from bespoke.date import date_util
@@ -26,6 +29,10 @@ class SMSClient(object):
 		self._from = from_
 
 	def send_text_message(self, to_: str, msg: str) -> Tuple[bool, errors.Error]:
+		# This is to prevent sending messages in the test environment
+		if is_test_env(os.environ.get('FLASK_ENV')):
+			return True, None
+
 		if not to_:
 			return None, errors.Error('No "to" phone number provided')
 
@@ -82,15 +89,24 @@ def get_two_factor_link(
 	security_config: security_util.ConfigDict,
 	max_age_in_seconds: int, 
 	session: Session) -> Tuple[TwoFactorInfoDict, errors.Error]:
-	link_info, err = security_util.get_link_info_from_url(
-		link_signed_val, security_config, max_age_in_seconds=max_age_in_seconds)
-	if err:
-		return None, err
 
-	email = link_info['email']
+	# This is to retrieve the latest two-factor link using a static URL in the test environment
+	if is_test_env(os.environ.get('FLASK_ENV')):
+		two_factor_link = cast(models.TwoFactorLink, session.query(models.TwoFactorLink).order_by(
+			models.TwoFactorLink.expires_at.desc()).first())
 
-	two_factor_link = cast(models.TwoFactorLink, session.query(models.TwoFactorLink).filter(
-			models.TwoFactorLink.id == link_info['link_id']).first())
+		# We are passing the email in the link_signed_val for the test environment
+		email = link_signed_val
+	else:
+		link_info, err = security_util.get_link_info_from_url(
+			link_signed_val, security_config, max_age_in_seconds=max_age_in_seconds)
+		if err:
+			return None, err
+
+		email = link_info['email']
+
+		two_factor_link = cast(models.TwoFactorLink, session.query(models.TwoFactorLink).filter(
+				models.TwoFactorLink.id == link_info['link_id']).first())
 
 	if not two_factor_link:
 		return None, errors.Error('Link provided no longer exists')

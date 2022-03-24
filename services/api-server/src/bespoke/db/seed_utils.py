@@ -38,6 +38,13 @@ def create_partnership_req(
 def create_company_settings_and_company(
 	session: Session
 ) -> models.Company:
+    parent_company = models.ParentCompany(
+        name="Parent of Vendor Company"
+    )
+
+    session.add(parent_company)
+    session.flush()
+
     company_settings = models.CompanySettings()
     company_settings.two_factor_message_method = TwoFactorMessageMethod.PHONE
 
@@ -45,6 +52,7 @@ def create_company_settings_and_company(
     session.flush()
 
     company = models.Company(
+        parent_company_id=str(parent_company.id),
         company_settings_id=company_settings.id,
         is_customer=False,
         is_payor=False,
@@ -59,10 +67,12 @@ def create_company_settings_and_company(
     return company
 
 def create_user_inside_a_company(
-    company_id: int,
-	session: Session
+    parent_company_id: str,
+    company_id: str,
+	session: Session,
 ) -> None:
     user = models.User()
+    user.parent_company_id = parent_company_id
     user.company_id = company_id
     user.first_name = 'Vendor'
     user.last_name = '3'
@@ -86,15 +96,33 @@ def create_company_license(
     session.flush()
 
 def create_company_vendor_partnership(
-    company_id: int,
-    vendor_id: int,
+    company_id: str,
+    vendor_id: str,
 	session: Session
 ) -> None:
+    bank_account = models.BankAccount( # type: ignore
+        company_id=vendor_id,
+        bank_name="Bank 1",
+        account_type="type1",
+        account_number="11",
+        routing_number="11",
+        can_ach=True,
+        can_wire=True,
+        recipient_address="123 Street",
+        bank_address="123 street",
+        account_title="Account 1",
+        verified_date=date_util.now_as_date(date_util.DEFAULT_TIMEZONE),
+        is_cannabis_compliant=True,
+        verified_at=date_util.now(),
+    )
+    session.add(bank_account)
+    session.flush()
+
     company_vendor_partnership = models.CompanyVendorPartnership(
         company_id=company_id,
         vendor_id=vendor_id,
+        vendor_bank_id=bank_account.id,
         approved_at = date_util.now()
     )
-
     session.add(company_vendor_partnership)
     session.flush()

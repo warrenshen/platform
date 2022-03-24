@@ -6,12 +6,15 @@ for sending emails.
 
 from __future__ import absolute_import, print_function
 
+import os
 import logging
 import smtplib
 from concurrent.futures import Future, ThreadPoolExecutor
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Any, Dict, List, Optional, Tuple, Union, cast
+
+from server.config import is_test_env
 
 import boto3
 from mypy_extensions import TypedDict
@@ -182,6 +185,10 @@ class EmailSender(object):
 		:param email: Email to be sent.
 		:return:
 		"""
+		# This is to prevent sending emails in the test environment
+		if is_test_env(os.environ.get('FLASK_ENV')):
+			return
+
 		try:
 			resp = self._client.send(email)
 			if resp.status_code != 202:

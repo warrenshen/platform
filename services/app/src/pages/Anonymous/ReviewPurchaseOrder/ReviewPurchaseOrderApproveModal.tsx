@@ -113,6 +113,7 @@ function ReviewPurchaseOrderApproveModal({
       onClose={handleClose}
       maxWidth="lg"
       classes={{ paper: classes.dialog }}
+      data-cy={"review-bank-information-modal"}
     >
       <DialogTitle className={classes.dialogTitle}>
         Confirm Bank Information
@@ -132,6 +133,7 @@ function ReviewPurchaseOrderApproveModal({
           Cancel
         </Button>
         <Button
+          data-cy={"confirm-bank-information"}
           disabled={isSubmitDisabled}
           variant={"contained"}
           color={"primary"}

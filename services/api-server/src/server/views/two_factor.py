@@ -1,5 +1,6 @@
 import datetime
 import json
+import os
 from dateutil import parser
 
 from bespoke.db import models
@@ -18,7 +19,7 @@ from bespoke.date import date_util
 from bespoke import errors
 from bespoke.email import sendgrid_util
 from bespoke.security import security_util, two_factor_util
-from server.config import Config
+from server.config import Config, is_test_env
 from server.views.common import auth_util, handler_util
 
 handler = Blueprint('two_factor', __name__)
@@ -60,7 +61,11 @@ class SendCodeView(MethodView):
 	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
 		cfg = cast(Config, current_app.app_config)
-		sms_client = cast(two_factor_util.SMSClient, current_app.sms_client)
+
+		# This is to avoid current_app having no sms_client error in the test environment.
+		current_app_sms_client = current_app.sms_client if not is_test_env(os.environ.get('FLASK_ENV')) else None
+
+		sms_client = cast(two_factor_util.SMSClient, current_app_sms_client)
 		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
 		form = json.loads(request.data)
@@ -138,12 +143,14 @@ class SendCodeView(MethodView):
 				if not to_phone_number:
 					raise errors.Error('A phone number must first be specified for the user associated with email "{}"'.format(email))
 
-				_, err = sms_client.send_text_message(
-					to_=to_phone_number,
-					msg=f'Bespoke Financial authentication code: {token_val}'
-				)
-				if err:
-					raise err
+				# This is to prevent sending messages in the test environment
+				if not is_test_env(os.environ.get('FLASK_ENV')):
+					_, err = sms_client.send_text_message(
+						to_=to_phone_number,
+						msg=f'Bespoke Financial authentication code: {token_val}'
+					)
+					if err:
+						raise err
 
 			# Save two-factor code secret in the DB
 			token_states_dict[email] = {
@@ -228,9 +235,15 @@ class GetSecureLinkPayloadView(MethodView):
 
 			if link_type != db_constants.TwoFactorLinkType.FORGOT_PASSWORD:
 				# Forgot password links dont need code approval
-				success, err = _approve_code(provided_token_val, two_factor_info)
-				if err:
-					raise err
+
+				# In the test environment we will be sending the token as 000000
+				if is_test_env(os.environ.get('FLASK_ENV')):
+					if provided_token_val != "000000":
+						raise errors.Error(f'Invalid token for the test environment')
+				else:
+					success, err = _approve_code(provided_token_val, two_factor_info)
+					if err:
+						raise err
 
 			if link_type in db_constants.REVIEWER_LINK_TYPE_TO_ROLE:
 				# This overrides the COMPANY_CONTACT_ONLY role with INVOICE_REVIEWER / PURCHASE_ORDER_REVIEWER.
@@ -261,7 +274,7 @@ class GetSecureLinkPayloadView(MethodView):
 			pass
 		else:
 			raise errors.Error('Could not handle unknown payload type {}'.format(form_info.get('type')))
-
+		
 		return make_response(json.dumps({
 			'status': 'OK',
 			'form_info': form_info,

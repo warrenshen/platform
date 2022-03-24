@@ -297,6 +297,7 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
                 </StyledButton>
                 <ButtonSpace />
                 <StyledButton
+                  data-cy={"vendor-approve-po"}
                   disabled={false}
                   variant={"contained"}
                   color={"primary"}

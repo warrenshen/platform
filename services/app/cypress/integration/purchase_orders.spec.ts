@@ -1,3 +1,5 @@
+import { vendorEmail } from "../fixtures/logins";
+
 enum ProductTypeIndexEnum {
   DispensaryFinancing = "0",
   InventoryFinancing = "1",
@@ -117,7 +119,9 @@ function createContract(productTypeIndex: ProductTypeIndexEnum) {
   cy.dataCy("create-contract-modal").should("not.exist");
 }
 
-function createPurchaseOrderAsCustomerAdmin() {
+function createPurchaseOrderAsCustomerAdmin(
+  purchaseOrderNumber: string = "PO-CYPRESS"
+) {
   // Login as customer admin
   cy.loginCustomerAdmin();
 
@@ -136,7 +140,7 @@ function createPurchaseOrderAsCustomerAdmin() {
 
   // Fill the rest of the form and hit submit
   cy.dataCySelector("purchase-order-form-input-order-number", "input").type(
-    "PO-CYPRESS"
+    purchaseOrderNumber
   );
   cy.dataCySelector("purchase-order-form-input-order-date", "input").type(
     "05/05/2021"
@@ -167,7 +171,9 @@ function createPurchaseOrderAsCustomerAdmin() {
   cy.dataCy("create-purchase-order-modal").should("not.exist");
 }
 
-function createPurchaseOrderAsBankAdmin() {
+function createPurchaseOrderAsBankAdmin(
+  purchaseOrderNumber: string = "PO-CYPRESS2"
+) {
   // Login as bank admin
   cy.loginBankAdmin();
 
@@ -190,7 +196,7 @@ function createPurchaseOrderAsBankAdmin() {
 
   // Fill the rest of the form and hit submit
   cy.dataCySelector("purchase-order-form-input-order-number", "input").type(
-    "PO-CYPRESS2"
+    purchaseOrderNumber
   );
   cy.dataCySelector("purchase-order-form-input-order-date", "input").type(
     "05/05/2021"
@@ -238,6 +244,21 @@ function approvePurchaseOrderAsBankAdmin() {
   cy.dataCy("approve-po-confirm-button").click();
 }
 
+function approvePurchaseOrderAsVendor() {
+  // Visit the get secure link with email as the val
+  cy.visit(`/get-secure-link?val=${vendorEmail}`);
+
+  // Enter the static OTP as 000000
+  // 2fa-input
+  cy.dataCySelector("2fa-input", "input").type("000000");
+
+  cy.dataCy("continue-review-po").click();
+  cy.dataCy("vendor-approve-po").click();
+
+  cy.dataCy("review-bank-information-modal").should("be.visible");
+  cy.dataCy("confirm-bank-information").click();
+}
+
 describe("Create inventory financing contract for existing customer", () => {
   it(
     "can create contract",
@@ -259,51 +280,6 @@ describe("Create inventory financing contract for existing customer", () => {
   );
 });
 
-// Note: a vendor partnership for the customer is missing to get the below to work.
-
-// describe("Create purchase order", () => {
-//   it("can create and save purchase order as draft", () => {
-//     cy.loginCustomerAdmin();
-
-//     cy.visit("/1/purchase-orders");
-//     cy.url().should("include", "purchase-orders");
-
-//     cy.dataCy("create-purchase-order-button").click();
-
-//     cy.dataCy("create-purchase-order-modal").should("be.visible");
-
-//     cy.dataCy("purchase-order-form-input-vendor").click();
-//     cy.dataCy("purchase-order-form-input-vendor-menu-item-1").click();
-//     cy.dataCySelector("purchase-order-form-input-order-number", "input").type(
-//       "PO-CYPRESS"
-//     );
-//     cy.dataCySelector("purchase-order-form-input-order-date", "input").type(
-//       "05/05/2021"
-//     );
-//     cy.dataCySelector("purchase-order-form-input-delivery-date", "input").type(
-//       "05/05/2021"
-//     );
-//     cy.dataCySelector("purchase-order-form-input-amount", "input").type(
-//       "42000"
-//     );
-//     cy.dataCySelector(
-//       "purchase-order-form-input-is-cannabis",
-//       "input"
-//     ).uncheck();
-//     cy.dataCySelector(
-//       "purchase-order-form-file-uploader-purchase-order-file",
-//       "input"
-//     ).attachFile("files/sample.pdf");
-//     cy.dataCySelector("purchase-order-form-input-customer-note", "input").type(
-//       "Comment from customer"
-//     );
-
-//     cy.dataCy("create-purchase-order-modal-button-save-and-submit").click();
-
-//     cy.dataCy("create-purchase-order-modal").should("not.exist");
-//   });
-// });
-
 describe("Inventory financing - Customer admin creates the purchase order and bank admin approves it", () => {
   it("Create and approve purchase order", () => {
     createPurchaseOrderAsCustomerAdmin();
@@ -314,12 +290,32 @@ describe("Inventory financing - Customer admin creates the purchase order and ba
   });
 });
 
+describe("Inventory financing - Customer admin creates the purchase order and vendor approves it", () => {
+  it("Create and approve purchase order", () => {
+    createPurchaseOrderAsCustomerAdmin("PO-CYPRESS-V");
+    cy.logout();
+
+    // Approve the purchase order as Vendor
+    approvePurchaseOrderAsVendor();
+  });
+});
+
 describe("Inventory financing - Bank admin creates the purchase order and approves it", () => {
   it("Create and approve purchase order", () => {
     createPurchaseOrderAsBankAdmin();
     cy.logout();
 
     approvePurchaseOrderAsBankAdmin();
+  });
+});
+
+describe("Inventory financing - Bank admin creates the purchase order and vendor approves it", () => {
+  it("Create and approve purchase order", () => {
+    createPurchaseOrderAsBankAdmin("PO-CYPRESS-V2");
+    cy.logout();
+
+    // Approve the purchase order as Vendor
+    approvePurchaseOrderAsVendor();
   });
 });
 
@@ -354,12 +350,32 @@ describe("Purchase money financing - Customer admin creates the purchase order a
   });
 });
 
+describe("Purchase money financing - Customer admin creates the purchase order and vendor approves it", () => {
+  it("Create and approve purchase order", () => {
+    createPurchaseOrderAsCustomerAdmin("PO-CYPRESS-V");
+    cy.logout();
+
+    // Approve the purchase order as Vendor
+    approvePurchaseOrderAsVendor();
+  });
+});
+
 describe("Purchase money financing - Bank admin creates the purchase order and approves it", () => {
   it("Create and approve purchase order", () => {
     createPurchaseOrderAsBankAdmin();
     cy.logout();
 
     approvePurchaseOrderAsBankAdmin();
+  });
+});
+
+describe("Purchase money financing - Bank admin creates the purchase order and vendor approves it", () => {
+  it("Create and approve purchase order", () => {
+    createPurchaseOrderAsBankAdmin("PO-CYPRESS-V2");
+    cy.logout();
+
+    // Approve the purchase order as Vendor
+    approvePurchaseOrderAsVendor();
   });
 });
 
@@ -394,11 +410,31 @@ describe("Dispensary financing - Customer admin creates the purchase order and b
   });
 });
 
+describe("Dispensary financing - Customer admin creates the purchase order and vendor approves it", () => {
+  it("Create and approve purchase order", () => {
+    createPurchaseOrderAsCustomerAdmin("PO-CYPRESS-V");
+    cy.logout();
+
+    // Approve the purchase order as Vendor
+    approvePurchaseOrderAsVendor();
+  });
+});
+
 describe("Dispensary financing - Bank admin creates the purchase order and approves it", () => {
   it("Create and approve purchase order", () => {
     createPurchaseOrderAsBankAdmin();
     cy.logout();
 
     approvePurchaseOrderAsBankAdmin();
+  });
+});
+
+describe("Dispensary financing - Bank admin creates the purchase order and vendor approves it", () => {
+  it("Create and approve purchase order", () => {
+    createPurchaseOrderAsBankAdmin("PO-CYPRESS-V2");
+    cy.logout();
+
+    // Approve the purchase order as Vendor
+    approvePurchaseOrderAsVendor();
   });
 });

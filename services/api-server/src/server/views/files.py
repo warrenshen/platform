@@ -206,7 +206,7 @@ class PutSignedUrlView(MethodView):
 			return handler_util.make_error_response('Failed to create upload url')
 
 		upload_via_server = False
-		if cfg.is_development_env():
+		if cfg.is_development_env() or cfg.is_test_env():
 			upload_via_server = True
 
 		# Keep track of the file, we assume the upload to S3 will succeed.

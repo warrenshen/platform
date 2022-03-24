@@ -161,6 +161,7 @@ def setup_db_test(app: Any) -> None:
 			company = create_company_settings_and_company(session=session)
 
 			create_user_inside_a_company(
+				parent_company_id=str(company.parent_company_id),
 				company_id=company.id,
 				session=session,
 			)

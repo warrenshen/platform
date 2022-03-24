@@ -13,3 +13,5 @@ export const users = {
 };
 
 export const password = "password123";
+
+export const vendorEmail = "vendor.3@customer.com";

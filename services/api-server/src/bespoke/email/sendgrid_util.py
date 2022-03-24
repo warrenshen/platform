@@ -443,10 +443,6 @@ class Client(object):
 			'template_data': template_data,
 		}
 
-		# This is to prevent sending emails in the test environment
-		if is_test_env(os.environ.get('FLASK_ENV')):
-			return True, None
-
 		is_prod = is_prod_env(self._email_cfg['flask_env'])
 
 		if not _requires_secure_link(template_name):

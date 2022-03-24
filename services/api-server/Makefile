@@ -50,6 +50,7 @@ mypy-scripts:
 	MYPYPATH=stubs:src mypy scripts/batch/sync_metrc_data.py
 
 mypy:
+	MYPYPATH=stubs mypy src/bespoke/db/seed.py --config-file=mypy.ini
 	MYPYPATH=stubs mypy src/bespoke/db/main.py --config-file=mypy.ini
 	MYPYPATH=stubs mypy src/manage.py --config-file=mypy.ini
 	MYPYPATH=stubs mypy src/manage_async.py --config-file=mypy.ini
