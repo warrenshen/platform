@@ -141,7 +141,7 @@ def fund_loans_with_advance(
 				not_approved_loan_ids.append(loan_id)
 
 			if loan.loan_report_id is not None:
-				loan_report_ids.append(str(loan.loan_report_id)) 
+				loan_report_ids.append(str(loan.loan_report_id))
 
 		if all_loans_total > available_limit:
 			raise errors.Error('Total amount across all loans in request exceeds the maximum limit for company {}. Loan total: {}. Remaining limit: {}'.format(

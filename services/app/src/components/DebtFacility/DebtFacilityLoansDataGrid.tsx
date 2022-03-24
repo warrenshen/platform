@@ -20,10 +20,13 @@ import {
   PurchaseOrders,
   RequestStatusEnum,
 } from "generated/graphql";
+import { withinNDaysOfNowOrBefore } from "lib/date";
 import {
   LoanPaymentStatusEnum,
   LoanTypeToLabel,
   DebtFacilityStatusEnum,
+  DebtFacilityCompanyStatusEnum,
+  DebtFacilityCompanyStatusToEligibility,
 } from "lib/enum";
 import {
   createLoanCustomerIdentifier,
@@ -31,6 +34,7 @@ import {
   getLoanArtifactName,
   getLoanVendorName,
 } from "lib/loans";
+import { determineLoanEligibility } from "lib/debtFacility";
 import { ColumnWidths, truncateString } from "lib/tables";
 import { useEffect, useMemo, useState } from "react";
 import { PartnerEnum } from "lib/enum";
@@ -48,6 +52,8 @@ interface Props {
   isReportingVisible?: boolean;
   isSortingDisabled?: boolean;
   isStatusVisible?: boolean;
+  isEligibilityVisible?: boolean;
+  isDebtFacilityVisible?: boolean;
   partnerType?: PartnerEnum;
   pager?: boolean;
   pageSize?: number;
@@ -92,6 +98,20 @@ function getRows(loans: OpenLoanForDebtFacilityFragment[]): RowsProp {
     total_fees_paid: !!loan.loan_report
       ? loan.loan_report.total_fees_paid
       : null,
+    borrower_eligibility: !!loan.company?.debt_facility_status
+      ? DebtFacilityCompanyStatusToEligibility[
+          loan.company.debt_facility_status as DebtFacilityCompanyStatusEnum
+        ]
+      : null,
+    loan_eligibility: determineLoanEligibility(loan),
+    debt_facility: !!loan.loan_report?.debt_facility
+      ? loan.loan_report?.debt_facility.name
+      : "-",
+    new_on_balance_sheet:
+      !!loan.origination_date &&
+      withinNDaysOfNowOrBefore(loan.origination_date, 30, true) === true
+        ? "Yes"
+        : "No",
   }));
 }
 
@@ -111,6 +131,8 @@ export default function DebtFacilityLoansDataGrid({
   isReportingVisible = false,
   isSortingDisabled = false,
   isStatusVisible = true,
+  isEligibilityVisible = false,
+  isDebtFacilityVisible = false,
   pager = true,
   pageSize = 10,
   partnerType = PartnerEnum.VENDOR,
@@ -224,6 +246,46 @@ export default function DebtFacilityLoansDataGrid({
           ) : (
             params.row.data.company?.name || "-"
           ),
+      },
+      {
+        visible: isEligibilityVisible,
+        caption: "Borrower Eligibility",
+        dataField: "borrower_eligibility",
+        width: ColumnWidths.Type,
+        alignment: "center",
+        cellRender: (params: ValueFormatterParams) => (
+          <TextDataGridCell label={params.row.data.borrower_eligibility} />
+        ),
+      },
+      {
+        visible: isDebtFacilityVisible,
+        caption: "Debt Facility",
+        dataField: "debt_facility",
+        width: ColumnWidths.Type,
+        alignment: "center",
+        cellRender: (params: ValueFormatterParams) => (
+          <TextDataGridCell label={params.row.data.debt_facility} />
+        ),
+      },
+      {
+        visible: isEligibilityVisible,
+        caption: "Loan Eligibility",
+        dataField: "previously_eligible",
+        width: ColumnWidths.Type,
+        alignment: "center",
+        cellRender: (params: ValueFormatterParams) => (
+          <TextDataGridCell label={params.row.data.loan_eligibility} />
+        ),
+      },
+      {
+        visible: isEligibilityVisible,
+        caption: "New to Balance Sheet",
+        dataField: "new_on_balance_sheet",
+        width: ColumnWidths.Type,
+        alignment: "center",
+        cellRender: (params: ValueFormatterParams) => (
+          <TextDataGridCell label={params.row.data.new_on_balance_sheet} />
+        ),
       },
       {
         caption: "Loan Amount",
@@ -437,7 +499,9 @@ export default function DebtFacilityLoansDataGrid({
       isArtifactBankNoteVisible,
       isCompanyVisible,
       isDaysPastDueVisible,
+      isDebtFacilityVisible,
       isDisbursementIdentifierVisible,
+      isEligibilityVisible,
       isMaturityVisible,
       isReportingVisible,
       isStatusVisible,

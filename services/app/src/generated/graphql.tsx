@@ -181,7 +181,7 @@ export type AsyncPipelinesMutationResponse = {
   returning: Array<AsyncPipelines>;
 };
 
-/** on conflict condition type for table "async_pipelines" */
+/** on_conflict condition type for table "async_pipelines" */
 export type AsyncPipelinesOnConflict = {
   constraint: AsyncPipelinesConstraint;
   update_columns?: Array<AsyncPipelinesUpdateColumn>;
@@ -251,12 +251,7 @@ export enum AsyncPipelinesUpdateColumn {
   UpdatedAt = "updated_at",
 }
 
-/**
- * Capture information about business actions
- *
- *
- * columns and relationships of "audit_events"
- */
+/** Capture information about business actions */
 export type AuditEvents = {
   action: Scalars["String"];
   company_id?: Maybe<Scalars["uuid"]>;
@@ -269,12 +264,7 @@ export type AuditEvents = {
   user_id?: Maybe<Scalars["uuid"]>;
 };
 
-/**
- * Capture information about business actions
- *
- *
- * columns and relationships of "audit_events"
- */
+/** Capture information about business actions */
 export type AuditEventsDataArgs = {
   path?: Maybe<Scalars["String"]>;
 };
@@ -383,7 +373,7 @@ export type AuditEventsMutationResponse = {
   returning: Array<AuditEvents>;
 };
 
-/** on conflict condition type for table "audit_events" */
+/** on_conflict condition type for table "audit_events" */
 export type AuditEventsOnConflict = {
   constraint: AuditEventsConstraint;
   update_columns?: Array<AuditEventsUpdateColumn>;
@@ -578,7 +568,7 @@ export type BankAccountsAggregateOrderBy = {
 /** input type for inserting array relation for remote table "bank_accounts" */
 export type BankAccountsArrRelInsertInput = {
   data: Array<BankAccountsInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<BankAccountsOnConflict>;
 };
 
@@ -786,11 +776,11 @@ export type BankAccountsMutationResponse = {
 /** input type for inserting object relation for remote table "bank_accounts" */
 export type BankAccountsObjRelInsertInput = {
   data: BankAccountsInsertInput;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<BankAccountsOnConflict>;
 };
 
-/** on conflict condition type for table "bank_accounts" */
+/** on_conflict condition type for table "bank_accounts" */
 export type BankAccountsOnConflict = {
   constraint: BankAccountsConstraint;
   update_columns?: Array<BankAccountsUpdateColumn>;
@@ -995,12 +985,7 @@ export enum BankAccountsUpdateColumn {
   WireTemplateName = "wire_template_name",
 }
 
-/**
- * This is the financial summary for the bank, where each row represents one day for a particular product type
- *
- *
- * columns and relationships of "bank_financial_summaries"
- */
+/** This is the financial summary for the bank, where each row represents one day for a particular product type */
 export type BankFinancialSummaries = {
   adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit: Scalars["numeric"];
@@ -1162,7 +1147,7 @@ export type BankFinancialSummariesMutationResponse = {
   returning: Array<BankFinancialSummaries>;
 };
 
-/** on conflict condition type for table "bank_financial_summaries" */
+/** on_conflict condition type for table "bank_financial_summaries" */
 export type BankFinancialSummariesOnConflict = {
   constraint: BankFinancialSummariesConstraint;
   update_columns?: Array<BankFinancialSummariesUpdateColumn>;
@@ -1901,7 +1886,7 @@ export type CompaniesAggregateOrderBy = {
 /** input type for inserting array relation for remote table "companies" */
 export type CompaniesArrRelInsertInput = {
   data: Array<CompaniesInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<CompaniesOnConflict>;
 };
 
@@ -2170,11 +2155,11 @@ export type CompaniesMutationResponse = {
 /** input type for inserting object relation for remote table "companies" */
 export type CompaniesObjRelInsertInput = {
   data: CompaniesInsertInput;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<CompaniesOnConflict>;
 };
 
-/** on conflict condition type for table "companies" */
+/** on_conflict condition type for table "companies" */
 export type CompaniesOnConflict = {
   constraint: CompaniesConstraint;
   update_columns?: Array<CompaniesUpdateColumn>;
@@ -2509,12 +2494,7 @@ export type CompaniesVarianceOrderBy = {
   latest_repayment_identifier?: Maybe<OrderBy>;
 };
 
-/**
- * Agreements that a company signs with Bespoke, this can be for vendors or customers signing agreeements
- *
- *
- * columns and relationships of "company_agreements"
- */
+/** Agreements that a company signs with Bespoke, this can be for vendors or customers signing agreeements */
 export type CompanyAgreements = {
   /** An object relationship */
   company: Companies;
@@ -2531,12 +2511,7 @@ export type CompanyAgreements = {
   id: Scalars["uuid"];
 };
 
-/**
- * Agreements that a company signs with Bespoke, this can be for vendors or customers signing agreeements
- *
- *
- * columns and relationships of "company_agreements"
- */
+/** Agreements that a company signs with Bespoke, this can be for vendors or customers signing agreeements */
 export type CompanyAgreementsCompanyPayorPartnershipsArgs = {
   distinct_on?: Maybe<Array<CompanyPayorPartnershipsSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -2545,12 +2520,7 @@ export type CompanyAgreementsCompanyPayorPartnershipsArgs = {
   where?: Maybe<CompanyPayorPartnershipsBoolExp>;
 };
 
-/**
- * Agreements that a company signs with Bespoke, this can be for vendors or customers signing agreeements
- *
- *
- * columns and relationships of "company_agreements"
- */
+/** Agreements that a company signs with Bespoke, this can be for vendors or customers signing agreeements */
 export type CompanyAgreementsCompanyPayorPartnershipsAggregateArgs = {
   distinct_on?: Maybe<Array<CompanyPayorPartnershipsSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -2559,12 +2529,7 @@ export type CompanyAgreementsCompanyPayorPartnershipsAggregateArgs = {
   where?: Maybe<CompanyPayorPartnershipsBoolExp>;
 };
 
-/**
- * Agreements that a company signs with Bespoke, this can be for vendors or customers signing agreeements
- *
- *
- * columns and relationships of "company_agreements"
- */
+/** Agreements that a company signs with Bespoke, this can be for vendors or customers signing agreeements */
 export type CompanyAgreementsCompanyVendorPartnershipsArgs = {
   distinct_on?: Maybe<Array<CompanyVendorPartnershipsSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -2573,12 +2538,7 @@ export type CompanyAgreementsCompanyVendorPartnershipsArgs = {
   where?: Maybe<CompanyVendorPartnershipsBoolExp>;
 };
 
-/**
- * Agreements that a company signs with Bespoke, this can be for vendors or customers signing agreeements
- *
- *
- * columns and relationships of "company_agreements"
- */
+/** Agreements that a company signs with Bespoke, this can be for vendors or customers signing agreeements */
 export type CompanyAgreementsCompanyVendorPartnershipsAggregateArgs = {
   distinct_on?: Maybe<Array<CompanyVendorPartnershipsSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -2616,7 +2576,7 @@ export type CompanyAgreementsAggregateOrderBy = {
 /** input type for inserting array relation for remote table "company_agreements" */
 export type CompanyAgreementsArrRelInsertInput = {
   data: Array<CompanyAgreementsInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<CompanyAgreementsOnConflict>;
 };
 
@@ -2688,11 +2648,11 @@ export type CompanyAgreementsMutationResponse = {
 /** input type for inserting object relation for remote table "company_agreements" */
 export type CompanyAgreementsObjRelInsertInput = {
   data: CompanyAgreementsInsertInput;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<CompanyAgreementsOnConflict>;
 };
 
-/** on conflict condition type for table "company_agreements" */
+/** on_conflict condition type for table "company_agreements" */
 export type CompanyAgreementsOnConflict = {
   constraint: CompanyAgreementsConstraint;
   update_columns?: Array<CompanyAgreementsUpdateColumn>;
@@ -2796,7 +2756,7 @@ export type CompanyDeliveriesAggregateOrderBy = {
 /** input type for inserting array relation for remote table "company_deliveries" */
 export type CompanyDeliveriesArrRelInsertInput = {
   data: Array<CompanyDeliveriesInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<CompanyDeliveriesOnConflict>;
 };
 
@@ -2925,7 +2885,7 @@ export type CompanyDeliveriesMutationResponse = {
   returning: Array<CompanyDeliveries>;
 };
 
-/** on conflict condition type for table "company_deliveries" */
+/** on_conflict condition type for table "company_deliveries" */
 export type CompanyDeliveriesOnConflict = {
   constraint: CompanyDeliveriesConstraint;
   update_columns?: Array<CompanyDeliveriesUpdateColumn>;
@@ -3070,7 +3030,7 @@ export type CompanyFacilitiesAggregateOrderBy = {
 /** input type for inserting array relation for remote table "company_facilities" */
 export type CompanyFacilitiesArrRelInsertInput = {
   data: Array<CompanyFacilitiesInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<CompanyFacilitiesOnConflict>;
 };
 
@@ -3158,11 +3118,11 @@ export type CompanyFacilitiesMutationResponse = {
 /** input type for inserting object relation for remote table "company_facilities" */
 export type CompanyFacilitiesObjRelInsertInput = {
   data: CompanyFacilitiesInsertInput;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<CompanyFacilitiesOnConflict>;
 };
 
-/** on conflict condition type for table "company_facilities" */
+/** on_conflict condition type for table "company_facilities" */
 export type CompanyFacilitiesOnConflict = {
   constraint: CompanyFacilitiesConstraint;
   update_columns?: Array<CompanyFacilitiesUpdateColumn>;
@@ -3232,12 +3192,7 @@ export enum CompanyFacilitiesUpdateColumn {
   UpdatedAt = "updated_at",
 }
 
-/**
- * Licenses that a company or vendor upload to our system
- *
- *
- * columns and relationships of "company_licenses"
- */
+/** Licenses that a company or vendor upload to our system */
 export type CompanyLicenses = {
   /** An object relationship */
   company?: Maybe<Companies>;
@@ -3312,7 +3267,7 @@ export type CompanyLicensesAggregateOrderBy = {
 /** input type for inserting array relation for remote table "company_licenses" */
 export type CompanyLicensesArrRelInsertInput = {
   data: Array<CompanyLicensesInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<CompanyLicensesOnConflict>;
 };
 
@@ -3491,7 +3446,7 @@ export type CompanyLicensesMutationResponse = {
   returning: Array<CompanyLicenses>;
 };
 
-/** on conflict condition type for table "company_licenses" */
+/** on_conflict condition type for table "company_licenses" */
 export type CompanyLicensesOnConflict = {
   constraint: CompanyLicensesConstraint;
   update_columns?: Array<CompanyLicensesUpdateColumn>;
@@ -3855,7 +3810,7 @@ export type CompanyPartnershipRequestsMutationResponse = {
   returning: Array<CompanyPartnershipRequests>;
 };
 
-/** on conflict condition type for table "company_partnership_requests" */
+/** on_conflict condition type for table "company_partnership_requests" */
 export type CompanyPartnershipRequestsOnConflict = {
   constraint: CompanyPartnershipRequestsConstraint;
   update_columns?: Array<CompanyPartnershipRequestsUpdateColumn>;
@@ -4001,7 +3956,7 @@ export type CompanyPayorContactsAggregateOrderBy = {
 /** input type for inserting array relation for remote table "company_payor_contacts" */
 export type CompanyPayorContactsArrRelInsertInput = {
   data: Array<CompanyPayorContactsInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<CompanyPayorContactsOnConflict>;
 };
 
@@ -4066,7 +4021,7 @@ export type CompanyPayorContactsMutationResponse = {
   returning: Array<CompanyPayorContacts>;
 };
 
-/** on conflict condition type for table "company_payor_contacts" */
+/** on_conflict condition type for table "company_payor_contacts" */
 export type CompanyPayorContactsOnConflict = {
   constraint: CompanyPayorContactsConstraint;
   update_columns?: Array<CompanyPayorContactsUpdateColumn>;
@@ -4185,7 +4140,7 @@ export type CompanyPayorPartnershipsAggregateOrderBy = {
 /** input type for inserting array relation for remote table "company_payor_partnerships" */
 export type CompanyPayorPartnershipsArrRelInsertInput = {
   data: Array<CompanyPayorPartnershipsInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<CompanyPayorPartnershipsOnConflict>;
 };
 
@@ -4295,7 +4250,7 @@ export type CompanyPayorPartnershipsMutationResponse = {
   returning: Array<CompanyPayorPartnerships>;
 };
 
-/** on conflict condition type for table "company_payor_partnerships" */
+/** on_conflict condition type for table "company_payor_partnerships" */
 export type CompanyPayorPartnershipsOnConflict = {
   constraint: CompanyPayorPartnershipsConstraint;
   update_columns?: Array<CompanyPayorPartnershipsUpdateColumn>;
@@ -4377,12 +4332,7 @@ export enum CompanyPayorPartnershipsUpdateColumn {
   UpdatedAt = "updated_at",
 }
 
-/**
- * Settings are configuration details associated with a company, but are not within a time range like contracts are
- *
- *
- * columns and relationships of "company_settings"
- */
+/** Settings are configuration details associated with a company, but are not within a time range like contracts are */
 export type CompanySettings = {
   /** An object relationship */
   active_ebba_application?: Maybe<EbbaApplications>;
@@ -4425,22 +4375,12 @@ export type CompanySettings = {
   vendor_onboarding_link?: Maybe<Scalars["String"]>;
 };
 
-/**
- * Settings are configuration details associated with a company, but are not within a time range like contracts are
- *
- *
- * columns and relationships of "company_settings"
- */
+/** Settings are configuration details associated with a company, but are not within a time range like contracts are */
 export type CompanySettingsCustomMessagesPayloadArgs = {
   path?: Maybe<Scalars["String"]>;
 };
 
-/**
- * Settings are configuration details associated with a company, but are not within a time range like contracts are
- *
- *
- * columns and relationships of "company_settings"
- */
+/** Settings are configuration details associated with a company, but are not within a time range like contracts are */
 export type CompanySettingsFeatureFlagsPayloadArgs = {
   path?: Maybe<Scalars["String"]>;
 };
@@ -4482,7 +4422,7 @@ export type CompanySettingsAppendInput = {
 /** input type for inserting array relation for remote table "company_settings" */
 export type CompanySettingsArrRelInsertInput = {
   data: Array<CompanySettingsInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<CompanySettingsOnConflict>;
 };
 
@@ -4687,11 +4627,11 @@ export type CompanySettingsMutationResponse = {
 /** input type for inserting object relation for remote table "company_settings" */
 export type CompanySettingsObjRelInsertInput = {
   data: CompanySettingsInsertInput;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<CompanySettingsOnConflict>;
 };
 
-/** on conflict condition type for table "company_settings" */
+/** on_conflict condition type for table "company_settings" */
 export type CompanySettingsOnConflict = {
   constraint: CompanySettingsConstraint;
   update_columns?: Array<CompanySettingsUpdateColumn>;
@@ -4925,7 +4865,7 @@ export type CompanyTypeMutationResponse = {
   returning: Array<CompanyType>;
 };
 
-/** on conflict condition type for table "company_type" */
+/** on_conflict condition type for table "company_type" */
 export type CompanyTypeOnConflict = {
   constraint: CompanyTypeConstraint;
   update_columns?: Array<CompanyTypeUpdateColumn>;
@@ -4997,7 +4937,7 @@ export type CompanyVendorContactsAggregateOrderBy = {
 /** input type for inserting array relation for remote table "company_vendor_contacts" */
 export type CompanyVendorContactsArrRelInsertInput = {
   data: Array<CompanyVendorContactsInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<CompanyVendorContactsOnConflict>;
 };
 
@@ -5062,7 +5002,7 @@ export type CompanyVendorContactsMutationResponse = {
   returning: Array<CompanyVendorContacts>;
 };
 
-/** on conflict condition type for table "company_vendor_contacts" */
+/** on_conflict condition type for table "company_vendor_contacts" */
 export type CompanyVendorContactsOnConflict = {
   constraint: CompanyVendorContactsConstraint;
   update_columns?: Array<CompanyVendorContactsUpdateColumn>;
@@ -5186,7 +5126,7 @@ export type CompanyVendorPartnershipsAggregateOrderBy = {
 /** input type for inserting array relation for remote table "company_vendor_partnerships" */
 export type CompanyVendorPartnershipsArrRelInsertInput = {
   data: Array<CompanyVendorPartnershipsInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<CompanyVendorPartnershipsOnConflict>;
 };
 
@@ -5314,7 +5254,7 @@ export type CompanyVendorPartnershipsMutationResponse = {
   returning: Array<CompanyVendorPartnerships>;
 };
 
-/** on conflict condition type for table "company_vendor_partnerships" */
+/** on_conflict condition type for table "company_vendor_partnerships" */
 export type CompanyVendorPartnershipsOnConflict = {
   constraint: CompanyVendorPartnershipsConstraint;
   update_columns?: Array<CompanyVendorPartnershipsUpdateColumn>;
@@ -5405,12 +5345,7 @@ export enum CompanyVendorPartnershipsUpdateColumn {
   VendorLicenseId = "vendor_license_id",
 }
 
-/**
- * Contracts are stored for a date range and associated with a company_id
- *
- *
- * columns and relationships of "contracts"
- */
+/** Contracts are stored for a date range and associated with a company_id */
 export type Contracts = {
   /** either the end date, or the termination_date if set */
   adjusted_end_date?: Maybe<Scalars["date"]>;
@@ -5437,12 +5372,7 @@ export type Contracts = {
   terminated_by_user_id?: Maybe<Scalars["uuid"]>;
 };
 
-/**
- * Contracts are stored for a date range and associated with a company_id
- *
- *
- * columns and relationships of "contracts"
- */
+/** Contracts are stored for a date range and associated with a company_id */
 export type ContractsCompaniesArgs = {
   distinct_on?: Maybe<Array<CompaniesSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -5451,12 +5381,7 @@ export type ContractsCompaniesArgs = {
   where?: Maybe<CompaniesBoolExp>;
 };
 
-/**
- * Contracts are stored for a date range and associated with a company_id
- *
- *
- * columns and relationships of "contracts"
- */
+/** Contracts are stored for a date range and associated with a company_id */
 export type ContractsCompaniesAggregateArgs = {
   distinct_on?: Maybe<Array<CompaniesSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -5465,12 +5390,7 @@ export type ContractsCompaniesAggregateArgs = {
   where?: Maybe<CompaniesBoolExp>;
 };
 
-/**
- * Contracts are stored for a date range and associated with a company_id
- *
- *
- * columns and relationships of "contracts"
- */
+/** Contracts are stored for a date range and associated with a company_id */
 export type ContractsProductConfigArgs = {
   path?: Maybe<Scalars["String"]>;
 };
@@ -5509,7 +5429,7 @@ export type ContractsAppendInput = {
 /** input type for inserting array relation for remote table "contracts" */
 export type ContractsArrRelInsertInput = {
   data: Array<ContractsInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<ContractsOnConflict>;
 };
 
@@ -5649,11 +5569,11 @@ export type ContractsMutationResponse = {
 /** input type for inserting object relation for remote table "contracts" */
 export type ContractsObjRelInsertInput = {
   data: ContractsInsertInput;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<ContractsOnConflict>;
 };
 
-/** on conflict condition type for table "contracts" */
+/** on_conflict condition type for table "contracts" */
 export type ContractsOnConflict = {
   constraint: ContractsConstraint;
   update_columns?: Array<ContractsUpdateColumn>;
@@ -5877,11 +5797,11 @@ export type DebtFacilitiesMutationResponse = {
 /** input type for inserting object relation for remote table "debt_facilities" */
 export type DebtFacilitiesObjRelInsertInput = {
   data: DebtFacilitiesInsertInput;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<DebtFacilitiesOnConflict>;
 };
 
-/** on conflict condition type for table "debt_facilities" */
+/** on_conflict condition type for table "debt_facilities" */
 export type DebtFacilitiesOnConflict = {
   constraint: DebtFacilitiesConstraint;
   update_columns?: Array<DebtFacilitiesUpdateColumn>;
@@ -5984,7 +5904,7 @@ export type DebtFacilityCapacitiesAggregateOrderBy = {
 /** input type for inserting array relation for remote table "debt_facility_capacities" */
 export type DebtFacilityCapacitiesArrRelInsertInput = {
   data: Array<DebtFacilityCapacitiesInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<DebtFacilityCapacitiesOnConflict>;
 };
 
@@ -6076,7 +5996,7 @@ export type DebtFacilityCapacitiesMutationResponse = {
   returning: Array<DebtFacilityCapacities>;
 };
 
-/** on conflict condition type for table "debt_facility_capacities" */
+/** on_conflict condition type for table "debt_facility_capacities" */
 export type DebtFacilityCapacitiesOnConflict = {
   constraint: DebtFacilityCapacitiesConstraint;
   update_columns?: Array<DebtFacilityCapacitiesUpdateColumn>;
@@ -6342,7 +6262,7 @@ export type DebtFacilityEventsMutationResponse = {
   returning: Array<DebtFacilityEvents>;
 };
 
-/** on conflict condition type for table "debt_facility_events" */
+/** on_conflict condition type for table "debt_facility_events" */
 export type DebtFacilityEventsOnConflict = {
   constraint: DebtFacilityEventsConstraint;
   update_columns?: Array<DebtFacilityEventsUpdateColumn>;
@@ -6497,7 +6417,7 @@ export type EbbaApplicationFilesAggregateOrderBy = {
 /** input type for inserting array relation for remote table "ebba_application_files" */
 export type EbbaApplicationFilesArrRelInsertInput = {
   data: Array<EbbaApplicationFilesInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<EbbaApplicationFilesOnConflict>;
 };
 
@@ -6558,7 +6478,7 @@ export type EbbaApplicationFilesMutationResponse = {
   returning: Array<EbbaApplicationFiles>;
 };
 
-/** on conflict condition type for table "ebba_application_files" */
+/** on_conflict condition type for table "ebba_application_files" */
 export type EbbaApplicationFilesOnConflict = {
   constraint: EbbaApplicationFilesConstraint;
   update_columns?: Array<EbbaApplicationFilesUpdateColumn>;
@@ -6601,12 +6521,7 @@ export enum EbbaApplicationFilesUpdateColumn {
   FileId = "file_id",
 }
 
-/**
- * EBBA stands for Eligible Borrowing Base Amount: this is a table of applications to borrow via a line of credit with information required to determine a Borrowing Base
- *
- *
- * columns and relationships of "ebba_applications"
- */
+/** EBBA stands for Eligible Borrowing Base Amount: this is a table of applications to borrow via a line of credit with information required to determine a Borrowing Base */
 export type EbbaApplications = {
   amount_cash_in_daca?: Maybe<Scalars["numeric"]>;
   amount_custom?: Maybe<Scalars["numeric"]>;
@@ -6639,12 +6554,7 @@ export type EbbaApplications = {
   updated_at: Scalars["timestamptz"];
 };
 
-/**
- * EBBA stands for Eligible Borrowing Base Amount: this is a table of applications to borrow via a line of credit with information required to determine a Borrowing Base
- *
- *
- * columns and relationships of "ebba_applications"
- */
+/** EBBA stands for Eligible Borrowing Base Amount: this is a table of applications to borrow via a line of credit with information required to determine a Borrowing Base */
 export type EbbaApplicationsEbbaApplicationFilesArgs = {
   distinct_on?: Maybe<Array<EbbaApplicationFilesSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -6653,12 +6563,7 @@ export type EbbaApplicationsEbbaApplicationFilesArgs = {
   where?: Maybe<EbbaApplicationFilesBoolExp>;
 };
 
-/**
- * EBBA stands for Eligible Borrowing Base Amount: this is a table of applications to borrow via a line of credit with information required to determine a Borrowing Base
- *
- *
- * columns and relationships of "ebba_applications"
- */
+/** EBBA stands for Eligible Borrowing Base Amount: this is a table of applications to borrow via a line of credit with information required to determine a Borrowing Base */
 export type EbbaApplicationsEbbaApplicationFilesAggregateArgs = {
   distinct_on?: Maybe<Array<EbbaApplicationFilesSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -6712,7 +6617,7 @@ export type EbbaApplicationsAggregateOrderBy = {
 /** input type for inserting array relation for remote table "ebba_applications" */
 export type EbbaApplicationsArrRelInsertInput = {
   data: Array<EbbaApplicationsInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<EbbaApplicationsOnConflict>;
 };
 
@@ -6914,11 +6819,11 @@ export type EbbaApplicationsMutationResponse = {
 /** input type for inserting object relation for remote table "ebba_applications" */
 export type EbbaApplicationsObjRelInsertInput = {
   data: EbbaApplicationsInsertInput;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<EbbaApplicationsOnConflict>;
 };
 
-/** on conflict condition type for table "ebba_applications" */
+/** on_conflict condition type for table "ebba_applications" */
 export type EbbaApplicationsOnConflict = {
   constraint: EbbaApplicationsConstraint;
   update_columns?: Array<EbbaApplicationsUpdateColumn>;
@@ -7215,12 +7120,7 @@ export type EbbaApplicationsVarianceOrderBy = {
   monthly_inventory?: Maybe<OrderBy>;
 };
 
-/**
- * Table to keep track of files stored on the platform
- *
- *
- * columns and relationships of "files"
- */
+/** Table to keep track of files stored on the platform */
 export type Files = {
   /** An object relationship */
   company: Companies;
@@ -7251,12 +7151,7 @@ export type Files = {
   updated_at: Scalars["timestamptz"];
 };
 
-/**
- * Table to keep track of files stored on the platform
- *
- *
- * columns and relationships of "files"
- */
+/** Table to keep track of files stored on the platform */
 export type FilesCompanyLicensesArgs = {
   distinct_on?: Maybe<Array<CompanyLicensesSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -7265,12 +7160,7 @@ export type FilesCompanyLicensesArgs = {
   where?: Maybe<CompanyLicensesBoolExp>;
 };
 
-/**
- * Table to keep track of files stored on the platform
- *
- *
- * columns and relationships of "files"
- */
+/** Table to keep track of files stored on the platform */
 export type FilesCompanyLicensesAggregateArgs = {
   distinct_on?: Maybe<Array<CompanyLicensesSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -7279,12 +7169,7 @@ export type FilesCompanyLicensesAggregateArgs = {
   where?: Maybe<CompanyLicensesBoolExp>;
 };
 
-/**
- * Table to keep track of files stored on the platform
- *
- *
- * columns and relationships of "files"
- */
+/** Table to keep track of files stored on the platform */
 export type FilesInvoiceFilesArgs = {
   distinct_on?: Maybe<Array<InvoiceFilesSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -7293,12 +7178,7 @@ export type FilesInvoiceFilesArgs = {
   where?: Maybe<InvoiceFilesBoolExp>;
 };
 
-/**
- * Table to keep track of files stored on the platform
- *
- *
- * columns and relationships of "files"
- */
+/** Table to keep track of files stored on the platform */
 export type FilesInvoiceFilesAggregateArgs = {
   distinct_on?: Maybe<Array<InvoiceFilesSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -7307,12 +7187,7 @@ export type FilesInvoiceFilesAggregateArgs = {
   where?: Maybe<InvoiceFilesBoolExp>;
 };
 
-/**
- * Table to keep track of files stored on the platform
- *
- *
- * columns and relationships of "files"
- */
+/** Table to keep track of files stored on the platform */
 export type FilesPurchaseOrderFilesArgs = {
   distinct_on?: Maybe<Array<PurchaseOrderFilesSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -7321,12 +7196,7 @@ export type FilesPurchaseOrderFilesArgs = {
   where?: Maybe<PurchaseOrderFilesBoolExp>;
 };
 
-/**
- * Table to keep track of files stored on the platform
- *
- *
- * columns and relationships of "files"
- */
+/** Table to keep track of files stored on the platform */
 export type FilesPurchaseOrderFilesAggregateArgs = {
   distinct_on?: Maybe<Array<PurchaseOrderFilesSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -7464,11 +7334,11 @@ export type FilesMutationResponse = {
 /** input type for inserting object relation for remote table "files" */
 export type FilesObjRelInsertInput = {
   data: FilesInsertInput;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<FilesOnConflict>;
 };
 
-/** on conflict condition type for table "files" */
+/** on_conflict condition type for table "files" */
 export type FilesOnConflict = {
   constraint: FilesConstraint;
   update_columns?: Array<FilesUpdateColumn>;
@@ -7699,7 +7569,7 @@ export type FinancialSummariesAppendInput = {
 /** input type for inserting array relation for remote table "financial_summaries" */
 export type FinancialSummariesArrRelInsertInput = {
   data: Array<FinancialSummariesInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<FinancialSummariesOnConflict>;
 };
 
@@ -7942,7 +7812,7 @@ export type FinancialSummariesMutationResponse = {
   returning: Array<FinancialSummaries>;
 };
 
-/** on conflict condition type for table "financial_summaries" */
+/** on_conflict condition type for table "financial_summaries" */
 export type FinancialSummariesOnConflict = {
   constraint: FinancialSummariesConstraint;
   update_columns?: Array<FinancialSummariesUpdateColumn>;
@@ -8430,7 +8300,7 @@ export type InvoiceFileTypeMutationResponse = {
   returning: Array<InvoiceFileType>;
 };
 
-/** on conflict condition type for table "invoice_file_type" */
+/** on_conflict condition type for table "invoice_file_type" */
 export type InvoiceFileTypeOnConflict = {
   constraint: InvoiceFileTypeConstraint;
   update_columns?: Array<InvoiceFileTypeUpdateColumn>;
@@ -8510,7 +8380,7 @@ export type InvoiceFilesAggregateOrderBy = {
 /** input type for inserting array relation for remote table "invoice_files" */
 export type InvoiceFilesArrRelInsertInput = {
   data: Array<InvoiceFilesInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<InvoiceFilesOnConflict>;
 };
 
@@ -8573,7 +8443,7 @@ export type InvoiceFilesMutationResponse = {
   returning: Array<InvoiceFiles>;
 };
 
-/** on conflict condition type for table "invoice_files" */
+/** on_conflict condition type for table "invoice_files" */
 export type InvoiceFilesOnConflict = {
   constraint: InvoiceFilesConstraint;
   update_columns?: Array<InvoiceFilesUpdateColumn>;
@@ -8622,12 +8492,7 @@ export enum InvoiceFilesUpdateColumn {
   InvoiceId = "invoice_id",
 }
 
-/**
- * Maintains the collection of company invoices used for both Invoice Financing and PMF
- *
- *
- * columns and relationships of "invoices"
- */
+/** Maintains the collection of company invoices used for both Invoice Financing and PMF  */
 export type Invoices = {
   advance_date?: Maybe<Scalars["date"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
@@ -8671,12 +8536,7 @@ export type Invoices = {
   updated_at: Scalars["timestamptz"];
 };
 
-/**
- * Maintains the collection of company invoices used for both Invoice Financing and PMF
- *
- *
- * columns and relationships of "invoices"
- */
+/** Maintains the collection of company invoices used for both Invoice Financing and PMF  */
 export type InvoicesInvoiceFilesArgs = {
   distinct_on?: Maybe<Array<InvoiceFilesSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -8685,12 +8545,7 @@ export type InvoicesInvoiceFilesArgs = {
   where?: Maybe<InvoiceFilesBoolExp>;
 };
 
-/**
- * Maintains the collection of company invoices used for both Invoice Financing and PMF
- *
- *
- * columns and relationships of "invoices"
- */
+/** Maintains the collection of company invoices used for both Invoice Financing and PMF  */
 export type InvoicesInvoiceFilesAggregateArgs = {
   distinct_on?: Maybe<Array<InvoiceFilesSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -8699,12 +8554,7 @@ export type InvoicesInvoiceFilesAggregateArgs = {
   where?: Maybe<InvoiceFilesBoolExp>;
 };
 
-/**
- * Maintains the collection of company invoices used for both Invoice Financing and PMF
- *
- *
- * columns and relationships of "invoices"
- */
+/** Maintains the collection of company invoices used for both Invoice Financing and PMF  */
 export type InvoicesLoansArgs = {
   distinct_on?: Maybe<Array<LoansSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -8713,12 +8563,7 @@ export type InvoicesLoansArgs = {
   where?: Maybe<LoansBoolExp>;
 };
 
-/**
- * Maintains the collection of company invoices used for both Invoice Financing and PMF
- *
- *
- * columns and relationships of "invoices"
- */
+/** Maintains the collection of company invoices used for both Invoice Financing and PMF  */
 export type InvoicesLoansAggregateArgs = {
   distinct_on?: Maybe<Array<LoansSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -8772,7 +8617,7 @@ export type InvoicesAggregateOrderBy = {
 /** input type for inserting array relation for remote table "invoices" */
 export type InvoicesArrRelInsertInput = {
   data: Array<InvoicesInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<InvoicesOnConflict>;
 };
 
@@ -8992,11 +8837,11 @@ export type InvoicesMutationResponse = {
 /** input type for inserting object relation for remote table "invoices" */
 export type InvoicesObjRelInsertInput = {
   data: InvoicesInsertInput;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<InvoicesOnConflict>;
 };
 
-/** on conflict condition type for table "invoices" */
+/** on_conflict condition type for table "invoices" */
 export type InvoicesOnConflict = {
   constraint: InvoicesConstraint;
   update_columns?: Array<InvoicesUpdateColumn>;
@@ -9418,11 +9263,11 @@ export type LineOfCreditsMutationResponse = {
 /** input type for inserting object relation for remote table "line_of_credits" */
 export type LineOfCreditsObjRelInsertInput = {
   data: LineOfCreditsInsertInput;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<LineOfCreditsOnConflict>;
 };
 
-/** on conflict condition type for table "line_of_credits" */
+/** on_conflict condition type for table "line_of_credits" */
 export type LineOfCreditsOnConflict = {
   constraint: LineOfCreditsConstraint;
   update_columns?: Array<LineOfCreditsUpdateColumn>;
@@ -9500,6 +9345,7 @@ export type LoanReports = {
   created_at: Scalars["timestamptz"];
   /** An object relationship */
   debt_facility?: Maybe<DebtFacilities>;
+  debt_facility_added_date?: Maybe<Scalars["date"]>;
   debt_facility_id?: Maybe<Scalars["uuid"]>;
   debt_facility_status?: Maybe<Scalars["String"]>;
   financing_day_limit?: Maybe<Scalars["Int"]>;
@@ -9557,6 +9403,7 @@ export type LoanReportsBoolExp = {
   _or?: Maybe<Array<LoanReportsBoolExp>>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   debt_facility?: Maybe<DebtFacilitiesBoolExp>;
+  debt_facility_added_date?: Maybe<DateComparisonExp>;
   debt_facility_id?: Maybe<UuidComparisonExp>;
   debt_facility_status?: Maybe<StringComparisonExp>;
   financing_day_limit?: Maybe<IntComparisonExp>;
@@ -9589,6 +9436,7 @@ export type LoanReportsIncInput = {
 export type LoanReportsInsertInput = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   debt_facility?: Maybe<DebtFacilitiesObjRelInsertInput>;
+  debt_facility_added_date?: Maybe<Scalars["date"]>;
   debt_facility_id?: Maybe<Scalars["uuid"]>;
   debt_facility_status?: Maybe<Scalars["String"]>;
   financing_day_limit?: Maybe<Scalars["Int"]>;
@@ -9605,6 +9453,7 @@ export type LoanReportsInsertInput = {
 /** aggregate max on columns */
 export type LoanReportsMaxFields = {
   created_at?: Maybe<Scalars["timestamptz"]>;
+  debt_facility_added_date?: Maybe<Scalars["date"]>;
   debt_facility_id?: Maybe<Scalars["uuid"]>;
   debt_facility_status?: Maybe<Scalars["String"]>;
   financing_day_limit?: Maybe<Scalars["Int"]>;
@@ -9620,6 +9469,7 @@ export type LoanReportsMaxFields = {
 /** aggregate min on columns */
 export type LoanReportsMinFields = {
   created_at?: Maybe<Scalars["timestamptz"]>;
+  debt_facility_added_date?: Maybe<Scalars["date"]>;
   debt_facility_id?: Maybe<Scalars["uuid"]>;
   debt_facility_status?: Maybe<Scalars["String"]>;
   financing_day_limit?: Maybe<Scalars["Int"]>;
@@ -9643,11 +9493,11 @@ export type LoanReportsMutationResponse = {
 /** input type for inserting object relation for remote table "loan_reports" */
 export type LoanReportsObjRelInsertInput = {
   data: LoanReportsInsertInput;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<LoanReportsOnConflict>;
 };
 
-/** on conflict condition type for table "loan_reports" */
+/** on_conflict condition type for table "loan_reports" */
 export type LoanReportsOnConflict = {
   constraint: LoanReportsConstraint;
   update_columns?: Array<LoanReportsUpdateColumn>;
@@ -9658,6 +9508,7 @@ export type LoanReportsOnConflict = {
 export type LoanReportsOrderBy = {
   created_at?: Maybe<OrderBy>;
   debt_facility?: Maybe<DebtFacilitiesOrderBy>;
+  debt_facility_added_date?: Maybe<OrderBy>;
   debt_facility_id?: Maybe<OrderBy>;
   debt_facility_status?: Maybe<OrderBy>;
   financing_day_limit?: Maybe<OrderBy>;
@@ -9680,6 +9531,8 @@ export type LoanReportsPkColumnsInput = {
 export enum LoanReportsSelectColumn {
   /** column name */
   CreatedAt = "created_at",
+  /** column name */
+  DebtFacilityAddedDate = "debt_facility_added_date",
   /** column name */
   DebtFacilityId = "debt_facility_id",
   /** column name */
@@ -9705,6 +9558,7 @@ export enum LoanReportsSelectColumn {
 /** input type for updating data in table "loan_reports" */
 export type LoanReportsSetInput = {
   created_at?: Maybe<Scalars["timestamptz"]>;
+  debt_facility_added_date?: Maybe<Scalars["date"]>;
   debt_facility_id?: Maybe<Scalars["uuid"]>;
   debt_facility_status?: Maybe<Scalars["String"]>;
   financing_day_limit?: Maybe<Scalars["Int"]>;
@@ -9757,6 +9611,8 @@ export type LoanReportsSumFields = {
 export enum LoanReportsUpdateColumn {
   /** column name */
   CreatedAt = "created_at",
+  /** column name */
+  DebtFacilityAddedDate = "debt_facility_added_date",
   /** column name */
   DebtFacilityId = "debt_facility_id",
   /** column name */
@@ -9890,7 +9746,7 @@ export type LoanTypeMutationResponse = {
   returning: Array<LoanType>;
 };
 
-/** on conflict condition type for table "loan_type" */
+/** on_conflict condition type for table "loan_type" */
 export type LoanTypeOnConflict = {
   constraint: LoanTypeConstraint;
   update_columns?: Array<LoanTypeUpdateColumn>;
@@ -9930,12 +9786,7 @@ export enum LoanTypeUpdateColumn {
   Value = "value",
 }
 
-/**
- * All common fields amongst loans go here, and fields specific to that loan type are joined in by the artifact_id
- *
- *
- * columns and relationships of "loans"
- */
+/** All common fields amongst loans go here, and fields specific to that loan type are joined in by the artifact_id */
 export type Loans = {
   adjusted_maturity_date?: Maybe<Scalars["date"]>;
   amount: Scalars["numeric"];
@@ -9992,12 +9843,7 @@ export type Loans = {
   updated_at: Scalars["timestamptz"];
 };
 
-/**
- * All common fields amongst loans go here, and fields specific to that loan type are joined in by the artifact_id
- *
- *
- * columns and relationships of "loans"
- */
+/** All common fields amongst loans go here, and fields specific to that loan type are joined in by the artifact_id */
 export type LoansTransactionsArgs = {
   distinct_on?: Maybe<Array<TransactionsSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -10006,12 +9852,7 @@ export type LoansTransactionsArgs = {
   where?: Maybe<TransactionsBoolExp>;
 };
 
-/**
- * All common fields amongst loans go here, and fields specific to that loan type are joined in by the artifact_id
- *
- *
- * columns and relationships of "loans"
- */
+/** All common fields amongst loans go here, and fields specific to that loan type are joined in by the artifact_id */
 export type LoansTransactionsAggregateArgs = {
   distinct_on?: Maybe<Array<TransactionsSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -10065,7 +9906,7 @@ export type LoansAggregateOrderBy = {
 /** input type for inserting array relation for remote table "loans" */
 export type LoansArrRelInsertInput = {
   data: Array<LoansInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<LoansOnConflict>;
 };
 
@@ -10366,11 +10207,11 @@ export type LoansMutationResponse = {
 /** input type for inserting object relation for remote table "loans" */
 export type LoansObjRelInsertInput = {
   data: LoansInsertInput;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<LoansOnConflict>;
 };
 
-/** on conflict condition type for table "loans" */
+/** on_conflict condition type for table "loans" */
 export type LoansOnConflict = {
   constraint: LoansConstraint;
   update_columns?: Array<LoansUpdateColumn>;
@@ -10861,7 +10702,7 @@ export type MetrcAnalysisSummariesMutationResponse = {
   returning: Array<MetrcAnalysisSummaries>;
 };
 
-/** on conflict condition type for table "metrc_analysis_summaries" */
+/** on_conflict condition type for table "metrc_analysis_summaries" */
 export type MetrcAnalysisSummariesOnConflict = {
   constraint: MetrcAnalysisSummariesConstraint;
   update_columns?: Array<MetrcAnalysisSummariesUpdateColumn>;
@@ -10957,12 +10798,7 @@ export enum MetrcAnalysisSummariesUpdateColumn {
   StaleInfoPayload = "stale_info_payload",
 }
 
-/**
- * List of API keys we use to connect to Metrc
- *
- *
- * columns and relationships of "metrc_api_keys"
- */
+/** List of API keys we use to connect to Metrc */
 export type MetrcApiKeys = {
   company_id: Scalars["uuid"];
   created_at: Scalars["timestamp"];
@@ -10983,22 +10819,12 @@ export type MetrcApiKeys = {
   use_saved_licenses_only: Scalars["Boolean"];
 };
 
-/**
- * List of API keys we use to connect to Metrc
- *
- *
- * columns and relationships of "metrc_api_keys"
- */
+/** List of API keys we use to connect to Metrc */
 export type MetrcApiKeysFacilitiesPayloadArgs = {
   path?: Maybe<Scalars["String"]>;
 };
 
-/**
- * List of API keys we use to connect to Metrc
- *
- *
- * columns and relationships of "metrc_api_keys"
- */
+/** List of API keys we use to connect to Metrc */
 export type MetrcApiKeysMetrcDownloadSummariesArgs = {
   distinct_on?: Maybe<Array<MetrcDownloadSummariesSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -11007,12 +10833,7 @@ export type MetrcApiKeysMetrcDownloadSummariesArgs = {
   where?: Maybe<MetrcDownloadSummariesBoolExp>;
 };
 
-/**
- * List of API keys we use to connect to Metrc
- *
- *
- * columns and relationships of "metrc_api_keys"
- */
+/** List of API keys we use to connect to Metrc */
 export type MetrcApiKeysMetrcDownloadSummariesAggregateArgs = {
   distinct_on?: Maybe<Array<MetrcDownloadSummariesSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -11021,12 +10842,7 @@ export type MetrcApiKeysMetrcDownloadSummariesAggregateArgs = {
   where?: Maybe<MetrcDownloadSummariesBoolExp>;
 };
 
-/**
- * List of API keys we use to connect to Metrc
- *
- *
- * columns and relationships of "metrc_api_keys"
- */
+/** List of API keys we use to connect to Metrc */
 export type MetrcApiKeysStatusCodesPayloadArgs = {
   path?: Maybe<Scalars["String"]>;
 };
@@ -11060,7 +10876,7 @@ export type MetrcApiKeysAggregateOrderBy = {
 /** input type for inserting array relation for remote table "metrc_api_keys" */
 export type MetrcApiKeysArrRelInsertInput = {
   data: Array<MetrcApiKeysInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<MetrcApiKeysOnConflict>;
 };
 
@@ -11168,11 +10984,11 @@ export type MetrcApiKeysMutationResponse = {
 /** input type for inserting object relation for remote table "metrc_api_keys" */
 export type MetrcApiKeysObjRelInsertInput = {
   data: MetrcApiKeysInsertInput;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<MetrcApiKeysOnConflict>;
 };
 
-/** on conflict condition type for table "metrc_api_keys" */
+/** on_conflict condition type for table "metrc_api_keys" */
 export type MetrcApiKeysOnConflict = {
   constraint: MetrcApiKeysConstraint;
   update_columns?: Array<MetrcApiKeysUpdateColumn>;
@@ -11377,7 +11193,7 @@ export type MetrcDeliveriesAggregateOrderBy = {
 /** input type for inserting array relation for remote table "metrc_deliveries" */
 export type MetrcDeliveriesArrRelInsertInput = {
   data: Array<MetrcDeliveriesInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<MetrcDeliveriesOnConflict>;
 };
 
@@ -11512,11 +11328,11 @@ export type MetrcDeliveriesMutationResponse = {
 /** input type for inserting object relation for remote table "metrc_deliveries" */
 export type MetrcDeliveriesObjRelInsertInput = {
   data: MetrcDeliveriesInsertInput;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<MetrcDeliveriesOnConflict>;
 };
 
-/** on conflict condition type for table "metrc_deliveries" */
+/** on_conflict condition type for table "metrc_deliveries" */
 export type MetrcDeliveriesOnConflict = {
   constraint: MetrcDeliveriesConstraint;
   update_columns?: Array<MetrcDeliveriesUpdateColumn>;
@@ -11626,12 +11442,7 @@ export enum MetrcDeliveriesUpdateColumn {
   UsState = "us_state",
 }
 
-/**
- * Structured results of how a download
- *
- *
- * columns and relationships of "metrc_download_summaries"
- */
+/** Structured results of how a download  */
 export type MetrcDownloadSummaries = {
   company_id: Scalars["uuid"];
   created_at: Scalars["timestamptz"];
@@ -11654,22 +11465,12 @@ export type MetrcDownloadSummaries = {
   updated_at: Scalars["timestamptz"];
 };
 
-/**
- * Structured results of how a download
- *
- *
- * columns and relationships of "metrc_download_summaries"
- */
+/** Structured results of how a download  */
 export type MetrcDownloadSummariesErrDetailsArgs = {
   path?: Maybe<Scalars["String"]>;
 };
 
-/**
- * Structured results of how a download
- *
- *
- * columns and relationships of "metrc_download_summaries"
- */
+/** Structured results of how a download  */
 export type MetrcDownloadSummariesRetryPayloadArgs = {
   path?: Maybe<Scalars["String"]>;
 };
@@ -11719,7 +11520,7 @@ export type MetrcDownloadSummariesAggregateOrderBy = {
 /** input type for inserting array relation for remote table "metrc_download_summaries" */
 export type MetrcDownloadSummariesArrRelInsertInput = {
   data: Array<MetrcDownloadSummariesInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<MetrcDownloadSummariesOnConflict>;
 };
 
@@ -11877,7 +11678,7 @@ export type MetrcDownloadSummariesMutationResponse = {
   returning: Array<MetrcDownloadSummaries>;
 };
 
-/** on conflict condition type for table "metrc_download_summaries" */
+/** on_conflict condition type for table "metrc_download_summaries" */
 export type MetrcDownloadSummariesOnConflict = {
   constraint: MetrcDownloadSummariesConstraint;
   update_columns?: Array<MetrcDownloadSummariesUpdateColumn>;
@@ -12199,7 +12000,7 @@ export type MetrcHarvestsMutationResponse = {
   returning: Array<MetrcHarvests>;
 };
 
-/** on conflict condition type for table "metrc_harvests" */
+/** on_conflict condition type for table "metrc_harvests" */
 export type MetrcHarvestsOnConflict = {
   constraint: MetrcHarvestsConstraint;
   update_columns?: Array<MetrcHarvestsUpdateColumn>;
@@ -12465,7 +12266,7 @@ export type MetrcPackagesMutationResponse = {
   returning: Array<MetrcPackages>;
 };
 
-/** on conflict condition type for table "metrc_packages" */
+/** on_conflict condition type for table "metrc_packages" */
 export type MetrcPackagesOnConflict = {
   constraint: MetrcPackagesConstraint;
   update_columns?: Array<MetrcPackagesUpdateColumn>;
@@ -12755,7 +12556,7 @@ export type MetrcPlantBatchesMutationResponse = {
   returning: Array<MetrcPlantBatches>;
 };
 
-/** on conflict condition type for table "metrc_plant_batches" */
+/** on_conflict condition type for table "metrc_plant_batches" */
 export type MetrcPlantBatchesOnConflict = {
   constraint: MetrcPlantBatchesConstraint;
   update_columns?: Array<MetrcPlantBatchesUpdateColumn>;
@@ -12983,7 +12784,7 @@ export type MetrcPlantsMutationResponse = {
   returning: Array<MetrcPlants>;
 };
 
-/** on conflict condition type for table "metrc_plants" */
+/** on_conflict condition type for table "metrc_plants" */
 export type MetrcPlantsOnConflict = {
   constraint: MetrcPlantsConstraint;
   update_columns?: Array<MetrcPlantsUpdateColumn>;
@@ -13276,11 +13077,11 @@ export type MetrcSalesReceiptsMutationResponse = {
 /** input type for inserting object relation for remote table "metrc_sales_receipts" */
 export type MetrcSalesReceiptsObjRelInsertInput = {
   data: MetrcSalesReceiptsInsertInput;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<MetrcSalesReceiptsOnConflict>;
 };
 
-/** on conflict condition type for table "metrc_sales_receipts" */
+/** on_conflict condition type for table "metrc_sales_receipts" */
 export type MetrcSalesReceiptsOnConflict = {
   constraint: MetrcSalesReceiptsConstraint;
   update_columns?: Array<MetrcSalesReceiptsUpdateColumn>;
@@ -13523,7 +13324,7 @@ export type MetrcSalesTransactionsAggregateOrderBy = {
 /** input type for inserting array relation for remote table "metrc_sales_transactions" */
 export type MetrcSalesTransactionsArrRelInsertInput = {
   data: Array<MetrcSalesTransactionsInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<MetrcSalesTransactionsOnConflict>;
 };
 
@@ -13694,7 +13495,7 @@ export type MetrcSalesTransactionsMutationResponse = {
   returning: Array<MetrcSalesTransactions>;
 };
 
-/** on conflict condition type for table "metrc_sales_transactions" */
+/** on_conflict condition type for table "metrc_sales_transactions" */
 export type MetrcSalesTransactionsOnConflict = {
   constraint: MetrcSalesTransactionsConstraint;
   update_columns?: Array<MetrcSalesTransactionsUpdateColumn>;
@@ -14006,7 +13807,7 @@ export type MetrcTransferPackagesAggregateOrderBy = {
 /** input type for inserting array relation for remote table "metrc_transfer_packages" */
 export type MetrcTransferPackagesArrRelInsertInput = {
   data: Array<MetrcTransferPackagesInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<MetrcTransferPackagesOnConflict>;
 };
 
@@ -14234,7 +14035,7 @@ export type MetrcTransferPackagesMutationResponse = {
   returning: Array<MetrcTransferPackages>;
 };
 
-/** on conflict condition type for table "metrc_transfer_packages" */
+/** on_conflict condition type for table "metrc_transfer_packages" */
 export type MetrcTransferPackagesOnConflict = {
   constraint: MetrcTransferPackagesConstraint;
   update_columns?: Array<MetrcTransferPackagesUpdateColumn>;
@@ -14514,12 +14315,7 @@ export type MetrcTransferPackagesVarianceOrderBy = {
   shipper_wholesale_price?: Maybe<OrderBy>;
 };
 
-/**
- * List of transfers from Metrc
- *
- *
- * columns and relationships of "metrc_transfers"
- */
+/** List of transfers from Metrc */
 export type MetrcTransfers = {
   /** An array relationship */
   company_deliveries: Array<CompanyDeliveries>;
@@ -14553,12 +14349,7 @@ export type MetrcTransfers = {
   us_state: Scalars["String"];
 };
 
-/**
- * List of transfers from Metrc
- *
- *
- * columns and relationships of "metrc_transfers"
- */
+/** List of transfers from Metrc */
 export type MetrcTransfersCompanyDeliveriesArgs = {
   distinct_on?: Maybe<Array<CompanyDeliveriesSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -14567,12 +14358,7 @@ export type MetrcTransfersCompanyDeliveriesArgs = {
   where?: Maybe<CompanyDeliveriesBoolExp>;
 };
 
-/**
- * List of transfers from Metrc
- *
- *
- * columns and relationships of "metrc_transfers"
- */
+/** List of transfers from Metrc */
 export type MetrcTransfersCompanyDeliveriesAggregateArgs = {
   distinct_on?: Maybe<Array<CompanyDeliveriesSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -14581,12 +14367,7 @@ export type MetrcTransfersCompanyDeliveriesAggregateArgs = {
   where?: Maybe<CompanyDeliveriesBoolExp>;
 };
 
-/**
- * List of transfers from Metrc
- *
- *
- * columns and relationships of "metrc_transfers"
- */
+/** List of transfers from Metrc */
 export type MetrcTransfersMetrcDeliveriesArgs = {
   distinct_on?: Maybe<Array<MetrcDeliveriesSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -14595,12 +14376,7 @@ export type MetrcTransfersMetrcDeliveriesArgs = {
   where?: Maybe<MetrcDeliveriesBoolExp>;
 };
 
-/**
- * List of transfers from Metrc
- *
- *
- * columns and relationships of "metrc_transfers"
- */
+/** List of transfers from Metrc */
 export type MetrcTransfersMetrcDeliveriesAggregateArgs = {
   distinct_on?: Maybe<Array<MetrcDeliveriesSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -14609,12 +14385,7 @@ export type MetrcTransfersMetrcDeliveriesAggregateArgs = {
   where?: Maybe<MetrcDeliveriesBoolExp>;
 };
 
-/**
- * List of transfers from Metrc
- *
- *
- * columns and relationships of "metrc_transfers"
- */
+/** List of transfers from Metrc */
 export type MetrcTransfersMetrcTransferPackagesArgs = {
   distinct_on?: Maybe<Array<MetrcTransferPackagesSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -14623,12 +14394,7 @@ export type MetrcTransfersMetrcTransferPackagesArgs = {
   where?: Maybe<MetrcTransferPackagesBoolExp>;
 };
 
-/**
- * List of transfers from Metrc
- *
- *
- * columns and relationships of "metrc_transfers"
- */
+/** List of transfers from Metrc */
 export type MetrcTransfersMetrcTransferPackagesAggregateArgs = {
   distinct_on?: Maybe<Array<MetrcTransferPackagesSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -14637,12 +14403,7 @@ export type MetrcTransfersMetrcTransferPackagesAggregateArgs = {
   where?: Maybe<MetrcTransferPackagesBoolExp>;
 };
 
-/**
- * List of transfers from Metrc
- *
- *
- * columns and relationships of "metrc_transfers"
- */
+/** List of transfers from Metrc */
 export type MetrcTransfersTransferPayloadArgs = {
   path?: Maybe<Scalars["String"]>;
 };
@@ -14779,11 +14540,11 @@ export type MetrcTransfersMutationResponse = {
 /** input type for inserting object relation for remote table "metrc_transfers" */
 export type MetrcTransfersObjRelInsertInput = {
   data: MetrcTransfersInsertInput;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<MetrcTransfersOnConflict>;
 };
 
-/** on conflict condition type for table "metrc_transfers" */
+/** on_conflict condition type for table "metrc_transfers" */
 export type MetrcTransfersOnConflict = {
   constraint: MetrcTransfersConstraint;
   update_columns?: Array<MetrcTransfersUpdateColumn>;
@@ -15015,7 +14776,7 @@ export type MonthlySummaryCalculationsMutationResponse = {
   returning: Array<MonthlySummaryCalculations>;
 };
 
-/** on conflict condition type for table "monthly_summary_calculations" */
+/** on_conflict condition type for table "monthly_summary_calculations" */
 export type MonthlySummaryCalculationsOnConflict = {
   constraint: MonthlySummaryCalculationsConstraint;
   update_columns?: Array<MonthlySummaryCalculationsUpdateColumn>;
@@ -18048,11 +17809,11 @@ export type ParentCompaniesMutationResponse = {
 /** input type for inserting object relation for remote table "parent_companies" */
 export type ParentCompaniesObjRelInsertInput = {
   data: ParentCompaniesInsertInput;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<ParentCompaniesOnConflict>;
 };
 
-/** on conflict condition type for table "parent_companies" */
+/** on_conflict condition type for table "parent_companies" */
 export type ParentCompaniesOnConflict = {
   constraint: ParentCompaniesConstraint;
   update_columns?: Array<ParentCompaniesUpdateColumn>;
@@ -18106,12 +17867,7 @@ export enum ParentCompaniesUpdateColumn {
   UpdatedAt = "updated_at",
 }
 
-/**
- * Payments are dollar amounts transferred to and from the bank
- *
- *
- * columns and relationships of "payments"
- */
+/** Payments are dollar amounts transferred to and from the bank */
 export type Payments = {
   /** The amount this payment actually is, as opposed to the requested amount */
   amount?: Maybe<Scalars["numeric"]>;
@@ -18172,22 +17928,12 @@ export type Payments = {
   updated_at: Scalars["timestamptz"];
 };
 
-/**
- * Payments are dollar amounts transferred to and from the bank
- *
- *
- * columns and relationships of "payments"
- */
+/** Payments are dollar amounts transferred to and from the bank */
 export type PaymentsItemsCoveredArgs = {
   path?: Maybe<Scalars["String"]>;
 };
 
-/**
- * Payments are dollar amounts transferred to and from the bank
- *
- *
- * columns and relationships of "payments"
- */
+/** Payments are dollar amounts transferred to and from the bank */
 export type PaymentsTransactionsArgs = {
   distinct_on?: Maybe<Array<TransactionsSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -18196,12 +17942,7 @@ export type PaymentsTransactionsArgs = {
   where?: Maybe<TransactionsBoolExp>;
 };
 
-/**
- * Payments are dollar amounts transferred to and from the bank
- *
- *
- * columns and relationships of "payments"
- */
+/** Payments are dollar amounts transferred to and from the bank */
 export type PaymentsTransactionsAggregateArgs = {
   distinct_on?: Maybe<Array<TransactionsSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -18261,7 +18002,7 @@ export type PaymentsAppendInput = {
 /** input type for inserting array relation for remote table "payments" */
 export type PaymentsArrRelInsertInput = {
   data: Array<PaymentsInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<PaymentsOnConflict>;
 };
 
@@ -18585,11 +18326,11 @@ export type PaymentsMutationResponse = {
 /** input type for inserting object relation for remote table "payments" */
 export type PaymentsObjRelInsertInput = {
   data: PaymentsInsertInput;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<PaymentsOnConflict>;
 };
 
-/** on conflict condition type for table "payments" */
+/** on_conflict condition type for table "payments" */
 export type PaymentsOnConflict = {
   constraint: PaymentsConstraint;
   update_columns?: Array<PaymentsUpdateColumn>;
@@ -19290,12 +19031,7 @@ export type PayorsVarianceFields = {
   latest_loan_identifier?: Maybe<Scalars["Float"]>;
 };
 
-/**
- * Enum for PurchaseOrderFile types
- *
- *
- * columns and relationships of "purchase_order_file_type"
- */
+/** Enum for PurchaseOrderFile types */
 export type PurchaseOrderFileType = {
   display_name: Scalars["String"];
   value: Scalars["String"];
@@ -19377,7 +19113,7 @@ export type PurchaseOrderFileTypeMutationResponse = {
   returning: Array<PurchaseOrderFileType>;
 };
 
-/** on conflict condition type for table "purchase_order_file_type" */
+/** on_conflict condition type for table "purchase_order_file_type" */
 export type PurchaseOrderFileTypeOnConflict = {
   constraint: PurchaseOrderFileTypeConstraint;
   update_columns?: Array<PurchaseOrderFileTypeUpdateColumn>;
@@ -19417,12 +19153,7 @@ export enum PurchaseOrderFileTypeUpdateColumn {
   Value = "value",
 }
 
-/**
- * Files attached to purchase orders
- *
- *
- * columns and relationships of "purchase_order_files"
- */
+/** Files attached to purchase orders */
 export type PurchaseOrderFiles = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   /** An object relationship */
@@ -19464,7 +19195,7 @@ export type PurchaseOrderFilesAggregateOrderBy = {
 /** input type for inserting array relation for remote table "purchase_order_files" */
 export type PurchaseOrderFilesArrRelInsertInput = {
   data: Array<PurchaseOrderFilesInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<PurchaseOrderFilesOnConflict>;
 };
 
@@ -19539,7 +19270,7 @@ export type PurchaseOrderFilesMutationResponse = {
   returning: Array<PurchaseOrderFiles>;
 };
 
-/** on conflict condition type for table "purchase_order_files" */
+/** on_conflict condition type for table "purchase_order_files" */
 export type PurchaseOrderFilesOnConflict = {
   constraint: PurchaseOrderFilesConstraint;
   update_columns?: Array<PurchaseOrderFilesUpdateColumn>;
@@ -19642,7 +19373,7 @@ export type PurchaseOrderMetrcTransfersAggregateOrderBy = {
 /** input type for inserting array relation for remote table "purchase_order_metrc_transfers" */
 export type PurchaseOrderMetrcTransfersArrRelInsertInput = {
   data: Array<PurchaseOrderMetrcTransfersInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<PurchaseOrderMetrcTransfersOnConflict>;
 };
 
@@ -19723,7 +19454,7 @@ export type PurchaseOrderMetrcTransfersMutationResponse = {
   returning: Array<PurchaseOrderMetrcTransfers>;
 };
 
-/** on conflict condition type for table "purchase_order_metrc_transfers" */
+/** on_conflict condition type for table "purchase_order_metrc_transfers" */
 export type PurchaseOrderMetrcTransfersOnConflict = {
   constraint: PurchaseOrderMetrcTransfersConstraint;
   update_columns?: Array<PurchaseOrderMetrcTransfersUpdateColumn>;
@@ -19934,7 +19665,7 @@ export type PurchaseOrdersAggregateOrderBy = {
 /** input type for inserting array relation for remote table "purchase_orders" */
 export type PurchaseOrdersArrRelInsertInput = {
   data: Array<PurchaseOrdersInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<PurchaseOrdersOnConflict>;
 };
 
@@ -20174,11 +19905,11 @@ export type PurchaseOrdersMutationResponse = {
 /** input type for inserting object relation for remote table "purchase_orders" */
 export type PurchaseOrdersObjRelInsertInput = {
   data: PurchaseOrdersInsertInput;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<PurchaseOrdersOnConflict>;
 };
 
-/** on conflict condition type for table "purchase_orders" */
+/** on_conflict condition type for table "purchase_orders" */
 export type PurchaseOrdersOnConflict = {
   constraint: PurchaseOrdersConstraint;
   update_columns?: Array<PurchaseOrdersUpdateColumn>;
@@ -22082,7 +21813,7 @@ export type RequestStatusMutationResponse = {
   returning: Array<RequestStatus>;
 };
 
-/** on conflict condition type for table "request_status" */
+/** on_conflict condition type for table "request_status" */
 export type RequestStatusOnConflict = {
   constraint: RequestStatusConstraint;
   update_columns?: Array<RequestStatusUpdateColumn>;
@@ -22198,7 +21929,7 @@ export type RevokedTokensMutationResponse = {
   returning: Array<RevokedTokens>;
 };
 
-/** on conflict condition type for table "revoked_tokens" */
+/** on_conflict condition type for table "revoked_tokens" */
 export type RevokedTokensOnConflict = {
   constraint: RevokedTokensConstraint;
   update_columns?: Array<RevokedTokensUpdateColumn>;
@@ -23875,7 +23606,7 @@ export type SyncPipelinesMutationResponse = {
   returning: Array<SyncPipelines>;
 };
 
-/** on conflict condition type for table "sync_pipelines" */
+/** on_conflict condition type for table "sync_pipelines" */
 export type SyncPipelinesOnConflict = {
   constraint: SyncPipelinesConstraint;
   update_columns?: Array<SyncPipelinesUpdateColumn>;
@@ -23971,12 +23702,7 @@ export type TimestamptzComparisonExp = {
   _nin?: Maybe<Array<Scalars["timestamptz"]>>;
 };
 
-/**
- * Transactions correspond to debits and credits that take place on a loan
- *
- *
- * columns and relationships of "transactions"
- */
+/** Transactions correspond to debits and credits that take place on a loan */
 export type Transactions = {
   amount: Scalars["numeric"];
   created_at: Scalars["timestamptz"];
@@ -24047,7 +23773,7 @@ export type TransactionsAggregateOrderBy = {
 /** input type for inserting array relation for remote table "transactions" */
 export type TransactionsArrRelInsertInput = {
   data: Array<TransactionsInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<TransactionsOnConflict>;
 };
 
@@ -24222,7 +23948,7 @@ export type TransactionsMutationResponse = {
   returning: Array<Transactions>;
 };
 
-/** on conflict condition type for table "transactions" */
+/** on_conflict condition type for table "transactions" */
 export type TransactionsOnConflict = {
   constraint: TransactionsConstraint;
   update_columns?: Array<TransactionsUpdateColumn>;
@@ -24462,12 +24188,7 @@ export type TransactionsVarianceOrderBy = {
   to_principal?: Maybe<OrderBy>;
 };
 
-/**
- * Links that are secured behind two factor auth
- *
- *
- * columns and relationships of "two_factor_links"
- */
+/** Links that are secured behind two factor auth */
 export type TwoFactorLinks = {
   expires_at: Scalars["timestamptz"];
   form_info: Scalars["json"];
@@ -24476,22 +24197,12 @@ export type TwoFactorLinks = {
   token_states?: Maybe<Scalars["json"]>;
 };
 
-/**
- * Links that are secured behind two factor auth
- *
- *
- * columns and relationships of "two_factor_links"
- */
+/** Links that are secured behind two factor auth */
 export type TwoFactorLinksFormInfoArgs = {
   path?: Maybe<Scalars["String"]>;
 };
 
-/**
- * Links that are secured behind two factor auth
- *
- *
- * columns and relationships of "two_factor_links"
- */
+/** Links that are secured behind two factor auth */
 export type TwoFactorLinksTokenStatesArgs = {
   path?: Maybe<Scalars["String"]>;
 };
@@ -24561,7 +24272,7 @@ export type TwoFactorLinksMutationResponse = {
   returning: Array<TwoFactorLinks>;
 };
 
-/** on conflict condition type for table "two_factor_links" */
+/** on_conflict condition type for table "two_factor_links" */
 export type TwoFactorLinksOnConflict = {
   constraint: TwoFactorLinksConstraint;
   update_columns?: Array<TwoFactorLinksUpdateColumn>;
@@ -24702,7 +24413,7 @@ export type UserRolesMutationResponse = {
   returning: Array<UserRoles>;
 };
 
-/** on conflict condition type for table "user_roles" */
+/** on_conflict condition type for table "user_roles" */
 export type UserRolesOnConflict = {
   constraint: UserRolesConstraint;
   update_columns?: Array<UserRolesUpdateColumn>;
@@ -24793,7 +24504,7 @@ export type UsersAggregateOrderBy = {
 /** input type for inserting array relation for remote table "users" */
 export type UsersArrRelInsertInput = {
   data: Array<UsersInsertInput>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<UsersOnConflict>;
 };
 
@@ -24923,11 +24634,11 @@ export type UsersMutationResponse = {
 /** input type for inserting object relation for remote table "users" */
 export type UsersObjRelInsertInput = {
   data: UsersInsertInput;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: Maybe<UsersOnConflict>;
 };
 
-/** on conflict condition type for table "users" */
+/** on_conflict condition type for table "users" */
 export type UsersOnConflict = {
   constraint: UsersConstraint;
   update_columns?: Array<UsersUpdateColumn>;

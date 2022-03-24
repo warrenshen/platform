@@ -9,23 +9,16 @@ import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import {
   Companies,
   LoanArtifactFragment,
-  LoanArtifactLimitedFragment,
   LoanFragment,
-  LoanForDebtFacilityFragment,
-  LoanReportFragment,
   Loans,
-  Maybe,
+  OpenLoanForDebtFacilityFragment,
   PurchaseOrders,
-  PurchaseOrderForDebtFacilityFragment,
   RequestStatusEnum,
-  TransactionFragment,
 } from "generated/graphql";
 import { formatDateString, formatDatetimeString } from "lib/date";
 import {
   LoanPaymentStatusEnum,
-  DebtFacilityStatusEnum,
   DebtFacilityCompanyStatusEnum,
-  DebtFacilityStatusToEligibility,
   DebtFacilityCompanyStatusToEligibility,
   PartnerEnum,
   ProductTypeEnum,
@@ -37,17 +30,9 @@ import {
   getLoanArtifactName,
   getLoanVendorName,
 } from "lib/loans";
+import { determineLoanEligibility } from "lib/debtFacility";
 import { ColumnWidths, truncateString } from "lib/tables";
 import { useEffect, useMemo, useState } from "react";
-
-type Loan = LoanReportFragment & LoanForDebtFacilityFragment;
-type LoanRow = LoanForDebtFacilityFragment & {
-  loan_report?: Maybe<LoanReportFragment>;
-} & {
-  purchase_order?: Maybe<PurchaseOrderForDebtFacilityFragment>;
-} & {
-  transactions?: Maybe<TransactionFragment[]>;
-} & (LoanArtifactFragment | LoanArtifactLimitedFragment);
 
 interface Props {
   isArtifactVisible?: boolean;
@@ -66,7 +51,7 @@ interface Props {
   pager?: boolean;
   pageSize?: number;
   filterByStatus?: RequestStatusEnum;
-  loans: Loan[];
+  loans: OpenLoanForDebtFacilityFragment[];
   selectedLoanIds?: Loans["id"][];
   handleClickCustomer?: (customerId: Companies["id"]) => void;
   handleClickPurchaseOrderBankNote?: (
@@ -75,7 +60,7 @@ interface Props {
   handleSelectLoans?: (loans: LoanFragment[]) => void;
 }
 
-const getOriginationOrCreatedDate = (loan: LoanRow) => {
+const getOriginationOrCreatedDate = (loan: OpenLoanForDebtFacilityFragment) => {
   if (
     !!loan.purchase_order?.purchase_order_metrc_transfers[0]?.metrc_transfer
       ?.created_date
@@ -90,7 +75,7 @@ const getOriginationOrCreatedDate = (loan: LoanRow) => {
   }
 };
 
-const calculateGrossMarginValue = (loan: LoanRow) => {
+const calculateGrossMarginValue = (loan: OpenLoanForDebtFacilityFragment) => {
   const productType = loan.company.contracts[0].product_type as ProductTypeEnum;
   // NOTE(JR): the finance team would eventually like this to be configurable
   const grossMarginMultiplier =
@@ -99,48 +84,7 @@ const calculateGrossMarginValue = (loan: LoanRow) => {
   return loan.amount * grossMarginMultiplier;
 };
 
-const determineLoanEligibility = (loan: LoanRow) => {
-  if (
-    !!loan.loan_report?.debt_facility_status &&
-    !!loan.company?.debt_facility_status &&
-    loan.company.contracts[0].product_type
-  ) {
-    const companyStatus = loan.company
-      .debt_facility_status as DebtFacilityCompanyStatusEnum;
-    const loanStatus = loan.loan_report
-      .debt_facility_status as DebtFacilityStatusEnum;
-
-    /*
-      If a company is not in good standing, but the loan has a waiver, then the loan is eligible.
-      Otherwise, if the company is not in good standing, then the loan is not eligible
-      This was a special case discussed with the finance team
-
-      When a company is in good standing, the loan's eligibility is determined purely by loan status
-      Unless the company is a dispensary financing client. DF clients should default to ineligible,
-      but we provide an extra check here.
-    */
-    if (
-      companyStatus !== DebtFacilityCompanyStatusEnum.GOOD_STANDING &&
-      companyStatus !== DebtFacilityCompanyStatusEnum.WAIVER
-    ) {
-      return loanStatus === DebtFacilityStatusEnum.WAIVER
-        ? "Eligible"
-        : "Ineligible";
-    } else {
-      const productType = loan.company.contracts[0]
-        .product_type as ProductTypeEnum;
-      return productType === ProductTypeEnum.DispensaryFinancing
-        ? "Ineligible"
-        : DebtFacilityStatusToEligibility[
-            loan.loan_report.debt_facility_status as DebtFacilityStatusEnum
-          ];
-    }
-  } else {
-    return null;
-  }
-};
-
-const countAdvancesSent = (loan: LoanRow) => {
+const countAdvancesSent = (loan: OpenLoanForDebtFacilityFragment) => {
   if (!!loan.transactions && loan.company.contracts[0].product_type) {
     const productType = loan.company.contracts[0]
       .product_type as ProductTypeEnum;
@@ -155,13 +99,7 @@ const countAdvancesSent = (loan: LoanRow) => {
   }
 };
 
-function getRows(
-  loans: (LoanForDebtFacilityFragment & {
-    loan_report?: Maybe<LoanReportFragment>;
-  } & {
-    purchase_order?: Maybe<PurchaseOrderForDebtFacilityFragment>;
-  } & (LoanArtifactFragment | LoanArtifactLimitedFragment))[]
-): RowsProp {
+function getRows(loans: OpenLoanForDebtFacilityFragment[]): RowsProp {
   return loans.map((loan) => ({
     ...loan,
     customer_identifier: createLoanCustomerIdentifier(loan),

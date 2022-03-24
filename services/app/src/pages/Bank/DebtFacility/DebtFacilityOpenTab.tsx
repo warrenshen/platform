@@ -164,6 +164,7 @@ export default function DebtFacilityOpenTab({
               isCompanyVisible
               isStatusVisible
               isMaturityVisible
+              isDebtFacilityVisible
               isDisbursementIdentifierVisible
               handleClickCustomer={(customerId) =>
                 history.push(
@@ -224,6 +225,7 @@ export default function DebtFacilityOpenTab({
             isStatusVisible
             isMaturityVisible
             isDisbursementIdentifierVisible
+            isEligibilityVisible
             handleClickCustomer={(customerId) =>
               history.push(
                 getBankCompanyRoute(customerId, BankCompanyRouteEnum.Loans)

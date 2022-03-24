@@ -212,7 +212,8 @@ export function isLoanComingOrPastDue(dueDate: string): [boolean, boolean] {
 
 export function withinNDaysOfNowOrBefore(
   dateString: string,
-  days: number
+  days: number,
+  checkPast: boolean = false
 ): boolean {
   if (!dateString) {
     return false;
@@ -221,5 +222,8 @@ export function withinNDaysOfNowOrBefore(
   const now = new Date();
   // When this `date` is before `now`, differenceInDays returns a negative number
   // which will be less than `days`
-  return differenceInDays(date, now) <= days;
+  const difference = checkPast
+    ? Math.abs(differenceInDays(date, now))
+    : differenceInDays(date, now);
+  return difference <= days;
 }
