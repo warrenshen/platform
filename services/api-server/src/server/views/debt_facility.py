@@ -88,6 +88,10 @@ class DebtFacilityCreateUpdateFacilityView(MethodView):
 		if facility_id is None:
 			return handler_util.make_error_response('id is required to be set for this request')
 
+		supported = variables.get("supported", None) if variables else None
+		if supported is None:
+			return handler_util.make_error_response('supported product types are required to be set for this request')
+
 		with models.session_scope(current_app.session_maker) as session:
 			if is_update:
 				existing_facility = cast(
@@ -99,10 +103,16 @@ class DebtFacilityCreateUpdateFacilityView(MethodView):
 				if existing_facility is None:
 					return handler_util.make_error_response('Cannot find debt facility with requested id to update')
 
-				existing_facility.name = facility_name
+				existing_facility.name = facility_name if facility_name != "" else existing_facility.name
+				existing_facility.product_types = {
+					"supported": supported
+				}
 			else:
 				facility = models.DebtFacility(
-					name = facility_name
+					name = facility_name,
+					product_types = {
+						"supported": supported
+					},
 				)
 
 				session.add(facility)

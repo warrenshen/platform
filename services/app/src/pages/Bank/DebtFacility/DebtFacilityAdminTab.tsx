@@ -7,10 +7,12 @@ import DebtFacilityDataGrid from "components/DebtFacility/DebtFacilityDataGrid";
 import UpdateDebtFacilityCapacityModal from "components/DebtFacility/UpdateDebtFacilityCapacityModal";
 import CreateUpdateDebtFacilityModal from "components/DebtFacility/CreateUpdateDebtFacilityModal";
 import {
+  DebtFacilities,
   GetDebtFacilitiesSubscription,
   useGetDebtFacilityCapacitiesSubscription,
 } from "generated/graphql";
 import styled from "styled-components";
+import { useMemo, useState } from "react";
 
 const Container = styled.div`
   display: flex;
@@ -39,6 +41,27 @@ export default function DebtFacilityAdminTab({ facilities }: Props) {
 
   const capacities = capacityData?.debt_facility_capacities || [];
   const currentCapacity = capacities[0]?.amount || 0.0;
+
+  const [selectedDebtFacilityIds, setSelectedDebtFacilityIds] = useState<
+    DebtFacilities["id"]
+  >([]);
+
+  const selectedDebtFacility = useMemo(
+    () =>
+      selectedDebtFacilityIds.length === 1
+        ? facilities.find(
+            (facility) => facility.id === selectedDebtFacilityIds[0]
+          )
+        : null,
+    [facilities, selectedDebtFacilityIds]
+  );
+
+  const handleSelectDebtFacilities = useMemo(
+    () => (facilities: Facilities) => {
+      setSelectedDebtFacilityIds(facilities.map((facility) => facility.id));
+    },
+    [setSelectedDebtFacilityIds]
+  );
 
   return (
     <Container>
@@ -83,6 +106,7 @@ export default function DebtFacilityAdminTab({ facilities }: Props) {
                     <CreateUpdateDebtFacilityModal
                       isUpdate={false}
                       handleClose={handler}
+                      selectedDebtFacility={null}
                     />
                   );
                 }}
@@ -92,7 +116,7 @@ export default function DebtFacilityAdminTab({ facilities }: Props) {
           <Can perform={Action.UpdateDebtFacility}>
             <Box mr={2}>
               <ModalButton
-                isDisabled={false}
+                isDisabled={selectedDebtFacilityIds.length !== 1}
                 label={"Edit Debt Facility"}
                 modal={({ handleClose }) => {
                   const handler = () => {
@@ -102,6 +126,9 @@ export default function DebtFacilityAdminTab({ facilities }: Props) {
                     <CreateUpdateDebtFacilityModal
                       isUpdate={true}
                       handleClose={handler}
+                      selectedDebtFacility={
+                        selectedDebtFacility as DebtFacilities
+                      }
                     />
                   );
                 }}
@@ -109,7 +136,11 @@ export default function DebtFacilityAdminTab({ facilities }: Props) {
             </Box>
           </Can>
         </Box>
-        <DebtFacilityDataGrid facilities={facilities} />
+        <DebtFacilityDataGrid
+          facilities={facilities}
+          handleSelectDebtFacilities={handleSelectDebtFacilities}
+          selectedDebtFacilityIds={selectedDebtFacilityIds}
+        />
       </Box>
     </Container>
   );

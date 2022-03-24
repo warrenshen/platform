@@ -39,6 +39,7 @@ export type CreateUpdateDebtFacilityReq = {
     isUpdate: boolean;
     name: string;
     id: string;
+    supported: string[];
   };
 };
 
