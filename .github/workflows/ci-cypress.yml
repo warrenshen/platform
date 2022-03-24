@@ -6,14 +6,74 @@ on:
       - staging
 
 jobs:
+  install:
+    defaults:
+      run:
+        working-directory: services/app
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Cypress install
+        uses: cypress-io/github-action@v2
+        with:
+          working-directory: services/app
+          runTests: false
+
+      - name: Create Build
+        run: yarn build
+
+      - name: Save build folder
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          if-no-files-found: error
+          path: services/app/build
+
   cypress:
     defaults:
       run:
-        working-directory: services
+        working-directory: services/app
     runs-on: ubuntu-latest
+    needs: install
+    strategy:
+      fail-fast: false
+      matrix:
+        # Run copies of the current job in parallel
+        containers: [1, 2, 3]
     steps:
-      - uses: actions/checkout@v2
-      - run: docker-compose -f docker-compose.ci.yaml build
-      - run: docker-compose -f docker-compose.ci.yaml up --abort-on-container-exit --exit-code-from bespoke-cypress-ci
-      # Confirm whether Cypress ran correctly by looking at output file
-      - run: cat app/cypress/results/output.xml
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: Start the postgres & grahql server
+        working-directory: services
+        run: docker-compose -f docker-compose.cypress.yaml up -d bespoke-graphql-engine-cypress
+
+      - name: Start the backend server
+        working-directory: services
+        run: docker-compose -f docker-compose.cypress.yaml up -d bespoke-api-server-cypress
+
+      - name: Download the build folders
+        uses: actions/download-artifact@v2
+        with:
+          name: build
+          path: services/app/build
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v2
+        with:
+          working-directory: services/app
+          browser: chrome
+          install: yarn install
+          start: yarn start-test-app
+          wait-on: "http://localhost:3006"
+          wait-on-timeout: 300
+          record: true
+          parallel: true
+          spec: cypress/integration/*
+        env:
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          # Recommended: pass the GitHub token lets this action correctly
+          # determine the unique run id necessary to re-run the checks
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

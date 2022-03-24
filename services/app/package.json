@@ -46,11 +46,13 @@
   "scripts": {
     "start": "cross-env PORT=3005 react-scripts start",
     "start-test": "./node_modules/.bin/cross-env PORT=3006 react-scripts start",
+    "start-test-app": "cross-env PORT=3006 REACT_APP_BESPOKE_API_ENDPOINT=http://localhost:7002 REACT_APP_BESPOKE_GRAPHQL_ENDPOINT=http://localhost:7003/v1/graphql REACT_APP_BESPOKE_WS_GRAPHQL_ENDPOINT=ws://localhost:7003/v1/graphql react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "jest": "jest --transformIgnorePatterns \"node_modules/(?!@app/allow)/\" --env=jsdom",
     "eject": "react-scripts eject",
     "cypress": "./node_modules/.bin/cypress open",
+    "cypress:run": "cypress run",
     "gql-gen": "graphql-codegen --config codegen.js --require dotenv/config",
     "prettier-write": "prettier --config .prettierrc --write \"src/**/*.{js,ts,jsx,tsx,json}\" \"cypress/**/*.{js,ts}\"",
     "prettier": "prettier --config .prettierrc --check \"src/**/*.{js,ts,jsx,tsx,json}\" \"cypress/**/*.{js,ts}\""
@@ -121,8 +123,8 @@
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-preset-jest": "^26.6.2",
     "cross-env": "^7.0.3",
-    "cypress": "^6.2.1",
-    "cypress-file-upload": "^5.0.7",
+    "cypress": "^9.5.2",
+    "cypress-file-upload": "^5.0.8",
     "identity-obj-proxy": "^3.0.0",
     "ts-jest": "^27.1.3"
   },
