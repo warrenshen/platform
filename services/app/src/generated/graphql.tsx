@@ -25731,10 +25731,20 @@ export type GetOpenLoansByDebtFacilityStatusesSubscription = {
 
 export type GetOpenLoansByDebtFacilityIdSubscriptionVariables = Exact<{
   statuses?: Maybe<Array<Scalars["String"]>>;
-  target_facility_id: Scalars["uuid"];
+  target_facility_ids?: Maybe<Array<Scalars["uuid"]>>;
 }>;
 
 export type GetOpenLoansByDebtFacilityIdSubscription = {
+  loans: Array<Pick<Loans, "id"> & OpenLoanForDebtFacilityFragment>;
+};
+
+export type GetReportLoansByDebtFacilityIdSubscriptionVariables = Exact<{
+  debt_facility_statuses?: Maybe<Array<Scalars["String"]>>;
+  other_statuses?: Maybe<Array<Scalars["String"]>>;
+  target_facility_ids?: Maybe<Array<Scalars["uuid"]>>;
+}>;
+
+export type GetReportLoansByDebtFacilityIdSubscription = {
   loans: Array<Pick<Loans, "id"> & OpenLoanForDebtFacilityFragment>;
 };
 
@@ -30681,7 +30691,7 @@ export type GetOpenLoansByDebtFacilityStatusesSubscriptionResult = Apollo.Subscr
 export const GetOpenLoansByDebtFacilityIdDocument = gql`
   subscription GetOpenLoansByDebtFacilityId(
     $statuses: [String!]
-    $target_facility_id: uuid!
+    $target_facility_ids: [uuid!]
   ) {
     loans(
       where: {
@@ -30693,34 +30703,8 @@ export const GetOpenLoansByDebtFacilityIdDocument = gql`
             ]
           }
           { closed_at: { _is_null: true } }
-          {
-            _or: [
-              {
-                _and: [
-                  {
-                    loan_report: {
-                      debt_facility_status: { _eq: "sold_into_debt_facility" }
-                    }
-                  }
-                  {
-                    loan_report: {
-                      debt_facility_id: { _eq: $target_facility_id }
-                    }
-                  }
-                ]
-              }
-              {
-                _and: [
-                  { loan_report: { debt_facility_status: { _in: $statuses } } }
-                  {
-                    loan_report: {
-                      debt_facility_status: { _neq: "sold_into_debt_facility" }
-                    }
-                  }
-                ]
-              }
-            ]
-          }
+          { loan_report: { debt_facility_status: { _in: $statuses } } }
+          { loan_report: { debt_facility_id: { _in: $target_facility_ids } } }
         ]
       }
     ) {
@@ -30744,12 +30728,12 @@ export const GetOpenLoansByDebtFacilityIdDocument = gql`
  * const { data, loading, error } = useGetOpenLoansByDebtFacilityIdSubscription({
  *   variables: {
  *      statuses: // value for 'statuses'
- *      target_facility_id: // value for 'target_facility_id'
+ *      target_facility_ids: // value for 'target_facility_ids'
  *   },
  * });
  */
 export function useGetOpenLoansByDebtFacilityIdSubscription(
-  baseOptions: Apollo.SubscriptionHookOptions<
+  baseOptions?: Apollo.SubscriptionHookOptions<
     GetOpenLoansByDebtFacilityIdSubscription,
     GetOpenLoansByDebtFacilityIdSubscriptionVariables
   >
@@ -30763,6 +30747,85 @@ export type GetOpenLoansByDebtFacilityIdSubscriptionHookResult = ReturnType<
   typeof useGetOpenLoansByDebtFacilityIdSubscription
 >;
 export type GetOpenLoansByDebtFacilityIdSubscriptionResult = Apollo.SubscriptionResult<GetOpenLoansByDebtFacilityIdSubscription>;
+export const GetReportLoansByDebtFacilityIdDocument = gql`
+  subscription GetReportLoansByDebtFacilityId(
+    $debt_facility_statuses: [String!]
+    $other_statuses: [String!]
+    $target_facility_ids: [uuid!]
+  ) {
+    loans(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          {
+            _or: [
+              {
+                _and: [
+                  {
+                    loan_report: {
+                      debt_facility_status: { _in: $debt_facility_statuses }
+                    }
+                  }
+                  {
+                    loan_report: {
+                      debt_facility_id: { _in: $target_facility_ids }
+                    }
+                  }
+                ]
+              }
+              {
+                loan_report: { debt_facility_status: { _in: $other_statuses } }
+              }
+            ]
+          }
+        ]
+      }
+    ) {
+      id
+      ...OpenLoanForDebtFacility
+    }
+  }
+  ${OpenLoanForDebtFacilityFragmentDoc}
+`;
+
+/**
+ * __useGetReportLoansByDebtFacilityIdSubscription__
+ *
+ * To run a query within a React component, call `useGetReportLoansByDebtFacilityIdSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetReportLoansByDebtFacilityIdSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetReportLoansByDebtFacilityIdSubscription({
+ *   variables: {
+ *      debt_facility_statuses: // value for 'debt_facility_statuses'
+ *      other_statuses: // value for 'other_statuses'
+ *      target_facility_ids: // value for 'target_facility_ids'
+ *   },
+ * });
+ */
+export function useGetReportLoansByDebtFacilityIdSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    GetReportLoansByDebtFacilityIdSubscription,
+    GetReportLoansByDebtFacilityIdSubscriptionVariables
+  >
+) {
+  return Apollo.useSubscription<
+    GetReportLoansByDebtFacilityIdSubscription,
+    GetReportLoansByDebtFacilityIdSubscriptionVariables
+  >(GetReportLoansByDebtFacilityIdDocument, baseOptions);
+}
+export type GetReportLoansByDebtFacilityIdSubscriptionHookResult = ReturnType<
+  typeof useGetReportLoansByDebtFacilityIdSubscription
+>;
+export type GetReportLoansByDebtFacilityIdSubscriptionResult = Apollo.SubscriptionResult<GetReportLoansByDebtFacilityIdSubscription>;
 export const GetDebtFacilityCapacitiesDocument = gql`
   subscription GetDebtFacilityCapacities {
     debt_facility_capacities(order_by: [{ changed_at: desc }]) {

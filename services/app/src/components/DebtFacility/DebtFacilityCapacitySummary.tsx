@@ -1,18 +1,30 @@
-import { Box, Typography } from "@material-ui/core";
+import { Box, FormControl, TextField, Typography } from "@material-ui/core";
+import Autocomplete from "@material-ui/lab/Autocomplete";
 import GaugeProgressBar from "components/Shared/ProgressBar/GaugeProgressBar";
+import {
+  DebtFacilities,
+  GetDebtFacilitiesSubscription,
+} from "generated/graphql";
 import { formatCurrency } from "lib/number";
 import { round } from "lodash";
+
+type Facilities = GetDebtFacilitiesSubscription["debt_facilities"];
 
 interface Props {
   currentUsage: number;
   maxCapacity: number;
+  facilities: Facilities;
+  setSelectedDebtFacilityId: (value: DebtFacilities["id"]) => void;
 }
 
-function DebtFacilityCapacitySummary(props: Props) {
+function DebtFacilityCapacitySummary({
+  currentUsage,
+  maxCapacity,
+  facilities,
+  setSelectedDebtFacilityId,
+}: Props) {
   const rawLimitPercent =
-    !!props.maxCapacity && props.maxCapacity !== 0
-      ? (100 * props.currentUsage) / props.maxCapacity
-      : 0;
+    !!maxCapacity && maxCapacity !== 0 ? (100 * currentUsage) / maxCapacity : 0;
   const roundedLimitPercent = round(rawLimitPercent, 1);
 
   return (
@@ -22,19 +34,43 @@ function DebtFacilityCapacitySummary(props: Props) {
       height="50px"
       justifyContent="space-between"
     >
-      <Box flex="1" flexDirection="row" alignItems="flext-start">
+      <Box flex="2" flexDirection="row" alignItems="flext-start">
         <Typography variant="h5" color="textSecondary">
-          {`${formatCurrency(props.currentUsage)} / ${formatCurrency(
-            props.maxCapacity
-          )}`}
+          {`${formatCurrency(currentUsage)} / ${formatCurrency(maxCapacity)}`}
         </Typography>
       </Box>
+      <Box flex="1" display="flex" flexDirection="row" alignItems="center">
+        <FormControl>
+          <Autocomplete
+            autoHighlight
+            id="auto-complete-debt-facility"
+            options={facilities}
+            getOptionLabel={(debtFacility) => {
+              return `${debtFacility.name}`;
+            }}
+            style={{
+              width: 300,
+              paddingRight: "50px",
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={"Pick debt facility"}
+                variant="outlined"
+              />
+            )}
+            onChange={(_event, debtFacility) => {
+              setSelectedDebtFacilityId(debtFacility?.id || "");
+            }}
+          />
+        </FormControl>
+      </Box>
       <Box
+        display="flex"
         flexDirection="row"
-        alignItems="flex-end"
         style={{
           position: "relative",
-          top: "-80px",
+          top: "-70px",
         }}
       >
         <GaugeProgressBar

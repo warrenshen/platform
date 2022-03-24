@@ -1,16 +1,14 @@
-import { Box, FormControl, TextField } from "@material-ui/core";
-import Autocomplete from "@material-ui/lab/Autocomplete";
+import { Box } from "@material-ui/core";
 import DebtFacilityReportDataGrid from "components/DebtFacility/DebtFacilityReportDataGrid";
 import {
   DebtFacilities,
   GetDebtFacilitiesSubscription,
-  useGetOpenLoansByDebtFacilityIdSubscription,
+  useGetReportLoansByDebtFacilityIdSubscription,
 } from "generated/graphql";
 import { DebtFacilityStatusEnum } from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
-import { useState } from "react";
 
 const Container = styled.div`
   display: flex;
@@ -25,25 +23,31 @@ type Facilities = GetDebtFacilitiesSubscription["debt_facilities"];
 
 interface Props {
   facilities: Facilities;
+  selectedDebtFacilityId: DebtFacilities["id"];
+  allFacilityIds: DebtFacilities["id"][];
 }
 
-export default function DebtFacilityReportTab({ facilities }: Props) {
+export default function DebtFacilityReportTab({
+  facilities,
+  selectedDebtFacilityId,
+  allFacilityIds,
+}: Props) {
   const history = useHistory();
-  const [selectedDebtFacilityId, setSelectedDebtFacilityId] = useState<
-    DebtFacilities["id"]
-  >("");
 
-  const { data, error } = useGetOpenLoansByDebtFacilityIdSubscription({
-    skip: selectedDebtFacilityId === "",
+  const { data, error } = useGetReportLoansByDebtFacilityIdSubscription({
     variables: {
-      statuses: [
+      debt_facility_statuses: [
         DebtFacilityStatusEnum.SOLD_INTO_DEBT_FACILITY,
-        DebtFacilityStatusEnum.BESPOKE_BALANCE_SHEET,
-        DebtFacilityStatusEnum.REPURCHASED,
         DebtFacilityStatusEnum.UPDATE_REQUIRED,
         DebtFacilityStatusEnum.WAIVER,
       ],
-      target_facility_id: selectedDebtFacilityId,
+      other_statuses: [
+        DebtFacilityStatusEnum.BESPOKE_BALANCE_SHEET,
+        DebtFacilityStatusEnum.REPURCHASED,
+      ],
+      target_facility_ids: !!selectedDebtFacilityId
+        ? [selectedDebtFacilityId]
+        : allFacilityIds,
     },
   });
   if (error) {
@@ -55,29 +59,7 @@ export default function DebtFacilityReportTab({ facilities }: Props) {
   return (
     <Container>
       <Box display="flex" flexDirection="column">
-        <Box display="flex" flexDirection="column" width={400} mb={2}>
-          <FormControl>
-            <Autocomplete
-              autoHighlight
-              id="auto-complete-debt-facility"
-              options={facilities}
-              getOptionLabel={(debtFacility) => {
-                return `${debtFacility.name}`;
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label={"Pick debt facility"}
-                  variant="outlined"
-                />
-              )}
-              onChange={(_event, debtFacility) => {
-                setSelectedDebtFacilityId(debtFacility?.id || "");
-              }}
-            />
-          </FormControl>
-        </Box>
-        {!!selectedDebtFacilityId && (
+        {
           <Box display="flex" flexDirection="column">
             <DebtFacilityReportDataGrid
               loans={loans}
@@ -94,7 +76,7 @@ export default function DebtFacilityReportTab({ facilities }: Props) {
               }
             />
           </Box>
-        )}
+        }
       </Box>
     </Container>
   );

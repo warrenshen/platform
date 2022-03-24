@@ -8,6 +8,7 @@ import DebtFacilityReportTab from "pages/Bank/DebtFacility/DebtFacilityReportTab
 import DebtFacilityAdminTab from "pages/Bank/DebtFacility/DebtFacilityAdminTab";
 import DebtFacilityCapacitySummary from "components/DebtFacility/DebtFacilityCapacitySummary";
 import {
+  DebtFacilities,
   useGetDebtFacilityCurrentCapacitiesSubscription,
   useGetOpenLoansByDebtFacilityStatusesSubscription,
   useGetDebtFacilitiesSubscription,
@@ -39,6 +40,9 @@ export default function BankDebtFacilityPage() {
   const [actionRequiredSearchQuery, setActionRequiredSearchQuery] = useState(
     ""
   );
+  const [selectedDebtFacilityId, setSelectedDebtFacilityId] = useState<
+    DebtFacilities["id"]
+  >("");
 
   // Pulls data for action required tab, grabs data here to update count in tab
   const { data, error } = useGetOpenLoansByDebtFacilityStatusesSubscription({
@@ -100,8 +104,8 @@ export default function BankDebtFacilityPage() {
     console.error({ facilityError });
     alert(`Error in query (details in console): ${facilityError.message}`);
   }
-
   const facilities = facilityData?.debt_facilities || [];
+  const allFacilityIds = facilities.map((facility) => facility.id);
 
   return (
     <Page appBarTitle={"Debt Facility"}>
@@ -110,6 +114,8 @@ export default function BankDebtFacilityPage() {
           <DebtFacilityCapacitySummary
             currentUsage={currentUsage}
             maxCapacity={totalCapacity}
+            facilities={facilities}
+            setSelectedDebtFacilityId={setSelectedDebtFacilityId}
           />
           <Tabs
             value={selectedTabIndex}
@@ -132,7 +138,11 @@ export default function BankDebtFacilityPage() {
           </Tabs>
           <SectionSpace />
           {selectedTabIndex === 0 ? (
-            <DebtFacilityOpenTab facilities={facilities} />
+            <DebtFacilityOpenTab
+              facilities={facilities}
+              selectedDebtFacilityId={selectedDebtFacilityId}
+              allFacilityIds={allFacilityIds}
+            />
           ) : selectedTabIndex === 1 ? (
             <DebtFacilityActionRequiredTab
               loans={loansWithRequiredUpdate}
@@ -142,7 +152,11 @@ export default function BankDebtFacilityPage() {
           ) : selectedTabIndex === 2 ? (
             <DebtFacilityAllTab />
           ) : selectedTabIndex === 3 ? (
-            <DebtFacilityReportTab facilities={facilities} />
+            <DebtFacilityReportTab
+              facilities={facilities}
+              selectedDebtFacilityId={selectedDebtFacilityId}
+              allFacilityIds={allFacilityIds}
+            />
           ) : (
             <DebtFacilityAdminTab facilities={facilities} />
           )}

@@ -20,7 +20,7 @@ subscription GetOpenLoansByDebtFacilityStatuses($statuses: [String!]) {
 
 subscription GetOpenLoansByDebtFacilityId(
   $statuses: [String!]
-  $target_facility_id: uuid!
+  $target_facility_ids: [uuid!]
 ) {
   loans(
     where: {
@@ -32,37 +32,43 @@ subscription GetOpenLoansByDebtFacilityId(
           ]
         }
         { closed_at: { _is_null: true } }
+        { loan_report: { debt_facility_status: { _in: $statuses } } }
+        { loan_report: { debt_facility_id: { _in: $target_facility_ids } } }
+      ]
+    }
+  ) {
+    id
+    ...OpenLoanForDebtFacility
+  }
+}
+
+subscription GetReportLoansByDebtFacilityId(
+  $debt_facility_statuses: [String!]
+  $other_statuses: [String!]
+  $target_facility_ids: [uuid!]
+) {
+  loans(
+    where: {
+      _and: [
         {
+          # Reports pull historicals (i.e. closed loans), so we do not filter for that here
           _or: [
-            # This part of the where clause is not immediately obvious what it covers. Here are the two cases:
-            # 1. Open tab loans in the debt facility, only uses the top _or conditional based on statuses passed in
-            # 2. Report tab where we want the loans specific to a facility *and* the available loans to go into the facility
-            {
-              _and: [
-                {
-                  loan_report: {
-                    debt_facility_status: { _eq: "sold_into_debt_facility" }
-                  }
-                }
-                {
-                  loan_report: {
-                    debt_facility_id: { _eq: $target_facility_id }
-                  }
-                }
-              ]
-            }
-            {
-              _and: [
-                { loan_report: { debt_facility_status: { _in: $statuses } } }
-                {
-                  loan_report: {
-                    debt_facility_status: { _neq: "sold_into_debt_facility" }
-                  }
-                }
-              ]
-            }
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
           ]
         }
+        {
+          _or: [
+            {
+              _and: [
+                { loan_report: { debt_facility_status: { _in: $debt_facility_statuses } } }
+                { loan_report: { debt_facility_id: { _in: $target_facility_ids } } }
+              ]
+            }
+            { loan_report: { debt_facility_status: { _in: $other_statuses } } }
+          ]
+        }
+        
       ]
     }
   ) {

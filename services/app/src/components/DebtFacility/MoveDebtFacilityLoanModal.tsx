@@ -55,7 +55,7 @@ export default function MoveDebtFacilityLoanModal({
     skip: debtFacilityId === "" || isMovingToFacility === false,
     variables: {
       statuses: [DebtFacilityStatusEnum.SOLD_INTO_DEBT_FACILITY],
-      target_facility_id: debtFacilityId,
+      target_facility_ids: [debtFacilityId],
     },
   });
   if (usageError) {

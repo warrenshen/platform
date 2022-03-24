@@ -1,5 +1,4 @@
-import { Box, FormControl, TextField, Typography } from "@material-ui/core";
-import Autocomplete from "@material-ui/lab/Autocomplete";
+import { Box, TextField, Typography } from "@material-ui/core";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import { Action } from "lib/auth/rbac-rules";
@@ -32,13 +31,16 @@ type Facilities = GetDebtFacilitiesSubscription["debt_facilities"];
 
 interface Props {
   facilities: Facilities;
+  selectedDebtFacilityId: DebtFacilities["id"];
+  allFacilityIds: DebtFacilities["id"][];
 }
 
-export default function DebtFacilityOpenTab({ facilities }: Props) {
+export default function DebtFacilityOpenTab({
+  facilities,
+  selectedDebtFacilityId,
+  allFacilityIds,
+}: Props) {
   const history = useHistory();
-  const [selectedDebtFacilityId, setSelectedDebtFacilityId] = useState<
-    DebtFacilities["id"]
-  >("");
   const [debtFacilitySearchQuery, setDebtFacilitySearchQuery] = useState("");
   const [bespokeSearchQuery, setBespokeSearchQuery] = useState("");
 
@@ -68,13 +70,14 @@ export default function DebtFacilityOpenTab({ facilities }: Props) {
     data: debtFacilityData,
     error: debtFacilityError,
   } = useGetOpenLoansByDebtFacilityIdSubscription({
-    skip: selectedDebtFacilityId === "",
     variables: {
       statuses: [
         DebtFacilityStatusEnum.SOLD_INTO_DEBT_FACILITY,
         DebtFacilityStatusEnum.WAIVER,
       ],
-      target_facility_id: selectedDebtFacilityId,
+      target_facility_ids: !!selectedDebtFacilityId
+        ? [selectedDebtFacilityId]
+        : allFacilityIds,
     },
   });
   if (debtFacilityError) {
@@ -110,29 +113,7 @@ export default function DebtFacilityOpenTab({ facilities }: Props) {
   return (
     <Container>
       <Box display="flex" flexDirection="column">
-        <Box display="flex" flexDirection="column" width={400} mb={2}>
-          <FormControl>
-            <Autocomplete
-              autoHighlight
-              id="auto-complete-debt-facility"
-              options={facilities}
-              getOptionLabel={(debtFacility) => {
-                return `${debtFacility.name}`;
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label={"Pick debt facility"}
-                  variant="outlined"
-                />
-              )}
-              onChange={(_event, debtFacility) => {
-                setSelectedDebtFacilityId(debtFacility?.id || "");
-              }}
-            />
-          </FormControl>
-        </Box>
-        {!!selectedDebtFacilityId && (
+        {
           <Box display="flex" flexDirection="column">
             <Typography variant="h6">Debt Facility</Typography>
             <Box
@@ -192,7 +173,7 @@ export default function DebtFacilityOpenTab({ facilities }: Props) {
               handleSelectLoans={handleSelectFacilityLoans}
             />
           </Box>
-        )}
+        }
         <Box display="flex" flexDirection="column">
           <Typography variant="h6">Bespoke Balance Sheet</Typography>
           <Box
