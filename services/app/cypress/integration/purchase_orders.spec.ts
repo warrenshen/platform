@@ -8,6 +8,24 @@ enum ProductTypeIndexEnum {
   PurchaseMoneyFinancing = "4",
 }
 
+function uploadFileAttachmentSynchronously(inputName: string) {
+  // Start watching requests.
+  cy.server({ method: "POST" });
+
+  cy.route({
+    method: "POST",
+    url: /put_signed_url/,
+  }).as("upload-file-attachment");
+
+  cy.dataCySelector(inputName, "input").attachFile("files/sample.pdf");
+
+  // Wait for the request to finish with a 20 seconds timeout.
+  cy.wait("@upload-file-attachment", { requestTimeout: 20 * 1000 });
+
+  // Stop watching requests.
+  cy.server({ enable: false });
+}
+
 function createContract(productTypeIndex: ProductTypeIndexEnum) {
   cy.dataCy("sidebar-item-customers").click();
   cy.url().should("include", "customers");
@@ -150,15 +168,13 @@ function createPurchaseOrderAsCustomerAdmin(
   );
   cy.dataCySelector("purchase-order-form-input-amount", "input").type("42000");
   cy.dataCySelector("purchase-order-form-input-is-cannabis", "input").check();
-  cy.dataCySelector(
-    "purchase-order-form-file-uploader-purchase-order-file",
-    "input"
-  ).attachFile("files/sample.pdf");
 
-  cy.dataCySelector(
-    "purchase-order-form-file-uploader-cannabis-file-attachments",
-    "input"
-  ).attachFile("files/sample.pdf");
+  uploadFileAttachmentSynchronously(
+    "purchase-order-form-file-uploader-purchase-order-file"
+  );
+  uploadFileAttachmentSynchronously(
+    "purchase-order-form-file-uploader-cannabis-file-attachments"
+  );
 
   // The button will be enabled once the upload of the above attachments is done
   // This takes more than the default 4000 ms timeout
@@ -206,15 +222,13 @@ function createPurchaseOrderAsBankAdmin(
   );
   cy.dataCySelector("purchase-order-form-input-amount", "input").type("42000");
   cy.dataCySelector("purchase-order-form-input-is-cannabis", "input").check();
-  cy.dataCySelector(
-    "purchase-order-form-file-uploader-purchase-order-file",
-    "input"
-  ).attachFile("files/sample.pdf");
 
-  cy.dataCySelector(
-    "purchase-order-form-file-uploader-cannabis-file-attachments",
-    "input"
-  ).attachFile("files/sample.pdf");
+  uploadFileAttachmentSynchronously(
+    "purchase-order-form-file-uploader-purchase-order-file"
+  );
+  uploadFileAttachmentSynchronously(
+    "purchase-order-form-file-uploader-cannabis-file-attachments"
+  );
 
   // The button will be enabled once the upload of the above attachments is done
   // This takes more than the default 4000 ms timeout
@@ -340,17 +354,15 @@ describe("Create purchase money financing contract for existing customer", () =>
   );
 });
 
-// This test is temporarily commented as this was failing in the cypress dashboard with parallelization.
-// Check https://dashboard.cypress.io/projects/nt8kaf/runs/13 for more details
-// describe("Purchase money financing - Customer admin creates the purchase order and bank admin approves it", () => {
-//   it("Create and approve purchase order", () => {
-//     createPurchaseOrderAsCustomerAdmin();
-//     cy.logout();
+describe("Purchase money financing - Customer admin creates the purchase order and bank admin approves it", () => {
+  it("Create and approve purchase order", () => {
+    createPurchaseOrderAsCustomerAdmin();
+    cy.logout();
 
-//     // Now login as bank admin and approve the purchase order
-//     approvePurchaseOrderAsBankAdmin();
-//   });
-// });
+    // Now login as bank admin and approve the purchase order
+    approvePurchaseOrderAsBankAdmin();
+  });
+});
 
 describe("Purchase money financing - Customer admin creates the purchase order and vendor approves it", () => {
   it("Create and approve purchase order", () => {
