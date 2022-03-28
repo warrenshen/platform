@@ -1,5 +1,5 @@
 import json
-import numpy
+import numpy as np
 import click
 import os
 import pandas as pd
@@ -10,6 +10,7 @@ from datetime import date
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from os import path
+import pickle
 import matplotlib.pyplot as plt
 from typing import List, Dict, Tuple
 from collections import defaultdict
@@ -26,14 +27,14 @@ class MSRPBand:
     A class used to include all msrp analysis functions and attributes
     """
 
-    def __init__(self):
+    def __init__(self, company_costs_df=None, company_sales_df=None):
         self.company_identifier_list = mba_util.COMPANY_IDENTIFIER_LIST
         self.transfer_start_date = mba_util.TRANSFER_PACKAGES_START_DATE
         self.sales_start_date = mba_util.SALES_TRANSACTIONS_START_DATE
         self.current_month = mba_util.CURRENT_MONTH
         self.measurement_dict = mba_util.MEASUREMENT_DICT
-        self.company_costs_df = None
-        self.company_sales_df = None
+        self.company_costs_df = company_costs_df
+        self.company_sales_df = company_sales_df
         self.msrp_summary_table = None
         self.msrp_summary_table_by_time = None
         self.default_price_column = 'tx_price_per_unit'
@@ -41,11 +42,11 @@ class MSRPBand:
         self.confidence_band_multiplier = mba_util.CONFIDENCE_BAND_MULTIPLIER
 
     def fetch_data(
-            self,
-            company_identifier: List[str],
-            transfer_start_date: str,
-            sales_start_date: str,
-            current_month: str
+        self,
+        company_identifier: List[str],
+        transfer_start_date: str,
+        sales_start_date: str,
+        current_month: str
     ):
         """
         Pulls data from data storage, output costs transaction data and sales transaction data
@@ -83,6 +84,17 @@ class MSRPBand:
         self.sort_time_by_month()
         print("### Removing NAs from product category row ### \t")
         self.clean_product_category_na()
+        print("### Breaking down product names into specific measures with regular expressions ### \t")
+        self.company_costs_df = self.extract_units_from_product_name(
+            self.company_costs_df,
+            'product_name',
+            'received_unit_of_measure'
+        )
+        self.company_sales_df = self.extract_units_from_product_name(
+            self.company_sales_df,
+            'tx_product_name',
+            'tx_unit_of_measure'
+        )
         print("### Combining same product categories with different measurements ### \t")
         self.company_costs_df = self.combine_product_category_with_different_measurements(
             self.company_costs_df,
@@ -92,6 +104,18 @@ class MSRPBand:
             self.company_sales_df,
             'tx_product_category_name',
         )
+        print("### Breaking down product names into different brands ### \t")
+        self.company_costs_df = self.breakdown_product_category_into_brands(
+            self.company_costs_df,
+            'product_name',
+            'product_category_name'
+        )
+        self.company_sales_df = self.breakdown_product_category_into_brands(
+            self.company_sales_df,
+            'tx_product_name',
+            'tx_product_category_name'
+        )
+
         print("### Available combined product category name in costs dataframe ### \t")
         print(self.company_costs_df['combined_product_category'].unique())
         print("### Available combined product category name in sales dataframe ### \t")
@@ -115,10 +139,10 @@ class MSRPBand:
         self.company_sales_df.loc[:, 'date_in_month'] = pd.to_datetime(self.company_sales_df.sales_datetime).dt.strftime('%Y-%m')
 
     def boxplot_distribution_outlier_check(
-            self,
-            category_column_name: str,
-            column_name_identifier: str,
-            transaction_type: str
+        self,
+        category_column_name: str,
+        column_name_identifier: str,
+        transaction_type: str
     ):
         temp_df = self.select_df_by_transaction_type(transaction_type)
         temp_df = temp_df[temp_df[category_column_name] == column_name_identifier]
@@ -131,8 +155,11 @@ class MSRPBand:
         minn = median - iqr * 1.5
 
         outlier_df = pd.concat([temp_df[temp_df[self.default_price_column] < minn], temp_df[temp_df[self.default_price_column] > maxx]])
+        if self.outlier_df is None:
+            self.outlier_df = outlier_df
+        else:
+            self.outlier_df = pd.concat([self.outlier_df, outlier_df])
 
-        self.outlier_df = outlier_df
         if transaction_type == 'C':
             self.company_costs_df = self.company_costs_df[~self.company_costs_df.index.isin(outlier_df.index)]
         else:
@@ -161,10 +188,10 @@ class MSRPBand:
             print('Transaction type not recognized, try inputting C for costs or S for sales')
 
     def histogram_distribution_check(
-            self,
-            category_column_name: str,
-            column_name_identifier: str,
-            transaction_type: str
+        self,
+        category_column_name: str,
+        column_name_identifier: str,
+        transaction_type: str
     ):
         """
         Plots histogram plot to check distribution
@@ -177,10 +204,10 @@ class MSRPBand:
         return histplot
 
     def summary_table_by_category(
-            self,
-            category_column_name: str,
-            column_name_identifier: str,
-            transaction_type: str
+        self,
+        category_column_name: str,
+        column_name_identifier: str,
+        transaction_type: str
     ):
         """
         Finds summary table and saves into a class attribute
@@ -207,12 +234,12 @@ class MSRPBand:
         self.company_sales_df.sort_values('date_in_month', inplace=True)
 
     def line_plot_time_series_msrp_by_category(
-            self,
-            category_column_name: str,
-            column_name_identifier: str,
-            transaction_type: str,
-            confidence_level: int,
-            error_style: str
+        self,
+        category_column_name: str,
+        column_name_identifier: str,
+        transaction_type: str,
+        confidence_level: int,
+        error_style: str
     ):
         """
         Plots times series line plot broken down by specified category
@@ -221,6 +248,7 @@ class MSRPBand:
         msrp_category_df = temp_df[temp_df[category_column_name] == column_name_identifier]
         msrp_mean_df = msrp_category_df.groupby('date_in_month')[self.default_price_column].mean().reset_index()
         self.msrp_summary_table_by_time['lower_confidence_band'] = self.msrp_summary_table_by_time['mean'] - self.msrp_summary_table_by_time['std'] * self.confidence_band_multiplier
+        self.msrp_summary_table_by_time['lower_confidence_band'][self.msrp_summary_table_by_time['lower_confidence_band'] < 0] = 0
         self.msrp_summary_table_by_time['upper_confidence_band'] = self.msrp_summary_table_by_time['mean'] + self.msrp_summary_table_by_time['std'] * self.confidence_band_multiplier
         ax = sns.lineplot(
             data=msrp_category_df,
@@ -274,21 +302,51 @@ class MSRPBand:
         for measurement in measurement_list:
             includes_measurement = df[product_category_name].str.contains(measurement, case=False).values
             df[measure_ratio_column_name][includes_measurement] = self.unit_conversion_ratio(measurement, measurement_unit)
+        extracted_units_idx = ((df[measure_ratio_column_name] == 1) & (df['extracted_units'].isna() == False))
+        df[measure_ratio_column_name][extracted_units_idx] = df['extracted_units'][extracted_units_idx]
         df['adjusted_tx_price_per_unit'] = df['tx_price_per_unit'] / df[measure_ratio_column_name]
         df['combined_product_category'] = df[product_category_name].apply(self.product_category_standard_unit_conversion)
         return df
 
-    def breakdown_product_category_into_brands(self, transaction_type):
+    def extract_units_from_product_name(self, df, product_name, current_measurement):
+        """
+        Create new column that extracts unit measures from product names
+        """
+        df['bad_numbers_from_product_name'] = df[product_name].str.extract('([0-9][0-9][0-9][0-9][0-9]+)', expand = False)
+        df[product_name] = df.apply(lambda row: row[product_name].replace(row['bad_numbers_from_product_name'], '') if type(row['bad_numbers_from_product_name']) == str else row[product_name], axis=1)
+        df['extracted_units'] = np.nan
+        df['letter_gram_measure_from_product_name'] = df[product_name].str.extract('([0-9]*[\.]?[0-9]+[\s]?[mM]?[gG])', expand=False)
+        # df['letter_litre_measure_from_product_name'] = df[product_name].str.extract('([0-9]*[\.]?[0-9]+[\s]?[mM]?[lL])', expand=False)
+        df['gram_measure_from_product_name'] = df[product_name].str.extract('([hH][aA][lL][fF] [gG][rR][aA][mM]|[gG][rR][aA][mM])', expand=False)
+        df['oz_measure_from_product_name'] = df[product_name].str.extract('([0-9]/[0-9]?[\s]?oz|[0-9]*[\.]?[0-9]+[\s]?oz)', expand=False)
+        for measure_column in mba_util.EXTRACTED_MEASUREMENT_COLUMNS.keys():
+            idx = ((df[current_measurement] == 'Each') & (df[measure_column].isna() == False))
+            df['extracted_units'][idx] = df[measure_column][idx].apply(mba_util.EXTRACTED_MEASUREMENT_COLUMNS[measure_column])
+        return df
+
+    def breakdown_product_category_into_brands(self, df, product_name, category_name):
         """
         Create new column that breaks down category name into brands
         """
-        return
+        df['brand_breakable_by_dash_boolean'] = (
+             (df[product_name].str.contains('-')) &
+             (df[product_name].str.contains("\|") == False) &
+             (df[product_name].str.contains("Pre-Roll") == False) &
+             (df[product_name].str.contains("sample", case=False) == False) &
+             (df[product_name].str.contains("^(1 ml)") == False) &
+             (df[product_name].str.contains("[A-Z]+[0-9]+-[A-Z]+[0-9]+|[0-9]+[A-Z]+-[0-9]+[A-Z]+|[A-Z]+[0-9]+-[0-9]+[A-Z]+|[0-9]+[A-Z]+-[A-Z]+[0-9]+") == False)
+             )
+        df['brands'] = df.apply(lambda row: row[product_name].split('-')[0].strip() if row['brand_breakable_by_dash_boolean'] else row[product_name], axis=1)
+        df['brands_by_category'] = df.apply(lambda row: row[product_name].split('-')[0].strip() + ' ({})'.format(row[category_name]) if row['brand_breakable_by_dash_boolean'] else row[product_name], axis=1)
+        return df
 
     def run_analysis(
-            self,
-            category_column_name: str,
-            column_name_identifier: str,
-            transaction_type: str
+        self,
+        category_column_name: str,
+        column_name_identifier: str,
+        transaction_type: str,
+        *,
+        use_unit_converted_price=True
     ):
         """
         Runs all functions for analysis
@@ -298,9 +356,10 @@ class MSRPBand:
         category_column_name: Category level to use for analysis
         column_name_identifier: Name of category to indice
         transaction_type: Using costs df or sales df
+        use_unit_converted_price: Uses unit converted price column for running analysis
         ----------
         """
-        if category_column_name == 'product_category_combined':
+        if use_unit_converted_price:
             self.default_price_column = 'adjusted_tx_price_per_unit'
         else:
             self.default_price_column = 'tx_price_per_unit'
@@ -333,8 +392,10 @@ class MSRPBand:
     def run_time_series_plot_analysis_multi_category(
         self,
         category_column_name: str,
-        column_name_identifier_list: str,
-        transaction_type: str
+        column_name_identifier_list: list,
+        transaction_type: str,
+        *,
+        use_unit_converted_price=True
     ):
         """
         Runs all functions for analysis on multiple categories together.
@@ -344,9 +405,10 @@ class MSRPBand:
         category_column_name: Category level to use for analysis
         column_name_identifier_list: Names of list of category to indice
         transaction_type: Using costs df or sales df
+        use_unit_converted_price: Uses unit converted price column for running analysis
         ----------
         """
-        if category_column_name == 'product_category_combined':
+        if use_unit_converted_price:
             self.default_price_column = 'adjusted_tx_price_per_unit'
         else:
             self.default_price_column = 'tx_price_per_unit'
@@ -371,3 +433,18 @@ class MSRPBand:
                 mba_util.ERROR_STYLE
             )
 
+    def output_time_series_metadata(self):
+        """
+        Output csvs to check other company data integrity in msrp_band_analyzer_check script
+        """
+        self.company_costs_df.to_csv('train_costs_df.csv')
+        self.company_sales_df.to_csv('train_sales_df.csv')
+        # self.msrp_summary_table.to_csv('train_msrp_summary_{}.csv'.format(column_name_identifier))
+        # self.msrp_summary_table_by_time.to_csv('train_msrp_summary_by_time_{}.csv'.format(column_name_identifier))
+        # self.outlier_df.to_csv('train_outlier_df_{}.csv'.format(column_name_identifier))
+
+    def save(self):
+        """save class as self.name.txt"""
+        file = open(mba_util.TRAINING_OBJECT_NAME, 'wb')
+        pickle.dump(self.__dict__, file)
+        file.close()
