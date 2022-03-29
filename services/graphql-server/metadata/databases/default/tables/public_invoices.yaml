@@ -1,0 +1,249 @@
+table:
+  name: invoices
+  schema: public
+object_relationships:
+- name: company
+  using:
+    foreign_key_constraint_on: company_id
+- name: payment
+  using:
+    foreign_key_constraint_on: payment_id
+- name: payor
+  using:
+    manual_configuration:
+      column_mapping:
+        payor_id: id
+      insertion_order: null
+      remote_table:
+        name: payors
+        schema: public
+array_relationships:
+- name: invoice_files
+  using:
+    foreign_key_constraint_on:
+      column: invoice_id
+      table:
+        name: invoice_files
+        schema: public
+- name: loans
+  using:
+    manual_configuration:
+      column_mapping:
+        id: artifact_id
+      insertion_order: null
+      remote_table:
+        name: loans
+        schema: public
+insert_permissions:
+- permission:
+    backend_only: false
+    check:
+      payor:
+        company_payor_partnerships:
+          company_id:
+            _eq: X-Hasura-Company-Id
+    columns:
+    - advance_date
+    - company_id
+    - invoice_date
+    - invoice_due_date
+    - invoice_number
+    - is_cannabis
+    - payor_id
+    - status
+    - subtotal_amount
+    - taxes_amount
+    - total_amount
+  role: company_admin
+select_permissions:
+- permission:
+    columns:
+    - advance_date
+    - approved_at
+    - company_id
+    - created_at
+    - funded_at
+    - id
+    - invoice_date
+    - invoice_due_date
+    - invoice_number
+    - is_cannabis
+    - is_deleted
+    - payment_confirmed_at
+    - payment_id
+    - payment_rejected_at
+    - payment_rejection_note
+    - payment_requested_at
+    - payor_id
+    - rejected_at
+    - rejection_note
+    - requested_at
+    - status
+    - subtotal_amount
+    - taxes_amount
+    - total_amount
+    - updated_at
+    filter: {}
+  role: bank_admin
+- permission:
+    columns:
+    - is_deleted
+    - advance_date
+    - invoice_date
+    - invoice_due_date
+    - subtotal_amount
+    - taxes_amount
+    - total_amount
+    - invoice_number
+    - payment_rejection_note
+    - rejection_note
+    - status
+    - approved_at
+    - created_at
+    - funded_at
+    - payment_confirmed_at
+    - payment_rejected_at
+    - payment_requested_at
+    - rejected_at
+    - requested_at
+    - updated_at
+    - company_id
+    - id
+    - payment_id
+    - payor_id
+    - is_cannabis
+    filter: {}
+  role: bank_read_only
+- permission:
+    columns:
+    - advance_date
+    - approved_at
+    - company_id
+    - created_at
+    - funded_at
+    - id
+    - invoice_date
+    - invoice_due_date
+    - invoice_number
+    - is_cannabis
+    - is_deleted
+    - payment_confirmed_at
+    - payment_rejected_at
+    - payment_requested_at
+    - payor_id
+    - rejected_at
+    - requested_at
+    - status
+    - subtotal_amount
+    - taxes_amount
+    - total_amount
+    - updated_at
+    filter:
+      _or:
+      - company_id:
+          _eq: X-Hasura-Company-Id
+      - payor_id:
+          _eq: X-Hasura-Company-Id
+  role: company_admin
+- permission:
+    columns:
+    - advance_date
+    - approved_at
+    - company_id
+    - created_at
+    - funded_at
+    - id
+    - invoice_date
+    - invoice_due_date
+    - invoice_number
+    - is_cannabis
+    - is_deleted
+    - payment_confirmed_at
+    - payment_rejected_at
+    - payment_requested_at
+    - payor_id
+    - rejected_at
+    - requested_at
+    - status
+    - subtotal_amount
+    - taxes_amount
+    - total_amount
+    - updated_at
+    filter:
+      _or:
+      - company_id:
+          _eq: X-Hasura-Company-Id
+      - payor_id:
+          _eq: X-Hasura-Company-Id
+  role: company_read_only
+- permission:
+    columns:
+    - advance_date
+    - approved_at
+    - company_id
+    - created_at
+    - funded_at
+    - id
+    - invoice_date
+    - invoice_due_date
+    - invoice_number
+    - is_cannabis
+    - is_deleted
+    - payment_confirmed_at
+    - payment_rejected_at
+    - payment_rejection_note
+    - payment_requested_at
+    - payor_id
+    - rejected_at
+    - rejection_note
+    - requested_at
+    - status
+    - subtotal_amount
+    - taxes_amount
+    - total_amount
+    - updated_at
+    filter:
+      payor_id:
+        _eq: X-Hasura-Company-Id
+  role: invoice_reviewer
+update_permissions:
+- permission:
+    check: null
+    columns:
+    - advance_date
+    - invoice_date
+    - invoice_due_date
+    - invoice_number
+    - is_cannabis
+    - payor_id
+    - status
+    - subtotal_amount
+    - taxes_amount
+    - total_amount
+    filter:
+      payor:
+        company_payor_partnerships:
+          company_id:
+            _eq: X-Hasura-Company-Id
+  role: company_admin
+- permission:
+    check: null
+    columns:
+    - approved_at
+    - payment_confirmed_at
+    - payment_rejected_at
+    - payment_rejection_note
+    - rejected_at
+    - rejection_note
+    filter:
+      payor_id:
+        _eq: X-Hasura-Company-Id
+  role: invoice_reviewer
+delete_permissions:
+- permission:
+    filter:
+      payor:
+        company_payor_partnerships:
+          company_id:
+            _eq: X-Hasura-Company-Id
+  role: company_admin

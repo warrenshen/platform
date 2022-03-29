@@ -1,0 +1,57 @@
+table:
+  name: company_agreements
+  schema: public
+object_relationships:
+- name: company
+  using:
+    foreign_key_constraint_on: company_id
+array_relationships:
+- name: company_payor_partnerships
+  using:
+    foreign_key_constraint_on:
+      column: payor_agreement_id
+      table:
+        name: company_payor_partnerships
+        schema: public
+- name: company_vendor_partnerships
+  using:
+    foreign_key_constraint_on:
+      column: vendor_agreement_id
+      table:
+        name: company_vendor_partnerships
+        schema: public
+insert_permissions:
+- permission:
+    backend_only: false
+    check: {}
+    columns:
+    - company_id
+    - file_id
+  role: bank_admin
+select_permissions:
+- permission:
+    columns:
+    - company_id
+    - file_id
+    - id
+    filter: {}
+  role: bank_admin
+- permission:
+    columns:
+    - id
+    - company_id
+    - file_id
+    filter: {}
+  role: bank_read_only
+update_permissions:
+- permission:
+    check: null
+    columns:
+    - company_id
+    - file_id
+    filter: {}
+  role: bank_admin
+delete_permissions:
+- permission:
+    filter: {}
+  role: bank_admin

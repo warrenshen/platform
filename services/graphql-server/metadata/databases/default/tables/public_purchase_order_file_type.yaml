@@ -1,0 +1,4 @@
+table:
+  name: purchase_order_file_type
+  schema: public
+is_enum: true

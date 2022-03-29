@@ -1,0 +1,146 @@
+table:
+  name: metrc_transfers
+  schema: public
+array_relationships:
+- name: company_deliveries
+  using:
+    foreign_key_constraint_on:
+      column: transfer_row_id
+      table:
+        name: company_deliveries
+        schema: public
+- name: metrc_deliveries
+  using:
+    foreign_key_constraint_on:
+      column: transfer_row_id
+      table:
+        name: metrc_deliveries
+        schema: public
+- name: metrc_transfer_packages
+  using:
+    foreign_key_constraint_on:
+      column: transfer_row_id
+      table:
+        name: metrc_transfer_packages
+        schema: public
+select_permissions:
+- permission:
+    columns:
+    - created_at
+    - created_date
+    - id
+    - lab_results_status
+    - last_modified_at
+    - license_number
+    - manifest_number
+    - shipment_transaction_type
+    - shipment_type_name
+    - shipper_facility_license_number
+    - shipper_facility_name
+    - transfer_id
+    - transfer_payload
+    - transfer_type
+    - type
+    - updated_at
+    - us_state
+    filter: {}
+  role: bank_admin
+- permission:
+    columns:
+    - created_at
+    - created_date
+    - id
+    - lab_results_status
+    - last_modified_at
+    - license_number
+    - manifest_number
+    - shipment_transaction_type
+    - shipment_type_name
+    - shipper_facility_license_number
+    - shipper_facility_name
+    - transfer_id
+    - transfer_payload
+    - transfer_type
+    - type
+    - updated_at
+    - us_state
+    filter: {}
+  role: bank_read_only
+- permission:
+    columns:
+    - created_at
+    - created_date
+    - id
+    - lab_results_status
+    - last_modified_at
+    - license_number
+    - manifest_number
+    - shipment_transaction_type
+    - shipment_type_name
+    - shipper_facility_license_number
+    - shipper_facility_name
+    - transfer_id
+    - transfer_payload
+    - transfer_type
+    - type
+    - updated_at
+    - us_state
+    filter:
+      _or:
+      - company_deliveries:
+          company_id:
+            _eq: X-Hasura-Company-Id
+      - company_deliveries:
+          vendor_id:
+            _eq: X-Hasura-Company-Id
+  role: company_admin
+- permission:
+    columns:
+    - created_at
+    - created_date
+    - id
+    - lab_results_status
+    - last_modified_at
+    - license_number
+    - manifest_number
+    - shipment_transaction_type
+    - shipment_type_name
+    - shipper_facility_license_number
+    - shipper_facility_name
+    - transfer_id
+    - transfer_payload
+    - transfer_type
+    - type
+    - updated_at
+    - us_state
+    filter:
+      _or:
+      - company_deliveries:
+          company_id:
+            _eq: X-Hasura-Company-Id
+      - company_deliveries:
+          vendor_id:
+            _eq: X-Hasura-Company-Id
+  role: company_read_only
+- permission:
+    columns:
+    - created_date
+    - id
+    - lab_results_status
+    - last_modified_at
+    - license_number
+    - manifest_number
+    - shipment_transaction_type
+    - shipment_type_name
+    - shipper_facility_license_number
+    - shipper_facility_name
+    - transfer_id
+    - transfer_payload
+    - transfer_type
+    - type
+    - us_state
+    filter:
+      company_deliveries:
+        vendor_id:
+          _eq: X-Hasura-Company-Id
+  role: purchase_order_reviewer

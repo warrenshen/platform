@@ -1,0 +1,69 @@
+table:
+  name: ebba_application_files
+  schema: public
+object_relationships:
+- name: ebba_application
+  using:
+    foreign_key_constraint_on: ebba_application_id
+- name: file
+  using:
+    foreign_key_constraint_on: file_id
+insert_permissions:
+- permission:
+    backend_only: false
+    check: {}
+    columns:
+    - ebba_application_id
+    - file_id
+  role: bank_admin
+- permission:
+    backend_only: false
+    check:
+      ebba_application:
+        company_id:
+          _eq: X-Hasura-Company-Id
+    columns:
+    - ebba_application_id
+    - file_id
+  role: company_admin
+select_permissions:
+- permission:
+    columns:
+    - ebba_application_id
+    - file_id
+    filter: {}
+  role: bank_admin
+- permission:
+    columns:
+    - ebba_application_id
+    - file_id
+    filter: {}
+  role: bank_read_only
+- permission:
+    columns:
+    - ebba_application_id
+    - file_id
+    filter:
+      ebba_application:
+        company_id:
+          _eq: X-Hasura-Company-Id
+  role: company_admin
+- permission:
+    columns:
+    - ebba_application_id
+    - file_id
+    filter:
+      ebba_application:
+        company_id:
+          _eq: X-Hasura-Company-Id
+  role: company_read_only
+delete_permissions:
+- permission:
+    filter: {}
+  role: bank_admin
+- permission:
+    filter:
+      ebba_application:
+        company_id:
+          _eq: X-Hasura-Company-Id
+  role: company_admin

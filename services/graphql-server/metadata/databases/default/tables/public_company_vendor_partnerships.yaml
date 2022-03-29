@@ -1,0 +1,113 @@
+table:
+  name: company_vendor_partnerships
+  schema: public
+object_relationships:
+- name: company
+  using:
+    foreign_key_constraint_on: company_id
+- name: vendor
+  using:
+    manual_configuration:
+      column_mapping:
+        vendor_id: id
+      insertion_order: null
+      remote_table:
+        name: vendors
+        schema: public
+- name: vendor_agreement
+  using:
+    foreign_key_constraint_on: vendor_agreement_id
+- name: vendor_bank_account
+  using:
+    foreign_key_constraint_on: vendor_bank_id
+- name: vendor_limited
+  using:
+    manual_configuration:
+      column_mapping:
+        vendor_id: id
+      insertion_order: null
+      remote_table:
+        name: vendors
+        schema: public
+array_relationships:
+- name: vendor_contacts
+  using:
+    foreign_key_constraint_on:
+      column: partnership_id
+      table:
+        name: company_vendor_contacts
+        schema: public
+select_permissions:
+- permission:
+    columns:
+    - approved_at
+    - company_id
+    - created_at
+    - id
+    - updated_at
+    - vendor_agreement_id
+    - vendor_bank_id
+    - vendor_id
+    - vendor_license_id
+    filter: {}
+  role: bank_admin
+- permission:
+    columns:
+    - id
+    - company_id
+    - vendor_id
+    - vendor_agreement_id
+    - vendor_bank_id
+    - vendor_license_id
+    - created_at
+    - updated_at
+    - approved_at
+    filter: {}
+  role: bank_read_only
+- permission:
+    columns:
+    - approved_at
+    - company_id
+    - created_at
+    - id
+    - updated_at
+    - vendor_agreement_id
+    - vendor_id
+    - vendor_license_id
+    filter:
+      company_id:
+        _eq: X-Hasura-Company-Id
+  role: company_admin
+- permission:
+    columns:
+    - approved_at
+    - company_id
+    - created_at
+    - id
+    - updated_at
+    - vendor_agreement_id
+    - vendor_id
+    - vendor_license_id
+    filter:
+      company_id:
+        _eq: X-Hasura-Company-Id
+  role: company_read_only
+- permission:
+    columns:
+    - company_id
+    - id
+    - vendor_bank_id
+    - vendor_id
+    filter:
+      vendor_id:
+        _eq: X-Hasura-Company-Id
+  role: purchase_order_reviewer
+update_permissions:
+- permission:
+    check: null
+    columns:
+    - vendor_agreement_id
+    - vendor_bank_id
+    - vendor_license_id
+    filter: {}
+  role: bank_admin

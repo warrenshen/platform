@@ -1,0 +1,86 @@
+table:
+  name: invoice_files
+  schema: public
+object_relationships:
+- name: file
+  using:
+    foreign_key_constraint_on: file_id
+- name: invoice
+  using:
+    foreign_key_constraint_on: invoice_id
+insert_permissions:
+- permission:
+    backend_only: false
+    check:
+      invoice:
+        _or:
+        - company_id:
+            _eq: X-Hasura-Company-Id
+        - payor_id:
+            _eq: X-Hasura-Company-Id
+    columns:
+    - file_type
+    - file_id
+    - invoice_id
+  role: company_admin
+select_permissions:
+- permission:
+    columns:
+    - invoice_id
+    - file_id
+    - file_type
+    filter: {}
+  role: bank_admin
+- permission:
+    columns:
+    - file_type
+    - file_id
+    - invoice_id
+    filter: {}
+  role: bank_read_only
+- permission:
+    columns:
+    - file_type
+    - file_id
+    - invoice_id
+    filter:
+      invoice:
+        _or:
+        - company_id:
+            _eq: X-Hasura-Company-Id
+        - payor_id:
+            _eq: X-Hasura-Company-Id
+  role: company_admin
+- permission:
+    columns:
+    - file_type
+    - file_id
+    - invoice_id
+    filter:
+      invoice:
+        _or:
+        - company_id:
+            _eq: X-Hasura-Company-Id
+        - payor_id:
+            _eq: X-Hasura-Company-Id
+  role: company_read_only
+- permission:
+    columns:
+    - invoice_id
+    - file_id
+    - file_type
+    filter:
+      invoice:
+        payor_id:
+          _eq: X-Hasura-Company-Id
+  role: invoice_reviewer
+delete_permissions:
+- permission:
+    filter:
+      invoice:
+        _or:
+        - company_id:
+            _eq: X-Hasura-Company-Id
+        - payor_id:
+            _eq: X-Hasura-Company-Id
+  role: company_admin

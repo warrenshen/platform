@@ -1,0 +1,70 @@
+table:
+  name: metrc_api_keys
+  schema: public
+array_relationships:
+- name: metrc_download_summaries
+  using:
+    foreign_key_constraint_on:
+      column: metrc_api_key_id
+      table:
+        name: metrc_download_summaries
+        schema: public
+select_permissions:
+- permission:
+    columns:
+    - company_id
+    - created_at
+    - facilities_payload
+    - id
+    - is_deleted
+    - is_functioning
+    - last_used_at
+    - status_codes_payload
+    - updated_at
+    - us_state
+    - use_saved_licenses_only
+    filter: {}
+  role: bank_admin
+- permission:
+    columns:
+    - company_id
+    - created_at
+    - facilities_payload
+    - id
+    - is_deleted
+    - is_functioning
+    - last_used_at
+    - status_codes_payload
+    - updated_at
+    - us_state
+    - use_saved_licenses_only
+    filter: {}
+  role: bank_read_only
+- permission:
+    columns:
+    - company_id
+    - created_at
+    - id
+    - is_deleted
+    - is_functioning
+    - last_used_at
+    - us_state
+    - use_saved_licenses_only
+    filter:
+      company_id:
+        _eq: X-Hasura-Company-Id
+  role: company_admin
+- permission:
+    columns:
+    - company_id
+    - created_at
+    - id
+    - is_deleted
+    - is_functioning
+    - last_used_at
+    - us_state
+    - use_saved_licenses_only
+    filter:
+      company_id:
+        _eq: X-Hasura-Company-Id
+  role: company_read_only

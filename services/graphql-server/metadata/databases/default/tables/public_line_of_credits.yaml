@@ -1,0 +1,96 @@
+table:
+  name: line_of_credits
+  schema: public
+object_relationships:
+- name: company
+  using:
+    foreign_key_constraint_on: company_id
+- name: recipient_vendor
+  using:
+    foreign_key_constraint_on: recipient_vendor_id
+insert_permissions:
+- permission:
+    backend_only: false
+    check: {}
+    columns:
+    - company_id
+    - customer_note
+    - is_credit_for_vendor
+    - recipient_vendor_id
+  role: bank_admin
+- permission:
+    backend_only: false
+    check:
+      company_id:
+        _eq: X-Hasura-Company-Id
+    columns:
+    - customer_note
+    - is_credit_for_vendor
+    - recipient_vendor_id
+    set:
+      company_id: x-hasura-Company-Id
+  role: company_admin
+select_permissions:
+- permission:
+    columns:
+    - company_id
+    - created_at
+    - customer_note
+    - id
+    - is_credit_for_vendor
+    - recipient_vendor_id
+    - updated_at
+    filter: {}
+  role: bank_admin
+- permission:
+    columns:
+    - company_id
+    - created_at
+    - customer_note
+    - id
+    - is_credit_for_vendor
+    - recipient_vendor_id
+    - updated_at
+    filter: {}
+  role: bank_read_only
+- permission:
+    columns:
+    - company_id
+    - customer_note
+    - id
+    - is_credit_for_vendor
+    - recipient_vendor_id
+    filter:
+      company_id:
+        _eq: X-Hasura-Company-Id
+  role: company_admin
+- permission:
+    columns:
+    - company_id
+    - customer_note
+    - id
+    - is_credit_for_vendor
+    - recipient_vendor_id
+    filter:
+      company_id:
+        _eq: X-Hasura-Company-Id
+  role: company_read_only
+update_permissions:
+- permission:
+    check: null
+    columns:
+    - customer_note
+    - is_credit_for_vendor
+    - recipient_vendor_id
+    filter: {}
+  role: bank_admin
+- permission:
+    check: null
+    columns:
+    - customer_note
+    - is_credit_for_vendor
+    - recipient_vendor_id
+    filter:
+      company_id:
+        _eq: X-Hasura-Company-Id
+  role: company_admin

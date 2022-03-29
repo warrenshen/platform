@@ -1,0 +1,10 @@
+table:
+  name: metrc_analysis_summaries
+  schema: public
+object_relationships:
+- name: company
+  using:
+    foreign_key_constraint_on: company_id
+- name: company_facility
+  using:
+    foreign_key_constraint_on: facility_row_id

@@ -1,0 +1,46 @@
+table:
+  name: metrc_packages
+  schema: public
+select_permissions:
+- permission:
+    columns:
+    - company_id
+    - created_at
+    - id
+    - last_modified_at
+    - license_number
+    - package_id
+    - package_label
+    - package_payload
+    - package_type
+    - packaged_date
+    - product_category_name
+    - product_name
+    - quantity
+    - type
+    - unit_of_measure
+    - updated_at
+    - us_state
+    filter: {}
+  role: bank_admin
+- permission:
+    columns:
+    - company_id
+    - created_at
+    - id
+    - last_modified_at
+    - license_number
+    - package_id
+    - package_label
+    - package_payload
+    - package_type
+    - packaged_date
+    - product_category_name
+    - product_name
+    - quantity
+    - type
+    - unit_of_measure
+    - updated_at
+    - us_state
+    filter: {}
+  role: bank_read_only

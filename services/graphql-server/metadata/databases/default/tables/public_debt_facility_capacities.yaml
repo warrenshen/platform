@@ -1,0 +1,32 @@
+table:
+  name: debt_facility_capacities
+  schema: public
+object_relationships:
+- name: debt_facility
+  using:
+    manual_configuration:
+      column_mapping:
+        debt_facility_id: id
+      insertion_order: null
+      remote_table:
+        name: debt_facilities
+        schema: public
+select_permissions:
+- permission:
+    columns:
+    - amount
+    - changed_at
+    - changed_by
+    - debt_facility_id
+    - id
+    filter: {}
+  role: bank_admin
+- permission:
+    columns:
+    - amount
+    - changed_at
+    - changed_by
+    - debt_facility_id
+    - id
+    filter: {}
+  role: bank_read_only

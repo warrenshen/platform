@@ -1,0 +1,36 @@
+table:
+  name: metrc_plants
+  schema: public
+object_relationships:
+- name: company
+  using:
+    foreign_key_constraint_on: company_id
+select_permissions:
+- permission:
+    columns:
+    - company_id
+    - id
+    - label
+    - last_modified_at
+    - license_number
+    - payload
+    - plant_id
+    - planted_date
+    - type
+    - us_state
+    filter: {}
+  role: bank_admin
+- permission:
+    columns:
+    - company_id
+    - id
+    - label
+    - last_modified_at
+    - license_number
+    - payload
+    - plant_id
+    - planted_date
+    - type
+    - us_state
+    filter: {}
+  role: bank_read_only

@@ -1,0 +1,184 @@
+table:
+  name: vendors
+  schema: public
+object_relationships:
+- name: parent_company
+  using:
+    manual_configuration:
+      column_mapping:
+        parent_company_id: id
+      insertion_order: null
+      remote_table:
+        name: parent_companies
+        schema: public
+- name: settings
+  using:
+    manual_configuration:
+      column_mapping:
+        company_settings_id: id
+      insertion_order: null
+      remote_table:
+        name: company_settings
+        schema: public
+array_relationships:
+- name: company_deliveries
+  using:
+    manual_configuration:
+      column_mapping:
+        id: vendor_id
+      insertion_order: null
+      remote_table:
+        name: company_deliveries
+        schema: public
+- name: company_vendor_partnerships
+  using:
+    manual_configuration:
+      column_mapping:
+        id: vendor_id
+      insertion_order: null
+      remote_table:
+        name: company_vendor_partnerships
+        schema: public
+- name: licenses
+  using:
+    manual_configuration:
+      column_mapping:
+        id: company_id
+      insertion_order: null
+      remote_table:
+        name: company_licenses
+        schema: public
+- name: users
+  using:
+    manual_configuration:
+      column_mapping:
+        id: company_id
+      insertion_order: null
+      remote_table:
+        name: users
+        schema: public
+select_permissions:
+- permission:
+    columns:
+    - id
+    - name
+    - employer_identification_number
+    - address
+    - country
+    - state
+    - city
+    - zip_code
+    - created_at
+    - updated_at
+    - dba_name
+    - phone_number
+    - company_settings_id
+    - contract_id
+    - identifier
+    - latest_loan_identifier
+    - needs_balance_recomputed
+    - is_cannabis
+    - parent_company_id
+    filter: {}
+  role: bank_admin
+- permission:
+    columns:
+    - is_cannabis
+    - needs_balance_recomputed
+    - latest_loan_identifier
+    - address
+    - city
+    - country
+    - dba_name
+    - employer_identification_number
+    - identifier
+    - name
+    - phone_number
+    - state
+    - zip_code
+    - created_at
+    - updated_at
+    - company_settings_id
+    - contract_id
+    - id
+    - parent_company_id
+    filter: {}
+  role: bank_read_only
+- permission:
+    columns:
+    - address
+    - dba_name
+    - id
+    - identifier
+    - is_cannabis
+    - name
+    - parent_company_id
+    - phone_number
+    filter:
+      _or:
+      - company_vendor_partnerships:
+          company_id:
+            _eq: X-Hasura-Company-Id
+      - company_deliveries:
+          company_id:
+            _eq: X-Hasura-Company-Id
+  role: company_admin
+- permission:
+    columns:
+    - address
+    - dba_name
+    - id
+    - identifier
+    - is_cannabis
+    - name
+    - parent_company_id
+    - phone_number
+    filter:
+      _or:
+      - company_vendor_partnerships:
+          company_id:
+            _eq: X-Hasura-Company-Id
+      - company_deliveries:
+          company_id:
+            _eq: X-Hasura-Company-Id
+  role: company_read_only
+- permission:
+    columns:
+    - address
+    - dba_name
+    - id
+    - identifier
+    - name
+    - parent_company_id
+    - phone_number
+    filter:
+      id:
+        _eq: X-Hasura-Company-Id
+  role: purchase_order_reviewer
+update_permissions:
+- permission:
+    check: null
+    columns:
+    - needs_balance_recomputed
+    - latest_loan_identifier
+    - address
+    - city
+    - country
+    - dba_name
+    - employer_identification_number
+    - identifier
+    - name
+    - phone_number
+    - state
+    - zip_code
+    - created_at
+    - updated_at
+    - company_settings_id
+    - contract_id
+    - id
+    filter: {}
+  role: bank_admin
+delete_permissions:
+- permission:
+    filter: {}
+  role: bank_admin

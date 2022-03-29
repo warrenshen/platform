@@ -1,0 +1,136 @@
+table:
+  name: contracts
+  schema: public
+object_relationships:
+- name: company
+  using:
+    foreign_key_constraint_on: company_id
+- name: modified_by_user
+  using:
+    foreign_key_constraint_on: modified_by_user_id
+- name: terminated_by_user
+  using:
+    foreign_key_constraint_on: terminated_by_user_id
+array_relationships:
+- name: companies
+  using:
+    foreign_key_constraint_on:
+      column: contract_id
+      table:
+        name: companies
+        schema: public
+insert_permissions:
+- permission:
+    backend_only: false
+    check: {}
+    columns:
+    - company_id
+    - end_date
+    - product_config
+    - product_type
+    - start_date
+  role: bank_admin
+select_permissions:
+- permission:
+    columns:
+    - adjusted_end_date
+    - company_id
+    - end_date
+    - id
+    - is_deleted
+    - modified_at
+    - modified_by_user_id
+    - product_config
+    - product_type
+    - start_date
+    - terminated_at
+    - terminated_by_user_id
+    filter: {}
+  role: bank_admin
+- permission:
+    columns:
+    - adjusted_end_date
+    - company_id
+    - end_date
+    - id
+    - is_deleted
+    - modified_at
+    - modified_by_user_id
+    - product_config
+    - product_type
+    - start_date
+    - terminated_at
+    - terminated_by_user_id
+    filter: {}
+  role: bank_read_only
+- permission:
+    columns:
+    - adjusted_end_date
+    - company_id
+    - end_date
+    - id
+    - is_deleted
+    - product_config
+    - product_type
+    - start_date
+    - terminated_at
+    filter:
+      company_id:
+        _eq: X-Hasura-Company-Id
+  role: company_admin
+- permission:
+    columns:
+    - adjusted_end_date
+    - company_id
+    - end_date
+    - id
+    - is_deleted
+    - product_config
+    - product_type
+    - start_date
+    - terminated_at
+    filter:
+      company_id:
+        _eq: X-Hasura-Company-Id
+  role: company_read_only
+update_permissions:
+- permission:
+    check: null
+    columns:
+    - company_id
+    - end_date
+    - id
+    - product_config
+    - product_type
+    - start_date
+    filter: {}
+  role: bank_admin
+event_triggers:
+- definition:
+    delete:
+      columns: "*"
+    enable_manual: false
+    insert:
+      columns: "*"
+    update:
+      columns:
+      - end_date
+      - start_date
+      - product_config
+      - product_type
+      - modified_at
+      - terminated_at
+      - company_id
+      - id
+      - modified_by_user_id
+      - terminated_by_user_id
+      - adjusted_end_date
+  headers:
+  - name: x-api-key
+    value_from_env: ASYNC_SERVER_API_KEY
+  name: contracts_changed
+  retry_conf:
+    interval_sec: 10
+    num_retries: 1
+    timeout_sec: 60
+  webhook: "{{ASYNC_SERVER_BASE_URL}}/triggers/set_dirty_company_balances_view"

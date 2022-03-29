@@ -1,0 +1,3 @@
+table:
+  name: revoked_tokens
+  schema: public

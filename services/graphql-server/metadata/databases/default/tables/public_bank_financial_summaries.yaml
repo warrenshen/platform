@@ -1,0 +1,40 @@
+table:
+  name: bank_financial_summaries
+  schema: public
+select_permissions:
+- permission:
+    columns:
+    - adjusted_total_limit
+    - available_limit
+    - created_at
+    - date
+    - id
+    - interest_accrued_today
+    - product_type
+    - total_limit
+    - total_outstanding_fees
+    - total_outstanding_interest
+    - total_outstanding_principal
+    - total_outstanding_principal_for_interest
+    - total_principal_in_requested_state
+    - updated_at
+    filter: {}
+  role: bank_admin
+- permission:
+    columns:
+    - adjusted_total_limit
+    - available_limit
+    - created_at
+    - date
+    - id
+    - interest_accrued_today
+    - product_type
+    - total_limit
+    - total_outstanding_fees
+    - total_outstanding_interest
+    - total_outstanding_principal
+    - total_outstanding_principal_for_interest
+    - total_principal_in_requested_state
+    - updated_at
+    filter: {}
+  role: bank_read_only

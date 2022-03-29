@@ -1,0 +1,111 @@
+table:
+  name: users
+  schema: public
+object_relationships:
+- name: company
+  using:
+    foreign_key_constraint_on: company_id
+- name: parent_company
+  using:
+    foreign_key_constraint_on: parent_company_id
+select_permissions:
+- permission:
+    columns:
+    - company_id
+    - created_at
+    - email
+    - first_name
+    - full_name
+    - id
+    - is_deleted
+    - last_name
+    - login_method
+    - parent_company_id
+    - phone_number
+    - role
+    - updated_at
+    filter: {}
+  role: bank_admin
+- permission:
+    columns:
+    - company_id
+    - created_at
+    - email
+    - first_name
+    - full_name
+    - id
+    - is_deleted
+    - last_name
+    - login_method
+    - parent_company_id
+    - phone_number
+    - role
+    - updated_at
+    filter: {}
+  role: bank_read_only
+- permission:
+    columns:
+    - company_id
+    - created_at
+    - email
+    - first_name
+    - full_name
+    - id
+    - is_deleted
+    - last_name
+    - parent_company_id
+    - phone_number
+    - role
+    - updated_at
+    filter:
+      _or:
+      - company_id:
+          _eq: X-Hasura-Company-Id
+      - parent_company_id:
+          _eq: X-Hasura-Parent-Company-Id
+  role: company_admin
+- permission:
+    columns:
+    - company_id
+    - created_at
+    - email
+    - first_name
+    - full_name
+    - id
+    - is_deleted
+    - last_name
+    - parent_company_id
+    - phone_number
+    - role
+    - updated_at
+    filter:
+      _or:
+      - company_id:
+          _eq: X-Hasura-Company-Id
+      - parent_company_id:
+          _eq: X-Hasura-Parent-Company-Id
+  role: company_read_only
+update_permissions:
+- permission:
+    check: null
+    columns:
+    - email
+    - first_name
+    - last_name
+    - phone_number
+    - role
+    filter: {}
+  role: bank_admin
+- permission:
+    check: null
+    columns:
+    - first_name
+    - last_name
+    - phone_number
+    filter:
+      _or:
+      - company_id:
+          _eq: X-Hasura-Company-Id
+      - parent_company_id:
+          _eq: X-Hasura-Parent-Company-Id
+  role: company_admin

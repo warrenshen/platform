@@ -1,0 +1,194 @@
+table:
+  name: payments
+  schema: public
+object_relationships:
+- name: company
+  using:
+    foreign_key_constraint_on: company_id
+- name: company_bank_account
+  using:
+    foreign_key_constraint_on: company_bank_account_id
+- name: invoice
+  using:
+    manual_configuration:
+      column_mapping:
+        id: payment_id
+      insertion_order: null
+      remote_table:
+        name: invoices
+        schema: public
+- name: recipient_bank_account
+  using:
+    foreign_key_constraint_on: recipient_bank_account_id
+- name: settled_by_user
+  using:
+    foreign_key_constraint_on: settled_by_user_id
+- name: submitted_by_user
+  using:
+    foreign_key_constraint_on: submitted_by_user_id
+array_relationships:
+- name: transactions
+  using:
+    foreign_key_constraint_on:
+      column: payment_id
+      table:
+        name: transactions
+        schema: public
+select_permissions:
+- permission:
+    columns:
+    - amount
+    - bank_note
+    - company_bank_account_id
+    - company_id
+    - created_at
+    - customer_note
+    - deposit_date
+    - id
+    - identifier
+    - is_deleted
+    - items_covered
+    - method
+    - originating_payment_id
+    - payment_date
+    - recipient_bank_account_id
+    - requested_amount
+    - requested_by_user_id
+    - requested_payment_date
+    - reversed_at
+    - settled_at
+    - settled_by_user_id
+    - settlement_date
+    - settlement_identifier
+    - submitted_at
+    - submitted_by_user_id
+    - type
+    - updated_at
+    filter: {}
+  role: bank_admin
+- permission:
+    columns:
+    - amount
+    - bank_note
+    - company_bank_account_id
+    - company_id
+    - created_at
+    - customer_note
+    - deposit_date
+    - id
+    - identifier
+    - is_deleted
+    - items_covered
+    - method
+    - originating_payment_id
+    - payment_date
+    - recipient_bank_account_id
+    - requested_amount
+    - requested_by_user_id
+    - requested_payment_date
+    - reversed_at
+    - settled_at
+    - settled_by_user_id
+    - settlement_date
+    - settlement_identifier
+    - submitted_at
+    - submitted_by_user_id
+    - type
+    - updated_at
+    filter: {}
+  role: bank_read_only
+- permission:
+    columns:
+    - amount
+    - company_bank_account_id
+    - company_id
+    - created_at
+    - customer_note
+    - deposit_date
+    - id
+    - identifier
+    - is_deleted
+    - items_covered
+    - method
+    - originating_payment_id
+    - payment_date
+    - requested_amount
+    - requested_by_user_id
+    - requested_payment_date
+    - reversed_at
+    - settled_at
+    - settlement_date
+    - settlement_identifier
+    - submitted_at
+    - submitted_by_user_id
+    - type
+    filter:
+      company_id:
+        _eq: X-Hasura-Company-Id
+  role: company_admin
+- permission:
+    columns:
+    - amount
+    - company_bank_account_id
+    - company_id
+    - created_at
+    - customer_note
+    - deposit_date
+    - id
+    - identifier
+    - is_deleted
+    - items_covered
+    - method
+    - originating_payment_id
+    - payment_date
+    - requested_amount
+    - requested_by_user_id
+    - requested_payment_date
+    - reversed_at
+    - settled_at
+    - settlement_date
+    - settlement_identifier
+    - submitted_at
+    - submitted_by_user_id
+    - type
+    filter:
+      company_id:
+        _eq: X-Hasura-Company-Id
+  role: company_read_only
+event_triggers:
+- definition:
+    delete:
+      columns: "*"
+    enable_manual: true
+    insert:
+      columns: "*"
+    update:
+      columns:
+      - method
+      - type
+      - created_at
+      - updated_at
+      - company_bank_account_id
+      - company_id
+      - id
+      - settled_by_user_id
+      - submitted_by_user_id
+      - items_covered
+      - requested_amount
+      - amount
+      - requested_payment_date
+      - deposit_date
+      - payment_date
+      - settlement_date
+      - requested_by_user_id
+      - settled_at
+      - submitted_at
+  headers:
+  - name: x-api-key
+    value_from_env: ASYNC_SERVER_API_KEY
+  name: payments_changed
+  retry_conf:
+    interval_sec: 10
+    num_retries: 0
+    timeout_sec: 60
+  webhook: "{{ASYNC_SERVER_BASE_URL}}/triggers/set_dirty_company_balances_view"
