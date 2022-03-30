@@ -383,3 +383,14 @@ fragment OpenLoanForDebtFacility on loans {
     id
   }
 }
+
+fragment DebtFacilityEvent on debt_facility_events {
+  id
+  company_id
+  loan_report_id
+  event_amount
+  event_category
+  event_comments
+  event_date
+  event_payload
+}

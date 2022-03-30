@@ -7,6 +7,7 @@ import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import Modal from "components/Shared/Modal/Modal";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
+import DebtFacilityEventsDataGrid from "components/DebtFacility/DebtFacilityEventsDataGrid";
 import TransactionsDataGrid from "components/Transactions/TransactionsDataGrid";
 import {
   CurrentUserContext,
@@ -16,6 +17,7 @@ import { BankAccounts, useGetLoansByLoanIdsQuery } from "generated/graphql";
 import {
   Loans,
   LoanTypeEnum,
+  useGetDebtFacilityEventsByLoanReportIdQuery,
   useGetLoanWithArtifactForBankQuery,
   useGetLoanWithArtifactForCustomerQuery,
   useGetAdvancesBankAccountsForCustomerQuery,
@@ -28,6 +30,7 @@ import {
   LoanPaymentStatusEnum,
   LoanStatusEnum,
   LoanTypeToLabel,
+  UUIDEnum,
 } from "lib/enum";
 import {
   createLoanCustomerIdentifier,
@@ -126,6 +129,28 @@ export default function LoanDrawer({ loanId, handleClose }: Props) {
       `Error in query (details in console): ${advancesBankAccountError.message}`
     );
   }
+
+  const debtFacilityName = bankLoan?.loan_report?.debt_facility?.name || "-";
+  const loanReportId = bankLoan?.loan_report?.id || UUIDEnum.None;
+
+  const {
+    data: debtFacilityEventsData,
+    error: debtFacilityEventsError,
+  } = useGetDebtFacilityEventsByLoanReportIdQuery({
+    skip: !isBankUser,
+    variables: {
+      loan_report_id: loanReportId,
+    },
+  });
+
+  if (debtFacilityEventsError) {
+    console.error({ error: debtFacilityEventsError });
+    alert(
+      `Error in query (details in console): ${debtFacilityEventsError.message}`
+    );
+  }
+
+  const debtFacilityEvents = debtFacilityEventsData?.debt_facility_events || [];
 
   if (!loan) {
     return null;
@@ -425,6 +450,32 @@ export default function LoanDrawer({ loanId, handleClose }: Props) {
           </Typography>
           <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
             <TransactionsDataGrid isMiniTable transactions={transactions} />
+          </Box>
+        </Box>
+      )}
+      {isBankUser && !!debtFacilityEvents && (
+        <Box>
+          <Box mt={2}>
+            <Typography variant="subtitle2" color="textSecondary">
+              Debt Facility
+            </Typography>
+            <Typography variant={"body1"}>{debtFacilityName}</Typography>
+          </Box>
+          <Box mt={2}>
+            <Typography variant="subtitle2" color="textSecondary">
+              Debt Facility Events
+            </Typography>
+            <Box
+              flex={1}
+              display="flex"
+              flexDirection="column"
+              overflow="scroll"
+            >
+              <DebtFacilityEventsDataGrid
+                isLoanEvent
+                events={debtFacilityEvents}
+              />
+            </Box>
           </Box>
         </Box>
       )}

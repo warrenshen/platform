@@ -21,6 +21,12 @@ query GetLoanWithArtifactForBank($id: uuid!) {
   loans_by_pk(id: $id) {
     ...Loan
     ...LoanArtifact
+    loan_report {
+      ...LoanReport
+      debt_facility {
+        ...DebtFacilityLimited
+      }
+    }
   }
 }
 

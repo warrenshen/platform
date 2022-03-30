@@ -540,6 +540,20 @@ export const DebtFacilityTabLabels: DebtFacilityTabLabelType[] = [
   DebtFacilityTabLabel.Admin,
 ];
 
+export enum DebtFacilityEventCategoryEnum {
+  Waiver = "waiver",
+  Repurchase = "repurchase",
+  MoveToDebtFacility = "move_to_debt_facility",
+  CompanyStatusChange = "company_status_change",
+}
+
+export const DebtFacilityEventCategoryToLabel = {
+  [DebtFacilityEventCategoryEnum.Waiver]: "Waiver",
+  [DebtFacilityEventCategoryEnum.Repurchase]: "Repurchase",
+  [DebtFacilityEventCategoryEnum.MoveToDebtFacility]: "Move to Debt Facility",
+  [DebtFacilityEventCategoryEnum.CompanyStatusChange]: "Company Status Change",
+};
+
 export enum MetrcTabLabel {
   MetrcApiKeys = "Metrc Api Keys",
   MetrcTransfers = "Metrc Transfers",

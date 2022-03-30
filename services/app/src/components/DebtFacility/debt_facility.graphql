@@ -122,3 +122,13 @@ subscription GetDebtFacilityCurrentCapacity($target_facility_id: uuid!) {
     }
   }
 }
+
+query GetDebtFacilityEventsByLoanReportId($loan_report_id: uuid!) {
+  debt_facility_events(
+    where: { loan_report_id: { _eq: $loan_report_id }}
+    order_by: { event_date: desc }
+  ) {
+    ...DebtFacilityEvent
+  }
+}
+

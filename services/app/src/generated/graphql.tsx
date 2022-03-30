@@ -25515,6 +25515,14 @@ export type GetDebtFacilityCurrentCapacitySubscription = {
   >;
 };
 
+export type GetDebtFacilityEventsByLoanReportIdQueryVariables = Exact<{
+  loan_report_id: Scalars["uuid"];
+}>;
+
+export type GetDebtFacilityEventsByLoanReportIdQuery = {
+  debt_facility_events: Array<DebtFacilityEventFragment>;
+};
+
 export type GetEbbaApplicationQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -25821,7 +25829,16 @@ export type GetLoanWithArtifactForBankQueryVariables = Exact<{
 }>;
 
 export type GetLoanWithArtifactForBankQuery = {
-  loans_by_pk?: Maybe<LoanFragment & LoanArtifactFragment>;
+  loans_by_pk?: Maybe<
+    {
+      loan_report?: Maybe<
+        {
+          debt_facility?: Maybe<DebtFacilityLimitedFragment>;
+        } & LoanReportFragment
+      >;
+    } & LoanFragment &
+      LoanArtifactFragment
+  >;
 };
 
 export type GetTransactionsForLoanQueryVariables = Exact<{
@@ -27645,6 +27662,18 @@ export type OpenLoanForDebtFacilityFragment = {
   transactions: Array<Pick<Transactions, "id">>;
 } & LoanForDebtFacilityFragment;
 
+export type DebtFacilityEventFragment = Pick<
+  DebtFacilityEvents,
+  | "id"
+  | "company_id"
+  | "loan_report_id"
+  | "event_amount"
+  | "event_category"
+  | "event_comments"
+  | "event_date"
+  | "event_payload"
+>;
+
 export type CompanySettingsLimitedFragment = Pick<
   CompanySettings,
   | "id"
@@ -28933,6 +28962,18 @@ export const OpenLoanForDebtFacilityFragmentDoc = gql`
   ${DebtFacilityLimitedFragmentDoc}
   ${PurchaseOrderForDebtFacilityFragmentDoc}
   ${InvoiceFragmentDoc}
+`;
+export const DebtFacilityEventFragmentDoc = gql`
+  fragment DebtFacilityEvent on debt_facility_events {
+    id
+    company_id
+    loan_report_id
+    event_amount
+    event_category
+    event_comments
+    event_date
+    event_payload
+  }
 `;
 export const GetAdvancesDocument = gql`
   subscription GetAdvances {
@@ -30712,6 +30753,66 @@ export type GetDebtFacilityCurrentCapacitySubscriptionHookResult = ReturnType<
   typeof useGetDebtFacilityCurrentCapacitySubscription
 >;
 export type GetDebtFacilityCurrentCapacitySubscriptionResult = Apollo.SubscriptionResult<GetDebtFacilityCurrentCapacitySubscription>;
+export const GetDebtFacilityEventsByLoanReportIdDocument = gql`
+  query GetDebtFacilityEventsByLoanReportId($loan_report_id: uuid!) {
+    debt_facility_events(
+      where: { loan_report_id: { _eq: $loan_report_id } }
+      order_by: { event_date: desc }
+    ) {
+      ...DebtFacilityEvent
+    }
+  }
+  ${DebtFacilityEventFragmentDoc}
+`;
+
+/**
+ * __useGetDebtFacilityEventsByLoanReportIdQuery__
+ *
+ * To run a query within a React component, call `useGetDebtFacilityEventsByLoanReportIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetDebtFacilityEventsByLoanReportIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetDebtFacilityEventsByLoanReportIdQuery({
+ *   variables: {
+ *      loan_report_id: // value for 'loan_report_id'
+ *   },
+ * });
+ */
+export function useGetDebtFacilityEventsByLoanReportIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetDebtFacilityEventsByLoanReportIdQuery,
+    GetDebtFacilityEventsByLoanReportIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetDebtFacilityEventsByLoanReportIdQuery,
+    GetDebtFacilityEventsByLoanReportIdQueryVariables
+  >(GetDebtFacilityEventsByLoanReportIdDocument, baseOptions);
+}
+export function useGetDebtFacilityEventsByLoanReportIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetDebtFacilityEventsByLoanReportIdQuery,
+    GetDebtFacilityEventsByLoanReportIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetDebtFacilityEventsByLoanReportIdQuery,
+    GetDebtFacilityEventsByLoanReportIdQueryVariables
+  >(GetDebtFacilityEventsByLoanReportIdDocument, baseOptions);
+}
+export type GetDebtFacilityEventsByLoanReportIdQueryHookResult = ReturnType<
+  typeof useGetDebtFacilityEventsByLoanReportIdQuery
+>;
+export type GetDebtFacilityEventsByLoanReportIdLazyQueryHookResult = ReturnType<
+  typeof useGetDebtFacilityEventsByLoanReportIdLazyQuery
+>;
+export type GetDebtFacilityEventsByLoanReportIdQueryResult = Apollo.QueryResult<
+  GetDebtFacilityEventsByLoanReportIdQuery,
+  GetDebtFacilityEventsByLoanReportIdQueryVariables
+>;
 export const GetEbbaApplicationDocument = gql`
   query GetEbbaApplication($id: uuid!) {
     ebba_applications_by_pk(id: $id) {
@@ -32241,10 +32342,18 @@ export const GetLoanWithArtifactForBankDocument = gql`
     loans_by_pk(id: $id) {
       ...Loan
       ...LoanArtifact
+      loan_report {
+        ...LoanReport
+        debt_facility {
+          ...DebtFacilityLimited
+        }
+      }
     }
   }
   ${LoanFragmentDoc}
   ${LoanArtifactFragmentDoc}
+  ${LoanReportFragmentDoc}
+  ${DebtFacilityLimitedFragmentDoc}
 `;
 
 /**
