@@ -407,9 +407,9 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 			session.query(models.Payment).filter(
 				models.Payment.company_id == company_id
 			).filter(
-				models.Payment.payment_date >= rgc.report_month_first_day
+				models.Payment.settlement_date >= rgc.report_month_first_day
 			).filter(
-				models.Payment.payment_date <= rgc.report_month_last_day
+				models.Payment.settlement_date <= rgc.report_month_last_day
 			).filter(
 				models.Payment.type == PaymentType.REPAYMENT
 			).filter(
