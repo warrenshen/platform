@@ -1,19 +1,12 @@
 import json
-from datetime import timedelta
-from typing import Any, List, cast
+from typing import Any, cast
 
-from bespoke import errors
-from bespoke.audit import events
 from bespoke.companies import licenses_util
-from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
-from dateutil import parser
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
-from mypy_extensions import TypedDict
 from server.config import Config
 from server.views.common import auth_util, handler_util
-from server.views.common.auth_util import UserSession
 
 handler = Blueprint('licenses', __name__)
 
@@ -22,8 +15,6 @@ class AddLicensesView(MethodView):
 
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
-		cfg = cast(Config, current_app.app_config)
-		user_session = auth_util.UserSession.from_session()
 
 		form = json.loads(request.data)
 		if not form:
@@ -123,16 +114,13 @@ class DeleteLicenseView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
 	@handler_util.catch_bad_json_request
-	def post(self, **kwargs: Any) -> Response:
-		cfg = cast(Config, current_app.app_config)
-		user_session = auth_util.UserSession.from_session()
-
+	def post(self) -> Response:
 		form = json.loads(request.data)
 		if not form:
 			return handler_util.make_error_response('No data provided')
 
 		required_keys = [
-			'company_id', 'file_id'
+			'license_id'
 		]
 		for key in required_keys:
 			if key not in form:
@@ -140,9 +128,8 @@ class DeleteLicenseView(MethodView):
 					'Missing key {} in request'.format(key))
 
 		with session_scope(current_app.session_maker) as session:
-			success, err = licenses_util.delete_license(
-				company_id=form['company_id'],
-				file_id=form['file_id'],
+			_, err = licenses_util.delete_license(
+				license_id=form['license_id'],
 				session=session
 			)
 			if err:
@@ -151,6 +138,7 @@ class DeleteLicenseView(MethodView):
 		return make_response(json.dumps({
 			'status': 'OK'
 		}), 200)
+
 
 handler.add_url_rule(
 	'/create_update_license', view_func=CreateUpdateLicenseView.as_view(name='create_update_license_view'))

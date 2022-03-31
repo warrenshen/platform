@@ -12,7 +12,7 @@ from bespoke.db.db_constants import DBOperation
 from bespoke.db.models import session_scope
 from bespoke.db import metrc_models_util
 from bespoke.db.metrc_models_util import (
-	CompanyDeliveryObj, MetrcDeliveryObj, MetrcTransferObj
+	CompanyDeliveryObj 
 )
 
 
@@ -259,32 +259,21 @@ def bulk_update_licenses(
 
 
 @errors.return_error_tuple
-def delete_license(
-	company_id: str,
-	file_id: str,
-	session: Session,
-) -> Tuple[bool, errors.Error]:
+def delete_license(license_id: str, session: Session) -> Tuple[str, errors.Error]:
+	license = cast(models.CompanyLicense, session.query(models.CompanyLicense).get(
+		license_id
+	))
 
-	if not company_id:
-		raise errors.Error('Company ID is required')
+	if not license:
+		raise errors.Error('No license found in DB matching license ID: ' + license_id)
+	if license.is_underwriting_enabled:
+		raise errors.Error('Cannot delete a license that is underwriting enabled')
+	if license.facility_row_id != None:
+		raise errors.Error('Cannot delete a license that is attached to a facility')
 
-	if not file_id:
-		raise errors.Error('File ID is required')
+	license.is_deleted = True 
 
-	existing_license = cast(
-		List[models.CompanyLicense],
-		session.query(models.CompanyLicense).filter(
-			models.CompanyLicense.company_id == company_id
-		).filter(
-			models.CompanyLicense.file_id == file_id
-		).first())
-
-	if not existing_license:
-		raise errors.Error('No file to delete could be found')
-
-	cast(Callable, session.delete)(existing_license)
-
-	return True, None
+	return str(license.id), None
 
 def populate_vendor_details(
 	company_delivery_objs: List[CompanyDeliveryObj],
@@ -528,3 +517,4 @@ def update_metrc_rows_on_license_change(
 		_update_metrc_rows_based_on_recipient(company_id, mod['op'], mod['license_number'], session)
 
 	return True, None
+	

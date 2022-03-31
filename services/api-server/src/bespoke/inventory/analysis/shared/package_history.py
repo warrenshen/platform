@@ -355,7 +355,7 @@ class PackageHistory(object):
 					self.should_exclude = True
 					self.exclude_reason = ExcludeReason.INCOMING_MISSING_QUANTITY
 					if in_debug_mode:
-						logging.info(f'WARN: incoming package #{self.package_id} does not have a quantity', package_id=self.package_id)
+						logging.info(f'WARN: incoming package #{self.package_id} does not have a quantity', package_id=self.package_id) # type:ignore
 					return False
 
 				shipped_quantity = incoming_pkg['quantity']
@@ -381,7 +381,7 @@ class PackageHistory(object):
 					self.should_exclude = True
 					self.exclude_reason = ExcludeReason.INCOMING_MISSING_PRICE
 					if in_debug_mode:
-						logging.info(f'WARN: incoming package #{self.package_id} does not have a price', package_id=self.package_id)
+						logging.info(f'WARN: incoming package #{self.package_id} does not have a price', package_id=self.package_id) # type:ignore
 					return False
 
 				shipment_package_state = incoming_pkg['shipment_package_state']
@@ -411,7 +411,7 @@ class PackageHistory(object):
 					self.should_exclude = True
 					self.exclude_reason = ExcludeReason.OUTGOING_MISSING_QUANTITY
 					if in_debug_mode:
-						logging.info(f'WARN: outgoing package #{self.package_id} does not have a outgoing shipped quantity', package_id=self.package_id)
+						logging.info(f'WARN: outgoing package #{self.package_id} does not have a outgoing shipped quantity', package_id=self.package_id)  # type:ignore
 					return False
 
 				shipped_quantity = float(incoming_pkg['quantity'])

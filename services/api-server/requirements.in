@@ -14,7 +14,7 @@ Flask-Cors==3.0.9
 # DAGs - pipeline creators
 dagit==0.12.3
 dagster==0.12.3
-ray==1.9.0
+typed-ray==0.2.6
 psutil==5.8.0
 
 # DB
@@ -28,9 +28,13 @@ google-cloud-storage==2.1.0
 sqlalchemy-bigquery==1.2.0
 
 # Typing
-mypy==0.800
+mypy==0.931
 sqlalchemy-stubs==0.4
 fastapi-utils==0.2.1
+types-pytz==2021.3.6
+types-requests==2.27.14
+types-python-dateutil==2.8.10
+types-Flask==1.1.6
 
 # Security
 safety==1.9.0

@@ -17,6 +17,7 @@ import {
 } from "generated/graphql";
 import { ActionType } from "lib/enum";
 import { useMemo, useState } from "react";
+import DeleteLicenseModal from "components/CompanyLicenses/DeleteLicenseModal";
 
 function CompanyFacilitiesSection({
   companyId,
@@ -141,8 +142,8 @@ function CompanyLicensesSection({
             modal={({ handleClose }) => (
               <CreateUpdateCompanyLicenseModal
                 actionType={ActionType.New}
-                companyId={companyId}
                 companyLicenseId={null}
+                companyId={companyId}
                 handleClose={() => {
                   refetch();
                   handleClose();
@@ -169,8 +170,24 @@ function CompanyLicensesSection({
             )}
           />
         </Box>
+        <Box mr={2}>
+          <ModalButton
+            isDisabled={selectedCompanyLicensesIds.length !== 1}
+            label={"Delete License"}
+            variant={"outlined"}
+            modal={({ handleClose }) => (
+              <DeleteLicenseModal
+                licenseId={selectedCompanyLicensesIds[0]}
+                handleClose={() => {
+                  refetch();
+                  handleClose();
+                }}
+              />
+            )}
+          />
+        </Box>
       </Box>
-      <Box>
+      <Box data-cy="company-license-table-container">
         <CompanyLicensesDataGrid
           isUnderwritingInfoVisible
           companyLicenses={companyLicenses}

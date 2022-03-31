@@ -2,10 +2,7 @@
 subscription GetPurchaseOrders {
   purchase_orders(
     where: {
-      _or: [
-        { is_deleted: { _is_null: true } }, 
-        { is_deleted: { _eq: false } }
-      ]
+      _or: [{ is_deleted: { _is_null: true } }, { is_deleted: { _eq: false } }]
     }
     order_by: [{ updated_at: desc }]
   ) {
@@ -44,6 +41,7 @@ subscription GetNotConfirmedPurchaseOrders {
         }
         { approved_at: { _is_null: true } }
         { incompleted_at: { _is_null: true } }
+        { requested_at: { _is_null: false } }
       ]
     }
     order_by: [{ requested_at: desc }, { created_at: desc }]

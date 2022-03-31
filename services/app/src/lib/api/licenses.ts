@@ -2,7 +2,6 @@ import {
   Companies,
   CompanyLicenses,
   CompanyLicensesInsertInput,
-  Files,
 } from "generated/graphql";
 import {
   authenticatedApi,
@@ -68,23 +67,16 @@ export async function createUpdateLicensesMutation(
     );
 }
 
-export type DeleteLicenseReq = {
+export async function deleteLicenseMutation(req: {
   variables: {
-    company_id: Companies["id"];
-    file_id: Files["id"];
+    license_id: CompanyLicenses["id"];
   };
-};
-
-export async function deleteLicenseMutation(
-  req: DeleteLicenseReq
-): Promise<CustomMutationResponse> {
+}): Promise<CustomMutationResponse> {
   return authenticatedApi
     .post(licenseRoutes.deleteLicense, req.variables)
-    .then((res) => {
-      return res.data;
-    })
+    .then((res) => res.data)
     .then(
-      (response) => response,
+      (res) => res,
       (error) => {
         console.log("error", error);
         return {

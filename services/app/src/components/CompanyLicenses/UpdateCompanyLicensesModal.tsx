@@ -82,6 +82,7 @@ function CompanyLicenseForm({
         mb={2}
       >
         <TextField
+          data-cy="license-number-input"
           required
           disabled={!!companyLicense.id}
           label={"License #"}
@@ -213,25 +214,28 @@ export default function UpdateCompanyLicensesModal({
             Two options to add a license to this company:
           </Typography>
         </Box>
-        <Box mt={2}>
-          <Button
-            variant={"outlined"}
-            color={"default"}
-            onClick={() =>
-              setCompanyLicenses([
-                ...companyLicenses,
-                {
-                  id: null,
-                  company_id: companyId,
-                  file_id: null,
-                  license_number: null,
-                },
-              ])
-            }
-          >
-            New License
-          </Button>
-        </Box>
+        {!isCompanyLicensesLoading && (
+          <Box mt={2}>
+            <Button
+              data-cy="add-license-button"
+              variant={"outlined"}
+              color={"default"}
+              onClick={() =>
+                setCompanyLicenses([
+                  ...companyLicenses,
+                  {
+                    id: null,
+                    company_id: companyId,
+                    file_id: null,
+                    license_number: null,
+                  },
+                ])
+              }
+            >
+              New License
+            </Button>
+          </Box>
+        )}
         <Box mt={2}>
           <Typography variant="body1">OR</Typography>
         </Box>

@@ -149,7 +149,7 @@ export default function CreateUpdateCompanyLicenseModal({
       handleClose={handleClose}
       handlePrimaryAction={handleClickSubmit}
     >
-      {!companyLicense.id && (
+      {!isActionTypeUpdate && (
         <>
           <Box mt={2}>
             <Typography variant="body1">
@@ -188,6 +188,7 @@ export default function CreateUpdateCompanyLicenseModal({
       <Box display="flex" flexDirection="column" mt={2}>
         <TextField
           required
+          data-cy="company-license-number-input"
           disabled={!!companyLicense.id}
           label={"License Number"}
           value={companyLicense.license_number}
@@ -257,6 +258,7 @@ export default function CreateUpdateCompanyLicenseModal({
         <FormControlLabel
           control={
             <Checkbox
+              data-cy="company-license-is-underwriting-enabled-checkbox"
               checked={!!companyLicense.is_underwriting_enabled}
               onChange={(event: ChangeEvent<HTMLInputElement>) =>
                 setCompanyLicense({

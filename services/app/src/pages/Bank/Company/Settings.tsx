@@ -1,3 +1,4 @@
+import { useState, useMemo } from "react";
 import {
   Box,
   Checkbox,
@@ -7,6 +8,8 @@ import {
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import CompanyLicensesDataGrid from "components/CompanyLicenses/CompanyLicensesDataGrid";
+import DeleteLicenseModal from "components/CompanyLicenses/DeleteLicenseModal";
+import UpdateCompanyLicensesModal from "components/CompanyLicenses/UpdateCompanyLicensesModal";
 import ChangeIsDummyAccountModal from "components/Settings/Bank/ChangeIsDummyAccountModal";
 import UpsertCustomMessagesModal from "components/Settings/Bank/UpsertCustomMessagesModal";
 import UpsertFeatureFlagsModal from "components/Settings/Bank/UpsertFeatureFlagsModal";
@@ -15,10 +18,11 @@ import AssignAdvancesBespokeBankAccount from "components/Shared/BankAssignment/A
 import AssignCollectionsBespokeBankAccount from "components/Shared/BankAssignment/AssignCollectionsBespokeBankAccount";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import PageContent from "components/Shared/Page/PageContent";
-import UpdateCompanyLicensesModal from "components/CompanyLicenses/UpdateCompanyLicensesModal";
 import UpdateThirdPartyCompanySettingsModal from "components/ThirdParties/UpdateThirdPartyCompanySettingsModal";
 import {
   Companies,
+  CompanyLicenseFragment,
+  CompanyLicenses,
   ContractFragment,
   useGetCompanyForBankQuery,
 } from "generated/graphql";
@@ -39,12 +43,23 @@ interface Props {
 }
 
 export default function BankCustomerSettingsSubpage({ companyId }: Props) {
+  const [selectedLicensesId, setSelectedLicensesId] = useState<
+    CompanyLicenses["id"][]
+  >([]);
+
   const { data, refetch, error } = useGetCompanyForBankQuery({
     fetchPolicy: "network-only",
     variables: {
       companyId,
     },
   });
+
+  const handleSelectLicenses = useMemo(
+    () => (licenses: CompanyLicenseFragment[]) => {
+      setSelectedLicensesId(licenses.map((license) => license.id));
+    },
+    []
+  );
 
   if (error) {
     console.error({ error });
@@ -124,16 +139,9 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
           </Box>
         </Box>
         <Box mt={4}>
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            mb={2}
-          >
-            <Typography variant="h6">
-              <strong>Licenses</strong>
-            </Typography>
-            <Box display="flex" flexDirection="row-reverse">
+          <Typography variant="h5">Licenses</Typography>
+          <Box display="flex" flexDirection="row-reverse">
+            <Box mr={2}>
               <ModalButton
                 label={"Edit Licenses"}
                 modal={({ handleClose }) => (
@@ -147,9 +155,29 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
                 )}
               />
             </Box>
+            <Box mr={2}>
+              <ModalButton
+                isDisabled={selectedLicensesId.length !== 1}
+                label={"Delete License"}
+                variant={"outlined"}
+                modal={({ handleClose }) => (
+                  <DeleteLicenseModal
+                    licenseId={selectedLicensesId[0]}
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                    }}
+                  />
+                )}
+              />
+            </Box>
           </Box>
-          <Box>
-            <CompanyLicensesDataGrid companyLicenses={companyLicenses} />
+          <Box display="flex" mt={3} data-cy="company-license-table-container">
+            <CompanyLicensesDataGrid
+              selectedCompanyLicensesIds={selectedLicensesId}
+              handleSelectCompanyLicenses={handleSelectLicenses}
+              companyLicenses={companyLicenses}
+            />
           </Box>
         </Box>
         <Box mt={4}>

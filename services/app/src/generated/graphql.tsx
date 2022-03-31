@@ -34185,6 +34185,7 @@ export const GetNotConfirmedPurchaseOrdersDocument = gql`
           }
           { approved_at: { _is_null: true } }
           { incompleted_at: { _is_null: true } }
+          { requested_at: { _is_null: false } }
         ]
       }
       order_by: [{ requested_at: desc }, { created_at: desc }]
