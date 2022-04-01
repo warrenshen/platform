@@ -29719,6 +29719,7 @@ export const GetCompanyLicenseRelationsByCompanyIdDocument = gql`
             { is_deleted: { _eq: false } }
           ]
         }
+        order_by: { name: asc }
       ) {
         id
         ...CompanyFacility

@@ -100,7 +100,7 @@ fragment CompanyForDebtFacility on companies {
         { is_deleted: { _is_null: true } }
         { is_deleted: { _eq: false } }
       ]
-    },
+    }
     order_by: { created_at: desc }
   ) {
     id
