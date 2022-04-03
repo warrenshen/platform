@@ -7,7 +7,7 @@ from bespoke import errors
 from bespoke.companies import create_user_util
 from bespoke.date import date_util
 from bespoke.db import models, db_constants
-from bespoke.db.db_constants import CompanyType, TwoFactorMessageMethod, UserRoles
+from bespoke.db.db_constants import CompanyDebtFacilityStatus, CompanyType, TwoFactorMessageMethod, UserRoles
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util
 from mypy_extensions import TypedDict
@@ -121,6 +121,7 @@ def _create_company(
 		identifier=identifier,
 		dba_name=dba_name,
 		company_settings_id=company_settings_id,
+		debt_facility_status=CompanyDebtFacilityStatus.GOOD_STANDING,
 	)
 
 	session.add(company)
