@@ -170,7 +170,6 @@ export const reportsRoutes = {
 };
 
 export const debtFacilityRoutes = {
-  updateCapacity: "/debt_facility/update_capacity",
   createUpdateFacility: "debt_facility/create_update_facility",
   updateCompanyStatus: "debt_facility/update_company_status",
   moveLoans: "debt_facility/move_loans",

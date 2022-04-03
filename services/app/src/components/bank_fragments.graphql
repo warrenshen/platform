@@ -341,15 +341,34 @@ fragment MetrcDownloadSummary on metrc_download_summaries {
   err_details
 }
 
-fragment DebtFacilityLimited on debt_facilities {
+fragment DebtFacility on debt_facilities {
   id
   name
   product_types
+  maximum_capacities: debt_facility_capacities (
+    order_by: [{ changed_at: desc }],
+    where: {
+      capacity_type: { _eq: "maximum" }
+    }
+  ) {
+    id
+    ...DebtFacilityCapacityLimited
+  }
+  drawn_capacities: debt_facility_capacities (
+    order_by: [{ changed_at: desc }],
+    where: {
+      capacity_type: { _eq: "drawn" }
+    }
+  ) {
+    id
+    ...DebtFacilityCapacityLimited
+  }
 }
 
 fragment DebtFacilityCapacityLimited on debt_facility_capacities {
   id
   amount
+  capacity_type
   changed_at
   changed_by
   debt_facility_id
@@ -362,7 +381,7 @@ fragment OpenLoanForDebtFacility on loans {
     ...LoanReport
     debt_facility {
       id
-      ...DebtFacilityLimited
+      ...DebtFacility
     }
   }
   purchase_order {

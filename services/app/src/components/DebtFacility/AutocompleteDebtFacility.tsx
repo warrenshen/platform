@@ -2,13 +2,13 @@ import { Box, TextField } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import {
-  DebtFacilityLimitedFragment,
+  DebtFacilityFragment,
   useGetDebtFacilitiesSubscription,
 } from "generated/graphql";
 import { useMemo } from "react";
 
 interface Props {
-  onChange: (selectedDebtFacility: DebtFacilityLimitedFragment["id"]) => void;
+  onChange: (selectedDebtFacility: DebtFacilityFragment["id"]) => void;
   textFieldLabel: string;
   setupMessage?: string;
   productType?: string;

@@ -94,11 +94,14 @@ export default function MoveDebtFacilityLoanModal({
     console.error({ capacityError });
     alert(`Error in query (details in console): ${capacityError.message}`);
   }
+  const drawnCapacity =
+    capacityData?.debt_facilities[0]?.drawn_capacities[0]?.amount || 0.0;
+
   const maxCapacity =
-    capacityData?.debt_facilities[0]?.debt_facility_capacities[0]?.amount ||
-    0.0;
+    capacityData?.debt_facilities[0]?.maximum_capacities[0]?.amount || 0.0;
 
   const wouldMovePutFacilityOverCapacity =
+    totalPrincipalToMove + totalPrincipalAlreadyInUse > drawnCapacity ||
     totalPrincipalToMove + totalPrincipalAlreadyInUse > maxCapacity;
 
   const [moveLoans, { loading: isMoveLoansLoading }] = useCustomMutation(

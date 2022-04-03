@@ -1,4 +1,5 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import ListDataGridCell from "components/Shared/DataGrid/ListDataGridCell";
@@ -30,6 +31,12 @@ function getRows(facilities: Facilities): RowsProp {
           (product: string) => ProductTypeToLabel[product as ProductTypeEnum]
         )
       : [],
+    max_capacity: !!facility.maximum_capacities[0]?.amount
+      ? facility.maximum_capacities[0].amount
+      : 0,
+    drawn_capacity: !!facility.drawn_capacities[0]?.amount
+      ? facility.drawn_capacities[0].amount
+      : 0,
   }));
 }
 
@@ -59,10 +66,28 @@ export default function DebtFacilityCapacityDataGrid({
       {
         caption: "Product Types",
         dataField: "product_types",
-        width: ColumnWidths.MinWidth,
+        width: ColumnWidths.ProductType,
         alignment: "left",
         cellRender: (params: ValueFormatterParams) => (
           <ListDataGridCell values={params.row.data.supported_product_types} />
+        ),
+      },
+      {
+        caption: "Drawn Capacity",
+        dataField: "drawn_capacity",
+        width: ColumnWidths.Currency,
+        alignment: "center",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.drawn_capacity} />
+        ),
+      },
+      {
+        caption: "Max Capacity",
+        dataField: "max_capacity",
+        width: ColumnWidths.Currency,
+        alignment: "center",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.max_capacity} />
         ),
       },
     ],

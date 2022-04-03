@@ -2,14 +2,11 @@ import { Box, Typography } from "@material-ui/core";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import { Action } from "lib/auth/rbac-rules";
-import DebtFacilityCapacityDataGrid from "components/DebtFacility/DebtFacilityCapacityDataGrid";
 import DebtFacilityDataGrid from "components/DebtFacility/DebtFacilityDataGrid";
-import UpdateDebtFacilityCapacityModal from "components/DebtFacility/UpdateDebtFacilityCapacityModal";
 import CreateUpdateDebtFacilityModal from "components/DebtFacility/CreateUpdateDebtFacilityModal";
 import {
-  DebtFacilities,
+  DebtFacilityFragment,
   GetDebtFacilitiesSubscription,
-  useGetDebtFacilityCapacitiesSubscription,
 } from "generated/graphql";
 import styled from "styled-components";
 import { useMemo, useState } from "react";
@@ -30,20 +27,8 @@ interface Props {
 }
 
 export default function DebtFacilityAdminTab({ facilities }: Props) {
-  const {
-    data: capacityData,
-    error: capacityError,
-  } = useGetDebtFacilityCapacitiesSubscription();
-  if (capacityError) {
-    console.error({ capacityError });
-    alert(`Error in query (details in console): ${capacityError.message}`);
-  }
-
-  const capacities = capacityData?.debt_facility_capacities || [];
-  const currentCapacity = capacities[0]?.amount || 0.0;
-
   const [selectedDebtFacilityIds, setSelectedDebtFacilityIds] = useState<
-    DebtFacilities["id"]
+    DebtFacilityFragment["id"]
   >([]);
 
   const selectedDebtFacility = useMemo(
@@ -65,31 +50,6 @@ export default function DebtFacilityAdminTab({ facilities }: Props) {
 
   return (
     <Container>
-      <Box display="flex" flexDirection="column">
-        <Typography variant="h6">Admin: Capacities</Typography>
-        <Box my={2} display="flex" flexDirection="row-reverse">
-          <Can perform={Action.UpdateDebtFacilityCapacity}>
-            <Box mr={2}>
-              <ModalButton
-                isDisabled={false}
-                label={"Update Debt Facility Capacity"}
-                modal={({ handleClose }) => {
-                  const handler = () => {
-                    handleClose();
-                  };
-                  return (
-                    <UpdateDebtFacilityCapacityModal
-                      currentCapacity={currentCapacity}
-                      handleClose={handler}
-                    />
-                  );
-                }}
-              />
-            </Box>
-          </Can>
-        </Box>
-        <DebtFacilityCapacityDataGrid capacities={capacities} />
-      </Box>
       <Box display="flex" flexDirection="column">
         <Typography variant="h6">Admin: Facilities</Typography>
         <Box my={2} display="flex" flexDirection="row-reverse">
@@ -127,7 +87,7 @@ export default function DebtFacilityAdminTab({ facilities }: Props) {
                       isUpdate={true}
                       handleClose={handler}
                       selectedDebtFacility={
-                        selectedDebtFacility as DebtFacilities
+                        selectedDebtFacility as DebtFacilityFragment
                       }
                     />
                   );

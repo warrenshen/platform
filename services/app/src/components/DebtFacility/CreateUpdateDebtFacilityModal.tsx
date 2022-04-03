@@ -8,18 +8,20 @@ import {
   TextField,
   Typography,
 } from "@material-ui/core";
+import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import Modal from "components/Shared/Modal/Modal";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { DebtFacilities } from "generated/graphql";
+import { DebtFacilityFragment } from "generated/graphql";
 import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
+import { formatCurrency } from "lib/number";
 import { createUpdateDebtFacility } from "lib/api/debtFacility";
 import { ChangeEvent, useState } from "react";
 
 interface Props {
   isUpdate: boolean;
   currentName?: string;
-  selectedDebtFacility: DebtFacilities | null;
+  selectedDebtFacility: DebtFacilityFragment | null;
   handleClose: () => void;
 }
 
@@ -32,6 +34,17 @@ export default function CreateUpdateDebtFacilityModal({
   const snackbar = useSnackbar();
   const [debtFacilityName, setDebtFacilityName] = useState(
     isUpdate ? currentName : ""
+  );
+
+  const [newMaximumCapacity, setNewMaximumCapacity] = useState(
+    !!selectedDebtFacility?.maximum_capacities[0]?.amount
+      ? selectedDebtFacility.maximum_capacities[0].amount
+      : 0
+  );
+  const [newDrawnCapacity, setNewDrawnCapacity] = useState(
+    !!selectedDebtFacility?.drawn_capacities[0]?.amount
+      ? selectedDebtFacility.drawn_capacities[0].amount
+      : 0
   );
 
   const supportedProductTypes =
@@ -75,6 +88,8 @@ export default function CreateUpdateDebtFacilityModal({
         name: debtFacilityName,
         id: selectedDebtFacility?.id || "",
         supported: selectedProducts,
+        newMaximumCapacity: newMaximumCapacity,
+        newDrawnCapacity: newDrawnCapacity,
       },
     });
 
@@ -88,6 +103,16 @@ export default function CreateUpdateDebtFacilityModal({
       handleClose();
     }
   };
+
+  const currentMaximumCapacity = !!selectedDebtFacility?.maximum_capacities[0]
+    ?.amount
+    ? formatCurrency(selectedDebtFacility.maximum_capacities[0].amount)
+    : "Not Set Yet";
+
+  const currentDrawnCapacity = !!selectedDebtFacility?.drawn_capacities[0]
+    ?.amount
+    ? formatCurrency(selectedDebtFacility.drawn_capacities[0].amount)
+    : "Not Set Yet";
 
   // Finally, actually render the one we'd like rendered
   return (
@@ -110,19 +135,55 @@ export default function CreateUpdateDebtFacilityModal({
           </Typography>
         </Box>
       )}
-      <Box display="flex" flexDirection="column" mt={1}>
+      <Box display="flex" flexDirection="column" mt={2}>
         <Typography variant="body2" color="textSecondary">
           Debt Facility Name
         </Typography>
-        <FormControl>
-          <TextField
-            label={"Name"}
-            value={debtFacilityName}
-            onChange={({ target: { value } }) => setDebtFacilityName(value)}
-          />
-        </FormControl>
+        <Box>
+          <FormControl>
+            <TextField
+              label={"Name"}
+              value={debtFacilityName}
+              onChange={({ target: { value } }) => setDebtFacilityName(value)}
+            />
+          </FormControl>
+        </Box>
       </Box>
-      <Box display="flex" flexDirection="column" mt={1}>
+      <Box display="flex" flexDirection="column" mt={4}>
+        <Typography variant="body2" color="textSecondary">
+          Current Maximum Capacity
+        </Typography>
+        <Typography variant="body2" color="textSecondary">
+          {currentMaximumCapacity}
+        </Typography>
+        <Box mt={2}>
+          <FormControl>
+            <CurrencyInput
+              label={"New Maximum Capacity"}
+              value={newMaximumCapacity}
+              handleChange={(value) => setNewMaximumCapacity(value ? value : 0)}
+            />
+          </FormControl>
+        </Box>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={4}>
+        <Typography variant="body2" color="textSecondary">
+          Current Drawn Capacity
+        </Typography>
+        <Typography variant="body2" color="textSecondary">
+          {currentDrawnCapacity}
+        </Typography>
+        <Box mt={2}>
+          <FormControl>
+            <CurrencyInput
+              label={"New Drawn Capacity"}
+              value={newDrawnCapacity}
+              handleChange={(value) => setNewDrawnCapacity(value ? value : 0)}
+            />
+          </FormControl>
+        </Box>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={4}>
         <Typography variant="body2" color="textSecondary">
           Supported Product Types
         </Typography>

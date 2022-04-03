@@ -245,6 +245,10 @@ class DebtFacilityEventCategory(object):
 	MOVE_TO_DEBT_FACILITY = 'move_to_debt_facility'
 	COMPANY_STATUS_CHANGE = 'company_status_change'
 
+class DebtFacilityCapacityTypeEnum(object):
+	DRAWN = 'drawn'
+	MAXIMUM = 'maximum'
+
 # Hasura
 
 class DBOperation(object):

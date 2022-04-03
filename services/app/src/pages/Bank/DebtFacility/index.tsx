@@ -9,7 +9,6 @@ import DebtFacilityAdminTab from "pages/Bank/DebtFacility/DebtFacilityAdminTab";
 import DebtFacilityCapacitySummary from "components/DebtFacility/DebtFacilityCapacitySummary";
 import {
   DebtFacilities,
-  useGetDebtFacilityCurrentCapacitiesSubscription,
   useGetOpenLoansByDebtFacilityStatusesSubscription,
   useGetDebtFacilitiesSubscription,
 } from "generated/graphql";
@@ -65,41 +64,6 @@ export default function BankDebtFacilityPage() {
   );
   const updateRequiredCount = loansWithRequiredUpdate.length;
 
-  // Get maximum capacity number
-  const {
-    data: capacityData,
-    error: capacityError,
-  } = useGetDebtFacilityCurrentCapacitiesSubscription();
-  if (capacityError) {
-    console.error({ capacityError });
-  }
-  const debtFacilities = capacityData?.debt_facilities || [];
-  const totalCapacity = debtFacilities
-    .map((facility) => {
-      return facility.debt_facility_capacities[0]?.amount;
-    })
-    .reduce((a, b) => a + b, 0);
-
-  // Get total of loans currently in the debt facility
-  const {
-    data: debtFacilityData,
-    error: debtFacilityError,
-  } = useGetOpenLoansByDebtFacilityStatusesSubscription({
-    variables: {
-      statuses: [DebtFacilityStatusEnum.SOLD_INTO_DEBT_FACILITY],
-    },
-  });
-  if (debtFacilityError) {
-    console.error({ debtFacilityError });
-    alert(`Error in query (details in console): ${debtFacilityError.message}`);
-  }
-  const debtFacilityLoans = debtFacilityData?.loans || [];
-  const currentUsage = debtFacilityLoans
-    .map((loan) => {
-      return loan.outstanding_principal_balance;
-    })
-    .reduce((a, b) => a + b, 0);
-
   // Get debt facilities to pass around for autocomplete and admin tab
   const {
     data: facilityData,
@@ -117,9 +81,9 @@ export default function BankDebtFacilityPage() {
       <PageContent title={"Debt Facility"}>
         <Container>
           <DebtFacilityCapacitySummary
-            currentUsage={currentUsage}
-            maxCapacity={totalCapacity}
             facilities={facilities}
+            allFacilityIds={allFacilityIds}
+            selectedDebtFacilityId={selectedDebtFacilityId}
             setSelectedDebtFacilityId={setSelectedDebtFacilityId}
             setSelectedDebtFacilitySupportedProductTypes={
               setSelectedDebtFacilitySupportedProductTypes

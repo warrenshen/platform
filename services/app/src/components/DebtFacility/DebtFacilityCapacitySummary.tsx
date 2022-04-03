@@ -4,17 +4,19 @@ import GaugeProgressBar from "components/Shared/ProgressBar/GaugeProgressBar";
 import {
   DebtFacilities,
   GetDebtFacilitiesSubscription,
+  useGetOpenLoansByDebtFacilityIdSubscription,
 } from "generated/graphql";
-import { ProductTypeEnum } from "lib/enum";
+import { DebtFacilityStatusEnum, ProductTypeEnum } from "lib/enum";
 import { formatCurrency } from "lib/number";
 import { round } from "lodash";
+import { useState } from "react";
 
 type Facilities = GetDebtFacilitiesSubscription["debt_facilities"];
 
 interface Props {
-  currentUsage: number;
-  maxCapacity: number;
   facilities: Facilities;
+  allFacilityIds: DebtFacilities["id"][];
+  selectedDebtFacilityId: DebtFacilities["id"];
   setSelectedDebtFacilityId: (value: DebtFacilities["id"]) => void;
   setSelectedDebtFacilitySupportedProductTypes: (
     value: ProductTypeEnum[]
@@ -22,14 +24,45 @@ interface Props {
 }
 
 function DebtFacilityCapacitySummary({
-  currentUsage,
-  maxCapacity,
   facilities,
+  allFacilityIds,
+  selectedDebtFacilityId,
   setSelectedDebtFacilityId,
   setSelectedDebtFacilitySupportedProductTypes,
 }: Props) {
+  const [drawnCapacity, setDrawnCapacity] = useState(0);
+  const [isDebtFacilitySelected, setIsDebtFacilitySelected] = useState(false);
+
+  // Get total of loans currently in the debt facility
+  const {
+    data: debtFacilityData,
+    error: debtFacilityError,
+  } = useGetOpenLoansByDebtFacilityIdSubscription({
+    variables: {
+      statuses: [
+        DebtFacilityStatusEnum.SOLD_INTO_DEBT_FACILITY,
+        DebtFacilityStatusEnum.WAIVER,
+      ],
+      target_facility_ids: !!selectedDebtFacilityId
+        ? [selectedDebtFacilityId]
+        : allFacilityIds,
+    },
+  });
+  if (debtFacilityError) {
+    console.error({ debtFacilityError });
+    alert(`Error in query (details in console): ${debtFacilityError.message}`);
+  }
+  const debtFacilityLoans = debtFacilityData?.loans || [];
+  const currentUsage = debtFacilityLoans
+    .map((loan) => {
+      return loan.outstanding_principal_balance;
+    })
+    .reduce((a, b) => a + b, 0);
+
   const rawLimitPercent =
-    !!maxCapacity && maxCapacity !== 0 ? (100 * currentUsage) / maxCapacity : 0;
+    !!drawnCapacity && drawnCapacity !== 0
+      ? (100 * currentUsage) / drawnCapacity
+      : 0;
   const roundedLimitPercent = round(rawLimitPercent, 1);
 
   return (
@@ -40,9 +73,13 @@ function DebtFacilityCapacitySummary({
       justifyContent="space-between"
     >
       <Box flex="2" flexDirection="row" alignItems="flext-start">
-        <Typography variant="h5" color="textSecondary">
-          {`${formatCurrency(currentUsage)} / ${formatCurrency(maxCapacity)}`}
-        </Typography>
+        {!!isDebtFacilitySelected && (
+          <Typography variant="h5" color="textSecondary">
+            {`${formatCurrency(currentUsage)} / ${formatCurrency(
+              drawnCapacity
+            )}`}
+          </Typography>
+        )}
       </Box>
       <Box flex="1" display="flex" flexDirection="row" alignItems="center">
         <FormControl>
@@ -66,12 +103,14 @@ function DebtFacilityCapacitySummary({
             )}
             onChange={(_event, debtFacility) => {
               setSelectedDebtFacilityId(debtFacility?.id || "");
-              const supported_product_types = (debtFacility?.product_types
+              const supportedProductTypes = (debtFacility?.product_types
                 ? debtFacility?.product_types["supported"]
                 : []) as ProductTypeEnum[];
               setSelectedDebtFacilitySupportedProductTypes(
-                supported_product_types
+                supportedProductTypes
               );
+              setDrawnCapacity(debtFacility?.drawn_capacities[0]?.amount || 0);
+              setIsDebtFacilitySelected(!!debtFacility || false);
             }}
           />
         </FormControl>
@@ -84,12 +123,16 @@ function DebtFacilityCapacitySummary({
           top: "-70px",
         }}
       >
-        <GaugeProgressBar
-          value={roundedLimitPercent}
-          valueFontSize={20}
-          caption={"Capacity Usage"}
-          containerWidth={200}
-        />
+        <Box width={200}>
+          {!!isDebtFacilitySelected && (
+            <GaugeProgressBar
+              value={roundedLimitPercent}
+              valueFontSize={20}
+              caption={"Capacity Usage"}
+              containerWidth={200}
+            />
+          )}
+        </Box>
       </Box>
     </Box>
   );

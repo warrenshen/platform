@@ -96,7 +96,6 @@ export enum Action {
   KickoffMonthlySummaryEmails = "reports:generate",
 
   // Debt Facility
-  UpdateDebtFacilityCapacity = "debt_facility:update_capacity",
   AddDebtFacility = "debt_facility:add_facility",
   UpdateDebtFacility = "debt_facility:update_facility",
   UpdateCompanyDebtFacilityStatus = "debt_facility:update_company_status",
@@ -235,7 +234,6 @@ const rules: Rules = {
 
       Action.KickoffMonthlySummaryEmails,
 
-      Action.UpdateDebtFacilityCapacity,
       Action.AddDebtFacility,
       Action.UpdateDebtFacility,
       Action.UpdateCompanyDebtFacilityStatus,

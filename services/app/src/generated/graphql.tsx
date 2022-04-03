@@ -5851,6 +5851,7 @@ export enum DebtFacilitiesUpdateColumn {
 /** columns and relationships of "debt_facility_capacities" */
 export type DebtFacilityCapacities = {
   amount: Scalars["numeric"];
+  capacity_type?: Maybe<Scalars["String"]>;
   changed_at: Scalars["timestamptz"];
   changed_by?: Maybe<Scalars["String"]>;
   /** An object relationship */
@@ -5924,6 +5925,7 @@ export type DebtFacilityCapacitiesBoolExp = {
   _not?: Maybe<DebtFacilityCapacitiesBoolExp>;
   _or?: Maybe<Array<DebtFacilityCapacitiesBoolExp>>;
   amount?: Maybe<NumericComparisonExp>;
+  capacity_type?: Maybe<StringComparisonExp>;
   changed_at?: Maybe<TimestamptzComparisonExp>;
   changed_by?: Maybe<StringComparisonExp>;
   debt_facility?: Maybe<DebtFacilitiesBoolExp>;
@@ -5945,6 +5947,7 @@ export type DebtFacilityCapacitiesIncInput = {
 /** input type for inserting data into table "debt_facility_capacities" */
 export type DebtFacilityCapacitiesInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
+  capacity_type?: Maybe<Scalars["String"]>;
   changed_at?: Maybe<Scalars["timestamptz"]>;
   changed_by?: Maybe<Scalars["String"]>;
   debt_facility?: Maybe<DebtFacilitiesObjRelInsertInput>;
@@ -5955,6 +5958,7 @@ export type DebtFacilityCapacitiesInsertInput = {
 /** aggregate max on columns */
 export type DebtFacilityCapacitiesMaxFields = {
   amount?: Maybe<Scalars["numeric"]>;
+  capacity_type?: Maybe<Scalars["String"]>;
   changed_at?: Maybe<Scalars["timestamptz"]>;
   changed_by?: Maybe<Scalars["String"]>;
   debt_facility_id?: Maybe<Scalars["uuid"]>;
@@ -5964,6 +5968,7 @@ export type DebtFacilityCapacitiesMaxFields = {
 /** order by max() on columns of table "debt_facility_capacities" */
 export type DebtFacilityCapacitiesMaxOrderBy = {
   amount?: Maybe<OrderBy>;
+  capacity_type?: Maybe<OrderBy>;
   changed_at?: Maybe<OrderBy>;
   changed_by?: Maybe<OrderBy>;
   debt_facility_id?: Maybe<OrderBy>;
@@ -5973,6 +5978,7 @@ export type DebtFacilityCapacitiesMaxOrderBy = {
 /** aggregate min on columns */
 export type DebtFacilityCapacitiesMinFields = {
   amount?: Maybe<Scalars["numeric"]>;
+  capacity_type?: Maybe<Scalars["String"]>;
   changed_at?: Maybe<Scalars["timestamptz"]>;
   changed_by?: Maybe<Scalars["String"]>;
   debt_facility_id?: Maybe<Scalars["uuid"]>;
@@ -5982,6 +5988,7 @@ export type DebtFacilityCapacitiesMinFields = {
 /** order by min() on columns of table "debt_facility_capacities" */
 export type DebtFacilityCapacitiesMinOrderBy = {
   amount?: Maybe<OrderBy>;
+  capacity_type?: Maybe<OrderBy>;
   changed_at?: Maybe<OrderBy>;
   changed_by?: Maybe<OrderBy>;
   debt_facility_id?: Maybe<OrderBy>;
@@ -6006,6 +6013,7 @@ export type DebtFacilityCapacitiesOnConflict = {
 /** Ordering options when selecting data from "debt_facility_capacities". */
 export type DebtFacilityCapacitiesOrderBy = {
   amount?: Maybe<OrderBy>;
+  capacity_type?: Maybe<OrderBy>;
   changed_at?: Maybe<OrderBy>;
   changed_by?: Maybe<OrderBy>;
   debt_facility?: Maybe<DebtFacilitiesOrderBy>;
@@ -6023,6 +6031,8 @@ export enum DebtFacilityCapacitiesSelectColumn {
   /** column name */
   Amount = "amount",
   /** column name */
+  CapacityType = "capacity_type",
+  /** column name */
   ChangedAt = "changed_at",
   /** column name */
   ChangedBy = "changed_by",
@@ -6035,6 +6045,7 @@ export enum DebtFacilityCapacitiesSelectColumn {
 /** input type for updating data in table "debt_facility_capacities" */
 export type DebtFacilityCapacitiesSetInput = {
   amount?: Maybe<Scalars["numeric"]>;
+  capacity_type?: Maybe<Scalars["String"]>;
   changed_at?: Maybe<Scalars["timestamptz"]>;
   changed_by?: Maybe<Scalars["String"]>;
   debt_facility_id?: Maybe<Scalars["uuid"]>;
@@ -6085,6 +6096,8 @@ export type DebtFacilityCapacitiesSumOrderBy = {
 export enum DebtFacilityCapacitiesUpdateColumn {
   /** column name */
   Amount = "amount",
+  /** column name */
+  CapacityType = "capacity_type",
   /** column name */
   ChangedAt = "changed_at",
   /** column name */
@@ -25459,46 +25472,12 @@ export type GetReportLoansByDebtFacilityIdSubscription = {
   loans: Array<Pick<Loans, "id"> & OpenLoanForDebtFacilityFragment>;
 };
 
-export type GetDebtFacilityCapacitiesSubscriptionVariables = Exact<{
-  [key: string]: never;
-}>;
-
-export type GetDebtFacilityCapacitiesSubscription = {
-  debt_facility_capacities: Array<
-    Pick<DebtFacilityCapacities, "id"> & {
-      debt_facility?: Maybe<
-        Pick<DebtFacilities, "id"> & DebtFacilityLimitedFragment
-      >;
-    } & DebtFacilityCapacityLimitedFragment
-  >;
-};
-
 export type GetDebtFacilitiesSubscriptionVariables = Exact<{
   [key: string]: never;
 }>;
 
 export type GetDebtFacilitiesSubscription = {
-  debt_facilities: Array<
-    Pick<DebtFacilities, "id"> & {
-      debt_facility_capacities: Array<
-        Pick<DebtFacilityCapacities, "id"> & DebtFacilityCapacityLimitedFragment
-      >;
-    } & DebtFacilityLimitedFragment
-  >;
-};
-
-export type GetDebtFacilityCurrentCapacitiesSubscriptionVariables = Exact<{
-  [key: string]: never;
-}>;
-
-export type GetDebtFacilityCurrentCapacitiesSubscription = {
-  debt_facilities: Array<
-    Pick<DebtFacilities, "id"> & {
-      debt_facility_capacities: Array<
-        Pick<DebtFacilityCapacities, "id"> & DebtFacilityCapacityLimitedFragment
-      >;
-    } & DebtFacilityLimitedFragment
-  >;
+  debt_facilities: Array<Pick<DebtFacilities, "id"> & DebtFacilityFragment>;
 };
 
 export type GetDebtFacilityCurrentCapacitySubscriptionVariables = Exact<{
@@ -25506,13 +25485,7 @@ export type GetDebtFacilityCurrentCapacitySubscriptionVariables = Exact<{
 }>;
 
 export type GetDebtFacilityCurrentCapacitySubscription = {
-  debt_facilities: Array<
-    Pick<DebtFacilities, "id"> & {
-      debt_facility_capacities: Array<
-        Pick<DebtFacilityCapacities, "id"> & DebtFacilityCapacityLimitedFragment
-      >;
-    } & DebtFacilityLimitedFragment
-  >;
+  debt_facilities: Array<Pick<DebtFacilities, "id"> & DebtFacilityFragment>;
 };
 
 export type GetDebtFacilityEventsByLoanReportIdQueryVariables = Exact<{
@@ -25832,9 +25805,7 @@ export type GetLoanWithArtifactForBankQuery = {
   loans_by_pk?: Maybe<
     {
       loan_report?: Maybe<
-        {
-          debt_facility?: Maybe<DebtFacilityLimitedFragment>;
-        } & LoanReportFragment
+        { debt_facility?: Maybe<DebtFacilityFragment> } & LoanReportFragment
       >;
     } & LoanFragment &
       LoanArtifactFragment
@@ -27637,22 +27608,32 @@ export type MetrcDownloadSummaryFragment = Pick<
 > &
   MetrcDownloadSummaryLimitedFragment;
 
-export type DebtFacilityLimitedFragment = Pick<
+export type DebtFacilityFragment = Pick<
   DebtFacilities,
   "id" | "name" | "product_types"
->;
+> & {
+  maximum_capacities: Array<
+    Pick<DebtFacilityCapacities, "id"> & DebtFacilityCapacityLimitedFragment
+  >;
+  drawn_capacities: Array<
+    Pick<DebtFacilityCapacities, "id"> & DebtFacilityCapacityLimitedFragment
+  >;
+};
 
 export type DebtFacilityCapacityLimitedFragment = Pick<
   DebtFacilityCapacities,
-  "id" | "amount" | "changed_at" | "changed_by" | "debt_facility_id"
+  | "id"
+  | "amount"
+  | "capacity_type"
+  | "changed_at"
+  | "changed_by"
+  | "debt_facility_id"
 >;
 
 export type OpenLoanForDebtFacilityFragment = {
   loan_report?: Maybe<
     Pick<LoanReports, "id"> & {
-      debt_facility?: Maybe<
-        Pick<DebtFacilities, "id"> & DebtFacilityLimitedFragment
-      >;
+      debt_facility?: Maybe<Pick<DebtFacilities, "id"> & DebtFacilityFragment>;
     } & LoanReportFragment
   >;
   purchase_order?: Maybe<
@@ -28786,15 +28767,6 @@ export const MetrcDownloadSummaryFragmentDoc = gql`
   }
   ${MetrcDownloadSummaryLimitedFragmentDoc}
 `;
-export const DebtFacilityCapacityLimitedFragmentDoc = gql`
-  fragment DebtFacilityCapacityLimited on debt_facility_capacities {
-    id
-    amount
-    changed_at
-    changed_by
-    debt_facility_id
-  }
-`;
 export const CompanyLicenseFragmentDoc = gql`
   fragment CompanyLicense on company_licenses {
     id
@@ -28905,12 +28877,37 @@ export const LoanReportFragmentDoc = gql`
     debt_facility_added_date
   }
 `;
-export const DebtFacilityLimitedFragmentDoc = gql`
-  fragment DebtFacilityLimited on debt_facilities {
+export const DebtFacilityCapacityLimitedFragmentDoc = gql`
+  fragment DebtFacilityCapacityLimited on debt_facility_capacities {
+    id
+    amount
+    capacity_type
+    changed_at
+    changed_by
+    debt_facility_id
+  }
+`;
+export const DebtFacilityFragmentDoc = gql`
+  fragment DebtFacility on debt_facilities {
     id
     name
     product_types
+    maximum_capacities: debt_facility_capacities(
+      order_by: [{ changed_at: desc }]
+      where: { capacity_type: { _eq: "maximum" } }
+    ) {
+      id
+      ...DebtFacilityCapacityLimited
+    }
+    drawn_capacities: debt_facility_capacities(
+      order_by: [{ changed_at: desc }]
+      where: { capacity_type: { _eq: "drawn" } }
+    ) {
+      id
+      ...DebtFacilityCapacityLimited
+    }
   }
+  ${DebtFacilityCapacityLimitedFragmentDoc}
 `;
 export const PurchaseOrderForDebtFacilityFragmentDoc = gql`
   fragment PurchaseOrderForDebtFacility on purchase_orders {
@@ -28935,7 +28932,7 @@ export const OpenLoanForDebtFacilityFragmentDoc = gql`
       ...LoanReport
       debt_facility {
         id
-        ...DebtFacilityLimited
+        ...DebtFacility
       }
     }
     purchase_order {
@@ -28959,7 +28956,7 @@ export const OpenLoanForDebtFacilityFragmentDoc = gql`
   }
   ${LoanForDebtFacilityFragmentDoc}
   ${LoanReportFragmentDoc}
-  ${DebtFacilityLimitedFragmentDoc}
+  ${DebtFacilityFragmentDoc}
   ${PurchaseOrderForDebtFacilityFragmentDoc}
   ${InvoiceFragmentDoc}
 `;
@@ -30392,6 +30389,7 @@ export const GetOpenLoansByDebtFacilityStatusesDocument = gql`
               { is_deleted: { _eq: false } }
             ]
           }
+          { origination_date: { _gt: "2021-11-24" } }
           { closed_at: { _is_null: true } }
           { loan_report: { debt_facility_status: { _in: $statuses } } }
         ]
@@ -30449,6 +30447,7 @@ export const GetOpenLoansByDebtFacilityIdDocument = gql`
               { is_deleted: { _eq: false } }
             ]
           }
+          { origination_date: { _gt: "2021-11-24" } }
           { closed_at: { _is_null: true } }
           { loan_report: { debt_facility_status: { _in: $statuses } } }
           { loan_report: { debt_facility_id: { _in: $target_facility_ids } } }
@@ -30509,6 +30508,7 @@ export const GetReportLoansByDebtFacilityIdDocument = gql`
               { is_deleted: { _eq: false } }
             ]
           }
+          { origination_date: { _gt: "2021-11-24" } }
           {
             _or: [
               {
@@ -30573,64 +30573,14 @@ export type GetReportLoansByDebtFacilityIdSubscriptionHookResult = ReturnType<
   typeof useGetReportLoansByDebtFacilityIdSubscription
 >;
 export type GetReportLoansByDebtFacilityIdSubscriptionResult = Apollo.SubscriptionResult<GetReportLoansByDebtFacilityIdSubscription>;
-export const GetDebtFacilityCapacitiesDocument = gql`
-  subscription GetDebtFacilityCapacities {
-    debt_facility_capacities(order_by: [{ changed_at: desc }]) {
-      id
-      ...DebtFacilityCapacityLimited
-      debt_facility {
-        id
-        ...DebtFacilityLimited
-      }
-    }
-  }
-  ${DebtFacilityCapacityLimitedFragmentDoc}
-  ${DebtFacilityLimitedFragmentDoc}
-`;
-
-/**
- * __useGetDebtFacilityCapacitiesSubscription__
- *
- * To run a query within a React component, call `useGetDebtFacilityCapacitiesSubscription` and pass it any options that fit your needs.
- * When your component renders, `useGetDebtFacilityCapacitiesSubscription` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetDebtFacilityCapacitiesSubscription({
- *   variables: {
- *   },
- * });
- */
-export function useGetDebtFacilityCapacitiesSubscription(
-  baseOptions?: Apollo.SubscriptionHookOptions<
-    GetDebtFacilityCapacitiesSubscription,
-    GetDebtFacilityCapacitiesSubscriptionVariables
-  >
-) {
-  return Apollo.useSubscription<
-    GetDebtFacilityCapacitiesSubscription,
-    GetDebtFacilityCapacitiesSubscriptionVariables
-  >(GetDebtFacilityCapacitiesDocument, baseOptions);
-}
-export type GetDebtFacilityCapacitiesSubscriptionHookResult = ReturnType<
-  typeof useGetDebtFacilityCapacitiesSubscription
->;
-export type GetDebtFacilityCapacitiesSubscriptionResult = Apollo.SubscriptionResult<GetDebtFacilityCapacitiesSubscription>;
 export const GetDebtFacilitiesDocument = gql`
   subscription GetDebtFacilities {
     debt_facilities(order_by: [{ name: desc }]) {
       id
-      ...DebtFacilityLimited
-      debt_facility_capacities {
-        id
-        ...DebtFacilityCapacityLimited
-      }
+      ...DebtFacility
     }
   }
-  ${DebtFacilityLimitedFragmentDoc}
-  ${DebtFacilityCapacityLimitedFragmentDoc}
+  ${DebtFacilityFragmentDoc}
 `;
 
 /**
@@ -30663,64 +30613,14 @@ export type GetDebtFacilitiesSubscriptionHookResult = ReturnType<
   typeof useGetDebtFacilitiesSubscription
 >;
 export type GetDebtFacilitiesSubscriptionResult = Apollo.SubscriptionResult<GetDebtFacilitiesSubscription>;
-export const GetDebtFacilityCurrentCapacitiesDocument = gql`
-  subscription GetDebtFacilityCurrentCapacities {
-    debt_facilities {
-      id
-      ...DebtFacilityLimited
-      debt_facility_capacities(order_by: [{ changed_at: desc }], limit: 1) {
-        id
-        ...DebtFacilityCapacityLimited
-      }
-    }
-  }
-  ${DebtFacilityLimitedFragmentDoc}
-  ${DebtFacilityCapacityLimitedFragmentDoc}
-`;
-
-/**
- * __useGetDebtFacilityCurrentCapacitiesSubscription__
- *
- * To run a query within a React component, call `useGetDebtFacilityCurrentCapacitiesSubscription` and pass it any options that fit your needs.
- * When your component renders, `useGetDebtFacilityCurrentCapacitiesSubscription` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetDebtFacilityCurrentCapacitiesSubscription({
- *   variables: {
- *   },
- * });
- */
-export function useGetDebtFacilityCurrentCapacitiesSubscription(
-  baseOptions?: Apollo.SubscriptionHookOptions<
-    GetDebtFacilityCurrentCapacitiesSubscription,
-    GetDebtFacilityCurrentCapacitiesSubscriptionVariables
-  >
-) {
-  return Apollo.useSubscription<
-    GetDebtFacilityCurrentCapacitiesSubscription,
-    GetDebtFacilityCurrentCapacitiesSubscriptionVariables
-  >(GetDebtFacilityCurrentCapacitiesDocument, baseOptions);
-}
-export type GetDebtFacilityCurrentCapacitiesSubscriptionHookResult = ReturnType<
-  typeof useGetDebtFacilityCurrentCapacitiesSubscription
->;
-export type GetDebtFacilityCurrentCapacitiesSubscriptionResult = Apollo.SubscriptionResult<GetDebtFacilityCurrentCapacitiesSubscription>;
 export const GetDebtFacilityCurrentCapacityDocument = gql`
   subscription GetDebtFacilityCurrentCapacity($target_facility_id: uuid!) {
     debt_facilities(where: { id: { _eq: $target_facility_id } }) {
       id
-      ...DebtFacilityLimited
-      debt_facility_capacities(order_by: [{ changed_at: desc }], limit: 1) {
-        id
-        ...DebtFacilityCapacityLimited
-      }
+      ...DebtFacility
     }
   }
-  ${DebtFacilityLimitedFragmentDoc}
-  ${DebtFacilityCapacityLimitedFragmentDoc}
+  ${DebtFacilityFragmentDoc}
 `;
 
 /**
@@ -32346,7 +32246,7 @@ export const GetLoanWithArtifactForBankDocument = gql`
       loan_report {
         ...LoanReport
         debt_facility {
-          ...DebtFacilityLimited
+          ...DebtFacility
         }
       }
     }
@@ -32354,7 +32254,7 @@ export const GetLoanWithArtifactForBankDocument = gql`
   ${LoanFragmentDoc}
   ${LoanArtifactFragmentDoc}
   ${LoanReportFragmentDoc}
-  ${DebtFacilityLimitedFragmentDoc}
+  ${DebtFacilityFragmentDoc}
 `;
 
 /**

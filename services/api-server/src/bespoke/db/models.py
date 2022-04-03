@@ -397,6 +397,7 @@ class DebtFacilityCapacity(Base):
 	__tablename__ = "debt_facility_capacities"
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	amount = Column(Numeric)
+	capacity_type = Column(String)
 	changed_at = Column(DateTime)
 	changed_by = Column(String)
 	debt_facility_id = cast(GUID, Column(GUID, ForeignKey('debt_facilities.id')))

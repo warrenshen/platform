@@ -27,7 +27,6 @@ export const determineBorrowerEligibility = (
 
   const productType = getProductTypeFromOpenLoanForDebtFacilityFragment(loan);
   const isProductTypeSupported = supportedProductTypes.includes(productType);
-  console.log(isProductTypeSupported);
 
   // Company status alone *could* cover the use case here
   // But adding this extra check around future debt facility support will be useful

@@ -24,7 +24,7 @@ query GetLoanWithArtifactForBank($id: uuid!) {
     loan_report {
       ...LoanReport
       debt_facility {
-        ...DebtFacilityLimited
+        ...DebtFacility
       }
     }
   }
