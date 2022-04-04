@@ -112,7 +112,7 @@ class DebtFacilityCreateUpdateFacilityView(MethodView):
 					amount = new_maximum_capacity,
 					capacity_type = DebtFacilityCapacityTypeEnum.MAXIMUM,
 					changed_at = date_util.now(),
-					changed_by = user.first_name + " " + user.last_name,
+					changed_by = user.id,
 					debt_facility_id = facility.id
 				)
 
@@ -134,7 +134,7 @@ class DebtFacilityCreateUpdateFacilityView(MethodView):
 					amount = new_drawn_capacity,
 					capacity_type = DebtFacilityCapacityTypeEnum.DRAWN,
 					changed_at = date_util.now(),
-					changed_by = user.first_name + " " + user.last_name,
+					changed_by = user.id,
 					debt_facility_id = facility.id
 				)
 

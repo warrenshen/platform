@@ -399,7 +399,7 @@ class DebtFacilityCapacity(Base):
 	amount = Column(Numeric)
 	capacity_type = Column(String)
 	changed_at = Column(DateTime)
-	changed_by = Column(String)
+	changed_by = cast(GUID, Column(GUID, ForeignKey('users.id')))
 	debt_facility_id = cast(GUID, Column(GUID, ForeignKey('debt_facilities.id')))
 
 PurchaseOrderFileDict = TypedDict('PurchaseOrderFileDict', {
