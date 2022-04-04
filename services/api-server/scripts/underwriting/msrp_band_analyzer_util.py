@@ -15,7 +15,16 @@ COMPANY_IDENTIFIER_LIST = [
     'EL'
 ]
 
-CONFIDENCE_LEVEL = 'sd'
+TESTING_COMPANY_NAMES = [
+    'TT',
+    'MD',
+    'DWF',
+    'GHC',
+    'SV',
+    '99HT'
+]
+
+CONFIDENCE_LEVEL = None
 ERROR_STYLE = 'band'
 
 MEASUREMENT_DICT = {
@@ -27,7 +36,7 @@ MEASUREMENT_DICT = {
     # 'pound': 448
 }
 
-CONFIDENCE_BAND_MULTIPLIER = 1
+CONFIDENCE_BAND_MULTIPLIER = 1.96
 
 
 def extract_letter_units_in_gram_ml(string):
@@ -58,12 +67,24 @@ def extract_oz_units_gram_litre(string):
         measure = float(string) * 28
     return measure
 
+def extract_count_units(string):
+    string = string.lower()
+    if 'count' in string:
+        measure = float(string.split('count')[0].strip())
+    elif 'ct' in string:
+        measure = float(string.split('ct')[0].strip())
+    elif 'capsule' in string:
+        measure = float(string.split('capsule')[0].strip())
+    else:
+        measure = float(string.split('pk')[0].strip())
+    return measure
 
 EXTRACTED_MEASUREMENT_COLUMNS = {
     #'letter_litre_measure_from_product_name': extract_letter_units_in_gram_ml,
     'letter_gram_measure_from_product_name': extract_letter_units_in_gram_ml,
     'gram_measure_from_product_name': extract_gram_units_gram_litre,
-    'oz_measure_from_product_name': extract_oz_units_gram_litre
+    'oz_measure_from_product_name': extract_oz_units_gram_litre,
+    #'count_measure_from_product_name': extract_count_units
 }
 
 TRAINING_OBJECT_NAME = 'msrp_band_analyzer_training_object'

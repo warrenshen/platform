@@ -128,6 +128,8 @@ class MSRPBand:
         """
         self.company_costs_df = self.company_costs_df[~self.company_costs_df['product_category_name'].isna()]
         self.company_sales_df = self.company_sales_df[~self.company_sales_df['tx_product_category_name'].isna()]
+        self.company_costs_df = self.company_costs_df[self.company_costs_df['shipper_wholesale_price'] != .01]
+        self.company_sales_df = self.company_sales_df[self.company_sales_df['tx_total_price'] != .01]
 
     def add_new_columns(self):
         """
@@ -137,14 +139,17 @@ class MSRPBand:
         self.company_costs_df.loc[:, 'date_in_month'] = pd.to_datetime(self.company_costs_df.created_date).dt.strftime('%Y-%m')
         self.company_sales_df.loc[:, 'tx_price_per_unit'] = self.company_sales_df.tx_total_price / self.company_sales_df.tx_quantity_sold
         self.company_sales_df.loc[:, 'date_in_month'] = pd.to_datetime(self.company_sales_df.sales_datetime).dt.strftime('%Y-%m')
+        self.company_costs_df = self.company_costs_df[self.company_costs_df['tx_price_per_unit'] <= .01]
+        self.company_sales_df = self.company_sales_df[self.company_sales_df['tx_price_per_unit'] <= .01]
 
     def boxplot_distribution_outlier_check(
         self,
         category_column_name: str,
         column_name_identifier: str,
-        transaction_type: str
+        transaction_type: str,
+        ignore_non_unit_extractable_rows: bool
     ):
-        temp_df = self.select_df_by_transaction_type(transaction_type)
+        temp_df = self.select_df_by_transaction_type(transaction_type, ignore_non_unit_extractable_rows)
         temp_df = temp_df[temp_df[category_column_name] == column_name_identifier]
         box = sns.boxplot(y=category_column_name, x=self.default_price_column, data=temp_df, orient='h')
         median = temp_df[self.default_price_column].median()
@@ -171,18 +176,23 @@ class MSRPBand:
             (temp_df[self.default_price_column] > maxx).mean()*100))
         return box
 
-    def select_df_by_transaction_type(self, transaction_type):
+    def select_df_by_transaction_type(self, transaction_type, ignore_non_unit_extractable_rows):
         """
         Chooses either costs or sales data for analysis
 
         Parameters
         ----------
         transaction_type: Which of the two dataframes (costs or sales) to use
+        ignore_non_unit_extractable_rows: Ignore rows that have no extracted units
         ----------
         """
         if transaction_type == 'C':
+            if ignore_non_unit_extractable_rows:
+                return self.company_costs_df[(self.company_costs_df.received_unit_of_measure == 'Grams') | (self.company_costs_df.extracted_units.isna() == False)]
             return self.company_costs_df
         elif transaction_type == 'S':
+            if ignore_non_unit_extractable_rows:
+                return self.company_sales_df[(self.company_sales_df.tx_unit_of_measure == 'Grams') | (self.company_sales_df.extracted_units.isna() == False)]
             return self.company_sales_df
         else:
             print('Transaction type not recognized, try inputting C for costs or S for sales')
@@ -191,12 +201,13 @@ class MSRPBand:
         self,
         category_column_name: str,
         column_name_identifier: str,
-        transaction_type: str
+        transaction_type: str,
+        ignore_non_unit_extractable_rows: bool
     ):
         """
         Plots histogram plot to check distribution
         """
-        temp_df = self.select_df_by_transaction_type(transaction_type)
+        temp_df = self.select_df_by_transaction_type(transaction_type, ignore_non_unit_extractable_rows)
         temp_df = temp_df[temp_df[category_column_name] == column_name_identifier]
         print("Total number of transactions for {} in {} : {}".format(
             column_name_identifier, category_column_name, temp_df.shape[0]))
@@ -207,12 +218,13 @@ class MSRPBand:
         self,
         category_column_name: str,
         column_name_identifier: str,
-        transaction_type: str
+        transaction_type: str,
+        ignore_non_unit_extractable_rows: bool
     ):
         """
         Finds summary table and saves into a class attribute
         """
-        temp_df = self.select_df_by_transaction_type(transaction_type)
+        temp_df = self.select_df_by_transaction_type(transaction_type, ignore_non_unit_extractable_rows)
         msrp_summary_table_agg = temp_df.groupby(category_column_name)[self.default_price_column].describe()
         self.msrp_summary_table = msrp_summary_table_agg.loc[column_name_identifier].round(2)
 
@@ -220,12 +232,13 @@ class MSRPBand:
             self,
             category_column_name: str,
             column_name_identifier: str,
-            transaction_type: str
+            transaction_type: str,
+            ignore_non_unit_extractable_rows: bool
     ):
         """
         Finds summary table by date in month and saves into a class attribute
         """
-        temp_df = self.select_df_by_transaction_type(transaction_type)
+        temp_df = self.select_df_by_transaction_type(transaction_type, ignore_non_unit_extractable_rows)
         msrp_summary_table_by_time_agg = temp_df.groupby([category_column_name, 'date_in_month'])[self.default_price_column].describe()
         self.msrp_summary_table_by_time = msrp_summary_table_by_time_agg.loc[column_name_identifier].round(2)
 
@@ -238,18 +251,19 @@ class MSRPBand:
         category_column_name: str,
         column_name_identifier: str,
         transaction_type: str,
-        confidence_level: int,
-        error_style: str
+        confidence_level: any,
+        error_style: str,
+        ignore_non_unit_extractable_rows: bool
     ):
         """
         Plots times series line plot broken down by specified category
         """
-        temp_df = self.select_df_by_transaction_type(transaction_type)
+        temp_df = self.select_df_by_transaction_type(transaction_type, ignore_non_unit_extractable_rows)
         msrp_category_df = temp_df[temp_df[category_column_name] == column_name_identifier]
         msrp_mean_df = msrp_category_df.groupby('date_in_month')[self.default_price_column].mean().reset_index()
-        self.msrp_summary_table_by_time['lower_confidence_band'] = self.msrp_summary_table_by_time['mean'] - self.msrp_summary_table_by_time['std'] * self.confidence_band_multiplier
+        self.msrp_summary_table_by_time['lower_confidence_band'] = self.msrp_summary_table_by_time['mean'] - self.msrp_summary_table_by_time['std'].fillna(0) * self.confidence_band_multiplier
         self.msrp_summary_table_by_time['lower_confidence_band'][self.msrp_summary_table_by_time['lower_confidence_band'] < 0] = 0
-        self.msrp_summary_table_by_time['upper_confidence_band'] = self.msrp_summary_table_by_time['mean'] + self.msrp_summary_table_by_time['std'] * self.confidence_band_multiplier
+        self.msrp_summary_table_by_time['upper_confidence_band'] = self.msrp_summary_table_by_time['mean'] + self.msrp_summary_table_by_time['std'].fillna(0) * self.confidence_band_multiplier
         ax = sns.lineplot(
             data=msrp_category_df,
             x='date_in_month',
@@ -265,6 +279,7 @@ class MSRPBand:
         )
         ax.set(title="MSRP for {}: '{}' over time by month".format(category_column_name, column_name_identifier))
         # label points on the plot
+        plt.fill_between(msrp_mean_df['date_in_month'], self.msrp_summary_table_by_time.lower_confidence_band, self.msrp_summary_table_by_time.upper_confidence_band, alpha=.3)
         for x, y in zip(msrp_mean_df['date_in_month'], msrp_mean_df[self.default_price_column]):
             plt.text(x=x,
                      y=y-y*.01,
@@ -317,6 +332,9 @@ class MSRPBand:
         df['extracted_units'] = np.nan
         df['letter_gram_measure_from_product_name'] = df[product_name].str.extract('([0-9]*[\.]?[0-9]+[\s]?[mM]?[gG])', expand=False)
         # df['letter_litre_measure_from_product_name'] = df[product_name].str.extract('([0-9]*[\.]?[0-9]+[\s]?[mM]?[lL])', expand=False)
+        # df['fraction_letter_gram_measure_from_product_name'] = df[product_name].str.extract('([0-9]/[0-9]?[\s]?[mM]?[gG])', expand=False)
+        df['count_measure_from_product_name'] = df[product_name].str.extract('([0-9]+[\s]?count|[0-9]+[\s]?capsule|[0-9]+[\s]?ct|[0-9]+[\s]?pk)', expand=False)
+        df['count_measure_from_product_name'] = df['count_measure_from_product_name'].apply(mba_util.extract_count_units)
         df['gram_measure_from_product_name'] = df[product_name].str.extract('([hH][aA][lL][fF] [gG][rR][aA][mM]|[gG][rR][aA][mM])', expand=False)
         df['oz_measure_from_product_name'] = df[product_name].str.extract('([0-9]/[0-9]?[\s]?oz|[0-9]*[\.]?[0-9]+[\s]?oz)', expand=False)
         for measure_column in mba_util.EXTRACTED_MEASUREMENT_COLUMNS.keys():
@@ -346,7 +364,8 @@ class MSRPBand:
         column_name_identifier: str,
         transaction_type: str,
         *,
-        use_unit_converted_price=True
+        use_unit_converted_price=True,
+        ignore_non_unit_extractable_rows=False
     ):
         """
         Runs all functions for analysis
@@ -357,6 +376,7 @@ class MSRPBand:
         column_name_identifier: Name of category to indice
         transaction_type: Using costs df or sales df
         use_unit_converted_price: Uses unit converted price column for running analysis
+        ignore_non_unit_extractable_rows: Ignore rows where extracted_units is NA
         ----------
         """
         if use_unit_converted_price:
@@ -364,19 +384,19 @@ class MSRPBand:
         else:
             self.default_price_column = 'tx_price_per_unit'
         print("### Outputting boxplot distribution plot and finding outliers outside of Whisksers ### \t")
-        box = self.boxplot_distribution_outlier_check(category_column_name, column_name_identifier, transaction_type)
+        box = self.boxplot_distribution_outlier_check(category_column_name, column_name_identifier, transaction_type, ignore_non_unit_extractable_rows)
         plt.show()
 
         print("### Checking histogram distribution of MSRP for given {} ### \t".format(category_column_name))
-        histogram = self.histogram_distribution_check(category_column_name, column_name_identifier, transaction_type)
+        histogram = self.histogram_distribution_check(category_column_name, column_name_identifier, transaction_type, ignore_non_unit_extractable_rows)
         plt.show()
 
         print("### Outputting summary table ### \t")
-        self.summary_table_by_category(category_column_name, column_name_identifier, transaction_type)
+        self.summary_table_by_category(category_column_name, column_name_identifier, transaction_type, ignore_non_unit_extractable_rows)
         print(self.msrp_summary_table)
 
         print("### Outputting summary table by time broken down in months ### \t")
-        self.summary_table_by_category_time(category_column_name, column_name_identifier, transaction_type)
+        self.summary_table_by_category_time(category_column_name, column_name_identifier, transaction_type, ignore_non_unit_extractable_rows)
         print(self.msrp_summary_table_by_time)
 
         print("### Outputting time series line plot of MSRP along with confidence bands ### \t")
@@ -385,7 +405,8 @@ class MSRPBand:
             column_name_identifier,
             transaction_type,
             mba_util.CONFIDENCE_LEVEL,
-            mba_util.ERROR_STYLE
+            mba_util.ERROR_STYLE,
+            ignore_non_unit_extractable_rows
         )
         print(self.msrp_summary_table_by_time[['lower_confidence_band', 'upper_confidence_band']])
 
@@ -395,7 +416,8 @@ class MSRPBand:
         column_name_identifier_list: list,
         transaction_type: str,
         *,
-        use_unit_converted_price=True
+        use_unit_converted_price=True,
+        ignore_non_unit_extractable_rows=False
     ):
         """
         Runs all functions for analysis on multiple categories together.
@@ -406,6 +428,7 @@ class MSRPBand:
         column_name_identifier_list: Names of list of category to indice
         transaction_type: Using costs df or sales df
         use_unit_converted_price: Uses unit converted price column for running analysis
+        ignore_non_unit_extractable_rows: Ignore rows where extracted_units is NA
         ----------
         """
         if use_unit_converted_price:
@@ -416,21 +439,22 @@ class MSRPBand:
             print('### RUN ANALYSIS FOR PRODUCT CATEGORY {} ###'.format(column_name_identifier))
             # In case there are no transactions for this specific category type, we will skip.
             try:
-                self.boxplot_distribution_outlier_check(category_column_name, column_name_identifier, transaction_type)
+                self.boxplot_distribution_outlier_check(category_column_name, column_name_identifier, transaction_type, ignore_non_unit_extractable_rows)
             except ValueError:
                 print("### There are 0 rows with category name of {} ###".format(column_name_identifier))
                 print("### SKIPPING PRODUCT CATEGORY {} ###".format(column_name_identifier))
                 continue
-            self.histogram_distribution_check(category_column_name, column_name_identifier, transaction_type)
+            self.histogram_distribution_check(category_column_name, column_name_identifier, transaction_type, ignore_non_unit_extractable_rows)
             plt.clf()
-            self.summary_table_by_category(category_column_name, column_name_identifier, transaction_type)
-            self.summary_table_by_category_time(category_column_name, column_name_identifier, transaction_type)
+            self.summary_table_by_category(category_column_name, column_name_identifier, transaction_type, ignore_non_unit_extractable_rows)
+            self.summary_table_by_category_time(category_column_name, column_name_identifier, transaction_type, ignore_non_unit_extractable_rows)
             self.line_plot_time_series_msrp_by_category(
                 category_column_name,
                 column_name_identifier,
                 transaction_type,
                 mba_util.CONFIDENCE_LEVEL,
-                mba_util.ERROR_STYLE
+                mba_util.ERROR_STYLE,
+                ignore_non_unit_extractable_rows
             )
 
     def output_time_series_metadata(self):
