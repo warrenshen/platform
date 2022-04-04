@@ -149,7 +149,7 @@ export default function CreateUpdateCompanyLicenseModal({
       handleClose={handleClose}
       handlePrimaryAction={handleClickSubmit}
     >
-      {!isActionTypeUpdate && (
+      {!isActionTypeUpdate && !companyLicense.id && (
         <>
           <Box mt={2}>
             <Typography variant="body1">
