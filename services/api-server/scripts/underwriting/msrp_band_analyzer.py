@@ -139,8 +139,8 @@ class MSRPBand:
         self.company_costs_df.loc[:, 'date_in_month'] = pd.to_datetime(self.company_costs_df.created_date).dt.strftime('%Y-%m')
         self.company_sales_df.loc[:, 'tx_price_per_unit'] = self.company_sales_df.tx_total_price / self.company_sales_df.tx_quantity_sold
         self.company_sales_df.loc[:, 'date_in_month'] = pd.to_datetime(self.company_sales_df.sales_datetime).dt.strftime('%Y-%m')
-        self.company_costs_df = self.company_costs_df[self.company_costs_df['tx_price_per_unit'] <= .01]
-        self.company_sales_df = self.company_sales_df[self.company_sales_df['tx_price_per_unit'] <= .01]
+        self.company_costs_df = self.company_costs_df[self.company_costs_df['tx_price_per_unit'] > .01]
+        self.company_sales_df = self.company_sales_df[self.company_sales_df['tx_price_per_unit'] > .01]
 
     def boxplot_distribution_outlier_check(
         self,
@@ -317,6 +317,8 @@ class MSRPBand:
         for measurement in measurement_list:
             includes_measurement = df[product_category_name].str.contains(measurement, case=False).values
             df[measure_ratio_column_name][includes_measurement] = self.unit_conversion_ratio(measurement, measurement_unit)
+        #count_idx = ((df['count_measure_from_product_name'].isna() == False) & (df[product_category_name] == 'Capsule (weight - each)') & (df['extracted_units'].isna() == False))
+        #df['extracted_units'][count_idx] = df['extracted_units'][count_idx] / df['count_measure_from_product_name'][count_idx]
         extracted_units_idx = ((df[measure_ratio_column_name] == 1) & (df['extracted_units'].isna() == False))
         df[measure_ratio_column_name][extracted_units_idx] = df['extracted_units'][extracted_units_idx]
         df['adjusted_tx_price_per_unit'] = df['tx_price_per_unit'] / df[measure_ratio_column_name]
@@ -334,7 +336,8 @@ class MSRPBand:
         # df['letter_litre_measure_from_product_name'] = df[product_name].str.extract('([0-9]*[\.]?[0-9]+[\s]?[mM]?[lL])', expand=False)
         # df['fraction_letter_gram_measure_from_product_name'] = df[product_name].str.extract('([0-9]/[0-9]?[\s]?[mM]?[gG])', expand=False)
         df['count_measure_from_product_name'] = df[product_name].str.extract('([0-9]+[\s]?count|[0-9]+[\s]?capsule|[0-9]+[\s]?ct|[0-9]+[\s]?pk)', expand=False)
-        df['count_measure_from_product_name'] = df['count_measure_from_product_name'].apply(mba_util.extract_count_units)
+        count_measure_non_na_index = (df['count_measure_from_product_name'].isna() == False)
+        df['count_measure_from_product_name'][count_measure_non_na_index] = df['count_measure_from_product_name'][count_measure_non_na_index].apply(mba_util.extract_count_units)
         df['gram_measure_from_product_name'] = df[product_name].str.extract('([hH][aA][lL][fF] [gG][rR][aA][mM]|[gG][rR][aA][mM])', expand=False)
         df['oz_measure_from_product_name'] = df[product_name].str.extract('([0-9]/[0-9]?[\s]?oz|[0-9]*[\.]?[0-9]+[\s]?oz)', expand=False)
         for measure_column in mba_util.EXTRACTED_MEASUREMENT_COLUMNS.keys():
