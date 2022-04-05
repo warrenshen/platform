@@ -249,7 +249,8 @@ export default function CreateUpdatePurchaseOrderModal({
     fetchPolicy: "network-only",
     variables: {
       company_id: companyId,
-      start_created_date: todayMinusXDaysDateStringServer(60), // Fetch Metrc deliveries created in last 60 days.
+      // Fetch incoming company deliveries with transfer created in the last 90 days.
+      start_created_date: todayMinusXDaysDateStringServer(90),
     },
   });
 

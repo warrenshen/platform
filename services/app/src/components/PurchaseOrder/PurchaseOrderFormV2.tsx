@@ -192,7 +192,7 @@ export default function PurchaseOrderFormV2({
           <Box mt={1}>
             <Typography variant="body2" color="textSecondary">
               Selectable manifests correspond to Metrc manifests created within
-              the last 60 days and from vendors you are partnered with
+              the last 90 days and from vendors you are partnered with.
             </Typography>
           </Box>
         )}
