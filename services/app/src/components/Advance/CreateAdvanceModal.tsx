@@ -196,7 +196,6 @@ export default function CreateAdvanceModal({
         },
         loan_ids: selectedLoanIds,
         should_charge_wire_fee: shouldChargeWireFee,
-        debt_facility_id: debtFacility,
       },
     });
 
@@ -273,34 +272,6 @@ export default function CreateAdvanceModal({
               </Box>
             </Box>
           )}
-          <Box mt={4}>
-            <Box>
-              <Typography>{`Debt Facility`}</Typography>
-              <Box display="flex" flexDirection="column" mt={1}>
-                <AutocompleteDebtFacility
-                  textFieldLabel="Select existing debt facility by name"
-                  onChange={(selectedDebtFacility) => {
-                    setDebtFacility(selectedDebtFacility);
-                  }}
-                  setupMessage={
-                    "Loans will automatically default to Bespoke's books " +
-                    "until a debt facility has been set up that supports this customer's product type"
-                  }
-                  productType={selectedProductType}
-                />
-              </Box>
-            </Box>
-            {!!debtFacility && (
-              <Box mt={4}>
-                <Alert severity="info">
-                  If you selected a debt facility above, the loan will be added
-                  to that debt facility's books if there is capacity. Otherwise,
-                  the loan will default to Bespoke's books. This can be changed
-                  later, if desired.
-                </Alert>
-              </Box>
-            )}
-          </Box>
         </Box>
       ) : (
         <Box>

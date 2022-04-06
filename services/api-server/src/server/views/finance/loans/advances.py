@@ -225,7 +225,7 @@ class HandleAdvanceView(MethodView):
 		if not form:
 			return handler_util.make_error_response('No data provided')
 
-		required_keys = ['payment', 'loan_ids', 'should_charge_wire_fee', 'debt_facility_id']
+		required_keys = ['payment', 'loan_ids', 'should_charge_wire_fee']
 
 		for key in required_keys:
 			if key not in form:

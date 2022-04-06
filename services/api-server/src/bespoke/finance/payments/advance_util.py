@@ -24,8 +24,7 @@ ASCII_CHARACTERS = list(string.ascii_uppercase)
 FundLoansReqDict = TypedDict('FundLoansReqDict', {
 	'loan_ids': List[str],
 	'payment': payment_types.PaymentInsertInputDict,
-	'should_charge_wire_fee': bool,
-	'debt_facility_id': str
+	'should_charge_wire_fee': bool
 })
 
 FundLoansRespDict = TypedDict('FundLoansRespDict', {
@@ -47,7 +46,6 @@ def fund_loans_with_advance(
 
 	payment_input = req['payment']
 	loan_ids = req['loan_ids']
-	debt_facility_id = req['debt_facility_id']
 
 	if len(loan_ids) > len(ASCII_CHARACTERS):
 		raise errors.Error(f'Cannot create an advance on greater than {len(ASCII_CHARACTERS)} loans at the same time, please remove some loans')
@@ -74,16 +72,6 @@ def fund_loans_with_advance(
 	bank_note = payment_input['bank_note']
 
 	with session_scope(session_maker) as session:
-
-		if debt_facility_id != "":
-			debt_facility = cast(
-				models.DebtFacility,
-				session.query(models.DebtFacility).filter(
-					models.DebtFacility.id == debt_facility_id
-			).first())
-
-			if not debt_facility:
-				raise errors.Error("Debt facility ID set but no matching debt facility found")
 
 		# Note we order loans by [amount, created_at]. This order by
 		# impacts which disbursement identifiers are assigned to which loans.
@@ -327,18 +315,35 @@ def fund_loans_with_advance(
 			if loan.loan_type in artifact_ids_index:
 				artifact_ids_index[loan.loan_type].add(loan.artifact_id)
 
+			# This is a temporary solution. Based on demo feedback, the team
+			# wanted loans to just automatically be assigned to CoVenture
+			# if they are not dispensary financing
+			# Once we add more debt facilities, we can revisit
+			contract, err = contract_util.get_active_contract_by_company_id(str(loan.company_id), session)
+			if err:
+				raise err
+			if contract.get_product_type() != db_constants.ProductType.DISPENSARY_FINANCING:
+				debt_facility = cast(
+					models.DebtFacility,
+					session.query(models.DebtFacility).filter(
+						models.DebtFacility.name == "CoVenture"
+				).first())
+
+			debt_facility_id = debt_facility.id if debt_facility is not None else ""
+			
 			if str(loan.loan_report_id) in loan_report_dict:
 				loan_report = loan_report_dict[str(loan.loan_report_id)]
-				loan_report.debt_facility_id = debt_facility.id if debt_facility_id != "" else None
+				loan_report.debt_facility_id = debt_facility_id if debt_facility_id != "" else None
 				loan_report.debt_facility_status = db_constants.LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY \
 					if debt_facility_id != "" else db_constants.LoanDebtFacilityStatus.BESPOKE_BALANCE_SHEET
 				loan_report.debt_facility_added_date = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
 			else:
 				loan_report = models.LoanReport()
-				loan_report.debt_facility_id = debt_facility.id if debt_facility_id != "" else None
+				loan_report.debt_facility_id = debt_facility_id if debt_facility_id != "" else None
 				loan_report.debt_facility_status = db_constants.LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY \
 					if debt_facility_id != "" else db_constants.LoanDebtFacilityStatus.BESPOKE_BALANCE_SHEET
 				loan_report.debt_facility_added_date = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
+				session.add(loan_report)
 				session.flush()
 				loan.loan_report_id = loan_report.id
 

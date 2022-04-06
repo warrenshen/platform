@@ -223,8 +223,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					customer_note='',
 					bank_note=bank_note
 				),
-				should_charge_wire_fee=advance['should_charge_wire_fee'],
-				debt_facility_id = ""
+				should_charge_wire_fee=advance['should_charge_wire_fee']
 			)
 
 			resp, err = advance_util.fund_loans_with_advance(
@@ -1088,7 +1087,6 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					bank_note=''
 				),
 				should_charge_wire_fee=False,
-				debt_facility_id = "",
 			),
 			bank_admin_user_id='',
 			session_maker=self.session_maker,
@@ -1130,7 +1128,6 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					bank_note=''
 				),
 				should_charge_wire_fee=False,
-				debt_facility_id = "",
 			),
 			bank_admin_user_id='',
 			session_maker=self.session_maker
@@ -1191,7 +1188,6 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					bank_note=''
 				),
 				should_charge_wire_fee=False,
-				debt_facility_id = "",
 			),
 			bank_admin_user_id='',
 			session_maker=self.session_maker
@@ -1250,7 +1246,6 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					bank_note=''
 				),
 				should_charge_wire_fee=False,
-				debt_facility_id = ""
 			),
 			bank_admin_user_id='',
 			session_maker=self.session_maker
@@ -1312,7 +1307,6 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				),
 				loan_ids=loan_ids,
 				should_charge_wire_fee=False,
-				debt_facility_id="",
 			),
 			bank_admin_user_id='',
 			session_maker=self.session_maker
@@ -1375,7 +1369,6 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				),
 				loan_ids=loan_ids,
 				should_charge_wire_fee=False,
-				debt_facility_id="",
 			),
 			bank_admin_user_id='',
 			session_maker=self.session_maker
@@ -1437,7 +1430,6 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				),
 				loan_ids=loan_ids,
 				should_charge_wire_fee=False,
-				debt_facility_id="",
 			),
 			bank_admin_user_id='',
 			session_maker=self.session_maker
@@ -1500,7 +1492,6 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				),
 				loan_ids=loan_ids,
 				should_charge_wire_fee=False,
-				debt_facility_id="",
 			),
 			bank_admin_user_id='',
 			session_maker=self.session_maker
