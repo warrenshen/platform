@@ -11,6 +11,7 @@ import {
   useGetOpenLoansByDebtFacilityStatusesSubscription,
 } from "generated/graphql";
 import MoveDebtFacilityLoanModal from "components/DebtFacility/MoveDebtFacilityLoanModal";
+import UpdateDebtFacilityLoanAssignedDateModal from "components/DebtFacility/UpdateDebtFacilityLoanAssignedDateModal";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { DebtFacilityStatusEnum, ProductTypeEnum } from "lib/enum";
 import { useHistory } from "react-router-dom";
@@ -153,6 +154,25 @@ export default function DebtFacilityOpenTab({
                             facilities={facilities}
                             handleClose={handler}
                             supportedProductTypes={supportedProductTypes}
+                          />
+                        );
+                      }}
+                    />
+                  </Box>
+                </Can>
+                <Can perform={Action.UpdateDebtFacilityAssignedDate}>
+                  <Box mr={2}>
+                    <ModalButton
+                      isDisabled={selectedFacilityLoans.length === 0}
+                      label={"Update Assigned Date"}
+                      modal={({ handleClose }) => {
+                        return (
+                          <UpdateDebtFacilityLoanAssignedDateModal
+                            selectedLoans={selectedFacilityLoans}
+                            handleClose={() => {
+                              handleClose();
+                              setSelectedFacilityLoans([]);
+                            }}
                           />
                         );
                       }}

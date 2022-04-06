@@ -1,10 +1,18 @@
-import { Box, TextField, Typography } from "@material-ui/core";
+import {
+  Box,
+  createStyles,
+  makeStyles,
+  TextField,
+  Theme,
+  Typography,
+} from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import Modal from "components/Shared/Modal/Modal";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import AutocompleteDebtFacility from "components/DebtFacility/AutocompleteDebtFacility";
 import DebtFacilityLoansDataGrid from "components/DebtFacility/DebtFacilityLoansDataGrid";
+import DateInput from "components/Shared/FormInputs/DateInput";
 import { moveLoansForDebtFacility } from "lib/api/debtFacility";
 import { DebtFacilityStatusEnum, ProductTypeEnum } from "lib/enum";
 import {
@@ -15,6 +23,14 @@ import {
 } from "generated/graphql";
 import { formatCurrency } from "lib/number";
 import { useState } from "react";
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    inputField: {
+      width: 300,
+    },
+  })
+);
 
 type Facilities = GetDebtFacilitiesSubscription["debt_facilities"];
 
@@ -34,8 +50,11 @@ export default function MoveDebtFacilityLoanModal({
   supportedProductTypes,
 }: Props) {
   const snackbar = useSnackbar();
+  const classes = useStyles();
+
   const [debtFacilityId, setDebtFacilityId] = useState("");
   const [moveComments, setMoveComments] = useState("");
+  const [debtFacilityAssignedDate, setDebtFacilityAssignedDate] = useState("");
 
   const productType = !!selectedLoans[0]?.company?.contract?.product_type
     ? selectedLoans[0].company.contract.product_type
@@ -117,6 +136,7 @@ export default function MoveDebtFacilityLoanModal({
         facilityId: debtFacilityId,
         isMovingToFacility: isMovingToFacility,
         moveComments: moveComments,
+        moveDate: debtFacilityAssignedDate,
       },
     });
 
@@ -173,21 +193,35 @@ export default function MoveDebtFacilityLoanModal({
           </Box>
         )}
       {isMovingToFacility && (
-        <Box display="flex" flexDirection="column" width={400} mb={2}>
-          <Typography variant="body2" color="textSecondary">
-            Target Debt Facility
-          </Typography>
-          <AutocompleteDebtFacility
-            textFieldLabel="Select target debt facility"
-            onChange={(selectedDebtFacilityId) => {
-              setDebtFacilityId(selectedDebtFacilityId);
-            }}
-            productType={productType}
-          />
-        </Box>
-      )}
-      {isMovingToFacility && (
-        <>
+        <Box mt={4}>
+          <Box display="flex" flexDirection="column" width={400}>
+            <Typography variant="body2" color="textSecondary">
+              Target Debt Facility
+            </Typography>
+            <AutocompleteDebtFacility
+              textFieldLabel="Select target debt facility"
+              onChange={(selectedDebtFacilityId) => {
+                setDebtFacilityId(selectedDebtFacilityId);
+              }}
+              productType={productType}
+            />
+          </Box>
+          <Box display="flex" flexDirection="column" mt={4}>
+            <Typography variant="body2" color="textSecondary">
+              If an assignment date is not set, it will default to today. This
+              can be edited later.
+            </Typography>
+            <Box mt={2}>
+              <DateInput
+                disableNonBankDays
+                className={classes.inputField}
+                id="debt-facility-assignment-date-picker"
+                label="Assignment Date"
+                value={debtFacilityAssignedDate}
+                onChange={(value) => setDebtFacilityAssignedDate(value || "")}
+              />
+            </Box>
+          </Box>
           <Box mt={4}>
             <Typography variant="body2" color="textSecondary">
               The following loans will be moved from Bespoke's balance sheet to
@@ -204,7 +238,7 @@ export default function MoveDebtFacilityLoanModal({
             isExcelExport={false}
             supportedProductTypes={supportedProductTypes}
           />
-        </>
+        </Box>
       )}
       {!isMovingToFacility && (
         <>

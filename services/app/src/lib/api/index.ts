@@ -174,6 +174,7 @@ export const debtFacilityRoutes = {
   updateCompanyStatus: "debt_facility/update_company_status",
   moveLoans: "debt_facility/move_loans",
   resolveLoans: "debt_facility/resolve_update_required",
+  updateAssignedDate: "debt_facility/update_assigned_date",
 };
 
 const api = axios.create({

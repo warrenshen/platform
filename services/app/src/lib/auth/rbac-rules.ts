@@ -101,6 +101,7 @@ export enum Action {
   UpdateCompanyDebtFacilityStatus = "debt_facility:update_company_status",
   MoveDebtFacilityLoan = "debt_facility:move_loan",
   ResolveDebtFacilityLoan = "debt_facility:resolve_loan",
+  UpdateDebtFacilityAssignedDate = "debt_facility:update_assigned_date",
 }
 
 export interface ActionData {
@@ -239,6 +240,7 @@ const rules: Rules = {
       Action.UpdateCompanyDebtFacilityStatus,
       Action.MoveDebtFacilityLoan,
       Action.ResolveDebtFacilityLoan,
+      Action.UpdateDebtFacilityAssignedDate,
     ],
     dynamic: [],
   },

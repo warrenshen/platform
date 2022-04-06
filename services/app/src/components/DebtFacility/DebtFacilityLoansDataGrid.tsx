@@ -281,7 +281,7 @@ export default function DebtFacilityLoansDataGrid({
       },
       {
         visible: isDebtFacilityVisible,
-        caption: "Added to Debt Facility Date",
+        caption: "Assigned to Debt Facility Date",
         dataField: "debt_facility_added_date",
         width: ColumnWidths.Type,
         alignment: "center",

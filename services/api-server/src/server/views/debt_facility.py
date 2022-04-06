@@ -36,34 +36,22 @@ class DebtFacilityCreateUpdateFacilityView(MethodView):
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
 		logging.info("Updating debt facility")
-		form = json.loads(request.data)
+		form = json.loads(request.data) 
 		if not form:
 			return handler_util.make_error_response('No data provided')
-		variables = form.get("variables", None)
 
-		is_update = variables.get("isUpdate", None) if variables else None
-		if is_update is None:
-			return handler_util.make_error_response('isUpdate is required to be set for this request')
+		required_keys = ['isUpdate', 'name', 'id', "supported", "newMaximumCapacity", "newDrawnCapacity"]
 
-		facility_name = variables.get("name", None) if variables else None
-		if facility_name is None:
-			return handler_util.make_error_response('name is required to be set for this request')
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in response to creating/updating debt facility')
 
-		facility_id = variables.get("id", None) if variables else None
-		if facility_id is None:
-			return handler_util.make_error_response('id is required to be set for this request')
-
-		supported = variables.get("supported", None) if variables else None
-		if supported is None:
-			return handler_util.make_error_response('supported product types are required to be set for this request')
-
-		new_maximum_capacity = variables.get("newMaximumCapacity", None) if variables else None
-		if new_maximum_capacity is None:
-			return handler_util.make_error_response('maximum capacity is required to be set for this request')
-
-		new_drawn_capacity = variables.get("newDrawnCapacity", None) if variables else None
-		if new_drawn_capacity is None:
-			return handler_util.make_error_response('drawn capacity required to be set for this request')
+		is_update = form["isUpdate"]
+		facility_name = form["name"]
+		facility_id = form["id"]
+		supported = form["supported"]
+		new_maximum_capacity = form["newMaximumCapacity"]
+		new_drawn_capacity = form["newDrawnCapacity"]
 
 		with models.session_scope(current_app.session_maker) as session:
 			user_session = auth_util.UserSession.from_session()
@@ -151,19 +139,16 @@ class DebtFacilityUpdateCompanyStatusView(MethodView):
 		form = json.loads(request.data)
 		if not form:
 			return handler_util.make_error_response('No data provided')
-		variables = form.get("variables", None)
 
-		company_id = variables.get("companyId", None) if variables else None
-		if company_id is None:
-			return handler_util.make_error_response('companyId is required to be set for this request')
+		required_keys = ['companyId', 'debtFacilityStatus', 'statusChangeComment']
 
-		new_debt_facility_status = variables.get("debtFacilityStatus", None) if variables else None
-		if new_debt_facility_status is None:
-			return handler_util.make_error_response('debtFacilityStatus is required to be set for this request')
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in response to updating company debt facility status')
 
-		status_change_comment = variables.get("statusChangeComment", None) if variables else None
-		if status_change_comment is None:
-			return handler_util.make_error_response('statusChangeComment is required to be set for this request')
+		company_id = form["companyId"]
+		new_debt_facility_status = form["debtFacilityStatus"]
+		status_change_comment = form["statusChangeComment"]
 
 		with models.session_scope(current_app.session_maker) as session:
 			user_session = auth_util.UserSession.from_session()
@@ -219,23 +204,19 @@ class DebtFacilityMoveLoanView(MethodView):
 		form = json.loads(request.data)
 		if not form:
 			return handler_util.make_error_response('No data provided')
-		variables = form.get("variables", None)
 
-		loan_ids = variables.get("loanIds", None) if variables else None
-		if loan_ids is None:
-			return handler_util.make_error_response('loanIds is required to be set for this request')
+		required_keys = ['loanIds', 'facilityId', 'isMovingToFacility', 'moveComments', 'moveDate']
 
-		facility_id = variables.get("facilityId", None) if variables else None
-		if facility_id is None:
-			return handler_util.make_error_response('facilityId is required to be set for this request')
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in response to debt facility loan move')
 
-		is_moving_to_facility = variables.get("isMovingToFacility", None) if variables else None
-		if is_moving_to_facility is None:
-			return handler_util.make_error_response('isMovingToFacility is required to be set for this request')
-
-		move_comments = variables.get("moveComments", None) if variables else None
-		if move_comments is None:
-			return handler_util.make_error_response('moveComments is required to be set for this request')
+		loan_ids = form["loanIds"]
+		facility_id = form["facilityId"]
+		is_moving_to_facility = form["isMovingToFacility"]
+		move_comments = form["moveComments"]
+		move_date = form["moveDate"]
+		move_date = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE) if move_date == "" else move_date
 
 		with models.session_scope(current_app.session_maker) as session:
 			user_session = auth_util.UserSession.from_session()
@@ -279,6 +260,7 @@ class DebtFacilityMoveLoanView(MethodView):
 					old_debt_facility_status = loan_report.debt_facility_status
 					loan_report.debt_facility_status = LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY
 					loan_report.debt_facility_added_date = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
+					loan_report.debt_facility_added_date = move_date
 
 					to_facility_payload : Dict[str, object] = {
 						"user_name": user.first_name + " " + user.last_name,
@@ -327,23 +309,17 @@ class DebtFacilityResolveUpdateRequiredView(MethodView):
 		form = json.loads(request.data)
 		if not form:
 			return handler_util.make_error_response('No data provided')
-		variables = form.get("variables", None)
 
-		loan_id = variables.get("loanId", None) if variables else None
-		if loan_id is None:
-			return handler_util.make_error_response('loanId is required to be set for this request')
+		required_keys = ['loanId', 'facilityId', 'resolveNote', 'resolveStatus']
 
-		facility_id = variables.get("facilityId", None) if variables else None
-		if facility_id is None:
-			return handler_util.make_error_response('facilityId is required to be set for this request')
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in response to debt facility resolution')
 
-		resolve_note = variables.get("resolveNote", None) if variables else None
-		if resolve_note is None:
-			return handler_util.make_error_response('resolveNote is required to be set for this request')
-
-		resolve_status = variables.get("resolveStatus", None) if variables else None
-		if resolve_status is None:
-			return handler_util.make_error_response('resolveStatus is required to be set for this request')
+		loan_id = form["loanId"]
+		facility_id = form["facilityId"]
+		resolve_note = form["resolveNote"]
+		resolve_status = form["resolveStatus"]
 
 		with models.session_scope(current_app.session_maker) as session:
 			user_session = auth_util.UserSession.from_session()
@@ -383,7 +359,51 @@ class DebtFacilityResolveUpdateRequiredView(MethodView):
 				event_payload = resolve_update_payload
 			))
 
-		return make_response(json.dumps({'status': 'OK', 'resp': "Successfully moved loan."}))
+		return make_response(json.dumps({'status': 'OK', 'resp': "Successfully updated loan debt facility status."}))
+
+class DebtFacilityUpdateAssignedDateView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		logging.info("Updating the date a loan was assigned into a debt facility")
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = ['loanIds', 'newAssignedDate']
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in response to update debt facility assigned date')
+
+		loan_ids = form["loanIds"]
+		new_assigned_date = form["newAssignedDate"]
+
+		with models.session_scope(current_app.session_maker) as session:
+			user_session = auth_util.UserSession.from_session()
+			user = session.query(models.User).filter(
+				models.User.id == user_session.get_user_id()
+			).first()
+
+			loans = cast(
+				List[models.Loan],
+				session.query(models.Loan).filter(
+					models.Loan.id.in_(loan_ids)
+			).all())
+
+			loan_report_ids = [loan.loan_report_id for loan in loans]
+
+			loan_reports = cast(
+				List[models.LoanReport],
+				session.query(models.LoanReport).filter(
+					models.LoanReport.id.in_(loan_report_ids)
+			).all())
+
+			for loan_report in loan_reports:
+				loan_report.debt_facility_added_date = new_assigned_date
+
+		return make_response(json.dumps({'status': 'OK', 'resp': "Successfully updated loan(s) assigned date."}))
 
 handler.add_url_rule(
 	"/create_update_facility",
@@ -400,3 +420,7 @@ handler.add_url_rule(
 handler.add_url_rule(
 	"/resolve_update_required",
 	view_func=DebtFacilityResolveUpdateRequiredView.as_view(name='resolve_update_required'))
+
+handler.add_url_rule(
+	"/update_assigned_date",
+	view_func=DebtFacilityUpdateAssignedDateView.as_view(name='update_assigned_date'))

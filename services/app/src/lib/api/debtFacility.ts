@@ -19,7 +19,7 @@ export async function createUpdateDebtFacility(
   req: CreateUpdateDebtFacilityReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(debtFacilityRoutes.createUpdateFacility, req)
+    .post(debtFacilityRoutes.createUpdateFacility, req.variables)
     .then((res) => {
       return res.data;
     })
@@ -48,7 +48,7 @@ export async function updateCompanyDebtFacilityStatus(
   req: UpdateCompanyDebtFacilityStatusReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(debtFacilityRoutes.updateCompanyStatus, req)
+    .post(debtFacilityRoutes.updateCompanyStatus, req.variables)
     .then((res) => {
       return res.data;
     })
@@ -72,6 +72,7 @@ export type MoveLoansForDebtFacilityReq = {
     facilityId: string;
     isMovingToFacility: boolean;
     moveComments: string;
+    moveDate: string;
   };
 };
 
@@ -79,7 +80,7 @@ export async function moveLoansForDebtFacility(
   req: MoveLoansForDebtFacilityReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(debtFacilityRoutes.moveLoans, req)
+    .post(debtFacilityRoutes.moveLoans, req.variables)
     .then((res) => {
       return res.data;
     })
@@ -110,7 +111,37 @@ export async function resolveLoansForDebtFacility(
   req: ResolveLoansForDebtFacilityReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(debtFacilityRoutes.resolveLoans, req)
+    .post(debtFacilityRoutes.resolveLoans, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg:
+            "Could not resolve the debt facility action required for this loan",
+        };
+      }
+    );
+}
+
+export type UpdateDebtFacilityAssignedDateReq = {
+  variables: {
+    newAssignedDate: string;
+    loanIds: string[];
+  };
+};
+
+export async function updateDebtFacilityAssignedDate(
+  req: UpdateDebtFacilityAssignedDateReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(debtFacilityRoutes.updateAssignedDate, req.variables)
     .then((res) => {
       return res.data;
     })
