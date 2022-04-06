@@ -93,7 +93,11 @@ function ActionRequiredTab() {
           </Box>
         </Can>
       </Box>
-      <Box display="flex" flexDirection="column">
+      <Box
+        data-cy="partnership-data-grid-container"
+        display="flex"
+        flexDirection="column"
+      >
         <PartnershipsDataGrid
           isClosedTab={false}
           isFilteringEnabled={false}

@@ -1,5 +1,6 @@
 import json
-from typing import Any, List, cast
+import os
+from typing import Any, cast
 
 from bespoke import errors
 from bespoke.audit import events
@@ -8,10 +9,9 @@ from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.finance import contract_util
+from server.config import is_test_env
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
-from mypy_extensions import TypedDict
-from server.config import Config
 from server.views.common import auth_util, handler_util
 from server.views.common.auth_util import UserSession
 
@@ -192,7 +192,6 @@ class CreatePartnershipRequestView(MethodView):
 				sendgrid_util.Client,
 				current_app.sendgrid_client,
 			)
-			cfg = cast(Config, current_app.app_config)
 
 			customer = cast(
 				models.Company,
@@ -200,11 +199,6 @@ class CreatePartnershipRequestView(MethodView):
 					models.Company.id == customer_id
 				).first())
 
-			customer_settings = cast(
-				models.CompanySettings,
-				session.query(models.CompanySettings).filter(
-					models.CompanySettings.company_id == customer_id
-				).first())
 
 			partner_name = req['company']['name']
 
@@ -213,6 +207,7 @@ class CreatePartnershipRequestView(MethodView):
 				'partner_name': partner_name,
 				'partnership_type': partnership_type
 			}
+
 			recipients = sendgrid_client.get_bank_notify_email_addresses()
 			_, err = sendgrid_client.send(
 				sendgrid_util.TemplateNames.USER_REQUESTS_PARTNER_ON_PLATFORM,
@@ -317,10 +312,9 @@ class DeletePartnershipRequestView(MethodView):
 			if key not in form:
 				return handler_util.make_error_response(f'Missing {key} in request')
 
-		user_session = UserSession.from_session()
 
 		with session_scope(current_app.session_maker) as session:
-			success, err = create_company_util.delete_partnership_request(
+			_, err = create_company_util.delete_partnership_request(
 				partnership_request_id=form['partnership_request_id'],
 				session=session
 			)
@@ -365,7 +359,6 @@ class CreatePartnershipView(MethodView):
 				sendgrid_util.Client,
 				current_app.sendgrid_client,
 			)
-			cfg = cast(Config, current_app.app_config)
 
 			customer_id = resp['customer_id']
 			customer = cast(
@@ -486,7 +479,7 @@ class ApprovePartnershipView(MethodView):
 		is_payor = form['is_payor']
 
 		with session_scope(current_app.session_maker) as session:
-			success, err = create_company_util.approve_partnership(
+			_, err = create_company_util.approve_partnership(
 				partnership_id=partnership_id,
 				is_payor=is_payor,
 				session=session,

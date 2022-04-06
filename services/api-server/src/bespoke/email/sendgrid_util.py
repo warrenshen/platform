@@ -354,14 +354,6 @@ def _maybe_add_or_remove_recipients(
 		if filter_out_contact_only is True:
 			recipients = _filter_out_contact_only_emails(recipients, session)
 
-	# Remove do-not-reply-development@bespokefinancial.com until that email is setup
-	# Once that email is setup, we can and should remove this snippet
-	new_recipients = []
-	for recipient in recipients:
-		if recipient != "do-not-reply-development@bespokefinancial.com":
-			new_recipients.append(recipient)
-	recipients = new_recipients
-
 	# For the production environment only, if email template is not
 	# in blacklist then we send a copy of email to the no_reply_email_addr.
 	if (

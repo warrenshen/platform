@@ -55,6 +55,7 @@ export default function RegisterThirdPartyForm({
       <Box my={2}>
         <Box display="flex" flexDirection="column">
           <TextField
+            data-cy="company-name-input"
             autoFocus
             label={`${companyTypeUpper} Name`}
             required
@@ -85,6 +86,7 @@ export default function RegisterThirdPartyForm({
           <Box display="flex" flexDirection="column" mt={4}>
             <TextField
               required
+              data-cy="company-license-input"
               label="License IDs (comma separated if multiple licenses)"
               value={licenseInfo.license_ids.join(",")}
               onChange={({ target: { value } }) => {
@@ -103,6 +105,7 @@ export default function RegisterThirdPartyForm({
           <Box display="flex" flexDirection="column" mx={2}>
             <Box display="flex" flexDirection="column" mt={4}>
               <TextField
+                data-cy="company-contact-first-name-input"
                 required
                 label="First Name"
                 value={contact.first_name}
@@ -113,6 +116,7 @@ export default function RegisterThirdPartyForm({
             </Box>
             <Box display="flex" flexDirection="column" mt={4}>
               <TextField
+                data-cy="company-contact-last-name-input"
                 required
                 label="Last Name"
                 value={contact.last_name}
@@ -123,6 +127,7 @@ export default function RegisterThirdPartyForm({
             </Box>
             <Box display="flex" flexDirection="column" mt={4}>
               <TextField
+                data-cy="company-contact-email-input"
                 required
                 label="Email"
                 value={contact.email}
@@ -131,7 +136,12 @@ export default function RegisterThirdPartyForm({
                 }
               />
             </Box>
-            <Box display="flex" flexDirection="column" mt={4}>
+            <Box
+              data-cy="company-contact-phone-input-container"
+              display="flex"
+              flexDirection="column"
+              mt={4}
+            >
               <PhoneInput
                 isRequired
                 value={contact.phone_number || null}

@@ -27526,7 +27526,10 @@ export type PartnershipRequestFragment = Pick<
   | "requested_by_user_id"
   | "settled_by_user_id"
   | "settled_at"
->;
+> & {
+  requesting_company: Pick<Companies, "id" | "name">;
+  requested_by_user: Pick<Users, "full_name">;
+};
 
 export type VendorPartnershipFragment = Pick<
   CompanyVendorPartnerships,
@@ -27873,10 +27876,7 @@ export type GetSettledPartnershipRequestsForBankSubscriptionVariables = Exact<{
 
 export type GetSettledPartnershipRequestsForBankSubscription = {
   company_partnership_requests: Array<
-    Pick<CompanyPartnershipRequests, "id"> & {
-      requesting_company: Pick<Companies, "id" | "name">;
-      requested_by_user: Pick<Users, "full_name">;
-    } & PartnershipRequestFragment
+    Pick<CompanyPartnershipRequests, "id"> & PartnershipRequestFragment
   >;
 };
 
@@ -27886,10 +27886,18 @@ export type GetPartnershipRequestsForBankSubscriptionVariables = Exact<{
 
 export type GetPartnershipRequestsForBankSubscription = {
   company_partnership_requests: Array<
-    Pick<CompanyPartnershipRequests, "id"> & {
-      requesting_company: Pick<Companies, "id" | "name">;
-      requested_by_user: Pick<Users, "full_name">;
-    } & PartnershipRequestFragment
+    Pick<CompanyPartnershipRequests, "id"> & PartnershipRequestFragment
+  >;
+};
+
+export type GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscriptionVariables = Exact<{
+  requesting_company_id: Scalars["uuid"];
+  company_type: CompanyTypeEnum;
+}>;
+
+export type GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscription = {
+  company_partnership_requests: Array<
+    Pick<CompanyPartnershipRequests, "id"> & PartnershipRequestFragment
   >;
 };
 
@@ -28587,6 +28595,13 @@ export const PartnershipRequestFragmentDoc = gql`
     requested_by_user_id
     settled_by_user_id
     settled_at
+    requesting_company {
+      id
+      name
+    }
+    requested_by_user {
+      full_name
+    }
   }
 `;
 export const VendorPartnershipLimitedFragmentDoc = gql`
@@ -38786,13 +38801,6 @@ export const GetSettledPartnershipRequestsForBankDocument = gql`
     ) {
       id
       ...PartnershipRequest
-      requesting_company {
-        id
-        name
-      }
-      requested_by_user {
-        full_name
-      }
     }
   }
   ${PartnershipRequestFragmentDoc}
@@ -38842,13 +38850,6 @@ export const GetPartnershipRequestsForBankDocument = gql`
     ) {
       id
       ...PartnershipRequest
-      requesting_company {
-        id
-        name
-      }
-      requested_by_user {
-        full_name
-      }
     }
   }
   ${PartnershipRequestFragmentDoc}
@@ -38884,6 +38885,65 @@ export type GetPartnershipRequestsForBankSubscriptionHookResult = ReturnType<
   typeof useGetPartnershipRequestsForBankSubscription
 >;
 export type GetPartnershipRequestsForBankSubscriptionResult = Apollo.SubscriptionResult<GetPartnershipRequestsForBankSubscription>;
+export const GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeDocument = gql`
+  subscription GetPartnershipRequestsForBankByRequestingCompanyIdAndType(
+    $requesting_company_id: uuid!
+    $company_type: company_type_enum!
+  ) {
+    company_partnership_requests(
+      order_by: [{ created_at: asc }]
+      where: {
+        requesting_company_id: { _eq: $requesting_company_id }
+        settled_at: { _is_null: true }
+        _or: [
+          { is_deleted: { _is_null: true } }
+          { is_deleted: { _eq: false } }
+        ]
+        company_type: { _eq: $company_type }
+      }
+    ) {
+      id
+      ...PartnershipRequest
+    }
+  }
+  ${PartnershipRequestFragmentDoc}
+`;
+
+/**
+ * __useGetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscription__
+ *
+ * To run a query within a React component, call `useGetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscription({
+ *   variables: {
+ *      requesting_company_id: // value for 'requesting_company_id'
+ *      company_type: // value for 'company_type'
+ *   },
+ * });
+ */
+export function useGetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscription(
+  baseOptions: Apollo.SubscriptionHookOptions<
+    GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscription,
+    GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscriptionVariables
+  >
+) {
+  return Apollo.useSubscription<
+    GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscription,
+    GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscriptionVariables
+  >(
+    GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeDocument,
+    baseOptions
+  );
+}
+export type GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscriptionHookResult = ReturnType<
+  typeof useGetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscription
+>;
+export type GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscriptionResult = Apollo.SubscriptionResult<GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscription>;
 export const GetUserByIdDocument = gql`
   query GetUserById($id: uuid!) {
     users_by_pk(id: $id) {

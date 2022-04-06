@@ -94,7 +94,7 @@ fragment CompanyForDebtFacility on companies {
   zip_code
   phone_number
   debt_facility_status
-  licenses (
+  licenses(
     where: {
       _or: [
         { is_deleted: { _is_null: true } }
@@ -249,6 +249,13 @@ fragment PartnershipRequest on company_partnership_requests {
   requested_by_user_id
   settled_by_user_id
   settled_at
+  requesting_company {
+    id
+    name
+  }
+  requested_by_user {
+    full_name
+  }
 }
 
 fragment VendorPartnership on company_vendor_partnerships {
@@ -392,13 +399,15 @@ fragment OpenLoanForDebtFacility on loans {
     id
     ...Invoice
   }
-  transactions ( where: {
-    _and: [
-      { type: { _eq: "advance"} },
-      # This was the date requested by the finance team w.r.t. CoVenture
-      { effective_date: { _gt: "2021-11-24" }}
-    ]
-  }) {
+  transactions(
+    where: {
+      _and: [
+        { type: { _eq: "advance" } }
+        # This was the date requested by the finance team w.r.t. CoVenture
+        { effective_date: { _gt: "2021-11-24" } }
+      ]
+    }
+  ) {
     id
   }
 }

@@ -32,6 +32,9 @@ function getRows(requests: any[]): RowsProp {
     requested_by_user: {
       ...request.requested_by_user,
     },
+    license_ids: request.license_info
+      ? request.license_info.license_ids.join(", ")
+      : "",
   }));
 }
 
@@ -120,11 +123,7 @@ export default function PartnershipsDataGrid({
         width: ColumnWidths.Type,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
-          <Box>
-            {params.row.data.license_info
-              ? params.row.data.license_info.license_ids.join(", ")
-              : ""}
-          </Box>
+          <Box>{params.row.data.license_ids}</Box>
         ),
       },
     ],
