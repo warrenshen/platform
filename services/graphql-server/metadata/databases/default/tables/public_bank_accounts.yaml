@@ -2,6 +2,12 @@ table:
   name: bank_accounts
   schema: public
 object_relationships:
+- name: bank_instructions
+  using:
+    foreign_key_constraint_on: bank_instructions_file_id
+- name: canceled_check
+  using:
+    foreign_key_constraint_on: canceled_check_file_id
 - name: company
   using:
     foreign_key_constraint_on: company_id
@@ -88,9 +94,11 @@ select_permissions:
     - account_type
     - ach_default_memo
     - bank_address
+    - bank_instructions_file_id
     - bank_name
     - can_ach
     - can_wire
+    - canceled_check_file_id
     - company_id
     - created_at
     - id
@@ -121,9 +129,11 @@ select_permissions:
     - account_type
     - ach_default_memo
     - bank_address
+    - bank_instructions_file_id
     - bank_name
     - can_ach
     - can_wire
+    - canceled_check_file_id
     - company_id
     - created_at
     - id

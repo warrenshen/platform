@@ -18,7 +18,7 @@ UserInsertInputDict = TypedDict('UserInsertInputDict', {
 	'last_name': str,
 	'email': str,
 	'phone_number': str,
-})
+}, total=False)
 
 CreateBankOrCustomerUserInputDict = TypedDict('CreateBankOrCustomerUserInputDict', {
 	'company_id': str,

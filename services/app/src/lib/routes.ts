@@ -96,6 +96,8 @@ export const bankRoutes = {
   },
   reports: "/reports",
   settings: "/settings",
+  createVendor: "/vendor-form/:companyId",
+  createVendorComplete: "/create-vendor-complete",
   vendors: "/vendors",
 };
 

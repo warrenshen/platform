@@ -18,6 +18,7 @@ select_permissions:
     - is_cannabis
     - is_deleted
     - license_info
+    - request_info
     - requested_by_user_id
     - requesting_company_id
     - settled_at
@@ -35,6 +36,7 @@ select_permissions:
     - is_cannabis
     - is_deleted
     - license_info
+    - request_info
     - requested_by_user_id
     - requesting_company_id
     - settled_at

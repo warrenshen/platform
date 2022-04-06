@@ -186,6 +186,67 @@ export async function createPartnershipRequestMutation(
     );
 }
 
+export type LicenseInfoNew = {
+  license_ids: Array<string>;
+  license_copy_file_id: string;
+};
+
+export type CompanyInfo = {
+  name: string;
+  is_cannabis: boolean;
+};
+
+export type PartnershipRequestUserInfo = {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone_number: string;
+};
+
+export type PartnershipRequestRequestInfo = {
+  dba_name: string;
+  bank_name: string;
+  bank_account_name: string;
+  bank_account_number: string;
+  bank_ach_routing_number: string;
+  bank_wire_routing_number: string;
+  beneficiary_address: string;
+  canceled_check_attachment_id: string;
+  bank_instructions_attachment_id: string;
+};
+
+type CreatePartnershipRequestNewMutationReq = {
+  variables: {
+    customer_id: Companies["id"];
+    company: CompanyInfo;
+    user: PartnershipRequestUserInfo;
+    license_info: LicenseInfoNew;
+    request_info: PartnershipRequestRequestInfo;
+  };
+};
+
+export async function createPartnershipRequestNewMutation(
+  req: CreatePartnershipRequestNewMutationReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(companyRoutes.createPartnershipRequestNew, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not create partnership request",
+        };
+      }
+    );
+}
+
 type CreatePartnershipMutationReq = {
   variables: {
     partnership_request_id: CompanyPartnershipRequests["id"];

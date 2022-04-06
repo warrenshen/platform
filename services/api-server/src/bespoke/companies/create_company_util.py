@@ -21,7 +21,7 @@ CompanyInsertInputDict = TypedDict('CompanyInsertInputDict', {
 	'contract_name': str,
 	'dba_name': str,
 	'is_cannabis': bool,
-})
+}, total=False)
 
 CompanySettingsInsertInputDict = TypedDict('CompanySettingsInsertInputDict', {
 })
@@ -65,11 +65,36 @@ LicenseInfoDict = TypedDict('LicenseInfoDict', {
 	'license_ids': List[str]
 })
 
+LicenseInfoNewDict = TypedDict('LicenseInfoNewDict', {
+	'license_ids': List[str],
+	'license_copy_file_id': str,
+})
+
+PartnershipRequestRequestInfoDict = TypedDict('PartnershipRequestRequestInfoDict', {
+	'dba_name': str,
+	'bank_name': str,
+	'bank_account_name': str,
+	'bank_account_number': str,
+	'bank_ach_routing_number': str,
+	'bank_wire_routing_number': str,
+	'beneficiary_address': str,
+	'canceled_check_attachment_id': str,
+	'bank_instructions_attachment_id': str,
+})
+
 CreatePartnershipRequestInputDict = TypedDict('CreatePartnershipRequestInputDict', {
 	'customer_id': str,
 	'company': CompanyInsertInputDict,
 	'user': create_user_util.UserInsertInputDict,
 	'license_info': LicenseInfoDict
+})
+
+CreatePartnershipRequestNewInputDict = TypedDict('CreatePartnershipRequestNewInputDict', {
+	'customer_id': str,
+	'company': CompanyInsertInputDict,
+	'user': create_user_util.UserInsertInputDict,
+	'license_info': LicenseInfoNewDict,
+	'request_info': PartnershipRequestRequestInfoDict,
 })
 
 def _check_is_company_name_already_used(company_name: str, company_identifier: str, session: Session) -> Tuple[bool, errors.Error]:
@@ -666,6 +691,106 @@ def create_partnership_request(
 		'email': user_email,
 		'phone_number': user_phone_number
 	}
+	session.add(partnership_req)
+	session.flush()
+	partnership_req_id = str(partnership_req.id)
+
+	return partnership_req_id, None
+
+@errors.return_error_tuple
+def create_partnership_request_new(
+	req: CreatePartnershipRequestNewInputDict,
+	requested_user_id: str,
+	session: Session,
+	is_payor: bool,
+) -> Tuple[str, errors.Error]:
+	customer_id = req['customer_id']
+
+	company_input = req['company']
+	company_name = company_input['name']
+	is_cannabis = company_input['is_cannabis']
+
+	if not company_name:
+		raise errors.Error('Name must be specified')
+
+	user_input = req['user']
+	user_first_name = user_input['first_name']
+	user_last_name = user_input['last_name']
+	user_email = user_input['email']
+	user_phone_number = user_input['phone_number']
+
+	if not user_first_name or not user_last_name:
+		raise errors.Error('User full name must be specified')
+
+	if not user_email:
+		raise errors.Error('User email must be specified')
+
+	if not user_phone_number:
+		raise errors.Error('User phone number must be specified')
+	
+	request_info_input = req['request_info']
+	request_info_dba_name = request_info_input['dba_name']
+	request_info_bank_name = request_info_input['bank_name']
+	request_info_bank_account_name = request_info_input['bank_account_name']
+	request_info_bank_account_number = request_info_input['bank_account_number']
+	request_info_bank_ach_routing_number = request_info_input['bank_ach_routing_number']
+	request_info_bank_wire_routing_number = request_info_input['bank_wire_routing_number']
+	request_info_beneficiary_address = request_info_input['beneficiary_address']
+	request_info_canceled_check_attachment_id = request_info_input['canceled_check_attachment_id']
+	request_info_bank_instructions_attachment_id = request_info_input['bank_instructions_attachment_id']
+
+	if not request_info_dba_name:
+		raise errors.Error('DBA must be specified')
+	
+	if not request_info_bank_name:
+		raise errors.Error('Bank name must be specified')
+	
+	if not request_info_bank_account_name:
+		raise errors.Error('Bank account name must be specified')
+	
+	if not request_info_bank_account_number:
+		raise errors.Error('Bank account number must be specified')
+	
+	if not request_info_bank_ach_routing_number:
+		raise errors.Error('Bank ACH routing number must be specified')
+	
+	if not request_info_bank_wire_routing_number:
+		raise errors.Error('Bank wire routing number must be specified')
+	
+	if not request_info_beneficiary_address:
+		raise errors.Error('Beneficiary address wire routing number must be specified')
+	
+	if not request_info_canceled_check_attachment_id and not request_info_bank_instructions_attachment_id:
+		raise errors.Error('Canceled check / bank instructions attachment must be specified')
+
+	partnership_req = models.CompanyPartnershipRequest()
+	partnership_req.requesting_company_id = customer_id
+	partnership_req.two_factor_message_method = TwoFactorMessageMethod.PHONE
+	partnership_req.company_type = CompanyType.Vendor
+	partnership_req.company_name = company_name
+	partnership_req.is_cannabis = is_cannabis
+	partnership_req.requested_by_user_id = requested_user_id
+	partnership_req.license_info = cast(Dict, req['license_info'])
+
+	partnership_req.user_info = {
+		'first_name': user_first_name,
+		'last_name': user_last_name,
+		'email': user_email,
+		'phone_number': user_phone_number
+	}
+
+	partnership_req.request_info = {
+		'dba_name': request_info_dba_name,
+		'bank_name': request_info_bank_name,
+		'bank_account_name': request_info_bank_account_name,
+		'bank_account_number': request_info_bank_account_number,
+		'bank_ach_routing_number': request_info_bank_ach_routing_number,
+		'bank_wire_routing_number': request_info_bank_wire_routing_number,
+		'beneficiary_address': request_info_beneficiary_address,
+		'canceled_check_attachment_id': request_info_canceled_check_attachment_id,
+		'bank_instructions_attachment_id': request_info_bank_instructions_attachment_id
+	}
+
 	session.add(partnership_req)
 	session.flush()
 	partnership_req_id = str(partnership_req.id)

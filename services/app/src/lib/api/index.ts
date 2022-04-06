@@ -21,6 +21,7 @@ export const companyRoutes = {
   createCustomer: "/companies/create_customer",
   createProspectiveCustomer: "/companies/create_prospective_customer",
   createPartnershipRequest: "/companies/create_partnership_request",
+  createPartnershipRequestNew: "/companies/create_partnership_request_new",
   deletePartnershipRequest: "/companies/delete_partnership_request",
   createPartnership: "/companies/create_partnership",
   approvePartnership: "/companies/approve_partnership",

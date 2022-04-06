@@ -225,6 +225,81 @@ class CreatePartnershipRequestView(MethodView):
 			'partnership_request_id': partnership_req_id,
 		}))
 
+class CreatePartnershipRequestNewView(MethodView):
+	# Todo : Remove this is the future so that an anonymous user can access this
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'customer_id',
+			'company',
+			'license_info',
+			'request_info',
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in request')
+
+		user_session = UserSession.from_session()
+
+		customer_id = form['customer_id']
+
+		req = cast(create_company_util.CreatePartnershipRequestNewInputDict, form)
+
+		with session_scope(current_app.session_maker) as session:
+
+			partnership_req_id, err = create_company_util.create_partnership_request_new(
+				req=req,
+				requested_user_id=user_session.get_user_id(),
+				session=session,
+				is_payor=False,
+			)
+			if err:
+				raise err
+
+			sendgrid_client = cast(
+				sendgrid_util.Client,
+				current_app.sendgrid_client,
+			)
+			cfg = cast(Config, current_app.app_config)
+
+			customer = cast(
+				models.Company,
+				session.query(models.Company).filter(
+					models.Company.id == customer_id
+				).first())
+
+			customer_settings = cast(
+				models.CompanySettings,
+				session.query(models.CompanySettings).filter(
+					models.CompanySettings.company_id == customer_id
+				).first())
+
+			partner_name = req['company']['name']
+
+			template_data = {
+				'customer_name': customer.get_display_name(),
+				'partner_name': partner_name,
+				'partnership_type': 'vendor',
+			}
+			recipients = sendgrid_client.get_bank_notify_email_addresses()
+			_, err = sendgrid_client.send(
+				sendgrid_util.TemplateNames.USER_REQUESTS_PARTNER_ON_PLATFORM,
+				template_data, recipients)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'partnership_request_id': partnership_req_id,
+		}))
+
 class DeletePartnershipRequestView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
@@ -438,6 +513,9 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/create_partnership_request', view_func=CreatePartnershipRequestView.as_view(name='create_partnership_request_view'))
+
+handler.add_url_rule(
+	'/create_partnership_request_new', view_func=CreatePartnershipRequestNewView.as_view(name='create_partnership_request_new_view'))
 
 handler.add_url_rule(
 	'/delete_partnership_request', view_func=DeletePartnershipRequestView.as_view(name='delete_partnership_request_view'))

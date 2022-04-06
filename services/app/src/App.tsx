@@ -20,6 +20,7 @@ import ReviewInvoicePaymentPage from "pages/Anonymous/ReviewInvoicePayment";
 import ReviewInvoicePaymentCompletePage from "pages/Anonymous/ReviewInvoicePaymentComplete";
 import ReviewPurchaseOrderPage from "pages/Anonymous/ReviewPurchaseOrder";
 import ReviewPurchaseOrderCompletePage from "pages/Anonymous/ReviewPurchaseOrderComplete";
+import AnonymousCompletePage from "pages/Anonymous/AnonymousCompletePage";
 import AnonymousSecureLinkPage from "pages/Anonymous/SecureLink";
 import SignIn from "pages/Anonymous/SignIn";
 import BankAdvancesPage from "pages/Bank/Advances";
@@ -39,6 +40,7 @@ import BankPurchaseOrdersPage from "pages/Bank/PurchaseOrders";
 import BankRepaymentsPage from "pages/Bank/Repayments";
 import BankReportsPage from "pages/Bank/Reports";
 import BankSettingsPage from "pages/Bank/Settings";
+import VendorFormPage from "pages/Anonymous/VendorForm";
 import BankVendorsPage from "pages/Bank/Vendors";
 import CustomerAccountPage from "pages/Customer/AccountFeesCredits";
 import CustomerContractPage from "pages/Customer/Contract";
@@ -400,6 +402,18 @@ export default function App() {
         >
           <BankSettingsPage />
         </PrivateRoute>
+        <PrivateRoute
+          exact
+          path={bankRoutes.createVendor}
+          requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
+        >
+          <VendorFormPage />
+        </PrivateRoute>
+        <Route
+          exact
+          path={bankRoutes.createVendorComplete}
+          component={AnonymousCompletePage}
+        />
         <Route>
           <Redirect to={routes.root} />
         </Route>

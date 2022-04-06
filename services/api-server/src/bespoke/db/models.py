@@ -323,6 +323,7 @@ class CompanyPartnershipRequest(Base):
 	is_cannabis = Column(Boolean)
 	license_info = Column(JSON, nullable=False)
 	user_info = Column(JSON, nullable=False)
+	request_info = Column(JSON, nullable=True)
 	requested_by_user_id = Column(GUID, nullable=False)
 	settled_at = Column(DateTime)
 	settled_by_user_id = Column(GUID)
@@ -1357,6 +1358,12 @@ class BankAccount(Base):
 	account_title = Column(String) # Account name
 	account_type = Column(String, nullable=False) # Account type
 	account_number = Column(String, nullable=False)
+
+	# Canceled Check File Attachment
+	canceled_check_file_id = cast(GUID, Column(GUID, ForeignKey('files.id'), nullable=True))
+
+	# Bank Instructions File Attachment
+	bank_instructions_file_id = cast(GUID, Column(GUID, ForeignKey('files.id'), nullable=True))
 
 	# ACH related fields below.
 	can_ach = Column(Boolean)
