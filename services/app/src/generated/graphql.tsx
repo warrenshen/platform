@@ -5853,11 +5853,13 @@ export type DebtFacilityCapacities = {
   amount: Scalars["numeric"];
   capacity_type?: Maybe<Scalars["String"]>;
   changed_at: Scalars["timestamptz"];
-  changed_by?: Maybe<Scalars["String"]>;
+  changed_by?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
   debt_facility?: Maybe<DebtFacilities>;
   debt_facility_id?: Maybe<Scalars["uuid"]>;
   id: Scalars["uuid"];
+  /** An object relationship */
+  user?: Maybe<Users>;
 };
 
 /** aggregated selection of "debt_facility_capacities" */
@@ -5927,10 +5929,11 @@ export type DebtFacilityCapacitiesBoolExp = {
   amount?: Maybe<NumericComparisonExp>;
   capacity_type?: Maybe<StringComparisonExp>;
   changed_at?: Maybe<TimestamptzComparisonExp>;
-  changed_by?: Maybe<StringComparisonExp>;
+  changed_by?: Maybe<UuidComparisonExp>;
   debt_facility?: Maybe<DebtFacilitiesBoolExp>;
   debt_facility_id?: Maybe<UuidComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  user?: Maybe<UsersBoolExp>;
 };
 
 /** unique or primary key constraints on table "debt_facility_capacities" */
@@ -5949,10 +5952,11 @@ export type DebtFacilityCapacitiesInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
   capacity_type?: Maybe<Scalars["String"]>;
   changed_at?: Maybe<Scalars["timestamptz"]>;
-  changed_by?: Maybe<Scalars["String"]>;
+  changed_by?: Maybe<Scalars["uuid"]>;
   debt_facility?: Maybe<DebtFacilitiesObjRelInsertInput>;
   debt_facility_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
+  user?: Maybe<UsersObjRelInsertInput>;
 };
 
 /** aggregate max on columns */
@@ -5960,7 +5964,7 @@ export type DebtFacilityCapacitiesMaxFields = {
   amount?: Maybe<Scalars["numeric"]>;
   capacity_type?: Maybe<Scalars["String"]>;
   changed_at?: Maybe<Scalars["timestamptz"]>;
-  changed_by?: Maybe<Scalars["String"]>;
+  changed_by?: Maybe<Scalars["uuid"]>;
   debt_facility_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
 };
@@ -5980,7 +5984,7 @@ export type DebtFacilityCapacitiesMinFields = {
   amount?: Maybe<Scalars["numeric"]>;
   capacity_type?: Maybe<Scalars["String"]>;
   changed_at?: Maybe<Scalars["timestamptz"]>;
-  changed_by?: Maybe<Scalars["String"]>;
+  changed_by?: Maybe<Scalars["uuid"]>;
   debt_facility_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
 };
@@ -6019,6 +6023,7 @@ export type DebtFacilityCapacitiesOrderBy = {
   debt_facility?: Maybe<DebtFacilitiesOrderBy>;
   debt_facility_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  user?: Maybe<UsersOrderBy>;
 };
 
 /** primary key columns input for table: debt_facility_capacities */
@@ -6047,7 +6052,7 @@ export type DebtFacilityCapacitiesSetInput = {
   amount?: Maybe<Scalars["numeric"]>;
   capacity_type?: Maybe<Scalars["String"]>;
   changed_at?: Maybe<Scalars["timestamptz"]>;
-  changed_by?: Maybe<Scalars["String"]>;
+  changed_by?: Maybe<Scalars["uuid"]>;
   debt_facility_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
 };
@@ -9361,6 +9366,8 @@ export type LoanReports = {
   debt_facility_added_date?: Maybe<Scalars["date"]>;
   debt_facility_id?: Maybe<Scalars["uuid"]>;
   debt_facility_status?: Maybe<Scalars["String"]>;
+  debt_facility_waiver_date?: Maybe<Scalars["date"]>;
+  debt_facility_waiver_expiration_date?: Maybe<Scalars["date"]>;
   financing_day_limit?: Maybe<Scalars["Int"]>;
   financing_period?: Maybe<Scalars["Int"]>;
   id: Scalars["uuid"];
@@ -9419,6 +9426,8 @@ export type LoanReportsBoolExp = {
   debt_facility_added_date?: Maybe<DateComparisonExp>;
   debt_facility_id?: Maybe<UuidComparisonExp>;
   debt_facility_status?: Maybe<StringComparisonExp>;
+  debt_facility_waiver_date?: Maybe<DateComparisonExp>;
+  debt_facility_waiver_expiration_date?: Maybe<DateComparisonExp>;
   financing_day_limit?: Maybe<IntComparisonExp>;
   financing_period?: Maybe<IntComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
@@ -9452,6 +9461,8 @@ export type LoanReportsInsertInput = {
   debt_facility_added_date?: Maybe<Scalars["date"]>;
   debt_facility_id?: Maybe<Scalars["uuid"]>;
   debt_facility_status?: Maybe<Scalars["String"]>;
+  debt_facility_waiver_date?: Maybe<Scalars["date"]>;
+  debt_facility_waiver_expiration_date?: Maybe<Scalars["date"]>;
   financing_day_limit?: Maybe<Scalars["Int"]>;
   financing_period?: Maybe<Scalars["Int"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -9469,6 +9480,8 @@ export type LoanReportsMaxFields = {
   debt_facility_added_date?: Maybe<Scalars["date"]>;
   debt_facility_id?: Maybe<Scalars["uuid"]>;
   debt_facility_status?: Maybe<Scalars["String"]>;
+  debt_facility_waiver_date?: Maybe<Scalars["date"]>;
+  debt_facility_waiver_expiration_date?: Maybe<Scalars["date"]>;
   financing_day_limit?: Maybe<Scalars["Int"]>;
   financing_period?: Maybe<Scalars["Int"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -9485,6 +9498,8 @@ export type LoanReportsMinFields = {
   debt_facility_added_date?: Maybe<Scalars["date"]>;
   debt_facility_id?: Maybe<Scalars["uuid"]>;
   debt_facility_status?: Maybe<Scalars["String"]>;
+  debt_facility_waiver_date?: Maybe<Scalars["date"]>;
+  debt_facility_waiver_expiration_date?: Maybe<Scalars["date"]>;
   financing_day_limit?: Maybe<Scalars["Int"]>;
   financing_period?: Maybe<Scalars["Int"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -9524,6 +9539,8 @@ export type LoanReportsOrderBy = {
   debt_facility_added_date?: Maybe<OrderBy>;
   debt_facility_id?: Maybe<OrderBy>;
   debt_facility_status?: Maybe<OrderBy>;
+  debt_facility_waiver_date?: Maybe<OrderBy>;
+  debt_facility_waiver_expiration_date?: Maybe<OrderBy>;
   financing_day_limit?: Maybe<OrderBy>;
   financing_period?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
@@ -9551,6 +9568,10 @@ export enum LoanReportsSelectColumn {
   /** column name */
   DebtFacilityStatus = "debt_facility_status",
   /** column name */
+  DebtFacilityWaiverDate = "debt_facility_waiver_date",
+  /** column name */
+  DebtFacilityWaiverExpirationDate = "debt_facility_waiver_expiration_date",
+  /** column name */
   FinancingDayLimit = "financing_day_limit",
   /** column name */
   FinancingPeriod = "financing_period",
@@ -9574,6 +9595,8 @@ export type LoanReportsSetInput = {
   debt_facility_added_date?: Maybe<Scalars["date"]>;
   debt_facility_id?: Maybe<Scalars["uuid"]>;
   debt_facility_status?: Maybe<Scalars["String"]>;
+  debt_facility_waiver_date?: Maybe<Scalars["date"]>;
+  debt_facility_waiver_expiration_date?: Maybe<Scalars["date"]>;
   financing_day_limit?: Maybe<Scalars["Int"]>;
   financing_period?: Maybe<Scalars["Int"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -9630,6 +9653,10 @@ export enum LoanReportsUpdateColumn {
   DebtFacilityId = "debt_facility_id",
   /** column name */
   DebtFacilityStatus = "debt_facility_status",
+  /** column name */
+  DebtFacilityWaiverDate = "debt_facility_waiver_date",
+  /** column name */
+  DebtFacilityWaiverExpirationDate = "debt_facility_waiver_expiration_date",
   /** column name */
   FinancingDayLimit = "financing_day_limit",
   /** column name */
@@ -27841,6 +27868,14 @@ export type GetCustomersWithMetadataQuery = {
   >;
 };
 
+export type GetCustomersForDropdownQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetCustomersForDropdownQuery = {
+  customers: Array<Pick<Companies, "id"> & CustomerForBankFragment>;
+};
+
 export type CompanyVendorsQueryVariables = Exact<{
   companyId: Scalars["uuid"];
 }>;
@@ -38615,6 +38650,66 @@ export type GetCustomersWithMetadataLazyQueryHookResult = ReturnType<
 export type GetCustomersWithMetadataQueryResult = Apollo.QueryResult<
   GetCustomersWithMetadataQuery,
   GetCustomersWithMetadataQueryVariables
+>;
+export const GetCustomersForDropdownDocument = gql`
+  query GetCustomersForDropdown {
+    customers: companies(
+      where: { is_customer: { _eq: true } }
+      order_by: { name: asc }
+    ) {
+      id
+      ...CustomerForBank
+    }
+  }
+  ${CustomerForBankFragmentDoc}
+`;
+
+/**
+ * __useGetCustomersForDropdownQuery__
+ *
+ * To run a query within a React component, call `useGetCustomersForDropdownQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomersForDropdownQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomersForDropdownQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetCustomersForDropdownQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetCustomersForDropdownQuery,
+    GetCustomersForDropdownQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetCustomersForDropdownQuery,
+    GetCustomersForDropdownQueryVariables
+  >(GetCustomersForDropdownDocument, baseOptions);
+}
+export function useGetCustomersForDropdownLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetCustomersForDropdownQuery,
+    GetCustomersForDropdownQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetCustomersForDropdownQuery,
+    GetCustomersForDropdownQueryVariables
+  >(GetCustomersForDropdownDocument, baseOptions);
+}
+export type GetCustomersForDropdownQueryHookResult = ReturnType<
+  typeof useGetCustomersForDropdownQuery
+>;
+export type GetCustomersForDropdownLazyQueryHookResult = ReturnType<
+  typeof useGetCustomersForDropdownLazyQuery
+>;
+export type GetCustomersForDropdownQueryResult = Apollo.QueryResult<
+  GetCustomersForDropdownQuery,
+  GetCustomersForDropdownQueryVariables
 >;
 export const CompanyVendorsDocument = gql`
   query CompanyVendors($companyId: uuid!) {

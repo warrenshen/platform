@@ -2,7 +2,7 @@ import { Box, FormControl, TextField, Typography } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import {
   Companies,
-  useGetCustomersWithMetadataQuery,
+  useGetCustomersForDropdownQuery,
   Loans,
   useGetAllLoansForCompanyQuery,
 } from "generated/graphql";
@@ -34,7 +34,7 @@ export default function BankReportsFinancialsByCustomerTab() {
     data: customersData,
     loading: isCustomersLoading,
     error: customersError,
-  } = useGetCustomersWithMetadataQuery({
+  } = useGetCustomersForDropdownQuery({
     fetchPolicy: "network-only",
   });
 

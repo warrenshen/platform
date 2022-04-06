@@ -4,7 +4,7 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 import FinancialSummariesDataGrid from "components/CustomerFinancialSummaries/FinancialSummariesDataGrid";
 import {
   Companies,
-  useGetCustomersWithMetadataQuery,
+  useGetCustomersForDropdownQuery,
   useGetFinancialSummariesByCompanyIdQuery,
 } from "generated/graphql";
 import Can from "components/Shared/Can";
@@ -23,7 +23,7 @@ export default function BankReportsFinancialsByCustomerTab() {
   const {
     data: customersData,
     error: customersError,
-  } = useGetCustomersWithMetadataQuery({
+  } = useGetCustomersForDropdownQuery({
     fetchPolicy: "network-only",
   });
 

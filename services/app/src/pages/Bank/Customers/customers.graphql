@@ -35,6 +35,16 @@ query GetCustomersWithMetadata($date: date) {
   }
 }
 
+query GetCustomersForDropdown {
+  customers: companies(
+    where: { is_customer: { _eq: true } }
+    order_by: { name: asc }
+  ) {
+    id
+    ...CustomerForBank
+  }
+}
+
 query CompanyVendors($companyId: uuid!) {
   company_vendor_partnerships(where: { company_id: { _eq: $companyId } }) {
     vendor {
