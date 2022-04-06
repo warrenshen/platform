@@ -262,7 +262,6 @@ class CreatePartnershipRequestNewView(MethodView):
 				sendgrid_util.Client,
 				current_app.sendgrid_client,
 			)
-			cfg = cast(Config, current_app.app_config)
 
 			customer = cast(
 				models.Company,

@@ -101,6 +101,7 @@ export default function VendorFormPage() {
   const [errorMessage, setErrorMessage] = useState("");
 
   const { data, loading } = useGetCompanyForBankCompanyPageQuery({
+    fetchPolicy: "network-only",
     variables: {
       id: companyId,
     },
@@ -152,7 +153,7 @@ export default function VendorFormPage() {
         },
         license_info: {
           license_ids: vendorInput.cannabisLicenseNumber.license_ids,
-          license_copy_file_id: vendorInput.cannabisLicenseCopyAttachmentId,
+          license_file_id: vendorInput.cannabisLicenseCopyAttachmentId,
         },
         request_info: {
           dba_name: vendorInput.dba,

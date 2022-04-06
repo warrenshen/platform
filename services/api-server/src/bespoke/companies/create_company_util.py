@@ -67,7 +67,7 @@ LicenseInfoDict = TypedDict('LicenseInfoDict', {
 
 LicenseInfoNewDict = TypedDict('LicenseInfoNewDict', {
 	'license_ids': List[str],
-	'license_copy_file_id': str,
+	'license_file_id': str,
 })
 
 PartnershipRequestRequestInfoDict = TypedDict('PartnershipRequestRequestInfoDict', {
@@ -739,9 +739,6 @@ def create_partnership_request_new(
 	request_info_canceled_check_attachment_id = request_info_input['canceled_check_attachment_id']
 	request_info_bank_instructions_attachment_id = request_info_input['bank_instructions_attachment_id']
 
-	if not request_info_dba_name:
-		raise errors.Error('DBA must be specified')
-	
 	if not request_info_bank_name:
 		raise errors.Error('Bank name must be specified')
 	

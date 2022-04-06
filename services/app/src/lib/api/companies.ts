@@ -188,7 +188,7 @@ export async function createPartnershipRequestMutation(
 
 export type LicenseInfoNew = {
   license_ids: Array<string>;
-  license_copy_file_id: string;
+  license_file_id: string;
 };
 
 export type CompanyInfo = {
