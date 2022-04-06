@@ -78,7 +78,6 @@ PartnershipRequestRequestInfoDict = TypedDict('PartnershipRequestRequestInfoDict
 	'bank_ach_routing_number': str,
 	'bank_wire_routing_number': str,
 	'beneficiary_address': str,
-	'canceled_check_attachment_id': str,
 	'bank_instructions_attachment_id': str,
 })
 
@@ -736,7 +735,6 @@ def create_partnership_request_new(
 	request_info_bank_ach_routing_number = request_info_input['bank_ach_routing_number']
 	request_info_bank_wire_routing_number = request_info_input['bank_wire_routing_number']
 	request_info_beneficiary_address = request_info_input['beneficiary_address']
-	request_info_canceled_check_attachment_id = request_info_input['canceled_check_attachment_id']
 	request_info_bank_instructions_attachment_id = request_info_input['bank_instructions_attachment_id']
 
 	if not request_info_bank_name:
@@ -757,7 +755,7 @@ def create_partnership_request_new(
 	if not request_info_beneficiary_address:
 		raise errors.Error('Beneficiary address wire routing number must be specified')
 	
-	if not request_info_canceled_check_attachment_id and not request_info_bank_instructions_attachment_id:
+	if not request_info_bank_instructions_attachment_id:
 		raise errors.Error('Canceled check / bank instructions attachment must be specified')
 
 	partnership_req = models.CompanyPartnershipRequest()
@@ -784,7 +782,6 @@ def create_partnership_request_new(
 		'bank_ach_routing_number': request_info_bank_ach_routing_number,
 		'bank_wire_routing_number': request_info_bank_wire_routing_number,
 		'beneficiary_address': request_info_beneficiary_address,
-		'canceled_check_attachment_id': request_info_canceled_check_attachment_id,
 		'bank_instructions_attachment_id': request_info_bank_instructions_attachment_id
 	}
 

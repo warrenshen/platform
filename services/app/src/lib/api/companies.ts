@@ -211,7 +211,6 @@ export type PartnershipRequestRequestInfo = {
   bank_ach_routing_number: string;
   bank_wire_routing_number: string;
   beneficiary_address: string;
-  canceled_check_attachment_id: string;
   bank_instructions_attachment_id: string;
 };
 

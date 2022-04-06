@@ -51,14 +51,6 @@ export default function CreateVendorForm({
 }: Props) {
   const classes = useStyles();
 
-  const canceledCheckAttachmentIds = useMemo(
-    () =>
-      vendorInput.canceledCheckAttachmentId
-        ? [vendorInput.canceledCheckAttachmentId]
-        : undefined,
-    [vendorInput.canceledCheckAttachmentId]
-  );
-
   const bankInstructionsAttachmentIds = useMemo(
     () =>
       vendorInput.bankInstructionsAttachmentId
@@ -89,9 +81,7 @@ export default function CreateVendorForm({
     !vendorInput.bankACHRoutingNumber ||
     !vendorInput.bankWireRoutingNumber ||
     !vendorInput.beneficiaryAddress ||
-    // canceledCheckAttachmentId or bankInstructionsAttachmentId is required
-    (!vendorInput.canceledCheckAttachmentId &&
-      !vendorInput.bankInstructionsAttachmentId) ||
+    !vendorInput.bankInstructionsAttachmentId ||
     (vendorInput.isCannabis &&
       !vendorInput.cannabisLicenseNumber.license_ids.length) ||
     // cannabisLicenseCopyAttachment is required only if the cannabisLicenseNumber exists
@@ -245,34 +235,7 @@ export default function CreateVendorForm({
       <Box display="flex" flexDirection="column" mt={4}>
         <Box mb={1}>
           <Typography variant="subtitle1" color="textSecondary">
-            Canceled Check File Attachment
-          </Typography>
-        </Box>
-        <FileUploader
-          isCountVisible={false}
-          companyId={companyId}
-          fileType={FileTypeEnum.CANCELED_CHECK}
-          maxFilesAllowed={1}
-          fileIds={canceledCheckAttachmentIds}
-          frozenFileIds={[]}
-          handleDeleteFileById={() =>
-            setVendorInput({
-              ...vendorInput,
-              canceledCheckAttachmentId: "null",
-            })
-          }
-          handleNewFiles={(files: FileFragment[]) =>
-            setVendorInput({
-              ...vendorInput,
-              canceledCheckAttachmentId: files[0].id,
-            })
-          }
-        />
-      </Box>
-      <Box display="flex" flexDirection="column" mt={4}>
-        <Box mb={1}>
-          <Typography variant="subtitle1" color="textSecondary">
-            Bank Instructions File Attachment
+            Bank Instructions or Canceled Check File Attachment
           </Typography>
         </Box>
         <FileUploader

@@ -33,7 +33,6 @@ export enum FileTypeEnum {
   PURCHASE_ORDER = "purchase_order",
   VENDOR_AGREEMENT = "vendor_agreement",
   VENDOR_LICENSE = "vendor_license",
-  CANCELED_CHECK = "canceled_check",
   BANK_INSTRUCTIONS = "bank_instructions",
 }
 

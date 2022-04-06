@@ -34,7 +34,6 @@ export type CreateVendorInput = {
   bankACHRoutingNumber: string;
   bankWireRoutingNumber: string;
   beneficiaryAddress: string;
-  canceledCheckAttachmentId: string;
   bankInstructionsAttachmentId: string;
   isCannabis: boolean;
   cannabisLicenseNumber: LicenseInfo;
@@ -91,7 +90,6 @@ export default function VendorFormPage() {
     bankACHRoutingNumber: "",
     bankWireRoutingNumber: "",
     beneficiaryAddress: "",
-    canceledCheckAttachmentId: "",
     bankInstructionsAttachmentId: "",
     isCannabis: false,
     cannabisLicenseNumber: { license_ids: [] },
@@ -163,7 +161,6 @@ export default function VendorFormPage() {
           bank_ach_routing_number: vendorInput.bankACHRoutingNumber,
           bank_wire_routing_number: vendorInput.bankWireRoutingNumber,
           beneficiary_address: vendorInput.beneficiaryAddress,
-          canceled_check_attachment_id: vendorInput.canceledCheckAttachmentId,
           bank_instructions_attachment_id:
             vendorInput.bankInstructionsAttachmentId,
         },

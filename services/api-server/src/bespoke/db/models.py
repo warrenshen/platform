@@ -1359,10 +1359,7 @@ class BankAccount(Base):
 	account_type = Column(String, nullable=False) # Account type
 	account_number = Column(String, nullable=False)
 
-	# Canceled Check File Attachment
-	canceled_check_file_id = cast(GUID, Column(GUID, ForeignKey('files.id'), nullable=True))
-
-	# Bank Instructions File Attachment
+	# This file can be either bank instructions (more common) or a cancelled check (less common)
 	bank_instructions_file_id = cast(GUID, Column(GUID, ForeignKey('files.id'), nullable=True))
 
 	# ACH related fields below.
