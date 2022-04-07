@@ -8,6 +8,7 @@ import {
 import PurchaseOrdersActiveTab from "pages/Bank/PurchaseOrders/PurchaseOrdersActiveTab";
 import PurchaseOrdersAllTab from "pages/Bank/PurchaseOrders/PurchaseOrdersAllTab";
 import PurchaseOrdersClosedTab from "pages/Bank/PurchaseOrders/PurchaseOrdersClosedTab";
+import PurchaseOrdersDraftTab from "pages/Bank/PurchaseOrders/PurchaseOrdersDraftTab";
 import { useState } from "react";
 import PurchaseOrdersIncompleteTab from "./PurchaseOrdersIncompleteTab";
 
@@ -18,6 +19,7 @@ const PurchaseOrderComponentMap: {
   [BankPurchaseOrdersTabLabel.ConfirmedPOs]: <PurchaseOrdersClosedTab />,
   [BankPurchaseOrdersTabLabel.IncompletePOs]: <PurchaseOrdersIncompleteTab />,
   [BankPurchaseOrdersTabLabel.AllPOs]: <PurchaseOrdersAllTab />,
+  [BankPurchaseOrdersTabLabel.DraftedPOs]: <PurchaseOrdersDraftTab />,
 };
 
 export default function BankPurchaseOrdersPage() {

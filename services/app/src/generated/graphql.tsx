@@ -26229,6 +26229,14 @@ export type GetIncompletePurchaseOrdersSubscription = {
   purchase_orders: Array<PurchaseOrderFragment>;
 };
 
+export type GetDraftPurchaseOrdersSubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetDraftPurchaseOrdersSubscription = {
+  purchase_orders: Array<PurchaseOrderFragment>;
+};
+
 export type GetNotConfirmedPurchaseOrdersSubscriptionVariables = Exact<{
   [key: string]: never;
 }>;
@@ -34151,6 +34159,58 @@ export type GetIncompletePurchaseOrdersSubscriptionHookResult = ReturnType<
   typeof useGetIncompletePurchaseOrdersSubscription
 >;
 export type GetIncompletePurchaseOrdersSubscriptionResult = Apollo.SubscriptionResult<GetIncompletePurchaseOrdersSubscription>;
+export const GetDraftPurchaseOrdersDocument = gql`
+  subscription GetDraftPurchaseOrders {
+    purchase_orders(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { approved_at: { _is_null: true } }
+          { requested_at: { _is_null: true } }
+        ]
+      }
+    ) {
+      ...PurchaseOrder
+    }
+  }
+  ${PurchaseOrderFragmentDoc}
+`;
+
+/**
+ * __useGetDraftPurchaseOrdersSubscription__
+ *
+ * To run a query within a React component, call `useGetDraftPurchaseOrdersSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetDraftPurchaseOrdersSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetDraftPurchaseOrdersSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetDraftPurchaseOrdersSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    GetDraftPurchaseOrdersSubscription,
+    GetDraftPurchaseOrdersSubscriptionVariables
+  >
+) {
+  return Apollo.useSubscription<
+    GetDraftPurchaseOrdersSubscription,
+    GetDraftPurchaseOrdersSubscriptionVariables
+  >(GetDraftPurchaseOrdersDocument, baseOptions);
+}
+export type GetDraftPurchaseOrdersSubscriptionHookResult = ReturnType<
+  typeof useGetDraftPurchaseOrdersSubscription
+>;
+export type GetDraftPurchaseOrdersSubscriptionResult = Apollo.SubscriptionResult<GetDraftPurchaseOrdersSubscription>;
 export const GetNotConfirmedPurchaseOrdersDocument = gql`
   subscription GetNotConfirmedPurchaseOrders {
     purchase_orders(

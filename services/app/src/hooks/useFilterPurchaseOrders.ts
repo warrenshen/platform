@@ -6,7 +6,28 @@ import {
   GetConfirmedPurchaseOrdersSubscription,
   GetPurchaseOrdersSubscription,
   PurchaseOrderFragment,
+  GetDraftPurchaseOrdersSubscription,
 } from "generated/graphql";
+
+export const useFilterDraftedPurchaseOrders = (
+  searchQuery: string,
+  data: GetDraftPurchaseOrdersSubscription | undefined
+): PurchaseOrderFragment[] => {
+  return useMemo(() => {
+    const doesSearchQueryExistInDraftedPurchaseOrder = ({
+      company,
+      order_number,
+    }: PurchaseOrderFragment) =>
+      `${company.name} ${order_number}`
+        .toLowerCase()
+        .indexOf(searchQuery.toLowerCase()) >= 0;
+
+    return filter(
+      data?.purchase_orders || [],
+      doesSearchQueryExistInDraftedPurchaseOrder
+    );
+  }, [searchQuery, data?.purchase_orders]);
+};
 
 export const useFilterIncompletePurchaseOrders = (
   searchQuery: string,

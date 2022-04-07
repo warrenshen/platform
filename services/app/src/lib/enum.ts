@@ -62,6 +62,7 @@ export const BankRepaymentsTabLabels = [
 ];
 
 export enum BankPurchaseOrdersTabLabel {
+  DraftedPOs = "Draft POs",
   IncompletePOs = "Incomplete POs",
   NotConfirmedPOs = "Not Confirmed POs",
   ConfirmedPOs = "Confirmed POs",
@@ -69,6 +70,7 @@ export enum BankPurchaseOrdersTabLabel {
 }
 
 export const BankPurchaseOrdersTabLabels = [
+  BankPurchaseOrdersTabLabel.DraftedPOs,
   BankPurchaseOrdersTabLabel.IncompletePOs,
   BankPurchaseOrdersTabLabel.NotConfirmedPOs,
   BankPurchaseOrdersTabLabel.ConfirmedPOs,

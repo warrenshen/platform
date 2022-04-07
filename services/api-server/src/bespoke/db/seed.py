@@ -77,7 +77,6 @@ def setup_db_test(app: Any) -> None:
 			cast(Callable, session.delete)(payment)
 		session.flush()
 
-
 		files = session.query(models.File).all()
 		for file in files:
 			cast(Callable, session.delete)(file)
