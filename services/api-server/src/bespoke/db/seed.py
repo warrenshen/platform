@@ -55,7 +55,7 @@ def setup_db_test(app: Any) -> None:
 			company.parent_company_id = None
 		session.flush()
 	
-	# Delete Vendor, Files, Purchase Order Files
+	# Delete rows from table that require special handling to prevent foreign key constraint issues.
 	with session_scope(session_maker) as session:
 		company_partnerships = session.query(models.CompanyPartnershipRequest).all()
 		for company_partnership in company_partnerships:
@@ -66,6 +66,17 @@ def setup_db_test(app: Any) -> None:
 		for po_file in po_files:
 			cast(Callable, session.delete)(po_file)
 		session.flush()
+
+		transactions = session.query(models.Transaction).all()
+		for transaction in transactions:
+			cast(Callable, session.delete)(transaction)
+		session.flush()
+
+		payments = session.query(models.Payment).all()
+		for payment in payments:
+			cast(Callable, session.delete)(payment)
+		session.flush()
+
 
 		files = session.query(models.File).all()
 		for file in files:

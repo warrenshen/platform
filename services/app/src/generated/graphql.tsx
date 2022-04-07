@@ -475,6 +475,9 @@ export type BankAccounts = {
   /** An aggregate relationship */
   assigned_companies_for_collection_in_settings_aggregate: CompanySettingsAggregate;
   bank_address?: Maybe<Scalars["String"]>;
+  /** An object relationship */
+  bank_instructions?: Maybe<Files>;
+  bank_instructions_file_id?: Maybe<Scalars["uuid"]>;
   bank_name: Scalars["String"];
   can_ach: Scalars["Boolean"];
   can_wire: Scalars["Boolean"];
@@ -584,6 +587,8 @@ export type BankAccountsBoolExp = {
   assigned_companies_for_advances_in_settings?: Maybe<CompanySettingsBoolExp>;
   assigned_companies_for_collection_in_settings?: Maybe<CompanySettingsBoolExp>;
   bank_address?: Maybe<StringComparisonExp>;
+  bank_instructions?: Maybe<FilesBoolExp>;
+  bank_instructions_file_id?: Maybe<UuidComparisonExp>;
   bank_name?: Maybe<StringComparisonExp>;
   can_ach?: Maybe<BooleanComparisonExp>;
   can_wire?: Maybe<BooleanComparisonExp>;
@@ -626,6 +631,8 @@ export type BankAccountsInsertInput = {
   assigned_companies_for_advances_in_settings?: Maybe<CompanySettingsArrRelInsertInput>;
   assigned_companies_for_collection_in_settings?: Maybe<CompanySettingsArrRelInsertInput>;
   bank_address?: Maybe<Scalars["String"]>;
+  bank_instructions?: Maybe<FilesObjRelInsertInput>;
+  bank_instructions_file_id?: Maybe<Scalars["uuid"]>;
   bank_name?: Maybe<Scalars["String"]>;
   can_ach?: Maybe<Scalars["Boolean"]>;
   can_wire?: Maybe<Scalars["Boolean"]>;
@@ -660,6 +667,7 @@ export type BankAccountsMaxFields = {
   account_type?: Maybe<Scalars["String"]>;
   ach_default_memo?: Maybe<Scalars["String"]>;
   bank_address?: Maybe<Scalars["String"]>;
+  bank_instructions_file_id?: Maybe<Scalars["uuid"]>;
   bank_name?: Maybe<Scalars["String"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
@@ -688,6 +696,7 @@ export type BankAccountsMaxOrderBy = {
   account_type?: Maybe<OrderBy>;
   ach_default_memo?: Maybe<OrderBy>;
   bank_address?: Maybe<OrderBy>;
+  bank_instructions_file_id?: Maybe<OrderBy>;
   bank_name?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
@@ -716,6 +725,7 @@ export type BankAccountsMinFields = {
   account_type?: Maybe<Scalars["String"]>;
   ach_default_memo?: Maybe<Scalars["String"]>;
   bank_address?: Maybe<Scalars["String"]>;
+  bank_instructions_file_id?: Maybe<Scalars["uuid"]>;
   bank_name?: Maybe<Scalars["String"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
@@ -744,6 +754,7 @@ export type BankAccountsMinOrderBy = {
   account_type?: Maybe<OrderBy>;
   ach_default_memo?: Maybe<OrderBy>;
   bank_address?: Maybe<OrderBy>;
+  bank_instructions_file_id?: Maybe<OrderBy>;
   bank_name?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
@@ -796,6 +807,8 @@ export type BankAccountsOrderBy = {
   assigned_companies_for_advances_in_settings_aggregate?: Maybe<CompanySettingsAggregateOrderBy>;
   assigned_companies_for_collection_in_settings_aggregate?: Maybe<CompanySettingsAggregateOrderBy>;
   bank_address?: Maybe<OrderBy>;
+  bank_instructions?: Maybe<FilesOrderBy>;
+  bank_instructions_file_id?: Maybe<OrderBy>;
   bank_name?: Maybe<OrderBy>;
   can_ach?: Maybe<OrderBy>;
   can_wire?: Maybe<OrderBy>;
@@ -840,6 +853,8 @@ export enum BankAccountsSelectColumn {
   AchDefaultMemo = "ach_default_memo",
   /** column name */
   BankAddress = "bank_address",
+  /** column name */
+  BankInstructionsFileId = "bank_instructions_file_id",
   /** column name */
   BankName = "bank_name",
   /** column name */
@@ -897,6 +912,7 @@ export type BankAccountsSetInput = {
   account_type?: Maybe<Scalars["String"]>;
   ach_default_memo?: Maybe<Scalars["String"]>;
   bank_address?: Maybe<Scalars["String"]>;
+  bank_instructions_file_id?: Maybe<Scalars["uuid"]>;
   bank_name?: Maybe<Scalars["String"]>;
   can_ach?: Maybe<Scalars["Boolean"]>;
   can_wire?: Maybe<Scalars["Boolean"]>;
@@ -935,6 +951,8 @@ export enum BankAccountsUpdateColumn {
   AchDefaultMemo = "ach_default_memo",
   /** column name */
   BankAddress = "bank_address",
+  /** column name */
+  BankInstructionsFileId = "bank_instructions_file_id",
   /** column name */
   BankName = "bank_name",
   /** column name */
@@ -3690,6 +3708,7 @@ export type CompanyPartnershipRequests = {
   is_cannabis?: Maybe<Scalars["Boolean"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   license_info?: Maybe<Scalars["json"]>;
+  request_info?: Maybe<Scalars["json"]>;
   /** An object relationship */
   requested_by_user: Users;
   requested_by_user_id: Scalars["uuid"];
@@ -3704,6 +3723,11 @@ export type CompanyPartnershipRequests = {
 
 /** columns and relationships of "company_partnership_requests" */
 export type CompanyPartnershipRequestsLicenseInfoArgs = {
+  path?: Maybe<Scalars["String"]>;
+};
+
+/** columns and relationships of "company_partnership_requests" */
+export type CompanyPartnershipRequestsRequestInfoArgs = {
   path?: Maybe<Scalars["String"]>;
 };
 
@@ -3743,6 +3767,7 @@ export type CompanyPartnershipRequestsBoolExp = {
   is_cannabis?: Maybe<BooleanComparisonExp>;
   is_deleted?: Maybe<BooleanComparisonExp>;
   license_info?: Maybe<JsonComparisonExp>;
+  request_info?: Maybe<JsonComparisonExp>;
   requested_by_user?: Maybe<UsersBoolExp>;
   requested_by_user_id?: Maybe<UuidComparisonExp>;
   requesting_company?: Maybe<CompaniesBoolExp>;
@@ -3768,6 +3793,7 @@ export type CompanyPartnershipRequestsInsertInput = {
   is_cannabis?: Maybe<Scalars["Boolean"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   license_info?: Maybe<Scalars["json"]>;
+  request_info?: Maybe<Scalars["json"]>;
   requested_by_user?: Maybe<UsersObjRelInsertInput>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   requesting_company?: Maybe<CompaniesObjRelInsertInput>;
@@ -3826,6 +3852,7 @@ export type CompanyPartnershipRequestsOrderBy = {
   is_cannabis?: Maybe<OrderBy>;
   is_deleted?: Maybe<OrderBy>;
   license_info?: Maybe<OrderBy>;
+  request_info?: Maybe<OrderBy>;
   requested_by_user?: Maybe<UsersOrderBy>;
   requested_by_user_id?: Maybe<OrderBy>;
   requesting_company?: Maybe<CompaniesOrderBy>;
@@ -3858,6 +3885,8 @@ export enum CompanyPartnershipRequestsSelectColumn {
   /** column name */
   LicenseInfo = "license_info",
   /** column name */
+  RequestInfo = "request_info",
+  /** column name */
   RequestedByUserId = "requested_by_user_id",
   /** column name */
   RequestingCompanyId = "requesting_company_id",
@@ -3880,6 +3909,7 @@ export type CompanyPartnershipRequestsSetInput = {
   is_cannabis?: Maybe<Scalars["Boolean"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   license_info?: Maybe<Scalars["json"]>;
+  request_info?: Maybe<Scalars["json"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   requesting_company_id?: Maybe<Scalars["uuid"]>;
   settled_at?: Maybe<Scalars["timestamptz"]>;
@@ -3904,6 +3934,8 @@ export enum CompanyPartnershipRequestsUpdateColumn {
   IsDeleted = "is_deleted",
   /** column name */
   LicenseInfo = "license_info",
+  /** column name */
+  RequestInfo = "request_info",
   /** column name */
   RequestedByUserId = "requested_by_user_id",
   /** column name */
@@ -9366,8 +9398,6 @@ export type LoanReports = {
   debt_facility_added_date?: Maybe<Scalars["date"]>;
   debt_facility_id?: Maybe<Scalars["uuid"]>;
   debt_facility_status?: Maybe<Scalars["String"]>;
-  debt_facility_waiver_date?: Maybe<Scalars["date"]>;
-  debt_facility_waiver_expiration_date?: Maybe<Scalars["date"]>;
   financing_day_limit?: Maybe<Scalars["Int"]>;
   financing_period?: Maybe<Scalars["Int"]>;
   id: Scalars["uuid"];
@@ -9426,8 +9456,6 @@ export type LoanReportsBoolExp = {
   debt_facility_added_date?: Maybe<DateComparisonExp>;
   debt_facility_id?: Maybe<UuidComparisonExp>;
   debt_facility_status?: Maybe<StringComparisonExp>;
-  debt_facility_waiver_date?: Maybe<DateComparisonExp>;
-  debt_facility_waiver_expiration_date?: Maybe<DateComparisonExp>;
   financing_day_limit?: Maybe<IntComparisonExp>;
   financing_period?: Maybe<IntComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
@@ -9461,8 +9489,6 @@ export type LoanReportsInsertInput = {
   debt_facility_added_date?: Maybe<Scalars["date"]>;
   debt_facility_id?: Maybe<Scalars["uuid"]>;
   debt_facility_status?: Maybe<Scalars["String"]>;
-  debt_facility_waiver_date?: Maybe<Scalars["date"]>;
-  debt_facility_waiver_expiration_date?: Maybe<Scalars["date"]>;
   financing_day_limit?: Maybe<Scalars["Int"]>;
   financing_period?: Maybe<Scalars["Int"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -9480,8 +9506,6 @@ export type LoanReportsMaxFields = {
   debt_facility_added_date?: Maybe<Scalars["date"]>;
   debt_facility_id?: Maybe<Scalars["uuid"]>;
   debt_facility_status?: Maybe<Scalars["String"]>;
-  debt_facility_waiver_date?: Maybe<Scalars["date"]>;
-  debt_facility_waiver_expiration_date?: Maybe<Scalars["date"]>;
   financing_day_limit?: Maybe<Scalars["Int"]>;
   financing_period?: Maybe<Scalars["Int"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -9498,8 +9522,6 @@ export type LoanReportsMinFields = {
   debt_facility_added_date?: Maybe<Scalars["date"]>;
   debt_facility_id?: Maybe<Scalars["uuid"]>;
   debt_facility_status?: Maybe<Scalars["String"]>;
-  debt_facility_waiver_date?: Maybe<Scalars["date"]>;
-  debt_facility_waiver_expiration_date?: Maybe<Scalars["date"]>;
   financing_day_limit?: Maybe<Scalars["Int"]>;
   financing_period?: Maybe<Scalars["Int"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -9539,8 +9561,6 @@ export type LoanReportsOrderBy = {
   debt_facility_added_date?: Maybe<OrderBy>;
   debt_facility_id?: Maybe<OrderBy>;
   debt_facility_status?: Maybe<OrderBy>;
-  debt_facility_waiver_date?: Maybe<OrderBy>;
-  debt_facility_waiver_expiration_date?: Maybe<OrderBy>;
   financing_day_limit?: Maybe<OrderBy>;
   financing_period?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
@@ -9568,10 +9588,6 @@ export enum LoanReportsSelectColumn {
   /** column name */
   DebtFacilityStatus = "debt_facility_status",
   /** column name */
-  DebtFacilityWaiverDate = "debt_facility_waiver_date",
-  /** column name */
-  DebtFacilityWaiverExpirationDate = "debt_facility_waiver_expiration_date",
-  /** column name */
   FinancingDayLimit = "financing_day_limit",
   /** column name */
   FinancingPeriod = "financing_period",
@@ -9595,8 +9611,6 @@ export type LoanReportsSetInput = {
   debt_facility_added_date?: Maybe<Scalars["date"]>;
   debt_facility_id?: Maybe<Scalars["uuid"]>;
   debt_facility_status?: Maybe<Scalars["String"]>;
-  debt_facility_waiver_date?: Maybe<Scalars["date"]>;
-  debt_facility_waiver_expiration_date?: Maybe<Scalars["date"]>;
   financing_day_limit?: Maybe<Scalars["Int"]>;
   financing_period?: Maybe<Scalars["Int"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -9653,10 +9667,6 @@ export enum LoanReportsUpdateColumn {
   DebtFacilityId = "debt_facility_id",
   /** column name */
   DebtFacilityStatus = "debt_facility_status",
-  /** column name */
-  DebtFacilityWaiverDate = "debt_facility_waiver_date",
-  /** column name */
-  DebtFacilityWaiverExpirationDate = "debt_facility_waiver_expiration_date",
   /** column name */
   FinancingDayLimit = "financing_day_limit",
   /** column name */
@@ -26379,6 +26389,24 @@ export type GetRepaymentsForCompanyQuery = {
   >;
 };
 
+export type GetRepaymentsByMethodAndPaymentDateQueryVariables = Exact<{
+  method: Scalars["String"];
+  date: Scalars["date"];
+}>;
+
+export type GetRepaymentsByMethodAndPaymentDateQuery = {
+  payments: Array<
+    Pick<Payments, "id"> & {
+      company_bank_account?: Maybe<
+        Pick<BankAccounts, "id"> & BankAccountFragment
+      >;
+      recipient_bank_account?: Maybe<
+        Pick<BankAccounts, "id"> & BankAccountFragment
+      >;
+    } & PaymentFragment
+  >;
+};
+
 export type LastMonthlySummaryReportLiveRunQueryVariables = Exact<{
   [key: string]: never;
 }>;
@@ -34934,6 +34962,88 @@ export type GetRepaymentsForCompanyLazyQueryHookResult = ReturnType<
 export type GetRepaymentsForCompanyQueryResult = Apollo.QueryResult<
   GetRepaymentsForCompanyQuery,
   GetRepaymentsForCompanyQueryVariables
+>;
+export const GetRepaymentsByMethodAndPaymentDateDocument = gql`
+  query GetRepaymentsByMethodAndPaymentDate($method: String!, $date: date!) {
+    payments(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { type: { _in: ["repayment", "repayment_account_fee"] } }
+          { method: { _eq: $method } }
+          { payment_date: { _eq: $date } }
+        ]
+      }
+    ) {
+      id
+      ...Payment
+      company_bank_account {
+        id
+        ...BankAccount
+      }
+      recipient_bank_account {
+        id
+        ...BankAccount
+      }
+    }
+  }
+  ${PaymentFragmentDoc}
+  ${BankAccountFragmentDoc}
+`;
+
+/**
+ * __useGetRepaymentsByMethodAndPaymentDateQuery__
+ *
+ * To run a query within a React component, call `useGetRepaymentsByMethodAndPaymentDateQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetRepaymentsByMethodAndPaymentDateQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetRepaymentsByMethodAndPaymentDateQuery({
+ *   variables: {
+ *      method: // value for 'method'
+ *      date: // value for 'date'
+ *   },
+ * });
+ */
+export function useGetRepaymentsByMethodAndPaymentDateQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetRepaymentsByMethodAndPaymentDateQuery,
+    GetRepaymentsByMethodAndPaymentDateQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetRepaymentsByMethodAndPaymentDateQuery,
+    GetRepaymentsByMethodAndPaymentDateQueryVariables
+  >(GetRepaymentsByMethodAndPaymentDateDocument, baseOptions);
+}
+export function useGetRepaymentsByMethodAndPaymentDateLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetRepaymentsByMethodAndPaymentDateQuery,
+    GetRepaymentsByMethodAndPaymentDateQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetRepaymentsByMethodAndPaymentDateQuery,
+    GetRepaymentsByMethodAndPaymentDateQueryVariables
+  >(GetRepaymentsByMethodAndPaymentDateDocument, baseOptions);
+}
+export type GetRepaymentsByMethodAndPaymentDateQueryHookResult = ReturnType<
+  typeof useGetRepaymentsByMethodAndPaymentDateQuery
+>;
+export type GetRepaymentsByMethodAndPaymentDateLazyQueryHookResult = ReturnType<
+  typeof useGetRepaymentsByMethodAndPaymentDateLazyQuery
+>;
+export type GetRepaymentsByMethodAndPaymentDateQueryResult = Apollo.QueryResult<
+  GetRepaymentsByMethodAndPaymentDateQuery,
+  GetRepaymentsByMethodAndPaymentDateQueryVariables
 >;
 export const LastMonthlySummaryReportLiveRunDocument = gql`
   query LastMonthlySummaryReportLiveRun {

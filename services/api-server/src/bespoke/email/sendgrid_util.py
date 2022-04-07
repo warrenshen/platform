@@ -408,6 +408,9 @@ class Client(object):
 		two_factor_payload: TwoFactorPayloadDict = None,
 		attachment: Attachment = None,
 	) -> Tuple[bool, errors.Error]:
+		if is_test_env(os.environ.get("FLASK_ENV")):
+			recipients.append("do-not-reply-development@bespokefinancial.com")
+
 		# Validate whether recipient emails are valid.
 		for recipient_email in recipients:
 			if not recipient_email or '@' not in recipient_email:

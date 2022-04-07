@@ -47,6 +47,20 @@ export enum PaymentTypeEnum {
   RepaymentOfAccountFee = "repayment_account_fee",
 }
 
+export enum BankRepaymentsTabLabel {
+  ActionRequired = "Action Required",
+  ByDepositDate = "By Deposit Date",
+  TpExportACHS = "TP Export - ACHs",
+  All = "All",
+}
+
+export const BankRepaymentsTabLabels = [
+  BankRepaymentsTabLabel.ActionRequired,
+  BankRepaymentsTabLabel.ByDepositDate,
+  BankRepaymentsTabLabel.TpExportACHS,
+  BankRepaymentsTabLabel.All,
+];
+
 export enum BankPurchaseOrdersTabLabel {
   IncompletePOs = "Incomplete POs",
   NotConfirmedPOs = "Not Confirmed POs",

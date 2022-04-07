@@ -75,6 +75,7 @@ export default function BankAccount({
         {data?.bank_accounts.length ? (
           <Box mr={1}>
             <Select
+              data-cy="bank-account-selector"
               className={classes.selectInput}
               variant="outlined"
               value={bankAccount?.id || "None"}
@@ -87,7 +88,11 @@ export default function BankAccount({
               </MenuItem>
               {data.bank_accounts.map((bank_account) => {
                 return (
-                  <MenuItem key={bank_account.id} value={bank_account.id}>
+                  <MenuItem
+                    key={bank_account.id}
+                    value={bank_account.id}
+                    data-cy={`bank-account-selector-item-${bank_account.account_number}`}
+                  >
                     {`${bank_account.bank_name}: ${bank_account.account_title} (${bank_account.account_type})`}
                   </MenuItem>
                 );

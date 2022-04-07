@@ -61,6 +61,7 @@ export default function AdvanceForm({
             Advance Method
           </InputLabel>
           <Select
+            data-cy="advance-form-select-payment-method"
             id="select-payment-method"
             labelId="select-payment-method-label"
             value={payment.method}
@@ -72,7 +73,11 @@ export default function AdvanceForm({
             }
           >
             {AllAdvanceMethods.map((advanceMethod) => (
-              <MenuItem key={advanceMethod} value={advanceMethod}>
+              <MenuItem
+                key={advanceMethod}
+                value={advanceMethod}
+                data-cy={`advance-form-select-payment-method-menu-item-${AdvanceMethodToLabel[advanceMethod]}`}
+              >
                 {AdvanceMethodToLabel[advanceMethod]}
               </MenuItem>
             ))}

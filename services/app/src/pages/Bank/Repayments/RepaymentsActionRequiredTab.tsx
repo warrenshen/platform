@@ -122,7 +122,10 @@ export default function BankRepaymentsActionRequiredTab() {
   return (
     <Container>
       <Box className={classes.container}>
-        <Box className={classes.section}>
+        <Box
+          className={classes.section}
+          data-cy="requested-reverse-draft-ach-table-container"
+        >
           <Typography variant="h6">Requested Reverse Draft ACHs</Typography>
           <Box mb={2} display="flex" flexDirection="row-reverse">
             <Can perform={Action.SettleRepayment}>
@@ -177,7 +180,10 @@ export default function BankRepaymentsActionRequiredTab() {
           />
         </Box>
         <Box className={classes.sectionSpace} />
-        <Box className={classes.section}>
+        <Box
+          className={classes.section}
+          data-cy="submitted-reverse-draft-ach-table-container"
+        >
           <Typography variant="h6">Submitted Reverse Draft ACHs</Typography>
           <Box mb={2} display="flex" flexDirection="row-reverse">
             <Can perform={Action.SettleRepayment}>

@@ -11,10 +11,7 @@ subscription GetRepayments {
         { type: { _eq: "repayment" } }
       ]
     }
-    order_by: [
-      { deposit_date: desc }
-      { created_at: desc }
-    ]
+    order_by: [{ deposit_date: desc }, { created_at: desc }]
   ) {
     id
     ...Payment
@@ -44,7 +41,7 @@ subscription GetRepayments {
 }
 
 query GetRepaymentsByDepositDate($date: date!) {
-    payments(
+  payments(
     where: {
       _and: [
         {
@@ -57,10 +54,7 @@ query GetRepaymentsByDepositDate($date: date!) {
         { deposit_date: { _eq: $date } }
       ]
     }
-    order_by: [
-      { settlement_date: asc }
-      { created_at: asc }
-    ]
+    order_by: [{ settlement_date: asc }, { created_at: asc }]
   ) {
     id
     ...Payment
@@ -151,6 +145,35 @@ query GetRepaymentsForCompany($company_id: uuid!) {
           ...PaymentLimited
         }
       }
+    }
+  }
+}
+
+query GetRepaymentsByMethodAndPaymentDate($method: String!, $date: date!) {
+  payments(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { type: { _in: ["repayment", "repayment_account_fee"] } }
+        { method: { _eq: $method } }
+        { payment_date: { _eq: $date } }
+      ]
+    }
+  ) {
+    id
+    ...Payment
+    company_bank_account {
+      id
+      ...BankAccount
+    }
+    recipient_bank_account {
+      id
+      ...BankAccount
     }
   }
 }

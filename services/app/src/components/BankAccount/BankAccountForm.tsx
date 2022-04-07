@@ -32,6 +32,7 @@ export default function BankAccountForm({
     <Box mb={3} display="flex" flexDirection="column" className={classes.form}>
       <Box display="flex" flexDirection="column" mt={2}>
         <TextField
+          data-cy="bank-account-form-bank-name"
           label="Bank Name"
           required
           value={bankAccount.bank_name}
@@ -42,6 +43,7 @@ export default function BankAccountForm({
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>
         <TextField
+          data-cy="bank-account-form-bank-account-name"
           label="Account Name"
           required
           value={bankAccount.account_title || ""}
@@ -52,6 +54,7 @@ export default function BankAccountForm({
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>
         <TextField
+          data-cy="bank-account-form-account-type"
           label="Account Type"
           placeholder="Checking, Savings, etc"
           required
@@ -63,6 +66,7 @@ export default function BankAccountForm({
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>
         <TextField
+          data-cy="bank-account-form-account-number"
           label="Account Number"
           required
           value={bankAccount.account_number}
@@ -75,6 +79,7 @@ export default function BankAccountForm({
         <FormControlLabel
           control={
             <Checkbox
+              data-cy="bank-account-form-ach-checkbox-container"
               checked={!!bankAccount.can_ach}
               onChange={(event: ChangeEvent<HTMLInputElement>) =>
                 setBankAccount({
@@ -95,6 +100,7 @@ export default function BankAccountForm({
         <Box ml={4}>
           <Box display="flex" flexDirection="column" mt={2}>
             <TextField
+              data-cy="bank-account-form-ach-routing-number"
               label="ACH Routing Number"
               required
               value={bankAccount.routing_number}
@@ -119,6 +125,7 @@ export default function BankAccountForm({
           {role === UserRolesEnum.BankAdmin && (
             <Box display="flex" flexDirection="column" mt={2}>
               <TextField
+                data-cy="bank-account-form-ach-template-name"
                 label="ACH Template Name"
                 // The "required" is NOT actually enforced, but the asterik is a helpful prompt for user. Ops team does not want
                 // to enforce it because sometimes the template name is determined some time after the bank account is created.
@@ -333,6 +340,7 @@ export default function BankAccountForm({
           <FormControlLabel
             control={
               <Checkbox
+                data-cy="bank-account-form-is-company-compliant"
                 checked={!!bankAccount.is_cannabis_compliant}
                 onChange={(_: ChangeEvent<HTMLInputElement>) => {
                   setBankAccount({

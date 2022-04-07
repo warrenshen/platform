@@ -6,6 +6,8 @@ import BankRepaymentsByDepositDateTab from "pages/Bank/Repayments/RepaymentsByDe
 import BankRepaymentsAllTab from "pages/Bank/Repayments/RepaymentsAllTab";
 import { useState } from "react";
 import styled from "styled-components";
+import { BankRepaymentsTabLabel, BankRepaymentsTabLabels } from "lib/enum";
+import BankRepaymentsExportAchsTab from "pages/Bank/Repayments/RepaymentsExportAchsTab";
 
 const Container = styled.div`
   display: flex;
@@ -19,6 +21,15 @@ const Container = styled.div`
 const SectionSpace = styled.div`
   height: 24px;
 `;
+
+const BankRepaymentComponentMap: {
+  [key in BankRepaymentsTabLabel]: JSX.Element;
+} = {
+  [BankRepaymentsTabLabel.ActionRequired]: <BankRepaymentsActionRequiredTab />,
+  [BankRepaymentsTabLabel.ByDepositDate]: <BankRepaymentsByDepositDateTab />,
+  [BankRepaymentsTabLabel.TpExportACHS]: <BankRepaymentsExportAchsTab />,
+  [BankRepaymentsTabLabel.All]: <BankRepaymentsAllTab />,
+};
 
 export default function BankRepaymentsPage() {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
@@ -35,18 +46,12 @@ export default function BankRepaymentsPage() {
               setSelectedTabIndex(value)
             }
           >
-            <Tab label="Action Required" />
-            <Tab label="By Deposit Date" />
-            <Tab label="All" />
+            {BankRepaymentsTabLabels.map((label) => (
+              <Tab label={label} />
+            ))}
           </Tabs>
           <SectionSpace />
-          {selectedTabIndex === 0 ? (
-            <BankRepaymentsActionRequiredTab />
-          ) : selectedTabIndex === 1 ? (
-            <BankRepaymentsByDepositDateTab />
-          ) : (
-            <BankRepaymentsAllTab />
-          )}
+          {BankRepaymentComponentMap[BankRepaymentsTabLabels[selectedTabIndex]]}
         </Container>
       </PageContent>
     </Page>

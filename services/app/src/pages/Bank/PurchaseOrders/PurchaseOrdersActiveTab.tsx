@@ -149,7 +149,11 @@ export default function BankPurchaseOrdersActiveTab() {
           </Can>
         </Box>
       </Box>
-      <Box display="flex" flexDirection="column">
+      <Box
+        display="flex"
+        flexDirection="column"
+        data-cy="incomplete-purchase-orders-data-grid-container"
+      >
         <BankPurchaseOrdersDataGrid
           purchaseOrders={purchaseOrders}
           selectedPurchaseOrderIds={selectedPurchaseOrderIds}

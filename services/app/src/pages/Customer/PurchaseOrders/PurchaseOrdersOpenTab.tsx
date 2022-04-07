@@ -285,7 +285,11 @@ export default function CustomerPurchaseOrdersOpenTab({
           />
         </Box>
         <Box className={classes.sectionSpace} />
-        <Box display="flex" flexDirection="column">
+        <Box
+          display="flex"
+          flexDirection="column"
+          data-cy="ready-to-request-purchase-order-data-grid"
+        >
           <Typography variant="h6">Ready to Request Financing</Typography>
           <Box my={2} display="flex" flexDirection="row-reverse">
             <Can perform={Action.FundPurchaseOrders}>

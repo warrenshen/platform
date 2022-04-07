@@ -125,6 +125,7 @@ export default function ArtifactLoanForm({
       )}
       <Box display="flex" flexDirection="column" mt={4}>
         <DateInput
+          dataCy="artifact-loan-request-payment-date"
           id="requested-payment-date-date-picker"
           label="Requested Payment Date"
           disablePast

@@ -105,6 +105,7 @@ export default function CreateRepaymentSelectLoans({
             <Select
               id="select-payment-method"
               labelId="select-payment-method-label"
+              data-cy="repayment-select-payment-method"
               value={payment.method}
               onChange={({ target: { value } }) =>
                 setPayment({
@@ -115,9 +116,13 @@ export default function CreateRepaymentSelectLoans({
                 })
               }
             >
-              {AllRepaymentMethods.map((paymentType) => {
+              {AllRepaymentMethods.map((paymentType, index) => {
                 return (
-                  <MenuItem key={paymentType} value={paymentType}>
+                  <MenuItem
+                    key={paymentType}
+                    value={paymentType}
+                    data-cy={`repayment-select-payment-method-item-${index}`}
+                  >
                     {RepaymentMethodToDropdownLabel[paymentType]}
                   </MenuItem>
                 );
@@ -137,6 +142,7 @@ export default function CreateRepaymentSelectLoans({
             <Box display="flex" flexDirection="column" mt={1}>
               <DateInput
                 id="payment-modal-payment-date-date-picker"
+                dataCy="payment-modal-payment-date-date-picker"
                 label={
                   isReverseDraftACH ? "Requested Withdraw Date" : "Deposit Date"
                 }

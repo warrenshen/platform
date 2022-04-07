@@ -1,12 +1,12 @@
 import datetime
 import decimal
+import os
 from typing import Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import db_constants, models, models_util
-from bespoke.db.db_constants import (ALL_LOAN_TYPES, LoanStatusEnum,
-                                     LoanTypeEnum, RequestStatusEnum)
+from bespoke.db.db_constants import (ALL_LOAN_TYPES, LoanTypeEnum)
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.finance import financial_summary_util
@@ -14,6 +14,8 @@ from bespoke.finance import contract_util
 from bespoke.finance.loans import sibling_util
 from mypy_extensions import TypedDict
 from sqlalchemy.orm import Session
+
+from server.config import is_test_env
 
 ApproveLoansReqDict = TypedDict('ApproveLoansReqDict', {
 	'loan_ids': List[str],
@@ -40,6 +42,7 @@ def send_loan_approval_requested_email(
 		'loan_html': submit_resp['loan_html'],
 		'triggered_by_autofinancing': submit_resp['triggered_by_autofinancing'],
 	}
+
 	_, err = sendgrid_client.send(
 		template_name=sendgrid_util.TemplateNames.CUSTOMER_REQUESTED_LOAN,
 		template_data=template_data,

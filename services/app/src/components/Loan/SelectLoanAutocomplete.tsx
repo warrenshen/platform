@@ -52,13 +52,23 @@ export default function SelectLoanAutocomplete({
           )} ${formatDateString(loan.adjusted_maturity_date)}`;
         }}
         renderInput={(params) => (
-          <TextField {...params} label="Add another loan" variant="outlined" />
+          <TextField
+            {...params}
+            data-cy="make-repayment-loan-selector"
+            label="Add another loan"
+            variant="outlined"
+          />
         )}
         renderOption={(loan) => {
           const artifactName = getLoanArtifactName(loan);
           const vendorName = getLoanVendorName(loan);
+
           return (
-            <Box display="flex" py={0.5}>
+            <Box
+              display="flex"
+              py={0.5}
+              data-cy={`make-repayment-loan-selector-item-${artifactName}`}
+            >
               <Box display="flex" justifyContent="space-between">
                 <Box
                   display="flex"

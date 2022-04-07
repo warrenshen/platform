@@ -47,6 +47,7 @@ export default function BespokeBankAssignment(props: Props) {
           </InputLabel>
           <Select
             label={props.label}
+            data-cy={`bank-account-assignment-label--${labelId}`}
             id={`bank-account-assignment--${labelId}`}
             labelId={`bank-account-assignment-label--${labelId}`}
             value={props.assignedBespokeBankAccount?.id || "None"}
@@ -59,9 +60,13 @@ export default function BespokeBankAssignment(props: Props) {
             <MenuItem key="none" value="None">
               None
             </MenuItem>
-            {data.bank_accounts.map((bank_account) => {
+            {data.bank_accounts.map((bank_account, index) => {
               return (
-                <MenuItem key={bank_account.id} value={bank_account.id}>
+                <MenuItem
+                  key={bank_account.id}
+                  value={bank_account.id}
+                  data-cy={`bank-account-assignment-label--${labelId}-item-${index}`}
+                >
                   {`${bank_account.bank_name}: ${bank_account.account_title} (${bank_account.account_type})`}
                 </MenuItem>
               );

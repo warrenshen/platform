@@ -46,6 +46,7 @@ export default function CompanyBank({
         <Select
           id="select-bank-account"
           labelId="select-bank-account-label"
+          data-cy="select-bank-account-label"
           value={payment.company_bank_account_id || ""}
           onChange={({ target: { value } }) =>
             onCompanyBankAccountSelection(value || null)
@@ -54,8 +55,12 @@ export default function CompanyBank({
           <MenuItem key={"none"} value={""}>
             None
           </MenuItem>
-          {data.bank_accounts.map((bank_account) => (
-            <MenuItem key={bank_account.id} value={bank_account.id}>
+          {data.bank_accounts.map((bank_account, index) => (
+            <MenuItem
+              key={bank_account.id}
+              value={bank_account.id}
+              data-cy={`select-bank-account-label-item-${index}`}
+            >
               {`${bank_account.bank_name}: ${bank_account.account_title} (${bank_account.account_type})`}
             </MenuItem>
           ))}

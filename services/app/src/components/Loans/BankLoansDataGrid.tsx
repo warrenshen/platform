@@ -33,7 +33,11 @@ export default function BankLoansDataGrid({
   const [selectedPurchaseOrderId, setSelectedPurchaseOrderId] = useState(null);
 
   return (
-    <Box display="flex" flexDirection="column">
+    <Box
+      display="flex"
+      flexDirection="column"
+      data-cy="loans-data-grid-container"
+    >
       {!!selectedPurchaseOrderId && (
         <UpdatePurchaseOrderBankNoteModal
           purchaseOrderId={selectedPurchaseOrderId}

@@ -208,6 +208,7 @@ export default function CreateUpdateBankAccountModal({
         />
         <Box display="flex" flexDirection="row-reverse" my={3}>
           <Button
+            data-cy="create-update-bank-account-modal-add-button"
             size="small"
             variant="contained"
             color="primary"

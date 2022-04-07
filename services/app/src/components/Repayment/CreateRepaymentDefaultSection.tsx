@@ -139,6 +139,7 @@ export default function CreateRepaymentDefaultSection({
             <Select
               id="select-payment-option"
               labelId="select-payment-option-label"
+              data-cy="repayment-select-payment-option"
               value={payment.items_covered.payment_option || ""}
               onChange={({ target: { value } }) =>
                 setPayment({
@@ -150,8 +151,12 @@ export default function CreateRepaymentDefaultSection({
                 })
               }
             >
-              {CustomerPaymentOptions.map((paymentOption) => (
-                <MenuItem key={paymentOption} value={paymentOption}>
+              {CustomerPaymentOptions.map((paymentOption, index) => (
+                <MenuItem
+                  key={paymentOption}
+                  value={paymentOption}
+                  data-cy={`repayment-select-payment-option-item-${index}`}
+                >
                   {PaymentOptionToLabel[paymentOption]}
                 </MenuItem>
               ))}
@@ -164,6 +169,7 @@ export default function CreateRepaymentDefaultSection({
               <CurrencyInput
                 label={"Custom Amount"}
                 value={payment.requested_amount}
+                dataCy="create-repayment-custom-amount-input-container"
                 handleChange={(value) =>
                   setPayment({
                     ...payment,
