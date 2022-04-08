@@ -69,9 +69,11 @@ export default function CustomerVendorsPageContent({
     <PageContent title={"Vendors"}>
       {awaitingPartnershipRequests.length > 0 && (
         <>
-          <Typography variant="h6">
-            <strong>Awaiting Approval</strong>
-          </Typography>
+          <Box mb={2}>
+            <Typography variant="h6">
+              <strong>Awaiting Approval</strong>
+            </Typography>
+          </Box>
           <Box display="grid">
             <AwaitingPartnershipsDataGrid
               partnershipRequests={awaitingPartnershipRequests}
