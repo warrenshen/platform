@@ -23,9 +23,10 @@ import {
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { getCompanyDisplayName } from "lib/companies";
-import { formatCurrency } from "lib/number";
 import { formatDateString } from "lib/date";
 import { FileTypeEnum } from "lib/enum";
+import { formatCurrency } from "lib/number";
+import { computePurchaseOrderDueDateDateStringClient } from "lib/purchaseOrders";
 import { useContext, useMemo, useState } from "react";
 
 interface Props {
@@ -167,13 +168,13 @@ export default function PurchaseOrderDrawer({
           {formatDateString(purchaseOrder.order_date)}
         </Typography>
       </Box>
-      {!isMetrcBased && (
+      {purchaseOrder.net_terms != null && (
         <Box display="flex" flexDirection="column" mt={2}>
           <Typography variant="subtitle2" color="textSecondary">
-            Delivery Date
+            Due Date
           </Typography>
           <Typography variant={"body1"}>
-            {formatDateString(purchaseOrder.delivery_date)}
+            {`${computePurchaseOrderDueDateDateStringClient(purchaseOrder)}`}
           </Typography>
         </Box>
       )}

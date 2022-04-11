@@ -51,7 +51,7 @@ For Purchase Money Financing, we require:
 For purchase order,
 1) Purchase Order Attachment
 2) COAs
-3) Shipping manifest
+3) Shipping Manifest
 
 For invoice (the borrower submits both purchase orders and invoices for PMF),
 1) Invoice Attachment

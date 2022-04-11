@@ -11,7 +11,6 @@ import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
-import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import {
   Companies,
   PurchaseOrderFragment,
@@ -19,7 +18,9 @@ import {
   RequestStatusEnum,
 } from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
+import { formatDateString } from "lib/date";
 import { formatCurrency } from "lib/number";
+import { computePurchaseOrderDueDateDateStringClient } from "lib/purchaseOrders";
 import { ColumnWidths, truncateString } from "lib/tables";
 import { useMemo } from "react";
 
@@ -29,6 +30,10 @@ function getRows(purchaseOrders: PurchaseOrderFragment[]): RowsProp {
     company_name: purchaseOrder.company.name,
     vendor_name: getCompanyDisplayName(purchaseOrder.vendor),
     status: purchaseOrder.status,
+    order_date: !!purchaseOrder.order_date
+      ? formatDateString(purchaseOrder.order_date)
+      : "-",
+    due_date: computePurchaseOrderDueDateDateStringClient(purchaseOrder),
     percent_funded:
       ((purchaseOrder.amount_funded || 0) / (purchaseOrder.amount || 1)) * 100,
     customer_note: truncateString(purchaseOrder?.customer_note || "-"),
@@ -42,7 +47,6 @@ interface Props {
   isBankView?: boolean;
   isCompanyVisible: boolean;
   isCustomerNoteVisible?: boolean;
-  isDeliveryDateVisible?: boolean;
   isExcelExport?: boolean;
   isMultiSelectEnabled?: boolean;
   purchaseOrders: PurchaseOrderFragment[];
@@ -62,7 +66,6 @@ export default function PurchaseOrdersDataGrid({
   isBankNoteVisible = false,
   isCompanyVisible,
   isCustomerNoteVisible = true,
-  isDeliveryDateVisible = false,
   isExcelExport = true,
   isMultiSelectEnabled = true,
   purchaseOrders,
@@ -161,19 +164,12 @@ export default function PurchaseOrdersDataGrid({
         dataField: "order_date",
         width: ColumnWidths.Date,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell dateString={params.row.data.order_date} />
-        ),
       },
       {
-        visible: isDeliveryDateVisible,
-        caption: "Delivery Date",
-        dataField: "delivery_date",
+        caption: "Due Date",
+        dataField: "due_date",
         width: ColumnWidths.Date,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell dateString={params.row.data.delivery_date} />
-        ),
       },
       {
         visible: isCustomerNoteVisible,
@@ -218,7 +214,6 @@ export default function PurchaseOrdersDataGrid({
       isCompanyVisible,
       isApprovedByVendor,
       isCustomerNoteVisible,
-      isDeliveryDateVisible,
       actionItems,
       handleClickCustomer,
       handleClickPurchaseOrderBankNote,

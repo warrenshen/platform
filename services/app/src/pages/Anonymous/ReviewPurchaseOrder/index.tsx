@@ -14,9 +14,10 @@ import {
   useGetPurchaseOrderForReviewQuery,
 } from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
-import { formatCurrency } from "lib/number";
 import { formatDateString } from "lib/date";
 import { FileTypeEnum } from "lib/enum";
+import { formatCurrency } from "lib/number";
+import { computePurchaseOrderDueDateDateStringClient } from "lib/purchaseOrders";
 import { anonymousRoutes } from "lib/routes";
 import { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
@@ -231,16 +232,14 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
                 {formatDateString(purchaseOrder.order_date)}
               </Typography>
             </Box>
-            {!isMetrcBased && (
-              <Box display="flex" flexDirection="column" mt={2}>
-                <Typography variant="subtitle2" color="textSecondary">
-                  Delivery Date
-                </Typography>
-                <Typography variant={"body1"}>
-                  {formatDateString(purchaseOrder.delivery_date)}
-                </Typography>
-              </Box>
-            )}
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Due Date
+              </Typography>
+              <Typography variant={"body1"}>
+                {computePurchaseOrderDueDateDateStringClient(purchaseOrder)}
+              </Typography>
+            </Box>
             <Box display="flex" flexDirection="column" mt={2}>
               <Typography variant="subtitle2" color="textSecondary">
                 Purchase Order File

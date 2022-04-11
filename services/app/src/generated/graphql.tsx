@@ -19595,6 +19595,7 @@ export type PurchaseOrders = {
   loans: Array<Loans>;
   /** An aggregate relationship */
   loans_aggregate: LoansAggregate;
+  net_terms?: Maybe<Scalars["Int"]>;
   order_date?: Maybe<Scalars["date"]>;
   order_number: Scalars["String"];
   /** An array relationship */
@@ -19724,6 +19725,7 @@ export type PurchaseOrdersAvgFields = {
   amount?: Maybe<Scalars["Float"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["Float"]>;
+  net_terms?: Maybe<Scalars["Float"]>;
 };
 
 /** order by avg() on columns of table "purchase_orders" */
@@ -19731,6 +19733,7 @@ export type PurchaseOrdersAvgOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  net_terms?: Maybe<OrderBy>;
 };
 
 /** Boolean expression to filter rows from the table "purchase_orders". All fields are combined with a logical 'AND'. */
@@ -19757,6 +19760,7 @@ export type PurchaseOrdersBoolExp = {
   is_deleted?: Maybe<BooleanComparisonExp>;
   is_metrc_based?: Maybe<BooleanComparisonExp>;
   loans?: Maybe<LoansBoolExp>;
+  net_terms?: Maybe<IntComparisonExp>;
   order_date?: Maybe<DateComparisonExp>;
   order_number?: Maybe<StringComparisonExp>;
   purchase_order_files?: Maybe<PurchaseOrderFilesBoolExp>;
@@ -19781,6 +19785,7 @@ export type PurchaseOrdersIncInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  net_terms?: Maybe<Scalars["Int"]>;
 };
 
 /** input type for inserting data into table "purchase_orders" */
@@ -19810,6 +19815,7 @@ export type PurchaseOrdersInsertInput = {
   /** Whether this purchase order is based on Metrc manifests; this may be true even if purchase order does not have associated manifests purchase order is a draft */
   is_metrc_based?: Maybe<Scalars["Boolean"]>;
   loans?: Maybe<LoansArrRelInsertInput>;
+  net_terms?: Maybe<Scalars["Int"]>;
   order_date?: Maybe<Scalars["date"]>;
   order_number?: Maybe<Scalars["String"]>;
   purchase_order_files?: Maybe<PurchaseOrderFilesArrRelInsertInput>;
@@ -19844,6 +19850,7 @@ export type PurchaseOrdersMaxFields = {
   funded_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   incompleted_at?: Maybe<Scalars["timestamptz"]>;
+  net_terms?: Maybe<Scalars["Int"]>;
   order_date?: Maybe<Scalars["date"]>;
   order_number?: Maybe<Scalars["String"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
@@ -19874,6 +19881,7 @@ export type PurchaseOrdersMaxOrderBy = {
   funded_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   incompleted_at?: Maybe<OrderBy>;
+  net_terms?: Maybe<OrderBy>;
   order_date?: Maybe<OrderBy>;
   order_number?: Maybe<OrderBy>;
   rejected_at?: Maybe<OrderBy>;
@@ -19904,6 +19912,7 @@ export type PurchaseOrdersMinFields = {
   funded_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   incompleted_at?: Maybe<Scalars["timestamptz"]>;
+  net_terms?: Maybe<Scalars["Int"]>;
   order_date?: Maybe<Scalars["date"]>;
   order_number?: Maybe<Scalars["String"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
@@ -19934,6 +19943,7 @@ export type PurchaseOrdersMinOrderBy = {
   funded_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   incompleted_at?: Maybe<OrderBy>;
+  net_terms?: Maybe<OrderBy>;
   order_date?: Maybe<OrderBy>;
   order_number?: Maybe<OrderBy>;
   rejected_at?: Maybe<OrderBy>;
@@ -19987,6 +19997,7 @@ export type PurchaseOrdersOrderBy = {
   is_deleted?: Maybe<OrderBy>;
   is_metrc_based?: Maybe<OrderBy>;
   loans_aggregate?: Maybe<LoansAggregateOrderBy>;
+  net_terms?: Maybe<OrderBy>;
   order_date?: Maybe<OrderBy>;
   order_number?: Maybe<OrderBy>;
   purchase_order_files_aggregate?: Maybe<PurchaseOrderFilesAggregateOrderBy>;
@@ -20042,6 +20053,8 @@ export enum PurchaseOrdersSelectColumn {
   /** column name */
   IsMetrcBased = "is_metrc_based",
   /** column name */
+  NetTerms = "net_terms",
+  /** column name */
   OrderDate = "order_date",
   /** column name */
   OrderNumber = "order_number",
@@ -20084,6 +20097,7 @@ export type PurchaseOrdersSetInput = {
   is_deleted?: Maybe<Scalars["Boolean"]>;
   /** Whether this purchase order is based on Metrc manifests; this may be true even if purchase order does not have associated manifests purchase order is a draft */
   is_metrc_based?: Maybe<Scalars["Boolean"]>;
+  net_terms?: Maybe<Scalars["Int"]>;
   order_date?: Maybe<Scalars["date"]>;
   order_number?: Maybe<Scalars["String"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
@@ -20100,6 +20114,7 @@ export type PurchaseOrdersStddevFields = {
   amount?: Maybe<Scalars["Float"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["Float"]>;
+  net_terms?: Maybe<Scalars["Float"]>;
 };
 
 /** order by stddev() on columns of table "purchase_orders" */
@@ -20107,6 +20122,7 @@ export type PurchaseOrdersStddevOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  net_terms?: Maybe<OrderBy>;
 };
 
 /** aggregate stddev_pop on columns */
@@ -20114,6 +20130,7 @@ export type PurchaseOrdersStddevPopFields = {
   amount?: Maybe<Scalars["Float"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["Float"]>;
+  net_terms?: Maybe<Scalars["Float"]>;
 };
 
 /** order by stddev_pop() on columns of table "purchase_orders" */
@@ -20121,6 +20138,7 @@ export type PurchaseOrdersStddevPopOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  net_terms?: Maybe<OrderBy>;
 };
 
 /** aggregate stddev_samp on columns */
@@ -20128,6 +20146,7 @@ export type PurchaseOrdersStddevSampFields = {
   amount?: Maybe<Scalars["Float"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["Float"]>;
+  net_terms?: Maybe<Scalars["Float"]>;
 };
 
 /** order by stddev_samp() on columns of table "purchase_orders" */
@@ -20135,6 +20154,7 @@ export type PurchaseOrdersStddevSampOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  net_terms?: Maybe<OrderBy>;
 };
 
 /** aggregate sum on columns */
@@ -20142,6 +20162,7 @@ export type PurchaseOrdersSumFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  net_terms?: Maybe<Scalars["Int"]>;
 };
 
 /** order by sum() on columns of table "purchase_orders" */
@@ -20149,6 +20170,7 @@ export type PurchaseOrdersSumOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  net_terms?: Maybe<OrderBy>;
 };
 
 /** update columns of table "purchase_orders" */
@@ -20188,6 +20210,8 @@ export enum PurchaseOrdersUpdateColumn {
   /** column name */
   IsMetrcBased = "is_metrc_based",
   /** column name */
+  NetTerms = "net_terms",
+  /** column name */
   OrderDate = "order_date",
   /** column name */
   OrderNumber = "order_number",
@@ -20210,6 +20234,7 @@ export type PurchaseOrdersVarPopFields = {
   amount?: Maybe<Scalars["Float"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["Float"]>;
+  net_terms?: Maybe<Scalars["Float"]>;
 };
 
 /** order by var_pop() on columns of table "purchase_orders" */
@@ -20217,6 +20242,7 @@ export type PurchaseOrdersVarPopOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  net_terms?: Maybe<OrderBy>;
 };
 
 /** aggregate var_samp on columns */
@@ -20224,6 +20250,7 @@ export type PurchaseOrdersVarSampFields = {
   amount?: Maybe<Scalars["Float"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["Float"]>;
+  net_terms?: Maybe<Scalars["Float"]>;
 };
 
 /** order by var_samp() on columns of table "purchase_orders" */
@@ -20231,6 +20258,7 @@ export type PurchaseOrdersVarSampOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  net_terms?: Maybe<OrderBy>;
 };
 
 /** aggregate variance on columns */
@@ -20238,6 +20266,7 @@ export type PurchaseOrdersVarianceFields = {
   amount?: Maybe<Scalars["Float"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["Float"]>;
+  net_terms?: Maybe<Scalars["Float"]>;
 };
 
 /** order by variance() on columns of table "purchase_orders" */
@@ -20245,6 +20274,7 @@ export type PurchaseOrdersVarianceOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  net_terms?: Maybe<OrderBy>;
 };
 
 export type QueryRoot = {
@@ -26186,7 +26216,7 @@ export type GetPurchaseOrderForReviewQuery = {
       | "vendor_id"
       | "order_number"
       | "order_date"
-      | "delivery_date"
+      | "net_terms"
       | "amount"
       | "is_cannabis"
       | "is_metrc_based"
@@ -27779,6 +27809,7 @@ export type PurchaseOrderLimitedFragment = Pick<
   | "order_number"
   | "order_date"
   | "delivery_date"
+  | "net_terms"
   | "amount"
   | "amount_funded"
   | "is_cannabis"
@@ -28562,6 +28593,7 @@ export const PurchaseOrderLimitedFragmentDoc = gql`
     order_number
     order_date
     delivery_date
+    net_terms
     amount
     amount_funded
     is_cannabis
@@ -33970,7 +34002,7 @@ export const GetPurchaseOrderForReviewDocument = gql`
       vendor_id
       order_number
       order_date
-      delivery_date
+      net_terms
       amount
       is_cannabis
       is_metrc_based
@@ -34172,6 +34204,7 @@ export const GetDraftPurchaseOrdersDocument = gql`
           }
           { approved_at: { _is_null: true } }
           { requested_at: { _is_null: true } }
+          { rejected_at: { _is_null: true } }
         ]
       }
     ) {

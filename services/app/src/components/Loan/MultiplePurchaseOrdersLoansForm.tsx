@@ -65,14 +65,6 @@ const columns = [
       <DateDataGridCell dateString={params.row.data.artifact.order_date} />
     ),
   },
-  {
-    caption: "Delivery Date",
-    width: ColumnWidths.Date,
-    alignment: "center",
-    cellRender: (params: ValueFormatterParams) => (
-      <DateDataGridCell dateString={params.row.data.artifact.delivery_date} />
-    ),
-  },
 ];
 
 export default function MultiplePurchaseOrdersLoansForm({

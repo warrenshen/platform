@@ -163,9 +163,7 @@ function createPurchaseOrderAsCustomerAdmin(
   cy.dataCySelector("purchase-order-form-input-order-date", "input").type(
     "05/05/2021"
   );
-  cy.dataCySelector("purchase-order-form-input-delivery-date", "input").type(
-    "05/05/2021"
-  );
+  cy.dataCySelector("purchase-order-form-input-is-cod", "input").check();
   cy.dataCySelector("purchase-order-form-input-amount", "input").type("42000");
   cy.dataCySelector("purchase-order-form-input-is-cannabis", "input").check();
 
@@ -217,9 +215,7 @@ function createPurchaseOrderAsBankAdmin(
   cy.dataCySelector("purchase-order-form-input-order-date", "input").type(
     "05/05/2021"
   );
-  cy.dataCySelector("purchase-order-form-input-delivery-date", "input").type(
-    "05/05/2021"
-  );
+  cy.dataCySelector("purchase-order-form-input-is-cod", "input").check();
   cy.dataCySelector("purchase-order-form-input-amount", "input").type("42000");
   cy.dataCySelector("purchase-order-form-input-is-cannabis", "input").check();
 

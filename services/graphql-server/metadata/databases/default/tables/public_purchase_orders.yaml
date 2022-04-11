@@ -66,6 +66,7 @@ select_permissions:
     - closed_at
     - incompleted_at
     - bank_incomplete_note
+    - net_terms
     filter: {}
   role: bank_admin
 - permission:
@@ -73,6 +74,7 @@ select_permissions:
     - is_deleted
     - delivery_date
     - order_date
+    - net_terms
     - amount
     - bank_incomplete_note
     - order_number
@@ -115,8 +117,10 @@ select_permissions:
     - is_cannabis
     - is_deleted
     - is_metrc_based
+    - net_terms
     - order_date
     - order_number
+    - rejected_at
     - rejection_note
     - requested_at
     - status
@@ -147,8 +151,10 @@ select_permissions:
     - is_cannabis
     - is_deleted
     - is_metrc_based
+    - net_terms
     - order_date
     - order_number
+    - rejected_at
     - rejection_note
     - requested_at
     - status
@@ -164,14 +170,19 @@ select_permissions:
 - permission:
     columns:
     - amount
+    - amount_funded
     - approved_at
+    - closed_at
     - company_id
     - created_at
+    - customer_note
     - delivery_date
     - id
+    - incompleted_at
     - is_cannabis
     - is_deleted
     - is_metrc_based
+    - net_terms
     - order_date
     - order_number
     - rejected_at
@@ -180,7 +191,6 @@ select_permissions:
     - status
     - updated_at
     - vendor_id
-    - closed_at
     filter:
       vendor_id:
         _eq: X-Hasura-Company-Id

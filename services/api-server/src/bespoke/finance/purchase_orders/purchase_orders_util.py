@@ -15,8 +15,6 @@ from bespoke.db.models import session_scope
 from bespoke.companies import partnership_util
 from bespoke.email import sendgrid_util
 from bespoke.finance import number_util
-from bespoke.finance.loans import approval_util
-from bespoke.security import security_util, two_factor_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from server.config import Config, is_test_env
@@ -60,6 +58,7 @@ class PurchaseOrderData:
 	order_number: str
 	order_date: datetime.date
 	delivery_date: datetime.date
+	net_terms: int
 	amount: float
 	is_cannabis: bool
 	is_metrc_based: bool
@@ -73,6 +72,7 @@ class PurchaseOrderData:
 			order_number=self.order_number,
 			order_date=self.order_date,
 			delivery_date=self.delivery_date,
+			net_terms=self.net_terms,
 			amount=decimal.Decimal(self.amount) if self.amount is not None else None,
 			is_cannabis=self.is_cannabis,
 			is_metrc_based=self.is_metrc_based,
@@ -106,6 +106,7 @@ class PurchaseOrderData:
 			order_number=d.get('order_number'),
 			order_date=PurchaseOrderData.parse_date_safely(d, 'order_date'),
 			delivery_date=PurchaseOrderData.parse_date_safely(d, 'delivery_date'),
+			net_terms=d.get('net_terms'),
 			amount=PurchaseOrderData.parse_numeric_safely(d, 'amount'),
 			is_cannabis=d.get('is_cannabis'),
 			is_metrc_based=d.get('is_metrc_based'),
@@ -356,6 +357,9 @@ def submit_purchase_order_for_approval(
 	if not purchase_order.order_date:
 		raise errors.Error('Order date is required')
 
+	if purchase_order.net_terms == None:
+		raise errors.Error('Net terms is required')
+
 	if purchase_order.amount is None or purchase_order.amount <= 0:
 		raise errors.Error('Valid amount is required')
 
@@ -413,9 +417,6 @@ def submit_purchase_order_for_approval(
 
 	# Validation 3: validations for POs of which purchase_orders.is_metrc_based is False.
 	if not purchase_order.is_metrc_based:
-		if not purchase_order.delivery_date:
-			raise errors.Error('Delivery date is required')
-
 		if purchase_order.is_cannabis:
 			purchase_order_cannabis_files = cast(
 				List[models.PurchaseOrderFile],

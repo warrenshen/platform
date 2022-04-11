@@ -59,10 +59,6 @@ export default function PurchaseOrderInfoCard({
             <Box>{formatDateString(purchaseOrder.order_date)}</Box>
           </Box>
           <Box display="flex" pb={0.25}>
-            <Box className={classes.label}>Delivery Date</Box>
-            <Box>{formatDateString(purchaseOrder.delivery_date)}</Box>
-          </Box>
-          <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Amount</Box>
             <Box>{formatCurrency(purchaseOrder.amount)}</Box>
           </Box>

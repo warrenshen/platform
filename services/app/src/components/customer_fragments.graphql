@@ -96,6 +96,7 @@ fragment PurchaseOrderLimited on purchase_orders {
   order_number
   order_date
   delivery_date
+  net_terms
   amount
   amount_funded
   is_cannabis

@@ -755,6 +755,7 @@ class PurchaseOrder(Artifact):
 	order_number = Column(String)
 	order_date = Column(Date)
 	delivery_date = Column(Date)
+	net_terms = Column(Integer)
 	amount = Column(Numeric)
 	amount_funded = Column(Numeric)
 	status = Column(String)

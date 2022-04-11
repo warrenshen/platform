@@ -56,7 +56,7 @@ query GetPurchaseOrderForReview($id: uuid!) {
     vendor_id
     order_number
     order_date
-    delivery_date
+    net_terms
     amount
     is_cannabis
     is_metrc_based

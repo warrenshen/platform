@@ -19,8 +19,28 @@ export const MonthFormatClient = "MMMM yyyy (MM/yyyy)";
 export const DateFormatServer = "yyyy-MM-dd";
 export const TimeFormatClient = "hh:mm:ss a";
 
-function dateAsDateStringServer(date: Date) {
-  return format(date, DateFormatServer);
+export function dateAsDateStringClient(date: Date) {
+  try {
+    return format(date, DateFormatClient);
+  } catch (error) {
+    throw new Error(
+      `Could not format the date "${date}". Error message: "${error}".`
+    );
+  }
+}
+
+export function dateAsDateStringServer(date: Date) {
+  try {
+    return format(date, DateFormatServer);
+  } catch (error) {
+    throw new Error(
+      `Could not format the date "${date}". Error message: "${error}".`
+    );
+  }
+}
+
+export function dateStringPlusXDaysDate(dateString: string, xDays: number) {
+  return addDays(parse(dateString, DateFormatServer, new Date()), xDays);
 }
 
 export function todayAsDateStringServer() {
@@ -152,6 +172,11 @@ export function addBizDays(dateString: string, days: number) {
     days -= 1;
   }
   return format(resultDate, DateFormatServer);
+}
+
+export function computePurchaseOrderDueDateCutoffDate() {
+  const todayDate = new Date();
+  return format(addDays(todayDate, -60), DateFormatServer);
 }
 
 export function computeRequestedWithdrawCutoffDate(dateString: string) {

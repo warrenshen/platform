@@ -1,7 +1,7 @@
 import { Box, Button, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
-import PurchaseOrderForm from "components/PurchaseOrder/PurchaseOrderForm";
-import PurchaseOrderFormV2 from "components/PurchaseOrder/PurchaseOrderFormV2";
+import PurchaseOrderFormManual from "components/PurchaseOrder/PurchaseOrderFormManual";
+import PurchaseOrderFormMetrc from "components/PurchaseOrder/PurchaseOrderFormMetrc";
 import { ReactComponent as KeyboardIcon } from "components/Shared/Layout/Icons/Keyboard.svg";
 import MetrcLogo from "components/Shared/Images/MetrcLogo.png";
 import Modal from "components/Shared/Modal/Modal";
@@ -33,6 +33,7 @@ import {
 import { isFeatureFlagEnabled } from "lib/companies";
 import { todayMinusXDaysDateStringServer } from "lib/date";
 import { ActionType, FeatureFlagEnum, ProductTypeEnum } from "lib/enum";
+import { isPurchaseOrderDueDateValid } from "lib/purchaseOrders";
 import { isNull, mergeWith, uniqBy } from "lodash";
 import { useContext, useMemo, useState } from "react";
 import styled from "styled-components";
@@ -96,7 +97,7 @@ export default function CreateUpdatePurchaseOrderModal({
     vendor_id: null,
     order_number: null,
     order_date: null,
-    delivery_date: null,
+    net_terms: null,
     amount: null,
     is_cannabis: true,
     is_metrc_based: null, // null = not known yet
@@ -249,8 +250,8 @@ export default function CreateUpdatePurchaseOrderModal({
     fetchPolicy: "network-only",
     variables: {
       company_id: companyId,
-      // Fetch incoming company deliveries with transfer created in the last 90 days.
-      start_created_date: todayMinusXDaysDateStringServer(90),
+      // Fetch incoming company deliveries with transfer created in the last 120 days.
+      start_created_date: todayMinusXDaysDateStringServer(120),
     },
   });
 
@@ -335,7 +336,7 @@ export default function CreateUpdatePurchaseOrderModal({
       vendor_id: purchaseOrder.vendor_id,
       order_number: purchaseOrder.order_number,
       order_date: purchaseOrder.order_date,
-      delivery_date: purchaseOrder.delivery_date,
+      net_terms: purchaseOrder.net_terms,
       amount: purchaseOrder.amount,
       is_cannabis: purchaseOrder.is_cannabis,
       is_metrc_based: isMetrcBased,
@@ -452,20 +453,29 @@ export default function CreateUpdatePurchaseOrderModal({
 
   const isSecondaryActionDisabled = !isFormValid || isFormLoading;
 
-  const isPrimaryActionDisabledMetrcBased =
-    !purchaseOrder.order_date || !purchaseOrder.amount || !purchaseOrderFiles;
+  const { isDueDateValid } = isPurchaseOrderDueDateValid(
+    purchaseOrder.order_date,
+    purchaseOrder.net_terms
+  );
+
+  const isPrimaryActionDisabledMetrc =
+    !purchaseOrder.order_date ||
+    !isDueDateValid ||
+    !purchaseOrder.amount ||
+    !purchaseOrderFiles;
   const isPrimaryActionDisabledManual =
     !selectableVendors?.find((vendor) => vendor.id === purchaseOrder.vendor_id)
       ?.company_vendor_partnerships[0].approved_at ||
     !purchaseOrder.order_date ||
-    !purchaseOrder.delivery_date ||
+    !isDueDateValid ||
+    purchaseOrder.net_terms == null ||
     !purchaseOrder.amount ||
     !purchaseOrderFiles ||
     (!!purchaseOrder.is_cannabis && purchaseOrderCannabisFiles.length <= 0);
   const isPrimaryActionDisabled = isActionTypeUpdate
     ? isSecondaryActionDisabled
     : isSecondaryActionDisabled ||
-      (isMetrcBased && isPrimaryActionDisabledMetrcBased) ||
+      (isMetrcBased && isPrimaryActionDisabledMetrc) ||
       (!isMetrcBased && isPrimaryActionDisabledManual);
 
   if (!isDialogReady) {
@@ -573,7 +583,7 @@ export default function CreateUpdatePurchaseOrderModal({
       {isMetrcEnabled ? (
         isMetrcBased !== null &&
         (!!isMetrcBased ? (
-          <PurchaseOrderFormV2
+          <PurchaseOrderFormMetrc
             companyId={companyId}
             purchaseOrder={purchaseOrder}
             purchaseOrderFiles={purchaseOrderFiles}
@@ -590,7 +600,7 @@ export default function CreateUpdatePurchaseOrderModal({
             }
           />
         ) : (
-          <PurchaseOrderForm
+          <PurchaseOrderFormManual
             companyId={companyId}
             purchaseOrder={purchaseOrder}
             purchaseOrderFiles={purchaseOrderFiles}
@@ -606,7 +616,7 @@ export default function CreateUpdatePurchaseOrderModal({
           />
         ))
       ) : (
-        <PurchaseOrderForm
+        <PurchaseOrderFormManual
           companyId={companyId}
           purchaseOrder={purchaseOrder}
           purchaseOrderFiles={purchaseOrderFiles}
