@@ -16,10 +16,12 @@ import {
   useFilterIncompletePurchaseOrders,
   useFilterPurchaseOrdersBySelectedIds,
 } from "hooks/useFilterPurchaseOrders";
+import UpdatePurchaseOrderBankNoteModal from "components/PurchaseOrder/UpdatePurchaseOrderBankNoteModal";
 
 export default function BankPurchaseOrdersIncompleteTab() {
   const history = useHistory();
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedPurchaseOrderId, setSelectedPurchaseOrderId] = useState(null);
 
   const { data, error } = useGetIncompletePurchaseOrdersSubscription();
 
@@ -56,6 +58,12 @@ export default function BankPurchaseOrdersIncompleteTab() {
         alignItems="flex-end"
         mb={2}
       >
+        {!!selectedPurchaseOrderId && (
+          <UpdatePurchaseOrderBankNoteModal
+            purchaseOrderId={selectedPurchaseOrderId}
+            handleClose={() => setSelectedPurchaseOrderId(null)}
+          />
+        )}
         <Box display="flex">
           <TextField
             autoFocus
@@ -102,6 +110,9 @@ export default function BankPurchaseOrdersIncompleteTab() {
                 BankCompanyRouteEnum.PurchaseOrders
               )
             )
+          }
+          handleClickPurchaseOrderBankNote={(purchaseOrderId) =>
+            setSelectedPurchaseOrderId(purchaseOrderId)
           }
           handleSelectPurchaseOrders={handleSelectPurchaseOrders}
         />
