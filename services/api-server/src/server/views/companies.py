@@ -416,7 +416,140 @@ class CreatePartnershipView(MethodView):
 			else:
 				raise errors.Error('Unexpected company_type {}'.format(resp['company_type']))
 
-			# due to the interim period where we are infomring our clients that we're moving away
+			# due to the interim period where we are informing our clients that we're moving away
+			# from the vendor agreement and seeking their buyin, we should still default to the 
+			# customer settings' docusign link unless the onboarding link is set
+			onboarding_link = customer_settings.vendor_onboarding_link \
+				if customer_settings.vendor_onboarding_link is not None else ""
+			docusign_link = onboarding_link if onboarding_link != "" else docusign_link \
+				if docusign_link is not None else ""
+				
+			if is_dispensary_customer:
+				template_data = {
+					'customer_name': customer.get_display_name(),
+					'partner_name': partner.get_display_name(),
+					'onboarding_link': '<a href="' + onboarding_link + '" target="_blank">Bespoke Vendor Onboarding Form</a>',
+					'support_email': '<a href="mailto:support@bespokefinancial.com">support@bespokefinancial.com</a>'
+				}
+			elif resp['company_type'] == db_constants.CompanyType.Payor:
+				template_data = {
+					'customer_name': customer.get_display_name(),
+					'docusign_link': docusign_link,
+				} 
+			else:
+				template_data = {
+					'customer_name': customer.get_display_name(),
+					'partner_name': partner.get_display_name(),
+					'onboarding_link': '<a href="' + docusign_link + '" target="_blank">Bespoke Vendor Onboarding Form</a>',
+					'support_email': '<a href="mailto:support@bespokefinancial.com">support@bespokefinancial.com</a>'
+				}
+			for contact in partner_contacts:
+				template_data["recipient_first_name"] = contact["first_name"]
+				recipients = [contact['email']]
+				_, err = sendgrid_client.send(
+					template_name, template_data, recipients)
+				if err:
+					raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'company_id': resp['company_id'],
+		}))
+
+
+class CreatePartnershipNewView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'partnership_request_id',
+			'should_create_company'
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in request')
+
+		user_session = UserSession.from_session()
+
+		with session_scope(current_app.session_maker) as session:
+
+			resp, err = create_company_util.create_partnership_new(
+				req=cast(create_company_util.CreatePartnershipInputDict, form),
+				session=session,
+				bank_admin_user_id=user_session.get_user_id()
+			)
+			if err:
+				raise err
+
+			sendgrid_client = cast(
+				sendgrid_util.Client,
+				current_app.sendgrid_client,
+			)
+
+			customer_id = resp['customer_id']
+			customer = cast(
+				models.Company,
+				session.query(models.Company).filter(
+					models.Company.id == customer_id
+				).first())
+
+			partner_id = resp['company_id']
+			partner = cast(
+				models.Company,
+				session.query(models.Company).filter(
+					models.Company.id == partner_id
+				).first())
+
+			customer_settings = cast(
+				models.CompanySettings,
+				session.query(models.CompanySettings).filter(
+					models.CompanySettings.company_id == customer_id
+				).first())
+
+			# Payor or vendor users.
+			partner_contacts, err = partnership_util.get_partner_contacts(
+				partnership_id=resp['partnership_id'],
+				partnership_type=resp['partnership_type'],
+				session=session
+			)
+			if err:
+				raise err
+
+			if not partner_contacts:
+				raise errors.Error('There are no users configured for this payor or vendor')
+			
+			contract, err = contract_util.get_active_contract_by_company_id(customer_id, session)
+			if err:
+				raise err
+
+			product_type, err = contract.get_product_type()
+			if err:
+				raise err
+			is_loc_customer = product_type == db_constants.ProductType.LINE_OF_CREDIT
+			is_dispensary_customer = product_type == db_constants.ProductType.DISPENSARY_FINANCING
+
+			if resp['company_type'] == db_constants.CompanyType.Payor:
+				docusign_link = customer_settings.payor_agreement_docusign_template
+				template_name = sendgrid_util.TemplateNames.PAYOR_AGREEMENT_WITH_CUSTOMER
+			elif is_loc_customer and resp['company_type'] == db_constants.CompanyType.Vendor:
+				docusign_link = customer_settings.vendor_onboarding_link
+				template_name = sendgrid_util.TemplateNames.VENDOR_ONBOARDING_LINE_OF_CREDIT
+			elif is_dispensary_customer and resp['company_type'] == db_constants.CompanyType.Vendor:
+				docusign_link = None
+				template_name = sendgrid_util.TemplateNames.DISPENSARY_VENDOR_AGREEMENT
+			elif resp['company_type'] == db_constants.CompanyType.Vendor: 
+				docusign_link = customer_settings.vendor_agreement_docusign_template
+				template_name = sendgrid_util.TemplateNames.VENDOR_AGREEMENT_WITH_CUSTOMER
+			else:
+				raise errors.Error('Unexpected company_type {}'.format(resp['company_type']))
+
+			# due to the interim period where we are informing our clients that we're moving away
 			# from the vendor agreement and seeking their buyin, we should still default to the 
 			# customer settings' docusign link unless the onboarding link is set
 			onboarding_link = customer_settings.vendor_onboarding_link \
@@ -514,6 +647,9 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/create_partnership', view_func=CreatePartnershipView.as_view(name='create_partnership_view'))
+
+handler.add_url_rule(
+	'/create_partnership_new', view_func=CreatePartnershipNewView.as_view(name='create_partnership_new_view'))
 
 handler.add_url_rule(
 	'/approve_partnership', view_func=ApprovePartnershipView.as_view(name='approve_partnership_view'))

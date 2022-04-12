@@ -209,7 +209,7 @@ class NotifyHelper(object):
 						models.CompanySettings.company_id == self._input_data['company_id']
 					).first())
 
-			# due to the interim period where we are infomring our clients that we're moving away
+			# due to the interim period where we are informing our clients that we're moving away
 			# from the vendor agreement and seeking their buyin, we should still default to the 
 			# customer settings' docusign link unless the onboarding link is set
 			onboarding_link = customer_settings.vendor_onboarding_link \

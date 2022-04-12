@@ -245,6 +245,7 @@ fragment PartnershipRequest on company_partnership_requests {
   license_info
   is_cannabis
   user_info
+  request_info
   created_at
   requested_by_user_id
   settled_by_user_id

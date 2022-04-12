@@ -276,6 +276,28 @@ export async function createPartnershipMutation(
     );
 }
 
+export async function createPartnershipNewMutation(
+  req: CreatePartnershipMutationReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(companyRoutes.createPartnershipNew, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not create partner company",
+        };
+      }
+    );
+}
+
 type ApprovePartnershipMutationReq = {
   variables: {
     partnership_id: Companies["id"];

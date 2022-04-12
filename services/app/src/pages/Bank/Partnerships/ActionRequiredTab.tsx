@@ -1,6 +1,7 @@
 import { Box } from "@material-ui/core";
 import DeletePartnershipRequestModal from "components/Partnerships/DeletePartnershipRequestModal";
 import HandlePartnershipRequestModal from "components/Partnerships/HandlePartnershipRequestModal";
+import HandlePartnershipRequestNewModal from "components/Partnerships/HandlePartnershipRequestNewModal";
 import PartnershipsDataGrid from "components/Partnerships/PartnershipsDataGrid";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
@@ -54,6 +55,26 @@ function ActionRequiredTab() {
     [data?.company_partnership_requests]
   );
 
+  const triageRequestModal = (handleClose: () => void) => {
+    return selectedRequests[0]?.request_info ? (
+      <HandlePartnershipRequestNewModal
+        partnerRequest={selectedRequests[0]}
+        handleClose={() => {
+          handleClose();
+          setSelectedRequestIds([]);
+        }}
+      />
+    ) : (
+      <HandlePartnershipRequestModal
+        partnerRequest={selectedRequests[0]}
+        handleClose={() => {
+          handleClose();
+          setSelectedRequestIds([]);
+        }}
+      />
+    );
+  };
+
   return (
     <Container>
       <Box mb={2} display="flex" flexDirection="row-reverse">
@@ -62,15 +83,7 @@ function ActionRequiredTab() {
             <ModalButton
               isDisabled={selectedRequestIds.length !== 1}
               label={"Triage Request"}
-              modal={({ handleClose }) => (
-                <HandlePartnershipRequestModal
-                  partnerRequest={selectedRequests[0]}
-                  handleClose={() => {
-                    handleClose();
-                    setSelectedRequestIds([]);
-                  }}
-                />
-              )}
+              modal={({ handleClose }) => triageRequestModal(handleClose)}
             />
           </Box>
         </Can>

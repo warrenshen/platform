@@ -24,6 +24,7 @@ export const companyRoutes = {
   createPartnershipRequestNew: "/companies/create_partnership_request_new",
   deletePartnershipRequest: "/companies/delete_partnership_request",
   createPartnership: "/companies/create_partnership",
+  createPartnershipNew: "/companies/create_partnership_new",
   approvePartnership: "/companies/approve_partnership",
   upsertCustomMessages: "/companies/upsert_custom_messages",
   upsertFeatureFlags: "/companies/upsert_feature_flags",

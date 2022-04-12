@@ -433,6 +433,95 @@ def _create_partner_company_and_its_first_user(
 
 	return company_id
 
+def _create_partner_company_and_its_first_user_new(
+	partnership_req: models.CompanyPartnershipRequest,
+	session: Session,
+) -> str:
+	user_input = cast(Dict, partnership_req.user_info)
+
+	if not user_input.get('email'):
+		raise errors.Error('User email must be specified')
+	
+	license_info = cast(LicenseInfoNewDict, partnership_req.license_info)
+	request_info = cast(PartnershipRequestRequestInfoDict, partnership_req.request_info)
+
+	company = _create_company(
+		name=partnership_req.company_name,
+		identifier=None,
+		dba_name=request_info.get('dba_name', None),
+		two_factor_message_method=partnership_req.two_factor_message_method,
+		session=session,
+	)
+	company.is_customer = False
+	company.is_payor = partnership_req.company_type == CompanyType.Payor
+	company.is_vendor = partnership_req.company_type == CompanyType.Vendor
+	company.is_cannabis = partnership_req.is_cannabis
+
+	company_id = str(company.id)
+	parent_company_id = str(company.parent_company_id)
+
+	existing_user = session.query(models.User).filter(
+		models.User.email == user_input['email'].lower()
+	).first()
+	if existing_user:
+		raise errors.Error('Email is already taken')
+
+	_create_user(
+		user_input=user_input,
+		parent_company_id=parent_company_id,
+		company_id=company_id,
+		session=session,
+	)
+
+	if license_info:
+		# Add any licenses the user might have specified.
+		license_numbers = cast(Dict, license_info)['license_ids']
+		for license_number in license_numbers:
+			existing_license = cast(
+				models.CompanyLicense,
+				session.query(models.CompanyLicense).filter(
+					models.CompanyLicense.license_number == license_number
+				).first())
+
+			if existing_license:
+				# If company license exists in our system but does not have a company
+				# associated with it, associate the newly created company with the license.
+				#
+				# If company license exists in our system but does have a company associated
+				# with it, perhaps the newly created company already exists in the system?
+				# We do NOT block this case for now, but can change this later.
+				if not existing_license.company_id:
+					existing_license.company_id = cast(Any, company_id)
+			else:
+				new_license = models.CompanyLicense()
+				new_license.company_id = cast(Any, company_id)
+				new_license.license_number = license_number
+
+				if license_info.get('license_file_id', None):
+					new_license.file_id = license_info.get('license_file_id') # type: ignore
+
+				session.add(new_license)
+	
+	# Add bank account
+	bank_account = models.BankAccount( # type: ignore
+        company_id=company_id,
+        bank_name=request_info.get('bank_name'),
+        account_type=request_info.get('bank_account_name'),
+        account_number=request_info.get('bank_account_number'),
+        routing_number=request_info.get('bank_ach_routing_number'),
+		wire_routing_number=request_info.get('bank_wire_routing_number'),
+        can_ach=bool(request_info.get('bank_ach_routing_number')),
+        can_wire=bool(request_info.get('bank_wire_routing_number')),
+        recipient_address=request_info.get('beneficiary_address'),
+		bank_instructions_file_id=request_info.get('bank_instructions_attachment_id', None),
+        is_cannabis_compliant=True,
+		verified_date=date_util.now_as_date(date_util.DEFAULT_TIMEZONE),
+		verified_at=date_util.now(),
+    )
+	session.add(bank_account)
+
+	return company_id
+
 def _setup_users_for_existing_company(
 	parent_company_id: str,
 	company_id: str,
@@ -525,6 +614,169 @@ def create_partnership(
 		models.User,
 		session.query(models.User).filter(
 			models.User.email == cast(Dict[str, Any], user_info).get("email", "").lower()
+	).first())
+
+	if existing_user is None:
+		user_id, err = create_user_util.create_bank_or_customer_user_with_session(
+			req = create_user_util.CreateBankOrCustomerUserInputDict(
+				company_id = company_id,
+				user = create_user_util.UserInsertInputDict(
+					role = UserRoles.COMPANY_CONTACT_ONLY,
+					first_name = cast(Dict[str, Any], user_info).get("first_name", ""),
+					last_name = cast(Dict[str, Any], user_info).get("last_name", ""),
+					email = cast(Dict[str, Any], user_info).get("email", ""),
+					phone_number = cast(Dict[str, Any], user_info).get("phone_number", "")
+				),
+			),
+			session = session
+		)
+
+	contact_user_id = existing_user.id if existing_user is not None else user_id
+
+	if not contact_user_id:
+		raise errors.Error("Cannot find contact user id")
+
+	if company_type == CompanyType.Payor:
+		prev_partnership = cast(
+			models.CompanyPayorPartnership,
+			session.query(models.CompanyPayorPartnership).filter(
+				models.CompanyPayorPartnership.company_id == customer_id
+			).filter(
+				models.CompanyPayorPartnership.payor_id == company_id
+			).first())
+		if prev_partnership:
+			raise errors.Error('Partnership already exists. Please delete this payor partnership request')
+
+		company_payor_partnership = models.CompanyPayorPartnership(
+			company_id=customer_id,
+			payor_id=company_id,
+		)
+		session.add(company_payor_partnership)
+		session.flush()
+		partnership_id = str(company_payor_partnership.id)
+		partnership_type = db_constants.CompanyType.Payor
+
+		# Existing company may not have is_payor set to True yet,
+		# for example it may only have is_customer set to True.
+		if not should_create_company:
+			company.is_payor = True
+
+		# Create a default user for the partnership based on who was submitted with the request
+		company_payor_contact = models.CompanyPayorContact()
+		company_payor_contact.partnership_id = company_payor_partnership.id
+		company_payor_contact.payor_user_id = contact_user_id
+		session.add(company_payor_contact)
+		session.flush()
+
+	elif company_type == CompanyType.Vendor:
+		prev_vendor_partnership = cast(
+			models.CompanyVendorPartnership,
+			session.query(models.CompanyVendorPartnership).filter(
+				models.CompanyVendorPartnership.company_id == customer_id
+			).filter(
+				models.CompanyVendorPartnership.vendor_id == company_id
+			).first())
+		if prev_vendor_partnership:
+			raise errors.Error('Partnership already exists. Please delete this vendor partnership request')
+
+		company_vendor_partnership = models.CompanyVendorPartnership(
+			company_id=customer_id,
+			vendor_id=company_id,
+		)
+		session.add(company_vendor_partnership)
+		session.flush()
+		partnership_id = str(company_vendor_partnership.id)
+		partnership_type = db_constants.CompanyType.Vendor
+
+		# Existing company may not have is_vendor set to True yet,
+		# for example it may only have is_customer set to True.
+		if not should_create_company:
+			company.is_vendor = True
+
+		# Create a default user for the partnership based on who was submitted with the request
+		company_vendor_contact = models.CompanyVendorContact()
+		company_vendor_contact.partnership_id = company_vendor_partnership.id
+		company_vendor_contact.vendor_user_id = contact_user_id
+		session.add(company_vendor_contact)
+		session.flush()
+
+	else:
+		raise errors.Error('Unexpected company_type {}'.format(company_type))
+
+	# Weve fulfilled the partnership request so we can mark it as "settled" now.
+	partnership_req.settled_at = date_util.now()
+	partnership_req.settled_by_user_id = bank_admin_user_id
+
+	return CreatePartnershipRespDict(
+		company_id=company_id,
+		customer_id=customer_id,
+		partnership_id=partnership_id,
+		partnership_type=partnership_type,
+		company_type=company_type
+	), None
+
+@errors.return_error_tuple
+def create_partnership_new(
+	req: CreatePartnershipInputDict,
+	session: Session,
+	bank_admin_user_id: str,
+) -> Tuple[CreatePartnershipRespDict, errors.Error]:
+	should_create_company = req['should_create_company']
+
+	if should_create_company is None:
+		raise errors.Error('should_create_company must be True or False')
+
+	partnership_req = cast(
+		models.CompanyPartnershipRequest,
+		session.query(models.CompanyPartnershipRequest).filter(
+			models.CompanyPartnershipRequest.id == req['partnership_request_id']
+		).first())
+	if not partnership_req:
+		raise errors.Error('No partnership request found to create this partnership')
+
+	customer_id = str(partnership_req.requesting_company_id)
+
+	if should_create_company:
+		company_id = _create_partner_company_and_its_first_user_new(
+			partnership_req, session
+		)
+	else:
+		company_id = req.get('partner_company_id')
+		if not company_id:
+			raise errors.Error('partner_company_id must be specified because the partnership is based on a pre-existing company')
+
+		company = cast(
+			models.Company,
+			session.query(models.Company).filter(
+				models.Company.id == company_id
+			).first())
+		if not company or not company.parent_company_id:
+			raise errors.Error('company and parent company must be exist because the partnership is based on a pre-existing company')
+
+		_setup_users_for_existing_company(
+			parent_company_id=str(company.parent_company_id),
+			company_id=company_id,
+			partnership_req=partnership_req,
+			session=session,
+		)
+
+	company = cast(
+		models.Company,
+		session.query(models.Company).get(company_id)
+	)
+
+	company_type = partnership_req.company_type
+	partnership_id = None
+	partnership_type = None
+
+	# Later on in this function we will create a default contact for the partnership
+	# This section either grabs the existing user based off the request's contact email or creates a user
+	user_info = cast(create_user_util.UserInsertInputDict, partnership_req.user_info)
+
+	existing_user = cast(
+		models.User,
+		session.query(models.User).filter(
+			models.User.email == user_info.get("email", "").lower()
 	).first())
 
 	if existing_user is None:
