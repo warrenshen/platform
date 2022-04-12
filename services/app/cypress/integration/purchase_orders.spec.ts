@@ -153,8 +153,8 @@ function createPurchaseOrderAsCustomerAdmin(
   cy.dataCy("create-purchase-order-modal").should("be.visible");
 
   // Select the first approved vendor
-  cy.dataCy("purchase-order-form-input-vendor").click();
-  cy.dataCy("purchase-order-form-input-vendor").type("{enter}");
+  cy.dataCy("purchase-order-form-autocomplete-vendors").click();
+  cy.dataCy("purchase-order-form-autocomplete-vendors").type("{enter}");
 
   // Fill the rest of the form and hit submit
   cy.dataCySelector("purchase-order-form-input-order-number", "input").type(
@@ -205,8 +205,8 @@ function createPurchaseOrderAsBankAdmin(
   cy.dataCy("create-purchase-order-modal").should("be.visible");
 
   // Select the first approved vendor
-  cy.dataCy("purchase-order-form-input-vendor").click();
-  cy.dataCy("purchase-order-form-input-vendor").type("{enter}");
+  cy.dataCy("purchase-order-form-autocomplete-vendors").click();
+  cy.dataCy("purchase-order-form-autocomplete-vendors").type("{enter}");
 
   // Fill the rest of the form and hit submit
   cy.dataCySelector("purchase-order-form-input-order-number", "input").type(

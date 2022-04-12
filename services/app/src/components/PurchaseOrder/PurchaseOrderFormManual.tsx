@@ -1,11 +1,5 @@
-import {
-  Box,
-  Checkbox,
-  FormControlLabel,
-  TextField,
-  Typography,
-} from "@material-ui/core";
-import Autocomplete from "@material-ui/lab/Autocomplete";
+import { Box, Checkbox, FormControlLabel, Typography } from "@material-ui/core";
+import AutocompleteVendors from "components/Vendors/AutocompleteVendors";
 import PurchaseOrderFormShared from "components/PurchaseOrder/PurchaseOrderFormShared";
 import FileUploader from "components/Shared/File/FileUploader";
 import {
@@ -14,6 +8,7 @@ import {
   PurchaseOrderFileFragment,
   PurchaseOrderFileTypeEnum,
   PurchaseOrdersInsertInput,
+  Vendors,
 } from "generated/graphql";
 import { FileTypeEnum } from "lib/enum";
 import { useMemo } from "react";
@@ -51,39 +46,24 @@ export default function PurchaseOrderFormManual({
     [purchaseOrderCannabisFiles]
   );
 
+  const selectedVendor = selectableVendors.find(
+    (v) => v.id === purchaseOrder.vendor_id
+  ) as Vendors;
+
   return (
     <Box display="flex" flexDirection="column">
       <Box display="flex" flexDirection="column">
-        <Autocomplete
-          data-cy={"purchase-order-form-input-vendor"}
-          autoHighlight
-          id="auto-complete-vendor"
-          options={selectableVendors}
-          getOptionLabel={(vendor) => {
-            return `${vendor.name} ${
-              !!vendor.company_vendor_partnerships[0]?.approved_at
-                ? "[Approved]"
-                : "[Not Approved]"
-            }`;
-          }}
-          renderInput={(params) => {
-            const vendor = selectableVendors.find(
-              (v) => v.id === purchaseOrder.vendor_id
-            );
-            return (
-              <TextField
-                {...params}
-                label={vendor ? vendor.name : "Vendor"}
-                variant="outlined"
-              />
-            );
-          }}
+        <AutocompleteVendors
+          selectableVendors={selectableVendors}
+          selectedVendor={selectedVendor}
           onChange={(event, newValue) => {
             setPurchaseOrder({
               ...purchaseOrder,
               vendor_id: newValue?.id || null,
             });
           }}
+          dataCy={"purchase-order-form-autocomplete-vendors"}
+          label={"Vendors"}
         />
       </Box>
       <PurchaseOrderFormShared

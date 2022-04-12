@@ -3,12 +3,10 @@ import {
   Checkbox,
   FormControl,
   FormControlLabel,
-  InputLabel,
-  MenuItem,
-  Select,
   TextField,
   Typography,
 } from "@material-ui/core";
+import AutocompleteVendors from "components/Vendors/AutocompleteVendors";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import {
@@ -16,7 +14,6 @@ import {
   LineOfCreditsInsertInput,
   LoansInsertInput,
 } from "generated/graphql";
-import { getCompanyDisplayName } from "lib/companies";
 import { ChangeEvent } from "react";
 
 interface Props {
@@ -56,38 +53,18 @@ export default function LineOfCreditLoanForm({
       </Box>
       {lineOfCredit.is_credit_for_vendor && (
         <Box display="flex" flexDirection="column" mt={4}>
-          <FormControl>
-            <InputLabel id="recipient-vendor-select-label">
-              Recipient Vendor
-            </InputLabel>
-            <Select
-              disabled={vendors.length <= 0}
-              labelId="recipient-vendor-select-label"
-              id="recipient-vendor-select"
-              value={
-                vendors.length > 0 ? lineOfCredit.recipient_vendor_id || "" : ""
-              }
-              onChange={({ target: { value } }) =>
-                setLineOfCredit({
-                  ...lineOfCredit,
-                  recipient_vendor_id: value || null,
-                })
-              }
-            >
-              <MenuItem value="">
-                <em>None</em>
-              </MenuItem>
-              {vendors.map((vendor) => (
-                <MenuItem key={vendor.id} value={vendor.id}>
-                  {`${getCompanyDisplayName(vendor)} ${
-                    !!vendor.company_vendor_partnerships[0]?.approved_at
-                      ? "[Approved]"
-                      : "[Not Approved]"
-                  }`}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <AutocompleteVendors
+            selectableVendors={vendors}
+            onChange={(event, newValue) => {
+              setLineOfCredit({
+                ...lineOfCredit,
+                recipient_vendor_id:
+                  newValue?.company_vendor_partnerships[0]?.vendor_id || null,
+              });
+            }}
+            dataCy={"line-of-credit-loan-form-autocomplete-vendors"}
+            label={"Recipient Vendor"}
+          />
         </Box>
       )}
       <Box display="flex" flexDirection="column" mt={4}>
