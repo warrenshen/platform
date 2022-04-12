@@ -30,6 +30,7 @@ import {
   ProductTypeToLabel,
   DebtFacilityCompanyStatusEnum,
   DebtFacilityCompanyStatusToLabel,
+  ClientSurveillanceCategoryEnum,
 } from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ColumnWidths } from "lib/tables";
@@ -50,7 +51,16 @@ function getRows(
       ? company.financial_summaries[0]?.adjusted_total_limit
       : null,
     application_date: !!company.ebba_applications
-      ? company.ebba_applications[0]?.application_date
+      ? company.ebba_applications.filter(
+          ({ category }) =>
+            category === ClientSurveillanceCategoryEnum.FinancialReports
+        )[0]?.application_date
+      : null,
+    borrowing_base_date: !!company.ebba_applications
+      ? company.ebba_applications.filter(
+          ({ category }) =>
+            category === ClientSurveillanceCategoryEnum.BorrowingBase
+        )[0]?.application_date
       : null,
     total_outstanding_principal: !!company.financial_summaries
       ? company.financial_summaries[0]?.total_outstanding_principal
@@ -177,11 +187,20 @@ export default function BankCustomersPage() {
       },
       {
         dataField: "application_date",
-        caption: "Most Recent Certification Date",
+        caption: "Most Recent Financial Reports Date",
         minWidth: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.application_date} />
+        ),
+      },
+      {
+        dataField: "borrowing_base_date",
+        caption: "Most Recent Borrowing Base Date",
+        minWidth: ColumnWidths.Date,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <DateDataGridCell dateString={params.row.data.borrowing_base_date} />
         ),
       },
       {
