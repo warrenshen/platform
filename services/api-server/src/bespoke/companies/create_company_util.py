@@ -998,11 +998,8 @@ def create_partnership_request_new(
 	if not request_info_bank_account_number:
 		raise errors.Error('Bank account number must be specified')
 	
-	if not request_info_bank_ach_routing_number:
-		raise errors.Error('Bank ACH routing number must be specified')
-	
-	if not request_info_bank_wire_routing_number:
-		raise errors.Error('Bank wire routing number must be specified')
+	if not request_info_bank_ach_routing_number and not request_info_bank_wire_routing_number:
+		raise errors.Error('Bank ACH / wire routing number must be specified')
 	
 	if not request_info_beneficiary_address:
 		raise errors.Error('Beneficiary address wire routing number must be specified')

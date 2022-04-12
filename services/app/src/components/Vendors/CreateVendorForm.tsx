@@ -78,8 +78,8 @@ export default function CreateVendorForm({
     !vendorInput.bankName ||
     !vendorInput.bankAccountName ||
     !vendorInput.bankAccountNumber ||
-    !vendorInput.bankACHRoutingNumber ||
-    !vendorInput.bankWireRoutingNumber ||
+    // Only the ACH or Wire routing number is required
+    (!vendorInput.bankACHRoutingNumber && !vendorInput.bankWireRoutingNumber) ||
     !vendorInput.beneficiaryAddress ||
     !vendorInput.bankInstructionsAttachmentId ||
     (vendorInput.isCannabis &&
@@ -205,7 +205,6 @@ export default function CreateVendorForm({
       <Box display="flex" flexDirection="column" mt={4}>
         <TextField
           label="Bank ACH Routing Number"
-          required
           value={vendorInput.bankACHRoutingNumber}
           onChange={({ target: { value } }) => {
             setVendorInput({ ...vendorInput, bankACHRoutingNumber: value });
@@ -215,7 +214,6 @@ export default function CreateVendorForm({
       <Box display="flex" flexDirection="column" mt={4}>
         <TextField
           label="Bank Wire Routing Number"
-          required
           value={vendorInput.bankWireRoutingNumber}
           onChange={({ target: { value } }) => {
             setVendorInput({ ...vendorInput, bankWireRoutingNumber: value });
@@ -274,7 +272,7 @@ export default function CreateVendorForm({
               color="primary"
             />
           }
-          label={"Is this company a cannabis company?"}
+          label={"Is this vendor a cannabis company?"}
         />
       </Box>
       {vendorInput.isCannabis && (
