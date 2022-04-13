@@ -6,7 +6,7 @@ import FileUploader from "components/Shared/File/FileUploader";
 import CompanyDeliveryInfoCard from "components/Transfers/CompanyDeliveryInfoCard";
 import {
   Companies,
-  GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery,
+  GetIncomingFromVendorCompanyDeliveriesByCompanyIdQuery,
   PurchaseOrderFileFragment,
   PurchaseOrderFileTypeEnum,
   PurchaseOrderMetrcTransferFragment,
@@ -26,10 +26,10 @@ interface Props {
   purchaseOrderFiles: PurchaseOrderFileFragment[];
   purchaseOrderCannabisFiles: PurchaseOrderFileFragment[];
   selectableCompanyDeliveries: NonNullable<
-    GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery["company_deliveries"]
+    GetIncomingFromVendorCompanyDeliveriesByCompanyIdQuery["company_deliveries"]
   >;
   selectedCompanyDeliveries: NonNullable<
-    GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery["company_deliveries"]
+    GetIncomingFromVendorCompanyDeliveriesByCompanyIdQuery["company_deliveries"]
   >;
   setPurchaseOrder: (purchaseOrder: PurchaseOrdersInsertInput) => void;
   setPurchaseOrderFiles: (file: PurchaseOrderFileFragment[]) => void;

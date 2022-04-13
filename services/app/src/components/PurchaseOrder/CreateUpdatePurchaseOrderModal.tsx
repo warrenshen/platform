@@ -11,7 +11,7 @@ import {
 } from "contexts/CurrentUserContext";
 import {
   Companies,
-  GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery,
+  GetIncomingFromVendorCompanyDeliveriesByCompanyIdQuery,
   PurchaseOrderFileFragment,
   PurchaseOrderFileTypeEnum,
   PurchaseOrderMetrcTransferFragment,
@@ -19,7 +19,7 @@ import {
   PurchaseOrdersInsertInput,
   RequestStatusEnum,
   useGetArtifactRelationsByCompanyIdQuery,
-  useGetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery,
+  useGetIncomingFromVendorCompanyDeliveriesByCompanyIdQuery,
   useGetPurchaseOrderForCustomerQuery,
   Files,
 } from "generated/graphql";
@@ -242,16 +242,22 @@ export default function CreateUpdatePurchaseOrderModal({
           FeatureFlagEnum.CREATE_PURCHASE_ORDER_FROM_METRC_TRANSFERS
         )));
   const isMetrcBased = purchaseOrder.is_metrc_based;
+  const selectedMetrcTransferRowIds = purchaseOrderMetrcTransfers.map(
+    (purchaseOrderMetrcTransfer) => purchaseOrderMetrcTransfer.metrc_transfer_id
+  );
 
   const {
     data: companyDeliveriesData,
     error: companyDeliveriesError,
-  } = useGetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery({
+  } = useGetIncomingFromVendorCompanyDeliveriesByCompanyIdQuery({
+    // Wait until existing purchase order is loaded in update purchase order case.
+    skip: isActionTypeUpdate && isExistingPurchaseOrderLoading,
     fetchPolicy: "network-only",
     variables: {
       company_id: companyId,
       // Fetch incoming company deliveries with transfer created in the last 120 days.
       start_created_date: todayMinusXDaysDateStringServer(120),
+      transfer_row_ids: selectedMetrcTransferRowIds,
     },
   });
 
@@ -283,7 +289,7 @@ export default function CreateUpdatePurchaseOrderModal({
         )
         .filter((selectedCompanyDelivery) => !!selectedCompanyDelivery),
     [allCompanyDeliveries, purchaseOrderMetrcTransfers]
-  ) as GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery["company_deliveries"];
+  ) as GetIncomingFromVendorCompanyDeliveriesByCompanyIdQuery["company_deliveries"];
 
   /**
    * Company deliveries which are selectable are those where:

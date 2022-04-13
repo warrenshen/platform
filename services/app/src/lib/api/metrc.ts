@@ -1,4 +1,4 @@
-import { GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery } from "generated/graphql";
+import { GetIncomingFromVendorCompanyDeliveriesByCompanyIdQuery } from "generated/graphql";
 import { authenticatedApi, CustomMutationResponse, metrcRoutes } from "lib/api";
 
 // {
@@ -285,7 +285,7 @@ export async function downloadMetrcDataForCompany(req: {
 
 export function getCompanyDeliveryVendorDescription(
   companyDelivery: NonNullable<
-    GetIncomingFromVendorCompanyDeliveriesByCompanyIdCreatedDateQuery["company_deliveries"]
+    GetIncomingFromVendorCompanyDeliveriesByCompanyIdQuery["company_deliveries"]
   >[0]
 ) {
   const vendor = companyDelivery.vendor || null;
