@@ -374,7 +374,7 @@ export default function BankCustomersPage() {
           </Box>
           <Box display="flex" flexDirection="row-reverse">
             {check(role, Action.EditCustomerSettings) && (
-              <Box mr={2}>
+              <Box>
                 <ModalButton
                   dataCy={"create-customer-button"}
                   label={"Create Customer"}

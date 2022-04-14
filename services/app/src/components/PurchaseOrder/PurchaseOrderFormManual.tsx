@@ -54,6 +54,8 @@ export default function PurchaseOrderFormManual({
     <Box display="flex" flexDirection="column">
       <Box display="flex" flexDirection="column">
         <AutocompleteVendors
+          dataCy={"purchase-order-form-autocomplete-vendors"}
+          label={"Vendor"}
           selectableVendors={selectableVendors}
           selectedVendor={selectedVendor}
           onChange={(event, newValue) => {
@@ -62,8 +64,6 @@ export default function PurchaseOrderFormManual({
               vendor_id: newValue?.id || null,
             });
           }}
-          dataCy={"purchase-order-form-autocomplete-vendors"}
-          label={"Vendors"}
         />
       </Box>
       <PurchaseOrderFormShared
