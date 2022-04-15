@@ -13,6 +13,7 @@ import {
   GetArtifactRelationsByCompanyIdQuery,
   LineOfCreditsInsertInput,
   LoansInsertInput,
+  Vendors,
 } from "generated/graphql";
 import { ChangeEvent } from "react";
 
@@ -31,6 +32,10 @@ export default function LineOfCreditLoanForm({
   setLineOfCredit,
   setLoan,
 }: Props) {
+  const selectedVendor = vendors.find(
+    (v) => v.id === lineOfCredit.recipient_vendor_id
+  ) as Vendors;
+
   return (
     <Box display="flex" flexDirection="column">
       <Box>
@@ -55,6 +60,7 @@ export default function LineOfCreditLoanForm({
         <Box display="flex" flexDirection="column" mt={4}>
           <AutocompleteVendors
             selectableVendors={vendors}
+            selectedVendor={selectedVendor}
             onChange={(event, newValue) => {
               setLineOfCredit({
                 ...lineOfCredit,
