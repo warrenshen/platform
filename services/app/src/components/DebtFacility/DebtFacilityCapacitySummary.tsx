@@ -30,7 +30,7 @@ function DebtFacilityCapacitySummary({
   setSelectedDebtFacilityId,
   setSelectedDebtFacilitySupportedProductTypes,
 }: Props) {
-  const [drawnCapacity, setDrawnCapacity] = useState(0);
+  const [maximumCapacity, setMaximumCapacity] = useState(0);
   const [isDebtFacilitySelected, setIsDebtFacilitySelected] = useState(false);
 
   // Get total of loans currently in the debt facility
@@ -60,8 +60,8 @@ function DebtFacilityCapacitySummary({
     .reduce((a, b) => a + b, 0);
 
   const rawLimitPercent =
-    !!drawnCapacity && drawnCapacity !== 0
-      ? (100 * currentUsage) / drawnCapacity
+    !!maximumCapacity && maximumCapacity !== 0
+      ? (100 * currentUsage) / maximumCapacity
       : 0;
   const roundedLimitPercent = round(rawLimitPercent, 1);
 
@@ -76,7 +76,7 @@ function DebtFacilityCapacitySummary({
         {!!isDebtFacilitySelected && (
           <Typography variant="h5" color="textSecondary">
             {`${formatCurrency(currentUsage)} / ${formatCurrency(
-              drawnCapacity
+              maximumCapacity
             )}`}
           </Typography>
         )}
@@ -109,7 +109,9 @@ function DebtFacilityCapacitySummary({
               setSelectedDebtFacilitySupportedProductTypes(
                 supportedProductTypes
               );
-              setDrawnCapacity(debtFacility?.drawn_capacities[0]?.amount || 0);
+              setMaximumCapacity(
+                debtFacility?.maximum_capacities[0]?.amount || 0
+              );
               setIsDebtFacilitySelected(!!debtFacility || false);
             }}
           />
