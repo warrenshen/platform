@@ -284,6 +284,7 @@ def fund_loans_with_advance(
 				bank_note=bank_note,
 			)
 
+		# Prepare for debt facility work
 		loan_reports = cast(
 			List[models.LoanReport],
 			session.query(models.LoanReport).filter(
@@ -292,6 +293,20 @@ def fund_loans_with_advance(
 		loan_report_dict: Dict[str, models.LoanReport] = {}
 		for loan_report in loan_reports:
 			loan_report_dict[str(loan_report.id)] = loan_report
+
+		contract, err = contract_util.get_active_contract_by_company_id(str(loan.company_id), session)
+		if err:
+			raise err
+
+		# This is a temporary solution. Based on demo feedback, the team
+		# wanted loans to just automatically be assigned to CoVenture
+		# if they are not dispensary financing
+		# Once we add more debt facilities, we can revisit
+		debt_facility = cast(
+			models.DebtFacility,
+			session.query(models.DebtFacility).filter(
+				models.DebtFacility.name == "CoVenture"
+			).first())
 
 		for loan in loans:
 			cur_contract = contracts_by_company_id[str(loan.company_id)]
@@ -315,37 +330,27 @@ def fund_loans_with_advance(
 			if loan.loan_type in artifact_ids_index:
 				artifact_ids_index[loan.loan_type].add(loan.artifact_id)
 
-			# This is a temporary solution. Based on demo feedback, the team
-			# wanted loans to just automatically be assigned to CoVenture
-			# if they are not dispensary financing
-			# Once we add more debt facilities, we can revisit
-			contract, err = contract_util.get_active_contract_by_company_id(str(loan.company_id), session)
-			if err:
-				raise err
-			if contract.get_product_type() != db_constants.ProductType.DISPENSARY_FINANCING:
-				debt_facility = cast(
-					models.DebtFacility,
-					session.query(models.DebtFacility).filter(
-						models.DebtFacility.name == "CoVenture"
-				).first())
+			if (company.debt_facility_status == db_constants.CompanyDebtFacilityStatus.OUT_OF_COMPLIANCE or \
+				company.debt_facility_status == db_constants.CompanyDebtFacilityStatus.DEFAULTING):
+				raise errors.Error("Cannot create advance for company {} while their debt facility standing is paused or defaulting".format(company.name))
 
-			debt_facility_id = debt_facility.id if debt_facility is not None else ""
-			
-			if str(loan.loan_report_id) in loan_report_dict:
-				loan_report = loan_report_dict[str(loan.loan_report_id)]
-				loan_report.debt_facility_id = debt_facility_id if debt_facility_id != "" else None
-				loan_report.debt_facility_status = db_constants.LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY \
-					if debt_facility_id != "" else db_constants.LoanDebtFacilityStatus.BESPOKE_BALANCE_SHEET
-				loan_report.debt_facility_added_date = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
-			else:
+			if str(loan.loan_report_id) not in loan_report_dict:
 				loan_report = models.LoanReport()
-				loan_report.debt_facility_id = debt_facility_id if debt_facility_id != "" else None
-				loan_report.debt_facility_status = db_constants.LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY \
-					if debt_facility_id != "" else db_constants.LoanDebtFacilityStatus.BESPOKE_BALANCE_SHEET
-				loan_report.debt_facility_added_date = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
 				session.add(loan_report)
 				session.flush()
 				loan.loan_report_id = loan_report.id
+				loan_report_dict[str(loan_report.id)] = loan_report
+
+			loan_report = loan_report_dict[str(loan.loan_report_id)]
+			if (company.debt_facility_status == db_constants.CompanyDebtFacilityStatus.INELIGIBLE_FOR_FACILITY or 
+				(contract.get_product_type() == db_constants.ProductType.DISPENSARY_FINANCING and \
+				 company.debt_facility_status != db_constants.CompanyDebtFacilityStatus.WAIVER) or \
+				debt_facility is None):
+				loan_report.debt_facility_status = db_constants.LoanDebtFacilityStatus.BESPOKE_BALANCE_SHEET
+			else:
+				loan_report.debt_facility_id = debt_facility.id
+				loan_report.debt_facility_status = db_constants.LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY
+				loan_report.debt_facility_added_date = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
 
 	# Once all of those writes are complete, we check if any of the associated
 	# artifacts are fully funded and mark them so
