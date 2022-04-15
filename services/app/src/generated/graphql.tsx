@@ -27789,6 +27789,7 @@ export type OpenLoanForDebtFacilityFragment = {
   >;
   invoice?: Maybe<Pick<Invoices, "id"> & InvoiceFragment>;
   transactions: Array<Pick<Transactions, "id">>;
+  company: Pick<Companies, "id"> & CompanyForDebtFacilityFragment;
 } & LoanForDebtFacilityFragment;
 
 export type DebtFacilityEventFragment = Pick<
@@ -29116,15 +29117,12 @@ export const OpenLoanForDebtFacilityFragmentDoc = gql`
       id
       ...Invoice
     }
-    transactions(
-      where: {
-        _and: [
-          { type: { _eq: "advance" } }
-          { effective_date: { _gt: "2021-11-24" } }
-        ]
-      }
-    ) {
+    transactions(where: { _and: [{ type: { _eq: "advance" } }] }) {
       id
+    }
+    company {
+      id
+      ...CompanyForDebtFacility
     }
   }
   ${LoanForDebtFacilityFragmentDoc}
@@ -29132,6 +29130,7 @@ export const OpenLoanForDebtFacilityFragmentDoc = gql`
   ${DebtFacilityFragmentDoc}
   ${PurchaseOrderForDebtFacilityFragmentDoc}
   ${InvoiceFragmentDoc}
+  ${CompanyForDebtFacilityFragmentDoc}
 `;
 export const DebtFacilityEventFragmentDoc = gql`
   fragment DebtFacilityEvent on debt_facility_events {
@@ -30562,7 +30561,26 @@ export const GetOpenLoansByDebtFacilityStatusesDocument = gql`
               { is_deleted: { _eq: false } }
             ]
           }
-          { origination_date: { _gt: "2021-11-24" } }
+          {
+            _or: [
+              {
+                _and: [
+                  { loan_type: { _neq: line_of_credit } }
+                  { origination_date: { _gt: "2021-11-24" } }
+                ]
+              }
+              {
+                _and: [
+                  { loan_type: { _neq: line_of_credit } }
+                  { origination_date: { _lt: "2021-11-24" } }
+                  {
+                    company: { debt_facility_status: { _eq: "waiver_company" } }
+                  }
+                ]
+              }
+              { loan_type: { _eq: line_of_credit } }
+            ]
+          }
           { closed_at: { _is_null: true } }
           { loan_report: { debt_facility_status: { _in: $statuses } } }
         ]
@@ -30620,7 +30638,26 @@ export const GetOpenLoansByDebtFacilityIdDocument = gql`
               { is_deleted: { _eq: false } }
             ]
           }
-          { origination_date: { _gt: "2021-11-24" } }
+          {
+            _or: [
+              {
+                _and: [
+                  { loan_type: { _neq: line_of_credit } }
+                  { origination_date: { _gt: "2021-11-24" } }
+                ]
+              }
+              {
+                _and: [
+                  { loan_type: { _neq: line_of_credit } }
+                  { origination_date: { _lt: "2021-11-24" } }
+                  {
+                    company: { debt_facility_status: { _eq: "waiver_company" } }
+                  }
+                ]
+              }
+              { loan_type: { _eq: line_of_credit } }
+            ]
+          }
           { closed_at: { _is_null: true } }
           { loan_report: { debt_facility_status: { _in: $statuses } } }
           { loan_report: { debt_facility_id: { _in: $target_facility_ids } } }
@@ -30681,7 +30718,26 @@ export const GetReportLoansByDebtFacilityIdDocument = gql`
               { is_deleted: { _eq: false } }
             ]
           }
-          { origination_date: { _gt: "2021-11-24" } }
+          {
+            _or: [
+              {
+                _and: [
+                  { loan_type: { _neq: line_of_credit } }
+                  { origination_date: { _gt: "2021-11-24" } }
+                ]
+              }
+              {
+                _and: [
+                  { loan_type: { _neq: line_of_credit } }
+                  { origination_date: { _lt: "2021-11-24" } }
+                  {
+                    company: { debt_facility_status: { _eq: "waiver_company" } }
+                  }
+                ]
+              }
+              { loan_type: { _eq: line_of_credit } }
+            ]
+          }
           {
             _or: [
               {

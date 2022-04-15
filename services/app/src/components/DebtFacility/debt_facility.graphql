@@ -9,7 +9,24 @@ subscription GetOpenLoansByDebtFacilityStatuses($statuses: [String!]) {
           ]
         }
         # This was the date requested by the finance team w.r.t. CoVenture
-        { origination_date: { _gt: "2021-11-24" }}
+        {
+          _or: [
+            {
+              _and: [
+                { loan_type: { _neq: line_of_credit } }
+                { origination_date: { _gt: "2021-11-24" } }
+              ]
+            }
+            {
+              _and: [
+                { loan_type: { _neq: line_of_credit }}
+                { origination_date: { _lt: "2021-11-24" }}
+                { company: { debt_facility_status: { _eq: "waiver_company" }}}
+              ]
+            }
+            { loan_type: { _eq: line_of_credit }}
+          ]
+        }
         { closed_at: { _is_null: true } }
         { loan_report: { debt_facility_status: { _in: $statuses } } }
       ]
@@ -34,7 +51,24 @@ subscription GetOpenLoansByDebtFacilityId(
           ]
         }
         # This was the date requested by the finance team w.r.t. CoVenture
-        { origination_date: { _gt: "2021-11-24" }}
+        {
+          _or: [
+            {
+              _and: [
+                { loan_type: { _neq: line_of_credit } }
+                { origination_date: { _gt: "2021-11-24" } }
+              ]
+            }
+            {
+              _and: [
+                { loan_type: { _neq: line_of_credit }}
+                { origination_date: { _lt: "2021-11-24" }}
+                { company: { debt_facility_status: { _eq: "waiver_company" }}}
+              ]
+            }
+            { loan_type: { _eq: line_of_credit }}
+          ]
+        }
         { closed_at: { _is_null: true } }
         { loan_report: { debt_facility_status: { _in: $statuses } } }
         { loan_report: { debt_facility_id: { _in: $target_facility_ids } } }
@@ -62,7 +96,24 @@ subscription GetReportLoansByDebtFacilityId(
           ]
         }
         # This was the date requested by the finance team w.r.t. CoVenture
-        { origination_date: { _gt: "2021-11-24" }}
+        {
+          _or: [
+            {
+              _and: [
+                { loan_type: { _neq: line_of_credit } }
+                { origination_date: { _gt: "2021-11-24" } }
+              ]
+            }
+            {
+              _and: [
+                { loan_type: { _neq: line_of_credit }}
+                { origination_date: { _lt: "2021-11-24" }}
+                { company: { debt_facility_status: { _eq: "waiver_company" }}}
+              ]
+            }
+            { loan_type: { _eq: line_of_credit }}
+          ]
+        }
         {
           _or: [
             {
