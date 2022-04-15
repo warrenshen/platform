@@ -21,6 +21,8 @@ select_permissions:
         - debt_facility_added_date
         - debt_facility_id
         - debt_facility_status
+        - debt_facility_waiver_date
+        - debt_facility_waiver_expiration_date
         - financing_day_limit
         - financing_period
         - id
@@ -35,6 +37,8 @@ select_permissions:
         - debt_facility_added_date
         - debt_facility_id
         - debt_facility_status
+        - debt_facility_waiver_date
+        - debt_facility_waiver_expiration_date
         - financing_day_limit
         - financing_period
         - id

@@ -31,7 +31,7 @@ export const determineBorrowerEligibility = (
   // Company status alone *could* cover the use case here
   // But adding this extra check around future debt facility support will be useful
   // since we don't know a priori what that support will entail
-  return !!companyLevelEligibility && !!isProductTypeSupported
+  return companyLevelEligibility === "Eligible" && !!isProductTypeSupported
     ? DebtFacilityCompanyStatusToEligibility[
         DebtFacilityCompanyStatusEnum.GOOD_STANDING
       ]

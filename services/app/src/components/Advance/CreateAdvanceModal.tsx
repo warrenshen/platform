@@ -4,7 +4,6 @@ import AdvanceForm from "components/Advance/AdvanceForm";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import Modal from "components/Shared/Modal/Modal";
-import AutocompleteDebtFacility from "components/DebtFacility/AutocompleteDebtFacility";
 import {
   BankAccountFragment,
   GetAdvancesBankAccountsForCustomerQuery,
@@ -51,7 +50,6 @@ export default function CreateAdvanceModal({
 
   const [payment, setPayment] = useState(newPayment);
   const [shouldChargeWireFee, setShouldChargeWireFee] = useState(false);
-  const [debtFacility, setDebtFacility] = useState("");
 
   const { data: loansData, error: loansError } = useGetLoansByLoanIdsQuery({
     variables: {
@@ -71,10 +69,6 @@ export default function CreateAdvanceModal({
     alert(`Error in query (details in console): ${loansError.message}`);
   }
   const selectedLoans = loansData?.loans || [];
-  // Since bulk advances must have the same target bank account, we can
-  // assume all advances are going to the same company / product type
-  const selectedProductType =
-    selectedLoans[0]?.company?.contract?.product_type || undefined;
 
   const customerId = extractCustomerId(selectedLoans);
   const recipientCompanyId = extractRecipientCompanyId(selectedLoans);

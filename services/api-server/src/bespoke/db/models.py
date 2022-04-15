@@ -162,7 +162,11 @@ class Company(Base):
 	is_customer = Column(Boolean)
 	is_vendor = Column(Boolean)
 	is_payor = Column(Boolean)
+	# We need to track debt facility waivers at both a company and loan level
+	# This also entails tracking waiver dates at each level as each scenario is different
 	debt_facility_status = Column(String)
+	debt_facility_waiver_date = Column(Date)
+	debt_facility_waiver_expiration_date = Column(Date) 
 
 	# Last created identifier for a loan belonging to this company.
 	latest_loan_identifier = Column(Integer, nullable=False, default=0)
@@ -1046,6 +1050,8 @@ class LoanReport(Base):
 	debt_facility_status = Column(Text)
 	debt_facility_id = cast(GUID, Column(GUID, ForeignKey('debt_facilities.id')))
 	debt_facility_added_date = Column(Date)
+	debt_facility_waiver_date = Column(Date)
+	debt_facility_waiver_expiration_date = Column(Date)
 
 class BankFinancialSummary(Base):
 	__tablename__ = 'bank_financial_summaries'

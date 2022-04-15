@@ -1,7 +1,10 @@
 import { Box, TextField } from "@material-ui/core";
 import DebtFacilityLoansDataGrid from "components/DebtFacility/DebtFacilityLoansDataGrid";
 import { useGetOpenLoansByDebtFacilityStatusesSubscription } from "generated/graphql";
-import { DebtFacilityStatusEnum } from "lib/enum";
+import {
+  DebtFacilityCompanyStatusEnum,
+  DebtFacilityStatusEnum,
+} from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
@@ -29,6 +32,7 @@ export default function DebtFacilityAllTab() {
         DebtFacilityStatusEnum.REPURCHASED,
         DebtFacilityStatusEnum.UPDATE_REQUIRED,
         DebtFacilityStatusEnum.WAIVER,
+        DebtFacilityCompanyStatusEnum.WAIVER,
       ],
     },
   });

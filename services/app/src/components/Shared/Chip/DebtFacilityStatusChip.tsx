@@ -1,5 +1,9 @@
 import { Box, Typography } from "@material-ui/core";
-import { DebtFacilityStatusEnum, DebtFacilityStatusToLabel } from "lib/enum";
+import {
+  DebtFacilityStatusEnum,
+  DebtFacilityStatusToLabel,
+  DebtFacilityCompanyStatusEnum,
+} from "lib/enum";
 import styled from "styled-components";
 
 const Chip = styled.div<{ backgroundColor: string }>`
@@ -35,6 +39,13 @@ const StatusToColor = {
 };
 
 export default function DebtFacilityStatusChip({ debtFacilityStatus }: Props) {
+  if (
+    debtFacilityStatus.toString() ===
+    DebtFacilityCompanyStatusEnum.WAIVER.toString()
+  ) {
+    debtFacilityStatus = DebtFacilityStatusEnum.WAIVER;
+  }
+
   return (
     <Box height={33}>
       <Chip

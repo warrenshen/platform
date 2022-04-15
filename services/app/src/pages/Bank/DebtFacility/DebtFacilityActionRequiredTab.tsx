@@ -5,6 +5,7 @@ import ModalButton from "components/Shared/Modal/ModalButton";
 import { Action } from "lib/auth/rbac-rules";
 import { OpenLoanForDebtFacilityFragment } from "generated/graphql";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
+import CheckForDebtFacilityPastDueLoansModal from "components/DebtFacility/CheckForDebtFacilityPastDueLoansModal";
 import ResolveDebtFacilityLoanModal from "components/DebtFacility/ResolveDebtFacilityLoanModal";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
@@ -61,11 +62,27 @@ export default function DebtFacilityActionRequiredTab({
             />
           </Box>
           <Box my={2} display="flex" flexDirection="row-reverse">
+            <Can perform={Action.CheckDebtFacilityForPastDue}>
+              <Box mr={2}>
+                <ModalButton
+                  label={"Check Past Due"}
+                  modal={({ handleClose }) => {
+                    return (
+                      <CheckForDebtFacilityPastDueLoansModal
+                        handleClose={() => {
+                          handleClose();
+                        }}
+                      />
+                    );
+                  }}
+                />
+              </Box>
+            </Can>
             <Can perform={Action.ResolveDebtFacilityLoan}>
               <Box mr={2}>
                 <ModalButton
                   isDisabled={selectedLoans.length !== 1}
-                  label={"Resolve Loan Status"}
+                  label={"Resolve Loan"}
                   modal={({ handleClose }) => {
                     const handler = () => {
                       handleClose();
@@ -74,7 +91,6 @@ export default function DebtFacilityActionRequiredTab({
                     return (
                       <ResolveDebtFacilityLoanModal
                         selectedLoan={selectedLoans[0]}
-                        facilityId={"PLACEHOLDER"}
                         handleClose={handler}
                       />
                     );

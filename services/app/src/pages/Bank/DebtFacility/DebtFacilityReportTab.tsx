@@ -7,7 +7,11 @@ import {
   useGetReportLoansByDebtFacilityIdSubscription,
 } from "generated/graphql";
 import DateInput from "components/Shared/FormInputs/DateInput";
-import { DebtFacilityStatusEnum, ProductTypeEnum } from "lib/enum";
+import {
+  DebtFacilityCompanyStatusEnum,
+  DebtFacilityStatusEnum,
+  ProductTypeEnum,
+} from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
@@ -56,6 +60,7 @@ export default function DebtFacilityReportTab({
         DebtFacilityStatusEnum.SOLD_INTO_DEBT_FACILITY,
         DebtFacilityStatusEnum.UPDATE_REQUIRED,
         DebtFacilityStatusEnum.WAIVER,
+        DebtFacilityCompanyStatusEnum.WAIVER,
       ],
       other_statuses: [
         DebtFacilityStatusEnum.BESPOKE_BALANCE_SHEET,

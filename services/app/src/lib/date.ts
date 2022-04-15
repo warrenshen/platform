@@ -95,6 +95,23 @@ export function formatDateString(
   }
 }
 
+export function getEndOfNextMonth(dateString: string) {
+  const date = parse(dateString, DateFormatServer, new Date());
+
+  if (!!date) {
+    // We add two months so we can take away of the Date rollback feature to get the last day
+    date.setMonth(date.getMonth() + 2);
+
+    // using setDate with 0 sets it to the last day of the previous month
+    // ref: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/setDate
+    date.setDate(0);
+
+    return format(date, DateFormatServer);
+  } else {
+    return "";
+  }
+}
+
 export function formatDateStringAsMonth(dateString: string) {
   if (!dateString) {
     return "Invalid Date";

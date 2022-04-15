@@ -485,7 +485,6 @@ export type BankAccounts = {
   company?: Maybe<Companies>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  file_id?: Maybe<Scalars["uuid"]>;
   id: Scalars["uuid"];
   intermediary_account_name?: Maybe<Scalars["String"]>;
   intermediary_account_number?: Maybe<Scalars["String"]>;
@@ -596,7 +595,6 @@ export type BankAccountsBoolExp = {
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
-  file_id?: Maybe<UuidComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   intermediary_account_name?: Maybe<StringComparisonExp>;
   intermediary_account_number?: Maybe<StringComparisonExp>;
@@ -641,7 +639,6 @@ export type BankAccountsInsertInput = {
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  file_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   intermediary_account_name?: Maybe<Scalars["String"]>;
   intermediary_account_number?: Maybe<Scalars["String"]>;
@@ -674,7 +671,6 @@ export type BankAccountsMaxFields = {
   bank_name?: Maybe<Scalars["String"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  file_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   intermediary_account_name?: Maybe<Scalars["String"]>;
   intermediary_account_number?: Maybe<Scalars["String"]>;
@@ -704,7 +700,6 @@ export type BankAccountsMaxOrderBy = {
   bank_name?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
-  file_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   intermediary_account_name?: Maybe<OrderBy>;
   intermediary_account_number?: Maybe<OrderBy>;
@@ -734,7 +729,6 @@ export type BankAccountsMinFields = {
   bank_name?: Maybe<Scalars["String"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  file_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   intermediary_account_name?: Maybe<Scalars["String"]>;
   intermediary_account_number?: Maybe<Scalars["String"]>;
@@ -764,7 +758,6 @@ export type BankAccountsMinOrderBy = {
   bank_name?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
-  file_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   intermediary_account_name?: Maybe<OrderBy>;
   intermediary_account_number?: Maybe<OrderBy>;
@@ -822,7 +815,6 @@ export type BankAccountsOrderBy = {
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
-  file_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   intermediary_account_name?: Maybe<OrderBy>;
   intermediary_account_number?: Maybe<OrderBy>;
@@ -873,8 +865,6 @@ export enum BankAccountsSelectColumn {
   CompanyId = "company_id",
   /** column name */
   CreatedAt = "created_at",
-  /** column name */
-  FileId = "file_id",
   /** column name */
   Id = "id",
   /** column name */
@@ -928,7 +918,6 @@ export type BankAccountsSetInput = {
   can_wire?: Maybe<Scalars["Boolean"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  file_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   intermediary_account_name?: Maybe<Scalars["String"]>;
   intermediary_account_number?: Maybe<Scalars["String"]>;
@@ -974,8 +963,6 @@ export enum BankAccountsUpdateColumn {
   CompanyId = "company_id",
   /** column name */
   CreatedAt = "created_at",
-  /** column name */
-  FileId = "file_id",
   /** column name */
   Id = "id",
   /** column name */
@@ -1444,6 +1431,7 @@ export type Companies = {
   dba_name?: Maybe<Scalars["String"]>;
   debt_facility_status?: Maybe<Scalars["String"]>;
   debt_facility_waiver_date?: Maybe<Scalars["date"]>;
+  debt_facility_waiver_expiration_date?: Maybe<Scalars["date"]>;
   /** An array relationship */
   ebba_applications: Array<EbbaApplications>;
   /** An aggregate relationship */
@@ -1965,6 +1953,7 @@ export type CompaniesBoolExp = {
   dba_name?: Maybe<StringComparisonExp>;
   debt_facility_status?: Maybe<StringComparisonExp>;
   debt_facility_waiver_date?: Maybe<DateComparisonExp>;
+  debt_facility_waiver_expiration_date?: Maybe<DateComparisonExp>;
   ebba_applications?: Maybe<EbbaApplicationsBoolExp>;
   employer_identification_number?: Maybe<StringComparisonExp>;
   financial_summaries?: Maybe<FinancialSummariesBoolExp>;
@@ -2036,6 +2025,7 @@ export type CompaniesInsertInput = {
   dba_name?: Maybe<Scalars["String"]>;
   debt_facility_status?: Maybe<Scalars["String"]>;
   debt_facility_waiver_date?: Maybe<Scalars["date"]>;
+  debt_facility_waiver_expiration_date?: Maybe<Scalars["date"]>;
   ebba_applications?: Maybe<EbbaApplicationsArrRelInsertInput>;
   employer_identification_number?: Maybe<Scalars["String"]>;
   financial_summaries?: Maybe<FinancialSummariesArrRelInsertInput>;
@@ -2082,6 +2072,7 @@ export type CompaniesMaxFields = {
   dba_name?: Maybe<Scalars["String"]>;
   debt_facility_status?: Maybe<Scalars["String"]>;
   debt_facility_waiver_date?: Maybe<Scalars["date"]>;
+  debt_facility_waiver_expiration_date?: Maybe<Scalars["date"]>;
   employer_identification_number?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
   identifier?: Maybe<Scalars["String"]>;
@@ -2110,6 +2101,7 @@ export type CompaniesMaxOrderBy = {
   dba_name?: Maybe<OrderBy>;
   debt_facility_status?: Maybe<OrderBy>;
   debt_facility_waiver_date?: Maybe<OrderBy>;
+  debt_facility_waiver_expiration_date?: Maybe<OrderBy>;
   employer_identification_number?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   identifier?: Maybe<OrderBy>;
@@ -2138,6 +2130,7 @@ export type CompaniesMinFields = {
   dba_name?: Maybe<Scalars["String"]>;
   debt_facility_status?: Maybe<Scalars["String"]>;
   debt_facility_waiver_date?: Maybe<Scalars["date"]>;
+  debt_facility_waiver_expiration_date?: Maybe<Scalars["date"]>;
   employer_identification_number?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
   identifier?: Maybe<Scalars["String"]>;
@@ -2166,6 +2159,7 @@ export type CompaniesMinOrderBy = {
   dba_name?: Maybe<OrderBy>;
   debt_facility_status?: Maybe<OrderBy>;
   debt_facility_waiver_date?: Maybe<OrderBy>;
+  debt_facility_waiver_expiration_date?: Maybe<OrderBy>;
   employer_identification_number?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   identifier?: Maybe<OrderBy>;
@@ -2226,6 +2220,7 @@ export type CompaniesOrderBy = {
   dba_name?: Maybe<OrderBy>;
   debt_facility_status?: Maybe<OrderBy>;
   debt_facility_waiver_date?: Maybe<OrderBy>;
+  debt_facility_waiver_expiration_date?: Maybe<OrderBy>;
   ebba_applications_aggregate?: Maybe<EbbaApplicationsAggregateOrderBy>;
   employer_identification_number?: Maybe<OrderBy>;
   financial_summaries_aggregate?: Maybe<FinancialSummariesAggregateOrderBy>;
@@ -2286,6 +2281,8 @@ export enum CompaniesSelectColumn {
   /** column name */
   DebtFacilityWaiverDate = "debt_facility_waiver_date",
   /** column name */
+  DebtFacilityWaiverExpirationDate = "debt_facility_waiver_expiration_date",
+  /** column name */
   EmployerIdentificationNumber = "employer_identification_number",
   /** column name */
   Id = "id",
@@ -2333,6 +2330,7 @@ export type CompaniesSetInput = {
   dba_name?: Maybe<Scalars["String"]>;
   debt_facility_status?: Maybe<Scalars["String"]>;
   debt_facility_waiver_date?: Maybe<Scalars["date"]>;
+  debt_facility_waiver_expiration_date?: Maybe<Scalars["date"]>;
   employer_identification_number?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
   identifier?: Maybe<Scalars["String"]>;
@@ -2448,6 +2446,8 @@ export enum CompaniesUpdateColumn {
   DebtFacilityStatus = "debt_facility_status",
   /** column name */
   DebtFacilityWaiverDate = "debt_facility_waiver_date",
+  /** column name */
+  DebtFacilityWaiverExpirationDate = "debt_facility_waiver_expiration_date",
   /** column name */
   EmployerIdentificationNumber = "employer_identification_number",
   /** column name */
@@ -27640,6 +27640,8 @@ export type LoanReportFragment = Pick<
   | "debt_facility_status"
   | "debt_facility_id"
   | "debt_facility_added_date"
+  | "debt_facility_waiver_date"
+  | "debt_facility_waiver_expiration_date"
 >;
 
 export type LoanArtifactFragment = Pick<Loans, "id"> & {
@@ -29044,6 +29046,8 @@ export const LoanReportFragmentDoc = gql`
     debt_facility_status
     debt_facility_id
     debt_facility_added_date
+    debt_facility_waiver_date
+    debt_facility_waiver_expiration_date
   }
 `;
 export const DebtFacilityCapacityLimitedFragmentDoc = gql`

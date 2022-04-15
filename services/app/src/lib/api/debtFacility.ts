@@ -41,6 +41,9 @@ export type UpdateCompanyDebtFacilityStatusReq = {
   variables: {
     companyId: string;
     debtFacilityStatus: string;
+    statusChangeComment: string;
+    waiverDate: string;
+    waiverExpirationDate: string;
   };
 };
 
@@ -101,9 +104,10 @@ export async function moveLoansForDebtFacility(
 export type ResolveLoansForDebtFacilityReq = {
   variables: {
     loanId: string;
-    facilityId: string;
     resolveNote: string;
     resolveStatus: string;
+    waiverDate: string;
+    waiverExpirationDate: string;
   };
 };
 
@@ -155,6 +159,32 @@ export async function updateDebtFacilityAssignedDate(
           status: "ERROR",
           msg:
             "Could not resolve the debt facility action required for this loan",
+        };
+      }
+    );
+}
+
+export type CheckForDebtFacilityPastDueLoansReq = {
+  variables: {};
+};
+
+export async function checkForDebtFacilityPastDueLoans(
+  req: CheckForDebtFacilityPastDueLoansReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(debtFacilityRoutes.checkPastDue, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not check for past due loans in the debt facility",
         };
       }
     );

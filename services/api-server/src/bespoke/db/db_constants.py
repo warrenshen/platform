@@ -116,7 +116,7 @@ class CompanyDebtFacilityStatus(object):
 	DEFAULTING = 'defaulting'
 	# must be default state for dispensary financing clients
 	INELIGIBLE_FOR_FACILITY = 'ineligible_for_facility'
-	WAIVER = 'waiver'
+	WAIVER = 'waiver_company'
 
 # Artifacts
 
@@ -173,7 +173,7 @@ class LoanDebtFacilityStatus(object):
 	UPDATE_REQUIRED = 'update_required'
 	# for when a loan is past the 30 day grace period but a waiver has been granted for a specific loan
 	# can have waiver for a specific loan even if borrower is overall ineligible
-	WAIVER = 'waiver'
+	WAIVER = 'waiver_loan'
 
 # Fees
 
@@ -244,6 +244,7 @@ class DebtFacilityEventCategory(object):
 	REPURCHASE = 'repurchase'
 	MOVE_TO_DEBT_FACILITY = 'move_to_debt_facility'
 	COMPANY_STATUS_CHANGE = 'company_status_change'
+	PAST_DUE_UPDATE_REQUIRED = 'past_due_update_required'
 
 class DebtFacilityCapacityTypeEnum(object):
 	DRAWN = 'drawn'

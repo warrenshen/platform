@@ -13,7 +13,11 @@ import {
 import MoveDebtFacilityLoanModal from "components/DebtFacility/MoveDebtFacilityLoanModal";
 import UpdateDebtFacilityLoanAssignedDateModal from "components/DebtFacility/UpdateDebtFacilityLoanAssignedDateModal";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
-import { DebtFacilityStatusEnum, ProductTypeEnum } from "lib/enum";
+import {
+  DebtFacilityCompanyStatusEnum,
+  DebtFacilityStatusEnum,
+  ProductTypeEnum,
+} from "lib/enum";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import { useMemo, useState } from "react";
@@ -77,6 +81,7 @@ export default function DebtFacilityOpenTab({
       statuses: [
         DebtFacilityStatusEnum.SOLD_INTO_DEBT_FACILITY,
         DebtFacilityStatusEnum.WAIVER,
+        DebtFacilityCompanyStatusEnum.WAIVER,
       ],
       target_facility_ids: !!selectedDebtFacilityId
         ? [selectedDebtFacilityId]

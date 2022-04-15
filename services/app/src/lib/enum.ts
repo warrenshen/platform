@@ -470,7 +470,7 @@ export enum DebtFacilityStatusEnum {
   BESPOKE_BALANCE_SHEET = "bespoke_balance_sheet",
   REPURCHASED = "repurchased",
   UPDATE_REQUIRED = "update_required",
-  WAIVER = "waiver",
+  WAIVER = "waiver_loan",
 }
 
 export const DebtFacilityStatusToLabel = {
@@ -507,7 +507,7 @@ export enum DebtFacilityCompanyStatusEnum {
   DEFAULTING = "defaulting",
   // must be default state for dispensary financing clients
   INELIGIBLE_FOR_FACILITY = "ineligible_for_facility",
-  WAIVER = "waiver",
+  WAIVER = "waiver_company",
 }
 
 export const DebtFacilityCompanyStatusToLabel = {

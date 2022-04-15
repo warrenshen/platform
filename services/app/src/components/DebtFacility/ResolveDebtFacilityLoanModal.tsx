@@ -1,29 +1,48 @@
-import { Box, TextField, Typography } from "@material-ui/core";
+import {
+  Box,
+  createStyles,
+  makeStyles,
+  TextField,
+  Theme,
+  Typography,
+} from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import { Alert } from "@material-ui/lab";
+import DateInput from "components/Shared/FormInputs/DateInput";
 import Modal from "components/Shared/Modal/Modal";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { resolveLoansForDebtFacility } from "lib/api/debtFacility";
+import { getEndOfNextMonth } from "lib/date";
 import { DebtFacilityStatusEnum, DebtFacilityStatusToLabel } from "lib/enum";
 import { OpenLoanForDebtFacilityFragment } from "generated/graphql";
 import { formatCurrency } from "lib/number";
 import { useMemo, useState } from "react";
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    inputField: {
+      width: 300,
+    },
+  })
+);
+
 interface Props {
   selectedLoan: OpenLoanForDebtFacilityFragment;
-  facilityId: string;
   handleClose: () => void;
 }
 
 export default function ResolveDebtFacilityLoanModal({
   selectedLoan,
-  facilityId,
   handleClose,
 }: Props) {
   const snackbar = useSnackbar();
+  const classes = useStyles();
+
   const [resolutionNote, setResolutionNote] = useState("");
   const [resolutionStatus, setResolutionStatus] = useState("");
+  const [waiverDate, setWaiverDate] = useState("");
+  const [waiverExpirationDate, setWaiverExpirationDate] = useState("");
 
   const [resolveLoans, { loading: isResolveLoansLoading }] = useCustomMutation(
     resolveLoansForDebtFacility
@@ -40,9 +59,10 @@ export default function ResolveDebtFacilityLoanModal({
     const response = await resolveLoans({
       variables: {
         loanId: selectedLoan.id,
-        facilityId: facilityId,
         resolveNote: resolutionNote,
         resolveStatus: resolutionStatus,
+        waiverDate: waiverDate,
+        waiverExpirationDate: waiverExpirationDate,
       },
     });
 
@@ -54,11 +74,19 @@ export default function ResolveDebtFacilityLoanModal({
     }
   };
 
+  const getDefaultExpirationDate = (value: string | null) => {
+    return !!value ? getEndOfNextMonth(value) : "";
+  };
+
   return (
     <Modal
       dataCy={"move-debt-facility-loan-modal"}
       isPrimaryActionDisabled={
-        isResolveLoansLoading || !resolutionStatus || !resolutionNote
+        isResolveLoansLoading ||
+        !resolutionStatus ||
+        !resolutionNote ||
+        (resolutionStatus === DebtFacilityStatusEnum.WAIVER &&
+          (waiverDate === "" || waiverExpirationDate === ""))
       }
       title={"Resolve Loan's Status in Debt Facility"}
       contentWidth={800}
@@ -87,10 +115,11 @@ export default function ResolveDebtFacilityLoanModal({
             </Alert>
           </Box>
         )}
-        <Box mt={4} mb={4} width={"50%"}>
+        <Box mt={4} width={"50%"}>
           <Autocomplete
             autoHighlight
             id="auto-complete-debt-facility-loan-resolution"
+            className={classes.inputField}
             options={resolutionOptions}
             getOptionLabel={(resolutionOption) => {
               return `${DebtFacilityStatusToLabel[resolutionOption]}`;
@@ -103,17 +132,53 @@ export default function ResolveDebtFacilityLoanModal({
               />
             )}
             onChange={(_event, resolutionOption) => {
+              if (resolutionOption !== DebtFacilityStatusEnum.WAIVER) {
+                setWaiverDate("");
+                setWaiverExpirationDate("");
+              }
               setResolutionStatus(resolutionOption || "");
             }}
           />
         </Box>
-        <TextField
-          multiline
-          label={"Resolve Notes"}
-          placeholder={"Please enter notes on this status update"}
-          value={resolutionNote}
-          onChange={({ target: { value } }) => setResolutionNote(value)}
-        />
+        {resolutionStatus === DebtFacilityStatusEnum.WAIVER && (
+          <>
+            <Box mt={4}>
+              <DateInput
+                disableNonBankDays
+                className={classes.inputField}
+                id="debt-facility-waiver-date-picker"
+                label="Waiver Date"
+                value={waiverDate}
+                onChange={(value) => {
+                  setWaiverDate(value || "");
+                  setWaiverExpirationDate(
+                    getDefaultExpirationDate(value) || ""
+                  );
+                }}
+              />
+            </Box>
+            <Box mt={4}>
+              <DateInput
+                disableNonBankDays
+                className={classes.inputField}
+                id="debt-facility-waiver-expiration-date-picker"
+                label="Waiver Expiration Date"
+                value={waiverExpirationDate}
+                onChange={(value) => setWaiverExpirationDate(value || "")}
+              />
+            </Box>
+          </>
+        )}
+        <Box mt={4}>
+          <TextField
+            multiline
+            className={classes.inputField}
+            label={"Resolve Notes"}
+            placeholder={"Please enter update notes"}
+            value={resolutionNote}
+            onChange={({ target: { value } }) => setResolutionNote(value)}
+          />
+        </Box>
         <Box mt={4}>
           <Typography variant="body2" color="textSecondary">
             Company

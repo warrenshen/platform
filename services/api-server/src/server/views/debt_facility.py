@@ -15,6 +15,7 @@ from bespoke.db import models, models_util
 from bespoke.db.db_constants import (CompanyDebtFacilityStatus, DebtFacilityEventCategory, 
 	DBOperation, LoanDebtFacilityStatus, ProductType, DebtFacilityCapacityTypeEnum)
 from bespoke.db.models import session_scope
+from bespoke.debt_facility import debt_facility_util
 from bespoke.email import sendgrid_util
 from bespoke.metrc.common.metrc_common_util import chunker, chunker_dict
 from bespoke.reports.report_generation_util import *
@@ -140,7 +141,7 @@ class DebtFacilityUpdateCompanyStatusView(MethodView):
 		if not form:
 			return handler_util.make_error_response('No data provided')
 
-		required_keys = ['companyId', 'debtFacilityStatus', 'statusChangeComment']
+		required_keys = ['companyId', 'debtFacilityStatus', 'statusChangeComment', 'waiverDate', 'waiverExpirationDate']
 
 		for key in required_keys:
 			if key not in form:
@@ -149,6 +150,8 @@ class DebtFacilityUpdateCompanyStatusView(MethodView):
 		company_id = form["companyId"]
 		new_debt_facility_status = form["debtFacilityStatus"]
 		status_change_comment = form["statusChangeComment"]
+		waiver_date = form["waiverDate"]
+		waiver_expiration_date = form["waiverExpirationDate"]
 
 		with models.session_scope(current_app.session_maker) as session:
 			user_session = auth_util.UserSession.from_session()
@@ -156,42 +159,19 @@ class DebtFacilityUpdateCompanyStatusView(MethodView):
 				models.User.id == user_session.get_user_id()
 			).first()
 
-			company = cast(
-				models.Company,
-				session.query(models.Company).filter(
-					models.Company.id == company_id
-				).first())
+			_, err = debt_facility_util.update_company_debt_facility_status(
+				session,
+				user,
+				company_id,
+				new_debt_facility_status,
+				status_change_comment,
+				waiver_date,
+				waiver_expiration_date
+			)
 
-			contract = cast(
-				models.Contract,
-				session.query(models.Contract).filter(
-					models.Contract.company_id == company_id
-				).order_by(
-					models.Contract.start_date.desc()
-				).first())
+			if err:
+				raise err
 
-			if contract.product_type == ProductType.DISPENSARY_FINANCING and \
-				new_debt_facility_status == CompanyDebtFacilityStatus.GOOD_STANDING:
-				return handler_util.make_error_response('Cannot set dispensary finacing clients to good standing as \
-					they are ineligible for debt facility financing')
-
-			# Grab old debt facility status to record in debt facility event before setting new status
-			old_debt_facility_status = company.debt_facility_status
-			company.debt_facility_status = new_debt_facility_status
-
-			payload : Dict[str, object] = {
-				"user_name": user.first_name + " " + user.last_name,
-				"user_id": str(user.id),
-				"old_status": old_debt_facility_status,
-				"new_status": new_debt_facility_status 
-			}
-			session.add(models.DebtFacilityEvent( # type: ignore
-				company_id = str(company.id), 
-				event_category = DebtFacilityEventCategory.COMPANY_STATUS_CHANGE,
-				event_date = date_util.now(),
-				event_comments = status_change_comment,
-				event_payload = payload
-			))
 
 		return make_response(json.dumps({'status': 'OK', 'resp': "Successfully updated company's debt facility status."}))
 
@@ -310,16 +290,17 @@ class DebtFacilityResolveUpdateRequiredView(MethodView):
 		if not form:
 			return handler_util.make_error_response('No data provided')
 
-		required_keys = ['loanId', 'facilityId', 'resolveNote', 'resolveStatus']
+		required_keys = ['loanId', 'resolveNote', 'resolveStatus', 'waiverDate', 'waiverExpirationDate']
 
 		for key in required_keys:
 			if key not in form:
 				return handler_util.make_error_response(f'Missing {key} in response to debt facility resolution')
 
 		loan_id = form["loanId"]
-		facility_id = form["facilityId"]
 		resolve_note = form["resolveNote"]
 		resolve_status = form["resolveStatus"]
+		waiver_date = form["waiverDate"]
+		waiver_expiration_date = form["waiverExpirationDate"]
 
 		with models.session_scope(current_app.session_maker) as session:
 			user_session = auth_util.UserSession.from_session()
@@ -340,8 +321,14 @@ class DebtFacilityResolveUpdateRequiredView(MethodView):
 			).first())
 
 			loan_report.debt_facility_status = resolve_status
-			if resolve_status == resolve_status == LoanDebtFacilityStatus.REPURCHASED:
+			if resolve_status == LoanDebtFacilityStatus.REPURCHASED:
 				loan_report.debt_facility_id = None
+
+			if resolve_status == LoanDebtFacilityStatus.WAIVER:
+				if waiver_date is not None and waiver_date != "":
+					loan_report.debt_facility_waiver_date = waiver_date
+				if waiver_expiration_date is not None and waiver_expiration_date != "":
+					loan_report.debt_facility_waiver_expiration_date = waiver_expiration_date
 
 			resolve_update_payload : Dict[str, object] = {
 				"user_name": user.first_name + " " + user.last_name,
@@ -349,6 +336,10 @@ class DebtFacilityResolveUpdateRequiredView(MethodView):
 				"old_status": LoanDebtFacilityStatus.UPDATE_REQUIRED,
 				"new_status": cast(LoanDebtFacilityStatus, resolve_status)
 			}
+			if resolve_status == LoanDebtFacilityStatus.WAIVER:
+				resolve_update_payload["waiver_date"] = waiver_date
+				resolve_update_payload["waiver_expiration_date"] = waiver_expiration_date
+
 			session.add(models.DebtFacilityEvent( # type: ignore
 				loan_report_id = loan_report.id,
 				event_category = DebtFacilityEventCategory.REPURCHASE if resolve_status == LoanDebtFacilityStatus.REPURCHASED \
@@ -405,6 +396,19 @@ class DebtFacilityUpdateAssignedDateView(MethodView):
 
 		return make_response(json.dumps({'status': 'OK', 'resp': "Successfully updated loan(s) assigned date."}))
 
+class CheckForPastDueLoansInDebtFacilityView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		logging.info("Checking for loans 30+ days past due in debt facility")
+
+		with models.session_scope(current_app.session_maker) as session:
+			today_date: datetime.date = date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
+			debt_facility_util.check_past_due_loans(session, today_date)
+
+		return make_response(json.dumps({'status': 'OK', 'resp': "Successfully checked for loans 30+ days past due in debt facility"}))
+
 handler.add_url_rule(
 	"/create_update_facility",
 	view_func=DebtFacilityCreateUpdateFacilityView.as_view(name='create_update_facility'))
@@ -420,6 +424,10 @@ handler.add_url_rule(
 handler.add_url_rule(
 	"/resolve_update_required",
 	view_func=DebtFacilityResolveUpdateRequiredView.as_view(name='resolve_update_required'))
+
+handler.add_url_rule(
+	"/check_for_past_due_loans_in_debt_facility",
+	view_func=CheckForPastDueLoansInDebtFacilityView.as_view(name='check_for_past_due_loans_in_debt_facility'))
 
 handler.add_url_rule(
 	"/update_assigned_date",

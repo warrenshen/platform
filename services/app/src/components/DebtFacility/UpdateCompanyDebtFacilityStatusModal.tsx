@@ -11,9 +11,11 @@ import {
   Typography,
 } from "@material-ui/core";
 import Modal from "components/Shared/Modal/Modal";
+import DateInput from "components/Shared/FormInputs/DateInput";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { updateCompanyDebtFacilityStatus } from "lib/api/debtFacility";
+import { getEndOfNextMonth } from "lib/date";
 import { CustomerForBankFragment } from "generated/graphql";
 import {
   DebtFacilityCompanyStatusEnum,
@@ -47,6 +49,8 @@ export default function UpdateCompanyDebtFacilityStatusModal({
     selectedCompany.debt_facility_status as DebtFacilityCompanyStatusEnum
   );
   const [statusComment, setStatusComment] = useState("");
+  const [waiverDate, setWaiverDate] = useState("");
+  const [waiverExpirationDate, setWaiverExpirationDate] = useState("");
 
   const [
     updateCompanyStatus,
@@ -60,6 +64,8 @@ export default function UpdateCompanyDebtFacilityStatusModal({
         companyId: selectedCompany.id,
         debtFacilityStatus: selectedDebtFacilityStatus,
         statusChangeComment: statusComment,
+        waiverDate: waiverDate,
+        waiverExpirationDate: waiverExpirationDate,
       },
     });
 
@@ -73,13 +79,21 @@ export default function UpdateCompanyDebtFacilityStatusModal({
     }
   };
 
+  const getDefaultExpirationDate = (value: string | null) => {
+    return !!value ? getEndOfNextMonth(value) : "";
+  };
+
   // Finally, actually render the one we'd like rendered
   return (
     <Modal
       dataCy={"update-company-debt-facility-status-modal"}
       isPrimaryActionDisabled={
         selectedDebtFacilityStatus === selectedCompany.debt_facility_status ||
-        isUpdateCompanyDebtFacilityStatusLoading
+        isUpdateCompanyDebtFacilityStatusLoading ||
+        (selectedDebtFacilityStatus === DebtFacilityCompanyStatusEnum.WAIVER &&
+          waiverDate === "") ||
+        (selectedDebtFacilityStatus === DebtFacilityCompanyStatusEnum.WAIVER &&
+          waiverExpirationDate === "")
       }
       title={"Update Company Debt Facility Status"}
       contentWidth={800}
@@ -132,6 +146,33 @@ export default function UpdateCompanyDebtFacilityStatusModal({
           </Select>
         </FormControl>
       </Box>
+      {selectedDebtFacilityStatus === DebtFacilityCompanyStatusEnum.WAIVER && (
+        <>
+          <Box mt={4}>
+            <DateInput
+              disableNonBankDays
+              className={classes.inputField}
+              id="debt-facility-waiver-date-picker"
+              label="Waiver Date"
+              value={waiverDate}
+              onChange={(value) => {
+                setWaiverDate(value || "");
+                setWaiverExpirationDate(getDefaultExpirationDate(value) || "");
+              }}
+            />
+          </Box>
+          <Box mt={4}>
+            <DateInput
+              disableNonBankDays
+              className={classes.inputField}
+              id="debt-facility-waiver-expiration-date-picker"
+              label="Waiver Expiration Date"
+              value={waiverExpirationDate}
+              onChange={(value) => setWaiverExpirationDate(value || "")}
+            />
+          </Box>
+        </>
+      )}
       <Box display="flex" flexDirection="column" mt={4}>
         <TextField
           id="status-change-comment-input"

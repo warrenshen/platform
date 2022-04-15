@@ -205,6 +205,8 @@ fragment LoanReport on loan_reports {
   debt_facility_status
   debt_facility_id
   debt_facility_added_date
+  debt_facility_waiver_date
+  debt_facility_waiver_expiration_date
 }
 
 fragment LoanArtifact on loans {

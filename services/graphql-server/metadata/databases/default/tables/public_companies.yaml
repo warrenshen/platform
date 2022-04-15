@@ -167,6 +167,8 @@ select_permissions:
         - created_at
         - dba_name
         - debt_facility_status
+        - debt_facility_waiver_date
+        - debt_facility_waiver_expiration_date
         - employer_identification_number
         - id
         - identifier
@@ -194,6 +196,8 @@ select_permissions:
         - created_at
         - dba_name
         - debt_facility_status
+        - debt_facility_waiver_date
+        - debt_facility_waiver_expiration_date
         - employer_identification_number
         - id
         - identifier
