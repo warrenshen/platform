@@ -1,159 +1,159 @@
 table:
-  name: company_licenses
   schema: public
+  name: company_licenses
 object_relationships:
-- name: company
-  using:
-    foreign_key_constraint_on: company_id
-- name: company_facility
-  using:
-    foreign_key_constraint_on: facility_row_id
-- name: file
-  using:
-    foreign_key_constraint_on: file_id
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  - name: company_facility
+    using:
+      foreign_key_constraint_on: facility_row_id
+  - name: file
+    using:
+      foreign_key_constraint_on: file_id
 select_permissions:
-- permission:
-    columns:
-    - company_id
-    - created_at
-    - estimate_latitude
-    - estimate_longitude
-    - estimate_zip
-    - expiration_date
-    - facility_row_id
-    - file_id
-    - id
-    - is_current
-    - is_deleted
-    - is_underwriting_enabled
-    - legal_name
-    - license_category
-    - license_description
-    - license_number
-    - license_status
-    - rollup_id
-    - updated_at
-    - us_state
-    filter: {}
-  role: bank_admin
-- permission:
-    columns:
-    - company_id
-    - created_at
-    - estimate_latitude
-    - estimate_longitude
-    - estimate_zip
-    - expiration_date
-    - facility_row_id
-    - file_id
-    - id
-    - is_current
-    - is_deleted
-    - is_underwriting_enabled
-    - legal_name
-    - license_category
-    - license_description
-    - license_number
-    - license_status
-    - rollup_id
-    - updated_at
-    - us_state
-    filter: {}
-  role: bank_read_only
-- permission:
-    columns:
-    - company_id
-    - facility_row_id
-    - file_id
-    - id
-    - is_deleted
-    - license_number
-    filter:
-      _or:
-      - company_id:
-          _eq: X-Hasura-Company-Id
-      - company:
-          company_payor_partnerships_by_payor:
-            company_id:
-              _eq: X-Hasura-Company-Id
-      - company:
-          company_vendor_partnerships_by_vendor:
-            company_id:
-              _eq: X-Hasura-Company-Id
-  role: company_admin
-- permission:
-    columns:
-    - company_id
-    - facility_row_id
-    - file_id
-    - id
-    - is_deleted
-    - license_number
-    filter:
-      _or:
-      - company_id:
-          _eq: X-Hasura-Company-Id
-      - company:
-          company_payor_partnerships_by_payor:
-            company_id:
-              _eq: X-Hasura-Company-Id
-      - company:
-          company_vendor_partnerships_by_vendor:
-            company_id:
-              _eq: X-Hasura-Company-Id
-  role: company_read_only
-- permission:
-    columns:
-    - is_deleted
-    - license_number
-    - company_id
-    - file_id
-    - id
-    filter:
-      _or:
-      - company_id:
-          _eq: X-Hasura-Company-Id
-      - company:
-          company_payor_partnerships:
-            payor_id:
-              _eq: X-Hasura-Company-Id
-  role: invoice_reviewer
-- permission:
-    columns:
-    - is_deleted
-    - license_number
-    - company_id
-    - file_id
-    - id
-    filter:
-      _or:
-      - company_id:
-          _eq: X-Hasura-Company-Id
-      - company:
-          company_vendor_partnerships:
-            vendor_id:
-              _eq: X-Hasura-Company-Id
-  role: purchase_order_reviewer
-event_triggers:
-- definition:
-    delete:
-      columns: "*"
-    enable_manual: true
-    insert:
-      columns: "*"
-    update:
+  - role: bank_admin
+    permission:
       columns:
-      - is_deleted
-      - license_number
-      - company_id
-      - file_id
-      - id
-  headers:
-  - name: x-api-key
-    value_from_env: ASYNC_SERVER_API_KEY
-  name: company_licenses_changed
-  retry_conf:
-    interval_sec: 10
-    num_retries: 0
-    timeout_sec: 60
-  webhook: "{{ASYNC_SERVER_BASE_URL}}/triggers/company_licenses_modified_view"
+        - company_id
+        - created_at
+        - estimate_latitude
+        - estimate_longitude
+        - estimate_zip
+        - expiration_date
+        - facility_row_id
+        - file_id
+        - id
+        - is_current
+        - is_deleted
+        - is_underwriting_enabled
+        - legal_name
+        - license_category
+        - license_description
+        - license_number
+        - license_status
+        - rollup_id
+        - updated_at
+        - us_state
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+        - company_id
+        - created_at
+        - estimate_latitude
+        - estimate_longitude
+        - estimate_zip
+        - expiration_date
+        - facility_row_id
+        - file_id
+        - id
+        - is_current
+        - is_deleted
+        - is_underwriting_enabled
+        - legal_name
+        - license_category
+        - license_description
+        - license_number
+        - license_status
+        - rollup_id
+        - updated_at
+        - us_state
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+        - company_id
+        - facility_row_id
+        - file_id
+        - id
+        - is_deleted
+        - license_number
+      filter:
+        _or:
+          - company_id:
+              _eq: X-Hasura-Company-Id
+          - company:
+              company_payor_partnerships_by_payor:
+                company_id:
+                  _eq: X-Hasura-Company-Id
+          - company:
+              company_vendor_partnerships_by_vendor:
+                company_id:
+                  _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+        - company_id
+        - facility_row_id
+        - file_id
+        - id
+        - is_deleted
+        - license_number
+      filter:
+        _or:
+          - company_id:
+              _eq: X-Hasura-Company-Id
+          - company:
+              company_payor_partnerships_by_payor:
+                company_id:
+                  _eq: X-Hasura-Company-Id
+          - company:
+              company_vendor_partnerships_by_vendor:
+                company_id:
+                  _eq: X-Hasura-Company-Id
+  - role: invoice_reviewer
+    permission:
+      columns:
+        - is_deleted
+        - license_number
+        - company_id
+        - file_id
+        - id
+      filter:
+        _or:
+          - company_id:
+              _eq: X-Hasura-Company-Id
+          - company:
+              company_payor_partnerships:
+                payor_id:
+                  _eq: X-Hasura-Company-Id
+  - role: purchase_order_reviewer
+    permission:
+      columns:
+        - is_deleted
+        - license_number
+        - company_id
+        - file_id
+        - id
+      filter:
+        _or:
+          - company_id:
+              _eq: X-Hasura-Company-Id
+          - company:
+              company_vendor_partnerships:
+                vendor_id:
+                  _eq: X-Hasura-Company-Id
+event_triggers:
+  - name: company_licenses_changed
+    definition:
+      enable_manual: true
+      insert:
+        columns: '*'
+      delete:
+        columns: '*'
+      update:
+        columns:
+          - is_deleted
+          - license_number
+          - company_id
+          - file_id
+          - id
+    retry_conf:
+      num_retries: 0
+      interval_sec: 10
+      timeout_sec: 60
+    webhook: '{{ASYNC_SERVER_BASE_URL}}/triggers/company_licenses_modified_view'
+    headers:
+      - name: x-api-key
+        value_from_env: ASYNC_SERVER_API_KEY

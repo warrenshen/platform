@@ -1,4 +1,4 @@
 table:
-  name: company_type
   schema: public
+  name: company_type
 is_enum: true

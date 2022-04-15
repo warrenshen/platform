@@ -1,4 +1,4 @@
 table:
-  name: request_status
   schema: public
+  name: request_status
 is_enum: true

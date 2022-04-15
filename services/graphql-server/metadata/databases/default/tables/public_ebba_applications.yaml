@@ -1,186 +1,186 @@
 table:
-  name: ebba_applications
   schema: public
+  name: ebba_applications
 object_relationships:
-- name: company
-  using:
-    foreign_key_constraint_on: company_id
-- name: submitted_by_user
-  using:
-    foreign_key_constraint_on: submitted_by_user_id
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  - name: submitted_by_user
+    using:
+      foreign_key_constraint_on: submitted_by_user_id
 array_relationships:
-- name: ebba_application_files
-  using:
-    foreign_key_constraint_on:
-      column: ebba_application_id
-      table:
-        name: ebba_application_files
-        schema: public
+  - name: ebba_application_files
+    using:
+      foreign_key_constraint_on:
+        column: ebba_application_id
+        table:
+          schema: public
+          name: ebba_application_files
 insert_permissions:
-- permission:
-    backend_only: false
-    check: {}
-    columns:
-    - amount_cash_in_daca
-    - amount_custom
-    - amount_custom_note
-    - application_date
-    - calculated_borrowing_base
-    - category
-    - company_id
-    - expires_at
-    - monthly_accounts_receivable
-    - monthly_cash
-    - monthly_inventory
-  role: bank_admin
-- permission:
-    backend_only: false
-    check:
-      company_id:
-        _eq: X-Hasura-Company-Id
-    columns:
-    - amount_cash_in_daca
-    - application_date
-    - calculated_borrowing_base
-    - category
-    - expires_at
-    - monthly_accounts_receivable
-    - monthly_cash
-    - monthly_inventory
-    set:
-      company_id: x-hasura-Company-Id
-  role: company_admin
+  - role: bank_admin
+    permission:
+      check: {}
+      columns:
+        - amount_cash_in_daca
+        - amount_custom
+        - amount_custom_note
+        - application_date
+        - calculated_borrowing_base
+        - category
+        - company_id
+        - expires_at
+        - monthly_accounts_receivable
+        - monthly_cash
+        - monthly_inventory
+      backend_only: false
+  - role: company_admin
+    permission:
+      check:
+        company_id:
+          _eq: X-Hasura-Company-Id
+      set:
+        company_id: x-hasura-Company-Id
+      columns:
+        - amount_cash_in_daca
+        - application_date
+        - calculated_borrowing_base
+        - category
+        - expires_at
+        - monthly_accounts_receivable
+        - monthly_cash
+        - monthly_inventory
+      backend_only: false
 select_permissions:
-- permission:
-    columns:
-    - id
-    - company_id
-    - application_date
-    - created_at
-    - updated_at
-    - monthly_accounts_receivable
-    - monthly_inventory
-    - monthly_cash
-    - status
-    - requested_at
-    - rejected_at
-    - rejection_note
-    - approved_at
-    - calculated_borrowing_base
-    - expires_at
-    - amount_cash_in_daca
-    - is_deleted
-    - submitted_by_user_id
-    - category
-    - amount_custom
-    - amount_custom_note
-    filter: {}
-  role: bank_admin
-- permission:
-    columns:
-    - is_deleted
-    - application_date
-    - expires_at
-    - amount_cash_in_daca
-    - amount_custom
-    - calculated_borrowing_base
-    - monthly_accounts_receivable
-    - monthly_cash
-    - monthly_inventory
-    - amount_custom_note
-    - category
-    - rejection_note
-    - status
-    - rejected_at
-    - approved_at
-    - created_at
-    - requested_at
-    - updated_at
-    - company_id
-    - id
-    - submitted_by_user_id
-    filter: {}
-  role: bank_read_only
-- permission:
-    columns:
-    - is_deleted
-    - application_date
-    - expires_at
-    - amount_cash_in_daca
-    - amount_custom
-    - calculated_borrowing_base
-    - monthly_accounts_receivable
-    - monthly_cash
-    - monthly_inventory
-    - amount_custom_note
-    - category
-    - rejection_note
-    - status
-    - rejected_at
-    - approved_at
-    - created_at
-    - requested_at
-    - updated_at
-    - company_id
-    - id
-    - submitted_by_user_id
-    filter:
-      company_id:
-        _eq: X-Hasura-Company-Id
-  role: company_admin
-- permission:
-    columns:
-    - is_deleted
-    - application_date
-    - expires_at
-    - amount_cash_in_daca
-    - amount_custom
-    - calculated_borrowing_base
-    - monthly_accounts_receivable
-    - monthly_cash
-    - monthly_inventory
-    - amount_custom_note
-    - category
-    - rejection_note
-    - status
-    - rejected_at
-    - approved_at
-    - created_at
-    - requested_at
-    - updated_at
-    - company_id
-    - id
-    - submitted_by_user_id
-    filter:
-      company_id:
-        _eq: X-Hasura-Company-Id
-  role: company_read_only
+  - role: bank_admin
+    permission:
+      columns:
+        - id
+        - company_id
+        - application_date
+        - created_at
+        - updated_at
+        - monthly_accounts_receivable
+        - monthly_inventory
+        - monthly_cash
+        - status
+        - requested_at
+        - rejected_at
+        - rejection_note
+        - approved_at
+        - calculated_borrowing_base
+        - expires_at
+        - amount_cash_in_daca
+        - is_deleted
+        - submitted_by_user_id
+        - category
+        - amount_custom
+        - amount_custom_note
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+        - is_deleted
+        - application_date
+        - expires_at
+        - amount_cash_in_daca
+        - amount_custom
+        - calculated_borrowing_base
+        - monthly_accounts_receivable
+        - monthly_cash
+        - monthly_inventory
+        - amount_custom_note
+        - category
+        - rejection_note
+        - status
+        - rejected_at
+        - approved_at
+        - created_at
+        - requested_at
+        - updated_at
+        - company_id
+        - id
+        - submitted_by_user_id
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+        - is_deleted
+        - application_date
+        - expires_at
+        - amount_cash_in_daca
+        - amount_custom
+        - calculated_borrowing_base
+        - monthly_accounts_receivable
+        - monthly_cash
+        - monthly_inventory
+        - amount_custom_note
+        - category
+        - rejection_note
+        - status
+        - rejected_at
+        - approved_at
+        - created_at
+        - requested_at
+        - updated_at
+        - company_id
+        - id
+        - submitted_by_user_id
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+        - is_deleted
+        - application_date
+        - expires_at
+        - amount_cash_in_daca
+        - amount_custom
+        - calculated_borrowing_base
+        - monthly_accounts_receivable
+        - monthly_cash
+        - monthly_inventory
+        - amount_custom_note
+        - category
+        - rejection_note
+        - status
+        - rejected_at
+        - approved_at
+        - created_at
+        - requested_at
+        - updated_at
+        - company_id
+        - id
+        - submitted_by_user_id
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
 update_permissions:
-- permission:
-    check: null
-    columns:
-    - amount_cash_in_daca
-    - amount_custom
-    - amount_custom_note
-    - application_date
-    - calculated_borrowing_base
-    - expires_at
-    - monthly_accounts_receivable
-    - monthly_cash
-    - monthly_inventory
-    filter: {}
-  role: bank_admin
-- permission:
-    check: null
-    columns:
-    - amount_cash_in_daca
-    - application_date
-    - calculated_borrowing_base
-    - expires_at
-    - monthly_accounts_receivable
-    - monthly_cash
-    - monthly_inventory
-    filter:
-      company_id:
-        _eq: X-Hasura-Company-Id
-  role: company_admin
+  - role: bank_admin
+    permission:
+      columns:
+        - amount_cash_in_daca
+        - amount_custom
+        - amount_custom_note
+        - application_date
+        - calculated_borrowing_base
+        - expires_at
+        - monthly_accounts_receivable
+        - monthly_cash
+        - monthly_inventory
+      filter: {}
+      check: null
+  - role: company_admin
+    permission:
+      columns:
+        - amount_cash_in_daca
+        - application_date
+        - calculated_borrowing_base
+        - expires_at
+        - monthly_accounts_receivable
+        - monthly_cash
+        - monthly_inventory
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+      check: null

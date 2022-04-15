@@ -1,32 +1,32 @@
 table:
-  name: metrc_harvests
   schema: public
+  name: metrc_harvests
 select_permissions:
-- permission:
-    columns:
-    - company_id
-    - harvest_id
-    - harvest_start_date
-    - id
-    - last_modified_at
-    - license_number
-    - name
-    - payload
-    - type
-    - us_state
-    filter: {}
-  role: bank_admin
-- permission:
-    columns:
-    - company_id
-    - harvest_id
-    - harvest_start_date
-    - id
-    - last_modified_at
-    - license_number
-    - name
-    - payload
-    - type
-    - us_state
-    filter: {}
-  role: bank_read_only
+  - role: bank_admin
+    permission:
+      columns:
+        - company_id
+        - harvest_id
+        - harvest_start_date
+        - id
+        - last_modified_at
+        - license_number
+        - name
+        - payload
+        - type
+        - us_state
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+        - company_id
+        - harvest_id
+        - harvest_start_date
+        - id
+        - last_modified_at
+        - license_number
+        - name
+        - payload
+        - type
+        - us_state
+      filter: {}

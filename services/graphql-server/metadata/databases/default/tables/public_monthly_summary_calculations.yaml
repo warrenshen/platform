@@ -1,38 +1,38 @@
 table:
-  name: monthly_summary_calculations
   schema: public
+  name: monthly_summary_calculations
 object_relationships:
-- name: company
-  using:
-    foreign_key_constraint_on: company_id
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
 select_permissions:
-- permission:
-    columns:
-    - id
-    - company_id
-    - report_month
-    - minimum_payment
-    filter: {}
-  role: bank_admin
-- permission:
-    columns:
-    - id
-    - company_id
-    - report_month
-    - minimum_payment
-    filter: {}
-  role: bank_read_only
+  - role: bank_admin
+    permission:
+      columns:
+        - id
+        - company_id
+        - report_month
+        - minimum_payment
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+        - id
+        - company_id
+        - report_month
+        - minimum_payment
+      filter: {}
 update_permissions:
-- permission:
-    check: null
-    columns:
-    - id
-    - company_id
-    - report_month
-    - minimum_payment
-    filter: {}
-  role: bank_admin
+  - role: bank_admin
+    permission:
+      columns:
+        - id
+        - company_id
+        - report_month
+        - minimum_payment
+      filter: {}
+      check: null
 delete_permissions:
-- permission:
-    filter: {}
-  role: bank_admin
+  - role: bank_admin
+    permission:
+      filter: {}

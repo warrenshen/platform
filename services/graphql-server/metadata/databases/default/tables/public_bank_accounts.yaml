@@ -1,347 +1,347 @@
 table:
-  name: bank_accounts
   schema: public
+  name: bank_accounts
 object_relationships:
-- name: bank_instructions
-  using:
-    foreign_key_constraint_on: bank_instructions_file_id
-- name: company
-  using:
-    foreign_key_constraint_on: company_id
+  - name: bank_instructions
+    using:
+      foreign_key_constraint_on: bank_instructions_file_id
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
 array_relationships:
-- name: assigned_companies_for_advances_in_settings
-  using:
-    foreign_key_constraint_on:
-      column: advances_bespoke_bank_account_id
-      table:
-        name: company_settings
-        schema: public
-- name: assigned_companies_for_collection_in_settings
-  using:
-    foreign_key_constraint_on:
-      column: collections_bespoke_bank_account_id
-      table:
-        name: company_settings
-        schema: public
+  - name: assigned_companies_for_advances_in_settings
+    using:
+      foreign_key_constraint_on:
+        column: advances_bespoke_bank_account_id
+        table:
+          schema: public
+          name: company_settings
+  - name: assigned_companies_for_collection_in_settings
+    using:
+      foreign_key_constraint_on:
+        column: collections_bespoke_bank_account_id
+        table:
+          schema: public
+          name: company_settings
 insert_permissions:
-- permission:
-    backend_only: false
-    check: {}
-    columns:
-    - account_number
-    - account_title
-    - account_type
-    - ach_default_memo
-    - bank_address
-    - bank_name
-    - can_ach
-    - can_wire
-    - company_id
-    - intermediary_account_name
-    - intermediary_account_number
-    - intermediary_bank_address
-    - intermediary_bank_name
-    - is_cannabis_compliant
-    - is_wire_intermediary
-    - recipient_address
-    - recipient_address_2
-    - recipient_name
-    - routing_number
-    - torrey_pines_template_name
-    - verified_at
-    - verified_date
-    - wire_default_memo
-    - wire_routing_number
-    - wire_template_name
-  role: bank_admin
-- permission:
-    backend_only: false
-    check:
-      company_id:
-        _eq: X-Hasura-Company-Id
-    columns:
-    - account_number
-    - account_title
-    - account_type
-    - ach_default_memo
-    - bank_address
-    - bank_name
-    - can_ach
-    - can_wire
-    - intermediary_account_name
-    - intermediary_account_number
-    - intermediary_bank_address
-    - intermediary_bank_name
-    - is_cannabis_compliant
-    - is_wire_intermediary
-    - recipient_address
-    - recipient_address_2
-    - recipient_name
-    - routing_number
-    - wire_default_memo
-    - wire_routing_number
-    set:
-      company_id: x-hasura-Company-Id
-  role: company_admin
+  - role: bank_admin
+    permission:
+      check: {}
+      columns:
+        - account_number
+        - account_title
+        - account_type
+        - ach_default_memo
+        - bank_address
+        - bank_name
+        - can_ach
+        - can_wire
+        - company_id
+        - intermediary_account_name
+        - intermediary_account_number
+        - intermediary_bank_address
+        - intermediary_bank_name
+        - is_cannabis_compliant
+        - is_wire_intermediary
+        - recipient_address
+        - recipient_address_2
+        - recipient_name
+        - routing_number
+        - torrey_pines_template_name
+        - verified_at
+        - verified_date
+        - wire_default_memo
+        - wire_routing_number
+        - wire_template_name
+      backend_only: false
+  - role: company_admin
+    permission:
+      check:
+        company_id:
+          _eq: X-Hasura-Company-Id
+      set:
+        company_id: x-hasura-Company-Id
+      columns:
+        - account_number
+        - account_title
+        - account_type
+        - ach_default_memo
+        - bank_address
+        - bank_name
+        - can_ach
+        - can_wire
+        - intermediary_account_name
+        - intermediary_account_number
+        - intermediary_bank_address
+        - intermediary_bank_name
+        - is_cannabis_compliant
+        - is_wire_intermediary
+        - recipient_address
+        - recipient_address_2
+        - recipient_name
+        - routing_number
+        - wire_default_memo
+        - wire_routing_number
+      backend_only: false
 select_permissions:
-- permission:
-    columns:
-    - account_number
-    - account_title
-    - account_type
-    - ach_default_memo
-    - bank_address
-    - bank_instructions_file_id
-    - bank_name
-    - can_ach
-    - can_wire
-    - company_id
-    - created_at
-    - id
-    - intermediary_account_name
-    - intermediary_account_number
-    - intermediary_bank_address
-    - intermediary_bank_name
-    - is_cannabis_compliant
-    - is_deleted
-    - is_wire_intermediary
-    - recipient_address
-    - recipient_address_2
-    - recipient_name
-    - routing_number
-    - torrey_pines_template_name
-    - updated_at
-    - verified_at
-    - verified_date
-    - wire_default_memo
-    - wire_routing_number
-    - wire_template_name
-    filter: {}
-  role: bank_admin
-- permission:
-    columns:
-    - account_number
-    - account_title
-    - account_type
-    - ach_default_memo
-    - bank_address
-    - bank_instructions_file_id
-    - bank_name
-    - can_ach
-    - can_wire
-    - company_id
-    - created_at
-    - id
-    - intermediary_account_name
-    - intermediary_account_number
-    - intermediary_bank_address
-    - intermediary_bank_name
-    - is_cannabis_compliant
-    - is_deleted
-    - is_wire_intermediary
-    - recipient_address
-    - recipient_address_2
-    - recipient_name
-    - routing_number
-    - torrey_pines_template_name
-    - updated_at
-    - verified_at
-    - verified_date
-    - wire_default_memo
-    - wire_routing_number
-    - wire_template_name
-    filter: {}
-  role: bank_read_only
-- permission:
-    columns:
-    - account_number
-    - account_title
-    - account_type
-    - ach_default_memo
-    - bank_address
-    - bank_name
-    - can_ach
-    - can_wire
-    - company_id
-    - created_at
-    - id
-    - intermediary_account_name
-    - intermediary_account_number
-    - intermediary_bank_address
-    - intermediary_bank_name
-    - is_cannabis_compliant
-    - is_deleted
-    - is_wire_intermediary
-    - recipient_address
-    - recipient_address_2
-    - recipient_name
-    - routing_number
-    - updated_at
-    - verified_at
-    - verified_date
-    - wire_default_memo
-    - wire_routing_number
-    filter:
-      _or:
-      - company_id:
+  - role: bank_admin
+    permission:
+      columns:
+        - account_number
+        - account_title
+        - account_type
+        - ach_default_memo
+        - bank_address
+        - bank_instructions_file_id
+        - bank_name
+        - can_ach
+        - can_wire
+        - company_id
+        - created_at
+        - id
+        - intermediary_account_name
+        - intermediary_account_number
+        - intermediary_bank_address
+        - intermediary_bank_name
+        - is_cannabis_compliant
+        - is_deleted
+        - is_wire_intermediary
+        - recipient_address
+        - recipient_address_2
+        - recipient_name
+        - routing_number
+        - torrey_pines_template_name
+        - updated_at
+        - verified_at
+        - verified_date
+        - wire_default_memo
+        - wire_routing_number
+        - wire_template_name
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+        - account_number
+        - account_title
+        - account_type
+        - ach_default_memo
+        - bank_address
+        - bank_instructions_file_id
+        - bank_name
+        - can_ach
+        - can_wire
+        - company_id
+        - created_at
+        - id
+        - intermediary_account_name
+        - intermediary_account_number
+        - intermediary_bank_address
+        - intermediary_bank_name
+        - is_cannabis_compliant
+        - is_deleted
+        - is_wire_intermediary
+        - recipient_address
+        - recipient_address_2
+        - recipient_name
+        - routing_number
+        - torrey_pines_template_name
+        - updated_at
+        - verified_at
+        - verified_date
+        - wire_default_memo
+        - wire_routing_number
+        - wire_template_name
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+        - account_number
+        - account_title
+        - account_type
+        - ach_default_memo
+        - bank_address
+        - bank_name
+        - can_ach
+        - can_wire
+        - company_id
+        - created_at
+        - id
+        - intermediary_account_name
+        - intermediary_account_number
+        - intermediary_bank_address
+        - intermediary_bank_name
+        - is_cannabis_compliant
+        - is_deleted
+        - is_wire_intermediary
+        - recipient_address
+        - recipient_address_2
+        - recipient_name
+        - routing_number
+        - updated_at
+        - verified_at
+        - verified_date
+        - wire_default_memo
+        - wire_routing_number
+      filter:
+        _or:
+          - company_id:
+              _eq: X-Hasura-Company-Id
+          - assigned_companies_for_collection_in_settings:
+              company_id:
+                _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+        - account_number
+        - account_title
+        - account_type
+        - ach_default_memo
+        - bank_address
+        - bank_name
+        - can_ach
+        - can_wire
+        - company_id
+        - created_at
+        - id
+        - intermediary_account_name
+        - intermediary_account_number
+        - intermediary_bank_address
+        - intermediary_bank_name
+        - is_cannabis_compliant
+        - is_deleted
+        - is_wire_intermediary
+        - recipient_address
+        - recipient_address_2
+        - recipient_name
+        - routing_number
+        - updated_at
+        - verified_at
+        - verified_date
+        - wire_default_memo
+        - wire_routing_number
+      filter:
+        _or:
+          - company_id:
+              _eq: X-Hasura-Company-Id
+          - assigned_companies_for_collection_in_settings:
+              company_id:
+                _eq: X-Hasura-Company-Id
+  - role: invoice_reviewer
+    permission:
+      columns:
+        - account_number
+        - account_title
+        - account_type
+        - ach_default_memo
+        - bank_address
+        - bank_name
+        - can_ach
+        - can_wire
+        - company_id
+        - id
+        - intermediary_account_name
+        - intermediary_account_number
+        - intermediary_bank_address
+        - intermediary_bank_name
+        - is_cannabis_compliant
+        - is_deleted
+        - is_wire_intermediary
+        - recipient_address
+        - recipient_address_2
+        - recipient_name
+        - routing_number
+        - verified_at
+        - verified_date
+        - wire_default_memo
+        - wire_routing_number
+      filter:
+        assigned_companies_for_collection_in_settings:
+          company:
+            id:
+              _eq: X-Hasura-Company-Id
+  - role: purchase_order_reviewer
+    permission:
+      columns:
+        - account_number
+        - account_title
+        - account_type
+        - ach_default_memo
+        - bank_address
+        - bank_name
+        - can_ach
+        - can_wire
+        - company_id
+        - id
+        - intermediary_account_name
+        - intermediary_account_number
+        - intermediary_bank_address
+        - intermediary_bank_name
+        - is_cannabis_compliant
+        - is_deleted
+        - is_wire_intermediary
+        - recipient_address
+        - recipient_address_2
+        - recipient_name
+        - routing_number
+        - wire_default_memo
+        - wire_routing_number
+      filter:
+        company_id:
           _eq: X-Hasura-Company-Id
-      - assigned_companies_for_collection_in_settings:
-          company_id:
-            _eq: X-Hasura-Company-Id
-  role: company_admin
-- permission:
-    columns:
-    - account_number
-    - account_title
-    - account_type
-    - ach_default_memo
-    - bank_address
-    - bank_name
-    - can_ach
-    - can_wire
-    - company_id
-    - created_at
-    - id
-    - intermediary_account_name
-    - intermediary_account_number
-    - intermediary_bank_address
-    - intermediary_bank_name
-    - is_cannabis_compliant
-    - is_deleted
-    - is_wire_intermediary
-    - recipient_address
-    - recipient_address_2
-    - recipient_name
-    - routing_number
-    - updated_at
-    - verified_at
-    - verified_date
-    - wire_default_memo
-    - wire_routing_number
-    filter:
-      _or:
-      - company_id:
-          _eq: X-Hasura-Company-Id
-      - assigned_companies_for_collection_in_settings:
-          company_id:
-            _eq: X-Hasura-Company-Id
-  role: company_read_only
-- permission:
-    columns:
-    - account_number
-    - account_title
-    - account_type
-    - ach_default_memo
-    - bank_address
-    - bank_name
-    - can_ach
-    - can_wire
-    - company_id
-    - id
-    - intermediary_account_name
-    - intermediary_account_number
-    - intermediary_bank_address
-    - intermediary_bank_name
-    - is_cannabis_compliant
-    - is_deleted
-    - is_wire_intermediary
-    - recipient_address
-    - recipient_address_2
-    - recipient_name
-    - routing_number
-    - verified_at
-    - verified_date
-    - wire_default_memo
-    - wire_routing_number
-    filter:
-      assigned_companies_for_collection_in_settings:
-        company:
-          id:
-            _eq: X-Hasura-Company-Id
-  role: invoice_reviewer
-- permission:
-    columns:
-    - account_number
-    - account_title
-    - account_type
-    - ach_default_memo
-    - bank_address
-    - bank_name
-    - can_ach
-    - can_wire
-    - company_id
-    - id
-    - intermediary_account_name
-    - intermediary_account_number
-    - intermediary_bank_address
-    - intermediary_bank_name
-    - is_cannabis_compliant
-    - is_deleted
-    - is_wire_intermediary
-    - recipient_address
-    - recipient_address_2
-    - recipient_name
-    - routing_number
-    - wire_default_memo
-    - wire_routing_number
-    filter:
-      company_id:
-        _eq: X-Hasura-Company-Id
-  role: purchase_order_reviewer
 update_permissions:
-- permission:
-    check: null
-    columns:
-    - account_number
-    - account_title
-    - account_type
-    - ach_default_memo
-    - bank_address
-    - bank_name
-    - can_ach
-    - can_wire
-    - intermediary_account_name
-    - intermediary_account_number
-    - intermediary_bank_address
-    - intermediary_bank_name
-    - is_cannabis_compliant
-    - is_wire_intermediary
-    - recipient_address
-    - recipient_address_2
-    - recipient_name
-    - routing_number
-    - torrey_pines_template_name
-    - verified_at
-    - verified_date
-    - wire_default_memo
-    - wire_routing_number
-    - wire_template_name
-    filter: {}
-  role: bank_admin
-- permission:
-    check: null
-    columns:
-    - account_number
-    - account_title
-    - account_type
-    - ach_default_memo
-    - bank_address
-    - bank_name
-    - can_ach
-    - can_wire
-    - intermediary_account_name
-    - intermediary_account_number
-    - intermediary_bank_address
-    - intermediary_bank_name
-    - is_cannabis_compliant
-    - is_wire_intermediary
-    - recipient_address
-    - recipient_address_2
-    - recipient_name
-    - routing_number
-    - wire_default_memo
-    - wire_routing_number
-    filter:
-      company_id:
-        _eq: X-Hasura-Company-Id
-  role: company_admin
+  - role: bank_admin
+    permission:
+      columns:
+        - account_number
+        - account_title
+        - account_type
+        - ach_default_memo
+        - bank_address
+        - bank_name
+        - can_ach
+        - can_wire
+        - intermediary_account_name
+        - intermediary_account_number
+        - intermediary_bank_address
+        - intermediary_bank_name
+        - is_cannabis_compliant
+        - is_wire_intermediary
+        - recipient_address
+        - recipient_address_2
+        - recipient_name
+        - routing_number
+        - torrey_pines_template_name
+        - verified_at
+        - verified_date
+        - wire_default_memo
+        - wire_routing_number
+        - wire_template_name
+      filter: {}
+      check: null
+  - role: company_admin
+    permission:
+      columns:
+        - account_number
+        - account_title
+        - account_type
+        - ach_default_memo
+        - bank_address
+        - bank_name
+        - can_ach
+        - can_wire
+        - intermediary_account_name
+        - intermediary_account_number
+        - intermediary_bank_address
+        - intermediary_bank_name
+        - is_cannabis_compliant
+        - is_wire_intermediary
+        - recipient_address
+        - recipient_address_2
+        - recipient_name
+        - routing_number
+        - wire_default_memo
+        - wire_routing_number
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+      check: null

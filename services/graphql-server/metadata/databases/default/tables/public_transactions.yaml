@@ -1,87 +1,87 @@
 table:
-  name: transactions
   schema: public
+  name: transactions
 object_relationships:
-- name: loan
-  using:
-    foreign_key_constraint_on: loan_id
-- name: payment
-  using:
-    foreign_key_constraint_on: payment_id
+  - name: loan
+    using:
+      foreign_key_constraint_on: loan_id
+  - name: payment
+    using:
+      foreign_key_constraint_on: payment_id
 select_permissions:
-- permission:
-    columns:
-    - amount
-    - created_at
-    - created_by_user_id
-    - effective_date
-    - id
-    - is_deleted
-    - loan_id
-    - modified_at
-    - modified_by_user_id
-    - payment_id
-    - subtype
-    - to_fees
-    - to_interest
-    - to_principal
-    - type
-    filter: {}
-  role: bank_admin
-- permission:
-    columns:
-    - amount
-    - created_at
-    - created_by_user_id
-    - effective_date
-    - id
-    - is_deleted
-    - loan_id
-    - modified_at
-    - modified_by_user_id
-    - payment_id
-    - subtype
-    - to_fees
-    - to_interest
-    - to_principal
-    - type
-    filter: {}
-  role: bank_read_only
-- permission:
-    columns:
-    - amount
-    - created_at
-    - effective_date
-    - id
-    - is_deleted
-    - loan_id
-    - payment_id
-    - subtype
-    - to_fees
-    - to_interest
-    - to_principal
-    - type
-    filter:
-      payment:
-        company_id:
-          _eq: X-Hasura-Company-Id
-  role: company_admin
-- permission:
-    columns:
-    - amount
-    - created_at
-    - effective_date
-    - id
-    - is_deleted
-    - loan_id
-    - payment_id
-    - subtype
-    - to_fees
-    - to_interest
-    - to_principal
-    - type
-    filter:
-      payment:
-        company_id:
-          _eq: X-Hasura-Company-Id
-  role: company_read_only
+  - role: bank_admin
+    permission:
+      columns:
+        - amount
+        - created_at
+        - created_by_user_id
+        - effective_date
+        - id
+        - is_deleted
+        - loan_id
+        - modified_at
+        - modified_by_user_id
+        - payment_id
+        - subtype
+        - to_fees
+        - to_interest
+        - to_principal
+        - type
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+        - amount
+        - created_at
+        - created_by_user_id
+        - effective_date
+        - id
+        - is_deleted
+        - loan_id
+        - modified_at
+        - modified_by_user_id
+        - payment_id
+        - subtype
+        - to_fees
+        - to_interest
+        - to_principal
+        - type
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+        - amount
+        - created_at
+        - effective_date
+        - id
+        - is_deleted
+        - loan_id
+        - payment_id
+        - subtype
+        - to_fees
+        - to_interest
+        - to_principal
+        - type
+      filter:
+        payment:
+          company_id:
+            _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+        - amount
+        - created_at
+        - effective_date
+        - id
+        - is_deleted
+        - loan_id
+        - payment_id
+        - subtype
+        - to_fees
+        - to_interest
+        - to_principal
+        - type
+      filter:
+        payment:
+          company_id:
+            _eq: X-Hasura-Company-Id

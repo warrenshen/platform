@@ -1,69 +1,69 @@
 table:
-  name: purchase_order_metrc_transfers
   schema: public
+  name: purchase_order_metrc_transfers
 object_relationships:
-- name: metrc_transfer
-  using:
-    foreign_key_constraint_on: metrc_transfer_id
-- name: purchase_order
-  using:
-    foreign_key_constraint_on: purchase_order_id
+  - name: metrc_transfer
+    using:
+      foreign_key_constraint_on: metrc_transfer_id
+  - name: purchase_order
+    using:
+      foreign_key_constraint_on: purchase_order_id
 select_permissions:
-- permission:
-    columns:
-    - id
-    - purchase_order_id
-    - metrc_transfer_id
-    - created_at
-    - updated_at
-    filter: {}
-  role: bank_admin
-- permission:
-    columns:
-    - created_at
-    - updated_at
-    - id
-    - metrc_transfer_id
-    - purchase_order_id
-    filter: {}
-  role: bank_read_only
-- permission:
-    columns:
-    - created_at
-    - updated_at
-    - id
-    - metrc_transfer_id
-    - purchase_order_id
-    filter:
-      purchase_order:
-        _or:
-        - company_id:
+  - role: bank_admin
+    permission:
+      columns:
+        - id
+        - purchase_order_id
+        - metrc_transfer_id
+        - created_at
+        - updated_at
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+        - created_at
+        - updated_at
+        - id
+        - metrc_transfer_id
+        - purchase_order_id
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+        - created_at
+        - updated_at
+        - id
+        - metrc_transfer_id
+        - purchase_order_id
+      filter:
+        purchase_order:
+          _or:
+            - company_id:
+                _eq: X-Hasura-Company-Id
+            - vendor_id:
+                _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+        - created_at
+        - updated_at
+        - id
+        - metrc_transfer_id
+        - purchase_order_id
+      filter:
+        purchase_order:
+          _or:
+            - company_id:
+                _eq: X-Hasura-Company-Id
+            - vendor_id:
+                _eq: X-Hasura-Company-Id
+  - role: purchase_order_reviewer
+    permission:
+      columns:
+        - id
+        - metrc_transfer_id
+        - purchase_order_id
+      filter:
+        purchase_order:
+          vendor_id:
             _eq: X-Hasura-Company-Id
-        - vendor_id:
-            _eq: X-Hasura-Company-Id
-  role: company_admin
-- permission:
-    columns:
-    - created_at
-    - updated_at
-    - id
-    - metrc_transfer_id
-    - purchase_order_id
-    filter:
-      purchase_order:
-        _or:
-        - company_id:
-            _eq: X-Hasura-Company-Id
-        - vendor_id:
-            _eq: X-Hasura-Company-Id
-  role: company_read_only
-- permission:
-    columns:
-    - id
-    - metrc_transfer_id
-    - purchase_order_id
-    filter:
-      purchase_order:
-        vendor_id:
-          _eq: X-Hasura-Company-Id
-  role: purchase_order_reviewer

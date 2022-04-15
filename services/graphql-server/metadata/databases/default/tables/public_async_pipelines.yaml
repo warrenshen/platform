@@ -1,51 +1,51 @@
 table:
-  name: async_pipelines
   schema: public
+  name: async_pipelines
 select_permissions:
-- permission:
-    columns:
-    - id
-    - name
-    - created_at
-    - updated_at
-    - internal_state
-    - params
-    - status
-    filter: {}
-  role: bank_admin
-- permission:
-    columns:
-    - internal_state
-    - params
-    - name
-    - status
-    - created_at
-    - updated_at
-    - id
-    filter: {}
-  role: bank_read_only
-event_triggers:
-- definition:
-    delete:
-      columns: "*"
-    enable_manual: false
-    insert:
-      columns: "*"
-    update:
+  - role: bank_admin
+    permission:
       columns:
-      - internal_state
-      - params
-      - name
-      - status
-      - created_at
-      - updated_at
-      - id
-  headers:
-  - name: x-api-key
-    value_from_env: ASYNC_SERVER_API_KEY
-  name: async_pipelines_changed
-  retry_conf:
-    interval_sec: 10
-    num_retries: 0
-    timeout_sec: 3600
-  webhook: "{{ASYNC_SERVER_BASE_URL}}/triggers/execute_async_tasks_view"
+        - id
+        - name
+        - created_at
+        - updated_at
+        - internal_state
+        - params
+        - status
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+        - internal_state
+        - params
+        - name
+        - status
+        - created_at
+        - updated_at
+        - id
+      filter: {}
+event_triggers:
+  - name: async_pipelines_changed
+    definition:
+      enable_manual: false
+      insert:
+        columns: '*'
+      delete:
+        columns: '*'
+      update:
+        columns:
+          - internal_state
+          - params
+          - name
+          - status
+          - created_at
+          - updated_at
+          - id
+    retry_conf:
+      num_retries: 0
+      interval_sec: 10
+      timeout_sec: 3600
+    webhook: '{{ASYNC_SERVER_BASE_URL}}/triggers/execute_async_tasks_view'
+    headers:
+      - name: x-api-key
+        value_from_env: ASYNC_SERVER_API_KEY

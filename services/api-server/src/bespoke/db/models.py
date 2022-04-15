@@ -1082,11 +1082,13 @@ class FinancialSummary(Base):
 	__tablename__ = 'financial_summaries'
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
-	date = Column(Date)
 	company_id = Column(GUID, nullable=False)
+	date = Column(Date)
+
 	total_limit = Column(Numeric, nullable=False)
 	total_outstanding_principal = Column(Numeric, nullable=False)
 	total_outstanding_principal_for_interest = Column(Numeric)
+	total_outstanding_principal_past_due = Column(Numeric)
 	total_outstanding_interest = Column(Numeric, nullable=False)
 	total_outstanding_fees = Column(Numeric, nullable=False)
 	total_principal_in_requested_state = Column(Numeric, nullable=False)
@@ -1099,7 +1101,10 @@ class FinancialSummary(Base):
 	account_level_balance_payload = Column(JSON, nullable=False)
 	day_volume_threshold_met = Column(Date)
 	interest_accrued_today = Column(Numeric, nullable=False)
-	product_type = Column(Text, nullable=True)
+
+	product_type = Column(Text)
+	daily_interest_rate = Column(Numeric)
+
 	needs_recompute = Column(Boolean)
 	days_to_compute_back = Column(Integer)
 

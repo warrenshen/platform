@@ -9,16 +9,16 @@
     tolerance_seconds: 21600
     retry_interval_seconds: 10
   headers:
-  - name: x-api-key
-    value_from_env: ASYNC_SERVER_API_KEY
+    - name: x-api-key
+      value_from_env: ASYNC_SERVER_API_KEY
 - name: expire_old_borrowing_base_certifications
   webhook: '{{ASYNC_SERVER_BASE_URL}}/triggers/expire-active-ebba-applications'
   schedule: 15 0 * * *
   include_in_metadata: true
   payload: {}
   headers:
-  - name: x-api-key
-    value_from_env: ASYNC_SERVER_API_KEY
+    - name: x-api-key
+      value_from_env: ASYNC_SERVER_API_KEY
 - name: rerun_failed_metrc_downloads
   webhook: '{{ASYNC_SERVER_BASE_URL}}/triggers/rerun-failed-metrc-downloads'
   schedule: '*/5 * * * *'
@@ -30,8 +30,8 @@
     tolerance_seconds: 21600
     retry_interval_seconds: 10
   headers:
-  - name: x-api-key
-    value_from_env: ASYNC_SERVER_API_KEY
+    - name: x-api-key
+      value_from_env: ASYNC_SERVER_API_KEY
 - name: send_loans_coming_due_reports
   webhook: '{{ASYNC_SERVER_BASE_URL}}/reports/generate_loans_coming_due_reports'
   schedule: 0 0 * * *
@@ -43,8 +43,8 @@
     tolerance_seconds: 21600
     retry_interval_seconds: 10
   headers:
-  - name: x-api-key
-    value_from_env: ASYNC_SERVER_API_KEY
+    - name: x-api-key
+      value_from_env: ASYNC_SERVER_API_KEY
 - name: send_loans_past_due_reports
   webhook: '{{ASYNC_SERVER_BASE_URL}}/reports/generate_loans_past_due_reports'
   schedule: 0 0 * * 1,4
@@ -56,16 +56,16 @@
     tolerance_seconds: 21600
     retry_interval_seconds: 10
   headers:
-  - name: x-api-key
-    value_from_env: ASYNC_SERVER_API_KEY
+    - name: x-api-key
+      value_from_env: ASYNC_SERVER_API_KEY
 - name: update_all_customer_balances
   webhook: '{{ASYNC_SERVER_BASE_URL}}/triggers/update-all-customer-balances'
   schedule: 3 * * * *
   include_in_metadata: true
   payload: {}
   headers:
-  - name: x-api-key
-    value_from_env: ASYNC_SERVER_API_KEY
+    - name: x-api-key
+      value_from_env: ASYNC_SERVER_API_KEY
 - name: update_dirty_customer_balances
   webhook: '{{ASYNC_SERVER_BASE_URL}}/triggers/update-dirty-customer-balances'
   schedule: '* * * * *'
@@ -77,7 +77,6 @@
     tolerance_seconds: 21600
     retry_interval_seconds: 10
   headers:
-  - name: x-api-key
-    value_from_env: ASYNC_SERVER_API_KEY
-  comment: Update the customer balance for every customer with `needs_balance_recomputed`
-    set
+    - name: x-api-key
+      value_from_env: ASYNC_SERVER_API_KEY
+  comment: Update the customer balance for every customer with `needs_balance_recomputed` set

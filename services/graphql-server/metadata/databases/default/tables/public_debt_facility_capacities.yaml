@@ -1,37 +1,37 @@
 table:
-  name: debt_facility_capacities
   schema: public
+  name: debt_facility_capacities
 object_relationships:
-- name: debt_facility
-  using:
-    manual_configuration:
-      column_mapping:
-        debt_facility_id: id
-      insertion_order: null
-      remote_table:
-        name: debt_facilities
-        schema: public
-- name: user
-  using:
-    foreign_key_constraint_on: changed_by
+  - name: debt_facility
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: debt_facilities
+        insertion_order: null
+        column_mapping:
+          debt_facility_id: id
+  - name: user
+    using:
+      foreign_key_constraint_on: changed_by
 select_permissions:
-- permission:
-    columns:
-    - amount
-    - capacity_type
-    - changed_at
-    - changed_by
-    - debt_facility_id
-    - id
-    filter: {}
-  role: bank_admin
-- permission:
-    columns:
-    - amount
-    - capacity_type
-    - changed_at
-    - changed_by
-    - debt_facility_id
-    - id
-    filter: {}
-  role: bank_read_only
+  - role: bank_admin
+    permission:
+      columns:
+        - amount
+        - capacity_type
+        - changed_at
+        - changed_by
+        - debt_facility_id
+        - id
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+        - amount
+        - capacity_type
+        - changed_at
+        - changed_by
+        - debt_facility_id
+        - id
+      filter: {}

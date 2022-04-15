@@ -1,106 +1,106 @@
 table:
-  name: company_deliveries
   schema: public
+  name: company_deliveries
 object_relationships:
-- name: company
-  using:
-    foreign_key_constraint_on: company_id
-- name: metrc_delivery
-  using:
-    foreign_key_constraint_on: delivery_row_id
-- name: metrc_transfer
-  using:
-    foreign_key_constraint_on: transfer_row_id
-- name: payor
-  using:
-    manual_configuration:
-      column_mapping:
-        payor_id: id
-      insertion_order: null
-      remote_table:
-        name: payors
-        schema: public
-- name: vendor
-  using:
-    manual_configuration:
-      column_mapping:
-        vendor_id: id
-      insertion_order: null
-      remote_table:
-        name: vendors
-        schema: public
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  - name: metrc_delivery
+    using:
+      foreign_key_constraint_on: delivery_row_id
+  - name: metrc_transfer
+    using:
+      foreign_key_constraint_on: transfer_row_id
+  - name: payor
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: payors
+        insertion_order: null
+        column_mapping:
+          payor_id: id
+  - name: vendor
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: vendors
+        insertion_order: null
+        column_mapping:
+          vendor_id: id
 select_permissions:
-- permission:
-    columns:
-    - id
-    - company_id
-    - license_number
-    - us_state
-    - vendor_id
-    - payor_id
-    - transfer_row_id
-    - transfer_type
-    - delivery_row_id
-    - delivery_type
-    - created_at
-    - updated_at
-    filter: {}
-  role: bank_admin
-- permission:
-    columns:
-    - delivery_type
-    - license_number
-    - transfer_type
-    - us_state
-    - created_at
-    - updated_at
-    - company_id
-    - delivery_row_id
-    - id
-    - payor_id
-    - transfer_row_id
-    - vendor_id
-    filter: {}
-  role: bank_read_only
-- permission:
-    columns:
-    - id
-    - company_id
-    - license_number
-    - us_state
-    - vendor_id
-    - payor_id
-    - transfer_row_id
-    - transfer_type
-    - delivery_row_id
-    - delivery_type
-    - created_at
-    - updated_at
-    filter:
-      _or:
-      - company_id:
-          _eq: X-Hasura-Company-Id
-      - vendor_id:
-          _eq: X-Hasura-Company-Id
-  role: company_admin
-- permission:
-    columns:
-    - delivery_type
-    - license_number
-    - transfer_type
-    - us_state
-    - created_at
-    - updated_at
-    - company_id
-    - delivery_row_id
-    - id
-    - payor_id
-    - transfer_row_id
-    - vendor_id
-    filter:
-      _or:
-      - company_id:
-          _eq: X-Hasura-Company-Id
-      - vendor_id:
-          _eq: X-Hasura-Company-Id
-  role: company_read_only
+  - role: bank_admin
+    permission:
+      columns:
+        - id
+        - company_id
+        - license_number
+        - us_state
+        - vendor_id
+        - payor_id
+        - transfer_row_id
+        - transfer_type
+        - delivery_row_id
+        - delivery_type
+        - created_at
+        - updated_at
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+        - delivery_type
+        - license_number
+        - transfer_type
+        - us_state
+        - created_at
+        - updated_at
+        - company_id
+        - delivery_row_id
+        - id
+        - payor_id
+        - transfer_row_id
+        - vendor_id
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+        - id
+        - company_id
+        - license_number
+        - us_state
+        - vendor_id
+        - payor_id
+        - transfer_row_id
+        - transfer_type
+        - delivery_row_id
+        - delivery_type
+        - created_at
+        - updated_at
+      filter:
+        _or:
+          - company_id:
+              _eq: X-Hasura-Company-Id
+          - vendor_id:
+              _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+        - delivery_type
+        - license_number
+        - transfer_type
+        - us_state
+        - created_at
+        - updated_at
+        - company_id
+        - delivery_row_id
+        - id
+        - payor_id
+        - transfer_row_id
+        - vendor_id
+      filter:
+        _or:
+          - company_id:
+              _eq: X-Hasura-Company-Id
+          - vendor_id:
+              _eq: X-Hasura-Company-Id

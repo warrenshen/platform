@@ -1,153 +1,153 @@
 table:
-  name: files
   schema: public
+  name: files
 object_relationships:
-- name: company
-  using:
-    foreign_key_constraint_on: company_id
-- name: created_by
-  using:
-    foreign_key_constraint_on: created_by_user_id
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  - name: created_by
+    using:
+      foreign_key_constraint_on: created_by_user_id
 array_relationships:
-- name: company_licenses
-  using:
-    foreign_key_constraint_on:
-      column: file_id
-      table:
-        name: company_licenses
-        schema: public
-- name: invoice_files
-  using:
-    foreign_key_constraint_on:
-      column: file_id
-      table:
-        name: invoice_files
-        schema: public
-- name: purchase_order_files
-  using:
-    foreign_key_constraint_on:
-      column: file_id
-      table:
-        name: purchase_order_files
-        schema: public
+  - name: company_licenses
+    using:
+      foreign_key_constraint_on:
+        column: file_id
+        table:
+          schema: public
+          name: company_licenses
+  - name: invoice_files
+    using:
+      foreign_key_constraint_on:
+        column: file_id
+        table:
+          schema: public
+          name: invoice_files
+  - name: purchase_order_files
+    using:
+      foreign_key_constraint_on:
+        column: file_id
+        table:
+          schema: public
+          name: purchase_order_files
 select_permissions:
-- permission:
-    columns:
-    - sequential_id
-    - size
-    - extension
-    - mime_type
-    - name
-    - path
-    - created_at
-    - updated_at
-    - company_id
-    - created_by_user_id
-    - id
-    filter: {}
-  role: bank_admin
-- permission:
-    columns:
-    - id
-    - sequential_id
-    - company_id
-    - name
-    - path
-    - extension
-    - size
-    - mime_type
-    - created_by_user_id
-    - created_at
-    - updated_at
-    filter: {}
-  role: bank_read_only
-- permission:
-    columns:
-    - id
-    - sequential_id
-    - company_id
-    - name
-    - path
-    - extension
-    - size
-    - mime_type
-    - created_by_user_id
-    - created_at
-    - updated_at
-    filter:
-      _or:
-      - purchase_order_files:
+  - role: bank_admin
+    permission:
+      columns:
+        - sequential_id
+        - size
+        - extension
+        - mime_type
+        - name
+        - path
+        - created_at
+        - updated_at
+        - company_id
+        - created_by_user_id
+        - id
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+        - id
+        - sequential_id
+        - company_id
+        - name
+        - path
+        - extension
+        - size
+        - mime_type
+        - created_by_user_id
+        - created_at
+        - updated_at
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+        - id
+        - sequential_id
+        - company_id
+        - name
+        - path
+        - extension
+        - size
+        - mime_type
+        - created_by_user_id
+        - created_at
+        - updated_at
+      filter:
+        _or:
+          - purchase_order_files:
+              purchase_order:
+                _or:
+                  - company_id:
+                      _eq: X-Hasura-Company-Id
+                  - vendor_id:
+                      _eq: X-Hasura-Company-Id
+          - company_licenses:
+              company_id:
+                _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+        - sequential_id
+        - size
+        - extension
+        - mime_type
+        - name
+        - path
+        - created_at
+        - updated_at
+        - company_id
+        - created_by_user_id
+        - id
+      filter:
+        _or:
+          - purchase_order_files:
+              purchase_order:
+                _or:
+                  - company_id:
+                      _eq: X-Hasura-Company-Id
+                  - vendor_id:
+                      _eq: X-Hasura-Company-Id
+          - company_licenses:
+              company_id:
+                _eq: X-Hasura-Company-Id
+  - role: invoice_reviewer
+    permission:
+      columns:
+        - id
+        - sequential_id
+        - company_id
+        - name
+        - path
+        - extension
+        - size
+        - mime_type
+        - created_by_user_id
+        - created_at
+        - updated_at
+      filter:
+        invoice_files:
+          invoice:
+            payor_id:
+              _eq: X-Hasura-Company-Id
+  - role: purchase_order_reviewer
+    permission:
+      columns:
+        - company_id
+        - created_at
+        - created_by_user_id
+        - extension
+        - id
+        - mime_type
+        - name
+        - path
+        - sequential_id
+        - size
+        - updated_at
+      filter:
+        purchase_order_files:
           purchase_order:
-            _or:
-            - company_id:
-                _eq: X-Hasura-Company-Id
-            - vendor_id:
-                _eq: X-Hasura-Company-Id
-      - company_licenses:
-          company_id:
-            _eq: X-Hasura-Company-Id
-  role: company_admin
-- permission:
-    columns:
-    - sequential_id
-    - size
-    - extension
-    - mime_type
-    - name
-    - path
-    - created_at
-    - updated_at
-    - company_id
-    - created_by_user_id
-    - id
-    filter:
-      _or:
-      - purchase_order_files:
-          purchase_order:
-            _or:
-            - company_id:
-                _eq: X-Hasura-Company-Id
-            - vendor_id:
-                _eq: X-Hasura-Company-Id
-      - company_licenses:
-          company_id:
-            _eq: X-Hasura-Company-Id
-  role: company_read_only
-- permission:
-    columns:
-    - id
-    - sequential_id
-    - company_id
-    - name
-    - path
-    - extension
-    - size
-    - mime_type
-    - created_by_user_id
-    - created_at
-    - updated_at
-    filter:
-      invoice_files:
-        invoice:
-          payor_id:
-            _eq: X-Hasura-Company-Id
-  role: invoice_reviewer
-- permission:
-    columns:
-    - company_id
-    - created_at
-    - created_by_user_id
-    - extension
-    - id
-    - mime_type
-    - name
-    - path
-    - sequential_id
-    - size
-    - updated_at
-    filter:
-      purchase_order_files:
-        purchase_order:
-          vendor_id:
-            _eq: X-Hasura-Company-Id
-  role: purchase_order_reviewer
+            vendor_id:
+              _eq: X-Hasura-Company-Id

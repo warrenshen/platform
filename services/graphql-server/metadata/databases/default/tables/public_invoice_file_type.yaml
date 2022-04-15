@@ -1,4 +1,4 @@
 table:
-  name: invoice_file_type
   schema: public
+  name: invoice_file_type
 is_enum: true

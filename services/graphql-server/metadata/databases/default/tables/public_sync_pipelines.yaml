@@ -1,50 +1,50 @@
 table:
-  name: sync_pipelines
   schema: public
+  name: sync_pipelines
 insert_permissions:
-- permission:
-    check: {}
-    columns:
-    - internal_state
-    - params
-    - name
-    - status
-    - created_at
-    - updated_at
-  role: bank_admin
+  - role: bank_admin
+    permission:
+      check: {}
+      columns:
+        - internal_state
+        - params
+        - name
+        - status
+        - created_at
+        - updated_at
 select_permissions:
-- permission:
-    columns:
-    - internal_state
-    - params
-    - name
-    - status
-    - created_at
-    - updated_at
-    - id
-    filter: {}
-  role: bank_admin
-- permission:
-    columns:
-    - internal_state
-    - params
-    - name
-    - status
-    - created_at
-    - updated_at
-    - id
-    filter: {}
-  role: bank_read_only
+  - role: bank_admin
+    permission:
+      columns:
+        - internal_state
+        - params
+        - name
+        - status
+        - created_at
+        - updated_at
+        - id
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+        - internal_state
+        - params
+        - name
+        - status
+        - created_at
+        - updated_at
+        - id
+      filter: {}
 update_permissions:
-- permission:
-    check: null
-    columns:
-    - internal_state
-    - params
-    - name
-    - status
-    - created_at
-    - updated_at
-    - id
-    filter: {}
-  role: bank_admin
+  - role: bank_admin
+    permission:
+      columns:
+        - internal_state
+        - params
+        - name
+        - status
+        - created_at
+        - updated_at
+        - id
+      filter: {}
+      check: null

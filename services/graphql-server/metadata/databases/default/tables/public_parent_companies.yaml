@@ -1,57 +1,57 @@
 table:
-  name: parent_companies
   schema: public
+  name: parent_companies
 array_relationships:
-- name: companies
-  using:
-    foreign_key_constraint_on:
-      column: parent_company_id
-      table:
-        name: companies
-        schema: public
-- name: users
-  using:
-    foreign_key_constraint_on:
-      column: parent_company_id
-      table:
-        name: users
-        schema: public
+  - name: companies
+    using:
+      foreign_key_constraint_on:
+        column: parent_company_id
+        table:
+          schema: public
+          name: companies
+  - name: users
+    using:
+      foreign_key_constraint_on:
+        column: parent_company_id
+        table:
+          schema: public
+          name: users
 select_permissions:
-- permission:
-    columns:
-    - id
-    - created_at
-    - updated_at
-    - name
-    filter: {}
-  role: bank_admin
-- permission:
-    columns:
-    - name
-    - created_at
-    - updated_at
-    - id
-    filter: {}
-  role: bank_read_only
-- permission:
-    columns:
-    - name
-    - created_at
-    - updated_at
-    - id
-    filter:
-      companies:
-        id:
-          _eq: X-Hasura-Company-Id
-  role: company_admin
-- permission:
-    columns:
-    - name
-    - created_at
-    - updated_at
-    - id
-    filter:
-      companies:
-        id:
-          _eq: X-Hasura-Company-Id
-  role: company_read_only
+  - role: bank_admin
+    permission:
+      columns:
+        - id
+        - created_at
+        - updated_at
+        - name
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+        - name
+        - created_at
+        - updated_at
+        - id
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+        - name
+        - created_at
+        - updated_at
+        - id
+      filter:
+        companies:
+          id:
+            _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+        - name
+        - created_at
+        - updated_at
+        - id
+      filter:
+        companies:
+          id:
+            _eq: X-Hasura-Company-Id

@@ -1,4 +1,4 @@
 table:
-  name: loan_type
   schema: public
+  name: loan_type
 is_enum: true

@@ -1,56 +1,56 @@
 table:
-  name: metrc_sales_receipts
   schema: public
+  name: metrc_sales_receipts
 object_relationships:
-- name: company
-  using:
-    foreign_key_constraint_on: company_id
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
 array_relationships:
-- name: metrc_sales_transactions
-  using:
-    foreign_key_constraint_on:
-      column: receipt_row_id
-      table:
-        name: metrc_sales_transactions
-        schema: public
+  - name: metrc_sales_transactions
+    using:
+      foreign_key_constraint_on:
+        column: receipt_row_id
+        table:
+          schema: public
+          name: metrc_sales_transactions
 select_permissions:
-- permission:
-    columns:
-    - company_id
-    - created_at
-    - id
-    - is_final
-    - last_modified_at
-    - license_number
-    - payload
-    - receipt_id
-    - receipt_number
-    - sales_customer_type
-    - sales_datetime
-    - total_packages
-    - total_price
-    - type
-    - updated_at
-    - us_state
-    filter: {}
-  role: bank_admin
-- permission:
-    columns:
-    - company_id
-    - created_at
-    - id
-    - is_final
-    - last_modified_at
-    - license_number
-    - payload
-    - receipt_id
-    - receipt_number
-    - sales_customer_type
-    - sales_datetime
-    - total_packages
-    - total_price
-    - type
-    - updated_at
-    - us_state
-    filter: {}
-  role: bank_read_only
+  - role: bank_admin
+    permission:
+      columns:
+        - company_id
+        - created_at
+        - id
+        - is_final
+        - last_modified_at
+        - license_number
+        - payload
+        - receipt_id
+        - receipt_number
+        - sales_customer_type
+        - sales_datetime
+        - total_packages
+        - total_price
+        - type
+        - updated_at
+        - us_state
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+        - company_id
+        - created_at
+        - id
+        - is_final
+        - last_modified_at
+        - license_number
+        - payload
+        - receipt_id
+        - receipt_number
+        - sales_customer_type
+        - sales_datetime
+        - total_packages
+        - total_price
+        - type
+        - updated_at
+        - us_state
+      filter: {}

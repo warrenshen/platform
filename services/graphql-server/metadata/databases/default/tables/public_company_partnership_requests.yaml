@@ -1,47 +1,47 @@
 table:
-  name: company_partnership_requests
   schema: public
+  name: company_partnership_requests
 object_relationships:
-- name: requested_by_user
-  using:
-    foreign_key_constraint_on: requested_by_user_id
-- name: requesting_company
-  using:
-    foreign_key_constraint_on: requesting_company_id
+  - name: requested_by_user
+    using:
+      foreign_key_constraint_on: requested_by_user_id
+  - name: requesting_company
+    using:
+      foreign_key_constraint_on: requesting_company_id
 select_permissions:
-- permission:
-    columns:
-    - company_name
-    - company_type
-    - created_at
-    - id
-    - is_cannabis
-    - is_deleted
-    - license_info
-    - request_info
-    - requested_by_user_id
-    - requesting_company_id
-    - settled_at
-    - settled_by_user_id
-    - two_factor_message_method
-    - user_info
-    filter: {}
-  role: bank_admin
-- permission:
-    columns:
-    - company_name
-    - company_type
-    - created_at
-    - id
-    - is_cannabis
-    - is_deleted
-    - license_info
-    - request_info
-    - requested_by_user_id
-    - requesting_company_id
-    - settled_at
-    - settled_by_user_id
-    - two_factor_message_method
-    - user_info
-    filter: {}
-  role: bank_read_only
+  - role: bank_admin
+    permission:
+      columns:
+        - company_name
+        - company_type
+        - created_at
+        - id
+        - is_cannabis
+        - is_deleted
+        - license_info
+        - request_info
+        - requested_by_user_id
+        - requesting_company_id
+        - settled_at
+        - settled_by_user_id
+        - two_factor_message_method
+        - user_info
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+        - company_name
+        - company_type
+        - created_at
+        - id
+        - is_cannabis
+        - is_deleted
+        - license_info
+        - request_info
+        - requested_by_user_id
+        - requesting_company_id
+        - settled_at
+        - settled_by_user_id
+        - two_factor_message_method
+        - user_info
+      filter: {}

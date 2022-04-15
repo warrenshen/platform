@@ -1,38 +1,38 @@
 table:
-  name: debt_facility_events
   schema: public
+  name: debt_facility_events
 select_permissions:
-- permission:
-    columns:
-    - company_id
-    - event_amount
-    - event_category
-    - event_comments
-    - event_date
-    - event_payload
-    - id
-    - loan_report_id
-    filter: {}
-  role: bank_admin
-- permission:
-    columns:
-    - company_id
-    - event_amount
-    - event_category
-    - event_comments
-    - event_date
-    - event_payload
-    - id
-    - loan_report_id
-    filter: {}
-  role: bank_read_only
+  - role: bank_admin
+    permission:
+      columns:
+        - company_id
+        - event_amount
+        - event_category
+        - event_comments
+        - event_date
+        - event_payload
+        - id
+        - loan_report_id
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+        - company_id
+        - event_amount
+        - event_category
+        - event_comments
+        - event_date
+        - event_payload
+        - id
+        - loan_report_id
+      filter: {}
 update_permissions:
-- permission:
-    check: null
-    columns:
-    - event_amount
-    - event_comments
-    - event_date
-    - loan_report_id
-    filter: {}
-  role: bank_admin
+  - role: bank_admin
+    permission:
+      columns:
+        - event_amount
+        - event_comments
+        - event_date
+        - loan_report_id
+      filter: {}
+      check: null

@@ -1,36 +1,36 @@
 table:
-  name: metrc_plant_batches
   schema: public
+  name: metrc_plant_batches
 object_relationships:
-- name: company
-  using:
-    foreign_key_constraint_on: company_id
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
 select_permissions:
-- permission:
-    columns:
-    - company_id
-    - id
-    - last_modified_at
-    - license_number
-    - name
-    - payload
-    - plant_batch_id
-    - planted_date
-    - type
-    - us_state
-    filter: {}
-  role: bank_admin
-- permission:
-    columns:
-    - company_id
-    - id
-    - last_modified_at
-    - license_number
-    - name
-    - payload
-    - plant_batch_id
-    - planted_date
-    - type
-    - us_state
-    filter: {}
-  role: bank_read_only
+  - role: bank_admin
+    permission:
+      columns:
+        - company_id
+        - id
+        - last_modified_at
+        - license_number
+        - name
+        - payload
+        - plant_batch_id
+        - planted_date
+        - type
+        - us_state
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+        - company_id
+        - id
+        - last_modified_at
+        - license_number
+        - name
+        - payload
+        - plant_batch_id
+        - planted_date
+        - type
+        - us_state
+      filter: {}

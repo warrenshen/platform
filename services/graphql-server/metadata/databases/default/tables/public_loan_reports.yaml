@@ -1,45 +1,45 @@
 table:
-  name: loan_reports
   schema: public
+  name: loan_reports
 object_relationships:
-- name: debt_facility
-  using:
-    foreign_key_constraint_on: debt_facility_id
-- name: loan
-  using:
-    manual_configuration:
-      column_mapping:
-        id: loan_report_id
-      insertion_order: null
-      remote_table:
-        name: loans
-        schema: public
+  - name: debt_facility
+    using:
+      foreign_key_constraint_on: debt_facility_id
+  - name: loan
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: loans
+        insertion_order: null
+        column_mapping:
+          id: loan_report_id
 select_permissions:
-- permission:
-    columns:
-    - debt_facility_added_date
-    - debt_facility_id
-    - debt_facility_status
-    - financing_day_limit
-    - financing_period
-    - id
-    - repayment_date
-    - total_fees_paid
-    - total_interest_paid
-    - total_principal_paid
-    filter: {}
-  role: bank_admin
-- permission:
-    columns:
-    - debt_facility_added_date
-    - debt_facility_id
-    - debt_facility_status
-    - financing_day_limit
-    - financing_period
-    - id
-    - repayment_date
-    - total_fees_paid
-    - total_interest_paid
-    - total_principal_paid
-    filter: {}
-  role: bank_read_only
+  - role: bank_admin
+    permission:
+      columns:
+        - debt_facility_added_date
+        - debt_facility_id
+        - debt_facility_status
+        - financing_day_limit
+        - financing_period
+        - id
+        - repayment_date
+        - total_fees_paid
+        - total_interest_paid
+        - total_principal_paid
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+        - debt_facility_added_date
+        - debt_facility_id
+        - debt_facility_status
+        - financing_day_limit
+        - financing_period
+        - id
+        - repayment_date
+        - total_fees_paid
+        - total_interest_paid
+        - total_principal_paid
+      filter: {}

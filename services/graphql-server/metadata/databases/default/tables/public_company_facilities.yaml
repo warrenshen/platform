@@ -1,52 +1,52 @@
 table:
-  name: company_facilities
   schema: public
+  name: company_facilities
 select_permissions:
-- permission:
-    columns:
-    - id
-    - company_id
-    - name
-    - address
-    - created_at
-    - updated_at
-    - is_deleted
-    filter: {}
-  role: bank_admin
-- permission:
-    columns:
-    - is_deleted
-    - address
-    - name
-    - created_at
-    - updated_at
-    - company_id
-    - id
-    filter: {}
-  role: bank_read_only
-- permission:
-    columns:
-    - is_deleted
-    - address
-    - name
-    - created_at
-    - updated_at
-    - company_id
-    - id
-    filter:
-      company_id:
-        _eq: X-Hasura-Company-Id
-  role: company_admin
-- permission:
-    columns:
-    - is_deleted
-    - address
-    - name
-    - created_at
-    - updated_at
-    - company_id
-    - id
-    filter:
-      company_id:
-        _eq: X-Hasura-Company-Id
-  role: company_read_only
+  - role: bank_admin
+    permission:
+      columns:
+        - id
+        - company_id
+        - name
+        - address
+        - created_at
+        - updated_at
+        - is_deleted
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+        - is_deleted
+        - address
+        - name
+        - created_at
+        - updated_at
+        - company_id
+        - id
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+        - is_deleted
+        - address
+        - name
+        - created_at
+        - updated_at
+        - company_id
+        - id
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+        - is_deleted
+        - address
+        - name
+        - created_at
+        - updated_at
+        - company_id
+        - id
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id

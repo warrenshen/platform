@@ -1,127 +1,127 @@
 table:
-  name: metrc_deliveries
   schema: public
+  name: metrc_deliveries
 object_relationships:
-- name: metrc_transfer
-  using:
-    foreign_key_constraint_on: transfer_row_id
+  - name: metrc_transfer
+    using:
+      foreign_key_constraint_on: transfer_row_id
 array_relationships:
-- name: company_deliveries
-  using:
-    foreign_key_constraint_on:
-      column: delivery_row_id
-      table:
-        name: company_deliveries
-        schema: public
-- name: metrc_transfer_packages
-  using:
-    foreign_key_constraint_on:
-      column: delivery_row_id
-      table:
-        name: metrc_transfer_packages
-        schema: public
+  - name: company_deliveries
+    using:
+      foreign_key_constraint_on:
+        column: delivery_row_id
+        table:
+          schema: public
+          name: company_deliveries
+  - name: metrc_transfer_packages
+    using:
+      foreign_key_constraint_on:
+        column: delivery_row_id
+        table:
+          schema: public
+          name: metrc_transfer_packages
 select_permissions:
-- permission:
-    columns:
-    - created_at
-    - delivery_id
-    - delivery_payload
-    - delivery_type
-    - id
-    - received_datetime
-    - recipient_facility_license_number
-    - recipient_facility_name
-    - shipment_transaction_type
-    - shipment_type_name
-    - transfer_row_id
-    - updated_at
-    - us_state
-    filter: {}
-  role: bank_admin
-- permission:
-    columns:
-    - created_at
-    - delivery_id
-    - delivery_payload
-    - delivery_type
-    - id
-    - received_datetime
-    - recipient_facility_license_number
-    - recipient_facility_name
-    - shipment_transaction_type
-    - shipment_type_name
-    - transfer_row_id
-    - updated_at
-    - us_state
-    filter: {}
-  role: bank_read_only
-- permission:
-    columns:
-    - created_at
-    - delivery_id
-    - delivery_payload
-    - delivery_type
-    - id
-    - received_datetime
-    - recipient_facility_license_number
-    - recipient_facility_name
-    - shipment_transaction_type
-    - shipment_type_name
-    - transfer_row_id
-    - updated_at
-    - us_state
-    filter:
-      _or:
-      - company_deliveries:
-          company_id:
-            _eq: X-Hasura-Company-Id
-      - company_deliveries:
-          vendor_id:
-            _eq: X-Hasura-Company-Id
-  role: company_admin
-- permission:
-    columns:
-    - created_at
-    - delivery_id
-    - delivery_payload
-    - delivery_type
-    - id
-    - received_datetime
-    - recipient_facility_license_number
-    - recipient_facility_name
-    - shipment_transaction_type
-    - shipment_type_name
-    - transfer_row_id
-    - updated_at
-    - us_state
-    filter:
-      _or:
-      - company_deliveries:
-          company_id:
-            _eq: X-Hasura-Company-Id
-      - company_deliveries:
-          vendor_id:
-            _eq: X-Hasura-Company-Id
-  role: company_read_only
-- permission:
-    columns:
-    - delivery_id
-    - delivery_payload
-    - delivery_type
-    - id
-    - received_datetime
-    - recipient_facility_license_number
-    - recipient_facility_name
-    - shipment_transaction_type
-    - shipment_type_name
-    - transfer_row_id
-    - us_state
-    filter:
-      _or:
-      - company_deliveries:
-          company_id:
-            _eq: X-Hasura-Company-Id
-      - company_deliveries:
-          vendor_id:
-            _eq: X-Hasura-Company-Id
-  role: purchase_order_reviewer
+  - role: bank_admin
+    permission:
+      columns:
+        - created_at
+        - delivery_id
+        - delivery_payload
+        - delivery_type
+        - id
+        - received_datetime
+        - recipient_facility_license_number
+        - recipient_facility_name
+        - shipment_transaction_type
+        - shipment_type_name
+        - transfer_row_id
+        - updated_at
+        - us_state
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+        - created_at
+        - delivery_id
+        - delivery_payload
+        - delivery_type
+        - id
+        - received_datetime
+        - recipient_facility_license_number
+        - recipient_facility_name
+        - shipment_transaction_type
+        - shipment_type_name
+        - transfer_row_id
+        - updated_at
+        - us_state
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+        - created_at
+        - delivery_id
+        - delivery_payload
+        - delivery_type
+        - id
+        - received_datetime
+        - recipient_facility_license_number
+        - recipient_facility_name
+        - shipment_transaction_type
+        - shipment_type_name
+        - transfer_row_id
+        - updated_at
+        - us_state
+      filter:
+        _or:
+          - company_deliveries:
+              company_id:
+                _eq: X-Hasura-Company-Id
+          - company_deliveries:
+              vendor_id:
+                _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+        - created_at
+        - delivery_id
+        - delivery_payload
+        - delivery_type
+        - id
+        - received_datetime
+        - recipient_facility_license_number
+        - recipient_facility_name
+        - shipment_transaction_type
+        - shipment_type_name
+        - transfer_row_id
+        - updated_at
+        - us_state
+      filter:
+        _or:
+          - company_deliveries:
+              company_id:
+                _eq: X-Hasura-Company-Id
+          - company_deliveries:
+              vendor_id:
+                _eq: X-Hasura-Company-Id
+  - role: purchase_order_reviewer
+    permission:
+      columns:
+        - delivery_id
+        - delivery_payload
+        - delivery_type
+        - id
+        - received_datetime
+        - recipient_facility_license_number
+        - recipient_facility_name
+        - shipment_transaction_type
+        - shipment_type_name
+        - transfer_row_id
+        - us_state
+      filter:
+        _or:
+          - company_deliveries:
+              company_id:
+                _eq: X-Hasura-Company-Id
+          - company_deliveries:
+              vendor_id:
+                _eq: X-Hasura-Company-Id

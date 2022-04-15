@@ -1,10 +1,10 @@
 table:
-  name: metrc_analysis_summaries
   schema: public
+  name: metrc_analysis_summaries
 object_relationships:
-- name: company
-  using:
-    foreign_key_constraint_on: company_id
-- name: company_facility
-  using:
-    foreign_key_constraint_on: facility_row_id
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  - name: company_facility
+    using:
+      foreign_key_constraint_on: facility_row_id
