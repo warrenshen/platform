@@ -173,6 +173,7 @@ fragment FinancialSummary on financial_summaries {
   company_id
   date
   product_type
+  daily_interest_rate
   available_limit
   adjusted_total_limit
   total_outstanding_principal

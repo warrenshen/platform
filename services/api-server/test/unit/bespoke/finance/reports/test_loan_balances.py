@@ -7,13 +7,12 @@ from typing import Any, Callable, Dict, List, cast
 
 import pytz
 from bespoke.date import date_util
-from bespoke.db import db_constants, model_types, models
+from bespoke.db import db_constants, models
 from bespoke.db.db_constants import ProductType
 from bespoke.db.models import session_scope
 from bespoke.finance import financial_summary_util, number_util
 from bespoke.finance.loans import reports_util
-from bespoke.finance.payments import (payment_util, repayment_util,
-                                      repayment_util_fees)
+from bespoke.finance.payments import (payment_util, repayment_util_fees)
 from bespoke.finance.reports import loan_balances
 from bespoke.finance.types import payment_types
 from bespoke_test.contract import contract_test_helper
@@ -117,6 +116,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				actual = cast(Dict, customer_update['summary_update'])
 
 				self.assertEqual(expected['product_type'], actual['product_type'])
+				self.assertEqual(expected['daily_interest_rate'], actual['daily_interest_rate'])
+
 				self.assertAlmostEqual(expected['total_limit'], number_util.round_currency(actual['total_limit']))
 				self.assertAlmostEqual(expected['adjusted_total_limit'], number_util.round_currency(actual['adjusted_total_limit']))
 				self.assertAlmostEqual(expected['available_limit'], number_util.round_currency(actual['available_limit']))
@@ -166,13 +167,16 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				loan = loans[i]
 				expected_loan = test['expected_loan_updates'][i]
 				self.assertAlmostEqual(expected_loan['outstanding_principal'], float(loan.outstanding_principal_balance))
-				
+
 			with session_scope(self.session_maker) as session:
 				financial_summary = financial_summary_util.get_latest_financial_summary(company_id, session)
 
 				if test.get('expected_summary_update') is not None:
 					self.assertIsNotNone(financial_summary)
 					expected = test['expected_summary_update']
+
+					self.assertEqual(expected['product_type'], actual['product_type'])
+					self.assertEqual(expected['daily_interest_rate'], actual['daily_interest_rate'])
 
 					self.assertAlmostEqual(expected['total_limit'], float(financial_summary.total_limit))
 					self.assertAlmostEqual(expected['total_outstanding_principal'], float(financial_summary.total_outstanding_principal))
@@ -226,6 +230,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				'populate_fn': populate_fn,
 				'expected_summary_update': {
 					'product_type': 'inventory_financing',
+					'daily_interest_rate': 0.05,
 					'total_limit': 120000.01,
 					'adjusted_total_limit': 120000.01,
 					'total_outstanding_principal': 0.0,
@@ -246,8 +251,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 							'fees_total': 0.0,
 							'credits_total': 0.0
 					},
-					'day_volume_threshold_met': None
-				}
+					'day_volume_threshold_met': None,
+				},
 			}
 		]
 		for test in tests:
@@ -269,9 +274,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						late_fee_structure=_get_late_fee_structure(), # unused
 					)
 				),
-				# contract starts only a few days before the report date, 
+				# contract starts only a few days before the report date,
 				# tests that -14 days back doesnt cause a bug
-				start_date=date_util.load_date_str('09/28/2020'), 
+				start_date=date_util.load_date_str('09/28/2020'),
 				adjusted_end_date=date_util.load_date_str('12/1/2020')
 			))
 			loan = models.Loan(
@@ -326,6 +331,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				],
 				'expected_summary_update': {
 					'product_type': 'inventory_financing',
+					'daily_interest_rate': 0.05,
 					'total_limit': 120000.01,
 					'adjusted_total_limit': 120000.01,
 					'total_outstanding_principal': 500.03 + 100.03,
@@ -437,6 +443,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				],
 				'expected_summary_update': {
 					'product_type': 'inventory_financing',
+					'daily_interest_rate': 0.005,
 					'total_limit': 120000.01,
 					'adjusted_total_limit': 120000.01,
 					'total_outstanding_principal': 500.03,
@@ -549,6 +556,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				],
 				'expected_summary_update': {
 					'product_type': 'inventory_financing',
+					'daily_interest_rate': 0.005,
 					'total_limit': 120000.01,
 					'adjusted_total_limit': 120000.01,
 					'total_outstanding_principal': 500.03,
@@ -918,8 +926,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				)
 				session.add(loan)
 				payment_test_helper.make_advance(
-					session, loan, amount=500.03, 
-					payment_date='10/21/2020', 
+					session, loan, amount=500.03,
+					payment_date='10/21/2020',
 					effective_date='10/21/2020')
 
 				payment_test_helper.make_repayment(
@@ -967,7 +975,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			},
 			{
 				# By end of the month, you owe all the interest that's collecting during
-				# the settlement period 
+				# the settlement period
 				'today': '10/31/2020',
 				'populate_fn': get_populate_fn(threshold_starting_value=0.0),
 				'expected_loan_updates': [
@@ -1067,8 +1075,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				)
 				session.add(loan)
 				payment_test_helper.make_advance(
-					session, loan, amount=500.03, 
-					payment_date='10/21/2020', 
+					session, loan, amount=500.03,
+					payment_date='10/21/2020',
 					effective_date='10/21/2020')
 
 				payment_test_helper.make_repayment(
@@ -1116,7 +1124,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			},
 			{
 				# By end of the month, you owe all the interest that's collecting during
-				# the settlement period 
+				# the settlement period
 				'today': '10/31/2020',
 				'populate_fn': get_populate_fn(threshold_starting_value=0.0),
 				'expected_loan_updates': [
@@ -1216,8 +1224,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				)
 				session.add(loan)
 				payment_test_helper.make_advance(
-					session, loan, amount=500.03, 
-					payment_date='12/21/2020', 
+					session, loan, amount=500.03,
+					payment_date='12/21/2020',
 					effective_date='12/21/2020')
 
 				payment_test_helper.make_repayment(
@@ -1265,7 +1273,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			},
 			{
 				# By end of the month, you owe all the interest that's collecting during
-				# the settlement period 
+				# the settlement period
 				'today': '12/31/2020',
 				'populate_fn': get_populate_fn(threshold_starting_value=0.0),
 				'expected_loan_updates': [
@@ -1273,7 +1281,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'adjusted_maturity_date': date_util.load_date_str('12/30/2020'),
 						'outstanding_principal': 0.0,
 						'outstanding_principal_for_interest': 100.0,
-						'outstanding_interest': -20.0, # Everything gets paid off by 10/31 because 
+						'outstanding_interest': -20.0, # Everything gets paid off by 10/31 because
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 100.0,
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00),
@@ -1284,21 +1292,22 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					},
 				],
 				'expected_summary_update': {
-					'product_type': 'inventory_financing', 
-					'total_limit': 120000.01, 
-					'adjusted_total_limit': 120000.01, 
-					'total_outstanding_principal': 0.0, 
-					'total_outstanding_principal_for_interest': 100.0, 
-					'total_outstanding_interest': -20.0, 
-					'total_outstanding_fees': 0.0, 
-					'total_principal_in_requested_state': 0.0, 
-					'total_amount_to_pay_interest_on': 100.0, 
-					'total_interest_accrued_today': 5.0, 
-					'total_interest_paid_adjustment_today': number_util.round_currency(0.05 * 100.00 * 3), 
-					'total_fees_paid_adjustment_today': 0.0, 
-					'available_limit': 120000.01, 
-					'minimum_monthly_payload': {'minimum_amount': 200.03, 'amount_accrued': 155.01, 'amount_short': 45.02, 'duration': 'monthly', 'prorated_info': {'numerator': 31, 'denom': 31, 'fraction': 1.0, 'day_to_pay': '12/31/2020'}}, 
-					'account_level_balance_payload': {'fees_total': 0.0, 'credits_total': 0.0}, 
+					'product_type': 'inventory_financing',
+					'daily_interest_rate': 0.05,
+					'total_limit': 120000.01,
+					'adjusted_total_limit': 120000.01,
+					'total_outstanding_principal': 0.0,
+					'total_outstanding_principal_for_interest': 100.0,
+					'total_outstanding_interest': -20.0,
+					'total_outstanding_fees': 0.0,
+					'total_principal_in_requested_state': 0.0,
+					'total_amount_to_pay_interest_on': 100.0,
+					'total_interest_accrued_today': 5.0,
+					'total_interest_paid_adjustment_today': number_util.round_currency(0.05 * 100.00 * 3),
+					'total_fees_paid_adjustment_today': 0.0,
+					'available_limit': 120000.01,
+					'minimum_monthly_payload': {'minimum_amount': 200.03, 'amount_accrued': 155.01, 'amount_short': 45.02, 'duration': 'monthly', 'prorated_info': {'numerator': 31, 'denom': 31, 'fraction': 1.0, 'day_to_pay': '12/31/2020'}},
+					'account_level_balance_payload': {'fees_total': 0.0, 'credits_total': 0.0},
 					'day_volume_threshold_met': None
 				},
 				'expected_day_volume_threshold_met': None
@@ -1384,8 +1393,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				)
 				session.add(loan)
 				payment_test_helper.make_advance(
-					session, loan, amount=500.03, 
-					payment_date='10/21/2020', 
+					session, loan, amount=500.03,
+					payment_date='10/21/2020',
 					effective_date='10/21/2020')
 
 				payment_test_helper.make_repayment(
@@ -1508,8 +1517,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				)
 				session.add(loan)
 				payment_test_helper.make_advance(
-					session, loan, amount=500.03, 
-					payment_date='10/21/2020', 
+					session, loan, amount=500.03,
+					payment_date='10/21/2020',
 					effective_date='10/21/2020')
 
 				payment_test_helper.make_repayment(
@@ -1555,7 +1564,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			},
 			{
 				# By end of the month, you owe all the interest that's collecting during
-				# the settlement period 
+				# the settlement period
 				'today': '10/31/2020',
 				'populate_fn': get_populate_fn(threshold_starting_value=0.0),
 				'expected_loan_updates': [
@@ -1574,28 +1583,29 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					},
 				],
 				'expected_summary_update': {
-					'product_type': 'inventory_financing', 
-					'total_limit': 120000.01, 
-					'adjusted_total_limit': 120000.01, 
-					'total_outstanding_principal': 20.0, 
-					'total_outstanding_principal_for_interest': 100.0, 
-					'total_outstanding_interest': 125.01, 
-					'total_outstanding_fees': -1.75, 
+					'product_type': 'inventory_financing',
+					'daily_interest_rate': 0.05,
+					'total_limit': 120000.01,
+					'adjusted_total_limit': 120000.01,
+					'total_outstanding_principal': 20.0,
+					'total_outstanding_principal_for_interest': 100.0,
+					'total_outstanding_interest': 125.01,
+					'total_outstanding_fees': -1.75,
 					'total_principal_in_requested_state': 0.0,
 					'total_amount_to_pay_interest_on': 100.0,
-					'total_interest_accrued_today': 5.0, 
-					'total_interest_paid_adjustment_today': 0.0, 
-					'total_fees_paid_adjustment_today': abs(number_util.round_currency(1 * 0.05 * 100.00 * 0.25 - 3.0)), 
+					'total_interest_accrued_today': 5.0,
+					'total_interest_paid_adjustment_today': 0.0,
+					'total_fees_paid_adjustment_today': abs(number_util.round_currency(1 * 0.05 * 100.00 * 0.25 - 3.0)),
 					'available_limit': 119980.01,
-					'minimum_monthly_payload': {'minimum_amount': 200.03, 'amount_accrued': 155.01, 'amount_short': 45.02, 'duration': 'monthly', 'prorated_info': {'numerator': 31, 'denom': 31, 'fraction': 1.0, 'day_to_pay': '10/31/2020'}}, 
-					'account_level_balance_payload': {'fees_total': 0.0, 'credits_total': 0.0}, 
+					'minimum_monthly_payload': {'minimum_amount': 200.03, 'amount_accrued': 155.01, 'amount_short': 45.02, 'duration': 'monthly', 'prorated_info': {'numerator': 31, 'denom': 31, 'fraction': 1.0, 'day_to_pay': '10/31/2020'}},
+					'account_level_balance_payload': {'fees_total': 0.0, 'credits_total': 0.0},
 					'day_volume_threshold_met': None
 				},
 				'expected_day_volume_threshold_met': None
 			},
 			{
 				# By end of the month, you owe all the interest that's collecting during
-				# the settlement period 
+				# the settlement period
 				'today': '11/01/2020',
 				'populate_fn': get_populate_fn(threshold_starting_value=0.0),
 				'expected_loan_updates': [
@@ -1625,9 +1635,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_principal': 20.0,
 						'outstanding_principal_for_interest': 20.0,
 						# Same amount due as on 10/31 because of cross-month repayment
-						'outstanding_interest': number_util.round_currency((5 * 0.05 * 500.03) + ((4 + 6) * 0.05 * 100.00) - 30.0), 
+						'outstanding_interest': number_util.round_currency((5 * 0.05 * 500.03) + ((4 + 6) * 0.05 * 100.00) - 30.0),
 						# 0.25 fee_multiplier, late fee on 10/31, 11/1, 11/2, 11/3, 11/4
-						'outstanding_fees': number_util.round_currency(5 * 0.05 * 100.00 * 0.25 - 3.0), 
+						'outstanding_fees': number_util.round_currency(5 * 0.05 * 100.00 * 0.25 - 3.0),
 						'amount_to_pay_interest_on': 100.0,
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00), # No interest accrued today because of overlap with settling repayment
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
@@ -1738,6 +1748,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				'expected_loan_updates': [],
 				'expected_summary_update': {
 					'product_type': 'inventory_financing',
+					'daily_interest_rate': 0.002,
 					'total_limit': 120000.01,
 					'adjusted_total_limit': 120000.01,
 					'total_outstanding_principal': 0.0,
@@ -1767,6 +1778,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				'expected_loan_updates': [],
 				'expected_summary_update': {
 					'product_type': 'inventory_financing',
+					'daily_interest_rate': 0.002,
 					'total_limit': 120000.01,
 					'adjusted_total_limit': 120000.01,
 					'total_outstanding_principal': 0.0,
@@ -2061,6 +2073,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				],
 				'expected_summary_update': {
 					'product_type': 'inventory_financing',
+					'daily_interest_rate': 0.002,
 					'total_limit': 120000.01,
 					'adjusted_total_limit': 120000.01,
 					'total_outstanding_principal': 450.03,
@@ -2240,6 +2253,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				],
 				'expected_summary_update': {
 					'product_type': 'invoice_financing',
+					'daily_interest_rate': 0.002,
 					'total_limit': 120000.01,
 					'adjusted_total_limit': 120000.01,
 					'total_outstanding_principal': 450.03,
@@ -2367,6 +2381,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			'populate_fn': populate_fn,
 			'expected_summary_update': {
 				'product_type': 'line_of_credit',
+				'daily_interest_rate': 0.05,
 				'total_limit': 1200000,
 				'adjusted_total_limit': 825000,
 				'total_outstanding_principal': 0.0,
@@ -2447,7 +2462,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				product_config=contract_test_helper.create_contract_config(
 					product_type=ProductType.LINE_OF_CREDIT,
 					input_dict=ContractInputDict(
-						dynamic_interest_rate=json.dumps({'1/1/2020-10/1/2020': 0.01}),
+						dynamic_interest_rate=json.dumps({
+							'1/1/2020-10/1/2020': 0.01,
+						}),
 						maximum_principal_amount=1200000,
 						minimum_monthly_amount=1.03,
 						max_days_until_repayment=0, # unused
@@ -2482,6 +2499,141 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		with session_scope(self.session_maker) as session:
 			contract = session.query(models.Contract).first()
 			self.assertEqual('10/01/2021', date_util.date_to_str(contract.adjusted_end_date))
+
+	def test_success_dynamic_interest_rate_correct_financial_summaries(self) -> None:
+		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+			session.add(models.Contract(
+				company_id=company_id,
+				product_type=ProductType.INVENTORY_FINANCING,
+				product_config=contract_test_helper.create_contract_config(
+					product_type=ProductType.INVENTORY_FINANCING,
+					input_dict=ContractInputDict(
+						dynamic_interest_rate=json.dumps({
+							'01/01/2020-06/30/2020': 0.01,
+							'07/01/2020-09/15/2020': 0.0075,
+							'09/16/2020-12/31/2020': 0.005,
+						}),
+						maximum_principal_amount=450000,
+						max_days_until_repayment=0, # unused
+						late_fee_structure=_get_late_fee_structure(),
+					)
+				),
+				start_date=date_util.load_date_str('1/1/2020'),
+				adjusted_end_date=date_util.load_date_str('12/31/2020')
+			))
+
+		tests: List[Dict] = [
+			{
+				'today': '03/1/2020',
+				'expected_loan_updates': [],
+				'populate_fn': populate_fn,
+				'expected_summary_update': {
+					'product_type': ProductType.INVENTORY_FINANCING,
+					'daily_interest_rate': 0.01, # This matches the 1st portion of the dynamic interest rate.
+					'total_limit': 450000,
+					'adjusted_total_limit': 450000,
+					'total_outstanding_principal': 0.0,
+					'total_outstanding_principal_for_interest': 0.0,
+					'total_outstanding_interest': 0.0,
+					'total_outstanding_fees': 0.0,
+					'total_principal_in_requested_state': 0.0,
+					'total_amount_to_pay_interest_on': 0.0,
+					'total_interest_accrued_today': 0.0,
+					'available_limit': 450000,
+					'minimum_monthly_payload': {
+						'minimum_amount': 0.0,
+						'amount_accrued': 0.0,
+						'amount_short': 0.0,
+						'duration': None
+					},
+					'account_level_balance_payload': {
+						'fees_total': 0.0,
+						'credits_total': 0.0
+					},
+					'day_volume_threshold_met': None
+				},
+				'account_level_balance_payload': {
+						'fees_total': 0.0,
+						'credits_total': 0.0
+				},
+				'day_volume_threshold_met': None
+			},
+			{
+				'today': '09/1/2020',
+				'expected_loan_updates': [],
+				'populate_fn': populate_fn,
+				'expected_summary_update': {
+					'product_type': ProductType.INVENTORY_FINANCING,
+					'daily_interest_rate': 0.0075, # This matches the 2nd portion of the dynamic interest rate.
+					'total_limit': 450000,
+					'adjusted_total_limit': 450000,
+					'total_outstanding_principal': 0.0,
+					'total_outstanding_principal_for_interest': 0.0,
+					'total_outstanding_interest': 0.0,
+					'total_outstanding_fees': 0.0,
+					'total_principal_in_requested_state': 0.0,
+					'total_amount_to_pay_interest_on': 0.0,
+					'total_interest_accrued_today': 0.0,
+					'available_limit': 450000,
+					'minimum_monthly_payload': {
+						'minimum_amount': 0.0,
+						'amount_accrued': 0.0,
+						'amount_short': 0.0,
+						'duration': None
+					},
+					'account_level_balance_payload': {
+						'fees_total': 0.0,
+						'credits_total': 0.0
+					},
+					'day_volume_threshold_met': None
+				},
+				'account_level_balance_payload': {
+						'fees_total': 0.0,
+						'credits_total': 0.0
+				},
+				'day_volume_threshold_met': None
+			},
+			{
+				'today': '09/25/2020',
+				'expected_loan_updates': [],
+				'populate_fn': populate_fn,
+				'expected_summary_update': {
+					'product_type': ProductType.INVENTORY_FINANCING,
+					'daily_interest_rate': 0.005, # This matches the 3rd portion of the dynamic interest rate.
+					'total_limit': 450000,
+					'adjusted_total_limit': 450000,
+					'total_outstanding_principal': 0.0,
+					'total_outstanding_principal_for_interest': 0.0,
+					'total_outstanding_interest': 0.0,
+					'total_outstanding_fees': 0.0,
+					'total_principal_in_requested_state': 0.0,
+					'total_amount_to_pay_interest_on': 0.0,
+					'total_interest_accrued_today': 0.0,
+					'available_limit': 450000,
+					'minimum_monthly_payload': {
+						'minimum_amount': 0.0,
+						'amount_accrued': 0.0,
+						'amount_short': 0.0,
+						'duration': None
+					},
+					'account_level_balance_payload': {
+						'fees_total': 0.0,
+						'credits_total': 0.0
+					},
+					'day_volume_threshold_met': None
+				},
+				'account_level_balance_payload': {
+						'fees_total': 0.0,
+						'credits_total': 0.0
+				},
+				'day_volume_threshold_met': None
+			},
+		]
+
+		i = 0
+		for test in tests:
+			self._run_test(test)
+			i += 1
 
 	def test_success_adjusted_total_limit_contract_limit_less_than_computed_borrowing_base(self) -> None:
 		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
@@ -2534,6 +2686,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			'populate_fn': populate_fn,
 			'expected_summary_update': {
 				'product_type': 'line_of_credit',
+				'daily_interest_rate': 0.05,
 				'total_limit': 450000,
 				'adjusted_total_limit': 450000,
 				'total_outstanding_principal': 0.0,
@@ -2593,6 +2746,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			'populate_fn': populate_fn,
 			'expected_summary_update': {
 				'product_type': 'line_of_credit',
+				'daily_interest_rate': 0.05,
 				'total_limit': 1200000,
 				'adjusted_total_limit': 0.0,
 				'total_outstanding_principal': 0.0,

@@ -9,28 +9,30 @@ select_permissions:
   - role: bank_admin
     permission:
       columns:
-        - id
-        - company_id
-        - total_limit
-        - total_outstanding_principal
-        - total_outstanding_interest
-        - total_principal_in_requested_state
-        - available_limit
-        - total_outstanding_fees
-        - adjusted_total_limit
+        - needs_recompute
         - date
-        - total_outstanding_principal_for_interest
-        - minimum_monthly_payload
+        - days_to_compute_back
         - account_level_balance_payload
-        - day_volume_threshold_met
+        - minimum_monthly_payload
+        - adjusted_total_limit
+        - available_limit
+        - daily_interest_rate
         - interest_accrued_today
         - total_amount_to_pay_interest_on
-        - product_type
-        - needs_recompute
-        - updated_at
-        - days_to_compute_back
-        - total_interest_paid_adjustment_today
         - total_fees_paid_adjustment_today
+        - total_interest_paid_adjustment_today
+        - total_limit
+        - total_outstanding_fees
+        - total_outstanding_interest
+        - total_outstanding_principal
+        - total_outstanding_principal_for_interest
+        - total_outstanding_principal_past_due
+        - total_principal_in_requested_state
+        - product_type
+        - updated_at
+        - company_id
+        - id
+        - day_volume_threshold_met
       filter: {}
   - role: bank_read_only
     permission:
@@ -42,6 +44,7 @@ select_permissions:
         - minimum_monthly_payload
         - adjusted_total_limit
         - available_limit
+        - daily_interest_rate
         - interest_accrued_today
         - total_amount_to_pay_interest_on
         - total_fees_paid_adjustment_today
@@ -51,6 +54,7 @@ select_permissions:
         - total_outstanding_interest
         - total_outstanding_principal
         - total_outstanding_principal_for_interest
+        - total_outstanding_principal_past_due
         - total_principal_in_requested_state
         - product_type
         - updated_at
@@ -68,6 +72,7 @@ select_permissions:
         - minimum_monthly_payload
         - adjusted_total_limit
         - available_limit
+        - daily_interest_rate
         - interest_accrued_today
         - total_amount_to_pay_interest_on
         - total_fees_paid_adjustment_today
@@ -77,6 +82,7 @@ select_permissions:
         - total_outstanding_interest
         - total_outstanding_principal
         - total_outstanding_principal_for_interest
+        - total_outstanding_principal_past_due
         - total_principal_in_requested_state
         - product_type
         - updated_at
@@ -101,6 +107,7 @@ select_permissions:
         - minimum_monthly_payload
         - adjusted_total_limit
         - available_limit
+        - daily_interest_rate
         - interest_accrued_today
         - total_amount_to_pay_interest_on
         - total_fees_paid_adjustment_today
@@ -110,6 +117,7 @@ select_permissions:
         - total_outstanding_interest
         - total_outstanding_principal
         - total_outstanding_principal_for_interest
+        - total_outstanding_principal_past_due
         - total_principal_in_requested_state
         - product_type
         - updated_at

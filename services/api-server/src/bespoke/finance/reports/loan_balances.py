@@ -37,6 +37,7 @@ from sqlalchemy.orm.session import Session
 
 SummaryUpdateDict = TypedDict('SummaryUpdateDict', {
 	'product_type': str,
+	'daily_interest_rate': float,
 	'total_limit': float,
 	'adjusted_total_limit': float,
 	'total_outstanding_principal': float,
@@ -51,7 +52,7 @@ SummaryUpdateDict = TypedDict('SummaryUpdateDict', {
 	'available_limit': float,
 	'minimum_monthly_payload': FeeDict,
 	'account_level_balance_payload': finance_types.AccountBalanceDict,
-	'day_volume_threshold_met': datetime.date
+	'day_volume_threshold_met': datetime.date,
 })
 
 EbbaApplicationUpdateDict = TypedDict('EbbaApplicationUpdateDict', {
@@ -173,6 +174,10 @@ def _get_summary_update(
 	if err:
 		return None, err
 
+	daily_interest_rate, err = cur_contract.get_interest_rate(today)
+	if err:
+		return None, err
+
 	maximum_principal_limit, err = cur_contract.get_maximum_principal_limit()
 	if err:
 		return None, err
@@ -220,6 +225,7 @@ def _get_summary_update(
 
 	return SummaryUpdateDict(
 		product_type=product_type,
+		daily_interest_rate=daily_interest_rate,
 		total_limit=maximum_principal_limit,
 		adjusted_total_limit=adjusted_total_limit,
 		total_outstanding_principal=total_outstanding_principal,
@@ -575,6 +581,7 @@ class CustomerBalance(object):
 			financial_summary.account_level_balance_payload = cast(Dict, summary_update['account_level_balance_payload'])
 			financial_summary.day_volume_threshold_met = summary_update['day_volume_threshold_met']
 			financial_summary.product_type = summary_update['product_type']
+			financial_summary.daily_interest_rate = decimal.Decimal(summary_update['daily_interest_rate'])
 
 			if should_add_summary:
 				session.add(financial_summary)

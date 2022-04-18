@@ -9,6 +9,7 @@ import {
   GetFinancialSummariesByCompanyIdQuery,
 } from "generated/graphql";
 import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
+import { formatPercentage } from "lib/number";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
@@ -18,6 +19,9 @@ function getRows(financialSummaries: FinancialSummaryFragment[]): RowsProp {
       ...financialSummary,
       product_type:
         ProductTypeToLabel[financialSummary.product_type as ProductTypeEnum],
+      daily_interest_rate: formatPercentage(
+        financialSummary.daily_interest_rate
+      ),
       outstanding_account_fees: !!financialSummary
         ? financialSummary?.account_level_balance_payload?.fees_total
         : null,
@@ -110,6 +114,12 @@ export default function FinancialSummariesDataGrid({
             value={params.row.data.total_amount_to_pay_interest_on}
           />
         ),
+      },
+      {
+        dataField: "daily_interest_rate",
+        caption: "Daily Interest Rate",
+        width: ColumnWidths.Currency,
+        alignment: "right",
       },
       {
         dataField: "interest_accrued_today",
