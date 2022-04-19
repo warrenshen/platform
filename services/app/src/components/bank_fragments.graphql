@@ -402,6 +402,10 @@ fragment OpenLoanForDebtFacility on loans {
     id
     ...Invoice
   }
+  line_of_credit {
+    id
+    ...LineOfCredit
+  }
   transactions(
     where: {
       _and: [

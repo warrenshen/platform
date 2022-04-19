@@ -10,12 +10,26 @@ import { UUIDEnum } from "lib/enum";
 import { getCompanyDisplayName } from "lib/companies";
 import { uniq } from "lodash";
 
-export function createLoanCustomerIdentifier(loan: LoanLimitedFragment) {
-  return `${loan.company.identifier}/${loan.identifier}`;
+export function createLoanCustomerIdentifier(
+  loan: LoanLimitedFragment,
+  anonymousName?: string | undefined
+) {
+  return !!anonymousName
+    ? `${
+        anonymousName.charAt(0) + anonymousName.charAt(anonymousName.length - 1)
+      }/${loan.identifier}`
+    : `${loan.company.identifier}/${loan.identifier}`;
 }
 
-export function createLoanDisbursementIdentifier(loan: LoanLimitedFragment) {
-  return loan.disbursement_identifier
+export function createLoanDisbursementIdentifier(
+  loan: LoanLimitedFragment,
+  anonymousName?: string | undefined
+) {
+  return !!anonymousName
+    ? `${
+        anonymousName.charAt(0) + anonymousName.charAt(anonymousName.length - 1)
+      }-${loan.disbursement_identifier}`
+    : loan.disbursement_identifier
     ? `${loan.company.identifier}-${loan.disbursement_identifier}`
     : "-";
 }

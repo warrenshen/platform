@@ -11,6 +11,7 @@ import {
   LoanArtifactFragment,
   LoanFragment,
   Loans,
+  LoanTypeEnum,
   OpenLoanForDebtFacilityFragment,
   PurchaseOrders,
   RequestStatusEnum,
@@ -18,6 +19,7 @@ import {
 import { formatDateString, formatDatetimeString } from "lib/date";
 import {
   LoanPaymentStatusEnum,
+  LoanStatusEnum,
   PartnerEnum,
   ProductTypeEnum,
   ProductTypeToLabel,
@@ -34,6 +36,7 @@ import {
   getProductTypeFromOpenLoanForDebtFacilityFragment,
 } from "lib/debtFacility";
 import { ColumnWidths, truncateString } from "lib/tables";
+import { groupBy } from "lodash";
 import { useEffect, useMemo, useState } from "react";
 
 interface Props {
@@ -62,6 +65,7 @@ interface Props {
   handleSelectLoans?: (loans: LoanFragment[]) => void;
   supportedProductTypes: ProductTypeEnum[];
   lastDebtFacilityReportDate: string;
+  isAnonymized: boolean;
 }
 
 const getOriginationOrCreatedDate = (loan: OpenLoanForDebtFacilityFragment) => {
@@ -112,22 +116,129 @@ const determineIfPreviouslyAssigned = (
     : false;
 };
 
+const reduceLineOfCreditLoans = (
+  groupedByCompanyIds: Record<string, OpenLoanForDebtFacilityFragment[]>
+) => {
+  return Object.entries(groupedByCompanyIds)
+    .map(([company_id, loans]) => {
+      const isLineOfCredit =
+        loans[0]["loan_type"] === LoanTypeEnum.LineOfCredit;
+      if (isLineOfCredit) {
+        return [
+          loans
+            .filter((loan) => {
+              return loan["closed_at"] === null;
+            })
+            .reduce((a, b) => {
+              return {
+                ...a,
+                amount: a.amount + b.amount,
+                outstanding_fees: a.outstanding_fees + b.outstanding_fees,
+                outstanding_interest:
+                  a.outstanding_interest + b.outstanding_interest,
+                outstanding_principal_balance:
+                  a.outstanding_principal_balance +
+                  b.outstanding_principal_balance,
+                payment_status:
+                  a.payment_status === LoanPaymentStatusEnum.PARTIALLY_PAID ||
+                  b.payment_status === LoanPaymentStatusEnum.PARTIALLY_PAID
+                    ? LoanPaymentStatusEnum.PARTIALLY_PAID
+                    : LoanStatusEnum.Funded,
+                transactions: a["transactions"].concat(b["transactions"]),
+              } as OpenLoanForDebtFacilityFragment;
+            }),
+        ];
+      } else {
+        return loans;
+      }
+    })
+    .reduce((a, b) => {
+      return a.concat(b);
+    });
+};
+
+const getPartnerId = (loan: OpenLoanForDebtFacilityFragment) => {
+  const line_of_credit_vendor_id =
+    loan?.line_of_credit?.recipient_vendor_id || null;
+  const vendor_id = loan?.purchase_order?.vendor_id || null;
+  const payor_id = loan?.invoice?.payor_id || null;
+
+  return !!line_of_credit_vendor_id
+    ? line_of_credit_vendor_id
+    : !!vendor_id
+    ? vendor_id
+    : !!payor_id
+    ? payor_id
+    : "None";
+};
+
+const anonymizeLoanNames = (
+  loans: OpenLoanForDebtFacilityFragment[],
+  groupedByCompanyIds: Record<string, OpenLoanForDebtFacilityFragment[]>
+) => {
+  const groupedByPartnerIds = groupBy(loans, (loan) => {
+    return getPartnerId(loan);
+  });
+
+  const anonymizedVendorLookup = Object.fromEntries(
+    Object.entries(groupedByPartnerIds).map(([partner_id, loans], index) => [
+      partner_id,
+      partner_id === "None" ? "N/A" : "Vendor" + (index + 1).toString(),
+    ])
+  );
+
+  const anonymizedCompanyLookup = Object.fromEntries(
+    Object.entries(groupedByCompanyIds).map(([company_id, loans], index) => [
+      company_id,
+      "Company" + (index + 1).toString(),
+    ])
+  );
+
+  return { anonymizedCompanyLookup, anonymizedVendorLookup };
+};
+
 function getRows(
   loans: OpenLoanForDebtFacilityFragment[],
   supportedProductTypes: ProductTypeEnum[],
-  lastDebtFacilityReportDate: string
+  lastDebtFacilityReportDate: string,
+  isAnonymized: boolean
 ): RowsProp {
-  return loans.map((loan) => ({
+  const groupedLoans = groupBy(loans, (loan) => loan.company_id);
+  const reducedLoans =
+    Object.keys(groupedLoans).length !== 0
+      ? reduceLineOfCreditLoans(groupedLoans)
+      : [];
+  const {
+    anonymizedCompanyLookup,
+    anonymizedVendorLookup,
+  } = anonymizeLoanNames(reducedLoans, groupedLoans);
+
+  return reducedLoans.map((loan) => ({
     ...loan,
-    customer_identifier: createLoanCustomerIdentifier(loan),
-    disbursement_identifier: createLoanDisbursementIdentifier(loan),
+    customer_identifier: createLoanCustomerIdentifier(
+      loan,
+      isAnonymized
+        ? anonymizedCompanyLookup[loan.company_id.toString()]
+        : undefined
+    ),
+    disbursement_identifier: createLoanDisbursementIdentifier(
+      loan,
+      isAnonymized
+        ? anonymizedCompanyLookup[loan.company_id.toString()]
+        : undefined
+    ),
     artifact_name: getLoanArtifactName(loan),
     artifact_bank_note: loan.purchase_order
       ? truncateString(
           (loan as LoanArtifactFragment).purchase_order?.bank_note || ""
         )
       : "N/A",
-    vendor_name: getLoanVendorName(loan),
+    company_name: isAnonymized
+      ? anonymizedCompanyLookup[loan.company_id.toString()]
+      : loan.company.name,
+    vendor_name: isAnonymized
+      ? anonymizedVendorLookup[getPartnerId(loan).toString()]
+      : getLoanVendorName(loan),
     debt_facility_status: !!loan.loan_report
       ? loan.loan_report.debt_facility_status
       : null,
@@ -208,11 +319,18 @@ export default function DebtFacilityReportDataGrid({
   handleSelectLoans,
   supportedProductTypes,
   lastDebtFacilityReportDate,
+  isAnonymized,
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = useMemo(
-    () => getRows(loans, supportedProductTypes, lastDebtFacilityReportDate),
-    [loans, supportedProductTypes, lastDebtFacilityReportDate]
+    () =>
+      getRows(
+        loans,
+        supportedProductTypes,
+        lastDebtFacilityReportDate,
+        isAnonymized
+      ),
+    [loans, supportedProductTypes, lastDebtFacilityReportDate, isAnonymized]
   );
 
   useEffect(() => {
@@ -261,13 +379,13 @@ export default function DebtFacilityReportDataGrid({
       {
         fixed: true,
         visible: isCompanyVisible,
-        dataField: "company.name",
+        dataField: "company_name",
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) =>
           handleClickCustomer ? (
             <ClickableDataGridCell
-              label={params.row.data.company.name}
+              label={params.row.data.company_name}
               onClick={() => handleClickCustomer(params.row.data.company.id)}
             />
           ) : (

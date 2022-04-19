@@ -1,4 +1,11 @@
-import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
+import {
+  Box,
+  Checkbox,
+  createStyles,
+  FormControlLabel,
+  makeStyles,
+  Theme,
+} from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import DebtFacilityReportDataGrid from "components/DebtFacility/DebtFacilityReportDataGrid";
 import {
@@ -15,7 +22,7 @@ import {
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 
 const Container = styled.div`
   display: flex;
@@ -53,6 +60,7 @@ export default function DebtFacilityReportTab({
   const [lastDebtFacilityReportDate, setLastDebtFacilityReportDate] = useState(
     ""
   );
+  const [isAnonymized, setIsAnonymized] = useState(false);
 
   const { data, error } = useGetReportLoansByDebtFacilityIdSubscription({
     variables: {
@@ -82,7 +90,7 @@ export default function DebtFacilityReportTab({
       <Box display="flex" flexDirection="column">
         {!!selectedDebtFacilityId && (
           <Box display="flex" flexDirection="column">
-            <Box display="flex" flexDirection="column" mb={4}>
+            <Box display="flex" flexDirection="row" mb={4}>
               <DateInput
                 disableNonBankDays
                 className={classes.inputField}
@@ -91,6 +99,20 @@ export default function DebtFacilityReportTab({
                 value={lastDebtFacilityReportDate}
                 onChange={(value) => setLastDebtFacilityReportDate(value || "")}
               />
+              <Box pt={1.5} ml={3}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={isAnonymized}
+                      onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                        setIsAnonymized(event.target.checked)
+                      }
+                      color="primary"
+                    />
+                  }
+                  label={"Anonymize Report?"}
+                />
+              </Box>
             </Box>
             <DebtFacilityReportDataGrid
               loans={loans}
@@ -100,6 +122,7 @@ export default function DebtFacilityReportTab({
               isReportingVisible
               isDisbursementIdentifierVisible
               isDaysPastDueVisible
+              isAnonymized={isAnonymized}
               handleClickCustomer={(customerId) =>
                 history.push(
                   getBankCompanyRoute(customerId, BankCompanyRouteEnum.Loans)
