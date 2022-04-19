@@ -88,7 +88,9 @@ export default function UpdateCompanyDebtFacilityStatusModal({
     <Modal
       dataCy={"update-company-debt-facility-status-modal"}
       isPrimaryActionDisabled={
-        selectedDebtFacilityStatus === selectedCompany.debt_facility_status ||
+        (selectedDebtFacilityStatus === selectedCompany.debt_facility_status &&
+          selectedDebtFacilityStatus !==
+            DebtFacilityCompanyStatusEnum.WAIVER) ||
         isUpdateCompanyDebtFacilityStatusLoading ||
         (selectedDebtFacilityStatus === DebtFacilityCompanyStatusEnum.WAIVER &&
           waiverDate === "") ||
