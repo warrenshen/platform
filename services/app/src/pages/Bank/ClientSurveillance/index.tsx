@@ -1,12 +1,23 @@
 import { Box, Tab, Tabs } from "@material-ui/core";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
+import { BankEbbaTabLabel, BankEbbaTabLabels } from "lib/enum";
+import ClientSurveillanceDashboardTab from "./ClientSurveillanceDashboardTab";
 import EbbaApplicationsBorrowingBaseTab from "pages/Bank/ClientSurveillance/EbbaApplicationsBorrowingBaseTab";
 import EbbaApplicationsFinancialReportsTab from "pages/Bank/ClientSurveillance/EbbaApplicationsFinancialReportsTab";
 import EbbaApplicationsClosedTab from "pages/Bank/ClientSurveillance/EbbaApplicationsClosedTab";
 import { useGetOpenEbbaApplicationsCountForBankSubscription } from "generated/graphql";
 import { ClientSurveillanceCategoryEnum } from "lib/enum";
 import { useState } from "react";
+
+const EbbaComponentMap: {
+  [key in BankEbbaTabLabel]: JSX.Element;
+} = {
+  [BankEbbaTabLabel.Dashboard]: <ClientSurveillanceDashboardTab />,
+  [BankEbbaTabLabel.FinancialReports]: <EbbaApplicationsFinancialReportsTab />,
+  [BankEbbaTabLabel.BorrowingBase]: <EbbaApplicationsBorrowingBaseTab />,
+  [BankEbbaTabLabel.HistoricalCertifications]: <EbbaApplicationsClosedTab />,
+};
 
 export default function BankEbbaApplicationsPage() {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
@@ -46,21 +57,16 @@ export default function BankEbbaApplicationsPage() {
               setSelectedTabIndex(value)
             }
           >
+            <Tab label={`${BankEbbaTabLabel.Dashboard}`} />
             <Tab
-              label={`PO / INV - Financial Reports (${financialReportsCertificationsCount})`}
+              label={`${BankEbbaTabLabel.FinancialReports} (${financialReportsCertificationsCount})`}
             />
             <Tab
-              label={`LOC - Borrowing Base (${borrowingBaseCertificationsCount})`}
+              label={`${BankEbbaTabLabel.BorrowingBase} (${borrowingBaseCertificationsCount})`}
             />
-            <Tab label="Historical Certifications" />
+            <Tab label={BankEbbaTabLabel.HistoricalCertifications} />
           </Tabs>
-          {selectedTabIndex === 0 ? (
-            <EbbaApplicationsFinancialReportsTab />
-          ) : selectedTabIndex === 1 ? (
-            <EbbaApplicationsBorrowingBaseTab />
-          ) : (
-            <EbbaApplicationsClosedTab />
-          )}
+          {EbbaComponentMap[BankEbbaTabLabels[selectedTabIndex]]}
         </Box>
       </PageContent>
     </Page>

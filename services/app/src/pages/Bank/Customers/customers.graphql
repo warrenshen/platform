@@ -18,19 +18,46 @@ query GetCustomersWithMetadata($date: date) {
       ...CompanySettings
     }
     ebba_applications(
-      limit: 1, 
-      order_by: [ 
-        { 
-          application_date: desc 
-        }, 
-        { 
-          created_at: desc 
-        } 
-      ],
-      where: {status: {_eq: approved}}
+      limit: 1
+      order_by: [{ application_date: desc }, { created_at: desc }]
+      where: { status: { _eq: approved } }
     ) {
       id
       ...EbbaApplication
+    }
+  }
+}
+
+query GetCustomersWithMetadataAndLoans($date: date) {
+  customers: companies(
+    where: { is_customer: { _eq: true } }
+    order_by: { name: asc }
+  ) {
+    id
+    ...CustomerForBank
+    contract {
+      id
+      ...Contract
+    }
+    financial_summaries(where: { date: { _eq: $date } }) {
+      id
+      ...FinancialSummary
+    }
+    settings {
+      id
+      ...CompanySettings
+    }
+    ebba_applications(
+      limit: 1
+      order_by: [{ application_date: desc }, { created_at: desc }]
+      where: { status: { _eq: approved } }
+    ) {
+      id
+      ...EbbaApplication
+    }
+    loans(where: { closed_at: { _is_null: true } }) {
+      id
+      ...Loan
     }
   }
 }
@@ -54,9 +81,7 @@ query CompanyVendors($companyId: uuid!) {
 }
 
 query GetCompaniesWithMetadata {
-  companies(
-    order_by: { name: asc }
-  ) {
+  companies(order_by: { name: asc }) {
     id
     ...Company
     contract {

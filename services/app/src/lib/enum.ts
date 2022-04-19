@@ -77,6 +77,20 @@ export const BankPurchaseOrdersTabLabels = [
   BankPurchaseOrdersTabLabel.AllPOs,
 ];
 
+export enum BankEbbaTabLabel {
+  Dashboard = "Dashboard",
+  FinancialReports = "PO / INV - Financial Reports",
+  BorrowingBase = "LOC - Borrowing Base",
+  HistoricalCertifications = "Historical Certifications",
+}
+
+export const BankEbbaTabLabels = [
+  BankEbbaTabLabel.Dashboard,
+  BankEbbaTabLabel.FinancialReports,
+  BankEbbaTabLabel.BorrowingBase,
+  BankEbbaTabLabel.HistoricalCertifications,
+];
+
 export enum CustomerPurchaseOrdersTabLabel {
   ActivePOs = "Active POs",
   ClosedPOs = "Closed POs",

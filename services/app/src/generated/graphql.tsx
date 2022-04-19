@@ -28050,6 +28050,26 @@ export type GetCustomersWithMetadataQuery = {
   >;
 };
 
+export type GetCustomersWithMetadataAndLoansQueryVariables = Exact<{
+  date?: Maybe<Scalars["date"]>;
+}>;
+
+export type GetCustomersWithMetadataAndLoansQuery = {
+  customers: Array<
+    Pick<Companies, "id"> & {
+      contract?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
+      financial_summaries: Array<
+        Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
+      >;
+      settings?: Maybe<Pick<CompanySettings, "id"> & CompanySettingsFragment>;
+      ebba_applications: Array<
+        Pick<EbbaApplications, "id"> & EbbaApplicationFragment
+      >;
+      loans: Array<Pick<Loans, "id"> & LoanFragment>;
+    } & CustomerForBankFragment
+  >;
+};
+
 export type GetCustomersForDropdownQueryVariables = Exact<{
   [key: string]: never;
 }>;
@@ -39036,6 +39056,96 @@ export type GetCustomersWithMetadataLazyQueryHookResult = ReturnType<
 export type GetCustomersWithMetadataQueryResult = Apollo.QueryResult<
   GetCustomersWithMetadataQuery,
   GetCustomersWithMetadataQueryVariables
+>;
+export const GetCustomersWithMetadataAndLoansDocument = gql`
+  query GetCustomersWithMetadataAndLoans($date: date) {
+    customers: companies(
+      where: { is_customer: { _eq: true } }
+      order_by: { name: asc }
+    ) {
+      id
+      ...CustomerForBank
+      contract {
+        id
+        ...Contract
+      }
+      financial_summaries(where: { date: { _eq: $date } }) {
+        id
+        ...FinancialSummary
+      }
+      settings {
+        id
+        ...CompanySettings
+      }
+      ebba_applications(
+        limit: 1
+        order_by: [{ application_date: desc }, { created_at: desc }]
+        where: { status: { _eq: approved } }
+      ) {
+        id
+        ...EbbaApplication
+      }
+      loans(where: { closed_at: { _is_null: true } }) {
+        id
+        ...Loan
+      }
+    }
+  }
+  ${CustomerForBankFragmentDoc}
+  ${ContractFragmentDoc}
+  ${FinancialSummaryFragmentDoc}
+  ${CompanySettingsFragmentDoc}
+  ${EbbaApplicationFragmentDoc}
+  ${LoanFragmentDoc}
+`;
+
+/**
+ * __useGetCustomersWithMetadataAndLoansQuery__
+ *
+ * To run a query within a React component, call `useGetCustomersWithMetadataAndLoansQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomersWithMetadataAndLoansQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomersWithMetadataAndLoansQuery({
+ *   variables: {
+ *      date: // value for 'date'
+ *   },
+ * });
+ */
+export function useGetCustomersWithMetadataAndLoansQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetCustomersWithMetadataAndLoansQuery,
+    GetCustomersWithMetadataAndLoansQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetCustomersWithMetadataAndLoansQuery,
+    GetCustomersWithMetadataAndLoansQueryVariables
+  >(GetCustomersWithMetadataAndLoansDocument, baseOptions);
+}
+export function useGetCustomersWithMetadataAndLoansLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetCustomersWithMetadataAndLoansQuery,
+    GetCustomersWithMetadataAndLoansQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetCustomersWithMetadataAndLoansQuery,
+    GetCustomersWithMetadataAndLoansQueryVariables
+  >(GetCustomersWithMetadataAndLoansDocument, baseOptions);
+}
+export type GetCustomersWithMetadataAndLoansQueryHookResult = ReturnType<
+  typeof useGetCustomersWithMetadataAndLoansQuery
+>;
+export type GetCustomersWithMetadataAndLoansLazyQueryHookResult = ReturnType<
+  typeof useGetCustomersWithMetadataAndLoansLazyQuery
+>;
+export type GetCustomersWithMetadataAndLoansQueryResult = Apollo.QueryResult<
+  GetCustomersWithMetadataAndLoansQuery,
+  GetCustomersWithMetadataAndLoansQueryVariables
 >;
 export const GetCustomersForDropdownDocument = gql`
   query GetCustomersForDropdown {

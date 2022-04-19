@@ -32,9 +32,9 @@ import {
   DebtFacilityCompanyStatusToLabel,
   ClientSurveillanceCategoryEnum,
 } from "lib/enum";
+import { useFilterCustomers } from "hooks/useFilterCustomers";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ColumnWidths } from "lib/tables";
-import { filter, sortBy } from "lodash";
 import { useContext, useMemo, useState } from "react";
 
 function getRows(
@@ -111,16 +111,10 @@ export default function BankCustomersPage() {
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  const customers = useMemo(() => {
-    const filteredCustomers = filter(
-      data?.customers || [],
-      (customer) =>
-        `${customer.name} ${customer.dba_name} ${customer.identifier}`
-          .toLowerCase()
-          .indexOf(searchQuery.toLowerCase()) >= 0
-    );
-    return sortBy(filteredCustomers, (customer) => customer.name);
-  }, [searchQuery, data?.customers]);
+  const customers = useFilterCustomers(
+    searchQuery,
+    data
+  ) as GetCustomersWithMetadataQuery["customers"];
 
   const rows = customers ? getRows(customers) : [];
 
