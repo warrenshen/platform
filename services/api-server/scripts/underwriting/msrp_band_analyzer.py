@@ -88,11 +88,13 @@ class MSRPBand:
         self.company_costs_df = self.extract_units_from_product_name(
             self.company_costs_df,
             'product_name',
+            'product_category_name',
             'received_unit_of_measure'
         )
         self.company_sales_df = self.extract_units_from_product_name(
             self.company_sales_df,
             'tx_product_name',
+            'tx_product_category_name',
             'tx_unit_of_measure'
         )
         print("### Combining same product categories with different measurements ### \t")
@@ -319,20 +321,22 @@ class MSRPBand:
             df[measure_ratio_column_name][includes_measurement] = self.unit_conversion_ratio(measurement, measurement_unit)
         #count_idx = ((df['count_measure_from_product_name'].isna() == False) & (df[product_category_name] == 'Capsule (weight - each)') & (df['extracted_units'].isna() == False))
         #df['extracted_units'][count_idx] = df['extracted_units'][count_idx] / df['count_measure_from_product_name'][count_idx]
-        extracted_units_idx = ((df[measure_ratio_column_name] == 1) & (df['extracted_units'].isna() == False))
+        #extracted_units_idx = ((df[measure_ratio_column_name] == 1) & (df['extracted_units'].isna() == False))
+        extracted_units_idx = (df['extracted_units'].isna() == False)
         df[measure_ratio_column_name][extracted_units_idx] = df['extracted_units'][extracted_units_idx]
         df['adjusted_tx_price_per_unit'] = df['tx_price_per_unit'] / df[measure_ratio_column_name]
         df['combined_product_category'] = df[product_category_name].apply(self.product_category_standard_unit_conversion)
         return df
 
-    def extract_units_from_product_name(self, df, product_name, current_measurement):
+    def extract_units_from_product_name(self, df, product_name, product_category_name, current_measurement):
         """
         Create new column that extracts unit measures from product names
         """
         df['bad_numbers_from_product_name'] = df[product_name].str.extract('([0-9][0-9][0-9][0-9][0-9]+)', expand = False)
         df[product_name] = df.apply(lambda row: row[product_name].replace(row['bad_numbers_from_product_name'], '') if type(row['bad_numbers_from_product_name']) == str else row[product_name], axis=1)
         df['extracted_units'] = np.nan
-        df['letter_gram_measure_from_product_name'] = df[product_name].str.extract('([0-9]*[\.]?[0-9]+[\s]?[mM]?[gG])', expand=False)
+        df['letter_gram_measure_from_product_name'] = df[product_name].str.extract('([0-9]*[\.]?[0-9]+[\s]?[gG])', expand=False)
+        df['letter_milligram_measure_from_product_name'] = df[product_name].str.extract('([0-9]*[\.]?[0-9]+[\s]?[mM][gG])',expand=False)
         # df['letter_litre_measure_from_product_name'] = df[product_name].str.extract('([0-9]*[\.]?[0-9]+[\s]?[mM]?[lL])', expand=False)
         # df['fraction_letter_gram_measure_from_product_name'] = df[product_name].str.extract('([0-9]/[0-9]?[\s]?[mM]?[gG])', expand=False)
         df['count_measure_from_product_name'] = df[product_name].str.extract('([0-9]+[\s]?count|[0-9]+[\s]?capsule|[0-9]+[\s]?ct|[0-9]+[\s]?pk)', expand=False)
@@ -340,9 +344,21 @@ class MSRPBand:
         df['count_measure_from_product_name'][count_measure_non_na_index] = df['count_measure_from_product_name'][count_measure_non_na_index].apply(mba_util.extract_count_units)
         df['gram_measure_from_product_name'] = df[product_name].str.extract('([hH][aA][lL][fF] [gG][rR][aA][mM]|[gG][rR][aA][mM])', expand=False)
         df['oz_measure_from_product_name'] = df[product_name].str.extract('([0-9]/[0-9]?[\s]?oz|[0-9]*[\.]?[0-9]+[\s]?oz)', expand=False)
-        for measure_column in mba_util.EXTRACTED_MEASUREMENT_COLUMNS.keys():
-            idx = ((df[current_measurement] == 'Each') & (df[measure_column].isna() == False))
-            df['extracted_units'][idx] = df[measure_column][idx].apply(mba_util.EXTRACTED_MEASUREMENT_COLUMNS[measure_column])
+
+        for product_category in df[product_category_name].unique():
+            if product_category not in mba_util.PRODUCT_CATEGORY_NAME_NLP_USAGE_DICTIONARY.keys():
+                continue
+            algorithm_method = mba_util.PRODUCT_CATEGORY_NAME_NLP_USAGE_DICTIONARY[product_category]
+            if len(algorithm_method) == 0:
+                continue
+            else:
+                for measure_column in algorithm_method:
+                    # print(measure_column)
+                    idx = ((df[current_measurement] == 'Each') &
+                           (df[measure_column].isna() == False) &
+                           (df[product_category_name] == product_category))
+                    df['extracted_units'][idx] = df[measure_column][idx].apply(mba_util.EXTRACTED_MEASUREMENT_COLUMNS[measure_column])
+
         return df
 
     def breakdown_product_category_into_brands(self, df, product_name, category_name):
