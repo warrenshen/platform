@@ -30671,6 +30671,14 @@ export const GetOpenLoansByDebtFacilityStatusesDocument = gql`
           }
           { closed_at: { _is_null: true } }
           { loan_report: { debt_facility_status: { _in: $statuses } } }
+          {
+            _or: [
+              {
+                company: { settings: { is_dummy_account: { _is_null: true } } }
+              }
+              { company: { settings: { is_dummy_account: { _eq: false } } } }
+            ]
+          }
         ]
       }
     ) {
@@ -30749,6 +30757,14 @@ export const GetOpenLoansByDebtFacilityIdDocument = gql`
           { closed_at: { _is_null: true } }
           { loan_report: { debt_facility_status: { _in: $statuses } } }
           { loan_report: { debt_facility_id: { _in: $target_facility_ids } } }
+          {
+            _or: [
+              {
+                company: { settings: { is_dummy_account: { _is_null: true } } }
+              }
+              { company: { settings: { is_dummy_account: { _eq: false } } } }
+            ]
+          }
         ]
       }
     ) {
@@ -30845,6 +30861,14 @@ export const GetReportLoansByDebtFacilityIdDocument = gql`
               {
                 loan_report: { debt_facility_status: { _in: $other_statuses } }
               }
+            ]
+          }
+          {
+            _or: [
+              {
+                company: { settings: { is_dummy_account: { _is_null: true } } }
+              }
+              { company: { settings: { is_dummy_account: { _eq: false } } } }
             ]
           }
         ]
