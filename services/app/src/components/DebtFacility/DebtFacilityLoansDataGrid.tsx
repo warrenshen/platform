@@ -28,6 +28,7 @@ import {
   DebtFacilityCompanyStatusEnum,
   DebtFacilityCompanyStatusToEligibility,
   ProductTypeEnum,
+  ProductTypeToLabel,
 } from "lib/enum";
 import {
   createLoanCustomerIdentifier,
@@ -93,6 +94,11 @@ function getRows(
       : null,
     financing_day_limit: !!loan.loan_report
       ? loan.loan_report.financing_day_limit
+      : null,
+    product_type: !!loan.company?.contract?.product_type
+      ? ProductTypeToLabel[
+          loan.company.contract.product_type as ProductTypeEnum
+        ]
       : null,
     total_principal_paid: !!loan.loan_report
       ? loan.loan_report.total_principal_paid
@@ -258,6 +264,15 @@ export default function DebtFacilityLoansDataGrid({
           ) : (
             params.row.data.company?.name || "-"
           ),
+      },
+      {
+        visible: isCompanyVisible,
+        dataField: "product_type",
+        caption: "Product Type",
+        minWidth: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) => (
+          <TextDataGridCell label={params.row.data.product_type} />
+        ),
       },
       {
         visible: isEligibilityVisible,
