@@ -11,10 +11,15 @@ interface Props {
   onChange: (selectedDebtFacility: DebtFacilityFragment["id"]) => void;
   textFieldLabel: string;
   setupMessage?: string;
-  productType?: string;
+  productType?: string | null;
 }
 
-function AutocompleteDebtFacility(props: Props) {
+function AutocompleteDebtFacility({
+  onChange,
+  textFieldLabel,
+  setupMessage = "",
+  productType = null,
+}: Props) {
   const { data, error } = useGetDebtFacilitiesSubscription();
 
   if (error) {
@@ -24,17 +29,17 @@ function AutocompleteDebtFacility(props: Props) {
 
   const debtFacilities = useMemo(() => {
     const facilities = data?.debt_facilities || [];
-    return props.productType && facilities.length > 0
+    return productType && facilities.length > 0
       ? facilities.filter((facility) =>
           !!facility.product_types &&
           facility.product_types.hasOwnProperty("supported")
-            ? facility.product_types["supported"].includes(props.productType)
+            ? facility.product_types["supported"].includes(productType)
               ? true
               : false
             : false
         )
       : facilities;
-  }, [data?.debt_facilities, props.productType]);
+  }, [data?.debt_facilities, productType]);
 
   return (
     <>
@@ -42,27 +47,27 @@ function AutocompleteDebtFacility(props: Props) {
         <Autocomplete
           autoHighlight
           id="auto-complete-debt-facility"
+          style={{
+            width: 300,
+          }}
           options={debtFacilities}
           getOptionLabel={(debtFacility) => {
             return `${debtFacility.name}`;
           }}
+          value={debtFacilities.length === 1 ? debtFacilities[0] : null}
           renderInput={(params) => (
-            <TextField
-              {...params}
-              label={props.textFieldLabel}
-              variant="outlined"
-            />
+            <TextField {...params} label={textFieldLabel} variant="outlined" />
           )}
           onChange={(_event, debtFacility) =>
-            props.onChange(debtFacility?.id || null)
+            onChange(debtFacility?.id || null)
           }
         />
       ) : (
         <></>
       )}
-      {!!props.setupMessage && (
+      {!!setupMessage && (
         <Box mt={4}>
-          <Alert severity="info">{props.setupMessage}</Alert>
+          <Alert severity="info">{setupMessage}</Alert>
         </Box>
       )}
     </>

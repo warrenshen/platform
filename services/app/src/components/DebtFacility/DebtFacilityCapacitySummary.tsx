@@ -1,6 +1,6 @@
-import { Box, FormControl, TextField, Typography } from "@material-ui/core";
-import Autocomplete from "@material-ui/lab/Autocomplete";
+import { Box, Typography } from "@material-ui/core";
 import GaugeProgressBar from "components/Shared/ProgressBar/GaugeProgressBar";
+import AutocompleteDebtFacility from "components/DebtFacility/AutocompleteDebtFacility";
 import {
   DebtFacilities,
   GetDebtFacilitiesSubscription,
@@ -82,40 +82,20 @@ function DebtFacilityCapacitySummary({
         )}
       </Box>
       <Box flex="1" display="flex" flexDirection="row" alignItems="center">
-        <FormControl>
-          <Autocomplete
-            autoHighlight
-            id="auto-complete-debt-facility"
-            options={facilities}
-            getOptionLabel={(debtFacility) => {
-              return `${debtFacility.name}`;
-            }}
-            style={{
-              width: 300,
-              paddingRight: "50px",
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label={"Pick debt facility"}
-                variant="outlined"
-              />
-            )}
-            onChange={(_event, debtFacility) => {
-              setSelectedDebtFacilityId(debtFacility?.id || "");
-              const supportedProductTypes = (debtFacility?.product_types
-                ? debtFacility?.product_types["supported"]
-                : []) as ProductTypeEnum[];
-              setSelectedDebtFacilitySupportedProductTypes(
-                supportedProductTypes
-              );
-              setMaximumCapacity(
-                debtFacility?.maximum_capacities[0]?.amount || 0
-              );
-              setIsDebtFacilitySelected(!!debtFacility || false);
-            }}
-          />
-        </FormControl>
+        <AutocompleteDebtFacility
+          textFieldLabel="Pick debt facility"
+          onChange={(debtFacility) => {
+            setSelectedDebtFacilityId(debtFacility?.id || "");
+            const supportedProductTypes = (debtFacility?.product_types
+              ? debtFacility?.product_types["supported"]
+              : []) as ProductTypeEnum[];
+            setSelectedDebtFacilitySupportedProductTypes(supportedProductTypes);
+            setMaximumCapacity(
+              debtFacility?.maximum_capacities[0]?.amount || 0
+            );
+            setIsDebtFacilitySelected(!!debtFacility || false);
+          }}
+        />
       </Box>
       <Box
         display="flex"
