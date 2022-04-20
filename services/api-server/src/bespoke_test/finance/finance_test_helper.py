@@ -11,7 +11,7 @@ def get_default_financial_summary(
 	date_str: str = None,
 	company_id: str = None,
 	total_outstanding_interest: float = 0.0,
-	minimum_monthly_payload: models.FeeDict = None,
+	minimum_interest_info: models.MinimumInterestInfoDict = None,
 ) -> models.FinancialSummary:
 	date = date_util.load_date_str(date_str) if date_str else None
 
@@ -25,7 +25,7 @@ def get_default_financial_summary(
 		total_principal_in_requested_state=decimal.Decimal(0.0),
 		interest_accrued_today=decimal.Decimal(0.0),
 		available_limit=decimal.Decimal(available_limit),
-		minimum_monthly_payload=minimum_monthly_payload if minimum_monthly_payload else cast(Any, {}),
+		minimum_monthly_payload=minimum_interest_info if minimum_interest_info else cast(Any, {}),
 		account_level_balance_payload={},
 		product_type=product_type,
 		date=date,

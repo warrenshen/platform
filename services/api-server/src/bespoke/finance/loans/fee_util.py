@@ -8,7 +8,7 @@ from typing import Dict, List, NamedTuple, Tuple
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
-from bespoke.db.models import FeeDict, ProratedFeeInfoDict
+from bespoke.db.models import MinimumInterestInfoDict, ProratedFeeInfoDict
 from bespoke.finance import number_util, contract_util
 from bespoke.finance.types import finance_types
 from mypy_extensions import TypedDict
@@ -269,7 +269,7 @@ class FeeAccumulator(object):
 		self._contract_year_to_amounts[contract_year_key]['fees_amount'] += fees_for_day
 
 
-def get_cur_minimum_fees(contract_helper: contract_util.ContractHelper, today: datetime.date, fee_accumulator: FeeAccumulator) -> Tuple[FeeDict, errors.Error]:
+def get_cur_minimum_fees(contract_helper: contract_util.ContractHelper, today: datetime.date, fee_accumulator: FeeAccumulator) -> Tuple[MinimumInterestInfoDict, errors.Error]:
 	cur_contract, err = contract_helper.get_contract(today)
 	if err:
 		return None, err
@@ -277,12 +277,12 @@ def get_cur_minimum_fees(contract_helper: contract_util.ContractHelper, today: d
 	minimum_owed_dict, err = cur_contract.get_minimum_amount_owed_per_duration()
 	has_no_duration_set = err is not None
 	if has_no_duration_set:
-		return FeeDict(
-			minimum_amount=0.0,
-			amount_accrued=0.0,
-			amount_short=0.0,
+		return MinimumInterestInfoDict(
 			duration=None,
-			prorated_info=None
+			minimum_amount=None,
+			amount_accrued=None,
+			amount_short=None,
+			prorated_info=None,
 		), None
 
 	contract_start_date, err = cur_contract.get_start_date()
@@ -306,11 +306,11 @@ def get_cur_minimum_fees(contract_helper: contract_util.ContractHelper, today: d
 
 	amount_short = max(0, minimum_due - amount_accrued)
 
-	cur_month_fees = FeeDict(
+	cur_month_fees = MinimumInterestInfoDict(
+		duration=duration,
 		minimum_amount=minimum_due,
 		amount_accrued=number_util.round_currency(amount_accrued),
 		amount_short=number_util.round_currency(amount_short),
-		duration=duration,
-		prorated_info=prorated_info
+		prorated_info=prorated_info,
 	)
 	return cur_month_fees, None

@@ -18,6 +18,8 @@ select_permissions:
         - available_limit
         - daily_interest_rate
         - interest_accrued_today
+        - minimum_interest_amount
+        - minimum_interest_remaining
         - total_amount_to_pay_interest_on
         - total_fees_paid_adjustment_today
         - total_interest_paid_adjustment_today
@@ -28,6 +30,7 @@ select_permissions:
         - total_outstanding_principal_for_interest
         - total_outstanding_principal_past_due
         - total_principal_in_requested_state
+        - minimum_interest_duration
         - product_type
         - updated_at
         - company_id
@@ -46,6 +49,8 @@ select_permissions:
         - available_limit
         - daily_interest_rate
         - interest_accrued_today
+        - minimum_interest_amount
+        - minimum_interest_remaining
         - total_amount_to_pay_interest_on
         - total_fees_paid_adjustment_today
         - total_interest_paid_adjustment_today
@@ -56,6 +61,7 @@ select_permissions:
         - total_outstanding_principal_for_interest
         - total_outstanding_principal_past_due
         - total_principal_in_requested_state
+        - minimum_interest_duration
         - product_type
         - updated_at
         - company_id
@@ -74,6 +80,8 @@ select_permissions:
         - available_limit
         - daily_interest_rate
         - interest_accrued_today
+        - minimum_interest_amount
+        - minimum_interest_remaining
         - total_amount_to_pay_interest_on
         - total_fees_paid_adjustment_today
         - total_interest_paid_adjustment_today
@@ -84,6 +92,7 @@ select_permissions:
         - total_outstanding_principal_for_interest
         - total_outstanding_principal_past_due
         - total_principal_in_requested_state
+        - minimum_interest_duration
         - product_type
         - updated_at
         - company_id
@@ -100,30 +109,33 @@ select_permissions:
   - role: company_read_only
     permission:
       columns:
-        - needs_recompute
-        - date
-        - days_to_compute_back
-        - account_level_balance_payload
-        - minimum_monthly_payload
-        - adjusted_total_limit
+        - id
+        - company_id
+        - total_limit
+        - total_outstanding_principal
+        - total_outstanding_interest
+        - total_principal_in_requested_state
         - available_limit
-        - daily_interest_rate
+        - total_outstanding_fees
+        - adjusted_total_limit
+        - date
+        - total_outstanding_principal_for_interest
+        - minimum_monthly_payload
+        - account_level_balance_payload
+        - day_volume_threshold_met
         - interest_accrued_today
         - total_amount_to_pay_interest_on
-        - total_fees_paid_adjustment_today
-        - total_interest_paid_adjustment_today
-        - total_limit
-        - total_outstanding_fees
-        - total_outstanding_interest
-        - total_outstanding_principal
-        - total_outstanding_principal_for_interest
-        - total_outstanding_principal_past_due
-        - total_principal_in_requested_state
         - product_type
+        - needs_recompute
         - updated_at
-        - company_id
-        - id
-        - day_volume_threshold_met
+        - days_to_compute_back
+        - total_interest_paid_adjustment_today
+        - total_fees_paid_adjustment_today
+        - total_outstanding_principal_past_due
+        - daily_interest_rate
+        - minimum_interest_duration
+        - minimum_interest_amount
+        - minimum_interest_remaining
       filter:
         _or:
           - company_id:

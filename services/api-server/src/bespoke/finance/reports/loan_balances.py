@@ -27,7 +27,7 @@ from bespoke.db.models import session_scope
 from bespoke.finance import contract_util, number_util
 from bespoke.finance.fetchers import per_customer_fetcher
 from bespoke.finance.loans import fee_util, loan_calculator
-from bespoke.finance.loans.fee_util import FeeDict
+from bespoke.finance.loans.fee_util import MinimumInterestInfoDict
 from bespoke.finance.loans.loan_calculator import (LoanUpdateDebugInfoDict,
                                                    LoanUpdateDict)
 from bespoke.finance.payments import payment_util
@@ -50,7 +50,7 @@ SummaryUpdateDict = TypedDict('SummaryUpdateDict', {
 	'total_interest_paid_adjustment_today': float,
 	'total_fees_paid_adjustment_today': float,
 	'available_limit': float,
-	'minimum_monthly_payload': FeeDict,
+	'minimum_interest_info': MinimumInterestInfoDict,
 	'account_level_balance_payload': finance_types.AccountBalanceDict,
 	'day_volume_threshold_met': datetime.date,
 })
@@ -215,7 +215,7 @@ def _get_summary_update(
 		total_interest_paid_adjustment_today += l['interest_paid_daily_adjustment']
 		total_fees_paid_adjustment_today += l['fees_paid_daily_adjustment']
 
-	minimum_monthly_payload, err = fee_util.get_cur_minimum_fees(contract_helper, today, fee_accumulator)
+	minimum_interest_info, err = fee_util.get_cur_minimum_fees(contract_helper, today, fee_accumulator)
 	if err:
 		return None, err
 
@@ -238,7 +238,7 @@ def _get_summary_update(
 		total_interest_paid_adjustment_today=total_interest_paid_adjustment_today,
 		total_fees_paid_adjustment_today=total_fees_paid_adjustment_today,
 		available_limit=max(0.0, adjusted_total_limit - total_outstanding_principal),
-		minimum_monthly_payload=minimum_monthly_payload,
+		minimum_interest_info=minimum_interest_info,
 		account_level_balance_payload=account_level_balance,
 		day_volume_threshold_met=None
 	), None
@@ -564,6 +564,8 @@ class CustomerBalance(object):
 				)
 
 			summary_update = customer_update['summary_update']
+			minimum_interest_info = cast(Dict, summary_update['minimum_interest_info'])
+
 			financial_summary.date = customer_update['today']
 			financial_summary.total_limit = decimal.Decimal(number_util.round_currency(summary_update['total_limit']))
 			financial_summary.adjusted_total_limit = decimal.Decimal(number_util.round_currency(summary_update['adjusted_total_limit']))
@@ -577,7 +579,10 @@ class CustomerBalance(object):
 			financial_summary.total_interest_paid_adjustment_today = decimal.Decimal(number_util.round_currency(summary_update['total_interest_paid_adjustment_today']))
 			financial_summary.total_fees_paid_adjustment_today = decimal.Decimal(number_util.round_currency(summary_update['total_fees_paid_adjustment_today']))
 			financial_summary.available_limit = decimal.Decimal(number_util.round_currency(summary_update['available_limit']))
-			financial_summary.minimum_monthly_payload = cast(Dict, summary_update['minimum_monthly_payload'])
+			financial_summary.minimum_monthly_payload = minimum_interest_info
+			financial_summary.minimum_interest_duration = minimum_interest_info['duration']
+			financial_summary.minimum_interest_amount = minimum_interest_info['minimum_amount']
+			financial_summary.minimum_interest_remaining = minimum_interest_info['amount_short']
 			financial_summary.account_level_balance_payload = cast(Dict, summary_update['account_level_balance_payload'])
 			financial_summary.day_volume_threshold_met = summary_update['day_volume_threshold_met']
 			financial_summary.product_type = summary_update['product_type']

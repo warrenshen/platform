@@ -11,14 +11,14 @@ from sqlalchemy.orm.session import Session
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models, db_constants
-from bespoke.db.models import FeeDict
+from bespoke.db.models import MinimumInterestInfoDict
 from bespoke.db.db_constants import MinimumAmountDuration, TransactionSubType
 from bespoke.finance import number_util
 from bespoke.finance.payments import payment_util, repayment_util
 from bespoke.finance.types import payment_types
 
 MonthEndPerCompanyRespInfo = TypedDict('MonthEndPerCompanyRespInfo', {
-	'fee_info': models.FeeDict,
+	'fee_info': models.MinimumInterestInfoDict,
 	'fee_amount': float,
 	'total_outstanding_interest': float,
 	'company': models.CompanyDict
@@ -29,7 +29,7 @@ AllMonthlyDueRespDict = TypedDict('AllMonthlyDueRespDict', {
 })
 
 PerCompanyRespInfo = TypedDict('PerCompanyRespInfo', {
-	'fee_info': models.FeeDict,
+	'fee_info': models.MinimumInterestInfoDict,
 	'company': models.CompanyDict
 })
 
@@ -40,7 +40,7 @@ AllMonthlyMinimumDueRespDict = TypedDict('AllMonthlyMinimumDueRespDict', {
 def _is_in_same_month(d1: datetime.date, d2: datetime.date) -> bool:
 	return d1.year == d2.year and d1.month == d2.month
 
-def _should_pay_this_month(fee_payload: models.FeeDict, cur_date: datetime.date) -> bool:
+def _should_pay_this_month(fee_payload: models.MinimumInterestInfoDict, cur_date: datetime.date) -> bool:
 	if 'prorated_info' not in fee_payload or fee_payload['prorated_info'] is None:
 		return False
 
@@ -103,7 +103,7 @@ def get_all_minimum_interest_fees_due(
 		if not financial_summary.minimum_monthly_payload:
 			continue
 
-		minimum_monthly_payload = cast(models.FeeDict, financial_summary.minimum_monthly_payload)
+		minimum_monthly_payload = cast(models.MinimumInterestInfoDict, financial_summary.minimum_monthly_payload)
 
 		if not _should_pay_this_month(minimum_monthly_payload, last_day_of_month_date):
 			continue
@@ -269,7 +269,7 @@ def get_all_month_end_payments(
 				company_dict['name']))
 			continue
 
-		minimum_monthly_payload = cast(models.FeeDict, financial_summary.minimum_monthly_payload)
+		minimum_monthly_payload = cast(models.MinimumInterestInfoDict, financial_summary.minimum_monthly_payload)
 		fee_amount = float(financial_summary.total_outstanding_interest) if is_loc_customer else 0.0
 
 		booked_fee = company_id_to_fee.get(cur_company_id)

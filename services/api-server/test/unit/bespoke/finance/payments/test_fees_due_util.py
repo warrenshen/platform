@@ -68,7 +68,7 @@ class TestMinimumFeesDue(db_unittest.TestCase):
 		with session_scope(session_maker) as session:
 			_set_is_dummy_account(company_id3, session)
 
-			minimum_monthly_payload = models.FeeDict(
+			minimum_interest_info = models.MinimumInterestInfoDict(
 				amount_accrued=6.0, # unused
 				minimum_amount=10.0, # unused
 				amount_short=4.0,
@@ -87,11 +87,11 @@ class TestMinimumFeesDue(db_unittest.TestCase):
 				product_type=ProductType.INVENTORY_FINANCING,
 				date_str='1/31/2020',
 				company_id=company_id,
-				minimum_monthly_payload=minimum_monthly_payload
+				minimum_interest_info=minimum_interest_info
 			)
 			session.add(summary)
 
-			minimum_monthly_payload2 = models.FeeDict(
+			minimum_interest_info2 = models.MinimumInterestInfoDict(
 				amount_accrued=5.0, # unused
 				minimum_amount=10.0, # unused
 				amount_short=5.0,
@@ -110,7 +110,7 @@ class TestMinimumFeesDue(db_unittest.TestCase):
 				product_type=ProductType.LINE_OF_CREDIT,
 				date_str='1/31/2020',
 				company_id=company_id2,
-				minimum_monthly_payload=minimum_monthly_payload2
+				minimum_interest_info=minimum_interest_info2
 			)
 			session.add(summary2)
 
@@ -121,7 +121,7 @@ class TestMinimumFeesDue(db_unittest.TestCase):
 				product_type=ProductType.LINE_OF_CREDIT,
 				date_str='1/31/2020',
 				company_id=company_id3,
-				minimum_monthly_payload=minimum_monthly_payload2
+				minimum_interest_info=minimum_interest_info2
 			)
 			session.add(summary3)
 
@@ -134,7 +134,7 @@ class TestMinimumFeesDue(db_unittest.TestCase):
 			self.assertDictEqual({
 				'company_due_to_financial_info': {
 					company_id: {
-						'fee_info': minimum_monthly_payload,
+						'fee_info': minimum_interest_info,
 						'company': {
 							'identifier': 'D0',
 							'name': 'Distributor_0',
@@ -142,7 +142,7 @@ class TestMinimumFeesDue(db_unittest.TestCase):
 						}
 					},
 					company_id2: {
-						'fee_info': minimum_monthly_payload2,
+						'fee_info': minimum_interest_info2,
 						'company': {
 							'identifier': 'D1',
 							'name': 'Distributor_1',
@@ -281,7 +281,7 @@ class TestMonthEndRepayments(db_unittest.TestCase):
 
 		with session_scope(session_maker) as session:
 			# Customer 1
-			minimum_monthly_payload = models.FeeDict(
+			minimum_interest_info = models.MinimumInterestInfoDict(
 				amount_accrued=6.0, # unused
 				minimum_amount=10.0, # unused
 				amount_short=4.0,
@@ -300,7 +300,7 @@ class TestMonthEndRepayments(db_unittest.TestCase):
 				product_type=ProductType.INVENTORY_FINANCING,
 				date_str='1/01/2020',
 				company_id=company_id,
-				minimum_monthly_payload=minimum_monthly_payload
+				minimum_interest_info=minimum_interest_info
 			)
 			session.add(summary_day1)
 
@@ -310,7 +310,7 @@ class TestMonthEndRepayments(db_unittest.TestCase):
 				product_type=ProductType.INVENTORY_FINANCING,
 				date_str='1/31/2020',
 				company_id=company_id,
-				minimum_monthly_payload=minimum_monthly_payload
+				minimum_interest_info=minimum_interest_info
 			)
 			session.add(summary)
 
@@ -318,7 +318,7 @@ class TestMonthEndRepayments(db_unittest.TestCase):
 			contract_test_helper.set_and_add_contract_for_company(contract, company_id, session)
 
 			# Customer 2
-			minimum_monthly_payload2 = models.FeeDict(
+			minimum_interest_info2 = models.MinimumInterestInfoDict(
 				amount_accrued=5.0, # unused
 				minimum_amount=10.0, # unused
 				amount_short=5.0,
@@ -337,7 +337,7 @@ class TestMonthEndRepayments(db_unittest.TestCase):
 				product_type=ProductType.LINE_OF_CREDIT,
 				date_str='01/01/2020',
 				company_id=company_id2,
-				minimum_monthly_payload=minimum_monthly_payload2,
+				minimum_interest_info=minimum_interest_info2,
 				total_outstanding_interest=2.0,
 			)
 			session.add(summary2_day1)
@@ -348,7 +348,7 @@ class TestMonthEndRepayments(db_unittest.TestCase):
 				product_type=ProductType.LINE_OF_CREDIT,
 				date_str='1/31/2020',
 				company_id=company_id2,
-				minimum_monthly_payload=minimum_monthly_payload2,
+				minimum_interest_info=minimum_interest_info2,
 				total_outstanding_interest=15.0,
 			)
 			session.add(summary2)
@@ -357,7 +357,7 @@ class TestMonthEndRepayments(db_unittest.TestCase):
 			contract_test_helper.set_and_add_contract_for_company(contract2, company_id2, session)
 
 			# Customer 3 - transitioned during the month, so they get ignored
-			minimum_monthly_payload3 = models.FeeDict(
+			minimum_interest_info3 = models.MinimumInterestInfoDict(
 				amount_accrued=3.0, # unused
 				minimum_amount=10.0, # unused
 				amount_short=7.0,
@@ -376,7 +376,7 @@ class TestMonthEndRepayments(db_unittest.TestCase):
 				product_type=ProductType.INVENTORY_FINANCING,
 				date_str='01/01/2020',
 				company_id=company_id3,
-				minimum_monthly_payload=minimum_monthly_payload3
+				minimum_interest_info=minimum_interest_info3
 			)
 			session.add(summary3_day1)
 
@@ -386,7 +386,7 @@ class TestMonthEndRepayments(db_unittest.TestCase):
 				product_type=ProductType.LINE_OF_CREDIT,
 				date_str='1/31/2020',
 				company_id=company_id3,
-				minimum_monthly_payload=minimum_monthly_payload3
+				minimum_interest_info=minimum_interest_info3
 			)
 			session.add(summary3)
 
@@ -400,7 +400,7 @@ class TestMonthEndRepayments(db_unittest.TestCase):
 				product_type=ProductType.LINE_OF_CREDIT,
 				date_str='1/31/2020',
 				company_id=company_id4,
-				minimum_monthly_payload=minimum_monthly_payload3,
+				minimum_interest_info=minimum_interest_info3,
 				total_outstanding_interest=5.0
 			)
 			session.add(summary4)
@@ -432,7 +432,7 @@ class TestMonthEndRepayments(db_unittest.TestCase):
 			self.assertDictEqual({
 				'company_due_to_financial_info': {
 					company_id: {
-						'fee_info': minimum_monthly_payload,
+						'fee_info': minimum_interest_info,
 						'company': {
 							'identifier': 'D0',
 							'name': 'Distributor_0',
@@ -442,7 +442,7 @@ class TestMonthEndRepayments(db_unittest.TestCase):
 						'total_outstanding_interest': 0.0,
 					},
 					company_id2: {
-						'fee_info': minimum_monthly_payload2,
+						'fee_info': minimum_interest_info2,
 						'company': {
 							'identifier': 'D1',
 							'name': 'Distributor_1',
@@ -517,7 +517,7 @@ class TestMonthEndRepayments(db_unittest.TestCase):
 
 		with session_scope(session_maker) as session:
 			# Customer 1
-			minimum_monthly_payload = models.FeeDict(
+			minimum_interest_info = models.MinimumInterestInfoDict(
 				amount_accrued=6.0, # unused
 				minimum_amount=10.0, # unused
 				amount_short=amount_short,
@@ -536,7 +536,7 @@ class TestMonthEndRepayments(db_unittest.TestCase):
 				product_type=ProductType.INVENTORY_FINANCING,
 				date_str='1/01/2020',
 				company_id=company_id,
-				minimum_monthly_payload=minimum_monthly_payload
+				minimum_interest_info=minimum_interest_info
 			)
 			session.add(summary_day1)
 
@@ -546,7 +546,7 @@ class TestMonthEndRepayments(db_unittest.TestCase):
 				product_type=ProductType.INVENTORY_FINANCING,
 				date_str='1/31/2020',
 				company_id=company_id,
-				minimum_monthly_payload=minimum_monthly_payload
+				minimum_interest_info=minimum_interest_info
 			)
 			session.add(summary)
 

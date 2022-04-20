@@ -128,14 +128,18 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				self.assertAlmostEqual(expected.get('total_interest_paid_adjustment_today', 0.0), number_util.round_currency(actual['total_interest_paid_adjustment_today']))
 				self.assertAlmostEqual(expected.get('total_fees_paid_adjustment_today', 0.0), number_util.round_currency(actual['total_fees_paid_adjustment_today']))
 				self.assertAlmostEqual(expected['total_principal_in_requested_state'], number_util.round_currency(actual['total_principal_in_requested_state']))
-				if 'total_amount_to_pay_interest_on' not in expected:
-					print(actual['total_amount_to_pay_interest_on'])
 				self.assertAlmostEqual(expected['total_amount_to_pay_interest_on'], number_util.round_currency(actual['total_amount_to_pay_interest_on']))
 				self.assertAlmostEqual(expected['total_interest_accrued_today'], number_util.round_currency(actual['total_interest_accrued_today']))
-				self.assertAlmostEqual(expected['minimum_monthly_payload']['minimum_amount'], actual['minimum_monthly_payload']['minimum_amount'])
-				#self.assertAlmostEqual(expected['minimum_monthly_payload']['amount_accrued'], number_util.round_currency((actual['minimum_monthly_payload']['amount_accrued'])))
-				#self.assertAlmostEqual(expected['minimum_monthly_payload']['amount_short'], number_util.round_currency((actual['minimum_monthly_payload']['amount_short'])))
-				self.assertEqual(expected['minimum_monthly_payload']['duration'], actual['minimum_monthly_payload']['duration'])
+
+				if expected['minimum_interest_info']['duration']:
+					self.assertEqual(expected['minimum_interest_info']['duration'], actual['minimum_interest_info']['duration'])
+					self.assertAlmostEqual(expected['minimum_interest_info']['minimum_amount'], actual['minimum_interest_info']['minimum_amount'])
+				else:
+					self.assertEqual(None, actual['minimum_interest_info']['duration'])
+					self.assertEqual(None, actual['minimum_interest_info']['minimum_amount'])
+				#self.assertAlmostEqual(expected['minimum_interest_info']['amount_accrued'], number_util.round_currency((actual['minimum_interest_info']['amount_accrued'])))
+				#self.assertAlmostEqual(expected['minimum_interest_info']['amount_short'], number_util.round_currency((actual['minimum_interest_info']['amount_short'])))
+
 				test_helper.assertDeepAlmostEqual(
 					self, expected['account_level_balance_payload'], cast(Dict, actual['account_level_balance_payload']))
 				self.assertEqual(expected['day_volume_threshold_met'], actual['day_volume_threshold_met'])
@@ -241,7 +245,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_amount_to_pay_interest_on': 0.0,
 					'total_interest_accrued_today': 0.0,
 					'available_limit': 120000.01,
-					'minimum_monthly_payload': {
+					'minimum_interest_info': {
 						'minimum_amount': 2001.03,
 						'amount_accrued': 0.0,
 						'amount_short': 2001.03,
@@ -342,7 +346,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_amount_to_pay_interest_on': 500.03 + 100.03,
 					'total_interest_accrued_today': number_util.round_currency((0.05 * 500.03) + (0.05 * 100.03)),
 					'available_limit': 120000.01 - (500.03 + 100.03),
-					'minimum_monthly_payload': {
+					'minimum_interest_info': {
 							'minimum_amount': 200.03,
 							'amount_accrued': number_util.round_currency((3 * 0.05 * 500.03) + (2 * 0.05 * 100.03)),
 							'amount_short': number_util.round_currency(200.03 - ((3 * 0.05 * 500.03) + (2 * 0.05 * 100.03))),
@@ -454,7 +458,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_amount_to_pay_interest_on': 500.03,
 					'total_interest_accrued_today': number_util.round_currency(0.005 * 500.03),
 					'available_limit': 120000.01 - 500.03,
-					'minimum_monthly_payload': {
+					'minimum_interest_info': {
 							'minimum_amount': 20000.03 * prorated_fraction,
 							'amount_accrued': number_util.round_currency(30 * 0.005 * 500.03),
 							'amount_short': number_util.round_currency(20000.03 * prorated_fraction - (30 * 0.005 * 500.03)),
@@ -567,7 +571,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_amount_to_pay_interest_on': 500.03,
 					'total_interest_accrued_today': number_util.round_currency(0.005 * 500.03),
 					'available_limit': 120000.01 - (500.03),
-					'minimum_monthly_payload': {
+					'minimum_interest_info': {
 							'minimum_amount': 20000.03,
 							'amount_accrued': number_util.round_currency(35 * 0.005 * 500.03),
 							'amount_short': number_util.round_currency(20000.03 - (35 * 0.005 * 500.03)),
@@ -1306,7 +1310,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_interest_paid_adjustment_today': number_util.round_currency(0.05 * 100.00 * 3),
 					'total_fees_paid_adjustment_today': 0.0,
 					'available_limit': 120000.01,
-					'minimum_monthly_payload': {'minimum_amount': 200.03, 'amount_accrued': 155.01, 'amount_short': 45.02, 'duration': 'monthly', 'prorated_info': {'numerator': 31, 'denom': 31, 'fraction': 1.0, 'day_to_pay': '12/31/2020'}},
+					'minimum_interest_info': {'minimum_amount': 200.03, 'amount_accrued': 155.01, 'amount_short': 45.02, 'duration': 'monthly', 'prorated_info': {'numerator': 31, 'denom': 31, 'fraction': 1.0, 'day_to_pay': '12/31/2020'}},
 					'account_level_balance_payload': {'fees_total': 0.0, 'credits_total': 0.0},
 					'day_volume_threshold_met': None
 				},
@@ -1597,7 +1601,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_interest_paid_adjustment_today': 0.0,
 					'total_fees_paid_adjustment_today': abs(number_util.round_currency(1 * 0.05 * 100.00 * 0.25 - 3.0)),
 					'available_limit': 119980.01,
-					'minimum_monthly_payload': {'minimum_amount': 200.03, 'amount_accrued': 155.01, 'amount_short': 45.02, 'duration': 'monthly', 'prorated_info': {'numerator': 31, 'denom': 31, 'fraction': 1.0, 'day_to_pay': '10/31/2020'}},
+					'minimum_interest_info': {'minimum_amount': 200.03, 'amount_accrued': 155.01, 'amount_short': 45.02, 'duration': 'monthly', 'prorated_info': {'numerator': 31, 'denom': 31, 'fraction': 1.0, 'day_to_pay': '10/31/2020'}},
 					'account_level_balance_payload': {'fees_total': 0.0, 'credits_total': 0.0},
 					'day_volume_threshold_met': None
 				},
@@ -1759,7 +1763,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_amount_to_pay_interest_on': 0.0,
 					'total_interest_accrued_today': 0.0,
 					'available_limit': 120000.01,
-					'minimum_monthly_payload': {
+					'minimum_interest_info': {
 						'minimum_amount': 1.03,
 						'amount_accrued': number_util.round_currency(2 * 0.002 * 500.03),
 						'amount_short': 0.0,
@@ -1789,7 +1793,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_amount_to_pay_interest_on': 0.0,
 					'total_interest_accrued_today': 0.0,
 					'available_limit': 120000.01,
-					'minimum_monthly_payload': {
+					'minimum_interest_info': {
 						'minimum_amount': 1.03,
 						'amount_accrued': number_util.round_currency(2 * 0.002 * 500.03),
 						'amount_short': 0.0,
@@ -2084,7 +2088,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_amount_to_pay_interest_on': 500.03,
 					'total_interest_accrued_today': number_util.round_currency(0.002 * 500.03),
 					'available_limit': 120000.01 - (450.03),
-					'minimum_monthly_payload': {
+					'minimum_interest_info': {
 							'minimum_amount': 1.03,
 							'amount_accrued': number_util.round_currency(2 * 0.002 * 500.03),
 							'amount_short': 0.0,
@@ -2264,7 +2268,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_amount_to_pay_interest_on': 430.02,
 					'total_interest_accrued_today': number_util.round_currency(430.02 * 0.002),
 					'available_limit': 120000.01 - (450.03),
-					'minimum_monthly_payload': {
+					'minimum_interest_info': {
 							'minimum_amount': 1.03,
 							'amount_accrued': number_util.round_currency(2 * 0.002 * 430.02),
 							'amount_short': 0.0,
@@ -2392,7 +2396,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				'total_amount_to_pay_interest_on': 0.0,
 				'total_interest_accrued_today': 0.0,
 				'available_limit': 825000,
-				'minimum_monthly_payload': {
+				'minimum_interest_info': {
 					'minimum_amount': 1.03,
 					'amount_accrued': 0.0,
 					'amount_short': 1.03,
@@ -2540,11 +2544,11 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_amount_to_pay_interest_on': 0.0,
 					'total_interest_accrued_today': 0.0,
 					'available_limit': 450000,
-					'minimum_monthly_payload': {
-						'minimum_amount': 0.0,
-						'amount_accrued': 0.0,
-						'amount_short': 0.0,
-						'duration': None
+					'minimum_interest_info': {
+						'duration': None,
+						'minimum_amount': None,
+						'amount_accrued': None,
+						'amount_short': None,
 					},
 					'account_level_balance_payload': {
 						'fees_total': 0.0,
@@ -2575,11 +2579,11 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_amount_to_pay_interest_on': 0.0,
 					'total_interest_accrued_today': 0.0,
 					'available_limit': 450000,
-					'minimum_monthly_payload': {
-						'minimum_amount': 0.0,
-						'amount_accrued': 0.0,
-						'amount_short': 0.0,
-						'duration': None
+					'minimum_interest_info': {
+						'duration': None,
+						'minimum_amount': None,
+						'amount_accrued': None,
+						'amount_short': None,
 					},
 					'account_level_balance_payload': {
 						'fees_total': 0.0,
@@ -2610,11 +2614,11 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_amount_to_pay_interest_on': 0.0,
 					'total_interest_accrued_today': 0.0,
 					'available_limit': 450000,
-					'minimum_monthly_payload': {
-						'minimum_amount': 0.0,
-						'amount_accrued': 0.0,
-						'amount_short': 0.0,
-						'duration': None
+					'minimum_interest_info': {
+						'duration': None,
+						'minimum_amount': None,
+						'amount_accrued': None,
+						'amount_short': None,
 					},
 					'account_level_balance_payload': {
 						'fees_total': 0.0,
@@ -2697,11 +2701,11 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				'total_amount_to_pay_interest_on': 0.0,
 				'total_interest_accrued_today': 0.0,
 				'available_limit': 450000,
-				'minimum_monthly_payload': {
-					'minimum_amount': 0.0,
-					'amount_accrued': 0.0,
-					'amount_short': 0.0,
-					'duration': None
+				'minimum_interest_info': {
+					'duration': None,
+					'minimum_amount': None,
+					'amount_accrued': None,
+					'amount_short': None,
 				},
 				'account_level_balance_payload': {
 					'fees_total': 0.0,
@@ -2757,11 +2761,11 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				'total_amount_to_pay_interest_on': 0.0,
 				'total_interest_accrued_today': 0.0,
 				'available_limit': 0.0,
-				'minimum_monthly_payload': {
-					'minimum_amount': 0.0,
-					'amount_accrued': 0.0,
-					'amount_short': 0.0,
-					'duration': None
+				'minimum_interest_info': {
+					'duration': None,
+					'minimum_amount': None,
+					'amount_accrued': None,
+					'amount_short': None,
 				},
 				'account_level_balance_payload': {
 					'fees_total': 0.0,

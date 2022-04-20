@@ -3,7 +3,6 @@ import decimal
 import logging
 import os
 import time
-import uuid
 from contextlib import contextmanager
 from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterator, List,
                     Optional, Union, cast)
@@ -1076,7 +1075,7 @@ ProratedFeeInfoDict = TypedDict('ProratedFeeInfoDict', {
 	'day_to_pay': str # Day to pay in our standard MM/DD/YYYY format
 })
 
-FeeDict = TypedDict('FeeDict', {
+MinimumInterestInfoDict = TypedDict('MinimumInterestInfoDict', {
 	'amount_accrued': float, # how much has accrued in fees for the time period
 	'minimum_amount': float, # the minimum you must pay in a time period
 	'amount_short': float, # how much you owe for a time period because of the minimum_due
@@ -1103,13 +1102,17 @@ class FinancialSummary(Base):
 	total_fees_paid_adjustment_today = Column(Numeric)
 	available_limit = Column(Numeric, nullable=False)
 	adjusted_total_limit = Column(Numeric, nullable=False)
-	minimum_monthly_payload = Column(JSON, nullable=False)
+	minimum_monthly_payload = Column(JSON, nullable=False) # Note: better name is minimum_interest_payload.
 	account_level_balance_payload = Column(JSON, nullable=False)
 	day_volume_threshold_met = Column(Date)
 	interest_accrued_today = Column(Numeric, nullable=False)
 
 	product_type = Column(Text)
 	daily_interest_rate = Column(Numeric)
+
+	minimum_interest_duration = Column(Text)
+	minimum_interest_amount = Column(Numeric)
+	minimum_interest_remaining = Column(Numeric)
 
 	needs_recompute = Column(Boolean)
 	days_to_compute_back = Column(Integer)

@@ -89,12 +89,12 @@ class TestMinimumFees(db_unittest.TestCase):
 			'today': '10/01/2020',
 			'contracts': [_get_contract()],
 			'populate_fn': populate_fn,
-			'expected_fee_dict': fee_util.FeeDict(
-				minimum_amount=0.0,
-				amount_accrued=0.0,
-				amount_short=0.0,
+			'expected_fee_dict': fee_util.MinimumInterestInfoDict(
 				duration=None,
-				prorated_info=None
+				minimum_amount=None,
+				amount_accrued=None,
+				amount_short=None,
+				prorated_info=None,
 			)
 		}
 		self._run_test(test)
@@ -125,12 +125,12 @@ class TestMinimumFees(db_unittest.TestCase):
 			'today': '01/10/2020',
 			'contracts': [_get_contract(minimum_monthly_amount=3.0)],
 			'populate_fn': populate_fn,
-			'expected_fee_dict': fee_util.FeeDict(
+			'expected_fee_dict': fee_util.MinimumInterestInfoDict(
+				duration='monthly',
 				minimum_amount=3.0,
 				amount_accrued=2.1,
 				amount_short=0.9,
-				duration='monthly',
-				prorated_info=None
+				prorated_info=None,
 			)
 		}
 		self._run_test(test)
@@ -161,12 +161,12 @@ class TestMinimumFees(db_unittest.TestCase):
 			'today': '01/10/2020',
 			'contracts': [_get_contract(minimum_quarterly_amount=3.0)],
 			'populate_fn': populate_fn,
-			'expected_fee_dict': fee_util.FeeDict(
+			'expected_fee_dict': fee_util.MinimumInterestInfoDict(
+				duration='quarterly',
 				minimum_amount=3.0,
 				amount_accrued=2.1,
 				amount_short=0.9,
-				duration='quarterly',
-				prorated_info=None
+				prorated_info=None,
 			)
 		}
 		self._run_test(test)
@@ -201,12 +201,12 @@ class TestMinimumFees(db_unittest.TestCase):
 				contract_end_date='01/02/2021'
 			)],
 			'populate_fn': populate_fn,
-			'expected_fee_dict': fee_util.FeeDict(
+			'expected_fee_dict': fee_util.MinimumInterestInfoDict(
+				duration='annually',
 				minimum_amount=3.0,
 				amount_accrued=2.1,
 				amount_short=0.9,
-				duration='annually',
-				prorated_info=None
+				prorated_info=None,
 			)
 		}
 		self._run_test(test)
