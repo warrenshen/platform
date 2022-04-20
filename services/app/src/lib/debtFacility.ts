@@ -31,7 +31,9 @@ export const determineBorrowerEligibility = (
   // Company status alone *could* cover the use case here
   // But adding this extra check around future debt facility support will be useful
   // since we don't know a priori what that support will entail
-  return companyLevelEligibility === "Eligible" && !!isProductTypeSupported
+  return companyLevelEligibility === "Waiver"
+    ? companyLevelEligibility
+    : companyLevelEligibility === "Eligible" && !!isProductTypeSupported
     ? DebtFacilityCompanyStatusToEligibility[
         DebtFacilityCompanyStatusEnum.GOOD_STANDING
       ]
@@ -61,18 +63,29 @@ export const determineLoanEligibility = (
 
       When a company is in good standing, the loan's eligibility is determined purely by loan status
       and if the debt facility for the report supports that product type
+
+      For LoC customers, since we merge open loans into one blob, we won't have a loan_report, so we
+      need to check for their loan status in a separate if blocks
     */
+    const productType = getProductTypeFromOpenLoanForDebtFacilityFragment(loan);
     if (
+      productType === ProductTypeEnum.LineOfCredit &&
+      (companyStatus === DebtFacilityCompanyStatusEnum.GOOD_STANDING ||
+        companyStatus === DebtFacilityCompanyStatusEnum.ON_PROBATION ||
+        companyStatus === DebtFacilityCompanyStatusEnum.WAIVER)
+    ) {
+      return "Eligible";
+    } else if (productType === ProductTypeEnum.LineOfCredit) {
+      return "Ineligible";
+    } else if (
       companyStatus !== DebtFacilityCompanyStatusEnum.GOOD_STANDING &&
+      companyStatus !== DebtFacilityCompanyStatusEnum.ON_PROBATION &&
       companyStatus !== DebtFacilityCompanyStatusEnum.WAIVER
     ) {
       return loanStatus === DebtFacilityStatusEnum.WAIVER
         ? "Eligible"
         : "Ineligible";
     } else {
-      const productType = getProductTypeFromOpenLoanForDebtFacilityFragment(
-        loan
-      );
       return supportedProductTypes.includes(productType)
         ? DebtFacilityStatusToEligibility[
             loan.loan_report.debt_facility_status as DebtFacilityStatusEnum
