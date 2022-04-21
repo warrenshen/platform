@@ -167,11 +167,6 @@ export default function EbbaApplicationFinancialReportsForm({
                   {`Inventory Report as of: ${selectedCertificationDate}`}
                 </Typography>
               </Box>
-              <Box mt={0.5}>
-                <Typography variant="body1">
-                  {`A/P Aging Summary Report as of: ${selectedCertificationDate}`}
-                </Typography>
-              </Box>
             </>
           ) : (
             <>
