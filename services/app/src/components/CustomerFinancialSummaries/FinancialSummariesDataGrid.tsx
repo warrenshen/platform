@@ -1,7 +1,6 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import {
   Companies,
@@ -9,7 +8,7 @@ import {
   GetFinancialSummariesByCompanyIdQuery,
 } from "generated/graphql";
 import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
-import { formatPercentage } from "lib/number";
+import { formatCurrency, formatPercentage } from "lib/number";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
@@ -22,9 +21,38 @@ function getRows(financialSummaries: FinancialSummaryFragment[]): RowsProp {
       daily_interest_rate: formatPercentage(
         financialSummary.daily_interest_rate
       ),
-      outstanding_account_fees: !!financialSummary
-        ? financialSummary?.account_level_balance_payload?.fees_total
-        : null,
+      total_outstanding_principal: formatCurrency(
+        financialSummary.total_outstanding_principal
+      ),
+      total_outstanding_principal_for_interest: formatCurrency(
+        financialSummary.total_outstanding_principal_for_interest
+      ),
+      total_amount_to_pay_interest_on: formatCurrency(
+        financialSummary.total_amount_to_pay_interest_on
+      ),
+      interest_accrued_today: formatCurrency(
+        financialSummary.interest_accrued_today
+      ),
+      total_outstanding_interest: formatCurrency(
+        financialSummary.total_outstanding_interest
+      ),
+      total_outstanding_late_fees: formatCurrency(
+        financialSummary.total_outstanding_fees
+      ),
+      total_outstanding_account_fees: formatCurrency(
+        financialSummary?.account_level_balance_payload?.fees_total
+      ),
+      available_limit: formatCurrency(financialSummary.available_limit),
+      adjusted_total_limit: formatCurrency(
+        financialSummary.adjusted_total_limit
+      ),
+      minimum_interest_duration: financialSummary.minimum_interest_duration,
+      minimum_interest_amount: formatCurrency(
+        financialSummary.minimum_interest_amount
+      ),
+      minimum_interest_remaining: formatCurrency(
+        financialSummary.minimum_interest_remaining
+      ),
     };
   });
 }
@@ -87,33 +115,18 @@ export default function FinancialSummariesDataGrid({
         caption: "Principal Balance (PB)",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell
-            value={params.row.data.total_outstanding_principal}
-          />
-        ),
       },
       {
         dataField: "total_outstanding_principal_for_interest",
         caption: "PB Including Clearance Days",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell
-            value={params.row.data.total_outstanding_principal_for_interest}
-          />
-        ),
       },
       {
         dataField: "total_amount_to_pay_interest_on",
         caption: "Amount To Pay Interest On",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell
-            value={params.row.data.total_amount_to_pay_interest_on}
-          />
-        ),
       },
       {
         dataField: "daily_interest_rate",
@@ -126,100 +139,54 @@ export default function FinancialSummariesDataGrid({
         caption: "Interest Accrued Today",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell
-            value={params.row.data.interest_accrued_today}
-          />
-        ),
       },
       {
         dataField: "total_outstanding_interest",
         caption: "Outstanding Interest",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell
-            value={params.row.data.total_outstanding_interest}
-          />
-        ),
       },
       {
-        dataField: "total_outstanding_fees",
+        dataField: "total_outstanding_late_fees",
         caption: "Outstanding Late Fees",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell
-            value={params.row.data.total_outstanding_fees}
-          />
-        ),
+      },
+      {
+        dataField: "total_outstanding_account_fees",
+        caption: "Outstanding Account Fees",
+        width: ColumnWidths.Currency,
+        alignment: "right",
       },
       {
         dataField: "available_limit",
         caption: "Available Limit",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.available_limit} />
-        ),
       },
       {
         dataField: "adjusted_total_limit",
         caption: "Total Limit",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.adjusted_total_limit} />
-        ),
       },
       {
-        dataField: "minimum_monthly_payload.duration",
+        dataField: "minimum_interest_duration",
         caption: "Minimum Interest Duration",
         width: ColumnWidths.Currency,
-        calculateCellValue: ({
-          minimum_monthly_payload: minimumMonthlyPayload,
-        }: FinancialSummaryFragment) => minimumMonthlyPayload?.duration || "-",
+        alignment: "right",
       },
       {
-        dataField: "minimum_monthly_payload.amount",
-        caption: "Minimum Interest Value",
+        dataField: "minimum_interest_amount",
+        caption: "Minimum Interest Amount",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => {
-          const minimumMonthlyPayload = params.row.data.minimum_monthly_payload;
-          const value = !!minimumMonthlyPayload
-            ? minimumMonthlyPayload.minimum_amount !== null
-              ? minimumMonthlyPayload.minimum_amount
-              : null
-            : null;
-          return <CurrencyDataGridCell value={value} />;
-        },
       },
       {
-        dataField: "minimum_monthly_payload.amount_short",
+        dataField: "minimum_interest_remaining",
         caption: "Minimum Interest Remaining",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => {
-          const minimumMonthlyPayload = params.row.data.minimum_monthly_payload;
-          const value = !!minimumMonthlyPayload
-            ? minimumMonthlyPayload.amount_short !== null
-              ? minimumMonthlyPayload.amount_short
-              : null
-            : null;
-          return <CurrencyDataGridCell value={value} />;
-        },
-      },
-      {
-        dataField: "outstanding_account_fees",
-        caption: "Outstanding Account Fees",
-        width: ColumnWidths.Currency,
-        alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell
-            value={params.row.data.outstanding_account_fees || 0}
-          />
-        ),
       },
     ],
     [isCustomerNameFixed, isProductTypeVisible, handleClickCustomer]

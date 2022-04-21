@@ -27175,6 +27175,9 @@ export type FinancialSummaryFragment = Pick<
   | "day_volume_threshold_met"
   | "interest_accrued_today"
   | "needs_recompute"
+  | "minimum_interest_duration"
+  | "minimum_interest_amount"
+  | "minimum_interest_remaining"
 >;
 
 export type InvoiceFileFragment = Pick<
@@ -28382,6 +28385,9 @@ export const FinancialSummaryFragmentDoc = gql`
     day_volume_threshold_met
     interest_accrued_today
     needs_recompute
+    minimum_interest_duration
+    minimum_interest_amount
+    minimum_interest_remaining
   }
 `;
 export const InvoiceFileFragmentDoc = gql`
