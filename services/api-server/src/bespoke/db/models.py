@@ -1090,7 +1090,6 @@ class FinancialSummary(Base):
 	company_id = Column(GUID, nullable=False)
 	date = Column(Date)
 
-	total_limit = Column(Numeric, nullable=False)
 	total_outstanding_principal = Column(Numeric, nullable=False)
 	total_outstanding_principal_for_interest = Column(Numeric)
 	total_outstanding_principal_past_due = Column(Numeric)
@@ -1100,8 +1099,11 @@ class FinancialSummary(Base):
 	total_amount_to_pay_interest_on = Column(Numeric)
 	total_interest_paid_adjustment_today = Column(Numeric)
 	total_fees_paid_adjustment_today = Column(Numeric)
-	available_limit = Column(Numeric, nullable=False)
-	adjusted_total_limit = Column(Numeric, nullable=False)
+
+	total_limit = Column(Numeric, nullable=False) # Max credit limit defined in contract.
+	adjusted_total_limit = Column(Numeric, nullable=False) # Final credit limit (may be less than credit limit defined in contract).
+	available_limit = Column(Numeric, nullable=False) # Available credit limit, depends on final credit limit and how much principal is outstanding.
+
 	minimum_monthly_payload = Column(JSON, nullable=False) # Note: better name is minimum_interest_payload.
 	account_level_balance_payload = Column(JSON, nullable=False)
 	day_volume_threshold_met = Column(Date)
@@ -1135,7 +1137,7 @@ TwoFactorFormInfoDict = TypedDict('TwoFactorFormInfoDict', {
 
 class TwoFactorLink(Base):
 	"""
-					Two factor tokens for rendering pages when a user isnt signed in.
+	Two factor tokens for rendering pages when a user isnt signed in.
 	"""
 	__tablename__ = 'two_factor_links'
 
@@ -1147,7 +1149,6 @@ class TwoFactorLink(Base):
 
 class File(Base):
 	"""
-					Two factor tokens for rendering pages when a user isnt signed in.
 	"""
 	__tablename__ = 'files'
 
