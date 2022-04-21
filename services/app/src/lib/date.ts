@@ -247,8 +247,6 @@ export function isLoanComingOrPastDue(dueDate: string): [boolean, boolean] {
   const isComingDue = dateDiff <= 0 && dateDiff > -14;
   const isPastDue = dateDiff > 0;
 
-  console.log("Date Diff:", dateDiff, "Due Date:", dueDate);
-
   return [isComingDue, isPastDue];
 }
 
@@ -269,3 +267,29 @@ export function withinNDaysOfNowOrBefore(
     : differenceInDays(date, now);
   return difference <= days;
 }
+
+export const renderQuarter = (input_date: string) => {
+  const d = new Date(input_date);
+  const month = d.getMonth();
+  const year = d.getFullYear();
+
+  const quarterMapping: Record<string, string> = {
+    "0": "1",
+    "1": "1",
+    "2": "1",
+
+    "3": "2",
+    "4": "2",
+    "5": "2",
+
+    "6": "3",
+    "7": "3",
+    "8": "3",
+
+    "9": "4",
+    "10": "4",
+    "11": "4",
+  };
+
+  return `Q${quarterMapping[month]}${year}`;
+};

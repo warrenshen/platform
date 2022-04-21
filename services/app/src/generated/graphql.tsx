@@ -27923,7 +27923,7 @@ export type OpenLoanForDebtFacilityFragment = {
   >;
   invoice?: Maybe<Pick<Invoices, "id"> & InvoiceFragment>;
   line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
-  transactions: Array<Pick<Transactions, "id">>;
+  transactions: Array<Pick<Transactions, "id" | "effective_date">>;
   company: Pick<Companies, "id"> & CompanyForDebtFacilityFragment;
 } & LoanForDebtFacilityFragment;
 
@@ -29279,6 +29279,7 @@ export const OpenLoanForDebtFacilityFragmentDoc = gql`
     }
     transactions(where: { _and: [{ type: { _eq: "advance" } }] }) {
       id
+      effective_date
     }
     company {
       id

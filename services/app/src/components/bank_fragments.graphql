@@ -414,6 +414,7 @@ fragment OpenLoanForDebtFacility on loans {
     }
   ) {
     id
+    effective_date
   }
   company {
     id

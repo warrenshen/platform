@@ -15,9 +15,7 @@ export function createLoanCustomerIdentifier(
   anonymousName?: string | undefined
 ) {
   return !!anonymousName
-    ? `${
-        anonymousName.charAt(0) + anonymousName.charAt(anonymousName.length - 1)
-      }/${loan.identifier}`
+    ? `${getAnonymizedShortName(anonymousName)}/${loan.identifier}`
     : `${loan.company.identifier}/${loan.identifier}`;
 }
 
@@ -26,12 +24,16 @@ export function createLoanDisbursementIdentifier(
   anonymousName?: string | undefined
 ) {
   return !!anonymousName
-    ? `${
-        anonymousName.charAt(0) + anonymousName.charAt(anonymousName.length - 1)
-      }-${loan.disbursement_identifier}`
+    ? `${getAnonymizedShortName(anonymousName)}-${loan.disbursement_identifier}`
     : loan.disbursement_identifier
     ? `${loan.company.identifier}-${loan.disbursement_identifier}`
     : "-";
+}
+
+export function getAnonymizedShortName(anonymousName: string | undefined) {
+  return !!anonymousName
+    ? anonymousName.charAt(0) + anonymousName.charAt(anonymousName.length - 1)
+    : "";
 }
 
 export function getLoanArtifactName(loan: LoanArtifactLimitedFragment) {
