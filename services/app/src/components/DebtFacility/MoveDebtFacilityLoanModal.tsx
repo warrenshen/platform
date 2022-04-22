@@ -22,7 +22,7 @@ import {
   useGetOpenLoansByDebtFacilityIdSubscription,
 } from "generated/graphql";
 import { formatCurrency } from "lib/number";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -40,6 +40,7 @@ interface Props {
   facilities: Facilities;
   handleClose: () => void;
   supportedProductTypes: ProductTypeEnum[];
+  defaultDebtFacilityId: string;
 }
 
 export default function MoveDebtFacilityLoanModal({
@@ -48,6 +49,7 @@ export default function MoveDebtFacilityLoanModal({
   facilities,
   handleClose,
   supportedProductTypes,
+  defaultDebtFacilityId,
 }: Props) {
   const snackbar = useSnackbar();
   const classes = useStyles();
@@ -55,6 +57,10 @@ export default function MoveDebtFacilityLoanModal({
   const [debtFacilityId, setDebtFacilityId] = useState("");
   const [moveComments, setMoveComments] = useState("");
   const [debtFacilityAssignedDate, setDebtFacilityAssignedDate] = useState("");
+
+  useEffect(() => {
+    setDebtFacilityId(defaultDebtFacilityId);
+  }, [defaultDebtFacilityId]);
 
   const productType = !!selectedLoans[0]?.company?.contract?.product_type
     ? selectedLoans[0].company.contract.product_type
@@ -200,10 +206,11 @@ export default function MoveDebtFacilityLoanModal({
             </Typography>
             <AutocompleteDebtFacility
               textFieldLabel="Select target debt facility"
-              onChange={(selectedDebtFacilityId) => {
-                setDebtFacilityId(selectedDebtFacilityId);
+              onChange={(selectedDebtFacility) => {
+                setDebtFacilityId(selectedDebtFacility?.id || "");
               }}
               productType={productType}
+              defaultDebtFacilityId={defaultDebtFacilityId}
             />
           </Box>
           <Box display="flex" flexDirection="column" mt={4}>

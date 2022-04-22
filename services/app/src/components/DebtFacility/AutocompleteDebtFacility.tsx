@@ -10,15 +10,19 @@ import { useMemo } from "react";
 interface Props {
   onChange: (selectedDebtFacility: DebtFacilityFragment["id"]) => void;
   textFieldLabel: string;
+  defaultDebtFacilityId: string;
   setupMessage?: string;
   productType?: string | null;
+  selectedDebtFacilityId?: string;
 }
 
 function AutocompleteDebtFacility({
   onChange,
   textFieldLabel,
+  defaultDebtFacilityId,
   setupMessage = "",
   productType = null,
+  selectedDebtFacilityId = "",
 }: Props) {
   const { data, error } = useGetDebtFacilitiesSubscription();
 
@@ -58,9 +62,9 @@ function AutocompleteDebtFacility({
           renderInput={(params) => (
             <TextField {...params} label={textFieldLabel} variant="outlined" />
           )}
-          onChange={(_event, debtFacility) =>
-            onChange(debtFacility?.id || null)
-          }
+          onChange={(_event, debtFacility) => {
+            onChange(debtFacility || null);
+          }}
         />
       ) : (
         <></>

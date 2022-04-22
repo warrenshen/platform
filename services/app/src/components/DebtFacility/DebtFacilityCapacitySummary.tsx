@@ -21,6 +21,7 @@ interface Props {
   setSelectedDebtFacilitySupportedProductTypes: (
     value: ProductTypeEnum[]
   ) => void;
+  defaultDebtFacilityId: string;
 }
 
 function DebtFacilityCapacitySummary({
@@ -29,6 +30,7 @@ function DebtFacilityCapacitySummary({
   selectedDebtFacilityId,
   setSelectedDebtFacilityId,
   setSelectedDebtFacilitySupportedProductTypes,
+  defaultDebtFacilityId,
 }: Props) {
   const [maximumCapacity, setMaximumCapacity] = useState(0);
   const [isDebtFacilitySelected, setIsDebtFacilitySelected] = useState(false);
@@ -91,10 +93,11 @@ function DebtFacilityCapacitySummary({
               : []) as ProductTypeEnum[];
             setSelectedDebtFacilitySupportedProductTypes(supportedProductTypes);
             setMaximumCapacity(
-              debtFacility?.maximum_capacities[0]?.amount || 0
+              debtFacility?.maximum_capacities[0]?.amount || 1.0
             );
             setIsDebtFacilitySelected(!!debtFacility || false);
           }}
+          defaultDebtFacilityId={defaultDebtFacilityId}
         />
       </Box>
       <Box

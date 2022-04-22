@@ -9,6 +9,7 @@ import DebtFacilityAdminTab from "pages/Bank/DebtFacility/DebtFacilityAdminTab";
 import DebtFacilityCapacitySummary from "components/DebtFacility/DebtFacilityCapacitySummary";
 import {
   DebtFacilities,
+  GetDebtFacilitiesSubscription,
   useGetOpenLoansByDebtFacilityStatusesSubscription,
   useGetDebtFacilitiesSubscription,
 } from "generated/graphql";
@@ -18,7 +19,7 @@ import {
   DebtFacilityTabLabels,
   ProductTypeEnum,
 } from "lib/enum";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useFilterDebtFacilityLoansBySearchQuery } from "hooks/useFilterDebtFacilityLoans";
 
@@ -35,14 +36,53 @@ const SectionSpace = styled.div`
   height: 24px;
 `;
 
+type Facilities = GetDebtFacilitiesSubscription["debt_facilities"];
+
 export default function BankDebtFacilityPage() {
+  // Get debt facilities to pass around for autocomplete and admin tab
+  const {
+    data: facilityData,
+    error: facilityError,
+  } = useGetDebtFacilitiesSubscription();
+  if (facilityError) {
+    console.error({ facilityError });
+    alert(`Error in query (details in console): ${facilityError.message}`);
+  }
+  const facilities = facilityData?.debt_facilities || [];
+  const allFacilityIds = facilities.map((facility) => facility.id);
+  const defaultDebtFacilityId = facilities.length === 1 ? facilities[0].id : "";
+
+  return (
+    <Page appBarTitle={"Debt Facility"}>
+      <PageContent title={"Debt Facility"}>
+        <DebtFacilityPage
+          facilities={facilities}
+          allFacilityIds={allFacilityIds}
+          defaultDebtFacilityId={defaultDebtFacilityId}
+        />
+      </PageContent>
+    </Page>
+  );
+}
+
+interface Props {
+  facilities: Facilities;
+  allFacilityIds: string[];
+  defaultDebtFacilityId: string;
+}
+
+function DebtFacilityPage({
+  facilities,
+  allFacilityIds,
+  defaultDebtFacilityId,
+}: Props) {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const [actionRequiredSearchQuery, setActionRequiredSearchQuery] = useState(
     ""
   );
   const [selectedDebtFacilityId, setSelectedDebtFacilityId] = useState<
     DebtFacilities["id"]
-  >("");
+  >(defaultDebtFacilityId);
   const [
     selectedDebtFacilitySupportedProductTypes,
     setSelectedDebtFacilitySupportedProductTypes,
@@ -64,77 +104,65 @@ export default function BankDebtFacilityPage() {
   );
   const updateRequiredCount = loansWithRequiredUpdate.length;
 
-  // Get debt facilities to pass around for autocomplete and admin tab
-  const {
-    data: facilityData,
-    error: facilityError,
-  } = useGetDebtFacilitiesSubscription();
-  if (facilityError) {
-    console.error({ facilityError });
-    alert(`Error in query (details in console): ${facilityError.message}`);
-  }
-  const facilities = facilityData?.debt_facilities || [];
-  const allFacilityIds = facilities.map((facility) => facility.id);
+  useEffect(() => {
+    setSelectedDebtFacilityId(defaultDebtFacilityId);
+  }, [defaultDebtFacilityId]);
 
   return (
-    <Page appBarTitle={"Debt Facility"}>
-      <PageContent title={"Debt Facility"}>
-        <Container>
-          <DebtFacilityCapacitySummary
-            facilities={facilities}
-            allFacilityIds={allFacilityIds}
-            selectedDebtFacilityId={selectedDebtFacilityId}
-            setSelectedDebtFacilityId={setSelectedDebtFacilityId}
-            setSelectedDebtFacilitySupportedProductTypes={
-              setSelectedDebtFacilitySupportedProductTypes
+    <Container>
+      <DebtFacilityCapacitySummary
+        facilities={facilities}
+        allFacilityIds={allFacilityIds}
+        selectedDebtFacilityId={selectedDebtFacilityId}
+        setSelectedDebtFacilityId={setSelectedDebtFacilityId}
+        setSelectedDebtFacilitySupportedProductTypes={
+          setSelectedDebtFacilitySupportedProductTypes
+        }
+        defaultDebtFacilityId={defaultDebtFacilityId}
+      />
+      <Tabs
+        value={selectedTabIndex}
+        indicatorColor="primary"
+        textColor="primary"
+        onChange={(_event: any, value: number) => setSelectedTabIndex(value)}
+      >
+        {DebtFacilityTabLabels.map((label: DebtFacilityTabLabel) => (
+          <Tab
+            key={label}
+            label={
+              label === DebtFacilityTabLabel.ActionRequired
+                ? `Action Required (${updateRequiredCount})`
+                : label
             }
           />
-          <Tabs
-            value={selectedTabIndex}
-            indicatorColor="primary"
-            textColor="primary"
-            onChange={(_event: any, value: number) =>
-              setSelectedTabIndex(value)
-            }
-          >
-            {DebtFacilityTabLabels.map((label: DebtFacilityTabLabel) => (
-              <Tab
-                key={label}
-                label={
-                  label === DebtFacilityTabLabel.ActionRequired
-                    ? `Action Required (${updateRequiredCount})`
-                    : label
-                }
-              />
-            ))}
-          </Tabs>
-          <SectionSpace />
-          {selectedTabIndex === 0 ? (
-            <DebtFacilityOpenTab
-              facilities={facilities}
-              selectedDebtFacilityId={selectedDebtFacilityId}
-              allFacilityIds={allFacilityIds}
-              supportedProductTypes={selectedDebtFacilitySupportedProductTypes}
-            />
-          ) : selectedTabIndex === 1 ? (
-            <DebtFacilityActionRequiredTab
-              loans={loansWithRequiredUpdate}
-              searchQuery={actionRequiredSearchQuery}
-              setSearchQuery={setActionRequiredSearchQuery}
-            />
-          ) : selectedTabIndex === 2 ? (
-            <DebtFacilityAllTab />
-          ) : selectedTabIndex === 3 ? (
-            <DebtFacilityReportTab
-              facilities={facilities}
-              selectedDebtFacilityId={selectedDebtFacilityId}
-              supportedProductTypes={selectedDebtFacilitySupportedProductTypes}
-            />
-          ) : (
-            <DebtFacilityAdminTab facilities={facilities} />
-          )}
-        </Container>
-      </PageContent>
-    </Page>
+        ))}
+      </Tabs>
+      <SectionSpace />
+      {selectedTabIndex === 0 ? (
+        <DebtFacilityOpenTab
+          facilities={facilities}
+          selectedDebtFacilityId={selectedDebtFacilityId}
+          allFacilityIds={allFacilityIds}
+          supportedProductTypes={selectedDebtFacilitySupportedProductTypes}
+          defaultDebtFacilityId={defaultDebtFacilityId}
+        />
+      ) : selectedTabIndex === 1 ? (
+        <DebtFacilityActionRequiredTab
+          loans={loansWithRequiredUpdate}
+          searchQuery={actionRequiredSearchQuery}
+          setSearchQuery={setActionRequiredSearchQuery}
+        />
+      ) : selectedTabIndex === 2 ? (
+        <DebtFacilityAllTab />
+      ) : selectedTabIndex === 3 ? (
+        <DebtFacilityReportTab
+          facilities={facilities}
+          selectedDebtFacilityId={selectedDebtFacilityId}
+          supportedProductTypes={selectedDebtFacilitySupportedProductTypes}
+        />
+      ) : (
+        <DebtFacilityAdminTab facilities={facilities} />
+      )}
+    </Container>
   );
 }

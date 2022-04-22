@@ -39,6 +39,7 @@ interface Props {
   selectedDebtFacilityId: DebtFacilities["id"];
   allFacilityIds: DebtFacilities["id"][];
   supportedProductTypes: ProductTypeEnum[];
+  defaultDebtFacilityId: string;
 }
 
 export default function DebtFacilityOpenTab({
@@ -46,6 +47,7 @@ export default function DebtFacilityOpenTab({
   selectedDebtFacilityId,
   allFacilityIds,
   supportedProductTypes,
+  defaultDebtFacilityId,
 }: Props) {
   const history = useHistory();
   const [debtFacilitySearchQuery, setDebtFacilitySearchQuery] = useState("");
@@ -159,6 +161,7 @@ export default function DebtFacilityOpenTab({
                             facilities={facilities}
                             handleClose={handler}
                             supportedProductTypes={supportedProductTypes}
+                            defaultDebtFacilityId={defaultDebtFacilityId}
                           />
                         );
                       }}
@@ -239,6 +242,7 @@ export default function DebtFacilityOpenTab({
                             setSelectedBespokeLoans([]);
                           }}
                           supportedProductTypes={supportedProductTypes}
+                          defaultDebtFacilityId={defaultDebtFacilityId}
                         />
                       );
                     }}
