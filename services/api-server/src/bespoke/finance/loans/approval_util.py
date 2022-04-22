@@ -151,7 +151,8 @@ def submit_for_approval(
 	loan_id: str,
 	session: Session,
 	triggered_by_autofinancing: bool,
-	now_for_test: datetime.datetime = None
+	now_for_test: datetime.datetime = None,
+	preloaded_financial_summary: models.FinancialSummary = None
 ) -> Tuple[SubmitForApprovalRespDict, errors.Error]:
 
 	err_details = {
@@ -182,7 +183,8 @@ def submit_for_approval(
 		raise errors.Error('Invalid amount', details=err_details)
 
 	financial_summary = financial_summary_util.get_latest_financial_summary(
-		loan.company_id, session, now_for_test=now_for_test)
+		loan.company_id, session, now_for_test=now_for_test) if preloaded_financial_summary is None else \
+		preloaded_financial_summary
 	if not financial_summary:
 		raise errors.Error('No financial summary associated with this customer, so we could not determine the max limit allowed', details=err_details)
 
@@ -303,6 +305,11 @@ def submit_for_approval_if_has_autofinancing(
 	company_id: str, amount: float, artifact_id: str, session: Session,
 	now_for_test: datetime.datetime = None) -> Tuple[SubmitForApprovalRespDict, errors.Error]:
 
+	err_details = {
+		'company_id': company_id,
+		'method': 'submit_for_approval_if_has_autofinancing'
+	}
+
 	company = cast(
 		models.Company,
 		session.query(models.Company).filter(
@@ -322,6 +329,16 @@ def submit_for_approval_if_has_autofinancing(
 
 	if not company_settings.has_autofinancing:
 		# No need to request a loan if autofinancing is not enabled
+		return None, None
+
+	financial_summary = financial_summary_util.get_latest_financial_summary(
+		company.id, session, now_for_test=now_for_test)
+	if not financial_summary:
+		raise errors.Error('No financial summary associated with this customer, so we could not determine the max limit allowed', details=err_details)
+
+	if amount > financial_summary.available_limit:
+		# If the loan would put an client with autofinancing over their limit
+		# we capture the vendor approval, but do not submit a loan at this time
 		return None, None
 
 	contract = cast(
@@ -362,7 +379,13 @@ def submit_for_approval_if_has_autofinancing(
 	session.flush()
 	loan_id = str(loan.id)
 
-	resp, err = submit_for_approval(loan_id, session, triggered_by_autofinancing=True, now_for_test=now_for_test)
+	resp, err = submit_for_approval(
+		loan_id, 
+		session, 
+		triggered_by_autofinancing=True, 
+		now_for_test=now_for_test,
+		preloaded_financial_summary=financial_summary
+	)
 	if err:
 		raise err
 
