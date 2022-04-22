@@ -139,7 +139,7 @@ def create_contract_config(
 
 		fields.extend([
 			{
-				'internal_name': 	'include_borrowing_base_for_limits',
+				'internal_name': 'include_borrowing_base_for_limits',
 				'value': True
 			}
 		])

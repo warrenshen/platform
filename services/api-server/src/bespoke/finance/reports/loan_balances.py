@@ -28,8 +28,7 @@ from bespoke.finance import contract_util, number_util
 from bespoke.finance.fetchers import per_customer_fetcher
 from bespoke.finance.loans import fee_util, loan_calculator
 from bespoke.finance.loans.fee_util import MinimumInterestInfoDict
-from bespoke.finance.loans.loan_calculator import (LoanUpdateDebugInfoDict,
-                                                   LoanUpdateDict)
+from bespoke.finance.loans.loan_calculator import LoanUpdateDebugInfoDict, LoanUpdateDict
 from bespoke.finance.payments import payment_util
 from bespoke.finance.types import finance_types, per_customer_types
 from mypy_extensions import TypedDict
@@ -42,6 +41,7 @@ SummaryUpdateDict = TypedDict('SummaryUpdateDict', {
 	'adjusted_total_limit': float,
 	'total_outstanding_principal': float,
 	'total_outstanding_principal_for_interest': float,
+	'total_outstanding_principal_past_due': float,
 	'total_outstanding_interest': float,
 	'total_outstanding_fees': float,
 	'total_principal_in_requested_state': float,
@@ -127,6 +127,7 @@ def _get_account_level_balance(
 	fees_total = 0.0
 	credits_total = 0.0
 
+	# TODO (warren): somewhere here is where to adjust transactions related to account fees to take effect on deposit date.
 	for aug_tx in customer_info['financials']['augmented_transactions']:
 		tx = aug_tx['transaction']
 		if tx['loan_id'] is not None:
@@ -198,6 +199,7 @@ def _get_summary_update(
 
 	total_outstanding_principal = 0.0
 	total_outstanding_principal_for_interest = 0.0
+	total_outstanding_principal_past_due = 0.0
 	total_outstanding_interest = 0.0
 	total_outstanding_fees = 0.0
 	total_amount_to_pay_interest_on = 0.0
@@ -208,6 +210,7 @@ def _get_summary_update(
 	for l in loan_updates:
 		total_outstanding_principal += l['outstanding_principal']
 		total_outstanding_principal_for_interest += l['outstanding_principal_for_interest']
+		total_outstanding_principal_past_due += l['outstanding_principal_past_due']
 		total_outstanding_interest += l['outstanding_interest']
 		total_outstanding_fees += l['outstanding_fees']
 		total_amount_to_pay_interest_on += l['amount_to_pay_interest_on']
@@ -230,6 +233,7 @@ def _get_summary_update(
 		adjusted_total_limit=adjusted_total_limit,
 		total_outstanding_principal=total_outstanding_principal,
 		total_outstanding_principal_for_interest=total_outstanding_principal_for_interest,
+		total_outstanding_principal_past_due=total_outstanding_principal_past_due,
 		total_outstanding_interest=total_outstanding_interest,
 		total_outstanding_fees=total_outstanding_fees,
 		total_principal_in_requested_state=0.0,
@@ -571,6 +575,7 @@ class CustomerBalance(object):
 			financial_summary.adjusted_total_limit = decimal.Decimal(number_util.round_currency(summary_update['adjusted_total_limit']))
 			financial_summary.total_outstanding_principal = decimal.Decimal(number_util.round_currency(summary_update['total_outstanding_principal']))
 			financial_summary.total_outstanding_principal_for_interest = decimal.Decimal(number_util.round_currency(summary_update['total_outstanding_principal_for_interest']))
+			financial_summary.total_outstanding_principal_past_due = decimal.Decimal(number_util.round_currency(summary_update['total_outstanding_principal_past_due']))
 			financial_summary.total_outstanding_interest = decimal.Decimal(number_util.round_currency(summary_update['total_outstanding_interest']))
 			financial_summary.total_outstanding_fees = decimal.Decimal(number_util.round_currency(summary_update['total_outstanding_fees']))
 			financial_summary.total_principal_in_requested_state = decimal.Decimal(number_util.round_currency(summary_update['total_principal_in_requested_state']))

@@ -1044,7 +1044,7 @@ class LoanReport(Base):
 	total_principal_paid = Column(Numeric)
 	total_interest_paid = Column(Numeric)
 	total_fees_paid = Column(Numeric)
-	financing_period = Column(Integer)
+	financing_period = Column(Integer) # Number of days any interest was accrued for the associated loan.
 	financing_day_limit = Column(Integer)
 	debt_facility_status = Column(Text)
 	debt_facility_id = cast(GUID, Column(GUID, ForeignKey('debt_facilities.id')))

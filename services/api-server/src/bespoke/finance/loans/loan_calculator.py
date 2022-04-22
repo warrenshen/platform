@@ -32,6 +32,7 @@ LoanUpdateDict = TypedDict('LoanUpdateDict', {
 	'adjusted_maturity_date': datetime.date,
 	'outstanding_principal': float,
 	'outstanding_principal_for_interest': float,
+	'outstanding_principal_past_due': float,
 	'interest_paid_daily_adjustment': float, # this number is used to "pull-forward" interest revenue in the cast of cross-month repayments
 	'fees_paid_daily_adjustment': float, # this number is used to "pull-forward" fee revenue in the cast of cross-month repayments
 	'outstanding_interest': float,
@@ -835,9 +836,6 @@ class LoanCalculator(object):
 		date_to_result = {}
 
 		errors_list = []
-		todays_contract, err = self._contract_helper.get_contract(today)
-		if err:
-			return None, [err]
 
 		if payment_to_include and not payment_to_include.get('deposit_date'):
 			return None, [errors.Error('Deposit date missing from payment to include')]
@@ -898,11 +896,13 @@ class LoanCalculator(object):
 					inclusive_later_date=True,
 				)
 
+			adjusted_maturity_date = loan['adjusted_maturity_date']
 			l = LoanUpdateDict(
 				loan_id=loan['id'],
 				adjusted_maturity_date=loan['adjusted_maturity_date'],
 				outstanding_principal=outstanding_principal,
 				outstanding_principal_for_interest=outstanding_principal_for_interest,
+				outstanding_principal_past_due=outstanding_principal if today > adjusted_maturity_date else 0.0,
 				outstanding_interest=outstanding_interest,
 				outstanding_fees=outstanding_fees,
 				interest_paid_daily_adjustment=0.0, # Will be filled in later if necessary
