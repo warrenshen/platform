@@ -1313,7 +1313,6 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		)
 		self.assertIn('Advance amount must be equal to', err.msg)
 
-	
 	def test_failure_advance_would_exceed_available_limit(self) -> None:
 		seed = test_helper.BasicSeed.create(self.session_maker, self)
 		seed.initialize()
@@ -1331,6 +1330,30 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				session.add(loan)
 				session.flush()
 				loan_ids.append(str(loan.id))
+			
+			contract_id = uuid.uuid4()
+			company = cast(
+				models.Company,
+				session.query(models.Company).filter(
+					models.Company.id == company_id
+				).first())
+			company.contract_id = contract_id
+
+			session.add(models.Contract(
+				id=contract_id,
+				product_type=ProductType.INVENTORY_FINANCING,
+				product_config=contract_test_helper.create_contract_config(
+					product_type=ProductType.INVENTORY_FINANCING,
+					input_dict=ContractInputDict(
+						wire_fee=25.0,
+						interest_rate=0.05,
+						maximum_principal_amount=120000.01,
+						max_days_until_repayment=100,
+						late_fee_structure='', # unused
+						preceeding_business_day=True
+					)
+				)
+			))
 
 			financial_summary = models.FinancialSummary(
 				date=TODAY,
@@ -1358,7 +1381,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					type='unused',
 					method='ach',
 					requested_amount=None,
-					amount=0.2,
+					amount=50.05,
 					requested_payment_date=None,
 					payment_date='10/28/2020',
 					settlement_date='10/30/2020',
@@ -1393,6 +1416,30 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				session.flush()
 				loan_ids.append(str(loan.id))
 
+			contract_id = uuid.uuid4()
+			company = cast(
+				models.Company,
+				session.query(models.Company).filter(
+					models.Company.id == company_id
+				).first())
+			company.contract_id = contract_id
+
+			session.add(models.Contract(
+				id=contract_id,
+				product_type=ProductType.INVENTORY_FINANCING,
+				product_config=contract_test_helper.create_contract_config(
+					product_type=ProductType.INVENTORY_FINANCING,
+					input_dict=ContractInputDict(
+						wire_fee=25.0,
+						interest_rate=0.05,
+						maximum_principal_amount=120000.01,
+						max_days_until_repayment=100,
+						late_fee_structure='', # unused
+						preceeding_business_day=True
+					)
+				)
+			))
+
 			financial_summary = models.FinancialSummary(
 				date=TODAY,
 				company_id=company_id,
@@ -1419,7 +1466,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					type='unused',
 					method='ach',
 					requested_amount=None,
-					amount=0.2,
+					amount=27.05,
 					requested_payment_date=None,
 					payment_date='10/28/2020',
 					settlement_date='10/30/2020',
@@ -1435,68 +1482,6 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 			session_maker=self.session_maker
 		)
 		self.assertIn('Total amount across all loans in request exceeds the maximum limit for company', err.msg)
-	
-	def test_failure_financial_summary_needs_recompute(self) -> None:
-		seed = test_helper.BasicSeed.create(self.session_maker, self)
-		seed.initialize()
-
-		loan_ids = []
-		amounts = [20.02, 30.03]
-		with session_scope(self.session_maker) as session:
-			company_id = seed.get_company_id('company_admin', index=0)
-			for amount in amounts:
-				loan = models.Loan(
-					company_id=company_id,
-					amount=decimal.Decimal(amount),
-					approved_at=date_util.now()
-				)
-				session.add(loan)
-				session.flush()
-				loan_ids.append(str(loan.id))
-
-			financial_summary = models.FinancialSummary(
-				date=TODAY,
-				company_id=company_id,
-				total_limit=decimal.Decimal(100.0),
-				adjusted_total_limit=decimal.Decimal(100.0),
-				total_outstanding_principal=decimal.Decimal(50.0),
-				total_outstanding_principal_for_interest=decimal.Decimal(60.0),
-				total_outstanding_interest=decimal.Decimal(12.50),
-				total_outstanding_fees=decimal.Decimal(5.25),
-				total_principal_in_requested_state=decimal.Decimal(3.15),
-				available_limit=decimal.Decimal(25.00),
-				interest_accrued_today=decimal.Decimal(2.1),
-				minimum_monthly_payload={},
-				account_level_balance_payload={},
-				product_type="Inventory Financing",
-				needs_recompute=True
-			)
-			session.add(financial_summary)
-			session.flush()
-
-		resp, err = advance_util.fund_loans_with_advance(
-			req=advance_util.FundLoansReqDict(
-				payment=payment_types.PaymentInsertInputDict(
-					company_id='unused',
-					type='unused',
-					method='ach',
-					requested_amount=None,
-					amount=0.2,
-					requested_payment_date=None,
-					payment_date='10/28/2020',
-					settlement_date='10/30/2020',
-					items_covered={'loan_ids': loan_ids},
-					company_bank_account_id=None,
-					customer_note='',
-					bank_note=''
-				),
-				loan_ids=loan_ids,
-				should_charge_wire_fee=False,
-			),
-			bank_admin_user_id='',
-			session_maker=self.session_maker
-		)
-		self.assertIn('The latest financials for this company are currently being recomputed.', err.msg)
 
 	def test_successful_purchase_order_fully_funded(self) -> None:
 		tests: List[Dict] = [
