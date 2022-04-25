@@ -9,7 +9,7 @@ import {
 import { DebtFacilityStatusEnum, ProductTypeEnum } from "lib/enum";
 import { formatCurrency } from "lib/number";
 import { round } from "lodash";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Facilities = GetDebtFacilitiesSubscription["debt_facilities"];
 
@@ -67,6 +67,16 @@ function DebtFacilityCapacitySummary({
       : 0;
   const roundedLimitPercent = round(rawLimitPercent, 1);
 
+  useEffect(() => {
+    if (defaultDebtFacilityId !== "") {
+      setIsDebtFacilitySelected(true);
+      const defaultFacility = facilities.find(
+        (facility) => facility.id === defaultDebtFacilityId
+      );
+      setMaximumCapacity(defaultFacility?.maximum_capacities[0]?.amount);
+    }
+  }, [defaultDebtFacilityId, facilities]);
+
   return (
     <Box
       display="flex"
@@ -83,7 +93,13 @@ function DebtFacilityCapacitySummary({
           </Typography>
         )}
       </Box>
-      <Box flex="1" display="flex" flexDirection="row" alignItems="center">
+      <Box
+        flex="1"
+        display="flex"
+        mr={3}
+        flexDirection="row"
+        alignItems="center"
+      >
         <AutocompleteDebtFacility
           textFieldLabel="Pick debt facility"
           onChange={(debtFacility) => {
