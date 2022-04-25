@@ -74,8 +74,18 @@ function DebtFacilityCapacitySummary({
         (facility) => facility.id === defaultDebtFacilityId
       );
       setMaximumCapacity(defaultFacility?.maximum_capacities[0]?.amount);
+      setSelectedDebtFacilityId(defaultFacility?.id || "");
+      const supportedProductTypes = (defaultFacility?.product_types
+        ? defaultFacility?.product_types["supported"]
+        : []) as ProductTypeEnum[];
+      setSelectedDebtFacilitySupportedProductTypes(supportedProductTypes);
     }
-  }, [defaultDebtFacilityId, facilities]);
+  }, [
+    defaultDebtFacilityId,
+    facilities,
+    setSelectedDebtFacilityId,
+    setSelectedDebtFacilitySupportedProductTypes,
+  ]);
 
   return (
     <Box

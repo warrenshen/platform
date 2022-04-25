@@ -30908,6 +30908,7 @@ export const GetReportLoansByDebtFacilityIdDocument = gql`
                 _and: [
                   { loan_type: { _neq: line_of_credit } }
                   { origination_date: { _gt: "2021-11-24" } }
+                  { closed_at: { _is_null: true } }
                 ]
               }
               {
@@ -30917,9 +30918,11 @@ export const GetReportLoansByDebtFacilityIdDocument = gql`
                   {
                     company: { debt_facility_status: { _eq: "waiver_company" } }
                   }
+                  { closed_at: { _is_null: true } }
                 ]
               }
               { loan_type: { _eq: line_of_credit } }
+              { closed_at: { _is_null: false } }
             ]
           }
           {

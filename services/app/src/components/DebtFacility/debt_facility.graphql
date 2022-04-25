@@ -101,7 +101,7 @@ subscription GetReportLoansByDebtFacilityId(
     where: {
       _and: [
         {
-          # Reports pull historicals (i.e. closed loans), so we do not filter for that here
+          
           _or: [
             { is_deleted: { _is_null: true } }
             { is_deleted: { _eq: false } }
@@ -114,6 +114,7 @@ subscription GetReportLoansByDebtFacilityId(
               _and: [
                 { loan_type: { _neq: line_of_credit } }
                 { origination_date: { _gt: "2021-11-24" } }
+                { closed_at: { _is_null: true } }
               ]
             }
             {
@@ -121,9 +122,13 @@ subscription GetReportLoansByDebtFacilityId(
                 { loan_type: { _neq: line_of_credit }}
                 { origination_date: { _lt: "2021-11-24" }}
                 { company: { debt_facility_status: { _eq: "waiver_company" }}}
+                { closed_at: { _is_null: true } }
               ]
             }
+
             { loan_type: { _eq: line_of_credit }}
+            # Reports pull historicals (i.e. closed loans), so if its closed, the dates don't matter
+            { closed_at: { _is_null: false } }
           ]
         }
         {
