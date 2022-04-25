@@ -12,7 +12,7 @@ import {
   GetOpenEbbaApplicationsByCategoryQuery,
   RequestStatusEnum,
 } from "generated/graphql";
-import { ClientSurveillanceCategoryEnum } from "lib/enum";
+import { ClientSurveillanceCategoryEnum, BankEbbaTabLabel } from "lib/enum";
 import { ColumnWidths } from "lib/tables";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useMemo, useState } from "react";
@@ -55,8 +55,8 @@ export default function EbbaApplicationsDataGrid({
         category:
           ebbaApplication.category ===
           ClientSurveillanceCategoryEnum.BorrowingBase
-            ? "LOC - Borrowing Base"
-            : "PO / INV - Financial Reports",
+            ? BankEbbaTabLabel.BorrowingBase
+            : BankEbbaTabLabel.FinancialReports,
         company_name: ebbaApplication.company?.name,
         expiration_date: ebbaApplication.expires_at,
         files_count: ebbaApplication.ebba_application_files.length,

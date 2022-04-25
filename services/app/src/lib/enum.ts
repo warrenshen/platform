@@ -79,8 +79,8 @@ export const BankPurchaseOrdersTabLabels = [
 
 export enum BankEbbaTabLabel {
   Dashboard = "Dashboard",
-  FinancialReports = "PO / INV - Financial Reports",
-  BorrowingBase = "LOC - Borrowing Base",
+  FinancialReports = "Financial Certifications",
+  BorrowingBase = "Borrowing Base",
   HistoricalCertifications = "Historical Certifications",
 }
 
