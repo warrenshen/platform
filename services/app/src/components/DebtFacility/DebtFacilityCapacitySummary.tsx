@@ -1,4 +1,12 @@
-import { Box, Typography } from "@material-ui/core";
+import {
+  Box,
+  createStyles,
+  List,
+  ListItem,
+  ListItemText,
+  makeStyles,
+  Theme,
+} from "@material-ui/core";
 import GaugeProgressBar from "components/Shared/ProgressBar/GaugeProgressBar";
 import AutocompleteDebtFacility from "components/DebtFacility/AutocompleteDebtFacility";
 import {
@@ -10,6 +18,22 @@ import { DebtFacilityStatusEnum, ProductTypeEnum } from "lib/enum";
 import { formatCurrency } from "lib/number";
 import { round } from "lodash";
 import { useEffect, useState } from "react";
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    listItem: {
+      display: "flex",
+      alignItems: "flex-start",
+      flexDirection: "row",
+    },
+    listItemText: {
+      fontSize: "18px",
+    },
+    listItemTextSecondary: {
+      textAlign: "right",
+    },
+  })
+);
 
 type Facilities = GetDebtFacilitiesSubscription["debt_facilities"];
 
@@ -32,6 +56,9 @@ function DebtFacilityCapacitySummary({
   setSelectedDebtFacilitySupportedProductTypes,
   defaultDebtFacilityId,
 }: Props) {
+  const classes = useStyles();
+
+  const [drawnCapacity, setDrawnCapacity] = useState(0);
   const [maximumCapacity, setMaximumCapacity] = useState(0);
   const [isDebtFacilitySelected, setIsDebtFacilitySelected] = useState(false);
 
@@ -73,7 +100,8 @@ function DebtFacilityCapacitySummary({
       const defaultFacility = facilities.find(
         (facility) => facility.id === defaultDebtFacilityId
       );
-      setMaximumCapacity(defaultFacility?.maximum_capacities[0]?.amount);
+      setMaximumCapacity(defaultFacility?.maximum_capacities[0]?.amount || 0.0);
+      setDrawnCapacity(defaultFacility?.drawn_capacities[0]?.amount || 0.0);
       setSelectedDebtFacilityId(defaultFacility?.id || "");
       const supportedProductTypes = (defaultFacility?.product_types
         ? defaultFacility?.product_types["supported"]
@@ -87,6 +115,21 @@ function DebtFacilityCapacitySummary({
     setSelectedDebtFacilitySupportedProductTypes,
   ]);
 
+  const summaries = [
+    {
+      primary: "Eligible:",
+      secondary: formatCurrency(currentUsage),
+    },
+    {
+      primary: "Drawn:",
+      secondary: formatCurrency(drawnCapacity),
+    },
+    {
+      primary: "Max:",
+      secondary: formatCurrency(maximumCapacity),
+    },
+  ];
+
   return (
     <Box
       display="flex"
@@ -94,22 +137,7 @@ function DebtFacilityCapacitySummary({
       height="50px"
       justifyContent="space-between"
     >
-      <Box flex="2" flexDirection="row" alignItems="flext-start">
-        {!!isDebtFacilitySelected && (
-          <Typography variant="h5" color="textSecondary">
-            {`${formatCurrency(currentUsage)} / ${formatCurrency(
-              maximumCapacity
-            )}`}
-          </Typography>
-        )}
-      </Box>
-      <Box
-        flex="1"
-        display="flex"
-        mr={3}
-        flexDirection="row"
-        alignItems="center"
-      >
+      <Box flex="2" display="flex" flexDirection="row" alignItems="flext-start">
         <AutocompleteDebtFacility
           textFieldLabel="Pick debt facility"
           onChange={(debtFacility) => {
@@ -119,12 +147,43 @@ function DebtFacilityCapacitySummary({
               : []) as ProductTypeEnum[];
             setSelectedDebtFacilitySupportedProductTypes(supportedProductTypes);
             setMaximumCapacity(
-              debtFacility?.maximum_capacities[0]?.amount || 1.0
+              debtFacility?.maximum_capacities[0]?.amount || 0.0
             );
+            setDrawnCapacity(debtFacility?.drawn_capacities[0]?.amount || 0.0);
             setIsDebtFacilitySelected(!!debtFacility || false);
           }}
           defaultDebtFacilityId={defaultDebtFacilityId}
         />
+      </Box>
+      <Box
+        flex="1"
+        flexDirection="row"
+        alignItems="center"
+        style={{
+          position: "relative",
+          top: "-80px",
+        }}
+      >
+        {!!isDebtFacilitySelected && (
+          <List dense>
+            {summaries.map((summary, i) => (
+              <ListItem className={classes.listItem}>
+                <ListItemText
+                  primaryTypographyProps={{
+                    className: classes.listItemText,
+                  }}
+                  primary={summary.primary}
+                />
+                <ListItemText
+                  secondaryTypographyProps={{
+                    className: `${classes.listItemText} ${classes.listItemTextSecondary}`,
+                  }}
+                  secondary={summary.secondary}
+                />
+              </ListItem>
+            ))}
+          </List>
+        )}
       </Box>
       <Box
         display="flex"
