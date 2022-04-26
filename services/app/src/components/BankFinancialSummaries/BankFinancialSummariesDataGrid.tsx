@@ -62,7 +62,7 @@ export default function BankFinancialSummariesDataGrid({
       },
       {
         dataField: "total_outstanding_interest",
-        caption: "Accrued Interest",
+        caption: "Outstanding Interest",
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell
@@ -72,7 +72,7 @@ export default function BankFinancialSummariesDataGrid({
       },
       {
         dataField: "total_outstanding_fees",
-        caption: "Accrued Late Fees",
+        caption: "Outstanding Late Fees",
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell
@@ -109,6 +109,7 @@ export default function BankFinancialSummariesDataGrid({
     ],
     []
   );
+
   const tableStyle: CSS.Properties = {
     background: "rgb(255,255,255)",
     borderSpacing: 0,

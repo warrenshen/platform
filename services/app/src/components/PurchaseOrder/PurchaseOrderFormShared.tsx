@@ -97,7 +97,7 @@ export default function PurchaseOrderForm({
               color="primary"
             />
           }
-          label={"Is this purchase order COD?"}
+          label={"Is payment due on receipt (COD)?"}
         />
       </Box>
       {isNetTermsVisible && (
