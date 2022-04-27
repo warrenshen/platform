@@ -91,6 +91,108 @@ export const BankEbbaTabLabels = [
   BankEbbaTabLabel.HistoricalCertifications,
 ];
 
+export enum BankStatusEnum {
+  GOOD_STANDING = "good_standing",
+  ON_PROBATION = "on_probation",
+  ON_PAUSE = "on_pause",
+  DEFAULTED = "defaulted",
+  ONBOARDING = "onboarding",
+  INACTIVE = "inactive",
+}
+
+export enum BankStatusLabelEnum {
+  GOOD_STANDING = "Good Standing",
+  ON_PROBATION = "On Probation",
+  ON_PAUSE = "On Pause",
+  DEFAULTED = "Defaulted",
+  ONBOARDING = "Onboarding",
+  INACTIVE = "Inactive",
+}
+
+export const BankStatusLabels = [
+  BankStatusLabelEnum.GOOD_STANDING,
+  BankStatusLabelEnum.ON_PROBATION,
+  BankStatusLabelEnum.ON_PAUSE,
+  BankStatusLabelEnum.DEFAULTED,
+  BankStatusLabelEnum.ONBOARDING,
+  BankStatusLabelEnum.INACTIVE,
+];
+
+export const BankStatusToLabel: {
+  [key in BankStatusEnum]: BankStatusLabelEnum;
+} = {
+  [BankStatusEnum.GOOD_STANDING]: BankStatusLabelEnum.GOOD_STANDING,
+  [BankStatusEnum.ON_PROBATION]: BankStatusLabelEnum.ON_PROBATION,
+  [BankStatusEnum.ON_PAUSE]: BankStatusLabelEnum.ON_PAUSE,
+  [BankStatusEnum.DEFAULTED]: BankStatusLabelEnum.DEFAULTED,
+  [BankStatusEnum.ONBOARDING]: BankStatusLabelEnum.ONBOARDING,
+  [BankStatusEnum.INACTIVE]: BankStatusLabelEnum.INACTIVE,
+};
+
+export const LabelToBankStatus: {
+  [key in BankStatusLabelEnum]: BankStatusEnum;
+} = {
+  [BankStatusLabelEnum.GOOD_STANDING]: BankStatusEnum.GOOD_STANDING,
+  [BankStatusLabelEnum.ON_PROBATION]: BankStatusEnum.ON_PROBATION,
+  [BankStatusLabelEnum.ON_PAUSE]: BankStatusEnum.ON_PAUSE,
+  [BankStatusLabelEnum.DEFAULTED]: BankStatusEnum.DEFAULTED,
+  [BankStatusLabelEnum.ONBOARDING]: BankStatusEnum.ONBOARDING,
+  [BankStatusLabelEnum.INACTIVE]: BankStatusEnum.INACTIVE,
+};
+
+export enum QualifyForEnum {
+  LINE_OF_CREDIT = "line_of_credit",
+  INVENTORY = "inventory",
+  PURCHASE_MONEY_FINANCING = "purchase_money_financing",
+  INVOICE = "invoice",
+  FAILING = "failing",
+  DISPENSARY_FINANCING = "dispensary_financing",
+}
+
+export enum QualifyForLabelEnum {
+  LINE_OF_CREDIT = "Line of Credit",
+  INVENTORY = "Inventory",
+  PURCHASE_MONEY_FINANCING = "Purchase Money Financing",
+  INVOICE = "Invoice",
+  FAILING = "Failing",
+  DISPENSARY_FINANCING = "Dispensary Financing",
+}
+
+export const QualifyForLabels = [
+  QualifyForLabelEnum.LINE_OF_CREDIT,
+  QualifyForLabelEnum.INVENTORY,
+  QualifyForLabelEnum.PURCHASE_MONEY_FINANCING,
+  QualifyForLabelEnum.INVOICE,
+  QualifyForLabelEnum.FAILING,
+  QualifyForLabelEnum.DISPENSARY_FINANCING,
+];
+
+export const QualifyForToLabel: {
+  [key in QualifyForEnum]: QualifyForLabelEnum;
+} = {
+  [QualifyForEnum.LINE_OF_CREDIT]: QualifyForLabelEnum.LINE_OF_CREDIT,
+  [QualifyForEnum.INVENTORY]: QualifyForLabelEnum.INVENTORY,
+  [QualifyForEnum.PURCHASE_MONEY_FINANCING]:
+    QualifyForLabelEnum.PURCHASE_MONEY_FINANCING,
+  [QualifyForEnum.INVOICE]: QualifyForLabelEnum.INVOICE,
+  [QualifyForEnum.FAILING]: QualifyForLabelEnum.FAILING,
+  [QualifyForEnum.DISPENSARY_FINANCING]:
+    QualifyForLabelEnum.DISPENSARY_FINANCING,
+};
+
+export const LabelToQualifyFor: {
+  [key in QualifyForLabelEnum]: QualifyForEnum;
+} = {
+  [QualifyForLabelEnum.LINE_OF_CREDIT]: QualifyForEnum.LINE_OF_CREDIT,
+  [QualifyForLabelEnum.INVENTORY]: QualifyForEnum.INVENTORY,
+  [QualifyForLabelEnum.PURCHASE_MONEY_FINANCING]:
+    QualifyForEnum.PURCHASE_MONEY_FINANCING,
+  [QualifyForLabelEnum.INVOICE]: QualifyForEnum.INVOICE,
+  [QualifyForLabelEnum.FAILING]: QualifyForEnum.FAILING,
+  [QualifyForLabelEnum.DISPENSARY_FINANCING]:
+    QualifyForEnum.DISPENSARY_FINANCING,
+};
+
 export enum CustomerPurchaseOrdersTabLabel {
   ActivePOs = "Active POs",
   ClosedPOs = "Closed POs",
@@ -320,6 +422,15 @@ export const ProductTypeToLabel = {
   [ProductTypeEnum.LineOfCredit]: "Line of Credit",
   [ProductTypeEnum.PurchaseMoneyFinancing]: "Purchase Money Financing",
   [ProductTypeEnum.None]: "None",
+};
+
+export const LabelToProductType: { [key: string]: ProductTypeEnum } = {
+  "Dispensary Financing": ProductTypeEnum.DispensaryFinancing,
+  "Inventory Financing": ProductTypeEnum.InventoryFinancing,
+  "Invoice Financing": ProductTypeEnum.InvoiceFinancing,
+  "Line of Credit": ProductTypeEnum.LineOfCredit,
+  "Purchase Money Financing": ProductTypeEnum.PurchaseMoneyFinancing,
+  None: ProductTypeEnum.None,
 };
 
 // List of all supported product types, note that we do NOT include "None".

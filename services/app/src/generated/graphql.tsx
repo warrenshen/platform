@@ -27730,6 +27730,9 @@ export type CustomerForBankFragment = Pick<
   | "zip_code"
   | "phone_number"
   | "debt_facility_status"
+  | "bank_status"
+  | "bank_status_note"
+  | "qualify_for"
 >;
 
 export type CompanySettingsFragment = Pick<
@@ -28642,6 +28645,9 @@ export const CustomerForBankFragmentDoc = gql`
     zip_code
     phone_number
     debt_facility_status
+    bank_status
+    bank_status_note
+    qualify_for
   }
 `;
 export const CompanySettingsLimitedFragmentDoc = gql`

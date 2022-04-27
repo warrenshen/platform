@@ -12,7 +12,12 @@ import {
   companyRoutes,
   CustomMutationResponse,
 } from "lib/api";
-import { CustomMessageEnum, FeatureFlagEnum } from "lib/enum";
+import {
+  BankStatusEnum,
+  CustomMessageEnum,
+  FeatureFlagEnum,
+  QualifyForEnum,
+} from "lib/enum";
 
 export type CreateCustomerReq = {
   company: CompaniesInsertInput;
@@ -63,6 +68,37 @@ export async function createProspectiveCustomer(
         return {
           status: "ERROR",
           msg: "Could not create prospective company",
+        };
+      }
+    );
+}
+
+export type UpdateCompanyBankStatusReq = {
+  variables: {
+    company_id: Companies["id"];
+    bank_status: { [key in BankStatusEnum]: boolean | null };
+    bank_status_note: string;
+    qualify_for: { [key in QualifyForEnum]: boolean | null };
+  };
+};
+
+export async function updateCompanyBankStatusMutation(
+  req: UpdateCompanyBankStatusReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(companyRoutes.updateCompanyBankStatus, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not update company bank status",
         };
       }
     );

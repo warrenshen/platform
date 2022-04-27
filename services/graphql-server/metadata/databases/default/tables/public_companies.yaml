@@ -159,6 +159,8 @@ select_permissions:
     permission:
       columns:
         - address
+        - bank_status
+        - bank_status_note
         - city
         - company_settings_id
         - contract_id
@@ -180,6 +182,7 @@ select_permissions:
         - name
         - parent_company_id
         - phone_number
+        - qualify_for
         - state
         - updated_at
         - zip_code
@@ -188,6 +191,8 @@ select_permissions:
     permission:
       columns:
         - address
+        - bank_status
+        - bank_status_note
         - city
         - company_settings_id
         - contract_id
@@ -209,6 +214,7 @@ select_permissions:
         - name
         - parent_company_id
         - phone_number
+        - qualify_for
         - state
         - updated_at
         - zip_code
@@ -324,6 +330,8 @@ update_permissions:
     permission:
       columns:
         - address
+        - bank_status
+        - bank_status_note
         - city
         - company_settings_id
         - contract_id
@@ -339,6 +347,7 @@ update_permissions:
         - name
         - needs_balance_recomputed
         - phone_number
+        - qualify_for
         - state
         - zip_code
       filter: {}

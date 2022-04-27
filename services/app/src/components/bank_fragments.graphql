@@ -61,6 +61,9 @@ fragment CustomerForBank on companies {
   zip_code
   phone_number
   debt_facility_status
+  bank_status
+  bank_status_note
+  qualify_for
 }
 
 fragment CompanySettings on company_settings {
@@ -98,10 +101,7 @@ fragment CompanyForDebtFacility on companies {
   debt_facility_status
   licenses(
     where: {
-      _or: [
-        { is_deleted: { _is_null: true } }
-        { is_deleted: { _eq: false } }
-      ]
+      _or: [{ is_deleted: { _is_null: true } }, { is_deleted: { _eq: false } }]
     }
     order_by: { created_at: desc }
   ) {
@@ -357,20 +357,16 @@ fragment DebtFacility on debt_facilities {
   id
   name
   product_types
-  maximum_capacities: debt_facility_capacities (
-    order_by: [{ changed_at: desc }],
-    where: {
-      capacity_type: { _eq: "maximum" }
-    }
+  maximum_capacities: debt_facility_capacities(
+    order_by: [{ changed_at: desc }]
+    where: { capacity_type: { _eq: "maximum" } }
   ) {
     id
     ...DebtFacilityCapacityLimited
   }
-  drawn_capacities: debt_facility_capacities (
-    order_by: [{ changed_at: desc }],
-    where: {
-      capacity_type: { _eq: "drawn" }
-    }
+  drawn_capacities: debt_facility_capacities(
+    order_by: [{ changed_at: desc }]
+    where: { capacity_type: { _eq: "drawn" } }
   ) {
     id
     ...DebtFacilityCapacityLimited
@@ -408,13 +404,7 @@ fragment OpenLoanForDebtFacility on loans {
     id
     ...LineOfCredit
   }
-  transactions(
-    where: {
-      _and: [
-        { type: { _eq: "advance" } }
-      ]
-    }
-  ) {
+  transactions(where: { _and: [{ type: { _eq: "advance" } }] }) {
     id
     effective_date
   }

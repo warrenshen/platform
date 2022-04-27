@@ -1067,3 +1067,24 @@ def approve_partnership(
 		company_vendor_partnership.approved_at = date_util.now()
 
 	return True, None
+
+@errors.return_error_tuple
+def update_bank_status(
+	company_id: str,
+	bank_status: str,
+	bank_status_note: str,
+	qualify_for: str,
+	session: Session,
+) -> Tuple[bool, errors.Error]:
+	company = cast(
+		models.Company,
+		session.query(models.Company).get(company_id))
+
+	if not company:
+		raise errors.Error('Company not found')
+
+	company.bank_status = bank_status
+	company.bank_status_note = bank_status_note
+	company.qualify_for = qualify_for
+
+	return True, None

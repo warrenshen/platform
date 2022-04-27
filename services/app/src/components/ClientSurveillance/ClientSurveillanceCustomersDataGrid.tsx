@@ -1,11 +1,8 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
-import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
 import {
   Companies,
-  CompanyFragment,
   GetCustomersWithMetadataAndLoansQuery,
   Loans,
 } from "generated/graphql";
@@ -14,18 +11,25 @@ import {
   LoanStatusEnum,
   ProductTypeEnum,
   ProductTypeToLabel,
+  QualifyForEnum,
 } from "lib/enum";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
-import EbbaApplicationClientSurveillanceStatusChip from "./ClientSurveillanceStatusChip";
 import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
+import { getBankCompanyRoute, BankCompanyRouteEnum } from "lib/routes";
+import { QualifyForToLabel } from "../../lib/enum";
+import ClientSurveillanceStatusChip from "./ClientSurveillanceStatusChip";
+import { Button } from "@material-ui/core";
+import CommentIcon from "@material-ui/icons/Comment";
+import { formatDatetimeString } from "lib/date";
 
 interface Props {
   isExcelExport?: boolean;
   isMultiSelectEnabled?: boolean;
   customers: GetCustomersWithMetadataAndLoansQuery["customers"];
   selectedCompaniesIds?: Companies["id"][];
-  handleSelectCompanies?: (companies: CompanyFragment[]) => void;
+  handleSelectCompanies?: (companies: Companies[]) => void;
+  handleClickCompanyBankStatusNote?: (id: Companies["id"]) => void;
 }
 
 const reduceLoanOutstandingPrincipalBalance = (
@@ -57,10 +61,10 @@ const calculatePercentageDelinquent = ({ loans }: Companies) => {
     .filter(filterByPastMaturityDate)
     .reduce(reduceLoanOutstandingPrincipalBalance, 0);
 
-  return Math.ceil(
+  return `${Math.ceil(
     (outstandingPrincipalForPastDueLoans / outstandingPrincipalForOpenLoans) *
       100
-  );
+  )}%`;
 };
 
 function getRows(
@@ -68,17 +72,26 @@ function getRows(
 ): RowsProp {
   return companies.map((company) => ({
     ...company,
+    company_url: getBankCompanyRoute(company.id, BankCompanyRouteEnum.Overview),
     application_date: !!company?.ebba_applications
-      ? company?.ebba_applications.filter(
-          ({ category }) =>
-            category === ClientSurveillanceCategoryEnum.FinancialReports
-        )[0]?.application_date
+      ? formatDatetimeString(
+          company?.ebba_applications.filter(
+            ({ category }) =>
+              category === ClientSurveillanceCategoryEnum.FinancialReports
+          )[0]?.application_date,
+          false,
+          "-"
+        )
       : null,
     borrowing_base_date: !!company?.ebba_applications
-      ? company.ebba_applications.filter(
-          ({ category }) =>
-            category === ClientSurveillanceCategoryEnum.BorrowingBase
-        )[0]?.application_date
+      ? formatDatetimeString(
+          company.ebba_applications.filter(
+            ({ category }) =>
+              category === ClientSurveillanceCategoryEnum.BorrowingBase
+          )[0]?.application_date,
+          false,
+          "-"
+        )
       : null,
     product_type:
       company?.financial_summaries && company.financial_summaries.length
@@ -102,6 +115,7 @@ export default function ClientSurveillanceCustomersDataGrid({
   customers,
   selectedCompaniesIds,
   handleSelectCompanies,
+  handleClickCompanyBankStatusNote,
 }: Props) {
   const rows = customers ? getRows(customers) : [];
 
@@ -110,7 +124,7 @@ export default function ClientSurveillanceCustomersDataGrid({
       {
         dataField: "name",
         caption: "Customer Name",
-        minWidth: ColumnWidths.MinWidth,
+        minWidth: ColumnWidths.Comment,
         alignment: "center",
         cellRender: ({ value, data }: { value: string; data: any }) => (
           <ClickableDataGridCell
@@ -127,23 +141,29 @@ export default function ClientSurveillanceCustomersDataGrid({
         width: ColumnWidths.Status,
       },
       {
-        dataField: "debt_facility_status",
+        dataField: "bank_status",
         caption: "Client Surveillance Stage",
         width: ColumnWidths.Status,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
-          <EbbaApplicationClientSurveillanceStatusChip
-            requestStatus={params.row.data.debt_facility_status}
+          <ClientSurveillanceStatusChip
+            requestStatus={params.row.data.bank_status}
           />
         ),
       },
       {
-        dataField: "qualifying_for",
+        dataField: "qualify_for",
         caption: "Qualifying for",
         width: ColumnWidths.Datetime,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
-          <TextDataGridCell label="-" />
+          <TextDataGridCell
+            label={
+              QualifyForToLabel[
+                params.row.data.qualify_for as QualifyForEnum
+              ] || "-"
+            }
+          />
         ),
       },
       {
@@ -152,10 +172,7 @@ export default function ClientSurveillanceCustomersDataGrid({
         width: ColumnWidths.Date,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
-          <DatetimeDataGridCell
-            isTimeVisible={false}
-            datetimeString={params.row.data.application_date}
-          />
+          <TextDataGridCell label={params.row.data.application_date} />
         ),
       },
       {
@@ -164,21 +181,16 @@ export default function ClientSurveillanceCustomersDataGrid({
         width: ColumnWidths.Date,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
-          <DatetimeDataGridCell
-            isTimeVisible={false}
-            datetimeString={params.row.data.borrowing_base_date}
-          />
+          <TextDataGridCell label={params.row.data.borrowing_base_date} />
         ),
       },
       {
         dataField: "percentage_delinquent",
         caption: "% Delinquent",
-        width: ColumnWidths,
+        width: ColumnWidths.MinWidth,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
-          <TextDataGridCell
-            label={`${params.row.data.percentage_delinquent}%`}
-          />
+          <TextDataGridCell label={params.row.data.percentage_delinquent} />
         ),
       },
       {
@@ -187,17 +199,38 @@ export default function ClientSurveillanceCustomersDataGrid({
         width: ColumnWidths.Date,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell dateString={params.row.data.waiver_date} />
+          <TextDataGridCell label={params.row.data.waiver_date} />
+        ),
+      },
+      {
+        caption: "Bank Note",
+        dataField: "bank_status_note",
+        alignment: "center",
+        width: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) => (
+          <Button
+            color="default"
+            variant="text"
+            style={{
+              minWidth: 0,
+              textAlign: "center",
+            }}
+            onClick={() =>
+              !!handleClickCompanyBankStatusNote &&
+              handleClickCompanyBankStatusNote(params.row.data.id)
+            }
+          >
+            {!!params.row.data.bank_status_note ? <CommentIcon /> : "-"}
+          </Button>
         ),
       },
     ],
-    []
+    [handleClickCompanyBankStatusNote]
   );
 
   const handleSelectionChanged = useMemo(
     () => ({ selectedRowsData }: any) =>
-      handleSelectCompanies &&
-      handleSelectCompanies(selectedRowsData as CompanyFragment[]),
+      handleSelectCompanies && handleSelectCompanies(selectedRowsData),
     [handleSelectCompanies]
   );
 

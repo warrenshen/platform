@@ -624,11 +624,54 @@ class ApprovePartnershipView(MethodView):
 		}))
 
 
+class UpdateCompanyBankStatusView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+		print(form)
+		required_keys = [
+			'company_id',
+			'bank_status',
+			'bank_status_note',
+			'qualify_for'
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in request')
+
+		company_id = form['company_id']
+		bank_status = form['bank_status']
+		bank_status_note = form['bank_status_note']
+		qualify_for = form['qualify_for']
+
+		with session_scope(current_app.session_maker) as session:
+			_, err = create_company_util.update_bank_status(
+				company_id=company_id,
+				bank_status=bank_status,
+				bank_status_note=bank_status_note,
+				qualify_for=qualify_for,
+				session=session,
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+		}))
+
 handler.add_url_rule(
 	'/create_customer', view_func=CreateCustomerView.as_view(name='create_customer_view'))
 
 handler.add_url_rule(
 	'/create_prospective_customer', view_func=CreateProspectiveCustomerView.as_view(name='create_prospective_customer_view'))
+
+handler.add_url_rule(
+	'/update_company_bank_status', view_func=UpdateCompanyBankStatusView.as_view(name='update_company_bank_status_view'))
 
 handler.add_url_rule(
 	'/upsert_custom_messages', view_func=UpsertCustomMessagesView.as_view(name='upsert_custom_messages_view'))

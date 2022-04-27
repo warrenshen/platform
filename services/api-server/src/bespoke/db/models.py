@@ -165,7 +165,10 @@ class Company(Base):
 	# This also entails tracking waiver dates at each level as each scenario is different
 	debt_facility_status = Column(String)
 	debt_facility_waiver_date = Column(Date)
-	debt_facility_waiver_expiration_date = Column(Date) 
+	debt_facility_waiver_expiration_date = Column(Date)
+	bank_status = Column(String)
+	bank_status_note = Column(String)
+	qualify_for = Column(String)
 
 	# Last created identifier for a loan belonging to this company.
 	latest_loan_identifier = Column(Integer, nullable=False, default=0)
