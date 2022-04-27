@@ -855,9 +855,13 @@ class Payment(Base):
 	method = Column(String)
 	requested_amount = Column(Numeric)
 	amount = Column(Numeric)
-	requested_payment_date = Column(Date)
-	payment_date = Column(Date)
-	deposit_date = Column(Date)
+	requested_payment_date = Column(Date) # The date the requestor requests payment to be initiated.
+	payment_date = Column(Date) # The date the payment was actually initiated.
+	deposit_date = Column(Date) # The date the payment arrived to the destination.
+	# The date the payment clears.
+	# For advances, deposit date and settlement date are always the same.
+	# For repayments, settlement date is the deposit date plus clearance days.
+	# Note for repayments, account fees are paid off as of the deposit date.
 	settlement_date = Column(Date)
 	items_covered = cast(ItemsCoveredDict, Column(JSON))
 	# Sender's bank account.
@@ -989,9 +993,9 @@ class Loan(Base):
 	loan_type = Column(Text)
 	artifact_id = Column(GUID)
 	requested_payment_date = Column(Date)
-	origination_date = Column(Date)
-	maturity_date = Column(Date)
-	adjusted_maturity_date = Column(Date)
+	origination_date = Column(Date) # The date the loan is officially funded and interest begins to accrue; this is equal to the settlement date of the associated advance.
+	maturity_date = Column(Date) # The date the loan would be due based on the origination date, if there were no holidays and weekends.
+	adjusted_maturity_date = Column(Date) # The date the loan is officially due based on the origination date, which includes holidays and weekends.
 	amount = Column(Numeric, nullable=False)
 	status = Column(String)
 	payment_status = Column(String)
@@ -1006,7 +1010,7 @@ class Loan(Base):
 	approved_at = Column(DateTime)
 	approved_by_user_id = Column(GUID)
 
-	funded_at = Column(DateTime)
+	funded_at = Column(DateTime) # The datetime when an advance for this loan was created, may not be the same as the origination date.
 	funded_by_user_id = Column(GUID)
 
 	outstanding_principal_balance = Column(Numeric)
