@@ -1392,6 +1392,8 @@ export type Companies = {
   bank_accounts: Array<BankAccounts>;
   /** An aggregate relationship */
   bank_accounts_aggregate: BankAccountsAggregate;
+  bank_status?: Maybe<Scalars["String"]>;
+  bank_status_note?: Maybe<Scalars["String"]>;
   city?: Maybe<Scalars["String"]>;
   /** An array relationship */
   company_facilities: Array<CompanyFacilities>;
@@ -1490,6 +1492,7 @@ export type Companies = {
   purchase_orders_by_vendor: Array<PurchaseOrders>;
   /** An aggregate relationship */
   purchase_orders_by_vendor_aggregate: PurchaseOrdersAggregate;
+  qualify_for?: Maybe<Scalars["String"]>;
   /** An object relationship */
   settings?: Maybe<CompanySettings>;
   state?: Maybe<Scalars["String"]>;
@@ -1936,6 +1939,8 @@ export type CompaniesBoolExp = {
   address?: Maybe<StringComparisonExp>;
   agreements?: Maybe<CompanyAgreementsBoolExp>;
   bank_accounts?: Maybe<BankAccountsBoolExp>;
+  bank_status?: Maybe<StringComparisonExp>;
+  bank_status_note?: Maybe<StringComparisonExp>;
   city?: Maybe<StringComparisonExp>;
   company_facilities?: Maybe<CompanyFacilitiesBoolExp>;
   company_licenses?: Maybe<CompanyLicensesBoolExp>;
@@ -1979,6 +1984,7 @@ export type CompaniesBoolExp = {
   phone_number?: Maybe<StringComparisonExp>;
   purchase_orders?: Maybe<PurchaseOrdersBoolExp>;
   purchase_orders_by_vendor?: Maybe<PurchaseOrdersBoolExp>;
+  qualify_for?: Maybe<StringComparisonExp>;
   settings?: Maybe<CompanySettingsBoolExp>;
   state?: Maybe<StringComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
@@ -2008,6 +2014,8 @@ export type CompaniesInsertInput = {
   address?: Maybe<Scalars["String"]>;
   agreements?: Maybe<CompanyAgreementsArrRelInsertInput>;
   bank_accounts?: Maybe<BankAccountsArrRelInsertInput>;
+  bank_status?: Maybe<Scalars["String"]>;
+  bank_status_note?: Maybe<Scalars["String"]>;
   city?: Maybe<Scalars["String"]>;
   company_facilities?: Maybe<CompanyFacilitiesArrRelInsertInput>;
   company_licenses?: Maybe<CompanyLicensesArrRelInsertInput>;
@@ -2053,6 +2061,7 @@ export type CompaniesInsertInput = {
   phone_number?: Maybe<Scalars["String"]>;
   purchase_orders?: Maybe<PurchaseOrdersArrRelInsertInput>;
   purchase_orders_by_vendor?: Maybe<PurchaseOrdersArrRelInsertInput>;
+  qualify_for?: Maybe<Scalars["String"]>;
   settings?: Maybe<CompanySettingsObjRelInsertInput>;
   state?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
@@ -2063,6 +2072,8 @@ export type CompaniesInsertInput = {
 /** aggregate max on columns */
 export type CompaniesMaxFields = {
   address?: Maybe<Scalars["String"]>;
+  bank_status?: Maybe<Scalars["String"]>;
+  bank_status_note?: Maybe<Scalars["String"]>;
   city?: Maybe<Scalars["String"]>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
   contract_id?: Maybe<Scalars["uuid"]>;
@@ -2084,6 +2095,7 @@ export type CompaniesMaxFields = {
   name?: Maybe<Scalars["String"]>;
   parent_company_id?: Maybe<Scalars["uuid"]>;
   phone_number?: Maybe<Scalars["String"]>;
+  qualify_for?: Maybe<Scalars["String"]>;
   state?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   zip_code?: Maybe<Scalars["String"]>;
@@ -2092,6 +2104,8 @@ export type CompaniesMaxFields = {
 /** order by max() on columns of table "companies" */
 export type CompaniesMaxOrderBy = {
   address?: Maybe<OrderBy>;
+  bank_status?: Maybe<OrderBy>;
+  bank_status_note?: Maybe<OrderBy>;
   city?: Maybe<OrderBy>;
   company_settings_id?: Maybe<OrderBy>;
   contract_id?: Maybe<OrderBy>;
@@ -2113,6 +2127,7 @@ export type CompaniesMaxOrderBy = {
   name?: Maybe<OrderBy>;
   parent_company_id?: Maybe<OrderBy>;
   phone_number?: Maybe<OrderBy>;
+  qualify_for?: Maybe<OrderBy>;
   state?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   zip_code?: Maybe<OrderBy>;
@@ -2121,6 +2136,8 @@ export type CompaniesMaxOrderBy = {
 /** aggregate min on columns */
 export type CompaniesMinFields = {
   address?: Maybe<Scalars["String"]>;
+  bank_status?: Maybe<Scalars["String"]>;
+  bank_status_note?: Maybe<Scalars["String"]>;
   city?: Maybe<Scalars["String"]>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
   contract_id?: Maybe<Scalars["uuid"]>;
@@ -2142,6 +2159,7 @@ export type CompaniesMinFields = {
   name?: Maybe<Scalars["String"]>;
   parent_company_id?: Maybe<Scalars["uuid"]>;
   phone_number?: Maybe<Scalars["String"]>;
+  qualify_for?: Maybe<Scalars["String"]>;
   state?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   zip_code?: Maybe<Scalars["String"]>;
@@ -2150,6 +2168,8 @@ export type CompaniesMinFields = {
 /** order by min() on columns of table "companies" */
 export type CompaniesMinOrderBy = {
   address?: Maybe<OrderBy>;
+  bank_status?: Maybe<OrderBy>;
+  bank_status_note?: Maybe<OrderBy>;
   city?: Maybe<OrderBy>;
   company_settings_id?: Maybe<OrderBy>;
   contract_id?: Maybe<OrderBy>;
@@ -2171,6 +2191,7 @@ export type CompaniesMinOrderBy = {
   name?: Maybe<OrderBy>;
   parent_company_id?: Maybe<OrderBy>;
   phone_number?: Maybe<OrderBy>;
+  qualify_for?: Maybe<OrderBy>;
   state?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   zip_code?: Maybe<OrderBy>;
@@ -2203,6 +2224,8 @@ export type CompaniesOrderBy = {
   address?: Maybe<OrderBy>;
   agreements_aggregate?: Maybe<CompanyAgreementsAggregateOrderBy>;
   bank_accounts_aggregate?: Maybe<BankAccountsAggregateOrderBy>;
+  bank_status?: Maybe<OrderBy>;
+  bank_status_note?: Maybe<OrderBy>;
   city?: Maybe<OrderBy>;
   company_facilities_aggregate?: Maybe<CompanyFacilitiesAggregateOrderBy>;
   company_licenses_aggregate?: Maybe<CompanyLicensesAggregateOrderBy>;
@@ -2246,6 +2269,7 @@ export type CompaniesOrderBy = {
   phone_number?: Maybe<OrderBy>;
   purchase_orders_aggregate?: Maybe<PurchaseOrdersAggregateOrderBy>;
   purchase_orders_by_vendor_aggregate?: Maybe<PurchaseOrdersAggregateOrderBy>;
+  qualify_for?: Maybe<OrderBy>;
   settings?: Maybe<CompanySettingsOrderBy>;
   state?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
@@ -2262,6 +2286,10 @@ export type CompaniesPkColumnsInput = {
 export enum CompaniesSelectColumn {
   /** column name */
   Address = "address",
+  /** column name */
+  BankStatus = "bank_status",
+  /** column name */
+  BankStatusNote = "bank_status_note",
   /** column name */
   City = "city",
   /** column name */
@@ -2311,6 +2339,8 @@ export enum CompaniesSelectColumn {
   /** column name */
   PhoneNumber = "phone_number",
   /** column name */
+  QualifyFor = "qualify_for",
+  /** column name */
   State = "state",
   /** column name */
   UpdatedAt = "updated_at",
@@ -2321,6 +2351,8 @@ export enum CompaniesSelectColumn {
 /** input type for updating data in table "companies" */
 export type CompaniesSetInput = {
   address?: Maybe<Scalars["String"]>;
+  bank_status?: Maybe<Scalars["String"]>;
+  bank_status_note?: Maybe<Scalars["String"]>;
   city?: Maybe<Scalars["String"]>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
   contract_id?: Maybe<Scalars["uuid"]>;
@@ -2347,6 +2379,7 @@ export type CompaniesSetInput = {
   needs_balance_recomputed?: Maybe<Scalars["Boolean"]>;
   parent_company_id?: Maybe<Scalars["uuid"]>;
   phone_number?: Maybe<Scalars["String"]>;
+  qualify_for?: Maybe<Scalars["String"]>;
   state?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   zip_code?: Maybe<Scalars["String"]>;
@@ -2429,6 +2462,10 @@ export enum CompaniesUpdateColumn {
   /** column name */
   Address = "address",
   /** column name */
+  BankStatus = "bank_status",
+  /** column name */
+  BankStatusNote = "bank_status_note",
+  /** column name */
   City = "city",
   /** column name */
   CompanySettingsId = "company_settings_id",
@@ -2476,6 +2513,8 @@ export enum CompaniesUpdateColumn {
   ParentCompanyId = "parent_company_id",
   /** column name */
   PhoneNumber = "phone_number",
+  /** column name */
+  QualifyFor = "qualify_for",
   /** column name */
   State = "state",
   /** column name */
@@ -4393,6 +4432,9 @@ export enum CompanyPayorPartnershipsUpdateColumn {
 /** Settings are configuration details associated with a company, but are not within a time range like contracts are */
 export type CompanySettings = {
   /** An object relationship */
+  account_manager?: Maybe<Users>;
+  account_manager_user_id?: Maybe<Scalars["uuid"]>;
+  /** An object relationship */
   active_ebba_application?: Maybe<EbbaApplications>;
   /** If relevant, this foreign key points to the current active ebba_application for this company */
   active_ebba_application_id?: Maybe<Scalars["uuid"]>;
@@ -4427,6 +4469,9 @@ export type CompanySettings = {
   metrc_api_key?: Maybe<MetrcApiKeys>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
+  /** An object relationship */
+  salesperson?: Maybe<Users>;
+  salesperson_user_id?: Maybe<Scalars["uuid"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
   updated_at: Scalars["timestamptz"];
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
@@ -4489,6 +4534,8 @@ export type CompanySettingsBoolExp = {
   _and?: Maybe<Array<CompanySettingsBoolExp>>;
   _not?: Maybe<CompanySettingsBoolExp>;
   _or?: Maybe<Array<CompanySettingsBoolExp>>;
+  account_manager?: Maybe<UsersBoolExp>;
+  account_manager_user_id?: Maybe<UuidComparisonExp>;
   active_ebba_application?: Maybe<EbbaApplicationsBoolExp>;
   active_ebba_application_id?: Maybe<UuidComparisonExp>;
   advances_bank_account?: Maybe<BankAccountsBoolExp>;
@@ -4510,6 +4557,8 @@ export type CompanySettingsBoolExp = {
   metrc_api_key?: Maybe<MetrcApiKeysBoolExp>;
   metrc_api_key_id?: Maybe<UuidComparisonExp>;
   payor_agreement_docusign_template?: Maybe<StringComparisonExp>;
+  salesperson?: Maybe<UsersBoolExp>;
+  salesperson_user_id?: Maybe<UuidComparisonExp>;
   two_factor_message_method?: Maybe<StringComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
   vendor_agreement_docusign_template?: Maybe<StringComparisonExp>;
@@ -4548,6 +4597,8 @@ export type CompanySettingsDeleteKeyInput = {
 
 /** input type for inserting data into table "company_settings" */
 export type CompanySettingsInsertInput = {
+  account_manager?: Maybe<UsersObjRelInsertInput>;
+  account_manager_user_id?: Maybe<Scalars["uuid"]>;
   active_ebba_application?: Maybe<EbbaApplicationsObjRelInsertInput>;
   /** If relevant, this foreign key points to the current active ebba_application for this company */
   active_ebba_application_id?: Maybe<Scalars["uuid"]>;
@@ -4576,6 +4627,8 @@ export type CompanySettingsInsertInput = {
   metrc_api_key?: Maybe<MetrcApiKeysObjRelInsertInput>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
+  salesperson?: Maybe<UsersObjRelInsertInput>;
+  salesperson_user_id?: Maybe<Scalars["uuid"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
@@ -4584,6 +4637,7 @@ export type CompanySettingsInsertInput = {
 
 /** aggregate max on columns */
 export type CompanySettingsMaxFields = {
+  account_manager_user_id?: Maybe<Scalars["uuid"]>;
   /** If relevant, this foreign key points to the current active ebba_application for this company */
   active_ebba_application_id?: Maybe<Scalars["uuid"]>;
   /** For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances TO */
@@ -4599,6 +4653,7 @@ export type CompanySettingsMaxFields = {
   id?: Maybe<Scalars["uuid"]>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
+  salesperson_user_id?: Maybe<Scalars["uuid"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
@@ -4607,6 +4662,7 @@ export type CompanySettingsMaxFields = {
 
 /** order by max() on columns of table "company_settings" */
 export type CompanySettingsMaxOrderBy = {
+  account_manager_user_id?: Maybe<OrderBy>;
   /** If relevant, this foreign key points to the current active ebba_application for this company */
   active_ebba_application_id?: Maybe<OrderBy>;
   /** For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances TO */
@@ -4622,6 +4678,7 @@ export type CompanySettingsMaxOrderBy = {
   id?: Maybe<OrderBy>;
   metrc_api_key_id?: Maybe<OrderBy>;
   payor_agreement_docusign_template?: Maybe<OrderBy>;
+  salesperson_user_id?: Maybe<OrderBy>;
   two_factor_message_method?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor_agreement_docusign_template?: Maybe<OrderBy>;
@@ -4630,6 +4687,7 @@ export type CompanySettingsMaxOrderBy = {
 
 /** aggregate min on columns */
 export type CompanySettingsMinFields = {
+  account_manager_user_id?: Maybe<Scalars["uuid"]>;
   /** If relevant, this foreign key points to the current active ebba_application for this company */
   active_ebba_application_id?: Maybe<Scalars["uuid"]>;
   /** For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances TO */
@@ -4645,6 +4703,7 @@ export type CompanySettingsMinFields = {
   id?: Maybe<Scalars["uuid"]>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
+  salesperson_user_id?: Maybe<Scalars["uuid"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
@@ -4653,6 +4712,7 @@ export type CompanySettingsMinFields = {
 
 /** order by min() on columns of table "company_settings" */
 export type CompanySettingsMinOrderBy = {
+  account_manager_user_id?: Maybe<OrderBy>;
   /** If relevant, this foreign key points to the current active ebba_application for this company */
   active_ebba_application_id?: Maybe<OrderBy>;
   /** For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances TO */
@@ -4668,6 +4728,7 @@ export type CompanySettingsMinOrderBy = {
   id?: Maybe<OrderBy>;
   metrc_api_key_id?: Maybe<OrderBy>;
   payor_agreement_docusign_template?: Maybe<OrderBy>;
+  salesperson_user_id?: Maybe<OrderBy>;
   two_factor_message_method?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor_agreement_docusign_template?: Maybe<OrderBy>;
@@ -4698,6 +4759,8 @@ export type CompanySettingsOnConflict = {
 
 /** Ordering options when selecting data from "company_settings". */
 export type CompanySettingsOrderBy = {
+  account_manager?: Maybe<UsersOrderBy>;
+  account_manager_user_id?: Maybe<OrderBy>;
   active_ebba_application?: Maybe<EbbaApplicationsOrderBy>;
   active_ebba_application_id?: Maybe<OrderBy>;
   advances_bank_account?: Maybe<BankAccountsOrderBy>;
@@ -4719,6 +4782,8 @@ export type CompanySettingsOrderBy = {
   metrc_api_key?: Maybe<MetrcApiKeysOrderBy>;
   metrc_api_key_id?: Maybe<OrderBy>;
   payor_agreement_docusign_template?: Maybe<OrderBy>;
+  salesperson?: Maybe<UsersOrderBy>;
+  salesperson_user_id?: Maybe<OrderBy>;
   two_factor_message_method?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor_agreement_docusign_template?: Maybe<OrderBy>;
@@ -4741,6 +4806,8 @@ export type CompanySettingsPrependInput = {
 /** select columns of table "company_settings" */
 export enum CompanySettingsSelectColumn {
   /** column name */
+  AccountManagerUserId = "account_manager_user_id",
+  /** column name */
   ActiveEbbaApplicationId = "active_ebba_application_id",
   /** column name */
   AdvancesBankAccountId = "advances_bank_account_id",
@@ -4769,6 +4836,8 @@ export enum CompanySettingsSelectColumn {
   /** column name */
   PayorAgreementDocusignTemplate = "payor_agreement_docusign_template",
   /** column name */
+  SalespersonUserId = "salesperson_user_id",
+  /** column name */
   TwoFactorMessageMethod = "two_factor_message_method",
   /** column name */
   UpdatedAt = "updated_at",
@@ -4780,6 +4849,7 @@ export enum CompanySettingsSelectColumn {
 
 /** input type for updating data in table "company_settings" */
 export type CompanySettingsSetInput = {
+  account_manager_user_id?: Maybe<Scalars["uuid"]>;
   /** If relevant, this foreign key points to the current active ebba_application for this company */
   active_ebba_application_id?: Maybe<Scalars["uuid"]>;
   /** For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances TO */
@@ -4801,6 +4871,7 @@ export type CompanySettingsSetInput = {
   is_dummy_account?: Maybe<Scalars["Boolean"]>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
+  salesperson_user_id?: Maybe<Scalars["uuid"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
@@ -4809,6 +4880,8 @@ export type CompanySettingsSetInput = {
 
 /** update columns of table "company_settings" */
 export enum CompanySettingsUpdateColumn {
+  /** column name */
+  AccountManagerUserId = "account_manager_user_id",
   /** column name */
   ActiveEbbaApplicationId = "active_ebba_application_id",
   /** column name */
@@ -4837,6 +4910,8 @@ export enum CompanySettingsUpdateColumn {
   MetrcApiKeyId = "metrc_api_key_id",
   /** column name */
   PayorAgreementDocusignTemplate = "payor_agreement_docusign_template",
+  /** column name */
+  SalespersonUserId = "salesperson_user_id",
   /** column name */
   TwoFactorMessageMethod = "two_factor_message_method",
   /** column name */
@@ -30729,26 +30804,6 @@ export const GetOpenLoansByDebtFacilityStatusesDocument = gql`
               { is_deleted: { _eq: false } }
             ]
           }
-          {
-            _or: [
-              {
-                _and: [
-                  { loan_type: { _neq: line_of_credit } }
-                  { origination_date: { _gt: "2021-11-24" } }
-                ]
-              }
-              {
-                _and: [
-                  { loan_type: { _neq: line_of_credit } }
-                  { origination_date: { _lt: "2021-11-24" } }
-                  {
-                    company: { debt_facility_status: { _eq: "waiver_company" } }
-                  }
-                ]
-              }
-              { loan_type: { _eq: line_of_credit } }
-            ]
-          }
           { closed_at: { _is_null: true } }
           { loan_report: { debt_facility_status: { _in: $statuses } } }
           {
@@ -30812,26 +30867,6 @@ export const GetOpenLoansByDebtFacilityIdDocument = gql`
             _or: [
               { is_deleted: { _is_null: true } }
               { is_deleted: { _eq: false } }
-            ]
-          }
-          {
-            _or: [
-              {
-                _and: [
-                  { loan_type: { _neq: line_of_credit } }
-                  { origination_date: { _gt: "2021-11-24" } }
-                ]
-              }
-              {
-                _and: [
-                  { loan_type: { _neq: line_of_credit } }
-                  { origination_date: { _lt: "2021-11-24" } }
-                  {
-                    company: { debt_facility_status: { _eq: "waiver_company" } }
-                  }
-                ]
-              }
-              { loan_type: { _eq: line_of_credit } }
             ]
           }
           { closed_at: { _is_null: true } }
@@ -30904,25 +30939,8 @@ export const GetReportLoansByDebtFacilityIdDocument = gql`
           }
           {
             _or: [
-              {
-                _and: [
-                  { loan_type: { _neq: line_of_credit } }
-                  { origination_date: { _gt: "2021-11-24" } }
-                  { closed_at: { _is_null: true } }
-                ]
-              }
-              {
-                _and: [
-                  { loan_type: { _neq: line_of_credit } }
-                  { origination_date: { _lt: "2021-11-24" } }
-                  {
-                    company: { debt_facility_status: { _eq: "waiver_company" } }
-                  }
-                  { closed_at: { _is_null: true } }
-                ]
-              }
-              { loan_type: { _eq: line_of_credit } }
-              { closed_at: { _is_null: false } }
+              { closed_at: { _gt: "2021-11-25T00:00:00+00:00" } }
+              { closed_at: { _is_null: true } }
             ]
           }
           {
