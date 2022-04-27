@@ -324,6 +324,10 @@ class CompanyPartnershipRequest(Base):
 	__tablename__ = 'company_partnership_requests'
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	is_deleted = Column(Boolean)
+
 	requesting_company_id = Column(GUID, nullable=False)
 	company_type = Column(String, nullable=False)
 	two_factor_message_method = Column(String, nullable=False)
@@ -335,7 +339,6 @@ class CompanyPartnershipRequest(Base):
 	requested_by_user_id = Column(GUID, nullable=False)
 	settled_at = Column(DateTime)
 	settled_by_user_id = Column(GUID)
-	is_deleted = Column(Boolean)
 
 class CompanyVendorPartnership(Base):
 	__tablename__ = 'company_vendor_partnerships'
