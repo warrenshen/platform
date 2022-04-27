@@ -27739,6 +27739,8 @@ export type CompanySettingsFragment = Pick<
   | "collections_bespoke_bank_account_id"
   | "two_factor_message_method"
   | "is_dummy_account"
+  | "account_manager_user_id"
+  | "salesperson_user_id"
 > &
   CompanySettingsLimitedFragment;
 
@@ -28663,6 +28665,8 @@ export const CompanySettingsFragmentDoc = gql`
     collections_bespoke_bank_account_id
     two_factor_message_method
     is_dummy_account
+    account_manager_user_id
+    salesperson_user_id
     ...CompanySettingsLimited
   }
   ${CompanySettingsLimitedFragmentDoc}

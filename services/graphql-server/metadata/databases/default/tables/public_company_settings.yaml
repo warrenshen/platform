@@ -2,6 +2,9 @@ table:
   schema: public
   name: company_settings
 object_relationships:
+  - name: account_manager
+    using:
+      foreign_key_constraint_on: account_manager_user_id
   - name: active_ebba_application
     using:
       foreign_key_constraint_on: active_ebba_application_id
@@ -23,10 +26,14 @@ object_relationships:
   - name: metrc_api_key
     using:
       foreign_key_constraint_on: metrc_api_key_id
+  - name: salesperson
+    using:
+      foreign_key_constraint_on: salesperson_user_id
 select_permissions:
   - role: bank_admin
     permission:
       columns:
+        - account_manager_user_id
         - active_ebba_application_id
         - advances_bank_account_id
         - advances_bespoke_bank_account_id
@@ -41,6 +48,7 @@ select_permissions:
         - is_dummy_account
         - metrc_api_key_id
         - payor_agreement_docusign_template
+        - salesperson_user_id
         - two_factor_message_method
         - updated_at
         - vendor_agreement_docusign_template
@@ -49,6 +57,7 @@ select_permissions:
   - role: bank_read_only
     permission:
       columns:
+        - account_manager_user_id
         - active_ebba_application_id
         - advances_bank_account_id
         - advances_bespoke_bank_account_id
@@ -63,6 +72,7 @@ select_permissions:
         - is_dummy_account
         - metrc_api_key_id
         - payor_agreement_docusign_template
+        - salesperson_user_id
         - two_factor_message_method
         - updated_at
         - vendor_agreement_docusign_template

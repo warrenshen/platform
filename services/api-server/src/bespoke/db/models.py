@@ -261,6 +261,8 @@ class CompanySettings(Base):
 	feature_flags_payload = Column(JSON)
 	custom_messages_payload = Column(JSON)
 	is_dummy_account = Column(Boolean, default=False)
+	account_manager_user_id = cast(GUID, Column(GUID, ForeignKey('users.id'))) # used for commission
+	salesperson_user_id = cast(GUID, Column(GUID, ForeignKey('users.id'))) # used for commission
 
 	def as_dict(self) -> CompanySettingsDict:
 		return CompanySettingsDict(
