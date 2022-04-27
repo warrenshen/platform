@@ -9,10 +9,7 @@ import UpdateCompanyDebtFacilityStatusModal from "components/DebtFacility/Update
 import Can from "components/Shared/Can";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import PercentageDataGridCell from "components/Shared/DataGrid/PercentageDataGridCell";
-import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
-import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
@@ -24,7 +21,7 @@ import {
   useGetCustomersWithMetadataQuery,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
-import { todayAsDateStringServer } from "lib/date";
+import { formatDatetimeString, todayAsDateStringServer } from "lib/date";
 import {
   ProductTypeEnum,
   ProductTypeToLabel,
@@ -36,6 +33,7 @@ import { useFilterCustomers } from "hooks/useFilterCustomers";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ColumnWidths } from "lib/tables";
 import { useContext, useMemo, useState } from "react";
+import { formatCurrency, formatPercentage } from "lib/number";
 
 function getRows(
   customers: GetCustomersWithMetadataQuery["customers"]
@@ -44,43 +42,59 @@ function getRows(
     ...company,
     company_url: getBankCompanyRoute(company.id, BankCompanyRouteEnum.Overview),
     cy_identifier: `customers-data-grid-view-customer-button-${company.identifier}`,
-    product_type: company.contract
-      ? ProductTypeToLabel[company.contract.product_type as ProductTypeEnum]
+    product_type: !!company?.financial_summaries?.[0]
+      ? ProductTypeToLabel[
+          company.financial_summaries[0].product_type as ProductTypeEnum
+        ]
       : "None",
-    adjusted_total_limit: !!company.financial_summaries
-      ? company.financial_summaries[0]?.adjusted_total_limit
+    adjusted_total_limit: !!company?.financial_summaries?.[0]
+      ? formatCurrency(company.financial_summaries[0].adjusted_total_limit)
       : null,
-    application_date: !!company.ebba_applications
-      ? company.ebba_applications.filter(
-          ({ category }) =>
-            category === ClientSurveillanceCategoryEnum.FinancialReports
-        )[0]?.application_date
+    application_date: !!company?.ebba_applications
+      ? formatDatetimeString(
+          company.ebba_applications.filter(
+            ({ category }) =>
+              category === ClientSurveillanceCategoryEnum.FinancialReports
+          )[0]?.application_date,
+          false,
+          "-"
+        )
       : null,
-    borrowing_base_date: !!company.ebba_applications
-      ? company.ebba_applications.filter(
-          ({ category }) =>
-            category === ClientSurveillanceCategoryEnum.BorrowingBase
-        )[0]?.application_date
+    borrowing_base_date: !!company?.ebba_applications
+      ? formatDatetimeString(
+          company.ebba_applications.filter(
+            ({ category }) =>
+              category === ClientSurveillanceCategoryEnum.BorrowingBase
+          )[0]?.application_date,
+          false,
+          "-"
+        )
       : null,
-    total_outstanding_principal: !!company.financial_summaries
-      ? company.financial_summaries[0]?.total_outstanding_principal
+    total_outstanding_principal: !!company?.financial_summaries?.[0]
+      ? formatCurrency(
+          company.financial_summaries[0].total_outstanding_principal
+        )
       : null,
-    total_outstanding_interest: !!company.financial_summaries
-      ? company.financial_summaries[0]?.total_outstanding_interest
+    total_outstanding_interest: !!company?.financial_summaries?.[0]
+      ? formatCurrency(
+          company.financial_summaries[0].total_outstanding_interest
+        )
       : null,
-    total_outstanding_fees: !!company.financial_summaries
-      ? company.financial_summaries[0]?.total_outstanding_fees
+    total_outstanding_fees: !!company?.financial_summaries?.[0]
+      ? formatCurrency(company.financial_summaries[0].total_outstanding_fees)
       : null,
-    outstanding_account_fees: !!company.financial_summaries
-      ? company.financial_summaries[company.financial_summaries.length - 1]
-          ?.account_level_balance_payload?.fees_total
+    outstanding_account_fees: !!company?.financial_summaries?.[
+      company.financial_summaries.length - 1
+    ]
+      ? formatCurrency(
+          company.financial_summaries[company.financial_summaries.length - 1]
+            .account_level_balance_payload?.fees_total
+        )
       : null,
-    daily_interest_rate: !!company.contract
-      ? company.contract.product_config.v1.fields.find(
-          (field: any) => field.internal_name === "factoring_fee_percentage"
-        )?.value * 100
-      : 0,
-    debt_facility_status: !!company.debt_facility_status
+    daily_interest_rate: !!company?.financial_summaries?.[0]
+      ? formatPercentage(company.financial_summaries[0].daily_interest_rate)
+      : null,
+    debt_facility_status: !!company?.debt_facility_status
       ? DebtFacilityCompanyStatusToLabel[
           company.debt_facility_status as DebtFacilityCompanyStatusEnum
         ]
@@ -176,7 +190,7 @@ export default function BankCustomersPage() {
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.adjusted_total_limit} />
+          <TextDataGridCell label={params.row.data.adjusted_total_limit} />
         ),
       },
       {
@@ -185,7 +199,7 @@ export default function BankCustomersPage() {
         minWidth: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell dateString={params.row.data.application_date} />
+          <TextDataGridCell label={params.row.data.application_date} />
         ),
       },
       {
@@ -194,7 +208,7 @@ export default function BankCustomersPage() {
         minWidth: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell dateString={params.row.data.borrowing_base_date} />
+          <TextDataGridCell label={params.row.data.borrowing_base_date} />
         ),
       },
       {
@@ -203,7 +217,7 @@ export default function BankCustomersPage() {
         minWidth: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
-          <PercentageDataGridCell value={params.row.data.daily_interest_rate} />
+          <TextDataGridCell label={params.row.data.daily_interest_rate} />
         ),
       },
       {
@@ -212,8 +226,8 @@ export default function BankCustomersPage() {
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell
-            value={params.row.data.total_outstanding_principal}
+          <TextDataGridCell
+            label={params.row.data.total_outstanding_principal}
           />
         ),
       },
@@ -223,8 +237,8 @@ export default function BankCustomersPage() {
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell
-            value={params.row.data.total_outstanding_interest}
+          <TextDataGridCell
+            label={params.row.data.total_outstanding_interest}
           />
         ),
       },
@@ -234,9 +248,7 @@ export default function BankCustomersPage() {
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell
-            value={params.row.data.total_outstanding_fees}
-          />
+          <TextDataGridCell label={params.row.data.total_outstanding_fees} />
         ),
       },
       {
@@ -245,8 +257,8 @@ export default function BankCustomersPage() {
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell
-            value={params.row.data.outstanding_account_fees || 0}
+          <TextDataGridCell
+            label={params.row.data.outstanding_account_fees || 0}
           />
         ),
       },

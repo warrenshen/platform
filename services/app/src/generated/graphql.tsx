@@ -28189,7 +28189,6 @@ export type GetCustomersWithMetadataQueryVariables = Exact<{
 export type GetCustomersWithMetadataQuery = {
   customers: Array<
     Pick<Companies, "id"> & {
-      contract?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
       financial_summaries: Array<
         Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
       >;
@@ -28208,7 +28207,6 @@ export type GetCustomersWithMetadataAndLoansQueryVariables = Exact<{
 export type GetCustomersWithMetadataAndLoansQuery = {
   customers: Array<
     Pick<Companies, "id"> & {
-      contract?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
       financial_summaries: Array<
         Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
       >;
@@ -39106,10 +39104,6 @@ export const GetCustomersWithMetadataDocument = gql`
     ) {
       id
       ...CustomerForBank
-      contract {
-        id
-        ...Contract
-      }
       financial_summaries(where: { date: { _eq: $date } }) {
         id
         ...FinancialSummary
@@ -39129,7 +39123,6 @@ export const GetCustomersWithMetadataDocument = gql`
     }
   }
   ${CustomerForBankFragmentDoc}
-  ${ContractFragmentDoc}
   ${FinancialSummaryFragmentDoc}
   ${CompanySettingsFragmentDoc}
   ${EbbaApplicationFragmentDoc}
@@ -39191,10 +39184,6 @@ export const GetCustomersWithMetadataAndLoansDocument = gql`
     ) {
       id
       ...CustomerForBank
-      contract {
-        id
-        ...Contract
-      }
       financial_summaries(where: { date: { _eq: $date } }) {
         id
         ...FinancialSummary
@@ -39218,7 +39207,6 @@ export const GetCustomersWithMetadataAndLoansDocument = gql`
     }
   }
   ${CustomerForBankFragmentDoc}
-  ${ContractFragmentDoc}
   ${FinancialSummaryFragmentDoc}
   ${CompanySettingsFragmentDoc}
   ${EbbaApplicationFragmentDoc}

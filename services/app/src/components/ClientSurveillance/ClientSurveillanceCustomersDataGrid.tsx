@@ -68,7 +68,6 @@ function getRows(
 ): RowsProp {
   return companies.map((company) => ({
     ...company,
-    product: company?.contract?.product_type,
     application_date: !!company?.ebba_applications
       ? company?.ebba_applications.filter(
           ({ category }) =>
@@ -81,9 +80,12 @@ function getRows(
             category === ClientSurveillanceCategoryEnum.BorrowingBase
         )[0]?.application_date
       : null,
-    product_type: company.contract
-      ? ProductTypeToLabel[company.contract.product_type as ProductTypeEnum]
-      : "None",
+    product_type:
+      company?.financial_summaries && company.financial_summaries.length
+        ? ProductTypeToLabel[
+            company.financial_summaries[0].product_type as ProductTypeEnum
+          ]
+        : "None",
     debt_facility_status: company?.debt_facility_status
       ? company.debt_facility_status
       : null,
