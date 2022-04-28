@@ -3,12 +3,11 @@ import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridC
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import {
   Companies,
-  GetCustomersWithMetadataAndLoansQuery,
-  Loans,
+  FinancialSummaries,
+  GetCustomersWithMetadataQuery,
 } from "generated/graphql";
 import {
   ClientSurveillanceCategoryEnum,
-  LoanStatusEnum,
   ProductTypeEnum,
   ProductTypeToLabel,
   QualifyForEnum,
@@ -22,53 +21,26 @@ import ClientSurveillanceStatusChip from "./ClientSurveillanceStatusChip";
 import { Button } from "@material-ui/core";
 import CommentIcon from "@material-ui/icons/Comment";
 import { formatDatetimeString } from "lib/date";
-
+import { formatPercentage } from "lib/number";
 interface Props {
   isExcelExport?: boolean;
   isMultiSelectEnabled?: boolean;
-  customers: GetCustomersWithMetadataAndLoansQuery["customers"];
+  customers: GetCustomersWithMetadataQuery["customers"];
   selectedCompaniesIds?: Companies["id"][];
   handleSelectCompanies?: (companies: Companies[]) => void;
   handleClickCompanyBankStatusNote?: (id: Companies["id"]) => void;
 }
 
-const reduceLoanOutstandingPrincipalBalance = (
-  acc: number,
-  { outstanding_principal_balance, amount }: Loans
-): number => acc + (outstanding_principal_balance || amount);
-
-const filterByPastMaturityDate = ({ maturity_date }: Loans) => {
-  const nowTime = new Date(Date.now()).getTime();
-
-  return Math.floor((nowTime - maturity_date) / (24 * 60 * 60 * 1000)) > 0;
-};
-
-const filterByOpenedStatus = ({ status }: Loans) => {
-  const openLoansStatuses = [
-    LoanStatusEnum.Approved,
-    LoanStatusEnum.Funded,
-    LoanStatusEnum.PastDue,
-  ];
-
-  return openLoansStatuses.includes(status as LoanStatusEnum);
-};
-
-const calculatePercentageDelinquent = ({ loans }: Companies) => {
-  const outstandingPrincipalForOpenLoans = loans
-    .filter(filterByOpenedStatus)
-    .reduce(reduceLoanOutstandingPrincipalBalance, 0);
-  const outstandingPrincipalForPastDueLoans = loans
-    .filter(filterByPastMaturityDate)
-    .reduce(reduceLoanOutstandingPrincipalBalance, 0);
-
-  return `${Math.ceil(
-    (outstandingPrincipalForPastDueLoans / outstandingPrincipalForOpenLoans) *
-      100
-  )}%`;
-};
+const calculatePercentageDelinquent = (financialSummary: FinancialSummaries) =>
+  financialSummary && !!financialSummary.total_outstanding_principal
+    ? formatPercentage(
+        (financialSummary.total_outstanding_principal_past_due || 0.0) /
+          financialSummary.total_outstanding_principal
+      )
+    : null;
 
 function getRows(
-  companies: GetCustomersWithMetadataAndLoansQuery["customers"]
+  companies: GetCustomersWithMetadataQuery["customers"]
 ): RowsProp {
   return companies.map((company) => ({
     ...company,
@@ -102,10 +74,9 @@ function getRows(
     debt_facility_status: company?.debt_facility_status
       ? company.debt_facility_status
       : null,
-    percentage_delinquent:
-      company?.loans && company?.loans.length
-        ? calculatePercentageDelinquent(company as Companies)
-        : null,
+    percentage_delinquent: calculatePercentageDelinquent(
+      company?.financial_summaries?.[0] as FinancialSummaries
+    ),
   }));
 }
 

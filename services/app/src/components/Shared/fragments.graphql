@@ -181,6 +181,7 @@ fragment FinancialSummary on financial_summaries {
   total_outstanding_fees
   total_principal_in_requested_state
   total_outstanding_principal_for_interest
+  total_outstanding_principal_past_due
   total_amount_to_pay_interest_on
   minimum_monthly_payload
   account_level_balance_payload

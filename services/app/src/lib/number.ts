@@ -14,7 +14,9 @@ export function formatPercentage(
   value: number | null,
   defaultIfNull: string = "-"
 ) {
-  return value !== null ? `${value * 100}%` : defaultIfNull;
+  return value !== null
+    ? `${parseFloat((value * 100).toFixed(5))}%`
+    : defaultIfNull;
 }
 
 // This function is useful for cases where JS adds unnecessary bits

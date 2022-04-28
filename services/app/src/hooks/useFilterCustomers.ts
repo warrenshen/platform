@@ -1,19 +1,11 @@
-import {
-  GetCustomersWithMetadataAndLoansQuery,
-  GetCustomersWithMetadataQuery,
-} from "generated/graphql";
+import { GetCustomersWithMetadataQuery } from "generated/graphql";
 import { filter, sortBy } from "lodash";
 import { useMemo } from "react";
 
 export const useFilterCustomers = (
   searchQuery: string,
-  data:
-    | GetCustomersWithMetadataQuery
-    | GetCustomersWithMetadataAndLoansQuery
-    | undefined
-):
-  | GetCustomersWithMetadataQuery["customers"]
-  | GetCustomersWithMetadataAndLoansQuery["customers"] => {
+  data: GetCustomersWithMetadataQuery | undefined
+): GetCustomersWithMetadataQuery["customers"] => {
   return useMemo(() => {
     const filteredCustomers = filter(
       data?.customers || [],

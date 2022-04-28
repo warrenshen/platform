@@ -3,10 +3,7 @@ import ClientSurveillanceCustomersDataGrid from "components/ClientSurveillance/C
 import ClientBankStatusNoteModal from "components/ClientSurveillance/ClientBankStatusNoteModal";
 import EditClientSurveillanceStatusModal from "components/ClientSurveillance/EditClientSurveillanceStatusModal";
 import ModalButton from "components/Shared/Modal/ModalButton";
-import {
-  Companies,
-  useGetCustomersWithMetadataAndLoansQuery,
-} from "generated/graphql";
+import { Companies, useGetCustomersWithMetadataQuery } from "generated/graphql";
 import { useFilterCustomers } from "hooks/useFilterCustomers";
 import { todayAsDateStringServer } from "lib/date";
 import { useMemo, useState } from "react";
@@ -20,7 +17,7 @@ export default function ClientSurveillanceDashboardTab() {
     null
   );
 
-  const { data, refetch, error } = useGetCustomersWithMetadataAndLoansQuery({
+  const { data, refetch, error } = useGetCustomersWithMetadataQuery({
     fetchPolicy: "network-only",
     variables: {
       date: todayAsDateStringServer(),
