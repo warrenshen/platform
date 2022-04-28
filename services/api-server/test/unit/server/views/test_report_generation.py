@@ -1161,6 +1161,7 @@ class TestReportsMonthlyLoanSummaryNoneLOCView(db_unittest.TestCase):
 				loans, 
 				rgc, 
 				company_balance_lookup,
+				company_identifier = "CC",
 				is_unit_test=True
 			)
 			is_valid_html = bool(BeautifulSoup(html, "html.parser").find())

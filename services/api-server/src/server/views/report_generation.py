@@ -1115,6 +1115,7 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 		loans : List[models.Loan],
 		rgc: ReportGenerationContext,
 		company_balance_lookup: Dict[str, loan_balances.CustomerBalance],
+		company_identifier: str,
 		is_unit_test: bool = False
 		) -> str:
 		"""
@@ -1217,8 +1218,8 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 			for l in loans:
 				loan_update_dict = loan_update_lookup[str(l.id)][rgc.report_month_last_day]
 
-				days_factored = date_util.number_days_between_dates(rgc.report_month_last_day, l.funded_at.date()) \
-					if l.funded_at is not None else 0 
+				days_factored = date_util.number_days_between_dates(rgc.report_month_last_day, l.origination_date, inclusive_later_date = True) \
+					if l.origination_date is not None else 0 
 
 				outstanding_principal = loan_update_dict['outstanding_principal'] or 0
 				outstanding_principal_display = number_util.to_dollar_format(outstanding_principal)
@@ -1240,14 +1241,13 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 				partner_name = rgc.company_lookup[partner_id].name
 
 				amount_advanced = float(l.amount)
-				funded_at = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE, now = l.funded_at)
 				rows += f"""<tr>
-	        		<td>{ l.disbursement_identifier }</td>
+	        		<td>{ f'{company_identifier}-{l.identifier}' }</td>
 	        		<td>{ artifact_number }</td>
 	        		<td>{ number_util.to_dollar_format(artifact_amount) }</td>
 	        		<td>{ partner_name }</td>
 	        		<td>{ date_util.date_to_str(artifact_date) if artifact_date is not None else '' }</td>
-	        		<td>{ date_util.date_to_str(funded_at) if funded_at is not None else '' }
+	        		<td>{ date_util.date_to_str(l.origination_date) if l.origination_date is not None else '' }
 	        		<td>{ date_util.date_to_str(l.maturity_date) if l.maturity_date is not None else '' }</td>
 	        		<td>{ number_util.to_dollar_format(amount_advanced) }</td>
 	        		<td>{ str(days_factored) }</td>
@@ -1302,7 +1302,7 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
      <table class="loan-table">
         <thead>
             <tr>
-                <th>Disbursement Round</th>
+                <th>Customer Identifier</th>
                 <th>{ invoice_or_po_number }</th>
                 <th>{ invoice_or_po_total }</th>
                 <th>{ vendor_or_payor }</th>
@@ -1358,7 +1358,15 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 			    "statement_month": rgc.statement_month,
 			}
 
-			html = self.prepare_html_for_attachment(session, company_id, template_data, loans, rgc, company_balance_lookup)
+			html = self.prepare_html_for_attachment(
+				session, 
+				company_id, 
+				template_data, 
+				loans, 
+				rgc, 
+				company_balance_lookup,
+				company.identifier,
+			)
 			attached_report = prepare_email_attachment(company.name, rgc.statement_month, html, is_landscape = True)
 
 			if is_test is False:
