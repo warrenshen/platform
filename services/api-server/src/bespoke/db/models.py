@@ -886,7 +886,6 @@ class Payment(Base):
 	is_deleted = Column(Boolean)
 	reversed_at = Column(DateTime)
 
-
 	def as_dict(self) -> PaymentDict:
 		return PaymentDict(
 			id=str(self.id),

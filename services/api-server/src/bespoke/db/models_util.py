@@ -49,7 +49,10 @@ def get_licenses_base_query(session: Session) -> Any:
 		cast(Callable, models.CompanyLicense.is_deleted.isnot)(True)
 	)
 
-def get_augmented_transactions(transactions: List[models.TransactionDict], payments: List[models.PaymentDict]) -> Tuple[List[models.AugmentedTransactionDict], errors.Error]:
+def get_augmented_transactions(
+	transactions: List[models.TransactionDict],
+	payments: List[models.PaymentDict],
+) -> Tuple[List[models.AugmentedTransactionDict], errors.Error]:
 		id_to_payment = {}
 		for payment in payments:
 			id_to_payment[payment['id']] = payment

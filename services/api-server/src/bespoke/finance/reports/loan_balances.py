@@ -124,35 +124,44 @@ def _get_account_level_balance(
 	customer_info: per_customer_types.CustomerFinancials,
 	today: datetime.date,
 ) -> Tuple[finance_types.AccountBalanceDict, errors.Error]:
+	"""
+	Note: transactions related to account balance are effective as of the payment deposit date.
+	This is different than transactions related to loans (effective as of the payment settlement date).
+	"""
 	fees_total = 0.0
 	credits_total = 0.0
 
-	# TODO (warren): somewhere here is where to adjust transactions related to account fees to take effect on deposit date.
-	for aug_tx in customer_info['financials']['augmented_transactions']:
-		tx = aug_tx['transaction']
-		if tx['loan_id'] is not None:
+	for augmented_transaction in customer_info['financials']['augmented_transactions']:
+		transaction = augmented_transaction['transaction']
+		transaction_type = transaction['type']
+
+		payment = augmented_transaction['payment']
+		deposit_date = payment['deposit_date']
+
+		# If transaction is related to a loan, it definitely is not applicable to account balance.
+		if transaction['loan_id'] is not None:
 			continue
-		if tx['effective_date'] > today:
+		# If transaction deposit date is in the future relative to "today", skip the transaction.
+		if deposit_date > today:
 			continue
 
-		tx_type = tx['type']
+		transaction_type = transaction['type']
 		# Account level transactions have no loan_id associated with them
-		if tx_type in db_constants.FEE_TYPES:
-			fees_total += tx['amount']
-		elif tx_type == db_constants.PaymentType.FEE_WAIVER:
-			fees_total -= tx['amount']
-		elif tx_type == db_constants.PaymentType.REPAYMENT_OF_ACCOUNT_FEE:
-			fees_total -= tx['amount']
-		elif tx_type in db_constants.CREDIT_TO_USER_TYPES:
-			credits_total += tx['amount']
-		elif tx_type == db_constants.PaymentType.USER_CREDIT_TO_ACCOUNT_FEE:
-			fees_total -= tx['amount']
-			credits_total -= tx['amount']
-		elif tx_type == db_constants.PaymentType.PAYOUT_USER_CREDIT_TO_CUSTOMER:
-			credits_total -= tx['amount']
+		if transaction_type in db_constants.FEE_TYPES:
+			fees_total += transaction['amount']
+		elif transaction_type == db_constants.PaymentType.FEE_WAIVER:
+			fees_total -= transaction['amount']
+		elif transaction_type == db_constants.PaymentType.REPAYMENT_OF_ACCOUNT_FEE:
+			fees_total -= transaction['amount']
+		elif transaction_type in db_constants.CREDIT_TO_USER_TYPES:
+			credits_total += transaction['amount']
+		elif transaction_type == db_constants.PaymentType.USER_CREDIT_TO_ACCOUNT_FEE:
+			fees_total -= transaction['amount']
+			credits_total -= transaction['amount']
+		elif transaction_type == db_constants.PaymentType.PAYOUT_USER_CREDIT_TO_CUSTOMER:
+			credits_total -= transaction['amount']
 		else:
-			return None, errors.Error(
-				f'Transaction {tx["id"]} has a type "{tx_type}" which is neither a fee nor a credit to a user. This implies an unregistered or incorrect transaction type')
+			return None, errors.Error(f'Transaction {transaction["id"]} transaction type is invalid')
 
 	return finance_types.AccountBalanceDict(
 		fees_total=number_util.round_currency(fees_total),

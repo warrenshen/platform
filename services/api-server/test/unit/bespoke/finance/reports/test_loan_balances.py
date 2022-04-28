@@ -133,7 +133,10 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				#self.assertAlmostEqual(expected['minimum_interest_info']['amount_short'], number_util.round_currency((actual['minimum_interest_info']['amount_short'])))
 
 				test_helper.assertDeepAlmostEqual(
-					self, expected['account_level_balance_payload'], cast(Dict, actual['account_level_balance_payload']))
+					self,
+					expected['account_level_balance_payload'],
+					cast(Dict, actual['account_level_balance_payload']),
+				)
 				self.assertEqual(expected['day_volume_threshold_met'], actual['day_volume_threshold_met'])
 
 			if today_date_dict['report_date'] != today_date_dict['today']:
@@ -191,7 +194,10 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					del min_monthly_payload['prorated_info']
 
 					test_helper.assertDeepAlmostEqual(
-						self, expected['account_level_balance_payload'], cast(Dict, financial_summary.account_level_balance_payload))
+						self,
+						expected['account_level_balance_payload'],
+						cast(Dict, financial_summary.account_level_balance_payload),
+					)
 					#test_helper.assertDeepAlmostEqual(
 					#	self, expected['minimum_monthly_payload'], min_monthly_payload)
 
@@ -199,7 +205,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					self.assertEqual(
 						test['expected_day_volume_threshold_met'], financial_summary.day_volume_threshold_met)
 
-	def test_success_no_payments_no_loans(self) -> None:
+	def test_no_payments_no_loans(self) -> None:
 
 		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
 			session.add(models.Contract(
@@ -245,8 +251,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'duration': 'monthly'
 					},
 					'account_level_balance_payload': {
-							'fees_total': 0.0,
-							'credits_total': 0.0
+						'fees_total': 0.0,
+						'credits_total': 0.0
 					},
 					'day_volume_threshold_met': None,
 				},
@@ -255,7 +261,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		for test in tests:
 			self._run_test(test)
 
-	def test_success_no_payments_two_loans_not_due_yet(self) -> None:
+	def test_no_payments_two_loans_not_due_yet(self) -> None:
 
 		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
 			session.add(models.Contract(
@@ -359,7 +365,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		for test in tests:
 			self._run_test(test)
 
-	def test_success_two_loans_past_due_no_repayments(self) -> None:
+	def test_two_loans_past_due_no_repayments(self) -> None:
 
 		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
 			session.add(models.Contract(
@@ -589,7 +595,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		for test in tests:
 			self._run_test(test)
 
-	def test_success_repayment_quarterly_minimum_accrued_no_late_fee_once_loan_is_paid_off(self) -> None:
+	def test_repayment_quarterly_minimum_accrued_no_late_fee_once_loan_is_paid_off(self) -> None:
 
 		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
 			session.add(models.Contract(
@@ -641,12 +647,15 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			# Pay off the loan on the 4th, and the 33 days of interest accrued.
 			# No late fees accrue even though the payment settles after the loan reaches its maturity date
 			payment_test_helper.make_repayment(
-					session, loan,
-					to_principal=500.03,
-					to_interest=number_util.round_currency(33 * 0.005 * 500.03),
-					to_fees=0.0,
-					payment_date='11/04/2020',
-					effective_date='11/06/2020'
+				session=session,
+				company_id=company_id,
+				loan=loan,
+				payment_date='11/04/2020',
+				effective_date='11/06/2020',
+				to_principal=500.03,
+				to_interest=number_util.round_currency(33 * 0.005 * 500.03),
+				to_late_fees=0.0,
+				to_account_balance=0.0,
 			)
 
 		numerator = 31 + 30 + 31 - 2 # Contract wasn't in effect for 2 days
@@ -741,7 +750,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		for test in tests:
 			self._run_test(test)
 
-	def test_success_no_payments_two_loans_not_due_yet_yearly_minimum_accrued(self) -> None:
+	def test_no_payments_two_loans_not_due_yet_yearly_minimum_accrued(self) -> None:
 
 		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
 			session.add(models.Contract(
@@ -820,7 +829,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		for test in tests:
 			self._run_test(test)
 
-	def test_success_two_loans_reduced_interest_rate_due_to_threshold(self) -> None:
+	def test_two_loans_reduced_interest_rate_due_to_threshold(self) -> None:
 
 		def get_populate_fn(threshold_starting_value: float) -> Callable:
 
@@ -876,30 +885,39 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 				# Only 100 remaining after the 3rd.
 				payment_test_helper.make_repayment(
-					session, loan,
+					session=session,
+					company_id=company_id,
+					loan=loan,
+					payment_date='10/03/2020',
+					effective_date='10/03/2020',
 					to_principal=400.03,
 					to_interest=0,
-					to_fees=0.0,
-					payment_date='10/03/2020',
-					effective_date='10/03/2020'
+					to_late_fees=0.0,
+					to_account_balance=0.0,
 				)
 
 				# You cross the threshold on the 5th if you started with 0 dollars.
 				payment_test_helper.make_repayment(
-					session, loan,
+					session=session,
+					company_id=company_id,
+					loan=loan,
+					payment_date='10/05/2020',
+					effective_date='10/05/2020',
 					to_principal=100.00,
 					to_interest=0,
-					to_fees=0.0,
-					payment_date='10/05/2020',
-					effective_date='10/05/2020'
+					to_late_fees=0.0,
+					to_account_balance=0.0,
 				)
 				payment_test_helper.make_repayment(
-					session, loan2,
+					session=session,
+					company_id=company_id,
+					loan=loan2,
+					payment_date='10/05/2020',
+					effective_date='10/05/2020',
 					to_principal=500.03,
 					to_interest=0.0,
-					to_fees=0.0,
-					payment_date='10/05/2020',
-					effective_date='10/05/2020'
+					to_late_fees=0.0,
+					to_account_balance=0.0,
 				)
 			return populate_fn
 
@@ -1143,7 +1161,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			self._run_test(test)
 			i += 1
 
-	def test_success_repayment_after_report_date(self) -> None:
+	def test_repayment_after_report_date(self) -> None:
 		# Shows that the repayment that crosses over the month boundary works
 		# when we've paid off the entire loan
 
@@ -1182,12 +1200,15 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					effective_date='10/21/2020')
 
 				payment_test_helper.make_repayment(
-					session, loan,
+					session=session,
+					company_id=company_id,
+					loan=loan,
+					payment_date='10/25/2020',
+					effective_date='10/25/2020',
 					to_principal=400.03,
 					to_interest=0,
-					to_fees=0.0,
-					payment_date='10/25/2020',
-					effective_date='10/25/2020'
+					to_late_fees=0.0,
+					to_account_balance=0.0,
 				)
 
 				# The repayment crosses the October to November month, but we want
@@ -1195,12 +1216,15 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				#
 				# The user also safely pays off all the principal, interest and fees
 				payment_test_helper.make_repayment(
-					session, loan,
+					session=session,
+					company_id=company_id,
+					loan=loan,
+					payment_date='10/30/2020',
+					effective_date='11/04/2020',
 					to_principal=100.00,
 					to_interest=number_util.round_currency((5 * 0.05 * 500.03) + ((4 + 6) * 0.05 * 100.00)),
-					to_fees=0.0,
-					payment_date='10/30/2020',
-					effective_date='11/04/2020'
+					to_late_fees=0.0,
+					to_account_balance=0.0,
 				)
 			return populate_fn
 
@@ -1296,7 +1320,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			self._run_test(test)
 			i += 1
 
-	def test_success_repayment_cross_month_boundary_full_loan_repayment(self) -> None:
+	def test_repayment_cross_month_boundary_full_loan_repayment(self) -> None:
 		# Shows that the repayment that crosses over the month boundary works
 		# when we've paid off the entire loan
 
@@ -1335,12 +1359,15 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					effective_date='10/21/2020')
 
 				payment_test_helper.make_repayment(
-					session, loan,
+					session=session,
+					company_id=company_id,
+					loan=loan,
+					payment_date='10/25/2020',
+					effective_date='10/25/2020',
 					to_principal=400.03,
 					to_interest=0,
-					to_fees=0.0,
-					payment_date='10/25/2020',
-					effective_date='10/25/2020'
+					to_late_fees=0.0,
+					to_account_balance=0.0,
 				)
 
 				# The repayment crosses the October to November month, but we want
@@ -1348,12 +1375,15 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				#
 				# The user also safely pays off all the principal, interest and fees
 				payment_test_helper.make_repayment(
-					session, loan,
+					session=session,
+					company_id=company_id,
+					loan=loan,
+					payment_date='10/30/2020',
+					effective_date='11/04/2020',
 					to_principal=100.00,
 					to_interest=number_util.round_currency((5 * 0.05 * 500.03) + ((4 + 6) * 0.05 * 100.00)),
-					to_fees=0.0,
-					payment_date='10/30/2020',
-					effective_date='11/04/2020'
+					to_late_fees=0.0,
+					to_account_balance=0.0,
 				)
 			return populate_fn
 
@@ -1449,7 +1479,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			self._run_test(test)
 			i += 1
 
-	def test_success_repayment_that_cross_month_boundary_across_year_full_loan_repayment(self) -> None:
+	def test_repayment_that_cross_month_boundary_across_year_full_loan_repayment(self) -> None:
 		# Shows that the repayment that crosses over the month boundary works
 		# when we've paid off the entire loan
 
@@ -1488,12 +1518,15 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					effective_date='12/21/2020')
 
 				payment_test_helper.make_repayment(
-					session, loan,
+					session=session,
+					company_id=company_id,
+					loan=loan,
+					payment_date='12/25/2020',
+					effective_date='12/25/2020',
 					to_principal=400.03,
 					to_interest=0,
-					to_fees=0.0,
-					payment_date='12/25/2020',
-					effective_date='12/25/2020'
+					to_late_fees=0.0,
+					to_account_balance=0.0,
 				)
 
 				# The repayment crosses the October to November month, but we want
@@ -1501,12 +1534,15 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				#
 				# The user also safely pays off all the principal, interest and fees
 				payment_test_helper.make_repayment(
-					session, loan,
+					session=session,
+					company_id=company_id,
+					loan=loan,
+					payment_date='12/30/2020',
+					effective_date='01/03/2021',
 					to_principal=100.00,
 					to_interest=number_util.round_currency((5 * 0.05 * 500.03) + ((4 + 6) * 0.05 * 100.00)),
-					to_fees=0.0,
-					payment_date='12/30/2020',
-					effective_date='01/03/2021'
+					to_late_fees=0.0,
+					to_account_balance=0.0,
 				)
 			return populate_fn
 
@@ -1623,7 +1659,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			self._run_test(test)
 			i += 1
 
-	def test_success_repayment_that_cross_month_boundary_full_principal_repayment(self) -> None:
+	def test_repayment_that_cross_month_boundary_full_principal_repayment(self) -> None:
 		# Shows that the repayment that crosses over the month boundary works
 		# when we've paid off the principal, but interest and fees are remaining
 
@@ -1662,23 +1698,29 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					effective_date='10/21/2020')
 
 				payment_test_helper.make_repayment(
-					session, loan,
+					session=session,
+					company_id=company_id,
+					loan=loan,
+					payment_date='10/25/2020',
+					effective_date='10/25/2020',
 					to_principal=400.03,
 					to_interest=0,
-					to_fees=0.0,
-					payment_date='10/25/2020',
-					effective_date='10/25/2020'
+					to_late_fees=0.0,
+					to_account_balance=0.0,
 				)
 
 				# The repayment crosses the October to November month, but we want
 				# to book all the fees and interest in the month of October
 				payment_test_helper.make_repayment(
-					session, loan,
+					session=session,
+					company_id=company_id,
+					loan=loan,
+					payment_date='10/30/2020',
+					effective_date='11/04/2020',
 					to_principal=100.00,
 					to_interest=0,
-					to_fees=0.0,
-					payment_date='10/30/2020',
-					effective_date='11/04/2020'
+					to_late_fees=0.0,
+					to_account_balance=0.0,
 				)
 			return populate_fn
 
@@ -1750,7 +1792,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			self._run_test(test)
 			i += 1
 
-	def test_success_repayment_that_cross_month_boundary_partial_repayment(self) -> None:
+	def test_repayment_that_cross_month_boundary_partial_repayment(self) -> None:
 		# Shows that the repayment that crosses over the month boundary works
 		# when we've partially paid off the principal and interest, and principal, interest and fees are remaining
 
@@ -1789,23 +1831,29 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					effective_date='10/21/2020')
 
 				payment_test_helper.make_repayment(
-					session, loan,
+					session=session,
+					company_id=company_id,
+					loan=loan,
+					payment_date='10/25/2020',
+					effective_date='10/25/2020',
 					to_principal=400.03,
 					to_interest=0,
-					to_fees=0.0,
-					payment_date='10/25/2020',
-					effective_date='10/25/2020'
+					to_late_fees=0.0,
+					to_account_balance=0.0,
 				)
 
 				# The repayment crosses the October to November month, but we want
 				# to book all the fees and interest in the month of October
 				payment_test_helper.make_repayment(
-					session, loan,
+					session=session,
+					company_id=company_id,
+					loan=loan,
+					payment_date='10/30/2020',
+					effective_date='11/04/2020',
 					to_principal=80.00,
 					to_interest=30.0,
-					to_fees=3.0, # You pay off some of the fees this month and for next montht to create a fee adjustment
-					payment_date='10/30/2020',
-					effective_date='11/04/2020'
+					to_late_fees=3.0, # You pay off some of the fees this month and for next montht to create a fee adjustment
+					to_account_balance=0.0,
 				)
 			return populate_fn
 
@@ -1950,7 +1998,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			self._run_test(test)
 			i += 1
 
-	def test_success_account_fees_and_waivers(self) -> None:
+	def test_account_fees_and_waivers(self) -> None:
 
 		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
 			session.add(models.Contract(
@@ -1976,8 +2024,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			)
 			financial_summary.date = date_util.load_date_str('01/01/1960')
 			financial_summary.account_level_balance_payload = {
-				'fees_total': 200.0, # This will get overwritten by the test, but is needed for some of the settle fee functions to pass validlation
-				'credits_total': 200.0 # This will get overwritten by the test, but is needed for some of the settle fee functions to pass validlation
+				'fees_total': 200.0, # This will get overwritten by the test, but is needed for some of the settle fee functions to pass validation
+				'credits_total': 200.0 # This will get overwritten by the test, but is needed for some of the settle fee functions to pass validation
 			}
 			financial_summary.company_id = company_id
 			session.add(financial_summary)
@@ -2084,7 +2132,280 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			self._run_test(test)
 			i += 1
 
-	def test_success_one_payment_one_loan_past_due_with_account_balances_and_adjustments(self) -> None:
+	def test_repayment_loan_and_account_balance(self) -> None:
+		"""
+		Verifies the single repayment on both loan and account balance use case.
+		1. Portion of repayment applies to loan.
+		2. Portion of repayment applies to account balance.
+		3. Portion of repayment that applies to account balance is effective as of deposit date.
+		"""
+		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+			session.add(models.Contract(
+				company_id=company_id,
+				product_type=ProductType.INVENTORY_FINANCING,
+				product_config=contract_test_helper.create_contract_config(
+					product_type=ProductType.INVENTORY_FINANCING,
+					input_dict=ContractInputDict(
+						interest_rate=0.002,
+						maximum_principal_amount=120000.0,
+						max_days_until_repayment=0, # unused
+						late_fee_structure=_get_late_fee_structure(),
+					)
+				),
+				start_date=date_util.load_date_str('01/01/2020'),
+				adjusted_end_date=date_util.load_date_str('12/31/2020')
+			))
+			financial_summary = finance_test_helper.get_default_financial_summary(
+				total_limit=100.0,
+				available_limit=100.0,
+				product_type=ProductType.INVENTORY_FINANCING
+			)
+			financial_summary.date = date_util.load_date_str('01/01/1960')
+			financial_summary.account_level_balance_payload = {
+				'fees_total': 200.0, # This will get overwritten by the test, but is needed for some of the settle fee functions to pass validation
+				'credits_total': 200.0 # This will get overwritten by the test, but is needed for some of the settle fee functions to pass validation
+			}
+			financial_summary.company_id = company_id
+			session.add(financial_summary)
+
+			loan = models.Loan(
+				company_id=company_id,
+				origination_date=date_util.load_date_str('10/01/2020'),
+				adjusted_maturity_date=date_util.load_date_str('11/29/2020'),
+				amount=decimal.Decimal(500.0)
+			)
+			session.add(loan)
+
+			advance_transaction = payment_test_helper.make_advance(
+				session,
+				loan,
+				amount=500.0,
+				payment_date='10/01/2020',
+				effective_date='10/01/2020',
+			)
+			payment_util.create_and_add_account_level_fee(
+				company_id=company_id,
+				subtype=db_constants.TransactionSubType.WIRE_FEE,
+				amount=25.0,
+				originating_payment_id=advance_transaction.payment_id,
+				created_by_user_id=seed.get_user_id('bank_admin'),
+				effective_date=date_util.load_date_str('10/02/2020'),
+				session=session,
+			)
+
+			payment_test_helper.make_repayment(
+				session=session,
+				company_id=company_id,
+				loan=loan,
+				payment_date='10/03/2020',
+				effective_date='10/04/2020',
+				to_principal=500.0,
+				to_interest=4 * (500.0 * 0.002), # 4 days of interest.
+				to_late_fees=0.0,
+				to_account_balance=15.0, # $15 of $25 wire fee.
+			)
+
+			payment_test_helper.make_repayment(
+				session=session,
+				company_id=company_id,
+				loan=None,
+				payment_date='10/05/2020',
+				effective_date='10/06/2020',
+				to_principal=0.0,
+				to_interest=0.0,
+				to_late_fees=0.0,
+				to_account_balance=10.0, # $05 of $25 wire fee.
+			)
+
+		tests: List[Dict] = [
+			{
+				'today': '10/02/2020', # Before both repayments.
+				'populate_fn': populate_fn,
+				'expected_loan_updates': [
+					{
+						'adjusted_maturity_date': date_util.load_date_str('11/29/2020'),
+						'outstanding_principal': 500.0,
+						'outstanding_principal_for_interest': 500.0,
+						'outstanding_principal_past_due': 0.0,
+						'outstanding_interest': 2 * (500.0 * 0.002),
+						'outstanding_fees': 0.0,
+						'amount_to_pay_interest_on': 500.0,
+						'interest_accrued_today': 500.0 * 0.002,
+						'financing_period': 2,
+						'day_last_repayment_settles': None,
+						'should_close_loan': False,
+					},
+				],
+				'expected_summary_update': {
+					'product_type': 'inventory_financing',
+					'daily_interest_rate': 0.002,
+					'total_limit': 120000.0,
+					'adjusted_total_limit': 120000.0,
+					'total_outstanding_principal': 500.0,
+					'total_outstanding_principal_for_interest': 500.0,
+					'total_outstanding_principal_past_due': 0.0,
+					'total_outstanding_interest': 2 * (500.0 * 0.002),
+					'total_outstanding_fees': 0.0,
+					'total_principal_in_requested_state': 0.0,
+					'total_amount_to_pay_interest_on': 500.0,
+					'total_interest_accrued_today': 500.0 * 0.002,
+					'available_limit': 120000.0 - 500.0,
+					'minimum_interest_info': {
+						'duration': None,
+						'minimum_amount': None,
+						'amount_accrued': None,
+						'amount_short': None,
+					},
+					'account_level_balance_payload': {
+						'fees_total': 25.0,
+						'credits_total': 0.0,
+					},
+					'day_volume_threshold_met': None,
+				},
+			},
+			{
+				'today': '10/03/2020', # Deposit date of 1st repayment.
+				'populate_fn': populate_fn,
+				'expected_loan_updates': [
+					{
+						'adjusted_maturity_date': date_util.load_date_str('11/29/2020'),
+						'outstanding_principal': 0.0,
+						'outstanding_principal_for_interest': 500.0,
+						'outstanding_principal_past_due': 0.0,
+						'outstanding_interest': -1 * (500.0 * 0.002),
+						'outstanding_fees': 0.0,
+						'amount_to_pay_interest_on': 500.0,
+						'interest_accrued_today': 500.0 * 0.002,
+						'financing_period': 4,
+						'day_last_repayment_settles': date_util.load_date_str('10/04/2020'),
+						'should_close_loan': True,
+					},
+				],
+				'expected_summary_update': {
+					'product_type': 'inventory_financing',
+					'daily_interest_rate': 0.002,
+					'total_limit': 120000.0,
+					'adjusted_total_limit': 120000.0,
+					'total_outstanding_principal': 0.0,
+					'total_outstanding_principal_for_interest': 500.0,
+					'total_outstanding_principal_past_due': 0.0,
+					'total_outstanding_interest': -1 * (500.0 * 0.002),
+					'total_outstanding_fees': 0.0,
+					'total_principal_in_requested_state': 0.0,
+					'total_amount_to_pay_interest_on': 500.0,
+					'total_interest_accrued_today': 500.0 * 0.002,
+					'available_limit': 120000.0,
+					'minimum_interest_info': {
+						'duration': None,
+						'minimum_amount': None,
+						'amount_accrued': None,
+						'amount_short': None,
+					},
+					'account_level_balance_payload': {
+						'fees_total': 10.0, # Portion of repayment that applies to account balance is effective as of deposit date.
+						'credits_total': 0.0,
+					},
+					'day_volume_threshold_met': None,
+				},
+			},
+			{
+				'today': '10/04/2020', # Settlement date of 1st repayment.
+				'populate_fn': populate_fn,
+				'expected_loan_updates': [
+					{
+						'adjusted_maturity_date': date_util.load_date_str('11/29/2020'),
+						'outstanding_principal': 0.0,
+						'outstanding_principal_for_interest': 0.0,
+						'outstanding_principal_past_due': 0.0,
+						'outstanding_interest': 0.0,
+						'outstanding_fees': 0.0,
+						'amount_to_pay_interest_on': 500.0,
+						'interest_accrued_today': 500.0 * 0.002,
+						'financing_period': 4,
+						'day_last_repayment_settles': date_util.load_date_str('10/04/2020'),
+						'should_close_loan': True,
+					},
+				],
+				'expected_summary_update': {
+					'product_type': 'inventory_financing',
+					'daily_interest_rate': 0.002,
+					'total_limit': 120000.0,
+					'adjusted_total_limit': 120000.0,
+					'total_outstanding_principal': 0.0,
+					'total_outstanding_principal_for_interest': 0.0,
+					'total_outstanding_principal_past_due': 0.0,
+					'total_outstanding_interest': 0.0,
+					'total_outstanding_fees': 0.0,
+					'total_principal_in_requested_state': 0.0,
+					'total_amount_to_pay_interest_on': 500.0,
+					'total_interest_accrued_today': 500.0 * 0.002,
+					'available_limit': 120000.0,
+					'minimum_interest_info': {
+						'duration': None,
+						'minimum_amount': None,
+						'amount_accrued': None,
+						'amount_short': None,
+					},
+					'account_level_balance_payload': {
+						'fees_total': 10.0,
+						'credits_total': 0.0,
+					},
+					'day_volume_threshold_met': None,
+				},
+			},
+			{
+				'today': '10/05/2020', # Deposit date of 2nd repayment.
+				'populate_fn': populate_fn,
+				'expected_loan_updates': [
+					{
+						'adjusted_maturity_date': date_util.load_date_str('11/29/2020'),
+						'outstanding_principal': 0.0,
+						'outstanding_principal_for_interest': 0.0,
+						'outstanding_principal_past_due': 0.0,
+						'outstanding_interest': 0.0,
+						'outstanding_fees': 0.0,
+						'amount_to_pay_interest_on': 0.0,
+						'interest_accrued_today': 0.0,
+						'financing_period': 4,
+						'day_last_repayment_settles': date_util.load_date_str('10/04/2020'),
+						'should_close_loan': True,
+					},
+				],
+				'expected_summary_update': {
+					'product_type': 'inventory_financing',
+					'daily_interest_rate': 0.002,
+					'total_limit': 120000.0,
+					'adjusted_total_limit': 120000.0,
+					'total_outstanding_principal': 0.0,
+					'total_outstanding_principal_for_interest': 0.0,
+					'total_outstanding_principal_past_due': 0.0,
+					'total_outstanding_interest': 0.0,
+					'total_outstanding_fees': 0.0,
+					'total_principal_in_requested_state': 0.0,
+					'total_amount_to_pay_interest_on': 0.0,
+					'total_interest_accrued_today': 0.0,
+					'available_limit': 120000.0,
+					'minimum_interest_info': {
+						'duration': None,
+						'minimum_amount': None,
+						'amount_accrued': None,
+						'amount_short': None,
+					},
+					'account_level_balance_payload': {
+						'fees_total': 0.0, # Portion of repayment that applies to account balance is effective as of deposit date.
+						'credits_total': 0.0,
+					},
+					'day_volume_threshold_met': None,
+				},
+			},
+		]
+
+		i = 0
+		for test in tests:
+			self._run_test(test)
+			i += 1
+
+	def test_one_payment_one_loan_past_due_with_account_balances_and_adjustments(self) -> None:
 
 		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
 			session.add(models.Contract(
@@ -2110,8 +2431,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			)
 			financial_summary.date = date_util.load_date_str('01/01/1960')
 			financial_summary.account_level_balance_payload = {
-				'fees_total': 200.0, # This will get overwritten by the test, but is needed for some of the settle fee functions to pass validlation
-				'credits_total': 200.0 # This will get overwritten by the test, but is needed for some of the settle fee functions to pass validlation
+				'fees_total': 200.0, # This will get overwritten by the test, but is needed for some of the settle fee functions to pass validation
+				'credits_total': 200.0 # This will get overwritten by the test, but is needed for some of the settle fee functions to pass validation
 			}
 			financial_summary.company_id = company_id
 			session.add(financial_summary)
@@ -2122,7 +2443,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				amount=decimal.Decimal(500.03)
 			)
 			session.add(loan)
-			advance_tx = payment_test_helper.make_advance(
+			advance_transaction = payment_test_helper.make_advance(
 				session, loan, amount=500.03,  payment_date='09/30/2020', effective_date='10/01/2020'
 			)
 
@@ -2134,11 +2455,11 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				amount=decimal.Decimal(500.03)
 			)
 			session.add(loan2)
-			advance_tx2 = payment_test_helper.make_advance(
+			advance_transaction2 = payment_test_helper.make_advance(
 				session, loan2, amount=500.03,  payment_date='09/30/2020', effective_date='10/01/2020'
 			)
 			loan2.is_deleted = True
-			advance_tx2.is_deleted
+			advance_transaction2.is_deleted
 
 			# Book an account-level fee and a credit, and make sure it doesnt influence
 			# any of the loan updates
@@ -2146,7 +2467,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				company_id=company_id,
 				subtype='wire_fee',
 				amount=1000.01,
-				originating_payment_id=advance_tx.payment_id,
+				originating_payment_id=advance_transaction.payment_id,
 				created_by_user_id=seed.get_user_id('bank_admin'),
 				effective_date=date_util.load_date_str('10/01/2020'),
 				session=session
@@ -2156,7 +2477,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				company_id=company_id,
 				subtype='wire_fee',
 				amount=2000.01,
-				originating_payment_id=advance_tx.payment_id,
+				originating_payment_id=advance_transaction.payment_id,
 				created_by_user_id=seed.get_user_id('bank_admin'),
 				effective_date=date_util.load_date_str('10/01/2020'),
 				session=session
@@ -2196,7 +2517,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 			payment_util.create_and_add_credit_to_user_transaction(
 				amount=3000.02,
-				payment_id=advance_tx.payment_id,
+				payment_id=advance_transaction.payment_id,
 				created_by_user_id=seed.get_user_id('bank_admin'),
 				effective_date=date_util.load_date_str('10/01/2020'),
 				session=session
@@ -2204,7 +2525,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 			payment_util.create_and_add_credit_to_user_transaction(
 				amount=4000.02,
-				payment_id=advance_tx.payment_id,
+				payment_id=advance_transaction.payment_id,
 				created_by_user_id=seed.get_user_id('bank_admin'),
 				effective_date=date_util.load_date_str('10/01/2020'),
 				session=session
@@ -2269,23 +2590,29 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 
 			payment_test_helper.make_repayment(
-				session, loan,
+				session=session,
+				company_id=company_id,
+				loan=loan,
+				payment_date='10/02/2020',
+				effective_date='10/03/2020',
 				to_principal=50.0,
 				to_interest=3 * 0.002 * 500.03, # they are paying off 3 days worth of interest accrued here.
-				to_fees=0.0,
-				payment_date='10/02/2020',
-				effective_date='10/03/2020'
+				to_late_fees=0.0,
+				to_account_balance=0.0,
 			)
 
 			# Because these transactions get deleted, these dont interrupt any of the financial
 			# calculations
 			cur_payment, cur_tx = payment_test_helper.make_repayment(
-				session, loan,
+				session=session,
+				company_id=company_id,
+				loan=loan,
+				payment_date='10/02/2020',
+				effective_date='10/03/2020',
 				to_principal=50.0,
 				to_interest=3 * 0.002 * 500.03, # they are paying off 3 days worth of interest accrued here.
-				to_fees=0.0,
-				payment_date='10/02/2020',
-				effective_date='10/03/2020'
+				to_late_fees=0.0,
+				to_account_balance=0.0,
 			)
 			success, err = payment_util.unsettle_payment(
 				payment_type=cur_payment.type,
@@ -2298,12 +2625,15 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			# Because these transactions get reversed, these dont interrupt any of the financial
 			# calculations
 			cur_payment2, cur_tx2 = payment_test_helper.make_repayment(
-				session, loan,
+				session=session,
+				company_id=company_id,
+				loan=loan,
+				payment_date='10/02/2020',
+				effective_date='10/03/2020',
 				to_principal=52.0,
 				to_interest=34 * 0.002 * 500.03, # they are paying off 3 days worth of interest accrued here.
-				to_fees=0.0,
-				payment_date='10/02/2020',
-				effective_date='10/03/2020'
+				to_late_fees=0.0,
+				to_account_balance=0.0,
 			)
 			success, err = payment_util.reverse_payment(
 				payment_type=cur_payment2.type,
@@ -2425,7 +2755,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			self._run_test(test)
 			i += 1
 
-	def test_success_one_payment_one_loan_invoice_financing_past_due_with_account_balances(self) -> None:
+	def test_one_payment_one_loan_invoice_financing_past_due_with_account_balances(self) -> None:
 
 		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
 			session.add(models.Contract(
@@ -2468,7 +2798,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				artifact_id=artifact_id
 			)
 			session.add(loan)
-			advance_tx = payment_test_helper.make_advance(
+			advance_transaction = payment_test_helper.make_advance(
 				session, loan, amount=500.03,  payment_date='09/30/2020', effective_date='10/01/2020'
 			)
 
@@ -2480,30 +2810,36 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				amount=decimal.Decimal(500.03)
 			)
 			session.add(loan2)
-			advance_tx2 = payment_test_helper.make_advance(
+			advance_transaction2 = payment_test_helper.make_advance(
 				session, loan2, amount=500.03,  payment_date='09/30/2020', effective_date='10/01/2020'
 			)
 			loan2.is_deleted = True
-			advance_tx2.is_deleted
+			advance_transaction2.is_deleted
 
 			payment_test_helper.make_repayment(
-				session, loan,
+				session=session,
+				company_id=company_id,
+				loan=loan,
+				payment_date='10/02/2020',
+				effective_date='10/03/2020',
 				to_principal=50.0,
 				to_interest=1.1, # they pay off some portion of the interest
-				to_fees=0.0,
-				payment_date='10/02/2020',
-				effective_date='10/03/2020'
+				to_late_fees=0.0,
+				to_account_balance=0.0,
 			)
 
 			# Because these transactions get deleted, these dont interrupt any of the financial
 			# calculations
 			cur_payment, cur_tx = payment_test_helper.make_repayment(
-				session, loan,
+				session=session,
+				company_id=company_id,
+				loan=loan,
+				payment_date='10/02/2020',
+				effective_date='10/03/2020',
 				to_principal=50.0,
 				to_interest=3 * 0.002 * 500.03, # they are paying off 3 days worth of interest accrued here.
-				to_fees=0.0,
-				payment_date='10/02/2020',
-				effective_date='10/03/2020'
+				to_late_fees=0.0,
+				to_account_balance=0.0,
 			)
 			cur_payment.is_deleted = True
 			cur_tx.is_deleted = True
@@ -2608,7 +2944,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			self._run_test(test)
 			i += 1
 
-	def test_success_adjusted_total_limit_contract_limit_greater_than_computed_borrowing_base(self) -> None:
+	def test_adjusted_total_limit_contract_limit_greater_than_computed_borrowing_base(self) -> None:
 		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
 			session.add(models.Contract(
 				company_id=company_id,
@@ -2694,7 +3030,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			ebba = session.query(models.EbbaApplication).first()
 			self.assertEqual(ebba.calculated_borrowing_base, 825000)
 
-	def test_success_extend_ending_contract(self) -> None:
+	def test_extend_ending_contract(self) -> None:
 		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
 			session.add(models.Contract(
 				company_id=company_id,
@@ -2738,7 +3074,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			contract = session.query(models.Contract).first()
 			self.assertEqual('10/01/2021', date_util.date_to_str(contract.adjusted_end_date))
 
-	def test_success_extend_ending_contract_dynamic_interest_rate(self) -> None:
+	def test_extend_ending_contract_dynamic_interest_rate(self) -> None:
 		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
 			session.add(models.Contract(
 				company_id=company_id,
@@ -2784,7 +3120,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			contract = session.query(models.Contract).first()
 			self.assertEqual('10/01/2021', date_util.date_to_str(contract.adjusted_end_date))
 
-	def test_success_dynamic_interest_rate_correct_financial_summaries(self) -> None:
+	def test_dynamic_interest_rate_correct_financial_summaries(self) -> None:
 		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
 			session.add(models.Contract(
 				company_id=company_id,
@@ -2922,7 +3258,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			self._run_test(test)
 			i += 1
 
-	def test_success_adjusted_total_limit_contract_limit_less_than_computed_borrowing_base(self) -> None:
+	def test_adjusted_total_limit_contract_limit_less_than_computed_borrowing_base(self) -> None:
 		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
 			session.add(models.Contract(
 				company_id=company_id,
@@ -3003,7 +3339,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			ebba = session.query(models.EbbaApplication).first()
 			self.assertEqual(ebba.calculated_borrowing_base, 825000)
 
-	def test_success_adjusted_total_limit_without_borrowing_base(self) -> None:
+	def test_adjusted_total_limit_without_borrowing_base(self) -> None:
 		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
 			session.add(models.Contract(
 				company_id=company_id,

@@ -87,12 +87,15 @@ def _apply_transaction(tx: Dict, session: Any, loan: models.Loan) -> None:
 		payment_test_helper.make_advance(session, loan, tx['amount'], tx['payment_date'], tx['effective_date'])
 	elif tx['type'] == 'repayment':
 		payment_test_helper.make_repayment(
-			session, loan,
+			session=session,
+			company_id=loan.company_id,
+			loan=loan,
+			payment_date=tx['payment_date'],
+			effective_date=tx['effective_date'],
 			to_principal=tx['to_principal'],
 			to_interest=tx['to_interest'],
-			to_fees=tx['to_fees'],
-			payment_date=tx['payment_date'],
-			effective_date=tx['effective_date']
+			to_late_fees=tx['to_fees'],
+			to_account_balance=0.0,
 		)
 	else:
 		raise Exception('Unexpected transaction type {}'.format(tx['type']))
