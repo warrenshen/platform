@@ -97,8 +97,9 @@ export const useFilterPurchaseOrders = (
     const doesSearchQueryExistInPurchaseOrder = ({
       company,
       order_number,
+      vendor,
     }: PurchaseOrderFragment) =>
-      `${company.name} ${order_number}`
+      `${company.name} ${order_number} ${vendor?.name}`
         .toLowerCase()
         .indexOf(searchQuery.toLowerCase()) >= 0;
 

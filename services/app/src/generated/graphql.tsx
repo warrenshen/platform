@@ -26811,11 +26811,19 @@ export type GetUserQuery = {
   users_by_pk?: Maybe<Pick<Users, "id"> & UserFragment>;
 };
 
-export type GetUsersByRolesQueryVariables = Exact<{
+export type GetActiveUsersByRolesQueryVariables = Exact<{
   roles: Array<UserRolesEnum>;
 }>;
 
-export type GetUsersByRolesQuery = {
+export type GetActiveUsersByRolesQuery = {
+  users: Array<Pick<Users, "id"> & UserFragment>;
+};
+
+export type GetDeactivedUsersByRolesQueryVariables = Exact<{
+  roles: Array<UserRolesEnum>;
+}>;
+
+export type GetDeactivedUsersByRolesQuery = {
   users: Array<Pick<Users, "id"> & UserFragment>;
 };
 
@@ -36097,8 +36105,8 @@ export type GetUserQueryResult = Apollo.QueryResult<
   GetUserQuery,
   GetUserQueryVariables
 >;
-export const GetUsersByRolesDocument = gql`
-  query GetUsersByRoles($roles: [user_roles_enum!]!) {
+export const GetActiveUsersByRolesDocument = gql`
+  query GetActiveUsersByRoles($roles: [user_roles_enum!]!) {
     users(
       where: {
         _and: [
@@ -36120,52 +36128,114 @@ export const GetUsersByRolesDocument = gql`
 `;
 
 /**
- * __useGetUsersByRolesQuery__
+ * __useGetActiveUsersByRolesQuery__
  *
- * To run a query within a React component, call `useGetUsersByRolesQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetUsersByRolesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetActiveUsersByRolesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetActiveUsersByRolesQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetUsersByRolesQuery({
+ * const { data, loading, error } = useGetActiveUsersByRolesQuery({
  *   variables: {
  *      roles: // value for 'roles'
  *   },
  * });
  */
-export function useGetUsersByRolesQuery(
+export function useGetActiveUsersByRolesQuery(
   baseOptions: Apollo.QueryHookOptions<
-    GetUsersByRolesQuery,
-    GetUsersByRolesQueryVariables
+    GetActiveUsersByRolesQuery,
+    GetActiveUsersByRolesQueryVariables
   >
 ) {
-  return Apollo.useQuery<GetUsersByRolesQuery, GetUsersByRolesQueryVariables>(
-    GetUsersByRolesDocument,
-    baseOptions
-  );
+  return Apollo.useQuery<
+    GetActiveUsersByRolesQuery,
+    GetActiveUsersByRolesQueryVariables
+  >(GetActiveUsersByRolesDocument, baseOptions);
 }
-export function useGetUsersByRolesLazyQuery(
+export function useGetActiveUsersByRolesLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    GetUsersByRolesQuery,
-    GetUsersByRolesQueryVariables
+    GetActiveUsersByRolesQuery,
+    GetActiveUsersByRolesQueryVariables
   >
 ) {
   return Apollo.useLazyQuery<
-    GetUsersByRolesQuery,
-    GetUsersByRolesQueryVariables
-  >(GetUsersByRolesDocument, baseOptions);
+    GetActiveUsersByRolesQuery,
+    GetActiveUsersByRolesQueryVariables
+  >(GetActiveUsersByRolesDocument, baseOptions);
 }
-export type GetUsersByRolesQueryHookResult = ReturnType<
-  typeof useGetUsersByRolesQuery
+export type GetActiveUsersByRolesQueryHookResult = ReturnType<
+  typeof useGetActiveUsersByRolesQuery
 >;
-export type GetUsersByRolesLazyQueryHookResult = ReturnType<
-  typeof useGetUsersByRolesLazyQuery
+export type GetActiveUsersByRolesLazyQueryHookResult = ReturnType<
+  typeof useGetActiveUsersByRolesLazyQuery
 >;
-export type GetUsersByRolesQueryResult = Apollo.QueryResult<
-  GetUsersByRolesQuery,
-  GetUsersByRolesQueryVariables
+export type GetActiveUsersByRolesQueryResult = Apollo.QueryResult<
+  GetActiveUsersByRolesQuery,
+  GetActiveUsersByRolesQueryVariables
+>;
+export const GetDeactivedUsersByRolesDocument = gql`
+  query GetDeactivedUsersByRoles($roles: [user_roles_enum!]!) {
+    users(
+      where: {
+        _and: [{ is_deleted: { _eq: true } }, { role: { _in: $roles } }]
+      }
+    ) {
+      id
+      ...User
+    }
+  }
+  ${UserFragmentDoc}
+`;
+
+/**
+ * __useGetDeactivedUsersByRolesQuery__
+ *
+ * To run a query within a React component, call `useGetDeactivedUsersByRolesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetDeactivedUsersByRolesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetDeactivedUsersByRolesQuery({
+ *   variables: {
+ *      roles: // value for 'roles'
+ *   },
+ * });
+ */
+export function useGetDeactivedUsersByRolesQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetDeactivedUsersByRolesQuery,
+    GetDeactivedUsersByRolesQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetDeactivedUsersByRolesQuery,
+    GetDeactivedUsersByRolesQueryVariables
+  >(GetDeactivedUsersByRolesDocument, baseOptions);
+}
+export function useGetDeactivedUsersByRolesLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetDeactivedUsersByRolesQuery,
+    GetDeactivedUsersByRolesQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetDeactivedUsersByRolesQuery,
+    GetDeactivedUsersByRolesQueryVariables
+  >(GetDeactivedUsersByRolesDocument, baseOptions);
+}
+export type GetDeactivedUsersByRolesQueryHookResult = ReturnType<
+  typeof useGetDeactivedUsersByRolesQuery
+>;
+export type GetDeactivedUsersByRolesLazyQueryHookResult = ReturnType<
+  typeof useGetDeactivedUsersByRolesLazyQuery
+>;
+export type GetDeactivedUsersByRolesQueryResult = Apollo.QueryResult<
+  GetDeactivedUsersByRolesQuery,
+  GetDeactivedUsersByRolesQueryVariables
 >;
 export const GetUsersForCompanyDocument = gql`
   query GetUsersForCompany($parent_company_id: uuid!, $company_id: uuid!) {

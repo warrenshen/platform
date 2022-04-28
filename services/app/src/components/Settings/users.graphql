@@ -5,7 +5,7 @@ query GetUser($id: uuid!) {
   }
 }
 
-query GetUsersByRoles($roles: [user_roles_enum!]!) {
+query GetActiveUsersByRoles($roles: [user_roles_enum!]!) {
   users(
     where: {
       _and: [
@@ -15,6 +15,20 @@ query GetUsersByRoles($roles: [user_roles_enum!]!) {
             { is_deleted: { _eq: false } }
           ]
         }
+        { role: { _in: $roles } }
+      ]
+    }
+  ) {
+    id
+    ...User
+  }
+}
+
+query GetDeactivedUsersByRoles($roles: [user_roles_enum!]!) {
+  users(
+    where: {
+      _and: [
+        { is_deleted: { _eq: true } }
         { role: { _in: $roles } }
       ]
     }

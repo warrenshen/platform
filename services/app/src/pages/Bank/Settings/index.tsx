@@ -5,20 +5,14 @@ import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
-import EditUserProfileModal from "components/Users/EditUserProfileModal";
-import InviteUserModal from "components/Users/InviteUserModal";
-import UsersDataGrid from "components/Users/UsersDataGrid";
+import ManageBankUsersArea from "components/Settings/ManageBankUsersArea";
 import BankAccountsDataGrid from "components/BankAccounts/BankAccountsDataGrid";
 import {
   useGetBespokeBankAccountsQuery,
-  useGetUsersByRolesQuery,
-  UserRolesEnum,
-  Users,
   BankAccounts,
   BankAccountFragment,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
-import { BankUserRoles } from "lib/enum";
 import { useCallback, useMemo, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -53,31 +47,9 @@ export default function BankSettingsPage() {
     bankAccountsData,
   ]);
 
-  const { data: usersData, refetch: refetchUsers } = useGetUsersByRolesQuery({
-    variables: {
-      roles: [UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly],
-    },
-  });
-
   const refetch = useCallback(() => {
     refetchBankAccounts();
-    refetchUsers();
-  }, [refetchBankAccounts, refetchUsers]);
-
-  const users = usersData?.users || [];
-
-  const [selectedUsers, setSelectedUsers] = useState<Users[]>([]);
-
-  const selectedUserIds = useMemo(() => selectedUsers.map((user) => user.id), [
-    selectedUsers,
-  ]);
-
-  const handleSelectUsers = useMemo(
-    () => (users: Users[]) => {
-      setSelectedUsers(users);
-    },
-    [setSelectedUsers]
-  );
+  }, [refetchBankAccounts]);
 
   const [selectedBankAccountIds, setSelectedBankAccountIds] = useState<
     BankAccounts["id"]
@@ -173,50 +145,7 @@ export default function BankSettingsPage() {
 
         <Box className={classes.sectionSpace} />
         <Box className={classes.section}>
-          <h2>Bespoke Financial Users</h2>
-          <Can perform={Action.ManipulateUser}>
-            <Box display="flex" flexDirection="row-reverse" mb={2}>
-              <ModalButton
-                isDisabled={selectedUsers.length > 0}
-                label={"Create BF User"}
-                modal={({ handleClose }) => (
-                  <InviteUserModal
-                    companyId={null}
-                    userRoles={BankUserRoles}
-                    handleClose={() => {
-                      refetch();
-                      handleClose();
-                    }}
-                  />
-                )}
-              />
-              <Box mr={2}>
-                <ModalButton
-                  isDisabled={selectedUsers.length !== 1}
-                  label={"Edit BF User"}
-                  modal={({ handleClose }) => (
-                    <EditUserProfileModal
-                      userId={selectedUsers[0].id}
-                      userRoles={BankUserRoles}
-                      originalUserProfile={selectedUsers[0]}
-                      handleClose={() => {
-                        refetch();
-                        handleClose();
-                        setSelectedUsers([]);
-                      }}
-                    />
-                  )}
-                />
-              </Box>
-            </Box>
-          </Can>
-          <UsersDataGrid
-            isMultiSelectEnabled
-            isRoleVisible
-            users={users}
-            selectedUserIds={selectedUserIds}
-            handleSelectUsers={handleSelectUsers}
-          />
+          <ManageBankUsersArea />
         </Box>
       </PageContent>
     </Page>

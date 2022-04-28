@@ -59,10 +59,10 @@ export default function BankPurchaseOrdersDraftedTab() {
         <Box display="flex">
           <TextField
             autoFocus
-            label="Search by PO number or customer name"
+            label="Search by PO number, customer name, or vendor name"
             value={searchQuery}
             onChange={({ target: { value } }) => setSearchQuery(value)}
-            style={{ width: 400 }}
+            style={{ width: 430 }}
           />
         </Box>
         <Box display="flex" flexDirection="row-reverse">
