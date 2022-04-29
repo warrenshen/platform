@@ -45,3 +45,43 @@ select_permissions:
         - two_factor_message_method
         - user_info
       filter: {}
+  - role: company_admin
+    permission:
+      columns:
+        - company_name
+        - company_type
+        - created_at
+        - id
+        - is_cannabis
+        - is_deleted
+        - license_info
+        - request_info
+        - requested_by_user_id
+        - requesting_company_id
+        - settled_at
+        - settled_by_user_id
+        - two_factor_message_method
+        - user_info
+      filter:
+        requesting_company_id:
+          _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+        - company_name
+        - company_type
+        - created_at
+        - id
+        - is_cannabis
+        - is_deleted
+        - license_info
+        - request_info
+        - requested_by_user_id
+        - requesting_company_id
+        - settled_at
+        - settled_by_user_id
+        - two_factor_message_method
+        - user_info
+      filter:
+        requesting_company_id:
+          _eq: X-Hasura-Company-Id
