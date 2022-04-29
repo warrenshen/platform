@@ -550,7 +550,7 @@ class CreatePartnershipNewView(MethodView):
 		}))
 
 class AddVendorNewView(MethodView):
-	decorators = [auth_util.bank_admin_required]
+	decorators = [auth_util.login_required]
 
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
