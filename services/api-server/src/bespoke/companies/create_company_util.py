@@ -96,6 +96,11 @@ CreatePartnershipRequestNewInputDict = TypedDict('CreatePartnershipRequestNewInp
 	'request_info': PartnershipRequestRequestInfoDict,
 })
 
+AddVendorNewInputDict = TypedDict('AddVendorNewInputDict', {
+	'email': str,
+	'customer_id': str,
+})
+
 def _check_is_company_name_already_used(company_name: str, company_identifier: str, session: Session) -> Tuple[bool, errors.Error]:
 	existing_company_by_name = cast(
 		models.Company,
@@ -951,7 +956,6 @@ def create_partnership_request(
 @errors.return_error_tuple
 def create_partnership_request_new(
 	req: CreatePartnershipRequestNewInputDict,
-	requested_user_id: str,
 	session: Session,
 	is_payor: bool,
 ) -> Tuple[str, errors.Error]:
@@ -1013,7 +1017,6 @@ def create_partnership_request_new(
 	partnership_req.company_type = CompanyType.Vendor
 	partnership_req.company_name = company_name
 	partnership_req.is_cannabis = is_cannabis
-	partnership_req.requested_by_user_id = requested_user_id
 	partnership_req.license_info = cast(Dict, req['license_info'])
 
 	partnership_req.user_info = {

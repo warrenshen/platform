@@ -7,13 +7,13 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import { routes, bankRoutes } from "lib/routes";
+import { routes, anonymousRoutes } from "lib/routes";
 import CreateVendorForm from "components/Vendors/CreateVendorForm";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import {
   Companies,
-  useGetCompanyForBankCompanyPageQuery,
+  useGetCompanyForVendorOnboardingQuery,
 } from "generated/graphql";
 import { createPartnershipRequestNewMutation } from "lib/api/companies";
 
@@ -98,7 +98,7 @@ export default function VendorFormPage() {
 
   const [errorMessage, setErrorMessage] = useState("");
 
-  const { data, loading } = useGetCompanyForBankCompanyPageQuery({
+  const { data, loading } = useGetCompanyForVendorOnboardingQuery({
     fetchPolicy: "network-only",
     variables: {
       id: companyId,
@@ -175,7 +175,7 @@ export default function VendorFormPage() {
     } else {
       // Show thank you page on success
       history.push({
-        pathname: bankRoutes.createVendorComplete,
+        pathname: anonymousRoutes.createVendorComplete,
       });
     }
   };

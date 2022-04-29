@@ -222,6 +222,35 @@ export async function createPartnershipRequestMutation(
     );
 }
 
+type AddVendorMutationReq = {
+  variables: {
+    customer_id: Companies["id"];
+    email: string;
+  };
+};
+
+export async function addNewVendorMutation(
+  req: AddVendorMutationReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(companyRoutes.addVendorNew, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not add new vendor",
+        };
+      }
+    );
+}
+
 export type LicenseInfoNew = {
   license_ids: Array<string>;
   license_file_id: string;

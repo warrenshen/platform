@@ -12,17 +12,27 @@ import { getMainDefinition } from "@apollo/client/utilities";
 import { CurrentUserContext, User } from "contexts/CurrentUserContext";
 import { getAccessToken } from "lib/auth/tokenStorage";
 import { ReactNode, useContext } from "react";
+import { UserRolesEnum } from "generated/graphql";
 
 const createApolloClient = (user: User) => {
   const authLink = setContext(async (_, { headers }) => {
     const accessToken = await getAccessToken();
-    return {
-      headers: {
-        ...headers,
-        Authorization: accessToken ? `Bearer ${accessToken}` : "",
-        "X-Hasura-Role": user.role,
-      },
-    };
+    // accessToken will be available for authenticated user
+    const header = accessToken
+      ? {
+          headers: {
+            ...headers,
+            Authorization: `Bearer ${accessToken}`,
+            "X-Hasura-Role": user.role,
+          },
+        }
+      : {
+          headers: {
+            ...headers,
+            "X-Hasura-Role": UserRolesEnum.Anonymous,
+          },
+        };
+    return header;
   });
 
   const httpLink = new HttpLink({

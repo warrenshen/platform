@@ -466,6 +466,7 @@ export const UserRoleToLabel = {
   [UserRolesEnum.CompanyAdmin]: "Company Admin",
   [UserRolesEnum.CompanyReadOnly]: "Company User (View Only)",
   [UserRolesEnum.CompanyContactOnly]: "Company Contact (No Account)",
+  [UserRolesEnum.Anonymous]: "Anonymous",
 };
 
 export const BankUserRoles = [

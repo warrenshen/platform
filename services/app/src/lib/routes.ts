@@ -21,6 +21,8 @@ export const anonymousRoutes = {
   reviewInvoicePayment: "/review-invoice-payment",
   reviewInvoicePaymentComplete: "/review-invoice-payment-complete",
   getSecureLinkPayload: "/get-secure-link-payload",
+  createVendor: "/vendor-form/:companyId",
+  createVendorComplete: "/create-vendor-complete",
 };
 
 // Vendor user routes are prefixed with "/2".
@@ -96,8 +98,6 @@ export const bankRoutes = {
   },
   reports: "/reports",
   settings: "/settings",
-  createVendor: "/vendor-form/:companyId",
-  createVendorComplete: "/create-vendor-complete",
   vendors: "/vendors",
 };
 

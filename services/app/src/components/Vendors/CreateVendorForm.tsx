@@ -243,6 +243,7 @@ export default function CreateVendorForm({
           maxFilesAllowed={1}
           fileIds={bankInstructionsAttachmentIds}
           frozenFileIds={[]}
+          isAnonymousUser={true}
           handleDeleteFileById={() =>
             setVendorInput({
               ...vendorInput,
@@ -310,6 +311,7 @@ export default function CreateVendorForm({
               maxFilesAllowed={1}
               fileIds={cannabisLicenseCopyAttachmentIds}
               frozenFileIds={[]}
+              isAnonymousUser={true}
               handleDeleteFileById={() =>
                 setVendorInput({
                   ...vendorInput,

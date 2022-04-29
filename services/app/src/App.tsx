@@ -118,6 +118,18 @@ export default function App() {
           path={anonymousRoutes.forgotPassword}
           component={ForgotPasswordPage}
         />
+        <Route
+          exact
+          path={anonymousRoutes.createVendor}
+          requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
+        >
+          <VendorFormPage />
+        </Route>
+        <Route
+          exact
+          path={anonymousRoutes.createVendorComplete}
+          component={AnonymousCompletePage}
+        />
         {/* Bank and Company user routes */}
         <PrivateRoute
           exact
@@ -402,18 +414,6 @@ export default function App() {
         >
           <BankSettingsPage />
         </PrivateRoute>
-        <PrivateRoute
-          exact
-          path={bankRoutes.createVendor}
-          requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
-        >
-          <VendorFormPage />
-        </PrivateRoute>
-        <Route
-          exact
-          path={bankRoutes.createVendorComplete}
-          component={AnonymousCompletePage}
-        />
         <Route>
           <Redirect to={routes.root} />
         </Route>

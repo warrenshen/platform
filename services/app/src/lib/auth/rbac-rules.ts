@@ -125,6 +125,7 @@ export interface Rules {
   [UserRolesEnum.CompanyAdmin]: Rule;
   [UserRolesEnum.CompanyReadOnly]: Rule;
   [UserRolesEnum.CompanyContactOnly]: Rule;
+  [UserRolesEnum.Anonymous]: Rule;
 }
 
 export const check = (
@@ -291,6 +292,10 @@ const rules: Rules = {
     dynamic: [],
   },
   [UserRolesEnum.CompanyContactOnly]: {
+    static: [],
+    dynamic: [],
+  },
+  [UserRolesEnum.Anonymous]: {
     static: [],
     dynamic: [],
   },

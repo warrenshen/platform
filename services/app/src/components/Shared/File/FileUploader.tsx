@@ -12,6 +12,7 @@ interface Props {
   maxFilesAllowed?: number; // maximum number of files a user may upload, 10 is the default
   fileIds?: Files["id"][];
   frozenFileIds?: Files["id"][];
+  isAnonymousUser?: boolean;
   handleDeleteFileById?: (fileId: Files["id"]) => void;
   handleNewFiles: (files: FileFragment[]) => void;
 }
@@ -24,6 +25,7 @@ export default function FileUploader({
   maxFilesAllowed,
   fileIds,
   frozenFileIds,
+  isAnonymousUser = false,
   handleDeleteFileById,
   handleNewFiles,
 }: Props) {
@@ -42,6 +44,7 @@ export default function FileUploader({
             fileType={fileType}
             fileIds={fileIds}
             frozenFileIds={frozenFileIds}
+            isAnonymousUser={isAnonymousUser}
             deleteFileId={handleDeleteFileById}
           />
         </Box>
@@ -52,6 +55,7 @@ export default function FileUploader({
             companyId={companyId}
             docType={fileType}
             maxFilesAllowed={maxFilesAllowed}
+            isAnonymousUser={isAnonymousUser}
             onUploadComplete={async (response) => {
               if (!response.succeeded) {
                 return;

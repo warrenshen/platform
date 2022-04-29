@@ -141,3 +141,10 @@ query GetCompanyForBankCompanyPage($id: uuid!) {
     }
   }
 }
+
+query GetCompanyForVendorOnboarding($id: uuid!) {
+  companies_by_pk(id: $id) {
+    id
+    name
+  }
+}

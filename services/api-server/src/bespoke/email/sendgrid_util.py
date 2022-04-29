@@ -29,6 +29,9 @@ class TemplateNames(object):
 	VENDOR_APPROVED_NOTIFY_VENDOR = 'vendor_approved_notify_vendor' # to vendor
 	VENDOR_TO_APPROVE_PURCHASE_ORDER = 'vendor_to_approve_purchase_order' # to vendor
 
+	# Email sent to the client which is used to onboard the vendor.
+	CLIENT_SENT_VENDOR_ONBOARDING_FORM = 'client_sent_vendor_onboarding_form'
+
 	DISPENSARY_VENDOR_AGREEMENT = 'dispensary_vendor_agreement'
 
 	# Email sent to Bespoke when a customer requests approval from a vendor who does not have a bank account set up.
@@ -117,6 +120,10 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 	TemplateNames.VENDOR_TO_APPROVE_PURCHASE_ORDER: {
 		'id': 'd-17349ff8699a44f18da7144452d3731a',
 		'requires_secure_link': True
+	},
+	TemplateNames.CLIENT_SENT_VENDOR_ONBOARDING_FORM: {
+		'id': 'd-aeba307f19ee4562902baf3557f3cebe',
+		'requires_secure_link': False
 	},
 	TemplateNames.DISPENSARY_VENDOR_AGREEMENT: {
 		'id': 'd-5777d853722d49dabb1f4461895f0742',

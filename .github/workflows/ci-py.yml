@@ -19,6 +19,7 @@ jobs:
         working-directory: services/api-server
     env:
       HASURA_GRAPHQL_JWT_SECRET : '{"type":"HS256", "key": "FAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKE"}'
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: 'anonymous'
       SENDGRID_API_KEY: ''
       URL_SECRET_KEY: urlsecretkey682
       URL_SALT: urlfakesalt

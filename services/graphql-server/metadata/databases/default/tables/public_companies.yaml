@@ -155,6 +155,12 @@ array_relationships:
           schema: public
           name: users
 select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - id
+        - name
+      filter: {}
   - role: bank_admin
     permission:
       columns:

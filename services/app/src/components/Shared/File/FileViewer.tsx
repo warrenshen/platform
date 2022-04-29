@@ -33,6 +33,7 @@ export default function FileViewer({ fileIds, fileType }: Props) {
     downloadFilesWithSignedUrls(
       fileType,
       fileIds,
+      false,
       (files) => setFilesWithSignedUrls(files),
       (response) => alert(response.msg)
     );

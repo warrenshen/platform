@@ -33,6 +33,7 @@ services:
       HASURA_GRAPHQL_LOG_LEVEL: error
       HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
       HASURA_GRAPHQL_JWT_SECRET: '{"type":"HS256", "key": "FAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKE"}'
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: 'anonymous'
       ASYNC_SERVER_API_KEY: bespoke-async-server-api-key
       ASYNC_SERVER_BASE_URL: "http://bespoke-api-server-cypress:7002"
       HASURA_RUN_MIGRATIONS: "true" # set to "true" to run migrations, "false" to skip

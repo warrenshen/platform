@@ -485,6 +485,7 @@ export type BankAccounts = {
   company?: Maybe<Companies>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  file_id?: Maybe<Scalars["uuid"]>;
   id: Scalars["uuid"];
   intermediary_account_name?: Maybe<Scalars["String"]>;
   intermediary_account_number?: Maybe<Scalars["String"]>;
@@ -595,6 +596,7 @@ export type BankAccountsBoolExp = {
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
+  file_id?: Maybe<UuidComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   intermediary_account_name?: Maybe<StringComparisonExp>;
   intermediary_account_number?: Maybe<StringComparisonExp>;
@@ -639,6 +641,7 @@ export type BankAccountsInsertInput = {
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  file_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   intermediary_account_name?: Maybe<Scalars["String"]>;
   intermediary_account_number?: Maybe<Scalars["String"]>;
@@ -671,6 +674,7 @@ export type BankAccountsMaxFields = {
   bank_name?: Maybe<Scalars["String"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  file_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   intermediary_account_name?: Maybe<Scalars["String"]>;
   intermediary_account_number?: Maybe<Scalars["String"]>;
@@ -700,6 +704,7 @@ export type BankAccountsMaxOrderBy = {
   bank_name?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  file_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   intermediary_account_name?: Maybe<OrderBy>;
   intermediary_account_number?: Maybe<OrderBy>;
@@ -729,6 +734,7 @@ export type BankAccountsMinFields = {
   bank_name?: Maybe<Scalars["String"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  file_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   intermediary_account_name?: Maybe<Scalars["String"]>;
   intermediary_account_number?: Maybe<Scalars["String"]>;
@@ -758,6 +764,7 @@ export type BankAccountsMinOrderBy = {
   bank_name?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  file_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   intermediary_account_name?: Maybe<OrderBy>;
   intermediary_account_number?: Maybe<OrderBy>;
@@ -815,6 +822,7 @@ export type BankAccountsOrderBy = {
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  file_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   intermediary_account_name?: Maybe<OrderBy>;
   intermediary_account_number?: Maybe<OrderBy>;
@@ -865,6 +873,8 @@ export enum BankAccountsSelectColumn {
   CompanyId = "company_id",
   /** column name */
   CreatedAt = "created_at",
+  /** column name */
+  FileId = "file_id",
   /** column name */
   Id = "id",
   /** column name */
@@ -918,6 +928,7 @@ export type BankAccountsSetInput = {
   can_wire?: Maybe<Scalars["Boolean"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  file_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   intermediary_account_name?: Maybe<Scalars["String"]>;
   intermediary_account_number?: Maybe<Scalars["String"]>;
@@ -963,6 +974,8 @@ export enum BankAccountsUpdateColumn {
   CompanyId = "company_id",
   /** column name */
   CreatedAt = "created_at",
+  /** column name */
+  FileId = "file_id",
   /** column name */
   Id = "id",
   /** column name */
@@ -3775,8 +3788,8 @@ export type CompanyPartnershipRequests = {
   license_info?: Maybe<Scalars["json"]>;
   request_info?: Maybe<Scalars["json"]>;
   /** An object relationship */
-  requested_by_user: Users;
-  requested_by_user_id: Scalars["uuid"];
+  requested_by_user?: Maybe<Users>;
+  requested_by_user_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
   requesting_company: Companies;
   requesting_company_id: Scalars["uuid"];
@@ -7282,8 +7295,8 @@ export type Files = {
   company_licenses_aggregate: CompanyLicensesAggregate;
   created_at: Scalars["timestamptz"];
   /** An object relationship */
-  created_by: Users;
-  created_by_user_id: Scalars["uuid"];
+  created_by?: Maybe<Users>;
+  created_by_user_id?: Maybe<Scalars["uuid"]>;
   extension: Scalars["String"];
   id: Scalars["uuid"];
   /** An array relationship */
@@ -24702,6 +24715,8 @@ export enum UserRolesConstraint {
 }
 
 export enum UserRolesEnum {
+  /** Anonymous */
+  Anonymous = "anonymous",
   /** Bank Admin */
   BankAdmin = "bank_admin",
   /** Bank Read Only */
@@ -25742,6 +25757,14 @@ export type GetCompanyForBankCompanyPageQuery = {
       "id" | "name" | "is_customer" | "is_payor" | "is_vendor"
     > & { contract?: Maybe<Pick<Contracts, "id" | "product_type">> }
   >;
+};
+
+export type GetCompanyForVendorOnboardingQueryVariables = Exact<{
+  id: Scalars["uuid"];
+}>;
+
+export type GetCompanyForVendorOnboardingQuery = {
+  companies_by_pk?: Maybe<Pick<Companies, "id" | "name">>;
 };
 
 export type GetFinancialSummariesByCompanyIdQueryVariables = Exact<{
@@ -27899,7 +27922,7 @@ export type PartnershipRequestFragment = Pick<
   | "settled_at"
 > & {
   requesting_company: Pick<Companies, "id" | "name">;
-  requested_by_user: Pick<Users, "full_name">;
+  requested_by_user?: Maybe<Pick<Users, "full_name">>;
 };
 
 export type VendorPartnershipFragment = Pick<
@@ -30664,6 +30687,63 @@ export type GetCompanyForBankCompanyPageLazyQueryHookResult = ReturnType<
 export type GetCompanyForBankCompanyPageQueryResult = Apollo.QueryResult<
   GetCompanyForBankCompanyPageQuery,
   GetCompanyForBankCompanyPageQueryVariables
+>;
+export const GetCompanyForVendorOnboardingDocument = gql`
+  query GetCompanyForVendorOnboarding($id: uuid!) {
+    companies_by_pk(id: $id) {
+      id
+      name
+    }
+  }
+`;
+
+/**
+ * __useGetCompanyForVendorOnboardingQuery__
+ *
+ * To run a query within a React component, call `useGetCompanyForVendorOnboardingQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCompanyForVendorOnboardingQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCompanyForVendorOnboardingQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetCompanyForVendorOnboardingQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetCompanyForVendorOnboardingQuery,
+    GetCompanyForVendorOnboardingQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetCompanyForVendorOnboardingQuery,
+    GetCompanyForVendorOnboardingQueryVariables
+  >(GetCompanyForVendorOnboardingDocument, baseOptions);
+}
+export function useGetCompanyForVendorOnboardingLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetCompanyForVendorOnboardingQuery,
+    GetCompanyForVendorOnboardingQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetCompanyForVendorOnboardingQuery,
+    GetCompanyForVendorOnboardingQueryVariables
+  >(GetCompanyForVendorOnboardingDocument, baseOptions);
+}
+export type GetCompanyForVendorOnboardingQueryHookResult = ReturnType<
+  typeof useGetCompanyForVendorOnboardingQuery
+>;
+export type GetCompanyForVendorOnboardingLazyQueryHookResult = ReturnType<
+  typeof useGetCompanyForVendorOnboardingLazyQuery
+>;
+export type GetCompanyForVendorOnboardingQueryResult = Apollo.QueryResult<
+  GetCompanyForVendorOnboardingQuery,
+  GetCompanyForVendorOnboardingQueryVariables
 >;
 export const GetFinancialSummariesByCompanyIdDocument = gql`
   query GetFinancialSummariesByCompanyId($companyId: uuid!) {

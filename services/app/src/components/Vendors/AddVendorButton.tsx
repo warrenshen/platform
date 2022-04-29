@@ -1,5 +1,5 @@
 import ModalButton from "components/Shared/Modal/ModalButton";
-import AddVendorModal from "components/Vendors/AddVendorModal";
+import AddVendorNewModal from "components/Vendors/AddVendorNewModal";
 import { Companies } from "generated/graphql";
 
 interface Props {
@@ -15,7 +15,7 @@ export default function AddVendorButton({
     <ModalButton
       label={"Add Vendor"}
       modal={({ handleClose }) => (
-        <AddVendorModal
+        <AddVendorNewModal
           customerId={customerId}
           handleClose={() => {
             handleDataChange();

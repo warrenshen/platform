@@ -18,6 +18,7 @@ type DownloadSignedURLResponse = {
 export function downloadFilesWithSignedUrls(
   fileType: string,
   fileIds: Files["id"][],
+  isAnonymousUser: boolean,
   handleSuccess: (files: FileWithSignedURL[]) => void,
   handleError: (response: DownloadSignedURLResponse) => void
 ): void {
@@ -25,8 +26,11 @@ export function downloadFilesWithSignedUrls(
     file_type: fileType,
     file_ids: fileIds,
   };
+  const downloadUrl = isAnonymousUser
+    ? fileRoutes.anonymousDownloadSignedUrl
+    : fileRoutes.downloadSignedUrl;
   authenticatedApi
-    .post(fileRoutes.downloadSignedUrl, params)
+    .post(downloadUrl, params)
     .then((res) => {
       return res.data;
     })

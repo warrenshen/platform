@@ -13,8 +13,11 @@ export const authRoutes = {
 
 export const fileRoutes = {
   putSignedUrl: "/files/put_signed_url",
+  anonymousPutSignedUrl: "/files/anonymous_put_signed_url",
   uploadSignedUrl: "/files/upload_signed_url",
+  anonymousUploadSignedUrl: "/files/anonymous_upload_signed_url",
   downloadSignedUrl: "/files/download_signed_url",
+  anonymousDownloadSignedUrl: "/files/anonymous_download_signed_url",
 };
 
 export const companyRoutes = {
@@ -23,6 +26,7 @@ export const companyRoutes = {
   updateCompanyBankStatus: "/companies/update_company_bank_status",
   createPartnershipRequest: "/companies/create_partnership_request",
   createPartnershipRequestNew: "/companies/create_partnership_request_new",
+  addVendorNew: "/companies/add_vendor_new",
   deletePartnershipRequest: "/companies/delete_partnership_request",
   createPartnership: "/companies/create_partnership",
   createPartnershipNew: "/companies/create_partnership_new",

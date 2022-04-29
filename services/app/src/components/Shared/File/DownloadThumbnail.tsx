@@ -29,7 +29,26 @@ const FileLink = styled(Link)`
   overflow: hidden;
 `;
 
+const FileName = styled.div`
+  display: flex;
+  align-items: center;
+
+  flex: 1;
+
+  height: 36px;
+  padding: 0px 8px;
+  overflow: hidden;
+`;
+
 const FileLinkText = styled.span`
+  width: 100%;
+  height: 20px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+`;
+
+const FileNameText = styled.span`
   width: 100%;
   height: 20px;
   overflow: hidden;
@@ -53,16 +72,19 @@ interface Props {
   fileType: string;
   fileIds: Files["id"][];
   frozenFileIds?: Files["id"][];
+  isAnonymousUser?: boolean;
   deleteFileId?: (fileId: Files["id"]) => void;
 }
 
 function FileDownloadThumnail({
   frozenFileIds,
   fileWithSignedUrl,
+  isAnonymousUser = false,
   deleteFileId,
 }: {
   frozenFileIds?: Files["id"][];
   fileWithSignedUrl: FileWithSignedURL;
+  isAnonymousUser?: boolean;
   deleteFileId?: (fileId: Files["id"]) => void;
 }) {
   // If no frozenFileIds array is provided, assume all files are frozen.
@@ -71,24 +93,40 @@ function FileDownloadThumnail({
 
   return (
     <File key={fileWithSignedUrl.id}>
-      <FileLink
-        key={fileWithSignedUrl.id}
-        href={fileWithSignedUrl.url}
-        target={"_blank"}
-      >
-        <Box mr={1}>
-          <InsertDriveFileIcon />
-        </Box>
-        <FileLinkText>{fileWithSignedUrl.name}</FileLinkText>
-      </FileLink>
-      <FileRightSection>
-        {isFileFrozen && (
+      {!isAnonymousUser && (
+        <FileLink
+          key={fileWithSignedUrl.id}
+          href={fileWithSignedUrl.url}
+          target={"_blank"}
+        >
           <Box mr={1}>
-            <Typography variant="subtitle2" color="textSecondary">
-              {`Uploaded ${formatDatetimeString(fileWithSignedUrl.created_at)}`}
-            </Typography>
+            <InsertDriveFileIcon />
           </Box>
-        )}
+          <FileLinkText>{fileWithSignedUrl.name}</FileLinkText>
+        </FileLink>
+      )}
+
+      {!isAnonymousUser && isFileFrozen && (
+        <Box mr={1}>
+          <Typography variant="subtitle2" color="textSecondary">
+            {`Uploaded ${formatDatetimeString(fileWithSignedUrl.created_at)}`}
+          </Typography>
+        </Box>
+      )}
+
+      {isAnonymousUser && (
+        <FileName>
+          <Box mr={1}>
+            <InsertDriveFileIcon />
+          </Box>
+          <FileNameText>{`File ${
+            fileWithSignedUrl.name
+          } was successfully uploaded on ${formatDatetimeString(
+            fileWithSignedUrl.created_at
+          )}`}</FileNameText>
+        </FileName>
+      )}
+      <FileRightSection>
         {!isFileFrozen && deleteFileId && (
           <CloseButton
             onClick={() => deleteFileId && deleteFileId(fileWithSignedUrl.id)}
@@ -106,6 +144,7 @@ export default function DownloadThumbnail({
   fileType,
   fileIds,
   frozenFileIds,
+  isAnonymousUser = false,
   deleteFileId,
 }: Props) {
   const [filesWithSignedUrls, setFilesWithSignedUrls] = useState<
@@ -116,10 +155,11 @@ export default function DownloadThumbnail({
     downloadFilesWithSignedUrls(
       fileType,
       fileIds,
+      isAnonymousUser,
       (files) => setFilesWithSignedUrls(files),
       (response) => alert(response.msg)
     );
-  }, [fileIds, fileType, setFilesWithSignedUrls]);
+  }, [fileIds, fileType, setFilesWithSignedUrls, isAnonymousUser]);
 
   return (
     <Box display="flex" flexDirection="column">
@@ -138,6 +178,7 @@ export default function DownloadThumbnail({
                 key={fileWithSignedUrl.id}
                 frozenFileIds={frozenFileIds}
                 fileWithSignedUrl={fileWithSignedUrl}
+                isAnonymousUser={isAnonymousUser}
                 deleteFileId={deleteFileId}
               />
             ))}

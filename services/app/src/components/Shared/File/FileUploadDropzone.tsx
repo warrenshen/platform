@@ -64,10 +64,15 @@ type OnUploadCompleteResp = {
 };
 
 async function getPutSignedUrl(
-  reqData: GetSignedURLReq
+  reqData: GetSignedURLReq,
+  isAnonymousUser: boolean
 ): Promise<GetSignedURLResponse> {
+  const putUrl = isAnonymousUser
+    ? fileRoutes.anonymousPutSignedUrl
+    : fileRoutes.putSignedUrl;
+
   return authenticatedApi
-    .post(fileRoutes.putSignedUrl, reqData)
+    .post(putUrl, reqData)
     .then((res) => {
       return res.data;
     })
@@ -84,6 +89,7 @@ async function getPutSignedUrl(
 
 const uploadFile = async (
   file: any,
+  isAnonymousUser: boolean,
   getSignedURLResp: GetSignedURLResponse
 ): Promise<UploadResponse> => {
   const contentType = file.type;
@@ -104,8 +110,13 @@ const uploadFile = async (
     };
     const formData = new FormData();
     formData.append("file", file);
+
+    const uploadUrl = isAnonymousUser
+      ? fileRoutes.anonymousUploadSignedUrl
+      : fileRoutes.uploadSignedUrl;
+
     return authenticatedApi
-      .put(fileRoutes.uploadSignedUrl, formData, options)
+      .put(uploadUrl, formData, options)
       .then((res) => {
         return { status: "OK", file_in_db: fileInDB };
       })
@@ -154,6 +165,7 @@ interface Props {
   companyId: string; // which companyID does this document correspond to
   docType: string; // what type of document is this? e.g., purchase_order, etc. This is used for the S3 path, not tied to a DB table
   maxFilesAllowed?: number; // maximum number of files a user may upload, 10 is the default
+  isAnonymousUser?: boolean;
   onUploadComplete: (resp: OnUploadCompleteResp) => void;
 }
 
@@ -162,6 +174,7 @@ export default function FileUploadDropzone({
   companyId,
   docType,
   maxFilesAllowed = 25,
+  isAnonymousUser = false,
   onUploadComplete,
 }: Props) {
   const classes = useStyles();
@@ -171,26 +184,29 @@ export default function FileUploadDropzone({
 
   const handleSaveFiles = useCallback(async () => {
     const processFile = async (file: any): Promise<UploadResponse> => {
-      return getPutSignedUrl({
-        file_info: {
-          name: file.name,
-          content_type: file.type,
-          size: file.size,
+      return getPutSignedUrl(
+        {
+          file_info: {
+            name: file.name,
+            content_type: file.type,
+            size: file.size,
+          },
+          company_id: companyId,
+          doc_type: docType,
         },
-        company_id: companyId,
-        doc_type: docType,
-      }).then((resp) => {
+        isAnonymousUser
+      ).then((resp) => {
         if (resp.status !== "OK") {
           return { status: "ERROR", msg: resp.msg || "", file_in_db: null };
         }
-        return uploadFile(file, resp).then((uploadResp) => {
+        return uploadFile(file, isAnonymousUser, resp).then((uploadResp) => {
           if (uploadResp.status === "OK") {
             return uploadResp;
           }
           // Try to upload the file again but turn on the upload_via_server flag
           // in the case that S3 caused the issue with a user's browser
           resp.upload_via_server = true;
-          return uploadFile(file, resp).then((uploadResp2) => {
+          return uploadFile(file, isAnonymousUser, resp).then((uploadResp2) => {
             return uploadResp2;
           });
         });
@@ -241,7 +257,7 @@ export default function FileUploadDropzone({
         files_in_db: filesInDB,
       });
     }
-  }, [companyId, docType, files, onUploadComplete]);
+  }, [companyId, docType, files, onUploadComplete, isAnonymousUser]);
 
   const handleClearFiles = useCallback(() => {
     setFiles([]);
