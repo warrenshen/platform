@@ -21,6 +21,11 @@ function getRows(requests: any[]): RowsProp {
     requested_by_user: {
       ...request.requested_by_user,
     },
+    requested_by_full_name: !!request.requested_by_user?.full_name
+      ? request.requested_by_user.full_name
+      : !!request.user_info?.first_name && !!request.user_info?.last_name
+      ? `${request.user_info.first_name} ${request.user_info.last_name}`
+      : "",
     license_ids: request.license_info
       ? request.license_info.license_ids.join(", ")
       : "",
@@ -41,7 +46,7 @@ export default function AwaitingPartnershipsDataGrid({
     () => [
       {
         caption: "Submitted By",
-        dataField: "requested_by_user.full_name",
+        dataField: "requested_by_full_name",
         width: ColumnWidths.MinWidth,
       },
       {
