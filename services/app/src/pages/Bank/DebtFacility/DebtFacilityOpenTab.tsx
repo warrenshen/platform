@@ -81,9 +81,9 @@ export default function DebtFacilityOpenTab({
   } = useGetOpenLoansByDebtFacilityIdSubscription({
     variables: {
       statuses: [
-        DebtFacilityStatusEnum.SOLD_INTO_DEBT_FACILITY,
-        DebtFacilityStatusEnum.WAIVER,
-        DebtFacilityCompanyStatusEnum.WAIVER,
+        DebtFacilityStatusEnum.SoldIntoDebtFacility,
+        DebtFacilityStatusEnum.Waiver,
+        DebtFacilityCompanyStatusEnum.Waiver,
       ],
       target_facility_ids: !!selectedDebtFacilityId
         ? [selectedDebtFacilityId]
@@ -106,8 +106,8 @@ export default function DebtFacilityOpenTab({
   } = useGetOpenLoansByDebtFacilityStatusesSubscription({
     variables: {
       statuses: [
-        DebtFacilityStatusEnum.BESPOKE_BALANCE_SHEET,
-        DebtFacilityStatusEnum.REPURCHASED,
+        DebtFacilityStatusEnum.BespokeBalanceSheet,
+        DebtFacilityStatusEnum.Repurchased,
       ],
     },
   });

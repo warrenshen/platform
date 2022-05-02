@@ -90,11 +90,11 @@ export default function UpdateCompanyDebtFacilityStatusModal({
       isPrimaryActionDisabled={
         (selectedDebtFacilityStatus === selectedCompany.debt_facility_status &&
           selectedDebtFacilityStatus !==
-            DebtFacilityCompanyStatusEnum.WAIVER) ||
+            DebtFacilityCompanyStatusEnum.Waiver) ||
         isUpdateCompanyDebtFacilityStatusLoading ||
-        (selectedDebtFacilityStatus === DebtFacilityCompanyStatusEnum.WAIVER &&
+        (selectedDebtFacilityStatus === DebtFacilityCompanyStatusEnum.Waiver &&
           waiverDate === "") ||
-        (selectedDebtFacilityStatus === DebtFacilityCompanyStatusEnum.WAIVER &&
+        (selectedDebtFacilityStatus === DebtFacilityCompanyStatusEnum.Waiver &&
           waiverExpirationDate === "")
       }
       title={"Update Company Debt Facility Status"}
@@ -148,7 +148,7 @@ export default function UpdateCompanyDebtFacilityStatusModal({
           </Select>
         </FormControl>
       </Box>
-      {selectedDebtFacilityStatus === DebtFacilityCompanyStatusEnum.WAIVER && (
+      {selectedDebtFacilityStatus === DebtFacilityCompanyStatusEnum.Waiver && (
         <>
           <Box mt={4}>
             <DateInput

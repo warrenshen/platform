@@ -27,12 +27,12 @@ export default function DebtFacilityAllTab() {
   const { data, error } = useGetOpenLoansByDebtFacilityStatusesSubscription({
     variables: {
       statuses: [
-        DebtFacilityStatusEnum.SOLD_INTO_DEBT_FACILITY,
-        DebtFacilityStatusEnum.BESPOKE_BALANCE_SHEET,
-        DebtFacilityStatusEnum.REPURCHASED,
-        DebtFacilityStatusEnum.UPDATE_REQUIRED,
-        DebtFacilityStatusEnum.WAIVER,
-        DebtFacilityCompanyStatusEnum.WAIVER,
+        DebtFacilityStatusEnum.SoldIntoDebtFacility,
+        DebtFacilityStatusEnum.BespokeBalanceSheet,
+        DebtFacilityStatusEnum.Repurchased,
+        DebtFacilityStatusEnum.UpdateRequired,
+        DebtFacilityStatusEnum.Waiver,
+        DebtFacilityCompanyStatusEnum.Waiver,
       ],
     },
   });

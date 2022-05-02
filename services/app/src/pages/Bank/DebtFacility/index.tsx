@@ -91,7 +91,7 @@ function DebtFacilityPage({
   // Pulls data for action required tab, grabs data here to update count in tab
   const { data, error } = useGetOpenLoansByDebtFacilityStatusesSubscription({
     variables: {
-      statuses: [DebtFacilityStatusEnum.UPDATE_REQUIRED],
+      statuses: [DebtFacilityStatusEnum.UpdateRequired],
     },
   });
   if (error) {

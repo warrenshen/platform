@@ -35,10 +35,10 @@ export const determineBorrowerEligibility = (
     ? companyLevelEligibility
     : companyLevelEligibility === "Eligible" && !!isProductTypeSupported
     ? DebtFacilityCompanyStatusToEligibility[
-        DebtFacilityCompanyStatusEnum.GOOD_STANDING
+        DebtFacilityCompanyStatusEnum.GoodStanding
       ]
     : DebtFacilityCompanyStatusToEligibility[
-        DebtFacilityCompanyStatusEnum.INELIGIBLE_FOR_FACILITY
+        DebtFacilityCompanyStatusEnum.IneligibleForFacility
       ];
 };
 
@@ -70,19 +70,19 @@ export const determineLoanEligibility = (
     const productType = getProductTypeFromOpenLoanForDebtFacilityFragment(loan);
     if (
       productType === ProductTypeEnum.LineOfCredit &&
-      (companyStatus === DebtFacilityCompanyStatusEnum.GOOD_STANDING ||
-        companyStatus === DebtFacilityCompanyStatusEnum.ON_PROBATION ||
-        companyStatus === DebtFacilityCompanyStatusEnum.WAIVER)
+      (companyStatus === DebtFacilityCompanyStatusEnum.GoodStanding ||
+        companyStatus === DebtFacilityCompanyStatusEnum.OnProbation ||
+        companyStatus === DebtFacilityCompanyStatusEnum.Waiver)
     ) {
       return "Eligible";
     } else if (productType === ProductTypeEnum.LineOfCredit) {
       return "Ineligible";
     } else if (
-      companyStatus !== DebtFacilityCompanyStatusEnum.GOOD_STANDING &&
-      companyStatus !== DebtFacilityCompanyStatusEnum.ON_PROBATION &&
-      companyStatus !== DebtFacilityCompanyStatusEnum.WAIVER
+      companyStatus !== DebtFacilityCompanyStatusEnum.GoodStanding &&
+      companyStatus !== DebtFacilityCompanyStatusEnum.OnProbation &&
+      companyStatus !== DebtFacilityCompanyStatusEnum.Waiver
     ) {
-      return loanStatus === DebtFacilityStatusEnum.WAIVER
+      return loanStatus === DebtFacilityStatusEnum.Waiver
         ? "Eligible"
         : "Ineligible";
     } else {

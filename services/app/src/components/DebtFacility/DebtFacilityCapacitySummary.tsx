@@ -69,8 +69,8 @@ function DebtFacilityCapacitySummary({
   } = useGetOpenLoansByDebtFacilityIdSubscription({
     variables: {
       statuses: [
-        DebtFacilityStatusEnum.SOLD_INTO_DEBT_FACILITY,
-        DebtFacilityStatusEnum.WAIVER,
+        DebtFacilityStatusEnum.SoldIntoDebtFacility,
+        DebtFacilityStatusEnum.Waiver,
       ],
       target_facility_ids: !!selectedDebtFacilityId
         ? [selectedDebtFacilityId]

@@ -31,19 +31,19 @@ interface Props {
 
 const StatusToColor = {
   Default: "#3498db", // Blue,
-  [DebtFacilityStatusEnum.SOLD_INTO_DEBT_FACILITY]: "#769362", // Bespoke's green
-  [DebtFacilityStatusEnum.BESPOKE_BALANCE_SHEET]: "#cba679", // Bespoke's gold/brown
-  [DebtFacilityStatusEnum.REPURCHASED]: "#cba679", // Bespoke's gold/brown
-  [DebtFacilityStatusEnum.UPDATE_REQUIRED]: "#ff9999", // pink
-  [DebtFacilityStatusEnum.WAIVER]: "#769362", // Bespoke's green
+  [DebtFacilityStatusEnum.SoldIntoDebtFacility]: "#769362", // Bespoke's green
+  [DebtFacilityStatusEnum.BespokeBalanceSheet]: "#cba679", // Bespoke's gold/brown
+  [DebtFacilityStatusEnum.Repurchased]: "#cba679", // Bespoke's gold/brown
+  [DebtFacilityStatusEnum.UpdateRequired]: "#ff9999", // pink
+  [DebtFacilityStatusEnum.Waiver]: "#769362", // Bespoke's green
 };
 
 export default function DebtFacilityStatusChip({ debtFacilityStatus }: Props) {
   if (
     debtFacilityStatus.toString() ===
-    DebtFacilityCompanyStatusEnum.WAIVER.toString()
+    DebtFacilityCompanyStatusEnum.Waiver.toString()
   ) {
-    debtFacilityStatus = DebtFacilityStatusEnum.WAIVER;
+    debtFacilityStatus = DebtFacilityStatusEnum.Waiver;
   }
 
   return (
@@ -52,11 +52,11 @@ export default function DebtFacilityStatusChip({ debtFacilityStatus }: Props) {
         backgroundColor={
           StatusToColor[
             [
-              DebtFacilityStatusEnum.SOLD_INTO_DEBT_FACILITY,
-              DebtFacilityStatusEnum.BESPOKE_BALANCE_SHEET,
-              DebtFacilityStatusEnum.REPURCHASED,
-              DebtFacilityStatusEnum.UPDATE_REQUIRED,
-              DebtFacilityStatusEnum.WAIVER,
+              DebtFacilityStatusEnum.SoldIntoDebtFacility,
+              DebtFacilityStatusEnum.BespokeBalanceSheet,
+              DebtFacilityStatusEnum.Repurchased,
+              DebtFacilityStatusEnum.UpdateRequired,
+              DebtFacilityStatusEnum.Waiver,
             ].includes(debtFacilityStatus)
               ? debtFacilityStatus
               : "Default"
@@ -65,11 +65,11 @@ export default function DebtFacilityStatusChip({ debtFacilityStatus }: Props) {
       >
         <Text>
           {[
-            DebtFacilityStatusEnum.SOLD_INTO_DEBT_FACILITY,
-            DebtFacilityStatusEnum.BESPOKE_BALANCE_SHEET,
-            DebtFacilityStatusEnum.REPURCHASED,
-            DebtFacilityStatusEnum.UPDATE_REQUIRED,
-            DebtFacilityStatusEnum.WAIVER,
+            DebtFacilityStatusEnum.SoldIntoDebtFacility,
+            DebtFacilityStatusEnum.BespokeBalanceSheet,
+            DebtFacilityStatusEnum.Repurchased,
+            DebtFacilityStatusEnum.UpdateRequired,
+            DebtFacilityStatusEnum.Waiver,
           ].includes(debtFacilityStatus)
             ? DebtFacilityStatusToLabel[debtFacilityStatus]
             : "No Debt Facility Status"}

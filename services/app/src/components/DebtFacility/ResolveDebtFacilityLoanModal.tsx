@@ -51,7 +51,7 @@ export default function ResolveDebtFacilityLoanModal({
   const debtFacilityName = selectedLoan?.loan_report?.debt_facility?.name || "";
 
   const resolutionOptions = useMemo(() => {
-    return [DebtFacilityStatusEnum.REPURCHASED, DebtFacilityStatusEnum.WAIVER];
+    return [DebtFacilityStatusEnum.Repurchased, DebtFacilityStatusEnum.Waiver];
   }, []);
 
   // Submission Handler
@@ -85,7 +85,7 @@ export default function ResolveDebtFacilityLoanModal({
         isResolveLoansLoading ||
         !resolutionStatus ||
         !resolutionNote ||
-        (resolutionStatus === DebtFacilityStatusEnum.WAIVER &&
+        (resolutionStatus === DebtFacilityStatusEnum.Waiver &&
           (waiverDate === "" || waiverExpirationDate === ""))
       }
       title={"Resolve Loan's Status in Debt Facility"}
@@ -132,7 +132,7 @@ export default function ResolveDebtFacilityLoanModal({
               />
             )}
             onChange={(_event, resolutionOption) => {
-              if (resolutionOption !== DebtFacilityStatusEnum.WAIVER) {
+              if (resolutionOption !== DebtFacilityStatusEnum.Waiver) {
                 setWaiverDate("");
                 setWaiverExpirationDate("");
               }
@@ -140,7 +140,7 @@ export default function ResolveDebtFacilityLoanModal({
             }}
           />
         </Box>
-        {resolutionStatus === DebtFacilityStatusEnum.WAIVER && (
+        {resolutionStatus === DebtFacilityStatusEnum.Waiver && (
           <>
             <Box mt={4}>
               <DateInput

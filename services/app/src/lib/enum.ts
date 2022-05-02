@@ -592,19 +592,19 @@ export enum PartnerEnum {
 // Debt Facility Loan Status
 
 export enum DebtFacilityStatusEnum {
-  SOLD_INTO_DEBT_FACILITY = "sold_into_debt_facility",
-  BESPOKE_BALANCE_SHEET = "bespoke_balance_sheet",
-  REPURCHASED = "repurchased",
-  UPDATE_REQUIRED = "update_required",
-  WAIVER = "waiver_loan",
+  SoldIntoDebtFacility = "sold_into_debt_facility",
+  BespokeBalanceSheet = "bespoke_balance_sheet",
+  Repurchased = "repurchased",
+  UpdateRequired = "update_required",
+  Waiver = "waiver_loan",
 }
 
 export const DebtFacilityStatusToLabel = {
-  [DebtFacilityStatusEnum.SOLD_INTO_DEBT_FACILITY]: "Debt Facility",
-  [DebtFacilityStatusEnum.BESPOKE_BALANCE_SHEET]: "Bespoke",
-  [DebtFacilityStatusEnum.REPURCHASED]: "Repurchased",
-  [DebtFacilityStatusEnum.UPDATE_REQUIRED]: "Update Required",
-  [DebtFacilityStatusEnum.WAIVER]: "Waiver",
+  [DebtFacilityStatusEnum.SoldIntoDebtFacility]: "Debt Facility",
+  [DebtFacilityStatusEnum.BespokeBalanceSheet]: "Bespoke",
+  [DebtFacilityStatusEnum.Repurchased]: "Repurchased",
+  [DebtFacilityStatusEnum.UpdateRequired]: "Update Required",
+  [DebtFacilityStatusEnum.Waiver]: "Waiver",
 };
 
 /*
@@ -614,36 +614,36 @@ export const DebtFacilityStatusToLabel = {
   Caveat: If there is a waiver, it is eligible regardless
 */
 export const DebtFacilityStatusToEligibility = {
-  [DebtFacilityStatusEnum.SOLD_INTO_DEBT_FACILITY]: "Eligible",
-  [DebtFacilityStatusEnum.BESPOKE_BALANCE_SHEET]: "Eligible",
+  [DebtFacilityStatusEnum.SoldIntoDebtFacility]: "Eligible",
+  [DebtFacilityStatusEnum.BespokeBalanceSheet]: "Eligible",
   // Repurchased is for when  company goes from good standing to bad standing
   // If/when a company reverses and is in good standing again, remaining open loans should
   // be automatically changed to the bespoke balance sheet status
-  [DebtFacilityStatusEnum.REPURCHASED]: "Ineligible",
-  [DebtFacilityStatusEnum.UPDATE_REQUIRED]: "Ineligible",
-  [DebtFacilityStatusEnum.WAIVER]: "Waiver",
+  [DebtFacilityStatusEnum.Repurchased]: "Ineligible",
+  [DebtFacilityStatusEnum.UpdateRequired]: "Ineligible",
+  [DebtFacilityStatusEnum.Waiver]: "Waiver",
 };
 
 // Debt Facility Company Status
 
 export enum DebtFacilityCompanyStatusEnum {
-  GOOD_STANDING = "good_standing",
-  ON_PROBATION = "on_probation",
-  OUT_OF_COMPLIANCE = "out_of_compliance",
-  DEFAULTING = "defaulting",
+  GoodStanding = "good_standing",
+  OnProbation = "on_probation",
+  OutOfCompliance = "out_of_compliance",
+  Defaulting = "defaulting",
   // must be default state for dispensary financing clients
-  INELIGIBLE_FOR_FACILITY = "ineligible_for_facility",
-  WAIVER = "waiver_company",
+  IneligibleForFacility = "ineligible_for_facility",
+  Waiver = "waiver_company",
 }
 
 export const DebtFacilityCompanyStatusToLabel = {
-  [DebtFacilityCompanyStatusEnum.GOOD_STANDING]: "Good Standing",
-  [DebtFacilityCompanyStatusEnum.ON_PROBATION]: "Probation",
-  [DebtFacilityCompanyStatusEnum.OUT_OF_COMPLIANCE]: "Paused",
-  [DebtFacilityCompanyStatusEnum.DEFAULTING]: "Defaulted",
-  [DebtFacilityCompanyStatusEnum.INELIGIBLE_FOR_FACILITY]:
+  [DebtFacilityCompanyStatusEnum.GoodStanding]: "Good Standing",
+  [DebtFacilityCompanyStatusEnum.OnProbation]: "Probation",
+  [DebtFacilityCompanyStatusEnum.OutOfCompliance]: "Paused",
+  [DebtFacilityCompanyStatusEnum.Defaulting]: "Defaulted",
+  [DebtFacilityCompanyStatusEnum.IneligibleForFacility]:
     "Ineligible for Facility",
-  [DebtFacilityCompanyStatusEnum.WAIVER]: "Waiver",
+  [DebtFacilityCompanyStatusEnum.Waiver]: "Waiver",
 };
 
 /* 
@@ -652,12 +652,12 @@ to less buckets for the report we send to the debt facility. However, the mutlip
 bad states is still useful for internal purposes
 */
 export const DebtFacilityCompanyStatusToEligibility = {
-  [DebtFacilityCompanyStatusEnum.GOOD_STANDING]: "Eligible",
-  [DebtFacilityCompanyStatusEnum.ON_PROBATION]: "Eligible",
-  [DebtFacilityCompanyStatusEnum.OUT_OF_COMPLIANCE]: "Ineligible",
-  [DebtFacilityCompanyStatusEnum.DEFAULTING]: "Ineligible",
-  [DebtFacilityCompanyStatusEnum.INELIGIBLE_FOR_FACILITY]: "Ineligible",
-  [DebtFacilityCompanyStatusEnum.WAIVER]: "Waiver",
+  [DebtFacilityCompanyStatusEnum.GoodStanding]: "Eligible",
+  [DebtFacilityCompanyStatusEnum.OnProbation]: "Eligible",
+  [DebtFacilityCompanyStatusEnum.OutOfCompliance]: "Ineligible",
+  [DebtFacilityCompanyStatusEnum.Defaulting]: "Ineligible",
+  [DebtFacilityCompanyStatusEnum.IneligibleForFacility]: "Ineligible",
+  [DebtFacilityCompanyStatusEnum.Waiver]: "Waiver",
 };
 
 export enum DebtFacilityTabLabel {

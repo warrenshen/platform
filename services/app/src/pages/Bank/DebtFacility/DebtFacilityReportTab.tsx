@@ -65,14 +65,14 @@ export default function DebtFacilityReportTab({
   const { data, error } = useGetReportLoansByDebtFacilityIdSubscription({
     variables: {
       debt_facility_statuses: [
-        DebtFacilityStatusEnum.SOLD_INTO_DEBT_FACILITY,
-        DebtFacilityStatusEnum.UPDATE_REQUIRED,
-        DebtFacilityStatusEnum.WAIVER,
-        DebtFacilityCompanyStatusEnum.WAIVER,
+        DebtFacilityStatusEnum.SoldIntoDebtFacility,
+        DebtFacilityStatusEnum.UpdateRequired,
+        DebtFacilityStatusEnum.Waiver,
+        DebtFacilityCompanyStatusEnum.Waiver,
       ],
       other_statuses: [
-        DebtFacilityStatusEnum.BESPOKE_BALANCE_SHEET,
-        DebtFacilityStatusEnum.REPURCHASED,
+        DebtFacilityStatusEnum.BespokeBalanceSheet,
+        DebtFacilityStatusEnum.Repurchased,
       ],
       target_facility_ids: !!selectedDebtFacilityId
         ? [selectedDebtFacilityId]
