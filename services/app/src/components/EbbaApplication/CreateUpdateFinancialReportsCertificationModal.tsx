@@ -227,8 +227,8 @@ export default function CreateUpdateFinancialReportsCertificationModal({
         <Alert severity="warning">
           <Typography>
             If you have PRIOR month financial reports that were ADJUSTED after
-            they were provided to Bespoke Financial, please upload those to the
-            correct previous month certification.
+            they were provided to Bespoke Financial, please edit your submission
+            for that month and attach the updated financials.
           </Typography>
         </Alert>
       </Box>
