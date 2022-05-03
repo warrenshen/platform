@@ -26,12 +26,12 @@ interface Props {
 }
 
 const StatusToColor = {
-  [BankStatusEnum.GOOD_STANDING]: "rgba(118, 147, 98, 1)", // Gray
-  [BankStatusEnum.ON_PROBATION]: "#f1c40f", // Yellow
-  [BankStatusEnum.ON_PAUSE]: "#e74c3c", // Red,
-  [BankStatusEnum.DEFAULTED]: "#e74c3c", // Red,
-  [BankStatusEnum.ONBOARDING]: "#e74c3c", // Red,
-  [BankStatusEnum.INACTIVE]: "#e74c3c", // Red,
+  [BankStatusEnum.GOOD_STANDING]: "rgb(118, 147, 98)", // Gray
+  [BankStatusEnum.ON_PROBATION]: "rgb(241, 196, 15)", // Yellow
+  [BankStatusEnum.ON_PAUSE]: "rgb(230, 126, 34)", // Orange,
+  [BankStatusEnum.DEFAULTED]: "rgb(230, 126, 34)", // Orange,
+  [BankStatusEnum.ONBOARDING]: "rgb(25, 113, 194)", // Blue,
+  [BankStatusEnum.INACTIVE]: "rgb(189, 195, 199)", // Grey,
 };
 
 const ClientSurveillanceStatusChip = ({ requestStatus }: Props) => (

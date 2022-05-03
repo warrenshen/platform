@@ -34,6 +34,7 @@ import {
 import { Action, check } from "lib/auth/rbac-rules";
 import {
   ActionType,
+  BankStatusEnum,
   CustomMessageEnum,
   ProductTypeEnum,
   ProductTypeToLoanType,

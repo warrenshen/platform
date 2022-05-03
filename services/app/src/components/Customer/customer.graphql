@@ -135,6 +135,7 @@ query GetCompanyForBankCompanyPage($id: uuid!) {
     is_customer
     is_payor
     is_vendor
+    bank_status
     contract {
       id
       product_type

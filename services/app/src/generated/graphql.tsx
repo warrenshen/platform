@@ -3796,6 +3796,7 @@ export type CompanyPartnershipRequests = {
   settled_at?: Maybe<Scalars["timestamptz"]>;
   settled_by_user_id?: Maybe<Scalars["uuid"]>;
   two_factor_message_method: Scalars["String"];
+  updated_at?: Maybe<Scalars["timestamptz"]>;
   user_info: Scalars["json"];
 };
 
@@ -3853,6 +3854,7 @@ export type CompanyPartnershipRequestsBoolExp = {
   settled_at?: Maybe<TimestamptzComparisonExp>;
   settled_by_user_id?: Maybe<UuidComparisonExp>;
   two_factor_message_method?: Maybe<StringComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
   user_info?: Maybe<JsonComparisonExp>;
 };
 
@@ -3879,6 +3881,7 @@ export type CompanyPartnershipRequestsInsertInput = {
   settled_at?: Maybe<Scalars["timestamptz"]>;
   settled_by_user_id?: Maybe<Scalars["uuid"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
   user_info?: Maybe<Scalars["json"]>;
 };
 
@@ -3892,6 +3895,7 @@ export type CompanyPartnershipRequestsMaxFields = {
   settled_at?: Maybe<Scalars["timestamptz"]>;
   settled_by_user_id?: Maybe<Scalars["uuid"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** aggregate min on columns */
@@ -3904,6 +3908,7 @@ export type CompanyPartnershipRequestsMinFields = {
   settled_at?: Maybe<Scalars["timestamptz"]>;
   settled_by_user_id?: Maybe<Scalars["uuid"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** response of any mutation on the table "company_partnership_requests" */
@@ -3938,6 +3943,7 @@ export type CompanyPartnershipRequestsOrderBy = {
   settled_at?: Maybe<OrderBy>;
   settled_by_user_id?: Maybe<OrderBy>;
   two_factor_message_method?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
   user_info?: Maybe<OrderBy>;
 };
 
@@ -3975,6 +3981,8 @@ export enum CompanyPartnershipRequestsSelectColumn {
   /** column name */
   TwoFactorMessageMethod = "two_factor_message_method",
   /** column name */
+  UpdatedAt = "updated_at",
+  /** column name */
   UserInfo = "user_info",
 }
 
@@ -3993,6 +4001,7 @@ export type CompanyPartnershipRequestsSetInput = {
   settled_at?: Maybe<Scalars["timestamptz"]>;
   settled_by_user_id?: Maybe<Scalars["uuid"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
   user_info?: Maybe<Scalars["json"]>;
 };
 
@@ -4024,6 +4033,8 @@ export enum CompanyPartnershipRequestsUpdateColumn {
   SettledByUserId = "settled_by_user_id",
   /** column name */
   TwoFactorMessageMethod = "two_factor_message_method",
+  /** column name */
+  UpdatedAt = "updated_at",
   /** column name */
   UserInfo = "user_info",
 }
@@ -25754,7 +25765,7 @@ export type GetCompanyForBankCompanyPageQuery = {
   companies_by_pk?: Maybe<
     Pick<
       Companies,
-      "id" | "name" | "is_customer" | "is_payor" | "is_vendor"
+      "id" | "name" | "is_customer" | "is_payor" | "is_vendor" | "bank_status"
     > & { contract?: Maybe<Pick<Contracts, "id" | "product_type">> }
   >;
 };
@@ -30632,6 +30643,7 @@ export const GetCompanyForBankCompanyPageDocument = gql`
       is_customer
       is_payor
       is_vendor
+      bank_status
       contract {
         id
         product_type

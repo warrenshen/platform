@@ -9,7 +9,7 @@ import {
   useGetCompanyForBankCompanyPageQuery,
   UserRolesEnum,
 } from "generated/graphql";
-import { ProductTypeEnum } from "lib/enum";
+import { BankStatusEnum, BankStatusToLabel, ProductTypeEnum } from "lib/enum";
 import { bankRoutes } from "lib/routes";
 import { isPayorsTabVisible, isVendorsTabVisible } from "lib/settings";
 import BankCustomerContractPage from "pages/Bank/Company/Contract";
@@ -36,6 +36,13 @@ import BankCompanyPayorPartnershipsSubpage from "./PayorPartnerships";
 import BankCustomerSettingsSubpage from "./Settings";
 import BankCompanyVendorPartnershipsSubpage from "./VendorPartnerships";
 import BankCustomerVendorsSubpage from "./Vendors";
+import { Alert } from "@material-ui/lab";
+import { Color } from "@material-ui/lab/Alert";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
+import { useContext } from "react";
 
 const DRAWER_WIDTH = 200;
 
@@ -68,8 +75,58 @@ const useStyles = makeStyles((theme: Theme) =>
     listItemText: {
       fontWeight: 500,
     },
+    commonStyle: {
+      color: "white",
+      padding: "0 0.5rem",
+      alignItems: "center",
+
+      "& svg": {
+        fill: "white",
+      },
+    },
+    greenBackground: {
+      backgroundColor: "rgb(118, 147, 98)",
+    },
+    yellowBackground: {
+      backgroundColor: "rgb(241, 196, 15)",
+    },
+    orangeBackground: {
+      backgroundColor: "rgb(230, 126, 34)",
+    },
+    greyBackground: {
+      backgroundColor: "rgb(189, 195, 199)",
+    },
+    blueBackground: {
+      backgroundColor: "rgb(25, 113, 194)",
+    },
   })
 );
+
+type ClassName =
+  | "greenBackground"
+  | "yellowBackground"
+  | "greyBackground"
+  | "blueBackground"
+  | "orangeBackground";
+
+type AlertStyle = { theme: ClassName; severity: Color };
+
+const BankStatusToAlertStatus: {
+  [key in BankStatusEnum]: AlertStyle;
+} = {
+  [BankStatusEnum.GOOD_STANDING]: {
+    theme: "greenBackground",
+    severity: "success",
+  },
+  [BankStatusEnum.DEFAULTED]: { theme: "orangeBackground", severity: "error" },
+  [BankStatusEnum.ON_PAUSE]: { theme: "orangeBackground", severity: "warning" },
+  [BankStatusEnum.ON_PROBATION]: {
+    theme: "yellowBackground",
+    severity: "warning",
+  },
+  [BankStatusEnum.INACTIVE]: { theme: "greyBackground", severity: "info" },
+  [BankStatusEnum.ONBOARDING]: { theme: "blueBackground", severity: "info" },
+};
 
 type BankCustomerPath = {
   visible?: boolean;
@@ -232,6 +289,9 @@ const getCustomerPaths = (
 ];
 
 export default function BankCompanyPage() {
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
   const { companyId } = useParams<{
     companyId: Companies["id"];
   }>();
@@ -247,14 +307,35 @@ export default function BankCompanyPage() {
 
   const company = data?.companies_by_pk || null;
   const companyName = company?.name;
+  const bankStatus = company?.bank_status as BankStatusEnum;
   const productType =
     (company?.contract?.product_type as ProductTypeEnum) || null;
+
+  const renderBankStatus = () => {
+    if (!bankStatus) {
+      return null;
+    }
+    const { theme, severity } = BankStatusToAlertStatus[bankStatus];
+
+    return (
+      <Box display="flex" mt={3} mb={2}>
+        <Alert
+          severity={severity}
+          className={[classes[theme], classes.commonStyle].join(" ")}
+        >
+          <Typography>{BankStatusToLabel[bankStatus]}</Typography>
+        </Alert>
+      </Box>
+    );
+  };
 
   return (
     <Page appBarTitle={companyName || ""}>
       <Box display="flex" width="100%">
         <Box className={classes.drawer}>
           <TitleText>{companyName || ""}</TitleText>
+          {isRoleBankUser(role) && renderBankStatus()}
+
           <List className={classes.list}>
             {getCustomerPaths(company, productType)
               .filter(

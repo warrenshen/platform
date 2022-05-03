@@ -229,6 +229,7 @@ select_permissions:
     permission:
       columns:
         - address
+        - bank_status
         - city
         - company_settings_id
         - contract_id
@@ -267,6 +268,7 @@ select_permissions:
     permission:
       columns:
         - address
+        - bank_status
         - city
         - company_settings_id
         - contract_id
