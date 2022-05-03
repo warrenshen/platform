@@ -37,7 +37,7 @@ const calculatePercentageDelinquent = (financialSummary: FinancialSummaries) =>
         (financialSummary.total_outstanding_principal_past_due || 0.0) /
           financialSummary.total_outstanding_principal
       )
-    : null;
+    : "0%";
 
 function getRows(
   companies: GetCustomersWithMetadataQuery["customers"]
