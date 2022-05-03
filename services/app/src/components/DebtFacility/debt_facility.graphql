@@ -16,6 +16,7 @@ subscription GetOpenLoansByDebtFacilityStatuses($statuses: [String!]) {
             { company: { settings: { is_dummy_account: { _eq: false } } } }
           ]
         }
+        { origination_date: { _is_null: false } }
       ]
     }
   ) {
@@ -46,6 +47,7 @@ subscription GetOpenLoansByDebtFacilityId(
             { company: { settings: { is_dummy_account: { _eq: false } } } }
           ]
         }
+        { origination_date: { _is_null: false } }
       ]
     }
   ) {
@@ -94,6 +96,7 @@ subscription GetReportLoansByDebtFacilityId(
             { company: { settings: { is_dummy_account: { _eq: false } } } }
           ]
         }
+        { origination_date: { _is_null: false } }
       ]
     }
   ) {
