@@ -10,6 +10,7 @@
 - "!include public_company_partnership_requests.yaml"
 - "!include public_company_payor_contacts.yaml"
 - "!include public_company_payor_partnerships.yaml"
+- "!include public_company_product_qualifications.yaml"
 - "!include public_company_settings.yaml"
 - "!include public_company_type.yaml"
 - "!include public_company_vendor_contacts.yaml"

@@ -1,0 +1,39 @@
+table:
+  schema: public
+  name: company_product_qualifications
+object_relationships:
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  - name: submitting_user
+    using:
+      foreign_key_constraint_on: submitting_user_id
+select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+        - bank_note
+        - company_id
+        - created_at
+        - deleted_at
+        - id
+        - metadata_info
+        - qualifying_date
+        - qualifying_product
+        - submitting_user_id
+        - updated_at
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+        - bank_note
+        - company_id
+        - created_at
+        - deleted_at
+        - id
+        - metadata_info
+        - qualifying_date
+        - qualifying_product
+        - submitting_user_id
+        - updated_at
+      filter: {}
