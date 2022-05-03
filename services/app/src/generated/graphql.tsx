@@ -27748,6 +27748,16 @@ export type AllCompanyUsersForBankFragment = {
   users: Array<ContactFragment>;
 };
 
+export type CustomersWithMetadataFragment = Pick<Companies, "id"> & {
+  financial_summaries: Array<
+    Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
+  >;
+  settings?: Maybe<Pick<CompanySettings, "id"> & CompanySettingsFragment>;
+  ebba_applications: Array<
+    Pick<EbbaApplications, "id"> & EbbaApplicationFragment
+  >;
+} & CustomerForBankFragment;
+
 export type CompanyPayorContactFragment = Pick<
   CompanyPayorContacts,
   "id" | "payor_user_id"
@@ -28235,17 +28245,15 @@ export type GetCustomersWithMetadataQueryVariables = Exact<{
 }>;
 
 export type GetCustomersWithMetadataQuery = {
-  customers: Array<
-    Pick<Companies, "id"> & {
-      financial_summaries: Array<
-        Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
-      >;
-      settings?: Maybe<Pick<CompanySettings, "id"> & CompanySettingsFragment>;
-      ebba_applications: Array<
-        Pick<EbbaApplications, "id"> & EbbaApplicationFragment
-      >;
-    } & CustomerForBankFragment
-  >;
+  customers: Array<CustomersWithMetadataFragment>;
+};
+
+export type GetNonDummyCustomersWithMetadataQueryVariables = Exact<{
+  date?: Maybe<Scalars["date"]>;
+}>;
+
+export type GetNonDummyCustomersWithMetadataQuery = {
+  customers: Array<CustomersWithMetadataFragment>;
 };
 
 export type GetCustomersForDropdownQueryVariables = Exact<{
@@ -28432,30 +28440,6 @@ export const PurchaseOrderFileFragmentDoc = gql`
   }
   ${FileFragmentDoc}
 `;
-export const EbbaApplicationFragmentDoc = gql`
-  fragment EbbaApplication on ebba_applications {
-    id
-    company_id
-    category
-    application_date
-    monthly_accounts_receivable
-    monthly_inventory
-    monthly_cash
-    amount_cash_in_daca
-    amount_custom
-    amount_custom_note
-    calculated_borrowing_base
-    status
-    rejection_note
-    expires_at
-    created_at
-    approved_at
-    submitted_by_user {
-      id
-      full_name
-    }
-  }
-`;
 export const EbbaApplicationFileFragmentDoc = gql`
   fragment EbbaApplicationFile on ebba_application_files {
     ebba_application_id
@@ -28466,32 +28450,6 @@ export const EbbaApplicationFileFragmentDoc = gql`
     }
   }
   ${FileFragmentDoc}
-`;
-export const FinancialSummaryFragmentDoc = gql`
-  fragment FinancialSummary on financial_summaries {
-    id
-    company_id
-    date
-    product_type
-    daily_interest_rate
-    available_limit
-    adjusted_total_limit
-    total_outstanding_principal
-    total_outstanding_interest
-    total_outstanding_fees
-    total_principal_in_requested_state
-    total_outstanding_principal_for_interest
-    total_outstanding_principal_past_due
-    total_amount_to_pay_interest_on
-    minimum_monthly_payload
-    account_level_balance_payload
-    day_volume_threshold_met
-    interest_accrued_today
-    needs_recompute
-    minimum_interest_duration
-    minimum_interest_amount
-    minimum_interest_remaining
-  }
 `;
 export const InvoiceFileFragmentDoc = gql`
   fragment InvoiceFile on invoice_files {
@@ -28633,28 +28591,6 @@ export const AllCompanyUsersForBankFragmentDoc = gql`
   }
   ${ContactFragmentDoc}
 `;
-export const CompanyPayorContactFragmentDoc = gql`
-  fragment CompanyPayorContact on company_payor_contacts {
-    id
-    payor_user_id
-    user {
-      id
-      ...Contact
-    }
-  }
-  ${ContactFragmentDoc}
-`;
-export const CompanyVendorContactFragmentDoc = gql`
-  fragment CompanyVendorContact on company_vendor_contacts {
-    id
-    vendor_user_id
-    user {
-      id
-      ...Contact
-    }
-  }
-  ${ContactFragmentDoc}
-`;
 export const CustomerForBankFragmentDoc = gql`
   fragment CustomerForBank on companies {
     id
@@ -28673,6 +28609,32 @@ export const CustomerForBankFragmentDoc = gql`
     bank_status
     bank_status_note
     qualify_for
+  }
+`;
+export const FinancialSummaryFragmentDoc = gql`
+  fragment FinancialSummary on financial_summaries {
+    id
+    company_id
+    date
+    product_type
+    daily_interest_rate
+    available_limit
+    adjusted_total_limit
+    total_outstanding_principal
+    total_outstanding_interest
+    total_outstanding_fees
+    total_principal_in_requested_state
+    total_outstanding_principal_for_interest
+    total_outstanding_principal_past_due
+    total_amount_to_pay_interest_on
+    minimum_monthly_payload
+    account_level_balance_payload
+    day_volume_threshold_met
+    interest_accrued_today
+    needs_recompute
+    minimum_interest_duration
+    minimum_interest_amount
+    minimum_interest_remaining
   }
 `;
 export const CompanySettingsLimitedFragmentDoc = gql`
@@ -28701,6 +28663,78 @@ export const CompanySettingsFragmentDoc = gql`
     ...CompanySettingsLimited
   }
   ${CompanySettingsLimitedFragmentDoc}
+`;
+export const EbbaApplicationFragmentDoc = gql`
+  fragment EbbaApplication on ebba_applications {
+    id
+    company_id
+    category
+    application_date
+    monthly_accounts_receivable
+    monthly_inventory
+    monthly_cash
+    amount_cash_in_daca
+    amount_custom
+    amount_custom_note
+    calculated_borrowing_base
+    status
+    rejection_note
+    expires_at
+    created_at
+    approved_at
+    submitted_by_user {
+      id
+      full_name
+    }
+  }
+`;
+export const CustomersWithMetadataFragmentDoc = gql`
+  fragment CustomersWithMetadata on companies {
+    id
+    ...CustomerForBank
+    financial_summaries(where: { date: { _eq: $date } }) {
+      id
+      ...FinancialSummary
+    }
+    settings {
+      id
+      ...CompanySettings
+    }
+    ebba_applications(
+      limit: 1
+      order_by: [{ application_date: desc }, { created_at: desc }]
+      where: { status: { _eq: approved } }
+    ) {
+      id
+      ...EbbaApplication
+    }
+  }
+  ${CustomerForBankFragmentDoc}
+  ${FinancialSummaryFragmentDoc}
+  ${CompanySettingsFragmentDoc}
+  ${EbbaApplicationFragmentDoc}
+`;
+export const CompanyPayorContactFragmentDoc = gql`
+  fragment CompanyPayorContact on company_payor_contacts {
+    id
+    payor_user_id
+    user {
+      id
+      ...Contact
+    }
+  }
+  ${ContactFragmentDoc}
+`;
+export const CompanyVendorContactFragmentDoc = gql`
+  fragment CompanyVendorContact on company_vendor_contacts {
+    id
+    vendor_user_id
+    user {
+      id
+      ...Contact
+    }
+  }
+  ${ContactFragmentDoc}
 `;
 export const BankAccountForVendorFragmentDoc = gql`
   fragment BankAccountForVendor on bank_accounts {
@@ -39257,30 +39291,10 @@ export const GetCustomersWithMetadataDocument = gql`
       where: { is_customer: { _eq: true } }
       order_by: { name: asc }
     ) {
-      id
-      ...CustomerForBank
-      financial_summaries(where: { date: { _eq: $date } }) {
-        id
-        ...FinancialSummary
-      }
-      settings {
-        id
-        ...CompanySettings
-      }
-      ebba_applications(
-        limit: 1
-        order_by: [{ application_date: desc }, { created_at: desc }]
-        where: { status: { _eq: approved } }
-      ) {
-        id
-        ...EbbaApplication
-      }
+      ...CustomersWithMetadata
     }
   }
-  ${CustomerForBankFragmentDoc}
-  ${FinancialSummaryFragmentDoc}
-  ${CompanySettingsFragmentDoc}
-  ${EbbaApplicationFragmentDoc}
+  ${CustomersWithMetadataFragmentDoc}
 `;
 
 /**
@@ -39330,6 +39344,76 @@ export type GetCustomersWithMetadataLazyQueryHookResult = ReturnType<
 export type GetCustomersWithMetadataQueryResult = Apollo.QueryResult<
   GetCustomersWithMetadataQuery,
   GetCustomersWithMetadataQueryVariables
+>;
+export const GetNonDummyCustomersWithMetadataDocument = gql`
+  query GetNonDummyCustomersWithMetadata($date: date) {
+    customers: companies(
+      where: {
+        _and: [
+          {
+            _or: [
+              { settings: { is_dummy_account: { _is_null: true } } }
+              { settings: { is_dummy_account: { _eq: false } } }
+            ]
+          }
+          { is_customer: { _eq: true } }
+        ]
+      }
+      order_by: { name: asc }
+    ) {
+      ...CustomersWithMetadata
+    }
+  }
+  ${CustomersWithMetadataFragmentDoc}
+`;
+
+/**
+ * __useGetNonDummyCustomersWithMetadataQuery__
+ *
+ * To run a query within a React component, call `useGetNonDummyCustomersWithMetadataQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetNonDummyCustomersWithMetadataQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetNonDummyCustomersWithMetadataQuery({
+ *   variables: {
+ *      date: // value for 'date'
+ *   },
+ * });
+ */
+export function useGetNonDummyCustomersWithMetadataQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetNonDummyCustomersWithMetadataQuery,
+    GetNonDummyCustomersWithMetadataQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetNonDummyCustomersWithMetadataQuery,
+    GetNonDummyCustomersWithMetadataQueryVariables
+  >(GetNonDummyCustomersWithMetadataDocument, baseOptions);
+}
+export function useGetNonDummyCustomersWithMetadataLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetNonDummyCustomersWithMetadataQuery,
+    GetNonDummyCustomersWithMetadataQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetNonDummyCustomersWithMetadataQuery,
+    GetNonDummyCustomersWithMetadataQueryVariables
+  >(GetNonDummyCustomersWithMetadataDocument, baseOptions);
+}
+export type GetNonDummyCustomersWithMetadataQueryHookResult = ReturnType<
+  typeof useGetNonDummyCustomersWithMetadataQuery
+>;
+export type GetNonDummyCustomersWithMetadataLazyQueryHookResult = ReturnType<
+  typeof useGetNonDummyCustomersWithMetadataLazyQuery
+>;
+export type GetNonDummyCustomersWithMetadataQueryResult = Apollo.QueryResult<
+  GetNonDummyCustomersWithMetadataQuery,
+  GetNonDummyCustomersWithMetadataQueryVariables
 >;
 export const GetCustomersForDropdownDocument = gql`
   query GetCustomersForDropdown {

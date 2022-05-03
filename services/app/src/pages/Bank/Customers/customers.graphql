@@ -3,24 +3,26 @@ query GetCustomersWithMetadata($date: date) {
     where: { is_customer: { _eq: true } }
     order_by: { name: asc }
   ) {
-    id
-    ...CustomerForBank
-    financial_summaries(where: { date: { _eq: $date } }) {
-      id
-      ...FinancialSummary
+    ...CustomersWithMetadata
+  }
+}
+
+query GetNonDummyCustomersWithMetadata($date: date) {
+  customers: companies(
+    where: {
+      _and: [
+        {
+          _or: [
+            { settings: { is_dummy_account: { _is_null: true } } }
+            { settings: { is_dummy_account: { _eq: false } } }
+          ]
+        }
+        { is_customer: { _eq: true } }
+      ]
     }
-    settings {
-      id
-      ...CompanySettings
-    }
-    ebba_applications(
-      limit: 1
-      order_by: [{ application_date: desc }, { created_at: desc }]
-      where: { status: { _eq: approved } }
-    ) {
-      id
-      ...EbbaApplication
-    }
+    order_by: { name: asc }
+  ) {
+    ...CustomersWithMetadata
   }
 }
 

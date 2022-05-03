@@ -27,6 +27,27 @@ fragment AllCompanyUsersForBank on companies {
   }
 }
 
+fragment CustomersWithMetadata on companies {
+  id
+  ...CustomerForBank
+  financial_summaries(where: { date: { _eq: $date } }) {
+    id
+    ...FinancialSummary
+  }
+  settings {
+    id
+    ...CompanySettings
+  }
+  ebba_applications(
+    limit: 1
+    order_by: [{ application_date: desc }, { created_at: desc }]
+    where: { status: { _eq: approved } }
+  ) {
+    id
+    ...EbbaApplication
+  }
+}
+
 fragment CompanyPayorContact on company_payor_contacts {
   id
   payor_user_id
