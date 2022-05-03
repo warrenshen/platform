@@ -29,7 +29,9 @@ export default function ClientSurveillanceDashboardTab() {
     alert(`Error in query (details in console): ${error.message}`);
   }
 
-  const customers = useFilterCustomers(searchQuery, data) as Companies[];
+  const customers = useFilterCustomers(searchQuery, data).filter(
+    ({ financial_summaries }) => financial_summaries[0]?.product_type
+  ) as Companies[];
 
   const handleSelectCompanies = useMemo(
     () => (companies: Companies[]) =>
