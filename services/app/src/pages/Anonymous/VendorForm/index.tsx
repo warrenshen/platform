@@ -98,12 +98,16 @@ export default function VendorFormPage() {
 
   const [errorMessage, setErrorMessage] = useState("");
 
-  const { data, loading } = useGetCompanyForVendorOnboardingQuery({
+  const { data, loading, error } = useGetCompanyForVendorOnboardingQuery({
     fetchPolicy: "network-only",
     variables: {
       id: companyId,
     },
   });
+
+  if (error) {
+    console.log({ error });
+  }
 
   // Wait until we're done fetching the company details
   if (loading) {

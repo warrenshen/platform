@@ -121,10 +121,8 @@ export default function App() {
         <Route
           exact
           path={anonymousRoutes.createVendor}
-          requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
-        >
-          <VendorFormPage />
-        </Route>
+          component={VendorFormPage}
+        />
         <Route
           exact
           path={anonymousRoutes.createVendorComplete}
