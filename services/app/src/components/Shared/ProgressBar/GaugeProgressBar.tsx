@@ -40,11 +40,14 @@ const Copy = styled.div`
   justify-content: center;
 `;
 
-const TitleText = styled(Typography)<{ valueFontSize: number }>`
-  color: rgba(118, 147, 98, 1);
-  font-size: ${(props) => props.valueFontSize.toString() + "px"};
+const TitleText = styled(Typography)<{ fontSize: number; fontColor: string }>`
+  color: ${(props) => props.fontColor};
+  font-size: ${(props) => props.fontSize.toString() + "px"};
   font-weight: 400;
 `;
+
+const green = "rgba(118, 147, 98, 1)";
+const orange = "rgba(230, 126, 34, 1)";
 
 const BorderCircularProgress = withStyles((theme) => ({
   root: {
@@ -77,6 +80,12 @@ const useStyles = makeStyles((theme) => ({
   bottom: {
     color: "rgba(122, 151, 101, 0.15)",
   },
+  underMax: {
+    color: green,
+  },
+  overMax: {
+    color: orange,
+  },
   top: {
     color: "#1a90ff",
     animationDuration: "550ms",
@@ -105,6 +114,9 @@ export default function GaugeProgressBar({
 }: Props) {
   const classes = useStyles();
 
+  const isOverMax = !!value && value > 100;
+  const cappedValue = !value ? 0.0 : isOverMax ? 100.0 : value;
+
   return (
     <Container
       containerWidth={containerWidth}
@@ -122,11 +134,15 @@ export default function GaugeProgressBar({
           variant={"determinate"}
           size={containerWidth}
           thickness={1}
-          value={(value || 0.0) * 0.5}
+          value={cappedValue * 0.5}
+          className={!!isOverMax ? classes.overMax : ""}
         />
       </Gauge>
       <Copy>
-        <TitleText valueFontSize={valueFontSize}>
+        <TitleText
+          fontSize={valueFontSize}
+          fontColor={!!isOverMax ? orange : green}
+        >
           {value !== null ? `${value}%` : "TBD"}
         </TitleText>
         <Typography variant="body1" color="textSecondary">
