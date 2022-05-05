@@ -8,6 +8,7 @@ import {
   makeStyles,
   Theme,
 } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import {
   CurrentUserContext,
   isRoleBankUser,
@@ -21,6 +22,7 @@ import {
   useUpdateBankAccountMutation,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
+import { formatDateString } from "lib/date";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useMemo, useState } from "react";
 
@@ -181,6 +183,9 @@ export default function CreateUpdateBankAccountModal({
     }
   };
 
+  const isExistingVerifiedBankEditingDisabled =
+    !isBankUser && !!existingBankAccount && !!bankAccount.verified_at;
+
   const isSubmitDisabled =
     isAddBankAccountLoading ||
     isUpdateBankAccountLoading ||
@@ -188,7 +193,8 @@ export default function CreateUpdateBankAccountModal({
     !bankAccount.account_title ||
     !bankAccount.account_type ||
     !bankAccount.account_number ||
-    (bankAccount.verified_at && !bankAccount.verified_date);
+    (bankAccount.verified_at && !bankAccount.verified_date) ||
+    isExistingVerifiedBankEditingDisabled;
 
   return (
     <Dialog
@@ -201,10 +207,22 @@ export default function CreateUpdateBankAccountModal({
         {existingBankAccount ? "Update Bank Account" : "Add Bank Account"}
       </DialogTitle>
       <DialogContent>
+        {isExistingVerifiedBankEditingDisabled && (
+          <Alert severity="info">
+            This bank account was verified on{" "}
+            {formatDateString(bankAccount.verified_date)}. Verified bank
+            accounts cannot be edited without bank support. Please contact{" "}
+            <a href="mailto:support@bespokefinancial.com">
+              support@bespokefinancial.com
+            </a>{" "}
+            if you need assistance with this.
+          </Alert>
+        )}
         <BankAccountForm
           role={role}
           bankAccount={bankAccount}
           setBankAccount={setBankAccount}
+          isFormDisabled={isExistingVerifiedBankEditingDisabled}
         />
         <Box display="flex" flexDirection="row-reverse" my={3}>
           <Button

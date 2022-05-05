@@ -19,12 +19,14 @@ interface Props {
   role: UserRolesEnum;
   bankAccount: BankAccountsInsertInput;
   setBankAccount: (update: BankAccountsInsertInput) => void;
+  isFormDisabled?: boolean;
 }
 
 export default function BankAccountForm({
   bankAccount,
   setBankAccount,
   role,
+  isFormDisabled = false,
 }: Props) {
   const classes = useStyles();
 
@@ -39,6 +41,7 @@ export default function BankAccountForm({
           onChange={({ target: { value } }) =>
             setBankAccount({ ...bankAccount, bank_name: value })
           }
+          disabled={isFormDisabled}
         />
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>
@@ -50,6 +53,7 @@ export default function BankAccountForm({
           onChange={({ target: { value } }) =>
             setBankAccount({ ...bankAccount, account_title: value })
           }
+          disabled={isFormDisabled}
         />
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>
@@ -62,6 +66,7 @@ export default function BankAccountForm({
           onChange={({ target: { value } }) =>
             setBankAccount({ ...bankAccount, account_type: value })
           }
+          disabled={isFormDisabled}
         />
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>
@@ -73,6 +78,7 @@ export default function BankAccountForm({
           onChange={({ target: { value } }) =>
             setBankAccount({ ...bankAccount, account_number: value })
           }
+          disabled={isFormDisabled}
         />
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>
@@ -91,6 +97,7 @@ export default function BankAccountForm({
                 })
               }
               color="primary"
+              disabled={isFormDisabled}
             />
           }
           label={"ACH"}
@@ -107,6 +114,7 @@ export default function BankAccountForm({
               onChange={({ target: { value } }) =>
                 setBankAccount({ ...bankAccount, routing_number: value })
               }
+              disabled={isFormDisabled}
             />
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
@@ -120,6 +128,7 @@ export default function BankAccountForm({
                   ach_default_memo: value,
                 })
               }
+              disabled={isFormDisabled}
             />
           </Box>
           {role === UserRolesEnum.BankAdmin && (
@@ -138,6 +147,7 @@ export default function BankAccountForm({
                     torrey_pines_template_name: value,
                   })
                 }
+                disabled={isFormDisabled}
               />
             </Box>
           )}
@@ -166,6 +176,7 @@ export default function BankAccountForm({
                 })
               }
               color="primary"
+              disabled={isFormDisabled}
             />
           }
           label={"Wire"}
@@ -189,6 +200,7 @@ export default function BankAccountForm({
                     })
                   }
                   color="primary"
+                  disabled={isFormDisabled}
                 />
               }
               label={"Is intermediary bank?"}
@@ -208,6 +220,7 @@ export default function BankAccountForm({
                       intermediary_bank_name: value,
                     })
                   }
+                  disabled={isFormDisabled}
                 />
               </Box>
               <Box display="flex" flexDirection="column" mt={2}>
@@ -222,6 +235,7 @@ export default function BankAccountForm({
                       intermediary_bank_address: value,
                     })
                   }
+                  disabled={isFormDisabled}
                 />
               </Box>
               <Box display="flex" flexDirection="column" mt={2}>
@@ -236,6 +250,7 @@ export default function BankAccountForm({
                       intermediary_account_name: value,
                     })
                   }
+                  disabled={isFormDisabled}
                 />
               </Box>
               <Box display="flex" flexDirection="column" mt={2}>
@@ -250,6 +265,7 @@ export default function BankAccountForm({
                       intermediary_account_number: value,
                     })
                   }
+                  disabled={isFormDisabled}
                 />
               </Box>
             </Box>
@@ -262,6 +278,7 @@ export default function BankAccountForm({
               onChange={({ target: { value } }) =>
                 setBankAccount({ ...bankAccount, wire_routing_number: value })
               }
+              disabled={isFormDisabled}
             />
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
@@ -273,6 +290,7 @@ export default function BankAccountForm({
               onChange={({ target: { value } }) =>
                 setBankAccount({ ...bankAccount, recipient_address: value })
               }
+              disabled={isFormDisabled}
             />
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
@@ -284,6 +302,7 @@ export default function BankAccountForm({
               onChange={({ target: { value } }) =>
                 setBankAccount({ ...bankAccount, recipient_address_2: value })
               }
+              disabled={isFormDisabled}
             />
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
@@ -297,6 +316,7 @@ export default function BankAccountForm({
                   wire_default_memo: value,
                 })
               }
+              disabled={isFormDisabled}
             />
           </Box>
           {role === UserRolesEnum.BankAdmin && (
@@ -314,6 +334,7 @@ export default function BankAccountForm({
                     wire_template_name: value,
                   })
                 }
+                disabled={isFormDisabled}
               />
             </Box>
           )}
@@ -329,6 +350,7 @@ export default function BankAccountForm({
                     bank_address: value,
                   })
                 }
+                disabled={isFormDisabled}
               />
             </Box>
           )}
@@ -349,6 +371,7 @@ export default function BankAccountForm({
                   });
                 }}
                 color="primary"
+                disabled={isFormDisabled}
               />
             }
             label={"Is cannabis compliant?"}
@@ -369,6 +392,7 @@ export default function BankAccountForm({
                   })
                 }
                 color="primary"
+                disabled={isFormDisabled}
               />
             }
             label={"Is bank account transfer verified?"}
