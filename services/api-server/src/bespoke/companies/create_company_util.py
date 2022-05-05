@@ -11,6 +11,7 @@ from bespoke.db.db_constants import CompanyDebtFacilityStatus, CompanyType, TwoF
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util
 from mypy_extensions import TypedDict
+from sqlalchemy.sql import or_
 from sqlalchemy.orm.session import Session
 
 # Should match with the graphql types for inserting objects into the DB.
@@ -764,6 +765,41 @@ def create_partnership_new(
 			partnership_req=partnership_req,
 			session=session,
 		)
+
+		request_info = cast(PartnershipRequestRequestInfoDict, partnership_req.request_info)
+
+		existing_bank_account = cast(
+			models.BankAccount,
+			session.query(models.BankAccount).filter(
+				models.BankAccount.company_id == company_id
+			).filter(
+				models.BankAccount.account_number == request_info.get('bank_account_number'),
+			).filter(
+				or_(
+					models.BankAccount.routing_number == request_info.get('bank_ach_routing_number'),
+					models.BankAccount.wire_routing_number == request_info.get('bank_wire_routing_number'),
+				)
+			).first()
+		)
+
+		if not existing_bank_account:
+			# Add bank account
+			bank_account = models.BankAccount( # type: ignore
+				company_id=company_id,
+				bank_name=request_info.get('bank_name'),
+				account_type=request_info.get('bank_account_name'),
+				account_number=request_info.get('bank_account_number'),
+				routing_number=request_info.get('bank_ach_routing_number'),
+				wire_routing_number=request_info.get('bank_wire_routing_number'),
+				can_ach=bool(request_info.get('bank_ach_routing_number')),
+				can_wire=bool(request_info.get('bank_wire_routing_number')),
+				recipient_address=request_info.get('beneficiary_address'),
+				bank_instructions_file_id=request_info.get('bank_instructions_attachment_id', None),
+				is_cannabis_compliant=True,
+				verified_date=date_util.now_as_date(date_util.DEFAULT_TIMEZONE),
+				verified_at=date_util.now(),
+			)
+			session.add(bank_account)
 
 	company = cast(
 		models.Company,
