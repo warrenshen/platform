@@ -19,11 +19,12 @@ const createApolloClient = (user: User) => {
     const accessToken = await getAccessToken();
     // accessToken will be available for authenticated user
     const header = {
-      ...headers,
-      Authorization: !!accessToken ? `Bearer ${accessToken}` : undefined,
-      "X-Hasura-Role": !!accessToken ? user.role : UserRolesEnum.Anonymous,
+      headers: {
+        ...headers,
+        Authorization: !!accessToken ? `Bearer ${accessToken}` : null,
+        "X-Hasura-Role": !!accessToken ? user.role : UserRolesEnum.Anonymous,
+      },
     };
-    console.log(header);
     return header;
   });
 
