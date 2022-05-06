@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import { routes, anonymousRoutes } from "lib/routes";
-import CreateVendorForm from "components/Vendors/CreateVendorForm";
+import CreateVendorPartnershipRequestForm from "components/Vendors/CreateVendorPartnershipRequestForm";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import {
@@ -190,7 +190,7 @@ export default function VendorFormPage() {
         <Typography variant="h5">Vendor Onboarding</Typography>
       </Box>
       <Box className={classes.container}>
-        <CreateVendorForm
+        <CreateVendorPartnershipRequestForm
           companyId={companyId}
           companyName={companyName}
           vendorInput={vendorInput}

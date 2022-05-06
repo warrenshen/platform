@@ -31,22 +31,22 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
+  isLoading: boolean;
   companyId: string;
   companyName: string;
   vendorInput: CreateVendorInput;
   setVendorInput: (vendorInput: CreateVendorInput) => void;
   errorMessage: string;
-  isLoading: boolean;
   handleSubmit: () => void;
 }
 
-export default function CreateVendorForm({
+export default function CreateVendorPartnershipRequestForm({
+  isLoading,
   companyId,
   companyName,
   vendorInput,
   setVendorInput,
   errorMessage,
-  isLoading,
   handleSubmit,
 }: Props) {
   const classes = useStyles();
