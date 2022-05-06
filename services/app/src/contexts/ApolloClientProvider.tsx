@@ -18,13 +18,20 @@ const createApolloClient = (user: User) => {
   const authLink = setContext(async (_, { headers }) => {
     const accessToken = await getAccessToken();
     // accessToken will be available for authenticated user
-    const header = {
-      headers: {
-        ...headers,
-        Authorization: !!accessToken ? `Bearer ${accessToken}` : null,
-        "X-Hasura-Role": !!accessToken ? user.role : UserRolesEnum.Anonymous,
-      },
-    };
+    const header = !!accessToken
+      ? {
+          headers: {
+            ...headers,
+            Authorization: `Bearer ${accessToken}`,
+            "X-Hasura-Role": user.role,
+          },
+        }
+      : {
+          headers: {
+            ...headers,
+            "X-Hasura-Role": UserRolesEnum.Anonymous,
+          },
+        };
     return header;
   });
 
