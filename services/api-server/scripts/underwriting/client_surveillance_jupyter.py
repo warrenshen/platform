@@ -130,11 +130,9 @@ def check_incoming_transfer_package_coverage(
 def calculate_vendor_churn(
     incoming_transfer_df,
     license_list,
-    vc_windown,
     vc_start_date,
     vc_end_date,
-    vc_month_list,
-    vc_month_end,
+    vc_month_list
 ):
     df_vendor_churn = incoming_transfer_df[
         incoming_transfer_df["license_number"].isin(license_list)
@@ -179,10 +177,10 @@ def calculate_vendor_churn(
         )
         .reset_index()
         .drop(["level_1"], axis=1)
-    )
+    ).round(2)
 
     rolling_4m_sum = vc_full.groupby("shipper_facility_name").apply(
-        lambda df: df.set_index("year_month").sort_index().rolling(vc_windown).sum()
+        lambda df: df.set_index("year_month").sort_index().rolling(4).sum()
     )
     rolling_4m_sum.columns = ["rolling_4m_total_price"]
     facility_monthly_running_total = vc_full.groupby("shipper_facility_name").apply(
@@ -209,7 +207,7 @@ def calculate_vendor_churn(
         )
         .reset_index()
         .merge(monthly_running_total, how="left", on="year_month")
-    )
+    ).round(2)
     vc_result["%_total"] = (
         vc_result["facility_running_total"] / vc_result["monthly_running_total"]
     )
@@ -306,7 +304,7 @@ def calculate_vendor_churn_short(
         )
         .reset_index()
         .drop(["level_1"], axis=1)
-    )
+    ).round(2)
 
     # cast any purchase under $ 100 to be 0
     indices = vc_full[vc_full["shipper_wholesale_price"] < 100].index.to_list()
@@ -346,7 +344,7 @@ def calculate_vendor_churn_short(
         )
         .reset_index()
         .merge(monthly_running_total, how="left", on="year_month")
-    )
+    ).round(2)
     vc_result["%_total"] = (
         vc_result["facility_running_total"] / vc_result["monthly_running_total"]
     )
