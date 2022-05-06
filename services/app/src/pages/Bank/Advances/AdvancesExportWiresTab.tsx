@@ -3,7 +3,11 @@ import { Alert } from "@material-ui/lab";
 import WireAdvancesDataGrid from "components/Advances/WireAdvancesDataGrid";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import { useGetAdvancesByMethodAndPaymentDateQuery } from "generated/graphql";
-import { todayAsDateStringServer } from "lib/date";
+import {
+  DateFormatFileName,
+  formatDateString,
+  todayAsDateStringServer,
+} from "lib/date";
 import { AdvanceMethodEnum } from "lib/enum";
 import { useState } from "react";
 import styled from "styled-components";
@@ -57,7 +61,14 @@ export default function BankAdvancesExportWiresTab() {
             </Typography>
           </Alert>
         </Box>
-        <WireAdvancesDataGrid payments={payments} />
+        <WireAdvancesDataGrid
+          isExcelExport
+          exportFileName={`Wires ${formatDateString(
+            selectedDate,
+            DateFormatFileName
+          )}`}
+          payments={payments}
+        />
       </Box>
     </Container>
   );

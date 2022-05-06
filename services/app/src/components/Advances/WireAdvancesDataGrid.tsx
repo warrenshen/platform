@@ -3,7 +3,7 @@ import PaymentDrawerLauncher from "components/Payment/PaymentDrawerLauncher";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import { GetAdvancesByMethodAndPaymentDateQuery } from "generated/graphql";
 import { formatDateString } from "lib/date";
-import { ColumnWidths } from "lib/tables";
+import { ColumnWidths, formatRowModel } from "lib/tables";
 import { useMemo } from "react";
 
 function getRows(
@@ -13,7 +13,7 @@ function getRows(
     const bespokeBankAccount = payment.company_bank_account;
     const recipientBankAccount = payment.recipient_bank_account;
     const isIntermediaryBankAccount = !!recipientBankAccount?.is_wire_intermediary;
-    return {
+    return formatRowModel({
       ...payment,
       bespoke_routing_number: bespokeBankAccount?.wire_routing_number,
       bespoke_account_type: bespokeBankAccount?.account_type,
@@ -34,17 +34,19 @@ function getRows(
       recipient_address: recipientBankAccount?.recipient_address,
       recipient_address_2: recipientBankAccount?.recipient_address_2,
       wire_memo: payment.bank_note,
-    };
+    });
   });
 }
 
 interface Props {
   isExcelExport?: boolean;
+  exportFileName?: string;
   payments: GetAdvancesByMethodAndPaymentDateQuery["payments"];
 }
 
 export default function WireAdvancesDataGrid({
   isExcelExport = true,
+  exportFileName,
   payments,
 }: Props) {
   const rows = getRows(payments);
@@ -141,8 +143,9 @@ export default function WireAdvancesDataGrid({
 
   return (
     <ControlledDataGrid
-      exportType={"csv"}
       isExcelExport={isExcelExport}
+      exportFileName={exportFileName}
+      exportFileType={"csv"}
       pager
       dataSource={rows}
       columns={columns}

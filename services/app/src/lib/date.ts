@@ -15,6 +15,7 @@ import { range } from "lodash";
 export const DateFormatClient = "MM/dd/yyyy";
 export const DateFormatClientMonthDayOnly = "MM/dd";
 export const DateFormatClientYearOnly = "yyyy";
+export const DateFormatFileName = "yyyyMMdd"; // Date format used in file names.
 export const MonthFormatClient = "MMMM yyyy (MM/yyyy)";
 export const DateFormatServer = "yyyy-MM-dd";
 export const TimeFormatClient = "hh:mm:ss a";

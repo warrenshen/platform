@@ -99,7 +99,7 @@ export default function AchsDataGrid({
 
   return (
     <ControlledDataGrid
-      exportType="csv"
+      exportFileType="csv"
       isExcelExport={isExcelExport}
       pager
       dataSource={rows}

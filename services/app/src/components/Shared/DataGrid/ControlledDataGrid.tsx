@@ -24,9 +24,10 @@ import {
 } from "react";
 
 interface DataGridProps {
-  exportType?: "csv" | "xlsx";
-  isExcelExport?: boolean;
   isSortingDisabled?: boolean;
+  isExcelExport?: boolean;
+  exportFileName?: string;
+  exportFileType?: "csv" | "xlsx";
   dataSource?: any[];
   columns: IColumnProps[];
   pager?: boolean;
@@ -50,9 +51,10 @@ interface DataGridProps {
 const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
   (
     {
-      exportType = "xlsx",
-      isExcelExport = true,
       isSortingDisabled = false,
+      isExcelExport = true,
+      exportFileName,
+      exportFileType = "xlsx",
       dataSource,
       columns,
       pageSize = 10,
@@ -124,7 +126,7 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
     );
 
     const onExporting = function (event: any) {
-      if (exportType === "csv") {
+      if (exportFileType === "csv") {
         const workbook = new Workbook();
         const worksheet = workbook.addWorksheet("Main sheet");
 
@@ -141,7 +143,7 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
           workbook.csv.writeBuffer().then(function (buffer) {
             saveAs(
               new Blob([buffer], { type: "application/octet-stream" }),
-              "Report.csv"
+              `${exportFileName || "Report"}.${exportFileType}`
             );
           });
         });
