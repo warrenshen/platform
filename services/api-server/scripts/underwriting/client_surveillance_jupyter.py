@@ -627,6 +627,7 @@ def cogs_analysis(
         ]
     df_summary_simp["revenue_change"] = df_summary_simp["revenue"].pct_change().values
     df_summary_simp.index = df_summary_simp.date
+    df_summary_simp = df_summary_simp.round(2)
 
     return df_summary_simp, df_cogs_average_product
 
@@ -913,11 +914,11 @@ def calculate_inventory_valuation(
     # prepare data
     data = [
         [today_date],
-        [total_inv_value],
-        [total_inv_value_after_tax],
+        [round(total_inv_value,2)],
+        [round(total_inv_value_after_tax,2)],
         [inv_total_incoming],
         [inv_count_total],
-        [inventory_coverage],
+        [round(inventory_coverage,2)],
         [license_list],
         [legal_name],
     ]
@@ -995,10 +996,10 @@ def calculate_msrp_based_inventory_valuation(
     # prepare data
     data = [
         [today_date],
-        [total_inv_value],
+        [round(total_inv_value,2)],
         [inv_total_mapped],
         [inv_count_total],
-        [inventory_coverage],
+        [round(inventory_coverage,2)],
         [license_list],
         [legal_name],
     ]
