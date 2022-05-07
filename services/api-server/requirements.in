@@ -61,3 +61,6 @@ matplotlib==3.4.3
 
 # Formatting for requirements
 pip-tools==5.4.0
+
+# Tools
+vulture==2.3

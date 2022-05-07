@@ -59,3 +59,8 @@ mypy:
 
 mypy-tests:
 	MYPYPATH=stubs:$(PYTHONPATH) mypy test/unit --config-file=mypy.ini
+
+# code quality 
+
+find-unused-imports:
+	find scripts src test -name "*.py" | tr '\n' '\0' | xargs -0 -n1 vulture | grep "unused import"

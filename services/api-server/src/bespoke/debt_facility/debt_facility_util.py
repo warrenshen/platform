@@ -1,27 +1,16 @@
-import base64
 import datetime
-import json
 import logging
-import os
-import requests
-import time
-from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, cast
+from typing import Callable, Dict, List, Tuple, cast
 from typing import Dict
-from flask import current_app
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.db_constants import (CompanyDebtFacilityStatus, DebtFacilityEventCategory, 
-	LoanDebtFacilityStatus, ProductType, DebtFacilityCapacityTypeEnum)
-from sendgrid.helpers.mail import Attachment, FileContent, FileName, FileType, Disposition
+	LoanDebtFacilityStatus, ProductType)
 from sqlalchemy import and_
 from sqlalchemy.orm.session import Session
 
-
 from bespoke import errors
-from bespoke.config.config_util import is_prod_env
 from bespoke.metrc.common.metrc_common_util import chunker
-from server.config import Config
-from server.views.common import auth_util
 
 def _check_if_status_change_moves_loans_to_update_required(
 	old_debt_facility_status: str, 
