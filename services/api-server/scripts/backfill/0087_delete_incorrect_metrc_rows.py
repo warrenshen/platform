@@ -6,13 +6,13 @@ import os
 import sys
 import time
 from os import path
-from typing import Any,  Callable, Dict, List, cast
+from typing import Callable, List, cast
 
 # Path hack before we try to import bespoke
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
 
-from bespoke.db import db_constants, metrc_models_util, models
+from bespoke.db import models
 
 class Filter(object):
 

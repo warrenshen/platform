@@ -13,7 +13,7 @@ from string import Template
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
 
-from bespoke.db import db_constants, models
+from bespoke.db import models
 from bespoke.finance.loans import sibling_util
 from bespoke.finance import number_util
 
