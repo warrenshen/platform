@@ -4440,6 +4440,215 @@ export enum CompanyPayorPartnershipsUpdateColumn {
   UpdatedAt = "updated_at",
 }
 
+/** This is used to track historical product qualifications for the CS dashboard */
+export type CompanyProductQualifications = {
+  bank_note?: Maybe<Scalars["String"]>;
+  /** An object relationship */
+  company: Companies;
+  company_id: Scalars["uuid"];
+  created_at: Scalars["timestamptz"];
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id: Scalars["uuid"];
+  metadata_info: Scalars["json"];
+  qualifying_date: Scalars["date"];
+  qualifying_product: Scalars["String"];
+  /** An object relationship */
+  submitting_user: Users;
+  submitting_user_id: Scalars["uuid"];
+  updated_at: Scalars["timestamptz"];
+};
+
+/** This is used to track historical product qualifications for the CS dashboard */
+export type CompanyProductQualificationsMetadataInfoArgs = {
+  path?: Maybe<Scalars["String"]>;
+};
+
+/** aggregated selection of "company_product_qualifications" */
+export type CompanyProductQualificationsAggregate = {
+  aggregate?: Maybe<CompanyProductQualificationsAggregateFields>;
+  nodes: Array<CompanyProductQualifications>;
+};
+
+/** aggregate fields of "company_product_qualifications" */
+export type CompanyProductQualificationsAggregateFields = {
+  count: Scalars["Int"];
+  max?: Maybe<CompanyProductQualificationsMaxFields>;
+  min?: Maybe<CompanyProductQualificationsMinFields>;
+};
+
+/** aggregate fields of "company_product_qualifications" */
+export type CompanyProductQualificationsAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<CompanyProductQualificationsSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** Boolean expression to filter rows from the table "company_product_qualifications". All fields are combined with a logical 'AND'. */
+export type CompanyProductQualificationsBoolExp = {
+  _and?: Maybe<Array<CompanyProductQualificationsBoolExp>>;
+  _not?: Maybe<CompanyProductQualificationsBoolExp>;
+  _or?: Maybe<Array<CompanyProductQualificationsBoolExp>>;
+  bank_note?: Maybe<StringComparisonExp>;
+  company?: Maybe<CompaniesBoolExp>;
+  company_id?: Maybe<UuidComparisonExp>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
+  deleted_at?: Maybe<TimestamptzComparisonExp>;
+  id?: Maybe<UuidComparisonExp>;
+  metadata_info?: Maybe<JsonComparisonExp>;
+  qualifying_date?: Maybe<DateComparisonExp>;
+  qualifying_product?: Maybe<StringComparisonExp>;
+  submitting_user?: Maybe<UsersBoolExp>;
+  submitting_user_id?: Maybe<UuidComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
+};
+
+/** unique or primary key constraints on table "company_product_qualifications" */
+export enum CompanyProductQualificationsConstraint {
+  /** unique or primary key constraint */
+  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
+  /** unique or primary key constraint */
+  CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
+}
+
+/** input type for inserting data into table "company_product_qualifications" */
+export type CompanyProductQualificationsInsertInput = {
+  bank_note?: Maybe<Scalars["String"]>;
+  company?: Maybe<CompaniesObjRelInsertInput>;
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  metadata_info?: Maybe<Scalars["json"]>;
+  qualifying_date?: Maybe<Scalars["date"]>;
+  qualifying_product?: Maybe<Scalars["String"]>;
+  submitting_user?: Maybe<UsersObjRelInsertInput>;
+  submitting_user_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** aggregate max on columns */
+export type CompanyProductQualificationsMaxFields = {
+  bank_note?: Maybe<Scalars["String"]>;
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  qualifying_date?: Maybe<Scalars["date"]>;
+  qualifying_product?: Maybe<Scalars["String"]>;
+  submitting_user_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** aggregate min on columns */
+export type CompanyProductQualificationsMinFields = {
+  bank_note?: Maybe<Scalars["String"]>;
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  qualifying_date?: Maybe<Scalars["date"]>;
+  qualifying_product?: Maybe<Scalars["String"]>;
+  submitting_user_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** response of any mutation on the table "company_product_qualifications" */
+export type CompanyProductQualificationsMutationResponse = {
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data from the rows affected by the mutation */
+  returning: Array<CompanyProductQualifications>;
+};
+
+/** on_conflict condition type for table "company_product_qualifications" */
+export type CompanyProductQualificationsOnConflict = {
+  constraint: CompanyProductQualificationsConstraint;
+  update_columns?: Array<CompanyProductQualificationsUpdateColumn>;
+  where?: Maybe<CompanyProductQualificationsBoolExp>;
+};
+
+/** Ordering options when selecting data from "company_product_qualifications". */
+export type CompanyProductQualificationsOrderBy = {
+  bank_note?: Maybe<OrderBy>;
+  company?: Maybe<CompaniesOrderBy>;
+  company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  deleted_at?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  metadata_info?: Maybe<OrderBy>;
+  qualifying_date?: Maybe<OrderBy>;
+  qualifying_product?: Maybe<OrderBy>;
+  submitting_user?: Maybe<UsersOrderBy>;
+  submitting_user_id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: company_product_qualifications */
+export type CompanyProductQualificationsPkColumnsInput = {
+  id: Scalars["uuid"];
+};
+
+/** select columns of table "company_product_qualifications" */
+export enum CompanyProductQualificationsSelectColumn {
+  /** column name */
+  BankNote = "bank_note",
+  /** column name */
+  CompanyId = "company_id",
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  DeletedAt = "deleted_at",
+  /** column name */
+  Id = "id",
+  /** column name */
+  MetadataInfo = "metadata_info",
+  /** column name */
+  QualifyingDate = "qualifying_date",
+  /** column name */
+  QualifyingProduct = "qualifying_product",
+  /** column name */
+  SubmittingUserId = "submitting_user_id",
+  /** column name */
+  UpdatedAt = "updated_at",
+}
+
+/** input type for updating data in table "company_product_qualifications" */
+export type CompanyProductQualificationsSetInput = {
+  bank_note?: Maybe<Scalars["String"]>;
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  metadata_info?: Maybe<Scalars["json"]>;
+  qualifying_date?: Maybe<Scalars["date"]>;
+  qualifying_product?: Maybe<Scalars["String"]>;
+  submitting_user_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** update columns of table "company_product_qualifications" */
+export enum CompanyProductQualificationsUpdateColumn {
+  /** column name */
+  BankNote = "bank_note",
+  /** column name */
+  CompanyId = "company_id",
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  DeletedAt = "deleted_at",
+  /** column name */
+  Id = "id",
+  /** column name */
+  MetadataInfo = "metadata_info",
+  /** column name */
+  QualifyingDate = "qualifying_date",
+  /** column name */
+  QualifyingProduct = "qualifying_product",
+  /** column name */
+  SubmittingUserId = "submitting_user_id",
+  /** column name */
+  UpdatedAt = "updated_at",
+}
+
 /** Settings are configuration details associated with a company, but are not within a time range like contracts are */
 export type CompanySettings = {
   /** An object relationship */
@@ -15261,6 +15470,10 @@ export type MutationRoot = {
   delete_company_payor_partnerships?: Maybe<CompanyPayorPartnershipsMutationResponse>;
   /** delete single row from the table: "company_payor_partnerships" */
   delete_company_payor_partnerships_by_pk?: Maybe<CompanyPayorPartnerships>;
+  /** delete data from the table: "company_product_qualifications" */
+  delete_company_product_qualifications?: Maybe<CompanyProductQualificationsMutationResponse>;
+  /** delete single row from the table: "company_product_qualifications" */
+  delete_company_product_qualifications_by_pk?: Maybe<CompanyProductQualifications>;
   /** delete data from the table: "company_settings" */
   delete_company_settings?: Maybe<CompanySettingsMutationResponse>;
   /** delete single row from the table: "company_settings" */
@@ -15493,6 +15706,10 @@ export type MutationRoot = {
   insert_company_payor_partnerships?: Maybe<CompanyPayorPartnershipsMutationResponse>;
   /** insert a single row into the table: "company_payor_partnerships" */
   insert_company_payor_partnerships_one?: Maybe<CompanyPayorPartnerships>;
+  /** insert data into the table: "company_product_qualifications" */
+  insert_company_product_qualifications?: Maybe<CompanyProductQualificationsMutationResponse>;
+  /** insert a single row into the table: "company_product_qualifications" */
+  insert_company_product_qualifications_one?: Maybe<CompanyProductQualifications>;
   /** insert data into the table: "company_settings" */
   insert_company_settings?: Maybe<CompanySettingsMutationResponse>;
   /** insert a single row into the table: "company_settings" */
@@ -15729,6 +15946,10 @@ export type MutationRoot = {
   update_company_payor_partnerships?: Maybe<CompanyPayorPartnershipsMutationResponse>;
   /** update single row of the table: "company_payor_partnerships" */
   update_company_payor_partnerships_by_pk?: Maybe<CompanyPayorPartnerships>;
+  /** update data of the table: "company_product_qualifications" */
+  update_company_product_qualifications?: Maybe<CompanyProductQualificationsMutationResponse>;
+  /** update single row of the table: "company_product_qualifications" */
+  update_company_product_qualifications_by_pk?: Maybe<CompanyProductQualifications>;
   /** update data of the table: "company_settings" */
   update_company_settings?: Maybe<CompanySettingsMutationResponse>;
   /** update single row of the table: "company_settings" */
@@ -16032,6 +16253,16 @@ export type MutationRootDeleteCompanyPayorPartnershipsArgs = {
 
 /** mutation root */
 export type MutationRootDeleteCompanyPayorPartnershipsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** mutation root */
+export type MutationRootDeleteCompanyProductQualificationsArgs = {
+  where: CompanyProductQualificationsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteCompanyProductQualificationsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -16640,6 +16871,18 @@ export type MutationRootInsertCompanyPayorPartnershipsArgs = {
 export type MutationRootInsertCompanyPayorPartnershipsOneArgs = {
   object: CompanyPayorPartnershipsInsertInput;
   on_conflict?: Maybe<CompanyPayorPartnershipsOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertCompanyProductQualificationsArgs = {
+  objects: Array<CompanyProductQualificationsInsertInput>;
+  on_conflict?: Maybe<CompanyProductQualificationsOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertCompanyProductQualificationsOneArgs = {
+  object: CompanyProductQualificationsInsertInput;
+  on_conflict?: Maybe<CompanyProductQualificationsOnConflict>;
 };
 
 /** mutation root */
@@ -17360,6 +17603,18 @@ export type MutationRootUpdateCompanyPayorPartnershipsArgs = {
 export type MutationRootUpdateCompanyPayorPartnershipsByPkArgs = {
   _set?: Maybe<CompanyPayorPartnershipsSetInput>;
   pk_columns: CompanyPayorPartnershipsPkColumnsInput;
+};
+
+/** mutation root */
+export type MutationRootUpdateCompanyProductQualificationsArgs = {
+  _set?: Maybe<CompanyProductQualificationsSetInput>;
+  where: CompanyProductQualificationsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateCompanyProductQualificationsByPkArgs = {
+  _set?: Maybe<CompanyProductQualificationsSetInput>;
+  pk_columns: CompanyProductQualificationsPkColumnsInput;
 };
 
 /** mutation root */
@@ -20647,6 +20902,12 @@ export type QueryRoot = {
   company_payor_partnerships_aggregate: CompanyPayorPartnershipsAggregate;
   /** fetch data from the table: "company_payor_partnerships" using primary key columns */
   company_payor_partnerships_by_pk?: Maybe<CompanyPayorPartnerships>;
+  /** fetch data from the table: "company_product_qualifications" */
+  company_product_qualifications: Array<CompanyProductQualifications>;
+  /** fetch aggregated fields from the table: "company_product_qualifications" */
+  company_product_qualifications_aggregate: CompanyProductQualificationsAggregate;
+  /** fetch data from the table: "company_product_qualifications" using primary key columns */
+  company_product_qualifications_by_pk?: Maybe<CompanyProductQualifications>;
   /** fetch data from the table: "company_settings" */
   company_settings: Array<CompanySettings>;
   /** fetch aggregated fields from the table: "company_settings" */
@@ -21164,6 +21425,26 @@ export type QueryRootCompanyPayorPartnershipsAggregateArgs = {
 };
 
 export type QueryRootCompanyPayorPartnershipsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+export type QueryRootCompanyProductQualificationsArgs = {
+  distinct_on?: Maybe<Array<CompanyProductQualificationsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyProductQualificationsOrderBy>>;
+  where?: Maybe<CompanyProductQualificationsBoolExp>;
+};
+
+export type QueryRootCompanyProductQualificationsAggregateArgs = {
+  distinct_on?: Maybe<Array<CompanyProductQualificationsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyProductQualificationsOrderBy>>;
+  where?: Maybe<CompanyProductQualificationsBoolExp>;
+};
+
+export type QueryRootCompanyProductQualificationsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -22431,6 +22712,12 @@ export type SubscriptionRoot = {
   company_payor_partnerships_aggregate: CompanyPayorPartnershipsAggregate;
   /** fetch data from the table: "company_payor_partnerships" using primary key columns */
   company_payor_partnerships_by_pk?: Maybe<CompanyPayorPartnerships>;
+  /** fetch data from the table: "company_product_qualifications" */
+  company_product_qualifications: Array<CompanyProductQualifications>;
+  /** fetch aggregated fields from the table: "company_product_qualifications" */
+  company_product_qualifications_aggregate: CompanyProductQualificationsAggregate;
+  /** fetch data from the table: "company_product_qualifications" using primary key columns */
+  company_product_qualifications_by_pk?: Maybe<CompanyProductQualifications>;
   /** fetch data from the table: "company_settings" */
   company_settings: Array<CompanySettings>;
   /** fetch aggregated fields from the table: "company_settings" */
@@ -22948,6 +23235,26 @@ export type SubscriptionRootCompanyPayorPartnershipsAggregateArgs = {
 };
 
 export type SubscriptionRootCompanyPayorPartnershipsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+export type SubscriptionRootCompanyProductQualificationsArgs = {
+  distinct_on?: Maybe<Array<CompanyProductQualificationsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyProductQualificationsOrderBy>>;
+  where?: Maybe<CompanyProductQualificationsBoolExp>;
+};
+
+export type SubscriptionRootCompanyProductQualificationsAggregateArgs = {
+  distinct_on?: Maybe<Array<CompanyProductQualificationsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyProductQualificationsOrderBy>>;
+  where?: Maybe<CompanyProductQualificationsBoolExp>;
+};
+
+export type SubscriptionRootCompanyProductQualificationsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -27629,23 +27936,6 @@ export type CompanyBankAccountsQueryVariables = Exact<{
 
 export type CompanyBankAccountsQuery = {
   bank_accounts: Array<BankAccountFragment>;
-};
-
-export type AddBankAccountMutationVariables = Exact<{
-  bankAccount: BankAccountsInsertInput;
-}>;
-
-export type AddBankAccountMutation = {
-  insert_bank_accounts_one?: Maybe<Pick<BankAccounts, "id">>;
-};
-
-export type UpdateBankAccountMutationVariables = Exact<{
-  id: Scalars["uuid"];
-  bankAccount?: Maybe<BankAccountsSetInput>;
-}>;
-
-export type UpdateBankAccountMutation = {
-  update_bank_accounts_by_pk?: Maybe<Pick<BankAccounts, "id">>;
 };
 
 export type ChangeBankAccountMutationVariables = Exact<{
@@ -38775,106 +39065,6 @@ export type CompanyBankAccountsLazyQueryHookResult = ReturnType<
 export type CompanyBankAccountsQueryResult = Apollo.QueryResult<
   CompanyBankAccountsQuery,
   CompanyBankAccountsQueryVariables
->;
-export const AddBankAccountDocument = gql`
-  mutation AddBankAccount($bankAccount: bank_accounts_insert_input!) {
-    insert_bank_accounts_one(object: $bankAccount) {
-      id
-    }
-  }
-`;
-export type AddBankAccountMutationFn = Apollo.MutationFunction<
-  AddBankAccountMutation,
-  AddBankAccountMutationVariables
->;
-
-/**
- * __useAddBankAccountMutation__
- *
- * To run a mutation, you first call `useAddBankAccountMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAddBankAccountMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [addBankAccountMutation, { data, loading, error }] = useAddBankAccountMutation({
- *   variables: {
- *      bankAccount: // value for 'bankAccount'
- *   },
- * });
- */
-export function useAddBankAccountMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    AddBankAccountMutation,
-    AddBankAccountMutationVariables
-  >
-) {
-  return Apollo.useMutation<
-    AddBankAccountMutation,
-    AddBankAccountMutationVariables
-  >(AddBankAccountDocument, baseOptions);
-}
-export type AddBankAccountMutationHookResult = ReturnType<
-  typeof useAddBankAccountMutation
->;
-export type AddBankAccountMutationResult = Apollo.MutationResult<AddBankAccountMutation>;
-export type AddBankAccountMutationOptions = Apollo.BaseMutationOptions<
-  AddBankAccountMutation,
-  AddBankAccountMutationVariables
->;
-export const UpdateBankAccountDocument = gql`
-  mutation UpdateBankAccount(
-    $id: uuid!
-    $bankAccount: bank_accounts_set_input
-  ) {
-    update_bank_accounts_by_pk(pk_columns: { id: $id }, _set: $bankAccount) {
-      id
-    }
-  }
-`;
-export type UpdateBankAccountMutationFn = Apollo.MutationFunction<
-  UpdateBankAccountMutation,
-  UpdateBankAccountMutationVariables
->;
-
-/**
- * __useUpdateBankAccountMutation__
- *
- * To run a mutation, you first call `useUpdateBankAccountMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateBankAccountMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateBankAccountMutation, { data, loading, error }] = useUpdateBankAccountMutation({
- *   variables: {
- *      id: // value for 'id'
- *      bankAccount: // value for 'bankAccount'
- *   },
- * });
- */
-export function useUpdateBankAccountMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UpdateBankAccountMutation,
-    UpdateBankAccountMutationVariables
-  >
-) {
-  return Apollo.useMutation<
-    UpdateBankAccountMutation,
-    UpdateBankAccountMutationVariables
-  >(UpdateBankAccountDocument, baseOptions);
-}
-export type UpdateBankAccountMutationHookResult = ReturnType<
-  typeof useUpdateBankAccountMutation
->;
-export type UpdateBankAccountMutationResult = Apollo.MutationResult<UpdateBankAccountMutation>;
-export type UpdateBankAccountMutationOptions = Apollo.BaseMutationOptions<
-  UpdateBankAccountMutation,
-  UpdateBankAccountMutationVariables
 >;
 export const ChangeBankAccountDocument = gql`
   mutation ChangeBankAccount(

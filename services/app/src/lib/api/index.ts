@@ -151,6 +151,8 @@ export const feesRoutes = {
 
 export const bankAccountsRoutes = {
   deleteBankAccount: "/bank_accounts/delete_bank_account",
+  createBankAccount: "/bank_accounts/create_bank_account",
+  updateBankAccount: "/bank_accounts/update_bank_account",
 };
 
 export const creditsRoutes = {

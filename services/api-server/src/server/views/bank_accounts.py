@@ -1,13 +1,19 @@
 import json
 import logging
 from decimal import *
-from typing import Any
+from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, cast
 
+from bespoke import errors
+from bespoke.email import sendgrid_util
+from bespoke.finance.bank_accounts import bank_account_util
+from bespoke.finance.bank_accounts.bank_account_util import BankAccountInputDict
 from bespoke.reports.report_generation_util import *
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
-from server.config import get_config
+from server.config import get_config, get_email_client_config
 from server.views.common import auth_util, handler_util
+from sqlalchemy import (JSON, BigInteger, Boolean, Column, Date, DateTime,
+                        ForeignKey, Integer, Numeric, String, Text)
 
 handler = Blueprint("bank_accounts", __name__)
 config = get_config()
@@ -47,8 +53,128 @@ class DeleteBankAccountView(MethodView):
             )
         )
 
+class CreateBankAccountView(MethodView):
+    decorators = [auth_util.login_required]
+
+    @handler_util.catch_bad_json_request
+    def post(self, **kwargs: Any) -> Response:
+        logging.info("Creating bank account")
+        cfg = cast(Config, current_app.app_config)
+        sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
+        if sendgrid_client is None:
+            raise errors.Error("Cannot load SendGrid client")
+
+        form = json.loads(request.data)
+        if not form:
+            return handler_util.make_error_response('No data provided')
+
+        required_keys = ['bankAccount']
+
+        for key in required_keys:
+            if key not in form:
+                return handler_util.make_error_response(f'Missing {key} in response to creating/updating debt facility')
+
+        bank_account_input = form['bankAccount']
+        company_id = bank_account_input['company_id']
+
+        with models.session_scope(current_app.session_maker) as session:
+            user_session = auth_util.UserSession.from_session()
+            user = session.query(models.User).filter(
+                models.User.id == user_session.get_user_id()
+            ).first()
+
+            template_data, err = bank_account_util.add_bank_account(
+                session,
+                user,
+                cast(BankAccountInputDict, bank_account_input),
+                company_id
+            )
+            if err:
+                raise err
+
+            _, err = sendgrid_client.send(
+                template_name=sendgrid_util.TemplateNames.BANK_ACCOUNT_ALERT_CHANGE,
+                template_data=template_data,
+                recipients=["jr@bespokefinancial.com"],
+                filter_out_contact_only=True
+            )
+
+            if err:
+                return make_response(json.dumps({ 'status': 'FAILED', 'resp': "Sendgrid client failed: " + repr(err) }))
+
+        return make_response(
+            json.dumps(
+                {"status": "OK", "resp": "Successfully created the bank account."}
+            )
+        )
+
+class UpdateBankAccountView(MethodView):
+    decorators = [auth_util.login_required]
+
+    @handler_util.catch_bad_json_request
+    def post(self, **kwargs: Any) -> Response:
+        logging.info("Updating bank account")
+        cfg = cast(Config, current_app.app_config)
+        sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
+        if sendgrid_client is None:
+            raise errors.Error("Cannot load SendGrid client")
+
+        form = json.loads(request.data)
+        if not form:
+            return handler_util.make_error_response('No data provided')
+
+        required_keys = ['bankAccountId', 'bankAccount']
+
+        for key in required_keys:
+            if key not in form:
+                return handler_util.make_error_response(f'Missing {key} in response to creating/updating debt facility')
+
+        bank_account_id = form['bankAccountId']
+        bank_account_input = form['bankAccount']
+
+        with models.session_scope(current_app.session_maker) as session:
+            user_session = auth_util.UserSession.from_session()
+            user = session.query(models.User).filter(
+                models.User.id == user_session.get_user_id()
+            ).first()
+
+            template_data, err = bank_account_util.update_bank_account(
+                session,
+                user,
+                user_session.is_bank_admin(),
+                cast(BankAccountInputDict, bank_account_input),
+                bank_account_id
+            )
+            if err:
+                raise err
+            
+            _, err = sendgrid_client.send(
+                template_name=sendgrid_util.TemplateNames.BANK_ACCOUNT_ALERT_CHANGE,
+                template_data=template_data,
+                recipients=["jr@bespokefinancial.com"],
+                filter_out_contact_only=True
+            )
+
+            if err:
+                return make_response(json.dumps({ 'status': 'FAILED', 'resp': "Sendgrid client failed: " + repr(err) }))
+
+        return make_response(
+            json.dumps(
+                {"status": "OK", "resp": "Successfully updated the bank account."}
+            )
+        )
 
 handler.add_url_rule(
     "/delete_bank_account",
-    view_func=DeleteBankAccountView.as_view(name="delete_bank_account"),
+    view_func=DeleteBankAccountView.as_view(name="delete_bank_account_view"),
+)
+
+handler.add_url_rule(
+    "/create_bank_account",
+    view_func=CreateBankAccountView.as_view(name="create_bank_account_view"),
+)
+
+handler.add_url_rule(
+    "/update_bank_account",
+    view_func=UpdateBankAccountView.as_view(name="update_bank_account_view"),
 )

@@ -172,6 +172,13 @@ def load_date_str(date_str: str) -> datetime.date:
 	"""
 	return parser.parse(date_str).date()
 
+def load_datetime_str(datetime_str: str) -> datetime.datetime:
+	"""
+		It is assumed the date is in the format of %Y-%m-%dT%H:%M:%S.%f%z, e.g.
+		2022-03-08T23:51:37.586439+00:00 is March 8th 2022 at 23:51:37 in the UTC timezone
+	"""
+	return parser.parse(datetime_str)
+
 def calculate_ebba_application_expires_at(application_date: datetime.datetime) -> datetime.datetime:
 	return (application_date + relativedelta.relativedelta(months=1)).replace(15)
 

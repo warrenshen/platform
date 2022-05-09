@@ -18,9 +18,12 @@ import {
   BankAccountFragment,
   BankAccountsInsertInput,
   Companies,
-  useAddBankAccountMutation,
-  useUpdateBankAccountMutation,
 } from "generated/graphql";
+import {
+  createBankAccountMutation,
+  updateBankAccountMutation,
+} from "lib/api/bankAccounts";
+import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { formatDateString } from "lib/date";
 import { isNull, mergeWith } from "lodash";
@@ -102,17 +105,18 @@ export default function CreateUpdateBankAccountModal({
   );
 
   const [
-    addBankAccount,
-    { loading: isAddBankAccountLoading },
-  ] = useAddBankAccountMutation();
+    createBankAccount,
+    { loading: isCreateBankAccountLoading },
+  ] = useCustomMutation(createBankAccountMutation);
+
   const [
     updateBankAccount,
     { loading: isUpdateBankAccountLoading },
-  ] = useUpdateBankAccountMutation();
+  ] = useCustomMutation(updateBankAccountMutation);
 
   const prepareBankAccount = (isCreate: boolean) => {
     return {
-      company_id: isCreate && isBankUser ? companyId : undefined,
+      company_id: isCreate ? companyId : undefined,
 
       bank_name: bankAccount.bank_name,
       account_title: bankAccount.account_title,
@@ -150,14 +154,14 @@ export default function CreateUpdateBankAccountModal({
   const handleUpdateBankAccount = async () => {
     await updateBankAccount({
       variables: {
-        id: bankAccount.id,
+        bankAccountId: bankAccount.id,
         bankAccount: prepareBankAccount(false),
       },
     });
   };
 
   const handleCreateBankAccount = async () => {
-    await addBankAccount({
+    await createBankAccount({
       variables: {
         bankAccount: prepareBankAccount(true),
       },
@@ -187,7 +191,7 @@ export default function CreateUpdateBankAccountModal({
     !isBankUser && !!existingBankAccount && !!bankAccount.verified_at;
 
   const isSubmitDisabled =
-    isAddBankAccountLoading ||
+    isCreateBankAccountLoading ||
     isUpdateBankAccountLoading ||
     !bankAccount.bank_name ||
     !bankAccount.account_title ||
@@ -211,7 +215,8 @@ export default function CreateUpdateBankAccountModal({
           <Alert severity="info">
             This bank account was verified on{" "}
             {formatDateString(bankAccount.verified_date)}. Verified bank
-            accounts cannot be edited without bank support. Please contact{" "}
+            accounts cannot be edited without Bespoke Financial support. Please
+            contact{" "}
             <a href="mailto:support@bespokefinancial.com">
               support@bespokefinancial.com
             </a>{" "}

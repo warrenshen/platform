@@ -1,18 +1,21 @@
-import { BankAccountFragment } from "generated/graphql";
+import {
+  BankAccountFragment,
+  BankAccountsInsertInput,
+} from "generated/graphql";
 import {
   authenticatedApi,
   bankAccountsRoutes,
   CustomMutationResponse,
 } from "lib/api";
 
-export type DeleteBankAccountReq = {
+export type DeleteBankAccountMutationReq = {
   variables: {
     bank_account_id: BankAccountFragment["id"];
   };
 };
 
-export async function deleteBankAccount(
-  req: DeleteBankAccountReq
+export async function deleteBankAccountMutation(
+  req: DeleteBankAccountMutationReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
     .post(bankAccountsRoutes.deleteBankAccount, req)
@@ -28,6 +31,63 @@ export async function deleteBankAccount(
         return {
           status: "ERROR",
           msg: "Could not delete the bank account",
+        };
+      }
+    );
+}
+
+export type CreateBankAccountMutationReq = {
+  variables: {
+    bankAccount: BankAccountsInsertInput;
+  };
+};
+
+export async function createBankAccountMutation(
+  req: CreateBankAccountMutationReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(bankAccountsRoutes.createBankAccount, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not create the bank account",
+        };
+      }
+    );
+}
+
+export type UpdateBankAccountMutationReq = {
+  variables: {
+    bankAccountId: BankAccountFragment["id"];
+    bankAccount: BankAccountsInsertInput;
+  };
+};
+
+export async function updateBankAccountMutation(
+  req: UpdateBankAccountMutationReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(bankAccountsRoutes.updateBankAccount, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not update the bank account",
         };
       }
     );
