@@ -159,8 +159,8 @@ class MSRPBand:
         q1 = temp_df[self.default_price_column].quantile(.25)
         q3 = temp_df[self.default_price_column].quantile(.75)
         iqr = q3 - q1
-        maxx = median + iqr * 1.5
-        minn = median - iqr * 1.5
+        maxx = q3 + iqr * 1.5
+        minn = q1 - iqr * 1.5
 
         outlier_df = pd.concat([temp_df[temp_df[self.default_price_column] < minn], temp_df[temp_df[self.default_price_column] > maxx]])
         if self.outlier_df is None:
@@ -254,8 +254,8 @@ class MSRPBand:
         q1 = data[self.default_price_column].quantile(.25)
         q3 = data[self.default_price_column].quantile(.75)
         iqr = q3 - q1
-        maxx = median + iqr * 1.5
-        minn = median - iqr * 1.5
+        maxx = q3 + iqr * 1.5
+        minn = q1 - iqr * 1.5
         self.msrp_summary_table_by_time['lower_confidence_band'] = minn
         self.msrp_summary_table_by_time['lower_confidence_band'][self.msrp_summary_table_by_time['lower_confidence_band'] < 0] = 0
         self.msrp_summary_table_by_time['upper_confidence_band'] = maxx
