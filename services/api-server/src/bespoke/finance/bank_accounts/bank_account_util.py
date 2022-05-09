@@ -91,7 +91,8 @@ def add_bank_account(
 		bank_address = bank_account_input['bank_address'],
 		is_cannabis_compliant = bank_account_input['is_cannabis_compliant'],
 		verified_date = date_util.load_date_str(bank_account_input['verified_date']) \
-			if 'verified_date' in bank_account_input else None,
+			if 'verified_date' in bank_account_input and bank_account_input['verified_date'] is not None \
+			else None,
 		verified_at = date_util.now() if 'verified_date' in bank_account_input \
 			else None
 	))
@@ -164,7 +165,8 @@ def update_bank_account(
 	existing_bank_account.bank_address = bank_account_input['bank_address']
 	existing_bank_account.is_cannabis_compliant = bank_account_input['is_cannabis_compliant']
 	existing_bank_account.verified_date = date_util.load_date_str(bank_account_input['verified_date']) \
-		if 'verified_date' in bank_account_input else None
+		if 'verified_date' in bank_account_input and bank_account_input['verified_date'] is not None \
+		else None
 	existing_bank_account.verified_at = date_util.now() if 'verified_date' in bank_account_input \
 		else existing_bank_account.verified_at
 

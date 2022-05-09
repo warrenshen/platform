@@ -94,7 +94,8 @@ def setup_for_bank_account_test(
 	return user
 
 def prepare_bank_account_info_dict(
-	company_id: str = str(uuid.uuid4())
+	company_id: str = str(uuid.uuid4()),
+	is_verified: bool = True
 ) -> BankAccountInputDict:
 	return BankAccountInputDict(
 		company_id = company_id,
@@ -119,7 +120,7 @@ def prepare_bank_account_info_dict(
 		wire_template_name = 'Test Wire Template Name',
 		bank_address = '456 Main Street, Annapolis, MD 21401',
 		is_cannabis_compliant = True,
-		verified_date = '01/06/2020',
+		verified_date = '01/06/2020' if is_verified else None,
 		verified_at = date_util.datetime_to_str(get_relative_date(TODAY, -92))
 	)
 
@@ -312,6 +313,68 @@ class TestUpdateBankAccountView(db_unittest.TestCase):
 			)
 
 			bank_account_info_dict = prepare_bank_account_info_dict()
+
+			template_data, err = bank_account_util.update_bank_account(
+                session,
+                user,
+                True, # is_bank_admin, set up with user_session in non-test code
+                bank_account_info_dict,
+                bank_account_id
+            )
+			self.assertEqual(None, err)
+			self.assertEqual(template_data["company_name"], "AA Milne")
+			self.assertEqual(template_data["requesting_user"], "Winnie The Pooh")
+			self.assertEqual(template_data["account_last_four"], "6789")
+			message_type = cast(Dict[str, str], template_data["message_type"])
+			self.assertEqual(message_type["is_update"], True)
+			self.assertEqual(message_type["is_create"], False)
+
+	def test_happy_path_bank_user_unverified_to_unverified_case(self) -> None:
+		with session_scope(self.session_maker) as session:
+			bank_account_id = str(uuid.uuid4())
+			company_id = str(uuid.uuid4())
+
+			user = setup_for_bank_account_test(
+				session,
+				bank_account_id,
+				company_id,
+				is_verified = False
+			)
+
+			bank_account_info_dict = prepare_bank_account_info_dict(
+				is_verified = False
+			)
+
+			template_data, err = bank_account_util.update_bank_account(
+                session,
+                user,
+                True, # is_bank_admin, set up with user_session in non-test code
+                bank_account_info_dict,
+                bank_account_id
+            )
+			self.assertEqual(None, err)
+			self.assertEqual(template_data["company_name"], "AA Milne")
+			self.assertEqual(template_data["requesting_user"], "Winnie The Pooh")
+			self.assertEqual(template_data["account_last_four"], "6789")
+			message_type = cast(Dict[str, str], template_data["message_type"])
+			self.assertEqual(message_type["is_update"], True)
+			self.assertEqual(message_type["is_create"], False)
+
+	def test_happy_path_bank_user_verified_to_unverified_case(self) -> None:
+		with session_scope(self.session_maker) as session:
+			bank_account_id = str(uuid.uuid4())
+			company_id = str(uuid.uuid4())
+
+			user = setup_for_bank_account_test(
+				session,
+				bank_account_id,
+				company_id,
+				is_verified = True
+			)
+
+			bank_account_info_dict = prepare_bank_account_info_dict(
+				is_verified = False
+			)
 
 			template_data, err = bank_account_util.update_bank_account(
                 session,
