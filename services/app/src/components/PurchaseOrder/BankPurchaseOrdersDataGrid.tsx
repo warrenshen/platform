@@ -6,7 +6,7 @@ import {
   PurchaseOrderFragment,
   PurchaseOrders,
 } from "generated/graphql";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 interface Props {
   purchaseOrders: PurchaseOrderFragment[];
@@ -27,6 +27,13 @@ export default function BankPurchaseOrdersDataGrid({
 }: Props) {
   const [selectedPurchaseOrderId, setSelectedPurchaseOrderId] = useState(null);
 
+  const handleClickPurchaseOrderBankNote = useMemo(
+    () => (purchaseOrderId: PurchaseOrderFragment["id"]) => {
+      setSelectedPurchaseOrderId(purchaseOrderId);
+    },
+    []
+  );
+
   return (
     <Box display="flex" flexDirection="column">
       {!!selectedPurchaseOrderId && (
@@ -44,9 +51,7 @@ export default function BankPurchaseOrdersDataGrid({
         purchaseOrders={purchaseOrders}
         selectedPurchaseOrderIds={selectedPurchaseOrderIds}
         handleClickCustomer={handleClickCustomer}
-        handleClickPurchaseOrderBankNote={(purchaseOrderId) =>
-          setSelectedPurchaseOrderId(purchaseOrderId)
-        }
+        handleClickPurchaseOrderBankNote={handleClickPurchaseOrderBankNote}
         handleSelectPurchaseOrders={handleSelectPurchaseOrders}
       />
     </Box>

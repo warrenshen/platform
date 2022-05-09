@@ -8,6 +8,7 @@ import PurchaseOrdersDataGrid from "components/PurchaseOrder/PurchaseOrdersDataG
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
+  CustomerForBankFragment,
   PurchaseOrderFragment,
   PurchaseOrders,
   useGetIncompletePurchaseOrdersSubscription,
@@ -48,6 +49,21 @@ export default function BankPurchaseOrdersIncompleteTab() {
       );
     },
     [setSelectedPurchaseOrderIds]
+  );
+
+  const handleClickCustomer = useMemo(
+    () => (customerId: CustomerForBankFragment["id"]) =>
+      history.push(
+        getBankCompanyRoute(customerId, BankCompanyRouteEnum.PurchaseOrders)
+      ),
+    [history]
+  );
+
+  const handleClickPurchaseOrderBankNote = useMemo(
+    () => (purchaseOrderId: PurchaseOrderFragment["id"]) => {
+      setSelectedPurchaseOrderId(purchaseOrderId);
+    },
+    []
   );
 
   return (
@@ -103,17 +119,8 @@ export default function BankPurchaseOrdersIncompleteTab() {
           isCustomerNoteVisible={false}
           purchaseOrders={purchaseOrders}
           selectedPurchaseOrderIds={selectedPurchaseOrderIds}
-          handleClickCustomer={(customerId) =>
-            history.push(
-              getBankCompanyRoute(
-                customerId,
-                BankCompanyRouteEnum.PurchaseOrders
-              )
-            )
-          }
-          handleClickPurchaseOrderBankNote={(purchaseOrderId) =>
-            setSelectedPurchaseOrderId(purchaseOrderId)
-          }
+          handleClickCustomer={handleClickCustomer}
+          handleClickPurchaseOrderBankNote={handleClickPurchaseOrderBankNote}
           handleSelectPurchaseOrders={handleSelectPurchaseOrders}
         />
       </Box>

@@ -4,6 +4,7 @@ import DeletePurchaseOrderModal from "components/PurchaseOrder/DeletePurchaseOrd
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
+  CustomerForBankFragment,
   PurchaseOrderFragment,
   PurchaseOrders,
   useGetPurchaseOrdersSubscription,
@@ -47,6 +48,14 @@ export default function BankPurchaseOrdersAllTab() {
       );
     },
     [setSelectedPurchaseOrderIds]
+  );
+
+  const handleClickCustomer = useMemo(
+    () => (customerId: CustomerForBankFragment["id"]) =>
+      history.push(
+        getBankCompanyRoute(customerId, BankCompanyRouteEnum.PurchaseOrders)
+      ),
+    [history]
   );
 
   return (
@@ -93,14 +102,7 @@ export default function BankPurchaseOrdersAllTab() {
         <BankPurchaseOrdersDataGrid
           purchaseOrders={purchaseOrders}
           selectedPurchaseOrderIds={selectedPurchaseOrderIds}
-          handleClickCustomer={(customerId) =>
-            history.push(
-              getBankCompanyRoute(
-                customerId,
-                BankCompanyRouteEnum.PurchaseOrders
-              )
-            )
-          }
+          handleClickCustomer={handleClickCustomer}
           handleSelectPurchaseOrders={handleSelectPurchaseOrders}
           isApprovedByVendor={true}
         />

@@ -1,13 +1,15 @@
-import { Button, Box, Typography } from "@material-ui/core";
+import { Button, Box, Typography, Tooltip } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import CommentIcon from "@material-ui/icons/Comment";
-import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
+import MetrcLogo from "components/Shared/Images/MetrcLogo.png";
+
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import ProgressBarDataGridCell from "components/Shared/DataGrid/ProgressBarDataGridCell";
 import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
+import PurchaseOrderDrawer from "components/PurchaseOrder/PurchaseOrderDrawer";
 import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
@@ -22,7 +24,7 @@ import { formatDateString } from "lib/date";
 import { formatCurrency } from "lib/number";
 import { computePurchaseOrderDueDateDateStringClient } from "lib/purchaseOrders";
 import { ColumnWidths, truncateString } from "lib/tables";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 function getRows(purchaseOrders: PurchaseOrderFragment[]): RowsProp {
   return purchaseOrders.map((purchaseOrder) => ({
@@ -75,6 +77,7 @@ export default function PurchaseOrdersDataGrid({
   handleClickPurchaseOrderBankNote,
   handleSelectPurchaseOrders,
 }: Props) {
+  const [selectedPurchaseOrderId, setSelectedPurchaseOrderId] = useState(null);
   const rows = getRows(purchaseOrders);
   const columns = useMemo(
     () => [
@@ -84,11 +87,21 @@ export default function PurchaseOrdersDataGrid({
         caption: "PO Number",
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
-          <PurchaseOrderDrawerLauncher
-            label={params.row.data.order_number}
-            isMetrcBased={params.row.data.is_metrc_based}
-            purchaseOrderId={params.row.data.id}
-          />
+          <Box display="flex" alignItems="center">
+            <ClickableDataGridCell
+              onClick={() => setSelectedPurchaseOrderId(params.row.data.id)}
+              label={params.row.data.order_number}
+            />
+            {params.row.data?.is_metrc_based && (
+              <Tooltip
+                arrow
+                interactive
+                title={"Purchase order created from Metrc manifest"}
+              >
+                <img src={MetrcLogo} alt="Metrc Logo" width={24} height={24} />
+              </Tooltip>
+            )}
+          </Box>
         ),
       },
       {
@@ -228,14 +241,22 @@ export default function PurchaseOrdersDataGrid({
   );
 
   return (
-    <ControlledDataGrid
-      pager
-      select={isMultiSelectEnabled}
-      isExcelExport={isExcelExport}
-      dataSource={rows}
-      columns={columns}
-      selectedRowKeys={selectedPurchaseOrderIds}
-      onSelectionChanged={handleSelectionChanged}
-    />
+    <Box display="flex" flexDirection="column">
+      {!!selectedPurchaseOrderId && (
+        <PurchaseOrderDrawer
+          purchaseOrderId={selectedPurchaseOrderId}
+          handleClose={() => setSelectedPurchaseOrderId(null)}
+        />
+      )}
+      <ControlledDataGrid
+        pager
+        select={isMultiSelectEnabled}
+        isExcelExport={isExcelExport}
+        dataSource={rows}
+        columns={columns}
+        selectedRowKeys={selectedPurchaseOrderIds}
+        onSelectionChanged={handleSelectionChanged}
+      />
+    </Box>
   );
 }

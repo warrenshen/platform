@@ -8,6 +8,7 @@ import PurchaseOrdersDataGrid from "components/PurchaseOrder/PurchaseOrdersDataG
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
+  CustomerForBankFragment,
   PurchaseOrderFragment,
   PurchaseOrders,
   useGetDraftPurchaseOrdersSubscription,
@@ -46,6 +47,14 @@ export default function BankPurchaseOrdersDraftedTab() {
       );
     },
     [setSelectedPurchaseOrderIds]
+  );
+
+  const handleClickCustomer = useMemo(
+    () => (customerId: CustomerForBankFragment["id"]) =>
+      history.push(
+        getBankCompanyRoute(customerId, BankCompanyRouteEnum.PurchaseOrders)
+      ),
+    [history]
   );
 
   return (
@@ -95,14 +104,7 @@ export default function BankPurchaseOrdersDraftedTab() {
           isCustomerNoteVisible={false}
           purchaseOrders={purchaseOrders}
           selectedPurchaseOrderIds={selectedPurchaseOrderIds}
-          handleClickCustomer={(customerId) =>
-            history.push(
-              getBankCompanyRoute(
-                customerId,
-                BankCompanyRouteEnum.PurchaseOrders
-              )
-            )
-          }
+          handleClickCustomer={handleClickCustomer}
           handleSelectPurchaseOrders={handleSelectPurchaseOrders}
         />
       </Box>
