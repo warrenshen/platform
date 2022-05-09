@@ -3,17 +3,15 @@ import os
 import sys
 from datetime import datetime, time
 from os import path
-from typing import Any, Dict, List, Tuple, Union, cast
+from typing import List, cast
 
 from sqlalchemy.orm.session import Session
 
 # Path hack before we try to import bespoke
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 from bespoke.date import date_util
-from bespoke.db import db_constants, models, models_util
-from bespoke.db.db_constants import (ALL_LOAN_TYPES, CompanyType,
-                                     LoanStatusEnum, PaymentMethodEnum,
-                                     PaymentStatusEnum, PaymentType)
+from bespoke.db import models, models_util
+from bespoke.db.db_constants import PaymentMethodEnum, PaymentStatusEnum, PaymentType
 from bespoke.finance import contract_util, number_util
 from bespoke.finance.loans import loan_calculator
 
