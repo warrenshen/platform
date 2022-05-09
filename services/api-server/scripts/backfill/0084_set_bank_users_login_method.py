@@ -4,8 +4,6 @@ DATABASE_URL=postgres+psycopg2://postgres:postgrespassword@localhost:5432/postgr
 
 import os
 import sys
-import time
-from dateutil import parser
 from os import path
 from typing import List, cast
 
