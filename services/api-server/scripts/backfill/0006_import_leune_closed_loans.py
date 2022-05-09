@@ -2,7 +2,7 @@ import os
 import sys
 from datetime import datetime, time
 from os import path
-from typing import Any, Dict, List, Tuple, Union, cast
+from typing import cast
 
 from sqlalchemy.orm.session import Session
 
@@ -10,8 +10,7 @@ from sqlalchemy.orm.session import Session
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 from bespoke.date import date_util
 from bespoke.db import models
-from bespoke.db.db_constants import (ALL_LOAN_TYPES, CompanyType,
-                                     LoanStatusEnum, LoanTypeEnum)
+from bespoke.db.db_constants import ALL_LOAN_TYPES, LoanStatusEnum, LoanTypeEnum
 from bespoke.finance import number_util
 
 # customer_identifier, loan_identifier, loan_type, artifact_identifier, amount, origination_date, maturity_date, adjusted_maturity_date, funded_date

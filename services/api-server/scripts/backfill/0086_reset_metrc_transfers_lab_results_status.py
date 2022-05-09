@@ -12,7 +12,7 @@ from typing import List, cast
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
 
-from bespoke.db import db_constants, metrc_models_util, models
+from bespoke.db import models
 from bespoke.metrc.common.package_common_util import UNKNOWN_LAB_STATUS
 from bespoke.metrc.transfers_util import get_final_lab_status
 
