@@ -40,6 +40,7 @@ class MSRPBand:
         self.default_price_column = 'tx_price_per_unit'
         self.outlier_df = None
         self.confidence_band_multiplier = mba_util.CONFIDENCE_BAND_MULTIPLIER
+        self.default_band_method = 'std'
 
     def fetch_data(
         self,
@@ -248,6 +249,25 @@ class MSRPBand:
         self.company_costs_df.sort_values('date_in_month', inplace=True)
         self.company_sales_df.sort_values('date_in_month', inplace=True)
 
+    def find_boxplot_max_min_band(self, data):
+        median = data[self.default_price_column].median()
+        q1 = data[self.default_price_column].quantile(.25)
+        q3 = data[self.default_price_column].quantile(.75)
+        iqr = q3 - q1
+        maxx = median + iqr * 1.5
+        minn = median - iqr * 1.5
+        self.msrp_summary_table_by_time['lower_confidence_band'] = minn
+        self.msrp_summary_table_by_time['lower_confidence_band'][self.msrp_summary_table_by_time['lower_confidence_band'] < 0] = 0
+        self.msrp_summary_table_by_time['upper_confidence_band'] = maxx
+
+    def find_std_lower_upper_band(self, data):
+        self.msrp_summary_table_by_time['std'] = self.msrp_summary_table_by_time['std'].fillna(0)
+        avg_std = data[self.default_price_column].std()
+        self.msrp_summary_table_by_time['std'][self.msrp_summary_table_by_time['std'] < .25 * avg_std] = avg_std
+        self.msrp_summary_table_by_time['lower_confidence_band'] = self.msrp_summary_table_by_time['mean'] - self.msrp_summary_table_by_time['std'].fillna(0) * self.confidence_band_multiplier
+        self.msrp_summary_table_by_time['lower_confidence_band'][self.msrp_summary_table_by_time['lower_confidence_band'] < 0] = 0
+        self.msrp_summary_table_by_time['upper_confidence_band'] = self.msrp_summary_table_by_time['mean'] + self.msrp_summary_table_by_time['std'].fillna(0) * self.confidence_band_multiplier
+
     def line_plot_time_series_msrp_by_category(
         self,
         category_column_name: str,
@@ -255,7 +275,8 @@ class MSRPBand:
         transaction_type: str,
         confidence_level: any,
         error_style: str,
-        ignore_non_unit_extractable_rows: bool
+        ignore_non_unit_extractable_rows: bool,
+        band_method: str
     ):
         """
         Plots times series line plot broken down by specified category
@@ -263,9 +284,10 @@ class MSRPBand:
         temp_df = self.select_df_by_transaction_type(transaction_type, ignore_non_unit_extractable_rows)
         msrp_category_df = temp_df[temp_df[category_column_name] == column_name_identifier]
         msrp_mean_df = msrp_category_df.groupby('date_in_month')[self.default_price_column].mean().reset_index()
-        self.msrp_summary_table_by_time['lower_confidence_band'] = self.msrp_summary_table_by_time['mean'] - self.msrp_summary_table_by_time['std'].fillna(0) * self.confidence_band_multiplier
-        self.msrp_summary_table_by_time['lower_confidence_band'][self.msrp_summary_table_by_time['lower_confidence_band'] < 0] = 0
-        self.msrp_summary_table_by_time['upper_confidence_band'] = self.msrp_summary_table_by_time['mean'] + self.msrp_summary_table_by_time['std'].fillna(0) * self.confidence_band_multiplier
+        if band_method == 'minmax':
+            self.find_boxplot_max_min_band(msrp_category_df)
+        else:
+            self.find_std_lower_upper_band(msrp_category_df)
         ax = sns.lineplot(
             data=msrp_category_df,
             x='date_in_month',
@@ -382,6 +404,7 @@ class MSRPBand:
         category_column_name: str,
         column_name_identifier: str,
         transaction_type: str,
+        band_method: str,
         *,
         use_unit_converted_price=True,
         ignore_non_unit_extractable_rows=False
@@ -394,6 +417,7 @@ class MSRPBand:
         category_column_name: Category level to use for analysis
         column_name_identifier: Name of category to indice
         transaction_type: Using costs df or sales df
+        band_method: Method for calculating bands
         use_unit_converted_price: Uses unit converted price column for running analysis
         ignore_non_unit_extractable_rows: Ignore rows where extracted_units is NA
         ----------
@@ -425,7 +449,8 @@ class MSRPBand:
             transaction_type,
             mba_util.CONFIDENCE_LEVEL,
             mba_util.ERROR_STYLE,
-            ignore_non_unit_extractable_rows
+            ignore_non_unit_extractable_rows,
+            band_method
         )
         print(self.msrp_summary_table_by_time[['lower_confidence_band', 'upper_confidence_band']])
 
@@ -434,6 +459,7 @@ class MSRPBand:
         category_column_name: str,
         column_name_identifier_list: list,
         transaction_type: str,
+        band_method: str,
         *,
         use_unit_converted_price=True,
         ignore_non_unit_extractable_rows=False
@@ -446,6 +472,7 @@ class MSRPBand:
         category_column_name: Category level to use for analysis
         column_name_identifier_list: Names of list of category to indice
         transaction_type: Using costs df or sales df
+        band_method: Method of calculating bands
         use_unit_converted_price: Uses unit converted price column for running analysis
         ignore_non_unit_extractable_rows: Ignore rows where extracted_units is NA
         ----------
@@ -473,7 +500,8 @@ class MSRPBand:
                 transaction_type,
                 mba_util.CONFIDENCE_LEVEL,
                 mba_util.ERROR_STYLE,
-                ignore_non_unit_extractable_rows
+                ignore_non_unit_extractable_rows,
+                band_method
             )
 
     def output_time_series_metadata(self):

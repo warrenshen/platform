@@ -67,6 +67,7 @@ class MSRPTest(MSRPBand):
             category_column_name: str,
             column_name_identifier: str,
             transaction_type: str,
+            band_method: str,
             *,
             use_unit_converted_price=True,
             ignore_non_unit_extractable_rows=False
@@ -85,7 +86,8 @@ class MSRPTest(MSRPBand):
             transaction_type,
             mba_util.CONFIDENCE_LEVEL,
             mba_util.ERROR_STYLE,
-            ignore_non_unit_extractable_rows
+            ignore_non_unit_extractable_rows,
+            band_method
         )
 
         analysis_data = MSRPBand.select_df_by_transaction_type(self, transaction_type, ignore_non_unit_extractable_rows=False)
@@ -111,7 +113,8 @@ class MSRPTest(MSRPBand):
         outlier_percentage = np.round(np.mean(outside_band), 4) * 100 if len(outside_band) > 0 else 0
         return cleaned_data, outliers, non_compatible_timeframe_data, outlier_percentage
 
-    def compare_entire_data_band(self, category_column_name, transaction_type, *, use_unit_converted_price=True, ignore_non_unit_extractable_rows=False):
+    def compare_entire_data_band(self, category_column_name, transaction_type, band_method, *, use_unit_converted_price=True, ignore_non_unit_extractable_rows=False):
+        MBA_TRAIN = MSRPBand(company_costs_df=TRAIN_COSTS_DF, company_sales_df=TRAIN_SALES_DF)
         analysis_data = MSRPBand.select_df_by_transaction_type(self, transaction_type, False)
         unique_category_names = analysis_data[category_column_name].unique()
         all_cleaned_df = []
@@ -125,6 +128,7 @@ class MSRPTest(MSRPBand):
                     category_column_name,
                     category_name,
                     transaction_type,
+                    band_method,
                     use_unit_converted_price=use_unit_converted_price,
                     ignore_non_unit_extractable_rows=ignore_non_unit_extractable_rows
                 )
