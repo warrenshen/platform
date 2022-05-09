@@ -26,6 +26,7 @@ export const companyRoutes = {
   updateCompanyBankStatus: "/companies/update_company_bank_status",
   createPartnershipRequest: "/companies/create_partnership_request",
   createPartnershipRequestNew: "/companies/create_partnership_request_new",
+  updatePartnershipRequestNew: "/companies/update_partnership_request_new",
   addVendorNew: "/companies/add_vendor_new",
   deletePartnershipRequest: "/companies/delete_partnership_request",
   createPartnership: "/companies/create_partnership",

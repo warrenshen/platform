@@ -89,8 +89,23 @@ CreatePartnershipRequestInputDict = TypedDict('CreatePartnershipRequestInputDict
 	'license_info': LicenseInfoDict
 })
 
+PartnershipRequestNewInputDict = TypedDict('PartnershipRequestNewInputDict', {
+	'company': CompanyInsertInputDict,
+	'user': create_user_util.UserInsertInputDict,
+	'license_info': LicenseInfoNewDict,
+	'request_info': PartnershipRequestRequestInfoDict,
+})
+
 CreatePartnershipRequestNewInputDict = TypedDict('CreatePartnershipRequestNewInputDict', {
 	'customer_id': str,
+	'company': CompanyInsertInputDict,
+	'user': create_user_util.UserInsertInputDict,
+	'license_info': LicenseInfoNewDict,
+	'request_info': PartnershipRequestRequestInfoDict,
+})
+
+UpdatePartnershipRequestNewInputDict = TypedDict('UpdatePartnershipRequestNewInputDict', {
+	'partnership_request_id': str,
 	'company': CompanyInsertInputDict,
 	'user': create_user_util.UserInsertInputDict,
 	'license_info': LicenseInfoNewDict,
@@ -989,20 +1004,15 @@ def create_partnership_request(
 
 	return partnership_req_id, None
 
-@errors.return_error_tuple
-def create_partnership_request_new(
-	req: CreatePartnershipRequestNewInputDict,
-	session: Session,
-	is_payor: bool,
-) -> Tuple[str, errors.Error]:
-	customer_id = req['customer_id']
 
+@errors.return_error_tuple
+def _validate_partnership_request_new(
+	req: PartnershipRequestNewInputDict,
+	session: Session,
+) -> Optional[errors.Error]:
 	company_input = req['company']
 	company_name = company_input['name']
 	is_cannabis = company_input['is_cannabis']
-
-	if not company_name:
-		raise errors.Error('Name must be specified')
 
 	user_input = req['user']
 	user_first_name = user_input['first_name']
@@ -1011,13 +1021,13 @@ def create_partnership_request_new(
 	user_phone_number = user_input['phone_number']
 
 	if not user_first_name or not user_last_name:
-		raise errors.Error('User full name must be specified')
+		return errors.Error('User full name must be specified')
 
 	if not user_email:
-		raise errors.Error('User email must be specified')
+		return errors.Error('User email must be specified')
 
 	if not user_phone_number:
-		raise errors.Error('User phone number must be specified')
+		return errors.Error('User phone number must be specified')
 	
 	request_info_input = req['request_info']
 	request_info_dba_name = request_info_input['dba_name']
@@ -1030,29 +1040,72 @@ def create_partnership_request_new(
 	request_info_bank_instructions_attachment_id = request_info_input['bank_instructions_attachment_id']
 
 	if not request_info_bank_name:
-		raise errors.Error('Bank name must be specified')
+		return errors.Error('Bank name must be specified')
 	
 	if not request_info_bank_account_name:
-		raise errors.Error('Bank account name must be specified')
+		return errors.Error('Bank account name must be specified')
 	
 	if not request_info_bank_account_number:
-		raise errors.Error('Bank account number must be specified')
+		return errors.Error('Bank account number must be specified')
 	
 	if not request_info_bank_ach_routing_number and not request_info_bank_wire_routing_number:
-		raise errors.Error('Bank ACH / wire routing number must be specified')
+		return errors.Error('Bank ACH / wire routing number must be specified')
 	
 	if not request_info_beneficiary_address:
-		raise errors.Error('Beneficiary address wire routing number must be specified')
+		return errors.Error('Beneficiary address wire routing number must be specified')
 	
 	if not request_info_bank_instructions_attachment_id:
-		raise errors.Error('Canceled check / bank instructions attachment must be specified')
+		return errors.Error('Canceled check / bank instructions attachment must be specified')
+	
+	return None
 
-	partnership_req = models.CompanyPartnershipRequest()
-	partnership_req.requesting_company_id = customer_id
-	partnership_req.two_factor_message_method = TwoFactorMessageMethod.PHONE
-	partnership_req.company_type = CompanyType.Vendor
+@errors.return_error_tuple
+def _create_or_update_partnership_request_new(
+	req: PartnershipRequestNewInputDict,
+	session: Session,
+	partnership_req_id: Optional[str] = None,
+	customer_id: Optional[str] = None,
+) -> str:
+	company_input = req['company']
+	company_name = company_input['name']
+	is_cannabis = company_input['is_cannabis']
+
+	user_input = req['user']
+	user_first_name = user_input['first_name']
+	user_last_name = user_input['last_name']
+	user_email = user_input['email']
+	user_phone_number = user_input['phone_number']
+
+	request_info_input = req['request_info']
+	request_info_dba_name = request_info_input['dba_name']
+	request_info_bank_name = request_info_input['bank_name']
+	request_info_bank_account_name = request_info_input['bank_account_name']
+	request_info_bank_account_number = request_info_input['bank_account_number']
+	request_info_bank_ach_routing_number = request_info_input['bank_ach_routing_number']
+	request_info_bank_wire_routing_number = request_info_input['bank_wire_routing_number']
+	request_info_beneficiary_address = request_info_input['beneficiary_address']
+	request_info_bank_instructions_attachment_id = request_info_input['bank_instructions_attachment_id']
+
+	if partnership_req_id:
+		# Update
+		partnership_req = cast(
+			models.CompanyPartnershipRequest,
+			session.query(models.CompanyPartnershipRequest).filter(
+				models.CompanyPartnershipRequest.id == partnership_req_id
+			).first())
+	else:
+		# Create
+		partnership_req = models.CompanyPartnershipRequest()
+	
+	if not partnership_req_id:
+		# Create
+		partnership_req.requesting_company_id = customer_id
+		partnership_req.two_factor_message_method = TwoFactorMessageMethod.PHONE
+		partnership_req.company_type = CompanyType.Vendor
+
 	partnership_req.company_name = company_name
 	partnership_req.is_cannabis = is_cannabis
+
 	partnership_req.license_info = cast(Dict, req['license_info'])
 
 	partnership_req.user_info = {
@@ -1073,11 +1126,75 @@ def create_partnership_request_new(
 		'bank_instructions_attachment_id': request_info_bank_instructions_attachment_id
 	}
 
-	session.add(partnership_req)
-	session.flush()
+	if not partnership_req_id:
+		# Create
+		session.add(partnership_req)
+		session.flush()
+	
 	partnership_req_id = str(partnership_req.id)
 
+	return partnership_req_id
+
+
+@errors.return_error_tuple
+def create_partnership_request_new(
+	req: CreatePartnershipRequestNewInputDict,
+	session: Session,
+	is_payor: bool,
+) -> Tuple[str, errors.Error]:
+	customer_id = req['customer_id']
+
+	if not customer_id:
+		raise errors.Error('Name must be specified')
+
+	err = _validate_partnership_request_new(
+		req=req,
+		session=session,
+	)
+
+	if err:
+		raise err
+
+	partnership_req_id = _create_or_update_partnership_request_new(
+		req=req,
+		session=session,
+		customer_id=customer_id,
+	)
+
 	return partnership_req_id, None
+
+
+@errors.return_error_tuple
+def update_partnership_request_new(
+	req: UpdatePartnershipRequestNewInputDict,
+	session: Session,
+) -> Tuple[bool, errors.Error]:
+	partnership_req_id = req['partnership_request_id']
+
+	partnership_req = cast(
+		models.CompanyPartnershipRequest,
+		session.query(models.CompanyPartnershipRequest).filter(
+			models.CompanyPartnershipRequest.id == partnership_req_id
+		).first())
+
+	if not partnership_req:
+		raise errors.Error('No partnership request found to update this partnership')
+	
+	err = _validate_partnership_request_new(
+		req=req,
+		session=session,
+	)
+
+	if err:
+		raise err
+	
+	_create_or_update_partnership_request_new(
+		req=req,
+		session=session,
+		partnership_req_id=partnership_req_id,
+	)
+
+	return True, None
 
 @errors.return_error_tuple
 def approve_partnership(

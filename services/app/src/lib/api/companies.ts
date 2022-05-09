@@ -265,7 +265,7 @@ export type PartnershipRequestUserInfo = {
   first_name: string;
   last_name: string;
   email: string;
-  phone_number: string;
+  phone_number: string | null;
 };
 
 export type PartnershipRequestRequestInfo = {
@@ -306,6 +306,38 @@ export async function createPartnershipRequestNewMutation(
         return {
           status: "ERROR",
           msg: "Could not create partnership request",
+        };
+      }
+    );
+}
+
+type UpdatePartnershipRequestNewMutationReq = {
+  variables: {
+    partnership_request_id: CompanyPartnershipRequests["id"];
+    company: CompanyInfo;
+    user: PartnershipRequestUserInfo;
+    license_info: LicenseInfoNew;
+    request_info: PartnershipRequestRequestInfo;
+  };
+};
+
+export async function updatePartnershipRequestNewMutation(
+  req: UpdatePartnershipRequestNewMutationReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(companyRoutes.updatePartnershipRequestNew, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not update partnership request",
         };
       }
     );

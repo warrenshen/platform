@@ -1,5 +1,6 @@
 import { Box } from "@material-ui/core";
 import DeletePartnershipRequestModal from "components/Partnerships/DeletePartnershipRequestModal";
+import EditPartnershipRequestModal from "components/Partnerships/EditPartnershipRequestModal";
 import HandlePartnershipRequestModal from "components/Partnerships/HandlePartnershipRequestModal";
 import HandlePartnershipRequestNewModal from "components/Partnerships/HandlePartnershipRequestNewModal";
 import PartnershipsDataGrid from "components/Partnerships/PartnershipsDataGrid";
@@ -84,6 +85,24 @@ function ActionRequiredTab() {
               isDisabled={selectedRequestIds.length !== 1}
               label={"Triage Request"}
               modal={({ handleClose }) => triageRequestModal(handleClose)}
+            />
+          </Box>
+        </Can>
+        <Can perform={Action.IsBankAdmin}>
+          <Box mr={2}>
+            <ModalButton
+              isDisabled={selectedRequestIds.length !== 1}
+              label={"Edit Request"}
+              variant={"outlined"}
+              modal={({ handleClose }) => (
+                <EditPartnershipRequestModal
+                  partnerRequest={selectedRequests[0]}
+                  handleClose={() => {
+                    handleClose();
+                    setSelectedRequestIds([]);
+                  }}
+                />
+              )}
             />
           </Box>
         </Can>
