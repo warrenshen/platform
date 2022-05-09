@@ -8,8 +8,7 @@ sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 from bespoke.db import models
 from bespoke.db.db_constants import PaymentStatusEnum, PaymentType
 
-from lib import advances, companies, loans, purchase_orders, repayments
-
+from lib import loans
 
 def main() -> None:
 	if not os.environ.get("DATABASE_URL"):

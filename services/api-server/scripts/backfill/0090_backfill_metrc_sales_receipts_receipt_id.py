@@ -12,7 +12,7 @@ from typing import List, cast
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
 
-from bespoke.db import db_constants, models
+from bespoke.db import models
 
 def main(is_test_run: bool = True) -> None:
 	if not os.environ.get("DATABASE_URL"):
