@@ -12,7 +12,7 @@ from typing import List, cast
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
 
-from bespoke.db import db_constants, metrc_models_util, models
+from bespoke.db import db_constants, models
 
 def main(is_test_run: bool = True) -> None:
 	engine = models.create_engine()

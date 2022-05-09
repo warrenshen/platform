@@ -32,7 +32,6 @@ python scripts/analysis/compute_monthly_inventory.py --input_file=<.xlsx> --use_
 
 """
 import argparse
-import concurrent
 import datetime
 import json
 import logging
@@ -45,12 +44,10 @@ import time
 import logging
 import traceback
 
-from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
 from os import path
 from mypy_extensions import TypedDict
 from typing import Callable, Tuple, List, Dict, Any, Iterator, cast
-from sqlalchemy.orm.session import Session
 
 from bespoke.config import config_util
 from bespoke.date import date_util
@@ -65,7 +62,7 @@ from bespoke.inventory.analysis.shared import (
 )
 from bespoke.inventory.analysis import active_inventory_util as util
 from bespoke.inventory.analysis import inventory_cogs_util as cogs_util
-from bespoke.inventory.analysis import inventory_valuations_util as valuations_util
+#from bespoke.inventory.analysis import inventory_valuations_util as valuations_util
 from bespoke.inventory.analysis import inventory_summary_util
 from bespoke.inventory.analysis import stale_inventory_util
 from bespoke.inventory.analysis.shared.inventory_types import (
