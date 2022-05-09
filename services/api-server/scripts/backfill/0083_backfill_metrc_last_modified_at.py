@@ -13,7 +13,7 @@ from typing import List, cast
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
 
-from bespoke.db import db_constants, metrc_models_util, models
+from bespoke.db import models
 
 def _metrc_transfers(session_maker):
 	current_page = 0

@@ -8,8 +8,7 @@ sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
-from bespoke.db.db_constants import CompanyType, PaymentType
-from bespoke.finance import contract_util, number_util
+from bespoke.finance import contract_util
 
 
 def main() -> None:

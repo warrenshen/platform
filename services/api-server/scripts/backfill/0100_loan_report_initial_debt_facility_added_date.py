@@ -6,14 +6,14 @@ import os
 import sys
 import time
 from os import path
-from typing import Any,  Callable, Dict, List, cast
+from typing import Dict, List, cast
 
 # Path hack before we try to import bespoke
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
 
 from bespoke.db import models
-from bespoke.db.db_constants import (LoanDebtFacilityStatus, PaymentType)
+from bespoke.db.db_constants import LoanDebtFacilityStatus
 
 from sqlalchemy.sql import or_
 
