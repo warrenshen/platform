@@ -8,7 +8,7 @@ from sqlalchemy.orm.session import Session
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 
 from bespoke.db import models
-from bespoke.db.db_constants import CompanyType, PaymentStatusEnum, PaymentType
+from bespoke.db.db_constants import PaymentType
 from bespoke.excel import excel_reader
 
 

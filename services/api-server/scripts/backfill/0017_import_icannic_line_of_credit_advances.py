@@ -1,16 +1,12 @@
 import os
 import sys
-from datetime import datetime, time
 from os import path
-from typing import Any, Dict, List, Tuple, Union, cast
 
 from sqlalchemy.orm.session import Session
 
 # Path hack before we try to import bespoke
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
-from bespoke.date import date_util
 from bespoke.db import models
-from bespoke.db.db_constants import CompanyType, RequestStatusEnum
 from bespoke.excel import excel_reader
 
 from lib.advances import import_settled_advances
