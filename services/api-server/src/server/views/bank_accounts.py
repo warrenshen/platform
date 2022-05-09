@@ -1,9 +1,11 @@
 import json
 import logging
+import os
 from decimal import *
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, cast
 
 from bespoke import errors
+from bespoke.config.config_util import is_prod_env
 from bespoke.email import sendgrid_util
 from bespoke.finance.bank_accounts import bank_account_util
 from bespoke.finance.bank_accounts.bank_account_util import BankAccountInputDict
@@ -92,10 +94,13 @@ class CreateBankAccountView(MethodView):
             if err:
                 raise err
 
+            email_alert_recipient = "support@bespokefinancial.com"  if is_prod_env(os.environ.get('FLASK_ENV')) \
+                else "do-not-reply-development@bespokefinancial.com"
+
             _, err = sendgrid_client.send(
                 template_name=sendgrid_util.TemplateNames.BANK_ACCOUNT_ALERT_CHANGE,
                 template_data=template_data,
-                recipients=["jr@bespokefinancial.com"],
+                recipients=[email_alert_recipient],
                 filter_out_contact_only=True
             )
 
@@ -147,11 +152,14 @@ class UpdateBankAccountView(MethodView):
             )
             if err:
                 raise err
+
+            email_alert_recipient = "support@bespokefinancial.com"  if is_prod_env(os.environ.get('FLASK_ENV')) \
+                else "do-not-reply-development@bespokefinancial.com"
             
             _, err = sendgrid_client.send(
                 template_name=sendgrid_util.TemplateNames.BANK_ACCOUNT_ALERT_CHANGE,
                 template_data=template_data,
-                recipients=["jr@bespokefinancial.com"],
+                recipients=[email_alert_recipient],
                 filter_out_contact_only=True
             )
 
