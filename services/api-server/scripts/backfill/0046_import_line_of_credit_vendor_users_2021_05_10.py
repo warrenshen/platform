@@ -11,7 +11,7 @@ sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 
 from bespoke.db import models
 
-from lib import bank_accounts, users
+from lib import users
 
 
 def main() -> None:

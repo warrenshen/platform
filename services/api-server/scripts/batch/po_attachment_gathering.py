@@ -18,17 +18,13 @@ import time
 import boto3
 from os import path
 from typing import List, cast
-from botocore.exceptions import ClientError
 from dotenv import load_dotenv
-
 
 # Path hack before we try to import bespoke
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
 
-from sqlalchemy.orm.session import Session
-from bespoke.db import models, models_util
-
+from bespoke.db import models
 
 def main(is_test_run: bool = True):
 	files_dir = "files"
