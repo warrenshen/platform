@@ -12,9 +12,8 @@ You can run this script to fix incorrect values in the delivery_type column of c
 import argparse
 import os
 import sys
-import time
 from os import path
-from typing import Any, List, cast
+from typing import cast
 
 # Path hack before we try to import bespoke
 sys.path.append(path.realpath(path.join(path.dirname(__file__), '../../src')))

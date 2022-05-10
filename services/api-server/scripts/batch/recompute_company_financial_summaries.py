@@ -12,7 +12,7 @@ import argparse
 import os
 import sys
 from os import path
-from typing import List, cast
+from typing import cast
 
 # Path hack before we try to import bespoke
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
@@ -21,8 +21,6 @@ sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.finance.loans import reports_util
-
-from lib import loans
 
 def main(company_identifier: str, anchor_date: str, update_days_back: int) -> None:
 	engine = models.create_engine(statement_timeout=30000) # 30 seconds timeout

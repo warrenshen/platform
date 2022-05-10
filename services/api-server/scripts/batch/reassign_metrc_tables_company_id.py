@@ -31,7 +31,7 @@ from typing import Any, Callable, List, cast
 sys.path.append(path.realpath(path.join(path.dirname(__file__), '../../src')))
 sys.path.append(path.realpath(path.join(path.dirname(__file__), '../')))
 
-from bespoke.db import db_constants, metrc_models_util, models, models_util
+from bespoke.db import models
 
 def reassign_table_by_license(
 	table_name: str,
