@@ -8,11 +8,9 @@ Why:
 You can run this script to create loan reports for frozen loans in the database.
 """
 
-import decimal
 import os
 import sys
 from os import path
-from typing import List, cast
 
 # Path hack before we try to import bespoke
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))

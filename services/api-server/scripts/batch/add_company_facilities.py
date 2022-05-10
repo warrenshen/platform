@@ -8,14 +8,12 @@ import time
 import traceback
 from os import path
 from typing import List, cast
-from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 
 # Path hack before we try to import bespoke
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
 
-from sqlalchemy.orm.session import Session
 from bespoke.db import models
 
 # company_identifier: [(license_number, facility_name)]

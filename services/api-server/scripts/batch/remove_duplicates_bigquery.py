@@ -5,11 +5,8 @@ DATABASE_URL= python remove_duplicates_bigquery.py
 import os
 import sys
 import pandas
-import time
-import traceback
 from os import path
-from typing import Iterable, List, Any, cast
-from botocore.exceptions import ClientError
+from typing import Iterable, List, Any
 from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
 from google.cloud import bigquery
@@ -19,7 +16,6 @@ sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
 
 from bespoke.inventory.analysis.shared import download_util
-from bespoke.db import models, models_util
 
 BIGQUERY_ENGINE_URL = 'bigquery://bespoke-financial/ProdMetrcData'
 

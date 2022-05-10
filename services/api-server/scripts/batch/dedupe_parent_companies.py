@@ -5,7 +5,7 @@ DATABASE_URL=postgres+psycopg2://postgres:postgrespassword@localhost:5432/postgr
 import os
 import sys
 from os import path
-from typing import Any, List, cast
+from typing import cast
 
 # Path hack before we try to import bespoke
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))

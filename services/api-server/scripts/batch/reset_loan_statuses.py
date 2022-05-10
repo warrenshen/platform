@@ -11,7 +11,6 @@ You can run this script to fix incorrect values in the status columns of loans i
 import os
 import sys
 from os import path
-from typing import List, cast
 
 # Path hack before we try to import bespoke
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
