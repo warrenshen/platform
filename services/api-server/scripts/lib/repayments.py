@@ -1,10 +1,9 @@
 import datetime
 import decimal
-import os
 import sys
 import time
 from os import path
-from typing import Any, Callable, Dict, List, Tuple, Union, cast
+from typing import Callable, List, cast
 
 from sqlalchemy.orm.session import Session
 
@@ -12,9 +11,8 @@ from sqlalchemy.orm.session import Session
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 from bespoke.date import date_util
 from bespoke.db import models, models_util
-from bespoke.db.db_constants import (CompanyType, PaymentMethodEnum,
-                                     PaymentStatusEnum, PaymentType,
-                                     TransactionSubType)
+from bespoke.db.db_constants import (PaymentMethodEnum, PaymentStatusEnum, 
+									PaymentType, TransactionSubType)
 from bespoke.db.models import session_scope
 from bespoke.excel import excel_reader
 from bespoke.finance import contract_util, number_util

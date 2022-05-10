@@ -1,9 +1,7 @@
-import decimal
-import os
 import sys
 from datetime import datetime, time
 from os import path
-from typing import Any, Dict, List, Tuple, Union, cast
+from typing import cast
 
 from sqlalchemy.orm.session import Session
 
@@ -15,7 +13,6 @@ from bespoke.db.db_constants import PRODUCT_TYPES, ProductType
 from bespoke.excel import excel_reader
 from bespoke_test.contract.contract_test_helper import (ContractInputDict,
                                                         create_contract_config)
-
 
 def import_contracts(
 	session: Session,
