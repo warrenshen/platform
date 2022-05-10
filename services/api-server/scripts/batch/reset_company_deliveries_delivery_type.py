@@ -22,8 +22,6 @@ sys.path.append(path.realpath(path.join(path.dirname(__file__), '../')))
 
 from bespoke.db import db_constants, metrc_models_util, models, models_util
 
-from lib import loans
-
 def main(is_test_run: bool, company_identifier: str) -> None:
 	engine = models.create_engine()
 	session_maker = models.new_sessionmaker(engine)

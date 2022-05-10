@@ -1,9 +1,7 @@
-import decimal
-import os
 import sys
 from datetime import datetime, time
 from os import path
-from typing import Any, Dict, List, Tuple, Union, cast
+from typing import cast
 
 from sqlalchemy.orm.session import Session
 
@@ -11,12 +9,7 @@ from sqlalchemy.orm.session import Session
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 from bespoke.date import date_util
 from bespoke.db import models
-from bespoke.db.db_constants import (ALL_LOAN_TYPES, CompanyType,
-                                     LoanStatusEnum, PaymentMethodEnum,
-                                     PaymentType)
 from bespoke.excel import excel_reader
-from bespoke.finance import number_util
-
 
 def import_vendor_bank_accounts(
 	session: Session,
