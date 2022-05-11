@@ -716,3 +716,8 @@ export const tabLabels: TabLabel[] = [
   MetrcTabLabel.MetrcPackages,
   MetrcTabLabel.CannabisLicenses,
 ];
+
+export enum BankAccountType {
+  Checking = "Checking",
+  Savings = "Savings",
+}

@@ -75,6 +75,7 @@ PartnershipRequestRequestInfoDict = TypedDict('PartnershipRequestRequestInfoDict
 	'dba_name': str,
 	'bank_name': str,
 	'bank_account_name': str,
+	'bank_account_type': db_constants.BankAccountType,
 	'bank_account_number': str,
 	'bank_ach_routing_number': str,
 	'bank_wire_routing_number': str,
@@ -527,7 +528,8 @@ def _create_partner_company_and_its_first_user_new(
 	bank_account = models.BankAccount( # type: ignore
         company_id=company_id,
         bank_name=request_info.get('bank_name'),
-        account_type=request_info.get('bank_account_name'),
+        account_title=request_info.get('bank_account_name'),
+        account_type='savings',
         account_number=request_info.get('bank_account_number'),
         routing_number=request_info.get('bank_ach_routing_number'),
 		wire_routing_number=request_info.get('bank_wire_routing_number'),
@@ -1033,6 +1035,7 @@ def _validate_partnership_request_new(
 	request_info_dba_name = request_info_input['dba_name']
 	request_info_bank_name = request_info_input['bank_name']
 	request_info_bank_account_name = request_info_input['bank_account_name']
+	request_info_bank_account_type = request_info_input['bank_account_type']
 	request_info_bank_account_number = request_info_input['bank_account_number']
 	request_info_bank_ach_routing_number = request_info_input['bank_ach_routing_number']
 	request_info_bank_wire_routing_number = request_info_input['bank_wire_routing_number']
@@ -1044,6 +1047,9 @@ def _validate_partnership_request_new(
 	
 	if not request_info_bank_account_name:
 		return errors.Error('Bank account name must be specified')
+	
+	if not request_info_bank_account_type:
+		return errors.Error('Bank account type must be specified')
 	
 	if not request_info_bank_account_number:
 		return errors.Error('Bank account number must be specified')
@@ -1080,6 +1086,7 @@ def _create_or_update_partnership_request_new(
 	request_info_dba_name = request_info_input['dba_name']
 	request_info_bank_name = request_info_input['bank_name']
 	request_info_bank_account_name = request_info_input['bank_account_name']
+	request_info_bank_account_type = request_info_input['bank_account_type']
 	request_info_bank_account_number = request_info_input['bank_account_number']
 	request_info_bank_ach_routing_number = request_info_input['bank_ach_routing_number']
 	request_info_bank_wire_routing_number = request_info_input['bank_wire_routing_number']
@@ -1119,6 +1126,7 @@ def _create_or_update_partnership_request_new(
 		'dba_name': request_info_dba_name,
 		'bank_name': request_info_bank_name,
 		'bank_account_name': request_info_bank_account_name,
+		'bank_account_type': request_info_bank_account_type,
 		'bank_account_number': request_info_bank_account_number,
 		'bank_ach_routing_number': request_info_bank_ach_routing_number,
 		'bank_wire_routing_number': request_info_bank_wire_routing_number,

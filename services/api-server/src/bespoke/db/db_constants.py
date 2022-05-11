@@ -304,3 +304,7 @@ class PackageType(object):
 class ClientSurveillanceCategoryEnum(object):
 	BORROWING_BASE = 'borrowing_base'
 	FINANCIAL_REPORTS = 'financial_reports'
+
+class BankAccountType(object):
+	CHECKING = 'Checking'
+	SAVINGS = 'Savings'

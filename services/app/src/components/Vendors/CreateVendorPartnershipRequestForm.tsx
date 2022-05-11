@@ -1,6 +1,9 @@
 import {
   Box,
   TextField,
+  Select,
+  MenuItem,
+  InputLabel,
   Typography,
   Button,
   Checkbox,
@@ -15,6 +18,7 @@ import { FileFragment } from "generated/graphql";
 import { FileTypeEnum } from "lib/enum";
 import { CreateVendorInput } from "pages/Anonymous/VendorForm";
 import { useMemo, ChangeEvent } from "react";
+import { BankAccountType } from "lib/enum";
 
 import { isEmailValid } from "lib/validation";
 
@@ -77,6 +81,7 @@ export default function CreateVendorPartnershipRequestForm({
     !isEmailValid(vendorInput.contactEmail) ||
     !vendorInput.bankName ||
     !vendorInput.bankAccountName ||
+    !vendorInput.bankAccountType ||
     !vendorInput.bankAccountNumber ||
     // Only the ACH or Wire routing number is required
     (!vendorInput.bankACHRoutingNumber && !vendorInput.bankWireRoutingNumber) ||
@@ -191,6 +196,35 @@ export default function CreateVendorPartnershipRequestForm({
             setVendorInput({ ...vendorInput, bankAccountName: value });
           }}
         />
+      </Box>
+      <Box display="flex" flexDirection="column" mt={4}>
+        <InputLabel id="bank-account-type-label" required>
+          Bank Account Type
+        </InputLabel>
+        <Select
+          id="select-bank-account-type"
+          labelId="select-bank-account-type-label"
+          value={vendorInput.bankAccountType}
+          onChange={({ target: { value } }) =>
+            setVendorInput({
+              ...vendorInput,
+              bankAccountType: value as BankAccountType,
+            })
+          }
+        >
+          <MenuItem
+            key={BankAccountType.Checking}
+            value={BankAccountType.Checking}
+          >
+            {BankAccountType.Checking}
+          </MenuItem>
+          <MenuItem
+            key={BankAccountType.Savings}
+            value={BankAccountType.Savings}
+          >
+            {BankAccountType.Savings}
+          </MenuItem>
+        </Select>
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <TextField

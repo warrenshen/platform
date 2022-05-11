@@ -16,6 +16,7 @@ import {
   useGetCompanyForVendorOnboardingQuery,
 } from "generated/graphql";
 import { createPartnershipRequestNewMutation } from "lib/api/companies";
+import { BankAccountType } from "lib/enum";
 
 export type LicenseInfo = {
   license_ids: Array<string>;
@@ -31,6 +32,7 @@ export type CreateVendorInput = {
   bankName: string;
   bankAccountName: string;
   bankAccountNumber: string;
+  bankAccountType: BankAccountType;
   bankACHRoutingNumber: string;
   bankWireRoutingNumber: string;
   beneficiaryAddress: string;
@@ -86,6 +88,7 @@ export default function VendorFormPage() {
     contactEmail: "",
     bankName: "",
     bankAccountName: "",
+    bankAccountType: BankAccountType.Checking,
     bankAccountNumber: "",
     bankACHRoutingNumber: "",
     bankWireRoutingNumber: "",
@@ -161,6 +164,7 @@ export default function VendorFormPage() {
           dba_name: vendorInput.dba,
           bank_name: vendorInput.bankName,
           bank_account_name: vendorInput.bankAccountName,
+          bank_account_type: vendorInput.bankAccountType,
           bank_account_number: vendorInput.bankAccountNumber,
           bank_ach_routing_number: vendorInput.bankACHRoutingNumber,
           bank_wire_routing_number: vendorInput.bankWireRoutingNumber,

@@ -272,6 +272,7 @@ export type PartnershipRequestRequestInfo = {
   dba_name: string;
   bank_name: string;
   bank_account_name: string;
+  bank_account_type: string;
   bank_account_number: string;
   bank_ach_routing_number: string;
   bank_wire_routing_number: string;

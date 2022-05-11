@@ -1,6 +1,9 @@
 import {
   Box,
   Button,
+  Select,
+  InputLabel,
+  MenuItem,
   createStyles,
   Dialog,
   DialogActions,
@@ -20,7 +23,8 @@ import { updatePartnershipRequestNewMutation } from "lib/api/companies";
 import { CreateVendorInput } from "pages/Anonymous/VendorForm";
 import { isEmailValid } from "lib/validation";
 import { FileFragment } from "generated/graphql";
-import { FileTypeEnum } from "lib/enum";
+import { FileTypeEnum, BankAccountType } from "lib/enum";
+
 import { useState, useMemo, ChangeEvent } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -61,6 +65,7 @@ export default function EditPartnershipRequestModal({
     contactEmail: partnerRequest.user_info?.email,
     bankName: partnerRequest.request_info?.bank_name,
     bankAccountName: partnerRequest.request_info?.bank_account_name,
+    bankAccountType: partnerRequest.request_info?.bank_account_type,
     bankAccountNumber: partnerRequest.request_info?.bank_account_number,
     bankACHRoutingNumber: partnerRequest.request_info?.bank_ach_routing_number,
     bankWireRoutingNumber:
@@ -117,6 +122,7 @@ export default function EditPartnershipRequestModal({
           dba_name: vendorInput.dba,
           bank_name: vendorInput.bankName,
           bank_account_name: vendorInput.bankAccountName,
+          bank_account_type: vendorInput.bankAccountType,
           bank_account_number: vendorInput.bankAccountNumber,
           bank_ach_routing_number: vendorInput.bankACHRoutingNumber,
           bank_wire_routing_number: vendorInput.bankWireRoutingNumber,
@@ -254,6 +260,35 @@ export default function EditPartnershipRequestModal({
                 setVendorInput({ ...vendorInput, bankAccountName: value });
               }}
             />
+          </Box>
+          <Box display="flex" flexDirection="column" mt={4}>
+            <InputLabel id="bank-account-type-label" required>
+              Bank Account Type
+            </InputLabel>
+            <Select
+              id="select-bank-account-type"
+              labelId="select-bank-account-type-label"
+              value={vendorInput.bankAccountType}
+              onChange={({ target: { value } }) =>
+                setVendorInput({
+                  ...vendorInput,
+                  bankAccountType: value as BankAccountType,
+                })
+              }
+            >
+              <MenuItem
+                key={BankAccountType.Checking}
+                value={BankAccountType.Checking}
+              >
+                {BankAccountType.Checking}
+              </MenuItem>
+              <MenuItem
+                key={BankAccountType.Savings}
+                value={BankAccountType.Savings}
+              >
+                {BankAccountType.Savings}
+              </MenuItem>
+            </Select>
           </Box>
           <Box display="flex" flexDirection="column" mt={4}>
             <TextField
