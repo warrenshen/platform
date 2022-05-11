@@ -36,6 +36,7 @@ function BankPartnershipsPage() {
           >
             <Tab label="Action Required" />
             <Tab label="Closed Requests" />
+            {/* <Tab label="Requested Vendors" /> */}
           </Tabs>
           <SectionSpace />
           {selectedTabIndex === 0 ? (

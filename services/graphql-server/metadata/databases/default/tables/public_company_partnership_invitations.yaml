@@ -1,0 +1,64 @@
+table:
+  schema: public
+  name: company_partnership_invitations
+object_relationships:
+  - name: requesting_company
+    using:
+      foreign_key_constraint_on: requesting_company_id
+select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+        - closed_at
+        - created_at
+        - deleted_at
+        - email
+        - id
+        - metadata_info
+        - requested_at
+        - requesting_company_id
+        - updated_at
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+        - closed_at
+        - created_at
+        - deleted_at
+        - email
+        - id
+        - metadata_info
+        - requested_at
+        - requesting_company_id
+        - updated_at
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+        - closed_at
+        - created_at
+        - deleted_at
+        - email
+        - id
+        - metadata_info
+        - requested_at
+        - requesting_company_id
+        - updated_at
+      filter:
+        requesting_company_id:
+          _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+        - closed_at
+        - created_at
+        - deleted_at
+        - email
+        - id
+        - metadata_info
+        - requested_at
+        - requesting_company_id
+        - updated_at
+      filter:
+        requesting_company_id:
+          _eq: X-Hasura-Company-Id

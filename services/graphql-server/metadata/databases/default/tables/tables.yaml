@@ -7,6 +7,7 @@
 - "!include public_company_deliveries.yaml"
 - "!include public_company_facilities.yaml"
 - "!include public_company_licenses.yaml"
+- "!include public_company_partnership_invitations.yaml"
 - "!include public_company_partnership_requests.yaml"
 - "!include public_company_payor_contacts.yaml"
 - "!include public_company_payor_partnerships.yaml"

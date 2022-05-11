@@ -1501,6 +1501,24 @@ class MonthlySummaryCalculation(Base):
 	report_month = Column(Date)
 	minimum_payment = Column(Numeric)
 
+class CompanyPartnershipInvitations(Base):
+	__tablename__ = 'company_partnership_invitations'
+
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+
+	email = Column(String(120), nullable=False)
+
+	requesting_company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+
+	requested_at = Column(DateTime)
+	closed_at = Column(DateTime, nullable=True)
+
+	metadata_info = Column(JSON)
+
+	created_at = Column(DateTime, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, default=datetime.datetime.utcnow)
+	deleted_at = Column(DateTime, nullable=True)
+
 class RetryingQuery(_Query):
 	__retry_count__ = 4
 
