@@ -191,6 +191,7 @@ fragment FinancialSummary on financial_summaries {
   minimum_interest_duration
   minimum_interest_amount
   minimum_interest_remaining
+  most_overdue_loan_days
 }
 
 fragment InvoiceFile on invoice_files {

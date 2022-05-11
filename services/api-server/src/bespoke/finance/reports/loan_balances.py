@@ -53,6 +53,8 @@ SummaryUpdateDict = TypedDict('SummaryUpdateDict', {
 	'minimum_interest_info': MinimumInterestInfoDict,
 	'account_level_balance_payload': finance_types.AccountBalanceDict,
 	'day_volume_threshold_met': datetime.date,
+	'most_overdue_loan_days': int,
+
 })
 
 EbbaApplicationUpdateDict = TypedDict('EbbaApplicationUpdateDict', {
@@ -216,6 +218,8 @@ def _get_summary_update(
 	total_interest_paid_adjustment_today = 0.0
 	total_fees_paid_adjustment_today = 0.0
 
+	most_overdue_loan_days = 0
+
 	for l in loan_updates:
 		total_outstanding_principal += l['outstanding_principal']
 		total_outstanding_principal_for_interest += l['outstanding_principal_for_interest']
@@ -226,6 +230,9 @@ def _get_summary_update(
 		total_interest_accrued_today += l['interest_accrued_today']
 		total_interest_paid_adjustment_today += l['interest_paid_daily_adjustment']
 		total_fees_paid_adjustment_today += l['fees_paid_daily_adjustment']
+
+		days_overdue_candidate = int(l['days_overdue'])
+		most_overdue_loan_days = days_overdue_candidate if days_overdue_candidate > most_overdue_loan_days else most_overdue_loan_days
 
 	minimum_interest_info, err = fee_util.get_cur_minimum_fees(contract_helper, today, fee_accumulator)
 	if err:
@@ -253,7 +260,8 @@ def _get_summary_update(
 		available_limit=max(0.0, adjusted_total_limit - total_outstanding_principal),
 		minimum_interest_info=minimum_interest_info,
 		account_level_balance_payload=account_level_balance,
-		day_volume_threshold_met=None
+		day_volume_threshold_met=None,
+		most_overdue_loan_days=most_overdue_loan_days,
 	), None
 
 class CustomerBalance(object):
@@ -601,6 +609,7 @@ class CustomerBalance(object):
 			financial_summary.day_volume_threshold_met = summary_update['day_volume_threshold_met']
 			financial_summary.product_type = summary_update['product_type']
 			financial_summary.daily_interest_rate = decimal.Decimal(summary_update['daily_interest_rate'])
+			financial_summary.most_overdue_loan_days = summary_update['most_overdue_loan_days']
 
 			if should_add_summary:
 				session.add(financial_summary)

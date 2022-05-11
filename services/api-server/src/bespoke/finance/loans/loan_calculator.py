@@ -48,6 +48,8 @@ LoanUpdateDict = TypedDict('LoanUpdateDict', {
 	'total_fees_paid': float,
 	'financing_period': int,
 	'financing_day_limit': int,
+	# used during client surveillance to determine status by the *most* overdue loan, should be 0 if not late
+	'days_overdue': int,
 })
 
 ThresholdInfoDict = TypedDict('ThresholdInfoDict', {
@@ -888,6 +890,8 @@ class LoanCalculator(object):
 						loan['origination_date'],
 						inclusive_later_date=True,
 					)
+
+				days_overdue = 0
 			else:
 				# Since loan is not closed, financing period is not complete.
 				financing_period = date_util.number_days_between_dates(
@@ -895,6 +899,12 @@ class LoanCalculator(object):
 					loan['origination_date'],
 					inclusive_later_date=True,
 				)
+
+				days_overdue = date_util.number_days_between_dates(
+					result_today, 
+					loan['adjusted_maturity_date'],
+				)
+				days_overdue = days_overdue if days_overdue else 0
 
 			adjusted_maturity_date = loan['adjusted_maturity_date']
 			l = LoanUpdateDict(
@@ -918,6 +928,7 @@ class LoanCalculator(object):
 				total_principal_paid=_format_output_value(balances['total_principal_paid'], should_round_output),
 				total_interest_paid=_format_output_value(balances['total_interest_paid'], should_round_output),
 				total_fees_paid=_format_output_value(balances['total_fees_paid'], should_round_output),
+				days_overdue=days_overdue
 			)
 
 			return CalculateResultDict(

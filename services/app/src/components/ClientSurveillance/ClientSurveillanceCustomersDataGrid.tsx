@@ -77,6 +77,9 @@ function getRows(
     percentage_delinquent: calculatePercentageDelinquent(
       company?.financial_summaries?.[0] as FinancialSummaries
     ),
+    most_overdue_loan_days: !!company?.financial_summaries?.[0]
+      ? company.financial_summaries[0].most_overdue_loan_days
+      : null,
   }));
 }
 
@@ -163,6 +166,12 @@ export default function ClientSurveillanceCustomersDataGrid({
         cellRender: (params: ValueFormatterParams) => (
           <TextDataGridCell label={params.row.data.percentage_delinquent} />
         ),
+      },
+      {
+        dataField: "most_overdue_loan_days",
+        capaction: "Most Overdue Loan",
+        width: ColumnWidths.MinWidth,
+        alignment: "center",
       },
       {
         dataField: "waiver_date",

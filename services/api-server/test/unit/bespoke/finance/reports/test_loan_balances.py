@@ -102,6 +102,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				self.assertAlmostEqual(expected['interest_accrued_today'], number_util.round_currency(actual['interest_accrued_today']))
 				self.assertEqual(expected['financing_period'] if expected['financing_period'] else None, actual['financing_period'])
 				self.assertEqual(expected['should_close_loan'], actual['should_close_loan'])
+				self.assertEqual(expected['days_overdue'], actual['days_overdue'])
 
 			if test.get('expected_summary_update') is not None:
 				expected = test['expected_summary_update']
@@ -138,6 +139,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					cast(Dict, actual['account_level_balance_payload']),
 				)
 				self.assertEqual(expected['day_volume_threshold_met'], actual['day_volume_threshold_met'])
+
+				self.assertEqual(expected['most_overdue_loan_days'], actual['most_overdue_loan_days'])
 
 			if today_date_dict['report_date'] != today_date_dict['today']:
 				continue
@@ -255,6 +258,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'credits_total': 0.0
 					},
 					'day_volume_threshold_met': None,
+					'most_overdue_loan_days': 0
 				},
 			}
 		]
@@ -318,7 +322,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.05 * 500.03),
 						'financing_period': 3, # It's been 3 days since this loan was originated.
 						'day_last_repayment_settles': None, # no repayments yet
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('10/06/2020'),
@@ -331,7 +336,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.03),
 						'financing_period': 2, # It's been 2 days since this loan was originated.
 						'day_last_repayment_settles': None, # no repayments yet
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					}
 				],
 				'expected_summary_update': {
@@ -358,7 +364,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 							'fees_total': 0.0,
 							'credits_total': 0.0
 					},
-					'day_volume_threshold_met': None
+					'day_volume_threshold_met': None,
+					'most_overdue_loan_days': 0
 				}
 			}
 		]
@@ -432,7 +439,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.05 * 1000.0),
 						'financing_period': 5,
 						'day_last_repayment_settles': None, # no repayments yet
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('11/29/2020'),
@@ -445,7 +453,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': 0.0,
 						'financing_period': 0,
 						'day_last_repayment_settles': None, # no repayments yet
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					},
 				],
 				'expected_summary_update': {
@@ -472,7 +481,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'fees_total': 0.0,
 						'credits_total': 0.0
 					},
-					'day_volume_threshold_met': None
+					'day_volume_threshold_met': None,
+					'most_overdue_loan_days': 0
 				},
 			},
 			{
@@ -490,7 +500,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.05 * 1000.0),
 						'financing_period': 66,
 						'day_last_repayment_settles': None, # no repayments yet
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 6
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('11/29/2020'),
@@ -503,7 +514,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.05 * 1000.0),
 						'financing_period': 36,
 						'day_last_repayment_settles': None, # no repayments yet
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					},
 				],
 				'expected_summary_update': {
@@ -530,7 +542,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'fees_total': 0.0,
 						'credits_total': 0.0
 					},
-					'day_volume_threshold_met': None
+					'day_volume_threshold_met': None,
+					'most_overdue_loan_days': 6
 				},
 			},
 			{
@@ -548,7 +561,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.05 * 1000.0),
 						'financing_period': 96,
 						'day_last_repayment_settles': None, # no repayments yet
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 36
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('11/29/2020'),
@@ -561,7 +575,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.05 * 1000.0),
 						'financing_period': 66,
 						'day_last_repayment_settles': None, # no repayments yet
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 6
 					},
 				],
 				'expected_summary_update': {
@@ -588,7 +603,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'fees_total': 0.0,
 						'credits_total': 0.0
 					},
-					'day_volume_threshold_met': None
+					'day_volume_threshold_met': None,
+					'most_overdue_loan_days': 36
 				},
 			},
 		]
@@ -678,7 +694,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.005 * 500.03),
 						'day_last_repayment_settles': None, # no repayment has been deposited until this point
 						'financing_period': 30,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					},
 				],
 				'expected_summary_update': {
@@ -705,7 +722,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 							'fees_total': 0.0,
 							'credits_total': 0.0
 					},
-					'day_volume_threshold_met': None
+					'day_volume_threshold_met': None,
+					'most_overdue_loan_days': 0
 				}
 			},
 			{
@@ -723,7 +741,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.005 * 500.03),
 						'day_last_repayment_settles': date_util.load_date_str('11/06/2020'),
 						'financing_period': 33,
-						'should_close_loan': True
+						'should_close_loan': True,
+						'days_overdue': 0
 					},
 				],
 			},
@@ -742,7 +761,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.005 * 500.03),
 						'day_last_repayment_settles': date_util.load_date_str('11/06/2020'),
 						'financing_period': 33,
-						'should_close_loan': True
+						'should_close_loan': True,
+						'days_overdue': 0
 					},
 				],
 			}
@@ -795,7 +815,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.005 * 500.03),
 						'day_last_repayment_settles': None,
 						'financing_period': 35,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					},
 				],
 				'expected_summary_update': {
@@ -822,7 +843,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 							'fees_total': 0.0,
 							'credits_total': 0.0
 					},
-					'day_volume_threshold_met': None
+					'day_volume_threshold_met': None,
+					'most_overdue_loan_days': 0
 				}
 			}
 		]
@@ -940,7 +962,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.05 * 500.03),
 						'day_last_repayment_settles': date_util.load_date_str('10/03/2020'),
 						'financing_period': 3,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/2/2020'),
@@ -953,7 +976,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': 0.0,
 						'financing_period': None,
 						'day_last_repayment_settles': None,
-						'should_close_loan': False # hasnt been funded yet
+						'should_close_loan': False, # hasnt been funded yet
+						'days_overdue': 0
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/3/2020'),
@@ -966,7 +990,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': 0.0,
 						'financing_period': None,
 						'day_last_repayment_settles': None,
-						'should_close_loan': False # hasnt been funded yet
+						'should_close_loan': False, # hasnt been funded yet
+						'days_overdue': 0
 					}
 				],
 				'expected_day_volume_threshold_met': None
@@ -986,7 +1011,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00),
 						'day_last_repayment_settles': date_util.load_date_str('10/05/2020'),
 						'financing_period': 5,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/2/2020'),
@@ -999,7 +1025,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.05 * 600.03),
 						'day_last_repayment_settles': date_util.load_date_str('10/05/2020'),
 						'financing_period': 1,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/3/2020'),
@@ -1012,7 +1039,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': 0.0,
 						'day_last_repayment_settles': None,
 						'financing_period': None,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					}
 				],
 				'expected_day_volume_threshold_met': date_util.load_date_str('10/05/2020')
@@ -1032,7 +1060,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('10/05/2020'),
 						'financing_period': 9,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/2/2020'),
@@ -1045,7 +1074,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.01 * 100.00),
 						'day_last_repayment_settles': date_util.load_date_str('10/05/2020'),
 						'financing_period': 5,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/3/2020'),
@@ -1058,7 +1088,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.01 * 700.03),
 						'day_last_repayment_settles': None,
 						'financing_period': 3,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					}
 				],
 				'expected_day_volume_threshold_met': date_util.load_date_str('10/05/2020')
@@ -1078,7 +1109,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('10/05/2020'),
 						'financing_period': 9,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/2/2020'),
@@ -1091,7 +1123,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.01 * 100.0),
 						'day_last_repayment_settles': date_util.load_date_str('10/05/2020'),
 						'financing_period': 5,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/3/2020'),
@@ -1104,7 +1137,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.01 * 700.03),
 						'day_last_repayment_settles': None,
 						'financing_period': 3,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					}
 				],
 				'expected_day_volume_threshold_met': date_util.load_date_str('01/01/2020')
@@ -1124,7 +1158,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('10/05/2020'),
 						'financing_period': 9,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/2/2020'),
@@ -1137,7 +1172,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.01 * 100.00),
 						'day_last_repayment_settles': date_util.load_date_str('10/05/2020'),
 						'financing_period': 5,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/3/2020'),
@@ -1150,7 +1186,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.01 * 700.03),
 						'day_last_repayment_settles': None,
 						'financing_period': 3,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					}
 				],
 				'expected_day_volume_threshold_met': date_util.load_date_str('10/03/2020')
@@ -1244,7 +1281,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00),
 						'day_last_repayment_settles': date_util.load_date_str('10/25/2020'),
 						'financing_period': 9,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					},
 				],
 				'expected_day_volume_threshold_met': None
@@ -1267,7 +1305,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_paid_daily_adjustment': number_util.round_currency(0.05 * 100.00 * 4), # You paid an extra 4 days of interest that we report for this month
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
 						'financing_period': 15,
-						'should_close_loan': True
+						'should_close_loan': True,
+						'days_overdue': 1
 					},
 				],
 				'expected_day_volume_threshold_met': None
@@ -1288,7 +1327,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_paid_daily_adjustment': number_util.round_currency(-0.05 * 100.00 * 4), # THe extra 4 days of interest paid off is subtracted on the first of the month
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
 						'financing_period': 15,
-						'should_close_loan': True
+						'should_close_loan': True,
+						'days_overdue': 2
 					},
 				],
 				'expected_day_volume_threshold_met': None
@@ -1308,7 +1348,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': 5.0,
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
 						'financing_period': 15,
-						'should_close_loan': True
+						'should_close_loan': True,
+						'days_overdue': 0
 					},
 				],
 				'expected_day_volume_threshold_met': None
@@ -1403,7 +1444,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00),
 						'day_last_repayment_settles': date_util.load_date_str('10/25/2020'),
 						'financing_period': 9,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					},
 				],
 				'expected_day_volume_threshold_met': None
@@ -1426,7 +1468,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_paid_daily_adjustment': number_util.round_currency(0.05 * 100.00 * 4), # You paid an extra 4 days of interest that we report for this month
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
 						'financing_period': 15,
-						'should_close_loan': True
+						'should_close_loan': True,
+						'days_overdue': 1
 					},
 				],
 				'expected_day_volume_threshold_met': None
@@ -1447,7 +1490,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_paid_daily_adjustment': number_util.round_currency(-0.05 * 100.00 * 4), # THe extra 4 days of interest paid off is subtracted on the first of the month
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
 						'financing_period': 15,
-						'should_close_loan': True
+						'should_close_loan': True,
+						'days_overdue': 2
 					},
 				],
 				'expected_day_volume_threshold_met': None
@@ -1467,7 +1511,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': 5.0,
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
 						'financing_period': 15,
-						'should_close_loan': True
+						'should_close_loan': True,
+						'days_overdue': 0
 					},
 				],
 				'expected_day_volume_threshold_met': None
@@ -1562,7 +1607,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00),
 						'day_last_repayment_settles': date_util.load_date_str('12/25/2020'),
 						'financing_period': 9,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					},
 				],
 				'expected_day_volume_threshold_met': None
@@ -1585,7 +1631,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_paid_daily_adjustment': number_util.round_currency(0.05 * 100.00 * 3), # You paid an extra 4 days of interest that we report for this month
 						'day_last_repayment_settles': date_util.load_date_str('01/03/2021'),
 						'financing_period': 14,
-						'should_close_loan': True
+						'should_close_loan': True,
+						'days_overdue': 1
 					},
 				],
 				'expected_summary_update': {
@@ -1606,7 +1653,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'available_limit': 120000.01,
 					'minimum_interest_info': {'minimum_amount': 200.03, 'amount_accrued': 155.01, 'amount_short': 45.02, 'duration': 'monthly', 'prorated_info': {'numerator': 31, 'denom': 31, 'fraction': 1.0, 'day_to_pay': '12/31/2020'}},
 					'account_level_balance_payload': {'fees_total': 0.0, 'credits_total': 0.0},
-					'day_volume_threshold_met': None
+					'day_volume_threshold_met': None,
+					'most_overdue_loan_days': 1
 				},
 				'expected_day_volume_threshold_met': None
 			},
@@ -1627,7 +1675,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_paid_daily_adjustment': number_util.round_currency(-0.05 * 100.00 * 3), # THe extra 3 days of interest paid off is subtracted on the first of the month
 						'day_last_repayment_settles': date_util.load_date_str('01/03/2021'),
 						'financing_period': 14,
-						'should_close_loan': True
+						'should_close_loan': True,
+						'days_overdue': 2
 					},
 				],
 				'expected_day_volume_threshold_met': None
@@ -1648,7 +1697,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('01/03/2021'),
 						'financing_period': 14,
-						'should_close_loan': True
+						'should_close_loan': True,
+						'days_overdue': 0
 					},
 				],
 				'expected_day_volume_threshold_met': None
@@ -1740,7 +1790,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00),
 						'day_last_repayment_settles': date_util.load_date_str('10/25/2020'),
 						'financing_period': 9,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					},
 				],
 				'expected_day_volume_threshold_met': None
@@ -1760,7 +1811,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00),
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
 						'financing_period': 11,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 1
 					},
 				],
 				'expected_day_volume_threshold_met': None
@@ -1781,7 +1833,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00),
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
 						'financing_period': 15,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 5
 					},
 				],
 				'expected_day_volume_threshold_met': None
@@ -1873,7 +1926,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00),
 						'day_last_repayment_settles': date_util.load_date_str('10/25/2020'),
 						'financing_period': 9,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					},
 				],
 				'expected_day_volume_threshold_met': None
@@ -1896,7 +1950,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00), # today
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
 						'financing_period': 11,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 1
 					},
 				],
 				'expected_summary_update': {
@@ -1917,7 +1972,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'available_limit': 119980.01,
 					'minimum_interest_info': {'minimum_amount': 200.03, 'amount_accrued': 155.01, 'amount_short': 45.02, 'duration': 'monthly', 'prorated_info': {'numerator': 31, 'denom': 31, 'fraction': 1.0, 'day_to_pay': '10/31/2020'}},
 					'account_level_balance_payload': {'fees_total': 0.0, 'credits_total': 0.0},
-					'day_volume_threshold_met': None
+					'day_volume_threshold_met': None,
+					'most_overdue_loan_days': 1
 				},
 				'expected_day_volume_threshold_met': None
 			},
@@ -1939,7 +1995,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00), # today
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
 						'financing_period': 12,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 2
 					},
 				],
 				'expected_day_volume_threshold_met': None
@@ -1962,7 +2019,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00), # No interest accrued today because of overlap with settling repayment
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
 						'financing_period': 15,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 5
 					},
 				],
 				'expected_day_volume_threshold_met': None
@@ -1987,7 +2045,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.05 * 20.00),
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
 						'financing_period': 18,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 8
 					},
 				],
 				'expected_day_volume_threshold_met': None
@@ -2091,7 +2150,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'fees_total': 1000.01,
 						'credits_total': 0.0,
 					},
-					'day_volume_threshold_met': None
+					'day_volume_threshold_met': None,
+					'most_overdue_loan_days': 0
 				}
 			},
 			{
@@ -2122,7 +2182,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'fees_total': 0.0, # Fees and fee waivers tie out
 						'credits_total': 0.0,
 					},
-					'day_volume_threshold_met': None
+					'day_volume_threshold_met': None,
+					'most_overdue_loan_days': 0
 				}
 			},
 		]
@@ -2234,6 +2295,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'financing_period': 2,
 						'day_last_repayment_settles': None,
 						'should_close_loan': False,
+						'days_overdue': 0
 					},
 				],
 				'expected_summary_update': {
@@ -2261,6 +2323,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'credits_total': 0.0,
 					},
 					'day_volume_threshold_met': None,
+					'most_overdue_loan_days': 0
 				},
 			},
 			{
@@ -2279,6 +2342,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'financing_period': 4,
 						'day_last_repayment_settles': date_util.load_date_str('10/04/2020'),
 						'should_close_loan': True,
+						'days_overdue': 0
 					},
 				],
 				'expected_summary_update': {
@@ -2306,6 +2370,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'credits_total': 0.0,
 					},
 					'day_volume_threshold_met': None,
+					'most_overdue_loan_days': 0
 				},
 			},
 			{
@@ -2324,6 +2389,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'financing_period': 4,
 						'day_last_repayment_settles': date_util.load_date_str('10/04/2020'),
 						'should_close_loan': True,
+						'days_overdue': 0
 					},
 				],
 				'expected_summary_update': {
@@ -2351,6 +2417,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'credits_total': 0.0,
 					},
 					'day_volume_threshold_met': None,
+					'most_overdue_loan_days': 0
 				},
 			},
 			{
@@ -2369,6 +2436,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'financing_period': 4,
 						'day_last_repayment_settles': date_util.load_date_str('10/04/2020'),
 						'should_close_loan': True,
+						'days_overdue': 0
 					},
 				],
 				'expected_summary_update': {
@@ -2396,6 +2464,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'credits_total': 0.0,
 					},
 					'day_volume_threshold_met': None,
+					'most_overdue_loan_days': 0
 				},
 			},
 		]
@@ -2674,7 +2743,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.002 * 500.03),
 						'financing_period': 2,
 						'day_last_repayment_settles': date_util.load_date_str('10/03/2020'),
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					}
 				],
 				'expected_summary_update': {
@@ -2703,7 +2773,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 							# credit_1 + credit_2 - repayment_of_fee_with_credit - payout_to_customer
 							'credits_total': 3000.02 + 4000.02 +  - 2.01 - 850.06
 					},
-					'day_volume_threshold_met': None
+					'day_volume_threshold_met': None,
+					'most_overdue_loan_days': 0
 				}
 			},
 			{
@@ -2721,7 +2792,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'day_last_repayment_settles': date_util.load_date_str('10/03/2020'),
 						'interest_accrued_today': number_util.round_currency(0.002 * 500.03), # The repayment takes effect after the 3rd
 						'financing_period': 3,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					}
 				]
 			},
@@ -2744,7 +2816,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(daily_interest),
 						'day_last_repayment_settles': date_util.load_date_str('10/03/2020'),
 						'financing_period': 26,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 21
 					}
 				]
 			}
@@ -2864,7 +2937,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(430.02 * 0.002),
 						'day_last_repayment_settles': date_util.load_date_str('10/03/2020'),
 						'financing_period': 2,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					}
 				],
 				'expected_summary_update': {
@@ -2891,7 +2965,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 							'fees_total': 0.0,
 							'credits_total': 0.0
 					},
-					'day_volume_threshold_met': None
+					'day_volume_threshold_met': None,
+					'most_overdue_loan_days': 0
 				}
 			},
 			{
@@ -2910,7 +2985,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(430.02 * 0.002 * 1),
 						'day_last_repayment_settles': date_util.load_date_str('10/03/2020'),
 						'financing_period': 3,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 0
 					}
 				]
 			},
@@ -2933,7 +3009,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency((430.02  - 51.1) * 0.002),
 						'day_last_repayment_settles': date_util.load_date_str('10/03/2020'),
 						'financing_period': 26,
-						'should_close_loan': False
+						'should_close_loan': False,
+						'days_overdue': 21
 					}
 				]
 			}
@@ -3022,7 +3099,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'fees_total': 0.0,
 					'credits_total': 0.0
 				},
-				'day_volume_threshold_met': None
+				'day_volume_threshold_met': None,
+				'most_overdue_loan_days': 0
 			}
 		})
 
@@ -3171,7 +3249,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'fees_total': 0.0,
 						'credits_total': 0.0
 					},
-					'day_volume_threshold_met': None
+					'day_volume_threshold_met': None,
+					'most_overdue_loan_days': 0
 				},
 				'account_level_balance_payload': {
 						'fees_total': 0.0,
@@ -3207,7 +3286,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'fees_total': 0.0,
 						'credits_total': 0.0
 					},
-					'day_volume_threshold_met': None
+					'day_volume_threshold_met': None,
+					'most_overdue_loan_days': 0
 				},
 				'account_level_balance_payload': {
 						'fees_total': 0.0,
@@ -3243,7 +3323,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'fees_total': 0.0,
 						'credits_total': 0.0
 					},
-					'day_volume_threshold_met': None
+					'day_volume_threshold_met': None,
+					'most_overdue_loan_days': 0
 				},
 				'account_level_balance_payload': {
 						'fees_total': 0.0,
@@ -3331,7 +3412,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'fees_total': 0.0,
 					'credits_total': 0.0
 				},
-				'day_volume_threshold_met': None
+				'day_volume_threshold_met': None,
+				'most_overdue_loan_days': 0
 			}
 		})
 
@@ -3392,6 +3474,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'fees_total': 0.0,
 					'credits_total': 0.0
 				},
-				'day_volume_threshold_met': None
+				'day_volume_threshold_met': None,
+				'most_overdue_loan_days': 0
 			}
 		})

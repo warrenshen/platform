@@ -1149,6 +1149,8 @@ class FinancialSummary(Base):
 	needs_recompute = Column(Boolean)
 	days_to_compute_back = Column(Integer)
 
+	most_overdue_loan_days = Column(Integer) # used in Client Surveillance dashboard, the highest number of late days determines the bank status
+
 ### End of financial tables
 
 class RevokedTokenModel(Base):

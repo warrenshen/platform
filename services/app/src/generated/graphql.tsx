@@ -4504,9 +4504,9 @@ export type CompanyProductQualificationsBoolExp = {
 /** unique or primary key constraints on table "company_product_qualifications" */
 export enum CompanyProductQualificationsConstraint {
   /** unique or primary key constraint */
-  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
-  /** unique or primary key constraint */
   CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
+  /** unique or primary key constraint */
+  CompanyProductQualificationsQualifyingDateCompanyIdKey = "company_product_qualifications_qualifying_date_company_id_key",
 }
 
 /** input type for inserting data into table "company_product_qualifications" */
@@ -27620,6 +27620,7 @@ export type FinancialSummaryFragment = Pick<
   | "minimum_interest_duration"
   | "minimum_interest_amount"
   | "minimum_interest_remaining"
+  | "most_overdue_loan_days"
 >;
 
 export type InvoiceFileFragment = Pick<
@@ -28942,6 +28943,7 @@ export const FinancialSummaryFragmentDoc = gql`
     minimum_interest_duration
     minimum_interest_amount
     minimum_interest_remaining
+    most_overdue_loan_days
   }
 `;
 export const CompanySettingsLimitedFragmentDoc = gql`
