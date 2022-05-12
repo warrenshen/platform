@@ -1,7 +1,8 @@
 """
 	Logic to help create a company.
 """
-from typing import Any, Callable, Dict, List, Optional, Tuple, cast
+import datetime
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, cast
 
 from bespoke import errors
 from bespoke.companies import create_user_util
@@ -10,6 +11,7 @@ from bespoke.db import models, db_constants
 from bespoke.db.db_constants import CompanyDebtFacilityStatus, CompanyType, TwoFactorMessageMethod, UserRoles
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util
+from server.views.common.auth_util import UserSession
 from mypy_extensions import TypedDict
 from sqlalchemy.sql import or_
 from sqlalchemy.orm.session import Session
@@ -1231,6 +1233,51 @@ def approve_partnership(
 		company_vendor_partnership.approved_at = date_util.now()
 
 	return True, None
+
+@errors.return_error_tuple
+def update_company_product_qualification(
+	company_product_qualification_id: str,
+	bank_status_note: str,
+	qualify_for: str,
+	session: Session,
+) -> Tuple[bool, errors.Error]:
+	company_product_qualification = cast(
+		models.CompanyProductQualifications,
+		session.query(models.CompanyProductQualifications).filter(
+			models.CompanyPartnershipRequest.id == company_product_qualification_id
+			).first())
+
+	if not company_product_qualification:
+		raise errors.Error('Company product qualification not found')
+
+	company_product_qualification.bank_note = bank_status_note
+	company_product_qualification.qualifying_product = qualify_for
+
+	return True, None
+
+@errors.return_error_tuple
+def create_company_product_qualification(
+	company_id: str,
+	bank_status_note: str,
+	qualify_for: str,
+	qualifying_date: datetime.date,
+	session: Session,
+	userSession: Type[UserSession],
+) -> Tuple[str, errors.Error]:
+	company_product_qualification = models.CompanyProductQualifications()
+	company_product_qualification.company_id = company_id #type: ignore
+	company_product_qualification.bank_note = bank_status_note
+	company_product_qualification.qualifying_date = qualifying_date
+	company_product_qualification.qualifying_product = qualify_for
+	company_product_qualification.submitting_user_id = userSession.from_session().get_user_id() #type: ignore
+	company_product_qualification.metadata_info = {}
+
+	session.add(company_product_qualification)
+	session.flush()
+	company_product_qualification_id = str(company_product_qualification.id)
+
+	return company_product_qualification_id, None
+
 
 @errors.return_error_tuple
 def update_bank_status(

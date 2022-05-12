@@ -24,6 +24,10 @@ export const companyRoutes = {
   createCustomer: "/companies/create_customer",
   createProspectiveCustomer: "/companies/create_prospective_customer",
   updateCompanyBankStatus: "/companies/update_company_bank_status",
+  updateCompanyQualifyingProduct:
+    "/companies/update_company_qualifying_product",
+  createCompanyQualifyingProduct:
+    "/companies/create_company_qualifying_product",
   createPartnershipRequest: "/companies/create_partnership_request",
   createPartnershipRequestNew: "/companies/create_partnership_request_new",
   updatePartnershipRequestNew: "/companies/update_partnership_request_new",

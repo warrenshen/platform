@@ -132,6 +132,8 @@ export default function EbbaApplicationsClosedTab() {
           isCompanyVisible
           isExpirationDateVisible
           isMultiSelectEnabled
+          isBorrowingBaseAdjustmentAmountVisible
+          isBorrowingBaseAdjustmentNoteVisible
           ebbaApplications={ebbaApplications}
           selectedEbbaApplicationIds={selectedEbbaApplicationIds}
           handleSelectEbbaApplications={handleSelectEbbaApplications}

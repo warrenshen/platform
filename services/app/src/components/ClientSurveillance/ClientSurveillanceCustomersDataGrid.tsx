@@ -4,7 +4,7 @@ import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import {
   Companies,
   FinancialSummaries,
-  GetCustomersWithMetadataQuery,
+  GetNonDummyCustomersWithMetadataQuery,
 } from "generated/graphql";
 import {
   ClientSurveillanceCategoryEnum,
@@ -25,7 +25,7 @@ import { formatPercentage } from "lib/number";
 interface Props {
   isExcelExport?: boolean;
   isMultiSelectEnabled?: boolean;
-  customers: GetCustomersWithMetadataQuery["customers"];
+  customers: GetNonDummyCustomersWithMetadataQuery["customers"];
   selectedCompaniesIds?: Companies["id"][];
   handleSelectCompanies?: (companies: Companies[]) => void;
   handleClickCompanyBankStatusNote?: (id: Companies["id"]) => void;
@@ -40,7 +40,7 @@ const calculatePercentageDelinquent = (financialSummary: FinancialSummaries) =>
     : "0%";
 
 function getRows(
-  companies: GetCustomersWithMetadataQuery["customers"]
+  companies: GetNonDummyCustomersWithMetadataQuery["customers"]
 ): RowsProp {
   return companies.map((company) => ({
     ...company,
@@ -65,6 +65,8 @@ function getRows(
           "-"
         )
       : null,
+    qualify_for:
+      company?.company_product_qualifications?.[0]?.qualifying_product,
     product_type:
       company?.financial_summaries && company.financial_summaries.length
         ? ProductTypeToLabel[
@@ -80,6 +82,7 @@ function getRows(
     most_overdue_loan_days: !!company?.financial_summaries?.[0]
       ? company.financial_summaries[0].most_overdue_loan_days
       : null,
+    bank_note: company?.company_product_qualifications?.[0]?.bank_note,
   }));
 }
 
@@ -123,6 +126,28 @@ export default function ClientSurveillanceCustomersDataGrid({
           <ClientSurveillanceStatusChip
             requestStatus={params.row.data.bank_status}
           />
+        ),
+      },
+      {
+        caption: "Bank Note",
+        dataField: "bank_note",
+        alignment: "center",
+        width: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) => (
+          <Button
+            color="default"
+            variant="text"
+            style={{
+              minWidth: 0,
+              textAlign: "center",
+            }}
+            onClick={() =>
+              !!handleClickCompanyBankStatusNote &&
+              handleClickCompanyBankStatusNote(params.row.data.id)
+            }
+          >
+            {!!params.row.data.bank_note ? <CommentIcon /> : "-"}
+          </Button>
         ),
       },
       {
@@ -180,28 +205,6 @@ export default function ClientSurveillanceCustomersDataGrid({
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
           <TextDataGridCell label={params.row.data.waiver_date} />
-        ),
-      },
-      {
-        caption: "Bank Note",
-        dataField: "bank_status_note",
-        alignment: "center",
-        width: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
-          <Button
-            color="default"
-            variant="text"
-            style={{
-              minWidth: 0,
-              textAlign: "center",
-            }}
-            onClick={() =>
-              !!handleClickCompanyBankStatusNote &&
-              handleClickCompanyBankStatusNote(params.row.data.id)
-            }
-          >
-            {!!params.row.data.bank_status_note ? <CommentIcon /> : "-"}
-          </Button>
         ),
       },
     ],

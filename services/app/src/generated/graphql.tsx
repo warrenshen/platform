@@ -1411,6 +1411,10 @@ export type Companies = {
   company_payor_partnerships_by_payor: Array<CompanyPayorPartnerships>;
   /** An aggregate relationship */
   company_payor_partnerships_by_payor_aggregate: CompanyPayorPartnershipsAggregate;
+  /** An array relationship */
+  company_product_qualifications: Array<CompanyProductQualifications>;
+  /** An aggregate relationship */
+  company_product_qualifications_aggregate: CompanyProductQualificationsAggregate;
   company_settings_id?: Maybe<Scalars["uuid"]>;
   /** An array relationship */
   company_vendor_partnerships: Array<CompanyVendorPartnerships>;
@@ -1610,6 +1614,24 @@ export type CompaniesCompanyPayorPartnershipsByPayorAggregateArgs = {
   offset?: Maybe<Scalars["Int"]>;
   order_by?: Maybe<Array<CompanyPayorPartnershipsOrderBy>>;
   where?: Maybe<CompanyPayorPartnershipsBoolExp>;
+};
+
+/** columns and relationships of "companies" */
+export type CompaniesCompanyProductQualificationsArgs = {
+  distinct_on?: Maybe<Array<CompanyProductQualificationsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyProductQualificationsOrderBy>>;
+  where?: Maybe<CompanyProductQualificationsBoolExp>;
+};
+
+/** columns and relationships of "companies" */
+export type CompaniesCompanyProductQualificationsAggregateArgs = {
+  distinct_on?: Maybe<Array<CompanyProductQualificationsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyProductQualificationsOrderBy>>;
+  where?: Maybe<CompanyProductQualificationsBoolExp>;
 };
 
 /** columns and relationships of "companies" */
@@ -1946,6 +1968,7 @@ export type CompaniesBoolExp = {
   company_licenses?: Maybe<CompanyLicensesBoolExp>;
   company_payor_partnerships?: Maybe<CompanyPayorPartnershipsBoolExp>;
   company_payor_partnerships_by_payor?: Maybe<CompanyPayorPartnershipsBoolExp>;
+  company_product_qualifications?: Maybe<CompanyProductQualificationsBoolExp>;
   company_settings_id?: Maybe<UuidComparisonExp>;
   company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsBoolExp>;
   company_vendor_partnerships_by_vendor?: Maybe<CompanyVendorPartnershipsBoolExp>;
@@ -2021,6 +2044,7 @@ export type CompaniesInsertInput = {
   company_licenses?: Maybe<CompanyLicensesArrRelInsertInput>;
   company_payor_partnerships?: Maybe<CompanyPayorPartnershipsArrRelInsertInput>;
   company_payor_partnerships_by_payor?: Maybe<CompanyPayorPartnershipsArrRelInsertInput>;
+  company_product_qualifications?: Maybe<CompanyProductQualificationsArrRelInsertInput>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
   company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsArrRelInsertInput>;
   company_vendor_partnerships_by_vendor?: Maybe<CompanyVendorPartnershipsArrRelInsertInput>;
@@ -2231,6 +2255,7 @@ export type CompaniesOrderBy = {
   company_licenses_aggregate?: Maybe<CompanyLicensesAggregateOrderBy>;
   company_payor_partnerships_aggregate?: Maybe<CompanyPayorPartnershipsAggregateOrderBy>;
   company_payor_partnerships_by_payor_aggregate?: Maybe<CompanyPayorPartnershipsAggregateOrderBy>;
+  company_product_qualifications_aggregate?: Maybe<CompanyProductQualificationsAggregateOrderBy>;
   company_settings_id?: Maybe<OrderBy>;
   company_vendor_partnerships_aggregate?: Maybe<CompanyVendorPartnershipsAggregateOrderBy>;
   company_vendor_partnerships_by_vendor_aggregate?: Maybe<CompanyVendorPartnershipsAggregateOrderBy>;
@@ -4482,6 +4507,20 @@ export type CompanyProductQualificationsAggregateFieldsCountArgs = {
   distinct?: Maybe<Scalars["Boolean"]>;
 };
 
+/** order by aggregate values of table "company_product_qualifications" */
+export type CompanyProductQualificationsAggregateOrderBy = {
+  count?: Maybe<OrderBy>;
+  max?: Maybe<CompanyProductQualificationsMaxOrderBy>;
+  min?: Maybe<CompanyProductQualificationsMinOrderBy>;
+};
+
+/** input type for inserting array relation for remote table "company_product_qualifications" */
+export type CompanyProductQualificationsArrRelInsertInput = {
+  data: Array<CompanyProductQualificationsInsertInput>;
+  /** upsert condition */
+  on_conflict?: Maybe<CompanyProductQualificationsOnConflict>;
+};
+
 /** Boolean expression to filter rows from the table "company_product_qualifications". All fields are combined with a logical 'AND'. */
 export type CompanyProductQualificationsBoolExp = {
   _and?: Maybe<Array<CompanyProductQualificationsBoolExp>>;
@@ -4504,9 +4543,9 @@ export type CompanyProductQualificationsBoolExp = {
 /** unique or primary key constraints on table "company_product_qualifications" */
 export enum CompanyProductQualificationsConstraint {
   /** unique or primary key constraint */
-  CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
+  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
   /** unique or primary key constraint */
-  CompanyProductQualificationsQualifyingDateCompanyIdKey = "company_product_qualifications_qualifying_date_company_id_key",
+  CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
 }
 
 /** input type for inserting data into table "company_product_qualifications" */
@@ -4538,6 +4577,19 @@ export type CompanyProductQualificationsMaxFields = {
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
+/** order by max() on columns of table "company_product_qualifications" */
+export type CompanyProductQualificationsMaxOrderBy = {
+  bank_note?: Maybe<OrderBy>;
+  company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  deleted_at?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  qualifying_date?: Maybe<OrderBy>;
+  qualifying_product?: Maybe<OrderBy>;
+  submitting_user_id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
 /** aggregate min on columns */
 export type CompanyProductQualificationsMinFields = {
   bank_note?: Maybe<Scalars["String"]>;
@@ -4549,6 +4601,19 @@ export type CompanyProductQualificationsMinFields = {
   qualifying_product?: Maybe<Scalars["String"]>;
   submitting_user_id?: Maybe<Scalars["uuid"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** order by min() on columns of table "company_product_qualifications" */
+export type CompanyProductQualificationsMinOrderBy = {
+  bank_note?: Maybe<OrderBy>;
+  company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  deleted_at?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  qualifying_date?: Maybe<OrderBy>;
+  qualifying_product?: Maybe<OrderBy>;
+  submitting_user_id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
 };
 
 /** response of any mutation on the table "company_product_qualifications" */
@@ -20902,9 +20967,9 @@ export type QueryRoot = {
   company_payor_partnerships_aggregate: CompanyPayorPartnershipsAggregate;
   /** fetch data from the table: "company_payor_partnerships" using primary key columns */
   company_payor_partnerships_by_pk?: Maybe<CompanyPayorPartnerships>;
-  /** fetch data from the table: "company_product_qualifications" */
+  /** An array relationship */
   company_product_qualifications: Array<CompanyProductQualifications>;
-  /** fetch aggregated fields from the table: "company_product_qualifications" */
+  /** An aggregate relationship */
   company_product_qualifications_aggregate: CompanyProductQualificationsAggregate;
   /** fetch data from the table: "company_product_qualifications" using primary key columns */
   company_product_qualifications_by_pk?: Maybe<CompanyProductQualifications>;
@@ -22712,9 +22777,9 @@ export type SubscriptionRoot = {
   company_payor_partnerships_aggregate: CompanyPayorPartnershipsAggregate;
   /** fetch data from the table: "company_payor_partnerships" using primary key columns */
   company_payor_partnerships_by_pk?: Maybe<CompanyPayorPartnerships>;
-  /** fetch data from the table: "company_product_qualifications" */
+  /** An array relationship */
   company_product_qualifications: Array<CompanyProductQualifications>;
-  /** fetch aggregated fields from the table: "company_product_qualifications" */
+  /** An aggregate relationship */
   company_product_qualifications_aggregate: CompanyProductQualificationsAggregate;
   /** fetch data from the table: "company_product_qualifications" using primary key columns */
   company_product_qualifications_by_pk?: Maybe<CompanyProductQualifications>;
@@ -28383,6 +28448,11 @@ export type DebtFacilityEventFragment = Pick<
   | "event_payload"
 >;
 
+export type CompanyProductQualificationFragment = Pick<
+  CompanyProductQualifications,
+  "id" | "bank_note" | "qualifying_product" | "qualifying_date" | "company_id"
+>;
+
 export type CompanySettingsLimitedFragment = Pick<
   CompanySettings,
   | "id"
@@ -28558,10 +28628,26 @@ export type GetCustomersWithMetadataQuery = {
 
 export type GetNonDummyCustomersWithMetadataQueryVariables = Exact<{
   date?: Maybe<Scalars["date"]>;
+  start_date?: Maybe<Scalars["date"]>;
+  end_date?: Maybe<Scalars["date"]>;
 }>;
 
 export type GetNonDummyCustomersWithMetadataQuery = {
-  customers: Array<CustomersWithMetadataFragment>;
+  customers: Array<
+    {
+      company_product_qualifications: Array<CompanyProductQualificationFragment>;
+    } & CustomersWithMetadataFragment
+  >;
+};
+
+export type GetCompanyProductQualificationsByDateQueryVariables = Exact<{
+  start_date?: Maybe<Scalars["date"]>;
+  end_date?: Maybe<Scalars["date"]>;
+  limit?: Maybe<Scalars["Int"]>;
+}>;
+
+export type GetCompanyProductQualificationsByDateQuery = {
+  company_product_qualifications: Array<CompanyProductQualificationFragment>;
 };
 
 export type GetCustomersForDropdownQueryVariables = Exact<{
@@ -29761,6 +29847,15 @@ export const DebtFacilityEventFragmentDoc = gql`
     event_comments
     event_date
     event_payload
+  }
+`;
+export const CompanyProductQualificationFragmentDoc = gql`
+  fragment CompanyProductQualification on company_product_qualifications {
+    id
+    bank_note
+    qualifying_product
+    qualifying_date
+    company_id
   }
 `;
 export const GetAdvancesDocument = gql`
@@ -39558,7 +39653,11 @@ export type GetCustomersWithMetadataQueryResult = Apollo.QueryResult<
   GetCustomersWithMetadataQueryVariables
 >;
 export const GetNonDummyCustomersWithMetadataDocument = gql`
-  query GetNonDummyCustomersWithMetadata($date: date) {
+  query GetNonDummyCustomersWithMetadata(
+    $date: date
+    $start_date: date
+    $end_date: date
+  ) {
     customers: companies(
       where: {
         _and: [
@@ -39574,9 +39673,21 @@ export const GetNonDummyCustomersWithMetadataDocument = gql`
       order_by: { name: asc }
     ) {
       ...CustomersWithMetadata
+      company_product_qualifications(
+        limit: 1
+        where: {
+          _and: [
+            { qualifying_date: { _gte: $start_date } }
+            { qualifying_date: { _lte: $end_date } }
+          ]
+        }
+      ) {
+        ...CompanyProductQualification
+      }
     }
   }
   ${CustomersWithMetadataFragmentDoc}
+  ${CompanyProductQualificationFragmentDoc}
 `;
 
 /**
@@ -39592,6 +39703,8 @@ export const GetNonDummyCustomersWithMetadataDocument = gql`
  * const { data, loading, error } = useGetNonDummyCustomersWithMetadataQuery({
  *   variables: {
  *      date: // value for 'date'
+ *      start_date: // value for 'start_date'
+ *      end_date: // value for 'end_date'
  *   },
  * });
  */
@@ -39626,6 +39739,77 @@ export type GetNonDummyCustomersWithMetadataLazyQueryHookResult = ReturnType<
 export type GetNonDummyCustomersWithMetadataQueryResult = Apollo.QueryResult<
   GetNonDummyCustomersWithMetadataQuery,
   GetNonDummyCustomersWithMetadataQueryVariables
+>;
+export const GetCompanyProductQualificationsByDateDocument = gql`
+  query GetCompanyProductQualificationsByDate(
+    $start_date: date
+    $end_date: date
+    $limit: Int
+  ) {
+    company_product_qualifications(
+      limit: $limit
+      where: {
+        _and: [
+          { qualifying_date: { _gte: $start_date } }
+          { qualifying_date: { _lte: $end_date } }
+        ]
+      }
+    ) {
+      ...CompanyProductQualification
+    }
+  }
+  ${CompanyProductQualificationFragmentDoc}
+`;
+
+/**
+ * __useGetCompanyProductQualificationsByDateQuery__
+ *
+ * To run a query within a React component, call `useGetCompanyProductQualificationsByDateQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCompanyProductQualificationsByDateQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCompanyProductQualificationsByDateQuery({
+ *   variables: {
+ *      start_date: // value for 'start_date'
+ *      end_date: // value for 'end_date'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetCompanyProductQualificationsByDateQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetCompanyProductQualificationsByDateQuery,
+    GetCompanyProductQualificationsByDateQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetCompanyProductQualificationsByDateQuery,
+    GetCompanyProductQualificationsByDateQueryVariables
+  >(GetCompanyProductQualificationsByDateDocument, baseOptions);
+}
+export function useGetCompanyProductQualificationsByDateLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetCompanyProductQualificationsByDateQuery,
+    GetCompanyProductQualificationsByDateQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetCompanyProductQualificationsByDateQuery,
+    GetCompanyProductQualificationsByDateQueryVariables
+  >(GetCompanyProductQualificationsByDateDocument, baseOptions);
+}
+export type GetCompanyProductQualificationsByDateQueryHookResult = ReturnType<
+  typeof useGetCompanyProductQualificationsByDateQuery
+>;
+export type GetCompanyProductQualificationsByDateLazyQueryHookResult = ReturnType<
+  typeof useGetCompanyProductQualificationsByDateLazyQuery
+>;
+export type GetCompanyProductQualificationsByDateQueryResult = Apollo.QueryResult<
+  GetCompanyProductQualificationsByDateQuery,
+  GetCompanyProductQualificationsByDateQueryVariables
 >;
 export const GetCustomersForDropdownDocument = gql`
   query GetCustomersForDropdown {

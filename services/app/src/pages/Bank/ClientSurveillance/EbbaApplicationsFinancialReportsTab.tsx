@@ -129,6 +129,8 @@ export default function EbbaApplicationsFinancialReportsTab() {
           isCompanyVisible
           isExpirationDateVisible
           isMultiSelectEnabled
+          isBorrowingBaseAdjustmentAmountVisible={false}
+          isBorrowingBaseAdjustmentNoteVisible={false}
           ebbaApplications={ebbaApplications}
           selectedEbbaApplicationIds={selectedEbbaApplicationIds}
           handleSelectEbbaApplications={handleSelectEbbaApplications}

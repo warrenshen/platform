@@ -25,6 +25,8 @@ interface Props {
   isExcelExport?: boolean;
   isExpirationDateVisible?: boolean;
   isMultiSelectEnabled?: boolean;
+  isBorrowingBaseAdjustmentAmountVisible?: boolean;
+  isBorrowingBaseAdjustmentNoteVisible?: boolean;
   ebbaApplications: GetOpenEbbaApplicationsByCategoryQuery["ebba_applications"];
   selectedEbbaApplicationIds?: EbbaApplications["id"][];
   handleSelectEbbaApplications?: (
@@ -40,6 +42,8 @@ export default function EbbaApplicationsDataGrid({
   isExcelExport = true,
   isExpirationDateVisible = false,
   isMultiSelectEnabled = false,
+  isBorrowingBaseAdjustmentAmountVisible = false,
+  isBorrowingBaseAdjustmentNoteVisible = false,
   ebbaApplications,
   selectedEbbaApplicationIds,
   handleSelectEbbaApplications,
@@ -59,8 +63,9 @@ export default function EbbaApplicationsDataGrid({
             : BankEbbaTabLabel.FinancialReports,
         company_name: ebbaApplication.company?.name,
         expiration_date: ebbaApplication.expires_at,
-        files_count: ebbaApplication.ebba_application_files.length,
         submitted_by_name: ebbaApplication.submitted_by_user?.full_name,
+        amount_custom_note: ebbaApplication.amount_custom_note || "-",
+        amount_custom: ebbaApplication.amount_custom || "-",
       })),
     [ebbaApplications]
   );
@@ -160,12 +165,6 @@ export default function EbbaApplicationsDataGrid({
         ),
       },
       {
-        dataField: "files_count",
-        caption: "# File Attachments",
-        width: ColumnWidths.Date,
-        alignment: "right",
-      },
-      {
         visible: isBorrowingBaseFieldsVisible,
         dataField: "monthly_accounts_receivable",
         caption: "Accounts Receivable Balance",
@@ -180,7 +179,7 @@ export default function EbbaApplicationsDataGrid({
       {
         visible: isBorrowingBaseFieldsVisible,
         dataField: "monthly_inventory",
-        caption: "Inventory",
+        caption: "Inventory Balance",
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
@@ -218,10 +217,26 @@ export default function EbbaApplicationsDataGrid({
           />
         ),
       },
+      {
+        visible: isBorrowingBaseAdjustmentAmountVisible,
+        dataField: "amount_custom",
+        caption: "Borrowing Base Adjustment Amount",
+        width: ColumnWidths.Date,
+        alignment: "right",
+      },
+      {
+        visible: isBorrowingBaseAdjustmentNoteVisible,
+        dataField: "amount_custom_note",
+        caption: "Borrowing Base Adjustment Note",
+        width: ColumnWidths.Date,
+        alignment: "right",
+      },
     ],
     [
       isApprovedAtVisible,
       isBorrowingBaseFieldsVisible,
+      isBorrowingBaseAdjustmentAmountVisible,
+      isBorrowingBaseAdjustmentNoteVisible,
       isCategoryVisible,
       isCompanyVisible,
       isExpirationDateVisible,

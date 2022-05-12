@@ -445,3 +445,11 @@ fragment DebtFacilityEvent on debt_facility_events {
   event_date
   event_payload
 }
+
+fragment CompanyProductQualification on company_product_qualifications {
+  id
+  bank_note
+  qualifying_product
+  qualifying_date
+  company_id
+}

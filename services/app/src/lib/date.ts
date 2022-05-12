@@ -2,6 +2,8 @@ import {
   addBusinessDays,
   addDays,
   addMonths,
+  startOfMonth,
+  endOfMonth,
   differenceInDays,
   format,
   getYear,
@@ -60,6 +62,9 @@ export function todayAsDateStringClient() {
 export function todayMinusXDaysDateStringServer(xDays: number) {
   return format(addDays(new Date(), -1 * xDays), DateFormatServer);
 }
+
+export const todayMinusXMonthsDateStringServer = (xMonths: number) =>
+  format(addMonths(new Date(), -1 * xMonths), DateFormatServer);
 
 export function previousXMonthsCertificationDates(xMonths: number) {
   const today = new Date();
@@ -295,3 +300,9 @@ export const renderQuarter = (input_date: string) => {
 
   return `Q${quarterMapping[month]}${year}`;
 };
+
+export const getFirstDayOfMonth = (date: string) =>
+  format(startOfMonth(new Date(date)), DateFormatServer);
+
+export const getLastDateOfMonth = (date: string) =>
+  format(endOfMonth(new Date(date)), DateFormatServer);

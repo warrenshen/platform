@@ -7,7 +7,11 @@ query GetCustomersWithMetadata($date: date) {
   }
 }
 
-query GetNonDummyCustomersWithMetadata($date: date) {
+query GetNonDummyCustomersWithMetadata(
+  $date: date
+  $start_date: date
+  $end_date: date
+) {
   customers: companies(
     where: {
       _and: [
@@ -23,6 +27,35 @@ query GetNonDummyCustomersWithMetadata($date: date) {
     order_by: { name: asc }
   ) {
     ...CustomersWithMetadata
+    company_product_qualifications(
+      limit: 1
+      where: {
+        _and: [
+          { qualifying_date: { _gte: $start_date } }
+          { qualifying_date: { _lte: $end_date } }
+        ]
+      }
+    ) {
+      ...CompanyProductQualification
+    }
+  }
+}
+
+query GetCompanyProductQualificationsByDate(
+  $start_date: date
+  $end_date: date
+  $limit: Int
+) {
+  company_product_qualifications(
+    limit: $limit
+    where: {
+      _and: [
+        { qualifying_date: { _gte: $start_date } }
+        { qualifying_date: { _lte: $end_date } }
+      ]
+    }
+  ) {
+    ...CompanyProductQualification
   }
 }
 

@@ -675,7 +675,6 @@ class ApprovePartnershipView(MethodView):
 			'status': 'OK',
 		}))
 
-
 class UpdateCompanyBankStatusView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
@@ -684,12 +683,12 @@ class UpdateCompanyBankStatusView(MethodView):
 		form = json.loads(request.data)
 		if not form:
 			return handler_util.make_error_response('No data provided')
-		print(form)
+
 		required_keys = [
 			'company_id',
 			'bank_status',
 			'bank_status_note',
-			'qualify_for'
+			'qualify_for',
 		]
 
 		for key in required_keys:
@@ -712,6 +711,73 @@ class UpdateCompanyBankStatusView(MethodView):
 			if err:
 				raise err
 
+
+		return make_response(json.dumps({
+			'status': 'OK',
+		}))
+
+class UpdateCompanyQualifyingProductView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'company_product_qualification_id',
+			'qualify_for',
+			'bank_status_note',
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in request')
+
+		company_product_qualification_id = form['company_product_qualification_id']
+		qualify_for = form['qualify_for']
+		bank_status_note = form['bank_status_note']
+
+		with session_scope(current_app.session_maker) as session:
+			_, err = create_company_util.update_company_product_qualification(company_product_qualification_id=company_product_qualification_id, bank_status_note=bank_status_note, qualify_for=qualify_for, session=session)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+		}))
+
+class CreateCompanyQualifyingProductView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'company_id',
+			'bank_status_note',
+			'qualify_for',
+			'qualifying_date'
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in request')
+
+		company_id = form['company_id']
+		bank_status_note = form['bank_status_note']
+		qualify_for = form['qualify_for']
+		qualifying_date = form['qualifying_date']
+
+		with session_scope(current_app.session_maker) as session:
+			_, err = create_company_util.create_company_product_qualification(company_id=company_id, bank_status_note=bank_status_note, qualify_for=qualify_for, qualifying_date=qualifying_date, session=session, userSession=UserSession)
+			if err:
+				raise err
+
 		return make_response(json.dumps({
 			'status': 'OK',
 		}))
@@ -724,6 +790,12 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/update_company_bank_status', view_func=UpdateCompanyBankStatusView.as_view(name='update_company_bank_status_view'))
+
+handler.add_url_rule(
+	'/create_company_qualifying_product', view_func=CreateCompanyQualifyingProductView.as_view(name='create_company_qualifying_product_view'))
+
+handler.add_url_rule(
+	'/update_company_qualifying_product', view_func=UpdateCompanyQualifyingProductView.as_view(name='update_company_qualifying_product_view'))
 
 handler.add_url_rule(
 	'/upsert_custom_messages', view_func=UpsertCustomMessagesView.as_view(name='upsert_custom_messages_view'))

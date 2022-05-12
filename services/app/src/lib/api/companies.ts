@@ -2,6 +2,7 @@ import {
   Companies,
   CompaniesInsertInput,
   CompanyPartnershipRequests,
+  CompanyProductQualifications,
   CompanySettings,
   CompanySettingsInsertInput,
   ContractsInsertInput,
@@ -98,7 +99,68 @@ export async function updateCompanyBankStatusMutation(
         console.log("error", error);
         return {
           status: "ERROR",
-          msg: "Could not update company bank status",
+          msg: "Could not create company bank status",
+        };
+      }
+    );
+}
+
+export type UpdateCompanyQualifyingProductReq = {
+  variables: {
+    company_product_qualification_id: CompanyProductQualifications["id"];
+    bank_status_note: string;
+    qualify_for: { [key in QualifyForEnum]: boolean | null };
+  };
+};
+
+export async function updateCompanyQualifyingProductMutation(
+  req: UpdateCompanyQualifyingProductReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(companyRoutes.updateCompanyQualifyingProduct, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not update company qualifying product",
+        };
+      }
+    );
+}
+
+export type CreateCompanyQualifyingProductReq = {
+  variables: {
+    company_id: Companies["id"];
+    bank_status_note: string;
+    qualify_for: { [key in QualifyForEnum]: boolean | null };
+    qualifying_date: string;
+  };
+};
+
+export async function createCompanyQualifyingProductMutation(
+  req: CreateCompanyQualifyingProductReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(companyRoutes.createCompanyQualifyingProduct, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not create company bank status",
         };
       }
     );

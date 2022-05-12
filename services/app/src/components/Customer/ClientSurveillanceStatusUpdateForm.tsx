@@ -1,5 +1,6 @@
 import { Box, Typography, FormControl, TextField } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
+import DateInput from "components/Shared/FormInputs/DateInput";
 import {
   BankStatusEnum,
   BankStatusLabelEnum,
@@ -21,6 +22,8 @@ interface Props {
   qualifyFor: QualifyForEnum;
   setBankStatus: Dispatch<SetStateAction<BankStatusEnum>>;
   setBankStatusNote: Dispatch<SetStateAction<string>>;
+  qualifyingDate: string;
+  handleQualifyingDateChange: (value: string | null) => void;
   setQualifyFor: Dispatch<SetStateAction<QualifyForEnum>>;
 }
 
@@ -31,6 +34,8 @@ const ClientSurveillanceStatusUpdateForm = ({
   qualifyFor,
   setBankStatus,
   setBankStatusNote,
+  qualifyingDate,
+  handleQualifyingDateChange,
   setQualifyFor,
 }: Props) => (
   <Box mt={4} key={name}>
@@ -80,6 +85,15 @@ const ClientSurveillanceStatusUpdateForm = ({
             label="Bank Note"
             value={bankStatusNote}
             onChange={({ target: { value } }) => setBankStatusNote(value)}
+          />
+        </Box>
+        <Box mt={2}>
+          <DateInput
+            id="qualify-date-date-picker"
+            label="Qualifying Date"
+            disableFuture
+            value={qualifyingDate}
+            onChange={handleQualifyingDateChange}
           />
         </Box>
       </FormControl>

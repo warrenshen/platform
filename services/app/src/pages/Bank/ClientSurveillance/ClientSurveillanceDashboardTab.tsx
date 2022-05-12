@@ -8,8 +8,15 @@ import {
   useGetNonDummyCustomersWithMetadataQuery,
 } from "generated/graphql";
 import { useFilterCustomers } from "hooks/useFilterCustomers";
-import { todayAsDateStringServer } from "lib/date";
+import {
+  getFirstDayOfMonth,
+  getLastDateOfMonth,
+  previousBizDayAsDateStringServer,
+  todayAsDateStringServer,
+} from "lib/date";
 import { useMemo, useState } from "react";
+import DateInput from "components/Shared/FormInputs/DateInput";
+import { ActionType } from "lib/enum";
 
 export default function ClientSurveillanceDashboardTab() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -19,11 +26,16 @@ export default function ClientSurveillanceDashboardTab() {
   const [clickedBankNoteCompanyId, setClickedBankNoteCompanyId] = useState(
     null
   );
+  const [selectedDate, setSelectedDate] = useState(
+    previousBizDayAsDateStringServer()
+  );
 
   const { data, refetch, error } = useGetNonDummyCustomersWithMetadataQuery({
     fetchPolicy: "network-only",
     variables: {
       date: todayAsDateStringServer(),
+      start_date: getFirstDayOfMonth(selectedDate),
+      end_date: getLastDateOfMonth(selectedDate),
     },
   });
 
@@ -42,6 +54,13 @@ export default function ClientSurveillanceDashboardTab() {
     [setSelectedCompanyIds]
   );
 
+  const handleClickCompanyBankStatusNote = useMemo(
+    () => (companyId: Companies["id"]) => {
+      setClickedBankNoteCompanyId(companyId);
+    },
+    [setClickedBankNoteCompanyId]
+  );
+
   const renderBankNoteModal = () => {
     if (!!clickedBankNoteCompanyId) {
       const company = customers.find(
@@ -51,7 +70,9 @@ export default function ClientSurveillanceDashboardTab() {
       return (
         <ClientBankStatusNoteModal
           companyName={company?.name || ""}
-          bankStatusNote={company?.bank_status_note || ""}
+          bankStatusNote={
+            company?.company_product_qualifications?.[0].bank_note || ""
+          }
           handleClose={() => setClickedBankNoteCompanyId(null)}
         />
       );
@@ -68,6 +89,17 @@ export default function ClientSurveillanceDashboardTab() {
         mb={2}
       >
         <Box display="flex">
+          <Box mr={2}>
+            <DateInput
+              id="qualify-date-date-picker"
+              label="Qualifying Date"
+              disableFuture
+              value={selectedDate}
+              onChange={(value) =>
+                setSelectedDate(value || previousBizDayAsDateStringServer())
+              }
+            />
+          </Box>
           <TextField
             autoFocus
             label="Search by customer name"
@@ -90,7 +122,13 @@ export default function ClientSurveillanceDashboardTab() {
                 if (selectedCustomer) {
                   return (
                     <EditClientSurveillanceStatusModal
+                      actionType={
+                        selectedCustomer.company_product_qualifications.length
+                          ? ActionType.Update
+                          : ActionType.New
+                      }
                       client={selectedCustomer}
+                      qualifying_date={selectedDate}
                       handleClose={() => {
                         refetch();
                         handleClose();
@@ -109,9 +147,7 @@ export default function ClientSurveillanceDashboardTab() {
           customers={customers}
           selectedCompaniesIds={selectedCompanyIds}
           handleSelectCompanies={handleSelectCompanies}
-          handleClickCompanyBankStatusNote={(companyId) =>
-            setClickedBankNoteCompanyId(companyId)
-          }
+          handleClickCompanyBankStatusNote={handleClickCompanyBankStatusNote}
         />
       </Box>
     </Box>
