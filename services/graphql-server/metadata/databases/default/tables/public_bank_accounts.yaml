@@ -48,6 +48,7 @@ insert_permissions:
         - recipient_name
         - routing_number
         - torrey_pines_template_name
+        - us_state
         - verified_at
         - verified_date
         - wire_default_memo
@@ -112,6 +113,7 @@ select_permissions:
         - routing_number
         - torrey_pines_template_name
         - updated_at
+        - us_state
         - verified_at
         - verified_date
         - wire_default_memo
@@ -311,6 +313,7 @@ update_permissions:
         - recipient_name
         - routing_number
         - torrey_pines_template_name
+        - us_state
         - verified_at
         - verified_date
         - wire_default_memo

@@ -36,6 +36,16 @@ export enum FileTypeEnum {
   BANK_INSTRUCTIONS = "bank_instructions",
 }
 
+export enum AchAdvancesExportUSStateEnum {
+  None = "None",
+  California = "CA",
+  Colorado = "CO",
+  Massachusetts = "MA",
+  Michigan = "MI",
+  Oklahoma = "OK",
+  Oregon = "OR",
+}
+
 export enum PaymentTypeEnum {
   Adjustment = "adjustment",
   Advance = "advance",

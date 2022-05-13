@@ -1,6 +1,6 @@
 import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
-import AchsDataGrid from "components/Advances/AchsDataGrid";
+import AchAdvancesDataGrid from "components/Advances/AchAdvancesDataGrid";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import { useGetRepaymentsByMethodAndPaymentDateQuery } from "generated/graphql";
 import { todayAsDateStringServer } from "lib/date";
@@ -55,7 +55,7 @@ export default function BankRepaymentsExportAchsTab() {
             </Typography>
           </Alert>
         </Box>
-        <AchsDataGrid payments={payments} isRepayment />
+        <AchAdvancesDataGrid payments={payments} isRepayment />
       </Box>
     </Container>
   );

@@ -1,12 +1,18 @@
-import { Box, Typography } from "@material-ui/core";
+import { Box, TextField, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
-import AchsDataGrid from "components/Advances/AchsDataGrid";
+import AchAdvancesDataGrid from "components/Advances/AchAdvancesDataGrid";
 import DateInput from "components/Shared/FormInputs/DateInput";
+import { Autocomplete } from "@material-ui/lab";
 import { useGetAdvancesByMethodAndPaymentDateQuery } from "generated/graphql";
-import { todayAsDateStringServer } from "lib/date";
-import { AdvanceMethodEnum } from "lib/enum";
+import {
+  todayAsDateStringServer,
+  DateFormatFileName,
+  formatDateString,
+} from "lib/date";
 import { useState } from "react";
 import styled from "styled-components";
+import { uniq } from "lodash";
+import { AchAdvancesExportUSStateEnum, AdvanceMethodEnum } from "lib/enum";
 
 const Container = styled.div`
   display: flex;
@@ -19,6 +25,10 @@ const Container = styled.div`
 
 export default function BankAdvancesExportAchsTab() {
   const [selectedDate, setSelectedDate] = useState(todayAsDateStringServer());
+  const [
+    selectedState,
+    setSelectedState,
+  ] = useState<AchAdvancesExportUSStateEnum>(AchAdvancesExportUSStateEnum.None);
 
   const { data, error } = useGetAdvancesByMethodAndPaymentDateQuery({
     fetchPolicy: "network-only",
@@ -33,12 +43,25 @@ export default function BankAdvancesExportAchsTab() {
     alert(`Error in query (details in console): ${error.message}`);
   }
 
-  const payments = data?.payments || [];
+  const payments =
+    data?.payments.filter(
+      ({ company_bank_account }) =>
+        company_bank_account?.us_state === selectedState ||
+        (selectedState === AchAdvancesExportUSStateEnum.None &&
+          !company_bank_account?.us_state)
+    ) || [];
 
-  // Add a filter to filter by state.
+  const states = uniq(
+    data?.payments.map(
+      ({ company_bank_account }) =>
+        (company_bank_account?.us_state ||
+          AchAdvancesExportUSStateEnum.None) as AchAdvancesExportUSStateEnum
+    )
+  );
+
   return (
     <Container>
-      <Box mb={2}>
+      <Box display="flex" mb={2}>
         <DateInput
           id="payment-date-date-picker"
           label="Payment Date"
@@ -47,6 +70,21 @@ export default function BankAdvancesExportAchsTab() {
             setSelectedDate(value || todayAsDateStringServer())
           }
         />
+        <Box ml={2} width={200}>
+          <Autocomplete
+            autoHighlight
+            blurOnSelect
+            value={selectedState}
+            options={states}
+            getOptionLabel={(option: string) => option}
+            renderInput={(params: any) => (
+              <TextField {...params} label="State" />
+            )}
+            onChange={(_, state: AchAdvancesExportUSStateEnum | null) => {
+              setSelectedState(state || AchAdvancesExportUSStateEnum.None);
+            }}
+          />
+        </Box>
       </Box>
       <Box display="flex" flexDirection="column">
         <Box mb={2}>
@@ -58,7 +96,17 @@ export default function BankAdvancesExportAchsTab() {
             </Typography>
           </Alert>
         </Box>
-        <AchsDataGrid payments={payments} />
+        <AchAdvancesDataGrid
+          payments={payments}
+          exportFileName={`ACHs ${formatDateString(
+            selectedDate,
+            DateFormatFileName
+          )} ${
+            selectedState === AchAdvancesExportUSStateEnum.None
+              ? ""
+              : selectedState
+          }`}
+        />
       </Box>
     </Container>
   );

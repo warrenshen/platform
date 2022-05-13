@@ -499,6 +499,7 @@ export type BankAccounts = {
   routing_number: Scalars["String"];
   torrey_pines_template_name?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
+  us_state?: Maybe<Scalars["String"]>;
   verified_at?: Maybe<Scalars["timestamptz"]>;
   verified_date?: Maybe<Scalars["date"]>;
   wire_default_memo?: Maybe<Scalars["String"]>;
@@ -609,6 +610,7 @@ export type BankAccountsBoolExp = {
   routing_number?: Maybe<StringComparisonExp>;
   torrey_pines_template_name?: Maybe<StringComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
+  us_state?: Maybe<StringComparisonExp>;
   verified_at?: Maybe<TimestamptzComparisonExp>;
   verified_date?: Maybe<DateComparisonExp>;
   wire_default_memo?: Maybe<StringComparisonExp>;
@@ -653,6 +655,7 @@ export type BankAccountsInsertInput = {
   routing_number?: Maybe<Scalars["String"]>;
   torrey_pines_template_name?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
+  us_state?: Maybe<Scalars["String"]>;
   verified_at?: Maybe<Scalars["timestamptz"]>;
   verified_date?: Maybe<Scalars["date"]>;
   wire_default_memo?: Maybe<Scalars["String"]>;
@@ -682,6 +685,7 @@ export type BankAccountsMaxFields = {
   routing_number?: Maybe<Scalars["String"]>;
   torrey_pines_template_name?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
+  us_state?: Maybe<Scalars["String"]>;
   verified_at?: Maybe<Scalars["timestamptz"]>;
   verified_date?: Maybe<Scalars["date"]>;
   wire_default_memo?: Maybe<Scalars["String"]>;
@@ -711,6 +715,7 @@ export type BankAccountsMaxOrderBy = {
   routing_number?: Maybe<OrderBy>;
   torrey_pines_template_name?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
+  us_state?: Maybe<OrderBy>;
   verified_at?: Maybe<OrderBy>;
   verified_date?: Maybe<OrderBy>;
   wire_default_memo?: Maybe<OrderBy>;
@@ -740,6 +745,7 @@ export type BankAccountsMinFields = {
   routing_number?: Maybe<Scalars["String"]>;
   torrey_pines_template_name?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
+  us_state?: Maybe<Scalars["String"]>;
   verified_at?: Maybe<Scalars["timestamptz"]>;
   verified_date?: Maybe<Scalars["date"]>;
   wire_default_memo?: Maybe<Scalars["String"]>;
@@ -769,6 +775,7 @@ export type BankAccountsMinOrderBy = {
   routing_number?: Maybe<OrderBy>;
   torrey_pines_template_name?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
+  us_state?: Maybe<OrderBy>;
   verified_at?: Maybe<OrderBy>;
   verified_date?: Maybe<OrderBy>;
   wire_default_memo?: Maybe<OrderBy>;
@@ -829,6 +836,7 @@ export type BankAccountsOrderBy = {
   routing_number?: Maybe<OrderBy>;
   torrey_pines_template_name?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
+  us_state?: Maybe<OrderBy>;
   verified_at?: Maybe<OrderBy>;
   verified_date?: Maybe<OrderBy>;
   wire_default_memo?: Maybe<OrderBy>;
@@ -894,6 +902,8 @@ export enum BankAccountsSelectColumn {
   /** column name */
   UpdatedAt = "updated_at",
   /** column name */
+  UsState = "us_state",
+  /** column name */
   VerifiedAt = "verified_at",
   /** column name */
   VerifiedDate = "verified_date",
@@ -932,6 +942,7 @@ export type BankAccountsSetInput = {
   routing_number?: Maybe<Scalars["String"]>;
   torrey_pines_template_name?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
+  us_state?: Maybe<Scalars["String"]>;
   verified_at?: Maybe<Scalars["timestamptz"]>;
   verified_date?: Maybe<Scalars["date"]>;
   wire_default_memo?: Maybe<Scalars["String"]>;
@@ -991,6 +1002,8 @@ export enum BankAccountsUpdateColumn {
   TorreyPinesTemplateName = "torrey_pines_template_name",
   /** column name */
   UpdatedAt = "updated_at",
+  /** column name */
+  UsState = "us_state",
   /** column name */
   VerifiedAt = "verified_at",
   /** column name */
@@ -3788,6 +3801,197 @@ export type CompanyLicensesVarianceOrderBy = {
   estimate_latitude?: Maybe<OrderBy>;
   estimate_longitude?: Maybe<OrderBy>;
 };
+
+/** columns and relationships of "company_partnership_invitations" */
+export type CompanyPartnershipInvitations = {
+  closed_at?: Maybe<Scalars["timestamptz"]>;
+  created_at: Scalars["timestamptz"];
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  email: Scalars["String"];
+  id: Scalars["uuid"];
+  metadata_info: Scalars["json"];
+  requested_at: Scalars["timestamptz"];
+  /** An object relationship */
+  requesting_company: Companies;
+  requesting_company_id: Scalars["uuid"];
+  updated_at: Scalars["timestamptz"];
+};
+
+/** columns and relationships of "company_partnership_invitations" */
+export type CompanyPartnershipInvitationsMetadataInfoArgs = {
+  path?: Maybe<Scalars["String"]>;
+};
+
+/** aggregated selection of "company_partnership_invitations" */
+export type CompanyPartnershipInvitationsAggregate = {
+  aggregate?: Maybe<CompanyPartnershipInvitationsAggregateFields>;
+  nodes: Array<CompanyPartnershipInvitations>;
+};
+
+/** aggregate fields of "company_partnership_invitations" */
+export type CompanyPartnershipInvitationsAggregateFields = {
+  count: Scalars["Int"];
+  max?: Maybe<CompanyPartnershipInvitationsMaxFields>;
+  min?: Maybe<CompanyPartnershipInvitationsMinFields>;
+};
+
+/** aggregate fields of "company_partnership_invitations" */
+export type CompanyPartnershipInvitationsAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<CompanyPartnershipInvitationsSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** Boolean expression to filter rows from the table "company_partnership_invitations". All fields are combined with a logical 'AND'. */
+export type CompanyPartnershipInvitationsBoolExp = {
+  _and?: Maybe<Array<CompanyPartnershipInvitationsBoolExp>>;
+  _not?: Maybe<CompanyPartnershipInvitationsBoolExp>;
+  _or?: Maybe<Array<CompanyPartnershipInvitationsBoolExp>>;
+  closed_at?: Maybe<TimestamptzComparisonExp>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
+  deleted_at?: Maybe<TimestamptzComparisonExp>;
+  email?: Maybe<StringComparisonExp>;
+  id?: Maybe<UuidComparisonExp>;
+  metadata_info?: Maybe<JsonComparisonExp>;
+  requested_at?: Maybe<TimestamptzComparisonExp>;
+  requesting_company?: Maybe<CompaniesBoolExp>;
+  requesting_company_id?: Maybe<UuidComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
+};
+
+/** unique or primary key constraints on table "company_partnership_invitations" */
+export enum CompanyPartnershipInvitationsConstraint {
+  /** unique or primary key constraint */
+  CompanyPartnershipInvitationsPkey = "company_partnership_invitations_pkey",
+}
+
+/** input type for inserting data into table "company_partnership_invitations" */
+export type CompanyPartnershipInvitationsInsertInput = {
+  closed_at?: Maybe<Scalars["timestamptz"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  email?: Maybe<Scalars["String"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  metadata_info?: Maybe<Scalars["json"]>;
+  requested_at?: Maybe<Scalars["timestamptz"]>;
+  requesting_company?: Maybe<CompaniesObjRelInsertInput>;
+  requesting_company_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** aggregate max on columns */
+export type CompanyPartnershipInvitationsMaxFields = {
+  closed_at?: Maybe<Scalars["timestamptz"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  email?: Maybe<Scalars["String"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  requested_at?: Maybe<Scalars["timestamptz"]>;
+  requesting_company_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** aggregate min on columns */
+export type CompanyPartnershipInvitationsMinFields = {
+  closed_at?: Maybe<Scalars["timestamptz"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  email?: Maybe<Scalars["String"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  requested_at?: Maybe<Scalars["timestamptz"]>;
+  requesting_company_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** response of any mutation on the table "company_partnership_invitations" */
+export type CompanyPartnershipInvitationsMutationResponse = {
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data from the rows affected by the mutation */
+  returning: Array<CompanyPartnershipInvitations>;
+};
+
+/** on_conflict condition type for table "company_partnership_invitations" */
+export type CompanyPartnershipInvitationsOnConflict = {
+  constraint: CompanyPartnershipInvitationsConstraint;
+  update_columns?: Array<CompanyPartnershipInvitationsUpdateColumn>;
+  where?: Maybe<CompanyPartnershipInvitationsBoolExp>;
+};
+
+/** Ordering options when selecting data from "company_partnership_invitations". */
+export type CompanyPartnershipInvitationsOrderBy = {
+  closed_at?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  deleted_at?: Maybe<OrderBy>;
+  email?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  metadata_info?: Maybe<OrderBy>;
+  requested_at?: Maybe<OrderBy>;
+  requesting_company?: Maybe<CompaniesOrderBy>;
+  requesting_company_id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: company_partnership_invitations */
+export type CompanyPartnershipInvitationsPkColumnsInput = {
+  id: Scalars["uuid"];
+};
+
+/** select columns of table "company_partnership_invitations" */
+export enum CompanyPartnershipInvitationsSelectColumn {
+  /** column name */
+  ClosedAt = "closed_at",
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  DeletedAt = "deleted_at",
+  /** column name */
+  Email = "email",
+  /** column name */
+  Id = "id",
+  /** column name */
+  MetadataInfo = "metadata_info",
+  /** column name */
+  RequestedAt = "requested_at",
+  /** column name */
+  RequestingCompanyId = "requesting_company_id",
+  /** column name */
+  UpdatedAt = "updated_at",
+}
+
+/** input type for updating data in table "company_partnership_invitations" */
+export type CompanyPartnershipInvitationsSetInput = {
+  closed_at?: Maybe<Scalars["timestamptz"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  email?: Maybe<Scalars["String"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  metadata_info?: Maybe<Scalars["json"]>;
+  requested_at?: Maybe<Scalars["timestamptz"]>;
+  requesting_company_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** update columns of table "company_partnership_invitations" */
+export enum CompanyPartnershipInvitationsUpdateColumn {
+  /** column name */
+  ClosedAt = "closed_at",
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  DeletedAt = "deleted_at",
+  /** column name */
+  Email = "email",
+  /** column name */
+  Id = "id",
+  /** column name */
+  MetadataInfo = "metadata_info",
+  /** column name */
+  RequestedAt = "requested_at",
+  /** column name */
+  RequestingCompanyId = "requesting_company_id",
+  /** column name */
+  UpdatedAt = "updated_at",
+}
 
 /** columns and relationships of "company_partnership_requests" */
 export type CompanyPartnershipRequests = {
@@ -15523,6 +15727,10 @@ export type MutationRoot = {
   delete_company_licenses?: Maybe<CompanyLicensesMutationResponse>;
   /** delete single row from the table: "company_licenses" */
   delete_company_licenses_by_pk?: Maybe<CompanyLicenses>;
+  /** delete data from the table: "company_partnership_invitations" */
+  delete_company_partnership_invitations?: Maybe<CompanyPartnershipInvitationsMutationResponse>;
+  /** delete single row from the table: "company_partnership_invitations" */
+  delete_company_partnership_invitations_by_pk?: Maybe<CompanyPartnershipInvitations>;
   /** delete data from the table: "company_partnership_requests" */
   delete_company_partnership_requests?: Maybe<CompanyPartnershipRequestsMutationResponse>;
   /** delete single row from the table: "company_partnership_requests" */
@@ -15759,6 +15967,10 @@ export type MutationRoot = {
   insert_company_licenses?: Maybe<CompanyLicensesMutationResponse>;
   /** insert a single row into the table: "company_licenses" */
   insert_company_licenses_one?: Maybe<CompanyLicenses>;
+  /** insert data into the table: "company_partnership_invitations" */
+  insert_company_partnership_invitations?: Maybe<CompanyPartnershipInvitationsMutationResponse>;
+  /** insert a single row into the table: "company_partnership_invitations" */
+  insert_company_partnership_invitations_one?: Maybe<CompanyPartnershipInvitations>;
   /** insert data into the table: "company_partnership_requests" */
   insert_company_partnership_requests?: Maybe<CompanyPartnershipRequestsMutationResponse>;
   /** insert a single row into the table: "company_partnership_requests" */
@@ -15999,6 +16211,10 @@ export type MutationRoot = {
   update_company_licenses?: Maybe<CompanyLicensesMutationResponse>;
   /** update single row of the table: "company_licenses" */
   update_company_licenses_by_pk?: Maybe<CompanyLicenses>;
+  /** update data of the table: "company_partnership_invitations" */
+  update_company_partnership_invitations?: Maybe<CompanyPartnershipInvitationsMutationResponse>;
+  /** update single row of the table: "company_partnership_invitations" */
+  update_company_partnership_invitations_by_pk?: Maybe<CompanyPartnershipInvitations>;
   /** update data of the table: "company_partnership_requests" */
   update_company_partnership_requests?: Maybe<CompanyPartnershipRequestsMutationResponse>;
   /** update single row of the table: "company_partnership_requests" */
@@ -16288,6 +16504,16 @@ export type MutationRootDeleteCompanyLicensesArgs = {
 
 /** mutation root */
 export type MutationRootDeleteCompanyLicensesByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** mutation root */
+export type MutationRootDeleteCompanyPartnershipInvitationsArgs = {
+  where: CompanyPartnershipInvitationsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteCompanyPartnershipInvitationsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -16900,6 +17126,18 @@ export type MutationRootInsertCompanyLicensesArgs = {
 export type MutationRootInsertCompanyLicensesOneArgs = {
   object: CompanyLicensesInsertInput;
   on_conflict?: Maybe<CompanyLicensesOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertCompanyPartnershipInvitationsArgs = {
+  objects: Array<CompanyPartnershipInvitationsInsertInput>;
+  on_conflict?: Maybe<CompanyPartnershipInvitationsOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertCompanyPartnershipInvitationsOneArgs = {
+  object: CompanyPartnershipInvitationsInsertInput;
+  on_conflict?: Maybe<CompanyPartnershipInvitationsOnConflict>;
 };
 
 /** mutation root */
@@ -17632,6 +17870,18 @@ export type MutationRootUpdateCompanyLicensesByPkArgs = {
   _inc?: Maybe<CompanyLicensesIncInput>;
   _set?: Maybe<CompanyLicensesSetInput>;
   pk_columns: CompanyLicensesPkColumnsInput;
+};
+
+/** mutation root */
+export type MutationRootUpdateCompanyPartnershipInvitationsArgs = {
+  _set?: Maybe<CompanyPartnershipInvitationsSetInput>;
+  where: CompanyPartnershipInvitationsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateCompanyPartnershipInvitationsByPkArgs = {
+  _set?: Maybe<CompanyPartnershipInvitationsSetInput>;
+  pk_columns: CompanyPartnershipInvitationsPkColumnsInput;
 };
 
 /** mutation root */
@@ -20949,6 +21199,12 @@ export type QueryRoot = {
   company_licenses_aggregate: CompanyLicensesAggregate;
   /** fetch data from the table: "company_licenses" using primary key columns */
   company_licenses_by_pk?: Maybe<CompanyLicenses>;
+  /** fetch data from the table: "company_partnership_invitations" */
+  company_partnership_invitations: Array<CompanyPartnershipInvitations>;
+  /** fetch aggregated fields from the table: "company_partnership_invitations" */
+  company_partnership_invitations_aggregate: CompanyPartnershipInvitationsAggregate;
+  /** fetch data from the table: "company_partnership_invitations" using primary key columns */
+  company_partnership_invitations_by_pk?: Maybe<CompanyPartnershipInvitations>;
   /** fetch data from the table: "company_partnership_requests" */
   company_partnership_requests: Array<CompanyPartnershipRequests>;
   /** fetch aggregated fields from the table: "company_partnership_requests" */
@@ -21430,6 +21686,26 @@ export type QueryRootCompanyLicensesAggregateArgs = {
 };
 
 export type QueryRootCompanyLicensesByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+export type QueryRootCompanyPartnershipInvitationsArgs = {
+  distinct_on?: Maybe<Array<CompanyPartnershipInvitationsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyPartnershipInvitationsOrderBy>>;
+  where?: Maybe<CompanyPartnershipInvitationsBoolExp>;
+};
+
+export type QueryRootCompanyPartnershipInvitationsAggregateArgs = {
+  distinct_on?: Maybe<Array<CompanyPartnershipInvitationsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyPartnershipInvitationsOrderBy>>;
+  where?: Maybe<CompanyPartnershipInvitationsBoolExp>;
+};
+
+export type QueryRootCompanyPartnershipInvitationsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -22759,6 +23035,12 @@ export type SubscriptionRoot = {
   company_licenses_aggregate: CompanyLicensesAggregate;
   /** fetch data from the table: "company_licenses" using primary key columns */
   company_licenses_by_pk?: Maybe<CompanyLicenses>;
+  /** fetch data from the table: "company_partnership_invitations" */
+  company_partnership_invitations: Array<CompanyPartnershipInvitations>;
+  /** fetch aggregated fields from the table: "company_partnership_invitations" */
+  company_partnership_invitations_aggregate: CompanyPartnershipInvitationsAggregate;
+  /** fetch data from the table: "company_partnership_invitations" using primary key columns */
+  company_partnership_invitations_by_pk?: Maybe<CompanyPartnershipInvitations>;
   /** fetch data from the table: "company_partnership_requests" */
   company_partnership_requests: Array<CompanyPartnershipRequests>;
   /** fetch aggregated fields from the table: "company_partnership_requests" */
@@ -23240,6 +23522,26 @@ export type SubscriptionRootCompanyLicensesAggregateArgs = {
 };
 
 export type SubscriptionRootCompanyLicensesByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+export type SubscriptionRootCompanyPartnershipInvitationsArgs = {
+  distinct_on?: Maybe<Array<CompanyPartnershipInvitationsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyPartnershipInvitationsOrderBy>>;
+  where?: Maybe<CompanyPartnershipInvitationsBoolExp>;
+};
+
+export type SubscriptionRootCompanyPartnershipInvitationsAggregateArgs = {
+  distinct_on?: Maybe<Array<CompanyPartnershipInvitationsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyPartnershipInvitationsOrderBy>>;
+  where?: Maybe<CompanyPartnershipInvitationsBoolExp>;
+};
+
+export type SubscriptionRootCompanyPartnershipInvitationsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -25950,7 +26252,7 @@ export type GetAdvancesByMethodAndPaymentDateQuery = {
   payments: Array<
     Pick<Payments, "id"> & {
       company_bank_account?: Maybe<
-        Pick<BankAccounts, "id"> & BankAccountFragment
+        Pick<BankAccounts, "id" | "us_state"> & BankAccountFragment
       >;
       recipient_bank_account?: Maybe<
         Pick<BankAccounts, "id"> & BankAccountFragment
@@ -30025,6 +30327,7 @@ export const GetAdvancesByMethodAndPaymentDateDocument = gql`
       ...Payment
       company_bank_account {
         id
+        us_state
         ...BankAccount
       }
       recipient_bank_account {

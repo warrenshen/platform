@@ -11,10 +11,7 @@ subscription GetAdvances {
         { type: { _eq: "advance" } }
       ]
     }
-    order_by: [
-      { payment_date: desc }
-      { created_at: desc }
-    ]
+    order_by: [{ payment_date: desc }, { created_at: desc }]
   ) {
     id
     ...Payment
@@ -43,16 +40,15 @@ query GetAdvancesByPaymentDate($date: date!) {
         { payment_date: { _eq: $date } }
       ]
     }
-    order_by: [
-      { settlement_date: asc }
-      { created_at: asc }
-    ]
+    order_by: [{ settlement_date: asc }, { created_at: asc }]
   ) {
     id
     ...Payment
     company {
       id
-      financial_summaries: financial_summaries(where: { date: { _eq: $date } }) {
+      financial_summaries: financial_summaries(
+        where: { date: { _eq: $date } }
+      ) {
         id
         product_type
       }
@@ -84,6 +80,7 @@ query GetAdvancesByMethodAndPaymentDate($method: String!, $date: date!) {
     ...Payment
     company_bank_account {
       id
+      us_state
       ...BankAccount
     }
     recipient_bank_account {
