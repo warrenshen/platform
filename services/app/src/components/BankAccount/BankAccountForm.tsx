@@ -6,8 +6,10 @@ import {
   TextField,
 } from "@material-ui/core";
 import DateInput from "components/Shared/FormInputs/DateInput";
+import BankAccountTypeDropdown from "components/BankAccount/BankAccountTypeDropdown";
 import { BankAccountsInsertInput, UserRolesEnum } from "generated/graphql";
 import { ChangeEvent } from "react";
+import { BankAccountType } from "lib/enum";
 
 const useStyles = makeStyles({
   form: {
@@ -56,17 +58,12 @@ export default function BankAccountForm({
           disabled={isFormDisabled}
         />
       </Box>
-      <Box display="flex" flexDirection="column" mt={2}>
-        <TextField
-          data-cy="bank-account-form-account-type"
-          label="Account Type"
-          placeholder="Checking, Savings, etc"
-          required
-          value={bankAccount.account_type}
-          onChange={({ target: { value } }) =>
+      <Box display="flex" flexDirection="column" mt={4}>
+        <BankAccountTypeDropdown
+          bankAccountType={bankAccount.account_type as BankAccountType}
+          setBankAccountType={(value) =>
             setBankAccount({ ...bankAccount, account_type: value })
           }
-          disabled={isFormDisabled}
         />
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>

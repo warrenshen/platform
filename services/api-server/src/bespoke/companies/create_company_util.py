@@ -531,7 +531,7 @@ def _create_partner_company_and_its_first_user_new(
         company_id=company_id,
         bank_name=request_info.get('bank_name'),
         account_title=request_info.get('bank_account_name'),
-        account_type='savings',
+        account_type=request_info.get('bank_account_type'),
         account_number=request_info.get('bank_account_number'),
         routing_number=request_info.get('bank_ach_routing_number'),
 		wire_routing_number=request_info.get('bank_wire_routing_number'),
@@ -806,7 +806,8 @@ def create_partnership_new(
 			bank_account = models.BankAccount( # type: ignore
 				company_id=company_id,
 				bank_name=request_info.get('bank_name'),
-				account_type=request_info.get('bank_account_name'),
+				account_title=request_info.get('bank_account_name'),
+        		account_type=request_info.get('bank_account_type'),
 				account_number=request_info.get('bank_account_number'),
 				routing_number=request_info.get('bank_ach_routing_number'),
 				wire_routing_number=request_info.get('bank_wire_routing_number'),

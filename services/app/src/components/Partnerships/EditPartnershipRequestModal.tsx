@@ -1,9 +1,6 @@
 import {
   Box,
   Button,
-  Select,
-  InputLabel,
-  MenuItem,
   createStyles,
   Dialog,
   DialogActions,
@@ -19,6 +16,7 @@ import {
 import useSnackbar from "hooks/useSnackbar";
 import FileUploader from "components/Shared/File/FileUploader";
 import PhoneInput from "components/Shared/FormInputs/PhoneInput";
+import BankAccountTypeDropdown from "components/BankAccount/BankAccountTypeDropdown";
 import { updatePartnershipRequestNewMutation } from "lib/api/companies";
 import { CreateVendorInput } from "pages/Anonymous/VendorForm";
 import { isEmailValid } from "lib/validation";
@@ -262,33 +260,15 @@ export default function EditPartnershipRequestModal({
             />
           </Box>
           <Box display="flex" flexDirection="column" mt={4}>
-            <InputLabel id="bank-account-type-label" required>
-              Bank Account Type
-            </InputLabel>
-            <Select
-              id="select-bank-account-type"
-              labelId="select-bank-account-type-label"
-              value={vendorInput.bankAccountType}
-              onChange={({ target: { value } }) =>
+            <BankAccountTypeDropdown
+              bankAccountType={vendorInput.bankAccountType as BankAccountType}
+              setBankAccountType={(value) =>
                 setVendorInput({
                   ...vendorInput,
                   bankAccountType: value as BankAccountType,
                 })
               }
-            >
-              <MenuItem
-                key={BankAccountType.Checking}
-                value={BankAccountType.Checking}
-              >
-                {BankAccountType.Checking}
-              </MenuItem>
-              <MenuItem
-                key={BankAccountType.Savings}
-                value={BankAccountType.Savings}
-              >
-                {BankAccountType.Savings}
-              </MenuItem>
-            </Select>
+            />
           </Box>
           <Box display="flex" flexDirection="column" mt={4}>
             <TextField
