@@ -1,32 +1,19 @@
-import base64
 import datetime
 import json
 import logging
-import math
-import os
-import time
-import typing
 from decimal import *
-from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, cast
+from typing import Any, Dict, List, cast
 
-from bespoke import errors
 from bespoke.date import date_util
-from bespoke.db import models, models_util
-from bespoke.db.db_constants import (CompanyDebtFacilityStatus, DebtFacilityEventCategory, 
-	DBOperation, LoanDebtFacilityStatus, ProductType, DebtFacilityCapacityTypeEnum)
+from bespoke.db import models
+from bespoke.db.db_constants import (DebtFacilityEventCategory, 
+	LoanDebtFacilityStatus, DebtFacilityCapacityTypeEnum)
 from bespoke.db.models import session_scope
 from bespoke.debt_facility import debt_facility_util
-from bespoke.email import sendgrid_util
-from bespoke.metrc.common.metrc_common_util import chunker, chunker_dict
-from bespoke.reports.report_generation_util import *
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
-from sendgrid.helpers.mail import (Attachment, Disposition, FileContent,
-                                   FileName, FileType)
-from server.config import Config, get_config
+from server.config import get_config
 from server.views.common import auth_util, handler_util
-from sqlalchemy import func, or_
-from sqlalchemy.orm.session import Session
 
 handler = Blueprint('debt_facility', __name__)
 config = get_config()

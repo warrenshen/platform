@@ -5,7 +5,6 @@ from bespoke.companies import company_facilities_util
 from bespoke.db.models import session_scope
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
-from server.config import Config
 from server.views.common import auth_util, handler_util
 
 handler = Blueprint('company_facilities', __name__)

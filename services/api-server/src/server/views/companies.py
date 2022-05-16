@@ -1,5 +1,4 @@
 import json
-import os
 from typing import Any, cast
 
 from bespoke import errors
@@ -9,7 +8,7 @@ from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.finance import contract_util
-from server.config import is_test_env, Config
+from server.config import Config
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from server.views.common import auth_util, handler_util

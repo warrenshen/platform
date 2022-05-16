@@ -5,15 +5,10 @@
 from typing import Any
 import json
 import logging
-import time
 import datetime
-import os
-import typing
-from datetime import timedelta
-from typing import Any, Callable, Iterable, Dict, List, Tuple, cast
-from flask import Blueprint, Response, current_app, make_response, request
+from typing import Any, Callable, List, Tuple, cast
+from flask import Response, current_app, make_response, request
 from flask.views import MethodView
-from mypy_extensions import TypedDict
 from sqlalchemy import func
 
 from bespoke import errors
@@ -21,14 +16,12 @@ from bespoke.audit import events
 from bespoke.companies import licenses_util
 from bespoke.companies.licenses_util import LicenseModificationDict
 from bespoke.date import date_util
-from bespoke.db import models, models_util
+from bespoke.db import models
 from bespoke.db.db_constants import DBOperation
 from bespoke.db.models import session_scope
-from bespoke.email import sendgrid_util
 from bespoke.finance.loans import reports_util
 from server.config import Config
 from server.views.common import auth_util, handler_util
-from server.views import shared_triggers
 
 @errors.return_error_tuple
 def _set_needs_balance_recomputed(
