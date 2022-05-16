@@ -2,7 +2,6 @@ import os
 import sys
 
 from os import path
-from typing import Iterable, List
 
 sys.path.append(path.realpath(path.join(os.getcwd(), "../../src")))
 from bespoke.inventory.analysis.shared.create_queries import *

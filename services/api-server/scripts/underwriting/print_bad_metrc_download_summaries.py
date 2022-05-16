@@ -1,17 +1,10 @@
-import json
-import numpy
 import click
 import os
 import pandas as pd
-import pyarrow
 import sys
-import math
-from datetime import date
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from os import path
-from typing import List, Dict, Tuple
-from collections import defaultdict
 
 # Path hack before we try to import bespoke
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))

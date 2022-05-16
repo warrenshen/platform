@@ -1,14 +1,9 @@
-import json
 import numpy
-import click
 import os
 import pandas as pd
-import pyarrow
 import sys
-import math
 from datetime import date
 from dotenv import load_dotenv
-from sqlalchemy import create_engine
 from os import path
 from typing import List, Dict, Tuple
 from collections import defaultdict
@@ -16,12 +11,6 @@ from collections import defaultdict
 # Path hack before we try to import bespoke
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
-
-from bespoke.inventory.analysis.shared import create_queries, prepare_data
-from bespoke.inventory.analysis.shared import download_util, inventory_types
-from bespoke.inventory.analysis import active_inventory_util as util
-from bespoke.inventory.analysis import inventory_valuations_util as valuations_util
-
 
 load_dotenv(
     "/Users/victoria/dev/platform/services/api-server/notebooks/.env"
