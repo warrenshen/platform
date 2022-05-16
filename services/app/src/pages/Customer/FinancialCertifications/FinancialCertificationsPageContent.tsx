@@ -81,7 +81,7 @@ export default function CustomerFinancialCertificationsPageContent({
 
   return (
     <PageContent
-      title={`Financial Reports Certifications`}
+      title={`Financial Report Certifications`}
       subtitle={
         "Review your current certification, submit a new certification, and view historical certifications."
       }
@@ -89,7 +89,7 @@ export default function CustomerFinancialCertificationsPageContent({
       <Can perform={Action.AddBorrowingBase}>
         <Box mt={2}>
           <ModalButton
-            label={`Create Financial Reports Certification`}
+            label={`Create Financial Report Certification`}
             modal={({ handleClose }) => (
               <CreateUpdateFinancialReportsCertificationModal
                 actionType={ActionType.New}
@@ -109,11 +109,11 @@ export default function CustomerFinancialCertificationsPageContent({
         <Box>
           <Box mb={1}>
             <Typography variant="h6">
-              {`Active Financial Reports Certification`}
+              {`Active Financial Report Certification`}
             </Typography>
             <Box width="50%">
               <Typography variant="body2">
-                Your active financial reports certification determines whether
+                Your active financial report certification determines whether
                 you are eligible for financing.
               </Typography>
             </Box>
@@ -124,14 +124,14 @@ export default function CustomerFinancialCertificationsPageContent({
                 !isActiveApplicationExpiringSoon ? (
                   <Alert severity="info" style={{ alignSelf: "flex-start" }}>
                     <Box maxWidth={600}>
-                      {`Your current financial reports certification is up-to-date.
+                      {`Your current financial report certification is up-to-date.
                       You can review its details below.`}
                     </Box>
                   </Alert>
                 ) : (
                   <Alert severity="warning" style={{ alignSelf: "flex-start" }}>
                     <Box maxWidth={600}>
-                      {`Your current financial reports certification is expiring
+                      {`Your current financial report certification is expiring
                       soon. Please submit a new certification.`}
                     </Box>
                   </Alert>
@@ -139,7 +139,7 @@ export default function CustomerFinancialCertificationsPageContent({
               ) : (
                 <Alert severity="warning" style={{ alignSelf: "flex-start" }}>
                   <Box maxWidth={600}>
-                    {`You do not have an up-to-date financial reports certification.
+                    {`You do not have an up-to-date financial report certification.
                     Please submit a new certification for approval, otherwise
                     you will not be able to receive financing.`}
                   </Box>
@@ -153,7 +153,7 @@ export default function CustomerFinancialCertificationsPageContent({
         <Box mt={3}>
           <Box mb={1}>
             <Typography variant="h6">
-              {`Historical Financial Reports Certifications`}
+              {`Historical Financial Report Certifications`}
             </Typography>
           </Box>
           <Box display="flex" flexDirection="row-reverse" mt={2} mb={2}>

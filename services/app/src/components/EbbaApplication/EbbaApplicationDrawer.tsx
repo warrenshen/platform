@@ -52,7 +52,7 @@ export default function EbbaApplicationDrawer({
     ebbaApplication?.category === ClientSurveillanceCategoryEnum.BorrowingBase;
   const ebbaApplicationDisplayCategory = isBorrowingBase
     ? "Borrowing Base"
-    : "Financial Reports";
+    : "Financial Report";
 
   const ebbaApplicationFileIds = useMemo(() => {
     return (

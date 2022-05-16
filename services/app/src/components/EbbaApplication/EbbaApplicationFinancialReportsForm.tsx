@@ -107,7 +107,7 @@ export default function EbbaApplicationFinancialReportsForm({
         {!isActionTypeUpdate && (
           <Box mb={1}>
             <Typography variant="subtitle2">
-              What month would you like to submit financial reports for?
+              What month would you like to submit your financial report for?
             </Typography>
           </Box>
         )}
@@ -137,7 +137,7 @@ export default function EbbaApplicationFinancialReportsForm({
                   >
                     {`${formatDateStringAsMonth(
                       certificationDate
-                    )}: submit financial reports as of ${formatDateString(
+                    )}: submit financial report as of ${formatDateString(
                       certificationDate
                     )}`}
                   </MenuItem>
@@ -151,7 +151,7 @@ export default function EbbaApplicationFinancialReportsForm({
         <Box mb={2}>
           <Box>
             <Typography variant="subtitle1" color="textSecondary">
-              Please upload the following required financial reports:
+              Please upload the following required documents:
             </Typography>
           </Box>
           {productType &&

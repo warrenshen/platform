@@ -93,7 +93,9 @@ export default function CreateUpdateFinancialReportsCertificationModal({
           )
         );
       } else {
-        snackbar.showError("Error! Could not get expected financial reports.");
+        snackbar.showError(
+          "Error! Could not get expected financial report certification."
+        );
       }
     },
   });
@@ -151,14 +153,14 @@ export default function CreateUpdateFinancialReportsCertificationModal({
   const handleClickSubmit = async () => {
     const savedEbbaApplication = await upsertEbbaApplication();
     if (!savedEbbaApplication) {
-      snackbar.showError("Could not submit financial reports certification.");
+      snackbar.showError("Could not submit financial report certification.");
       return;
     }
 
     // If editing the ebba application (only done by bank user),
     // there is no need to submit it to the bank.
     if (isActionTypeUpdate) {
-      snackbar.showSuccess("Financial reports certification saved.");
+      snackbar.showSuccess("Financial report certification saved.");
       handleClose();
     } else {
       const response = await submitEbbaApplication({
@@ -170,7 +172,7 @@ export default function CreateUpdateFinancialReportsCertificationModal({
         snackbar.showError(`Message: ${response.msg}`);
       } else {
         snackbar.showSuccess(
-          "Financial reports certification saved and submitted to Bespoke."
+          "Financial report certification saved and submitted to Bespoke."
         );
         handleClose();
       }
@@ -194,7 +196,7 @@ export default function CreateUpdateFinancialReportsCertificationModal({
       isPrimaryActionDisabled={isSubmitDisabled}
       title={`${
         isActionTypeUpdate ? "Edit" : "Create"
-      } Financial Reports Certification`}
+      } Financial Report Certification`}
       contentWidth={700}
       primaryActionText={"Submit"}
       handleClose={handleClose}
@@ -206,7 +208,7 @@ export default function CreateUpdateFinancialReportsCertificationModal({
             <Typography variant="body1">
               {`Warning: you are ${
                 isActionTypeUpdate ? "editing" : "creating"
-              } a financial reports certification on behalf of this
+              } a financial report certification on behalf of this
                 customer (only bank admins can do this).`}
             </Typography>
           </Alert>
@@ -226,9 +228,9 @@ export default function CreateUpdateFinancialReportsCertificationModal({
       <Box mt={4}>
         <Alert severity="warning">
           <Typography>
-            If you have PRIOR month financial reports that were ADJUSTED after
-            they were provided to Bespoke Financial, please edit your submission
-            for that month and attach the updated financials.
+            If you have PRIOR month financials that were ADJUSTED after being
+            provided to Bespoke Financial, please edit your certification for
+            that month and attach the updated documents.
           </Typography>
         </Alert>
       </Box>

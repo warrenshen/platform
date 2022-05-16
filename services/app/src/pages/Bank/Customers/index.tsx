@@ -195,7 +195,7 @@ export default function BankCustomersPage() {
       },
       {
         dataField: "application_date",
-        caption: "Most Recent Financial Reports Date",
+        caption: "Most Recent Financial Report Date",
         minWidth: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
