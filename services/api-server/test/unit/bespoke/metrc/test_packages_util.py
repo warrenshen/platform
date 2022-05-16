@@ -6,7 +6,7 @@ from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.metrc import packages_util
 from bespoke.metrc.common import metrc_common_util
-from bespoke.metrc.common.metrc_common_util import LicenseAuthDict, CompanyInfo
+from bespoke.metrc.common.metrc_common_util import LicenseAuthDict
 
 from bespoke_test.db import db_unittest, test_helper
 from bespoke_test.metrc import metrc_test_helper
