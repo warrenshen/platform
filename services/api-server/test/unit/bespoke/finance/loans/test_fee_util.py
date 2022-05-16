@@ -1,22 +1,16 @@
-import datetime
-import decimal
 import json
-import uuid
 import unittest
-from typing import Any, Callable, Dict, List, cast
+from typing import Any, Dict, List, cast
 
 from bespoke.date import date_util
-from bespoke.db import db_constants, models
+from bespoke.db import models
 from bespoke.db.db_constants import ProductType
-from bespoke.db.models import session_scope
-from bespoke.finance.payments import payment_util
 from bespoke.finance.loans import fee_util
 from bespoke.finance.loans.fee_util import ProratedFeeInfoDict
 from bespoke.finance import contract_util
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest, test_helper
-from bespoke_test.payments import payment_test_helper
 
 def _get_late_fee_structure() -> str:
 	return json.dumps({

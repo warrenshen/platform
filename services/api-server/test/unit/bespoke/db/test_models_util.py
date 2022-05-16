@@ -1,10 +1,8 @@
-import unittest
 import uuid
 from sqlalchemy.orm.session import Session
 
 from bespoke.db import models, models_util
 from bespoke.db.models import session_scope
-from bespoke.db import db_constants
 
 from bespoke_test.db import db_unittest
 
