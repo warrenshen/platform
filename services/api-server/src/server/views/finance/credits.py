@@ -1,21 +1,16 @@
-import datetime
 import json
-from typing import Any, Dict, List, Tuple, cast
+from typing import Any
 
-from bespoke import errors
 from bespoke.audit import events
 from bespoke.date import date_util
-from bespoke.db import db_constants, models
+from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.finance.payments import payment_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
-from mypy_extensions import TypedDict
-from server.config import Config
 from server.views.common import auth_util, handler_util
 
 handler = Blueprint('finance_credits', __name__)
-
 
 class CreateCreditForCustomerView(MethodView):
 	decorators = [auth_util.bank_admin_required]

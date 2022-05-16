@@ -1,5 +1,5 @@
 import json
-from typing import Any, Callable, List, cast
+from typing import Any, cast
 
 from bespoke import errors
 from bespoke.audit import events
