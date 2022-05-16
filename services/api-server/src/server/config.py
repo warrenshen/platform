@@ -6,8 +6,7 @@ from bespoke.config.config_util import (
 	is_prod_env, is_development_env, is_test_env, 
 	MetrcWorkerConfig, FCSConfigDict)
 from bespoke.config import config_util
-from bespoke.email import email_manager
-from bespoke.email.email_manager import EmailConfigDict, EmailSender, SendGridConfigDict
+from bespoke.email.email_manager import EmailConfigDict, SendGridConfigDict
 from bespoke.security import security_util
 
 

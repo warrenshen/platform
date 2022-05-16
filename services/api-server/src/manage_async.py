@@ -4,7 +4,7 @@ import os
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
 from dotenv import load_dotenv
-from flask import Flask, current_app
+from flask import Flask
 from flask_cors import CORS
 from flask_script import Manager
 
