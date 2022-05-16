@@ -1,36 +1,25 @@
-import base64
 import datetime
 import json
 import logging
-import math
 import os
-import time
-import typing
 from decimal import *
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, cast
 
-import pdfkit
-import requests
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models, models_util
-from bespoke.db.db_constants import (DBOperation, LoanStatusEnum, LoanTypeEnum,
+from bespoke.db.db_constants import (LoanStatusEnum, LoanTypeEnum,
                                      PaymentType, FinancialSummaryPayloadField)
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.finance import contract_util, number_util
-from bespoke.finance.loans import reports_util
 from bespoke.finance.loans.loan_calculator import (LoanUpdateDict)
-from bespoke.finance.payments import fees_due_util
 from bespoke.finance.reports import loan_balances
-from bespoke.finance.types.payment_types import PaymentItemsCoveredDict
 from bespoke.metrc.common.metrc_common_util import chunker, chunker_dict
 from bespoke.reports.report_generation_util import (ReportGenerationContext, prepare_email_attachment,
 												record_report_run_metadata, get_all_open_loans)
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
-from sendgrid.helpers.mail import (Attachment, Disposition, FileContent,
-                                   FileName, FileType)
 from server.config import Config, get_config
 from server.views.common import auth_util, handler_util
 from sqlalchemy import func, or_
