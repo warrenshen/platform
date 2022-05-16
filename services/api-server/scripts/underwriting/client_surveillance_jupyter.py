@@ -649,7 +649,6 @@ def get_gmv_change_bm(state):
     elif state == "CO":
         return [
             [
-                -0.11,
                 0.23,
                 -0.01,
                 -0.06,
@@ -662,25 +661,26 @@ def get_gmv_change_bm(state):
                 0.06,
                 0.09,
                 -0.16,
+                0.12
             ],
             [0.04, 0.12, 0.2, 0.28, 0.36, 0.44, 0.52, 0.6, 0.68, 0.76, 0.84, 0.92, 1],
         ]
     elif state == "MI":
         return [
             [
-                0.36,
-                0.01,
-                -0.07,
-                -0.02,
-                0.12,
-                -0.11,
-                -0.04,
                 -0.01,
                 -0.1,
-                0.06,
+                -0.05,
+                0.08,
                 -0.11,
-                0.01,
-                -0.09,
+                -0.06,
+                -0.03,
+                -0.1,
+                0.04,
+                -0.13,
+                -0.01,
+                -0.05,
+                0.22
             ],
             [0.04, 0.12, 0.2, 0.28, 0.36, 0.44, 0.52, 0.6, 0.68, 0.76, 0.84, 0.92, 1],
         ]
@@ -772,10 +772,22 @@ def calculate_quarterly_sum_gmv_ma(cogs_analysis_df, bm):
     return gmv_df
 
 
+def calculate_quarterly_sum_gmv_ma_short(cogs_analysis_df):
+# for NECC
+    gmv_df = cogs_analysis_df[(cogs_analysis_df['date'] >= '2021-09')&(cogs_analysis_df['date'] <= '2022-03')][['revenue_change']]
+    gmv_df['sum_gmv_change_ma'] = [-0.07,0.09,-0.11,0.02,0.05]
+    gmv_df['weight'] = [0.68,0.76,0.84,0.92,1]
+    gmv_df['variance'] = gmv_df['revenue_change'] - gmv_df['sum_gmv_change_ma']
+    gmv_df['points'] = [gmv_change_variance_point_mapping(n) for n in gmv_df['variance']]
+    gmv_df.replace([numpy.inf, -numpy.inf], numpy.nan, inplace=True)
+    gmv_df['total'] = gmv_df['points'] * gmv_df['weight']
+    return gmv_df
+
+
 def calculate_quarterly_sum_gmv_co(cogs_analysis_df, bm):
     gmv_df = cogs_analysis_df[
-        (cogs_analysis_df["date"] >= "2021-02")
-        & (cogs_analysis_df["date"] <= "2022-02")
+        (cogs_analysis_df["date"] >= "2021-03")
+        & (cogs_analysis_df["date"] <= "2022-03")
     ][["revenue_change"]]
     gmv_df["sum_gmv_change_co"] = bm[0]
     gmv_df["weight"] = bm[1]
@@ -790,8 +802,8 @@ def calculate_quarterly_sum_gmv_co(cogs_analysis_df, bm):
 
 def calculate_quarterly_sum_gmv_mi(cogs_analysis_df, bm):
     gmv_df = cogs_analysis_df[
-        (cogs_analysis_df["date"] >= "2021-03")
-        & (cogs_analysis_df["date"] <= "2022-03")
+        (cogs_analysis_df["date"] >= "2021-04")
+        & (cogs_analysis_df["date"] <= "2022-04")
     ][["revenue_change"]]
     gmv_df["sum_gmv_change_mi"] = bm[0]
     gmv_df["weight"] = bm[1]
@@ -952,6 +964,7 @@ def calculate_inventory_valuation_fresh(
         columns={"per_unit_incoming": "per_unit_product"}, inplace=True
     )
     # prepare fresh inventory
+    inventory_df = inventory_df.reset_index(drop = True)
     inventory_df["age"] = [
         today_date - inventory_df["packaged_date"][i] for i in range(len(inventory_df))
     ]
@@ -1021,7 +1034,7 @@ def calculate_inventory_valuation_fresh(
         "license",
         "legal_name",
     ]
-    return df_inventory_license
+    return df_inventory_license,inventory_df
 
 
 def calculate_msrp_based_inventory_valuation(
@@ -1214,7 +1227,7 @@ def create_template_new(
             current_month
         ]
 
-        # inventory valuation msrp based
+    # inventory valuation msrp based
     inventory_msrp = df_inventory_analysis_msrp["value"][0]
 
     # past 3m cogs with tax
@@ -1334,6 +1347,7 @@ def create_template_update(
     df_cogs_analysis,
     df_inventory_analysis,
     df_inventory_analysis_msrp,
+    df_inventory_analysis_fresh,
     df_churn,
     df_license_check,
     license_list,
@@ -1365,18 +1379,21 @@ def create_template_update(
 
     # inventory valuation
     inventory = df_inventory_analysis["value"][0]
+    fresh_inventory = df_inventory_analysis_fresh["value"][0]
     if state_ == "CA":
         inventory_after_tax = df_inventory_analysis["value_after_tax"][0]
         sum_cogs_past_3months_after_tax = (
             df_cogs_analysis["sum_cogs_past_3months"].loc[current_month] * 1.27
         )
+        fresh_inventory_after_tax = df_inventory_analysis_fresh["value_after_tax"][0]
     else:
         inventory_after_tax = inventory
         sum_cogs_past_3months_after_tax = df_cogs_analysis["sum_cogs_past_3months"].loc[
             current_month
         ]
+        fresh_inventory_after_tax = fresh_inventory
 
-        # inventory valuation msrp based
+        # inventory valuation msrp based (no tax)
     inventory_msrp = df_inventory_analysis_msrp["value"][0]
 
     # past 3m cogs with tax
@@ -1454,9 +1471,9 @@ def create_template_update(
                 .reset_index()
                 .license_check[0],
             ],
-            ["metrc cogs coverage", metrc_cogs_coverage_current],
+            ["metrc cogs coverage", round(metrc_cogs_coverage_current,2)],
             ["metrc cogs coverage reliable ?", metrc_cogs_coverage_current_reliable],
-            ["metrc inventory coverage", metrc_inventory_coverage_current],
+            ["metrc inventory coverage", round(metrc_inventory_coverage_current,2)],
             [
                 "metrc inventory coverage reliable ?",
                 metrc_inventory_coverage_current_reliable,
@@ -1464,12 +1481,12 @@ def create_template_update(
             ["inventory turnover", inventory_to_current],
             ["inventory turnover score", inventory_to_current_score],
             # gm
-            ["GM past quarter", gm_past_quarter],
-            ["GM score past quarter", gm_past_quarter_score],
-            ["GM past 2 quarters", gm_past_2quarters],
-            ["GM score past 2 quarters", gm_past_2quarters_score],
-            ["GM past 3 quarters", gm_past_3quarters],
-            ["GM score past 3 quarters", gm_past_3quarters_score],
+            ["GM past 3m", gm_past_quarter],
+            ["GM score 3m", gm_past_quarter_score],
+            ["GM past 6m", gm_past_2quarters],
+            ["GM score past 6m", gm_past_2quarters_score],
+            ["GM past 9m", gm_past_3quarters],
+            ["GM score past 9m", gm_past_3quarters_score],
             ["Total GM perc score", total_gm_perc_score],
             ["GM dollar", gm_dollar],
             ["GM dollar score", gm_dollar_score],
@@ -1482,18 +1499,20 @@ def create_template_update(
             # inventory valuation
             ["inventory valuation", round(inventory, 2)],
             ["inventory valuation after tax (CA only)", round(inventory_after_tax, 2)],
+            ["fresh inventory valuation", round(fresh_inventory, 2)],
+            ["fresh inventory valuation after tax (CA only)", round(fresh_inventory_after_tax, 2)],
             # inventory valuation msrp based
             ["inventory valuation (msrp based)", round(inventory_msrp, 2)],
             # sum past 3m cogs afte tax
-            ["sum_cogs_past_3months", round(sum_cogs_past_3months, 2)],
+            ["sum cogs past 3m", round(sum_cogs_past_3months, 2)],
             [
-                "sum_cogs_past_3months after tax (CA only)",
+                "sum cogs past 3m after tax (CA only)",
                 round(sum_cogs_past_3months_after_tax, 2),
             ],
             # total score
             ["total score", total],
-            ["Monthly Rate (%)",calculate_interest_rate(total, 45)[0]*100],
-            ["interest rate (%)", calculate_interest_rate(total, 45)[1]*100],
+            ["Calculated monthly Rate (%)",calculate_interest_rate(total, 45)[0]*100],
+            ["Calculated interest rate (%)", calculate_interest_rate(total, 45)[1]*100],
             ["credit limit", credit_limit],
         ]
     )
