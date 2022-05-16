@@ -23,15 +23,11 @@ export default function BankAccountTypeDropdown({
           setBankAccountType(value as BankAccountType)
         }
       >
-        <MenuItem
-          key={BankAccountType.Checking}
-          value={BankAccountType.Checking}
-        >
-          {BankAccountType.Checking}
-        </MenuItem>
-        <MenuItem key={BankAccountType.Savings} value={BankAccountType.Savings}>
-          {BankAccountType.Savings}
-        </MenuItem>
+        {Object.keys(BankAccountType).map((key) => (
+          <MenuItem key={key} value={key}>
+            {key}
+          </MenuItem>
+        ))}
       </Select>
     </>
   );
