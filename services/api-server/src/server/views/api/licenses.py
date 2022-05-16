@@ -1,20 +1,13 @@
 import json
-from datetime import timedelta
 from typing import Any, List, Iterable, cast
 
-from bespoke import errors
-from bespoke.audit import events
 from bespoke.companies import licenses_util
 from bespoke.companies.licenses_util import CompanyLicenseInputDict
-from bespoke.db import db_constants, models, models_util
+from bespoke.db import models_util
 from bespoke.db.models import session_scope
-from dateutil import parser
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
-from mypy_extensions import TypedDict
-from server.config import Config
 from server.views.common import auth_util, handler_util
-from server.views.common.auth_util import UserSession
 
 handler = Blueprint('licenses_api', __name__)
 

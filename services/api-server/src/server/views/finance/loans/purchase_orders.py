@@ -2,7 +2,7 @@ import datetime
 import decimal
 import json
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Tuple, cast
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 from bespoke import errors
 from bespoke.audit import events
@@ -10,7 +10,7 @@ from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.db_constants import LoanStatusEnum, LoanTypeEnum
 from bespoke.email import sendgrid_util
-from bespoke.finance.loans import approval_util, sibling_util
+from bespoke.finance.loans import approval_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from server.config import Config

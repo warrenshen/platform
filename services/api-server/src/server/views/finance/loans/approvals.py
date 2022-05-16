@@ -11,7 +11,6 @@ from bespoke.finance import number_util
 from bespoke.finance.loans import approval_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
-from mypy_extensions import TypedDict
 from server.config import Config
 from server.views.common import auth_util, handler_util
 
