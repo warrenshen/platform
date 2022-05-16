@@ -117,11 +117,7 @@ def check_incoming_transfer_package_coverage(
 
 
 def calculate_vendor_churn(
-    incoming_transfer_df,
-    license_list,
-    vc_start_date,
-    vc_end_date,
-    vc_month_list
+    incoming_transfer_df, license_list, vc_start_date, vc_end_date, vc_month_list
 ):
     df_vendor_churn = incoming_transfer_df[
         incoming_transfer_df["license_number"].isin(license_list)
@@ -903,11 +899,114 @@ def calculate_inventory_valuation(
     # prepare data
     data = [
         [today_date],
-        [round(total_inv_value,2)],
-        [round(total_inv_value_after_tax,2)],
+        [round(total_inv_value, 2)],
+        [round(total_inv_value_after_tax, 2)],
         [inv_total_incoming],
         [inv_count_total],
-        [round(inventory_coverage,2)],
+        [round(inventory_coverage, 2)],
+        [license_list],
+        [legal_name],
+    ]
+    df_inventory_license = pd.DataFrame(data).T
+    df_inventory_license.columns = [
+        "date",
+        "value",
+        "value_after_tax",
+        "total_incoming",
+        "total",
+        "coverage",
+        "license",
+        "legal_name",
+    ]
+    return df_inventory_license
+
+
+def calculate_inventory_valuation_fresh(
+    incoming_transfer_df, inventory_df, license_list, today_date
+):
+    # legal name
+    legal_name = incoming_transfer_df[
+        incoming_transfer_df["license_number"].isin(license_list)
+    ]["recipient_facility_name"].values[0]
+    # process df_in and df_sales
+    incoming_transfer_df["per_unit_incoming"] = (
+        incoming_transfer_df["shipper_wholesale_price"]
+        / incoming_transfer_df["shipped_quantity"]
+    )
+    incoming_transfer_df_price = incoming_transfer_df[
+        incoming_transfer_df["shipper_wholesale_price"].notnull()
+    ]
+    # by package id
+    average_incoming_package_id = incoming_transfer_df_price.groupby(["package_id"])[
+        "per_unit_incoming"
+    ].mean()
+    df_avg_incoming_price = pd.Series(average_incoming_package_id).to_frame()
+    df_avg_incoming_price = df_avg_incoming_price.reset_index()
+    # by product
+    average_incoming_product = incoming_transfer_df_price.groupby(["product_name"])[
+        "per_unit_incoming"
+    ].mean()
+    df_avg_product = pd.Series(average_incoming_product).to_frame()
+    df_avg_product = df_avg_product.reset_index()
+    df_avg_product.rename(
+        columns={"per_unit_incoming": "per_unit_product"}, inplace=True
+    )
+    # prepare fresh inventory
+    inventory_df["age"] = [
+        today_date - inventory_df["packaged_date"][i] for i in range(len(inventory_df))
+    ]
+    inventory_df["age_int"] = [
+        inventory_df["age"][i] / numpy.timedelta64(1, "D")
+        for i in range(len(inventory_df))
+    ]
+    inventory_df_fresh = inventory_df[inventory_df["age_int"] <= 90]
+
+    # calculate inventory
+    df_inventory_incoming = pd.merge(
+        inventory_df_fresh,
+        df_avg_incoming_price,
+        left_on=["package_id"],
+        right_on=["package_id"],
+        how="left",
+    )
+    # left_on=['tx_product_name','tx_unit_of_measure'], right_on=['product_name','shipped_unit_of_measure'], how='left'
+    df_inventory_incoming.replace([numpy.inf], numpy.nan, inplace=True)
+    df_inv_null = df_inventory_incoming[
+        df_inventory_incoming["per_unit_incoming"].isnull()
+    ]
+    df_inv_product = pd.merge(
+        df_inv_null,
+        df_avg_product,
+        left_on=["product_name"],
+        right_on=["product_name"],
+        how="left",
+    )
+    df_inv_product.replace([numpy.inf], numpy.nan, inplace=True)
+    df_inv_product_price = df_inv_product[df_inv_product["per_unit_product"].notnull()]
+    df_inv_product_price["total_price"] = (
+        df_inv_product_price["quantity"] * df_inv_product_price["per_unit_product"]
+    )
+
+    inventory_product_value = df_inv_product_price["total_price"].sum()
+    df_inventory_incoming["total_price"] = (
+        df_inventory_incoming["quantity"] * df_inventory_incoming["per_unit_incoming"]
+    )
+    inventory_value = df_inventory_incoming["total_price"].sum()
+    total_inv_value = inventory_product_value + inventory_value
+    total_inv_value_after_tax = (inventory_product_value + inventory_value) * 1.27
+    inv_count_product = df_inv_product_price["per_unit_product"].count()
+    inv_count_incoming = df_inventory_incoming["per_unit_incoming"].count()
+    inv_count_total = df_inventory_incoming["quantity"].count()
+    inv_total_incoming = inv_count_product + inv_count_incoming
+    inventory_coverage = inv_total_incoming / inv_count_total
+    # prepare data
+    data = [
+        [today_date],
+        [round(total_inv_value, 2)],
+        [round(total_inv_value_after_tax, 2)],
+        [inv_total_incoming],
+        [inv_count_total],
+        [round(inventory_coverage, 2)],
         [license_list],
         [legal_name],
     ]
@@ -985,10 +1084,10 @@ def calculate_msrp_based_inventory_valuation(
     # prepare data
     data = [
         [today_date],
-        [round(total_inv_value,2)],
+        [round(total_inv_value, 2)],
         [inv_total_mapped],
         [inv_count_total],
-        [round(inventory_coverage,2)],
+        [round(inventory_coverage, 2)],
         [license_list],
         [legal_name],
     ]
@@ -1064,7 +1163,7 @@ def calculate_interest_rate(score, full_score):
     score_ratio = score / full_score
     placeholder = (1 + 0.5 * (1 - score_ratio)) * 0.015
     rate = placeholder * 12
-    return rate
+    return round(placeholder,4),round(rate,4)
 
 
 # create template file with after tax inventory valuation and also credit limit
@@ -1222,7 +1321,179 @@ def create_template_new(
             ],
             # total score
             ["total score", total],
-            ["interest rate (UW)", calculate_interest_rate(total, 45)],
+            ["Monthly Rate (%)",calculate_interest_rate(total, 45)[0]*100],
+            ["interest rate (%)", calculate_interest_rate(total, 45)[1]*100],
+            ["credit limit", credit_limit],
+        ]
+    )
+    return template_data
+
+
+def create_template_update(
+    df_rev_vs_state,
+    df_cogs_analysis,
+    df_inventory_analysis,
+    df_inventory_analysis_msrp,
+    df_churn,
+    df_license_check,
+    license_list,
+    state_,
+    current_month,
+):
+    # legal name
+    legal_name = df_inventory_analysis["legal_name"][0]
+    # cogs coverage check
+    metrc_cogs_coverage_current = df_cogs_analysis[df_cogs_analysis["coverage"] > 0][
+        "coverage"
+    ].mean()
+    metrc_cogs_coverage_current_reliable = metrc_cogs_coverage_current > 0.75
+    print(metrc_cogs_coverage_current, metrc_cogs_coverage_current_reliable)
+
+    # inventory coverage check
+    metrc_inventory_coverage_current = df_inventory_analysis.coverage.values[0]
+    metrc_inventory_coverage_current_reliable = metrc_inventory_coverage_current > 0.75
+    print(metrc_inventory_coverage_current, metrc_inventory_coverage_current_reliable)
+
+    # inventory TO
+    inventory_to_current = (
+        df_cogs_analysis.loc[current_month]["sum_cogs_past_3months"]
+        / df_inventory_analysis.value[0]
+        * 4
+    )
+    inventory_to_current_score = 0 if inventory_to_current < 6 else 10
+    print(inventory_to_current, inventory_to_current_score)
+
+    # inventory valuation
+    inventory = df_inventory_analysis["value"][0]
+    if state_ == "CA":
+        inventory_after_tax = df_inventory_analysis["value_after_tax"][0]
+        sum_cogs_past_3months_after_tax = (
+            df_cogs_analysis["sum_cogs_past_3months"].loc[current_month] * 1.27
+        )
+    else:
+        inventory_after_tax = inventory
+        sum_cogs_past_3months_after_tax = df_cogs_analysis["sum_cogs_past_3months"].loc[
+            current_month
+        ]
+
+        # inventory valuation msrp based
+    inventory_msrp = df_inventory_analysis_msrp["value"][0]
+
+    # past 3m cogs with tax
+    sum_cogs_past_3months = df_cogs_analysis["sum_cogs_past_3months"].loc[current_month]
+    # gm dollar
+    gm_dollar = round(df_cogs_analysis["margin_$"].mean(), 2)
+    gm_dollar_score = 15 if gm_dollar >= 200000 else 0
+
+    # credit limit
+    credit_limit = round(min(sum_cogs_past_3months_after_tax, inventory_after_tax), -4)
+
+    # vendor churn score
+    vendor_churn_current = df_churn.loc[current_month]["%_inactive"].values[0]
+    vendor_churn_current_score = 0 if vendor_churn_current > 0.2 else 10
+    print(vendor_churn_current, vendor_churn_current_score)
+    # margin score
+    if df_cogs_analysis.shape[0] < 10:
+        gm_past_quarter = df_cogs_analysis.loc[current_month]["gm_final"]
+        gm_past_2quarters = df_cogs_analysis.shift(1).loc[current_month]["gm_final"]
+        gm_past_3quarters = df_cogs_analysis.shift(2).loc[current_month]["gm_final"]
+    else:
+        # gm past 1,2,3 quarters (after tax if CA else pre tax)
+        gm_past_quarter = df_cogs_analysis.loc[current_month]["gm_past_quarter_final"]
+        gm_past_2quarters = df_cogs_analysis.loc[current_month][
+            "gm_past_2quarters_final"
+        ]
+        gm_past_3quarters = df_cogs_analysis.loc[current_month][
+            "gm_past_3quarters_final"
+        ]
+
+    (
+        gm_past_quarter_score,
+        gm_past_2quarters_score,
+        gm_past_3quarters_score,
+    ) = get_gm_perc_scores(
+        get_gm_perc_thresholds(state_),
+        gm_past_quarter,
+        gm_past_2quarters,
+        gm_past_3quarters,
+    )
+    total_gm_perc_score = (
+        gm_past_quarter_score + gm_past_2quarters_score + gm_past_3quarters_score
+    )
+    total_gm_score = min(total_gm_perc_score + gm_dollar_score, 15)
+
+    # revenue vs state score
+    revenue_state_score = min(round(df_rev_vs_state.dropna()["total"].sum(), 2), 10)
+    total = (
+        inventory_to_current_score
+        + total_gm_score
+        + vendor_churn_current_score
+        + revenue_state_score
+    )
+    # all templates
+    template_data = pd.DataFrame(
+        [
+            ["legal name", legal_name],
+            ["date", current_month],
+            ["license", license_list],
+            [
+                "license is current",
+                df_license_check[df_license_check["license_number"].isin(license_list)]
+                .reset_index()
+                .is_current[0],
+            ],
+            [
+                "license is active",
+                df_license_check[df_license_check["license_number"].isin(license_list)]
+                .reset_index()
+                .license_status[0],
+            ],
+            [
+                "license check",
+                df_license_check[df_license_check["license_number"].isin(license_list)]
+                .reset_index()
+                .license_check[0],
+            ],
+            ["metrc cogs coverage", metrc_cogs_coverage_current],
+            ["metrc cogs coverage reliable ?", metrc_cogs_coverage_current_reliable],
+            ["metrc inventory coverage", metrc_inventory_coverage_current],
+            [
+                "metrc inventory coverage reliable ?",
+                metrc_inventory_coverage_current_reliable,
+            ],
+            ["inventory turnover", inventory_to_current],
+            ["inventory turnover score", inventory_to_current_score],
+            # gm
+            ["GM past quarter", gm_past_quarter],
+            ["GM score past quarter", gm_past_quarter_score],
+            ["GM past 2 quarters", gm_past_2quarters],
+            ["GM score past 2 quarters", gm_past_2quarters_score],
+            ["GM past 3 quarters", gm_past_3quarters],
+            ["GM score past 3 quarters", gm_past_3quarters_score],
+            ["Total GM perc score", total_gm_perc_score],
+            ["GM dollar", gm_dollar],
+            ["GM dollar score", gm_dollar_score],
+            ["Total GM score", total_gm_score],
+            # vendor churn
+            ["vendor churn", vendor_churn_current],
+            ["vendor churn score", vendor_churn_current_score],
+            # revenue trend vs state
+            ["revenue vs state change score", revenue_state_score],
+            # inventory valuation
+            ["inventory valuation", round(inventory, 2)],
+            ["inventory valuation after tax (CA only)", round(inventory_after_tax, 2)],
+            # inventory valuation msrp based
+            ["inventory valuation (msrp based)", round(inventory_msrp, 2)],
+            # sum past 3m cogs afte tax
+            ["sum_cogs_past_3months", round(sum_cogs_past_3months, 2)],
+            [
+                "sum_cogs_past_3months after tax (CA only)",
+                round(sum_cogs_past_3months_after_tax, 2),
+            ],
+            # total score
+            ["total score", total],
+            ["Monthly Rate (%)",calculate_interest_rate(total, 45)[0]*100],
+            ["interest rate (%)", calculate_interest_rate(total, 45)[1]*100],
             ["credit limit", credit_limit],
         ]
     )
