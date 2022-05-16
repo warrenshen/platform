@@ -1,9 +1,7 @@
 from mypy_extensions import TypedDict
 from typing import List
 
-from bespoke.db.db_constants import (
-	MetrcDownloadStatus, MetrcDownloadSummaryStatus
-)
+from bespoke.db.db_constants import MetrcDownloadStatus
 
 BESPOKE_INTERNAL_ERROR_STATUS_CODE = -100 # some random number that won't be reused by an HTTP Response
 UNAUTHORIZED_ERROR_STATUSES = set([401, 403])

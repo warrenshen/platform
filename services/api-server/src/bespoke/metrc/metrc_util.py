@@ -1,4 +1,3 @@
-import base64
 import concurrent
 import datetime
 import logging
@@ -6,8 +5,7 @@ import os
 import time
 import traceback
 from concurrent.futures import ThreadPoolExecutor
-from datetime import timedelta
-from typing import Any, Callable, Dict, List, Tuple, cast
+from typing import Callable, Dict, List, Tuple, cast
 
 import requests
 from bespoke import errors
@@ -16,7 +14,6 @@ from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
-from bespoke.finance import contract_util
 from bespoke.metrc import (
 	transfers_util, sales_util, 
 	packages_util, plants_util, plant_batches_util, harvests_util
@@ -27,11 +24,9 @@ from bespoke.metrc.common.metrc_error_util import (
 )
 from bespoke.metrc.common.metrc_common_util import (
 	AuthDict, CompanyInfo, CompanyStateInfoDict, LicenseAuthDict, 
-	MetrcErrorDetailsDict,
-	UNKNOWN_STATUS_CODE
+	MetrcErrorDetailsDict
 )
 from bespoke.security import security_util
-from dateutil import parser
 from dotenv import load_dotenv
 from mypy_extensions import TypedDict
 from requests.auth import HTTPBasicAuth

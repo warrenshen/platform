@@ -1,12 +1,9 @@
 import logging
-import datetime
 import json
-import requests
 
 from dateutil import parser
-from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
-from typing import Any, Callable, List, Tuple, Dict, cast
+from typing import Any, Callable, List, Dict, cast
 
 from bespoke import errors
 from bespoke.db import models
