@@ -1,24 +1,18 @@
-import datetime
-import decimal
 import json
-import uuid
-from dateutil import parser
 from sqlalchemy.orm.session import Session
-from typing import Any, Dict, List, cast
+from typing import Dict, List, cast
 
 from bespoke.date import date_util
-from bespoke.db import db_constants, models, model_types
-from bespoke.db.db_constants import (PaymentMethodEnum, PaymentStatusEnum,
+from bespoke.db import db_constants, models
+from bespoke.db.db_constants import (PaymentMethodEnum, 
                                      ProductType, MinimumAmountDuration)
 from bespoke.db.models import session_scope
-from bespoke.finance import number_util
 from bespoke.finance.payments import fees_due_util, payment_util
 
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest, test_helper
 from bespoke_test.finance import finance_test_helper
-from bespoke_test.payments import payment_test_helper
 
 def _set_is_dummy_account(company_id: str, session: Session) -> None:
 		company = session.query(models.Company).get(company_id)

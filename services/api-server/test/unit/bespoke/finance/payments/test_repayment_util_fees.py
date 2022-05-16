@@ -1,10 +1,10 @@
 import uuid
-from typing import Any, Dict, List, cast
+from typing import Dict, List, cast
 
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
-from bespoke.finance.payments import payment_util, repayment_util_fees
+from bespoke.finance.payments import repayment_util_fees
 from bespoke_test.db import db_unittest, test_helper
 from bespoke_test.finance import finance_test_helper
 from bespoke.finance.types import payment_types
