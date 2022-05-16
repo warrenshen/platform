@@ -1,23 +1,18 @@
-import datetime
 import json
 import logging
-from typing import Any, Callable, Dict, List, Tuple, cast
+from typing import Any, Dict, Tuple, cast
 
 from bespoke import errors
 from bespoke.audit import events
 from bespoke.date import date_util
-from bespoke.db import db_constants, models, model_types
+from bespoke.db import models, model_types
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.finance import number_util
-from bespoke.finance.fetchers import per_customer_fetcher
-from bespoke.finance.payments import payment_util, repayment_util
-from bespoke.finance.types import per_customer_types
+from bespoke.finance.payments import repayment_util
 from bespoke.finance.types import payment_types
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
-from mypy_extensions import TypedDict
-from server.config import Config
 from server.views.common import auth_util, handler_util
 
 handler = Blueprint('finance_loans_repayments', __name__)

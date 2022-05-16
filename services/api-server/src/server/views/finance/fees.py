@@ -1,18 +1,14 @@
-import datetime
 import json
-from typing import Any, Dict, List, Tuple, cast
+from typing import Any, Dict, cast
 
-from bespoke import errors
 from bespoke.audit import events
 from bespoke.date import date_util
-from bespoke.db import db_constants, model_types, models
+from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
 from bespoke.finance.payments import (fees_due_util, payment_util,
                                       repayment_util, repayment_util_fees)
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
-from mypy_extensions import TypedDict
-from server.config import Config
 from server.views.common import auth_util, handler_util
 
 handler = Blueprint('finance_fees', __name__)

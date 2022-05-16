@@ -1,13 +1,8 @@
-import datetime
 import json
-from typing import Any, cast
 
-from bespoke.db import db_constants, models
-from bespoke.db.models import session_scope
 from bespoke.finance.loans import artifacts_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
-from mypy_extensions import TypedDict
 from server.views.common import auth_util, handler_util
 
 handler = Blueprint('finance_loans_artifacts', __name__)
