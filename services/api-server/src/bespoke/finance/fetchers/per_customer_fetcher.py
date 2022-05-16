@@ -3,7 +3,6 @@
 """
 import datetime
 from datetime import timedelta
-from mypy_extensions import TypedDict
 from typing import Callable, List, Tuple, cast
 from sqlalchemy.orm.session import Session
 

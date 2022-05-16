@@ -4,21 +4,13 @@
 import logging
 import xlwt
 
-from mypy_extensions import TypedDict
-from typing import Callable, Tuple, List, cast
+from typing import List
 
-from bespoke.db import models, db_constants
-from bespoke.db.models import session_scope
-from bespoke.db.models import (
-	CompanyDict, CompanySettingsDict,
-	LoanDict, TransactionDict, PaymentDict
-)
-from bespoke import errors
+from bespoke.db import db_constants
 from bespoke.excel import excel_writer
 from bespoke.date import date_util
 from bespoke.finance import number_util
 from bespoke.finance import contract_util
-from bespoke.finance.fetchers import per_customer_fetcher
 from bespoke.finance.types import per_customer_types
 
 class ExcelCreator(object):

@@ -2,9 +2,8 @@
 	A file to help us manage the state of a contract in the DB
 """
 import datetime
-import json
 import logging
-from typing import Any, Callable, Dict, List, Tuple, Union, cast
+from typing import Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util

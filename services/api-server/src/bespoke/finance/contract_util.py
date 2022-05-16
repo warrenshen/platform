@@ -3,7 +3,7 @@ import json
 import logging
 import sys
 from datetime import timedelta
-from typing import Any, Callable, Dict, List, NamedTuple, Tuple, cast
+from typing import Any, Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
