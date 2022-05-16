@@ -1,33 +1,22 @@
-import datetime
-import decimal
 import json
-import uuid
-import requests
-from dateutil import parser
-from mypy_extensions import TypedDict
-from sqlalchemy.orm.session import Session
-from typing import Any, Dict, List, Tuple, NamedTuple, cast
-from fastapi_utils.guid_type import GUID
+from typing import Any, Dict, List, Tuple, cast
 
 from bespoke import errors
 
 from bespoke.config.config_util import MetrcAuthProvider
 from bespoke.date import date_util
-from bespoke.db import db_constants, models
-from bespoke.db.db_constants import (ProductType)
+from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.metrc import metrc_util
 from bespoke.metrc.common import metrc_common_util
 from bespoke.metrc.common.metrc_common_util import (
-	AuthDict, LicenseAuthDict, CompanyStateInfoDict, CompanyInfo, 
-	FacilityInfoDict, FacilityLicenseDict
+	AuthDict, CompanyInfo, FacilityInfoDict, FacilityLicenseDict
 )
 from bespoke.security import security_util
 
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest, test_helper
-from bespoke_test.metrc.metrc_test_helper import FakeREST, RequestKey
 
 def _get_contract(company_id: str, product_type: str, us_state: str) -> models.Contract:
 	return models.Contract(

@@ -1,27 +1,17 @@
-import datetime
-import decimal
-import json
 import uuid
 import unittest
 
-from dateutil import parser
-from mypy_extensions import TypedDict
-from sqlalchemy.orm.session import Session
-from typing import Any, Dict, List, Tuple, NamedTuple, cast
-from fastapi_utils.guid_type import GUID
+from typing import Dict, cast
 
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.metrc.common import metrc_common_util
-from bespoke.metrc.common import metrc_error_util
 from bespoke.metrc.common import metrc_summary_util
 from bespoke.metrc.common.metrc_error_util import (
 	MetrcErrorDetailsDict, BESPOKE_INTERNAL_ERROR_STATUS_CODE
 )
-from bespoke.metrc.common.metrc_common_util import (
-	_get_date_str, SplitTimeBy
-)
+from bespoke.metrc.common.metrc_common_util import _get_date_str
 from bespoke.db.db_constants import (
 	MetrcDownloadStatus, MetrcDownloadSummaryStatus
 )
