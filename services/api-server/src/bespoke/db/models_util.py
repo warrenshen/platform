@@ -2,13 +2,10 @@
 	A file that contains some helpers needed to construct certain types or perform some
 	common operations on models.py
 """
-import datetime
-from datetime import timedelta
 from typing import Callable, Union, List, Iterable, Tuple, cast, Any
 
 from bespoke import errors
 from bespoke.db import db_constants, models
-from bespoke.db.models import session_scope
 from bespoke.finance.types.payment_types import PaymentItemsCoveredDict
 from fastapi_utils.guid_type import GUID
 from sqlalchemy.sql import or_, and_

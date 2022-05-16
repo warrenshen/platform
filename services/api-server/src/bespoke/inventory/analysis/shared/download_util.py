@@ -1,14 +1,11 @@
 import calendar
 import concurrent
 import datetime
-import numpy
 import logging
-import glob
 import os
 import time
 import pandas as pd
 import pytz
-import pyarrow
 
 from concurrent.futures import ThreadPoolExecutor
 from sqlalchemy import create_engine
@@ -21,8 +18,6 @@ from bespoke.inventory.analysis.shared.inventory_common_util import (
 )
 from bespoke.db.models_util import chunker
 from bespoke.inventory.analysis.shared.inventory_types import (
-	Printer,
-	Query,
 	AnalysisContext,
 	DataframeDownloadContext,
 	InventoryPackageDict,

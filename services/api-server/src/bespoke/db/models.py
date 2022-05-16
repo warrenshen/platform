@@ -4,8 +4,7 @@ import logging
 import os
 import time
 from contextlib import contextmanager
-from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterator, List,
-                    Optional, Union, cast)
+from typing import (Any, Callable, Dict, Iterator, Optional, cast)
 
 import sqlalchemy
 from bespoke.config.config_util import is_prod_env
@@ -17,7 +16,6 @@ from fastapi_utils.guid_type import GUID, GUID_DEFAULT_SQLITE
 from mypy_extensions import TypedDict
 from sqlalchemy import (JSON, BigInteger, Boolean, Column, Date, DateTime,
                         ForeignKey, Integer, Numeric, String, Text)
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import OperationalError, StatementError, TimeoutError
 from sqlalchemy.ext.declarative import declarative_base
