@@ -12,7 +12,7 @@ from bespoke.finance.bank_accounts.bank_account_util import BankAccountInputDict
 from bespoke.reports.report_generation_util import *
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
-from server.config import get_config, get_email_client_config
+from server.config import Config, get_config, get_email_client_config
 from server.views.common import auth_util, handler_util
 from sqlalchemy import (JSON, BigInteger, Boolean, Column, Date, DateTime,
                         ForeignKey, Integer, Numeric, String, Text)

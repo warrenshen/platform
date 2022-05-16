@@ -1,10 +1,8 @@
 """
 	A class that helps you setup tests against a test SQLLite database
 """
-import datetime
 import unittest
 from pathlib import Path
-from typing import Callable
 
 import sqlalchemy
 from bespoke.db import models

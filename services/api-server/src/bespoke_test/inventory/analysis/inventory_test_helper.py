@@ -1,8 +1,7 @@
 import datetime
 import pytz
 import pandas as pd
-from dateutil import parser
-from typing import cast, List, Any, Dict, Iterable
+from typing import List, Any, Dict, Iterable
 
 from bespoke.inventory.analysis.shared import download_util 
 from bespoke.inventory.analysis import active_inventory_util as util

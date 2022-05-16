@@ -4,7 +4,7 @@ import json
 import os
 import requests
 import time
-from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, cast
+from typing import Dict, List, cast
 from typing import Dict
 from flask import current_app
 from bespoke.date import date_util
@@ -14,7 +14,6 @@ from sendgrid.helpers.mail import Attachment, FileContent, FileName, FileType, D
 from sqlalchemy.orm.session import Session
 
 from bespoke.config.config_util import is_prod_env
-from server.config import Config
 
 class ReportGenerationContext:
 	def __init__(

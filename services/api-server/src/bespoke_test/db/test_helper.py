@@ -2,7 +2,6 @@
 	A file for functions to creating objects that are helpful when using the database.
 """
 import logging
-import traceback
 import unittest
 from typing import Any, Callable, Dict, List, Optional, cast
 
