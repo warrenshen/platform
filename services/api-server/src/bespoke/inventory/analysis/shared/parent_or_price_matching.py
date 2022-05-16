@@ -4,10 +4,8 @@ import logging
 import math
 import pytz
 
-from typing import Any, Dict, List, Sequence, Tuple, Union, Iterable, Set, cast
-from dateutil import parser
+from typing import Dict, List, Tuple
 from datetime import timedelta
-from collections import OrderedDict
 from mypy_extensions import TypedDict
 
 from bespoke.db.db_constants import DeliveryType
@@ -17,16 +15,12 @@ from bespoke.inventory.analysis.shared.package_history import (
 )
 from bespoke.inventory.analysis.shared import inventory_common_util
 from bespoke.inventory.analysis.shared.inventory_common_util import (
-	parse_to_date, parse_to_datetime, date_to_str, print_if,
-	is_outgoing, is_time_null
+	print_if
 )
 from bespoke.inventory.analysis.shared.inventory_types import (
-	Printer,
-	Query,
 	InventoryPackageDict,
 	TransferPackageDict,
 	AnalysisParamsDict,
-	SalesTransactionDict,
 	PricingDataConfigDict,
 	MarginEstimateConfigDict
 )

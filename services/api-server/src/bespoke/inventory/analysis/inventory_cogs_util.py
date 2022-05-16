@@ -1,10 +1,9 @@
 import datetime
 import logging
 import math
-import numpy
 import xlwt
 
-from typing import Any, Dict, List, Sequence, Tuple, Union, Iterable, Set, cast
+from typing import Dict, List, cast
 from mypy_extensions import TypedDict
 from pathlib import Path
 
