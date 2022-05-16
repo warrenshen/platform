@@ -7,7 +7,7 @@ from typing import Callable, Dict, List, cast
 from bespoke.async_util.pipeline_constants import PipelineName, PipelineState
 from bespoke.config.config_util import MetrcAuthProvider, MetrcWorkerConfig
 from bespoke.date import date_util
-from bespoke.db import models, models_util
+from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.security import security_util

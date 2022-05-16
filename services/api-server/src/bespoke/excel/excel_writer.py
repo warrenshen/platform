@@ -1,6 +1,6 @@
 import xlwt
 
-from typing import Dict, List, Sequence, Union, BinaryIO
+from typing import Dict, List, Sequence, BinaryIO
 from xlwt.Worksheet import Worksheet as xlwt_Worksheet
 
 from bespoke.excel.excel_types import CellValue

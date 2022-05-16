@@ -3,7 +3,7 @@ import pandas
 import logging
 
 from datetime import date
-from typing import List, Dict
+from typing import Dict
 from bespoke.inventory.analysis.shared.metrc_constants import PRODUCT_CATEGORY_NAME_TO_PRODUCT_CATEGORY
 from bespoke.inventory.analysis.shared.download_util import Download
 from bespoke.inventory.analysis.shared.inventory_types import (
