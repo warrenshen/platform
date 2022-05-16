@@ -1,21 +1,14 @@
 import json
 import datetime
-import decimal
-from base64 import b64encode
-from typing import Callable, Dict, Any, Tuple
-from dataclasses import dataclass
+from typing import Callable, Dict, Tuple
 
 from manage_async import app, config
-from bespoke.db.db_constants import RequestStatusEnum, LoanStatusEnum
+from bespoke.db.db_constants import RequestStatusEnum
 from bespoke.db import models
 from bespoke.date import date_util
 from bespoke.db.models import session_scope
 from bespoke_test.db import db_unittest
 from bespoke_test.db import test_helper
-from bespoke_test import auth_helper
-from bespoke_test.contract import contract_test_helper
-from bespoke_test.contract.contract_test_helper import ContractInputDict
-from sqlalchemy.orm.session import Session
 
 class TestExpireActiveEbbaApplications(db_unittest.TestCase):
 

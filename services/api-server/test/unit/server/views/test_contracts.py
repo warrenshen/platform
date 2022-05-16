@@ -1,7 +1,6 @@
 import datetime
 import json
-from base64 import b64encode
-from typing import Callable, Dict, cast
+from typing import Dict, cast
 
 from bespoke.date import date_util
 from bespoke.db import models
@@ -12,8 +11,6 @@ from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest, test_helper
 from manage import app
-from sqlalchemy.orm.session import Session
-
 
 def _get_default_contract_config(overrides: Dict) -> Dict:
 	contract_dict = ContractInputDict(

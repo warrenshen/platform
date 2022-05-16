@@ -1,6 +1,6 @@
 import json
 import requests
-from typing import Any, Dict, List, Tuple, NamedTuple, cast
+from typing import Dict, List, Tuple, NamedTuple
 
 from bespoke import errors
 from bespoke.date import date_util

@@ -1,4 +1,3 @@
-import datetime
 import decimal
 import json
 from dataclasses import dataclass
@@ -12,12 +11,10 @@ from bespoke_test.db import db_unittest, test_helper
 from manage import app
 from sqlalchemy.orm.session import Session
 
-
 @dataclass
 class PurchaseOrderConfig:
 	id: str
 	amount: float
-
 
 class TestUpsertPurchaseOrdersLoansView(db_unittest.TestCase):
 
