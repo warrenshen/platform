@@ -1,16 +1,14 @@
 import datetime
 import decimal
 import json
-from dataclasses import dataclass, fields
-from typing import Callable, Dict, Tuple
+from dataclasses import dataclass
+from typing import Dict, Tuple
 
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke_test import auth_helper
 from bespoke_test.db import db_unittest, test_helper
 from manage import app
-from sqlalchemy.orm.session import Session
-
 
 @dataclass
 class InvoiceConfig:
@@ -22,13 +20,11 @@ class InvoiceConfig:
 	total_amount: float
 	taxes_amount: float
 
-
 @dataclass
 class FileConfig:
 	id: str
 	name: str
 	path: str
-
 
 class InvoiceViewTest(db_unittest.TestCase):
 

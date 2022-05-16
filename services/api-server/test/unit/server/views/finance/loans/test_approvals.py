@@ -1,15 +1,13 @@
 # Tests approval_util approval_util.py
-import datetime
 import decimal
 import json
 import uuid
-from typing import Dict, List, cast
+from typing import Dict, cast
 
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.db_constants import LoanStatusEnum, LoanTypeEnum, ProductType
 from bespoke.db.models import session_scope
-from bespoke.finance import number_util
 from bespoke.finance.loans import approval_util
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
