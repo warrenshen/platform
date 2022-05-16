@@ -2,22 +2,19 @@ import copy
 import os
 import datetime
 import logging
-from datetime import timedelta, timezone
 from sqlalchemy.orm.session import Session
-from typing import Callable, Dict, List, Text, Tuple, cast
+from typing import Callable, Dict, List, Tuple, cast
 from sendgrid.helpers.mail import Attachment
 from server.config import is_test_env
 
 from bespoke import errors
-from bespoke.config.config_util import is_development_env, is_prod_env
-from bespoke.date import date_util
-from bespoke.db import models, models_util
+from bespoke.config.config_util import is_prod_env
+from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.db.db_constants import UserRoles
 from bespoke.email import email_manager
 from bespoke.security import security_util, two_factor_util
 from mypy_extensions import TypedDict
-
 
 class TemplateNames(object):
 	# Email sent to vendor: onboarding link for Line of Credit customers.

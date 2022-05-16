@@ -1,14 +1,12 @@
 """
 Logic to create users.
 """
-from typing import Callable, Dict, Tuple, cast
+from typing import Callable, Tuple
 
 from bespoke import errors
-from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.db_constants import LoginMethod
 from bespoke.db.models import session_scope
-from bespoke.finance import contract_util
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
 

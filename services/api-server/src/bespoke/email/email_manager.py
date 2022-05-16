@@ -8,17 +8,13 @@ from __future__ import absolute_import, print_function
 
 import os
 import logging
-import smtplib
 from concurrent.futures import Future, ThreadPoolExecutor
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from typing import Any, Dict, List, Optional, Tuple, Union, cast
+from typing import Dict, List, Optional, Union, cast
 
 from server.config import is_test_env
 
-import boto3
 from mypy_extensions import TypedDict
-from sendgrid.helpers.mail import Attachment, Content, Email, Mail, To, Personalization, Substitution
+from sendgrid.helpers.mail import Attachment, Content, Email, Mail, To, Personalization
 from sendgrid.sendgrid import SendGridAPIClient
 
 SendGridConfigDict = TypedDict('SendGridConfigDict', {
