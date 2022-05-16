@@ -1,15 +1,12 @@
 """
 	A file for handling relationships between loans when calculating limits.
 """
-from typing import Callable, Dict, List, Optional, Tuple, cast
+from typing import Callable, Dict, List, Optional, cast
 
-from bespoke.db import db_constants, models
+from bespoke.db import models
 from bespoke.db.db_constants import LoanStatusEnum
-from bespoke.db.models import session_scope
-from mypy_extensions import TypedDict
 from sqlalchemy import func
 from sqlalchemy.orm.session import Session
-
 
 def _sum_contributing_loans(loans: List[models.Loan]) -> float:
 	proposed_loans_total_amount = 0.0

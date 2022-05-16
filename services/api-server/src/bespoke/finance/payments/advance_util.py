@@ -5,20 +5,17 @@
 import decimal
 import logging
 import string
-from datetime import timedelta
 from typing import Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
-from bespoke.db import db_constants, models, model_types, models_util
+from bespoke.db import db_constants, models, models_util
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util, number_util, financial_summary_util
 from bespoke.finance.loans import sibling_util
-from bespoke.finance.loans.loan_calculator import (LoanUpdateDict)
 from bespoke.finance.reports import loan_balances
 from bespoke.finance.payments import payment_util
 from mypy_extensions import TypedDict
-from sqlalchemy.orm.session import Session
 from bespoke.finance.types import payment_types
 
 ASCII_CHARACTERS = list(string.ascii_uppercase)

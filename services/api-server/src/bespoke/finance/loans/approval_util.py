@@ -1,6 +1,5 @@
 import datetime
 import decimal
-import os
 from typing import Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
@@ -14,8 +13,6 @@ from bespoke.finance import contract_util
 from bespoke.finance.loans import sibling_util
 from mypy_extensions import TypedDict
 from sqlalchemy.orm import Session
-
-from server.config import is_test_env
 
 ApproveLoansReqDict = TypedDict('ApproveLoansReqDict', {
 	'loan_ids': List[str],

@@ -1,16 +1,9 @@
-import datetime
-import decimal
-from typing import Any, Callable, Dict, List, Optional, Tuple, cast
+from typing import Callable, List, Tuple, cast
 
 from bespoke import errors
-from bespoke.date import date_util
-from bespoke.db import db_constants, models, models_util
-from bespoke.db.db_constants import (LoanStatusEnum, PaymentMethodEnum,
-                                     PaymentStatusEnum, ProductType)
+from bespoke.db import models
 from bespoke.db.models import session_scope
-from bespoke.finance.types import per_customer_types
 from mypy_extensions import TypedDict
-from sqlalchemy.orm.session import Session
 
 
 DeleteLoanReqDict = TypedDict('DeleteLoanReqDict', {

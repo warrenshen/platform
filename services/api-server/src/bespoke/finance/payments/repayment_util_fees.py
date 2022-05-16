@@ -1,18 +1,14 @@
 import datetime
 import decimal
-from typing import Any, Callable, Dict, List, Optional, Tuple, cast
+from typing import List, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
-from bespoke.db import db_constants, models, models_util
-from bespoke.db.db_constants import (LoanStatusEnum, PaymentMethodEnum,
-                                     PaymentStatusEnum, ProductType)
-from bespoke.db.models import session_scope
-from bespoke.finance import contract_util, financial_summary_util, number_util
+from bespoke.db import db_constants, models
+from bespoke.db.db_constants import PaymentMethodEnum
+from bespoke.finance import financial_summary_util, number_util
 from bespoke.finance.payments import payment_util
-from bespoke.finance.payments.payment_util import RepaymentOption
-from bespoke.finance.types import finance_types, per_customer_types
-from dateutil import parser
+from bespoke.finance.types import finance_types
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
 from bespoke.finance.types import payment_types
