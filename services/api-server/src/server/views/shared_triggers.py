@@ -52,20 +52,43 @@ class ExpireActiveEbbaApplications(MethodView):
 		logging.info("Received request to expire old ebba applications")
 
 		with session_scope(current_app.session_maker) as session:
-			results = session.query(models.CompanySettings).filter( # type: ignore
-				models.CompanySettings.active_ebba_application_id != None).join(
-				models.EbbaApplication
-				).filter(models.EbbaApplication.expires_at < func.now()).all()
+			borrowing_bases = session.query(models.CompanySettings).filter( # type: ignore
+					models.CompanySettings.active_borrowing_base_id != None,	
+				).join(
+					models.EbbaApplication,
+					models.EbbaApplication.id == models.CompanySettings.active_borrowing_base_id
+				).filter(
+					models.EbbaApplication.expires_at < func.now()
+				).all()
 
-			for company in results:
+			for company in borrowing_bases:
 				events.new(
 					company_id=str(company.id),
 					action=events.Actions.EBBA_APPLICATION_EXPIRE,
 					is_system=True,
-					data={'ebba_application_id': str(company.active_ebba_application_id)}
+					data={'ebba_application_id': str(company.active_borrowing_base_id)}
 				).set_succeeded().write_with_session(session)
 				logging.info(f"Expiring active borrowing base for '{company.company_id}'")
-				company.active_ebba_application_id = None
+				company.active_borrowing_base_id = None
+
+			financial_reports = session.query(models.CompanySettings).filter( # type: ignore
+					models.CompanySettings.active_financial_report_id != None,	
+				).join(
+					models.EbbaApplication,
+					models.EbbaApplication.id == models.CompanySettings.active_financial_report_id
+				).filter(
+					models.EbbaApplication.expires_at < func.now()
+				).all()
+
+			for company in financial_reports:
+				events.new(
+					company_id=str(company.id),
+					action=events.Actions.EBBA_APPLICATION_EXPIRE,
+					is_system=True,
+					data={'ebba_application_id': str(company.active_financial_report_id)}
+				).set_succeeded().write_with_session(session)
+				logging.info(f"Expiring active borrowing base for '{company.company_id}'")
+				company.active_financial_report_id = None
 
 		logging.info("Finished expiring old ebba applications")
 

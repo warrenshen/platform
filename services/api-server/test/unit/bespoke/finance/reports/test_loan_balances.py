@@ -3063,8 +3063,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				.filter(models.CompanySettings.company_id == company_id) \
 				.first()
 
-			company_settings.active_ebba_application_id = ebba.id
-
+			company_settings.active_borrowing_base_id = ebba.id
 		# Expected Value:
 		#  ((100k * 0.5) / 100.0)
 		#  + ((100k * 0.25) / 100.0)
@@ -3380,7 +3379,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				.filter(models.CompanySettings.company_id == company_id) \
 				.first()
 
-			company_settings.active_ebba_application_id = ebba.id
+			company_settings.active_borrowing_base_id = ebba.id
 
 		# Computed borrowing base: $825,000
 		# Contract max limit: $450,000

@@ -92,7 +92,9 @@ export default function EbbaApplicationsDataGrid({
           <ClickableDataGridCell
             url={getBankCompanyRoute(
               params.row.data.company_id,
-              BankCompanyRouteEnum.EbbaApplications
+              isBorrowingBaseFieldsVisible
+                ? BankCompanyRouteEnum.BorrowingBase
+                : BankCompanyRouteEnum.FinancialCertifications
             )}
             label={params.row.data.company_name}
           />

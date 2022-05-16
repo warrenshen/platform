@@ -251,7 +251,8 @@ CompanySettingsDict = TypedDict('CompanySettingsDict', {
 	'id': str,
 	'vendor_agreement_docusign_template': str,
 	'payor_agreement_docusign_template': str,
-	'active_ebba_application_id': str,
+	'active_borrowing_base_id': str,
+	'active_financial_report_id': str,
 })
 
 class CompanySettings(Base):
@@ -260,6 +261,8 @@ class CompanySettings(Base):
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	company_id = Column(GUID)
 	active_ebba_application_id = cast(GUID, Column(GUID, ForeignKey('ebba_applications.id')))
+	active_borrowing_base_id = cast(GUID, Column(GUID, ForeignKey('ebba_applications.id')))
+	active_financial_report_id = cast(GUID, Column(GUID, ForeignKey('ebba_applications.id')))
 	metrc_api_key_id = cast(GUID, Column(GUID, ForeignKey('metrc_api_keys.id')))
 	# For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances FROM.
 	# This is configuable by bank admins.
@@ -289,7 +292,8 @@ class CompanySettings(Base):
 			id=str(self.id),
 			vendor_agreement_docusign_template=self.vendor_agreement_docusign_template,
 			payor_agreement_docusign_template=self.payor_agreement_docusign_template,
-			active_ebba_application_id=str(self.active_ebba_application_id) if self.active_ebba_application_id else None,
+			active_borrowing_base_id=str(self.active_borrowing_base_id) if self.active_borrowing_base_id else None,
+			active_financial_report_id=str(self.active_financial_report_id) if self.active_financial_report_id else None,
 		)
 
 class CompanyFacility(Base):

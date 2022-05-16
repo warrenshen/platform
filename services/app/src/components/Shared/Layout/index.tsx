@@ -25,7 +25,7 @@ import {
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
 import {
-  useGetCompanyForCustomerBorrowingBaseQuery,
+  useGetCompanyEbbaApplicationsInfoQuery,
   useGetEbbaApplicationsCountForBankSubscription,
   useGetLoansCountForBankSubscription,
   useGetOpenLoansByDebtFacilityStatusesSubscription,
@@ -160,13 +160,20 @@ const getCustomerNavItems = (
       link: customerRoutes.payments,
     },
     {
-      dataCy: "ebba-applications",
+      dataCy: "borrowing-base",
       iconNode: EbbaApplicationsIcon,
-      text:
-        !!productType && [ProductTypeEnum.LineOfCredit].includes(productType)
-          ? "Borrowing Base"
-          : "Financial Reports",
-      link: customerRoutes.ebbaApplications,
+      visible:
+        !!productType && [ProductTypeEnum.LineOfCredit].includes(productType),
+      text: "Borrowing Base",
+      link: customerRoutes.borrowingBase,
+      counter: showEbbaApplicationsChip ? 1 : 0,
+    },
+    {
+      dataCy: "financial-certifications",
+      iconNode: EbbaApplicationsIcon,
+      visible: !!productType,
+      text: "Financial Certifications",
+      link: customerRoutes.financialCertifications,
       counter: showEbbaApplicationsChip ? 1 : 0,
     },
     {
@@ -382,7 +389,7 @@ export default function Layout({
   const {
     data,
     loading: borrowingBaseLoading,
-  } = useGetCompanyForCustomerBorrowingBaseQuery({
+  } = useGetCompanyEbbaApplicationsInfoQuery({
     skip: isBankUser,
     variables: {
       companyId,

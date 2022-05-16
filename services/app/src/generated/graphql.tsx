@@ -4747,9 +4747,9 @@ export type CompanyProductQualificationsBoolExp = {
 /** unique or primary key constraints on table "company_product_qualifications" */
 export enum CompanyProductQualificationsConstraint {
   /** unique or primary key constraint */
-  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
-  /** unique or primary key constraint */
   CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
+  /** unique or primary key constraint */
+  CompanyProductQualificationsQualifyingDateCompanyIdKey = "company_product_qualifications_qualifying_date_company_id_key",
 }
 
 /** input type for inserting data into table "company_product_qualifications" */
@@ -4924,9 +4924,17 @@ export type CompanySettings = {
   account_manager?: Maybe<Users>;
   account_manager_user_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
+  active_borrowing_base?: Maybe<EbbaApplications>;
+  /** If relevant, this foreign key points to the current active borrowing_base (ebba_application) for this company */
+  active_borrowing_base_id?: Maybe<Scalars["uuid"]>;
+  /** An object relationship */
   active_ebba_application?: Maybe<EbbaApplications>;
   /** If relevant, this foreign key points to the current active ebba_application for this company */
   active_ebba_application_id?: Maybe<Scalars["uuid"]>;
+  /** An object relationship */
+  active_financial_report?: Maybe<EbbaApplications>;
+  /** If relevant, this foreign key points to the current active financial_report (ebba_application) for this company */
+  active_financial_report_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
   advances_bank_account?: Maybe<BankAccounts>;
   /** For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances TO */
@@ -5025,8 +5033,12 @@ export type CompanySettingsBoolExp = {
   _or?: Maybe<Array<CompanySettingsBoolExp>>;
   account_manager?: Maybe<UsersBoolExp>;
   account_manager_user_id?: Maybe<UuidComparisonExp>;
+  active_borrowing_base?: Maybe<EbbaApplicationsBoolExp>;
+  active_borrowing_base_id?: Maybe<UuidComparisonExp>;
   active_ebba_application?: Maybe<EbbaApplicationsBoolExp>;
   active_ebba_application_id?: Maybe<UuidComparisonExp>;
+  active_financial_report?: Maybe<EbbaApplicationsBoolExp>;
+  active_financial_report_id?: Maybe<UuidComparisonExp>;
   advances_bank_account?: Maybe<BankAccountsBoolExp>;
   advances_bank_account_id?: Maybe<UuidComparisonExp>;
   advances_bespoke_bank_account?: Maybe<BankAccountsBoolExp>;
@@ -5088,9 +5100,15 @@ export type CompanySettingsDeleteKeyInput = {
 export type CompanySettingsInsertInput = {
   account_manager?: Maybe<UsersObjRelInsertInput>;
   account_manager_user_id?: Maybe<Scalars["uuid"]>;
+  active_borrowing_base?: Maybe<EbbaApplicationsObjRelInsertInput>;
+  /** If relevant, this foreign key points to the current active borrowing_base (ebba_application) for this company */
+  active_borrowing_base_id?: Maybe<Scalars["uuid"]>;
   active_ebba_application?: Maybe<EbbaApplicationsObjRelInsertInput>;
   /** If relevant, this foreign key points to the current active ebba_application for this company */
   active_ebba_application_id?: Maybe<Scalars["uuid"]>;
+  active_financial_report?: Maybe<EbbaApplicationsObjRelInsertInput>;
+  /** If relevant, this foreign key points to the current active financial_report (ebba_application) for this company */
+  active_financial_report_id?: Maybe<Scalars["uuid"]>;
   advances_bank_account?: Maybe<BankAccountsObjRelInsertInput>;
   /** For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances TO */
   advances_bank_account_id?: Maybe<Scalars["uuid"]>;
@@ -5127,8 +5145,12 @@ export type CompanySettingsInsertInput = {
 /** aggregate max on columns */
 export type CompanySettingsMaxFields = {
   account_manager_user_id?: Maybe<Scalars["uuid"]>;
+  /** If relevant, this foreign key points to the current active borrowing_base (ebba_application) for this company */
+  active_borrowing_base_id?: Maybe<Scalars["uuid"]>;
   /** If relevant, this foreign key points to the current active ebba_application for this company */
   active_ebba_application_id?: Maybe<Scalars["uuid"]>;
+  /** If relevant, this foreign key points to the current active financial_report (ebba_application) for this company */
+  active_financial_report_id?: Maybe<Scalars["uuid"]>;
   /** For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances TO */
   advances_bank_account_id?: Maybe<Scalars["uuid"]>;
   /** For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances FROM */
@@ -5152,8 +5174,12 @@ export type CompanySettingsMaxFields = {
 /** order by max() on columns of table "company_settings" */
 export type CompanySettingsMaxOrderBy = {
   account_manager_user_id?: Maybe<OrderBy>;
+  /** If relevant, this foreign key points to the current active borrowing_base (ebba_application) for this company */
+  active_borrowing_base_id?: Maybe<OrderBy>;
   /** If relevant, this foreign key points to the current active ebba_application for this company */
   active_ebba_application_id?: Maybe<OrderBy>;
+  /** If relevant, this foreign key points to the current active financial_report (ebba_application) for this company */
+  active_financial_report_id?: Maybe<OrderBy>;
   /** For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances TO */
   advances_bank_account_id?: Maybe<OrderBy>;
   /** For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances FROM */
@@ -5177,8 +5203,12 @@ export type CompanySettingsMaxOrderBy = {
 /** aggregate min on columns */
 export type CompanySettingsMinFields = {
   account_manager_user_id?: Maybe<Scalars["uuid"]>;
+  /** If relevant, this foreign key points to the current active borrowing_base (ebba_application) for this company */
+  active_borrowing_base_id?: Maybe<Scalars["uuid"]>;
   /** If relevant, this foreign key points to the current active ebba_application for this company */
   active_ebba_application_id?: Maybe<Scalars["uuid"]>;
+  /** If relevant, this foreign key points to the current active financial_report (ebba_application) for this company */
+  active_financial_report_id?: Maybe<Scalars["uuid"]>;
   /** For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances TO */
   advances_bank_account_id?: Maybe<Scalars["uuid"]>;
   /** For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances FROM */
@@ -5202,8 +5232,12 @@ export type CompanySettingsMinFields = {
 /** order by min() on columns of table "company_settings" */
 export type CompanySettingsMinOrderBy = {
   account_manager_user_id?: Maybe<OrderBy>;
+  /** If relevant, this foreign key points to the current active borrowing_base (ebba_application) for this company */
+  active_borrowing_base_id?: Maybe<OrderBy>;
   /** If relevant, this foreign key points to the current active ebba_application for this company */
   active_ebba_application_id?: Maybe<OrderBy>;
+  /** If relevant, this foreign key points to the current active financial_report (ebba_application) for this company */
+  active_financial_report_id?: Maybe<OrderBy>;
   /** For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances TO */
   advances_bank_account_id?: Maybe<OrderBy>;
   /** For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances FROM */
@@ -5250,8 +5284,12 @@ export type CompanySettingsOnConflict = {
 export type CompanySettingsOrderBy = {
   account_manager?: Maybe<UsersOrderBy>;
   account_manager_user_id?: Maybe<OrderBy>;
+  active_borrowing_base?: Maybe<EbbaApplicationsOrderBy>;
+  active_borrowing_base_id?: Maybe<OrderBy>;
   active_ebba_application?: Maybe<EbbaApplicationsOrderBy>;
   active_ebba_application_id?: Maybe<OrderBy>;
+  active_financial_report?: Maybe<EbbaApplicationsOrderBy>;
+  active_financial_report_id?: Maybe<OrderBy>;
   advances_bank_account?: Maybe<BankAccountsOrderBy>;
   advances_bank_account_id?: Maybe<OrderBy>;
   advances_bespoke_bank_account?: Maybe<BankAccountsOrderBy>;
@@ -5297,7 +5335,11 @@ export enum CompanySettingsSelectColumn {
   /** column name */
   AccountManagerUserId = "account_manager_user_id",
   /** column name */
+  ActiveBorrowingBaseId = "active_borrowing_base_id",
+  /** column name */
   ActiveEbbaApplicationId = "active_ebba_application_id",
+  /** column name */
+  ActiveFinancialReportId = "active_financial_report_id",
   /** column name */
   AdvancesBankAccountId = "advances_bank_account_id",
   /** column name */
@@ -5339,8 +5381,12 @@ export enum CompanySettingsSelectColumn {
 /** input type for updating data in table "company_settings" */
 export type CompanySettingsSetInput = {
   account_manager_user_id?: Maybe<Scalars["uuid"]>;
+  /** If relevant, this foreign key points to the current active borrowing_base (ebba_application) for this company */
+  active_borrowing_base_id?: Maybe<Scalars["uuid"]>;
   /** If relevant, this foreign key points to the current active ebba_application for this company */
   active_ebba_application_id?: Maybe<Scalars["uuid"]>;
+  /** If relevant, this foreign key points to the current active financial_report (ebba_application) for this company */
+  active_financial_report_id?: Maybe<Scalars["uuid"]>;
   /** For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances TO */
   advances_bank_account_id?: Maybe<Scalars["uuid"]>;
   /** For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances FROM */
@@ -5372,7 +5418,11 @@ export enum CompanySettingsUpdateColumn {
   /** column name */
   AccountManagerUserId = "account_manager_user_id",
   /** column name */
+  ActiveBorrowingBaseId = "active_borrowing_base_id",
+  /** column name */
   ActiveEbbaApplicationId = "active_ebba_application_id",
+  /** column name */
+  ActiveFinancialReportId = "active_financial_report_id",
   /** column name */
   AdvancesBankAccountId = "advances_bank_account_id",
   /** column name */
@@ -27696,11 +27746,11 @@ export type GetCompanyWithActiveContractQuery = {
   >;
 };
 
-export type GetCompanyForCustomerBorrowingBaseQueryVariables = Exact<{
+export type GetCompanyEbbaApplicationsInfoQueryVariables = Exact<{
   companyId: Scalars["uuid"];
 }>;
 
-export type GetCompanyForCustomerBorrowingBaseQuery = {
+export type GetCompanyEbbaApplicationsInfoQuery = {
   companies_by_pk?: Maybe<
     Pick<Companies, "id"> & {
       ebba_applications: Array<
@@ -27714,6 +27764,12 @@ export type GetCompanyForCustomerBorrowingBaseQuery = {
       settings?: Maybe<
         Pick<CompanySettings, "id"> & {
           active_ebba_application?: Maybe<
+            Pick<EbbaApplications, "id"> & EbbaApplicationFragment
+          >;
+          active_borrowing_base?: Maybe<
+            Pick<EbbaApplications, "id"> & EbbaApplicationFragment
+          >;
+          active_financial_report?: Maybe<
             Pick<EbbaApplications, "id"> & EbbaApplicationFragment
           >;
         }
@@ -37859,8 +37915,8 @@ export type GetCompanyWithActiveContractQueryResult = Apollo.QueryResult<
   GetCompanyWithActiveContractQuery,
   GetCompanyWithActiveContractQueryVariables
 >;
-export const GetCompanyForCustomerBorrowingBaseDocument = gql`
-  query GetCompanyForCustomerBorrowingBase($companyId: uuid!) {
+export const GetCompanyEbbaApplicationsInfoDocument = gql`
+  query GetCompanyEbbaApplicationsInfo($companyId: uuid!) {
     companies_by_pk(id: $companyId) {
       id
       ebba_applications(
@@ -37889,6 +37945,14 @@ export const GetCompanyForCustomerBorrowingBaseDocument = gql`
           id
           ...EbbaApplication
         }
+        active_borrowing_base {
+          id
+          ...EbbaApplication
+        }
+        active_financial_report {
+          id
+          ...EbbaApplication
+        }
       }
     }
   }
@@ -37896,52 +37960,52 @@ export const GetCompanyForCustomerBorrowingBaseDocument = gql`
 `;
 
 /**
- * __useGetCompanyForCustomerBorrowingBaseQuery__
+ * __useGetCompanyEbbaApplicationsInfoQuery__
  *
- * To run a query within a React component, call `useGetCompanyForCustomerBorrowingBaseQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCompanyForCustomerBorrowingBaseQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetCompanyEbbaApplicationsInfoQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCompanyEbbaApplicationsInfoQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetCompanyForCustomerBorrowingBaseQuery({
+ * const { data, loading, error } = useGetCompanyEbbaApplicationsInfoQuery({
  *   variables: {
  *      companyId: // value for 'companyId'
  *   },
  * });
  */
-export function useGetCompanyForCustomerBorrowingBaseQuery(
+export function useGetCompanyEbbaApplicationsInfoQuery(
   baseOptions: Apollo.QueryHookOptions<
-    GetCompanyForCustomerBorrowingBaseQuery,
-    GetCompanyForCustomerBorrowingBaseQueryVariables
+    GetCompanyEbbaApplicationsInfoQuery,
+    GetCompanyEbbaApplicationsInfoQueryVariables
   >
 ) {
   return Apollo.useQuery<
-    GetCompanyForCustomerBorrowingBaseQuery,
-    GetCompanyForCustomerBorrowingBaseQueryVariables
-  >(GetCompanyForCustomerBorrowingBaseDocument, baseOptions);
+    GetCompanyEbbaApplicationsInfoQuery,
+    GetCompanyEbbaApplicationsInfoQueryVariables
+  >(GetCompanyEbbaApplicationsInfoDocument, baseOptions);
 }
-export function useGetCompanyForCustomerBorrowingBaseLazyQuery(
+export function useGetCompanyEbbaApplicationsInfoLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    GetCompanyForCustomerBorrowingBaseQuery,
-    GetCompanyForCustomerBorrowingBaseQueryVariables
+    GetCompanyEbbaApplicationsInfoQuery,
+    GetCompanyEbbaApplicationsInfoQueryVariables
   >
 ) {
   return Apollo.useLazyQuery<
-    GetCompanyForCustomerBorrowingBaseQuery,
-    GetCompanyForCustomerBorrowingBaseQueryVariables
-  >(GetCompanyForCustomerBorrowingBaseDocument, baseOptions);
+    GetCompanyEbbaApplicationsInfoQuery,
+    GetCompanyEbbaApplicationsInfoQueryVariables
+  >(GetCompanyEbbaApplicationsInfoDocument, baseOptions);
 }
-export type GetCompanyForCustomerBorrowingBaseQueryHookResult = ReturnType<
-  typeof useGetCompanyForCustomerBorrowingBaseQuery
+export type GetCompanyEbbaApplicationsInfoQueryHookResult = ReturnType<
+  typeof useGetCompanyEbbaApplicationsInfoQuery
 >;
-export type GetCompanyForCustomerBorrowingBaseLazyQueryHookResult = ReturnType<
-  typeof useGetCompanyForCustomerBorrowingBaseLazyQuery
+export type GetCompanyEbbaApplicationsInfoLazyQueryHookResult = ReturnType<
+  typeof useGetCompanyEbbaApplicationsInfoLazyQuery
 >;
-export type GetCompanyForCustomerBorrowingBaseQueryResult = Apollo.QueryResult<
-  GetCompanyForCustomerBorrowingBaseQuery,
-  GetCompanyForCustomerBorrowingBaseQueryVariables
+export type GetCompanyEbbaApplicationsInfoQueryResult = Apollo.QueryResult<
+  GetCompanyEbbaApplicationsInfoQuery,
+  GetCompanyEbbaApplicationsInfoQueryVariables
 >;
 export const GetCompanyForCustomerContractPageDocument = gql`
   query GetCompanyForCustomerContractPage($companyId: uuid!) {

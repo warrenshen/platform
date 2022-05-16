@@ -43,8 +43,9 @@ import BankSettingsPage from "pages/Bank/Settings";
 import VendorFormPage from "pages/Anonymous/VendorForm";
 import BankVendorsPage from "pages/Bank/Vendors";
 import CustomerAccountPage from "pages/Customer/AccountFeesCredits";
+import CustomerBorrowingBasePage from "pages/Customer/BorrowingBase";
 import CustomerContractPage from "pages/Customer/Contract";
-import CustomerEbbaApplicationsPage from "pages/Customer/EbbaApplications";
+import CustomerFinancialCertificationsPage from "pages/Customer/FinancialCertifications";
 import CustomerInvoicesPages from "pages/Customer/Invoices";
 import CustomerLoansPage from "pages/Customer/Loans";
 import CustomerLocationsPage from "pages/Customer/Locations";
@@ -190,14 +191,25 @@ export default function App() {
         </PrivateRoute>
         <PrivateRoute
           exact
-          path={customerRoutes.ebbaApplications}
+          path={customerRoutes.borrowingBase}
           requiredRoles={[
             UserRolesEnum.CompanyAdmin,
             UserRolesEnum.CompanyReadOnly,
           ]}
         >
-          <CustomerEbbaApplicationsPage />
+          <CustomerBorrowingBasePage />
         </PrivateRoute>
+        <PrivateRoute
+          exact
+          path={customerRoutes.financialCertifications}
+          requiredRoles={[
+            UserRolesEnum.CompanyAdmin,
+            UserRolesEnum.CompanyReadOnly,
+          ]}
+        >
+          <CustomerFinancialCertificationsPage />
+        </PrivateRoute>
+
         <PrivateRoute
           exact
           path={customerRoutes.loans}

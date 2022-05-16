@@ -687,12 +687,12 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 				models.CompanySettings.company_id == company_id
 			).first())
 
-		active_ebba_application_id = company_settings.active_ebba_application_id
+		active_borrowing_base_id = company_settings.active_borrowing_base_id
 		
 		ebba_application = cast(
 			models.EbbaApplication,
 			session.query(models.EbbaApplication).filter(
-				models.EbbaApplication.id == active_ebba_application_id
+				models.EbbaApplication.id == active_borrowing_base_id
 			).first())
 
 		tcl_cpb = total_credit_line - current_principal_balance

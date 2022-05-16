@@ -78,7 +78,7 @@ query GetCompanyWithActiveContract($companyId: uuid!) {
   }
 }
 
-query GetCompanyForCustomerBorrowingBase($companyId: uuid!) {
+query GetCompanyEbbaApplicationsInfo($companyId: uuid!) {
   companies_by_pk(id: $companyId) {
     id
     ebba_applications(
@@ -104,6 +104,14 @@ query GetCompanyForCustomerBorrowingBase($companyId: uuid!) {
     settings {
       id
       active_ebba_application {
+        id
+        ...EbbaApplication
+      }
+      active_borrowing_base {
+        id
+        ...EbbaApplication
+      }
+      active_financial_report {
         id
         ...EbbaApplication
       }

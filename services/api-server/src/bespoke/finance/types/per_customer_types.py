@@ -20,7 +20,8 @@ Financials = TypedDict('Financials', {
 	'purchase_orders': List[PurchaseOrderDict],
 	'augmented_transactions': List[AugmentedTransactionDict],
 	'ebba_applications': List[EbbaApplicationDict],
-	'active_ebba_application': EbbaApplicationDict,
+	'active_borrowing_base': EbbaApplicationDict,
+	'active_financial_report': EbbaApplicationDict,
 })
 
 CompanyInfoDict = TypedDict('CompanyInfoDict', {

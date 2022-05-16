@@ -32,7 +32,8 @@ export const vendorRoutes = {};
 export const customerRoutes = {
   account: "/1/account",
   contract: "/1/contract",
-  ebbaApplications: "/1/borrowing-base",
+  borrowingBase: "/1/borrowing-base",
+  financialCertifications: "/1/financial-certifications",
   loans: "/1/loans",
   locations: "/1/locations",
   reports: "/1/reports",
@@ -48,7 +49,8 @@ export const customerRoutes = {
 
 export enum BankCompanyRouteEnum {
   AccountFeesCredits = "/account",
-  EbbaApplications = "/financials",
+  BorrowingBase = "/borrowing-base",
+  FinancialCertifications = "/financial-certifications",
   Invoices = "/invoices",
   Loans = "/loans",
   Reports = "/reports",
@@ -67,7 +69,8 @@ export const bankRoutes = {
   company: {
     accountFeesCredits: BankCompanyRouteEnum.AccountFeesCredits,
     contract: "/contract",
-    ebbaApplications: BankCompanyRouteEnum.EbbaApplications,
+    borrowingBase: BankCompanyRouteEnum.BorrowingBase,
+    financialCertifications: BankCompanyRouteEnum.FinancialCertifications,
     loans: BankCompanyRouteEnum.Loans,
     reports: BankCompanyRouteEnum.Reports,
     overview: BankCompanyRouteEnum.Overview,

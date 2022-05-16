@@ -5,9 +5,15 @@ object_relationships:
   - name: account_manager
     using:
       foreign_key_constraint_on: account_manager_user_id
+  - name: active_borrowing_base
+    using:
+      foreign_key_constraint_on: active_borrowing_base_id
   - name: active_ebba_application
     using:
       foreign_key_constraint_on: active_ebba_application_id
+  - name: active_financial_report
+    using:
+      foreign_key_constraint_on: active_financial_report_id
   - name: advances_bank_account
     using:
       foreign_key_constraint_on: advances_bank_account_id
@@ -34,7 +40,9 @@ select_permissions:
     permission:
       columns:
         - account_manager_user_id
+        - active_borrowing_base_id
         - active_ebba_application_id
+        - active_financial_report_id
         - advances_bank_account_id
         - advances_bespoke_bank_account_id
         - collections_bank_account_id
@@ -58,7 +66,9 @@ select_permissions:
     permission:
       columns:
         - account_manager_user_id
+        - active_borrowing_base_id
         - active_ebba_application_id
+        - active_financial_report_id
         - advances_bank_account_id
         - advances_bespoke_bank_account_id
         - collections_bank_account_id
@@ -81,7 +91,9 @@ select_permissions:
   - role: company_admin
     permission:
       columns:
+        - active_borrowing_base_id
         - active_ebba_application_id
+        - active_financial_report_id
         - advances_bank_account_id
         - collections_bank_account_id
         - company_id
@@ -99,7 +111,9 @@ select_permissions:
   - role: company_read_only
     permission:
       columns:
+        - active_borrowing_base_id
         - active_ebba_application_id
+        - active_financial_report_id
         - advances_bank_account_id
         - collections_bank_account_id
         - company_id

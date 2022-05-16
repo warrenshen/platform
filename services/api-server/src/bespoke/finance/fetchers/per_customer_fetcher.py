@@ -95,7 +95,8 @@ class Fetcher(object):
 		self._invoices: List[models.InvoiceDict] = []
 		self._augmented_transactions: List[per_customer_types.AugmentedTransactionDict] = []
 		self._ebba_applications: List[EbbaApplicationDict] = []
-		self._active_ebba_application: EbbaApplicationDict = None
+		self._active_borrowing_base: EbbaApplicationDict = None
+		self._active_financial_report: EbbaApplicationDict = None
 		self._ignore_deleted = ignore_deleted
 
 	def _fetch_contracts(self, today: datetime.date) -> Tuple[bool, errors.Error]:
@@ -319,12 +320,19 @@ class Fetcher(object):
 		# application and just fetches that one from the database. This "find"
 		# operation is O(n) where n is the number of EbbaApplications
 		if self._ebba_applications and self._settings_dict:
-			active_id = self._settings_dict.get('active_ebba_application_id')
-			if active_id:
-				matching = [app for app in self._ebba_applications if app["id"] == active_id]
+			active_borrowing_base_id = self._settings_dict.get('active_borrowing_base_id')
+			if active_borrowing_base_id:
+				matching = [app for app in self._ebba_applications if app["id"] == active_borrowing_base_id]
 				if len(matching) != 1:
-					raise errors.Error(f"Failed to find ebba application with id '{active_id}'")
-				self._active_ebba_application = matching[0]
+					raise errors.Error(f"Failed to find borrowing base ebba application with id '{active_borrowing_base_id}'")
+				self._active_borrowing_base = matching[0]
+
+			active_financial_report_id = self._settings_dict.get('active_financial_report_id')
+			if active_financial_report_id:
+				matching = [app for app in self._ebba_applications if app["id"] == active_financial_report_id]
+				if len(matching) != 1:
+					raise errors.Error(f"Failed to find financial report ebba application with id '{active_financial_report_id}'")
+				self._active_financial_report = matching[0]
 
 		return True, None
 
@@ -350,6 +358,7 @@ class Fetcher(object):
 				purchase_orders=self._purchase_orders,
 				augmented_transactions=self._augmented_transactions,
 				ebba_applications=self._ebba_applications,
-				active_ebba_application=self._active_ebba_application
+				active_borrowing_base=self._active_borrowing_base,
+				active_financial_report=self._active_financial_report
 			)
 		)

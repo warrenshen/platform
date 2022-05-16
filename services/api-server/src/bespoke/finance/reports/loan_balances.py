@@ -80,9 +80,9 @@ CustomerUpdateDict = TypedDict('CustomerUpdateDict', {
 })
 
 
-def _get_active_ebba_application_update(
+def _get_active_borrowing_base_update(
 	contract_helper: contract_util.ContractHelper,
-	ebba_application: models.EbbaApplicationDict,
+	borrowing_base: models.EbbaApplicationDict,
 	today: datetime.date) -> Tuple[EbbaApplicationUpdateDict, errors.Error]:
 
 	cur_contract, err = contract_helper.get_contract(today)
@@ -105,20 +105,20 @@ def _get_active_ebba_application_update(
 	cur_contract = cast(contract_util.LOCContract, cur_contract)
 
 	# If we don't have an active borrowing base, return 0.0.
-	if not ebba_application:
+	if not borrowing_base:
 		return EbbaApplicationUpdateDict(
 			id=None,
 			calculated_borrowing_base=0.0,
 		), None
 	else:
-		calculated_borrowing_base, err = cur_contract.compute_borrowing_base(ebba_application)
+		calculated_borrowing_base, err = cur_contract.compute_borrowing_base(borrowing_base)
 		if err:
 			logging.error(
-				f"Failed computing borrowing base for contract '{cur_contract.contract_id}' and ebba application '{ebba_application['id']}'")
+				f"Failed computing borrowing base for contract '{cur_contract.contract_id}' and ebba application '{borrowing_base['id']}'")
 			return None, err
 
 		return EbbaApplicationUpdateDict(
-			id=ebba_application['id'],
+			id=borrowing_base['id'],
 			calculated_borrowing_base=number_util.round_currency(calculated_borrowing_base),
 		), None
 
@@ -401,9 +401,9 @@ class CustomerBalance(object):
 				details={'errors': all_errors}
 			)
 
-		ebba_application_update, err = _get_active_ebba_application_update(
+		borrowing_base_update, err = _get_active_borrowing_base_update(
 			contract_helper,
-			financials.get('active_ebba_application'),
+			financials.get('active_borrowing_base'),
 			today)
 		if err:
 			raise err
@@ -412,7 +412,7 @@ class CustomerBalance(object):
 			customer_info,
 			contract_helper,
 			loan_update_dicts,
-			ebba_application_update,
+			borrowing_base_update,
 			fee_accumulator,
 			today,
 		)
@@ -426,7 +426,7 @@ class CustomerBalance(object):
 		customer_update = CustomerUpdateDict(
 			today=today,
 			loan_updates=loan_update_dicts,
-			active_ebba_application_update=ebba_application_update,
+			active_ebba_application_update=borrowing_base_update,
 			purchase_orders_update=PurchaseOrdersUpdateDict(
 				purchase_order_id_to_update=purchase_order_id_to_update
 			),

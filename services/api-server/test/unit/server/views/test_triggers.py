@@ -3,7 +3,7 @@ import datetime
 from typing import Callable, Dict, Tuple
 
 from manage_async import app, config
-from bespoke.db.db_constants import RequestStatusEnum
+from bespoke.db.db_constants import ClientSurveillanceCategoryEnum, RequestStatusEnum
 from bespoke.db import models
 from bespoke.date import date_util
 from bespoke.db.models import session_scope
@@ -46,6 +46,7 @@ class TestExpireActiveEbbaApplications(db_unittest.TestCase):
 					status=RequestStatusEnum.APPROVED,
 					requested_at=datetime.datetime.utcnow() - datetime.timedelta(days=15),
 					expires_at=datetime.datetime.utcnow() - datetime.timedelta(days=15),
+					category=ClientSurveillanceCategoryEnum.BORROWING_BASE
 				)
 
 				session.add(app)
@@ -57,15 +58,15 @@ class TestExpireActiveEbbaApplications(db_unittest.TestCase):
 				settings = session.query(models.CompanySettings) \
 					.filter(models.CompanySettings.company_id == company_id) \
 					.first()
-				settings.active_ebba_application_id = app.id
+				settings.active_borrowing_base_id = app.id
 
 			with session_scope(session_maker) as session:
 				settings = session.query(models.CompanySettings) \
 					.filter(models.CompanySettings.company_id == company_id) \
 					.first()
 
-				self.assertIsNotNone(settings.active_ebba_application_id)
-				self.assertEqual(settings.active_ebba_application_id, app_id)
+				self.assertIsNotNone(settings.active_borrowing_base_id)
+				self.assertEqual(settings.active_borrowing_base_id, app_id)
 
 		response, seed = self._run_simple_test(
 			'/triggers/expire-active-ebba-applications',
@@ -80,7 +81,7 @@ class TestExpireActiveEbbaApplications(db_unittest.TestCase):
 			settings = session.query(models.CompanySettings) \
 				.filter(models.CompanySettings.company_id == company_id) \
 				.first()
-			self.assertIsNone(settings.active_ebba_application_id)
+			self.assertIsNone(settings.active_borrowing_base_id)
 
 	def test_ignores_the_others(self) -> None:
 		def populate(session_maker: Callable, seed: test_helper.BasicSeed) -> None:
@@ -105,15 +106,15 @@ class TestExpireActiveEbbaApplications(db_unittest.TestCase):
 				settings = session.query(models.CompanySettings) \
 					.filter(models.CompanySettings.company_id == company_id) \
 					.first()
-				settings.active_ebba_application_id = app.id
+				settings.active_borrowing_base_id = app.id
 
 			with session_scope(session_maker) as session:
 				settings = session.query(models.CompanySettings) \
 					.filter(models.CompanySettings.company_id == company_id) \
 					.first()
 
-				self.assertIsNotNone(settings.active_ebba_application_id)
-				self.assertEqual(settings.active_ebba_application_id, app_id)
+				self.assertIsNotNone(settings.active_borrowing_base_id)
+				self.assertEqual(settings.active_borrowing_base_id, app_id)
 
 		response, seed = self._run_simple_test(
 			'/triggers/expire-active-ebba-applications',
@@ -128,4 +129,4 @@ class TestExpireActiveEbbaApplications(db_unittest.TestCase):
 			settings = session.query(models.CompanySettings) \
 				.filter(models.CompanySettings.company_id == company_id) \
 				.first()
-			self.assertIsNotNone(settings.active_ebba_application_id)
+			self.assertIsNotNone(settings.active_borrowing_base_id)

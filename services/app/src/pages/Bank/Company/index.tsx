@@ -23,7 +23,8 @@ import {
 } from "react-router-dom";
 import styled from "styled-components";
 import BankCustomerAccountFeesCreditsSubpage from "./AccountFeesCredits";
-import BankCustomerEbbaApplicationsSubpage from "./EbbaApplications";
+import BankCustomerBorrowingBaseSubpage from "./BorrowingBase";
+import BankCustomerFinancialCertificationsSubpage from "./FinancialCertifications";
 import BankCustomerInvoicesSubpage from "./Invoices";
 import BankCustomerLoansSubpage from "./Loans";
 import BankCustomerReportsSubpage from "./Reports";
@@ -193,13 +194,18 @@ const getCustomerPaths = (
         component: BankCustomerPaymentsSubpage,
       },
       {
-        dataCy: "customer-financials",
-        label:
-          !!productType && [ProductTypeEnum.LineOfCredit].includes(productType)
-            ? "Borrowing Base"
-            : "Financial Certifications",
-        path: bankRoutes.company.ebbaApplications,
-        component: BankCustomerEbbaApplicationsSubpage,
+        dataCy: "borrowing-base",
+        visible:
+          !!productType && [ProductTypeEnum.LineOfCredit].includes(productType),
+        label: "Borrowing Base",
+        path: bankRoutes.company.borrowingBase,
+        component: BankCustomerBorrowingBaseSubpage,
+      },
+      {
+        dataCy: "financial-certifications",
+        label: "Financial Certifications",
+        path: bankRoutes.company.financialCertifications,
+        component: BankCustomerFinancialCertificationsSubpage,
       },
       {
         visible: isVendorsTabVisible(productType),
