@@ -2,7 +2,6 @@
 	Object that help us write Metrc objects to the database, and need to be
 	shared by many files
 """
-from mypy_extensions import TypedDict
 from typing import List
 
 from bespoke.db import models

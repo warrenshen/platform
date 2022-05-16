@@ -1,13 +1,11 @@
 import datetime
 import logging
 from calendar import monthrange
-from collections import OrderedDict
 from datetime import timedelta
-from typing import Dict, List, NamedTuple, Tuple
+from typing import Dict, Tuple
 
 from bespoke import errors
 from bespoke.date import date_util
-from bespoke.db import models
 from bespoke.db.models import MinimumInterestInfoDict, ProratedFeeInfoDict
 from bespoke.finance import number_util, contract_util
 from bespoke.finance.types import finance_types

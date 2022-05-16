@@ -3,12 +3,12 @@ import decimal
 import logging
 from datetime import timedelta
 from mypy_extensions import TypedDict
-from typing import Set, Callable, Dict, Iterable, List, Optional, Tuple, cast
+from typing import Set, Callable, Dict, Iterable, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.audit import events
 from bespoke.date import date_util
-from bespoke.db import db_constants, models, models_util
+from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
 from bespoke.finance import financial_summary_util, number_util, contract_util
 from bespoke.finance.reports import loan_balances

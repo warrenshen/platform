@@ -5,7 +5,6 @@
 from typing import Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
-from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util

@@ -8,7 +8,7 @@ import datetime
 import logging
 from collections import OrderedDict
 from datetime import timedelta
-from typing import Dict, List, NamedTuple, Tuple, Union, Set, cast
+from typing import Dict, List, Tuple, Union, Set, cast
 
 from bespoke import errors
 from bespoke.date import date_util
