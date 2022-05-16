@@ -4,7 +4,7 @@ import os
 from typing import Any
 
 from bespoke.db.seed import setup_db_test
-from flask import Blueprint, Response, current_app, make_response, request
+from flask import Blueprint, Response, current_app, make_response
 from flask.views import MethodView
 from server.config import is_development_env, is_test_env
 
