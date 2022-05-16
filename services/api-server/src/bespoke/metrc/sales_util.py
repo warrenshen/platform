@@ -1,12 +1,9 @@
 import logging
 import concurrent
-import datetime
 import json
-import requests
 
 from concurrent.futures import ThreadPoolExecutor
 from dateutil import parser
-from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
 from sqlalchemy import func
 from typing import Any, Callable, List, Iterable, Tuple, Dict, cast
@@ -14,7 +11,7 @@ from typing import Any, Callable, List, Iterable, Tuple, Dict, cast
 from bespoke import errors
 from bespoke.db import models
 from bespoke.db.models import session_scope
-from bespoke.metrc.common import metrc_common_util, package_common_util
+from bespoke.metrc.common import metrc_common_util
 from bespoke.metrc.common.metrc_common_util import chunker, SplitTimeBy
 
 

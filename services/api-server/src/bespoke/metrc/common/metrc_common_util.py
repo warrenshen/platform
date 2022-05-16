@@ -9,17 +9,13 @@ from dateutil import parser
 from itertools import islice
 from mypy_extensions import TypedDict
 from requests.auth import HTTPBasicAuth
-from typing import Any, Dict, Iterable, List, Tuple, cast
-from sqlalchemy.orm.session import Session
+from typing import Dict, Iterable, List, Tuple, cast
 
 from bespoke.config import config_util
 from bespoke.config.config_util import MetrcWorkerConfig
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
-from bespoke.db.db_constants import (
-	MetrcDownloadStatus, MetrcDownloadSummaryStatus
-)
 from bespoke.metrc.common.metrc_error_util import (
 	AUTHORIZATION_ERROR_CODES, ErrorCatcher, MetrcRetryError, MetrcErrorDetailsDict
 )

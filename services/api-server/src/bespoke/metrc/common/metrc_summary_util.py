@@ -1,22 +1,13 @@
 import datetime
-import json
 import logging
-import requests
-import time
-from datetime import timedelta
-from dateutil import parser
 from mypy_extensions import TypedDict
-from typing import Any, Dict, Iterable, List, Tuple, cast
+from typing import Any, Dict, List, Tuple, cast
 from sqlalchemy.orm.session import Session
 
 from bespoke import errors
 from bespoke.db import models
-from bespoke.db.db_constants import (
-	MetrcDownloadStatus, MetrcDownloadSummaryStatus
-)
-from bespoke.metrc.common.metrc_error_util import (
-	MetrcErrorDetailsDict, MetrcRetryError)
-from bespoke.email import sendgrid_util
+from bespoke.db.db_constants import MetrcDownloadStatus, MetrcDownloadSummaryStatus
+from bespoke.metrc.common.metrc_error_util import MetrcRetryError
 
 RerunDailyJobInfoDict = TypedDict('RerunDailyJobInfoDict', {
 	'cur_date': datetime.date,

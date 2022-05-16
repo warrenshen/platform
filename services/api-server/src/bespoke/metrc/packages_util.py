@@ -1,19 +1,15 @@
 import logging
-import datetime
 import json
-import requests
 
 from dateutil import parser
-from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
-from typing import Any, Callable, List, Tuple, Dict, cast
+from typing import Any, Callable, List, Dict, cast
 
 from bespoke import errors
 from bespoke.db import models
 from bespoke.db.db_constants import PackageType
 from bespoke.db.models import session_scope
 from bespoke.metrc.common import metrc_common_util, package_common_util
-from bespoke.metrc.common.package_common_util import UNKNOWN_LAB_STATUS
 from bespoke.metrc.common.metrc_common_util import chunker
 
 class PackageObject(object):

@@ -1,7 +1,7 @@
 import logging
 
 from sqlalchemy.orm.session import Session
-from typing import List, Iterable, Union, cast
+from typing import List, Union
 
 from bespoke.db import models, db_constants
 from bespoke.metrc.common.metrc_common_util import chunker
