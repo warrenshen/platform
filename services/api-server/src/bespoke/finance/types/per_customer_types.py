@@ -7,8 +7,8 @@ from typing import List
 
 from bespoke.db.models import (
 	AugmentedTransactionDict,
-	ContractDict, CompanyDict, CompanySettingsDict,
-	LoanDict, TransactionDict, PaymentDict, EbbaApplicationDict, InvoiceDict,
+	ContractDict, CompanySettingsDict,
+	LoanDict, PaymentDict, EbbaApplicationDict, InvoiceDict,
 	PurchaseOrderDict
 )
 

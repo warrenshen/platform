@@ -1,5 +1,4 @@
 import datetime
-from typing import List
 
 from mypy_extensions import TypedDict
 from bespoke.db.model_types import (
