@@ -2,7 +2,7 @@ import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import PaymentDrawerLauncher from "components/Payment/PaymentDrawerLauncher";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import { GetAdvancesByMethodAndPaymentDateQuery } from "generated/graphql";
-import { DateFormatClientShortYear, formatDateString } from "lib/date";
+import { formatDateString } from "lib/date";
 import { ColumnWidths, formatRowModel } from "lib/tables";
 import { useMemo } from "react";
 
@@ -18,10 +18,7 @@ function getRows(
       bespoke_routing_number: bespokeBankAccount?.wire_routing_number,
       bespoke_account_type: bespokeBankAccount?.account_type,
       bespoke_account_number: bespokeBankAccount?.account_number,
-      settlement_date: formatDateString(
-        payment.settlement_date,
-        DateFormatClientShortYear
-      ),
+      settlement_date: formatDateString(payment.settlement_date),
       currency: "USD",
       recipient_bank_type: "ABA",
       recipient_routing_number: recipientBankAccount?.wire_routing_number,
