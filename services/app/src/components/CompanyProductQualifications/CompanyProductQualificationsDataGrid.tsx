@@ -2,7 +2,6 @@ import { Button } from "@material-ui/core";
 import CommentIcon from "@material-ui/icons/Comment";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import {
   CompanyProductQualificationFragment,
   CompanyProductQualifications,

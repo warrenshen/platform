@@ -59,7 +59,7 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
       columns,
       pageSize = 10,
       pager,
-      pageIndex,
+      pageIndex = 0,
       allowedPageSizes = [],
       pagerSizeSelector = true,
       filtering,
@@ -209,7 +209,11 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
             />
           )
         )}
-        <Paging pageSize={pageSize} pageIndex={_pageIndex} />
+        <Paging
+          pageSize={pageSize}
+          pageIndex={_pageIndex}
+          onPageIndexChange={setPageIndex}
+        />
         {pager && (
           <Pager
             visible={pager}
