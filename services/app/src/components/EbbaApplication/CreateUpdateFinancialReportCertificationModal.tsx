@@ -36,7 +36,7 @@ interface Props {
   productType: ProductTypeEnum;
 }
 
-export default function CreateUpdateFinancialReportsCertificationModal({
+export default function CreateUpdateFinancialReportCertificationModal({
   actionType,
   companyId,
   ebbaApplicationId = null,

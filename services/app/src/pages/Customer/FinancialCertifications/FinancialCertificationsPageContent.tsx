@@ -1,6 +1,6 @@
 import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
-import CreateUpdateFinancialReportsCertificationModal from "components/EbbaApplication/CreateUpdateFinancialReportsCertificationModal";
+import CreateUpdateFinancialReportCertificationModal from "components/EbbaApplication/CreateUpdateFinancialReportCertificationModal";
 import DeleteEbbaApplicationModal from "components/EbbaApplication/DeleteEbbaApplicationModal";
 import EbbaApplicationCard from "components/EbbaApplication/EbbaApplicationCard";
 import EbbaApplicationsDataGrid from "components/EbbaApplications/EbbaApplicationsDataGrid";
@@ -91,7 +91,7 @@ export default function CustomerFinancialCertificationsPageContent({
           <ModalButton
             label={`Create Financial Report Certification`}
             modal={({ handleClose }) => (
-              <CreateUpdateFinancialReportsCertificationModal
+              <CreateUpdateFinancialReportCertificationModal
                 actionType={ActionType.New}
                 companyId={companyId}
                 ebbaApplicationId={null}
@@ -162,7 +162,7 @@ export default function CustomerFinancialCertificationsPageContent({
                 isDisabled={!selectedEbbaApplication}
                 label={"Edit Certification"}
                 modal={({ handleClose }) => (
-                  <CreateUpdateFinancialReportsCertificationModal
+                  <CreateUpdateFinancialReportCertificationModal
                     actionType={ActionType.Update}
                     companyId={companyId}
                     ebbaApplicationId={selectedEbbaApplication?.id}

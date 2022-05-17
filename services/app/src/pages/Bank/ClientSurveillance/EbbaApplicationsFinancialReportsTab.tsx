@@ -1,5 +1,5 @@
 import { Box, TextField } from "@material-ui/core";
-import CreateUpdateFinancialReportsCertificationModal from "components/EbbaApplication/CreateUpdateFinancialReportsCertificationModal";
+import CreateUpdateFinancialReportCertificationModal from "components/EbbaApplication/CreateUpdateFinancialReportCertificationModal";
 import DeleteEbbaApplicationModal from "components/EbbaApplication/DeleteEbbaApplicationModal";
 import EbbaApplicationsDataGrid from "components/EbbaApplications/EbbaApplicationsDataGrid";
 import ModalButton from "components/Shared/Modal/ModalButton";
@@ -90,7 +90,7 @@ export default function EbbaApplicationsFinancialReportsTab() {
               isDisabled={!selectedEbbaApplication}
               label={"Edit Certification"}
               modal={({ handleClose }) => (
-                <CreateUpdateFinancialReportsCertificationModal
+                <CreateUpdateFinancialReportCertificationModal
                   actionType={ActionType.Update}
                   companyId={selectedEbbaApplication?.company_id}
                   ebbaApplicationId={selectedEbbaApplication?.id}

@@ -39,15 +39,13 @@ REQUIRED_ENV_VARS = [
 	'URL_SECRET_KEY',
 	'URL_SALT',
 	'PASSWORD_SALT',
-	'METRC_VENDOR_KEY_CA',
-	'METRC_VENDOR_KEY_OR',
 	'METRC_USER_KEY',
 ]
 
 def main(
 	company_identifier: str,
-	start_date: str,
-	end_date: str,
+	start_date_str: str,
+	end_date_str: str,
 	force_fetch_missing_sales_transactions: bool,
 	num_parallel_licenses: int,
 	num_parallel_sales_transactions: int,
@@ -84,14 +82,20 @@ def main(
 
 		company_id = str(company.id)
 
-	parsed_start_date = date_util.load_date_str(start_date)
-	parsed_end_date = date_util.load_date_str(end_date)
+	parsed_start_date = date_util.load_date_str(start_date_str)
+	# Default end date to today if end date not specified.
+	parsed_end_date = date_util.load_date_str(end_date_str) if end_date_str else date_util.now_as_date()
 
+	print('')
 	print('STARTING!')
 	print('Running sync metrc data with args...')
+	print(f'Start date: {date_util.date_to_str(parsed_start_date)}')
+	print(f'End date: {date_util.date_to_str(parsed_end_date)}')
 	print(f'Number of parallel licenses: {num_parallel_licenses}')
 	print(f'Number of parallel sales transactions: {num_parallel_sales_transactions}')
 	print(f'Force fetch missing sales transactions? {force_fetch_missing_sales_transactions}')
+	print('')
+	print('LOGS...')
 
 	cur_date = parsed_start_date
 	while cur_date <= parsed_end_date:
@@ -110,12 +114,14 @@ def main(
 		)
 
 		if fatal_err:
+			print('')
 			print('ERROR!')
 			print(fatal_err)
 			return
 
 		cur_date = cur_date + timedelta(days=1)
 
+	print('')
 	print('SUCCESS!')
 
 parser = argparse.ArgumentParser()
@@ -128,8 +134,8 @@ parser.add_argument(
 	help='Start date to sync metrc data for',
 )
 parser.add_argument(
-	'end_date',
-	help='End date to sync metrc data for',
+	'--end_date',
+	help='End date to sync metrc data for (defaults to today)',
 )
 parser.add_argument(
 	'--force_fetch_missing_sales_transactions',
@@ -151,8 +157,8 @@ if __name__ == '__main__':
 	args = parser.parse_args()
 	main(
 		company_identifier=args.company_identifier,
-		start_date=args.start_date,
-		end_date=args.end_date,
+		start_date_str=args.start_date,
+		end_date_str=args.end_date,
 		force_fetch_missing_sales_transactions=args.force_fetch_missing_sales_transactions or False,
 		num_parallel_licenses=args.num_parallel_licenses or 5,
 		num_parallel_sales_transactions=args.num_parallel_sales_transactions or 4,

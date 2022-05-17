@@ -185,8 +185,8 @@ def _get_metrc_company_info(
 	security_cfg: security_util.ConfigDict,
 	facilities_fetcher: metrc_common_util.FacilitiesFetcherInterface,
 	company_id: str,
-	session_maker: Callable) -> Tuple[CompanyInfo, errors.Error]:
-
+	session_maker: Callable,
+) -> Tuple[CompanyInfo, errors.Error]:
 	with session_scope(session_maker) as session:
 		company = cast(
 			models.Company,
@@ -198,10 +198,6 @@ def _get_metrc_company_info(
 
 		if not company.company_settings_id:
 			return None, errors.Error('Company {} has no settings, but has a metrc key'.format(company_id))
-
-		if not company.contract_id:
-			# Allow companies who do not have contracts setup as well
-			pass
 			
 		# Assume the current key set uses the customer's default state
 		# in their contract.
@@ -212,15 +208,11 @@ def _get_metrc_company_info(
 			List[models.MetrcApiKey],
 			session.query(models.MetrcApiKey).filter(
 				models.MetrcApiKey.company_id == company_id
-		).all())
-
-		us_states_set = set([])
+			).filter(
+				cast(Callable, models.MetrcApiKey.is_deleted.isnot)(True)
+			).all())
 		
 		for metrc_api_key in metrc_api_keys:
-
-			if metrc_api_key.is_deleted:
-				continue
-	
 			if not metrc_api_key.us_state:
 				raise errors.Error('Metrc key {} is missing the us_state. It must be specified explicitly to download data from Metrc'.format(
 					str(metrc_api_key.id)))
@@ -231,7 +223,6 @@ def _get_metrc_company_info(
 				state_to_metrc_api_keys[cur_us_state] = []
 
 			state_to_metrc_api_keys[cur_us_state].append(metrc_api_key)
-			us_states_set.add(cur_us_state)
 
 		all_licenses = cast(
 			List[models.CompanyLicense],
@@ -248,7 +239,7 @@ def _get_metrc_company_info(
 		company_name = company.name
 		state_to_company_infos: Dict[str, List[CompanyStateInfoDict]] = {}
 
-		for us_state in us_states_set:
+		for us_state in state_to_metrc_api_keys.keys():
 			vendor_key, err = auth_provider.get_vendor_key_by_state(us_state)
 			if err:
 				return None, err
@@ -265,6 +256,8 @@ def _get_metrc_company_info(
 				), us_state)
 
 				if err:
+					# Mark this Metrc API key as not functioning.
+					cur_metrc_api_key.is_functioning = False
 					logging.error('/facilities/v1 endpoint failed for api_key {}. Reason: {}'.format(
 						str(cur_metrc_api_key.id), err))
 					continue
@@ -407,12 +400,12 @@ def _download_data_for_license(
 def _download_and_summarize_data_for_license(
 	ctx: metrc_common_util.DownloadContext, 
 	session_maker: Callable,
-	metrc_api_key_id: str) -> Tuple[Dict, errors.Error]:
+	metrc_api_key_id: str,
+) -> Tuple[Dict, errors.Error]:
 	
 	api_status_dict = None
 	err = None
 	cur_date = ctx.cur_date
-	license_number = ctx.license['license_number']
 
 	try:
 		before = time.time()
@@ -449,12 +442,10 @@ def _download_data(
 	cur_date: datetime.date,
 	session_maker: Callable
 ) -> Tuple[DownloadDataRespDict, errors.Error]:
-	facilities_fetcher = metrc_common_util.FacilitiesFetcher()
-
 	company_info, err = _get_metrc_company_info(
 		auth_provider,
 		security_cfg,
-		facilities_fetcher,
+		facilities_fetcher=metrc_common_util.FacilitiesFetcher(),
 		company_id=company_id,
 		session_maker=session_maker
 	)
@@ -504,17 +495,16 @@ def _download_data(
 
 					functioning_licenses_count += 1 if not err else 0
 
-			# Update whether this metrc key worked
 			with session_scope(session_maker) as session:
-
 				metrc_api_key = cast(
 					models.MetrcApiKey,
 					session.query(models.MetrcApiKey).filter(
 						models.MetrcApiKey.id == state_info['metrc_api_key_id']
 				).first())
 
+				# Mark this Metrc API key as functioning.
 				if metrc_api_key:
-					metrc_api_key.is_functioning = functioning_licenses_count > 0 # Metrc API key is "functioning" if at least one license is functioning
+					metrc_api_key.is_functioning = True
 					metrc_api_key.last_used_at = date_util.now()
 					metrc_api_key.status_codes_payload = license_to_statuses
 					metrc_api_key.facilities_payload = cast(Dict, state_info['facilities_payload'])

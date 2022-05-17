@@ -250,7 +250,11 @@ class FacilitiesFetcherInterface(object):
 
 class FacilitiesFetcher(FacilitiesFetcherInterface):
 
-	def get_facilities(self, auth_dict: AuthDict, us_state: str) -> Tuple[List[FacilityInfoDict], errors.Error]:
+	def get_facilities(
+		self,
+		auth_dict: AuthDict,
+		us_state: str,
+	) -> Tuple[List[FacilityInfoDict], errors.Error]:
 		auth = HTTPBasicAuth(auth_dict['vendor_key'], auth_dict['user_key'])
 		base_url = _get_base_url(us_state)
 		url = base_url + '/facilities/v1/'
@@ -266,14 +270,15 @@ class FacilitiesFetcher(FacilitiesFetcherInterface):
 
 class REST(object):
 
-	def __init__(self, 
-			sendgrid_client: sendgrid_util.Client, 
-			auth_dict: AuthDict, 
-			company_details: CompanyDetailsDict,
-			license_number: str, 
-			us_state: str, 
-			error_catcher: ErrorCatcher,
-			debug: bool = False
+	def __init__(
+		self,
+		sendgrid_client: sendgrid_util.Client,
+		auth_dict: AuthDict,
+		company_details: CompanyDetailsDict,
+		license_number: str,
+		us_state: str,
+		error_catcher: ErrorCatcher,
+		debug: bool = False,
 	) -> None:
 		self.auth = HTTPBasicAuth(auth_dict['vendor_key'], auth_dict['user_key'])
 		self.license_number = license_number
@@ -432,4 +437,3 @@ def update_if_all_are_unsuccessful(request_status: RequestStatusesDict, key: str
 	if d[key] != 200:
 		# Only update the request status if we haven't seen a 200 yet
 		d[key] = e.details.get('status_code')
-				

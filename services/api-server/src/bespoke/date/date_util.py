@@ -39,7 +39,7 @@ def is_last_day_of_month(day: datetime.date) -> int:
 def now() -> datetime.datetime:
 	return datetime.datetime.now(timezone.utc)
 
-def now_as_date(timezone: str, now: datetime.datetime = None) -> datetime.date:
+def now_as_date(timezone: str = DEFAULT_TIMEZONE, now: datetime.datetime = None) -> datetime.date:
 	if now is None:
 		now = datetime.datetime.now(pytz.utc)
 

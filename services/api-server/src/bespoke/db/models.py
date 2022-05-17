@@ -498,8 +498,8 @@ class MetrcApiKey(Base):
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	encrypted_api_key = Column(String)
 	hashed_key = Column(String) # The one we can use for duplicate metrc key detection
-	last_used_at = Column(DateTime)
-	is_functioning = Column(Boolean)
+	is_functioning = Column(Boolean) # Whether key is functioning, where functioning means the /facilities endpoint is working.
+	last_used_at = Column(DateTime) # Timestamp of when key was last functioning.
 	is_deleted = Column(Boolean, default=False)
 	us_state = Column(String)
 	facilities_payload = Column(JSON)
@@ -1217,8 +1217,8 @@ EbbaApplicationDict = TypedDict('EbbaApplicationDict', {
 class EbbaApplication(Base):
 	"""
 	Record of information for either of:
-	1. Monthly borrowing base certification - for line of credit (LOC) product type
-	2. Monthly financial reports certification - for all other product types
+	1. Monthly borrowing base certification
+	2. Monthly financial report certification
 	"""
 	__tablename__ = 'ebba_applications'
 

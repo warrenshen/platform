@@ -8,14 +8,13 @@ import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
 import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import ModalButton from "components/Shared/Modal/ModalButton";
-import VerificationChip from "components/Vendors/VerificationChip";
 import {
   Companies,
   MetrcApiKeyFragment,
   MetrcApiKeys,
   useGetMetrcApiKeysByCompanyIdQuery,
 } from "generated/graphql";
-import { ColumnWidths } from "lib/tables";
+import { ColumnWidths, formatRowModel } from "lib/tables";
 import { useMemo, useState } from "react";
 
 interface Props {
@@ -23,10 +22,13 @@ interface Props {
 }
 
 function getRows(metrcApiKeys: MetrcApiKeyFragment[]): RowsProp {
-  return metrcApiKeys.map((metrcApiKey, index) => ({
-    ...metrcApiKey,
-    number: index + 1,
-  }));
+  return metrcApiKeys.map((metrcApiKey, index) =>
+    formatRowModel({
+      ...metrcApiKey,
+      number: index + 1,
+      is_functioning: !!metrcApiKey.is_functioning,
+    })
+  );
 }
 
 export default function MetrcApiKeysList({ companyId }: Props) {
@@ -59,20 +61,14 @@ export default function MetrcApiKeysList({ companyId }: Props) {
       },
       {
         dataField: "use_saved_licenses_only",
-        caption: "Use Saved Licenses Only?",
-        minWidth: ColumnWidths.MinWidth,
-        cellRender: ({ value }: { value: string }) => (
-          <VerificationChip value={value} />
-        ),
+        caption: "Sync Linked Licenses Only?",
+        width: ColumnWidths.Checkbox,
       },
       {
         dataField: "is_functioning",
         caption: "Functioning?",
         alignment: "center",
         width: ColumnWidths.Checkbox,
-        cellRender: ({ value }: { value: string }) => (
-          <VerificationChip value={value} />
-        ),
       },
       {
         dataField: "last_used_at",

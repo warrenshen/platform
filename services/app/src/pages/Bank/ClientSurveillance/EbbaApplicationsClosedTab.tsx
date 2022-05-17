@@ -1,6 +1,6 @@
 import { Box, TextField } from "@material-ui/core";
 import CreateUpdateBorrowingBaseCertificationModal from "components/EbbaApplication/CreateUpdateBorrowingBaseCertificationModal";
-import CreateUpdateFinancialReportsCertificationModal from "components/EbbaApplication/CreateUpdateFinancialReportsCertificationModal";
+import CreateUpdateFinancialReportCertificationModal from "components/EbbaApplication/CreateUpdateFinancialReportCertificationModal";
 import EbbaApplicationsDataGrid from "components/EbbaApplications/EbbaApplicationsDataGrid";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
@@ -105,7 +105,7 @@ export default function EbbaApplicationsClosedTab() {
                     }}
                   />
                 ) : (
-                  <CreateUpdateFinancialReportsCertificationModal
+                  <CreateUpdateFinancialReportCertificationModal
                     actionType={ActionType.Update}
                     companyId={selectedEbbaApplication?.company_id}
                     ebbaApplicationId={selectedEbbaApplication?.id}

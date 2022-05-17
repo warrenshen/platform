@@ -34,7 +34,7 @@ export function truncateString(value: string, count: number = 64) {
   return value.length > count ? `${value.substring(0, count)}...` : value;
 }
 
-// Replaes every null value in given RowModel (an object) with the undefined value.
+// Replaces every null value in given RowModel (an object) with the undefined value.
 // This is desired since a null value will break the export fucntionality of data grids.
 export function formatRowModel(rowModel: RowModel) {
   return mapValues(rowModel, (value: any) =>

@@ -52,9 +52,11 @@ export default function MetrcApiKeyInfo({ number, metrcApiKey }: Props) {
         </Typography>
       </Box>
       <Box mt={2}>
-        <Typography variant="body1">{`Is Functioning?: ${
-          metrcApiKey.is_functioning ? "Yes" : "No"
-        }`}</Typography>
+        <Typography variant="body1">
+          <strong>{`Is Functioning?: ${
+            metrcApiKey.is_functioning ? "YES" : "NO"
+          }`}</strong>
+        </Typography>
       </Box>
       <Box mt={2}>
         <Typography variant="body1">
