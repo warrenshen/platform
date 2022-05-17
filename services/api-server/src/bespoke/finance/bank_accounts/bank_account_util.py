@@ -54,16 +54,21 @@ def add_bank_account(
 	session: Session,
 	user: models.User,
 	bank_account_input: BankAccountInputDict,
-	company_id: str
+	company_id: Optional[str]
 ) -> Tuple[Dict[str, Collection[str]], errors.Error]:
-	company = cast(
-		models.Company,
-		session.query(models.Company).filter(
-			models.Company.id == company_id
-		).first())
+	company = None
+	if company_id is not None:
+		# When a bank account is set up for Bespoke itself, there
+		# won't be a company_id. Otherwise, we should check to ensure
+		# the company exists
+		company = cast(
+			models.Company,
+			session.query(models.Company).filter(
+				models.Company.id == company_id
+			).first())
 
-	if not company:
-		return None, errors.Error("Could not find requested company")
+		if not company:
+			return None, errors.Error("Could not find requested company")
 
 	session.add(models.BankAccount( # type: ignore
 		company_id = company_id,
@@ -93,7 +98,7 @@ def add_bank_account(
 		verified_date = date_util.load_date_str(bank_account_input['verified_date']) \
 			if 'verified_date' in bank_account_input and bank_account_input['verified_date'] is not None \
 			else None,
-		verified_at = date_util.now() if 'verified_date' in bank_account_input \
+		verified_at = date_util.now() if 'verified_at' in bank_account_input and bank_account_input['verified_at'] is not None \
 			else None
 	))
 
@@ -101,7 +106,7 @@ def add_bank_account(
 	today_date = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
 
 	template_data = {
-		"company_name": company.name,
+		"company_name": company.name if company_id is not None else "Bespoke Financial",
 		"requesting_user": f"{user.first_name} {user.last_name}",
 		"account_last_four": last_four,
 		"change_date": date_util.date_to_str(today_date),
@@ -129,14 +134,19 @@ def update_bank_account(
 	if not existing_bank_account:
 		return None, errors.Error("Could not find the bank account selected for updating")
 
-	company = cast(
-		models.Company,
-		session.query(models.Company).filter(
-			models.Company.id == existing_bank_account.company_id
-		).first())
+	company = None
+	if existing_bank_account.company_id is not None:
+		# When a bank account is set up for Bespoke itself, there
+		# won't be a company_id. Otherwise, we should check to ensure
+		# the company exists
+		company = cast(
+			models.Company,
+			session.query(models.Company).filter(
+				models.Company.id == existing_bank_account.company_id
+			).first())
 
-	if not company:
-		return None, errors.Error("Could not find the company associated with this bank account")
+		if not company:
+			return None, errors.Error("Could not find the company associated with this bank account")
 
 	if not is_bank_admin and existing_bank_account.verified_at is not None:
 		return None, errors.Error("Only bank admins may update verified bank accounts")
@@ -167,14 +177,15 @@ def update_bank_account(
 	existing_bank_account.verified_date = date_util.load_date_str(bank_account_input['verified_date']) \
 		if 'verified_date' in bank_account_input and bank_account_input['verified_date'] is not None \
 		else None
-	existing_bank_account.verified_at = date_util.now() if 'verified_date' in bank_account_input \
-		else existing_bank_account.verified_at
+	existing_bank_account.verified_at = date_util.now() \
+		if 'verified_at' in bank_account_input and bank_account_input['verified_at'] is not None \
+		else None
 
 	last_four = existing_bank_account.account_number[-4:] if existing_bank_account.account_number else ""
 	today_date = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
 
 	template_data = {
-	    "company_name": company.name,
+	    "company_name": company.name if existing_bank_account.company_id is not None else "Bespoke Financial",
 	    "requesting_user": f"{user.first_name} {user.last_name}",
 	    "account_last_four": last_four,
 	    "change_date": date_util.date_to_str(today_date),

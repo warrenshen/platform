@@ -140,11 +140,11 @@ class TestAddBankAccountView(db_unittest.TestCase):
 			bank_account_info_dict = prepare_bank_account_info_dict(bad_company_id)
 
 			template_data, err = bank_account_util.add_bank_account(
-                session,
-                user,
-                bank_account_info_dict,
-                bad_company_id
-            )
+				session,
+				user,
+				bank_account_info_dict,
+				bad_company_id
+			)
 			self.assertEqual("Could not find requested company", err.msg)
 
 	def test_happy_path_bank_user(self) -> None:
@@ -161,11 +161,11 @@ class TestAddBankAccountView(db_unittest.TestCase):
 			bank_account_info_dict = prepare_bank_account_info_dict(company_id)
 
 			template_data, err = bank_account_util.add_bank_account(
-                session,
-                user,
-                bank_account_info_dict,
-                company_id
-            )
+				session,
+				user,
+				bank_account_info_dict,
+				company_id
+			)
 			self.assertEqual(None, err)
 			self.assertEqual(template_data["company_name"], "AA Milne")
 			self.assertEqual(template_data["requesting_user"], "Winnie The Pooh")
@@ -189,11 +189,11 @@ class TestAddBankAccountView(db_unittest.TestCase):
 			bank_account_info_dict = prepare_bank_account_info_dict(company_id)
 
 			template_data, err = bank_account_util.add_bank_account(
-                session,
-                user,
-                bank_account_info_dict,
-                company_id
-            )
+				session,
+				user,
+				bank_account_info_dict,
+				company_id
+			)
 			self.assertEqual(None, err)
 			self.assertEqual(template_data["company_name"], "AA Milne")
 			self.assertEqual(template_data["requesting_user"], "Winnie The Pooh")
@@ -218,12 +218,12 @@ class TestUpdateBankAccountView(db_unittest.TestCase):
 			bank_account_info_dict = prepare_bank_account_info_dict()
 
 			template_data, err = bank_account_util.update_bank_account(
-                session,
-                user,
-                True, # is_bank_admin, set up with user_session in non-test code
-                bank_account_info_dict,
-                bad_bank_account_id
-            )
+				session,
+				user,
+				True, # is_bank_admin, set up with user_session in non-test code
+				bank_account_info_dict,
+				bad_bank_account_id
+			)
 			self.assertIn('Could not find the bank account selected for updating', err.msg)
 
 	def test_company_does_not_exist_error(self) -> None:
@@ -241,12 +241,12 @@ class TestUpdateBankAccountView(db_unittest.TestCase):
 			bank_account_info_dict = prepare_bank_account_info_dict()
 
 			template_data, err = bank_account_util.update_bank_account(
-                session,
-                user,
-                True, # is_bank_admin, set up with user_session in non-test code
-                bank_account_info_dict,
-                bank_account_id
-            )
+				session,
+				user,
+				True, # is_bank_admin, set up with user_session in non-test code
+				bank_account_info_dict,
+				bank_account_id
+			)
 			self.assertIn('Could not find the company associated with this bank account', err.msg)
 
 	def test_customer_trying_to_update_verified_bank_account(self) -> None:
@@ -264,12 +264,12 @@ class TestUpdateBankAccountView(db_unittest.TestCase):
 			bank_account_info_dict = prepare_bank_account_info_dict()
 
 			template_data, err = bank_account_util.update_bank_account(
-                session,
-                user,
-                False, # is_bank_admin, set up with user_session in non-test code
-                bank_account_info_dict,
-                bank_account_id
-            )
+				session,
+				user,
+				False, # is_bank_admin, set up with user_session in non-test code
+				bank_account_info_dict,
+				bank_account_id
+			)
 			self.assertIn('Only bank admins may update verified bank accounts', err.msg)
 
 	def test_happy_path_bank_user_verified_bank_account(self) -> None:
@@ -286,12 +286,12 @@ class TestUpdateBankAccountView(db_unittest.TestCase):
 			bank_account_info_dict = prepare_bank_account_info_dict()
 
 			template_data, err = bank_account_util.update_bank_account(
-                session,
-                user,
-                True, # is_bank_admin, set up with user_session in non-test code
-                bank_account_info_dict,
-                bank_account_id
-            )
+				session,
+				user,
+				True, # is_bank_admin, set up with user_session in non-test code
+				bank_account_info_dict,
+				bank_account_id
+			)
 			self.assertEqual(None, err)
 			self.assertEqual(template_data["company_name"], "AA Milne")
 			self.assertEqual(template_data["requesting_user"], "Winnie The Pooh")
@@ -315,12 +315,12 @@ class TestUpdateBankAccountView(db_unittest.TestCase):
 			bank_account_info_dict = prepare_bank_account_info_dict()
 
 			template_data, err = bank_account_util.update_bank_account(
-                session,
-                user,
-                True, # is_bank_admin, set up with user_session in non-test code
-                bank_account_info_dict,
-                bank_account_id
-            )
+				session,
+				user,
+				True, # is_bank_admin, set up with user_session in non-test code
+				bank_account_info_dict,
+				bank_account_id
+			)
 			self.assertEqual(None, err)
 			self.assertEqual(template_data["company_name"], "AA Milne")
 			self.assertEqual(template_data["requesting_user"], "Winnie The Pooh")
@@ -346,12 +346,12 @@ class TestUpdateBankAccountView(db_unittest.TestCase):
 			)
 
 			template_data, err = bank_account_util.update_bank_account(
-                session,
-                user,
-                True, # is_bank_admin, set up with user_session in non-test code
-                bank_account_info_dict,
-                bank_account_id
-            )
+				session,
+				user,
+				True, # is_bank_admin, set up with user_session in non-test code
+				bank_account_info_dict,
+				bank_account_id
+			)
 			self.assertEqual(None, err)
 			self.assertEqual(template_data["company_name"], "AA Milne")
 			self.assertEqual(template_data["requesting_user"], "Winnie The Pooh")
@@ -377,12 +377,12 @@ class TestUpdateBankAccountView(db_unittest.TestCase):
 			)
 
 			template_data, err = bank_account_util.update_bank_account(
-                session,
-                user,
-                True, # is_bank_admin, set up with user_session in non-test code
-                bank_account_info_dict,
-                bank_account_id
-            )
+				session,
+				user,
+				True, # is_bank_admin, set up with user_session in non-test code
+				bank_account_info_dict,
+				bank_account_id
+			)
 			self.assertEqual(None, err)
 			self.assertEqual(template_data["company_name"], "AA Milne")
 			self.assertEqual(template_data["requesting_user"], "Winnie The Pooh")
@@ -407,14 +407,72 @@ class TestUpdateBankAccountView(db_unittest.TestCase):
 			bank_account_info_dict = prepare_bank_account_info_dict()
 
 			template_data, err = bank_account_util.update_bank_account(
-                session,
-                user,
-                True, # is_bank_admin, set up with user_session in non-test code
-                bank_account_info_dict,
-                bank_account_id
-            )
+				session,
+				user,
+				False, # is_bank_admin, set up with user_session in non-test code
+				bank_account_info_dict,
+				bank_account_id
+			)
 			self.assertEqual(None, err)
 			self.assertEqual(template_data["company_name"], "AA Milne")
+			self.assertEqual(template_data["requesting_user"], "Winnie The Pooh")
+			self.assertEqual(template_data["account_last_four"], "6789")
+			message_type = cast(Dict[str, str], template_data["message_type"])
+			self.assertEqual(message_type["is_update"], True)
+			self.assertEqual(message_type["is_create"], False)
+
+	def test_happy_path_add_bespoke_bank_account(self) -> None:
+		with session_scope(self.session_maker) as session:
+			bank_account_id = str(uuid.uuid4())
+			company_id = None
+
+			user = setup_for_bank_account_test(
+				session,
+				bank_account_id,
+				company_id,
+				is_customer_user = True
+			)
+
+			bank_account_info_dict = prepare_bank_account_info_dict(company_id)
+
+			template_data, err = bank_account_util.add_bank_account(
+				session,
+				user,
+				bank_account_info_dict,
+				company_id
+			)
+			self.assertEqual(None, err)
+			self.assertEqual(template_data["company_name"], "Bespoke Financial")
+			self.assertEqual(template_data["requesting_user"], "Winnie The Pooh")
+			self.assertEqual(template_data["account_last_four"], "6789")
+			message_type = cast(Dict[str, str], template_data["message_type"])
+			self.assertEqual(message_type["is_update"], False)
+			self.assertEqual(message_type["is_create"], True)
+
+	def test_happy_path_update_bespoke_bank_account(self) -> None:
+		with session_scope(self.session_maker) as session:
+			bank_account_id = str(uuid.uuid4())
+			company_id = None
+
+			user = setup_for_bank_account_test(
+				session,
+				bank_account_id,
+				company_id,
+				is_customer_user = True,
+				is_verified = False
+			)
+
+			bank_account_info_dict = prepare_bank_account_info_dict()
+
+			template_data, err = bank_account_util.update_bank_account(
+				session,
+				user,
+				True, # is_bank_admin, set up with user_session in non-test code
+				bank_account_info_dict,
+				bank_account_id
+			)
+			self.assertEqual(None, err)
+			self.assertEqual(template_data["company_name"], "Bespoke Financial")
 			self.assertEqual(template_data["requesting_user"], "Winnie The Pooh")
 			self.assertEqual(template_data["account_last_four"], "6789")
 			message_type = cast(Dict[str, str], template_data["message_type"])
