@@ -26,21 +26,21 @@ import ClientBankStatusNoteModal from "./ClientBankStatusNoteModal";
 interface Props {
   actionType: ActionType;
   client: Companies;
-  qualifying_date: string;
+  qualifyingDate: string;
   handleClose: () => void;
 }
 
 const NumberOfMonthsShowed = 6;
 
 const newCompanyProductQualification: Partial<CompanyProductQualifications> = {
-  qualifying_product: QualifyForEnum.DISPENSARY_FINANCING,
+  qualifying_product: QualifyForEnum.NONE,
   bank_note: "",
 };
 
 export default function EditClientSurveillanceStatusModal({
   actionType,
   client: { id: company_id, bank_status = BankStatusEnum.GOOD_STANDING, name },
-  qualifying_date,
+  qualifyingDate,
   handleClose,
 }: Props) {
   const snackbar = useSnackbar();
@@ -48,7 +48,9 @@ export default function EditClientSurveillanceStatusModal({
     companyProductQualification,
     setCompanyProductQualification,
   ] = useState(newCompanyProductQualification);
-  const [qualifyingDate, setQualifyingDate] = useState(qualifying_date);
+  const [selectedQualifyingDate, setSelectedQualifyingDate] = useState(
+    qualifyingDate
+  );
   const [
     clickedBankNoteProductQualificationId,
     setClickedBankNoteProductQualificationId,
@@ -56,8 +58,9 @@ export default function EditClientSurveillanceStatusModal({
 
   const { refetch } = useGetCompanyProductQualificationsByDateQuery({
     variables: {
-      start_date: getFirstDayOfMonth(qualifyingDate),
-      end_date: getLastDateOfMonth(qualifyingDate),
+      company_id: company_id,
+      start_date: getFirstDayOfMonth(selectedQualifyingDate),
+      end_date: getLastDateOfMonth(selectedQualifyingDate),
       limit: 1,
     },
     onCompleted: (data) => {
@@ -81,6 +84,7 @@ export default function EditClientSurveillanceStatusModal({
     error,
   } = useGetCompanyProductQualificationsByDateQuery({
     variables: {
+      company_id: company_id,
       start_date: todayMinusXMonthsDateStringServer(NumberOfMonthsShowed),
       end_date: todayAsDateStringServer(),
       limit: NumberOfMonthsShowed,
@@ -115,8 +119,8 @@ export default function EditClientSurveillanceStatusModal({
   }, [bank_note, qualifying_product]);
 
   const handleQualifyingDateChange = useMemo(
-    () => (value: string | null) => value && setQualifyingDate(value),
-    [setQualifyingDate]
+    () => (value: string | null) => value && setSelectedQualifyingDate(value),
+    [setSelectedQualifyingDate]
   );
 
   const handleClickSave = async () => {
@@ -127,7 +131,7 @@ export default function EditClientSurveillanceStatusModal({
               company_id,
               bank_status_note: bankStatusNote,
               qualify_for: qualifyingProduct,
-              qualifying_date,
+              qualifying_date: selectedQualifyingDate,
             },
           })
         : await updateCompanyQualifyingProduct({
@@ -200,7 +204,7 @@ export default function EditClientSurveillanceStatusModal({
           bankStatusNote={bankStatusNote}
           setBankStatus={setBankStatus}
           setBankStatusNote={setBankStatusNote}
-          qualifyingDate={qualifyingDate}
+          qualifyingDate={selectedQualifyingDate}
           handleQualifyingDateChange={handleQualifyingDateChange}
           qualifyFor={qualifyingProduct}
           setQualifyFor={setQualifyingProduct}

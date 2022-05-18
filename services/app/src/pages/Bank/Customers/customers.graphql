@@ -42,6 +42,7 @@ query GetNonDummyCustomersWithMetadata(
 }
 
 query GetCompanyProductQualificationsByDate(
+  $company_id: uuid!
   $start_date: date
   $end_date: date
   $limit: Int
@@ -52,6 +53,7 @@ query GetCompanyProductQualificationsByDate(
       _and: [
         { qualifying_date: { _gte: $start_date } }
         { qualifying_date: { _lte: $end_date } }
+        { company_id: { _eq: $company_id } }
       ]
     }
   ) {

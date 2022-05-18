@@ -128,7 +128,7 @@ export default function ClientSurveillanceDashboardTab() {
                           : ActionType.New
                       }
                       client={selectedCustomer}
-                      qualifying_date={selectedDate}
+                      qualifyingDate={selectedDate}
                       handleClose={() => {
                         refetch();
                         handleClose();

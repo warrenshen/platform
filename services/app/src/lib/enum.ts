@@ -157,6 +157,7 @@ export enum QualifyForEnum {
   INVOICE = "invoice",
   FAILING = "failing",
   DISPENSARY_FINANCING = "dispensary_financing",
+  NONE = "",
 }
 
 export enum QualifyForLabelEnum {
@@ -166,6 +167,7 @@ export enum QualifyForLabelEnum {
   INVOICE = "Invoice",
   FAILING = "Failing",
   DISPENSARY_FINANCING = "Dispensary Financing",
+  NONE = "",
 }
 
 export const QualifyForLabels = [
@@ -175,6 +177,7 @@ export const QualifyForLabels = [
   QualifyForLabelEnum.INVOICE,
   QualifyForLabelEnum.FAILING,
   QualifyForLabelEnum.DISPENSARY_FINANCING,
+  QualifyForLabelEnum.NONE,
 ];
 
 export const QualifyForToLabel: {
@@ -188,6 +191,7 @@ export const QualifyForToLabel: {
   [QualifyForEnum.FAILING]: QualifyForLabelEnum.FAILING,
   [QualifyForEnum.DISPENSARY_FINANCING]:
     QualifyForLabelEnum.DISPENSARY_FINANCING,
+  [QualifyForEnum.NONE]: QualifyForLabelEnum.NONE,
 };
 
 export const LabelToQualifyFor: {
@@ -201,6 +205,7 @@ export const LabelToQualifyFor: {
   [QualifyForLabelEnum.FAILING]: QualifyForEnum.FAILING,
   [QualifyForLabelEnum.DISPENSARY_FINANCING]:
     QualifyForEnum.DISPENSARY_FINANCING,
+  [QualifyForLabelEnum.NONE]: QualifyForEnum.NONE,
 };
 
 export enum CustomerPurchaseOrdersTabLabel {

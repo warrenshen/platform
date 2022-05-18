@@ -29000,6 +29000,7 @@ export type GetNonDummyCustomersWithMetadataQuery = {
 };
 
 export type GetCompanyProductQualificationsByDateQueryVariables = Exact<{
+  company_id: Scalars["uuid"];
   start_date?: Maybe<Scalars["date"]>;
   end_date?: Maybe<Scalars["date"]>;
   limit?: Maybe<Scalars["Int"]>;
@@ -40112,6 +40113,7 @@ export type GetNonDummyCustomersWithMetadataQueryResult = Apollo.QueryResult<
 >;
 export const GetCompanyProductQualificationsByDateDocument = gql`
   query GetCompanyProductQualificationsByDate(
+    $company_id: uuid!
     $start_date: date
     $end_date: date
     $limit: Int
@@ -40122,6 +40124,7 @@ export const GetCompanyProductQualificationsByDateDocument = gql`
         _and: [
           { qualifying_date: { _gte: $start_date } }
           { qualifying_date: { _lte: $end_date } }
+          { company_id: { _eq: $company_id } }
         ]
       }
     ) {
@@ -40143,6 +40146,7 @@ export const GetCompanyProductQualificationsByDateDocument = gql`
  * @example
  * const { data, loading, error } = useGetCompanyProductQualificationsByDateQuery({
  *   variables: {
+ *      company_id: // value for 'company_id'
  *      start_date: // value for 'start_date'
  *      end_date: // value for 'end_date'
  *      limit: // value for 'limit'
@@ -40150,7 +40154,7 @@ export const GetCompanyProductQualificationsByDateDocument = gql`
  * });
  */
 export function useGetCompanyProductQualificationsByDateQuery(
-  baseOptions?: Apollo.QueryHookOptions<
+  baseOptions: Apollo.QueryHookOptions<
     GetCompanyProductQualificationsByDateQuery,
     GetCompanyProductQualificationsByDateQueryVariables
   >
