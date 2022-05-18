@@ -31,7 +31,7 @@ interface Props {
   handleClickCompanyBankStatusNote?: (id: Companies["id"]) => void;
 }
 
-const calculatePercentageDelinquent = (financialSummary: FinancialSummaries) =>
+const calculatePercentagePastDue = (financialSummary: FinancialSummaries) =>
   financialSummary && !!financialSummary.total_outstanding_principal
     ? formatPercentage(
         (financialSummary.total_outstanding_principal_past_due || 0.0) /
@@ -76,7 +76,7 @@ function getRows(
     debt_facility_status: company?.debt_facility_status
       ? company.debt_facility_status
       : null,
-    percentage_delinquent: calculatePercentageDelinquent(
+    percentage_past_due: calculatePercentagePastDue(
       company?.financial_summaries?.[0] as FinancialSummaries
     ),
     most_overdue_loan_days: !!company?.financial_summaries?.[0]
@@ -184,13 +184,10 @@ export default function ClientSurveillanceCustomersDataGrid({
         ),
       },
       {
-        dataField: "percentage_delinquent",
-        caption: "% Delinquent",
+        dataField: "percentage_past_due",
+        caption: "% Past Due",
         width: ColumnWidths.MinWidth,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
-          <TextDataGridCell label={params.row.data.percentage_delinquent} />
-        ),
       },
       {
         dataField: "most_overdue_loan_days",
