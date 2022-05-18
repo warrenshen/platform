@@ -43,8 +43,7 @@ export default function CustomerFinancialCertificationsPageContent({
   const ebbaApplications = useMemo(
     () =>
       data?.companies_by_pk?.ebba_applications.filter(
-        (app) =>
-          app.category === ClientSurveillanceCategoryEnum.FinancialReports
+        (app) => app.category === ClientSurveillanceCategoryEnum.FinancialReport
       ) || [],
     [data]
   );

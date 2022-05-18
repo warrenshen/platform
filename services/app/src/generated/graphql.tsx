@@ -26641,6 +26641,7 @@ export type UpdateEbbaApplicationMutation = {
 
 export type GetEbbaApplicationsByCompanyIdQueryVariables = Exact<{
   company_id: Scalars["uuid"];
+  category: Scalars["String"];
 }>;
 
 export type GetEbbaApplicationsByCompanyIdQuery = {
@@ -32240,7 +32241,7 @@ export type UpdateEbbaApplicationMutationOptions = Apollo.BaseMutationOptions<
   UpdateEbbaApplicationMutationVariables
 >;
 export const GetEbbaApplicationsByCompanyIdDocument = gql`
-  query GetEbbaApplicationsByCompanyId($company_id: uuid!) {
+  query GetEbbaApplicationsByCompanyId($company_id: uuid!, $category: String!) {
     ebba_applications(
       where: {
         _and: [
@@ -32251,6 +32252,7 @@ export const GetEbbaApplicationsByCompanyIdDocument = gql`
             ]
           }
           { company_id: { _eq: $company_id } }
+          { category: { _eq: $category } }
         ]
       }
       order_by: [{ application_date: desc }, { created_at: desc }]
@@ -32279,6 +32281,7 @@ export const GetEbbaApplicationsByCompanyIdDocument = gql`
  * const { data, loading, error } = useGetEbbaApplicationsByCompanyIdQuery({
  *   variables: {
  *      company_id: // value for 'company_id'
+ *      category: // value for 'category'
  *   },
  * });
  */

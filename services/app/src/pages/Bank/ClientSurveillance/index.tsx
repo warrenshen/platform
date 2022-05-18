@@ -42,7 +42,7 @@ export default function BankEbbaApplicationsPage() {
   ).filter(
     (ebbaApplication) =>
       ebbaApplication.category ===
-      ClientSurveillanceCategoryEnum.FinancialReports
+      ClientSurveillanceCategoryEnum.FinancialReport
   ).length;
 
   return (

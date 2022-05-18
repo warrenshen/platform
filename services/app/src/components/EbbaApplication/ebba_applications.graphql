@@ -1,4 +1,4 @@
-query GetEbbaApplicationsByCompanyId($company_id: uuid!) {
+query GetEbbaApplicationsByCompanyId($company_id: uuid!, $category: String!) {
   ebba_applications(
     where: {
       _and: [
@@ -9,6 +9,7 @@ query GetEbbaApplicationsByCompanyId($company_id: uuid!) {
           ]
         }
         { company_id: { _eq: $company_id } }
+        { category: { _eq: $category } }
       ]
     }
     order_by: [{ application_date: desc }, { created_at: desc }]

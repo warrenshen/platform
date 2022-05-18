@@ -137,7 +137,7 @@ export default function CreateUpdateFinancialReportCertificationModal({
         variables: {
           ebbaApplication: {
             company_id: isBankUser ? companyId : undefined,
-            category: ClientSurveillanceCategoryEnum.FinancialReports,
+            category: ClientSurveillanceCategoryEnum.FinancialReport,
             application_date: ebbaApplication.application_date,
             expires_at: computedExpiresAt,
             ebba_application_files: {

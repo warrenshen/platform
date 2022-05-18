@@ -21,7 +21,7 @@ export default function EbbaApplicationsFinancialReportsTab() {
   const { data, error, refetch } = useGetOpenEbbaApplicationsByCategoryQuery({
     fetchPolicy: "network-only",
     variables: {
-      category: ClientSurveillanceCategoryEnum.FinancialReports,
+      category: ClientSurveillanceCategoryEnum.FinancialReport,
     },
   });
 

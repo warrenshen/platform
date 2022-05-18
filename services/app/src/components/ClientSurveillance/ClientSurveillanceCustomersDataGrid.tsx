@@ -49,7 +49,7 @@ function getRows(
       ? formatDatetimeString(
           company?.ebba_applications.filter(
             ({ category }) =>
-              category === ClientSurveillanceCategoryEnum.FinancialReports
+              category === ClientSurveillanceCategoryEnum.FinancialReport
           )[0]?.application_date,
           false,
           "-"

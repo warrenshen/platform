@@ -22,7 +22,11 @@ import {
   formatDateStringAsMonth,
   previousXMonthsCertificationDates,
 } from "lib/date";
-import { FileTypeEnum, ProductTypeEnum } from "lib/enum";
+import {
+  ClientSurveillanceCategoryEnum,
+  FileTypeEnum,
+  ProductTypeEnum,
+} from "lib/enum";
 import { isDispensaryFinancingProductType } from "lib/settings";
 import { useMemo } from "react";
 
@@ -65,6 +69,7 @@ export default function EbbaApplicationFinancialReportsForm({
     fetchPolicy: "network-only",
     variables: {
       company_id: companyId,
+      category: ClientSurveillanceCategoryEnum.FinancialReport,
     },
   });
 
