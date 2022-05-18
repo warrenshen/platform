@@ -72,7 +72,7 @@ export default function MetrcApiKeysList({ companyId }: Props) {
       },
       {
         dataField: "last_used_at",
-        caption: "Last Used At",
+        caption: "Last Functioning At",
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
           <DatetimeDataGridCell

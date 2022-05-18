@@ -60,7 +60,7 @@ export default function MetrcApiKeyInfo({ number, metrcApiKey }: Props) {
       </Box>
       <Box mt={2}>
         <Typography variant="body1">
-          {`Last used at: ${
+          {`Last functioning at: ${
             metrcApiKey.last_used_at
               ? formatDatetimeString(metrcApiKey.last_used_at)
               : "None"
