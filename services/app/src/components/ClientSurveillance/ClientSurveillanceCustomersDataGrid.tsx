@@ -14,7 +14,6 @@ import {
 } from "lib/enum";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
-import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import { getBankCompanyRoute, BankCompanyRouteEnum } from "lib/routes";
 import { QualifyForToLabel } from "../../lib/enum";
 import ClientSurveillanceStatusChip from "./ClientSurveillanceStatusChip";
@@ -42,48 +41,70 @@ const calculatePercentagePastDue = (financialSummary: FinancialSummaries) =>
 function getRows(
   companies: GetNonDummyCustomersWithMetadataQuery["customers"]
 ): RowsProp {
-  return companies.map((company) => ({
-    ...company,
-    company_url: getBankCompanyRoute(company.id, BankCompanyRouteEnum.Overview),
-    application_date: !!company?.ebba_applications
-      ? formatDatetimeString(
-          company?.ebba_applications.filter(
-            ({ category }) =>
-              category === ClientSurveillanceCategoryEnum.FinancialReport
-          )[0]?.application_date,
-          false,
-          "-"
-        )
-      : null,
-    borrowing_base_date: !!company?.ebba_applications
-      ? formatDatetimeString(
-          company.ebba_applications.filter(
-            ({ category }) =>
-              category === ClientSurveillanceCategoryEnum.BorrowingBase
-          )[0]?.application_date,
-          false,
-          "-"
-        )
-      : null,
-    qualify_for:
-      company?.company_product_qualifications?.[0]?.qualifying_product,
-    product_type:
-      company?.financial_summaries && company.financial_summaries.length
-        ? ProductTypeToLabel[
-            company.financial_summaries[0].product_type as ProductTypeEnum
-          ]
-        : "None",
-    debt_facility_status: company?.debt_facility_status
-      ? company.debt_facility_status
-      : null,
-    percentage_past_due: calculatePercentagePastDue(
-      company?.financial_summaries?.[0] as FinancialSummaries
-    ),
-    most_overdue_loan_days: !!company?.financial_summaries?.[0]
-      ? company.financial_summaries[0].most_overdue_loan_days
-      : null,
-    bank_note: company?.company_product_qualifications?.[0]?.bank_note,
-  }));
+  return companies.map((company) => {
+    const financialReport = !!company?.ebba_applications
+      ? company?.ebba_applications.filter(
+          ({ category }) =>
+            category === ClientSurveillanceCategoryEnum.FinancialReport
+        )[0]
+      : null;
+
+    const borrowingBase = !!company?.ebba_applications
+      ? company?.ebba_applications.filter(
+          ({ category }) =>
+            category === ClientSurveillanceCategoryEnum.BorrowingBase
+        )[0]
+      : null;
+
+    return {
+      ...company,
+      financial_report_date: formatDatetimeString(
+        financialReport?.application_date,
+        false,
+        "-"
+      ),
+      borrowing_base_date: formatDatetimeString(
+        borrowingBase?.application_date,
+        false,
+        "-"
+      ),
+      financial_report_valid_until: formatDatetimeString(
+        financialReport?.expires_at,
+        false,
+        "-"
+      ),
+      borrowing_base_valid_until: formatDatetimeString(
+        borrowingBase?.expires_at,
+        false,
+        "-"
+      ),
+      company_url: getBankCompanyRoute(
+        company.id,
+        BankCompanyRouteEnum.Overview
+      ),
+      qualify_for:
+        QualifyForToLabel[
+          company?.company_product_qualifications?.[0]
+            ?.qualifying_product as QualifyForEnum
+        ] || "-",
+      product_type:
+        company?.financial_summaries && company.financial_summaries.length
+          ? ProductTypeToLabel[
+              company.financial_summaries[0].product_type as ProductTypeEnum
+            ]
+          : "None",
+      debt_facility_status: company?.debt_facility_status
+        ? company.debt_facility_status
+        : null,
+      percentage_past_due: calculatePercentagePastDue(
+        company?.financial_summaries?.[0] as FinancialSummaries
+      ),
+      most_overdue_loan_days: !!company?.financial_summaries?.[0]
+        ? company.financial_summaries[0].most_overdue_loan_days
+        : null,
+      bank_note: company?.company_product_qualifications?.[0]?.bank_note,
+    };
+  });
 }
 
 export default function ClientSurveillanceCustomersDataGrid({
@@ -155,33 +176,30 @@ export default function ClientSurveillanceCustomersDataGrid({
         caption: "Qualifying for",
         width: ColumnWidths.Datetime,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
-          <TextDataGridCell
-            label={
-              QualifyForToLabel[
-                params.row.data.qualify_for as QualifyForEnum
-              ] || "-"
-            }
-          />
-        ),
       },
       {
-        dataField: "application_date",
-        caption: "Most Recent Financials",
+        dataField: "financial_report_date",
+        caption: "Most Recent Financial Report",
         width: ColumnWidths.Date,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
-          <TextDataGridCell label={params.row.data.application_date} />
-        ),
+      },
+      {
+        dataField: "financial_report_valid_until",
+        caption: "Financial Report Valid Until",
+        width: ColumnWidths.Date,
+        alignment: "center",
       },
       {
         dataField: "borrowing_base_date",
         caption: "Most Recent Borrowing Base",
         width: ColumnWidths.Date,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
-          <TextDataGridCell label={params.row.data.borrowing_base_date} />
-        ),
+      },
+      {
+        dataField: "borrowing_base_valid_until",
+        caption: "Borrowing Base Valid Until",
+        width: ColumnWidths.Date,
+        alignment: "center",
       },
       {
         dataField: "percentage_past_due",
@@ -191,7 +209,7 @@ export default function ClientSurveillanceCustomersDataGrid({
       },
       {
         dataField: "most_overdue_loan_days",
-        capaction: "Most Overdue Loan",
+        caption: "Most Overdue Loan",
         width: ColumnWidths.MinWidth,
         alignment: "center",
       },
@@ -200,9 +218,6 @@ export default function ClientSurveillanceCustomersDataGrid({
         caption: "Waiver Date",
         width: ColumnWidths.Date,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
-          <TextDataGridCell label={params.row.data.waiver_date} />
-        ),
       },
     ],
     [handleClickCompanyBankStatusNote]
