@@ -42,6 +42,16 @@ function getRows(
   companies: GetNonDummyCustomersWithMetadataQuery["customers"]
 ): RowsProp {
   return companies.map((company) => {
+    const productType =
+      company?.financial_summaries && company.financial_summaries.length
+        ? ProductTypeToLabel[
+            company.financial_summaries[0].product_type as ProductTypeEnum
+          ]
+        : "None";
+
+    const isLineOfCredit =
+      productType === ProductTypeToLabel[ProductTypeEnum.LineOfCredit];
+
     const financialReport = !!company?.ebba_applications
       ? company?.ebba_applications.filter(
           ({ category }) =>
@@ -58,41 +68,24 @@ function getRows(
 
     return {
       ...company,
+      company_url: getBankCompanyRoute(
+        company.id,
+        BankCompanyRouteEnum.Overview
+      ),
       financial_report_date: formatDatetimeString(
         financialReport?.application_date,
         false,
         "-"
       ),
-      borrowing_base_date: formatDatetimeString(
-        borrowingBase?.application_date,
-        false,
-        "-"
-      ),
-      financial_report_valid_until: formatDatetimeString(
-        financialReport?.expires_at,
-        false,
-        "-"
-      ),
-      borrowing_base_valid_until: formatDatetimeString(
-        borrowingBase?.expires_at,
-        false,
-        "-"
-      ),
-      company_url: getBankCompanyRoute(
-        company.id,
-        BankCompanyRouteEnum.Overview
-      ),
+      borrowing_base_date: isLineOfCredit
+        ? formatDatetimeString(borrowingBase?.application_date, false, "-")
+        : "N/A",
       qualify_for:
         QualifyForToLabel[
           company?.company_product_qualifications?.[0]
             ?.qualifying_product as QualifyForEnum
         ] || "-",
-      product_type:
-        company?.financial_summaries && company.financial_summaries.length
-          ? ProductTypeToLabel[
-              company.financial_summaries[0].product_type as ProductTypeEnum
-            ]
-          : "None",
+      product_type: productType,
       debt_facility_status: company?.debt_facility_status
         ? company.debt_facility_status
         : null,
