@@ -43,6 +43,7 @@ export default function BankPurchaseOrdersDataGrid({
         />
       )}
       <PurchaseOrdersDataGrid
+        isClientSurveillanceStatusVisible
         isApprovedByVendor={isApprovedByVendor}
         isBankNoteVisible
         isCompanyVisible
