@@ -661,7 +661,7 @@ def get_gmv_change_bm(state):
                 0.06,
                 0.09,
                 -0.16,
-                0.12
+                0.12,
             ],
             [0.04, 0.12, 0.2, 0.28, 0.36, 0.44, 0.52, 0.6, 0.68, 0.76, 0.84, 0.92, 1],
         ]
@@ -680,7 +680,7 @@ def get_gmv_change_bm(state):
                 -0.13,
                 -0.01,
                 -0.05,
-                0.22
+                0.22,
             ],
             [0.04, 0.12, 0.2, 0.28, 0.36, 0.44, 0.52, 0.6, 0.68, 0.76, 0.84, 0.92, 1],
         ]
@@ -773,14 +773,19 @@ def calculate_quarterly_sum_gmv_ma(cogs_analysis_df, bm):
 
 
 def calculate_quarterly_sum_gmv_ma_short(cogs_analysis_df):
-# for NECC
-    gmv_df = cogs_analysis_df[(cogs_analysis_df['date'] >= '2021-09')&(cogs_analysis_df['date'] <= '2022-03')][['revenue_change']]
-    gmv_df['sum_gmv_change_ma'] = [-0.07,0.09,-0.11,0.02,0.05]
-    gmv_df['weight'] = [0.68,0.76,0.84,0.92,1]
-    gmv_df['variance'] = gmv_df['revenue_change'] - gmv_df['sum_gmv_change_ma']
-    gmv_df['points'] = [gmv_change_variance_point_mapping(n) for n in gmv_df['variance']]
+    # for NECC
+    gmv_df = cogs_analysis_df[
+        (cogs_analysis_df["date"] >= "2021-09")
+        & (cogs_analysis_df["date"] <= "2022-03")
+    ][["revenue_change"]]
+    gmv_df["sum_gmv_change_ma"] = [-0.07, 0.09, -0.11, 0.02, 0.05]
+    gmv_df["weight"] = [0.68, 0.76, 0.84, 0.92, 1]
+    gmv_df["variance"] = gmv_df["revenue_change"] - gmv_df["sum_gmv_change_ma"]
+    gmv_df["points"] = [
+        gmv_change_variance_point_mapping(n) for n in gmv_df["variance"]
+    ]
     gmv_df.replace([numpy.inf, -numpy.inf], numpy.nan, inplace=True)
-    gmv_df['total'] = gmv_df['points'] * gmv_df['weight']
+    gmv_df["total"] = gmv_df["points"] * gmv_df["weight"]
     return gmv_df
 
 
@@ -964,7 +969,7 @@ def calculate_inventory_valuation_fresh(
         columns={"per_unit_incoming": "per_unit_product"}, inplace=True
     )
     # prepare fresh inventory
-    inventory_df = inventory_df.reset_index(drop = True)
+    inventory_df = inventory_df.reset_index(drop=True)
     inventory_df["age"] = [
         today_date - inventory_df["packaged_date"][i] for i in range(len(inventory_df))
     ]
@@ -1034,7 +1039,7 @@ def calculate_inventory_valuation_fresh(
         "license",
         "legal_name",
     ]
-    return df_inventory_license,inventory_df
+    return df_inventory_license, inventory_df
 
 
 def calculate_msrp_based_inventory_valuation(
@@ -1172,11 +1177,22 @@ def get_gm_perc_scores(threshold, gm_3, gm_6, gm_9):
     return score_3m, score_6m, score_9m
 
 
+def get_short_repayment_score(dpd):
+    if dpd <= 9:
+        return 10
+    elif 9 < dpd <= 30:
+        return 0
+    elif dpd > 30:
+        return -10
+    else:
+        return None
+
+
 def calculate_interest_rate(score, full_score):
     score_ratio = score / full_score
     placeholder = (1 + 0.5 * (1 - score_ratio)) * 0.015
     rate = placeholder * 12
-    return round(placeholder,4),round(rate,4)
+    return round(placeholder, 4), round(rate, 4)
 
 
 # create template file with after tax inventory valuation and also credit limit
@@ -1334,8 +1350,8 @@ def create_template_new(
             ],
             # total score
             ["total score", total],
-            ["Monthly Rate (%)",calculate_interest_rate(total, 45)[0]*100],
-            ["interest rate (%)", calculate_interest_rate(total, 45)[1]*100],
+            ["Monthly Rate (%)", calculate_interest_rate(total, 45)[0] * 100],
+            ["interest rate (%)", calculate_interest_rate(total, 45)[1] * 100],
             ["credit limit", credit_limit],
         ]
     )
@@ -1471,9 +1487,9 @@ def create_template_update(
                 .reset_index()
                 .license_check[0],
             ],
-            ["metrc cogs coverage", round(metrc_cogs_coverage_current,2)],
+            ["metrc cogs coverage", round(metrc_cogs_coverage_current, 2)],
             ["metrc cogs coverage reliable ?", metrc_cogs_coverage_current_reliable],
-            ["metrc inventory coverage", round(metrc_inventory_coverage_current,2)],
+            ["metrc inventory coverage", round(metrc_inventory_coverage_current, 2)],
             [
                 "metrc inventory coverage reliable ?",
                 metrc_inventory_coverage_current_reliable,
@@ -1500,7 +1516,10 @@ def create_template_update(
             ["inventory valuation", round(inventory, 2)],
             ["inventory valuation after tax (CA only)", round(inventory_after_tax, 2)],
             ["fresh inventory valuation", round(fresh_inventory, 2)],
-            ["fresh inventory valuation after tax (CA only)", round(fresh_inventory_after_tax, 2)],
+            [
+                "fresh inventory valuation after tax (CA only)",
+                round(fresh_inventory_after_tax, 2),
+            ],
             # inventory valuation msrp based
             ["inventory valuation (msrp based)", round(inventory_msrp, 2)],
             # sum past 3m cogs afte tax
@@ -1511,8 +1530,14 @@ def create_template_update(
             ],
             # total score
             ["total score", total],
-            ["Calculated monthly Rate (%)",calculate_interest_rate(total, 45)[0]*100],
-            ["Calculated interest rate (%)", calculate_interest_rate(total, 45)[1]*100],
+            [
+                "Calculated monthly Rate (%)",
+                calculate_interest_rate(total, 45)[0] * 100,
+            ],
+            [
+                "Calculated interest rate (%)",
+                calculate_interest_rate(total, 45)[1] * 100,
+            ],
             ["credit limit", credit_limit],
         ]
     )
