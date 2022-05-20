@@ -263,7 +263,7 @@ export default function EbbaApplicationBorrowingBaseForm({
         </Box>
         <FileUploader
           companyId={companyId}
-          fileType={FileTypeEnum.EBBA_APPLICATION}
+          fileType={FileTypeEnum.EbbaApplication}
           fileIds={ebbaApplicationFileIds}
           frozenFileIds={frozenFileIds}
           handleDeleteFileById={(fileId) =>

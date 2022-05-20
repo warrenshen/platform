@@ -249,7 +249,7 @@ export default function ReviewInvoicePaymentPage(props: Props) {
               </Typography>
               <DownloadThumbnail
                 fileIds={invoiceFileIds}
-                fileType={FileTypeEnum.INVOICE}
+                fileType={FileTypeEnum.Invoice}
               />
             </Box>
             {invoice?.is_cannabis && (
@@ -259,7 +259,7 @@ export default function ReviewInvoicePaymentPage(props: Props) {
                 </Typography>
                 <DownloadThumbnail
                   fileIds={invoiceCannabisFileIds}
-                  fileType={FileTypeEnum.INVOICE}
+                  fileType={FileTypeEnum.Invoice}
                 />
               </Box>
             )}

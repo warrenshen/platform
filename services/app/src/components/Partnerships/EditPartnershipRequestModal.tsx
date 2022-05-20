@@ -320,7 +320,7 @@ export default function EditPartnershipRequestModal({
             <FileUploader
               isCountVisible={false}
               companyId={partnerRequest.requesting_company.id}
-              fileType={FileTypeEnum.BANK_INSTRUCTIONS}
+              fileType={FileTypeEnum.BankInstructions}
               maxFilesAllowed={1}
               fileIds={bankInstructionsAttachmentIds}
               frozenFileIds={[]}
@@ -389,7 +389,7 @@ export default function EditPartnershipRequestModal({
                 <FileUploader
                   isCountVisible={false}
                   companyId={partnerRequest.requesting_company.id}
-                  fileType={FileTypeEnum.COMPANY_LICENSE}
+                  fileType={FileTypeEnum.CompanyLicense}
                   maxFilesAllowed={1}
                   fileIds={cannabisLicenseCopyAttachmentIds}
                   frozenFileIds={[]}

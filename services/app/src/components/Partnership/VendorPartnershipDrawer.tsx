@@ -157,7 +157,7 @@ export default function VendorPartnershipDrawer({
           <Grid item>
             <DownloadThumbnail
               fileIds={agreementFileIds}
-              fileType={FileTypeEnum.COMPANY_AGREEMENT}
+              fileType={FileTypeEnum.CompnayAgreement}
             />
           </Grid>
         )}

@@ -24,27 +24,81 @@ export enum UUIDEnum {
 // File type enum is used for permissions when accessing files.
 // We need to know from which file table the user is intending to read from.
 export enum FileTypeEnum {
-  COMPANY_AGREEMENT = "company_agreement",
-  COMPANY_LICENSE = "company_license",
-  EBBA_APPLICATION = "ebba_application",
-  INVOICE = "invoice",
-  PAYOR_AGREEMENT = "payor_agreement",
-  PAYOR_LICENSE = "payor_license",
-  PURCHASE_ORDER = "purchase_order",
-  VENDOR_AGREEMENT = "vendor_agreement",
-  VENDOR_LICENSE = "vendor_license",
-  BANK_INSTRUCTIONS = "bank_instructions",
+  CompnayAgreement = "company_license",
+  CompanyLicense = "company_license",
+  EbbaApplication = "ebba_application",
+  Invoice = "invoice",
+  PayorAgreement = "payor_agreement",
+  PayorLicense = "payor_license",
+  PurchaseOrder = "purchase_order",
+  VendorAgreement = "vendor_agreement",
+  VendorLicense = "vendor_license",
+  BankInstructions = "bank_instructions",
 }
 
-export enum AchAdvancesExportUSStateEnum {
-  None = "None",
-  California = "CA",
-  Colorado = "CO",
-  Massachusetts = "MA",
-  Michigan = "MI",
-  Oklahoma = "OK",
-  Oregon = "OR",
+export interface USStateEnumInstance {
+  abbreviation: string;
+  full: string;
 }
+
+export interface USStateEnum {
+  [key: string]: USStateEnumInstance;
+}
+
+export const USStates: USStateEnum = {
+  None: { abbreviation: "", full: "None" },
+  AL: { abbreviation: "AL", full: "Alabama" },
+  AK: { abbreviation: "AK", full: "Alaska" },
+  AZ: { abbreviation: "AZ", full: "Arizona" },
+  AR: { abbreviation: "AR", full: "Arkansas" },
+  CA: { abbreviation: "CA", full: "California" },
+  CO: { abbreviation: "CO", full: "Colorado" },
+  CT: { abbreviation: "CT", full: "Connecticut" },
+  DE: { abbreviation: "DE", full: "Delaware" },
+  DC: { abbreviation: "DC", full: "District of Columbia" },
+  FL: { abbreviation: "FL", full: "Florida" },
+  GA: { abbreviation: "GA", full: "Georgia" },
+  HI: { abbreviation: "HI", full: "Hawaii" },
+  ID: { abbreviation: "ID", full: "Idaho" },
+  IL: { abbreviation: "IL", full: "Illinois" },
+  IN: { abbreviation: "IN", full: "Indiana" },
+  IA: { abbreviation: "IA", full: "Iowa" },
+  KS: { abbreviation: "KS", full: "Kansas" },
+  KY: { abbreviation: "KY", full: "Kentucky" },
+  LA: { abbreviation: "LA", full: "Louisiana" },
+  ME: { abbreviation: "ME", full: "Maine" },
+  MD: { abbreviation: "MD", full: "Maryland" },
+  MA: { abbreviation: "MA", full: "Massachusetts" },
+  MI: { abbreviation: "MI", full: "Michigan" },
+  MN: { abbreviation: "MN", full: "Minnesota" },
+  MS: { abbreviation: "MS", full: "Mississippi" },
+  MO: { abbreviation: "MO", full: "Missouri" },
+  MT: { abbreviation: "MT", full: "Montana" },
+  NE: { abbreviation: "NE", full: "Nebraska" },
+  NV: { abbreviation: "NV", full: "Nevada" },
+  NH: { abbreviation: "NH", full: "New Hampshire" },
+  NJ: { abbreviation: "NJ", full: "New Jersey" },
+  NM: { abbreviation: "NM", full: "New Mexico" },
+  NY: { abbreviation: "NY", full: "New York" },
+  NC: { abbreviation: "NC", full: "North Carolina" },
+  ND: { abbreviation: "ND", full: "North Dakota" },
+  OH: { abbreviation: "OH", full: "Ohio" },
+  OK: { abbreviation: "OK", full: "Oklahoma" },
+  OR: { abbreviation: "OR", full: "Oregon" },
+  PA: { abbreviation: "PA", full: "Pennsylvania" },
+  RI: { abbreviation: "RI", full: "Rhode Island" },
+  SC: { abbreviation: "SC", full: "South Carolina" },
+  SD: { abbreviation: "SD", full: "South Dakota" },
+  TN: { abbreviation: "TN", full: "Tennessee" },
+  TX: { abbreviation: "TX", full: "Texas" },
+  UT: { abbreviation: "UT", full: "Utah" },
+  VT: { abbreviation: "VT", full: "Vermont" },
+  VA: { abbreviation: "VA", full: "Virginia" },
+  WA: { abbreviation: "WA", full: "Washington" },
+  WV: { abbreviation: "WV", full: "West Virginia" },
+  WI: { abbreviation: "WI", full: "Wisconsin" },
+  WY: { abbreviation: "WY", full: "Wyoming" },
+};
 
 export enum PaymentTypeEnum {
   Adjustment = "adjustment",

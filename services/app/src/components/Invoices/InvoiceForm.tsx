@@ -230,7 +230,7 @@ export default function InvoiceForm({
         </Box>
         <FileUploader
           companyId={companyId}
-          fileType={FileTypeEnum.INVOICE}
+          fileType={FileTypeEnum.Invoice}
           fileIds={invoiceFileIds}
           frozenFileIds={frozenInvoiceFileIds}
           handleDeleteFileById={(fileId) =>
@@ -265,7 +265,7 @@ export default function InvoiceForm({
             </Box>
             <FileUploader
               companyId={companyId}
-              fileType={FileTypeEnum.INVOICE}
+              fileType={FileTypeEnum.Invoice}
               fileIds={invoiceCannabisFileIds}
               frozenFileIds={frozenInvoiceCannabisFileIds}
               handleDeleteFileById={(fileId) =>

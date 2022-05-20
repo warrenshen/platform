@@ -225,7 +225,7 @@ export default function EbbaApplicationDrawer({
           </Typography>
           <DownloadThumbnail
             fileIds={ebbaApplicationFileIds}
-            fileType={FileTypeEnum.EBBA_APPLICATION}
+            fileType={FileTypeEnum.EbbaApplication}
           />
           <Button
             style={{ alignSelf: "flex-start" }}
@@ -239,7 +239,7 @@ export default function EbbaApplicationDrawer({
             <Box mt={1}>
               <FileViewer
                 fileIds={ebbaApplicationFileIds}
-                fileType={FileTypeEnum.EBBA_APPLICATION}
+                fileType={FileTypeEnum.EbbaApplication}
               />
             </Box>
           )}

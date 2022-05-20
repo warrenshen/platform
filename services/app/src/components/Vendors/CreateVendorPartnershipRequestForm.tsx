@@ -253,7 +253,7 @@ export default function CreateVendorPartnershipRequestForm({
         <FileUploader
           isCountVisible={false}
           companyId={companyId}
-          fileType={FileTypeEnum.BANK_INSTRUCTIONS}
+          fileType={FileTypeEnum.BankInstructions}
           maxFilesAllowed={1}
           fileIds={bankInstructionsAttachmentIds}
           frozenFileIds={[]}
@@ -321,7 +321,7 @@ export default function CreateVendorPartnershipRequestForm({
             <FileUploader
               isCountVisible={false}
               companyId={companyId}
-              fileType={FileTypeEnum.COMPANY_LICENSE}
+              fileType={FileTypeEnum.CompanyLicense}
               maxFilesAllowed={1}
               fileIds={cannabisLicenseCopyAttachmentIds}
               frozenFileIds={[]}

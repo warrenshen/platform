@@ -114,7 +114,7 @@ function CompanyLicenseForm({
       <FileUploader
         isCountVisible={false}
         companyId={companyId}
-        fileType={FileTypeEnum.VENDOR_LICENSE}
+        fileType={FileTypeEnum.VendorLicense}
         maxFilesAllowed={1}
         fileIds={fileIds}
         handleDeleteFileById={handleDeleteFileByLicenseIndex}

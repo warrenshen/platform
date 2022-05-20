@@ -108,7 +108,7 @@ export default function PurchaseOrderFormManual({
               "purchase-order-form-file-uploader-cannabis-file-attachments"
             }
             companyId={companyId}
-            fileType={FileTypeEnum.PURCHASE_ORDER}
+            fileType={FileTypeEnum.PurchaseOrder}
             fileIds={purchaseOrderCannabisFileIds}
             frozenFileIds={frozenPurchaseOrderCannabisFileIds}
             handleDeleteFileById={(fileId) =>

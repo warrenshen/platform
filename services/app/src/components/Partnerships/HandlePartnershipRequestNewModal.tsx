@@ -148,7 +148,7 @@ export default function HandlePartnershipRequestNewModal({
           </Typography>
           <DownloadThumbnail
             fileIds={[partnerRequest.license_info.license_file_id]}
-            fileType={FileTypeEnum.COMPANY_LICENSE}
+            fileType={FileTypeEnum.CompanyLicense}
           />
           <Button
             style={{ alignSelf: "flex-start" }}
@@ -164,7 +164,7 @@ export default function HandlePartnershipRequestNewModal({
             <Box mt={1}>
               <FileViewer
                 fileIds={[partnerRequest.license_info.license_file_id]}
-                fileType={FileTypeEnum.COMPANY_LICENSE}
+                fileType={FileTypeEnum.CompanyLicense}
               />
             </Box>
           )}
@@ -202,7 +202,7 @@ export default function HandlePartnershipRequestNewModal({
             fileIds={[
               partnerRequest.request_info.bank_instructions_attachment_id,
             ]}
-            fileType={FileTypeEnum.COMPANY_LICENSE}
+            fileType={FileTypeEnum.CompanyLicense}
           />
           <Button
             style={{ alignSelf: "flex-start" }}
@@ -222,7 +222,7 @@ export default function HandlePartnershipRequestNewModal({
                 fileIds={[
                   partnerRequest.request_info.bank_instructions_attachment_id,
                 ]}
-                fileType={FileTypeEnum.COMPANY_LICENSE}
+                fileType={FileTypeEnum.CompanyLicense}
               />
             </Box>
           )}

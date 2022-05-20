@@ -181,7 +181,7 @@ export default function PurchaseOrderForm({
         <FileUploader
           dataCy={"purchase-order-form-file-uploader-purchase-order-file"}
           companyId={companyId}
-          fileType={FileTypeEnum.PURCHASE_ORDER}
+          fileType={FileTypeEnum.PurchaseOrder}
           fileIds={purchaseOrderFileIds}
           frozenFileIds={frozenPurchaseOrderFileIds}
           handleDeleteFileById={(fileId) =>

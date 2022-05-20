@@ -108,7 +108,7 @@ export default function CompanyLicenseDrawer({
           </Typography>
           <DownloadThumbnail
             fileIds={[companyLicense.file_id]}
-            fileType={FileTypeEnum.COMPANY_LICENSE}
+            fileType={FileTypeEnum.CompanyLicense}
           />
           <Button
             style={{ alignSelf: "flex-start" }}
@@ -122,7 +122,7 @@ export default function CompanyLicenseDrawer({
             <Box mt={1}>
               <FileViewer
                 fileIds={[companyLicense.file_id]}
-                fileType={FileTypeEnum.EBBA_APPLICATION}
+                fileType={FileTypeEnum.EbbaApplication}
               />
             </Box>
           )}

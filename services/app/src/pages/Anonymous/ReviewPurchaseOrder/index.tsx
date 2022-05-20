@@ -246,7 +246,7 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
               </Typography>
               <DownloadThumbnail
                 fileIds={purchaseOrderFileIds}
-                fileType={FileTypeEnum.PURCHASE_ORDER}
+                fileType={FileTypeEnum.PurchaseOrder}
               />
             </Box>
             {!isMetrcBased && purchaseOrder.is_cannabis && (
@@ -256,7 +256,7 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
                 </Typography>
                 <DownloadThumbnail
                   fileIds={purchaseOrderCannabisFileIds}
-                  fileType={FileTypeEnum.PURCHASE_ORDER}
+                  fileType={FileTypeEnum.PurchaseOrder}
                 />
               </Box>
             )}

@@ -196,7 +196,7 @@ export default function PurchaseOrderDrawer({
         </Box>
         <DownloadThumbnail
           fileIds={purchaseOrderFileIds}
-          fileType={FileTypeEnum.PURCHASE_ORDER}
+          fileType={FileTypeEnum.PurchaseOrder}
         />
       </Box>
       {!isMetrcBased && (
@@ -224,7 +224,7 @@ export default function PurchaseOrderDrawer({
               </Box>
               <DownloadThumbnail
                 fileIds={purchaseOrderCannabisFileIds}
-                fileType={FileTypeEnum.PURCHASE_ORDER}
+                fileType={FileTypeEnum.PurchaseOrder}
               />
               <Button
                 style={{ alignSelf: "flex-start" }}
@@ -238,7 +238,7 @@ export default function PurchaseOrderDrawer({
                 <Box mt={1}>
                   <FileViewer
                     fileIds={purchaseOrderCannabisFileIds}
-                    fileType={FileTypeEnum.PURCHASE_ORDER}
+                    fileType={FileTypeEnum.PurchaseOrder}
                   />
                 </Box>
               )}

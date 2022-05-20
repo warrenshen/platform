@@ -223,7 +223,7 @@ export default function PurchaseOrderFormMetrc({
           </Box>
           <FileUploader
             companyId={companyId}
-            fileType={FileTypeEnum.PURCHASE_ORDER}
+            fileType={FileTypeEnum.PurchaseOrder}
             fileIds={purchaseOrderCannabisFileIds}
             frozenFileIds={frozenPurchaseOrderCannabisFileIds}
             handleDeleteFileById={(fileId) =>

@@ -190,7 +190,7 @@ export default function InvoiceDrawer({ invoiceId, handleClose }: Props) {
             </Box>
             <DownloadThumbnail
               fileIds={invoiceFileIds}
-              fileType={FileTypeEnum.INVOICE}
+              fileType={FileTypeEnum.Invoice}
             />
           </Box>
         </Box>
@@ -206,7 +206,7 @@ export default function InvoiceDrawer({ invoiceId, handleClose }: Props) {
             </Box>
             <DownloadThumbnail
               fileIds={invoiceCannabisFileIds}
-              fileType={FileTypeEnum.INVOICE}
+              fileType={FileTypeEnum.Invoice}
             />
           </Box>
         )}
