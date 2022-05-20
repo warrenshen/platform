@@ -29,7 +29,6 @@ BIGQUERY_CREDENTIALS_PATH = os.environ.get('BIGQUERY_CREDENTIALS_PATH')
 engine = create_engine('bigquery://bespoke-financial/ProdMetrcData', credentials_path=os.path.expanduser(BIGQUERY_CREDENTIALS_PATH))
 
 TRANSFER_PACKAGES_START_DATE = '2020-01-01'
-SALES_TRANSACTIONS_START_DATE = '2020-01-01'
 
 PRODUCT_SELF_LIFE_DICT = {
     'Flower': .5,
@@ -112,22 +111,27 @@ class Analyzer:
         self.license_numbers = []
         self.include_quantity_zero = True
         self.today = date.today()
+        self.SALES_TRANSACTIONS_START_DATE = '2020-01-01'
+        self.SALES_TRANSACTIONS_END_DATE = str(date.today())
 
     def run_query(self, query):
         data = pd.read_sql_query(query, engine)
         return data
 
-    def update_class_attributes(self, company_identifier, licence_numbers, include_quantity_zero):
+    def update_class_attributes(self, company_identifier, licence_numbers, include_quantity_zero,
+                                start_date='2020-01-01', end_date=str(date.today())):
         self.company_identifier = company_identifier
         self.license_numbers = licence_numbers
         self.include_quantity_zero = include_quantity_zero
+        self.SALES_TRANSACTIONS_START_DATE = start_date
+        self.SALES_TRANSACTIONS_END_DATE = end_date
 
     def find_most_valuable_products(self, groupby_col, order_col, direction, top_k):
         query = ifa_query.best_selling_products_by_liquidity(
             self.company_identifier,
             self.license_numbers,
-            self.include_quantity_zero,
-            SALES_TRANSACTIONS_START_DATE,
+            self.SALES_TRANSACTIONS_START_DATE,
+            self.SALES_TRANSACTIONS_END_DATE,
             groupby_col,
             order_col,
             direction,
@@ -142,7 +146,8 @@ class Analyzer:
                 self.company_identifier,
                 self.license_numbers,
                 self.include_quantity_zero,
-                SALES_TRANSACTIONS_START_DATE,
+                self.SALES_TRANSACTIONS_START_DATE,
+                self.SALES_TRANSACTIONS_END_DATE,
                 by_product_name
             )
 
@@ -151,11 +156,13 @@ class Analyzer:
                 self.company_identifier,
                 self.license_numbers,
                 self.include_quantity_zero,
-                SALES_TRANSACTIONS_START_DATE,
+                self.SALES_TRANSACTIONS_START_DATE,
+                self.SALES_TRANSACTIONS_END_DATE,
                 discount_rate,
                 by_product_name
             )
         else:
+            query = ''
             print('Please provide valuation method from the following: ')
             print(['last_sale_valuation', 'discount_valuation'])
         return self.run_query(query)
@@ -175,28 +182,76 @@ class Analyzer:
         elif method == 'discount_valuation':
             data['discounted_price'][data['expired']] = 0
             valuation = np.sum(data['quantity'] * data['discounted_price'])
+        else:
+            valuation = 0
+            print('Please provide valuation method from the following: ')
+            print(['last_sale_valuation', 'discount_valuation'])
         return data, valuation
 
-    def find_most_valuable_products_by_velocity_sales_weighted(self, groupby_col, top_k):
-        base_query = ifa_query.create_company_freshness_metric_query(
-            self.company_identifier, self.license_numbers,
-            self.include_quantity_zero, SALES_TRANSACTIONS_START_DATE, groupby_col)
+    def find_incoming_inventory_valuation(self, method, by_product_name=True, discount_rate=.1):
+        query = ifa_query.create_company_incoming_inventory_valudation_by_discounting_time_value(
+            self.company_identifier,
+            self.license_numbers,
+            self.include_quantity_zero,
+            self.SALES_TRANSACTIONS_START_DATE,
+            self.SALES_TRANSACTIONS_END_DATE,
+            discount_rate,
+            by_product_name
+        )
+        data = self.run_query(query)
+        data['product_type'] = data.product_category_name.apply(
+            lambda x: PRODUCT_CATEGORY_NAME_2_PRODUCT_TYPE[x] if x in PRODUCT_CATEGORY_NAME_2_PRODUCT_TYPE else ''
+        )
+        data['shelf_life'] = data['product_type'].apply(
+            lambda x: PRODUCT_SELF_LIFE_DICT[x] if x in PRODUCT_SELF_LIFE_DICT else 1
+        )
+        data['expired'] = data['inventory_year_diff'] > data['shelf_life']
+        if method == 'discount_valuation':
+            data['discounted_price'][data['expired']] = 0
+            valuation = np.sum(data['quantity'] * data['discounted_price'])
+        else:
+            valuation = 0
+            print('Please provide valuation method from the following: ')
+            print(['last_sale_valuation', 'discount_valuation'])
+        return data, valuation
 
+    def find_most_valuable_products_by_velocity_sales_weighted(self, groupby_col, top_k, normailize_by_quantity=False):
+        base_query = ifa_query.create_company_sale_metric_query(
+            self.company_identifier, self.license_numbers,
+            self.SALES_TRANSACTIONS_START_DATE,
+            self.SALES_TRANSACTIONS_END_DATE, groupby_col)
+        order_col = 'quantity_sale_velocity_per_day' if normailize_by_quantity else 'sale_velocity_per_day'
         query = '''
             SELECT
                 *,
-                number_of_sales/avg_days_since_sale AS sale_velocity_per_day
+                (CASE WHEN avg_days_since_sale <1 THEN number_of_sales ELSE number_of_sales/avg_days_since_sale END) AS sale_velocity_per_day,
+                (CASE WHEN avg_days_since_sale <1 THEN number_of_sales ELSE quantity_sold/avg_days_since_sale END) AS quantity_sale_velocity_per_day
             FROM 
                 ({BASE_QUERY}) AS base_query
             WHERE 
                 number_of_sales > 10
             ORDER BY 
-                sale_velocity_per_day DESC
+                {ORDER_COL} DESC
             LIMIT 
                 {N}
         '''
-        query = query.format(BASE_QUERY=base_query, N=top_k)
+        query = query.format(BASE_QUERY=base_query, ORDER_COL=order_col, N=top_k)
         return self.run_query(query)
+
+    def find_all_valuation(self, by_product_name=True, discount_rate=.1):
+        valuation_sales_last_sale = np.round(self.find_inventory_valuation(
+            'last_sale_valuation', by_product_name, discount_rate)[1])
+        print('#### Inventory Valuation based on sales data using last sale method: ${} ####'.format(
+            valuation_sales_last_sale))
+        valuation_sales_discount_time = np.round(self.find_inventory_valuation(
+            'discount_valuation', by_product_name, discount_rate)[1])
+        print('#### Inventory Valuation based on sales data using discount time method: ${} ####'.format(
+            valuation_sales_discount_time))
+        valuation_inventory_discount_time = np.round(self.find_incoming_inventory_valuation(
+            'discount_valuation', by_product_name, discount_rate)[1])
+        print('#### Inventory Valuation based on incoming data using discount time method: ${} ####'.format(
+            valuation_inventory_discount_time))
+        return valuation_sales_last_sale, valuation_sales_discount_time, valuation_inventory_discount_time
 
     def create_product_k_means_clusters(self):
         return

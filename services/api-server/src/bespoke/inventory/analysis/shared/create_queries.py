@@ -109,7 +109,6 @@ def create_company_incoming_transfer_packages_query(
 			metrc_transfer_packages.package_payload.receiverwholesaleprice as receiver_wholesale_price,
 			metrc_transfer_packages.received_quantity,
 			metrc_transfer_packages.received_unit_of_measure,
-			metrc_transfer_packages.package_payload.receiverwholesaleprice as receiver_wholesale_price,
 			metrc_transfer_packages.package_payload.itemunitweight as item_unit_weight,
 			metrc_transfer_packages.package_payload.itemunitweightunitofmeasurename as item_unit_weight_unit_of_measure_name
 		from
