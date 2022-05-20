@@ -4747,9 +4747,9 @@ export type CompanyProductQualificationsBoolExp = {
 /** unique or primary key constraints on table "company_product_qualifications" */
 export enum CompanyProductQualificationsConstraint {
   /** unique or primary key constraint */
-  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
-  /** unique or primary key constraint */
   CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
+  /** unique or primary key constraint */
+  CompanyProductQualificationsQualifyingDateCompanyIdKey = "company_product_qualifications_qualifying_date_company_id_key",
 }
 
 /** input type for inserting data into table "company_product_qualifications" */
@@ -27923,7 +27923,7 @@ export type CompanyLicenseFragment = Pick<
 
 export type CompanyLimitedFragment = Pick<
   Companies,
-  "id" | "parent_company_id" | "name" | "dba_name" | "bank_status"
+  "id" | "parent_company_id" | "name" | "dba_name"
 >;
 
 export type CompanyFragment = Pick<
@@ -29158,7 +29158,6 @@ export const CompanyLimitedFragmentDoc = gql`
     parent_company_id
     name
     dba_name
-    bank_status
   }
 `;
 export const CompanyFragmentDoc = gql`

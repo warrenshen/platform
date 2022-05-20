@@ -25,7 +25,6 @@ import { formatCurrency } from "lib/number";
 import { computePurchaseOrderDueDateDateStringClient } from "lib/purchaseOrders";
 import { ColumnWidths, truncateString } from "lib/tables";
 import { useMemo, useState } from "react";
-import ClientSurveillanceStatusChip from "components/ClientSurveillance/ClientSurveillanceStatusChip";
 
 function getRows(purchaseOrders: PurchaseOrderFragment[]): RowsProp {
   return purchaseOrders.map((purchaseOrder) => ({
@@ -51,7 +50,6 @@ interface Props {
   isCompanyVisible: boolean;
   isCustomerNoteVisible?: boolean;
   isExcelExport?: boolean;
-  isClientSurveillanceStatusVisible?: boolean;
   isMultiSelectEnabled?: boolean;
   purchaseOrders: PurchaseOrderFragment[];
   actionItems?: DataGridActionItem[];
@@ -68,7 +66,6 @@ interface Props {
 export default function PurchaseOrdersDataGrid({
   isApprovedByVendor = true,
   isBankNoteVisible = false,
-  isClientSurveillanceStatusVisible = false,
   isCompanyVisible,
   isCustomerNoteVisible = true,
   isExcelExport = true,
@@ -142,18 +139,6 @@ export default function PurchaseOrdersDataGrid({
           ) : (
             params.row.data.company_name
           ),
-      },
-      {
-        visible: isClientSurveillanceStatusVisible,
-        dataField: "bank_status",
-        caption: "Client Surveillance Stage",
-        width: ColumnWidths.Status,
-        alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
-          <ClientSurveillanceStatusChip
-            requestStatus={params.row.data.company.bank_status}
-          />
-        ),
       },
       {
         dataField: "vendor_name",
@@ -245,7 +230,6 @@ export default function PurchaseOrdersDataGrid({
       actionItems,
       handleClickCustomer,
       handleClickPurchaseOrderBankNote,
-      isClientSurveillanceStatusVisible,
     ]
   );
 

@@ -116,7 +116,6 @@ export default function BankPurchaseOrdersIncompleteTab() {
         <PurchaseOrdersDataGrid
           isBankNoteVisible
           isCompanyVisible
-          isClientSurveillanceStatusVisible
           isCustomerNoteVisible={false}
           purchaseOrders={purchaseOrders}
           selectedPurchaseOrderIds={selectedPurchaseOrderIds}

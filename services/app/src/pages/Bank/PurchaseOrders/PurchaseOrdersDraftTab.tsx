@@ -99,7 +99,6 @@ export default function BankPurchaseOrdersDraftedTab() {
       </Box>
       <Box display="flex" flexDirection="column">
         <PurchaseOrdersDataGrid
-          isClientSurveillanceStatusVisible
           isBankNoteVisible
           isCompanyVisible
           isCustomerNoteVisible={false}
