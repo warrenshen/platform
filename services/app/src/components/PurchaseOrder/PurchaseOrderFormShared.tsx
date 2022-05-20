@@ -20,7 +20,7 @@ import { FileTypeEnum } from "lib/enum";
 import { isPurchaseOrderDueDateValid } from "lib/purchaseOrders";
 import { useMemo } from "react";
 
-const NetTermsDropdownOptions = ["7", "14", "15", "30", "45", "60"];
+const NetTermsDropdownOptions = ["7", "14", "15", "28", "30", "45", "60"];
 
 interface Props {
   companyId: Companies["id"];
