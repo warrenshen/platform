@@ -90,9 +90,11 @@ export default function BankAdvancesExportAchsTab() {
         <Box mb={2}>
           <Alert severity="info">
             <Typography variant="body1">
-              Note the default Payment Date is today. Press the export button /
-              icon at the top right of the table to export rows (non-header
-              rows) in CSV file format.
+              Note the default Payment Date is today. Select a State and press
+              the export button / icon at the top right of the table to export
+              rows (non-header rows) in CSV file format. If there are any rows
+              in the table when no State is selected, this means that a Bespoke
+              Financial bank account does not have its State configured.
             </Typography>
           </Alert>
         </Box>
