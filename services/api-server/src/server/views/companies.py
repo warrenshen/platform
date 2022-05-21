@@ -6,6 +6,7 @@ from bespoke.audit import events
 from bespoke.companies import create_company_util, partnership_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
+from bespoke.date import date_util
 from bespoke.email import sendgrid_util
 from bespoke.finance import contract_util
 from server.config import Config
@@ -242,6 +243,9 @@ class CreatePartnershipRequestNewView(MethodView):
 
 		req = cast(create_company_util.CreatePartnershipRequestNewInputDict, form)
 
+		partner_name = req['company']['name']
+		user_email = req['user']['email']
+
 		with session_scope(current_app.session_maker) as session:
 
 			partnership_req_id, err = create_company_util.create_partnership_request_new(
@@ -269,7 +273,7 @@ class CreatePartnershipRequestNewView(MethodView):
 					models.CompanySettings.company_id == customer_id
 				).first())
 
-			partner_name = req['company']['name']
+			
 
 			template_data = {
 				'customer_name': customer.get_display_name(),
@@ -282,6 +286,17 @@ class CreatePartnershipRequestNewView(MethodView):
 				template_data, recipients)
 			if err:
 				raise err
+
+			# Mark partnership invite as complete
+			company_partnership_invite = cast(
+				models.CompanyPartnershipInvitation,
+				session.query(models.CompanyPartnershipInvitation).filter(
+					models.CompanyPartnershipInvitation.email == user_email
+				).first()
+			)
+
+			if company_partnership_invite:
+				company_partnership_invite.closed_at = date_util.now()
 
 		return make_response(json.dumps({
 			'status': 'OK',
@@ -598,6 +613,15 @@ class AddVendorNewView(MethodView):
 			)
 			if err:
 				raise err
+			
+			# Store the invite details in the CompanyPartnershipInvitation
+			partnership_invitation = models.CompanyPartnershipInvitation()
+			partnership_invitation.requesting_company_id = customer.id
+			partnership_invitation.email = request_data['email'].lower()
+			partnership_invitation.metadata_info = {}
+			partnership_invitation.requested_at = date_util.now()
+			session.add(partnership_invitation)
+			session.flush()
 
 		return make_response(json.dumps({
 			'status': 'OK',
@@ -669,6 +693,43 @@ class ApprovePartnershipView(MethodView):
 			)
 			if err:
 				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+		}))
+
+
+class MarkPartnershipInviteAsComplete(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'company_partnership_invite_id',
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in request')
+
+		company_partnership_invite_id = form['company_partnership_invite_id']
+
+		with session_scope(current_app.session_maker) as session:
+			company_partnership_invite = cast(
+				models.CompanyPartnershipInvitation,
+				session.query(models.CompanyPartnershipInvitation).filter(
+					models.CompanyPartnershipInvitation.id == company_partnership_invite_id
+				).first()
+			)
+
+			if not company_partnership_invite:
+				return handler_util.make_error_response('Invalid data')
+			
+			company_partnership_invite.closed_at = date_util.now()
 
 		return make_response(json.dumps({
 			'status': 'OK',
@@ -819,6 +880,9 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/create_partnership_new', view_func=CreatePartnershipNewView.as_view(name='create_partnership_new_view'))
+
+handler.add_url_rule(
+	'/mark_company_partnership_complete', view_func=MarkPartnershipInviteAsComplete.as_view(name='mark_company_partnership_complete_view'))
 
 handler.add_url_rule(
 	'/add_vendor_new', view_func=AddVendorNewView.as_view(name='add_vendor_new_view'))

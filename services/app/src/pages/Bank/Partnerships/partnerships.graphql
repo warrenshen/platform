@@ -52,3 +52,16 @@ subscription GetPartnershipRequestsForBankByRequestingCompanyIdAndType(
     ...PartnershipRequest
   }
 }
+
+subscription GetPartnershipInvitationsForBank {
+  company_partnership_invitations(
+    where: { 
+      deleted_at: { _is_null: true }
+      closed_at: { _is_null: true }
+    }
+    order_by: [{ created_at: asc }]
+  ) {
+    id
+    ...PartnershipInvitation
+  }
+}

@@ -284,6 +284,20 @@ fragment PartnershipRequest on company_partnership_requests {
   }
 }
 
+fragment PartnershipInvitation on company_partnership_invitations {
+  id
+  requesting_company_id
+  email
+  requested_at
+  closed_at
+  metadata_info
+  created_at
+  requesting_company {
+    id
+    name
+  }
+}
+
 fragment VendorPartnership on company_vendor_partnerships {
   id
   vendor_bank_id

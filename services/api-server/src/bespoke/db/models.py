@@ -1503,7 +1503,7 @@ class MonthlySummaryCalculation(Base):
 	report_month = Column(Date)
 	minimum_payment = Column(Numeric)
 
-class CompanyPartnershipInvitations(Base):
+class CompanyPartnershipInvitation(Base):
 	__tablename__ = 'company_partnership_invitations'
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)

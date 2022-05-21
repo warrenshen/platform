@@ -7,6 +7,7 @@ import {
   CompanySettingsInsertInput,
   ContractsInsertInput,
   UsersInsertInput,
+  CompanyPartnershipInvitations,
 } from "generated/graphql";
 import {
   authenticatedApi,
@@ -482,6 +483,34 @@ export async function approvePartnershipMutation(
         return {
           status: "ERROR",
           msg: "Could not approve partnership",
+        };
+      }
+    );
+}
+
+export type PartnershipInviteCompleteReq = {
+  variables: {
+    company_partnership_invite_id: CompanyPartnershipInvitations["id"];
+  };
+};
+
+export async function markPartnershipInvitationAsCompleteMutation(
+  req: PartnershipInviteCompleteReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(companyRoutes.markPartnershipInviteAsComplete, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not mark invite as complete",
         };
       }
     );

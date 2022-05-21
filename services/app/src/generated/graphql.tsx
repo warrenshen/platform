@@ -20487,6 +20487,7 @@ export type PurchaseOrders = {
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_by?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<Scalars["String"]>;
@@ -20524,6 +20525,7 @@ export type PurchaseOrders = {
   /** An aggregate relationship */
   purchase_order_metrc_transfers_aggregate: PurchaseOrderMetrcTransfersAggregate;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_by?: Maybe<Scalars["uuid"]>;
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -20661,6 +20663,7 @@ export type PurchaseOrdersBoolExp = {
   amount?: Maybe<NumericComparisonExp>;
   amount_funded?: Maybe<NumericComparisonExp>;
   approved_at?: Maybe<TimestamptzComparisonExp>;
+  approved_by?: Maybe<UuidComparisonExp>;
   bank_incomplete_note?: Maybe<StringComparisonExp>;
   bank_note?: Maybe<StringComparisonExp>;
   bank_rejection_note?: Maybe<StringComparisonExp>;
@@ -20683,6 +20686,7 @@ export type PurchaseOrdersBoolExp = {
   purchase_order_files?: Maybe<PurchaseOrderFilesBoolExp>;
   purchase_order_metrc_transfers?: Maybe<PurchaseOrderMetrcTransfersBoolExp>;
   rejected_at?: Maybe<TimestamptzComparisonExp>;
+  rejected_by?: Maybe<UuidComparisonExp>;
   rejection_note?: Maybe<StringComparisonExp>;
   requested_at?: Maybe<TimestamptzComparisonExp>;
   status?: Maybe<RequestStatusEnumComparisonExp>;
@@ -20711,6 +20715,7 @@ export type PurchaseOrdersInsertInput = {
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_by?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<Scalars["String"]>;
@@ -20738,6 +20743,7 @@ export type PurchaseOrdersInsertInput = {
   purchase_order_files?: Maybe<PurchaseOrderFilesArrRelInsertInput>;
   purchase_order_metrc_transfers?: Maybe<PurchaseOrderMetrcTransfersArrRelInsertInput>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_by?: Maybe<Scalars["uuid"]>;
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -20753,6 +20759,7 @@ export type PurchaseOrdersMaxFields = {
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_by?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<Scalars["String"]>;
@@ -20771,6 +20778,7 @@ export type PurchaseOrdersMaxFields = {
   order_date?: Maybe<Scalars["date"]>;
   order_number?: Maybe<Scalars["String"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_by?: Maybe<Scalars["uuid"]>;
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -20784,6 +20792,7 @@ export type PurchaseOrdersMaxOrderBy = {
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
+  approved_by?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<OrderBy>;
@@ -20802,6 +20811,7 @@ export type PurchaseOrdersMaxOrderBy = {
   order_date?: Maybe<OrderBy>;
   order_number?: Maybe<OrderBy>;
   rejected_at?: Maybe<OrderBy>;
+  rejected_by?: Maybe<OrderBy>;
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
@@ -20815,6 +20825,7 @@ export type PurchaseOrdersMinFields = {
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_by?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<Scalars["String"]>;
@@ -20833,6 +20844,7 @@ export type PurchaseOrdersMinFields = {
   order_date?: Maybe<Scalars["date"]>;
   order_number?: Maybe<Scalars["String"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_by?: Maybe<Scalars["uuid"]>;
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -20846,6 +20858,7 @@ export type PurchaseOrdersMinOrderBy = {
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
+  approved_by?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<OrderBy>;
@@ -20864,6 +20877,7 @@ export type PurchaseOrdersMinOrderBy = {
   order_date?: Maybe<OrderBy>;
   order_number?: Maybe<OrderBy>;
   rejected_at?: Maybe<OrderBy>;
+  rejected_by?: Maybe<OrderBy>;
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
@@ -20898,6 +20912,7 @@ export type PurchaseOrdersOrderBy = {
   amount?: Maybe<OrderBy>;
   amount_funded?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
+  approved_by?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
   bank_note?: Maybe<OrderBy>;
   bank_rejection_note?: Maybe<OrderBy>;
@@ -20920,6 +20935,7 @@ export type PurchaseOrdersOrderBy = {
   purchase_order_files_aggregate?: Maybe<PurchaseOrderFilesAggregateOrderBy>;
   purchase_order_metrc_transfers_aggregate?: Maybe<PurchaseOrderMetrcTransfersAggregateOrderBy>;
   rejected_at?: Maybe<OrderBy>;
+  rejected_by?: Maybe<OrderBy>;
   rejection_note?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
   status?: Maybe<OrderBy>;
@@ -20941,6 +20957,8 @@ export enum PurchaseOrdersSelectColumn {
   AmountFunded = "amount_funded",
   /** column name */
   ApprovedAt = "approved_at",
+  /** column name */
+  ApprovedBy = "approved_by",
   /** column name */
   BankIncompleteNote = "bank_incomplete_note",
   /** column name */
@@ -20978,6 +20996,8 @@ export enum PurchaseOrdersSelectColumn {
   /** column name */
   RejectedAt = "rejected_at",
   /** column name */
+  RejectedBy = "rejected_by",
+  /** column name */
   RejectionNote = "rejection_note",
   /** column name */
   RequestedAt = "requested_at",
@@ -20995,6 +21015,7 @@ export type PurchaseOrdersSetInput = {
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_by?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<Scalars["String"]>;
@@ -21018,6 +21039,7 @@ export type PurchaseOrdersSetInput = {
   order_date?: Maybe<Scalars["date"]>;
   order_number?: Maybe<Scalars["String"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_by?: Maybe<Scalars["uuid"]>;
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -21099,6 +21121,8 @@ export enum PurchaseOrdersUpdateColumn {
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
+  ApprovedBy = "approved_by",
+  /** column name */
   BankIncompleteNote = "bank_incomplete_note",
   /** column name */
   BankNote = "bank_note",
@@ -21134,6 +21158,8 @@ export enum PurchaseOrdersUpdateColumn {
   OrderNumber = "order_number",
   /** column name */
   RejectedAt = "rejected_at",
+  /** column name */
+  RejectedBy = "rejected_by",
   /** column name */
   RejectionNote = "rejection_note",
   /** column name */
@@ -28678,6 +28704,17 @@ export type PartnershipRequestFragment = Pick<
   requested_by_user?: Maybe<Pick<Users, "full_name">>;
 };
 
+export type PartnershipInvitationFragment = Pick<
+  CompanyPartnershipInvitations,
+  | "id"
+  | "requesting_company_id"
+  | "email"
+  | "requested_at"
+  | "closed_at"
+  | "metadata_info"
+  | "created_at"
+> & { requesting_company: Pick<Companies, "id" | "name"> };
+
 export type VendorPartnershipFragment = Pick<
   CompanyVendorPartnerships,
   "id" | "vendor_bank_id"
@@ -29075,6 +29112,16 @@ export type GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscriptio
 export type GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscription = {
   company_partnership_requests: Array<
     Pick<CompanyPartnershipRequests, "id"> & PartnershipRequestFragment
+  >;
+};
+
+export type GetPartnershipInvitationsForBankSubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetPartnershipInvitationsForBankSubscription = {
+  company_partnership_invitations: Array<
+    Pick<CompanyPartnershipInvitations, "id"> & PartnershipInvitationFragment
   >;
 };
 
@@ -29817,6 +29864,21 @@ export const PartnershipRequestFragmentDoc = gql`
     }
     requested_by_user {
       full_name
+    }
+  }
+`;
+export const PartnershipInvitationFragmentDoc = gql`
+  fragment PartnershipInvitation on company_partnership_invitations {
+    id
+    requesting_company_id
+    email
+    requested_at
+    closed_at
+    metadata_info
+    created_at
+    requesting_company {
+      id
+      name
     }
   }
 `;
@@ -40573,6 +40635,49 @@ export type GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscriptio
   typeof useGetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscription
 >;
 export type GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscriptionResult = Apollo.SubscriptionResult<GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscription>;
+export const GetPartnershipInvitationsForBankDocument = gql`
+  subscription GetPartnershipInvitationsForBank {
+    company_partnership_invitations(
+      where: { deleted_at: { _is_null: true }, closed_at: { _is_null: true } }
+      order_by: [{ created_at: asc }]
+    ) {
+      id
+      ...PartnershipInvitation
+    }
+  }
+  ${PartnershipInvitationFragmentDoc}
+`;
+
+/**
+ * __useGetPartnershipInvitationsForBankSubscription__
+ *
+ * To run a query within a React component, call `useGetPartnershipInvitationsForBankSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetPartnershipInvitationsForBankSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPartnershipInvitationsForBankSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetPartnershipInvitationsForBankSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    GetPartnershipInvitationsForBankSubscription,
+    GetPartnershipInvitationsForBankSubscriptionVariables
+  >
+) {
+  return Apollo.useSubscription<
+    GetPartnershipInvitationsForBankSubscription,
+    GetPartnershipInvitationsForBankSubscriptionVariables
+  >(GetPartnershipInvitationsForBankDocument, baseOptions);
+}
+export type GetPartnershipInvitationsForBankSubscriptionHookResult = ReturnType<
+  typeof useGetPartnershipInvitationsForBankSubscription
+>;
+export type GetPartnershipInvitationsForBankSubscriptionResult = Apollo.SubscriptionResult<GetPartnershipInvitationsForBankSubscription>;
 export const GetUserByIdDocument = gql`
   query GetUserById($id: uuid!) {
     users_by_pk(id: $id) {

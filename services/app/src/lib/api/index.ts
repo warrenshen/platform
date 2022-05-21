@@ -36,6 +36,8 @@ export const companyRoutes = {
   createPartnership: "/companies/create_partnership",
   createPartnershipNew: "/companies/create_partnership_new",
   approvePartnership: "/companies/approve_partnership",
+  markPartnershipInviteAsComplete:
+    "/companies/mark_company_partnership_complete",
   upsertCustomMessages: "/companies/upsert_custom_messages",
   upsertFeatureFlags: "/companies/upsert_feature_flags",
 };
