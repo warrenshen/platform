@@ -70,6 +70,8 @@ def fund_loans_with_advance(
 	settlement_date = date_util.load_date_str(payment_input['settlement_date'])
 	bank_note = payment_input['bank_note']
 
+	today_date = date_util.now_as_date()
+
 	with session_scope(session_maker) as session:
 
 		# Note we order loans by [amount, created_at]. This order by
@@ -161,6 +163,20 @@ def fund_loans_with_advance(
 				models.Company,
 				session.query(models.Company).get(company_id))
 
+			approved_future_loans = cast(
+				List[models.Loan],
+				session.query(models.Loan).filter(
+					models.Loan.company_id == company_id
+				).filter(
+					models.Loan.origination_date > today_date
+				).filter(
+					cast(Callable, models.User.is_deleted.isnot)(True)
+				).all())
+
+			approved_future_loan_total = 0.0
+			for loan in approved_future_loans:
+				approved_future_loan_total += float(loan.amount)
+
 			# Checking for needs recompute
 			# 
 			# Broadly speaking, when any financial entity such as a loan
@@ -172,7 +188,6 @@ def fund_loans_with_advance(
 			# something we want to prevent for contractual and
 			# good governance reasons
 			financial_summary = company_id_to_latest_financial_summary[str(company.id)]
-			available_limit = float(financial_summary.available_limit)
 			if financial_summary.needs_recompute is True:
 				loan_balance = loan_balances.CustomerBalance(company.as_dict(), session_maker)
 				update_tuple, err = loan_balance.update(
@@ -185,17 +200,21 @@ def fund_loans_with_advance(
 					raise err
 
 				available_limit = float(update_tuple[financial_summary.date]["summary_update"]["available_limit"])
+			else:
+				available_limit = float(financial_summary.available_limit)
+
+			available_limit -= approved_future_loan_total
 
 			all_company_loans_total = float(0)
 			for loan in loans_for_company:
 				all_company_loans_total += float(loan.amount)
 				if loan.amount > available_limit:
 					raise errors.Error('Loan amount requested exceeds the maximum limit for company {}. Loan amount: {}. Remaining limit: {}'.format(
-						company_id, loan.amount, available_limit))
+						company.name, loan.amount, max(available_limit, 0.0)))
 
 			if all_company_loans_total > available_limit:
 				raise errors.Error('Total amount across all loans in request exceeds the maximum limit for company {}. Loan total: {}. Remaining limit: {}'.format(
-						company_id, all_company_loans_total, available_limit))
+						company.name, all_company_loans_total, max(available_limit, 0.0)))
 
 			# What is the disbursement identifier?
 			#
