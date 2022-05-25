@@ -2,13 +2,14 @@ import { useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import {
   Box,
+  Button,
   createStyles,
   makeStyles,
   Theme,
   Typography,
 } from "@material-ui/core";
 import { routes, anonymousRoutes } from "lib/routes";
-import CreateVendorPartnershipRequestForm from "components/Vendors/CreateVendorPartnershipRequestForm";
+import CreateUpdateVendorPartnershipRequestForm from "components/Vendors/CreateUpdateVendorPartnershipRequestForm";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import {
@@ -17,6 +18,7 @@ import {
 } from "generated/graphql";
 import { createPartnershipRequestNewMutation } from "lib/api/companies";
 import { BankAccountType } from "lib/enum";
+import { isEmailValid } from "lib/validation";
 
 export type LicenseInfo = {
   license_ids: Array<string>;
@@ -61,6 +63,13 @@ const useStyles = makeStyles((theme: Theme) =>
       paddingBottom: theme.spacing(8),
       paddingLeft: theme.spacing(2),
       paddingRight: theme.spacing(2),
+    },
+    actionButtonWrapper: {
+      display: "flex",
+      justifyContent: "center",
+    },
+    actionButton: {
+      width: 300,
     },
   })
 );
@@ -188,21 +197,59 @@ export default function VendorFormPage() {
     }
   };
 
+  const isSubmitDisabled =
+    isCreateNewVendorPartnershipLoading ||
+    !vendorInput.name ||
+    !vendorInput.contactFirstName ||
+    !vendorInput.contactLastName ||
+    !vendorInput.contactPhone ||
+    !vendorInput.contactEmail ||
+    !isEmailValid(vendorInput.contactEmail) ||
+    !vendorInput.bankName ||
+    !vendorInput.bankAccountName ||
+    !vendorInput.bankAccountType ||
+    !vendorInput.bankAccountNumber ||
+    // Only the ACH or Wire routing number is required
+    (!vendorInput.bankACHRoutingNumber && !vendorInput.bankWireRoutingNumber) ||
+    !vendorInput.beneficiaryAddress ||
+    !vendorInput.bankInstructionsAttachmentId ||
+    (vendorInput.isCannabis &&
+      !vendorInput.cannabisLicenseNumber.license_ids.length) ||
+    // cannabisLicenseCopyAttachment is required only if the cannabisLicenseNumber exists
+    (vendorInput.isCannabis &&
+      vendorInput.cannabisLicenseNumber.license_ids[0] !== "N/A" &&
+      !vendorInput.cannabisLicenseCopyAttachmentId);
+
   return (
     <Box className={classes.wrapper}>
       <Box mt={4}>
         <Typography variant="h5">Vendor Onboarding</Typography>
       </Box>
       <Box className={classes.container}>
-        <CreateVendorPartnershipRequestForm
+        <CreateUpdateVendorPartnershipRequestForm
           companyId={companyId}
           companyName={companyName}
           vendorInput={vendorInput}
           setVendorInput={setVendorInput}
-          errorMessage={errorMessage}
-          isLoading={isCreateNewVendorPartnershipLoading}
-          handleSubmit={handleSubmit}
+          isUpdate={false}
         />
+        <Box className={classes.actionButtonWrapper} mt={4}>
+          <Button
+            className={classes.actionButton}
+            disabled={isSubmitDisabled}
+            variant="contained"
+            color="primary"
+            onClick={handleSubmit}
+          >
+            Submit
+          </Button>
+
+          {errorMessage && (
+            <Typography variant="body2" color="secondary">
+              {errorMessage}
+            </Typography>
+          )}
+        </Box>
       </Box>
     </Box>
   );

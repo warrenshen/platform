@@ -2,12 +2,8 @@ import {
   Box,
   TextField,
   Typography,
-  Button,
   Checkbox,
   FormControlLabel,
-  createStyles,
-  makeStyles,
-  Theme,
 } from "@material-ui/core";
 import FileUploader from "components/Shared/File/FileUploader";
 import PhoneInput from "components/Shared/FormInputs/PhoneInput";
@@ -20,39 +16,21 @@ import { BankAccountType } from "lib/enum";
 
 import { isEmailValid } from "lib/validation";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    actionButtonWrapper: {
-      display: "flex",
-      justifyContent: "center",
-    },
-    actionButton: {
-      width: 300,
-    },
-  })
-);
-
 interface Props {
-  isLoading: boolean;
   companyId: string;
   companyName: string;
   vendorInput: CreateVendorInput;
   setVendorInput: (vendorInput: CreateVendorInput) => void;
-  errorMessage: string;
-  handleSubmit: () => void;
+  isUpdate: boolean;
 }
 
-export default function CreateVendorPartnershipRequestForm({
-  isLoading,
+export default function CreateUpdateVendorPartnershipRequestForm({
   companyId,
   companyName,
   vendorInput,
   setVendorInput,
-  errorMessage,
-  handleSubmit,
+  isUpdate,
 }: Props) {
-  const classes = useStyles();
-
   const bankInstructionsAttachmentIds = useMemo(
     () =>
       vendorInput.bankInstructionsAttachmentId
@@ -68,29 +46,6 @@ export default function CreateVendorPartnershipRequestForm({
         : undefined,
     [vendorInput.cannabisLicenseCopyAttachmentId]
   );
-
-  const isSubmitDisabled =
-    isLoading ||
-    !vendorInput.name ||
-    !vendorInput.contactFirstName ||
-    !vendorInput.contactLastName ||
-    !vendorInput.contactPhone ||
-    !vendorInput.contactEmail ||
-    !isEmailValid(vendorInput.contactEmail) ||
-    !vendorInput.bankName ||
-    !vendorInput.bankAccountName ||
-    !vendorInput.bankAccountType ||
-    !vendorInput.bankAccountNumber ||
-    // Only the ACH or Wire routing number is required
-    (!vendorInput.bankACHRoutingNumber && !vendorInput.bankWireRoutingNumber) ||
-    !vendorInput.beneficiaryAddress ||
-    !vendorInput.bankInstructionsAttachmentId ||
-    (vendorInput.isCannabis &&
-      !vendorInput.cannabisLicenseNumber.license_ids.length) ||
-    // cannabisLicenseCopyAttachment is required only if the cannabisLicenseNumber exists
-    (vendorInput.isCannabis &&
-      vendorInput.cannabisLicenseNumber.license_ids[0] !== "N/A" &&
-      !vendorInput.cannabisLicenseCopyAttachmentId);
 
   return (
     <Box display="flex" flexDirection="column">
@@ -257,7 +212,7 @@ export default function CreateVendorPartnershipRequestForm({
           maxFilesAllowed={1}
           fileIds={bankInstructionsAttachmentIds}
           frozenFileIds={[]}
-          isAnonymousUser={true}
+          isAnonymousUser={!isUpdate}
           handleDeleteFileById={() =>
             setVendorInput({
               ...vendorInput,
@@ -325,7 +280,7 @@ export default function CreateVendorPartnershipRequestForm({
               maxFilesAllowed={1}
               fileIds={cannabisLicenseCopyAttachmentIds}
               frozenFileIds={[]}
-              isAnonymousUser={true}
+              isAnonymousUser={!isUpdate}
               handleDeleteFileById={() =>
                 setVendorInput({
                   ...vendorInput,
@@ -347,24 +302,6 @@ export default function CreateVendorPartnershipRequestForm({
           Note : Bespoke Financial will process a $0.01 test ACH to the provided
           bank account. Please expect to verbally verify over the phone.
         </Typography>
-      </Box>
-
-      <Box className={classes.actionButtonWrapper} mt={4}>
-        <Button
-          className={classes.actionButton}
-          disabled={isSubmitDisabled}
-          variant="contained"
-          color="primary"
-          onClick={handleSubmit}
-        >
-          Submit
-        </Button>
-
-        {errorMessage && (
-          <Typography variant="body2" color="secondary">
-            {errorMessage}
-          </Typography>
-        )}
       </Box>
     </Box>
   );
