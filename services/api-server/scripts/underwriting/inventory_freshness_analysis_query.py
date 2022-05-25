@@ -7,7 +7,9 @@ sys.path.append(path.realpath(path.join(os.getcwd(), "../../src")))
 from bespoke.inventory.analysis.shared.create_queries import *
 
 
-def create_sales_incoming_days_since_package_metric_query(company_identifier, license_numbers, sales_transactions_start_date, sales_transaction_end_date):
+# Query for Sales data joined with Incoming data
+def create_sales_incoming_days_since_package_metric_query(company_identifier, license_numbers,
+                                                          sales_transactions_start_date, sales_transaction_end_date):
     query_incoming = create_company_incoming_transfer_packages_query(
         company_identifier,
         '1999-01-01',
@@ -81,8 +83,12 @@ def create_sales_incoming_days_since_package_metric_query(company_identifier, li
     return days_sold_since_incoming_query
 
 
-def create_company_sale_metric_query(company_identifier, license_numbers, sales_transactions_start_date, sales_transaction_end_date, groupby_col):
-    days_sold_query = create_sales_incoming_days_since_package_metric_query(company_identifier, license_numbers, sales_transactions_start_date, sales_transaction_end_date)
+# Query for creating sales metrics using sales joined with incoming data query
+def create_company_sale_metric_query(company_identifier, license_numbers, sales_transactions_start_date,
+                                     sales_transaction_end_date, groupby_col):
+    days_sold_query = create_sales_incoming_days_since_package_metric_query(company_identifier, license_numbers,
+                                                                            sales_transactions_start_date,
+                                                                            sales_transaction_end_date)
     freshness_metric_query = '''
         SELECT 
             {GROUPBY_COL},
@@ -102,7 +108,9 @@ def create_company_sale_metric_query(company_identifier, license_numbers, sales_
     return freshness_metric_query
 
 
-def create_inventory_days_since_package_metric_query(company_identifier, license_numbers, include_quantity_zero, sales_transactions_start_date, sales_transaction_end_date):
+# Query for Inventory data joined with Sales data joined on package_id
+def create_inventory_days_since_package_metric_query(company_identifier, license_numbers, include_quantity_zero,
+                                                     sales_transactions_start_date, sales_transaction_end_date):
     inventory_query = create_company_inventory_packages_query(
         company_identifier,
         include_quantity_zero=include_quantity_zero,
@@ -169,7 +177,10 @@ def create_inventory_days_since_package_metric_query(company_identifier, license
     return days_sold_since_package_metric_query
 
 
-def create_inventory_incoming_days_since_package_metric_query(company_identifier, license_numbers, include_quantity_zero, sales_transactions_start_date, sales_transaction_end_date):
+# Query for Inventory data joined with Incoming data joined on package_id
+def create_inventory_incoming_days_since_package_metric_query(company_identifier, license_numbers,
+                                                              include_quantity_zero, sales_transactions_start_date,
+                                                              sales_transaction_end_date):
     inventory_query = create_company_inventory_packages_query(
         company_identifier,
         include_quantity_zero=include_quantity_zero,
@@ -250,8 +261,11 @@ def create_inventory_incoming_days_since_package_metric_query(company_identifier
     return days_sold_since_package_metric_query
 
 
-
-def create_inventory_days_since_package_metric_query_by_product_name(company_identifier, license_numbers, include_quantity_zero, sales_transactions_start_date, sales_transaction_end_date):
+# Query for Inventory data joined with Sales data joined on product_name
+def create_inventory_days_since_package_metric_query_by_product_name(company_identifier, license_numbers,
+                                                                     include_quantity_zero,
+                                                                     sales_transactions_start_date,
+                                                                     sales_transaction_end_date):
     inventory_query = create_company_inventory_packages_query(
         company_identifier,
         include_quantity_zero=include_quantity_zero,
@@ -318,7 +332,11 @@ def create_inventory_days_since_package_metric_query_by_product_name(company_ide
     return days_sold_since_package_metric_query
 
 
-def create_inventory_incoming_days_since_package_metric_query_by_product_name(company_identifier, license_numbers, include_quantity_zero, sales_transactions_start_date, sales_transaction_end_date):
+# Query for Inventory data joined with Incoming data joined on product_name
+def create_inventory_incoming_days_since_package_metric_query_by_product_name(company_identifier, license_numbers,
+                                                                              include_quantity_zero,
+                                                                              sales_transactions_start_date,
+                                                                              sales_transaction_end_date):
     inventory_query = create_company_inventory_packages_query(
         company_identifier,
         include_quantity_zero=include_quantity_zero,
@@ -399,8 +417,13 @@ def create_inventory_incoming_days_since_package_metric_query_by_product_name(co
     return days_sold_since_package_metric_query
 
 
-def create_company_freshness_metric_query(company_identifier, license_numbers, include_quantity_zero, sales_transactions_start_date, sales_transaction_end_date, groupby_col):
-    days_sold_query = create_inventory_days_since_package_metric_query(company_identifier,license_numbers, include_quantity_zero, sales_transactions_start_date, sales_transaction_end_date)
+# Query for sales metrics using inventory-sales joined data
+def create_company_freshness_metric_query(company_identifier, license_numbers, include_quantity_zero,
+                                          sales_transactions_start_date, sales_transaction_end_date, groupby_col):
+    days_sold_query = create_inventory_days_since_package_metric_query(company_identifier, license_numbers,
+                                                                       include_quantity_zero,
+                                                                       sales_transactions_start_date,
+                                                                       sales_transaction_end_date)
     freshness_metric_query = '''
         SELECT 
             {GROUPBY_COL},
@@ -418,7 +441,10 @@ def create_company_freshness_metric_query(company_identifier, license_numbers, i
     return freshness_metric_query
 
 
-def create_company_inventory_valudation_by_last_sale_price(company_identifier, license_numbers, include_quantity_zero, sales_transactions_start_date, sales_transaction_end_date, by_product=True):
+# Query for calculating valuation price using inventory-sales joined data
+def create_company_inventory_valudation_by_last_sale_price(company_identifier, license_numbers, include_quantity_zero,
+                                                           sales_transactions_start_date, sales_transaction_end_date,
+                                                           by_product=True):
     if by_product:
         days_sold_query = create_inventory_days_since_package_metric_query_by_product_name(company_identifier,
                                                                                            license_numbers,
@@ -464,7 +490,11 @@ def create_company_inventory_valudation_by_last_sale_price(company_identifier, l
     return company_inventory_valudation_query
 
 
-def create_company_inventory_valudation_by_discounting_time_value(company_identifier, license_numbers, include_quantity_zero, sales_transactions_start_date, sales_transaction_end_date, discount_rate, by_product=True):
+# Query for calculating valuation price using inventory-sales joined data
+def create_company_inventory_valudation_by_discounting_time_value(company_identifier, license_numbers,
+                                                                  include_quantity_zero, sales_transactions_start_date,
+                                                                  sales_transaction_end_date, discount_rate,
+                                                                  by_product=True):
     if by_product:
         days_sold_query = create_inventory_days_since_package_metric_query_by_product_name(company_identifier,
                                                                                            license_numbers,
@@ -514,7 +544,12 @@ def create_company_inventory_valudation_by_discounting_time_value(company_identi
     return company_inventory_valudation_query
 
 
-def create_company_incoming_inventory_valudation_by_discounting_time_value(company_identifier, license_numbers, include_quantity_zero, sales_transactions_start_date, sales_transaction_end_date, discount_rate, by_product=True):
+# Query for calculating valuation price using inventory-incoming joined data
+def create_company_incoming_inventory_valudation_by_discounting_time_value(company_identifier, license_numbers,
+                                                                           include_quantity_zero,
+                                                                           sales_transactions_start_date,
+                                                                           sales_transaction_end_date, discount_rate,
+                                                                           by_product=True):
     if by_product:
         days_sold_query = create_inventory_incoming_days_since_package_metric_query_by_product_name(
             company_identifier,
@@ -566,8 +601,11 @@ def create_company_incoming_inventory_valudation_by_discounting_time_value(compa
     return company_inventory_valudation_query
 
 
-def best_selling_products_by_liquidity(company_identifier, license_numbers, sales_transactions_start_date, sales_transaction_end_date, groupby_col, order_col, direction, top_k):
-    base_query = create_company_sale_metric_query(company_identifier, license_numbers, sales_transactions_start_date, sales_transaction_end_date, groupby_col)
+# Query for ranking the products using certain column as an input
+def best_selling_products_by_liquidity(company_identifier, license_numbers, sales_transactions_start_date,
+                                       sales_transaction_end_date, groupby_col, order_col, direction, top_k):
+    base_query = create_company_sale_metric_query(company_identifier, license_numbers, sales_transactions_start_date,
+                                                  sales_transaction_end_date, groupby_col)
     best_selling_query = '''
         SELECT
             *
@@ -580,7 +618,6 @@ def best_selling_products_by_liquidity(company_identifier, license_numbers, sale
         LIMIT 
             {N}
     '''
-    best_selling_query = best_selling_query.format(BASE_QUERY=base_query, ORDER_COL=order_col, DIRECTION=direction, N=top_k)
+    best_selling_query = best_selling_query.format(BASE_QUERY=base_query, ORDER_COL=order_col, DIRECTION=direction,
+                                                   N=top_k)
     return best_selling_query
-
-

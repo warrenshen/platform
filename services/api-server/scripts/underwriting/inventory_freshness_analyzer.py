@@ -105,7 +105,11 @@ PRODUCT_CATEGORY_NAME_2_PRODUCT_TYPE = {
     'Whole Harvested Plant': 'Flower'
 }
 
+
 class Analyzer:
+    """
+    A class used to run analysis to find most valuable products/product categories, and evaluate inventory valuation.
+    """
     def __init__(self):
         self.company_identifier = []
         self.license_numbers = []
@@ -120,6 +124,18 @@ class Analyzer:
 
     def update_class_attributes(self, company_identifier, licence_numbers, include_quantity_zero,
                                 start_date='2020-01-01', end_date=str(date.today())):
+        """
+        Update all common parameters that are used for other functions so that these don't have to be called everytime
+
+        Parameters
+        ----------
+        company_identifier: List of companies to pull data from
+        licence_numbers: List of license numbers to pull data from
+        include_quantity_zero: Include txn with 0 quantity
+        start_date: Sales start date
+        end_date: Sales end date
+        ----------
+        """
         self.company_identifier = company_identifier
         self.license_numbers = licence_numbers
         self.include_quantity_zero = include_quantity_zero
@@ -127,6 +143,17 @@ class Analyzer:
         self.SALES_TRANSACTIONS_END_DATE = end_date
 
     def find_most_valuable_products(self, groupby_col, order_col, direction, top_k):
+        """
+        Find most valuable products using a customized groupby_col, order_col, direction, and how many top data points.
+
+        Parameters
+        ----------
+        groupby_col: Columns to group by
+        order_col: Columns to order by
+        direction: ASC or DESC
+        top_k: How many top data points
+        ----------
+        """
         query = ifa_query.best_selling_products_by_liquidity(
             self.company_identifier,
             self.license_numbers,
@@ -140,6 +167,16 @@ class Analyzer:
         return self.run_query(query)
 
     def get_inventory_valuation_query(self, method, by_product_name=True, discount_rate=.1):
+        """
+        Formulating query to find valuation using Inventory-Sales joined data
+
+        Parameters
+        ----------
+        method: Price determined by last sale price, or average price discounted by interest rate
+        by_product_name: Inventory-Sales data joined by product_name if True, or package_id if False
+        discount_rate: Interest used for discounting prices
+        ----------
+        """
         # method includes ['last_sale_valuation', 'discount_valuation']
         if method == 'last_sale_valuation':
             query = ifa_query.create_company_inventory_valudation_by_last_sale_price(
@@ -216,6 +253,15 @@ class Analyzer:
         return data, valuation
 
     def find_most_valuable_products_by_velocity_sales_weighted(self, groupby_col, top_k, normailize_by_quantity=False):
+        """
+        Find most valuable products/product categories/companies (determined by groupby_col) based on sales velocity
+        Parameters
+        ----------
+        groupby_col: Columns to group by
+        top_k: How many top data points to search
+        normailize_by_quantity: Normalize sales by quantity of sale
+        ----------
+        """
         base_query = ifa_query.create_company_sale_metric_query(
             self.company_identifier, self.license_numbers,
             self.SALES_TRANSACTIONS_START_DATE,
