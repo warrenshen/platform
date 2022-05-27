@@ -1245,7 +1245,7 @@ def update_company_product_qualification(
 	company_product_qualification = cast(
 		models.CompanyProductQualifications,
 		session.query(models.CompanyProductQualifications).filter(
-			models.CompanyPartnershipRequest.id == company_product_qualification_id
+			models.CompanyProductQualifications.id == company_product_qualification_id
 			).first())
 
 	if not company_product_qualification:
