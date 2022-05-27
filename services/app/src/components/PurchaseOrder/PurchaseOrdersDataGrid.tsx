@@ -20,7 +20,7 @@ import {
   RequestStatusEnum,
 } from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
-import { formatDateString } from "lib/date";
+import { formatDateString, formatDatetimeString } from "lib/date";
 import { formatCurrency } from "lib/number";
 import { computePurchaseOrderDueDateDateStringClient } from "lib/purchaseOrders";
 import { ColumnWidths, truncateString } from "lib/tables";
@@ -40,6 +40,9 @@ function getRows(purchaseOrders: PurchaseOrderFragment[]): RowsProp {
       ((purchaseOrder.amount_funded || 0) / (purchaseOrder.amount || 1)) * 100,
     customer_note: truncateString(purchaseOrder?.customer_note || "-"),
     bank_note: truncateString(purchaseOrder?.bank_note || ""),
+    requested_at: !!purchaseOrder.requested_at
+      ? formatDatetimeString(purchaseOrder.requested_at, false)
+      : "-",
   }));
 }
 
@@ -147,6 +150,12 @@ export default function PurchaseOrdersDataGrid({
         cellRender: (params: ValueFormatterParams) => (
           <TextDataGridCell label={params.row.data.vendor_name} />
         ),
+      },
+      {
+        dataField: "requested_at",
+        caption: "Date Submitted",
+        width: ColumnWidths.Date,
+        alignment: "center",
       },
       {
         caption: "Amount",
