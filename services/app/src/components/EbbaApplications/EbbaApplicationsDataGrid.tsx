@@ -16,6 +16,7 @@ import { ClientSurveillanceCategoryEnum, BankEbbaTabLabel } from "lib/enum";
 import { ColumnWidths } from "lib/tables";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useMemo, useState } from "react";
+import { formatCurrency } from "lib/number";
 
 interface Props {
   isApprovedAtVisible?: boolean;
@@ -56,6 +57,9 @@ export default function EbbaApplicationsDataGrid({
     () =>
       ebbaApplications.map((ebbaApplication) => ({
         ...ebbaApplication,
+        calculated_borrowing_base: formatCurrency(
+          ebbaApplication.calculated_borrowing_base
+        ),
         category:
           ebbaApplication.category ===
           ClientSurveillanceCategoryEnum.BorrowingBase
@@ -168,6 +172,13 @@ export default function EbbaApplicationsDataGrid({
       },
       {
         visible: isBorrowingBaseFieldsVisible,
+        dataField: "calculated_borrowing_base",
+        caption: "Calculated Borrowing Base",
+        alignment: "right",
+        width: ColumnWidths.Currency,
+      },
+      {
+        visible: isBorrowingBaseFieldsVisible,
         dataField: "monthly_accounts_receivable",
         caption: "Accounts Receivable Balance",
         width: ColumnWidths.Currency,
@@ -206,17 +217,6 @@ export default function EbbaApplicationsDataGrid({
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.amount_cash_in_daca} />
-        ),
-      },
-      {
-        visible: isBorrowingBaseFieldsVisible,
-        dataField: "calculated_borrowing_base",
-        caption: "Calculated Borrowing Base",
-        alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell
-            value={params.row.data.calculated_borrowing_base}
-          />
         ),
       },
       {

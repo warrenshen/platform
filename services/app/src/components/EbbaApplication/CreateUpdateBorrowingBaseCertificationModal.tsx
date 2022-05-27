@@ -20,11 +20,11 @@ import {
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { submitEbbaApplicationMutation } from "lib/api/ebbaApplications";
+import { calculateBorrowingBaseAmount } from "lib/borrowingBase";
 import { computeEbbaApplicationExpiresAt } from "lib/date";
 import { ActionType, ClientSurveillanceCategoryEnum } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useMemo, useState } from "react";
-
 interface Props {
   actionType: ActionType;
   companyId: Companies["id"];
@@ -45,6 +45,7 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
   const {
     user: { role },
   } = useContext(CurrentUserContext);
+
   const isBankUser = isRoleBankUser(role);
 
   const { data } = useGetCompanyWithActiveContractQuery({
@@ -60,43 +61,6 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
     [company]
   );
 
-  const accountsReceivablePercentage = useMemo(
-    () =>
-      existingContractFields.find(
-        (field: any) =>
-          field.internal_name ===
-          "borrowing_base_accounts_receivable_percentage"
-      )?.value || 0,
-    [existingContractFields]
-  );
-  const inventoryPercentage = useMemo(
-    () =>
-      existingContractFields.find(
-        (field: any) =>
-          field.internal_name === "borrowing_base_inventory_percentage"
-      )?.value || 0,
-    [existingContractFields]
-  );
-  const cashPercentage = useMemo(
-    () =>
-      existingContractFields.find(
-        (field: any) => field.internal_name === "borrowing_base_cash_percentage"
-      )?.value || 0,
-    [existingContractFields]
-  );
-  const cashInDacaPercentage = useMemo(
-    () =>
-      existingContractFields.find(
-        (field: any) =>
-          field.internal_name === "borrowing_base_cash_in_daca_percentage"
-      )?.value || 0,
-    [existingContractFields]
-  );
-
-  const isAccountsReceivableVisible = accountsReceivablePercentage > 0;
-  const isInventoryVisible = inventoryPercentage > 0;
-  const isCashVisible = cashPercentage > 0;
-  const isCashInDacaVisible = cashInDacaPercentage > 0;
   const isCustomAmountVisible = isBankUser; // Only bank users can edit custom amount / note.
 
   // Default EbbaApplication for CREATE case.
@@ -109,6 +73,7 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
     amount_custom: null,
     amount_custom_note: "",
     calculated_borrowing_base: null,
+    company_id: companyId,
   } as EbbaApplicationsInsertInput;
 
   const [ebbaApplication, setEbbaApplication] = useState(newEbbaApplication);
@@ -174,12 +139,17 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
    *
    * Bank admins may add an adjustment value which is not weighted.
    */
-  const calculatedBorrowingBase =
-    ebbaApplication.monthly_accounts_receivable * accountsReceivablePercentage +
-    ebbaApplication.monthly_inventory * inventoryPercentage +
-    ebbaApplication.monthly_cash * cashPercentage +
-    ebbaApplication.amount_cash_in_daca * cashInDacaPercentage +
-    ebbaApplication.amount_custom;
+
+  const {
+    calculatedBorrowingBase,
+    isAccountsReceivableVisible,
+    isInventoryVisible,
+    isCashVisible,
+    isCashInDacaVisible,
+  } = useMemo(
+    () => calculateBorrowingBaseAmount(ebbaApplication, existingContractFields),
+    [ebbaApplication, existingContractFields]
+  );
 
   const computedExpiresAt = computeEbbaApplicationExpiresAt(
     ebbaApplication.application_date

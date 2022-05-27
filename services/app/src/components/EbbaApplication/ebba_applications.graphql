@@ -19,6 +19,10 @@ query GetEbbaApplicationsByCompanyId($company_id: uuid!, $category: String!) {
     company {
       id
       name
+      contract {
+        id
+        product_type
+      }
     }
   }
 }
