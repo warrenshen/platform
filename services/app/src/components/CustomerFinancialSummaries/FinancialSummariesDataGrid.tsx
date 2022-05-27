@@ -42,6 +42,16 @@ function getRows(financialSummaries: FinancialSummaryFragment[]): RowsProp {
       total_outstanding_account_fees: formatCurrency(
         financialSummary?.account_level_balance_payload?.fees_total
       ),
+      total_outstanding_principal_past_due: formatCurrency(
+        financialSummary.total_outstanding_principal_past_due
+      ),
+      outstanding_principal_percentage_past_due: formatPercentage(
+        !!financialSummary.total_outstanding_principal &&
+          financialSummary.total_outstanding_principal > 0
+          ? financialSummary.total_outstanding_principal_past_due /
+              financialSummary.total_outstanding_principal
+          : 0
+      ),
       available_limit: formatCurrency(financialSummary.available_limit),
       adjusted_total_limit: formatCurrency(
         financialSummary.adjusted_total_limit
@@ -155,6 +165,18 @@ export default function FinancialSummariesDataGrid({
       {
         dataField: "total_outstanding_account_fees",
         caption: "Outstanding Account Fees",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+      },
+      {
+        dataField: "total_outstanding_principal_past_due",
+        caption: "Outstanding Principal Past Due",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+      },
+      {
+        dataField: "outstanding_principal_percentage_past_due",
+        caption: "Outstanding Principal % Past Due",
         width: ColumnWidths.Currency,
         alignment: "right",
       },
