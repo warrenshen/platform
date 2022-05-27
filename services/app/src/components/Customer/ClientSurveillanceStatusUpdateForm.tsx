@@ -3,15 +3,11 @@ import { Autocomplete } from "@material-ui/lab";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import {
   BankStatusEnum,
-  BankStatusLabelEnum,
-  BankStatusLabels,
+  BankStatuses,
   BankStatusToLabel,
-  LabelToBankStatus,
-  LabelToQualifyFor,
   QualifyForEnum,
-  QualifyForLabelEnum,
   QualifyForToLabel,
-  QualifyForLabels,
+  QualifyingForValues,
 } from "lib/enum";
 import { Dispatch, SetStateAction } from "react";
 
@@ -48,9 +44,11 @@ const ClientSurveillanceStatusUpdateForm = ({
           <Autocomplete
             autoHighlight
             blurOnSelect
-            value={BankStatusToLabel[bankStatus]}
-            options={BankStatusLabels}
-            getOptionLabel={(option: string) => option}
+            value={bankStatus}
+            options={BankStatuses}
+            getOptionLabel={(option: BankStatusEnum) =>
+              BankStatusToLabel[option]
+            }
             renderInput={(params: any) => (
               <TextField
                 {...params}
@@ -58,9 +56,9 @@ const ClientSurveillanceStatusUpdateForm = ({
                 variant="outlined"
               />
             )}
-            onChange={(_, bankStatusLabel: BankStatusLabelEnum | null) => {
+            onChange={(_, bankStatusLabel: BankStatusEnum | null) => {
               if (!!bankStatusLabel) {
-                setBankStatus(LabelToBankStatus[bankStatusLabel]);
+                setBankStatus(bankStatusLabel);
               }
             }}
           />
@@ -68,15 +66,15 @@ const ClientSurveillanceStatusUpdateForm = ({
         <Autocomplete
           autoHighlight
           blurOnSelect
-          value={QualifyForToLabel[qualifyFor]}
-          options={QualifyForLabels}
-          getOptionLabel={(option: string) => option}
+          value={qualifyFor}
+          options={QualifyingForValues}
+          getOptionLabel={(option: QualifyForEnum) => QualifyForToLabel[option]}
           renderInput={(params: any) => (
             <TextField {...params} label="Qualifying For" variant="outlined" />
           )}
-          onChange={(_, qualifyForLabel: QualifyForLabelEnum | null) => {
+          onChange={(_, qualifyForLabel: QualifyForEnum | null) => {
             if (!!qualifyForLabel) {
-              setQualifyFor(LabelToQualifyFor[qualifyForLabel]);
+              setQualifyFor(qualifyForLabel);
             }
           }}
         />

@@ -110,7 +110,7 @@ export type UpdateCompanyQualifyingProductReq = {
   variables: {
     company_product_qualification_id: CompanyProductQualifications["id"];
     bank_status_note: string;
-    qualify_for: { [key in QualifyForEnum]: boolean | null };
+    qualify_for: QualifyForEnum;
   };
 };
 

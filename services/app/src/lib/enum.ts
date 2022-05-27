@@ -164,6 +164,15 @@ export enum BankStatusEnum {
   INACTIVE = "inactive",
 }
 
+export const BankStatuses = [
+  BankStatusEnum.GOOD_STANDING,
+  BankStatusEnum.ON_PROBATION,
+  BankStatusEnum.ON_PAUSE,
+  BankStatusEnum.DEFAULTED,
+  BankStatusEnum.ONBOARDING,
+  BankStatusEnum.INACTIVE,
+];
+
 export enum BankStatusLabelEnum {
   GOOD_STANDING = "Good Standing",
   ON_PROBATION = "On Probation",
@@ -192,18 +201,6 @@ export const BankStatusToLabel: {
   [BankStatusEnum.ONBOARDING]: BankStatusLabelEnum.ONBOARDING,
   [BankStatusEnum.INACTIVE]: BankStatusLabelEnum.INACTIVE,
 };
-
-export const LabelToBankStatus: {
-  [key in BankStatusLabelEnum]: BankStatusEnum;
-} = {
-  [BankStatusLabelEnum.GOOD_STANDING]: BankStatusEnum.GOOD_STANDING,
-  [BankStatusLabelEnum.ON_PROBATION]: BankStatusEnum.ON_PROBATION,
-  [BankStatusLabelEnum.ON_PAUSE]: BankStatusEnum.ON_PAUSE,
-  [BankStatusLabelEnum.DEFAULTED]: BankStatusEnum.DEFAULTED,
-  [BankStatusLabelEnum.ONBOARDING]: BankStatusEnum.ONBOARDING,
-  [BankStatusLabelEnum.INACTIVE]: BankStatusEnum.INACTIVE,
-};
-
 export enum QualifyForEnum {
   LINE_OF_CREDIT = "line_of_credit",
   INVENTORY = "inventory",
@@ -213,6 +210,16 @@ export enum QualifyForEnum {
   DISPENSARY_FINANCING = "dispensary_financing",
   NONE = "",
 }
+
+export const QualifyingForValues = [
+  QualifyForEnum.LINE_OF_CREDIT,
+  QualifyForEnum.INVENTORY,
+  QualifyForEnum.PURCHASE_MONEY_FINANCING,
+  QualifyForEnum.INVOICE,
+  QualifyForEnum.FAILING,
+  QualifyForEnum.DISPENSARY_FINANCING,
+  QualifyForEnum.NONE,
+];
 
 export enum QualifyForLabelEnum {
   LINE_OF_CREDIT = "Line of Credit",
@@ -246,20 +253,6 @@ export const QualifyForToLabel: {
   [QualifyForEnum.DISPENSARY_FINANCING]:
     QualifyForLabelEnum.DISPENSARY_FINANCING,
   [QualifyForEnum.NONE]: QualifyForLabelEnum.NONE,
-};
-
-export const LabelToQualifyFor: {
-  [key in QualifyForLabelEnum]: QualifyForEnum;
-} = {
-  [QualifyForLabelEnum.LINE_OF_CREDIT]: QualifyForEnum.LINE_OF_CREDIT,
-  [QualifyForLabelEnum.INVENTORY]: QualifyForEnum.INVENTORY,
-  [QualifyForLabelEnum.PURCHASE_MONEY_FINANCING]:
-    QualifyForEnum.PURCHASE_MONEY_FINANCING,
-  [QualifyForLabelEnum.INVOICE]: QualifyForEnum.INVOICE,
-  [QualifyForLabelEnum.FAILING]: QualifyForEnum.FAILING,
-  [QualifyForLabelEnum.DISPENSARY_FINANCING]:
-    QualifyForEnum.DISPENSARY_FINANCING,
-  [QualifyForLabelEnum.NONE]: QualifyForEnum.NONE,
 };
 
 export enum CustomerPurchaseOrdersTabLabel {
