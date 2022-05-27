@@ -17,17 +17,16 @@ import { useMemo } from "react";
 import { getBankCompanyRoute, BankCompanyRouteEnum } from "lib/routes";
 import { QualifyForToLabel } from "../../lib/enum";
 import ClientSurveillanceStatusChip from "./ClientSurveillanceStatusChip";
-import { Button } from "@material-ui/core";
-import CommentIcon from "@material-ui/icons/Comment";
 import { formatDatetimeString } from "lib/date";
 import { formatPercentage } from "lib/number";
 interface Props {
   isExcelExport?: boolean;
   isMultiSelectEnabled?: boolean;
+  isFinancialReportDateVisible?: boolean;
+  isBorrowingBaseDateVisible?: boolean;
   customers: GetNonDummyCustomersWithMetadataQuery["customers"];
   selectedCompaniesIds?: Companies["id"][];
   handleSelectCompanies?: (companies: Companies[]) => void;
-  handleClickCompanyBankStatusNote?: (id: Companies["id"]) => void;
 }
 
 const calculatePercentagePastDue = (financialSummary: FinancialSummaries) =>
@@ -95,18 +94,18 @@ function getRows(
       most_overdue_loan_days: !!company?.financial_summaries?.[0]
         ? company.financial_summaries[0].most_overdue_loan_days
         : null,
-      bank_note: company?.company_product_qualifications?.[0]?.bank_note,
     };
   });
 }
 
 export default function ClientSurveillanceCustomersDataGrid({
   isExcelExport = true,
+  isFinancialReportDateVisible = false,
+  isBorrowingBaseDateVisible = false,
   isMultiSelectEnabled = false,
   customers,
   selectedCompaniesIds,
   handleSelectCompanies,
-  handleClickCompanyBankStatusNote,
 }: Props) {
   const rows = customers ? getRows(customers) : [];
 
@@ -127,13 +126,13 @@ export default function ClientSurveillanceCustomersDataGrid({
       },
       {
         dataField: "product_type",
-        caption: "Product",
+        caption: "Current Product",
         alignment: "center",
         width: ColumnWidths.Status,
       },
       {
         dataField: "bank_status",
-        caption: "Client Surveillance Stage",
+        caption: "Surveillance Stage",
         width: ColumnWidths.Status,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
@@ -143,34 +142,13 @@ export default function ClientSurveillanceCustomersDataGrid({
         ),
       },
       {
-        caption: "Bank Note",
-        dataField: "bank_note",
-        alignment: "center",
-        width: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
-          <Button
-            color="default"
-            variant="text"
-            style={{
-              minWidth: 0,
-              textAlign: "center",
-            }}
-            onClick={() =>
-              !!handleClickCompanyBankStatusNote &&
-              handleClickCompanyBankStatusNote(params.row.data.id)
-            }
-          >
-            {!!params.row.data.bank_note ? <CommentIcon /> : "-"}
-          </Button>
-        ),
-      },
-      {
         dataField: "qualify_for",
         caption: "Qualifying for",
         width: ColumnWidths.Datetime,
         alignment: "center",
       },
       {
+        visible: isFinancialReportDateVisible,
         dataField: "financial_report_date",
         caption: "Most Recent Financial Report",
         width: ColumnWidths.Date,
@@ -183,6 +161,7 @@ export default function ClientSurveillanceCustomersDataGrid({
         alignment: "center",
       },
       {
+        visible: isBorrowingBaseDateVisible,
         dataField: "borrowing_base_date",
         caption: "Most Recent Borrowing Base",
         width: ColumnWidths.Date,
@@ -206,14 +185,8 @@ export default function ClientSurveillanceCustomersDataGrid({
         width: ColumnWidths.MinWidth,
         alignment: "center",
       },
-      {
-        dataField: "waiver_date",
-        caption: "Waiver Date",
-        width: ColumnWidths.Date,
-        alignment: "center",
-      },
     ],
-    [handleClickCompanyBankStatusNote]
+    []
   );
 
   const handleSelectionChanged = useMemo(

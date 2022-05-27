@@ -1,6 +1,5 @@
 import { Box, TextField } from "@material-ui/core";
 import ClientSurveillanceCustomersDataGrid from "components/ClientSurveillance/ClientSurveillanceCustomersDataGrid";
-import ClientBankStatusNoteModal from "components/ClientSurveillance/ClientBankStatusNoteModal";
 import EditClientSurveillanceStatusModal from "components/ClientSurveillance/EditClientSurveillanceStatusModal";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
@@ -11,31 +10,23 @@ import { useFilterCustomers } from "hooks/useFilterCustomers";
 import {
   getFirstDayOfMonth,
   getLastDateOfMonth,
-  previousBizDayAsDateStringServer,
   todayAsDateStringServer,
 } from "lib/date";
 import { useMemo, useState } from "react";
-import DateInput from "components/Shared/FormInputs/DateInput";
 import { ActionType } from "lib/enum";
 
-export default function ClientSurveillanceDashboardTab() {
+export default function ClientSurveillanceCurrentTab() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCompanyIds, setSelectedCompanyIds] = useState<Companies["id"]>(
     []
   );
-  const [clickedBankNoteCompanyId, setClickedBankNoteCompanyId] = useState(
-    null
-  );
-  const [selectedDate, setSelectedDate] = useState(
-    previousBizDayAsDateStringServer()
-  );
-
+  const todaysDate = todayAsDateStringServer();
   const { data, refetch, error } = useGetNonDummyCustomersWithMetadataQuery({
     fetchPolicy: "network-only",
     variables: {
-      date: todayAsDateStringServer(),
-      start_date: getFirstDayOfMonth(selectedDate),
-      end_date: getLastDateOfMonth(selectedDate),
+      date: todaysDate,
+      start_date: getFirstDayOfMonth(todaysDate),
+      end_date: getLastDateOfMonth(todaysDate),
     },
   });
 
@@ -54,34 +45,8 @@ export default function ClientSurveillanceDashboardTab() {
     [setSelectedCompanyIds]
   );
 
-  const handleClickCompanyBankStatusNote = useMemo(
-    () => (companyId: Companies["id"]) => {
-      setClickedBankNoteCompanyId(companyId);
-    },
-    [setClickedBankNoteCompanyId]
-  );
-
-  const renderBankNoteModal = () => {
-    if (!!clickedBankNoteCompanyId) {
-      const company = customers.find(
-        ({ id }) => id === clickedBankNoteCompanyId
-      );
-
-      return (
-        <ClientBankStatusNoteModal
-          companyName={company?.name || ""}
-          bankStatusNote={
-            company?.company_product_qualifications?.[0].bank_note || ""
-          }
-          handleClose={() => setClickedBankNoteCompanyId(null)}
-        />
-      );
-    }
-  };
-
   return (
     <Box mt={2}>
-      {renderBankNoteModal()}
       <Box
         display="flex"
         justifyContent="space-between"
@@ -89,17 +54,6 @@ export default function ClientSurveillanceDashboardTab() {
         mb={2}
       >
         <Box display="flex">
-          <Box mr={2}>
-            <DateInput
-              id="qualify-date-date-picker"
-              label="Qualifying Date"
-              disableFuture
-              value={selectedDate}
-              onChange={(value) =>
-                setSelectedDate(value || previousBizDayAsDateStringServer())
-              }
-            />
-          </Box>
           <TextField
             autoFocus
             label="Search by customer name"
@@ -128,7 +82,7 @@ export default function ClientSurveillanceDashboardTab() {
                           : ActionType.New
                       }
                       client={selectedCustomer}
-                      qualifyingDate={selectedDate}
+                      qualifyingDate={todaysDate}
                       handleClose={() => {
                         refetch();
                         handleClose();
@@ -144,10 +98,11 @@ export default function ClientSurveillanceDashboardTab() {
       <Box display="flex" flexDirection="column">
         <ClientSurveillanceCustomersDataGrid
           isMultiSelectEnabled
+          isFinancialReportDateVisible
+          isBorrowingBaseDateVisible
           customers={customers}
           selectedCompaniesIds={selectedCompanyIds}
           handleSelectCompanies={handleSelectCompanies}
-          handleClickCompanyBankStatusNote={handleClickCompanyBankStatusNote}
         />
       </Box>
     </Box>
