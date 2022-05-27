@@ -637,7 +637,7 @@ export const AllCustomMessages = [CustomMessageEnum.OVERVIEW_PAGE];
 
 export enum ClientSurveillanceCategoryEnum {
   BorrowingBase = "borrowing_base",
-  FinancialReport = "financial_reports",
+  FinancialReport = "financial_report",
 }
 
 export enum MetrcDownloadSummaryStatusEnum {

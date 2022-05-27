@@ -303,7 +303,7 @@ class PackageType(object):
 # Client Surveillance
 class ClientSurveillanceCategoryEnum(object):
 	BORROWING_BASE = 'borrowing_base'
-	FINANCIAL_REPORT = 'financial_reports'
+	FINANCIAL_REPORT = 'financial_report'
 
 class BankAccountType(object):
 	CHECKING = 'Checking'
