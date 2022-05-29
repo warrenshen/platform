@@ -15,7 +15,7 @@ import {
   CustomMutationResponse,
 } from "lib/api";
 import {
-  BankStatusEnum,
+  SurveillanceStatusEnum,
   CustomMessageEnum,
   FeatureFlagEnum,
   QualifyForEnum,
@@ -75,20 +75,20 @@ export async function createProspectiveCustomer(
     );
 }
 
-export type UpdateCompanyBankStatusReq = {
+export type UpdateCompanySurveillanceStatusReq = {
   variables: {
-    company_id: Companies["id"];
-    bank_status: { [key in BankStatusEnum]: boolean | null };
-    bank_status_note: string;
-    qualify_for: { [key in QualifyForEnum]: boolean | null };
+    companyId: Companies["id"];
+    surveillanceStatus: { [key in SurveillanceStatusEnum]: boolean | null };
+    surveillanceStatusNote: string;
+    qualifyFor: { [key in QualifyForEnum]: boolean | null };
   };
 };
 
-export async function updateCompanyBankStatusMutation(
-  req: UpdateCompanyBankStatusReq
+export async function updateCompanySurveillanceStatusMutation(
+  req: UpdateCompanySurveillanceStatusReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(companyRoutes.updateCompanyBankStatus, req.variables)
+    .post(companyRoutes.updateCompanySurveillanceStatus, req.variables)
     .then((res) => {
       return res.data;
     })
@@ -100,7 +100,7 @@ export async function updateCompanyBankStatusMutation(
         console.log("error", error);
         return {
           status: "ERROR",
-          msg: "Could not create company bank status",
+          msg: "Could not create company surveillance status",
         };
       }
     );
@@ -109,7 +109,7 @@ export async function updateCompanyBankStatusMutation(
 export type UpdateCompanyQualifyingProductReq = {
   variables: {
     company_product_qualification_id: CompanyProductQualifications["id"];
-    bank_status_note: string;
+    surveillance_status_note: string;
     qualify_for: QualifyForEnum;
   };
 };
@@ -139,7 +139,7 @@ export async function updateCompanyQualifyingProductMutation(
 export type CreateCompanyQualifyingProductReq = {
   variables: {
     company_id: Companies["id"];
-    bank_status_note: string;
+    surveillance_status_note: string;
     qualify_for: { [key in QualifyForEnum]: boolean | null };
     qualifying_date: string;
   };
@@ -161,7 +161,7 @@ export async function createCompanyQualifyingProductMutation(
         console.log("error", error);
         return {
           status: "ERROR",
-          msg: "Could not create company bank status",
+          msg: "Could not create company surveillance status",
         };
       }
     );

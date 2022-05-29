@@ -13,7 +13,7 @@ import {
   createCompanyQualifyingProductMutation,
   updateCompanyQualifyingProductMutation,
 } from "lib/api/companies";
-import { ActionType, BankStatusEnum, QualifyForEnum } from "lib/enum";
+import { ActionType, SurveillanceStatusEnum, QualifyForEnum } from "lib/enum";
 import {
   getFirstDayOfMonth,
   getLastDateOfMonth,
@@ -21,11 +21,11 @@ import {
   todayMinusXMonthsDateStringServer,
 } from "lib/date";
 import CompanyProductQualificationDataGrid from "components/CompanyProductQualifications/CompanyProductQualificationsDataGrid";
-import ClientBankStatusNoteModal from "./ClientBankStatusNoteModal";
+import ClientSurveillanceStatusNoteModal from "components/ClientSurveillance/ClientSurveillanceStatusNoteModal";
 
 interface Props {
   actionType: ActionType;
-  client: Companies;
+  company: Companies;
   qualifyingDate: string;
   handleClose: () => void;
 }
@@ -33,13 +33,13 @@ interface Props {
 const NumberOfMonthsShowed = 6;
 
 const newCompanyProductQualification: Partial<CompanyProductQualifications> = {
-  qualifying_product: QualifyForEnum.NONE,
+  qualifying_product: QualifyForEnum.None,
   bank_note: "",
 };
 
 export default function EditClientSurveillanceStatusModal({
   actionType,
-  client: { id: company_id, bank_status = BankStatusEnum.GOOD_STANDING, name },
+  company,
   qualifyingDate,
   handleClose,
 }: Props) {
@@ -58,7 +58,7 @@ export default function EditClientSurveillanceStatusModal({
 
   const { refetch } = useGetCompanyProductQualificationsByDateQuery({
     variables: {
-      company_id: company_id,
+      company_id: company.id,
       start_date: getFirstDayOfMonth(selectedQualifyingDate),
       end_date: getLastDateOfMonth(selectedQualifyingDate),
       limit: 1,
@@ -84,7 +84,7 @@ export default function EditClientSurveillanceStatusModal({
     error,
   } = useGetCompanyProductQualificationsByDateQuery({
     variables: {
-      company_id: company_id,
+      company_id: company.id,
       start_date: todayMinusXMonthsDateStringServer(NumberOfMonthsShowed),
       end_date: todayAsDateStringServer(),
       limit: NumberOfMonthsShowed,
@@ -96,10 +96,14 @@ export default function EditClientSurveillanceStatusModal({
     alert(`Error in query (details in console): ${error.message}`);
   }
 
-  const { id, qualifying_product, bank_note } = companyProductQualification;
+  const { id, qualifying_product } = companyProductQualification;
 
-  const [bankStatus, setBankStatus] = useState(bank_status as BankStatusEnum);
-  const [bankStatusNote, setBankStatusNote] = useState(bank_note || "");
+  const [surveillanceStatus, setSurveillanceStatus] = useState(
+    company.surveillance_status as SurveillanceStatusEnum
+  );
+  const [surveillanceStatusNote, setSurveillanceStatusNote] = useState(
+    company.surveillance_status_note || ""
+  );
   const [qualifyingProduct, setQualifyingProduct] = useState(
     qualifying_product as QualifyForEnum
   );
@@ -114,9 +118,9 @@ export default function EditClientSurveillanceStatusModal({
   ] = useCustomMutation(updateCompanyQualifyingProductMutation);
 
   useEffect(() => {
-    setBankStatusNote(bank_note || "");
+    setSurveillanceStatusNote(company.surveillance_status_note || "");
     setQualifyingProduct(qualifying_product as QualifyForEnum);
-  }, [bank_note, qualifying_product]);
+  }, [company, qualifying_product]);
 
   const handleQualifyingDateChange = useMemo(
     () => (value: string | null) => value && setSelectedQualifyingDate(value),
@@ -128,8 +132,8 @@ export default function EditClientSurveillanceStatusModal({
       actionType === ActionType.New
         ? await createCompanyQualifyingProduct({
             variables: {
-              company_id,
-              bank_status_note: bankStatusNote,
+              company_id: company.id,
+              surveillance_status_note: surveillanceStatusNote,
               qualify_for: qualifyingProduct,
               qualifying_date: selectedQualifyingDate,
             },
@@ -137,7 +141,7 @@ export default function EditClientSurveillanceStatusModal({
         : await updateCompanyQualifyingProduct({
             variables: {
               company_product_qualification_id: id,
-              bank_status_note: bankStatusNote,
+              surveillance_status_note: surveillanceStatusNote,
               qualify_for: qualifyingProduct,
             },
           });
@@ -164,10 +168,10 @@ export default function EditClientSurveillanceStatusModal({
   );
 
   const isPrimaryActionDisabled =
-    (bank_status === bankStatus &&
+    (company.surveillance_status === surveillanceStatus &&
       qualifying_product === qualifyingProduct &&
-      bank_note === bankStatusNote) ||
-    !bankStatus ||
+      company.surveillance_status_note === surveillanceStatusNote) ||
+    !surveillanceStatus ||
     !qualifyingProduct ||
     isCreateCompanyQualifyingProductLoading ||
     isUpdateCompanyQualifyingProductLoading;
@@ -179,9 +183,9 @@ export default function EditClientSurveillanceStatusModal({
       );
 
       return (
-        <ClientBankStatusNoteModal
-          companyName={name}
-          bankStatusNote={companyProductQualification?.bank_note || ""}
+        <ClientSurveillanceStatusNoteModal
+          companyName={company.name}
+          surveillanceStatusNote={companyProductQualification?.bank_note || ""}
           handleClose={() => setClickedBankNoteProductQualificationId(null)}
         />
       );
@@ -199,11 +203,11 @@ export default function EditClientSurveillanceStatusModal({
       {renderBankNoteModal()}
       <Box mt={2}>
         <ClientSurveillanceStatusUpdateForm
-          name={name}
-          bankStatus={bankStatus}
-          bankStatusNote={bankStatusNote}
-          setBankStatus={setBankStatus}
-          setBankStatusNote={setBankStatusNote}
+          name={company.name}
+          surveillanceStatus={surveillanceStatus}
+          surveillanceStatusNote={surveillanceStatusNote}
+          setSurveillanceStatus={setSurveillanceStatus}
+          setSurveillanceStatusNote={setSurveillanceStatusNote}
           qualifyingDate={selectedQualifyingDate}
           handleQualifyingDateChange={handleQualifyingDateChange}
           qualifyFor={qualifyingProduct}

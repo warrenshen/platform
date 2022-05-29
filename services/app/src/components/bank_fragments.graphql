@@ -82,8 +82,8 @@ fragment CustomerForBank on companies {
   zip_code
   phone_number
   debt_facility_status
-  bank_status
-  bank_status_note
+  surveillance_status
+  surveillance_status_note
   qualify_for
 }
 

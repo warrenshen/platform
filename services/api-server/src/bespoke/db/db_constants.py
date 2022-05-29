@@ -118,6 +118,15 @@ class CompanyDebtFacilityStatus(object):
 	INELIGIBLE_FOR_FACILITY = 'ineligible_for_facility'
 	WAIVER = 'waiver_company'
 
+class CompanySurveillanceStatus(object):
+	GOOD_STANDING = "good_standing",
+	ON_PROBATION = "on_probation",
+	ON_PAUSE = "on_pause",
+	DEFAULTED = "defaulted",
+	ONBOARDING = "onboarding",
+	INACTIVE = "inactive",
+	IN_REVIEW = "in_review",
+
 # Artifacts
 
 class RequestStatusEnum(object):

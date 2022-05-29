@@ -735,7 +735,7 @@ class MarkPartnershipInviteAsComplete(MethodView):
 			'status': 'OK',
 		}))
 
-class UpdateCompanyBankStatusView(MethodView):
+class UpdateCompanySurveillanceStatusView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
 	@handler_util.catch_bad_json_request
@@ -746,8 +746,8 @@ class UpdateCompanyBankStatusView(MethodView):
 
 		required_keys = [
 			'company_id',
-			'bank_status',
-			'bank_status_note',
+			'surveillance_status',
+			'surveillance_status_note',
 			'qualify_for',
 		]
 
@@ -756,15 +756,15 @@ class UpdateCompanyBankStatusView(MethodView):
 				return handler_util.make_error_response(f'Missing {key} in request')
 
 		company_id = form['company_id']
-		bank_status = form['bank_status']
-		bank_status_note = form['bank_status_note']
+		surveillance_status = form['surveillance_status']
+		surveillance_status_note = form['surveillance_status_note']
 		qualify_for = form['qualify_for']
 
 		with session_scope(current_app.session_maker) as session:
-			_, err = create_company_util.update_bank_status(
+			_, err = create_company_util.update_surveillance_status(
 				company_id=company_id,
-				bank_status=bank_status,
-				bank_status_note=bank_status_note,
+				surveillance_status=surveillance_status,
+				surveillance_status_note=surveillance_status_note,
 				qualify_for=qualify_for,
 				session=session,
 			)
@@ -788,7 +788,7 @@ class UpdateCompanyQualifyingProductView(MethodView):
 		required_keys = [
 			'company_product_qualification_id',
 			'qualify_for',
-			'bank_status_note',
+			'surveillance_status_note',
 		]
 
 		for key in required_keys:
@@ -797,10 +797,15 @@ class UpdateCompanyQualifyingProductView(MethodView):
 
 		company_product_qualification_id = form['company_product_qualification_id']
 		qualify_for = form['qualify_for']
-		bank_status_note = form['bank_status_note']
+		surveillance_status_note = form['surveillance_status_note']
 
 		with session_scope(current_app.session_maker) as session:
-			_, err = create_company_util.update_company_product_qualification(company_product_qualification_id=company_product_qualification_id, bank_status_note=bank_status_note, qualify_for=qualify_for, session=session)
+			_, err = create_company_util.update_company_product_qualification(
+				company_product_qualification_id = company_product_qualification_id,
+				surveillance_status_note = surveillance_status_note,
+				qualify_for = qualify_for,
+				session = session
+			)
 			if err:
 				raise err
 
@@ -819,7 +824,7 @@ class CreateCompanyQualifyingProductView(MethodView):
 
 		required_keys = [
 			'company_id',
-			'bank_status_note',
+			'surveillance_status_note',
 			'qualify_for',
 			'qualifying_date'
 		]
@@ -829,12 +834,19 @@ class CreateCompanyQualifyingProductView(MethodView):
 				return handler_util.make_error_response(f'Missing {key} in request')
 
 		company_id = form['company_id']
-		bank_status_note = form['bank_status_note']
+		surveillance_status_note = form['surveillance_status_note']
 		qualify_for = form['qualify_for']
 		qualifying_date = form['qualifying_date']
 
 		with session_scope(current_app.session_maker) as session:
-			_, err = create_company_util.create_company_product_qualification(company_id=company_id, bank_status_note=bank_status_note, qualify_for=qualify_for, qualifying_date=qualifying_date, session=session, userSession=UserSession)
+			_, err = create_company_util.create_company_product_qualification(
+				company_id = company_id,
+				surveillance_status_note = surveillance_status_note,
+				qualify_for = qualify_for,
+				qualifying_date = qualifying_date,
+				session = session,
+				userSession = UserSession
+			)
 			if err:
 				raise err
 
@@ -849,7 +861,7 @@ handler.add_url_rule(
 	'/create_prospective_customer', view_func=CreateProspectiveCustomerView.as_view(name='create_prospective_customer_view'))
 
 handler.add_url_rule(
-	'/update_company_bank_status', view_func=UpdateCompanyBankStatusView.as_view(name='update_company_bank_status_view'))
+	'/update_company_surveillance_status', view_func=UpdateCompanySurveillanceStatusView.as_view(name='update_company_surveillance_status_view'))
 
 handler.add_url_rule(
 	'/create_company_qualifying_product', view_func=CreateCompanyQualifyingProductView.as_view(name='create_company_qualifying_product_view'))

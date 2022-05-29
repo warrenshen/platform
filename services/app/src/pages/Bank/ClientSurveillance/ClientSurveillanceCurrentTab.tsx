@@ -81,7 +81,7 @@ export default function ClientSurveillanceCurrentTab() {
                           ? ActionType.Update
                           : ActionType.New
                       }
-                      client={selectedCustomer}
+                      company={selectedCustomer}
                       qualifyingDate={todaysDate}
                       handleClose={() => {
                         refetch();

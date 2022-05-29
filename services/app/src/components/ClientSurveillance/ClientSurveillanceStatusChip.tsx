@@ -1,5 +1,5 @@
 import { Typography } from "@material-ui/core";
-import { BankStatusEnum, BankStatusToLabel } from "lib/enum";
+import { SurveillanceStatusEnum, SurveillanceStatusToLabel } from "lib/enum";
 import styled from "styled-components";
 
 const Chip = styled.div<{ backgroundColor: string }>`
@@ -22,21 +22,22 @@ const Text = styled(Typography)`
 `;
 
 interface Props {
-  requestStatus: BankStatusEnum;
+  requestStatus: SurveillanceStatusEnum;
 }
 
 const StatusToColor = {
-  [BankStatusEnum.GOOD_STANDING]: "rgb(118, 147, 98)", // Gray
-  [BankStatusEnum.ON_PROBATION]: "rgb(241, 196, 15)", // Yellow
-  [BankStatusEnum.ON_PAUSE]: "rgb(230, 126, 34)", // Orange,
-  [BankStatusEnum.DEFAULTED]: "rgb(230, 126, 34)", // Orange,
-  [BankStatusEnum.ONBOARDING]: "rgb(25, 113, 194)", // Blue,
-  [BankStatusEnum.INACTIVE]: "rgb(189, 195, 199)", // Grey,
+  [SurveillanceStatusEnum.GoodStanding]: "rgb(118, 147, 98)", // Gray
+  [SurveillanceStatusEnum.OnProbation]: "rgb(241, 196, 15)", // Yellow
+  [SurveillanceStatusEnum.OnPause]: "rgb(230, 126, 34)", // Orange,
+  [SurveillanceStatusEnum.Defaulted]: "rgb(230, 126, 34)", // Orange,
+  [SurveillanceStatusEnum.Onboarding]: "rgb(25, 113, 194)", // Blue,
+  [SurveillanceStatusEnum.Inactive]: "rgb(189, 195, 199)", // Grey,
+  [SurveillanceStatusEnum.InReview]: "rgb(241, 196, 15)", // Yellow
 };
 
 const ClientSurveillanceStatusChip = ({ requestStatus }: Props) => (
   <Chip backgroundColor={StatusToColor[requestStatus]}>
-    <Text>{BankStatusToLabel[requestStatus] || "-"}</Text>
+    <Text>{SurveillanceStatusToLabel[requestStatus] || "-"}</Text>
   </Chip>
 );
 

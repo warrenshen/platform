@@ -157,104 +157,44 @@ export const BankEbbaTabLabels = [
   BankEbbaTabLabel.AllCertifications,
 ];
 
-export enum BankStatusEnum {
-  GOOD_STANDING = "good_standing",
-  ON_PROBATION = "on_probation",
-  ON_PAUSE = "on_pause",
-  DEFAULTED = "defaulted",
-  ONBOARDING = "onboarding",
-  INACTIVE = "inactive",
+export enum SurveillanceStatusEnum {
+  GoodStanding = "good_standing",
+  OnProbation = "on_probation",
+  OnPause = "on_pause",
+  Defaulted = "defaulted",
+  Onboarding = "onboarding",
+  Inactive = "inactive",
+  InReview = "in_review",
 }
 
-export const BankStatuses = [
-  BankStatusEnum.GOOD_STANDING,
-  BankStatusEnum.ON_PROBATION,
-  BankStatusEnum.ON_PAUSE,
-  BankStatusEnum.DEFAULTED,
-  BankStatusEnum.ONBOARDING,
-  BankStatusEnum.INACTIVE,
-];
-
-export enum BankStatusLabelEnum {
-  GOOD_STANDING = "Good Standing",
-  ON_PROBATION = "On Probation",
-  ON_PAUSE = "On Pause",
-  DEFAULTED = "Defaulted",
-  ONBOARDING = "Onboarding",
-  INACTIVE = "Inactive",
-}
-
-export const BankStatusLabels = [
-  BankStatusLabelEnum.GOOD_STANDING,
-  BankStatusLabelEnum.ON_PROBATION,
-  BankStatusLabelEnum.ON_PAUSE,
-  BankStatusLabelEnum.DEFAULTED,
-  BankStatusLabelEnum.ONBOARDING,
-  BankStatusLabelEnum.INACTIVE,
-];
-
-export const BankStatusToLabel: {
-  [key in BankStatusEnum]: BankStatusLabelEnum;
-} = {
-  [BankStatusEnum.GOOD_STANDING]: BankStatusLabelEnum.GOOD_STANDING,
-  [BankStatusEnum.ON_PROBATION]: BankStatusLabelEnum.ON_PROBATION,
-  [BankStatusEnum.ON_PAUSE]: BankStatusLabelEnum.ON_PAUSE,
-  [BankStatusEnum.DEFAULTED]: BankStatusLabelEnum.DEFAULTED,
-  [BankStatusEnum.ONBOARDING]: BankStatusLabelEnum.ONBOARDING,
-  [BankStatusEnum.INACTIVE]: BankStatusLabelEnum.INACTIVE,
+export const SurveillanceStatusToLabel = {
+  [SurveillanceStatusEnum.GoodStanding]: "Good Standing",
+  [SurveillanceStatusEnum.OnProbation]: "On Probation",
+  [SurveillanceStatusEnum.OnPause]: "On Pause",
+  [SurveillanceStatusEnum.Defaulted]: "Defaulted",
+  [SurveillanceStatusEnum.Onboarding]: "Onboarding",
+  [SurveillanceStatusEnum.Inactive]: "Inactive",
+  [SurveillanceStatusEnum.InReview]: "In Review",
 };
+
 export enum QualifyForEnum {
-  LINE_OF_CREDIT = "line_of_credit",
-  INVENTORY = "inventory",
-  PURCHASE_MONEY_FINANCING = "purchase_money_financing",
-  INVOICE = "invoice",
-  FAILING = "failing",
-  DISPENSARY_FINANCING = "dispensary_financing",
-  NONE = "",
+  LineOfCredit = "line_of_credit",
+  InventoryFinancing = "inventory_financing",
+  PurchaseMoneyFinancing = "purchase_money_financing",
+  InvoiceFinancing = "invoice_financing",
+  Failing = "failing",
+  DisepnsaryFinancing = "dispensary_financing",
+  None = "",
 }
 
-export const QualifyingForValues = [
-  QualifyForEnum.LINE_OF_CREDIT,
-  QualifyForEnum.INVENTORY,
-  QualifyForEnum.PURCHASE_MONEY_FINANCING,
-  QualifyForEnum.INVOICE,
-  QualifyForEnum.FAILING,
-  QualifyForEnum.DISPENSARY_FINANCING,
-  QualifyForEnum.NONE,
-];
-
-export enum QualifyForLabelEnum {
-  LINE_OF_CREDIT = "Line of Credit",
-  INVENTORY = "Inventory",
-  PURCHASE_MONEY_FINANCING = "Purchase Money Financing",
-  INVOICE = "Invoice",
-  FAILING = "Failing",
-  DISPENSARY_FINANCING = "Dispensary Financing",
-  NONE = "",
-}
-
-export const QualifyForLabels = [
-  QualifyForLabelEnum.LINE_OF_CREDIT,
-  QualifyForLabelEnum.INVENTORY,
-  QualifyForLabelEnum.PURCHASE_MONEY_FINANCING,
-  QualifyForLabelEnum.INVOICE,
-  QualifyForLabelEnum.FAILING,
-  QualifyForLabelEnum.DISPENSARY_FINANCING,
-  QualifyForLabelEnum.NONE,
-];
-
-export const QualifyForToLabel: {
-  [key in QualifyForEnum]: QualifyForLabelEnum;
-} = {
-  [QualifyForEnum.LINE_OF_CREDIT]: QualifyForLabelEnum.LINE_OF_CREDIT,
-  [QualifyForEnum.INVENTORY]: QualifyForLabelEnum.INVENTORY,
-  [QualifyForEnum.PURCHASE_MONEY_FINANCING]:
-    QualifyForLabelEnum.PURCHASE_MONEY_FINANCING,
-  [QualifyForEnum.INVOICE]: QualifyForLabelEnum.INVOICE,
-  [QualifyForEnum.FAILING]: QualifyForLabelEnum.FAILING,
-  [QualifyForEnum.DISPENSARY_FINANCING]:
-    QualifyForLabelEnum.DISPENSARY_FINANCING,
-  [QualifyForEnum.NONE]: QualifyForLabelEnum.NONE,
+export const QualifyForToLabel = {
+  [QualifyForEnum.LineOfCredit]: "Line of Credit",
+  [QualifyForEnum.InventoryFinancing]: "Inventory Financing",
+  [QualifyForEnum.PurchaseMoneyFinancing]: "Purchase Money Financing",
+  [QualifyForEnum.InvoiceFinancing]: "Invoice Financing",
+  [QualifyForEnum.Failing]: "Failing",
+  [QualifyForEnum.DisepnsaryFinancing]: "Dispensary Financing",
+  [QualifyForEnum.None]: "None",
 };
 
 export enum CustomerPurchaseOrdersTabLabel {

@@ -23,7 +23,8 @@ export const fileRoutes = {
 export const companyRoutes = {
   createCustomer: "/companies/create_customer",
   createProspectiveCustomer: "/companies/create_prospective_customer",
-  updateCompanyBankStatus: "/companies/update_company_bank_status",
+  updateCompanySurveillanceStatus:
+    "/companies/update_company_surveillance_status",
   updateCompanyQualifyingProduct:
     "/companies/update_company_qualifying_product",
   createCompanyQualifyingProduct:

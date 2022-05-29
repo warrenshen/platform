@@ -131,13 +131,13 @@ export default function ClientSurveillanceCustomersDataGrid({
         width: ColumnWidths.Status,
       },
       {
-        dataField: "bank_status",
+        dataField: "surveillance_status",
         caption: "Surveillance Stage",
         width: ColumnWidths.Status,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
           <ClientSurveillanceStatusChip
-            requestStatus={params.row.data.bank_status}
+            requestStatus={params.row.data.surveillance_status}
           />
         ),
       },

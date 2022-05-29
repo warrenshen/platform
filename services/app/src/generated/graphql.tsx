@@ -1405,8 +1405,6 @@ export type Companies = {
   bank_accounts: Array<BankAccounts>;
   /** An aggregate relationship */
   bank_accounts_aggregate: BankAccountsAggregate;
-  bank_status?: Maybe<Scalars["String"]>;
-  bank_status_note?: Maybe<Scalars["String"]>;
   city?: Maybe<Scalars["String"]>;
   /** An array relationship */
   company_facilities: Array<CompanyFacilities>;
@@ -1513,6 +1511,8 @@ export type Companies = {
   /** An object relationship */
   settings?: Maybe<CompanySettings>;
   state?: Maybe<Scalars["String"]>;
+  surveillance_status?: Maybe<Scalars["String"]>;
+  surveillance_status_note?: Maybe<Scalars["String"]>;
   updated_at: Scalars["timestamptz"];
   /** An array relationship */
   users: Array<Users>;
@@ -1974,8 +1974,6 @@ export type CompaniesBoolExp = {
   address?: Maybe<StringComparisonExp>;
   agreements?: Maybe<CompanyAgreementsBoolExp>;
   bank_accounts?: Maybe<BankAccountsBoolExp>;
-  bank_status?: Maybe<StringComparisonExp>;
-  bank_status_note?: Maybe<StringComparisonExp>;
   city?: Maybe<StringComparisonExp>;
   company_facilities?: Maybe<CompanyFacilitiesBoolExp>;
   company_licenses?: Maybe<CompanyLicensesBoolExp>;
@@ -2023,6 +2021,8 @@ export type CompaniesBoolExp = {
   qualify_for?: Maybe<StringComparisonExp>;
   settings?: Maybe<CompanySettingsBoolExp>;
   state?: Maybe<StringComparisonExp>;
+  surveillance_status?: Maybe<StringComparisonExp>;
+  surveillance_status_note?: Maybe<StringComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
   users?: Maybe<UsersBoolExp>;
   zip_code?: Maybe<StringComparisonExp>;
@@ -2050,8 +2050,6 @@ export type CompaniesInsertInput = {
   address?: Maybe<Scalars["String"]>;
   agreements?: Maybe<CompanyAgreementsArrRelInsertInput>;
   bank_accounts?: Maybe<BankAccountsArrRelInsertInput>;
-  bank_status?: Maybe<Scalars["String"]>;
-  bank_status_note?: Maybe<Scalars["String"]>;
   city?: Maybe<Scalars["String"]>;
   company_facilities?: Maybe<CompanyFacilitiesArrRelInsertInput>;
   company_licenses?: Maybe<CompanyLicensesArrRelInsertInput>;
@@ -2101,6 +2099,8 @@ export type CompaniesInsertInput = {
   qualify_for?: Maybe<Scalars["String"]>;
   settings?: Maybe<CompanySettingsObjRelInsertInput>;
   state?: Maybe<Scalars["String"]>;
+  surveillance_status?: Maybe<Scalars["String"]>;
+  surveillance_status_note?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   users?: Maybe<UsersArrRelInsertInput>;
   zip_code?: Maybe<Scalars["String"]>;
@@ -2109,8 +2109,6 @@ export type CompaniesInsertInput = {
 /** aggregate max on columns */
 export type CompaniesMaxFields = {
   address?: Maybe<Scalars["String"]>;
-  bank_status?: Maybe<Scalars["String"]>;
-  bank_status_note?: Maybe<Scalars["String"]>;
   city?: Maybe<Scalars["String"]>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
   contract_id?: Maybe<Scalars["uuid"]>;
@@ -2134,6 +2132,8 @@ export type CompaniesMaxFields = {
   phone_number?: Maybe<Scalars["String"]>;
   qualify_for?: Maybe<Scalars["String"]>;
   state?: Maybe<Scalars["String"]>;
+  surveillance_status?: Maybe<Scalars["String"]>;
+  surveillance_status_note?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   zip_code?: Maybe<Scalars["String"]>;
 };
@@ -2141,8 +2141,6 @@ export type CompaniesMaxFields = {
 /** order by max() on columns of table "companies" */
 export type CompaniesMaxOrderBy = {
   address?: Maybe<OrderBy>;
-  bank_status?: Maybe<OrderBy>;
-  bank_status_note?: Maybe<OrderBy>;
   city?: Maybe<OrderBy>;
   company_settings_id?: Maybe<OrderBy>;
   contract_id?: Maybe<OrderBy>;
@@ -2166,6 +2164,8 @@ export type CompaniesMaxOrderBy = {
   phone_number?: Maybe<OrderBy>;
   qualify_for?: Maybe<OrderBy>;
   state?: Maybe<OrderBy>;
+  surveillance_status?: Maybe<OrderBy>;
+  surveillance_status_note?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   zip_code?: Maybe<OrderBy>;
 };
@@ -2173,8 +2173,6 @@ export type CompaniesMaxOrderBy = {
 /** aggregate min on columns */
 export type CompaniesMinFields = {
   address?: Maybe<Scalars["String"]>;
-  bank_status?: Maybe<Scalars["String"]>;
-  bank_status_note?: Maybe<Scalars["String"]>;
   city?: Maybe<Scalars["String"]>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
   contract_id?: Maybe<Scalars["uuid"]>;
@@ -2198,6 +2196,8 @@ export type CompaniesMinFields = {
   phone_number?: Maybe<Scalars["String"]>;
   qualify_for?: Maybe<Scalars["String"]>;
   state?: Maybe<Scalars["String"]>;
+  surveillance_status?: Maybe<Scalars["String"]>;
+  surveillance_status_note?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   zip_code?: Maybe<Scalars["String"]>;
 };
@@ -2205,8 +2205,6 @@ export type CompaniesMinFields = {
 /** order by min() on columns of table "companies" */
 export type CompaniesMinOrderBy = {
   address?: Maybe<OrderBy>;
-  bank_status?: Maybe<OrderBy>;
-  bank_status_note?: Maybe<OrderBy>;
   city?: Maybe<OrderBy>;
   company_settings_id?: Maybe<OrderBy>;
   contract_id?: Maybe<OrderBy>;
@@ -2230,6 +2228,8 @@ export type CompaniesMinOrderBy = {
   phone_number?: Maybe<OrderBy>;
   qualify_for?: Maybe<OrderBy>;
   state?: Maybe<OrderBy>;
+  surveillance_status?: Maybe<OrderBy>;
+  surveillance_status_note?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   zip_code?: Maybe<OrderBy>;
 };
@@ -2261,8 +2261,6 @@ export type CompaniesOrderBy = {
   address?: Maybe<OrderBy>;
   agreements_aggregate?: Maybe<CompanyAgreementsAggregateOrderBy>;
   bank_accounts_aggregate?: Maybe<BankAccountsAggregateOrderBy>;
-  bank_status?: Maybe<OrderBy>;
-  bank_status_note?: Maybe<OrderBy>;
   city?: Maybe<OrderBy>;
   company_facilities_aggregate?: Maybe<CompanyFacilitiesAggregateOrderBy>;
   company_licenses_aggregate?: Maybe<CompanyLicensesAggregateOrderBy>;
@@ -2310,6 +2308,8 @@ export type CompaniesOrderBy = {
   qualify_for?: Maybe<OrderBy>;
   settings?: Maybe<CompanySettingsOrderBy>;
   state?: Maybe<OrderBy>;
+  surveillance_status?: Maybe<OrderBy>;
+  surveillance_status_note?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   users_aggregate?: Maybe<UsersAggregateOrderBy>;
   zip_code?: Maybe<OrderBy>;
@@ -2324,10 +2324,6 @@ export type CompaniesPkColumnsInput = {
 export enum CompaniesSelectColumn {
   /** column name */
   Address = "address",
-  /** column name */
-  BankStatus = "bank_status",
-  /** column name */
-  BankStatusNote = "bank_status_note",
   /** column name */
   City = "city",
   /** column name */
@@ -2381,6 +2377,10 @@ export enum CompaniesSelectColumn {
   /** column name */
   State = "state",
   /** column name */
+  SurveillanceStatus = "surveillance_status",
+  /** column name */
+  SurveillanceStatusNote = "surveillance_status_note",
+  /** column name */
   UpdatedAt = "updated_at",
   /** column name */
   ZipCode = "zip_code",
@@ -2389,8 +2389,6 @@ export enum CompaniesSelectColumn {
 /** input type for updating data in table "companies" */
 export type CompaniesSetInput = {
   address?: Maybe<Scalars["String"]>;
-  bank_status?: Maybe<Scalars["String"]>;
-  bank_status_note?: Maybe<Scalars["String"]>;
   city?: Maybe<Scalars["String"]>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
   contract_id?: Maybe<Scalars["uuid"]>;
@@ -2419,6 +2417,8 @@ export type CompaniesSetInput = {
   phone_number?: Maybe<Scalars["String"]>;
   qualify_for?: Maybe<Scalars["String"]>;
   state?: Maybe<Scalars["String"]>;
+  surveillance_status?: Maybe<Scalars["String"]>;
+  surveillance_status_note?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   zip_code?: Maybe<Scalars["String"]>;
 };
@@ -2500,10 +2500,6 @@ export enum CompaniesUpdateColumn {
   /** column name */
   Address = "address",
   /** column name */
-  BankStatus = "bank_status",
-  /** column name */
-  BankStatusNote = "bank_status_note",
-  /** column name */
   City = "city",
   /** column name */
   CompanySettingsId = "company_settings_id",
@@ -2555,6 +2551,10 @@ export enum CompaniesUpdateColumn {
   QualifyFor = "qualify_for",
   /** column name */
   State = "state",
+  /** column name */
+  SurveillanceStatus = "surveillance_status",
+  /** column name */
+  SurveillanceStatusNote = "surveillance_status_note",
   /** column name */
   UpdatedAt = "updated_at",
   /** column name */
@@ -4966,6 +4966,7 @@ export type CompanySettings = {
   metrc_api_key?: Maybe<MetrcApiKeys>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
+  reporting_requirements_category?: Maybe<Scalars["String"]>;
   /** An object relationship */
   salesperson?: Maybe<Users>;
   salesperson_user_id?: Maybe<Scalars["uuid"]>;
@@ -5058,6 +5059,7 @@ export type CompanySettingsBoolExp = {
   metrc_api_key?: Maybe<MetrcApiKeysBoolExp>;
   metrc_api_key_id?: Maybe<UuidComparisonExp>;
   payor_agreement_docusign_template?: Maybe<StringComparisonExp>;
+  reporting_requirements_category?: Maybe<StringComparisonExp>;
   salesperson?: Maybe<UsersBoolExp>;
   salesperson_user_id?: Maybe<UuidComparisonExp>;
   two_factor_message_method?: Maybe<StringComparisonExp>;
@@ -5134,6 +5136,7 @@ export type CompanySettingsInsertInput = {
   metrc_api_key?: Maybe<MetrcApiKeysObjRelInsertInput>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
+  reporting_requirements_category?: Maybe<Scalars["String"]>;
   salesperson?: Maybe<UsersObjRelInsertInput>;
   salesperson_user_id?: Maybe<Scalars["uuid"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
@@ -5164,6 +5167,7 @@ export type CompanySettingsMaxFields = {
   id?: Maybe<Scalars["uuid"]>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
+  reporting_requirements_category?: Maybe<Scalars["String"]>;
   salesperson_user_id?: Maybe<Scalars["uuid"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
@@ -5193,6 +5197,7 @@ export type CompanySettingsMaxOrderBy = {
   id?: Maybe<OrderBy>;
   metrc_api_key_id?: Maybe<OrderBy>;
   payor_agreement_docusign_template?: Maybe<OrderBy>;
+  reporting_requirements_category?: Maybe<OrderBy>;
   salesperson_user_id?: Maybe<OrderBy>;
   two_factor_message_method?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
@@ -5222,6 +5227,7 @@ export type CompanySettingsMinFields = {
   id?: Maybe<Scalars["uuid"]>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
+  reporting_requirements_category?: Maybe<Scalars["String"]>;
   salesperson_user_id?: Maybe<Scalars["uuid"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
@@ -5251,6 +5257,7 @@ export type CompanySettingsMinOrderBy = {
   id?: Maybe<OrderBy>;
   metrc_api_key_id?: Maybe<OrderBy>;
   payor_agreement_docusign_template?: Maybe<OrderBy>;
+  reporting_requirements_category?: Maybe<OrderBy>;
   salesperson_user_id?: Maybe<OrderBy>;
   two_factor_message_method?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
@@ -5309,6 +5316,7 @@ export type CompanySettingsOrderBy = {
   metrc_api_key?: Maybe<MetrcApiKeysOrderBy>;
   metrc_api_key_id?: Maybe<OrderBy>;
   payor_agreement_docusign_template?: Maybe<OrderBy>;
+  reporting_requirements_category?: Maybe<OrderBy>;
   salesperson?: Maybe<UsersOrderBy>;
   salesperson_user_id?: Maybe<OrderBy>;
   two_factor_message_method?: Maybe<OrderBy>;
@@ -5367,6 +5375,8 @@ export enum CompanySettingsSelectColumn {
   /** column name */
   PayorAgreementDocusignTemplate = "payor_agreement_docusign_template",
   /** column name */
+  ReportingRequirementsCategory = "reporting_requirements_category",
+  /** column name */
   SalespersonUserId = "salesperson_user_id",
   /** column name */
   TwoFactorMessageMethod = "two_factor_message_method",
@@ -5406,6 +5416,7 @@ export type CompanySettingsSetInput = {
   is_dummy_account?: Maybe<Scalars["Boolean"]>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
+  reporting_requirements_category?: Maybe<Scalars["String"]>;
   salesperson_user_id?: Maybe<Scalars["uuid"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
@@ -5449,6 +5460,8 @@ export enum CompanySettingsUpdateColumn {
   MetrcApiKeyId = "metrc_api_key_id",
   /** column name */
   PayorAgreementDocusignTemplate = "payor_agreement_docusign_template",
+  /** column name */
+  ReportingRequirementsCategory = "reporting_requirements_category",
   /** column name */
   SalespersonUserId = "salesperson_user_id",
   /** column name */
@@ -20486,6 +20499,7 @@ export type PurchaseOrders = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
   /** Comment left on purchase order by bank user for bank user */
@@ -20660,6 +20674,7 @@ export type PurchaseOrdersBoolExp = {
   _or?: Maybe<Array<PurchaseOrdersBoolExp>>;
   amount?: Maybe<NumericComparisonExp>;
   amount_funded?: Maybe<NumericComparisonExp>;
+  amount_updated_at?: Maybe<TimestamptzComparisonExp>;
   approved_at?: Maybe<TimestamptzComparisonExp>;
   bank_incomplete_note?: Maybe<StringComparisonExp>;
   bank_note?: Maybe<StringComparisonExp>;
@@ -20710,6 +20725,7 @@ export type PurchaseOrdersInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
   /** Comment left on purchase order by bank user for bank user */
@@ -20752,6 +20768,7 @@ export type PurchaseOrdersMaxFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
   /** Comment left on purchase order by bank user for bank user */
@@ -20783,6 +20800,7 @@ export type PurchaseOrdersMaxOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
   /** Comment left on purchase order by bank user for bank user */
@@ -20814,6 +20832,7 @@ export type PurchaseOrdersMinFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
   /** Comment left on purchase order by bank user for bank user */
@@ -20845,6 +20864,7 @@ export type PurchaseOrdersMinOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
   /** Comment left on purchase order by bank user for bank user */
@@ -20897,6 +20917,7 @@ export type PurchaseOrdersOnConflict = {
 export type PurchaseOrdersOrderBy = {
   amount?: Maybe<OrderBy>;
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
   bank_note?: Maybe<OrderBy>;
@@ -20939,6 +20960,8 @@ export enum PurchaseOrdersSelectColumn {
   Amount = "amount",
   /** column name */
   AmountFunded = "amount_funded",
+  /** column name */
+  AmountUpdatedAt = "amount_updated_at",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -20994,6 +21017,7 @@ export type PurchaseOrdersSetInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
   /** Comment left on purchase order by bank user for bank user */
@@ -21096,6 +21120,8 @@ export enum PurchaseOrdersUpdateColumn {
   Amount = "amount",
   /** column name */
   AmountFunded = "amount_funded",
+  /** column name */
+  AmountUpdatedAt = "amount_updated_at",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -26506,7 +26532,12 @@ export type GetCompanyForBankCompanyPageQuery = {
   companies_by_pk?: Maybe<
     Pick<
       Companies,
-      "id" | "name" | "is_customer" | "is_payor" | "is_vendor" | "bank_status"
+      | "id"
+      | "name"
+      | "is_customer"
+      | "is_payor"
+      | "is_vendor"
+      | "surveillance_status"
     > & { contract?: Maybe<Pick<Contracts, "id" | "product_type">> }
   >;
 };
@@ -28517,8 +28548,8 @@ export type CustomerForBankFragment = Pick<
   | "zip_code"
   | "phone_number"
   | "debt_facility_status"
-  | "bank_status"
-  | "bank_status_note"
+  | "surveillance_status"
+  | "surveillance_status_note"
   | "qualify_for"
 >;
 
@@ -29383,8 +29414,8 @@ export const CustomerForBankFragmentDoc = gql`
     zip_code
     phone_number
     debt_facility_status
-    bank_status
-    bank_status_note
+    surveillance_status
+    surveillance_status_note
     qualify_for
   }
 `;
@@ -31480,7 +31511,7 @@ export const GetCompanyForBankCompanyPageDocument = gql`
       is_customer
       is_payor
       is_vendor
-      bank_status
+      surveillance_status
       contract {
         id
         product_type

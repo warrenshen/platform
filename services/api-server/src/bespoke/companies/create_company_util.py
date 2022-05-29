@@ -1238,7 +1238,7 @@ def approve_partnership(
 @errors.return_error_tuple
 def update_company_product_qualification(
 	company_product_qualification_id: str,
-	bank_status_note: str,
+	surveillance_status_note: str,
 	qualify_for: str,
 	session: Session,
 ) -> Tuple[bool, errors.Error]:
@@ -1251,7 +1251,7 @@ def update_company_product_qualification(
 	if not company_product_qualification:
 		raise errors.Error('Company product qualification not found')
 
-	company_product_qualification.bank_note = bank_status_note
+	company_product_qualification.bank_note = surveillance_status_note
 	company_product_qualification.qualifying_product = qualify_for
 
 	return True, None
@@ -1259,7 +1259,7 @@ def update_company_product_qualification(
 @errors.return_error_tuple
 def create_company_product_qualification(
 	company_id: str,
-	bank_status_note: str,
+	surveillance_status_note: str,
 	qualify_for: str,
 	qualifying_date: datetime.date,
 	session: Session,
@@ -1267,7 +1267,7 @@ def create_company_product_qualification(
 ) -> Tuple[str, errors.Error]:
 	company_product_qualification = models.CompanyProductQualifications()
 	company_product_qualification.company_id = company_id #type: ignore
-	company_product_qualification.bank_note = bank_status_note
+	company_product_qualification.bank_note = surveillance_status_note
 	company_product_qualification.qualifying_date = qualifying_date
 	company_product_qualification.qualifying_product = qualify_for
 	company_product_qualification.submitting_user_id = userSession.from_session().get_user_id() #type: ignore
@@ -1281,10 +1281,10 @@ def create_company_product_qualification(
 
 
 @errors.return_error_tuple
-def update_bank_status(
+def update_surveillance_status(
 	company_id: str,
-	bank_status: str,
-	bank_status_note: str,
+	surveillance_status: str,
+	surveillance_status_note: str,
 	qualify_for: str,
 	session: Session,
 ) -> Tuple[bool, errors.Error]:
@@ -1295,8 +1295,8 @@ def update_bank_status(
 	if not company:
 		raise errors.Error('Company not found')
 
-	company.bank_status = bank_status
-	company.bank_status_note = bank_status_note
+	company.surveillance_status = surveillance_status
+	company.surveillance_status_note = surveillance_status_note
 	company.qualify_for = qualify_for
 
 	return True, None

@@ -9,7 +9,11 @@ import {
   useGetCompanyForBankCompanyPageQuery,
   UserRolesEnum,
 } from "generated/graphql";
-import { BankStatusEnum, BankStatusToLabel, ProductTypeEnum } from "lib/enum";
+import {
+  SurveillanceStatusEnum,
+  SurveillanceStatusToLabel,
+  ProductTypeEnum,
+} from "lib/enum";
 import { bankRoutes } from "lib/routes";
 import { isPayorsTabVisible, isVendorsTabVisible } from "lib/settings";
 import BankCustomerContractPage from "pages/Bank/Company/Contract";
@@ -112,21 +116,37 @@ type ClassName =
 
 type AlertStyle = { theme: ClassName; severity: Color };
 
-const BankStatusToAlertStatus: {
-  [key in BankStatusEnum]: AlertStyle;
+const surveillanceStatusToAlertStatus: {
+  [key in SurveillanceStatusEnum]: AlertStyle;
 } = {
-  [BankStatusEnum.GOOD_STANDING]: {
+  [SurveillanceStatusEnum.GoodStanding]: {
     theme: "greenBackground",
     severity: "success",
   },
-  [BankStatusEnum.DEFAULTED]: { theme: "orangeBackground", severity: "error" },
-  [BankStatusEnum.ON_PAUSE]: { theme: "orangeBackground", severity: "warning" },
-  [BankStatusEnum.ON_PROBATION]: {
+  [SurveillanceStatusEnum.Defaulted]: {
+    theme: "orangeBackground",
+    severity: "error",
+  },
+  [SurveillanceStatusEnum.OnPause]: {
+    theme: "orangeBackground",
+    severity: "warning",
+  },
+  [SurveillanceStatusEnum.OnProbation]: {
     theme: "yellowBackground",
     severity: "warning",
   },
-  [BankStatusEnum.INACTIVE]: { theme: "greyBackground", severity: "info" },
-  [BankStatusEnum.ONBOARDING]: { theme: "blueBackground", severity: "info" },
+  [SurveillanceStatusEnum.InReview]: {
+    theme: "yellowBackground",
+    severity: "warning",
+  },
+  [SurveillanceStatusEnum.Inactive]: {
+    theme: "greyBackground",
+    severity: "info",
+  },
+  [SurveillanceStatusEnum.Onboarding]: {
+    theme: "blueBackground",
+    severity: "info",
+  },
 };
 
 type BankCustomerPath = {
@@ -313,15 +333,17 @@ export default function BankCompanyPage() {
 
   const company = data?.companies_by_pk || null;
   const companyName = company?.name;
-  const bankStatus = company?.bank_status as BankStatusEnum;
+  const surveillanceStatus = company?.surveillance_status as SurveillanceStatusEnum;
   const productType =
     (company?.contract?.product_type as ProductTypeEnum) || null;
 
-  const renderBankStatus = () => {
-    if (!bankStatus) {
+  const renderSurveillanceStatus = () => {
+    if (!surveillanceStatus) {
       return null;
     }
-    const { theme, severity } = BankStatusToAlertStatus[bankStatus];
+    const { theme, severity } = surveillanceStatusToAlertStatus[
+      surveillanceStatus
+    ];
 
     return (
       <Box display="flex" mt={3} mb={2}>
@@ -329,7 +351,9 @@ export default function BankCompanyPage() {
           severity={severity}
           className={[classes[theme], classes.commonStyle].join(" ")}
         >
-          <Typography>{BankStatusToLabel[bankStatus]}</Typography>
+          <Typography>
+            {SurveillanceStatusToLabel[surveillanceStatus]}
+          </Typography>
         </Alert>
       </Box>
     );
@@ -340,7 +364,7 @@ export default function BankCompanyPage() {
       <Box display="flex" width="100%">
         <Box className={classes.drawer}>
           <TitleText>{companyName || ""}</TitleText>
-          {isRoleBankUser(role) && renderBankStatus()}
+          {isRoleBankUser(role) && renderSurveillanceStatus()}
 
           <List className={classes.list}>
             {getCustomerPaths(company, productType)

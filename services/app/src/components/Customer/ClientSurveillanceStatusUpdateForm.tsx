@@ -2,22 +2,20 @@ import { Box, Typography, FormControl, TextField } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import {
-  BankStatusEnum,
-  BankStatuses,
-  BankStatusToLabel,
+  SurveillanceStatusEnum,
+  SurveillanceStatusToLabel,
   QualifyForEnum,
   QualifyForToLabel,
-  QualifyingForValues,
 } from "lib/enum";
 import { Dispatch, SetStateAction } from "react";
 
 interface Props {
   name: string;
-  bankStatus: BankStatusEnum;
-  bankStatusNote: string;
+  surveillanceStatus: SurveillanceStatusEnum;
+  surveillanceStatusNote: string;
   qualifyFor: QualifyForEnum;
-  setBankStatus: Dispatch<SetStateAction<BankStatusEnum>>;
-  setBankStatusNote: Dispatch<SetStateAction<string>>;
+  setSurveillanceStatus: Dispatch<SetStateAction<SurveillanceStatusEnum>>;
+  setSurveillanceStatusNote: Dispatch<SetStateAction<string>>;
   qualifyingDate: string;
   handleQualifyingDateChange: (value: string | null) => void;
   setQualifyFor: Dispatch<SetStateAction<QualifyForEnum>>;
@@ -25,11 +23,11 @@ interface Props {
 
 const ClientSurveillanceStatusUpdateForm = ({
   name,
-  bankStatus,
-  bankStatusNote,
+  surveillanceStatus,
+  surveillanceStatusNote,
   qualifyFor,
-  setBankStatus,
-  setBankStatusNote,
+  setSurveillanceStatus,
+  setSurveillanceStatusNote,
   qualifyingDate,
   handleQualifyingDateChange,
   setQualifyFor,
@@ -44,11 +42,13 @@ const ClientSurveillanceStatusUpdateForm = ({
           <Autocomplete
             autoHighlight
             blurOnSelect
-            value={bankStatus}
-            options={BankStatuses}
-            getOptionLabel={(option: BankStatusEnum) =>
-              BankStatusToLabel[option]
-            }
+            value={SurveillanceStatusToLabel[surveillanceStatus]}
+            options={Object.values(SurveillanceStatusEnum)}
+            getOptionLabel={(option: string) => {
+              return SurveillanceStatusToLabel[
+                option as SurveillanceStatusEnum
+              ];
+            }}
             renderInput={(params: any) => (
               <TextField
                 {...params}
@@ -56,9 +56,9 @@ const ClientSurveillanceStatusUpdateForm = ({
                 variant="outlined"
               />
             )}
-            onChange={(_, bankStatusLabel: BankStatusEnum | null) => {
-              if (!!bankStatusLabel) {
-                setBankStatus(bankStatusLabel);
+            onChange={(_event, status) => {
+              if (!!status) {
+                setSurveillanceStatus(status as SurveillanceStatusEnum);
               }
             }}
           />
@@ -67,22 +67,24 @@ const ClientSurveillanceStatusUpdateForm = ({
           autoHighlight
           blurOnSelect
           value={qualifyFor}
-          options={QualifyingForValues}
+          options={Object.values(QualifyForEnum)}
           getOptionLabel={(option: QualifyForEnum) => QualifyForToLabel[option]}
           renderInput={(params: any) => (
             <TextField {...params} label="Qualifying For" variant="outlined" />
           )}
-          onChange={(_, qualifyForLabel: QualifyForEnum | null) => {
-            if (!!qualifyForLabel) {
-              setQualifyFor(qualifyForLabel);
+          onChange={(_event, qualifyingProduct) => {
+            if (!!qualifyingProduct) {
+              setQualifyFor(qualifyingProduct as QualifyForEnum);
             }
           }}
         />
         <Box display="flex" flexDirection="column" mt={2}>
           <TextField
-            label="Bank Note"
-            value={bankStatusNote}
-            onChange={({ target: { value } }) => setBankStatusNote(value)}
+            label="Surveillance Note"
+            value={surveillanceStatusNote}
+            onChange={({ target: { value } }) =>
+              setSurveillanceStatusNote(value)
+            }
           />
         </Box>
         <Box mt={2}>

@@ -172,8 +172,8 @@ select_permissions:
     permission:
       columns:
         - address
-        - bank_status
-        - bank_status_note
+        - surveillance_status
+        - surveillance_status_note
         - city
         - company_settings_id
         - contract_id
@@ -204,8 +204,8 @@ select_permissions:
     permission:
       columns:
         - address
-        - bank_status
-        - bank_status_note
+        - surveillance_status
+        - surveillance_status_note
         - city
         - company_settings_id
         - contract_id
@@ -236,7 +236,7 @@ select_permissions:
     permission:
       columns:
         - address
-        - bank_status
+        - surveillance_status
         - city
         - company_settings_id
         - contract_id
@@ -275,7 +275,7 @@ select_permissions:
     permission:
       columns:
         - address
-        - bank_status
+        - surveillance_status
         - city
         - company_settings_id
         - contract_id
@@ -345,8 +345,8 @@ update_permissions:
     permission:
       columns:
         - address
-        - bank_status
-        - bank_status_note
+        - surveillance_status
+        - surveillance_status_note
         - city
         - company_settings_id
         - contract_id
