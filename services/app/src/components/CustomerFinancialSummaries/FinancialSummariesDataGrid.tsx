@@ -24,15 +24,6 @@ function getRows(financialSummaries: FinancialSummaryFragment[]): RowsProp {
       total_outstanding_principal: formatCurrency(
         financialSummary.total_outstanding_principal
       ),
-      total_outstanding_principal_for_interest: formatCurrency(
-        financialSummary.total_outstanding_principal_for_interest
-      ),
-      total_amount_to_pay_interest_on: formatCurrency(
-        financialSummary.total_amount_to_pay_interest_on
-      ),
-      interest_accrued_today: formatCurrency(
-        financialSummary.interest_accrued_today
-      ),
       total_outstanding_interest: formatCurrency(
         financialSummary.total_outstanding_interest
       ),
@@ -42,10 +33,22 @@ function getRows(financialSummaries: FinancialSummaryFragment[]): RowsProp {
       total_outstanding_account_fees: formatCurrency(
         financialSummary?.account_level_balance_payload?.fees_total
       ),
+      total_outstanding_principal_for_interest: formatCurrency(
+        financialSummary.total_outstanding_principal_for_interest
+      ),
+      total_amount_to_pay_interest_on: formatCurrency(
+        financialSummary.total_amount_to_pay_interest_on
+      ),
+      interest_accrued_today: formatCurrency(
+        financialSummary.interest_accrued_today
+      ),
+      late_fees_accrued_today: formatCurrency(
+        financialSummary.late_fees_accrued_today
+      ),
       total_outstanding_principal_past_due: formatCurrency(
         financialSummary.total_outstanding_principal_past_due
       ),
-      outstanding_principal_percentage_past_due: formatPercentage(
+      total_outstanding_principal_percentage_past_due: formatPercentage(
         !!financialSummary.total_outstanding_principal &&
           financialSummary.total_outstanding_principal > 0
           ? financialSummary.total_outstanding_principal_past_due /
@@ -127,6 +130,24 @@ export default function FinancialSummariesDataGrid({
         alignment: "right",
       },
       {
+        dataField: "total_outstanding_interest",
+        caption: "Outstanding Interest",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+      },
+      {
+        dataField: "total_outstanding_late_fees",
+        caption: "Outstanding Late Fees",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+      },
+      {
+        dataField: "total_outstanding_account_fees",
+        caption: "Outstanding Account Fees",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+      },
+      {
         dataField: "total_outstanding_principal_for_interest",
         caption: "PB Including Clearance Days",
         width: ColumnWidths.Currency,
@@ -151,20 +172,8 @@ export default function FinancialSummariesDataGrid({
         alignment: "right",
       },
       {
-        dataField: "total_outstanding_interest",
-        caption: "Outstanding Interest",
-        width: ColumnWidths.Currency,
-        alignment: "right",
-      },
-      {
-        dataField: "total_outstanding_late_fees",
-        caption: "Outstanding Late Fees",
-        width: ColumnWidths.Currency,
-        alignment: "right",
-      },
-      {
-        dataField: "total_outstanding_account_fees",
-        caption: "Outstanding Account Fees",
+        dataField: "late_fees_accrued_today",
+        caption: "Late Fees Accrued Today",
         width: ColumnWidths.Currency,
         alignment: "right",
       },
@@ -175,7 +184,7 @@ export default function FinancialSummariesDataGrid({
         alignment: "right",
       },
       {
-        dataField: "outstanding_principal_percentage_past_due",
+        dataField: "total_outstanding_principal_percentage_past_due",
         caption: "Outstanding Principal % Past Due",
         width: ColumnWidths.Currency,
         alignment: "right",

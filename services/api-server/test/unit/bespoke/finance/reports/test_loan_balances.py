@@ -100,6 +100,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				self.assertAlmostEqual(expected.get('fees_paid_daily_adjustment', 0.0), number_util.round_currency(actual['fees_paid_daily_adjustment']))
 				self.assertEqual(expected['day_last_repayment_settles'], actual['day_last_repayment_settles'])
 				self.assertAlmostEqual(expected['interest_accrued_today'], number_util.round_currency(actual['interest_accrued_today']))
+				self.assertAlmostEqual(expected['fees_accrued_today'], number_util.round_currency(actual['fees_accrued_today']))
 				self.assertEqual(expected['financing_period'] if expected['financing_period'] else None, actual['financing_period'])
 				self.assertEqual(expected['should_close_loan'], actual['should_close_loan'])
 				self.assertEqual(expected['days_overdue'], actual['days_overdue'])
@@ -118,11 +119,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				self.assertAlmostEqual(expected['total_outstanding_principal_for_interest'], number_util.round_currency(actual['total_outstanding_principal_for_interest']))
 				self.assertAlmostEqual(expected['total_outstanding_interest'], number_util.round_currency(actual['total_outstanding_interest']))
 				self.assertAlmostEqual(expected['total_outstanding_fees'], number_util.round_currency(actual['total_outstanding_fees']))
-				self.assertAlmostEqual(expected.get('total_interest_paid_adjustment_today', 0.0), number_util.round_currency(actual['total_interest_paid_adjustment_today']))
-				self.assertAlmostEqual(expected.get('total_fees_paid_adjustment_today', 0.0), number_util.round_currency(actual['total_fees_paid_adjustment_today']))
 				self.assertAlmostEqual(expected['total_principal_in_requested_state'], number_util.round_currency(actual['total_principal_in_requested_state']))
 				self.assertAlmostEqual(expected['total_amount_to_pay_interest_on'], number_util.round_currency(actual['total_amount_to_pay_interest_on']))
 				self.assertAlmostEqual(expected['total_interest_accrued_today'], number_util.round_currency(actual['total_interest_accrued_today']))
+				self.assertAlmostEqual(expected.get('total_interest_paid_adjustment_today', 0.0), number_util.round_currency(actual['total_interest_paid_adjustment_today']))
+				self.assertAlmostEqual(expected['total_late_fees_accrued_today'], number_util.round_currency(actual['total_late_fees_accrued_today']))
+				self.assertAlmostEqual(expected.get('total_fees_paid_adjustment_today', 0.0), number_util.round_currency(actual['total_fees_paid_adjustment_today']))
 
 				if expected['minimum_interest_info']['duration']:
 					self.assertEqual(expected['minimum_interest_info']['duration'], actual['minimum_interest_info']['duration'])
@@ -246,6 +248,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_principal_in_requested_state': 0.0,
 					'total_amount_to_pay_interest_on': 0.0,
 					'total_interest_accrued_today': 0.0,
+					'total_late_fees_accrued_today': 0.0,
 					'available_limit': 120000.01,
 					'minimum_interest_info': {
 						'minimum_amount': 2001.03,
@@ -320,6 +323,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 500.03,
 						'interest_accrued_today': number_util.round_currency(0.05 * 500.03),
+						'fees_accrued_today': 0.0,
 						'financing_period': 3, # It's been 3 days since this loan was originated.
 						'day_last_repayment_settles': None, # no repayments yet
 						'should_close_loan': False,
@@ -334,6 +338,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 100.03,
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.03),
+						'fees_accrued_today': 0.0,
 						'financing_period': 2, # It's been 2 days since this loan was originated.
 						'day_last_repayment_settles': None, # no repayments yet
 						'should_close_loan': False,
@@ -353,6 +358,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_principal_in_requested_state': 0.0,
 					'total_amount_to_pay_interest_on': 500.03 + 100.03,
 					'total_interest_accrued_today': number_util.round_currency((0.05 * 500.03) + (0.05 * 100.03)),
+					'total_late_fees_accrued_today': 0.0,
 					'available_limit': 120000.01 - (500.03 + 100.03),
 					'minimum_interest_info': {
 							'minimum_amount': 200.03,
@@ -437,6 +443,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 1000.0,
 						'interest_accrued_today': number_util.round_currency(0.05 * 1000.0),
+						'fees_accrued_today': 0.0,
 						'financing_period': 5,
 						'day_last_repayment_settles': None, # no repayments yet
 						'should_close_loan': False,
@@ -451,6 +458,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 0.0,
 						'interest_accrued_today': 0.0,
+						'fees_accrued_today': 0.0,
 						'financing_period': 0,
 						'day_last_repayment_settles': None, # no repayments yet
 						'should_close_loan': False,
@@ -470,6 +478,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_principal_in_requested_state': 0.0,
 					'total_amount_to_pay_interest_on': 1000.0 + 0.0,
 					'total_interest_accrued_today': number_util.round_currency((0.05 * 1000.0) + 0.0),
+					'total_late_fees_accrued_today': 0.0,
 					'available_limit': 120000.0 - (1000.0 + 0.0),
 					'minimum_interest_info': {
 						'duration': None,
@@ -498,6 +507,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 6 * 0.05 * 1000.0 * 0.25,
 						'amount_to_pay_interest_on': 1000.0,
 						'interest_accrued_today': number_util.round_currency(0.05 * 1000.0),
+						'fees_accrued_today': 0.05 * 1000.0 * 0.25,
 						'financing_period': 66,
 						'day_last_repayment_settles': None, # no repayments yet
 						'should_close_loan': False,
@@ -512,6 +522,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 1000.0,
 						'interest_accrued_today': number_util.round_currency(0.05 * 1000.0),
+						'fees_accrued_today': 0.0,
 						'financing_period': 36,
 						'day_last_repayment_settles': None, # no repayments yet
 						'should_close_loan': False,
@@ -531,6 +542,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_principal_in_requested_state': 0.0,
 					'total_amount_to_pay_interest_on': 1000.0 + 1000.0,
 					'total_interest_accrued_today': number_util.round_currency((0.05 * 1000.0) + (0.05 * 1000.0)),
+					'total_late_fees_accrued_today': 0.05 * 1000.0 * 0.25,
 					'available_limit': 120000.0 - (1000.0 + 1000.0),
 					'minimum_interest_info': {
 						'duration': None,
@@ -559,6 +571,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': (14 * 0.05 * 1000.0 * 0.25) + (15 * 0.05 * 1000.0 * 0.5) + (7 * 0.05 * 1000.0 * 1.0),
 						'amount_to_pay_interest_on': 1000.0,
 						'interest_accrued_today': number_util.round_currency(0.05 * 1000.0),
+						'fees_accrued_today': 0.05 * 1000.0 * 1.0,
 						'financing_period': 96,
 						'day_last_repayment_settles': None, # no repayments yet
 						'should_close_loan': False,
@@ -573,6 +586,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 6 * 0.05 * 1000.0 * 0.25,
 						'amount_to_pay_interest_on': 1000.0,
 						'interest_accrued_today': number_util.round_currency(0.05 * 1000.0),
+						'fees_accrued_today': 0.05 * 1000.0 * 0.25,
 						'financing_period': 66,
 						'day_last_repayment_settles': None, # no repayments yet
 						'should_close_loan': False,
@@ -592,6 +606,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_principal_in_requested_state': 0.0,
 					'total_amount_to_pay_interest_on': 1000.0 + 1000.0,
 					'total_interest_accrued_today': number_util.round_currency((0.05 * 1000.0) + (0.05 * 1000.0)),
+					'total_late_fees_accrued_today': (0.05 * 1000.0 * 1.0) + (0.05 * 1000.0 * 0.25),
 					'available_limit': 120000.0 - (1000.0 + 1000.0),
 					'minimum_interest_info': {
 						'duration': None,
@@ -692,6 +707,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 500.03,
 						'interest_accrued_today': number_util.round_currency(0.005 * 500.03),
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': None, # no repayment has been deposited until this point
 						'financing_period': 30,
 						'should_close_loan': False,
@@ -711,6 +727,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_principal_in_requested_state': 0.0,
 					'total_amount_to_pay_interest_on': 500.03,
 					'total_interest_accrued_today': number_util.round_currency(0.005 * 500.03),
+					'total_late_fees_accrued_today': 0.0,
 					'available_limit': 120000.01 - 500.03,
 					'minimum_interest_info': {
 							'minimum_amount': 20000.03 * prorated_fraction,
@@ -739,6 +756,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 500.03,
 						'interest_accrued_today': number_util.round_currency(0.005 * 500.03),
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('11/06/2020'),
 						'financing_period': 33,
 						'should_close_loan': True,
@@ -759,6 +777,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 500.03,
 						'interest_accrued_today': number_util.round_currency(0.005 * 500.03),
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('11/06/2020'),
 						'financing_period': 33,
 						'should_close_loan': True,
@@ -813,6 +832,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 500.03,
 						'interest_accrued_today': number_util.round_currency(0.005 * 500.03),
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': None,
 						'financing_period': 35,
 						'should_close_loan': False,
@@ -832,6 +852,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_principal_in_requested_state': 0.0,
 					'total_amount_to_pay_interest_on': 500.03,
 					'total_interest_accrued_today': number_util.round_currency(0.005 * 500.03),
+					'total_late_fees_accrued_today': 0.0,
 					'available_limit': 120000.01 - (500.03),
 					'minimum_interest_info': {
 							'minimum_amount': 20000.03,
@@ -960,6 +981,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 500.03,
 						'interest_accrued_today': number_util.round_currency(0.05 * 500.03),
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('10/03/2020'),
 						'financing_period': 3,
 						'should_close_loan': False,
@@ -974,6 +996,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 0.0,
 						'interest_accrued_today': 0.0,
+						'fees_accrued_today': 0.0,
 						'financing_period': None,
 						'day_last_repayment_settles': None,
 						'should_close_loan': False, # hasnt been funded yet
@@ -988,6 +1011,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 0.0,
 						'interest_accrued_today': 0.0,
+						'fees_accrued_today': 0.0,
 						'financing_period': None,
 						'day_last_repayment_settles': None,
 						'should_close_loan': False, # hasnt been funded yet
@@ -1009,6 +1033,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 100.0,
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00),
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('10/05/2020'),
 						'financing_period': 5,
 						'should_close_loan': False,
@@ -1023,6 +1048,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 600.03,
 						'interest_accrued_today': number_util.round_currency(0.05 * 600.03),
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('10/05/2020'),
 						'financing_period': 1,
 						'should_close_loan': False,
@@ -1037,6 +1063,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 0.0,
 						'interest_accrued_today': 0.0,
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': None,
 						'financing_period': None,
 						'should_close_loan': False,
@@ -1058,6 +1085,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 0.0,
 						'interest_accrued_today': 0.0,
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('10/05/2020'),
 						'financing_period': 9,
 						'should_close_loan': False,
@@ -1072,6 +1100,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 100.0,
 						'interest_accrued_today': number_util.round_currency(0.01 * 100.00),
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('10/05/2020'),
 						'financing_period': 5,
 						'should_close_loan': False,
@@ -1086,6 +1115,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 700.03,
 						'interest_accrued_today': number_util.round_currency(0.01 * 700.03),
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': None,
 						'financing_period': 3,
 						'should_close_loan': False,
@@ -1107,6 +1137,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 0.0,
 						'interest_accrued_today': 0.0,
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('10/05/2020'),
 						'financing_period': 9,
 						'should_close_loan': False,
@@ -1121,6 +1152,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 100.0,
 						'interest_accrued_today': number_util.round_currency(0.01 * 100.0),
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('10/05/2020'),
 						'financing_period': 5,
 						'should_close_loan': False,
@@ -1135,6 +1167,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 700.03,
 						'interest_accrued_today': number_util.round_currency(0.01 * 700.03),
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': None,
 						'financing_period': 3,
 						'should_close_loan': False,
@@ -1156,6 +1189,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 0.0,
 						'interest_accrued_today': 0.0,
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('10/05/2020'),
 						'financing_period': 9,
 						'should_close_loan': False,
@@ -1170,6 +1204,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 100.0,
 						'interest_accrued_today': number_util.round_currency(0.01 * 100.00),
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('10/05/2020'),
 						'financing_period': 5,
 						'should_close_loan': False,
@@ -1184,6 +1219,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 700.03,
 						'interest_accrued_today': number_util.round_currency(0.01 * 700.03),
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': None,
 						'financing_period': 3,
 						'should_close_loan': False,
@@ -1279,6 +1315,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 100.0,
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00),
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('10/25/2020'),
 						'financing_period': 9,
 						'should_close_loan': False,
@@ -1302,6 +1339,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 100.0,
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00),
+						'fees_accrued_today': 0.0,
 						'interest_paid_daily_adjustment': number_util.round_currency(0.05 * 100.00 * 4), # You paid an extra 4 days of interest that we report for this month
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
 						'financing_period': 15,
@@ -1324,6 +1362,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 100.0,
 						'interest_accrued_today': 5.0,
+						'fees_accrued_today': 0.0,
 						'interest_paid_daily_adjustment': number_util.round_currency(-0.05 * 100.00 * 4), # THe extra 4 days of interest paid off is subtracted on the first of the month
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
 						'financing_period': 15,
@@ -1346,6 +1385,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 100.0,
 						'interest_accrued_today': 5.0,
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
 						'financing_period': 15,
 						'should_close_loan': True,
@@ -1442,6 +1482,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 100.0,
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00),
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('10/25/2020'),
 						'financing_period': 9,
 						'should_close_loan': False,
@@ -1465,6 +1506,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 100.0,
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00),
+						'fees_accrued_today': 0.0,
 						'interest_paid_daily_adjustment': number_util.round_currency(0.05 * 100.00 * 4), # You paid an extra 4 days of interest that we report for this month
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
 						'financing_period': 15,
@@ -1487,6 +1529,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 100.0,
 						'interest_accrued_today': 5.0,
+						'fees_accrued_today': 0.0,
 						'interest_paid_daily_adjustment': number_util.round_currency(-0.05 * 100.00 * 4), # THe extra 4 days of interest paid off is subtracted on the first of the month
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
 						'financing_period': 15,
@@ -1509,6 +1552,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 100.0,
 						'interest_accrued_today': 5.0,
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
 						'financing_period': 15,
 						'should_close_loan': True,
@@ -1605,6 +1649,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 100.0,
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00),
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('12/25/2020'),
 						'financing_period': 9,
 						'should_close_loan': False,
@@ -1628,6 +1673,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 100.0,
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00),
+						'fees_accrued_today': 0.0,
 						'interest_paid_daily_adjustment': number_util.round_currency(0.05 * 100.00 * 3), # You paid an extra 4 days of interest that we report for this month
 						'day_last_repayment_settles': date_util.load_date_str('01/03/2021'),
 						'financing_period': 14,
@@ -1649,6 +1695,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_amount_to_pay_interest_on': 100.0,
 					'total_interest_accrued_today': 5.0,
 					'total_interest_paid_adjustment_today': number_util.round_currency(0.05 * 100.00 * 3),
+					'total_late_fees_accrued_today': 0.0,
 					'total_fees_paid_adjustment_today': 0.0,
 					'available_limit': 120000.01,
 					'minimum_interest_info': {'minimum_amount': 200.03, 'amount_accrued': 155.01, 'amount_short': 45.02, 'duration': 'monthly', 'prorated_info': {'numerator': 31, 'denom': 31, 'fraction': 1.0, 'day_to_pay': '12/31/2020'}},
@@ -1672,6 +1719,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 100.0,
 						'interest_accrued_today': 5.0,
+						'fees_accrued_today': 0.0,
 						'interest_paid_daily_adjustment': number_util.round_currency(-0.05 * 100.00 * 3), # THe extra 3 days of interest paid off is subtracted on the first of the month
 						'day_last_repayment_settles': date_util.load_date_str('01/03/2021'),
 						'financing_period': 14,
@@ -1695,6 +1743,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 0.0,
 						'interest_accrued_today': 0.0,
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('01/03/2021'),
 						'financing_period': 14,
 						'should_close_loan': True,
@@ -1788,6 +1837,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 100.0,
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00),
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('10/25/2020'),
 						'financing_period': 9,
 						'should_close_loan': False,
@@ -1809,6 +1859,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 100.0,
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00),
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
 						'financing_period': 11,
 						'should_close_loan': False,
@@ -1831,6 +1882,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 100.0,
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00),
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
 						'financing_period': 15,
 						'should_close_loan': False,
@@ -1924,6 +1976,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 100.0,
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00),
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('10/25/2020'),
 						'financing_period': 9,
 						'should_close_loan': False,
@@ -1948,6 +2001,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'fees_paid_daily_adjustment': abs(number_util.round_currency(1 * 0.05 * 100.00 * 0.25 - 3.0)), # What you overpaid for next month gets booked here in the fee adjustment
 						'amount_to_pay_interest_on': 100.0,
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00), # today
+						'fees_accrued_today': 0.05 * 100.00 * 0.25,
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
 						'financing_period': 11,
 						'should_close_loan': False,
@@ -1968,6 +2022,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_amount_to_pay_interest_on': 100.0,
 					'total_interest_accrued_today': 5.0,
 					'total_interest_paid_adjustment_today': 0.0,
+					'total_late_fees_accrued_today': 0.05 * 100.00 * 0.25,
 					'total_fees_paid_adjustment_today': abs(number_util.round_currency(1 * 0.05 * 100.00 * 0.25 - 3.0)),
 					'available_limit': 119980.01,
 					'minimum_interest_info': {'minimum_amount': 200.03, 'amount_accrued': 155.01, 'amount_short': 45.02, 'duration': 'monthly', 'prorated_info': {'numerator': 31, 'denom': 31, 'fraction': 1.0, 'day_to_pay': '10/31/2020'}},
@@ -1993,6 +2048,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'fees_paid_daily_adjustment': number_util.round_currency(1 * 0.05 * 100.00 * 0.25 - 3.0), # What you overpaid for last month gets booked here in the fee adjustment
 						'amount_to_pay_interest_on': 100.0,
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00), # today
+						'fees_accrued_today': 0.05 * 100.00 * 0.25,
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
 						'financing_period': 12,
 						'should_close_loan': False,
@@ -2017,6 +2073,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': number_util.round_currency(5 * 0.05 * 100.00 * 0.25 - 3.0),
 						'amount_to_pay_interest_on': 100.0,
 						'interest_accrued_today': number_util.round_currency(0.05 * 100.00), # No interest accrued today because of overlap with settling repayment
+						'fees_accrued_today': 0.05 * 100.00 * 0.25,
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
 						'financing_period': 15,
 						'should_close_loan': False,
@@ -2043,6 +2100,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'amount_to_pay_interest_on': 20.0,
 						# Interest begins to accrue again since we are outside the settlement window
 						'interest_accrued_today': number_util.round_currency(0.05 * 20.00),
+						'fees_accrued_today': 0.05 * 20.00 * 0.25,
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
 						'financing_period': 18,
 						'should_close_loan': False,
@@ -2139,6 +2197,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_principal_in_requested_state': 0.0,
 					'total_amount_to_pay_interest_on': 0.0,
 					'total_interest_accrued_today': 0.0,
+					'total_late_fees_accrued_today': 0.0,
 					'available_limit': 120000.01,
 					'minimum_interest_info': {
 						'minimum_amount': 1.03,
@@ -2171,6 +2230,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_principal_in_requested_state': 0.0,
 					'total_amount_to_pay_interest_on': 0.0,
 					'total_interest_accrued_today': 0.0,
+					'total_late_fees_accrued_today': 0.0,
 					'available_limit': 120000.01,
 					'minimum_interest_info': {
 						'minimum_amount': 1.03,
@@ -2292,6 +2352,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 500.0,
 						'interest_accrued_today': 500.0 * 0.002,
+						'fees_accrued_today': 0.0,
 						'financing_period': 2,
 						'day_last_repayment_settles': None,
 						'should_close_loan': False,
@@ -2311,6 +2372,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_principal_in_requested_state': 0.0,
 					'total_amount_to_pay_interest_on': 500.0,
 					'total_interest_accrued_today': 500.0 * 0.002,
+					'total_late_fees_accrued_today': 0.0,
 					'available_limit': 120000.0 - 500.0,
 					'minimum_interest_info': {
 						'duration': None,
@@ -2339,6 +2401,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 500.0,
 						'interest_accrued_today': 500.0 * 0.002,
+						'fees_accrued_today': 0.0,
 						'financing_period': 4,
 						'day_last_repayment_settles': date_util.load_date_str('10/04/2020'),
 						'should_close_loan': True,
@@ -2358,6 +2421,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_principal_in_requested_state': 0.0,
 					'total_amount_to_pay_interest_on': 500.0,
 					'total_interest_accrued_today': 500.0 * 0.002,
+					'total_late_fees_accrued_today': 0.0,
 					'available_limit': 120000.0,
 					'minimum_interest_info': {
 						'duration': None,
@@ -2386,6 +2450,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 500.0,
 						'interest_accrued_today': 500.0 * 0.002,
+						'fees_accrued_today': 0.0,
 						'financing_period': 4,
 						'day_last_repayment_settles': date_util.load_date_str('10/04/2020'),
 						'should_close_loan': True,
@@ -2405,6 +2470,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_principal_in_requested_state': 0.0,
 					'total_amount_to_pay_interest_on': 500.0,
 					'total_interest_accrued_today': 500.0 * 0.002,
+					'total_late_fees_accrued_today': 0.0,
 					'available_limit': 120000.0,
 					'minimum_interest_info': {
 						'duration': None,
@@ -2433,6 +2499,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 0.0,
 						'interest_accrued_today': 0.0,
+						'fees_accrued_today': 0.0,
 						'financing_period': 4,
 						'day_last_repayment_settles': date_util.load_date_str('10/04/2020'),
 						'should_close_loan': True,
@@ -2452,6 +2519,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_principal_in_requested_state': 0.0,
 					'total_amount_to_pay_interest_on': 0.0,
 					'total_interest_accrued_today': 0.0,
+					'total_late_fees_accrued_today': 0.0,
 					'available_limit': 120000.0,
 					'minimum_interest_info': {
 						'duration': None,
@@ -2741,6 +2809,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 500.03,
 						'interest_accrued_today': number_util.round_currency(0.002 * 500.03),
+						'fees_accrued_today': 0.0,
 						'financing_period': 2,
 						'day_last_repayment_settles': date_util.load_date_str('10/03/2020'),
 						'should_close_loan': False,
@@ -2760,6 +2829,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_principal_in_requested_state': 0.0,
 					'total_amount_to_pay_interest_on': 500.03,
 					'total_interest_accrued_today': number_util.round_currency(0.002 * 500.03),
+					'total_late_fees_accrued_today': 0.0,
 					'available_limit': 120000.01 - (450.03),
 					'minimum_interest_info': {
 							'minimum_amount': 1.03,
@@ -2791,6 +2861,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'amount_to_pay_interest_on': 500.03,
 						'day_last_repayment_settles': date_util.load_date_str('10/03/2020'),
 						'interest_accrued_today': number_util.round_currency(0.002 * 500.03), # The repayment takes effect after the 3rd
+						'fees_accrued_today': 0.0,
 						'financing_period': 3,
 						'should_close_loan': False,
 						'days_overdue': 0
@@ -2814,6 +2885,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': number_util.round_currency(((14 * daily_interest * 0.25) + (7 * daily_interest * 0.5)) + 2.0),
 						'amount_to_pay_interest_on': 450.03 - 1.0,
 						'interest_accrued_today': number_util.round_currency(daily_interest),
+						'fees_accrued_today': number_util.round_currency(daily_interest * 0.5),
 						'day_last_repayment_settles': date_util.load_date_str('10/03/2020'),
 						'financing_period': 26,
 						'should_close_loan': False,
@@ -2935,6 +3007,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 						'amount_to_pay_interest_on': 430.02,
 						'interest_accrued_today': number_util.round_currency(430.02 * 0.002),
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('10/03/2020'),
 						'financing_period': 2,
 						'should_close_loan': False,
@@ -2954,6 +3027,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_principal_in_requested_state': 0.0,
 					'total_amount_to_pay_interest_on': 430.02,
 					'total_interest_accrued_today': number_util.round_currency(430.02 * 0.002),
+					'total_late_fees_accrued_today': 0.0,
 					'available_limit': 120000.01 - (450.03),
 					'minimum_interest_info': {
 							'minimum_amount': 1.03,
@@ -2983,6 +3057,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						# first_two_days_carryover + settlement day, which doesnt include repayment (because repayment influence happens at the end of the settlement day)
 						'amount_to_pay_interest_on': 430.02,
 						'interest_accrued_today': number_util.round_currency(430.02 * 0.002 * 1),
+						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('10/03/2020'),
 						'financing_period': 3,
 						'should_close_loan': False,
@@ -3007,6 +3082,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						# - 1.0 is adjustment from principal
 						# + 2.0 is adjustment for interest
 						'interest_accrued_today': number_util.round_currency((430.02  - 51.1) * 0.002),
+						'fees_accrued_today': number_util.round_currency(daily_interest_after_repayment * 0.5),
 						'day_last_repayment_settles': date_util.load_date_str('10/03/2020'),
 						'financing_period': 26,
 						'should_close_loan': False,
@@ -3087,6 +3163,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				'total_principal_in_requested_state': 0.0,
 				'total_amount_to_pay_interest_on': 0.0,
 				'total_interest_accrued_today': 0.0,
+				'total_late_fees_accrued_today': 0.0,
 				'available_limit': 825000,
 				'minimum_interest_info': {
 					'minimum_amount': 1.03,
@@ -3237,6 +3314,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_principal_in_requested_state': 0.0,
 					'total_amount_to_pay_interest_on': 0.0,
 					'total_interest_accrued_today': 0.0,
+					'total_late_fees_accrued_today': 0.0,
 					'available_limit': 450000,
 					'minimum_interest_info': {
 						'duration': None,
@@ -3274,6 +3352,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_principal_in_requested_state': 0.0,
 					'total_amount_to_pay_interest_on': 0.0,
 					'total_interest_accrued_today': 0.0,
+					'total_late_fees_accrued_today': 0.0,
 					'available_limit': 450000,
 					'minimum_interest_info': {
 						'duration': None,
@@ -3311,6 +3390,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_principal_in_requested_state': 0.0,
 					'total_amount_to_pay_interest_on': 0.0,
 					'total_interest_accrued_today': 0.0,
+					'total_late_fees_accrued_today': 0.0,
 					'available_limit': 450000,
 					'minimum_interest_info': {
 						'duration': None,
@@ -3400,6 +3480,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				'total_principal_in_requested_state': 0.0,
 				'total_amount_to_pay_interest_on': 0.0,
 				'total_interest_accrued_today': 0.0,
+				'total_late_fees_accrued_today': 0.0,
 				'available_limit': 450000,
 				'minimum_interest_info': {
 					'duration': None,
@@ -3462,6 +3543,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				'total_principal_in_requested_state': 0.0,
 				'total_amount_to_pay_interest_on': 0.0,
 				'total_interest_accrued_today': 0.0,
+				'total_late_fees_accrued_today': 0.0,
 				'available_limit': 0.0,
 				'minimum_interest_info': {
 					'duration': None,

@@ -86,11 +86,13 @@ def set_needs_balance_recomputed(
 					adjusted_total_limit=decimal.Decimal(0.0),
 					total_outstanding_principal=decimal.Decimal(0.0),
 					total_outstanding_principal_for_interest=decimal.Decimal(0.0),
+					total_outstanding_principal_past_due=decimal.Decimal(0.0),
 					total_outstanding_interest=decimal.Decimal(0.0),
 					total_outstanding_fees=decimal.Decimal(0.0),
 					total_principal_in_requested_state=decimal.Decimal(0.0),
 					available_limit=decimal.Decimal(0.0),
 					interest_accrued_today=decimal.Decimal(0.0),
+					late_fees_accrued_today=decimal.Decimal(0.0),
 					minimum_monthly_payload={},
 					account_level_balance_payload={},
 				)
@@ -292,10 +294,12 @@ def compute_bank_financial_summaries(
 			adjusted_total_limit=decimal.Decimal(0.0),
 			total_outstanding_principal=decimal.Decimal(0.0),
 			total_outstanding_principal_for_interest=decimal.Decimal(0.0),
+			total_outstanding_principal_past_due=decimal.Decimal(0.0),
 			total_outstanding_interest=decimal.Decimal(0.0),
 			total_outstanding_fees=decimal.Decimal(0.0),
 			total_principal_in_requested_state=decimal.Decimal(0.0),
 			interest_accrued_today=decimal.Decimal(0.0),
+			late_fees_accrued_today=decimal.Decimal(0.0),
 			available_limit=decimal.Decimal(0.0),
 		)
 
@@ -310,9 +314,11 @@ def compute_bank_financial_summaries(
 		cur_bank_summary.adjusted_total_limit += decimal.Decimal(summary.adjusted_total_limit or 0)
 		cur_bank_summary.total_outstanding_principal += decimal.Decimal(summary.total_outstanding_principal or 0)
 		cur_bank_summary.total_outstanding_principal_for_interest += decimal.Decimal(summary.total_outstanding_principal_for_interest or 0)
+		cur_bank_summary.total_outstanding_principal_past_due += decimal.Decimal(summary.total_outstanding_principal_past_due or 0)
 		cur_bank_summary.total_outstanding_interest += decimal.Decimal(summary.total_outstanding_interest or 0)
 		cur_bank_summary.total_outstanding_fees += decimal.Decimal(summary.total_outstanding_fees or 0)
 		cur_bank_summary.interest_accrued_today += decimal.Decimal(summary.interest_accrued_today or 0)
+		cur_bank_summary.late_fees_accrued_today += decimal.Decimal(summary.late_fees_accrued_today or 0)
 		cur_bank_summary.total_principal_in_requested_state += decimal.Decimal(summary.total_principal_in_requested_state or 0)
 		cur_bank_summary.available_limit += decimal.Decimal(summary.available_limit or 0)
 
@@ -321,12 +327,13 @@ def compute_bank_financial_summaries(
 		cur_bank_summary.adjusted_total_limit = number_util.round_currency_decimal(cur_bank_summary.adjusted_total_limit)
 		cur_bank_summary.total_outstanding_principal = number_util.round_currency_decimal(cur_bank_summary.total_outstanding_principal)
 		cur_bank_summary.total_outstanding_principal_for_interest = number_util.round_currency_decimal(cur_bank_summary.total_outstanding_principal_for_interest)
+		cur_bank_summary.total_outstanding_principal_past_due = number_util.round_currency_decimal(cur_bank_summary.total_outstanding_principal_past_due)
 		cur_bank_summary.total_outstanding_interest = number_util.round_currency_decimal(cur_bank_summary.total_outstanding_interest)
 		cur_bank_summary.total_outstanding_fees = number_util.round_currency_decimal(cur_bank_summary.total_outstanding_fees)
 		cur_bank_summary.total_principal_in_requested_state = number_util.round_currency_decimal(cur_bank_summary.total_principal_in_requested_state)
 		cur_bank_summary.interest_accrued_today = number_util.round_currency_decimal(cur_bank_summary.interest_accrued_today)
+		cur_bank_summary.late_fees_accrued_today = number_util.round_currency_decimal(cur_bank_summary.late_fees_accrued_today)
 		cur_bank_summary.available_limit = number_util.round_currency_decimal(cur_bank_summary.available_limit)
-
 
 	return product_type_to_bank_summary.values(), None
 

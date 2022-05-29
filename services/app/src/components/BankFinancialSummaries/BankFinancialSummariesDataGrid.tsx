@@ -1,12 +1,11 @@
-import { ValueFormatterParams } from "@material-ui/data-grid";
+import { RowsProp } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import { BankFinancialSummaryFragment } from "generated/graphql";
 import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
-import { ColumnWidths } from "lib/tables";
+import { ColumnWidths, formatRowModel } from "lib/tables";
+import { formatCurrency, formatPercentage } from "lib/number";
 import { useMemo } from "react";
 import CSS from "csstype";
-import { formatCurrency } from "lib/number";
 
 interface Props {
   bankFinancialSummaries: BankFinancialSummaryFragment[];
@@ -37,74 +36,96 @@ function DefineCellStyle(col: Number) {
   return cellStyle;
 }
 
+function getRows(
+  bankFinancialSummaries: BankFinancialSummaryFragment[]
+): RowsProp {
+  return bankFinancialSummaries.map((bankFinancialSummary) => {
+    return formatRowModel({
+      ...bankFinancialSummary,
+      product_type:
+        ProductTypeToLabel[
+          bankFinancialSummary.product_type as ProductTypeEnum
+        ],
+      total_outstanding_principal: formatCurrency(
+        bankFinancialSummary.total_outstanding_principal
+      ),
+      total_outstanding_principal_past_due: formatCurrency(
+        bankFinancialSummary.total_outstanding_principal_past_due
+      ),
+      total_outstanding_principal_percentage_past_due: formatPercentage(
+        !!bankFinancialSummary.total_outstanding_principal &&
+          bankFinancialSummary.total_outstanding_principal > 0
+          ? (bankFinancialSummary.total_outstanding_principal_past_due || 0) /
+              bankFinancialSummary.total_outstanding_principal
+          : 0
+      ),
+      total_outstanding_interest: formatCurrency(
+        bankFinancialSummary.total_outstanding_interest
+      ),
+      total_outstanding_fees: formatCurrency(
+        bankFinancialSummary.total_outstanding_fees
+      ),
+      total_principal_in_requested_state: formatCurrency(
+        bankFinancialSummary.total_principal_in_requested_state
+      ),
+      available_limit: formatCurrency(bankFinancialSummary.available_limit),
+      adjusted_total_limit: formatCurrency(
+        bankFinancialSummary.adjusted_total_limit
+      ),
+    });
+  });
+}
+
 export default function BankFinancialSummariesDataGrid({
   bankFinancialSummaries,
 }: Props) {
-  const rows = bankFinancialSummaries;
+  const rows = getRows(bankFinancialSummaries);
   const columns = useMemo(
     () => [
       {
         dataField: "product_type",
         caption: "Product Type",
         width: ColumnWidths.ProductType,
-        cellRender: (params: ValueFormatterParams) =>
-          ProductTypeToLabel[params.row.data.product_type as ProductTypeEnum],
       },
       {
         dataField: "total_outstanding_principal",
         caption: "Outstanding Principal",
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell
-            value={params.row.data.total_outstanding_principal}
-          />
-        ),
       },
       {
         dataField: "total_outstanding_interest",
         caption: "Outstanding Interest",
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell
-            value={params.row.data.total_outstanding_interest}
-          />
-        ),
       },
       {
         dataField: "total_outstanding_fees",
         caption: "Outstanding Late Fees",
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell
-            value={params.row.data.total_outstanding_fees}
-          />
-        ),
       },
       {
         dataField: "total_principal_in_requested_state",
         caption: "Principal in Requested State",
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell
-            value={params.row.data.total_principal_in_requested_state}
-          />
-        ),
+      },
+      {
+        dataField: "total_outstanding_principal_past_due",
+        caption: "Outstanding Principal Past Due",
+        alignment: "right",
+      },
+      {
+        dataField: "total_outstanding_principal_percentage_past_due",
+        caption: "Outstanding Principal % Past Due",
+        alignment: "right",
       },
       {
         dataField: "available_limit",
         caption: "Available Limit",
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.available_limit} />
-        ),
       },
       {
         dataField: "adjusted_total_limit",
         caption: "Total Limit",
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.adjusted_total_limit} />
-        ),
       },
     ],
     []
@@ -122,8 +143,17 @@ export default function BankFinancialSummariesDataGrid({
     borderSpacing: 0,
   };
 
+  const totalOutstandingPrincipal = bankFinancialSummaries.reduce(
+    (sum, current) => sum + current.total_outstanding_principal,
+    0
+  );
+  const totalOutstandingPrincipalPastDue = bankFinancialSummaries.reduce(
+    (sum, current) => sum + (current.total_outstanding_principal_past_due || 0),
+    0
+  );
+
   const summationRow =
-    rows.length === 0 ? (
+    bankFinancialSummaries.length === 0 ? (
       <></>
     ) : (
       <table
@@ -143,16 +173,11 @@ export default function BankFinancialSummariesDataGrid({
               Total
             </td>
             <td style={DefineCellStyle(2)} role="gridcell" aria-colindex={2}>
-              {formatCurrency(
-                rows.reduce(
-                  (sum, current) => sum + current.total_outstanding_principal,
-                  0
-                )
-              )}
+              {formatCurrency(totalOutstandingPrincipal)}
             </td>
             <td style={DefineCellStyle(3)} role="gridcell" aria-colindex={3}>
               {formatCurrency(
-                rows.reduce(
+                bankFinancialSummaries.reduce(
                   (sum, current) => sum + current.total_outstanding_interest,
                   0
                 )
@@ -160,7 +185,7 @@ export default function BankFinancialSummariesDataGrid({
             </td>
             <td style={DefineCellStyle(4)} role="gridcell" aria-colindex={4}>
               {formatCurrency(
-                rows.reduce(
+                bankFinancialSummaries.reduce(
                   (sum, current) => sum + current.total_outstanding_fees,
                   0
                 )
@@ -168,21 +193,34 @@ export default function BankFinancialSummariesDataGrid({
             </td>
             <td style={DefineCellStyle(5)} role="gridcell" aria-colindex={5}>
               {formatCurrency(
-                rows.reduce(
+                bankFinancialSummaries.reduce(
                   (sum, current) =>
                     sum + current.total_principal_in_requested_state,
                   0
                 )
               )}
             </td>
+            <td style={DefineCellStyle(4)} role="gridcell" aria-colindex={4}>
+              {formatCurrency(totalOutstandingPrincipalPastDue)}
+            </td>
+            <td style={DefineCellStyle(4)} role="gridcell" aria-colindex={4}>
+              {formatPercentage(
+                !!totalOutstandingPrincipal && totalOutstandingPrincipal > 0
+                  ? totalOutstandingPrincipalPastDue / totalOutstandingPrincipal
+                  : 0
+              )}
+            </td>
             <td style={DefineCellStyle(6)} role="gridcell" aria-colindex={6}>
               {formatCurrency(
-                rows.reduce((sum, current) => sum + current.available_limit, 0)
+                bankFinancialSummaries.reduce(
+                  (sum, current) => sum + current.available_limit,
+                  0
+                )
               )}
             </td>
             <td style={DefineCellStyle(7)} role="gridcell" aria-colindex={7}>
               {formatCurrency(
-                rows.reduce(
+                bankFinancialSummaries.reduce(
                   (sum, current) => sum + current.adjusted_total_limit,
                   0
                 )

@@ -471,7 +471,7 @@ def _get_interest_and_fees_due_on_day(
 	contract_helper: contract_util.ContractHelper,
 	cur_date: datetime.date,
 	input_dict: CalculateInterestInputDict,
-	balances: CalculatorBalances
+	balances: CalculatorBalances,
 ) -> Tuple[InterestFeeInfoDict, errors.Error]:
 	threshold_info = input_dict['threshold_info']
 	loan = input_dict['loan']
@@ -486,16 +486,11 @@ def _get_interest_and_fees_due_on_day(
 	if err:
 		return None, err
 
-	cur_contract_start_date, err = cur_contract.get_start_date()
-	if err:
-		return None, err
-
 	product_type, err = cur_contract.get_product_type()
 	if err:
 		return None, err
 
 	# Fees
-	fees_due_today = 0.0
 	fee_multiplier = 0.0
 	#print('Cur DATE {} Outstanding principal {} Principal for interest {}'.format(
 	#		cur_date, outstanding_principal, outstanding_principal_for_interest))
@@ -506,7 +501,7 @@ def _get_interest_and_fees_due_on_day(
 		if err:
 			return None, err
 	else:
-		# Fees do not accrue on the day of the maturity date
+		# Note: late fees do not accrue on the day of the maturity date.
 		pass
 
 	# NOTE: divide money into amount above threshold and amount below threshold
@@ -561,7 +556,7 @@ def _get_interest_and_fees_due_on_day(
 		interest_due_for_day=interest_due_for_day,
 		interest_rate_used=interest_rate_used,
 		fee_due_for_day=fee_due_for_day,
-		fee_multiplier=fee_multiplier
+		fee_multiplier=fee_multiplier,
 	), None
 
 def _update_at_beginning_of_day(

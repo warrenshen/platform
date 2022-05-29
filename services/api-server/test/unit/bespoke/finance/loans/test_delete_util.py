@@ -113,14 +113,16 @@ class TestDeleteLoan(db_unittest.TestCase):
 				adjusted_total_limit=decimal.Decimal(100.0),
 				total_outstanding_principal=decimal.Decimal(50.0),
 				total_outstanding_principal_for_interest=decimal.Decimal(60.0),
+				total_outstanding_principal_past_due=decimal.Decimal(0.0),
 				total_outstanding_interest=decimal.Decimal(12.50),
 				total_outstanding_fees=decimal.Decimal(5.25),
 				total_principal_in_requested_state=decimal.Decimal(3.15),
 				available_limit=decimal.Decimal(1000.00),
 				interest_accrued_today=decimal.Decimal(2.1),
+				late_fees_accrued_today=decimal.Decimal(0.0),
 				minimum_monthly_payload={},
 				account_level_balance_payload={},
-				product_type="Inventory Financing"
+				product_type=db_constants.ProductType.INVENTORY_FINANCING,
 			)
 			session.add(financial_summary)
 			session.flush()

@@ -101,6 +101,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 					self.assertEqual(expected.total_principal_in_requested_state, received.total_principal_in_requested_state)
 					self.assertEqual(expected.available_limit, received.available_limit)
 					self.assertEqual(expected.interest_accrued_today, received.interest_accrued_today)
+					self.assertEqual(expected.late_fees_accrued_today, received.late_fees_accrued_today)
 					self.assertEqual(expected.product_type, received.product_type)
 			else:
 				self.assertEqual(statements, expected_summaries)
@@ -168,6 +169,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 			total_principal_in_requested_state=decimal.Decimal(3.15),
 			available_limit=decimal.Decimal(25.00),
 			interest_accrued_today=decimal.Decimal(2.1),
+			late_fees_accrued_today=decimal.Decimal(0.0),
 			minimum_monthly_payload={},
 			account_level_balance_payload={},
 			product_type=product_type
@@ -186,6 +188,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 			total_principal_in_requested_state=decimal.Decimal(13.15),
 			available_limit=decimal.Decimal(125.00),
 			interest_accrued_today=decimal.Decimal(12.1),
+			late_fees_accrued_today=decimal.Decimal(0.0),
 			minimum_monthly_payload={},
 			account_level_balance_payload={},
 			product_type=product_type
@@ -213,6 +216,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_fees=decimal.Decimal(0),
 				total_principal_in_requested_state=decimal.Decimal(0),
 				interest_accrued_today=decimal.Decimal(0),
+				late_fees_accrued_today=decimal.Decimal(0),
 				available_limit=decimal.Decimal(0)
 			),
 			models.BankFinancialSummary(
@@ -225,6 +229,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_fees=decimal.Decimal(0),
 				total_principal_in_requested_state=decimal.Decimal(0),
 				interest_accrued_today=decimal.Decimal(0),
+				late_fees_accrued_today=decimal.Decimal(0),
 				available_limit=decimal.Decimal(0)
 			),
 			models.BankFinancialSummary(
@@ -237,6 +242,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_fees=decimal.Decimal(0),
 				total_principal_in_requested_state=decimal.Decimal(0),
 				interest_accrued_today=decimal.Decimal(0),
+				late_fees_accrued_today=decimal.Decimal(0),
 				available_limit=decimal.Decimal(0),
 			),
 			models.BankFinancialSummary(
@@ -249,6 +255,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_fees=decimal.Decimal(0),
 				total_principal_in_requested_state=decimal.Decimal(0),
 				interest_accrued_today=decimal.Decimal(0),
+				late_fees_accrued_today=decimal.Decimal(0),
 				available_limit=decimal.Decimal(0),
 			),
 			models.BankFinancialSummary(
@@ -261,6 +268,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_fees=decimal.Decimal(5.25),
 				total_principal_in_requested_state=round(decimal.Decimal(3.15), 2),
 				interest_accrued_today=round(decimal.Decimal(2.10), 2),
+				late_fees_accrued_today=decimal.Decimal(0.0),
 				available_limit=decimal.Decimal(25.00),
 			),
 		], expected_error=None)
@@ -282,6 +290,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_fees=decimal.Decimal(0),
 				total_principal_in_requested_state=decimal.Decimal(0),
 				interest_accrued_today=decimal.Decimal(0),
+				late_fees_accrued_today=decimal.Decimal(0),
 				available_limit=decimal.Decimal(0)
 			),
 			models.BankFinancialSummary(
@@ -294,6 +303,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_fees=decimal.Decimal(10.50),
 				total_principal_in_requested_state=round(decimal.Decimal(2 * 3.15), 2),
 				interest_accrued_today=round(decimal.Decimal(2 * 2.10), 2),
+				late_fees_accrued_today=decimal.Decimal(0.0),
 				available_limit=decimal.Decimal(50.0),
 			),
 			models.BankFinancialSummary(
@@ -306,6 +316,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_fees=decimal.Decimal(0),
 				total_principal_in_requested_state=decimal.Decimal(0),
 				interest_accrued_today=decimal.Decimal(0),
+				late_fees_accrued_today=decimal.Decimal(0),
 				available_limit=decimal.Decimal(0),
 			),
 			models.BankFinancialSummary(
@@ -318,6 +329,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_fees=decimal.Decimal(0),
 				total_principal_in_requested_state=decimal.Decimal(0),
 				interest_accrued_today=decimal.Decimal(0),
+				late_fees_accrued_today=decimal.Decimal(0),
 				available_limit=decimal.Decimal(0),
 			),
 			models.BankFinancialSummary(
@@ -330,6 +342,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_fees=decimal.Decimal(0),
 				total_principal_in_requested_state=decimal.Decimal(0),
 				interest_accrued_today=decimal.Decimal(0),
+				late_fees_accrued_today=decimal.Decimal(0),
 				available_limit=decimal.Decimal(0),
 			),
 		], expected_error=None)
@@ -354,6 +367,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_fees=decimal.Decimal(0),
 				total_principal_in_requested_state=decimal.Decimal(0),
 				interest_accrued_today=decimal.Decimal(0),
+				late_fees_accrued_today=decimal.Decimal(0),
 				available_limit=decimal.Decimal(0)
 			),
 			models.BankFinancialSummary(
@@ -366,6 +380,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_fees=decimal.Decimal(5.25),
 				total_principal_in_requested_state=round(decimal.Decimal(3.15), 2),
 				interest_accrued_today=round(decimal.Decimal(2.10), 2),
+				late_fees_accrued_today=decimal.Decimal(0.0),
 				available_limit=decimal.Decimal(25.00),
 			),
 			models.BankFinancialSummary(
@@ -378,6 +393,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_fees=decimal.Decimal(0),
 				total_principal_in_requested_state=decimal.Decimal(0),
 				interest_accrued_today=decimal.Decimal(0),
+				late_fees_accrued_today=decimal.Decimal(0),
 				available_limit=decimal.Decimal(0),
 			),
 			models.BankFinancialSummary(
@@ -390,6 +406,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_fees=decimal.Decimal(5.25),
 				total_principal_in_requested_state=round(decimal.Decimal(3.15), 2),
 				interest_accrued_today=round(decimal.Decimal(2.10), 2),
+				late_fees_accrued_today=decimal.Decimal(0.0),
 				available_limit=decimal.Decimal(25.00),
 			),
 			models.BankFinancialSummary(
@@ -402,6 +419,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_fees=decimal.Decimal(0),
 				total_principal_in_requested_state=decimal.Decimal(0),
 				interest_accrued_today=decimal.Decimal(0),
+				late_fees_accrued_today=decimal.Decimal(0),
 				available_limit=decimal.Decimal(0),
 			),
 		], expected_error=None)

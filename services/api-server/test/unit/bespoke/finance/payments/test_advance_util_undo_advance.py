@@ -125,6 +125,7 @@ class TestUndoAdvance(db_unittest.TestCase):
 				total_principal_in_requested_state=decimal.Decimal(3.15),
 				available_limit=decimal.Decimal(1000.00),
 				interest_accrued_today=decimal.Decimal(2.1),
+				late_fees_accrued_today=decimal.Decimal(0.0),
 				minimum_monthly_payload={},
 				account_level_balance_payload={},
 				product_type="Inventory Financing"

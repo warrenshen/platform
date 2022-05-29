@@ -1093,12 +1093,14 @@ class BankFinancialSummary(Base):
 	total_limit = Column(Numeric, nullable=False)
 	total_outstanding_principal = Column(Numeric, nullable=False)
 	total_outstanding_principal_for_interest = Column(Numeric, nullable=False)
+	total_outstanding_principal_past_due = Column(Numeric, nullable=False)
 	total_outstanding_interest = Column(Numeric, nullable=False)
 	total_outstanding_fees = Column(Numeric, nullable=False)
 	total_principal_in_requested_state = Column(Numeric, nullable=False)
 	available_limit = Column(Numeric, nullable=False)
 	adjusted_total_limit = Column(Numeric, nullable=False)
 	interest_accrued_today = Column(Numeric, nullable=False)
+	late_fees_accrued_today = Column(Numeric, nullable=False)
 
 ProratedFeeInfoDict = TypedDict('ProratedFeeInfoDict', {
 	'numerator': int,
@@ -1140,6 +1142,7 @@ class FinancialSummary(Base):
 	account_level_balance_payload = Column(JSON, nullable=False)
 	day_volume_threshold_met = Column(Date)
 	interest_accrued_today = Column(Numeric, nullable=False)
+	late_fees_accrued_today = Column(Numeric, nullable=False)
 
 	product_type = Column(Text)
 	daily_interest_rate = Column(Numeric)

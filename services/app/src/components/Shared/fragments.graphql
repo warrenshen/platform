@@ -187,6 +187,7 @@ fragment FinancialSummary on financial_summaries {
   account_level_balance_payload
   day_volume_threshold_met
   interest_accrued_today
+  late_fees_accrued_today
   needs_recompute
   minimum_interest_duration
   minimum_interest_amount

@@ -48,6 +48,7 @@ SummaryUpdateDict = TypedDict('SummaryUpdateDict', {
 	'total_amount_to_pay_interest_on': float,
 	'total_interest_accrued_today': float,
 	'total_interest_paid_adjustment_today': float,
+	'total_late_fees_accrued_today': float,
 	'total_fees_paid_adjustment_today': float,
 	'available_limit': float,
 	'minimum_interest_info': MinimumInterestInfoDict,
@@ -216,6 +217,7 @@ def _get_summary_update(
 	total_amount_to_pay_interest_on = 0.0
 	total_interest_accrued_today = 0.0
 	total_interest_paid_adjustment_today = 0.0
+	total_late_fees_accrued_today = 0.0
 	total_fees_paid_adjustment_today = 0.0
 
 	most_overdue_loan_days = 0
@@ -229,6 +231,7 @@ def _get_summary_update(
 		total_amount_to_pay_interest_on += l['amount_to_pay_interest_on']
 		total_interest_accrued_today += l['interest_accrued_today']
 		total_interest_paid_adjustment_today += l['interest_paid_daily_adjustment']
+		total_late_fees_accrued_today += l['fees_accrued_today']
 		total_fees_paid_adjustment_today += l['fees_paid_daily_adjustment']
 
 		days_overdue_candidate = int(l['days_overdue'])
@@ -256,6 +259,7 @@ def _get_summary_update(
 		total_amount_to_pay_interest_on=total_amount_to_pay_interest_on,
 		total_interest_accrued_today=total_interest_accrued_today,
 		total_interest_paid_adjustment_today=total_interest_paid_adjustment_today,
+		total_late_fees_accrued_today=total_late_fees_accrued_today,
 		total_fees_paid_adjustment_today=total_fees_paid_adjustment_today,
 		available_limit=max(0.0, adjusted_total_limit - total_outstanding_principal),
 		minimum_interest_info=minimum_interest_info,
@@ -599,6 +603,7 @@ class CustomerBalance(object):
 			financial_summary.total_amount_to_pay_interest_on = decimal.Decimal(number_util.round_currency(summary_update['total_amount_to_pay_interest_on']))
 			financial_summary.interest_accrued_today = decimal.Decimal(number_util.round_currency_to_five_digits(summary_update['total_interest_accrued_today']))
 			financial_summary.total_interest_paid_adjustment_today = decimal.Decimal(number_util.round_currency(summary_update['total_interest_paid_adjustment_today']))
+			financial_summary.late_fees_accrued_today = decimal.Decimal(number_util.round_currency_to_five_digits(summary_update['total_late_fees_accrued_today']))
 			financial_summary.total_fees_paid_adjustment_today = decimal.Decimal(number_util.round_currency(summary_update['total_fees_paid_adjustment_today']))
 			financial_summary.available_limit = decimal.Decimal(number_util.round_currency(summary_update['available_limit']))
 			financial_summary.minimum_monthly_payload = minimum_interest_info

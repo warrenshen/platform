@@ -176,6 +176,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					total_principal_in_requested_state=summary["total_principal_in_requested_state"],
 					available_limit=summary["available_limit"],
 					interest_accrued_today=summary["interest_accrued_today"],
+					late_fees_accrued_today=summary["late_fees_accrued_today"],
 					minimum_monthly_payload=summary["minimum_monthly_payload"],
 					account_level_balance_payload=summary["account_level_balance_payload"],
 					product_type=summary["product_type"]
@@ -488,6 +489,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'total_principal_in_requested_state': decimal.Decimal(3.15),
 						'available_limit': decimal.Decimal(1000.00),
 						'interest_accrued_today': decimal.Decimal(2.1),
+						'late_fees_accrued_today': decimal.Decimal(0.0),
 						'minimum_monthly_payload': {},
 						'account_level_balance_payload': {},
 						'product_type': 'Inventory Financing'
@@ -613,6 +615,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'total_principal_in_requested_state': decimal.Decimal(3.15),
 						'available_limit': decimal.Decimal(1000.00),
 						'interest_accrued_today': decimal.Decimal(2.1),
+						'late_fees_accrued_today': decimal.Decimal(0.0),
 						'minimum_monthly_payload': {},
 						'account_level_balance_payload': {},
 						'product_type': 'Inventory Financing'
@@ -816,6 +819,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'total_principal_in_requested_state': decimal.Decimal(3.15),
 						'available_limit': decimal.Decimal(10000.00),
 						'interest_accrued_today': decimal.Decimal(2.1),
+						'late_fees_accrued_today': decimal.Decimal(0.0),
 						'minimum_monthly_payload': {},
 						'account_level_balance_payload': {},
 						'product_type': 'Inventory Financing',
@@ -833,6 +837,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'total_principal_in_requested_state': decimal.Decimal(3.15),
 						'available_limit': decimal.Decimal(10000.00),
 						'interest_accrued_today': decimal.Decimal(2.1),
+						'late_fees_accrued_today': decimal.Decimal(0.0),
 						'minimum_monthly_payload': {},
 						'account_level_balance_payload': {},
 						'product_type': 'Inventory Financing',
@@ -970,6 +975,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'total_principal_in_requested_state': decimal.Decimal(3.15),
 						'available_limit': decimal.Decimal(1000.00),
 						'interest_accrued_today': decimal.Decimal(2.1),
+						'late_fees_accrued_today': decimal.Decimal(0.0),
 						'minimum_monthly_payload': {},
 						'account_level_balance_payload': {},
 						'product_type': 'Inventory Financing'
@@ -1057,6 +1063,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'total_principal_in_requested_state': decimal.Decimal(3.15),
 						'available_limit': decimal.Decimal(1000.00),
 						'interest_accrued_today': decimal.Decimal(2.1),
+						'late_fees_accrued_today': decimal.Decimal(0.0),
 						'minimum_monthly_payload': {},
 						'account_level_balance_payload': {},
 						'product_type': 'Inventory Financing'
@@ -1163,6 +1170,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				total_principal_in_requested_state=decimal.Decimal(3.15),
 				available_limit=decimal.Decimal(1000.00),
 				interest_accrued_today=decimal.Decimal(2.1),
+				late_fees_accrued_today=decimal.Decimal(0.0),
 				minimum_monthly_payload={},
 				account_level_balance_payload={},
 				product_type="Inventory Financing"
@@ -1221,6 +1229,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				total_principal_in_requested_state=decimal.Decimal(3.15),
 				available_limit=decimal.Decimal(1000.00),
 				interest_accrued_today=decimal.Decimal(2.1),
+				late_fees_accrued_today=decimal.Decimal(0.0),
 				minimum_monthly_payload={},
 				account_level_balance_payload={},
 				product_type="Inventory Financing"
@@ -1282,6 +1291,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				total_principal_in_requested_state=decimal.Decimal(3.15),
 				available_limit=decimal.Decimal(1000.00),
 				interest_accrued_today=decimal.Decimal(2.1),
+				late_fees_accrued_today=decimal.Decimal(0.0),
 				minimum_monthly_payload={},
 				account_level_balance_payload={},
 				product_type="Inventory Financing"
@@ -1367,6 +1377,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				total_principal_in_requested_state=decimal.Decimal(3.15),
 				available_limit=decimal.Decimal(25.00),
 				interest_accrued_today=decimal.Decimal(2.1),
+				late_fees_accrued_today=decimal.Decimal(0.0),
 				minimum_monthly_payload={},
 				account_level_balance_payload={},
 				product_type="Inventory Financing"
@@ -1452,6 +1463,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				total_principal_in_requested_state=decimal.Decimal(3.15),
 				available_limit=decimal.Decimal(25.00),
 				interest_accrued_today=decimal.Decimal(2.1),
+				late_fees_accrued_today=decimal.Decimal(0.0),
 				minimum_monthly_payload={},
 				account_level_balance_payload={},
 				product_type="Inventory Financing"
@@ -1596,6 +1608,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'total_principal_in_requested_state': decimal.Decimal(3.15),
 						'available_limit': decimal.Decimal(1000.00),
 						'interest_accrued_today': decimal.Decimal(2.1),
+						'late_fees_accrued_today': decimal.Decimal(0.0),
 						'minimum_monthly_payload': {},
 						'account_level_balance_payload': {},
 						'product_type': 'Inventory Financing'
@@ -1685,6 +1698,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'total_principal_in_requested_state': decimal.Decimal(3.15),
 						'available_limit': decimal.Decimal(1000.00),
 						'interest_accrued_today': decimal.Decimal(2.1),
+						'late_fees_accrued_today': decimal.Decimal(0.0),
 						'minimum_monthly_payload': {},
 						'account_level_balance_payload': {},
 						'product_type': 'Inventory Financing'
@@ -1852,6 +1866,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'total_principal_in_requested_state': decimal.Decimal(3.15),
 						'available_limit': decimal.Decimal(1000.00),
 						'interest_accrued_today': decimal.Decimal(2.1),
+						'late_fees_accrued_today': decimal.Decimal(0.0),
 						'minimum_monthly_payload': {},
 						'account_level_balance_payload': {},
 						'product_type': 'Inventory Financing'
@@ -2141,6 +2156,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'total_principal_in_requested_state': decimal.Decimal(3.15),
 						'available_limit': decimal.Decimal(1000.00),
 						'interest_accrued_today': decimal.Decimal(2.1),
+						'late_fees_accrued_today': decimal.Decimal(0.0),
 						'minimum_monthly_payload': {},
 						'account_level_balance_payload': {},
 						'product_type': 'Inventory Financing'

@@ -59,6 +59,7 @@ def add_financial_summaries_for_company(
 		account_level_balance_payload = {},
 		day_volume_threshold_met = None,
 		interest_accrued_today = Decimal(0.0),
+		late_fees_accrued_today = Decimal(0.0),
 		product_type = None,
 		needs_recompute = False,
 		days_to_compute_back = None
@@ -82,6 +83,7 @@ def add_financial_summaries_for_company(
 		account_level_balance_payload = {},
 		day_volume_threshold_met = None,
 		interest_accrued_today = Decimal(0.0),
+		late_fees_accrued_today = Decimal(0.0),
 		product_type = None,
 		needs_recompute = False,
 		days_to_compute_back = None
@@ -105,6 +107,7 @@ def add_financial_summaries_for_company(
 		account_level_balance_payload = {},
 		day_volume_threshold_met = None,
 		interest_accrued_today = Decimal(0.0),
+		late_fees_accrued_today = Decimal(0.0),
 		product_type = None,
 		needs_recompute = False,
 		days_to_compute_back = None
@@ -344,6 +347,7 @@ def setup_data_for_cmi_and_mmf(
 		account_level_balance_payload = {},
 		day_volume_threshold_met = None,
 		interest_accrued_today = Decimal(0.0),
+		late_fees_accrued_today = Decimal(0.0),
 		product_type = None,
 		needs_recompute = False,
 		days_to_compute_back = None
@@ -366,6 +370,7 @@ def setup_data_for_cmi_and_mmf(
 		account_level_balance_payload = {},
 		day_volume_threshold_met = None,
 		interest_accrued_today = Decimal(7000.0),
+		late_fees_accrued_today = Decimal(0.0),
 		product_type = None,
 		needs_recompute = False,
 		days_to_compute_back = None
@@ -388,6 +393,7 @@ def setup_data_for_cmi_and_mmf(
 		account_level_balance_payload = {},
 		day_volume_threshold_met = None,
 		interest_accrued_today = Decimal(10000.0),
+		late_fees_accrued_today = Decimal(0.0),
 		product_type = None,
 		needs_recompute = False,
 		days_to_compute_back = None
@@ -413,6 +419,7 @@ def setup_data_for_cmi_and_mmf(
 		},
 		day_volume_threshold_met = None,
 		interest_accrued_today = Decimal(5000.0),
+		late_fees_accrued_today = Decimal(0.0),
 		product_type = None,
 		needs_recompute = False,
 		days_to_compute_back = None
@@ -436,6 +443,7 @@ def setup_data_for_cmi_and_mmf(
 			account_level_balance_payload = {},
 			day_volume_threshold_met = None,
 			interest_accrued_today = Decimal(5000.0),
+			late_fees_accrued_today = Decimal(0.0),
 			product_type = None,
 			needs_recompute = False,
 			days_to_compute_back = None
@@ -458,6 +466,7 @@ def setup_data_for_cmi_and_mmf(
 			account_level_balance_payload = {},
 			day_volume_threshold_met = None,
 			interest_accrued_today = Decimal(5000.0),
+			late_fees_accrued_today = Decimal(0.0),
 			product_type = None,
 			needs_recompute = False,
 			days_to_compute_back = None

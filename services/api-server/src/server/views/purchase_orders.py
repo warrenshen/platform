@@ -234,8 +234,8 @@ class RespondToApprovalRequestView(MethodView):
 			purchase_order = cast(
 				models.PurchaseOrder,
 				session.query(models.PurchaseOrder).filter_by(
-					id=purchase_order_id).first()
-			)
+					id=purchase_order_id
+				).first())
 
 			if new_request_status == RequestStatusEnum.APPROVED:
 				purchase_order.status = RequestStatusEnum.APPROVED

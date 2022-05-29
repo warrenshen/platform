@@ -5,36 +5,40 @@ select_permissions:
   - role: bank_admin
     permission:
       columns:
-        - adjusted_total_limit
-        - available_limit
-        - created_at
-        - date
         - id
-        - interest_accrued_today
+        - date
         - product_type
         - total_limit
-        - total_outstanding_fees
-        - total_outstanding_interest
         - total_outstanding_principal
-        - total_outstanding_principal_for_interest
+        - total_outstanding_interest
         - total_principal_in_requested_state
+        - available_limit
+        - total_outstanding_fees
+        - adjusted_total_limit
+        - total_outstanding_principal_for_interest
+        - created_at
         - updated_at
+        - interest_accrued_today
+        - late_fees_accrued_today
+        - total_outstanding_principal_past_due
       filter: {}
   - role: bank_read_only
     permission:
       columns:
+        - date
         - adjusted_total_limit
         - available_limit
-        - created_at
-        - date
-        - id
         - interest_accrued_today
-        - product_type
+        - late_fees_accrued_today
         - total_limit
         - total_outstanding_fees
         - total_outstanding_interest
         - total_outstanding_principal
         - total_outstanding_principal_for_interest
+        - total_outstanding_principal_past_due
         - total_principal_in_requested_state
+        - product_type
+        - created_at
         - updated_at
+        - id
       filter: {}

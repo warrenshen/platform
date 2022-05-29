@@ -369,7 +369,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 		session : Session,
 		company_id : str,
 		rgc: ReportGenerationContext
-		) -> Optional[models.FinancialSummary]:
+	) -> Optional[models.FinancialSummary]:
 		financial_summary = cast(
 			models.FinancialSummary,
 			session.query(models.FinancialSummary).filter(
