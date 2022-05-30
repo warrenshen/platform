@@ -12,12 +12,13 @@ import {
   createStyles,
   makeStyles,
 } from "@material-ui/core";
+import AutocompleteReportingRequirements from "components/Settings/Bank/AutocompleteReportingRequirements";
 import { CompanySettings } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { upsertFeatureFlagsMutation } from "lib/api/companies";
 import { getFeatureFlagDescription, getFeatureFlagName } from "lib/companies";
-import { AllFeatureFlags, FeatureFlagEnum } from "lib/enum";
+import { FeatureFlagEnum } from "lib/enum";
 import { ChangeEvent, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -33,7 +34,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   companySettingsId: CompanySettings["id"];
-  featureFlagsPayload: { [key in FeatureFlagEnum]: boolean | null };
+  featureFlagsPayload: { [key in FeatureFlagEnum]: boolean | string | null };
   handleClose: () => void;
 }
 
@@ -45,8 +46,8 @@ export default function UpsertFeatureFlagsModal({
   const classes = useStyles();
   const snackbar = useSnackbar();
 
-  const [featureFlagsJson, setFeatureFlagsJson] = useState(featureFlagsPayload);
-
+  const [featureFlagsJson, setFeatureFlagsJson] =
+    useState<Record<string, string | boolean | null>>(featureFlagsPayload);
   const [errorMessage, setErrorMessage] = useState("");
 
   const [upsertFeatureFlags, { loading: isUpsertFeatureFlagsLoading }] =
@@ -59,6 +60,7 @@ export default function UpsertFeatureFlagsModal({
         feature_flags_payload: featureFlagsJson,
       },
     });
+
     if (response.status !== "OK") {
       setErrorMessage(response.msg);
       snackbar.showError(
@@ -89,30 +91,44 @@ export default function UpsertFeatureFlagsModal({
           )}
         </Box>
         <Box display="flex" flexDirection="column">
-          {AllFeatureFlags.map((featureFlag) => (
-            <Box key={featureFlag} mt={4}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={!!featureFlagsJson[featureFlag]}
-                    color="primary"
-                    onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                      setFeatureFlagsJson({
-                        ...featureFlagsJson,
-                        [featureFlag]: event.target.checked,
-                      })
-                    }
-                  />
-                }
-                label={getFeatureFlagName(featureFlag)}
-              />
-              <Box pl={2}>
-                <Typography variant="subtitle2" color="textSecondary">
-                  {getFeatureFlagDescription(featureFlag)}
-                </Typography>
-              </Box>
+          <Box
+            key={FeatureFlagEnum.CreatePurchaseOrderFromMetrcTransfers}
+            mt={4}
+          >
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={
+                    !!featureFlagsJson[
+                      FeatureFlagEnum.CreatePurchaseOrderFromMetrcTransfers
+                    ]
+                  }
+                  color="primary"
+                  onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                    setFeatureFlagsJson({
+                      ...featureFlagsJson,
+                      [FeatureFlagEnum.CreatePurchaseOrderFromMetrcTransfers]:
+                        event.target.checked,
+                    })
+                  }
+                />
+              }
+              label={getFeatureFlagName(
+                FeatureFlagEnum.CreatePurchaseOrderFromMetrcTransfers
+              )}
+            />
+            <Box pl={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                {getFeatureFlagDescription(
+                  FeatureFlagEnum.CreatePurchaseOrderFromMetrcTransfers
+                )}
+              </Typography>
             </Box>
-          ))}
+          </Box>
+          <AutocompleteReportingRequirements
+            featureFlagsJson={featureFlagsJson || {}}
+            setFeatureFlagsJson={setFeatureFlagsJson}
+          />
         </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>

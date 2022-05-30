@@ -237,7 +237,7 @@ export default function CreateUpdatePurchaseOrderModal({
       (companySettings &&
         isFeatureFlagEnabled(
           companySettings,
-          FeatureFlagEnum.CREATE_PURCHASE_ORDER_FROM_METRC_TRANSFERS
+          FeatureFlagEnum.CreatePurchaseOrderFromMetrcTransfers
         )));
   const isMetrcBased = purchaseOrder.is_metrc_based;
   const selectedMetrcTransferRowIds = purchaseOrderMetrcTransfers.map(

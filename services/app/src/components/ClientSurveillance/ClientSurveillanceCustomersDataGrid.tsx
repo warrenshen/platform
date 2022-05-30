@@ -1,6 +1,8 @@
+import { Box } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
+import MetrcLogo from "components/Shared/Images/MetrcLogo.png";
 import {
   Companies,
   FinancialSummaries,
@@ -9,9 +11,11 @@ import {
 import { formatDatetimeString } from "lib/date";
 import {
   ClientSurveillanceCategoryEnum,
+  FeatureFlagEnum,
   ProductTypeEnum,
   ProductTypeToLabel,
   QualifyForEnum,
+  ReportingRequirementsCategoryEnum,
 } from "lib/enum";
 import { formatPercentage } from "lib/number";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
@@ -155,12 +159,32 @@ export default function ClientSurveillanceCustomersDataGrid({
         caption: "Most Recent Financial Report",
         width: ColumnWidths.Date,
         alignment: "center",
+        cellRender: (params: ValueFormatterParams) =>
+          params.row.data.settings?.feature_flags_payload?.[
+            FeatureFlagEnum.ReportingRequirementsCategory
+          ] === ReportingRequirementsCategoryEnum.Four ? (
+            <Box height={24} mb={0.5}>
+              <img src={MetrcLogo} alt="Metrc Logo" width={24} height={24} />
+            </Box>
+          ) : (
+            params.row.data.application_date
+          ),
       },
       {
         dataField: "financial_report_valid_until",
         caption: "Financial Report Valid Until",
         width: ColumnWidths.Date,
         alignment: "center",
+        cellRender: (params: ValueFormatterParams) =>
+          params.row.data.settings?.feature_flags_payload?.[
+            FeatureFlagEnum.ReportingRequirementsCategory
+          ] === ReportingRequirementsCategoryEnum.Four ? (
+            <Box height={24} mb={0.5}>
+              <img src={MetrcLogo} alt="Metrc Logo" width={24} height={24} />
+            </Box>
+          ) : (
+            params.row.data.application_date
+          ),
       },
       {
         visible: isBorrowingBaseDateVisible,
@@ -188,7 +212,7 @@ export default function ClientSurveillanceCustomersDataGrid({
         alignment: "center",
       },
     ],
-    []
+    [isBorrowingBaseDateVisible, isFinancialReportDateVisible]
   );
 
   const handleSelectionChanged = useMemo(

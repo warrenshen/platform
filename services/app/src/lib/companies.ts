@@ -42,10 +42,15 @@ export enum FeatureFlagConfigs {
 }
 
 const FeatureFlagToConfigs = {
-  [FeatureFlagEnum.CREATE_PURCHASE_ORDER_FROM_METRC_TRANSFERS]: {
+  [FeatureFlagEnum.CreatePurchaseOrderFromMetrcTransfers]: {
     [FeatureFlagConfigs.Name]: "Create purchase order from Metrc transfers",
     [FeatureFlagConfigs.Description]:
       "If enabled, customer user will be able to create a purchase order from Metrc transfers if other requirements are met (other requirements: Metrc API key is set up and functioning correctly).",
+  },
+  [FeatureFlagEnum.ReportingRequirementsCategory]: {
+    [FeatureFlagConfigs.Name]: "Reporting Requirements",
+    [FeatureFlagConfigs.Description]:
+      "The selection made here determines the financial reporting requirements for this client.",
   },
 };
 

@@ -33,6 +33,9 @@ import {
 import {
   AllCustomMessages,
   AllFeatureFlags,
+  FeatureFlagEnum,
+  ReportingRequirementsCategoryEnum,
+  ReportingRequirementsCategoryToDescription,
   TwoFactorMessageMethodEnum,
   TwoFactorMessageMethodToLabel,
 } from "lib/enum";
@@ -77,6 +80,14 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
   if (!company || !settings) {
     return null;
   }
+
+  const isFeatureReportingRequirements = (featureFlag: string): boolean => {
+    return (
+      featureFlagsPayload.hasOwnProperty(
+        FeatureFlagEnum.ReportingRequirementsCategory
+      ) && featureFlag === FeatureFlagEnum.ReportingRequirementsCategory
+    );
+  };
 
   return (
     <PageContent title={"Settings"}>
@@ -214,7 +225,14 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
                   control={
                     <Checkbox
                       disabled
-                      checked={!!featureFlagsPayload[featureFlag]}
+                      checked={
+                        isFeatureReportingRequirements(featureFlag)
+                          ? featureFlagsPayload[featureFlag] ===
+                            ReportingRequirementsCategoryEnum.None
+                            ? false
+                            : true
+                          : !!featureFlagsPayload[featureFlag]
+                      }
                       color="primary"
                     />
                   }
@@ -222,7 +240,13 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
                 />
                 <Box pl={2}>
                   <Typography variant="subtitle2" color="textSecondary">
-                    {getFeatureFlagDescription(featureFlag)}
+                    {isFeatureReportingRequirements(featureFlag)
+                      ? ReportingRequirementsCategoryToDescription[
+                          featureFlagsPayload[
+                            featureFlag
+                          ] as ReportingRequirementsCategoryEnum
+                        ]
+                      : getFeatureFlagDescription(featureFlag)}
                   </Typography>
                 </Box>
               </Box>
