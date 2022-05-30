@@ -45,19 +45,25 @@ Follow post-install instructions for pyenv [here](https://github.com/pyenv/pyenv
 3. Install virtualenv
 
 ```
-pip3 install virtualenv
+brew install virtualenv
 ```
 
-4. Create your virtualenv directory and activate it
+4. Install postgres
+
+```
+brew install postgresql
+```
+
+5. Create your virtualenv directory and activate it
 
 ```
 virtualenv -p $(pyenv which python) ~/GitHub/venvs/bespoke
 source ~/GitHub/venvs/bespoke/bin/activate
 ```
 
-5. From `platform/`, run `make setup`. If you have Ubuntu, call `make setup-for-linux`.
+6. From `platform/`, run `make setup`. If you have Ubuntu, call `make setup-for-linux`.
 
-6. Please edit your `~/.zshrc` file to include the following lines necessary for our dependencies based on your computer's architecture:
+7. Please edit your `~/.zshrc` file to include the following lines necessary for our dependencies based on your computer's architecture:
 
 ```
 # M1 only
@@ -65,14 +71,14 @@ export GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=1
 export GRPC_PYTHON_BUILD_SYSTEM_ZLIB=1
 ```
 
-7. Once you have virtualenv, system libraries and pyenv setup, you can now install your requirements inside that environment:
+8. Once you have virtualenv, system libraries and pyenv setup, you can now install your requirements inside that environment:
 
 ```
 cd services/api-server
 pip3 install -r requirements.txt
 ```
 
-8. NOTE: Update requirements.in, and then use `make update-requirements` which will generate the requirements.txt file.
+9. NOTE: Update requirements.in, and then use `make update-requirements` which will generate the requirements.txt file.
 
 # Running
 
