@@ -1,5 +1,5 @@
 import { Companies } from "generated/graphql";
-import { authenticatedApi, authRoutes, CustomMutationResponse } from "lib/api";
+import { CustomMutationResponse, authRoutes, authenticatedApi } from "lib/api";
 import { getRefreshToken } from "lib/auth/tokenStorage";
 
 export type SwitchLocationReq = {

@@ -1,15 +1,15 @@
 import {
   Box,
   Button,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  makeStyles,
   TextField,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import {
   PurchaseOrders,
@@ -89,10 +89,8 @@ export default function UpdatePurchaseOrderBankNoteModal({
 
   const existingPurchaseOrder = data?.purchase_orders_by_pk || null;
 
-  const [
-    updateBankFields,
-    { loading: isUpdateBankFieldsLoading },
-  ] = useCustomMutation(updateBankFieldsMutation);
+  const [updateBankFields, { loading: isUpdateBankFieldsLoading }] =
+    useCustomMutation(updateBankFieldsMutation);
 
   const handleClickSave = async () => {
     const response = await updateBankFields({

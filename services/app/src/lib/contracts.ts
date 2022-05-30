@@ -1,5 +1,5 @@
 import { ContractFragment } from "generated/graphql";
-import { ProductTypeToContractTermsJson, ProductTypeEnum } from "lib/enum";
+import { ProductTypeEnum, ProductTypeToContractTermsJson } from "lib/enum";
 import { roundToFiveDigits } from "lib/number";
 
 export enum ContractTermConfigs {

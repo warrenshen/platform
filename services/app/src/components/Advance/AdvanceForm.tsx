@@ -1,25 +1,25 @@
 import {
   Box,
   Checkbox,
-  createStyles,
   FormControl,
   FormControlLabel,
   InputLabel,
-  makeStyles,
   MenuItem,
   Select,
   TextField,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import { PaymentsInsertInput } from "generated/graphql";
-import { formatCurrency } from "lib/number";
 import {
   AdvanceMethodEnum,
   AdvanceMethodToLabel,
   AllAdvanceMethods,
 } from "lib/enum";
+import { formatCurrency } from "lib/number";
 import { ChangeEvent } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>

@@ -1,22 +1,22 @@
 import {
   Box,
   Button,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  makeStyles,
   TextField,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import { CompanySettings } from "generated/graphql";
-import { getCustomMessageName } from "lib/companies";
-import { CustomMessageEnum, AllCustomMessages } from "lib/enum";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { upsertCustomMessagesMutation } from "lib/api/companies";
+import { getCustomMessageName } from "lib/companies";
+import { AllCustomMessages, CustomMessageEnum } from "lib/enum";
 import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -50,10 +50,8 @@ export default function UpsertCustomMessagesModal({
 
   const [errorMessage, setErrorMessage] = useState("");
 
-  const [
-    upsertCustomMessages,
-    { loading: isUpsertCustomMessagesLoading },
-  ] = useCustomMutation(upsertCustomMessagesMutation);
+  const [upsertCustomMessages, { loading: isUpsertCustomMessagesLoading }] =
+    useCustomMutation(upsertCustomMessagesMutation);
 
   const handleClickSubmit = async () => {
     const response = await upsertCustomMessages({

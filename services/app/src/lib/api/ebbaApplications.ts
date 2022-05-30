@@ -1,7 +1,7 @@
 import { EbbaApplications } from "generated/graphql";
 import {
-  authenticatedApi,
   CustomMutationResponse,
+  authenticatedApi,
   ebbaApplicationsRoutes,
 } from "lib/api";
 

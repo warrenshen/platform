@@ -12,8 +12,8 @@ import {
   getLastDateOfMonth,
   todayAsDateStringServer,
 } from "lib/date";
-import { useMemo, useState } from "react";
 import { ActionType } from "lib/enum";
+import { useMemo, useState } from "react";
 
 export default function ClientSurveillanceCurrentTab() {
   const [searchQuery, setSearchQuery] = useState("");

@@ -1,8 +1,8 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import CompanyLicenseDrawerLauncher from "components/CompanyLicenses/CompanyLicenseDrawerLauncher";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
-import CompanyLicenseDrawerLauncher from "components/CompanyLicenses/CompanyLicenseDrawerLauncher";
 import { CompanyLicenseFragment, CompanyLicenses } from "generated/graphql";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
@@ -154,9 +154,12 @@ export default function CompanyLicensesDataGrid({
   );
 
   const handleSelectionChanged = useMemo(
-    () => ({ selectedRowsData }: any) =>
-      !!handleSelectCompanyLicenses &&
-      handleSelectCompanyLicenses(selectedRowsData as CompanyLicenseFragment[]),
+    () =>
+      ({ selectedRowsData }: any) =>
+        !!handleSelectCompanyLicenses &&
+        handleSelectCompanyLicenses(
+          selectedRowsData as CompanyLicenseFragment[]
+        ),
     [handleSelectCompanyLicenses]
   );
 

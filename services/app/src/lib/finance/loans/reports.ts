@@ -2,7 +2,7 @@
 // when it comes to creating payment transactions
 
 import { Companies } from "generated/graphql";
-import { authenticatedApi, CustomMutationResponse, loansRoutes } from "lib/api";
+import { CustomMutationResponse, authenticatedApi, loansRoutes } from "lib/api";
 
 export type RunCustomerBalancesReq = {
   variables: {

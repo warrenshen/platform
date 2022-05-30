@@ -1,8 +1,8 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
-import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
+import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import ListDataGridCell from "components/Shared/DataGrid/ListDataGridCell";
+import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import {
   DebtFacilities,
   GetDebtFacilitiesSubscription,
@@ -95,9 +95,10 @@ export default function DebtFacilityCapacityDataGrid({
   );
 
   const handleSelectionChanged = useMemo(
-    () => ({ selectedRowsData }: any) =>
-      handleSelectDebtFacilities &&
-      handleSelectDebtFacilities(selectedRowsData as DebtFacilities[]),
+    () =>
+      ({ selectedRowsData }: any) =>
+        handleSelectDebtFacilities &&
+        handleSelectDebtFacilities(selectedRowsData as DebtFacilities[]),
     [handleSelectDebtFacilities]
   );
 

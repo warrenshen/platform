@@ -1,14 +1,14 @@
 import {
   Box,
   Button,
-  createStyles,
   Dialog,
   DialogActions,
-  DialogTitle,
   DialogContent,
-  makeStyles,
+  DialogTitle,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import AddVendorForm from "components/Vendors/AddVendorForm";
@@ -58,9 +58,8 @@ export default function AddVendorNewModal({ customerId, handleClose }: Props) {
     email: "",
   });
 
-  const [addNewVendor, { loading: isAddVendorLoading }] = useCustomMutation(
-    addNewVendorMutation
-  );
+  const [addNewVendor, { loading: isAddVendorLoading }] =
+    useCustomMutation(addNewVendorMutation);
 
   const handleRegisterClick = async () => {
     const response = await addNewVendor({

@@ -37,10 +37,8 @@ export default function DeleteContractModal({
 
   const contract = data?.contracts_by_pk || null;
 
-  const [
-    deleteContract,
-    { loading: isDeleteContractLoading },
-  ] = useCustomMutation(deleteContractMutation);
+  const [deleteContract, { loading: isDeleteContractLoading }] =
+    useCustomMutation(deleteContractMutation);
 
   const handleClickSubmit = async () => {
     const response = await deleteContract({

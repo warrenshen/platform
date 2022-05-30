@@ -2,11 +2,11 @@ import {
   Box,
   Button,
   Checkbox,
-  createStyles,
   FormControlLabel,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import { Companies } from "generated/graphql";

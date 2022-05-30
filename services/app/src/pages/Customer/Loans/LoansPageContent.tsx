@@ -3,10 +3,10 @@ import PageContent from "components/Shared/Page/PageContent";
 import LinearProgressBar from "components/Shared/ProgressBar/LinearProgressBar";
 import { CurrentCustomerContext } from "contexts/CurrentCustomerContext";
 import { ProductTypeEnum } from "lib/enum";
+import { formatCurrency } from "lib/number";
 import { round } from "lodash";
 import CustomerLoansActiveTab from "pages/Customer/Loans/LoansActiveTab";
 import CustomerLoansClosedTab from "pages/Customer/Loans/LoansClosedTab";
-import { formatCurrency } from "lib/number";
 import { useContext, useState } from "react";
 
 interface Props {

@@ -4,16 +4,16 @@ import CreateUpdateFinancialReportCertificationModal from "components/EbbaApplic
 import DeleteEbbaApplicationModal from "components/EbbaApplication/DeleteEbbaApplicationModal";
 import EbbaApplicationCard from "components/EbbaApplication/EbbaApplicationCard";
 import EbbaApplicationsDataGrid from "components/EbbaApplications/EbbaApplicationsDataGrid";
+import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import PageContent from "components/Shared/Page/PageContent";
-import Can from "components/Shared/Can";
-import { Action } from "lib/auth/rbac-rules";
 import {
   Companies,
   EbbaApplicationFragment,
   EbbaApplications,
   useGetCompanyEbbaApplicationsInfoQuery,
 } from "generated/graphql";
+import { Action } from "lib/auth/rbac-rules";
 import { withinNDaysOfNowOrBefore } from "lib/date";
 import {
   ActionType,

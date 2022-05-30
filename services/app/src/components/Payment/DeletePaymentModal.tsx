@@ -9,13 +9,13 @@ import { PurchaseOrders, useGetPaymentQuery } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { deleteRepaymentMutation } from "lib/api/payments";
-import { formatCurrency } from "lib/number";
 import { formatDateString } from "lib/date";
 import {
+  PaymentTypeEnum,
   RepaymentMethodEnum,
   RepaymentMethodToLabel,
-  PaymentTypeEnum,
 } from "lib/enum";
+import { formatCurrency } from "lib/number";
 import { useContext } from "react";
 
 interface Props {
@@ -40,10 +40,8 @@ function DeletePaymentModal({ paymentId, handleClose }: Props) {
 
   const payment = data?.payments_by_pk || null;
 
-  const [
-    deletePayment,
-    { loading: isDeleteRepaymentLoading },
-  ] = useCustomMutation(deleteRepaymentMutation);
+  const [deletePayment, { loading: isDeleteRepaymentLoading }] =
+    useCustomMutation(deleteRepaymentMutation);
 
   let title = "Delete Repayment";
   let noun = "payment";

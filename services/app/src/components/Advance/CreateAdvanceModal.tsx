@@ -18,16 +18,16 @@ import { createAdvanceMutation } from "lib/api/payments";
 import { todayAsDateStringServer } from "lib/date";
 import { AdvanceMethodEnum } from "lib/enum";
 import {
-  computeSettlementDateForPayment,
   SettlementTimelineConfigForBankAdvance,
+  computeSettlementDateForPayment,
 } from "lib/finance/payments/advance";
-import { useEffect, useState } from "react";
 import {
-  extractVendorId,
   extractCustomerId,
   extractRecipientCompanyId,
   extractRecipientCompanyIdAndBankAccountFromPartnership,
+  extractVendorId,
 } from "lib/loans";
+import { useEffect, useState } from "react";
 
 interface Props {
   selectedLoanIds: Loans["id"];
@@ -74,16 +74,14 @@ export default function CreateAdvanceModal({
   const recipientCompanyId = extractRecipientCompanyId(selectedLoans);
   const vendorId = extractVendorId(customerId, recipientCompanyId);
 
-  const {
-    data: advancesBankAccountData,
-    error: advancesBankAccountError,
-  } = useGetAdvancesBankAccountsForCustomerQuery({
-    skip: !recipientCompanyId,
-    variables: {
-      customerId,
-      vendorId,
-    },
-  });
+  const { data: advancesBankAccountData, error: advancesBankAccountError } =
+    useGetAdvancesBankAccountsForCustomerQuery({
+      skip: !recipientCompanyId,
+      variables: {
+        customerId,
+        vendorId,
+      },
+    });
 
   if (advancesBankAccountError) {
     console.error({ error: advancesBankAccountError });
@@ -97,19 +95,15 @@ export default function CreateAdvanceModal({
    * 1. Purchase order loan: recipient is vendor.
    * 2. Line of credit loan: recipient is customer OR vendor.
    */
-  const {
-    recipientCompany,
-    advancesBankAccount,
-  } = extractRecipientCompanyIdAndBankAccountFromPartnership(
-    vendorId,
-    advancesBankAccountData as GetAdvancesBankAccountsForCustomerQuery
-  );
+  const { recipientCompany, advancesBankAccount } =
+    extractRecipientCompanyIdAndBankAccountFromPartnership(
+      vendorId,
+      advancesBankAccountData as GetAdvancesBankAccountsForCustomerQuery
+    );
   const isRecipientVendor = !!vendorId;
 
-  const [
-    createAdvance,
-    { loading: isCreateAdvanceLoading },
-  ] = useCustomMutation(createAdvanceMutation);
+  const [createAdvance, { loading: isCreateAdvanceLoading }] =
+    useCustomMutation(createAdvanceMutation);
 
   useEffect(() => {
     // When user changes advance method or advance date,

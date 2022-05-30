@@ -3,10 +3,10 @@ import Modal from "components/Shared/Modal/Modal";
 import { PurchaseOrders, useGetPaymentQuery } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { formatCurrency } from "lib/number";
 import { formatDateString } from "lib/date";
 import { RepaymentMethodEnum, RepaymentMethodToLabel } from "lib/enum";
 import { reverseRepaymentMutation } from "lib/finance/payments/repayment";
+import { formatCurrency } from "lib/number";
 
 interface Props {
   paymentId: PurchaseOrders["id"] | null;
@@ -28,10 +28,8 @@ export default function ReverseRepaymentModal({
 
   const payment = data?.payments_by_pk || null;
 
-  const [
-    reverseRepayment,
-    { loading: isReverseRepaymentLoading },
-  ] = useCustomMutation(reverseRepaymentMutation);
+  const [reverseRepayment, { loading: isReverseRepaymentLoading }] =
+    useCustomMutation(reverseRepaymentMutation);
 
   const handleClickSubmit = async () => {
     if (!payment) {

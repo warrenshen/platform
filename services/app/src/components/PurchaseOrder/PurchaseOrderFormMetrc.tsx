@@ -101,7 +101,8 @@ export default function PurchaseOrderFormMetrc({
           renderOption={(companyDelivery) => {
             const metrcTransfer = companyDelivery.metrc_transfer;
             const metrcDelivery = companyDelivery.metrc_delivery;
-            const metrcTransferPayload = metrcTransfer.transfer_payload as MetrcTransferPayload;
+            const metrcTransferPayload =
+              metrcTransfer.transfer_payload as MetrcTransferPayload;
             return (
               <Box py={0.5}>
                 <Typography variant="body1">

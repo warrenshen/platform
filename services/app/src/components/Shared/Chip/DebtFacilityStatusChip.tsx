@@ -1,8 +1,8 @@
 import { Box, Typography } from "@material-ui/core";
 import {
+  DebtFacilityCompanyStatusEnum,
   DebtFacilityStatusEnum,
   DebtFacilityStatusToLabel,
-  DebtFacilityCompanyStatusEnum,
 } from "lib/enum";
 import styled from "styled-components";
 

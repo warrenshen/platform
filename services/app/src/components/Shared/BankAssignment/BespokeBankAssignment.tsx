@@ -2,10 +2,10 @@ import {
   Box,
   FormControl,
   InputLabel,
-  makeStyles,
   MenuItem,
   Select,
   Theme,
+  makeStyles,
 } from "@material-ui/core";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import {

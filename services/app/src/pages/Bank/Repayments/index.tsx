@@ -1,13 +1,13 @@
 import { Tab, Tabs } from "@material-ui/core";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
+import { BankRepaymentsTabLabel, BankRepaymentsTabLabels } from "lib/enum";
 import BankRepaymentsActionRequiredTab from "pages/Bank/Repayments/RepaymentsActionRequiredTab";
-import BankRepaymentsByDepositDateTab from "pages/Bank/Repayments/RepaymentsByDepositDateTab";
 import BankRepaymentsAllTab from "pages/Bank/Repayments/RepaymentsAllTab";
+import BankRepaymentsByDepositDateTab from "pages/Bank/Repayments/RepaymentsByDepositDateTab";
+import BankRepaymentsExportAchsTab from "pages/Bank/Repayments/RepaymentsExportAchsTab";
 import { useState } from "react";
 import styled from "styled-components";
-import { BankRepaymentsTabLabel, BankRepaymentsTabLabels } from "lib/enum";
-import BankRepaymentsExportAchsTab from "pages/Bank/Repayments/RepaymentsExportAchsTab";
 
 const Container = styled.div`
   display: flex;

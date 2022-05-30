@@ -19,22 +19,18 @@ export default function DeleteCompanyFacilityModal({
 }: Props) {
   const snackbar = useSnackbar();
 
-  const {
-    data,
-    loading: isExistingCompanyFacilityLoading,
-  } = useGetCompanyFacilityQuery({
-    fetchPolicy: "network-only",
-    variables: {
-      id: companyFacilityId,
-    },
-  });
+  const { data, loading: isExistingCompanyFacilityLoading } =
+    useGetCompanyFacilityQuery({
+      fetchPolicy: "network-only",
+      variables: {
+        id: companyFacilityId,
+      },
+    });
 
   const companyFacility = data?.company_facilities_by_pk || null;
 
-  const [
-    deleteCompanyFacility,
-    { loading: isDeleteCompanyFacilityLoading },
-  ] = useCustomMutation(deleteCompanyFacilityMutation);
+  const [deleteCompanyFacility, { loading: isDeleteCompanyFacilityLoading }] =
+    useCustomMutation(deleteCompanyFacilityMutation);
 
   const handleClickSubmit = async () => {
     const response = await deleteCompanyFacility({

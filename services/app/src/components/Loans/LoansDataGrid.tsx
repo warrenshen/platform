@@ -1,27 +1,27 @@
-import { Button, Box, Typography } from "@material-ui/core";
-import CommentIcon from "@material-ui/icons/Comment";
+import { Box, Button, Typography } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
-import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
+import CommentIcon from "@material-ui/icons/Comment";
 import InvoiceDrawerLauncher from "components/Invoices/InvoiceDrawerLauncher";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
 import LoanPaymentStatusChip from "components/Shared/Chip/LoanPaymentStatusChip";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
+import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
-import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
+import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import {
   Companies,
   LoanArtifactFragment,
   LoanArtifactLimitedFragment,
   LoanFragment,
   LoanReportFragment,
-  Loans,
   LoanTypeEnum,
+  Loans,
   Maybe,
   PurchaseOrders,
   RequestStatusEnum,
@@ -32,6 +32,7 @@ import {
   LoanStatusEnum,
   LoanTypeToLabel,
 } from "lib/enum";
+import { PartnerEnum } from "lib/enum";
 import {
   createLoanCustomerIdentifier,
   createLoanDisbursementIdentifier,
@@ -40,7 +41,6 @@ import {
 } from "lib/loans";
 import { ColumnWidths, truncateString } from "lib/tables";
 import { useEffect, useMemo, useState } from "react";
-import { PartnerEnum } from "lib/enum";
 
 type Loan = LoanFragment & (LoanArtifactFragment | LoanArtifactLimitedFragment);
 
@@ -508,16 +508,18 @@ export default function LoansDataGrid({
   );
 
   const handleSelectionChanged = useMemo(
-    () => ({ selectedRowsData }: any) =>
-      handleSelectLoans &&
-      handleSelectLoans(selectedRowsData as LoanFragment[]),
+    () =>
+      ({ selectedRowsData }: any) =>
+        handleSelectLoans &&
+        handleSelectLoans(selectedRowsData as LoanFragment[]),
     [handleSelectLoans]
   );
 
   const allowedPageSizes = useMemo(() => [], []);
-  const filtering = useMemo(() => ({ enable: isFilteringEnabled }), [
-    isFilteringEnabled,
-  ]);
+  const filtering = useMemo(
+    () => ({ enable: isFilteringEnabled }),
+    [isFilteringEnabled]
+  );
 
   return (
     <ControlledDataGrid

@@ -1,10 +1,10 @@
 import {
   Button,
-  createStyles,
   Dialog,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import { ReactComponent as CloseIcon } from "components/Shared/Layout/Icons/Close.svg";
 import { ReactNode } from "react";

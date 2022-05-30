@@ -1,5 +1,5 @@
 import { addDays, format, isSaturday, isSunday } from "date-fns";
-import { getBankHolidays, Holiday } from "date-fns-holiday-us";
+import { Holiday, getBankHolidays } from "date-fns-holiday-us";
 
 export type Holidays = {
   [K in Holiday]: {

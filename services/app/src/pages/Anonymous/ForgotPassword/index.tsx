@@ -7,7 +7,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import AuthPage from "components/Shared/Page/AuthPage";
-import { authenticatedApi, authRoutes } from "lib/api";
+import { authRoutes, authenticatedApi } from "lib/api";
 import { routes } from "lib/routes";
 import { useMemo, useState } from "react";
 import { useTitle } from "react-use";

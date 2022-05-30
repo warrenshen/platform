@@ -1,21 +1,21 @@
 import {
   Box,
-  createStyles,
-  makeStyles,
   TextField,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
-import Autocomplete from "@material-ui/lab/Autocomplete";
 import { Alert } from "@material-ui/lab";
+import Autocomplete from "@material-ui/lab/Autocomplete";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import Modal from "components/Shared/Modal/Modal";
+import { OpenLoanForDebtFacilityFragment } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { resolveLoansForDebtFacility } from "lib/api/debtFacility";
 import { getEndOfNextMonth } from "lib/date";
 import { DebtFacilityStatusEnum, DebtFacilityStatusToLabel } from "lib/enum";
-import { OpenLoanForDebtFacilityFragment } from "generated/graphql";
 import { formatCurrency } from "lib/number";
 import { useMemo, useState } from "react";
 

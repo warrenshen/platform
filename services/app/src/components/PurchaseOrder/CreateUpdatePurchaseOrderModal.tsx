@@ -2,8 +2,8 @@ import { Box, Button, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import PurchaseOrderFormManual from "components/PurchaseOrder/PurchaseOrderFormManual";
 import PurchaseOrderFormMetrc from "components/PurchaseOrder/PurchaseOrderFormMetrc";
-import { ReactComponent as KeyboardIcon } from "components/Shared/Layout/Icons/Keyboard.svg";
 import MetrcLogo from "components/Shared/Images/MetrcLogo.png";
+import { ReactComponent as KeyboardIcon } from "components/Shared/Layout/Icons/Keyboard.svg";
 import Modal from "components/Shared/Modal/Modal";
 import {
   CurrentUserContext,
@@ -11,6 +11,7 @@ import {
 } from "contexts/CurrentUserContext";
 import {
   Companies,
+  Files,
   GetIncomingFromVendorCompanyDeliveriesByCompanyIdQuery,
   PurchaseOrderFileFragment,
   PurchaseOrderFileTypeEnum,
@@ -21,7 +22,6 @@ import {
   useGetArtifactRelationsByCompanyIdQuery,
   useGetIncomingFromVendorCompanyDeliveriesByCompanyIdQuery,
   useGetPurchaseOrderForCustomerQuery,
-  Files,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -118,10 +118,8 @@ export default function CreateUpdatePurchaseOrderModal({
   const [purchaseOrderCannabisFiles, setPurchaseOrderCannabisFiles] = useState<
     PurchaseOrderFileFragment[]
   >([]);
-  const [
-    purchaseOrderMetrcTransfers,
-    setPurchaseOrderMetrcTransfers,
-  ] = useState<PurchaseOrderMetrcTransferFragment[]>([]);
+  const [purchaseOrderMetrcTransfers, setPurchaseOrderMetrcTransfers] =
+    useState<PurchaseOrderMetrcTransferFragment[]>([]);
 
   const [frozenPurchaseOrderFileIds, setFrozenPurchaseOrderFileIds] = useState<
     Files["id"][]
@@ -246,20 +244,18 @@ export default function CreateUpdatePurchaseOrderModal({
     (purchaseOrderMetrcTransfer) => purchaseOrderMetrcTransfer.metrc_transfer_id
   );
 
-  const {
-    data: companyDeliveriesData,
-    error: companyDeliveriesError,
-  } = useGetIncomingFromVendorCompanyDeliveriesByCompanyIdQuery({
-    // Wait until existing purchase order is loaded in update purchase order case.
-    skip: isActionTypeUpdate && isExistingPurchaseOrderLoading,
-    fetchPolicy: "network-only",
-    variables: {
-      company_id: companyId,
-      // Fetch incoming company deliveries with transfer created in the last 120 days.
-      start_created_date: todayMinusXDaysDateStringServer(120),
-      transfer_row_ids: selectedMetrcTransferRowIds,
-    },
-  });
+  const { data: companyDeliveriesData, error: companyDeliveriesError } =
+    useGetIncomingFromVendorCompanyDeliveriesByCompanyIdQuery({
+      // Wait until existing purchase order is loaded in update purchase order case.
+      skip: isActionTypeUpdate && isExistingPurchaseOrderLoading,
+      fetchPolicy: "network-only",
+      variables: {
+        company_id: companyId,
+        // Fetch incoming company deliveries with transfer created in the last 120 days.
+        start_created_date: todayMinusXDaysDateStringServer(120),
+        transfer_row_ids: selectedMetrcTransferRowIds,
+      },
+    });
 
   if (companyDeliveriesError) {
     console.error({ companyDeliveriesError });
@@ -330,10 +326,8 @@ export default function CreateUpdatePurchaseOrderModal({
     { loading: isCreateUpdatePurchaseOrderAndSubmitLoading },
   ] = useCustomMutation(createUpdatePurchaseOrderAndSubmitMutation);
 
-  const [
-    updatePurchaseOrder,
-    { loading: isUpdatePurchaseOrderLoading },
-  ] = useCustomMutation(updatePurchaseOrderMutation);
+  const [updatePurchaseOrder, { loading: isUpdatePurchaseOrderLoading }] =
+    useCustomMutation(updatePurchaseOrderMutation);
 
   const preparePurchaseOrder = () => {
     return {

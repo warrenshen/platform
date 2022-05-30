@@ -2,15 +2,15 @@ import {
   Box,
   Button,
   Checkbox,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   FormControlLabel,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import { Companies } from "generated/graphql";
@@ -57,10 +57,8 @@ export default function RunCustomerBalancesModal({
   );
   const [isRunImmediately, setIsRunImmediately] = useState(false);
 
-  const [
-    runCustomerBalances,
-    { loading: isRunCustomerBalancesLoading },
-  ] = useCustomMutation(runCustomerBalancesMutation);
+  const [runCustomerBalances, { loading: isRunCustomerBalancesLoading }] =
+    useCustomMutation(runCustomerBalancesMutation);
 
   const handleClickSubmit = async () => {
     if (!reportDate) {

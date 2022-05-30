@@ -5,6 +5,7 @@ import {
   Grid,
   Typography,
 } from "@material-ui/core";
+import UpdatePayorContactsModal from "components/Partnership/UpdatePayorContactsModal";
 import ApprovePayor from "components/Payors/ApprovePayor";
 import AssignCollectionsBespokeBankAccount from "components/Shared/BankAssignment/AssignCollectionsBespokeBankAccount";
 import Can from "components/Shared/Can";
@@ -12,7 +13,6 @@ import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import FileUploadDropzone from "components/Shared/File/FileUploadDropzone";
 import Modal from "components/Shared/Modal/Modal";
 import ModalButton from "components/Shared/Modal/ModalButton";
-import UpdatePayorContactsModal from "components/Partnership/UpdatePayorContactsModal";
 import UsersDataGrid from "components/Users/UsersDataGrid";
 import {
   CompanyAgreementsInsertInput,
@@ -87,8 +87,8 @@ export default function PayorPartnershipDrawer({
     !payor.users ||
     payor.users.length === 0 ||
     customerUsers.length === 0;
-  const hasNoCollectionsBankAccount = !payor.settings
-    ?.collections_bespoke_bank_account;
+  const hasNoCollectionsBankAccount =
+    !payor.settings?.collections_bespoke_bank_account;
 
   return (
     <Modal

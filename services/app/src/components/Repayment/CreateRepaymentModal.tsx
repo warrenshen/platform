@@ -19,25 +19,25 @@ import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import {
   computeRequestedWithdrawCutoffDate,
-  todayAsDateStringServer,
   formatDateString,
+  todayAsDateStringServer,
 } from "lib/date";
 import {
-  RepaymentMethodEnum,
   PaymentTypeEnum,
   ProductTypeEnum,
+  RepaymentMethodEnum,
 } from "lib/enum";
 import {
   computeSettlementDateForPayment,
   getSettlementTimelineConfigFromContract,
 } from "lib/finance/payments/advance";
 import {
-  calculateRepaymentEffectMutation,
   CalculateRepaymentEffectResp,
-  createRepaymentMutation,
-  getLoansBeforeAfterPayment,
   LoanBeforeAfterPayment,
   LoanToShow,
+  calculateRepaymentEffectMutation,
+  createRepaymentMutation,
+  getLoansBeforeAfterPayment,
 } from "lib/finance/payments/repayment";
 import { useContext, useEffect, useState } from "react";
 
@@ -97,10 +97,8 @@ export default function CreateRepaymentModal({
     },
     company_bank_account_id: null,
   });
-  const [
-    isPayAccountFeesVisible,
-    setIsPayAccountFeesVisible,
-  ] = useState<boolean>(false);
+  const [isPayAccountFeesVisible, setIsPayAccountFeesVisible] =
+    useState<boolean>(false);
   const [repaymentEffectData, setRepaymentEffectData] = useState<
     CalculateRepaymentEffectResp["data"] | null
   >(null);
@@ -132,9 +130,8 @@ export default function CreateRepaymentModal({
 
   useEffect(() => {
     if (payment.method && payment.requested_payment_date) {
-      const settlementTimelineConfig = getSettlementTimelineConfigFromContract(
-        contract
-      );
+      const settlementTimelineConfig =
+        getSettlementTimelineConfigFromContract(contract);
       const settlementDate = computeSettlementDateForPayment(
         payment.method || null,
         payment.requested_payment_date,
@@ -152,10 +149,8 @@ export default function CreateRepaymentModal({
     { loading: isCalculateRepaymentEffectLoading },
   ] = useCustomMutation(calculateRepaymentEffectMutation);
 
-  const [
-    createRepayment,
-    { loading: isCreateRepaymentLoading },
-  ] = useCustomMutation(createRepaymentMutation);
+  const [createRepayment, { loading: isCreateRepaymentLoading }] =
+    useCustomMutation(createRepaymentMutation);
 
   const handleClickNext = async () => {
     const dateAdjustmentAtSubmission = computeRequestedWithdrawCutoffDate(

@@ -1,21 +1,21 @@
 import { Box, Typography } from "@material-ui/core";
+import AwaitingPartnershipsDataGrid from "components/Partnerships/AwaitingPartnershipsDataGrid";
+import Can from "components/Shared/Can";
 import PageContent from "components/Shared/Page/PageContent";
 import AddVendorButton from "components/Vendors/AddVendorButton";
 import VendorPartnershipsDataGrid from "components/Vendors/VendorPartnershipsDataGrid";
-import Can from "components/Shared/Can";
-import { Action } from "lib/auth/rbac-rules";
 import {
   Companies,
   CompanyTypeEnum,
   useGetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscription,
   useGetVendorPartnershipsByCompanyIdQuery,
 } from "generated/graphql";
+import { Action } from "lib/auth/rbac-rules";
 import { getCompanyDisplayName } from "lib/companies";
 import { ProductTypeEnum } from "lib/enum";
 import { isVendorAgreementProductType } from "lib/settings";
 import { sortBy } from "lodash";
 import { useMemo } from "react";
-import AwaitingPartnershipsDataGrid from "components/Partnerships/AwaitingPartnershipsDataGrid";
 
 interface Props {
   companyId: Companies["id"];
@@ -36,16 +36,14 @@ export default function CustomerVendorsPageContent({
     alert(`Error in query: ${error.message}`);
     console.error({ error });
   }
-  const {
-    data: awaitingPartnershipsData,
-    error: awaitingPartnershipsError,
-  } = useGetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscription({
-    fetchPolicy: "network-only",
-    variables: {
-      requesting_company_id: companyId,
-      company_type: CompanyTypeEnum.Vendor,
-    },
-  });
+  const { data: awaitingPartnershipsData, error: awaitingPartnershipsError } =
+    useGetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscription({
+      fetchPolicy: "network-only",
+      variables: {
+        requesting_company_id: companyId,
+        company_type: CompanyTypeEnum.Vendor,
+      },
+    });
 
   if (awaitingPartnershipsError) {
     console.error({ error });

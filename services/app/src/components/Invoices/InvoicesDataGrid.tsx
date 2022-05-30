@@ -15,8 +15,8 @@ import {
   RequestStatusEnum,
 } from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
-import { ColumnWidths } from "lib/tables";
 import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
+import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
 interface Props {
@@ -169,9 +169,10 @@ export default function InvoicesDataGrid({
   );
 
   const handleSelectionChanged = useMemo(
-    () => ({ selectedRowsData }: any) =>
-      handleSelectedInvoices &&
-      handleSelectedInvoices(selectedRowsData as InvoiceFragment[]),
+    () =>
+      ({ selectedRowsData }: any) =>
+        handleSelectedInvoices &&
+        handleSelectedInvoices(selectedRowsData as InvoiceFragment[]),
     [handleSelectedInvoices]
   );
 

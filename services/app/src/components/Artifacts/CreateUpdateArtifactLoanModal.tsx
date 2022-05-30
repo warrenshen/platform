@@ -7,8 +7,8 @@ import {
 } from "contexts/CurrentUserContext";
 import {
   Companies,
-  LoansInsertInput,
   LoanTypeEnum,
+  LoansInsertInput,
   Scalars,
   useAddLoanMutation,
   useGetCompanyNextLoanIdentifierMutation,
@@ -17,15 +17,16 @@ import {
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { submitLoanMutation, deleteLoanMutation } from "lib/api/loans";
-import { formatCurrency } from "lib/number";
+import { deleteLoanMutation, submitLoanMutation } from "lib/api/loans";
 import { ActionType, LoanStatusEnum, ProductTypeEnum } from "lib/enum";
 import {
   Artifact,
   listArtifactsForCreateLoan,
 } from "lib/finance/loans/artifacts";
+import { formatCurrency } from "lib/number";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useEffect, useMemo, useState } from "react";
+
 import ArtifactLoanForm, { ArtifactListItem } from "./ArtifactLoanForm";
 import { IdComponent } from "./interfaces";
 
@@ -90,9 +91,8 @@ export default function CreateUpdateArtifactLoanModal({
     },
   });
 
-  const [deleteLoan, { loading: isDeleteLoanLoading }] = useCustomMutation(
-    deleteLoanMutation
-  );
+  const [deleteLoan, { loading: isDeleteLoanLoading }] =
+    useCustomMutation(deleteLoanMutation);
 
   let amountUsedOnArtifact = 0.0;
   let totalAmountForArtifact = 0.0;
@@ -156,18 +156,14 @@ export default function CreateUpdateArtifactLoanModal({
 
   const [addLoan, { loading: isAddLoanLoading }] = useAddLoanMutation();
 
-  const [
-    updateLoan,
-    { loading: isUpdateLoanLoading },
-  ] = useUpdateLoanMutation();
+  const [updateLoan, { loading: isUpdateLoanLoading }] =
+    useUpdateLoanMutation();
 
-  const [submitLoan, { loading: isSubmitLoanLoading }] = useCustomMutation(
-    submitLoanMutation
-  );
+  const [submitLoan, { loading: isSubmitLoanLoading }] =
+    useCustomMutation(submitLoanMutation);
 
-  const [
-    getCompanyNextLoanIdentifier,
-  ] = useGetCompanyNextLoanIdentifierMutation();
+  const [getCompanyNextLoanIdentifier] =
+    useGetCompanyNextLoanIdentifierMutation();
 
   const getNextLoanIdentifierByCompanyId = async () => {
     const response = await getCompanyNextLoanIdentifier({

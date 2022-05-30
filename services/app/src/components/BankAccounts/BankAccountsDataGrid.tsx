@@ -79,9 +79,10 @@ export default function BankAccountsDataGrid({
   );
 
   const handleSelectionChanged = useMemo(
-    () => ({ selectedRowsData }: any) =>
-      handleSelectBankAccounts &&
-      handleSelectBankAccounts(selectedRowsData as BankAccountFragment[]),
+    () =>
+      ({ selectedRowsData }: any) =>
+        handleSelectBankAccounts &&
+        handleSelectBankAccounts(selectedRowsData as BankAccountFragment[]),
     [handleSelectBankAccounts]
   );
 

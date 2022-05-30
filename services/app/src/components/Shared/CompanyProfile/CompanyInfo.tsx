@@ -3,8 +3,8 @@ import {
   Card,
   CardActions,
   CardContent,
-  makeStyles,
   Typography,
+  makeStyles,
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
 import EditButton from "components/Shared/CompanyProfile/EditCompanyProfile/EditButton";

@@ -1,7 +1,7 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
-import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import LoanPaymentStatusChip from "components/Shared/Chip/LoanPaymentStatusChip";
+import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import {
   Companies,
@@ -18,6 +18,11 @@ import {
   renderQuarter,
 } from "lib/date";
 import {
+  determineBorrowerEligibility,
+  determineLoanEligibility,
+  getProductTypeFromOpenLoanForDebtFacilityFragment,
+} from "lib/debtFacility";
+import {
   LoanPaymentStatusEnum,
   LoanStatusEnum,
   PartnerEnum,
@@ -32,11 +37,6 @@ import {
   getLoanVendorName,
 } from "lib/loans";
 import { formatCurrency } from "lib/number";
-import {
-  determineBorrowerEligibility,
-  determineLoanEligibility,
-  getProductTypeFromOpenLoanForDebtFacilityFragment,
-} from "lib/debtFacility";
 import { ColumnWidths, truncateString } from "lib/tables";
 import { groupBy } from "lodash";
 import { useEffect, useMemo, useState } from "react";
@@ -220,10 +220,8 @@ function getRows(
     Object.keys(groupedLoans).length !== 0
       ? reduceLineOfCreditLoans(groupedLoans)
       : [];
-  const {
-    anonymizedCompanyLookup,
-    anonymizedVendorLookup,
-  } = anonymizeLoanNames(reducedLoans, groupedLoans);
+  const { anonymizedCompanyLookup, anonymizedVendorLookup } =
+    anonymizeLoanNames(reducedLoans, groupedLoans);
 
   return reducedLoans.map((loan) => ({
     ...loan,
@@ -703,16 +701,18 @@ export default function DebtFacilityReportDataGrid({
   );
 
   const handleSelectionChanged = useMemo(
-    () => ({ selectedRowsData }: any) =>
-      handleSelectLoans &&
-      handleSelectLoans(selectedRowsData as LoanFragment[]),
+    () =>
+      ({ selectedRowsData }: any) =>
+        handleSelectLoans &&
+        handleSelectLoans(selectedRowsData as LoanFragment[]),
     [handleSelectLoans]
   );
 
   const allowedPageSizes = useMemo(() => [], []);
-  const filtering = useMemo(() => ({ enable: isFilteringEnabled }), [
-    isFilteringEnabled,
-  ]);
+  const filtering = useMemo(
+    () => ({ enable: isFilteringEnabled }),
+    [isFilteringEnabled]
+  );
 
   return (
     <ControlledDataGrid

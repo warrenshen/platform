@@ -1,18 +1,18 @@
 import { Box, TextField, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
+import { Autocomplete } from "@material-ui/lab";
 import AchAdvancesDataGrid from "components/Advances/AchAdvancesDataGrid";
 import DateInput from "components/Shared/FormInputs/DateInput";
-import { Autocomplete } from "@material-ui/lab";
 import { useGetAdvancesByMethodAndPaymentDateQuery } from "generated/graphql";
 import {
-  todayAsDateStringServer,
   DateFormatFileName,
   formatDateString,
+  todayAsDateStringServer,
 } from "lib/date";
+import { AdvanceMethodEnum, USStates } from "lib/enum";
+import { uniq } from "lodash";
 import { useState } from "react";
 import styled from "styled-components";
-import { uniq } from "lodash";
-import { USStates, AdvanceMethodEnum } from "lib/enum";
 
 const Container = styled.div`
   display: flex;

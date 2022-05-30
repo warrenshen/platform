@@ -1,7 +1,7 @@
 import {
+  CustomMutationResponse,
   authenticatedApi,
   debtFacilityRoutes,
-  CustomMutationResponse,
 } from "lib/api";
 
 export type CreateUpdateDebtFacilityReq = {
@@ -127,8 +127,7 @@ export async function resolveLoansForDebtFacility(
         console.log("error", error);
         return {
           status: "ERROR",
-          msg:
-            "Could not resolve the debt facility action required for this loan",
+          msg: "Could not resolve the debt facility action required for this loan",
         };
       }
     );
@@ -157,8 +156,7 @@ export async function updateDebtFacilityAssignedDate(
         console.log("error", error);
         return {
           status: "ERROR",
-          msg:
-            "Could not resolve the debt facility action required for this loan",
+          msg: "Could not resolve the debt facility action required for this loan",
         };
       }
     );

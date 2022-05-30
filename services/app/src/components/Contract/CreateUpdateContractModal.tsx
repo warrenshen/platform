@@ -12,11 +12,11 @@ import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { addContractMutation, updateContractMutation } from "lib/api/contracts";
 import {
+  ProductConfigField,
   createProductConfigFieldsFromContract,
   createProductConfigFieldsFromProductType,
   createProductConfigForServer,
   isProductConfigFieldInvalid,
-  ProductConfigField,
 } from "lib/contracts";
 import { ActionType, ProductTypeEnum } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
@@ -86,14 +86,11 @@ export default function CreateUpdateContractModal({
 
   const [errMsg, setErrMsg] = useState("");
 
-  const [addContract, { loading: isAddContractLoading }] = useCustomMutation(
-    addContractMutation
-  );
+  const [addContract, { loading: isAddContractLoading }] =
+    useCustomMutation(addContractMutation);
 
-  const [
-    updateContract,
-    { loading: isUpdateContractLoading },
-  ] = useCustomMutation(updateContractMutation);
+  const [updateContract, { loading: isUpdateContractLoading }] =
+    useCustomMutation(updateContractMutation);
 
   const handleClickSubmit = async () => {
     const invalidFields = Object.values(currentJSONConfig)

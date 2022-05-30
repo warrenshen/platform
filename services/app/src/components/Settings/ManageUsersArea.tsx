@@ -8,9 +8,9 @@ import ReactivateUserModal from "components/Users/ReactivateUserModal";
 import UsersDataGrid from "components/Users/UsersDataGrid";
 import {
   GetCompanyForCustomerQuery,
+  Users,
   useGetDeactivatedUsersForCompanyQuery,
   useGetUsersForCompanyQuery,
-  Users,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { getCompanyUserRolesForCompany } from "lib/companies";
@@ -40,9 +40,10 @@ function ActiveUsersTab({ company }: ActiveUsersTabProps) {
 
   const [selectedUsers, setSelectedUsers] = useState<Users[]>([]);
 
-  const selectedUserIds = useMemo(() => selectedUsers.map((user) => user.id), [
-    selectedUsers,
-  ]);
+  const selectedUserIds = useMemo(
+    () => selectedUsers.map((user) => user.id),
+    [selectedUsers]
+  );
 
   const handleSelectUsers = useMemo(
     () => (users: Users[]) => {
@@ -140,9 +141,10 @@ function DeactivatedUsersTab({ company }: DeactivatedUsersTabProps) {
 
   const [selectedUsers, setSelectedUsers] = useState<Users[]>([]);
 
-  const selectedUserIds = useMemo(() => selectedUsers.map((user) => user.id), [
-    selectedUsers,
-  ]);
+  const selectedUserIds = useMemo(
+    () => selectedUsers.map((user) => user.id),
+    [selectedUsers]
+  );
 
   const handleSelectUsers = useMemo(
     () => (users: Users[]) => {

@@ -1,18 +1,18 @@
 import {
   Box,
   Button,
-  createStyles,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import BankFinancialSummariesDataGrid from "components/BankFinancialSummaries/BankFinancialSummariesDataGrid";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
 import {
-  useGetFundedLoansForBankSubscription,
   useGetBankFinancialSummariesByDateSubscription,
+  useGetFundedLoansForBankSubscription,
 } from "generated/graphql";
 import { formatDatetimeString, todayAsDateStringServer } from "lib/date";
 import { bankRoutes } from "lib/routes";
@@ -49,10 +49,8 @@ export default function BankOverviewPage() {
     },
   });
 
-  const {
-    data: fundedLoansData,
-    error: fundedLoansError,
-  } = useGetFundedLoansForBankSubscription();
+  const { data: fundedLoansData, error: fundedLoansError } =
+    useGetFundedLoansForBankSubscription();
 
   if (latestBankFinancialSummariesError) {
     alert(

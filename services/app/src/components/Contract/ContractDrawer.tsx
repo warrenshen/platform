@@ -1,13 +1,13 @@
 import {
   Box,
-  createStyles,
   Divider,
   Drawer,
   FormControl,
   FormHelperText,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import JsonContractTerm from "components/Contract/JsonContractTerm";
 import {
@@ -21,9 +21,9 @@ import {
   getContractTermCustomerDescription,
   getContractTermIsHiddenIfNull,
 } from "lib/contracts";
-import { formatCurrency } from "lib/number";
 import { formatDateString } from "lib/date";
 import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
+import { formatCurrency } from "lib/number";
 import { groupBy } from "lodash";
 import { useContext } from "react";
 

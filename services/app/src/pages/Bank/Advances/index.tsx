@@ -1,10 +1,10 @@
 import { Tab, Tabs } from "@material-ui/core";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
+import BankAdvancesAllTab from "pages/Bank/Advances/AdvancesAllTab";
 import BankAdvancesByPaymentDateTab from "pages/Bank/Advances/AdvancesByPaymentDateTab";
 import BankAdvancesExportAchsTab from "pages/Bank/Advances/AdvancesExportAchsTab";
 import BankAdvancesExportWiresTab from "pages/Bank/Advances/AdvancesExportWiresTab";
-import BankAdvancesAllTab from "pages/Bank/Advances/AdvancesAllTab";
 import { useState } from "react";
 import styled from "styled-components";
 

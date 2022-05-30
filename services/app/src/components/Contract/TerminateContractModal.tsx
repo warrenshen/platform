@@ -87,10 +87,8 @@ function TerminateContractModal({ contractId, handleClose }: Props) {
 
   const [terminationDate, setTerminationDate] = useState<string | null>(null);
 
-  const [
-    terminateContract,
-    { loading: isTerminateContractLoading },
-  ] = useCustomMutation(terminateContractMutation);
+  const [terminateContract, { loading: isTerminateContractLoading }] =
+    useCustomMutation(terminateContractMutation);
 
   const handleClickSave = async () => {
     const response = await terminateContract({

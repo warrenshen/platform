@@ -10,12 +10,12 @@ import {
 } from "@material-ui/core";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import Modal from "components/Shared/Modal/Modal";
+import { DebtFacilityFragment } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { DebtFacilityFragment } from "generated/graphql";
+import { createUpdateDebtFacility } from "lib/api/debtFacility";
 import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
 import { formatCurrency } from "lib/number";
-import { createUpdateDebtFacility } from "lib/api/debtFacility";
 import { ChangeEvent, useState } from "react";
 
 interface Props {
@@ -69,10 +69,8 @@ export default function CreateUpdateDebtFacilityModal({
     }
   );
 
-  const [
-    createUpdateFacility,
-    { loading: isUpdateFacilityLoading },
-  ] = useCustomMutation(createUpdateDebtFacility);
+  const [createUpdateFacility, { loading: isUpdateFacilityLoading }] =
+    useCustomMutation(createUpdateDebtFacility);
 
   // Submission Handler
   const handleClick = async () => {

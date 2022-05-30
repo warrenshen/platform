@@ -1,6 +1,7 @@
-import { Button, createStyles, makeStyles, Theme } from "@material-ui/core";
+import { Button, Theme, createStyles, makeStyles } from "@material-ui/core";
 import { CompanyFragment } from "generated/graphql";
 import { useState } from "react";
+
 import EditCompanyProfileModal from "./EditCompanyProfileModal";
 
 const useStyles = makeStyles((theme: Theme) =>

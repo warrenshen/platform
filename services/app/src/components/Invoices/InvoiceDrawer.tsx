@@ -1,12 +1,12 @@
 import {
   Box,
   Checkbox,
-  createStyles,
   Drawer,
   FormControlLabel,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
@@ -21,11 +21,12 @@ import {
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { getCompanyDisplayName } from "lib/companies";
-import { formatCurrency } from "lib/number";
 import { formatDateString } from "lib/date";
 import { FileTypeEnum, ProductTypeEnum } from "lib/enum";
+import { formatCurrency } from "lib/number";
 import { isPurchaseMoneyFinancingProductType } from "lib/settings";
 import { useContext, useMemo } from "react";
+
 import InvoiceLoansDataGrid from "./InvoiceLoansDataGrid";
 
 const useStyles = makeStyles((theme: Theme) =>

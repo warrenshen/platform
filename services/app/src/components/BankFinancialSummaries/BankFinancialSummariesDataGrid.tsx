@@ -1,11 +1,11 @@
 import { RowsProp } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
+import CSS from "csstype";
 import { BankFinancialSummaryFragment } from "generated/graphql";
 import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
-import { ColumnWidths, formatRowModel } from "lib/tables";
 import { formatCurrency, formatPercentage } from "lib/number";
+import { ColumnWidths, formatRowModel } from "lib/tables";
 import { useMemo } from "react";
-import CSS from "csstype";
 
 interface Props {
   bankFinancialSummaries: BankFinancialSummaryFragment[];

@@ -12,7 +12,7 @@ import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { scheduleAccountLevelFeeRepaymentMutation } from "lib/api/payments";
 import { addBizDays, subtractBizDays, todayAsDateStringServer } from "lib/date";
-import { PaymentTypeEnum, PaymentOptionEnum, ProductTypeEnum } from "lib/enum";
+import { PaymentOptionEnum, PaymentTypeEnum, ProductTypeEnum } from "lib/enum";
 import {
   computeSettlementDateForPayment,
   getSettlementTimelineConfigFromContract,
@@ -35,10 +35,8 @@ export default function ScheduleRepaymentModal({
 
   const [customer, setCustomer] = useState<Companies | null>(null);
   const [payment, setPayment] = useState<PaymentsInsertInput | null>(null);
-  const [
-    customerBankAccount,
-    setCustomerBankAccount,
-  ] = useState<BankAccounts | null>(null);
+  const [customerBankAccount, setCustomerBankAccount] =
+    useState<BankAccounts | null>(null);
 
   const contract = customer?.contract || null;
   const productType = customer?.contract?.product_type || null;
@@ -93,9 +91,8 @@ export default function ScheduleRepaymentModal({
       // For Reverse Draft ACH repayment method, deposit date equals payment date + 1 day.
       // Why? Banks execute the payment the day after you submit it to them.
       const depositDate = addBizDays(payment.payment_date, 1);
-      const settlementTimelineConfig = getSettlementTimelineConfigFromContract(
-        contract
-      );
+      const settlementTimelineConfig =
+        getSettlementTimelineConfigFromContract(contract);
       const settlementDate = computeSettlementDateForPayment(
         payment.method,
         depositDate,
@@ -109,10 +106,8 @@ export default function ScheduleRepaymentModal({
     }
   }, [contract, payment?.method, payment?.payment_date, setPayment]);
 
-  const [
-    scheduleRepayment,
-    { loading: isScheduleRepaymentLoading },
-  ] = useCustomMutation(scheduleRepaymentMutation);
+  const [scheduleRepayment, { loading: isScheduleRepaymentLoading }] =
+    useCustomMutation(scheduleRepaymentMutation);
 
   const [
     scheduleAccountLevelFeeRepayment,

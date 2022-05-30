@@ -1,7 +1,7 @@
 import { Box, Button, Typography } from "@material-ui/core";
+import { useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import styled from "styled-components";
-import { useState } from "react";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL}/scripts/pdf.worker.js`;
 

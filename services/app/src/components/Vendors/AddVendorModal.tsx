@@ -1,13 +1,13 @@
 import {
   Box,
   Button,
-  createStyles,
   Dialog,
   DialogActions,
   DialogTitle,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import RegisterThirdPartyForm from "components/ThirdParties/RegisterThirdPartyForm";
@@ -24,8 +24,8 @@ import {
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import {
-  createPartnershipRequestMutation,
   LicenseInfo,
+  createPartnershipRequestMutation,
 } from "lib/api/companies";
 import { useContext, useState } from "react";
 
@@ -70,10 +70,8 @@ export default function AddVendorModal({ customerId, handleClose }: Props) {
     license_ids: [],
   });
 
-  const [
-    createPayorVendor,
-    { loading: isCreatePayorVendorLoading },
-  ] = useCustomMutation(createPartnershipRequestMutation);
+  const [createPayorVendor, { loading: isCreatePayorVendorLoading }] =
+    useCustomMutation(createPartnershipRequestMutation);
 
   const handleRegisterClick = async () => {
     const response = await createPayorVendor({

@@ -12,7 +12,6 @@ import {
 import SelectLoanAutocomplete from "components/Loan/SelectLoanAutocomplete";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
-import { formatCurrency } from "lib/number";
 import {
   LoanTypeEnum,
   PaymentsInsertInput,
@@ -21,10 +20,11 @@ import {
 import {
   CustomerPaymentOptions,
   PaymentOptionToLabel,
-  ProductTypeToLoanType,
   ProductTypeEnum,
+  ProductTypeToLoanType,
 } from "lib/enum";
-import { useMemo, ChangeEvent, Dispatch, SetStateAction } from "react";
+import { formatCurrency } from "lib/number";
+import { ChangeEvent, Dispatch, SetStateAction, useMemo } from "react";
 
 interface Props {
   productType: ProductTypeEnum;

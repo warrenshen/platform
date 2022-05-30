@@ -1,12 +1,12 @@
 import {
   Box,
-  createStyles,
   Dialog,
   DialogContent,
   DialogTitle,
-  makeStyles,
-  Typography,
   Theme,
+  Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import RawJsonToggle from "components/Shared/RawJsonToggle";
 import {

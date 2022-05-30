@@ -1,22 +1,22 @@
 import {
   Box,
-  createStyles,
   FormControl,
   InputLabel,
   MenuItem,
-  makeStyles,
   Select,
   TextField,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
-import Modal from "components/Shared/Modal/Modal";
 import DateInput from "components/Shared/FormInputs/DateInput";
+import Modal from "components/Shared/Modal/Modal";
+import { CustomerForBankFragment } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { updateCompanyDebtFacilityStatus } from "lib/api/debtFacility";
 import { getEndOfNextMonth } from "lib/date";
-import { CustomerForBankFragment } from "generated/graphql";
 import {
   DebtFacilityCompanyStatusEnum,
   DebtFacilityCompanyStatusToLabel,
@@ -42,12 +42,10 @@ export default function UpdateCompanyDebtFacilityStatusModal({
 }: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
-  const [
-    selectedDebtFacilityStatus,
-    setSelectedDebtFacilityStatus,
-  ] = useState<DebtFacilityCompanyStatusEnum>(
-    selectedCompany.debt_facility_status as DebtFacilityCompanyStatusEnum
-  );
+  const [selectedDebtFacilityStatus, setSelectedDebtFacilityStatus] =
+    useState<DebtFacilityCompanyStatusEnum>(
+      selectedCompany.debt_facility_status as DebtFacilityCompanyStatusEnum
+    );
   const [statusComment, setStatusComment] = useState("");
   const [waiverDate, setWaiverDate] = useState("");
   const [waiverExpirationDate, setWaiverExpirationDate] = useState("");

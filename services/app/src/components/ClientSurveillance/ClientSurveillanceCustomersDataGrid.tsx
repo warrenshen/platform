@@ -6,19 +6,21 @@ import {
   FinancialSummaries,
   GetNonDummyCustomersWithMetadataQuery,
 } from "generated/graphql";
+import { formatDatetimeString } from "lib/date";
 import {
   ClientSurveillanceCategoryEnum,
   ProductTypeEnum,
   ProductTypeToLabel,
   QualifyForEnum,
 } from "lib/enum";
+import { formatPercentage } from "lib/number";
+import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
-import { getBankCompanyRoute, BankCompanyRouteEnum } from "lib/routes";
+
 import { QualifyForToLabel } from "../../lib/enum";
 import ClientSurveillanceStatusChip from "./ClientSurveillanceStatusChip";
-import { formatDatetimeString } from "lib/date";
-import { formatPercentage } from "lib/number";
+
 interface Props {
   isExcelExport?: boolean;
   isMultiSelectEnabled?: boolean;
@@ -190,8 +192,9 @@ export default function ClientSurveillanceCustomersDataGrid({
   );
 
   const handleSelectionChanged = useMemo(
-    () => ({ selectedRowsData }: any) =>
-      handleSelectCompanies && handleSelectCompanies(selectedRowsData),
+    () =>
+      ({ selectedRowsData }: any) =>
+        handleSelectCompanies && handleSelectCompanies(selectedRowsData),
     [handleSelectCompanies]
   );
 

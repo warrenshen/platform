@@ -6,9 +6,9 @@ import {
   TextField,
   Typography,
 } from "@material-ui/core";
-import AutocompleteVendors from "components/Vendors/AutocompleteVendors";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DateInput from "components/Shared/FormInputs/DateInput";
+import AutocompleteVendors from "components/Vendors/AutocompleteVendors";
 import {
   GetArtifactRelationsByCompanyIdQuery,
   LineOfCreditsInsertInput,

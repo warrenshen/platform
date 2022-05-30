@@ -1,18 +1,17 @@
-import { Button, Box, Typography, Tooltip } from "@material-ui/core";
+import { Box, Button, Tooltip, Typography } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import CommentIcon from "@material-ui/icons/Comment";
-import MetrcLogo from "components/Shared/Images/MetrcLogo.png";
-
+import PurchaseOrderDrawer from "components/PurchaseOrder/PurchaseOrderDrawer";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
-import ProgressBarDataGridCell from "components/Shared/DataGrid/ProgressBarDataGridCell";
-import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
-import PurchaseOrderDrawer from "components/PurchaseOrder/PurchaseOrderDrawer";
 import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
+import ProgressBarDataGridCell from "components/Shared/DataGrid/ProgressBarDataGridCell";
+import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
+import MetrcLogo from "components/Shared/Images/MetrcLogo.png";
 import {
   Companies,
   PurchaseOrderFragment,
@@ -243,9 +242,10 @@ export default function PurchaseOrdersDataGrid({
   );
 
   const handleSelectionChanged = useMemo(
-    () => ({ selectedRowsData }: any) =>
-      handleSelectPurchaseOrders &&
-      handleSelectPurchaseOrders(selectedRowsData as PurchaseOrderFragment[]),
+    () =>
+      ({ selectedRowsData }: any) =>
+        handleSelectPurchaseOrders &&
+        handleSelectPurchaseOrders(selectedRowsData as PurchaseOrderFragment[]),
     [handleSelectPurchaseOrders]
   );
 

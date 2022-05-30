@@ -1,4 +1,4 @@
-import { Select, InputLabel, MenuItem } from "@material-ui/core";
+import { InputLabel, MenuItem, Select } from "@material-ui/core";
 import { BankAccountType } from "lib/enum";
 
 interface Props {

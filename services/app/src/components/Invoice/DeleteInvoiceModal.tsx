@@ -25,22 +25,18 @@ export default function DeleteInvoiceModal({ invoiceId, handleClose }: Props) {
   } = useContext(CurrentUserContext);
   const isBankUser = isRoleBankUser(role);
 
-  const {
-    data,
-    loading: isExistingPurchaseOrderLoading,
-  } = useGetInvoiceByIdQuery({
-    fetchPolicy: "network-only",
-    variables: {
-      id: invoiceId,
-    },
-  });
+  const { data, loading: isExistingPurchaseOrderLoading } =
+    useGetInvoiceByIdQuery({
+      fetchPolicy: "network-only",
+      variables: {
+        id: invoiceId,
+      },
+    });
 
   const invoice = data?.invoices_by_pk || null;
 
-  const [
-    deleteInvoice,
-    { loading: isDeleteInvoiceLoading },
-  ] = useCustomMutation(deleteInvoiceMutation);
+  const [deleteInvoice, { loading: isDeleteInvoiceLoading }] =
+    useCustomMutation(deleteInvoiceMutation);
 
   const handleClickSubmit = async () => {
     const response = await deleteInvoice({

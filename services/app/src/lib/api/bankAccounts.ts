@@ -3,9 +3,9 @@ import {
   BankAccountsInsertInput,
 } from "generated/graphql";
 import {
+  CustomMutationResponse,
   authenticatedApi,
   bankAccountsRoutes,
-  CustomMutationResponse,
 } from "lib/api";
 
 export type DeleteBankAccountMutationReq = {

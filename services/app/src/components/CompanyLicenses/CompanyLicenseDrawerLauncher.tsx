@@ -1,6 +1,6 @@
 import { Box } from "@material-ui/core";
-import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import CompanyLicenseDrawer from "components/CompanyLicenses/CompanyLicenseDrawer";
+import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import { CompanyLicenseFragment } from "generated/graphql";
 import { useState } from "react";
 

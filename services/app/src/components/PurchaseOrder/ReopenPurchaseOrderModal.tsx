@@ -1,7 +1,6 @@
 import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import Modal from "components/Shared/Modal/Modal";
-
 import {
   CurrentUserContext,
   isRoleBankUser,
@@ -9,10 +8,10 @@ import {
 import { PurchaseOrderLimitedFragment } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { getCompanyDisplayName } from "lib/companies";
 import { reopenPurchaseOrderMutation } from "lib/api/purchaseOrders";
-import { formatCurrency } from "lib/number";
+import { getCompanyDisplayName } from "lib/companies";
 import { formatDateString } from "lib/date";
+import { formatCurrency } from "lib/number";
 import { useContext } from "react";
 
 interface Props {
@@ -32,10 +31,8 @@ export default function ReopenPurchaseOrderModal({
   } = useContext(CurrentUserContext);
   const isBankUser = isRoleBankUser(role);
 
-  const [
-    reopenPurchaseOrder,
-    { loading: isReopenPurchaseOrderLoading },
-  ] = useCustomMutation(reopenPurchaseOrderMutation);
+  const [reopenPurchaseOrder, { loading: isReopenPurchaseOrderLoading }] =
+    useCustomMutation(reopenPurchaseOrderMutation);
 
   const isPrimaryActionDisabled =
     isReopenPurchaseOrderLoading ||

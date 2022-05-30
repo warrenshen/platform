@@ -107,10 +107,10 @@ export default function RepaymentTransactionsDataGrid({
   handleClickCustomer = () => {},
   handleSelectPayments,
 }: Props) {
-  const rows = useMemo(() => getRows(isLineOfCredit, payments), [
-    isLineOfCredit,
-    payments,
-  ]);
+  const rows = useMemo(
+    () => getRows(isLineOfCredit, payments),
+    [isLineOfCredit, payments]
+  );
   const columns = useMemo(
     () => [
       {
@@ -331,15 +331,17 @@ export default function RepaymentTransactionsDataGrid({
   );
 
   const handleSelectionChanged = useMemo(
-    () => ({ selectedRowsData }: any) =>
-      handleSelectPayments &&
-      handleSelectPayments(selectedRowsData as PaymentLimitedFragment[]),
+    () =>
+      ({ selectedRowsData }: any) =>
+        handleSelectPayments &&
+        handleSelectPayments(selectedRowsData as PaymentLimitedFragment[]),
     [handleSelectPayments]
   );
 
-  const filtering = useMemo(() => ({ enable: isFilteringEnabled }), [
-    isFilteringEnabled,
-  ]);
+  const filtering = useMemo(
+    () => ({ enable: isFilteringEnabled }),
+    [isFilteringEnabled]
+  );
 
   return (
     <ControlledDataGrid

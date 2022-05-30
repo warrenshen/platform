@@ -1,6 +1,6 @@
+import CurrentCustomerProvider from "contexts/CurrentCustomerProvider";
 import { Companies } from "generated/graphql";
 import { ProductTypeEnum } from "lib/enum";
-import CurrentCustomerProvider from "contexts/CurrentCustomerProvider";
 import CustomerLoansPageContent from "pages/Customer/Loans/LoansPageContent";
 
 interface Props {

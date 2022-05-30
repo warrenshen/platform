@@ -223,9 +223,10 @@ export default function FinancialSummariesDataGrid({
     [isCustomerNameFixed, isProductTypeVisible, handleClickCustomer]
   );
 
-  const filtering = useMemo(() => ({ enable: isFilteringEnabled }), [
-    isFilteringEnabled,
-  ]);
+  const filtering = useMemo(
+    () => ({ enable: isFilteringEnabled }),
+    [isFilteringEnabled]
+  );
 
   return (
     <ControlledDataGrid

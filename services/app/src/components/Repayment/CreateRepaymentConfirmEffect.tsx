@@ -7,13 +7,13 @@ import {
   PaymentsInsertInput,
   useBankAccountsForTransferQuery,
 } from "generated/graphql";
-import { formatCurrency } from "lib/number";
 import {
+  ProductTypeEnum,
   RepaymentMethodEnum,
   RepaymentMethodToLabel,
-  ProductTypeEnum,
 } from "lib/enum";
 import { LoanBeforeAfterPayment } from "lib/finance/payments/repayment";
+import { formatCurrency } from "lib/number";
 
 interface Props {
   companyId: Companies["id"];

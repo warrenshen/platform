@@ -1,5 +1,6 @@
 import { Box, TextField } from "@material-ui/core";
 import ClientSurveillanceCustomersDataGrid from "components/ClientSurveillance/ClientSurveillanceCustomersDataGrid";
+import DateInput from "components/Shared/FormInputs/DateInput";
 import {
   Companies,
   useGetNonDummyCustomersWithMetadataQuery,
@@ -11,7 +12,6 @@ import {
   todayAsDateStringServer,
 } from "lib/date";
 import { useMemo, useState } from "react";
-import DateInput from "components/Shared/FormInputs/DateInput";
 
 export default function ClientSurveillanceHistoricalTab() {
   const [searchQuery, setSearchQuery] = useState("");

@@ -7,10 +7,10 @@ import InviteUserModal from "components/Users/InviteUserModal";
 import ReactivateUserModal from "components/Users/ReactivateUserModal";
 import UsersDataGrid from "components/Users/UsersDataGrid";
 import {
+  UserRolesEnum,
+  Users,
   useGetActiveUsersByRolesQuery,
   useGetDeactivedUsersByRolesQuery,
-  Users,
-  UserRolesEnum,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { useMemo, useState } from "react";
@@ -26,9 +26,10 @@ function ActiveUsersTab() {
 
   const [selectedUsers, setSelectedUsers] = useState<Users[]>([]);
 
-  const selectedUserIds = useMemo(() => selectedUsers.map((user) => user.id), [
-    selectedUsers,
-  ]);
+  const selectedUserIds = useMemo(
+    () => selectedUsers.map((user) => user.id),
+    [selectedUsers]
+  );
 
   const handleSelectUsers = useMemo(
     () => (users: Users[]) => {
@@ -125,9 +126,10 @@ function DeactivatedUsersTab() {
 
   const [selectedUsers, setSelectedUsers] = useState<Users[]>([]);
 
-  const selectedUserIds = useMemo(() => selectedUsers.map((user) => user.id), [
-    selectedUsers,
-  ]);
+  const selectedUserIds = useMemo(
+    () => selectedUsers.map((user) => user.id),
+    [selectedUsers]
+  );
 
   const handleSelectUsers = useMemo(
     () => (users: Users[]) => {

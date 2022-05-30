@@ -24,10 +24,8 @@ export default function ApproveVendor(props: Props) {
   const [open, setOpen] = useState(false);
   const [errMsg, setErrMsg] = useState("");
 
-  const [
-    approvePartnership,
-    { loading: isApprovePartnershipLoading },
-  ] = useCustomMutation(approvePartnershipMutation);
+  const [approvePartnership, { loading: isApprovePartnershipLoading }] =
+    useCustomMutation(approvePartnershipMutation);
 
   const vendorPartnershipId = props.vendorPartnershipId;
 

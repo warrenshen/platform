@@ -1,7 +1,7 @@
 import {
+  CustomMutationResponse,
   authenticatedApi,
   reportsRoutes,
-  CustomMutationResponse,
 } from "lib/api";
 
 export type ReportGenerationReq = {

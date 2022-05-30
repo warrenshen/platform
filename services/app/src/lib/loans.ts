@@ -6,8 +6,8 @@ import {
   LoanLimitedFragment,
   LoanTypeEnum,
 } from "generated/graphql";
-import { UUIDEnum } from "lib/enum";
 import { getCompanyDisplayName } from "lib/companies";
+import { UUIDEnum } from "lib/enum";
 import { uniq } from "lodash";
 
 export function createLoanCustomerIdentifier(

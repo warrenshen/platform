@@ -1,8 +1,8 @@
 import { Box, Button } from "@material-ui/core";
-import BankLoansDataGrid from "components/Loans/BankLoansDataGrid";
 import CreateAdvanceModal from "components/Advance/CreateAdvanceModal";
 import DeleteLoanModal from "components/Loan/DeleteLoanModal";
 import ReviewLoanRejectModal from "components/Loan/ReviewLoanRejectModal";
+import BankLoansDataGrid from "components/Loans/BankLoansDataGrid";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
@@ -11,13 +11,13 @@ import {
   Loans,
   useGetNotFundedLoansForBankSubscription,
 } from "generated/graphql";
-import { useHistory } from "react-router-dom";
 import useSnackbar from "hooks/useSnackbar";
 import { approveLoans } from "lib/api/loans";
 import { Action, check } from "lib/auth/rbac-rules";
 import { LoanStatusEnum } from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useContext, useMemo, useState } from "react";
+import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 const Container = styled.div`

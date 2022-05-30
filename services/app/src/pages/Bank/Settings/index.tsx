@@ -1,16 +1,16 @@
-import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
+import { Box, Theme, createStyles, makeStyles } from "@material-ui/core";
 import CreateUpdateBankAccountModal from "components/BankAccount/CreateUpdateBankAccountModal";
 import DeleteBankAccountModal from "components/BankAccount/DeleteBankAccountModal";
+import BankAccountsDataGrid from "components/BankAccounts/BankAccountsDataGrid";
+import ManageBankUsersArea from "components/Settings/ManageBankUsersArea";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
-import ManageBankUsersArea from "components/Settings/ManageBankUsersArea";
-import BankAccountsDataGrid from "components/BankAccounts/BankAccountsDataGrid";
 import {
-  useGetBespokeBankAccountsQuery,
-  BankAccounts,
   BankAccountFragment,
+  BankAccounts,
+  useGetBespokeBankAccountsQuery,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { useCallback, useMemo, useState } from "react";
@@ -39,13 +39,12 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function BankSettingsPage() {
   const classes = useStyles();
 
-  const {
-    data: bankAccountsData,
-    refetch: refetchBankAccounts,
-  } = useGetBespokeBankAccountsQuery();
-  const accounts = useMemo(() => bankAccountsData?.bank_accounts || [], [
-    bankAccountsData,
-  ]);
+  const { data: bankAccountsData, refetch: refetchBankAccounts } =
+    useGetBespokeBankAccountsQuery();
+  const accounts = useMemo(
+    () => bankAccountsData?.bank_accounts || [],
+    [bankAccountsData]
+  );
 
   const refetch = useCallback(() => {
     refetchBankAccounts();

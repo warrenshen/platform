@@ -1,9 +1,9 @@
 import {
   Box,
-  createStyles,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import CreateAccountLevelFeeModal from "components/Fee/CreateAccountLevelFeeModal";
 import CreateAccountLevelFeeWaiverModal from "components/Fee/CreateAccountLevelFeeWaiverModal";
@@ -23,8 +23,8 @@ import {
   useGetCustomerAccountQuery,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
-import { formatCurrency } from "lib/number";
 import { ProductTypeEnum } from "lib/enum";
+import { formatCurrency } from "lib/number";
 import { useContext, useMemo, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>

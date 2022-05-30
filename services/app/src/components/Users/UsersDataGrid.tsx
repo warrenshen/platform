@@ -82,8 +82,9 @@ export default function UsersDataGrid({
   );
 
   const handleSelectionChanged = useMemo(
-    () => ({ selectedRowsData }: any) =>
-      handleSelectUsers && handleSelectUsers(selectedRowsData as Users[]),
+    () =>
+      ({ selectedRowsData }: any) =>
+        handleSelectUsers && handleSelectUsers(selectedRowsData as Users[]),
     [handleSelectUsers]
   );
 

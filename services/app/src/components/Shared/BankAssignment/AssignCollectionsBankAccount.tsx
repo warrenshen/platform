@@ -17,9 +17,8 @@ interface Props {
 export default function AssignCollectionsBankAccount(props: Props) {
   const snackbar = useSnackbar();
 
-  const [
-    assignCollectionsBankAccount,
-  ] = useAssignCollectionsBankAccountMutation();
+  const [assignCollectionsBankAccount] =
+    useAssignCollectionsBankAccountMutation();
 
   return (
     <CompanyBankAssignment

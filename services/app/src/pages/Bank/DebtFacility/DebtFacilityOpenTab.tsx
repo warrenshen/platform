@@ -1,8 +1,9 @@
 import { Box, TextField, Typography } from "@material-ui/core";
+import DebtFacilityLoansDataGrid from "components/DebtFacility/DebtFacilityLoansDataGrid";
+import MoveDebtFacilityLoanModal from "components/DebtFacility/MoveDebtFacilityLoanModal";
+import UpdateDebtFacilityLoanAssignedDateModal from "components/DebtFacility/UpdateDebtFacilityLoanAssignedDateModal";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
-import { Action } from "lib/auth/rbac-rules";
-import DebtFacilityLoansDataGrid from "components/DebtFacility/DebtFacilityLoansDataGrid";
 import {
   DebtFacilities,
   GetDebtFacilitiesSubscription,
@@ -10,18 +11,17 @@ import {
   useGetOpenLoansByDebtFacilityIdSubscription,
   useGetOpenLoansByDebtFacilityStatusesSubscription,
 } from "generated/graphql";
-import MoveDebtFacilityLoanModal from "components/DebtFacility/MoveDebtFacilityLoanModal";
-import UpdateDebtFacilityLoanAssignedDateModal from "components/DebtFacility/UpdateDebtFacilityLoanAssignedDateModal";
-import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
+import { useFilterDebtFacilityLoansBySearchQuery } from "hooks/useFilterDebtFacilityLoans";
+import { Action } from "lib/auth/rbac-rules";
 import {
   DebtFacilityCompanyStatusEnum,
   DebtFacilityStatusEnum,
   ProductTypeEnum,
 } from "lib/enum";
+import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
+import { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
-import { useMemo, useState } from "react";
-import { useFilterDebtFacilityLoansBySearchQuery } from "hooks/useFilterDebtFacilityLoans";
 
 const Container = styled.div`
   display: flex;
@@ -75,21 +75,19 @@ export default function DebtFacilityOpenTab({
     [setSelectedBespokeLoans]
   );
 
-  const {
-    data: debtFacilityData,
-    error: debtFacilityError,
-  } = useGetOpenLoansByDebtFacilityIdSubscription({
-    variables: {
-      statuses: [
-        DebtFacilityStatusEnum.SoldIntoDebtFacility,
-        DebtFacilityStatusEnum.Waiver,
-        DebtFacilityCompanyStatusEnum.Waiver,
-      ],
-      target_facility_ids: !!selectedDebtFacilityId
-        ? [selectedDebtFacilityId]
-        : allFacilityIds,
-    },
-  });
+  const { data: debtFacilityData, error: debtFacilityError } =
+    useGetOpenLoansByDebtFacilityIdSubscription({
+      variables: {
+        statuses: [
+          DebtFacilityStatusEnum.SoldIntoDebtFacility,
+          DebtFacilityStatusEnum.Waiver,
+          DebtFacilityCompanyStatusEnum.Waiver,
+        ],
+        target_facility_ids: !!selectedDebtFacilityId
+          ? [selectedDebtFacilityId]
+          : allFacilityIds,
+      },
+    });
   if (debtFacilityError) {
     console.error({ debtFacilityError });
     alert(`Error in query (details in console): ${debtFacilityError.message}`);
@@ -100,17 +98,15 @@ export default function DebtFacilityOpenTab({
   );
 
   // Get loans currently on bespoke's books (or repurchased)
-  const {
-    data: bespokeData,
-    error: bespokeError,
-  } = useGetOpenLoansByDebtFacilityStatusesSubscription({
-    variables: {
-      statuses: [
-        DebtFacilityStatusEnum.BespokeBalanceSheet,
-        DebtFacilityStatusEnum.Repurchased,
-      ],
-    },
-  });
+  const { data: bespokeData, error: bespokeError } =
+    useGetOpenLoansByDebtFacilityStatusesSubscription({
+      variables: {
+        statuses: [
+          DebtFacilityStatusEnum.BespokeBalanceSheet,
+          DebtFacilityStatusEnum.Repurchased,
+        ],
+      },
+    });
   if (bespokeError) {
     console.error({ bespokeError });
     alert(`Error in query (details in console): ${bespokeError.message}`);

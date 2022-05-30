@@ -1,8 +1,8 @@
 import { Companies, CompanyFacilities } from "generated/graphql";
 import {
+  CustomMutationResponse,
   authenticatedApi,
   companyFacilitiesRoutes,
-  CustomMutationResponse,
 } from "lib/api";
 
 export type CreateUpdateCompanyFacilityReq = {

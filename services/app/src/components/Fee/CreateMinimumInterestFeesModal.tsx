@@ -1,6 +1,8 @@
 import { Box, Typography } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import { Alert } from "@material-ui/lab";
+import MinimumInterestFeesDataGrid from "components/Fee/MinimumInterestFeesDataGrid";
+import DateInput from "components/Shared/FormInputs/DateInput";
 import Modal from "components/Shared/Modal/Modal";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -8,11 +10,9 @@ import {
   getAllMonthlyInterestFeesDueQuery,
   submitMinimumInterestFeesDueMutation,
 } from "lib/api/fees";
-import { useState } from "react";
-import MinimumInterestFeesDataGrid from "components/Fee/MinimumInterestFeesDataGrid";
-import DateInput from "components/Shared/FormInputs/DateInput";
 import { formatDateStringAsMonth } from "lib/date";
 import { sortBy } from "lodash";
+import { useState } from "react";
 
 interface Props {
   handleClose: () => void;
@@ -22,13 +22,10 @@ export default function CreateMinimumInterestFeesModal({ handleClose }: Props) {
   const snackbar = useSnackbar();
 
   const [dateStr, setDateStr] = useState<string>("");
-  const [isOnConfirmationPage, setIsOnConfirmationPage] = useState<boolean>(
-    false
-  );
-  const [
-    minimumInterestFeesDuePayload,
-    setMinimumInterestFeesDuePayload,
-  ] = useState<any>(null);
+  const [isOnConfirmationPage, setIsOnConfirmationPage] =
+    useState<boolean>(false);
+  const [minimumInterestFeesDuePayload, setMinimumInterestFeesDuePayload] =
+    useState<any>(null);
 
   const [
     getAllMonthlyInterestFeesDue,

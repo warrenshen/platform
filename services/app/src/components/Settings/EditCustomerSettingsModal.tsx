@@ -2,15 +2,15 @@ import {
   Box,
   Button,
   Checkbox,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   FormControlLabel,
-  makeStyles,
   TextField,
   Theme,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import {
   CompanySettingsFragment,

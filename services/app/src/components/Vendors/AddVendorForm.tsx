@@ -1,6 +1,5 @@
 import { Box, TextField } from "@material-ui/core";
 import { AddVendorInput } from "components/Vendors/AddVendorNewModal";
-
 import { isEmailValid } from "lib/validation";
 
 interface Props {

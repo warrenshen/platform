@@ -1,10 +1,10 @@
 import {
   Box,
   Button,
-  createStyles,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import {
@@ -13,15 +13,16 @@ import {
   useGetInvoiceForReviewQuery,
 } from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
-import { formatCurrency } from "lib/number";
 import { formatDateString } from "lib/date";
 import { FileTypeEnum } from "lib/enum";
+import { formatCurrency } from "lib/number";
 import { anonymousRoutes } from "lib/routes";
 import { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
+import styled from "styled-components";
+
 import ReviewInvoiceApproveModal from "./ReviewInvoiceApproveModal";
 import ReviewInvoiceRejectModal from "./ReviewInvoiceRejectModal";
-import styled from "styled-components";
 
 const Buttons = styled.div`
   display: flex;

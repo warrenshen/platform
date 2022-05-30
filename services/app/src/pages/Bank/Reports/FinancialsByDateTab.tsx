@@ -1,4 +1,4 @@
-import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
+import { Box, Theme, createStyles, makeStyles } from "@material-ui/core";
 import FinancialSummariesDataGrid from "components/CustomerFinancialSummaries/FinancialSummariesDataGrid";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import { useGetFinancialSummariesByDateQuery } from "generated/graphql";

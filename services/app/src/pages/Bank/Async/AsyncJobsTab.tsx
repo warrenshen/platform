@@ -1,7 +1,7 @@
 import { Box } from "@material-ui/core";
-import { AsyncPipelines, useGetAsyncPipelinesQuery } from "generated/graphql";
 import AsyncPipelineDrawer from "components/AsyncPipeline/AsyncPipelineDrawer";
 import AsyncPipelinesDataGrid from "components/AsyncPipeline/AsyncPipelinesDataGrid";
+import { AsyncPipelines, useGetAsyncPipelinesQuery } from "generated/graphql";
 import { useState } from "react";
 import styled from "styled-components";
 
@@ -22,9 +22,8 @@ export default function AsyncJobsTab() {
     alert(`Error in query (details in console): ${error.message}`);
   }
 
-  const [selectedAsyncPipelineId, setSelectedAsyncPipelineId] = useState<
-    AsyncPipelines["id"]
-  >(null);
+  const [selectedAsyncPipelineId, setSelectedAsyncPipelineId] =
+    useState<AsyncPipelines["id"]>(null);
 
   return (
     <Container>

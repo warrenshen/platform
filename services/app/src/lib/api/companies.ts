@@ -1,24 +1,24 @@
 import {
   Companies,
   CompaniesInsertInput,
+  CompanyPartnershipInvitations,
   CompanyPartnershipRequests,
   CompanyProductQualifications,
   CompanySettings,
   CompanySettingsInsertInput,
   ContractsInsertInput,
   UsersInsertInput,
-  CompanyPartnershipInvitations,
 } from "generated/graphql";
 import {
+  CustomMutationResponse,
   authenticatedApi,
   companyRoutes,
-  CustomMutationResponse,
 } from "lib/api";
 import {
-  SurveillanceStatusEnum,
   CustomMessageEnum,
   FeatureFlagEnum,
   QualifyForEnum,
+  SurveillanceStatusEnum,
 } from "lib/enum";
 
 export type CreateCustomerReq = {

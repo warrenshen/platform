@@ -1,13 +1,13 @@
-import { filter } from "lodash";
-import { useMemo } from "react";
 import {
+  GetConfirmedPurchaseOrdersSubscription,
+  GetDraftPurchaseOrdersSubscription,
   GetIncompletePurchaseOrdersSubscription,
   GetNotConfirmedPurchaseOrdersSubscription,
-  GetConfirmedPurchaseOrdersSubscription,
   GetPurchaseOrdersSubscription,
   PurchaseOrderFragment,
-  GetDraftPurchaseOrdersSubscription,
 } from "generated/graphql";
+import { filter } from "lodash";
+import { useMemo } from "react";
 
 export const useFilterDraftedPurchaseOrders = (
   searchQuery: string,

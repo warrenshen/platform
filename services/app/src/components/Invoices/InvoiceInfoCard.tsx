@@ -2,15 +2,15 @@ import {
   Box,
   Card,
   CardContent,
-  makeStyles,
   Typography,
+  makeStyles,
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
 import { CheckCircle } from "@material-ui/icons";
 import { InvoiceLimitedFragment } from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
-import { formatCurrency } from "lib/number";
 import { formatDateString } from "lib/date";
+import { formatCurrency } from "lib/number";
 
 const useStyles = makeStyles({
   baseInput: {

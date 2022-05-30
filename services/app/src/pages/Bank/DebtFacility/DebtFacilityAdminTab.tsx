@@ -1,15 +1,15 @@
 import { Box, Typography } from "@material-ui/core";
+import CreateUpdateDebtFacilityModal from "components/DebtFacility/CreateUpdateDebtFacilityModal";
+import DebtFacilityDataGrid from "components/DebtFacility/DebtFacilityDataGrid";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
-import { Action } from "lib/auth/rbac-rules";
-import DebtFacilityDataGrid from "components/DebtFacility/DebtFacilityDataGrid";
-import CreateUpdateDebtFacilityModal from "components/DebtFacility/CreateUpdateDebtFacilityModal";
 import {
   DebtFacilityFragment,
   GetDebtFacilitiesSubscription,
 } from "generated/graphql";
-import styled from "styled-components";
+import { Action } from "lib/auth/rbac-rules";
 import { useMemo, useState } from "react";
+import styled from "styled-components";
 
 const Container = styled.div`
   display: flex;

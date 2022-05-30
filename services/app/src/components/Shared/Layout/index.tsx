@@ -1,22 +1,22 @@
 import { Box, Drawer } from "@material-ui/core";
 import List from "@material-ui/core/List";
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import { Theme, createStyles, makeStyles } from "@material-ui/core/styles";
 import EnvironmentChip from "components/Shared/Chip/EnvironmentChip";
+import BespokeFinancialLogo from "components/Shared/Images/BespokeFinancialLogo.png";
 import { ReactComponent as AdvancesIcon } from "components/Shared/Layout/Icons/Advances.svg";
-import { ReactComponent as EbbaApplicationsIcon } from "components/Shared/Layout/Icons/EbbaApplications.svg";
 import { ReactComponent as ContractsIcon } from "components/Shared/Layout/Icons/Contracts.svg";
 import { ReactComponent as CustomersIcon } from "components/Shared/Layout/Icons/Customers.svg";
+import { ReactComponent as EbbaApplicationsIcon } from "components/Shared/Layout/Icons/EbbaApplications.svg";
 import { ReactComponent as InvoicesIcon } from "components/Shared/Layout/Icons/Invoices.svg";
 import { ReactComponent as LoansIcon } from "components/Shared/Layout/Icons/Loans.svg";
 import { ReactComponent as MetrcIcon } from "components/Shared/Layout/Icons/Metrc.svg";
 import { ReactComponent as OverviewIcon } from "components/Shared/Layout/Icons/Overview.svg";
+import { ReactComponent as RepaymentsIcon } from "components/Shared/Layout/Icons/Payments.svg";
 import { ReactComponent as PayorsIcon } from "components/Shared/Layout/Icons/Payors.svg";
 import { ReactComponent as PurchaseOrdersIcon } from "components/Shared/Layout/Icons/PurchaseOrders.svg";
-import { ReactComponent as RepaymentsIcon } from "components/Shared/Layout/Icons/Payments.svg";
 import { ReactComponent as ReportsIcon } from "components/Shared/Layout/Icons/Reports.svg";
 import { ReactComponent as SettingsIcon } from "components/Shared/Layout/Icons/Settings.svg";
 import { ReactComponent as VendorsIcon } from "components/Shared/Layout/Icons/Vendors.svg";
-import BespokeFinancialLogo from "components/Shared/Images/BespokeFinancialLogo.png";
 import NestedListItem from "components/Shared/Layout/NestedListItem";
 import SidebarItem from "components/Shared/Layout/SidebarItem";
 import UserMenu from "components/Shared/User/UserMenu";
@@ -32,8 +32,8 @@ import {
   useGetPartnershipRequestsCountForBankSubscription,
   useGetRepaymentsCountForBankSubscription,
 } from "generated/graphql";
-import { ProductTypeEnum } from "lib/enum";
 import { withinNDaysOfNowOrBefore } from "lib/date";
+import { ProductTypeEnum } from "lib/enum";
 import { bankRoutes, customerRoutes, routes } from "lib/routes";
 import { isPayorsTabVisible, isVendorsTabVisible } from "lib/settings";
 import { ReactNode, useContext } from "react";
@@ -351,31 +351,27 @@ export default function Layout({
     skip: !isBankUser,
   });
 
-  const {
-    data: repaymentsCountData,
-  } = useGetRepaymentsCountForBankSubscription({
-    skip: !isBankUser,
-  });
+  const { data: repaymentsCountData } =
+    useGetRepaymentsCountForBankSubscription({
+      skip: !isBankUser,
+    });
 
-  const {
-    data: partnershipRequestsCountData,
-  } = useGetPartnershipRequestsCountForBankSubscription({
-    skip: !isBankUser,
-  });
+  const { data: partnershipRequestsCountData } =
+    useGetPartnershipRequestsCountForBankSubscription({
+      skip: !isBankUser,
+    });
 
-  const {
-    data: ebbaApplicationsCountData,
-  } = useGetEbbaApplicationsCountForBankSubscription({
-    skip: !isBankUser,
-  });
+  const { data: ebbaApplicationsCountData } =
+    useGetEbbaApplicationsCountForBankSubscription({
+      skip: !isBankUser,
+    });
 
-  const {
-    data: debtFacilityUpdateCountData,
-  } = useGetOpenLoansByDebtFacilityStatusesSubscription({
-    variables: {
-      statuses: ["update_required"],
-    },
-  });
+  const { data: debtFacilityUpdateCountData } =
+    useGetOpenLoansByDebtFacilityStatusesSubscription({
+      variables: {
+        statuses: ["update_required"],
+      },
+    });
 
   const loansCount = loansCountData?.loans?.length || 0;
   const repaymentsCount = repaymentsCountData?.payments?.length || 0;
@@ -386,15 +382,13 @@ export default function Layout({
   const debtFacilityUpdateCount =
     debtFacilityUpdateCountData?.loans?.length || 0;
 
-  const {
-    data,
-    loading: borrowingBaseLoading,
-  } = useGetCompanyEbbaApplicationsInfoQuery({
-    skip: isBankUser,
-    variables: {
-      companyId,
-    },
-  });
+  const { data, loading: borrowingBaseLoading } =
+    useGetCompanyEbbaApplicationsInfoQuery({
+      skip: isBankUser,
+      variables: {
+        companyId,
+      },
+    });
 
   const ebbaApplication =
     data?.companies_by_pk?.settings?.active_ebba_application;

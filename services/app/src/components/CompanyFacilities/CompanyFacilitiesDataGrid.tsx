@@ -36,11 +36,12 @@ export default function CompanyFacilitiesDataGrid({
   );
 
   const handleSelectionChanged = useMemo(
-    () => ({ selectedRowsData }: any) =>
-      !!handleSelectCompanyFacilities &&
-      handleSelectCompanyFacilities(
-        selectedRowsData as CompanyFacilityFragment[]
-      ),
+    () =>
+      ({ selectedRowsData }: any) =>
+        !!handleSelectCompanyFacilities &&
+        handleSelectCompanyFacilities(
+          selectedRowsData as CompanyFacilityFragment[]
+        ),
     [handleSelectCompanyFacilities]
   );
 

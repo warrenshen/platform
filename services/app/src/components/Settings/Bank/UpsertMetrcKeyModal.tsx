@@ -2,16 +2,16 @@ import {
   Box,
   Button,
   Checkbox,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   FormControlLabel,
-  makeStyles,
   TextField,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import { Companies, MetrcApiKeyFragment } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -48,14 +48,12 @@ export default function UpsertMetrcKeyModal({
 
   const [apiKey, setApiKey] = useState<string>("");
   const [usState, setUsState] = useState<string>("");
-  const [useSavedLicensesOnly, setUseSavedLicensesOnly] = useState<boolean>(
-    false
-  );
+  const [useSavedLicensesOnly, setUseSavedLicensesOnly] =
+    useState<boolean>(false);
   const hasKey = !!metrcApiKey;
 
-  const [upsertApiKey, { loading: isUpsertKeyLoading }] = useCustomMutation(
-    upsertApiKeyMutation
-  );
+  const [upsertApiKey, { loading: isUpsertKeyLoading }] =
+    useCustomMutation(upsertApiKeyMutation);
 
   useEffect(() => {
     async function viewKey() {

@@ -1,6 +1,6 @@
 import { Box, TextField } from "@material-ui/core";
-import PageContent from "components/Shared/Page/PageContent";
 import PayorPartnershipsDataGrid from "components/Payors/PayorPartnershipsDataGrid";
+import PageContent from "components/Shared/Page/PageContent";
 import {
   Companies,
   useGetPayorPartnershipsByPayorIdQuery,

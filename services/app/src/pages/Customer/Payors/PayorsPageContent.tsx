@@ -1,18 +1,18 @@
 import { Box, Typography } from "@material-ui/core";
+import AwaitingPartnershipsDataGrid from "components/Partnerships/AwaitingPartnershipsDataGrid";
 import AddPayorButton from "components/Payors/AddPayorButton";
 import PayorPartnershipsDataGrid from "components/Payors/PayorPartnershipsDataGrid";
-import PageContent from "components/Shared/Page/PageContent";
 import Can from "components/Shared/Can";
-import { Action } from "lib/auth/rbac-rules";
+import PageContent from "components/Shared/Page/PageContent";
 import {
   Companies,
   CompanyTypeEnum,
   useGetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscription,
   useListPayorPartnershipsByCompanyIdQuery,
 } from "generated/graphql";
+import { Action } from "lib/auth/rbac-rules";
 import { sortBy } from "lodash";
 import { useMemo } from "react";
-import AwaitingPartnershipsDataGrid from "components/Partnerships/AwaitingPartnershipsDataGrid";
 
 interface Props {
   companyId: Companies["id"];
@@ -28,16 +28,14 @@ export default function CustomerPayorsPageContent({ companyId }: Props) {
     console.error({ error });
   }
 
-  const {
-    data: awaitingPartnershipsData,
-    error: awaitingPartnershipsError,
-  } = useGetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscription({
-    fetchPolicy: "network-only",
-    variables: {
-      requesting_company_id: companyId,
-      company_type: CompanyTypeEnum.Payor,
-    },
-  });
+  const { data: awaitingPartnershipsData, error: awaitingPartnershipsError } =
+    useGetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscription({
+      fetchPolicy: "network-only",
+      variables: {
+        requesting_company_id: companyId,
+        company_type: CompanyTypeEnum.Payor,
+      },
+    });
 
   if (awaitingPartnershipsError) {
     console.error({ error });

@@ -2,9 +2,9 @@ import {
   Box,
   Checkbox,
   FormControlLabel,
-  makeStyles,
   TextField,
   Typography,
+  makeStyles,
 } from "@material-ui/core";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import Modal from "components/Shared/Modal/Modal";
@@ -52,15 +52,11 @@ export default function KickoffMonthlySummaryEmailsModal({
       ? formatDatetimeString(lastRun?.sync_pipelines[0].created_at)
       : null;
 
-  const [
-    sendLOCReport,
-    { loading: isSendLOCReportLoading },
-  ] = useCustomMutation(sendMonthlySummaryLOCReport);
+  const [sendLOCReport, { loading: isSendLOCReportLoading }] =
+    useCustomMutation(sendMonthlySummaryLOCReport);
 
-  const [
-    sendNonLOCReport,
-    { loading: isSendNonLOCReportLoading },
-  ] = useCustomMutation(sendMonthlySummaryNonLOCReport);
+  const [sendNonLOCReport, { loading: isSendNonLOCReportLoading }] =
+    useCustomMutation(sendMonthlySummaryNonLOCReport);
 
   const handleSendReports = async () => {
     const request: ReportGenerationReq = {

@@ -223,9 +223,10 @@ export default function RepaymentsDataGrid({
   );
 
   const handleSelectionChanged = useMemo(
-    () => ({ selectedRowsData }: any) =>
-      handleSelectPayments &&
-      handleSelectPayments(selectedRowsData as PaymentLimitedFragment[]),
+    () =>
+      ({ selectedRowsData }: any) =>
+        handleSelectPayments &&
+        handleSelectPayments(selectedRowsData as PaymentLimitedFragment[]),
     [handleSelectPayments]
   );
 

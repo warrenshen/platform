@@ -32,10 +32,8 @@ export default function ApprovePayor({
   const [open, setOpen] = useState(false);
   const [errMsg, setErrMsg] = useState("");
 
-  const [
-    approvePartnership,
-    { loading: isApprovePartnershipLoading },
-  ] = useCustomMutation(approvePartnershipMutation);
+  const [approvePartnership, { loading: isApprovePartnershipLoading }] =
+    useCustomMutation(approvePartnershipMutation);
 
   if (hasNoContactsSetup) {
     return (

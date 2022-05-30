@@ -1,7 +1,7 @@
 import { Box, Typography } from "@material-ui/core";
-import BankAccountsDataGrid from "components/BankAccounts/BankAccountsDataGrid";
 import CreateUpdateBankAccountModal from "components/BankAccount/CreateUpdateBankAccountModal";
 import DeleteBankAccountModal from "components/BankAccount/DeleteBankAccountModal";
+import BankAccountsDataGrid from "components/BankAccounts/BankAccountsDataGrid";
 import CompanySettingsCard from "components/Settings/CompanySettingsCard";
 import EditCustomerSettingsModal from "components/Settings/EditCustomerSettingsModal";
 import ManageUsersArea from "components/Settings/ManageUsersArea";

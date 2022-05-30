@@ -1,9 +1,9 @@
 import {
   Box,
-  createStyles,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import DeleteInvoiceModal from "components/Invoice/DeleteInvoiceModal";
 import CreateUpdateInvoiceLoanModal from "components/Invoices/CreateUpdateInvoiceLoanModal";
@@ -79,10 +79,8 @@ export default function CustomerInvoicesOpenTab({
     [invoices]
   );
 
-  const [
-    selectedNotApprovedInvoiceIds,
-    setSelectedNotApprovedInvoiceIds,
-  ] = useState<Invoices["id"][]>([]);
+  const [selectedNotApprovedInvoiceIds, setSelectedNotApprovedInvoiceIds] =
+    useState<Invoices["id"][]>([]);
 
   const handleSelectNotApprovedInvoices = useMemo(
     () => (invoices: InvoiceFragment[]) =>

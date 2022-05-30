@@ -63,57 +63,50 @@ export default function CreateUpdateFinancialReportCertificationModal({
     EbbaApplicationFilesInsertInput[]
   >([]);
 
-  const {
-    loading: isExistingEbbaApplicationLoading,
-  } = useGetEbbaApplicationQuery({
-    skip: actionType === ActionType.New,
-    fetchPolicy: "network-only",
-    variables: {
-      id: ebbaApplicationId,
-    },
-    onCompleted: (data) => {
-      const existingEbbaApplication = data?.ebba_applications_by_pk;
-      if (existingEbbaApplication) {
-        setEbbaApplication(
-          mergeWith(newEbbaApplication, existingEbbaApplication, (a, b) =>
-            isNull(b) ? a : b
-          )
-        );
-        setEbbaApplicationFiles(
-          existingEbbaApplication.ebba_application_files.map(
-            (ebbaApplicationFile) => ({
-              ebba_application_id: ebbaApplicationFile.ebba_application_id,
-              file_id: ebbaApplicationFile.file_id,
-            })
-          )
-        );
-        setFrozenFileIds(
-          existingEbbaApplication.ebba_application_files.map(
-            (ebbaApplicationFile) => ebbaApplicationFile.file_id
-          )
-        );
-      } else {
-        snackbar.showError(
-          "Error! Could not get expected financial report certification."
-        );
-      }
-    },
-  });
+  const { loading: isExistingEbbaApplicationLoading } =
+    useGetEbbaApplicationQuery({
+      skip: actionType === ActionType.New,
+      fetchPolicy: "network-only",
+      variables: {
+        id: ebbaApplicationId,
+      },
+      onCompleted: (data) => {
+        const existingEbbaApplication = data?.ebba_applications_by_pk;
+        if (existingEbbaApplication) {
+          setEbbaApplication(
+            mergeWith(newEbbaApplication, existingEbbaApplication, (a, b) =>
+              isNull(b) ? a : b
+            )
+          );
+          setEbbaApplicationFiles(
+            existingEbbaApplication.ebba_application_files.map(
+              (ebbaApplicationFile) => ({
+                ebba_application_id: ebbaApplicationFile.ebba_application_id,
+                file_id: ebbaApplicationFile.file_id,
+              })
+            )
+          );
+          setFrozenFileIds(
+            existingEbbaApplication.ebba_application_files.map(
+              (ebbaApplicationFile) => ebbaApplicationFile.file_id
+            )
+          );
+        } else {
+          snackbar.showError(
+            "Error! Could not get expected financial report certification."
+          );
+        }
+      },
+    });
 
-  const [
-    addEbbaApplication,
-    { loading: isAddEbbaApplicationLoading },
-  ] = useAddEbbaApplicationMutation();
+  const [addEbbaApplication, { loading: isAddEbbaApplicationLoading }] =
+    useAddEbbaApplicationMutation();
 
-  const [
-    updateEbbaApplication,
-    { loading: isUpdateEbbaApplicationLoading },
-  ] = useUpdateEbbaApplicationMutation();
+  const [updateEbbaApplication, { loading: isUpdateEbbaApplicationLoading }] =
+    useUpdateEbbaApplicationMutation();
 
-  const [
-    submitEbbaApplication,
-    { loading: isSubmitEbbaApplicationLoading },
-  ] = useCustomMutation(submitEbbaApplicationMutation);
+  const [submitEbbaApplication, { loading: isSubmitEbbaApplicationLoading }] =
+    useCustomMutation(submitEbbaApplicationMutation);
 
   const computedExpiresAt = computeEbbaApplicationExpiresAt(
     ebbaApplication.application_date

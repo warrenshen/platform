@@ -1,11 +1,11 @@
-import { Box, Typography, FormControl, TextField } from "@material-ui/core";
+import { Box, FormControl, TextField, Typography } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import {
-  SurveillanceStatusEnum,
-  SurveillanceStatusToLabel,
   QualifyForEnum,
   QualifyForToLabel,
+  SurveillanceStatusEnum,
+  SurveillanceStatusToLabel,
 } from "lib/enum";
 import { Dispatch, SetStateAction } from "react";
 

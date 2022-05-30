@@ -1,15 +1,15 @@
 import { Box, Button } from "@material-ui/core";
 import PartnershipInvitationsDataGrid from "components/Partnerships/PartnershipInvitationsDataGrid";
 import {
-  useGetPartnershipInvitationsForBankSubscription,
   CompanyPartnershipInvitations,
   PartnershipInvitationFragment,
+  useGetPartnershipInvitationsForBankSubscription,
 } from "generated/graphql";
-import { markPartnershipInvitationAsCompleteMutation } from "lib/api/companies";
-import styled from "styled-components";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
+import { markPartnershipInvitationAsCompleteMutation } from "lib/api/companies";
 import { useMemo, useState } from "react";
+import styled from "styled-components";
 
 const Container = styled.div`
   display: flex;
@@ -23,10 +23,8 @@ const Container = styled.div`
 function InvitedTab() {
   const snackbar = useSnackbar();
 
-  const [
-    markInviteAsComplete,
-    { loading: isMarkInviteLoading },
-  ] = useCustomMutation(markPartnershipInvitationAsCompleteMutation);
+  const [markInviteAsComplete, { loading: isMarkInviteLoading }] =
+    useCustomMutation(markPartnershipInvitationAsCompleteMutation);
 
   const { data, error } = useGetPartnershipInvitationsForBankSubscription();
 

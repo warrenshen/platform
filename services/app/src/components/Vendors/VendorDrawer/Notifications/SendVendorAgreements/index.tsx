@@ -24,12 +24,11 @@ function SendVendorAgreements(props: Props) {
           title={`Would you like to send the vendor agreement email to ${props.vendorName} for customer ${customerName}?`}
           errorMessage={errorMessage}
           handleConfirm={async () => {
-            const response = await props.notifier.sendVendorAgreementWithCustomer(
-              {
+            const response =
+              await props.notifier.sendVendorAgreementWithCustomer({
                 company_id: props.customerId,
                 vendor_id: props.vendorId,
-              }
-            );
+              });
 
             if (response.status !== "OK") {
               setErrorMessage("Could not send email. Error: " + response.msg);

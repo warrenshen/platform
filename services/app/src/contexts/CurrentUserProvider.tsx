@@ -6,8 +6,7 @@ import {
   User,
 } from "contexts/CurrentUserContext";
 import JwtDecode from "jwt-decode";
-import { authenticatedApi, authRoutes, unAuthenticatedApi } from "lib/api";
-import { ProductTypeEnum } from "lib/enum";
+import { authRoutes, authenticatedApi, unAuthenticatedApi } from "lib/api";
 import {
   getAccessToken,
   getRefreshToken,
@@ -16,6 +15,7 @@ import {
   setAccessToken,
   setRefreshToken,
 } from "lib/auth/tokenStorage";
+import { ProductTypeEnum } from "lib/enum";
 import { routes } from "lib/routes";
 import { ReactNode, useCallback, useEffect, useState } from "react";
 

@@ -9,11 +9,11 @@ import {
   PurchaseOrders,
   useGetConfirmedPurchaseOrdersSubscription,
 } from "generated/graphql";
-import { useHistory } from "react-router-dom";
 import { Action } from "lib/auth/rbac-rules";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { filter } from "lodash";
 import { useMemo, useState } from "react";
+import { useHistory } from "react-router-dom";
 
 export default function BankPurchaseOrdersClosedTab() {
   const history = useHistory();

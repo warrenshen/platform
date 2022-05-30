@@ -5,11 +5,11 @@ import {
   FormControlLabel,
   FormHelperText,
   InputLabel,
-  makeStyles,
   MenuItem,
   Select,
   TextField,
   Typography,
+  makeStyles,
 } from "@material-ui/core";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DateInput from "components/Shared/FormInputs/DateInput";
@@ -18,12 +18,12 @@ import { format, parse } from "date-fns";
 import { ContractsInsertInput } from "generated/graphql";
 import {
   ContractTermNames,
+  ProductConfigField,
   getContractTermBankDescription,
   getContractTermCustomerDescription,
   getContractTermDataCy,
   getContractTermIsHiddenIfNull,
   isProductConfigFieldInvalid,
-  ProductConfigField,
 } from "lib/contracts";
 import { DateFormatServer } from "lib/date";
 import {
@@ -75,9 +75,10 @@ export default function ContractTermsForm({
   setCurrentJSONConfig,
 }: Props) {
   const classes = useStyles();
-  const sections = useMemo(() => groupBy(currentJSONConfig, (d) => d.section), [
-    currentJSONConfig,
-  ]);
+  const sections = useMemo(
+    () => groupBy(currentJSONConfig, (d) => d.section),
+    [currentJSONConfig]
+  );
 
   const findAndReplaceInJSON = (item: any, value: any) => {
     const foundIndex = currentJSONConfig.findIndex(

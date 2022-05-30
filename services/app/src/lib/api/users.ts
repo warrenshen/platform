@@ -1,10 +1,10 @@
 import {
   Companies,
+  UserFragment,
   Users,
   UsersInsertInput,
-  UserFragment,
 } from "generated/graphql";
-import { authenticatedApi, CustomMutationResponse, userRoutes } from "lib/api";
+import { CustomMutationResponse, authenticatedApi, userRoutes } from "lib/api";
 
 type CreateBankCustomerUserRequest = {
   variables: {

@@ -11,9 +11,9 @@ import {
   FinancialSummaryFragment,
   PaymentsInsertInput,
 } from "generated/graphql";
-import { formatCurrency } from "lib/number";
 import { todayAsDateStringClient } from "lib/date";
-import { ChangeEvent, useState, Dispatch, SetStateAction } from "react";
+import { formatCurrency } from "lib/number";
+import { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
 
 interface Props {
   financialSummary: FinancialSummaryFragment | null;

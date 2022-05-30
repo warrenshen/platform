@@ -1,30 +1,30 @@
 import {
   Box,
   Button,
-  createStyles,
   Dialog,
   DialogContent,
   DialogTitle,
-  makeStyles,
   Theme,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
+import BankAccountForm from "components/BankAccount/BankAccountForm";
 import {
   CurrentUserContext,
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
-import BankAccountForm from "components/BankAccount/BankAccountForm";
 import {
   BankAccountFragment,
   BankAccountsInsertInput,
   Companies,
 } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
+import useSnackbar from "hooks/useSnackbar";
 import {
   createBankAccountMutation,
   updateBankAccountMutation,
 } from "lib/api/bankAccounts";
-import useCustomMutation from "hooks/useCustomMutation";
-import useSnackbar from "hooks/useSnackbar";
 import { formatDateString } from "lib/date";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useMemo, useState } from "react";
@@ -104,15 +104,11 @@ export default function CreateUpdateBankAccountModal({
     )
   );
 
-  const [
-    createBankAccount,
-    { loading: isCreateBankAccountLoading },
-  ] = useCustomMutation(createBankAccountMutation);
+  const [createBankAccount, { loading: isCreateBankAccountLoading }] =
+    useCustomMutation(createBankAccountMutation);
 
-  const [
-    updateBankAccount,
-    { loading: isUpdateBankAccountLoading },
-  ] = useCustomMutation(updateBankAccountMutation);
+  const [updateBankAccount, { loading: isUpdateBankAccountLoading }] =
+    useCustomMutation(updateBankAccountMutation);
 
   const prepareBankAccount = (isCreate: boolean) => {
     return {

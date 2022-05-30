@@ -1,23 +1,23 @@
 import {
   Box,
   Button,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   FormControl,
   InputLabel,
-  makeStyles,
   MenuItem,
   Select,
   Theme,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import {
   CompanySettings,
   CompanySettingsInsertInput,
-  useGetCompanySettingsQuery,
   UsersInsertInput,
+  useGetCompanySettingsQuery,
   useUpdateCompanySettingsMutation,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
@@ -64,29 +64,26 @@ export default function UpdateThirdPartyCompanySettingsModal({
 
   const [companySettings, setCompanySettings] = useState(newCompanySettings);
 
-  const {
-    loading: isExistingCompanySettingsLoading,
-  } = useGetCompanySettingsQuery({
-    fetchPolicy: "network-only",
-    variables: {
-      company_settings_id: companySettingsId,
-    },
-    onCompleted: (data) => {
-      const existingCompanySettings = data?.company_settings_by_pk;
-      if (existingCompanySettings) {
-        setCompanySettings(
-          mergeWith(newCompanySettings, existingCompanySettings, (a, b) =>
-            isNull(b) ? a : b
-          )
-        );
-      }
-    },
-  });
+  const { loading: isExistingCompanySettingsLoading } =
+    useGetCompanySettingsQuery({
+      fetchPolicy: "network-only",
+      variables: {
+        company_settings_id: companySettingsId,
+      },
+      onCompleted: (data) => {
+        const existingCompanySettings = data?.company_settings_by_pk;
+        if (existingCompanySettings) {
+          setCompanySettings(
+            mergeWith(newCompanySettings, existingCompanySettings, (a, b) =>
+              isNull(b) ? a : b
+            )
+          );
+        }
+      },
+    });
 
-  const [
-    updateCompanySettings,
-    { loading: isUpdateCompanySettingsLoading },
-  ] = useUpdateCompanySettingsMutation();
+  const [updateCompanySettings, { loading: isUpdateCompanySettingsLoading }] =
+    useUpdateCompanySettingsMutation();
 
   const handleClickSubmit = async () => {
     const response = await updateCompanySettings({

@@ -6,8 +6,8 @@ import {
   Vendors,
 } from "generated/graphql";
 import {
-  CustomerUserRoles,
   CustomMessageEnum,
+  CustomerUserRoles,
   FeatureFlagEnum,
   PartnerCompanyUserRoles,
 } from "lib/enum";

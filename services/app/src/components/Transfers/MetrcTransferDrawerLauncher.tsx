@@ -1,6 +1,6 @@
 import { Box } from "@material-ui/core";
-import MetrcTransferModal from "components/Transfers/MetrcTransferModal";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
+import MetrcTransferModal from "components/Transfers/MetrcTransferModal";
 import { MetrcTransfers } from "generated/graphql";
 import { useState } from "react";
 

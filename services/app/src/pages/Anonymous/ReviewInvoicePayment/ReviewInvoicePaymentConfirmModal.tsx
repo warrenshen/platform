@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
@@ -9,10 +8,11 @@ import {
   DialogTitle,
   FormControl,
   InputLabel,
-  makeStyles,
   MenuItem,
   Select,
   Theme,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DateInput from "components/Shared/FormInputs/DateInput";
@@ -25,7 +25,7 @@ import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { respondToInvoicePaymentMutation } from "lib/api/invoices";
 import { todayAsDateStringServer } from "lib/date";
-import { RepaymentMethodToDropdownLabel, PayorPaymentMethods } from "lib/enum";
+import { PayorPaymentMethods, RepaymentMethodToDropdownLabel } from "lib/enum";
 import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>

@@ -2,6 +2,7 @@ import { Box, TextField } from "@material-ui/core";
 import ApprovePurchaseOrderModal from "components/PurchaseOrder/ApprovePurchaseOrderModal";
 import BankPurchaseOrdersDataGrid from "components/PurchaseOrder/BankPurchaseOrdersDataGrid";
 import DeletePurchaseOrderModal from "components/PurchaseOrder/DeletePurchaseOrderModal";
+import IncompletePurchaseOrderModal from "components/PurchaseOrder/IncompletePurchaseOrderModal";
 import RejectPurchaseOrderModal from "components/PurchaseOrder/RejectPurchaseOrderModal";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
@@ -11,12 +12,11 @@ import {
   PurchaseOrders,
   useGetNotConfirmedPurchaseOrdersSubscription,
 } from "generated/graphql";
-import { useHistory } from "react-router-dom";
+import { useFilterNotConfirmedPurchaseOrders } from "hooks/useFilterPurchaseOrders";
 import { Action } from "lib/auth/rbac-rules";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useMemo, useState } from "react";
-import IncompletePurchaseOrderModal from "components/PurchaseOrder/IncompletePurchaseOrderModal";
-import { useFilterNotConfirmedPurchaseOrders } from "hooks/useFilterPurchaseOrders";
+import { useHistory } from "react-router-dom";
 
 export default function BankPurchaseOrdersActiveTab() {
   const history = useHistory();

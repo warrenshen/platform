@@ -1,4 +1,6 @@
 import { Box, Typography } from "@material-ui/core";
+import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
+import DebtFacilityEventsDataGrid from "components/DebtFacility/DebtFacilityEventsDataGrid";
 import InvoiceInfoCard from "components/Invoices/InvoiceInfoCard";
 import UpdateLoanNotesModal from "components/Loan/UpdateLoanNotesModal";
 import PurchaseOrderInfoCard from "components/PurchaseOrder/PurchaseOrderInfoCard";
@@ -6,8 +8,6 @@ import LoanPaymentStatusChip from "components/Shared/Chip/LoanPaymentStatusChip"
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import Modal from "components/Shared/Modal/Modal";
 import ModalButton from "components/Shared/Modal/ModalButton";
-import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
-import DebtFacilityEventsDataGrid from "components/DebtFacility/DebtFacilityEventsDataGrid";
 import TransactionsDataGrid from "components/Transactions/TransactionsDataGrid";
 import {
   CurrentUserContext,
@@ -15,16 +15,15 @@ import {
 } from "contexts/CurrentUserContext";
 import { BankAccounts, useGetLoansByLoanIdsQuery } from "generated/graphql";
 import {
-  Loans,
   LoanTypeEnum,
+  Loans,
+  useGetAdvancesBankAccountsForCustomerQuery,
   useGetDebtFacilityEventsByLoanReportIdQuery,
   useGetLoanWithArtifactForBankQuery,
   useGetLoanWithArtifactForCustomerQuery,
-  useGetAdvancesBankAccountsForCustomerQuery,
   useGetTransactionsForLoanQuery,
 } from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
-import { formatCurrency } from "lib/number";
 import { formatDateString } from "lib/date";
 import {
   LoanPaymentStatusEnum,
@@ -39,6 +38,7 @@ import {
   extractRecipientCompanyId,
   extractVendorId,
 } from "lib/loans";
+import { formatCurrency } from "lib/number";
 import { useContext } from "react";
 
 interface Props {
@@ -74,15 +74,13 @@ export default function LoanDrawer({ loanId, handleClose }: Props) {
     },
   });
 
-  const {
-    data: transactionsData,
-    error: transactionsError,
-  } = useGetTransactionsForLoanQuery({
-    skip: !isBankUser,
-    variables: {
-      loan_id: loanId,
-    },
-  });
+  const { data: transactionsData, error: transactionsError } =
+    useGetTransactionsForLoanQuery({
+      skip: !isBankUser,
+      variables: {
+        loan_id: loanId,
+      },
+    });
 
   if (bankError || customerError || transactionsError) {
     alert(
@@ -112,16 +110,14 @@ export default function LoanDrawer({ loanId, handleClose }: Props) {
   const recipientCompanyId = extractRecipientCompanyId(selectedLoans);
   const vendorId = extractVendorId(customerId, recipientCompanyId);
 
-  const {
-    data: advancesBankAccountData,
-    error: advancesBankAccountError,
-  } = useGetAdvancesBankAccountsForCustomerQuery({
-    skip: !recipientCompanyId,
-    variables: {
-      customerId,
-      vendorId,
-    },
-  });
+  const { data: advancesBankAccountData, error: advancesBankAccountError } =
+    useGetAdvancesBankAccountsForCustomerQuery({
+      skip: !recipientCompanyId,
+      variables: {
+        customerId,
+        vendorId,
+      },
+    });
 
   if (advancesBankAccountError) {
     console.error({ error: advancesBankAccountError });
@@ -133,15 +129,13 @@ export default function LoanDrawer({ loanId, handleClose }: Props) {
   const debtFacilityName = bankLoan?.loan_report?.debt_facility?.name || "-";
   const loanReportId = bankLoan?.loan_report?.id || UUIDEnum.None;
 
-  const {
-    data: debtFacilityEventsData,
-    error: debtFacilityEventsError,
-  } = useGetDebtFacilityEventsByLoanReportIdQuery({
-    skip: !isBankUser,
-    variables: {
-      loan_report_id: loanReportId,
-    },
-  });
+  const { data: debtFacilityEventsData, error: debtFacilityEventsError } =
+    useGetDebtFacilityEventsByLoanReportIdQuery({
+      skip: !isBankUser,
+      variables: {
+        loan_report_id: loanReportId,
+      },
+    });
 
   if (debtFacilityEventsError) {
     console.error({ error: debtFacilityEventsError });

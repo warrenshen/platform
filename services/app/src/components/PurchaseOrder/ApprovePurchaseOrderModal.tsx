@@ -1,15 +1,15 @@
 import {
   Box,
   Button,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
@@ -48,16 +48,14 @@ function ApprovePurchaseOrderModal({ purchaseOrder, handleClose }: Props) {
   const snackbar = useSnackbar();
   const classes = useStyles();
 
-  const {
-    data,
-    loading: isCompanyVendorPartnershipLoading,
-  } = useCompanyVendorPartnershipForVendorQuery({
-    fetchPolicy: "network-only",
-    variables: {
-      companyId: purchaseOrder.company_id,
-      vendorId: purchaseOrder.vendor_id,
-    },
-  });
+  const { data, loading: isCompanyVendorPartnershipLoading } =
+    useCompanyVendorPartnershipForVendorQuery({
+      fetchPolicy: "network-only",
+      variables: {
+        companyId: purchaseOrder.company_id,
+        vendorId: purchaseOrder.vendor_id,
+      },
+    });
 
   const [
     respondToApprovalRequest,

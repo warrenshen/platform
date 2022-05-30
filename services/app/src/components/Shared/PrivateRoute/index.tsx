@@ -3,8 +3,8 @@ import {
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
 import {
-  useGetCompanyWithDetailsByCompanyIdQuery,
   UserRolesEnum,
+  useGetCompanyWithDetailsByCompanyIdQuery,
 } from "generated/graphql";
 import { ProductTypeEnum } from "lib/enum";
 import { routes } from "lib/routes";

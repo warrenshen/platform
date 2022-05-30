@@ -2,14 +2,14 @@ import { Box, FormControl, TextField, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import FinancialSummariesDataGrid from "components/CustomerFinancialSummaries/FinancialSummariesDataGrid";
+import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal";
+import Can from "components/Shared/Can";
+import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   Companies,
   useGetCustomersForDropdownQuery,
   useGetFinancialSummariesByCompanyIdQuery,
 } from "generated/graphql";
-import Can from "components/Shared/Can";
-import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal";
-import ModalButton from "components/Shared/Modal/ModalButton";
 import { Action } from "lib/auth/rbac-rules";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useState } from "react";
@@ -20,12 +20,10 @@ export default function BankReportsFinancialsByCustomerTab() {
 
   const [companyId, setCompanyId] = useState<Companies["id"]>("");
 
-  const {
-    data: customersData,
-    error: customersError,
-  } = useGetCustomersForDropdownQuery({
-    fetchPolicy: "network-only",
-  });
+  const { data: customersData, error: customersError } =
+    useGetCustomersForDropdownQuery({
+      fetchPolicy: "network-only",
+    });
 
   const {
     data: financialSummariesByCompanyIdData,

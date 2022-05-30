@@ -1,10 +1,10 @@
 import {
   Box,
-  createStyles,
-  makeStyles,
   TextField,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import ContractTermsForm from "components/Contract/ContractTermsForm";
 import AutocompleteCompany from "components/Shared/Company/AutocompleteCompany";
@@ -17,10 +17,10 @@ import {
 import useSnackbar from "hooks/useSnackbar";
 import { createCustomer } from "lib/api/companies";
 import {
+  ProductConfigField,
   createProductConfigFieldsFromProductType,
   createProductConfigForServer,
   isProductConfigFieldInvalid,
-  ProductConfigField,
 } from "lib/contracts";
 import { ProductTypeEnum } from "lib/enum";
 import { useEffect, useState } from "react";

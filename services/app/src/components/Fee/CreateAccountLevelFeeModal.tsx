@@ -36,10 +36,8 @@ export default function CreateAccountLevelFeeModal({
     subtype: null,
   });
 
-  const [
-    createAccountLevelFee,
-    { loading: isCreateAccountLevelFeeLoading },
-  ] = useCustomMutation(createAccountLevelFeeMutation);
+  const [createAccountLevelFee, { loading: isCreateAccountLevelFeeLoading }] =
+    useCustomMutation(createAccountLevelFeeMutation);
 
   const handleClickSubmit = async () => {
     const response = await createAccountLevelFee({

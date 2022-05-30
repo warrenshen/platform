@@ -1,10 +1,10 @@
 import {
   Box,
   Button,
-  createStyles,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import * as Sentry from "@sentry/react";

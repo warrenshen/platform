@@ -9,8 +9,8 @@ import {
 import {
   Companies,
   LineOfCreditsInsertInput,
-  LoansInsertInput,
   LoanTypeEnum,
+  LoansInsertInput,
   Scalars,
   useAddLineOfCreditMutation,
   useAddLoanMutation,
@@ -65,47 +65,42 @@ export default function CreateUpdateLineOfCreditLoanModal({
   const [lineOfCredit, setLineOfCredit] = useState(newLineOfCredit);
   const [loan, setLoan] = useState(newLoan);
 
-  const {
-    loading: isExistingLoanLoading,
-  } = useGetLoanWithArtifactForCustomerQuery({
-    skip: actionType === ActionType.New,
-    fetchPolicy: "network-only",
-    variables: {
-      id: loanId,
-    },
-    onCompleted: (data) => {
-      const existingLoan = data.loans_by_pk;
-      if (actionType === ActionType.Update && existingLoan) {
-        setLoan(
-          mergeWith(newLoan, existingLoan, (a, b) => (isNull(b) ? a : b))
-        );
-        const existingLineOfCredit = existingLoan.line_of_credit;
-        if (existingLineOfCredit) {
-          setLineOfCredit(
-            mergeWith(lineOfCredit, existingLineOfCredit, (a, b) =>
-              isNull(b) ? a : b
-            )
+  const { loading: isExistingLoanLoading } =
+    useGetLoanWithArtifactForCustomerQuery({
+      skip: actionType === ActionType.New,
+      fetchPolicy: "network-only",
+      variables: {
+        id: loanId,
+      },
+      onCompleted: (data) => {
+        const existingLoan = data.loans_by_pk;
+        if (actionType === ActionType.Update && existingLoan) {
+          setLoan(
+            mergeWith(newLoan, existingLoan, (a, b) => (isNull(b) ? a : b))
           );
+          const existingLineOfCredit = existingLoan.line_of_credit;
+          if (existingLineOfCredit) {
+            setLineOfCredit(
+              mergeWith(lineOfCredit, existingLineOfCredit, (a, b) =>
+                isNull(b) ? a : b
+              )
+            );
+          }
         }
-      }
-    },
-  });
+      },
+    });
 
-  const {
-    data,
-    loading: isApprovedVendorsLoading,
-  } = useGetArtifactRelationsByCompanyIdQuery({
-    fetchPolicy: "network-only",
-    variables: {
-      company_id: companyId,
-    },
-  });
+  const { data, loading: isApprovedVendorsLoading } =
+    useGetArtifactRelationsByCompanyIdQuery({
+      fetchPolicy: "network-only",
+      variables: {
+        company_id: companyId,
+      },
+    });
   const vendors = data?.vendors || [];
 
-  const [
-    addLineOfCredit,
-    { loading: isAddLineOfCreditLoading },
-  ] = useAddLineOfCreditMutation();
+  const [addLineOfCredit, { loading: isAddLineOfCreditLoading }] =
+    useAddLineOfCreditMutation();
 
   const [addLoan, { loading: isAddLoanLoading }] = useAddLoanMutation();
 
@@ -114,13 +109,11 @@ export default function CreateUpdateLineOfCreditLoanModal({
     { loading: isUpdateLineOfCreditAndLoanLoading },
   ] = useUpdateLineOfCreditAndLoanMutation();
 
-  const [submitLoan, { loading: isSubmitLoanLoading }] = useCustomMutation(
-    submitLoanMutation
-  );
+  const [submitLoan, { loading: isSubmitLoanLoading }] =
+    useCustomMutation(submitLoanMutation);
 
-  const [
-    getCompanyNextLoanIdentifier,
-  ] = useGetCompanyNextLoanIdentifierMutation();
+  const [getCompanyNextLoanIdentifier] =
+    useGetCompanyNextLoanIdentifierMutation();
 
   const getNextLoanIdentifierByCompanyId = async () => {
     const response = await getCompanyNextLoanIdentifier({

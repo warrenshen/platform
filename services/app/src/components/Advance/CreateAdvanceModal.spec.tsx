@@ -1,14 +1,15 @@
-import { ComponentProps } from "react";
-import { render, cleanup, screen, waitFor } from "@testing-library/react";
 import { MockedProvider } from "@apollo/client/testing";
 import { Box, Modal, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
-import CreateAdvanceModal from "./CreateAdvanceModal";
-import * as GraphQLQueries from "generated/graphql";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
-import AdvanceForm from "./AdvanceForm";
+import * as GraphQLQueries from "generated/graphql";
 import { LoanTypeEnum } from "generated/graphql";
+import { ComponentProps } from "react";
+
+import AdvanceForm from "./AdvanceForm";
+import CreateAdvanceModal from "./CreateAdvanceModal";
 
 //#region Mocks all components imports that are used in AdvanceForm
 
@@ -39,30 +40,27 @@ jest.mock("@material-ui/lab", () => {
 
 jest.mock(
   "components/Advance/AdvanceForm",
-  () => (props: ComponentProps<typeof AdvanceForm>) => (
+  () => (props: ComponentProps<typeof AdvanceForm>) =>
     <div data-testid="AdvanceForm" {...props} />
-  )
 );
 
 jest.mock(
   "components/BankAccount/BankAccountInfoCard",
-  () => (props: ComponentProps<typeof BankAccountInfoCard>) => (
+  () => (props: ComponentProps<typeof BankAccountInfoCard>) =>
     <div data-testid="BankAccountInfoCard" {...props} />
-  )
 );
 
 jest.mock(
   "components/Loans/LoansDataGrid",
-  () => (props: ComponentProps<typeof LoansDataGrid>) => (
+  () => (props: ComponentProps<typeof LoansDataGrid>) =>
     <div data-testid="LoansDataGrid" {...props} />
-  )
 );
 
 jest.mock(
   "components/Shared/Modal/Modal",
-  () => ({ children }: ComponentProps<typeof Modal>) => (
-    <div data-testid="Modal">{children}</div>
-  )
+  () =>
+    ({ children }: ComponentProps<typeof Modal>) =>
+      <div data-testid="Modal">{children}</div>
 );
 
 //#endregion

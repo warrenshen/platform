@@ -1,5 +1,5 @@
 import { Loans } from "generated/graphql";
-import { authenticatedApi, CustomMutationResponse, loansRoutes } from "lib/api";
+import { CustomMutationResponse, authenticatedApi, loansRoutes } from "lib/api";
 
 type SubmitLoanReq = {
   variables: {

@@ -51,9 +51,10 @@ export default function PartnershipsDataGrid({
   selectedRequestIds,
   handleSelectRequests,
 }: Props) {
-  const rows = useMemo(() => getRows(partnershipRequests), [
-    partnershipRequests,
-  ]);
+  const rows = useMemo(
+    () => getRows(partnershipRequests),
+    [partnershipRequests]
+  );
 
   const columns = useMemo(
     () => [
@@ -131,15 +132,17 @@ export default function PartnershipsDataGrid({
   );
 
   const handleSelectionChanged = useMemo(
-    () => ({ selectedRowsData }: any) =>
-      handleSelectRequests && handleSelectRequests(selectedRowsData),
+    () =>
+      ({ selectedRowsData }: any) =>
+        handleSelectRequests && handleSelectRequests(selectedRowsData),
     [handleSelectRequests]
   );
 
   const allowedPageSizes = useMemo(() => [], []);
-  const filtering = useMemo(() => ({ enable: isFilteringEnabled }), [
-    isFilteringEnabled,
-  ]);
+  const filtering = useMemo(
+    () => ({ enable: isFilteringEnabled }),
+    [isFilteringEnabled]
+  );
 
   return (
     <ControlledDataGrid

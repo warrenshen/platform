@@ -1,6 +1,6 @@
 import { Button } from "@material-ui/core";
-import CommentIcon from "@material-ui/icons/Comment";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import CommentIcon from "@material-ui/icons/Comment";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import {
   CompanyProductQualificationFragment,
@@ -33,9 +33,10 @@ export default function CompanyProductQualificationDataGrid({
   productQualifications,
   handleClickProductQualificationBankNote,
 }: Props) {
-  const rows = useMemo(() => getRows(productQualifications), [
-    productQualifications,
-  ]);
+  const rows = useMemo(
+    () => getRows(productQualifications),
+    [productQualifications]
+  );
 
   const columns = useMemo(
     () => [

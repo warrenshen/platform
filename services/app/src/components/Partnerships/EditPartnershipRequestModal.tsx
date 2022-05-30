@@ -1,19 +1,19 @@
 import {
   Box,
   Button,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  makeStyles,
   Theme,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
+import CreateUpdateVendorPartnershipRequestForm from "components/Vendors/CreateUpdateVendorPartnershipRequestForm";
 import useSnackbar from "hooks/useSnackbar";
 import { updatePartnershipRequestNewMutation } from "lib/api/companies";
-import { CreateVendorInput } from "pages/Anonymous/VendorForm";
-import CreateUpdateVendorPartnershipRequestForm from "components/Vendors/CreateUpdateVendorPartnershipRequestForm";
 import { isEmailValid } from "lib/validation";
+import { CreateVendorInput } from "pages/Anonymous/VendorForm";
 import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>

@@ -3,17 +3,17 @@ import {
   Button,
   Card,
   CardContent,
+  Typography,
   createStyles,
   makeStyles,
-  Typography,
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
 import EbbaApplicationDrawerLauncher from "components/EbbaApplication/EbbaApplicationDrawerLauncher";
 import EbbaApplicationStatusChip from "components/EbbaApplication/EbbaApplicationStatusChip";
 import { EbbaApplicationFragment } from "generated/graphql";
-import { formatCurrency } from "lib/number";
 import { formatDateString } from "lib/date";
 import { ClientSurveillanceCategoryEnum } from "lib/enum";
+import { formatCurrency } from "lib/number";
 
 interface Props {
   ebbaApplication: EbbaApplicationFragment;

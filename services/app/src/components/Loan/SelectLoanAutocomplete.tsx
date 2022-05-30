@@ -5,7 +5,6 @@ import {
   LoanArtifactLimitedFragment,
   LoanLimitedFragment,
 } from "generated/graphql";
-import { formatCurrency } from "lib/number";
 import { formatDateString } from "lib/date";
 import { LoanPaymentStatusEnum } from "lib/enum";
 import {
@@ -14,6 +13,7 @@ import {
   getLoanArtifactName,
   getLoanVendorName,
 } from "lib/loans";
+import { formatCurrency } from "lib/number";
 import { ColumnWidths } from "lib/tables";
 import { useState } from "react";
 

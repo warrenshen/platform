@@ -1,15 +1,15 @@
 import { Box, TextField } from "@material-ui/core";
+import CheckForDebtFacilityPastDueLoansModal from "components/DebtFacility/CheckForDebtFacilityPastDueLoansModal";
 import DebtFacilityLoansDataGrid from "components/DebtFacility/DebtFacilityLoansDataGrid";
+import ResolveDebtFacilityLoanModal from "components/DebtFacility/ResolveDebtFacilityLoanModal";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
-import { Action } from "lib/auth/rbac-rules";
 import { OpenLoanForDebtFacilityFragment } from "generated/graphql";
+import { Action } from "lib/auth/rbac-rules";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
-import CheckForDebtFacilityPastDueLoansModal from "components/DebtFacility/CheckForDebtFacilityPastDueLoansModal";
-import ResolveDebtFacilityLoanModal from "components/DebtFacility/ResolveDebtFacilityLoanModal";
+import { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
-import { useMemo, useState } from "react";
 
 const Container = styled.div`
   display: flex;

@@ -1,10 +1,10 @@
 import {
   Box,
-  createStyles,
   Divider,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import GaugeProgressBar from "components/Shared/ProgressBar/GaugeProgressBar";
 import {
@@ -16,14 +16,14 @@ import {
   ContractFragment,
   FinancialSummaryFragment,
 } from "generated/graphql";
+import { isMinimumInterestFeeActive } from "lib/contracts";
+import { ProductTypeEnum } from "lib/enum";
 import { formatCurrency } from "lib/number";
 import {
   BankCompanyRouteEnum,
-  getBankCompanyRoute,
   customerRoutes,
+  getBankCompanyRoute,
 } from "lib/routes";
-import { ProductTypeEnum } from "lib/enum";
-import { isMinimumInterestFeeActive } from "lib/contracts";
 import { round } from "lodash";
 import { useContext, useMemo } from "react";
 import { Link } from "react-router-dom";

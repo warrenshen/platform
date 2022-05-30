@@ -1,27 +1,28 @@
-import { useEffect, useMemo, useState } from "react";
 import { Box, Typography } from "@material-ui/core";
+import ClientSurveillanceStatusNoteModal from "components/ClientSurveillance/ClientSurveillanceStatusNoteModal";
+import CompanyProductQualificationDataGrid from "components/CompanyProductQualifications/CompanyProductQualificationsDataGrid";
 import Modal from "components/Shared/Modal/Modal";
 import {
   Companies,
   CompanyProductQualifications,
   useGetCompanyProductQualificationsByDateQuery,
 } from "generated/graphql";
-import useSnackbar from "hooks/useSnackbar";
-import ClientSurveillanceStatusUpdateForm from "../Customer/ClientSurveillanceStatusUpdateForm";
 import useCustomMutation from "hooks/useCustomMutation";
+import useSnackbar from "hooks/useSnackbar";
 import {
   createCompanyQualifyingProductMutation,
   updateCompanyQualifyingProductMutation,
 } from "lib/api/companies";
-import { ActionType, SurveillanceStatusEnum, QualifyForEnum } from "lib/enum";
 import {
   getFirstDayOfMonth,
   getLastDateOfMonth,
   todayAsDateStringServer,
   todayMinusXMonthsDateStringServer,
 } from "lib/date";
-import CompanyProductQualificationDataGrid from "components/CompanyProductQualifications/CompanyProductQualificationsDataGrid";
-import ClientSurveillanceStatusNoteModal from "components/ClientSurveillance/ClientSurveillanceStatusNoteModal";
+import { ActionType, QualifyForEnum, SurveillanceStatusEnum } from "lib/enum";
+import { useEffect, useMemo, useState } from "react";
+
+import ClientSurveillanceStatusUpdateForm from "../Customer/ClientSurveillanceStatusUpdateForm";
 
 interface Props {
   actionType: ActionType;
@@ -44,13 +45,10 @@ export default function EditClientSurveillanceStatusModal({
   handleClose,
 }: Props) {
   const snackbar = useSnackbar();
-  const [
-    companyProductQualification,
-    setCompanyProductQualification,
-  ] = useState(newCompanyProductQualification);
-  const [selectedQualifyingDate, setSelectedQualifyingDate] = useState(
-    qualifyingDate
-  );
+  const [companyProductQualification, setCompanyProductQualification] =
+    useState(newCompanyProductQualification);
+  const [selectedQualifyingDate, setSelectedQualifyingDate] =
+    useState(qualifyingDate);
   const [
     clickedBankNoteProductQualificationId,
     setClickedBankNoteProductQualificationId,
@@ -159,11 +157,10 @@ export default function EditClientSurveillanceStatusModal({
   };
 
   const handleClickProductQualificationBankNote = useMemo(
-    () => (
-      companyProductQualificationId: CompanyProductQualifications["id"]
-    ) => {
-      setClickedBankNoteProductQualificationId(companyProductQualificationId);
-    },
+    () =>
+      (companyProductQualificationId: CompanyProductQualifications["id"]) => {
+        setClickedBankNoteProductQualificationId(companyProductQualificationId);
+      },
     [setClickedBankNoteProductQualificationId]
   );
 
@@ -178,9 +175,10 @@ export default function EditClientSurveillanceStatusModal({
 
   const renderBankNoteModal = () => {
     if (!!clickedBankNoteProductQualificationId) {
-      const companyProductQualification = data?.company_product_qualifications.find(
-        ({ id }) => id === clickedBankNoteProductQualificationId
-      );
+      const companyProductQualification =
+        data?.company_product_qualifications.find(
+          ({ id }) => id === clickedBankNoteProductQualificationId
+        );
 
       return (
         <ClientSurveillanceStatusNoteModal

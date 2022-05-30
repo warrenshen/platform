@@ -1,28 +1,28 @@
 import {
   Box,
   Checkbox,
-  createStyles,
   FormControlLabel,
-  makeStyles,
   Theme,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import DebtFacilityReportDataGrid from "components/DebtFacility/DebtFacilityReportDataGrid";
+import DateInput from "components/Shared/FormInputs/DateInput";
 import {
   DebtFacilities,
   GetDebtFacilitiesSubscription,
   useGetReportLoansByDebtFacilityIdSubscription,
 } from "generated/graphql";
-import DateInput from "components/Shared/FormInputs/DateInput";
 import {
   DebtFacilityCompanyStatusEnum,
   DebtFacilityStatusEnum,
   ProductTypeEnum,
 } from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
+import { ChangeEvent, useState } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
-import { ChangeEvent, useState } from "react";
 
 const Container = styled.div`
   display: flex;
@@ -57,9 +57,8 @@ export default function DebtFacilityReportTab({
   const history = useHistory();
   const classes = useStyles();
 
-  const [lastDebtFacilityReportDate, setLastDebtFacilityReportDate] = useState(
-    ""
-  );
+  const [lastDebtFacilityReportDate, setLastDebtFacilityReportDate] =
+    useState("");
   const [isAnonymized, setIsAnonymized] = useState(false);
 
   const { data, error } = useGetReportLoansByDebtFacilityIdSubscription({

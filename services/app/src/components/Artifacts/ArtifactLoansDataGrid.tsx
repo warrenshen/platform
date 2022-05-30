@@ -242,9 +242,10 @@ export default function ArtifactLoansDataGrid({
   );
 
   const handleSelectionChanged = useMemo(
-    () => ({ selectedRowsData }: any) =>
-      handleSelectLoans &&
-      handleSelectLoans(selectedRowsData as LoanFragment[]),
+    () =>
+      ({ selectedRowsData }: any) =>
+        handleSelectLoans &&
+        handleSelectLoans(selectedRowsData as LoanFragment[]),
     [handleSelectLoans]
   );
 

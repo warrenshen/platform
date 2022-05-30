@@ -1,28 +1,28 @@
 import {
   Box,
   Button,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   FormControl,
   InputLabel,
-  makeStyles,
   MenuItem,
   Select,
   TextField,
   Theme,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import PhoneInput from "components/Shared/FormInputs/PhoneInput";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { UserFragment, UserRolesEnum } from "generated/graphql";
-import useSnackbar from "hooks/useSnackbar";
-import { UserRoleToLabel } from "lib/enum";
-import { useContext, useState } from "react";
-import { isEmailValid } from "lib/validation";
 import useCustomMutation from "hooks/useCustomMutation";
+import useSnackbar from "hooks/useSnackbar";
 import { updateUser } from "lib/api/users";
+import { UserRoleToLabel } from "lib/enum";
+import { isEmailValid } from "lib/validation";
+import { useContext, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -63,10 +63,8 @@ function EditUserProfileModal({
 
   const [userProfile, setUserProfile] = useState(originalUserProfile);
 
-  const [
-    updateUserDetails,
-    { loading: isUpdateUserLoading },
-  ] = useCustomMutation(updateUser);
+  const [updateUserDetails, { loading: isUpdateUserLoading }] =
+    useCustomMutation(updateUser);
 
   const handleSubmit = async () => {
     const response = await updateUserDetails({

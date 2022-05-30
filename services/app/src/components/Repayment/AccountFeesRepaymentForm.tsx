@@ -15,12 +15,12 @@ import {
   FinancialSummaryFragment,
   PaymentsInsertInput,
 } from "generated/graphql";
-import { formatCurrency } from "lib/number";
 import {
   AllRepaymentMethods,
   RepaymentMethodEnum,
   RepaymentMethodToDropdownLabel,
 } from "lib/enum";
+import { formatCurrency } from "lib/number";
 
 interface Props {
   isBankUser: boolean;

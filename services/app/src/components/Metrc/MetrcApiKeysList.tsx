@@ -104,8 +104,9 @@ export default function MetrcApiKeysList({ companyId }: Props) {
   );
 
   const handleSelectionChanged = useMemo(
-    () => ({ selectedRowsData }: any) =>
-      handleSelectApiKeys(selectedRowsData as MetrcApiKeyFragment[]),
+    () =>
+      ({ selectedRowsData }: any) =>
+        handleSelectApiKeys(selectedRowsData as MetrcApiKeyFragment[]),
     [handleSelectApiKeys]
   );
 

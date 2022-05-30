@@ -12,8 +12,8 @@ import {
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { deleteEbbaApplicationMutation } from "lib/api/ebbaApplications";
-import { formatCurrency } from "lib/number";
 import { ClientSurveillanceCategoryEnum } from "lib/enum";
+import { formatCurrency } from "lib/number";
 import { useContext } from "react";
 
 interface Props {
@@ -32,22 +32,18 @@ export default function DeleteEbbaApplicationModal({
   } = useContext(CurrentUserContext);
   const isBankUser = isRoleBankUser(role);
 
-  const {
-    data,
-    loading: isExistingEbbaApplicationLoading,
-  } = useGetEbbaApplicationQuery({
-    fetchPolicy: "network-only",
-    variables: {
-      id: ebbaApplicationId,
-    },
-  });
+  const { data, loading: isExistingEbbaApplicationLoading } =
+    useGetEbbaApplicationQuery({
+      fetchPolicy: "network-only",
+      variables: {
+        id: ebbaApplicationId,
+      },
+    });
 
   const ebbaApplication = data?.ebba_applications_by_pk || null;
 
-  const [
-    deleteEbbaApplication,
-    { loading: isDeleteEbbaApplicationLoading },
-  ] = useCustomMutation(deleteEbbaApplicationMutation);
+  const [deleteEbbaApplication, { loading: isDeleteEbbaApplicationLoading }] =
+    useCustomMutation(deleteEbbaApplicationMutation);
 
   const handleClickSubmit = async () => {
     const response = await deleteEbbaApplication({

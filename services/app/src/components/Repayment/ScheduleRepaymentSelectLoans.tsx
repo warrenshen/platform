@@ -1,10 +1,10 @@
 import {
   Box,
-  createStyles,
   FormControl,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import ExpectedDatePreview from "components/Repayment/ExpectedDatePreview";

@@ -1,45 +1,45 @@
-import { Button, Box, Typography } from "@material-ui/core";
-import CommentIcon from "@material-ui/icons/Comment";
+import { Box, Button, Typography } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
-import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
+import CommentIcon from "@material-ui/icons/Comment";
 import InvoiceDrawerLauncher from "components/Invoices/InvoiceDrawerLauncher";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
-import LoanPaymentStatusChip from "components/Shared/Chip/LoanPaymentStatusChip";
 import DebtFacilityStatusChip from "components/Shared/Chip/DebtFacilityStatusChip";
+import LoanPaymentStatusChip from "components/Shared/Chip/LoanPaymentStatusChip";
+import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
-import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
+import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import {
   Companies,
   LoanArtifactFragment,
-  Loans,
   LoanTypeEnum,
+  Loans,
   OpenLoanForDebtFacilityFragment,
   PurchaseOrders,
   RequestStatusEnum,
 } from "generated/graphql";
 import { withinNDaysOfNowOrBefore } from "lib/date";
+import { determineLoanEligibility } from "lib/debtFacility";
 import {
-  LoanPaymentStatusEnum,
-  LoanTypeToLabel,
-  DebtFacilityStatusEnum,
   DebtFacilityCompanyStatusEnum,
   DebtFacilityCompanyStatusToEligibility,
+  DebtFacilityStatusEnum,
+  LoanPaymentStatusEnum,
+  LoanTypeToLabel,
   ProductTypeEnum,
   ProductTypeToLabel,
 } from "lib/enum";
+import { PartnerEnum } from "lib/enum";
 import {
   createLoanCustomerIdentifier,
   createLoanDisbursementIdentifier,
   getLoanArtifactName,
   getLoanVendorName,
 } from "lib/loans";
-import { determineLoanEligibility } from "lib/debtFacility";
 import { ColumnWidths, truncateString } from "lib/tables";
 import { useEffect, useMemo, useState } from "react";
-import { PartnerEnum } from "lib/enum";
 
 interface Props {
   isArtifactVisible?: boolean;
@@ -159,10 +159,10 @@ export default function DebtFacilityLoansDataGrid({
   supportedProductTypes = [] as ProductTypeEnum[],
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
-  const rows = useMemo(() => getRows(loans, supportedProductTypes), [
-    loans,
-    supportedProductTypes,
-  ]);
+  const rows = useMemo(
+    () => getRows(loans, supportedProductTypes),
+    [loans, supportedProductTypes]
+  );
 
   useEffect(() => {
     if (!dataGrid) {
@@ -551,16 +551,20 @@ export default function DebtFacilityLoansDataGrid({
   );
 
   const handleSelectionChanged = useMemo(
-    () => ({ selectedRowsData }: any) =>
-      handleSelectLoans &&
-      handleSelectLoans(selectedRowsData as OpenLoanForDebtFacilityFragment[]),
+    () =>
+      ({ selectedRowsData }: any) =>
+        handleSelectLoans &&
+        handleSelectLoans(
+          selectedRowsData as OpenLoanForDebtFacilityFragment[]
+        ),
     [handleSelectLoans]
   );
 
   const allowedPageSizes = useMemo(() => [], []);
-  const filtering = useMemo(() => ({ enable: isFilteringEnabled }), [
-    isFilteringEnabled,
-  ]);
+  const filtering = useMemo(
+    () => ({ enable: isFilteringEnabled }),
+    [isFilteringEnabled]
+  );
 
   return (
     <ControlledDataGrid

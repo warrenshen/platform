@@ -1,4 +1,4 @@
-import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
+import { Box, Theme, createStyles, makeStyles } from "@material-ui/core";
 import PolymorphicLoansDataGrid from "components/Loans/PolymorphicLoansDataGrid";
 import CreateRepaymentModal from "components/Repayment/CreateRepaymentModal";
 import Can from "components/Shared/Can";
@@ -13,9 +13,9 @@ import {
   LoanFragment,
   Loans,
 } from "generated/graphql";
-import { ProductTypeEnum } from "lib/enum";
 import useSnackbar from "hooks/useSnackbar";
 import { Action, check } from "lib/auth/rbac-rules";
+import { ProductTypeEnum } from "lib/enum";
 import { useContext, useMemo, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>

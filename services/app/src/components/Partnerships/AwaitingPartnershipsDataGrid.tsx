@@ -38,9 +38,10 @@ export default function AwaitingPartnershipsDataGrid({
   pageSize = 10,
   partnershipRequests,
 }: Props) {
-  const rows = useMemo(() => getRows(partnershipRequests), [
-    partnershipRequests,
-  ]);
+  const rows = useMemo(
+    () => getRows(partnershipRequests),
+    [partnershipRequests]
+  );
 
   const columns = useMemo(
     () => [

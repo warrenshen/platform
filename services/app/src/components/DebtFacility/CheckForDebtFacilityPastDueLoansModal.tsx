@@ -1,14 +1,14 @@
 import {
   Box,
   Button,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-  makeStyles,
   Theme,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -39,10 +39,8 @@ function CheckForDebtFacilityPastDueLoansModal({ handleClose }: Props) {
   const snackbar = useSnackbar();
   const classes = useStyles();
 
-  const [
-    checkForPastDueLoans,
-    { loading: isCheckForPastDueLoansLoading },
-  ] = useCustomMutation(checkForDebtFacilityPastDueLoans);
+  const [checkForPastDueLoans, { loading: isCheckForPastDueLoansLoading }] =
+    useCustomMutation(checkForDebtFacilityPastDueLoans);
 
   const handleClickConfirm = async () => {
     const response = await checkForPastDueLoans({

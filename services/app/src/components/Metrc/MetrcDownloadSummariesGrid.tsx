@@ -69,10 +69,8 @@ function MetrcDownloadSummaryColumn({
 }: {
   metrcDownloadSummary: MetrcDownloadSummaryLimitedFragment;
 }) {
-  const [
-    selectedMetrcDownloadSummaryId,
-    setSelectedMetrcDownloadSummaryId,
-  ] = useState<MetrcDownloadSummaries["id"]>(null);
+  const [selectedMetrcDownloadSummaryId, setSelectedMetrcDownloadSummaryId] =
+    useState<MetrcDownloadSummaries["id"]>(null);
 
   return (
     <Box display="flex" flexDirection="column" width={36}>
@@ -175,7 +173,8 @@ export default function MetrcDownloadSummariesGrid({
   // For example, we may only have download summaries for October 2021 and November 2020
   // and none for any of the months in between (those months have not been backfilled yet).
   useEffect(() => {
-    const resultMetrcDownloadSummaries: MetrcDownloadSummaryLimitedFragment[] = [];
+    const resultMetrcDownloadSummaries: MetrcDownloadSummaryLimitedFragment[] =
+      [];
 
     if (metrcDownloadSummaries.length > 0) {
       const firstMetrcDownloadSummary = metrcDownloadSummaries[0];

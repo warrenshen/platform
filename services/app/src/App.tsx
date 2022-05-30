@@ -1,10 +1,11 @@
+import "devextreme/dist/css/dx.common.css";
+import "devextreme/dist/css/dx.material.blue.light.css";
+
 import PrivateRoute from "components/Shared/PrivateRoute";
 import {
   CurrentUserContext,
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
-import "devextreme/dist/css/dx.common.css";
-import "devextreme/dist/css/dx.material.blue.light.css";
 import { UserRolesEnum } from "generated/graphql";
 import {
   anonymousRoutes,
@@ -12,6 +13,7 @@ import {
   customerRoutes,
   routes,
 } from "lib/routes";
+import AnonymousCompletePage from "pages/Anonymous/AnonymousCompletePage";
 import ForgotPasswordPage from "pages/Anonymous/ForgotPassword";
 import ResetPasswordPage from "pages/Anonymous/ResetPassword";
 import ReviewInvoicePage from "pages/Anonymous/ReviewInvoice";
@@ -20,15 +22,15 @@ import ReviewInvoicePaymentPage from "pages/Anonymous/ReviewInvoicePayment";
 import ReviewInvoicePaymentCompletePage from "pages/Anonymous/ReviewInvoicePaymentComplete";
 import ReviewPurchaseOrderPage from "pages/Anonymous/ReviewPurchaseOrder";
 import ReviewPurchaseOrderCompletePage from "pages/Anonymous/ReviewPurchaseOrderComplete";
-import AnonymousCompletePage from "pages/Anonymous/AnonymousCompletePage";
 import AnonymousSecureLinkPage from "pages/Anonymous/SecureLink";
 import SignIn from "pages/Anonymous/SignIn";
+import VendorFormPage from "pages/Anonymous/VendorForm";
 import BankAdvancesPage from "pages/Bank/Advances";
 import BankAsyncPage from "pages/Bank/Async";
+import BankClientSurveillancePage from "pages/Bank/ClientSurveillance";
 import BankCompaniesPage from "pages/Bank/Companies";
 import BankCompanyPage from "pages/Bank/Company";
 import BankCustomersPage from "pages/Bank/Customers";
-import BankClientSurveillancePage from "pages/Bank/ClientSurveillance";
 import BankDebtFacilityPage from "pages/Bank/DebtFacility";
 import BankInvoicesPage from "pages/Bank/Invoices";
 import BankLoansPage from "pages/Bank/Loans";
@@ -40,7 +42,6 @@ import BankPurchaseOrdersPage from "pages/Bank/PurchaseOrders";
 import BankRepaymentsPage from "pages/Bank/Repayments";
 import BankReportsPage from "pages/Bank/Reports";
 import BankSettingsPage from "pages/Bank/Settings";
-import VendorFormPage from "pages/Anonymous/VendorForm";
 import BankVendorsPage from "pages/Bank/Vendors";
 import CustomerAccountPage from "pages/Customer/AccountFeesCredits";
 import CustomerBorrowingBasePage from "pages/Customer/BorrowingBase";
@@ -49,11 +50,11 @@ import CustomerFinancialCertificationsPage from "pages/Customer/FinancialCertifi
 import CustomerInvoicesPages from "pages/Customer/Invoices";
 import CustomerLoansPage from "pages/Customer/Loans";
 import CustomerLocationsPage from "pages/Customer/Locations";
-import CustomerReportsPage from "pages/Customer/Reports";
 import CustomerOverviewPage from "pages/Customer/Overview";
 import CustomerPayorsPage from "pages/Customer/Payors";
 import CustomerPurchaseOrdersPage from "pages/Customer/PurchaseOrders";
 import CustomerRepaymentsPage from "pages/Customer/Repayments";
+import CustomerReportsPage from "pages/Customer/Reports";
 import CustomerSettingsPage from "pages/Customer/Settings";
 import CustomerVendorsPage from "pages/Customer/Vendors";
 import UserProfile from "pages/UserProfile";

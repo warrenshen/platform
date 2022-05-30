@@ -107,21 +107,22 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
     }, [pageIndex]);
 
     const onOptionChanged = useCallback(
-      () => (e: any): void => {
-        const { fullName, value } = e;
-        if (fullName === "paging.pageIndex") {
-          setPageIndex(value);
-          if (onPageChanged) onPageChanged(value);
-        }
-        if (fullName.endsWith("sortOrder")) {
-          const index = fullName.match("/(?<=[).+?(?=])/g")[0];
-          if (onSortingChanged) onSortingChanged(index, value);
-        }
-        if (fullName.endsWith("filterValue")) {
-          const index = fullName.match("/(?<=[).+?(?=])/g")[0];
-          if (onFilteringChanged) onFilteringChanged(index, value);
-        }
-      },
+      () =>
+        (e: any): void => {
+          const { fullName, value } = e;
+          if (fullName === "paging.pageIndex") {
+            setPageIndex(value);
+            if (onPageChanged) onPageChanged(value);
+          }
+          if (fullName.endsWith("sortOrder")) {
+            const index = fullName.match("/(?<=[).+?(?=])/g")[0];
+            if (onSortingChanged) onSortingChanged(index, value);
+          }
+          if (fullName.endsWith("filterValue")) {
+            const index = fullName.match("/(?<=[).+?(?=])/g")[0];
+            if (onFilteringChanged) onFilteringChanged(index, value);
+          }
+        },
       [onFilteringChanged, onPageChanged, onSortingChanged]
     );
 

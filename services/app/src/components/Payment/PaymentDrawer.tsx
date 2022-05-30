@@ -1,13 +1,14 @@
 import {
   Box,
-  createStyles,
   Drawer,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
-import ReverseRepaymentModal from "components/Payment/ReverseRepaymentModal";
+import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import EditRepaymentDatesModal from "components/Payment/EditRepaymentDatesModal";
+import ReverseRepaymentModal from "components/Payment/ReverseRepaymentModal";
 import PaymentStatusChip from "components/Shared/Chip/PaymentStatusChip";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
@@ -19,13 +20,12 @@ import {
   Payments,
   useGetPaymentForSettlementQuery,
 } from "generated/graphql";
-import { formatCurrency } from "lib/number";
 import { formatDateString, formatDatetimeString } from "lib/date";
+import { todayAsDateStringServer } from "lib/date";
 import { RepaymentMethodEnum, RepaymentMethodToLabel } from "lib/enum";
 import { getPaymentStatus } from "lib/finance/payments/repayment";
+import { formatCurrency } from "lib/number";
 import { useContext } from "react";
-import { todayAsDateStringServer } from "lib/date";
-import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

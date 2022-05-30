@@ -1,10 +1,10 @@
 import { Tab, Tabs } from "@material-ui/core";
 import Page from "components/Shared/Page";
-import { MetrcTabLabel, tabLabels, TabLabel } from "lib/enum";
 import PageContent from "components/Shared/Page/PageContent";
+import { MetrcTabLabel, TabLabel, tabLabels } from "lib/enum";
+import CannabisLicensesTab from "pages/Bank/Metrc/CannabisLicensesTab";
 import BankMetrcApiKeysTab from "pages/Bank/Metrc/MetrcApiKeysTab";
 import BankMetrcTransfersTab from "pages/Bank/Metrc/MetrcTransfersTab";
-import CannabisLicensesTab from "pages/Bank/Metrc/CannabisLicensesTab";
 import { useState } from "react";
 import styled from "styled-components";
 

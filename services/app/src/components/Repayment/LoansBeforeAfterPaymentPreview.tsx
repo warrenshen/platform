@@ -4,16 +4,16 @@
 import {
   Box,
   Button,
-  createStyles,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import { ArrowRightAlt } from "@material-ui/icons";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import { Loans } from "generated/graphql";
-import { formatCurrency } from "lib/number";
 import { LoanBeforeAfterPayment } from "lib/finance/payments/repayment";
+import { formatCurrency } from "lib/number";
 import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>

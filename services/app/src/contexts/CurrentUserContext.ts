@@ -1,6 +1,6 @@
 import { UserRolesEnum, Users } from "generated/graphql";
-import { createContext } from "react";
 import { ProductTypeEnum } from "lib/enum";
+import { createContext } from "react";
 
 export function isRoleBankUser(role?: UserRolesEnum | null) {
   return (

@@ -55,26 +55,24 @@ export default function CreateUpdateCompanyLicenseModal({
 
   const [companyLicense, setCompanyLicense] = useState(newCompanyLicense);
 
-  const {
-    loading: isGetCompanyLicenseLoading,
-    error: getCompanyLicenseError,
-  } = useGetCompanyLicenseQuery({
-    skip: actionType === ActionType.New,
-    fetchPolicy: "network-only",
-    variables: {
-      id: companyLicenseId,
-    },
-    onCompleted: (data) => {
-      const existingCompanyLicense = data?.company_licenses_by_pk;
-      if (isActionTypeUpdate && existingCompanyLicense) {
-        setCompanyLicense(
-          mergeWith(newCompanyLicense, existingCompanyLicense, (a, b) =>
-            isNull(b) ? a : b
-          )
-        );
-      }
-    },
-  });
+  const { loading: isGetCompanyLicenseLoading, error: getCompanyLicenseError } =
+    useGetCompanyLicenseQuery({
+      skip: actionType === ActionType.New,
+      fetchPolicy: "network-only",
+      variables: {
+        id: companyLicenseId,
+      },
+      onCompleted: (data) => {
+        const existingCompanyLicense = data?.company_licenses_by_pk;
+        if (isActionTypeUpdate && existingCompanyLicense) {
+          setCompanyLicense(
+            mergeWith(newCompanyLicense, existingCompanyLicense, (a, b) =>
+              isNull(b) ? a : b
+            )
+          );
+        }
+      },
+    });
 
   if (getCompanyLicenseError) {
     alert(`Error in query: ${getCompanyLicenseError.message}`);

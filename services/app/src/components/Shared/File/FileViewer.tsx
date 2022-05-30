@@ -1,19 +1,20 @@
+import "pure-react-carousel/dist/react-carousel.es.css";
+
+import { Box, Typography } from "@material-ui/core";
+import PdfViewer from "components/Shared/File/PdfViewer";
+import { Files } from "generated/graphql";
+import { FileWithSignedURL, downloadFilesWithSignedUrls } from "lib/api/files";
 import {
-  CarouselProvider,
-  Slider,
-  Slide,
   ButtonBack,
   ButtonNext,
-  Image,
+  CarouselProvider,
   DotGroup,
+  Image,
+  Slide,
+  Slider,
 } from "pure-react-carousel";
-import { Box, Typography } from "@material-ui/core";
-import { Files } from "generated/graphql";
-import "pure-react-carousel/dist/react-carousel.es.css";
 import { useEffect, useState } from "react";
-import { FileWithSignedURL, downloadFilesWithSignedUrls } from "lib/api/files";
 import styled from "styled-components";
-import PdfViewer from "components/Shared/File/PdfViewer";
 
 const Container = styled.div`
   background-color: rgb(246, 245, 243);

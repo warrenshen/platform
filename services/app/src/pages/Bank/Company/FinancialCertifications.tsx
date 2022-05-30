@@ -1,6 +1,6 @@
-import FinancialCertificationsPageContent from "pages/Customer/FinancialCertifications/FinancialCertificationsPageContent";
 import { Companies } from "generated/graphql";
 import { ProductTypeEnum } from "lib/enum";
+import FinancialCertificationsPageContent from "pages/Customer/FinancialCertifications/FinancialCertificationsPageContent";
 
 interface Props {
   companyId: Companies["id"];

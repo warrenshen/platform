@@ -5,15 +5,16 @@ import {
   Grid,
   Typography,
 } from "@material-ui/core";
+import UpdateVendorContactsModal from "components/Partnership/UpdateVendorContactsModal";
 import Can from "components/Shared/Can";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import FileUploadDropzone from "components/Shared/File/FileUploadDropzone";
 import Modal from "components/Shared/Modal/Modal";
 import ModalButton from "components/Shared/Modal/ModalButton";
-import UpdateVendorContactsModal from "components/Partnership/UpdateVendorContactsModal";
 import UsersDataGrid from "components/Users/UsersDataGrid";
 import ApproveVendor from "components/Vendors/VendorDrawer/Actions/ApproveVendor";
 import BankAccount from "components/Vendors/VendorDrawer/BankAccount";
+import SendVendorAgreements from "components/Vendors/VendorDrawer/Notifications/SendVendorAgreements";
 import {
   CompanyAgreementsInsertInput,
   CompanyVendorPartnerships,
@@ -27,7 +28,6 @@ import { FileTypeEnum } from "lib/enum";
 import { InventoryNotifier } from "lib/notifications/inventory";
 import { consolidateCompanyUsers } from "lib/users";
 import { useMemo } from "react";
-import SendVendorAgreements from "components/Vendors/VendorDrawer/Notifications/SendVendorAgreements";
 
 interface Props {
   vendorPartnershipId: CompanyVendorPartnerships["id"];
@@ -86,7 +86,8 @@ export default function VendorPartnershipDrawer({
   const customerName = customer.name;
 
   const notifier = new InventoryNotifier();
-  const isVendorBankAccountValid = !!companyVendorPartnership?.vendor_bank_account;
+  const isVendorBankAccountValid =
+    !!companyVendorPartnership?.vendor_bank_account;
   const hasNoContactsSetup =
     !vendor.users || vendor?.users.length === 0 || customerUsers.length === 0;
 

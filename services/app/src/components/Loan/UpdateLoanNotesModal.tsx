@@ -1,14 +1,14 @@
 import {
   Box,
   Button,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  makeStyles,
   TextField,
   Theme,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import {
   LoansInsertInput,
@@ -68,10 +68,8 @@ export default function UpdateLoanNotesModal({ loanId, handleClose }: Props) {
     },
   });
 
-  const [
-    updateLoan,
-    { loading: isUpdateLoanLoading },
-  ] = useUpdateLoanMutation();
+  const [updateLoan, { loading: isUpdateLoanLoading }] =
+    useUpdateLoanMutation();
 
   const handleClickSave = async () => {
     const response = await updateLoan({

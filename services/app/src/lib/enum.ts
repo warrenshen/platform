@@ -4,6 +4,7 @@ import {
   RequestStatusEnum,
   UserRolesEnum,
 } from "generated/graphql";
+
 import DispensaryContractTermsJson from "./contract_terms_dispensary.json";
 import InventoryContractTermsJson from "./contract_terms_inventory.json";
 import InvoiceContractTermsJson from "./contract_terms_invoice.json";
@@ -413,9 +414,8 @@ export const ProductTypeToContractTermsJson = {
   ),
   [ProductTypeEnum.InvoiceFinancing]: JSON.stringify(InvoiceContractTermsJson),
   [ProductTypeEnum.LineOfCredit]: JSON.stringify(LineOfCreditContractTermsJson),
-  [ProductTypeEnum.PurchaseMoneyFinancing]: JSON.stringify(
-    PMFContractTermsJson
-  ),
+  [ProductTypeEnum.PurchaseMoneyFinancing]:
+    JSON.stringify(PMFContractTermsJson),
   [ProductTypeEnum.None]: JSON.stringify({}),
 };
 

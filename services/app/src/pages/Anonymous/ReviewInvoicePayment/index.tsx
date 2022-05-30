@@ -1,10 +1,10 @@
 import {
   Box,
   Button,
-  createStyles,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import {
@@ -12,9 +12,9 @@ import {
   useGetInvoiceForReviewQuery,
 } from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
-import { formatCurrency } from "lib/number";
 import { formatDateString } from "lib/date";
 import { FileTypeEnum } from "lib/enum";
+import { formatCurrency } from "lib/number";
 import { anonymousRoutes } from "lib/routes";
 import ReviewInvoicePaymentConfirmModal from "pages/Anonymous/ReviewInvoicePayment/ReviewInvoicePaymentConfirmModal";
 import ReviewInvoicePaymentRejectModal from "pages/Anonymous/ReviewInvoicePayment/ReviewInvoicePaymentRejectModal";

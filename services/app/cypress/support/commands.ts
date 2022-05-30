@@ -24,8 +24,11 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 import "cypress-file-upload";
+
 import { format } from "date-fns";
+
 import { password, users } from "../fixtures/logins";
+
 declare global {
   namespace Cypress {
     interface Chainable {

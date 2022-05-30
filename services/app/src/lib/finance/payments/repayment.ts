@@ -6,7 +6,7 @@ import {
   PaymentLimitedFragment,
   PaymentsInsertInput,
 } from "generated/graphql";
-import { authenticatedApi, CustomMutationResponse, loansRoutes } from "lib/api";
+import { CustomMutationResponse, authenticatedApi, loansRoutes } from "lib/api";
 import { PaymentStatusEnum } from "lib/enum";
 
 export type LoanBalance = {

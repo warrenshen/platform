@@ -1,4 +1,4 @@
-import { Box, Button, makeStyles, MenuItem, Select } from "@material-ui/core";
+import { Box, Button, MenuItem, Select, makeStyles } from "@material-ui/core";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import CreateUpdateBankAccountModal from "components/BankAccount/CreateUpdateBankAccountModal";
 import Can from "components/Shared/Can";

@@ -1,7 +1,7 @@
-import { Box, Button, makeStyles, TextField } from "@material-ui/core";
+import { Box, Button, TextField, makeStyles } from "@material-ui/core";
 import Can from "components/Shared/Can";
 import PhoneInput from "components/Shared/FormInputs/PhoneInput";
-import { useUpdateVendorInfoMutation, VendorFragment } from "generated/graphql";
+import { VendorFragment, useUpdateVendorInfoMutation } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { useState } from "react";
 

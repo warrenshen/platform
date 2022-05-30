@@ -2,22 +2,22 @@ import {
   Box,
   Button,
   Checkbox,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   FormControlLabel,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import { CompanySettings } from "generated/graphql";
-import { getFeatureFlagName, getFeatureFlagDescription } from "lib/companies";
-import { FeatureFlagEnum, AllFeatureFlags } from "lib/enum";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { upsertFeatureFlagsMutation } from "lib/api/companies";
+import { getFeatureFlagDescription, getFeatureFlagName } from "lib/companies";
+import { AllFeatureFlags, FeatureFlagEnum } from "lib/enum";
 import { ChangeEvent, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -49,10 +49,8 @@ export default function UpsertFeatureFlagsModal({
 
   const [errorMessage, setErrorMessage] = useState("");
 
-  const [
-    upsertFeatureFlags,
-    { loading: isUpsertFeatureFlagsLoading },
-  ] = useCustomMutation(upsertFeatureFlagsMutation);
+  const [upsertFeatureFlags, { loading: isUpsertFeatureFlagsLoading }] =
+    useCustomMutation(upsertFeatureFlagsMutation);
 
   const handleClickSubmit = async () => {
     const response = await upsertFeatureFlags({

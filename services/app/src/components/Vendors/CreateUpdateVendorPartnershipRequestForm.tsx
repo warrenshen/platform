@@ -1,20 +1,19 @@
 import {
   Box,
-  TextField,
-  Typography,
   Checkbox,
   FormControlLabel,
+  TextField,
+  Typography,
 } from "@material-ui/core";
+import BankAccountTypeDropdown from "components/BankAccount/BankAccountTypeDropdown";
 import FileUploader from "components/Shared/File/FileUploader";
 import PhoneInput from "components/Shared/FormInputs/PhoneInput";
-import BankAccountTypeDropdown from "components/BankAccount/BankAccountTypeDropdown";
 import { FileFragment } from "generated/graphql";
 import { FileTypeEnum } from "lib/enum";
-import { CreateVendorInput } from "pages/Anonymous/VendorForm";
-import { useMemo, ChangeEvent } from "react";
 import { BankAccountType } from "lib/enum";
-
 import { isEmailValid } from "lib/validation";
+import { CreateVendorInput } from "pages/Anonymous/VendorForm";
+import { ChangeEvent, useMemo } from "react";
 
 interface Props {
   companyId: string;

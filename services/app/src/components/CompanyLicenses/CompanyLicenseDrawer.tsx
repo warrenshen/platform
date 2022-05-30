@@ -1,18 +1,18 @@
 import {
   Box,
   Button,
-  createStyles,
   Drawer,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
-import { formatDateString } from "lib/date";
-import { CompanyLicenseFragment } from "generated/graphql";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import FileViewer from "components/Shared/File/FileViewer";
-import { useState } from "react";
+import { CompanyLicenseFragment } from "generated/graphql";
+import { formatDateString } from "lib/date";
 import { FileTypeEnum } from "lib/enum";
+import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

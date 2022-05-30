@@ -43,10 +43,8 @@ export default function CustomerLocationsPageContent({
 
   const companies = data?.parent_companies_by_pk?.companies || [];
 
-  const [
-    switchLocation,
-    { loading: isSwitchLocationLoading },
-  ] = useCustomMutation(switchLocationMutation);
+  const [switchLocation, { loading: isSwitchLocationLoading }] =
+    useCustomMutation(switchLocationMutation);
 
   const handleClickSwitchLocation = async (companyId: Companies["id"]) => {
     const response = await switchLocation({

@@ -19,9 +19,8 @@ export default function AssignCollectionsBespokeBankAccount({
 }: Props) {
   const snackbar = useSnackbar();
 
-  const [
-    assignCollectionsBankAccount,
-  ] = useAssignCollectionsBespokeBankAccountMutation();
+  const [assignCollectionsBankAccount] =
+    useAssignCollectionsBespokeBankAccountMutation();
 
   return (
     <BespokeBankAssignment

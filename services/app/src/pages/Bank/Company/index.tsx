@@ -1,23 +1,30 @@
 import { Box, ListItem, ListItemText, Typography } from "@material-ui/core";
 import List from "@material-ui/core/List";
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import { Theme, createStyles, makeStyles } from "@material-ui/core/styles";
+import { Alert } from "@material-ui/lab";
+import { Color } from "@material-ui/lab/Alert";
 import Page from "components/Shared/Page";
 import PrivateRoute from "components/Shared/PrivateRoute";
 import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
+import {
   Companies,
   GetCompanyForBankCompanyPageQuery,
-  useGetCompanyForBankCompanyPageQuery,
   UserRolesEnum,
+  useGetCompanyForBankCompanyPageQuery,
 } from "generated/graphql";
 import {
+  ProductTypeEnum,
   SurveillanceStatusEnum,
   SurveillanceStatusToLabel,
-  ProductTypeEnum,
 } from "lib/enum";
 import { bankRoutes } from "lib/routes";
 import { isPayorsTabVisible, isVendorsTabVisible } from "lib/settings";
-import BankCustomerContractPage from "pages/Bank/Company/Contract";
 import { flatten } from "lodash";
+import BankCustomerContractPage from "pages/Bank/Company/Contract";
+import { useContext } from "react";
 import {
   Link,
   matchPath,
@@ -26,28 +33,22 @@ import {
   useRouteMatch,
 } from "react-router-dom";
 import styled from "styled-components";
+
 import BankCustomerAccountFeesCreditsSubpage from "./AccountFeesCredits";
 import BankCustomerBorrowingBaseSubpage from "./BorrowingBase";
 import BankCustomerFinancialCertificationsSubpage from "./FinancialCertifications";
 import BankCustomerInvoicesSubpage from "./Invoices";
 import BankCustomerLoansSubpage from "./Loans";
-import BankCustomerReportsSubpage from "./Reports";
 import BankCustomerMetrcSubpage from "./Metrc";
 import BankCustomerOverviewSubpage from "./Overview";
+import BankCompanyPayorPartnershipsSubpage from "./PayorPartnerships";
 import BankCustomerPayorsSubpage from "./Payors";
 import BankCustomerPurchaseOrdersSubpage from "./PurchaseOrders";
 import BankCustomerPaymentsSubpage from "./Repayments";
-import BankCompanyPayorPartnershipsSubpage from "./PayorPartnerships";
+import BankCustomerReportsSubpage from "./Reports";
 import BankCustomerSettingsSubpage from "./Settings";
 import BankCompanyVendorPartnershipsSubpage from "./VendorPartnerships";
 import BankCustomerVendorsSubpage from "./Vendors";
-import { Alert } from "@material-ui/lab";
-import { Color } from "@material-ui/lab/Alert";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
-import { useContext } from "react";
 
 const DRAWER_WIDTH = 200;
 
@@ -333,7 +334,8 @@ export default function BankCompanyPage() {
 
   const company = data?.companies_by_pk || null;
   const companyName = company?.name;
-  const surveillanceStatus = company?.surveillance_status as SurveillanceStatusEnum;
+  const surveillanceStatus =
+    company?.surveillance_status as SurveillanceStatusEnum;
   const productType =
     (company?.contract?.product_type as ProductTypeEnum) || null;
 
@@ -341,9 +343,8 @@ export default function BankCompanyPage() {
     if (!surveillanceStatus) {
       return null;
     }
-    const { theme, severity } = surveillanceStatusToAlertStatus[
-      surveillanceStatus
-    ];
+    const { theme, severity } =
+      surveillanceStatusToAlertStatus[surveillanceStatus];
 
     return (
       <Box display="flex" mt={3} mb={2}>

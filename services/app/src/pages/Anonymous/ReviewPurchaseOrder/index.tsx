@@ -1,10 +1,10 @@
 import {
   Box,
   Button,
-  createStyles,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import MetrcTransferInfoCardForVendor from "components/Transfers/MetrcTransferInfoCardForVendor";
@@ -21,9 +21,10 @@ import { computePurchaseOrderDueDateDateStringClient } from "lib/purchaseOrders"
 import { anonymousRoutes } from "lib/routes";
 import { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
+import styled from "styled-components";
+
 import ReviewPurchaseOrderApproveModal from "./ReviewPurchaseOrderApproveModal";
 import ReviewPurchaseOrderRejectModal from "./ReviewPurchaseOrderRejectModal";
-import styled from "styled-components";
 
 const Buttons = styled.div`
   display: flex;

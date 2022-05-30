@@ -1,15 +1,16 @@
 import { Box, Tab, Tabs } from "@material-ui/core";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
+import { useGetOpenEbbaApplicationsCountForBankSubscription } from "generated/graphql";
 import { BankEbbaTabLabel, BankEbbaTabLabels } from "lib/enum";
+import { ClientSurveillanceCategoryEnum } from "lib/enum";
+import EbbaApplicationsBorrowingBaseTab from "pages/Bank/ClientSurveillance/EbbaApplicationsBorrowingBaseTab";
+import EbbaApplicationsClosedTab from "pages/Bank/ClientSurveillance/EbbaApplicationsClosedTab";
+import EbbaApplicationsFinancialReportsTab from "pages/Bank/ClientSurveillance/EbbaApplicationsFinancialReportsTab";
+import { useState } from "react";
+
 import ClientSurveillanceCurrentTab from "./ClientSurveillanceCurrentTab";
 import ClientSurveillanceHistoricalTab from "./ClientSurveillanceHistoricalTab";
-import EbbaApplicationsBorrowingBaseTab from "pages/Bank/ClientSurveillance/EbbaApplicationsBorrowingBaseTab";
-import EbbaApplicationsFinancialReportsTab from "pages/Bank/ClientSurveillance/EbbaApplicationsFinancialReportsTab";
-import EbbaApplicationsClosedTab from "pages/Bank/ClientSurveillance/EbbaApplicationsClosedTab";
-import { useGetOpenEbbaApplicationsCountForBankSubscription } from "generated/graphql";
-import { ClientSurveillanceCategoryEnum } from "lib/enum";
-import { useState } from "react";
 
 const EbbaComponentMap: {
   [key in BankEbbaTabLabel]: JSX.Element;

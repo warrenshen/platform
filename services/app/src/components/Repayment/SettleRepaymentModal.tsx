@@ -1,17 +1,17 @@
 import SettleRepaymentModalAccountFees from "components/Repayment/SettleRepaymentModalAccountFees";
 import SettleRepaymentModalLoans from "components/Repayment/SettleRepaymentModalLoans";
 import {
-  PayorFragment,
   Companies,
   Payments,
   PaymentsInsertInput,
+  PayorFragment,
   useGetPaymentForSettlementQuery,
 } from "generated/graphql";
 import { addBizDays, todayAsDateStringServer } from "lib/date";
 import {
-  RepaymentMethodEnum,
-  PaymentTypeEnum,
   PaymentOptionEnum,
+  PaymentTypeEnum,
+  RepaymentMethodEnum,
 } from "lib/enum";
 import { useEffect, useState } from "react";
 
@@ -29,10 +29,8 @@ export default function SettleRepaymentModal({
   const [payment, setPayment] = useState<PaymentsInsertInput>({});
 
   // Whether "Apply payment to account fees?" is checked.
-  const [
-    isAmountToAccountFeesChecked,
-    setIsAmountToAccountFeesChecked,
-  ] = useState(false);
+  const [isAmountToAccountFeesChecked, setIsAmountToAccountFeesChecked] =
+    useState(false);
   // Whether "Apply payment to loans?" is checked.
   const [isAmountToLoansChecked, setIsAmountToLoansChecked] = useState(false);
 

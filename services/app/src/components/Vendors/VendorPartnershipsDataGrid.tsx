@@ -30,8 +30,9 @@ function getRows(
     return {
       ...vendorPartnership,
       vendor_name: getCompanyDisplayName(vendorPartnership.vendor),
-      is_verified_bank_account: !!(vendorPartnership as VendorPartnershipFragment)
-        .vendor_bank_account?.verified_at,
+      is_verified_bank_account: !!(
+        vendorPartnership as VendorPartnershipFragment
+      ).vendor_bank_account?.verified_at,
       is_verified_license: getIsVerifiedLicenseValue(vendorPartnership.vendor),
       is_approved: !!vendorPartnership.approved_at,
     };
@@ -56,19 +57,20 @@ export default function VendorPartnershipsDataGrid({
   isVendorAgreementVisible = true,
   vendorPartnerships,
 }: Props) {
-  const [
-    selectedVendorPartnershipId,
-    setSelectedVendorPartnershipId,
-  ] = useState<CompanyVendorPartnerships["id"] | null>(null);
+  const [selectedVendorPartnershipId, setSelectedVendorPartnershipId] =
+    useState<CompanyVendorPartnerships["id"] | null>(null);
 
   const verificationCellRenderer = useMemo(
-    () => ({ value }: { value: string }) => <VerificationChip value={value} />,
+    () =>
+      ({ value }: { value: string }) =>
+        <VerificationChip value={value} />,
     []
   );
 
   const verifiedLicenseCheckboxRenderer = useMemo(
-    () => ({ value }: { value: string }) =>
-      value === null ? "N/A" : <VerificationChip value={value} />,
+    () =>
+      ({ value }: { value: string }) =>
+        value === null ? "N/A" : <VerificationChip value={value} />,
     []
   );
 

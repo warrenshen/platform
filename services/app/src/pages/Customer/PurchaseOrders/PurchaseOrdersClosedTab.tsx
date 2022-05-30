@@ -1,7 +1,7 @@
-import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
+import { Box, Theme, createStyles, makeStyles } from "@material-ui/core";
 import CreateUpdatePurchaseOrderModal from "components/PurchaseOrder/CreateUpdatePurchaseOrderModal";
-import ReopenPurchaseOrderModal from "components/PurchaseOrder/ReopenPurchaseOrderModal";
 import PurchaseOrdersDataGrid from "components/PurchaseOrder/PurchaseOrdersDataGrid";
+import ReopenPurchaseOrderModal from "components/PurchaseOrder/ReopenPurchaseOrderModal";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
@@ -57,9 +57,10 @@ export default function CustomerPurchaseOrdersClosedTab({
     alert(`Error in query (details in console): ${error.message}`);
   }
 
-  const purchaseOrders = useMemo(() => data?.purchase_orders || [], [
-    data?.purchase_orders,
-  ]);
+  const purchaseOrders = useMemo(
+    () => data?.purchase_orders || [],
+    [data?.purchase_orders]
+  );
 
   const [selectedPurchaseOrderIds, setSelectedPurchaseOrderIds] = useState<
     PurchaseOrders["id"][]

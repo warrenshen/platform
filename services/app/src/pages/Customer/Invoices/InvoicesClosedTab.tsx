@@ -1,4 +1,4 @@
-import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
+import { Box, Theme, createStyles, makeStyles } from "@material-ui/core";
 import InvoicesDataGrid from "components/Invoices/InvoicesDataGrid";
 import {
   Companies,

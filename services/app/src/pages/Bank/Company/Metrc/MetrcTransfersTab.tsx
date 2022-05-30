@@ -6,9 +6,9 @@ import {
   useGetMetrcTransfersByCompanyIdQuery,
 } from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
+import { filter } from "lodash";
 import { useMemo } from "react";
 import { useState } from "react";
-import { filter } from "lodash";
 
 interface Props {
   companyId: Companies["id"];

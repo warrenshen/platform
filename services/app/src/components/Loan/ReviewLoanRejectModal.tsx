@@ -1,15 +1,15 @@
 import {
   Box,
   Button,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-  makeStyles,
   TextField,
   Theme,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import { Loans } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -44,9 +44,8 @@ function ReviewLoanRejectModal({ loanId, handleClose }: Props) {
   const classes = useStyles();
   const [rejectionNote, setRejectionNote] = useState("");
 
-  const [rejectLoan, { loading: isRejectLoanLoading }] = useCustomMutation(
-    rejectLoanMutation
-  );
+  const [rejectLoan, { loading: isRejectLoanLoading }] =
+    useCustomMutation(rejectLoanMutation);
 
   const handleClickReject = async () => {
     const response = await rejectLoan({

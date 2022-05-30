@@ -4,8 +4,8 @@ import {
   CompanyLicensesInsertInput,
 } from "generated/graphql";
 import {
-  authenticatedApi,
   CustomMutationResponse,
+  authenticatedApi,
   licenseRoutes,
 } from "lib/api";
 

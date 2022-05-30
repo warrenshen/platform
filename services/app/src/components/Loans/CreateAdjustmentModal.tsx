@@ -39,21 +39,17 @@ export default function CreateAdjustmentModal({
     to_fees: null,
   });
 
-  const {
-    data,
-    loading: isSelectableLoansLoading,
-  } = useGetAllLoansForCompanyQuery({
-    fetchPolicy: "network-only",
-    variables: {
-      companyId,
-    },
-  });
+  const { data, loading: isSelectableLoansLoading } =
+    useGetAllLoansForCompanyQuery({
+      fetchPolicy: "network-only",
+      variables: {
+        companyId,
+      },
+    });
   const loans = data?.loans || [];
 
-  const [
-    createAdjustment,
-    { loading: isCreateAdjustmentLoading },
-  ] = useCustomMutation(createAdjustmentMutation);
+  const [createAdjustment, { loading: isCreateAdjustmentLoading }] =
+    useCustomMutation(createAdjustmentMutation);
 
   const handleClickSubmit = async () => {
     const response = await createAdjustment({

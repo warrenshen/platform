@@ -24,7 +24,8 @@ export default function MetrcTransferPackagesDataGrid({
   const rows = useMemo(
     () =>
       metrcTransferPackages.map((metrcTransferPackage) => {
-        const packagePayload = metrcTransferPackage.package_payload as MetrcPackagePayload;
+        const packagePayload =
+          metrcTransferPackage.package_payload as MetrcPackagePayload;
         return {
           ...metrcTransferPackage,
           manifest_number: metrcTransferPackage.metrc_transfer?.manifest_number,

@@ -1,21 +1,21 @@
 import { Box, FormControl, TextField, Typography } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
+import LoanFinancialSummariesDataGrid from "components/Loans/LoanFinancialSummariesDataGrid";
 import {
   Companies,
-  useGetCustomersForDropdownQuery,
   Loans,
   useGetAllLoansForCompanyQuery,
+  useGetCustomersForDropdownQuery,
 } from "generated/graphql";
-import useSnackbar from "hooks/useSnackbar";
 import useCustomMutation from "hooks/useCustomMutation";
+import useSnackbar from "hooks/useSnackbar";
 import { todayAsDateStringServer } from "lib/date";
 import { runCustomerBalancesMutation } from "lib/finance/loans/reports";
-import LoanFinancialSummariesDataGrid from "components/Loans/LoanFinancialSummariesDataGrid";
-import { orderBy, zipObject } from "lodash";
 import {
   createLoanCustomerIdentifier,
   createLoanDisbursementIdentifier,
 } from "lib/loans";
+import { orderBy, zipObject } from "lodash";
 import { useMemo, useState } from "react";
 
 export default function BankReportsFinancialsByCustomerTab() {
@@ -25,10 +25,8 @@ export default function BankReportsFinancialsByCustomerTab() {
   const [companyId, setCompanyId] = useState<Companies["id"]>("");
   // Loan ID is empty until user selects a loan from dropdown.
   const [loanId, setLoanId] = useState<Loans["id"]>("");
-  const [
-    loanIdToFinancialSummaries,
-    setLoanIdToFinancialSummaries,
-  ] = useState<any>(null);
+  const [loanIdToFinancialSummaries, setLoanIdToFinancialSummaries] =
+    useState<any>(null);
 
   const {
     data: customersData,
@@ -59,10 +57,8 @@ export default function BankReportsFinancialsByCustomerTab() {
   const customers = customersData?.customers || [];
   const loans = loansData?.loans || [];
 
-  const [
-    runCustomerBalances,
-    { loading: isRunCustomerBalancesLoading },
-  ] = useCustomMutation(runCustomerBalancesMutation);
+  const [runCustomerBalances, { loading: isRunCustomerBalancesLoading }] =
+    useCustomMutation(runCustomerBalancesMutation);
 
   const fetchFinancials = async function (newCompanyId: Companies["id"]) {
     const reportDate = todayAsDateStringServer();

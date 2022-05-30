@@ -1,12 +1,12 @@
 import {
   Box,
   Checkbox,
-  createStyles,
   FormControl,
   FormControlLabel,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
@@ -14,11 +14,11 @@ import RequestedRepaymentPreview from "components/Repayment/RequestedRepaymentPr
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import {
-  PayorFragment,
   Companies,
-  Loans,
   LoanTypeEnum,
+  Loans,
   PaymentsInsertInput,
+  PayorFragment,
   useGetFundedLoansByCompanyAndLoanTypeQuery,
 } from "generated/graphql";
 import { ProductTypeEnum, ProductTypeToLoanType } from "lib/enum";

@@ -1,14 +1,14 @@
 import {
   Box,
-  createStyles,
   List,
   ListItem,
   ListItemText,
-  makeStyles,
   Theme,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
-import GaugeProgressBar from "components/Shared/ProgressBar/GaugeProgressBar";
 import AutocompleteDebtFacility from "components/DebtFacility/AutocompleteDebtFacility";
+import GaugeProgressBar from "components/Shared/ProgressBar/GaugeProgressBar";
 import {
   DebtFacilities,
   GetDebtFacilitiesSubscription,
@@ -63,20 +63,18 @@ function DebtFacilityCapacitySummary({
   const [isDebtFacilitySelected, setIsDebtFacilitySelected] = useState(false);
 
   // Get total of loans currently in the debt facility
-  const {
-    data: debtFacilityData,
-    error: debtFacilityError,
-  } = useGetOpenLoansByDebtFacilityIdSubscription({
-    variables: {
-      statuses: [
-        DebtFacilityStatusEnum.SoldIntoDebtFacility,
-        DebtFacilityStatusEnum.Waiver,
-      ],
-      target_facility_ids: !!selectedDebtFacilityId
-        ? [selectedDebtFacilityId]
-        : allFacilityIds,
-    },
-  });
+  const { data: debtFacilityData, error: debtFacilityError } =
+    useGetOpenLoansByDebtFacilityIdSubscription({
+      variables: {
+        statuses: [
+          DebtFacilityStatusEnum.SoldIntoDebtFacility,
+          DebtFacilityStatusEnum.Waiver,
+        ],
+        target_facility_ids: !!selectedDebtFacilityId
+          ? [selectedDebtFacilityId]
+          : allFacilityIds,
+      },
+    });
   if (debtFacilityError) {
     console.error({ debtFacilityError });
     alert(`Error in query (details in console): ${debtFacilityError.message}`);
@@ -103,9 +101,11 @@ function DebtFacilityCapacitySummary({
       setMaximumCapacity(defaultFacility?.maximum_capacities[0]?.amount || 0.0);
       setDrawnCapacity(defaultFacility?.drawn_capacities[0]?.amount || 0.0);
       setSelectedDebtFacilityId(defaultFacility?.id || "");
-      const supportedProductTypes = (defaultFacility?.product_types
-        ? defaultFacility?.product_types["supported"]
-        : []) as ProductTypeEnum[];
+      const supportedProductTypes = (
+        defaultFacility?.product_types
+          ? defaultFacility?.product_types["supported"]
+          : []
+      ) as ProductTypeEnum[];
       setSelectedDebtFacilitySupportedProductTypes(supportedProductTypes);
     }
   }, [
@@ -142,9 +142,11 @@ function DebtFacilityCapacitySummary({
           textFieldLabel="Pick debt facility"
           onChange={(debtFacility) => {
             setSelectedDebtFacilityId(debtFacility?.id || "");
-            const supportedProductTypes = (debtFacility?.product_types
-              ? debtFacility?.product_types["supported"]
-              : []) as ProductTypeEnum[];
+            const supportedProductTypes = (
+              debtFacility?.product_types
+                ? debtFacility?.product_types["supported"]
+                : []
+            ) as ProductTypeEnum[];
             setSelectedDebtFacilitySupportedProductTypes(supportedProductTypes);
             setMaximumCapacity(
               debtFacility?.maximum_capacities[0]?.amount || 0.0

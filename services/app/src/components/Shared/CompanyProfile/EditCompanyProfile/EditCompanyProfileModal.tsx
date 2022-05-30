@@ -1,15 +1,15 @@
 import {
   Box,
   Button,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-  makeStyles,
   TextField,
   Theme,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import PhoneInput from "components/Shared/FormInputs/PhoneInput";
 import {
@@ -49,10 +49,8 @@ export default function EditCompanyProfileModal({
 
   const [company, setCompany] = useState(companyToEdit);
 
-  const [
-    updateCompany,
-    { loading: updateCompanyLoading },
-  ] = useUpdateCompanyProfileMutation();
+  const [updateCompany, { loading: updateCompanyLoading }] =
+    useUpdateCompanyProfileMutation();
 
   return (
     <Dialog open onClose={handleClose} maxWidth="md">

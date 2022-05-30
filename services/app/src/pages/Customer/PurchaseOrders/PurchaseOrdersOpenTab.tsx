@@ -1,15 +1,15 @@
 import {
   Box,
   Button,
-  createStyles,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
-import ClosePurchaseOrderModal from "components/PurchaseOrder/ClosePurchaseOrderModal";
 import CreateMultiplePurchaseOrdersLoansModal from "components/Loan/CreateMultiplePurchaseOrdersLoansModal";
 import CreateUpdatePurchaseOrderLoanModal from "components/Loan/CreateUpdatePurchaseOrderLoanModal";
+import ClosePurchaseOrderModal from "components/PurchaseOrder/ClosePurchaseOrderModal";
 import CreateUpdatePurchaseOrderModal from "components/PurchaseOrder/CreateUpdatePurchaseOrderModal";
 import DeletePurchaseOrderModal from "components/PurchaseOrder/DeletePurchaseOrderModal";
 import PurchaseOrdersDataGrid from "components/PurchaseOrder/PurchaseOrdersDataGrid";
@@ -74,9 +74,10 @@ export default function CustomerPurchaseOrdersOpenTab({
     () => !!data?.companies_by_pk?.settings?.has_autofinancing,
     [data?.companies_by_pk]
   );
-  const purchaseOrders = useMemo(() => data?.purchase_orders || [], [
-    data?.purchase_orders,
-  ]);
+  const purchaseOrders = useMemo(
+    () => data?.purchase_orders || [],
+    [data?.purchase_orders]
+  );
 
   // Not approved POs
   const notApprovedPurchaseOrders = useMemo(
@@ -138,10 +139,8 @@ export default function CustomerPurchaseOrdersOpenTab({
     [setSelectedApprovedPurchaseOrderIds]
   );
 
-  const [
-    submitPurchaseOrder,
-    { loading: isSubmitPurchaseOrderLoading },
-  ] = useCustomMutation(submitPurchaseOrderMutation);
+  const [submitPurchaseOrder, { loading: isSubmitPurchaseOrderLoading }] =
+    useCustomMutation(submitPurchaseOrderMutation);
 
   const handleSubmitPurchaseOrder = async () => {
     const purchaseOrder = selectedNotApprovedPurchaseOrder;

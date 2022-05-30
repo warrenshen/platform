@@ -27,8 +27,7 @@ export async function listArtifactsForCreateLoan(req: {
         console.log("Error", error);
         return {
           status: "ERROR",
-          msg:
-            "Could not list artifacts for create loan for an unexpected reason",
+          msg: "Could not list artifacts for create loan for an unexpected reason",
         };
       }
     );

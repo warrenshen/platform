@@ -1,10 +1,10 @@
 import {
   Box,
-  createStyles,
-  makeStyles,
   TextField,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import Modal from "components/Shared/Modal/Modal";
 import { CompaniesInsertInput } from "generated/graphql";

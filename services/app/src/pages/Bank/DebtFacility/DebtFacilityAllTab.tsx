@@ -1,15 +1,15 @@
 import { Box, TextField } from "@material-ui/core";
 import DebtFacilityLoansDataGrid from "components/DebtFacility/DebtFacilityLoansDataGrid";
 import { useGetOpenLoansByDebtFacilityStatusesSubscription } from "generated/graphql";
+import { useFilterDebtFacilityLoansBySearchQuery } from "hooks/useFilterDebtFacilityLoans";
 import {
   DebtFacilityCompanyStatusEnum,
   DebtFacilityStatusEnum,
 } from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
+import { useState } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
-import { useState } from "react";
-import { useFilterDebtFacilityLoansBySearchQuery } from "hooks/useFilterDebtFacilityLoans";
 
 const Container = styled.div`
   display: flex;

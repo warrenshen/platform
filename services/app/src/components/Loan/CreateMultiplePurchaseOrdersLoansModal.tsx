@@ -1,12 +1,12 @@
 import {
   Box,
-  createStyles,
   Dialog,
   DialogContent,
   DialogTitle,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import Modal from "components/Shared/Modal/Modal";
@@ -18,8 +18,8 @@ import {
   Companies,
   GetPurchaseOrdersForIdsQuery,
   LoanFragment,
-  Loans,
   LoanTypeEnum,
+  Loans,
   Scalars,
   useGetCustomerOverviewQuery,
   useGetPurchaseOrdersForIdsQuery,
@@ -33,6 +33,7 @@ import {
 } from "lib/finance/loans/purchaseOrders";
 import { get as getPath } from "lodash";
 import { useContext, useState } from "react";
+
 import MultiplePurchaseOrdersLoansForm from "./MultiplePurchaseOrdersLoansForm";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -124,9 +125,8 @@ export default function CreateMultiplePurchaseOrdersLoansModal({
   // Perform all of the math
   const computedLoans = computeLoans(purchaseOrdersData?.purchase_orders || []);
   const loanTotal = sumPossibleLoans(computedLoans);
-  const customerBalanceRemainingNow = grabCustomerBalanceRemaining(
-    customerData
-  );
+  const customerBalanceRemainingNow =
+    grabCustomerBalanceRemaining(customerData);
   const forecastedBalanceRemaining = customerBalanceRemainingNow - loanTotal;
 
   // Our only requirement to submit is a paymentDate

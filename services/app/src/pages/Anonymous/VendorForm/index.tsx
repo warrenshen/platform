@@ -1,24 +1,24 @@
-import { useState } from "react";
-import { useHistory, useParams } from "react-router-dom";
 import {
   Box,
   Button,
-  createStyles,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
-import { routes, anonymousRoutes } from "lib/routes";
 import CreateUpdateVendorPartnershipRequestForm from "components/Vendors/CreateUpdateVendorPartnershipRequestForm";
-import useCustomMutation from "hooks/useCustomMutation";
-import useSnackbar from "hooks/useSnackbar";
 import {
   Companies,
   useGetCompanyForVendorOnboardingQuery,
 } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
+import useSnackbar from "hooks/useSnackbar";
 import { createPartnershipRequestNewMutation } from "lib/api/companies";
 import { BankAccountType } from "lib/enum";
+import { anonymousRoutes, routes } from "lib/routes";
 import { isEmailValid } from "lib/validation";
+import { useState } from "react";
+import { useHistory, useParams } from "react-router-dom";
 
 export type LicenseInfo = {
   license_ids: Array<string>;

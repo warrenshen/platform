@@ -2,14 +2,14 @@ import {
   Box,
   Checkbox,
   FormControlLabel,
-  makeStyles,
   TextField,
+  makeStyles,
 } from "@material-ui/core";
-import DateInput from "components/Shared/FormInputs/DateInput";
 import BankAccountTypeDropdown from "components/BankAccount/BankAccountTypeDropdown";
+import DateInput from "components/Shared/FormInputs/DateInput";
 import { BankAccountsInsertInput, UserRolesEnum } from "generated/graphql";
-import { ChangeEvent } from "react";
 import { BankAccountType } from "lib/enum";
+import { ChangeEvent } from "react";
 
 const useStyles = makeStyles({
   form: {

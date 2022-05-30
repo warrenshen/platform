@@ -1,11 +1,11 @@
 import {
   Box,
-  createStyles,
   FormControl,
-  makeStyles,
   TextField,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import FileUploader from "components/Shared/File/FileUploader";
@@ -17,8 +17,8 @@ import {
   EbbaApplicationsInsertInput,
   Files,
 } from "generated/graphql";
-import { formatCurrency } from "lib/number";
 import { FileTypeEnum } from "lib/enum";
+import { formatCurrency } from "lib/number";
 import { useMemo } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>

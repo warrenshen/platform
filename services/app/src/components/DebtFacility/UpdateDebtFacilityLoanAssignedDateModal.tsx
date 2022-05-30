@@ -1,11 +1,11 @@
-import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
-import Modal from "components/Shared/Modal/Modal";
-import useCustomMutation from "hooks/useCustomMutation";
-import useSnackbar from "hooks/useSnackbar";
+import { Box, Theme, createStyles, makeStyles } from "@material-ui/core";
 import DebtFacilityLoansDataGrid from "components/DebtFacility/DebtFacilityLoansDataGrid";
 import DateInput from "components/Shared/FormInputs/DateInput";
-import { updateDebtFacilityAssignedDate } from "lib/api/debtFacility";
+import Modal from "components/Shared/Modal/Modal";
 import { OpenLoanForDebtFacilityFragment } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
+import useSnackbar from "hooks/useSnackbar";
+import { updateDebtFacilityAssignedDate } from "lib/api/debtFacility";
 import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -30,10 +30,8 @@ export default function MoveDebtFacilityLoanModal({
 
   const [debtFacilityAssignedDate, setDebtFacilityAssignedDate] = useState("");
 
-  const [
-    updateAssignedDate,
-    { loading: isUpdateAssignedDateLoading },
-  ] = useCustomMutation(updateDebtFacilityAssignedDate);
+  const [updateAssignedDate, { loading: isUpdateAssignedDateLoading }] =
+    useCustomMutation(updateDebtFacilityAssignedDate);
 
   // Submission Handler
   const handleClick = async () => {

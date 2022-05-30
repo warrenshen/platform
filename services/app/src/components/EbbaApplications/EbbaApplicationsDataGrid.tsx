@@ -12,11 +12,11 @@ import {
   GetOpenEbbaApplicationsByCategoryQuery,
   RequestStatusEnum,
 } from "generated/graphql";
-import { ClientSurveillanceCategoryEnum, BankEbbaTabLabel } from "lib/enum";
-import { ColumnWidths } from "lib/tables";
-import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
-import { useMemo, useState } from "react";
+import { BankEbbaTabLabel, ClientSurveillanceCategoryEnum } from "lib/enum";
 import { formatCurrency } from "lib/number";
+import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
+import { ColumnWidths } from "lib/tables";
+import { useMemo, useState } from "react";
 
 interface Props {
   isApprovedAtVisible?: boolean;
@@ -246,11 +246,12 @@ export default function EbbaApplicationsDataGrid({
   );
 
   const handleSelectionChanged = useMemo(
-    () => ({ selectedRowsData }: any) =>
-      handleSelectEbbaApplications &&
-      handleSelectEbbaApplications(
-        selectedRowsData as EbbaApplicationFragment[]
-      ),
+    () =>
+      ({ selectedRowsData }: any) =>
+        handleSelectEbbaApplications &&
+        handleSelectEbbaApplications(
+          selectedRowsData as EbbaApplicationFragment[]
+        ),
     [handleSelectEbbaApplications]
   );
 

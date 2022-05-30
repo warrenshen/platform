@@ -1,19 +1,20 @@
 import {
   Box,
   Button,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  makeStyles,
   Theme,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import { InvoiceFragment } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { submitInvoiceForPaymentMutation } from "lib/api/invoices";
+
 import InvoicesDataGrid from "./InvoicesDataGrid";
 
 const useStyles = makeStyles((theme: Theme) =>

@@ -1,19 +1,19 @@
 import {
   Box,
-  createStyles,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
-import CreateAdjustmentModal from "components/Loans/CreateAdjustmentModal";
+import CustomerFinancialSummaryOverview from "components/CustomerFinancialSummary/CustomerFinancialSummaryOverview";
 import CreateUpdateInvoiceModal from "components/Invoices/CreateUpdateInvoiceModal";
 import CreateUpdatePolymorphicLoanModal from "components/Loan/CreateUpdatePolymorphicLoanModal";
-import CreateUpdatePurchaseOrderModal from "components/PurchaseOrder/CreateUpdatePurchaseOrderModal";
-import CustomerFinancialSummaryOverview from "components/CustomerFinancialSummary/CustomerFinancialSummaryOverview";
+import CreateAdjustmentModal from "components/Loans/CreateAdjustmentModal";
 import PolymorphicLoansDataGrid from "components/Loans/PolymorphicLoansDataGrid";
 import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal";
 import DeletePaymentModal from "components/Payment/DeletePaymentModal";
+import CreateUpdatePurchaseOrderModal from "components/PurchaseOrder/CreateUpdatePurchaseOrderModal";
 import CreateRepaymentModal from "components/Repayment/CreateRepaymentModal";
 import RepaymentsDataGrid from "components/Repayment/RepaymentsDataGrid";
 import Can from "components/Shared/Can";
@@ -119,9 +119,10 @@ export default function CustomerOverviewPageContent({
 
   const [selectedLoans, setSelectedLoans] = useState<LoanFragment[]>([]);
 
-  const selectedLoanIds = useMemo(() => selectedLoans.map((loan) => loan.id), [
-    selectedLoans,
-  ]);
+  const selectedLoanIds = useMemo(
+    () => selectedLoans.map((loan) => loan.id),
+    [selectedLoans]
+  );
 
   const [selectedPaymentIds, setSelectedPaymentIds] = useState<Payments["id"]>(
     []

@@ -1,6 +1,8 @@
 import { Box, Typography } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import { Alert } from "@material-ui/lab";
+import MonthEndPaymentsDataGrid from "components/Fee/MonthEndPaymentsDataGrid";
+import DateInput from "components/Shared/FormInputs/DateInput";
 import Modal from "components/Shared/Modal/Modal";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -8,11 +10,9 @@ import {
   getAllMonthEndPaymentsQuery,
   submitMonthEndPaymentsMutation,
 } from "lib/api/fees";
-import { useState } from "react";
-import MonthEndPaymentsDataGrid from "components/Fee/MonthEndPaymentsDataGrid";
-import DateInput from "components/Shared/FormInputs/DateInput";
 import { formatDateStringAsMonth } from "lib/date";
 import { sortBy } from "lodash";
+import { useState } from "react";
 
 interface Props {
   handleClose: () => void;
@@ -22,22 +22,18 @@ export default function CreateMonthEndPaymentsModal({ handleClose }: Props) {
   const snackbar = useSnackbar();
 
   const [dateStr, setDateStr] = useState<string>("");
-  const [isOnConfirmationPage, setIsOnConfirmationPage] = useState<boolean>(
-    false
-  );
-  const [monthEndPaymentsPayload, setMonthEndPaymentsPayload] = useState<any>(
-    null
-  );
+  const [isOnConfirmationPage, setIsOnConfirmationPage] =
+    useState<boolean>(false);
+  const [monthEndPaymentsPayload, setMonthEndPaymentsPayload] =
+    useState<any>(null);
 
   const [
     getAllMonthlyInterestFeesDue,
     { loading: isGetAllMonthlyFeesDueLoading },
   ] = useCustomMutation(getAllMonthEndPaymentsQuery);
 
-  const [
-    submitMonthEndPayments,
-    { loading: isSubmitMonthEndPaymentsLoading },
-  ] = useCustomMutation(submitMonthEndPaymentsMutation);
+  const [submitMonthEndPayments, { loading: isSubmitMonthEndPaymentsLoading }] =
+    useCustomMutation(submitMonthEndPaymentsMutation);
 
   const handleClickNext = async () => {
     const response = await getAllMonthlyInterestFeesDue({

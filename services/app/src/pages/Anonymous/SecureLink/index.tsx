@@ -5,6 +5,7 @@ import { setAccessToken, setRefreshToken } from "lib/auth/tokenStorage";
 import { anonymousRoutes, routes } from "lib/routes";
 import { useCallback, useContext, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
+
 import AuthenticateViaTwoFactorPage from "../AuthenticateViaTwoFactor";
 
 type FormInfo = {

@@ -1,16 +1,16 @@
 import {
   Box,
   Button,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
   Divider,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import useSnackbar from "hooks/useSnackbar";
 import { deletePartnershipRequestMutation } from "lib/api/companies";

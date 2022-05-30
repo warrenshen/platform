@@ -1,6 +1,6 @@
 import { Box, CircularProgress, Typography } from "@material-ui/core";
-import APIStatusChip from "components/Shared/Chip/APIStatusChip";
 import MetrcDownloadSummariesGrid from "components/Metrc/MetrcDownloadSummariesGrid";
+import APIStatusChip from "components/Shared/Chip/APIStatusChip";
 import {
   GetMetrcApiKeysByCompanyIdQuery,
   useGetMetrcDownloadSummariesByMetrcApiKeyIdQuery,

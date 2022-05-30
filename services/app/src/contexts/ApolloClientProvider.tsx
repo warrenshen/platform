@@ -10,9 +10,9 @@ import { setContext } from "@apollo/client/link/context";
 import { WebSocketLink } from "@apollo/client/link/ws";
 import { getMainDefinition } from "@apollo/client/utilities";
 import { CurrentUserContext, User } from "contexts/CurrentUserContext";
+import { UserRolesEnum } from "generated/graphql";
 import { getAccessToken } from "lib/auth/tokenStorage";
 import { ReactNode, useContext } from "react";
-import { UserRolesEnum } from "generated/graphql";
 
 const createApolloClient = (user: User) => {
   const authLink = setContext(async (_, { headers }) => {

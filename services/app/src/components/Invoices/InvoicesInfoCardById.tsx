@@ -1,5 +1,6 @@
 import { IdProps } from "components/Artifacts/interfaces";
 import { useGetInvoiceByIdQuery } from "generated/graphql";
+
 import InvoiceInfoCard from "./InvoiceInfoCard";
 
 export default function InvoiceInfoCardById({ id }: IdProps) {

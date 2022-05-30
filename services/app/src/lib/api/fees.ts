@@ -1,4 +1,4 @@
-import { authenticatedApi, CustomMutationResponse, feesRoutes } from "lib/api";
+import { CustomMutationResponse, authenticatedApi, feesRoutes } from "lib/api";
 
 export async function getAllMonthlyInterestFeesDueQuery(req: {
   variables: { date: string };

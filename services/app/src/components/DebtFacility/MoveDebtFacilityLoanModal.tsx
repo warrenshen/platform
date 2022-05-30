@@ -1,23 +1,23 @@
 import {
   Box,
-  createStyles,
-  makeStyles,
   TextField,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
-import Modal from "components/Shared/Modal/Modal";
-import useCustomMutation from "hooks/useCustomMutation";
-import useSnackbar from "hooks/useSnackbar";
 import AutocompleteDebtFacility from "components/DebtFacility/AutocompleteDebtFacility";
 import DebtFacilityLoansDataGrid from "components/DebtFacility/DebtFacilityLoansDataGrid";
 import DateInput from "components/Shared/FormInputs/DateInput";
-import { moveLoansForDebtFacility } from "lib/api/debtFacility";
-import { ProductTypeEnum } from "lib/enum";
+import Modal from "components/Shared/Modal/Modal";
 import {
   GetDebtFacilitiesSubscription,
   OpenLoanForDebtFacilityFragment,
 } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
+import useSnackbar from "hooks/useSnackbar";
+import { moveLoansForDebtFacility } from "lib/api/debtFacility";
+import { ProductTypeEnum } from "lib/enum";
 import { useEffect, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>

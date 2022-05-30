@@ -2,15 +2,15 @@ import {
   Box,
   Button,
   Checkbox,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   FormControlLabel,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import {
   CompanySettings,
@@ -48,10 +48,8 @@ export default function ChangeIsDummyAccountModal({
 
   const [errorMessage, setErrorMessage] = useState("");
 
-  const [
-    updateIsDummyAccount,
-    { loading: isUpdateDummyAccountLoading },
-  ] = useUpdateIsDummyAccountMutation();
+  const [updateIsDummyAccount, { loading: isUpdateDummyAccountLoading }] =
+    useUpdateIsDummyAccountMutation();
 
   const handleClickSubmit = async () => {
     const response = await updateIsDummyAccount({

@@ -28,22 +28,18 @@ function DeletePurchaseOrderModal({ purchaseOrderId, handleClose }: Props) {
   } = useContext(CurrentUserContext);
   const isBankUser = isRoleBankUser(role);
 
-  const {
-    data,
-    loading: isExistingPurchaseOrderLoading,
-  } = useGetPurchaseOrderForCustomerQuery({
-    fetchPolicy: "network-only",
-    variables: {
-      id: purchaseOrderId,
-    },
-  });
+  const { data, loading: isExistingPurchaseOrderLoading } =
+    useGetPurchaseOrderForCustomerQuery({
+      fetchPolicy: "network-only",
+      variables: {
+        id: purchaseOrderId,
+      },
+    });
 
   const purchaseOrder = data?.purchase_orders_by_pk || null;
 
-  const [
-    deletePurchaseOrder,
-    { loading: isDeletePurchaseOrderLoading },
-  ] = useCustomMutation(deletePurchaseOrderMutation);
+  const [deletePurchaseOrder, { loading: isDeletePurchaseOrderLoading }] =
+    useCustomMutation(deletePurchaseOrderMutation);
 
   const handleClickSubmit = async () => {
     const response = await deletePurchaseOrder({

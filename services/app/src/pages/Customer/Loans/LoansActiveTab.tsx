@@ -1,9 +1,9 @@
 import {
   Box,
-  createStyles,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import { Companies, useGetActiveLoansForCompanyQuery } from "generated/graphql";
 import { ProductTypeEnum, ProductTypeToLoanType } from "lib/enum";

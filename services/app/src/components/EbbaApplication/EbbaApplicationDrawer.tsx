@@ -16,9 +16,9 @@ import {
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { authenticatedApi, ebbaApplicationsRoutes } from "lib/api";
-import { formatCurrency } from "lib/number";
 import { formatDateString, formatDatetimeString } from "lib/date";
 import { ClientSurveillanceCategoryEnum, FileTypeEnum } from "lib/enum";
+import { formatCurrency } from "lib/number";
 import { useContext, useMemo, useState } from "react";
 
 interface Props {

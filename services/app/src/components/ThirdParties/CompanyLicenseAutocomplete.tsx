@@ -29,9 +29,10 @@ export default function CompanyLicenseAutocomplete({
     alert(`Error in query (details in console): ${error.message}`);
   }
 
-  const companyLicenses = useMemo(() => data?.company_licenses || [], [
-    data?.company_licenses,
-  ]);
+  const companyLicenses = useMemo(
+    () => data?.company_licenses || [],
+    [data?.company_licenses]
+  );
 
   return (
     <Autocomplete

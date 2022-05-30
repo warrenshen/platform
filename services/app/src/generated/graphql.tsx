@@ -4,10 +4,12 @@ export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = {
   [K in keyof T]: T[K];
 };
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> &
-  { [SubKey in K]?: Maybe<T[SubKey]> };
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> &
-  { [SubKey in K]: Maybe<T[SubKey]> };
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
+  [SubKey in K]?: Maybe<T[SubKey]>;
+};
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
+  [SubKey in K]: Maybe<T[SubKey]>;
+};
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -535,13 +537,14 @@ export type BankAccountsAssignedCompaniesForCollectionInSettingsArgs = {
 };
 
 /** columns and relationships of "bank_accounts" */
-export type BankAccountsAssignedCompaniesForCollectionInSettingsAggregateArgs = {
-  distinct_on?: Maybe<Array<CompanySettingsSelectColumn>>;
-  limit?: Maybe<Scalars["Int"]>;
-  offset?: Maybe<Scalars["Int"]>;
-  order_by?: Maybe<Array<CompanySettingsOrderBy>>;
-  where?: Maybe<CompanySettingsBoolExp>;
-};
+export type BankAccountsAssignedCompaniesForCollectionInSettingsAggregateArgs =
+  {
+    distinct_on?: Maybe<Array<CompanySettingsSelectColumn>>;
+    limit?: Maybe<Scalars["Int"]>;
+    offset?: Maybe<Scalars["Int"]>;
+    order_by?: Maybe<Array<CompanySettingsOrderBy>>;
+    where?: Maybe<CompanySettingsBoolExp>;
+  };
 
 /** aggregated selection of "bank_accounts" */
 export type BankAccountsAggregate = {
@@ -27276,11 +27279,12 @@ export type GetCompanyDeliveryQuery = {
   >;
 };
 
-export type GetIncomingFromVendorCompanyDeliveriesByCompanyIdQueryVariables = Exact<{
-  company_id: Scalars["uuid"];
-  start_created_date: Scalars["date"];
-  transfer_row_ids: Array<Scalars["uuid"]>;
-}>;
+export type GetIncomingFromVendorCompanyDeliveriesByCompanyIdQueryVariables =
+  Exact<{
+    company_id: Scalars["uuid"];
+    start_created_date: Scalars["date"];
+    transfer_row_ids: Array<Scalars["uuid"]>;
+  }>;
 
 export type GetIncomingFromVendorCompanyDeliveriesByCompanyIdQuery = {
   company_deliveries: Array<
@@ -29183,16 +29187,18 @@ export type GetPartnershipRequestsForBankSubscription = {
   >;
 };
 
-export type GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscriptionVariables = Exact<{
-  requesting_company_id: Scalars["uuid"];
-  company_type: CompanyTypeEnum;
-}>;
+export type GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscriptionVariables =
+  Exact<{
+    requesting_company_id: Scalars["uuid"];
+    company_type: CompanyTypeEnum;
+  }>;
 
-export type GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscription = {
-  company_partnership_requests: Array<
-    Pick<CompanyPartnershipRequests, "id"> & PartnershipRequestFragment
-  >;
-};
+export type GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscription =
+  {
+    company_partnership_requests: Array<
+      Pick<CompanyPartnershipRequests, "id"> & PartnershipRequestFragment
+    >;
+  };
 
 export type GetPartnershipInvitationsForBankSubscriptionVariables = Exact<{
   [key: string]: never;
@@ -30421,7 +30427,8 @@ export function useGetAdvancesSubscription(
 export type GetAdvancesSubscriptionHookResult = ReturnType<
   typeof useGetAdvancesSubscription
 >;
-export type GetAdvancesSubscriptionResult = Apollo.SubscriptionResult<GetAdvancesSubscription>;
+export type GetAdvancesSubscriptionResult =
+  Apollo.SubscriptionResult<GetAdvancesSubscription>;
 export const GetAdvancesByPaymentDateDocument = gql`
   query GetAdvancesByPaymentDate($date: date!) {
     payments(
@@ -31157,13 +31164,13 @@ export function useGetCompanyLicenseRelationsByCompanyIdLazyQuery(
 export type GetCompanyLicenseRelationsByCompanyIdQueryHookResult = ReturnType<
   typeof useGetCompanyLicenseRelationsByCompanyIdQuery
 >;
-export type GetCompanyLicenseRelationsByCompanyIdLazyQueryHookResult = ReturnType<
-  typeof useGetCompanyLicenseRelationsByCompanyIdLazyQuery
->;
-export type GetCompanyLicenseRelationsByCompanyIdQueryResult = Apollo.QueryResult<
-  GetCompanyLicenseRelationsByCompanyIdQuery,
-  GetCompanyLicenseRelationsByCompanyIdQueryVariables
->;
+export type GetCompanyLicenseRelationsByCompanyIdLazyQueryHookResult =
+  ReturnType<typeof useGetCompanyLicenseRelationsByCompanyIdLazyQuery>;
+export type GetCompanyLicenseRelationsByCompanyIdQueryResult =
+  Apollo.QueryResult<
+    GetCompanyLicenseRelationsByCompanyIdQuery,
+    GetCompanyLicenseRelationsByCompanyIdQueryVariables
+  >;
 export const GetCompanyLicensesByLicenseNumberDocument = gql`
   query GetCompanyLicensesByLicenseNumber($license_number: String!) {
     company_licenses(
@@ -31348,10 +31355,10 @@ export function useGetCustomerFinancialSummaryByDateSubscription(
     GetCustomerFinancialSummaryByDateSubscriptionVariables
   >(GetCustomerFinancialSummaryByDateDocument, baseOptions);
 }
-export type GetCustomerFinancialSummaryByDateSubscriptionHookResult = ReturnType<
-  typeof useGetCustomerFinancialSummaryByDateSubscription
->;
-export type GetCustomerFinancialSummaryByDateSubscriptionResult = Apollo.SubscriptionResult<GetCustomerFinancialSummaryByDateSubscription>;
+export type GetCustomerFinancialSummaryByDateSubscriptionHookResult =
+  ReturnType<typeof useGetCustomerFinancialSummaryByDateSubscription>;
+export type GetCustomerFinancialSummaryByDateSubscriptionResult =
+  Apollo.SubscriptionResult<GetCustomerFinancialSummaryByDateSubscription>;
 export const GetCustomerOverviewDocument = gql`
   query GetCustomerOverview($company_id: uuid!, $loan_type: loan_type_enum) {
     companies_by_pk(id: $company_id) {
@@ -31885,10 +31892,10 @@ export function useGetOpenLoansByDebtFacilityStatusesSubscription(
     GetOpenLoansByDebtFacilityStatusesSubscriptionVariables
   >(GetOpenLoansByDebtFacilityStatusesDocument, baseOptions);
 }
-export type GetOpenLoansByDebtFacilityStatusesSubscriptionHookResult = ReturnType<
-  typeof useGetOpenLoansByDebtFacilityStatusesSubscription
->;
-export type GetOpenLoansByDebtFacilityStatusesSubscriptionResult = Apollo.SubscriptionResult<GetOpenLoansByDebtFacilityStatusesSubscription>;
+export type GetOpenLoansByDebtFacilityStatusesSubscriptionHookResult =
+  ReturnType<typeof useGetOpenLoansByDebtFacilityStatusesSubscription>;
+export type GetOpenLoansByDebtFacilityStatusesSubscriptionResult =
+  Apollo.SubscriptionResult<GetOpenLoansByDebtFacilityStatusesSubscription>;
 export const GetOpenLoansByDebtFacilityIdDocument = gql`
   subscription GetOpenLoansByDebtFacilityId(
     $statuses: [String!]
@@ -31956,7 +31963,8 @@ export function useGetOpenLoansByDebtFacilityIdSubscription(
 export type GetOpenLoansByDebtFacilityIdSubscriptionHookResult = ReturnType<
   typeof useGetOpenLoansByDebtFacilityIdSubscription
 >;
-export type GetOpenLoansByDebtFacilityIdSubscriptionResult = Apollo.SubscriptionResult<GetOpenLoansByDebtFacilityIdSubscription>;
+export type GetOpenLoansByDebtFacilityIdSubscriptionResult =
+  Apollo.SubscriptionResult<GetOpenLoansByDebtFacilityIdSubscription>;
 export const GetReportLoansByDebtFacilityIdDocument = gql`
   subscription GetReportLoansByDebtFacilityId(
     $debt_facility_statuses: [String!]
@@ -32050,7 +32058,8 @@ export function useGetReportLoansByDebtFacilityIdSubscription(
 export type GetReportLoansByDebtFacilityIdSubscriptionHookResult = ReturnType<
   typeof useGetReportLoansByDebtFacilityIdSubscription
 >;
-export type GetReportLoansByDebtFacilityIdSubscriptionResult = Apollo.SubscriptionResult<GetReportLoansByDebtFacilityIdSubscription>;
+export type GetReportLoansByDebtFacilityIdSubscriptionResult =
+  Apollo.SubscriptionResult<GetReportLoansByDebtFacilityIdSubscription>;
 export const GetDebtFacilitiesDocument = gql`
   subscription GetDebtFacilities {
     debt_facilities(order_by: [{ name: desc }]) {
@@ -32090,7 +32099,8 @@ export function useGetDebtFacilitiesSubscription(
 export type GetDebtFacilitiesSubscriptionHookResult = ReturnType<
   typeof useGetDebtFacilitiesSubscription
 >;
-export type GetDebtFacilitiesSubscriptionResult = Apollo.SubscriptionResult<GetDebtFacilitiesSubscription>;
+export type GetDebtFacilitiesSubscriptionResult =
+  Apollo.SubscriptionResult<GetDebtFacilitiesSubscription>;
 export const GetDebtFacilityCurrentCapacityDocument = gql`
   subscription GetDebtFacilityCurrentCapacity($target_facility_id: uuid!) {
     debt_facilities(where: { id: { _eq: $target_facility_id } }) {
@@ -32131,7 +32141,8 @@ export function useGetDebtFacilityCurrentCapacitySubscription(
 export type GetDebtFacilityCurrentCapacitySubscriptionHookResult = ReturnType<
   typeof useGetDebtFacilityCurrentCapacitySubscription
 >;
-export type GetDebtFacilityCurrentCapacitySubscriptionResult = Apollo.SubscriptionResult<GetDebtFacilityCurrentCapacitySubscription>;
+export type GetDebtFacilityCurrentCapacitySubscriptionResult =
+  Apollo.SubscriptionResult<GetDebtFacilityCurrentCapacitySubscription>;
 export const GetDebtFacilityEventsByLoanReportIdDocument = gql`
   query GetDebtFacilityEventsByLoanReportId($loan_report_id: uuid!) {
     debt_facility_events(
@@ -32305,7 +32316,8 @@ export function useAddEbbaApplicationMutation(
 export type AddEbbaApplicationMutationHookResult = ReturnType<
   typeof useAddEbbaApplicationMutation
 >;
-export type AddEbbaApplicationMutationResult = Apollo.MutationResult<AddEbbaApplicationMutation>;
+export type AddEbbaApplicationMutationResult =
+  Apollo.MutationResult<AddEbbaApplicationMutation>;
 export type AddEbbaApplicationMutationOptions = Apollo.BaseMutationOptions<
   AddEbbaApplicationMutation,
   AddEbbaApplicationMutationVariables
@@ -32379,7 +32391,8 @@ export function useUpdateEbbaApplicationMutation(
 export type UpdateEbbaApplicationMutationHookResult = ReturnType<
   typeof useUpdateEbbaApplicationMutation
 >;
-export type UpdateEbbaApplicationMutationResult = Apollo.MutationResult<UpdateEbbaApplicationMutation>;
+export type UpdateEbbaApplicationMutationResult =
+  Apollo.MutationResult<UpdateEbbaApplicationMutation>;
 export type UpdateEbbaApplicationMutationOptions = Apollo.BaseMutationOptions<
   UpdateEbbaApplicationMutation,
   UpdateEbbaApplicationMutationVariables
@@ -32512,10 +32525,10 @@ export function useGetOpenEbbaApplicationsCountForBankSubscription(
     GetOpenEbbaApplicationsCountForBankSubscriptionVariables
   >(GetOpenEbbaApplicationsCountForBankDocument, baseOptions);
 }
-export type GetOpenEbbaApplicationsCountForBankSubscriptionHookResult = ReturnType<
-  typeof useGetOpenEbbaApplicationsCountForBankSubscription
->;
-export type GetOpenEbbaApplicationsCountForBankSubscriptionResult = Apollo.SubscriptionResult<GetOpenEbbaApplicationsCountForBankSubscription>;
+export type GetOpenEbbaApplicationsCountForBankSubscriptionHookResult =
+  ReturnType<typeof useGetOpenEbbaApplicationsCountForBankSubscription>;
+export type GetOpenEbbaApplicationsCountForBankSubscriptionResult =
+  Apollo.SubscriptionResult<GetOpenEbbaApplicationsCountForBankSubscription>;
 export const GetOpenEbbaApplicationsByCategoryDocument = gql`
   query GetOpenEbbaApplicationsByCategory($category: String!) {
     ebba_applications(
@@ -32969,7 +32982,8 @@ export function useGetInvoicesSubscription(
 export type GetInvoicesSubscriptionHookResult = ReturnType<
   typeof useGetInvoicesSubscription
 >;
-export type GetInvoicesSubscriptionResult = Apollo.SubscriptionResult<GetInvoicesSubscription>;
+export type GetInvoicesSubscriptionResult =
+  Apollo.SubscriptionResult<GetInvoicesSubscription>;
 export const GetAllUnconfirmedInvoicesDocument = gql`
   subscription GetAllUnconfirmedInvoices {
     invoices(
@@ -33031,7 +33045,8 @@ export function useGetAllUnconfirmedInvoicesSubscription(
 export type GetAllUnconfirmedInvoicesSubscriptionHookResult = ReturnType<
   typeof useGetAllUnconfirmedInvoicesSubscription
 >;
-export type GetAllUnconfirmedInvoicesSubscriptionResult = Apollo.SubscriptionResult<GetAllUnconfirmedInvoicesSubscription>;
+export type GetAllUnconfirmedInvoicesSubscriptionResult =
+  Apollo.SubscriptionResult<GetAllUnconfirmedInvoicesSubscription>;
 export const GetAllConfirmedInvoicesDocument = gql`
   subscription GetAllConfirmedInvoices {
     invoices(
@@ -33092,7 +33107,8 @@ export function useGetAllConfirmedInvoicesSubscription(
 export type GetAllConfirmedInvoicesSubscriptionHookResult = ReturnType<
   typeof useGetAllConfirmedInvoicesSubscription
 >;
-export type GetAllConfirmedInvoicesSubscriptionResult = Apollo.SubscriptionResult<GetAllConfirmedInvoicesSubscription>;
+export type GetAllConfirmedInvoicesSubscriptionResult =
+  Apollo.SubscriptionResult<GetAllConfirmedInvoicesSubscription>;
 export const GetInvoicesByCompanyIdDocument = gql`
   query GetInvoicesByCompanyId($company_id: uuid!) {
     invoices(
@@ -33418,7 +33434,8 @@ export function useAddLineOfCreditMutation(
 export type AddLineOfCreditMutationHookResult = ReturnType<
   typeof useAddLineOfCreditMutation
 >;
-export type AddLineOfCreditMutationResult = Apollo.MutationResult<AddLineOfCreditMutation>;
+export type AddLineOfCreditMutationResult =
+  Apollo.MutationResult<AddLineOfCreditMutation>;
 export type AddLineOfCreditMutationOptions = Apollo.BaseMutationOptions<
   AddLineOfCreditMutation,
   AddLineOfCreditMutationVariables
@@ -33484,11 +33501,13 @@ export function useUpdateLineOfCreditAndLoanMutation(
 export type UpdateLineOfCreditAndLoanMutationHookResult = ReturnType<
   typeof useUpdateLineOfCreditAndLoanMutation
 >;
-export type UpdateLineOfCreditAndLoanMutationResult = Apollo.MutationResult<UpdateLineOfCreditAndLoanMutation>;
-export type UpdateLineOfCreditAndLoanMutationOptions = Apollo.BaseMutationOptions<
-  UpdateLineOfCreditAndLoanMutation,
-  UpdateLineOfCreditAndLoanMutationVariables
->;
+export type UpdateLineOfCreditAndLoanMutationResult =
+  Apollo.MutationResult<UpdateLineOfCreditAndLoanMutation>;
+export type UpdateLineOfCreditAndLoanMutationOptions =
+  Apollo.BaseMutationOptions<
+    UpdateLineOfCreditAndLoanMutation,
+    UpdateLineOfCreditAndLoanMutationVariables
+  >;
 export const GetPurchaseOrdersForIdsDocument = gql`
   query GetPurchaseOrdersForIds($purchaseOrderIds: [uuid!]) {
     purchase_orders(
@@ -33963,7 +33982,8 @@ export function useUpdateLoanMutation(
 export type UpdateLoanMutationHookResult = ReturnType<
   typeof useUpdateLoanMutation
 >;
-export type UpdateLoanMutationResult = Apollo.MutationResult<UpdateLoanMutation>;
+export type UpdateLoanMutationResult =
+  Apollo.MutationResult<UpdateLoanMutation>;
 export type UpdateLoanMutationOptions = Apollo.BaseMutationOptions<
   UpdateLoanMutation,
   UpdateLoanMutationVariables
@@ -34026,7 +34046,8 @@ export function useGetLoansForBankSubscription(
 export type GetLoansForBankSubscriptionHookResult = ReturnType<
   typeof useGetLoansForBankSubscription
 >;
-export type GetLoansForBankSubscriptionResult = Apollo.SubscriptionResult<GetLoansForBankSubscription>;
+export type GetLoansForBankSubscriptionResult =
+  Apollo.SubscriptionResult<GetLoansForBankSubscription>;
 export const GetNotFundedLoansForBankDocument = gql`
   subscription GetNotFundedLoansForBank {
     loans(
@@ -34082,7 +34103,8 @@ export function useGetNotFundedLoansForBankSubscription(
 export type GetNotFundedLoansForBankSubscriptionHookResult = ReturnType<
   typeof useGetNotFundedLoansForBankSubscription
 >;
-export type GetNotFundedLoansForBankSubscriptionResult = Apollo.SubscriptionResult<GetNotFundedLoansForBankSubscription>;
+export type GetNotFundedLoansForBankSubscriptionResult =
+  Apollo.SubscriptionResult<GetNotFundedLoansForBankSubscription>;
 export const GetFundedLoansForBankDocument = gql`
   subscription GetFundedLoansForBank {
     loans(
@@ -34147,7 +34169,8 @@ export function useGetFundedLoansForBankSubscription(
 export type GetFundedLoansForBankSubscriptionHookResult = ReturnType<
   typeof useGetFundedLoansForBankSubscription
 >;
-export type GetFundedLoansForBankSubscriptionResult = Apollo.SubscriptionResult<GetFundedLoansForBankSubscription>;
+export type GetFundedLoansForBankSubscriptionResult =
+  Apollo.SubscriptionResult<GetFundedLoansForBankSubscription>;
 export const GetActiveLoansForCompanyDocument = gql`
   query GetActiveLoansForCompany($companyId: uuid!, $loanType: loan_type_enum) {
     companies_by_pk(id: $companyId) {
@@ -34900,7 +34923,8 @@ export function useUpdatePayorAgreementIdMutation(
 export type UpdatePayorAgreementIdMutationHookResult = ReturnType<
   typeof useUpdatePayorAgreementIdMutation
 >;
-export type UpdatePayorAgreementIdMutationResult = Apollo.MutationResult<UpdatePayorAgreementIdMutation>;
+export type UpdatePayorAgreementIdMutationResult =
+  Apollo.MutationResult<UpdatePayorAgreementIdMutation>;
 export type UpdatePayorAgreementIdMutationOptions = Apollo.BaseMutationOptions<
   UpdatePayorAgreementIdMutation,
   UpdatePayorAgreementIdMutationVariables
@@ -34951,11 +34975,13 @@ export function useAddCompanyPayorAgreementMutation(
 export type AddCompanyPayorAgreementMutationHookResult = ReturnType<
   typeof useAddCompanyPayorAgreementMutation
 >;
-export type AddCompanyPayorAgreementMutationResult = Apollo.MutationResult<AddCompanyPayorAgreementMutation>;
-export type AddCompanyPayorAgreementMutationOptions = Apollo.BaseMutationOptions<
-  AddCompanyPayorAgreementMutation,
-  AddCompanyPayorAgreementMutationVariables
->;
+export type AddCompanyPayorAgreementMutationResult =
+  Apollo.MutationResult<AddCompanyPayorAgreementMutation>;
+export type AddCompanyPayorAgreementMutationOptions =
+  Apollo.BaseMutationOptions<
+    AddCompanyPayorAgreementMutation,
+    AddCompanyPayorAgreementMutationVariables
+  >;
 export const ListPayorPartnershipsByCompanyIdDocument = gql`
   query ListPayorPartnershipsByCompanyId($companyId: uuid!) {
     company_payor_partnerships(where: { company_id: { _eq: $companyId } }) {
@@ -35194,16 +35220,17 @@ export function useGetIncomingFromVendorCompanyDeliveriesByCompanyIdLazyQuery(
     GetIncomingFromVendorCompanyDeliveriesByCompanyIdQueryVariables
   >(GetIncomingFromVendorCompanyDeliveriesByCompanyIdDocument, baseOptions);
 }
-export type GetIncomingFromVendorCompanyDeliveriesByCompanyIdQueryHookResult = ReturnType<
-  typeof useGetIncomingFromVendorCompanyDeliveriesByCompanyIdQuery
->;
-export type GetIncomingFromVendorCompanyDeliveriesByCompanyIdLazyQueryHookResult = ReturnType<
-  typeof useGetIncomingFromVendorCompanyDeliveriesByCompanyIdLazyQuery
->;
-export type GetIncomingFromVendorCompanyDeliveriesByCompanyIdQueryResult = Apollo.QueryResult<
-  GetIncomingFromVendorCompanyDeliveriesByCompanyIdQuery,
-  GetIncomingFromVendorCompanyDeliveriesByCompanyIdQueryVariables
->;
+export type GetIncomingFromVendorCompanyDeliveriesByCompanyIdQueryHookResult =
+  ReturnType<typeof useGetIncomingFromVendorCompanyDeliveriesByCompanyIdQuery>;
+export type GetIncomingFromVendorCompanyDeliveriesByCompanyIdLazyQueryHookResult =
+  ReturnType<
+    typeof useGetIncomingFromVendorCompanyDeliveriesByCompanyIdLazyQuery
+  >;
+export type GetIncomingFromVendorCompanyDeliveriesByCompanyIdQueryResult =
+  Apollo.QueryResult<
+    GetIncomingFromVendorCompanyDeliveriesByCompanyIdQuery,
+    GetIncomingFromVendorCompanyDeliveriesByCompanyIdQueryVariables
+  >;
 export const GetPurchaseOrderForBankDocument = gql`
   query GetPurchaseOrderForBank($id: uuid!) {
     purchase_orders_by_pk(id: $id) {
@@ -35508,7 +35535,8 @@ export function useGetPurchaseOrdersSubscription(
 export type GetPurchaseOrdersSubscriptionHookResult = ReturnType<
   typeof useGetPurchaseOrdersSubscription
 >;
-export type GetPurchaseOrdersSubscriptionResult = Apollo.SubscriptionResult<GetPurchaseOrdersSubscription>;
+export type GetPurchaseOrdersSubscriptionResult =
+  Apollo.SubscriptionResult<GetPurchaseOrdersSubscription>;
 export const GetIncompletePurchaseOrdersDocument = gql`
   subscription GetIncompletePurchaseOrders {
     purchase_orders(
@@ -35559,7 +35587,8 @@ export function useGetIncompletePurchaseOrdersSubscription(
 export type GetIncompletePurchaseOrdersSubscriptionHookResult = ReturnType<
   typeof useGetIncompletePurchaseOrdersSubscription
 >;
-export type GetIncompletePurchaseOrdersSubscriptionResult = Apollo.SubscriptionResult<GetIncompletePurchaseOrdersSubscription>;
+export type GetIncompletePurchaseOrdersSubscriptionResult =
+  Apollo.SubscriptionResult<GetIncompletePurchaseOrdersSubscription>;
 export const GetDraftPurchaseOrdersDocument = gql`
   subscription GetDraftPurchaseOrders {
     purchase_orders(
@@ -35612,7 +35641,8 @@ export function useGetDraftPurchaseOrdersSubscription(
 export type GetDraftPurchaseOrdersSubscriptionHookResult = ReturnType<
   typeof useGetDraftPurchaseOrdersSubscription
 >;
-export type GetDraftPurchaseOrdersSubscriptionResult = Apollo.SubscriptionResult<GetDraftPurchaseOrdersSubscription>;
+export type GetDraftPurchaseOrdersSubscriptionResult =
+  Apollo.SubscriptionResult<GetDraftPurchaseOrdersSubscription>;
 export const GetNotConfirmedPurchaseOrdersDocument = gql`
   subscription GetNotConfirmedPurchaseOrders {
     purchase_orders(
@@ -35667,7 +35697,8 @@ export function useGetNotConfirmedPurchaseOrdersSubscription(
 export type GetNotConfirmedPurchaseOrdersSubscriptionHookResult = ReturnType<
   typeof useGetNotConfirmedPurchaseOrdersSubscription
 >;
-export type GetNotConfirmedPurchaseOrdersSubscriptionResult = Apollo.SubscriptionResult<GetNotConfirmedPurchaseOrdersSubscription>;
+export type GetNotConfirmedPurchaseOrdersSubscriptionResult =
+  Apollo.SubscriptionResult<GetNotConfirmedPurchaseOrdersSubscription>;
 export const GetConfirmedPurchaseOrdersDocument = gql`
   subscription GetConfirmedPurchaseOrders {
     purchase_orders(
@@ -35720,7 +35751,8 @@ export function useGetConfirmedPurchaseOrdersSubscription(
 export type GetConfirmedPurchaseOrdersSubscriptionHookResult = ReturnType<
   typeof useGetConfirmedPurchaseOrdersSubscription
 >;
-export type GetConfirmedPurchaseOrdersSubscriptionResult = Apollo.SubscriptionResult<GetConfirmedPurchaseOrdersSubscription>;
+export type GetConfirmedPurchaseOrdersSubscriptionResult =
+  Apollo.SubscriptionResult<GetConfirmedPurchaseOrdersSubscription>;
 export const GetOpenPurchaseOrdersByCompanyIdDocument = gql`
   query GetOpenPurchaseOrdersByCompanyId($company_id: uuid!) {
     companies_by_pk(id: $company_id) {
@@ -35938,13 +35970,13 @@ export function useGetFundablePurchaseOrdersByCompanyIdLazyQuery(
 export type GetFundablePurchaseOrdersByCompanyIdQueryHookResult = ReturnType<
   typeof useGetFundablePurchaseOrdersByCompanyIdQuery
 >;
-export type GetFundablePurchaseOrdersByCompanyIdLazyQueryHookResult = ReturnType<
-  typeof useGetFundablePurchaseOrdersByCompanyIdLazyQuery
->;
-export type GetFundablePurchaseOrdersByCompanyIdQueryResult = Apollo.QueryResult<
-  GetFundablePurchaseOrdersByCompanyIdQuery,
-  GetFundablePurchaseOrdersByCompanyIdQueryVariables
->;
+export type GetFundablePurchaseOrdersByCompanyIdLazyQueryHookResult =
+  ReturnType<typeof useGetFundablePurchaseOrdersByCompanyIdLazyQuery>;
+export type GetFundablePurchaseOrdersByCompanyIdQueryResult =
+  Apollo.QueryResult<
+    GetFundablePurchaseOrdersByCompanyIdQuery,
+    GetFundablePurchaseOrdersByCompanyIdQueryVariables
+  >;
 export const GetPaymentDocument = gql`
   query GetPayment($id: uuid!) {
     payments_by_pk(id: $id) {
@@ -36177,7 +36209,8 @@ export function useGetRepaymentsSubscription(
 export type GetRepaymentsSubscriptionHookResult = ReturnType<
   typeof useGetRepaymentsSubscription
 >;
-export type GetRepaymentsSubscriptionResult = Apollo.SubscriptionResult<GetRepaymentsSubscription>;
+export type GetRepaymentsSubscriptionResult =
+  Apollo.SubscriptionResult<GetRepaymentsSubscription>;
 export const GetRepaymentsByDepositDateDocument = gql`
   query GetRepaymentsByDepositDate($date: date!) {
     payments(
@@ -36323,7 +36356,8 @@ export function useGetSubmittedPaymentsSubscription(
 export type GetSubmittedPaymentsSubscriptionHookResult = ReturnType<
   typeof useGetSubmittedPaymentsSubscription
 >;
-export type GetSubmittedPaymentsSubscriptionResult = Apollo.SubscriptionResult<GetSubmittedPaymentsSubscription>;
+export type GetSubmittedPaymentsSubscriptionResult =
+  Apollo.SubscriptionResult<GetSubmittedPaymentsSubscription>;
 export const GetRepaymentsForCompanyDocument = gql`
   query GetRepaymentsForCompany($company_id: uuid!) {
     companies_by_pk(id: $company_id) {
@@ -36794,16 +36828,15 @@ export function useGetMetrcDownloadSummariesByMetrcApiKeyIdLazyQuery(
     GetMetrcDownloadSummariesByMetrcApiKeyIdQueryVariables
   >(GetMetrcDownloadSummariesByMetrcApiKeyIdDocument, baseOptions);
 }
-export type GetMetrcDownloadSummariesByMetrcApiKeyIdQueryHookResult = ReturnType<
-  typeof useGetMetrcDownloadSummariesByMetrcApiKeyIdQuery
->;
-export type GetMetrcDownloadSummariesByMetrcApiKeyIdLazyQueryHookResult = ReturnType<
-  typeof useGetMetrcDownloadSummariesByMetrcApiKeyIdLazyQuery
->;
-export type GetMetrcDownloadSummariesByMetrcApiKeyIdQueryResult = Apollo.QueryResult<
-  GetMetrcDownloadSummariesByMetrcApiKeyIdQuery,
-  GetMetrcDownloadSummariesByMetrcApiKeyIdQueryVariables
->;
+export type GetMetrcDownloadSummariesByMetrcApiKeyIdQueryHookResult =
+  ReturnType<typeof useGetMetrcDownloadSummariesByMetrcApiKeyIdQuery>;
+export type GetMetrcDownloadSummariesByMetrcApiKeyIdLazyQueryHookResult =
+  ReturnType<typeof useGetMetrcDownloadSummariesByMetrcApiKeyIdLazyQuery>;
+export type GetMetrcDownloadSummariesByMetrcApiKeyIdQueryResult =
+  Apollo.QueryResult<
+    GetMetrcDownloadSummariesByMetrcApiKeyIdQuery,
+    GetMetrcDownloadSummariesByMetrcApiKeyIdQueryVariables
+  >;
 export const GetCompanySettingsDocument = gql`
   query GetCompanySettings($company_settings_id: uuid!) {
     company_settings_by_pk(id: $company_settings_id) {
@@ -36923,7 +36956,8 @@ export function useUpdateCustomerSettingsMutation(
 export type UpdateCustomerSettingsMutationHookResult = ReturnType<
   typeof useUpdateCustomerSettingsMutation
 >;
-export type UpdateCustomerSettingsMutationResult = Apollo.MutationResult<UpdateCustomerSettingsMutation>;
+export type UpdateCustomerSettingsMutationResult =
+  Apollo.MutationResult<UpdateCustomerSettingsMutation>;
 export type UpdateCustomerSettingsMutationOptions = Apollo.BaseMutationOptions<
   UpdateCustomerSettingsMutation,
   UpdateCustomerSettingsMutationVariables
@@ -36979,7 +37013,8 @@ export function useUpdateIsDummyAccountMutation(
 export type UpdateIsDummyAccountMutationHookResult = ReturnType<
   typeof useUpdateIsDummyAccountMutation
 >;
-export type UpdateIsDummyAccountMutationResult = Apollo.MutationResult<UpdateIsDummyAccountMutation>;
+export type UpdateIsDummyAccountMutationResult =
+  Apollo.MutationResult<UpdateIsDummyAccountMutation>;
 export type UpdateIsDummyAccountMutationOptions = Apollo.BaseMutationOptions<
   UpdateIsDummyAccountMutation,
   UpdateIsDummyAccountMutationVariables
@@ -37035,7 +37070,8 @@ export function useUpdateCompanySettingsMutation(
 export type UpdateCompanySettingsMutationHookResult = ReturnType<
   typeof useUpdateCompanySettingsMutation
 >;
-export type UpdateCompanySettingsMutationResult = Apollo.MutationResult<UpdateCompanySettingsMutation>;
+export type UpdateCompanySettingsMutationResult =
+  Apollo.MutationResult<UpdateCompanySettingsMutation>;
 export type UpdateCompanySettingsMutationOptions = Apollo.BaseMutationOptions<
   UpdateCompanySettingsMutation,
   UpdateCompanySettingsMutationVariables
@@ -37447,10 +37483,11 @@ export const AssignAdvancesBespokeBankAccountDocument = gql`
   }
   ${BankAccountFragmentDoc}
 `;
-export type AssignAdvancesBespokeBankAccountMutationFn = Apollo.MutationFunction<
-  AssignAdvancesBespokeBankAccountMutation,
-  AssignAdvancesBespokeBankAccountMutationVariables
->;
+export type AssignAdvancesBespokeBankAccountMutationFn =
+  Apollo.MutationFunction<
+    AssignAdvancesBespokeBankAccountMutation,
+    AssignAdvancesBespokeBankAccountMutationVariables
+  >;
 
 /**
  * __useAssignAdvancesBespokeBankAccountMutation__
@@ -37484,11 +37521,13 @@ export function useAssignAdvancesBespokeBankAccountMutation(
 export type AssignAdvancesBespokeBankAccountMutationHookResult = ReturnType<
   typeof useAssignAdvancesBespokeBankAccountMutation
 >;
-export type AssignAdvancesBespokeBankAccountMutationResult = Apollo.MutationResult<AssignAdvancesBespokeBankAccountMutation>;
-export type AssignAdvancesBespokeBankAccountMutationOptions = Apollo.BaseMutationOptions<
-  AssignAdvancesBespokeBankAccountMutation,
-  AssignAdvancesBespokeBankAccountMutationVariables
->;
+export type AssignAdvancesBespokeBankAccountMutationResult =
+  Apollo.MutationResult<AssignAdvancesBespokeBankAccountMutation>;
+export type AssignAdvancesBespokeBankAccountMutationOptions =
+  Apollo.BaseMutationOptions<
+    AssignAdvancesBespokeBankAccountMutation,
+    AssignAdvancesBespokeBankAccountMutationVariables
+  >;
 export const AssignCollectionsBespokeBankAccountDocument = gql`
   mutation AssignCollectionsBespokeBankAccount(
     $companySettingsId: uuid!
@@ -37506,10 +37545,11 @@ export const AssignCollectionsBespokeBankAccountDocument = gql`
   }
   ${BankAccountFragmentDoc}
 `;
-export type AssignCollectionsBespokeBankAccountMutationFn = Apollo.MutationFunction<
-  AssignCollectionsBespokeBankAccountMutation,
-  AssignCollectionsBespokeBankAccountMutationVariables
->;
+export type AssignCollectionsBespokeBankAccountMutationFn =
+  Apollo.MutationFunction<
+    AssignCollectionsBespokeBankAccountMutation,
+    AssignCollectionsBespokeBankAccountMutationVariables
+  >;
 
 /**
  * __useAssignCollectionsBespokeBankAccountMutation__
@@ -37543,11 +37583,13 @@ export function useAssignCollectionsBespokeBankAccountMutation(
 export type AssignCollectionsBespokeBankAccountMutationHookResult = ReturnType<
   typeof useAssignCollectionsBespokeBankAccountMutation
 >;
-export type AssignCollectionsBespokeBankAccountMutationResult = Apollo.MutationResult<AssignCollectionsBespokeBankAccountMutation>;
-export type AssignCollectionsBespokeBankAccountMutationOptions = Apollo.BaseMutationOptions<
-  AssignCollectionsBespokeBankAccountMutation,
-  AssignCollectionsBespokeBankAccountMutationVariables
->;
+export type AssignCollectionsBespokeBankAccountMutationResult =
+  Apollo.MutationResult<AssignCollectionsBespokeBankAccountMutation>;
+export type AssignCollectionsBespokeBankAccountMutationOptions =
+  Apollo.BaseMutationOptions<
+    AssignCollectionsBespokeBankAccountMutation,
+    AssignCollectionsBespokeBankAccountMutationVariables
+  >;
 export const AssignAdvancesBankAccountDocument = gql`
   mutation AssignAdvancesBankAccount(
     $companySettingsId: uuid!
@@ -37602,11 +37644,13 @@ export function useAssignAdvancesBankAccountMutation(
 export type AssignAdvancesBankAccountMutationHookResult = ReturnType<
   typeof useAssignAdvancesBankAccountMutation
 >;
-export type AssignAdvancesBankAccountMutationResult = Apollo.MutationResult<AssignAdvancesBankAccountMutation>;
-export type AssignAdvancesBankAccountMutationOptions = Apollo.BaseMutationOptions<
-  AssignAdvancesBankAccountMutation,
-  AssignAdvancesBankAccountMutationVariables
->;
+export type AssignAdvancesBankAccountMutationResult =
+  Apollo.MutationResult<AssignAdvancesBankAccountMutation>;
+export type AssignAdvancesBankAccountMutationOptions =
+  Apollo.BaseMutationOptions<
+    AssignAdvancesBankAccountMutation,
+    AssignAdvancesBankAccountMutationVariables
+  >;
 export const AssignCollectionsBankAccountDocument = gql`
   mutation AssignCollectionsBankAccount(
     $companySettingsId: uuid!
@@ -37661,11 +37705,13 @@ export function useAssignCollectionsBankAccountMutation(
 export type AssignCollectionsBankAccountMutationHookResult = ReturnType<
   typeof useAssignCollectionsBankAccountMutation
 >;
-export type AssignCollectionsBankAccountMutationResult = Apollo.MutationResult<AssignCollectionsBankAccountMutation>;
-export type AssignCollectionsBankAccountMutationOptions = Apollo.BaseMutationOptions<
-  AssignCollectionsBankAccountMutation,
-  AssignCollectionsBankAccountMutationVariables
->;
+export type AssignCollectionsBankAccountMutationResult =
+  Apollo.MutationResult<AssignCollectionsBankAccountMutation>;
+export type AssignCollectionsBankAccountMutationOptions =
+  Apollo.BaseMutationOptions<
+    AssignCollectionsBankAccountMutation,
+    AssignCollectionsBankAccountMutationVariables
+  >;
 export const GetCompaniesWithLicensesDocument = gql`
   query GetCompaniesWithLicenses {
     companies: companies(order_by: { name: asc }) {
@@ -37848,7 +37894,8 @@ export function useGetBankFinancialSummariesByDateSubscription(
 export type GetBankFinancialSummariesByDateSubscriptionHookResult = ReturnType<
   typeof useGetBankFinancialSummariesByDateSubscription
 >;
-export type GetBankFinancialSummariesByDateSubscriptionResult = Apollo.SubscriptionResult<GetBankFinancialSummariesByDateSubscription>;
+export type GetBankFinancialSummariesByDateSubscriptionResult =
+  Apollo.SubscriptionResult<GetBankFinancialSummariesByDateSubscription>;
 export const GetLoansCountForBankDocument = gql`
   subscription GetLoansCountForBank {
     loans(
@@ -37900,7 +37947,8 @@ export function useGetLoansCountForBankSubscription(
 export type GetLoansCountForBankSubscriptionHookResult = ReturnType<
   typeof useGetLoansCountForBankSubscription
 >;
-export type GetLoansCountForBankSubscriptionResult = Apollo.SubscriptionResult<GetLoansCountForBankSubscription>;
+export type GetLoansCountForBankSubscriptionResult =
+  Apollo.SubscriptionResult<GetLoansCountForBankSubscription>;
 export const GetRepaymentsCountForBankDocument = gql`
   subscription GetRepaymentsCountForBank {
     payments(
@@ -37953,7 +38001,8 @@ export function useGetRepaymentsCountForBankSubscription(
 export type GetRepaymentsCountForBankSubscriptionHookResult = ReturnType<
   typeof useGetRepaymentsCountForBankSubscription
 >;
-export type GetRepaymentsCountForBankSubscriptionResult = Apollo.SubscriptionResult<GetRepaymentsCountForBankSubscription>;
+export type GetRepaymentsCountForBankSubscriptionResult =
+  Apollo.SubscriptionResult<GetRepaymentsCountForBankSubscription>;
 export const GetEbbaApplicationsCountForBankDocument = gql`
   subscription GetEbbaApplicationsCountForBank {
     ebba_applications(
@@ -38004,7 +38053,8 @@ export function useGetEbbaApplicationsCountForBankSubscription(
 export type GetEbbaApplicationsCountForBankSubscriptionHookResult = ReturnType<
   typeof useGetEbbaApplicationsCountForBankSubscription
 >;
-export type GetEbbaApplicationsCountForBankSubscriptionResult = Apollo.SubscriptionResult<GetEbbaApplicationsCountForBankSubscription>;
+export type GetEbbaApplicationsCountForBankSubscriptionResult =
+  Apollo.SubscriptionResult<GetEbbaApplicationsCountForBankSubscription>;
 export const GetCompanyWithActiveContractDocument = gql`
   query GetCompanyWithActiveContract($companyId: uuid!) {
     companies_by_pk(id: $companyId) {
@@ -38341,11 +38391,13 @@ export function useGetCompanyNextLoanIdentifierMutation(
 export type GetCompanyNextLoanIdentifierMutationHookResult = ReturnType<
   typeof useGetCompanyNextLoanIdentifierMutation
 >;
-export type GetCompanyNextLoanIdentifierMutationResult = Apollo.MutationResult<GetCompanyNextLoanIdentifierMutation>;
-export type GetCompanyNextLoanIdentifierMutationOptions = Apollo.BaseMutationOptions<
-  GetCompanyNextLoanIdentifierMutation,
-  GetCompanyNextLoanIdentifierMutationVariables
->;
+export type GetCompanyNextLoanIdentifierMutationResult =
+  Apollo.MutationResult<GetCompanyNextLoanIdentifierMutation>;
+export type GetCompanyNextLoanIdentifierMutationOptions =
+  Apollo.BaseMutationOptions<
+    GetCompanyNextLoanIdentifierMutation,
+    GetCompanyNextLoanIdentifierMutationVariables
+  >;
 export const GetCompanyForBankDocument = gql`
   query GetCompanyForBank($companyId: uuid!) {
     companies_by_pk(id: $companyId) {
@@ -38595,7 +38647,8 @@ export function useUpdateCompanyProfileMutation(
 export type UpdateCompanyProfileMutationHookResult = ReturnType<
   typeof useUpdateCompanyProfileMutation
 >;
-export type UpdateCompanyProfileMutationResult = Apollo.MutationResult<UpdateCompanyProfileMutation>;
+export type UpdateCompanyProfileMutationResult =
+  Apollo.MutationResult<UpdateCompanyProfileMutation>;
 export type UpdateCompanyProfileMutationOptions = Apollo.BaseMutationOptions<
   UpdateCompanyProfileMutation,
   UpdateCompanyProfileMutationVariables
@@ -38651,7 +38704,8 @@ export function useUpdateCompanyInfoMutation(
 export type UpdateCompanyInfoMutationHookResult = ReturnType<
   typeof useUpdateCompanyInfoMutation
 >;
-export type UpdateCompanyInfoMutationResult = Apollo.MutationResult<UpdateCompanyInfoMutation>;
+export type UpdateCompanyInfoMutationResult =
+  Apollo.MutationResult<UpdateCompanyInfoMutation>;
 export type UpdateCompanyInfoMutationOptions = Apollo.BaseMutationOptions<
   UpdateCompanyInfoMutation,
   UpdateCompanyInfoMutationVariables
@@ -38852,16 +38906,15 @@ export function useGetMetrcTransfersByUsStateManifestNumberLazyQuery(
     GetMetrcTransfersByUsStateManifestNumberQueryVariables
   >(GetMetrcTransfersByUsStateManifestNumberDocument, baseOptions);
 }
-export type GetMetrcTransfersByUsStateManifestNumberQueryHookResult = ReturnType<
-  typeof useGetMetrcTransfersByUsStateManifestNumberQuery
->;
-export type GetMetrcTransfersByUsStateManifestNumberLazyQueryHookResult = ReturnType<
-  typeof useGetMetrcTransfersByUsStateManifestNumberLazyQuery
->;
-export type GetMetrcTransfersByUsStateManifestNumberQueryResult = Apollo.QueryResult<
-  GetMetrcTransfersByUsStateManifestNumberQuery,
-  GetMetrcTransfersByUsStateManifestNumberQueryVariables
->;
+export type GetMetrcTransfersByUsStateManifestNumberQueryHookResult =
+  ReturnType<typeof useGetMetrcTransfersByUsStateManifestNumberQuery>;
+export type GetMetrcTransfersByUsStateManifestNumberLazyQueryHookResult =
+  ReturnType<typeof useGetMetrcTransfersByUsStateManifestNumberLazyQuery>;
+export type GetMetrcTransfersByUsStateManifestNumberQueryResult =
+  Apollo.QueryResult<
+    GetMetrcTransfersByUsStateManifestNumberQuery,
+    GetMetrcTransfersByUsStateManifestNumberQueryVariables
+  >;
 export const GetMetrcTransfersByCompanyIdDocument = gql`
   query GetMetrcTransfersByCompanyId($company_id: uuid!) {
     metrc_transfers(
@@ -39735,7 +39788,8 @@ export function useChangeBankAccountMutation(
 export type ChangeBankAccountMutationHookResult = ReturnType<
   typeof useChangeBankAccountMutation
 >;
-export type ChangeBankAccountMutationResult = Apollo.MutationResult<ChangeBankAccountMutation>;
+export type ChangeBankAccountMutationResult =
+  Apollo.MutationResult<ChangeBankAccountMutation>;
 export type ChangeBankAccountMutationOptions = Apollo.BaseMutationOptions<
   ChangeBankAccountMutation,
   ChangeBankAccountMutationVariables
@@ -39791,7 +39845,8 @@ export function useUpdateVendorInfoMutation(
 export type UpdateVendorInfoMutationHookResult = ReturnType<
   typeof useUpdateVendorInfoMutation
 >;
-export type UpdateVendorInfoMutationResult = Apollo.MutationResult<UpdateVendorInfoMutation>;
+export type UpdateVendorInfoMutationResult =
+  Apollo.MutationResult<UpdateVendorInfoMutation>;
 export type UpdateVendorInfoMutationOptions = Apollo.BaseMutationOptions<
   UpdateVendorInfoMutation,
   UpdateVendorInfoMutationVariables
@@ -39850,7 +39905,8 @@ export function useUpdateVendorAgreementIdMutation(
 export type UpdateVendorAgreementIdMutationHookResult = ReturnType<
   typeof useUpdateVendorAgreementIdMutation
 >;
-export type UpdateVendorAgreementIdMutationResult = Apollo.MutationResult<UpdateVendorAgreementIdMutation>;
+export type UpdateVendorAgreementIdMutationResult =
+  Apollo.MutationResult<UpdateVendorAgreementIdMutation>;
 export type UpdateVendorAgreementIdMutationOptions = Apollo.BaseMutationOptions<
   UpdateVendorAgreementIdMutation,
   UpdateVendorAgreementIdMutationVariables
@@ -39901,11 +39957,13 @@ export function useAddCompanyVendorAgreementMutation(
 export type AddCompanyVendorAgreementMutationHookResult = ReturnType<
   typeof useAddCompanyVendorAgreementMutation
 >;
-export type AddCompanyVendorAgreementMutationResult = Apollo.MutationResult<AddCompanyVendorAgreementMutation>;
-export type AddCompanyVendorAgreementMutationOptions = Apollo.BaseMutationOptions<
-  AddCompanyVendorAgreementMutation,
-  AddCompanyVendorAgreementMutationVariables
->;
+export type AddCompanyVendorAgreementMutationResult =
+  Apollo.MutationResult<AddCompanyVendorAgreementMutation>;
+export type AddCompanyVendorAgreementMutationOptions =
+  Apollo.BaseMutationOptions<
+    AddCompanyVendorAgreementMutation,
+    AddCompanyVendorAgreementMutationVariables
+  >;
 export const GetArtifactRelationsByCompanyIdDocument = gql`
   query GetArtifactRelationsByCompanyId($company_id: uuid!) {
     companies_by_pk(id: $company_id) {
@@ -40325,13 +40383,13 @@ export function useGetCompanyProductQualificationsByDateLazyQuery(
 export type GetCompanyProductQualificationsByDateQueryHookResult = ReturnType<
   typeof useGetCompanyProductQualificationsByDateQuery
 >;
-export type GetCompanyProductQualificationsByDateLazyQueryHookResult = ReturnType<
-  typeof useGetCompanyProductQualificationsByDateLazyQuery
->;
-export type GetCompanyProductQualificationsByDateQueryResult = Apollo.QueryResult<
-  GetCompanyProductQualificationsByDateQuery,
-  GetCompanyProductQualificationsByDateQueryVariables
->;
+export type GetCompanyProductQualificationsByDateLazyQueryHookResult =
+  ReturnType<typeof useGetCompanyProductQualificationsByDateLazyQuery>;
+export type GetCompanyProductQualificationsByDateQueryResult =
+  Apollo.QueryResult<
+    GetCompanyProductQualificationsByDateQuery,
+    GetCompanyProductQualificationsByDateQueryVariables
+  >;
 export const GetCustomersForDropdownDocument = gql`
   query GetCustomersForDropdown {
     customers: companies(
@@ -40559,10 +40617,10 @@ export function useGetPartnershipRequestsCountForBankSubscription(
     GetPartnershipRequestsCountForBankSubscriptionVariables
   >(GetPartnershipRequestsCountForBankDocument, baseOptions);
 }
-export type GetPartnershipRequestsCountForBankSubscriptionHookResult = ReturnType<
-  typeof useGetPartnershipRequestsCountForBankSubscription
->;
-export type GetPartnershipRequestsCountForBankSubscriptionResult = Apollo.SubscriptionResult<GetPartnershipRequestsCountForBankSubscription>;
+export type GetPartnershipRequestsCountForBankSubscriptionHookResult =
+  ReturnType<typeof useGetPartnershipRequestsCountForBankSubscription>;
+export type GetPartnershipRequestsCountForBankSubscriptionResult =
+  Apollo.SubscriptionResult<GetPartnershipRequestsCountForBankSubscription>;
 export const GetSettledPartnershipRequestsForBankDocument = gql`
   subscription GetSettledPartnershipRequestsForBank {
     company_partnership_requests(
@@ -40608,10 +40666,10 @@ export function useGetSettledPartnershipRequestsForBankSubscription(
     GetSettledPartnershipRequestsForBankSubscriptionVariables
   >(GetSettledPartnershipRequestsForBankDocument, baseOptions);
 }
-export type GetSettledPartnershipRequestsForBankSubscriptionHookResult = ReturnType<
-  typeof useGetSettledPartnershipRequestsForBankSubscription
->;
-export type GetSettledPartnershipRequestsForBankSubscriptionResult = Apollo.SubscriptionResult<GetSettledPartnershipRequestsForBankSubscription>;
+export type GetSettledPartnershipRequestsForBankSubscriptionHookResult =
+  ReturnType<typeof useGetSettledPartnershipRequestsForBankSubscription>;
+export type GetSettledPartnershipRequestsForBankSubscriptionResult =
+  Apollo.SubscriptionResult<GetSettledPartnershipRequestsForBankSubscription>;
 export const GetPartnershipRequestsForBankDocument = gql`
   subscription GetPartnershipRequestsForBank {
     company_partnership_requests(
@@ -40660,7 +40718,8 @@ export function useGetPartnershipRequestsForBankSubscription(
 export type GetPartnershipRequestsForBankSubscriptionHookResult = ReturnType<
   typeof useGetPartnershipRequestsForBankSubscription
 >;
-export type GetPartnershipRequestsForBankSubscriptionResult = Apollo.SubscriptionResult<GetPartnershipRequestsForBankSubscription>;
+export type GetPartnershipRequestsForBankSubscriptionResult =
+  Apollo.SubscriptionResult<GetPartnershipRequestsForBankSubscription>;
 export const GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeDocument = gql`
   subscription GetPartnershipRequestsForBankByRequestingCompanyIdAndType(
     $requesting_company_id: uuid!
@@ -40716,10 +40775,12 @@ export function useGetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubs
     baseOptions
   );
 }
-export type GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscriptionHookResult = ReturnType<
-  typeof useGetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscription
->;
-export type GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscriptionResult = Apollo.SubscriptionResult<GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscription>;
+export type GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscriptionHookResult =
+  ReturnType<
+    typeof useGetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscription
+  >;
+export type GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscriptionResult =
+  Apollo.SubscriptionResult<GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscription>;
 export const GetPartnershipInvitationsForBankDocument = gql`
   subscription GetPartnershipInvitationsForBank {
     company_partnership_invitations(
@@ -40762,7 +40823,8 @@ export function useGetPartnershipInvitationsForBankSubscription(
 export type GetPartnershipInvitationsForBankSubscriptionHookResult = ReturnType<
   typeof useGetPartnershipInvitationsForBankSubscription
 >;
-export type GetPartnershipInvitationsForBankSubscriptionResult = Apollo.SubscriptionResult<GetPartnershipInvitationsForBankSubscription>;
+export type GetPartnershipInvitationsForBankSubscriptionResult =
+  Apollo.SubscriptionResult<GetPartnershipInvitationsForBankSubscription>;
 export const GetUserByIdDocument = gql`
   query GetUserById($id: uuid!) {
     users_by_pk(id: $id) {
@@ -40999,7 +41061,8 @@ export function useUpdateUserMutation(
 export type UpdateUserMutationHookResult = ReturnType<
   typeof useUpdateUserMutation
 >;
-export type UpdateUserMutationResult = Apollo.MutationResult<UpdateUserMutation>;
+export type UpdateUserMutationResult =
+  Apollo.MutationResult<UpdateUserMutation>;
 export type UpdateUserMutationOptions = Apollo.BaseMutationOptions<
   UpdateUserMutation,
   UpdateUserMutationVariables

@@ -1,27 +1,27 @@
 import { Tab, Tabs } from "@material-ui/core";
+import DebtFacilityCapacitySummary from "components/DebtFacility/DebtFacilityCapacitySummary";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
-import DebtFacilityOpenTab from "pages/Bank/DebtFacility/DebtFacilityOpenTab";
-import DebtFacilityActionRequiredTab from "pages/Bank/DebtFacility/DebtFacilityActionRequiredTab";
-import DebtFacilityAllTab from "pages/Bank/DebtFacility/DebtFacilityAllTab";
-import DebtFacilityReportTab from "pages/Bank/DebtFacility/DebtFacilityReportTab";
-import DebtFacilityAdminTab from "pages/Bank/DebtFacility/DebtFacilityAdminTab";
-import DebtFacilityCapacitySummary from "components/DebtFacility/DebtFacilityCapacitySummary";
 import {
   DebtFacilities,
   GetDebtFacilitiesSubscription,
-  useGetOpenLoansByDebtFacilityStatusesSubscription,
   useGetDebtFacilitiesSubscription,
+  useGetOpenLoansByDebtFacilityStatusesSubscription,
 } from "generated/graphql";
+import { useFilterDebtFacilityLoansBySearchQuery } from "hooks/useFilterDebtFacilityLoans";
 import {
   DebtFacilityStatusEnum,
   DebtFacilityTabLabel,
   DebtFacilityTabLabels,
   ProductTypeEnum,
 } from "lib/enum";
+import DebtFacilityActionRequiredTab from "pages/Bank/DebtFacility/DebtFacilityActionRequiredTab";
+import DebtFacilityAdminTab from "pages/Bank/DebtFacility/DebtFacilityAdminTab";
+import DebtFacilityAllTab from "pages/Bank/DebtFacility/DebtFacilityAllTab";
+import DebtFacilityOpenTab from "pages/Bank/DebtFacility/DebtFacilityOpenTab";
+import DebtFacilityReportTab from "pages/Bank/DebtFacility/DebtFacilityReportTab";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { useFilterDebtFacilityLoansBySearchQuery } from "hooks/useFilterDebtFacilityLoans";
 
 const Container = styled.div`
   display: flex;
@@ -40,10 +40,8 @@ type Facilities = GetDebtFacilitiesSubscription["debt_facilities"];
 
 export default function BankDebtFacilityPage() {
   // Get debt facilities to pass around for autocomplete and admin tab
-  const {
-    data: facilityData,
-    error: facilityError,
-  } = useGetDebtFacilitiesSubscription();
+  const { data: facilityData, error: facilityError } =
+    useGetDebtFacilitiesSubscription();
   if (facilityError) {
     console.error({ facilityError });
     alert(`Error in query (details in console): ${facilityError.message}`);
@@ -77,9 +75,8 @@ function DebtFacilityPage({
   defaultDebtFacilityId,
 }: Props) {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
-  const [actionRequiredSearchQuery, setActionRequiredSearchQuery] = useState(
-    ""
-  );
+  const [actionRequiredSearchQuery, setActionRequiredSearchQuery] =
+    useState("");
   const [selectedDebtFacilityId, setSelectedDebtFacilityId] = useState<
     DebtFacilities["id"]
   >(defaultDebtFacilityId);

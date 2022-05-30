@@ -3,30 +3,30 @@ import SettleRepaymentConfirmEffect from "components/Repayment/SettleRepaymentCo
 import SettleRepaymentSelectLoans from "components/Repayment/SettleRepaymentSelectLoans";
 import Modal from "components/Shared/Modal/Modal";
 import {
-  PayorFragment,
   Companies,
   Loans,
   PaymentsInsertInput,
+  PayorFragment,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import {
-  RepaymentMethodEnum,
-  RepaymentMethodToLabel,
   PaymentOptionEnum,
   ProductTypeEnum,
+  RepaymentMethodEnum,
+  RepaymentMethodToLabel,
 } from "lib/enum";
 import {
   computeSettlementDateForPayment,
   getSettlementTimelineConfigFromContract,
 } from "lib/finance/payments/advance";
 import {
-  calculateRepaymentEffectMutation,
   CalculateRepaymentEffectResp,
   LoanBalance,
   LoanBeforeAfterPayment,
   LoanToShow,
   LoanTransaction,
+  calculateRepaymentEffectMutation,
   settleRepaymentMutation,
 } from "lib/finance/payments/repayment";
 import { useEffect, useMemo, useState } from "react";
@@ -77,9 +77,8 @@ export default function SettleRepaymentModalLoans({
 
   useEffect(() => {
     if (contract && payment?.method && payment?.deposit_date) {
-      const settlementTimelineConfig = getSettlementTimelineConfigFromContract(
-        contract
-      );
+      const settlementTimelineConfig =
+        getSettlementTimelineConfigFromContract(contract);
       const settlementDate = computeSettlementDateForPayment(
         payment.method,
         payment.deposit_date,
@@ -97,10 +96,8 @@ export default function SettleRepaymentModalLoans({
     { loading: isCalculateRepaymentEffectLoading },
   ] = useCustomMutation(calculateRepaymentEffectMutation);
 
-  const [
-    settleRepayment,
-    { loading: isSettleRepaymentLoading },
-  ] = useCustomMutation(settleRepaymentMutation);
+  const [settleRepayment, { loading: isSettleRepaymentLoading }] =
+    useCustomMutation(settleRepaymentMutation);
 
   const handleClickNext = async () => {
     if (!payment || !customer) {
@@ -209,9 +206,8 @@ export default function SettleRepaymentModalLoans({
             transaction,
           } = loanBeforeAfterPayment;
 
-          transaction[
-            field as "to_principal" | "to_interest" | "to_fees"
-          ] = value;
+          transaction[field as "to_principal" | "to_interest" | "to_fees"] =
+            value;
           transaction.amount =
             (transaction.to_principal || 0) +
             (transaction.to_interest || 0) +

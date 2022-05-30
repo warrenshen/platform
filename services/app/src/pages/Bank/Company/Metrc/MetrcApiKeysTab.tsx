@@ -3,21 +3,21 @@ import CompanyFacilitiesDataGrid from "components/CompanyFacilities/CompanyFacil
 import CreateUpdateCompanyFacilityModal from "components/CompanyFacilities/CreateUpdateCompanyFacilityModal";
 import DeleteCompanyFacilityModal from "components/CompanyFacilities/DeleteCompanyFacilityModal";
 import CompanyLicensesDataGrid from "components/CompanyLicenses/CompanyLicensesDataGrid";
+import CreateUpdateCompanyLicenseModal from "components/CompanyLicenses/CreateUpdateCompanyLicenseModal";
+import DeleteLicenseModal from "components/CompanyLicenses/DeleteLicenseModal";
 import MetrcApiKeysList from "components/Metrc/MetrcApiKeysList";
 import SyncMetrcData from "components/Metrc/SyncMetrcData";
 import ModalButton from "components/Shared/Modal/ModalButton";
-import CreateUpdateCompanyLicenseModal from "components/CompanyLicenses/CreateUpdateCompanyLicenseModal";
 import {
   Companies,
-  CompanyFacilityFragment,
   CompanyFacilities,
+  CompanyFacilityFragment,
   CompanyLicenseFragment,
   CompanyLicenses,
   useGetMetrcMetadataByCompanyIdQuery,
 } from "generated/graphql";
 import { ActionType } from "lib/enum";
 import { useMemo, useState } from "react";
-import DeleteLicenseModal from "components/CompanyLicenses/DeleteLicenseModal";
 
 function CompanyFacilitiesSection({
   companyId,
@@ -28,10 +28,8 @@ function CompanyFacilitiesSection({
   companyFacilities: CompanyFacilityFragment[];
   refetch: () => void;
 }) {
-  const [
-    selectedCompanyFacilitiesIds,
-    setSelectedCompanyFacilitiesIds,
-  ] = useState<CompanyFacilities["id"]>([]);
+  const [selectedCompanyFacilitiesIds, setSelectedCompanyFacilitiesIds] =
+    useState<CompanyFacilities["id"]>([]);
 
   const handleSelectCompanyFacilities = useMemo(
     () => (companyFacilities: CompanyFacilityFragment[]) => {

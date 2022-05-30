@@ -1,14 +1,14 @@
 import {
   Box,
   Button,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  makeStyles,
   TextField,
   Theme,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import { Users } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -44,10 +44,8 @@ function ReactivateUserModal({ companyId, user, handleClose }: Props) {
   const classes = useStyles();
   const [errMsg, setErrMsg] = useState("");
 
-  const [
-    reactivateCustomerUser,
-    { loading: isReactivateCustomerUserLoading },
-  ] = useCustomMutation(reactivateCustomerUserMutation);
+  const [reactivateCustomerUser, { loading: isReactivateCustomerUserLoading }] =
+    useCustomMutation(reactivateCustomerUserMutation);
 
   const handleClickSubmit = async () => {
     const response = await reactivateCustomerUser({

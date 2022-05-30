@@ -1,6 +1,6 @@
 import Page from "components/Shared/Page";
-import CustomerContractPageContent from "pages/Customer/Contract/ContractPageContent";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
+import CustomerContractPageContent from "pages/Customer/Contract/ContractPageContent";
 import { useContext } from "react";
 
 export default function CustomerContractPage() {

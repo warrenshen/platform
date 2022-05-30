@@ -1,5 +1,5 @@
-import { authenticatedApi, fileRoutes } from "lib/api";
 import { Files } from "generated/graphql";
+import { authenticatedApi, fileRoutes } from "lib/api";
 
 export type FileWithSignedURL = {
   id: string;

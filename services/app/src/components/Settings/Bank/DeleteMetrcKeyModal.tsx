@@ -1,15 +1,15 @@
 import {
   Box,
   Button,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  makeStyles,
   TextField,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import { Companies, MetrcApiKeyFragment } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -43,9 +43,8 @@ export default function DeleteMetrcKeyModal({
   const snackbar = useSnackbar();
 
   const [errorMessage, setErrorMessage] = useState("");
-  const [deleteApiKey, { loading: isUpsertKeyLoading }] = useCustomMutation(
-    deleteApiKeyMutation
-  );
+  const [deleteApiKey, { loading: isUpsertKeyLoading }] =
+    useCustomMutation(deleteApiKeyMutation);
 
   const handleRegisterClick = async () => {
     const response = await deleteApiKey({

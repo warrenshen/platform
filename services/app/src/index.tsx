@@ -1,13 +1,15 @@
+import "./index.css";
+
 import { CssBaseline } from "@material-ui/core";
-import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
+import { ThemeProvider, createMuiTheme } from "@material-ui/core/styles";
 import * as Sentry from "@sentry/react";
 import { SnackbarProvider } from "material-ui-snackbar-provider";
 import ReactDOM from "react-dom";
+
 import App from "./App";
 import CustomSnackbar from "./components/Shared/Snackbar/CustomSnackbar";
 import ApolloWrapper from "./contexts/ApolloClientProvider";
 import CurrentUserProvider from "./contexts/CurrentUserProvider";
-import "./index.css";
 import reportWebVitals from "./reportWebVitals";
 
 const theme = createMuiTheme({

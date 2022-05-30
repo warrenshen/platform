@@ -83,9 +83,10 @@ export default function ContractsDataGrid({
   );
 
   const handleSelectionChanged = useMemo(
-    () => ({ selectedRowsData }: any) =>
-      handleSelectContracts &&
-      handleSelectContracts(selectedRowsData as ContractFragment[]),
+    () =>
+      ({ selectedRowsData }: any) =>
+        handleSelectContracts &&
+        handleSelectContracts(selectedRowsData as ContractFragment[]),
     [handleSelectContracts]
   );
 

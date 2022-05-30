@@ -1,9 +1,9 @@
 import {
   Box,
-  createStyles,
-  makeStyles,
   Theme,
   Typography,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import DeletePaymentModal from "components/Payment/DeletePaymentModal";
 import RepaymentsDataGrid, {

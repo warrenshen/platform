@@ -1,10 +1,10 @@
 import { Box, Typography } from "@material-ui/core";
+import ReportLoansDataGrid from "components/Reports/ReportLoansDataGrid";
 import PageContent from "components/Shared/Page/PageContent";
 import {
   LoanTypeEnum,
   useGetFundedLoansByCompanyAndLoanTypeQuery,
 } from "generated/graphql";
-import ReportLoansDataGrid from "components/Reports/ReportLoansDataGrid";
 import { isLoanComingOrPastDue } from "lib/date";
 import { ProductTypeEnum, ProductTypeToLoanType } from "lib/enum";
 
@@ -19,17 +19,15 @@ export default function CustomerReportsPageContent({
 }: Props) {
   const loanType = ProductTypeToLoanType[productType];
 
-  const {
-    data: loansData,
-    error: loansError,
-  } = useGetFundedLoansByCompanyAndLoanTypeQuery({
-    skip: !loanType,
-    fetchPolicy: "network-only",
-    variables: {
-      companyId: companyId || "",
-      loanType: loanType || LoanTypeEnum.PurchaseOrder,
-    },
-  });
+  const { data: loansData, error: loansError } =
+    useGetFundedLoansByCompanyAndLoanTypeQuery({
+      skip: !loanType,
+      fetchPolicy: "network-only",
+      variables: {
+        companyId: companyId || "",
+        loanType: loanType || LoanTypeEnum.PurchaseOrder,
+      },
+    });
 
   if (loansError) {
     console.error({ error: loansError });

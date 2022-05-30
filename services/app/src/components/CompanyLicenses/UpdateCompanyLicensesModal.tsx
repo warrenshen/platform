@@ -10,8 +10,8 @@ import {
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { FileTypeEnum } from "lib/enum";
 import { createUpdateLicensesMutation } from "lib/api/licenses";
+import { FileTypeEnum } from "lib/enum";
 import { useMemo, useState } from "react";
 
 interface Props {
@@ -137,31 +137,27 @@ export default function UpdateCompanyLicensesModal({
     CompanyLicensesInsertInput[]
   >([]);
 
-  const {
-    loading: isCompanyLicensesLoading,
-    error,
-  } = useGetVendorCompanyFileAttachmentsQuery({
-    fetchPolicy: "network-only",
-    variables: {
-      company_id: companyId,
-    },
-    onCompleted: (data) => {
-      const company = data?.companies_by_pk;
-      if (company) {
-        setCompanyLicenses(company.licenses);
-      }
-    },
-  });
+  const { loading: isCompanyLicensesLoading, error } =
+    useGetVendorCompanyFileAttachmentsQuery({
+      fetchPolicy: "network-only",
+      variables: {
+        company_id: companyId,
+      },
+      onCompleted: (data) => {
+        const company = data?.companies_by_pk;
+        if (company) {
+          setCompanyLicenses(company.licenses);
+        }
+      },
+    });
 
   if (error) {
     alert(`Error in query: ${error.message}`);
     console.error({ error });
   }
 
-  const [
-    createUpdateLicenses,
-    { loading: isCreateUpdateLicensesLoading },
-  ] = useCustomMutation(createUpdateLicensesMutation);
+  const [createUpdateLicenses, { loading: isCreateUpdateLicensesLoading }] =
+    useCustomMutation(createUpdateLicensesMutation);
 
   const handleClickSave = async () => {
     const response = await createUpdateLicenses({

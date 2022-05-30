@@ -1,5 +1,5 @@
 import { GetIncomingFromVendorCompanyDeliveriesByCompanyIdQuery } from "generated/graphql";
-import { authenticatedApi, CustomMutationResponse, metrcRoutes } from "lib/api";
+import { CustomMutationResponse, authenticatedApi, metrcRoutes } from "lib/api";
 
 // {
 //    "Id":1977406,

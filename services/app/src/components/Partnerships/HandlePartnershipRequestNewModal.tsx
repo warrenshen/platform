@@ -7,15 +7,15 @@ import {
   FormControlLabel,
   Typography,
 } from "@material-ui/core";
+import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import AutocompleteCompany from "components/Shared/Company/AutocompleteCompany";
-import Modal from "components/Shared/Modal/Modal";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import FileViewer from "components/Shared/File/FileViewer";
-import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
+import Modal from "components/Shared/Modal/Modal";
 import {
+  BankAccounts,
   Companies,
   GetPartnershipRequestsForBankSubscription,
-  BankAccounts,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { createPartnershipNewMutation } from "lib/api/companies";
@@ -34,14 +34,11 @@ export default function HandlePartnershipRequestNewModal({
   const snackbar = useSnackbar();
 
   const isSubmitDisabled = false;
-  const [selectedCompanyId, setSelectedCompanyId] = useState<Companies["id"]>(
-    null
-  );
+  const [selectedCompanyId, setSelectedCompanyId] =
+    useState<Companies["id"]>(null);
 
-  const [
-    isCompanyLicenseFileViewerOpen,
-    setIsCompanyLicenseFileViewerOpen,
-  ] = useState(false);
+  const [isCompanyLicenseFileViewerOpen, setIsCompanyLicenseFileViewerOpen] =
+    useState(false);
   const [
     isBankInstructionsFileViewerOpen,
     setIsBankInstructionsFileViewerOpen,

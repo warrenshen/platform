@@ -140,9 +140,10 @@ export default function FeesDataGrid({
   );
 
   const handleSelectionChanged = useMemo(
-    () => ({ selectedRowsData }: any) =>
-      handleSelectFees &&
-      handleSelectFees(selectedRowsData as PaymentLimitedFragment[]),
+    () =>
+      ({ selectedRowsData }: any) =>
+        handleSelectFees &&
+        handleSelectFees(selectedRowsData as PaymentLimitedFragment[]),
     [handleSelectFees]
   );
 

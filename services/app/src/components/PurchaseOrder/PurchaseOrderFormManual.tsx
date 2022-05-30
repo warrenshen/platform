@@ -1,7 +1,7 @@
 import { Box, Checkbox, FormControlLabel, Typography } from "@material-ui/core";
-import AutocompleteVendors from "components/Vendors/AutocompleteVendors";
 import PurchaseOrderFormShared from "components/PurchaseOrder/PurchaseOrderFormShared";
 import FileUploader from "components/Shared/File/FileUploader";
+import AutocompleteVendors from "components/Vendors/AutocompleteVendors";
 import {
   Companies,
   GetArtifactRelationsByCompanyIdQuery,

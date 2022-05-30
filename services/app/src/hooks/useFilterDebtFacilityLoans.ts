@@ -1,9 +1,9 @@
-import { filter } from "lodash";
-import { useMemo } from "react";
 import {
   GetOpenLoansByDebtFacilityStatusesSubscription,
   OpenLoanForDebtFacilityFragment,
 } from "generated/graphql";
+import { filter } from "lodash";
+import { useMemo } from "react";
 
 export const useFilterDebtFacilityLoansBySearchQuery = (
   searchQuery: string,

@@ -8,6 +8,7 @@ import {
 } from "contexts/CurrentUserContext";
 import {
   Companies,
+  Files,
   InvoiceFileFragment,
   InvoiceFileTypeEnum,
   Invoices,
@@ -15,7 +16,6 @@ import {
   RequestStatusEnum,
   useGetInvoiceByIdQuery,
   usePayorsByPartnerCompanyQuery,
-  Files,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -89,10 +89,8 @@ export default function CreateUpdateInvoiceModal({
   const [frozenInvoiceFileIds, setFrozenInvoiceFileIds] = useState<
     Files["id"][]
   >([]);
-  const [
-    frozenInvoiceCannabisFileIds,
-    setFrozenInvoiceCannabisFileIds,
-  ] = useState<Files["id"][]>([]);
+  const [frozenInvoiceCannabisFileIds, setFrozenInvoiceCannabisFileIds] =
+    useState<Files["id"][]>([]);
 
   const { loading: isExistingInvoiceLoading } = useGetInvoiceByIdQuery({
     skip: actionType === ActionType.New,

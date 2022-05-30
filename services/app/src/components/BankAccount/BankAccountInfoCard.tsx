@@ -8,12 +8,12 @@ import {
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
 import { CheckCircle } from "@material-ui/icons";
+import CreateUpdateBankAccountModal from "components/BankAccount/CreateUpdateBankAccountModal";
+import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   CurrentUserContext,
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
-import CreateUpdateBankAccountModal from "components/BankAccount/CreateUpdateBankAccountModal";
-import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   BankAccountForVendorFragment,
   BankAccountFragment,

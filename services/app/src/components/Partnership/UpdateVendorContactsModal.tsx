@@ -6,8 +6,8 @@ import {
   CompanyVendorContactFragment,
   CompanyVendorPartnerships,
   UserFragment,
-  useGetVendorPartnershipForContactsQuery,
   Users,
+  useGetVendorPartnershipForContactsQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";

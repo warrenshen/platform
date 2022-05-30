@@ -1,15 +1,15 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
-import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import InvoiceDrawerLauncher from "components/Invoices/InvoiceDrawerLauncher";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
+import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
-import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
+import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import {
   Companies,
   LoanArtifactFragment,
@@ -364,16 +364,18 @@ export default function ReportLoansDataGrid({
   );
 
   const handleSelectionChanged = useMemo(
-    () => ({ selectedRowsData }: any) =>
-      handleSelectLoans &&
-      handleSelectLoans(selectedRowsData as LoanFragment[]),
+    () =>
+      ({ selectedRowsData }: any) =>
+        handleSelectLoans &&
+        handleSelectLoans(selectedRowsData as LoanFragment[]),
     [handleSelectLoans]
   );
 
   const allowedPageSizes = useMemo(() => [], []);
-  const filtering = useMemo(() => ({ enable: isFilteringEnabled }), [
-    isFilteringEnabled,
-  ]);
+  const filtering = useMemo(
+    () => ({ enable: isFilteringEnabled }),
+    [isFilteringEnabled]
+  );
 
   return (
     <ControlledDataGrid

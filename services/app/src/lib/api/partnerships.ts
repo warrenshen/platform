@@ -4,9 +4,9 @@ import {
   Users,
 } from "generated/graphql";
 import {
+  CustomMutationResponse,
   authenticatedApi,
   partnershipRoutes,
-  CustomMutationResponse,
 } from "lib/api";
 
 export type UpdatePartnershipContactsReq = {

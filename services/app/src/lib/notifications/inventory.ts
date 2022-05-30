@@ -1,7 +1,7 @@
 import {
   NotifyTypeConfig,
-  sendNotification,
   SendNotificationResp,
+  sendNotification,
 } from "./sendUpdate";
 
 const notifyTypes: { [key: string]: NotifyTypeConfig } = {

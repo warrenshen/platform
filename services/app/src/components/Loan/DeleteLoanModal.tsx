@@ -9,11 +9,11 @@ import { Loans, useGetLoanQuery } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { deleteLoanMutation } from "lib/api/loans";
-import { formatCurrency } from "lib/number";
 import {
   createLoanCustomerIdentifier,
   createLoanDisbursementIdentifier,
 } from "lib/loans";
+import { formatCurrency } from "lib/number";
 import { useContext } from "react";
 
 interface Props {
@@ -38,9 +38,8 @@ export default function DeleteLoanModal({ loanId, handleClose }: Props) {
 
   const loan = data?.loans_by_pk || null;
 
-  const [deleteLoan, { loading: isDeleteLoanLoading }] = useCustomMutation(
-    deleteLoanMutation
-  );
+  const [deleteLoan, { loading: isDeleteLoanLoading }] =
+    useCustomMutation(deleteLoanMutation);
 
   const handleClickSubmit = async () => {
     const response = await deleteLoan({

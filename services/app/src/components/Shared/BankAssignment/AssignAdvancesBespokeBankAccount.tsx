@@ -15,9 +15,8 @@ interface Props {
 export default function AssignAdvancesBespokeBankAccount(props: Props) {
   const snackbar = useSnackbar();
 
-  const [
-    assignAdvancesBespokeBankAccount,
-  ] = useAssignAdvancesBespokeBankAccountMutation();
+  const [assignAdvancesBespokeBankAccount] =
+    useAssignAdvancesBespokeBankAccountMutation();
 
   return (
     <BespokeBankAssignment

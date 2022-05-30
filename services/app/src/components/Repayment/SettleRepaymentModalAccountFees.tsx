@@ -3,15 +3,15 @@ import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import Modal from "components/Shared/Modal/Modal";
 import {
-  PayorFragment,
   Companies,
   PaymentsInsertInput,
+  PayorFragment,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { settleAccountLevelFeeRepaymentMutation } from "lib/api/payments";
-import { formatCurrency } from "lib/number";
 import { RepaymentMethodEnum, RepaymentMethodToLabel } from "lib/enum";
+import { formatCurrency } from "lib/number";
 import { useState } from "react";
 
 interface Props {

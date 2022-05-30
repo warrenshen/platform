@@ -20,9 +20,9 @@ import {
 import { computeRequestedWithdrawCutoffDate } from "lib/date";
 import {
   AllRepaymentMethods,
+  ProductTypeEnum,
   RepaymentMethodEnum,
   RepaymentMethodToDropdownLabel,
-  ProductTypeEnum,
 } from "lib/enum";
 import { Dispatch, SetStateAction } from "react";
 

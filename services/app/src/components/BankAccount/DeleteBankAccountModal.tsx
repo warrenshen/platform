@@ -3,8 +3,8 @@ import Modal from "components/Shared/Modal/Modal";
 import { BankAccountFragment } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { formatDateString } from "lib/date";
 import { deleteBankAccountMutation } from "lib/api/bankAccounts";
+import { formatDateString } from "lib/date";
 
 interface Props {
   bankAccount: BankAccountFragment;
@@ -17,10 +17,8 @@ export default function DeleteBankAccountModal({
 }: Props) {
   const snackbar = useSnackbar();
 
-  const [
-    deleteBankAccount,
-    { loading: isDeleteBankAccountMutationLoading },
-  ] = useCustomMutation(deleteBankAccountMutation);
+  const [deleteBankAccount, { loading: isDeleteBankAccountMutationLoading }] =
+    useCustomMutation(deleteBankAccountMutation);
 
   const handleSubmit = async () => {
     const response = await deleteBankAccount({

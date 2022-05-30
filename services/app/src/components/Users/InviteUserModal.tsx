@@ -1,18 +1,18 @@
 import {
   Box,
   Button,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   FormControl,
   InputLabel,
-  makeStyles,
   MenuItem,
   Select,
   TextField,
   Theme,
+  createStyles,
+  makeStyles,
 } from "@material-ui/core";
 import PhoneInput from "components/Shared/FormInputs/PhoneInput";
 import { UserRolesEnum, UsersInsertInput } from "generated/graphql";
@@ -64,10 +64,8 @@ export default function InviteUserModal({
     phone_number: "",
   });
 
-  const [
-    createBankCustomerUser,
-    { loading: isCreateBankCustomerUserLoading },
-  ] = useCustomMutation(createBankCustomerUserMutation);
+  const [createBankCustomerUser, { loading: isCreateBankCustomerUserLoading }] =
+    useCustomMutation(createBankCustomerUserMutation);
 
   const handleClickSubmit = async () => {
     const response = await createBankCustomerUser({

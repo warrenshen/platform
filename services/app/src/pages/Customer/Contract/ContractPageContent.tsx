@@ -44,9 +44,10 @@ export default function ContractPageContent({ companyId }: Props) {
   }
 
   const activeContract = data?.companies_by_pk?.contract;
-  const contracts = useMemo(() => data?.companies_by_pk?.contracts || [], [
-    data?.companies_by_pk,
-  ]);
+  const contracts = useMemo(
+    () => data?.companies_by_pk?.contracts || [],
+    [data?.companies_by_pk]
+  );
 
   const isActiveContract = !!activeContract;
 

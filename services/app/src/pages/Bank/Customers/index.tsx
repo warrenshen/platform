@@ -1,11 +1,11 @@
 import { Box, TextField } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import CreateCustomerModal from "components/Customer/CreateCustomerModal";
+import UpdateCompanyDebtFacilityStatusModal from "components/DebtFacility/UpdateCompanyDebtFacilityStatusModal";
 import CreateBulkMinimumMonthlyFeeModal from "components/Fee/CreateMinimumInterestFeesModal";
 import CreateMonthEndPaymentsModal from "components/Fee/CreateMonthEndPaymentsModal";
 import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal";
 import KickoffMonthlySummaryEmailsModal from "components/Reports/KickoffMonthlySummaryEmailsModal";
-import UpdateCompanyDebtFacilityStatusModal from "components/DebtFacility/UpdateCompanyDebtFacilityStatusModal";
 import Can from "components/Shared/Can";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
@@ -20,20 +20,20 @@ import {
   GetCustomersWithMetadataQuery,
   useGetCustomersWithMetadataQuery,
 } from "generated/graphql";
+import { useFilterCustomers } from "hooks/useFilterCustomers";
 import { Action, check } from "lib/auth/rbac-rules";
 import { formatDatetimeString, todayAsDateStringServer } from "lib/date";
 import {
-  ProductTypeEnum,
-  ProductTypeToLabel,
+  ClientSurveillanceCategoryEnum,
   DebtFacilityCompanyStatusEnum,
   DebtFacilityCompanyStatusToLabel,
-  ClientSurveillanceCategoryEnum,
+  ProductTypeEnum,
+  ProductTypeToLabel,
 } from "lib/enum";
-import { useFilterCustomers } from "hooks/useFilterCustomers";
+import { formatCurrency, formatPercentage } from "lib/number";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ColumnWidths } from "lib/tables";
 import { useContext, useMemo, useState } from "react";
-import { formatCurrency, formatPercentage } from "lib/number";
 
 function getRows(
   customers: GetCustomersWithMetadataQuery["customers"]
@@ -274,9 +274,10 @@ export default function BankCustomersPage() {
   );
 
   const handleSelectionChanged = useMemo(
-    () => ({ selectedRowsData }: any) =>
-      handleSelectCompanies &&
-      handleSelectCompanies(selectedRowsData as CustomerForBankFragment[]),
+    () =>
+      ({ selectedRowsData }: any) =>
+        handleSelectCompanies &&
+        handleSelectCompanies(selectedRowsData as CustomerForBankFragment[]),
     [handleSelectCompanies]
   );
 

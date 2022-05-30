@@ -18,10 +18,8 @@ interface Props {
 export default function DeleteLicenseModal({ licenseId, handleClose }: Props) {
   const snackbar = useSnackbar();
 
-  const [
-    deleteLicense,
-    { loading: isDeleteLicenseLoading },
-  ] = useCustomMutation(deleteLicenseMutation);
+  const [deleteLicense, { loading: isDeleteLicenseLoading }] =
+    useCustomMutation(deleteLicenseMutation);
 
   const {
     user: { role },

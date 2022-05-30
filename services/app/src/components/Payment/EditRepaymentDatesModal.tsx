@@ -1,11 +1,11 @@
 import { Box, Typography } from "@material-ui/core";
+import DateInput from "components/Shared/FormInputs/DateInput";
 import Modal from "components/Shared/Modal/Modal";
 import { PurchaseOrders, useGetPaymentQuery } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import DateInput from "components/Shared/FormInputs/DateInput";
-import { useState } from "react";
 import { editRepaymentMutation } from "lib/finance/payments/repayment";
+import { useState } from "react";
 
 interface Props {
   paymentId: PurchaseOrders["id"] | null;
@@ -18,10 +18,8 @@ export default function EditRepaymentDatesModal({
 }: Props) {
   const snackbar = useSnackbar();
   const [errMsg, setErrMsg] = useState("");
-  const [
-    updatedRequestedPaymentDate,
-    setUpdatedRequestedPaymentDate,
-  ] = useState("");
+  const [updatedRequestedPaymentDate, setUpdatedRequestedPaymentDate] =
+    useState("");
   const [updatedPaymentDate, setUpdatedPaymentDate] = useState("");
   const [updatedDepositDate, setUpdatedDepositDate] = useState("");
   const [updatedSettlementDate, setUpdatedSettlementDate] = useState("");
@@ -43,10 +41,8 @@ export default function EditRepaymentDatesModal({
     },
   });
 
-  const [
-    editRepayment,
-    { loading: isEditRepaymentLoading },
-  ] = useCustomMutation(editRepaymentMutation);
+  const [editRepayment, { loading: isEditRepaymentLoading }] =
+    useCustomMutation(editRepaymentMutation);
 
   const payment = data?.payments_by_pk || null;
 

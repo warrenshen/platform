@@ -12,7 +12,8 @@ function getRows(
   return payments.map((payment) => {
     const bespokeBankAccount = payment.company_bank_account;
     const recipientBankAccount = payment.recipient_bank_account;
-    const isIntermediaryBankAccount = !!recipientBankAccount?.is_wire_intermediary;
+    const isIntermediaryBankAccount =
+      !!recipientBankAccount?.is_wire_intermediary;
     return formatRowModel({
       ...payment,
       bespoke_routing_number: bespokeBankAccount?.wire_routing_number,

@@ -3,10 +3,10 @@ import { Alert } from "@material-ui/lab";
 import LoansBeforeAfterPaymentPreview from "components/Repayment/LoansBeforeAfterPaymentPreview";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import { Companies, Loans, PaymentsInsertInput } from "generated/graphql";
-import { formatCurrency } from "lib/number";
 import { formatDateString } from "lib/date";
-import { LoanBeforeAfterPayment } from "lib/finance/payments/repayment";
 import { ProductTypeEnum } from "lib/enum";
+import { LoanBeforeAfterPayment } from "lib/finance/payments/repayment";
+import { formatCurrency } from "lib/number";
 
 interface Props {
   productType: ProductTypeEnum | null;

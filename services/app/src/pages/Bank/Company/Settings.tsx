@@ -1,4 +1,3 @@
-import { useState, useMemo } from "react";
 import {
   Box,
   Checkbox,
@@ -37,6 +36,7 @@ import {
   TwoFactorMessageMethodEnum,
   TwoFactorMessageMethodToLabel,
 } from "lib/enum";
+import { useMemo, useState } from "react";
 
 interface Props {
   companyId: Companies["id"];

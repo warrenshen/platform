@@ -1,8 +1,8 @@
 import { Companies, Contracts, ContractsInsertInput } from "generated/graphql";
 import {
+  CustomMutationResponse,
   authenticatedApi,
   contractRoutes,
-  CustomMutationResponse,
 } from "lib/api";
 
 export type AddContractReq = {
