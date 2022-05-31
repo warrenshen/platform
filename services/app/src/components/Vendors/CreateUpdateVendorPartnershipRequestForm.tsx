@@ -49,7 +49,7 @@ export default function CreateUpdateVendorPartnershipRequestForm({
   return (
     <Box display="flex" flexDirection="column">
       <Box display="flex" flexDirection="column">
-        <TextField label="Company Name" disabled value={companyName} />
+        <TextField label={"Your Customer"} disabled value={companyName} />
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <TextField
@@ -241,7 +241,9 @@ export default function CreateUpdateVendorPartnershipRequestForm({
               color="primary"
             />
           }
-          label={"Is this vendor a cannabis company?"}
+          label={
+            "Do you sell cannabis or cannabis derivatives products and have cannabis license(s)?"
+          }
         />
       </Box>
       {vendorInput.isCannabis && (
