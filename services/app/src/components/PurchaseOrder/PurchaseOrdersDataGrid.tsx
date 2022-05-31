@@ -22,27 +22,30 @@ import { getCompanyDisplayName } from "lib/companies";
 import { formatDateString, formatDatetimeString } from "lib/date";
 import { formatCurrency } from "lib/number";
 import { computePurchaseOrderDueDateDateStringClient } from "lib/purchaseOrders";
-import { ColumnWidths, truncateString } from "lib/tables";
+import { ColumnWidths, formatRowModel, truncateString } from "lib/tables";
 import { useMemo, useState } from "react";
 
 function getRows(purchaseOrders: PurchaseOrderFragment[]): RowsProp {
-  return purchaseOrders.map((purchaseOrder) => ({
-    ...purchaseOrder,
-    company_name: purchaseOrder.company.name,
-    vendor_name: getCompanyDisplayName(purchaseOrder.vendor),
-    status: purchaseOrder.status,
-    order_date: !!purchaseOrder.order_date
-      ? formatDateString(purchaseOrder.order_date)
-      : "-",
-    due_date: computePurchaseOrderDueDateDateStringClient(purchaseOrder),
-    percent_funded:
-      ((purchaseOrder.amount_funded || 0) / (purchaseOrder.amount || 1)) * 100,
-    customer_note: truncateString(purchaseOrder?.customer_note || "-"),
-    bank_note: truncateString(purchaseOrder?.bank_note || ""),
-    requested_at: !!purchaseOrder.requested_at
-      ? formatDatetimeString(purchaseOrder.requested_at, false)
-      : "-",
-  }));
+  return purchaseOrders.map((purchaseOrder) => {
+    return formatRowModel({
+      ...purchaseOrder,
+      company_name: purchaseOrder.company.name,
+      vendor_name: getCompanyDisplayName(purchaseOrder.vendor),
+      status: purchaseOrder.status,
+      order_date: !!purchaseOrder.order_date
+        ? formatDateString(purchaseOrder.order_date)
+        : "-",
+      due_date: computePurchaseOrderDueDateDateStringClient(purchaseOrder),
+      percent_funded:
+        ((purchaseOrder.amount_funded || 0) / (purchaseOrder.amount || 1)) *
+        100,
+      customer_note: truncateString(purchaseOrder?.customer_note || "-"),
+      bank_note: truncateString(purchaseOrder?.bank_note || ""),
+      requested_at: !!purchaseOrder.requested_at
+        ? formatDatetimeString(purchaseOrder.requested_at, false)
+        : "-",
+    });
+  });
 }
 
 interface Props {
