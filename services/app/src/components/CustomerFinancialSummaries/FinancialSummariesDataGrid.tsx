@@ -9,12 +9,13 @@ import {
 } from "generated/graphql";
 import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
 import { formatCurrency, formatPercentage } from "lib/number";
+import { formatRowModel } from "lib/tables";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
 function getRows(financialSummaries: FinancialSummaryFragment[]): RowsProp {
   return financialSummaries.map((financialSummary) => {
-    return {
+    return formatRowModel({
       ...financialSummary,
       product_type:
         ProductTypeToLabel[financialSummary.product_type as ProductTypeEnum],
@@ -66,7 +67,7 @@ function getRows(financialSummaries: FinancialSummaryFragment[]): RowsProp {
       minimum_interest_remaining: formatCurrency(
         financialSummary.minimum_interest_remaining
       ),
-    };
+    });
   });
 }
 
