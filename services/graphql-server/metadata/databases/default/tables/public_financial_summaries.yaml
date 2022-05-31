@@ -85,6 +85,7 @@ select_permissions:
         - days_to_compute_back
         - id
         - interest_accrued_today
+        - late_fees_accrued_today
         - minimum_interest_amount
         - minimum_interest_duration
         - minimum_interest_remaining
@@ -124,6 +125,7 @@ select_permissions:
         - days_to_compute_back
         - id
         - interest_accrued_today
+        - late_fees_accrued_today
         - minimum_interest_amount
         - minimum_interest_duration
         - minimum_interest_remaining
