@@ -104,6 +104,14 @@ export default function AddVendorNewModal({ customerId, handleClose }: Props) {
         </Box>
       )}
 
+      <Box mt={2} mb={4} mx={3}>
+        <Alert severity="info">
+          <Typography variant="body1">
+            {`Note: Please enter the work email of the person or department in charge of your vendor's Accounts Receivable.`}
+          </Typography>
+        </Alert>
+      </Box>
+
       <DialogContent>
         <AddVendorForm
           vendorInput={vendorInput}
