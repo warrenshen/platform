@@ -1,14 +1,7 @@
+import { EbbaApplicationsInsertInput } from "generated/graphql";
 import { ContractTermNames } from "lib/contracts";
 
-export interface updatedContractFields {
-  calculatedBorrowingBase: number;
-  isAccountsReceivableVisible: boolean;
-  isInventoryVisible: boolean;
-  isCashVisible: boolean;
-  isCashInDacaVisible: boolean;
-}
-
-function findfield(existingContractFields: any, searchField: string): number {
+function findField(existingContractFields: any, searchField: string): number {
   return (
     existingContractFields.find(
       (field: any) => field.internal_name === searchField
@@ -17,22 +10,22 @@ function findfield(existingContractFields: any, searchField: string): number {
 }
 
 export function calculateBorrowingBaseAmount(
-  ebbaApplication: any,
+  ebbaApplication: EbbaApplicationsInsertInput,
   contractFields: any
-): updatedContractFields {
-  const accountsReceivablePercentage = findfield(
+) {
+  const accountsReceivablePercentage = findField(
     contractFields,
     ContractTermNames.BorrowingBaseAccountsReceivablePercentage
   );
-  const inventoryPercentage = findfield(
+  const inventoryPercentage = findField(
     contractFields,
     ContractTermNames.BorrowingBaseInventoryPercentage
   );
-  const cashPercentage = findfield(
+  const cashPercentage = findField(
     contractFields,
     ContractTermNames.BorrowingBaseCashPercentage
   );
-  const cashInDacaPercentage = findfield(
+  const cashInDacaPercentage = findField(
     contractFields,
     ContractTermNames.BorrowingBaseCashInDacaPercentage
   );
