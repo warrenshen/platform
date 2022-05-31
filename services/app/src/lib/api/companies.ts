@@ -412,6 +412,7 @@ type CreatePartnershipMutationReq = {
     partnership_request_id: CompanyPartnershipRequests["id"];
     should_create_company: boolean;
     partner_company_id: Companies["id"];
+    license_info?: LicenseInfo;
   };
 };
 

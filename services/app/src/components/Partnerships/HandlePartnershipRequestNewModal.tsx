@@ -5,6 +5,7 @@ import {
   DialogContentText,
   Divider,
   FormControlLabel,
+  TextField,
   Typography,
 } from "@material-ui/core";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
@@ -27,6 +28,10 @@ interface Props {
   handleClose: () => void;
 }
 
+export type LicenseInfo = {
+  license_ids: Array<string>;
+};
+
 export default function HandlePartnershipRequestNewModal({
   partnerRequest,
   handleClose,
@@ -37,8 +42,15 @@ export default function HandlePartnershipRequestNewModal({
   const [selectedCompanyId, setSelectedCompanyId] =
     useState<Companies["id"]>(null);
 
+  const [licenseIds, setlicenseIds] = useState<LicenseInfo>({
+    license_ids: partnerRequest.license_info
+      ? partnerRequest.license_info.license_ids
+      : [],
+  });
+
   const [isCompanyLicenseFileViewerOpen, setIsCompanyLicenseFileViewerOpen] =
     useState(false);
+
   const [
     isBankInstructionsFileViewerOpen,
     setIsBankInstructionsFileViewerOpen,
@@ -50,6 +62,7 @@ export default function HandlePartnershipRequestNewModal({
         partnership_request_id: partnerRequest.id,
         should_create_company: selectedCompanyId === null,
         partner_company_id: selectedCompanyId,
+        license_info: licenseIds,
       },
     });
     if (response.status !== "OK") {
@@ -132,12 +145,19 @@ export default function HandlePartnershipRequestNewModal({
         <Typography variant="subtitle2" color="textSecondary">
           Partner Company License IDs
         </Typography>
-        <Typography variant={"body1"}>
-          {partnerRequest.license_info
-            ? partnerRequest.license_info.license_ids.join(", ")
-            : "N/A"}
-        </Typography>
+        <TextField
+          value={licenseIds.license_ids.join(",")}
+          onChange={({ target: { value } }) => {
+            let licenseIds = value.split(",").map((l) => {
+              return l.trim();
+            });
+            setlicenseIds({
+              license_ids: licenseIds,
+            });
+          }}
+        />
       </Box>
+
       {partnerRequest.license_info?.license_file_id && (
         <Box display="flex" flexDirection="column" mt={4}>
           <Typography variant="subtitle2" color="textSecondary">

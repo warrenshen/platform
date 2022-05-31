@@ -54,6 +54,7 @@ CreatePartnershipInputDict = TypedDict('CreatePartnershipInputDict', {
 	'partnership_request_id': str,
 	'should_create_company': bool,
 	'partner_company_id': str, # the company ID of the partner who might already exist in the DB
+	'license_info': List[str],
 })
 
 CreatePartnershipRespDict = TypedDict('CreatePartnershipRespDict', {
@@ -758,6 +759,10 @@ def create_partnership_new(
 		).first())
 	if not partnership_req:
 		raise errors.Error('No partnership request found to create this partnership')
+	
+	# Store the license info if it's updated while triage
+	if req.get('license_info'):
+		partnership_req.license_info = req.get('license_info')
 
 	customer_id = str(partnership_req.requesting_company_id)
 
