@@ -15,14 +15,14 @@ import {
   ProductTypeEnum,
   ProductTypeToLabel,
   QualifyForEnum,
+  QualifyForToLabel,
   ReportingRequirementsCategoryEnum,
 } from "lib/enum";
-import { formatPercentage } from "lib/number";
+import { formatCurrency, formatPercentage } from "lib/number";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
-import { QualifyForToLabel } from "../../lib/enum";
 import ClientSurveillanceStatusChip from "./ClientSurveillanceStatusChip";
 
 interface Props {
@@ -30,6 +30,7 @@ interface Props {
   isMultiSelectEnabled?: boolean;
   isFinancialReportDateVisible?: boolean;
   isBorrowingBaseDateVisible?: boolean;
+  isLoansReadyForAdvancesAmountVisible?: boolean;
   customers: GetNonDummyCustomersWithMetadataQuery["customers"];
   selectedCompaniesIds?: Companies["id"][];
   handleSelectCompanies?: (companies: Companies[]) => void;
@@ -100,6 +101,10 @@ function getRows(
       most_overdue_loan_days: !!company?.financial_summaries?.[0]
         ? company.financial_summaries[0].most_overdue_loan_days
         : null,
+      loans_ready_for_advances_amount: formatCurrency(
+        company?.loans.reduce((acc, { amount }) => acc + amount, 0),
+        "$0"
+      ),
     };
   });
 }
@@ -109,6 +114,7 @@ export default function ClientSurveillanceCustomersDataGrid({
   isFinancialReportDateVisible = false,
   isBorrowingBaseDateVisible = false,
   isMultiSelectEnabled = false,
+  isLoansReadyForAdvancesAmountVisible = false,
   customers,
   selectedCompaniesIds,
   handleSelectCompanies,
@@ -211,8 +217,19 @@ export default function ClientSurveillanceCustomersDataGrid({
         width: ColumnWidths.MinWidth,
         alignment: "center",
       },
+      {
+        visible: isLoansReadyForAdvancesAmountVisible,
+        dataField: "loans_ready_for_advances_amount",
+        caption: "Loans Ready For Advances Amount",
+        width: ColumnWidths.MinWidth,
+        alignment: "center",
+      },
     ],
-    [isBorrowingBaseDateVisible, isFinancialReportDateVisible]
+    [
+      isBorrowingBaseDateVisible,
+      isFinancialReportDateVisible,
+      isLoansReadyForAdvancesAmountVisible,
+    ]
   );
 
   const handleSelectionChanged = useMemo(

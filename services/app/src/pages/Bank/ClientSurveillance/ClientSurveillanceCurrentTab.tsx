@@ -100,6 +100,7 @@ export default function ClientSurveillanceCurrentTab() {
           isMultiSelectEnabled
           isFinancialReportDateVisible
           isBorrowingBaseDateVisible
+          isLoansReadyForAdvancesAmountVisible
           customers={customers}
           selectedCompaniesIds={selectedCompanyIds}
           handleSelectCompanies={handleSelectCompanies}

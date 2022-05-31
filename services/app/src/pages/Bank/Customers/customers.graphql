@@ -27,6 +27,23 @@ query GetNonDummyCustomersWithMetadata(
     order_by: { name: asc }
   ) {
     ...CustomersWithMetadata
+    loans(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { funded_at: { _is_null: true } }
+          { closed_at: { _is_null: true } }
+        ]
+      }
+    ) {
+      status
+      amount
+    }
     company_product_qualifications(
       limit: 1
       where: {
