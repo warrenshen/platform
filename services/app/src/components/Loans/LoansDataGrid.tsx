@@ -39,7 +39,7 @@ import {
   getLoanArtifactName,
   getLoanVendorName,
 } from "lib/loans";
-import { ColumnWidths, truncateString } from "lib/tables";
+import { ColumnWidths, formatRowModel, truncateString } from "lib/tables";
 import { useEffect, useMemo, useState } from "react";
 
 type Loan = LoanFragment & (LoanArtifactFragment | LoanArtifactLimitedFragment);
@@ -77,34 +77,35 @@ function getRows(
     loan_report?: Maybe<LoanReportFragment>;
   } & (LoanArtifactFragment | LoanArtifactLimitedFragment))[]
 ): RowsProp {
-  return loans.map((loan) => ({
-    ...loan,
-    customer_identifier: createLoanCustomerIdentifier(loan),
-    disbursement_identifier: createLoanDisbursementIdentifier(loan),
-    artifact_name: getLoanArtifactName(loan),
-    artifact_bank_note: loan.purchase_order
-      ? truncateString(
-          (loan as LoanArtifactFragment).purchase_order?.bank_note || ""
-        )
-      : "N/A",
-    vendor_name: getLoanVendorName(loan),
-    repayment_date: !!loan.loan_report ? loan.loan_report.repayment_date : null,
-    financing_period: !!loan.loan_report
-      ? loan.loan_report.financing_period
-      : null,
-    financing_day_limit: !!loan.loan_report
-      ? loan.loan_report.financing_day_limit
-      : null,
-    total_principal_paid: !!loan.loan_report
-      ? loan.loan_report.total_principal_paid
-      : null,
-    total_interest_paid: !!loan.loan_report
-      ? loan.loan_report.total_interest_paid
-      : null,
-    total_fees_paid: !!loan.loan_report
-      ? loan.loan_report.total_fees_paid
-      : null,
-  }));
+  return loans.map((loan) => {
+    return formatRowModel({
+      ...loan,
+      customer_identifier: createLoanCustomerIdentifier(loan),
+      disbursement_identifier: createLoanDisbursementIdentifier(loan),
+      artifact_name: getLoanArtifactName(loan),
+      artifact_bank_note: loan.purchase_order
+        ? truncateString(
+            (loan as LoanArtifactFragment).purchase_order?.bank_note || ""
+          )
+        : "N/A",
+      vendor_name: getLoanVendorName(loan),
+      repayment_date: !!loan.loan_report
+        ? loan.loan_report.repayment_date
+        : null,
+      financing_day_limit: !!loan.loan_report
+        ? loan.loan_report.financing_day_limit
+        : null,
+      total_principal_paid: !!loan.loan_report
+        ? loan.loan_report.total_principal_paid
+        : null,
+      total_interest_paid: !!loan.loan_report
+        ? loan.loan_report.total_interest_paid
+        : null,
+      total_fees_paid: !!loan.loan_report
+        ? loan.loan_report.total_fees_paid
+        : null,
+    });
+  });
 }
 
 const getMaturityDate = (rowData: any) =>
@@ -447,12 +448,6 @@ export default function LoansDataGrid({
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.repayment_date} />
         ),
-      },
-      {
-        visible: isReportingVisible,
-        dataField: "financing_period",
-        caption: "Financing Period",
-        width: ColumnWidths.Currency,
       },
       {
         visible: isReportingVisible,
