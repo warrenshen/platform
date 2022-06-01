@@ -15,6 +15,7 @@ from datetime import date
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from os import path
+import pprint
 import pickle
 import matplotlib.pyplot as plt
 from typing import List, Dict, Tuple
@@ -252,7 +253,8 @@ class Analyzer:
             print(['last_sale_valuation', 'discount_valuation'])
         return data, valuation
 
-    def find_most_valuable_products_by_velocity_sales_weighted(self, groupby_col, top_k, normailize_by_quantity=False):
+    def find_most_valuable_products_by_velocity_sales_weighted(
+            self, groupby_col, top_k, normailize_by_quantity=False, product_category_name_filter=None):
         """
         Find most valuable products/product categories/companies (determined by groupby_col) based on sales velocity
         Parameters
@@ -260,6 +262,7 @@ class Analyzer:
         groupby_col: Columns to group by
         top_k: How many top data points to search
         normailize_by_quantity: Normalize sales by quantity of sale
+        product_category_name_filter: Filter to only one specific product category, default to None (no filter)
         ----------
         """
         base_query = ifa_query.create_company_sale_metric_query(
@@ -267,6 +270,7 @@ class Analyzer:
             self.SALES_TRANSACTIONS_START_DATE,
             self.SALES_TRANSACTIONS_END_DATE, groupby_col)
         order_col = 'quantity_sale_velocity_per_day' if normailize_by_quantity else 'sale_velocity_per_day'
+        category_filter = '' if product_category_name_filter is None else 'AND tx_product_category_name = "{}"'.format(product_category_name_filter)
         query = '''
             SELECT
                 *,
@@ -276,12 +280,50 @@ class Analyzer:
                 ({BASE_QUERY}) AS base_query
             WHERE 
                 number_of_sales > 10
+                {CATEGORY_FILTER}
             ORDER BY 
                 {ORDER_COL} DESC
             LIMIT 
                 {N}
         '''
-        query = query.format(BASE_QUERY=base_query, ORDER_COL=order_col, N=top_k)
+        query = query.format(BASE_QUERY=base_query, CATEGORY_FILTER=category_filter, ORDER_COL=order_col, N=top_k)
+        return self.run_query(query)
+
+    def find_most_valuable_products_by_margin_weighted(
+            self, groupby_col, top_k, product_category_name_filter=None):
+        """
+        Find most valuable products/product categories/companies (determined by groupby_col) based on sales velocity
+        Parameters
+        ----------
+        groupby_col: Columns to group by
+        top_k: How many top data points to search
+        product_category_name_filter: Filter to only one specific product category, default to None (no filter)
+        ----------
+        """
+        base_query = ifa_query.create_company_sale_metric_query(
+            self.company_identifier, self.license_numbers,
+            self.SALES_TRANSACTIONS_START_DATE,
+            self.SALES_TRANSACTIONS_END_DATE, groupby_col)
+        order_col = 'sales_margin'
+        category_filter = '' if product_category_name_filter is None else 'AND tx_product_category_name = "{}"'.format(product_category_name_filter)
+        query = '''
+            SELECT
+                *,
+                (avg_sale_price - avg_cost) / avg_sale_price AS sales_margin,
+                (CASE WHEN avg_days_since_sale <1 THEN number_of_sales ELSE number_of_sales/avg_days_since_sale END) AS sale_velocity_per_day,
+                (CASE WHEN avg_days_since_sale <1 THEN number_of_sales ELSE quantity_sold/avg_days_since_sale END) AS quantity_sale_velocity_per_day
+            FROM 
+                ({BASE_QUERY}) AS base_query
+            WHERE 
+                number_of_sales > 10
+                AND avg_cost > .01
+                {CATEGORY_FILTER}
+            ORDER BY 
+                {ORDER_COL} DESC
+            LIMIT 
+                {N}
+        '''
+        query = query.format(BASE_QUERY=base_query, CATEGORY_FILTER=category_filter, ORDER_COL=order_col, N=top_k)
         return self.run_query(query)
 
     def find_all_valuation(self, by_product_name=True, discount_rate=.1):
@@ -298,6 +340,46 @@ class Analyzer:
         print('#### Inventory Valuation based on incoming data using discount time method: ${} ####'.format(
             valuation_inventory_discount_time))
         return valuation_sales_last_sale, valuation_sales_discount_time, valuation_inventory_discount_time
+
+    def top_product_and_product_category_data_generation(self, top_k, normailize_by_quantity=False):
+        category_dict = {}
+        df_product_category = self.find_most_valuable_products_by_velocity_sales_weighted(
+            'tx_product_category_name',
+            top_k=top_k,
+            normailize_by_quantity=normailize_by_quantity
+        )
+        top_k_categories = df_product_category['tx_product_category_name'].values
+        for category in top_k_categories:
+            df_product = self.find_most_valuable_products_by_velocity_sales_weighted(
+                'tx_product_category_name, tx_product_name',
+                top_k=top_k,
+                normailize_by_quantity=normailize_by_quantity,
+                product_category_name_filter=category
+            )
+            category_dict[category] = df_product
+        return df_product_category, category_dict
+
+    def top_product_and_product_category_report_generation(self, top_k, normailize_by_quantity=False):
+        df_product_category, category_dict = self.top_product_and_product_category_data_generation(
+            top_k, normailize_by_quantity=normailize_by_quantity)
+        if normailize_by_quantity:
+            velocity_col = 'quantity_sale_velocity_per_day'
+        else:
+            velocity_col = 'sale_velocity_per_day'
+        print("### Following are the top product categories by sales velocity ###")
+        # print(df_product_category[['tx_product_category_name', velocity_col]])
+        for i in range(len(category_dict.keys())):
+            category, velocity = df_product_category['tx_product_category_name'][i], df_product_category[velocity_col][i]
+            print("{}. Category: {}, \n Sale velocity: {}".format(i+1, category, np.round(velocity, 2)))
+
+        for cat in category_dict:
+            print("### Following are the top product names for product {} by sales velocity ###".format(cat))
+            # print(category_dict[cat][['tx_product_name', velocity_col]])
+            for i in range(category_dict[cat].shape[0]):
+                name, product_velocity = category_dict[cat]['tx_product_name'][i], category_dict[cat][velocity_col][i]
+                print("{}. Product: {}, \n Sale velocity: {}".format(i+1, name, np.round(product_velocity, 2)))
+
+        return
 
     def create_product_k_means_clusters(self):
         return

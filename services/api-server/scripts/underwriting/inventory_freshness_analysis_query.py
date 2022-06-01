@@ -97,6 +97,7 @@ def create_company_sale_metric_query(company_identifier, license_numbers, sales_
             MIN(CASE WHEN sales_days_diff > 0 THEN sales_days_diff ELSE 0 END) AS min_days_since_sale,
             COUNT(*) AS number_of_sales,
             SUM(tx_quantity_sold) AS quantity_sold,
+            AVG(receiver_wholesale_price/shipped_quantity) AS avg_cost, 
             AVG(price_per_unit) AS avg_sale_price
         FROM 
             ({DAYS_SOLD_QUERY}) AS days_sold
