@@ -91,7 +91,6 @@ export default function DebtFacilityReportTab({
           <Box display="flex" flexDirection="column">
             <Box display="flex" flexDirection="row" mb={4}>
               <DateInput
-                disableNonBankDays
                 className={classes.inputField}
                 id="debt-facility-report-tab-date-picker"
                 label="Last Report Date"
