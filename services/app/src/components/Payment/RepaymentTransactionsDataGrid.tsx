@@ -15,12 +15,17 @@ import {
   PaymentLimitedFragment,
   Payments,
 } from "generated/graphql";
-import { RepaymentMethodEnum, RepaymentMethodToLabel } from "lib/enum";
+import {
+  PaymentTypeEnum,
+  RepaymentMethodEnum,
+  RepaymentMethodToLabel,
+} from "lib/enum";
 import {
   createLoanDisbursementIdentifier,
   getLoanArtifactName,
 } from "lib/loans";
-import { ColumnWidths } from "lib/tables";
+import { formatCurrency } from "lib/number";
+import { ColumnWidths, formatRowModel } from "lib/tables";
 import { flatten, sumBy } from "lodash";
 import { useMemo } from "react";
 
@@ -31,51 +36,74 @@ function getRows(
   >["payments"]
 ) {
   if (isLineOfCredit) {
-    return payments.map((payment) => ({
-      id: payment.id,
-      company_id: payment.company_id,
-      company_identifier: payment.company.identifier,
-      company_name: payment.company.name,
-      status: !!payment.reversed_at ? "Reversed" : "Settled",
-      payment: payment,
-      to_principal_sum: payment.transactions?.length
-        ? sumBy(payment.transactions, "to_principal")
-        : null,
-      to_interest_sum: payment.transactions?.length
-        ? sumBy(payment.transactions, "to_interest")
-        : null,
-    }));
+    return payments.map((payment) => {
+      return formatRowModel({
+        id: payment.id,
+        company_id: payment.company_id,
+        company_identifier: payment.company.identifier,
+        company_name: payment.company.name,
+        status: !!payment.reversed_at ? "Reversed" : "Settled",
+        payment: payment,
+        to_account_fees: payment.items_covered?.requested_to_account_fees
+          ? formatCurrency(payment.items_covered.requested_to_account_fees)
+          : formatCurrency(0),
+        to_interest_sum: payment.transactions?.length
+          ? formatCurrency(sumBy(payment.transactions, "to_interest"))
+          : null,
+        to_principal_sum: payment.transactions?.length
+          ? formatCurrency(sumBy(payment.transactions, "to_principal"))
+          : null,
+      });
+    });
   } else {
     return flatten(
       payments.map((payment) =>
         !!payment.reversed_at
           ? [
-              {
+              formatRowModel({
                 id: `${payment.id}-0`,
                 company_id: payment.company_id,
                 company_identifier: payment.company.identifier,
                 company_name: payment.company.name,
                 status: "Reversed",
                 payment: payment,
-              },
+              }),
             ]
-          : payment.transactions.map((transaction) => ({
-              id: `${payment.id}-${transaction.id}`,
-              company_id: payment.company_id,
-              company_identifier: payment.company.identifier,
-              company_name: payment.company.name,
-              status: "Settled",
-              payment: payment,
-              transaction: {
-                ...transaction,
-                loan: {
-                  ...transaction.loan,
-                  artifact_name: transaction.loan
-                    ? getLoanArtifactName(transaction.loan)
-                    : "N/A",
+          : payment.transactions.map((transaction) =>
+              formatRowModel({
+                id: `${payment.id}-${transaction.id}`,
+                company_id: payment.company_id,
+                company_identifier: payment.company.identifier,
+                company_name: payment.company.name,
+                payment: payment,
+                status: "Settled",
+                to_account_fees:
+                  transaction?.type === PaymentTypeEnum.RepaymentOfAccountFee
+                    ? formatCurrency(transaction.amount)
+                    : formatCurrency(0),
+                to_interest_sum:
+                  transaction?.to_interest != null
+                    ? formatCurrency(transaction.to_interest)
+                    : null,
+                to_late_fees:
+                  transaction?.to_fees != null
+                    ? formatCurrency(transaction.to_fees)
+                    : null,
+                to_principal_sum:
+                  transaction?.to_principal != null
+                    ? formatCurrency(transaction.to_principal)
+                    : null,
+                transaction: {
+                  ...transaction,
+                  loan: {
+                    ...transaction.loan,
+                    artifact_name: transaction.loan
+                      ? getLoanArtifactName(transaction.loan)
+                      : "N/A",
+                  },
                 },
-              },
-            }))
+              })
+            )
       )
     );
   }
@@ -249,54 +277,6 @@ export default function RepaymentTransactionsDataGrid({
         ),
       },
       {
-        visible: !isLineOfCredit,
-        dataField: "transaction.to_principal",
-        caption: "Transaction To Principal",
-        width: ColumnWidths.Currency,
-        alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell
-            value={
-              params.row.data.transaction?.to_principal != null
-                ? params.row.data.transaction.to_principal
-                : null
-            }
-          />
-        ),
-      },
-      {
-        visible: !isLineOfCredit,
-        dataField: "transaction.to_interest",
-        caption: "Transaction To Interest",
-        width: ColumnWidths.Currency,
-        alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell
-            value={
-              params.row.data.transaction?.to_interest != null
-                ? params.row.data.transaction.to_interest
-                : null
-            }
-          />
-        ),
-      },
-      {
-        visible: !isLineOfCredit,
-        dataField: "transaction.to_fees",
-        caption: "Transaction To Fees",
-        width: ColumnWidths.Currency,
-        alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell
-            value={
-              params.row.data.transaction?.to_fees != null
-                ? params.row.data.transaction.to_fees
-                : null
-            }
-          />
-        ),
-      },
-      {
         visible: isLineOfCredit,
         dataField: "payment.amount",
         caption: "Total Repayment Amount",
@@ -307,24 +287,29 @@ export default function RepaymentTransactionsDataGrid({
         ),
       },
       {
-        visible: isLineOfCredit,
         dataField: "to_principal_sum",
         caption: "Applied to Principal",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.to_principal_sum} />
-        ),
       },
       {
-        visible: isLineOfCredit,
         dataField: "to_interest_sum",
         caption: "Applied to Interest",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.to_interest_sum} />
-        ),
+      },
+      {
+        visible: !isLineOfCredit,
+        dataField: "to_late_fees",
+        caption: "Applied to Late Fees",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+      },
+      {
+        dataField: "to_account_fees",
+        caption: "Applied to Account Fees",
+        width: ColumnWidths.Currency,
+        alignment: "right",
       },
     ],
     [isCompanyVisible, isLineOfCredit, handleClickCustomer]
