@@ -23,7 +23,7 @@ import {
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { getCompanyDisplayName } from "lib/companies";
-import { formatDateString } from "lib/date";
+import { formatDateString, formatDatetimeString } from "lib/date";
 import { FileTypeEnum } from "lib/enum";
 import { formatCurrency } from "lib/number";
 import { computePurchaseOrderDueDateDateStringClient } from "lib/purchaseOrders";
@@ -53,6 +53,7 @@ export default function PurchaseOrderDrawer({
   });
 
   const purchaseOrder = data?.purchase_orders_by_pk;
+
   const loans = purchaseOrder?.loans;
   const purchaseOrderFileIds = useMemo(() => {
     return (
@@ -159,6 +160,16 @@ export default function PurchaseOrderDrawer({
           PO Number
         </Typography>
         <Typography variant={"body1"}>{purchaseOrder.order_number}</Typography>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2" color="textSecondary">
+          Date Submitted
+        </Typography>
+        <Typography variant={"body1"}>
+          {!!purchaseOrder.requested_at
+            ? formatDatetimeString(purchaseOrder.requested_at, false)
+            : "-"}
+        </Typography>
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>
         <Typography variant="subtitle2" color="textSecondary">
