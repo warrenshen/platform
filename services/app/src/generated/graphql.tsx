@@ -40248,6 +40248,7 @@ export const GetNonDummyCustomersWithMetadataDocument = gql`
             }
             { funded_at: { _is_null: true } }
             { closed_at: { _is_null: true } }
+            { requested_at: { _is_null: false } }
           ]
         }
       ) {
