@@ -56,13 +56,6 @@ array_relationships:
         table:
           schema: public
           name: company_payor_partnerships
-  - name: company_product_qualifications
-    using:
-      foreign_key_constraint_on:
-        column: company_id
-        table:
-          schema: public
-          name: company_product_qualifications
   - name: company_vendor_partnerships
     using:
       foreign_key_constraint_on:
@@ -84,6 +77,13 @@ array_relationships:
         table:
           schema: public
           name: contracts
+  - name: customer_surveillance_results
+    using:
+      foreign_key_constraint_on:
+        column: company_id
+        table:
+          schema: public
+          name: customer_surveillance_results
   - name: ebba_applications
     using:
       foreign_key_constraint_on:

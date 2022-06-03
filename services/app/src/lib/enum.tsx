@@ -642,7 +642,7 @@ export enum CustomMessageEnum {
 
 export const AllCustomMessages = [CustomMessageEnum.OVERVIEW_PAGE];
 
-export enum ClientSurveillanceCategoryEnum {
+export enum CustomerSurveillanceCategoryEnum {
   BorrowingBase = "borrowing_base",
   FinancialReport = "financial_report",
 }

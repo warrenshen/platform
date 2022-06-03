@@ -461,7 +461,7 @@ fragment DebtFacilityEvent on debt_facility_events {
   event_payload
 }
 
-fragment CompanyProductQualification on company_product_qualifications {
+fragment CustomerSurveillanceResult on customer_surveillance_results {
   id
   bank_note
   qualifying_product

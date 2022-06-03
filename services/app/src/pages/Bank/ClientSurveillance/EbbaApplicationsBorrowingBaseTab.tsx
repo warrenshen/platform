@@ -9,7 +9,7 @@ import {
   useGetOpenEbbaApplicationsByCategoryQuery,
 } from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
-import { ActionType, ClientSurveillanceCategoryEnum } from "lib/enum";
+import { ActionType, CustomerSurveillanceCategoryEnum } from "lib/enum";
 import { filter } from "lodash";
 import { useMemo, useState } from "react";
 
@@ -17,7 +17,7 @@ export default function EbbaApplicationsBorrowingBaseTab() {
   const { data, error, refetch } = useGetOpenEbbaApplicationsByCategoryQuery({
     fetchPolicy: "network-only",
     variables: {
-      category: ClientSurveillanceCategoryEnum.BorrowingBase,
+      category: CustomerSurveillanceCategoryEnum.BorrowingBase,
     },
   });
 

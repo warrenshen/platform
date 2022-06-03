@@ -17,7 +17,7 @@ import { Action } from "lib/auth/rbac-rules";
 import { withinNDaysOfNowOrBefore } from "lib/date";
 import {
   ActionType,
-  ClientSurveillanceCategoryEnum,
+  CustomerSurveillanceCategoryEnum,
   ProductTypeEnum,
 } from "lib/enum";
 import { useMemo, useState } from "react";
@@ -43,7 +43,8 @@ export default function CustomerFinancialCertificationsPageContent({
   const ebbaApplications = useMemo(
     () =>
       data?.companies_by_pk?.ebba_applications.filter(
-        (app) => app.category === ClientSurveillanceCategoryEnum.FinancialReport
+        (app) =>
+          app.category === CustomerSurveillanceCategoryEnum.FinancialReport
       ) || [],
     [data]
   );

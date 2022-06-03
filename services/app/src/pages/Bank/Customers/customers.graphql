@@ -45,7 +45,7 @@ query GetNonDummyCustomersWithMetadata(
       status
       amount
     }
-    company_product_qualifications(
+    customer_surveillance_results(
       limit: 1
       where: {
         _and: [
@@ -54,18 +54,18 @@ query GetNonDummyCustomersWithMetadata(
         ]
       }
     ) {
-      ...CompanyProductQualification
+      ...CustomerSurveillanceResult
     }
   }
 }
 
-query GetCompanyProductQualificationsByDate(
+query GetCustomerSurveillanceResultsByDate(
   $company_id: uuid!
   $start_date: date
   $end_date: date
   $limit: Int
 ) {
-  company_product_qualifications(
+  customer_surveillance_results(
     limit: $limit
     where: {
       _and: [
@@ -75,7 +75,7 @@ query GetCompanyProductQualificationsByDate(
       ]
     }
   ) {
-    ...CompanyProductQualification
+    ...CustomerSurveillanceResult
   }
 }
 

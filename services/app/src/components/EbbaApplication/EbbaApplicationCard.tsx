@@ -12,7 +12,7 @@ import EbbaApplicationDrawerLauncher from "components/EbbaApplication/EbbaApplic
 import EbbaApplicationStatusChip from "components/EbbaApplication/EbbaApplicationStatusChip";
 import { EbbaApplicationFragment } from "generated/graphql";
 import { formatDateString } from "lib/date";
-import { ClientSurveillanceCategoryEnum } from "lib/enum";
+import { CustomerSurveillanceCategoryEnum } from "lib/enum";
 import { formatCurrency } from "lib/number";
 
 interface Props {
@@ -35,7 +35,8 @@ export default function EbbaApplicationCard({ ebbaApplication }: Props) {
   const classes = useStyles();
 
   const isBorrowingBase =
-    ebbaApplication?.category === ClientSurveillanceCategoryEnum.BorrowingBase;
+    ebbaApplication?.category ===
+    CustomerSurveillanceCategoryEnum.BorrowingBase;
 
   return (
     <Card className={classes.card}>

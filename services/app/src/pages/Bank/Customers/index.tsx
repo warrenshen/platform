@@ -24,7 +24,7 @@ import { useFilterCustomers } from "hooks/useFilterCustomers";
 import { Action, check } from "lib/auth/rbac-rules";
 import { formatDatetimeString, todayAsDateStringServer } from "lib/date";
 import {
-  ClientSurveillanceCategoryEnum,
+  CustomerSurveillanceCategoryEnum,
   DebtFacilityCompanyStatusEnum,
   DebtFacilityCompanyStatusToLabel,
   ProductTypeEnum,
@@ -54,7 +54,7 @@ function getRows(
       ? formatDatetimeString(
           company.ebba_applications.filter(
             ({ category }) =>
-              category === ClientSurveillanceCategoryEnum.FinancialReport
+              category === CustomerSurveillanceCategoryEnum.FinancialReport
           )[0]?.application_date,
           false,
           "-"
@@ -64,7 +64,7 @@ function getRows(
       ? formatDatetimeString(
           company.ebba_applications.filter(
             ({ category }) =>
-              category === ClientSurveillanceCategoryEnum.BorrowingBase
+              category === CustomerSurveillanceCategoryEnum.BorrowingBase
           )[0]?.application_date,
           false,
           "-"

@@ -11,7 +11,7 @@ import {
 import { getCompanyDisplayName } from "lib/companies";
 import {
   ActionType,
-  ClientSurveillanceCategoryEnum,
+  CustomerSurveillanceCategoryEnum,
   ProductTypeEnum,
 } from "lib/enum";
 import { filter } from "lodash";
@@ -59,7 +59,7 @@ export default function EbbaApplicationsClosedTab() {
   const isCategoryBorrowingBase = useMemo(
     () =>
       selectedEbbaApplication?.category ===
-      ClientSurveillanceCategoryEnum.BorrowingBase,
+      CustomerSurveillanceCategoryEnum.BorrowingBase,
     [selectedEbbaApplication]
   );
 

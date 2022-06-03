@@ -3,10 +3,10 @@ import {
   CompaniesInsertInput,
   CompanyPartnershipInvitations,
   CompanyPartnershipRequests,
-  CompanyProductQualifications,
   CompanySettings,
   CompanySettingsInsertInput,
   ContractsInsertInput,
+  CustomerSurveillanceResults,
   UsersInsertInput,
 } from "generated/graphql";
 import {
@@ -14,12 +14,7 @@ import {
   authenticatedApi,
   companyRoutes,
 } from "lib/api";
-import {
-  CustomMessageEnum,
-  FeatureFlagEnum,
-  QualifyForEnum,
-  SurveillanceStatusEnum,
-} from "lib/enum";
+import { CustomMessageEnum, FeatureFlagEnum, QualifyForEnum } from "lib/enum";
 
 export type CreateCustomerReq = {
   company: CompaniesInsertInput;
@@ -75,50 +70,19 @@ export async function createProspectiveCustomer(
     );
 }
 
-export type UpdateCompanySurveillanceStatusReq = {
+export type UpdateCustomerSurveillanceResultReq = {
   variables: {
-    companyId: Companies["id"];
-    surveillanceStatus: { [key in SurveillanceStatusEnum]: boolean | null };
-    surveillanceStatusNote: string;
-    qualifyFor: { [key in QualifyForEnum]: boolean | null };
-  };
-};
-
-export async function updateCompanySurveillanceStatusMutation(
-  req: UpdateCompanySurveillanceStatusReq
-): Promise<CustomMutationResponse> {
-  return authenticatedApi
-    .post(companyRoutes.updateCompanySurveillanceStatus, req.variables)
-    .then((res) => {
-      return res.data;
-    })
-    .then(
-      (response) => {
-        return response;
-      },
-      (error) => {
-        console.log("error", error);
-        return {
-          status: "ERROR",
-          msg: "Could not create company surveillance status",
-        };
-      }
-    );
-}
-
-export type UpdateCompanyQualifyingProductReq = {
-  variables: {
-    company_product_qualification_id: CompanyProductQualifications["id"];
+    company_product_qualification_id: CustomerSurveillanceResults["id"];
     surveillance_status_note: string;
     qualify_for: QualifyForEnum;
   };
 };
 
-export async function updateCompanyQualifyingProductMutation(
-  req: UpdateCompanyQualifyingProductReq
+export async function updateCustomerSurveillanceResultMutation(
+  req: UpdateCustomerSurveillanceResultReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(companyRoutes.updateCompanyQualifyingProduct, req.variables)
+    .post(companyRoutes.updateCustomerSurveillanceResult, req.variables)
     .then((res) => {
       return res.data;
     })
@@ -130,13 +94,13 @@ export async function updateCompanyQualifyingProductMutation(
         console.log("error", error);
         return {
           status: "ERROR",
-          msg: "Could not update company qualifying product",
+          msg: "Could not update customer surveillance result",
         };
       }
     );
 }
 
-export type CreateCompanyQualifyingProductReq = {
+export type CreateCustomerSurveillanceResultReq = {
   variables: {
     company_id: Companies["id"];
     surveillance_status_note: string;
@@ -145,11 +109,11 @@ export type CreateCompanyQualifyingProductReq = {
   };
 };
 
-export async function createCompanyQualifyingProductMutation(
-  req: CreateCompanyQualifyingProductReq
+export async function createCustomerSurveillanceResultMutation(
+  req: CreateCustomerSurveillanceResultReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(companyRoutes.createCompanyQualifyingProduct, req.variables)
+    .post(companyRoutes.createCustomerSurveillanceResult, req.variables)
     .then((res) => {
       return res.data;
     })
@@ -161,7 +125,7 @@ export async function createCompanyQualifyingProductMutation(
         console.log("error", error);
         return {
           status: "ERROR",
-          msg: "Could not create company surveillance status",
+          msg: "Could not create customer surveillance status",
         };
       }
     );

@@ -1465,10 +1465,6 @@ export type Companies = {
   company_payor_partnerships_by_payor: Array<CompanyPayorPartnerships>;
   /** An aggregate relationship */
   company_payor_partnerships_by_payor_aggregate: CompanyPayorPartnershipsAggregate;
-  /** An array relationship */
-  company_product_qualifications: Array<CompanyProductQualifications>;
-  /** An aggregate relationship */
-  company_product_qualifications_aggregate: CompanyProductQualificationsAggregate;
   company_settings_id?: Maybe<Scalars["uuid"]>;
   /** An array relationship */
   company_vendor_partnerships: Array<CompanyVendorPartnerships>;
@@ -1488,6 +1484,10 @@ export type Companies = {
   contracts_aggregate: ContractsAggregate;
   country?: Maybe<Scalars["String"]>;
   created_at: Scalars["timestamptz"];
+  /** An array relationship */
+  customer_surveillance_results: Array<CustomerSurveillanceResults>;
+  /** An aggregate relationship */
+  customer_surveillance_results_aggregate: CustomerSurveillanceResultsAggregate;
   dba_name?: Maybe<Scalars["String"]>;
   debt_facility_status?: Maybe<Scalars["String"]>;
   debt_facility_waiver_date?: Maybe<Scalars["date"]>;
@@ -1673,24 +1673,6 @@ export type CompaniesCompanyPayorPartnershipsByPayorAggregateArgs = {
 };
 
 /** columns and relationships of "companies" */
-export type CompaniesCompanyProductQualificationsArgs = {
-  distinct_on?: Maybe<Array<CompanyProductQualificationsSelectColumn>>;
-  limit?: Maybe<Scalars["Int"]>;
-  offset?: Maybe<Scalars["Int"]>;
-  order_by?: Maybe<Array<CompanyProductQualificationsOrderBy>>;
-  where?: Maybe<CompanyProductQualificationsBoolExp>;
-};
-
-/** columns and relationships of "companies" */
-export type CompaniesCompanyProductQualificationsAggregateArgs = {
-  distinct_on?: Maybe<Array<CompanyProductQualificationsSelectColumn>>;
-  limit?: Maybe<Scalars["Int"]>;
-  offset?: Maybe<Scalars["Int"]>;
-  order_by?: Maybe<Array<CompanyProductQualificationsOrderBy>>;
-  where?: Maybe<CompanyProductQualificationsBoolExp>;
-};
-
-/** columns and relationships of "companies" */
 export type CompaniesCompanyVendorPartnershipsArgs = {
   distinct_on?: Maybe<Array<CompanyVendorPartnershipsSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -1742,6 +1724,24 @@ export type CompaniesContractsAggregateArgs = {
   offset?: Maybe<Scalars["Int"]>;
   order_by?: Maybe<Array<ContractsOrderBy>>;
   where?: Maybe<ContractsBoolExp>;
+};
+
+/** columns and relationships of "companies" */
+export type CompaniesCustomerSurveillanceResultsArgs = {
+  distinct_on?: Maybe<Array<CustomerSurveillanceResultsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CustomerSurveillanceResultsOrderBy>>;
+  where?: Maybe<CustomerSurveillanceResultsBoolExp>;
+};
+
+/** columns and relationships of "companies" */
+export type CompaniesCustomerSurveillanceResultsAggregateArgs = {
+  distinct_on?: Maybe<Array<CustomerSurveillanceResultsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CustomerSurveillanceResultsOrderBy>>;
+  where?: Maybe<CustomerSurveillanceResultsBoolExp>;
 };
 
 /** columns and relationships of "companies" */
@@ -2022,7 +2022,6 @@ export type CompaniesBoolExp = {
   company_licenses?: Maybe<CompanyLicensesBoolExp>;
   company_payor_partnerships?: Maybe<CompanyPayorPartnershipsBoolExp>;
   company_payor_partnerships_by_payor?: Maybe<CompanyPayorPartnershipsBoolExp>;
-  company_product_qualifications?: Maybe<CompanyProductQualificationsBoolExp>;
   company_settings_id?: Maybe<UuidComparisonExp>;
   company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsBoolExp>;
   company_vendor_partnerships_by_vendor?: Maybe<CompanyVendorPartnershipsBoolExp>;
@@ -2032,6 +2031,7 @@ export type CompaniesBoolExp = {
   contracts?: Maybe<ContractsBoolExp>;
   country?: Maybe<StringComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
+  customer_surveillance_results?: Maybe<CustomerSurveillanceResultsBoolExp>;
   dba_name?: Maybe<StringComparisonExp>;
   debt_facility_status?: Maybe<StringComparisonExp>;
   debt_facility_waiver_date?: Maybe<DateComparisonExp>;
@@ -2098,7 +2098,6 @@ export type CompaniesInsertInput = {
   company_licenses?: Maybe<CompanyLicensesArrRelInsertInput>;
   company_payor_partnerships?: Maybe<CompanyPayorPartnershipsArrRelInsertInput>;
   company_payor_partnerships_by_payor?: Maybe<CompanyPayorPartnershipsArrRelInsertInput>;
-  company_product_qualifications?: Maybe<CompanyProductQualificationsArrRelInsertInput>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
   company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsArrRelInsertInput>;
   company_vendor_partnerships_by_vendor?: Maybe<CompanyVendorPartnershipsArrRelInsertInput>;
@@ -2108,6 +2107,7 @@ export type CompaniesInsertInput = {
   contracts?: Maybe<ContractsArrRelInsertInput>;
   country?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  customer_surveillance_results?: Maybe<CustomerSurveillanceResultsArrRelInsertInput>;
   dba_name?: Maybe<Scalars["String"]>;
   debt_facility_status?: Maybe<Scalars["String"]>;
   debt_facility_waiver_date?: Maybe<Scalars["date"]>;
@@ -2309,7 +2309,6 @@ export type CompaniesOrderBy = {
   company_licenses_aggregate?: Maybe<CompanyLicensesAggregateOrderBy>;
   company_payor_partnerships_aggregate?: Maybe<CompanyPayorPartnershipsAggregateOrderBy>;
   company_payor_partnerships_by_payor_aggregate?: Maybe<CompanyPayorPartnershipsAggregateOrderBy>;
-  company_product_qualifications_aggregate?: Maybe<CompanyProductQualificationsAggregateOrderBy>;
   company_settings_id?: Maybe<OrderBy>;
   company_vendor_partnerships_aggregate?: Maybe<CompanyVendorPartnershipsAggregateOrderBy>;
   company_vendor_partnerships_by_vendor_aggregate?: Maybe<CompanyVendorPartnershipsAggregateOrderBy>;
@@ -2319,6 +2318,7 @@ export type CompaniesOrderBy = {
   contracts_aggregate?: Maybe<ContractsAggregateOrderBy>;
   country?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  customer_surveillance_results_aggregate?: Maybe<CustomerSurveillanceResultsAggregateOrderBy>;
   dba_name?: Maybe<OrderBy>;
   debt_facility_status?: Maybe<OrderBy>;
   debt_facility_waiver_date?: Maybe<OrderBy>;
@@ -4712,255 +4712,6 @@ export enum CompanyPayorPartnershipsUpdateColumn {
   UpdatedAt = "updated_at",
 }
 
-/** This is used to track historical product qualifications for the CS dashboard */
-export type CompanyProductQualifications = {
-  bank_note?: Maybe<Scalars["String"]>;
-  /** An object relationship */
-  company: Companies;
-  company_id: Scalars["uuid"];
-  created_at: Scalars["timestamptz"];
-  deleted_at?: Maybe<Scalars["timestamptz"]>;
-  id: Scalars["uuid"];
-  metadata_info: Scalars["json"];
-  qualifying_date: Scalars["date"];
-  qualifying_product: Scalars["String"];
-  /** An object relationship */
-  submitting_user: Users;
-  submitting_user_id: Scalars["uuid"];
-  updated_at: Scalars["timestamptz"];
-};
-
-/** This is used to track historical product qualifications for the CS dashboard */
-export type CompanyProductQualificationsMetadataInfoArgs = {
-  path?: Maybe<Scalars["String"]>;
-};
-
-/** aggregated selection of "company_product_qualifications" */
-export type CompanyProductQualificationsAggregate = {
-  aggregate?: Maybe<CompanyProductQualificationsAggregateFields>;
-  nodes: Array<CompanyProductQualifications>;
-};
-
-/** aggregate fields of "company_product_qualifications" */
-export type CompanyProductQualificationsAggregateFields = {
-  count: Scalars["Int"];
-  max?: Maybe<CompanyProductQualificationsMaxFields>;
-  min?: Maybe<CompanyProductQualificationsMinFields>;
-};
-
-/** aggregate fields of "company_product_qualifications" */
-export type CompanyProductQualificationsAggregateFieldsCountArgs = {
-  columns?: Maybe<Array<CompanyProductQualificationsSelectColumn>>;
-  distinct?: Maybe<Scalars["Boolean"]>;
-};
-
-/** order by aggregate values of table "company_product_qualifications" */
-export type CompanyProductQualificationsAggregateOrderBy = {
-  count?: Maybe<OrderBy>;
-  max?: Maybe<CompanyProductQualificationsMaxOrderBy>;
-  min?: Maybe<CompanyProductQualificationsMinOrderBy>;
-};
-
-/** input type for inserting array relation for remote table "company_product_qualifications" */
-export type CompanyProductQualificationsArrRelInsertInput = {
-  data: Array<CompanyProductQualificationsInsertInput>;
-  /** upsert condition */
-  on_conflict?: Maybe<CompanyProductQualificationsOnConflict>;
-};
-
-/** Boolean expression to filter rows from the table "company_product_qualifications". All fields are combined with a logical 'AND'. */
-export type CompanyProductQualificationsBoolExp = {
-  _and?: Maybe<Array<CompanyProductQualificationsBoolExp>>;
-  _not?: Maybe<CompanyProductQualificationsBoolExp>;
-  _or?: Maybe<Array<CompanyProductQualificationsBoolExp>>;
-  bank_note?: Maybe<StringComparisonExp>;
-  company?: Maybe<CompaniesBoolExp>;
-  company_id?: Maybe<UuidComparisonExp>;
-  created_at?: Maybe<TimestamptzComparisonExp>;
-  deleted_at?: Maybe<TimestamptzComparisonExp>;
-  id?: Maybe<UuidComparisonExp>;
-  metadata_info?: Maybe<JsonComparisonExp>;
-  qualifying_date?: Maybe<DateComparisonExp>;
-  qualifying_product?: Maybe<StringComparisonExp>;
-  submitting_user?: Maybe<UsersBoolExp>;
-  submitting_user_id?: Maybe<UuidComparisonExp>;
-  updated_at?: Maybe<TimestamptzComparisonExp>;
-};
-
-/** unique or primary key constraints on table "company_product_qualifications" */
-export enum CompanyProductQualificationsConstraint {
-  /** unique or primary key constraint */
-  CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
-  /** unique or primary key constraint */
-  CompanyProductQualificationsQualifyingDateCompanyIdKey = "company_product_qualifications_qualifying_date_company_id_key",
-}
-
-/** input type for inserting data into table "company_product_qualifications" */
-export type CompanyProductQualificationsInsertInput = {
-  bank_note?: Maybe<Scalars["String"]>;
-  company?: Maybe<CompaniesObjRelInsertInput>;
-  company_id?: Maybe<Scalars["uuid"]>;
-  created_at?: Maybe<Scalars["timestamptz"]>;
-  deleted_at?: Maybe<Scalars["timestamptz"]>;
-  id?: Maybe<Scalars["uuid"]>;
-  metadata_info?: Maybe<Scalars["json"]>;
-  qualifying_date?: Maybe<Scalars["date"]>;
-  qualifying_product?: Maybe<Scalars["String"]>;
-  submitting_user?: Maybe<UsersObjRelInsertInput>;
-  submitting_user_id?: Maybe<Scalars["uuid"]>;
-  updated_at?: Maybe<Scalars["timestamptz"]>;
-};
-
-/** aggregate max on columns */
-export type CompanyProductQualificationsMaxFields = {
-  bank_note?: Maybe<Scalars["String"]>;
-  company_id?: Maybe<Scalars["uuid"]>;
-  created_at?: Maybe<Scalars["timestamptz"]>;
-  deleted_at?: Maybe<Scalars["timestamptz"]>;
-  id?: Maybe<Scalars["uuid"]>;
-  qualifying_date?: Maybe<Scalars["date"]>;
-  qualifying_product?: Maybe<Scalars["String"]>;
-  submitting_user_id?: Maybe<Scalars["uuid"]>;
-  updated_at?: Maybe<Scalars["timestamptz"]>;
-};
-
-/** order by max() on columns of table "company_product_qualifications" */
-export type CompanyProductQualificationsMaxOrderBy = {
-  bank_note?: Maybe<OrderBy>;
-  company_id?: Maybe<OrderBy>;
-  created_at?: Maybe<OrderBy>;
-  deleted_at?: Maybe<OrderBy>;
-  id?: Maybe<OrderBy>;
-  qualifying_date?: Maybe<OrderBy>;
-  qualifying_product?: Maybe<OrderBy>;
-  submitting_user_id?: Maybe<OrderBy>;
-  updated_at?: Maybe<OrderBy>;
-};
-
-/** aggregate min on columns */
-export type CompanyProductQualificationsMinFields = {
-  bank_note?: Maybe<Scalars["String"]>;
-  company_id?: Maybe<Scalars["uuid"]>;
-  created_at?: Maybe<Scalars["timestamptz"]>;
-  deleted_at?: Maybe<Scalars["timestamptz"]>;
-  id?: Maybe<Scalars["uuid"]>;
-  qualifying_date?: Maybe<Scalars["date"]>;
-  qualifying_product?: Maybe<Scalars["String"]>;
-  submitting_user_id?: Maybe<Scalars["uuid"]>;
-  updated_at?: Maybe<Scalars["timestamptz"]>;
-};
-
-/** order by min() on columns of table "company_product_qualifications" */
-export type CompanyProductQualificationsMinOrderBy = {
-  bank_note?: Maybe<OrderBy>;
-  company_id?: Maybe<OrderBy>;
-  created_at?: Maybe<OrderBy>;
-  deleted_at?: Maybe<OrderBy>;
-  id?: Maybe<OrderBy>;
-  qualifying_date?: Maybe<OrderBy>;
-  qualifying_product?: Maybe<OrderBy>;
-  submitting_user_id?: Maybe<OrderBy>;
-  updated_at?: Maybe<OrderBy>;
-};
-
-/** response of any mutation on the table "company_product_qualifications" */
-export type CompanyProductQualificationsMutationResponse = {
-  /** number of rows affected by the mutation */
-  affected_rows: Scalars["Int"];
-  /** data from the rows affected by the mutation */
-  returning: Array<CompanyProductQualifications>;
-};
-
-/** on_conflict condition type for table "company_product_qualifications" */
-export type CompanyProductQualificationsOnConflict = {
-  constraint: CompanyProductQualificationsConstraint;
-  update_columns?: Array<CompanyProductQualificationsUpdateColumn>;
-  where?: Maybe<CompanyProductQualificationsBoolExp>;
-};
-
-/** Ordering options when selecting data from "company_product_qualifications". */
-export type CompanyProductQualificationsOrderBy = {
-  bank_note?: Maybe<OrderBy>;
-  company?: Maybe<CompaniesOrderBy>;
-  company_id?: Maybe<OrderBy>;
-  created_at?: Maybe<OrderBy>;
-  deleted_at?: Maybe<OrderBy>;
-  id?: Maybe<OrderBy>;
-  metadata_info?: Maybe<OrderBy>;
-  qualifying_date?: Maybe<OrderBy>;
-  qualifying_product?: Maybe<OrderBy>;
-  submitting_user?: Maybe<UsersOrderBy>;
-  submitting_user_id?: Maybe<OrderBy>;
-  updated_at?: Maybe<OrderBy>;
-};
-
-/** primary key columns input for table: company_product_qualifications */
-export type CompanyProductQualificationsPkColumnsInput = {
-  id: Scalars["uuid"];
-};
-
-/** select columns of table "company_product_qualifications" */
-export enum CompanyProductQualificationsSelectColumn {
-  /** column name */
-  BankNote = "bank_note",
-  /** column name */
-  CompanyId = "company_id",
-  /** column name */
-  CreatedAt = "created_at",
-  /** column name */
-  DeletedAt = "deleted_at",
-  /** column name */
-  Id = "id",
-  /** column name */
-  MetadataInfo = "metadata_info",
-  /** column name */
-  QualifyingDate = "qualifying_date",
-  /** column name */
-  QualifyingProduct = "qualifying_product",
-  /** column name */
-  SubmittingUserId = "submitting_user_id",
-  /** column name */
-  UpdatedAt = "updated_at",
-}
-
-/** input type for updating data in table "company_product_qualifications" */
-export type CompanyProductQualificationsSetInput = {
-  bank_note?: Maybe<Scalars["String"]>;
-  company_id?: Maybe<Scalars["uuid"]>;
-  created_at?: Maybe<Scalars["timestamptz"]>;
-  deleted_at?: Maybe<Scalars["timestamptz"]>;
-  id?: Maybe<Scalars["uuid"]>;
-  metadata_info?: Maybe<Scalars["json"]>;
-  qualifying_date?: Maybe<Scalars["date"]>;
-  qualifying_product?: Maybe<Scalars["String"]>;
-  submitting_user_id?: Maybe<Scalars["uuid"]>;
-  updated_at?: Maybe<Scalars["timestamptz"]>;
-};
-
-/** update columns of table "company_product_qualifications" */
-export enum CompanyProductQualificationsUpdateColumn {
-  /** column name */
-  BankNote = "bank_note",
-  /** column name */
-  CompanyId = "company_id",
-  /** column name */
-  CreatedAt = "created_at",
-  /** column name */
-  DeletedAt = "deleted_at",
-  /** column name */
-  Id = "id",
-  /** column name */
-  MetadataInfo = "metadata_info",
-  /** column name */
-  QualifyingDate = "qualifying_date",
-  /** column name */
-  QualifyingProduct = "qualifying_product",
-  /** column name */
-  SubmittingUserId = "submitting_user_id",
-  /** column name */
-  UpdatedAt = "updated_at",
-}
-
 /** Settings are configuration details associated with a company, but are not within a time range like contracts are */
 export type CompanySettings = {
   /** An object relationship */
@@ -6396,6 +6147,268 @@ export enum ContractsUpdateColumn {
   TerminatedAt = "terminated_at",
   /** column name */
   TerminatedByUserId = "terminated_by_user_id",
+}
+
+/** This is used to track historical product qualifications for the CS dashboard */
+export type CustomerSurveillanceResults = {
+  bank_note?: Maybe<Scalars["String"]>;
+  /** An object relationship */
+  company: Companies;
+  company_id: Scalars["uuid"];
+  created_at: Scalars["timestamptz"];
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id: Scalars["uuid"];
+  metadata_info: Scalars["json"];
+  qualifying_date: Scalars["date"];
+  qualifying_product: Scalars["String"];
+  /** An object relationship */
+  submitting_user: Users;
+  submitting_user_id: Scalars["uuid"];
+  surveillance_status?: Maybe<Scalars["String"]>;
+  updated_at: Scalars["timestamptz"];
+};
+
+/** This is used to track historical product qualifications for the CS dashboard */
+export type CustomerSurveillanceResultsMetadataInfoArgs = {
+  path?: Maybe<Scalars["String"]>;
+};
+
+/** aggregated selection of "customer_surveillance_results" */
+export type CustomerSurveillanceResultsAggregate = {
+  aggregate?: Maybe<CustomerSurveillanceResultsAggregateFields>;
+  nodes: Array<CustomerSurveillanceResults>;
+};
+
+/** aggregate fields of "customer_surveillance_results" */
+export type CustomerSurveillanceResultsAggregateFields = {
+  count: Scalars["Int"];
+  max?: Maybe<CustomerSurveillanceResultsMaxFields>;
+  min?: Maybe<CustomerSurveillanceResultsMinFields>;
+};
+
+/** aggregate fields of "customer_surveillance_results" */
+export type CustomerSurveillanceResultsAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<CustomerSurveillanceResultsSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** order by aggregate values of table "customer_surveillance_results" */
+export type CustomerSurveillanceResultsAggregateOrderBy = {
+  count?: Maybe<OrderBy>;
+  max?: Maybe<CustomerSurveillanceResultsMaxOrderBy>;
+  min?: Maybe<CustomerSurveillanceResultsMinOrderBy>;
+};
+
+/** input type for inserting array relation for remote table "customer_surveillance_results" */
+export type CustomerSurveillanceResultsArrRelInsertInput = {
+  data: Array<CustomerSurveillanceResultsInsertInput>;
+  /** upsert condition */
+  on_conflict?: Maybe<CustomerSurveillanceResultsOnConflict>;
+};
+
+/** Boolean expression to filter rows from the table "customer_surveillance_results". All fields are combined with a logical 'AND'. */
+export type CustomerSurveillanceResultsBoolExp = {
+  _and?: Maybe<Array<CustomerSurveillanceResultsBoolExp>>;
+  _not?: Maybe<CustomerSurveillanceResultsBoolExp>;
+  _or?: Maybe<Array<CustomerSurveillanceResultsBoolExp>>;
+  bank_note?: Maybe<StringComparisonExp>;
+  company?: Maybe<CompaniesBoolExp>;
+  company_id?: Maybe<UuidComparisonExp>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
+  deleted_at?: Maybe<TimestamptzComparisonExp>;
+  id?: Maybe<UuidComparisonExp>;
+  metadata_info?: Maybe<JsonComparisonExp>;
+  qualifying_date?: Maybe<DateComparisonExp>;
+  qualifying_product?: Maybe<StringComparisonExp>;
+  submitting_user?: Maybe<UsersBoolExp>;
+  submitting_user_id?: Maybe<UuidComparisonExp>;
+  surveillance_status?: Maybe<StringComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
+};
+
+/** unique or primary key constraints on table "customer_surveillance_results" */
+export enum CustomerSurveillanceResultsConstraint {
+  /** unique or primary key constraint */
+  CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
+  /** unique or primary key constraint */
+  CompanyProductQualificationsQualifyingDateCompanyIdKey = "company_product_qualifications_qualifying_date_company_id_key",
+}
+
+/** input type for inserting data into table "customer_surveillance_results" */
+export type CustomerSurveillanceResultsInsertInput = {
+  bank_note?: Maybe<Scalars["String"]>;
+  company?: Maybe<CompaniesObjRelInsertInput>;
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  metadata_info?: Maybe<Scalars["json"]>;
+  qualifying_date?: Maybe<Scalars["date"]>;
+  qualifying_product?: Maybe<Scalars["String"]>;
+  submitting_user?: Maybe<UsersObjRelInsertInput>;
+  submitting_user_id?: Maybe<Scalars["uuid"]>;
+  surveillance_status?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** aggregate max on columns */
+export type CustomerSurveillanceResultsMaxFields = {
+  bank_note?: Maybe<Scalars["String"]>;
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  qualifying_date?: Maybe<Scalars["date"]>;
+  qualifying_product?: Maybe<Scalars["String"]>;
+  submitting_user_id?: Maybe<Scalars["uuid"]>;
+  surveillance_status?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** order by max() on columns of table "customer_surveillance_results" */
+export type CustomerSurveillanceResultsMaxOrderBy = {
+  bank_note?: Maybe<OrderBy>;
+  company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  deleted_at?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  qualifying_date?: Maybe<OrderBy>;
+  qualifying_product?: Maybe<OrderBy>;
+  submitting_user_id?: Maybe<OrderBy>;
+  surveillance_status?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
+/** aggregate min on columns */
+export type CustomerSurveillanceResultsMinFields = {
+  bank_note?: Maybe<Scalars["String"]>;
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  qualifying_date?: Maybe<Scalars["date"]>;
+  qualifying_product?: Maybe<Scalars["String"]>;
+  submitting_user_id?: Maybe<Scalars["uuid"]>;
+  surveillance_status?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** order by min() on columns of table "customer_surveillance_results" */
+export type CustomerSurveillanceResultsMinOrderBy = {
+  bank_note?: Maybe<OrderBy>;
+  company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  deleted_at?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  qualifying_date?: Maybe<OrderBy>;
+  qualifying_product?: Maybe<OrderBy>;
+  submitting_user_id?: Maybe<OrderBy>;
+  surveillance_status?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
+/** response of any mutation on the table "customer_surveillance_results" */
+export type CustomerSurveillanceResultsMutationResponse = {
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data from the rows affected by the mutation */
+  returning: Array<CustomerSurveillanceResults>;
+};
+
+/** on_conflict condition type for table "customer_surveillance_results" */
+export type CustomerSurveillanceResultsOnConflict = {
+  constraint: CustomerSurveillanceResultsConstraint;
+  update_columns?: Array<CustomerSurveillanceResultsUpdateColumn>;
+  where?: Maybe<CustomerSurveillanceResultsBoolExp>;
+};
+
+/** Ordering options when selecting data from "customer_surveillance_results". */
+export type CustomerSurveillanceResultsOrderBy = {
+  bank_note?: Maybe<OrderBy>;
+  company?: Maybe<CompaniesOrderBy>;
+  company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  deleted_at?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  metadata_info?: Maybe<OrderBy>;
+  qualifying_date?: Maybe<OrderBy>;
+  qualifying_product?: Maybe<OrderBy>;
+  submitting_user?: Maybe<UsersOrderBy>;
+  submitting_user_id?: Maybe<OrderBy>;
+  surveillance_status?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: customer_surveillance_results */
+export type CustomerSurveillanceResultsPkColumnsInput = {
+  id: Scalars["uuid"];
+};
+
+/** select columns of table "customer_surveillance_results" */
+export enum CustomerSurveillanceResultsSelectColumn {
+  /** column name */
+  BankNote = "bank_note",
+  /** column name */
+  CompanyId = "company_id",
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  DeletedAt = "deleted_at",
+  /** column name */
+  Id = "id",
+  /** column name */
+  MetadataInfo = "metadata_info",
+  /** column name */
+  QualifyingDate = "qualifying_date",
+  /** column name */
+  QualifyingProduct = "qualifying_product",
+  /** column name */
+  SubmittingUserId = "submitting_user_id",
+  /** column name */
+  SurveillanceStatus = "surveillance_status",
+  /** column name */
+  UpdatedAt = "updated_at",
+}
+
+/** input type for updating data in table "customer_surveillance_results" */
+export type CustomerSurveillanceResultsSetInput = {
+  bank_note?: Maybe<Scalars["String"]>;
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  metadata_info?: Maybe<Scalars["json"]>;
+  qualifying_date?: Maybe<Scalars["date"]>;
+  qualifying_product?: Maybe<Scalars["String"]>;
+  submitting_user_id?: Maybe<Scalars["uuid"]>;
+  surveillance_status?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** update columns of table "customer_surveillance_results" */
+export enum CustomerSurveillanceResultsUpdateColumn {
+  /** column name */
+  BankNote = "bank_note",
+  /** column name */
+  CompanyId = "company_id",
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  DeletedAt = "deleted_at",
+  /** column name */
+  Id = "id",
+  /** column name */
+  MetadataInfo = "metadata_info",
+  /** column name */
+  QualifyingDate = "qualifying_date",
+  /** column name */
+  QualifyingProduct = "qualifying_product",
+  /** column name */
+  SubmittingUserId = "submitting_user_id",
+  /** column name */
+  SurveillanceStatus = "surveillance_status",
+  /** column name */
+  UpdatedAt = "updated_at",
 }
 
 /** Boolean expression to compare columns of type "date". All fields are combined with logical 'AND'. */
@@ -15866,10 +15879,6 @@ export type MutationRoot = {
   delete_company_payor_partnerships?: Maybe<CompanyPayorPartnershipsMutationResponse>;
   /** delete single row from the table: "company_payor_partnerships" */
   delete_company_payor_partnerships_by_pk?: Maybe<CompanyPayorPartnerships>;
-  /** delete data from the table: "company_product_qualifications" */
-  delete_company_product_qualifications?: Maybe<CompanyProductQualificationsMutationResponse>;
-  /** delete single row from the table: "company_product_qualifications" */
-  delete_company_product_qualifications_by_pk?: Maybe<CompanyProductQualifications>;
   /** delete data from the table: "company_settings" */
   delete_company_settings?: Maybe<CompanySettingsMutationResponse>;
   /** delete single row from the table: "company_settings" */
@@ -15890,6 +15899,10 @@ export type MutationRoot = {
   delete_contracts?: Maybe<ContractsMutationResponse>;
   /** delete single row from the table: "contracts" */
   delete_contracts_by_pk?: Maybe<Contracts>;
+  /** delete data from the table: "customer_surveillance_results" */
+  delete_customer_surveillance_results?: Maybe<CustomerSurveillanceResultsMutationResponse>;
+  /** delete single row from the table: "customer_surveillance_results" */
+  delete_customer_surveillance_results_by_pk?: Maybe<CustomerSurveillanceResults>;
   /** delete data from the table: "debt_facilities" */
   delete_debt_facilities?: Maybe<DebtFacilitiesMutationResponse>;
   /** delete single row from the table: "debt_facilities" */
@@ -16106,10 +16119,6 @@ export type MutationRoot = {
   insert_company_payor_partnerships?: Maybe<CompanyPayorPartnershipsMutationResponse>;
   /** insert a single row into the table: "company_payor_partnerships" */
   insert_company_payor_partnerships_one?: Maybe<CompanyPayorPartnerships>;
-  /** insert data into the table: "company_product_qualifications" */
-  insert_company_product_qualifications?: Maybe<CompanyProductQualificationsMutationResponse>;
-  /** insert a single row into the table: "company_product_qualifications" */
-  insert_company_product_qualifications_one?: Maybe<CompanyProductQualifications>;
   /** insert data into the table: "company_settings" */
   insert_company_settings?: Maybe<CompanySettingsMutationResponse>;
   /** insert a single row into the table: "company_settings" */
@@ -16130,6 +16139,10 @@ export type MutationRoot = {
   insert_contracts?: Maybe<ContractsMutationResponse>;
   /** insert a single row into the table: "contracts" */
   insert_contracts_one?: Maybe<Contracts>;
+  /** insert data into the table: "customer_surveillance_results" */
+  insert_customer_surveillance_results?: Maybe<CustomerSurveillanceResultsMutationResponse>;
+  /** insert a single row into the table: "customer_surveillance_results" */
+  insert_customer_surveillance_results_one?: Maybe<CustomerSurveillanceResults>;
   /** insert data into the table: "debt_facilities" */
   insert_debt_facilities?: Maybe<DebtFacilitiesMutationResponse>;
   /** insert a single row into the table: "debt_facilities" */
@@ -16350,10 +16363,6 @@ export type MutationRoot = {
   update_company_payor_partnerships?: Maybe<CompanyPayorPartnershipsMutationResponse>;
   /** update single row of the table: "company_payor_partnerships" */
   update_company_payor_partnerships_by_pk?: Maybe<CompanyPayorPartnerships>;
-  /** update data of the table: "company_product_qualifications" */
-  update_company_product_qualifications?: Maybe<CompanyProductQualificationsMutationResponse>;
-  /** update single row of the table: "company_product_qualifications" */
-  update_company_product_qualifications_by_pk?: Maybe<CompanyProductQualifications>;
   /** update data of the table: "company_settings" */
   update_company_settings?: Maybe<CompanySettingsMutationResponse>;
   /** update single row of the table: "company_settings" */
@@ -16374,6 +16383,10 @@ export type MutationRoot = {
   update_contracts?: Maybe<ContractsMutationResponse>;
   /** update single row of the table: "contracts" */
   update_contracts_by_pk?: Maybe<Contracts>;
+  /** update data of the table: "customer_surveillance_results" */
+  update_customer_surveillance_results?: Maybe<CustomerSurveillanceResultsMutationResponse>;
+  /** update single row of the table: "customer_surveillance_results" */
+  update_customer_surveillance_results_by_pk?: Maybe<CustomerSurveillanceResults>;
   /** update data of the table: "debt_facilities" */
   update_debt_facilities?: Maybe<DebtFacilitiesMutationResponse>;
   /** update single row of the table: "debt_facilities" */
@@ -16671,16 +16684,6 @@ export type MutationRootDeleteCompanyPayorPartnershipsByPkArgs = {
 };
 
 /** mutation root */
-export type MutationRootDeleteCompanyProductQualificationsArgs = {
-  where: CompanyProductQualificationsBoolExp;
-};
-
-/** mutation root */
-export type MutationRootDeleteCompanyProductQualificationsByPkArgs = {
-  id: Scalars["uuid"];
-};
-
-/** mutation root */
 export type MutationRootDeleteCompanySettingsArgs = {
   where: CompanySettingsBoolExp;
 };
@@ -16727,6 +16730,16 @@ export type MutationRootDeleteContractsArgs = {
 
 /** mutation root */
 export type MutationRootDeleteContractsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** mutation root */
+export type MutationRootDeleteCustomerSurveillanceResultsArgs = {
+  where: CustomerSurveillanceResultsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteCustomerSurveillanceResultsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -17300,18 +17313,6 @@ export type MutationRootInsertCompanyPayorPartnershipsOneArgs = {
 };
 
 /** mutation root */
-export type MutationRootInsertCompanyProductQualificationsArgs = {
-  objects: Array<CompanyProductQualificationsInsertInput>;
-  on_conflict?: Maybe<CompanyProductQualificationsOnConflict>;
-};
-
-/** mutation root */
-export type MutationRootInsertCompanyProductQualificationsOneArgs = {
-  object: CompanyProductQualificationsInsertInput;
-  on_conflict?: Maybe<CompanyProductQualificationsOnConflict>;
-};
-
-/** mutation root */
 export type MutationRootInsertCompanySettingsArgs = {
   objects: Array<CompanySettingsInsertInput>;
   on_conflict?: Maybe<CompanySettingsOnConflict>;
@@ -17369,6 +17370,18 @@ export type MutationRootInsertContractsArgs = {
 export type MutationRootInsertContractsOneArgs = {
   object: ContractsInsertInput;
   on_conflict?: Maybe<ContractsOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertCustomerSurveillanceResultsArgs = {
+  objects: Array<CustomerSurveillanceResultsInsertInput>;
+  on_conflict?: Maybe<CustomerSurveillanceResultsOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertCustomerSurveillanceResultsOneArgs = {
+  object: CustomerSurveillanceResultsInsertInput;
+  on_conflict?: Maybe<CustomerSurveillanceResultsOnConflict>;
 };
 
 /** mutation root */
@@ -18044,18 +18057,6 @@ export type MutationRootUpdateCompanyPayorPartnershipsByPkArgs = {
 };
 
 /** mutation root */
-export type MutationRootUpdateCompanyProductQualificationsArgs = {
-  _set?: Maybe<CompanyProductQualificationsSetInput>;
-  where: CompanyProductQualificationsBoolExp;
-};
-
-/** mutation root */
-export type MutationRootUpdateCompanyProductQualificationsByPkArgs = {
-  _set?: Maybe<CompanyProductQualificationsSetInput>;
-  pk_columns: CompanyProductQualificationsPkColumnsInput;
-};
-
-/** mutation root */
 export type MutationRootUpdateCompanySettingsArgs = {
   _append?: Maybe<CompanySettingsAppendInput>;
   _delete_at_path?: Maybe<CompanySettingsDeleteAtPathInput>;
@@ -18133,6 +18134,18 @@ export type MutationRootUpdateContractsByPkArgs = {
   _prepend?: Maybe<ContractsPrependInput>;
   _set?: Maybe<ContractsSetInput>;
   pk_columns: ContractsPkColumnsInput;
+};
+
+/** mutation root */
+export type MutationRootUpdateCustomerSurveillanceResultsArgs = {
+  _set?: Maybe<CustomerSurveillanceResultsSetInput>;
+  where: CustomerSurveillanceResultsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateCustomerSurveillanceResultsByPkArgs = {
+  _set?: Maybe<CustomerSurveillanceResultsSetInput>;
+  pk_columns: CustomerSurveillanceResultsPkColumnsInput;
 };
 
 /** mutation root */
@@ -21385,12 +21398,6 @@ export type QueryRoot = {
   company_payor_partnerships_aggregate: CompanyPayorPartnershipsAggregate;
   /** fetch data from the table: "company_payor_partnerships" using primary key columns */
   company_payor_partnerships_by_pk?: Maybe<CompanyPayorPartnerships>;
-  /** An array relationship */
-  company_product_qualifications: Array<CompanyProductQualifications>;
-  /** An aggregate relationship */
-  company_product_qualifications_aggregate: CompanyProductQualificationsAggregate;
-  /** fetch data from the table: "company_product_qualifications" using primary key columns */
-  company_product_qualifications_by_pk?: Maybe<CompanyProductQualifications>;
   /** fetch data from the table: "company_settings" */
   company_settings: Array<CompanySettings>;
   /** fetch aggregated fields from the table: "company_settings" */
@@ -21421,6 +21428,12 @@ export type QueryRoot = {
   contracts_aggregate: ContractsAggregate;
   /** fetch data from the table: "contracts" using primary key columns */
   contracts_by_pk?: Maybe<Contracts>;
+  /** An array relationship */
+  customer_surveillance_results: Array<CustomerSurveillanceResults>;
+  /** An aggregate relationship */
+  customer_surveillance_results_aggregate: CustomerSurveillanceResultsAggregate;
+  /** fetch data from the table: "customer_surveillance_results" using primary key columns */
+  customer_surveillance_results_by_pk?: Maybe<CustomerSurveillanceResults>;
   /** fetch data from the table: "debt_facilities" */
   debt_facilities: Array<DebtFacilities>;
   /** fetch aggregated fields from the table: "debt_facilities" */
@@ -21931,26 +21944,6 @@ export type QueryRootCompanyPayorPartnershipsByPkArgs = {
   id: Scalars["uuid"];
 };
 
-export type QueryRootCompanyProductQualificationsArgs = {
-  distinct_on?: Maybe<Array<CompanyProductQualificationsSelectColumn>>;
-  limit?: Maybe<Scalars["Int"]>;
-  offset?: Maybe<Scalars["Int"]>;
-  order_by?: Maybe<Array<CompanyProductQualificationsOrderBy>>;
-  where?: Maybe<CompanyProductQualificationsBoolExp>;
-};
-
-export type QueryRootCompanyProductQualificationsAggregateArgs = {
-  distinct_on?: Maybe<Array<CompanyProductQualificationsSelectColumn>>;
-  limit?: Maybe<Scalars["Int"]>;
-  offset?: Maybe<Scalars["Int"]>;
-  order_by?: Maybe<Array<CompanyProductQualificationsOrderBy>>;
-  where?: Maybe<CompanyProductQualificationsBoolExp>;
-};
-
-export type QueryRootCompanyProductQualificationsByPkArgs = {
-  id: Scalars["uuid"];
-};
-
 export type QueryRootCompanySettingsArgs = {
   distinct_on?: Maybe<Array<CompanySettingsSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -22048,6 +22041,26 @@ export type QueryRootContractsAggregateArgs = {
 };
 
 export type QueryRootContractsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+export type QueryRootCustomerSurveillanceResultsArgs = {
+  distinct_on?: Maybe<Array<CustomerSurveillanceResultsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CustomerSurveillanceResultsOrderBy>>;
+  where?: Maybe<CustomerSurveillanceResultsBoolExp>;
+};
+
+export type QueryRootCustomerSurveillanceResultsAggregateArgs = {
+  distinct_on?: Maybe<Array<CustomerSurveillanceResultsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CustomerSurveillanceResultsOrderBy>>;
+  where?: Maybe<CustomerSurveillanceResultsBoolExp>;
+};
+
+export type QueryRootCustomerSurveillanceResultsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -23221,12 +23234,6 @@ export type SubscriptionRoot = {
   company_payor_partnerships_aggregate: CompanyPayorPartnershipsAggregate;
   /** fetch data from the table: "company_payor_partnerships" using primary key columns */
   company_payor_partnerships_by_pk?: Maybe<CompanyPayorPartnerships>;
-  /** An array relationship */
-  company_product_qualifications: Array<CompanyProductQualifications>;
-  /** An aggregate relationship */
-  company_product_qualifications_aggregate: CompanyProductQualificationsAggregate;
-  /** fetch data from the table: "company_product_qualifications" using primary key columns */
-  company_product_qualifications_by_pk?: Maybe<CompanyProductQualifications>;
   /** fetch data from the table: "company_settings" */
   company_settings: Array<CompanySettings>;
   /** fetch aggregated fields from the table: "company_settings" */
@@ -23257,6 +23264,12 @@ export type SubscriptionRoot = {
   contracts_aggregate: ContractsAggregate;
   /** fetch data from the table: "contracts" using primary key columns */
   contracts_by_pk?: Maybe<Contracts>;
+  /** An array relationship */
+  customer_surveillance_results: Array<CustomerSurveillanceResults>;
+  /** An aggregate relationship */
+  customer_surveillance_results_aggregate: CustomerSurveillanceResultsAggregate;
+  /** fetch data from the table: "customer_surveillance_results" using primary key columns */
+  customer_surveillance_results_by_pk?: Maybe<CustomerSurveillanceResults>;
   /** fetch data from the table: "debt_facilities" */
   debt_facilities: Array<DebtFacilities>;
   /** fetch aggregated fields from the table: "debt_facilities" */
@@ -23767,26 +23780,6 @@ export type SubscriptionRootCompanyPayorPartnershipsByPkArgs = {
   id: Scalars["uuid"];
 };
 
-export type SubscriptionRootCompanyProductQualificationsArgs = {
-  distinct_on?: Maybe<Array<CompanyProductQualificationsSelectColumn>>;
-  limit?: Maybe<Scalars["Int"]>;
-  offset?: Maybe<Scalars["Int"]>;
-  order_by?: Maybe<Array<CompanyProductQualificationsOrderBy>>;
-  where?: Maybe<CompanyProductQualificationsBoolExp>;
-};
-
-export type SubscriptionRootCompanyProductQualificationsAggregateArgs = {
-  distinct_on?: Maybe<Array<CompanyProductQualificationsSelectColumn>>;
-  limit?: Maybe<Scalars["Int"]>;
-  offset?: Maybe<Scalars["Int"]>;
-  order_by?: Maybe<Array<CompanyProductQualificationsOrderBy>>;
-  where?: Maybe<CompanyProductQualificationsBoolExp>;
-};
-
-export type SubscriptionRootCompanyProductQualificationsByPkArgs = {
-  id: Scalars["uuid"];
-};
-
 export type SubscriptionRootCompanySettingsArgs = {
   distinct_on?: Maybe<Array<CompanySettingsSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -23884,6 +23877,26 @@ export type SubscriptionRootContractsAggregateArgs = {
 };
 
 export type SubscriptionRootContractsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+export type SubscriptionRootCustomerSurveillanceResultsArgs = {
+  distinct_on?: Maybe<Array<CustomerSurveillanceResultsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CustomerSurveillanceResultsOrderBy>>;
+  where?: Maybe<CustomerSurveillanceResultsBoolExp>;
+};
+
+export type SubscriptionRootCustomerSurveillanceResultsAggregateArgs = {
+  distinct_on?: Maybe<Array<CustomerSurveillanceResultsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CustomerSurveillanceResultsOrderBy>>;
+  where?: Maybe<CustomerSurveillanceResultsBoolExp>;
+};
+
+export type SubscriptionRootCustomerSurveillanceResultsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -28908,8 +28921,8 @@ export type DebtFacilityEventFragment = Pick<
   | "event_payload"
 >;
 
-export type CompanyProductQualificationFragment = Pick<
-  CompanyProductQualifications,
+export type CustomerSurveillanceResultFragment = Pick<
+  CustomerSurveillanceResults,
   "id" | "bank_note" | "qualifying_product" | "qualifying_date" | "company_id"
 >;
 
@@ -29096,20 +29109,20 @@ export type GetNonDummyCustomersWithMetadataQuery = {
   customers: Array<
     {
       loans: Array<Pick<Loans, "status" | "amount">>;
-      company_product_qualifications: Array<CompanyProductQualificationFragment>;
+      customer_surveillance_results: Array<CustomerSurveillanceResultFragment>;
     } & CustomersWithMetadataFragment
   >;
 };
 
-export type GetCompanyProductQualificationsByDateQueryVariables = Exact<{
+export type GetCustomerSurveillanceResultsByDateQueryVariables = Exact<{
   company_id: Scalars["uuid"];
   start_date?: Maybe<Scalars["date"]>;
   end_date?: Maybe<Scalars["date"]>;
   limit?: Maybe<Scalars["Int"]>;
 }>;
 
-export type GetCompanyProductQualificationsByDateQuery = {
-  company_product_qualifications: Array<CompanyProductQualificationFragment>;
+export type GetCustomerSurveillanceResultsByDateQuery = {
+  customer_surveillance_results: Array<CustomerSurveillanceResultFragment>;
 };
 
 export type GetCustomersForDropdownQueryVariables = Exact<{
@@ -30340,8 +30353,8 @@ export const DebtFacilityEventFragmentDoc = gql`
     event_payload
   }
 `;
-export const CompanyProductQualificationFragmentDoc = gql`
-  fragment CompanyProductQualification on company_product_qualifications {
+export const CustomerSurveillanceResultFragmentDoc = gql`
+  fragment CustomerSurveillanceResult on customer_surveillance_results {
     id
     bank_note
     qualifying_product
@@ -40121,7 +40134,7 @@ export const GetNonDummyCustomersWithMetadataDocument = gql`
         status
         amount
       }
-      company_product_qualifications(
+      customer_surveillance_results(
         limit: 1
         where: {
           _and: [
@@ -40130,12 +40143,12 @@ export const GetNonDummyCustomersWithMetadataDocument = gql`
           ]
         }
       ) {
-        ...CompanyProductQualification
+        ...CustomerSurveillanceResult
       }
     }
   }
   ${CustomersWithMetadataFragmentDoc}
-  ${CompanyProductQualificationFragmentDoc}
+  ${CustomerSurveillanceResultFragmentDoc}
 `;
 
 /**
@@ -40188,14 +40201,14 @@ export type GetNonDummyCustomersWithMetadataQueryResult = Apollo.QueryResult<
   GetNonDummyCustomersWithMetadataQuery,
   GetNonDummyCustomersWithMetadataQueryVariables
 >;
-export const GetCompanyProductQualificationsByDateDocument = gql`
-  query GetCompanyProductQualificationsByDate(
+export const GetCustomerSurveillanceResultsByDateDocument = gql`
+  query GetCustomerSurveillanceResultsByDate(
     $company_id: uuid!
     $start_date: date
     $end_date: date
     $limit: Int
   ) {
-    company_product_qualifications(
+    customer_surveillance_results(
       limit: $limit
       where: {
         _and: [
@@ -40205,23 +40218,23 @@ export const GetCompanyProductQualificationsByDateDocument = gql`
         ]
       }
     ) {
-      ...CompanyProductQualification
+      ...CustomerSurveillanceResult
     }
   }
-  ${CompanyProductQualificationFragmentDoc}
+  ${CustomerSurveillanceResultFragmentDoc}
 `;
 
 /**
- * __useGetCompanyProductQualificationsByDateQuery__
+ * __useGetCustomerSurveillanceResultsByDateQuery__
  *
- * To run a query within a React component, call `useGetCompanyProductQualificationsByDateQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCompanyProductQualificationsByDateQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetCustomerSurveillanceResultsByDateQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomerSurveillanceResultsByDateQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetCompanyProductQualificationsByDateQuery({
+ * const { data, loading, error } = useGetCustomerSurveillanceResultsByDateQuery({
  *   variables: {
  *      company_id: // value for 'company_id'
  *      start_date: // value for 'start_date'
@@ -40230,37 +40243,37 @@ export const GetCompanyProductQualificationsByDateDocument = gql`
  *   },
  * });
  */
-export function useGetCompanyProductQualificationsByDateQuery(
+export function useGetCustomerSurveillanceResultsByDateQuery(
   baseOptions: Apollo.QueryHookOptions<
-    GetCompanyProductQualificationsByDateQuery,
-    GetCompanyProductQualificationsByDateQueryVariables
+    GetCustomerSurveillanceResultsByDateQuery,
+    GetCustomerSurveillanceResultsByDateQueryVariables
   >
 ) {
   return Apollo.useQuery<
-    GetCompanyProductQualificationsByDateQuery,
-    GetCompanyProductQualificationsByDateQueryVariables
-  >(GetCompanyProductQualificationsByDateDocument, baseOptions);
+    GetCustomerSurveillanceResultsByDateQuery,
+    GetCustomerSurveillanceResultsByDateQueryVariables
+  >(GetCustomerSurveillanceResultsByDateDocument, baseOptions);
 }
-export function useGetCompanyProductQualificationsByDateLazyQuery(
+export function useGetCustomerSurveillanceResultsByDateLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    GetCompanyProductQualificationsByDateQuery,
-    GetCompanyProductQualificationsByDateQueryVariables
+    GetCustomerSurveillanceResultsByDateQuery,
+    GetCustomerSurveillanceResultsByDateQueryVariables
   >
 ) {
   return Apollo.useLazyQuery<
-    GetCompanyProductQualificationsByDateQuery,
-    GetCompanyProductQualificationsByDateQueryVariables
-  >(GetCompanyProductQualificationsByDateDocument, baseOptions);
+    GetCustomerSurveillanceResultsByDateQuery,
+    GetCustomerSurveillanceResultsByDateQueryVariables
+  >(GetCustomerSurveillanceResultsByDateDocument, baseOptions);
 }
-export type GetCompanyProductQualificationsByDateQueryHookResult = ReturnType<
-  typeof useGetCompanyProductQualificationsByDateQuery
+export type GetCustomerSurveillanceResultsByDateQueryHookResult = ReturnType<
+  typeof useGetCustomerSurveillanceResultsByDateQuery
 >;
-export type GetCompanyProductQualificationsByDateLazyQueryHookResult =
-  ReturnType<typeof useGetCompanyProductQualificationsByDateLazyQuery>;
-export type GetCompanyProductQualificationsByDateQueryResult =
+export type GetCustomerSurveillanceResultsByDateLazyQueryHookResult =
+  ReturnType<typeof useGetCustomerSurveillanceResultsByDateLazyQuery>;
+export type GetCustomerSurveillanceResultsByDateQueryResult =
   Apollo.QueryResult<
-    GetCompanyProductQualificationsByDateQuery,
-    GetCompanyProductQualificationsByDateQueryVariables
+    GetCustomerSurveillanceResultsByDateQuery,
+    GetCustomerSurveillanceResultsByDateQueryVariables
   >;
 export const GetCustomersForDropdownDocument = gql`
   query GetCustomersForDropdown {

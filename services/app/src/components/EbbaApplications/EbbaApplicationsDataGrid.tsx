@@ -12,7 +12,7 @@ import {
   GetOpenEbbaApplicationsByCategoryQuery,
   RequestStatusEnum,
 } from "generated/graphql";
-import { BankEbbaTabLabel, ClientSurveillanceCategoryEnum } from "lib/enum";
+import { BankEbbaTabLabel, CustomerSurveillanceCategoryEnum } from "lib/enum";
 import { formatCurrency } from "lib/number";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ColumnWidths } from "lib/tables";
@@ -62,7 +62,7 @@ export default function EbbaApplicationsDataGrid({
         ),
         category:
           ebbaApplication.category ===
-          ClientSurveillanceCategoryEnum.BorrowingBase
+          CustomerSurveillanceCategoryEnum.BorrowingBase
             ? BankEbbaTabLabel.BorrowingBase
             : BankEbbaTabLabel.FinancialReports,
         company_name: ebbaApplication.company?.name,

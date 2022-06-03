@@ -1248,9 +1248,9 @@ def update_company_product_qualification(
 	session: Session,
 ) -> Tuple[bool, errors.Error]:
 	company_product_qualification = cast(
-		models.CompanyProductQualifications,
-		session.query(models.CompanyProductQualifications).filter(
-			models.CompanyProductQualifications.id == company_product_qualification_id
+		models.CustomerSurveillanceResult,
+		session.query(models.CustomerSurveillanceResult).filter(
+			models.CustomerSurveillanceResult.id == company_product_qualification_id
 			).first())
 
 	if not company_product_qualification:
@@ -1270,7 +1270,7 @@ def create_company_product_qualification(
 	session: Session,
 	userSession: Type[UserSession],
 ) -> Tuple[str, errors.Error]:
-	company_product_qualification = models.CompanyProductQualifications()
+	company_product_qualification = models.CustomerSurveillanceResult()
 	company_product_qualification.company_id = company_id #type: ignore
 	company_product_qualification.bank_note = surveillance_status_note
 	company_product_qualification.qualifying_date = qualifying_date

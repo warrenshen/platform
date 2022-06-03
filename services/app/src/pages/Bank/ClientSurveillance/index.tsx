@@ -2,15 +2,17 @@ import { Box, Tab, Tabs } from "@material-ui/core";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
 import { useGetOpenEbbaApplicationsCountForBankSubscription } from "generated/graphql";
-import { BankEbbaTabLabel, BankEbbaTabLabels } from "lib/enum";
-import { ClientSurveillanceCategoryEnum } from "lib/enum";
+import {
+  BankEbbaTabLabel,
+  BankEbbaTabLabels,
+  CustomerSurveillanceCategoryEnum,
+} from "lib/enum";
+import ClientSurveillanceCurrentTab from "pages/Bank/ClientSurveillance/ClientSurveillanceCurrentTab";
+import ClientSurveillanceHistoricalTab from "pages/Bank/ClientSurveillance/ClientSurveillanceHistoricalTab";
 import EbbaApplicationsBorrowingBaseTab from "pages/Bank/ClientSurveillance/EbbaApplicationsBorrowingBaseTab";
 import EbbaApplicationsClosedTab from "pages/Bank/ClientSurveillance/EbbaApplicationsClosedTab";
 import EbbaApplicationsFinancialReportsTab from "pages/Bank/ClientSurveillance/EbbaApplicationsFinancialReportsTab";
 import { useState } from "react";
-
-import ClientSurveillanceCurrentTab from "./ClientSurveillanceCurrentTab";
-import ClientSurveillanceHistoricalTab from "./ClientSurveillanceHistoricalTab";
 
 const EbbaComponentMap: {
   [key in BankEbbaTabLabel]: JSX.Element;
@@ -40,14 +42,15 @@ export default function BankEbbaApplicationsPage() {
     data?.ebba_applications || []
   ).filter(
     (ebbaApplication) =>
-      ebbaApplication.category === ClientSurveillanceCategoryEnum.BorrowingBase
+      ebbaApplication.category ===
+      CustomerSurveillanceCategoryEnum.BorrowingBase
   ).length;
   const financialReportsCertificationsCount = (
     data?.ebba_applications || []
   ).filter(
     (ebbaApplication) =>
       ebbaApplication.category ===
-      ClientSurveillanceCategoryEnum.FinancialReport
+      CustomerSurveillanceCategoryEnum.FinancialReport
   ).length;
 
   return (

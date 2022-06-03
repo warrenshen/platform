@@ -17,7 +17,7 @@ import {
 import useSnackbar from "hooks/useSnackbar";
 import { authenticatedApi, ebbaApplicationsRoutes } from "lib/api";
 import { formatDateString, formatDatetimeString } from "lib/date";
-import { ClientSurveillanceCategoryEnum, FileTypeEnum } from "lib/enum";
+import { CustomerSurveillanceCategoryEnum, FileTypeEnum } from "lib/enum";
 import { formatCurrency } from "lib/number";
 import { useContext, useMemo, useState } from "react";
 
@@ -49,7 +49,8 @@ export default function EbbaApplicationDrawer({
   const ebbaApplication = data?.ebba_applications_by_pk;
 
   const isBorrowingBase =
-    ebbaApplication?.category === ClientSurveillanceCategoryEnum.BorrowingBase;
+    ebbaApplication?.category ===
+    CustomerSurveillanceCategoryEnum.BorrowingBase;
   const ebbaApplicationDisplayCategory = isBorrowingBase
     ? "Borrowing Base"
     : "Financial Report";

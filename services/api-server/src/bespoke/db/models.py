@@ -185,25 +185,6 @@ class Company(Base):
 			name=self.name
 		)
 
-class CompanyProductQualifications(Base):
-	"""
-	Company product qualifications are used to track historicals for
-	the customer surveillance dashboard
-	"""
-	__tablename__ = 'company_product_qualifications'
-
-	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
-	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
-	qualifying_date = Column(Date)
-	qualifying_product = Column(String)
-	bank_note = Column(String)
-	submitting_user_id = cast(GUID, Column(GUID, ForeignKey('users.id')))
-	metadata_info = Column(JSON)
-
-	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-	deleted_at = Column(DateTime)
-
 class CompanyAgreement(Base):
 	__tablename__ = 'company_agreements'
 
@@ -408,6 +389,26 @@ class CompanyPayorContact(Base):
 		'User',
 		foreign_keys=[payor_user_id]
 	)
+
+class CustomerSurveillanceResult(Base):
+	"""
+	Customer surveillance results are used to track historicals for
+	the customer surveillance dashboard
+	"""
+	__tablename__ = 'customer_surveillance_results'
+
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	qualifying_date = Column(Date)
+	qualifying_product = Column(String)
+	bank_note = Column(String)
+	surveillance_status = Column(String)
+	submitting_user_id = cast(GUID, Column(GUID, ForeignKey('users.id')))
+	metadata_info = Column(JSON)
+
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	deleted_at = Column(DateTime)
 
 class DebtFacility(Base):
 	__tablename__ = "debt_facilities"

@@ -18,7 +18,7 @@ import {
   formatDateStringAsMonth,
   previousXMonthsCertificationDates,
 } from "lib/date";
-import { ClientSurveillanceCategoryEnum } from "lib/enum";
+import { CustomerSurveillanceCategoryEnum } from "lib/enum";
 import { useMemo } from "react";
 
 interface Props {
@@ -54,7 +54,7 @@ export default function CertificationMonthDropdown({
     fetchPolicy: "network-only",
     variables: {
       company_id: companyId,
-      category: ClientSurveillanceCategoryEnum.FinancialReport,
+      category: CustomerSurveillanceCategoryEnum.FinancialReport,
     },
   });
 

@@ -1,6 +1,6 @@
 import { Box, TextField } from "@material-ui/core";
-import ClientSurveillanceCustomersDataGrid from "components/ClientSurveillance/ClientSurveillanceCustomersDataGrid";
-import EditClientSurveillanceStatusModal from "components/ClientSurveillance/EditClientSurveillanceStatusModal";
+import CustomerSurveillanceDataGrid from "components/CustomerSurveillance/CustomerSurveillanceDataGrid";
+import EditCustomerSurveillanceStatusModal from "components/CustomerSurveillance/EditCustomerSurveillanceStatusModal";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   Companies,
@@ -75,9 +75,9 @@ export default function ClientSurveillanceCurrentTab() {
 
                 if (selectedCustomer) {
                   return (
-                    <EditClientSurveillanceStatusModal
+                    <EditCustomerSurveillanceStatusModal
                       actionType={
-                        selectedCustomer.company_product_qualifications.length
+                        selectedCustomer.customer_surveillance_results.length
                           ? ActionType.Update
                           : ActionType.New
                       }
@@ -96,7 +96,7 @@ export default function ClientSurveillanceCurrentTab() {
         </Box>
       </Box>
       <Box display="flex" flexDirection="column">
-        <ClientSurveillanceCustomersDataGrid
+        <CustomerSurveillanceDataGrid
           isMultiSelectEnabled
           isFinancialReportDateVisible
           isBorrowingBaseDateVisible

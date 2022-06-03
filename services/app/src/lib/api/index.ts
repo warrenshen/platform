@@ -23,11 +23,9 @@ export const fileRoutes = {
 export const companyRoutes = {
   createCustomer: "/companies/create_customer",
   createProspectiveCustomer: "/companies/create_prospective_customer",
-  updateCompanySurveillanceStatus:
-    "/companies/update_company_surveillance_status",
-  updateCompanyQualifyingProduct:
+  updateCustomerSurveillanceResult:
     "/companies/update_company_qualifying_product",
-  createCompanyQualifyingProduct:
+  createCustomerSurveillanceResult:
     "/companies/create_company_qualifying_product",
   createPartnershipRequest: "/companies/create_partnership_request",
   createPartnershipRequestNew: "/companies/create_partnership_request_new",

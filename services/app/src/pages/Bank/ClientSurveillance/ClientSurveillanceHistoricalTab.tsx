@@ -1,5 +1,5 @@
 import { Box, TextField } from "@material-ui/core";
-import ClientSurveillanceCustomersDataGrid from "components/ClientSurveillance/ClientSurveillanceCustomersDataGrid";
+import CustomerSurveillanceDataGrid from "components/CustomerSurveillance/CustomerSurveillanceDataGrid";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import {
   Companies,
@@ -74,7 +74,7 @@ export default function ClientSurveillanceHistoricalTab() {
         </Box>
       </Box>
       <Box display="flex" flexDirection="column">
-        <ClientSurveillanceCustomersDataGrid
+        <CustomerSurveillanceDataGrid
           isMultiSelectEnabled
           customers={customers}
           selectedCompaniesIds={selectedCompanyIds}

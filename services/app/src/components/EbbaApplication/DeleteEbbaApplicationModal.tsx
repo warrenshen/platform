@@ -12,7 +12,7 @@ import {
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { deleteEbbaApplicationMutation } from "lib/api/ebbaApplications";
-import { ClientSurveillanceCategoryEnum } from "lib/enum";
+import { CustomerSurveillanceCategoryEnum } from "lib/enum";
 import { formatCurrency } from "lib/number";
 import { useContext } from "react";
 
@@ -109,7 +109,7 @@ export default function DeleteEbbaApplicationModal({
               </Typography>
             </Box>
             {ebbaApplication.category ===
-              ClientSurveillanceCategoryEnum.BorrowingBase && (
+              CustomerSurveillanceCategoryEnum.BorrowingBase && (
               <>
                 <Box display="flex" flexDirection="column" mt={2}>
                   <Typography variant="subtitle2" color="textSecondary">

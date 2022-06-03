@@ -11,7 +11,7 @@ import {
 import { getCompanyDisplayName } from "lib/companies";
 import {
   ActionType,
-  ClientSurveillanceCategoryEnum,
+  CustomerSurveillanceCategoryEnum,
   ProductTypeEnum,
 } from "lib/enum";
 import { filter } from "lodash";
@@ -21,7 +21,7 @@ export default function EbbaApplicationsFinancialReportsTab() {
   const { data, error, refetch } = useGetOpenEbbaApplicationsByCategoryQuery({
     fetchPolicy: "network-only",
     variables: {
-      category: ClientSurveillanceCategoryEnum.FinancialReport,
+      category: CustomerSurveillanceCategoryEnum.FinancialReport,
     },
   });
 

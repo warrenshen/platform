@@ -23,7 +23,7 @@ import {
 } from "lib/api/ebbaApplications";
 import { calculateBorrowingBaseAmount } from "lib/borrowingBase";
 import { computeEbbaApplicationExpiresAt } from "lib/date";
-import { ActionType, ClientSurveillanceCategoryEnum } from "lib/enum";
+import { ActionType, CustomerSurveillanceCategoryEnum } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useMemo, useState } from "react";
 interface Props {
@@ -172,7 +172,7 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
       : await addBorrowingBase({
           variables: {
             company_id: companyId,
-            category: ClientSurveillanceCategoryEnum.BorrowingBase,
+            category: CustomerSurveillanceCategoryEnum.BorrowingBase,
             application_date: ebbaApplication.application_date,
             monthly_accounts_receivable:
               ebbaApplication.monthly_accounts_receivable,
