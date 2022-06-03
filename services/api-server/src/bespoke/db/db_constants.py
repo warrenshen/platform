@@ -121,13 +121,16 @@ class CompanyDebtFacilityStatus(object):
 	WAIVER = 'waiver_company'
 
 class CompanySurveillanceStatus(object):
-	GOOD_STANDING = "good_standing",
-	ON_PROBATION = "on_probation",
-	ON_PAUSE = "on_pause",
-	DEFAULTED = "defaulted",
-	ONBOARDING = "onboarding",
-	INACTIVE = "inactive",
-	IN_REVIEW = "in_review",
+	GOOD_STANDING = "good_standing"
+	ON_PROBATION = "on_probation"
+	ON_PAUSE = "on_pause"
+	DEFAULTED = "defaulted"
+	ONBOARDING = "onboarding"
+	INACTIVE = "inactive"
+	IN_REVIEW = "in_review"
+
+class AutomatedSurveillanceMessage(object):
+	IN_REVIEW = "This company has been set to In Review by the automated system."
 
 # Artifacts
 

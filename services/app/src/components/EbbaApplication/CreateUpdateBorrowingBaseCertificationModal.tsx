@@ -12,14 +12,15 @@ import {
   EbbaApplications,
   EbbaApplicationsInsertInput,
   Files,
-  useAddEbbaApplicationMutation,
   useGetCompanyWithActiveContractQuery,
   useGetEbbaApplicationQuery,
-  useUpdateEbbaApplicationMutation,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { submitEbbaApplicationMutation } from "lib/api/ebbaApplications";
+import {
+  addBorrowingBaseMutation,
+  updateBorrowingBaseMutation,
+} from "lib/api/ebbaApplications";
 import { calculateBorrowingBaseAmount } from "lib/borrowingBase";
 import { computeEbbaApplicationExpiresAt } from "lib/date";
 import { ActionType, ClientSurveillanceCategoryEnum } from "lib/enum";
@@ -116,14 +117,11 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
       },
     });
 
-  const [addEbbaApplication, { loading: isAddEbbaApplicationLoading }] =
-    useAddEbbaApplicationMutation();
+  const [addBorrowingBase, { loading: isAddBorrowingBaseLoading }] =
+    useCustomMutation(addBorrowingBaseMutation);
 
-  const [updateEbbaApplication, { loading: isUpdateEbbaApplicationLoading }] =
-    useUpdateEbbaApplicationMutation();
-
-  const [submitEbbaApplication, { loading: isSubmitEbbaApplicationLoading }] =
-    useCustomMutation(submitEbbaApplicationMutation);
+  const [updateBorrowingBase, { loading: isUpdateBorrowingBaseLoading }] =
+    useCustomMutation(updateBorrowingBaseMutation);
 
   /**
    * Calculated borrowing base is the sum of the individual components,
@@ -148,12 +146,12 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
     ebbaApplication.application_date
   );
 
-  const upsertEbbaApplication = async () => {
-    if (isActionTypeUpdate) {
-      const response = await updateEbbaApplication({
-        variables: {
-          id: ebbaApplication.id,
-          ebbaApplication: {
+  const handleClickSubmit = async () => {
+    const response = !!isActionTypeUpdate
+      ? await updateBorrowingBase({
+          variables: {
+            ebba_application_id: ebbaApplication.id,
+            company_id: companyId,
             application_date: ebbaApplication.application_date,
             monthly_accounts_receivable:
               ebbaApplication.monthly_accounts_receivable,
@@ -168,16 +166,12 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
               : undefined,
             calculated_borrowing_base: calculatedBorrowingBase,
             expires_at: computedExpiresAt,
+            ebba_application_files: ebbaApplicationFiles,
           },
-          ebbaApplicationFiles,
-        },
-      });
-      return response.data?.update_ebba_applications_by_pk;
-    } else {
-      const response = await addEbbaApplication({
-        variables: {
-          ebbaApplication: {
-            company_id: isBankUser ? companyId : undefined,
+        })
+      : await addBorrowingBase({
+          variables: {
+            company_id: companyId,
             category: ClientSurveillanceCategoryEnum.BorrowingBase,
             application_date: ebbaApplication.application_date,
             monthly_accounts_receivable:
@@ -193,50 +187,23 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
               : undefined,
             calculated_borrowing_base: calculatedBorrowingBase,
             expires_at: computedExpiresAt,
-            ebba_application_files: {
-              data: ebbaApplicationFiles,
-            },
+            ebba_application_files: ebbaApplicationFiles,
           },
-        },
-      });
-      return response.data?.insert_ebba_applications_one;
-    }
-  };
+        });
 
-  const handleClickSubmit = async () => {
-    const savedEbbaApplication = await upsertEbbaApplication();
-    if (!savedEbbaApplication) {
-      snackbar.showError("Could not submit borrowing base certification.");
-      return;
-    }
-
-    // If editing the ebba application (only done by bank user),
-    // there is no need to submit it to the bank.
-    if (isActionTypeUpdate) {
-      snackbar.showSuccess("Borrowing base certification saved.");
-      handleClose();
+    if (response.status === "ERROR") {
+      snackbar.showError(`Message: ${response.msg}`);
     } else {
-      const response = await submitEbbaApplication({
-        variables: {
-          ebba_application_id: savedEbbaApplication.id,
-        },
-      });
-      if (response.status === "ERROR") {
-        snackbar.showError(`Message: ${response.msg}`);
-      } else {
-        snackbar.showSuccess(
-          "Borrowing base certification saved and submitted to Bespoke."
-        );
-        handleClose();
-      }
+      snackbar.showSuccess(
+        "Borrowing base certification saved and submitted to Bespoke."
+      );
+      handleClose();
     }
   };
 
   const isDialogReady = !isExistingEbbaApplicationLoading;
   const isFormLoading =
-    isAddEbbaApplicationLoading ||
-    isUpdateEbbaApplicationLoading ||
-    isSubmitEbbaApplicationLoading;
+    isAddBorrowingBaseLoading || isUpdateBorrowingBaseLoading;
   const isSubmitDisabled =
     isFormLoading ||
     !ebbaApplication.application_date ||

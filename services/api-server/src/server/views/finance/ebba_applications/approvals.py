@@ -1,5 +1,5 @@
 import json
-from typing import Any, cast
+from typing import Any, cast, Dict, List
 
 from bespoke import errors
 from bespoke.audit import events
@@ -8,6 +8,7 @@ from bespoke.db import models, models_util
 from bespoke.db.db_constants import ClientSurveillanceCategoryEnum, RequestStatusEnum
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
+from bespoke.finance.ebba_applications import ebba_application_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from server.config import Config
@@ -233,6 +234,289 @@ class DeleteEbbaApplicationView(MethodView):
 			'msg': 'Borrowing base {} deleted'.format(ebba_application_id)
 		}), 200)
 
+class AddFinancialReportView(MethodView):
+	decorators = [auth_util.login_required]
+
+	@events.wrap(events.Actions.EBBA_APPLICATION_ADD)
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		cfg = cast(Config, current_app.app_config)
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = ['company_id', 'application_date', 'expires_at', 'ebba_application_files']
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in response to creating the ebba application')
+
+		company_id: str = form['company_id']
+		application_date: str = form['application_date']
+		expires_at: str = form['expires_at']
+		ebba_application_files: List[Dict[str, str]] = form['ebba_application_files']
+
+		with models.session_scope(current_app.session_maker) as session:
+			ebba_application, _, err = ebba_application_util.add_financial_report(
+				session,
+				company_id,
+				application_date,
+				expires_at,
+				ebba_application_files
+			)
+			if err:
+				raise err
+
+			_, err = ebba_application_util.submit_ebba_application_for_approval(
+				session,
+				ebba_application,
+				company_id,
+				auth_util.UserSession.from_session().get_user_id()
+			)
+			if err:
+				raise err
+
+			_, err = ebba_application_util.send_ebba_application_submission_email(
+				cfg,
+				ebba_application.company.get_display_name()
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': f'Financial report added for company with id {company_id}'
+		}), 200)
+
+class UpdateFinancialReportView(MethodView):
+	decorators = [auth_util.login_required]
+
+	@events.wrap(events.Actions.EBBA_APPLICATION_UPDATE)
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		cfg = cast(Config, current_app.app_config)
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = ['company_id', 'ebba_application_id', 'application_date', 'expires_at', 'ebba_application_files']
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in response to creating/updating debt facility')
+
+		company_id: str = form['company_id']
+		ebba_application_id: str = form['ebba_application_id']
+		application_date: str = form['application_date']
+		expires_at: str = form['expires_at']
+		ebba_application_files: List[Dict[str, str]] = form['ebba_application_files']
+
+		with models.session_scope(current_app.session_maker) as session:
+			user_session = auth_util.UserSession.from_session()
+			user = cast(
+				models.User,
+				session.query(models.User).filter(
+					models.User.id == user_session.get_user_id()
+				).first())
+
+			ebba_application, _, _, err = ebba_application_util.update_financial_report(
+				session,
+				ebba_application_id,
+				application_date,
+				expires_at,
+				ebba_application_files
+			)
+			if err:
+				raise err
+
+			_, err = ebba_application_util.submit_ebba_application_for_approval(
+				session,
+				ebba_application,
+				company_id,
+				auth_util.UserSession.from_session().get_user_id()
+			)
+			if err:
+				raise err
+
+			_, err = ebba_application_util.send_ebba_application_submission_email(
+				cfg,
+				ebba_application.company.get_display_name()
+			)
+			if err:
+				raise err
+			
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Financial Report updated'
+		}), 200)
+
+class AddBorrowingBaseView(MethodView):
+	decorators = [auth_util.login_required]
+
+	@events.wrap(events.Actions.EBBA_APPLICATION_ADD)
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		cfg = cast(Config, current_app.app_config)
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'company_id', 
+			'application_date', 
+			'monthly_accounts_receivable',
+			'monthly_inventory',
+			'monthly_cash',
+			'amount_cash_in_daca',
+			'calculated_borrowing_base',
+			'expires_at',
+			'ebba_application_files'
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in response to creating the ebba application')
+
+		company_id: str = form['company_id']
+		application_date: str = form['application_date']
+		monthly_accounts_receivable: float = float(form['monthly_accounts_receivable'])
+		monthly_inventory: float = float(form['monthly_inventory'])
+		monthly_cash: float = float(form['monthly_cash'])
+		amount_cash_in_daca: float = float(form['amount_cash_in_daca'])
+		amount_custom: float = float(form['amount_custom']) if 'amount_custom' in form else None
+		amount_custom_note: str = form['amount_custom_note'] if 'amount_custom_note' in form else None
+		calculated_borrowing_base: float = form['calculated_borrowing_base']
+		expires_at: str = form['expires_at']
+		ebba_application_files: List[Dict[str, str]] = form['ebba_application_files']
+
+		with models.session_scope(current_app.session_maker) as session:
+			ebba_application, _, err = ebba_application_util.add_borrowing_base(
+				session,
+				company_id,
+				application_date,
+				monthly_accounts_receivable,
+				monthly_inventory,
+				monthly_cash,
+				amount_cash_in_daca,
+				amount_custom,
+				amount_custom_note,
+				calculated_borrowing_base,
+				expires_at,
+				ebba_application_files
+			)
+			if err:
+				raise err
+
+			_, err = ebba_application_util.submit_ebba_application_for_approval(
+				session,
+				ebba_application,
+				company_id,
+				auth_util.UserSession.from_session().get_user_id()
+			)
+			if err:
+				raise err
+
+			_, err = ebba_application_util.send_ebba_application_submission_email(
+				cfg,
+				ebba_application.company.get_display_name()
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': f'Financial report added for company with id {company_id}'
+		}), 200)
+
+class UpdateBorrowingBaseView(MethodView):
+	decorators = [auth_util.login_required]
+
+	@events.wrap(events.Actions.EBBA_APPLICATION_UPDATE)
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		cfg = cast(Config, current_app.app_config)
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'ebba_application_id',
+			'company_id', 
+			'application_date', 
+			'monthly_accounts_receivable',
+			'monthly_inventory',
+			'monthly_cash',
+			'amount_cash_in_daca',
+			'calculated_borrowing_base',
+			'expires_at',
+			'ebba_application_files'
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in response to creating/updating debt facility')
+
+		ebba_application_id: str = form['ebba_application_id']
+		company_id: str = form['company_id']
+		application_date: str = form['application_date']
+		monthly_accounts_receivable: float = float(form['monthly_accounts_receivable'])
+		monthly_inventory: float = float(form['monthly_inventory'])
+		monthly_cash: float = float(form['monthly_cash'])
+		amount_cash_in_daca: float = float(form['amount_cash_in_daca'])
+		amount_custom: float = float(form['amount_custom']) if 'amount_custom' in form else None
+		amount_custom_note: str = form['amount_custom_note'] if 'amount_custom_note' in form else None
+		calculated_borrowing_base: float = form['calculated_borrowing_base']
+		expires_at: str = form['expires_at']
+		ebba_application_files: List[Dict[str, str]] = form['ebba_application_files']
+
+		with models.session_scope(current_app.session_maker) as session:
+			user_session = auth_util.UserSession.from_session()
+			user = cast(
+				models.User,
+				session.query(models.User).filter(
+					models.User.id == user_session.get_user_id()
+				).first())
+
+			ebba_application, _, _, err = ebba_application_util.update_borrowing_base(
+				session,
+				ebba_application_id,
+				application_date,
+				monthly_accounts_receivable,
+				monthly_inventory,
+				monthly_cash,
+				amount_cash_in_daca,
+				amount_custom,
+				amount_custom_note,
+				calculated_borrowing_base,
+				expires_at,
+				ebba_application_files
+			)
+			if err:
+				raise err
+
+			_, err = ebba_application_util.submit_ebba_application_for_approval(
+				session,
+				ebba_application,
+				company_id,
+				auth_util.UserSession.from_session().get_user_id()
+			)
+			if err:
+				raise err
+
+			_, err = ebba_application_util.send_ebba_application_submission_email(
+				cfg,
+				ebba_application.company.get_display_name()
+			)
+			if err:
+				raise err
+			
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Financial Report updated'
+		}), 200)
+
 handler.add_url_rule(
 	'/respond_to_approval_request',
 	view_func=RespondToEbbaApplicationApprovalRequest.as_view(name='respond_to_ebba_application_approval_request')
@@ -246,4 +530,24 @@ handler.add_url_rule(
 handler.add_url_rule(
 	'/delete',
 	view_func=DeleteEbbaApplicationView.as_view(name='delete_ebba_application')
+)
+
+handler.add_url_rule(
+	'/add_financial_report',
+	view_func=AddFinancialReportView.as_view(name='add_financial_report')
+)
+
+handler.add_url_rule(
+	'/update_financial_report',
+	view_func=UpdateFinancialReportView.as_view(name='update_financial_report')
+)
+
+handler.add_url_rule(
+	'/add_borrowing_base',
+	view_func=AddBorrowingBaseView.as_view(name='add_borrowing_base')
+)
+
+handler.add_url_rule(
+	'/update_borrowing_base',
+	view_func=UpdateBorrowingBaseView.as_view(name='update_borrowing_base')
 )

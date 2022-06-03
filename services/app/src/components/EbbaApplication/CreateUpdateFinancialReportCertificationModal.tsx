@@ -12,19 +12,16 @@ import {
   EbbaApplications,
   EbbaApplicationsInsertInput,
   Files,
-  useAddEbbaApplicationMutation,
   useGetEbbaApplicationQuery,
-  useUpdateEbbaApplicationMutation,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { submitEbbaApplicationMutation } from "lib/api/ebbaApplications";
-import { computeEbbaApplicationExpiresAt } from "lib/date";
 import {
-  ActionType,
-  ClientSurveillanceCategoryEnum,
-  ProductTypeEnum,
-} from "lib/enum";
+  addFinancialReportMutation,
+  updateFinancialReportMutation,
+} from "lib/api/ebbaApplications";
+import { computeEbbaApplicationExpiresAt } from "lib/date";
+import { ActionType, ProductTypeEnum } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useState } from "react";
 
@@ -99,84 +96,48 @@ export default function CreateUpdateFinancialReportCertificationModal({
       },
     });
 
-  const [addEbbaApplication, { loading: isAddEbbaApplicationLoading }] =
-    useAddEbbaApplicationMutation();
+  const [addFinancialReport, { loading: isAddFinancialReportLoading }] =
+    useCustomMutation(addFinancialReportMutation);
 
-  const [updateEbbaApplication, { loading: isUpdateEbbaApplicationLoading }] =
-    useUpdateEbbaApplicationMutation();
-
-  const [submitEbbaApplication, { loading: isSubmitEbbaApplicationLoading }] =
-    useCustomMutation(submitEbbaApplicationMutation);
+  const [updateFinancialReport, { loading: isUpdateFinancialReportLoading }] =
+    useCustomMutation(updateFinancialReportMutation);
 
   const computedExpiresAt = computeEbbaApplicationExpiresAt(
     ebbaApplication.application_date
   );
 
-  const upsertEbbaApplication = async () => {
-    if (isActionTypeUpdate) {
-      const response = await updateEbbaApplication({
-        variables: {
-          id: ebbaApplication.id,
-          ebbaApplication: {
-            application_date: ebbaApplication.application_date,
-            expires_at: computedExpiresAt,
-          },
-          ebbaApplicationFiles,
-        },
-      });
-      return response.data?.update_ebba_applications_by_pk;
-    } else {
-      const response = await addEbbaApplication({
-        variables: {
-          ebbaApplication: {
-            company_id: isBankUser ? companyId : undefined,
-            category: ClientSurveillanceCategoryEnum.FinancialReport,
-            application_date: ebbaApplication.application_date,
-            expires_at: computedExpiresAt,
-            ebba_application_files: {
-              data: ebbaApplicationFiles,
-            },
-          },
-        },
-      });
-      return response.data?.insert_ebba_applications_one;
-    }
-  };
-
   const handleClickSubmit = async () => {
-    const savedEbbaApplication = await upsertEbbaApplication();
-    if (!savedEbbaApplication) {
-      snackbar.showError("Could not submit financial report certification.");
-      return;
-    }
-
-    // If editing the ebba application (only done by bank user),
-    // there is no need to submit it to the bank.
-    if (isActionTypeUpdate) {
-      snackbar.showSuccess("Financial report certification saved.");
-      handleClose();
+    const response = !!isActionTypeUpdate
+      ? await updateFinancialReport({
+          variables: {
+            company_id: companyId,
+            ebba_application_id: ebbaApplication.id,
+            application_date: ebbaApplication.application_date,
+            expires_at: computedExpiresAt,
+            ebba_application_files: ebbaApplicationFiles,
+          },
+        })
+      : await addFinancialReport({
+          variables: {
+            company_id: companyId,
+            application_date: ebbaApplication.application_date,
+            expires_at: computedExpiresAt,
+            ebba_application_files: ebbaApplicationFiles,
+          },
+        });
+    if (response.status === "ERROR") {
+      snackbar.showError(`Message: ${response.msg}`);
     } else {
-      const response = await submitEbbaApplication({
-        variables: {
-          ebba_application_id: savedEbbaApplication.id,
-        },
-      });
-      if (response.status === "ERROR") {
-        snackbar.showError(`Message: ${response.msg}`);
-      } else {
-        snackbar.showSuccess(
-          "Financial report certification saved and submitted to Bespoke."
-        );
-        handleClose();
-      }
+      snackbar.showSuccess(
+        "Financial report certification saved and submitted to Bespoke."
+      );
+      handleClose();
     }
   };
 
   const isDialogReady = !isExistingEbbaApplicationLoading;
   const isFormLoading =
-    isAddEbbaApplicationLoading ||
-    isUpdateEbbaApplicationLoading ||
-    isSubmitEbbaApplicationLoading;
+    isAddFinancialReportLoading || isUpdateFinancialReportLoading;
   const isSubmitDisabled = isFormLoading || ebbaApplicationFiles.length <= 0;
 
   if (!isDialogReady) {

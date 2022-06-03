@@ -83,6 +83,13 @@ export const ebbaApplicationsRoutes = {
   respondToApprovalRequest:
     "finance/ebba_applications/approvals/respond_to_approval_request",
   submitForApproval: "/finance/ebba_applications/approvals/submit_for_approval",
+  addFinancialReport:
+    "finance/ebba_applications/approvals/add_financial_report",
+  updateFinancialReport:
+    "finance/ebba_applications/approvals/update_financial_report",
+  addBorrowingBase: "finance/ebba_applications/approvals/add_borrowing_base",
+  updateBorrowingBase:
+    "finance/ebba_applications/approvals/update_borrowing_base",
 };
 
 export const purchaseOrdersRoutes = {

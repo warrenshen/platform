@@ -11,36 +11,3 @@ query GetEbbaApplication($id: uuid!) {
     }
   }
 }
-
-mutation AddEbbaApplication($ebbaApplication: ebba_applications_insert_input!) {
-  insert_ebba_applications_one(object: $ebbaApplication) {
-    id
-    ...EbbaApplication
-  }
-}
-
-mutation UpdateEbbaApplication(
-  $id: uuid!
-  $ebbaApplication: ebba_applications_set_input!
-  $ebbaApplicationFiles: [ebba_application_files_insert_input!]!
-) {
-  delete_ebba_application_files(where: { ebba_application_id: { _eq: $id } }) {
-    affected_rows
-  }
-  insert_ebba_application_files(objects: $ebbaApplicationFiles) {
-    returning {
-      ebba_application_id
-      file_id
-    }
-  }
-  update_ebba_applications_by_pk(
-    pk_columns: { id: $id }
-    _set: $ebbaApplication
-  ) {
-    id
-    ...EbbaApplication
-    ebba_application_files {
-      ...EbbaApplicationFile
-    }
-  }
-}
