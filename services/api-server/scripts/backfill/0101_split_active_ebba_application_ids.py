@@ -15,9 +15,7 @@ sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
 
 from bespoke.date import date_util
 from bespoke.db import models
-from bespoke.db.db_constants import LoanDebtFacilityStatus, ProductType
-
-from sqlalchemy.sql import func, or_
+from bespoke.db.db_constants import ProductType
 
 def main(is_test_run: bool = True) -> None:
 	engine = models.create_engine()

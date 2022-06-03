@@ -2,7 +2,6 @@
 DATABASE_URL=postgres+psycopg2://postgres:postgrespassword@localhost:5432/postgres python scripts/backfill/
 """
 
-import copy
 import os
 import sys
 import time
@@ -16,8 +15,6 @@ sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.db_constants import ClientSurveillanceCategoryEnum
-
-from sqlalchemy.sql import func, or_
 
 def main(is_test_run: bool = True) -> None:
 	engine = models.create_engine()

@@ -12,7 +12,7 @@ sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 from bespoke.db import models
 from bespoke.excel import excel_reader
 
-from lib import advances, contracts, loans, repayments
+from lib import advances, contracts, loans
 
 def main() -> None:
 	if not os.environ.get("DATABASE_URL"):

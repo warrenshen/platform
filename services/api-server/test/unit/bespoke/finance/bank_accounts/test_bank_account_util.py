@@ -1,30 +1,15 @@
-import json
 import datetime
 import uuid
-from base64 import b64encode
-from typing import Any, Callable, Iterable, Dict, List, Tuple, cast
-from flask import Blueprint, Response, current_app, make_response, request
-from sqlalchemy import (JSON, BigInteger, Boolean, Float, Column, Date, DateTime,
-                        ForeignKey, Integer, Numeric, String, Text, update)
+from typing import Dict, cast
 from sqlalchemy.orm.session import Session
 from decimal import *
 
-from manage import app
 from bespoke.date import date_util
-from bespoke.db.db_constants import (CompanyDebtFacilityStatus, DebtFacilityEventCategory, 
-	LoanDebtFacilityStatus, ProductType, DebtFacilityCapacityTypeEnum)
 from bespoke.db import models
 from bespoke.db.models import session_scope
-from bespoke.db.model_types import (
-	PaymentItemsCoveredDict
-)
 from bespoke.finance.bank_accounts import bank_account_util
 from bespoke.finance.bank_accounts.bank_account_util import BankAccountInputDict
 from bespoke_test.db import db_unittest
-from bespoke_test.db import test_helper
-from bespoke_test import auth_helper
-from bespoke_test.contract import contract_test_helper
-from bespoke_test.contract.contract_test_helper import ContractInputDict
 from dateutil import parser
 
 TODAY = parser.parse('2020-10-01T16:33:27.69-08:00')

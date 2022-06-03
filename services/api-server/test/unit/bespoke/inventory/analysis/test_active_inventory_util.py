@@ -14,7 +14,8 @@ from bespoke.inventory.analysis.shared.inventory_types import (
 	AnalysisContext,
 	AnalysisParamsDict,
 	DataframeDownloadContext,
-	MarginEstimateConfigDict
+	MarginEstimateConfigDict,
+	PricingDataConfigDict
 )
 
 def _get_analysis_context() -> AnalysisContext:
@@ -818,7 +819,7 @@ class TestInventoryPackages(unittest.TestCase):
 				sold_threshold=1.0,
 				find_parent_child_relationships=False,
 				use_prices_to_fill_missing_incoming=True,
-				external_pricing_data_config=util.PricingDataConfigDict(
+				external_pricing_data_config=PricingDataConfigDict(
 					category_to_fixed_prices={
 						'Buds': {
 							'Pounds': 4.0

@@ -2,7 +2,7 @@ import json
 import logging
 import os
 from decimal import *
-from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, cast
+from typing import Any, cast
 
 from bespoke import errors
 from bespoke.config.config_util import is_prod_env
@@ -12,10 +12,8 @@ from bespoke.finance.bank_accounts.bank_account_util import BankAccountInputDict
 from bespoke.reports.report_generation_util import *
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
-from server.config import Config, get_config, get_email_client_config
+from server.config import Config, get_config
 from server.views.common import auth_util, handler_util
-from sqlalchemy import (JSON, BigInteger, Boolean, Column, Date, DateTime,
-                        ForeignKey, Integer, Numeric, String, Text)
 
 handler = Blueprint("bank_accounts", __name__)
 config = get_config()

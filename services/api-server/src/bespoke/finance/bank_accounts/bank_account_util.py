@@ -1,27 +1,12 @@
-import base64
-import datetime
-import json
 import logging
-import os
-import requests
-import time
-from typing import Any, Callable, Collection, Dict, Iterable, List, Optional, Tuple, cast
+from typing import Collection, Dict, Optional, Tuple, cast
 from typing import Dict
-from flask import current_app
 from bespoke.date import date_util
 from bespoke.db import models
-from bespoke.db.db_constants import (CompanyDebtFacilityStatus, DebtFacilityEventCategory, 
-	LoanDebtFacilityStatus, ProductType, DebtFacilityCapacityTypeEnum)
-from sendgrid.helpers.mail import Attachment, FileContent, FileName, FileType, Disposition
-from sqlalchemy import and_
 from sqlalchemy.orm.session import Session
 
 from bespoke import errors
-from bespoke.config.config_util import is_prod_env
-from bespoke.metrc.common.metrc_common_util import chunker
 from mypy_extensions import TypedDict
-from server.config import Config
-from server.views.common import auth_util
 
 BankAccountInputDict = TypedDict('BankAccountInputDict', {
 	'company_id': Optional[str],

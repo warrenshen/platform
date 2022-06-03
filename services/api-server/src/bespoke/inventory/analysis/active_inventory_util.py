@@ -31,8 +31,7 @@ from bespoke.inventory.analysis.shared.inventory_types import (
 	CompareInventoryResultsDict,
 	InventoryPackageDict,
 	TransferPackageDict,
-	AnalysisParamsDict,
-	PricingDataConfigDict
+	AnalysisParamsDict
 )
 from bespoke.inventory.analysis import stale_inventory_util
 from bespoke.inventory.analysis import inventory_valuations_util as valuations_util
