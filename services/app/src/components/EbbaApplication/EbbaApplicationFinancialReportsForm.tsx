@@ -1,42 +1,16 @@
-import {
-  Box,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Theme,
-  Typography,
-  createStyles,
-  makeStyles,
-} from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
+import CertificationMonthDropdown from "components/EbbaApplication/CertificationMonthDropdown";
 import FileUploader from "components/Shared/File/FileUploader";
 import {
   Companies,
   EbbaApplicationFilesInsertInput,
   EbbaApplicationsInsertInput,
   Files,
-  useGetEbbaApplicationsByCompanyIdQuery,
 } from "generated/graphql";
-import {
-  formatDateString,
-  formatDateStringAsMonth,
-  previousXMonthsCertificationDates,
-} from "lib/date";
-import {
-  ClientSurveillanceCategoryEnum,
-  FileTypeEnum,
-  ProductTypeEnum,
-} from "lib/enum";
+import { formatDateString } from "lib/date";
+import { FileTypeEnum, ProductTypeEnum } from "lib/enum";
 import { isDispensaryFinancingProductType } from "lib/settings";
 import { useMemo } from "react";
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    inputField: {
-      width: "100%",
-    },
-  })
-);
 
 interface Props {
   isActionTypeUpdate: boolean;
@@ -63,37 +37,6 @@ export default function EbbaApplicationFinancialReportsForm({
   setEbbaApplicationFiles,
   productType,
 }: Props) {
-  const classes = useStyles();
-
-  const { data, error } = useGetEbbaApplicationsByCompanyIdQuery({
-    fetchPolicy: "network-only",
-    variables: {
-      company_id: companyId,
-      category: ClientSurveillanceCategoryEnum.FinancialReport,
-    },
-  });
-
-  if (error) {
-    console.error({ error });
-    alert(`Error in query (details in console): ${error.message}`);
-  }
-
-  const certificationDateOptions = useMemo(() => {
-    const existingEbbaApplications = data?.ebba_applications || [];
-    const existingEbbaApplicationDates = existingEbbaApplications.map(
-      (ebbaApplication) => ebbaApplication.application_date
-    );
-    // 1. Allow bank user to select months up to 12 months back.
-    // 2. Allow customer user to selects months up to 4 months back.
-    return previousXMonthsCertificationDates(isBankUser ? 12 : 4).map(
-      (certificationDate) => ({
-        isDisabled:
-          existingEbbaApplicationDates.indexOf(certificationDate) >= 0,
-        certificationDate,
-      })
-    );
-  }, [isBankUser, data?.ebba_applications]);
-
   const ebbaApplicationFileIds = useMemo(
     () =>
       ebbaApplicationFiles.map(
@@ -116,41 +59,14 @@ export default function EbbaApplicationFinancialReportsForm({
             </Typography>
           </Box>
         )}
-        <Box>
-          <FormControl className={classes.inputField}>
-            <InputLabel id="select-certification-date-label" required>
-              Certification Month
-            </InputLabel>
-            <Select
-              id="select-certification-date"
-              labelId="select-certification-date-label"
-              disabled={isActionTypeUpdate}
-              value={ebbaApplication.application_date}
-              onChange={({ target: { value } }) =>
-                setEbbaApplication({
-                  ...ebbaApplication,
-                  application_date: value,
-                })
-              }
-            >
-              {certificationDateOptions.map(
-                ({ certificationDate, isDisabled }) => (
-                  <MenuItem
-                    key={certificationDate}
-                    disabled={isDisabled}
-                    value={certificationDate}
-                  >
-                    {`${formatDateStringAsMonth(
-                      certificationDate
-                    )}: submit financial report as of ${formatDateString(
-                      certificationDate
-                    )}`}
-                  </MenuItem>
-                )
-              )}
-            </Select>
-          </FormControl>
-        </Box>
+        <CertificationMonthDropdown
+          isBankUser={isBankUser}
+          isDisabled={isActionTypeUpdate}
+          companyId={companyId}
+          ebbaApplication={ebbaApplication}
+          setEbbaApplication={setEbbaApplication}
+          bankUserMonthsBack={12}
+        />
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <Box mb={2}>
