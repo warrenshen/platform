@@ -1,1 +1,1 @@
-alter table "public"."company_surveillance_results" add column "surveillance_status" text null;
+alter table "public"."company_product_qualifications" add column "surveillance_status" text null;
