@@ -23,10 +23,6 @@ export const fileRoutes = {
 export const companyRoutes = {
   createCustomer: "/companies/create_customer",
   createProspectiveCustomer: "/companies/create_prospective_customer",
-  updateCustomerSurveillanceResult:
-    "/companies/update_company_qualifying_product",
-  createCustomerSurveillanceResult:
-    "/companies/create_company_qualifying_product",
   createPartnershipRequest: "/companies/create_partnership_request",
   createPartnershipRequestNew: "/companies/create_partnership_request_new",
   updatePartnershipRequestNew: "/companies/update_partnership_request_new",
@@ -45,6 +41,10 @@ export const companyFacilitiesRoutes = {
   createUpdateCompanyFacility:
     "/company_facilities/create_update_company_facility",
   deleteCompanyFacility: "/company_facilities/delete_company_facility",
+};
+
+export const customerSurveillanceRoutes = {
+  certifySurveillanceResult: "/companies/certify_customer_surveillance_result",
 };
 
 export const partnershipRoutes = {

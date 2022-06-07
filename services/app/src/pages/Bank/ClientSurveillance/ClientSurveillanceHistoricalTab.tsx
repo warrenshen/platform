@@ -1,31 +1,30 @@
 import { Box, TextField } from "@material-ui/core";
 import CustomerSurveillanceDataGrid from "components/CustomerSurveillance/CustomerSurveillanceDataGrid";
-import DateInput from "components/Shared/FormInputs/DateInput";
+import CertificationMonthDropdown from "components/EbbaApplication/CertificationMonthDropdown";
+import { CertificationOption } from "components/EbbaApplication/CertificationMonthDropdown";
 import {
-  Companies,
-  useGetNonDummyCustomersWithMetadataQuery,
+  CustomerSurveillanceFragment,
+  GetCustomersCurrentSurveillanceSubscription,
+  useGetCustomersCurrentSurveillanceSubscription,
 } from "generated/graphql";
-import { useFilterCustomers } from "hooks/useFilterCustomers";
+import { useFilterCustomerSurveillance } from "hooks/useFilterCustomerSurveillance";
 import {
-  getFirstDayOfMonth,
-  getLastDateOfMonth,
-  todayAsDateStringServer,
+  getEndOfPreviousMonth,
+  previousXMonthsCertificationDates,
 } from "lib/date";
 import { useMemo, useState } from "react";
 
 export default function ClientSurveillanceHistoricalTab() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCompanyIds, setSelectedCompanyIds] = useState<Companies["id"]>(
-    []
-  );
-  const [selectedDate, setSelectedDate] = useState(todayAsDateStringServer());
+  const [selectedCompanyIds, setSelectedCompanyIds] = useState<
+    CustomerSurveillanceFragment["id"]
+  >([]);
+  const [selectedDate, setSelectedDate] = useState(getEndOfPreviousMonth());
 
-  const { data, error } = useGetNonDummyCustomersWithMetadataQuery({
+  const { data, error } = useGetCustomersCurrentSurveillanceSubscription({
     fetchPolicy: "network-only",
     variables: {
-      date: todayAsDateStringServer(),
-      start_date: getFirstDayOfMonth(selectedDate),
-      end_date: getLastDateOfMonth(selectedDate),
+      target_date: selectedDate,
     },
   });
 
@@ -34,36 +33,34 @@ export default function ClientSurveillanceHistoricalTab() {
     alert(`Error in query (details in console): ${error.message}`);
   }
 
-  const customers = useFilterCustomers(searchQuery, data).filter(
-    ({ financial_summaries }) => financial_summaries[0]?.product_type
-  ) as Companies[];
+  const rawCustomers = data?.customers || [];
+
+  const activeCustomers =
+    (rawCustomers.filter((customer) => {
+      return customer?.most_recent_financial_summary?.[0].product_type !== null;
+    }) as CustomerSurveillanceFragment[]) || [];
+
+  const customers = useFilterCustomerSurveillance(
+    searchQuery,
+    activeCustomers
+  ) as GetCustomersCurrentSurveillanceSubscription["customers"];
 
   const handleSelectCompanies = useMemo(
-    () => (companies: Companies[]) =>
+    () => (companies: CustomerSurveillanceFragment[]) =>
       setSelectedCompanyIds(companies.map(({ id }) => id)),
     [setSelectedCompanyIds]
   );
 
+  const certificationDateOptions: CertificationOption[] =
+    previousXMonthsCertificationDates(12).map((certificationDate) => ({
+      certificationDate,
+      isOptionDisabled: false,
+    }));
+
   return (
     <Box mt={2}>
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="flex-end"
-        mb={2}
-      >
-        <Box display="flex">
-          <Box mr={2}>
-            <DateInput
-              id="qualify-date-date-picker"
-              label="Qualifying Date"
-              disableFuture
-              value={selectedDate}
-              onChange={(value) =>
-                setSelectedDate(value || todayAsDateStringServer())
-              }
-            />
-          </Box>
+      <Box display="flex" alignItems="flex-end" mb={2}>
+        <Box display="flex" flexDirection="row" mr={3}>
           <TextField
             autoFocus
             label="Search by customer name"
@@ -71,6 +68,18 @@ export default function ClientSurveillanceHistoricalTab() {
             onChange={({ target: { value } }) => setSearchQuery(value)}
             style={{ width: 300 }}
           />
+        </Box>
+        <Box display="flex">
+          <Box display="flex" flexDirection="row">
+            <CertificationMonthDropdown
+              isRequired={false}
+              initialValue={selectedDate}
+              onChange={({ target: { value } }) => {
+                setSelectedDate(value);
+              }}
+              certificationDateOptions={certificationDateOptions}
+            />
+          </Box>
         </Box>
       </Box>
       <Box display="flex" flexDirection="column">

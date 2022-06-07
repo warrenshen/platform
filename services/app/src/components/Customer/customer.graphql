@@ -140,6 +140,13 @@ query GetCompanyForBankCompanyPage($id: uuid!) {
       id
       product_type
     }
+    most_recent_surveillance_result: customer_surveillance_results (
+      limit: 1
+      order_by: { qualifying_date: desc }
+    ) {
+      id
+      ...CustomerSurveillanceResult
+    }
   }
 }
 

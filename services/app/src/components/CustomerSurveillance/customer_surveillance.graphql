@@ -1,0 +1,19 @@
+subscription GetCustomersCurrentSurveillance($target_date: date) {
+  customers: companies(
+    where: {
+      _and: [
+        {
+          _or: [
+            { settings: { is_dummy_account: { _is_null: true } } }
+            { settings: { is_dummy_account: { _eq: false } } }
+          ]
+        }
+        { is_customer: { _eq: true } }
+      ]
+    }
+    order_by: { name: asc }
+  ) {
+    id
+    ...CustomerSurveillance
+  }
+}

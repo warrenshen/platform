@@ -48,6 +48,79 @@ fragment CustomersWithMetadata on companies {
   }
 }
 
+fragment CustomerSurveillance on companies {
+  ...CustomerForBank
+  # financial_summaries(where: { date: { _eq: $date } }) {
+  #   id
+  #   ...FinancialSummary
+  # }
+  settings {
+    id
+    ...CompanySettings
+  }
+  loans(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { funded_at: { _is_null: true } }
+        { closed_at: { _is_null: true } }
+        { requested_at: { _is_null: false } }
+      ]
+    }
+  ) {
+    status
+    amount
+  }
+  target_surveillance_result: customer_surveillance_results(
+    where: { qualifying_date: { _eq: $target_date } }
+  ) {
+    ...CustomerSurveillanceResult
+  }
+  all_surveillance_results: customer_surveillance_results(
+    order_by: { qualifying_date: desc }
+  ) {
+    ...CustomerSurveillanceResult
+  }
+  most_recent_borrowing_base: ebba_applications(
+    limit: 1
+    order_by: [{ application_date: desc }, { created_at: desc }]
+    where: { 
+      _and: [
+        { status: { _eq: approved } }
+        { category: { _eq: "borrowing_base" } }
+      ]
+    }
+  ) {
+    id
+    ...EbbaApplication
+  }
+  most_recent_financial_report: ebba_applications(
+    limit: 1
+    order_by: [{ application_date: desc }, { created_at: desc }]
+    where: { 
+      _and: [
+        { status: { _eq: approved } }
+        { category: { _eq: "financial_report" } }
+      ]
+    }
+  ) {
+    id
+    ...EbbaApplication
+  }
+  most_recent_financial_summary: financial_summaries(
+    limit: 1
+    order_by: { date: desc }
+  ) {
+    id
+    ...FinancialSummary
+  }
+}
+
 fragment CompanyPayorContact on company_payor_contacts {
   id
   payor_user_id
@@ -467,4 +540,5 @@ fragment CustomerSurveillanceResult on customer_surveillance_results {
   qualifying_product
   qualifying_date
   company_id
+  surveillance_status
 }

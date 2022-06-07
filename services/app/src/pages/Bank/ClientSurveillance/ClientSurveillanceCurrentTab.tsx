@@ -1,32 +1,26 @@
 import { Box, TextField } from "@material-ui/core";
+import CertifyCustomerSurveillanceStatusModal from "components/CustomerSurveillance/CertifyCustomerSurveillanceStatusModal";
 import CustomerSurveillanceDataGrid from "components/CustomerSurveillance/CustomerSurveillanceDataGrid";
-import EditCustomerSurveillanceStatusModal from "components/CustomerSurveillance/EditCustomerSurveillanceStatusModal";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
-  Companies,
-  useGetNonDummyCustomersWithMetadataQuery,
+  CustomerSurveillanceFragment,
+  GetCustomersCurrentSurveillanceSubscription,
+  useGetCustomersCurrentSurveillanceSubscription,
 } from "generated/graphql";
-import { useFilterCustomers } from "hooks/useFilterCustomers";
-import {
-  getFirstDayOfMonth,
-  getLastDateOfMonth,
-  todayAsDateStringServer,
-} from "lib/date";
-import { ActionType } from "lib/enum";
+import { useFilterCustomerSurveillance } from "hooks/useFilterCustomerSurveillance";
+import { getEndOfPreviousMonth } from "lib/date";
 import { useMemo, useState } from "react";
 
 export default function ClientSurveillanceCurrentTab() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCompanyIds, setSelectedCompanyIds] = useState<Companies["id"]>(
-    []
-  );
-  const todaysDate = todayAsDateStringServer();
-  const { data, refetch, error } = useGetNonDummyCustomersWithMetadataQuery({
+  const [selectedCompanyIds, setSelectedCompanyIds] = useState<
+    CustomerSurveillanceFragment["id"]
+  >([]);
+
+  const { data, error } = useGetCustomersCurrentSurveillanceSubscription({
     fetchPolicy: "network-only",
     variables: {
-      date: todaysDate,
-      start_date: getFirstDayOfMonth(todaysDate),
-      end_date: getLastDateOfMonth(todaysDate),
+      target_date: getEndOfPreviousMonth(),
     },
   });
 
@@ -35,12 +29,20 @@ export default function ClientSurveillanceCurrentTab() {
     alert(`Error in query (details in console): ${error.message}`);
   }
 
-  const customers = useFilterCustomers(searchQuery, data).filter(
-    ({ financial_summaries }) => financial_summaries[0]?.product_type
-  ) as Companies[];
+  const rawCustomers = data?.customers || [];
+
+  const activeCustomers =
+    (rawCustomers.filter((customer) => {
+      return customer?.most_recent_financial_summary?.[0].product_type !== null;
+    }) as CustomerSurveillanceFragment[]) || [];
+
+  const customers = useFilterCustomerSurveillance(
+    searchQuery,
+    activeCustomers
+  ) as GetCustomersCurrentSurveillanceSubscription["customers"];
 
   const handleSelectCompanies = useMemo(
-    () => (companies: Companies[]) =>
+    () => (companies: CustomerSurveillanceFragment[]) =>
       setSelectedCompanyIds(companies.map(({ id }) => id)),
     [setSelectedCompanyIds]
   );
@@ -65,7 +67,7 @@ export default function ClientSurveillanceCurrentTab() {
         <Box display="flex" flexDirection="row-reverse">
           <Box>
             <ModalButton
-              label={"Edit CS Status"}
+              label={"Certify Surveillance"}
               color={"primary"}
               isDisabled={selectedCompanyIds.length !== 1}
               modal={({ handleClose }) => {
@@ -75,16 +77,9 @@ export default function ClientSurveillanceCurrentTab() {
 
                 if (selectedCustomer) {
                   return (
-                    <EditCustomerSurveillanceStatusModal
-                      actionType={
-                        selectedCustomer.customer_surveillance_results.length
-                          ? ActionType.Update
-                          : ActionType.New
-                      }
-                      company={selectedCustomer}
-                      qualifyingDate={todaysDate}
+                    <CertifyCustomerSurveillanceStatusModal
+                      customer={selectedCustomer}
                       handleClose={() => {
-                        refetch();
                         handleClose();
                       }}
                     />

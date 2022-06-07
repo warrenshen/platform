@@ -6,32 +6,41 @@ import {
   CustomerSurveillanceResultFragment,
   CustomerSurveillanceResults,
 } from "generated/graphql";
-import { QualifyForEnum, QualifyForToLabel } from "lib/enum";
-import { ColumnWidths } from "lib/tables";
+import {
+  QualifyForEnum,
+  QualifyForToLabel,
+  SurveillanceStatusEnum,
+  SurveillanceStatusToLabel,
+} from "lib/enum";
+import { ColumnWidths, formatRowModel } from "lib/tables";
 import { useMemo } from "react";
 
 interface Props {
   surveillanceResults: CustomerSurveillanceResultFragment[];
-  handleClickSurveillanceResultsBankNote?: (
-    id: CustomerSurveillanceResults["id"]
-  ) => void;
+  handleClickBankNote: (id: CustomerSurveillanceResults["id"]) => void;
 }
 
 function getRows(
-  customerSurveillanceResults: CustomerSurveillanceResultFragment[]
+  surveillanceResults: CustomerSurveillanceResultFragment[]
 ): RowsProp {
-  return customerSurveillanceResults.map((customerSurveillanceResult) => ({
-    ...customerSurveillanceResult,
-    qualifying_product:
-      QualifyForToLabel[
-        customerSurveillanceResult?.qualifying_product as QualifyForEnum
-      ],
-  }));
+  return surveillanceResults.map((surveillanceResult) => {
+    return formatRowModel({
+      ...surveillanceResult,
+      qualifying_product:
+        QualifyForToLabel[
+          surveillanceResult?.qualifying_product as QualifyForEnum
+        ],
+      surveillance_stage:
+        SurveillanceStatusToLabel[
+          surveillanceResult?.surveillance_status as SurveillanceStatusEnum
+        ],
+    });
+  });
 }
 
 export default function CustomerSurveillanceResultDataGrid({
   surveillanceResults,
-  handleClickSurveillanceResultsBankNote,
+  handleClickBankNote,
 }: Props) {
   const rows = useMemo(
     () => getRows(surveillanceResults),
@@ -42,19 +51,14 @@ export default function CustomerSurveillanceResultDataGrid({
     () => [
       {
         dataField: "qualifying_date",
-        caption: "Qualifying Date",
-        width: ColumnWidths.Checkbox,
-      },
-      {
-        dataField: "qualifying_product",
-        caption: "Qualifying Product",
-        width: ColumnWidths.UserRole,
+        caption: "Surveillance Date",
+        width: ColumnWidths.Date,
       },
       {
         caption: "Bank Note",
         dataField: "bank_note",
         alignment: "center",
-        width: ColumnWidths.Actions,
+        width: ColumnWidths.Open,
         cellRender: (params: ValueFormatterParams) => (
           <Button
             color="default"
@@ -64,16 +68,25 @@ export default function CustomerSurveillanceResultDataGrid({
               textAlign: "center",
             }}
             onClick={() => {
-              !!handleClickSurveillanceResultsBankNote &&
-                handleClickSurveillanceResultsBankNote(params.row.data.id);
+              handleClickBankNote(params.row.data.bank_note);
             }}
           >
             {!!params.row.data.bank_note ? <CommentIcon /> : "-"}
           </Button>
         ),
       },
+      {
+        dataField: "qualifying_product",
+        caption: "Qualifying Product",
+        width: ColumnWidths.Status,
+      },
+      {
+        dataField: "surveillance_stage",
+        caption: "Surveillance Stage",
+        width: ColumnWidths.Status,
+      },
     ],
-    [handleClickSurveillanceResultsBankNote]
+    [handleClickBankNote]
   );
 
   return (

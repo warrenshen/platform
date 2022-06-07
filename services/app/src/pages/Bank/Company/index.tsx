@@ -334,8 +334,8 @@ export default function BankCompanyPage() {
 
   const company = data?.companies_by_pk || null;
   const companyName = company?.name;
-  const surveillanceStatus =
-    company?.surveillance_status as SurveillanceStatusEnum;
+  const surveillanceStatus = company?.most_recent_surveillance_result?.[0]
+    ?.surveillance_status as SurveillanceStatusEnum;
   const productType =
     (company?.contract?.product_type as ProductTypeEnum) || null;
 

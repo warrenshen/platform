@@ -1,14 +1,20 @@
 import { Box, Typography } from "@material-ui/core";
 import CertificationMonthDropdown from "components/EbbaApplication/CertificationMonthDropdown";
+import { CertificationOption } from "components/EbbaApplication/CertificationMonthDropdown";
 import FileUploader from "components/Shared/File/FileUploader";
 import {
   Companies,
   EbbaApplicationFilesInsertInput,
   EbbaApplicationsInsertInput,
   Files,
+  useGetEbbaApplicationsByCompanyIdQuery,
 } from "generated/graphql";
-import { formatDateString } from "lib/date";
-import { FileTypeEnum, ProductTypeEnum } from "lib/enum";
+import { formatDateString, previousXMonthsCertificationDates } from "lib/date";
+import {
+  CustomerSurveillanceCategoryEnum,
+  FileTypeEnum,
+  ProductTypeEnum,
+} from "lib/enum";
 import { isDispensaryFinancingProductType } from "lib/settings";
 import { useMemo } from "react";
 
@@ -49,6 +55,35 @@ export default function EbbaApplicationFinancialReportsForm({
     ? formatDateString(ebbaApplication.application_date)
     : "";
 
+  const { data, error } = useGetEbbaApplicationsByCompanyIdQuery({
+    fetchPolicy: "network-only",
+    variables: {
+      company_id: companyId,
+      category: CustomerSurveillanceCategoryEnum.FinancialReport,
+    },
+  });
+
+  if (error) {
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
+  }
+
+  const certificationDateOptions: CertificationOption[] = useMemo(() => {
+    const existingEbbaApplications = data?.ebba_applications || [];
+    const existingEbbaApplicationDates = existingEbbaApplications.map(
+      (ebbaApplication) => ebbaApplication.application_date
+    );
+    // 1. Allow bank user to select months up to 12 months back (configurable for CS dashboard)
+    // 2. Allow customer user to selects months up to 4 months back (configurable, but defaulting to 4)
+    return previousXMonthsCertificationDates(isBankUser ? 12 : 4).map(
+      (certificationDate) => ({
+        certificationDate,
+        isOptionDisabled:
+          existingEbbaApplicationDates.indexOf(certificationDate) >= 0,
+      })
+    );
+  }, [isBankUser, data?.ebba_applications]);
+
   return (
     <Box display="flex" flexDirection="column">
       <Box display="flex" flexDirection="column" mt={4}>
@@ -60,12 +95,16 @@ export default function EbbaApplicationFinancialReportsForm({
           </Box>
         )}
         <CertificationMonthDropdown
-          isBankUser={isBankUser}
+          isAnnotationDisplayed
           isDisabled={isActionTypeUpdate}
-          companyId={companyId}
-          ebbaApplication={ebbaApplication}
-          setEbbaApplication={setEbbaApplication}
-          bankUserMonthsBack={12}
+          initialValue={ebbaApplication.application_date}
+          onChange={({ target: { value } }) =>
+            setEbbaApplication({
+              ...ebbaApplication,
+              application_date: value,
+            })
+          }
+          certificationDateOptions={certificationDateOptions}
         />
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>

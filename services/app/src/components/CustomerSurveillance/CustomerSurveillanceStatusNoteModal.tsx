@@ -33,13 +33,13 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
-  companyName: string;
+  customerName: string;
   surveillanceStatusNote: string;
   handleClose: () => void;
 }
 
 export default function CustomerSurveillanceStatusNoteModal({
-  companyName,
+  customerName,
   surveillanceStatusNote,
   handleClose,
 }: Props) {
@@ -60,7 +60,7 @@ export default function CustomerSurveillanceStatusNoteModal({
           <Box display="flex" flexDirection="column">
             <Box mt={2}>
               <Typography variant="body1">
-                {`Customers: ${companyName}`}
+                {`Customer: ${customerName}`}
               </Typography>
             </Box>
           </Box>

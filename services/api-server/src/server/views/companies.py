@@ -735,7 +735,7 @@ class MarkPartnershipInviteAsComplete(MethodView):
 			'status': 'OK',
 		}))
 
-class UpdateCompanySurveillanceStatusView(MethodView):
+class CertifyCustomerSurveillanceResultView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
 	@handler_util.catch_bad_json_request
@@ -748,84 +748,7 @@ class UpdateCompanySurveillanceStatusView(MethodView):
 			'company_id',
 			'surveillance_status',
 			'surveillance_status_note',
-			'qualify_for',
-		]
-
-		for key in required_keys:
-			if key not in form:
-				return handler_util.make_error_response(f'Missing {key} in request')
-
-		company_id = form['company_id']
-		surveillance_status = form['surveillance_status']
-		surveillance_status_note = form['surveillance_status_note']
-		qualify_for = form['qualify_for']
-
-		with session_scope(current_app.session_maker) as session:
-			_, err = create_company_util.update_surveillance_status(
-				company_id=company_id,
-				surveillance_status=surveillance_status,
-				surveillance_status_note=surveillance_status_note,
-				qualify_for=qualify_for,
-				session=session,
-			)
-			if err:
-				raise err
-
-
-		return make_response(json.dumps({
-			'status': 'OK',
-		}))
-
-class UpdateCompanyQualifyingProductView(MethodView):
-	decorators = [auth_util.bank_admin_required]
-
-	@handler_util.catch_bad_json_request
-	def post(self, **kwargs: Any) -> Response:
-		form = json.loads(request.data)
-		if not form:
-			return handler_util.make_error_response('No data provided')
-
-		required_keys = [
-			'company_product_qualification_id',
-			'qualify_for',
-			'surveillance_status_note',
-		]
-
-		for key in required_keys:
-			if key not in form:
-				return handler_util.make_error_response(f'Missing {key} in request')
-
-		company_product_qualification_id = form['company_product_qualification_id']
-		qualify_for = form['qualify_for']
-		surveillance_status_note = form['surveillance_status_note']
-
-		with session_scope(current_app.session_maker) as session:
-			_, err = create_company_util.update_company_product_qualification(
-				company_product_qualification_id = company_product_qualification_id,
-				surveillance_status_note = surveillance_status_note,
-				qualify_for = qualify_for,
-				session = session
-			)
-			if err:
-				raise err
-
-		return make_response(json.dumps({
-			'status': 'OK',
-		}))
-
-class CreateCompanyQualifyingProductView(MethodView):
-	decorators = [auth_util.bank_admin_required]
-
-	@handler_util.catch_bad_json_request
-	def post(self, **kwargs: Any) -> Response:
-		form = json.loads(request.data)
-		if not form:
-			return handler_util.make_error_response('No data provided')
-
-		required_keys = [
-			'company_id',
-			'surveillance_status_note',
-			'qualify_for',
+			'qualifying_product',
 			'qualifying_date'
 		]
 
@@ -833,19 +756,22 @@ class CreateCompanyQualifyingProductView(MethodView):
 			if key not in form:
 				return handler_util.make_error_response(f'Missing {key} in request')
 
+
 		company_id = form['company_id']
+		surveillance_status = form['surveillance_status']
 		surveillance_status_note = form['surveillance_status_note']
-		qualify_for = form['qualify_for']
+		qualifying_product = form['qualifying_product']
 		qualifying_date = form['qualifying_date']
 
 		with session_scope(current_app.session_maker) as session:
-			_, err = create_company_util.create_company_product_qualification(
-				company_id = company_id,
-				surveillance_status_note = surveillance_status_note,
-				qualify_for = qualify_for,
-				qualifying_date = qualifying_date,
+			_, err = create_company_util.certify_customer_surveillance_result(
 				session = session,
-				userSession = UserSession
+				company_id = company_id,
+				surveillance_status = surveillance_status,
+				surveillance_status_note = surveillance_status_note,
+				qualifying_product = qualifying_product,
+				qualifying_date = qualifying_date,
+				user_id = auth_util.UserSession.from_session().get_user_id()
 			)
 			if err:
 				raise err
@@ -861,13 +787,7 @@ handler.add_url_rule(
 	'/create_prospective_customer', view_func=CreateProspectiveCustomerView.as_view(name='create_prospective_customer_view'))
 
 handler.add_url_rule(
-	'/update_company_surveillance_status', view_func=UpdateCompanySurveillanceStatusView.as_view(name='update_company_surveillance_status_view'))
-
-handler.add_url_rule(
-	'/create_company_qualifying_product', view_func=CreateCompanyQualifyingProductView.as_view(name='create_company_qualifying_product_view'))
-
-handler.add_url_rule(
-	'/update_company_qualifying_product', view_func=UpdateCompanyQualifyingProductView.as_view(name='update_company_qualifying_product_view'))
+	'/certify_customer_surveillance_result', view_func=CertifyCustomerSurveillanceResultView.as_view(name='certify_customer_surveillance_result_view'))
 
 handler.add_url_rule(
 	'/upsert_custom_messages', view_func=UpsertCustomMessagesView.as_view(name='upsert_custom_messages_view'))

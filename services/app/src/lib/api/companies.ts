@@ -6,7 +6,6 @@ import {
   CompanySettings,
   CompanySettingsInsertInput,
   ContractsInsertInput,
-  CustomerSurveillanceResults,
   UsersInsertInput,
 } from "generated/graphql";
 import {
@@ -14,7 +13,7 @@ import {
   authenticatedApi,
   companyRoutes,
 } from "lib/api";
-import { CustomMessageEnum, FeatureFlagEnum, QualifyForEnum } from "lib/enum";
+import { CustomMessageEnum, FeatureFlagEnum } from "lib/enum";
 
 export type CreateCustomerReq = {
   company: CompaniesInsertInput;
@@ -65,67 +64,6 @@ export async function createProspectiveCustomer(
         return {
           status: "ERROR",
           msg: "Could not create prospective company",
-        };
-      }
-    );
-}
-
-export type UpdateCustomerSurveillanceResultReq = {
-  variables: {
-    company_product_qualification_id: CustomerSurveillanceResults["id"];
-    surveillance_status_note: string;
-    qualify_for: QualifyForEnum;
-  };
-};
-
-export async function updateCustomerSurveillanceResultMutation(
-  req: UpdateCustomerSurveillanceResultReq
-): Promise<CustomMutationResponse> {
-  return authenticatedApi
-    .post(companyRoutes.updateCustomerSurveillanceResult, req.variables)
-    .then((res) => {
-      return res.data;
-    })
-    .then(
-      (response) => {
-        return response;
-      },
-      (error) => {
-        console.log("error", error);
-        return {
-          status: "ERROR",
-          msg: "Could not update customer surveillance result",
-        };
-      }
-    );
-}
-
-export type CreateCustomerSurveillanceResultReq = {
-  variables: {
-    company_id: Companies["id"];
-    surveillance_status_note: string;
-    qualify_for: { [key in QualifyForEnum]: boolean | null };
-    qualifying_date: string;
-  };
-};
-
-export async function createCustomerSurveillanceResultMutation(
-  req: CreateCustomerSurveillanceResultReq
-): Promise<CustomMutationResponse> {
-  return authenticatedApi
-    .post(companyRoutes.createCustomerSurveillanceResult, req.variables)
-    .then((res) => {
-      return res.data;
-    })
-    .then(
-      (response) => {
-        return response;
-      },
-      (error) => {
-        console.log("error", error);
-        return {
-          status: "ERROR",
-          msg: "Could not create customer surveillance status",
         };
       }
     );

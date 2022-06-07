@@ -3,13 +3,11 @@ import {
   addDays,
   addMonths,
   differenceInDays,
-  endOfMonth,
   format,
   getYear,
   lastDayOfMonth,
   parse,
   parseISO,
-  startOfMonth,
 } from "date-fns";
 import { addYearToBankHolidays, bankHolidays } from "lib/holidays";
 import { range } from "lodash";
@@ -99,6 +97,17 @@ export function formatDateString(
       return null;
     }
   }
+}
+
+export function getEndOfPreviousMonth(dateString: string = "") {
+  const date = !!dateString
+    ? parse(dateString, DateFormatServer, new Date())
+    : new Date();
+
+  date.setDate(1);
+  date.setHours(-1);
+
+  return dateAsDateStringServer(date);
 }
 
 export function getEndOfNextMonth(dateString: string) {
@@ -299,9 +308,3 @@ export const renderQuarter = (input_date: string) => {
 
   return `Q${quarterMapping[month]}${year}`;
 };
-
-export const getFirstDayOfMonth = (date: string) =>
-  format(startOfMonth(new Date(date)), DateFormatServer);
-
-export const getLastDateOfMonth = (date: string) =>
-  format(endOfMonth(new Date(date)), DateFormatServer);

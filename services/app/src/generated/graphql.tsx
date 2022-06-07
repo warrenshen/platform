@@ -3857,6 +3857,7 @@ export type CompanyPartnershipInvitations = {
   /** An object relationship */
   requesting_company: Companies;
   requesting_company_id: Scalars["uuid"];
+  submitted_by?: Maybe<Scalars["uuid"]>;
   updated_at: Scalars["timestamptz"];
 };
 
@@ -3898,6 +3899,7 @@ export type CompanyPartnershipInvitationsBoolExp = {
   requested_at?: Maybe<TimestamptzComparisonExp>;
   requesting_company?: Maybe<CompaniesBoolExp>;
   requesting_company_id?: Maybe<UuidComparisonExp>;
+  submitted_by?: Maybe<UuidComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
 };
 
@@ -3918,6 +3920,7 @@ export type CompanyPartnershipInvitationsInsertInput = {
   requested_at?: Maybe<Scalars["timestamptz"]>;
   requesting_company?: Maybe<CompaniesObjRelInsertInput>;
   requesting_company_id?: Maybe<Scalars["uuid"]>;
+  submitted_by?: Maybe<Scalars["uuid"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
@@ -3930,6 +3933,7 @@ export type CompanyPartnershipInvitationsMaxFields = {
   id?: Maybe<Scalars["uuid"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
   requesting_company_id?: Maybe<Scalars["uuid"]>;
+  submitted_by?: Maybe<Scalars["uuid"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
@@ -3942,6 +3946,7 @@ export type CompanyPartnershipInvitationsMinFields = {
   id?: Maybe<Scalars["uuid"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
   requesting_company_id?: Maybe<Scalars["uuid"]>;
+  submitted_by?: Maybe<Scalars["uuid"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
@@ -3971,6 +3976,7 @@ export type CompanyPartnershipInvitationsOrderBy = {
   requested_at?: Maybe<OrderBy>;
   requesting_company?: Maybe<CompaniesOrderBy>;
   requesting_company_id?: Maybe<OrderBy>;
+  submitted_by?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
 };
 
@@ -3998,6 +4004,8 @@ export enum CompanyPartnershipInvitationsSelectColumn {
   /** column name */
   RequestingCompanyId = "requesting_company_id",
   /** column name */
+  SubmittedBy = "submitted_by",
+  /** column name */
   UpdatedAt = "updated_at",
 }
 
@@ -4011,6 +4019,7 @@ export type CompanyPartnershipInvitationsSetInput = {
   metadata_info?: Maybe<Scalars["json"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
   requesting_company_id?: Maybe<Scalars["uuid"]>;
+  submitted_by?: Maybe<Scalars["uuid"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
@@ -4032,6 +4041,8 @@ export enum CompanyPartnershipInvitationsUpdateColumn {
   RequestedAt = "requested_at",
   /** column name */
   RequestingCompanyId = "requesting_company_id",
+  /** column name */
+  SubmittedBy = "submitted_by",
   /** column name */
   UpdatedAt = "updated_at",
 }
@@ -6160,7 +6171,7 @@ export type CustomerSurveillanceResults = {
   id: Scalars["uuid"];
   metadata_info: Scalars["json"];
   qualifying_date: Scalars["date"];
-  qualifying_product: Scalars["String"];
+  qualifying_product?: Maybe<Scalars["String"]>;
   /** An object relationship */
   submitting_user: Users;
   submitting_user_id: Scalars["uuid"];
@@ -6229,9 +6240,9 @@ export type CustomerSurveillanceResultsBoolExp = {
 /** unique or primary key constraints on table "customer_surveillance_results" */
 export enum CustomerSurveillanceResultsConstraint {
   /** unique or primary key constraint */
-  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
-  /** unique or primary key constraint */
   CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
+  /** unique or primary key constraint */
+  CompanyProductQualificationsQualifyingDateCompanyIdKey = "company_product_qualifications_qualifying_date_company_id_key",
 }
 
 /** input type for inserting data into table "customer_surveillance_results" */
@@ -20572,7 +20583,9 @@ export type PurchaseOrders = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_by?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<Scalars["String"]>;
@@ -20610,6 +20623,7 @@ export type PurchaseOrders = {
   /** An aggregate relationship */
   purchase_order_metrc_transfers_aggregate: PurchaseOrderMetrcTransfersAggregate;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_by?: Maybe<Scalars["uuid"]>;
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -20746,7 +20760,9 @@ export type PurchaseOrdersBoolExp = {
   _or?: Maybe<Array<PurchaseOrdersBoolExp>>;
   amount?: Maybe<NumericComparisonExp>;
   amount_funded?: Maybe<NumericComparisonExp>;
+  amount_updated_at?: Maybe<TimestamptzComparisonExp>;
   approved_at?: Maybe<TimestamptzComparisonExp>;
+  approved_by?: Maybe<UuidComparisonExp>;
   bank_incomplete_note?: Maybe<StringComparisonExp>;
   bank_note?: Maybe<StringComparisonExp>;
   bank_rejection_note?: Maybe<StringComparisonExp>;
@@ -20769,6 +20785,7 @@ export type PurchaseOrdersBoolExp = {
   purchase_order_files?: Maybe<PurchaseOrderFilesBoolExp>;
   purchase_order_metrc_transfers?: Maybe<PurchaseOrderMetrcTransfersBoolExp>;
   rejected_at?: Maybe<TimestamptzComparisonExp>;
+  rejected_by?: Maybe<UuidComparisonExp>;
   rejection_note?: Maybe<StringComparisonExp>;
   requested_at?: Maybe<TimestamptzComparisonExp>;
   status?: Maybe<RequestStatusEnumComparisonExp>;
@@ -20796,7 +20813,9 @@ export type PurchaseOrdersInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_by?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<Scalars["String"]>;
@@ -20824,6 +20843,7 @@ export type PurchaseOrdersInsertInput = {
   purchase_order_files?: Maybe<PurchaseOrderFilesArrRelInsertInput>;
   purchase_order_metrc_transfers?: Maybe<PurchaseOrderMetrcTransfersArrRelInsertInput>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_by?: Maybe<Scalars["uuid"]>;
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -20838,7 +20858,9 @@ export type PurchaseOrdersMaxFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_by?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<Scalars["String"]>;
@@ -20857,6 +20879,7 @@ export type PurchaseOrdersMaxFields = {
   order_date?: Maybe<Scalars["date"]>;
   order_number?: Maybe<Scalars["String"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_by?: Maybe<Scalars["uuid"]>;
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -20869,7 +20892,9 @@ export type PurchaseOrdersMaxOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
+  approved_by?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<OrderBy>;
@@ -20888,6 +20913,7 @@ export type PurchaseOrdersMaxOrderBy = {
   order_date?: Maybe<OrderBy>;
   order_number?: Maybe<OrderBy>;
   rejected_at?: Maybe<OrderBy>;
+  rejected_by?: Maybe<OrderBy>;
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
@@ -20900,7 +20926,9 @@ export type PurchaseOrdersMinFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_by?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<Scalars["String"]>;
@@ -20919,6 +20947,7 @@ export type PurchaseOrdersMinFields = {
   order_date?: Maybe<Scalars["date"]>;
   order_number?: Maybe<Scalars["String"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_by?: Maybe<Scalars["uuid"]>;
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -20931,7 +20960,9 @@ export type PurchaseOrdersMinOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
+  approved_by?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<OrderBy>;
@@ -20950,6 +20981,7 @@ export type PurchaseOrdersMinOrderBy = {
   order_date?: Maybe<OrderBy>;
   order_number?: Maybe<OrderBy>;
   rejected_at?: Maybe<OrderBy>;
+  rejected_by?: Maybe<OrderBy>;
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
@@ -20983,7 +21015,9 @@ export type PurchaseOrdersOnConflict = {
 export type PurchaseOrdersOrderBy = {
   amount?: Maybe<OrderBy>;
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
+  approved_by?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
   bank_note?: Maybe<OrderBy>;
   bank_rejection_note?: Maybe<OrderBy>;
@@ -21006,6 +21040,7 @@ export type PurchaseOrdersOrderBy = {
   purchase_order_files_aggregate?: Maybe<PurchaseOrderFilesAggregateOrderBy>;
   purchase_order_metrc_transfers_aggregate?: Maybe<PurchaseOrderMetrcTransfersAggregateOrderBy>;
   rejected_at?: Maybe<OrderBy>;
+  rejected_by?: Maybe<OrderBy>;
   rejection_note?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
   status?: Maybe<OrderBy>;
@@ -21026,7 +21061,11 @@ export enum PurchaseOrdersSelectColumn {
   /** column name */
   AmountFunded = "amount_funded",
   /** column name */
+  AmountUpdatedAt = "amount_updated_at",
+  /** column name */
   ApprovedAt = "approved_at",
+  /** column name */
+  ApprovedBy = "approved_by",
   /** column name */
   BankIncompleteNote = "bank_incomplete_note",
   /** column name */
@@ -21064,6 +21103,8 @@ export enum PurchaseOrdersSelectColumn {
   /** column name */
   RejectedAt = "rejected_at",
   /** column name */
+  RejectedBy = "rejected_by",
+  /** column name */
   RejectionNote = "rejection_note",
   /** column name */
   RequestedAt = "requested_at",
@@ -21080,7 +21121,9 @@ export type PurchaseOrdersSetInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_by?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<Scalars["String"]>;
@@ -21104,6 +21147,7 @@ export type PurchaseOrdersSetInput = {
   order_date?: Maybe<Scalars["date"]>;
   order_number?: Maybe<Scalars["String"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_by?: Maybe<Scalars["uuid"]>;
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -21183,7 +21227,11 @@ export enum PurchaseOrdersUpdateColumn {
   /** column name */
   AmountFunded = "amount_funded",
   /** column name */
+  AmountUpdatedAt = "amount_updated_at",
+  /** column name */
   ApprovedAt = "approved_at",
+  /** column name */
+  ApprovedBy = "approved_by",
   /** column name */
   BankIncompleteNote = "bank_incomplete_note",
   /** column name */
@@ -21220,6 +21268,8 @@ export enum PurchaseOrdersUpdateColumn {
   OrderNumber = "order_number",
   /** column name */
   RejectedAt = "rejected_at",
+  /** column name */
+  RejectedBy = "rejected_by",
   /** column name */
   RejectionNote = "rejection_note",
   /** column name */
@@ -26598,7 +26648,13 @@ export type GetCompanyForBankCompanyPageQuery = {
       | "is_payor"
       | "is_vendor"
       | "surveillance_status"
-    > & { contract?: Maybe<Pick<Contracts, "id" | "product_type">> }
+    > & {
+      contract?: Maybe<Pick<Contracts, "id" | "product_type">>;
+      most_recent_surveillance_result: Array<
+        Pick<CustomerSurveillanceResults, "id"> &
+          CustomerSurveillanceResultFragment
+      >;
+    }
   >;
 };
 
@@ -26644,6 +26700,14 @@ export type GetActiveFinancialSummariesByDateQuery = {
       company: Pick<Companies, "id" | "name">;
     } & FinancialSummaryFragment
   >;
+};
+
+export type GetCustomersCurrentSurveillanceSubscriptionVariables = Exact<{
+  target_date?: Maybe<Scalars["date"]>;
+}>;
+
+export type GetCustomersCurrentSurveillanceSubscription = {
+  customers: Array<Pick<Companies, "id"> & CustomerSurveillanceFragment>;
 };
 
 export type GetOpenLoansByDebtFacilityStatusesSubscriptionVariables = Exact<{
@@ -28565,6 +28629,22 @@ export type CustomersWithMetadataFragment = Pick<Companies, "id"> & {
   >;
 } & CustomerForBankFragment;
 
+export type CustomerSurveillanceFragment = {
+  settings?: Maybe<Pick<CompanySettings, "id"> & CompanySettingsFragment>;
+  loans: Array<Pick<Loans, "status" | "amount">>;
+  target_surveillance_result: Array<CustomerSurveillanceResultFragment>;
+  all_surveillance_results: Array<CustomerSurveillanceResultFragment>;
+  most_recent_borrowing_base: Array<
+    Pick<EbbaApplications, "id"> & EbbaApplicationFragment
+  >;
+  most_recent_financial_report: Array<
+    Pick<EbbaApplications, "id"> & EbbaApplicationFragment
+  >;
+  most_recent_financial_summary: Array<
+    Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
+  >;
+} & CustomerForBankFragment;
+
 export type CompanyPayorContactFragment = Pick<
   CompanyPayorContacts,
   "id" | "payor_user_id"
@@ -28896,7 +28976,12 @@ export type DebtFacilityEventFragment = Pick<
 
 export type CustomerSurveillanceResultFragment = Pick<
   CustomerSurveillanceResults,
-  "id" | "bank_note" | "qualifying_product" | "qualifying_date" | "company_id"
+  | "id"
+  | "bank_note"
+  | "qualifying_product"
+  | "qualifying_date"
+  | "company_id"
+  | "surveillance_status"
 >;
 
 export type CompanySettingsLimitedFragment = Pick<
@@ -29078,32 +29163,6 @@ export type GetActiveCustomersWithMetadataQueryVariables = Exact<{
 
 export type GetActiveCustomersWithMetadataQuery = {
   customers: Array<CustomersWithMetadataFragment>;
-};
-
-export type GetNonDummyCustomersWithMetadataQueryVariables = Exact<{
-  date?: Maybe<Scalars["date"]>;
-  start_date?: Maybe<Scalars["date"]>;
-  end_date?: Maybe<Scalars["date"]>;
-}>;
-
-export type GetNonDummyCustomersWithMetadataQuery = {
-  customers: Array<
-    {
-      loans: Array<Pick<Loans, "status" | "amount">>;
-      customer_surveillance_results: Array<CustomerSurveillanceResultFragment>;
-    } & CustomersWithMetadataFragment
-  >;
-};
-
-export type GetCustomerSurveillanceResultsByDateQueryVariables = Exact<{
-  company_id: Scalars["uuid"];
-  start_date?: Maybe<Scalars["date"]>;
-  end_date?: Maybe<Scalars["date"]>;
-  limit?: Maybe<Scalars["Int"]>;
-}>;
-
-export type GetCustomerSurveillanceResultsByDateQuery = {
-  customer_surveillance_results: Array<CustomerSurveillanceResultFragment>;
 };
 
 export type GetCustomersForDropdownQueryVariables = Exact<{
@@ -29577,6 +29636,91 @@ export const CustomersWithMetadataFragmentDoc = gql`
   ${FinancialSummaryFragmentDoc}
   ${CompanySettingsFragmentDoc}
   ${EbbaApplicationFragmentDoc}
+`;
+export const CustomerSurveillanceResultFragmentDoc = gql`
+  fragment CustomerSurveillanceResult on customer_surveillance_results {
+    id
+    bank_note
+    qualifying_product
+    qualifying_date
+    company_id
+    surveillance_status
+  }
+`;
+export const CustomerSurveillanceFragmentDoc = gql`
+  fragment CustomerSurveillance on companies {
+    ...CustomerForBank
+    settings {
+      id
+      ...CompanySettings
+    }
+    loans(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { funded_at: { _is_null: true } }
+          { closed_at: { _is_null: true } }
+          { requested_at: { _is_null: false } }
+        ]
+      }
+    ) {
+      status
+      amount
+    }
+    target_surveillance_result: customer_surveillance_results(
+      where: { qualifying_date: { _eq: $target_date } }
+    ) {
+      ...CustomerSurveillanceResult
+    }
+    all_surveillance_results: customer_surveillance_results(
+      order_by: { qualifying_date: desc }
+    ) {
+      ...CustomerSurveillanceResult
+    }
+    most_recent_borrowing_base: ebba_applications(
+      limit: 1
+      order_by: [{ application_date: desc }, { created_at: desc }]
+      where: {
+        _and: [
+          { status: { _eq: approved } }
+          { category: { _eq: "borrowing_base" } }
+        ]
+      }
+    ) {
+      id
+      ...EbbaApplication
+    }
+    most_recent_financial_report: ebba_applications(
+      limit: 1
+      order_by: [{ application_date: desc }, { created_at: desc }]
+      where: {
+        _and: [
+          { status: { _eq: approved } }
+          { category: { _eq: "financial_report" } }
+        ]
+      }
+    ) {
+      id
+      ...EbbaApplication
+    }
+    most_recent_financial_summary: financial_summaries(
+      limit: 1
+      order_by: { date: desc }
+    ) {
+      id
+      ...FinancialSummary
+    }
+  }
+  ${CustomerForBankFragmentDoc}
+  ${CompanySettingsFragmentDoc}
+  ${CustomerSurveillanceResultFragmentDoc}
+  ${EbbaApplicationFragmentDoc}
+  ${FinancialSummaryFragmentDoc}
 `;
 export const CompanyPayorContactFragmentDoc = gql`
   fragment CompanyPayorContact on company_payor_contacts {
@@ -30332,15 +30476,6 @@ export const DebtFacilityEventFragmentDoc = gql`
     event_comments
     event_date
     event_payload
-  }
-`;
-export const CustomerSurveillanceResultFragmentDoc = gql`
-  fragment CustomerSurveillanceResult on customer_surveillance_results {
-    id
-    bank_note
-    qualifying_product
-    qualifying_date
-    company_id
   }
 `;
 export const GetAdvancesDocument = gql`
@@ -31573,8 +31708,16 @@ export const GetCompanyForBankCompanyPageDocument = gql`
         id
         product_type
       }
+      most_recent_surveillance_result: customer_surveillance_results(
+        limit: 1
+        order_by: { qualifying_date: desc }
+      ) {
+        id
+        ...CustomerSurveillanceResult
+      }
     }
   }
+  ${CustomerSurveillanceResultFragmentDoc}
 `;
 
 /**
@@ -31886,6 +32029,61 @@ export type GetActiveFinancialSummariesByDateQueryResult = Apollo.QueryResult<
   GetActiveFinancialSummariesByDateQuery,
   GetActiveFinancialSummariesByDateQueryVariables
 >;
+export const GetCustomersCurrentSurveillanceDocument = gql`
+  subscription GetCustomersCurrentSurveillance($target_date: date) {
+    customers: companies(
+      where: {
+        _and: [
+          {
+            _or: [
+              { settings: { is_dummy_account: { _is_null: true } } }
+              { settings: { is_dummy_account: { _eq: false } } }
+            ]
+          }
+          { is_customer: { _eq: true } }
+        ]
+      }
+      order_by: { name: asc }
+    ) {
+      id
+      ...CustomerSurveillance
+    }
+  }
+  ${CustomerSurveillanceFragmentDoc}
+`;
+
+/**
+ * __useGetCustomersCurrentSurveillanceSubscription__
+ *
+ * To run a query within a React component, call `useGetCustomersCurrentSurveillanceSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomersCurrentSurveillanceSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomersCurrentSurveillanceSubscription({
+ *   variables: {
+ *      target_date: // value for 'target_date'
+ *   },
+ * });
+ */
+export function useGetCustomersCurrentSurveillanceSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    GetCustomersCurrentSurveillanceSubscription,
+    GetCustomersCurrentSurveillanceSubscriptionVariables
+  >
+) {
+  return Apollo.useSubscription<
+    GetCustomersCurrentSurveillanceSubscription,
+    GetCustomersCurrentSurveillanceSubscriptionVariables
+  >(GetCustomersCurrentSurveillanceDocument, baseOptions);
+}
+export type GetCustomersCurrentSurveillanceSubscriptionHookResult = ReturnType<
+  typeof useGetCustomersCurrentSurveillanceSubscription
+>;
+export type GetCustomersCurrentSurveillanceSubscriptionResult =
+  Apollo.SubscriptionResult<GetCustomersCurrentSurveillanceSubscription>;
 export const GetOpenLoansByDebtFacilityStatusesDocument = gql`
   subscription GetOpenLoansByDebtFacilityStatuses($statuses: [String!]) {
     loans(
@@ -40224,186 +40422,6 @@ export type GetActiveCustomersWithMetadataQueryResult = Apollo.QueryResult<
   GetActiveCustomersWithMetadataQuery,
   GetActiveCustomersWithMetadataQueryVariables
 >;
-export const GetNonDummyCustomersWithMetadataDocument = gql`
-  query GetNonDummyCustomersWithMetadata(
-    $date: date
-    $start_date: date
-    $end_date: date
-  ) {
-    customers: companies(
-      where: {
-        _and: [
-          {
-            _or: [
-              { settings: { is_dummy_account: { _is_null: true } } }
-              { settings: { is_dummy_account: { _eq: false } } }
-            ]
-          }
-          { is_customer: { _eq: true } }
-        ]
-      }
-      order_by: { name: asc }
-    ) {
-      ...CustomersWithMetadata
-      loans(
-        where: {
-          _and: [
-            {
-              _or: [
-                { is_deleted: { _is_null: true } }
-                { is_deleted: { _eq: false } }
-              ]
-            }
-            { funded_at: { _is_null: true } }
-            { closed_at: { _is_null: true } }
-            { requested_at: { _is_null: false } }
-          ]
-        }
-      ) {
-        status
-        amount
-      }
-      customer_surveillance_results(
-        limit: 1
-        where: {
-          _and: [
-            { qualifying_date: { _gte: $start_date } }
-            { qualifying_date: { _lte: $end_date } }
-          ]
-        }
-      ) {
-        ...CustomerSurveillanceResult
-      }
-    }
-  }
-  ${CustomersWithMetadataFragmentDoc}
-  ${CustomerSurveillanceResultFragmentDoc}
-`;
-
-/**
- * __useGetNonDummyCustomersWithMetadataQuery__
- *
- * To run a query within a React component, call `useGetNonDummyCustomersWithMetadataQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetNonDummyCustomersWithMetadataQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetNonDummyCustomersWithMetadataQuery({
- *   variables: {
- *      date: // value for 'date'
- *      start_date: // value for 'start_date'
- *      end_date: // value for 'end_date'
- *   },
- * });
- */
-export function useGetNonDummyCustomersWithMetadataQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    GetNonDummyCustomersWithMetadataQuery,
-    GetNonDummyCustomersWithMetadataQueryVariables
-  >
-) {
-  return Apollo.useQuery<
-    GetNonDummyCustomersWithMetadataQuery,
-    GetNonDummyCustomersWithMetadataQueryVariables
-  >(GetNonDummyCustomersWithMetadataDocument, baseOptions);
-}
-export function useGetNonDummyCustomersWithMetadataLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetNonDummyCustomersWithMetadataQuery,
-    GetNonDummyCustomersWithMetadataQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<
-    GetNonDummyCustomersWithMetadataQuery,
-    GetNonDummyCustomersWithMetadataQueryVariables
-  >(GetNonDummyCustomersWithMetadataDocument, baseOptions);
-}
-export type GetNonDummyCustomersWithMetadataQueryHookResult = ReturnType<
-  typeof useGetNonDummyCustomersWithMetadataQuery
->;
-export type GetNonDummyCustomersWithMetadataLazyQueryHookResult = ReturnType<
-  typeof useGetNonDummyCustomersWithMetadataLazyQuery
->;
-export type GetNonDummyCustomersWithMetadataQueryResult = Apollo.QueryResult<
-  GetNonDummyCustomersWithMetadataQuery,
-  GetNonDummyCustomersWithMetadataQueryVariables
->;
-export const GetCustomerSurveillanceResultsByDateDocument = gql`
-  query GetCustomerSurveillanceResultsByDate(
-    $company_id: uuid!
-    $start_date: date
-    $end_date: date
-    $limit: Int
-  ) {
-    customer_surveillance_results(
-      limit: $limit
-      where: {
-        _and: [
-          { qualifying_date: { _gte: $start_date } }
-          { qualifying_date: { _lte: $end_date } }
-          { company_id: { _eq: $company_id } }
-        ]
-      }
-    ) {
-      ...CustomerSurveillanceResult
-    }
-  }
-  ${CustomerSurveillanceResultFragmentDoc}
-`;
-
-/**
- * __useGetCustomerSurveillanceResultsByDateQuery__
- *
- * To run a query within a React component, call `useGetCustomerSurveillanceResultsByDateQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCustomerSurveillanceResultsByDateQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetCustomerSurveillanceResultsByDateQuery({
- *   variables: {
- *      company_id: // value for 'company_id'
- *      start_date: // value for 'start_date'
- *      end_date: // value for 'end_date'
- *      limit: // value for 'limit'
- *   },
- * });
- */
-export function useGetCustomerSurveillanceResultsByDateQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    GetCustomerSurveillanceResultsByDateQuery,
-    GetCustomerSurveillanceResultsByDateQueryVariables
-  >
-) {
-  return Apollo.useQuery<
-    GetCustomerSurveillanceResultsByDateQuery,
-    GetCustomerSurveillanceResultsByDateQueryVariables
-  >(GetCustomerSurveillanceResultsByDateDocument, baseOptions);
-}
-export function useGetCustomerSurveillanceResultsByDateLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetCustomerSurveillanceResultsByDateQuery,
-    GetCustomerSurveillanceResultsByDateQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<
-    GetCustomerSurveillanceResultsByDateQuery,
-    GetCustomerSurveillanceResultsByDateQueryVariables
-  >(GetCustomerSurveillanceResultsByDateDocument, baseOptions);
-}
-export type GetCustomerSurveillanceResultsByDateQueryHookResult = ReturnType<
-  typeof useGetCustomerSurveillanceResultsByDateQuery
->;
-export type GetCustomerSurveillanceResultsByDateLazyQueryHookResult =
-  ReturnType<typeof useGetCustomerSurveillanceResultsByDateLazyQuery>;
-export type GetCustomerSurveillanceResultsByDateQueryResult =
-  Apollo.QueryResult<
-    GetCustomerSurveillanceResultsByDateQuery,
-    GetCustomerSurveillanceResultsByDateQueryVariables
-  >;
 export const GetCustomersForDropdownDocument = gql`
   query GetCustomersForDropdown {
     customers: companies(

@@ -5,13 +5,12 @@ import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridC
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import MetrcLogo from "components/Shared/Images/MetrcLogo.png";
 import {
-  Companies,
+  CustomerSurveillanceFragment,
   FinancialSummaries,
-  GetNonDummyCustomersWithMetadataQuery,
+  GetCustomersCurrentSurveillanceSubscription,
 } from "generated/graphql";
-import { formatDatetimeString } from "lib/date";
+import { formatDateString, formatDatetimeString } from "lib/date";
 import {
-  CustomerSurveillanceCategoryEnum,
   FeatureFlagEnum,
   ProductTypeEnum,
   ProductTypeToLabel,
@@ -21,7 +20,7 @@ import {
 } from "lib/enum";
 import { formatCurrency, formatPercentage } from "lib/number";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
-import { ColumnWidths } from "lib/tables";
+import { ColumnWidths, formatRowModel } from "lib/tables";
 import { useMemo } from "react";
 
 interface Props {
@@ -30,9 +29,9 @@ interface Props {
   isFinancialReportDateVisible?: boolean;
   isBorrowingBaseDateVisible?: boolean;
   isLoansReadyForAdvancesAmountVisible?: boolean;
-  customers: GetNonDummyCustomersWithMetadataQuery["customers"];
-  selectedCompaniesIds?: Companies["id"][];
-  handleSelectCompanies?: (companies: Companies[]) => void;
+  customers: GetCustomersCurrentSurveillanceSubscription["customers"];
+  selectedCompaniesIds?: CustomerSurveillanceFragment["id"][];
+  handleSelectCompanies?: (companies: CustomerSurveillanceFragment[]) => void;
 }
 
 const calculatePercentagePastDue = (financialSummary: FinancialSummaries) =>
@@ -44,67 +43,70 @@ const calculatePercentagePastDue = (financialSummary: FinancialSummaries) =>
     : "0%";
 
 function getRows(
-  companies: GetNonDummyCustomersWithMetadataQuery["customers"]
+  companies: GetCustomersCurrentSurveillanceSubscription["customers"]
 ): RowsProp {
   return companies.map((company) => {
-    const productType =
-      company?.financial_summaries && company.financial_summaries.length
-        ? ProductTypeToLabel[
-            company.financial_summaries[0].product_type as ProductTypeEnum
-          ]
-        : "None";
+    const productType = company?.most_recent_financial_summary?.[0]
+      ? ProductTypeToLabel[
+          company.most_recent_financial_summary[0]
+            .product_type as ProductTypeEnum
+        ]
+      : "None";
 
-    const isLineOfCredit =
-      productType === ProductTypeToLabel[ProductTypeEnum.LineOfCredit];
-
-    const financialReport = !!company?.ebba_applications
-      ? company?.ebba_applications.filter(
-          ({ category }) =>
-            category === CustomerSurveillanceCategoryEnum.FinancialReport
-        )[0]
-      : null;
-
-    const borrowingBase = !!company?.ebba_applications
-      ? company?.ebba_applications.filter(
-          ({ category }) =>
-            category === CustomerSurveillanceCategoryEnum.BorrowingBase
-        )[0]
-      : null;
-
-    return {
+    return formatRowModel({
       ...company,
       company_url: getBankCompanyRoute(
         company.id,
         BankCompanyRouteEnum.Overview
       ),
-      financial_report_date: formatDatetimeString(
-        financialReport?.application_date,
-        false,
-        "-"
-      ),
-      borrowing_base_date: isLineOfCredit
-        ? formatDatetimeString(borrowingBase?.application_date, false, "-")
-        : "N/A",
+      financial_report_date: !!company?.most_recent_financial_report?.[0]
+        ? formatDateString(
+            company.most_recent_financial_report[0].application_date
+          )
+        : "-",
+      financial_report_valid_until: !!company?.most_recent_financial_report?.[0]
+        ? formatDatetimeString(
+            company.most_recent_financial_report[0].expires_at,
+            false
+          )
+        : "-",
+      borrowing_base_date: !!company?.most_recent_borrowing_base?.[0]
+        ? formatDateString(
+            company.most_recent_borrowing_base[0].application_date
+          )
+        : "-",
+      borrowing_base_valid_until: !!company?.most_recent_borrowing_base?.[0]
+        ? formatDatetimeString(
+            company.most_recent_borrowing_base[0].expires_at,
+            false
+          )
+        : "-",
       qualify_for:
         QualifyForToLabel[
-          company?.customer_surveillance_results?.[0]
+          company?.target_surveillance_result?.[0]
             ?.qualifying_product as QualifyForEnum
         ] || "-",
+      selected_month_surveillance_status: !!company
+        ?.target_surveillance_result?.[0]
+        ? company.target_surveillance_result[0].surveillance_status
+        : null,
       product_type: productType,
       debt_facility_status: company?.debt_facility_status
         ? company.debt_facility_status
         : null,
-      percentage_past_due: calculatePercentagePastDue(
-        company?.financial_summaries?.[0] as FinancialSummaries
-      ),
-      most_overdue_loan_days: !!company?.financial_summaries?.[0]
-        ? company.financial_summaries[0].most_overdue_loan_days
+      percentage_past_due: !!company?.most_recent_financial_summary?.[0]
+        ? calculatePercentagePastDue(
+            company?.most_recent_financial_summary?.[0] as FinancialSummaries
+          )
+        : null,
+      most_overdue_loan_days: !!company?.most_recent_financial_summary?.[0]
+        ? company.most_recent_financial_summary[0].most_overdue_loan_days
         : null,
       loans_ready_for_advances_amount: formatCurrency(
         company?.loans.reduce((acc, { amount }) => acc + amount, 0),
         "$0"
       ),
-    };
+    });
   });
 }
 
@@ -136,21 +138,21 @@ export default function CustomerSurveillanceDataGrid({
         ),
       },
       {
-        dataField: "product_type",
-        caption: "Current Product",
-        alignment: "center",
-        width: ColumnWidths.Status,
-      },
-      {
-        dataField: "surveillance_status",
+        dataField: "selected_month_surveillance_status",
         caption: "Surveillance Stage",
         width: ColumnWidths.Status,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
           <CustomerSurveillanceStatusChip
-            requestStatus={params.row.data.surveillance_status}
+            requestStatus={params.row.data.selected_month_surveillance_status}
           />
         ),
+      },
+      {
+        dataField: "product_type",
+        caption: "Current Product",
+        alignment: "center",
+        width: ColumnWidths.Status,
       },
       {
         dataField: "qualify_for",
@@ -172,7 +174,7 @@ export default function CustomerSurveillanceDataGrid({
               <img src={MetrcLogo} alt="Metrc Logo" width={24} height={24} />
             </Box>
           ) : (
-            params.row.data.application_date
+            params.row.data.financial_report_date
           ),
       },
       {
@@ -188,7 +190,7 @@ export default function CustomerSurveillanceDataGrid({
               <img src={MetrcLogo} alt="Metrc Logo" width={24} height={24} />
             </Box>
           ) : (
-            params.row.data.application_date
+            params.row.data.financial_report_valid_until
           ),
       },
       {

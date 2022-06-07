@@ -27,26 +27,41 @@ def submit_ebba_application_for_approval(
 	ebba_application.requested_at = date_util.now()
 	ebba_application.submitted_by_user_id = user_id
 
-	# Upon submitting new financials, we will turned the surveillance status
+	# Upon submitting new financials, we will turned the previous month's surveillance status
 	# of that company to `In Review`. We do this because we don't want to send
 	# an advance to that company in the event that the submitted financials
 	# reveal some evidence that would negatively impact our underwriting
 	# considerations. For most cases though, the happy path is for the customer
 	# to switch to `In Review`, get reviewed, then return to normal lending activity
-	company = cast(
-		models.Company,
-		session.query(models.Company).filter(
-			models.Company.id == company_id
+	qualifying_date = date_util.get_report_month_last_day(date_util.now_as_date())
+	customer_surveillance_result = cast(
+		models.CustomerSurveillanceResult,
+		session.query(models.CustomerSurveillanceResult).filter(
+			models.CustomerSurveillanceResult.company_id == company_id
+		).filter(
+			models.CustomerSurveillanceResult.qualifying_date == qualifying_date
 		).first())
 
-	company.surveillance_status = CompanySurveillanceStatus.IN_REVIEW
+	if not customer_surveillance_result:
+		customer_surveillance_result = models.CustomerSurveillanceResult( #type: ignore
+			company_id = company_id,
+			qualifying_date = qualifying_date,
+			submitting_user_id = user_id,
+			metadata_info = {}
+		)
+
+		session.add(customer_surveillance_result)
+		session.flush()
+
 	# We replace the message first so that we don't keep adding the automated message 
 	# over and over again
-	original_note = company.surveillance_status_note.replace(
+	original_note = customer_surveillance_result.bank_note.replace(
 		AutomatedSurveillanceMessage.IN_REVIEW, 
 		""
-	) if company.surveillance_status_note is not None else ""
-	company.surveillance_status_note = str(original_note + AutomatedSurveillanceMessage.IN_REVIEW)
+	) if customer_surveillance_result.bank_note is not None else ""
+
+	customer_surveillance_result.surveillance_status = CompanySurveillanceStatus.IN_REVIEW
+	customer_surveillance_resultsurveillance_status_note = f'{original_note} {AutomatedSurveillanceMessage.IN_REVIEW}'
 
 	return True, None
 

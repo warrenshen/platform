@@ -11,7 +11,6 @@ from bespoke.db import models, db_constants
 from bespoke.db.db_constants import CompanyDebtFacilityStatus, CompanyType, TwoFactorMessageMethod, UserRoles
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util
-from server.views.common.auth_util import UserSession
 from mypy_extensions import TypedDict
 from sqlalchemy.sql import or_
 from sqlalchemy.orm.session import Session
@@ -1241,67 +1240,61 @@ def approve_partnership(
 	return True, None
 
 @errors.return_error_tuple
-def update_company_product_qualification(
-	company_product_qualification_id: str,
-	surveillance_status_note: str,
-	qualify_for: str,
+def certify_customer_surveillance_result(
 	session: Session,
-) -> Tuple[bool, errors.Error]:
-	company_product_qualification = cast(
-		models.CustomerSurveillanceResult,
-		session.query(models.CustomerSurveillanceResult).filter(
-			models.CustomerSurveillanceResult.id == company_product_qualification_id
-			).first())
-
-	if not company_product_qualification:
-		raise errors.Error('Company product qualification not found')
-
-	company_product_qualification.bank_note = surveillance_status_note
-	company_product_qualification.qualifying_product = qualify_for
-
-	return True, None
-
-@errors.return_error_tuple
-def create_company_product_qualification(
-	company_id: str,
-	surveillance_status_note: str,
-	qualify_for: str,
-	qualifying_date: datetime.date,
-	session: Session,
-	userSession: Type[UserSession],
-) -> Tuple[str, errors.Error]:
-	company_product_qualification = models.CustomerSurveillanceResult()
-	company_product_qualification.company_id = company_id #type: ignore
-	company_product_qualification.bank_note = surveillance_status_note
-	company_product_qualification.qualifying_date = qualifying_date
-	company_product_qualification.qualifying_product = qualify_for
-	company_product_qualification.submitting_user_id = userSession.from_session().get_user_id() #type: ignore
-	company_product_qualification.metadata_info = {}
-
-	session.add(company_product_qualification)
-	session.flush()
-	company_product_qualification_id = str(company_product_qualification.id)
-
-	return company_product_qualification_id, None
-
-
-@errors.return_error_tuple
-def update_surveillance_status(
 	company_id: str,
 	surveillance_status: str,
 	surveillance_status_note: str,
-	qualify_for: str,
-	session: Session,
-) -> Tuple[bool, errors.Error]:
-	company = cast(
-		models.Company,
-		session.query(models.Company).get(company_id))
+	qualifying_product: str,
+	qualifying_date: str,
+	user_id: str,
+) -> Tuple[str, errors.Error]:
+	customer_surveillance_result = cast(
+		models.CustomerSurveillanceResult,
+		session.query(models.CustomerSurveillanceResult).filter(
+			models.CustomerSurveillanceResult.company_id == company_id
+		).filter(
+			models.CustomerSurveillanceResult.qualifying_date == qualifying_date
+		).first())
 
-	if not company:
-		raise errors.Error('Company not found')
+	if not customer_surveillance_result:
+		customer_surveillance_result = models.CustomerSurveillanceResult( #type: ignore
+			company_id = company_id,
+			qualifying_date = qualifying_date,
+			submitting_user_id = user_id,
+			metadata_info = {}
+		)
+	
+		session.add(customer_surveillance_result)
+		session.flush()
 
-	company.surveillance_status = surveillance_status
-	company.surveillance_status_note = surveillance_status_note
-	company.qualify_for = qualify_for
+	# Shared across create and update flow
+	customer_surveillance_result.surveillance_status = surveillance_status
+	customer_surveillance_result.bank_note = surveillance_status_note
+	customer_surveillance_result.qualifying_product = qualifying_product
 
-	return True, None
+	# If qualifying date is equal to the month previous to the current month,
+	# then we also want to update the company's surveillance_status and
+	# surveillance_status_note. This is then displayed in the current CS tab.
+	# The historical CS tab pulls from the customer_surveillance_results table
+	today_date = date_util.now_as_date()
+	qualifying_month = date_util.load_date_str(qualifying_date)
+	if qualifying_month > today_date:
+		return None, errors.Error("Certification month cannot be set to in the future")
+
+	previous_month = date_util.get_report_month_last_day(today_date)
+	if qualifying_month.month == previous_month.month and \
+		qualifying_month.year == previous_month.year:
+		company = cast(
+			models.Company,
+			session.query(models.Company).filter(
+				models.Company.id == company_id
+			).first())
+
+		if not company:
+			return None, errors.Error("Could not find company with specified id")
+
+		company.surveillance_status = surveillance_status
+		company.surveillance_status_note = surveillance_status_note
+
+	return str(customer_surveillance_result.id), None
