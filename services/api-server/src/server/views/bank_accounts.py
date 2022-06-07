@@ -77,6 +77,10 @@ class CreateBankAccountView(MethodView):
         bank_account_input = form['bankAccount']
         company_id = bank_account_input['company_id']
 
+        for key in bank_account_input:
+            if type(bank_account_input[key]) is str:
+                bank_account_input[key] =  bank_account_input[key].strip() or None
+
         with models.session_scope(current_app.session_maker) as session:
             user_session = auth_util.UserSession.from_session()
             user = session.query(models.User).filter(
@@ -86,6 +90,7 @@ class CreateBankAccountView(MethodView):
             template_data, err = bank_account_util.add_bank_account(
                 session,
                 user,
+                user_session.is_bank_admin(),
                 cast(BankAccountInputDict, bank_account_input),
                 company_id
             )
@@ -134,6 +139,10 @@ class UpdateBankAccountView(MethodView):
 
         bank_account_id = form['bankAccountId']
         bank_account_input = form['bankAccount']
+
+        for key in bank_account_input:
+            if type(bank_account_input[key]) is str:
+                bank_account_input[key] =  bank_account_input[key].strip() or None
 
         with models.session_scope(current_app.session_maker) as session:
             user_session = auth_util.UserSession.from_session()

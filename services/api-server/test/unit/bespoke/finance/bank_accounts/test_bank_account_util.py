@@ -109,6 +109,114 @@ def prepare_bank_account_info_dict(
 		verified_at = date_util.datetime_to_str(get_relative_date(TODAY, -92))
 	)
 
+
+class TestIsBankAccountInfoValid(db_unittest.TestCase):
+	def test_company_basic_bank_info_fields_missing_errors(self) -> None:
+		fields_to_nullify = [("bank_name", "Bank name is required"), ("account_title", "Bank account name is required"), ("account_type", "Bank account type is required"), ("account_number", "Bank account number is required")]
+		company_id = str(uuid.uuid4())
+
+		bank_account_info_dict = prepare_bank_account_info_dict(company_id)
+
+		for field_name, expect_error_message in fields_to_nullify:
+			saved_bank_field = bank_account_info_dict.get(field_name)
+			bank_account_info_dict[field_name] = None  # type: ignore
+			err = bank_account_util.is_bank_account_info_valid(
+				False,
+				bank_account_info_dict,
+			)
+			bank_account_info_dict[field_name] = saved_bank_field # type: ignore
+			self.assertEqual(expect_error_message, err)
+
+	def test_company_ach_or_wire_presence_check(self) -> None:
+		company_id = str(uuid.uuid4())
+
+		bank_account_info_dict = prepare_bank_account_info_dict(company_id)
+
+		bank_account_info_dict["can_ach"] = False
+		bank_account_info_dict["can_wire"] = False
+		err = bank_account_util.is_bank_account_info_valid(
+			False,
+			bank_account_info_dict,
+		)
+		self.assertEqual("Bank accounts must be able to either ACH or wire", err)
+
+		bank_account_info_dict["can_ach"] = True
+		bank_account_info_dict["can_wire"] = False
+		err = bank_account_util.is_bank_account_info_valid(
+			False,
+			bank_account_info_dict,
+		)
+		self.assertEqual(None, err)
+
+		bank_account_info_dict["can_ach"] = False
+		bank_account_info_dict["can_wire"] = True
+		err = bank_account_util.is_bank_account_info_valid(
+			False,
+			bank_account_info_dict,
+		)
+		self.assertEqual(None, err)
+
+		bank_account_info_dict["can_ach"] = True
+		bank_account_info_dict["can_wire"] = True
+		err = bank_account_util.is_bank_account_info_valid(
+			False,
+			bank_account_info_dict,
+		)
+		self.assertEqual(None, err)
+
+
+	def test_ach_field_required_checks(self) -> None:
+		fields_to_nullify = [(False, "routing_number", "ACH routing number is required"), (True, "torrey_pines_template_name", "ACH template name is required"), (False, "torrey_pines_template_name", None)]
+		company_id = str(uuid.uuid4())
+
+		bank_account_info_dict = prepare_bank_account_info_dict(company_id)
+
+		for is_admin, field_name, expect_error_message in fields_to_nullify:
+			saved_bank_field = bank_account_info_dict.get(field_name)
+			bank_account_info_dict[field_name] = None # type: ignore
+			err = bank_account_util.is_bank_account_info_valid(
+				is_admin,
+				bank_account_info_dict,
+			)
+
+			bank_account_info_dict[field_name] = saved_bank_field # type: ignore
+			self.assertEqual(expect_error_message, err)
+
+	def test_wire_field_required_checks(self) -> None:
+		fields_to_nullify = [(False, "wire_routing_number", "Wire routing number is required"), (False, "recipient_address", "Wire recipient address is required"), (False, "recipient_address_2", "Wire recipient address 2 is required"), (True, "wire_template_name", "Wire template name is required"), (False, "wire_template_name", None)]
+		company_id = str(uuid.uuid4())
+
+		bank_account_info_dict = prepare_bank_account_info_dict(company_id)
+
+		for is_admin, field_name, expect_error_message in fields_to_nullify:
+			saved_bank_field = bank_account_info_dict.get(field_name)
+			bank_account_info_dict[field_name] = None # type: ignore
+			err = bank_account_util.is_bank_account_info_valid(
+				is_admin,
+				bank_account_info_dict,
+			)
+
+			bank_account_info_dict[field_name] = saved_bank_field # type: ignore
+			self.assertEqual(expect_error_message, err)
+
+	def test_wire_intermediary_field_required_checks(self) -> None:
+		fields_to_nullify = [("intermediary_bank_name", "Intermediary bank name is required"), ("intermediary_bank_address", "Intermediary bank address is required"), ("intermediary_account_name", "Intermediary account name is required"), ("intermediary_account_number", "Intermediary account number is required")]
+		company_id = str(uuid.uuid4())
+
+		bank_account_info_dict = prepare_bank_account_info_dict(company_id)
+
+		for field_name, expect_error_message in fields_to_nullify:
+			saved_bank_field = bank_account_info_dict.get(field_name)
+			bank_account_info_dict[field_name] = None # type: ignore
+			err = bank_account_util.is_bank_account_info_valid(
+				False,
+				bank_account_info_dict,
+			)
+
+			bank_account_info_dict[field_name] = saved_bank_field # type: ignore
+			self.assertEqual(expect_error_message, err)
+
+
 class TestAddBankAccountView(db_unittest.TestCase):
 	def test_company_does_not_exist_error(self) -> None:
 		with session_scope(self.session_maker) as session:
@@ -121,12 +229,12 @@ class TestAddBankAccountView(db_unittest.TestCase):
 				bank_account_id,
 				company_id
 			)
-
 			bank_account_info_dict = prepare_bank_account_info_dict(bad_company_id)
 
 			template_data, err = bank_account_util.add_bank_account(
 				session,
 				user,
+				True,
 				bank_account_info_dict,
 				bad_company_id
 			)
@@ -148,6 +256,7 @@ class TestAddBankAccountView(db_unittest.TestCase):
 			template_data, err = bank_account_util.add_bank_account(
 				session,
 				user,
+				True,
 				bank_account_info_dict,
 				company_id
 			)
@@ -176,6 +285,7 @@ class TestAddBankAccountView(db_unittest.TestCase):
 			template_data, err = bank_account_util.add_bank_account(
 				session,
 				user,
+				False,
 				bank_account_info_dict,
 				company_id
 			)
@@ -423,6 +533,7 @@ class TestUpdateBankAccountView(db_unittest.TestCase):
 			template_data, err = bank_account_util.add_bank_account(
 				session,
 				user,
+				True,
 				bank_account_info_dict,
 				company_id
 			)

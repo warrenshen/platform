@@ -1,6 +1,5 @@
-import logging
-from typing import Collection, Dict, Optional, Tuple, cast
-from typing import Dict
+
+from typing import Collection, Dict, Optional, Tuple, cast, Union, Dict
 from bespoke.date import date_util
 from bespoke.db import models
 from sqlalchemy.orm.session import Session
@@ -35,9 +34,59 @@ BankAccountInputDict = TypedDict('BankAccountInputDict', {
 	'verified_at': str
 })
 
+def is_bank_account_info_valid(is_bank_admin: bool, bank_account_input: BankAccountInputDict) -> Union[str, None]:
+	can_ach = bank_account_input['can_ach']
+	can_wire = bank_account_input['can_wire']
+
+	# Checks that basic bank account info is valid
+	if bank_account_input["bank_name"] is None:
+		return "Bank name is required"
+	if bank_account_input["account_title"] is None:
+		return "Bank account name is required"
+	if bank_account_input["account_type"] is None:
+		return "Bank account type is required"
+	if bank_account_input["account_number"] is None:
+		return "Bank account number is required"
+	
+	# Checks that either ACH or Wire is selected
+	if can_ach is False and can_wire is False:
+		return "Bank accounts must be able to either ACH or wire"
+
+	# Checks that ACH info is valid
+	if can_ach:
+		if bank_account_input['routing_number'] is None:
+			return "ACH routing number is required"
+		if is_bank_admin and bank_account_input['torrey_pines_template_name'] is None:
+			return "ACH template name is required"
+
+	# Checks that Wire info is valid
+	if can_wire:
+		if bank_account_input['wire_routing_number'] is None:
+			return "Wire routing number is required"
+		if bank_account_input['recipient_address'] is None:
+			return "Wire recipient address is required"
+		if bank_account_input['recipient_address_2'] is None:
+			return "Wire recipient address 2 is required"
+		if is_bank_admin and bank_account_input['wire_template_name'] is None:
+			return "Wire template name is required"
+
+	# Checks that wire intermediary bank info is valid
+	if bank_account_input['is_wire_intermediary']:
+		if bank_account_input['intermediary_bank_name'] is None:
+			return "Intermediary bank name is required"
+		if bank_account_input['intermediary_bank_address'] is None:
+			return "Intermediary bank address is required"
+		if bank_account_input['intermediary_account_name'] is None:
+			return "Intermediary account name is required"
+		if bank_account_input['intermediary_account_number'] is None:
+			return "Intermediary account number is required"
+
+	return None
+
 def add_bank_account(
 	session: Session,
 	user: models.User,
+	is_bank_admin: bool,
 	bank_account_input: BankAccountInputDict,
 	company_id: Optional[str]
 ) -> Tuple[Dict[str, Collection[str]], errors.Error]:
@@ -54,6 +103,11 @@ def add_bank_account(
 
 		if not company:
 			return None, errors.Error("Could not find requested company")
+	
+	error = is_bank_account_info_valid(is_bank_admin, bank_account_input)
+
+	if (error):
+		return None, errors.Error(error)
 
 	session.add(models.BankAccount( # type: ignore
 		company_id = company_id,
@@ -135,6 +189,11 @@ def update_bank_account(
 
 	if not is_bank_admin and existing_bank_account.verified_at is not None:
 		return None, errors.Error("Only bank admins may update verified bank accounts")
+
+	error = is_bank_account_info_valid(is_bank_admin, bank_account_input)
+
+	if (error):
+		return None, errors.Error(error)
 
 	existing_bank_account.bank_name = bank_account_input['bank_name']
 	existing_bank_account.account_title = bank_account_input['account_title']

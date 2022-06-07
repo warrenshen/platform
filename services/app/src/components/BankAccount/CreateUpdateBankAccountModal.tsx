@@ -124,7 +124,7 @@ export default function CreateUpdateBankAccountModal({
       ach_default_memo: bankAccount.ach_default_memo,
       torrey_pines_template_name: isBankUser
         ? bankAccount.torrey_pines_template_name
-        : undefined,
+        : null,
 
       can_wire: bankAccount.can_wire,
       is_wire_intermediary: bankAccount.is_wire_intermediary,
@@ -136,9 +136,7 @@ export default function CreateUpdateBankAccountModal({
       recipient_address: bankAccount.recipient_address,
       recipient_address_2: bankAccount.recipient_address_2,
       wire_default_memo: bankAccount.wire_default_memo,
-      wire_template_name: isBankUser
-        ? bankAccount.wire_template_name
-        : undefined,
+      wire_template_name: isBankUser ? bankAccount.wire_template_name : null,
       bank_address: bankAccount.bank_address,
 
       is_cannabis_compliant: bankAccount.is_cannabis_compliant,
@@ -147,22 +145,20 @@ export default function CreateUpdateBankAccountModal({
     };
   };
 
-  const handleUpdateBankAccount = async () => {
+  const handleUpdateBankAccount = async () =>
     await updateBankAccount({
       variables: {
         bankAccountId: bankAccount.id,
         bankAccount: prepareBankAccount(false),
       },
     });
-  };
 
-  const handleCreateBankAccount = async () => {
+  const handleCreateBankAccount = async () =>
     await createBankAccount({
       variables: {
         bankAccount: prepareBankAccount(true),
       },
     });
-  };
 
   const handleSubmit = async () => {
     let fn = handleCreateBankAccount;
@@ -172,28 +168,59 @@ export default function CreateUpdateBankAccountModal({
       fn = handleUpdateBankAccount;
       successMessage = "Bank account updated.";
     }
+    const response = await fn();
 
-    try {
-      await fn();
+    if (response.status !== "OK") {
+      snackbar.showError(`${response.msg}`);
+      console.error(response.msg);
+    } else {
       snackbar.showSuccess(successMessage);
       handleClose();
-    } catch (err) {
-      snackbar.showError(`${err}`);
-      console.error(err);
     }
   };
 
   const isExistingVerifiedBankEditingDisabled =
     !isBankUser && !!existingBankAccount && !!bankAccount.verified_at;
 
+  const areBasicFieldsValid =
+    bankAccount.bank_name &&
+    bankAccount.account_title &&
+    bankAccount.account_type &&
+    bankAccount.account_number;
+
+  const isLoading = isCreateBankAccountLoading || isUpdateBankAccountLoading;
+
+  const isAchValid = !!(
+    !bankAccount.can_ach ||
+    (bankAccount.routing_number &&
+      (!isBankUser || bankAccount.torrey_pines_template_name))
+  );
+
+  const isIntermediaryBankValid = !!(
+    !bankAccount.is_wire_intermediary ||
+    (bankAccount.intermediary_account_name &&
+      bankAccount.intermediary_account_number &&
+      bankAccount.intermediary_bank_name &&
+      bankAccount.intermediary_bank_address)
+  );
+
+  const isWireValid = !!(
+    !bankAccount.can_wire ||
+    (bankAccount.wire_routing_number &&
+      bankAccount.recipient_address &&
+      bankAccount.recipient_address_2 &&
+      (!isBankUser || bankAccount.wire_template_name) &&
+      isIntermediaryBankValid)
+  );
+  const isBankVerified = !bankAccount.verified_at || bankAccount.verified_date;
+
   const isSubmitDisabled =
-    isCreateBankAccountLoading ||
-    isUpdateBankAccountLoading ||
-    !bankAccount.bank_name ||
-    !bankAccount.account_title ||
-    !bankAccount.account_type ||
-    !bankAccount.account_number ||
-    (bankAccount.verified_at && !bankAccount.verified_date) ||
+    isLoading ||
+    (!bankAccount.can_ach && !bankAccount.can_wire) ||
+    !areBasicFieldsValid ||
+    !isBankVerified ||
+    !isWireValid ||
+    !isAchValid ||
     isExistingVerifiedBankEditingDisabled;
 
   return (

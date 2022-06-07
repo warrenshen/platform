@@ -1418,7 +1418,7 @@ class BankAccount(Base):
 
 	# ACH related fields below.
 	can_ach = Column(Boolean)
-	routing_number = Column(String) # ACH routing number
+	routing_number = Column(String, nullable=True) # ACH routing number
 	ach_default_memo = Column(String) # ACH default memo
 	torrey_pines_template_name = Column(Text) # ACH template name
 
