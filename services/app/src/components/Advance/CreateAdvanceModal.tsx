@@ -125,7 +125,11 @@ export default function CreateAdvanceModal({
   useEffect(() => {
     // If user selects advance method Wire and amount less than $25,000,
     // automatically check the "Charge Wire Fee" checkbox.
-    if (payment.method === AdvanceMethodEnum.Wire && payment.amount < 25000) {
+    if (
+      payment.method === AdvanceMethodEnum.Wire &&
+      payment.amount < 25000 &&
+      advancesBankAccount?.wire_routing_number
+    ) {
       setShouldChargeWireFee(true);
       snackbar.showInfo(
         '"Charge Wire Fee?" auto-checked because amount is less than $25,000.'
@@ -137,6 +141,21 @@ export default function CreateAdvanceModal({
     }
 
     if (!!advancesBankAccount) {
+      if (
+        payment.method === AdvanceMethodEnum.ACH &&
+        !advancesBankAccount.routing_number
+      ) {
+        snackbar.showError(
+          "The selected bank account is not enabled for ACH transfers."
+        );
+      } else if (
+        payment.method === AdvanceMethodEnum.Wire &&
+        !advancesBankAccount.wire_routing_number
+      ) {
+        snackbar.showError(
+          "The selected bank account is not enabled for Wire transfers."
+        );
+      }
       if (
         payment.method === AdvanceMethodEnum.ACH &&
         advancesBankAccount.ach_default_memo
@@ -181,6 +200,7 @@ export default function CreateAdvanceModal({
           payment_date: payment.payment_date,
           settlement_date: payment.settlement_date,
           bank_note: payment.bank_note,
+          recipient_bank_account_id: advancesBankAccount?.id,
         },
         loan_ids: selectedLoanIds,
         should_charge_wire_fee: shouldChargeWireFee,
@@ -196,7 +216,12 @@ export default function CreateAdvanceModal({
   };
 
   const isDialogReady = true;
-  const isFormValid = !!payment.method;
+  const isFormValid =
+    !!payment.method &&
+    ((payment.method === AdvanceMethodEnum.ACH &&
+      advancesBankAccount?.routing_number) ||
+      (payment.method === AdvanceMethodEnum.Wire &&
+        advancesBankAccount?.wire_routing_number));
   const isFormLoading = isCreateAdvanceLoading;
   const isSubmitDisabled = !isFormValid || isFormLoading;
 

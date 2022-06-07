@@ -345,6 +345,7 @@ def create_month_end_payments_for_customers(
 				requested_payment_date=date_util.date_to_str(requested_date),
 				payment_date=None,
 				settlement_date=None,
+				recipient_bank_account_id=None,
 				company_bank_account_id=str(company_settings.collections_bank_account_id),
 				items_covered=dict(
 					requested_to_principal=0.0,

@@ -221,6 +221,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					settlement_date=settlement_date,
 					items_covered={'loan_ids': advance_loan_ids},
 					company_bank_account_id=None,
+					recipient_bank_account_id=None,
 					customer_note='',
 					bank_note=bank_note
 				),
@@ -1090,6 +1091,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					settlement_date='10/30/2020',
 					items_covered={ 'loan_ids': [] },
 					company_bank_account_id=None,
+					recipient_bank_account_id=None,
 					customer_note='',
 					bank_note=''
 				),
@@ -1131,6 +1133,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					settlement_date='10/30/2020',
 					items_covered={ 'loan_ids': loan_ids },
 					company_bank_account_id=None,
+					recipient_bank_account_id=None,
 					customer_note='',
 					bank_note=''
 				),
@@ -1192,6 +1195,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					settlement_date='10/30/2020',
 					items_covered={ 'loan_ids': loan_ids },
 					company_bank_account_id=None,
+					recipient_bank_account_id=None,
 					customer_note='',
 					bank_note=''
 				),
@@ -1251,6 +1255,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					settlement_date='10/30/2020',
 					items_covered={ 'loan_ids': loan_ids },
 					company_bank_account_id=None,
+					recipient_bank_account_id=None,
 					customer_note='',
 					bank_note=''
 				),
@@ -1312,6 +1317,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					settlement_date='10/30/2020',
 					items_covered={'loan_ids': loan_ids},
 					company_bank_account_id=None,
+					recipient_bank_account_id=None,
 					customer_note='',
 					bank_note=''
 				),
@@ -1398,6 +1404,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					settlement_date='10/30/2020',
 					items_covered={'loan_ids': loan_ids},
 					company_bank_account_id=None,
+					recipient_bank_account_id=None,
 					customer_note='',
 					bank_note=''
 				),
@@ -1484,6 +1491,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					settlement_date='10/30/2020',
 					items_covered={'loan_ids': loan_ids},
 					company_bank_account_id=None,
+					recipient_bank_account_id=None,
 					customer_note='',
 					bank_note=''
 				),

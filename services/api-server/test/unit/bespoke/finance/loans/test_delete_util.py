@@ -143,6 +143,7 @@ class TestDeleteLoan(db_unittest.TestCase):
 					settlement_date='10/12/2020',
 					items_covered={'loan_ids': loan_ids},
 					company_bank_account_id=None,
+					recipient_bank_account_id=None,
 					customer_note='',
 					bank_note=''
 				),

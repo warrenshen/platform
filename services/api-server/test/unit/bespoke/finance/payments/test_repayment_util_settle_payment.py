@@ -192,6 +192,7 @@ def _run_test(self: db_unittest.TestCase, test: Dict) -> None:
 						'requested_to_account_fees': 0.0,
 					},
 					company_bank_account_id=payment_dict['company_bank_account_id'],
+					recipient_bank_account_id=None,
 					customer_note='',
 					bank_note=''
 				),

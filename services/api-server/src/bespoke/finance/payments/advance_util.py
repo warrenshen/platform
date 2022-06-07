@@ -45,6 +45,7 @@ def fund_loans_with_advance(
 
 	payment_input = req['payment']
 	loan_ids = req['loan_ids']
+	recipient_bank_account_id=payment_input['recipient_bank_account_id']
 
 	if len(loan_ids) > len(ASCII_CHARACTERS):
 		raise errors.Error(f'Cannot create an advance on greater than {len(ASCII_CHARACTERS)} loans at the same time, please remove some loans')
@@ -73,6 +74,19 @@ def fund_loans_with_advance(
 	today_date = date_util.now_as_date()
 
 	with session_scope(session_maker) as session:
+		# Checks that recipient bank allows for the requested payment method
+		if recipient_bank_account_id is not None:				
+			recipient_bank = cast(
+				models.BankAccount, 
+				session.query(models.BankAccount).filter(
+					models.BankAccount.id == recipient_bank_account_id
+			).first())
+			
+			if payment_method == db_constants.PaymentMethodEnum.WIRE and recipient_bank.wire_routing_number is None:
+				raise errors.Error('Cannot create wire payment without a valid wire routing number')
+			if payment_method == db_constants.PaymentMethodEnum.ACH and recipient_bank.routing_number is None:
+				raise errors.Error('Cannot create ACH payment without a valid ACH routing number')
+
 
 		# Note we order loans by [amount, created_at]. This order by
 		# impacts which disbursement identifiers are assigned to which loans.
