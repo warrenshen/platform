@@ -42,33 +42,37 @@ pyenv global 3.8.12
 
 Follow post-install instructions for pyenv [here](https://github.com/pyenv/pyenv#homebrew-on-macos).
 
-3. Install virtualenv
+3. Install brew dependencies
 
 ```
 brew install virtualenv
-```
-
-4. Install postgres
-
-```
 brew install postgresql
+brew install openblas # needed for M1 numpy installation
 ```
 
-5. Create your virtualenv directory and activate it
+4. Create your virtualenv directory and activate it
 
 ```
 virtualenv -p $(pyenv which python) ~/GitHub/venvs/bespoke
 source ~/GitHub/venvs/bespoke/bin/activate
 ```
 
-6. From `platform/`, run `make setup`. If you have Ubuntu, call `make setup-for-linux`.
+5. From `platform/`, run `make setup`. If you have Ubuntu, call `make setup-for-linux`.
 
-7. Please edit your `~/.zshrc` file to include the following lines necessary for our dependencies based on your computer's architecture:
+6. Please edit your `~/.zshrc` file to include the following lines necessary for our dependencies based on your computer's architecture:
 
 ```
 # M1 only
 export GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=1
 export GRPC_PYTHON_BUILD_SYSTEM_ZLIB=1
+```
+
+7. M1 Only Prep
+
+In requirements.txt, temporarily comment out `numpy`, `ray`, and `typed-ray`. We still need numpy, but we need to install it using the below command. This is necessary because pip currently installs the x86 binary for OpenBLAS, which will not work on the M1.
+
+```
+export OPENBLAS="$(brew --prefix openblas)" && pip3 install numpy-1.20
 ```
 
 8. Once you have virtualenv, system libraries and pyenv setup, you can now install your requirements inside that environment:
