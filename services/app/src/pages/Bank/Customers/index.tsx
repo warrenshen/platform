@@ -1,4 +1,4 @@
-import { Box, TextField } from "@material-ui/core";
+import { Box, Checkbox, FormControlLabel, TextField } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import CreateCustomerModal from "components/Customer/CreateCustomerModal";
 import UpdateCompanyDebtFacilityStatusModal from "components/DebtFacility/UpdateCompanyDebtFacilityStatusModal";
@@ -17,10 +17,11 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   CustomerForBankFragment,
-  GetCustomersWithMetadataQuery,
+  CustomersWithMetadataFragment,
+  useGetActiveCustomersWithMetadataQuery,
   useGetCustomersWithMetadataQuery,
 } from "generated/graphql";
-import { useFilterCustomers } from "hooks/useFilterCustomers";
+import { useFilterCustomersByFragment } from "hooks/useFilterCustomers";
 import { Action, check } from "lib/auth/rbac-rules";
 import { formatDatetimeString, todayAsDateStringServer } from "lib/date";
 import {
@@ -33,11 +34,9 @@ import {
 import { formatCurrency, formatPercentage } from "lib/number";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ColumnWidths } from "lib/tables";
-import { useContext, useMemo, useState } from "react";
+import { ChangeEvent, useContext, useMemo, useState } from "react";
 
-function getRows(
-  customers: GetCustomersWithMetadataQuery["customers"]
-): RowsProp {
+function getRows(customers: CustomersWithMetadataFragment[]): RowsProp {
   return customers.map((company) => ({
     ...company,
     company_url: getBankCompanyRoute(company.id, BankCompanyRouteEnum.Overview),
@@ -103,6 +102,8 @@ function getRows(
 }
 
 export default function BankCustomersPage() {
+  const [isActiveSelected, setIsActiveSelected] = useState(true);
+
   const [selectedCompanyIds, setSelectedCompanyIds] = useState<Companies["id"]>(
     []
   );
@@ -111,24 +112,54 @@ export default function BankCustomersPage() {
     user: { role },
   } = useContext(CurrentUserContext);
 
-  const { data, refetch, error } = useGetCustomersWithMetadataQuery({
+  const {
+    data: allData,
+    refetch: refetchAllData,
+    error: allError,
+  } = useGetCustomersWithMetadataQuery({
+    skip: !!isActiveSelected,
     fetchPolicy: "network-only",
     variables: {
       date: todayAsDateStringServer(),
     },
   });
 
-  if (error) {
-    console.error({ error });
-    alert(`Error in query (details in console): ${error.message}`);
+  if (allError) {
+    console.error({ allError });
+    alert(`Error in query (details in console): ${allError.message}`);
   }
+
+  const {
+    data: activeData,
+    refetch: refetchActiveData,
+    error: allActiveError,
+  } = useGetActiveCustomersWithMetadataQuery({
+    skip: !isActiveSelected,
+    fetchPolicy: "network-only",
+    variables: {
+      date: todayAsDateStringServer(),
+    },
+  });
+
+  if (allActiveError) {
+    console.error({ allActiveError });
+    alert(`Error in query (details in console): ${allActiveError.message}`);
+  }
+
+  const data = useMemo(
+    () =>
+      !!isActiveSelected
+        ? activeData?.customers || []
+        : allData?.customers || [],
+    [isActiveSelected, activeData, allData]
+  );
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  const customers = useFilterCustomers(
+  const customers = useFilterCustomersByFragment(
     searchQuery,
     data
-  ) as GetCustomersWithMetadataQuery["customers"];
+  ) as CustomersWithMetadataFragment[];
 
   const rows = customers ? getRows(customers) : [];
 
@@ -320,7 +351,9 @@ export default function BankCustomersPage() {
                   modal={({ handleClose }) => (
                     <CreateMonthEndPaymentsModal
                       handleClose={() => {
-                        refetch();
+                        isActiveSelected
+                          ? refetchAllData()
+                          : refetchActiveData();
                         handleClose();
                       }}
                     />
@@ -337,7 +370,9 @@ export default function BankCustomersPage() {
                   modal={({ handleClose }) => (
                     <CreateBulkMinimumMonthlyFeeModal
                       handleClose={() => {
-                        refetch();
+                        isActiveSelected
+                          ? refetchAllData()
+                          : refetchActiveData();
                         handleClose();
                       }}
                     />
@@ -354,7 +389,9 @@ export default function BankCustomersPage() {
                   modal={({ handleClose }) => (
                     <RunCustomerBalancesModal
                       handleClose={() => {
-                        refetch();
+                        isActiveSelected
+                          ? refetchAllData()
+                          : refetchActiveData();
                         handleClose();
                       }}
                     />
@@ -378,6 +415,20 @@ export default function BankCustomersPage() {
               onChange={({ target: { value } }) => setSearchQuery(value)}
               style={{ width: 300 }}
             />
+            <Box pt={1.5} ml={3}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    defaultChecked={isActiveSelected}
+                    onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                      setIsActiveSelected(event.target.checked)
+                    }
+                    color="primary"
+                  />
+                }
+                label={"Is customer active?"}
+              />
+            </Box>
           </Box>
           <Box display="flex" flexDirection="row-reverse">
             {check(role, Action.EditCustomerSettings) && (
@@ -389,7 +440,9 @@ export default function BankCustomersPage() {
                   modal={({ handleClose }) => (
                     <CreateCustomerModal
                       handleClose={() => {
-                        refetch();
+                        isActiveSelected
+                          ? refetchAllData()
+                          : refetchActiveData();
                         handleClose();
                       }}
                     />
@@ -407,7 +460,9 @@ export default function BankCustomersPage() {
                     modal={({ handleClose }) => (
                       <UpdateCompanyDebtFacilityStatusModal
                         handleClose={() => {
-                          refetch();
+                          isActiveSelected
+                            ? refetchAllData()
+                            : refetchActiveData();
                           handleClose();
                           setSelectedCompanyIds([]);
                         }}

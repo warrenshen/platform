@@ -1,4 +1,7 @@
-import { GetCustomersWithMetadataQuery } from "generated/graphql";
+import {
+  CustomersWithMetadataFragment,
+  GetCustomersWithMetadataQuery,
+} from "generated/graphql";
 import { filter, sortBy } from "lodash";
 import { useMemo } from "react";
 
@@ -16,4 +19,20 @@ export const useFilterCustomers = (
     );
     return sortBy(filteredCustomers, (customer) => customer.name);
   }, [searchQuery, data?.customers]);
+};
+
+export const useFilterCustomersByFragment = (
+  searchQuery: string,
+  data: CustomersWithMetadataFragment[] | undefined
+): CustomersWithMetadataFragment[] => {
+  return useMemo(() => {
+    const filteredCustomers = filter(
+      data || [],
+      (customer) =>
+        `${customer.name} ${customer.dba_name} ${customer.identifier}`
+          .toLowerCase()
+          .indexOf(searchQuery.toLowerCase()) >= 0
+    );
+    return sortBy(filteredCustomers, (customer) => customer.name);
+  }, [searchQuery, data]);
 };

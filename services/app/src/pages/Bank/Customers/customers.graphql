@@ -7,6 +7,25 @@ query GetCustomersWithMetadata($date: date) {
   }
 }
 
+query GetActiveCustomersWithMetadata($date: date) {
+  customers: companies(
+    where: {
+      _and: [
+          { is_customer: { _eq: true } }
+          { _or: [
+              { settings : { is_dummy_account: { _is_null: true } } }
+              { settings : { is_dummy_account: { _eq: false } } }
+            ]
+          }
+          { contract : { product_type: { _is_null: false } } }
+        ]
+      }
+    order_by: { name: asc }
+  ) {
+    ...CustomersWithMetadata
+  }
+}
+
 query GetNonDummyCustomersWithMetadata(
   $date: date
   $start_date: date

@@ -1,10 +1,20 @@
-import { Box, Theme, createStyles, makeStyles } from "@material-ui/core";
+import {
+  Box,
+  Checkbox,
+  FormControlLabel,
+  Theme,
+  createStyles,
+  makeStyles,
+} from "@material-ui/core";
 import FinancialSummariesDataGrid from "components/CustomerFinancialSummaries/FinancialSummariesDataGrid";
 import DateInput from "components/Shared/FormInputs/DateInput";
-import { useGetFinancialSummariesByDateQuery } from "generated/graphql";
+import {
+  useGetActiveFinancialSummariesByDateQuery,
+  useGetFinancialSummariesByDateQuery,
+} from "generated/graphql";
 import { todayAsDateStringServer } from "lib/date";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -29,6 +39,8 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export default function BankReportsFinancialsByDateTab() {
+  const [isActiveSelected, setIsActiveSelected] = useState(true);
+
   const classes = useStyles();
   const history = useHistory();
 
@@ -38,6 +50,7 @@ export default function BankReportsFinancialsByDateTab() {
     data: financialSummariesByDateData,
     error: financialSummariesByDateError,
   } = useGetFinancialSummariesByDateQuery({
+    skip: !!isActiveSelected,
     fetchPolicy: "network-only",
     variables: {
       date: selectedDate,
@@ -51,23 +64,58 @@ export default function BankReportsFinancialsByDateTab() {
     );
   }
 
-  const financialSummariesByDate =
-    financialSummariesByDateData?.financial_summaries || [];
+  const {
+    data: activeFinancialSummariesByDateData,
+    error: activeFinancialSummariesByDateError,
+  } = useGetActiveFinancialSummariesByDateQuery({
+    skip: !isActiveSelected,
+    fetchPolicy: "network-only",
+    variables: {
+      date: selectedDate,
+    },
+  });
+
+  if (activeFinancialSummariesByDateError) {
+    alert(
+      "Error querying financial summaries by date. " +
+        activeFinancialSummariesByDateError
+    );
+  }
+
+  const financialSummariesByDate = !!isActiveSelected
+    ? activeFinancialSummariesByDateData?.financial_summaries || []
+    : financialSummariesByDateData?.financial_summaries || [];
 
   return (
     <Box className={classes.container}>
       <Box className={classes.section} mt={4}>
         <Box mb={2}>
-          <DateInput
-            className={classes.inputField}
-            id="report-date-date-picker"
-            label="Report Date"
-            disableFuture
-            value={selectedDate}
-            onChange={(value) =>
-              setSelectedDate(value || todayAsDateStringServer())
-            }
-          />
+          <Box display="flex">
+            <DateInput
+              className={classes.inputField}
+              id="report-date-date-picker"
+              label="Report Date"
+              disableFuture
+              value={selectedDate}
+              onChange={(value) =>
+                setSelectedDate(value || todayAsDateStringServer())
+              }
+            />
+            <Box pt={1.5} ml={3}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    defaultChecked={isActiveSelected}
+                    onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                      setIsActiveSelected(event.target.checked)
+                    }
+                    color="primary"
+                  />
+                }
+                label={"Is customer active?"}
+              />
+            </Box>
+          </Box>
         </Box>
         <Box display="flex" flexDirection="column">
           <FinancialSummariesDataGrid

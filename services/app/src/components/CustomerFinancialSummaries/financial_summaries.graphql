@@ -22,3 +22,28 @@ query GetFinancialSummariesByDate($date: date!) {
     }
   }
 }
+
+query GetActiveFinancialSummariesByDate($date: date!) {
+  financial_summaries(
+    where: {
+      _and: [
+        { date: { _eq: $date } }
+        { product_type: { _is_null: false } }
+        { 
+          _or: [
+            { company : { settings: { is_dummy_account: { _is_null: true } } } }
+            { company : { settings: { is_dummy_account: { _eq: false } } } }
+          ]
+        }
+      ]
+    }
+  )
+  {
+    id
+    ...FinancialSummary
+    company {
+      id
+      name
+    }
+  }
+}
