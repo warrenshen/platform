@@ -265,6 +265,13 @@ export function isLoanComingOrPastDue(dueDate: string): [boolean, boolean] {
   return [isComingDue, isPastDue];
 }
 
+export function computeDaysUntilExpiration(expirationDate: string): number {
+  const date = parse(expirationDate, DateFormatServer, new Date());
+  const now = new Date();
+
+  return differenceInDays(date, now);
+}
+
 export function withinNDaysOfNowOrBefore(
   dateString: string,
   days: number,

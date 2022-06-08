@@ -1,4 +1,4 @@
-subscription GetCustomersCurrentSurveillance($target_date: date) {
+subscription GetCustomersSurveillance($target_date: date) {
   customers: companies(
     where: {
       _and: [
@@ -13,6 +13,13 @@ subscription GetCustomersCurrentSurveillance($target_date: date) {
     }
     order_by: { name: asc }
   ) {
+    id
+    ...CustomerSurveillance
+  }
+}
+
+query GetCustomersSurveillanceByCompanyId($target_date: date, $id: uuid!) {
+  customer: companies_by_pk(id: $id) {
     id
     ...CustomerSurveillance
   }

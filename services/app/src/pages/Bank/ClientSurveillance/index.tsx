@@ -18,11 +18,11 @@ const EbbaComponentMap: {
   [key in BankEbbaTabLabel]: JSX.Element;
 } = {
   [BankEbbaTabLabel.SurveillanceCurrent]: <ClientSurveillanceCurrentTab />,
+  [BankEbbaTabLabel.FinancialReports]: <EbbaApplicationsFinancialReportsTab />,
+  [BankEbbaTabLabel.BorrowingBase]: <EbbaApplicationsBorrowingBaseTab />,
   [BankEbbaTabLabel.SurveillanceHistorical]: (
     <ClientSurveillanceHistoricalTab />
   ),
-  [BankEbbaTabLabel.FinancialReports]: <EbbaApplicationsFinancialReportsTab />,
-  [BankEbbaTabLabel.BorrowingBase]: <EbbaApplicationsBorrowingBaseTab />,
   [BankEbbaTabLabel.AllCertifications]: <EbbaApplicationsClosedTab />,
 };
 
@@ -66,13 +66,13 @@ export default function BankEbbaApplicationsPage() {
             }
           >
             <Tab label={`${BankEbbaTabLabel.SurveillanceCurrent}`} />
-            <Tab label={`${BankEbbaTabLabel.SurveillanceHistorical}`} />
             <Tab
               label={`${BankEbbaTabLabel.FinancialReports} (${financialReportsCertificationsCount})`}
             />
             <Tab
               label={`${BankEbbaTabLabel.BorrowingBase} (${borrowingBaseCertificationsCount})`}
             />
+            <Tab label={`${BankEbbaTabLabel.SurveillanceHistorical}`} />
             <Tab label={BankEbbaTabLabel.AllCertifications} />
           </Tabs>
           {EbbaComponentMap[BankEbbaTabLabels[selectedTabIndex]]}

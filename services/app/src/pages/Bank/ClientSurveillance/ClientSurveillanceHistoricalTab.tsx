@@ -4,8 +4,8 @@ import CertificationMonthDropdown from "components/EbbaApplication/Certification
 import { CertificationOption } from "components/EbbaApplication/CertificationMonthDropdown";
 import {
   CustomerSurveillanceFragment,
-  GetCustomersCurrentSurveillanceSubscription,
-  useGetCustomersCurrentSurveillanceSubscription,
+  GetCustomersSurveillanceSubscription,
+  useGetCustomersSurveillanceSubscription,
 } from "generated/graphql";
 import { useFilterCustomerSurveillance } from "hooks/useFilterCustomerSurveillance";
 import {
@@ -21,7 +21,7 @@ export default function ClientSurveillanceHistoricalTab() {
   >([]);
   const [selectedDate, setSelectedDate] = useState(getEndOfPreviousMonth());
 
-  const { data, error } = useGetCustomersCurrentSurveillanceSubscription({
+  const { data, error } = useGetCustomersSurveillanceSubscription({
     fetchPolicy: "network-only",
     variables: {
       target_date: selectedDate,
@@ -43,7 +43,7 @@ export default function ClientSurveillanceHistoricalTab() {
   const customers = useFilterCustomerSurveillance(
     searchQuery,
     activeCustomers
-  ) as GetCustomersCurrentSurveillanceSubscription["customers"];
+  ) as GetCustomersSurveillanceSubscription["customers"];
 
   const handleSelectCompanies = useMemo(
     () => (companies: CustomerSurveillanceFragment[]) =>
@@ -84,9 +84,9 @@ export default function ClientSurveillanceHistoricalTab() {
       </Box>
       <Box display="flex" flexDirection="column">
         <CustomerSurveillanceDataGrid
-          isMultiSelectEnabled
           customers={customers}
           selectedCompaniesIds={selectedCompanyIds}
+          targetDate={selectedDate}
           handleSelectCompanies={handleSelectCompanies}
         />
       </Box>

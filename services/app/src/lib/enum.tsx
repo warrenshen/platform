@@ -144,17 +144,17 @@ export const BankPurchaseOrdersTabLabels = [
 
 export enum BankEbbaTabLabel {
   SurveillanceCurrent = "Surveillance - Current",
-  SurveillanceHistorical = "Surveillance - Historical",
   FinancialReports = "Financial Certifications",
   BorrowingBase = "Borrowing Base",
+  SurveillanceHistorical = "Surveillance - Historical",
   AllCertifications = "All Certifications",
 }
 
 export const BankEbbaTabLabels = [
   BankEbbaTabLabel.SurveillanceCurrent,
-  BankEbbaTabLabel.SurveillanceHistorical,
   BankEbbaTabLabel.FinancialReports,
   BankEbbaTabLabel.BorrowingBase,
+  BankEbbaTabLabel.SurveillanceHistorical,
   BankEbbaTabLabel.AllCertifications,
 ];
 

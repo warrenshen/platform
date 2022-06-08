@@ -1,13 +1,11 @@
-import { GetCustomersCurrentSurveillanceSubscription } from "generated/graphql";
+import { GetCustomersSurveillanceSubscription } from "generated/graphql";
 import { filter, sortBy } from "lodash";
 import { useMemo } from "react";
 
 export const useFilterCustomerSurveillance = (
   searchQuery: string,
-  customers:
-    | GetCustomersCurrentSurveillanceSubscription["customers"]
-    | undefined
-): GetCustomersCurrentSurveillanceSubscription["customers"] => {
+  customers: GetCustomersSurveillanceSubscription["customers"] | undefined
+): GetCustomersSurveillanceSubscription["customers"] => {
   return useMemo(() => {
     const filteredCustomers = filter(
       customers || [],

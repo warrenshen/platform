@@ -1,4 +1,4 @@
-import { Typography } from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import { SurveillanceStatusEnum, SurveillanceStatusToLabel } from "lib/enum";
 import styled from "styled-components";
 
@@ -22,10 +22,11 @@ const Text = styled(Typography)`
 `;
 
 interface Props {
-  requestStatus: SurveillanceStatusEnum;
+  surveillanceStatus: SurveillanceStatusEnum;
 }
 
 const StatusToColor = {
+  Default: "#bdc3c7", // Gray,
   [SurveillanceStatusEnum.GoodStanding]: "rgb(118, 147, 98)", // Gray
   [SurveillanceStatusEnum.OnProbation]: "rgb(241, 196, 15)", // Yellow
   [SurveillanceStatusEnum.OnPause]: "rgb(230, 126, 34)", // Orange,
@@ -35,10 +36,42 @@ const StatusToColor = {
   [SurveillanceStatusEnum.InReview]: "rgb(241, 196, 15)", // Yellow
 };
 
-const CustomerSurveillanceStatusChip = ({ requestStatus }: Props) => (
-  <Chip backgroundColor={StatusToColor[requestStatus]}>
-    <Text>{SurveillanceStatusToLabel[requestStatus] || "-"}</Text>
-  </Chip>
-);
-
-export default CustomerSurveillanceStatusChip;
+export default function CustomerSurveillanceStatusChip({
+  surveillanceStatus,
+}: Props) {
+  return (
+    <Box height={33}>
+      <Chip
+        backgroundColor={
+          StatusToColor[
+            [
+              SurveillanceStatusEnum.GoodStanding,
+              SurveillanceStatusEnum.OnProbation,
+              SurveillanceStatusEnum.OnPause,
+              SurveillanceStatusEnum.Defaulted,
+              SurveillanceStatusEnum.Onboarding,
+              SurveillanceStatusEnum.Inactive,
+              SurveillanceStatusEnum.InReview,
+            ].includes(surveillanceStatus)
+              ? surveillanceStatus
+              : "Default"
+          ]
+        }
+      >
+        <Text>
+          {[
+            SurveillanceStatusEnum.GoodStanding,
+            SurveillanceStatusEnum.OnProbation,
+            SurveillanceStatusEnum.OnPause,
+            SurveillanceStatusEnum.Defaulted,
+            SurveillanceStatusEnum.Onboarding,
+            SurveillanceStatusEnum.Inactive,
+            SurveillanceStatusEnum.InReview,
+          ].includes(surveillanceStatus)
+            ? SurveillanceStatusToLabel[surveillanceStatus]
+            : "No Status"}
+        </Text>
+      </Chip>
+    </Box>
+  );
+}

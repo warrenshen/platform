@@ -26702,12 +26702,21 @@ export type GetActiveFinancialSummariesByDateQuery = {
   >;
 };
 
-export type GetCustomersCurrentSurveillanceSubscriptionVariables = Exact<{
+export type GetCustomersSurveillanceSubscriptionVariables = Exact<{
   target_date?: Maybe<Scalars["date"]>;
 }>;
 
-export type GetCustomersCurrentSurveillanceSubscription = {
+export type GetCustomersSurveillanceSubscription = {
   customers: Array<Pick<Companies, "id"> & CustomerSurveillanceFragment>;
+};
+
+export type GetCustomersSurveillanceByCompanyIdQueryVariables = Exact<{
+  target_date?: Maybe<Scalars["date"]>;
+  id: Scalars["uuid"];
+}>;
+
+export type GetCustomersSurveillanceByCompanyIdQuery = {
+  customer?: Maybe<Pick<Companies, "id"> & CustomerSurveillanceFragment>;
 };
 
 export type GetOpenLoansByDebtFacilityStatusesSubscriptionVariables = Exact<{
@@ -32029,8 +32038,8 @@ export type GetActiveFinancialSummariesByDateQueryResult = Apollo.QueryResult<
   GetActiveFinancialSummariesByDateQuery,
   GetActiveFinancialSummariesByDateQueryVariables
 >;
-export const GetCustomersCurrentSurveillanceDocument = gql`
-  subscription GetCustomersCurrentSurveillance($target_date: date) {
+export const GetCustomersSurveillanceDocument = gql`
+  subscription GetCustomersSurveillance($target_date: date) {
     customers: companies(
       where: {
         _and: [
@@ -32053,37 +32062,96 @@ export const GetCustomersCurrentSurveillanceDocument = gql`
 `;
 
 /**
- * __useGetCustomersCurrentSurveillanceSubscription__
+ * __useGetCustomersSurveillanceSubscription__
  *
- * To run a query within a React component, call `useGetCustomersCurrentSurveillanceSubscription` and pass it any options that fit your needs.
- * When your component renders, `useGetCustomersCurrentSurveillanceSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetCustomersSurveillanceSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomersSurveillanceSubscription` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetCustomersCurrentSurveillanceSubscription({
+ * const { data, loading, error } = useGetCustomersSurveillanceSubscription({
  *   variables: {
  *      target_date: // value for 'target_date'
  *   },
  * });
  */
-export function useGetCustomersCurrentSurveillanceSubscription(
+export function useGetCustomersSurveillanceSubscription(
   baseOptions?: Apollo.SubscriptionHookOptions<
-    GetCustomersCurrentSurveillanceSubscription,
-    GetCustomersCurrentSurveillanceSubscriptionVariables
+    GetCustomersSurveillanceSubscription,
+    GetCustomersSurveillanceSubscriptionVariables
   >
 ) {
   return Apollo.useSubscription<
-    GetCustomersCurrentSurveillanceSubscription,
-    GetCustomersCurrentSurveillanceSubscriptionVariables
-  >(GetCustomersCurrentSurveillanceDocument, baseOptions);
+    GetCustomersSurveillanceSubscription,
+    GetCustomersSurveillanceSubscriptionVariables
+  >(GetCustomersSurveillanceDocument, baseOptions);
 }
-export type GetCustomersCurrentSurveillanceSubscriptionHookResult = ReturnType<
-  typeof useGetCustomersCurrentSurveillanceSubscription
+export type GetCustomersSurveillanceSubscriptionHookResult = ReturnType<
+  typeof useGetCustomersSurveillanceSubscription
 >;
-export type GetCustomersCurrentSurveillanceSubscriptionResult =
-  Apollo.SubscriptionResult<GetCustomersCurrentSurveillanceSubscription>;
+export type GetCustomersSurveillanceSubscriptionResult =
+  Apollo.SubscriptionResult<GetCustomersSurveillanceSubscription>;
+export const GetCustomersSurveillanceByCompanyIdDocument = gql`
+  query GetCustomersSurveillanceByCompanyId($target_date: date, $id: uuid!) {
+    customer: companies_by_pk(id: $id) {
+      id
+      ...CustomerSurveillance
+    }
+  }
+  ${CustomerSurveillanceFragmentDoc}
+`;
+
+/**
+ * __useGetCustomersSurveillanceByCompanyIdQuery__
+ *
+ * To run a query within a React component, call `useGetCustomersSurveillanceByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomersSurveillanceByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomersSurveillanceByCompanyIdQuery({
+ *   variables: {
+ *      target_date: // value for 'target_date'
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetCustomersSurveillanceByCompanyIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetCustomersSurveillanceByCompanyIdQuery,
+    GetCustomersSurveillanceByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetCustomersSurveillanceByCompanyIdQuery,
+    GetCustomersSurveillanceByCompanyIdQueryVariables
+  >(GetCustomersSurveillanceByCompanyIdDocument, baseOptions);
+}
+export function useGetCustomersSurveillanceByCompanyIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetCustomersSurveillanceByCompanyIdQuery,
+    GetCustomersSurveillanceByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetCustomersSurveillanceByCompanyIdQuery,
+    GetCustomersSurveillanceByCompanyIdQueryVariables
+  >(GetCustomersSurveillanceByCompanyIdDocument, baseOptions);
+}
+export type GetCustomersSurveillanceByCompanyIdQueryHookResult = ReturnType<
+  typeof useGetCustomersSurveillanceByCompanyIdQuery
+>;
+export type GetCustomersSurveillanceByCompanyIdLazyQueryHookResult = ReturnType<
+  typeof useGetCustomersSurveillanceByCompanyIdLazyQuery
+>;
+export type GetCustomersSurveillanceByCompanyIdQueryResult = Apollo.QueryResult<
+  GetCustomersSurveillanceByCompanyIdQuery,
+  GetCustomersSurveillanceByCompanyIdQueryVariables
+>;
 export const GetOpenLoansByDebtFacilityStatusesDocument = gql`
   subscription GetOpenLoansByDebtFacilityStatuses($statuses: [String!]) {
     loans(

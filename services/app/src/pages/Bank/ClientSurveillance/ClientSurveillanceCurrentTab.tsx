@@ -4,8 +4,8 @@ import CustomerSurveillanceDataGrid from "components/CustomerSurveillance/Custom
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   CustomerSurveillanceFragment,
-  GetCustomersCurrentSurveillanceSubscription,
-  useGetCustomersCurrentSurveillanceSubscription,
+  GetCustomersSurveillanceSubscription,
+  useGetCustomersSurveillanceSubscription,
 } from "generated/graphql";
 import { useFilterCustomerSurveillance } from "hooks/useFilterCustomerSurveillance";
 import { getEndOfPreviousMonth } from "lib/date";
@@ -14,10 +14,10 @@ import { useMemo, useState } from "react";
 export default function ClientSurveillanceCurrentTab() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCompanyIds, setSelectedCompanyIds] = useState<
-    CustomerSurveillanceFragment["id"]
+    CustomerSurveillanceFragment["id"][]
   >([]);
 
-  const { data, error } = useGetCustomersCurrentSurveillanceSubscription({
+  const { data, error } = useGetCustomersSurveillanceSubscription({
     fetchPolicy: "network-only",
     variables: {
       target_date: getEndOfPreviousMonth(),
@@ -39,7 +39,7 @@ export default function ClientSurveillanceCurrentTab() {
   const customers = useFilterCustomerSurveillance(
     searchQuery,
     activeCustomers
-  ) as GetCustomersCurrentSurveillanceSubscription["customers"];
+  ) as GetCustomersSurveillanceSubscription["customers"];
 
   const handleSelectCompanies = useMemo(
     () => (companies: CustomerSurveillanceFragment[]) =>
@@ -80,6 +80,7 @@ export default function ClientSurveillanceCurrentTab() {
                     <CertifyCustomerSurveillanceStatusModal
                       customer={selectedCustomer}
                       handleClose={() => {
+                        setSelectedCompanyIds([]);
                         handleClose();
                       }}
                     />
@@ -98,6 +99,7 @@ export default function ClientSurveillanceCurrentTab() {
           isLoansReadyForAdvancesAmountVisible
           customers={customers}
           selectedCompaniesIds={selectedCompanyIds}
+          targetDate={getEndOfPreviousMonth()}
           handleSelectCompanies={handleSelectCompanies}
         />
       </Box>
