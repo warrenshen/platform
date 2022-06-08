@@ -33,7 +33,7 @@ def submit_ebba_application_for_approval(
 	# reveal some evidence that would negatively impact our underwriting
 	# considerations. For most cases though, the happy path is for the customer
 	# to switch to `In Review`, get reviewed, then return to normal lending activity
-	qualifying_date = date_util.get_report_month_last_day(date_util.now_as_date())
+	qualifying_date = date_util.get_previous_month_last_date(date_util.now_as_date())
 	customer_surveillance_result = cast(
 		models.CustomerSurveillanceResult,
 		session.query(models.CustomerSurveillanceResult).filter(

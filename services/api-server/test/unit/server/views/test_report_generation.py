@@ -938,7 +938,7 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 				company_lookup = None,
 				as_of_date = "2020-09-30"
 			)
-			previous_report_month_last_day = date_util.get_report_month_last_day(rgc.report_month_last_day)
+			previous_report_month_last_day = date_util.get_previous_month_last_date(rgc.report_month_last_day)
 
 			financial_summary = loc_summary.get_end_of_report_month_financial_summary(session, company_id, rgc)
 			
@@ -1136,7 +1136,7 @@ class TestReportsMonthlyLoanSummaryNoneLOCView(db_unittest.TestCase):
 			loans, company_lookup, company_balance_lookup = self.setup_loans_for_non_loc_html_generation(session, company_id)
 
 
-			report_month_last_day = date_util.get_report_month_last_day(TODAY.date())
+			report_month_last_day = date_util.get_previous_month_last_date(TODAY.date())
 			report_month_first_day = date_util.get_first_day_of_month_date(date_util.date_to_str(report_month_last_day))
 
 			rgc = ReportGenerationContext(

@@ -46,7 +46,7 @@ def now_as_date(timezone: str = DEFAULT_TIMEZONE, now: datetime.datetime = None)
 	dt = now.astimezone(pytz.timezone(timezone))
 	return dt.date()
 
-def get_report_month_last_day(send_date : datetime.date) -> datetime.date:
+def get_previous_month_last_date(send_date : datetime.date) -> datetime.date:
 	"""
 		Please use human_readable_monthyear for display formatting
 

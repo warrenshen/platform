@@ -757,7 +757,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 				float(financial_summary.total_outstanding_fees)
 
 			# Report Previous Month is the basis for "Previous *" amounts in the email
-			previous_report_month_last_day = date_util.get_report_month_last_day(rgc.report_month_last_day)
+			previous_report_month_last_day = date_util.get_previous_month_last_date(rgc.report_month_last_day)
 			previous_financial_summary = cast(
 				models.FinancialSummary,
 				session.query(models.FinancialSummary).filter(
@@ -1017,7 +1017,7 @@ class AutomaticDebitCourtesyView(MethodView):
 					loans_to_notify[company_id].append(l)
 
 		# Report Month is the basis for "Current *" amounts in the email
-		report_month_last_day = date_util.get_report_month_last_day(today)
+		report_month_last_day = date_util.get_previous_month_last_date(today)
 
 		for company_id, loans in loans_to_notify.items():
 			msc = cast(

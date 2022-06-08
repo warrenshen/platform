@@ -188,7 +188,7 @@ class TestDateUtil(unittest.TestCase):
 		]
 
 		for test in tests:
-			report_month_raw = date_util.get_report_month_last_day(test['report_send_date'])
+			report_month_raw = date_util.get_previous_month_last_date(test['report_send_date'])
 
 			self.assertEqual(
 				test['expected_raw_statement_date'], 

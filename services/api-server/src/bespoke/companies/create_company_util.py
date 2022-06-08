@@ -1282,7 +1282,7 @@ def certify_customer_surveillance_result(
 	if qualifying_month > today_date:
 		return None, errors.Error("Certification month cannot be set to in the future")
 
-	previous_month = date_util.get_report_month_last_day(today_date)
+	previous_month = date_util.get_previous_month_last_date(today_date)
 	if qualifying_month.month == previous_month.month and \
 		qualifying_month.year == previous_month.year:
 		company = cast(

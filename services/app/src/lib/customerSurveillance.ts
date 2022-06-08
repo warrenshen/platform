@@ -158,9 +158,7 @@ export const getPercentagePastDue = (
 
   const totalOutstandingPrincipal = !!customer
     ?.most_recent_financial_summary?.[0]?.total_outstanding_principal
-    ? parseFloat(
-        customer.most_recent_financial_summary[0].total_outstanding_principal
-      )
+    ? customer.most_recent_financial_summary[0].total_outstanding_principal
     : 0.0;
 
   const totalPercentagePastDue =
