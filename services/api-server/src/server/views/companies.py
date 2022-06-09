@@ -748,6 +748,7 @@ class CertifyCustomerSurveillanceResultView(MethodView):
 			'company_id',
 			'surveillance_status',
 			'surveillance_status_note',
+			'surveillance_info',
 			'qualifying_product',
 			'qualifying_date'
 		]
@@ -760,6 +761,7 @@ class CertifyCustomerSurveillanceResultView(MethodView):
 		company_id = form['company_id']
 		surveillance_status = form['surveillance_status']
 		surveillance_status_note = form['surveillance_status_note']
+		surveillance_info = form['surveillance_info']
 		qualifying_product = form['qualifying_product']
 		qualifying_date = form['qualifying_date']
 
@@ -769,6 +771,7 @@ class CertifyCustomerSurveillanceResultView(MethodView):
 				company_id = company_id,
 				surveillance_status = surveillance_status,
 				surveillance_status_note = surveillance_status_note,
+				surveillance_info = surveillance_info,
 				qualifying_product = qualifying_product,
 				qualifying_date = qualifying_date,
 				user_id = auth_util.UserSession.from_session().get_user_id()

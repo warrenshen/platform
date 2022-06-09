@@ -21,6 +21,7 @@ select_permissions:
         - qualifying_date
         - qualifying_product
         - submitting_user_id
+        - surveillance_info
         - surveillance_status
         - updated_at
       filter: {}
@@ -36,6 +37,7 @@ select_permissions:
         - qualifying_date
         - qualifying_product
         - submitting_user_id
+        - surveillance_info
         - surveillance_status
         - updated_at
       filter: {}

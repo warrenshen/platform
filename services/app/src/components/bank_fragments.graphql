@@ -541,4 +541,5 @@ fragment CustomerSurveillanceResult on customer_surveillance_results {
   qualifying_date
   company_id
   surveillance_status
+  surveillance_info
 }

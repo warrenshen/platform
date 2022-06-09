@@ -178,6 +178,30 @@ export const SurveillanceStatusToLabel = {
   [SurveillanceStatusEnum.InReview]: "In Review",
 };
 
+export enum SurveillanceOnPauseReasonEnum {
+  OverThirtyDaysPastDue = "over_thirty_days_past_due",
+  FinancialReportExpired = "financial_report_expired",
+  BorrowingBaseExpired = "borrowing_base_expired",
+  Underwriting = "underwriting",
+  ClientSuccess = "client_success",
+}
+
+export const SurveillanceOnPauseReasonToLabel = {
+  [SurveillanceOnPauseReasonEnum.OverThirtyDaysPastDue]:
+    "Over 30 Days Past Due",
+  [SurveillanceOnPauseReasonEnum.FinancialReportExpired]:
+    "Financial Report Expired",
+  [SurveillanceOnPauseReasonEnum.BorrowingBaseExpired]:
+    "Borrowing Base Expired",
+  [SurveillanceOnPauseReasonEnum.Underwriting]: "Underwriting",
+  [SurveillanceOnPauseReasonEnum.ClientSuccess]: "Client Success",
+};
+
+export enum SurveillanceOnPauseReasonNotesEnum {
+  Underwriting = "underwriting_notes",
+  ClientSuccess = "client_success_notes",
+}
+
 export enum QualifyForEnum {
   LineOfCredit = "line_of_credit",
   InventoryFinancing = "inventory_financing",

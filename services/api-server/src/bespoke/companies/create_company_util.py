@@ -2,7 +2,7 @@
 	Logic to help create a company.
 """
 import datetime
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type, cast
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union, cast
 
 from bespoke import errors
 from bespoke.companies import create_user_util
@@ -1245,6 +1245,7 @@ def certify_customer_surveillance_result(
 	company_id: str,
 	surveillance_status: str,
 	surveillance_status_note: str,
+	surveillance_info: Dict[str, Union[str, bool]],
 	qualifying_product: str,
 	qualifying_date: str,
 	user_id: str,
@@ -1271,6 +1272,7 @@ def certify_customer_surveillance_result(
 	# Shared across create and update flow
 	customer_surveillance_result.surveillance_status = surveillance_status
 	customer_surveillance_result.bank_note = surveillance_status_note
+	customer_surveillance_result.surveillance_info = surveillance_info
 	customer_surveillance_result.qualifying_product = qualifying_product
 
 	# If qualifying date is equal to the month previous to the current month,

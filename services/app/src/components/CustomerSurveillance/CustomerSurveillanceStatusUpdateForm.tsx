@@ -1,5 +1,6 @@
 import { Box, FormControl, TextField, Typography } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
+import CustomerSurveillanceOnPauseReasonsForm from "components/CustomerSurveillance/CustomerSurveillanceOnPauseReasonsForm";
 import CertificationMonthDropdown from "components/EbbaApplication/CertificationMonthDropdown";
 import { CertificationOption } from "components/EbbaApplication/CertificationMonthDropdown";
 import {
@@ -94,11 +95,26 @@ const CustomerSurveillanceStatusUpdateForm = ({
                   setSurveillanceResult({
                     ...surveillanceResult,
                     surveillance_status: status as SurveillanceStatusEnum,
+                    surveillance_info: {},
                   });
                 }
               }}
             />
           </Box>
+          {surveillanceResult["surveillance_status"] ===
+            SurveillanceStatusEnum.OnPause && (
+            <Box mb={3}>
+              <Typography variant="body2" color="textSecondary">
+                On Pause Surveillance Reasons
+              </Typography>
+              <CustomerSurveillanceOnPauseReasonsForm
+                isDisabled={false}
+                customer={customer}
+                surveillanceResult={surveillanceResult}
+                setSurveillanceResult={setSurveillanceResult}
+              />
+            </Box>
+          )}
           <Box mb={3}>
             <Autocomplete
               autoHighlight

@@ -38,6 +38,7 @@ export default function CertifyCustomerSurveillanceStatusModal({
             qualifying_product: "",
             qualifying_date: initialMonthSelection,
             surveillance_status: "",
+            surveillance_info: {},
           } as CustomerSurveillanceResultFragment)
     );
 
@@ -55,6 +56,7 @@ export default function CertifyCustomerSurveillanceStatusModal({
         company_id: customer.id,
         surveillance_status: surveillanceResult["surveillance_status"],
         surveillance_status_note: surveillanceResult["bank_note"],
+        surveillance_info: surveillanceResult["surveillance_info"],
         qualifying_product: surveillanceResult["qualifying_product"],
         qualifying_date: surveillanceResult["qualifying_date"],
       },

@@ -405,6 +405,7 @@ class CustomerSurveillanceResult(Base):
 	surveillance_status = Column(String)
 	submitting_user_id = cast(GUID, Column(GUID, ForeignKey('users.id')))
 	metadata_info = Column(JSON)
+	surveillance_info = Column(JSON)
 
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)

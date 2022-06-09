@@ -1,4 +1,5 @@
-import { Box, Typography } from "@material-ui/core";
+import { Box, Checkbox, FormControlLabel, Typography } from "@material-ui/core";
+import CustomerSurveillanceOnPauseReasonsForm from "components/CustomerSurveillance/CustomerSurveillanceOnPauseReasonsForm";
 import CustomerSurveillanceResultsDataGrid from "components/CustomerSurveillance/CustomerSurveillanceResultsDataGrid";
 import CustomerSurveillanceStatusChip from "components/CustomerSurveillance/CustomerSurveillanceStatusChip";
 import CustomerSurveillanceStatusNoteModal from "components/CustomerSurveillance/CustomerSurveillanceStatusNoteModal";
@@ -22,8 +23,12 @@ import {
   getSurveillanceBankNote,
   isCustomerFinancialsMetrcBased,
 } from "lib/customerSurveillance";
-import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
-import { useState } from "react";
+import {
+  ProductTypeEnum,
+  ProductTypeToLabel,
+  SurveillanceStatusEnum,
+} from "lib/enum";
+import { ChangeEvent, useState } from "react";
 
 interface Props {
   customerId: CustomerSurveillanceFragment["id"];
@@ -37,6 +42,7 @@ export default function CustomerSurveillanceDrawer({
   handleClose,
 }: Props) {
   const [selectedBankNote, setSelectedBankNote] = useState(null);
+  const [showSurveillanceDetails, setShowSurveillanceDetails] = useState(true);
 
   const { data, error } = useGetCustomersSurveillanceByCompanyIdQuery({
     fetchPolicy: "network-only",
@@ -52,6 +58,7 @@ export default function CustomerSurveillanceDrawer({
   }
 
   const customer = data?.customer;
+  const surveillanceResult = customer?.target_surveillance_result[0];
 
   const surveillanceStatus = !!customer
     ? getCustomerSurveillanceStatus(customer)
@@ -103,6 +110,31 @@ export default function CustomerSurveillanceDrawer({
               </Typography>
             )}
           </Box>
+          {!!surveillanceStatus &&
+            surveillanceStatus === SurveillanceStatusEnum.OnPause && (
+              <Box display="flex" flexDirection="column" mt={2}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={showSurveillanceDetails}
+                      onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                        setShowSurveillanceDetails(event.target.checked);
+                      }}
+                      color="primary"
+                    />
+                  }
+                  label={"Show Surveillance Notes?"}
+                />
+                {!!showSurveillanceDetails && (
+                  // <p>hello</p>
+                  <CustomerSurveillanceOnPauseReasonsForm
+                    isDisabled
+                    customer={customer}
+                    surveillanceResult={surveillanceResult}
+                  />
+                )}
+              </Box>
+            )}
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">
               Product Type

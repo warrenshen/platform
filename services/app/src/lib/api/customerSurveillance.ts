@@ -10,6 +10,7 @@ export type CertifyCustomerSurveillanceResultReq = {
   variables: {
     company_id: Companies["id"];
     surveillance_status: string;
+    surveillance_info: Record<string, boolean | string>;
     surveillance_status_note: string;
     qualifying_product: { [key in QualifyForEnum]: boolean | null };
     qualifying_date: string;
