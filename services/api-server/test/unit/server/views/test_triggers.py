@@ -45,7 +45,7 @@ class TestExpireActiveEbbaApplications(db_unittest.TestCase):
 					application_date=date_util.load_date_str("03/04/2021"),
 					status=RequestStatusEnum.APPROVED,
 					requested_at=datetime.datetime.utcnow() - datetime.timedelta(days=15),
-					expires_at=datetime.datetime.utcnow() - datetime.timedelta(days=15),
+					expires_date=(datetime.datetime.utcnow() - datetime.timedelta(days=15)).date(),
 					category=ClientSurveillanceCategoryEnum.BORROWING_BASE
 				)
 
@@ -94,7 +94,7 @@ class TestExpireActiveEbbaApplications(db_unittest.TestCase):
 					application_date=date_util.load_date_str("03/04/2021"),
 					status=RequestStatusEnum.APPROVED,
 					requested_at=datetime.datetime.utcnow() + datetime.timedelta(days=15),
-					expires_at=datetime.datetime.utcnow() + datetime.timedelta(days=15),
+					expires_date=(datetime.datetime.utcnow() + datetime.timedelta(days=15)).date(),
 				)
 
 				session.add(app)

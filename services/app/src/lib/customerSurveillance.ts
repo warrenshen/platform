@@ -85,9 +85,9 @@ export const getFinancialReportApplicationDate = (
 export const getFinancialReportExpirationDate = (
   customer: CustomerSurveillanceFragment
 ): string => {
-  return !!customer?.most_recent_financial_report?.[0]?.expires_at
+  return !!customer?.most_recent_financial_report?.[0]?.expires_date
     ? formatDatetimeString(
-        customer.most_recent_financial_report[0].expires_at,
+        customer.most_recent_financial_report[0].expires_date,
         false
       ) || "-"
     : "-";
@@ -97,8 +97,8 @@ export const getDaysUntilFinancialReportExpires = (
   customer: CustomerSurveillanceFragment
 ): [number, string] => {
   const expirationDate = !!customer?.most_recent_financial_report?.[0]
-    ?.expires_at
-    ? customer.most_recent_financial_report[0].expires_at
+    ?.expires_date
+    ? customer.most_recent_financial_report[0].expires_date
     : null;
 
   const daysUntilExpiration = !!expirationDate
@@ -123,9 +123,9 @@ export const getBorrowingBaseApplicationDate = (
 export const getBorrowingBaseExpirationDate = (
   customer: CustomerSurveillanceFragment
 ): string => {
-  return !!customer?.most_recent_borrowing_base?.[0]?.expires_at
+  return !!customer?.most_recent_borrowing_base?.[0]?.expires_date
     ? formatDatetimeString(
-        customer.most_recent_borrowing_base[0].expires_at,
+        customer.most_recent_borrowing_base[0].expires_date,
         false
       ) || "-"
     : "-";
@@ -134,8 +134,9 @@ export const getBorrowingBaseExpirationDate = (
 export const getDaysUntilBorrowingBaseExpires = (
   customer: CustomerSurveillanceFragment
 ): [number, string] => {
-  const expirationDate = !!customer?.most_recent_borrowing_base?.[0]?.expires_at
-    ? customer.most_recent_borrowing_base[0].expires_at
+  const expirationDate = !!customer?.most_recent_borrowing_base?.[0]
+    ?.expires_date
+    ? customer.most_recent_borrowing_base[0].expires_date
     : null;
 
   const daysUntilExpiration = !!expirationDate

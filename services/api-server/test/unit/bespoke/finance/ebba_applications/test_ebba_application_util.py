@@ -69,13 +69,13 @@ class TestAddFinancialReportView(db_unittest.TestCase):
 			ebba_application_files = generate_ebba_application_files(files_to_generate)
 
 			application_date = date_util.date_to_db_str(TODAY_DATE)
-			expires_at = date_util.datetime_to_str(TODAY)
+			expires_date = date_util.date_to_db_str(TODAY_DATE)
 
 			ebba_application, files_added_count, err = ebba_application_util.add_financial_report(
 				session,
 				company_id,
 				application_date,
-				expires_at,
+				expires_date,
 				ebba_application_files
 			)
 
@@ -105,14 +105,14 @@ class TestUpdateFinancialReportView(db_unittest.TestCase):
 			ebba_application_files1 = generate_ebba_application_files(files_to_generate1)
 
 			application_date1 = date_util.date_to_db_str(TODAY_DATE)
-			expires_at1 = date_util.datetime_to_str(TODAY)
+			expires_date1 = date_util.date_to_db_str(TODAY_DATE)
 
 			# easier to just use the add function than create a new setup function for the update test
 			ebba_application1, _, err = ebba_application_util.add_financial_report(
 				session,
 				company_id,
 				application_date1,
-				expires_at1,
+				expires_date1,
 				ebba_application_files1
 			)
 
@@ -121,13 +121,13 @@ class TestUpdateFinancialReportView(db_unittest.TestCase):
 			ebba_application_files2 = ebba_application_files1 + ebba_application_files_new
 
 			application_date2 = date_util.date_to_db_str(get_relative_date(TODAY, 10).date())
-			expires_at2 = date_util.datetime_to_str(get_relative_date(TODAY, 10))
+			expires_date2 = date_util.datetime_to_str(get_relative_date(TODAY, 10))
 
 			ebba_application2, files_removed_count, files_added_count, err = ebba_application_util.update_financial_report(
 				session,
 				str(ebba_application1.id),
 				application_date2,
-				expires_at2,
+				expires_date2,
 				ebba_application_files2
 			)
 
@@ -136,7 +136,7 @@ class TestUpdateFinancialReportView(db_unittest.TestCase):
 			self.assertEqual(ebba_application2.category, ClientSurveillanceCategoryEnum.FINANCIAL_REPORT)
 
 			self.assertNotEqual(application_date1, ebba_application2.application_date)
-			self.assertNotEqual(expires_at1, ebba_application2.expires_at)
+			self.assertNotEqual(expires_date1, ebba_application2.expires_date)
 			
 			self.assertEqual(files_removed_count, files_to_generate1)
 			self.assertEqual(files_added_count, files_to_generate1 + files_to_generate2)
@@ -169,7 +169,7 @@ class TestAddBorrowingBaseView(db_unittest.TestCase):
 			amount_custom = 14
 			amount_custom_note = "Unit test note"
 			calculated_borrowing_base = 4514
-			expires_at = date_util.datetime_to_str(TODAY)
+			expires_date = date_util.date_to_db_str(TODAY_DATE)
 
 			ebba_application, files_added_count, err = ebba_application_util.add_borrowing_base(
 				session,
@@ -182,7 +182,7 @@ class TestAddBorrowingBaseView(db_unittest.TestCase):
 				amount_custom,
 				amount_custom_note,
 				calculated_borrowing_base,
-				expires_at,
+				expires_date,
 				ebba_application_files
 			)
 
@@ -219,7 +219,7 @@ class TestUpdateBorrowingBaseView(db_unittest.TestCase):
 			amount_custom1 = 14
 			amount_custom_note1 = "Unit test note"
 			calculated_borrowing_base1 = 4514
-			expires_at1 = date_util.datetime_to_str(TODAY)
+			expires_date1 = date_util.date_to_db_str(TODAY)
 
 			# easier to just use the add function than create a new setup function for the update test
 			ebba_application1, _, err = ebba_application_util.add_borrowing_base(
@@ -233,7 +233,7 @@ class TestUpdateBorrowingBaseView(db_unittest.TestCase):
 				amount_custom1,
 				amount_custom_note1,
 				calculated_borrowing_base1,
-				expires_at1,
+				expires_date1,
 				ebba_application_files1
 			)
 
@@ -249,7 +249,7 @@ class TestUpdateBorrowingBaseView(db_unittest.TestCase):
 			amount_custom2 = 28
 			amount_custom_note2 = "Unit test note2"
 			calculated_borrowing_base2 = 9028
-			expires_at2 = date_util.datetime_to_str(get_relative_date(TODAY, 10))
+			expires_date2 = date_util.datetime_to_str(get_relative_date(TODAY, 10))
 
 			ebba_application2, files_removed_count, files_added_count, err = ebba_application_util.update_borrowing_base(
 				session,
@@ -262,7 +262,7 @@ class TestUpdateBorrowingBaseView(db_unittest.TestCase):
 				amount_custom2,
 				amount_custom_note2,
 				calculated_borrowing_base2,
-				expires_at2,
+				expires_date2,
 				ebba_application_files2
 			)
 
@@ -278,7 +278,7 @@ class TestUpdateBorrowingBaseView(db_unittest.TestCase):
 			self.assertNotEqual(amount_custom1, ebba_application2.amount_custom)
 			self.assertNotEqual(amount_custom_note1, ebba_application2.amount_custom_note)
 			self.assertNotEqual(calculated_borrowing_base1, ebba_application2.calculated_borrowing_base)
-			self.assertNotEqual(expires_at1, ebba_application2.expires_at)
+			self.assertNotEqual(expires_date1, ebba_application2.expires_date)
 			
 			self.assertEqual(files_removed_count, files_to_generate1)
 			self.assertEqual(files_added_count, files_to_generate1 + files_to_generate2)
@@ -317,7 +317,7 @@ class TestSubmitEbbaApplicationView(db_unittest.TestCase):
 					status = RequestStatusEnum.APPROVAL_REQUESTED,
 					category = ClientSurveillanceCategoryEnum.FINANCIAL_REPORT,
 					application_date = None,
-					expires_at = None
+					expires_date = None
 				),
 				company_id,
 				str(user.id)

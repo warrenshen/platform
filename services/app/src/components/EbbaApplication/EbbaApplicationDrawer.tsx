@@ -144,7 +144,7 @@ export default function EbbaApplicationDrawer({
               Expiration Date
             </Typography>
             <Typography variant={"body1"}>
-              {formatDateString(ebbaApplication.expires_at)}
+              {formatDateString(ebbaApplication.expires_date)}
             </Typography>
           </Box>
         )}

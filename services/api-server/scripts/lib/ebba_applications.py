@@ -135,8 +135,8 @@ def import_approved_ebba_applications(
 			return
 		ebba_application.calculated_borrowing_base = calculated_borrowing_base
 
-		calculated_expires_at = date_util.calculate_ebba_application_expires_at(parsed_application_date)
-		ebba_application.expires_at = calculated_expires_at
+		calculated_expires_date = date_util.calculate_ebba_application_expires_date(parsed_application_date)
+		ebba_application.expires_date = calculated_expires_date
 
 		session.add(ebba_application)
 		session.flush()

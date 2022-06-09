@@ -20,7 +20,7 @@ import {
   addFinancialReportMutation,
   updateFinancialReportMutation,
 } from "lib/api/ebbaApplications";
-import { computeEbbaApplicationExpiresAt } from "lib/date";
+import { computeEbbaApplicationExpiresDate } from "lib/date";
 import { ActionType, ProductTypeEnum } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useState } from "react";
@@ -102,7 +102,7 @@ export default function CreateUpdateFinancialReportCertificationModal({
   const [updateFinancialReport, { loading: isUpdateFinancialReportLoading }] =
     useCustomMutation(updateFinancialReportMutation);
 
-  const computedExpiresAt = computeEbbaApplicationExpiresAt(
+  const computedExpiresDate = computeEbbaApplicationExpiresDate(
     ebbaApplication.application_date
   );
 
@@ -113,7 +113,7 @@ export default function CreateUpdateFinancialReportCertificationModal({
             company_id: companyId,
             ebba_application_id: ebbaApplication.id,
             application_date: ebbaApplication.application_date,
-            expires_at: computedExpiresAt,
+            expires_date: computedExpiresDate,
             ebba_application_files: ebbaApplicationFiles,
           },
         })
@@ -121,7 +121,7 @@ export default function CreateUpdateFinancialReportCertificationModal({
           variables: {
             company_id: companyId,
             application_date: ebbaApplication.application_date,
-            expires_at: computedExpiresAt,
+            expires_date: computedExpiresDate,
             ebba_application_files: ebbaApplicationFiles,
           },
         });

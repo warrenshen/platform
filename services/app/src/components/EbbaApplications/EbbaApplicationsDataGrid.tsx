@@ -66,7 +66,7 @@ export default function EbbaApplicationsDataGrid({
             ? BankEbbaTabLabel.BorrowingBase
             : BankEbbaTabLabel.FinancialReports,
         company_name: ebbaApplication.company?.name,
-        expiration_date: ebbaApplication.expires_at,
+        expiration_date: ebbaApplication.expires_date,
         submitted_by_name: ebbaApplication.submitted_by_user?.full_name,
         amount_custom_note: ebbaApplication.amount_custom_note || "-",
         amount_custom: ebbaApplication.amount_custom || "-",

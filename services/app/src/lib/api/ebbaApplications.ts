@@ -60,7 +60,7 @@ export type AddFinancialReportReq = {
   variables: {
     company_id: string;
     application_date: string;
-    expires_at: string;
+    expires_date: string;
     ebba_application_files: EbbaApplicationFilesInsertInput[];
   };
 };
@@ -88,7 +88,7 @@ export type UpdateFinancialReportReq = {
     company_id: string;
     ebba_application_id: string;
     application_date: string;
-    expires_at: string;
+    expires_date: string;
     ebba_application_files: EbbaApplicationFilesInsertInput[];
   };
 };
@@ -122,7 +122,7 @@ export type AddBorrowingBaseReq = {
     amount_custom: number;
     amount_custom_note: string;
     calculated_borrowing_base: number;
-    expires_at: string;
+    expires_date: string;
     ebba_application_files: EbbaApplicationFilesInsertInput[];
   };
 };
@@ -157,7 +157,7 @@ export type UpdateBorrowingBaseReq = {
     amount_custom: number;
     amount_custom_note: string;
     calculated_borrowing_base: number;
-    expires_at: string;
+    expires_date: string;
     ebbaApplicationFiles: EbbaApplicationFilesInsertInput[];
   };
 };

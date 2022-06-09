@@ -54,7 +54,7 @@ export default function EbbaApplicationCard({ ebbaApplication }: Props) {
         <Box display="flex" alignItems="center" mb={0.5}>
           <Typography className={classes.label}>Expiration Date</Typography>
           <Typography>
-            {formatDateString(ebbaApplication.expires_at)}
+            {formatDateString(ebbaApplication.expires_date)}
           </Typography>
         </Box>
         {isBorrowingBase && (

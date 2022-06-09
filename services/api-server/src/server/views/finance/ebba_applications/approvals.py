@@ -245,7 +245,7 @@ class AddFinancialReportView(MethodView):
 		if not form:
 			return handler_util.make_error_response('No data provided')
 
-		required_keys = ['company_id', 'application_date', 'expires_at', 'ebba_application_files']
+		required_keys = ['company_id', 'application_date', 'expires_date', 'ebba_application_files']
 
 		for key in required_keys:
 			if key not in form:
@@ -253,7 +253,7 @@ class AddFinancialReportView(MethodView):
 
 		company_id: str = form['company_id']
 		application_date: str = form['application_date']
-		expires_at: str = form['expires_at']
+		expires_date: str = form['expires_date']
 		ebba_application_files: List[Dict[str, str]] = form['ebba_application_files']
 
 		with models.session_scope(current_app.session_maker) as session:
@@ -261,7 +261,7 @@ class AddFinancialReportView(MethodView):
 				session,
 				company_id,
 				application_date,
-				expires_at,
+				expires_date,
 				ebba_application_files
 			)
 			if err:
@@ -299,7 +299,7 @@ class UpdateFinancialReportView(MethodView):
 		if not form:
 			return handler_util.make_error_response('No data provided')
 
-		required_keys = ['company_id', 'ebba_application_id', 'application_date', 'expires_at', 'ebba_application_files']
+		required_keys = ['company_id', 'ebba_application_id', 'application_date', 'expires_date', 'ebba_application_files']
 
 		for key in required_keys:
 			if key not in form:
@@ -308,7 +308,7 @@ class UpdateFinancialReportView(MethodView):
 		company_id: str = form['company_id']
 		ebba_application_id: str = form['ebba_application_id']
 		application_date: str = form['application_date']
-		expires_at: str = form['expires_at']
+		expires_date: str = form['expires_date']
 		ebba_application_files: List[Dict[str, str]] = form['ebba_application_files']
 
 		with models.session_scope(current_app.session_maker) as session:
@@ -323,7 +323,7 @@ class UpdateFinancialReportView(MethodView):
 				session,
 				ebba_application_id,
 				application_date,
-				expires_at,
+				expires_date,
 				ebba_application_files
 			)
 			if err:
@@ -370,7 +370,7 @@ class AddBorrowingBaseView(MethodView):
 			'monthly_cash',
 			'amount_cash_in_daca',
 			'calculated_borrowing_base',
-			'expires_at',
+			'expires_date',
 			'ebba_application_files'
 		]
 
@@ -387,7 +387,7 @@ class AddBorrowingBaseView(MethodView):
 		amount_custom: float = float(form['amount_custom']) if 'amount_custom' in form else None
 		amount_custom_note: str = form['amount_custom_note'] if 'amount_custom_note' in form else None
 		calculated_borrowing_base: float = form['calculated_borrowing_base']
-		expires_at: str = form['expires_at']
+		expires_date: str = form['expires_date']
 		ebba_application_files: List[Dict[str, str]] = form['ebba_application_files']
 
 		with models.session_scope(current_app.session_maker) as session:
@@ -402,7 +402,7 @@ class AddBorrowingBaseView(MethodView):
 				amount_custom,
 				amount_custom_note,
 				calculated_borrowing_base,
-				expires_at,
+				expires_date,
 				ebba_application_files
 			)
 			if err:
@@ -449,7 +449,7 @@ class UpdateBorrowingBaseView(MethodView):
 			'monthly_cash',
 			'amount_cash_in_daca',
 			'calculated_borrowing_base',
-			'expires_at',
+			'expires_date',
 			'ebba_application_files'
 		]
 
@@ -467,7 +467,7 @@ class UpdateBorrowingBaseView(MethodView):
 		amount_custom: float = float(form['amount_custom']) if 'amount_custom' in form else None
 		amount_custom_note: str = form['amount_custom_note'] if 'amount_custom_note' in form else None
 		calculated_borrowing_base: float = form['calculated_borrowing_base']
-		expires_at: str = form['expires_at']
+		expires_date: str = form['expires_date']
 		ebba_application_files: List[Dict[str, str]] = form['ebba_application_files']
 
 		with models.session_scope(current_app.session_maker) as session:
@@ -489,7 +489,7 @@ class UpdateBorrowingBaseView(MethodView):
 				amount_custom,
 				amount_custom_note,
 				calculated_borrowing_base,
-				expires_at,
+				expires_date,
 				ebba_application_files
 			)
 			if err:

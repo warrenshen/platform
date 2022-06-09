@@ -58,7 +58,7 @@ class ExpireActiveEbbaApplications(MethodView):
 					models.EbbaApplication,
 					models.EbbaApplication.id == models.CompanySettings.active_borrowing_base_id
 				).filter(
-					models.EbbaApplication.expires_at < func.now()
+					models.EbbaApplication.expires_date < func.now()
 				).all()
 
 			for company in borrowing_bases:
@@ -77,7 +77,7 @@ class ExpireActiveEbbaApplications(MethodView):
 					models.EbbaApplication,
 					models.EbbaApplication.id == models.CompanySettings.active_financial_report_id
 				).filter(
-					models.EbbaApplication.expires_at < func.now()
+					models.EbbaApplication.expires_date < func.now()
 				).all()
 
 			for company in financial_reports:

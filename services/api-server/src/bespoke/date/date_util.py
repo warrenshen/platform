@@ -179,14 +179,14 @@ def load_datetime_str(datetime_str: str) -> datetime.datetime:
 	"""
 	return parser.parse(datetime_str)
 
-def calculate_ebba_application_expires_at(application_date: datetime.datetime) -> datetime.datetime:
+def calculate_ebba_application_expires_date(application_date: datetime.datetime) -> datetime.datetime:
 	return (application_date + relativedelta.relativedelta(months=1)).replace(15)
 
-def is_past_due(today: datetime.date, expires_at: datetime.date, timezone: str) -> bool:
-	return today >= expires_at
+def is_past_due(today: datetime.date, expires_date: datetime.date, timezone: str) -> bool:
+	return today >= expires_date
 
-def has_expired(expires_at: datetime.datetime) -> bool:
-	return now() >= expires_at
+def has_expired(expires_date: datetime.datetime) -> bool:
+	return now() >= expires_date
 
 def num_calendar_days_passed(d1: datetime.date, d2: datetime.date) -> int:
 	"""

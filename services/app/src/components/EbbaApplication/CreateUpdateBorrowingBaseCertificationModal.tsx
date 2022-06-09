@@ -22,7 +22,7 @@ import {
   updateBorrowingBaseMutation,
 } from "lib/api/ebbaApplications";
 import { calculateBorrowingBaseAmount } from "lib/borrowingBase";
-import { computeEbbaApplicationExpiresAt } from "lib/date";
+import { computeEbbaApplicationExpiresDate } from "lib/date";
 import { ActionType, CustomerSurveillanceCategoryEnum } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useMemo, useState } from "react";
@@ -142,7 +142,7 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
     [ebbaApplication, existingContractFields]
   );
 
-  const computedExpiresAt = computeEbbaApplicationExpiresAt(
+  const computedExpiresDate = computeEbbaApplicationExpiresDate(
     ebbaApplication.application_date
   );
 
@@ -165,7 +165,7 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
               ? ebbaApplication.amount_custom_note
               : undefined,
             calculated_borrowing_base: calculatedBorrowingBase,
-            expires_at: computedExpiresAt,
+            expires_date: computedExpiresDate,
             ebba_application_files: ebbaApplicationFiles,
           },
         })
@@ -186,7 +186,7 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
               ? ebbaApplication.amount_custom_note
               : undefined,
             calculated_borrowing_base: calculatedBorrowingBase,
-            expires_at: computedExpiresAt,
+            expires_date: computedExpiresDate,
             ebba_application_files: ebbaApplicationFiles,
           },
         });

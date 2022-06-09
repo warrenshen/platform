@@ -396,7 +396,7 @@ export default function Layout({
   const showEbbaApplicationsChip =
     !borrowingBaseLoading &&
     (!ebbaApplication ||
-      withinNDaysOfNowOrBefore(ebbaApplication.expires_at, 15));
+      withinNDaysOfNowOrBefore(ebbaApplication.expires_date, 15));
 
   const navItems = isBankUser
     ? getBankNavItems(

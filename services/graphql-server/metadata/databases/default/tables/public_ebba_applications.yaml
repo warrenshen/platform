@@ -28,7 +28,7 @@ insert_permissions:
         - calculated_borrowing_base
         - category
         - company_id
-        - expires_at
+        - expires_date
         - monthly_accounts_receivable
         - monthly_cash
         - monthly_inventory
@@ -45,7 +45,7 @@ insert_permissions:
         - application_date
         - calculated_borrowing_base
         - category
-        - expires_at
+        - expires_date
         - monthly_accounts_receivable
         - monthly_cash
         - monthly_inventory
@@ -68,7 +68,7 @@ select_permissions:
         - rejection_note
         - approved_at
         - calculated_borrowing_base
-        - expires_at
+        - expires_date
         - amount_cash_in_daca
         - is_deleted
         - submitted_by_user_id
@@ -81,7 +81,7 @@ select_permissions:
       columns:
         - is_deleted
         - application_date
-        - expires_at
+        - expires_date
         - amount_cash_in_daca
         - amount_custom
         - calculated_borrowing_base
@@ -106,7 +106,7 @@ select_permissions:
       columns:
         - is_deleted
         - application_date
-        - expires_at
+        - expires_date
         - amount_cash_in_daca
         - amount_custom
         - calculated_borrowing_base
@@ -133,7 +133,7 @@ select_permissions:
       columns:
         - is_deleted
         - application_date
-        - expires_at
+        - expires_date
         - amount_cash_in_daca
         - amount_custom
         - calculated_borrowing_base
@@ -164,7 +164,7 @@ update_permissions:
         - amount_custom_note
         - application_date
         - calculated_borrowing_base
-        - expires_at
+        - expires_date
         - monthly_accounts_receivable
         - monthly_cash
         - monthly_inventory
@@ -176,7 +176,7 @@ update_permissions:
         - amount_cash_in_daca
         - application_date
         - calculated_borrowing_base
-        - expires_at
+        - expires_date
         - monthly_accounts_receivable
         - monthly_cash
         - monthly_inventory

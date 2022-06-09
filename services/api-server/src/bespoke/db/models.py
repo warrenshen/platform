@@ -1245,7 +1245,7 @@ class EbbaApplication(Base):
 
 	calculated_borrowing_base = Column(Numeric)
 	rejection_note = Column(Text)
-	expires_at = Column(Date)
+	expires_date = Column(Date)
 
 	requested_at = Column(DateTime)
 	approved_at = Column(DateTime)

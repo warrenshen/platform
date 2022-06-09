@@ -50,7 +50,7 @@ export default function BorrowingBasePageContent({
 
   const isActiveApplicationValid = !!activeEbbaApplication;
   const isActiveApplicationExpiringSoon = withinNDaysOfNowOrBefore(
-    activeEbbaApplication?.expires_at,
+    activeEbbaApplication?.expires_date,
     15
   );
 

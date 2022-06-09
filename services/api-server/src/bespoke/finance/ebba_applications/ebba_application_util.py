@@ -94,7 +94,7 @@ def add_financial_report(
 	session: Session,
 	company_id: str,
 	application_date: str,
-	expires_at: str,
+	expires_date: str,
 	ebba_application_files: List[Dict[str, str]]
 ) -> Tuple[models.EbbaApplication, int, errors.Error]:
 	# used only for unit tests
@@ -105,7 +105,7 @@ def add_financial_report(
 		status = RequestStatusEnum.APPROVAL_REQUESTED,
 		category = ClientSurveillanceCategoryEnum.FINANCIAL_REPORT,
 		application_date = date_util.load_date_str(application_date),
-		expires_at = date_util.load_datetime_str(expires_at)
+		expires_date = date_util.load_datetime_str(expires_date)
 	)
 	session.add(ebba_application)
 	session.flush()
@@ -124,7 +124,7 @@ def update_financial_report(
 	session: Session,
 	ebba_application_id: str,
 	application_date: str,
-	expires_at: str,
+	expires_date: str,
 	ebba_application_files: List[Dict[str, str]]
 ) -> Tuple[models.EbbaApplication, int, int, errors.Error]:
 	# used only for unit tests
@@ -138,7 +138,7 @@ def update_financial_report(
 		).first())
 
 	ebba_application.application_date = date_util.load_date_str(application_date)
-	ebba_application.expires_at = date_util.load_datetime_str(expires_at)
+	ebba_application.expires_date = date_util.load_datetime_str(expires_date)
 
 	ebba_application_file_ids: List[str] = []
 	for file in ebba_application_files:
@@ -177,7 +177,7 @@ def add_borrowing_base(
 	amount_custom: float,
 	amount_custom_note: str,
 	calculated_borrowing_base: float,
-	expires_at: str,
+	expires_date: str,
 	ebba_application_files: List[Dict[str, str]]
 ) -> Tuple[models.EbbaApplication, int, errors.Error]:
 	# used only for unit tests
@@ -195,7 +195,7 @@ def add_borrowing_base(
 		amount_custom = amount_custom,
 		amount_custom_note = amount_custom_note,
 		calculated_borrowing_base = calculated_borrowing_base,
-		expires_at = date_util.load_datetime_str(expires_at)
+		expires_date = date_util.load_datetime_str(expires_date)
 	)
 	session.add(ebba_application)
 	session.flush()
@@ -221,7 +221,7 @@ def update_borrowing_base(
 	amount_custom: float,
 	amount_custom_note: str,
 	calculated_borrowing_base: float,
-	expires_at: str,
+	expires_date: str,
 	ebba_application_files: List[Dict[str, str]]
 ) -> Tuple[models.EbbaApplication, int, int, errors.Error]:
 	# used only for unit tests
@@ -244,7 +244,7 @@ def update_borrowing_base(
 	if amount_custom_note is not None:
 		ebba_application.amount_custom_note = amount_custom_note
 	ebba_application.calculated_borrowing_base = Decimal(calculated_borrowing_base)
-	ebba_application.expires_at = date_util.load_datetime_str(expires_at)
+	ebba_application.expires_date = date_util.load_datetime_str(expires_date)
 
 	ebba_application_file_ids: List[str] = []
 	for file in ebba_application_files:

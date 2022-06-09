@@ -240,7 +240,7 @@ export function subtractBizDays(dateString: string, days: number) {
   return format(resultDate, DateFormatServer);
 }
 
-export function computeEbbaApplicationExpiresAt(dateString: string): string {
+export function computeEbbaApplicationExpiresDate(dateString: string): string {
   if (!dateString) {
     return "Invalid Date";
   }
