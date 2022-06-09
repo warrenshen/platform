@@ -105,7 +105,7 @@ export default function BankAccountInfoCard({
               <Box className={classes.label}>ACH Routing Number</Box>
               <Box>
                 {isObfuscateEnabled && !!bankAccount?.routing_number
-                  ? obfuscateBankNumbers(bankAccount?.routing_number)
+                  ? obfuscateBankNumbers(bankAccount.routing_number)
                   : bankAccount.routing_number}
               </Box>
             </Box>

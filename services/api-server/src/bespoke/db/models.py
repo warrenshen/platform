@@ -1517,6 +1517,8 @@ class CompanyPartnershipInvitation(Base):
 
 	requesting_company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 
+	submitted_by_user_id = cast(GUID, Column(GUID, ForeignKey('users.id'), nullable=True))
+
 	requested_at = Column(DateTime)
 	closed_at = Column(DateTime, nullable=True)
 

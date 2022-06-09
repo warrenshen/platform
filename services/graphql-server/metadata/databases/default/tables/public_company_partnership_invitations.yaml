@@ -5,6 +5,9 @@ object_relationships:
   - name: requesting_company
     using:
       foreign_key_constraint_on: requesting_company_id
+  - name: submitted_by_user
+    using:
+      foreign_key_constraint_on: submitted_by_user_id
 select_permissions:
   - role: bank_admin
     permission:

@@ -618,6 +618,7 @@ class AddVendorNewView(MethodView):
 			partnership_invitation = models.CompanyPartnershipInvitation()
 			partnership_invitation.requesting_company_id = customer.id
 			partnership_invitation.email = request_data['email'].lower()
+			partnership_invitation.submitted_by_user_id = user_session.get_user_id() # type: ignore
 			partnership_invitation.metadata_info = {}
 			partnership_invitation.requested_at = date_util.now()
 			session.add(partnership_invitation)

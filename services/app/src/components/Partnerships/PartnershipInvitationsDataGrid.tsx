@@ -12,6 +12,7 @@ interface Props {
   isExcelExport?: boolean;
   isFilteringEnabled?: boolean;
   isSortingDisabled?: boolean;
+  showCompanyName?: boolean;
   pager?: boolean;
   pageSize?: number;
   partnershipInvitations: any[];
@@ -34,6 +35,7 @@ export default function PartnershipsDataGrid({
   isExcelExport = true,
   isFilteringEnabled = false,
   isSortingDisabled = false,
+  showCompanyName = true,
   pager = true,
   pageSize = 10,
   partnershipInvitations,
@@ -52,6 +54,7 @@ export default function PartnershipsDataGrid({
         dataField: "requesting_company.name",
         width: ColumnWidths.Type,
         alignment: "center",
+        visible: showCompanyName,
       },
       {
         caption: "Email",
@@ -84,7 +87,7 @@ export default function PartnershipsDataGrid({
         ),
       },
     ],
-    []
+    [showCompanyName]
   );
 
   const handleSelectionChanged = useMemo(
@@ -106,7 +109,7 @@ export default function PartnershipsDataGrid({
       isSortingDisabled={isSortingDisabled}
       filtering={filtering}
       pager={pager}
-      select={true}
+      select={!!handleSelectRequests}
       pageSize={pageSize}
       allowedPageSizes={allowedPageSizes}
       dataSource={rows}
