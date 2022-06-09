@@ -1141,6 +1141,16 @@ def _create_or_update_partnership_request_new(
 		'bank_instructions_attachment_id': request_info_bank_instructions_attachment_id
 	}
 
+	# Set the submitted_by_user_id from partnership invite
+	company_partnership_invite = cast(
+		models.CompanyPartnershipInvitation,
+		session.query(models.CompanyPartnershipInvitation).filter(
+			models.CompanyPartnershipInvitation.email == user_email
+		).first()
+	)
+	if company_partnership_invite and company_partnership_invite.submitted_by_user_id:
+		partnership_req.requested_by_user_id = company_partnership_invite.submitted_by_user_id
+
 	if not partnership_req_id:
 		# Create
 		session.add(partnership_req)
