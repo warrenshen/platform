@@ -231,6 +231,7 @@ class CreatePartnershipRequestNewView(MethodView):
 		required_keys = [
 			'customer_id',
 			'company',
+			'user',
 			'license_info',
 			'request_info',
 		]

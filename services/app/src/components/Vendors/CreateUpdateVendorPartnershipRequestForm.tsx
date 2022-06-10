@@ -215,7 +215,7 @@ export default function CreateUpdateVendorPartnershipRequestForm({
           handleDeleteFileById={() =>
             setVendorInput({
               ...vendorInput,
-              bankInstructionsAttachmentId: "null",
+              bankInstructionsAttachmentId: "",
             })
           }
           handleNewFiles={(files: FileFragment[]) =>
@@ -285,7 +285,7 @@ export default function CreateUpdateVendorPartnershipRequestForm({
               handleDeleteFileById={() =>
                 setVendorInput({
                   ...vendorInput,
-                  cannabisLicenseCopyAttachmentId: "null",
+                  cannabisLicenseCopyAttachmentId: "",
                 })
               }
               handleNewFiles={(files: FileFragment[]) =>

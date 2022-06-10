@@ -3,6 +3,7 @@
 	common operations on models.py
 """
 from typing import Callable, Union, List, Iterable, Tuple, cast, Any
+from uuid import UUID
 
 from bespoke import errors
 from bespoke.db import db_constants, models
@@ -263,3 +264,10 @@ def compute_loan_payment_status(loan: models.Loan, session: Session) -> str:
 		return db_constants.PaymentStatusEnum.PARTIALLY_PAID
 
 	return None
+
+def is_valid_uuid(uuid_to_test: str, version: int = 4) -> bool:
+    try:
+        uuid_obj = UUID(uuid_to_test, version = version)
+    except ValueError:
+        return False
+    return str(uuid_obj) == uuid_to_test

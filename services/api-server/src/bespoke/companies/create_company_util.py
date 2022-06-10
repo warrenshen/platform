@@ -7,7 +7,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union, cast
 from bespoke import errors
 from bespoke.companies import create_user_util
 from bespoke.date import date_util
-from bespoke.db import models, db_constants
+from bespoke.db import models, db_constants, models_util
 from bespoke.db.db_constants import CompanyDebtFacilityStatus, CompanyType, TwoFactorMessageMethod, UserRoles
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util
@@ -1013,7 +1013,6 @@ def create_partnership_request(
 
 	return partnership_req_id, None
 
-
 @errors.return_error_tuple
 def _validate_partnership_request_new(
 	req: PartnershipRequestNewInputDict,
@@ -1069,6 +1068,9 @@ def _validate_partnership_request_new(
 	
 	if not request_info_bank_instructions_attachment_id:
 		return errors.Error('Canceled check / bank instructions attachment must be specified')
+
+	if not models_util.is_valid_uuid(request_info_bank_instructions_attachment_id):
+		return errors.Error('File id of bank instructions attachment is not valid')
 	
 	return None
 
@@ -1078,7 +1080,7 @@ def _create_or_update_partnership_request_new(
 	session: Session,
 	partnership_req_id: Optional[str] = None,
 	customer_id: Optional[str] = None,
-) -> str:
+) -> Tuple[str, errors.Error]:
 	company_input = req['company']
 	company_name = company_input['name']
 	is_cannabis = company_input['is_cannabis']
@@ -1120,7 +1122,11 @@ def _create_or_update_partnership_request_new(
 	partnership_req.company_name = company_name
 	partnership_req.is_cannabis = is_cannabis
 
-	partnership_req.license_info = cast(Dict, req['license_info'])
+	license_info = cast(LicenseInfoNewDict, req['license_info'])
+	if not models_util.is_valid_uuid(license_info['license_file_id']):
+		return None, errors.Error('File id of license file attachment is not valid')
+
+	partnership_req.license_info = cast(Dict[str, Any], license_info)
 
 	partnership_req.user_info = {
 		'first_name': user_first_name,
@@ -1158,7 +1164,7 @@ def _create_or_update_partnership_request_new(
 	
 	partnership_req_id = str(partnership_req.id)
 
-	return partnership_req_id
+	return partnership_req_id, None
 
 
 @errors.return_error_tuple
@@ -1170,7 +1176,7 @@ def create_partnership_request_new(
 	customer_id = req['customer_id']
 
 	if not customer_id:
-		raise errors.Error('Name must be specified')
+		return None, errors.Error('Name must be specified')
 
 	err = _validate_partnership_request_new(
 		req=req,
@@ -1178,13 +1184,15 @@ def create_partnership_request_new(
 	)
 
 	if err:
-		raise err
+		return None, err
 
-	partnership_req_id = _create_or_update_partnership_request_new(
+	partnership_req_id, err = _create_or_update_partnership_request_new(
 		req=req,
 		session=session,
 		customer_id=customer_id,
 	)
+	if err:
+		return None, err
 
 	return partnership_req_id, None
 
@@ -1203,7 +1211,7 @@ def update_partnership_request_new(
 		).first())
 
 	if not partnership_req:
-		raise errors.Error('No partnership request found to update this partnership')
+		return False, errors.Error('No partnership request found to update this partnership')
 	
 	err = _validate_partnership_request_new(
 		req=req,
@@ -1213,11 +1221,13 @@ def update_partnership_request_new(
 	if err:
 		raise err
 	
-	_create_or_update_partnership_request_new(
+	_, err = _create_or_update_partnership_request_new(
 		req=req,
 		session=session,
 		partnership_req_id=partnership_req_id,
 	)
+	if err:
+		return False, err
 
 	return True, None
 
