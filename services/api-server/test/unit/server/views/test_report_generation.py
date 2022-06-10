@@ -1060,7 +1060,7 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 			available_credit = loc_summary.get_available_credit(session, company_id, 4000.00, 50000.00)
 			self.assertEqual(available_credit, 46000.0)
 
-class TestReportsMonthlyLoanSummaryNoneLOCView(db_unittest.TestCase):
+class TestReportsMonthlyLoanSummaryNonLOCView(db_unittest.TestCase):
 	def setup_loans_for_non_loc_html_generation(
 		self,
 		session: Session,
@@ -1151,7 +1151,7 @@ class TestReportsMonthlyLoanSummaryNoneLOCView(db_unittest.TestCase):
 				"support_email": "<a href='mailto:support@bespokefinancial.com'>support@bespokefinancial.com</a>",
 				"statement_month": "October 2021"
 			}
-			html = non_loc_summary.prepare_html_for_attachment(
+			html, err = non_loc_summary.prepare_html_for_attachment(
 				session, 
 				company_id, 
 				template_data, 
@@ -1164,3 +1164,4 @@ class TestReportsMonthlyLoanSummaryNoneLOCView(db_unittest.TestCase):
 			is_valid_html = bool(BeautifulSoup(html, "html.parser").find())
 
 			self.assertEqual(is_valid_html, True)
+			self.assertIsNone(err)

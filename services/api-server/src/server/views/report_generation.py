@@ -394,6 +394,8 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 		repayments = cast(
 			List[models.Payment],
 			session.query(models.Payment).filter(
+				cast(Callable, models.Payment.is_deleted.isnot)(True)
+			).filter(
 				models.Payment.company_id == company_id
 			).filter(
 				models.Payment.settlement_date >= rgc.report_month_first_day
@@ -692,6 +694,8 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 		ebba_application = cast(
 			models.EbbaApplication,
 			session.query(models.EbbaApplication).filter(
+				cast(Callable, models.Loan.is_deleted.isnot)(True)
+			).filter(
 				models.EbbaApplication.id == active_borrowing_base_id
 			).first())
 
@@ -723,7 +727,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 		rgc: ReportGenerationContext,
 		is_test: bool,
 		test_email: str
-		) -> Tuple[Dict[str, List[models.Loan]], Response]:
+		) -> Tuple[Dict[str, List[models.Loan]], errors.Error]:
 
 		for company_id, loans in loans_to_notify.items():
 			# get company contact email, company name
@@ -735,8 +739,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 
 			contract, err = contract_util.get_active_contract_by_company_id(company_id, session)
 			if err:
-				return loans_to_notify, make_response(json.dumps({ 'status': 'FAILED', 'resp': \
-					"Could not query contract for company " + company.name + ": " + repr(err) }))
+				return loans_to_notify, err
 
 			automatic_debit_date = date_util.date_to_str(
 				date_util.get_automated_debit_date(
@@ -831,7 +834,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 			)
 			cmi_or_mmf_amount_display = number_util.to_dollar_format(cmi_or_mmf_amount)
 			if err:
-				return loans_to_notify, make_response(json.dumps({ 'status': 'FAILED', 'resp': "Failed to calculate current monthly interest and minimum monthly fee " + repr(err) }))
+				return loans_to_notify, err
 			
 			
 			payment_due_date = date_util.date_to_str(date_util.get_first_day_of_month_date(automatic_debit_date))
@@ -907,7 +910,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 					)
 
 					if err:
-						return loans_to_notify, make_response(json.dumps({ 'status': 'FAILED', 'resp': "Sendgrid client failed: " + repr(err) }))
+						return loans_to_notify, err
 			else:
 				template_data["company_user"] = "Test Email"
 
@@ -921,7 +924,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 				)
 				
 				if err:
-					return loans_to_notify, make_response(json.dumps({ 'status': 'FAILED', 'resp': "Sendgrid client failed: " + repr(err) }))
+					return loans_to_notify, err
 
 		return loans_to_notify, None
 
@@ -952,6 +955,8 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 			all_open_loans = cast(
 				List[models.Loan],
 				session.query(models.Loan).filter(
+					cast(Callable, models.Loan.is_deleted.isnot)(True)
+				).filter(
 					models.Loan.closed_at == None
 				).filter(
 					models.Loan.origination_date != None
@@ -979,7 +984,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 				_, err = self.process_loan_chunk(session, sendgrid_client, loans_to_notify, rgc, is_test, test_email)
 
 				if err:
-					return err;
+					raise err;
 
 			# Once all emails have been sent, record a successful live run if applicable
 			if is_test is False:
@@ -1003,7 +1008,7 @@ class AutomaticDebitCourtesyView(MethodView):
 		sendgrid_client : sendgrid_util.Client, 
 		loans_chunk : List[models.Loan],
 		today : datetime.date
-		) -> Tuple[Dict[str, List[models.Loan]], Response]:
+		) -> Tuple[Dict[str, List[models.Loan]], errors.Error]:
 		# LOC vs non-LOC split handled at query level
 		# This is for organizing loans on a per company basis to make emails easier
 		loans_to_notify : Dict[str, List[models.Loan] ] = {}
@@ -1060,7 +1065,7 @@ class AutomaticDebitCourtesyView(MethodView):
 					)
 
 					if err:
-						return loans_to_notify, make_response(json.dumps({ 'status': 'FAILED', 'resp': "Sendgrid client failed: " + repr(err) }))
+						return loans_to_notify, err
 
 		return loans_to_notify, None
 
@@ -1076,6 +1081,8 @@ class AutomaticDebitCourtesyView(MethodView):
 			all_open_loans = cast(
 				List[models.Loan],
 				session.query(models.Loan).filter(
+					cast(Callable, models.Loan.is_deleted.isnot)(True)
+				).filter(
 					models.Loan.closed_at == None
 				).filter(
 					models.Loan.origination_date != None
@@ -1088,7 +1095,7 @@ class AutomaticDebitCourtesyView(MethodView):
 				_, err = self.process_loan_chunk(session, sendgrid_client, loans_chunk, today)
 				
 				if err:
-					return err
+					raise err
 		
 
 		return make_response(json.dumps({'status': 'OK', 'resp': "Successfully sent out courtesy alert for automatic monthly debits."}))
@@ -1106,7 +1113,7 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 		company_balance_lookup: Dict[str, loan_balances.CustomerBalance],
 		company_identifier: str,
 		is_unit_test: bool = False
-		) -> str:
+		) -> Tuple[str, errors.Error]:
 		"""
 			HTML attachment is split out to make testing easier. Specifically, so we don't have to
 			worry about setting up wkhtmltopdf in a GitHub action. Moreover, wkhtmltopdf is already
@@ -1140,6 +1147,8 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 		purchase_order_list = cast(
 			List[models.PurchaseOrder],
 			session.query(models.PurchaseOrder).filter(
+				cast(Callable, models.Loan.is_deleted.isnot)(True)
+			).filter(
 				models.PurchaseOrder.id.in_(purchase_order_ids)
 			).all())
 		vendor_lookup = {}
@@ -1153,6 +1162,8 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 		invoice_list = cast(
 			List[models.Invoice],
 			session.query(models.Invoice).filter(
+				cast(Callable, models.Loan.is_deleted.isnot)(True)
+			).filter(
 				models.Invoice.id.in_(invoice_ids)
 			).all())
 		payor_lookup = {}
@@ -1177,7 +1188,7 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 				is_past_date_default_val = False, #
 			)
 			if err:
-				raise err
+				return None, err
 
 			for tuple_date, update_data in update_tuple.items():
 				if update_data is None:
@@ -1324,7 +1335,7 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 </html>
 		"""
 
-		return html
+		return html, None
 
 	def process_loan_chunk(
 		self, 
@@ -1335,7 +1346,7 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 		company_balance_lookup: Dict[str, loan_balances.CustomerBalance],
 		is_test: bool,
 		test_email: str
-		) -> Tuple[Dict[str, List[models.Loan]], Response]:
+		) -> Tuple[Dict[str, List[models.Loan]], errors.Error]:
 
 		for company_id, loans in loans_to_notify.items():
 			company = rgc.company_lookup[str(company_id)]
@@ -1347,7 +1358,7 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 			    "statement_month": rgc.statement_month,
 			}
 
-			html = self.prepare_html_for_attachment(
+			html, err = self.prepare_html_for_attachment(
 				session, 
 				company_id, 
 				template_data, 
@@ -1377,7 +1388,7 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 					)
 
 					if err:
-						return loans_to_notify, make_response(json.dumps({ 'status': 'FAILED', 'resp': "Sendgrid client failed: " + repr(err) }))
+						return loans_to_notify, err
 			else:
 				template_data["company_user"] = "Test Email"
 					
@@ -1391,7 +1402,7 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 				)
 
 				if err:
-					return loans_to_notify, make_response(json.dumps({ 'status': 'FAILED', 'resp': "Sendgrid client failed: " + repr(err) }))
+					return loans_to_notify, err
 
 
 		return loans_to_notify, None
@@ -1442,6 +1453,8 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 			all_open_loans = cast(
 				List[models.Loan],
 				session.query(models.Loan).filter(
+					cast(Callable, models.Loan.is_deleted.isnot)(True)
+				).filter(
 					or_(models.Loan.closed_at == None, models.Loan.closed_at > rgc.report_month_last_day)
 				).filter(
 					models.Loan.origination_date != None
@@ -1479,7 +1492,7 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 				_, err = self.process_loan_chunk(session, sendgrid_client, rgc, loans_chunk, company_balance_lookup, is_test, test_email)
 
 				if err:
-					return err;
+					raise err;
 
 			# Once all emails have been sent, record a successful live run if applicable
 			if is_test is False:
