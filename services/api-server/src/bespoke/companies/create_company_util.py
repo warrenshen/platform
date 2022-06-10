@@ -1123,7 +1123,7 @@ def _create_or_update_partnership_request_new(
 	partnership_req.is_cannabis = is_cannabis
 
 	license_info = cast(LicenseInfoNewDict, req['license_info'])
-	if not models_util.is_valid_uuid(license_info['license_file_id']):
+	if is_cannabis is True and not models_util.is_valid_uuid(license_info['license_file_id']):
 		return None, errors.Error('File id of license file attachment is not valid')
 
 	partnership_req.license_info = cast(Dict[str, Any], license_info)
