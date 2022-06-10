@@ -58,7 +58,7 @@ import CustomerReportsPage from "pages/Customer/Reports";
 import CustomerSettingsPage from "pages/Customer/Settings";
 import CustomerVendorsPage from "pages/Customer/Vendors";
 import UserProfile from "pages/UserProfile";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
 import { useLocation } from "react-use";
 
@@ -67,6 +67,33 @@ export default function App() {
   const {
     user: { role },
   } = useContext(CurrentUserContext);
+
+  useEffect(() => {
+    // If true, then app is open in an iframe element.
+    if (window.location !== window.parent.location) {
+      window.addEventListener(
+        "message",
+        (event) => {
+          // Verify sender of message.
+          if (event.origin !== "http://localhost:3007") {
+            return;
+          }
+
+          console.log("Received event from parent via postMessage...");
+          console.log(event.data);
+        },
+        false
+      );
+
+      window.parent.postMessage(
+        {
+          identifier: "heartbeat",
+          payload: null,
+        },
+        "http://localhost:3007"
+      );
+    }
+  }, []);
 
   return (
     <BrowserRouter>
@@ -78,7 +105,7 @@ export default function App() {
         <Route exact path={anonymousRoutes.secureLink}>
           <AnonymousSecureLinkPage />
         </Route>
-        {/*  Reviewer user routes */}
+        {/* Reviewer user routes */}
         <Route
           exact
           path={anonymousRoutes.reviewPurchaseOrder}
