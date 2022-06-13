@@ -384,7 +384,7 @@ class AddBorrowingBaseView(MethodView):
 		monthly_inventory: float = float(form['monthly_inventory']) if form['monthly_inventory'] is not None else 0.0
 		monthly_cash: float = float(form['monthly_cash']) if form['monthly_cash'] is not None else 0.0
 		amount_cash_in_daca: float = float(form['amount_cash_in_daca']) if form['amount_cash_in_daca'] is not None else 0.0 
-		amount_custom: float = float(form['amount_custom']) if form['amount_custom'] is not None else 0.0
+		amount_custom: float = float(form['amount_custom']) if 'amount_custom' in form and form['amount_custom'] is not None else 0.0
 		amount_custom_note: str = form['amount_custom_note'] if 'amount_custom_note' in form else None
 		calculated_borrowing_base: float = form['calculated_borrowing_base']
 		expires_date: str = form['expires_date']
