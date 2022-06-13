@@ -122,12 +122,12 @@ const extractRecipientCompanyAndBankAccountFromCustomer = (
  */
 
 export const extractRecipientCompanyIdAndBankAccountFromPartnership = (
-  vendorId: string | null,
+  vendorId: string | UUIDEnum.None,
   advancesBankAccountData: GetAdvancesBankAccountsForCustomerQuery | undefined
 ) => {
   const { companies_by_pk = undefined } = advancesBankAccountData || {};
 
-  return !!vendorId
+  return vendorId !== UUIDEnum.None
     ? extractRecipientCompanyAndBankAccountFromVendor(
         companies_by_pk?.company_vendor_partnerships as CompanyVendorPartnerships[]
       )
