@@ -380,11 +380,11 @@ class AddBorrowingBaseView(MethodView):
 
 		company_id: str = form['company_id']
 		application_date: str = form['application_date']
-		monthly_accounts_receivable: float = float(form['monthly_accounts_receivable']) if form['monthly_accounts_receivable'] is not None else 0.0
-		monthly_inventory: float = float(form['monthly_inventory']) if form['monthly_inventory'] is not None else 0.0
-		monthly_cash: float = float(form['monthly_cash']) if form['monthly_cash'] is not None else 0.0
-		amount_cash_in_daca: float = float(form['amount_cash_in_daca']) if form['amount_cash_in_daca'] is not None else 0.0 
-		amount_custom: float = float(form['amount_custom']) if 'amount_custom' in form and form['amount_custom'] is not None else 0.0
+		monthly_accounts_receivable: float = float(form['monthly_accounts_receivable']) if form['monthly_accounts_receivable'] is not None else None
+		monthly_inventory: float = float(form['monthly_inventory']) if form['monthly_inventory'] is not None else None
+		monthly_cash: float = float(form['monthly_cash']) if form['monthly_cash'] is not None else None
+		amount_cash_in_daca: float = float(form['amount_cash_in_daca']) if form['amount_cash_in_daca'] is not None else None 
+		amount_custom: float = float(form['amount_custom']) if 'amount_custom' in form and form['amount_custom'] is not None else None
 		amount_custom_note: str = form['amount_custom_note'] if 'amount_custom_note' in form else None
 		calculated_borrowing_base: float = form['calculated_borrowing_base']
 		expires_date: str = form['expires_date']
@@ -460,11 +460,11 @@ class UpdateBorrowingBaseView(MethodView):
 		ebba_application_id: str = form['ebba_application_id']
 		company_id: str = form['company_id']
 		application_date: str = form['application_date']
-		monthly_accounts_receivable: float = float(form['monthly_accounts_receivable'])
-		monthly_inventory: float = float(form['monthly_inventory'])
-		monthly_cash: float = float(form['monthly_cash'])
-		amount_cash_in_daca: float = float(form['amount_cash_in_daca'])
-		amount_custom: float = float(form['amount_custom']) if 'amount_custom' in form else None
+		monthly_accounts_receivable: float = float(form['monthly_accounts_receivable']) if form['monthly_accounts_receivable'] is not None else None
+		monthly_inventory: float = float(form['monthly_inventory']) if form['monthly_inventory'] is not None else None
+		monthly_cash: float = float(form['monthly_cash']) if form['monthly_cash'] is not None else None
+		amount_cash_in_daca: float = float(form['amount_cash_in_daca']) if form['amount_cash_in_daca'] is not None else None
+		amount_custom: float = float(form['amount_custom']) if 'amount_custom' in form and form['amount_custom'] is not None else None
 		amount_custom_note: str = form['amount_custom_note'] if 'amount_custom_note' in form else None
 		calculated_borrowing_base: float = form['calculated_borrowing_base']
 		expires_date: str = form['expires_date']
