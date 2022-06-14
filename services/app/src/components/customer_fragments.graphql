@@ -148,34 +148,6 @@ fragment InvoiceLimited on invoices {
   }
 }
 
-fragment InvoiceLimited on invoices {
-  id
-  company_id
-  payor_id
-  invoice_number
-  subtotal_amount
-  total_amount
-  taxes_amount
-  invoice_date
-  invoice_due_date
-  is_cannabis
-  status
-  created_at
-  approved_at
-  funded_at
-  payment_requested_at
-  payment_confirmed_at
-  payment_rejected_at
-  company {
-    id
-    ...CompanyLimited
-  }
-  payor {
-    id
-    ...PayorLimited
-  }
-}
-
 fragment LoanLimited on loans {
   id
   company_id

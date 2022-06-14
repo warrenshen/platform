@@ -204,3 +204,19 @@ query GetLoansByLoanIds($loan_ids: [uuid!]!) {
     }
   }
 }
+
+query GetLimitedLoansByLoanIds($loan_ids: [uuid!]!) {
+  loans(where: { id: { _in: $loan_ids } }) {
+    id
+    ...LoanLimited
+    ...LoanArtifactLimited
+    company {
+      id
+      ...Company
+      contract {
+        id
+        ...Contract
+      }
+    }
+  }
+}

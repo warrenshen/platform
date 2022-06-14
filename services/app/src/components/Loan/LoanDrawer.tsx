@@ -13,7 +13,10 @@ import {
   CurrentUserContext,
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
-import { BankAccounts, useGetLoansByLoanIdsQuery } from "generated/graphql";
+import {
+  BankAccounts,
+  useGetLimitedLoansByLoanIdsQuery,
+} from "generated/graphql";
 import {
   LoanTypeEnum,
   Loans,
@@ -94,11 +97,12 @@ export default function LoanDrawer({ loanId, handleClose }: Props) {
   const bankLoan = bankData?.loans_by_pk;
   const transactions = transactionsData?.transactions;
 
-  const { data: loansData, error: loansError } = useGetLoansByLoanIdsQuery({
-    variables: {
-      loan_ids: [loanId],
-    },
-  });
+  const { data: loansData, error: loansError } =
+    useGetLimitedLoansByLoanIdsQuery({
+      variables: {
+        loan_ids: [loanId],
+      },
+    });
 
   if (loansError) {
     console.error({ error: loansError });
@@ -112,7 +116,7 @@ export default function LoanDrawer({ loanId, handleClose }: Props) {
 
   const { data: advancesBankAccountData, error: advancesBankAccountError } =
     useGetAdvancesBankAccountsForCustomerQuery({
-      skip: !recipientCompanyId,
+      skip: !recipientCompanyId || !isBankUser,
       variables: {
         customerId,
         vendorId,
