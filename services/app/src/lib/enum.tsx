@@ -126,6 +126,20 @@ export const BankRepaymentsTabLabels = [
   BankRepaymentsTabLabel.All,
 ];
 
+export enum BankLoansTabLabel {
+  ActionRequired = "Action Required",
+  MaturingSoon = "Maturing Soon",
+  PastDue = "Past Due",
+  All = "All",
+}
+
+export const BankLoansTabLabels = [
+  BankLoansTabLabel.ActionRequired,
+  BankLoansTabLabel.MaturingSoon,
+  BankLoansTabLabel.PastDue,
+  BankLoansTabLabel.All,
+];
+
 export enum BankPurchaseOrdersTabLabel {
   DraftedPOs = "Draft POs",
   IncompletePOs = "Incomplete POs",

@@ -1,6 +1,7 @@
 import { Tab, Tabs } from "@material-ui/core";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
+import { BankLoansTabLabel, BankLoansTabLabels } from "lib/enum";
 import BankLoansActionRequiredTab from "pages/Bank/Loans/LoansActionRequiredTab";
 import BankLoansAllTab from "pages/Bank/Loans/LoansAllTab";
 import BankLoansMaturingSoonTab from "pages/Bank/Loans/LoansMaturingSoonTab";
@@ -11,15 +12,22 @@ import styled from "styled-components";
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-
   flex: 1;
-
   width: 100%;
 `;
 
 const SectionSpace = styled.div`
   height: 24px;
 `;
+
+const LoanComponentMap: {
+  [key in BankLoansTabLabel]: JSX.Element;
+} = {
+  [BankLoansTabLabel.ActionRequired]: <BankLoansActionRequiredTab />,
+  [BankLoansTabLabel.MaturingSoon]: <BankLoansMaturingSoonTab />,
+  [BankLoansTabLabel.PastDue]: <BankLoansPastDueTab />,
+  [BankLoansTabLabel.All]: <BankLoansAllTab />,
+};
 
 export default function BankLoansPage() {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
@@ -36,21 +44,12 @@ export default function BankLoansPage() {
               setSelectedTabIndex(value)
             }
           >
-            <Tab label="Action Required" />
-            <Tab label="Maturing Soon" />
-            <Tab label="Past Due" />
-            <Tab label="All" />
+            {BankLoansTabLabels.map((label) => (
+              <Tab key={label} label={label} />
+            ))}
           </Tabs>
           <SectionSpace />
-          {selectedTabIndex === 0 ? (
-            <BankLoansActionRequiredTab />
-          ) : selectedTabIndex === 1 ? (
-            <BankLoansMaturingSoonTab />
-          ) : selectedTabIndex === 2 ? (
-            <BankLoansPastDueTab />
-          ) : (
-            <BankLoansAllTab />
-          )}
+          {LoanComponentMap[BankLoansTabLabels[selectedTabIndex]]}
         </Container>
       </PageContent>
     </Page>
