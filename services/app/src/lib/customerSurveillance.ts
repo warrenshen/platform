@@ -1,4 +1,7 @@
-import { CustomerSurveillanceFragment } from "generated/graphql";
+import {
+  CustomerSurveillanceFragment,
+  CustomerSurveillanceResultFragment,
+} from "generated/graphql";
 import {
   computeDaysUntilExpiration,
   formatDateString,
@@ -22,12 +25,27 @@ export const getLoansAwaitingForAdvanceAmount = (
   );
 };
 
+const getSurveillanceResult = (
+  customer: CustomerSurveillanceFragment,
+  isCurrent: boolean
+): CustomerSurveillanceResultFragment | null => {
+  return !!isCurrent
+    ? !!customer?.target_surveillance_result?.[0]
+      ? customer.target_surveillance_result[0]
+      : null
+    : !!customer?.all_surveillance_results?.[0]
+    ? customer.all_surveillance_results[0]
+    : null;
+};
+
 export const getCustomerSurveillanceStatus = (
-  customer: CustomerSurveillanceFragment
+  customer: CustomerSurveillanceFragment,
+  isCurrent: boolean
 ): SurveillanceStatusEnum | null => {
-  return !!customer?.target_surveillance_result?.[0]
-    ? (customer.target_surveillance_result[0]
-        .surveillance_status as SurveillanceStatusEnum)
+  const surveillanceResult = getSurveillanceResult(customer, isCurrent);
+
+  return !!surveillanceResult?.surveillance_status
+    ? (surveillanceResult.surveillance_status as SurveillanceStatusEnum)
     : null;
 };
 
@@ -40,22 +58,23 @@ export const getCustomerProductType = (
 };
 
 export const getCustomerQualifyingProduct = (
-  customer: CustomerSurveillanceFragment
+  customer: CustomerSurveillanceFragment,
+  isCurrent: boolean
 ): string => {
-  return !!customer?.target_surveillance_result?.[0]
-    ? QualifyForToLabel[
-        customer.target_surveillance_result[0]
-          .qualifying_product as QualifyForEnum
-      ]
+  const surveillanceResult = getSurveillanceResult(customer, isCurrent);
+
+  return !!surveillanceResult?.qualifying_product
+    ? QualifyForToLabel[surveillanceResult.qualifying_product as QualifyForEnum]
     : "-";
 };
 
 export const getSurveillanceBankNote = (
-  customer: CustomerSurveillanceFragment
+  customer: CustomerSurveillanceFragment,
+  isCurrent: boolean
 ): string => {
-  return !!customer?.target_surveillance_result?.[0]?.bank_note
-    ? customer.target_surveillance_result[0].bank_note
-    : "-";
+  const surveillanceResult = getSurveillanceResult(customer, isCurrent);
+
+  return !!surveillanceResult?.bank_note ? surveillanceResult.bank_note : "-";
 };
 
 export const isCustomerFinancialsMetrcBased = (

@@ -91,7 +91,7 @@ export default function EbbaApplicationsDataGrid({
         visible: isCompanyVisible,
         dataField: "company_name",
         caption: "Customer Name",
-        minWidth: ColumnWidths.MinWidth,
+        width: ColumnWidths.Comment,
         cellRender: (params: ValueFormatterParams) => (
           <ClickableDataGridCell
             url={getBankCompanyRoute(

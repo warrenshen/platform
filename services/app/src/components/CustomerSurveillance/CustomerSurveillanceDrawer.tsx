@@ -31,12 +31,14 @@ import {
 import { ChangeEvent, useState } from "react";
 
 interface Props {
+  isCurrent?: boolean;
   customerId: CustomerSurveillanceFragment["id"];
   targetDate: string;
   handleClose: () => void;
 }
 
 export default function CustomerSurveillanceDrawer({
+  isCurrent = false,
   customerId,
   targetDate,
   handleClose,
@@ -61,7 +63,7 @@ export default function CustomerSurveillanceDrawer({
   const surveillanceResult = customer?.target_surveillance_result[0];
 
   const surveillanceStatus = !!customer
-    ? getCustomerSurveillanceStatus(customer)
+    ? getCustomerSurveillanceStatus(customer, isCurrent)
     : null;
 
   const productType = !!customer ? getCustomerProductType(customer) : null;
@@ -148,7 +150,7 @@ export default function CustomerSurveillanceDrawer({
               Qualifying For
             </Typography>
             <Typography variant={"body1"}>
-              {getCustomerQualifyingProduct(customer)}
+              {getCustomerQualifyingProduct(customer, isCurrent)}
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
@@ -156,7 +158,7 @@ export default function CustomerSurveillanceDrawer({
               Bank Note
             </Typography>
             <Typography variant={"body1"}>
-              {getSurveillanceBankNote(customer)}
+              {getSurveillanceBankNote(customer, isCurrent)}
             </Typography>
           </Box>
           {!isMetrcBased && (

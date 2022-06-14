@@ -76,7 +76,6 @@ export default function CertifyCustomerSurveillanceStatusModal({
 
   const isPrimaryActionDisabled =
     !surveillanceResult["surveillance_status"] ||
-    !surveillanceResult["qualifying_product"] ||
     isCertifyCustomerSurveillanceResultLoading;
 
   return (

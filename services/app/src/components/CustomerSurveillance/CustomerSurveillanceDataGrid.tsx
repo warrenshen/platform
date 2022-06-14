@@ -28,6 +28,7 @@ interface Props {
   isFinancialReportDateVisible?: boolean;
   isBorrowingBaseDateVisible?: boolean;
   isLoansReadyForAdvancesAmountVisible?: boolean;
+  isCurrent?: boolean;
   customers: GetCustomersSurveillanceSubscription["customers"];
   selectedCompaniesIds?: CustomerSurveillanceFragment["id"][];
   targetDate: string;
@@ -35,7 +36,8 @@ interface Props {
 }
 
 function getRows(
-  customers: GetCustomersSurveillanceSubscription["customers"]
+  customers: GetCustomersSurveillanceSubscription["customers"],
+  isCurrent: boolean
 ): RowsProp {
   return customers.map((customer) => {
     const [percentagePastDueNumber, percentagePastDueString] =
@@ -64,9 +66,11 @@ function getRows(
         daysUntilBorrowingBaseExpiresNumber,
       days_until_borrowing_base_expires_string:
         daysUntilBorrowingBaseExpiresString,
-      qualifying_product: getCustomerQualifyingProduct(customer),
-      selected_month_surveillance_status:
-        getCustomerSurveillanceStatus(customer),
+      qualifying_product: getCustomerQualifyingProduct(customer, isCurrent),
+      selected_month_surveillance_status: getCustomerSurveillanceStatus(
+        customer,
+        isCurrent
+      ),
       product_type:
         ProductTypeToLabel[getCustomerProductType(customer) as ProductTypeEnum],
       percentage_past_due_number: percentagePastDueNumber,
@@ -84,6 +88,7 @@ export default function CustomerSurveillanceDataGrid({
   isBorrowingBaseDateVisible = false,
   isMultiSelectEnabled = false,
   isLoansReadyForAdvancesAmountVisible = false,
+  isCurrent = false,
   customers,
   selectedCompaniesIds,
   targetDate,
@@ -93,7 +98,7 @@ export default function CustomerSurveillanceDataGrid({
     CustomerSurveillanceFragment["id"] | null
   >(null);
 
-  const rows = customers ? getRows(customers) : [];
+  const rows = customers ? getRows(customers, isCurrent) : [];
 
   const columns = useMemo(
     () => [
@@ -110,9 +115,10 @@ export default function CustomerSurveillanceDataGrid({
         ),
       },
       {
+        fixed: true,
         dataField: "name",
         caption: "Customer Name",
-        minWidth: ColumnWidths.MinWidth,
+        width: ColumnWidths.Comment,
         alignment: "left",
         cellRender: ({ value, data }: { value: string; data: any }) => (
           <ClickableDataGridCell
@@ -123,6 +129,7 @@ export default function CustomerSurveillanceDataGrid({
         ),
       },
       {
+        fixed: true,
         dataField: "selected_month_surveillance_status",
         caption: "Surveillance Stage",
         width: ColumnWidths.Status,
@@ -202,6 +209,7 @@ export default function CustomerSurveillanceDataGrid({
     <>
       {!!selectedCustomerId && (
         <CustomerSurveillanceDrawer
+          isCurrent
           customerId={selectedCustomerId}
           targetDate={targetDate}
           handleClose={() => setSelectedCustomerId(null)}

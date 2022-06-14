@@ -12,6 +12,7 @@ import {
   CustomerSurveillanceResultFragment,
 } from "generated/graphql";
 import {
+  ProductTypeEnum,
   SurveillanceOnPauseReasonEnum,
   SurveillanceOnPauseReasonNotesEnum,
   SurveillanceOnPauseReasonToLabel,
@@ -41,9 +42,20 @@ const CustomerSurveillanceOnPauseReasonsForm = ({
 }: Props) => {
   const classes = useStyles();
 
+  const productType = !!customer?.most_recent_financial_summary?.[0]
+    ?.product_type
+    ? customer.most_recent_financial_summary[0].product_type
+    : null;
+  const onPauseReasons =
+    !!productType && productType === ProductTypeEnum.LineOfCredit
+      ? Object.entries(SurveillanceOnPauseReasonEnum)
+      : Object.entries(SurveillanceOnPauseReasonEnum).filter(([key, value]) => {
+          return value !== SurveillanceOnPauseReasonEnum.BorrowingBaseExpired;
+        });
+
   return (
     <List component="div">
-      {Object.entries(SurveillanceOnPauseReasonEnum).map(([key, value]) => (
+      {onPauseReasons.map(([key, value]) => (
         <>
           <ListItem key={`${value}-${isDisabled.toString()}`} value={value}>
             <FormControlLabel
