@@ -126,26 +126,22 @@ export default function CustomerVendorsPageContent({
 
   return (
     <PageContent title={"Vendors"}>
-      {partnershipAwatingApprovals.length > 0 && (
-        <>
-          <Box mb={2}>
-            <Typography variant="h6">
-              <strong>Awaiting Approval</strong>
-            </Typography>
-          </Box>
-          <Box display="flex" flexDirection="column">
-            <PartnershipsAwaitingApprovalDataGrid
-              partnershipsAwaitingApproval={partnershipAwatingApprovals}
-            />
-          </Box>
-        </>
-      )}
-      <h2>Approved</h2>
+      <Box mb={2}>
+        <Typography variant="h6">
+          <strong>Awaiting Approval</strong>
+        </Typography>
+      </Box>
       <Can perform={Action.AddVendor}>
         <Box display="flex" flexDirection="row-reverse" mb={2}>
           <AddVendorButton customerId={companyId} handleDataChange={refetch} />
         </Box>
       </Can>
+      <Box display="flex" flexDirection="column">
+        <PartnershipsAwaitingApprovalDataGrid
+          partnershipsAwaitingApproval={partnershipAwatingApprovals}
+        />
+      </Box>
+      <h2>Approved</h2>
       <Box display="flex">
         <VendorPartnershipsDataGrid
           isVendorAgreementVisible={isVendorAgreementProductType(productType)}

@@ -13,7 +13,7 @@ export default function AddVendorButton({
 }: Props) {
   return (
     <ModalButton
-      label={"Add Vendor"}
+      label={"Invite Vendor"}
       modal={({ handleClose }) => (
         <AddVendorNewModal
           customerId={customerId}
