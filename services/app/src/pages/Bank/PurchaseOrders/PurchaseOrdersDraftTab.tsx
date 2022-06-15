@@ -101,6 +101,7 @@ export default function BankPurchaseOrdersDraftedTab() {
         <PurchaseOrdersDataGrid
           isBankNoteVisible
           isCompanyVisible
+          isFilteringEnabled
           isCustomerNoteVisible={false}
           purchaseOrders={purchaseOrders}
           selectedPurchaseOrderIds={selectedPurchaseOrderIds}

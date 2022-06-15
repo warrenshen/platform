@@ -484,6 +484,14 @@ export const AllProductTypes = [
   ProductTypeEnum.PurchaseMoneyFinancing,
 ];
 
+export const RequestStatuses = [
+  RequestStatusEnum.ApprovalRequested,
+  RequestStatusEnum.Approved,
+  RequestStatusEnum.Drafted,
+  RequestStatusEnum.Incomplete,
+  RequestStatusEnum.Rejected,
+];
+
 // Request status enum related.
 export const RequestStatusToLabel = {
   [RequestStatusEnum.Drafted]: "Draft",

@@ -20,6 +20,7 @@ import {
 } from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
 import { formatDateString, formatDatetimeString } from "lib/date";
+import { RequestStatusToLabel, RequestStatuses } from "lib/enum";
 import { formatCurrency } from "lib/number";
 import { computePurchaseOrderDueDateDateStringClient } from "lib/purchaseOrders";
 import { ColumnWidths, formatRowModel, truncateString } from "lib/tables";
@@ -56,6 +57,7 @@ interface Props {
   isCustomerNoteVisible?: boolean;
   isExcelExport?: boolean;
   isMultiSelectEnabled?: boolean;
+  isFilteringEnabled?: boolean;
   purchaseOrders: PurchaseOrderFragment[];
   actionItems?: DataGridActionItem[];
   selectedPurchaseOrderIds?: PurchaseOrders["id"][];
@@ -74,6 +76,7 @@ export default function PurchaseOrdersDataGrid({
   isCompanyVisible,
   isCustomerNoteVisible = true,
   isExcelExport = true,
+  isFilteringEnabled = false,
   isMultiSelectEnabled = true,
   purchaseOrders,
   actionItems,
@@ -129,6 +132,20 @@ export default function PurchaseOrdersDataGrid({
             requestStatus={params.value as RequestStatusEnum}
           />
         ),
+        lookup: {
+          dataSource: {
+            store: {
+              type: "array",
+              data: RequestStatuses.map((d) => ({
+                status: d,
+                label: RequestStatusToLabel[d],
+              })),
+              key: "status",
+            },
+          },
+          valueExpr: "status",
+          displayExpr: "label",
+        },
       },
       {
         visible: isCompanyVisible,
@@ -244,6 +261,11 @@ export default function PurchaseOrdersDataGrid({
     ]
   );
 
+  const filtering = useMemo(
+    () => ({ enable: isFilteringEnabled }),
+    [isFilteringEnabled]
+  );
+
   const handleSelectionChanged = useMemo(
     () =>
       ({ selectedRowsData }: any) =>
@@ -264,6 +286,7 @@ export default function PurchaseOrdersDataGrid({
         pager
         select={isMultiSelectEnabled}
         isExcelExport={isExcelExport}
+        filtering={filtering}
         dataSource={rows}
         columns={columns}
         selectedRowKeys={selectedPurchaseOrderIds}

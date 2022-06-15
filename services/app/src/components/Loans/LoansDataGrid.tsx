@@ -30,6 +30,7 @@ import {
   AllLoanStatuses,
   LoanPaymentStatusEnum,
   LoanStatusEnum,
+  LoanStatusToLabel,
   LoanTypeToLabel,
 } from "lib/enum";
 import { PartnerEnum } from "lib/enum";
@@ -236,12 +237,13 @@ export default function LoansDataGrid({
               type: "array",
               data: AllLoanStatuses.map((d) => ({
                 status: d,
+                label: LoanStatusToLabel[d],
               })),
               key: "status",
             },
           },
           valueExpr: "status",
-          displayExpr: "status",
+          displayExpr: "label",
         },
       },
       {

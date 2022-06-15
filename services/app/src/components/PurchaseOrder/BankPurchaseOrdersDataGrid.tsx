@@ -47,6 +47,7 @@ export default function BankPurchaseOrdersDataGrid({
         isBankNoteVisible
         isCompanyVisible
         isCustomerNoteVisible={false}
+        isFilteringEnabled
         isMultiSelectEnabled
         purchaseOrders={purchaseOrders}
         selectedPurchaseOrderIds={selectedPurchaseOrderIds}
