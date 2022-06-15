@@ -118,6 +118,37 @@ def get_all_minimum_interest_fees_due(
 		company_due_to_financial_info=company_id_to_financial_info
 	), None
 
+
+def edit_account_level_fee(
+	session: Session,
+	payment_id: str,
+	effective_date: str,
+) -> Tuple[bool, errors.Error]:
+
+	payment = cast(
+		models.Payment,
+		session.query(models.Payment).filter(
+			models.Payment.id == payment_id
+		).first())
+	
+	if not payment:
+		return None, errors.Error('No payment with the specified payment id')
+	
+	payment.settlement_date = date_util.load_date_str(effective_date)
+
+	transaction = cast(
+		models.Transaction, 
+		session.query(models.Transaction).filter(
+			models.Transaction.payment_id == payment_id
+		).first())
+
+	if not transaction:
+		return None, errors.Error('No transaction with the specified payment id')
+	
+	transaction.effective_date = date_util.load_date_str(effective_date)
+
+	return True, None
+
 def create_minimum_due_fee_for_customers(
 	date_str: str,
 	minimum_due_resp: AllMonthlyMinimumDueRespDict,

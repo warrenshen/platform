@@ -58,6 +58,7 @@ export enum Action {
   DeleteInvoices = "invoices:delete",
 
   // Payments
+  EditRepayments = "payments:edit-repayments",
   DeleteRepayments = "payments:delete-repayments",
   SettleRepayment = "payments:settle-repayments",
 
@@ -226,6 +227,7 @@ const rules: Rules = {
       Action.CreateAdvance,
       Action.RunBalances,
 
+      Action.EditRepayments,
       Action.DeleteRepayments,
       Action.SettleRepayment,
 

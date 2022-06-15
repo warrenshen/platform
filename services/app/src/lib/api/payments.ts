@@ -62,6 +62,31 @@ export async function deleteRepaymentMutation(
     );
 }
 
+export type EditAccountLevelFeeReq = {
+  variables: {
+    payment_id: Payments["id"];
+    effective_date: string;
+  };
+};
+
+export async function editAccountLevelFeeMutation(
+  req: EditAccountLevelFeeReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(feesRoutes.editAccountLevelFee, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not edit account fee",
+        };
+      }
+    );
+}
+
 export type CreateAccountLevelFeeReq = {
   variables: {
     company_id: Companies["id"];

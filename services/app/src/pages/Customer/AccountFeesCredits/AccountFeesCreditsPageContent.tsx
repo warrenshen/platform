@@ -11,6 +11,7 @@ import CreateHoldingAccountCreditModal from "components/Fee/CreateHoldingAccount
 import PayoutHoldingAccountModal from "components/Fee/PayoutHoldingAccountModal";
 import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal";
 import DeletePaymentModal from "components/Payment/DeletePaymentModal";
+import EditAccountFeeModal from "components/Payment/EditAccountFeeModal";
 import FeesDataGrid from "components/Payment/FeesDataGrid";
 import CreateAccountFeesRepaymentModal from "components/Repayment/CreateAccountFeesRepaymentModal";
 import Can from "components/Shared/Can";
@@ -252,25 +253,46 @@ export default function CustomerAccountPageContent({
           <Box display="flex" justifyContent="space-between">
             <Typography variant="h6">Account Fees</Typography>
           </Box>
-          <Box display="flex" flexDirection="row-reverse" mb={2}>
-            {!!selectedPaymentIdForFees && (
-              <Can perform={Action.DeleteRepayments}>
-                <ModalButton
-                  label={"Delete Fee"}
-                  variant={"outlined"}
-                  modal={({ handleClose }) => (
-                    <DeletePaymentModal
-                      paymentId={selectedPaymentIdForFees}
-                      handleClose={() => {
-                        refetch();
-                        handleClose();
-                        setSelectedPaymentIdsForFees([]);
-                      }}
-                    />
-                  )}
-                />
-              </Can>
-            )}
+          <Box display="flex" flexDirection="row-reverse" mt={2} mb={2}>
+            <Box>
+              {!!selectedPaymentIdForFees && (
+                <Can perform={Action.EditRepayments}>
+                  <ModalButton
+                    label={"Edit Fee"}
+                    modal={({ handleClose }) => (
+                      <EditAccountFeeModal
+                        paymentId={selectedPaymentIdForFees}
+                        handleClose={() => {
+                          refetch();
+                          handleClose();
+                          setSelectedPaymentIdsForFees([]);
+                        }}
+                      />
+                    )}
+                  />
+                </Can>
+              )}
+            </Box>
+            <Box display="flex" flexDirection="row-reverse" mr={2}>
+              {!!selectedPaymentIdForFees && (
+                <Can perform={Action.DeleteRepayments}>
+                  <ModalButton
+                    label={"Delete Fee"}
+                    variant={"outlined"}
+                    modal={({ handleClose }) => (
+                      <DeletePaymentModal
+                        paymentId={selectedPaymentIdForFees}
+                        handleClose={() => {
+                          refetch();
+                          handleClose();
+                          setSelectedPaymentIdsForFees([]);
+                        }}
+                      />
+                    )}
+                  />
+                </Can>
+              )}
+            </Box>
           </Box>
           <Box display="flex" flex={1}>
             <Box display="flex" flexDirection="column" width="100%">

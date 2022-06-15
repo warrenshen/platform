@@ -19,6 +19,7 @@ class Actions(object):
 	CONTRACT_DELETE = 'contract_delete'
 
 	FINANCE_CREATE_CREDIT_FOR_CUSTOMER = 'finance_create_credit_for_customer'
+	FINANCE_EDIT_ACCOUNT_LEVEL_FEE = 'finance_edit_account_level fee'
 	FINANCE_DISBURSE_CREDIT_TO_CUSTOMER = 'finance_disburse_credit_to_customer'
 	FINANCE_MAKE_ACCOUNT_LEVEL_FEE = 'finance_make_account_level_fee'
 	FINANCE_MAKE_ACCOUNT_LEVEL_FEE_WAIVER = 'finance_make_account_level_fee_waiver'

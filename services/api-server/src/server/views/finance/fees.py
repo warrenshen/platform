@@ -55,6 +55,41 @@ class MakeAccountLevelFeeView(MethodView):
 		}
 		return make_response(json.dumps(resp), 200)
 
+class EditAccountLevelFeeView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@events.wrap(events.Actions.FINANCE_EDIT_ACCOUNT_LEVEL_FEE)
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		user_session = auth_util.UserSession.from_session()
+
+		required_keys = [
+			'payment_id',
+    		'effective_date',
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(
+					'Missing key {} from edit account level fee request'.format(key))
+
+		with models.session_scope(current_app.session_maker) as session:
+			payment_id = fees_due_util.edit_account_level_fee(
+				payment_id=form['payment_id'],
+				effective_date=form['effective_date'],
+				session=session
+			)
+
+		resp = {
+			'status': 'OK',
+			'payment_id': payment_id
+		}
+		return make_response(json.dumps(resp), 200)
+
 class MakeAccountLevelFeeWaiverView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
@@ -346,8 +381,7 @@ class GetAllMinimumInterestFeesDueView(MethodView):
 		return make_response(json.dumps({
 			'status': 'OK',
 			'data': resp
-		}), 200)
-
+		}), 200)	
 
 class SubmitMinimumInterestFeesDueView(MethodView):
 	decorators = [auth_util.bank_admin_required]
@@ -453,6 +487,9 @@ class SubmitMonthEndPaymentsView(MethodView):
 
 handler.add_url_rule(
 	'/settle_account_level_fee_repayment_with_account_credit', view_func=SettleAccountLevelFeeRepaymentWithAccountCreditView.as_view(name='settle_account_level_fee_repayment_with_account_credit_view'))
+
+handler.add_url_rule(
+	'/edit_account_level_fee', view_func=EditAccountLevelFeeView.as_view(name='edit_account_level_fee_view'))
 
 handler.add_url_rule(
 	'/make_account_level_fee_repayment_with_account_credit', view_func=MakeAccountLevelFeeRepaymentWithAccountCreditView.as_view(name='make_account_level_fee_repayment_with_account_credit_view'))
