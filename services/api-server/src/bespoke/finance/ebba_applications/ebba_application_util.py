@@ -235,14 +235,12 @@ def update_borrowing_base(
 		).first())
 
 	ebba_application.application_date = date_util.load_date_str(application_date)
-	ebba_application.monthly_accounts_receivable = Decimal(monthly_accounts_receivable)
-	ebba_application.monthly_inventory = Decimal(monthly_inventory)
-	ebba_application.monthly_cash = Decimal(monthly_cash)
-	ebba_application.amount_cash_in_daca = Decimal(amount_cash_in_daca)
-	if amount_custom is not None:
-		ebba_application.amount_custom = Decimal(amount_custom)
-	if amount_custom_note is not None:
-		ebba_application.amount_custom_note = amount_custom_note
+	ebba_application.monthly_accounts_receivable = Decimal(monthly_accounts_receivable) if monthly_accounts_receivable is not None else None
+	ebba_application.monthly_inventory = Decimal(monthly_inventory) if monthly_inventory is not None else None
+	ebba_application.monthly_cash = Decimal(monthly_cash) if monthly_cash is not None else None
+	ebba_application.amount_cash_in_daca = Decimal(amount_cash_in_daca) if amount_cash_in_daca is not None else None
+	ebba_application.amount_custom = Decimal(amount_custom) if amount_custom is not None else None
+	ebba_application.amount_custom_note = amount_custom_note if amount_custom_note is not None else None
 	ebba_application.calculated_borrowing_base = Decimal(calculated_borrowing_base)
 	ebba_application.expires_date = date_util.load_datetime_str(expires_date)
 
