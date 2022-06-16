@@ -62,5 +62,13 @@ mypy-tests:
 
 # code quality 
 
+organize:
+	find scripts src test -name "*.py" -type f -print0 | tr '\n' '\0' | xargs -0 -n1 isort
+	find scripts src test -name "*.py" -type f -print0 | tr '\n' '\0' | xargs -0 -n1 add-trailing-comma --exit-zero-even-if-changed --py36-plus
+	find scripts src test -name "*.py" -type f -print0 | tr '\n' '\0' | xargs -0 -n1 yapf --in-place --parallel
+
+organize-check:
+	find scripts src test -name "*.py" | tr '\n' '\0' | xargs -0 -n1 yapf --diff
+
 find-unused-imports:
 	find scripts src test -name "*.py" | tr '\n' '\0' | xargs -0 -n1 vulture | grep "unused import"

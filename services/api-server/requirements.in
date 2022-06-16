@@ -63,4 +63,8 @@ matplotlib==3.4.3
 pip-tools==5.4.0
 
 # Tools
+add-trailing-comma==2.2.3
+isort==5.10.1
+pylint==2.14.1
 vulture==2.3
+yapf==0.32.0
