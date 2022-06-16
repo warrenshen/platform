@@ -82,14 +82,16 @@ function getRows(customers: CustomersWithMetadataFragment[]): RowsProp {
     total_outstanding_fees: !!company?.financial_summaries?.[0]
       ? formatCurrency(company.financial_summaries[0].total_outstanding_fees)
       : null,
-    outstanding_account_fees: !!company?.financial_summaries?.[
-      company.financial_summaries.length - 1
-    ]
-      ? formatCurrency(
-          company.financial_summaries[company.financial_summaries.length - 1]
-            .account_level_balance_payload?.fees_total
-        )
-      : null,
+    outstanding_account_fees:
+      !!company?.financial_summaries?.[0]?.account_level_balance_payload.hasOwnProperty(
+        "fees_total"
+      )
+        ? formatCurrency(
+            company.financial_summaries[0].account_level_balance_payload[
+              "fees_total"
+            ]
+          )
+        : null,
     daily_interest_rate: !!company?.financial_summaries?.[0]
       ? formatPercentage(company.financial_summaries[0].daily_interest_rate)
       : null,
@@ -98,6 +100,16 @@ function getRows(customers: CustomersWithMetadataFragment[]): RowsProp {
           company.debt_facility_status as DebtFacilityCompanyStatusEnum
         ]
       : null,
+    holding_account_balance:
+      !!company?.financial_summaries[0]?.account_level_balance_payload.hasOwnProperty(
+        "credits_total"
+      )
+        ? formatCurrency(
+            company.financial_summaries[0].account_level_balance_payload[
+              "credits_total"
+            ]
+          )
+        : null,
   }));
 }
 
@@ -292,6 +304,12 @@ export default function BankCustomersPage() {
             label={params.row.data.outstanding_account_fees || 0}
           />
         ),
+      },
+      {
+        dataField: "holding_account_balance",
+        caption: "Holding Account Balance",
+        width: ColumnWidths.Currency,
+        alignment: "right",
       },
     ],
     []
