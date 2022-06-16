@@ -179,7 +179,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					late_fees_accrued_today=summary["late_fees_accrued_today"],
 					minimum_monthly_payload=summary["minimum_monthly_payload"],
 					account_level_balance_payload=summary["account_level_balance_payload"],
-					product_type=summary["product_type"]
+					product_type=summary["product_type"],
+					loans_info={}
 				)
 				session.add(fs)
 				session.flush()
@@ -1176,7 +1177,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				late_fees_accrued_today=decimal.Decimal(0.0),
 				minimum_monthly_payload={},
 				account_level_balance_payload={},
-				product_type="Inventory Financing"
+				product_type="Inventory Financing",
+				loans_info={}
 			)
 			session.add(financial_summary)
 			session.flush()
@@ -1236,7 +1238,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				late_fees_accrued_today=decimal.Decimal(0.0),
 				minimum_monthly_payload={},
 				account_level_balance_payload={},
-				product_type="Inventory Financing"
+				product_type="Inventory Financing",
+				loans_info={}
 			)
 			session.add(financial_summary)
 			session.flush()
@@ -1299,7 +1302,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				late_fees_accrued_today=decimal.Decimal(0.0),
 				minimum_monthly_payload={},
 				account_level_balance_payload={},
-				product_type="Inventory Financing"
+				product_type="Inventory Financing",
+				loans_info={}
 			)
 			session.add(financial_summary)
 			session.flush()
@@ -1386,7 +1390,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				late_fees_accrued_today=decimal.Decimal(0.0),
 				minimum_monthly_payload={},
 				account_level_balance_payload={},
-				product_type="Inventory Financing"
+				product_type="Inventory Financing",
+				loans_info={}
 			)
 			session.add(financial_summary)
 			session.flush()
@@ -1473,7 +1478,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				late_fees_accrued_today=decimal.Decimal(0.0),
 				minimum_monthly_payload={},
 				account_level_balance_payload={},
-				product_type="Inventory Financing"
+				product_type="Inventory Financing",
+				loans_info={}
 			)
 			session.add(financial_summary)
 			session.flush()

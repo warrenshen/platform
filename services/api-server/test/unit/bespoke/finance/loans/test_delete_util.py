@@ -123,6 +123,7 @@ class TestDeleteLoan(db_unittest.TestCase):
 				minimum_monthly_payload={},
 				account_level_balance_payload={},
 				product_type=db_constants.ProductType.INVENTORY_FINANCING,
+				loans_info={}
 			)
 			session.add(financial_summary)
 			session.flush()

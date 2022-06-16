@@ -172,7 +172,8 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 			late_fees_accrued_today=decimal.Decimal(0.0),
 			minimum_monthly_payload={},
 			account_level_balance_payload={},
-			product_type=product_type
+			product_type=product_type,
+			loans_info={}
 		))
 
 		# This financial summary should not be used because it is in the future
@@ -191,7 +192,8 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 			late_fees_accrued_today=decimal.Decimal(0.0),
 			minimum_monthly_payload={},
 			account_level_balance_payload={},
-			product_type=product_type
+			product_type=product_type,
+			loans_info={}
 		))
 
 	def test_failure_on_unpopulated(self) -> None:

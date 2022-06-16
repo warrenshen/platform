@@ -615,6 +615,7 @@ class CustomerBalance(object):
 			financial_summary.product_type = summary_update['product_type']
 			financial_summary.daily_interest_rate = decimal.Decimal(summary_update['daily_interest_rate'])
 			financial_summary.most_overdue_loan_days = summary_update['most_overdue_loan_days']
+			financial_summary.loans_info = {}
 
 			if should_add_summary:
 				session.add(financial_summary)

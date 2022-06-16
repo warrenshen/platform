@@ -62,7 +62,8 @@ def add_financial_summaries_for_company(
 		late_fees_accrued_today = Decimal(0.0),
 		product_type = None,
 		needs_recompute = False,
-		days_to_compute_back = None
+		days_to_compute_back = None,
+		loans_info = {}
 	))
 
 	session.add(models.FinancialSummary(
@@ -86,7 +87,8 @@ def add_financial_summaries_for_company(
 		late_fees_accrued_today = Decimal(0.0),
 		product_type = None,
 		needs_recompute = False,
-		days_to_compute_back = None
+		days_to_compute_back = None,
+		loans_info = {}
 	))
 
 	session.add(models.FinancialSummary(
@@ -110,7 +112,8 @@ def add_financial_summaries_for_company(
 		late_fees_accrued_today = Decimal(0.0),
 		product_type = None,
 		needs_recompute = False,
-		days_to_compute_back = None
+		days_to_compute_back = None,
+		loans_info = {}
 	))
 
 def add_payments_for_company(
@@ -350,7 +353,8 @@ def setup_data_for_cmi_and_mmf(
 		late_fees_accrued_today = Decimal(0.0),
 		product_type = None,
 		needs_recompute = False,
-		days_to_compute_back = None
+		days_to_compute_back = None,
+		loans_info = {}
 	))
 	session.add(models.FinancialSummary(
 		date = get_relative_date(TODAY, -30).date(),
@@ -373,7 +377,8 @@ def setup_data_for_cmi_and_mmf(
 		late_fees_accrued_today = Decimal(0.0),
 		product_type = None,
 		needs_recompute = False,
-		days_to_compute_back = None
+		days_to_compute_back = None,
+		loans_info = {}
 	))
 	session.add(models.FinancialSummary(
 		date = get_relative_date(TODAY, -29).date(),
@@ -396,7 +401,8 @@ def setup_data_for_cmi_and_mmf(
 		late_fees_accrued_today = Decimal(0.0),
 		product_type = None,
 		needs_recompute = False,
-		days_to_compute_back = None
+		days_to_compute_back = None,
+		loans_info = {}
 	))
 	session.add(models.FinancialSummary(
 		date = get_relative_date(TODAY, -1).date(),
@@ -422,7 +428,8 @@ def setup_data_for_cmi_and_mmf(
 		late_fees_accrued_today = Decimal(0.0),
 		product_type = None,
 		needs_recompute = False,
-		days_to_compute_back = None
+		days_to_compute_back = None,
+		loans_info = {}
 	))
 	if cmi_should_be_higher == True:
 		session.add(models.FinancialSummary(
@@ -446,7 +453,8 @@ def setup_data_for_cmi_and_mmf(
 			late_fees_accrued_today = Decimal(0.0),
 			product_type = None,
 			needs_recompute = False,
-			days_to_compute_back = None
+			days_to_compute_back = None,
+			loans_info = {}
 		))
 		session.add(models.FinancialSummary(
 			date = get_relative_date(TODAY, -27).date(),
@@ -469,7 +477,8 @@ def setup_data_for_cmi_and_mmf(
 			late_fees_accrued_today = Decimal(0.0),
 			product_type = None,
 			needs_recompute = False,
-			days_to_compute_back = None
+			days_to_compute_back = None,
+			loans_info = {}
 		))
 
 	contract_id = uuid.uuid4()

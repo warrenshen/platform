@@ -1158,6 +1158,8 @@ class FinancialSummary(Base):
 
 	most_overdue_loan_days = Column(Integer) # used in Client Surveillance dashboard, the highest number of late days determines the bank status
 
+	loans_info = Column(JSON, nullable=True) # snapshot of customer's open loans on a given day
+
 ### End of financial tables
 
 class RevokedTokenModel(Base):

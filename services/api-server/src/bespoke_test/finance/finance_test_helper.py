@@ -31,5 +31,6 @@ def get_default_financial_summary(
 		account_level_balance_payload={},
 		product_type=product_type,
 		date=date,
-		company_id=company_id
+		company_id=company_id,
+		loans_info={}
 	)
