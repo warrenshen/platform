@@ -129,9 +129,6 @@ class UpsertFeatureFlagsView(MethodView):
 				return handler_util.make_error_response(
 					'Missing key {} in request'.format(key))
 
-		if not user_session.is_bank_admin():
-			return handler_util.make_error_response('Access Denied')
-
 		with session_scope(current_app.session_maker) as session:
 			_, err = create_company_util.upsert_feature_flags_payload(
 				session = session,

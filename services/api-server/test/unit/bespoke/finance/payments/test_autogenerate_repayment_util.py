@@ -272,7 +272,7 @@ class TestFindMatureLoansWithoutOpenRepayments(db_unittest.TestCase):
 		setup_loans: bool = False,
 		setup_repayments: bool = False,
 		repayment_count: int = 0,
-		target_date: datetime.date = TODAY_DATE
+		target_date: datetime.date = TODAY_DATE,
 	) -> None:
 		for i in range(len(customer_ids)):
 			session.add(models.Company(
@@ -294,7 +294,7 @@ class TestFindMatureLoansWithoutOpenRepayments(db_unittest.TestCase):
 					approved_at = get_relative_date(target_date, -92),
 					origination_date = get_relative_date(target_date, -90),
 					maturity_date = target_date,
-					adjusted_maturity_date = target_date
+					adjusted_maturity_date = target_date,
 				)
 				session.add(mature_loan)
 
@@ -304,7 +304,7 @@ class TestFindMatureLoansWithoutOpenRepayments(db_unittest.TestCase):
 				# and holidays in its setup calculation
 				target_adjusted_maturity_date = date_util.get_nearest_business_day(
 					get_relative_date(target_date, 1), 
-					preceeding = False
+					preceeding = False,
 				)
 				maturing_loan = models.Loan( # type: ignore
 					id = uuid.uuid4(),
@@ -313,7 +313,7 @@ class TestFindMatureLoansWithoutOpenRepayments(db_unittest.TestCase):
 					approved_at = get_relative_date(TODAY, -92),
 					origination_date = get_relative_date(TODAY_DATE, -90),
 					maturity_date = get_relative_date(target_date, 1),
-					adjusted_maturity_date = target_adjusted_maturity_date
+					adjusted_maturity_date = target_adjusted_maturity_date,
 				)
 				session.add(maturing_loan)
 
@@ -696,4 +696,233 @@ class TestGenerateRepaymentsForMatureLoans(db_unittest.TestCase):
 				raise err
 
 			self.assertEqual(email_alert_data, [])
+			self.assertIsNone(err)
+
+class TestFindRepaymentAlertStartDate(db_unittest.TestCase):
+	def test_weekend_with_holiday(self) -> None:
+		# run test for M-F for alert week in case preferred run date changes
+		dates_to_test = [
+			parser.parse('2020-09-29T00:00:00.00-08:00').date(),
+			parser.parse('2020-09-30T00:00:00.00-08:00').date(),
+			parser.parse('2020-10-01T00:00:00.00-08:00').date(),
+			parser.parse('2020-10-02T00:00:00.00-08:00').date(),
+			parser.parse('2020-10-03T00:00:00.00-08:00').date(),
+		]
+
+		expected_start_date = parser.parse('2020-10-05T00:00:00.00-08:00').date()
+		expected_start_maturity_date = parser.parse('2020-10-06T00:00:00.00-08:00').date()
+		expected_end_date = parser.parse('2020-10-09T00:00:00.00-08:00').date()
+		expected_end_maturity_date = parser.parse('2020-10-13T00:00:00.00-08:00').date()
+
+		for date in dates_to_test:
+			start_date, end_date, start_maturity_date, end_maturity_date, err = autogenerate_repayment_util.find_repayment_alert_start_date(
+				date,
+			)
+			
+			self.assertEquals(start_date, expected_start_date)
+			self.assertEqual(start_maturity_date, expected_start_maturity_date)
+			self.assertEquals(end_date, expected_end_date)
+			self.assertEqual(end_maturity_date, expected_end_maturity_date)
+			self.assertIsNone(err)
+
+	def test_regular_week(self) -> None:
+		# run test for M-F for alert week in case preferred run date changes
+		dates_to_test = [
+			parser.parse('2020-10-19T00:00:00.00-08:00').date(),
+			parser.parse('2020-10-20T00:00:00.00-08:00').date(),
+			parser.parse('2020-10-21T00:00:00.00-08:00').date(),
+			parser.parse('2020-10-22T00:00:00.00-08:00').date(),
+			parser.parse('2020-10-23T00:00:00.00-08:00').date(),
+		]
+
+		expected_start_date = parser.parse('2020-10-26T00:00:00.00-08:00').date()
+		expected_start_maturity_date = parser.parse('2020-10-27T00:00:00.00-08:00').date()
+		expected_end_date = parser.parse('2020-10-30T00:00:00.00-08:00').date()
+		expected_end_maturity_date = parser.parse('2020-11-02T00:00:00.00-08:00').date()
+
+		for date in dates_to_test:
+			start_date, end_date, start_maturity_date, end_maturity_date, err = autogenerate_repayment_util.find_repayment_alert_start_date(
+				date,
+			)
+			
+			self.assertEquals(start_date, expected_start_date)
+			self.assertEqual(start_maturity_date, expected_start_maturity_date)
+			self.assertEquals(end_date, expected_end_date)
+			self.assertEqual(end_maturity_date, expected_end_maturity_date)
+			self.assertIsNone(err)
+
+class TestFindLoansForWeeklyRepaymentReminder(db_unittest.TestCase):
+	def setup_data_for_test(
+		self,
+		session: Session,
+		customer_ids: List[str],
+		target_date: datetime.date = TODAY_DATE,
+	) -> None:
+		for i in range(len(customer_ids)):
+			session.add(models.Company(
+				id = customer_ids[i],
+				parent_company_id = uuid.uuid4(),
+				name = f"Test Company {i}",
+				is_customer = True,
+				identifier = "TC",
+			))
+
+			session.add(models.CompanySettings(
+				company_id = customer_ids[i],
+				is_dummy_account = True,
+				feature_flags_payload = {
+					FeatureFlagEnum.OVERRIDE_REPAYMENT_AUTOGENERATION: False
+				},
+				is_autogenerate_repayments_enabled = True,
+
+			))
+
+			session.add(models.FinancialSummary(
+				company_id = customer_ids[i],
+				product_type = ProductType.DISPENSARY_FINANCING,
+				date = target_date,
+				total_limit=decimal.Decimal(100.0),
+				adjusted_total_limit=decimal.Decimal(100.0),
+				total_outstanding_principal=decimal.Decimal(50.0),
+				total_outstanding_principal_for_interest=decimal.Decimal(60.0),
+				total_outstanding_interest=decimal.Decimal(12.50),
+				total_outstanding_fees=decimal.Decimal(5.25),
+				total_principal_in_requested_state=decimal.Decimal(3.15),
+				available_limit=decimal.Decimal(25.00),
+				interest_accrued_today=decimal.Decimal(2.1),
+				late_fees_accrued_today=decimal.Decimal(0.0),
+				minimum_monthly_payload={},
+				account_level_balance_payload={}
+			))
+
+	def setup_loans_for_test(
+		self,
+		session: Session,
+		customer_ids: List[str],
+		target_date: datetime.date = TODAY_DATE,
+	) -> None:
+		for i in range(len(customer_ids)):
+			loan = models.Loan( # type: ignore
+				id = uuid.uuid4(),
+				company_id = customer_ids[i],
+				amount = Decimal(10000.00 * i),
+				approved_at = get_relative_date(target_date, -92),
+				origination_date = get_relative_date(target_date, -90),
+				maturity_date = target_date,
+				adjusted_maturity_date = date_util.get_nearest_business_day(
+					target_date + datetime.timedelta(days = 1),
+					preceeding = False,
+				),
+			)
+			session.add(loan)
+		
+		session.flush()
+
+
+	def test_weekend_with_holiday(self) -> None:
+		with session_scope(self.session_maker) as session:
+			alert_date = parser.parse('2020-09-30T00:00:00.00-08:00').date()
+			alert_week_dates = [
+				parser.parse('2020-10-05T00:00:00.00-08:00').date(),
+				parser.parse('2020-10-06T00:00:00.00-08:00').date(),
+				parser.parse('2020-10-07T00:00:00.00-08:00').date(),
+				parser.parse('2020-10-08T00:00:00.00-08:00').date(),
+				parser.parse('2020-10-09T00:00:00.00-08:00').date(),
+			]
+			customer_ids = [
+				str(uuid.uuid4()),
+				str(uuid.uuid4()),
+				str(uuid.uuid4()),
+				str(uuid.uuid4()),
+			]
+
+			self.setup_data_for_test(
+				session,
+				customer_ids,
+				target_date = alert_date
+			)
+			for alert_week_date in alert_week_dates:
+				self.setup_loans_for_test(
+					session,
+					customer_ids,
+					target_date = alert_week_date
+				)
+
+			start_date, end_date, start_maturity_date, end_maturity_date, err = autogenerate_repayment_util.find_repayment_alert_start_date(
+				alert_date,
+			)
+
+			self.assertEqual(start_date,parser.parse('2020-10-05T00:00:00.00-08:00').date())
+			self.assertEqual(start_maturity_date,parser.parse('2020-10-06T00:00:00.00-08:00').date())
+			self.assertEqual(end_date,parser.parse('2020-10-09T00:00:00.00-08:00').date())
+			self.assertEqual(end_maturity_date,parser.parse('2020-10-13T00:00:00.00-08:00').date())
+			self.assertIsNone(err)
+
+			company_to_per_date_loans, err = autogenerate_repayment_util.find_loans_for_weekly_repayment_reminder(
+				session,
+				customer_ids,
+				start_date,
+				start_maturity_date,
+				end_maturity_date,
+			)
+
+			for customer_id in customer_ids:
+				self.assertEqual(len(company_to_per_date_loans[customer_id].items()), 5)
+				for date in company_to_per_date_loans[customer_id]:
+					loans = company_to_per_date_loans[customer_id][date]
+					self.assertEqual(len(loans), 1)
+			self.assertIsNone(err)
+
+	def test_regular_week(self) -> None:
+		with session_scope(self.session_maker) as session:
+			alert_date = parser.parse('2020-10-19T00:00:00.00-08:00').date()
+			alert_week_dates = [
+				parser.parse('2020-10-26T00:00:00.00-08:00').date(),
+				parser.parse('2020-10-27T00:00:00.00-08:00').date(),
+				parser.parse('2020-10-28T00:00:00.00-08:00').date(),
+				parser.parse('2020-10-29T00:00:00.00-08:00').date(),
+				parser.parse('2020-10-30T00:00:00.00-08:00').date(),
+			]
+			customer_ids = [
+				str(uuid.uuid4()),
+				str(uuid.uuid4()),
+				str(uuid.uuid4()),
+				str(uuid.uuid4()),
+			]
+
+			self.setup_data_for_test(
+				session,
+				customer_ids,
+				target_date = alert_date
+			)
+			for alert_week_date in alert_week_dates:
+				self.setup_loans_for_test(
+					session,
+					customer_ids,
+					target_date = alert_week_date
+				)
+
+			start_date, end_date, start_maturity_date, end_maturity_date, err = autogenerate_repayment_util.find_repayment_alert_start_date(
+				alert_date,
+			)
+
+			self.assertEqual(start_date,parser.parse('2020-10-26T00:00:00.00-08:00').date())
+			self.assertEqual(start_maturity_date,parser.parse('2020-10-27T00:00:00.00-08:00').date())
+			self.assertEqual(end_date,parser.parse('2020-10-30T00:00:00.00-08:00').date())
+			self.assertEqual(end_maturity_date,parser.parse('2020-11-02T00:00:00.00-08:00').date())
+			self.assertIsNone(err)
+
+			company_to_per_date_loans, err = autogenerate_repayment_util.find_loans_for_weekly_repayment_reminder(
+				session,
+				customer_ids,
+				start_date,
+				start_maturity_date,
+				end_maturity_date,
+			)
+
+			for customer_id in customer_ids:
+				self.assertEqual(len(company_to_per_date_loans[customer_id].items()), 5)
+				for date in company_to_per_date_loans[customer_id]:
+					loans = company_to_per_date_loans[customer_id][date]
+					self.assertEqual(len(loans), 1)
 			self.assertIsNone(err)

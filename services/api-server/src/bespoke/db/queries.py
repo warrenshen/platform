@@ -130,15 +130,28 @@ def get_financial_summaries_for_target_customers(
 def get_open_mature_loans_for_target_customers(
     session: Session,
     company_ids: List[str],
-    target_date: datetime.date,
+    end_date: datetime.date,
+    start_date: datetime.date = None,
 ) -> Tuple[ List[models.Loan], errors.Error ]:
+    """
+        IMPORTANT: Both start_date and end_date are inclusive
+    """
     filters = [
         cast(Callable, models.Loan.is_deleted.isnot)(True),
         models.Loan.company_id.in_(company_ids),
         models.Loan.closed_at == None,
         models.Loan.rejected_at == None,
-        models.Loan.adjusted_maturity_date <= target_date
     ]
+
+    if start_date is not None:
+        filters.append(
+            and_(
+                models.Loan.adjusted_maturity_date <= end_date,
+                models.Loan.adjusted_maturity_date >= start_date,
+            )
+        )
+    else:
+        filters.append(models.Loan.adjusted_maturity_date <= end_date)
 
     # fmt: off
     loans = cast(
