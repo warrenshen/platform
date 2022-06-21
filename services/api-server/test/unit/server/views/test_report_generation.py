@@ -7,7 +7,8 @@ from decimal import *
 from bs4 import BeautifulSoup # type: ignore
 
 from bespoke.date import date_util
-from bespoke.db.db_constants import ProductType, PaymentType, PaymentMethodEnum, LoanTypeEnum, LoanStatusEnum, RequestStatusEnum
+from bespoke.db.db_constants import (ProductType, PaymentType, PaymentMethodEnum, 
+	LoanTypeEnum, LoanStatusEnum, RequestStatusEnum)
 from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.db.model_types import PaymentItemsCoveredDict
@@ -687,6 +688,45 @@ def setup_for_past_or_coming_due_test(
 	line_of_credit_loan.outstanding_fees = Decimal(25)
 	session.add(line_of_credit_loan)
 
+	# This section adds a customer with a loan, but the customer has
+	# opted into the auto-generated repayment flow
+	if is_past_due is False:
+		opted_in_customer_id = str(uuid.uuid4())
+
+		session.add(models.Company(
+			id = opted_in_customer_id,
+			parent_company_id = uuid.uuid4(),
+			name = "Test Company",
+			is_customer = True,
+			identifier = "TC",
+		))
+
+		session.add(models.CompanySettings(
+			company_id = opted_in_customer_id,
+			#is_dummy_account = False,
+			is_dummy_account = True,
+			is_autogenerate_repayments_enabled = True,
+		))
+
+		calculated_date = TODAY.date() + datetime.timedelta(i)
+		earlier_date = calculated_date + datetime.timedelta(60)
+
+		loan = models.Loan()
+		loan.company_id = opted_in_customer_id
+		loan.artifact_id = str(uuid.uuid4())
+		loan.identifier = "1"
+		loan.origination_date = TODAY_DATE + datetime.timedelta(days = -60)
+		loan.maturity_date = TODAY_DATE + datetime.timedelta(days = 2)
+		loan.adjusted_maturity_date = TODAY_DATE + datetime.timedelta(days = 2)
+		loan.status = LoanStatusEnum.APPROVED
+		loan.loan_type = LoanTypeEnum.INVENTORY
+		loan.amount = Decimal(10000)
+		loan.outstanding_principal_balance = Decimal(10000)
+		loan.outstanding_interest = Decimal(500)
+		loan.outstanding_fees = Decimal(25)
+
+		session.add(loan)
+
 	return company_id_strings
 
 class TestReportsLoansPastDueView(db_unittest.TestCase):
@@ -808,14 +848,18 @@ class TestReportsLoansComingDueView(db_unittest.TestCase):
 			all_open_loans = get_all_open_loans(session, TODAY.date(), is_past_due = False)
 			# 15 because the first generated loan should be for constant TODAY
 			# which is included in the calculation for coming due
-			self.assertEqual(len(all_open_loans), 15)
+			self.assertEqual(len(all_open_loans), 16)
 
 			# loans assigned to companies based of a mod divided range iterator
-			# and are also filtered if their days before loan due is in [1, 3, 7, 14]
+			# and are also filtered if their days before loan due is in [1, 3, 7]
 			loans_to_notify = coming_due_report.get_loans_to_notify(session, TODAY.date())
 			self.assertEqual(len(loans_to_notify[company_id_strings[0]]), 2)
-			self.assertEqual(len(loans_to_notify[company_id_strings[1]]), 1)
 			self.assertEqual(len(loans_to_notify[company_id_strings[2]]), 1)
+
+			# this test was originally checking for a 14 days coming due loan
+			# since we're no longer pulling for 14 days, we're making sure
+			# that this customer doesn't even appear in loans_to_notify
+			self.assertEqual(company_id_strings[1] not in loans_to_notify, True)
 
 			email_row_loans = loans_to_notify[company_id_strings[0]]
 			running_total, rows_html = coming_due_report.prepare_email_rows(session, email_row_loans)
@@ -864,7 +908,7 @@ class TestReportsLoansComingDueView(db_unittest.TestCase):
 			notified_loan_count = 0
 			for _, loans in notified_loans.items():
 				notified_loan_count += len(loans)
-			self.assertEqual(notified_loan_count, 4)
+			self.assertEqual(notified_loan_count, 3)
 
 class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 	def test_get_end_of_report_month_financial_summary(self) -> None:
