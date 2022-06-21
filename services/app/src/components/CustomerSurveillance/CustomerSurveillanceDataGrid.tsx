@@ -3,12 +3,14 @@ import CustomerSurveillanceDrawer from "components/CustomerSurveillance/Customer
 import CustomerSurveillanceStatusChip from "components/CustomerSurveillance/CustomerSurveillanceStatusChip";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
+import MetrcLogo from "components/Shared/Images/MetrcLogo.png";
 import {
   CustomerSurveillanceFragment,
   GetCustomersSurveillanceSubscription,
 } from "generated/graphql";
 import {
   getCustomerProductType,
+  getCustomerQualifyingDate,
   getCustomerQualifyingProduct,
   getCustomerSurveillanceStatus,
   getDaysUntilBorrowingBaseExpires,
@@ -16,6 +18,7 @@ import {
   getLoansAwaitingForAdvanceAmount,
   getMostPastDueLoanDays,
   getPercentagePastDue,
+  isCustomerFinancialsMetrcBased,
 } from "lib/customerSurveillance";
 import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
@@ -40,6 +43,7 @@ function getRows(
   isCurrent: boolean
 ): RowsProp {
   return customers.map((customer) => {
+    const productType = getCustomerProductType(customer) as ProductTypeEnum;
     const [percentagePastDueNumber, percentagePastDueString] =
       getPercentagePastDue(customer);
 
@@ -50,7 +54,9 @@ function getRows(
     const [
       daysUntilBorrowingBaseExpiresNumber,
       daysUntilBorrowingBaseExpiresString,
-    ] = getDaysUntilBorrowingBaseExpires(customer);
+    ] = getDaysUntilBorrowingBaseExpires(customer, productType);
+    const [loansAwaitingAdvanceAmountNumber, loansAwaitingAdvanceAmountString] =
+      getLoansAwaitingForAdvanceAmount(customer);
 
     return formatRowModel({
       ...customer,
@@ -67,17 +73,18 @@ function getRows(
       days_until_borrowing_base_expires_string:
         daysUntilBorrowingBaseExpiresString,
       qualifying_product: getCustomerQualifyingProduct(customer, isCurrent),
+      qualifying_date: getCustomerQualifyingDate(customer, isCurrent),
       selected_month_surveillance_status: getCustomerSurveillanceStatus(
         customer,
         isCurrent
       ),
-      product_type:
-        ProductTypeToLabel[getCustomerProductType(customer) as ProductTypeEnum],
+      is_customer_metrc_based: isCustomerFinancialsMetrcBased(customer),
+      product_type: ProductTypeToLabel[productType],
       percentage_past_due_number: percentagePastDueNumber,
       percentage_past_due_string: percentagePastDueString,
       most_overdue_loan_days: getMostPastDueLoanDays(customer),
-      loans_ready_for_advances_amount:
-        getLoansAwaitingForAdvanceAmount(customer),
+      loans_ready_for_advances_amount_number: loansAwaitingAdvanceAmountNumber,
+      loans_ready_for_advances_amount_string: loansAwaitingAdvanceAmountString,
     });
   });
 }
@@ -155,12 +162,26 @@ export default function CustomerSurveillanceDataGrid({
         alignment: "center",
       },
       {
+        visible: isCurrent,
+        dataField: "qualifying_date",
+        caption: "Qualifying Date",
+        width: ColumnWidths.Datetime,
+        alignment: "center",
+      },
+      {
         visible: isFinancialReportDateVisible,
         dataField: "days_until_financial_report_expires_string",
         calculateSortValue: "days_until_financial_report_expires_number",
         caption: "Days Until Financial Report Expires",
         width: ColumnWidths.Date,
         alignment: "center",
+        cellRender: (params: ValueFormatterParams) => {
+          return !!params.row.data.is_customer_metrc_based ? (
+            <img src={MetrcLogo} alt="Metrc Logo" width={24} height={24} />
+          ) : (
+            <>{params.row.data.days_until_financial_report_expires_string}</>
+          );
+        },
       },
       {
         visible: isBorrowingBaseDateVisible,
@@ -185,7 +206,8 @@ export default function CustomerSurveillanceDataGrid({
       },
       {
         visible: isLoansReadyForAdvancesAmountVisible,
-        dataField: "loans_ready_for_advances_amount",
+        dataField: "loans_ready_for_advances_amount_string",
+        calculateSortValue: "loans_ready_for_advances_amount_number",
         caption: "Loans Ready For Advances Amount",
         width: ColumnWidths.MinWidth,
         alignment: "center",
@@ -193,6 +215,7 @@ export default function CustomerSurveillanceDataGrid({
     ],
     [
       isBorrowingBaseDateVisible,
+      isCurrent,
       isFinancialReportDateVisible,
       isLoansReadyForAdvancesAmountVisible,
     ]

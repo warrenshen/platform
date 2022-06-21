@@ -10,9 +10,9 @@ import {
 import { previousXMonthsCertificationDates } from "lib/date";
 import {
   QualifyForEnum,
-  QualifyForToLabel,
+  QualifyForToDropdownLabel,
   SurveillanceStatusEnum,
-  SurveillanceStatusToLabel,
+  SurveillanceStatusToDropdownLabel,
 } from "lib/enum";
 import { Dispatch, SetStateAction } from "react";
 
@@ -79,7 +79,7 @@ const CustomerSurveillanceStatusUpdateForm = ({
               value={surveillanceResult["surveillance_status"]}
               options={Object.values(SurveillanceStatusEnum)}
               getOptionLabel={(option: string) => {
-                return SurveillanceStatusToLabel[
+                return SurveillanceStatusToDropdownLabel[
                   option as SurveillanceStatusEnum
                 ];
               }}
@@ -122,7 +122,7 @@ const CustomerSurveillanceStatusUpdateForm = ({
               value={surveillanceResult["qualifying_product"] as QualifyForEnum}
               options={Object.values(QualifyForEnum)}
               getOptionLabel={(option: QualifyForEnum) =>
-                QualifyForToLabel[option]
+                QualifyForToDropdownLabel[option]
               }
               renderInput={(params: any) => (
                 <TextField

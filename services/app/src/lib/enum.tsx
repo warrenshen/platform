@@ -192,6 +192,16 @@ export const SurveillanceStatusToLabel = {
   [SurveillanceStatusEnum.InReview]: "In Review",
 };
 
+export const SurveillanceStatusToDropdownLabel = {
+  [SurveillanceStatusEnum.GoodStanding]: "Good Standing (Allows Advances)",
+  [SurveillanceStatusEnum.OnProbation]: "On Probation (Allows Advances)",
+  [SurveillanceStatusEnum.OnPause]: "On Pause",
+  [SurveillanceStatusEnum.Defaulted]: "Defaulted",
+  [SurveillanceStatusEnum.Onboarding]: "Onboarding",
+  [SurveillanceStatusEnum.Inactive]: "Inactive",
+  [SurveillanceStatusEnum.InReview]: "In Review",
+};
+
 export enum SurveillanceOnPauseReasonEnum {
   OverThirtyDaysPastDue = "over_thirty_days_past_due",
   FinancialReportExpired = "financial_report_expired",
@@ -221,8 +231,8 @@ export enum QualifyForEnum {
   InventoryFinancing = "inventory_financing",
   PurchaseMoneyFinancing = "purchase_money_financing",
   InvoiceFinancing = "invoice_financing",
-  Failing = "failing",
   DisepnsaryFinancing = "dispensary_financing",
+  Failing = "failing",
   None = "",
 }
 
@@ -231,9 +241,19 @@ export const QualifyForToLabel = {
   [QualifyForEnum.InventoryFinancing]: "Inventory Financing",
   [QualifyForEnum.PurchaseMoneyFinancing]: "Purchase Money Financing",
   [QualifyForEnum.InvoiceFinancing]: "Invoice Financing",
-  [QualifyForEnum.Failing]: "Failing",
   [QualifyForEnum.DisepnsaryFinancing]: "Dispensary Financing",
+  [QualifyForEnum.Failing]: "Failing",
   [QualifyForEnum.None]: "None",
+};
+
+export const QualifyForToDropdownLabel = {
+  [QualifyForEnum.LineOfCredit]: "Line of Credit",
+  [QualifyForEnum.InventoryFinancing]: "Inventory Financing",
+  [QualifyForEnum.PurchaseMoneyFinancing]: "Purchase Money Financing",
+  [QualifyForEnum.InvoiceFinancing]: "Invoice Financing",
+  [QualifyForEnum.DisepnsaryFinancing]: "Dispensary Financing",
+  [QualifyForEnum.Failing]: "Failing (No Advances Allowed)",
+  [QualifyForEnum.None]: "None (Surveillance Not Yet Complete)",
 };
 
 export enum CustomerPurchaseOrdersTabLabel {

@@ -9,6 +9,7 @@ import {
 } from "lib/date";
 import {
   FeatureFlagEnum,
+  ProductTypeEnum,
   QualifyForEnum,
   QualifyForToLabel,
   ReportingRequirementsCategoryEnum,
@@ -18,11 +19,13 @@ import { formatCurrency, formatPercentage } from "lib/number";
 
 export const getLoansAwaitingForAdvanceAmount = (
   customer: CustomerSurveillanceFragment
-) => {
-  return formatCurrency(
-    customer?.loans.reduce((acc, { amount }) => acc + amount, 0),
-    "$0"
+): [number, string] => {
+  const loanTotal = customer?.loans.reduce(
+    (total, { amount }) => total + amount,
+    0
   );
+
+  return [loanTotal, formatCurrency(loanTotal, "$0")];
 };
 
 const getSurveillanceResult = (
@@ -30,11 +33,11 @@ const getSurveillanceResult = (
   isCurrent: boolean
 ): CustomerSurveillanceResultFragment | null => {
   return !!isCurrent
-    ? !!customer?.target_surveillance_result?.[0]
-      ? customer.target_surveillance_result[0]
+    ? !!customer?.all_surveillance_results?.[0]
+      ? customer.all_surveillance_results[0]
       : null
-    : !!customer?.all_surveillance_results?.[0]
-    ? customer.all_surveillance_results[0]
+    : !!customer?.target_surveillance_result?.[0]
+    ? customer.target_surveillance_result[0]
     : null;
 };
 
@@ -55,6 +58,17 @@ export const getCustomerProductType = (
   return !!customer?.most_recent_financial_summary?.[0]?.product_type
     ? customer.most_recent_financial_summary[0].product_type
     : "None";
+};
+
+export const getCustomerQualifyingDate = (
+  customer: CustomerSurveillanceFragment,
+  isCurrent: boolean
+): string => {
+  const surveillanceResult = getSurveillanceResult(customer, isCurrent);
+
+  return !!surveillanceResult?.qualifying_date
+    ? formatDateString(surveillanceResult.qualifying_date) || "-"
+    : "-";
 };
 
 export const getCustomerQualifyingProduct = (
@@ -151,20 +165,25 @@ export const getBorrowingBaseExpirationDate = (
 };
 
 export const getDaysUntilBorrowingBaseExpires = (
-  customer: CustomerSurveillanceFragment
+  customer: CustomerSurveillanceFragment,
+  productType: ProductTypeEnum
 ): [number, string] => {
-  const expirationDate = !!customer?.most_recent_borrowing_base?.[0]
-    ?.expires_date
-    ? customer.most_recent_borrowing_base[0].expires_date
-    : null;
+  if (productType === ProductTypeEnum.LineOfCredit) {
+    const expirationDate = !!customer?.most_recent_borrowing_base?.[0]
+      ?.expires_date
+      ? customer.most_recent_borrowing_base[0].expires_date
+      : null;
 
-  const daysUntilExpiration = !!expirationDate
-    ? computeDaysUntilExpiration(expirationDate)
-    : 0;
+    const daysUntilExpiration = !!expirationDate
+      ? computeDaysUntilExpiration(expirationDate)
+      : 0;
 
-  return daysUntilExpiration >= 0
-    ? [daysUntilExpiration, daysUntilExpiration.toString()]
-    : [0, "Expired"];
+    return daysUntilExpiration >= 0
+      ? [daysUntilExpiration, daysUntilExpiration.toString()]
+      : [0, "Expired"];
+  } else {
+    return [0, "N/A"];
+  }
 };
 
 export const getPercentagePastDue = (
