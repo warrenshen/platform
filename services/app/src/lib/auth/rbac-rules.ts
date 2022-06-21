@@ -286,6 +286,10 @@ const rules: Rules = {
       Action.ManipulateUser,
       Action.ViewPurchaseOrdersActionMenu,
       Action.EditLineOfCredit,
+
+      // This is part of the solution, commenting out for dummy account
+      // only testing week
+      // Action.EditUserAccountSettings,
     ],
     dynamic: [],
   },

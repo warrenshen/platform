@@ -34,6 +34,10 @@ export const companyRoutes = {
   markPartnershipInviteAsComplete:
     "/companies/mark_company_partnership_complete",
   upsertCustomMessages: "/companies/upsert_custom_messages",
+};
+
+export const companySettingsRoutes = {
+  updateCustomerSettings: "/companies/update_customer_settings",
   upsertFeatureFlags: "/companies/upsert_feature_flags",
 };
 

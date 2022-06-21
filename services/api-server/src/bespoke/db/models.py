@@ -267,6 +267,7 @@ class CompanySettings(Base):
 	is_dummy_account = Column(Boolean, default=False)
 	account_manager_user_id = cast(GUID, Column(GUID, ForeignKey('users.id'))) # used for commission
 	salesperson_user_id = cast(GUID, Column(GUID, ForeignKey('users.id'))) # used for commission
+	is_autogenerate_repayments_enabled = Column(Boolean, default=False)
 
 	def as_dict(self) -> CompanySettingsDict:
 		return CompanySettingsDict(

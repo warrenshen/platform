@@ -10,7 +10,10 @@ import AssignCollectionsBankAccount from "components/Shared/BankAssignment/Assig
 import Can from "components/Shared/Can";
 import CompanyInfo from "components/Shared/CompanyProfile/CompanyInfo";
 import ModalButton from "components/Shared/Modal/ModalButton";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import {
   BankAccountFragment,
   BankAccounts,
@@ -42,6 +45,7 @@ export default function CustomerSettings({
   const {
     user: { role },
   } = useContext(CurrentUserContext);
+  const isBankUser = isRoleBankUser(role);
 
   const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
 
@@ -84,6 +88,7 @@ export default function CustomerSettings({
         <Box mt={3}>
           {accountSettingsOpen && (
             <EditCustomerSettingsModal
+              isBankUser={isBankUser}
               contract={contract}
               companyId={companyId}
               existingSettings={settings}

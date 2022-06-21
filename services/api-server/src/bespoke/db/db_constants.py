@@ -98,10 +98,12 @@ COMPANY_TYPES = (
 class FeatureFlagEnum(object):
 	CREATE_PURCHASE_ORDER_FROM_METRC_TRANSFERS = 'create_purchase_order_from_metrc_transfers'
 	REPORTING_REQUIREMENTS_CATEGORY = 'reporting_requirements_category'
+	OVERRIDE_REPAYMENT_AUTOGENERATION = 'override_repayment_autogeneration'
 
 ALL_FEATURE_FLAGS = [
 	FeatureFlagEnum.CREATE_PURCHASE_ORDER_FROM_METRC_TRANSFERS,
-	FeatureFlagEnum.REPORTING_REQUIREMENTS_CATEGORY
+	FeatureFlagEnum.REPORTING_REQUIREMENTS_CATEGORY,
+	FeatureFlagEnum.OVERRIDE_REPAYMENT_AUTOGENERATION
 ]
 
 class CustomMessageEnum(object):

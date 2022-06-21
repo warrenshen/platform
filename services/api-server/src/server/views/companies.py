@@ -134,9 +134,9 @@ class UpsertFeatureFlagsView(MethodView):
 
 		with session_scope(current_app.session_maker) as session:
 			_, err = create_company_util.upsert_feature_flags_payload(
-				company_settings_id=form['company_settings_id'],
-				feature_flags_payload=form['feature_flags_payload'],
-				session=session
+				session = session,
+				company_settings_id = form['company_settings_id'],
+				feature_flags_payload = form['feature_flags_payload'],
 			)
 			if err:
 				raise err
@@ -144,6 +144,48 @@ class UpsertFeatureFlagsView(MethodView):
 		return make_response(json.dumps({
 			'status': 'OK'
 		}), 200)
+
+class UpdateCustomerSettingsView(MethodView):
+	decorators = [auth_util.login_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		user_session = auth_util.UserSession.from_session()
+
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'company_settings_id',
+			'is_autogenerate_repayments_enabled',
+			'has_autofinancing',
+			'vendor_agreement_docusign_template',
+			'vendor_onboarding_link',
+			'payor_agreement_docusign_template',
+		]
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(
+					'Missing key {} in request'.format(key))
+
+		with session_scope(current_app.session_maker) as session:
+			_, err = create_company_util.update_company_settings(
+				session = session,
+				company_settings_id = form['company_settings_id'],
+				is_autogenerate_repayments_enabled = form['is_autogenerate_repayments_enabled'],
+				has_autofinancing = form['has_autofinancing'],
+				vendor_agreement_docusign_template = form['vendor_agreement_docusign_template'],
+				vendor_onboarding_link = form['vendor_onboarding_link'],
+				payor_agreement_docusign_template = form['payor_agreement_docusign_template'],
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
+
 
 class CreatePartnershipRequestView(MethodView):
 	decorators = [auth_util.login_required]
@@ -799,6 +841,9 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/upsert_feature_flags', view_func=UpsertFeatureFlagsView.as_view(name='upsert_feature_flags_view'))
+
+handler.add_url_rule(
+	'/update_customer_settings', view_func=UpdateCustomerSettingsView.as_view(name='update_customer_settings_view'))
 
 handler.add_url_rule(
 	'/create_partnership_request', view_func=CreatePartnershipRequestView.as_view(name='create_partnership_request_view'))

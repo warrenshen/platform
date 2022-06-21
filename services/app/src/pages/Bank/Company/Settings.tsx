@@ -219,38 +219,61 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
             </Box>
           </Box>
           <Box display="flex" flexDirection="column">
-            {AllFeatureFlags.map((featureFlag) => (
-              <Box key={featureFlag} mt={2}>
+            <>
+              {AllFeatureFlags.map((featureFlag) => (
+                <Box key={featureFlag} mt={2}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        disabled
+                        checked={
+                          isFeatureReportingRequirements(featureFlag)
+                            ? featureFlagsPayload[featureFlag] ===
+                              ReportingRequirementsCategoryEnum.None
+                              ? false
+                              : true
+                            : !!featureFlagsPayload[featureFlag]
+                        }
+                        color="primary"
+                      />
+                    }
+                    label={getFeatureFlagName(featureFlag)}
+                  />
+                  <Box pl={2}>
+                    <Typography variant="subtitle2" color="textSecondary">
+                      {isFeatureReportingRequirements(featureFlag)
+                        ? ReportingRequirementsCategoryToDescription[
+                            featureFlagsPayload[
+                              featureFlag
+                            ] as ReportingRequirementsCategoryEnum
+                          ]
+                        : getFeatureFlagDescription(featureFlag)}
+                    </Typography>
+                  </Box>
+                </Box>
+              ))}
+              <Box mt={2}>
                 <FormControlLabel
                   control={
                     <Checkbox
                       disabled
                       checked={
-                        isFeatureReportingRequirements(featureFlag)
-                          ? featureFlagsPayload[featureFlag] ===
-                            ReportingRequirementsCategoryEnum.None
-                            ? false
-                            : true
-                          : !!featureFlagsPayload[featureFlag]
+                        settings.is_autogenerate_repayments_enabled || false
                       }
                       color="primary"
                     />
                   }
-                  label={getFeatureFlagName(featureFlag)}
+                  label={"Customer opted in to Auto-generated Repayments"}
                 />
                 <Box pl={2}>
                   <Typography variant="subtitle2" color="textSecondary">
-                    {isFeatureReportingRequirements(featureFlag)
-                      ? ReportingRequirementsCategoryToDescription[
-                          featureFlagsPayload[
-                            featureFlag
-                          ] as ReportingRequirementsCategoryEnum
-                        ]
-                      : getFeatureFlagDescription(featureFlag)}
+                    {
+                      "If enabled, the platform will automatically generate repayments on a loan's maturity date. Bespoke may override this in the event of failed reverse drafts."
+                    }
                   </Typography>
                 </Box>
               </Box>
-            ))}
+            </>
           </Box>
         </Box>
         <Box mt={4}>

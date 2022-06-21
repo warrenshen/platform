@@ -88,6 +88,8 @@ class TemplateNames(object):
 	REPORT_MONTHLY_SUMMARY_NON_LOC = "report_monthly_summary_non_loc"
 	AUTOMATIC_DEBIT_COURTESY_ALERT = "automatic_debit_courtesy_alert"
 
+	ALERT_FOR_AUTO_GENERATED_REPAYMENTS = "alert_for_auto_generated_repayments"
+
 
 TemplateConfigDict = TypedDict('TemplateConfigDict', {
 	'id': str,
@@ -266,6 +268,10 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 	},
 	TemplateNames.AUTOMATIC_DEBIT_COURTESY_ALERT: {
 		'id': 'd-be192545412a4717b521219641ad563c',
+		'requires_secure_link': False,
+	},
+	TemplateNames.ALERT_FOR_AUTO_GENERATED_REPAYMENTS: {
+		'id': 'd-e1b75f55e88d47f3b32a9057971ac1df',
 		'requires_secure_link': False,
 	},
 }

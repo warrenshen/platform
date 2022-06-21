@@ -311,14 +311,16 @@ def create_customer(
 
 @errors.return_error_tuple
 def upsert_feature_flags_payload(
+	session: Session,
 	company_settings_id: str,
 	feature_flags_payload: Dict[str, bool],
-	session: Session,
 ) -> Tuple[bool, errors.Error]:
 
 	settings = cast(
 		models.CompanySettings,
-		session.query(models.CompanySettings).get(company_settings_id))
+		session.query(models.CompanySettings).filter(
+			models.CompanySettings.id == company_settings_id
+		).first())
 
 	if not settings:
 		return None, errors.Error('No settings found')
@@ -328,6 +330,34 @@ def upsert_feature_flags_payload(
 			return None, errors.Error(f'Invalid feature flag: {feature_flag}')
 
 	settings.feature_flags_payload = feature_flags_payload
+
+	return True, None
+
+@errors.return_error_tuple
+def update_company_settings(
+	session: Session,
+	company_settings_id: str,
+	is_autogenerate_repayments_enabled: bool,
+	has_autofinancing: bool,
+	vendor_agreement_docusign_template: str,
+	vendor_onboarding_link: str,
+	payor_agreement_docusign_template: str,	
+) -> Tuple[bool, errors.Error]:
+
+	settings = cast(
+		models.CompanySettings,
+		session.query(models.CompanySettings).filter(
+			models.CompanySettings.id == company_settings_id
+		).first())
+
+	if not settings:
+		return None, errors.Error('No settings found')
+
+	settings.is_autogenerate_repayments_enabled = is_autogenerate_repayments_enabled
+	settings.has_autofinancing = has_autofinancing
+	settings.vendor_agreement_docusign_template = vendor_agreement_docusign_template
+	settings.vendor_onboarding_link = vendor_onboarding_link
+	settings.payor_agreement_docusign_template = payor_agreement_docusign_template
 
 	return True, None
 

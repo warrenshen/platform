@@ -52,6 +52,11 @@ const FeatureFlagToConfigs = {
     [FeatureFlagConfigs.Description]:
       "The selection made here determines the financial reporting requirements for this client.",
   },
+  [FeatureFlagEnum.OverrideRepaymentAutogeneration]: {
+    [FeatureFlagConfigs.Name]: "Override repayment auto-generation",
+    [FeatureFlagConfigs.Description]:
+      "If enabled, repayments will not be auto-generated for clients that have opted in to this feature. If they haven't opted in, this flag will do nothing.",
+  },
 };
 
 export function getFeatureFlagName(featureFlag: FeatureFlagEnum) {

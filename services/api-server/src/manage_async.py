@@ -11,9 +11,8 @@ from flask_script import Manager
 from bespoke.db import models
 from bespoke.email import sendgrid_util
 from server.config import get_config, get_email_client_config, is_development_env
-from server.views import triggers, healthcheck
-from server.views import report_generation
-
+from server.views import triggers, healthcheck, report_generation
+from server.views.finance.loans import autogenerate_repayments
 
 if is_development_env(os.environ.get('FLASK_ENV')):
 	load_dotenv(os.path.join(os.environ.get('SERVER_ROOT_DIR'), '.env'))
@@ -45,6 +44,7 @@ manager = Manager(app)
 app.config.update(config.as_dict())
 
 # Register the blueprints
+app.register_blueprint(autogenerate_repayments.handler, url_prefix='/autogenerate')
 app.register_blueprint(triggers.handler, url_prefix='/triggers')
 app.register_blueprint(healthcheck.handler, url_prefix='/healthcheck')
 app.register_blueprint(report_generation.handler, url_prefix='/reports')

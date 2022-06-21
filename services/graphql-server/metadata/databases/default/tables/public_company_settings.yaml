@@ -53,6 +53,7 @@ select_permissions:
         - feature_flags_payload
         - has_autofinancing
         - id
+        - is_autogenerate_repayments_enabled
         - is_dummy_account
         - metrc_api_key_id
         - payor_agreement_docusign_template
@@ -79,6 +80,7 @@ select_permissions:
         - feature_flags_payload
         - has_autofinancing
         - id
+        - is_autogenerate_repayments_enabled
         - is_dummy_account
         - metrc_api_key_id
         - payor_agreement_docusign_template
@@ -101,6 +103,7 @@ select_permissions:
         - feature_flags_payload
         - has_autofinancing
         - id
+        - is_autogenerate_repayments_enabled
         - payor_agreement_docusign_template
         - two_factor_message_method
         - vendor_agreement_docusign_template
@@ -121,6 +124,7 @@ select_permissions:
         - feature_flags_payload
         - has_autofinancing
         - id
+        - is_autogenerate_repayments_enabled
         - payor_agreement_docusign_template
         - two_factor_message_method
         - vendor_agreement_docusign_template

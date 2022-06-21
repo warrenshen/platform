@@ -100,6 +100,8 @@ class Config(object):
 		self.TEST_DOMAIN = os.environ.get('TEST_DOMAIN', 'https://bespoke-app-staging.herokuapp.com')
 		self.DEV_DOMAIN = os.environ.get('DEV_DOMAIN', 'http://localhost:3005')
 
+		self.BOT_USER_ID = os.environ.get('BOT_USER_ID')
+
 	def get_security_config(self) -> security_util.ConfigDict:
 		return security_util.ConfigDict(
 			URL_SECRET_KEY=self.URL_SECRET_KEY,

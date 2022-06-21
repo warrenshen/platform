@@ -16,7 +16,7 @@ import AutocompleteReportingRequirements from "components/Settings/Bank/Autocomp
 import { CompanySettings } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { upsertFeatureFlagsMutation } from "lib/api/companies";
+import { upsertFeatureFlagsMutation } from "lib/api/settings";
 import { getFeatureFlagDescription, getFeatureFlagName } from "lib/companies";
 import { FeatureFlagEnum } from "lib/enum";
 import { ChangeEvent, useState } from "react";
@@ -129,6 +129,37 @@ export default function UpsertFeatureFlagsModal({
             featureFlagsJson={featureFlagsJson || {}}
             setFeatureFlagsJson={setFeatureFlagsJson}
           />
+          <Box key={FeatureFlagEnum.OverrideRepaymentAutogeneration} mt={4}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={
+                    !!featureFlagsJson[
+                      FeatureFlagEnum.OverrideRepaymentAutogeneration
+                    ]
+                  }
+                  color="primary"
+                  onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                    setFeatureFlagsJson({
+                      ...featureFlagsJson,
+                      [FeatureFlagEnum.OverrideRepaymentAutogeneration]:
+                        event.target.checked,
+                    })
+                  }
+                />
+              }
+              label={getFeatureFlagName(
+                FeatureFlagEnum.OverrideRepaymentAutogeneration
+              )}
+            />
+            <Box pl={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                {getFeatureFlagDescription(
+                  FeatureFlagEnum.OverrideRepaymentAutogeneration
+                )}
+              </Typography>
+            </Box>
+          </Box>
         </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>

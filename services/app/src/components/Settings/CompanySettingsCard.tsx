@@ -50,6 +50,10 @@ function CompanySettingsCard({ contract, settings, handleClick }: Props) {
     contract.product_type as ProductTypeEnum
   );
 
+  const isAutoRepaymentsEnabled = !!settings?.is_autogenerate_repayments_enabled
+    ? settings.is_autogenerate_repayments_enabled
+    : false;
+
   return (
     <Card className={classes.card}>
       <CardContent>
@@ -130,6 +134,20 @@ function CompanySettingsCard({ contract, settings, handleClick }: Props) {
               </Typography>
             </Box>
           </Box>
+          {settingsHelper.shouldShowAutogenerateRepayments() && (
+            <Box display="flex" pb={0.25}>
+              <Box className={classes.label}>Is Autorepayment Enabled?</Box>
+              <Box>
+                <Typography variant="body2">
+                  {isAutoRepaymentsEnabled ? (
+                    <span>Enabled</span>
+                  ) : (
+                    <span>Disabled</span>
+                  )}
+                </Typography>
+              </Box>
+            </Box>
+          )}
         </Box>
       </CardContent>
       <Can perform={Action.EditUserAccountSettings}>

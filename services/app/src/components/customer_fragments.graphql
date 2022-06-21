@@ -14,6 +14,7 @@ fragment CompanySettingsLimited on company_settings {
   feature_flags_payload
   custom_messages_payload
   has_autofinancing
+  is_autogenerate_repayments_enabled
 }
 
 fragment CompanyLicenseLimited on company_licenses {

@@ -610,11 +610,13 @@ export const AllFeeWaiverTypes = [
 export enum FeatureFlagEnum {
   CreatePurchaseOrderFromMetrcTransfers = "create_purchase_order_from_metrc_transfers",
   ReportingRequirementsCategory = "reporting_requirements_category",
+  OverrideRepaymentAutogeneration = "override_repayment_autogeneration",
 }
 
 export const AllFeatureFlags = [
   FeatureFlagEnum.CreatePurchaseOrderFromMetrcTransfers,
   FeatureFlagEnum.ReportingRequirementsCategory,
+  FeatureFlagEnum.OverrideRepaymentAutogeneration,
 ];
 
 export enum ReportingRequirementsCategoryEnum {
