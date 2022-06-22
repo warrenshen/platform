@@ -9,6 +9,9 @@ export const users = {
     lineOfCredit: {
       admin: "lineofcredit@customer.com",
     },
+    multiLocation: {
+      admin: "multilocation@customer.com",
+    },
   },
 };
 

@@ -18,6 +18,7 @@ SEED_USER_PASSWORD = 'password123'
 SEED_CUSTOMER_TUPLES = [
 	('Inventory Financing Customer', 'C1-IF', 'INVENTORY FINANCING, INC.'),
 	('Line of Credit Customer', 'C2-LOC', 'LINE OF CREDIT, INC.'),
+	('Multilocation Customer', 'C3-MULTI-LOC', 'LINE OF CREDIT, INC.'),
 ]
 
 # Users
@@ -29,6 +30,7 @@ SEED_USER_TUPLES = [
 	(None, UserRoles.BANK_ADMIN, 'admin@bank.com', SEED_USER_PASSWORD),
 	('C1-IF', UserRoles.COMPANY_ADMIN, 'inventoryfinancing@customer.com', SEED_USER_PASSWORD),
 	('C2-LOC', UserRoles.COMPANY_ADMIN, 'lineofcredit@customer.com', SEED_USER_PASSWORD),
+	('C3-MULTI-LOC', UserRoles.COMPANY_ADMIN, 'multilocation@customer.com', SEED_USER_PASSWORD),
 ]
 
 CUSTOMER_IDENTIFIER_INVENTORY_FINANCING = 'C1-IF'
@@ -116,6 +118,10 @@ def setup_db_test(app: Any) -> None:
 						dba_name='',
 						session=session,
 					)
+
+					# For the multilocation company, set the first company as the parent company
+					if identifier == "C3-MULTI-LOC":
+						customer.parent_company_id = session.query(models.Company).first().parent_company_id
 
 		with session_scope(session_maker) as session:
 			for seed_user_tuple in SEED_USER_TUPLES:

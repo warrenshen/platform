@@ -77,6 +77,7 @@ export default function CustomerLocationsPageContent({
                   disabled={isSwitchLocationLoading}
                   color="primary"
                   variant="contained"
+                  data-cy={`select-location-button-${index}`}
                   onClick={() => handleClickSwitchLocation(company.id)}
                 >
                   Select Location

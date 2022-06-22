@@ -85,7 +85,10 @@ export default function UserMenu({ isLocationsPage }: Props) {
       {!isLocationsPage && isMultiLocation && parentCompany && company && (
         <LocationBanner>
           <LocationName>{company.name}</LocationName>
-          <Button onClick={() => history.push(customerRoutes.locations)}>
+          <Button
+            onClick={() => history.push(customerRoutes.locations)}
+            data-cy={"switch-location-button"}
+          >
             <Switch>
               <strong>Switch</strong>
             </Switch>
