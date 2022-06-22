@@ -1052,7 +1052,12 @@ def get_gmv_change(state, cogs_analysis_df):
 ################################################
 # inventory
 ################################################
-
+def get_valid_inventory_df(inventory_data):
+    #exclude trade samples
+    inventory_data = inventory_data[~inventory_data['is_trade_sample']]
+    #exclude quantity zero packages
+    inventory_data = inventory_data[inventory_data['quantity'] > 0]
+    return inventory_data
 
 def calculate_inventory_valuation(
     incoming_transfer_df, inventory_df, license_list, today_date
@@ -1084,6 +1089,7 @@ def calculate_inventory_valuation(
     df_avg_product.rename(
         columns={"per_unit_incoming": "per_unit_product"}, inplace=True
     )
+    inventory_df = get_valid_inventory_df(inventory_df)
     # calculate inventory
     df_inventory_incoming = pd.merge(
         inventory_df,
@@ -1177,6 +1183,8 @@ def calculate_inventory_valuation_fresh(
     df_avg_product.rename(
         columns={"per_unit_incoming": "per_unit_product"}, inplace=True
     )
+    inventory_df = get_valid_inventory_df(inventory_df)
+
     # prepare fresh inventory
     inventory_df = inventory_df.reset_index(drop=True)
     inventory_df["age"] = [
@@ -1271,6 +1279,8 @@ def calculate_msrp_based_inventory_valuation(
     df_avg_msrp_product = pd.Series(average_msrp_product).to_frame()
     df_avg_msrp_product = df_avg_msrp_product.reset_index()
     df_avg_msrp_product.rename(columns={"per_unit": "per_unit_product"}, inplace=True)
+
+    inventory_df = get_valid_inventory_df(inventory_df)
 
     # calculate inventory
     # merge with per unit msrp by package id
