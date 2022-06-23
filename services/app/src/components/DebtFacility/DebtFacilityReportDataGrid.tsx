@@ -20,6 +20,9 @@ import {
 import {
   determineBorrowerEligibility,
   determineLoanEligibility,
+  getDaysPastDue,
+  getDaysPastDueBucket,
+  getMaturityDate,
   getProductTypeFromOpenLoanForDebtFacilityFragment,
 } from "lib/debtFacility";
 import {
@@ -364,15 +367,10 @@ function getRows(
     year: new Date(loan.origination_date).getFullYear(),
     quarter: renderQuarter(loan.origination_date),
     loan_count: countAdvancesSent(loan),
+    days_past_due: getDaysPastDue(loan),
+    days_past_due_bucket: getDaysPastDueBucket(loan),
   }));
 }
-
-const getMaturityDate = (loan: OpenLoanForDebtFacilityFragment) => {
-  return getProductTypeFromOpenLoanForDebtFacilityFragment(loan) ===
-    ProductTypeEnum.LineOfCredit
-    ? new Date(loan?.company?.contract?.adjusted_end_date || null)
-    : new Date(loan.adjusted_maturity_date);
-};
 
 export default function DebtFacilityReportDataGrid({
   isArtifactVisible = false,
@@ -423,35 +421,6 @@ export default function DebtFacilityReportDataGrid({
       dataGrid.instance.filter(["status", "=", filterByStatus]);
     }
   }, [isMaturityVisible, dataGrid, filterByStatus]);
-
-  const daysPastDueRenderer = (value: any) => {
-    const maturityTime = getMaturityDate(value.data).getTime();
-    const nowTime = new Date(Date.now()).getTime();
-    const daysPastDue = Math.floor(
-      (nowTime - maturityTime) / (24 * 60 * 60 * 1000)
-    );
-    return daysPastDue > 0 ? daysPastDue.toString() : "0";
-  };
-
-  const daysPastDueBucketRenderer = (value: any) => {
-    const maturityTime = getMaturityDate(value.data).getTime();
-    const nowTime = new Date(Date.now()).getTime();
-    const daysPastDue = Math.floor(
-      (nowTime - maturityTime) / (24 * 60 * 60 * 1000)
-    );
-
-    if (daysPastDue <= 0) {
-      return "Current";
-    } else if (daysPastDue >= 1 && daysPastDue <= 30) {
-      return "1-30DPD";
-    } else if (daysPastDue >= 31 && daysPastDue <= 60) {
-      return "31-60DPD";
-    } else if (daysPastDue >= 61 && daysPastDue <= 90) {
-      return "61-90DPD";
-    } else if (daysPastDue >= 91) {
-      return "90+DPD";
-    }
-  };
 
   const columns = useMemo(
     () => [
@@ -652,17 +621,16 @@ export default function DebtFacilityReportDataGrid({
       },
       {
         visible: isMaturityVisible && isDaysPastDueVisible,
+        dataField: "days_past_due",
         caption: "Days Past Due",
         width: 100,
         alignment: "right",
-        calculateCellValue: (row: any) => daysPastDueRenderer({ data: row }),
       },
       {
         caption: "DPD Bucket",
+        dataField: "days_past_due_bucket",
         width: 100,
         alignment: "right",
-        calculateCellValue: (row: any) =>
-          daysPastDueBucketRenderer({ data: row }),
       },
       {
         dataField: "month",

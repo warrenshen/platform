@@ -12,6 +12,7 @@ import {
 import { addYearToBankHolidays, bankHolidays } from "lib/holidays";
 import { range } from "lodash";
 
+export const DayInMilliseconds = 1000 * 60 * 60 * 24;
 export const DateFormatClient = "MM/dd/yyyy";
 export const DateFormatClientMonthDayOnly = "MM/dd";
 export const DateFormatClientYearOnly = "yyyy";

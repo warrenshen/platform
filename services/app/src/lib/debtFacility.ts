@@ -1,4 +1,5 @@
 import { OpenLoanForDebtFacilityFragment } from "generated/graphql";
+import { DayInMilliseconds } from "lib/date";
 import {
   DebtFacilityCompanyStatusEnum,
   DebtFacilityCompanyStatusToEligibility,
@@ -94,5 +95,66 @@ export const determineLoanEligibility = (
     }
   } else {
     return "Ineligible";
+  }
+};
+
+export const getMaturityDate = (
+  loan: OpenLoanForDebtFacilityFragment
+): Date => {
+  return getProductTypeFromOpenLoanForDebtFacilityFragment(loan) ===
+    ProductTypeEnum.LineOfCredit
+    ? new Date(loan?.company?.contract?.adjusted_end_date || null)
+    : new Date(loan.adjusted_maturity_date);
+};
+
+export const getDaysPastDue = (
+  loan: OpenLoanForDebtFacilityFragment
+): number => {
+  // If the loan is already repaid, then DPD should be zero
+  // if it was paid on time, otherwise the days late from
+  // when it was paid
+  if (!!loan.closed_at) {
+    // Multiple new Dates may seem odd, but it strips the timestamp off
+    // so I don't have worry about funky edge cases and timezones since
+    // we only care about calendar days in PST in this scenario
+    const closed_date = new Date(new Date(loan.closed_at).toDateString());
+    const maturity_date = new Date(loan.adjusted_maturity_date);
+    const daysPaidPastDue = Math.floor(
+      (closed_date.valueOf() - maturity_date.valueOf()) / DayInMilliseconds
+    );
+
+    return daysPaidPastDue;
+  }
+
+  const maturityTime = getMaturityDate(loan).getTime();
+  const nowTime = new Date(Date.now()).getTime();
+  const daysPastDue = Math.floor(
+    (nowTime.valueOf() - maturityTime.valueOf()) / DayInMilliseconds
+  );
+
+  return daysPastDue > 0 ? daysPastDue : 0;
+};
+
+export const getDaysPastDueBucket = (
+  loan: OpenLoanForDebtFacilityFragment
+): string => {
+  const daysPastDue = getDaysPastDue(loan);
+
+  if (daysPastDue <= 0) {
+    return "Current";
+  } else if (daysPastDue >= 1 && daysPastDue <= 15) {
+    return "1-15DPD";
+  } else if (daysPastDue >= 16 && daysPastDue <= 30) {
+    return "16-30DPD";
+  } else if (daysPastDue >= 31 && daysPastDue <= 60) {
+    return "31-60DPD";
+  } else if (daysPastDue >= 61 && daysPastDue <= 90) {
+    return "61-90DPD";
+  } else if (daysPastDue >= 91 && daysPastDue <= 120) {
+    return "91-120DPD";
+  } else if (daysPastDue >= 121 && daysPastDue <= 150) {
+    return "121-150DPD";
+  } else {
+    return "151+DPD";
   }
 };
