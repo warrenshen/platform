@@ -1,5 +1,6 @@
-import { Box } from "@material-ui/core";
+import { Box, Button, Typography } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
+import CommentIcon from "@material-ui/icons/Comment";
 import InvoiceDrawerLauncher from "components/Invoices/InvoiceDrawerLauncher";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import PaymentDrawerLauncher from "components/Payment/PaymentDrawerLauncher";
@@ -38,12 +39,13 @@ function getRows(
   if (isLineOfCredit) {
     return payments.map((payment) => {
       return formatRowModel({
-        id: payment.id,
+        bank_note: payment.bank_note,
         company_id: payment.company_id,
         company_identifier: payment.company.identifier,
         company_name: payment.company.name,
-        status: !!payment.reversed_at ? "Reversed" : "Settled",
+        id: payment.id,
         payment: payment,
+        status: !!payment.reversed_at ? "Reversed" : "Settled",
         to_account_fees: payment.items_covered?.requested_to_account_fees
           ? formatCurrency(payment.items_covered.requested_to_account_fees)
           : formatCurrency(0),
@@ -61,21 +63,24 @@ function getRows(
         !!payment.reversed_at
           ? [
               formatRowModel({
-                id: `${payment.id}-0`,
+                bank_note: payment.bank_note,
                 company_id: payment.company_id,
                 company_identifier: payment.company.identifier,
                 company_name: payment.company.name,
-                status: "Reversed",
+                id: `${payment.id}-0`,
                 payment: payment,
+                status: "Reversed",
               }),
             ]
           : payment.transactions.map((transaction) =>
               formatRowModel({
-                id: `${payment.id}-${transaction.id}`,
+                bank_note: payment.bank_note,
                 company_id: payment.company_id,
                 company_identifier: payment.company.identifier,
                 company_name: payment.company.name,
+                id: `${payment.id}-${transaction.id}`,
                 payment: payment,
+                repayment_id: payment.id,
                 status: "Settled",
                 to_account_fees:
                   transaction?.type === PaymentTypeEnum.RepaymentOfAccountFee
@@ -122,6 +127,7 @@ interface Props {
   selectedPaymentIds?: Payments["id"][];
   handleClickCustomer?: (customerId: Companies["id"]) => void;
   handleSelectPayments?: (payments: PaymentLimitedFragment[]) => void;
+  handleClickPaymentBankNote?: (repaymentId: Payments["id"]) => void;
 }
 
 export default function RepaymentTransactionsDataGrid({
@@ -134,6 +140,7 @@ export default function RepaymentTransactionsDataGrid({
   selectedPaymentIds,
   handleClickCustomer = () => {},
   handleSelectPayments,
+  handleClickPaymentBankNote,
 }: Props) {
   const rows = useMemo(
     () => getRows(isLineOfCredit, payments),
@@ -311,8 +318,46 @@ export default function RepaymentTransactionsDataGrid({
         width: ColumnWidths.Currency,
         alignment: "right",
       },
+      {
+        caption: "Bank Note",
+        dataField: "bank_note",
+        width: 340,
+        cellRender: (params: ValueFormatterParams) =>
+          params.row.data.bank_note !== "N/A" ? (
+            <Button
+              color="default"
+              variant="text"
+              style={{
+                minWidth: 0,
+                textAlign: "left",
+              }}
+              onClick={() => {
+                !!handleClickPaymentBankNote &&
+                  handleClickPaymentBankNote(params.row.data.repayment_id);
+              }}
+            >
+              <Box display="flex" alignItems="center">
+                <CommentIcon />
+                {!!params.row.data.bank_note && (
+                  <Box ml={1}>
+                    <Typography variant="body2">
+                      {params.row.data.bank_note}
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
+            </Button>
+          ) : (
+            params.row.data.bank_note
+          ),
+      },
     ],
-    [isCompanyVisible, isLineOfCredit, handleClickCustomer]
+    [
+      isCompanyVisible,
+      isLineOfCredit,
+      handleClickCustomer,
+      handleClickPaymentBankNote,
+    ]
   );
 
   const handleSelectionChanged = useMemo(
