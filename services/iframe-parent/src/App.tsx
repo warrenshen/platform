@@ -1,17 +1,17 @@
 import React, { useEffect } from 'react';
 import './App.css';
 
+const EmbedUrl = "http://localhost:3005";
+
 function App() {
   useEffect(() => {
     window.addEventListener("message", (event) => {
       // Do we trust the sender of this message?  (might be
       // different from what we originally opened, for example).
-      if (event.origin !== "http://localhost:3005") {
+      if (event.origin !== EmbedUrl) {
         return;
       }
 
-      // event.source is popup
-      // event.data is "hi there yourself!  the secret response is: rheeeeet!"
       console.log("Received event from child via postMessage...");
       console.log(event.data);
 
@@ -44,7 +44,7 @@ function App() {
           <iframe
             id="bespoke-financial-iframe"
             title="Bespoke Financial"
-            src="http://localhost:3005"
+            src={EmbedUrl}
             frameBorder="0"
             style={{
               overflow: 'hidden',
