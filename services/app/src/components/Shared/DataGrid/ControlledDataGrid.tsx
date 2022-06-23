@@ -184,6 +184,7 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
               lookup,
               calculateCellValue,
               calculateSortValue,
+              format,
             },
             index
           ) => (
@@ -199,6 +200,7 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
               cellRender={cellRender}
               calculateCellValue={calculateCellValue}
               calculateSortValue={calculateSortValue}
+              format={format}
               lookup={lookup}
               {...(sortBy &&
                 Object.keys(sortBy).length > 0 &&

@@ -10,12 +10,14 @@ export function formatCurrency(
     : defaultIfNull;
 }
 
+export const PercentPrecision = 5;
+
 export function formatPercentage(
   value: number | null,
   defaultIfNull: string = "-"
 ) {
   return value !== null
-    ? `${parseFloat((value * 100).toFixed(5))}%`
+    ? `${parseFloat((value * 100).toFixed(PercentPrecision))}%`
     : defaultIfNull;
 }
 

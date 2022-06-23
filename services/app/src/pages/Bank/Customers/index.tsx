@@ -1,5 +1,5 @@
 import { Box, Checkbox, FormControlLabel, TextField } from "@material-ui/core";
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { RowsProp } from "@material-ui/data-grid";
 import CreateCustomerModal from "components/Customer/CreateCustomerModal";
 import UpdateCompanyDebtFacilityStatusModal from "components/DebtFacility/UpdateCompanyDebtFacilityStatusModal";
 import CreateBulkMinimumMonthlyFeeModal from "components/Fee/CreateMinimumInterestFeesModal";
@@ -9,7 +9,6 @@ import KickoffMonthlySummaryEmailsModal from "components/Reports/KickoffMonthlyS
 import Can from "components/Shared/Can";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
@@ -23,7 +22,7 @@ import {
 } from "generated/graphql";
 import { useFilterCustomersByFragment } from "hooks/useFilterCustomers";
 import { Action, check } from "lib/auth/rbac-rules";
-import { formatDatetimeString, todayAsDateStringServer } from "lib/date";
+import { todayAsDateStringServer } from "lib/date";
 import {
   CustomerSurveillanceCategoryEnum,
   DebtFacilityCompanyStatusEnum,
@@ -31,86 +30,88 @@ import {
   ProductTypeEnum,
   ProductTypeToLabel,
 } from "lib/enum";
-import { formatCurrency, formatPercentage } from "lib/number";
+import { PercentPrecision } from "lib/number";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
-import { ColumnWidths } from "lib/tables";
+import { ColumnWidths, formatRowModel } from "lib/tables";
 import { ChangeEvent, useContext, useMemo, useState } from "react";
 
+function getBorrowingBaseDate(company: CustomersWithMetadataFragment) {
+  const borrowingBaseDate = !!company?.ebba_applications
+    ? company.ebba_applications.filter(
+        ({ category }) =>
+          category === CustomerSurveillanceCategoryEnum.BorrowingBase
+      )[0]?.application_date
+    : null;
+
+  return !!borrowingBaseDate ? new Date(borrowingBaseDate) : null;
+}
+
+function getApplicationDate(company: CustomersWithMetadataFragment) {
+  const applicationDate = !!company?.ebba_applications
+    ? company.ebba_applications.filter(
+        ({ category }) =>
+          category === CustomerSurveillanceCategoryEnum.FinancialReport
+      )[0]?.application_date
+    : null;
+
+  return !!applicationDate ? new Date(applicationDate) : null;
+}
+
 function getRows(customers: CustomersWithMetadataFragment[]): RowsProp {
-  return customers.map((company) => ({
-    ...company,
-    company_url: getBankCompanyRoute(company.id, BankCompanyRouteEnum.Overview),
-    cy_identifier: `customers-data-grid-view-customer-button-${company.identifier}`,
-    product_type: !!company?.financial_summaries?.[0]
-      ? ProductTypeToLabel[
-          company.financial_summaries[0].product_type as ProductTypeEnum
-        ]
-      : "None",
-    adjusted_total_limit: !!company?.financial_summaries?.[0]
-      ? formatCurrency(company.financial_summaries[0].adjusted_total_limit)
-      : null,
-    application_date: !!company?.ebba_applications
-      ? formatDatetimeString(
-          company.ebba_applications.filter(
-            ({ category }) =>
-              category === CustomerSurveillanceCategoryEnum.FinancialReport
-          )[0]?.application_date,
-          false,
-          "-"
-        )
-      : null,
-    borrowing_base_date: !!company?.ebba_applications
-      ? formatDatetimeString(
-          company.ebba_applications.filter(
-            ({ category }) =>
-              category === CustomerSurveillanceCategoryEnum.BorrowingBase
-          )[0]?.application_date,
-          false,
-          "-"
-        )
-      : null,
-    total_outstanding_principal: !!company?.financial_summaries?.[0]
-      ? formatCurrency(
-          company.financial_summaries[0].total_outstanding_principal
-        )
-      : null,
-    total_outstanding_interest: !!company?.financial_summaries?.[0]
-      ? formatCurrency(
-          company.financial_summaries[0].total_outstanding_interest
-        )
-      : null,
-    total_outstanding_fees: !!company?.financial_summaries?.[0]
-      ? formatCurrency(company.financial_summaries[0].total_outstanding_fees)
-      : null,
-    outstanding_account_fees:
-      !!company?.financial_summaries?.[0]?.account_level_balance_payload.hasOwnProperty(
-        "fees_total"
-      )
-        ? formatCurrency(
-            company.financial_summaries[0].account_level_balance_payload[
-              "fees_total"
-            ]
-          )
+  return customers.map((company) => {
+    return formatRowModel({
+      ...company,
+      adjusted_total_limit: !!company?.financial_summaries?.[0]
+        ? company.financial_summaries[0].adjusted_total_limit
         : null,
-    daily_interest_rate: !!company?.financial_summaries?.[0]
-      ? formatPercentage(company.financial_summaries[0].daily_interest_rate)
-      : null,
-    debt_facility_status: !!company?.debt_facility_status
-      ? DebtFacilityCompanyStatusToLabel[
-          company.debt_facility_status as DebtFacilityCompanyStatusEnum
-        ]
-      : null,
-    holding_account_balance:
-      !!company?.financial_summaries[0]?.account_level_balance_payload.hasOwnProperty(
-        "credits_total"
-      )
-        ? formatCurrency(
-            company.financial_summaries[0].account_level_balance_payload[
+      application_date: getApplicationDate(company),
+      borrowing_base_date: getBorrowingBaseDate(company),
+      company_url: getBankCompanyRoute(
+        company.id,
+        BankCompanyRouteEnum.Overview
+      ),
+      cy_identifier: `customers-data-grid-view-customer-button-${company.identifier}`,
+      daily_interest_rate: !!company?.financial_summaries?.[0]
+        ?.daily_interest_rate
+        ? company.financial_summaries[0].daily_interest_rate
+        : null,
+      debt_facility_status: !!company?.debt_facility_status
+        ? DebtFacilityCompanyStatusToLabel[
+            company.debt_facility_status as DebtFacilityCompanyStatusEnum
+          ]
+        : null,
+      holding_account_balance:
+        !!company?.financial_summaries[0]?.account_level_balance_payload.hasOwnProperty(
+          "credits_total"
+        )
+          ? company.financial_summaries[0].account_level_balance_payload[
               "credits_total"
             ]
-          )
+          : null,
+      outstanding_account_fees:
+        !!company?.financial_summaries?.[0]?.account_level_balance_payload.hasOwnProperty(
+          "fees_total"
+        )
+          ? company.financial_summaries[0].account_level_balance_payload[
+              "fees_total"
+            ]
+          : null,
+      product_type: !!company?.financial_summaries?.[0]
+        ? ProductTypeToLabel[
+            company.financial_summaries[0].product_type as ProductTypeEnum
+          ]
+        : "None",
+      total_outstanding_interest: !!company?.financial_summaries?.[0]
+        ? company.financial_summaries[0].total_outstanding_interest
         : null,
-  }));
+      total_outstanding_fees: !!company?.financial_summaries?.[0]
+        ? company.financial_summaries[0].total_outstanding_fees
+        : null,
+      total_outstanding_principal: !!company?.financial_summaries?.[0]
+        ? company.financial_summaries[0].total_outstanding_principal
+        : null,
+    });
+  });
 }
 
 export default function BankCustomersPage() {
@@ -201,112 +202,83 @@ export default function BankCustomersPage() {
         dataField: "debt_facility_status",
         caption: "Debt Facility Status",
         width: ColumnWidths.ProductType,
-        cellRender: (params: ValueFormatterParams) =>
-          params.row.data.debt_facility_status,
       },
       {
         dataField: "product_type",
         caption: "Product Type",
         width: ColumnWidths.ProductType,
-        cellRender: (params: ValueFormatterParams) =>
-          params.row.data.product_type,
       },
       {
         dataField: "contract_name",
         caption: "Contract Name",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
-          <TextDataGridCell label={params.row.data.contract_name} />
-        ),
       },
       {
         dataField: "dba_name",
         caption: "DBA",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
-          <TextDataGridCell label={params.row.data.dba_name} />
-        ),
       },
       {
         dataField: "adjusted_total_limit",
+        format: "currency",
         caption: "Borrowing Limit",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <TextDataGridCell label={params.row.data.adjusted_total_limit} />
-        ),
       },
       {
         dataField: "application_date",
+        format: "shortDate",
         caption: "Most Recent Financial Report Date",
         minWidth: ColumnWidths.Date,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <TextDataGridCell label={params.row.data.application_date} />
-        ),
       },
       {
         dataField: "borrowing_base_date",
+        format: "shortDate",
         caption: "Most Recent Borrowing Base Date",
         minWidth: ColumnWidths.Date,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <TextDataGridCell label={params.row.data.borrowing_base_date} />
-        ),
       },
       {
         dataField: "daily_interest_rate",
+        format: {
+          type: "percent",
+          precision: PercentPrecision,
+        },
         caption: "Daily Interest Rate",
         minWidth: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <TextDataGridCell label={params.row.data.daily_interest_rate} />
-        ),
       },
       {
         dataField: "total_outstanding_principal",
+        format: "currency",
         caption: "Total Outstanding Principal",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <TextDataGridCell
-            label={params.row.data.total_outstanding_principal}
-          />
-        ),
       },
       {
         dataField: "total_outstanding_interest",
+        format: "currency",
         caption: "Total Outstanding Interest",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <TextDataGridCell
-            label={params.row.data.total_outstanding_interest}
-          />
-        ),
       },
       {
         dataField: "total_outstanding_fees",
+        format: "currency",
         caption: "Total Outstanding Late Fees",
         width: ColumnWidths.Currency,
-        alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <TextDataGridCell label={params.row.data.total_outstanding_fees} />
-        ),
       },
       {
         dataField: "outstanding_account_fees",
+        format: "currency",
         caption: "Outstanding Account Fees",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <TextDataGridCell
-            label={params.row.data.outstanding_account_fees || 0}
-          />
-        ),
       },
       {
         dataField: "holding_account_balance",
+        format: "currency",
         caption: "Holding Account Balance",
         width: ColumnWidths.Currency,
         alignment: "right",
