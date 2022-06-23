@@ -1,4 +1,6 @@
+import { Box, Button, Typography } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
+import CommentIcon from "@material-ui/icons/Comment";
 import PaymentDrawerLauncher from "components/Payment/PaymentDrawerLauncher";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
@@ -30,6 +32,7 @@ interface Props {
   selectedPaymentIds?: Payments["id"][];
   handleClickCustomer?: (customerId: Companies["id"]) => void;
   handleSelectPayments?: (payments: PaymentLimitedFragment[]) => void;
+  handleClickPaymentBankNote?: (repaymentId: Payments["id"]) => void;
 }
 
 export default function RepaymentsDataGrid({
@@ -42,6 +45,7 @@ export default function RepaymentsDataGrid({
   selectedPaymentIds,
   handleClickCustomer,
   handleSelectPayments,
+  handleClickPaymentBankNote,
 }: Props) {
   const isClosed = repaymentType === RepaymentTypeEnum.Closed;
   const isRequestedReverseDraftACH =
@@ -209,6 +213,40 @@ export default function RepaymentsDataGrid({
           <DateDataGridCell dateString={params.row.data.settlement_date} />
         ),
       },
+      {
+        visible: !isRequestedReverseDraftACH && !isOther,
+        caption: "Bank Note",
+        dataField: "bank_note",
+        width: 340,
+        cellRender: (params: ValueFormatterParams) =>
+          params.row.data.bank_note !== "N/A" ? (
+            <Button
+              color="default"
+              variant="text"
+              style={{
+                minWidth: 0,
+                textAlign: "left",
+              }}
+              onClick={() => {
+                !!handleClickPaymentBankNote &&
+                  handleClickPaymentBankNote(params.row.data.id);
+              }}
+            >
+              <Box display="flex" alignItems="center">
+                <CommentIcon />
+                {!!params.row.data.bank_note && (
+                  <Box ml={1}>
+                    <Typography variant="body2">
+                      {params.row.data.bank_note}
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
+            </Button>
+          ) : (
+            params.row.data.bank_note
+          ),
+      },
     ],
     [
       dataGrid?.instance,
@@ -219,6 +257,7 @@ export default function RepaymentsDataGrid({
       isReverseDraftACH,
       isOther,
       handleClickCustomer,
+      handleClickPaymentBankNote,
     ]
   );
 

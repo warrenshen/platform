@@ -3,6 +3,7 @@ import {
   Checkbox,
   FormControl,
   FormControlLabel,
+  TextField,
   Theme,
   Typography,
   createStyles,
@@ -355,6 +356,21 @@ export default function SettleRepaymentSelectLoans({
             "Apply repayment in the following non-standard order: principal, interest, fees?"
           }
         />
+        <Box display="flex" flexDirection="column" mt={2}>
+          <TextField
+            autoFocus
+            multiline
+            label={"Bank Note"}
+            helperText={"Only Bespoke Financial users can view this note"}
+            value={payment.bank_note}
+            onChange={({ target: { value } }) =>
+              setPayment({
+                ...payment,
+                bank_note: value,
+              })
+            }
+          />
+        </Box>
       </Box>
     </Box>
   );

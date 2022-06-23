@@ -61,6 +61,7 @@ export default function SettleRepaymentModal({
           // For Reverse Draft ACH method, amount will have a value.
           // For other methods, amount will not have a value so we use requested_amount.
           amount: existingPayment.amount || existingPayment.requested_amount,
+          bank_note: existingPayment.bank_note,
           requested_payment_date: existingPayment.requested_payment_date,
           payment_date: existingPayment.payment_date,
           // Default deposit_date to payment_date.

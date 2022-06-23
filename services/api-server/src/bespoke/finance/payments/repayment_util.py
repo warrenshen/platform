@@ -641,7 +641,7 @@ def create_repayment(
 	return payment_id, None
 
 @errors.return_error_tuple
-def edit_repayment(
+def edit_repayment_dates(
 	company_id: str,
 	repayment_edit_input: payment_types.RepaymentDateEditInputDict,
 	user_id: str,
@@ -658,7 +658,7 @@ def edit_repayment(
 			).first())
 
 	if repayment is None:
-		raise errors.Error(f"Requested repayment with id '{repayment_id}' was not found.", details=err_details)
+		return None, errors.Error(f"Requested repayment with id '{repayment_id}' was not found.", details=err_details)
 
 	requested_payment_date = date_util.load_date_str(repayment_edit_input['requested_payment_date'])
 	payment_date = date_util.load_date_str(repayment_edit_input['payment_date'])
@@ -667,19 +667,19 @@ def edit_repayment(
 
 	# Check that each date hasn't accidentally been set to null/empty when it was previously filled
 	if repayment.requested_payment_date is not None and requested_payment_date is None:
-		raise errors.Error('Requested payment date must be specified', details=err_details)
+		return None, errors.Error('Requested payment date must be specified', details=err_details)
 	if repayment.payment_date is not None and payment_date is None:
-		raise errors.Error('Payment date must be specified', details=err_details)
+		return None, errors.Error('Payment date must be specified', details=err_details)
 	if repayment.deposit_date is not None and deposit_date is None:
-		raise errors.Error('Deposit date must be specified', details=err_details)
+		return None, errors.Error('Deposit date must be specified', details=err_details)
 	if repayment.settlement_date is not None and settlement_date is None:
-		raise errors.Error('Settlement date must be specified', details=err_details)
+		return None, errors.Error('Settlement date must be specified', details=err_details)
 
 	# Check to make dates that should be ahead of other dates are set as such
 	if payment_date < deposit_date:
-		raise errors.Error('Payment date must be set prior to the deposit date', details=err_details)
+		return None, errors.Error('Payment date must be set prior to the deposit date', details=err_details)
 	if settlement_date < deposit_date:
-		raise errors.Error('Deposit date must be set prior to the settlement date', details=err_details)
+		return None, errors.Error('Deposit date must be set prior to the settlement date', details=err_details)
 
 	# Gather transaction related to repayment to update their respective date fields
 	transactions = cast(
@@ -696,6 +696,29 @@ def edit_repayment(
 
 	for t in transactions:
 		t.effective_date = settlement_date
+
+	return repayment.id, None
+
+@errors.return_error_tuple
+def edit_repayment_bank_note(
+	session: Session,
+	repayment_id: str,
+	bank_note: str,
+	now_for_test: datetime.datetime = None
+) -> Tuple[str, errors.Error]:
+	err_details = {'repayment_id': repayment_id, 'method': 'edit_repayment_bank_note'}
+
+	repayment = cast(
+			models.Payment,
+			session.query(models.Payment).filter(
+				models.Payment.id == repayment_id
+			).first())
+
+	if repayment is None:
+		return None, errors.Error(f"Requested repayment with id '{repayment_id}' was not found.", details=err_details)
+
+	# Now that the error checking is finished, update values as expected
+	repayment.bank_note = bank_note
 
 	return repayment.id, None
 

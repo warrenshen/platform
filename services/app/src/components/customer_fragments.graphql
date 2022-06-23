@@ -200,6 +200,7 @@ fragment LoanArtifactLimited on loans {
 
 fragment PaymentLimited on payments {
   id
+  bank_note
   company_id
   settlement_identifier
   submitted_at

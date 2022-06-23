@@ -4,7 +4,7 @@ import Modal from "components/Shared/Modal/Modal";
 import { PurchaseOrders, useGetPaymentQuery } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { editRepaymentMutation } from "lib/finance/payments/repayment";
+import { editRepaymentDateMutation } from "lib/finance/payments/repayment";
 import { useState } from "react";
 
 interface Props {
@@ -42,7 +42,7 @@ export default function EditRepaymentDatesModal({
   });
 
   const [editRepayment, { loading: isEditRepaymentLoading }] =
-    useCustomMutation(editRepaymentMutation);
+    useCustomMutation(editRepaymentDateMutation);
 
   const payment = data?.payments_by_pk || null;
 

@@ -147,15 +147,18 @@ export async function createRepaymentMutation(req: {
     );
 }
 
-export async function editRepaymentMutation(req: {
+export type EditRepaymentDateReq = {
   variables: {
     company_id: string;
     payment: PaymentsInsertInput;
-    is_line_of_credit: boolean;
   };
-}): Promise<CustomMutationResponse> {
+};
+
+export async function editRepaymentDateMutation(
+  req: EditRepaymentDateReq
+): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(loansRoutes.editRepayment, req.variables)
+    .post(loansRoutes.editRepaymentDate, req.variables)
     .then((res) => {
       return res.data;
     })
@@ -167,7 +170,37 @@ export async function editRepaymentMutation(req: {
         console.log("error", error);
         return {
           status: "ERROR",
-          msg: "Could not edit repayment for the loan(s)",
+          msg: "Could not edit repayment date for the loan(s)",
+        };
+      }
+    );
+}
+
+export type EditRepaymentBankNoteReq = {
+  variables: {
+    companyId: string;
+    repaymentId: string;
+    bankNote: string;
+  };
+};
+
+export async function editRepaymentBankNoteMutation(
+  req: EditRepaymentBankNoteReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(loansRoutes.editRepaymentBankNote, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not edit repayment bank note for the loan",
         };
       }
     );

@@ -202,6 +202,19 @@ export default function PaymentDrawer({
             mt={2}
           >
             <Typography variant="subtitle2" color="textSecondary">
+              Bank Note
+            </Typography>
+            <Typography variant={"body1"}>{payment.bank_note}</Typography>
+          </Box>
+        )}
+        {isBankUser && (
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="flex-start"
+            mt={2}
+          >
+            <Typography variant="subtitle2" color="textSecondary">
               Platform ID
             </Typography>
             <Typography variant={"body1"}>{payment.id}</Typography>

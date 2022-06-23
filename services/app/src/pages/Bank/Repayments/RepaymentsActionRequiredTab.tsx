@@ -11,6 +11,7 @@ import RepaymentsDataGrid, {
 } from "components/Repayment/RepaymentsDataGrid";
 import ScheduleRepaymentModal from "components/Repayment/ScheduleRepaymentModal";
 import SettleRepaymentModal from "components/Repayment/SettleRepaymentModal";
+import UpdateRepaymentBankNoteModal from "components/Repayment/UpdateRepaymentBankNoteModal";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
@@ -119,9 +120,17 @@ export default function BankRepaymentsActionRequiredTab() {
     });
   }, [payments]);
 
+  const [selectedPaymentId, setSelectedPaymentId] = useState(null);
+
   return (
     <Container>
       <Box className={classes.container}>
+        {!!selectedPaymentId && (
+          <UpdateRepaymentBankNoteModal
+            paymentId={selectedPaymentId}
+            handleClose={() => setSelectedPaymentId(null)}
+          />
+        )}
         <Box
           className={classes.section}
           data-cy="requested-reverse-draft-ach-table-container"
@@ -175,6 +184,9 @@ export default function BankRepaymentsActionRequiredTab() {
               history.push(
                 getBankCompanyRoute(customerId, BankCompanyRouteEnum.Overview)
               )
+            }
+            handleClickPaymentBankNote={(repaymentId) =>
+              setSelectedPaymentId(repaymentId)
             }
             handleSelectPayments={handleSelectSchedulePayments}
           />
@@ -234,6 +246,9 @@ export default function BankRepaymentsActionRequiredTab() {
                 getBankCompanyRoute(customerId, BankCompanyRouteEnum.Overview)
               )
             }
+            handleClickPaymentBankNote={(repaymentId) =>
+              setSelectedPaymentId(repaymentId)
+            }
             handleSelectPayments={handleSelectSettlePayments}
           />
         </Box>
@@ -288,6 +303,9 @@ export default function BankRepaymentsActionRequiredTab() {
               history.push(
                 getBankCompanyRoute(customerId, BankCompanyRouteEnum.Overview)
               )
+            }
+            handleClickPaymentBankNote={(repaymentId) =>
+              setSelectedPaymentId(repaymentId)
             }
             handleSelectPayments={handleSelectNotifyPayments}
           />

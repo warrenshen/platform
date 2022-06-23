@@ -1580,9 +1580,9 @@ class TestCreatePayment(db_unittest.TestCase):
 				now_for_test=parser.parse('2020-10-01T16:33:27.69-08:00'))
 		self.assertIn('are funded', err.msg)
 
-class TestEditRepayment(db_unittest.TestCase):
+class TestEditRepaymentDates(db_unittest.TestCase):
 
-	def test_edit_repayment_date(self) -> None:
+	def test_edit_repayment_dates(self) -> None:
 		self.reset()
 		session_maker = self.session_maker
 		seed = test_helper.BasicSeed.create(self.session_maker, self)
@@ -1683,7 +1683,7 @@ class TestEditRepayment(db_unittest.TestCase):
 	  			settlement_date = '10/06/2019'
 			)
 
-			payment_id, err = repayment_util.edit_repayment(
+			payment_id, err = repayment_util.edit_repayment_dates(
 				company_id,
 				repayment_date_edits,
 				user_id,
@@ -1711,5 +1711,91 @@ class TestEditRepayment(db_unittest.TestCase):
 
 			for t in transactions:
 				self.assertEqual(t.effective_date, adjusted_repayment.settlement_date)
+
+		pass 
+
+class TestEditRepaymentBankNote(db_unittest.TestCase):
+
+	def test_edit_repayment_bank_note(self) -> None:
+		self.reset()
+		seed = test_helper.BasicSeed.create(self.session_maker, self)
+		seed.initialize()
+
+		company_id = seed.get_company_id('company_admin', index=0)
+		user_id = seed.get_user_id('company_admin', index=0)
+		loan_ids = []
+		with session_scope(self.session_maker) as session:
+			contract = _get_contract(company_id)
+			contract_test_helper.set_and_add_contract_for_company(contract, company_id, session)
+
+			loan = models.Loan(
+				company_id=company_id,
+				amount=decimal.Decimal(200000.02),
+				approved_at=date_util.now(),
+				funded_at=date_util.now(),
+			)
+			session.add(loan)
+			session.flush()
+			loan_ids.append(str(loan.id))
+
+			payment_id, err = repayment_util.create_repayment(
+				company_id=str(company_id),
+				payment_insert_input=payment_types.PaymentInsertInputDict(
+					company_id=company_id,
+					type='repayment',
+					requested_amount=20000.00,
+					amount=20000.00,
+					method='reverse_draft_ach',
+					requested_payment_date='10/05/2019',
+					payment_date='10/05/2019',
+					settlement_date='10/05/2019',
+					items_covered={
+						'loan_ids': loan_ids,
+						'requested_to_account_fees': 0.0,
+					},
+					company_bank_account_id=str(uuid.uuid4()),
+					recipient_bank_account_id=None,
+					customer_note='',
+					bank_note=''
+				),
+				user_id=user_id,
+				session=session,
+				is_line_of_credit=False,
+				now_for_test=parser.parse('2019-10-01T16:33:27.69-08:00')
+			)
+
+			repayment = cast(
+				models.Payment,
+				session.query(models.Payment).filter(
+					models.Payment.company_id == company_id,
+					models.Payment.type == db_constants.PaymentType.REPAYMENT
+				).first())
+				
+			repayment = cast(
+				models.Payment,
+				session.query(models.Payment).filter(
+					models.Payment.company_id == company_id,
+					models.Payment.type == db_constants.PaymentType.REPAYMENT
+				).first())
+
+			old_bank_note = repayment.bank_note
+
+			repayment_new_bank_note = "new note"
+
+			payment_id, err = repayment_util.edit_repayment_bank_note(
+				session,
+				repayment.id,
+				repayment_new_bank_note
+			)
+
+			adjusted_repayment = cast(
+				models.Payment,
+				session.query(models.Payment).filter(
+					models.Payment.company_id == company_id,
+					models.Payment.type == "repayment"
+				).first())
+
+			self.assertNotEqual(old_bank_note, adjusted_repayment.bank_note)
+			self.assertEqual("new note", adjusted_repayment.bank_note)
 
 		pass 
