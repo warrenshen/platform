@@ -62,6 +62,8 @@ import { useContext, useEffect } from "react";
 import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
 import { useLocation } from "react-use";
 
+const ValidBlazeOrigin = process.env.REACT_APP_BESPOKE_BLAZE_PARENT_ORIGIN;
+
 export default function App() {
   const { pathname } = useLocation();
   const {
@@ -75,23 +77,32 @@ export default function App() {
         "message",
         (event) => {
           // Verify sender of message.
-          if (event.origin !== "http://localhost:3007") {
+          if (event.origin !== ValidBlazeOrigin) {
             return;
           }
 
-          console.log("Received event from parent via postMessage...");
-          console.log(event.data);
+          console.info("Received event from parent via postMessage...");
+          console.info(event.data);
         },
         false
       );
 
-      window.parent.postMessage(
-        {
-          identifier: "heartbeat",
-          payload: null,
-        },
-        "http://localhost:3007"
-      );
+      if (!!ValidBlazeOrigin) {
+        window.parent.postMessage(
+          {
+            identifier: "handshake_request",
+            payload: null,
+          },
+          ValidBlazeOrigin
+        );
+        console.info(
+          "Sent handshake_request event from iframe via postMessage..."
+        );
+      } else {
+        console.info(
+          "Failed to send handshake_request event due to missing environment variable!"
+        );
+      }
     }
   }, []);
 
