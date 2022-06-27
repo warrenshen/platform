@@ -14,7 +14,11 @@ import {
   useGetBankFinancialSummariesByDateSubscription,
   useGetFundedLoansForBankSubscription,
 } from "generated/graphql";
-import { formatDatetimeString, todayAsDateStringServer } from "lib/date";
+import {
+  formatDatetimeString,
+  parseDateStringServer,
+  todayAsDateStringServer,
+} from "lib/date";
 import { bankRoutes } from "lib/routes";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
@@ -75,7 +79,7 @@ export default function BankOverviewPage() {
         const matureThreshold = new Date(
           new Date(Date.now()).getTime() + 14 * 24 * 60 * 60 * 1000
         );
-        const maturityDate = new Date(loan.adjusted_maturity_date);
+        const maturityDate = parseDateStringServer(loan.adjusted_maturity_date);
         return (
           matureThreshold > maturityDate && pastDueThreshold < maturityDate
         );
@@ -86,7 +90,7 @@ export default function BankOverviewPage() {
     () =>
       (loans || []).filter((loan) => {
         const pastDueThreshold = new Date(Date.now());
-        const maturityDate = new Date(loan.adjusted_maturity_date);
+        const maturityDate = parseDateStringServer(loan.adjusted_maturity_date);
         return pastDueThreshold > maturityDate;
       }),
     [loans]
@@ -101,7 +105,10 @@ export default function BankOverviewPage() {
     const latestBankFinancialSummaryDate = bankFinancialSummaries
       .slice(0)
       .sort((a, b) => {
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
+        return (
+          parseDateStringServer(b.date).getTime() -
+          parseDateStringServer(a.date).getTime()
+        );
       })[0].date;
 
     filteredBankFinancialSummaries = bankFinancialSummaries.filter(

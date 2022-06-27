@@ -26,6 +26,7 @@ import {
   PurchaseOrders,
   RequestStatusEnum,
 } from "generated/graphql";
+import { parseDateStringServer } from "lib/date";
 import {
   AllLoanStatuses,
   LoanPaymentStatusEnum,
@@ -109,8 +110,9 @@ function getRows(
   });
 }
 
-const getMaturityDate = (rowData: any) =>
-  new Date(rowData.adjusted_maturity_date);
+const getMaturityDate = (rowData: any) => {
+  return parseDateStringServer(rowData.adjusted_maturity_date);
+};
 
 export default function LoansDataGrid({
   isArtifactVisible = false,

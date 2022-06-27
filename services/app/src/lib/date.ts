@@ -41,9 +41,9 @@ export function dateAsDateStringServer(date: Date) {
   }
 }
 
-export function parseDateString(dateString: string) {
+export function parseDateStringServer(dateString: string) {
   try {
-    return parse(dateString, DateFormatServer, new Date());
+    return parseISO(dateString);
   } catch (error) {
     throw new Error(
       `Could not parse the date string "${dateString}. Error message: "${error}`

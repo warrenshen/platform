@@ -20,6 +20,7 @@ import {
   Maybe,
   RequestStatusEnum,
 } from "generated/graphql";
+import { parseDateStringServer } from "lib/date";
 import {
   createLoanCustomerIdentifier,
   createLoanDisbursementIdentifier,
@@ -88,8 +89,9 @@ function getRows(
   }));
 }
 
-const getMaturityDate = (rowData: any) =>
-  new Date(rowData.adjusted_maturity_date);
+const getMaturityDate = (rowData: any) => {
+  return parseDateStringServer(rowData.adjusted_maturity_date);
+};
 
 export default function ReportLoansDataGrid({
   isArtifactVisible = false,

@@ -1,5 +1,5 @@
 import { OpenLoanForDebtFacilityFragment } from "generated/graphql";
-import { DayInMilliseconds } from "lib/date";
+import { DayInMilliseconds, parseDateStringServer } from "lib/date";
 import {
   DebtFacilityCompanyStatusEnum,
   DebtFacilityCompanyStatusToEligibility,
@@ -101,10 +101,7 @@ export const determineLoanEligibility = (
 export const getMaturityDate = (
   loan: OpenLoanForDebtFacilityFragment
 ): Date => {
-  return getProductTypeFromOpenLoanForDebtFacilityFragment(loan) ===
-    ProductTypeEnum.LineOfCredit
-    ? new Date(loan?.company?.contract?.adjusted_end_date || null)
-    : new Date(loan.adjusted_maturity_date);
+  return parseDateStringServer(loan.adjusted_maturity_date);
 };
 
 export const getDaysPastDue = (
@@ -114,11 +111,13 @@ export const getDaysPastDue = (
   // if it was paid on time, otherwise the days late from
   // when it was paid
   if (!!loan.closed_at) {
-    // Multiple new Dates may seem odd, but it strips the timestamp off
+    // Multiple calls to parseDateStringServer may seem odd, but it strips the timestamp off
     // so I don't have worry about funky edge cases and timezones since
     // we only care about calendar days in PST in this scenario
-    const closed_date = new Date(new Date(loan.closed_at).toDateString());
-    const maturity_date = new Date(loan.adjusted_maturity_date);
+    const closed_date = parseDateStringServer(
+      parseDateStringServer(loan.closed_at).toDateString()
+    );
+    const maturity_date = getMaturityDate(loan);
     const daysPaidPastDue = Math.floor(
       (closed_date.valueOf() - maturity_date.valueOf()) / DayInMilliseconds
     );

@@ -7,7 +7,7 @@ import {
   dateAsDateStringClient,
   dateStringPlusXDaysDate,
   formatDateString,
-  parseDateString,
+  parseDateStringServer,
 } from "lib/date";
 import {
   FeatureFlagEnum,
@@ -121,7 +121,7 @@ export const getFinancialReportApplicationDate = (
       ? formatDateString(applicationDate) || ""
       : "-",
     financialReportDate: !!applicationDate
-      ? parseDateString(applicationDate)
+      ? parseDateStringServer(applicationDate)
       : null,
   };
 };
@@ -138,7 +138,7 @@ export const getFinancialReportExpirationDate = (
     : null;
 
   return !!applicationDate
-    ? dateAsDateStringClient(dateStringPlusXDaysDate(applicationDate, 60))
+    ? dateAsDateStringClient(dateStringPlusXDaysDate(applicationDate, 75))
     : "-";
 };
 
@@ -158,7 +158,7 @@ export const getDaysUntilFinancialReportExpires = (
     daysUntilFinancialReportExpiresNumber:
       daysUntilExpiration >= 0 ? daysUntilExpiration : 0,
     daysUntilFinancialReportExpiresString:
-      daysUntilExpiration >= 0 ? "0" : "Expired",
+      daysUntilExpiration >= 0 ? daysUntilExpiration.toString() : "Expired",
   };
 };
 
@@ -178,7 +178,7 @@ export const getBorrowingBaseApplicationDate = (
       ? formatDateString(applicationDate) || "-"
       : "-",
     borrowingBaseDate: !!applicationDate
-      ? parseDateString(applicationDate)
+      ? parseDateStringServer(applicationDate)
       : null,
   };
 };
@@ -195,7 +195,7 @@ export const getBorrowingBaseExpirationDate = (
     : null;
 
   return !!applicationDate
-    ? dateAsDateStringClient(dateStringPlusXDaysDate(applicationDate, 75))
+    ? dateAsDateStringClient(dateStringPlusXDaysDate(applicationDate, 60))
     : "-";
 };
 

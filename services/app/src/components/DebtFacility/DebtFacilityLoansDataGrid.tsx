@@ -20,7 +20,7 @@ import {
   PurchaseOrders,
   RequestStatusEnum,
 } from "generated/graphql";
-import { withinNDaysOfNowOrBefore } from "lib/date";
+import { parseDateStringServer, withinNDaysOfNowOrBefore } from "lib/date";
 import { determineLoanEligibility } from "lib/debtFacility";
 import {
   DebtFacilityCompanyStatusEnum,
@@ -129,8 +129,9 @@ function getRows(
   }));
 }
 
-const getMaturityDate = (rowData: any) =>
-  new Date(rowData.adjusted_maturity_date);
+const getMaturityDate = (rowData: any) => {
+  return parseDateStringServer(rowData.adjusted_maturity_date);
+};
 
 export default function DebtFacilityLoansDataGrid({
   isArtifactVisible = false,

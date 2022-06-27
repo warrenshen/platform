@@ -22,7 +22,7 @@ import {
 } from "generated/graphql";
 import { useFilterCustomersByFragment } from "hooks/useFilterCustomers";
 import { Action, check } from "lib/auth/rbac-rules";
-import { todayAsDateStringServer } from "lib/date";
+import { parseDateStringServer, todayAsDateStringServer } from "lib/date";
 import {
   CustomerSurveillanceCategoryEnum,
   DebtFacilityCompanyStatusEnum,
@@ -43,7 +43,7 @@ function getBorrowingBaseDate(company: CustomersWithMetadataFragment) {
       )[0]?.application_date
     : null;
 
-  return !!borrowingBaseDate ? new Date(borrowingBaseDate) : null;
+  return !!borrowingBaseDate ? parseDateStringServer(borrowingBaseDate) : null;
 }
 
 function getApplicationDate(company: CustomersWithMetadataFragment) {
@@ -54,7 +54,7 @@ function getApplicationDate(company: CustomersWithMetadataFragment) {
       )[0]?.application_date
     : null;
 
-  return !!applicationDate ? new Date(applicationDate) : null;
+  return !!applicationDate ? parseDateStringServer(applicationDate) : null;
 }
 
 function getRows(customers: CustomersWithMetadataFragment[]): RowsProp {

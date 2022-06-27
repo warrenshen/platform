@@ -15,6 +15,7 @@ import {
 import {
   formatDateString,
   formatDatetimeString,
+  parseDateStringServer,
   renderQuarter,
 } from "lib/date";
 import {
@@ -102,7 +103,10 @@ const countAdvancesSent = (loan: OpenLoanForDebtFacilityFragment) => {
     const productType = getProductTypeFromOpenLoanForDebtFacilityFragment(loan);
     if (productType === ProductTypeEnum.LineOfCredit) {
       const filteredTransactions = loan.transactions.filter((transaction) => {
-        return new Date(transaction.effective_date) < new Date("2021-11-24");
+        return (
+          parseDateStringServer(transaction.effective_date) <
+          parseDateStringServer("2021-11-24")
+        );
       });
       return filteredTransactions.length;
     } else {
@@ -363,8 +367,8 @@ function getRows(
       ProductTypeEnum.LineOfCredit
         ? ""
         : formatDateString(loan.adjusted_maturity_date),
-    month: new Date(loan.origination_date).getMonth(),
-    year: new Date(loan.origination_date).getFullYear(),
+    month: parseDateStringServer(loan.origination_date).getMonth(),
+    year: parseDateStringServer(loan.origination_date).getFullYear(),
     quarter: renderQuarter(loan.origination_date),
     loan_count: countAdvancesSent(loan),
     days_past_due: getDaysPastDue(loan),

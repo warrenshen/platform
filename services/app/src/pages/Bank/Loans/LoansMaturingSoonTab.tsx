@@ -7,6 +7,7 @@ import {
 } from "@material-ui/core";
 import BankLoansDataGrid from "components/Loans/BankLoansDataGrid";
 import { useGetFundedLoansForBankSubscription } from "generated/graphql";
+import { parseDateStringServer } from "lib/date";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
@@ -43,7 +44,7 @@ export default function BankLoansMaturingSoonTab() {
         const matureThreshold = new Date(
           new Date(Date.now()).getTime() + matureDays * 24 * 60 * 60 * 1000
         );
-        const maturityDate = new Date(loan.adjusted_maturity_date);
+        const maturityDate = parseDateStringServer(loan.adjusted_maturity_date);
         return (
           matureThreshold > maturityDate && pastDueThreshold < maturityDate
         );
