@@ -1,4 +1,4 @@
-import { Box, TextField } from "@material-ui/core";
+import { Box, TextField, Typography } from "@material-ui/core";
 import CreateUpdateFinancialReportCertificationModal from "components/EbbaApplication/CreateUpdateFinancialReportCertificationModal";
 import DeleteEbbaApplicationModal from "components/EbbaApplication/DeleteEbbaApplicationModal";
 import EbbaApplicationsDataGrid from "components/EbbaApplications/EbbaApplicationsDataGrid";
@@ -67,6 +67,32 @@ export default function EbbaApplicationsFinancialReportsTab() {
     [setSelectedEbbaApplicationIds]
   );
 
+  const nonDispensaryEbbaApplications = ebbaApplications.filter(
+    (ebbaApplication) => {
+      const productType = !!ebbaApplication?.company?.contract?.product_type
+        ? ebbaApplication.company.contract.product_type
+        : null;
+
+      return !!productType &&
+        productType !== ProductTypeEnum.DispensaryFinancing
+        ? true
+        : false;
+    }
+  );
+
+  const dispensaryEbbaApplications = ebbaApplications.filter(
+    (ebbaApplication) => {
+      const productType = !!ebbaApplication?.company?.contract?.product_type
+        ? ebbaApplication.company.contract.product_type
+        : null;
+
+      return !!productType &&
+        productType === ProductTypeEnum.DispensaryFinancing
+        ? true
+        : false;
+    }
+  );
+
   return (
     <Box mt={2}>
       <Box
@@ -124,14 +150,28 @@ export default function EbbaApplicationsFinancialReportsTab() {
           </Box>
         </Box>
       </Box>
-      <Box display="flex" flexDirection="column">
+      <Box display="flex" flexDirection="column" mb={2}>
+        <Typography variant={"h6"}>Not Dispensary Financing</Typography>
         <EbbaApplicationsDataGrid
           isCompanyVisible
           isExpirationDateVisible
           isMultiSelectEnabled
           isBorrowingBaseAdjustmentAmountVisible={false}
           isBorrowingBaseAdjustmentNoteVisible={false}
-          ebbaApplications={ebbaApplications}
+          ebbaApplications={nonDispensaryEbbaApplications}
+          selectedEbbaApplicationIds={selectedEbbaApplicationIds}
+          handleSelectEbbaApplications={handleSelectEbbaApplications}
+        />
+      </Box>
+      <Box display="flex" flexDirection="column">
+        <Typography variant={"h6"}>Dispensary Financing</Typography>
+        <EbbaApplicationsDataGrid
+          isCompanyVisible
+          isExpirationDateVisible
+          isMultiSelectEnabled
+          isBorrowingBaseAdjustmentAmountVisible={false}
+          isBorrowingBaseAdjustmentNoteVisible={false}
+          ebbaApplications={dispensaryEbbaApplications}
           selectedEbbaApplicationIds={selectedEbbaApplicationIds}
           handleSelectEbbaApplications={handleSelectEbbaApplications}
         />

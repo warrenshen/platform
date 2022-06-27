@@ -26,8 +26,11 @@ import {
 import {
   ProductTypeEnum,
   ProductTypeToLabel,
+  QualifyForEnum,
+  QualifyForToLabel,
   SurveillanceStatusEnum,
 } from "lib/enum";
+import { formatCurrency, formatPercentage } from "lib/number";
 import { ChangeEvent, useState } from "react";
 
 interface Props {
@@ -72,9 +75,9 @@ export default function CustomerSurveillanceDrawer({
     ? isCustomerFinancialsMetrcBased(customer)
     : null;
 
-  const [, percentagePastDueString] = !!customer
-    ? getPercentagePastDue(customer)
-    : [0, "0%"];
+  const { financialReportDateString } =
+    getFinancialReportApplicationDate(customer);
+  const { borrowingBaseDateString } = getBorrowingBaseApplicationDate(customer);
 
   return (
     <Modal
@@ -128,7 +131,6 @@ export default function CustomerSurveillanceDrawer({
                   label={"Show Surveillance Notes?"}
                 />
                 {!!showSurveillanceDetails && (
-                  // <p>hello</p>
                   <CustomerSurveillanceOnPauseReasonsForm
                     isDisabled
                     customer={customer}
@@ -150,7 +152,14 @@ export default function CustomerSurveillanceDrawer({
               Qualifying For
             </Typography>
             <Typography variant={"body1"}>
-              {getCustomerQualifyingProduct(customer, isCurrent)}
+              {
+                QualifyForToLabel[
+                  getCustomerQualifyingProduct(
+                    customer,
+                    isCurrent
+                  ) as QualifyForEnum
+                ]
+              }
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
@@ -168,7 +177,7 @@ export default function CustomerSurveillanceDrawer({
                   Most Recent Financial Report
                 </Typography>
                 <Typography variant={"body1"}>
-                  {getFinancialReportApplicationDate(customer)}
+                  {financialReportDateString}
                 </Typography>
               </Box>
               <Box display="flex" flexDirection="column" mt={2}>
@@ -198,7 +207,7 @@ export default function CustomerSurveillanceDrawer({
                   Most Recent Borrowing Base
                 </Typography>
                 <Typography variant={"body1"}>
-                  {getBorrowingBaseApplicationDate(customer)}
+                  {borrowingBaseDateString}
                 </Typography>
               </Box>
               <Box display="flex" flexDirection="column" mt={2}>
@@ -215,7 +224,9 @@ export default function CustomerSurveillanceDrawer({
             <Typography variant="subtitle2" color="textSecondary">
               Percentage Past Due
             </Typography>
-            <Typography variant={"body1"}>{percentagePastDueString}</Typography>
+            <Typography variant={"body1"}>
+              {formatPercentage(getPercentagePastDue(customer))}
+            </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">
@@ -230,7 +241,7 @@ export default function CustomerSurveillanceDrawer({
               Total Amount of Loans Awaiting Advances
             </Typography>
             <Typography variant={"body1"}>
-              {getLoansAwaitingForAdvanceAmount(customer)}
+              {formatCurrency(getLoansAwaitingForAdvanceAmount(customer))}
             </Typography>
           </Box>
           <Box mt={5}>

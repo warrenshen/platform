@@ -49,6 +49,7 @@ export const companyFacilitiesRoutes = {
 
 export const customerSurveillanceRoutes = {
   certifySurveillanceResult: "/companies/certify_customer_surveillance_result",
+  deleteSurveillanceResult: "/companies/delete_customer_surveillance_result",
 };
 
 export const partnershipRoutes = {

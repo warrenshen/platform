@@ -1,4 +1,4 @@
-import { Companies } from "generated/graphql";
+import { Companies, CustomerSurveillanceResults } from "generated/graphql";
 import {
   CustomMutationResponse,
   authenticatedApi,
@@ -34,6 +34,34 @@ export async function certifyCustomerSurveillanceResultMutation(
         return {
           status: "ERROR",
           msg: "Could not certify surveillance status",
+        };
+      }
+    );
+}
+
+export type DeleteCustomerSurveillanceResultReq = {
+  variables: {
+    surveillance_result_id: CustomerSurveillanceResults["id"];
+  };
+};
+
+export async function deleteCustomerSurveillanceResultMutation(
+  req: DeleteCustomerSurveillanceResultReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(customerSurveillanceRoutes.deleteSurveillanceResult, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not delete surveillance result",
         };
       }
     );

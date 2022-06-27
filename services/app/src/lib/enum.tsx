@@ -204,6 +204,7 @@ export const SurveillanceStatusToDropdownLabel = {
 
 export enum SurveillanceOnPauseReasonEnum {
   OverThirtyDaysPastDue = "over_thirty_days_past_due",
+  OverAcceptablePercentPastDue = "over_acceptable_percent_past_due",
   FinancialReportExpired = "financial_report_expired",
   BorrowingBaseExpired = "borrowing_base_expired",
   Underwriting = "underwriting",
@@ -213,6 +214,8 @@ export enum SurveillanceOnPauseReasonEnum {
 export const SurveillanceOnPauseReasonToLabel = {
   [SurveillanceOnPauseReasonEnum.OverThirtyDaysPastDue]:
     "Over 30 Days Past Due",
+  [SurveillanceOnPauseReasonEnum.OverAcceptablePercentPastDue]:
+    "Over 25% of Loans Past Due",
   [SurveillanceOnPauseReasonEnum.FinancialReportExpired]:
     "Financial Report Expired",
   [SurveillanceOnPauseReasonEnum.BorrowingBaseExpired]:

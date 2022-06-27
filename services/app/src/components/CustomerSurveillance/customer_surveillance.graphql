@@ -24,3 +24,15 @@ query GetCustomersSurveillanceByCompanyId($target_date: date, $id: uuid!) {
     ...CustomerSurveillance
   }
 }
+
+query GetSurveillanceResultById($surveillance_result_id: uuid!) {
+  surveillance_result: customer_surveillance_results_by_pk(id: $surveillance_result_id) {
+    id
+    ...CustomerSurveillanceResult
+    submitting_user {
+      id
+      first_name
+      last_name
+    }
+  }
+}

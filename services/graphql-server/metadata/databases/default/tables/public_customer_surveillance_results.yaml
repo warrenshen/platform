@@ -17,6 +17,7 @@ select_permissions:
         - created_at
         - deleted_at
         - id
+        - is_deleted
         - metadata_info
         - qualifying_date
         - qualifying_product
@@ -33,6 +34,7 @@ select_permissions:
         - created_at
         - deleted_at
         - id
+        - is_deleted
         - metadata_info
         - qualifying_date
         - qualifying_product

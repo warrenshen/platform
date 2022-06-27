@@ -824,6 +824,38 @@ class CertifyCustomerSurveillanceResultView(MethodView):
 			'status': 'OK',
 		}))
 
+class DeleteCustomerSurveillanceResultView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'surveillance_result_id',
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in request')
+
+
+		surveillance_result_id = form['surveillance_result_id']
+
+		with session_scope(current_app.session_maker) as session:
+			_, err = create_company_util.delete_customer_surveillance_result(
+				session = session,
+				surveillance_result_id = surveillance_result_id,
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+		}))
+
 handler.add_url_rule(
 	'/create_customer', view_func=CreateCustomerView.as_view(name='create_customer_view'))
 
@@ -832,6 +864,9 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/certify_customer_surveillance_result', view_func=CertifyCustomerSurveillanceResultView.as_view(name='certify_customer_surveillance_result_view'))
+
+handler.add_url_rule(
+	'/delete_customer_surveillance_result', view_func=DeleteCustomerSurveillanceResultView.as_view(name='delete_customer_surveillance_result_view'))
 
 handler.add_url_rule(
 	'/upsert_custom_messages', view_func=UpsertCustomMessagesView.as_view(name='upsert_custom_messages_view'))

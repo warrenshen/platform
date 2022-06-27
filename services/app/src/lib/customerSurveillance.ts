@@ -4,28 +4,27 @@ import {
 } from "generated/graphql";
 import {
   computeDaysUntilExpiration,
+  dateAsDateStringClient,
+  dateStringPlusXDaysDate,
   formatDateString,
-  formatDatetimeString,
 } from "lib/date";
 import {
   FeatureFlagEnum,
   ProductTypeEnum,
   QualifyForEnum,
-  QualifyForToLabel,
   ReportingRequirementsCategoryEnum,
   SurveillanceStatusEnum,
 } from "lib/enum";
-import { formatCurrency, formatPercentage } from "lib/number";
 
 export const getLoansAwaitingForAdvanceAmount = (
   customer: CustomerSurveillanceFragment
-): [number, string] => {
+): number => {
   const loanTotal = customer?.loans.reduce(
     (total, { amount }) => total + amount,
     0
   );
 
-  return [loanTotal, formatCurrency(loanTotal, "$0")];
+  return loanTotal;
 };
 
 const getSurveillanceResult = (
@@ -78,7 +77,7 @@ export const getCustomerQualifyingProduct = (
   const surveillanceResult = getSurveillanceResult(customer, isCurrent);
 
   return !!surveillanceResult?.qualifying_product
-    ? QualifyForToLabel[surveillanceResult.qualifying_product as QualifyForEnum]
+    ? (surveillanceResult.qualifying_product as QualifyForEnum)
     : "-";
 };
 
@@ -106,89 +105,126 @@ export const isCustomerFinancialsMetrcBased = (
 };
 
 export const getFinancialReportApplicationDate = (
-  customer: CustomerSurveillanceFragment
-): string => {
-  return !!customer?.most_recent_financial_report?.[0]?.application_date
-    ? formatDateString(
-        customer.most_recent_financial_report[0].application_date
-      ) || "-"
-    : "-";
+  customer: CustomerSurveillanceFragment | null | undefined
+): {
+  financialReportDateString: string;
+  financialReportDate: Date | null;
+} => {
+  const applicationDate = !!customer?.most_recent_financial_report?.[0]
+    ?.application_date
+    ? customer.most_recent_financial_report[0].application_date
+    : null;
+
+  return {
+    financialReportDateString: !!applicationDate
+      ? formatDateString(applicationDate) || ""
+      : "-",
+    financialReportDate: !!applicationDate ? new Date(applicationDate) : null,
+  };
 };
 
 export const getFinancialReportExpirationDate = (
   customer: CustomerSurveillanceFragment
 ): string => {
-  return !!customer?.most_recent_financial_report?.[0]?.expires_date
-    ? formatDatetimeString(
-        customer.most_recent_financial_report[0].expires_date,
-        false
-      ) || "-"
+  // The expiration date refers to when the report would be late, but
+  // not triggering the on pause status. This wasn't what the cs
+  // dashboard needed
+  const applicationDate = !!customer?.most_recent_financial_report?.[0]
+    ?.application_date
+    ? customer.most_recent_financial_report[0].application_date
+    : null;
+
+  return !!applicationDate
+    ? dateAsDateStringClient(dateStringPlusXDaysDate(applicationDate, 60))
     : "-";
 };
 
 export const getDaysUntilFinancialReportExpires = (
   customer: CustomerSurveillanceFragment
-): [number, string] => {
-  const expirationDate = !!customer?.most_recent_financial_report?.[0]
-    ?.expires_date
-    ? customer.most_recent_financial_report[0].expires_date
-    : null;
+): {
+  daysUntilFinancialReportExpiresNumber: number;
+  daysUntilFinancialReportExpiresString: string;
+} => {
+  const expirationDate = getFinancialReportExpirationDate(customer);
 
   const daysUntilExpiration = !!expirationDate
     ? computeDaysUntilExpiration(expirationDate)
     : 0;
 
-  return daysUntilExpiration >= 0
-    ? [daysUntilExpiration, daysUntilExpiration.toString()]
-    : [0, "Expired"];
+  return {
+    daysUntilFinancialReportExpiresNumber:
+      daysUntilExpiration >= 0 ? daysUntilExpiration : 0,
+    daysUntilFinancialReportExpiresString:
+      daysUntilExpiration >= 0 ? "0" : "Expired",
+  };
 };
 
 export const getBorrowingBaseApplicationDate = (
-  customer: CustomerSurveillanceFragment
-): string => {
-  return !!customer?.most_recent_borrowing_base?.[0]?.application_date
-    ? formatDateString(
-        customer.most_recent_borrowing_base[0].application_date
-      ) || "-"
-    : "-";
+  customer: CustomerSurveillanceFragment | null | undefined
+): {
+  borrowingBaseDateString: string;
+  borrowingBaseDate: Date | null;
+} => {
+  const applicationDate = !!customer?.most_recent_borrowing_base?.[0]
+    ?.application_date
+    ? customer.most_recent_borrowing_base[0].application_date
+    : null;
+
+  return {
+    borrowingBaseDateString: !!applicationDate
+      ? formatDateString(applicationDate) || "-"
+      : "-",
+    borrowingBaseDate: !!applicationDate ? new Date(applicationDate) : null,
+  };
 };
 
 export const getBorrowingBaseExpirationDate = (
   customer: CustomerSurveillanceFragment
 ): string => {
-  return !!customer?.most_recent_borrowing_base?.[0]?.expires_date
-    ? formatDatetimeString(
-        customer.most_recent_borrowing_base[0].expires_date,
-        false
-      ) || "-"
+  // The expiration date refers to when the report would be late, but
+  // not triggering the on pause status. This wasn't what the cs
+  // dashboard needed
+  const applicationDate = !!customer?.most_recent_borrowing_base?.[0]
+    ?.application_date
+    ? customer.most_recent_borrowing_base[0].application_date
+    : null;
+
+  return !!applicationDate
+    ? dateAsDateStringClient(dateStringPlusXDaysDate(applicationDate, 75))
     : "-";
 };
 
 export const getDaysUntilBorrowingBaseExpires = (
   customer: CustomerSurveillanceFragment,
   productType: ProductTypeEnum
-): [number, string] => {
+): {
+  daysUntilBorrowingBaseExpiresNumber: number;
+  daysUntilBorrowingBaseExpiresString: string;
+} => {
   if (productType === ProductTypeEnum.LineOfCredit) {
-    const expirationDate = !!customer?.most_recent_borrowing_base?.[0]
-      ?.expires_date
-      ? customer.most_recent_borrowing_base[0].expires_date
-      : null;
+    const expirationDate = getBorrowingBaseExpirationDate(customer);
 
     const daysUntilExpiration = !!expirationDate
       ? computeDaysUntilExpiration(expirationDate)
       : 0;
 
-    return daysUntilExpiration >= 0
-      ? [daysUntilExpiration, daysUntilExpiration.toString()]
-      : [0, "Expired"];
+    return {
+      daysUntilBorrowingBaseExpiresNumber:
+        daysUntilExpiration >= 0 ? daysUntilExpiration : 0,
+      daysUntilBorrowingBaseExpiresString:
+        daysUntilExpiration >= 0 ? daysUntilExpiration.toString() : "Expired",
+    };
   } else {
-    return [0, "N/A"];
+    return {
+      daysUntilBorrowingBaseExpiresNumber: 0,
+      daysUntilBorrowingBaseExpiresString: "N/A",
+    };
   }
 };
 
 export const getPercentagePastDue = (
   customer: CustomerSurveillanceFragment
-): [number, string] => {
+): number => {
   const totalOutstandingPrincipalPastDue = !!customer
     ?.most_recent_financial_summary?.[0]?.total_outstanding_principal_past_due
     ? customer.most_recent_financial_summary[0]
@@ -205,7 +241,7 @@ export const getPercentagePastDue = (
       ? totalOutstandingPrincipalPastDue / totalOutstandingPrincipal
       : 0.0;
 
-  return [totalPercentagePastDue, formatPercentage(totalPercentagePastDue)];
+  return totalPercentagePastDue;
 };
 
 export const getMostPastDueLoanDays = (

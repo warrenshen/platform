@@ -8,11 +8,12 @@ from bespoke import errors
 from bespoke.companies import create_user_util
 from bespoke.date import date_util
 from bespoke.db import models, db_constants, models_util
-from bespoke.db.db_constants import CompanyDebtFacilityStatus, CompanyType, TwoFactorMessageMethod, UserRoles
+from bespoke.db.db_constants import (CompanyDebtFacilityStatus, CompanySurveillanceStatus, 
+	CompanyType, TwoFactorMessageMethod, UserRoles)
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util
 from mypy_extensions import TypedDict
-from sqlalchemy.sql import or_
+from sqlalchemy.sql import or_, and_
 from sqlalchemy.orm.session import Session
 
 # Should match with the graphql types for inserting objects into the DB.
@@ -1319,6 +1320,24 @@ def certify_customer_surveillance_result(
 		session.add(customer_surveillance_result)
 		session.flush()
 
+	if customer_surveillance_result.surveillance_status == CompanySurveillanceStatus.IN_REVIEW and \
+		surveillance_status != CompanySurveillanceStatus.IN_REVIEW:
+		open_ebba_applications = cast(
+			List[models.EbbaApplication],
+			session.query(models.EbbaApplication).filter(
+				models.EbbaApplication.company_id == company_id
+			).filter(
+				cast(Callable, models.EbbaApplication.is_deleted.isnot)(True)
+			).filter(
+				and_(
+					models.EbbaApplication.approved_at == None,
+					models.EbbaApplication.rejected_at == None,
+				)
+			).all())
+		
+		if len(open_ebba_applications) > 0:
+			return None, errors.Error("Please review open financials before switching off of In Review.")
+
 	# Shared across create and update flow
 	customer_surveillance_result.surveillance_status = surveillance_status
 	customer_surveillance_result.bank_note = surveillance_status_note
@@ -1350,3 +1369,21 @@ def certify_customer_surveillance_result(
 		company.surveillance_status_note = surveillance_status_note
 
 	return str(customer_surveillance_result.id), None
+
+def delete_customer_surveillance_result(
+	session: Session,
+	surveillance_result_id: str,
+) -> Tuple[bool, errors.Error]:
+	customer_surveillance_result = cast(
+		models.CustomerSurveillanceResult,
+		session.query(models.CustomerSurveillanceResult).filter(
+			models.CustomerSurveillanceResult.id == surveillance_result_id
+		).first())
+
+	if not customer_surveillance_result:
+		return None, errors.Error("Could not find surveillance result with the requested id")
+
+	# Shared across create and update flow
+	customer_surveillance_result.is_deleted = True
+	
+	return True, None

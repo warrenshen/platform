@@ -6183,6 +6183,7 @@ export type CustomerSurveillanceResults = {
   created_at: Scalars["timestamptz"];
   deleted_at?: Maybe<Scalars["timestamptz"]>;
   id: Scalars["uuid"];
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   metadata_info: Scalars["json"];
   qualifying_date: Scalars["date"];
   qualifying_product?: Maybe<Scalars["String"]>;
@@ -6248,6 +6249,7 @@ export type CustomerSurveillanceResultsBoolExp = {
   created_at?: Maybe<TimestamptzComparisonExp>;
   deleted_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  is_deleted?: Maybe<BooleanComparisonExp>;
   metadata_info?: Maybe<JsonComparisonExp>;
   qualifying_date?: Maybe<DateComparisonExp>;
   qualifying_product?: Maybe<StringComparisonExp>;
@@ -6261,9 +6263,9 @@ export type CustomerSurveillanceResultsBoolExp = {
 /** unique or primary key constraints on table "customer_surveillance_results" */
 export enum CustomerSurveillanceResultsConstraint {
   /** unique or primary key constraint */
-  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
-  /** unique or primary key constraint */
   CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
+  /** unique or primary key constraint */
+  CompanyProductQualificationsQualifyingDateCompanyIdKey = "company_product_qualifications_qualifying_date_company_id_key",
 }
 
 /** input type for inserting data into table "customer_surveillance_results" */
@@ -6274,6 +6276,7 @@ export type CustomerSurveillanceResultsInsertInput = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   deleted_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   metadata_info?: Maybe<Scalars["json"]>;
   qualifying_date?: Maybe<Scalars["date"]>;
   qualifying_product?: Maybe<Scalars["String"]>;
@@ -6363,6 +6366,7 @@ export type CustomerSurveillanceResultsOrderBy = {
   created_at?: Maybe<OrderBy>;
   deleted_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  is_deleted?: Maybe<OrderBy>;
   metadata_info?: Maybe<OrderBy>;
   qualifying_date?: Maybe<OrderBy>;
   qualifying_product?: Maybe<OrderBy>;
@@ -6391,6 +6395,8 @@ export enum CustomerSurveillanceResultsSelectColumn {
   /** column name */
   Id = "id",
   /** column name */
+  IsDeleted = "is_deleted",
+  /** column name */
   MetadataInfo = "metadata_info",
   /** column name */
   QualifyingDate = "qualifying_date",
@@ -6413,6 +6419,7 @@ export type CustomerSurveillanceResultsSetInput = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   deleted_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   metadata_info?: Maybe<Scalars["json"]>;
   qualifying_date?: Maybe<Scalars["date"]>;
   qualifying_product?: Maybe<Scalars["String"]>;
@@ -6434,6 +6441,8 @@ export enum CustomerSurveillanceResultsUpdateColumn {
   DeletedAt = "deleted_at",
   /** column name */
   Id = "id",
+  /** column name */
+  IsDeleted = "is_deleted",
   /** column name */
   MetadataInfo = "metadata_info",
   /** column name */
@@ -8280,6 +8289,7 @@ export type FinancialSummaries = {
   id: Scalars["uuid"];
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
   late_fees_accrued_today?: Maybe<Scalars["numeric"]>;
+  loans_info?: Maybe<Scalars["json"]>;
   minimum_interest_amount?: Maybe<Scalars["numeric"]>;
   minimum_interest_duration?: Maybe<Scalars["String"]>;
   minimum_interest_remaining?: Maybe<Scalars["numeric"]>;
@@ -8302,6 +8312,11 @@ export type FinancialSummaries = {
 
 /** columns and relationships of "financial_summaries" */
 export type FinancialSummariesAccountLevelBalancePayloadArgs = {
+  path?: Maybe<Scalars["String"]>;
+};
+
+/** columns and relationships of "financial_summaries" */
+export type FinancialSummariesLoansInfoArgs = {
   path?: Maybe<Scalars["String"]>;
 };
 
@@ -8428,6 +8443,7 @@ export type FinancialSummariesBoolExp = {
   id?: Maybe<UuidComparisonExp>;
   interest_accrued_today?: Maybe<NumericComparisonExp>;
   late_fees_accrued_today?: Maybe<NumericComparisonExp>;
+  loans_info?: Maybe<JsonComparisonExp>;
   minimum_interest_amount?: Maybe<NumericComparisonExp>;
   minimum_interest_duration?: Maybe<StringComparisonExp>;
   minimum_interest_remaining?: Maybe<NumericComparisonExp>;
@@ -8512,6 +8528,7 @@ export type FinancialSummariesInsertInput = {
   id?: Maybe<Scalars["uuid"]>;
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
   late_fees_accrued_today?: Maybe<Scalars["numeric"]>;
+  loans_info?: Maybe<Scalars["json"]>;
   minimum_interest_amount?: Maybe<Scalars["numeric"]>;
   minimum_interest_duration?: Maybe<Scalars["String"]>;
   minimum_interest_remaining?: Maybe<Scalars["numeric"]>;
@@ -8685,6 +8702,7 @@ export type FinancialSummariesOrderBy = {
   id?: Maybe<OrderBy>;
   interest_accrued_today?: Maybe<OrderBy>;
   late_fees_accrued_today?: Maybe<OrderBy>;
+  loans_info?: Maybe<OrderBy>;
   minimum_interest_amount?: Maybe<OrderBy>;
   minimum_interest_duration?: Maybe<OrderBy>;
   minimum_interest_remaining?: Maybe<OrderBy>;
@@ -8741,6 +8759,8 @@ export enum FinancialSummariesSelectColumn {
   /** column name */
   LateFeesAccruedToday = "late_fees_accrued_today",
   /** column name */
+  LoansInfo = "loans_info",
+  /** column name */
   MinimumInterestAmount = "minimum_interest_amount",
   /** column name */
   MinimumInterestDuration = "minimum_interest_duration",
@@ -8792,6 +8812,7 @@ export type FinancialSummariesSetInput = {
   id?: Maybe<Scalars["uuid"]>;
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
   late_fees_accrued_today?: Maybe<Scalars["numeric"]>;
+  loans_info?: Maybe<Scalars["json"]>;
   minimum_interest_amount?: Maybe<Scalars["numeric"]>;
   minimum_interest_duration?: Maybe<Scalars["String"]>;
   minimum_interest_remaining?: Maybe<Scalars["numeric"]>;
@@ -9020,6 +9041,8 @@ export enum FinancialSummariesUpdateColumn {
   InterestAccruedToday = "interest_accrued_today",
   /** column name */
   LateFeesAccruedToday = "late_fees_accrued_today",
+  /** column name */
+  LoansInfo = "loans_info",
   /** column name */
   MinimumInterestAmount = "minimum_interest_amount",
   /** column name */
@@ -20611,7 +20634,9 @@ export type PurchaseOrders = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_by?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<Scalars["String"]>;
@@ -20649,6 +20674,7 @@ export type PurchaseOrders = {
   /** An aggregate relationship */
   purchase_order_metrc_transfers_aggregate: PurchaseOrderMetrcTransfersAggregate;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_by?: Maybe<Scalars["uuid"]>;
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -20785,7 +20811,9 @@ export type PurchaseOrdersBoolExp = {
   _or?: Maybe<Array<PurchaseOrdersBoolExp>>;
   amount?: Maybe<NumericComparisonExp>;
   amount_funded?: Maybe<NumericComparisonExp>;
+  amount_updated_at?: Maybe<TimestamptzComparisonExp>;
   approved_at?: Maybe<TimestamptzComparisonExp>;
+  approved_by?: Maybe<UuidComparisonExp>;
   bank_incomplete_note?: Maybe<StringComparisonExp>;
   bank_note?: Maybe<StringComparisonExp>;
   bank_rejection_note?: Maybe<StringComparisonExp>;
@@ -20808,6 +20836,7 @@ export type PurchaseOrdersBoolExp = {
   purchase_order_files?: Maybe<PurchaseOrderFilesBoolExp>;
   purchase_order_metrc_transfers?: Maybe<PurchaseOrderMetrcTransfersBoolExp>;
   rejected_at?: Maybe<TimestamptzComparisonExp>;
+  rejected_by?: Maybe<UuidComparisonExp>;
   rejection_note?: Maybe<StringComparisonExp>;
   requested_at?: Maybe<TimestamptzComparisonExp>;
   status?: Maybe<RequestStatusEnumComparisonExp>;
@@ -20835,7 +20864,9 @@ export type PurchaseOrdersInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_by?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<Scalars["String"]>;
@@ -20863,6 +20894,7 @@ export type PurchaseOrdersInsertInput = {
   purchase_order_files?: Maybe<PurchaseOrderFilesArrRelInsertInput>;
   purchase_order_metrc_transfers?: Maybe<PurchaseOrderMetrcTransfersArrRelInsertInput>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_by?: Maybe<Scalars["uuid"]>;
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -20877,7 +20909,9 @@ export type PurchaseOrdersMaxFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_by?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<Scalars["String"]>;
@@ -20896,6 +20930,7 @@ export type PurchaseOrdersMaxFields = {
   order_date?: Maybe<Scalars["date"]>;
   order_number?: Maybe<Scalars["String"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_by?: Maybe<Scalars["uuid"]>;
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -20908,7 +20943,9 @@ export type PurchaseOrdersMaxOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
+  approved_by?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<OrderBy>;
@@ -20927,6 +20964,7 @@ export type PurchaseOrdersMaxOrderBy = {
   order_date?: Maybe<OrderBy>;
   order_number?: Maybe<OrderBy>;
   rejected_at?: Maybe<OrderBy>;
+  rejected_by?: Maybe<OrderBy>;
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
@@ -20939,7 +20977,9 @@ export type PurchaseOrdersMinFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_by?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<Scalars["String"]>;
@@ -20958,6 +20998,7 @@ export type PurchaseOrdersMinFields = {
   order_date?: Maybe<Scalars["date"]>;
   order_number?: Maybe<Scalars["String"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_by?: Maybe<Scalars["uuid"]>;
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -20970,7 +21011,9 @@ export type PurchaseOrdersMinOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
+  approved_by?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<OrderBy>;
@@ -20989,6 +21032,7 @@ export type PurchaseOrdersMinOrderBy = {
   order_date?: Maybe<OrderBy>;
   order_number?: Maybe<OrderBy>;
   rejected_at?: Maybe<OrderBy>;
+  rejected_by?: Maybe<OrderBy>;
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
@@ -21022,7 +21066,9 @@ export type PurchaseOrdersOnConflict = {
 export type PurchaseOrdersOrderBy = {
   amount?: Maybe<OrderBy>;
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
+  approved_by?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
   bank_note?: Maybe<OrderBy>;
   bank_rejection_note?: Maybe<OrderBy>;
@@ -21045,6 +21091,7 @@ export type PurchaseOrdersOrderBy = {
   purchase_order_files_aggregate?: Maybe<PurchaseOrderFilesAggregateOrderBy>;
   purchase_order_metrc_transfers_aggregate?: Maybe<PurchaseOrderMetrcTransfersAggregateOrderBy>;
   rejected_at?: Maybe<OrderBy>;
+  rejected_by?: Maybe<OrderBy>;
   rejection_note?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
   status?: Maybe<OrderBy>;
@@ -21065,7 +21112,11 @@ export enum PurchaseOrdersSelectColumn {
   /** column name */
   AmountFunded = "amount_funded",
   /** column name */
+  AmountUpdatedAt = "amount_updated_at",
+  /** column name */
   ApprovedAt = "approved_at",
+  /** column name */
+  ApprovedBy = "approved_by",
   /** column name */
   BankIncompleteNote = "bank_incomplete_note",
   /** column name */
@@ -21103,6 +21154,8 @@ export enum PurchaseOrdersSelectColumn {
   /** column name */
   RejectedAt = "rejected_at",
   /** column name */
+  RejectedBy = "rejected_by",
+  /** column name */
   RejectionNote = "rejection_note",
   /** column name */
   RequestedAt = "requested_at",
@@ -21119,7 +21172,9 @@ export type PurchaseOrdersSetInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_by?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
   /** Comment left on purchase order by bank user for bank user */
   bank_note?: Maybe<Scalars["String"]>;
@@ -21143,6 +21198,7 @@ export type PurchaseOrdersSetInput = {
   order_date?: Maybe<Scalars["date"]>;
   order_number?: Maybe<Scalars["String"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_by?: Maybe<Scalars["uuid"]>;
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -21222,7 +21278,11 @@ export enum PurchaseOrdersUpdateColumn {
   /** column name */
   AmountFunded = "amount_funded",
   /** column name */
+  AmountUpdatedAt = "amount_updated_at",
+  /** column name */
   ApprovedAt = "approved_at",
+  /** column name */
+  ApprovedBy = "approved_by",
   /** column name */
   BankIncompleteNote = "bank_incomplete_note",
   /** column name */
@@ -21259,6 +21319,8 @@ export enum PurchaseOrdersUpdateColumn {
   OrderNumber = "order_number",
   /** column name */
   RejectedAt = "rejected_at",
+  /** column name */
+  RejectedBy = "rejected_by",
   /** column name */
   RejectionNote = "rejection_note",
   /** column name */
@@ -26708,6 +26770,18 @@ export type GetCustomersSurveillanceByCompanyIdQuery = {
   customer?: Maybe<Pick<Companies, "id"> & CustomerSurveillanceFragment>;
 };
 
+export type GetSurveillanceResultByIdQueryVariables = Exact<{
+  surveillance_result_id: Scalars["uuid"];
+}>;
+
+export type GetSurveillanceResultByIdQuery = {
+  surveillance_result?: Maybe<
+    Pick<CustomerSurveillanceResults, "id"> & {
+      submitting_user: Pick<Users, "id" | "first_name" | "last_name">;
+    } & CustomerSurveillanceResultFragment
+  >;
+};
+
 export type GetOpenLoansByDebtFacilityStatusesSubscriptionVariables = Exact<{
   statuses?: Maybe<Array<Scalars["String"]>>;
 }>;
@@ -29698,11 +29772,27 @@ export const CustomerSurveillanceFragmentDoc = gql`
       amount
     }
     target_surveillance_result: customer_surveillance_results(
-      where: { qualifying_date: { _eq: $target_date } }
+      where: {
+        _and: [
+          { qualifying_date: { _eq: $target_date } }
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+        ]
+      }
     ) {
       ...CustomerSurveillanceResult
     }
     all_surveillance_results: customer_surveillance_results(
+      where: {
+        _or: [
+          { is_deleted: { _is_null: true } }
+          { is_deleted: { _eq: false } }
+        ]
+      }
       order_by: { qualifying_date: desc }
     ) {
       ...CustomerSurveillanceResult
@@ -29710,12 +29800,7 @@ export const CustomerSurveillanceFragmentDoc = gql`
     most_recent_borrowing_base: ebba_applications(
       limit: 1
       order_by: [{ application_date: desc }, { created_at: desc }]
-      where: {
-        _and: [
-          { status: { _eq: approved } }
-          { category: { _eq: "borrowing_base" } }
-        ]
-      }
+      where: { _and: [{ category: { _eq: "borrowing_base" } }] }
     ) {
       id
       ...EbbaApplication
@@ -29723,12 +29808,7 @@ export const CustomerSurveillanceFragmentDoc = gql`
     most_recent_financial_report: ebba_applications(
       limit: 1
       order_by: [{ application_date: desc }, { created_at: desc }]
-      where: {
-        _and: [
-          { status: { _eq: approved } }
-          { category: { _eq: "financial_report" } }
-        ]
-      }
+      where: { _and: [{ category: { _eq: "financial_report" } }] }
     ) {
       id
       ...EbbaApplication
@@ -32168,6 +32248,71 @@ export type GetCustomersSurveillanceByCompanyIdLazyQueryHookResult = ReturnType<
 export type GetCustomersSurveillanceByCompanyIdQueryResult = Apollo.QueryResult<
   GetCustomersSurveillanceByCompanyIdQuery,
   GetCustomersSurveillanceByCompanyIdQueryVariables
+>;
+export const GetSurveillanceResultByIdDocument = gql`
+  query GetSurveillanceResultById($surveillance_result_id: uuid!) {
+    surveillance_result: customer_surveillance_results_by_pk(
+      id: $surveillance_result_id
+    ) {
+      id
+      ...CustomerSurveillanceResult
+      submitting_user {
+        id
+        first_name
+        last_name
+      }
+    }
+  }
+  ${CustomerSurveillanceResultFragmentDoc}
+`;
+
+/**
+ * __useGetSurveillanceResultByIdQuery__
+ *
+ * To run a query within a React component, call `useGetSurveillanceResultByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSurveillanceResultByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSurveillanceResultByIdQuery({
+ *   variables: {
+ *      surveillance_result_id: // value for 'surveillance_result_id'
+ *   },
+ * });
+ */
+export function useGetSurveillanceResultByIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetSurveillanceResultByIdQuery,
+    GetSurveillanceResultByIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetSurveillanceResultByIdQuery,
+    GetSurveillanceResultByIdQueryVariables
+  >(GetSurveillanceResultByIdDocument, baseOptions);
+}
+export function useGetSurveillanceResultByIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetSurveillanceResultByIdQuery,
+    GetSurveillanceResultByIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetSurveillanceResultByIdQuery,
+    GetSurveillanceResultByIdQueryVariables
+  >(GetSurveillanceResultByIdDocument, baseOptions);
+}
+export type GetSurveillanceResultByIdQueryHookResult = ReturnType<
+  typeof useGetSurveillanceResultByIdQuery
+>;
+export type GetSurveillanceResultByIdLazyQueryHookResult = ReturnType<
+  typeof useGetSurveillanceResultByIdLazyQuery
+>;
+export type GetSurveillanceResultByIdQueryResult = Apollo.QueryResult<
+  GetSurveillanceResultByIdQuery,
+  GetSurveillanceResultByIdQueryVariables
 >;
 export const GetOpenLoansByDebtFacilityStatusesDocument = gql`
   subscription GetOpenLoansByDebtFacilityStatuses($statuses: [String!]) {

@@ -411,6 +411,7 @@ class CustomerSurveillanceResult(Base):
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	deleted_at = Column(DateTime)
+	is_deleted = Column(Boolean)
 
 class DebtFacility(Base):
 	__tablename__ = "debt_facilities"

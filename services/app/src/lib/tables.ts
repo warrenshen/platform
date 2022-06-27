@@ -24,6 +24,7 @@ export const ColumnWidths = {
   UserRole: 200,
 
   Actions: 75,
+  IconButton: 50,
 
   // Variable width columns (customer name, purchase order number, etc).
   MinWidth: 160,

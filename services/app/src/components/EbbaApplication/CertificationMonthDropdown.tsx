@@ -19,6 +19,7 @@ interface Props {
   isAnnotationDisplayed?: boolean;
   isDisabled?: boolean;
   isRequired?: boolean;
+  isNoneTheDefault?: boolean;
   certificationDateOptions: CertificationOption[];
   initialValue: string;
   onChange: (event: any, newValue: any) => void;
@@ -33,15 +34,25 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
+export const NoneOption: CertificationOption = {
+  certificationDate: "None",
+  isOptionDisabled: false,
+};
+
 export default function CertificationMonthDropdown({
   isAnnotationDisplayed = false,
   isDisabled = false,
   isRequired = true,
+  isNoneTheDefault = false,
   certificationDateOptions,
   initialValue,
   onChange,
 }: Props) {
   const classes = useStyles();
+
+  const finalOptions = !!isNoneTheDefault
+    ? [NoneOption, ...certificationDateOptions]
+    : certificationDateOptions;
 
   return (
     <Box>
@@ -56,23 +67,23 @@ export default function CertificationMonthDropdown({
           value={initialValue}
           onChange={onChange}
         >
-          {certificationDateOptions.map(
-            ({ certificationDate, isOptionDisabled }) => (
-              <MenuItem
-                key={certificationDate}
-                disabled={isOptionDisabled}
-                value={certificationDate}
-              >
-                {!!isAnnotationDisplayed
-                  ? `${formatDateStringAsMonth(
-                      certificationDate
-                    )}: submit financial report as of ${formatDateString(
-                      certificationDate
-                    )}`
-                  : `${formatDateStringAsMonth(certificationDate)}`}
-              </MenuItem>
-            )
-          )}
+          {finalOptions.map(({ certificationDate, isOptionDisabled }) => (
+            <MenuItem
+              key={certificationDate}
+              disabled={isOptionDisabled}
+              value={certificationDate}
+            >
+              {certificationDate === NoneOption.certificationDate
+                ? certificationDate
+                : !!isAnnotationDisplayed
+                ? `${formatDateStringAsMonth(
+                    certificationDate
+                  )}: submit financial report as of ${formatDateString(
+                    certificationDate
+                  )}`
+                : `${formatDateStringAsMonth(certificationDate)}`}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
     </Box>

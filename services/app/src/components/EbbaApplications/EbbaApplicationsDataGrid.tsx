@@ -12,7 +12,12 @@ import {
   GetOpenEbbaApplicationsByCategoryQuery,
   RequestStatusEnum,
 } from "generated/graphql";
-import { BankEbbaTabLabel, CustomerSurveillanceCategoryEnum } from "lib/enum";
+import {
+  BankEbbaTabLabel,
+  CustomerSurveillanceCategoryEnum,
+  ProductTypeEnum,
+  ProductTypeToLabel,
+} from "lib/enum";
 import { formatCurrency } from "lib/number";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ColumnWidths } from "lib/tables";
@@ -55,24 +60,34 @@ export default function EbbaApplicationsDataGrid({
 
   const rows = useMemo(
     () =>
-      ebbaApplications.map((ebbaApplication) => ({
-        ...ebbaApplication,
-        calculated_borrowing_base: formatCurrency(
-          ebbaApplication.calculated_borrowing_base
-        ),
-        category:
-          ebbaApplication.category ===
-          CustomerSurveillanceCategoryEnum.BorrowingBase
-            ? BankEbbaTabLabel.BorrowingBase
-            : BankEbbaTabLabel.FinancialReports,
-        company_name: ebbaApplication.company?.name,
-        expiration_date: ebbaApplication.expires_date,
-        submitted_by_name: ebbaApplication.submitted_by_user?.full_name,
-        amount_custom_note: ebbaApplication.amount_custom_note || "-",
-        amount_custom: ebbaApplication.amount_custom || "-",
-      })),
+      ebbaApplications.map((ebbaApplication) => {
+        const productType = !!ebbaApplication?.company?.contract?.product_type
+          ? ProductTypeToLabel[
+              ebbaApplication.company.contract.product_type as ProductTypeEnum
+            ]
+          : null;
+
+        return {
+          ...ebbaApplication,
+          calculated_borrowing_base: formatCurrency(
+            ebbaApplication.calculated_borrowing_base
+          ),
+          category:
+            ebbaApplication.category ===
+            CustomerSurveillanceCategoryEnum.BorrowingBase
+              ? BankEbbaTabLabel.BorrowingBase
+              : BankEbbaTabLabel.FinancialReports,
+          company_name: ebbaApplication.company?.name,
+          expiration_date: ebbaApplication.expires_date,
+          submitted_by_name: ebbaApplication.submitted_by_user?.full_name,
+          amount_custom_note: ebbaApplication.amount_custom_note || "-",
+          amount_custom: ebbaApplication.amount_custom || "-",
+          product_type: productType,
+        };
+      }),
     [ebbaApplications]
   );
+
   const columns = useMemo(
     () => [
       {
@@ -110,6 +125,38 @@ export default function EbbaApplicationsDataGrid({
         caption: "Certification Type",
         width: ColumnWidths.Status,
       },
+      // {
+      //   dataField: "product_type",
+      //   caption: "Current Product",
+      //   alignment: "center",
+      //   width: ColumnWidths.Status,
+      //   allowGrouping: true,
+      //   lookup: {
+      //     dataSource: {
+      //       store: {
+      //         type: "array",
+      //         data: [
+      //           {
+      //             key: "product_type",
+      //             label: "Dispensary",
+      //             items: df,
+      //           },
+      //           {
+      //             key: "product_type",
+      //             label: "Non-Dispensary",
+      //             items: nonDF,
+      //           },
+      //         ]
+      //       }
+      //     },
+      //     group: "is_dispensary",
+      //     valueExpr: "product_type",
+      //     displayExpr: "label",
+      //   },
+      //   cellRender: (params: ValueFormatterParams) => {
+      //     return (<>{ params.row.data.product_type }</>);
+      //   }
+      // },
       {
         dataField: "status",
         caption: "Status",
@@ -267,6 +314,7 @@ export default function EbbaApplicationsDataGrid({
         isExcelExport={isExcelExport}
         pager
         select={isMultiSelectEnabled}
+        filtering={{ enable: true }}
         dataSource={rows}
         columns={columns}
         selectedRowKeys={selectedEbbaApplicationIds}

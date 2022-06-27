@@ -1,6 +1,8 @@
-import { Button } from "@material-ui/core";
+import { Box, Button, IconButton } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import CommentIcon from "@material-ui/icons/Comment";
+import DeleteIcon from "@material-ui/icons/Delete";
+import DeleteSurveillanceResultModal from "components/CustomerSurveillance/DeleteSurveillanceResultModal";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import {
   CustomerSurveillanceResultFragment,
@@ -13,7 +15,7 @@ import {
   SurveillanceStatusToLabel,
 } from "lib/enum";
 import { ColumnWidths, formatRowModel } from "lib/tables";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 interface Props {
   surveillanceResults: CustomerSurveillanceResultFragment[];
@@ -42,6 +44,9 @@ export default function CustomerSurveillanceResultDataGrid({
   surveillanceResults,
   handleClickBankNote,
 }: Props) {
+  const [surveillanceResultId, setSurveillanceResultId] =
+    useState<CustomerSurveillanceResults["id"]>(null);
+
   const rows = useMemo(
     () => getRows(surveillanceResults),
     [surveillanceResults]
@@ -49,6 +54,23 @@ export default function CustomerSurveillanceResultDataGrid({
 
   const columns = useMemo(
     () => [
+      {
+        // purposefully blank caption
+        width: ColumnWidths.IconButton,
+        cellRender: (params: ValueFormatterParams) => (
+          <Box>
+            <IconButton
+              onClick={() => {
+                setSurveillanceResultId(params.row.data.id);
+              }}
+              color={"primary"}
+              size={"small"}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Box>
+        ),
+      },
       {
         dataField: "qualifying_date",
         caption: "Surveillance Date",
@@ -90,10 +112,20 @@ export default function CustomerSurveillanceResultDataGrid({
   );
 
   return (
-    <ControlledDataGrid
-      isExcelExport={false}
-      dataSource={rows}
-      columns={columns}
-    />
+    <>
+      {!!surveillanceResultId && (
+        <DeleteSurveillanceResultModal
+          surveillanceResultId={surveillanceResultId}
+          handleClose={() => {
+            setSurveillanceResultId(null);
+          }}
+        />
+      )}
+      <ControlledDataGrid
+        isExcelExport={false}
+        dataSource={rows}
+        columns={columns}
+      />
+    </>
   );
 }

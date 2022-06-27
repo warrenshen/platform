@@ -77,11 +77,27 @@ fragment CustomerSurveillance on companies {
     amount
   }
   target_surveillance_result: customer_surveillance_results(
-    where: { qualifying_date: { _eq: $target_date } }
+    where: { 
+      _and: [
+        { qualifying_date: { _eq: $target_date } }
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+      ]
+    }
   ) {
     ...CustomerSurveillanceResult
   }
   all_surveillance_results: customer_surveillance_results(
+    where: {
+      _or: [
+        { is_deleted: { _is_null: true } }
+        { is_deleted: { _eq: false } }
+      ]
+    }
     order_by: { qualifying_date: desc }
   ) {
     ...CustomerSurveillanceResult
@@ -91,7 +107,6 @@ fragment CustomerSurveillance on companies {
     order_by: [{ application_date: desc }, { created_at: desc }]
     where: { 
       _and: [
-        { status: { _eq: approved } }
         { category: { _eq: "borrowing_base" } }
       ]
     }
@@ -104,7 +119,6 @@ fragment CustomerSurveillance on companies {
     order_by: [{ application_date: desc }, { created_at: desc }]
     where: { 
       _and: [
-        { status: { _eq: approved } }
         { category: { _eq: "financial_report" } }
       ]
     }
