@@ -85,11 +85,16 @@ def find_mature_loans_without_open_repayments(
 ) -> Tuple[ Dict[str, List[models.Loan]], errors.Error ]:
 	# We are getting the nearest (future-facing) business day
 	# to account for the payment arriving and settling -on- the
-	# maturity date, not a day after
-	target_maturity_date = date_util.get_nearest_business_day(
-		today_date + datetime.timedelta(days = 1),
-		preceeding = False,
-	)
+	# maturity date, not a day after, 
+	#
+	# We need the for loop to push forward 2 business days, one 
+	# for the above and the other to account for the day needed
+	# to process reverse draft aches. If we just set days = 2 in
+	# a single call, it runs into issues with weekends and holidays
+	target_maturity_date = date_util.add_biz_days(
+			today_date, 
+			days_to_add = 2
+		)
 
 	loans, err = queries.get_open_mature_loans_for_target_customers(
 		session,

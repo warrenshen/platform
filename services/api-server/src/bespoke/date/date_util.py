@@ -233,3 +233,12 @@ def get_last_day_of_month_date(date_str: str) -> datetime.date:
 	chosen_date = load_date_str(date_str)
 	last_day_of_month = calendar.monthrange(chosen_date.year, chosen_date.month)[1]
 	return datetime.date(chosen_date.year, chosen_date.month, last_day_of_month)
+
+def add_biz_days(date: datetime.date, days_to_add: int = 1) -> datetime.date:
+	for i in range(days_to_add):
+		date = get_nearest_business_day(
+			date + datetime.timedelta(days = 1), 
+			preceeding = False,
+		)
+
+	return date

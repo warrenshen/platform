@@ -283,6 +283,15 @@ class TestFindMatureLoansWithoutOpenRepayments(db_unittest.TestCase):
 				identifier = "TC",
 			))
 
+		# covers the case of the loan maturing on the next business day
+		# we pull adjusted maturity date out into its own variable so
+		# that the immature loan can use it to account for weekends
+		# and holidays in its setup calculation
+		target_adjusted_maturity_date = date_util.add_biz_days(
+			target_date, 
+			days_to_add = 2
+		)
+
 		loan_ids = []
 		if setup_loans:
 			for i in range(len(customer_ids)):
@@ -298,21 +307,13 @@ class TestFindMatureLoansWithoutOpenRepayments(db_unittest.TestCase):
 				)
 				session.add(mature_loan)
 
-				# covers the case of the loan maturing on the next business day
-				# we pull adjusted maturity date out into its own variable so
-				# that the immature loan can use it to account for weekends
-				# and holidays in its setup calculation
-				target_adjusted_maturity_date = date_util.get_nearest_business_day(
-					get_relative_date(target_date, 1), 
-					preceeding = False,
-				)
 				maturing_loan = models.Loan( # type: ignore
 					id = uuid.uuid4(),
 					company_id = customer_ids[i],
 					amount = Decimal(10000.00 * i),
 					approved_at = get_relative_date(TODAY, -92),
 					origination_date = get_relative_date(TODAY_DATE, -90),
-					maturity_date = get_relative_date(target_date, 1),
+					maturity_date = target_adjusted_maturity_date,
 					adjusted_maturity_date = target_adjusted_maturity_date,
 				)
 				session.add(maturing_loan)
@@ -324,7 +325,7 @@ class TestFindMatureLoansWithoutOpenRepayments(db_unittest.TestCase):
 					amount = Decimal(700.00 * i),
 					approved_at = get_relative_date(TODAY, -92),
 					origination_date = get_relative_date(TODAY_DATE, -90),
-					maturity_date = get_relative_date(target_date, 2),
+					maturity_date = target_adjusted_maturity_date,
 					adjusted_maturity_date = date_util.get_nearest_business_day(
 						get_relative_date(target_adjusted_maturity_date, 1), 
 						preceeding = False
@@ -352,10 +353,7 @@ class TestFindMatureLoansWithoutOpenRepayments(db_unittest.TestCase):
 					requested_payment_date = target_date,
 					payment_date = target_date,
 					deposit_date = target_date,
-					settlement_date = date_util.get_nearest_business_day(
-						get_relative_date(target_date, 1), 
-						preceeding = False
-					),
+					settlement_date = target_adjusted_maturity_date,
 					items_covered = {},
 					company_bank_account_id = str(uuid.uuid4()),
 					recipient_bank_account_id = str(uuid.uuid4()),
@@ -383,10 +381,7 @@ class TestFindMatureLoansWithoutOpenRepayments(db_unittest.TestCase):
 					to_principal = Decimal(5000.0),
 					to_interest = Decimal(500.0),
 					to_fees = Decimal(100.0),
-					effective_date = date_util.get_nearest_business_day(
-						get_relative_date(target_date, 1), 
-						preceeding = False
-					),
+					effective_date = target_adjusted_maturity_date,
 					created_by_user_id = str(uuid.uuid4()),
 					is_deleted = False
 				))
