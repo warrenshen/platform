@@ -12,6 +12,15 @@ UserPayloadDict = TypedDict('UserPayloadDict', {
 	'X-Hasura-Company-Id': str,
 })
 
+UserImpersonatorPayloadDict = TypedDict('UserImpersonatorPayloadDict', {
+	'X-Hasura-User-Id': str,
+	'X-Hasura-Default-Role': str,
+	'X-Hasura-Allowed-Roles': List[str],
+	'X-Hasura-Parent-Company-Id': str,
+	'X-Hasura-Company-Id': str,
+	'X-Hasura-Impersonator-User-Id': str,
+})
+
 class UserSession(object):
 
 	def __init__(self, payload: UserPayloadDict) -> None:

@@ -21,27 +21,23 @@ query GetActiveUsersByRoles($roles: [user_roles_enum!]!) {
   ) {
     id
     ...User
+    company {
+      id
+      name
+    }
   }
 }
 
 query GetDeactivedUsersByRoles($roles: [user_roles_enum!]!) {
   users(
-    where: {
-      _and: [
-        { is_deleted: { _eq: true } }
-        { role: { _in: $roles } }
-      ]
-    }
+    where: { _and: [{ is_deleted: { _eq: true } }, { role: { _in: $roles } }] }
   ) {
     id
     ...User
   }
 }
 
-query GetUsersForCompany(
-  $parent_company_id: uuid!,
-  $company_id: uuid!,
-) {
+query GetUsersForCompany($parent_company_id: uuid!, $company_id: uuid!) {
   users(
     where: {
       _and: [
@@ -66,8 +62,8 @@ query GetUsersForCompany(
 }
 
 query GetDeactivatedUsersForCompany(
-  $parent_company_id: uuid!,
-  $company_id: uuid!,
+  $parent_company_id: uuid!
+  $company_id: uuid!
 ) {
   users(
     where: {

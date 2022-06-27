@@ -2,6 +2,7 @@ import { Box, Theme, createStyles, makeStyles } from "@material-ui/core";
 import CreateUpdateBankAccountModal from "components/BankAccount/CreateUpdateBankAccountModal";
 import DeleteBankAccountModal from "components/BankAccount/DeleteBankAccountModal";
 import BankAccountsDataGrid from "components/BankAccounts/BankAccountsDataGrid";
+import ImpersonateBankUsersArea from "components/Settings/ImpersonateBankUserArea";
 import ManageBankUsersArea from "components/Settings/ManageBankUsersArea";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
@@ -145,6 +146,10 @@ export default function BankSettingsPage() {
         <Box className={classes.sectionSpace} />
         <Box className={classes.section}>
           <ManageBankUsersArea />
+        </Box>
+        <Box className={classes.sectionSpace} />
+        <Box className={classes.section}>
+          <ImpersonateBankUsersArea />
         </Box>
       </PageContent>
     </Page>

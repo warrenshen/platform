@@ -4,6 +4,8 @@ import { getAccessToken } from "lib/auth/tokenStorage";
 export const authRoutes = {
   signIn: "/auth/sign-in",
   forgotPassword: "/auth/forgot-password",
+  impersonateUser: "/auth/impersonate_user",
+  undoImpersonation: "/auth/undo_impersonation",
   resetPassword: "/auth/reset-password",
   refreshToken: "/auth/token/refresh",
   revokeAccessToken: "/auth/sign-out/access",

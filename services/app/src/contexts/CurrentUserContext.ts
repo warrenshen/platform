@@ -15,6 +15,7 @@ export type User = {
   companyId: Users["company_id"] | null;
   role: UserRolesEnum;
   productType: ProductTypeEnum | null;
+  impersonator_user_id: Users["id"] | null;
 };
 
 export type CurrentUserContextType = {
@@ -27,6 +28,8 @@ export type CurrentUserContextType = {
     password: string,
     handleSuccess: (successUrl: string) => void
   ) => void;
+  undoImpersonation: () => Promise<string | void>;
+  impersonateUser: (userId: User["id"]) => Promise<string | void>;
   signOut: () => void;
 };
 
@@ -36,6 +39,7 @@ export const BlankUser = {
   companyId: null,
   role: UserRolesEnum.CompanyAdmin,
   productType: null,
+  impersonator_user_id: null,
 };
 
 export const CurrentUserContext = createContext<CurrentUserContextType>({
@@ -43,6 +47,8 @@ export const CurrentUserContext = createContext<CurrentUserContextType>({
   isSignedIn: false,
   resetUser: () => {},
   setUserProductType: () => {},
+  undoImpersonation: () => Promise.resolve(),
+  impersonateUser: () => Promise.resolve(),
   signIn: () => {},
   signOut: () => {},
 });

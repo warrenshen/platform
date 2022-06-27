@@ -4,6 +4,7 @@ import {
   BlankUser,
   CurrentUserContext,
   User,
+  isRoleBankUser,
 } from "contexts/CurrentUserContext";
 import JwtDecode from "jwt-decode";
 import { authRoutes, authenticatedApi, unAuthenticatedApi } from "lib/api";
@@ -17,9 +18,11 @@ import {
 } from "lib/auth/tokenStorage";
 import { ProductTypeEnum } from "lib/enum";
 import { routes } from "lib/routes";
+import { validUUIDOrDefault } from "lib/uuid";
 import { ReactNode, useCallback, useEffect, useState } from "react";
 
 const JWT_CLAIMS_KEY = "https://hasura.io/jwt/claims";
+
 function userFieldsFromToken(token: string) {
   const decodedToken: any = JwtDecode(token);
   const claims = decodedToken[JWT_CLAIMS_KEY];
@@ -27,18 +30,13 @@ function userFieldsFromToken(token: string) {
   // "X-Hasura-User-Id" equals "" for anonymous users.
   // "X-Hasura-Company-Id" equals "" or "None" for bank users.
   return {
-    id: claims["X-Hasura-User-Id"] || null,
-    parentCompanyId:
-      claims["X-Hasura-Parent-Company-Id"] !== "" &&
-      claims["X-Hasura-Parent-Company-Id"] !== "None"
-        ? claims["X-Hasura-Parent-Company-Id"]
-        : null,
-    companyId:
-      claims["X-Hasura-Company-Id"] !== "" &&
-      claims["X-Hasura-Company-Id"] !== "None"
-        ? claims["X-Hasura-Company-Id"]
-        : null,
+    id: validUUIDOrDefault(claims["X-Hasura-User-Id"]),
+    parentCompanyId: validUUIDOrDefault(claims["X-Hasura-Parent-Company-Id"]),
+    companyId: validUUIDOrDefault(claims["X-Hasura-Company-Id"]),
     role: claims["X-Hasura-Default-Role"],
+    impersonator_user_id: validUUIDOrDefault(
+      claims["X-Hasura-Impersonator-User-Id"]
+    ),
   };
 }
 
@@ -122,9 +120,8 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
     }
   }, []);
 
-  useEffect(() => {
-    async function setUserFromAccessToken() {
-      const accessToken = await getAccessToken();
+  const setUserFromAccessToken = useCallback(
+    (accessToken: string | null) => {
       if (accessToken) {
         const userFields = userFieldsFromToken(accessToken);
         // If JWT companyId is set but parentCompanyId is not, JWT is invalid (deprecated format).
@@ -139,11 +136,68 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
         }
       }
       setIsTokenLoaded(true);
+    },
+    [signOut]
+  );
+
+  const impersonateUser = async (userId: User["id"]) => {
+    if (!isRoleBankUser(user?.role)) {
+      return "Access Denied";
     }
+
+    const token = await getAccessToken();
+
+    const response = await authenticatedApi.post(
+      authRoutes.impersonateUser,
+      {
+        impersonated_user_id: userId,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (response.data?.status === "ERROR") {
+      return response.data.msg;
+    }
+    setAccessToken(response.data?.access_token);
+    setRefreshToken(response.data?.refresh_token);
+    setUserFromAccessToken(response.data?.access_token);
+  };
+
+  const undoImpersonation = async (): Promise<string | void> => {
+    const token = await getAccessToken();
+
+    const response = await authenticatedApi.post(
+      authRoutes.undoImpersonation,
+      {
+        impersonator_user_id: user.impersonator_user_id,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (response.data?.status === "ERROR") {
+      return response.data.msg;
+    }
+    setAccessToken(response.data.access_token);
+    setUserFromAccessToken(response.data.access_token);
+  };
+
+  useEffect(() => {
     if (isTokenLoaded === false) {
-      setUserFromAccessToken();
+      async function callGetAccessToken() {
+        const accessToken = await getAccessToken();
+
+        setUserFromAccessToken(accessToken);
+      }
+      callGetAccessToken();
     }
-  }, [isTokenLoaded, signOut]);
+  }, [isTokenLoaded, signOut, setUserFromAccessToken]);
 
   return isTokenLoaded ? (
     <CurrentUserContext.Provider
@@ -152,6 +206,8 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
         isSignedIn,
         resetUser,
         setUserProductType,
+        undoImpersonation,
+        impersonateUser,
         signIn,
         signOut,
       }}

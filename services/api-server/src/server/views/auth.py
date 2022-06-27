@@ -10,7 +10,7 @@ from bespoke.security import security_util, two_factor_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from flask_jwt_extended import (create_access_token, create_refresh_token,
-                                get_jwt_identity, get_raw_jwt,
+                                get_jwt_identity, get_raw_jwt, jwt_required,
                                 jwt_refresh_token_required)
 from server.config import Config
 from server.views.common import auth_util, handler_util, session_util
@@ -270,8 +270,8 @@ class TokenRefreshView(MethodView):
 
 	@jwt_refresh_token_required
 	def post(self) -> Response:
-		cur_user = get_jwt_identity()
-		user_session = session_util.UserSession(cur_user)
+		current_user = get_jwt_identity()
+		user_session = session_util.UserSession(current_user)
 		
 		with session_scope(current_app.session_maker) as session:
 			existing_user = session.query(models.User).filter(
@@ -284,11 +284,83 @@ class TokenRefreshView(MethodView):
 			if existing_user.is_deleted:
 				return handler_util.make_error_response('Access Denied')
 
-		access_token = create_access_token(identity=cur_user)
+		access_token = create_access_token(identity=current_user)
 		return make_response(json.dumps({
 			'status': 'OK',
 			'access_token': access_token
 		}), 200)
+
+class ImpersonateUserView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@jwt_required
+	def post(self) -> Response:
+		cur_user = get_jwt_identity()
+		data = json.loads(request.data)
+		impersonated_user_id = data['impersonated_user_id']
+		user_session = session_util.UserSession(cur_user)
+
+		with session_scope(current_app.session_maker) as session:
+			impersonator_user = cast(models.User, session.query(models.User).filter(
+				models.User.id == user_session.get_user_id()
+			).first())
+			impersonated_user =  cast(models.User, session.query(models.User).filter(
+				models.User.id == impersonated_user_id
+			).first())
+
+			if not impersonator_user:
+				return handler_util.make_error_response('Impersonator user not found')
+
+			if not impersonated_user:
+				return handler_util.make_error_response('Impersonated user not found')
+
+			if impersonator_user.is_deleted:
+				return handler_util.make_error_response('Access Denied to impersonator user')
+
+			if impersonated_user.is_deleted:
+				return handler_util.make_error_response('Access Denied to impersonated user')
+
+			claims_payload = auth_util.get_impersonator_claims_payload(
+				user=impersonated_user,
+				role=impersonated_user.role,
+				impersonator_user_id=impersonator_user.id,
+				company_id=impersonated_user.company_id,
+			)
+			access_token = create_access_token(identity=claims_payload)
+			refresh_token = create_refresh_token(identity=claims_payload)
+			return make_response(json.dumps({
+				'status': 'OK',
+				'access_token': access_token,
+				'refresh_token': refresh_token
+			}), 200)
+
+class UndoImpersonationView(MethodView):
+	@jwt_required
+	def post(self) -> Response:
+		data = json.loads(request.data)
+		impersonator_user_id = data['impersonator_user_id']
+
+		with session_scope(current_app.session_maker) as session:
+			impersonator_user = session.query(models.User).filter(
+				models.User.id == impersonator_user_id
+			).first()
+
+			if not impersonator_user:
+				return handler_util.make_error_response('Impersonator user not found')
+
+			if impersonator_user.is_deleted:
+				return handler_util.make_error_response('Access Denied to impersonator user')
+
+			claims_payload = auth_util.get_claims_payload(
+				user=impersonator_user,
+				role=impersonator_user.role,
+				company_id=impersonator_user.company_id,
+			)
+			access_token = create_access_token(identity=claims_payload)
+			return make_response(json.dumps({
+				'status': 'OK',
+				'access_token': access_token
+			}), 200)
 
 class SwitchLocationView(MethodView):
 
@@ -299,6 +371,7 @@ class SwitchLocationView(MethodView):
 		
 		data = json.loads(request.data)
 		company_id = data['company_id']
+		impersonator_user_id = data['impersonator_user_id']
 
 		user = None
 		claims_payload = None
@@ -336,9 +409,10 @@ class SwitchLocationView(MethodView):
 				return handler_util.make_error_response('Access Denied')
 
 			user = existing_user
-			claims_payload = auth_util.get_claims_payload(
+			claims_payload = auth_util.get_impersonator_claims_payload(
 				user=user,
 				role=user.role,
+				impersonator_user_id=impersonator_user_id,
 				company_id=company_id,
 			)
 
@@ -356,6 +430,12 @@ class SwitchLocationView(MethodView):
 
 handler.add_url_rule(
 	'/sign-in', view_func=SignInView.as_view(name='sign_in_view'))
+
+handler.add_url_rule(
+	'/impersonate_user', view_func=ImpersonateUserView.as_view(name='impersonate_user_view'))
+
+handler.add_url_rule(
+	'/undo_impersonation', view_func=UndoImpersonationView.as_view(name='undo_impersonation_view'))
 
 handler.add_url_rule(
 	'/forgot-password', view_func=ForgotPasswordView.as_view(name='forgot_password_view'))

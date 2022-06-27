@@ -8,7 +8,7 @@ from flask import Response, abort, current_app, request
 from flask_jwt_extended import jwt_required
 from server.config import Config
 from server.views.common import handler_util
-from server.views.common.session_util import UserSession, UserPayloadDict
+from server.views.common.session_util import UserSession, UserPayloadDict, UserImpersonatorPayloadDict
 
 
 """
@@ -33,6 +33,30 @@ def get_claims_payload(
 	}
 	return claims_payload
 
+"""
+Company ID and Role-related headers do not come from the
+User model to support cases where these headers are overriden.
+"""
+def get_impersonator_claims_payload(
+	user: models.User,
+	role: str,
+	impersonator_user_id: str,
+	company_id: Optional[str],
+) -> UserImpersonatorPayloadDict:
+	user_id = str(user.id) if user.id else ''
+	parent_company_id = str(user.parent_company_id) if user.parent_company_id else ''
+	company_id = company_id if company_id else ''
+	impersonator_user_id = str(impersonator_user_id) if impersonator_user_id else ''
+
+	claims_payload: UserImpersonatorPayloadDict = {
+		'X-Hasura-User-Id': user_id,
+		'X-Hasura-Default-Role': role,
+		'X-Hasura-Allowed-Roles': [role],
+		'X-Hasura-Parent-Company-Id': parent_company_id,
+		'X-Hasura-Company-Id': company_id,
+		'X-Hasura-Impersonator-User-Id': impersonator_user_id,
+	}
+	return claims_payload
 
 
 def bank_admin_required(f: Callable[..., Response]) -> Response:

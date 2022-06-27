@@ -12,7 +12,8 @@ import {
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
 import { useGetUserMenuInfoQuery } from "generated/graphql";
-import { customerRoutes, routes } from "lib/routes";
+import useSnackbar from "hooks/useSnackbar";
+import { bankRoutes, customerRoutes, routes } from "lib/routes";
 import { useContext, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import styled from "styled-components";
@@ -50,7 +51,12 @@ interface Props {
 }
 
 export default function UserMenu({ isLocationsPage }: Props) {
-  const { user: currentUser, signOut } = useContext(CurrentUserContext);
+  const snackbar = useSnackbar();
+  const {
+    user: currentUser,
+    signOut,
+    undoImpersonation,
+  } = useContext(CurrentUserContext);
   const history = useHistory();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -78,6 +84,15 @@ export default function UserMenu({ isLocationsPage }: Props) {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleUndoImpersonationClick = async () => {
+    const errorMsg = await undoImpersonation();
+
+    if (errorMsg) {
+      return snackbar.showError("Could not undo impersonation: ", errorMsg);
+    }
+    history.push(bankRoutes.settings);
   };
 
   return (
@@ -135,6 +150,11 @@ export default function UserMenu({ isLocationsPage }: Props) {
         >
           Profile
         </MenuItem>
+        {!isRoleBankUser(user?.role) && currentUser?.impersonator_user_id && (
+          <MenuItem onClick={handleUndoImpersonationClick}>
+            Undo impersonation
+          </MenuItem>
+        )}
         <MenuItem
           data-cy={"user-logout-button"}
           onClick={() => {

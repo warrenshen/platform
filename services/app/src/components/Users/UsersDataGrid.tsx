@@ -17,6 +17,7 @@ interface Props {
   users: UserFragment[];
   selectedUserIds?: Users["id"][];
   handleSelectUsers?: (users: Users[]) => void;
+  handleImpersonateClick?: (userId: Users["id"]) => void;
   actionItems?: DataGridActionItem[];
 }
 

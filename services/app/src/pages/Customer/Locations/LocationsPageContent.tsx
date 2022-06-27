@@ -25,7 +25,7 @@ export default function CustomerLocationsPageContent({
 }: Props) {
   const history = useHistory();
   const snackbar = useSnackbar();
-  const { resetUser } = useContext(CurrentUserContext);
+  const { resetUser, user } = useContext(CurrentUserContext);
 
   const { data, error } = useGetParentCompanyWithCompaniesQuery({
     skip: !parentCompanyId,
@@ -50,6 +50,7 @@ export default function CustomerLocationsPageContent({
     const response = await switchLocation({
       variables: {
         company_id: companyId,
+        impersonator_user_id: user.impersonator_user_id,
       },
     });
 

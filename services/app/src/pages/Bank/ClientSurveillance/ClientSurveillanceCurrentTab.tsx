@@ -33,7 +33,9 @@ export default function ClientSurveillanceCurrentTab() {
 
   const activeCustomers =
     (rawCustomers.filter((customer) => {
-      return customer?.most_recent_financial_summary?.[0].product_type !== null;
+      return (
+        customer?.most_recent_financial_summary?.[0]?.product_type !== null
+      );
     }) as CustomerSurveillanceFragment[]) || [];
 
   const customers = useFilterCustomerSurveillance(
