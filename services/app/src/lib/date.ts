@@ -41,6 +41,16 @@ export function dateAsDateStringServer(date: Date) {
   }
 }
 
+export function parseDateString(dateString: string) {
+  try {
+    return parse(dateString, DateFormatServer, new Date());
+  } catch (error) {
+    throw new Error(
+      `Could not parse the date string "${dateString}. Error message: "${error}`
+    );
+  }
+}
+
 export function dateStringPlusXDaysDate(dateString: string, xDays: number) {
   return addDays(parse(dateString, DateFormatServer, new Date()), xDays);
 }

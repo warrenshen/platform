@@ -7,6 +7,7 @@ import {
   dateAsDateStringClient,
   dateStringPlusXDaysDate,
   formatDateString,
+  parseDateString,
 } from "lib/date";
 import {
   FeatureFlagEnum,
@@ -119,7 +120,9 @@ export const getFinancialReportApplicationDate = (
     financialReportDateString: !!applicationDate
       ? formatDateString(applicationDate) || ""
       : "-",
-    financialReportDate: !!applicationDate ? new Date(applicationDate) : null,
+    financialReportDate: !!applicationDate
+      ? parseDateString(applicationDate)
+      : null,
   };
 };
 
@@ -174,7 +177,9 @@ export const getBorrowingBaseApplicationDate = (
     borrowingBaseDateString: !!applicationDate
       ? formatDateString(applicationDate) || "-"
       : "-",
-    borrowingBaseDate: !!applicationDate ? new Date(applicationDate) : null,
+    borrowingBaseDate: !!applicationDate
+      ? parseDateString(applicationDate)
+      : null,
   };
 };
 
