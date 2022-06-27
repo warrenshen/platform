@@ -535,7 +535,7 @@ def create_repayment(
 	company_bank_account_id = payment_insert_input['company_bank_account_id']
 	loan_ids = None
 
-	contract_obj, err = contract_util.get_active_contract_by_company_id(company_id, session)
+	contract_obj, err = contract_util.get_active_contract_by_company_id(session, company_id)
 	if err:
 		raise err
 

@@ -101,6 +101,7 @@ function getRows(customers: CustomersWithMetadataFragment[]): RowsProp {
             company.financial_summaries[0].product_type as ProductTypeEnum
           ]
         : "None",
+      state: !!company?.state ? company.state : null,
       total_outstanding_interest: !!company?.financial_summaries?.[0]
         ? company.financial_summaries[0].total_outstanding_interest
         : null,
@@ -199,13 +200,21 @@ export default function BankCustomersPage() {
         width: ColumnWidths.Type,
       },
       {
-        dataField: "debt_facility_status",
-        caption: "Debt Facility Status",
+        fixed: true,
+        dataField: "product_type",
+        caption: "Product Type",
         width: ColumnWidths.ProductType,
       },
       {
-        dataField: "product_type",
-        caption: "Product Type",
+        fixed: true,
+        dataField: "state",
+        caption: "State",
+        minWidth: ColumnWidths.Identifier,
+        width: ColumnWidths.UsState,
+      },
+      {
+        dataField: "debt_facility_status",
+        caption: "Debt Facility Status",
         width: ColumnWidths.ProductType,
       },
       {

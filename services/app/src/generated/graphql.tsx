@@ -29236,7 +29236,7 @@ export type PaymentLimitedFragment = Pick<
   | "items_covered"
   | "is_deleted"
 > & {
-  company: Pick<Companies, "id" | "name" | "identifier">;
+  company: Pick<Companies, "id" | "name" | "identifier" | "state">;
   invoice?: Maybe<
     Pick<Invoices, "id"> & { payor?: Maybe<Pick<Payors, "id" | "name">> }
   >;
@@ -30287,6 +30287,7 @@ export const PaymentLimitedFragmentDoc = gql`
       id
       name
       identifier
+      state
     }
     invoice {
       id

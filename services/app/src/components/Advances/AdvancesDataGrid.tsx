@@ -33,6 +33,7 @@ function getRows(
               ProductTypeEnum.None
             : ProductTypeEnum.None
         ],
+      state: payment?.company?.state ? payment.company.state : null,
     };
   });
 }
@@ -75,6 +76,11 @@ export default function AdvancesDataGrid({
         caption: "Product Type",
         dataField: "product_type",
         minWidth: ColumnWidths.ProductType,
+      },
+      {
+        caption: "State",
+        dataField: "state",
+        minWidth: ColumnWidths.UsState,
       },
       {
         caption: "Total Amount",

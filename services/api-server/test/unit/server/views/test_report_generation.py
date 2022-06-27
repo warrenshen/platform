@@ -985,7 +985,7 @@ class TestReportsMonthlyLoanSummaryLOCView(db_unittest.TestCase):
 			setup_data_for_cmi_and_mmf(session, company_id, cmi_should_be_higher = False)
 
 
-			contract, err = contract_util.get_active_contract_by_company_id(company_id, session)
+			contract, err = contract_util.get_active_contract_by_company_id(session, company_id)
 
 			rgc = ReportGenerationContext(
 				company_lookup = None,

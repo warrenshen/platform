@@ -440,7 +440,7 @@ class CreatePartnershipView(MethodView):
 			if not partner_contacts:
 				raise errors.Error('There are no users configured for this payor or vendor')
 			
-			contract, err = contract_util.get_active_contract_by_company_id(customer_id, session)
+			contract, err = contract_util.get_active_contract_by_company_id(session, customer_id)
 			if err:
 				raise err
 
@@ -573,7 +573,7 @@ class CreatePartnershipNewView(MethodView):
 			if not partner_contacts:
 				raise errors.Error('There are no users configured for this payor or vendor')
 			
-			contract, err = contract_util.get_active_contract_by_company_id(customer_id, session)
+			contract, err = contract_util.get_active_contract_by_company_id(session, customer_id)
 			if err:
 				raise err
 

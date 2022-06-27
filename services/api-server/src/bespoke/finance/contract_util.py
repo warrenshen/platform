@@ -891,8 +891,8 @@ class LOCContract(Contract):
 
 
 def get_active_contracts_by_company_ids(
-	company_ids: List[str],
 	session: Session,
+	company_ids: List[str],
 	err_details: Dict,
 ) -> Tuple[Dict[str, Contract], errors.Error]:
 	companies = cast(
@@ -934,12 +934,12 @@ def get_active_contracts_by_company_ids(
 
 
 def get_active_contract_by_company_id(
-	company_id: str,
 	session: Session,
+	company_id: str,
 ) -> Tuple[Contract, errors.Error]:
 	company_id_to_contract, err = get_active_contracts_by_company_ids(
-		company_ids=[company_id],
 		session=session,
+		company_ids=[company_id],
 		err_details={
 			'method': 'get_active_contract_by_company_id',
 		},

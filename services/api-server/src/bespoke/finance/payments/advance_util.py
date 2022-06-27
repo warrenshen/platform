@@ -168,7 +168,7 @@ def fund_loans_with_advance(
 		# Load up the contracts for all the companies listed here
 		unique_company_ids = list(company_id_to_loans.keys())
 		contracts_by_company_id, err = contract_util.get_active_contracts_by_company_ids(
-			unique_company_ids, session, err_details)
+			session, unique_company_ids, err_details)
 		if err:
 			raise err
 
@@ -347,7 +347,7 @@ def fund_loans_with_advance(
 		for loan_report in loan_reports:
 			loan_report_dict[str(loan_report.id)] = loan_report
 
-		contract, err = contract_util.get_active_contract_by_company_id(str(loan.company_id), session)
+		contract, err = contract_util.get_active_contract_by_company_id(session, str(loan.company_id))
 		if err:
 			raise err
 

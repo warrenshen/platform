@@ -219,6 +219,7 @@ fragment PaymentLimited on payments {
     id
     name
     identifier
+    state
   }
   invoice {
     id

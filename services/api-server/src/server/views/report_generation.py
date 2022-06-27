@@ -771,7 +771,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 					models.Company.id == company_id
 				).first())
 
-			contract, err = contract_util.get_active_contract_by_company_id(company_id, session)
+			contract, err = contract_util.get_active_contract_by_company_id(session, company_id)
 			if err:
 				return loans_to_notify, err
 

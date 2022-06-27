@@ -189,7 +189,7 @@ def submit_for_approval(
 		raise errors.Error('Loan amount requested exceeds the maximum limit for this account', details=err_details)
 
 	company_id = str(loan.company_id)
-	company_id_to_obj, err = contract_util.get_active_contracts_by_company_ids([company_id], session, err_details={'method': 'request loan for approval'})
+	company_id_to_obj, err = contract_util.get_active_contracts_by_company_ids(session, [company_id], err_details={'method': 'request loan for approval'})
 	if err:
 		raise err
 
