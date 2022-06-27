@@ -1,5 +1,5 @@
 import { Box } from "@material-ui/core";
-import RepaymentTransactionsDataGrid from "components/Payment/RepaymentTransactionsDataGrid";
+import CustomerRepaymentTransactionsDataGrid from "components/Payment/CustomerRepaymentTransactionsDataGrid";
 import PageContent from "components/Shared/Page/PageContent";
 import { Companies, useGetRepaymentsForCompanyQuery } from "generated/graphql";
 import { ProductTypeEnum } from "lib/enum";
@@ -35,7 +35,7 @@ export default function CustomerRepaymentsPageContent({
       subtitle={"Review your historical repayments to Bespoke Financial."}
     >
       <Box mt={4}>
-        <RepaymentTransactionsDataGrid
+        <CustomerRepaymentTransactionsDataGrid
           isLineOfCredit={productType === ProductTypeEnum.LineOfCredit}
           payments={payments}
         />

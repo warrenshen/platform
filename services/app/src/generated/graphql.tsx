@@ -27583,6 +27583,19 @@ export type GetPaymentQuery = {
   >;
 };
 
+export type GetPaymentForBankQueryVariables = Exact<{
+  id: Scalars["uuid"];
+}>;
+
+export type GetPaymentForBankQuery = {
+  payments_by_pk?: Maybe<
+    Pick<Payments, "id"> & {
+      company: Pick<Companies, "id" | "name">;
+      settled_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
+    } & PaymentFragment
+  >;
+};
+
 export type GetPaymentForSettlementQueryVariables = Exact<{
   id: Scalars["uuid"];
   today: Scalars["date"];
@@ -27627,6 +27640,11 @@ export type GetRepaymentsSubscription = {
           payment: Pick<Payments, "id"> & PaymentLimitedFragment;
         } & TransactionFragment
       >;
+      company: Pick<Companies, "id"> & {
+        financial_summaries: Array<
+          Pick<FinancialSummaries, "id" | "product_type">
+        >;
+      };
       settled_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
     } & PaymentFragment
   >;
@@ -29202,7 +29220,6 @@ export type LoanArtifactLimitedFragment = Pick<
 export type PaymentLimitedFragment = Pick<
   Payments,
   | "id"
-  | "bank_note"
   | "company_id"
   | "settlement_identifier"
   | "submitted_at"
@@ -30251,7 +30268,6 @@ export const PayorPartnershipFragmentDoc = gql`
 export const PaymentLimitedFragmentDoc = gql`
   fragment PaymentLimited on payments {
     id
-    bank_note
     company_id
     settlement_identifier
     submitted_at
@@ -36464,6 +36480,72 @@ export type GetPaymentQueryResult = Apollo.QueryResult<
   GetPaymentQuery,
   GetPaymentQueryVariables
 >;
+export const GetPaymentForBankDocument = gql`
+  query GetPaymentForBank($id: uuid!) {
+    payments_by_pk(id: $id) {
+      id
+      ...Payment
+      company {
+        id
+        name
+      }
+      settled_by_user {
+        id
+        full_name
+      }
+    }
+  }
+  ${PaymentFragmentDoc}
+`;
+
+/**
+ * __useGetPaymentForBankQuery__
+ *
+ * To run a query within a React component, call `useGetPaymentForBankQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPaymentForBankQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPaymentForBankQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetPaymentForBankQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetPaymentForBankQuery,
+    GetPaymentForBankQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetPaymentForBankQuery,
+    GetPaymentForBankQueryVariables
+  >(GetPaymentForBankDocument, baseOptions);
+}
+export function useGetPaymentForBankLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetPaymentForBankQuery,
+    GetPaymentForBankQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetPaymentForBankQuery,
+    GetPaymentForBankQueryVariables
+  >(GetPaymentForBankDocument, baseOptions);
+}
+export type GetPaymentForBankQueryHookResult = ReturnType<
+  typeof useGetPaymentForBankQuery
+>;
+export type GetPaymentForBankLazyQueryHookResult = ReturnType<
+  typeof useGetPaymentForBankLazyQuery
+>;
+export type GetPaymentForBankQueryResult = Apollo.QueryResult<
+  GetPaymentForBankQuery,
+  GetPaymentForBankQueryVariables
+>;
 export const GetPaymentForSettlementDocument = gql`
   query GetPaymentForSettlement($id: uuid!, $today: date!) {
     payments_by_pk(id: $id) {
@@ -36588,6 +36670,13 @@ export const GetRepaymentsDocument = gql`
         payment {
           id
           ...PaymentLimited
+        }
+      }
+      company {
+        id
+        financial_summaries(order_by: { date: desc }, limit: 1) {
+          id
+          product_type
         }
       }
       settled_by_user {

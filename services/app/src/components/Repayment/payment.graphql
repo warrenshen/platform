@@ -13,6 +13,21 @@ query GetPayment($id: uuid!) {
   }
 }
 
+query GetPaymentForBank($id: uuid!) {
+  payments_by_pk(id: $id) {
+    id
+    ...Payment
+    company {
+      id
+      name
+    }
+    settled_by_user {
+      id
+      full_name
+    }
+  }
+}
+
 query GetPaymentForSettlement($id: uuid!, $today: date!) {
   payments_by_pk(id: $id) {
     id

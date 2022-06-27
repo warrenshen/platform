@@ -11,7 +11,10 @@ import {
   createStyles,
   makeStyles,
 } from "@material-ui/core";
-import { PaymentsInsertInput, useGetPaymentQuery } from "generated/graphql";
+import {
+  PaymentsInsertInput,
+  useGetPaymentForBankQuery,
+} from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { editRepaymentBankNoteMutation } from "lib/finance/payments/repayment";
@@ -60,7 +63,7 @@ export default function UpdateRepaymentBankNoteModal({
     data,
     loading: isExistingLoanLoading,
     error,
-  } = useGetPaymentQuery({
+  } = useGetPaymentForBankQuery({
     fetchPolicy: "network-only",
     variables: {
       id: paymentId,

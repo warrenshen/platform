@@ -11,13 +11,14 @@ import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCel
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import {
   Companies,
-  GetRepaymentsForCompanyQuery,
+  GetRepaymentsSubscription,
   LoanLimitedFragment,
   PaymentLimitedFragment,
   Payments,
 } from "generated/graphql";
 import {
   PaymentTypeEnum,
+  ProductTypeEnum,
   RepaymentMethodEnum,
   RepaymentMethodToLabel,
 } from "lib/enum";
@@ -30,111 +31,102 @@ import { ColumnWidths, formatRowModel } from "lib/tables";
 import { flatten, sumBy } from "lodash";
 import { useMemo } from "react";
 
-function getRows(
-  isLineOfCredit: boolean,
-  payments: NonNullable<
-    GetRepaymentsForCompanyQuery["companies_by_pk"]
-  >["payments"]
-) {
-  if (isLineOfCredit) {
-    return payments.map((payment) => {
-      return formatRowModel({
-        bank_note: payment.bank_note,
-        company_id: payment.company_id,
-        company_identifier: payment.company.identifier,
-        company_name: payment.company.name,
-        id: payment.id,
-        payment: payment,
-        status: !!payment.reversed_at ? "Reversed" : "Settled",
-        to_account_fees: payment.items_covered?.requested_to_account_fees
-          ? formatCurrency(payment.items_covered.requested_to_account_fees)
-          : formatCurrency(0),
-        to_interest_sum: payment.transactions?.length
-          ? formatCurrency(sumBy(payment.transactions, "to_interest"))
-          : null,
-        to_principal_sum: payment.transactions?.length
-          ? formatCurrency(sumBy(payment.transactions, "to_principal"))
-          : null,
-      });
-    });
-  } else {
-    return flatten(
-      payments.map((payment) =>
-        !!payment.reversed_at
-          ? [
-              formatRowModel({
-                bank_note: payment.bank_note,
-                company_id: payment.company_id,
-                company_identifier: payment.company.identifier,
-                company_name: payment.company.name,
-                id: `${payment.id}-0`,
-                payment: payment,
-                status: "Reversed",
-              }),
-            ]
-          : payment.transactions.map((transaction) =>
-              formatRowModel({
-                bank_note: payment.bank_note,
-                company_id: payment.company_id,
-                company_identifier: payment.company.identifier,
-                company_name: payment.company.name,
-                id: `${payment.id}-${transaction.id}`,
-                payment: payment,
-                repayment_id: payment.id,
-                status: "Settled",
-                to_account_fees:
-                  transaction?.type === PaymentTypeEnum.RepaymentOfAccountFee
-                    ? formatCurrency(transaction.amount)
-                    : formatCurrency(0),
-                to_interest_sum:
-                  transaction?.to_interest != null
-                    ? formatCurrency(transaction.to_interest)
-                    : null,
-                to_late_fees:
-                  transaction?.to_fees != null
-                    ? formatCurrency(transaction.to_fees)
-                    : null,
-                to_principal_sum:
-                  transaction?.to_principal != null
-                    ? formatCurrency(transaction.to_principal)
-                    : null,
-                transaction: {
-                  ...transaction,
-                  loan: {
-                    ...transaction.loan,
-                    artifact_name: transaction.loan
-                      ? getLoanArtifactName(transaction.loan)
-                      : "N/A",
-                  },
+function getRows(payments: NonNullable<GetRepaymentsSubscription>["payments"]) {
+  return flatten(
+    payments.map((payment) => {
+      const productType = !!payment?.company?.financial_summaries?.[0]
+        ?.product_type
+        ? payment.company.financial_summaries[0].product_type
+        : null;
+
+      return !!payment.reversed_at
+        ? [
+            formatRowModel({
+              bank_note: payment.bank_note,
+              company_id: payment.company_id,
+              company_identifier: payment.company.identifier,
+              company_name: payment.company.name,
+              id: `${payment.id}-0`,
+              payment: payment,
+              status: "Reversed",
+            }),
+          ]
+        : payment.transactions.map((transaction) =>
+            formatRowModel({
+              bank_note: payment.bank_note,
+              company_id: payment.company_id,
+              company_identifier: payment.company.identifier,
+              company_name: payment.company.name,
+              id: `${payment.id}-${transaction.id}`,
+              payment: payment,
+              repayment_id: payment.id,
+              status: "Settled",
+              to_account_fees:
+                !!productType && productType === ProductTypeEnum.LineOfCredit
+                  ? payment.items_covered?.requested_to_account_fees
+                    ? formatCurrency(
+                        payment.items_covered.requested_to_account_fees
+                      )
+                    : formatCurrency(0)
+                  : transaction?.type === PaymentTypeEnum.RepaymentOfAccountFee
+                  ? formatCurrency(transaction.amount)
+                  : formatCurrency(0),
+              to_interest_sum:
+                !!productType && productType === ProductTypeEnum.LineOfCredit
+                  ? payment.transactions?.length
+                    ? formatCurrency(sumBy(payment.transactions, "to_interest"))
+                    : null
+                  : transaction?.to_interest != null
+                  ? formatCurrency(transaction.to_interest)
+                  : null,
+              to_late_fees:
+                !!productType && productType === ProductTypeEnum.LineOfCredit
+                  ? formatCurrency(0)
+                  : transaction?.to_fees != null
+                  ? formatCurrency(transaction.to_fees)
+                  : null,
+              to_principal_sum:
+                !!productType && productType === ProductTypeEnum.LineOfCredit
+                  ? payment.transactions?.length
+                    ? formatCurrency(
+                        sumBy(payment.transactions, "to_principal")
+                      )
+                    : null
+                  : transaction?.to_principal != null
+                  ? formatCurrency(transaction.to_principal)
+                  : null,
+              transaction: {
+                ...transaction,
+                loan: {
+                  ...transaction.loan,
+                  artifact_name: transaction.loan
+                    ? getLoanArtifactName(transaction.loan)
+                    : "N/A",
                 },
-              })
-            )
-      )
-    );
-  }
+              },
+            })
+          );
+    })
+  );
 }
 
 interface Props {
   isCompanyVisible?: boolean;
   isExcelExport?: boolean;
   isFilteringEnabled?: boolean;
-  isLineOfCredit?: boolean; // If LOC, simply show payments instead of payments broken down by transactions.
   isMethodVisible?: boolean;
   isMultiSelectEnabled?: boolean;
-  payments: NonNullable<
-    GetRepaymentsForCompanyQuery["companies_by_pk"]
-  >["payments"];
+  payments: NonNullable<GetRepaymentsSubscription>["payments"];
   selectedPaymentIds?: Payments["id"][];
   handleClickCustomer?: (customerId: Companies["id"]) => void;
   handleSelectPayments?: (payments: PaymentLimitedFragment[]) => void;
   handleClickPaymentBankNote?: (repaymentId: Payments["id"]) => void;
 }
 
-export default function RepaymentTransactionsDataGrid({
+export default function BankRepaymentTransactionsDataGrid({
   isCompanyVisible = false,
   isExcelExport = true,
   isFilteringEnabled = false,
-  isLineOfCredit = false,
   isMultiSelectEnabled = false,
   payments,
   selectedPaymentIds,
@@ -142,10 +134,7 @@ export default function RepaymentTransactionsDataGrid({
   handleSelectPayments,
   handleClickPaymentBankNote,
 }: Props) {
-  const rows = useMemo(
-    () => getRows(isLineOfCredit, payments),
-    [isLineOfCredit, payments]
-  );
+  const rows = useMemo(() => getRows(payments), [payments]);
   const columns = useMemo(
     () => [
       {
@@ -219,7 +208,6 @@ export default function RepaymentTransactionsDataGrid({
         ),
       },
       {
-        visible: !isLineOfCredit,
         dataField: "transaction.loan.disbursement_identifier",
         caption: "Loan Disbursement Identifier",
         width: ColumnWidths.Identifier,
@@ -239,7 +227,6 @@ export default function RepaymentTransactionsDataGrid({
         ),
       },
       {
-        visible: !isLineOfCredit,
         dataField: "transaction.loan.artifact_name",
         caption: "Purchase Order / Invoice",
         minWidth: ColumnWidths.MinWidth,
@@ -262,7 +249,6 @@ export default function RepaymentTransactionsDataGrid({
           ) : null,
       },
       {
-        visible: !isLineOfCredit,
         dataField: "payment.amount",
         caption: "Total Repayment Amount",
         minWidth: ColumnWidths.Currency,
@@ -272,7 +258,6 @@ export default function RepaymentTransactionsDataGrid({
         ),
       },
       {
-        visible: !isLineOfCredit,
         dataField: "transaction.amount",
         caption: "Transaction Total Amount",
         width: ColumnWidths.Currency,
@@ -281,16 +266,6 @@ export default function RepaymentTransactionsDataGrid({
           <CurrencyDataGridCell
             value={params.row.data.transaction?.amount || null}
           />
-        ),
-      },
-      {
-        visible: isLineOfCredit,
-        dataField: "payment.amount",
-        caption: "Total Repayment Amount",
-        minWidth: ColumnWidths.Currency,
-        alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.payment.amount} />
         ),
       },
       {
@@ -306,7 +281,6 @@ export default function RepaymentTransactionsDataGrid({
         alignment: "right",
       },
       {
-        visible: !isLineOfCredit,
         dataField: "to_late_fees",
         caption: "Applied to Late Fees",
         width: ColumnWidths.Currency,
@@ -352,12 +326,7 @@ export default function RepaymentTransactionsDataGrid({
           ),
       },
     ],
-    [
-      isCompanyVisible,
-      isLineOfCredit,
-      handleClickCustomer,
-      handleClickPaymentBankNote,
-    ]
+    [isCompanyVisible, handleClickCustomer, handleClickPaymentBankNote]
   );
 
   const handleSelectionChanged = useMemo(

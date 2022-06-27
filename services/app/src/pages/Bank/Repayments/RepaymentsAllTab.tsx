@@ -1,4 +1,4 @@
-import RepaymentTransactionsDataGrid from "components/Payment/RepaymentTransactionsDataGrid";
+import BankRepaymentTransactionsDataGrid from "components/Payment/BankRepaymentTransactionsDataGrid";
 import UpdateRepaymentBankNoteModal from "components/Repayment/UpdateRepaymentBankNoteModal";
 import { useGetRepaymentsSubscription } from "generated/graphql";
 import { useState } from "react";
@@ -28,10 +28,9 @@ export default function BankRepaymentsAllTab() {
           handleClose={() => setSelectedPaymentId(null)}
         />
       )}
-      <RepaymentTransactionsDataGrid
+      <BankRepaymentTransactionsDataGrid
         isCompanyVisible
         isFilteringEnabled
-        isLineOfCredit={false}
         payments={payments}
         handleClickPaymentBankNote={(repaymentId) =>
           setSelectedPaymentId(repaymentId)
