@@ -4,6 +4,15 @@ query GetCompanySettings($company_settings_id: uuid!) {
   }
 }
 
+query GetCompanySettingsByCompanyIdForCustomer($company_id: uuid!) {
+  company_settings(
+    where: { company_id: { _eq: $company_id } }
+  ) {
+    id
+    ...CompanySettingsLimited
+  }
+}
+
 mutation UpdateIsDummyAccount(
   $companySettingsId: uuid!
   $isDummyAccount: Boolean

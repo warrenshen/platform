@@ -27741,6 +27741,16 @@ export type GetCompanySettingsQuery = {
   company_settings_by_pk?: Maybe<CompanySettingsFragment>;
 };
 
+export type GetCompanySettingsByCompanyIdForCustomerQueryVariables = Exact<{
+  company_id: Scalars["uuid"];
+}>;
+
+export type GetCompanySettingsByCompanyIdForCustomerQuery = {
+  company_settings: Array<
+    Pick<CompanySettings, "id"> & CompanySettingsLimitedFragment
+  >;
+};
+
 export type UpdateIsDummyAccountMutationVariables = Exact<{
   companySettingsId: Scalars["uuid"];
   isDummyAccount?: Maybe<Scalars["Boolean"]>;
@@ -37372,6 +37382,63 @@ export type GetCompanySettingsQueryResult = Apollo.QueryResult<
   GetCompanySettingsQuery,
   GetCompanySettingsQueryVariables
 >;
+export const GetCompanySettingsByCompanyIdForCustomerDocument = gql`
+  query GetCompanySettingsByCompanyIdForCustomer($company_id: uuid!) {
+    company_settings(where: { company_id: { _eq: $company_id } }) {
+      id
+      ...CompanySettingsLimited
+    }
+  }
+  ${CompanySettingsLimitedFragmentDoc}
+`;
+
+/**
+ * __useGetCompanySettingsByCompanyIdForCustomerQuery__
+ *
+ * To run a query within a React component, call `useGetCompanySettingsByCompanyIdForCustomerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCompanySettingsByCompanyIdForCustomerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCompanySettingsByCompanyIdForCustomerQuery({
+ *   variables: {
+ *      company_id: // value for 'company_id'
+ *   },
+ * });
+ */
+export function useGetCompanySettingsByCompanyIdForCustomerQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetCompanySettingsByCompanyIdForCustomerQuery,
+    GetCompanySettingsByCompanyIdForCustomerQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetCompanySettingsByCompanyIdForCustomerQuery,
+    GetCompanySettingsByCompanyIdForCustomerQueryVariables
+  >(GetCompanySettingsByCompanyIdForCustomerDocument, baseOptions);
+}
+export function useGetCompanySettingsByCompanyIdForCustomerLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetCompanySettingsByCompanyIdForCustomerQuery,
+    GetCompanySettingsByCompanyIdForCustomerQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetCompanySettingsByCompanyIdForCustomerQuery,
+    GetCompanySettingsByCompanyIdForCustomerQueryVariables
+  >(GetCompanySettingsByCompanyIdForCustomerDocument, baseOptions);
+}
+export type GetCompanySettingsByCompanyIdForCustomerQueryHookResult =
+  ReturnType<typeof useGetCompanySettingsByCompanyIdForCustomerQuery>;
+export type GetCompanySettingsByCompanyIdForCustomerLazyQueryHookResult =
+  ReturnType<typeof useGetCompanySettingsByCompanyIdForCustomerLazyQuery>;
+export type GetCompanySettingsByCompanyIdForCustomerQueryResult =
+  Apollo.QueryResult<
+    GetCompanySettingsByCompanyIdForCustomerQuery,
+    GetCompanySettingsByCompanyIdForCustomerQueryVariables
+  >;
 export const UpdateIsDummyAccountDocument = gql`
   mutation UpdateIsDummyAccount(
     $companySettingsId: uuid!

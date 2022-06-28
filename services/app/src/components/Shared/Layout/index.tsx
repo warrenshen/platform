@@ -26,6 +26,7 @@ import {
 } from "contexts/CurrentUserContext";
 import {
   useGetCompanyEbbaApplicationsInfoQuery,
+  useGetCompanySettingsByCompanyIdForCustomerQuery,
   useGetEbbaApplicationsCountForBankSubscription,
   useGetLoansCountForBankSubscription,
   useGetOpenLoansByDebtFacilityStatusesSubscription,
@@ -33,7 +34,11 @@ import {
   useGetRepaymentsCountForBankSubscription,
 } from "generated/graphql";
 import { withinNDaysOfNowOrBefore } from "lib/date";
-import { ProductTypeEnum } from "lib/enum";
+import {
+  FeatureFlagEnum,
+  ProductTypeEnum,
+  ReportingRequirementsCategoryEnum,
+} from "lib/enum";
 import { bankRoutes, customerRoutes, routes } from "lib/routes";
 import { isPayorsTabVisible, isVendorsTabVisible } from "lib/settings";
 import { ReactNode, useContext } from "react";
@@ -112,7 +117,8 @@ type NavItem = {
 
 const getCustomerNavItems = (
   productType: ProductTypeEnum | null,
-  showEbbaApplicationsChip: boolean
+  showEbbaApplicationsChip: boolean,
+  isMetrcBased: boolean
 ): NavItem[] => {
   return [
     {
@@ -171,7 +177,7 @@ const getCustomerNavItems = (
     {
       dataCy: "financial-certifications",
       iconNode: EbbaApplicationsIcon,
-      visible: !!productType,
+      visible: !!productType && !isMetrcBased,
       text: "Financial Certifications",
       link: customerRoutes.financialCertifications,
       counter: showEbbaApplicationsChip ? 1 : 0,
@@ -368,6 +374,7 @@ export default function Layout({
 
   const { data: debtFacilityUpdateCountData } =
     useGetOpenLoansByDebtFacilityStatusesSubscription({
+      skip: !isBankUser,
       variables: {
         statuses: ["update_required"],
       },
@@ -398,6 +405,23 @@ export default function Layout({
     (!ebbaApplication ||
       withinNDaysOfNowOrBefore(ebbaApplication.expires_date, 15));
 
+  const { data: companySettingsData } =
+    useGetCompanySettingsByCompanyIdForCustomerQuery({
+      skip: isBankUser,
+      variables: {
+        company_id: companyId,
+      },
+    });
+
+  const featureFlags =
+    companySettingsData?.company_settings?.[0]?.feature_flags_payload || {};
+  const isMetrcBased =
+    !!featureFlags &&
+    featureFlags.hasOwnProperty(FeatureFlagEnum.ReportingRequirementsCategory)
+      ? featureFlags[FeatureFlagEnum.ReportingRequirementsCategory] ===
+        ReportingRequirementsCategoryEnum.Four
+      : false;
+
   const navItems = isBankUser
     ? getBankNavItems(
         loansCount,
@@ -406,7 +430,7 @@ export default function Layout({
         partnershipRequestsCount,
         debtFacilityUpdateCount
       )
-    : getCustomerNavItems(productType, showEbbaApplicationsChip);
+    : getCustomerNavItems(productType, showEbbaApplicationsChip, isMetrcBased);
 
   return (
     <Wrapper>
