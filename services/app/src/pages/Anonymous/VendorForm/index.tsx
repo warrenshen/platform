@@ -209,8 +209,8 @@ export default function VendorFormPage() {
     !vendorInput.bankAccountName ||
     !vendorInput.bankAccountType ||
     !vendorInput.bankAccountNumber ||
-    // Only the ACH or Wire routing number is required
-    (!vendorInput.bankACHRoutingNumber && !vendorInput.bankWireRoutingNumber) ||
+    !vendorInput.bankACHRoutingNumber ||
+    !vendorInput.bankWireRoutingNumber ||
     !vendorInput.beneficiaryAddress ||
     !vendorInput.bankInstructionsAttachmentId ||
     (vendorInput.isCannabis &&

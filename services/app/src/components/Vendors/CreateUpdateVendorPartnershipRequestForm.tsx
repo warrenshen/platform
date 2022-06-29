@@ -171,8 +171,14 @@ export default function CreateUpdateVendorPartnershipRequestForm({
         />
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
+        {!isUpdate ? (
+          <Typography variant="body2">
+            {`Note: If your bank does not support ACH, please fill N/A for this field.`}
+          </Typography>
+        ) : null}
         <TextField
           label="Bank ACH Routing Number"
+          required={!isUpdate}
           value={vendorInput.bankACHRoutingNumber}
           onChange={({ target: { value } }) => {
             setVendorInput({ ...vendorInput, bankACHRoutingNumber: value });
@@ -180,8 +186,14 @@ export default function CreateUpdateVendorPartnershipRequestForm({
         />
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
+        {!isUpdate ? (
+          <Typography variant="body2">
+            {`Note: If your bank does not support Wire, please fill N/A for this field.`}
+          </Typography>
+        ) : null}
         <TextField
           label="Bank Wire Routing Number"
+          required={!isUpdate}
           value={vendorInput.bankWireRoutingNumber}
           onChange={({ target: { value } }) => {
             setVendorInput({ ...vendorInput, bankWireRoutingNumber: value });
