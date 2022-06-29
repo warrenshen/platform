@@ -2,6 +2,7 @@ import decimal
 import json
 import uuid
 from datetime import timedelta
+from sqlalchemy.orm.session import Session
 from typing import Any, Callable, Dict, List, cast
 
 from bespoke.date import date_util
@@ -11,6 +12,7 @@ from bespoke.db.models import session_scope
 from bespoke.finance import financial_summary_util, number_util
 from bespoke.finance.loans import reports_util
 from bespoke.finance.payments import payment_util, repayment_util_fees
+from bespoke.finance.reports.loan_balances import LoansInfoEntryDict
 from bespoke.finance.types import payment_types
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
@@ -28,7 +30,11 @@ def _get_late_fee_structure() -> str:
 
 class TestCalculateLoanBalance(db_unittest.TestCase):
 
-	def _run_test(self, test: Dict) -> None:
+	def _run_test(
+		self, 
+		test: Dict,
+		loan_ids: List[str],
+	) -> None:
 		today = date_util.load_date_str(test['today'])
 		today_date_dicts: List[Dict] = [
 			{
@@ -57,7 +63,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				))
 
 				if test.get('populate_fn'):
-					test['populate_fn'](session, seed, company_id)
+					test['populate_fn'](session, seed, company_id, loan_ids)
 
 			company_dict = models.CompanyDict(
 					id=company_id,
@@ -210,9 +216,70 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					self.assertEqual(
 						test['expected_day_volume_threshold_met'], financial_summary.day_volume_threshold_met)
 
+				# Testing the loans_info column update
+				loans_info: Dict[str, LoansInfoEntryDict] = cast(Dict[str, LoansInfoEntryDict], financial_summary.loans_info)
+				for loan_id_index, loan_id in enumerate(loan_ids):
+					if loan_id in loans_info:
+						actual_loan_update: LoansInfoEntryDict = loans_info[loan_id]
+						expected_loan_update = test['expected_loan_updates'][loan_id_index]
+						for key in expected_loan_update.keys():
+							self.assertAlmostEqual(
+								number_util.round_currency(expected_loan_update['outstanding_principal']), 
+								number_util.round_currency(actual_loan_update['outstanding_principal'])
+							)
+							self.assertAlmostEqual(
+								number_util.round_currency(expected_loan_update['outstanding_principal_for_interest']), 
+								number_util.round_currency(actual_loan_update['outstanding_principal_for_interest'])
+							)
+							self.assertAlmostEqual(
+								number_util.round_currency(expected_loan_update['outstanding_principal_past_due']), 
+								number_util.round_currency(actual_loan_update['outstanding_principal_past_due'])
+							)
+							self.assertAlmostEqual(
+								number_util.round_currency(expected_loan_update['outstanding_interest']), 
+								number_util.round_currency(actual_loan_update['outstanding_interest'])
+							)
+							self.assertAlmostEqual(
+								number_util.round_currency(expected_loan_update['outstanding_fees']), 
+								number_util.round_currency(actual_loan_update['outstanding_late_fees'])
+							)
+							self.assertAlmostEqual(
+								number_util.round_currency(expected_loan_update['amount_to_pay_interest_on']), 
+								number_util.round_currency(actual_loan_update['amount_to_pay_interest_on'])
+							)
+							self.assertAlmostEqual(
+								number_util.round_currency(expected_loan_update['interest_accrued_today']), 
+								number_util.round_currency(actual_loan_update['interest_accrued_today'])
+							)
+							self.assertAlmostEqual(
+								number_util.round_currency(expected_loan_update['fees_accrued_today']), 
+								number_util.round_currency(actual_loan_update['fees_accrued_today'])
+							)
+							# self.assertAlmostEqual(
+							# 	number_util.round_currency(expected_loan_update['total_principal_paid']), 
+							# 	number_util.round_currency(actual_loan_update['total_principal_paid'])
+							# )
+							# self.assertAlmostEqual(
+							# 	number_util.round_currency(expected_loan_update['total_interest_paid']), 
+							# 	number_util.round_currency(actual_loan_update['total_interest_paid'])
+							# )
+							# self.assertAlmostEqual(
+							# 	number_util.round_currency(expected_loan_update['total_fees_paid']), 
+							# 	number_util.round_currency(actual_loan_update['total_fees_paid'])
+							# )
+							self.assertEqual(
+								expected_loan_update['days_overdue'], 
+								actual_loan_update['days_overdue']
+							)
+
 	def test_no_payments_no_loans(self) -> None:
 
-		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+		def populate_fn(
+			session: Session, 
+			seed: test_helper.BasicSeed, 
+			company_id: str,
+			loan_ids: List[str],
+		) -> None:
 			session.add(models.Contract(
 				company_id=company_id,
 				product_type=ProductType.INVENTORY_FINANCING,
@@ -230,6 +297,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				adjusted_end_date=date_util.load_date_str('12/1/2020')
 			))
 
+		loan_ids: List[str] = []
 		tests: List[Dict] = [
 			{
 				'today': '10/1/2020',
@@ -266,11 +334,16 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			}
 		]
 		for test in tests:
-			self._run_test(test)
+			self._run_test(test, loan_ids)
 
 	def test_no_payments_two_loans_not_due_yet(self) -> None:
-
-		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+		
+		def populate_fn(
+			session: Session, 
+			seed: test_helper.BasicSeed, 
+			company_id: str,
+			loan_ids: List[str],
+		) -> None:
 			session.add(models.Contract(
 				company_id=company_id,
 				product_type=ProductType.INVENTORY_FINANCING,
@@ -290,6 +363,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				adjusted_end_date=date_util.load_date_str('12/1/2020')
 			))
 			loan = models.Loan(
+				id=loan_ids[0],
 				company_id=company_id,
 				origination_date=date_util.load_date_str('10/01/2020'),
 				adjusted_maturity_date=date_util.load_date_str('10/05/2020'),
@@ -300,6 +374,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				session, loan, amount=500.03, payment_date='10/01/2020', effective_date='10/01/2020')
 
 			loan2 = models.Loan(
+				id=loan_ids[1],
 				company_id=company_id,
 				origination_date=date_util.load_date_str('10/02/2020'),
 				adjusted_maturity_date=date_util.load_date_str('10/06/2020'),
@@ -309,6 +384,10 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			payment_test_helper.make_advance(
 				session, loan2, amount=100.03, payment_date='10/02/2020', effective_date='10/02/2020')
 
+		loan_ids: List[str] = [
+			str(uuid.uuid4()),
+			str(uuid.uuid4()),
+		]
 		tests: List[Dict] = [
 			{
 				'today': '10/3/2020',
@@ -372,15 +451,21 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					},
 					'day_volume_threshold_met': None,
 					'most_overdue_loan_days': 0
-				}
+				},
 			}
 		]
+		
 		for test in tests:
-			self._run_test(test)
+			self._run_test(test, loan_ids)
 
 	def test_two_loans_past_due_no_repayments(self) -> None:
 
-		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+		def populate_fn(
+			session: Session, 
+			seed: test_helper.BasicSeed, 
+			company_id: str,
+			loan_ids: List[str],
+		) -> None:
 			session.add(models.Contract(
 				company_id=company_id,
 				product_type=ProductType.INVENTORY_FINANCING,
@@ -400,6 +485,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				adjusted_end_date=date_util.load_date_str('12/31/2020')
 			))
 			loan = models.Loan(
+				id=loan_ids[0],
 				company_id=company_id,
 				origination_date=date_util.load_date_str('09/01/2020'),
 				adjusted_maturity_date=date_util.load_date_str('10/30/2020'),
@@ -415,6 +501,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			)
 
 			loan2 = models.Loan(
+				id=loan_ids[1],
 				company_id=company_id,
 				origination_date=date_util.load_date_str('10/01/2020'),
 				adjusted_maturity_date=date_util.load_date_str('11/29/2020'),
@@ -429,6 +516,10 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				effective_date='10/01/2020',
 			)
 
+		loan_ids: List[str] = [
+			str(uuid.uuid4()),
+			str(uuid.uuid4()),
+		]
 		tests: List[Dict] = [
 			{
 				'today': '09/05/2020',
@@ -624,11 +715,16 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			},
 		]
 		for test in tests:
-			self._run_test(test)
+			self._run_test(test, loan_ids)
 
 	def test_repayment_quarterly_minimum_accrued_no_late_fee_once_loan_is_paid_off(self) -> None:
 
-		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+		def populate_fn(
+			session: Session, 
+			seed: test_helper.BasicSeed, 
+			company_id: str,
+			loan_ids: List[str]
+		) -> None:
 			session.add(models.Contract(
 				company_id=company_id,
 				product_type=ProductType.INVENTORY_FINANCING,
@@ -666,6 +762,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			))
 
 			loan = models.Loan(
+				id=loan_ids[0],
 				company_id=company_id,
 				origination_date=date_util.load_date_str('10/5/2020'),
 				adjusted_maturity_date=date_util.load_date_str('11/05/2020'),
@@ -693,6 +790,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		denominator = 31 + 30 + 31 # October, November, December days
 		prorated_fraction = numerator / denominator
 
+		loan_ids = [
+			str(uuid.uuid4())
+		]
 		tests: List[Dict] = [
 			{
 				'today': '11/3/2020', # It's been 30 days since the loan started, and no late fees have accrued.
@@ -741,7 +841,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					},
 					'day_volume_threshold_met': None,
 					'most_overdue_loan_days': 0
-				}
+				},
 			},
 			{
 				'today': '11/05/2020', # It's been 32 days since the loan started, and it gets fully paid off
@@ -787,11 +887,16 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			}
 		]
 		for test in tests:
-			self._run_test(test)
+			self._run_test(test, loan_ids)
 
 	def test_no_payments_two_loans_not_due_yet_yearly_minimum_accrued(self) -> None:
 
-		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+		def populate_fn(
+			session: Session, 
+			seed: test_helper.BasicSeed, 
+			company_id: str,
+			loan_ids: List[str]
+		) -> None:
 			session.add(models.Contract(
 				company_id=company_id,
 				product_type=ProductType.INVENTORY_FINANCING,
@@ -809,6 +914,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				adjusted_end_date=date_util.load_date_str('01/01/2021')
 			))
 			loan = models.Loan(
+				id=loan_ids[0],
 				company_id=company_id,
 				origination_date=date_util.load_date_str('09/01/2020'),
 				adjusted_maturity_date=date_util.load_date_str('10/10/2020'), # spans 2 quarters
@@ -818,6 +924,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			payment_test_helper.make_advance(
 				session, loan, amount=500.03, payment_date='09/01/2020', effective_date='09/01/2020')
 
+		loan_ids = [
+			str(uuid.uuid4()),
+		]
 		tests: List[Dict] = [
 			{
 				'today': '10/05/2020', # It's been 35 days since the loan started, and no late fees have accrued.
@@ -866,17 +975,22 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					},
 					'day_volume_threshold_met': None,
 					'most_overdue_loan_days': 0
-				}
+				},
 			}
 		]
 		for test in tests:
-			self._run_test(test)
+			self._run_test(test, loan_ids)
 
 	def test_two_loans_reduced_interest_rate_due_to_threshold(self) -> None:
 
 		def get_populate_fn(threshold_starting_value: float) -> Callable:
 
-			def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+			def populate_fn(
+				session: Session, 
+				seed: test_helper.BasicSeed, 
+				company_id: str,
+				loan_ids: List[str],
+			) -> None:
 				session.add(models.Contract(
 					company_id=company_id,
 					product_type=ProductType.INVENTORY_FINANCING,
@@ -897,6 +1011,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					adjusted_end_date=date_util.load_date_str('12/30/2020')
 				))
 				loan = models.Loan(
+					id=loan_ids[0],
 					company_id=company_id,
 					origination_date=date_util.load_date_str('10/01/2020'),
 					adjusted_maturity_date=date_util.load_date_str('12/1/2020'),
@@ -907,6 +1022,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					session, loan, amount=500.03, payment_date='10/01/2020', effective_date='10/01/2020')
 
 				loan2 = models.Loan(
+					id=loan_ids[1],
 					company_id=company_id,
 					origination_date=date_util.load_date_str('10/05/2020'),
 					adjusted_maturity_date=date_util.load_date_str('12/2/2020'),
@@ -917,6 +1033,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					session, loan2, amount=600.03, payment_date='10/05/2020', effective_date='10/05/2020')
 
 				loan3 = models.Loan(
+					id=loan_ids[2],
 					company_id=company_id,
 					origination_date=date_util.load_date_str('10/07/2020'),
 					adjusted_maturity_date=date_util.load_date_str('12/3/2020'),
@@ -967,6 +1084,11 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 		first_day = 1 * 0.05 * 499.97 + 1 * 0.01 * (600.03 - 499.97)
 
+		loan_ids: List[str] = [
+			str(uuid.uuid4()),
+			str(uuid.uuid4()),
+			str(uuid.uuid4()),
+		]
 		tests: List[Dict] = [
 			{
 				'today': '10/03/2020', # Days before you cross the threshold
@@ -1018,7 +1140,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'days_overdue': 0
 					}
 				],
-				'expected_day_volume_threshold_met': None
+				'expected_day_volume_threshold_met': None,
 			},
 			{
 				'today': '10/05/2020', # The day you cross the threshold, but it doesnt take effect until the next day
@@ -1070,7 +1192,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'days_overdue': 0
 					}
 				],
-				'expected_day_volume_threshold_met': date_util.load_date_str('10/05/2020')
+				'expected_day_volume_threshold_met': date_util.load_date_str('10/05/2020'),
 			},
 			{
 				'today': '10/09/2020', # You have 4 days after crossing the threshold, and should have the discounted rate
@@ -1122,7 +1244,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'days_overdue': 0
 					}
 				],
-				'expected_day_volume_threshold_met': date_util.load_date_str('10/05/2020')
+				'expected_day_volume_threshold_met': date_util.load_date_str('10/05/2020'),
 			},
 			{
 				'today': '10/09/2020', # You crossed the threshold from the beginning
@@ -1174,7 +1296,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'days_overdue': 0
 					}
 				],
-				'expected_day_volume_threshold_met': date_util.load_date_str('01/01/2020')
+				'expected_day_volume_threshold_met': date_util.load_date_str('01/01/2020'),
 			},
 			{
 				'today': '10/09/2020', # You crossed the threshold on the 3rd instead of the 5th because of the starting value
@@ -1231,7 +1353,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		]
 		i = 0
 		for test in tests:
-			self._run_test(test)
+			self._run_test(test, loan_ids)
 			i += 1
 
 	def test_repayment_after_report_date(self) -> None:
@@ -1240,7 +1362,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 		def get_populate_fn(threshold_starting_value: float) -> Callable:
 
-			def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+			def populate_fn(
+				session: Session, 
+				seed: test_helper.BasicSeed, 
+				company_id: str,
+				loan_ids: List[str]
+			) -> None:
 				session.add(models.Contract(
 					company_id=company_id,
 					product_type=ProductType.INVENTORY_FINANCING,
@@ -1261,6 +1388,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					adjusted_end_date=date_util.load_date_str('12/30/2020')
 				))
 				loan = models.Loan(
+					id=loan_ids[0],
 					company_id=company_id,
 					origination_date=date_util.load_date_str('10/21/2020'),
 					adjusted_maturity_date=date_util.load_date_str('10/30/2020'),
@@ -1301,6 +1429,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				)
 			return populate_fn
 
+		loan_ids: List[str] = [
+			str(uuid.uuid4()),
+		]
 		tests: List[Dict] = [
 			{
 				'today': '10/29/2020',
@@ -1398,7 +1529,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		i = 0
 		for test in tests:
 			print('I={}'.format(i))
-			self._run_test(test)
+			self._run_test(test, loan_ids)
 			i += 1
 
 	def test_repayment_cross_month_boundary_full_loan_repayment(self) -> None:
@@ -1407,7 +1538,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 		def get_populate_fn(threshold_starting_value: float) -> Callable:
 
-			def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+			def populate_fn(
+				session: Session, 
+				seed: test_helper.BasicSeed, 
+				company_id: str,
+				loan_ids: List[str],
+			) -> None:
 				session.add(models.Contract(
 					company_id=company_id,
 					product_type=ProductType.INVENTORY_FINANCING,
@@ -1428,6 +1564,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					adjusted_end_date=date_util.load_date_str('12/30/2020')
 				))
 				loan = models.Loan(
+					id=loan_ids[0],
 					company_id=company_id,
 					origination_date=date_util.load_date_str('10/21/2020'),
 					adjusted_maturity_date=date_util.load_date_str('10/30/2020'),
@@ -1468,6 +1605,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				)
 			return populate_fn
 
+		loan_ids: List[str] = [
+			str(uuid.uuid4()),
+		]
 		tests: List[Dict] = [
 			{
 				'today': '10/29/2020',
@@ -1565,7 +1705,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		i = 0
 		for test in tests:
 			print('I={}'.format(i))
-			self._run_test(test)
+			self._run_test(test, loan_ids)
 			i += 1
 
 	def test_repayment_that_cross_month_boundary_across_year_full_loan_repayment(self) -> None:
@@ -1574,7 +1714,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 		def get_populate_fn(threshold_starting_value: float) -> Callable:
 
-			def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+			def populate_fn(
+				session: Session, 
+				seed: test_helper.BasicSeed, 
+				company_id: str,
+				loan_ids: List[str],
+			) -> None:
 				session.add(models.Contract(
 					company_id=company_id,
 					product_type=ProductType.INVENTORY_FINANCING,
@@ -1595,6 +1740,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					adjusted_end_date=date_util.load_date_str('12/30/2021')
 				))
 				loan = models.Loan(
+					id=loan_ids[0],
 					company_id=company_id,
 					origination_date=date_util.load_date_str('12/21/2020'),
 					adjusted_maturity_date=date_util.load_date_str('12/30/2020'),
@@ -1635,6 +1781,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				)
 			return populate_fn
 
+		loan_ids: List[str] = [
+			str(uuid.uuid4()),
+		]
 		tests: List[Dict] = [
 			{
 				'today': '12/29/2020',
@@ -1755,7 +1904,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		]
 		i = 0
 		for test in tests:
-			self._run_test(test)
+			self._run_test(test, loan_ids)
 			i += 1
 
 	def test_repayment_that_cross_month_boundary_full_principal_repayment(self) -> None:
@@ -1764,7 +1913,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 		def get_populate_fn(threshold_starting_value: float) -> Callable:
 
-			def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+			def populate_fn(
+				session: Session, 
+				seed: test_helper.BasicSeed, 
+				company_id: str,
+				loan_ids: List[str],
+			) -> None:
 				session.add(models.Contract(
 					company_id=company_id,
 					product_type=ProductType.INVENTORY_FINANCING,
@@ -1785,6 +1939,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					adjusted_end_date=date_util.load_date_str('12/30/2020')
 				))
 				loan = models.Loan(
+					id=loan_ids[0],
 					company_id=company_id,
 					origination_date=date_util.load_date_str('10/21/2020'),
 					adjusted_maturity_date=date_util.load_date_str('10/30/2020'),
@@ -1823,6 +1978,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				)
 			return populate_fn
 
+		loan_ids: List[str] = [
+			str(uuid.uuid4()),
+		]
 		tests: List[Dict] = [
 			{
 				'today': '10/29/2020', # The day before the end of the month
@@ -1894,7 +2052,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		]
 		i = 0
 		for test in tests:
-			self._run_test(test)
+			self._run_test(test, loan_ids)
 			i += 1
 
 	def test_repayment_that_cross_month_boundary_partial_repayment(self) -> None:
@@ -1903,7 +2061,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 		def get_populate_fn(threshold_starting_value: float) -> Callable:
 
-			def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+			def populate_fn(
+				session: Session, 
+				seed: test_helper.BasicSeed, 
+				company_id: str,
+				loan_ids: List[str],
+			) -> None:
 				session.add(models.Contract(
 					company_id=company_id,
 					product_type=ProductType.INVENTORY_FINANCING,
@@ -1924,6 +2087,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					adjusted_end_date=date_util.load_date_str('12/30/2020')
 				))
 				loan = models.Loan(
+					id=loan_ids[0],
 					company_id=company_id,
 					origination_date=date_util.load_date_str('10/21/2020'),
 					adjusted_maturity_date=date_util.load_date_str('10/30/2020'),
@@ -1962,6 +2126,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				)
 			return populate_fn
 
+		loan_ids: List[str] = [
+			str(uuid.uuid4()),
+		]
 		tests: List[Dict] = [
 			{
 				'today': '10/29/2020', # The day before the end of the month
@@ -2112,12 +2279,17 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		]
 		i = 0
 		for test in tests:
-			self._run_test(test)
+			self._run_test(test, loan_ids)
 			i += 1
 
 	def test_account_fees_and_waivers(self) -> None:
 
-		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+		def populate_fn(
+			session: Session, 
+			seed: test_helper.BasicSeed, 
+			company_id: str,
+			loan_ids: List[str],
+		) -> None:
 			session.add(models.Contract(
 				company_id=company_id,
 				product_type=ProductType.INVENTORY_FINANCING,
@@ -2179,6 +2351,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				session=session
 			)
 
+		loan_ids: List[str] = [
+			str(uuid.uuid4()),
+		]
 		tests: List[Dict] = [
 			{
 				'today': '10/31/2020',
@@ -2250,7 +2425,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 		i = 0
 		for test in tests:
-			self._run_test(test)
+			self._run_test(test, loan_ids)
 			i += 1
 
 	def test_repayment_loan_and_account_balance(self) -> None:
@@ -2260,7 +2435,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		2. Portion of repayment applies to account balance.
 		3. Portion of repayment that applies to account balance is effective as of deposit date.
 		"""
-		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+		def populate_fn(
+			session: Session, 
+			seed: test_helper.BasicSeed, 
+			company_id: str,
+			loan_ids: List[str],
+		) -> None:
 			session.add(models.Contract(
 				company_id=company_id,
 				product_type=ProductType.INVENTORY_FINANCING,
@@ -2290,6 +2470,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			session.add(financial_summary)
 
 			loan = models.Loan(
+				id=loan_ids[0],
 				company_id=company_id,
 				origination_date=date_util.load_date_str('10/01/2020'),
 				adjusted_maturity_date=date_util.load_date_str('11/29/2020'),
@@ -2338,6 +2519,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				to_account_balance=10.0, # $05 of $25 wire fee.
 			)
 
+		loan_ids: List[str] = [
+			str(uuid.uuid4()),
+		]
 		tests: List[Dict] = [
 			{
 				'today': '10/02/2020', # Before both repayments.
@@ -2539,12 +2723,17 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 		i = 0
 		for test in tests:
-			self._run_test(test)
+			self._run_test(test, loan_ids)
 			i += 1
 
 	def test_one_payment_one_loan_past_due_with_account_balances_and_adjustments(self) -> None:
 
-		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+		def populate_fn(
+			session: Session, 
+			seed: test_helper.BasicSeed, 
+			company_id: str,
+			loan_ids: List[str],
+		) -> None:
 			session.add(models.Contract(
 				company_id=company_id,
 				product_type=ProductType.INVENTORY_FINANCING,
@@ -2574,6 +2763,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			financial_summary.company_id = company_id
 			session.add(financial_summary)
 			loan = models.Loan(
+				id=loan_ids[0],
 				company_id=company_id,
 				origination_date=date_util.load_date_str('10/01/2020'),
 				adjusted_maturity_date=date_util.load_date_str('10/05/2020'),
@@ -2795,6 +2985,10 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 		daily_interest = 0.002 * 450.03
 
+		loan_ids: List[str] = [
+			str(uuid.uuid4()),
+			str(uuid.uuid4()),
+		]
 		tests: List[Dict] = [
 			{
 				'today': '10/02/2020', # On the repayment payment date, you only reduce the outstanding principal balance
@@ -2897,12 +3091,17 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 		i = 0
 		for test in tests:
-			self._run_test(test)
+			self._run_test(test, loan_ids)
 			i += 1
 
 	def test_one_payment_one_loan_invoice_financing_past_due_with_account_balances(self) -> None:
 
-		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+		def populate_fn(
+			session: Session, 
+			seed: test_helper.BasicSeed, 
+			company_id: str,
+			loan_ids: List[str],
+		) -> None:
 			session.add(models.Contract(
 				company_id=company_id,
 				product_type=ProductType.INVOICE_FINANCING,
@@ -2936,6 +3135,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			artifact_id = str(invoice.id)
 
 			loan = models.Loan(
+				id=loan_ids[0],
 				company_id=company_id,
 				origination_date=date_util.load_date_str('10/01/2020'),
 				adjusted_maturity_date=date_util.load_date_str('10/05/2020'),
@@ -2991,6 +3191,10 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 		daily_interest_after_repayment = (430.02  - 51.1) * 0.002
 
+		loan_ids: List[str] = [
+			str(uuid.uuid4()),
+			str(uuid.uuid4()),
+		]
 		tests: List[Dict] = [
 			# Due to invoice financing, the interest accrued is based on the difference
 			# between the subtotal on the invoice and the amount they have repaid on the loan
@@ -3094,11 +3298,16 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 		i = 0
 		for test in tests:
-			self._run_test(test)
+			self._run_test(test, loan_ids)
 			i += 1
 
 	def test_adjusted_total_limit_contract_limit_greater_than_computed_borrowing_base(self) -> None:
-		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+		def populate_fn(
+			session: Session, 
+			seed: test_helper.BasicSeed, 
+			company_id: str,
+			loan_ids: List[str],
+		) -> None:
 			session.add(models.Contract(
 				company_id=company_id,
 				product_type=ProductType.LINE_OF_CREDIT,
@@ -3140,6 +3349,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				.first()
 
 			company_settings.active_borrowing_base_id = ebba.id
+
+		loan_ids: List[str] = []
 		# Expected Value:
 		#  ((100k * 0.5) / 100.0)
 		#  + ((100k * 0.25) / 100.0)
@@ -3178,14 +3389,19 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				'day_volume_threshold_met': None,
 				'most_overdue_loan_days': 0
 			}
-		})
+		}, loan_ids)
 
 		with session_scope(self.session_maker) as session:
 			ebba = session.query(models.EbbaApplication).first()
 			self.assertEqual(ebba.calculated_borrowing_base, 825000)
 
 	def test_extend_ending_contract(self) -> None:
-		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+		def populate_fn(
+			session: Session, 
+			seed: test_helper.BasicSeed, 
+			company_id: str,
+			loan_ids: List[str],
+		) -> None:
 			session.add(models.Contract(
 				company_id=company_id,
 				product_type=ProductType.LINE_OF_CREDIT,
@@ -3207,6 +3423,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				adjusted_end_date=date_util.load_date_str('10/1/2020')
 			))
 
+		loan_ids: List[str] = []
 		# Expected Value:
 		#  ((100k * 0.5) / 100.0)
 		#  + ((100k * 0.25) / 100.0)
@@ -3222,14 +3439,19 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'credits_total': 0.0
 			},
 			'day_volume_threshold_met': None
-		})
+		}, loan_ids)
 
 		with session_scope(self.session_maker) as session:
 			contract = session.query(models.Contract).first()
 			self.assertEqual('10/01/2021', date_util.date_to_str(contract.adjusted_end_date))
 
 	def test_extend_ending_contract_dynamic_interest_rate(self) -> None:
-		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+		def populate_fn(
+			session: Session, 
+			seed: test_helper.BasicSeed, 
+			company_id: str,
+			loan_ids: List[str],
+		) -> None:
 			session.add(models.Contract(
 				company_id=company_id,
 				product_type=ProductType.LINE_OF_CREDIT,
@@ -3253,6 +3475,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				adjusted_end_date=date_util.load_date_str('10/1/2020')
 			))
 
+		loan_ids: List[str] = []
 		# Expected Value:
 		#  ((100k * 0.5) / 100.0)
 		#  + ((100k * 0.25) / 100.0)
@@ -3268,14 +3491,19 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'credits_total': 0.0
 			},
 			'day_volume_threshold_met': None
-		})
+		}, loan_ids)
 
 		with session_scope(self.session_maker) as session:
 			contract = session.query(models.Contract).first()
 			self.assertEqual('10/01/2021', date_util.date_to_str(contract.adjusted_end_date))
 
 	def test_dynamic_interest_rate_correct_financial_summaries(self) -> None:
-		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+		def populate_fn(
+			session: Session, 
+			seed: test_helper.BasicSeed, 
+			company_id: str,
+			loan_ids: List[str],
+		) -> None:
 			session.add(models.Contract(
 				company_id=company_id,
 				product_type=ProductType.INVENTORY_FINANCING,
@@ -3296,6 +3524,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				adjusted_end_date=date_util.load_date_str('12/31/2020')
 			))
 
+		loan_ids: List[str] = []
 		tests: List[Dict] = [
 			{
 				'today': '03/1/2020',
@@ -3415,11 +3644,16 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 		i = 0
 		for test in tests:
-			self._run_test(test)
+			self._run_test(test, loan_ids)
 			i += 1
 
 	def test_adjusted_total_limit_contract_limit_less_than_computed_borrowing_base(self) -> None:
-		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+		def populate_fn(
+			session: Session, 
+			seed: test_helper.BasicSeed, 
+			company_id: str,
+			loan_ids: List[str],
+		) -> None:
 			session.add(models.Contract(
 				company_id=company_id,
 				product_type=ProductType.LINE_OF_CREDIT,
@@ -3461,6 +3695,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 			company_settings.active_borrowing_base_id = ebba.id
 
+		loan_ids: List[str] = []
 		# Computed borrowing base: $825,000
 		# Contract max limit: $450,000
 		self._run_test({
@@ -3495,14 +3730,19 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				'day_volume_threshold_met': None,
 				'most_overdue_loan_days': 0
 			}
-		})
+		}, loan_ids)
 
 		with session_scope(self.session_maker) as session:
 			ebba = session.query(models.EbbaApplication).first()
 			self.assertEqual(ebba.calculated_borrowing_base, 825000)
 
 	def test_adjusted_total_limit_without_borrowing_base(self) -> None:
-		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+		def populate_fn(
+			session: Session, 
+			seed: test_helper.BasicSeed, 
+			company_id: str,
+			loan_ids: List[str],
+		) -> None:
 			session.add(models.Contract(
 				company_id=company_id,
 				product_type=ProductType.LINE_OF_CREDIT,
@@ -3523,6 +3763,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				adjusted_end_date=date_util.load_date_str('12/1/2020')
 			))
 
+		loan_ids: List[str] = []
 		# Expected available limit: $0.
 		# Without an active borrowing base certification (ebba_application),
 		# calculated borrowing base - and as a result, available limit - both equal $0.
@@ -3558,4 +3799,4 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				'day_volume_threshold_met': None,
 				'most_overdue_loan_days': 0
 			}
-		})
+		}, loan_ids)

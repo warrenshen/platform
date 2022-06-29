@@ -58,6 +58,21 @@ SummaryUpdateDict = TypedDict('SummaryUpdateDict', {
 
 })
 
+LoansInfoEntryDict = TypedDict('LoansInfoEntryDict', {
+	'outstanding_principal': float, 
+	'outstanding_principal_for_interest': float, 
+	'outstanding_principal_past_due': float, 
+	'outstanding_interest': float, 
+	'outstanding_late_fees': float,
+	'amount_to_pay_interest_on': float, 
+	'interest_accrued_today': float, 
+	'fees_accrued_today': float, 
+	'total_principal_paid': float, 
+	'total_interest_paid': float, 
+	'total_fees_paid': float, 
+	'days_overdue': int,
+})
+
 EbbaApplicationUpdateDict = TypedDict('EbbaApplicationUpdateDict', {
 	'id': str,
 	'calculated_borrowing_base': float,
@@ -588,6 +603,48 @@ class CustomerBalance(object):
 					company_id=self._company_id
 				)
 
+			
+
+			loans_info: Dict[str, LoansInfoEntryDict] = {}
+			#if 'loan_updates' in customer_update:
+			all_loan_ids: List[str] = []
+			loan_id_to_update_lookup: Dict[str, LoanUpdateDict] = {}
+			for loan_update in customer_update['loan_updates']:
+				#if 'loan_id' in loan_update:
+				update_loan_id = loan_update['loan_id']
+				all_loan_ids.append(update_loan_id)
+				loan_id_to_update_lookup[update_loan_id] = loan_update
+
+			open_loans = cast(
+				List[models.Loan],
+				session.query(models.Loan).filter(
+					models.Loan.id.in_(all_loan_ids)
+				).filter(
+					models.Loan.closed_at == None
+				).filter(
+					cast(Callable, models.Loan.is_deleted.isnot)(True)
+				).all())
+
+			for loan in open_loans:
+				loan_id = str(loan.id)
+				update = loan_id_to_update_lookup[loan_id]
+				# NOTE(JR): update's fees should eventually become late_fees, where applicable
+				# We're setting it up in loans_info to get us incrementally to the correct place
+				loans_info[loan_id] = {
+					'outstanding_principal': update['outstanding_principal'], 
+					'outstanding_principal_for_interest': update['outstanding_principal_for_interest'], 
+					'outstanding_principal_past_due': update['outstanding_principal_past_due'], 
+					'outstanding_interest': update['outstanding_interest'], 
+					'outstanding_late_fees': update['outstanding_fees'],
+					'amount_to_pay_interest_on': update['amount_to_pay_interest_on'], 
+					'interest_accrued_today': update['interest_accrued_today'], 
+					'fees_accrued_today': update['fees_accrued_today'], 
+					'total_principal_paid': update['total_principal_paid'], 
+					'total_interest_paid': update['total_interest_paid'], 
+					'total_fees_paid': update['total_fees_paid'], 
+					'days_overdue': update['days_overdue'],
+				}
+
 			summary_update = customer_update['summary_update']
 			minimum_interest_info = cast(Dict, summary_update['minimum_interest_info'])
 
@@ -615,7 +672,7 @@ class CustomerBalance(object):
 			financial_summary.product_type = summary_update['product_type']
 			financial_summary.daily_interest_rate = decimal.Decimal(summary_update['daily_interest_rate'])
 			financial_summary.most_overdue_loan_days = summary_update['most_overdue_loan_days']
-			financial_summary.loans_info = {}
+			financial_summary.loans_info = loans_info
 
 			if should_add_summary:
 				session.add(financial_summary)
