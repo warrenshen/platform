@@ -21,6 +21,9 @@ import {
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { respondToPurchaseOrderApprovalRequestMutation } from "lib/api/purchaseOrders";
+import { useContext } from "react";
+
+import { CurrentUserContext } from "../../contexts/CurrentUserContext";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -47,6 +50,7 @@ interface Props {
 function ApprovePurchaseOrderModal({ purchaseOrder, handleClose }: Props) {
   const snackbar = useSnackbar();
   const classes = useStyles();
+  const { user } = useContext(CurrentUserContext);
 
   const { data, loading: isCompanyVendorPartnershipLoading } =
     useCompanyVendorPartnershipForVendorQuery({
@@ -70,6 +74,7 @@ function ApprovePurchaseOrderModal({ purchaseOrder, handleClose }: Props) {
       variables: {
         purchase_order_id: purchaseOrder.id,
         new_request_status: RequestStatusEnum.Approved,
+        approved_by_user_id: user.id,
         rejection_note: "",
         link_val: null,
       },

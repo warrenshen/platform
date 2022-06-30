@@ -108,7 +108,9 @@ fragment PurchaseOrderLimited on purchase_orders {
   customer_note
   created_at
   requested_at
+  rejected_by_user_id
   approved_at
+  approved_by_user_id
   funded_at
   closed_at
   company {

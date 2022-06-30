@@ -11,6 +11,7 @@ import {
   makeStyles,
 } from "@material-ui/core";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   BankAccountFragment,
   PurchaseOrderFragment,
@@ -20,6 +21,7 @@ import {
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { respondToPurchaseOrderApprovalRequestMutation } from "lib/api/purchaseOrders";
+import { useContext } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -51,6 +53,7 @@ function ReviewPurchaseOrderApproveModal({
   handleClose,
   handleApproveSuccess,
 }: Props) {
+  const { user } = useContext(CurrentUserContext);
   const snackbar = useSnackbar();
   const classes = useStyles();
 
@@ -93,6 +96,7 @@ function ReviewPurchaseOrderApproveModal({
       variables: {
         purchase_order_id: purchaseOrder.id,
         new_request_status: RequestStatusEnum.Approved,
+        approved_by_user_id: user.id,
         rejection_note: "",
         link_val: linkVal,
       },

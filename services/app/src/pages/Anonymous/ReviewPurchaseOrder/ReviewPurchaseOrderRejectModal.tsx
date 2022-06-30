@@ -11,11 +11,12 @@ import {
   createStyles,
   makeStyles,
 } from "@material-ui/core";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { RequestStatusEnum } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { respondToPurchaseOrderApprovalRequestMutation } from "lib/api/purchaseOrders";
-import { useState } from "react";
+import { useContext, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -47,6 +48,7 @@ function ReviewPurchaseOrderRejectModal({
   handleClose,
   handleRejectSuccess,
 }: Props) {
+  const { user } = useContext(CurrentUserContext);
   const snackbar = useSnackbar();
   const classes = useStyles();
 
@@ -63,6 +65,7 @@ function ReviewPurchaseOrderRejectModal({
         purchase_order_id: purchaseOrderId,
         new_request_status: RequestStatusEnum.Rejected,
         rejection_note: rejectionNote,
+        rejected_by_user_id: user.id,
         link_val: linkVal,
       },
     });

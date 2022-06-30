@@ -207,6 +207,8 @@ class RespondToApprovalRequestView(MethodView):
 		purchase_order_amount = ''
 		purchase_order_requested_date = ''
 		action_type = ''
+		approved_by_user_id = data['approved_by_user_id'] if 'approved_by_user_id' in data else None
+		rejected_by_user_id = data['rejected_by_user_id'] if 'rejected_by_user_id' in data else None
 
 		user_session = auth_util.UserSession.from_session()
 
@@ -240,10 +242,12 @@ class RespondToApprovalRequestView(MethodView):
 			if new_request_status == RequestStatusEnum.APPROVED:
 				purchase_order.status = RequestStatusEnum.APPROVED
 				purchase_order.approved_at = date_util.now()
+				purchase_order.approved_by_user_id = approved_by_user_id
 				action_type = 'Approved'
 			else:
 				purchase_order.status = RequestStatusEnum.REJECTED
 				purchase_order.rejected_at = date_util.now()
+				purchase_order.rejected_by_user_id = rejected_by_user_id
 				action_type = 'Rejected'
 
 				if user_session.is_bank_admin():

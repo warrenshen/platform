@@ -5,6 +5,24 @@ object_relationships:
   - name: company
     using:
       foreign_key_constraint_on: company_id
+  - name: approving_user_id
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: users
+        insertion_order: null
+        column_mapping:
+          approved_by_user_id: id
+  - name: rejecting_user_id
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: users
+        insertion_order: null
+        column_mapping:
+          rejected_by_user_id: id
   - name: vendor
     using:
       manual_configuration:
@@ -53,8 +71,10 @@ select_permissions:
         - updated_at
         - order_number
         - approved_at
+        - approved_by_user_id
         - requested_at
         - rejected_at
+        - rejected_by_user_id
         - rejection_note
         - is_cannabis
         - funded_at
@@ -81,11 +101,13 @@ select_permissions:
         - order_number
         - status
         - approved_at
+        - approved_by_user_id
         - closed_at
         - created_at
         - funded_at
         - incompleted_at
         - rejected_at
+        - rejected_by_user_id
         - requested_at
         - updated_at
         - company_id
@@ -105,6 +127,7 @@ select_permissions:
         - amount
         - amount_funded
         - approved_at
+        - approved_by_user_id
         - bank_incomplete_note
         - bank_rejection_note
         - closed_at
@@ -122,6 +145,7 @@ select_permissions:
         - order_date
         - order_number
         - rejected_at
+        - rejected_by_user_id
         - rejection_note
         - requested_at
         - status
@@ -139,6 +163,7 @@ select_permissions:
         - amount
         - amount_funded
         - approved_at
+        - approved_by_user_id
         - bank_incomplete_note
         - bank_rejection_note
         - closed_at
@@ -156,6 +181,7 @@ select_permissions:
         - order_date
         - order_number
         - rejected_at
+        - rejected_by_user_id
         - rejection_note
         - requested_at
         - status
@@ -173,6 +199,7 @@ select_permissions:
         - amount
         - amount_funded
         - approved_at
+        - approved_by_user_id
         - closed_at
         - company_id
         - created_at
@@ -187,6 +214,7 @@ select_permissions:
         - order_date
         - order_number
         - rejected_at
+        - rejected_by_user_id
         - rejection_note
         - requested_at
         - status
@@ -206,7 +234,9 @@ update_permissions:
     permission:
       columns:
         - approved_at
+        - approved_by_user_id
         - rejected_at
+        - rejected_by_user_id
         - rejection_note
       filter:
         vendor_id:

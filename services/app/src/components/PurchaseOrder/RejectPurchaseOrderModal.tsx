@@ -15,7 +15,9 @@ import { RequestStatusEnum } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { respondToPurchaseOrderApprovalRequestMutation } from "lib/api/purchaseOrders";
-import { useState } from "react";
+import { useContext, useState } from "react";
+
+import { CurrentUserContext } from "../../contexts/CurrentUserContext";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -42,6 +44,7 @@ interface Props {
 function RejectPurchaseOrderModal({ purchaseOrderId, handleClose }: Props) {
   const snackbar = useSnackbar();
   const classes = useStyles();
+  const { user } = useContext(CurrentUserContext);
 
   const [rejectionNote, setRejectionNote] = useState("");
 
@@ -55,6 +58,7 @@ function RejectPurchaseOrderModal({ purchaseOrderId, handleClose }: Props) {
       variables: {
         purchase_order_id: purchaseOrderId,
         new_request_status: RequestStatusEnum.Rejected,
+        rejected_by_user_id: user.id,
         rejection_note: rejectionNote,
         link_val: null,
       },

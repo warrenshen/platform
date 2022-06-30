@@ -29,6 +29,8 @@ import { formatCurrency } from "lib/number";
 import { computePurchaseOrderDueDateDateStringClient } from "lib/purchaseOrders";
 import { useContext, useMemo, useState } from "react";
 
+import { useGetUserByIdQuery } from "../../generated/graphql";
+
 interface Props {
   purchaseOrderId: PurchaseOrders["id"];
   handleClose: () => void;
@@ -53,6 +55,20 @@ export default function PurchaseOrderDrawer({
   });
 
   const purchaseOrder = data?.purchase_orders_by_pk;
+
+  const { data: rejecting_user } = useGetUserByIdQuery({
+    skip: !purchaseOrder?.rejected_by_user_id,
+    variables: {
+      id: purchaseOrder?.rejected_by_user_id,
+    },
+  });
+
+  const { data: approving_user } = useGetUserByIdQuery({
+    skip: !purchaseOrder?.approved_by_user_id,
+    variables: {
+      id: purchaseOrder?.approved_by_user_id,
+    },
+  });
 
   const loans = purchaseOrder?.loans;
   const purchaseOrderFileIds = useMemo(() => {
@@ -277,6 +293,23 @@ export default function PurchaseOrderDrawer({
           isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
         />
       </Box>
+      <Box display="flex" flexDirection="column" alignItems="flex-start" mt={2}>
+        <Typography variant="subtitle2" color="textSecondary">
+          Approved By
+        </Typography>
+        <Typography variant={"body1"}>
+          {approving_user?.users_by_pk?.full_name || "-"}
+        </Typography>
+      </Box>
+      <Box display="flex" flexDirection="column" alignItems="flex-start" mt={2}>
+        <Typography variant="subtitle2" color="textSecondary">
+          Rejected By
+        </Typography>
+        <Typography variant={"body1"}>
+          {rejecting_user?.users_by_pk?.full_name || "-"}
+        </Typography>
+      </Box>
+
       {isBankUser && (
         <Box
           display="flex"

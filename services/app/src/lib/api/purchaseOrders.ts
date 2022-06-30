@@ -4,6 +4,7 @@ import {
   PurchaseOrders,
   PurchaseOrdersInsertInput,
   RequestStatusEnum,
+  Users,
 } from "generated/graphql";
 import {
   CustomMutationResponse,
@@ -117,6 +118,8 @@ export type RespondToPurchaseOrderApprovalReq = {
     purchase_order_id: PurchaseOrders["id"];
     new_request_status: RequestStatusEnum;
     rejection_note: string;
+    rejected_by_user_id?: Users["id"];
+    approved_by_user_id?: Users["id"];
     link_val: string;
   };
 };

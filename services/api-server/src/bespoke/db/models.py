@@ -802,7 +802,9 @@ class PurchaseOrder(Artifact):
 	status = Column(String)
 	requested_at = Column(DateTime)
 	approved_at = Column(DateTime)
+	approved_by_user_id =  cast(GUID, Column(GUID, ForeignKey('users.id')))
 	rejected_at = Column(DateTime)
+	rejected_by_user_id =  cast(GUID, Column(GUID, ForeignKey('users.id')))
 	incompleted_at = Column(DateTime)
 	rejection_note = Column(Text)
 	bank_rejection_note = Column(Text)
@@ -825,6 +827,17 @@ class PurchaseOrder(Artifact):
 		foreign_keys=[company_id]
 	)
 
+	
+	approved_by_user = relationship(
+		'User',
+		foreign_keys=[approved_by_user_id]
+	)
+
+	rejected_by_user = relationship(
+		'User',
+		foreign_keys=[rejected_by_user_id]
+	)
+	
 	def as_dict(self) -> PurchaseOrderDict:
 		return PurchaseOrderDict(
 			id=str(self.id),
