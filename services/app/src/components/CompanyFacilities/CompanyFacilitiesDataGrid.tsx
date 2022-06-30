@@ -22,6 +22,11 @@ export default function CompanyFacilitiesDataGrid({
   const columns = useMemo(
     () => [
       {
+        dataField: "id",
+        caption: "Facility ID",
+        minWidth: ColumnWidths.MinWidth,
+      },
+      {
         dataField: "name",
         caption: "Facility Name",
         minWidth: ColumnWidths.MinWidth,
