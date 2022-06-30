@@ -117,6 +117,7 @@ UpdatePartnershipRequestNewInputDict = TypedDict('UpdatePartnershipRequestNewInp
 })
 
 AddVendorNewInputDict = TypedDict('AddVendorNewInputDict', {
+	'name': str,
 	'email': str,
 	'customer_id': str,
 })

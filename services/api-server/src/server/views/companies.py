@@ -613,6 +613,7 @@ class AddVendorNewView(MethodView):
 			return handler_util.make_error_response('No data provided')
 
 		required_keys = [
+			'name',
 			'email',
 			'customer_id'
 		]
@@ -659,7 +660,9 @@ class AddVendorNewView(MethodView):
 			partnership_invitation.requesting_company_id = customer.id
 			partnership_invitation.email = request_data['email'].lower()
 			partnership_invitation.submitted_by_user_id = user_session.get_user_id() # type: ignore
-			partnership_invitation.metadata_info = {}
+			partnership_invitation.metadata_info = {
+				'name': request_data['name']
+			}
 			partnership_invitation.requested_at = date_util.now()
 			session.add(partnership_invitation)
 			session.flush()

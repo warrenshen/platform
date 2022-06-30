@@ -41,6 +41,7 @@ interface Props {
 
 export type AddVendorInput = {
   email: string;
+  name: string;
 };
 
 export default function AddVendorNewModal({ customerId, handleClose }: Props) {
@@ -56,6 +57,7 @@ export default function AddVendorNewModal({ customerId, handleClose }: Props) {
 
   const [vendorInput, setVendorInput] = useState<AddVendorInput>({
     email: "",
+    name: "",
   });
 
   const [addNewVendor, { loading: isAddVendorLoading }] =
@@ -65,6 +67,7 @@ export default function AddVendorNewModal({ customerId, handleClose }: Props) {
     const response = await addNewVendor({
       variables: {
         email: vendorInput.email,
+        name: vendorInput.name,
         customer_id: customerId,
       },
     });
@@ -83,6 +86,7 @@ export default function AddVendorNewModal({ customerId, handleClose }: Props) {
   const isSubmitDisabled =
     !vendorInput.email ||
     !isEmailValid(vendorInput.email) ||
+    !vendorInput.name ||
     isAddVendorLoading;
 
   return (

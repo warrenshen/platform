@@ -24,6 +24,7 @@ interface Props {
 function getRows(requests: any[]): RowsProp {
   return requests.map((request) => ({
     ...request,
+    name: request.metadata_info?.name ? request.metadata_info.name : "-",
     requesting_company: {
       ...request.requesting_company,
     },
@@ -51,6 +52,12 @@ export default function PartnershipsDataGrid({
         caption: "Requesting Company",
         dataField: "requesting_company.name",
         width: ColumnWidths.Type,
+        alignment: "center",
+      },
+      {
+        caption: "Name",
+        dataField: "name",
+        width: 250,
         alignment: "center",
       },
       {

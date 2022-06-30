@@ -13,6 +13,14 @@ export default function AddVendorForm({ vendorInput, setVendorInput }: Props) {
       <Box display="flex" flexDirection="column">
         <Box display="flex" flexDirection="column" mt={4}>
           <TextField
+            label="Vendor Name"
+            required
+            value={vendorInput.name}
+            onChange={({ target: { value } }) => {
+              setVendorInput({ ...vendorInput, name: value });
+            }}
+          />
+          <TextField
             label="Vendor Email"
             required
             value={vendorInput.email}

@@ -81,7 +81,9 @@ export default function CustomerVendorsPageContent({
       ? awaitingPartnershipsAndInvitationsData?.company_partnership_invitations.map(
           (awaitingInvitation) => ({
             id: awaitingInvitation.id,
-            vendor_name: "-",
+            vendor_name: awaitingInvitation?.metadata_info?.name
+              ? awaitingInvitation.metadata_info.name
+              : "-",
             submitted_by: awaitingInvitation.submitted_by_user
               ? awaitingInvitation.submitted_by_user.full_name
               : "-",

@@ -97,6 +97,7 @@ query GetPartnershipRequestsAndInvitesByRequestingCompanyId(
   ) {
     id
     email
+    metadata_info
     requested_at
     submitted_by_user {
       id
