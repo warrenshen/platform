@@ -50,10 +50,6 @@ fragment CustomersWithMetadata on companies {
 
 fragment CustomerSurveillance on companies {
   ...CustomerForBank
-  # financial_summaries(where: { date: { _eq: $date } }) {
-  #   id
-  #   ...FinancialSummary
-  # }
   settings {
     id
     ...CompanySettings
@@ -108,6 +104,12 @@ fragment CustomerSurveillance on companies {
     where: { 
       _and: [
         { category: { _eq: "borrowing_base" } }
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
       ]
     }
   ) {
@@ -120,6 +122,12 @@ fragment CustomerSurveillance on companies {
     where: { 
       _and: [
         { category: { _eq: "financial_report" } }
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
       ]
     }
   ) {

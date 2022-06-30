@@ -1308,6 +1308,8 @@ def certify_customer_surveillance_result(
 			models.CustomerSurveillanceResult.company_id == company_id
 		).filter(
 			models.CustomerSurveillanceResult.qualifying_date == qualifying_date
+		).filter(
+			cast(Callable, models.CustomerSurveillanceResult.is_deleted.isnot)(True)
 		).first())
 
 	if not customer_surveillance_result:
@@ -1322,7 +1324,9 @@ def certify_customer_surveillance_result(
 		session.flush()
 
 	if customer_surveillance_result.surveillance_status == CompanySurveillanceStatus.IN_REVIEW and \
-		surveillance_status != CompanySurveillanceStatus.IN_REVIEW:
+		(surveillance_status != CompanySurveillanceStatus.IN_REVIEW and \
+		 surveillance_status != CompanySurveillanceStatus.ON_PAUSE and \
+		 surveillance_status != CompanySurveillanceStatus.DEFAULTED):
 		open_ebba_applications = cast(
 			List[models.EbbaApplication],
 			session.query(models.EbbaApplication).filter(

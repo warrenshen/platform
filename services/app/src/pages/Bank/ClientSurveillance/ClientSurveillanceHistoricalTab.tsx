@@ -84,6 +84,7 @@ export default function ClientSurveillanceHistoricalTab() {
       </Box>
       <Box display="flex" flexDirection="column">
         <CustomerSurveillanceDataGrid
+          isCurrent={false}
           customers={customers}
           selectedCompaniesIds={selectedCompanyIds}
           targetDate={selectedDate}

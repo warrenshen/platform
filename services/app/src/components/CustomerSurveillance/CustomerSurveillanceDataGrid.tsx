@@ -312,7 +312,7 @@ export default function CustomerSurveillanceDataGrid({
     <>
       {!!selectedCustomerId && (
         <CustomerSurveillanceDrawer
-          isCurrent
+          isCurrent={isCurrent}
           customerId={selectedCustomerId}
           targetDate={targetDate}
           handleClose={() => setSelectedCustomerId(null)}

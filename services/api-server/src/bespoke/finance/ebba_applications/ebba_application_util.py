@@ -60,8 +60,10 @@ def submit_ebba_application_for_approval(
 		""
 	) if customer_surveillance_result.bank_note is not None else ""
 
-	customer_surveillance_result.surveillance_status = CompanySurveillanceStatus.IN_REVIEW
-	customer_surveillance_resultsurveillance_status_note = f'{original_note} {AutomatedSurveillanceMessage.IN_REVIEW}'
+	if customer_surveillance_result.surveillance_status != CompanySurveillanceStatus.ON_PAUSE and \
+		customer_surveillance_result.surveillance_status != CompanySurveillanceStatus.DEFAULTED:
+		customer_surveillance_result.surveillance_status = CompanySurveillanceStatus.IN_REVIEW
+		customer_surveillance_resultsurveillance_status_note = f'{original_note} {AutomatedSurveillanceMessage.IN_REVIEW}'
 
 	return True, None
 
