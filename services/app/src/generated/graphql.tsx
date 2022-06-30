@@ -26811,10 +26811,16 @@ export type GetReportLoansByDebtFacilityIdSubscriptionVariables = Exact<{
   debt_facility_statuses?: Maybe<Array<Scalars["String"]>>;
   other_statuses?: Maybe<Array<Scalars["String"]>>;
   target_facility_ids?: Maybe<Array<Scalars["uuid"]>>;
+  target_date: Scalars["date"];
 }>;
 
 export type GetReportLoansByDebtFacilityIdSubscription = {
-  loans: Array<Pick<Loans, "id"> & OpenLoanForDebtFacilityFragment>;
+  companies: Array<
+    Pick<Companies, "id"> & {
+      financial_summaries: Array<Pick<FinancialSummaries, "id" | "loans_info">>;
+      loans: Array<Pick<Loans, "id"> & OpenLoanForDebtFacilityFragment>;
+    }
+  >;
 };
 
 export type GetDebtFacilitiesSubscriptionVariables = Exact<{
@@ -32521,57 +32527,86 @@ export const GetReportLoansByDebtFacilityIdDocument = gql`
     $debt_facility_statuses: [String!]
     $other_statuses: [String!]
     $target_facility_ids: [uuid!]
+    $target_date: date!
   ) {
-    loans(
+    companies(
       where: {
         _and: [
+          { is_customer: { _eq: true } }
           {
             _or: [
-              { is_deleted: { _is_null: true } }
-              { is_deleted: { _eq: false } }
+              { settings: { is_dummy_account: { _is_null: true } } }
+              { settings: { is_dummy_account: { _eq: false } } }
             ]
           }
-          {
-            _or: [
-              { closed_at: { _gt: "2021-11-25T00:00:00+00:00" } }
-              { closed_at: { _is_null: true } }
-            ]
-          }
-          {
-            _or: [
-              {
-                _and: [
-                  {
-                    loan_report: {
-                      debt_facility_status: { _in: $debt_facility_statuses }
-                    }
-                  }
-                  {
-                    loan_report: {
-                      debt_facility_id: { _in: $target_facility_ids }
-                    }
-                  }
-                ]
-              }
-              {
-                loan_report: { debt_facility_status: { _in: $other_statuses } }
-              }
-            ]
-          }
-          {
-            _or: [
-              {
-                company: { settings: { is_dummy_account: { _is_null: true } } }
-              }
-              { company: { settings: { is_dummy_account: { _eq: false } } } }
-            ]
-          }
-          { origination_date: { _is_null: false } }
         ]
       }
     ) {
       id
-      ...OpenLoanForDebtFacility
+      financial_summaries(where: { date: { _eq: $target_date } }) {
+        id
+        loans_info
+      }
+      loans(
+        where: {
+          _and: [
+            {
+              _or: [
+                { is_deleted: { _is_null: true } }
+                { is_deleted: { _eq: false } }
+              ]
+            }
+            {
+              _or: [
+                { closed_at: { _gt: "2021-11-25T00:00:00+00:00" } }
+                { closed_at: { _is_null: true } }
+              ]
+            }
+            {
+              _or: [
+                {
+                  _and: [
+                    {
+                      loan_report: {
+                        debt_facility_status: { _in: $debt_facility_statuses }
+                      }
+                    }
+                    {
+                      loan_report: {
+                        debt_facility_id: { _in: $target_facility_ids }
+                      }
+                    }
+                  ]
+                }
+                {
+                  loan_report: {
+                    debt_facility_status: { _in: $other_statuses }
+                  }
+                }
+              ]
+            }
+            {
+              _or: [
+                {
+                  company: {
+                    settings: { is_dummy_account: { _is_null: true } }
+                  }
+                }
+                { company: { settings: { is_dummy_account: { _eq: false } } } }
+              ]
+            }
+            {
+              _and: [
+                { origination_date: { _is_null: false } }
+                { origination_date: { _lte: $target_date } }
+              ]
+            }
+          ]
+        }
+      ) {
+        id
+        ...OpenLoanForDebtFacility
+      }
     }
   }
   ${OpenLoanForDebtFacilityFragmentDoc}
@@ -32592,11 +32627,12 @@ export const GetReportLoansByDebtFacilityIdDocument = gql`
  *      debt_facility_statuses: // value for 'debt_facility_statuses'
  *      other_statuses: // value for 'other_statuses'
  *      target_facility_ids: // value for 'target_facility_ids'
+ *      target_date: // value for 'target_date'
  *   },
  * });
  */
 export function useGetReportLoansByDebtFacilityIdSubscription(
-  baseOptions?: Apollo.SubscriptionHookOptions<
+  baseOptions: Apollo.SubscriptionHookOptions<
     GetReportLoansByDebtFacilityIdSubscription,
     GetReportLoansByDebtFacilityIdSubscriptionVariables
   >

@@ -105,39 +105,50 @@ export const getMaturityDate = (
 };
 
 export const getDaysPastDue = (
-  loan: OpenLoanForDebtFacilityFragment
+  loan: OpenLoanForDebtFacilityFragment,
+  currentDebtFacilityReportDate: string
 ): number => {
+  const currentReportDate = parseDateStringServer(
+    currentDebtFacilityReportDate
+  );
+  const maturityDate = getMaturityDate(loan);
+
   // If the loan is already repaid, then DPD should be zero
   // if it was paid on time, otherwise the days late from
   // when it was paid
-  if (!!loan.closed_at) {
+  if (!!loan.closed_at && loan.closed_at < currentReportDate.getTime()) {
     // Multiple calls to parseDateStringServer may seem odd, but it strips the timestamp off
     // so I don't have worry about funky edge cases and timezones since
     // we only care about calendar days in PST in this scenario
-    const closed_date = parseDateStringServer(
+    const closedDate = parseDateStringServer(
       parseDateStringServer(loan.closed_at).toDateString()
     );
-    const maturity_date = getMaturityDate(loan);
-    const daysPaidPastDue = Math.floor(
-      (closed_date.valueOf() - maturity_date.valueOf()) / DayInMilliseconds
-    );
+
+    const daysPaidPastDue =
+      closedDate < currentReportDate
+        ? Math.floor(
+            (closedDate.valueOf() - maturityDate.valueOf()) / DayInMilliseconds
+          )
+        : Math.floor(
+            (currentReportDate.valueOf() - maturityDate.valueOf()) /
+              DayInMilliseconds
+          );
 
     return daysPaidPastDue;
+  } else {
+    const daysPastDue = Math.floor(
+      (currentReportDate.valueOf() - maturityDate.valueOf()) / DayInMilliseconds
+    );
+
+    return daysPastDue > 0 ? daysPastDue : 0;
   }
-
-  const maturityTime = getMaturityDate(loan).getTime();
-  const nowTime = new Date(Date.now()).getTime();
-  const daysPastDue = Math.floor(
-    (nowTime.valueOf() - maturityTime.valueOf()) / DayInMilliseconds
-  );
-
-  return daysPastDue > 0 ? daysPastDue : 0;
 };
 
 export const getDaysPastDueBucket = (
-  loan: OpenLoanForDebtFacilityFragment
+  loan: OpenLoanForDebtFacilityFragment,
+  currentDebtFacilityReportDate: string
 ): string => {
-  const daysPastDue = getDaysPastDue(loan);
+  const daysPastDue = getDaysPastDue(loan, currentDebtFacilityReportDate);
 
   if (daysPastDue <= 0) {
     return "Current";

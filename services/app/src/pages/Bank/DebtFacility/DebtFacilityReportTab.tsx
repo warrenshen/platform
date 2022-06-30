@@ -14,6 +14,7 @@ import {
   GetDebtFacilitiesSubscription,
   useGetReportLoansByDebtFacilityIdSubscription,
 } from "generated/graphql";
+import { parseDateStringServer, todayAsDateStringServer } from "lib/date";
 import {
   DebtFacilityCompanyStatusEnum,
   DebtFacilityStatusEnum,
@@ -59,9 +60,12 @@ export default function DebtFacilityReportTab({
 
   const [lastDebtFacilityReportDate, setLastDebtFacilityReportDate] =
     useState("");
+  const [currentDebtFacilityReportDate, setCurrentDebtFacilityReportDate] =
+    useState(todayAsDateStringServer());
   const [isAnonymized, setIsAnonymized] = useState(false);
 
   const { data, error } = useGetReportLoansByDebtFacilityIdSubscription({
+    skip: currentDebtFacilityReportDate === "",
     variables: {
       debt_facility_statuses: [
         DebtFacilityStatusEnum.SoldIntoDebtFacility,
@@ -76,13 +80,34 @@ export default function DebtFacilityReportTab({
       target_facility_ids: !!selectedDebtFacilityId
         ? [selectedDebtFacilityId]
         : [],
+      target_date: currentDebtFacilityReportDate,
     },
   });
   if (error) {
     console.error({ error });
     alert(`Error in query (details in console): ${error.message}`);
   }
-  const loans = data?.loans || [];
+
+  const companies = data?.companies || [];
+  const loans = companies.flatMap((company) => {
+    return company.loans;
+  });
+  const loansInfoLookup = Object.assign(
+    {},
+    ...companies.map((company) => {
+      return {
+        [company.id]: company?.financial_summaries?.[0]?.loans_info
+          ? company.financial_summaries[0].loans_info
+          : {},
+      };
+    })
+  );
+
+  const lastReportDate = parseDateStringServer(lastDebtFacilityReportDate);
+  const currentReportDate = parseDateStringServer(
+    currentDebtFacilityReportDate
+  );
+  const isDateWarningShown = currentReportDate < lastReportDate;
 
   return (
     <Container>
@@ -91,12 +116,25 @@ export default function DebtFacilityReportTab({
           <Box display="flex" flexDirection="column">
             <Box display="flex" flexDirection="row" mb={4}>
               <DateInput
+                disableFuture
                 className={classes.inputField}
-                id="debt-facility-report-tab-date-picker"
+                id="debt-facility-report-tab-previous-report-date-picker"
                 label="Last Report Date"
                 value={lastDebtFacilityReportDate}
                 onChange={(value) => setLastDebtFacilityReportDate(value || "")}
               />
+              <Box ml={3}>
+                <DateInput
+                  disableFuture
+                  className={classes.inputField}
+                  id="debt-facility-report-tab-current-reportdate-picker"
+                  label="Current Report Date"
+                  value={currentDebtFacilityReportDate}
+                  onChange={(value) =>
+                    setCurrentDebtFacilityReportDate(value || "")
+                  }
+                />
+              </Box>
               <Box pt={1.5} ml={3}>
                 <FormControlLabel
                   control={
@@ -112,23 +150,33 @@ export default function DebtFacilityReportTab({
                 />
               </Box>
             </Box>
-            <DebtFacilityReportDataGrid
-              loans={loans}
-              isCompanyVisible
-              isStatusVisible
-              isMaturityVisible
-              isReportingVisible
-              isDisbursementIdentifierVisible
-              isDaysPastDueVisible
-              isAnonymized={isAnonymized}
-              handleClickCustomer={(customerId) =>
-                history.push(
-                  getBankCompanyRoute(customerId, BankCompanyRouteEnum.Loans)
-                )
-              }
-              supportedProductTypes={supportedProductTypes}
-              lastDebtFacilityReportDate={lastDebtFacilityReportDate}
-            />
+            {!!isDateWarningShown && (
+              <Alert severity="info">
+                Please select a date for the last debt facility that is earlier
+                than or equal to the current report date.
+              </Alert>
+            )}
+            {!isDateWarningShown && (
+              <DebtFacilityReportDataGrid
+                loans={loans}
+                loansInfoLookup={loansInfoLookup}
+                isCompanyVisible
+                isStatusVisible
+                isMaturityVisible
+                isReportingVisible
+                isDisbursementIdentifierVisible
+                isDaysPastDueVisible
+                isAnonymized={isAnonymized}
+                handleClickCustomer={(customerId) =>
+                  history.push(
+                    getBankCompanyRoute(customerId, BankCompanyRouteEnum.Loans)
+                  )
+                }
+                supportedProductTypes={supportedProductTypes}
+                lastDebtFacilityReportDate={lastDebtFacilityReportDate}
+                currentDebtFacilityReportDate={currentDebtFacilityReportDate}
+              />
+            )}
           </Box>
         )}
         {!selectedDebtFacilityId && (

@@ -63,6 +63,7 @@ interface Props {
   pageSize?: number;
   filterByStatus?: RequestStatusEnum;
   loans: OpenLoanForDebtFacilityFragment[];
+  loansInfoLookup: Record<string, Record<string, Record<string, string>>>;
   selectedLoanIds?: Loans["id"][];
   handleClickCustomer?: (customerId: Companies["id"]) => void;
   handleClickPurchaseOrderBankNote?: (
@@ -72,6 +73,7 @@ interface Props {
   supportedProductTypes: ProductTypeEnum[];
   lastDebtFacilityReportDate: string;
   isAnonymized: boolean;
+  currentDebtFacilityReportDate: string;
 }
 
 const getOriginationOrCreatedDate = (loan: OpenLoanForDebtFacilityFragment) => {
@@ -218,11 +220,19 @@ const anonymizeLoanNames = (
 
 function getRows(
   loans: OpenLoanForDebtFacilityFragment[],
+  loansInfoLookup: Record<string, Record<string, Record<string, string>>>,
   supportedProductTypes: ProductTypeEnum[],
   lastDebtFacilityReportDate: string,
-  isAnonymized: boolean
+  isAnonymized: boolean,
+  currentDebtFacilityReportDate: string
 ): RowsProp {
-  const groupedLoans = groupBy(loans, (loan) => loan.company_id);
+  const filteredLoans = loans.filter((loan) => {
+    return (
+      loansInfoLookup.hasOwnProperty(loan.company_id) &&
+      loansInfoLookup[loan.company_id].hasOwnProperty(loan.id)
+    );
+  });
+  const groupedLoans = groupBy(filteredLoans, (loan) => loan.company_id);
   const reducedLoans =
     Object.keys(groupedLoans).length !== 0
       ? reduceLineOfCreditLoans(groupedLoans)
@@ -234,10 +244,14 @@ function getRows(
     ...loan,
     amount: formatCurrency(loan.amount),
     outstanding_principal_balance: formatCurrency(
-      loan.outstanding_principal_balance
+      Number(loansInfoLookup[loan.company_id][loan.id]["outstanding_interest"])
     ),
-    outstanding_interest: formatCurrency(loan.outstanding_interest),
-    outstanding_fees: formatCurrency(loan.outstanding_fees),
+    outstanding_interest: formatCurrency(
+      Number(loansInfoLookup[loan.company_id][loan.id]["outstanding_interest"])
+    ),
+    outstanding_fees: formatCurrency(
+      Number(loansInfoLookup[loan.company_id][loan.id]["outstanding_late_fees"])
+    ),
     origination_date: formatDateString(loan.origination_date),
     customer_identifier:
       getProductTypeFromOpenLoanForDebtFacilityFragment(loan) ===
@@ -308,21 +322,31 @@ function getRows(
       ProductTypeEnum.LineOfCredit
         ? null
         : !!loan.loan_report
-        ? formatCurrency(loan.loan_report.total_principal_paid)
+        ? formatCurrency(
+            Number(
+              loansInfoLookup[loan.company_id][loan.id]["total_principal_paid"]
+            )
+          )
         : null,
     total_interest_paid:
       getProductTypeFromOpenLoanForDebtFacilityFragment(loan) ===
       ProductTypeEnum.LineOfCredit
         ? null
         : !!loan.loan_report
-        ? formatCurrency(loan.loan_report.total_interest_paid)
+        ? formatCurrency(
+            Number(
+              loansInfoLookup[loan.company_id][loan.id]["total_interest_paid"]
+            )
+          )
         : null,
-    total_fees_paid:
+    total_late_fees_paid:
       getProductTypeFromOpenLoanForDebtFacilityFragment(loan) ===
       ProductTypeEnum.LineOfCredit
         ? null
         : !!loan.loan_report
-        ? formatCurrency(loan.loan_report.total_fees_paid)
+        ? formatCurrency(
+            Number(loansInfoLookup[loan.company_id][loan.id]["total_fees_paid"])
+          )
         : null,
     previously_assigned: determineIfPreviouslyAssigned(
       loan,
@@ -371,8 +395,11 @@ function getRows(
     year: parseDateStringServer(loan.origination_date).getFullYear(),
     quarter: renderQuarter(loan.origination_date),
     loan_count: countAdvancesSent(loan),
-    days_past_due: getDaysPastDue(loan),
-    days_past_due_bucket: getDaysPastDueBucket(loan),
+    days_past_due: getDaysPastDue(loan, currentDebtFacilityReportDate),
+    days_past_due_bucket: getDaysPastDueBucket(
+      loan,
+      currentDebtFacilityReportDate
+    ),
   }));
 }
 
@@ -394,6 +421,7 @@ export default function DebtFacilityReportDataGrid({
   partnerType = PartnerEnum.VENDOR,
   filterByStatus,
   loans,
+  loansInfoLookup,
   selectedLoanIds,
   handleClickCustomer,
   handleClickPurchaseOrderBankNote,
@@ -401,17 +429,27 @@ export default function DebtFacilityReportDataGrid({
   supportedProductTypes,
   lastDebtFacilityReportDate,
   isAnonymized,
+  currentDebtFacilityReportDate,
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = useMemo(
     () =>
       getRows(
         loans,
+        loansInfoLookup,
         supportedProductTypes,
         lastDebtFacilityReportDate,
-        isAnonymized
+        isAnonymized,
+        currentDebtFacilityReportDate
       ),
-    [loans, supportedProductTypes, lastDebtFacilityReportDate, isAnonymized]
+    [
+      loans,
+      loansInfoLookup,
+      supportedProductTypes,
+      lastDebtFacilityReportDate,
+      isAnonymized,
+      currentDebtFacilityReportDate,
+    ]
   );
 
   useEffect(() => {
@@ -572,7 +610,7 @@ export default function DebtFacilityReportDataGrid({
       {
         visible: isMaturityVisible,
         dataField: "outstanding_fees",
-        caption: "Oustanding Fees",
+        caption: "Oustanding Late Fees",
         width: ColumnWidths.Currency,
         alignment: "right",
       },
@@ -606,8 +644,8 @@ export default function DebtFacilityReportDataGrid({
       },
       {
         visible: isReportingVisible,
-        dataField: "total_fees_paid",
-        caption: "Total Fees Paid",
+        dataField: "total_late_fees_paid",
+        caption: "Total Late Fees Paid",
         width: ColumnWidths.Currency,
         alignment: "right",
       },

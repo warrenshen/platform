@@ -69,7 +69,7 @@ LoansInfoEntryDict = TypedDict('LoansInfoEntryDict', {
 	'fees_accrued_today': float, 
 	'total_principal_paid': float, 
 	'total_interest_paid': float, 
-	'total_fees_paid': float, 
+	'total_late_fees_paid': float, 
 	'days_overdue': int,
 })
 
@@ -606,7 +606,6 @@ class CustomerBalance(object):
 			
 
 			loans_info: Dict[str, LoansInfoEntryDict] = {}
-			#if 'loan_updates' in customer_update:
 			all_loan_ids: List[str] = []
 			loan_id_to_update_lookup: Dict[str, LoanUpdateDict] = {}
 			for loan_update in customer_update['loan_updates']:
@@ -641,7 +640,7 @@ class CustomerBalance(object):
 					'fees_accrued_today': update['fees_accrued_today'], 
 					'total_principal_paid': update['total_principal_paid'], 
 					'total_interest_paid': update['total_interest_paid'], 
-					'total_fees_paid': update['total_fees_paid'], 
+					'total_late_fees_paid': update['total_fees_paid'], 
 					'days_overdue': update['days_overdue'],
 				}
 
