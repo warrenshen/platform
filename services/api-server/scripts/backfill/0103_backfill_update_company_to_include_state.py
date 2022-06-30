@@ -36,6 +36,8 @@ def main(is_test_run: bool = True) -> None:
 					List[models.Company],
 					session.query(models.Company).filter(
 						models.Company.is_customer == True
+					).order_by(
+						models.Company.name.asc()
 					).offset(
 						current_page * BATCH_SIZE
 					).limit(BATCH_SIZE).all())
