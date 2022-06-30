@@ -200,37 +200,36 @@ class TestGetOptInCustomers(db_unittest.TestCase):
 			self.assertEqual(len(company_settings_lookup.keys()), 0)
 			self.assertIsNone(filtered_err)
 
-	# NOTE(JR): this test works I'm just turning it off temporarily during the dummy account only testing week
-	# def test_get_opt_in_customers_from_chunk_for_no_company_settings_error(self) -> None:
-	# 	with session_scope(self.session_maker) as session:
-	# 		company_id = str(uuid.uuid4())
-	# 		product_types_with_autogenerate: List[str] = [
-	# 			ProductType.DISPENSARY_FINANCING
-	# 		]
+	def test_get_opt_in_customers_from_chunk_for_no_company_settings_error(self) -> None:
+		with session_scope(self.session_maker) as session:
+			company_id = str(uuid.uuid4())
+			product_types_with_autogenerate: List[str] = [
+				ProductType.DISPENSARY_FINANCING
+			]
 
-	# 		self.setup_data_for_get_opt_in_customers_from_chunk(
-	# 			session,
-	# 			company_id,
-	# 			ProductType.DISPENSARY_FINANCING,
-	# 			is_dummy_account = True,
-	# 			customer_opt_in_flag = True,
-	# 			bank_override_flag = False,
-	# 		)
+			self.setup_data_for_get_opt_in_customers_from_chunk(
+				session,
+				company_id,
+				ProductType.DISPENSARY_FINANCING,
+				is_dummy_account = True,
+				customer_opt_in_flag = True,
+				bank_override_flag = False,
+			)
 
-	# 		customers, customers_err = queries.get_all_customers(session)
-	# 		self.assertEqual(len(customers), 1)
-	# 		self.assertIsNone(customers_err)
+			customers, customers_err = queries.get_all_customers(session)
+			self.assertEqual(len(customers), 1)
+			self.assertIsNone(customers_err)
 
-	# 		filtered_customers, filtered_customer_ids, company_settings_lookup, filtered_err = autogenerate_repayment_util.get_opt_in_customers(
-	# 			session, 
-	# 			customers,
-	# 			product_types_with_autogenerate,
-	# 			TODAY_DATE
-	# 		)
-	# 		self.assertIsNone(filtered_customers)
-	# 		self.assertIsNone(filtered_customer_ids)
-	# 		self.assertIsNone(company_settings_lookup)
-	# 		self.assertIn("No company settings found for the provided companies", filtered_err.msg)
+			filtered_customers, filtered_customer_ids, company_settings_lookup, filtered_err = autogenerate_repayment_util.get_opt_in_customers(
+				session, 
+				customers,
+				product_types_with_autogenerate,
+				TODAY_DATE
+			)
+			self.assertIsNone(filtered_customers)
+			self.assertIsNone(filtered_customer_ids)
+			self.assertIsNone(company_settings_lookup)
+			self.assertIn("No company settings found for the provided companies", filtered_err.msg)
 
 	def test_get_opt_in_customers_from_chunk_for_no_financial_summaries_error(self) -> None:
 		with session_scope(self.session_maker) as session:

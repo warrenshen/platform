@@ -34,8 +34,7 @@ def get_opt_in_customers(
 	customer_settings, err = queries.get_company_settings_for_target_companies(
 		session,
 		all_customer_ids,
-		allow_dummy = True,
-		# allow_dummy = False,
+		allow_dummy = False,
 	)
 	if err:
 		return None, None, None, err
@@ -48,8 +47,8 @@ def get_opt_in_customers(
 	for financial_summary in financial_summaries:
 		company_id = str(financial_summary.company_id)
 		supported_product_type = financial_summary.product_type in supported_product_types
-		non_dummy = company_id in settings_lookup and settings_lookup[company_id].is_dummy_account is True
-		#non_dummy = company_id in settings_lookup and settings_lookup[company_id].is_dummy_account is False
+		non_dummy = company_id in settings_lookup and (settings_lookup[company_id].is_dummy_account is False or \
+			settings_lookup[company_id].is_dummy_account is None)
 
 		feature_flags: Dict[str, bool] = cast(Dict[str, bool], settings_lookup[company_id].feature_flags_payload) if non_dummy else None
 		customer_opt_in = settings_lookup[company_id].is_autogenerate_repayments_enabled if non_dummy else None

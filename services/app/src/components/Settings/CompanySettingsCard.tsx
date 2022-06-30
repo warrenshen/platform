@@ -12,6 +12,10 @@ import {
 import { grey } from "@material-ui/core/colors";
 import Can from "components/Shared/Can";
 import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
+import {
   CompanySettingsFragment,
   CompanySettingsLimitedFragment,
   ContractFragment,
@@ -19,6 +23,7 @@ import {
 import { Action } from "lib/auth/rbac-rules";
 import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
 import { SettingsHelper } from "lib/settings";
+import { useContext } from "react";
 
 interface Props {
   contract: ContractFragment | null;
@@ -42,6 +47,11 @@ const useStyles = makeStyles(() =>
 function CompanySettingsCard({ contract, settings, handleClick }: Props) {
   const classes = useStyles();
 
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+  const isBankUser = isRoleBankUser(role);
+
   if (contract === null) {
     return null;
   }
@@ -53,6 +63,10 @@ function CompanySettingsCard({ contract, settings, handleClick }: Props) {
   const isAutoRepaymentsEnabled = !!settings?.is_autogenerate_repayments_enabled
     ? settings.is_autogenerate_repayments_enabled
     : false;
+
+  const isEditButtonShown =
+    isBankUser ||
+    (!isBankUser && settingsHelper.shouldShowAutogenerateRepayments());
 
   return (
     <Card className={classes.card}>
@@ -151,7 +165,7 @@ function CompanySettingsCard({ contract, settings, handleClick }: Props) {
         </Box>
       </CardContent>
       <Can perform={Action.EditUserAccountSettings}>
-        {handleClick && (
+        {handleClick && isEditButtonShown && (
           <CardActions>
             <Button size="small" variant="outlined" onClick={handleClick}>
               Edit

@@ -287,9 +287,7 @@ const rules: Rules = {
       Action.ViewPurchaseOrdersActionMenu,
       Action.EditLineOfCredit,
 
-      // This is part of the solution, commenting out for dummy account
-      // only testing week
-      // Action.EditUserAccountSettings,
+      Action.EditUserAccountSettings,
     ],
     dynamic: [],
   },
