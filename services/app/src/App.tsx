@@ -63,6 +63,10 @@ import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
 import { useLocation } from "react-use";
 
 const ValidBlazeOrigin = process.env.REACT_APP_BESPOKE_BLAZE_PARENT_ORIGIN;
+// Global boolean to track if "message" event listener is already added.
+// This is necessary since useEffect with an empty dependency array calls
+// its callback twice in development environment in strict mode.
+let IsEventListenerAdded = false;
 
 export default function App() {
   const { pathname } = useLocation();
@@ -71,6 +75,12 @@ export default function App() {
   } = useContext(CurrentUserContext);
 
   useEffect(() => {
+    if (IsEventListenerAdded) {
+      return;
+    } else {
+      IsEventListenerAdded = true;
+    }
+
     // If true, then app is open in an iframe element.
     if (window.location !== window.parent.location) {
       window.addEventListener(
@@ -81,8 +91,68 @@ export default function App() {
             return;
           }
 
-          console.info("Received event from parent via postMessage...");
-          console.info(event.data);
+          console.info(
+            "Received event from parent via postMessage...",
+            event.data
+          );
+
+          const processError = (errorMessage: string) => {
+            console.info(errorMessage);
+            window.parent.postMessage(
+              {
+                identifier: "handshake_error",
+                payload: {
+                  message: errorMessage,
+                },
+              },
+              ValidBlazeOrigin
+            );
+          };
+
+          const eventIdentifier = event.data.identifier;
+          const eventPayload = event.data.payload;
+          if (!eventIdentifier) {
+            processError("Failed to process event due to missing identifier!");
+            return;
+          }
+
+          if (eventIdentifier === "handshake_response") {
+            if (!eventPayload) {
+              processError(
+                `Failed to process ${eventIdentifier} event due to missing payload!`
+              );
+              return;
+            }
+
+            const {
+              auth_key: authKey,
+              company_id: blazeCompanyId,
+              shop_id: blazeShopId,
+              userId: blazeUserId,
+              userRole: blazeUserRole,
+            } = eventPayload;
+
+            if (
+              authKey == null ||
+              blazeCompanyId == null ||
+              blazeShopId == null ||
+              blazeUserId == null ||
+              blazeUserRole == null
+            ) {
+              processError(
+                `Failed to process ${eventIdentifier} event due to missing payload field(s)!`
+              );
+              return;
+            }
+
+            window.parent.postMessage(
+              {
+                identifier: "handshake_success",
+                payload: null,
+              },
+              ValidBlazeOrigin
+            );
+          }
         },
         false
       );

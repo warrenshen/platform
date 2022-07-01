@@ -1,24 +1,58 @@
 import React, { useEffect } from 'react';
 import './App.css';
 
-const EmbedUrl = "http://localhost:3005";
+const ValidEmbedUrl = "http://localhost:3005";
+// Global boolean to track if "message" event listener is already added.
+// This is necessary since useEffect with an empty dependency array calls
+// its callback twice in development environment in strict mode.
+let IsEventListenerAdded = false;
 
-function App() {
+export default function App() {
   useEffect(() => {
+    if (IsEventListenerAdded) {
+      return;
+    } else {
+      IsEventListenerAdded = true;
+    }
+
     window.addEventListener("message", (event) => {
       // Do we trust the sender of this message?  (might be
       // different from what we originally opened, for example).
-      if (event.origin !== EmbedUrl) {
+      if (event.origin !== ValidEmbedUrl) {
         return;
       }
 
-      console.log("Received event from child via postMessage...");
-      console.log(event.data);
+      console.log("[iframe-parent] Received event from child via postMessage...", event.data);
 
-      if (!!event.source) {
+      const processError = (errorMessage: string) => {
+        console.info(`[iframe-parent] ${errorMessage}`);
+        window.parent.postMessage(
+          {
+            identifier: "handshake_error",
+            payload: {
+              message: errorMessage,
+            },
+          },
+          ValidEmbedUrl
+        );
+      };
+
+      if (!event.source) {
+        processError("Failed to process event due to missing source!");
+        return;
+      }
+
+      const eventIdentifier = event.data.identifier;
+      // const eventPayload = event.data.payload;
+      if (!eventIdentifier) {
+        processError("Failed to process event due to missing identifier!");
+        return;
+      }
+
+      if (eventIdentifier === "handshake_request") {
         (event.source as Window).postMessage({
-          identifier: "heartbeat_response",
-          payload: null,
+          identifier: "handshake_response",
+          payload: {},
         }, event.origin);
       }
     }, false);
@@ -44,7 +78,7 @@ function App() {
           <iframe
             id="bespoke-financial-iframe"
             title="Bespoke Financial"
-            src={EmbedUrl}
+            src={ValidEmbedUrl}
             frameBorder="0"
             style={{
               overflow: 'hidden',
@@ -57,5 +91,3 @@ function App() {
     </div>
   );
 }
-
-export default App;
