@@ -535,11 +535,6 @@ class TestGenerateRepaymentsForMatureLoans(db_unittest.TestCase):
 		customer_opt_in_flag: bool = True,
 		bank_override_flag: bool = False,
 	) -> None:
-		# def generate_repayments_for_mature_loans(
-		# 	company_settings_lookup: Dict[str, models.CompanySettings],
-		# 	loans: List[models.Loan],
-		# 	today: datetime.date
-		# ) -> Tuple[ List[Dict[str, Any]], errors.Error ]:
 		for i in range(len(customer_ids)):
 			session.add(models.Company(
 				id = customer_ids[i],
@@ -598,70 +593,70 @@ class TestGenerateRepaymentsForMatureLoans(db_unittest.TestCase):
 				loan_ids.append(str(loan.id))
 
 
-	# NOTE(JR): this test works just fine, but I'm turning it off during the dummy account only testing week
-	# def test_generation_happy_path(self) -> None:
-	# 	with session_scope(self.session_maker) as session:
-	# 		product_types_with_autogenerate: List[str] = [
-	# 			ProductType.DISPENSARY_FINANCING
-	# 		]
-	# 		bot_user_id = str(uuid.uuid4())
-	# 		customer_ids = []
-	# 		collections_bank_account_ids = []
-	# 		for i in range(4):
-	# 			customer_ids.append(str(uuid.uuid4()))
-	# 			collections_bank_account_ids.append(str(uuid.uuid4()))
+	def test_generation_happy_path(self) -> None:
+		with session_scope(self.session_maker) as session:
+			product_types_with_autogenerate: List[str] = [
+				ProductType.DISPENSARY_FINANCING
+			]
+			bot_user_id = str(uuid.uuid4())
+			customer_ids = []
+			collections_bank_account_ids = []
+			for i in range(4):
+				customer_ids.append(str(uuid.uuid4()))
+				collections_bank_account_ids.append(str(uuid.uuid4()))
 
-	# 		self.setup_data(
-	# 			session,
-	# 			customer_ids,
-	# 			collections_bank_account_ids,
-	# 			setup_loans = True,
-	# 		)
+			self.setup_data(
+				session,
+				customer_ids,
+				collections_bank_account_ids,
+				setup_loans = True,
+			)
 
-	# 		customers, customers_err = queries.get_all_customers(session)
-	# 		self.assertEqual(len(customers), 4)
-	# 		self.assertIsNone(customers_err)
+			customers, customers_err = queries.get_all_customers(session)
+			self.assertEqual(len(customers), 4)
+			self.assertIsNone(customers_err)
 
-	# 		filtered_customers, filtered_customer_ids, company_settings_lookup, filtered_err = autogenerate_repayment_util.get_opt_in_customers(
-	# 			session, 
-	# 			customers,
-	# 			product_types_with_autogenerate,
-	# 			TODAY_DATE,
-	# 		)
+			filtered_customers, filtered_customer_ids, company_settings_lookup, filtered_err = autogenerate_repayment_util.get_opt_in_customers(
+				session, 
+				customers,
+				product_types_with_autogenerate,
+				TODAY_DATE,
+			)
 
-	# 		self.assertEqual(len(filtered_customers), 4)
-	# 		self.assertEqual(len(filtered_customer_ids), 4)
-	# 		self.assertEqual(len(company_settings_lookup.keys()), 4)
-	# 		self.assertIsNone(filtered_err)
+			self.assertEqual(len(filtered_customers), 4)
+			self.assertEqual(len(filtered_customer_ids), 4)
+			self.assertEqual(len(company_settings_lookup.keys()), 4)
+			self.assertIsNone(filtered_err)
 
-	# 		loans_for_repayment, loans_err = autogenerate_repayment_util.find_mature_loans_without_open_repayments(
-	# 			session,
-	# 			filtered_customer_ids,
-	# 			TODAY_DATE,
-	# 		)
+			loans_for_repayment, loans_err = autogenerate_repayment_util.find_mature_loans_without_open_repayments(
+				session,
+				filtered_customer_ids,
+				TODAY_DATE,
+			)
 
-	# 		self.assertEqual(len(loans_for_repayment), 4)
-	# 		self.assertIsNone(loans_err)
+			self.assertEqual(len(loans_for_repayment), 4)
+			self.assertIsNone(loans_err)
 
-	# 		email_alert_data, alert_data_err = autogenerate_repayment_util.generate_repayments_for_mature_loans(
-	# 			session,
-	# 			filtered_customers,
-	# 			company_settings_lookup,
-	# 			loans_for_repayment,
-	# 			bot_user_id,
-	# 		)
+			email_alert_data, alert_data_err = autogenerate_repayment_util.generate_repayments_for_mature_loans(
+				session,
+				filtered_customers,
+				company_settings_lookup,
+				loans_for_repayment,
+				bot_user_id,
+				TODAY_DATE
+			)
 
-	# 		for i in range(4):
-	# 			self.assertEqual(models_util.is_valid_uuid(email_alert_data[i]["repayment_id"]), True)
-	# 			self.assertEqual(email_alert_data[i]["per_loan_alert_data"][0]["interest"], 1500)
-	# 			self.assertEqual(email_alert_data[i]["per_loan_alert_data"][0]["late_fees"], 500)
+			for i in range(4):
+				self.assertEqual(models_util.is_valid_uuid(email_alert_data[i]["repayment_id"]), True)
+				self.assertEqual(email_alert_data[i]["per_loan_alert_data"][0]["interest"], 1500)
+				self.assertEqual(email_alert_data[i]["per_loan_alert_data"][0]["late_fees"], 500)
 			
-	# 			requested_amount = email_alert_data[i]["per_loan_alert_data"][0]["principal"] + \
-	# 				email_alert_data[i]["per_loan_alert_data"][0]["interest"] + \
-	# 				email_alert_data[i]["per_loan_alert_data"][0]["late_fees"]
-	# 			self.assertEqual(email_alert_data[i]["requested_amount"], requested_amount)
+				requested_amount = email_alert_data[i]["per_loan_alert_data"][0]["principal"] + \
+					email_alert_data[i]["per_loan_alert_data"][0]["interest"] + \
+					email_alert_data[i]["per_loan_alert_data"][0]["late_fees"]
+				self.assertEqual(email_alert_data[i]["requested_amount"], requested_amount)
 
-	# 		self.assertIsNone(alert_data_err)
+			self.assertIsNone(alert_data_err)
 
 	def test_generation_with_empty_params(self) -> None:
 		with session_scope(self.session_maker) as session:
@@ -685,6 +680,7 @@ class TestGenerateRepaymentsForMatureLoans(db_unittest.TestCase):
 				cast(Dict[str, models.CompanySettings], {}),
 				cast(Dict[str, List[models.Loan]], {}),
 				bot_user_id,
+				TODAY_DATE
 			)
 			if err:
 				raise err

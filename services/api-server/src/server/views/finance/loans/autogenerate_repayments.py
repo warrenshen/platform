@@ -99,13 +99,13 @@ class AutogenerateRepaymentView(MethodView):
 					company_settings_lookup,
 					loans_for_repayment,
 					bot_user_id,
+					today_date,
 				)
 				if err:
 					raise err
 
 				company_html, err = autogenerate_repayment_util.format_email_alert_data(
 					email_alert_data,
-					today_date,
 				)
 				if err:
 					raise err

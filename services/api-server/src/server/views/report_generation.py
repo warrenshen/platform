@@ -1181,7 +1181,7 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 		purchase_order_list = cast(
 			List[models.PurchaseOrder],
 			session.query(models.PurchaseOrder).filter(
-				cast(Callable, models.Loan.is_deleted.isnot)(True)
+				cast(Callable, models.PurchaseOrder.is_deleted.isnot)(True)
 			).filter(
 				models.PurchaseOrder.id.in_(purchase_order_ids)
 			).all())

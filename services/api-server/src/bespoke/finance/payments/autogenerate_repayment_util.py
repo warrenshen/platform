@@ -256,8 +256,14 @@ def generate_repayments_for_mature_loans(
 	company_settings_lookup: Dict[str, models.CompanySettings],
 	per_company_loans: Dict[str, List[models.Loan]],
 	submitted_by_user_id: str,
+	today_date: datetime.date,
 ) -> Tuple[ List[Dict[str, Any]], errors.Error ]:
 	alert_data: List[Dict[str, Any]] = []
+	deposit_date = date_util.get_nearest_business_day(
+		today_date + datetime.timedelta(days = 1), 
+		preceeding = False
+	)
+
 	for company_id in per_company_loans:
 		loans = per_company_loans[company_id]
 	
@@ -284,8 +290,9 @@ def generate_repayments_for_mature_loans(
 		repayment.company_id = str(loan.company_id)
 		repayment.type = PaymentType.REPAYMENT
 		repayment.method = PaymentMethodEnum.REVERSE_DRAFT_ACH
+		repayment.requested_payment_date = deposit_date
+		repayment.deposit_date = deposit_date
 		repayment.requested_amount = Decimal(requested_amount)
-		repayment.requested_payment_date = date_util.get_earliest_requested_payment_date(date_util.DEFAULT_TIMEZONE)
 		repayment.items_covered = cast(model_types.PaymentItemsCoveredDict, {
 			"loan_ids": requested_loan_ids,
 			"payment_option": RepaymentOption.PAY_IN_FULL,
@@ -306,13 +313,13 @@ def generate_repayments_for_mature_loans(
 			"repayment_id": str(repayment.id),
 			"requested_amount": requested_amount,
 			"per_loan_alert_data": per_loan_alert_data,
+			"deposit_date": deposit_date,
 		})
 
 	return alert_data, None
 
 def format_email_alert_data(
 	alert_data: List[Dict[str, Any]],
-	today_date: datetime.date
 ) -> Tuple[ Dict[str, Dict[str, str] ], errors.Error ]:
 	html_dict: Dict[str, Dict[str, str] ] = {}
 	bespoke_table_begin = f"""
@@ -364,7 +371,7 @@ def format_email_alert_data(
 					<td style='padding:5px;'>{alert["customer_name"] if row_count == 0 else ""}</td>
 					<td style='padding:5px;'>{alert["repayment_id"] if row_count == 0 else ""}</td>
 					<td style='padding:5px;'>{row["loan_identifier"]}</td>
-					<td style='padding:5px;'>{date_util.human_readable_yearmonthday_from_date(today_date)}</td>
+					<td style='padding:5px;'>{date_util.human_readable_yearmonthday_from_date(alert["deposit_date"])}</td>
 					<td style='padding:5px;'>{date_util.human_readable_yearmonthday_from_date(row["maturity_date"])}</td>
 					<td style='padding:5px;'>{number_util.to_dollar_format(row["principal"])}</td>
 					<td style='padding:5px;'>{number_util.to_dollar_format(row["interest"])}</td>
@@ -376,7 +383,7 @@ def format_email_alert_data(
 			customer_rows_html += f"""
 				<tr style='background-color:#{"fff" if row_count % 2 == 0 else "eee"};'>
 					<td style='padding:5px;'>{row["loan_identifier"]}</td>
-					<td style='padding:5px;'>{date_util.human_readable_yearmonthday_from_date(today_date)}</td>
+					<td style='padding:5px;'>{date_util.human_readable_yearmonthday_from_date(alert["deposit_date"])}</td>
 					<td style='padding:5px;'>{date_util.human_readable_yearmonthday_from_date(row["maturity_date"])}</td>
 					<td style='padding:5px;'>{number_util.to_dollar_format(row["principal"])}</td>
 					<td style='padding:5px;'>{number_util.to_dollar_format(row["interest"])}</td>
