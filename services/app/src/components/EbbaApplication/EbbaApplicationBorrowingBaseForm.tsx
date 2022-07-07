@@ -16,6 +16,7 @@ import {
   EbbaApplicationFilesInsertInput,
   EbbaApplicationsInsertInput,
   Files,
+  RequestStatusEnum,
 } from "generated/graphql";
 import { FileTypeEnum } from "lib/enum";
 import { formatCurrency } from "lib/number";
@@ -33,6 +34,7 @@ interface Props {
   isActionTypeUpdate: boolean;
   isAccountsReceivableVisible: boolean;
   isInventoryVisible: boolean;
+  isBankUser: boolean;
   isCashVisible: boolean;
   isCashInDacaVisible: boolean;
   isCustomAmountVisible: boolean;
@@ -61,8 +63,17 @@ export default function EbbaApplicationBorrowingBaseForm({
   ebbaApplicationFiles,
   setEbbaApplication,
   setEbbaApplicationFiles,
+  isBankUser,
 }: Props) {
   const classes = useStyles();
+
+  const isEditDisabled =
+    (ebbaApplication?.status === RequestStatusEnum.ApprovalRequested ||
+      ebbaApplication?.status === RequestStatusEnum.Approved) &&
+    !isBankUser;
+
+  const isFileUploaderDisabled =
+    ebbaApplication?.status === RequestStatusEnum.Approved && !isBankUser;
 
   const ebbaApplicationFileIds = useMemo(
     () =>
@@ -120,6 +131,7 @@ export default function EbbaApplicationBorrowingBaseForm({
           <Box mt={1}>
             <FormControl className={classes.inputField}>
               <CurrencyInput
+                isDisabled={isEditDisabled}
                 isRequired
                 label={"Accounts Receivable Balance"}
                 value={ebbaApplication.monthly_accounts_receivable}
@@ -143,6 +155,7 @@ export default function EbbaApplicationBorrowingBaseForm({
           <Box mt={1}>
             <FormControl className={classes.inputField}>
               <CurrencyInput
+                isDisabled={isEditDisabled}
                 isRequired
                 label={"Inventory Balance"}
                 value={ebbaApplication.monthly_inventory}
@@ -166,6 +179,7 @@ export default function EbbaApplicationBorrowingBaseForm({
           <Box mt={1}>
             <FormControl className={classes.inputField}>
               <CurrencyInput
+                isDisabled={isEditDisabled}
                 isRequired
                 label={"Cash in Deposit Accounts"}
                 value={ebbaApplication.monthly_cash}
@@ -189,6 +203,7 @@ export default function EbbaApplicationBorrowingBaseForm({
           <Box mt={1}>
             <FormControl className={classes.inputField}>
               <CurrencyInput
+                isDisabled={isEditDisabled}
                 isRequired
                 label={"Cash in DACA"}
                 value={ebbaApplication.amount_cash_in_daca}
@@ -215,6 +230,7 @@ export default function EbbaApplicationBorrowingBaseForm({
           <Box display="flex" flexDirection="column" mt={1}>
             <FormControl>
               <CurrencyInput
+                isDisabled={isEditDisabled}
                 label={"Adjustment Amount"}
                 value={ebbaApplication.amount_custom}
                 handleChange={(value) =>
@@ -228,6 +244,7 @@ export default function EbbaApplicationBorrowingBaseForm({
           </Box>
           <Box display="flex" flexDirection="column" mt={1}>
             <TextField
+              disabled={isEditDisabled}
               label={"Adjustment Amount Description / Note"}
               value={ebbaApplication.amount_custom_note}
               onChange={({ target: { value } }) =>
@@ -262,6 +279,7 @@ export default function EbbaApplicationBorrowingBaseForm({
           </Typography>
         </Box>
         <FileUploader
+          disabled={isFileUploaderDisabled}
           companyId={companyId}
           fileType={FileTypeEnum.EbbaApplication}
           fileIds={ebbaApplicationFileIds}

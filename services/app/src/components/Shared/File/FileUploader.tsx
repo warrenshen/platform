@@ -15,6 +15,7 @@ interface Props {
   isAnonymousUser?: boolean;
   handleDeleteFileById?: (fileId: Files["id"]) => void;
   handleNewFiles: (files: FileFragment[]) => void;
+  disabled?: boolean;
 }
 
 export default function FileUploader({
@@ -28,12 +29,10 @@ export default function FileUploader({
   isAnonymousUser = false,
   handleDeleteFileById,
   handleNewFiles,
+  disabled = false,
 }: Props) {
-  const isDropzoneVisible = !(
-    maxFilesAllowed === 1 &&
-    fileIds &&
-    fileIds.length > 0
-  );
+  const isDropzoneVisible =
+    !(maxFilesAllowed === 1 && fileIds && fileIds.length > 0) && !disabled;
 
   return (
     <Box>

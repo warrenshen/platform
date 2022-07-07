@@ -256,6 +256,7 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
         ebbaApplicationFiles={ebbaApplicationFiles}
         setEbbaApplication={setEbbaApplication}
         setEbbaApplicationFiles={setEbbaApplicationFiles}
+        isBankUser={isBankUser}
       />
     </Modal>
   );
