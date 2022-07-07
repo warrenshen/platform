@@ -1,26 +1,24 @@
-import { Box, Button, Typography } from "@material-ui/core";
+import { Box, Button, Tooltip, Typography } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import CommentIcon from "@material-ui/icons/Comment";
-import InvoiceDrawerLauncher from "components/Invoices/InvoiceDrawerLauncher";
+import InvoiceDrawer from "components/Invoices/InvoiceDrawer";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
-import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
+import PurchaseOrderDrawer from "components/PurchaseOrder/PurchaseOrderDrawer";
 import LoanPaymentStatusChip from "components/Shared/Chip/LoanPaymentStatusChip";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
-import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
-import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
+import MetrcLogo from "components/Shared/Images/MetrcLogo.png";
 import {
   Companies,
+  Invoices,
   LoanArtifactFragment,
   LoanArtifactLimitedFragment,
   LoanFragment,
   LoanReportFragment,
-  LoanTypeEnum,
   Loans,
   Maybe,
   PurchaseOrders,
@@ -32,7 +30,6 @@ import {
   LoanPaymentStatusEnum,
   LoanStatusEnum,
   LoanStatusToLabel,
-  LoanTypeToLabel,
 } from "lib/enum";
 import { PartnerEnum } from "lib/enum";
 import {
@@ -41,6 +38,7 @@ import {
   getLoanArtifactName,
   getLoanVendorName,
 } from "lib/loans";
+import { CurrencyPrecision } from "lib/number";
 import { ColumnWidths, formatRowModel, truncateString } from "lib/tables";
 import { useEffect, useMemo, useState } from "react";
 
@@ -82,20 +80,28 @@ function getRows(
   return loans.map((loan) => {
     return formatRowModel({
       ...loan,
-      customer_identifier: createLoanCustomerIdentifier(loan),
-      disbursement_identifier: createLoanDisbursementIdentifier(loan),
-      artifact_name: getLoanArtifactName(loan),
+      adjusted_maturity_date: !!loan?.adjusted_maturity_date
+        ? parseDateStringServer(loan.adjusted_maturity_date)
+        : null,
       artifact_bank_note: loan.purchase_order
         ? truncateString(
             (loan as LoanArtifactFragment).purchase_order?.bank_note || ""
           )
         : "N/A",
-      vendor_name: getLoanVendorName(loan),
-      repayment_date: !!loan.loan_report
-        ? loan.loan_report.repayment_date
-        : null,
+      artifact_name: getLoanArtifactName(loan),
+      customer_identifier: createLoanCustomerIdentifier(loan),
+      disbursement_identifier: createLoanDisbursementIdentifier(loan),
       financing_day_limit: !!loan.loan_report
         ? loan.loan_report.financing_day_limit
+        : null,
+      origination_date: !!loan?.origination_date
+        ? parseDateStringServer(loan.origination_date)
+        : null,
+      repayment_date: !!loan.loan_report?.repayment_date
+        ? parseDateStringServer(loan.loan_report.repayment_date)
+        : null,
+      requested_payment_date: !!loan?.requested_payment_date
+        ? parseDateStringServer(loan.requested_payment_date)
         : null,
       total_principal_paid: !!loan.loan_report
         ? loan.loan_report.total_principal_paid
@@ -106,6 +112,7 @@ function getRows(
       total_fees_paid: !!loan.loan_report
         ? loan.loan_report.total_fees_paid
         : null,
+      vendor_name: getLoanVendorName(loan),
     });
   });
 }
@@ -141,6 +148,11 @@ export default function LoansDataGrid({
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = useMemo(() => getRows(loans), [loans]);
+
+  const [selectedPurchaseOrderId, setSelectedPurchaseOrderId] =
+    useState<PurchaseOrders["id"]>(null);
+  const [selectedInvoiceId, setSelectedInvoiceId] =
+    useState<Invoices["id"]>(null);
 
   useEffect(() => {
     if (!dataGrid) {
@@ -280,37 +292,20 @@ export default function LoansDataGrid({
       {
         caption: "Loan Amount",
         dataField: "amount",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.amount} />
-        ),
       },
       {
         visible: !isMaturityVisible,
         caption: "Requested Payment Date",
         dataField: "requested_payment_date",
+        format: "shortDate",
         width: ColumnWidths.Date,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell
-            dateString={params.row.data.requested_payment_date}
-          />
-        ),
-      },
-      {
-        // Temporarily hide this column. Consider a
-        // tool-tip UX to surface this information.
-        visible: false,
-        caption: "Loan Type",
-        dataField: "loan_type",
-        width: ColumnWidths.Type,
-        alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
-          <Box>
-            {LoanTypeToLabel[params.row.data.loan_type as LoanTypeEnum]}
-          </Box>
-        ),
       },
       {
         visible: isArtifactVisible,
@@ -319,15 +314,34 @@ export default function LoansDataGrid({
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) =>
           params.row.data.purchase_order ? (
-            <PurchaseOrderDrawerLauncher
-              label={params.row.data.artifact_name}
-              isMetrcBased={params.row.data.purchase_order.is_metrc_based}
-              purchaseOrderId={params.row.data.purchase_order.id}
-            />
+            <>
+              <ClickableDataGridCell
+                onClick={() => {
+                  setSelectedPurchaseOrderId(params.row.data.purchase_order.id);
+                }}
+                label={params.row.data.artifact_name}
+              />
+              {params.row.data.purchase_order.is_metrc_based && (
+                <Tooltip
+                  arrow
+                  interactive
+                  title={"Purchase order created from Metrc manifest"}
+                >
+                  <img
+                    src={MetrcLogo}
+                    alt="Metrc Logo"
+                    width={24}
+                    height={24}
+                  />
+                </Tooltip>
+              )}
+            </>
           ) : params.row.data.invoice ? (
-            <InvoiceDrawerLauncher
+            <ClickableDataGridCell
+              onClick={() => {
+                setSelectedInvoiceId(params.row.data.invoice.id);
+              }}
               label={params.row.data.artifact_name}
-              invoiceId={params.row.data.invoice.id}
             />
           ) : params.row.data.line_of_credit ? (
             "N/A"
@@ -337,9 +351,6 @@ export default function LoansDataGrid({
         dataField: "vendor_name",
         caption: `${partnerType} Name`,
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
-          <TextDataGridCell label={params.row.data.vendor_name} />
-        ),
       },
       {
         visible: isArtifactBankNoteVisible,
@@ -379,11 +390,9 @@ export default function LoansDataGrid({
         visible: isMaturityVisible,
         caption: "Origination Date",
         dataField: "origination_date",
+        format: "shortDate",
         width: ColumnWidths.Date,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell dateString={params.row.data.origination_date} />
-        ),
       },
       {
         visible: isMaturityVisible,
@@ -391,11 +400,6 @@ export default function LoansDataGrid({
         dataField: "adjusted_maturity_date",
         width: ColumnWidths.Date,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell
-            dateString={params.row.data.adjusted_maturity_date}
-          />
-        ),
       },
       {
         visible: isMaturityVisible && !isDaysPastDueVisible,
@@ -413,45 +417,44 @@ export default function LoansDataGrid({
       },
       {
         visible: isMaturityVisible,
-        dataField: "outstanding_principal_balance",
         caption: "Outstanding Principal",
+        dataField: "outstanding_principal_balance",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell
-            value={params.row.data.outstanding_principal_balance}
-          />
-        ),
       },
       {
         visible: isMaturityVisible,
-        dataField: "outstanding_interest",
         caption: "Outstanding Interest",
+        dataField: "outstanding_interest",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.outstanding_interest} />
-        ),
       },
       {
         visible: isMaturityVisible,
-        dataField: "outstanding_fees",
         caption: "Oustanding Fees",
+        dataField: "outstanding_fees",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.outstanding_fees} />
-        ),
       },
       {
         visible: isReportingVisible,
         caption: "Repayment Date",
         dataField: "repayment_date",
+        format: "shortDate",
         width: ColumnWidths.Date,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell dateString={params.row.data.repayment_date} />
-        ),
       },
       {
         visible: isReportingVisible,
@@ -461,33 +464,36 @@ export default function LoansDataGrid({
       },
       {
         visible: isReportingVisible,
-        dataField: "total_principal_paid",
         caption: "Total Principal Paid",
+        dataField: "total_principal_paid",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.total_principal_paid} />
-        ),
       },
       {
         visible: isReportingVisible,
-        dataField: "total_interest_paid",
         caption: "Total Interest Paid",
+        dataField: "total_interest_paid",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.total_interest_paid} />
-        ),
       },
       {
         visible: isReportingVisible,
-        dataField: "total_fees_paid",
         caption: "Total Fees Paid",
+        dataField: "total_fees_paid",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.total_fees_paid} />
-        ),
       },
     ],
     [
@@ -521,19 +527,33 @@ export default function LoansDataGrid({
   );
 
   return (
-    <ControlledDataGrid
-      ref={(ref) => setDataGrid(ref)}
-      isExcelExport={isExcelExport}
-      isSortingDisabled={isSortingDisabled}
-      filtering={filtering}
-      pager={pager}
-      select={isMultiSelectEnabled}
-      pageSize={pageSize}
-      allowedPageSizes={allowedPageSizes}
-      dataSource={rows}
-      columns={columns}
-      selectedRowKeys={selectedLoanIds}
-      onSelectionChanged={handleSelectionChanged}
-    />
+    <>
+      {!!selectedPurchaseOrderId && (
+        <PurchaseOrderDrawer
+          purchaseOrderId={selectedPurchaseOrderId}
+          handleClose={() => setSelectedPurchaseOrderId(null)}
+        />
+      )}
+      {!!selectedInvoiceId && (
+        <InvoiceDrawer
+          invoiceId={selectedInvoiceId}
+          handleClose={() => setSelectedInvoiceId(null)}
+        />
+      )}
+      <ControlledDataGrid
+        ref={(ref) => setDataGrid(ref)}
+        isExcelExport={isExcelExport}
+        isSortingDisabled={isSortingDisabled}
+        filtering={filtering}
+        pager={pager}
+        select={isMultiSelectEnabled}
+        pageSize={pageSize}
+        allowedPageSizes={allowedPageSizes}
+        dataSource={rows}
+        columns={columns}
+        selectedRowKeys={selectedLoanIds}
+        onSelectionChanged={handleSelectionChanged}
+      />
+    </>
   );
 }

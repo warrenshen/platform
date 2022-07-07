@@ -11,6 +11,7 @@ export function formatCurrency(
 }
 
 export const PercentPrecision = 5;
+export const CurrencyPrecision = 2;
 
 export function formatPercentage(
   value: number | null,
