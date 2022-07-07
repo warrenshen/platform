@@ -26697,6 +26697,9 @@ export type GetCustomerOverviewQuery = {
       settings?: Maybe<
         Pick<CompanySettings, "id"> & CompanySettingsLimitedFragment
       >;
+      financial_summaries: Array<
+        Pick<FinancialSummaries, "id" | "available_limit">
+      >;
     }
   >;
 };
@@ -31761,6 +31764,10 @@ export const GetCustomerOverviewDocument = gql`
       settings {
         id
         ...CompanySettingsLimited
+      }
+      financial_summaries {
+        id
+        available_limit
       }
     }
   }

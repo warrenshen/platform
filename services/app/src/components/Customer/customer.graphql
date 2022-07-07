@@ -74,6 +74,10 @@ query GetCustomerOverview($company_id: uuid!, $loan_type: loan_type_enum) {
       id
       ...CompanySettingsLimited
     }
+    financial_summaries {
+      id
+      available_limit
+    }
   }
 }
 
