@@ -2,9 +2,6 @@ table:
   schema: public
   name: purchase_orders
 object_relationships:
-  - name: company
-    using:
-      foreign_key_constraint_on: company_id
   - name: approving_user_id
     using:
       manual_configuration:
@@ -14,6 +11,9 @@ object_relationships:
         insertion_order: null
         column_mapping:
           approved_by_user_id: id
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
   - name: rejecting_user_id
     using:
       manual_configuration:

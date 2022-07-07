@@ -128,8 +128,14 @@ export default function App() {
               auth_key: authKey,
               company_id: blazeCompanyId,
               shop_id: blazeShopId,
-              userId: blazeUserId,
-              userRole: blazeUserRole,
+              user_id: blazeUserId,
+              user_role: blazeUserRole,
+            }: {
+              auth_key: string;
+              company_id: string;
+              shop_id: string;
+              user_id: string;
+              user_role: number;
             } = eventPayload;
 
             if (
@@ -145,6 +151,9 @@ export default function App() {
               return;
             }
 
+            // Trigger request to Python API server.
+
+            console.info(`Processed ${eventIdentifier} event successfully!`);
             window.parent.postMessage(
               {
                 identifier: "handshake_success",

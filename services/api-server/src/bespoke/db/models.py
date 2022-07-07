@@ -1550,6 +1550,20 @@ class CompanyPartnershipInvitation(Base):
 	updated_at = Column(DateTime, default=datetime.datetime.utcnow)
 	deleted_at = Column(DateTime, nullable=True)
 
+
+class BlazePreapproval(Base):
+	__tablename__ = 'blaze_preapprovals'
+
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+
+	external_blaze_company_id = Column(Text, nullable=False) # Blaze company == Bespoke parent company.
+	external_blaze_shop_id = Column(Text, nullable=False) # Blaze shop == Bespoke company.
+	max_credit_limit = Column(Numeric, nullable=False)
+	annual_interest_rate = Column(Numeric, nullable=False)
+	expiration_date = Column(Date, nullable=False)
+
 class RetryingQuery(_Query):
 	__retry_count__ = 4
 

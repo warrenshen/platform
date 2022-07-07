@@ -2,6 +2,7 @@
 - "!include public_audit_events.yaml"
 - "!include public_bank_accounts.yaml"
 - "!include public_bank_financial_summaries.yaml"
+- "!include public_blaze_preapprovals.yaml"
 - "!include public_companies.yaml"
 - "!include public_company_agreements.yaml"
 - "!include public_company_deliveries.yaml"
