@@ -48,7 +48,11 @@ def get_financial_summary_for_all_customers(
 
 		return financial_summaries, None
 
-def get_latest_financial_summary(company_id: str, session: Session, now_for_test: datetime.datetime = None) -> models.FinancialSummary:
+def get_latest_financial_summary(
+	session: Session, 
+	company_id: str, 
+	now_for_test: datetime.datetime = None
+) -> models.FinancialSummary:
 		today = _get_today(now_for_test)
 
 		todays_financial_summary = cast(

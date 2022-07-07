@@ -309,7 +309,7 @@ def calculate_repayment_effect(
 	# Find the before balances for the loans
 	fee_accumulator = fee_util.FeeAccumulator()
 	financial_summary = financial_summary_util.get_latest_financial_summary(
-		company_id=company_id, session=session
+		session=session, company_id=company_id
 	)
 	if financial_summary:
 		threshold_info = loan_calculator.ThresholdInfoDict(
@@ -1041,7 +1041,7 @@ def settle_repayment(
 		fee_accumulator = fee_util.FeeAccumulator()
 
 		financial_summary = financial_summary_util.get_latest_financial_summary(
-			company_id=company_id, session=session
+			session=session, company_id=company_id
 		)
 		if financial_summary:
 			threshold_info = loan_calculator.ThresholdInfoDict(

@@ -48,6 +48,9 @@ export default function BorrowingBasePageContent({
     [data]
   );
 
+  const activeCompany =
+    !!data?.companies_by_pk?.financial_summaries?.[0]?.product_type;
+
   const isActiveApplicationValid = !!activeEbbaApplication;
   const isActiveApplicationExpiringSoon = withinNDaysOfNowOrBefore(
     activeEbbaApplication?.expires_date,
@@ -119,7 +122,8 @@ export default function BorrowingBasePageContent({
           </Box>
           <Box display="flex" flexDirection="column" mt={1} mb={2}>
             {!loading &&
-              (isActiveApplicationValid ? (
+              isActiveApplicationValid &&
+              (activeCompany ? (
                 !isActiveApplicationExpiringSoon ? (
                   <Alert severity="info" style={{ alignSelf: "flex-start" }}>
                     <Box maxWidth={600}>

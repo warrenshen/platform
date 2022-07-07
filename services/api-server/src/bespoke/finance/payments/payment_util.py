@@ -259,7 +259,7 @@ def create_and_add_credit_payout_to_customer(
 	session: Session) -> Tuple[str, errors.Error]:
 
 	financial_summary = financial_summary_util.get_latest_financial_summary(
-		company_id=company_id, session=session
+		session=session, company_id=company_id
 	)
 	if not financial_summary:
 		raise errors.Error('No financial summary found for the customer')

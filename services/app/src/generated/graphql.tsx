@@ -28023,6 +28023,7 @@ export type GetCompanyEbbaApplicationsInfoQuery = {
           >;
         }
       >;
+      financial_summaries: Array<Pick<FinancialSummaries, "product_type">>;
     }
   >;
 };
@@ -38740,6 +38741,9 @@ export const GetCompanyEbbaApplicationsInfoDocument = gql`
           id
           ...EbbaApplication
         }
+      }
+      financial_summaries {
+        product_type
       }
     }
   }

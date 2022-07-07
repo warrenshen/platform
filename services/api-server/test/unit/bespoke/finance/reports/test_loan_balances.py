@@ -179,7 +179,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				self.assertAlmostEqual(expected_loan['outstanding_principal'], float(loan.outstanding_principal_balance))
 
 			with session_scope(self.session_maker) as session:
-				financial_summary = financial_summary_util.get_latest_financial_summary(company_id, session)
+				financial_summary = financial_summary_util.get_latest_financial_summary(session, company_id)
 
 				if test.get('expected_summary_update') is not None:
 					self.assertIsNotNone(financial_summary)

@@ -116,6 +116,10 @@ query GetCompanyEbbaApplicationsInfo($companyId: uuid!) {
         ...EbbaApplication
       }
     }
+    financial_summaries {
+      id
+      product_type
+    }
   }
 }
 

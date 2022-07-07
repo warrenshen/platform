@@ -112,7 +112,7 @@ def fund_loans_with_advance(
 		company_id_to_latest_financial_summary: Dict[str, models.FinancialSummary] = {}
 
 		for company_id in company_ids:
-			financial_summary = financial_summary_util.get_latest_financial_summary(company_id, session)
+			financial_summary = financial_summary_util.get_latest_financial_summary(session, company_id)
 			if not financial_summary:
 				raise errors.Error('Financial summary missing for company {}. Cannot approve loan'.format(company_id))
 			company_id_to_latest_financial_summary[str(company_id)] = financial_summary

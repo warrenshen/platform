@@ -90,7 +90,7 @@ class TemplateNames(object):
 
 	ALERT_FOR_AUTO_GENERATED_REPAYMENTS = "alert_for_auto_generated_repayments"
 	ALERT_FOR_WEEKLY_SCHEDULED_AUTO_GENERATED_REPAYMENTS = "alert_for_weekly_scheduled_auto_generated_repayments"
-
+	ALERT_FOR_EXPIRED_BORROWING_BASE_CERTIFICATION = "alert_for_expired_borrowing_base_certification"
 
 TemplateConfigDict = TypedDict('TemplateConfigDict', {
 	'id': str,
@@ -277,6 +277,10 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 	},
 	TemplateNames.ALERT_FOR_WEEKLY_SCHEDULED_AUTO_GENERATED_REPAYMENTS: {
 		'id': 'd-50b9644165c04b91acd0738835e959a1',
+		'requires_secure_link': False,
+	},
+	TemplateNames.ALERT_FOR_EXPIRED_BORROWING_BASE_CERTIFICATION: {
+		'id': 'd-e961f0fe064344c484e5d1cc346816a7',
 		'requires_secure_link': False,
 	},
 }

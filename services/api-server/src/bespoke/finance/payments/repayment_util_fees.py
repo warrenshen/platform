@@ -172,7 +172,7 @@ def settle_repayment_of_fee_with_account_credit(
 		raise errors.Error('Can only apply user credits to account fees using this method', details=err_details)
 
 	financial_summary = financial_summary_util.get_latest_financial_summary(
-		company_id=company_id, session=session
+		session=session, company_id=company_id
 	)
 	if not financial_summary:
 		raise errors.Error('No financial summary found for the customer')
@@ -283,7 +283,7 @@ def settle_repayment_of_fee(
 		raise errors.Error('Deposit date cannot be before the user specified payment date', details=err_details)
 
 	financial_summary = financial_summary_util.get_latest_financial_summary(
-		company_id=company_id, session=session
+		session=session, company_id=company_id
 	)
 	if not financial_summary:
 		raise errors.Error('No financial summary found for the customer')

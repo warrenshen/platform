@@ -95,7 +95,7 @@ def approve_loans(
 		company_id_to_available_limit = {}
 
 		for company_id in company_ids:
-			fin_summary = financial_summary_util.get_latest_financial_summary(company_id, session)
+			fin_summary = financial_summary_util.get_latest_financial_summary(session, company_id)
 			if not fin_summary:
 				raise errors.Error('Financial summary missing for company {}. Cannot approve loan'.format(company_id))
 			company_id_to_available_limit[company_id] = fin_summary.available_limit
@@ -180,7 +180,7 @@ def submit_for_approval(
 		raise errors.Error('Invalid amount', details=err_details)
 
 	financial_summary = financial_summary_util.get_latest_financial_summary(
-		loan.company_id, session, now_for_test=now_for_test) if preloaded_financial_summary is None else \
+		session, loan.company_id, now_for_test=now_for_test) if preloaded_financial_summary is None else \
 		preloaded_financial_summary
 	if not financial_summary:
 		raise errors.Error('No financial summary associated with this customer, so we could not determine the max limit allowed', details=err_details)
@@ -329,7 +329,7 @@ def submit_for_approval_if_has_autofinancing(
 		return None, None
 
 	financial_summary = financial_summary_util.get_latest_financial_summary(
-		company.id, session, now_for_test=now_for_test)
+		session, company.id, now_for_test=now_for_test)
 	if not financial_summary:
 		raise errors.Error('No financial summary associated with this customer, so we could not determine the max limit allowed', details=err_details)
 

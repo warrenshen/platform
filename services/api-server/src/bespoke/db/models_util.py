@@ -19,7 +19,7 @@ def get_active_users(
 	company_id: Union[GUID, str], 
 	session: Session, 
 	filter_contact_only: bool = False
-	) -> List[models.User]:
+) -> List[models.User]:
 	company = cast(
 		models.Company,
 		session.query(models.Company).filter_by(
