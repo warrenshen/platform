@@ -105,6 +105,7 @@ fragment PurchaseOrderLimited on purchase_orders {
   status
   rejection_note
   bank_rejection_note
+  bank_incomplete_note
   customer_note
   created_at
   requested_at

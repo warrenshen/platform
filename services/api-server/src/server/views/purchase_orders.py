@@ -470,6 +470,9 @@ class UpdateBankFieldsView(MethodView):
 		required_keys = [
 			'purchase_order_id',
 			'bank_note',
+			'bank_rejection_note',
+			'bank_incomplete_note',
+			'rejection_note',
 		]
 
 		for key in required_keys:
@@ -479,6 +482,10 @@ class UpdateBankFieldsView(MethodView):
 
 		purchase_order_id = form['purchase_order_id']
 		bank_note = form['bank_note']
+		bank_rejection_note = form['bank_rejection_note']
+		bank_incomplete_note = form['bank_incomplete_note']
+		rejection_note = form['rejection_note']
+
 
 		with session_scope(current_app.session_maker) as session:
 			purchase_order = cast(
@@ -491,6 +498,9 @@ class UpdateBankFieldsView(MethodView):
 				raise errors.Error('Purchase order is deleted')
 
 			purchase_order.bank_note = bank_note
+			purchase_order.bank_rejection_note = bank_rejection_note
+			purchase_order.bank_incomplete_note = bank_incomplete_note
+			purchase_order.rejection_note = rejection_note
 
 		return make_response(json.dumps({
 			'status': 'OK',

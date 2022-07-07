@@ -14,6 +14,7 @@ import {
 import {
   PurchaseOrders,
   PurchaseOrdersInsertInput,
+  RequestStatusEnum,
   useGetPurchaseOrderForBankQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -42,6 +43,35 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
+const getNoteFieldData = (
+  purchaseOrder: PurchaseOrdersInsertInput | undefined
+) => {
+  if (purchaseOrder?.status === RequestStatusEnum.Rejected) {
+    return purchaseOrder?.rejection_note
+      ? {
+          note: purchaseOrder?.rejection_note,
+          noteFieldName: "rejection_note",
+          noteFieldLabel: "Vendor Rejection Note",
+        }
+      : {
+          note: purchaseOrder?.bank_rejection_note,
+          noteFieldName: "bank_rejection_note",
+          noteFieldLabel: "Bank Rejection Note",
+        };
+  }
+  return purchaseOrder?.status === RequestStatusEnum.Incomplete
+    ? {
+        note: purchaseOrder?.bank_incomplete_note,
+        noteFieldName: "bank_incomplete_note",
+        noteFieldLabel: "Bank Incomplete Note",
+      }
+    : {
+        note: purchaseOrder?.bank_note,
+        noteFieldName: "bank_note",
+        noteFieldLabel: "Bank Note",
+      };
+};
+
 interface Props {
   purchaseOrderId: PurchaseOrders["id"];
   handleClose: () => void;
@@ -54,12 +84,18 @@ export default function UpdatePurchaseOrderBankNoteModal({
   const classes = useStyles();
   const snackbar = useSnackbar();
 
-  // Default Loan for initialization.
+  // Default Purchase Order for initialization.
   const newPurchaseOrder: PurchaseOrdersInsertInput = {
     bank_note: "",
+    rejection_note: "",
+    bank_rejection_note: "",
+    bank_incomplete_note: "",
   };
 
   const [purchaseOrder, setPurchaseOrder] = useState(newPurchaseOrder);
+  const [noteFieldData, setNoteFieldData] = useState(
+    getNoteFieldData(newPurchaseOrder)
+  );
 
   const {
     data,
@@ -72,12 +108,15 @@ export default function UpdatePurchaseOrderBankNoteModal({
     },
     onCompleted: (data) => {
       const existingPurchaseOrder = data?.purchase_orders_by_pk;
+
       if (existingPurchaseOrder) {
-        setPurchaseOrder(
-          mergeWith(newPurchaseOrder, existingPurchaseOrder, (a, b) =>
-            isNull(b) ? a : b
-          )
+        const mergedPurchaseOrder = mergeWith(
+          newPurchaseOrder,
+          existingPurchaseOrder,
+          (a, b) => (isNull(b) ? a : b)
         );
+        setPurchaseOrder(mergedPurchaseOrder);
+        setNoteFieldData(getNoteFieldData(mergedPurchaseOrder));
       }
     },
   });
@@ -97,6 +136,9 @@ export default function UpdatePurchaseOrderBankNoteModal({
       variables: {
         purchase_order_id: purchaseOrder.id,
         bank_note: purchaseOrder.bank_note,
+        rejection_note: purchaseOrder.rejection_note,
+        bank_rejection_note: purchaseOrder.bank_rejection_note,
+        bank_incomplete_note: purchaseOrder.bank_incomplete_note,
       },
     });
     if (response.status !== "OK") {
@@ -107,6 +149,7 @@ export default function UpdatePurchaseOrderBankNoteModal({
     }
   };
 
+  const { note, noteFieldName, noteFieldLabel } = noteFieldData;
   const isDialogReady = !isExistingLoanLoading;
   const isFormLoading = isUpdateBankFieldsLoading;
   const isSaveDisabled = isFormLoading;
@@ -123,7 +166,7 @@ export default function UpdatePurchaseOrderBankNoteModal({
       classes={{ paper: classes.dialog }}
     >
       <DialogTitle className={classes.dialogTitle}>
-        Edit Purchase Order Bank Note
+        Edit Purchase Order {noteFieldLabel}
       </DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="column">
@@ -143,13 +186,13 @@ export default function UpdatePurchaseOrderBankNoteModal({
             <TextField
               autoFocus
               multiline
-              label={"Bank Note"}
+              label={noteFieldLabel}
               helperText={"Only Bespoke Financial users can view this note"}
-              value={purchaseOrder.bank_note}
+              defaultValue={note}
               onChange={({ target: { value } }) =>
                 setPurchaseOrder({
                   ...purchaseOrder,
-                  bank_note: value,
+                  [noteFieldName]: value,
                 })
               }
             />

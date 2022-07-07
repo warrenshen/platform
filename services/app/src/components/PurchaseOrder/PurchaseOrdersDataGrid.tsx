@@ -26,6 +26,15 @@ import { computePurchaseOrderDueDateDateStringClient } from "lib/purchaseOrders"
 import { ColumnWidths, formatRowModel, truncateString } from "lib/tables";
 import { useMemo, useState } from "react";
 
+const getProperNote = (purchaseOrder: PurchaseOrderFragment) => {
+  if (purchaseOrder?.status === RequestStatusEnum.Rejected) {
+    return purchaseOrder?.bank_rejection_note || purchaseOrder?.rejection_note;
+  }
+  return purchaseOrder?.status === RequestStatusEnum.Incomplete
+    ? purchaseOrder?.bank_incomplete_note
+    : purchaseOrder?.bank_note;
+};
+
 function getRows(purchaseOrders: PurchaseOrderFragment[]): RowsProp {
   return purchaseOrders.map((purchaseOrder) => {
     return formatRowModel({
@@ -41,7 +50,7 @@ function getRows(purchaseOrders: PurchaseOrderFragment[]): RowsProp {
         ((purchaseOrder.amount_funded || 0) / (purchaseOrder.amount || 1)) *
         100,
       customer_note: truncateString(purchaseOrder?.customer_note || "-"),
-      bank_note: truncateString(purchaseOrder?.bank_note || ""),
+      bank_note: truncateString(getProperNote(purchaseOrder) || ""),
       requested_at: !!purchaseOrder.requested_at
         ? formatDatetimeString(purchaseOrder.requested_at, false)
         : "-",
@@ -52,7 +61,6 @@ function getRows(purchaseOrders: PurchaseOrderFragment[]): RowsProp {
 interface Props {
   isApprovedByVendor?: boolean;
   isBankNoteVisible?: boolean;
-  isBankView?: boolean;
   isCompanyVisible: boolean;
   isCustomerNoteVisible?: boolean;
   isExcelExport?: boolean;
