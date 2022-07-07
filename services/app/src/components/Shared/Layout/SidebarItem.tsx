@@ -1,4 +1,4 @@
-import { Typography } from "@material-ui/core";
+import CounterChip from "components/Shared/Chip/CounterChip";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
@@ -45,29 +45,12 @@ const PrimaryText = styled.span<{ isNested: boolean }>`
   font-weight: ${(props) => (props.isNested ? "300" : "500")};
 `;
 
-const Chip = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  height: 24px;
-  min-width: 24px;
-  padding: 0px 6p;
-  margin-left: 8px;
-  margin-bottom: 2px;
-
-  color: white;
-  background-color: rgba(203, 166, 121, 0.75);
-  border-radius: 12px;
-  font-weight: 600;
-  letter-spacing: 1px;
-`;
-
 interface Props {
   dataCy: string;
   isNested?: boolean;
   isSelected: boolean;
   chipCount?: number | null;
+  chipColor?: string;
   IconNode: React.FunctionComponent<React.SVGProps<SVGSVGElement>> | null;
   label: string;
   to: string;
@@ -78,6 +61,7 @@ export default function SidebarItem({
   isNested = false,
   isSelected,
   chipCount,
+  chipColor,
   IconNode,
   label,
   to,
@@ -97,9 +81,10 @@ export default function SidebarItem({
           <PrimaryText isNested={isNested}>{label}</PrimaryText>
         </PrimaryContent>
         {!!chipCount && (
-          <Chip>
-            <Typography variant="body2">{chipCount}</Typography>
-          </Chip>
+          <CounterChip
+            chipColor={chipColor}
+            chipCount={chipCount > 5 ? "5+" : chipCount.toString()}
+          />
         )}
       </Container>
     </Wrapper>

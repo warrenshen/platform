@@ -110,3 +110,59 @@ query GetClosedEbbaApplications {
     }
   }
 }
+
+query GetClosedEbbaApplicationsByCompanyId(
+  $company_id: uuid!
+  $financial_report_amount: Int!
+) {
+  borrowing_base: ebba_applications(
+    where: {
+      _and: [
+        { category: { _eq: "borrowing_base" } }
+        { company_id: { _eq: $company_id } }
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        # { approved_at: { _is_null: false } }
+        {
+          _and: [
+            { status: { _neq: drafted } }
+            { status: { _neq: rejected } }
+          ]
+        }
+      ]
+    }
+    order_by: [{ application_date: desc }, { created_at: desc }]
+    limit: 1
+  ) {
+    ...EbbaApplication
+  }
+  financial_reports: ebba_applications(
+    where: {
+      _and: [
+        { category: { _eq: "financial_report" } }
+        { company_id: { _eq: $company_id } }
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        # { approved_at: { _is_null: false } }
+        {
+          _and: [
+            { status: { _neq: drafted } }
+            { status: { _neq: rejected } }
+          ]
+        }
+      ]
+    }
+    order_by: [{ application_date: desc }, { created_at: desc }]
+    limit: $financial_report_amount
+  ) {
+    ...EbbaApplication
+  }
+}

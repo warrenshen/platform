@@ -25,7 +25,6 @@ import {
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
 import {
-  useGetCompanyEbbaApplicationsInfoQuery,
   useGetCompanySettingsByCompanyIdForCustomerQuery,
   useGetEbbaApplicationsCountForBankSubscription,
   useGetLoansCountForBankSubscription,
@@ -33,12 +32,12 @@ import {
   useGetPartnershipRequestsCountForBankSubscription,
   useGetRepaymentsCountForBankSubscription,
 } from "generated/graphql";
-import { withinNDaysOfNowOrBefore } from "lib/date";
 import {
   FeatureFlagEnum,
   ProductTypeEnum,
   ReportingRequirementsCategoryEnum,
 } from "lib/enum";
+import { useGetMissingReportsInfo } from "lib/finance/reports/reports";
 import { bankRoutes, customerRoutes, routes } from "lib/routes";
 import { isPayorsTabVisible, isVendorsTabVisible } from "lib/settings";
 import { ReactNode, useContext } from "react";
@@ -112,12 +111,14 @@ type NavItem = {
   icon?: ReactNode;
   iconPath?: string;
   counter?: number;
+  counterColor?: string;
   items?: NavItem[];
 };
 
 const getCustomerNavItems = (
   productType: ProductTypeEnum | null,
-  showEbbaApplicationsChip: boolean,
+  financialCertificationsMissingCount: number,
+  isLatestBorrowingBaseMissing: boolean,
   isMetrcBased: boolean
 ): NavItem[] => {
   return [
@@ -172,7 +173,8 @@ const getCustomerNavItems = (
         !!productType && [ProductTypeEnum.LineOfCredit].includes(productType),
       text: "Borrowing Base",
       link: customerRoutes.borrowingBase,
-      counter: showEbbaApplicationsChip ? 1 : 0,
+      counterColor: "rgb(230, 126, 34)",
+      counter: isLatestBorrowingBaseMissing ? 1 : 0,
     },
     {
       dataCy: "financial-certifications",
@@ -180,7 +182,11 @@ const getCustomerNavItems = (
       visible: !!productType && !isMetrcBased,
       text: "Financial Certifications",
       link: customerRoutes.financialCertifications,
-      counter: showEbbaApplicationsChip ? 1 : 0,
+      counterColor:
+        financialCertificationsMissingCount > 1
+          ? "rgb(230, 126, 34)"
+          : "rgb(241, 196, 15)",
+      counter: financialCertificationsMissingCount,
     },
     {
       dataCy: "vendors",
@@ -389,21 +395,8 @@ export default function Layout({
   const debtFacilityUpdateCount =
     debtFacilityUpdateCountData?.loans?.length || 0;
 
-  const { data, loading: borrowingBaseLoading } =
-    useGetCompanyEbbaApplicationsInfoQuery({
-      skip: isBankUser,
-      variables: {
-        companyId,
-      },
-    });
-
-  const ebbaApplication =
-    data?.companies_by_pk?.settings?.active_ebba_application;
-
-  const showEbbaApplicationsChip =
-    !borrowingBaseLoading &&
-    (!ebbaApplication ||
-      withinNDaysOfNowOrBefore(ebbaApplication.expires_date, 15));
+  const { missingFinancialReportCount, isLatestBorrowingBaseMissing } =
+    useGetMissingReportsInfo(companyId);
 
   const { data: companySettingsData } =
     useGetCompanySettingsByCompanyIdForCustomerQuery({
@@ -430,7 +423,12 @@ export default function Layout({
         partnershipRequestsCount,
         debtFacilityUpdateCount
       )
-    : getCustomerNavItems(productType, showEbbaApplicationsChip, isMetrcBased);
+    : getCustomerNavItems(
+        productType,
+        missingFinancialReportCount,
+        isLatestBorrowingBaseMissing,
+        isMetrcBased
+      );
 
   return (
     <Wrapper>
@@ -463,7 +461,8 @@ export default function Layout({
                       isSelected={Boolean(
                         matchPath(location.pathname, item.link)
                       )}
-                      chipCount={item.counter || null}
+                      chipCount={item.counter}
+                      chipColor={item.counterColor}
                       IconNode={item.iconNode || null}
                       label={item.text}
                       to={item.link}

@@ -3,6 +3,7 @@ import List from "@material-ui/core/List";
 import { Theme, createStyles, makeStyles } from "@material-ui/core/styles";
 import { Alert } from "@material-ui/lab";
 import { Color } from "@material-ui/lab/Alert";
+import CounterChip from "components/Shared/Chip/CounterChip";
 import Page from "components/Shared/Page";
 import PrivateRoute from "components/Shared/PrivateRoute";
 import {
@@ -20,6 +21,7 @@ import {
   SurveillanceStatusEnum,
   SurveillanceStatusToLabel,
 } from "lib/enum";
+import { useGetMissingReportsInfo } from "lib/finance/reports/reports";
 import { bankRoutes } from "lib/routes";
 import { isPayorsTabVisible, isVendorsTabVisible } from "lib/settings";
 import { flatten } from "lodash";
@@ -155,6 +157,8 @@ type BankCustomerPath = {
   dataCy: string;
   label: string;
   path: string;
+  counter?: number;
+  counterColor?: string;
   component: NonNullable<
     React.FunctionComponent<{
       companyId: Companies["id"];
@@ -164,157 +168,168 @@ type BankCustomerPath = {
 };
 
 const getCustomerPaths = (
-  company: GetCompanyForBankCompanyPageQuery["companies_by_pk"] | null,
+  company: GetCompanyForBankCompanyPageQuery["companies_by_pk"],
+  missingFinancialReportCount: number,
+  isLatestBorrowingBaseMissing: boolean,
   productType: ProductTypeEnum | null
-) => [
-  {
-    visible: !!company?.is_customer,
-    label: "Customer",
-    paths: [
-      {
-        dataCy: "customer-overview",
-        label: "Overview",
-        path: bankRoutes.company.overview,
-        component: BankCustomerOverviewSubpage,
-      },
-      {
-        visible:
-          !!productType &&
-          [
-            ProductTypeEnum.DispensaryFinancing,
-            ProductTypeEnum.InventoryFinancing,
-            ProductTypeEnum.PurchaseMoneyFinancing,
-          ].includes(productType),
-        dataCy: "customer-purchase-orders",
-        label: "Purchase Orders",
-        path: bankRoutes.company.purchaseOrders,
-        component: BankCustomerPurchaseOrdersSubpage,
-      },
-      {
-        visible:
-          !!productType &&
-          [
-            ProductTypeEnum.InvoiceFinancing,
-            ProductTypeEnum.PurchaseMoneyFinancing,
-          ].includes(productType),
-        dataCy: "customer-invoices",
-        label: "Invoices",
-        path: bankRoutes.company.invoices,
-        component: BankCustomerInvoicesSubpage,
-      },
-      {
-        dataCy: "customer-loans",
-        label: "Loans",
-        path: bankRoutes.company.loans,
-        component: BankCustomerLoansSubpage,
-      },
-      {
-        dataCy: "customer-repayments",
-        label: "Repayments",
-        path: bankRoutes.company.payments,
-        component: BankCustomerPaymentsSubpage,
-      },
-      {
-        dataCy: "borrowing-base",
-        visible:
-          !!productType && [ProductTypeEnum.LineOfCredit].includes(productType),
-        label: "Borrowing Base",
-        path: bankRoutes.company.borrowingBase,
-        component: BankCustomerBorrowingBaseSubpage,
-      },
-      {
-        dataCy: "financial-certifications",
-        label: "Financial Certifications",
-        path: bankRoutes.company.financialCertifications,
-        component: BankCustomerFinancialCertificationsSubpage,
-      },
-      {
-        visible: isVendorsTabVisible(productType),
-        dataCy: "customer-vendors",
-        label: "Vendors",
-        path: bankRoutes.company.vendors,
-        component: BankCustomerVendorsSubpage,
-      },
-      {
-        visible: isPayorsTabVisible(productType),
-        dataCy: "customer-payors",
-        label: "Payors",
-        path: bankRoutes.company.payors,
-        component: BankCustomerPayorsSubpage,
-      },
-      {
-        dataCy: "customer-contract",
-        label: "Contract",
-        path: bankRoutes.company.contract,
-        component: BankCustomerContractPage,
-      },
-      {
-        visible:
-          !!productType &&
-          [
-            ProductTypeEnum.InventoryFinancing,
-            ProductTypeEnum.InvoiceFinancing,
-            ProductTypeEnum.PurchaseMoneyFinancing,
-            ProductTypeEnum.DispensaryFinancing,
-          ].includes(productType),
-        dataCy: "customer-reports",
-        label: "Reports",
-        path: bankRoutes.company.reports,
-        component: BankCustomerReportsSubpage,
-      },
-      {
-        visible: false,
-        dataCy: "customer-account-fees-credits",
-        label: "Account Fees & Credits",
-        path: bankRoutes.company.accountFeesCredits,
-        component: BankCustomerAccountFeesCreditsSubpage,
-      },
-    ] as BankCustomerPath[],
-  },
-  {
-    visible: !!company?.is_payor,
-    label: "Payor",
-    paths: [
-      {
-        dataCy: "payor-partnerships",
-        label: "Partnerships",
-        path: bankRoutes.company.payorPartnerships,
-        component: BankCompanyPayorPartnershipsSubpage,
-      },
-    ] as BankCustomerPath[],
-  },
-  {
-    visible: !!company?.is_vendor,
-    label: "Vendor",
-    paths: [
-      {
-        dataCy: "vendor-partnerships",
-        label: "Partnerships",
-        path: bankRoutes.company.vendorPartnerships,
-        component: BankCompanyVendorPartnershipsSubpage,
-      },
-    ] as BankCustomerPath[],
-  },
-  {
-    visible: true,
-    label: "General",
-    paths: [
-      {
-        dataCy: "general-metrc",
-        label: "Metrc",
-        path: bankRoutes.company.metrc,
-        component: BankCustomerMetrcSubpage,
-      },
-      {
-        dataCy: "general-settings",
-        label: "Settings",
-        path: bankRoutes.company.settings,
-        component: BankCustomerSettingsSubpage,
-      },
-    ] as BankCustomerPath[],
-  },
-];
-
+) => {
+  return [
+    {
+      visible: !!company?.is_customer,
+      label: "Customer",
+      paths: [
+        {
+          dataCy: "customer-overview",
+          label: "Overview",
+          path: bankRoutes.company.overview,
+          component: BankCustomerOverviewSubpage,
+        },
+        {
+          visible:
+            !!productType &&
+            [
+              ProductTypeEnum.DispensaryFinancing,
+              ProductTypeEnum.InventoryFinancing,
+              ProductTypeEnum.PurchaseMoneyFinancing,
+            ].includes(productType),
+          dataCy: "customer-purchase-orders",
+          label: "Purchase Orders",
+          path: bankRoutes.company.purchaseOrders,
+          component: BankCustomerPurchaseOrdersSubpage,
+        },
+        {
+          visible:
+            !!productType &&
+            [
+              ProductTypeEnum.InvoiceFinancing,
+              ProductTypeEnum.PurchaseMoneyFinancing,
+            ].includes(productType),
+          dataCy: "customer-invoices",
+          label: "Invoices",
+          path: bankRoutes.company.invoices,
+          component: BankCustomerInvoicesSubpage,
+        },
+        {
+          dataCy: "customer-loans",
+          label: "Loans",
+          path: bankRoutes.company.loans,
+          component: BankCustomerLoansSubpage,
+        },
+        {
+          dataCy: "customer-repayments",
+          label: "Repayments",
+          path: bankRoutes.company.payments,
+          component: BankCustomerPaymentsSubpage,
+        },
+        {
+          dataCy: "borrowing-base",
+          visible:
+            !!productType &&
+            [ProductTypeEnum.LineOfCredit].includes(productType),
+          label: "Borrowing Base",
+          path: bankRoutes.company.borrowingBase,
+          counter: isLatestBorrowingBaseMissing ? 1 : 0,
+          counterColor: "rgb(230, 126, 34)",
+          component: BankCustomerBorrowingBaseSubpage,
+        },
+        {
+          dataCy: "financial-certifications",
+          label: "Financial Certifications",
+          path: bankRoutes.company.financialCertifications,
+          counter: missingFinancialReportCount,
+          counterColor:
+            missingFinancialReportCount > 1
+              ? "rgb(230, 126, 34)"
+              : "rgb(241, 196, 15)",
+          component: BankCustomerFinancialCertificationsSubpage,
+        },
+        {
+          visible: isVendorsTabVisible(productType),
+          dataCy: "customer-vendors",
+          label: "Vendors",
+          path: bankRoutes.company.vendors,
+          component: BankCustomerVendorsSubpage,
+        },
+        {
+          visible: isPayorsTabVisible(productType),
+          dataCy: "customer-payors",
+          label: "Payors",
+          path: bankRoutes.company.payors,
+          component: BankCustomerPayorsSubpage,
+        },
+        {
+          dataCy: "customer-contract",
+          label: "Contract",
+          path: bankRoutes.company.contract,
+          component: BankCustomerContractPage,
+        },
+        {
+          visible:
+            !!productType &&
+            [
+              ProductTypeEnum.InventoryFinancing,
+              ProductTypeEnum.InvoiceFinancing,
+              ProductTypeEnum.PurchaseMoneyFinancing,
+              ProductTypeEnum.DispensaryFinancing,
+            ].includes(productType),
+          dataCy: "customer-reports",
+          label: "Reports",
+          path: bankRoutes.company.reports,
+          component: BankCustomerReportsSubpage,
+        },
+        {
+          visible: false,
+          dataCy: "customer-account-fees-credits",
+          label: "Account Fees & Credits",
+          path: bankRoutes.company.accountFeesCredits,
+          component: BankCustomerAccountFeesCreditsSubpage,
+        },
+      ] as BankCustomerPath[],
+    },
+    {
+      visible: !!company?.is_payor,
+      label: "Payor",
+      paths: [
+        {
+          dataCy: "payor-partnerships",
+          label: "Partnerships",
+          path: bankRoutes.company.payorPartnerships,
+          component: BankCompanyPayorPartnershipsSubpage,
+        },
+      ] as BankCustomerPath[],
+    },
+    {
+      visible: !!company?.is_vendor,
+      label: "Vendor",
+      paths: [
+        {
+          dataCy: "vendor-partnerships",
+          label: "Partnerships",
+          path: bankRoutes.company.vendorPartnerships,
+          component: BankCompanyVendorPartnershipsSubpage,
+        },
+      ] as BankCustomerPath[],
+    },
+    {
+      visible: true,
+      label: "General",
+      paths: [
+        {
+          dataCy: "general-metrc",
+          label: "Metrc",
+          path: bankRoutes.company.metrc,
+          component: BankCustomerMetrcSubpage,
+        },
+        {
+          dataCy: "general-settings",
+          label: "Settings",
+          path: bankRoutes.company.settings,
+          component: BankCustomerSettingsSubpage,
+        },
+      ] as BankCustomerPath[],
+    },
+  ];
+};
 export default function BankCompanyPage() {
   const {
     user: { role },
@@ -334,10 +349,13 @@ export default function BankCompanyPage() {
 
   const company = data?.companies_by_pk || null;
   const companyName = company?.name;
+  const contract = company?.contract || null;
   const surveillanceStatus = company?.most_recent_surveillance_result?.[0]
     ?.surveillance_status as SurveillanceStatusEnum;
-  const productType =
-    (company?.contract?.product_type as ProductTypeEnum) || null;
+  const productType = (contract?.product_type as ProductTypeEnum) || null;
+
+  const { missingFinancialReportCount, isLatestBorrowingBaseMissing } =
+    useGetMissingReportsInfo(companyId);
 
   const renderSurveillanceStatus = () => {
     if (!surveillanceStatus) {
@@ -359,7 +377,6 @@ export default function BankCompanyPage() {
       </Box>
     );
   };
-
   return (
     <Page appBarTitle={companyName || ""}>
       <Box display="flex" width="100%">
@@ -368,7 +385,12 @@ export default function BankCompanyPage() {
           {isRoleBankUser(role) && renderSurveillanceStatus()}
 
           <List className={classes.list}>
-            {getCustomerPaths(company, productType)
+            {getCustomerPaths(
+              company,
+              missingFinancialReportCount,
+              isLatestBorrowingBaseMissing,
+              productType
+            )
               .filter(
                 (section) => section.visible == null || !!section?.visible
               )
@@ -410,7 +432,23 @@ export default function BankCompanyPage() {
                               variant: "subtitle1",
                             }}
                           >
-                            {companyPath.label}
+                            <Box
+                              display="flex"
+                              alignItems="center"
+                              justifyContent="space-between"
+                            >
+                              <span>{companyPath.label}</span>
+                              {!!companyPath.counter && (
+                                <CounterChip
+                                  chipCount={
+                                    companyPath.counter > 5
+                                      ? "5+"
+                                      : companyPath.counter.toString()
+                                  }
+                                  chipColor={companyPath.counterColor}
+                                />
+                              )}
+                            </Box>
                           </ListItemText>
                         </ListItem>
                       ))}
@@ -421,9 +459,12 @@ export default function BankCompanyPage() {
         </Box>
         <Box className={classes.content}>
           {flatten(
-            getCustomerPaths(company, productType).map(
-              (section) => section.paths
-            )
+            getCustomerPaths(
+              company,
+              missingFinancialReportCount,
+              isLatestBorrowingBaseMissing,
+              productType
+            ).map((section) => section.paths)
           ).map((companyPath) => (
             <PrivateRoute
               key={companyPath.path}

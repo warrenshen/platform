@@ -38,6 +38,7 @@ import {
   ProductTypeEnum,
   ProductTypeToLoanType,
 } from "lib/enum";
+import { useGetMissingReportsInfo } from "lib/finance/reports/reports";
 import {
   isInvoiceFinancingProductType,
   isLineOfCreditProductType,
@@ -81,14 +82,13 @@ export default function CustomerOverviewPageContent({
   const isBankUser = isRoleBankUser(role);
 
   const { financialSummary } = useContext(CurrentCustomerContext);
-
   const loanType =
     !!productType && productType in ProductTypeToLoanType
       ? ProductTypeToLoanType[productType]
       : null;
 
   const { data, refetch, error } = useGetCustomerOverviewQuery({
-    fetchPolicy: "network-only",
+    fetchPolicy: "cache-and-network",
     variables: {
       company_id: companyId,
       loan_type: loanType,
@@ -116,7 +116,6 @@ export default function CustomerOverviewPageContent({
   const customMessage = settings?.custom_messages_payload
     ? settings?.custom_messages_payload[CustomMessageEnum.OVERVIEW_PAGE] || null
     : null;
-
   const [selectedLoans, setSelectedLoans] = useState<LoanFragment[]>([]);
 
   const selectedLoanIds = useMemo(
@@ -138,6 +137,27 @@ export default function CustomerOverviewPageContent({
       setSelectedPaymentIds(payments.map((payment) => payment.id)),
     [setSelectedPaymentIds]
   );
+
+  const {
+    missingFinancialReportCount,
+    isThereAnyFinancialReportOlderThanFourMonth,
+    isLatestBorrowingBaseMissing,
+  } = useGetMissingReportsInfo(companyId);
+
+  const renderMissingReportAlertMessage = () => {
+    if (missingFinancialReportCount > 0 && !isLatestBorrowingBaseMissing) {
+      return `Please submit your financial certifications for the previous ${missingFinancialReportCount} month(s).`;
+    } else if (
+      missingFinancialReportCount === 0 &&
+      isLatestBorrowingBaseMissing
+    ) {
+      return `Please submit your most recent borrowing base documents.`;
+    }
+    return `Please submit your most recent borrowing base documents as well as your financial certifications for the previous ${missingFinancialReportCount} month(s).`;
+  };
+
+  const areReportsMissing =
+    missingFinancialReportCount > 0 || isLatestBorrowingBaseMissing;
 
   /**
    * Customer Overview page shows 2 customer actions.
@@ -296,6 +316,20 @@ export default function CustomerOverviewPageContent({
               <Typography variant="h6">{customMessage}</Typography>
             </Alert>
           </Box>
+        )}
+        {areReportsMissing && (
+          <Alert severity="warning">
+            <Typography variant="h6">{`Action Required: ${renderMissingReportAlertMessage()}`}</Typography>
+            {isThereAnyFinancialReportOlderThanFourMonth ? (
+              <span>
+                If you are missing financial certifications older than 4 months,
+                please reach out to Bespoke at{" "}
+                <a href="mailto:support@bespokefinancial.com">
+                  support@bespokefinancial.com.
+                </a>
+              </span>
+            ) : null}
+          </Alert>
         )}
         <Box className={classes.section}>
           <CustomerFinancialSummaryOverview

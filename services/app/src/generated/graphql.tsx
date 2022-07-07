@@ -6263,8 +6263,6 @@ export type CustomerSurveillanceResultsBoolExp = {
 /** unique or primary key constraints on table "customer_surveillance_results" */
 export enum CustomerSurveillanceResultsConstraint {
   /** unique or primary key constraint */
-  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
-  /** unique or primary key constraint */
   CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
 }
 
@@ -20634,6 +20632,7 @@ export type PurchaseOrders = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
@@ -20814,6 +20813,7 @@ export type PurchaseOrdersBoolExp = {
   _or?: Maybe<Array<PurchaseOrdersBoolExp>>;
   amount?: Maybe<NumericComparisonExp>;
   amount_funded?: Maybe<NumericComparisonExp>;
+  amount_updated_at?: Maybe<TimestamptzComparisonExp>;
   approved_at?: Maybe<TimestamptzComparisonExp>;
   approved_by_user_id?: Maybe<UuidComparisonExp>;
   approving_user_id?: Maybe<UsersBoolExp>;
@@ -20868,6 +20868,7 @@ export type PurchaseOrdersInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   approving_user_id?: Maybe<UsersObjRelInsertInput>;
@@ -20914,6 +20915,7 @@ export type PurchaseOrdersMaxFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -20947,6 +20949,7 @@ export type PurchaseOrdersMaxOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
@@ -20980,6 +20983,7 @@ export type PurchaseOrdersMinFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -21013,6 +21017,7 @@ export type PurchaseOrdersMinOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
@@ -21067,6 +21072,7 @@ export type PurchaseOrdersOnConflict = {
 export type PurchaseOrdersOrderBy = {
   amount?: Maybe<OrderBy>;
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   approving_user_id?: Maybe<UsersOrderBy>;
@@ -21113,6 +21119,8 @@ export enum PurchaseOrdersSelectColumn {
   Amount = "amount",
   /** column name */
   AmountFunded = "amount_funded",
+  /** column name */
+  AmountUpdatedAt = "amount_updated_at",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -21172,6 +21180,7 @@ export type PurchaseOrdersSetInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -21276,6 +21285,8 @@ export enum PurchaseOrdersUpdateColumn {
   Amount = "amount",
   /** column name */
   AmountFunded = "amount_funded",
+  /** column name */
+  AmountUpdatedAt = "amount_updated_at",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -26055,6 +26066,10 @@ export type UuidComparisonExp = {
 /** columns and relationships of "vendors" */
 export type Vendors = {
   address?: Maybe<Scalars["String"]>;
+  /** An array relationship */
+  bank_accounts: Array<BankAccounts>;
+  /** An aggregate relationship */
+  bank_accounts_aggregate: BankAccountsAggregate;
   city?: Maybe<Scalars["String"]>;
   /** An array relationship */
   company_deliveries: Array<CompanyDeliveries>;
@@ -26093,6 +26108,24 @@ export type Vendors = {
   /** An aggregate relationship */
   users_aggregate: UsersAggregate;
   zip_code?: Maybe<Scalars["String"]>;
+};
+
+/** columns and relationships of "vendors" */
+export type VendorsBankAccountsArgs = {
+  distinct_on?: Maybe<Array<BankAccountsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BankAccountsOrderBy>>;
+  where?: Maybe<BankAccountsBoolExp>;
+};
+
+/** columns and relationships of "vendors" */
+export type VendorsBankAccountsAggregateArgs = {
+  distinct_on?: Maybe<Array<BankAccountsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BankAccountsOrderBy>>;
+  where?: Maybe<BankAccountsBoolExp>;
 };
 
 /** columns and relationships of "vendors" */
@@ -26205,6 +26238,7 @@ export type VendorsBoolExp = {
   _not?: Maybe<VendorsBoolExp>;
   _or?: Maybe<Array<VendorsBoolExp>>;
   address?: Maybe<StringComparisonExp>;
+  bank_accounts?: Maybe<BankAccountsBoolExp>;
   city?: Maybe<StringComparisonExp>;
   company_deliveries?: Maybe<CompanyDeliveriesBoolExp>;
   company_settings_id?: Maybe<UuidComparisonExp>;
@@ -26239,6 +26273,7 @@ export type VendorsIncInput = {
 /** input type for inserting data into table "vendors" */
 export type VendorsInsertInput = {
   address?: Maybe<Scalars["String"]>;
+  bank_accounts?: Maybe<BankAccountsArrRelInsertInput>;
   city?: Maybe<Scalars["String"]>;
   company_deliveries?: Maybe<CompanyDeliveriesArrRelInsertInput>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
@@ -26323,6 +26358,7 @@ export type VendorsObjRelInsertInput = {
 /** Ordering options when selecting data from "vendors". */
 export type VendorsOrderBy = {
   address?: Maybe<OrderBy>;
+  bank_accounts_aggregate?: Maybe<BankAccountsAggregateOrderBy>;
   city?: Maybe<OrderBy>;
   company_deliveries_aggregate?: Maybe<CompanyDeliveriesAggregateOrderBy>;
   company_settings_id?: Maybe<OrderBy>;
@@ -26697,7 +26733,7 @@ export type GetCompanyForBankCompanyPageQuery = {
       | "is_vendor"
       | "surveillance_status"
     > & {
-      contract?: Maybe<Pick<Contracts, "id" | "product_type">>;
+      contract?: Maybe<Pick<Contracts, "id" | "product_type" | "start_date">>;
       most_recent_surveillance_result: Array<
         Pick<CustomerSurveillanceResults, "id"> &
           CustomerSurveillanceResultFragment
@@ -26712,6 +26748,14 @@ export type GetCompanyForVendorOnboardingQueryVariables = Exact<{
 
 export type GetCompanyForVendorOnboardingQuery = {
   companies_by_pk?: Maybe<Pick<Companies, "id" | "name">>;
+};
+
+export type GetCustomerOldestContractQueryVariables = Exact<{
+  company_id: Scalars["uuid"];
+}>;
+
+export type GetCustomerOldestContractQuery = {
+  oldest_contract: Array<Pick<Contracts, "id"> & ContractFragment>;
 };
 
 export type GetFinancialSummariesByCompanyIdQueryVariables = Exact<{
@@ -26904,6 +26948,16 @@ export type GetClosedEbbaApplicationsQuery = {
       >;
     } & EbbaApplicationFragment
   >;
+};
+
+export type GetClosedEbbaApplicationsByCompanyIdQueryVariables = Exact<{
+  company_id: Scalars["uuid"];
+  financial_report_amount: Scalars["Int"];
+}>;
+
+export type GetClosedEbbaApplicationsByCompanyIdQuery = {
+  borrowing_base: Array<EbbaApplicationFragment>;
+  financial_reports: Array<EbbaApplicationFragment>;
 };
 
 export type PayorsByPartnerCompanyQueryVariables = Exact<{
@@ -31875,6 +31929,7 @@ export const GetCompanyForBankCompanyPageDocument = gql`
       contract {
         id
         product_type
+        start_date
       }
       most_recent_surveillance_result: customer_surveillance_results(
         limit: 1
@@ -31998,6 +32053,68 @@ export type GetCompanyForVendorOnboardingLazyQueryHookResult = ReturnType<
 export type GetCompanyForVendorOnboardingQueryResult = Apollo.QueryResult<
   GetCompanyForVendorOnboardingQuery,
   GetCompanyForVendorOnboardingQueryVariables
+>;
+export const GetCustomerOldestContractDocument = gql`
+  query GetCustomerOldestContract($company_id: uuid!) {
+    oldest_contract: contracts(
+      where: { company_id: { _eq: $company_id } }
+      order_by: { start_date: asc }
+      limit: 1
+    ) {
+      id
+      ...Contract
+    }
+  }
+  ${ContractFragmentDoc}
+`;
+
+/**
+ * __useGetCustomerOldestContractQuery__
+ *
+ * To run a query within a React component, call `useGetCustomerOldestContractQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomerOldestContractQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomerOldestContractQuery({
+ *   variables: {
+ *      company_id: // value for 'company_id'
+ *   },
+ * });
+ */
+export function useGetCustomerOldestContractQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetCustomerOldestContractQuery,
+    GetCustomerOldestContractQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetCustomerOldestContractQuery,
+    GetCustomerOldestContractQueryVariables
+  >(GetCustomerOldestContractDocument, baseOptions);
+}
+export function useGetCustomerOldestContractLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetCustomerOldestContractQuery,
+    GetCustomerOldestContractQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetCustomerOldestContractQuery,
+    GetCustomerOldestContractQueryVariables
+  >(GetCustomerOldestContractDocument, baseOptions);
+}
+export type GetCustomerOldestContractQueryHookResult = ReturnType<
+  typeof useGetCustomerOldestContractQuery
+>;
+export type GetCustomerOldestContractLazyQueryHookResult = ReturnType<
+  typeof useGetCustomerOldestContractLazyQuery
+>;
+export type GetCustomerOldestContractQueryResult = Apollo.QueryResult<
+  GetCustomerOldestContractQuery,
+  GetCustomerOldestContractQueryVariables
 >;
 export const GetFinancialSummariesByCompanyIdDocument = gql`
   query GetFinancialSummariesByCompanyId($companyId: uuid!) {
@@ -33146,6 +33263,112 @@ export type GetClosedEbbaApplicationsQueryResult = Apollo.QueryResult<
   GetClosedEbbaApplicationsQuery,
   GetClosedEbbaApplicationsQueryVariables
 >;
+export const GetClosedEbbaApplicationsByCompanyIdDocument = gql`
+  query GetClosedEbbaApplicationsByCompanyId(
+    $company_id: uuid!
+    $financial_report_amount: Int!
+  ) {
+    borrowing_base: ebba_applications(
+      where: {
+        _and: [
+          { category: { _eq: "borrowing_base" } }
+          { company_id: { _eq: $company_id } }
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          {
+            _and: [
+              { status: { _neq: drafted } }
+              { status: { _neq: rejected } }
+            ]
+          }
+        ]
+      }
+      order_by: [{ application_date: desc }, { created_at: desc }]
+      limit: 1
+    ) {
+      ...EbbaApplication
+    }
+    financial_reports: ebba_applications(
+      where: {
+        _and: [
+          { category: { _eq: "financial_report" } }
+          { company_id: { _eq: $company_id } }
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          {
+            _and: [
+              { status: { _neq: drafted } }
+              { status: { _neq: rejected } }
+            ]
+          }
+        ]
+      }
+      order_by: [{ application_date: desc }, { created_at: desc }]
+      limit: $financial_report_amount
+    ) {
+      ...EbbaApplication
+    }
+  }
+  ${EbbaApplicationFragmentDoc}
+`;
+
+/**
+ * __useGetClosedEbbaApplicationsByCompanyIdQuery__
+ *
+ * To run a query within a React component, call `useGetClosedEbbaApplicationsByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetClosedEbbaApplicationsByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetClosedEbbaApplicationsByCompanyIdQuery({
+ *   variables: {
+ *      company_id: // value for 'company_id'
+ *      financial_report_amount: // value for 'financial_report_amount'
+ *   },
+ * });
+ */
+export function useGetClosedEbbaApplicationsByCompanyIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetClosedEbbaApplicationsByCompanyIdQuery,
+    GetClosedEbbaApplicationsByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetClosedEbbaApplicationsByCompanyIdQuery,
+    GetClosedEbbaApplicationsByCompanyIdQueryVariables
+  >(GetClosedEbbaApplicationsByCompanyIdDocument, baseOptions);
+}
+export function useGetClosedEbbaApplicationsByCompanyIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetClosedEbbaApplicationsByCompanyIdQuery,
+    GetClosedEbbaApplicationsByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetClosedEbbaApplicationsByCompanyIdQuery,
+    GetClosedEbbaApplicationsByCompanyIdQueryVariables
+  >(GetClosedEbbaApplicationsByCompanyIdDocument, baseOptions);
+}
+export type GetClosedEbbaApplicationsByCompanyIdQueryHookResult = ReturnType<
+  typeof useGetClosedEbbaApplicationsByCompanyIdQuery
+>;
+export type GetClosedEbbaApplicationsByCompanyIdLazyQueryHookResult =
+  ReturnType<typeof useGetClosedEbbaApplicationsByCompanyIdLazyQuery>;
+export type GetClosedEbbaApplicationsByCompanyIdQueryResult =
+  Apollo.QueryResult<
+    GetClosedEbbaApplicationsByCompanyIdQuery,
+    GetClosedEbbaApplicationsByCompanyIdQueryVariables
+  >;
 export const PayorsByPartnerCompanyDocument = gql`
   query PayorsByPartnerCompany($companyId: uuid!) {
     payors(

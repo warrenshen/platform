@@ -139,8 +139,9 @@ query GetCompanyForBankCompanyPage($id: uuid!) {
     contract {
       id
       product_type
+      start_date
     }
-    most_recent_surveillance_result: customer_surveillance_results (
+    most_recent_surveillance_result: customer_surveillance_results(
       limit: 1
       order_by: { qualifying_date: desc }
       where: {
@@ -160,5 +161,16 @@ query GetCompanyForVendorOnboarding($id: uuid!) {
   companies_by_pk(id: $id) {
     id
     name
+  }
+}
+
+query GetCustomerOldestContract($company_id: uuid!) {
+  oldest_contract: contracts(
+    where: { company_id: { _eq: $company_id } }
+    order_by: { start_date: asc }
+    limit: 1
+  ) {
+    id
+    ...Contract
   }
 }

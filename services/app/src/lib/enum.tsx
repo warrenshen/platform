@@ -22,6 +22,8 @@ export enum UUIDEnum {
   None = "00000000-0000-0000-0000-000000000000",
 }
 
+export const FinancialReportsMaxMonthsAmount = 12;
+
 // File type enum is used for permissions when accessing files.
 // We need to know from which file table the user is intending to read from.
 export enum FileTypeEnum {

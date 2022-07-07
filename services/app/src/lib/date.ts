@@ -3,11 +3,13 @@ import {
   addDays,
   addMonths,
   differenceInDays,
+  differenceInMonths,
   format,
   getYear,
   lastDayOfMonth,
   parse,
   parseISO,
+  subMonths,
 } from "date-fns";
 import { addYearToBankHolidays, bankHolidays } from "lib/holidays";
 import { range } from "lodash";
@@ -20,6 +22,9 @@ export const DateFormatFileName = "yyyyMMdd"; // Date format used in file names.
 export const MonthFormatClient = "MMMM yyyy (MM/yyyy)";
 export const DateFormatServer = "yyyy-MM-dd";
 export const TimeFormatClient = "hh:mm:ss a";
+
+export const howManyMonthsBetween = (startDate: Date, endDate: Date) =>
+  differenceInMonths(endDate, startDate);
 
 export function dateAsDateStringClient(date: Date) {
   try {
@@ -300,6 +305,33 @@ export function withinNDaysOfNowOrBefore(
     : differenceInDays(date, now);
   return difference <= days;
 }
+
+export function withinNMonthsOfNow(
+  dateString: string,
+  months: number
+): boolean {
+  if (!dateString) {
+    return false;
+  }
+  const date = parse(dateString, DateFormatServer, new Date());
+  const now = new Date();
+
+  return differenceInMonths(date, now) <= months;
+}
+
+export function getNMonthsPriorFromDate(
+  months: number,
+  from: Date = new Date()
+): string {
+  const date = subMonths(from, months);
+  return format(date, DateFormatServer);
+}
+
+export const getDifferenceInDays = (startDate: Date, endDate: Date) =>
+  differenceInDays(startDate, endDate);
+
+export const getFifteenthOfGivenDate = (date: Date) =>
+  new Date(date.getFullYear(), date.getMonth(), 15);
 
 export const renderQuarter = (input_date: string) => {
   const d = new Date(input_date);
