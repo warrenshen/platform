@@ -18,7 +18,6 @@ import {
 import {
   PurchaseOrderFileTypeEnum,
   PurchaseOrders,
-  RequestStatusEnum,
   useGetPurchaseOrderForCustomerQuery,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
@@ -112,23 +111,64 @@ export default function PurchaseOrderDrawer({
         </Typography>
         <RequestStatusChip requestStatus={purchaseOrder.status} />
       </Box>
-      {purchaseOrder.status === RequestStatusEnum.Rejected && (
+      {!!purchaseOrder.rejection_note && (
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Typography variant="subtitle2" color="textSecondary">
+            Vendor Rejection Reason
+          </Typography>
+          <Typography variant={"body1"}>
+            {purchaseOrder.rejection_note}
+          </Typography>
+        </Box>
+      )}
+      {!!purchaseOrder.bank_rejection_note && (
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Typography variant="subtitle2" color="textSecondary">
+            Bank Rejection Reason
+          </Typography>
+          <Typography variant={"body1"}>
+            {purchaseOrder.bank_rejection_note}
+          </Typography>
+        </Box>
+      )}
+      {!purchaseOrder.rejection_note && !purchaseOrder.bank_rejection_note && (
         <Box display="flex" flexDirection="column" mt={2}>
           <Typography variant="subtitle2" color="textSecondary">
             Rejection Reason
           </Typography>
-          {!!purchaseOrder.rejection_note && (
-            <Typography variant={"body1"}>
-              {purchaseOrder.rejection_note}
-            </Typography>
-          )}
-          {!!purchaseOrder.bank_rejection_note && (
-            <Typography variant={"body1"}>
-              {purchaseOrder.bank_rejection_note}
-            </Typography>
-          )}
+          <Typography variant={"body1"}>-</Typography>
         </Box>
       )}
+      {(!!purchaseOrder.rejection_note ||
+        !!purchaseOrder.bank_rejection_note) && (
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Typography variant="subtitle2" color="textSecondary">
+            Rejection Date
+          </Typography>
+          <Typography variant={"body1"}>
+            {formatDatetimeString(purchaseOrder.rejected_at, false)}
+          </Typography>
+        </Box>
+      )}
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2" color="textSecondary">
+          Marked Incomplete Reason
+        </Typography>
+        <Typography variant={"body1"}>
+          {purchaseOrder.bank_incomplete_note || "-"}
+        </Typography>
+      </Box>
+
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2" color="textSecondary">
+          Marked Incomplete Date
+        </Typography>
+        <Typography variant={"body1"}>
+          {!!purchaseOrder.incompleted_at
+            ? formatDatetimeString(purchaseOrder.incompleted_at, false)
+            : "-"}
+        </Typography>
+      </Box>
       {isBankUser && (
         <Box display="flex" flexDirection="column" mt={2}>
           <Typography variant="subtitle2" color="textSecondary">

@@ -28077,7 +28077,9 @@ export type GetCompanyEbbaApplicationsInfoQuery = {
           >;
         }
       >;
-      financial_summaries: Array<Pick<FinancialSummaries, "product_type">>;
+      financial_summaries: Array<
+        Pick<FinancialSummaries, "id" | "product_type">
+      >;
     }
   >;
 };
@@ -29218,6 +29220,8 @@ export type PurchaseOrderLimitedFragment = Pick<
   | "rejection_note"
   | "bank_rejection_note"
   | "bank_incomplete_note"
+  | "incompleted_at"
+  | "rejected_at"
   | "customer_note"
   | "created_at"
   | "requested_at"
@@ -30185,6 +30189,8 @@ export const PurchaseOrderLimitedFragmentDoc = gql`
     rejection_note
     bank_rejection_note
     bank_incomplete_note
+    incompleted_at
+    rejected_at
     customer_note
     created_at
     requested_at
@@ -38966,6 +38972,7 @@ export const GetCompanyEbbaApplicationsInfoDocument = gql`
         }
       }
       financial_summaries {
+        id
         product_type
       }
     }
