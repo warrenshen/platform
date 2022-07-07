@@ -34,36 +34,36 @@ def submit_ebba_application_for_approval(
 	# considerations. For most cases though, the happy path is for the customer
 	# to switch to `In Review`, get reviewed, then return to normal lending activity
 	qualifying_date = date_util.get_previous_month_last_date(date_util.now_as_date())
-	customer_surveillance_result = cast(
+	most_recent_customer_surveillance_result = cast(
 		models.CustomerSurveillanceResult,
 		session.query(models.CustomerSurveillanceResult).filter(
 			models.CustomerSurveillanceResult.company_id == company_id
-		).filter(
-			models.CustomerSurveillanceResult.qualifying_date == qualifying_date
+		).order_by(
+			models.CustomerSurveillanceResult.qualifying_date.desc()
 		).first())
 
-	if not customer_surveillance_result:
-		customer_surveillance_result = models.CustomerSurveillanceResult( #type: ignore
+	if not most_recent_customer_surveillance_result:
+		most_recent_customer_surveillance_result = models.CustomerSurveillanceResult( #type: ignore
 			company_id = company_id,
 			qualifying_date = qualifying_date,
 			submitting_user_id = user_id,
 			metadata_info = {}
 		)
 
-		session.add(customer_surveillance_result)
+		session.add(most_recent_customer_surveillance_result)
 		session.flush()
 
 	# We replace the message first so that we don't keep adding the automated message 
 	# over and over again
-	original_note = customer_surveillance_result.bank_note.replace(
+	original_note = most_recent_customer_surveillance_result.bank_note.replace(
 		AutomatedSurveillanceMessage.IN_REVIEW, 
 		""
-	) if customer_surveillance_result.bank_note is not None else ""
+	) if most_recent_customer_surveillance_result.bank_note is not None else ""
 
-	if customer_surveillance_result.surveillance_status != CompanySurveillanceStatus.ON_PAUSE and \
-		customer_surveillance_result.surveillance_status != CompanySurveillanceStatus.DEFAULTED:
-		customer_surveillance_result.surveillance_status = CompanySurveillanceStatus.IN_REVIEW
-		customer_surveillance_resultsurveillance_status_note = f'{original_note} {AutomatedSurveillanceMessage.IN_REVIEW}'
+	if most_recent_customer_surveillance_result.surveillance_status != CompanySurveillanceStatus.ON_PAUSE and \
+		most_recent_customer_surveillance_result.surveillance_status != CompanySurveillanceStatus.DEFAULTED:
+		most_recent_customer_surveillance_result.surveillance_status = CompanySurveillanceStatus.IN_REVIEW
+		most_recent_customer_surveillance_resultsurveillance_status_note = f'{original_note} {AutomatedSurveillanceMessage.IN_REVIEW}'
 
 	return True, None
 
