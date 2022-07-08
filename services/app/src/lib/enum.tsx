@@ -174,6 +174,20 @@ export const BankEbbaTabLabels = [
   BankEbbaTabLabel.AllCertifications,
 ];
 
+export enum NewPurchaseOrderStatus {
+  Draft = "draft",
+  PendingApprovalByVendor = "pending_approval_by_vendor",
+  ChangesRequestedByVendor = "changes_requested_by_vendor",
+  ChangesRequestedByBespoke = "changes_requested_by_bespoke",
+  ReadyToRequestFinancing = "ready_to_request_financing",
+  PendingApprovalByBespoke = "pending_approval_by_bespoke",
+  FinancingRequestApproved = "financing_request_approved",
+  FullyFinanced = "fully_financed",
+  Archived = "archived",
+  RejectedByVendor = "rejected_by_vendor",
+  RejectedByBespoke = "rejected_by_bespoke",
+}
+
 export enum SurveillanceStatusEnum {
   GoodStanding = "good_standing",
   OnProbation = "on_probation",

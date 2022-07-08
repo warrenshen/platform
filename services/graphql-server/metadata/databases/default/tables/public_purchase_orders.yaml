@@ -67,6 +67,7 @@ select_permissions:
         - delivery_date
         - amount
         - status
+        - new_purchase_order_status
         - created_at
         - updated_at
         - order_number
@@ -100,6 +101,7 @@ select_permissions:
         - bank_incomplete_note
         - order_number
         - status
+        - new_purchase_order_status
         - approved_at
         - approved_by_user_id
         - closed_at
@@ -149,6 +151,7 @@ select_permissions:
         - rejection_note
         - requested_at
         - status
+        - new_purchase_order_status
         - updated_at
         - vendor_id
       filter:
@@ -185,6 +188,7 @@ select_permissions:
         - rejection_note
         - requested_at
         - status
+        - new_purchase_order_status
         - updated_at
         - vendor_id
       filter:
@@ -218,6 +222,7 @@ select_permissions:
         - rejection_note
         - requested_at
         - status
+        - new_purchase_order_status
         - updated_at
         - vendor_id
       filter:

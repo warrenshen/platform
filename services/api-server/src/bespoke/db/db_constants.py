@@ -122,6 +122,19 @@ class CompanyDebtFacilityStatus(object):
 	INELIGIBLE_FOR_FACILITY = 'ineligible_for_facility'
 	WAIVER = 'waiver_company'
 
+class NewPurchaseOrderStatus(object):
+  DRAFT = "draft",
+  PENDING_APPROVAL_BY_VENDOR = "pending_approval_by_vendor",
+  CHANGES_REQUESTED_BY_VENDOR = "changes_requested_by_vendor",
+  CHANGES_REQUESTED_BY_BESPOKE = "changes_requested_by_bespoke",
+  READY_TO_REQUEST_FINANCING = "ready_to_request_financing",
+  PENDING_APPROVAL_BY_BESPOKE = "pending_approval_by_bespoke",
+  FINANCING_REQUEST_APPROVED = "financing_request_approved",
+  FULLY_FINANCED = "fully_financed",
+  ARCHIVED = "archived",
+  REJECTED_BY_VENDOR = "rejected_by_vendor",
+  REJECTED_BY_BESPOKE = "rejected_by_bespoke",
+
 class CompanySurveillanceStatus(object):
 	GOOD_STANDING = "good_standing"
 	ON_PROBATION = "on_probation"
