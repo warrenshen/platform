@@ -441,13 +441,28 @@ export const getLoansInfoData = (
   lookupKey: string,
   filterLineOfCredit: boolean = false
 ): Maybe<number> => {
-  const lookupInfo = loansInfoLookup[loan.company_id][loan.id];
+  if (productType === ProductTypeEnum.LineOfCredit && !!filterLineOfCredit) {
+    return null;
+  } else if (
+    productType === ProductTypeEnum.LineOfCredit &&
+    !filterLineOfCredit
+  ) {
+    const perCompanyLookupInfo = loansInfoLookup[loan.company_id];
 
-  return productType === ProductTypeEnum.LineOfCredit && !!filterLineOfCredit
-    ? null
-    : lookupInfo.hasOwnProperty(lookupKey)
-    ? Number(loansInfoLookup[loan.company_id][loan.id][lookupKey])
-    : null;
+    return Object.keys(perCompanyLookupInfo)
+      .map((key) => {
+        return perCompanyLookupInfo[key].hasOwnProperty(lookupKey)
+          ? Number(perCompanyLookupInfo[key][lookupKey])
+          : 0;
+      })
+      .reduce((a, b) => a + b);
+  } else {
+    const lookupInfo = loansInfoLookup[loan.company_id][loan.id];
+
+    return lookupInfo.hasOwnProperty(lookupKey)
+      ? Number(loansInfoLookup[loan.company_id][loan.id][lookupKey])
+      : null;
+  }
 };
 
 export const getLoanMonth = (
