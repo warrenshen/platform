@@ -12,7 +12,7 @@ import {
 } from "@material-ui/core";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import Modal from "components/Shared/Modal/Modal";
-import { CustomerForBankFragment } from "generated/graphql";
+import { CustomersWithMetadataFragment } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { updateCompanyDebtFacilityStatus } from "lib/api/debtFacility";
@@ -32,7 +32,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
-  selectedCompany: CustomerForBankFragment;
+  selectedCompany: CustomersWithMetadataFragment;
   handleClose: () => void;
 }
 
@@ -81,7 +81,6 @@ export default function UpdateCompanyDebtFacilityStatusModal({
     return !!value ? getEndOfNextMonth(value) : "";
   };
 
-  // Finally, actually render the one we'd like rendered
   return (
     <Modal
       dataCy={"update-company-debt-facility-status-modal"}

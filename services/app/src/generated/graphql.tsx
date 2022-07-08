@@ -6499,8 +6499,6 @@ export type CustomerSurveillanceResultsBoolExp = {
 /** unique or primary key constraints on table "customer_surveillance_results" */
 export enum CustomerSurveillanceResultsConstraint {
   /** unique or primary key constraint */
-  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
-  /** unique or primary key constraint */
   CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
 }
 
@@ -20918,6 +20916,7 @@ export type PurchaseOrders = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
@@ -21099,6 +21098,7 @@ export type PurchaseOrdersBoolExp = {
   _or?: Maybe<Array<PurchaseOrdersBoolExp>>;
   amount?: Maybe<NumericComparisonExp>;
   amount_funded?: Maybe<NumericComparisonExp>;
+  amount_updated_at?: Maybe<TimestamptzComparisonExp>;
   approved_at?: Maybe<TimestamptzComparisonExp>;
   approved_by_user_id?: Maybe<UuidComparisonExp>;
   approving_user_id?: Maybe<UsersBoolExp>;
@@ -21154,6 +21154,7 @@ export type PurchaseOrdersInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   approving_user_id?: Maybe<UsersObjRelInsertInput>;
@@ -21201,6 +21202,7 @@ export type PurchaseOrdersMaxFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -21235,6 +21237,7 @@ export type PurchaseOrdersMaxOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
@@ -21269,6 +21272,7 @@ export type PurchaseOrdersMinFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -21303,6 +21307,7 @@ export type PurchaseOrdersMinOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
@@ -21358,6 +21363,7 @@ export type PurchaseOrdersOnConflict = {
 export type PurchaseOrdersOrderBy = {
   amount?: Maybe<OrderBy>;
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   approving_user_id?: Maybe<UsersOrderBy>;
@@ -21405,6 +21411,8 @@ export enum PurchaseOrdersSelectColumn {
   Amount = "amount",
   /** column name */
   AmountFunded = "amount_funded",
+  /** column name */
+  AmountUpdatedAt = "amount_updated_at",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -21466,6 +21474,7 @@ export type PurchaseOrdersSetInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -21571,6 +21580,8 @@ export enum PurchaseOrdersUpdateColumn {
   Amount = "amount",
   /** column name */
   AmountFunded = "amount_funded",
+  /** column name */
+  AmountUpdatedAt = "amount_updated_at",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -26404,6 +26415,10 @@ export type UuidComparisonExp = {
 /** columns and relationships of "vendors" */
 export type Vendors = {
   address?: Maybe<Scalars["String"]>;
+  /** An array relationship */
+  bank_accounts: Array<BankAccounts>;
+  /** An aggregate relationship */
+  bank_accounts_aggregate: BankAccountsAggregate;
   city?: Maybe<Scalars["String"]>;
   /** An array relationship */
   company_deliveries: Array<CompanyDeliveries>;
@@ -26442,6 +26457,24 @@ export type Vendors = {
   /** An aggregate relationship */
   users_aggregate: UsersAggregate;
   zip_code?: Maybe<Scalars["String"]>;
+};
+
+/** columns and relationships of "vendors" */
+export type VendorsBankAccountsArgs = {
+  distinct_on?: Maybe<Array<BankAccountsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BankAccountsOrderBy>>;
+  where?: Maybe<BankAccountsBoolExp>;
+};
+
+/** columns and relationships of "vendors" */
+export type VendorsBankAccountsAggregateArgs = {
+  distinct_on?: Maybe<Array<BankAccountsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BankAccountsOrderBy>>;
+  where?: Maybe<BankAccountsBoolExp>;
 };
 
 /** columns and relationships of "vendors" */
@@ -26554,6 +26587,7 @@ export type VendorsBoolExp = {
   _not?: Maybe<VendorsBoolExp>;
   _or?: Maybe<Array<VendorsBoolExp>>;
   address?: Maybe<StringComparisonExp>;
+  bank_accounts?: Maybe<BankAccountsBoolExp>;
   city?: Maybe<StringComparisonExp>;
   company_deliveries?: Maybe<CompanyDeliveriesBoolExp>;
   company_settings_id?: Maybe<UuidComparisonExp>;
@@ -26588,6 +26622,7 @@ export type VendorsIncInput = {
 /** input type for inserting data into table "vendors" */
 export type VendorsInsertInput = {
   address?: Maybe<Scalars["String"]>;
+  bank_accounts?: Maybe<BankAccountsArrRelInsertInput>;
   city?: Maybe<Scalars["String"]>;
   company_deliveries?: Maybe<CompanyDeliveriesArrRelInsertInput>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
@@ -26672,6 +26707,7 @@ export type VendorsObjRelInsertInput = {
 /** Ordering options when selecting data from "vendors". */
 export type VendorsOrderBy = {
   address?: Maybe<OrderBy>;
+  bank_accounts_aggregate?: Maybe<BankAccountsAggregateOrderBy>;
   city?: Maybe<OrderBy>;
   company_deliveries_aggregate?: Maybe<CompanyDeliveriesAggregateOrderBy>;
   company_settings_id?: Maybe<OrderBy>;
@@ -27172,11 +27208,17 @@ export type GetReportLoansByDebtFacilityIdSubscription = {
   >;
 };
 
-export type GetDebtFacilitiesSubscriptionVariables = Exact<{
-  [key: string]: never;
+export type GetDebtFacilityLoansByIdQueryVariables = Exact<{
+  loan_ids?: Maybe<Array<Scalars["uuid"]>>;
 }>;
 
-export type GetDebtFacilitiesSubscription = {
+export type GetDebtFacilityLoansByIdQuery = {
+  loans: Array<Pick<Loans, "id"> & OpenLoanForDebtFacilityFragment>;
+};
+
+export type GetDebtFacilitiesQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetDebtFacilitiesQuery = {
   debt_facilities: Array<Pick<DebtFacilities, "id"> & DebtFacilityFragment>;
 };
 
@@ -29178,22 +29220,12 @@ export type BankAccountFragment = Pick<
 
 export type CompanyForDebtFacilityFragment = Pick<
   Companies,
-  | "id"
-  | "identifier"
-  | "name"
-  | "contract_name"
-  | "employer_identification_number"
-  | "dba_name"
-  | "address"
-  | "country"
-  | "state"
-  | "city"
-  | "zip_code"
-  | "phone_number"
-  | "debt_facility_status"
+  "id" | "identifier" | "name" | "dba_name" | "state" | "debt_facility_status"
 > & {
-  licenses: Array<Pick<CompanyLicenses, "id"> & CompanyLicenseFragment>;
   contract?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
+  most_recent_financial_summary: Array<
+    Pick<FinancialSummaries, "id" | "product_type">
+  >;
 };
 
 export type MetrcApiKeyFragment = Pick<
@@ -29829,6 +29861,29 @@ export const CompanyFacilityFragmentDoc = gql`
     address
   }
 `;
+export const CompanyLicenseLimitedFragmentDoc = gql`
+  fragment CompanyLicenseLimited on company_licenses {
+    id
+    company_id
+    file_id
+    license_number
+  }
+`;
+export const CompanyLicenseFragmentDoc = gql`
+  fragment CompanyLicense on company_licenses {
+    id
+    legal_name
+    license_category
+    license_description
+    license_status
+    us_state
+    expiration_date
+    facility_row_id
+    is_underwriting_enabled
+    ...CompanyLicenseLimited
+  }
+  ${CompanyLicenseLimitedFragmentDoc}
+`;
 export const CompanyLimitedFragmentDoc = gql`
   fragment CompanyLimited on companies {
     id
@@ -30337,14 +30392,6 @@ export const MetrcApiKeyFragmentDoc = gql`
     use_saved_licenses_only
   }
 `;
-export const CompanyLicenseLimitedFragmentDoc = gql`
-  fragment CompanyLicenseLimited on company_licenses {
-    id
-    company_id
-    file_id
-    license_number
-  }
-`;
 export const VendorLimitedFragmentDoc = gql`
   fragment VendorLimited on vendors {
     id
@@ -30811,21 +30858,6 @@ export const MetrcDownloadSummaryFragmentDoc = gql`
   }
   ${MetrcDownloadSummaryLimitedFragmentDoc}
 `;
-export const CompanyLicenseFragmentDoc = gql`
-  fragment CompanyLicense on company_licenses {
-    id
-    legal_name
-    license_category
-    license_description
-    license_status
-    us_state
-    expiration_date
-    facility_row_id
-    is_underwriting_enabled
-    ...CompanyLicenseLimited
-  }
-  ${CompanyLicenseLimitedFragmentDoc}
-`;
 export const ContractFragmentDoc = gql`
   fragment Contract on contracts {
     id
@@ -30843,34 +30875,21 @@ export const CompanyForDebtFacilityFragmentDoc = gql`
     id
     identifier
     name
-    contract_name
-    employer_identification_number
     dba_name
-    address
-    country
     state
-    city
-    zip_code
-    phone_number
     debt_facility_status
-    licenses(
-      where: {
-        _or: [
-          { is_deleted: { _is_null: true } }
-          { is_deleted: { _eq: false } }
-        ]
-      }
-      order_by: { created_at: desc }
-    ) {
-      id
-      ...CompanyLicense
-    }
     contract {
       id
       ...Contract
     }
+    most_recent_financial_summary: financial_summaries(
+      order_by: { date: desc }
+      limit: 1
+    ) {
+      id
+      product_type
+    }
   }
-  ${CompanyLicenseFragmentDoc}
   ${ContractFragmentDoc}
 `;
 export const LoanForDebtFacilityFragmentDoc = gql`
@@ -33082,8 +33101,66 @@ export type GetReportLoansByDebtFacilityIdSubscriptionHookResult = ReturnType<
 >;
 export type GetReportLoansByDebtFacilityIdSubscriptionResult =
   Apollo.SubscriptionResult<GetReportLoansByDebtFacilityIdSubscription>;
+export const GetDebtFacilityLoansByIdDocument = gql`
+  query GetDebtFacilityLoansById($loan_ids: [uuid!]) {
+    loans(where: { id: { _in: $loan_ids } }) {
+      id
+      ...OpenLoanForDebtFacility
+    }
+  }
+  ${OpenLoanForDebtFacilityFragmentDoc}
+`;
+
+/**
+ * __useGetDebtFacilityLoansByIdQuery__
+ *
+ * To run a query within a React component, call `useGetDebtFacilityLoansByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetDebtFacilityLoansByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetDebtFacilityLoansByIdQuery({
+ *   variables: {
+ *      loan_ids: // value for 'loan_ids'
+ *   },
+ * });
+ */
+export function useGetDebtFacilityLoansByIdQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetDebtFacilityLoansByIdQuery,
+    GetDebtFacilityLoansByIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetDebtFacilityLoansByIdQuery,
+    GetDebtFacilityLoansByIdQueryVariables
+  >(GetDebtFacilityLoansByIdDocument, baseOptions);
+}
+export function useGetDebtFacilityLoansByIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetDebtFacilityLoansByIdQuery,
+    GetDebtFacilityLoansByIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetDebtFacilityLoansByIdQuery,
+    GetDebtFacilityLoansByIdQueryVariables
+  >(GetDebtFacilityLoansByIdDocument, baseOptions);
+}
+export type GetDebtFacilityLoansByIdQueryHookResult = ReturnType<
+  typeof useGetDebtFacilityLoansByIdQuery
+>;
+export type GetDebtFacilityLoansByIdLazyQueryHookResult = ReturnType<
+  typeof useGetDebtFacilityLoansByIdLazyQuery
+>;
+export type GetDebtFacilityLoansByIdQueryResult = Apollo.QueryResult<
+  GetDebtFacilityLoansByIdQuery,
+  GetDebtFacilityLoansByIdQueryVariables
+>;
 export const GetDebtFacilitiesDocument = gql`
-  subscription GetDebtFacilities {
+  query GetDebtFacilities {
     debt_facilities(order_by: [{ name: desc }]) {
       id
       ...DebtFacility
@@ -33093,36 +33170,52 @@ export const GetDebtFacilitiesDocument = gql`
 `;
 
 /**
- * __useGetDebtFacilitiesSubscription__
+ * __useGetDebtFacilitiesQuery__
  *
- * To run a query within a React component, call `useGetDebtFacilitiesSubscription` and pass it any options that fit your needs.
- * When your component renders, `useGetDebtFacilitiesSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetDebtFacilitiesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetDebtFacilitiesQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
- * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetDebtFacilitiesSubscription({
+ * const { data, loading, error } = useGetDebtFacilitiesQuery({
  *   variables: {
  *   },
  * });
  */
-export function useGetDebtFacilitiesSubscription(
-  baseOptions?: Apollo.SubscriptionHookOptions<
-    GetDebtFacilitiesSubscription,
-    GetDebtFacilitiesSubscriptionVariables
+export function useGetDebtFacilitiesQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetDebtFacilitiesQuery,
+    GetDebtFacilitiesQueryVariables
   >
 ) {
-  return Apollo.useSubscription<
-    GetDebtFacilitiesSubscription,
-    GetDebtFacilitiesSubscriptionVariables
+  return Apollo.useQuery<
+    GetDebtFacilitiesQuery,
+    GetDebtFacilitiesQueryVariables
   >(GetDebtFacilitiesDocument, baseOptions);
 }
-export type GetDebtFacilitiesSubscriptionHookResult = ReturnType<
-  typeof useGetDebtFacilitiesSubscription
+export function useGetDebtFacilitiesLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetDebtFacilitiesQuery,
+    GetDebtFacilitiesQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetDebtFacilitiesQuery,
+    GetDebtFacilitiesQueryVariables
+  >(GetDebtFacilitiesDocument, baseOptions);
+}
+export type GetDebtFacilitiesQueryHookResult = ReturnType<
+  typeof useGetDebtFacilitiesQuery
 >;
-export type GetDebtFacilitiesSubscriptionResult =
-  Apollo.SubscriptionResult<GetDebtFacilitiesSubscription>;
+export type GetDebtFacilitiesLazyQueryHookResult = ReturnType<
+  typeof useGetDebtFacilitiesLazyQuery
+>;
+export type GetDebtFacilitiesQueryResult = Apollo.QueryResult<
+  GetDebtFacilitiesQuery,
+  GetDebtFacilitiesQueryVariables
+>;
 export const GetDebtFacilityCurrentCapacityDocument = gql`
   subscription GetDebtFacilityCurrentCapacity($target_facility_id: uuid!) {
     debt_facilities(where: { id: { _eq: $target_facility_id } }) {

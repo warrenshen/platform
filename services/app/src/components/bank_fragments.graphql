@@ -205,28 +205,19 @@ fragment CompanyForDebtFacility on companies {
   id
   identifier
   name
-  contract_name
-  employer_identification_number
   dba_name
-  address
-  country
   state
-  city
-  zip_code
-  phone_number
   debt_facility_status
-  licenses(
-    where: {
-      _or: [{ is_deleted: { _is_null: true } }, { is_deleted: { _eq: false } }]
-    }
-    order_by: { created_at: desc }
-  ) {
-    id
-    ...CompanyLicense
-  }
   contract {
     id
     ...Contract
+  }
+  most_recent_financial_summary: financial_summaries(
+    order_by: { date: desc }
+    limit: 1
+  ) {
+    id
+    product_type
   }
 }
 

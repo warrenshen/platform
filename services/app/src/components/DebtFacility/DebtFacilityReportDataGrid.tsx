@@ -5,218 +5,62 @@ import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridC
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import {
   Companies,
-  LoanArtifactFragment,
   LoanFragment,
   Loans,
   OpenLoanForDebtFacilityFragment,
-  PurchaseOrders,
-  RequestStatusEnum,
 } from "generated/graphql";
+import { parseDateStringServer, renderQuarter } from "lib/date";
 import {
-  formatDateString,
-  formatDatetimeString,
-  parseDateStringServer,
-  renderQuarter,
-} from "lib/date";
-import {
+  anonymizeLoanNames,
+  calculateGrossMarginValue,
+  countAdvancesSent,
   determineBorrowerEligibility,
+  determineIfPreviouslyAssigned,
   determineLoanEligibility,
+  getArtifactDueDate,
+  getCustomerIdentifier,
+  getCustomerName,
   getDaysPastDue,
   getDaysPastDueBucket,
+  getDebtFacilityAddedDate,
+  getDebtFacilityStatus,
+  getFinancingDayLimit,
+  getFinancingPeriod,
+  getLoanIdentifier,
+  getLoanMonth,
+  getLoanYear,
+  getLoansInfoData,
   getMaturityDate,
+  getOriginationOrCreatedDate,
   getProductTypeFromOpenLoanForDebtFacilityFragment,
+  getRepaymentDate,
+  getUSState,
+  getVendorName,
+  reduceLineOfCreditLoans,
 } from "lib/debtFacility";
 import {
   LoanPaymentStatusEnum,
-  LoanStatusEnum,
-  PartnerEnum,
+  LoanPaymentStatusToLabel,
   ProductTypeEnum,
   ProductTypeToLabel,
 } from "lib/enum";
-import {
-  createLoanCustomerIdentifier,
-  createLoanDisbursementIdentifier,
-  getAnonymizedShortName,
-  getLoanArtifactName,
-  getLoanVendorName,
-} from "lib/loans";
-import { formatCurrency } from "lib/number";
-import { ColumnWidths, truncateString } from "lib/tables";
+import { getLoanArtifactName } from "lib/loans";
+import { CurrencyPrecision } from "lib/number";
+import { ColumnWidths, formatRowModel } from "lib/tables";
 import { groupBy } from "lodash";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 
 interface Props {
-  isArtifactVisible?: boolean;
-  isArtifactBankNoteVisible?: boolean;
-  isCompanyVisible?: boolean;
-  isDaysPastDueVisible?: boolean;
-  isDisbursementIdentifierVisible?: boolean;
-  isExcelExport?: boolean;
-  isFilteringEnabled?: boolean;
-  isMaturityVisible?: boolean;
-  isMultiSelectEnabled?: boolean;
-  isReportingVisible?: boolean;
-  isSortingDisabled?: boolean;
-  isStatusVisible?: boolean;
-  partnerType?: PartnerEnum;
-  pager?: boolean;
-  pageSize?: number;
-  filterByStatus?: RequestStatusEnum;
+  isAnonymized: boolean;
   loans: OpenLoanForDebtFacilityFragment[];
   loansInfoLookup: Record<string, Record<string, Record<string, string>>>;
   selectedLoanIds?: Loans["id"][];
   handleClickCustomer?: (customerId: Companies["id"]) => void;
-  handleClickPurchaseOrderBankNote?: (
-    purchaseOrderId: PurchaseOrders["id"]
-  ) => void;
   handleSelectLoans?: (loans: LoanFragment[]) => void;
   supportedProductTypes: ProductTypeEnum[];
   lastDebtFacilityReportDate: string;
-  isAnonymized: boolean;
   currentDebtFacilityReportDate: string;
 }
-
-const getOriginationOrCreatedDate = (loan: OpenLoanForDebtFacilityFragment) => {
-  if (
-    !!loan.purchase_order?.purchase_order_metrc_transfers[0]?.metrc_transfer
-      ?.created_date
-  ) {
-    return formatDatetimeString(
-      loan.purchase_order?.purchase_order_metrc_transfers[0]?.metrc_transfer
-        ?.created_date,
-      false // isTimeVisible
-    );
-  } else {
-    return formatDateString(loan.origination_date);
-  }
-};
-
-const calculateGrossMarginValue = (loan: OpenLoanForDebtFacilityFragment) => {
-  const productType = getProductTypeFromOpenLoanForDebtFacilityFragment(loan);
-  // NOTE(JR): the finance team would eventually like this to be configurable
-  const grossMarginMultiplier =
-    productType === ProductTypeEnum.InvoiceFinancing ? 2.0 : 1.5;
-
-  return loan.amount * grossMarginMultiplier;
-};
-
-const countAdvancesSent = (loan: OpenLoanForDebtFacilityFragment) => {
-  if (!!loan.transactions && !!loan?.company?.contract?.product_type) {
-    const productType = getProductTypeFromOpenLoanForDebtFacilityFragment(loan);
-    if (productType === ProductTypeEnum.LineOfCredit) {
-      const filteredTransactions = loan.transactions.filter((transaction) => {
-        return (
-          parseDateStringServer(transaction.effective_date) <
-          parseDateStringServer("2021-11-24")
-        );
-      });
-      return filteredTransactions.length;
-    } else {
-      const purchaseOrderCount = !!loan.purchase_order ? 1 : 0;
-      const invoiceCount = !!loan.invoice ? 1 : 0;
-
-      return purchaseOrderCount + invoiceCount;
-    }
-  }
-};
-
-const determineIfPreviouslyAssigned = (
-  loan: OpenLoanForDebtFacilityFragment,
-  lastDebtFacilityReportDate: string
-) => {
-  return !!loan.loan_report?.debt_facility_added_date
-    ? new Date(loan.loan_report?.debt_facility_added_date) <
-        new Date(lastDebtFacilityReportDate)
-    : false;
-};
-
-const reduceLineOfCreditLoans = (
-  groupedByCompanyIds: Record<string, OpenLoanForDebtFacilityFragment[]>
-) => {
-  return Object.entries(groupedByCompanyIds)
-    .map(([company_id, loans]) => {
-      const isLineOfCredit =
-        getProductTypeFromOpenLoanForDebtFacilityFragment(loans[0]) ===
-        ProductTypeEnum.LineOfCredit;
-      if (isLineOfCredit) {
-        const filteredLoans = loans.filter((loan) => {
-          return loan["closed_at"] === null;
-        });
-        return filteredLoans.length > 0
-          ? [
-              filteredLoans.reduce((a, b) => {
-                return {
-                  ...a,
-                  amount: a.amount + b.amount,
-                  origination_date:
-                    (formatDateString(a.origination_date) || new Date()) <
-                    (formatDateString(b.origination_date) || new Date())
-                      ? a.origination_date
-                      : b.origination_date,
-                  outstanding_fees: a.outstanding_fees + b.outstanding_fees,
-                  outstanding_interest:
-                    a.outstanding_interest + b.outstanding_interest,
-                  outstanding_principal_balance:
-                    a.outstanding_principal_balance +
-                    b.outstanding_principal_balance,
-                  payment_status:
-                    a.payment_status === LoanPaymentStatusEnum.PARTIALLY_PAID ||
-                    b.payment_status === LoanPaymentStatusEnum.PARTIALLY_PAID
-                      ? LoanPaymentStatusEnum.PARTIALLY_PAID
-                      : LoanStatusEnum.Funded,
-                  transactions: a["transactions"].concat(b["transactions"]),
-                } as OpenLoanForDebtFacilityFragment;
-              }),
-            ]
-          : ([] as OpenLoanForDebtFacilityFragment[]);
-      } else {
-        return loans;
-      }
-    })
-    .reduce((a, b) => {
-      return a.concat(b);
-    });
-};
-
-const getPartnerId = (loan: OpenLoanForDebtFacilityFragment) => {
-  const line_of_credit_vendor_id =
-    loan?.line_of_credit?.recipient_vendor_id || null;
-  const vendor_id = loan?.purchase_order?.vendor_id || null;
-  const payor_id = loan?.invoice?.payor_id || null;
-
-  return !!line_of_credit_vendor_id
-    ? line_of_credit_vendor_id
-    : !!vendor_id
-    ? vendor_id
-    : !!payor_id
-    ? payor_id
-    : "None";
-};
-
-const anonymizeLoanNames = (
-  loans: OpenLoanForDebtFacilityFragment[],
-  groupedByCompanyIds: Record<string, OpenLoanForDebtFacilityFragment[]>
-) => {
-  const groupedByPartnerIds = groupBy(loans, (loan) => {
-    return getPartnerId(loan);
-  });
-
-  const anonymizedVendorLookup = Object.fromEntries(
-    Object.entries(groupedByPartnerIds).map(([partner_id, loans], index) => [
-      partner_id,
-      partner_id === "None" ? "N/A" : "Vendor" + (index + 1).toString(),
-    ])
-  );
-
-  const anonymizedCompanyLookup = Object.fromEntries(
-    Object.entries(groupedByCompanyIds).map(([company_id, loans], index) => [
-      company_id,
-      "Company" + (index + 1).toString(),
-    ])
-  );
-
-  return { anonymizedCompanyLookup, anonymizedVendorLookup };
-};
 
 function getRows(
   loans: OpenLoanForDebtFacilityFragment[],
@@ -240,198 +84,129 @@ function getRows(
   const { anonymizedCompanyLookup, anonymizedVendorLookup } =
     anonymizeLoanNames(reducedLoans, groupedLoans);
 
-  return reducedLoans.map((loan) => ({
-    ...loan,
-    amount: formatCurrency(loan.amount),
-    outstanding_principal_balance: formatCurrency(
-      Number(loansInfoLookup[loan.company_id][loan.id]["outstanding_interest"])
-    ),
-    outstanding_interest: formatCurrency(
-      Number(loansInfoLookup[loan.company_id][loan.id]["outstanding_interest"])
-    ),
-    outstanding_fees: formatCurrency(
-      Number(loansInfoLookup[loan.company_id][loan.id]["outstanding_late_fees"])
-    ),
-    origination_date: formatDateString(loan.origination_date),
-    customer_identifier:
-      getProductTypeFromOpenLoanForDebtFacilityFragment(loan) ===
-      ProductTypeEnum.LineOfCredit
-        ? isAnonymized
-          ? getAnonymizedShortName(
-              anonymizedCompanyLookup[loan.company_id.toString()]
-            )
-          : loan.company.identifier
-        : createLoanCustomerIdentifier(
-            loan,
-            isAnonymized
-              ? anonymizedCompanyLookup[loan.company_id.toString()]
-              : undefined
-          ),
-    disbursement_identifier:
-      getProductTypeFromOpenLoanForDebtFacilityFragment(loan) ===
-      ProductTypeEnum.LineOfCredit
-        ? "-"
-        : createLoanDisbursementIdentifier(
-            loan,
-            isAnonymized
-              ? anonymizedCompanyLookup[loan.company_id.toString()]
-              : undefined
-          ),
-    artifact_name: getLoanArtifactName(loan),
-    artifact_bank_note: loan.purchase_order
-      ? truncateString(
-          (loan as LoanArtifactFragment).purchase_order?.bank_note || ""
-        )
-      : "N/A",
-    company_name: isAnonymized
-      ? anonymizedCompanyLookup[loan.company_id.toString()]
-      : loan.company.name,
-    vendor_name:
-      getProductTypeFromOpenLoanForDebtFacilityFragment(loan) ===
-      ProductTypeEnum.LineOfCredit
-        ? "N/A"
-        : isAnonymized
-        ? anonymizedVendorLookup[getPartnerId(loan).toString()]
-        : getLoanVendorName(loan),
-    debt_facility_status: !!loan.loan_report
-      ? loan.loan_report.debt_facility_status
-      : null,
-    repayment_date:
-      getProductTypeFromOpenLoanForDebtFacilityFragment(loan) ===
-      ProductTypeEnum.LineOfCredit
-        ? null
-        : !!loan?.loan_report?.repayment_date
-        ? formatDateString(loan.loan_report.repayment_date)
-        : null,
-    financing_period:
-      getProductTypeFromOpenLoanForDebtFacilityFragment(loan) ===
-      ProductTypeEnum.LineOfCredit
-        ? null
-        : !!loan.loan_report
-        ? loan.loan_report.financing_period
-        : null,
-    financing_day_limit:
-      getProductTypeFromOpenLoanForDebtFacilityFragment(loan) ===
-      ProductTypeEnum.LineOfCredit
-        ? null
-        : !!loan.loan_report
-        ? loan.loan_report.financing_day_limit
-        : null,
-    total_principal_paid:
-      getProductTypeFromOpenLoanForDebtFacilityFragment(loan) ===
-      ProductTypeEnum.LineOfCredit
-        ? null
-        : !!loan.loan_report
-        ? formatCurrency(
-            Number(
-              loansInfoLookup[loan.company_id][loan.id]["total_principal_paid"]
-            )
-          )
-        : null,
-    total_interest_paid:
-      getProductTypeFromOpenLoanForDebtFacilityFragment(loan) ===
-      ProductTypeEnum.LineOfCredit
-        ? null
-        : !!loan.loan_report
-        ? formatCurrency(
-            Number(
-              loansInfoLookup[loan.company_id][loan.id]["total_interest_paid"]
-            )
-          )
-        : null,
-    total_late_fees_paid:
-      getProductTypeFromOpenLoanForDebtFacilityFragment(loan) ===
-      ProductTypeEnum.LineOfCredit
-        ? null
-        : !!loan.loan_report
-        ? formatCurrency(
-            Number(loansInfoLookup[loan.company_id][loan.id]["total_fees_paid"])
-          )
-        : null,
-    previously_assigned: determineIfPreviouslyAssigned(
-      loan,
-      lastDebtFacilityReportDate
-    )
-      ? "Yes"
-      : "No",
-    product_type: !!loan.company?.contract
-      ? ProductTypeToLabel[
-          loan.company.contract.product_type as ProductTypeEnum
-        ]
-      : null,
-    us_state:
-      !!loan.company?.licenses && loan.company?.licenses.length > 0
-        ? loan.company?.licenses[0].us_state
-        : null,
-    borrower_eligibility: determineBorrowerEligibility(
-      loan,
-      supportedProductTypes
-    ),
-    loan_eligibility: determineLoanEligibility(loan, supportedProductTypes),
-    debt_facility_added_date: !!loan.loan_report?.debt_facility_added_date
-      ? formatDateString(loan.loan_report.debt_facility_added_date)
-      : "",
-    invoice_date:
-      getProductTypeFromOpenLoanForDebtFacilityFragment(loan) ===
-      ProductTypeEnum.LineOfCredit
-        ? ""
-        : getOriginationOrCreatedDate(loan),
-    // until we start tracking purchase order due dates, we pull the same date as invoice_date
-    // according to the finance team, this is a reason assumption for most purchase orders
-    invoice_due_date:
-      getProductTypeFromOpenLoanForDebtFacilityFragment(loan) ===
-      ProductTypeEnum.LineOfCredit
-        ? ""
-        : getOriginationOrCreatedDate(loan),
-    gmv_financed: !!loan.company?.contract
-      ? formatCurrency(calculateGrossMarginValue(loan))
-      : null,
-    report_maturity_date:
-      getProductTypeFromOpenLoanForDebtFacilityFragment(loan) ===
-      ProductTypeEnum.LineOfCredit
-        ? ""
-        : formatDateString(loan.adjusted_maturity_date),
-    month: parseDateStringServer(loan.origination_date).getMonth(),
-    year: parseDateStringServer(loan.origination_date).getFullYear(),
-    quarter: renderQuarter(loan.origination_date),
-    loan_count: countAdvancesSent(loan),
-    days_past_due: getDaysPastDue(loan, currentDebtFacilityReportDate),
-    days_past_due_bucket: getDaysPastDueBucket(
-      loan,
-      currentDebtFacilityReportDate
-    ),
-  }));
+  return reducedLoans.map((loan) => {
+    const productType = getProductTypeFromOpenLoanForDebtFacilityFragment(loan);
+
+    return formatRowModel({
+      ...loan,
+      artifact_name: getLoanArtifactName(loan),
+      borrower_eligibility: determineBorrowerEligibility(
+        loan,
+        supportedProductTypes,
+        productType
+      ),
+      customer_name: getCustomerName(
+        loan,
+        isAnonymized,
+        anonymizedCompanyLookup
+      ),
+      customer_identifier: getCustomerIdentifier({
+        loan,
+        productType,
+        isAnonymized,
+        anonymizedCompanyLookup,
+      }),
+      days_past_due: getDaysPastDue(
+        loan,
+        productType,
+        currentDebtFacilityReportDate
+      ),
+      days_past_due_bucket: getDaysPastDueBucket(
+        loan,
+        productType,
+        currentDebtFacilityReportDate
+      ),
+      debt_facility_added_date: getDebtFacilityAddedDate(loan),
+      debt_facility_status: getDebtFacilityStatus(loan),
+      disbursement_identifier: getLoanIdentifier({
+        loan,
+        productType,
+        isAnonymized,
+        anonymizedCompanyLookup,
+      }),
+      financing_day_limit: getFinancingDayLimit(loan, productType),
+      financing_period: getFinancingPeriod(loan, productType),
+      gmv_financed: calculateGrossMarginValue(loan, productType),
+      invoice_date: getOriginationOrCreatedDate(loan, productType),
+      invoice_due_date: getArtifactDueDate(loan),
+      loan_count: countAdvancesSent(loan),
+      loan_eligibility: determineLoanEligibility(
+        loan,
+        supportedProductTypes,
+        productType
+      ),
+      maturity_date: getMaturityDate(loan, productType),
+      month: getLoanMonth(loan),
+      origination_date: parseDateStringServer(loan.origination_date),
+      outstanding_fees: getLoansInfoData(
+        loan,
+        productType,
+        loansInfoLookup,
+        "outstanding_late_fees"
+      ),
+      outstanding_interest: getLoansInfoData(
+        loan,
+        productType,
+        loansInfoLookup,
+        "outstanding_interest"
+      ),
+      outstanding_principal_balance: getLoansInfoData(
+        loan,
+        productType,
+        loansInfoLookup,
+        "outstanding_principal"
+      ),
+      previously_assigned: determineIfPreviouslyAssigned(
+        loan,
+        lastDebtFacilityReportDate
+      ),
+      product_type: !!productType ? (productType as ProductTypeEnum) : null,
+      quarter: renderQuarter(loan.origination_date),
+      repayment_date: getRepaymentDate(loan, productType),
+      total_interest_paid: getLoansInfoData(
+        loan,
+        productType,
+        loansInfoLookup,
+        "total_interest_paid",
+        true
+      ),
+      total_late_fees_paid: getLoansInfoData(
+        loan,
+        productType,
+        loansInfoLookup,
+        "total_late_fees_paid",
+        true
+      ),
+      total_principal_paid: getLoansInfoData(
+        loan,
+        productType,
+        loansInfoLookup,
+        "total_principal_paid",
+        true
+      ),
+      us_state: getUSState(loan),
+      vendor_name: getVendorName(
+        loan,
+        productType,
+        isAnonymized,
+        anonymizedVendorLookup
+      ),
+      year: getLoanYear(loan),
+    });
+  });
 }
 
 export default function DebtFacilityReportDataGrid({
-  isArtifactVisible = false,
-  isArtifactBankNoteVisible = false,
-  isCompanyVisible = false,
-  isDaysPastDueVisible = false,
-  isDisbursementIdentifierVisible = false,
-  isExcelExport = true,
-  isFilteringEnabled = false,
-  isMaturityVisible = false,
-  isMultiSelectEnabled = false,
-  isReportingVisible = false,
-  isSortingDisabled = false,
-  isStatusVisible = true,
-  pager = true,
-  pageSize = 10,
-  partnerType = PartnerEnum.VENDOR,
-  filterByStatus,
+  isAnonymized,
   loans,
   loansInfoLookup,
   selectedLoanIds,
   handleClickCustomer,
-  handleClickPurchaseOrderBankNote,
   handleSelectLoans,
   supportedProductTypes,
   lastDebtFacilityReportDate,
-  isAnonymized,
   currentDebtFacilityReportDate,
 }: Props) {
-  const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = useMemo(
     () =>
       getRows(
@@ -452,30 +227,18 @@ export default function DebtFacilityReportDataGrid({
     ]
   );
 
-  useEffect(() => {
-    if (!dataGrid) {
-      return;
-    }
-
-    dataGrid.instance.clearFilter(getMaturityDate);
-
-    if (filterByStatus) {
-      dataGrid.instance.filter(["status", "=", filterByStatus]);
-    }
-  }, [isMaturityVisible, dataGrid, filterByStatus]);
-
   const columns = useMemo(
     () => [
       {
         fixed: true,
-        visible: isCompanyVisible,
-        dataField: "company_name",
+        dataField: "customer_name",
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
+        alignment: "left",
         cellRender: (params: ValueFormatterParams) =>
           handleClickCustomer ? (
             <ClickableDataGridCell
-              label={params.row.data.company_name}
+              label={params.row.data.customer_name}
               onClick={() => handleClickCustomer(params.row.data.company.id)}
             />
           ) : (
@@ -487,6 +250,7 @@ export default function DebtFacilityReportDataGrid({
         dataField: "customer_identifier",
         caption: "Customer Identifier",
         width: ColumnWidths.Identifier,
+        alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
           <LoanDrawerLauncher
             label={params.row.data.customer_identifier}
@@ -496,10 +260,10 @@ export default function DebtFacilityReportDataGrid({
       },
       {
         fixed: true,
-        visible: isDisbursementIdentifierVisible,
         dataField: "disbursement_identifier",
         caption: "Disbursement Identifier",
         width: ColumnWidths.Identifier,
+        alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
           <LoanDrawerLauncher
             label={params.row.data.disbursement_identifier}
@@ -511,31 +275,46 @@ export default function DebtFacilityReportDataGrid({
         caption: "State",
         dataField: "us_state",
         width: ColumnWidths.Type,
-        alignment: "center",
+        alignment: "left",
       },
       {
         caption: "Product Type",
         dataField: "product_type",
         width: ColumnWidths.Type,
-        alignment: "center",
+        alignment: "left",
+        lookup: {
+          dataSource: {
+            store: {
+              type: "array",
+              data: Object.values(ProductTypeEnum).map((productType) => ({
+                product_type: productType,
+                label: ProductTypeToLabel[productType],
+              })),
+              key: "product_type",
+            },
+          },
+          valueExpr: "product_type",
+          displayExpr: "label",
+        },
       },
       {
         caption: "Added to Debt Facility Date",
         dataField: "debt_facility_added_date",
+        format: "shortDate",
         width: ColumnWidths.Type,
-        alignment: "center",
+        alignment: "right",
       },
       {
         caption: "Borrower Eligibility",
         dataField: "borrower_eligibility",
         width: ColumnWidths.Type,
-        alignment: "center",
+        alignment: "left",
       },
       {
         caption: "Loan Eligibility",
         dataField: "loan_eligibility",
         width: ColumnWidths.Type,
-        alignment: "center",
+        alignment: "left",
       },
       {
         caption: "Previously Assigned",
@@ -544,7 +323,6 @@ export default function DebtFacilityReportDataGrid({
         alignment: "center",
       },
       {
-        visible: isStatusVisible && isMaturityVisible,
         dataField: "payment_status",
         caption: "Repayment Status",
         width: ColumnWidths.Status,
@@ -556,158 +334,195 @@ export default function DebtFacilityReportDataGrid({
             }
           />
         ),
+        lookup: {
+          dataSource: {
+            store: {
+              type: "array",
+              data: Object.values(LoanPaymentStatusEnum).map(
+                (paymentStatus) => ({
+                  payment_status: paymentStatus,
+                  label: LoanPaymentStatusToLabel[paymentStatus],
+                })
+              ),
+              key: "payment_status",
+            },
+          },
+          valueExpr: "payment_status",
+          displayExpr: "label",
+        },
       },
       {
         dataField: "vendor_name",
         caption: `Vendor Name`,
         minWidth: ColumnWidths.MinWidth,
+        alignment: "left",
       },
       {
         caption: "Invoice or PO Date",
         dataField: "invoice_date",
+        format: "shortDate",
         width: ColumnWidths.Type,
-        alignment: "center",
+        alignment: "right",
       },
       {
         caption: "Invoice or PO Due Date",
         dataField: "invoice_due_date",
+        format: "shortDate",
         width: ColumnWidths.Type,
-        alignment: "center",
+        alignment: "right",
       },
       {
-        visible: isMaturityVisible,
         caption: "Origination Date",
         dataField: "origination_date",
+        format: "shortDate",
         width: ColumnWidths.Date,
         alignment: "right",
       },
       {
-        visible: isMaturityVisible,
         caption: "Maturity Date",
-        dataField: "report_maturity_date",
+        dataField: "maturity_date",
+        format: "shortDate",
         width: ColumnWidths.Date,
         alignment: "right",
       },
       {
         caption: "GMV Financed",
         dataField: "gmv_financed",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Type,
-        alignment: "center",
+        alignment: "right",
       },
+
       {
         caption: "Loan Amount",
         dataField: "amount",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
       },
       {
-        visible: isMaturityVisible,
         dataField: "outstanding_interest",
         caption: "Outstanding Interest",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
       },
       {
-        visible: isMaturityVisible,
         dataField: "outstanding_fees",
         caption: "Oustanding Late Fees",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
       },
       {
-        visible: isReportingVisible,
         caption: "Repayment Date",
         dataField: "repayment_date",
+        format: "shortDate",
         width: ColumnWidths.Date,
         alignment: "right",
       },
       {
-        visible: isMaturityVisible,
         dataField: "outstanding_principal_balance",
         caption: "Outstanding Principal",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
       },
       {
-        visible: isReportingVisible,
         dataField: "total_principal_paid",
         caption: "Total Principal Paid",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
       },
       {
-        visible: isReportingVisible,
         dataField: "total_interest_paid",
         caption: "Total Interest Paid",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
       },
       {
-        visible: isReportingVisible,
         dataField: "total_late_fees_paid",
         caption: "Total Late Fees Paid",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
       },
       {
-        visible: isReportingVisible,
         dataField: "financing_period",
         caption: "Financing Period",
         width: ColumnWidths.Currency,
+        alignment: "left",
       },
       {
-        visible: isReportingVisible,
         dataField: "financing_day_limit",
         caption: "Financing Day Limit",
         width: ColumnWidths.Currency,
+        alignment: "left",
       },
       {
-        visible: isMaturityVisible && isDaysPastDueVisible,
         dataField: "days_past_due",
         caption: "Days Past Due",
         width: 100,
-        alignment: "right",
+        alignment: "left",
       },
       {
         caption: "DPD Bucket",
         dataField: "days_past_due_bucket",
         width: 100,
-        alignment: "right",
+        alignment: "left",
       },
       {
         dataField: "month",
         caption: "Month",
         width: 100,
-        alignment: "right",
+        alignment: "left",
       },
       {
         dataField: "year",
         caption: "Year",
         width: 100,
-        alignment: "right",
+        alignment: "left",
       },
       {
         dataField: "quarter",
         caption: "Quarter",
         width: 100,
-        alignment: "right",
+        alignment: "left",
       },
       {
         caption: "Loan Count",
         dataField: "loan_count",
         width: ColumnWidths.Type,
-        alignment: "center",
+        alignment: "left",
       },
     ],
-    [
-      isCompanyVisible,
-      isDaysPastDueVisible,
-      isDisbursementIdentifierVisible,
-      isMaturityVisible,
-      isReportingVisible,
-      isStatusVisible,
-      handleClickCustomer,
-    ]
+    [handleClickCustomer]
   );
 
   const handleSelectionChanged = useMemo(
@@ -718,22 +533,12 @@ export default function DebtFacilityReportDataGrid({
     [handleSelectLoans]
   );
 
-  const allowedPageSizes = useMemo(() => [], []);
-  const filtering = useMemo(
-    () => ({ enable: isFilteringEnabled }),
-    [isFilteringEnabled]
-  );
-
   return (
     <ControlledDataGrid
-      ref={(ref) => setDataGrid(ref)}
-      isExcelExport={isExcelExport}
-      isSortingDisabled={isSortingDisabled}
-      filtering={filtering}
-      pager={pager}
-      select={isMultiSelectEnabled}
-      pageSize={pageSize}
-      allowedPageSizes={allowedPageSizes}
+      isExcelExport
+      pager
+      select
+      filtering={{ enable: true }}
       dataSource={rows}
       columns={columns}
       selectedRowKeys={selectedLoanIds}

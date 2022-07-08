@@ -3,7 +3,7 @@ import { Alert } from "@material-ui/lab";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import {
   DebtFacilityFragment,
-  useGetDebtFacilitiesSubscription,
+  useGetDebtFacilitiesQuery,
 } from "generated/graphql";
 import { useMemo } from "react";
 
@@ -24,7 +24,7 @@ function AutocompleteDebtFacility({
   productType = null,
   selectedDebtFacilityId = "",
 }: Props) {
-  const { data, error } = useGetDebtFacilitiesSubscription();
+  const { data, error } = useGetDebtFacilitiesQuery();
 
   if (error) {
     console.error({ error });

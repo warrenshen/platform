@@ -11,7 +11,7 @@ import DebtFacilityReportDataGrid from "components/DebtFacility/DebtFacilityRepo
 import DateInput from "components/Shared/FormInputs/DateInput";
 import {
   DebtFacilities,
-  GetDebtFacilitiesSubscription,
+  GetDebtFacilitiesQuery,
   useGetReportLoansByDebtFacilityIdSubscription,
 } from "generated/graphql";
 import { parseDateStringServer, todayAsDateStringServer } from "lib/date";
@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-type Facilities = GetDebtFacilitiesSubscription["debt_facilities"];
+type Facilities = GetDebtFacilitiesQuery["debt_facilities"];
 
 interface Props {
   facilities: Facilities;
@@ -160,12 +160,6 @@ export default function DebtFacilityReportTab({
               <DebtFacilityReportDataGrid
                 loans={loans}
                 loansInfoLookup={loansInfoLookup}
-                isCompanyVisible
-                isStatusVisible
-                isMaturityVisible
-                isReportingVisible
-                isDisbursementIdentifierVisible
-                isDaysPastDueVisible
                 isAnonymized={isAnonymized}
                 handleClickCustomer={(customerId) =>
                   history.push(

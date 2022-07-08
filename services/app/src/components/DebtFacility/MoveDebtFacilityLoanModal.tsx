@@ -11,8 +11,9 @@ import DebtFacilityLoansDataGrid from "components/DebtFacility/DebtFacilityLoans
 import DateInput from "components/Shared/FormInputs/DateInput";
 import Modal from "components/Shared/Modal/Modal";
 import {
-  GetDebtFacilitiesSubscription,
-  OpenLoanForDebtFacilityFragment,
+  GetDebtFacilitiesQuery,
+  Loans,
+  useGetDebtFacilityLoansByIdQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -28,11 +29,11 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-type Facilities = GetDebtFacilitiesSubscription["debt_facilities"];
+type Facilities = GetDebtFacilitiesQuery["debt_facilities"];
 
 interface Props {
   isMovingToFacility: boolean;
-  selectedLoans: OpenLoanForDebtFacilityFragment[];
+  selectedLoanIds?: Loans["id"][];
   facilities: Facilities;
   handleClose: () => void;
   supportedProductTypes: ProductTypeEnum[];
@@ -41,7 +42,7 @@ interface Props {
 
 export default function MoveDebtFacilityLoanModal({
   isMovingToFacility,
-  selectedLoans,
+  selectedLoanIds,
   facilities,
   handleClose,
   supportedProductTypes,
@@ -53,6 +54,18 @@ export default function MoveDebtFacilityLoanModal({
   const [debtFacilityId, setDebtFacilityId] = useState("");
   const [moveComments, setMoveComments] = useState("");
   const [debtFacilityAssignedDate, setDebtFacilityAssignedDate] = useState("");
+
+  const { data, error } = useGetDebtFacilityLoansByIdQuery({
+    skip: !selectedLoanIds,
+    variables: {
+      loan_ids: selectedLoanIds,
+    },
+  });
+  if (error) {
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
+  }
+  const selectedLoans = data?.loans || [];
 
   useEffect(() => {
     setDebtFacilityId(defaultDebtFacilityId);
@@ -153,11 +166,6 @@ export default function MoveDebtFacilityLoanModal({
           </Box>
           <DebtFacilityLoansDataGrid
             loans={selectedLoans}
-            isCompanyVisible
-            isStatusVisible
-            isMaturityVisible
-            isDisbursementIdentifierVisible
-            isSortingDisabled
             isExcelExport={false}
             supportedProductTypes={supportedProductTypes}
           />
@@ -173,11 +181,6 @@ export default function MoveDebtFacilityLoanModal({
           </Box>
           <DebtFacilityLoansDataGrid
             loans={selectedLoans}
-            isCompanyVisible
-            isStatusVisible
-            isMaturityVisible
-            isDisbursementIdentifierVisible
-            isSortingDisabled
             isExcelExport={false}
             supportedProductTypes={supportedProductTypes}
           />

@@ -6,7 +6,8 @@ import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   DebtFacilities,
-  GetDebtFacilitiesSubscription,
+  GetDebtFacilitiesQuery,
+  Loans,
   OpenLoanForDebtFacilityFragment,
   useGetOpenLoansByDebtFacilityIdSubscription,
   useGetOpenLoansByDebtFacilityStatusesSubscription,
@@ -32,7 +33,7 @@ const Container = styled.div`
   width: 100%;
 `;
 
-type Facilities = GetDebtFacilitiesSubscription["debt_facilities"];
+type Facilities = GetDebtFacilitiesQuery["debt_facilities"];
 
 interface Props {
   facilities: Facilities;
@@ -53,26 +54,26 @@ export default function DebtFacilityOpenTab({
   const [debtFacilitySearchQuery, setDebtFacilitySearchQuery] = useState("");
   const [bespokeSearchQuery, setBespokeSearchQuery] = useState("");
 
-  // Handle selection for loans in debt facility datagrid
-  const [selectedFacilityLoans, setSelectedFacilityLoans] = useState<
-    OpenLoanForDebtFacilityFragment[]
+  // Handle selection for loans in debt facility data grid
+  const [selectedFacilityLoanIds, setSelectedFacilityLoanIds] = useState<
+    Loans["id"][]
   >([]);
   const handleSelectFacilityLoans = useMemo(
     () => (loans: OpenLoanForDebtFacilityFragment[]) => {
-      setSelectedFacilityLoans(loans);
+      setSelectedFacilityLoanIds(loans.map((loan) => loan.id));
     },
-    [setSelectedFacilityLoans]
+    [setSelectedFacilityLoanIds]
   );
 
-  // Handle selection for loans in bespoke datagrid
-  const [selectedBespokeLoans, setSelectedBespokeLoans] = useState<
-    OpenLoanForDebtFacilityFragment[]
+  // Handle selection for loans in bespoke data grid
+  const [selectedBespokeLoanIds, setSelectedBespokeLoanIds] = useState<
+    Loans["id"][]
   >([]);
   const handleSelectBespokeLoans = useMemo(
     () => (loans: OpenLoanForDebtFacilityFragment[]) => {
-      setSelectedBespokeLoans(loans);
+      setSelectedBespokeLoanIds(loans.map((loan) => loan.id));
     },
-    [setSelectedBespokeLoans]
+    [setSelectedBespokeLoanIds]
   );
 
   const { data: debtFacilityData, error: debtFacilityError } =
@@ -120,7 +121,7 @@ export default function DebtFacilityOpenTab({
     <Container>
       <Box display="flex" flexDirection="column">
         {
-          <Box display="flex" flexDirection="column">
+          <Box display="flex" flexDirection="column" mb={4}>
             <Typography variant="h6">Debt Facility</Typography>
             <Box
               display="flex"
@@ -143,19 +144,18 @@ export default function DebtFacilityOpenTab({
                 <Can perform={Action.MoveDebtFacilityLoan}>
                   <Box mr={2}>
                     <ModalButton
-                      isDisabled={selectedFacilityLoans.length === 0}
+                      isDisabled={selectedFacilityLoanIds.length === 0}
                       label={"Move to Bespoke Balance Sheet"}
                       modal={({ handleClose }) => {
-                        const handler = () => {
-                          handleClose();
-                          setSelectedFacilityLoans([]);
-                        };
                         return (
                           <MoveDebtFacilityLoanModal
                             isMovingToFacility={false}
-                            selectedLoans={selectedFacilityLoans}
+                            selectedLoanIds={selectedFacilityLoanIds}
                             facilities={facilities}
-                            handleClose={handler}
+                            handleClose={() => {
+                              handleClose();
+                              setSelectedFacilityLoanIds([]);
+                            }}
                             supportedProductTypes={supportedProductTypes}
                             defaultDebtFacilityId={defaultDebtFacilityId}
                           />
@@ -167,15 +167,15 @@ export default function DebtFacilityOpenTab({
                 <Can perform={Action.UpdateDebtFacilityAssignedDate}>
                   <Box mr={2}>
                     <ModalButton
-                      isDisabled={selectedFacilityLoans.length === 0}
+                      isDisabled={selectedFacilityLoanIds.length === 0}
                       label={"Update Assigned Date"}
                       modal={({ handleClose }) => {
                         return (
                           <UpdateDebtFacilityLoanAssignedDateModal
-                            selectedLoans={selectedFacilityLoans}
+                            selectedLoanIds={selectedFacilityLoanIds}
                             handleClose={() => {
                               handleClose();
-                              setSelectedFacilityLoans([]);
+                              setSelectedFacilityLoanIds([]);
                             }}
                           />
                         );
@@ -188,11 +188,8 @@ export default function DebtFacilityOpenTab({
             <DebtFacilityLoansDataGrid
               isMultiSelectEnabled
               loans={debtFacilityLoans}
-              isCompanyVisible
-              isStatusVisible
-              isMaturityVisible
+              selectedLoanIds={selectedFacilityLoanIds}
               isDebtFacilityVisible
-              isDisbursementIdentifierVisible
               handleClickCustomer={(customerId) =>
                 history.push(
                   getBankCompanyRoute(customerId, BankCompanyRouteEnum.Loans)
@@ -225,17 +222,17 @@ export default function DebtFacilityOpenTab({
               <Can perform={Action.MoveDebtFacilityLoan}>
                 <Box mr={2}>
                   <ModalButton
-                    isDisabled={selectedBespokeLoans.length === 0}
+                    isDisabled={selectedBespokeLoanIds.length === 0}
                     label={"Move to Debt Facility"}
                     modal={({ handleClose }) => {
                       return (
                         <MoveDebtFacilityLoanModal
                           isMovingToFacility
-                          selectedLoans={selectedBespokeLoans}
+                          selectedLoanIds={selectedBespokeLoanIds}
                           facilities={facilities}
                           handleClose={() => {
                             handleClose();
-                            setSelectedBespokeLoans([]);
+                            setSelectedBespokeLoanIds([]);
                           }}
                           supportedProductTypes={supportedProductTypes}
                           defaultDebtFacilityId={defaultDebtFacilityId}
@@ -248,13 +245,10 @@ export default function DebtFacilityOpenTab({
             </Box>
           </Box>
           <DebtFacilityLoansDataGrid
+            isEligibilityVisible
             isMultiSelectEnabled
             loans={bespokeLoans}
-            isCompanyVisible
-            isStatusVisible
-            isMaturityVisible
-            isDisbursementIdentifierVisible
-            isEligibilityVisible
+            selectedLoanIds={selectedBespokeLoanIds}
             handleClickCustomer={(customerId) =>
               history.push(
                 getBankCompanyRoute(customerId, BankCompanyRouteEnum.Loans)

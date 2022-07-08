@@ -11,7 +11,7 @@ import AutocompleteDebtFacility from "components/DebtFacility/AutocompleteDebtFa
 import GaugeProgressBar from "components/Shared/ProgressBar/GaugeProgressBar";
 import {
   DebtFacilities,
-  GetDebtFacilitiesSubscription,
+  GetDebtFacilitiesQuery,
   useGetOpenLoansByDebtFacilityIdSubscription,
 } from "generated/graphql";
 import { DebtFacilityStatusEnum, ProductTypeEnum } from "lib/enum";
@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-type Facilities = GetDebtFacilitiesSubscription["debt_facilities"];
+type Facilities = GetDebtFacilitiesQuery["debt_facilities"];
 
 interface Props {
   facilities: Facilities;

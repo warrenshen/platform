@@ -3,15 +3,12 @@ import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import ListDataGridCell from "components/Shared/DataGrid/ListDataGridCell";
 import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
-import {
-  DebtFacilities,
-  GetDebtFacilitiesSubscription,
-} from "generated/graphql";
+import { DebtFacilities, GetDebtFacilitiesQuery } from "generated/graphql";
 import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
-type Facilities = GetDebtFacilitiesSubscription["debt_facilities"];
+type Facilities = GetDebtFacilitiesQuery["debt_facilities"];
 
 interface Props {
   facilities: Facilities;

@@ -2,7 +2,7 @@ import { Box, Theme, createStyles, makeStyles } from "@material-ui/core";
 import DebtFacilityLoansDataGrid from "components/DebtFacility/DebtFacilityLoansDataGrid";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import Modal from "components/Shared/Modal/Modal";
-import { OpenLoanForDebtFacilityFragment } from "generated/graphql";
+import { Loans, useGetDebtFacilityLoansByIdQuery } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { updateDebtFacilityAssignedDate } from "lib/api/debtFacility";
@@ -17,18 +17,30 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
-  selectedLoans: OpenLoanForDebtFacilityFragment[];
+  selectedLoanIds?: Loans["id"][];
   handleClose: () => void;
 }
 
 export default function MoveDebtFacilityLoanModal({
-  selectedLoans,
+  selectedLoanIds,
   handleClose,
 }: Props) {
   const snackbar = useSnackbar();
   const classes = useStyles();
 
   const [debtFacilityAssignedDate, setDebtFacilityAssignedDate] = useState("");
+
+  const { data, error } = useGetDebtFacilityLoansByIdQuery({
+    skip: !selectedLoanIds,
+    variables: {
+      loan_ids: selectedLoanIds,
+    },
+  });
+  if (error) {
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
+  }
+  const selectedLoans = data?.loans || [];
 
   const [updateAssignedDate, { loading: isUpdateAssignedDateLoading }] =
     useCustomMutation(updateDebtFacilityAssignedDate);
@@ -78,12 +90,7 @@ export default function MoveDebtFacilityLoanModal({
       <Box mt={4}>
         <DebtFacilityLoansDataGrid
           loans={selectedLoans}
-          isCompanyVisible
-          isStatusVisible
-          isMaturityVisible
           isDebtFacilityVisible
-          isDisbursementIdentifierVisible
-          isSortingDisabled
           isExcelExport={false}
         />
       </Box>

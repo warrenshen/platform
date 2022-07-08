@@ -104,9 +104,6 @@ export default function DebtFacilityActionRequiredTab({
           <DebtFacilityLoansDataGrid
             isMultiSelectEnabled
             loans={loans}
-            isCompanyVisible={true}
-            isMaturityVisible={true}
-            isDisbursementIdentifierVisible={true}
             handleClickCustomer={(customerId) =>
               history.push(
                 getBankCompanyRoute(customerId, BankCompanyRouteEnum.Loans)

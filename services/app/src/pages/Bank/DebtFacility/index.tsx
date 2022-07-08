@@ -4,8 +4,8 @@ import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
 import {
   DebtFacilities,
-  GetDebtFacilitiesSubscription,
-  useGetDebtFacilitiesSubscription,
+  GetDebtFacilitiesQuery,
+  useGetDebtFacilitiesQuery,
   useGetOpenLoansByDebtFacilityStatusesSubscription,
 } from "generated/graphql";
 import { useFilterDebtFacilityLoansBySearchQuery } from "hooks/useFilterDebtFacilityLoans";
@@ -18,6 +18,7 @@ import {
 import DebtFacilityActionRequiredTab from "pages/Bank/DebtFacility/DebtFacilityActionRequiredTab";
 import DebtFacilityAdminTab from "pages/Bank/DebtFacility/DebtFacilityAdminTab";
 import DebtFacilityAllTab from "pages/Bank/DebtFacility/DebtFacilityAllTab";
+import DebtFacilityCustomersTab from "pages/Bank/DebtFacility/DebtFacilityCustomersTab";
 import DebtFacilityOpenTab from "pages/Bank/DebtFacility/DebtFacilityOpenTab";
 import DebtFacilityReportTab from "pages/Bank/DebtFacility/DebtFacilityReportTab";
 import { useEffect, useState } from "react";
@@ -36,12 +37,12 @@ const SectionSpace = styled.div`
   height: 24px;
 `;
 
-type Facilities = GetDebtFacilitiesSubscription["debt_facilities"];
+type Facilities = GetDebtFacilitiesQuery["debt_facilities"];
 
 export default function BankDebtFacilityPage() {
   // Get debt facilities to pass around for autocomplete and admin tab
   const { data: facilityData, error: facilityError } =
-    useGetDebtFacilitiesSubscription();
+    useGetDebtFacilitiesQuery();
   if (facilityError) {
     console.error({ facilityError });
     alert(`Error in query (details in console): ${facilityError.message}`);
@@ -152,6 +153,8 @@ function DebtFacilityPage({
       ) : selectedTabIndex === 2 ? (
         <DebtFacilityAllTab />
       ) : selectedTabIndex === 3 ? (
+        <DebtFacilityCustomersTab />
+      ) : selectedTabIndex === 4 ? (
         <DebtFacilityReportTab
           facilities={facilities}
           selectedDebtFacilityId={selectedDebtFacilityId}

@@ -64,10 +64,6 @@ export default function DebtFacilityAllTab() {
         <Box display="flex" flexDirection="column">
           <DebtFacilityLoansDataGrid
             loans={loans}
-            isCompanyVisible={true}
-            isStatusVisible={true}
-            isMaturityVisible={true}
-            isDisbursementIdentifierVisible={true}
             handleClickCustomer={(customerId) =>
               history.push(
                 getBankCompanyRoute(customerId, BankCompanyRouteEnum.Loans)

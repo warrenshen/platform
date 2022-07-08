@@ -5,7 +5,7 @@ import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   DebtFacilityFragment,
-  GetDebtFacilitiesSubscription,
+  GetDebtFacilitiesQuery,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { useMemo, useState } from "react";
@@ -20,7 +20,7 @@ const Container = styled.div`
   width: 100%;
 `;
 
-type Facilities = GetDebtFacilitiesSubscription["debt_facilities"];
+type Facilities = GetDebtFacilitiesQuery["debt_facilities"];
 
 interface Props {
   facilities: Facilities;

@@ -64,7 +64,6 @@ subscription GetReportLoansByDebtFacilityId(
   $target_facility_ids: [uuid!]
   $target_date: date!
 ) {
-  
   companies (
     where: { 
       _and: [
@@ -137,7 +136,16 @@ subscription GetReportLoansByDebtFacilityId(
   }
 }
 
-subscription GetDebtFacilities {
+query GetDebtFacilityLoansById($loan_ids: [uuid!]) {
+  loans (
+    where: { id: { _in: $loan_ids } }
+  ) {
+    id
+    ...OpenLoanForDebtFacility
+  }
+}
+
+query GetDebtFacilities {
   debt_facilities(order_by: [{ name: desc }]) {
     id
     ...DebtFacility
@@ -146,7 +154,7 @@ subscription GetDebtFacilities {
 
 subscription GetDebtFacilityCurrentCapacity($target_facility_id: uuid!) {
   debt_facilities(
-    where: { id: { _eq: $target_facility_id }}
+    where: { id: { _eq: $target_facility_id } }
   ) {
     id
     ...DebtFacility

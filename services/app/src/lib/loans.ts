@@ -5,6 +5,7 @@ import {
   LoanArtifactLimitedFragment,
   LoanLimitedFragment,
   LoanTypeEnum,
+  Maybe,
 } from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
 import { UUIDEnum } from "lib/enum";
@@ -12,7 +13,7 @@ import { uniq } from "lodash";
 
 export function createLoanCustomerIdentifier(
   loan: LoanLimitedFragment,
-  anonymousName?: string | undefined
+  anonymousName?: Maybe<string>
 ) {
   return !!anonymousName
     ? `${getAnonymizedShortName(anonymousName)}/${loan.identifier}`
@@ -21,7 +22,7 @@ export function createLoanCustomerIdentifier(
 
 export function createLoanDisbursementIdentifier(
   loan: LoanLimitedFragment,
-  anonymousName?: string | undefined
+  anonymousName?: Maybe<string>
 ) {
   return !!anonymousName
     ? `${getAnonymizedShortName(anonymousName)}-${loan.disbursement_identifier}`
@@ -30,7 +31,7 @@ export function createLoanDisbursementIdentifier(
     : "-";
 }
 
-export function getAnonymizedShortName(anonymousName: string | undefined) {
+export function getAnonymizedShortName(anonymousName: Maybe<string>) {
   return !!anonymousName
     ? anonymousName.charAt(0) + anonymousName.charAt(anonymousName.length - 1)
     : "";
