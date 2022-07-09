@@ -28,8 +28,8 @@ from os import path
 from typing import Any, Callable, List, cast
 
 # Path hack before we try to import bespoke
-sys.path.append(path.realpath(path.join(path.dirname(__file__), '../../src')))
-sys.path.append(path.realpath(path.join(path.dirname(__file__), '../')))
+sys.path.append(path.realpath(path.join(path.dirname(__file__), '../../../src')))
+sys.path.append(path.realpath(path.join(path.dirname(__file__), '../../')))
 
 from bespoke.db import models
 
@@ -50,10 +50,9 @@ def reassign_table_by_license(
 	while not is_done:
 		with models.session_scope(session_maker) as session:
 			offset = current_page * BATCH_SIZE
-			print(f'[Page {current_page + 1} offset {offset}] Reassigning {table_name} for license {license_number}...')
+			print(f'[Page {current_page + 1}] Reassigning {table_name} for license {license_number}...')
 
 			try:
-				# TODO(warrenshen): an order by is necessary / missing here.
 				metrc_table_rows_batch = cast(
 					List[model],
 					session.query(model).filter(
@@ -62,8 +61,6 @@ def reassign_table_by_license(
 						model.license_number == license_number
 					).filter(
 						model.company_id != company_id
-					).offset(
-						current_page * BATCH_SIZE
 					).limit(BATCH_SIZE).all())
 			except Exception as e:
 				print(e)

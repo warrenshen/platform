@@ -16,8 +16,8 @@ from os import path
 from typing import cast
 
 # Path hack before we try to import bespoke
-sys.path.append(path.realpath(path.join(path.dirname(__file__), '../../src')))
-sys.path.append(path.realpath(path.join(path.dirname(__file__), '../')))
+sys.path.append(path.realpath(path.join(path.dirname(__file__), '../../../src')))
+sys.path.append(path.realpath(path.join(path.dirname(__file__), '../../')))
 
 from bespoke.companies import licenses_util
 from bespoke.db import models
