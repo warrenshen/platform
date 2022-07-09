@@ -3800,3 +3800,88 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				'most_overdue_loan_days': 0
 			}
 		}, loan_ids)
+
+	def test_adjusted_total_limit_with_borrowing_base_with_amount_custom(self) -> None:
+		def populate_fn(
+			session: Session,
+			seed: test_helper.BasicSeed,
+			company_id: str,
+			loan_ids: List[str],
+		) -> None:
+			session.add(models.Contract(
+				company_id=company_id,
+				product_type=ProductType.LINE_OF_CREDIT,
+				product_config=contract_test_helper.create_contract_config(
+					product_type=ProductType.LINE_OF_CREDIT,
+					input_dict=ContractInputDict(
+						interest_rate=0.05,
+						maximum_principal_amount=1200000,
+						max_days_until_repayment=0, # unused
+						late_fee_structure=_get_late_fee_structure(), # unused
+						borrowing_base_accounts_receivable_percentage=1.0,
+						borrowing_base_inventory_percentage=1.0,
+						borrowing_base_cash_percentage=1.0,
+						borrowing_base_cash_in_daca_percentage=1.0,
+					)
+				),
+				start_date=date_util.load_date_str('1/1/2020'),
+				adjusted_end_date=date_util.load_date_str('12/1/2020')
+			))
+
+			# Calculated borrowing base amount: $1M.
+			# Note the borrowing base incorporates all possible components (including amount custom).
+			ebba = models.EbbaApplication( # type: ignore
+				company_id=company_id,
+				monthly_accounts_receivable=decimal.Decimal(100000.0), # 100K
+				monthly_inventory=decimal.Decimal(100000.0), # 100K
+				monthly_cash=decimal.Decimal(200000.0), # 200K
+				amount_cash_in_daca=decimal.Decimal(100000.0), # 100K
+				amount_custom=decimal.Decimal(500000.0), # 500K
+				status="approved",
+			)
+			session.add(ebba)
+			session.commit()
+			session.refresh(ebba)
+
+			company_settings = session \
+				.query(models.CompanySettings) \
+				.filter(models.CompanySettings.company_id == company_id) \
+				.first()
+
+			company_settings.active_borrowing_base_id = ebba.id
+
+		loan_ids: List[str] = []
+		# Expected available limit: $1M.
+		self._run_test({
+			'today': '10/1/2020',
+			'expected_loan_updates': [],
+			'populate_fn': populate_fn,
+			'expected_summary_update': {
+				'product_type': 'line_of_credit',
+				'daily_interest_rate': 0.05,
+				'total_limit': 1200000.0,
+				'adjusted_total_limit': 1000000.0,
+				'total_outstanding_principal': 0.0,
+				'total_outstanding_principal_for_interest': 0.0,
+				'total_outstanding_principal_past_due': 0.0,
+				'total_outstanding_interest': 0.0,
+				'total_outstanding_fees': 0.0,
+				'total_principal_in_requested_state': 0.0,
+				'total_amount_to_pay_interest_on': 0.0,
+				'total_interest_accrued_today': 0.0,
+				'total_late_fees_accrued_today': 0.0,
+				'available_limit': 1000000.0,
+				'minimum_interest_info': {
+					'duration': None,
+					'minimum_amount': None,
+					'amount_accrued': None,
+					'amount_short': None,
+				},
+				'account_level_balance_payload': {
+					'fees_total': 0.0,
+					'credits_total': 0.0
+				},
+				'day_volume_threshold_met': None,
+				'most_overdue_loan_days': 0
+			}
+		}, loan_ids)

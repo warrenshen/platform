@@ -861,7 +861,8 @@ class LOCContract(Contract):
 			((ebba['monthly_accounts_receivable'] or 0.0) * accounts_receivable_percentage) \
 			+ ((ebba['monthly_inventory'] or 0.0) * inventory_percentage) \
 			+ ((ebba['monthly_cash'] or 0.0) * cash_percentage) \
-			+ ((ebba['amount_cash_in_daca'] or 0.0) * cash_in_daca_percentage)
+			+ ((ebba['amount_cash_in_daca'] or 0.0) * cash_in_daca_percentage) \
+			+ (ebba['amount_custom'] or 0.0)
 
 		return borrowing_base, None
 

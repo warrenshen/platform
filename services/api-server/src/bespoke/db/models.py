@@ -1234,11 +1234,13 @@ EbbaApplicationDict = TypedDict('EbbaApplicationDict', {
 	'monthly_inventory': float,
 	'monthly_cash': float,
 	'amount_cash_in_daca': float,
+	'amount_custom': float,
+	'amount_custom_note': str,
 	'status': str,
 	'requested_at': datetime.datetime,
 	'approved_at': datetime.datetime,
 	'rejected_at': datetime.datetime,
-	'rejection_note': str
+	'rejection_note': str,
 })
 
 class EbbaApplication(Base):
@@ -1288,6 +1290,8 @@ class EbbaApplication(Base):
 			monthly_inventory=float(self.monthly_inventory) if self.monthly_inventory is not None else None,
 			monthly_cash=float(self.monthly_cash) if self.monthly_cash is not None else None,
 			amount_cash_in_daca=float(self.amount_cash_in_daca) if self.amount_cash_in_daca is not None else None,
+			amount_custom=float(self.amount_custom) if self.amount_custom is not None else None,
+			amount_custom_note=self.amount_custom_note,
 			status=self.status,
 			requested_at=self.requested_at,
 			approved_at=self.approved_at,
