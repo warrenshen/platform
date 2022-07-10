@@ -129,7 +129,6 @@ class ForgotPasswordView(MethodView):
 
 	def post(self) -> Response:
 		cfg = cast(Config, current_app.app_config)
-		security_cfg = cfg.get_security_config()
 		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
 		data = json.loads(request.data)
@@ -427,6 +426,75 @@ class SwitchLocationView(MethodView):
 				'refresh_token': refresh_token,
 			},
 		}), 200)
+
+class AuthenticateBlazeUserView(MethodView):
+
+	def post(self) -> Response:
+		cfg = cast(Config, current_app.app_config)
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'auth_key',
+			'external_blaze_company_id',
+			'external_blaze_shop_id',
+			'external_blaze_user_id',
+			'external_blaze_user_role',
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in request data')
+
+		auth_key = form['auth_key']
+		external_blaze_company_id = form['external_blaze_company_id']
+		external_blaze_shop_id = form['external_blaze_shop_id']
+		external_blaze_user_id = form['external_blaze_user_id']
+		external_blaze_user_role = form['external_blaze_user_role']
+
+		if not security_util.verify_blaze_auth_payload(
+			secret_key=cfg.BLAZE_SHARED_SECRET_KEY,
+			auth_key=auth_key,
+			external_blaze_company_id=external_blaze_company_id,
+			external_blaze_shop_id=external_blaze_shop_id,
+			external_blaze_user_id=external_blaze_user_id,
+			external_blaze_user_role=external_blaze_user_role,
+		):
+			return handler_util.make_error_response(f'Invalid auth key provided', 401)
+
+		with session_scope(current_app.session_maker) as session:
+			existing_blaze_preapproval = cast(
+				models.BlazePreapproval,
+				session.query(models.BlazePreapproval).filter(
+					models.BlazePreapproval.external_blaze_company_id == external_blaze_company_id
+				).filter(
+					models.BlazePreapproval.external_blaze_shop_id == external_blaze_shop_id
+				).filter(
+					models.BlazePreapproval.expiration_date >= date_util.now_as_date()
+				).first())
+
+			if not existing_blaze_preapproval:
+				return make_response(json.dumps({
+					'status': 'OK',
+					'msg': 'Success',
+					'data': {
+						'auth_status': 'applicant_denied',
+					},
+				}), 200)
+			else:
+				return make_response(json.dumps({
+					'status': 'OK',
+					'msg': 'Success',
+					'data': {
+						'auth_status': 'applicant_preapproved',
+						'blaze_preapproval': existing_blaze_preapproval.as_json_dict(),
+					},
+				}), 200)
+
+
+handler.add_url_rule(
+	'/authenticate-blaze-user', view_func=AuthenticateBlazeUserView.as_view(name='authenticate_blaze_user_view'))
 
 handler.add_url_rule(
 	'/sign-in', view_func=SignInView.as_view(name='sign_in_view'))

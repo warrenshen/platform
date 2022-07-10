@@ -99,7 +99,8 @@ CustomerUpdateDict = TypedDict('CustomerUpdateDict', {
 def _get_active_borrowing_base_update(
 	contract_helper: contract_util.ContractHelper,
 	borrowing_base: models.EbbaApplicationDict,
-	today: datetime.date) -> Tuple[EbbaApplicationUpdateDict, errors.Error]:
+	today: datetime.date,
+) -> Tuple[EbbaApplicationUpdateDict, errors.Error]:
 
 	cur_contract, err = contract_helper.get_contract(today)
 	if err:
@@ -423,7 +424,8 @@ class CustomerBalance(object):
 		borrowing_base_update, err = _get_active_borrowing_base_update(
 			contract_helper,
 			financials.get('active_borrowing_base'),
-			today)
+			today,
+		)
 		if err:
 			raise err
 

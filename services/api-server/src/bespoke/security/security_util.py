@@ -138,6 +138,25 @@ def verify_password(password_salt: str, password_guess: str, hashed_password: st
 	return sha256.verify(password_salt + password_guess, hashed_password)
 
 
+def verify_blaze_auth_payload(
+	secret_key: str,
+	auth_key: str,
+	external_blaze_company_id: str,
+	external_blaze_shop_id: str,
+	external_blaze_user_id: str,
+	external_blaze_user_role: int,
+) -> bool:
+	"""
+	Security logic:
+	- Secret key is shared between Bespoke and Blaze via a safe channel.
+	- Given how hash algorithms work, an actor can generate an auth_key
+	  that matches hash_output if and only if actor knows the secret key.
+	"""
+	hash_input = external_blaze_company_id + external_blaze_shop_id + external_blaze_user_id + str(external_blaze_user_role)
+	hash_output = sha256.hash(hash_input, salt=str.encode(secret_key)) # type: ignore
+	return auth_key == hash_output
+
+
 def mfa_code_generator() -> str:
 	size = 6
 	chars = string.digits

@@ -1555,6 +1555,16 @@ class CompanyPartnershipInvitation(Base):
 	deleted_at = Column(DateTime, nullable=True)
 
 
+BlazePreapprovalJsonDict = TypedDict('BlazePreapprovalJsonDict', {
+	'id': str,
+	'external_blaze_company_id': str,
+	'external_blaze_shop_id': str,
+	'max_credit_limit': float,
+	'annual_interest_rate': float,
+	'expiration_date': str,
+})
+
+
 class BlazePreapproval(Base):
 	__tablename__ = 'blaze_preapprovals'
 
@@ -1567,6 +1577,17 @@ class BlazePreapproval(Base):
 	max_credit_limit = Column(Numeric, nullable=False)
 	annual_interest_rate = Column(Numeric, nullable=False)
 	expiration_date = Column(Date, nullable=False)
+
+	def as_json_dict(self) -> BlazePreapprovalJsonDict:
+		return BlazePreapprovalJsonDict(
+			id=str(self.id),
+			external_blaze_company_id=self.external_blaze_company_id,
+			external_blaze_shop_id=self.external_blaze_shop_id,
+			max_credit_limit=float(self.max_credit_limit),
+			annual_interest_rate=float(self.annual_interest_rate),
+			expiration_date=date_util.date_to_db_str(self.expiration_date),
+		)
+
 
 class RetryingQuery(_Query):
 	__retry_count__ = 4

@@ -73,6 +73,9 @@ class Config(object):
 		self.BESPOKE_DOMAIN = os.environ.get(
 			'BESPOKE_DOMAIN', 'http://localhost:3005')
 
+		# External Partnerships (ex. Blaze)
+		self.BLAZE_SHARED_SECRET_KEY = os.environ.get("BLAZE_SHARED_SECRET_KEY")
+
 		# Metrc
 		self.METRC_USER_KEY = os.environ.get('METRC_USER_KEY')
 
