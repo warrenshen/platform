@@ -882,3 +882,26 @@ export enum BankAccountType {
   Checking = "Checking",
   Savings = "Savings",
 }
+
+export enum BankReportsTabLabel {
+  FinancialsForCustomer = "Financials - For Customer",
+  FinancialsForDate = "Financials - For Date",
+  FinancialsForLoan = "Financials - For Loan",
+  PredictedFinancialsForCustomer = "Predicted Financials - For Customer",
+  Transactions = "Transactions",
+}
+
+export type BankReportsTabLabelType =
+  | typeof BankReportsTabLabel.FinancialsForCustomer
+  | typeof BankReportsTabLabel.FinancialsForDate
+  | typeof BankReportsTabLabel.FinancialsForLoan
+  | typeof BankReportsTabLabel.PredictedFinancialsForCustomer
+  | typeof BankReportsTabLabel.Transactions;
+
+export const BankReportTabLabels: BankReportsTabLabelType[] = [
+  BankReportsTabLabel.FinancialsForCustomer,
+  BankReportsTabLabel.FinancialsForDate,
+  BankReportsTabLabel.FinancialsForLoan,
+  BankReportsTabLabel.PredictedFinancialsForCustomer,
+  BankReportsTabLabel.Transactions,
+];

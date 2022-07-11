@@ -129,6 +129,7 @@ export const loansRoutes = {
   deleteLoan: "/finance/loans/deletion/delete_loan",
 
   runCustomerBalances: "/finance/loans/reports/run_customer_balances",
+  runLoanPredictions: "/finance/loans/reports/run_loan_predictions",
 
   // Payments related.
   calculateRepaymentEffect:

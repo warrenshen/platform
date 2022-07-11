@@ -30,3 +30,28 @@ export async function runCustomerBalancesMutation(
       }
     );
 }
+
+export type RunCustomerLoanPredictionsReq = {
+  variables: {
+    company_id: Companies["id"];
+    prediction_date: string;
+  };
+};
+
+export async function runCustomerLoanPredictionsMutation(
+  req: RunCustomerLoanPredictionsReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(loansRoutes.runLoanPredictions, req.variables)
+    .then((response) => response.data)
+    .then(
+      (response) => response,
+      (error) => {
+        console.error(error);
+        return {
+          status: "ERROR",
+          msg: "Could not run loan predictions for an unexpected reason",
+        };
+      }
+    );
+}

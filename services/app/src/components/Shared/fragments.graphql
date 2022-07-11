@@ -195,6 +195,12 @@ fragment FinancialSummary on financial_summaries {
   most_overdue_loan_days
 }
 
+fragment FinancialSummaryWithLoansInfo on financial_summaries {
+  id
+  loans_info
+  ...FinancialSummary
+}
+
 fragment InvoiceFile on invoice_files {
   invoice_id
   file_id

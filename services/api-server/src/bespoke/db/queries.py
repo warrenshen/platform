@@ -32,6 +32,23 @@ def get_all_customers(
 
     return customers, None
 
+def get_company_by_id(
+    session: Session,
+    company_id: str,
+) -> Tuple[ models.Company, errors.Error ]:
+    # fmt: off
+    company = cast(
+        models.Company,
+        session.query(models.Company).filter(
+            models.Company.id == company_id
+        ).first())
+    # fmt: on
+
+    if not company:
+        return None, errors.Error("No company with the specified id exists in the system")
+
+    return company, None
+
 # ###############################
 # Company Vendor Partnerships
 # ###############################

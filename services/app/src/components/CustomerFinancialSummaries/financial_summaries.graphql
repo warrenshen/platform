@@ -47,3 +47,40 @@ query GetActiveFinancialSummariesByDate($date: date!) {
     }
   }
 }
+
+# This is used for the `Predicted Financials - For Customer ` report tab
+# We wanted the loan identifier in the data grid and since this is currently
+# the only use case for that and we expect this report to be used infrequently
+# we're making a separate query rather than modifying the loans data stored 
+# in the financial summaries table
+query GetFinancialSummariesAndLoansByCompanyId($companyId: uuid!) {
+  companies_by_pk(id: $companyId) {
+    id
+    identifier
+    name
+    financial_summaries (
+      order_by: { date: desc }
+    ) {
+      id
+      ...FinancialSummaryWithLoansInfo
+    }
+    loans (
+      where: {
+        _or: [
+          { is_deleted: { _is_null: true } }
+          { is_deleted: { _eq: false } }
+        ]
+      }
+    ) {
+      id
+      identifier
+      adjusted_maturity_date
+    }
+    contracts(
+      order_by: { start_date: desc }
+    ) {
+      id
+      ...Contract
+    }
+  }
+}

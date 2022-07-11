@@ -1,11 +1,29 @@
 import { Tab, Tabs } from "@material-ui/core";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
+import {
+  BankReportTabLabels,
+  BankReportsTabLabel,
+  BankReportsTabLabelType,
+} from "lib/enum";
 import BankReportFinancialsByCustomerTab from "pages/Bank/Reports/FinancialsByCustomerTab";
 import BankReportFinancialsByDateTab from "pages/Bank/Reports/FinancialsByDateTab";
 import BankReportFinancialsByLoanTab from "pages/Bank/Reports/FinancialsByLoanTab";
+import BankReportPredictedFinancialsByCustomerTab from "pages/Bank/Reports/PredictedFinancialsByCustomerTab";
 import BankReportTransactionsTab from "pages/Bank/Reports/TransactionsTab";
 import { useState } from "react";
+
+const BankReportsComponentMap: { [key in BankReportsTabLabel]: JSX.Element } = {
+  [BankReportsTabLabel.FinancialsForCustomer]: (
+    <BankReportFinancialsByCustomerTab />
+  ),
+  [BankReportsTabLabel.FinancialsForDate]: <BankReportFinancialsByDateTab />,
+  [BankReportsTabLabel.FinancialsForLoan]: <BankReportFinancialsByLoanTab />,
+  [BankReportsTabLabel.PredictedFinancialsForCustomer]: (
+    <BankReportPredictedFinancialsByCustomerTab />
+  ),
+  [BankReportsTabLabel.Transactions]: <BankReportTransactionsTab />,
+};
 
 export default function BankReportsPage() {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
@@ -19,20 +37,11 @@ export default function BankReportsPage() {
           textColor="primary"
           onChange={(_event: any, value: number) => setSelectedTabIndex(value)}
         >
-          <Tab label="Financials - For Customer" />
-          <Tab label="Financials - For Date" />
-          <Tab label="Financials - For Loan" />
-          <Tab label="Transactions" />
+          {BankReportTabLabels.map((label: BankReportsTabLabelType) => (
+            <Tab key={label} label={label} />
+          ))}
         </Tabs>
-        {selectedTabIndex === 0 ? (
-          <BankReportFinancialsByCustomerTab />
-        ) : selectedTabIndex === 1 ? (
-          <BankReportFinancialsByDateTab />
-        ) : selectedTabIndex === 2 ? (
-          <BankReportFinancialsByLoanTab />
-        ) : (
-          <BankReportTransactionsTab />
-        )}
+        {BankReportsComponentMap[BankReportTabLabels[selectedTabIndex]]}
       </PageContent>
     </Page>
   );

@@ -4,6 +4,7 @@ import {
   addMonths,
   differenceInDays,
   differenceInMonths,
+  eachDayOfInterval,
   format,
   getYear,
   lastDayOfMonth,
@@ -357,4 +358,11 @@ export const renderQuarter = (input_date: string) => {
   };
 
   return `Q${quarterMapping[month]}${year}`;
+};
+
+export const getDatesInRange = (startDate: string, endDate: string) => {
+  return eachDayOfInterval({
+    start: parseDateStringServer(startDate),
+    end: parseDateStringServer(endDate),
+  });
 };

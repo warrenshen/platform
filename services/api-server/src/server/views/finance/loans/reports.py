@@ -1,9 +1,10 @@
+import datetime
 import json
-from typing import cast
+from typing import Any, cast, Dict, List
 
 from bespoke import errors
 from bespoke.date import date_util
-from bespoke.db import models
+from bespoke.db import models, queries
 from bespoke.db.models import session_scope
 from bespoke.finance.loans import reports_util
 from bespoke.finance.reports import loan_balances
@@ -116,5 +117,90 @@ class RunCustomerBalancesView(MethodView):
 				}
 			}, 200)
 
+class RunLoanPredictionsView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self) -> Response:
+		session_maker = current_app.session_maker
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = ['company_id', 'prediction_date']
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(
+					'Missing key {} from run loan predictions request'.format(key))
+
+		company_id = form['company_id']
+		prediction_end_date = date_util.load_date_str(form['prediction_date'])
+		# The days + 1 here is because the financial summaries query will already have results for today
+		prediction_start_date = date_util.now_as_date() + datetime.timedelta(days = 1)
+
+		with models.session_scope(current_app.session_maker) as session:
+			company, err = queries.get_company_by_id(
+				session,
+				company_id,
+			)
+			if err:
+				raise err
+
+			customer_balance = loan_balances.CustomerBalance(company.as_dict(), session_maker)
+			day_to_customer_update_dict, err = customer_balance.update(
+				start_date_for_storing_updates = prediction_start_date,
+				today = prediction_end_date,
+				include_debug_info = True,
+				is_past_date_default_val = False,
+			)
+
+			# Since we're passing this to the front end, we can't use datetime.date as keys
+			# This step converts those keys to a date string and puts the data in a fresh dict
+			# We also filter down the information passed back to the front end to just what we need
+			loan_prediction_by_date: List[ Dict[str, Any] ] = []
+			for update_date in day_to_customer_update_dict:
+				update_date_string = date_util.date_to_db_str(update_date)
+				loan_updates = day_to_customer_update_dict[update_date]['loan_updates']
+				summary_update = day_to_customer_update_dict[update_date]['summary_update']
+				
+				loan_updates_with_string_keys: List[ Dict[str, Any] ] = []
+				for loan_update in loan_updates:
+					# We use the front end naming convention for keys here
+					# since this is immediately passed to a useState variable,
+					# which saves us a mapping step between snake and camel cases
+					filtered_loan_update = {
+						'dailyInterestRate': summary_update['daily_interest_rate'],
+						'interestAccruedToday': loan_update['interest_accrued_today'],
+						'lateFeesAccruedToday': loan_update['fees_accrued_today'],
+						'loanId': loan_update['loan_id'],
+						'outstandingInterest': loan_update['outstanding_interest'],
+						'outstandingFees': loan_update['outstanding_fees'],
+						'outstandingPrincipal': loan_update['outstanding_principal'],
+					}
+					loan_updates_with_string_keys.append(filtered_loan_update)
+
+				daily_loan_predictions: Dict[str, Any] = {}
+				daily_loan_predictions["date"] = update_date_string
+				daily_loan_predictions["predictions"] = loan_updates_with_string_keys
+
+				loan_prediction_by_date.append(daily_loan_predictions)
+
+			resp = {
+				'status': 'OK',
+				'errors': [],
+				'data': {
+					'loan_prediction_by_date': sorted(
+						loan_prediction_by_date, 
+						key = lambda x: x['date'], 
+						reverse = True
+					)
+				}
+			}
+			return make_response(json.dumps(resp), 200)
+
 handler.add_url_rule(
 	'/run_customer_balances', view_func=RunCustomerBalancesView.as_view(name='run_customer_balances_view'))
+
+handler.add_url_rule(
+	'/run_loan_predictions', view_func=RunLoanPredictionsView.as_view(name='run_loan_predictions_view'))
