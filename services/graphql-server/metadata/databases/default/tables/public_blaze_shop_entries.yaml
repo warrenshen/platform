@@ -1,0 +1,3 @@
+table:
+  schema: public
+  name: blaze_shop_entries

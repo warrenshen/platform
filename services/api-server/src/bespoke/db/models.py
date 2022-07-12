@@ -1589,6 +1589,34 @@ class BlazePreapproval(Base):
 		)
 
 
+class BlazeShopEntry(Base):
+	"""
+	# Mapping entry between Blaze shop and associated Bespoke company.
+	"""
+	__tablename__ = 'blaze_shop_entries'
+
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+
+	external_blaze_shop_id = Column(Text, nullable=False) # Blaze shop == Bespoke company.
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id'), nullable=False))
+
+
+class BlazeUser(Base):
+	"""
+	Mapping entry between Blaze user and associated Bespoke user.
+	"""
+	__tablename__ = 'blaze_users'
+
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+
+	external_blaze_user_id = Column(Text, nullable=False) # Blaze shop == Bespoke company.
+	user_id = cast(GUID, Column(GUID, ForeignKey('users.id'), nullable=False))
+
+
 class RetryingQuery(_Query):
 	__retry_count__ = 4
 
