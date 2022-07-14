@@ -2,15 +2,16 @@ import axios from "axios";
 import { getAccessToken } from "lib/auth/tokenStorage";
 
 export const authRoutes = {
-  signIn: "/auth/sign-in",
+  authenticateBlazeUser: "/auth/authenticate-blaze-user",
   forgotPassword: "/auth/forgot-password",
   impersonateUser: "/auth/impersonate_user",
-  undoImpersonation: "/auth/undo_impersonation",
-  resetPassword: "/auth/reset-password",
   refreshToken: "/auth/token/refresh",
+  resetPassword: "/auth/reset-password",
   revokeAccessToken: "/auth/sign-out/access",
   revokeRefreshToken: "/auth/sign-out/refresh",
+  signIn: "/auth/sign-in",
   switchLocation: "/auth/switch-location",
+  undoImpersonation: "/auth/undo_impersonation",
 };
 
 export const fileRoutes = {

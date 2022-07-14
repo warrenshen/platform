@@ -1,0 +1,8 @@
+fragment BlazePreapproval on blaze_preapprovals {
+  id
+  external_blaze_company_id
+  external_blaze_shop_id
+  max_credit_limit
+  annual_interest_rate
+  expiration_date
+}

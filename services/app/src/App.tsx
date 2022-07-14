@@ -1,12 +1,15 @@
 import "devextreme/dist/css/dx.common.css";
 import "devextreme/dist/css/dx.material.blue.light.css";
 
+import BlazePreapprovalPage from "components/Blaze/BlazePreapprovalPage";
 import PrivateRoute from "components/Shared/PrivateRoute";
 import {
   CurrentUserContext,
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
-import { UserRolesEnum } from "generated/graphql";
+import { BlazePreapprovalFragment, UserRolesEnum } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
+import { authenticateBlazeUserMutation } from "lib/api/auth";
 import {
   anonymousRoutes,
   bankRoutes,
@@ -58,7 +61,7 @@ import CustomerReportsPage from "pages/Customer/Reports";
 import CustomerSettingsPage from "pages/Customer/Settings";
 import CustomerVendorsPage from "pages/Customer/Vendors";
 import UserProfile from "pages/UserProfile";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
 import { useLocation } from "react-use";
 
@@ -67,6 +70,13 @@ const ValidBlazeOrigin = process.env.REACT_APP_BESPOKE_BLAZE_PARENT_ORIGIN;
 // This is necessary since useEffect with an empty dependency array calls
 // its callback twice in development environment in strict mode.
 let IsEventListenerAdded = false;
+type BlazeAuthPayload = {
+  auth_key: string;
+  company_id: string;
+  shop_id: string;
+  user_id: string;
+  user_role: number;
+};
 
 export default function App() {
   const { pathname } = useLocation();
@@ -74,18 +84,25 @@ export default function App() {
     user: { role },
   } = useContext(CurrentUserContext);
 
-  useEffect(() => {
-    if (IsEventListenerAdded) {
-      return;
-    } else {
-      IsEventListenerAdded = true;
-    }
+  const [isBlaze, setIsBlaze] = useState(false);
+  const [blazePreapproval, setBlazePreapproval] =
+    useState<BlazePreapprovalFragment | null>(null);
+  const [authenticateBlazeUser, { loading: isAuthenticateBlazeUserLoading }] =
+    useCustomMutation(authenticateBlazeUserMutation);
 
+  useEffect(() => {
     // If true, then app is open in an iframe element.
     if (window.location !== window.parent.location) {
+      if (IsEventListenerAdded) {
+        return;
+      } else {
+        IsEventListenerAdded = true;
+        setIsBlaze(true);
+      }
+
       window.addEventListener(
         "message",
-        (event) => {
+        async (event) => {
           // Verify sender of message.
           if (event.origin !== ValidBlazeOrigin) {
             return;
@@ -124,19 +141,14 @@ export default function App() {
               return;
             }
 
+            const blazeAuthPayload: BlazeAuthPayload = eventPayload;
             const {
               auth_key: authKey,
               company_id: blazeCompanyId,
               shop_id: blazeShopId,
               user_id: blazeUserId,
               user_role: blazeUserRole,
-            }: {
-              auth_key: string;
-              company_id: string;
-              shop_id: string;
-              user_id: string;
-              user_role: number;
-            } = eventPayload;
+            } = blazeAuthPayload;
 
             if (
               authKey == null ||
@@ -151,8 +163,6 @@ export default function App() {
               return;
             }
 
-            // Trigger request to Python API server.
-
             console.info(`Processed ${eventIdentifier} event successfully!`);
             window.parent.postMessage(
               {
@@ -161,6 +171,28 @@ export default function App() {
               },
               ValidBlazeOrigin
             );
+
+            // Trigger request to Python API server.
+            const response = await authenticateBlazeUser({
+              variables: {
+                auth_key: authKey,
+                external_blaze_company_id: blazeCompanyId,
+                external_blaze_shop_id: blazeShopId,
+                external_blaze_user_id: blazeUserId,
+                external_blaze_user_role: blazeUserRole,
+              },
+            });
+
+            if (response.status !== "OK") {
+              // snackbar.showError(`Could not switch location. Error: ${response.msg}`);
+            } else {
+              setBlazePreapproval(
+                !!response.data?.blaze_preapproval
+                  ? (response.data
+                      ?.blaze_preapproval as BlazePreapprovalFragment)
+                  : null
+              );
+            }
           }
         },
         false
@@ -183,9 +215,14 @@ export default function App() {
         );
       }
     }
-  }, []);
+  }, [authenticateBlazeUser, setIsBlaze]);
 
-  return (
+  return isBlaze ? (
+    <BlazePreapprovalPage
+      isAuthenticateBlazeUserLoading={isAuthenticateBlazeUserLoading}
+      blazePreapproval={blazePreapproval}
+    />
+  ) : (
     <BrowserRouter>
       <Switch>
         <Redirect from="/:url*(/+)" to={pathname?.slice(0, -1) || "/"} />
@@ -216,7 +253,6 @@ export default function App() {
           path={anonymousRoutes.reviewInvoiceComplete}
           component={ReviewInvoiceCompletePage}
         />
-
         <Route
           exact
           path={anonymousRoutes.reviewInvoicePayment}
@@ -327,7 +363,6 @@ export default function App() {
         >
           <CustomerFinancialCertificationsPage />
         </PrivateRoute>
-
         <PrivateRoute
           exact
           path={customerRoutes.loans}
