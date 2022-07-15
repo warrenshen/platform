@@ -163,15 +163,6 @@ export default function App() {
               return;
             }
 
-            console.info(`Processed ${eventIdentifier} event successfully!`);
-            window.parent.postMessage(
-              {
-                identifier: "handshake_success",
-                payload: null,
-              },
-              ValidBlazeOrigin
-            );
-
             // Trigger request to Python API server.
             const response = await authenticateBlazeUser({
               variables: {
@@ -184,8 +175,26 @@ export default function App() {
             });
 
             if (response.status !== "OK") {
+              console.info(
+                `Failed to process ${eventIdentifier} event due to invalid auth key!`
+              );
+              window.parent.postMessage(
+                {
+                  identifier: "handshake_failure",
+                  payload: null,
+                },
+                ValidBlazeOrigin
+              );
               // snackbar.showError(`Could not switch location. Error: ${response.msg}`);
             } else {
+              console.info(`Processed ${eventIdentifier} event successfully!`);
+              window.parent.postMessage(
+                {
+                  identifier: "handshake_success",
+                  payload: null,
+                },
+                ValidBlazeOrigin
+              );
               setBlazePreapproval(
                 !!response.data?.blaze_preapproval
                   ? (response.data

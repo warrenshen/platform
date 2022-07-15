@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import './App.css';
 
 const ValidEmbedUrl = "http://localhost:3005";
@@ -6,6 +6,25 @@ const ValidEmbedUrl = "http://localhost:3005";
 // This is necessary since useEffect with an empty dependency array calls
 // its callback twice in development environment in strict mode.
 let IsEventListenerAdded = false;
+
+const ValidAuthPayloadPreapproved = {
+  auth_key: "$pbkdf2-sha256$29000$ejluaXdnNm8zZHZqNHFibzM2d2k$Pt0yc+/7HqF55XxxanmLXiQr4tjH3RsT1zTyzgjCNGk",
+  company_id: "62b4f761be986934ed269e43",
+  shop_id: "62b4f761be986934ed269e5e",
+  user_id: "62b4f956be986934ed269ff2",
+  user_role: 1,
+};
+
+// const ValidAuthPayloadNotQualifying = {
+//   auth_key: "$pbkdf2-sha256$29000$ejluaXdnNm8zZHZqNHFibzM2d2k$nzmhxCI4Yv1gV5jGyhsLygrnQYDTAJwJnxKaK9RwbsM",
+//   company_id: "51a4f761be986934ed269e43",
+//   shop_id: "51a4f761be986934ed269e5e",
+//   user_id: "51a4f956be986934ed269ff2",
+//   user_role: 1,
+// };
+
+// Developer note: change this variable value to test out different cases.
+const AuthPayload = ValidAuthPayloadPreapproved;
 
 export default function App() {
   useEffect(() => {
@@ -52,7 +71,7 @@ export default function App() {
       if (eventIdentifier === "handshake_request") {
         (event.source as Window).postMessage({
           identifier: "handshake_response",
-          payload: {},
+          payload: AuthPayload,
         }, event.origin);
       }
     }, false);
