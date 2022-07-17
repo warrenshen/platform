@@ -273,10 +273,8 @@ class Fetcher(object):
 					models.EbbaApplication.company_id == self._company_id
 				).all()
 			)
-			if not ebba_applications:
-				return True, None
 
-			self._ebba_applications = [e.as_dict() for e in ebba_applications]
+			self._ebba_applications = [e.as_dict() for e in ebba_applications] if ebba_applications else []
 
 		return True, None
 
