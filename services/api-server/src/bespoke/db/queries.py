@@ -144,6 +144,23 @@ def get_financial_summaries_for_target_customers(
 # Loans
 # ###############################
 
+def get_loan_by_id(
+    session: Session,
+    loan_id: str,
+) -> Tuple[ models.Loan, errors.Error ]:
+    # fmt: off
+    loan = cast(
+        models.Loan,
+        session.query(models.Loan).filter(
+            models.Loan.id == loan_id
+        ).first())
+    # fmt: on
+
+    if not loan:
+        return None, errors.Error("No loan with the specified id exists in the system")
+
+    return loan, None
+
 def get_open_mature_loans_for_target_customers(
     session: Session,
     company_ids: List[str],

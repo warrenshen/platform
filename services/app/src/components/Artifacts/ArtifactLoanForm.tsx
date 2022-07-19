@@ -27,7 +27,7 @@ interface Props {
   artifactTitle: string;
   productType: ProductTypeEnum;
   loan: LoansInsertInput;
-  approvedArtifacts: ArtifactListItem[];
+  approvedArtifacts: Artifact[];
   selectedArtifact?: Artifact;
   InfoCard: IdComponent;
   setLoan: (loan: LoansInsertInput) => void;
@@ -57,10 +57,6 @@ export default function ArtifactLoanForm({
 
     return artifact.amount_remaining > 0;
   });
-
-  if (!artifactsList || artifactsList.length === 0) {
-    return null;
-  }
 
   const roundedLimitPercent = selectedArtifact
     ? round(
@@ -102,7 +98,7 @@ export default function ArtifactLoanForm({
       {selectedArtifact && (
         <>
           <Box display="flex" flexDirection="column" mt={3}>
-            <InfoCard id={selectedArtifact.artifact_id} />
+            <InfoCard id={selectedArtifact.id} />
           </Box>
           <Box
             display="flex"
@@ -132,12 +128,12 @@ export default function ArtifactLoanForm({
           disablePast
           disableNonBankDays
           value={loan.requested_payment_date}
-          onChange={(value) =>
+          onChange={(value) => {
             setLoan({
               ...loan,
               requested_payment_date: value,
-            })
-          }
+            });
+          }}
         />
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">

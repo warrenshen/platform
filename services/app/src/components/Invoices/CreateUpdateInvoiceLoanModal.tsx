@@ -34,9 +34,11 @@ export default function CreateUpdateInvoiceLoanModal({
 
   const invoices = data?.invoices || [];
 
-  const artifactItems = invoices.map((invoice) => ({
+  const artifacts = invoices.map((invoice) => ({
     id: invoice.id,
     copy: invoice.invoice_number,
+    total_amount: invoice.subtotal_amount,
+    amount_remaining: invoice.subtotal_amount, // TODO pull advance_rate and multiply here to match current functionality
   }));
 
   // Wait until we're done loading to attempt a real render
@@ -54,7 +56,7 @@ export default function CreateUpdateInvoiceLoanModal({
       loanType={LoanTypeEnum.Invoice}
       handleClose={handleClose}
       InfoCard={InvoiceInfoCardById}
-      approvedArtifacts={artifactItems}
+      artifacts={artifacts}
     />
   );
 }

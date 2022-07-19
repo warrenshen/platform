@@ -4,8 +4,8 @@ from typing import Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
-from bespoke.db import db_constants, models, models_util
-from bespoke.db.db_constants import (ALL_LOAN_TYPES, LoanTypeEnum)
+from bespoke.db import db_constants, models, models_util, queries
+from bespoke.db.db_constants import (ALL_LOAN_TYPES, LoanStatusEnum, LoanTypeEnum)
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.finance import financial_summary_util
@@ -142,6 +142,53 @@ def approve_loans(
 			company_id_to_available_limit[loan.company_id] -= loan.amount
 
 	return ApproveLoansRespDict(status='OK'), None
+
+@errors.return_error_tuple
+def save_loan(
+	session: Session,
+	amount: float,
+	artifact_id: str,
+	company_id: str,
+	loan_id: str,
+	loan_type: str,
+	requested_payment_date: datetime.date,
+) -> Tuple[str, errors.Error]:
+	company, err = queries.get_company_by_id(
+		session,
+		company_id,
+	)
+	if err:
+		return None, err
+
+	# We skip error handling if a loan does not exist
+	# as this flow is used to save both brand new loan
+	# drafts and updates to existing unfunded loans
+	loan, _ = queries.get_loan_by_id(
+		session,
+		loan_id,
+	)
+	if not loan:
+		next_identifier = int(company.latest_loan_identifier) + 1
+		company.latest_loan_identifier = next_identifier
+
+		loan = models.Loan(
+			amount = decimal.Decimal(amount),
+			artifact_id = artifact_id,
+			company_id = company_id,
+			identifier = str(next_identifier),
+			loan_type = loan_type,
+			requested_payment_date = requested_payment_date,
+			status = LoanStatusEnum.DRAFTED,
+		)
+	else:
+		loan.amount = decimal.Decimal(amount)
+		loan.loan_type = loan_type
+		loan.requested_payment_date = requested_payment_date
+
+	session.add(loan)
+	session.flush()
+
+	return str(loan.id), None
 
 @errors.return_error_tuple
 def submit_for_approval(

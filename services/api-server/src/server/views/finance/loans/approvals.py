@@ -218,6 +218,67 @@ class SubmitForApprovalView(MethodView):
 		cfg = cast(Config, current_app.app_config)
 		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = ['amount', 'artifact_id', 'company_id', 'loan_id', 'loan_type', 'requested_payment_date']
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in response to saving loan')
+
+		amount = float(form['amount'])
+		artifact_id = form['artifact_id']
+		company_id = form['company_id']
+		loan_id = form['loan_id']
+		loan_type = form['loan_type']
+		requested_payment_date = date_util.load_date_str(form['requested_payment_date'])
+
+		with session_scope(current_app.session_maker) as session:
+			loan_id, err = approval_util.save_loan(
+				session,
+				amount,
+				artifact_id,
+				company_id,
+				loan_id,
+				loan_type,
+				requested_payment_date,
+			)
+			if err:
+				raise err
+
+			resp, err = approval_util.submit_for_approval(
+				loan_id, 
+				session, 
+				triggered_by_autofinancing=False
+			)
+			if err:
+				raise err
+
+			success, err = approval_util.send_loan_approval_requested_email(
+				sendgrid_client, resp)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Inventory Loan {} approval request responded to'.format(loan_id)
+		}), 200)
+
+# VERY TEMPORARY - NOTE(JR): I was trying to get a bug fix out for the non-LoC
+# loan flow. That lead to refactoring that flow to get off of graphql mutations.
+# However, I did not want to block the bug fix going out in a deploy while I
+# worked on refactoring the LoC flow. As such, this is a copy of the endpoint as it was
+class SubmitLoCForApprovalView(MethodView):
+	decorators = [auth_util.login_required]
+
+	@events.wrap(events.Actions.LOANS_SUBMIT_FOR_APPROVAL)
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		cfg = cast(Config, current_app.app_config)
+		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
+
 		data = json.loads(request.data)
 		if not data:
 			return handler_util.make_error_response('No data provided')
@@ -243,6 +304,47 @@ class SubmitForApprovalView(MethodView):
 			'msg': 'Inventory Loan {} approval request responded to'.format(loan_id)
 		}), 200)
 
+class SaveLoanView(MethodView):
+	decorators = [auth_util.login_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		cfg = cast(Config, current_app.app_config)
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = ['amount', 'artifact_id', 'company_id', 'loan_id', 'loan_type', 'requested_payment_date']
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in response to saving loan')
+
+		amount = float(form['amount'])
+		artifact_id = form['artifact_id']
+		company_id = form['company_id']
+		loan_id = form['loan_id']
+		loan_type = form['loan_type']
+		requested_payment_date = date_util.load_date_str(form['requested_payment_date'])
+
+		with session_scope(current_app.session_maker) as session:
+			loan_id, err = approval_util.save_loan(
+				session,
+				amount,
+				artifact_id,
+				company_id,
+				loan_id,
+				loan_type,
+				requested_payment_date,
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Successfully saved loan draft with id {}'.format(loan_id)
+		}), 200)
+
 
 handler.add_url_rule(
 	'/approve_loans', view_func=ApproveLoansView.as_view(name='approve_loans_view'))
@@ -255,3 +357,14 @@ handler.add_url_rule(
 	view_func=SubmitForApprovalView.as_view(
 		name='submit_for_approval_view')
 )
+
+# TEMPORARY - to be removed (or edited) during the effort
+# to refactor off of graphql mutations for submitting LoC loans
+handler.add_url_rule(
+	'/submit_loc_for_approval',
+	view_func=SubmitLoCForApprovalView.as_view(
+		name='submit_loc_for_approval_view')
+)
+
+handler.add_url_rule(
+	'/save_loan', view_func=SaveLoanView.as_view(name='save_loan_view'))

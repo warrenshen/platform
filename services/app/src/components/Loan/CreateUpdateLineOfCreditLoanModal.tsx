@@ -21,7 +21,7 @@ import {
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { submitLoanMutation } from "lib/api/loans";
+import { submitLoCLoanMutation } from "lib/api/loans";
 import { ActionType, LoanStatusEnum } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useState } from "react";
@@ -109,8 +109,9 @@ export default function CreateUpdateLineOfCreditLoanModal({
     { loading: isUpdateLineOfCreditAndLoanLoading },
   ] = useUpdateLineOfCreditAndLoanMutation();
 
-  const [submitLoan, { loading: isSubmitLoanLoading }] =
-    useCustomMutation(submitLoanMutation);
+  const [submitLoan, { loading: isSubmitLoanLoading }] = useCustomMutation(
+    submitLoCLoanMutation
+  );
 
   const [getCompanyNextLoanIdentifier] =
     useGetCompanyNextLoanIdentifierMutation();

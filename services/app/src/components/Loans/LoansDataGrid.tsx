@@ -30,11 +30,13 @@ import {
   LoanPaymentStatusEnum,
   LoanStatusEnum,
   LoanStatusToLabel,
+  PartnerEnum,
 } from "lib/enum";
-import { PartnerEnum } from "lib/enum";
 import {
   createLoanCustomerIdentifier,
   createLoanDisbursementIdentifier,
+  getDaysPastDue,
+  getDaysUntilMaturity,
   getLoanArtifactName,
   getLoanVendorName,
 } from "lib/loans";
@@ -90,10 +92,12 @@ function getRows(
         : "N/A",
       artifact_name: getLoanArtifactName(loan),
       customer_identifier: createLoanCustomerIdentifier(loan),
+      days_past_due: getDaysPastDue(loan),
       disbursement_identifier: createLoanDisbursementIdentifier(loan),
       financing_day_limit: !!loan.loan_report
         ? loan.loan_report.financing_day_limit
         : null,
+      maturing_in_days: getDaysUntilMaturity(loan),
       origination_date: !!loan?.origination_date
         ? parseDateStringServer(loan.origination_date)
         : null,
@@ -178,25 +182,6 @@ export default function LoansDataGrid({
       dataGrid.instance.filter(["status", "=", filterByStatus]);
     }
   }, [isMaturityVisible, dataGrid, filterByStatus, matureDays]);
-
-  const maturingInDaysRenderer = (value: any) => {
-    const maturityTime = getMaturityDate(value.data).getTime();
-    const nowTime = new Date(Date.now()).getTime();
-    const maturingInDays = Math.max(
-      0,
-      Math.floor((maturityTime - nowTime) / (24 * 60 * 60 * 1000))
-    );
-    return maturingInDays > 0 ? `${maturingInDays}` : "-";
-  };
-
-  const daysPastDueRenderer = (value: any) => {
-    const maturityTime = getMaturityDate(value.data).getTime();
-    const nowTime = new Date(Date.now()).getTime();
-    const daysPastDue = Math.floor(
-      (nowTime - maturityTime) / (24 * 60 * 60 * 1000)
-    );
-    return daysPastDue > 0 ? daysPastDue.toString() : "-";
-  };
 
   const columns = useMemo(
     () => [
@@ -404,16 +389,16 @@ export default function LoansDataGrid({
       {
         visible: isMaturityVisible && !isDaysPastDueVisible,
         caption: "Maturing in (Days)",
+        dataField: "maturing_in_days",
         width: 100,
         alignment: "right",
-        calculateCellValue: (row: any) => maturingInDaysRenderer({ data: row }),
       },
       {
         visible: isMaturityVisible && isDaysPastDueVisible,
         caption: "Days Past Due",
+        dataField: "days_past_due",
         width: 100,
         alignment: "right",
-        calculateCellValue: (row: any) => daysPastDueRenderer({ data: row }),
       },
       {
         visible: isMaturityVisible,

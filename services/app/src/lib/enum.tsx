@@ -482,6 +482,21 @@ export enum ProductTypeEnum {
   None = "none",
 }
 
+export enum ArtifactType {
+  None = "",
+  Invoice = "Invoice",
+  PurchaseOrder = "Purchase Order",
+}
+
+export const ProductTypeToArtifactType = {
+  [ProductTypeEnum.DispensaryFinancing]: ArtifactType.PurchaseOrder,
+  [ProductTypeEnum.InventoryFinancing]: ArtifactType.PurchaseOrder,
+  [ProductTypeEnum.InvoiceFinancing]: ArtifactType.Invoice,
+  [ProductTypeEnum.LineOfCredit]: "", // should never be used, only included for type checking
+  [ProductTypeEnum.PurchaseMoneyFinancing]: ArtifactType.PurchaseOrder,
+  [ProductTypeEnum.None]: ArtifactType.None,
+};
+
 export const ProductTypeToContractTermsJson = {
   [ProductTypeEnum.DispensaryFinancing]: JSON.stringify(
     DispensaryContractTermsJson

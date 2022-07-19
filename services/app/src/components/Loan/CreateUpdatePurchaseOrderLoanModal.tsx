@@ -42,26 +42,28 @@ export default function CreateUpdatePurchaseOrderLoanModal({
 
   const purchaseOrders = data?.purchase_orders || [];
 
-  const artifactItems = purchaseOrders.map((po) => ({
+  const artifacts = purchaseOrders.map((po) => ({
     id: po.id,
     copy: po.order_number,
+    total_amount: po.amount,
+    amount_remaining: po.amount,
   }));
 
-  if (loading) {
-    return null;
-  }
-
   return (
-    <CreateUpdateArtifactLoanModal
-      actionType={actionType}
-      companyId={companyId}
-      productType={productType}
-      artifactId={artifactId}
-      loanId={loanId}
-      loanType={LoanTypeEnum.PurchaseOrder}
-      handleClose={handleClose}
-      InfoCard={PurchaseOrderInfoCardById}
-      approvedArtifacts={artifactItems}
-    />
+    <>
+      {!loading && (
+        <CreateUpdateArtifactLoanModal
+          actionType={actionType}
+          companyId={companyId}
+          productType={productType}
+          artifactId={artifactId}
+          loanId={loanId}
+          loanType={LoanTypeEnum.PurchaseOrder}
+          handleClose={handleClose}
+          InfoCard={PurchaseOrderInfoCardById}
+          artifacts={artifacts}
+        />
+      )}
+    </>
   );
 }

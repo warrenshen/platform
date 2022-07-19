@@ -3,11 +3,13 @@ import {
   CompanyVendorPartnerships,
   GetAdvancesBankAccountsForCustomerQuery,
   LoanArtifactLimitedFragment,
+  LoanFragment,
   LoanLimitedFragment,
   LoanTypeEnum,
   Maybe,
 } from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
+import { DayInMilliseconds, parseDateStringServer } from "lib/date";
 import { UUIDEnum } from "lib/enum";
 import { uniq } from "lodash";
 
@@ -135,4 +137,39 @@ export const extractRecipientCompanyIdAndBankAccountFromPartnership = (
     : extractRecipientCompanyAndBankAccountFromCustomer(
         companies_by_pk as Companies
       );
+};
+
+export const getDaysPastDue = (loan: LoanFragment): string => {
+  const maturityDate = !!loan?.adjusted_maturity_date
+    ? loan.adjusted_maturity_date
+    : null;
+
+  if (!!maturityDate) {
+    const maturityTime = parseDateStringServer(maturityDate).getTime();
+    const nowTime = new Date(Date.now()).getTime();
+    const daysPastDue = Math.floor(
+      (nowTime - maturityTime) / DayInMilliseconds
+    );
+    return daysPastDue > 0 ? daysPastDue.toString() : "-";
+  } else {
+    return "-";
+  }
+};
+
+export const getDaysUntilMaturity = (loan: LoanFragment): string => {
+  const maturityDate = !!loan?.adjusted_maturity_date
+    ? loan.adjusted_maturity_date
+    : null;
+
+  if (!!maturityDate) {
+    const maturityTime = parseDateStringServer(maturityDate).getTime();
+    const nowTime = new Date(Date.now()).getTime();
+    const maturingInDays = Math.max(
+      0,
+      Math.floor((maturityTime - nowTime) / DayInMilliseconds)
+    );
+    return maturingInDays > 0 ? `${maturingInDays}` : "-";
+  } else {
+    return "-";
+  }
 };

@@ -2,9 +2,10 @@ import { Companies, Contracts, Loans } from "generated/graphql";
 import { authenticatedApi, loansRoutes } from "lib/api";
 
 export type Artifact = {
-  artifact_id: string;
+  id: string;
   total_amount: number;
   amount_remaining: number;
+  copy: string;
 };
 
 export type ListArtifactsResp = {
@@ -24,7 +25,7 @@ export async function listArtifactsForCreateLoan(req: {
     .then(
       (response) => response,
       (error) => {
-        console.log("Error", error);
+        console.error(error);
         return {
           status: "ERROR",
           msg: "Could not list artifacts for create loan for an unexpected reason",

@@ -118,7 +118,7 @@ function LoansNotFunded({
                   companyId={companyId}
                   productType={productType}
                   actionType={ActionType.Update}
-                  artifactId={null}
+                  artifactId={selectedLoan?.artifact_id || null}
                   loanId={selectedLoan?.id}
                   handleClose={() => {
                     handleDataChange();

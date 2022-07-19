@@ -1,5 +1,6 @@
 import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
+import ArtifactLoanForm from "components/Artifacts/ArtifactLoanForm";
 import Modal from "components/Shared/Modal/Modal";
 import {
   CurrentUserContext,
@@ -10,24 +11,23 @@ import {
   LoanTypeEnum,
   LoansInsertInput,
   Scalars,
-  useAddLoanMutation,
-  useGetCompanyNextLoanIdentifierMutation,
   useGetLoanForCustomerQuery,
-  useUpdateLoanMutation,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { deleteLoanMutation, submitLoanMutation } from "lib/api/loans";
-import { ActionType, LoanStatusEnum, ProductTypeEnum } from "lib/enum";
+import { saveLoanMutation, submitLoanMutation } from "lib/api/loans";
+import { parseDateStringServer, todayAsDateStringClient } from "lib/date";
 import {
-  Artifact,
-  listArtifactsForCreateLoan,
-} from "lib/finance/loans/artifacts";
+  ActionType,
+  LoanStatusEnum,
+  ProductTypeEnum,
+  ProductTypeToArtifactType,
+} from "lib/enum";
+import { Artifact } from "lib/finance/loans/artifacts";
 import { formatCurrency } from "lib/number";
 import { isNull, mergeWith } from "lodash";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 
-import ArtifactLoanForm, { ArtifactListItem } from "./ArtifactLoanForm";
 import { IdComponent } from "./interfaces";
 
 interface Props {
@@ -35,7 +35,7 @@ interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum;
   artifactId: Scalars["uuid"] | null;
-  approvedArtifacts: ArtifactListItem[];
+  artifacts: Artifact[];
   loanId: Scalars["uuid"] | null;
   loanType: LoanTypeEnum;
   InfoCard: IdComponent;
@@ -47,7 +47,7 @@ export default function CreateUpdateArtifactLoanModal({
   companyId,
   productType,
   artifactId,
-  approvedArtifacts,
+  artifacts,
   loanId,
   loanType,
   InfoCard,
@@ -60,11 +60,7 @@ export default function CreateUpdateArtifactLoanModal({
   } = useContext(CurrentUserContext);
   const isBankUser = isRoleBankUser(role);
 
-  const artifactCopyLower = getProductTypeCopy(productType);
-  const artifactCopyUpper = capsFirst(artifactCopyLower);
-
-  // Default Loan for CREATE case.
-  const newLoan: LoansInsertInput = {
+  const defaultLoan: LoansInsertInput = {
     artifact_id: artifactId || "",
     loan_type: loanType,
     requested_payment_date: null,
@@ -72,8 +68,7 @@ export default function CreateUpdateArtifactLoanModal({
     status: LoanStatusEnum.Drafted,
   };
 
-  const [loan, setLoan] = useState(newLoan);
-  const [artifacts, setArtifacts] = useState<Artifact[]>([]);
+  const [loan, setLoan] = useState<LoansInsertInput>(defaultLoan);
 
   const { loading: isExistingLoanLoading } = useGetLoanForCustomerQuery({
     skip: actionType === ActionType.New,
@@ -85,207 +80,100 @@ export default function CreateUpdateArtifactLoanModal({
       const existingLoan = data.loans_by_pk;
       if (actionType === ActionType.Update && existingLoan) {
         setLoan(
-          mergeWith(newLoan, existingLoan, (a, b) => (isNull(b) ? a : b))
+          mergeWith(defaultLoan, existingLoan, (a, b) => (isNull(b) ? a : b))
         );
       }
     },
   });
 
-  const [deleteLoan, { loading: isDeleteLoanLoading }] =
-    useCustomMutation(deleteLoanMutation);
+  const [saveLoan, { loading: isSaveLoanLoading }] =
+    useCustomMutation(saveLoanMutation);
 
-  let amountUsedOnArtifact = 0.0;
-  let totalAmountForArtifact = 0.0;
-  let totalAmountAvailableOnArtifact = 0.0;
+  const [submitLoan, { loading: isSubmitLoanLoading }] =
+    useCustomMutation(submitLoanMutation);
 
   const idToArtifact: { [artifact_id: string]: Artifact } = useMemo(
     () =>
       artifacts.reduce(
         (m, a) => ({
           ...m,
-          [a.artifact_id]: a,
+          [a.id]: a,
         }),
         {}
       ),
     [artifacts]
   );
 
-  const selectedArtifact = idToArtifact[loan.artifact_id];
+  const selectedArtifact = artifacts.find(
+    (artifact) => artifact.id === artifactId
+  );
 
-  if (!!selectedArtifact) {
-    amountUsedOnArtifact =
-      selectedArtifact.total_amount - selectedArtifact.amount_remaining;
-    totalAmountForArtifact = selectedArtifact.total_amount;
-    totalAmountAvailableOnArtifact =
-      totalAmountForArtifact - amountUsedOnArtifact;
-  }
+  const amountUsedOnArtifact = !!selectedArtifact
+    ? selectedArtifact.total_amount - selectedArtifact.amount_remaining
+    : 0;
+  const totalAmountForArtifact = !!selectedArtifact
+    ? selectedArtifact.total_amount
+    : 0;
+  const totalAmountAvailableOnArtifact = !!selectedArtifact
+    ? totalAmountForArtifact - amountUsedOnArtifact
+    : 0;
 
   const proposedLoansTotalAmount =
     amountUsedOnArtifact + parseFloat(loan?.amount) || 0;
 
-  useEffect(() => {
-    async function loadArtifacts() {
-      const resp = await listArtifactsForCreateLoan({
-        product_type: productType!,
+  console.log(loan);
+  const handleClickSaveDraft = async () => {
+    const response = await saveLoan({
+      variables: {
+        amount: loan.amount,
+        artifact_id: loan.artifact_id,
         company_id: companyId,
         loan_id: loanId,
-      });
-      if (resp.status !== "OK") {
-        snackbar.showMessage(resp.msg);
-        return;
-      }
-
-      setArtifacts(resp.artifacts);
-
-      if (artifactId) {
-        const artifact = resp.artifacts.find((artifact) => {
-          return artifact.artifact_id === artifactId;
-        });
-        if (artifact) {
-          setLoan((loan) => {
-            return {
-              ...loan,
-              amount: artifact.amount_remaining,
-            };
-          });
-        }
-      }
-    }
-    loadArtifacts();
-  }, [snackbar, companyId, loanId, artifactId, productType]);
-
-  const [addLoan, { loading: isAddLoanLoading }] = useAddLoanMutation();
-
-  const [updateLoan, { loading: isUpdateLoanLoading }] =
-    useUpdateLoanMutation();
-
-  const [submitLoan, { loading: isSubmitLoanLoading }] =
-    useCustomMutation(submitLoanMutation);
-
-  const [getCompanyNextLoanIdentifier] =
-    useGetCompanyNextLoanIdentifierMutation();
-
-  const getNextLoanIdentifierByCompanyId = async () => {
-    const response = await getCompanyNextLoanIdentifier({
-      variables: {
-        companyId,
-        increment: { latest_loan_identifier: 1 },
+        loan_type: loan.loan_type,
+        requested_payment_date: loan.requested_payment_date,
       },
     });
-    return response.data?.update_companies_by_pk?.latest_loan_identifier;
-  };
 
-  const upsertArtifactLoan = async () => {
-    if (loan.id) {
-      // If the loan already has a UUID, then it exists in the DB already.
-      const response = await updateLoan({
-        variables: {
-          id: loan.id,
-          loan: {
-            requested_payment_date: loan.requested_payment_date || null,
-            amount: loan.amount || null,
-          },
-        },
-      });
-      return response.data?.update_loans_by_pk;
+    if (response.status === "ERROR") {
+      snackbar.showError(response.msg);
     } else {
-      const nextLoanIdentifier = await getNextLoanIdentifierByCompanyId();
-      if (!nextLoanIdentifier) {
-        snackbar.showError(
-          "Error! Something went wrong while saving the loan draft."
-        );
-      } else {
-        const response = await addLoan({
-          variables: {
-            loan: {
-              company_id: isBankUser ? companyId : undefined,
-              identifier: nextLoanIdentifier.toString(),
-              loan_type: loanType,
-              artifact_id: loan.artifact_id,
-              requested_payment_date: loan.requested_payment_date || null,
-              amount: loan.amount || null,
-            },
-          },
-        });
-
-        return response.data?.insert_loans_one;
-      }
-    }
-  };
-
-  const handleClickSaveDraft = async () => {
-    const savedLoan = await upsertArtifactLoan();
-    if (!savedLoan) {
-      snackbar.showError(`Could not upsert loan.`);
-    } else {
-      snackbar.showSuccess("Loan saved as draft.");
+      snackbar.showSuccess("Successfully saved loans");
       handleClose();
     }
   };
 
   const handleClickSaveSubmit = async () => {
-    const nextLoanIdentifier = await getNextLoanIdentifierByCompanyId();
-    if (!nextLoanIdentifier) {
-      snackbar.showError(
-        "Error! Something went wrong while preparing the loan submission."
-      );
+    const response = await submitLoan({
+      variables: {
+        amount: loan.amount,
+        artifact_id: loan.artifact_id,
+        company_id: companyId,
+        loan_id: loanId,
+        loan_type: loan.loan_type,
+        requested_payment_date: loan.requested_payment_date,
+      },
+    });
+
+    if (response.status === "ERROR") {
+      snackbar.showError(response.msg);
     } else {
-      const addLoanResponse = await addLoan({
-        variables: {
-          loan: {
-            company_id: isBankUser ? companyId : undefined,
-            identifier: nextLoanIdentifier.toString(),
-            loan_type: loanType,
-            artifact_id: loan.artifact_id,
-            requested_payment_date: loan.requested_payment_date || null,
-            amount: loan.amount || null,
-          },
-        },
-      });
-
-      if (!addLoanResponse.data?.insert_loans_one) {
-        snackbar.showError(`Error! Could not add new loan. Please try again.`);
-      } else {
-        const loanToSubmitID = addLoanResponse.data?.insert_loans_one.id;
-
-        const response = await submitLoan({
-          variables: {
-            loan_id: loanToSubmitID,
-          },
-        });
-        if (response.status !== "OK") {
-          snackbar.showError(`Could not submit loan. Reason: ${response.msg}`);
-
-          // In addition to alerting the user, we should clean up the loan we set up
-          // for submission. If the user fixes the error, we simply create a new loan
-          // for submission
-          await deleteLoan({
-            variables: {
-              loan_id: loanToSubmitID,
-            },
-          });
-        } else {
-          snackbar.showSuccess(
-            "Loan saved and submitted to Bespoke - you may view this financing request on the Loans page."
-          );
-          handleClose();
-        }
-      }
+      snackbar.showSuccess("Successfully submitted loans");
+      handleClose();
     }
   };
 
   const isDialogReady = !isExistingLoanLoading;
   const isFormValid = !!loan.artifact_id;
-  const isFormLoading =
-    isAddLoanLoading ||
-    isUpdateLoanLoading ||
-    isSubmitLoanLoading ||
-    isDeleteLoanLoading;
+  const isFormLoading = isSaveLoanLoading || isSubmitLoanLoading;
   const isSaveDraftDisabled = !isFormValid || isFormLoading;
 
   const disabledSubmitReasons = [];
-  if (!isFormValid || !selectedArtifact) {
-    disabledSubmitReasons.push(`${artifactCopyUpper} has not been selected`);
+  if (!isFormValid) {
+    disabledSubmitReasons.push(
+      `You must select the ${ProductTypeToArtifactType[
+        productType
+      ].toLowerCase()} for the loan before submitting.`
+    );
   }
   if (!!selectedArtifact && proposedLoansTotalAmount > totalAmountForArtifact) {
     disabledSubmitReasons.push(
@@ -294,16 +182,22 @@ export default function CreateUpdateArtifactLoanModal({
       )}.`
     );
   }
-
   if (!loan?.requested_payment_date) {
     disabledSubmitReasons.push("Requested Payment Date is not set");
+  }
+  if (
+    !!loan?.requested_payment_date &&
+    parseDateStringServer(loan.requested_payment_date) < new Date()
+  ) {
+    disabledSubmitReasons.push(
+      `Requested Payment Date is set to a date in the past. Please select a day after ${todayAsDateStringClient()}`
+    );
   }
   if (!loan?.amount) {
     disabledSubmitReasons.push("Amount is not specified");
   }
 
-  const isSaveSubmitDisabled =
-    isSaveDraftDisabled || disabledSubmitReasons.length > 0;
+  const isSaveSubmitDisabled = disabledSubmitReasons.length > 0;
 
   // If the purchase order ID is being passed in through the props, this means that the
   // user cannot select a purchase order themselves.
@@ -311,8 +205,7 @@ export default function CreateUpdateArtifactLoanModal({
   const canCreateLoanFromArtifact = totalAmountAvailableOnArtifact > 0;
   const noArtifactSelected = artifactId === null;
   const canCreateLoan =
-    (canCreateLoanFromArtifact || noArtifactSelected) &&
-    approvedArtifacts.length > 0;
+    (canCreateLoanFromArtifact || noArtifactSelected) && artifacts.length > 0;
 
   // Return null when we aren't yet ready
   if (!isDialogReady) {
@@ -332,9 +225,10 @@ export default function CreateUpdateArtifactLoanModal({
         <Box mt={1}>
           <Alert severity="warning">
             <span>
-              There is no remaining amount on this {artifactCopyLower} to
-              request a loan with. Please select a different {artifactCopyLower}
-              .
+              There is no remaining amount on this{" "}
+              {ProductTypeToArtifactType[productType].toLowerCase()} to request
+              a loan with. Please select a different{" "}
+              {ProductTypeToArtifactType[productType].toLowerCase()}.
             </span>
           </Alert>
         </Box>
@@ -371,11 +265,11 @@ export default function CreateUpdateArtifactLoanModal({
         canEditArtifact={
           actionType === ActionType.New && !disableArtifactEditing
         }
-        artifactTitle={getProductTypeArtifactTitle(productType!)}
+        artifactTitle={ProductTypeToArtifactType[productType]}
         productType={productType}
         loan={loan}
         setLoan={setLoan}
-        approvedArtifacts={approvedArtifacts}
+        approvedArtifacts={artifacts}
         selectedArtifact={selectedArtifact}
         idToArtifact={idToArtifact}
         InfoCard={InfoCard}
@@ -400,33 +294,3 @@ export default function CreateUpdateArtifactLoanModal({
     </Modal>
   );
 }
-
-const getProductTypeCopy = (productType: ProductTypeEnum) => {
-  switch (productType) {
-    case ProductTypeEnum.DispensaryFinancing:
-    case ProductTypeEnum.InventoryFinancing:
-    case ProductTypeEnum.PurchaseMoneyFinancing:
-      return "purchase order";
-    case ProductTypeEnum.InvoiceFinancing:
-      return "invoice";
-    default:
-      return "artifact";
-  }
-};
-
-const getProductTypeArtifactTitle = (productType: ProductTypeEnum) => {
-  switch (productType) {
-    case ProductTypeEnum.DispensaryFinancing:
-    case ProductTypeEnum.InventoryFinancing:
-    case ProductTypeEnum.PurchaseMoneyFinancing:
-      return "Purchase Order";
-    case ProductTypeEnum.InvoiceFinancing:
-      return "Invoice";
-    default:
-      return "Artifact";
-  }
-};
-
-const capsFirst = (s: string) => {
-  return s.charAt(0).toUpperCase() + s.slice(1);
-};
