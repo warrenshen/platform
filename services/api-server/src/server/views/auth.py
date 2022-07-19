@@ -356,9 +356,11 @@ class UndoImpersonationView(MethodView):
 				company_id=impersonator_user.company_id,
 			)
 			access_token = create_access_token(identity=claims_payload)
+			refresh_token = create_refresh_token(identity=claims_payload)
 			return make_response(json.dumps({
 				'status': 'OK',
-				'access_token': access_token
+				'access_token': access_token,
+				'refresh_token': refresh_token
 			}), 200)
 
 class SwitchLocationView(MethodView):

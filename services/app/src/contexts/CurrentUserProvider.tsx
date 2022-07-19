@@ -185,6 +185,7 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
       return response.data.msg;
     }
     setAccessToken(response.data.access_token);
+    setRefreshToken(response.data.refresh_token);
     setUserFromAccessToken(response.data.access_token);
   };
 
