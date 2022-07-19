@@ -154,6 +154,8 @@ class RunLoanPredictionsView(MethodView):
 				include_debug_info = True,
 				is_past_date_default_val = False,
 			)
+			if err:
+				raise err
 
 			# Since we're passing this to the front end, we can't use datetime.date as keys
 			# This step converts those keys to a date string and puts the data in a fresh dict

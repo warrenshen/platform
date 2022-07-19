@@ -6781,8 +6781,6 @@ export type CustomerSurveillanceResultsBoolExp = {
 /** unique or primary key constraints on table "customer_surveillance_results" */
 export enum CustomerSurveillanceResultsConstraint {
   /** unique or primary key constraint */
-  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
-  /** unique or primary key constraint */
   CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
 }
 
@@ -21292,6 +21290,7 @@ export type PurchaseOrders = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
@@ -21473,6 +21472,7 @@ export type PurchaseOrdersBoolExp = {
   _or?: Maybe<Array<PurchaseOrdersBoolExp>>;
   amount?: Maybe<NumericComparisonExp>;
   amount_funded?: Maybe<NumericComparisonExp>;
+  amount_updated_at?: Maybe<TimestamptzComparisonExp>;
   approved_at?: Maybe<TimestamptzComparisonExp>;
   approved_by_user_id?: Maybe<UuidComparisonExp>;
   approving_user_id?: Maybe<UsersBoolExp>;
@@ -21528,6 +21528,7 @@ export type PurchaseOrdersInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   approving_user_id?: Maybe<UsersObjRelInsertInput>;
@@ -21575,6 +21576,7 @@ export type PurchaseOrdersMaxFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -21609,6 +21611,7 @@ export type PurchaseOrdersMaxOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
@@ -21643,6 +21646,7 @@ export type PurchaseOrdersMinFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -21677,6 +21681,7 @@ export type PurchaseOrdersMinOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
@@ -21732,6 +21737,7 @@ export type PurchaseOrdersOnConflict = {
 export type PurchaseOrdersOrderBy = {
   amount?: Maybe<OrderBy>;
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   approving_user_id?: Maybe<UsersOrderBy>;
@@ -21779,6 +21785,8 @@ export enum PurchaseOrdersSelectColumn {
   Amount = "amount",
   /** column name */
   AmountFunded = "amount_funded",
+  /** column name */
+  AmountUpdatedAt = "amount_updated_at",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -21840,6 +21848,7 @@ export type PurchaseOrdersSetInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -21945,6 +21954,8 @@ export enum PurchaseOrdersUpdateColumn {
   Amount = "amount",
   /** column name */
   AmountFunded = "amount_funded",
+  /** column name */
+  AmountUpdatedAt = "amount_updated_at",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -26572,6 +26583,7 @@ export type Users = {
   /** An object relationship */
   company?: Maybe<Companies>;
   company_id?: Maybe<Scalars["uuid"]>;
+  company_role?: Maybe<Scalars["String"]>;
   created_at: Scalars["timestamptz"];
   email: Scalars["String"];
   first_name: Scalars["String"];
@@ -26629,6 +26641,7 @@ export type UsersBoolExp = {
   _or?: Maybe<Array<UsersBoolExp>>;
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
+  company_role?: Maybe<StringComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   email?: Maybe<StringComparisonExp>;
   first_name?: Maybe<StringComparisonExp>;
@@ -26657,6 +26670,7 @@ export enum UsersConstraint {
 export type UsersInsertInput = {
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
+  company_role?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   email?: Maybe<Scalars["String"]>;
   first_name?: Maybe<Scalars["String"]>;
@@ -26676,6 +26690,7 @@ export type UsersInsertInput = {
 /** aggregate max on columns */
 export type UsersMaxFields = {
   company_id?: Maybe<Scalars["uuid"]>;
+  company_role?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   email?: Maybe<Scalars["String"]>;
   first_name?: Maybe<Scalars["String"]>;
@@ -26692,6 +26707,7 @@ export type UsersMaxFields = {
 /** order by max() on columns of table "users" */
 export type UsersMaxOrderBy = {
   company_id?: Maybe<OrderBy>;
+  company_role?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   email?: Maybe<OrderBy>;
   first_name?: Maybe<OrderBy>;
@@ -26708,6 +26724,7 @@ export type UsersMaxOrderBy = {
 /** aggregate min on columns */
 export type UsersMinFields = {
   company_id?: Maybe<Scalars["uuid"]>;
+  company_role?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   email?: Maybe<Scalars["String"]>;
   first_name?: Maybe<Scalars["String"]>;
@@ -26724,6 +26741,7 @@ export type UsersMinFields = {
 /** order by min() on columns of table "users" */
 export type UsersMinOrderBy = {
   company_id?: Maybe<OrderBy>;
+  company_role?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   email?: Maybe<OrderBy>;
   first_name?: Maybe<OrderBy>;
@@ -26763,6 +26781,7 @@ export type UsersOnConflict = {
 export type UsersOrderBy = {
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
+  company_role?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   email?: Maybe<OrderBy>;
   first_name?: Maybe<OrderBy>;
@@ -26788,6 +26807,8 @@ export type UsersPkColumnsInput = {
 export enum UsersSelectColumn {
   /** column name */
   CompanyId = "company_id",
+  /** column name */
+  CompanyRole = "company_role",
   /** column name */
   CreatedAt = "created_at",
   /** column name */
@@ -26819,6 +26840,7 @@ export enum UsersSelectColumn {
 /** input type for updating data in table "users" */
 export type UsersSetInput = {
   company_id?: Maybe<Scalars["uuid"]>;
+  company_role?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   email?: Maybe<Scalars["String"]>;
   first_name?: Maybe<Scalars["String"]>;
@@ -26838,6 +26860,8 @@ export type UsersSetInput = {
 export enum UsersUpdateColumn {
   /** column name */
   CompanyId = "company_id",
+  /** column name */
+  CompanyRole = "company_role",
   /** column name */
   CreatedAt = "created_at",
   /** column name */
@@ -30166,6 +30190,14 @@ export type GetCustomersForDropdownQueryVariables = Exact<{
 }>;
 
 export type GetCustomersForDropdownQuery = {
+  customers: Array<Pick<Companies, "id"> & CustomerForBankFragment>;
+};
+
+export type GetActiveCustomersForDropdownQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetActiveCustomersForDropdownQuery = {
   customers: Array<Pick<Companies, "id"> & CustomerForBankFragment>;
 };
 
@@ -42162,6 +42194,77 @@ export type GetCustomersForDropdownLazyQueryHookResult = ReturnType<
 export type GetCustomersForDropdownQueryResult = Apollo.QueryResult<
   GetCustomersForDropdownQuery,
   GetCustomersForDropdownQueryVariables
+>;
+export const GetActiveCustomersForDropdownDocument = gql`
+  query GetActiveCustomersForDropdown {
+    customers: companies(
+      where: {
+        _and: [
+          { is_customer: { _eq: true } }
+          {
+            _or: [
+              { settings: { is_dummy_account: { _is_null: true } } }
+              { settings: { is_dummy_account: { _eq: false } } }
+            ]
+          }
+          { contract: { product_type: { _is_null: false } } }
+        ]
+      }
+      order_by: { name: asc }
+    ) {
+      id
+      ...CustomerForBank
+    }
+  }
+  ${CustomerForBankFragmentDoc}
+`;
+
+/**
+ * __useGetActiveCustomersForDropdownQuery__
+ *
+ * To run a query within a React component, call `useGetActiveCustomersForDropdownQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetActiveCustomersForDropdownQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetActiveCustomersForDropdownQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetActiveCustomersForDropdownQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetActiveCustomersForDropdownQuery,
+    GetActiveCustomersForDropdownQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetActiveCustomersForDropdownQuery,
+    GetActiveCustomersForDropdownQueryVariables
+  >(GetActiveCustomersForDropdownDocument, baseOptions);
+}
+export function useGetActiveCustomersForDropdownLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetActiveCustomersForDropdownQuery,
+    GetActiveCustomersForDropdownQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetActiveCustomersForDropdownQuery,
+    GetActiveCustomersForDropdownQueryVariables
+  >(GetActiveCustomersForDropdownDocument, baseOptions);
+}
+export type GetActiveCustomersForDropdownQueryHookResult = ReturnType<
+  typeof useGetActiveCustomersForDropdownQuery
+>;
+export type GetActiveCustomersForDropdownLazyQueryHookResult = ReturnType<
+  typeof useGetActiveCustomersForDropdownLazyQuery
+>;
+export type GetActiveCustomersForDropdownQueryResult = Apollo.QueryResult<
+  GetActiveCustomersForDropdownQuery,
+  GetActiveCustomersForDropdownQueryVariables
 >;
 export const CompanyVendorsDocument = gql`
   query CompanyVendors($companyId: uuid!) {

@@ -26,8 +26,6 @@ function getRows(loans: CombinedLoanData[]): RowsProp {
       id: index,
       interest_accrued_today: loan.interestAccruedToday,
       late_fees_accrued_today: loan.lateFeesAccruedToday,
-      loan_identifier: loan.loanIdentifier,
-      per_loan_late_fee_schedule: loan.perLoanLateFeeSchedule,
       product_type: ProductTypeToLabel[loan.productType],
       outstanding_interest: loan.outstandingInterest,
       outstanding_late_fees: loan.outstandingLateFees,
@@ -43,8 +41,6 @@ interface CombinedLoanData {
   date: Date;
   interestAccruedToday: number;
   lateFeesAccruedToday: number;
-  loanIdentifier: string;
-  perLoanLateFeeSchedule: number;
   productType: ProductTypeEnum;
   outstandingInterest: number;
   outstandingLateFees: number;
@@ -80,7 +76,6 @@ const combineFinancialSummariesAndLoanPredictions = (
   companyName: string,
   dateToLateFeeSchedule: Record<string, LateFeeSchedule[]>,
   financialSummaries: FinancialSummaryWithLoansInfoFragment[],
-  loanIdentifierLookup: Record<string, string>,
   loanMaturityDateLookup: Record<string, string>,
   loanPredictions: DailyLoanPrediction[]
 ): CombinedLoanData[] => {
@@ -108,7 +103,7 @@ const combineFinancialSummariesAndLoanPredictions = (
           ? dateToLateFeeSchedule[loanPrediction.date]
           : ([] as LateFeeSchedule[]);
 
-      return loans.map((loan) => {
+      const totalLateFeesAccruedToday = loans.reduce((sum, loan) => {
         const maturityDate = !!loanMaturityDateLookup.hasOwnProperty(
           loan.loanId
         )
@@ -117,86 +112,67 @@ const combineFinancialSummariesAndLoanPredictions = (
 
         // Since we're looking for days past due, we want today as the second parameter
         const daysPastDue = !!maturityDate
-          ? getDifferenceInDays(maturityDate, today)
+          ? getDifferenceInDays(today, maturityDate)
           : 0;
 
-        const perLoanFeeSchedule =
+        const feeMultiplier =
           daysPastDue > 0
             ? getLateFeeMultiplier(daysPastDue, lateFeeSchedule)
             : 0;
 
-        return {
-          companyId: companyId,
-          companyName: companyName,
-          dailyInterestRate: loan.dailyInterestRate,
-          date: loanDate,
-          interestAccruedToday: loan.interestAccruedToday,
-          lateFeesAccruedToday: loan.lateFeesAccruedToday,
-          loanIdentifier: `${companyIdentifier}/${
-            loanIdentifierLookup[loan.loanId]
-          }`,
-          perLoanLateFeeSchedule: perLoanFeeSchedule, //lateFeeScheduleString,
-          productType: productType,
-          outstandingInterest: loan.outstandingInterest,
-          outstandingLateFees: loan.outstandingFees,
-          outstandingPrincipal: loan.outstandingPrincipal,
-        } as CombinedLoanData;
-      });
+        const interestAccruedToday = !!loan?.interestAccruedToday
+          ? loan.interestAccruedToday
+          : 0;
+
+        return sum + interestAccruedToday * feeMultiplier;
+      }, 0);
+
+      const totalInterestAccruedToday = loans.reduce(
+        (sum, loan) => sum + loan.interestAccruedToday,
+        0
+      );
+      const totalOutstandingPrincipal = loans.reduce(
+        (sum, loan) => sum + loan.outstandingPrincipal,
+        0
+      );
+      const totalOutstandingInterest = loans.reduce(
+        (sum, loan) => sum + loan.outstandingInterest,
+        0
+      );
+      const totalOutstandingLateFees = loans.reduce(
+        (sum, loan) => sum + loan.outstandingFees,
+        0
+      );
+
+      return {
+        companyId: companyId,
+        companyName: companyName,
+        dailyInterestRate: financialSummaries?.[0]?.daily_interest_rate || 0.0,
+        date: loanDate,
+        interestAccruedToday: totalInterestAccruedToday,
+        lateFeesAccruedToday: totalLateFeesAccruedToday,
+        productType: productType,
+        outstandingInterest: totalOutstandingInterest,
+        outstandingLateFees: totalOutstandingLateFees,
+        outstandingPrincipal: totalOutstandingPrincipal,
+      } as CombinedLoanData;
     }
   );
 
   const mappedFinancialSummaries: CombinedLoanData[] =
     financialSummaries.flatMap((financialSummary) => {
-      const loanInfoDicts: Record<
-        string,
-        Record<string, number | string>
-      > = !!financialSummary?.loans_info ? financialSummary.loans_info : {};
-
-      const summaryDate = parseDateStringServer(financialSummary.date);
-
-      const lateFeeSchedule =
-        !!financialSummary?.date &&
-        dateToLateFeeSchedule.hasOwnProperty(financialSummary.date)
-          ? dateToLateFeeSchedule[financialSummary.date]
-          : ([] as LateFeeSchedule[]);
-
-      return Object.keys(loanInfoDicts).length > 0
-        ? Object.entries(loanInfoDicts).flatMap((loanInfoArray) => {
-            const loanInfoId = loanInfoArray[0];
-            const loanInfo = loanInfoArray[1];
-
-            const maturityDate = !!loanMaturityDateLookup.hasOwnProperty(
-              loanInfoId
-            )
-              ? parseDateStringServer(loanMaturityDateLookup[loanInfoId])
-              : null;
-
-            // Since we're looking for days past due, we want today as the second parameter
-            const daysPastDue = !!maturityDate
-              ? getDifferenceInDays(maturityDate, summaryDate)
-              : 0;
-
-            const perLoanFeeSchedule =
-              daysPastDue > 0
-                ? getLateFeeMultiplier(daysPastDue, lateFeeSchedule)
-                : 0;
-
-            return {
-              companyId: companyId,
-              companyName: companyName,
-              dailyInterestRate: financialSummary.daily_interest_rate,
-              date: parseDateStringServer(financialSummary.date),
-              interestAccruedToday: loanInfo.interest_accrued_today,
-              lateFeesAccruedToday: loanInfo.fees_accrued_today,
-              loanIdentifier: `${companyIdentifier}/${loanIdentifierLookup[loanInfoId]}`,
-              perLoanLateFeeSchedule: perLoanFeeSchedule,
-              productType: productType,
-              outstandingInterest: loanInfo.outstanding_interest,
-              outstandingLateFees: loanInfo.outstanding_late_fees,
-              outstandingPrincipal: loanInfo.outstanding_principal,
-            } as CombinedLoanData;
-          })
-        : ([] as CombinedLoanData[]);
+      return {
+        companyId: companyId,
+        companyName: companyName,
+        dailyInterestRate: financialSummary.daily_interest_rate,
+        date: parseDateStringServer(financialSummary.date),
+        interestAccruedToday: financialSummary.interest_accrued_today,
+        lateFeesAccruedToday: financialSummary.late_fees_accrued_today,
+        productType: productType,
+        outstandingInterest: financialSummary.total_outstanding_interest,
+        outstandingLateFees: financialSummary.total_outstanding_fees,
+        outstandingPrincipal: financialSummary.total_outstanding_principal,
+      } as CombinedLoanData;
     });
 
   return mappedLoanPredictions.concat(mappedFinancialSummaries);
@@ -211,7 +187,6 @@ interface Props {
   companyName: string;
   dateToLateFeeSchedule: Record<string, LateFeeSchedule[]>;
   financialSummaries: FinancialSummaryWithLoansInfoFragment[];
-  loanIdentifierLookup: Record<string, string>;
   loanMaturityDateLookup: Record<string, string>;
   loanPredictions: DailyLoanPrediction[];
   handleClickCustomer?: (customerId: Companies["id"]) => void;
@@ -226,7 +201,6 @@ export default function PredictedFinancialSummariesDataGrid({
   companyName,
   dateToLateFeeSchedule,
   financialSummaries,
-  loanIdentifierLookup,
   loanMaturityDateLookup,
   loanPredictions,
   handleClickCustomer,
@@ -237,7 +211,6 @@ export default function PredictedFinancialSummariesDataGrid({
     companyName,
     dateToLateFeeSchedule,
     financialSummaries,
-    loanIdentifierLookup,
     loanMaturityDateLookup,
     loanPredictions
   );
@@ -266,11 +239,6 @@ export default function PredictedFinancialSummariesDataGrid({
           ) : (
             params.row.data.company_name
           ),
-      },
-      {
-        dataField: "loan_identifier",
-        caption: "Loan",
-        width: ColumnWidths.MinWidth,
       },
       {
         dataField: "product_type",
@@ -306,11 +274,6 @@ export default function PredictedFinancialSummariesDataGrid({
         },
         width: ColumnWidths.Currency,
         alignment: "right",
-      },
-      {
-        dataField: "per_loan_late_fee_schedule",
-        caption: "Per Loan Late Fee Schedule",
-        width: ColumnWidths.Currency,
       },
       {
         dataField: "daily_interest_rate",

@@ -15,7 +15,7 @@ import {
   Companies,
   ContractFragment,
   FinancialSummaryWithLoansInfoFragment,
-  useGetCustomersForDropdownQuery,
+  useGetActiveCustomersForDropdownQuery,
   useGetFinancialSummariesAndLoansByCompanyIdQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -26,6 +26,7 @@ import {
   getDatesInRange,
   parseDateStringServer,
 } from "lib/date";
+import { ProductTypeEnum } from "lib/enum";
 import { runCustomerLoanPredictionsMutation } from "lib/finance/loans/reports";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useState } from "react";
@@ -97,11 +98,10 @@ const getDateToLateFeeSchedules = (
         // We recast as string because the ProductConfigField interface correctly has the
         // the type as string | number, which was needed for iterated over product config
         // But since we're using the late_fee_schedule field we know we have a string
-        const schedule = !!scheduleConfig
-          ? JSON.parse(
-              (scheduleConfig as ProductConfigField)["value"] as string
-            )
-          : {};
+        const scheduleString = !!scheduleConfig
+          ? ((scheduleConfig as ProductConfigField)["value"] as string)
+          : "{}";
+        const schedule = !!scheduleString ? JSON.parse(scheduleString) : {};
 
         // Here we break apart the fee schedule even more so that the final column
         // value can determine where it sits in the late ranges and display the appropriate value
@@ -186,7 +186,7 @@ export default function BankReportsFinancialsByCustomerTab() {
   );
 
   const { data: customersData, error: customersError } =
-    useGetCustomersForDropdownQuery({
+    useGetActiveCustomersForDropdownQuery({
       fetchPolicy: "network-only",
     });
 
@@ -223,15 +223,18 @@ export default function BankReportsFinancialsByCustomerTab() {
   // same late fee schedule as all contracts for a customer, and we are
   // pulling historical financial summaries in addition to loan preditions
   // we must grab all contract and pull out the late fee schedules for each one
+  const productType =
+    financialSummariesByCompanyId?.[0]?.product_type || ProductTypeEnum.None;
   const companyContracts =
     financialSummariesAndLoansByCompanyIdData?.companies_by_pk?.contracts || [];
-  const dateToLateFeeSchedule = !!predictionDate
-    ? getDateToLateFeeSchedules(
-        companyContracts,
-        financialSummariesByCompanyId,
-        predictionDate
-      )
-    : {};
+  const dateToLateFeeSchedule =
+    !!predictionDate && productType !== ProductTypeEnum.LineOfCredit
+      ? getDateToLateFeeSchedules(
+          companyContracts,
+          financialSummariesByCompanyId,
+          predictionDate
+        )
+      : {};
 
   const companyIdentifier =
     financialSummariesAndLoansByCompanyIdData?.companies_by_pk?.identifier ||
@@ -240,9 +243,6 @@ export default function BankReportsFinancialsByCustomerTab() {
     financialSummariesAndLoansByCompanyIdData?.companies_by_pk?.name || "";
   const companyLoans =
     financialSummariesAndLoansByCompanyIdData?.companies_by_pk?.loans || [];
-  const loanIdentifierLookup = Object.fromEntries(
-    companyLoans.map((loan) => [loan.id, loan.identifier])
-  );
   const loanMaturityDateLookup = Object.fromEntries(
     companyLoans.map((loan) => [loan.id, loan.adjusted_maturity_date])
   );
@@ -298,9 +298,10 @@ export default function BankReportsFinancialsByCustomerTab() {
                   variant="outlined"
                 />
               )}
-              onChange={(_event, customer) =>
-                setCompanyId(customer?.id || null)
-              }
+              onChange={(_event, customer) => {
+                setCompanyId(customer?.id || null);
+                setPredictionDate("");
+              }}
             />
           </FormControl>
         </Box>
@@ -327,7 +328,6 @@ export default function BankReportsFinancialsByCustomerTab() {
                   companyName={companyName}
                   dateToLateFeeSchedule={dateToLateFeeSchedule}
                   financialSummaries={financialSummariesByCompanyId}
-                  loanIdentifierLookup={loanIdentifierLookup}
                   loanMaturityDateLookup={loanMaturityDateLookup}
                   loanPredictions={loanPredictions}
                   handleClickCustomer={(customerId) =>
