@@ -4,14 +4,11 @@ import CommentIcon from "@material-ui/icons/Comment";
 import PaymentDrawerLauncher from "components/Payment/PaymentDrawerLauncher";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
-import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
-import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
-import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
 import { Companies, PaymentLimitedFragment, Payments } from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
-import { addBizDays } from "lib/date";
+import { addBizDays, parseDateStringServer } from "lib/date";
 import { RepaymentMethodEnum, RepaymentMethodToLabel } from "lib/enum";
+import { CurrencyPrecision } from "lib/number";
 import { ColumnWidths } from "lib/tables";
 import { useMemo, useState } from "react";
 
@@ -27,6 +24,7 @@ interface Props {
   isExcelExport?: boolean;
   isMethodVisible?: boolean;
   isMultiSelectEnabled?: boolean;
+  isHoldingAccountVisible?: boolean;
   repaymentType?: RepaymentTypeEnum;
   payments: PaymentLimitedFragment[];
   selectedPaymentIds?: Payments["id"][];
@@ -37,6 +35,7 @@ interface Props {
 
 export default function RepaymentsDataGrid({
   isCompanyVisible = false,
+  isHoldingAccountVisible = false,
   isExcelExport = true,
   isMethodVisible = true,
   isMultiSelectEnabled = false,
@@ -59,15 +58,38 @@ export default function RepaymentsDataGrid({
         ...payment,
         amount: isOther ? payment.requested_amount : payment.amount,
         expected_deposit_date: !!payment.payment_date
-          ? addBizDays(
-              payment.payment_date,
-              payment.method === RepaymentMethodEnum.ReverseDraftACH ? 1 : 0
+          ? parseDateStringServer(
+              addBizDays(
+                payment.payment_date,
+                payment.method === RepaymentMethodEnum.ReverseDraftACH ? 1 : 0
+              )
             )
+          : null,
+        requested_payment_date: !!payment.requested_payment_date
+          ? parseDateStringServer(payment.requested_payment_date)
+          : null,
+        submitted_at: !!payment.submitted_at
+          ? parseDateStringServer(payment.submitted_at)
+          : null,
+        deposit_date: !!payment.deposit_date
+          ? parseDateStringServer(payment.deposit_date)
+          : null,
+        settlement_date: !!payment.settlement_date
+          ? parseDateStringServer(payment.settlement_date)
           : null,
         submitted_by_name: payment.submitted_by_user?.full_name,
         payor_name:
           getCompanyDisplayName(payment.invoice?.payor, "") ||
           payment.company.name,
+        method:
+          RepaymentMethodToLabel[payment.method as RepaymentMethodEnum] || null,
+        forecasted_principal: payment.items_covered.forecasted_principal || 0,
+        forecasted_interest: payment.items_covered.forecasted_interest || 0,
+        forecasted_late_fees: payment.items_covered.forecasted_late_fees || 0,
+        forecasted_account_fees:
+          payment.items_covered.requested_to_account_fees || 0,
+        forecasted_holding_account:
+          payment.items_covered.forecasted_holding_account || 0,
       })),
     [isOther, payments]
   );
@@ -113,14 +135,6 @@ export default function RepaymentsDataGrid({
         caption: "Requested Deposit Date",
         width: ColumnWidths.Date,
         alignment: "right",
-        calculateCellValue: ({
-          requested_payment_date,
-        }: PaymentLimitedFragment) => requested_payment_date,
-        cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell
-            dateString={params.row.data.requested_payment_date}
-          />
-        ),
       },
       {
         visible: isReverseDraftACH || isOther,
@@ -128,11 +142,6 @@ export default function RepaymentsDataGrid({
         caption: "Expected Deposit Date",
         width: ColumnWidths.Date,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell
-            dateString={params.row.data.expected_deposit_date}
-          />
-        ),
       },
       {
         visible: isRequestedReverseDraftACH,
@@ -140,10 +149,10 @@ export default function RepaymentsDataGrid({
         caption: "Requested Total Amount",
         width: ColumnWidths.Currency,
         alignment: "right",
-        calculateCellValue: ({ requested_amount }: any) => requested_amount,
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.requested_amount} />
-        ),
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
       },
       {
         visible: !isRequestedReverseDraftACH,
@@ -151,32 +160,77 @@ export default function RepaymentsDataGrid({
         caption: "Expected Total Amount",
         width: ColumnWidths.Currency,
         alignment: "right",
-        calculateCellValue: ({ amount }: PaymentLimitedFragment) => amount,
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.amount} />
-        ),
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
       },
       {
         visible: isMethodVisible,
         dataField: "method",
         caption: "Method",
         minWidth: ColumnWidths.MinWidth,
-        calculateCellValue: ({ method }: PaymentLimitedFragment) =>
-          RepaymentMethodToLabel[method as RepaymentMethodEnum],
+      },
+      {
+        dataField: "forecasted_principal",
+        caption: "Applied to Principal",
+        minWidth: ColumnWidths.MinWidth,
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
+        width: ColumnWidths.Currency,
+        alignment: "right",
+      },
+      {
+        dataField: "forecasted_interest",
+        caption: "Applied to Interest",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
+        width: ColumnWidths.Currency,
+        alignment: "right",
+      },
+      {
+        dataField: "forecasted_late_fees",
+        caption: "Applied to Late Fees",
+        minWidth: ColumnWidths.MinWidth,
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
+        width: ColumnWidths.Currency,
+        alignment: "right",
+      },
+      {
+        dataField: "forecasted_account_fees",
+        caption: "Applied to Account Fees",
+        minWidth: ColumnWidths.MinWidth,
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
+        width: ColumnWidths.Currency,
+        alignment: "right",
+      },
+      {
+        visible: isHoldingAccountVisible,
+        dataField: "forecasted_holding_account",
+        caption: "Applied to Holding Account",
+        minWidth: ColumnWidths.MinWidth,
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
+        width: ColumnWidths.Currency,
+        alignment: "right",
       },
       {
         dataField: "submitted_at",
         caption: "Submitted At",
         width: ColumnWidths.Date,
         alignment: "right",
-        calculateCellValue: ({ submitted_at }: PaymentLimitedFragment) =>
-          submitted_at,
-        cellRender: (params: ValueFormatterParams) => (
-          <DatetimeDataGridCell
-            isTimeVisible
-            datetimeString={params.row.data.submitted_at}
-          />
-        ),
       },
       {
         dataField: "submitted_by_name",
@@ -187,9 +241,6 @@ export default function RepaymentsDataGrid({
         dataField: "payor_name",
         caption: "Payor Name",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
-          <TextDataGridCell label={params.row.data.payor_name} />
-        ),
       },
       {
         visible: isClosed,
@@ -197,9 +248,6 @@ export default function RepaymentsDataGrid({
         caption: "Deposit Date",
         width: ColumnWidths.Date,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell dateString={params.row.data.deposit_date} />
-        ),
       },
       {
         visible: isClosed,
@@ -207,11 +255,6 @@ export default function RepaymentsDataGrid({
         caption: "Settlement Date",
         width: ColumnWidths.Date,
         alignment: "right",
-        calculateCellValue: ({ settlement_date }: PaymentLimitedFragment) =>
-          settlement_date,
-        cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell dateString={params.row.data.settlement_date} />
-        ),
       },
       {
         visible: !isRequestedReverseDraftACH && !isOther,
@@ -258,6 +301,7 @@ export default function RepaymentsDataGrid({
       isOther,
       handleClickCustomer,
       handleClickPaymentBankNote,
+      isHoldingAccountVisible,
     ]
   );
 
