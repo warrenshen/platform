@@ -44,7 +44,6 @@ def setup_for_bank_account_test(
 		can_ach = True,
 		routing_number = '001234',
 		ach_default_memo = 'Test ACH Default Memo',
-		torrey_pines_template_name = 'Test Torrey Pines Memo',
 		can_wire = True,
 		is_wire_intermediary = True,
 		intermediary_bank_name = 'Test Intermediary Bank',
@@ -91,7 +90,6 @@ def prepare_bank_account_info_dict(
 		can_ach = True,
 		routing_number = '001234',
 		ach_default_memo = 'Test ACH Default Memo',
-		torrey_pines_template_name = 'Test Torrey Pines Memo',
 		can_wire = True,
 		is_wire_intermediary = True,
 		intermediary_bank_name = 'Test Intermediary Bank',
@@ -102,7 +100,6 @@ def prepare_bank_account_info_dict(
 		recipient_address = '456 Main Street',
 		recipient_address_2 = 'Annapolis, MD 21401',
 		wire_default_memo = 'Test Wire Default Memo',
-		wire_template_name = 'Test Wire Template Name',
 		bank_address = '456 Main Street, Annapolis, MD 21401',
 		is_cannabis_compliant = True,
 		verified_date = '01/06/2020' if is_verified else None,
@@ -166,7 +163,7 @@ class TestIsBankAccountInfoValid(db_unittest.TestCase):
 
 
 	def test_ach_field_required_checks(self) -> None:
-		fields_to_nullify = [(False, "routing_number", "ACH routing number is required"), (True, "torrey_pines_template_name", "ACH template name is required"), (False, "torrey_pines_template_name", None)]
+		fields_to_nullify = [(False, "routing_number", "ACH routing number is required")]
 		company_id = str(uuid.uuid4())
 
 		bank_account_info_dict = prepare_bank_account_info_dict(company_id)
@@ -183,7 +180,7 @@ class TestIsBankAccountInfoValid(db_unittest.TestCase):
 			self.assertEqual(expect_error_message, err)
 
 	def test_wire_field_required_checks(self) -> None:
-		fields_to_nullify = [(False, "wire_routing_number", "Wire routing number is required"), (False, "recipient_address", "Wire recipient address is required"), (False, "recipient_address_2", "Wire recipient address 2 is required"), (True, "wire_template_name", "Wire template name is required"), (False, "wire_template_name", None)]
+		fields_to_nullify = [(False, "wire_routing_number", "Wire routing number is required"), (False, "recipient_address", "Wire recipient address is required"), (False, "recipient_address_2", "Wire recipient address 2 is required")]
 		company_id = str(uuid.uuid4())
 
 		bank_account_info_dict = prepare_bank_account_info_dict(company_id)

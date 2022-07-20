@@ -113,17 +113,6 @@ export default function BankAccountInfoCard({
               <Box className={classes.label}>ACH Default Memo</Box>
               <Box>{(bankAccount as BankAccountFragment).ach_default_memo}</Box>
             </Box>
-            {isBankUser && isCompanyBank && isTemplateNameVisible && (
-              <Box display="flex" pb={0.5}>
-                <Box className={classes.label}>ACH Template Name</Box>
-                <Box>
-                  {
-                    (bankAccount as BankAccountFragment)
-                      .torrey_pines_template_name
-                  }
-                </Box>
-              </Box>
-            )}
           </Box>
         )}
         <Box display="flex" alignItems="center" pt={0.5} pb={1}>
@@ -217,14 +206,6 @@ export default function BankAccountInfoCard({
                 {(bankAccount as BankAccountFragment).wire_default_memo}
               </Box>
             </Box>
-            {isBankUser && (
-              <Box display="flex" pb={0.5}>
-                <Box className={classes.label}>Wire Template Name</Box>
-                <Box>
-                  {(bankAccount as BankAccountFragment).wire_template_name}
-                </Box>
-              </Box>
-            )}
           </Box>
         )}
         {isCannabisCompliantVisible && (

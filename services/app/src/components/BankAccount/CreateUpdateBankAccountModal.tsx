@@ -74,7 +74,6 @@ export default function CreateUpdateBankAccountModal({
         can_ach: false,
         routing_number: "",
         ach_default_memo: "",
-        torrey_pines_template_name: "",
 
         can_wire: false,
         is_wire_intermediary: false,
@@ -86,7 +85,6 @@ export default function CreateUpdateBankAccountModal({
         recipient_address: "",
         recipient_address_2: "",
         wire_default_memo: "",
-        wire_template_name: "",
         bank_address: "",
 
         is_cannabis_compliant: false,
@@ -122,9 +120,6 @@ export default function CreateUpdateBankAccountModal({
       can_ach: bankAccount.can_ach,
       routing_number: bankAccount.routing_number, // ACH routing number.
       ach_default_memo: bankAccount.ach_default_memo,
-      torrey_pines_template_name: isBankUser
-        ? bankAccount.torrey_pines_template_name
-        : null,
 
       can_wire: bankAccount.can_wire,
       is_wire_intermediary: bankAccount.is_wire_intermediary,
@@ -136,7 +131,6 @@ export default function CreateUpdateBankAccountModal({
       recipient_address: bankAccount.recipient_address,
       recipient_address_2: bankAccount.recipient_address_2,
       wire_default_memo: bankAccount.wire_default_memo,
-      wire_template_name: isBankUser ? bankAccount.wire_template_name : null,
       bank_address: bankAccount.bank_address,
 
       is_cannabis_compliant: bankAccount.is_cannabis_compliant,
@@ -190,11 +184,7 @@ export default function CreateUpdateBankAccountModal({
 
   const isLoading = isCreateBankAccountLoading || isUpdateBankAccountLoading;
 
-  const isAchValid = !!(
-    !bankAccount.can_ach ||
-    (bankAccount.routing_number &&
-      (!isBankUser || bankAccount.torrey_pines_template_name))
-  );
+  const isAchValid = !!(!bankAccount.can_ach || bankAccount.routing_number);
 
   const isIntermediaryBankValid = !!(
     !bankAccount.is_wire_intermediary ||
@@ -209,7 +199,6 @@ export default function CreateUpdateBankAccountModal({
     (bankAccount.wire_routing_number &&
       bankAccount.recipient_address &&
       bankAccount.recipient_address_2 &&
-      (!isBankUser || bankAccount.wire_template_name) &&
       isIntermediaryBankValid)
   );
   const isBankVerified = !bankAccount.verified_at || bankAccount.verified_date;

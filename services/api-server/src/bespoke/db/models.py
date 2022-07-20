@@ -1447,6 +1447,7 @@ class BankAccount(Base):
 	can_ach = Column(Boolean)
 	routing_number = Column(String, nullable=True) # ACH routing number
 	ach_default_memo = Column(String) # ACH default memo
+	# no longer being used, but waiting to be removed
 	torrey_pines_template_name = Column(Text) # ACH template name
 
 	# Wire related fields below.
@@ -1460,6 +1461,7 @@ class BankAccount(Base):
 	recipient_address = Column(Text)
 	recipient_address_2 = Column(Text)
 	wire_default_memo = Column(String) # Wire default memo
+	# no longer being used, but waiting to be removed
 	wire_template_name = Column(String) # Wire template name
 	bank_address = Column(String) # Deprecated: consider dropping this column in the future.
 

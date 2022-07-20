@@ -90,7 +90,6 @@ export default function BankAccountForm({
                   can_ach: event.target.checked,
                   routing_number: null,
                   ach_default_memo: null,
-                  torrey_pines_template_name: null,
                 })
               }
               color="primary"
@@ -128,26 +127,6 @@ export default function BankAccountForm({
               disabled={isFormDisabled}
             />
           </Box>
-          {role === UserRolesEnum.BankAdmin && (
-            <Box display="flex" flexDirection="column" mt={2}>
-              <TextField
-                data-cy="bank-account-form-ach-template-name"
-                label="ACH Template Name"
-                // The "required" is NOT actually enforced, but the asterik is a helpful prompt for user. Ops team does not want
-                // to enforce it because sometimes the template name is determined some time after the bank account is created.
-                required
-                className={classes.form}
-                value={bankAccount.torrey_pines_template_name}
-                onChange={({ target: { value } }) =>
-                  setBankAccount({
-                    ...bankAccount,
-                    torrey_pines_template_name: value,
-                  })
-                }
-                disabled={isFormDisabled}
-              />
-            </Box>
-          )}
         </Box>
       )}
       <Box display="flex" flexDirection="column" mt={2}>
@@ -168,7 +147,6 @@ export default function BankAccountForm({
                   recipient_address: null,
                   recipient_address_2: null,
                   wire_default_memo: null,
-                  wire_template_name: null,
                   bank_address: null,
                 })
               }
@@ -316,25 +294,6 @@ export default function BankAccountForm({
               disabled={isFormDisabled}
             />
           </Box>
-          {role === UserRolesEnum.BankAdmin && (
-            <Box display="flex" flexDirection="column" mt={2}>
-              <TextField
-                label="Wire Template Name"
-                // The "required" is NOT actually enforced, but the asterik is a helpful prompt for user. Ops team does not want
-                // to enforce it because sometimes the template name is determined some time after the bank account is created.
-                required
-                className={classes.form}
-                value={bankAccount.wire_template_name}
-                onChange={({ target: { value } }) =>
-                  setBankAccount({
-                    ...bankAccount,
-                    wire_template_name: value,
-                  })
-                }
-                disabled={isFormDisabled}
-              />
-            </Box>
-          )}
           {role === UserRolesEnum.BankAdmin && (
             <Box display="flex" flexDirection="column" mt={2}>
               <TextField

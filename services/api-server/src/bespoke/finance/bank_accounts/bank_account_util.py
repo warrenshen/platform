@@ -16,7 +16,6 @@ BankAccountInputDict = TypedDict('BankAccountInputDict', {
 	'can_ach': bool,
 	'routing_number': str,
 	'ach_default_memo': str,
-	'torrey_pines_template_name': str,
 	'can_wire': bool,
 	'is_wire_intermediary': bool,
 	'intermediary_bank_name': str,
@@ -27,7 +26,6 @@ BankAccountInputDict = TypedDict('BankAccountInputDict', {
 	'recipient_address': str,
 	'recipient_address_2': str,
 	'wire_default_memo': str,
-	'wire_template_name': str,
 	'bank_address': str,
 	'is_cannabis_compliant': bool,
 	'verified_date': str,
@@ -56,8 +54,6 @@ def is_bank_account_info_valid(is_bank_admin: bool, bank_account_input: BankAcco
 	if can_ach:
 		if bank_account_input['routing_number'] is None:
 			return "ACH routing number is required"
-		if is_bank_admin and bank_account_input['torrey_pines_template_name'] is None:
-			return "ACH template name is required"
 
 	# Checks that Wire info is valid
 	if can_wire:
@@ -67,8 +63,6 @@ def is_bank_account_info_valid(is_bank_admin: bool, bank_account_input: BankAcco
 			return "Wire recipient address is required"
 		if bank_account_input['recipient_address_2'] is None:
 			return "Wire recipient address 2 is required"
-		if is_bank_admin and bank_account_input['wire_template_name'] is None:
-			return "Wire template name is required"
 
 	# Checks that wire intermediary bank info is valid
 	if bank_account_input['is_wire_intermediary']:
@@ -118,8 +112,6 @@ def add_bank_account(
 		can_ach = bank_account_input['can_ach'],
 		routing_number = bank_account_input['routing_number'],
 		ach_default_memo = bank_account_input['ach_default_memo'],
-		torrey_pines_template_name = bank_account_input['torrey_pines_template_name'] \
-			if 'torrey_pines_template_name' in bank_account_input else None,
 		can_wire = bank_account_input['can_wire'],
 		is_wire_intermediary = bank_account_input['is_wire_intermediary'],
 		intermediary_bank_name = bank_account_input['intermediary_bank_name'],
@@ -130,8 +122,6 @@ def add_bank_account(
 		recipient_address = bank_account_input['recipient_address'],
 		recipient_address_2 = bank_account_input['recipient_address_2'],
 		wire_default_memo = bank_account_input['wire_default_memo'],
-		wire_template_name = bank_account_input['wire_template_name'] \
-			if 'wire_template_name' in bank_account_input else None,
 		bank_address = bank_account_input['bank_address'],
 		is_cannabis_compliant = bank_account_input['is_cannabis_compliant'],
 		verified_date = date_util.load_date_str(bank_account_input['verified_date']) \
@@ -202,8 +192,6 @@ def update_bank_account(
 	existing_bank_account.can_ach = bool(bank_account_input['can_ach'])
 	existing_bank_account.routing_number = bank_account_input['routing_number']
 	existing_bank_account.ach_default_memo = bank_account_input['ach_default_memo']
-	existing_bank_account.torrey_pines_template_name = bank_account_input['torrey_pines_template_name'] \
-		if 'torrey_pines_template_name' in bank_account_input else None
 	existing_bank_account.can_wire = bool(bank_account_input['can_wire'])
 	existing_bank_account.is_wire_intermediary = bool(bank_account_input['is_wire_intermediary'])
 	existing_bank_account.intermediary_bank_name = bank_account_input['intermediary_bank_name']
@@ -214,8 +202,6 @@ def update_bank_account(
 	existing_bank_account.recipient_address = bank_account_input['recipient_address']
 	existing_bank_account.recipient_address_2 = bank_account_input['recipient_address_2']
 	existing_bank_account.wire_default_memo = bank_account_input['wire_default_memo']
-	existing_bank_account.wire_template_name = bank_account_input['wire_template_name'] \
-		if 'wire_template_name' in bank_account_input else None
 	existing_bank_account.bank_address = bank_account_input['bank_address']
 	existing_bank_account.is_cannabis_compliant = bank_account_input['is_cannabis_compliant']
 	existing_bank_account.verified_date = date_util.load_date_str(bank_account_input['verified_date']) \

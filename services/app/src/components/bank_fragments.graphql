@@ -196,8 +196,6 @@ fragment CompanySettings on company_settings {
 # Bank accounts can be stored for the Bespoke bank and for customers
 fragment BankAccount on bank_accounts {
   id
-  torrey_pines_template_name
-  wire_template_name
   ...BankAccountLimited
 }
 
