@@ -133,6 +133,9 @@ query GetClosedEbbaApplicationsByCompanyId(
             { status: { _neq: rejected } }
           ]
         }
+        # Brittney mentioned that we should not count further back
+        # than Jan 2022 when searching for missing financials
+        { application_date: { _gte: "2022-01-01" }}
       ]
     }
     order_by: [{ application_date: desc }, { created_at: desc }]
@@ -158,6 +161,9 @@ query GetClosedEbbaApplicationsByCompanyId(
             { status: { _neq: rejected } }
           ]
         }
+        # Brittney mentioned that we should not count further back
+        # than Jan 2022 when searching for missing financials
+        { application_date: { _gte: "2022-01-01" }}
       ]
     }
     order_by: [{ application_date: desc }, { created_at: desc }]

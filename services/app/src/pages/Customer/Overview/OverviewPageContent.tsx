@@ -35,8 +35,10 @@ import { Action, check } from "lib/auth/rbac-rules";
 import {
   ActionType,
   CustomMessageEnum,
+  FeatureFlagEnum,
   ProductTypeEnum,
   ProductTypeToLoanType,
+  ReportingRequirementsCategoryEnum,
 } from "lib/enum";
 import { useGetMissingReportsInfo } from "lib/finance/reports/reports";
 import {
@@ -156,8 +158,17 @@ export default function CustomerOverviewPageContent({
     return `Please submit your most recent borrowing base documents as well as your financial certifications for the previous ${missingFinancialReportCount} month(s).`;
   };
 
+  const featureFlags = settings?.feature_flags_payload || {};
+  const reportingCategory =
+    !!featureFlags &&
+    featureFlags.hasOwnProperty(FeatureFlagEnum.ReportingRequirementsCategory)
+      ? featureFlags[FeatureFlagEnum.ReportingRequirementsCategory]
+      : null;
+  const isMetrcBased =
+    reportingCategory === ReportingRequirementsCategoryEnum.Four;
   const areReportsMissing =
-    missingFinancialReportCount > 0 || isLatestBorrowingBaseMissing;
+    !isMetrcBased &&
+    (missingFinancialReportCount > 0 || isLatestBorrowingBaseMissing);
 
   /**
    * Customer Overview page shows 2 customer actions.

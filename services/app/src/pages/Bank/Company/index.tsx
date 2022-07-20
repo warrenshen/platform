@@ -15,9 +15,12 @@ import {
   GetCompanyForBankCompanyPageQuery,
   UserRolesEnum,
   useGetCompanyForBankCompanyPageQuery,
+  useGetCompanySettingsByCompanyIdForCustomerQuery,
 } from "generated/graphql";
 import {
+  FeatureFlagEnum,
   ProductTypeEnum,
+  ReportingRequirementsCategoryEnum,
   SurveillanceStatusEnum,
   SurveillanceStatusToLabel,
 } from "lib/enum";
@@ -171,7 +174,8 @@ const getCustomerPaths = (
   company: GetCompanyForBankCompanyPageQuery["companies_by_pk"],
   missingFinancialReportCount: number,
   isLatestBorrowingBaseMissing: boolean,
-  productType: ProductTypeEnum | null
+  productType: ProductTypeEnum | null,
+  isMetrcBased: boolean
 ) => {
   return [
     {
@@ -236,7 +240,7 @@ const getCustomerPaths = (
           dataCy: "financial-certifications",
           label: "Financial Certifications",
           path: bankRoutes.company.financialCertifications,
-          counter: missingFinancialReportCount,
+          counter: isMetrcBased ? 0 : missingFinancialReportCount,
           counterColor:
             missingFinancialReportCount > 1
               ? "rgb(230, 126, 34)"
@@ -357,6 +361,22 @@ export default function BankCompanyPage() {
   const { missingFinancialReportCount, isLatestBorrowingBaseMissing } =
     useGetMissingReportsInfo(companyId);
 
+  const { data: companySettingsData } =
+    useGetCompanySettingsByCompanyIdForCustomerQuery({
+      variables: {
+        company_id: companyId,
+      },
+    });
+
+  const featureFlags =
+    companySettingsData?.company_settings?.[0]?.feature_flags_payload || {};
+  const isMetrcBased =
+    !!featureFlags &&
+    featureFlags.hasOwnProperty(FeatureFlagEnum.ReportingRequirementsCategory)
+      ? featureFlags[FeatureFlagEnum.ReportingRequirementsCategory] ===
+        ReportingRequirementsCategoryEnum.Four
+      : false;
+
   const renderSurveillanceStatus = () => {
     if (!surveillanceStatus) {
       return null;
@@ -389,7 +409,8 @@ export default function BankCompanyPage() {
               company,
               missingFinancialReportCount,
               isLatestBorrowingBaseMissing,
-              productType
+              productType,
+              isMetrcBased
             )
               .filter(
                 (section) => section.visible == null || !!section?.visible
@@ -463,7 +484,8 @@ export default function BankCompanyPage() {
               company,
               missingFinancialReportCount,
               isLatestBorrowingBaseMissing,
-              productType
+              productType,
+              isMetrcBased
             ).map((section) => section.paths)
           ).map((companyPath) => (
             <PrivateRoute

@@ -26906,6 +26906,10 @@ export type UuidComparisonExp = {
 /** columns and relationships of "vendors" */
 export type Vendors = {
   address?: Maybe<Scalars["String"]>;
+  /** An array relationship */
+  bank_accounts: Array<BankAccounts>;
+  /** An aggregate relationship */
+  bank_accounts_aggregate: BankAccountsAggregate;
   city?: Maybe<Scalars["String"]>;
   /** An array relationship */
   company_deliveries: Array<CompanyDeliveries>;
@@ -26944,6 +26948,24 @@ export type Vendors = {
   /** An aggregate relationship */
   users_aggregate: UsersAggregate;
   zip_code?: Maybe<Scalars["String"]>;
+};
+
+/** columns and relationships of "vendors" */
+export type VendorsBankAccountsArgs = {
+  distinct_on?: Maybe<Array<BankAccountsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BankAccountsOrderBy>>;
+  where?: Maybe<BankAccountsBoolExp>;
+};
+
+/** columns and relationships of "vendors" */
+export type VendorsBankAccountsAggregateArgs = {
+  distinct_on?: Maybe<Array<BankAccountsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BankAccountsOrderBy>>;
+  where?: Maybe<BankAccountsBoolExp>;
 };
 
 /** columns and relationships of "vendors" */
@@ -27056,6 +27078,7 @@ export type VendorsBoolExp = {
   _not?: Maybe<VendorsBoolExp>;
   _or?: Maybe<Array<VendorsBoolExp>>;
   address?: Maybe<StringComparisonExp>;
+  bank_accounts?: Maybe<BankAccountsBoolExp>;
   city?: Maybe<StringComparisonExp>;
   company_deliveries?: Maybe<CompanyDeliveriesBoolExp>;
   company_settings_id?: Maybe<UuidComparisonExp>;
@@ -27090,6 +27113,7 @@ export type VendorsIncInput = {
 /** input type for inserting data into table "vendors" */
 export type VendorsInsertInput = {
   address?: Maybe<Scalars["String"]>;
+  bank_accounts?: Maybe<BankAccountsArrRelInsertInput>;
   city?: Maybe<Scalars["String"]>;
   company_deliveries?: Maybe<CompanyDeliveriesArrRelInsertInput>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
@@ -27174,6 +27198,7 @@ export type VendorsObjRelInsertInput = {
 /** Ordering options when selecting data from "vendors". */
 export type VendorsOrderBy = {
   address?: Maybe<OrderBy>;
+  bank_accounts_aggregate?: Maybe<BankAccountsAggregateOrderBy>;
   city?: Maybe<OrderBy>;
   company_deliveries_aggregate?: Maybe<CompanyDeliveriesAggregateOrderBy>;
   company_settings_id?: Maybe<OrderBy>;
@@ -34307,6 +34332,7 @@ export const GetClosedEbbaApplicationsByCompanyIdDocument = gql`
               { status: { _neq: rejected } }
             ]
           }
+          { application_date: { _gte: "2022-01-01" } }
         ]
       }
       order_by: [{ application_date: desc }, { created_at: desc }]
@@ -34331,6 +34357,7 @@ export const GetClosedEbbaApplicationsByCompanyIdDocument = gql`
               { status: { _neq: rejected } }
             ]
           }
+          { application_date: { _gte: "2022-01-01" } }
         ]
       }
       order_by: [{ application_date: desc }, { created_at: desc }]

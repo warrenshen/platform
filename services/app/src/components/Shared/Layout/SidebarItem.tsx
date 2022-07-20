@@ -49,6 +49,7 @@ interface Props {
   dataCy: string;
   isNested?: boolean;
   isSelected: boolean;
+  isBankMenu?: boolean;
   chipCount?: number | null;
   chipColor?: string;
   IconNode: React.FunctionComponent<React.SVGProps<SVGSVGElement>> | null;
@@ -60,6 +61,7 @@ export default function SidebarItem({
   dataCy,
   isNested = false,
   isSelected,
+  isBankMenu = false,
   chipCount,
   chipColor,
   IconNode,
@@ -83,7 +85,9 @@ export default function SidebarItem({
         {!!chipCount && (
           <CounterChip
             chipColor={chipColor}
-            chipCount={chipCount > 5 ? "5+" : chipCount.toString()}
+            chipCount={
+              chipCount > 5 && !isBankMenu ? "5+" : chipCount.toString()
+            }
           />
         )}
       </Container>

@@ -105,6 +105,7 @@ const useStyles = makeStyles((theme: Theme) =>
 type NavItem = {
   dataCy: string;
   visible?: boolean;
+  isBankMenu?: boolean;
   text: string;
   link?: string;
   iconNode?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
@@ -244,6 +245,7 @@ const getBankNavItems = (
       iconNode: OverviewIcon,
       text: "Overview",
       link: bankRoutes.overview,
+      isBankMenu: true,
     },
     {
       dataCy: "loans",
@@ -251,6 +253,7 @@ const getBankNavItems = (
       text: "Loans",
       link: bankRoutes.loans,
       counter: loansCount,
+      isBankMenu: true,
     },
     {
       dataCy: "advances",
@@ -258,6 +261,7 @@ const getBankNavItems = (
       text: "Advances",
       link: bankRoutes.advances,
       counter: 0,
+      isBankMenu: true,
     },
     {
       dataCy: "repayments",
@@ -265,18 +269,21 @@ const getBankNavItems = (
       text: "Repayments",
       link: bankRoutes.payments,
       counter: repaymentsCount,
+      isBankMenu: true,
     },
     {
       dataCy: "purchase-orders",
       iconNode: PurchaseOrdersIcon,
       text: "Purchase Orders",
       link: bankRoutes.purchaseOrders,
+      isBankMenu: true,
     },
     {
       dataCy: "invoices",
       iconNode: InvoicesIcon,
       text: "Invoices",
       link: bankRoutes.invoices,
+      isBankMenu: true,
     },
     {
       dataCy: "client-surveillance",
@@ -284,6 +291,7 @@ const getBankNavItems = (
       text: "Client Surveillance",
       link: bankRoutes.ebbaApplications,
       counter: ebbaApplicationsCount,
+      isBankMenu: true,
     },
     {
       dataCy: "debt-facility",
@@ -291,24 +299,28 @@ const getBankNavItems = (
       text: "Debt Facility",
       link: bankRoutes.debtFacility,
       counter: debtFacilityUpdateCount,
+      isBankMenu: true,
     },
     {
       dataCy: "customers",
       iconNode: CustomersIcon,
       text: "Customers",
       link: bankRoutes.customers,
+      isBankMenu: true,
     },
     {
       dataCy: "vendors",
       iconNode: VendorsIcon,
       text: "Vendors",
       link: bankRoutes.vendors,
+      isBankMenu: true,
     },
     {
       dataCy: "payors",
       iconNode: PayorsIcon,
       text: "Payors",
       link: bankRoutes.payors,
+      isBankMenu: true,
     },
     {
       dataCy: "partnerships",
@@ -316,24 +328,28 @@ const getBankNavItems = (
       text: "Partnerships",
       link: bankRoutes.partnerships,
       counter: partnershipRequestsCount,
+      isBankMenu: true,
     },
     {
       dataCy: "reports",
       iconNode: ReportsIcon,
       text: "Reports",
       link: bankRoutes.reports,
+      isBankMenu: true,
     },
     {
       dataCy: "metrc",
       iconNode: MetrcIcon,
       text: "Metrc",
       link: bankRoutes.metrcRoot,
+      isBankMenu: true,
     },
     {
       dataCy: "settings",
       iconNode: SettingsIcon,
       text: "Settings",
       link: bankRoutes.settings,
+      isBankMenu: true,
     },
   ];
 };
@@ -461,6 +477,7 @@ export default function Layout({
                       isSelected={Boolean(
                         matchPath(location.pathname, item.link)
                       )}
+                      isBankMenu={!!item.isBankMenu}
                       chipCount={item.counter}
                       chipColor={item.counterColor}
                       IconNode={item.iconNode || null}
