@@ -920,3 +920,15 @@ export const BankReportTabLabels: BankReportsTabLabelType[] = [
   BankReportsTabLabel.PredictedFinancialsForCustomer,
   BankReportsTabLabel.Transactions,
 ];
+
+export enum AsyncJobStatusEnum {
+  Queued = "queued",
+  InProgress = "in_progress",
+  Failed = "failed",
+  Completed = "completed",
+}
+
+export enum AsyncJobNameEnum {
+  // TODO: fill out once jobs are transferred
+  Dummy = "dummy",
+}

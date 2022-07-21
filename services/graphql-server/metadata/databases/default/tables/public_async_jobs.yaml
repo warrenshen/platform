@@ -1,0 +1,48 @@
+table:
+  schema: public
+  name: async_jobs
+object_relationships:
+  - name: submitted_by_user
+    using:
+      foreign_key_constraint_on: submitted_by_user_id
+select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+        - id
+        - name
+        - queued_at
+        - started_at
+        - ended_at
+        - is_deleted
+        - submitted_by_user_id
+        - status
+        - is_high_priority
+        - job_payload
+        - retry_payload
+        - err_details
+        - num_retries
+        - created_at
+        - updated_at
+        - deleted_at
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+        - is_deleted
+        - is_high_priority
+        - num_retries
+        - err_details
+        - job_payload
+        - retry_payload
+        - name
+        - status
+        - ended_at
+        - created_at
+        - deleted_at
+        - queued_at
+        - started_at
+        - updated_at
+        - id
+        - submitted_by_user_id
+      filter: {}

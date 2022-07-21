@@ -1618,6 +1618,29 @@ class BlazeUser(Base):
 	external_blaze_user_id = Column(Text, nullable=False) # Blaze shop == Bespoke company.
 	user_id = cast(GUID, Column(GUID, ForeignKey('users.id'), nullable=False))
 
+class AsyncJobs(Base):
+
+	__tablename__ = "async_jobs"
+
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	name = Column(String) # enum: AsyncJobNameEnum
+
+	queued_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	started_at = Column(DateTime, nullable=False)
+	ended_at = Column(DateTime, nullable=False)
+	is_deleted = Column(Boolean, nullable=False)
+	submitted_by_user_id = cast(GUID, Column(GUID, ForeignKey('users.id'), nullable=True))
+	status = Column(String) # enum: AsyncJobStatusEnum
+	is_high_priority = Column(Boolean, default=False)
+	job_payload = Column(JSON, nullable=True) 
+
+	retry_payload = Column(JSON, nullable=True) 
+	err_details = Column(JSON, nullable=True)
+	num_retries = Column(Integer, nullable=False, default=0)
+
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	deleted_at = Column(DateTime, nullable=True)
 
 class RetryingQuery(_Query):
 	__retry_count__ = 4

@@ -337,3 +337,14 @@ class ClientSurveillanceCategoryEnum(object):
 class BankAccountType(object):
 	CHECKING = 'Checking'
 	SAVINGS = 'Savings'
+
+# Async Job
+class AsyncJobStatusEnum(object):
+	QUEUED = 'queued'
+	IN_PROGRESS = 'in_progress'
+	FAILED = 'failed'
+	COMPLETED = 'completed'
+
+class AsyncJobNameEnum(object):
+	# TODO: fill out once jobs are transferred
+	DUMMY = "dummy"

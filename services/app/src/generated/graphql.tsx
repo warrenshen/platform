@@ -86,6 +86,329 @@ export type StringComparisonExp = {
   _similar?: Maybe<Scalars["String"]>;
 };
 
+/** columns and relationships of "async_jobs" */
+export type AsyncJobs = {
+  created_at: Scalars["timestamptz"];
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  ended_at?: Maybe<Scalars["timestamp"]>;
+  err_details?: Maybe<Scalars["json"]>;
+  id: Scalars["uuid"];
+  is_deleted?: Maybe<Scalars["Boolean"]>;
+  is_high_priority: Scalars["Boolean"];
+  job_payload?: Maybe<Scalars["json"]>;
+  name: Scalars["String"];
+  num_retries: Scalars["Int"];
+  queued_at: Scalars["timestamptz"];
+  retry_payload?: Maybe<Scalars["json"]>;
+  started_at?: Maybe<Scalars["timestamptz"]>;
+  status: Scalars["String"];
+  /** An object relationship */
+  submitted_by_user?: Maybe<Users>;
+  submitted_by_user_id?: Maybe<Scalars["uuid"]>;
+  updated_at: Scalars["timestamptz"];
+};
+
+/** columns and relationships of "async_jobs" */
+export type AsyncJobsErrDetailsArgs = {
+  path?: Maybe<Scalars["String"]>;
+};
+
+/** columns and relationships of "async_jobs" */
+export type AsyncJobsJobPayloadArgs = {
+  path?: Maybe<Scalars["String"]>;
+};
+
+/** columns and relationships of "async_jobs" */
+export type AsyncJobsRetryPayloadArgs = {
+  path?: Maybe<Scalars["String"]>;
+};
+
+/** aggregated selection of "async_jobs" */
+export type AsyncJobsAggregate = {
+  aggregate?: Maybe<AsyncJobsAggregateFields>;
+  nodes: Array<AsyncJobs>;
+};
+
+/** aggregate fields of "async_jobs" */
+export type AsyncJobsAggregateFields = {
+  avg?: Maybe<AsyncJobsAvgFields>;
+  count: Scalars["Int"];
+  max?: Maybe<AsyncJobsMaxFields>;
+  min?: Maybe<AsyncJobsMinFields>;
+  stddev?: Maybe<AsyncJobsStddevFields>;
+  stddev_pop?: Maybe<AsyncJobsStddevPopFields>;
+  stddev_samp?: Maybe<AsyncJobsStddevSampFields>;
+  sum?: Maybe<AsyncJobsSumFields>;
+  var_pop?: Maybe<AsyncJobsVarPopFields>;
+  var_samp?: Maybe<AsyncJobsVarSampFields>;
+  variance?: Maybe<AsyncJobsVarianceFields>;
+};
+
+/** aggregate fields of "async_jobs" */
+export type AsyncJobsAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<AsyncJobsSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** aggregate avg on columns */
+export type AsyncJobsAvgFields = {
+  num_retries?: Maybe<Scalars["Float"]>;
+};
+
+/** Boolean expression to filter rows from the table "async_jobs". All fields are combined with a logical 'AND'. */
+export type AsyncJobsBoolExp = {
+  _and?: Maybe<Array<AsyncJobsBoolExp>>;
+  _not?: Maybe<AsyncJobsBoolExp>;
+  _or?: Maybe<Array<AsyncJobsBoolExp>>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
+  deleted_at?: Maybe<TimestamptzComparisonExp>;
+  ended_at?: Maybe<TimestampComparisonExp>;
+  err_details?: Maybe<JsonComparisonExp>;
+  id?: Maybe<UuidComparisonExp>;
+  is_deleted?: Maybe<BooleanComparisonExp>;
+  is_high_priority?: Maybe<BooleanComparisonExp>;
+  job_payload?: Maybe<JsonComparisonExp>;
+  name?: Maybe<StringComparisonExp>;
+  num_retries?: Maybe<IntComparisonExp>;
+  queued_at?: Maybe<TimestamptzComparisonExp>;
+  retry_payload?: Maybe<JsonComparisonExp>;
+  started_at?: Maybe<TimestamptzComparisonExp>;
+  status?: Maybe<StringComparisonExp>;
+  submitted_by_user?: Maybe<UsersBoolExp>;
+  submitted_by_user_id?: Maybe<UuidComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
+};
+
+/** unique or primary key constraints on table "async_jobs" */
+export enum AsyncJobsConstraint {
+  /** unique or primary key constraint */
+  AsyncJobsPkey = "async_jobs_pkey",
+}
+
+/** input type for incrementing numeric columns in table "async_jobs" */
+export type AsyncJobsIncInput = {
+  num_retries?: Maybe<Scalars["Int"]>;
+};
+
+/** input type for inserting data into table "async_jobs" */
+export type AsyncJobsInsertInput = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  ended_at?: Maybe<Scalars["timestamp"]>;
+  err_details?: Maybe<Scalars["json"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
+  is_high_priority?: Maybe<Scalars["Boolean"]>;
+  job_payload?: Maybe<Scalars["json"]>;
+  name?: Maybe<Scalars["String"]>;
+  num_retries?: Maybe<Scalars["Int"]>;
+  queued_at?: Maybe<Scalars["timestamptz"]>;
+  retry_payload?: Maybe<Scalars["json"]>;
+  started_at?: Maybe<Scalars["timestamptz"]>;
+  status?: Maybe<Scalars["String"]>;
+  submitted_by_user?: Maybe<UsersObjRelInsertInput>;
+  submitted_by_user_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** aggregate max on columns */
+export type AsyncJobsMaxFields = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  ended_at?: Maybe<Scalars["timestamp"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  name?: Maybe<Scalars["String"]>;
+  num_retries?: Maybe<Scalars["Int"]>;
+  queued_at?: Maybe<Scalars["timestamptz"]>;
+  started_at?: Maybe<Scalars["timestamptz"]>;
+  status?: Maybe<Scalars["String"]>;
+  submitted_by_user_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** aggregate min on columns */
+export type AsyncJobsMinFields = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  ended_at?: Maybe<Scalars["timestamp"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  name?: Maybe<Scalars["String"]>;
+  num_retries?: Maybe<Scalars["Int"]>;
+  queued_at?: Maybe<Scalars["timestamptz"]>;
+  started_at?: Maybe<Scalars["timestamptz"]>;
+  status?: Maybe<Scalars["String"]>;
+  submitted_by_user_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** response of any mutation on the table "async_jobs" */
+export type AsyncJobsMutationResponse = {
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data from the rows affected by the mutation */
+  returning: Array<AsyncJobs>;
+};
+
+/** on_conflict condition type for table "async_jobs" */
+export type AsyncJobsOnConflict = {
+  constraint: AsyncJobsConstraint;
+  update_columns?: Array<AsyncJobsUpdateColumn>;
+  where?: Maybe<AsyncJobsBoolExp>;
+};
+
+/** Ordering options when selecting data from "async_jobs". */
+export type AsyncJobsOrderBy = {
+  created_at?: Maybe<OrderBy>;
+  deleted_at?: Maybe<OrderBy>;
+  ended_at?: Maybe<OrderBy>;
+  err_details?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  is_deleted?: Maybe<OrderBy>;
+  is_high_priority?: Maybe<OrderBy>;
+  job_payload?: Maybe<OrderBy>;
+  name?: Maybe<OrderBy>;
+  num_retries?: Maybe<OrderBy>;
+  queued_at?: Maybe<OrderBy>;
+  retry_payload?: Maybe<OrderBy>;
+  started_at?: Maybe<OrderBy>;
+  status?: Maybe<OrderBy>;
+  submitted_by_user?: Maybe<UsersOrderBy>;
+  submitted_by_user_id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: async_jobs */
+export type AsyncJobsPkColumnsInput = {
+  id: Scalars["uuid"];
+};
+
+/** select columns of table "async_jobs" */
+export enum AsyncJobsSelectColumn {
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  DeletedAt = "deleted_at",
+  /** column name */
+  EndedAt = "ended_at",
+  /** column name */
+  ErrDetails = "err_details",
+  /** column name */
+  Id = "id",
+  /** column name */
+  IsDeleted = "is_deleted",
+  /** column name */
+  IsHighPriority = "is_high_priority",
+  /** column name */
+  JobPayload = "job_payload",
+  /** column name */
+  Name = "name",
+  /** column name */
+  NumRetries = "num_retries",
+  /** column name */
+  QueuedAt = "queued_at",
+  /** column name */
+  RetryPayload = "retry_payload",
+  /** column name */
+  StartedAt = "started_at",
+  /** column name */
+  Status = "status",
+  /** column name */
+  SubmittedByUserId = "submitted_by_user_id",
+  /** column name */
+  UpdatedAt = "updated_at",
+}
+
+/** input type for updating data in table "async_jobs" */
+export type AsyncJobsSetInput = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  ended_at?: Maybe<Scalars["timestamp"]>;
+  err_details?: Maybe<Scalars["json"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
+  is_high_priority?: Maybe<Scalars["Boolean"]>;
+  job_payload?: Maybe<Scalars["json"]>;
+  name?: Maybe<Scalars["String"]>;
+  num_retries?: Maybe<Scalars["Int"]>;
+  queued_at?: Maybe<Scalars["timestamptz"]>;
+  retry_payload?: Maybe<Scalars["json"]>;
+  started_at?: Maybe<Scalars["timestamptz"]>;
+  status?: Maybe<Scalars["String"]>;
+  submitted_by_user_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** aggregate stddev on columns */
+export type AsyncJobsStddevFields = {
+  num_retries?: Maybe<Scalars["Float"]>;
+};
+
+/** aggregate stddev_pop on columns */
+export type AsyncJobsStddevPopFields = {
+  num_retries?: Maybe<Scalars["Float"]>;
+};
+
+/** aggregate stddev_samp on columns */
+export type AsyncJobsStddevSampFields = {
+  num_retries?: Maybe<Scalars["Float"]>;
+};
+
+/** aggregate sum on columns */
+export type AsyncJobsSumFields = {
+  num_retries?: Maybe<Scalars["Int"]>;
+};
+
+/** update columns of table "async_jobs" */
+export enum AsyncJobsUpdateColumn {
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  DeletedAt = "deleted_at",
+  /** column name */
+  EndedAt = "ended_at",
+  /** column name */
+  ErrDetails = "err_details",
+  /** column name */
+  Id = "id",
+  /** column name */
+  IsDeleted = "is_deleted",
+  /** column name */
+  IsHighPriority = "is_high_priority",
+  /** column name */
+  JobPayload = "job_payload",
+  /** column name */
+  Name = "name",
+  /** column name */
+  NumRetries = "num_retries",
+  /** column name */
+  QueuedAt = "queued_at",
+  /** column name */
+  RetryPayload = "retry_payload",
+  /** column name */
+  StartedAt = "started_at",
+  /** column name */
+  Status = "status",
+  /** column name */
+  SubmittedByUserId = "submitted_by_user_id",
+  /** column name */
+  UpdatedAt = "updated_at",
+}
+
+/** aggregate var_pop on columns */
+export type AsyncJobsVarPopFields = {
+  num_retries?: Maybe<Scalars["Float"]>;
+};
+
+/** aggregate var_samp on columns */
+export type AsyncJobsVarSampFields = {
+  num_retries?: Maybe<Scalars["Float"]>;
+};
+
+/** aggregate variance on columns */
+export type AsyncJobsVarianceFields = {
+  num_retries?: Maybe<Scalars["Float"]>;
+};
+
 /** columns and relationships of "async_pipelines" */
 export type AsyncPipelines = {
   created_at: Scalars["timestamptz"];
@@ -1672,6 +1995,288 @@ export type BlazePreapprovalsVarianceFields = {
   annual_interest_rate?: Maybe<Scalars["Float"]>;
   max_credit_limit?: Maybe<Scalars["Float"]>;
 };
+
+/** columns and relationships of "blaze_shop_entries" */
+export type BlazeShopEntries = {
+  company_id: Scalars["uuid"];
+  created_at: Scalars["timestamptz"];
+  external_blaze_shop_id: Scalars["String"];
+  id: Scalars["uuid"];
+  updated_at: Scalars["timestamptz"];
+};
+
+/** aggregated selection of "blaze_shop_entries" */
+export type BlazeShopEntriesAggregate = {
+  aggregate?: Maybe<BlazeShopEntriesAggregateFields>;
+  nodes: Array<BlazeShopEntries>;
+};
+
+/** aggregate fields of "blaze_shop_entries" */
+export type BlazeShopEntriesAggregateFields = {
+  count: Scalars["Int"];
+  max?: Maybe<BlazeShopEntriesMaxFields>;
+  min?: Maybe<BlazeShopEntriesMinFields>;
+};
+
+/** aggregate fields of "blaze_shop_entries" */
+export type BlazeShopEntriesAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<BlazeShopEntriesSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** Boolean expression to filter rows from the table "blaze_shop_entries". All fields are combined with a logical 'AND'. */
+export type BlazeShopEntriesBoolExp = {
+  _and?: Maybe<Array<BlazeShopEntriesBoolExp>>;
+  _not?: Maybe<BlazeShopEntriesBoolExp>;
+  _or?: Maybe<Array<BlazeShopEntriesBoolExp>>;
+  company_id?: Maybe<UuidComparisonExp>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
+  external_blaze_shop_id?: Maybe<StringComparisonExp>;
+  id?: Maybe<UuidComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
+};
+
+/** unique or primary key constraints on table "blaze_shop_entries" */
+export enum BlazeShopEntriesConstraint {
+  /** unique or primary key constraint */
+  BlazeShopEntriesExternalBlazeShopIdKey = "blaze_shop_entries_external_blaze_shop_id_key",
+  /** unique or primary key constraint */
+  BlazeShopEntriesPkey = "blaze_shop_entries_pkey",
+}
+
+/** input type for inserting data into table "blaze_shop_entries" */
+export type BlazeShopEntriesInsertInput = {
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  external_blaze_shop_id?: Maybe<Scalars["String"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** aggregate max on columns */
+export type BlazeShopEntriesMaxFields = {
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  external_blaze_shop_id?: Maybe<Scalars["String"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** aggregate min on columns */
+export type BlazeShopEntriesMinFields = {
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  external_blaze_shop_id?: Maybe<Scalars["String"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** response of any mutation on the table "blaze_shop_entries" */
+export type BlazeShopEntriesMutationResponse = {
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data from the rows affected by the mutation */
+  returning: Array<BlazeShopEntries>;
+};
+
+/** on_conflict condition type for table "blaze_shop_entries" */
+export type BlazeShopEntriesOnConflict = {
+  constraint: BlazeShopEntriesConstraint;
+  update_columns?: Array<BlazeShopEntriesUpdateColumn>;
+  where?: Maybe<BlazeShopEntriesBoolExp>;
+};
+
+/** Ordering options when selecting data from "blaze_shop_entries". */
+export type BlazeShopEntriesOrderBy = {
+  company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  external_blaze_shop_id?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: blaze_shop_entries */
+export type BlazeShopEntriesPkColumnsInput = {
+  id: Scalars["uuid"];
+};
+
+/** select columns of table "blaze_shop_entries" */
+export enum BlazeShopEntriesSelectColumn {
+  /** column name */
+  CompanyId = "company_id",
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  ExternalBlazeShopId = "external_blaze_shop_id",
+  /** column name */
+  Id = "id",
+  /** column name */
+  UpdatedAt = "updated_at",
+}
+
+/** input type for updating data in table "blaze_shop_entries" */
+export type BlazeShopEntriesSetInput = {
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  external_blaze_shop_id?: Maybe<Scalars["String"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** update columns of table "blaze_shop_entries" */
+export enum BlazeShopEntriesUpdateColumn {
+  /** column name */
+  CompanyId = "company_id",
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  ExternalBlazeShopId = "external_blaze_shop_id",
+  /** column name */
+  Id = "id",
+  /** column name */
+  UpdatedAt = "updated_at",
+}
+
+/** columns and relationships of "blaze_users" */
+export type BlazeUsers = {
+  created_at: Scalars["timestamptz"];
+  external_blaze_user_id: Scalars["String"];
+  id: Scalars["uuid"];
+  updated_at: Scalars["timestamptz"];
+  user_id: Scalars["uuid"];
+};
+
+/** aggregated selection of "blaze_users" */
+export type BlazeUsersAggregate = {
+  aggregate?: Maybe<BlazeUsersAggregateFields>;
+  nodes: Array<BlazeUsers>;
+};
+
+/** aggregate fields of "blaze_users" */
+export type BlazeUsersAggregateFields = {
+  count: Scalars["Int"];
+  max?: Maybe<BlazeUsersMaxFields>;
+  min?: Maybe<BlazeUsersMinFields>;
+};
+
+/** aggregate fields of "blaze_users" */
+export type BlazeUsersAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<BlazeUsersSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** Boolean expression to filter rows from the table "blaze_users". All fields are combined with a logical 'AND'. */
+export type BlazeUsersBoolExp = {
+  _and?: Maybe<Array<BlazeUsersBoolExp>>;
+  _not?: Maybe<BlazeUsersBoolExp>;
+  _or?: Maybe<Array<BlazeUsersBoolExp>>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
+  external_blaze_user_id?: Maybe<StringComparisonExp>;
+  id?: Maybe<UuidComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
+  user_id?: Maybe<UuidComparisonExp>;
+};
+
+/** unique or primary key constraints on table "blaze_users" */
+export enum BlazeUsersConstraint {
+  /** unique or primary key constraint */
+  BlazeUsersExternalBlazeUserIdKey = "blaze_users_external_blaze_user_id_key",
+  /** unique or primary key constraint */
+  BlazeUsersPkey = "blaze_users_pkey",
+}
+
+/** input type for inserting data into table "blaze_users" */
+export type BlazeUsersInsertInput = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  external_blaze_user_id?: Maybe<Scalars["String"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+  user_id?: Maybe<Scalars["uuid"]>;
+};
+
+/** aggregate max on columns */
+export type BlazeUsersMaxFields = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  external_blaze_user_id?: Maybe<Scalars["String"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+  user_id?: Maybe<Scalars["uuid"]>;
+};
+
+/** aggregate min on columns */
+export type BlazeUsersMinFields = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  external_blaze_user_id?: Maybe<Scalars["String"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+  user_id?: Maybe<Scalars["uuid"]>;
+};
+
+/** response of any mutation on the table "blaze_users" */
+export type BlazeUsersMutationResponse = {
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data from the rows affected by the mutation */
+  returning: Array<BlazeUsers>;
+};
+
+/** on_conflict condition type for table "blaze_users" */
+export type BlazeUsersOnConflict = {
+  constraint: BlazeUsersConstraint;
+  update_columns?: Array<BlazeUsersUpdateColumn>;
+  where?: Maybe<BlazeUsersBoolExp>;
+};
+
+/** Ordering options when selecting data from "blaze_users". */
+export type BlazeUsersOrderBy = {
+  created_at?: Maybe<OrderBy>;
+  external_blaze_user_id?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+  user_id?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: blaze_users */
+export type BlazeUsersPkColumnsInput = {
+  id: Scalars["uuid"];
+};
+
+/** select columns of table "blaze_users" */
+export enum BlazeUsersSelectColumn {
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  ExternalBlazeUserId = "external_blaze_user_id",
+  /** column name */
+  Id = "id",
+  /** column name */
+  UpdatedAt = "updated_at",
+  /** column name */
+  UserId = "user_id",
+}
+
+/** input type for updating data in table "blaze_users" */
+export type BlazeUsersSetInput = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  external_blaze_user_id?: Maybe<Scalars["String"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+  user_id?: Maybe<Scalars["uuid"]>;
+};
+
+/** update columns of table "blaze_users" */
+export enum BlazeUsersUpdateColumn {
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  ExternalBlazeUserId = "external_blaze_user_id",
+  /** column name */
+  Id = "id",
+  /** column name */
+  UpdatedAt = "updated_at",
+  /** column name */
+  UserId = "user_id",
+}
 
 /** columns and relationships of "companies" */
 export type Companies = {
@@ -16125,6 +16730,10 @@ export type MonthlySummaryCalculationsVarianceFields = {
 
 /** mutation root */
 export type MutationRoot = {
+  /** delete data from the table: "async_jobs" */
+  delete_async_jobs?: Maybe<AsyncJobsMutationResponse>;
+  /** delete single row from the table: "async_jobs" */
+  delete_async_jobs_by_pk?: Maybe<AsyncJobs>;
   /** delete data from the table: "async_pipelines" */
   delete_async_pipelines?: Maybe<AsyncPipelinesMutationResponse>;
   /** delete single row from the table: "async_pipelines" */
@@ -16145,6 +16754,14 @@ export type MutationRoot = {
   delete_blaze_preapprovals?: Maybe<BlazePreapprovalsMutationResponse>;
   /** delete single row from the table: "blaze_preapprovals" */
   delete_blaze_preapprovals_by_pk?: Maybe<BlazePreapprovals>;
+  /** delete data from the table: "blaze_shop_entries" */
+  delete_blaze_shop_entries?: Maybe<BlazeShopEntriesMutationResponse>;
+  /** delete single row from the table: "blaze_shop_entries" */
+  delete_blaze_shop_entries_by_pk?: Maybe<BlazeShopEntries>;
+  /** delete data from the table: "blaze_users" */
+  delete_blaze_users?: Maybe<BlazeUsersMutationResponse>;
+  /** delete single row from the table: "blaze_users" */
+  delete_blaze_users_by_pk?: Maybe<BlazeUsers>;
   /** delete data from the table: "companies" */
   delete_companies?: Maybe<CompaniesMutationResponse>;
   /** delete single row from the table: "companies" */
@@ -16369,6 +16986,10 @@ export type MutationRoot = {
   delete_users_by_pk?: Maybe<Users>;
   /** delete data from the table: "vendors" */
   delete_vendors?: Maybe<VendorsMutationResponse>;
+  /** insert data into the table: "async_jobs" */
+  insert_async_jobs?: Maybe<AsyncJobsMutationResponse>;
+  /** insert a single row into the table: "async_jobs" */
+  insert_async_jobs_one?: Maybe<AsyncJobs>;
   /** insert data into the table: "async_pipelines" */
   insert_async_pipelines?: Maybe<AsyncPipelinesMutationResponse>;
   /** insert a single row into the table: "async_pipelines" */
@@ -16389,6 +17010,14 @@ export type MutationRoot = {
   insert_blaze_preapprovals?: Maybe<BlazePreapprovalsMutationResponse>;
   /** insert a single row into the table: "blaze_preapprovals" */
   insert_blaze_preapprovals_one?: Maybe<BlazePreapprovals>;
+  /** insert data into the table: "blaze_shop_entries" */
+  insert_blaze_shop_entries?: Maybe<BlazeShopEntriesMutationResponse>;
+  /** insert a single row into the table: "blaze_shop_entries" */
+  insert_blaze_shop_entries_one?: Maybe<BlazeShopEntries>;
+  /** insert data into the table: "blaze_users" */
+  insert_blaze_users?: Maybe<BlazeUsersMutationResponse>;
+  /** insert a single row into the table: "blaze_users" */
+  insert_blaze_users_one?: Maybe<BlazeUsers>;
   /** insert data into the table: "companies" */
   insert_companies?: Maybe<CompaniesMutationResponse>;
   /** insert a single row into the table: "companies" */
@@ -16617,6 +17246,10 @@ export type MutationRoot = {
   insert_vendors?: Maybe<VendorsMutationResponse>;
   /** insert a single row into the table: "vendors" */
   insert_vendors_one?: Maybe<Vendors>;
+  /** update data of the table: "async_jobs" */
+  update_async_jobs?: Maybe<AsyncJobsMutationResponse>;
+  /** update single row of the table: "async_jobs" */
+  update_async_jobs_by_pk?: Maybe<AsyncJobs>;
   /** update data of the table: "async_pipelines" */
   update_async_pipelines?: Maybe<AsyncPipelinesMutationResponse>;
   /** update single row of the table: "async_pipelines" */
@@ -16637,6 +17270,14 @@ export type MutationRoot = {
   update_blaze_preapprovals?: Maybe<BlazePreapprovalsMutationResponse>;
   /** update single row of the table: "blaze_preapprovals" */
   update_blaze_preapprovals_by_pk?: Maybe<BlazePreapprovals>;
+  /** update data of the table: "blaze_shop_entries" */
+  update_blaze_shop_entries?: Maybe<BlazeShopEntriesMutationResponse>;
+  /** update single row of the table: "blaze_shop_entries" */
+  update_blaze_shop_entries_by_pk?: Maybe<BlazeShopEntries>;
+  /** update data of the table: "blaze_users" */
+  update_blaze_users?: Maybe<BlazeUsersMutationResponse>;
+  /** update single row of the table: "blaze_users" */
+  update_blaze_users_by_pk?: Maybe<BlazeUsers>;
   /** update data of the table: "companies" */
   update_companies?: Maybe<CompaniesMutationResponse>;
   /** update single row of the table: "companies" */
@@ -16864,6 +17505,16 @@ export type MutationRoot = {
 };
 
 /** mutation root */
+export type MutationRootDeleteAsyncJobsArgs = {
+  where: AsyncJobsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteAsyncJobsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** mutation root */
 export type MutationRootDeleteAsyncPipelinesArgs = {
   where: AsyncPipelinesBoolExp;
 };
@@ -16910,6 +17561,26 @@ export type MutationRootDeleteBlazePreapprovalsArgs = {
 
 /** mutation root */
 export type MutationRootDeleteBlazePreapprovalsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** mutation root */
+export type MutationRootDeleteBlazeShopEntriesArgs = {
+  where: BlazeShopEntriesBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteBlazeShopEntriesByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** mutation root */
+export type MutationRootDeleteBlazeUsersArgs = {
+  where: BlazeUsersBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteBlazeUsersByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -17477,6 +18148,18 @@ export type MutationRootDeleteVendorsArgs = {
 };
 
 /** mutation root */
+export type MutationRootInsertAsyncJobsArgs = {
+  objects: Array<AsyncJobsInsertInput>;
+  on_conflict?: Maybe<AsyncJobsOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertAsyncJobsOneArgs = {
+  object: AsyncJobsInsertInput;
+  on_conflict?: Maybe<AsyncJobsOnConflict>;
+};
+
+/** mutation root */
 export type MutationRootInsertAsyncPipelinesArgs = {
   objects: Array<AsyncPipelinesInsertInput>;
   on_conflict?: Maybe<AsyncPipelinesOnConflict>;
@@ -17534,6 +18217,30 @@ export type MutationRootInsertBlazePreapprovalsArgs = {
 export type MutationRootInsertBlazePreapprovalsOneArgs = {
   object: BlazePreapprovalsInsertInput;
   on_conflict?: Maybe<BlazePreapprovalsOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertBlazeShopEntriesArgs = {
+  objects: Array<BlazeShopEntriesInsertInput>;
+  on_conflict?: Maybe<BlazeShopEntriesOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertBlazeShopEntriesOneArgs = {
+  object: BlazeShopEntriesInsertInput;
+  on_conflict?: Maybe<BlazeShopEntriesOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertBlazeUsersArgs = {
+  objects: Array<BlazeUsersInsertInput>;
+  on_conflict?: Maybe<BlazeUsersOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertBlazeUsersOneArgs = {
+  object: BlazeUsersInsertInput;
+  on_conflict?: Maybe<BlazeUsersOnConflict>;
 };
 
 /** mutation root */
@@ -18217,6 +18924,20 @@ export type MutationRootInsertVendorsOneArgs = {
 };
 
 /** mutation root */
+export type MutationRootUpdateAsyncJobsArgs = {
+  _inc?: Maybe<AsyncJobsIncInput>;
+  _set?: Maybe<AsyncJobsSetInput>;
+  where: AsyncJobsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateAsyncJobsByPkArgs = {
+  _inc?: Maybe<AsyncJobsIncInput>;
+  _set?: Maybe<AsyncJobsSetInput>;
+  pk_columns: AsyncJobsPkColumnsInput;
+};
+
+/** mutation root */
 export type MutationRootUpdateAsyncPipelinesArgs = {
   _set?: Maybe<AsyncPipelinesSetInput>;
   where: AsyncPipelinesBoolExp;
@@ -18288,6 +19009,30 @@ export type MutationRootUpdateBlazePreapprovalsByPkArgs = {
   _inc?: Maybe<BlazePreapprovalsIncInput>;
   _set?: Maybe<BlazePreapprovalsSetInput>;
   pk_columns: BlazePreapprovalsPkColumnsInput;
+};
+
+/** mutation root */
+export type MutationRootUpdateBlazeShopEntriesArgs = {
+  _set?: Maybe<BlazeShopEntriesSetInput>;
+  where: BlazeShopEntriesBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateBlazeShopEntriesByPkArgs = {
+  _set?: Maybe<BlazeShopEntriesSetInput>;
+  pk_columns: BlazeShopEntriesPkColumnsInput;
+};
+
+/** mutation root */
+export type MutationRootUpdateBlazeUsersArgs = {
+  _set?: Maybe<BlazeUsersSetInput>;
+  where: BlazeUsersBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateBlazeUsersByPkArgs = {
+  _set?: Maybe<BlazeUsersSetInput>;
+  pk_columns: BlazeUsersPkColumnsInput;
 };
 
 /** mutation root */
@@ -20948,6 +21693,7 @@ export type PurchaseOrders = {
   /** An aggregate relationship */
   loans_aggregate: LoansAggregate;
   net_terms?: Maybe<Scalars["Int"]>;
+  new_purchase_order_status?: Maybe<Scalars["String"]>;
   order_date?: Maybe<Scalars["date"]>;
   order_number: Scalars["String"];
   /** An array relationship */
@@ -21118,6 +21864,7 @@ export type PurchaseOrdersBoolExp = {
   is_metrc_based?: Maybe<BooleanComparisonExp>;
   loans?: Maybe<LoansBoolExp>;
   net_terms?: Maybe<IntComparisonExp>;
+  new_purchase_order_status?: Maybe<StringComparisonExp>;
   order_date?: Maybe<DateComparisonExp>;
   order_number?: Maybe<StringComparisonExp>;
   purchase_order_files?: Maybe<PurchaseOrderFilesBoolExp>;
@@ -21177,6 +21924,7 @@ export type PurchaseOrdersInsertInput = {
   is_metrc_based?: Maybe<Scalars["Boolean"]>;
   loans?: Maybe<LoansArrRelInsertInput>;
   net_terms?: Maybe<Scalars["Int"]>;
+  new_purchase_order_status?: Maybe<Scalars["String"]>;
   order_date?: Maybe<Scalars["date"]>;
   order_number?: Maybe<Scalars["String"]>;
   purchase_order_files?: Maybe<PurchaseOrderFilesArrRelInsertInput>;
@@ -21215,6 +21963,7 @@ export type PurchaseOrdersMaxFields = {
   id?: Maybe<Scalars["uuid"]>;
   incompleted_at?: Maybe<Scalars["timestamptz"]>;
   net_terms?: Maybe<Scalars["Int"]>;
+  new_purchase_order_status?: Maybe<Scalars["String"]>;
   order_date?: Maybe<Scalars["date"]>;
   order_number?: Maybe<Scalars["String"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
@@ -21248,6 +21997,7 @@ export type PurchaseOrdersMaxOrderBy = {
   id?: Maybe<OrderBy>;
   incompleted_at?: Maybe<OrderBy>;
   net_terms?: Maybe<OrderBy>;
+  new_purchase_order_status?: Maybe<OrderBy>;
   order_date?: Maybe<OrderBy>;
   order_number?: Maybe<OrderBy>;
   rejected_at?: Maybe<OrderBy>;
@@ -21281,6 +22031,7 @@ export type PurchaseOrdersMinFields = {
   id?: Maybe<Scalars["uuid"]>;
   incompleted_at?: Maybe<Scalars["timestamptz"]>;
   net_terms?: Maybe<Scalars["Int"]>;
+  new_purchase_order_status?: Maybe<Scalars["String"]>;
   order_date?: Maybe<Scalars["date"]>;
   order_number?: Maybe<Scalars["String"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
@@ -21314,6 +22065,7 @@ export type PurchaseOrdersMinOrderBy = {
   id?: Maybe<OrderBy>;
   incompleted_at?: Maybe<OrderBy>;
   net_terms?: Maybe<OrderBy>;
+  new_purchase_order_status?: Maybe<OrderBy>;
   order_date?: Maybe<OrderBy>;
   order_number?: Maybe<OrderBy>;
   rejected_at?: Maybe<OrderBy>;
@@ -21371,6 +22123,7 @@ export type PurchaseOrdersOrderBy = {
   is_metrc_based?: Maybe<OrderBy>;
   loans_aggregate?: Maybe<LoansAggregateOrderBy>;
   net_terms?: Maybe<OrderBy>;
+  new_purchase_order_status?: Maybe<OrderBy>;
   order_date?: Maybe<OrderBy>;
   order_number?: Maybe<OrderBy>;
   purchase_order_files_aggregate?: Maybe<PurchaseOrderFilesAggregateOrderBy>;
@@ -21432,6 +22185,8 @@ export enum PurchaseOrdersSelectColumn {
   /** column name */
   NetTerms = "net_terms",
   /** column name */
+  NewPurchaseOrderStatus = "new_purchase_order_status",
+  /** column name */
   OrderDate = "order_date",
   /** column name */
   OrderNumber = "order_number",
@@ -21478,6 +22233,7 @@ export type PurchaseOrdersSetInput = {
   /** Whether this purchase order is based on Metrc manifests; this may be true even if purchase order does not have associated manifests purchase order is a draft */
   is_metrc_based?: Maybe<Scalars["Boolean"]>;
   net_terms?: Maybe<Scalars["Int"]>;
+  new_purchase_order_status?: Maybe<Scalars["String"]>;
   order_date?: Maybe<Scalars["date"]>;
   order_number?: Maybe<Scalars["String"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
@@ -21595,6 +22351,8 @@ export enum PurchaseOrdersUpdateColumn {
   /** column name */
   NetTerms = "net_terms",
   /** column name */
+  NewPurchaseOrderStatus = "new_purchase_order_status",
+  /** column name */
   OrderDate = "order_date",
   /** column name */
   OrderNumber = "order_number",
@@ -21663,6 +22421,12 @@ export type PurchaseOrdersVarianceOrderBy = {
 };
 
 export type QueryRoot = {
+  /** fetch data from the table: "async_jobs" */
+  async_jobs: Array<AsyncJobs>;
+  /** fetch aggregated fields from the table: "async_jobs" */
+  async_jobs_aggregate: AsyncJobsAggregate;
+  /** fetch data from the table: "async_jobs" using primary key columns */
+  async_jobs_by_pk?: Maybe<AsyncJobs>;
   /** fetch data from the table: "async_pipelines" */
   async_pipelines: Array<AsyncPipelines>;
   /** fetch aggregated fields from the table: "async_pipelines" */
@@ -21693,6 +22457,18 @@ export type QueryRoot = {
   blaze_preapprovals_aggregate: BlazePreapprovalsAggregate;
   /** fetch data from the table: "blaze_preapprovals" using primary key columns */
   blaze_preapprovals_by_pk?: Maybe<BlazePreapprovals>;
+  /** fetch data from the table: "blaze_shop_entries" */
+  blaze_shop_entries: Array<BlazeShopEntries>;
+  /** fetch aggregated fields from the table: "blaze_shop_entries" */
+  blaze_shop_entries_aggregate: BlazeShopEntriesAggregate;
+  /** fetch data from the table: "blaze_shop_entries" using primary key columns */
+  blaze_shop_entries_by_pk?: Maybe<BlazeShopEntries>;
+  /** fetch data from the table: "blaze_users" */
+  blaze_users: Array<BlazeUsers>;
+  /** fetch aggregated fields from the table: "blaze_users" */
+  blaze_users_aggregate: BlazeUsersAggregate;
+  /** fetch data from the table: "blaze_users" using primary key columns */
+  blaze_users_by_pk?: Maybe<BlazeUsers>;
   /** An array relationship */
   companies: Array<Companies>;
   /** An aggregate relationship */
@@ -22033,6 +22809,26 @@ export type QueryRoot = {
   vendors_aggregate: VendorsAggregate;
 };
 
+export type QueryRootAsyncJobsArgs = {
+  distinct_on?: Maybe<Array<AsyncJobsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<AsyncJobsOrderBy>>;
+  where?: Maybe<AsyncJobsBoolExp>;
+};
+
+export type QueryRootAsyncJobsAggregateArgs = {
+  distinct_on?: Maybe<Array<AsyncJobsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<AsyncJobsOrderBy>>;
+  where?: Maybe<AsyncJobsBoolExp>;
+};
+
+export type QueryRootAsyncJobsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
 export type QueryRootAsyncPipelinesArgs = {
   distinct_on?: Maybe<Array<AsyncPipelinesSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -22130,6 +22926,46 @@ export type QueryRootBlazePreapprovalsAggregateArgs = {
 };
 
 export type QueryRootBlazePreapprovalsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+export type QueryRootBlazeShopEntriesArgs = {
+  distinct_on?: Maybe<Array<BlazeShopEntriesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BlazeShopEntriesOrderBy>>;
+  where?: Maybe<BlazeShopEntriesBoolExp>;
+};
+
+export type QueryRootBlazeShopEntriesAggregateArgs = {
+  distinct_on?: Maybe<Array<BlazeShopEntriesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BlazeShopEntriesOrderBy>>;
+  where?: Maybe<BlazeShopEntriesBoolExp>;
+};
+
+export type QueryRootBlazeShopEntriesByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+export type QueryRootBlazeUsersArgs = {
+  distinct_on?: Maybe<Array<BlazeUsersSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BlazeUsersOrderBy>>;
+  where?: Maybe<BlazeUsersBoolExp>;
+};
+
+export type QueryRootBlazeUsersAggregateArgs = {
+  distinct_on?: Maybe<Array<BlazeUsersSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BlazeUsersOrderBy>>;
+  where?: Maybe<BlazeUsersBoolExp>;
+};
+
+export type QueryRootBlazeUsersByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -23525,6 +24361,12 @@ export enum RevokedTokensUpdateColumn {
 }
 
 export type SubscriptionRoot = {
+  /** fetch data from the table: "async_jobs" */
+  async_jobs: Array<AsyncJobs>;
+  /** fetch aggregated fields from the table: "async_jobs" */
+  async_jobs_aggregate: AsyncJobsAggregate;
+  /** fetch data from the table: "async_jobs" using primary key columns */
+  async_jobs_by_pk?: Maybe<AsyncJobs>;
   /** fetch data from the table: "async_pipelines" */
   async_pipelines: Array<AsyncPipelines>;
   /** fetch aggregated fields from the table: "async_pipelines" */
@@ -23555,6 +24397,18 @@ export type SubscriptionRoot = {
   blaze_preapprovals_aggregate: BlazePreapprovalsAggregate;
   /** fetch data from the table: "blaze_preapprovals" using primary key columns */
   blaze_preapprovals_by_pk?: Maybe<BlazePreapprovals>;
+  /** fetch data from the table: "blaze_shop_entries" */
+  blaze_shop_entries: Array<BlazeShopEntries>;
+  /** fetch aggregated fields from the table: "blaze_shop_entries" */
+  blaze_shop_entries_aggregate: BlazeShopEntriesAggregate;
+  /** fetch data from the table: "blaze_shop_entries" using primary key columns */
+  blaze_shop_entries_by_pk?: Maybe<BlazeShopEntries>;
+  /** fetch data from the table: "blaze_users" */
+  blaze_users: Array<BlazeUsers>;
+  /** fetch aggregated fields from the table: "blaze_users" */
+  blaze_users_aggregate: BlazeUsersAggregate;
+  /** fetch data from the table: "blaze_users" using primary key columns */
+  blaze_users_by_pk?: Maybe<BlazeUsers>;
   /** An array relationship */
   companies: Array<Companies>;
   /** An aggregate relationship */
@@ -23895,6 +24749,26 @@ export type SubscriptionRoot = {
   vendors_aggregate: VendorsAggregate;
 };
 
+export type SubscriptionRootAsyncJobsArgs = {
+  distinct_on?: Maybe<Array<AsyncJobsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<AsyncJobsOrderBy>>;
+  where?: Maybe<AsyncJobsBoolExp>;
+};
+
+export type SubscriptionRootAsyncJobsAggregateArgs = {
+  distinct_on?: Maybe<Array<AsyncJobsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<AsyncJobsOrderBy>>;
+  where?: Maybe<AsyncJobsBoolExp>;
+};
+
+export type SubscriptionRootAsyncJobsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
 export type SubscriptionRootAsyncPipelinesArgs = {
   distinct_on?: Maybe<Array<AsyncPipelinesSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -23992,6 +24866,46 @@ export type SubscriptionRootBlazePreapprovalsAggregateArgs = {
 };
 
 export type SubscriptionRootBlazePreapprovalsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+export type SubscriptionRootBlazeShopEntriesArgs = {
+  distinct_on?: Maybe<Array<BlazeShopEntriesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BlazeShopEntriesOrderBy>>;
+  where?: Maybe<BlazeShopEntriesBoolExp>;
+};
+
+export type SubscriptionRootBlazeShopEntriesAggregateArgs = {
+  distinct_on?: Maybe<Array<BlazeShopEntriesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BlazeShopEntriesOrderBy>>;
+  where?: Maybe<BlazeShopEntriesBoolExp>;
+};
+
+export type SubscriptionRootBlazeShopEntriesByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+export type SubscriptionRootBlazeUsersArgs = {
+  distinct_on?: Maybe<Array<BlazeUsersSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BlazeUsersOrderBy>>;
+  where?: Maybe<BlazeUsersBoolExp>;
+};
+
+export type SubscriptionRootBlazeUsersAggregateArgs = {
+  distinct_on?: Maybe<Array<BlazeUsersSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BlazeUsersOrderBy>>;
+  where?: Maybe<BlazeUsersBoolExp>;
+};
+
+export type SubscriptionRootBlazeUsersByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -26391,10 +27305,6 @@ export type UuidComparisonExp = {
 /** columns and relationships of "vendors" */
 export type Vendors = {
   address?: Maybe<Scalars["String"]>;
-  /** An array relationship */
-  bank_accounts: Array<BankAccounts>;
-  /** An aggregate relationship */
-  bank_accounts_aggregate: BankAccountsAggregate;
   city?: Maybe<Scalars["String"]>;
   /** An array relationship */
   company_deliveries: Array<CompanyDeliveries>;
@@ -26433,24 +27343,6 @@ export type Vendors = {
   /** An aggregate relationship */
   users_aggregate: UsersAggregate;
   zip_code?: Maybe<Scalars["String"]>;
-};
-
-/** columns and relationships of "vendors" */
-export type VendorsBankAccountsArgs = {
-  distinct_on?: Maybe<Array<BankAccountsSelectColumn>>;
-  limit?: Maybe<Scalars["Int"]>;
-  offset?: Maybe<Scalars["Int"]>;
-  order_by?: Maybe<Array<BankAccountsOrderBy>>;
-  where?: Maybe<BankAccountsBoolExp>;
-};
-
-/** columns and relationships of "vendors" */
-export type VendorsBankAccountsAggregateArgs = {
-  distinct_on?: Maybe<Array<BankAccountsSelectColumn>>;
-  limit?: Maybe<Scalars["Int"]>;
-  offset?: Maybe<Scalars["Int"]>;
-  order_by?: Maybe<Array<BankAccountsOrderBy>>;
-  where?: Maybe<BankAccountsBoolExp>;
 };
 
 /** columns and relationships of "vendors" */
@@ -26563,7 +27455,6 @@ export type VendorsBoolExp = {
   _not?: Maybe<VendorsBoolExp>;
   _or?: Maybe<Array<VendorsBoolExp>>;
   address?: Maybe<StringComparisonExp>;
-  bank_accounts?: Maybe<BankAccountsBoolExp>;
   city?: Maybe<StringComparisonExp>;
   company_deliveries?: Maybe<CompanyDeliveriesBoolExp>;
   company_settings_id?: Maybe<UuidComparisonExp>;
@@ -26598,7 +27489,6 @@ export type VendorsIncInput = {
 /** input type for inserting data into table "vendors" */
 export type VendorsInsertInput = {
   address?: Maybe<Scalars["String"]>;
-  bank_accounts?: Maybe<BankAccountsArrRelInsertInput>;
   city?: Maybe<Scalars["String"]>;
   company_deliveries?: Maybe<CompanyDeliveriesArrRelInsertInput>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
@@ -26683,7 +27573,6 @@ export type VendorsObjRelInsertInput = {
 /** Ordering options when selecting data from "vendors". */
 export type VendorsOrderBy = {
   address?: Maybe<OrderBy>;
-  bank_accounts_aggregate?: Maybe<BankAccountsAggregateOrderBy>;
   city?: Maybe<OrderBy>;
   company_deliveries_aggregate?: Maybe<CompanyDeliveriesAggregateOrderBy>;
   company_settings_id?: Maybe<OrderBy>;
