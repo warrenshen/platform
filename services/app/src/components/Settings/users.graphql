@@ -28,7 +28,58 @@ query GetActiveUsersByRoles($roles: [user_roles_enum!]!) {
   }
 }
 
-query GetDeactivedUsersByRoles($roles: [user_roles_enum!]!) {
+query GetActiveTeamMembers {
+  client_success_team_members: users(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { company_role: { _eq: "client_success" } }
+      ]
+    }
+  ) {
+    id
+    full_name
+  }
+  business_development_team_members: users(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { company_role: { _eq: "business_development" } }
+      ]
+    }
+  ) {
+    id
+    full_name
+  }
+  underwriting_team_members: users(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { company_role: { _eq: "underwriter" } }
+      ]
+    }
+  ) {
+    id
+    full_name
+  }
+}
+
+query GetDeactivatedUsersByRoles($roles: [user_roles_enum!]!) {
   users(
     where: { _and: [{ is_deleted: { _eq: true } }, { role: { _in: $roles } }] }
   ) {

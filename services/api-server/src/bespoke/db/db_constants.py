@@ -14,6 +14,12 @@ class UserRoles(object):
 	PURCHASE_ORDER_REVIEWER = 'purchase_order_reviewer'
 	INVOICE_REVIEWER = 'invoice_reviewer'
 
+class BespokeCompanyRole(object):
+  CLIENT_SUCCESS = "client_success",
+  BUSINESS_DEVELOPMENT = "business_development",
+  UNDERWRITER = "underwriter",
+
+
 ALL_USER_ROLES = [
 	UserRoles.BANK_ADMIN,
 	UserRoles.BANK_READ_ONLY,

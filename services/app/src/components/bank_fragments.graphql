@@ -73,7 +73,7 @@ fragment CustomerSurveillance on companies {
     amount
   }
   target_surveillance_result: customer_surveillance_results(
-    where: { 
+    where: {
       _and: [
         { qualifying_date: { _eq: $target_date } }
         {
@@ -89,10 +89,7 @@ fragment CustomerSurveillance on companies {
   }
   all_surveillance_results: customer_surveillance_results(
     where: {
-      _or: [
-        { is_deleted: { _is_null: true } }
-        { is_deleted: { _eq: false } }
-      ]
+      _or: [{ is_deleted: { _is_null: true } }, { is_deleted: { _eq: false } }]
     }
     order_by: { qualifying_date: desc }
   ) {
@@ -101,7 +98,7 @@ fragment CustomerSurveillance on companies {
   most_recent_borrowing_base: ebba_applications(
     limit: 1
     order_by: [{ application_date: desc }, { created_at: desc }]
-    where: { 
+    where: {
       _and: [
         { category: { _eq: "borrowing_base" } }
         {
@@ -119,7 +116,7 @@ fragment CustomerSurveillance on companies {
   most_recent_financial_report: ebba_applications(
     limit: 1
     order_by: [{ application_date: desc }, { created_at: desc }]
-    where: { 
+    where: {
       _and: [
         { category: { _eq: "financial_report" } }
         {
@@ -163,6 +160,21 @@ fragment CompanyVendorContact on company_vendor_contacts {
 
 ## Companies
 
+fragment CompanyDealOwners on company_settings {
+  underwriter_user {
+    id
+    full_name
+  }
+  business_development_user {
+    id
+    full_name
+  }
+  client_success_user {
+    id
+    full_name
+  }
+}
+
 fragment CustomerForBank on companies {
   id
   identifier
@@ -188,8 +200,9 @@ fragment CompanySettings on company_settings {
   collections_bespoke_bank_account_id
   two_factor_message_method
   is_dummy_account
-  account_manager_user_id
-  salesperson_user_id
+  client_success_user_id
+  business_development_user_id
+  underwriter_user_id
   ...CompanySettingsLimited
 }
 

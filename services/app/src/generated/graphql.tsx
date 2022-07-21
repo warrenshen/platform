@@ -5572,9 +5572,6 @@ export enum CompanyPayorPartnershipsUpdateColumn {
 /** Settings are configuration details associated with a company, but are not within a time range like contracts are */
 export type CompanySettings = {
   /** An object relationship */
-  account_manager?: Maybe<Users>;
-  account_manager_user_id?: Maybe<Scalars["uuid"]>;
-  /** An object relationship */
   active_borrowing_base?: Maybe<EbbaApplications>;
   /** If relevant, this foreign key points to the current active borrowing_base (ebba_application) for this company */
   active_borrowing_base_id?: Maybe<Scalars["uuid"]>;
@@ -5594,6 +5591,12 @@ export type CompanySettings = {
   advances_bespoke_bank_account?: Maybe<BankAccounts>;
   /** For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances FROM */
   advances_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
+  /** An object relationship */
+  business_development_user?: Maybe<Users>;
+  business_development_user_id?: Maybe<Scalars["uuid"]>;
+  /** An object relationship */
+  client_success_user?: Maybe<Users>;
+  client_success_user_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
   collections_bank_account?: Maybe<BankAccounts>;
   /** For CUSTOMER and PAYOR companies, this is the bank account which company sends payments FROM */
@@ -5618,10 +5621,10 @@ export type CompanySettings = {
   metrc_api_key?: Maybe<MetrcApiKeys>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
-  /** An object relationship */
-  salesperson?: Maybe<Users>;
-  salesperson_user_id?: Maybe<Scalars["uuid"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
+  /** An object relationship */
+  underwriter_user?: Maybe<Users>;
+  underwriter_user_id?: Maybe<Scalars["uuid"]>;
   updated_at: Scalars["timestamptz"];
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
   vendor_onboarding_link?: Maybe<Scalars["String"]>;
@@ -5683,8 +5686,6 @@ export type CompanySettingsBoolExp = {
   _and?: Maybe<Array<CompanySettingsBoolExp>>;
   _not?: Maybe<CompanySettingsBoolExp>;
   _or?: Maybe<Array<CompanySettingsBoolExp>>;
-  account_manager?: Maybe<UsersBoolExp>;
-  account_manager_user_id?: Maybe<UuidComparisonExp>;
   active_borrowing_base?: Maybe<EbbaApplicationsBoolExp>;
   active_borrowing_base_id?: Maybe<UuidComparisonExp>;
   active_ebba_application?: Maybe<EbbaApplicationsBoolExp>;
@@ -5695,6 +5696,10 @@ export type CompanySettingsBoolExp = {
   advances_bank_account_id?: Maybe<UuidComparisonExp>;
   advances_bespoke_bank_account?: Maybe<BankAccountsBoolExp>;
   advances_bespoke_bank_account_id?: Maybe<UuidComparisonExp>;
+  business_development_user?: Maybe<UsersBoolExp>;
+  business_development_user_id?: Maybe<UuidComparisonExp>;
+  client_success_user?: Maybe<UsersBoolExp>;
+  client_success_user_id?: Maybe<UuidComparisonExp>;
   collections_bank_account?: Maybe<BankAccountsBoolExp>;
   collections_bank_account_id?: Maybe<UuidComparisonExp>;
   collections_bespoke_bank_account?: Maybe<BankAccountsBoolExp>;
@@ -5711,9 +5716,9 @@ export type CompanySettingsBoolExp = {
   metrc_api_key?: Maybe<MetrcApiKeysBoolExp>;
   metrc_api_key_id?: Maybe<UuidComparisonExp>;
   payor_agreement_docusign_template?: Maybe<StringComparisonExp>;
-  salesperson?: Maybe<UsersBoolExp>;
-  salesperson_user_id?: Maybe<UuidComparisonExp>;
   two_factor_message_method?: Maybe<StringComparisonExp>;
+  underwriter_user?: Maybe<UsersBoolExp>;
+  underwriter_user_id?: Maybe<UuidComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
   vendor_agreement_docusign_template?: Maybe<StringComparisonExp>;
   vendor_onboarding_link?: Maybe<StringComparisonExp>;
@@ -5751,8 +5756,6 @@ export type CompanySettingsDeleteKeyInput = {
 
 /** input type for inserting data into table "company_settings" */
 export type CompanySettingsInsertInput = {
-  account_manager?: Maybe<UsersObjRelInsertInput>;
-  account_manager_user_id?: Maybe<Scalars["uuid"]>;
   active_borrowing_base?: Maybe<EbbaApplicationsObjRelInsertInput>;
   /** If relevant, this foreign key points to the current active borrowing_base (ebba_application) for this company */
   active_borrowing_base_id?: Maybe<Scalars["uuid"]>;
@@ -5768,6 +5771,10 @@ export type CompanySettingsInsertInput = {
   advances_bespoke_bank_account?: Maybe<BankAccountsObjRelInsertInput>;
   /** For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances FROM */
   advances_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
+  business_development_user?: Maybe<UsersObjRelInsertInput>;
+  business_development_user_id?: Maybe<Scalars["uuid"]>;
+  client_success_user?: Maybe<UsersObjRelInsertInput>;
+  client_success_user_id?: Maybe<Scalars["uuid"]>;
   collections_bank_account?: Maybe<BankAccountsObjRelInsertInput>;
   /** For CUSTOMER and PAYOR companies, this is the bank account which company sends payments FROM */
   collections_bank_account_id?: Maybe<Scalars["uuid"]>;
@@ -5788,9 +5795,9 @@ export type CompanySettingsInsertInput = {
   metrc_api_key?: Maybe<MetrcApiKeysObjRelInsertInput>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
-  salesperson?: Maybe<UsersObjRelInsertInput>;
-  salesperson_user_id?: Maybe<Scalars["uuid"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
+  underwriter_user?: Maybe<UsersObjRelInsertInput>;
+  underwriter_user_id?: Maybe<Scalars["uuid"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
   vendor_onboarding_link?: Maybe<Scalars["String"]>;
@@ -5798,7 +5805,6 @@ export type CompanySettingsInsertInput = {
 
 /** aggregate max on columns */
 export type CompanySettingsMaxFields = {
-  account_manager_user_id?: Maybe<Scalars["uuid"]>;
   /** If relevant, this foreign key points to the current active borrowing_base (ebba_application) for this company */
   active_borrowing_base_id?: Maybe<Scalars["uuid"]>;
   /** If relevant, this foreign key points to the current active ebba_application for this company */
@@ -5809,6 +5815,8 @@ export type CompanySettingsMaxFields = {
   advances_bank_account_id?: Maybe<Scalars["uuid"]>;
   /** For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances FROM */
   advances_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
+  business_development_user_id?: Maybe<Scalars["uuid"]>;
+  client_success_user_id?: Maybe<Scalars["uuid"]>;
   /** For CUSTOMER and PAYOR companies, this is the bank account which company sends payments FROM */
   collections_bank_account_id?: Maybe<Scalars["uuid"]>;
   /** For CUSTOMER and PAYOR companies, this is the Bespoke Financial bank account company sends payments TO */
@@ -5818,8 +5826,8 @@ export type CompanySettingsMaxFields = {
   id?: Maybe<Scalars["uuid"]>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
-  salesperson_user_id?: Maybe<Scalars["uuid"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
+  underwriter_user_id?: Maybe<Scalars["uuid"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
   vendor_onboarding_link?: Maybe<Scalars["String"]>;
@@ -5827,7 +5835,6 @@ export type CompanySettingsMaxFields = {
 
 /** order by max() on columns of table "company_settings" */
 export type CompanySettingsMaxOrderBy = {
-  account_manager_user_id?: Maybe<OrderBy>;
   /** If relevant, this foreign key points to the current active borrowing_base (ebba_application) for this company */
   active_borrowing_base_id?: Maybe<OrderBy>;
   /** If relevant, this foreign key points to the current active ebba_application for this company */
@@ -5838,6 +5845,8 @@ export type CompanySettingsMaxOrderBy = {
   advances_bank_account_id?: Maybe<OrderBy>;
   /** For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances FROM */
   advances_bespoke_bank_account_id?: Maybe<OrderBy>;
+  business_development_user_id?: Maybe<OrderBy>;
+  client_success_user_id?: Maybe<OrderBy>;
   /** For CUSTOMER and PAYOR companies, this is the bank account which company sends payments FROM */
   collections_bank_account_id?: Maybe<OrderBy>;
   /** For CUSTOMER and PAYOR companies, this is the Bespoke Financial bank account company sends payments TO */
@@ -5847,8 +5856,8 @@ export type CompanySettingsMaxOrderBy = {
   id?: Maybe<OrderBy>;
   metrc_api_key_id?: Maybe<OrderBy>;
   payor_agreement_docusign_template?: Maybe<OrderBy>;
-  salesperson_user_id?: Maybe<OrderBy>;
   two_factor_message_method?: Maybe<OrderBy>;
+  underwriter_user_id?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor_agreement_docusign_template?: Maybe<OrderBy>;
   vendor_onboarding_link?: Maybe<OrderBy>;
@@ -5856,7 +5865,6 @@ export type CompanySettingsMaxOrderBy = {
 
 /** aggregate min on columns */
 export type CompanySettingsMinFields = {
-  account_manager_user_id?: Maybe<Scalars["uuid"]>;
   /** If relevant, this foreign key points to the current active borrowing_base (ebba_application) for this company */
   active_borrowing_base_id?: Maybe<Scalars["uuid"]>;
   /** If relevant, this foreign key points to the current active ebba_application for this company */
@@ -5867,6 +5875,8 @@ export type CompanySettingsMinFields = {
   advances_bank_account_id?: Maybe<Scalars["uuid"]>;
   /** For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances FROM */
   advances_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
+  business_development_user_id?: Maybe<Scalars["uuid"]>;
+  client_success_user_id?: Maybe<Scalars["uuid"]>;
   /** For CUSTOMER and PAYOR companies, this is the bank account which company sends payments FROM */
   collections_bank_account_id?: Maybe<Scalars["uuid"]>;
   /** For CUSTOMER and PAYOR companies, this is the Bespoke Financial bank account company sends payments TO */
@@ -5876,8 +5886,8 @@ export type CompanySettingsMinFields = {
   id?: Maybe<Scalars["uuid"]>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
-  salesperson_user_id?: Maybe<Scalars["uuid"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
+  underwriter_user_id?: Maybe<Scalars["uuid"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
   vendor_onboarding_link?: Maybe<Scalars["String"]>;
@@ -5885,7 +5895,6 @@ export type CompanySettingsMinFields = {
 
 /** order by min() on columns of table "company_settings" */
 export type CompanySettingsMinOrderBy = {
-  account_manager_user_id?: Maybe<OrderBy>;
   /** If relevant, this foreign key points to the current active borrowing_base (ebba_application) for this company */
   active_borrowing_base_id?: Maybe<OrderBy>;
   /** If relevant, this foreign key points to the current active ebba_application for this company */
@@ -5896,6 +5905,8 @@ export type CompanySettingsMinOrderBy = {
   advances_bank_account_id?: Maybe<OrderBy>;
   /** For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances FROM */
   advances_bespoke_bank_account_id?: Maybe<OrderBy>;
+  business_development_user_id?: Maybe<OrderBy>;
+  client_success_user_id?: Maybe<OrderBy>;
   /** For CUSTOMER and PAYOR companies, this is the bank account which company sends payments FROM */
   collections_bank_account_id?: Maybe<OrderBy>;
   /** For CUSTOMER and PAYOR companies, this is the Bespoke Financial bank account company sends payments TO */
@@ -5905,8 +5916,8 @@ export type CompanySettingsMinOrderBy = {
   id?: Maybe<OrderBy>;
   metrc_api_key_id?: Maybe<OrderBy>;
   payor_agreement_docusign_template?: Maybe<OrderBy>;
-  salesperson_user_id?: Maybe<OrderBy>;
   two_factor_message_method?: Maybe<OrderBy>;
+  underwriter_user_id?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor_agreement_docusign_template?: Maybe<OrderBy>;
   vendor_onboarding_link?: Maybe<OrderBy>;
@@ -5936,8 +5947,6 @@ export type CompanySettingsOnConflict = {
 
 /** Ordering options when selecting data from "company_settings". */
 export type CompanySettingsOrderBy = {
-  account_manager?: Maybe<UsersOrderBy>;
-  account_manager_user_id?: Maybe<OrderBy>;
   active_borrowing_base?: Maybe<EbbaApplicationsOrderBy>;
   active_borrowing_base_id?: Maybe<OrderBy>;
   active_ebba_application?: Maybe<EbbaApplicationsOrderBy>;
@@ -5948,6 +5957,10 @@ export type CompanySettingsOrderBy = {
   advances_bank_account_id?: Maybe<OrderBy>;
   advances_bespoke_bank_account?: Maybe<BankAccountsOrderBy>;
   advances_bespoke_bank_account_id?: Maybe<OrderBy>;
+  business_development_user?: Maybe<UsersOrderBy>;
+  business_development_user_id?: Maybe<OrderBy>;
+  client_success_user?: Maybe<UsersOrderBy>;
+  client_success_user_id?: Maybe<OrderBy>;
   collections_bank_account?: Maybe<BankAccountsOrderBy>;
   collections_bank_account_id?: Maybe<OrderBy>;
   collections_bespoke_bank_account?: Maybe<BankAccountsOrderBy>;
@@ -5964,9 +5977,9 @@ export type CompanySettingsOrderBy = {
   metrc_api_key?: Maybe<MetrcApiKeysOrderBy>;
   metrc_api_key_id?: Maybe<OrderBy>;
   payor_agreement_docusign_template?: Maybe<OrderBy>;
-  salesperson?: Maybe<UsersOrderBy>;
-  salesperson_user_id?: Maybe<OrderBy>;
   two_factor_message_method?: Maybe<OrderBy>;
+  underwriter_user?: Maybe<UsersOrderBy>;
+  underwriter_user_id?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor_agreement_docusign_template?: Maybe<OrderBy>;
   vendor_onboarding_link?: Maybe<OrderBy>;
@@ -5988,8 +6001,6 @@ export type CompanySettingsPrependInput = {
 /** select columns of table "company_settings" */
 export enum CompanySettingsSelectColumn {
   /** column name */
-  AccountManagerUserId = "account_manager_user_id",
-  /** column name */
   ActiveBorrowingBaseId = "active_borrowing_base_id",
   /** column name */
   ActiveEbbaApplicationId = "active_ebba_application_id",
@@ -5999,6 +6010,10 @@ export enum CompanySettingsSelectColumn {
   AdvancesBankAccountId = "advances_bank_account_id",
   /** column name */
   AdvancesBespokeBankAccountId = "advances_bespoke_bank_account_id",
+  /** column name */
+  BusinessDevelopmentUserId = "business_development_user_id",
+  /** column name */
+  ClientSuccessUserId = "client_success_user_id",
   /** column name */
   CollectionsBankAccountId = "collections_bank_account_id",
   /** column name */
@@ -6024,9 +6039,9 @@ export enum CompanySettingsSelectColumn {
   /** column name */
   PayorAgreementDocusignTemplate = "payor_agreement_docusign_template",
   /** column name */
-  SalespersonUserId = "salesperson_user_id",
-  /** column name */
   TwoFactorMessageMethod = "two_factor_message_method",
+  /** column name */
+  UnderwriterUserId = "underwriter_user_id",
   /** column name */
   UpdatedAt = "updated_at",
   /** column name */
@@ -6037,7 +6052,6 @@ export enum CompanySettingsSelectColumn {
 
 /** input type for updating data in table "company_settings" */
 export type CompanySettingsSetInput = {
-  account_manager_user_id?: Maybe<Scalars["uuid"]>;
   /** If relevant, this foreign key points to the current active borrowing_base (ebba_application) for this company */
   active_borrowing_base_id?: Maybe<Scalars["uuid"]>;
   /** If relevant, this foreign key points to the current active ebba_application for this company */
@@ -6048,6 +6062,8 @@ export type CompanySettingsSetInput = {
   advances_bank_account_id?: Maybe<Scalars["uuid"]>;
   /** For CUSTOMER companies, this is the bank account which Bespoke Financial sends advances FROM */
   advances_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
+  business_development_user_id?: Maybe<Scalars["uuid"]>;
+  client_success_user_id?: Maybe<Scalars["uuid"]>;
   /** For CUSTOMER and PAYOR companies, this is the bank account which company sends payments FROM */
   collections_bank_account_id?: Maybe<Scalars["uuid"]>;
   /** For CUSTOMER and PAYOR companies, this is the Bespoke Financial bank account company sends payments TO */
@@ -6064,8 +6080,8 @@ export type CompanySettingsSetInput = {
   is_dummy_account?: Maybe<Scalars["Boolean"]>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
-  salesperson_user_id?: Maybe<Scalars["uuid"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
+  underwriter_user_id?: Maybe<Scalars["uuid"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
   vendor_onboarding_link?: Maybe<Scalars["String"]>;
@@ -6073,8 +6089,6 @@ export type CompanySettingsSetInput = {
 
 /** update columns of table "company_settings" */
 export enum CompanySettingsUpdateColumn {
-  /** column name */
-  AccountManagerUserId = "account_manager_user_id",
   /** column name */
   ActiveBorrowingBaseId = "active_borrowing_base_id",
   /** column name */
@@ -6085,6 +6099,10 @@ export enum CompanySettingsUpdateColumn {
   AdvancesBankAccountId = "advances_bank_account_id",
   /** column name */
   AdvancesBespokeBankAccountId = "advances_bespoke_bank_account_id",
+  /** column name */
+  BusinessDevelopmentUserId = "business_development_user_id",
+  /** column name */
+  ClientSuccessUserId = "client_success_user_id",
   /** column name */
   CollectionsBankAccountId = "collections_bank_account_id",
   /** column name */
@@ -6110,9 +6128,9 @@ export enum CompanySettingsUpdateColumn {
   /** column name */
   PayorAgreementDocusignTemplate = "payor_agreement_docusign_template",
   /** column name */
-  SalespersonUserId = "salesperson_user_id",
-  /** column name */
   TwoFactorMessageMethod = "two_factor_message_method",
+  /** column name */
+  UnderwriterUserId = "underwriter_user_id",
   /** column name */
   UpdatedAt = "updated_at",
   /** column name */
@@ -7103,8 +7121,6 @@ export type CustomerSurveillanceResultsBoolExp = {
 
 /** unique or primary key constraints on table "customer_surveillance_results" */
 export enum CustomerSurveillanceResultsConstraint {
-  /** unique or primary key constraint */
-  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
   /** unique or primary key constraint */
   CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
 }
@@ -21663,6 +21679,7 @@ export type PurchaseOrders = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
@@ -21844,6 +21861,7 @@ export type PurchaseOrdersBoolExp = {
   _or?: Maybe<Array<PurchaseOrdersBoolExp>>;
   amount?: Maybe<NumericComparisonExp>;
   amount_funded?: Maybe<NumericComparisonExp>;
+  amount_updated_at?: Maybe<TimestamptzComparisonExp>;
   approved_at?: Maybe<TimestamptzComparisonExp>;
   approved_by_user_id?: Maybe<UuidComparisonExp>;
   approving_user_id?: Maybe<UsersBoolExp>;
@@ -21899,6 +21917,7 @@ export type PurchaseOrdersInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   approving_user_id?: Maybe<UsersObjRelInsertInput>;
@@ -21946,6 +21965,7 @@ export type PurchaseOrdersMaxFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -21980,6 +22000,7 @@ export type PurchaseOrdersMaxOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
@@ -22014,6 +22035,7 @@ export type PurchaseOrdersMinFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -22048,6 +22070,7 @@ export type PurchaseOrdersMinOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
@@ -22103,6 +22126,7 @@ export type PurchaseOrdersOnConflict = {
 export type PurchaseOrdersOrderBy = {
   amount?: Maybe<OrderBy>;
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   approving_user_id?: Maybe<UsersOrderBy>;
@@ -22150,6 +22174,8 @@ export enum PurchaseOrdersSelectColumn {
   Amount = "amount",
   /** column name */
   AmountFunded = "amount_funded",
+  /** column name */
+  AmountUpdatedAt = "amount_updated_at",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -22211,6 +22237,7 @@ export type PurchaseOrdersSetInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -22316,6 +22343,8 @@ export enum PurchaseOrdersUpdateColumn {
   Amount = "amount",
   /** column name */
   AmountFunded = "amount_funded",
+  /** column name */
+  AmountUpdatedAt = "amount_updated_at",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -26995,6 +27024,7 @@ export type Users = {
   /** An object relationship */
   company?: Maybe<Companies>;
   company_id?: Maybe<Scalars["uuid"]>;
+  company_role?: Maybe<Scalars["String"]>;
   created_at: Scalars["timestamptz"];
   email: Scalars["String"];
   first_name: Scalars["String"];
@@ -27052,6 +27082,7 @@ export type UsersBoolExp = {
   _or?: Maybe<Array<UsersBoolExp>>;
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
+  company_role?: Maybe<StringComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   email?: Maybe<StringComparisonExp>;
   first_name?: Maybe<StringComparisonExp>;
@@ -27080,6 +27111,7 @@ export enum UsersConstraint {
 export type UsersInsertInput = {
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
+  company_role?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   email?: Maybe<Scalars["String"]>;
   first_name?: Maybe<Scalars["String"]>;
@@ -27099,6 +27131,7 @@ export type UsersInsertInput = {
 /** aggregate max on columns */
 export type UsersMaxFields = {
   company_id?: Maybe<Scalars["uuid"]>;
+  company_role?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   email?: Maybe<Scalars["String"]>;
   first_name?: Maybe<Scalars["String"]>;
@@ -27115,6 +27148,7 @@ export type UsersMaxFields = {
 /** order by max() on columns of table "users" */
 export type UsersMaxOrderBy = {
   company_id?: Maybe<OrderBy>;
+  company_role?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   email?: Maybe<OrderBy>;
   first_name?: Maybe<OrderBy>;
@@ -27131,6 +27165,7 @@ export type UsersMaxOrderBy = {
 /** aggregate min on columns */
 export type UsersMinFields = {
   company_id?: Maybe<Scalars["uuid"]>;
+  company_role?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   email?: Maybe<Scalars["String"]>;
   first_name?: Maybe<Scalars["String"]>;
@@ -27147,6 +27182,7 @@ export type UsersMinFields = {
 /** order by min() on columns of table "users" */
 export type UsersMinOrderBy = {
   company_id?: Maybe<OrderBy>;
+  company_role?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   email?: Maybe<OrderBy>;
   first_name?: Maybe<OrderBy>;
@@ -27186,6 +27222,7 @@ export type UsersOnConflict = {
 export type UsersOrderBy = {
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
+  company_role?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   email?: Maybe<OrderBy>;
   first_name?: Maybe<OrderBy>;
@@ -27211,6 +27248,8 @@ export type UsersPkColumnsInput = {
 export enum UsersSelectColumn {
   /** column name */
   CompanyId = "company_id",
+  /** column name */
+  CompanyRole = "company_role",
   /** column name */
   CreatedAt = "created_at",
   /** column name */
@@ -27242,6 +27281,7 @@ export enum UsersSelectColumn {
 /** input type for updating data in table "users" */
 export type UsersSetInput = {
   company_id?: Maybe<Scalars["uuid"]>;
+  company_role?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   email?: Maybe<Scalars["String"]>;
   first_name?: Maybe<Scalars["String"]>;
@@ -27261,6 +27301,8 @@ export type UsersSetInput = {
 export enum UsersUpdateColumn {
   /** column name */
   CompanyId = "company_id",
+  /** column name */
+  CompanyRole = "company_role",
   /** column name */
   CreatedAt = "created_at",
   /** column name */
@@ -28051,7 +28093,11 @@ export type GetCustomersSurveillanceByCompanyIdQueryVariables = Exact<{
 }>;
 
 export type GetCustomersSurveillanceByCompanyIdQuery = {
-  customer?: Maybe<Pick<Companies, "id"> & CustomerSurveillanceFragment>;
+  customer?: Maybe<
+    Pick<Companies, "id"> & {
+      settings?: Maybe<CompanyDealOwnersFragment>;
+    } & CustomerSurveillanceFragment
+  >;
 };
 
 export type GetSurveillanceResultByIdQueryVariables = Exact<{
@@ -29146,11 +29192,21 @@ export type GetActiveUsersByRolesQuery = {
   >;
 };
 
-export type GetDeactivedUsersByRolesQueryVariables = Exact<{
+export type GetActiveTeamMembersQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetActiveTeamMembersQuery = {
+  client_success_team_members: Array<Pick<Users, "id" | "full_name">>;
+  business_development_team_members: Array<Pick<Users, "id" | "full_name">>;
+  underwriting_team_members: Array<Pick<Users, "id" | "full_name">>;
+};
+
+export type GetDeactivatedUsersByRolesQueryVariables = Exact<{
   roles: Array<UserRolesEnum>;
 }>;
 
-export type GetDeactivedUsersByRolesQuery = {
+export type GetDeactivatedUsersByRolesQuery = {
   users: Array<Pick<Users, "id"> & UserFragment>;
 };
 
@@ -29397,7 +29453,8 @@ export type GetCompanyForBankQuery = {
           collections_bank_account?: Maybe<
             Pick<BankAccounts, "id"> & BankAccountLimitedFragment
           >;
-        } & CompanySettingsFragment
+        } & CompanyDealOwnersFragment &
+          CompanySettingsFragment
       >;
       users: Array<Pick<Users, "id"> & UserFragment>;
     } & CompanyFragment
@@ -29448,6 +29505,7 @@ export type UserFragment = Pick<
   | "email"
   | "phone_number"
   | "role"
+  | "company_role"
   | "created_at"
 >;
 
@@ -30077,6 +30135,12 @@ export type CompanyVendorContactFragment = Pick<
   "id" | "vendor_user_id"
 > & { user: Pick<Users, "id"> & ContactFragment };
 
+export type CompanyDealOwnersFragment = {
+  underwriter_user?: Maybe<Pick<Users, "id" | "full_name">>;
+  business_development_user?: Maybe<Pick<Users, "id" | "full_name">>;
+  client_success_user?: Maybe<Pick<Users, "id" | "full_name">>;
+};
+
 export type CustomerForBankFragment = Pick<
   Companies,
   | "id"
@@ -30104,8 +30168,9 @@ export type CompanySettingsFragment = Pick<
   | "collections_bespoke_bank_account_id"
   | "two_factor_message_method"
   | "is_dummy_account"
-  | "account_manager_user_id"
-  | "salesperson_user_id"
+  | "client_success_user_id"
+  | "business_development_user_id"
+  | "underwriter_user_id"
 > &
   CompanySettingsLimitedFragment;
 
@@ -30756,6 +30821,7 @@ export const UserFragmentDoc = gql`
     email
     phone_number
     role
+    company_role
     created_at
   }
 `;
@@ -31067,8 +31133,9 @@ export const CompanySettingsFragmentDoc = gql`
     collections_bespoke_bank_account_id
     two_factor_message_method
     is_dummy_account
-    account_manager_user_id
-    salesperson_user_id
+    client_success_user_id
+    business_development_user_id
+    underwriter_user_id
     ...CompanySettingsLimited
   }
   ${CompanySettingsLimitedFragmentDoc}
@@ -31256,6 +31323,22 @@ export const CompanyVendorContactFragmentDoc = gql`
     }
   }
   ${ContactFragmentDoc}
+`;
+export const CompanyDealOwnersFragmentDoc = gql`
+  fragment CompanyDealOwners on company_settings {
+    underwriter_user {
+      id
+      full_name
+    }
+    business_development_user {
+      id
+      full_name
+    }
+    client_success_user {
+      id
+      full_name
+    }
+  }
 `;
 export const BankAccountForVendorFragmentDoc = gql`
   fragment BankAccountForVendor on bank_accounts {
@@ -33722,9 +33805,13 @@ export const GetCustomersSurveillanceByCompanyIdDocument = gql`
     customer: companies_by_pk(id: $id) {
       id
       ...CustomerSurveillance
+      settings {
+        ...CompanyDealOwners
+      }
     }
   }
   ${CustomerSurveillanceFragmentDoc}
+  ${CompanyDealOwnersFragmentDoc}
 `;
 
 /**
@@ -39482,8 +39569,108 @@ export type GetActiveUsersByRolesQueryResult = Apollo.QueryResult<
   GetActiveUsersByRolesQuery,
   GetActiveUsersByRolesQueryVariables
 >;
-export const GetDeactivedUsersByRolesDocument = gql`
-  query GetDeactivedUsersByRoles($roles: [user_roles_enum!]!) {
+export const GetActiveTeamMembersDocument = gql`
+  query GetActiveTeamMembers {
+    client_success_team_members: users(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { company_role: { _eq: "client_success" } }
+        ]
+      }
+    ) {
+      id
+      full_name
+    }
+    business_development_team_members: users(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { company_role: { _eq: "business_development" } }
+        ]
+      }
+    ) {
+      id
+      full_name
+    }
+    underwriting_team_members: users(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { company_role: { _eq: "underwriter" } }
+        ]
+      }
+    ) {
+      id
+      full_name
+    }
+  }
+`;
+
+/**
+ * __useGetActiveTeamMembersQuery__
+ *
+ * To run a query within a React component, call `useGetActiveTeamMembersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetActiveTeamMembersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetActiveTeamMembersQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetActiveTeamMembersQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetActiveTeamMembersQuery,
+    GetActiveTeamMembersQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetActiveTeamMembersQuery,
+    GetActiveTeamMembersQueryVariables
+  >(GetActiveTeamMembersDocument, baseOptions);
+}
+export function useGetActiveTeamMembersLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetActiveTeamMembersQuery,
+    GetActiveTeamMembersQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetActiveTeamMembersQuery,
+    GetActiveTeamMembersQueryVariables
+  >(GetActiveTeamMembersDocument, baseOptions);
+}
+export type GetActiveTeamMembersQueryHookResult = ReturnType<
+  typeof useGetActiveTeamMembersQuery
+>;
+export type GetActiveTeamMembersLazyQueryHookResult = ReturnType<
+  typeof useGetActiveTeamMembersLazyQuery
+>;
+export type GetActiveTeamMembersQueryResult = Apollo.QueryResult<
+  GetActiveTeamMembersQuery,
+  GetActiveTeamMembersQueryVariables
+>;
+export const GetDeactivatedUsersByRolesDocument = gql`
+  query GetDeactivatedUsersByRoles($roles: [user_roles_enum!]!) {
     users(
       where: {
         _and: [{ is_deleted: { _eq: true } }, { role: { _in: $roles } }]
@@ -39497,52 +39684,52 @@ export const GetDeactivedUsersByRolesDocument = gql`
 `;
 
 /**
- * __useGetDeactivedUsersByRolesQuery__
+ * __useGetDeactivatedUsersByRolesQuery__
  *
- * To run a query within a React component, call `useGetDeactivedUsersByRolesQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetDeactivedUsersByRolesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetDeactivatedUsersByRolesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetDeactivatedUsersByRolesQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetDeactivedUsersByRolesQuery({
+ * const { data, loading, error } = useGetDeactivatedUsersByRolesQuery({
  *   variables: {
  *      roles: // value for 'roles'
  *   },
  * });
  */
-export function useGetDeactivedUsersByRolesQuery(
+export function useGetDeactivatedUsersByRolesQuery(
   baseOptions: Apollo.QueryHookOptions<
-    GetDeactivedUsersByRolesQuery,
-    GetDeactivedUsersByRolesQueryVariables
+    GetDeactivatedUsersByRolesQuery,
+    GetDeactivatedUsersByRolesQueryVariables
   >
 ) {
   return Apollo.useQuery<
-    GetDeactivedUsersByRolesQuery,
-    GetDeactivedUsersByRolesQueryVariables
-  >(GetDeactivedUsersByRolesDocument, baseOptions);
+    GetDeactivatedUsersByRolesQuery,
+    GetDeactivatedUsersByRolesQueryVariables
+  >(GetDeactivatedUsersByRolesDocument, baseOptions);
 }
-export function useGetDeactivedUsersByRolesLazyQuery(
+export function useGetDeactivatedUsersByRolesLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    GetDeactivedUsersByRolesQuery,
-    GetDeactivedUsersByRolesQueryVariables
+    GetDeactivatedUsersByRolesQuery,
+    GetDeactivatedUsersByRolesQueryVariables
   >
 ) {
   return Apollo.useLazyQuery<
-    GetDeactivedUsersByRolesQuery,
-    GetDeactivedUsersByRolesQueryVariables
-  >(GetDeactivedUsersByRolesDocument, baseOptions);
+    GetDeactivatedUsersByRolesQuery,
+    GetDeactivatedUsersByRolesQueryVariables
+  >(GetDeactivatedUsersByRolesDocument, baseOptions);
 }
-export type GetDeactivedUsersByRolesQueryHookResult = ReturnType<
-  typeof useGetDeactivedUsersByRolesQuery
+export type GetDeactivatedUsersByRolesQueryHookResult = ReturnType<
+  typeof useGetDeactivatedUsersByRolesQuery
 >;
-export type GetDeactivedUsersByRolesLazyQueryHookResult = ReturnType<
-  typeof useGetDeactivedUsersByRolesLazyQuery
+export type GetDeactivatedUsersByRolesLazyQueryHookResult = ReturnType<
+  typeof useGetDeactivatedUsersByRolesLazyQuery
 >;
-export type GetDeactivedUsersByRolesQueryResult = Apollo.QueryResult<
-  GetDeactivedUsersByRolesQuery,
-  GetDeactivedUsersByRolesQueryVariables
+export type GetDeactivatedUsersByRolesQueryResult = Apollo.QueryResult<
+  GetDeactivatedUsersByRolesQuery,
+  GetDeactivatedUsersByRolesQueryVariables
 >;
 export const GetUsersForCompanyDocument = gql`
   query GetUsersForCompany($parent_company_id: uuid!, $company_id: uuid!) {
@@ -40667,6 +40854,7 @@ export const GetCompanyForBankDocument = gql`
         ...CompanyLicense
       }
       settings {
+        ...CompanyDealOwners
         ...CompanySettings
         advances_bespoke_bank_account {
           id
@@ -40695,6 +40883,7 @@ export const GetCompanyForBankDocument = gql`
   ${BankAccountFragmentDoc}
   ${ContractFragmentDoc}
   ${CompanyLicenseFragmentDoc}
+  ${CompanyDealOwnersFragmentDoc}
   ${CompanySettingsFragmentDoc}
   ${BankAccountLimitedFragmentDoc}
   ${UserFragmentDoc}

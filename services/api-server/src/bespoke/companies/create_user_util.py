@@ -12,6 +12,7 @@ from sqlalchemy.orm.session import Session
 
 UserInsertInputDict = TypedDict('UserInsertInputDict', {
 	'role': str,
+	'company_role': str,
 	'first_name': str,
 	'last_name': str,
 	'email': str,
@@ -49,7 +50,7 @@ def create_bank_or_customer_user_with_session(
 	req: CreateBankOrCustomerUserInputDict,
 	session: Session,
 ) -> Tuple[str, errors.Error]:
-	company_id = req['company_id']
+	company_id = req['company_id'] 
 	user_input = req['user']
 	role = user_input['role']
 	first_name = user_input['first_name']
@@ -102,6 +103,8 @@ def create_bank_or_customer_user_with_session(
 	user.email = email.lower()
 	user.phone_number = phone_number
 	user.login_method = LoginMethod.TWO_FA if is_bank_user else LoginMethod.SIMPLE
+	if "company_role" in user_input:
+		user.company_role = user_input["company_role"]
 
 	session.add(user)
 	session.flush()

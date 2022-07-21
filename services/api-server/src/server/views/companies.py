@@ -859,6 +859,41 @@ class DeleteCustomerSurveillanceResultView(MethodView):
 			'status': 'OK',
 		}))
 
+class UpsertDealOwnerView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+		
+		required_keys = [
+			'business_development_user_id',
+			'client_success_user_id',
+			'company_settings_id',
+			'underwriter_user_id',
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in request')
+
+		with session_scope(current_app.session_maker) as session:
+			_, err = create_company_util.upsert_deal_owner_payload(
+				session = session,
+				client_success_user_id = form['client_success_user_id'],
+				business_development_user_id = form['business_development_user_id'],
+				underwriter_user_id = form['underwriter_user_id'],
+				company_settings_id = form['company_settings_id'],
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
+
 handler.add_url_rule(
 	'/create_customer', view_func=CreateCustomerView.as_view(name='create_customer_view'))
 
@@ -873,6 +908,9 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/upsert_custom_messages', view_func=UpsertCustomMessagesView.as_view(name='upsert_custom_messages_view'))
+
+handler.add_url_rule(
+	'/upsert_deal_owner', view_func=UpsertDealOwnerView.as_view(name='upsert_deal_owner_view'))
 
 handler.add_url_rule(
 	'/upsert_feature_flags', view_func=UpsertFeatureFlagsView.as_view(name='upsert_feature_flags_view'))

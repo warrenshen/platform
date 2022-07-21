@@ -22,11 +22,16 @@ query GetCustomersSurveillanceByCompanyId($target_date: date, $id: uuid!) {
   customer: companies_by_pk(id: $id) {
     id
     ...CustomerSurveillance
+    settings {
+      ...CompanyDealOwners
+    }
   }
 }
 
 query GetSurveillanceResultById($surveillance_result_id: uuid!) {
-  surveillance_result: customer_surveillance_results_by_pk(id: $surveillance_result_id) {
+  surveillance_result: customer_surveillance_results_by_pk(
+    id: $surveillance_result_id
+  ) {
     id
     ...CustomerSurveillanceResult
     submitting_user {

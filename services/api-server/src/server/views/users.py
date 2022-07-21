@@ -349,7 +349,7 @@ class UpdateUserView(MethodView):
             return handler_util.make_error_response("email is required to be set for this request")
         else:
         	email = email.strip()
-		
+
         first_name = variables.get("first_name", None)
         if not first_name:
             return handler_util.make_error_response("firstName is required to be set for this request")
@@ -383,6 +383,7 @@ class UpdateUserView(MethodView):
             user.first_name = first_name
             user.last_name = last_name
             user.role = role
+            user.company_role = variables.get("company_role", None)
 
             phone_number = variables.get("phone_number", None)
             if phone_number:

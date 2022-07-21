@@ -19,7 +19,12 @@ import { UserRolesEnum, UsersInsertInput } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { createBankCustomerUserMutation } from "lib/api/users";
-import { UserRoleToLabel } from "lib/enum";
+import {
+  BespokeCompanyRole,
+  BespokeCompanyRoleToLabel,
+  BespokeCompanyRoles,
+  UserRoleToLabel,
+} from "lib/enum";
 import { isEmailValid } from "lib/validation";
 import { useState } from "react";
 
@@ -43,12 +48,14 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
   // companyId == null when inviting a bank user.
   companyId: string | null;
+  isCompanyRoleVisible?: boolean;
   userRoles: UserRolesEnum[];
   handleClose: () => void;
 }
 
 export default function InviteUserModal({
   companyId,
+  isCompanyRoleVisible = false,
   userRoles,
   handleClose,
 }: Props) {
@@ -73,6 +80,7 @@ export default function InviteUserModal({
         company_id: companyId,
         user: {
           company_id: companyId,
+          company_role: user.company_role,
           role: user.role,
           email: user.email,
           first_name: user.first_name,
@@ -131,6 +139,32 @@ export default function InviteUserModal({
               </Select>
             </FormControl>
           </Box>
+          {isCompanyRoleVisible && (
+            <Box display="flex" flexDirection="column" mt={4}>
+              <FormControl>
+                <InputLabel id="user-role-select-label">
+                  Company Role
+                </InputLabel>
+                <Select
+                  required
+                  labelId="company-role-select-label"
+                  value={user.company_role || ""}
+                  onChange={({ target: { value } }) => {
+                    setUser({
+                      ...user,
+                      company_role: value as BespokeCompanyRole,
+                    });
+                  }}
+                >
+                  {BespokeCompanyRoles.map((companyRole) => (
+                    <MenuItem key={companyRole} value={companyRole}>
+                      {BespokeCompanyRoleToLabel[companyRole]}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+          )}
           <Box display="flex" flexDirection="column" mt={4}>
             <TextField
               required

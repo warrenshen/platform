@@ -11,6 +11,7 @@ import DeleteLicenseModal from "components/CompanyLicenses/DeleteLicenseModal";
 import UpdateCompanyLicensesModal from "components/CompanyLicenses/UpdateCompanyLicensesModal";
 import ChangeIsDummyAccountModal from "components/Settings/Bank/ChangeIsDummyAccountModal";
 import UpsertCustomMessagesModal from "components/Settings/Bank/UpsertCustomMessagesModal";
+import UpsertDealOwnersModal from "components/Settings/Bank/UpsertDealOwnersModal";
 import UpsertFeatureFlagsModal from "components/Settings/Bank/UpsertFeatureFlagsModal";
 import CustomerSettings from "components/Settings/CustomerSettings";
 import AssignAdvancesBespokeBankAccount from "components/Shared/BankAssignment/AssignAdvancesBespokeBankAccount";
@@ -57,6 +58,11 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
     },
   });
 
+  if (error) {
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
+  }
+
   const handleSelectLicenses = useMemo(
     () => (licenses: CompanyLicenseFragment[]) => {
       setSelectedLicensesId(licenses.map((license) => license.id));
@@ -64,13 +70,12 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
     []
   );
 
-  if (error) {
-    console.error({ error });
-    alert(`Error in query (details in console): ${error.message}`);
-  }
-
   const company = data?.companies_by_pk;
   const settings = company?.settings;
+  const clientSuccessTeamMember = settings?.client_success_user;
+  const businessDevelopmentTeamMember = settings?.business_development_user;
+  const underwritingTeamMember = settings?.underwriter_user;
+
   const contract = company?.contract as ContractFragment;
   const companyLicenses = company?.licenses || [];
   const featureFlagsPayload = settings?.feature_flags_payload || {};
@@ -325,6 +330,57 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
                 </Box>
               </Box>
             ))}
+          </Box>
+        </Box>
+        <Box mt={4}>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={2}
+          >
+            <Typography variant="h6">
+              <strong>Deal Owner</strong>
+            </Typography>
+            <Box display="flex" flexDirection="row-reverse">
+              <ModalButton
+                label={"Edit Deal Owners"}
+                modal={({ handleClose }) => (
+                  <UpsertDealOwnersModal
+                    companySettingsId={settings.id}
+                    underwriterUserId={settings.underwriter_user_id}
+                    businessDevelopmentUserId={
+                      settings.business_development_user_id
+                    }
+                    clientSuccessUserId={settings.client_success_user_id}
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                    }}
+                  />
+                )}
+              />
+            </Box>
+          </Box>
+          <Box display="flex" justifyContent="space-between">
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Underwriting Team Member
+              </Typography>
+              {underwritingTeamMember?.full_name || "None"}
+            </Box>
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Business Development Team Member
+              </Typography>
+              {businessDevelopmentTeamMember?.full_name || "None"}
+            </Box>
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Client Success Team Member
+              </Typography>
+              {clientSuccessTeamMember?.full_name || "None"}
+            </Box>
           </Box>
         </Box>
         <Box mt={4}>

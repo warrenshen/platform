@@ -1,4 +1,4 @@
-import { CompanySettings } from "generated/graphql";
+import { CompanySettings, Users } from "generated/graphql";
 import {
   CustomMutationResponse,
   authenticatedApi,
@@ -63,6 +63,33 @@ export async function upsertFeatureFlagsMutation(
         return {
           status: "ERROR",
           msg: "Could not update company features",
+        };
+      }
+    );
+}
+
+export type UpsertDealOwnerMutationReq = {
+  variables: {
+    company_settings_id: CompanySettings["id"];
+    client_success_user_id: Users["id"] | null;
+    business_development_user_id: Users["id"] | null;
+    underwriter_user_id: Users["id"] | null;
+  };
+};
+
+export async function upsertDealOwnerMutation(
+  req: UpsertDealOwnerMutationReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(companySettingsRoutes.upsertDealOwner, req.variables)
+    .then((res) => res.data)
+    .then(
+      (response) => response,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not update company deal owner",
         };
       }
     );

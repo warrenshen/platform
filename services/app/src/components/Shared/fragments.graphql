@@ -13,6 +13,7 @@ fragment User on users {
   email
   phone_number
   role
+  company_role
   created_at
 }
 

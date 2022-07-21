@@ -2,12 +2,12 @@
 	Logic to help create a company.
 """
 import datetime
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union, cast
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast
 
 from bespoke import errors
 from bespoke.companies import create_user_util
 from bespoke.date import date_util
-from bespoke.db import models, db_constants, models_util
+from bespoke.db import models, db_constants, models_util, queries
 from bespoke.db.db_constants import (CompanyDebtFacilityStatus, CompanySurveillanceStatus, 
 	CompanyType, TwoFactorMessageMethod, UserRoles)
 from bespoke.db.models import session_scope
@@ -332,6 +332,61 @@ def upsert_feature_flags_payload(
 			return None, errors.Error(f'Invalid feature flag: {feature_flag}')
 
 	settings.feature_flags_payload = feature_flags_payload
+
+	return True, None
+
+@errors.return_error_tuple
+def upsert_deal_owner_payload(
+	session: Session,
+	client_success_user_id: str,
+	business_development_user_id: str,
+	underwriter_user_id: str,
+	company_settings_id: str,
+) -> Tuple[bool, errors.Error]:
+	settings = cast(
+		models.CompanySettings,
+		session.query(models.CompanySettings).filter(
+			models.CompanySettings.id == company_settings_id
+		).first())
+
+	if not settings:
+		return None, errors.Error('No settings found')
+
+	client_success_user = None
+	if client_success_user_id is not None:
+		client_success_user, err = queries.get_user_by_id(
+			session,
+			client_success_user_id
+		)
+		if err:
+			return None, err
+
+	settings.client_success_user_id = client_success_user.id \
+		if client_success_user is not None else None
+
+	business_development_user = None
+	if business_development_user_id is not None:	
+		business_development_user, err = queries.get_user_by_id(
+			session,
+			business_development_user_id
+		)
+		if err:
+			return None, err
+
+	settings.business_development_user_id = business_development_user.id \
+		if business_development_user is not None else None
+
+	underwriter_user = None
+	if underwriter_user_id is not None:
+		underwriter_user, err = queries.get_user_by_id(
+			session,
+			underwriter_user_id
+		)
+		if err:
+			return None, err
+
+	settings.underwriter_user_id = underwriter_user.id \
+		if underwriter_user is not None else None
 
 	return True, None
 

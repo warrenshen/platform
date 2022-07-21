@@ -106,6 +106,7 @@ class User(Base):
 	email = Column(String(120), unique=True, nullable=False)
 	password = Column(Text)
 	role = Column(String(120))
+	company_role = Column(String(120))
 	first_name = Column(Text, nullable=False)
 	last_name = Column(Text, nullable=False)
 	phone_number = Column(Text)
@@ -270,8 +271,9 @@ class CompanySettings(Base):
 	feature_flags_payload = Column(JSON)
 	custom_messages_payload = Column(JSON)
 	is_dummy_account = Column(Boolean, default=False)
-	account_manager_user_id = cast(GUID, Column(GUID, ForeignKey('users.id'))) # used for commission
-	salesperson_user_id = cast(GUID, Column(GUID, ForeignKey('users.id'))) # used for commission
+	client_success_user_id = cast(GUID, Column(GUID, ForeignKey('users.id'))) # used for commission
+	business_development_user_id = cast(GUID, Column(GUID, ForeignKey('users.id'))) # used for commission
+	underwriter_user_id = cast(GUID, Column(GUID, ForeignKey('users.id')))
 	is_autogenerate_repayments_enabled = Column(Boolean, default=False)
 
 	def as_dict(self) -> CompanySettingsDict:

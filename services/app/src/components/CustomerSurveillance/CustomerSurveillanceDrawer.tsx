@@ -6,6 +6,10 @@ import CustomerSurveillanceStatusNoteModal from "components/CustomerSurveillance
 import MetrcLogo from "components/Shared/Images/MetrcLogo.png";
 import Modal from "components/Shared/Modal/Modal";
 import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
+import {
   CustomerSurveillanceFragment,
   useGetCustomersSurveillanceByCompanyIdQuery,
 } from "generated/graphql";
@@ -31,7 +35,7 @@ import {
   SurveillanceStatusEnum,
 } from "lib/enum";
 import { formatCurrency, formatPercentage } from "lib/number";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useContext, useState } from "react";
 
 interface Props {
   isCurrent?: boolean;
@@ -48,6 +52,8 @@ export default function CustomerSurveillanceDrawer({
 }: Props) {
   const [selectedBankNote, setSelectedBankNote] = useState(null);
   const [showSurveillanceDetails, setShowSurveillanceDetails] = useState(true);
+  const { user } = useContext(CurrentUserContext);
+  const isBankUser = isRoleBankUser(user.role);
 
   const { data, error } = useGetCustomersSurveillanceByCompanyIdQuery({
     fetchPolicy: "network-only",
@@ -63,7 +69,12 @@ export default function CustomerSurveillanceDrawer({
   }
 
   const customer = data?.customer;
+  const customerSettings = customer?.settings;
   const surveillanceResult = customer?.target_surveillance_result[0];
+  const clientSuccessTeamMember = customerSettings?.client_success_user;
+  const businessDevelopmentTeamMember =
+    customerSettings?.business_development_user;
+  const underwritingTeamMember = customerSettings?.underwriter_user;
 
   const surveillanceStatus = !!customer
     ? getCustomerSurveillanceStatus(customer, isCurrent)
@@ -253,6 +264,34 @@ export default function CustomerSurveillanceDrawer({
               }}
             />
           </Box>
+          {isBankUser && (
+            <>
+              <Box display="flex" flexDirection="column" mt={2}>
+                <Typography variant="subtitle2" color="textSecondary">
+                  Customer Success Team Member
+                </Typography>
+                <Typography variant={"body1"}>
+                  {clientSuccessTeamMember?.full_name || "-"}
+                </Typography>
+              </Box>
+              <Box display="flex" flexDirection="column" mt={2}>
+                <Typography variant="subtitle2" color="textSecondary">
+                  Business Development Team Member
+                </Typography>
+                <Typography variant={"body1"}>
+                  {businessDevelopmentTeamMember?.full_name || "-"}
+                </Typography>
+              </Box>
+              <Box display="flex" flexDirection="column" mt={2}>
+                <Typography variant="subtitle2" color="textSecondary">
+                  Underwriting Team Member
+                </Typography>
+                <Typography variant={"body1"}>
+                  {underwritingTeamMember?.full_name || "-"}
+                </Typography>
+              </Box>
+            </>
+          )}
         </>
       )}
     </Modal>

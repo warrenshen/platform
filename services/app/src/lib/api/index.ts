@@ -42,6 +42,7 @@ export const companyRoutes = {
 export const companySettingsRoutes = {
   updateCustomerSettings: "/companies/update_customer_settings",
   upsertFeatureFlags: "/companies/upsert_feature_flags",
+  upsertDealOwner: "/companies/upsert_deal_owner",
 };
 
 export const companyFacilitiesRoutes = {

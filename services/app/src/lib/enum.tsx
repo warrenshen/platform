@@ -39,6 +39,24 @@ export enum FileTypeEnum {
   BankInstructions = "bank_instructions",
 }
 
+export enum BespokeCompanyRole {
+  ClientSuccess = "client_success",
+  BusinessDevelopment = "business_development",
+  Underwriter = "underwriter",
+}
+
+export const BespokeCompanyRoles = [
+  BespokeCompanyRole.ClientSuccess,
+  BespokeCompanyRole.BusinessDevelopment,
+  BespokeCompanyRole.Underwriter,
+];
+
+export const BespokeCompanyRoleToLabel = {
+  [BespokeCompanyRole.ClientSuccess]: "Client Success",
+  [BespokeCompanyRole.BusinessDevelopment]: "Business Development",
+  [BespokeCompanyRole.Underwriter]: "Underwriter",
+};
+
 export interface USStateEnumInstance {
   abbreviation: string;
   full: string;

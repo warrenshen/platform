@@ -10,7 +10,7 @@ import {
   UserRolesEnum,
   Users,
   useGetActiveUsersByRolesQuery,
-  useGetDeactivedUsersByRolesQuery,
+  useGetDeactivatedUsersByRolesQuery,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { useMemo, useState } from "react";
@@ -50,6 +50,7 @@ function ActiveUsersTab() {
             modal={({ handleClose }) => (
               <InviteUserModal
                 companyId={null}
+                isCompanyRoleVisible
                 userRoles={bankUserRoles}
                 handleClose={() => {
                   refetch();
@@ -68,6 +69,7 @@ function ActiveUsersTab() {
                 <EditUserProfileModal
                   userId={selectedUsers[0].id}
                   userRoles={bankUserRoles}
+                  isCompanyRoleVisible
                   originalUserProfile={selectedUsers[0]}
                   handleClose={() => {
                     refetch();
@@ -103,6 +105,7 @@ function ActiveUsersTab() {
           <UsersDataGrid
             isMultiSelectEnabled
             isRoleVisible
+            isCompanyRoleVisible
             users={users}
             selectedUserIds={selectedUserIds}
             handleSelectUsers={handleSelectUsers}
@@ -116,7 +119,7 @@ function ActiveUsersTab() {
 }
 
 function DeactivatedUsersTab() {
-  const { data, refetch } = useGetDeactivedUsersByRolesQuery({
+  const { data, refetch } = useGetDeactivatedUsersByRolesQuery({
     variables: {
       roles: [UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly],
     },
@@ -164,6 +167,7 @@ function DeactivatedUsersTab() {
         {users.length > 0 ? (
           <UsersDataGrid
             isMultiSelectEnabled
+            isCompanyRoleVisible
             isRoleVisible
             users={users}
             selectedUserIds={selectedUserIds}

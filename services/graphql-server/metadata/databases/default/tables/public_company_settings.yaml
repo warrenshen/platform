@@ -2,9 +2,9 @@ table:
   schema: public
   name: company_settings
 object_relationships:
-  - name: account_manager
+  - name: client_success_user
     using:
-      foreign_key_constraint_on: account_manager_user_id
+      foreign_key_constraint_on: client_success_user_id
   - name: active_borrowing_base
     using:
       foreign_key_constraint_on: active_borrowing_base_id
@@ -32,14 +32,17 @@ object_relationships:
   - name: metrc_api_key
     using:
       foreign_key_constraint_on: metrc_api_key_id
-  - name: salesperson
+  - name: business_development_user
     using:
-      foreign_key_constraint_on: salesperson_user_id
+      foreign_key_constraint_on: business_development_user_id
+  - name: underwriter_user
+    using:
+      foreign_key_constraint_on: underwriter_user_id
 select_permissions:
   - role: bank_admin
     permission:
       columns:
-        - account_manager_user_id
+        - client_success_user_id
         - active_borrowing_base_id
         - active_ebba_application_id
         - active_financial_report_id
@@ -57,7 +60,8 @@ select_permissions:
         - is_dummy_account
         - metrc_api_key_id
         - payor_agreement_docusign_template
-        - salesperson_user_id
+        - business_development_user_id
+        - underwriter_user_id
         - two_factor_message_method
         - updated_at
         - vendor_agreement_docusign_template
@@ -66,7 +70,7 @@ select_permissions:
   - role: bank_read_only
     permission:
       columns:
-        - account_manager_user_id
+        - client_success_user_id
         - active_borrowing_base_id
         - active_ebba_application_id
         - active_financial_report_id
@@ -84,7 +88,8 @@ select_permissions:
         - is_dummy_account
         - metrc_api_key_id
         - payor_agreement_docusign_template
-        - salesperson_user_id
+        - business_development_user_id
+        - underwriter_user_id
         - two_factor_message_method
         - updated_at
         - vendor_agreement_docusign_template

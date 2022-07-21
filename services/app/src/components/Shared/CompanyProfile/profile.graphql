@@ -34,6 +34,7 @@ query GetCompanyForBank($companyId: uuid!) {
       ...CompanyLicense
     }
     settings {
+      ...CompanyDealOwners
       ...CompanySettings
       advances_bespoke_bank_account {
         id

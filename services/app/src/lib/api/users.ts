@@ -5,6 +5,7 @@ import {
   UsersInsertInput,
 } from "generated/graphql";
 import { CustomMutationResponse, authenticatedApi, userRoutes } from "lib/api";
+import { BespokeCompanyRole } from "lib/enum";
 
 type CreateBankCustomerUserRequest = {
   variables: {
@@ -17,6 +18,7 @@ export type UpdateUserReq = {
   variables: {
     id: UserFragment["id"];
     role: string | undefined;
+    company_role: BespokeCompanyRole;
     first_name: string;
     last_name: string;
     full_name: string;

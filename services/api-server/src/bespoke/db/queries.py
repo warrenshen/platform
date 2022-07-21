@@ -294,3 +294,26 @@ def get_transactions(
     # to keep a consistent signature, though.
 
     return transactions, None
+
+# ###############################
+# Users
+# ###############################
+
+def get_user_by_id(
+    session: Session,
+    user_id: str,
+) -> Tuple[ models.User, errors.Error ]:
+    filters = [
+        models.User.id == user_id
+    ]
+
+    user = cast(
+        models.User,
+        session.query(models.User).filter(
+            *filters
+        ).first())
+
+    if not user:
+        return None, errors.Error('Could not find client success user with the provided id of {user_id}')
+
+    return user, None

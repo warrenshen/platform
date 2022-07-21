@@ -4,15 +4,18 @@ import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import { UserFragment, UserRolesEnum, Users } from "generated/graphql";
-import { UserRoleToLabel } from "lib/enum";
+import { BespokeCompanyRole, UserRoleToLabel } from "lib/enum";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
+
+import { BespokeCompanyRoleToLabel } from "../../lib/enum";
 
 interface Props {
   isCompanyVisible?: boolean;
   isExcelExport?: boolean;
   isMultiSelectEnabled?: boolean;
   isRoleVisible?: boolean;
+  isCompanyRoleVisible?: boolean;
   pager?: boolean;
   users: UserFragment[];
   selectedUserIds?: Users["id"][];
@@ -26,6 +29,7 @@ export default function UsersDataGrid({
   isExcelExport = true,
   isMultiSelectEnabled = false,
   isRoleVisible = false,
+  isCompanyRoleVisible = false,
   pager = true,
   users,
   selectedUserIds,
@@ -59,6 +63,14 @@ export default function UsersDataGrid({
           UserRoleToLabel[role as UserRolesEnum],
       },
       {
+        visible: isCompanyRoleVisible,
+        caption: "Company Role",
+        dataField: "comapny_role",
+        width: ColumnWidths.UserRole,
+        calculateCellValue: ({ company_role }: Users) =>
+          BespokeCompanyRoleToLabel[company_role as BespokeCompanyRole],
+      },
+      {
         caption: "First Name",
         dataField: "first_name",
         minWidth: ColumnWidths.MinWidth,
@@ -79,7 +91,7 @@ export default function UsersDataGrid({
         minWidth: ColumnWidths.PhoneNumber,
       },
     ],
-    [isCompanyVisible, isRoleVisible, actionItems]
+    [isCompanyVisible, isCompanyRoleVisible, isRoleVisible, actionItems]
   );
 
   const handleSelectionChanged = useMemo(
