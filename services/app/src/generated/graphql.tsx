@@ -30433,6 +30433,7 @@ export type OpenLoanForDebtFacilityFragment = {
   invoice?: Maybe<Pick<Invoices, "id"> & InvoiceFragment>;
   line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
   transactions: Array<Pick<Transactions, "id" | "effective_date">>;
+  repayments: Array<Pick<Transactions, "id"> & TransactionFragment>;
   company: Pick<Companies, "id"> & CompanyForDebtFacilityFragment;
 } & LoanForDebtFacilityFragment;
 
@@ -31784,21 +31785,6 @@ export const PaymentFragmentDoc = gql`
   }
   ${PaymentLimitedFragmentDoc}
 `;
-export const TransactionFragmentDoc = gql`
-  fragment Transaction on transactions {
-    id
-    created_at
-    loan_id
-    payment_id
-    type
-    subtype
-    amount
-    effective_date
-    to_principal
-    to_interest
-    to_fees
-  }
-`;
 export const BankFinancialSummaryFragmentDoc = gql`
   fragment BankFinancialSummary on bank_financial_summaries {
     id
@@ -31990,6 +31976,21 @@ export const PurchaseOrderForDebtFacilityFragmentDoc = gql`
   }
   ${PurchaseOrderLimitedFragmentDoc}
 `;
+export const TransactionFragmentDoc = gql`
+  fragment Transaction on transactions {
+    id
+    created_at
+    loan_id
+    payment_id
+    type
+    subtype
+    amount
+    effective_date
+    to_principal
+    to_interest
+    to_fees
+  }
+`;
 export const OpenLoanForDebtFacilityFragmentDoc = gql`
   fragment OpenLoanForDebtFacility on loans {
     ...LoanForDebtFacility
@@ -32017,6 +32018,12 @@ export const OpenLoanForDebtFacilityFragmentDoc = gql`
       id
       effective_date
     }
+    repayments: transactions(
+      where: { _and: [{ type: { _eq: "repayment" } }] }
+    ) {
+      id
+      ...Transaction
+    }
     company {
       id
       ...CompanyForDebtFacility
@@ -32028,6 +32035,7 @@ export const OpenLoanForDebtFacilityFragmentDoc = gql`
   ${PurchaseOrderForDebtFacilityFragmentDoc}
   ${InvoiceFragmentDoc}
   ${LineOfCreditFragmentDoc}
+  ${TransactionFragmentDoc}
   ${CompanyForDebtFacilityFragmentDoc}
 `;
 export const DebtFacilityEventFragmentDoc = gql`

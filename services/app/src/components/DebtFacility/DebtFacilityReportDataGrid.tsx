@@ -72,8 +72,9 @@ function getRows(
 ): RowsProp {
   const filteredLoans = loans.filter((loan) => {
     return (
-      loansInfoLookup.hasOwnProperty(loan.company_id) &&
-      loansInfoLookup[loan.company_id].hasOwnProperty(loan.id)
+      (loansInfoLookup.hasOwnProperty(loan.company_id) &&
+        loansInfoLookup[loan.company_id].hasOwnProperty(loan.id)) ||
+      !!loan.closed_at
     );
   });
   const groupedLoans = groupBy(filteredLoans, (loan) => loan.company_id);
@@ -142,19 +143,22 @@ function getRows(
         loan,
         productType,
         loansInfoLookup,
-        "outstanding_late_fees"
+        "outstanding_late_fees",
+        currentDebtFacilityReportDate
       ),
       outstanding_interest: getLoansInfoData(
         loan,
         productType,
         loansInfoLookup,
-        "outstanding_interest"
+        "outstanding_interest",
+        currentDebtFacilityReportDate
       ),
       outstanding_principal_balance: getLoansInfoData(
         loan,
         productType,
         loansInfoLookup,
-        "outstanding_principal"
+        "outstanding_principal",
+        currentDebtFacilityReportDate
       ),
       previously_assigned: determineIfPreviouslyAssigned(
         loan,
@@ -168,6 +172,7 @@ function getRows(
         productType,
         loansInfoLookup,
         "total_interest_paid",
+        currentDebtFacilityReportDate,
         true
       ),
       total_late_fees_paid: getLoansInfoData(
@@ -175,6 +180,7 @@ function getRows(
         productType,
         loansInfoLookup,
         "total_late_fees_paid",
+        currentDebtFacilityReportDate,
         true
       ),
       total_principal_paid: getLoansInfoData(
@@ -182,6 +188,7 @@ function getRows(
         productType,
         loansInfoLookup,
         "total_principal_paid",
+        currentDebtFacilityReportDate,
         true
       ),
       us_state: getUSState(loan),

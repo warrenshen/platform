@@ -541,6 +541,10 @@ fragment OpenLoanForDebtFacility on loans {
     id
     effective_date
   }
+  repayments: transactions(where: { _and: [{ type: { _eq: "repayment" } }] }) {
+    id
+    ...Transaction
+  }
   company {
     id
     ...CompanyForDebtFacility

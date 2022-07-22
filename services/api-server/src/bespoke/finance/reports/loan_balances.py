@@ -21,8 +21,9 @@ from datetime import timedelta
 from typing import Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
+from bespoke.date import date_util
 from bespoke.db import db_constants, models
-from bespoke.db.db_constants import LoanStatusEnum, ProductType
+from bespoke.db.db_constants import LoanStatusEnum, PaymentType, ProductType
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util, number_util
 from bespoke.finance.fetchers import per_customer_fetcher
@@ -32,6 +33,7 @@ from bespoke.finance.loans.loan_calculator import LoanUpdateDebugInfoDict, LoanU
 from bespoke.finance.payments import payment_util
 from bespoke.finance.types import finance_types, per_customer_types
 from mypy_extensions import TypedDict
+from sqlalchemy.sql import and_, or_
 from sqlalchemy.orm.session import Session
 
 SummaryUpdateDict = TypedDict('SummaryUpdateDict', {
@@ -605,23 +607,32 @@ class CustomerBalance(object):
 					company_id=self._company_id
 				)
 
-			
-
 			loans_info: Dict[str, LoansInfoEntryDict] = {}
 			all_loan_ids: List[str] = []
 			loan_id_to_update_lookup: Dict[str, LoanUpdateDict] = {}
 			for loan_update in customer_update['loan_updates']:
-				#if 'loan_id' in loan_update:
 				update_loan_id = loan_update['loan_id']
 				all_loan_ids.append(update_loan_id)
 				loan_id_to_update_lookup[update_loan_id] = loan_update
+
+			transaction_subquery = session.query(models.Transaction).join( #type: ignore
+				models.Loan,
+				models.Transaction.loan_id == models.Loan.id
+			).filter(
+				models.Transaction.type == PaymentType.REPAYMENT
+			).order_by(
+				models.Transaction.effective_date.desc()
+			).limit(1).subquery()
 
 			open_loans = cast(
 				List[models.Loan],
 				session.query(models.Loan).filter(
 					models.Loan.id.in_(all_loan_ids)
 				).filter(
-					models.Loan.closed_at == None
+					or_(
+						models.Loan.closed_at == None,
+						transaction_subquery.c.effective_date >= customer_update['today'],
+					)
 				).filter(
 					cast(Callable, models.Loan.is_deleted.isnot)(True)
 				).all())

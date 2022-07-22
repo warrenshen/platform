@@ -1,4 +1,8 @@
-import { Maybe, OpenLoanForDebtFacilityFragment } from "generated/graphql";
+import {
+  Maybe,
+  OpenLoanForDebtFacilityFragment,
+  Transactions,
+} from "generated/graphql";
 import {
   DayInMilliseconds,
   dateStringPlusXDaysDate,
@@ -439,8 +443,52 @@ export const getLoansInfoData = (
   productType: ProductTypeEnum,
   loansInfoLookup: Record<string, Record<string, Record<string, string>>>,
   lookupKey: string,
+  currentDebtFacilityReportDate: string,
   filterLineOfCredit: boolean = false
 ): Maybe<number> => {
+  // Since the debt facility report pulls in closed loans, we need to
+  // return 0 if loansInfoLookup doesn't exist. The loans_info column
+  // won't contain data on closed loans, since that would grow forever.
+  // We also cannot reference the loan_report table as that information
+  // is accurate for today, but not inherently accurate as historical
+  // information.
+  //
+  // As such, we need to pull in the loan's repayments and add them up.
+  // We do this using the transaction table since a repayment could apply
+  // to several loans.
+  //
+  // This assumes they were settled on or before the report date. Moreover,
+  // if the lookup field is oustanding_*, then we return 0. This is because
+  // a closed loan should not have any balances left
+  if (
+    !loansInfoLookup ||
+    !loansInfoLookup[loan.company_id].hasOwnProperty(loan.id)
+  ) {
+    const reportDate = parseDateStringServer(currentDebtFacilityReportDate);
+    const repayments = loan?.repayments || [];
+    const lookupMapping: Record<string, string> = {
+      total_principal_paid: "to_principal",
+      total_interest_paid: "to_interest",
+      total_late_fees_paid: "to_fees",
+    };
+
+    return lookupKey in lookupMapping
+      ? repayments.reduce((sum, repayment) => {
+          const effectiveDate = parseDateStringServer(repayment.effective_date);
+
+          return effectiveDate <= reportDate
+            ? sum +
+                repayment[
+                  lookupMapping[lookupKey] as keyof Pick<Transactions, "id">
+                ]
+            : sum;
+        }, 0)
+      : 0;
+  }
+
+  // If the loan is open on the report date, then the case to pull
+  // the correct data is simpler. We know if a loan was open for a
+  // given report date based on if its included in that day's loans_info.
   if (productType === ProductTypeEnum.LineOfCredit && !!filterLineOfCredit) {
     return null;
   } else if (
@@ -458,10 +506,15 @@ export const getLoansInfoData = (
       .reduce((a, b) => a + b);
   } else {
     const lookupInfo = loansInfoLookup[loan.company_id][loan.id];
-
-    return lookupInfo.hasOwnProperty(lookupKey)
+    const lookupValue = lookupInfo.hasOwnProperty(lookupKey)
       ? Number(loansInfoLookup[loan.company_id][loan.id][lookupKey])
       : null;
+
+    // We check for negative numbers to cover the interim period
+    // between a repayment's deposit date and settlement date
+    // Sending out lookupValue in the else clause of the outer
+    // ternary covers lookupValue being null -or- 0
+    return !!lookupValue ? (lookupValue >= 0 ? lookupValue : 0) : lookupValue;
   }
 };
 
