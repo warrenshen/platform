@@ -13,7 +13,7 @@ import {
   authenticatedApi,
   companyRoutes,
 } from "lib/api";
-import { CustomMessageEnum } from "lib/enum";
+import { CustomMessageEnum, PartnershipRequestType } from "lib/enum";
 
 export type CreateCustomerReq = {
   company: CompaniesInsertInput;
@@ -214,6 +214,7 @@ export type PartnershipRequestRequestInfo = {
   bank_wire_routing_number: string;
   beneficiary_address: string;
   bank_instructions_attachment_id: string;
+  type: PartnershipRequestType;
 };
 
 type CreatePartnershipRequestNewMutationReq = {
@@ -286,6 +287,7 @@ type CreatePartnershipMutationReq = {
     should_create_company: boolean;
     partner_company_id: Companies["id"];
     license_info?: LicenseInfo;
+    can_use_existing_user?: boolean;
   };
 };
 
@@ -385,6 +387,28 @@ export async function markPartnershipInvitationAsCompleteMutation(
         return {
           status: "ERROR",
           msg: "Could not mark invite as complete",
+        };
+      }
+    );
+}
+
+export async function moveToActionRequiredMutation(
+  req: PartnershipInviteCompleteReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(companyRoutes.moveToActionRequired, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not move to action required",
         };
       }
     );

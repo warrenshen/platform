@@ -14,7 +14,7 @@ import {
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { createPartnershipRequestNewMutation } from "lib/api/companies";
-import { BankAccountType } from "lib/enum";
+import { BankAccountType, PartnershipRequestType } from "lib/enum";
 import { anonymousRoutes, routes } from "lib/routes";
 import { isEmailValid } from "lib/validation";
 import { useState } from "react";
@@ -34,7 +34,7 @@ export type CreateVendorInput = {
   bankName: string;
   bankAccountName: string;
   bankAccountNumber: string;
-  bankAccountType: BankAccountType;
+  bankAccountType: BankAccountType | string;
   bankACHRoutingNumber: string;
   bankWireRoutingNumber: string;
   beneficiaryAddress: string;
@@ -42,6 +42,9 @@ export type CreateVendorInput = {
   isCannabis: boolean;
   cannabisLicenseNumber: LicenseInfo;
   cannabisLicenseCopyAttachmentId: string;
+  selected_vendor_id?: string;
+  selected_user_id?: string;
+  selected_bank_account_id?: string;
 };
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -106,6 +109,9 @@ export default function VendorFormPage() {
     isCannabis: false,
     cannabisLicenseNumber: { license_ids: [] },
     cannabisLicenseCopyAttachmentId: "",
+    selected_vendor_id: "",
+    selected_user_id: "",
+    selected_bank_account_id: "",
   });
 
   const [errorMessage, setErrorMessage] = useState("");
@@ -180,6 +186,7 @@ export default function VendorFormPage() {
           beneficiary_address: vendorInput.beneficiaryAddress,
           bank_instructions_attachment_id:
             vendorInput.bankInstructionsAttachmentId,
+          type: PartnershipRequestType.VendorSubmitted,
         },
       },
     });

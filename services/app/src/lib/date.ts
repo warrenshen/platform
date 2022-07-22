@@ -7,6 +7,7 @@ import {
   eachDayOfInterval,
   format,
   getYear,
+  isBefore,
   lastDayOfMonth,
   parse,
   parseISO,
@@ -287,6 +288,10 @@ export function computeDaysUntilExpiration(expirationDate: string): number {
   const now = new Date();
 
   return differenceInDays(date, now);
+}
+
+export function isDateInPast(dateString: string): boolean {
+  return isBefore(parseDateStringServer(dateString), new Date());
 }
 
 export function withinNDaysOfNowOrBefore(

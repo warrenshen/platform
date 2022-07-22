@@ -10,8 +10,10 @@ import {
   makeStyles,
 } from "@material-ui/core";
 import CreateUpdateVendorPartnershipRequestForm from "components/Vendors/CreateUpdateVendorPartnershipRequestForm";
+import { useGetAllArtifactRelationsQuery } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { updatePartnershipRequestNewMutation } from "lib/api/companies";
+import { PartnershipRequestType } from "lib/enum";
 import { isEmailValid } from "lib/validation";
 import { CreateVendorInput } from "pages/Anonymous/VendorForm";
 import { useState } from "react";
@@ -45,28 +47,36 @@ export default function EditPartnershipRequestModal({
   const classes = useStyles();
   const snackbar = useSnackbar();
 
+  const { data } = useGetAllArtifactRelationsQuery({
+    fetchPolicy: "network-only",
+  });
+
+  const vendors = data?.vendors || [];
+
   const [vendorInput, setVendorInput] = useState<CreateVendorInput>({
-    name: partnerRequest.company_name,
-    dba: partnerRequest.request_info?.dba_name,
-    contactFirstName: partnerRequest.user_info?.first_name,
-    contactLastName: partnerRequest.user_info?.last_name,
-    contactPhone: partnerRequest.user_info?.phone_number,
-    contactEmail: partnerRequest.user_info?.email,
-    bankName: partnerRequest.request_info?.bank_name,
-    bankAccountName: partnerRequest.request_info?.bank_account_name,
-    bankAccountType: partnerRequest.request_info?.bank_account_type,
-    bankAccountNumber: partnerRequest.request_info?.bank_account_number,
-    bankACHRoutingNumber: partnerRequest.request_info?.bank_ach_routing_number,
+    name: partnerRequest?.company_name || "",
+    dba: partnerRequest?.request_info?.dba_name || "",
+    contactFirstName: partnerRequest?.user_info?.first_name || "",
+    contactLastName: partnerRequest?.user_info?.last_name || "",
+    contactPhone: partnerRequest?.user_info?.phone_number || "",
+    contactEmail: partnerRequest?.user_info?.email || "",
+    bankName: partnerRequest?.request_info?.bank_name || "",
+    bankAccountName: partnerRequest?.request_info?.bank_account_name || "",
+    bankAccountType: partnerRequest?.request_info?.bank_account_type || "",
+    bankAccountNumber: partnerRequest?.request_info?.bank_account_number || "",
+    bankACHRoutingNumber:
+      partnerRequest?.request_info?.bank_ach_routing_number || "",
     bankWireRoutingNumber:
-      partnerRequest.request_info?.bank_wire_routing_number,
-    beneficiaryAddress: partnerRequest.request_info?.beneficiary_address,
+      partnerRequest?.request_info?.bank_wire_routing_number || "",
+    beneficiaryAddress: partnerRequest?.request_info?.beneficiary_address || "",
     bankInstructionsAttachmentId:
-      partnerRequest.request_info?.bank_instructions_attachment_id,
-    isCannabis: partnerRequest.is_cannabis,
-    cannabisLicenseNumber: partnerRequest.license_info
+      partnerRequest?.request_info?.bank_instructions_attachment_id || "",
+    isCannabis: partnerRequest?.is_cannabis || false,
+    cannabisLicenseNumber: !!partnerRequest?.license_info?.license_ids
       ? { license_ids: partnerRequest.license_info.license_ids }
       : { license_ids: [] },
-    cannabisLicenseCopyAttachmentId: partnerRequest.license_info
+    cannabisLicenseCopyAttachmentId: !!partnerRequest?.license_info
+      ?.license_file_id
       ? partnerRequest.license_info.license_file_id
       : "",
   });
@@ -122,6 +132,7 @@ export default function EditPartnershipRequestModal({
           beneficiary_address: vendorInput.beneficiaryAddress,
           bank_instructions_attachment_id:
             vendorInput.bankInstructionsAttachmentId,
+          type: partnerRequest?.request_info.type,
         },
       },
     });
@@ -153,6 +164,11 @@ export default function EditPartnershipRequestModal({
           vendorInput={vendorInput}
           setVendorInput={setVendorInput}
           isUpdate={true}
+          selectableVendors={vendors}
+          isMoved={
+            partnerRequest.request_info?.type ===
+            PartnershipRequestType.MoveToAction
+          }
         />
       </DialogContent>
       <DialogActions className={classes.dialogActions}>

@@ -1,4 +1,5 @@
 import json
+import enum
 from typing import Any, cast
 
 from bespoke import errors
@@ -6,6 +7,7 @@ from bespoke.audit import events
 from bespoke.companies import create_company_util, partnership_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
+from bespoke.db.db_constants import TwoFactorMessageMethod, CompanyType, PartnershipRequestType
 from bespoke.date import date_util
 from bespoke.email import sendgrid_util
 from bespoke.finance import contract_util
@@ -289,9 +291,9 @@ class CreatePartnershipRequestNewView(MethodView):
 		with session_scope(current_app.session_maker) as session:
 
 			partnership_req_id, err = create_company_util.create_partnership_request_new(
-				req=req,
-				session=session,
-				is_payor=False,
+				session = session,
+				req = req,
+				is_payor = False,
 			)
 			if err:
 				raise err
@@ -526,12 +528,16 @@ class CreatePartnershipNewView(MethodView):
 
 		user_session = UserSession.from_session()
 
+		can_use_existing_user = form['can_use_existing_user'] if \
+			'can_use_existing_user' in form else False
+
 		with session_scope(current_app.session_maker) as session:
 
 			resp, err = create_company_util.create_partnership_new(
-				req=cast(create_company_util.CreatePartnershipInputDict, form),
-				session=session,
-				bank_admin_user_id=user_session.get_user_id()
+				session = session,
+				req = cast(create_company_util.CreatePartnershipInputDict, form),
+				bank_admin_user_id = user_session.get_user_id(),
+				can_use_existing_user = can_use_existing_user
 			)
 			if err:
 				raise err
@@ -779,6 +785,67 @@ class MarkPartnershipInviteAsComplete(MethodView):
 			'status': 'OK',
 		}))
 
+
+class MoveToActionRequired(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'company_partnership_invite_id',
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in request')
+
+		company_partnership_invite_id = form['company_partnership_invite_id']
+
+		with session_scope(current_app.session_maker) as session:
+			company_partnership_invite = cast(
+				models.CompanyPartnershipInvitation,
+				session.query(models.CompanyPartnershipInvitation).filter(
+					models.CompanyPartnershipInvitation.id == company_partnership_invite_id
+				).first()
+			)
+
+			if not company_partnership_invite:
+				return handler_util.make_error_response('Invalid data')
+			
+			# Create Partnership request
+			partnership_req = models.CompanyPartnershipRequest()
+			partnership_req.requesting_company_id = company_partnership_invite.requesting_company_id
+			partnership_req.two_factor_message_method = TwoFactorMessageMethod.PHONE
+			partnership_req.company_type = CompanyType.Vendor
+			partnership_req.company_name = company_partnership_invite.metadata_info.get("name", "") if company_partnership_invite.metadata_info else ""  # type: ignore
+			partnership_req.is_cannabis = True
+			partnership_req.requested_by_user_id = company_partnership_invite.submitted_by_user_id
+			partnership_req.license_info = {
+				'license_ids': [],
+				'license_file_id': "",
+			}
+			partnership_req.request_info = {
+				'type': PartnershipRequestType.MOVED_TO_ACTION,
+			}
+
+			partnership_req.user_info = {
+				'first_name': "",
+				'last_name': "",
+				'email': company_partnership_invite.email,
+				'phone_number': ""
+			}
+
+			session.add(partnership_req)
+
+		return make_response(json.dumps({
+			'status': 'OK',
+		}))
+
+
 class CertifyCustomerSurveillanceResultView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
@@ -938,6 +1005,9 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/mark_company_partnership_complete', view_func=MarkPartnershipInviteAsComplete.as_view(name='mark_company_partnership_complete_view'))
+
+handler.add_url_rule(
+	'/move_to_action_required', view_func=MoveToActionRequired.as_view(name='move_to_action_required_view'))
 
 handler.add_url_rule(
 	'/add_vendor_new', view_func=AddVendorNewView.as_view(name='add_vendor_new_view'))

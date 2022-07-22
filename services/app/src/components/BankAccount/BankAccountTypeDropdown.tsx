@@ -18,11 +18,14 @@ export default function BankAccountTypeDropdown({
       <Select
         id="select-bank-account-type"
         labelId="select-bank-account-type-label"
-        value={bankAccountType}
+        value={bankAccountType ? bankAccountType : ""}
         onChange={({ target: { value } }) =>
           setBankAccountType(value as BankAccountType)
         }
       >
+        <MenuItem value="">
+          <em>None</em>
+        </MenuItem>
         {Object.keys(BankAccountType).map((key) => (
           <MenuItem key={key} value={key}>
             {key}

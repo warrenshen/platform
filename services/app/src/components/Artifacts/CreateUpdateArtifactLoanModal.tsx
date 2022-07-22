@@ -16,7 +16,6 @@ import {
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { saveLoanMutation, submitLoanMutation } from "lib/api/loans";
-import { parseDateStringServer, todayAsDateStringClient } from "lib/date";
 import {
   ActionType,
   LoanStatusEnum,
@@ -121,7 +120,6 @@ export default function CreateUpdateArtifactLoanModal({
   const proposedLoansTotalAmount =
     amountUsedOnArtifact + parseFloat(loan?.amount) || 0;
 
-  console.log(loan);
   const handleClickSaveDraft = async () => {
     const response = await saveLoan({
       variables: {
@@ -184,14 +182,6 @@ export default function CreateUpdateArtifactLoanModal({
   }
   if (!loan?.requested_payment_date) {
     disabledSubmitReasons.push("Requested Payment Date is not set");
-  }
-  if (
-    !!loan?.requested_payment_date &&
-    parseDateStringServer(loan.requested_payment_date) < new Date()
-  ) {
-    disabledSubmitReasons.push(
-      `Requested Payment Date is set to a date in the past. Please select a day after ${todayAsDateStringClient()}`
-    );
   }
   if (!loan?.amount) {
     disabledSubmitReasons.push("Amount is not specified");

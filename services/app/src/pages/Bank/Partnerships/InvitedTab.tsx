@@ -7,7 +7,10 @@ import {
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { markPartnershipInvitationAsCompleteMutation } from "lib/api/companies";
+import {
+  markPartnershipInvitationAsCompleteMutation,
+  moveToActionRequiredMutation,
+} from "lib/api/companies";
 import { useMemo, useState } from "react";
 import styled from "styled-components";
 
@@ -20,11 +23,18 @@ const Container = styled.div`
   width: 100%;
 `;
 
+const ActionButton = styled(Button)`
+  margin: 2px;
+`;
+
 function InvitedTab() {
   const snackbar = useSnackbar();
 
   const [markInviteAsComplete, { loading: isMarkInviteLoading }] =
     useCustomMutation(markPartnershipInvitationAsCompleteMutation);
+
+  const [moveToActionRequired, { loading: moveToActionRequiredLoading }] =
+    useCustomMutation(moveToActionRequiredMutation);
 
   const { data, error } = useGetPartnershipInvitationsForBankSubscription();
 
@@ -73,10 +83,26 @@ function InvitedTab() {
     }
   };
 
+  const handleMoveToActionRequired = async () => {
+    try {
+      await moveToActionRequired({
+        variables: {
+          company_partnership_invite_id: selectedInvitation?.id,
+        },
+      });
+      snackbar.showSuccess(
+        "Created partnership request. Invite will remain open until request has been triaged."
+      );
+    } catch (err) {
+      snackbar.showError(`${err}`);
+      console.error(err);
+    }
+  };
+
   return (
     <Container>
       <Box display="flex" flexDirection="row-reverse" my={3}>
-        <Button
+        <ActionButton
           data-cy="create-update-bank-account-modal-add-button"
           size="small"
           variant="contained"
@@ -89,7 +115,23 @@ function InvitedTab() {
           onClick={handleSubmit}
         >
           Mark as Closed
-        </Button>
+        </ActionButton>
+        <Box mr={2}>
+          <ActionButton
+            data-cy="move-to-action-required"
+            size="small"
+            variant="contained"
+            color="primary"
+            disabled={
+              !selectedInvitation ||
+              selectedInvitation.closed_at ||
+              moveToActionRequiredLoading
+            }
+            onClick={handleMoveToActionRequired}
+          >
+            Create Partnership Request
+          </ActionButton>
+        </Box>
       </Box>
       <Box display="flex" flexDirection="column">
         <PartnershipInvitationsDataGrid

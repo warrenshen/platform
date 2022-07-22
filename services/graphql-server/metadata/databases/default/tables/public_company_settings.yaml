@@ -2,9 +2,6 @@ table:
   schema: public
   name: company_settings
 object_relationships:
-  - name: client_success_user
-    using:
-      foreign_key_constraint_on: client_success_user_id
   - name: active_borrowing_base
     using:
       foreign_key_constraint_on: active_borrowing_base_id
@@ -20,6 +17,12 @@ object_relationships:
   - name: advances_bespoke_bank_account
     using:
       foreign_key_constraint_on: advances_bespoke_bank_account_id
+  - name: business_development_user
+    using:
+      foreign_key_constraint_on: business_development_user_id
+  - name: client_success_user
+    using:
+      foreign_key_constraint_on: client_success_user_id
   - name: collections_bank_account
     using:
       foreign_key_constraint_on: collections_bank_account_id
@@ -32,9 +35,6 @@ object_relationships:
   - name: metrc_api_key
     using:
       foreign_key_constraint_on: metrc_api_key_id
-  - name: business_development_user
-    using:
-      foreign_key_constraint_on: business_development_user_id
   - name: underwriter_user
     using:
       foreign_key_constraint_on: underwriter_user_id

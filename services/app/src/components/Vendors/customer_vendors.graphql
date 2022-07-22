@@ -22,6 +22,37 @@ query GetArtifactRelationsByCompanyId($company_id: uuid!) {
   }
 }
 
+query GetAllArtifactRelations {
+  companies {
+    id
+    settings {
+      id
+      ...CompanySettingsLimited
+    }
+    metrc_api_keys {
+      id
+    }
+  }
+  vendors(
+    order_by: { name: asc }
+  ) {
+    id
+    ...VendorLimited
+    company_vendor_partnerships {
+      id
+      ...VendorPartnershipLimited
+    }
+    users {
+      id
+      ...User
+    }
+    bank_accounts {
+      id
+      ...BankAccount
+    }
+  }
+}
+
 query GetVendorPartnershipsByCompanyId($companyId: uuid!) {
   company_vendor_partnerships(where: { company_id: { _eq: $companyId } }) {
     ...VendorPartnershipLimited

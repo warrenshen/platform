@@ -344,6 +344,10 @@ class BankAccountType(object):
 	CHECKING = 'Checking'
 	SAVINGS = 'Savings'
 
+class PartnershipRequestType(object):
+   VENDOR_SUBMITTED = "vendor_submitted"
+   MOVED_TO_ACTION = "move_to_action"
+
 # Async Job
 class AsyncJobStatusEnum(object):
 	QUEUED = 'queued'

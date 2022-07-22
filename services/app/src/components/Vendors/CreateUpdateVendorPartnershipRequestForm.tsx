@@ -5,22 +5,32 @@ import {
   TextField,
   Typography,
 } from "@material-ui/core";
+import Autocomplete from "@material-ui/lab/Autocomplete";
 import BankAccountTypeDropdown from "components/BankAccount/BankAccountTypeDropdown";
 import FileUploader from "components/Shared/File/FileUploader";
 import PhoneInput from "components/Shared/FormInputs/PhoneInput";
-import { FileFragment } from "generated/graphql";
+import AutocompleteVendors from "components/Vendors/AutocompleteVendors";
+import {
+  BankAccounts,
+  FileFragment,
+  GetAllArtifactRelationsQuery,
+  Users,
+  Vendors,
+} from "generated/graphql";
 import { FileTypeEnum } from "lib/enum";
 import { BankAccountType } from "lib/enum";
 import { isEmailValid } from "lib/validation";
 import { CreateVendorInput } from "pages/Anonymous/VendorForm";
-import { ChangeEvent, useMemo } from "react";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
 
 interface Props {
   companyId: string;
   companyName: string;
   vendorInput: CreateVendorInput;
-  setVendorInput: (vendorInput: CreateVendorInput) => void;
+  setVendorInput: React.Dispatch<React.SetStateAction<CreateVendorInput>>;
   isUpdate: boolean;
+  selectableVendors?: GetAllArtifactRelationsQuery["vendors"];
+  isMoved?: boolean;
 }
 
 export default function CreateUpdateVendorPartnershipRequestForm({
@@ -29,7 +39,14 @@ export default function CreateUpdateVendorPartnershipRequestForm({
   vendorInput,
   setVendorInput,
   isUpdate,
+  selectableVendors = [],
+  isMoved = false,
 }: Props) {
+  const [selectedVendor, setSelectedVendor] = useState<Vendors | null>();
+  const [selectedUser, setSelectedUser] = useState<Users | null>();
+  const [selectedBankAccount, setSelectedBankAccount] =
+    useState<BankAccounts | null>();
+
   const bankInstructionsAttachmentIds = useMemo(
     () =>
       vendorInput.bankInstructionsAttachmentId
@@ -46,11 +63,74 @@ export default function CreateUpdateVendorPartnershipRequestForm({
     [vendorInput.cannabisLicenseCopyAttachmentId]
   );
 
+  const users = selectedVendor?.users ? selectedVendor.users : [];
+  const bankAccounts = selectedVendor?.bank_accounts
+    ? selectedVendor.bank_accounts
+    : [];
+
+  // Update the input fields when the selected user changes
+  useEffect(() => {
+    if (!!selectedUser) {
+      setVendorInput((prevVendorInput: CreateVendorInput) => {
+        return {
+          ...prevVendorInput,
+          contactFirstName: selectedUser?.first_name || "",
+          contactLastName: selectedUser?.last_name || "",
+          contactPhone: selectedUser?.phone_number || "",
+          contactEmail: selectedUser?.email || "",
+          selected_user_id: selectedUser?.id,
+        };
+      });
+    }
+  }, [selectedUser, setVendorInput]);
+
   return (
     <Box display="flex" flexDirection="column">
       <Box display="flex" flexDirection="column">
         <TextField label={"Your Customer"} disabled value={companyName} />
       </Box>
+      {isMoved ? (
+        <Box display="flex" flexDirection="column" mt={4}>
+          <AutocompleteVendors
+            dataCy={"vendor-form-autocomplete-vendors"}
+            label={"Select Vendor"}
+            selectableVendors={selectableVendors}
+            selectedVendor={selectedVendor}
+            onChange={(event, value) => {
+              const vendorId = value?.id || null;
+              const matchingVendor = selectableVendors.find(
+                (vendor) => vendor.id === vendorId
+              ) as Vendors;
+
+              setSelectedVendor(matchingVendor);
+
+              if (!!matchingVendor) {
+                setVendorInput({
+                  ...vendorInput,
+                  name: matchingVendor?.name || "",
+                  dba: matchingVendor?.dba_name || "",
+                  contactFirstName: "",
+                  contactLastName: "",
+                  contactPhone: "",
+                  contactEmail: "",
+                  bankName: "",
+                  bankAccountName: "",
+                  bankAccountNumber: "",
+                  bankAccountType: "",
+                  bankACHRoutingNumber: "",
+                  bankWireRoutingNumber: "",
+                  beneficiaryAddress: "",
+                  bankInstructionsAttachmentId: "",
+                  isCannabis: false,
+                  cannabisLicenseNumber: { license_ids: [] },
+                  cannabisLicenseCopyAttachmentId: "",
+                });
+              }
+            }}
+          />
+        </Box>
+      ) : null}
+
       <Box display="flex" flexDirection="column" mt={4}>
         <TextField
           label="Vendor Name"
@@ -61,6 +141,7 @@ export default function CreateUpdateVendorPartnershipRequestForm({
           }}
         />
       </Box>
+
       <Box display="flex" flexDirection="column" mt={4}>
         <TextField
           label="DBA"
@@ -76,7 +157,39 @@ export default function CreateUpdateVendorPartnershipRequestForm({
           Vendor Verification Contact Information
         </Typography>
       </Box>
-      <Box display="flex" flexDirection="column">
+      {isMoved ? (
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Autocomplete
+            autoHighlight
+            data-cy={"autocomplete-vendor-user"}
+            id="autocomplete-vendor-user"
+            value={typeof selectedUser === "undefined" ? null : selectedUser}
+            options={users}
+            getOptionLabel={(user) => {
+              return `${user.first_name} ${user.last_name} | ${user.email} | ${user.phone_number}`;
+            }}
+            renderInput={(params) => {
+              return (
+                <TextField
+                  {...params}
+                  label={"Select Vendor User"}
+                  variant="outlined"
+                />
+              );
+            }}
+            onChange={(event, value) => {
+              const userId = value?.id || null;
+              const matchingUser = users.find(
+                (user) => user.id === userId
+              ) as Users;
+
+              setSelectedUser(matchingUser);
+            }}
+          />
+        </Box>
+      ) : null}
+
+      <Box display="flex" flexDirection="column" mt={4}>
         <TextField
           label="Contact First Name"
           required
@@ -100,7 +213,7 @@ export default function CreateUpdateVendorPartnershipRequestForm({
         <PhoneInput
           label="Contact Phone"
           isRequired
-          value={vendorInput.contactPhone || null}
+          value={vendorInput.contactPhone || ""}
           handleChange={(value) =>
             setVendorInput({
               ...vendorInput,
@@ -129,11 +242,60 @@ export default function CreateUpdateVendorPartnershipRequestForm({
           Vendor Bank Information
         </Typography>
       </Box>
-      <Box display="flex" flexDirection="column">
+      {isMoved ? (
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Autocomplete
+            autoHighlight
+            data-cy={"autocomplete-bank-account"}
+            id="autocomplete-bank-account"
+            value={selectedBankAccount}
+            options={bankAccounts}
+            getOptionLabel={(bankAccount) => {
+              return `${bankAccount.bank_name} | ${bankAccount.account_number}`;
+            }}
+            renderInput={(params) => {
+              return (
+                <TextField
+                  {...params}
+                  label={"Select Bank Account"}
+                  variant="outlined"
+                />
+              );
+            }}
+            onChange={(event, value) => {
+              const bankAccountId = value?.id || null;
+              const matchingBankAccount = bankAccounts.find(
+                (b) => b.id === bankAccountId
+              ) as BankAccounts;
+
+              setSelectedBankAccount(matchingBankAccount);
+
+              setVendorInput((prevVendorInput: CreateVendorInput) => {
+                return {
+                  ...prevVendorInput,
+                  bankName: matchingBankAccount?.bank_name || "",
+                  bankAccountName: matchingBankAccount?.account_title || "",
+                  bankAccountType:
+                    (matchingBankAccount?.account_type as BankAccountType) ||
+                    "",
+                  bankAccountNumber: matchingBankAccount?.account_number || "",
+                  bankWireRoutingNumber:
+                    matchingBankAccount?.wire_routing_number || "",
+                  bankACHRoutingNumber:
+                    matchingBankAccount?.wire_routing_number || "",
+                  selected_bank_account_id: matchingBankAccount?.id || "",
+                };
+              });
+            }}
+          />
+        </Box>
+      ) : null}
+
+      <Box display="flex" flexDirection="column" mt={4}>
         <TextField
           label="Bank Name"
           required
-          value={vendorInput.bankName}
+          value={vendorInput?.bankName || ""}
           onChange={({ target: { value } }) => {
             setVendorInput({ ...vendorInput, bankName: value });
           }}
@@ -143,7 +305,7 @@ export default function CreateUpdateVendorPartnershipRequestForm({
         <TextField
           label="Bank Account Name"
           required
-          value={vendorInput.bankAccountName}
+          value={vendorInput?.bankAccountName || ""}
           onChange={({ target: { value } }) => {
             setVendorInput({ ...vendorInput, bankAccountName: value });
           }}
@@ -164,7 +326,7 @@ export default function CreateUpdateVendorPartnershipRequestForm({
         <TextField
           label="Bank Account Number"
           required
-          value={vendorInput.bankAccountNumber}
+          value={vendorInput?.bankAccountNumber || ""}
           onChange={({ target: { value } }) => {
             setVendorInput({ ...vendorInput, bankAccountNumber: value });
           }}
@@ -179,7 +341,7 @@ export default function CreateUpdateVendorPartnershipRequestForm({
         <TextField
           label="Bank ACH Routing Number"
           required={!isUpdate}
-          value={vendorInput.bankACHRoutingNumber}
+          value={vendorInput?.bankACHRoutingNumber || ""}
           onChange={({ target: { value } }) => {
             setVendorInput({ ...vendorInput, bankACHRoutingNumber: value });
           }}
@@ -194,7 +356,7 @@ export default function CreateUpdateVendorPartnershipRequestForm({
         <TextField
           label="Bank Wire Routing Number"
           required={!isUpdate}
-          value={vendorInput.bankWireRoutingNumber}
+          value={vendorInput?.bankWireRoutingNumber || ""}
           onChange={({ target: { value } }) => {
             setVendorInput({ ...vendorInput, bankWireRoutingNumber: value });
           }}
@@ -204,7 +366,7 @@ export default function CreateUpdateVendorPartnershipRequestForm({
         <TextField
           label="Beneficiary Address"
           required
-          value={vendorInput.beneficiaryAddress}
+          value={vendorInput?.beneficiaryAddress || ""}
           onChange={({ target: { value } }) => {
             setVendorInput({ ...vendorInput, beneficiaryAddress: value });
           }}

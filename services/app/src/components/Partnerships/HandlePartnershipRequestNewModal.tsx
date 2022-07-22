@@ -21,7 +21,7 @@ import {
 import useSnackbar from "hooks/useSnackbar";
 import { createPartnershipNewMutation } from "lib/api/companies";
 import { FileTypeEnum } from "lib/enum";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 
 interface Props {
   partnerRequest: GetPartnershipRequestsForBankSubscription["company_partnership_requests"][0];
@@ -50,6 +50,7 @@ export default function HandlePartnershipRequestNewModal({
 
   const [isCompanyLicenseFileViewerOpen, setIsCompanyLicenseFileViewerOpen] =
     useState(false);
+  const [canUseExistingUser, setCanUseExistingUser] = useState<boolean>(false);
 
   const [
     isBankInstructionsFileViewerOpen,
@@ -63,6 +64,7 @@ export default function HandlePartnershipRequestNewModal({
         should_create_company: selectedCompanyId === null,
         partner_company_id: selectedCompanyId,
         license_info: licenseIds,
+        can_use_existing_user: canUseExistingUser,
       },
     });
     if (response.status !== "OK") {
@@ -78,9 +80,15 @@ export default function HandlePartnershipRequestNewModal({
   };
 
   const bankDetails = {
-    bank_name: partnerRequest.request_info?.bank_name,
-    account_title: partnerRequest.request_info?.bank_account_name,
-    account_number: partnerRequest.request_info?.bank_account_number,
+    bank_name: partnerRequest.request_info?.bank_name
+      ? partnerRequest.request_info.bank_name
+      : "",
+    account_title: partnerRequest.request_info?.bank_account_name
+      ? partnerRequest.request_info.bank_account_name
+      : "",
+    account_number: partnerRequest.request_info?.bank_account_number
+      ? partnerRequest.request_info.bank_account_number
+      : "",
     bank_instructions_file_id:
       partnerRequest.request_info?.bank_instructions_attachment_id,
     can_ach: partnerRequest.request_info?.bank_ach_routing_number
@@ -267,6 +275,20 @@ export default function HandlePartnershipRequestNewModal({
             ? `${partnerRequest.user_info.phone_number}`
             : ""}
         </Typography>
+      </Box>
+      <Box display="flex" flexDirection="column">
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={canUseExistingUser}
+              onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                setCanUseExistingUser(event.target.checked)
+              }
+              color="primary"
+            />
+          }
+          label={"Use existing user if email match found?"}
+        />
       </Box>
 
       <Box mb={4} mt={4}>

@@ -27347,6 +27347,10 @@ export type UuidComparisonExp = {
 /** columns and relationships of "vendors" */
 export type Vendors = {
   address?: Maybe<Scalars["String"]>;
+  /** An array relationship */
+  bank_accounts: Array<BankAccounts>;
+  /** An aggregate relationship */
+  bank_accounts_aggregate: BankAccountsAggregate;
   city?: Maybe<Scalars["String"]>;
   /** An array relationship */
   company_deliveries: Array<CompanyDeliveries>;
@@ -27385,6 +27389,24 @@ export type Vendors = {
   /** An aggregate relationship */
   users_aggregate: UsersAggregate;
   zip_code?: Maybe<Scalars["String"]>;
+};
+
+/** columns and relationships of "vendors" */
+export type VendorsBankAccountsArgs = {
+  distinct_on?: Maybe<Array<BankAccountsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BankAccountsOrderBy>>;
+  where?: Maybe<BankAccountsBoolExp>;
+};
+
+/** columns and relationships of "vendors" */
+export type VendorsBankAccountsAggregateArgs = {
+  distinct_on?: Maybe<Array<BankAccountsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BankAccountsOrderBy>>;
+  where?: Maybe<BankAccountsBoolExp>;
 };
 
 /** columns and relationships of "vendors" */
@@ -27497,6 +27519,7 @@ export type VendorsBoolExp = {
   _not?: Maybe<VendorsBoolExp>;
   _or?: Maybe<Array<VendorsBoolExp>>;
   address?: Maybe<StringComparisonExp>;
+  bank_accounts?: Maybe<BankAccountsBoolExp>;
   city?: Maybe<StringComparisonExp>;
   company_deliveries?: Maybe<CompanyDeliveriesBoolExp>;
   company_settings_id?: Maybe<UuidComparisonExp>;
@@ -27531,6 +27554,7 @@ export type VendorsIncInput = {
 /** input type for inserting data into table "vendors" */
 export type VendorsInsertInput = {
   address?: Maybe<Scalars["String"]>;
+  bank_accounts?: Maybe<BankAccountsArrRelInsertInput>;
   city?: Maybe<Scalars["String"]>;
   company_deliveries?: Maybe<CompanyDeliveriesArrRelInsertInput>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
@@ -27615,6 +27639,7 @@ export type VendorsObjRelInsertInput = {
 /** Ordering options when selecting data from "vendors". */
 export type VendorsOrderBy = {
   address?: Maybe<OrderBy>;
+  bank_accounts_aggregate?: Maybe<BankAccountsAggregateOrderBy>;
   city?: Maybe<OrderBy>;
   company_deliveries_aggregate?: Maybe<CompanyDeliveriesAggregateOrderBy>;
   company_settings_id?: Maybe<OrderBy>;
@@ -30055,6 +30080,30 @@ export type GetArtifactRelationsByCompanyIdQuery = {
       company_vendor_partnerships: Array<
         Pick<CompanyVendorPartnerships, "id"> & VendorPartnershipLimitedFragment
       >;
+    } & VendorLimitedFragment
+  >;
+};
+
+export type GetAllArtifactRelationsQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetAllArtifactRelationsQuery = {
+  companies: Array<
+    Pick<Companies, "id"> & {
+      settings?: Maybe<
+        Pick<CompanySettings, "id"> & CompanySettingsLimitedFragment
+      >;
+      metrc_api_keys: Array<Pick<MetrcApiKeys, "id">>;
+    }
+  >;
+  vendors: Array<
+    Pick<Vendors, "id"> & {
+      company_vendor_partnerships: Array<
+        Pick<CompanyVendorPartnerships, "id"> & VendorPartnershipLimitedFragment
+      >;
+      users: Array<Pick<Users, "id"> & UserFragment>;
+      bank_accounts: Array<Pick<BankAccounts, "id"> & BankAccountFragment>;
     } & VendorLimitedFragment
   >;
 };
@@ -42471,6 +42520,89 @@ export type GetArtifactRelationsByCompanyIdLazyQueryHookResult = ReturnType<
 export type GetArtifactRelationsByCompanyIdQueryResult = Apollo.QueryResult<
   GetArtifactRelationsByCompanyIdQuery,
   GetArtifactRelationsByCompanyIdQueryVariables
+>;
+export const GetAllArtifactRelationsDocument = gql`
+  query GetAllArtifactRelations {
+    companies {
+      id
+      settings {
+        id
+        ...CompanySettingsLimited
+      }
+      metrc_api_keys {
+        id
+      }
+    }
+    vendors(order_by: { name: asc }) {
+      id
+      ...VendorLimited
+      company_vendor_partnerships {
+        id
+        ...VendorPartnershipLimited
+      }
+      users {
+        id
+        ...User
+      }
+      bank_accounts {
+        id
+        ...BankAccount
+      }
+    }
+  }
+  ${CompanySettingsLimitedFragmentDoc}
+  ${VendorLimitedFragmentDoc}
+  ${VendorPartnershipLimitedFragmentDoc}
+  ${UserFragmentDoc}
+  ${BankAccountFragmentDoc}
+`;
+
+/**
+ * __useGetAllArtifactRelationsQuery__
+ *
+ * To run a query within a React component, call `useGetAllArtifactRelationsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllArtifactRelationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllArtifactRelationsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetAllArtifactRelationsQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetAllArtifactRelationsQuery,
+    GetAllArtifactRelationsQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetAllArtifactRelationsQuery,
+    GetAllArtifactRelationsQueryVariables
+  >(GetAllArtifactRelationsDocument, baseOptions);
+}
+export function useGetAllArtifactRelationsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetAllArtifactRelationsQuery,
+    GetAllArtifactRelationsQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetAllArtifactRelationsQuery,
+    GetAllArtifactRelationsQueryVariables
+  >(GetAllArtifactRelationsDocument, baseOptions);
+}
+export type GetAllArtifactRelationsQueryHookResult = ReturnType<
+  typeof useGetAllArtifactRelationsQuery
+>;
+export type GetAllArtifactRelationsLazyQueryHookResult = ReturnType<
+  typeof useGetAllArtifactRelationsLazyQuery
+>;
+export type GetAllArtifactRelationsQueryResult = Apollo.QueryResult<
+  GetAllArtifactRelationsQuery,
+  GetAllArtifactRelationsQueryVariables
 >;
 export const GetVendorPartnershipsByCompanyIdDocument = gql`
   query GetVendorPartnershipsByCompanyId($companyId: uuid!) {

@@ -9,7 +9,7 @@ from bespoke.companies import create_user_util
 from bespoke.date import date_util
 from bespoke.db import models, db_constants, models_util, queries
 from bespoke.db.db_constants import (CompanyDebtFacilityStatus, CompanySurveillanceStatus, 
-	CompanyType, TwoFactorMessageMethod, UserRoles)
+	CompanyType, TwoFactorMessageMethod, UserRoles, PartnershipRequestType)
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util
 from mypy_extensions import TypedDict
@@ -84,6 +84,7 @@ PartnershipRequestRequestInfoDict = TypedDict('PartnershipRequestRequestInfoDict
 	'bank_wire_routing_number': str,
 	'beneficiary_address': str,
 	'bank_instructions_attachment_id': str,
+	'type': db_constants.PartnershipRequestType,
 })
 
 CreatePartnershipRequestInputDict = TypedDict('CreatePartnershipRequestInputDict', {
@@ -545,8 +546,9 @@ def _create_partner_company_and_its_first_user(
 	return company_id
 
 def _create_partner_company_and_its_first_user_new(
-	partnership_req: models.CompanyPartnershipRequest,
 	session: Session,
+	partnership_req: models.CompanyPartnershipRequest,
+	can_use_existing_user: bool,
 ) -> str:
 	user_input = cast(Dict, partnership_req.user_info)
 
@@ -574,15 +576,17 @@ def _create_partner_company_and_its_first_user_new(
 	existing_user = session.query(models.User).filter(
 		models.User.email == user_input['email'].lower()
 	).first()
-	if existing_user:
+	if existing_user and can_use_existing_user is False:
 		raise errors.Error('Email is already taken')
-
-	_create_user(
-		user_input=user_input,
-		parent_company_id=parent_company_id,
-		company_id=company_id,
-		session=session,
-	)
+	elif existing_user and can_use_existing_user is True:
+		pass
+	else:
+		_create_user(
+			user_input=user_input,
+			parent_company_id=parent_company_id,
+			company_id=company_id,
+			session=session,
+		)
 
 	if license_info:
 		# Add any licenses the user might have specified.
@@ -829,9 +833,10 @@ def create_partnership(
 
 @errors.return_error_tuple
 def create_partnership_new(
-	req: CreatePartnershipInputDict,
 	session: Session,
+	req: CreatePartnershipInputDict,
 	bank_admin_user_id: str,
+	can_use_existing_user: bool = False,
 ) -> Tuple[CreatePartnershipRespDict, errors.Error]:
 	should_create_company = req['should_create_company']
 
@@ -854,7 +859,9 @@ def create_partnership_new(
 
 	if should_create_company:
 		company_id = _create_partner_company_and_its_first_user_new(
-			partnership_req, session
+			session,
+			partnership_req,
+			can_use_existing_user,
 		)
 	else:
 		company_id = req.get('partner_company_id')
@@ -930,6 +937,8 @@ def create_partnership_new(
 		session.query(models.User).filter(
 			models.User.email == user_info.get("email", "").lower()
 	).first())
+
+	print("EXISTING:", existing_user.id)
 
 	if existing_user is None:
 		user_id, err = create_user_util.create_bank_or_customer_user_with_session(
@@ -1188,6 +1197,7 @@ def _create_or_update_partnership_request_new(
 	request_info_bank_wire_routing_number = request_info_input['bank_wire_routing_number']
 	request_info_beneficiary_address = request_info_input['beneficiary_address']
 	request_info_bank_instructions_attachment_id = request_info_input['bank_instructions_attachment_id']
+	request_type = request_info_input['type']
 
 	if partnership_req_id:
 		# Update
@@ -1231,7 +1241,8 @@ def _create_or_update_partnership_request_new(
 		'bank_ach_routing_number': request_info_bank_ach_routing_number,
 		'bank_wire_routing_number': request_info_bank_wire_routing_number,
 		'beneficiary_address': request_info_beneficiary_address,
-		'bank_instructions_attachment_id': request_info_bank_instructions_attachment_id
+		'bank_instructions_attachment_id': request_info_bank_instructions_attachment_id,
+		'type': request_type,
 	}
 
 	# Set the submitted_by_user_id from partnership invite
@@ -1256,8 +1267,8 @@ def _create_or_update_partnership_request_new(
 
 @errors.return_error_tuple
 def create_partnership_request_new(
-	req: CreatePartnershipRequestNewInputDict,
 	session: Session,
+	req: CreatePartnershipRequestNewInputDict,
 	is_payor: bool,
 ) -> Tuple[str, errors.Error]:
 	customer_id = req['customer_id']

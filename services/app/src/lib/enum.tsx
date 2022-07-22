@@ -916,6 +916,11 @@ export enum BankAccountType {
   Savings = "Savings",
 }
 
+export enum PartnershipRequestType {
+  VendorSubmitted = "vendor_submitted",
+  MoveToAction = "move_to_action",
+}
+
 export enum BankReportsTabLabel {
   FinancialsForCustomer = "Financials - For Customer",
   FinancialsForDate = "Financials - For Date",

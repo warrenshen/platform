@@ -27,9 +27,11 @@ export default function HandlePartnershipRequestModal({
 }: Props) {
   const snackbar = useSnackbar();
 
-  const isSubmitDisabled = false;
   const [selectedCompanyId, setSelectedCompanyId] =
     useState<Companies["id"]>(null);
+
+  const isSubmitDisabled =
+    !partnerRequest?.user_info?.first_name && !selectedCompanyId ? true : false;
 
   const handleSubmit = async () => {
     const response = await createPartnershipMutation({

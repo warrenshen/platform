@@ -8,7 +8,7 @@ import {
 interface Props {
   onChange: (event: any, newValue: any) => void;
   selectableVendors: GetArtifactRelationsByCompanyIdQuery["vendors"];
-  selectedVendor?: Vendors;
+  selectedVendor?: Vendors | null;
   dataCy: string;
   label: string;
 }
