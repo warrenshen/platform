@@ -49,6 +49,7 @@ select_permissions:
     permission:
       columns:
         - company_id
+        - company_role
         - created_at
         - email
         - first_name
@@ -70,6 +71,7 @@ select_permissions:
     permission:
       columns:
         - company_id
+        - company_role
         - created_at
         - email
         - first_name
