@@ -103,11 +103,7 @@ export default function MoveDebtFacilityLoanModal({
   return (
     <Modal
       dataCy={"move-debt-facility-loan-modal"}
-      isPrimaryActionDisabled={
-        isMoveLoansLoading ||
-        // preventing all DF clients from entering the facility while we only have CoVenture
-        productType === ProductTypeEnum.DispensaryFinancing
-      }
+      isPrimaryActionDisabled={isMoveLoansLoading}
       title={
         isMovingToFacility
           ? "Move Loan(s) From Bespoke Balance Sheet to Debt Facility"

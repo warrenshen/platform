@@ -395,9 +395,7 @@ def fund_loans_with_advance(
 				loan_report_dict[str(loan_report.id)] = loan_report
 
 			loan_report = loan_report_dict[str(loan.loan_report_id)]
-			if (company.debt_facility_status == db_constants.CompanyDebtFacilityStatus.INELIGIBLE_FOR_FACILITY or 
-				(contract.get_product_type() == db_constants.ProductType.DISPENSARY_FINANCING and \
-				 company.debt_facility_status != db_constants.CompanyDebtFacilityStatus.WAIVER) or \
+			if (company.debt_facility_status == db_constants.CompanyDebtFacilityStatus.INELIGIBLE_FOR_FACILITY or \
 				debt_facility is None):
 				loan_report.debt_facility_status = db_constants.LoanDebtFacilityStatus.BESPOKE_BALANCE_SHEET
 			else:

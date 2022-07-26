@@ -77,13 +77,6 @@ def update_company_debt_facility_status(
         ).first(),
     )
     
-    if contract.product_type == ProductType.DISPENSARY_FINANCING and \
-     new_debt_facility_status == CompanyDebtFacilityStatus.GOOD_STANDING:
-        raise errors.Error(
-            'Cannot set dispensary finacing clients to good standing as \
-			they are ineligible for debt facility financing',
-        )
-    
     # Grab old debt facility status to record in debt facility event before setting new status
     old_debt_facility_status = company.debt_facility_status
     company.debt_facility_status = new_debt_facility_status
