@@ -40,9 +40,9 @@ const Copy = styled.div`
   justify-content: center;
 `;
 
-const TitleText = styled(Typography)<{ fontSize: number; fontColor: string }>`
-  color: ${(props) => props.fontColor};
-  font-size: ${(props) => props.fontSize.toString() + "px"};
+const TitleText = styled(Typography)<{ $fontSize: number; $fontColor: string }>`
+  color: ${(props) => props.$fontColor};
+  font-size: ${(props) => props.$fontSize.toString() + "px"};
   font-weight: 400;
 `;
 
@@ -140,8 +140,8 @@ export default function GaugeProgressBar({
       </Gauge>
       <Copy>
         <TitleText
-          fontSize={valueFontSize}
-          fontColor={!!isOverMax ? orange : green}
+          $fontSize={valueFontSize}
+          $fontColor={!!isOverMax ? orange : green}
         >
           {value !== null ? `${value}%` : "TBD"}
         </TitleText>
