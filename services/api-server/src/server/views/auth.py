@@ -2,6 +2,7 @@ import json
 from typing import Callable, Dict, List, cast
 
 from bespoke import errors
+from bespoke.companies import create_user_util
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
@@ -443,6 +444,9 @@ class AuthenticateBlazeUserView(MethodView):
 			'external_blaze_shop_id',
 			'external_blaze_user_id',
 			'external_blaze_user_role',
+			'external_blaze_user_email',
+			'external_blaze_user_first_name',
+			'external_blaze_user_last_name',
 		]
 
 		for key in required_keys:
@@ -454,6 +458,9 @@ class AuthenticateBlazeUserView(MethodView):
 		external_blaze_shop_id = form['external_blaze_shop_id']
 		external_blaze_user_id = form['external_blaze_user_id']
 		external_blaze_user_role = form['external_blaze_user_role']
+		external_blaze_user_email = form['external_blaze_user_email']
+		external_blaze_user_first_name = form['external_blaze_user_first_name']
+		external_blaze_user_last_name = form['external_blaze_user_last_name']
 
 		if not security_util.verify_blaze_auth_payload(
 			secret_key=cfg.BLAZE_SHARED_SECRET_KEY,
@@ -466,6 +473,75 @@ class AuthenticateBlazeUserView(MethodView):
 			return handler_util.make_error_response(f'Invalid auth key provided', 401)
 
 		with session_scope(current_app.session_maker) as session:
+			existing_blaze_shop_entry = cast(
+				models.BlazeShopEntry,
+				session.query(models.BlazeShopEntry).filter(
+					models.BlazePreapproval.external_blaze_shop_id == external_blaze_shop_id
+				).first())
+
+			if existing_blaze_shop_entry:
+				existing_blaze_user = cast(
+					models.BlazeUser,
+					session.query(models.BlazeUser).filter(
+						models.BlazeUser.external_blaze_user_id == external_blaze_user_id
+					).first())
+
+				if existing_blaze_user:
+					user = cast(
+						models.User,
+						session.query(models.User).filter(
+							models.User.id == existing_blaze_user.user_id
+					).first())
+				else:
+					# TODO(warrenshen): Use external_blaze_user_role to determine role of new user.
+					user_id, err = create_user_util.create_bank_or_customer_user_with_session(
+						create_user_util.CreateBankOrCustomerUserInputDict(
+							company_id=str(existing_blaze_shop_entry.company_id),
+							user=create_user_util.UserInsertInputDict(
+								role=db_constants.UserRoles.COMPANY_ADMIN,
+								first_name=external_blaze_user_first_name,
+								last_name=external_blaze_user_last_name,
+								email=external_blaze_user_email,
+								phone_number=None,
+							),
+						),
+						session=session,
+					)
+
+					if err:
+						return handler_util.make_error_response(err)
+
+					user = cast(
+						models.User,
+						session.query(models.User).filter(
+							models.User.id == user_id
+						).first())
+
+					blaze_user = models.BlazeUser()
+					blaze_user.external_blaze_user_id = external_blaze_user_id
+					blaze_user.user_id = user.id
+
+					session.add(blaze_user)
+					session.flush()
+
+				claims_payload = auth_util.get_claims_payload(
+					user=user,
+					role=user.role,
+					company_id=user.company_id,
+				)
+				access_token = create_access_token(identity=claims_payload)
+				refresh_token = create_refresh_token(identity=claims_payload)
+
+				return make_response(json.dumps({
+					'status': 'OK',
+					'msg': 'Success',
+					'data': {
+						'auth_status': 'borrower_active',
+						'access_token': access_token,
+						'refresh_token': refresh_token,
+					},
+				}), 200)
+
 			existing_blaze_preapproval = cast(
 				models.BlazePreapproval,
 				session.query(models.BlazePreapproval).filter(

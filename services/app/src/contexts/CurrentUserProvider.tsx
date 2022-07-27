@@ -121,14 +121,16 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
   }, []);
 
   const setUserFromAccessToken = useCallback(
-    (accessToken: string | null) => {
-      if (accessToken) {
+    (accessToken: string | null, refreshToken: string | null) => {
+      if (accessToken && refreshToken) {
         const userFields = userFieldsFromToken(accessToken);
         // If JWT companyId is set but parentCompanyId is not, JWT is invalid (deprecated format).
         // Force sign out the user in this case to get a valid JWT on next sign in.
         if (!!userFields.companyId && !userFields.parentCompanyId) {
           signOut();
         } else {
+          setAccessToken(accessToken);
+          setRefreshToken(refreshToken);
           setUser((user) => ({
             ...user,
             ...userFieldsFromToken(accessToken),
@@ -161,9 +163,10 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
     if (response.data?.status === "ERROR") {
       return response.data.msg;
     }
-    setAccessToken(response.data?.access_token);
-    setRefreshToken(response.data?.refresh_token);
-    setUserFromAccessToken(response.data?.access_token);
+    setUserFromAccessToken(
+      response.data?.access_token,
+      response.data?.refresh_token
+    );
   };
 
   const undoImpersonation = async (): Promise<string | void> => {
@@ -184,17 +187,18 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
     if (response.data?.status === "ERROR") {
       return response.data.msg;
     }
-    setAccessToken(response.data.access_token);
-    setRefreshToken(response.data.refresh_token);
-    setUserFromAccessToken(response.data.access_token);
+    setUserFromAccessToken(
+      response.data.access_token,
+      response.data.refresh_token
+    );
   };
 
   useEffect(() => {
     if (isTokenLoaded === false) {
       async function callGetAccessToken() {
         const accessToken = await getAccessToken();
-
-        setUserFromAccessToken(accessToken);
+        const refreshToken = await getRefreshToken();
+        setUserFromAccessToken(accessToken, refreshToken);
       }
       callGetAccessToken();
     }
@@ -206,6 +210,7 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
         user,
         isSignedIn,
         resetUser,
+        setUserFromAccessToken,
         setUserProductType,
         undoImpersonation,
         impersonateUser,

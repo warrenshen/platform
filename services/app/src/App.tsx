@@ -76,15 +76,20 @@ type BlazeAuthPayload = {
   shop_id: string;
   user_id: string;
   user_role: number;
+  user_email: string;
+  user_first_name: string;
+  user_last_name: string;
 };
 
 export default function App() {
   const { pathname } = useLocation();
   const {
     user: { role },
+    setUserFromAccessToken,
   } = useContext(CurrentUserContext);
 
   const [isBlaze, setIsBlaze] = useState(false);
+  const [isSignedIn, setIsSignedIn] = useState(false);
   const [blazePreapproval, setBlazePreapproval] =
     useState<BlazePreapprovalFragment | null>(null);
   const [authenticateBlazeUser, { loading: isAuthenticateBlazeUserLoading }] =
@@ -148,6 +153,9 @@ export default function App() {
               shop_id: blazeShopId,
               user_id: blazeUserId,
               user_role: blazeUserRole,
+              user_email: blazeUserEmail,
+              user_first_name: blazeUserFirstName,
+              user_last_name: blazeUserLastName,
             } = blazeAuthPayload;
 
             if (
@@ -155,7 +163,10 @@ export default function App() {
               blazeCompanyId == null ||
               blazeShopId == null ||
               blazeUserId == null ||
-              blazeUserRole == null
+              blazeUserRole == null ||
+              blazeUserEmail == null ||
+              blazeUserFirstName == null ||
+              blazeUserLastName == null
             ) {
               processError(
                 `Failed to process ${eventIdentifier} event due to missing payload field(s)!`
@@ -171,6 +182,9 @@ export default function App() {
                 external_blaze_shop_id: blazeShopId,
                 external_blaze_user_id: blazeUserId,
                 external_blaze_user_role: blazeUserRole,
+                external_blaze_user_email: blazeUserEmail,
+                external_blaze_user_first_name: blazeUserFirstName,
+                external_blaze_user_last_name: blazeUserLastName,
               },
             });
 
@@ -195,12 +209,21 @@ export default function App() {
                 },
                 ValidBlazeOrigin
               );
-              setBlazePreapproval(
-                !!response.data?.blaze_preapproval
-                  ? (response.data
-                      ?.blaze_preapproval as BlazePreapprovalFragment)
-                  : null
-              );
+              const data = response.data;
+              if (data) {
+                const authStatus = data.auth_status;
+                if (authStatus === "borrower_active") {
+                  setUserFromAccessToken(data.access_token, data.refresh_token);
+                  setIsSignedIn(true);
+                } else {
+                  setBlazePreapproval(
+                    !!response.data?.blaze_preapproval
+                      ? (response.data
+                          ?.blaze_preapproval as BlazePreapprovalFragment)
+                      : null
+                  );
+                }
+              }
             }
           }
         },
@@ -224,9 +247,9 @@ export default function App() {
         );
       }
     }
-  }, [authenticateBlazeUser, setIsBlaze]);
+  }, [authenticateBlazeUser, setIsBlaze, setUserFromAccessToken]);
 
-  return isBlaze ? (
+  return isBlaze && !isSignedIn ? (
     <BlazePreapprovalPage
       isAuthenticateBlazeUserLoading={isAuthenticateBlazeUserLoading}
       blazePreapproval={blazePreapproval}

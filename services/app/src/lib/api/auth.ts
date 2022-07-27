@@ -9,6 +9,9 @@ export type AuthenticateBlazeUserReq = {
     external_blaze_shop_id: string;
     external_blaze_user_id: string;
     external_blaze_user_role: number;
+    external_blaze_user_email: string;
+    external_blaze_user_first_name: string;
+    external_blaze_user_last_name: string;
   };
 };
 

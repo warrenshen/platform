@@ -7,7 +7,6 @@ import {
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
 import { MetrcTransfers, useGetMetrcTransferQuery } from "generated/graphql";
-// import { getCompanyDisplayName } from "lib/companies";
 import { formatDatetimeString } from "lib/date";
 import { useContext } from "react";
 

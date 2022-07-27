@@ -62,9 +62,7 @@ export default function BlazePreapprovalCard({ blazePreapproval }: Props) {
           </Box>
           <Box display="flex" alignItems="center" mt={2}>
             <StyledNumber>3</StyledNumber>
-            <Typography variant="body1">
-              Pay off loans in 60 days to avoid late fees
-            </Typography>
+            <Typography variant="body1">Pay off loans in 60 days</Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={4}>
             <StyledButton
