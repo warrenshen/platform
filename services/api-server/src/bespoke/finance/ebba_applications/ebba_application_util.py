@@ -4,7 +4,7 @@ from sqlalchemy.orm.session import Session
 
 from bespoke import errors
 from bespoke.date import date_util
-from bespoke.db import models
+from bespoke.db import models, db_constants
 from bespoke.db.db_constants import (AutomatedSurveillanceMessage, ClientSurveillanceCategoryEnum, 
 	CompanySurveillanceStatus, RequestStatusEnum)
 from bespoke.email import sendgrid_util
@@ -214,6 +214,7 @@ def add_borrowing_base(
 
 def update_borrowing_base(
 	session: Session,
+	user: models.User,
 	ebba_application_id: str,
 	application_date: str,
 	monthly_accounts_receivable: float,
@@ -235,6 +236,9 @@ def update_borrowing_base(
 		session.query(models.EbbaApplication).filter(
 			models.EbbaApplication.id == ebba_application_id
 		).first())
+
+	if user.role != db_constants.UserRoles.BANK_ADMIN and ebba_application.application_date != date_util.load_date_str(application_date):
+		return None, None, None, errors.Error("User not authorized to change Borrowing Base Date")
 
 	ebba_application.application_date = date_util.load_date_str(application_date)
 	ebba_application.monthly_accounts_receivable = Decimal(monthly_accounts_receivable) if monthly_accounts_receivable is not None else None

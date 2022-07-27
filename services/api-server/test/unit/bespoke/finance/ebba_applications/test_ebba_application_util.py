@@ -4,7 +4,7 @@ from sqlalchemy.orm.session import Session
 import uuid
 
 from bespoke.date import date_util
-from bespoke.db import models
+from bespoke.db import models, db_constants
 from bespoke.db.db_constants import (ClientSurveillanceCategoryEnum, RequestStatusEnum)
 from bespoke.db.models import session_scope
 from bespoke.finance.ebba_applications import ebba_application_util
@@ -207,6 +207,8 @@ class TestUpdateBorrowingBaseView(db_unittest.TestCase):
 		with session_scope(self.session_maker) as session:
 			company_id = str(uuid.uuid4())
 			user = setup_for_ebba_application_test(session, company_id)
+			# only bank_admin users can update application date
+			user.role = db_constants.UserRoles.BANK_ADMIN
 
 			files_to_generate1 = 2
 			ebba_application_files1 = generate_ebba_application_files(files_to_generate1)
@@ -253,6 +255,7 @@ class TestUpdateBorrowingBaseView(db_unittest.TestCase):
 
 			ebba_application2, files_removed_count, files_added_count, err = ebba_application_util.update_borrowing_base(
 				session,
+				user,
 				str(ebba_application1.id),
 				application_date2,
 				monthly_accounts_receivable2,
@@ -269,8 +272,7 @@ class TestUpdateBorrowingBaseView(db_unittest.TestCase):
 			self.assertNotEqual(ebba_application2, None)
 			self.assertEqual(ebba_application2.status, RequestStatusEnum.APPROVAL_REQUESTED)
 			self.assertEqual(ebba_application2.category, ClientSurveillanceCategoryEnum.BORROWING_BASE)
-
-			self.assertNotEqual(application_date1, ebba_application2.application_date)
+			self.assertNotEqual(datetime.datetime.strptime(application_date1, '%Y-%m-%d').date(), ebba_application2.application_date)
 			self.assertNotEqual(monthly_accounts_receivable1, ebba_application2.monthly_accounts_receivable)
 			self.assertNotEqual(monthly_inventory1, ebba_application2.monthly_inventory)
 			self.assertNotEqual(monthly_cash1, ebba_application2.monthly_cash)
@@ -293,6 +295,75 @@ class TestUpdateBorrowingBaseView(db_unittest.TestCase):
 
 			self.assertEqual(is_success, True)
 			self.assertEqual(err, None)
+
+	def test_update_borrowing_base_non_bank_admin_changes_application_date_errors(self) -> None:
+		with session_scope(self.session_maker) as session:
+			company_id = str(uuid.uuid4())
+			user = setup_for_ebba_application_test(session, company_id)
+
+			files_to_generate1 = 2
+			ebba_application_files1 = generate_ebba_application_files(files_to_generate1)
+
+			application_date1 = date_util.date_to_db_str(TODAY_DATE)
+			monthly_accounts_receivable1 = 10000
+			monthly_inventory1 = 3000
+			monthly_cash1 = 4000
+			amount_cash_in_daca1 = 1000
+			amount_custom1 = 14
+			amount_custom_note1 = "Unit test note"
+			calculated_borrowing_base1 = 4514
+			expires_date1 = date_util.date_to_db_str(TODAY)
+
+			# easier to just use the add function than create a new setup function for the update test
+			ebba_application1, _, err = ebba_application_util.add_borrowing_base(
+				session,
+				company_id,
+				application_date1,
+				monthly_accounts_receivable1,
+				monthly_inventory1,
+				monthly_cash1,
+				amount_cash_in_daca1,
+				amount_custom1,
+				amount_custom_note1,
+				calculated_borrowing_base1,
+				expires_date1,
+				ebba_application_files1
+			)
+
+			files_to_generate2 = 2
+			ebba_application_files_new = generate_ebba_application_files(files_to_generate2)
+			ebba_application_files2 = ebba_application_files1 + ebba_application_files_new
+
+			application_date2 = date_util.date_to_db_str(get_relative_date(TODAY, 10).date())
+			monthly_accounts_receivable2 = 20000
+			monthly_inventory2 = 6000
+			monthly_cash2 = 8000
+			amount_cash_in_daca2 = 2000
+			amount_custom2 = 28
+			amount_custom_note2 = "Unit test note2"
+			calculated_borrowing_base2 = 9028
+			expires_date2 = date_util.datetime_to_str(get_relative_date(TODAY, 10))
+
+			ebba_application2, files_removed_count, files_added_count, err = ebba_application_util.update_borrowing_base(
+				session,
+				user,
+				str(ebba_application1.id),
+				application_date2,
+				monthly_accounts_receivable2,
+				monthly_inventory2,
+				monthly_cash2,
+				amount_cash_in_daca2,
+				amount_custom2,
+				amount_custom_note2,
+				calculated_borrowing_base2,
+				expires_date2,
+				ebba_application_files2
+			)
+
+			self.assertEqual(ebba_application2, None)
+			self.assertEqual(files_removed_count, None)
+			self.assertEqual(files_added_count, None)
+			self.assertEqual(err.msg, "User not authorized to change Borrowing Base Date")
 
 class TestSubmitEbbaApplicationView(db_unittest.TestCase):
 	def test_submit_ebba_application_errors(self) -> None:

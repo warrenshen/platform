@@ -98,7 +98,7 @@ export default function EbbaApplicationBorrowingBaseForm({
         <Box>
           <DateInput
             autoFocus
-            disabled={isActionTypeUpdate}
+            disabled={isActionTypeUpdate && !isBankUser}
             disableFuture
             required
             className={classes.inputField}

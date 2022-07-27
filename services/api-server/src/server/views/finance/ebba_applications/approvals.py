@@ -480,6 +480,7 @@ class UpdateBorrowingBaseView(MethodView):
 
 			ebba_application, _, _, err = ebba_application_util.update_borrowing_base(
 				session,
+				user,
 				ebba_application_id,
 				application_date,
 				monthly_accounts_receivable,
