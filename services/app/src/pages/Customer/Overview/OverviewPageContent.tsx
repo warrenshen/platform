@@ -464,6 +464,7 @@ export default function CustomerOverviewPageContent({
                           role,
                           Action.ViewLoanInternalNote
                         )}
+                        isDaysPastDueVisible
                         productType={productType}
                         loans={loans}
                         selectedLoanIds={selectedLoanIds}

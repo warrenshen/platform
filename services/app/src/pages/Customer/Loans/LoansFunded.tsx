@@ -127,6 +127,7 @@ function LoansFunded({
               !isLineOfCredit && check(role, Action.SelectLoan)
             }
             isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
+            isDaysPastDueVisible
             productType={productType}
             loans={loans}
             selectedLoanIds={selectedLoanIds}

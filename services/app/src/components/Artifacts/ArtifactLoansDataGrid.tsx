@@ -16,6 +16,7 @@ import { LoanPaymentStatusEnum, LoanStatusEnum } from "lib/enum";
 import {
   createLoanCustomerIdentifier,
   createLoanDisbursementIdentifier,
+  getDaysPastDue,
   getLoanArtifactName,
 } from "lib/loans";
 import { ColumnWidths } from "lib/tables";
@@ -31,6 +32,7 @@ export interface ArtifactLoansDataGridFlagProps {
   isOriginationDateVisible?: boolean; // Whether origination date is visible.
   isRequestedDateVisible?: boolean; // Whether requested payment date is visible.
   isViewNotesEnabled?: boolean;
+  isDaysPastDueVisible?: boolean;
   pager?: boolean;
 }
 
@@ -52,6 +54,7 @@ function getRows(
     customer_identifier: createLoanCustomerIdentifier(loan),
     disbursement_identifier: createLoanDisbursementIdentifier(loan),
     artifact_name: getLoanArtifactName(loan),
+    days_past_due: getDaysPastDue(loan),
   }));
 }
 
@@ -65,6 +68,7 @@ export default function ArtifactLoansDataGrid({
   isOriginationDateVisible = true,
   isRequestedDateVisible = false,
   isViewNotesEnabled = false,
+  isDaysPastDueVisible = false,
   pager = true,
   artifactCaption,
   loans,
@@ -191,6 +195,13 @@ export default function ArtifactLoansDataGrid({
         ),
       },
       {
+        visible: isMaturityVisible && isDaysPastDueVisible,
+        dataField: "days_past_due",
+        caption: "Days Past Due",
+        width: 100,
+        alignment: "right",
+      },
+      {
         visible: isMaturityVisible,
         dataField: "outstanding_principal_balance",
         caption: "Outstanding Principal Balance",
@@ -237,6 +248,7 @@ export default function ArtifactLoansDataGrid({
       isOriginationDateVisible,
       isRequestedDateVisible,
       isViewNotesEnabled,
+      isDaysPastDueVisible,
       artifactCaption,
     ]
   );

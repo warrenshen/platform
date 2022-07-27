@@ -13,6 +13,7 @@ export default function PurchaseOrderLoansDataGrid({
   isOriginationDateVisible = true,
   isRequestedDateVisible = false,
   isViewNotesEnabled = false,
+  isDaysPastDueVisible = false,
   pager = true,
   loans,
   selectedLoanIds,
@@ -28,6 +29,7 @@ export default function PurchaseOrderLoansDataGrid({
       isOriginationDateVisible={isOriginationDateVisible}
       isRequestedDateVisible={isRequestedDateVisible}
       isViewNotesEnabled={isViewNotesEnabled}
+      isDaysPastDueVisible={isDaysPastDueVisible}
       isExcelExport={isExcelExport}
       pager={pager}
       loans={loans}
