@@ -74,6 +74,11 @@ def is_bank_account_info_valid(is_bank_admin: bool, bank_account_input: BankAcco
 			return "Intermediary account name is required"
 		if bank_account_input['intermediary_account_number'] is None:
 			return "Intermediary account number is required"
+	
+	if bank_account_input["verified_date"] and bank_account_input["verified_at"] is None:
+		return "Verified date is required for verified bank accounts"
+	if bank_account_input["verified_at"] and bank_account_input["verified_date"] is None:
+		return "Verified at is required for verified bank accounts"
 
 	return None
 

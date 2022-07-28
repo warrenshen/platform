@@ -9,7 +9,7 @@ import BankAccountTypeDropdown from "components/BankAccount/BankAccountTypeDropd
 import DateInput from "components/Shared/FormInputs/DateInput";
 import { BankAccountsInsertInput, UserRolesEnum } from "generated/graphql";
 import { BankAccountType } from "lib/enum";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useState } from "react";
 
 const useStyles = makeStyles({
   form: {
@@ -31,6 +31,8 @@ export default function BankAccountForm({
   isFormDisabled = false,
 }: Props) {
   const classes = useStyles();
+
+  const [isVerified, setIsVerified] = useState(!!bankAccount.verified_date);
 
   return (
     <Box mb={3} display="flex" flexDirection="column" className={classes.form}>
@@ -339,14 +341,15 @@ export default function BankAccountForm({
           <FormControlLabel
             control={
               <Checkbox
-                checked={!!bankAccount.verified_at}
-                onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                checked={isVerified}
+                onChange={(event: ChangeEvent<HTMLInputElement>) => {
                   setBankAccount({
                     ...bankAccount,
-                    verified_at: !bankAccount.verified_at ? "now()" : null,
+                    verified_at: !isVerified ? "now()" : null,
                     verified_date: null,
-                  })
-                }
+                  });
+                  setIsVerified(!isVerified);
+                }}
                 color="primary"
                 disabled={isFormDisabled}
               />
@@ -355,7 +358,7 @@ export default function BankAccountForm({
           />
         </Box>
       )}
-      {role === UserRolesEnum.BankAdmin && !!bankAccount.verified_at && (
+      {role === UserRolesEnum.BankAdmin && isVerified && (
         <Box ml={4}>
           <Box display="flex" flexDirection="column" mt={2}>
             <DateInput

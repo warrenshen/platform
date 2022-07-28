@@ -201,7 +201,7 @@ export default function CreateUpdateBankAccountModal({
       bankAccount.recipient_address_2 &&
       isIntermediaryBankValid)
   );
-  const isBankVerified = !bankAccount.verified_at || bankAccount.verified_date;
+  const isBankVerified = bankAccount.verified_at && bankAccount.verified_date;
 
   const isSubmitDisabled =
     isLoading ||

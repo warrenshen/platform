@@ -103,7 +103,7 @@ def prepare_bank_account_info_dict(
 		bank_address = '456 Main Street, Annapolis, MD 21401',
 		is_cannabis_compliant = True,
 		verified_date = '01/06/2020' if is_verified else None,
-		verified_at = date_util.datetime_to_str(get_relative_date(TODAY, -92))
+		verified_at = date_util.datetime_to_str(get_relative_date(TODAY, -92)) if is_verified else None
 	)
 
 
