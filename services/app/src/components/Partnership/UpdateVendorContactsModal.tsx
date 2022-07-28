@@ -41,7 +41,6 @@ export default function UpdateVendorContactsModal({
           vendorContact.vendor_user_id
       );
       setSelectedUserIds(existingSelectedUserIds);
-      setShouldUseAllUsers(existingSelectedUserIds.length <= 0);
     },
   });
 
@@ -125,9 +124,7 @@ export default function UpdateVendorContactsModal({
   }
 
   const isSubmitDisabled =
-    isUpdatePartnershipContactsLoading ||
-    (!shouldUseAllUsers && selectedUserIds.length === users.length) ||
-    (!shouldUseAllUsers && selectedUserIds.length <= 0);
+    isUpdatePartnershipContactsLoading || selectedUserIds.length <= 0;
 
   return (
     <Modal
@@ -146,55 +143,26 @@ export default function UpdateVendorContactsModal({
             partnership.
           </Typography>
         </Box>
-        <Box display="flex" flexDirection="column" mt={4}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={shouldUseAllUsers}
-                onChange={(event: ChangeEvent<HTMLInputElement>) => {
-                  setShouldUseAllUsers(event.target.checked);
-                  if (event.target.checked) {
-                    setSelectedUserIds([]);
-                  }
-                }}
-                color="primary"
-              />
-            }
-            label={"Use ALL company users as vendor contacts"}
-          />
-          <Typography variant="subtitle2" color="textSecondary">
-            Check this if you want all users of the company to be vendor
-            contacts.
+        <Box mt={4}>
+          <Typography variant="body2">
+            <strong>Selected vendor contacts</strong>
           </Typography>
+          <UsersDataGrid
+            pager={false}
+            users={selectedContacts}
+            actionItems={selectedLoansActionItems}
+          />
         </Box>
-        {shouldUseAllUsers ? (
-          <Box mt={4}>
-            <UsersDataGrid pager={false} users={users} />
-          </Box>
-        ) : (
-          <>
-            <Box mt={4}>
-              <Typography variant="body2">
-                <strong>Selected vendor contacts</strong>
-              </Typography>
-              <UsersDataGrid
-                pager={false}
-                users={selectedContacts}
-                actionItems={selectedLoansActionItems}
-              />
-            </Box>
-            <Box mt={4}>
-              <Typography variant="body2">
-                <strong>Not selected vendor contacts</strong>
-              </Typography>
-              <UsersDataGrid
-                pager={false}
-                users={notSelectedContacts}
-                actionItems={notSelectedLoansActionItems}
-              />
-            </Box>
-          </>
-        )}
+        <Box mt={4}>
+          <Typography variant="body2">
+            <strong>Not selected vendor contacts</strong>
+          </Typography>
+          <UsersDataGrid
+            pager={false}
+            users={notSelectedContacts}
+            actionItems={notSelectedLoansActionItems}
+          />
+        </Box>
       </Box>
     </Modal>
   );

@@ -82,7 +82,6 @@ export default function VendorPartnershipDrawer({
     return null;
   }
 
-  const shouldUseAllUsers = vendorContacts.length === vendor.users.length;
   const customerName = customer.name;
 
   const notifier = new InventoryNotifier();
@@ -119,14 +118,6 @@ export default function VendorPartnershipDrawer({
                 }}
               />
             )}
-          />
-        </Box>
-        <Box mt={2}>
-          <FormControlLabel
-            control={
-              <Checkbox disabled checked={shouldUseAllUsers} color="primary" />
-            }
-            label={"Use ALL company users as vendor contacts"}
           />
         </Box>
         <UsersDataGrid users={vendorContacts} />
