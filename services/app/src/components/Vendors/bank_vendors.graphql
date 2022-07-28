@@ -114,6 +114,46 @@ query GetVendorPartnershipsForBank {
   }
 }
 
+query GetNotApprovedVendorPartnershipsForBank {
+  company_vendor_partnerships(
+    where: { approved_at: { _is_null: true } }
+    order_by: { vendor: { name: asc } }
+    ) {
+    ...VendorPartnership
+    company {
+      id
+      ...CompanyLimited
+    }
+    vendor {
+      id
+      ...Vendor
+      users {
+        ...Contact
+      }
+    }
+  }
+}
+
+query GetApprovedVendorPartnershipsForBank {
+  company_vendor_partnerships(
+    where: { approved_at: { _is_null: false } }
+    order_by: { vendor: { name: asc } }
+    ) {
+    ...VendorPartnership
+    company {
+      id
+      ...CompanyLimited
+    }
+    vendor {
+      id
+      ...Vendor
+      users {
+        ...Contact
+      }
+    }
+  }
+}
+
 query GetVendorPartnershipsByVendorId($vendor_id: uuid!) {
   company_vendor_partnerships(
     where: { vendor_id: { _eq: $vendor_id } }

@@ -21679,7 +21679,6 @@ export type PurchaseOrders = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
-  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
@@ -21861,7 +21860,6 @@ export type PurchaseOrdersBoolExp = {
   _or?: Maybe<Array<PurchaseOrdersBoolExp>>;
   amount?: Maybe<NumericComparisonExp>;
   amount_funded?: Maybe<NumericComparisonExp>;
-  amount_updated_at?: Maybe<TimestamptzComparisonExp>;
   approved_at?: Maybe<TimestamptzComparisonExp>;
   approved_by_user_id?: Maybe<UuidComparisonExp>;
   approving_user_id?: Maybe<UsersBoolExp>;
@@ -21917,7 +21915,6 @@ export type PurchaseOrdersInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
-  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   approving_user_id?: Maybe<UsersObjRelInsertInput>;
@@ -21965,7 +21962,6 @@ export type PurchaseOrdersMaxFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
-  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -22000,7 +21996,6 @@ export type PurchaseOrdersMaxOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
-  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
@@ -22035,7 +22030,6 @@ export type PurchaseOrdersMinFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
-  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -22070,7 +22064,6 @@ export type PurchaseOrdersMinOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
-  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
@@ -22126,7 +22119,6 @@ export type PurchaseOrdersOnConflict = {
 export type PurchaseOrdersOrderBy = {
   amount?: Maybe<OrderBy>;
   amount_funded?: Maybe<OrderBy>;
-  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   approving_user_id?: Maybe<UsersOrderBy>;
@@ -22174,8 +22166,6 @@ export enum PurchaseOrdersSelectColumn {
   Amount = "amount",
   /** column name */
   AmountFunded = "amount_funded",
-  /** column name */
-  AmountUpdatedAt = "amount_updated_at",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -22237,7 +22227,6 @@ export type PurchaseOrdersSetInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
-  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -22343,8 +22332,6 @@ export enum PurchaseOrdersUpdateColumn {
   Amount = "amount",
   /** column name */
   AmountFunded = "amount_funded",
-  /** column name */
-  AmountUpdatedAt = "amount_updated_at",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -29979,6 +29966,36 @@ export type GetVendorPartnershipsForBankQueryVariables = Exact<{
 }>;
 
 export type GetVendorPartnershipsForBankQuery = {
+  company_vendor_partnerships: Array<
+    {
+      company: Pick<Companies, "id"> & CompanyLimitedFragment;
+      vendor?: Maybe<
+        Pick<Vendors, "id"> & { users: Array<ContactFragment> } & VendorFragment
+      >;
+    } & VendorPartnershipFragment
+  >;
+};
+
+export type GetNotApprovedVendorPartnershipsForBankQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetNotApprovedVendorPartnershipsForBankQuery = {
+  company_vendor_partnerships: Array<
+    {
+      company: Pick<Companies, "id"> & CompanyLimitedFragment;
+      vendor?: Maybe<
+        Pick<Vendors, "id"> & { users: Array<ContactFragment> } & VendorFragment
+      >;
+    } & VendorPartnershipFragment
+  >;
+};
+
+export type GetApprovedVendorPartnershipsForBankQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetApprovedVendorPartnershipsForBankQuery = {
   company_vendor_partnerships: Array<
     {
       company: Pick<Companies, "id"> & CompanyLimitedFragment;
@@ -42094,6 +42111,152 @@ export type GetVendorPartnershipsForBankQueryResult = Apollo.QueryResult<
   GetVendorPartnershipsForBankQuery,
   GetVendorPartnershipsForBankQueryVariables
 >;
+export const GetNotApprovedVendorPartnershipsForBankDocument = gql`
+  query GetNotApprovedVendorPartnershipsForBank {
+    company_vendor_partnerships(
+      where: { approved_at: { _is_null: true } }
+      order_by: { vendor: { name: asc } }
+    ) {
+      ...VendorPartnership
+      company {
+        id
+        ...CompanyLimited
+      }
+      vendor {
+        id
+        ...Vendor
+        users {
+          ...Contact
+        }
+      }
+    }
+  }
+  ${VendorPartnershipFragmentDoc}
+  ${CompanyLimitedFragmentDoc}
+  ${VendorFragmentDoc}
+  ${ContactFragmentDoc}
+`;
+
+/**
+ * __useGetNotApprovedVendorPartnershipsForBankQuery__
+ *
+ * To run a query within a React component, call `useGetNotApprovedVendorPartnershipsForBankQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetNotApprovedVendorPartnershipsForBankQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetNotApprovedVendorPartnershipsForBankQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetNotApprovedVendorPartnershipsForBankQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetNotApprovedVendorPartnershipsForBankQuery,
+    GetNotApprovedVendorPartnershipsForBankQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetNotApprovedVendorPartnershipsForBankQuery,
+    GetNotApprovedVendorPartnershipsForBankQueryVariables
+  >(GetNotApprovedVendorPartnershipsForBankDocument, baseOptions);
+}
+export function useGetNotApprovedVendorPartnershipsForBankLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetNotApprovedVendorPartnershipsForBankQuery,
+    GetNotApprovedVendorPartnershipsForBankQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetNotApprovedVendorPartnershipsForBankQuery,
+    GetNotApprovedVendorPartnershipsForBankQueryVariables
+  >(GetNotApprovedVendorPartnershipsForBankDocument, baseOptions);
+}
+export type GetNotApprovedVendorPartnershipsForBankQueryHookResult = ReturnType<
+  typeof useGetNotApprovedVendorPartnershipsForBankQuery
+>;
+export type GetNotApprovedVendorPartnershipsForBankLazyQueryHookResult =
+  ReturnType<typeof useGetNotApprovedVendorPartnershipsForBankLazyQuery>;
+export type GetNotApprovedVendorPartnershipsForBankQueryResult =
+  Apollo.QueryResult<
+    GetNotApprovedVendorPartnershipsForBankQuery,
+    GetNotApprovedVendorPartnershipsForBankQueryVariables
+  >;
+export const GetApprovedVendorPartnershipsForBankDocument = gql`
+  query GetApprovedVendorPartnershipsForBank {
+    company_vendor_partnerships(
+      where: { approved_at: { _is_null: false } }
+      order_by: { vendor: { name: asc } }
+    ) {
+      ...VendorPartnership
+      company {
+        id
+        ...CompanyLimited
+      }
+      vendor {
+        id
+        ...Vendor
+        users {
+          ...Contact
+        }
+      }
+    }
+  }
+  ${VendorPartnershipFragmentDoc}
+  ${CompanyLimitedFragmentDoc}
+  ${VendorFragmentDoc}
+  ${ContactFragmentDoc}
+`;
+
+/**
+ * __useGetApprovedVendorPartnershipsForBankQuery__
+ *
+ * To run a query within a React component, call `useGetApprovedVendorPartnershipsForBankQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetApprovedVendorPartnershipsForBankQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetApprovedVendorPartnershipsForBankQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetApprovedVendorPartnershipsForBankQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetApprovedVendorPartnershipsForBankQuery,
+    GetApprovedVendorPartnershipsForBankQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetApprovedVendorPartnershipsForBankQuery,
+    GetApprovedVendorPartnershipsForBankQueryVariables
+  >(GetApprovedVendorPartnershipsForBankDocument, baseOptions);
+}
+export function useGetApprovedVendorPartnershipsForBankLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetApprovedVendorPartnershipsForBankQuery,
+    GetApprovedVendorPartnershipsForBankQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetApprovedVendorPartnershipsForBankQuery,
+    GetApprovedVendorPartnershipsForBankQueryVariables
+  >(GetApprovedVendorPartnershipsForBankDocument, baseOptions);
+}
+export type GetApprovedVendorPartnershipsForBankQueryHookResult = ReturnType<
+  typeof useGetApprovedVendorPartnershipsForBankQuery
+>;
+export type GetApprovedVendorPartnershipsForBankLazyQueryHookResult =
+  ReturnType<typeof useGetApprovedVendorPartnershipsForBankLazyQuery>;
+export type GetApprovedVendorPartnershipsForBankQueryResult =
+  Apollo.QueryResult<
+    GetApprovedVendorPartnershipsForBankQuery,
+    GetApprovedVendorPartnershipsForBankQueryVariables
+  >;
 export const GetVendorPartnershipsByVendorIdDocument = gql`
   query GetVendorPartnershipsByVendorId($vendor_id: uuid!) {
     company_vendor_partnerships(

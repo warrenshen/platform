@@ -192,6 +192,18 @@ export const BankEbbaTabLabels = [
   BankEbbaTabLabel.AllCertifications,
 ];
 
+export enum BankVendorsTabLabel {
+  NotApproved = "Not Approved Vendors",
+  Approved = "Approved Vendors",
+  All = "All Vendors",
+}
+
+export const BankVendorsTabLabels = [
+  BankVendorsTabLabel.NotApproved,
+  BankVendorsTabLabel.Approved,
+  BankVendorsTabLabel.All,
+];
+
 export enum NewPurchaseOrderStatus {
   Draft = "draft",
   PendingApprovalByVendor = "pending_approval_by_vendor",
