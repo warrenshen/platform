@@ -59,11 +59,17 @@ export default function CreateUpdateArtifactLoanModal({
   } = useContext(CurrentUserContext);
   const isBankUser = isRoleBankUser(role);
 
+  const selectedArtifact = artifacts.find(
+    (artifact) => artifact.id === artifactId
+  );
+
   const defaultLoan: LoansInsertInput = {
     artifact_id: artifactId || "",
     loan_type: loanType,
     requested_payment_date: null,
-    amount: null,
+    amount: !!selectedArtifact?.amount_remaining
+      ? selectedArtifact.amount_remaining
+      : null,
     status: LoanStatusEnum.Drafted,
   };
 
@@ -101,10 +107,6 @@ export default function CreateUpdateArtifactLoanModal({
         {}
       ),
     [artifacts]
-  );
-
-  const selectedArtifact = artifacts.find(
-    (artifact) => artifact.id === artifactId
   );
 
   const amountUsedOnArtifact = !!selectedArtifact
