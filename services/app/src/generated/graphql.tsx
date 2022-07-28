@@ -7122,6 +7122,8 @@ export type CustomerSurveillanceResultsBoolExp = {
 /** unique or primary key constraints on table "customer_surveillance_results" */
 export enum CustomerSurveillanceResultsConstraint {
   /** unique or primary key constraint */
+  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
+  /** unique or primary key constraint */
   CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
 }
 
@@ -17000,6 +17002,10 @@ export type MutationRoot = {
   delete_users?: Maybe<UsersMutationResponse>;
   /** delete single row from the table: "users" */
   delete_users_by_pk?: Maybe<Users>;
+  /** delete data from the table: "vendor_change_requests" */
+  delete_vendor_change_requests?: Maybe<VendorChangeRequestsMutationResponse>;
+  /** delete single row from the table: "vendor_change_requests" */
+  delete_vendor_change_requests_by_pk?: Maybe<VendorChangeRequests>;
   /** delete data from the table: "vendors" */
   delete_vendors?: Maybe<VendorsMutationResponse>;
   /** insert data into the table: "async_jobs" */
@@ -17258,6 +17264,10 @@ export type MutationRoot = {
   insert_users?: Maybe<UsersMutationResponse>;
   /** insert a single row into the table: "users" */
   insert_users_one?: Maybe<Users>;
+  /** insert data into the table: "vendor_change_requests" */
+  insert_vendor_change_requests?: Maybe<VendorChangeRequestsMutationResponse>;
+  /** insert a single row into the table: "vendor_change_requests" */
+  insert_vendor_change_requests_one?: Maybe<VendorChangeRequests>;
   /** insert data into the table: "vendors" */
   insert_vendors?: Maybe<VendorsMutationResponse>;
   /** insert a single row into the table: "vendors" */
@@ -17516,6 +17526,10 @@ export type MutationRoot = {
   update_users?: Maybe<UsersMutationResponse>;
   /** update single row of the table: "users" */
   update_users_by_pk?: Maybe<Users>;
+  /** update data of the table: "vendor_change_requests" */
+  update_vendor_change_requests?: Maybe<VendorChangeRequestsMutationResponse>;
+  /** update single row of the table: "vendor_change_requests" */
+  update_vendor_change_requests_by_pk?: Maybe<VendorChangeRequests>;
   /** update data of the table: "vendors" */
   update_vendors?: Maybe<VendorsMutationResponse>;
 };
@@ -18155,6 +18169,16 @@ export type MutationRootDeleteUsersArgs = {
 
 /** mutation root */
 export type MutationRootDeleteUsersByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** mutation root */
+export type MutationRootDeleteVendorChangeRequestsArgs = {
+  where: VendorChangeRequestsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteVendorChangeRequestsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -18927,6 +18951,18 @@ export type MutationRootInsertUsersArgs = {
 export type MutationRootInsertUsersOneArgs = {
   object: UsersInsertInput;
   on_conflict?: Maybe<UsersOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertVendorChangeRequestsArgs = {
+  objects: Array<VendorChangeRequestsInsertInput>;
+  on_conflict?: Maybe<VendorChangeRequestsOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertVendorChangeRequestsOneArgs = {
+  object: VendorChangeRequestsInsertInput;
+  on_conflict?: Maybe<VendorChangeRequestsOnConflict>;
 };
 
 /** mutation root */
@@ -19804,6 +19840,18 @@ export type MutationRootUpdateUsersArgs = {
 export type MutationRootUpdateUsersByPkArgs = {
   _set?: Maybe<UsersSetInput>;
   pk_columns: UsersPkColumnsInput;
+};
+
+/** mutation root */
+export type MutationRootUpdateVendorChangeRequestsArgs = {
+  _set?: Maybe<VendorChangeRequestsSetInput>;
+  where: VendorChangeRequestsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateVendorChangeRequestsByPkArgs = {
+  _set?: Maybe<VendorChangeRequestsSetInput>;
+  pk_columns: VendorChangeRequestsPkColumnsInput;
 };
 
 /** mutation root */
@@ -22819,6 +22867,12 @@ export type QueryRoot = {
   users_aggregate: UsersAggregate;
   /** fetch data from the table: "users" using primary key columns */
   users_by_pk?: Maybe<Users>;
+  /** fetch data from the table: "vendor_change_requests" */
+  vendor_change_requests: Array<VendorChangeRequests>;
+  /** fetch aggregated fields from the table: "vendor_change_requests" */
+  vendor_change_requests_aggregate: VendorChangeRequestsAggregate;
+  /** fetch data from the table: "vendor_change_requests" using primary key columns */
+  vendor_change_requests_by_pk?: Maybe<VendorChangeRequests>;
   /** fetch data from the table: "vendors" */
   vendors: Array<Vendors>;
   /** fetch aggregated fields from the table: "vendors" */
@@ -24104,6 +24158,26 @@ export type QueryRootUsersByPkArgs = {
   id: Scalars["uuid"];
 };
 
+export type QueryRootVendorChangeRequestsArgs = {
+  distinct_on?: Maybe<Array<VendorChangeRequestsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<VendorChangeRequestsOrderBy>>;
+  where?: Maybe<VendorChangeRequestsBoolExp>;
+};
+
+export type QueryRootVendorChangeRequestsAggregateArgs = {
+  distinct_on?: Maybe<Array<VendorChangeRequestsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<VendorChangeRequestsOrderBy>>;
+  where?: Maybe<VendorChangeRequestsBoolExp>;
+};
+
+export type QueryRootVendorChangeRequestsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
 export type QueryRootVendorsArgs = {
   distinct_on?: Maybe<Array<VendorsSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -24759,6 +24833,12 @@ export type SubscriptionRoot = {
   users_aggregate: UsersAggregate;
   /** fetch data from the table: "users" using primary key columns */
   users_by_pk?: Maybe<Users>;
+  /** fetch data from the table: "vendor_change_requests" */
+  vendor_change_requests: Array<VendorChangeRequests>;
+  /** fetch aggregated fields from the table: "vendor_change_requests" */
+  vendor_change_requests_aggregate: VendorChangeRequestsAggregate;
+  /** fetch data from the table: "vendor_change_requests" using primary key columns */
+  vendor_change_requests_by_pk?: Maybe<VendorChangeRequests>;
   /** fetch data from the table: "vendors" */
   vendors: Array<Vendors>;
   /** fetch aggregated fields from the table: "vendors" */
@@ -26041,6 +26121,26 @@ export type SubscriptionRootUsersAggregateArgs = {
 };
 
 export type SubscriptionRootUsersByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+export type SubscriptionRootVendorChangeRequestsArgs = {
+  distinct_on?: Maybe<Array<VendorChangeRequestsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<VendorChangeRequestsOrderBy>>;
+  where?: Maybe<VendorChangeRequestsBoolExp>;
+};
+
+export type SubscriptionRootVendorChangeRequestsAggregateArgs = {
+  distinct_on?: Maybe<Array<VendorChangeRequestsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<VendorChangeRequestsOrderBy>>;
+  where?: Maybe<VendorChangeRequestsBoolExp>;
+};
+
+export type SubscriptionRootVendorChangeRequestsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -27330,6 +27430,234 @@ export type UuidComparisonExp = {
   _neq?: Maybe<Scalars["uuid"]>;
   _nin?: Maybe<Array<Scalars["uuid"]>>;
 };
+
+/** columns and relationships of "vendor_change_requests" */
+export type VendorChangeRequests = {
+  approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_by_user_id?: Maybe<Scalars["uuid"]>;
+  category: Scalars["String"];
+  created_at: Scalars["timestamptz"];
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id: Scalars["uuid"];
+  is_deleted?: Maybe<Scalars["Boolean"]>;
+  request_info: Scalars["json"];
+  request_status: Scalars["String"];
+  requested_vendor_id: Scalars["uuid"];
+  requesting_user_id: Scalars["uuid"];
+  reviewed_by_user_id?: Maybe<Scalars["uuid"]>;
+  updated_at: Scalars["timestamptz"];
+};
+
+/** columns and relationships of "vendor_change_requests" */
+export type VendorChangeRequestsRequestInfoArgs = {
+  path?: Maybe<Scalars["String"]>;
+};
+
+/** aggregated selection of "vendor_change_requests" */
+export type VendorChangeRequestsAggregate = {
+  aggregate?: Maybe<VendorChangeRequestsAggregateFields>;
+  nodes: Array<VendorChangeRequests>;
+};
+
+/** aggregate fields of "vendor_change_requests" */
+export type VendorChangeRequestsAggregateFields = {
+  count: Scalars["Int"];
+  max?: Maybe<VendorChangeRequestsMaxFields>;
+  min?: Maybe<VendorChangeRequestsMinFields>;
+};
+
+/** aggregate fields of "vendor_change_requests" */
+export type VendorChangeRequestsAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<VendorChangeRequestsSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** Boolean expression to filter rows from the table "vendor_change_requests". All fields are combined with a logical 'AND'. */
+export type VendorChangeRequestsBoolExp = {
+  _and?: Maybe<Array<VendorChangeRequestsBoolExp>>;
+  _not?: Maybe<VendorChangeRequestsBoolExp>;
+  _or?: Maybe<Array<VendorChangeRequestsBoolExp>>;
+  approved_at?: Maybe<TimestamptzComparisonExp>;
+  approved_by_user_id?: Maybe<UuidComparisonExp>;
+  category?: Maybe<StringComparisonExp>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
+  deleted_at?: Maybe<TimestamptzComparisonExp>;
+  id?: Maybe<UuidComparisonExp>;
+  is_deleted?: Maybe<BooleanComparisonExp>;
+  request_info?: Maybe<JsonComparisonExp>;
+  request_status?: Maybe<StringComparisonExp>;
+  requested_vendor_id?: Maybe<UuidComparisonExp>;
+  requesting_user_id?: Maybe<UuidComparisonExp>;
+  reviewed_by_user_id?: Maybe<UuidComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
+};
+
+/** unique or primary key constraints on table "vendor_change_requests" */
+export enum VendorChangeRequestsConstraint {
+  /** unique or primary key constraint */
+  VendorChangeRequestsPkey = "vendor_change_requests_pkey",
+}
+
+/** input type for inserting data into table "vendor_change_requests" */
+export type VendorChangeRequestsInsertInput = {
+  approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_by_user_id?: Maybe<Scalars["uuid"]>;
+  category?: Maybe<Scalars["String"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
+  request_info?: Maybe<Scalars["json"]>;
+  request_status?: Maybe<Scalars["String"]>;
+  requested_vendor_id?: Maybe<Scalars["uuid"]>;
+  requesting_user_id?: Maybe<Scalars["uuid"]>;
+  reviewed_by_user_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** aggregate max on columns */
+export type VendorChangeRequestsMaxFields = {
+  approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_by_user_id?: Maybe<Scalars["uuid"]>;
+  category?: Maybe<Scalars["String"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  request_status?: Maybe<Scalars["String"]>;
+  requested_vendor_id?: Maybe<Scalars["uuid"]>;
+  requesting_user_id?: Maybe<Scalars["uuid"]>;
+  reviewed_by_user_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** aggregate min on columns */
+export type VendorChangeRequestsMinFields = {
+  approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_by_user_id?: Maybe<Scalars["uuid"]>;
+  category?: Maybe<Scalars["String"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  request_status?: Maybe<Scalars["String"]>;
+  requested_vendor_id?: Maybe<Scalars["uuid"]>;
+  requesting_user_id?: Maybe<Scalars["uuid"]>;
+  reviewed_by_user_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** response of any mutation on the table "vendor_change_requests" */
+export type VendorChangeRequestsMutationResponse = {
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data from the rows affected by the mutation */
+  returning: Array<VendorChangeRequests>;
+};
+
+/** on_conflict condition type for table "vendor_change_requests" */
+export type VendorChangeRequestsOnConflict = {
+  constraint: VendorChangeRequestsConstraint;
+  update_columns?: Array<VendorChangeRequestsUpdateColumn>;
+  where?: Maybe<VendorChangeRequestsBoolExp>;
+};
+
+/** Ordering options when selecting data from "vendor_change_requests". */
+export type VendorChangeRequestsOrderBy = {
+  approved_at?: Maybe<OrderBy>;
+  approved_by_user_id?: Maybe<OrderBy>;
+  category?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  deleted_at?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  is_deleted?: Maybe<OrderBy>;
+  request_info?: Maybe<OrderBy>;
+  request_status?: Maybe<OrderBy>;
+  requested_vendor_id?: Maybe<OrderBy>;
+  requesting_user_id?: Maybe<OrderBy>;
+  reviewed_by_user_id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: vendor_change_requests */
+export type VendorChangeRequestsPkColumnsInput = {
+  id: Scalars["uuid"];
+};
+
+/** select columns of table "vendor_change_requests" */
+export enum VendorChangeRequestsSelectColumn {
+  /** column name */
+  ApprovedAt = "approved_at",
+  /** column name */
+  ApprovedByUserId = "approved_by_user_id",
+  /** column name */
+  Category = "category",
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  DeletedAt = "deleted_at",
+  /** column name */
+  Id = "id",
+  /** column name */
+  IsDeleted = "is_deleted",
+  /** column name */
+  RequestInfo = "request_info",
+  /** column name */
+  RequestStatus = "request_status",
+  /** column name */
+  RequestedVendorId = "requested_vendor_id",
+  /** column name */
+  RequestingUserId = "requesting_user_id",
+  /** column name */
+  ReviewedByUserId = "reviewed_by_user_id",
+  /** column name */
+  UpdatedAt = "updated_at",
+}
+
+/** input type for updating data in table "vendor_change_requests" */
+export type VendorChangeRequestsSetInput = {
+  approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_by_user_id?: Maybe<Scalars["uuid"]>;
+  category?: Maybe<Scalars["String"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
+  request_info?: Maybe<Scalars["json"]>;
+  request_status?: Maybe<Scalars["String"]>;
+  requested_vendor_id?: Maybe<Scalars["uuid"]>;
+  requesting_user_id?: Maybe<Scalars["uuid"]>;
+  reviewed_by_user_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** update columns of table "vendor_change_requests" */
+export enum VendorChangeRequestsUpdateColumn {
+  /** column name */
+  ApprovedAt = "approved_at",
+  /** column name */
+  ApprovedByUserId = "approved_by_user_id",
+  /** column name */
+  Category = "category",
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  DeletedAt = "deleted_at",
+  /** column name */
+  Id = "id",
+  /** column name */
+  IsDeleted = "is_deleted",
+  /** column name */
+  RequestInfo = "request_info",
+  /** column name */
+  RequestStatus = "request_status",
+  /** column name */
+  RequestedVendorId = "requested_vendor_id",
+  /** column name */
+  RequestingUserId = "requesting_user_id",
+  /** column name */
+  ReviewedByUserId = "reviewed_by_user_id",
+  /** column name */
+  UpdatedAt = "updated_at",
+}
 
 /** columns and relationships of "vendors" */
 export type Vendors = {

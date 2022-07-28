@@ -358,3 +358,14 @@ class AsyncJobStatusEnum(object):
 class AsyncJobNameEnum(object):
 	# TODO: fill out once jobs are transferred
 	DUMMY = "dummy"
+
+# Vendor Change Requests
+class VendorChangeRequestsStatusEnum(object):
+	APPROVAL_REQUESTED = "approval_requested"
+	IN_REVIEW = "in_review"
+	APPROVED = "approved"
+	REJECTED = "rejected"
+
+class VendorChangeRequestsCategoryEnum(object):
+	PARTNERSHIP_CONTACT_CHANGE = "partnership_contact_change"
+	CONTACT_INFO_CHANGE = "contact_info_change"

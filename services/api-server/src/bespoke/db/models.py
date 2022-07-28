@@ -1644,6 +1644,29 @@ class AsyncJobs(Base):
 	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	deleted_at = Column(DateTime, nullable=True)
 
+
+class VendorChangeRequests(Base):
+
+	__tablename__ = "vendor_change_requests"
+
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+
+	requesting_user_id = cast(GUID, Column(GUID, ForeignKey('users.id'), nullable=False))
+	requested_vendor_id = cast(GUID, Column(GUID, ForeignKey('companies.id'), nullable=False))
+	approved_at = Column(DateTime, nullable=True)
+	approved_by_user_id = cast(GUID, Column(GUID, ForeignKey('users.id'), nullable=True))
+	reviewed_by_user_id = cast(GUID, Column(GUID, ForeignKey('users.id'), nullable=True))
+
+	category = Column(String, nullable=False) # enum: VendorChangeRequestsCategoryEnum
+	status = Column(String, nullable=False) # enum: VendorChangeRequestsStatusEnum
+	request_info = Column(JSON, nullable=False) 
+	is_deleted = Column(Boolean, nullable=True)
+
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	deleted_at = Column(DateTime, nullable=True)
+
+
 class RetryingQuery(_Query):
 	__retry_count__ = 4
 

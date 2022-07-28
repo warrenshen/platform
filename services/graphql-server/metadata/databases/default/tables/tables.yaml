@@ -62,4 +62,5 @@
 - "!include public_two_factor_links.yaml"
 - "!include public_user_roles.yaml"
 - "!include public_users.yaml"
+- "!include public_vendor_change_requests.yaml"
 - "!include public_vendors.yaml"

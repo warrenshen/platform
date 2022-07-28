@@ -967,3 +967,15 @@ export enum AsyncJobNameEnum {
   // TODO: fill out once jobs are transferred
   Dummy = "dummy",
 }
+
+export enum VendorChangeRequestsStatusEnum {
+  ApprovalRequested = "approval_requested",
+  InReview = "in_review",
+  Approved = "approved",
+  Rejected = "rejected",
+}
+
+export enum VendorChangeRequestsCategoryEnum {
+  PartnershipContactChange = "partnership_contact_change",
+  ContactInfoChange = "contact_info_change",
+}
