@@ -1,15 +1,12 @@
 import "devextreme/dist/css/dx.common.css";
 import "devextreme/dist/css/dx.material.blue.light.css";
 
-import BlazePreapprovalPage from "components/Blaze/BlazePreapprovalPage";
 import PrivateRoute from "components/Shared/PrivateRoute";
 import {
   CurrentUserContext,
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
-import { BlazePreapprovalFragment, UserRolesEnum } from "generated/graphql";
-import useCustomMutation from "hooks/useCustomMutation";
-import { authenticateBlazeUserMutation } from "lib/api/auth";
+import { UserRolesEnum } from "generated/graphql";
 import {
   anonymousRoutes,
   bankRoutes,
@@ -61,200 +58,17 @@ import CustomerReportsPage from "pages/Customer/Reports";
 import CustomerSettingsPage from "pages/Customer/Settings";
 import CustomerVendorsPage from "pages/Customer/Vendors";
 import UserProfile from "pages/UserProfile";
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
 import { useLocation } from "react-use";
-
-const ValidBlazeOrigin = process.env.REACT_APP_BESPOKE_BLAZE_PARENT_ORIGIN;
-// Global boolean to track if "message" event listener is already added.
-// This is necessary since useEffect with an empty dependency array calls
-// its callback twice in development environment in strict mode.
-let IsEventListenerAdded = false;
-type BlazeAuthPayload = {
-  auth_key: string;
-  company_id: string;
-  shop_id: string;
-  user_id: string;
-  user_role: number;
-  user_email: string;
-  user_first_name: string;
-  user_last_name: string;
-};
 
 export default function App() {
   const { pathname } = useLocation();
   const {
     user: { role },
-    setUserFromAccessToken,
   } = useContext(CurrentUserContext);
 
-  const [isBlaze, setIsBlaze] = useState(false);
-  const [isSignedIn, setIsSignedIn] = useState(false);
-  const [blazePreapproval, setBlazePreapproval] =
-    useState<BlazePreapprovalFragment | null>(null);
-  const [authenticateBlazeUser, { loading: isAuthenticateBlazeUserLoading }] =
-    useCustomMutation(authenticateBlazeUserMutation);
-
-  useEffect(() => {
-    // If true, then app is open in an iframe element.
-    if (window.location !== window.parent.location) {
-      if (IsEventListenerAdded) {
-        return;
-      } else {
-        IsEventListenerAdded = true;
-        setIsBlaze(true);
-      }
-
-      window.addEventListener(
-        "message",
-        async (event) => {
-          // Verify sender of message.
-          if (event.origin !== ValidBlazeOrigin) {
-            return;
-          }
-
-          console.info(
-            "Received event from parent via postMessage...",
-            event.data
-          );
-
-          const processError = (errorMessage: string) => {
-            console.info(errorMessage);
-            window.parent.postMessage(
-              {
-                identifier: "handshake_error",
-                payload: {
-                  message: errorMessage,
-                },
-              },
-              ValidBlazeOrigin
-            );
-          };
-
-          const eventIdentifier = event.data.identifier;
-          const eventPayload = event.data.payload;
-          if (!eventIdentifier) {
-            processError("Failed to process event due to missing identifier!");
-            return;
-          }
-
-          if (eventIdentifier === "handshake_response") {
-            if (!eventPayload) {
-              processError(
-                `Failed to process ${eventIdentifier} event due to missing payload!`
-              );
-              return;
-            }
-
-            const blazeAuthPayload: BlazeAuthPayload = eventPayload;
-            const {
-              auth_key: authKey,
-              company_id: blazeCompanyId,
-              shop_id: blazeShopId,
-              user_id: blazeUserId,
-              user_role: blazeUserRole,
-              user_email: blazeUserEmail,
-              user_first_name: blazeUserFirstName,
-              user_last_name: blazeUserLastName,
-            } = blazeAuthPayload;
-
-            if (
-              authKey == null ||
-              blazeCompanyId == null ||
-              blazeShopId == null ||
-              blazeUserId == null ||
-              blazeUserRole == null ||
-              blazeUserEmail == null ||
-              blazeUserFirstName == null ||
-              blazeUserLastName == null
-            ) {
-              processError(
-                `Failed to process ${eventIdentifier} event due to missing payload field(s)!`
-              );
-              return;
-            }
-
-            // Trigger request to Python API server.
-            const response = await authenticateBlazeUser({
-              variables: {
-                auth_key: authKey,
-                external_blaze_company_id: blazeCompanyId,
-                external_blaze_shop_id: blazeShopId,
-                external_blaze_user_id: blazeUserId,
-                external_blaze_user_role: blazeUserRole,
-                external_blaze_user_email: blazeUserEmail,
-                external_blaze_user_first_name: blazeUserFirstName,
-                external_blaze_user_last_name: blazeUserLastName,
-              },
-            });
-
-            if (response.status !== "OK") {
-              console.info(
-                `Failed to process ${eventIdentifier} event due to invalid auth key!`
-              );
-              window.parent.postMessage(
-                {
-                  identifier: "handshake_failure",
-                  payload: null,
-                },
-                ValidBlazeOrigin
-              );
-              // snackbar.showError(`Could not switch location. Error: ${response.msg}`);
-            } else {
-              console.info(`Processed ${eventIdentifier} event successfully!`);
-              window.parent.postMessage(
-                {
-                  identifier: "handshake_success",
-                  payload: null,
-                },
-                ValidBlazeOrigin
-              );
-              const data = response.data;
-              if (data) {
-                const authStatus = data.auth_status;
-                if (authStatus === "borrower_active") {
-                  setUserFromAccessToken(data.access_token, data.refresh_token);
-                  setIsSignedIn(true);
-                } else {
-                  setBlazePreapproval(
-                    !!response.data?.blaze_preapproval
-                      ? (response.data
-                          ?.blaze_preapproval as BlazePreapprovalFragment)
-                      : null
-                  );
-                }
-              }
-            }
-          }
-        },
-        false
-      );
-
-      if (!!ValidBlazeOrigin) {
-        window.parent.postMessage(
-          {
-            identifier: "handshake_request",
-            payload: null,
-          },
-          ValidBlazeOrigin
-        );
-        console.info(
-          "Sent handshake_request event from iframe via postMessage..."
-        );
-      } else {
-        console.info(
-          "Failed to send handshake_request event due to missing environment variable!"
-        );
-      }
-    }
-  }, [authenticateBlazeUser, setIsBlaze, setUserFromAccessToken]);
-
-  return isBlaze && !isSignedIn ? (
-    <BlazePreapprovalPage
-      isAuthenticateBlazeUserLoading={isAuthenticateBlazeUserLoading}
-      blazePreapproval={blazePreapproval}
-    />
-  ) : (
+  return (
     <BrowserRouter>
       <Switch>
         <Redirect from="/:url*(/+)" to={pathname?.slice(0, -1) || "/"} />

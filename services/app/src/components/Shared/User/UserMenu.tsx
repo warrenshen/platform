@@ -150,7 +150,7 @@ export default function UserMenu({ isLocationsPage }: Props) {
         >
           Profile
         </MenuItem>
-        {!isRoleBankUser(user?.role) && currentUser?.impersonator_user_id && (
+        {!isRoleBankUser(user?.role) && currentUser?.impersonatorUserId && (
           <MenuItem onClick={handleUndoImpersonationClick}>
             Undo impersonation
           </MenuItem>

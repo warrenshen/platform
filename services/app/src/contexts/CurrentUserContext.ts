@@ -15,7 +15,7 @@ export type User = {
   companyId: Users["company_id"] | null;
   role: UserRolesEnum;
   productType: ProductTypeEnum | null;
-  impersonator_user_id: Users["id"] | null;
+  impersonatorUserId: Users["id"] | null;
 };
 
 export type CurrentUserContextType = {
@@ -40,7 +40,7 @@ export const BlankUser = {
   companyId: null,
   role: UserRolesEnum.CompanyAdmin,
   productType: null,
-  impersonator_user_id: null,
+  impersonatorUserId: null,
 };
 
 export const CurrentUserContext = createContext<CurrentUserContextType>({

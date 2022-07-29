@@ -1,13 +1,17 @@
 import * as Sentry from "@sentry/react";
 import axios from "axios";
+import BlazePreapprovalPage from "components/Blaze/BlazePreapprovalPage";
 import {
   BlankUser,
   CurrentUserContext,
   User,
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
+import { BlazePreapprovalFragment } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
 import JwtDecode from "jwt-decode";
 import { authRoutes, authenticatedApi, unAuthenticatedApi } from "lib/api";
+import { authenticateBlazeUserMutation } from "lib/api/auth";
 import {
   getAccessToken,
   getRefreshToken,
@@ -21,11 +25,33 @@ import { routes } from "lib/routes";
 import { validUUIDOrDefault } from "lib/uuid";
 import { ReactNode, useCallback, useEffect, useState } from "react";
 
-const JWT_CLAIMS_KEY = "https://hasura.io/jwt/claims";
+const JWTClaimsKey = "https://hasura.io/jwt/claims";
+const ValidBlazeOrigin = process.env.REACT_APP_BESPOKE_BLAZE_PARENT_ORIGIN;
+
+// Global boolean to track if "message" event listener is already added.
+// This is necessary since useEffect with an empty dependency array calls
+// its callback twice in development environment in strict mode.
+let IsEventListenerAdded = false;
+type BlazeAuthPayload = {
+  auth_key: string;
+  company_id: string;
+  shop_id: string;
+  user_id: string;
+  user_role: number;
+  user_email: string;
+  user_first_name: string;
+  user_last_name: string;
+};
+
+enum BlazeAuthStatus {
+  ApplicantDenied = "applicant_denied",
+  ApplicantPreapproved = "applicant_preapproved",
+  BorrowerActive = "borrower_active",
+}
 
 function userFieldsFromToken(token: string) {
   const decodedToken: any = JwtDecode(token);
-  const claims = decodedToken[JWT_CLAIMS_KEY];
+  const claims = decodedToken[JWTClaimsKey];
 
   // "X-Hasura-User-Id" equals "" for anonymous users.
   // "X-Hasura-Company-Id" equals "" or "None" for bank users.
@@ -34,18 +60,29 @@ function userFieldsFromToken(token: string) {
     parentCompanyId: validUUIDOrDefault(claims["X-Hasura-Parent-Company-Id"]),
     companyId: validUUIDOrDefault(claims["X-Hasura-Company-Id"]),
     role: claims["X-Hasura-Default-Role"],
-    impersonator_user_id: validUUIDOrDefault(
+    impersonatorUserId: validUUIDOrDefault(
       claims["X-Hasura-Impersonator-User-Id"]
     ),
   };
 }
 
 export default function CurrentUserProvider(props: { children: ReactNode }) {
+  const [isEmbeddedModule, setIsEmbeddedModule] = useState(false);
+  const [blazeAuthStatus, setBlazeAuthStatus] =
+    useState<BlazeAuthStatus | null>(null);
+
+  // Whether auth token is loading (if true, do not show UI to viewer).
+  const [isTokenLoading, setIsTokenLoading] = useState(true);
+
   const [user, setUser] = useState<User>(BlankUser);
-  const [isTokenLoaded, setIsTokenLoaded] = useState(false);
   const isSignedIn = !!(user.id && user.role);
 
-  const resetUser = useCallback(() => setIsTokenLoaded(false), []);
+  const [blazePreapproval, setBlazePreapproval] =
+    useState<BlazePreapprovalFragment | null>(null);
+  const [authenticateBlazeUser, { loading: isAuthenticateBlazeUserLoading }] =
+    useCustomMutation(authenticateBlazeUserMutation);
+
+  const resetUser = useCallback(() => setIsTokenLoading(true), []);
   const setUserProductType = useCallback(
     (productType: ProductTypeEnum) => {
       if (user.productType !== productType) {
@@ -53,44 +90,6 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
       }
     },
     [user.productType]
-  );
-
-  const signIn = useCallback(
-    async (
-      email: string,
-      password: string,
-      handleSuccess: (successUrl: string) => void
-    ) => {
-      const response = await unAuthenticatedApi.post(authRoutes.signIn, {
-        email,
-        password,
-      });
-
-      // Try catch block to catch errors related to `userFieldsFromToken`.
-      try {
-        const data = response.data;
-        if (
-          data.login_method === "simple" &&
-          data.status === "OK" &&
-          data.access_token
-        ) {
-          setAccessToken(data.access_token);
-          setRefreshToken(data.refresh_token);
-          setUser((user) => ({
-            ...user,
-            ...userFieldsFromToken(data.access_token),
-          }));
-          handleSuccess(routes.root);
-        } else if (data.login_method === "2fa" && data.status === "OK") {
-          handleSuccess(data.two_factor_link);
-        } else {
-          alert(data.msg);
-        }
-      } catch (err) {
-        alert(err);
-      }
-    },
-    []
   );
 
   const signOut = useCallback(async () => {
@@ -121,7 +120,7 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
   }, []);
 
   const setUserFromAccessToken = useCallback(
-    (accessToken: string | null, refreshToken: string | null) => {
+    (accessToken: string, refreshToken: string) => {
       if (accessToken && refreshToken) {
         const userFields = userFieldsFromToken(accessToken);
         // If JWT companyId is set but parentCompanyId is not, JWT is invalid (deprecated format).
@@ -137,9 +136,43 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
           }));
         }
       }
-      setIsTokenLoaded(true);
+      setIsTokenLoading(false);
     },
     [signOut]
+  );
+
+  const signIn = useCallback(
+    async (
+      email: string,
+      password: string,
+      handleSuccess: (successUrl: string) => void
+    ) => {
+      const response = await unAuthenticatedApi.post(authRoutes.signIn, {
+        email,
+        password,
+      });
+
+      // Try catch block to catch errors related to `setUserFromAccessToken`.
+      try {
+        const data = response.data;
+        if (
+          data.login_method === "simple" &&
+          data.status === "OK" &&
+          !!data.access_token &&
+          !!data.refresh_token
+        ) {
+          setUserFromAccessToken(data.access_token, data.refresh_token);
+          handleSuccess(routes.root);
+        } else if (data.login_method === "2fa" && data.status === "OK") {
+          handleSuccess(data.two_factor_link);
+        } else {
+          alert(data.msg);
+        }
+      } catch (err) {
+        alert(err);
+      }
+    },
+    [setUserFromAccessToken]
   );
 
   const impersonateUser = async (userId: User["id"]) => {
@@ -162,11 +195,12 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
     );
     if (response.data?.status === "ERROR") {
       return response.data.msg;
+    } else {
+      setUserFromAccessToken(
+        response.data.access_token,
+        response.data.refresh_token
+      );
     }
-    setUserFromAccessToken(
-      response.data?.access_token,
-      response.data?.refresh_token
-    );
   };
 
   const undoImpersonation = async (): Promise<string | void> => {
@@ -175,7 +209,7 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
     const response = await authenticatedApi.post(
       authRoutes.undoImpersonation,
       {
-        impersonator_user_id: user.impersonator_user_id,
+        impersonatorUserId: user.impersonatorUserId,
       },
       {
         headers: {
@@ -194,17 +228,198 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    if (isTokenLoaded === false) {
+    if (isTokenLoading) {
       async function callGetAccessToken() {
         const accessToken = await getAccessToken();
         const refreshToken = await getRefreshToken();
-        setUserFromAccessToken(accessToken, refreshToken);
+        if (!!accessToken && !!refreshToken) {
+          setUserFromAccessToken(accessToken, refreshToken);
+        } else {
+          setIsTokenLoading(false);
+        }
       }
       callGetAccessToken();
     }
-  }, [isTokenLoaded, signOut, setUserFromAccessToken]);
+  }, [isTokenLoading, signOut, setUserFromAccessToken]);
 
-  return isTokenLoaded ? (
+  useEffect(() => {
+    // If true, then app is open in an iframe element.
+    if (window.location !== window.parent.location) {
+      if (IsEventListenerAdded) {
+        return;
+      } else {
+        IsEventListenerAdded = true;
+        setIsEmbeddedModule(true);
+      }
+
+      window.addEventListener(
+        "message",
+        async (event) => {
+          // Verify sender of message.
+          if (event.origin !== ValidBlazeOrigin) {
+            return;
+          }
+
+          console.info(
+            "Received event from parent via postMessage...",
+            event.data
+          );
+
+          const processError = (errorMessage: string) => {
+            console.info(errorMessage);
+            window.parent.postMessage(
+              {
+                identifier: "handshake_error",
+                payload: {
+                  message: errorMessage,
+                },
+              },
+              ValidBlazeOrigin
+            );
+          };
+
+          const eventIdentifier = event.data.identifier;
+          const eventPayload = event.data.payload;
+          if (!eventIdentifier) {
+            processError("Failed to process event due to missing identifier!");
+            return;
+          }
+
+          if (eventIdentifier === "handshake_response") {
+            if (!eventPayload) {
+              processError(
+                `Failed to process ${eventIdentifier} event due to missing payload!`
+              );
+              return;
+            }
+
+            const blazeAuthPayload: BlazeAuthPayload = eventPayload;
+            const {
+              auth_key: authKey,
+              company_id: blazeCompanyId,
+              shop_id: blazeShopId,
+              user_id: blazeUserId,
+              user_role: blazeUserRole,
+              user_email: blazeUserEmail,
+              user_first_name: blazeUserFirstName,
+              user_last_name: blazeUserLastName,
+            } = blazeAuthPayload;
+
+            if (
+              authKey == null ||
+              blazeCompanyId == null ||
+              blazeShopId == null ||
+              blazeUserId == null ||
+              blazeUserRole == null ||
+              blazeUserEmail == null ||
+              blazeUserFirstName == null ||
+              blazeUserLastName == null
+            ) {
+              processError(
+                `Failed to process ${eventIdentifier} event due to missing payload field(s)!`
+              );
+              return;
+            }
+
+            // Trigger request to Python API server.
+            const response = await authenticateBlazeUser({
+              variables: {
+                auth_key: authKey,
+                external_blaze_company_id: blazeCompanyId,
+                external_blaze_shop_id: blazeShopId,
+                external_blaze_user_id: blazeUserId,
+                external_blaze_user_role: blazeUserRole,
+                external_blaze_user_email: blazeUserEmail,
+                external_blaze_user_first_name: blazeUserFirstName,
+                external_blaze_user_last_name: blazeUserLastName,
+              },
+            });
+
+            if (response.status !== "OK") {
+              console.info(
+                `Failed to process ${eventIdentifier} event!`,
+                response
+              );
+              window.parent.postMessage(
+                {
+                  identifier: "handshake_failure",
+                  payload: null,
+                },
+                ValidBlazeOrigin
+              );
+            } else {
+              console.info(`Processed ${eventIdentifier} event successfully!`);
+              window.parent.postMessage(
+                {
+                  identifier: "handshake_success",
+                  payload: null,
+                },
+                ValidBlazeOrigin
+              );
+
+              const data = response.data;
+              if (data) {
+                const authStatus = !!data?.auth_status
+                  ? data.auth_status
+                  : null;
+                setBlazeAuthStatus(authStatus as BlazeAuthStatus);
+                if (authStatus === BlazeAuthStatus.BorrowerActive) {
+                  setUserFromAccessToken(data.access_token, data.refresh_token);
+                } else if (
+                  [
+                    BlazeAuthStatus.ApplicantDenied,
+                    BlazeAuthStatus.ApplicantPreapproved,
+                  ].includes(authStatus)
+                ) {
+                  setBlazePreapproval(
+                    !!response.data?.blaze_preapproval
+                      ? (response.data
+                          ?.blaze_preapproval as BlazePreapprovalFragment)
+                      : null
+                  );
+                } else {
+                  console.info(
+                    `Failed to process ${eventIdentifier} event, data from API is invalid!`,
+                    response
+                  );
+                }
+              }
+            }
+          }
+        },
+        false
+      );
+
+      if (!!ValidBlazeOrigin) {
+        window.parent.postMessage(
+          {
+            identifier: "handshake_request",
+            payload: null,
+          },
+          ValidBlazeOrigin
+        );
+        console.info(
+          "Sent handshake_request event from iframe via postMessage..."
+        );
+      } else {
+        console.info(
+          "Failed to send handshake_request event due to missing environment variable!"
+        );
+      }
+    }
+  }, [authenticateBlazeUser, setIsEmbeddedModule, setUserFromAccessToken]);
+
+  const isAppReady =
+    (isEmbeddedModule && !!blazeAuthStatus) ||
+    (!isEmbeddedModule && !isTokenLoading);
+  const isBlazePreapprovalPage =
+    !!blazeAuthStatus &&
+    [
+      BlazeAuthStatus.ApplicantDenied,
+      BlazeAuthStatus.ApplicantPreapproved,
+    ].includes(blazeAuthStatus);
+
+  return isAppReady ? (
     <CurrentUserContext.Provider
       value={{
         user,
@@ -218,7 +433,14 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
         signOut,
       }}
     >
-      {props.children}
+      {isBlazePreapprovalPage ? (
+        <BlazePreapprovalPage
+          isAuthenticateBlazeUserLoading={isAuthenticateBlazeUserLoading}
+          blazePreapproval={blazePreapproval}
+        />
+      ) : (
+        props.children
+      )}
     </CurrentUserContext.Provider>
   ) : (
     <></>

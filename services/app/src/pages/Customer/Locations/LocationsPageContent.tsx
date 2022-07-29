@@ -50,7 +50,7 @@ export default function CustomerLocationsPageContent({
     const response = await switchLocation({
       variables: {
         company_id: companyId,
-        impersonator_user_id: user.impersonator_user_id,
+        impersonatorUserId: user.impersonatorUserId,
       },
     });
 
