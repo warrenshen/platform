@@ -11,17 +11,13 @@ import { CheckCircle } from "@material-ui/icons";
 import CreateUpdateBankAccountModal from "components/BankAccount/CreateUpdateBankAccountModal";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
-import {
   BankAccountForVendorFragment,
   BankAccountFragment,
   BankAccountLimitedFragment,
 } from "generated/graphql";
 import { formatDateString } from "lib/date";
 import { obfuscateBankNumbers } from "lib/privacy";
-import { useContext, useState } from "react";
+import { useState } from "react";
 
 const useStyles = makeStyles({
   baseInput: {
@@ -55,16 +51,7 @@ export default function BankAccountInfoCard({
 }: Props) {
   const classes = useStyles();
 
-  const {
-    user: { role },
-  } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
-
   const [isObfuscateEnabled, setIsObfuscateEnabled] = useState(true);
-
-  // Whether this bank account is associated with a Customer or Vendor
-  // (alternative is it is a Bespoke Financial bank account).
-  const isCompanyBank = !!bankAccount.company_id;
 
   return (
     <Card>
