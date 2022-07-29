@@ -371,7 +371,7 @@ export default function Layout({
   const location = useLocation();
 
   const {
-    user: { role, productType, companyId },
+    user: { role, productType, companyId, isEmbeddedModule },
   } = useContext(CurrentUserContext);
   const isBankUser = isRoleBankUser(role);
 
@@ -456,14 +456,16 @@ export default function Layout({
         }}
         anchor="left"
       >
-        <Logo href={routes.root}>
-          <img
-            src={BespokeFinancialLogo}
-            alt="Bespoke Financial Logo"
-            width={156}
-            height={32}
-          />
-        </Logo>
+        {!isEmbeddedModule && (
+          <Logo href={routes.root}>
+            <img
+              src={BespokeFinancialLogo}
+              alt="Bespoke Financial Logo"
+              width={156}
+              height={32}
+            />
+          </Logo>
+        )}
         <SidebarItems>
           {!isLocationsPage && (
             <List className={classes.list}>
