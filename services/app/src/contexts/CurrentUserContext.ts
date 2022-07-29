@@ -22,7 +22,6 @@ export type CurrentUserContextType = {
   user: User;
   isSignedIn: boolean;
   resetUser: () => void; // A function that resets state of CurrentUserProvider component.
-  setUserFromAccessToken: (accessToken: string, refreshToken: string) => void;
   setUserProductType: (productType: ProductTypeEnum) => void; // A function that sets productType state of CurrentUserProvider component.
   signIn: (
     email: string,
@@ -47,7 +46,6 @@ export const CurrentUserContext = createContext<CurrentUserContextType>({
   user: BlankUser,
   isSignedIn: false,
   resetUser: () => {},
-  setUserFromAccessToken: () => {},
   setUserProductType: () => {},
   undoImpersonation: () => Promise.resolve(),
   impersonateUser: () => Promise.resolve(),

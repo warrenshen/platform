@@ -362,7 +362,6 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
                 const authStatus = !!data?.auth_status
                   ? data.auth_status
                   : null;
-                setBlazeAuthStatus(authStatus as BlazeAuthStatus);
                 if (authStatus === BlazeAuthStatus.BorrowerActive) {
                   setUserFromAccessToken(data.access_token, data.refresh_token);
                 } else if (
@@ -383,6 +382,9 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
                     response
                   );
                 }
+                // Important: setBlazeAuthStatus must be called after setUserFromAccessToken.
+                // Otherwise, there will be a render before the user state is configured.
+                setBlazeAuthStatus(authStatus as BlazeAuthStatus);
               }
             }
           }
@@ -425,7 +427,6 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
         user,
         isSignedIn,
         resetUser,
-        setUserFromAccessToken,
         setUserProductType,
         undoImpersonation,
         impersonateUser,
