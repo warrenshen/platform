@@ -53,7 +53,7 @@ interface Props {
 export default function UserMenu({ isLocationsPage }: Props) {
   const snackbar = useSnackbar();
   const {
-    user: currentUser,
+    user: { id: userId, companyId, impersonatorUserId, isEmbeddedModule },
     signOut,
     undoImpersonation,
   } = useContext(CurrentUserContext);
@@ -62,7 +62,7 @@ export default function UserMenu({ isLocationsPage }: Props) {
 
   const { data, error } = useGetUserMenuInfoQuery({
     variables: {
-      user_id: currentUser.id,
+      user_id: userId,
     },
   });
 
@@ -74,8 +74,7 @@ export default function UserMenu({ isLocationsPage }: Props) {
   const user = data?.users_by_pk;
   const parentCompany = user?.parent_company;
   const companies = parentCompany?.companies || [];
-  const company =
-    companies.find((company) => company.id === currentUser.companyId) || null;
+  const company = companies.find((company) => company.id === companyId) || null;
   const isMultiLocation = companies.length > 1;
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -150,20 +149,22 @@ export default function UserMenu({ isLocationsPage }: Props) {
         >
           Profile
         </MenuItem>
-        {!isRoleBankUser(user?.role) && currentUser?.impersonatorUserId && (
+        {!isRoleBankUser(user?.role) && !!impersonatorUserId && (
           <MenuItem onClick={handleUndoImpersonationClick}>
             Undo impersonation
           </MenuItem>
         )}
-        <MenuItem
-          data-cy={"user-logout-button"}
-          onClick={() => {
-            signOut();
-            handleClose();
-          }}
-        >
-          Logout
-        </MenuItem>
+        {!isEmbeddedModule && (
+          <MenuItem
+            data-cy={"user-logout-button"}
+            onClick={() => {
+              signOut();
+              handleClose();
+            }}
+          >
+            Logout
+          </MenuItem>
+        )}
       </Menu>
     </Box>
   );

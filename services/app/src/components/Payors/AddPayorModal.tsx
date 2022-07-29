@@ -19,6 +19,7 @@ import {
   Companies,
   CompaniesInsertInput,
   CompanyTypeEnum,
+  UserRolesEnum,
   UsersInsertInput,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -126,7 +127,7 @@ export default function AddPayorModal({ customerId, handleClose }: Props) {
       )}
       <RegisterThirdPartyForm
         companyType={CompanyTypeEnum.Payor}
-        role={role}
+        role={role as UserRolesEnum}
         contact={contact}
         setContact={setContact}
         company={payor}

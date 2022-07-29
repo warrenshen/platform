@@ -67,16 +67,14 @@ function userFieldsFromToken(token: string) {
 }
 
 export default function CurrentUserProvider(props: { children: ReactNode }) {
-  const [isEmbeddedModule, setIsEmbeddedModule] = useState(false);
-  const [blazeAuthStatus, setBlazeAuthStatus] =
-    useState<BlazeAuthStatus | null>(null);
-
   // Whether auth token is loading (if true, do not show UI to viewer).
   const [isTokenLoading, setIsTokenLoading] = useState(true);
 
   const [user, setUser] = useState<User>(BlankUser);
   const isSignedIn = !!(user.id && user.role);
 
+  const [blazeAuthStatus, setBlazeAuthStatus] =
+    useState<BlazeAuthStatus | null>(null);
   const [blazePreapproval, setBlazePreapproval] =
     useState<BlazePreapprovalFragment | null>(null);
   const [authenticateBlazeUser, { loading: isAuthenticateBlazeUserLoading }] =
@@ -243,15 +241,20 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
   }, [isTokenLoading, signOut, setUserFromAccessToken]);
 
   useEffect(() => {
-    // If true, then app is open in an iframe element.
-    if (window.location !== window.parent.location) {
-      if (IsEventListenerAdded) {
-        return;
-      } else {
-        IsEventListenerAdded = true;
-        setIsEmbeddedModule(true);
-      }
+    if (IsEventListenerAdded) {
+      return;
+    } else {
+      IsEventListenerAdded = true;
+    }
 
+    // If true, app is open in an iframe element.
+    const isEmbeddedModule = window.location !== window.parent.location;
+    setUser((user) => ({
+      ...user,
+      isEmbeddedModule,
+    }));
+
+    if (isEmbeddedModule) {
       window.addEventListener(
         "message",
         async (event) => {
@@ -409,11 +412,11 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
         );
       }
     }
-  }, [authenticateBlazeUser, setIsEmbeddedModule, setUserFromAccessToken]);
+  }, [authenticateBlazeUser, setUserFromAccessToken]);
 
   const isAppReady =
-    (isEmbeddedModule && !!blazeAuthStatus) ||
-    (!isEmbeddedModule && !isTokenLoading);
+    (user.isEmbeddedModule && !!blazeAuthStatus) ||
+    (!user.isEmbeddedModule && !isTokenLoading);
   const isBlazePreapprovalPage =
     !!blazeAuthStatus &&
     [

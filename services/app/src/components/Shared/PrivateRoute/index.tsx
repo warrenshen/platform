@@ -23,9 +23,8 @@ export default function PrivateRoute(props: Props & RouteProps) {
     isSignedIn,
   } = useContext(CurrentUserContext);
 
-  const canVisitRoute = props.requiredRoles
-    ? props.requiredRoles.includes(role)
-    : false;
+  const canVisitRoute =
+    props.requiredRoles && !!role ? props.requiredRoles.includes(role) : false;
 
   const shouldRender = isSignedIn && canVisitRoute;
 

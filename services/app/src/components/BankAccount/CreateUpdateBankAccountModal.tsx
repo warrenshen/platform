@@ -18,6 +18,7 @@ import {
   BankAccountFragment,
   BankAccountsInsertInput,
   Companies,
+  UserRolesEnum,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -236,7 +237,7 @@ export default function CreateUpdateBankAccountModal({
           </Alert>
         )}
         <BankAccountForm
-          role={role}
+          role={role as UserRolesEnum}
           bankAccount={bankAccount}
           setBankAccount={setBankAccount}
           isFormDisabled={isExistingVerifiedBankEditingDisabled}

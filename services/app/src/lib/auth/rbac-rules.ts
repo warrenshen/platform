@@ -130,11 +130,11 @@ export interface Rules {
 }
 
 export const check = (
-  role: UserRolesEnum,
+  role: UserRolesEnum | null,
   action: Action,
   data?: ActionData
 ) => {
-  const permissions = rules[role];
+  const permissions = !!role ? rules[role] : null;
 
   if (!permissions) {
     return false;

@@ -10,12 +10,13 @@ export function isRoleBankUser(role?: UserRolesEnum | null) {
 }
 
 export type User = {
-  id: Users["id"];
+  id: Users["id"] | null;
   parentCompanyId: Users["parent_company_id"] | null;
   companyId: Users["company_id"] | null;
-  role: UserRolesEnum;
-  productType: ProductTypeEnum | null;
+  role: UserRolesEnum | null;
   impersonatorUserId: Users["id"] | null;
+  productType: ProductTypeEnum | null;
+  isEmbeddedModule: boolean | null; // Whether app is open in an iframe element.
 };
 
 export type CurrentUserContextType = {
@@ -34,12 +35,13 @@ export type CurrentUserContextType = {
 };
 
 export const BlankUser = {
-  id: "",
+  id: null,
   parentCompanyId: null,
   companyId: null,
-  role: UserRolesEnum.CompanyAdmin,
-  productType: null,
+  role: null,
   impersonatorUserId: null,
+  productType: null,
+  isEmbeddedModule: null,
 };
 
 export const CurrentUserContext = createContext<CurrentUserContextType>({
