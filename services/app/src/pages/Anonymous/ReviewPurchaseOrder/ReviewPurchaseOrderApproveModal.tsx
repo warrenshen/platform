@@ -104,7 +104,9 @@ function ReviewPurchaseOrderApproveModal({
     if (response.status !== "OK") {
       snackbar.showError(`Something went wrong. Reason: ${response.msg}`);
     } else {
-      snackbar.showSuccess("Purchase order approved.");
+      snackbar.showSuccess(
+        "Thank you for approving the purchase order. The next step in the process is for our client to request financing from Bespoke."
+      );
       handleApproveSuccess();
     }
   };
