@@ -864,11 +864,11 @@ export const DebtFacilityCompanyStatusToEligibility = {
 };
 
 export enum DebtFacilityTabLabel {
-  Open = "Open",
-  ActionRequired = "Action Required",
-  All = "All",
+  Open = "Loans - Open",
+  ActionRequired = "Loans - Action Required",
+  All = "Loans - All",
   Customers = "Customers",
-  Report = "Report",
+  Report = "Loans - Report",
   Admin = "Admin",
 }
 
