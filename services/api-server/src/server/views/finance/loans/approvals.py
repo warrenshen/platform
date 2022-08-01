@@ -181,29 +181,29 @@ class RejectLoanView(MethodView):
 			customer_users = models_util.get_active_users(company_id=customer_id, session=session)
 			customer_emails = [user.email for user in customer_users]
 
-		template_name = sendgrid_util.TemplateNames.BANK_REJECTED_LOAN
-		template_data = {
-			'customer_name': customer.get_display_name(),
-			'loan_identifier': loan_identifier,
-			'loan_amount': loan_amount,
-			'loan_requested_payment_date': loan_requested_payment_date,
-			'loan_requested_date': loan_requested_date,
-			'rejection_note': rejection_note,
-		}
+			template_name = sendgrid_util.TemplateNames.BANK_REJECTED_LOAN
+			template_data = {
+				'customer_name': customer.get_display_name(),
+				'loan_identifier': loan_identifier,
+				'loan_amount': loan_amount,
+				'loan_requested_payment_date': loan_requested_payment_date,
+				'loan_requested_date': loan_requested_date,
+				'rejection_note': rejection_note,
+			}
 
-		cfg = cast(Config, current_app.app_config)
-		sendgrid_client = cast(sendgrid_util.Client,
-							current_app.sendgrid_client)
+			cfg = cast(Config, current_app.app_config)
+			sendgrid_client = cast(sendgrid_util.Client,
+								current_app.sendgrid_client)
 
-		recipients = customer_emails
-		_, err = sendgrid_client.send(
-			template_name, 
-			template_data, 
-			recipients,
-			filter_out_contact_only=True,
-		)
-		if err:
-			raise err
+			recipients = customer_emails
+			_, err = sendgrid_client.send(
+				template_name, 
+				template_data, 
+				recipients,
+				filter_out_contact_only=True,
+			)
+			if err:
+				raise err
 
 		return make_response(json.dumps({
 			'status': 'OK'
