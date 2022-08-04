@@ -142,6 +142,23 @@ CompanyDict = TypedDict('CompanyDict', {
 	'name': str
 })
 
+class AuditTrail(Base):
+	"""
+	This is used for tracking when different tables make changes where we want to preserve the history
+	"""
+	__tablename__ = 'audit_trails'
+
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	changed_table = Column(String)
+	changed_by_user_id = cast(GUID, Column(GUID, ForeignKey('users.id')))
+	changed_date = Column(Date)
+	changed_row_id = Column(GUID)
+	metadata_info = Column(JSON)
+
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	deleted_at = Column(DateTime)
+
 class Company(Base):
 	"""
 	A Company belongs to a ParentCompany.

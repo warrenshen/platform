@@ -1,6 +1,7 @@
 - "!include public_async_jobs.yaml"
 - "!include public_async_pipelines.yaml"
 - "!include public_audit_events.yaml"
+- "!include public_audit_trails.yaml"
 - "!include public_bank_accounts.yaml"
 - "!include public_bank_financial_summaries.yaml"
 - "!include public_blaze_preapprovals.yaml"
