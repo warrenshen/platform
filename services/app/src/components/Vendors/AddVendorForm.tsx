@@ -13,6 +13,7 @@ export default function AddVendorForm({ vendorInput, setVendorInput }: Props) {
       <Box display="flex" flexDirection="column">
         <Box display="flex" flexDirection="column" mt={4}>
           <TextField
+            data-cy={"invite-vendor-modal-vendor-name-input"}
             label="Vendor Name"
             required
             value={vendorInput.name}
@@ -21,6 +22,7 @@ export default function AddVendorForm({ vendorInput, setVendorInput }: Props) {
             }}
           />
           <TextField
+            data-cy={"invite-vendor-modal-vendor-email-input"}
             label="Vendor Email"
             required
             value={vendorInput.email}

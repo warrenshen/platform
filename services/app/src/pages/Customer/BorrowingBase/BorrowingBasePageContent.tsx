@@ -91,6 +91,7 @@ export default function BorrowingBasePageContent({
       <Can perform={Action.AddBorrowingBase}>
         <Box mt={2}>
           <ModalButton
+            dataCy={"create-borrowing-base-button"}
             label={`Create Borrowing Base Certification`}
             modal={({ handleClose }) => (
               <CreateUpdateBorrowingBaseCertificationModal
@@ -162,6 +163,7 @@ export default function BorrowingBasePageContent({
           <Box display="flex" flexDirection="row-reverse" mt={2} mb={2}>
             <Box>
               <ModalButton
+                dataCy={"edit-borrowing-base-button"}
                 isDisabled={!selectedEbbaApplication}
                 label={"Edit Certification"}
                 modal={({ handleClose }) => (

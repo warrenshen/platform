@@ -159,6 +159,7 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
           <Box display="flex" flexDirection="row-reverse">
             <Box mr={2}>
               <ModalButton
+                dataCy={"edit-license-button"}
                 label={"Edit Licenses"}
                 modal={({ handleClose }) => (
                   <UpdateCompanyLicensesModal
@@ -173,6 +174,7 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
             </Box>
             <Box mr={2}>
               <ModalButton
+                dataCy={"delete-license-button"}
                 isDisabled={selectedLicensesId.length !== 1}
                 label={"Delete License"}
                 variant={"outlined"}

@@ -50,6 +50,31 @@ def get_company_by_id(
     return company, None
 
 # ###############################
+# Company Settings
+# ###############################
+
+def get_company_settings_by_id(
+    session: Session,
+    company_settings_id: str,
+) -> Tuple[ models.CompanySettings, errors.Error ]:
+    # fmt: off
+    filters = [
+        models.CompanySettings.id == company_settings_id
+    ]
+
+    company_settings = cast(
+        models.CompanySettings,
+        session.query(models.CompanySettings).filter(
+            *filters
+        ).first())
+    # fmt: on
+
+    if not company_settings:
+        return None, errors.Error("No company settings with the specified id exists in the system")
+
+    return company_settings, None
+
+# ###############################
 # Company Vendor Partnerships
 # ###############################
 

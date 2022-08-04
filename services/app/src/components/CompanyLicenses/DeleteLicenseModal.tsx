@@ -43,6 +43,7 @@ export default function DeleteLicenseModal({ licenseId, handleClose }: Props) {
 
   return (
     <Modal
+      dataCy={"delete-license-modal"}
       isPrimaryActionDisabled={isDeleteLicenseLoading}
       title={"Delete License"}
       primaryActionText={"Confirm"}

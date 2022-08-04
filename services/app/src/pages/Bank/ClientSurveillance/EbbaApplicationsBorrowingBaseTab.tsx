@@ -83,6 +83,7 @@ export default function EbbaApplicationsBorrowingBaseTab() {
         <Box display="flex" flexDirection="row-reverse">
           <Box>
             <ModalButton
+              dataCy={"edit-borrowing-base-button"}
               isDisabled={!selectedEbbaApplication}
               label={"Edit Certification"}
               modal={({ handleClose }) => (

@@ -134,6 +134,7 @@ function CompanyLicensesSection({
       <Box display="flex" flexDirection="row-reverse" mb={2}>
         <Box>
           <ModalButton
+            dataCy={"create-license-button"}
             isDisabled={selectedCompanyLicensesIds.length !== 0}
             label={"Create License"}
             color={"primary"}
@@ -152,6 +153,7 @@ function CompanyLicensesSection({
         </Box>
         <Box mr={2}>
           <ModalButton
+            dataCy={"edit-license-button"}
             isDisabled={selectedCompanyLicensesIds.length !== 1}
             label={"Edit License"}
             color={"primary"}
@@ -163,6 +165,7 @@ function CompanyLicensesSection({
                 handleClose={() => {
                   refetch();
                   handleClose();
+                  setSelectedCompanyLicensesIds([]);
                 }}
               />
             )}
@@ -170,6 +173,7 @@ function CompanyLicensesSection({
         </Box>
         <Box mr={2}>
           <ModalButton
+            dataCy={"delete-license-button"}
             isDisabled={selectedCompanyLicensesIds.length !== 1}
             label={"Delete License"}
             variant={"outlined"}

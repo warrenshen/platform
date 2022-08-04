@@ -220,7 +220,7 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
 
   return (
     <Modal
-      dataCy={"create-purchase-order-modal"}
+      dataCy={"submit-borrowing-base-modal"}
       isPrimaryActionDisabled={isSubmitDisabled}
       title={`${
         isActionTypeUpdate ? "Edit" : "Create"

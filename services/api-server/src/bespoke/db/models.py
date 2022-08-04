@@ -161,6 +161,7 @@ class Company(Base):
 	is_vendor = Column(Boolean)
 	is_payor = Column(Boolean)
 	address = Column(String)
+	phone_number = Column(String)
 	country = Column(String)
 	state = Column(String)
 	city = Column(String)
@@ -1462,10 +1463,12 @@ class BankAccount(Base):
 	wire_routing_number = Column(String) # Wire routing number
 	recipient_address = Column(Text)
 	recipient_address_2 = Column(Text)
+	recipient_name = Column(Text)
 	wire_default_memo = Column(String) # Wire default memo
 	# no longer being used, but waiting to be removed
 	wire_template_name = Column(String) # Wire template name
 	bank_address = Column(String) # Deprecated: consider dropping this column in the future.
+	us_state = Column(Text)
 
 	is_cannabis_compliant = Column(Boolean, default=False)
 	verified_date = Column(Date)

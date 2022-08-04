@@ -82,6 +82,7 @@ function ActionRequiredTab() {
         <Can perform={Action.RejectLoan}>
           <Box>
             <ModalButton
+              dataCy={"triage-request-button"}
               isDisabled={selectedRequestIds.length !== 1}
               label={"Triage Request"}
               modal={({ handleClose }) => triageRequestModal(handleClose)}
@@ -91,6 +92,7 @@ function ActionRequiredTab() {
         <Can perform={Action.IsBankAdmin}>
           <Box mr={2}>
             <ModalButton
+              dataCy={"edit-request-button"}
               isDisabled={selectedRequestIds.length !== 1}
               label={"Edit Request"}
               variant={"outlined"}
@@ -109,6 +111,7 @@ function ActionRequiredTab() {
         <Can perform={Action.IsBankAdmin}>
           <Box mr={2}>
             <ModalButton
+              dataCy={"delete-request-button"}
               isDisabled={selectedRequestIds.length !== 1}
               label={"Delete Request"}
               variant={"outlined"}

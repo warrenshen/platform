@@ -8,7 +8,7 @@ from bespoke.companies import create_company_util, create_user_util
 from bespoke.db import models
 from bespoke.db.db_constants import ALL_USER_ROLES, UserRoles
 from bespoke.db.models import session_scope
-from bespoke.db.seed_utils import create_partnership_req, create_company_settings_and_company, create_user_inside_a_company, create_company_license, create_company_vendor_partnership
+from bespoke.db.seed_util import create_partnership_req, create_company_settings_and_company, create_user_inside_a_company, create_company_license, create_company_vendor_partnership
 from server.config import is_test_env
 from server.views.common import auth_util
 from sqlalchemy.orm import sessionmaker
@@ -62,6 +62,11 @@ def setup_db_test(app: Any) -> None:
 		company_partnerships = session.query(models.CompanyPartnershipRequest).all()
 		for company_partnership in company_partnerships:
 			cast(Callable, session.delete)(company_partnership)
+		session.flush()
+
+		ebba_application_files = session.query(models.EbbaApplicationFile).all()
+		for ebba_application_file in ebba_application_files:
+			cast(Callable, session.delete)(ebba_application_file)
 		session.flush()
 
 		po_files = session.query(models.PurchaseOrderFile).all()

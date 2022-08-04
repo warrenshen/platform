@@ -2,6 +2,9 @@
   "compilerOptions": {
     "target": "es5",
     "lib": ["es5", "dom"],
+    "paths": {
+      "@app/*": ["../src/"],
+    },
     "types": ["cypress", "cypress-file-upload"]
   },
   "include": ["**/*.ts", "support/index.js"]

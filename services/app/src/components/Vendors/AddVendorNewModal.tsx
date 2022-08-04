@@ -96,7 +96,7 @@ export default function AddVendorNewModal({ customerId, handleClose }: Props) {
       maxWidth="md"
       classes={{ paper: classes.dialog }}
     >
-      <DialogTitle>Add Vendor</DialogTitle>
+      <DialogTitle>Invite Vendor</DialogTitle>
       {isBankUser && (
         <Box mt={2} mb={4} mx={3}>
           <Alert severity="warning">
@@ -129,6 +129,7 @@ export default function AddVendorNewModal({ customerId, handleClose }: Props) {
             <Button onClick={handleClose}>Cancel</Button>
           </Box>
           <Button
+            data-cy={"invite-vendor-modal-primary-button"}
             disabled={isSubmitDisabled}
             variant="contained"
             color="primary"

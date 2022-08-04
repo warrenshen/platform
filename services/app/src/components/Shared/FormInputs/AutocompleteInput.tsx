@@ -62,6 +62,7 @@ export default function AutocompleteInput({
       getOptionLabel={(option) => option.label}
       renderInput={(params) => (
         <TextField
+          data-cy={`${dataCy}-text-field`}
           {...params}
           label={label}
           variant="outlined"

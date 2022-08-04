@@ -180,6 +180,7 @@ export default function BankCustomersPage() {
               <FormControlLabel
                 control={
                   <Checkbox
+                    data-cy={"is-customer-active-checkbox"}
                     defaultChecked={isActiveSelected}
                     onChange={(event: ChangeEvent<HTMLInputElement>) =>
                       setIsActiveSelected(event.target.checked)

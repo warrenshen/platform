@@ -13,6 +13,7 @@ export default function AddVendorButton({
 }: Props) {
   return (
     <ModalButton
+      dataCy={"invite-vendor-button"}
       label={"Invite Vendor"}
       modal={({ handleClose }) => (
         <AddVendorNewModal

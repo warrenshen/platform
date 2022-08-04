@@ -101,6 +101,7 @@ export default function EbbaApplicationBorrowingBaseForm({
             disabled={isActionTypeUpdate && !isBankUser}
             disableFuture
             required
+            dataCy={"borrow-base-modal-date-picker"}
             className={classes.inputField}
             id="application-month-date-picker"
             label="Borrowing Base Date"
@@ -133,6 +134,7 @@ export default function EbbaApplicationBorrowingBaseForm({
               <CurrencyInput
                 isDisabled={isEditDisabled}
                 isRequired
+                dataCy={"borrowing-base-modal-accounts-receivable"}
                 label={"Accounts Receivable Balance"}
                 value={ebbaApplication.monthly_accounts_receivable}
                 handleChange={(value) =>
@@ -157,6 +159,7 @@ export default function EbbaApplicationBorrowingBaseForm({
               <CurrencyInput
                 isDisabled={isEditDisabled}
                 isRequired
+                dataCy={"borrowing-base-modal-inventory-balance"}
                 label={"Inventory Balance"}
                 value={ebbaApplication.monthly_inventory}
                 handleChange={(value) =>
@@ -181,6 +184,7 @@ export default function EbbaApplicationBorrowingBaseForm({
               <CurrencyInput
                 isDisabled={isEditDisabled}
                 isRequired
+                dataCy={"borrowing-base-modal-cash"}
                 label={"Cash in Deposit Accounts"}
                 value={ebbaApplication.monthly_cash}
                 handleChange={(value) =>
@@ -205,6 +209,7 @@ export default function EbbaApplicationBorrowingBaseForm({
               <CurrencyInput
                 isDisabled={isEditDisabled}
                 isRequired
+                dataCy={"borrowing-base-modal-cash-daca"}
                 label={"Cash in DACA"}
                 value={ebbaApplication.amount_cash_in_daca}
                 handleChange={(value) =>
@@ -231,6 +236,7 @@ export default function EbbaApplicationBorrowingBaseForm({
             <FormControl>
               <CurrencyInput
                 isDisabled={isEditDisabled}
+                dataCy={"borrowing-base-modal-custom-amount"}
                 label={"Adjustment Amount"}
                 value={ebbaApplication.amount_custom}
                 handleChange={(value) =>
@@ -245,6 +251,7 @@ export default function EbbaApplicationBorrowingBaseForm({
           <Box display="flex" flexDirection="column" mt={1}>
             <TextField
               disabled={isEditDisabled}
+              data-cy={"borrowing-base-modal-custom-amount-text"}
               label={"Adjustment Amount Description / Note"}
               value={ebbaApplication.amount_custom_note}
               onChange={({ target: { value } }) =>
@@ -258,10 +265,12 @@ export default function EbbaApplicationBorrowingBaseForm({
         </Box>
       )}
       <Box display="flex" flexDirection="column" mt={4}>
-        <Typography variant="body1">{`Calculated Borrowing Base: ${formatCurrency(
-          calculatedBorrowingBase,
-          "TBD"
-        )}`}</Typography>
+        <Typography data-cy={"modal-calculated-borrowing-base"} variant="body1">
+          {`Calculated Borrowing Base: ${formatCurrency(
+            calculatedBorrowingBase,
+            "TBD"
+          )}`}
+        </Typography>
         <Typography variant="body2" color="textSecondary">
           This borrowing base is calculated based on the financial information
           you entered above and your current active contract with Bespoke.
@@ -279,6 +288,7 @@ export default function EbbaApplicationBorrowingBaseForm({
           </Typography>
         </Box>
         <FileUploader
+          dataCy={"borrowing-base-modal-file-uploader"}
           disabled={isFileUploaderDisabled}
           companyId={companyId}
           fileType={FileTypeEnum.EbbaApplication}
