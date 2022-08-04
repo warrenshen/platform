@@ -1,4 +1,4 @@
-import { Typography } from "@material-ui/core";
+import { Typography, useTheme } from "@material-ui/core";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
@@ -7,7 +7,7 @@ const Wrapper = styled.div`
   align-items: center;
 `;
 
-const Chip = styled.div`
+const Chip = styled.div<{ $backgroundColor: string }>`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -15,32 +15,22 @@ const Chip = styled.div`
   flex: 1;
 
   padding: 8px 0px;
-  background-color: rgba(118, 147, 98, 1);
+  background-color: ${(props) => props.$backgroundColor};
   color: white;
 `;
 
 function EnvironmentChip() {
-  switch (process.env.REACT_APP_BESPOKE_ENVIRONMENT) {
-    case "production":
-      return null;
-    case "staging":
-      return (
-        <Wrapper>
-          <Chip>
-            <Typography>Staging</Typography>
-          </Chip>
-        </Wrapper>
-      );
-    case "development":
-    default:
-      return (
-        <Wrapper>
-          <Chip>
-            <Typography>Development</Typography>
-          </Chip>
-        </Wrapper>
-      );
-  }
+  const theme = useTheme();
+  const environment = process.env.REACT_APP_BESPOKE_ENVIRONMENT;
+  return environment !== "production" ? (
+    <Wrapper>
+      <Chip $backgroundColor={theme.palette.primary.main}>
+        <Typography>
+          {environment === "staging" ? "Staging" : "Development"}
+        </Typography>
+      </Chip>
+    </Wrapper>
+  ) : null;
 }
 
 export default EnvironmentChip;

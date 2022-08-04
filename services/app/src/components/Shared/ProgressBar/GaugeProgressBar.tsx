@@ -1,4 +1,4 @@
-import { Typography } from "@material-ui/core";
+import { Typography, useTheme } from "@material-ui/core";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 import styled from "styled-components";
@@ -78,7 +78,7 @@ const useStyles = makeStyles((theme) => ({
     position: "relative",
   },
   bottom: {
-    color: "rgba(122, 151, 101, 0.15)",
+    color: theme.palette.primary.light,
   },
   underMax: {
     color: green,
@@ -113,6 +113,7 @@ export default function GaugeProgressBar({
   containerHeight,
 }: Props) {
   const classes = useStyles();
+  const theme = useTheme();
 
   const isOverMax = !!value && value > 100;
   const cappedValue = !value ? 0.0 : isOverMax ? 100.0 : value;
@@ -141,7 +142,7 @@ export default function GaugeProgressBar({
       <Copy>
         <TitleText
           $fontSize={valueFontSize}
-          $fontColor={!!isOverMax ? orange : green}
+          $fontColor={!!isOverMax ? orange : theme.palette.primary.main}
         >
           {value !== null ? `${value}%` : "TBD"}
         </TitleText>

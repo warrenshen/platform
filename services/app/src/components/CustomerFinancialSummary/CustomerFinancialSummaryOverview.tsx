@@ -27,12 +27,6 @@ import {
 import { round } from "lodash";
 import { useContext, useMemo } from "react";
 import { Link } from "react-router-dom";
-import styled from "styled-components";
-
-const LinkText = styled.span`
-  color: rgba(118, 147, 98, 1);
-  font-size: 14px;
-`;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -235,7 +229,9 @@ export default function CustomerFinancialSummaryOverview({
               to={customerAccountFeesCreditsRoute}
               style={{ textDecoration: "none" }}
             >
-              <LinkText>View details</LinkText>
+              <Typography variant="body2" color="primary">
+                View details
+              </Typography>
             </Link>
           </Box>
         </Box>
@@ -255,7 +251,9 @@ export default function CustomerFinancialSummaryOverview({
               to={customerAccountFeesCreditsRoute}
               style={{ textDecoration: "none" }}
             >
-              <LinkText>View details</LinkText>
+              <Typography variant="body2" color="primary">
+                View details
+              </Typography>
             </Link>
           </Box>
         </Box>
