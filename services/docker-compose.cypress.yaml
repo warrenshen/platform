@@ -20,7 +20,7 @@ services:
     image: hasura/graphql-engine:v2.3.1.cli-migrations-v3
     container_name: bespoke-graphql-engine-cypress
     ports:
-      - 7003:8080
+      - 7004:8080
     depends_on:
       - bespoke-postgres-cypress
     restart: always
