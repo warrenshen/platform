@@ -56,4 +56,4 @@ jobs:
       - name: Check formatting
         run: yarn prettier
       - name: Check building
-        run: react-scripts build
+        run: yarn build
