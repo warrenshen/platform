@@ -51,7 +51,9 @@ jobs:
           steps.cache-yarn-cache.outputs.cache-hit != 'true' ||
           steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile --prefer-offline
-      - name: Check formatting
-        run: yarn prettier
       - name: Check typing
         run: yarn tsc
+      - name: Check formatting
+        run: yarn prettier
+      - name: Check building
+        run: react-scripts build
