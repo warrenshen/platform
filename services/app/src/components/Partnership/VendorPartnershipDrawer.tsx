@@ -1,10 +1,4 @@
-import {
-  Box,
-  Checkbox,
-  FormControlLabel,
-  Grid,
-  Typography,
-} from "@material-ui/core";
+import { Box, Grid, Typography } from "@material-ui/core";
 import UpdateVendorContactsModal from "components/Partnership/UpdateVendorContactsModal";
 import Can from "components/Shared/Can";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";

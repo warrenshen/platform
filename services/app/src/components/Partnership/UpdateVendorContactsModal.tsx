@@ -1,4 +1,4 @@
-import { Box, Checkbox, FormControlLabel, Typography } from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import Modal from "components/Shared/Modal/Modal";
 import UsersDataGrid from "components/Users/UsersDataGrid";
@@ -12,7 +12,7 @@ import {
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { updatePartnershipContactsMutation } from "lib/api/partnerships";
-import { ChangeEvent, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 interface Props {
   vendorPartnershipId: CompanyVendorPartnerships["id"];
@@ -26,7 +26,6 @@ export default function UpdateVendorContactsModal({
   const snackbar = useSnackbar();
 
   const [selectedUserIds, setSelectedUserIds] = useState<Users["id"]>([]);
-  const [shouldUseAllUsers, setShouldUseAllUsers] = useState(true);
 
   const { data, error } = useGetVendorPartnershipForContactsQuery({
     fetchPolicy: "network-only",
