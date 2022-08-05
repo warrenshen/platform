@@ -1,1 +1,2 @@
+alter table "public"."customer_surveillance_results" drop constraint if exists "company_product_qualifications_company_id_qualifying_date_key";
 alter table "public"."customer_surveillance_results" add constraint "company_product_qualifications_company_id_qualifying_date_key" unique ("company_id", "qualifying_date");
