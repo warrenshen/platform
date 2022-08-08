@@ -12,9 +12,11 @@ export const routes = {
 // Routes when you are neither a customer or bank, but you've been authenticated via the secure_link route
 export const anonymousRoutes = {
   secureLink: "/get-secure-link",
+  secureLinkNew: "/get-secure-link-new",
   forgotPassword: "/forgot-password",
   resetPassword: "/reset-password",
   reviewPurchaseOrder: "/review-purchase-order",
+  reviewPurchaseOrderNew: "/review-purchase-order-new",
   reviewPurchaseOrderComplete: "/review-purchase-order-complete",
   reviewInvoice: "/review-invoice",
   reviewInvoiceComplete: "/review-invoice-complete",
@@ -56,6 +58,7 @@ export enum BankCompanyRouteEnum {
   Reports = "/reports",
   Overview = "/overview",
   PurchaseOrders = "/purchase-orders",
+  PurchaseOrdersNew = "/purchase-orders-new",
   PayorPartnerships = "/payor-partnerships",
   VendorPartnerships = "/vendor-partnerships",
 }
@@ -76,6 +79,7 @@ export const bankRoutes = {
     overview: BankCompanyRouteEnum.Overview,
     payments: "/payments",
     purchaseOrders: BankCompanyRouteEnum.PurchaseOrders,
+    purchaseOrdersNew: BankCompanyRouteEnum.PurchaseOrdersNew,
     payorPartnerships: BankCompanyRouteEnum.PayorPartnerships,
     vendorPartnerships: BankCompanyRouteEnum.VendorPartnerships,
     vendors: "/vendors",

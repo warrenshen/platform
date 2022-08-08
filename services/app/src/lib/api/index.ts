@@ -102,10 +102,14 @@ export const ebbaApplicationsRoutes = {
 
 export const purchaseOrdersRoutes = {
   createUpdateAsDraft: "/purchase_orders/create_update_as_draft",
+  createUpdateAsDraftNew: "/purchase_orders/create_update_as_draft_new",
   createUpdateAndSubmit: "/purchase_orders/create_update_and_submit",
+  createUpdateAndSubmitNew: "/purchase_orders/create_update_and_submit_new",
   update: "/purchase_orders/update",
   submit: "/purchase_orders/submit",
   respondToApprovalRequest: "/purchase_orders/respond_to_approval_request",
+  respondToApprovalRequestNew:
+    "/purchase_orders/respond_to_approval_request_new",
   respondToIncompleteRequest: "/purchase_orders/respond_to_incomplete_request",
   updateBankFields: "/purchase_orders/update_bank_fields",
   delete: "/purchase_orders/delete",

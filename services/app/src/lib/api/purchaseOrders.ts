@@ -20,11 +20,37 @@ export type CreateUpdatePurchaseOrderAsDraftReq = {
   };
 };
 
+export type CreateUpdatePurchaseOrderAsDraftReqNew = {
+  variables: {
+    purchase_order: PurchaseOrdersInsertInput;
+    purchase_order_files: PurchaseOrderFilesInsertInput[];
+    purchase_order_metrc_transfers: PurchaseOrderMetrcTransfersInsertInput[];
+  };
+};
+
 export async function createUpdatePurchaseOrderAsDraftMutation(
   req: CreateUpdatePurchaseOrderAsDraftReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
     .post(purchaseOrdersRoutes.createUpdateAsDraft, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not save purchase order",
+        };
+      }
+    );
+}
+
+export async function createUpdatePurchaseOrderAsDraftNewMutation(
+  req: CreateUpdatePurchaseOrderAsDraftReqNew
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(purchaseOrdersRoutes.createUpdateAsDraftNew, req.variables)
     .then((res) => res.data)
     .then(
       (res) => res,
@@ -46,11 +72,37 @@ export type CreateUpdatePurchaseOrderAndSubmitReq = {
   };
 };
 
+export type CreateUpdatePurchaseOrderAndSubmitReqNew = {
+  variables: {
+    purchase_order: PurchaseOrdersInsertInput;
+    purchase_order_files: PurchaseOrderFilesInsertInput[];
+    purchase_order_metrc_transfers: PurchaseOrderMetrcTransfersInsertInput[];
+  };
+};
+
 export async function createUpdatePurchaseOrderAndSubmitMutation(
   req: CreateUpdatePurchaseOrderAndSubmitReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
     .post(purchaseOrdersRoutes.createUpdateAndSubmit, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not save and submit purchase order",
+        };
+      }
+    );
+}
+
+export async function createUpdatePurchaseOrderAndSubmitNewMutation(
+  req: CreateUpdatePurchaseOrderAndSubmitReqNew
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(purchaseOrdersRoutes.createUpdateAndSubmitNew, req.variables)
     .then((res) => res.data)
     .then(
       (res) => res,
@@ -124,11 +176,40 @@ export type RespondToPurchaseOrderApprovalReq = {
   };
 };
 
+export type RespondToPurchaseOrderApprovalNewReq = {
+  variables: {
+    purchase_order_id: PurchaseOrders["id"];
+    new_request_status: RequestStatusEnum;
+    rejection_note: string;
+    rejected_by_user_id?: Users["id"];
+    approved_by_user_id?: Users["id"];
+    link_val: string;
+  };
+};
+
 export async function respondToPurchaseOrderApprovalRequestMutation(
   req: RespondToPurchaseOrderApprovalReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
     .post(purchaseOrdersRoutes.respondToApprovalRequest, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not respond to purchase order approval request",
+        };
+      }
+    );
+}
+
+export async function respondToPurchaseOrderApprovalRequestNewMutation(
+  req: RespondToPurchaseOrderApprovalNewReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(purchaseOrdersRoutes.respondToApprovalRequestNew, req.variables)
     .then((res) => res.data)
     .then(
       (res) => res,

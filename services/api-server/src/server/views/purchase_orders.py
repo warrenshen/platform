@@ -49,6 +49,36 @@ class CreateUpdateAsDraftView(MethodView):
 			}
 		}))
 
+class CreateUpdateAsDraftNewView(MethodView):
+	decorators = [auth_util.login_required]
+
+	@events.wrap(events.Actions.PURCHASE_ORDER_CREATE_UPDATE)
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		user_session = auth_util.UserSession.from_session()
+
+		request_data = json.loads(request.data)
+		data, err = purchase_orders_util.PurchaseOrderUpsertRequestNew.from_dict(request_data)
+		if err:
+			return handler_util.make_error_response(err)
+
+		if not user_session.is_bank_or_this_company_admin(data.purchase_order.company_id):
+			return handler_util.make_error_response("Access Denied", status_code=403)
+
+		with session_scope(current_app.session_maker) as session:
+			purchase_order_id, err = purchase_orders_util.create_update_purchase_order_new(
+				data, session)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Success',
+			'data': {
+				'purchase_order_id': purchase_order_id,
+			}
+		}))
+
 class UpdateView(MethodView):
 	decorators = [auth_util.login_required]
 
@@ -154,7 +184,237 @@ class CreateUpdateAndSubmitView(MethodView):
 			}
 		}))
 
+class CreateUpdateAndSubmitNewView(MethodView):
+	decorators = [auth_util.login_required]
+
+	@events.wrap(events.Actions.PURCHASE_ORDER_SUBMIT_FOR_APPROVAL)
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		user_session = auth_util.UserSession.from_session()
+
+		request_data = json.loads(request.data)
+		data, err = purchase_orders_util.PurchaseOrderUpsertRequestNew.from_dict(request_data)
+		if err:
+			return handler_util.make_error_response(err)
+
+		if not user_session.is_bank_or_this_company_admin(data.purchase_order.company_id):
+			return handler_util.make_error_response("Access Denied", status_code=403)
+
+		with session_scope(current_app.session_maker) as session:
+			purchase_order_id, err = purchase_orders_util.create_update_purchase_order_new(
+				data,
+				session
+			)
+			if err:
+				raise err
+
+			purchase_order_id, err = purchase_orders_util.submit_purchase_order_for_approval_new(
+				purchase_order_id,
+				session
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Success',
+			'data': {
+				'purchase_order_id': purchase_order_id,
+			}
+		}))
+
 class RespondToApprovalRequestView(MethodView):
+	"""
+	POST request that handles the following:
+	1. Vendor user approves a purchase order.
+	2. Vendor user rejects a purchase order - note is recorded in purchase_order.rejection_note.
+	3. Bank user approves a purchase order on behalf of the vendor.
+	4. Bank user rejects a purchase order - note is recorded in purchase_order.bank_rejection_note.
+	"""
+	decorators = [auth_util.login_required]
+
+	@events.wrap(events.Actions.PURCHASE_ORDER_RESPOND_TO_APPROVAL)
+	@handler_util.catch_bad_json_request
+	def post(self, event: events.Event, **kwargs: Any) -> Response:
+		cfg = cast(Config, current_app.app_config)
+		sendgrid_client = cast(
+			sendgrid_util.Client,
+			current_app.sendgrid_client,
+		)
+
+		data = json.loads(request.data)
+		if not data:
+			raise errors.Error('No data provided')
+
+		required_keys = [
+			'purchase_order_id',
+			'new_request_status',
+			'rejection_note',
+			'link_val',
+		]
+		for key in required_keys:
+			if key not in data:
+				raise errors.Error(f'Missing {key} in respond to approval request')
+
+		purchase_order_id = data['purchase_order_id']
+		new_request_status = data['new_request_status']
+		rejection_note = data['rejection_note']
+		link_val = data['link_val']
+
+		if not purchase_order_id:
+			raise errors.Error('No Purchase Order ID provided')
+
+		if new_request_status not in [RequestStatusEnum.APPROVED, RequestStatusEnum.REJECTED]:
+			raise errors.Error('Invalid new request status provided')
+
+		if new_request_status == RequestStatusEnum.REJECTED and not rejection_note:
+			raise errors.Error('Rejection note is required if response is rejected')
+
+		vendor_name = ''
+		customer_name = ''
+		purchase_order_number = ''
+		purchase_order_amount = ''
+		purchase_order_requested_date = ''
+		action_type = ''
+		approved_by_user_id = data['approved_by_user_id'] if 'approved_by_user_id' in data else None
+		rejected_by_user_id = data['rejected_by_user_id'] if 'rejected_by_user_id' in data else None
+
+		user_session = auth_util.UserSession.from_session()
+
+		with session_scope(current_app.session_maker) as session:
+			if user_session.is_bank_admin():
+				user = session.query(models.User) \
+					.filter(models.User.email == user_session.get_user_id()) \
+					.first()
+				if user:
+					event.user_id(str(user.id))
+			else:
+				two_factor_info, bespoke_err = two_factor_util.get_two_factor_link(
+					link_val, cfg.get_security_config(),
+					max_age_in_seconds=security_util.SECONDS_IN_DAY * 7, session=session)
+				if bespoke_err:
+					return handler_util.make_error_response(bespoke_err)
+				two_factor_link = two_factor_info['link']
+
+				user = session.query(models.User) \
+					.filter(models.User.email == two_factor_info['email']) \
+					.first()
+				if user:
+					event.user_id(str(user.id))
+
+			purchase_order = cast(
+				models.PurchaseOrder,
+				session.query(models.PurchaseOrder).filter_by(
+					id=purchase_order_id
+				).first())
+
+			if new_request_status == RequestStatusEnum.APPROVED:
+				purchase_order.status = RequestStatusEnum.APPROVED
+				purchase_order.approved_at = date_util.now()
+				purchase_order.approved_by_user_id = approved_by_user_id
+				action_type = 'Approved'
+			else:
+				purchase_order.status = RequestStatusEnum.REJECTED
+				purchase_order.rejected_at = date_util.now()
+				purchase_order.rejected_by_user_id = rejected_by_user_id
+				action_type = 'Rejected'
+
+				if user_session.is_bank_admin():
+					purchase_order.bank_rejection_note = rejection_note
+				else:
+					purchase_order.rejection_note = rejection_note
+
+			purchase_order_number = purchase_order.order_number
+			purchase_order_amount = number_util.to_dollar_format(float(purchase_order.amount))
+			if purchase_order.requested_at is not None:
+				purchase_order_requested_date = date_util.human_readable_yearmonthday(purchase_order.requested_at)
+			else:
+				purchase_order_requested_date = date_util.human_readable_yearmonthday(date_util.now())
+
+			customer_users = models_util.get_active_users(
+				purchase_order.company_id, 
+				session, 
+				filter_contact_only=True
+			)
+
+			if not customer_users:
+				raise errors.Error('There are no users configured for this customer')
+
+			vendor_name = purchase_order.vendor.get_display_name()
+			customer_name = purchase_order.company.get_display_name()
+			customer_emails = [user.email for user in customer_users]
+
+			if not user_session.is_bank_admin():
+				cast(Callable, session.delete)(two_factor_link) # retire the link now that it has been used
+
+			if action_type == 'Approved':
+				submit_resp, err = approval_util.submit_for_approval_if_has_autofinancing(
+					company_id=str(purchase_order.company_id),
+					amount=float(purchase_order.amount),
+					artifact_id=str(purchase_order.id),
+					session=session
+				)
+				if err:
+					if err.msg.find("psycopg2.errors.ForeignKeyViolation"):
+						raise errors.Error('Unable to submit autofinanced loan.')
+					else:
+						raise err
+
+				if submit_resp:
+					# Only trigger the email if indeed we performed autofinancing
+					success, err = approval_util.send_loan_approval_requested_email(
+						sendgrid_client, submit_resp)
+					if err:
+						raise err
+
+				template_name = sendgrid_util.TemplateNames.VENDOR_APPROVED_PURCHASE_ORDER
+				template_data = {
+					'vendor_name': vendor_name,
+					'customer_name': customer_name,
+					'purchase_order_number': purchase_order_number,
+					'purchase_order_amount': purchase_order_amount,
+					'purchase_order_requested_date': purchase_order_requested_date,
+					'is_autofinancing_enabled': submit_resp['triggered_by_autofinancing'] if submit_resp else False,
+				}
+				recipients = customer_emails + sendgrid_client.get_bank_notify_email_addresses()
+			else:
+				if user_session.is_bank_admin():
+					template_name = sendgrid_util.TemplateNames.BANK_REJECTED_PURCHASE_ORDER
+					template_data = {
+						'customer_name': customer_name,
+						'purchase_order_number': purchase_order_number,
+						'purchase_order_amount': purchase_order_amount,
+						'purchase_order_requested_date': purchase_order_requested_date,
+						'rejection_note': rejection_note,
+					}
+					recipients = customer_emails
+				else:
+					template_name = sendgrid_util.TemplateNames.VENDOR_REJECTED_PURCHASE_ORDER
+					template_data = {
+						'vendor_name': vendor_name,
+						'customer_name': customer_name,
+						'purchase_order_number': purchase_order_number,
+						'purchase_order_amount': purchase_order_amount,
+						'purchase_order_requested_date': purchase_order_requested_date,
+						'rejection_note': rejection_note,
+					}
+					recipients = customer_emails + sendgrid_client.get_bank_notify_email_addresses()
+
+			_, err = sendgrid_client.send(
+				template_name=template_name,
+				template_data=template_data,
+				recipients=recipients,
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Purchase Order {} approval request responded to'.format(purchase_order_id)
+		}), 200)
+
+
+class RespondToApprovalRequestNewView(MethodView):
 	"""
 	POST request that handles the following:
 	1. Vendor user approves a purchase order.
@@ -632,9 +892,23 @@ handler.add_url_rule(
 )
 
 handler.add_url_rule(
+	'/create_update_as_draft_new',
+	view_func=CreateUpdateAsDraftNewView.as_view(
+		name='create_update_as_draft_new',
+	),
+)
+
+handler.add_url_rule(
 	'/create_update_and_submit',
 	view_func=CreateUpdateAndSubmitView.as_view(
 		name='create_update_and_submit',
+	),
+)
+
+handler.add_url_rule(
+	'/create_update_and_submit_new',
+	view_func=CreateUpdateAndSubmitNewView.as_view(
+		name='create_update_and_submit_new',
 	),
 )
 
@@ -652,6 +926,12 @@ handler.add_url_rule(
 	'/respond_to_approval_request',
 	view_func=RespondToApprovalRequestView.as_view(
 		name='respond_to_approval_request')
+)
+
+handler.add_url_rule(
+	'/respond_to_approval_request_new',
+	view_func=RespondToApprovalRequestNewView.as_view(
+		name='respond_to_approval_request_new')
 )
 
 handler.add_url_rule(

@@ -84,6 +84,20 @@ def get_url_to_prompt_user(
 	)))
 	return security_util.get_secure_link(security_cfg, signed_val, is_url_relative)
 
+
+def get_url_to_prompt_user_new(
+	security_cfg: security_util.ConfigDict,
+	link_id: str,
+	user_email: str,
+	is_url_relative: bool = False,
+) -> str:
+	serializer = security_util.get_url_serializer(security_cfg)
+	signed_val = serializer.dumps(cast(Dict, security_util.LinkInfoDict(
+		link_id=link_id,
+		email=user_email
+	)))
+	return security_util.get_secure_link_new(security_cfg, signed_val, is_url_relative)
+
 def get_two_factor_link(
 	link_signed_val: str, 
 	security_config: security_util.ConfigDict,

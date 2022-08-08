@@ -32,6 +32,13 @@ def get_secure_link(cfg: ConfigDict, two_factor_row_id: str, is_url_relative: bo
 		return relative_url
 	else:
 		return cfg['BESPOKE_DOMAIN'] + relative_url
+	
+def get_secure_link_new(cfg: ConfigDict, two_factor_row_id: str, is_url_relative: bool) -> str:
+	relative_url = '/get-secure-link-new?val=' + two_factor_row_id
+	if is_url_relative:
+		return relative_url
+	else:
+		return cfg['BESPOKE_DOMAIN'] + relative_url
 
 def _get_serializer(cfg: ConfigDict) -> Serializer:
 	return Serializer(cfg['URL_SECRET_KEY'])

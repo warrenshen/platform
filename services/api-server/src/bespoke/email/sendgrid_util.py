@@ -430,6 +430,7 @@ class Client(object):
 		filter_out_contact_only: bool = False,
 		two_factor_payload: TwoFactorPayloadDict = None,
 		attachment: Attachment = None,
+		is_new_secure_link: bool = False,
 	) -> Tuple[bool, errors.Error]:
 		if is_test_env(os.environ.get("FLASK_ENV")):
 			recipients.append("do-not-reply-development@bespokefinancial.com")
@@ -498,11 +499,18 @@ class Client(object):
 			cur_recipient = email
 			cur_template_data = copy.deepcopy(template_data)
 
-			secure_link = two_factor_util.get_url_to_prompt_user(
-				security_cfg=self._security_cfg,
-				link_id=link_id,
-				user_email=cur_recipient
-			)
+			if is_new_secure_link:
+				secure_link = two_factor_util.get_url_to_prompt_user_new(
+					security_cfg=self._security_cfg,
+					link_id=link_id,
+					user_email=cur_recipient
+				)
+			else:
+				secure_link = two_factor_util.get_url_to_prompt_user(
+					security_cfg=self._security_cfg,
+					link_id=link_id,
+					user_email=cur_recipient
+				)
 
 			cur_template_data['_2fa'] = {
 				'secure_link': secure_link

@@ -49,6 +49,7 @@ import BankCustomerOverviewSubpage from "./Overview";
 import BankCompanyPayorPartnershipsSubpage from "./PayorPartnerships";
 import BankCustomerPayorsSubpage from "./Payors";
 import BankCustomerPurchaseOrdersSubpage from "./PurchaseOrders";
+import BankCustomerPurchaseOrdersSubpageNew from "./PurchaseOrdersNew";
 import BankCustomerPaymentsSubpage from "./Repayments";
 import BankCustomerReportsSubpage from "./Reports";
 import BankCustomerSettingsSubpage from "./Settings";
@@ -175,7 +176,8 @@ const getCustomerPaths = (
   missingFinancialReportCount: number,
   isLatestBorrowingBaseMissing: boolean,
   productType: ProductTypeEnum | null,
-  isMetrcBased: boolean
+  isMetrcBased: boolean,
+  isBankUser: boolean
 ) => {
   return [
     {
@@ -200,6 +202,20 @@ const getCustomerPaths = (
           label: "Purchase Orders",
           path: bankRoutes.company.purchaseOrders,
           component: BankCustomerPurchaseOrdersSubpage,
+        },
+        {
+          visible:
+            isBankUser && // Todo : Remove this when we want to rollout to the users
+            !!productType &&
+            [
+              ProductTypeEnum.DispensaryFinancing,
+              ProductTypeEnum.InventoryFinancing,
+              ProductTypeEnum.PurchaseMoneyFinancing,
+            ].includes(productType),
+          dataCy: "customer-purchase-orders-new",
+          label: "Purchase Orders New",
+          path: bankRoutes.company.purchaseOrdersNew,
+          component: BankCustomerPurchaseOrdersSubpageNew,
         },
         {
           visible:
@@ -410,7 +426,8 @@ export default function BankCompanyPage() {
               missingFinancialReportCount,
               isLatestBorrowingBaseMissing,
               productType,
-              isMetrcBased
+              isMetrcBased,
+              isRoleBankUser(role)
             )
               .filter(
                 (section) => section.visible == null || !!section?.visible
@@ -485,7 +502,8 @@ export default function BankCompanyPage() {
               missingFinancialReportCount,
               isLatestBorrowingBaseMissing,
               productType,
-              isMetrcBased
+              isMetrcBased,
+              isRoleBankUser(role)
             ).map((section) => section.paths)
           ).map((companyPath) => (
             <PrivateRoute
