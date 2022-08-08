@@ -33,6 +33,7 @@ export interface ArtifactLoansDataGridFlagProps {
   isRequestedDateVisible?: boolean; // Whether requested payment date is visible.
   isViewNotesEnabled?: boolean;
   isDaysPastDueVisible?: boolean;
+  isVendorVisible?: boolean;
   pager?: boolean;
 }
 
@@ -69,6 +70,7 @@ export default function ArtifactLoansDataGrid({
   isRequestedDateVisible = false,
   isViewNotesEnabled = false,
   isDaysPastDueVisible = false,
+  isVendorVisible = false,
   pager = true,
   artifactCaption,
   loans,
@@ -150,6 +152,13 @@ export default function ArtifactLoansDataGrid({
             dateString={params.row.data.requested_payment_date}
           />
         ),
+      },
+      {
+        visible: isVendorVisible,
+        caption: "Vendor",
+        dataField: "purchase_order.vendor.name",
+        width: ColumnWidths.MinWidth,
+        alignment: "right",
       },
       {
         visible: !isMiniTable,
