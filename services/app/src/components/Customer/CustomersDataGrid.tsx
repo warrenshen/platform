@@ -183,7 +183,10 @@ export default function CustomersDataGrid({
       },
       {
         dataField: "adjusted_total_limit",
-        format: "currency",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         caption: "Borrowing Limit",
         width: ColumnWidths.Currency,
         alignment: "right",

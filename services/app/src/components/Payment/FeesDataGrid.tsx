@@ -1,9 +1,6 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
-import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
-import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
 import {
   Companies,
   PaymentLimitedFragment,
@@ -11,12 +8,14 @@ import {
   TransactionFragment,
   Transactions,
 } from "generated/graphql";
+import { formatDateString, formatDatetimeString } from "lib/date";
 import {
   PaymentTypeEnum,
   PaymentTypeToLabel,
   TransactionSubTypeEnum,
   TransactionSubTypeToLabel,
 } from "lib/enum";
+import { CurrencyPrecision } from "lib/number";
 import { ColumnWidths } from "lib/tables";
 import { useMemo, useState } from "react";
 
@@ -48,13 +47,19 @@ function getRows(
 ): RowsProp {
   return fees.map((fee) => ({
     ...fee,
-    fee_type: PaymentTypeToLabel[fee.type as PaymentTypeEnum],
+    amount: (fee.type === PaymentTypeEnum.FeeWaiver ? -1 : 1) * fee.amount,
     fee_name: fee.transactions[0]?.subtype
       ? TransactionSubTypeToLabel[
           fee.transactions[0]?.subtype as TransactionSubTypeEnum
         ]
       : "",
-    amount: (fee.type === PaymentTypeEnum.FeeWaiver ? -1 : 1) * fee.amount,
+    fee_type: PaymentTypeToLabel[fee.type as PaymentTypeEnum],
+    settlement_date: !!fee.settlement_date
+      ? formatDateString(fee.settlement_date)
+      : "-",
+    submitted_at: !!fee.submitted_at
+      ? formatDatetimeString(fee.submitted_at)
+      : "-",
   }));
 }
 
@@ -85,13 +90,9 @@ export default function FeesDataGrid({
       {
         visible: false,
         caption: "Submitted At",
+        dataField: "submitted_at",
         width: ColumnWidths.Datetime,
-        cellRender: (params: ValueFormatterParams) => (
-          <DatetimeDataGridCell
-            isTimeVisible
-            datetimeString={params.row.data.submitted_at}
-          />
-        ),
+        format: "shortDate",
       },
       {
         visible: isCompanyVisible,
@@ -121,19 +122,18 @@ export default function FeesDataGrid({
         caption: "Effective Date",
         width: ColumnWidths.Date,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell dateString={params.row.data.settlement_date} />
-        ),
+        dataField: "settlement_date",
+        format: "shortDate",
       },
       {
         dataField: "amount",
         caption: "Amount",
         width: ColumnWidths.Currency,
         alignment: "right",
-        calculateCellValue: ({ amount }: PaymentLimitedFragment) => amount,
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.amount} />
-        ),
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
       },
     ],
     [dataGrid?.instance, isCompanyVisible, handleClickCustomer]
