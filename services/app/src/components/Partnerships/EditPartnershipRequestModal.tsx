@@ -10,7 +10,10 @@ import {
   makeStyles,
 } from "@material-ui/core";
 import CreateUpdateVendorPartnershipRequestForm from "components/Vendors/CreateUpdateVendorPartnershipRequestForm";
-import { useGetAllArtifactRelationsQuery } from "generated/graphql";
+import {
+  useGetAllArtifactRelationsQuery,
+  useGetCompanyLicensesForVendorOnboardingQuery,
+} from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { updatePartnershipRequestNewMutation } from "lib/api/companies";
 import { PartnershipRequestType } from "lib/enum";
@@ -50,6 +53,9 @@ export default function EditPartnershipRequestModal({
   const { data } = useGetAllArtifactRelationsQuery({
     fetchPolicy: "network-only",
   });
+
+  const { data: licensesData } =
+    useGetCompanyLicensesForVendorOnboardingQuery();
 
   const vendors = data?.vendors || [];
 
@@ -165,6 +171,7 @@ export default function EditPartnershipRequestModal({
           setVendorInput={setVendorInput}
           isUpdate={true}
           selectableVendors={vendors}
+          selectableLicenseNumbers={licensesData?.company_licenses}
           isMoved={
             partnerRequest.request_info?.type ===
             PartnershipRequestType.MoveToAction

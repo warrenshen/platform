@@ -14,6 +14,7 @@ import {
   BankAccounts,
   FileFragment,
   GetAllArtifactRelationsQuery,
+  GetCompanyLicensesForVendorOnboardingQuery,
   Users,
   Vendors,
 } from "generated/graphql";
@@ -23,6 +24,10 @@ import { isEmailValid } from "lib/validation";
 import { CreateVendorInput } from "pages/Anonymous/VendorForm";
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 
+import AutocompleteLicenseNumbers, {
+  LicenseNumberOptionType,
+} from "./AutocompleteLicenseNumbers";
+
 interface Props {
   companyId: string;
   companyName: string;
@@ -30,6 +35,7 @@ interface Props {
   setVendorInput: React.Dispatch<React.SetStateAction<CreateVendorInput>>;
   isUpdate: boolean;
   selectableVendors?: GetAllArtifactRelationsQuery["vendors"];
+  selectableLicenseNumbers?: GetCompanyLicensesForVendorOnboardingQuery["company_licenses"];
   isMoved?: boolean;
 }
 
@@ -40,6 +46,7 @@ export default function CreateUpdateVendorPartnershipRequestForm({
   setVendorInput,
   isUpdate,
   selectableVendors = [],
+  selectableLicenseNumbers = [],
   isMoved = false,
 }: Props) {
   const [selectedVendor, setSelectedVendor] = useState<Vendors | null>();
@@ -423,17 +430,27 @@ export default function CreateUpdateVendorPartnershipRequestForm({
       {vendorInput.isCannabis && (
         <>
           <Box display="flex" flexDirection="column" mt={2}>
-            <TextField
-              label="Cannabis License Number"
-              required
-              value={vendorInput.cannabisLicenseNumber.license_ids.join(",")}
-              onChange={({ target: { value } }) => {
-                let licenseIds = value.split(",").map((l) => {
-                  return l.trim();
-                });
+            <AutocompleteLicenseNumbers
+              selectableLicenseNumbers={
+                selectableLicenseNumbers as LicenseNumberOptionType[]
+              }
+              onChange={(_, value) => {
+                const licenseNumbers = (value as LicenseNumberOptionType[]).map(
+                  (license) => {
+                    if (license.inputValue) {
+                      return license.inputValue;
+                    } else if (license.license_number) {
+                      return license.license_number;
+                    } else {
+                      return license;
+                    }
+                  }
+                );
                 setVendorInput({
                   ...vendorInput,
-                  cannabisLicenseNumber: { license_ids: licenseIds },
+                  cannabisLicenseNumber: {
+                    license_ids: licenseNumbers as string[],
+                  },
                 });
               }}
             />

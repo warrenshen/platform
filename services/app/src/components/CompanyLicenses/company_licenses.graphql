@@ -60,3 +60,16 @@ query GetAllCompanyLicenses($license_number: String!) {
     ...CompanyLicense
   }
 }
+
+query GetCompanyLicensesForVendorOnboarding {
+  company_licenses(
+    where: {
+      _or: [
+        { is_deleted: { _is_null: true } }
+        { is_deleted: { _eq: false } }
+      ]
+    }
+  ) {
+    ...CompanyLicense
+  }
+}

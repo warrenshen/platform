@@ -10,6 +10,7 @@ import CreateUpdateVendorPartnershipRequestForm from "components/Vendors/CreateU
 import {
   Companies,
   useGetCompanyForVendorOnboardingQuery,
+  useGetCompanyLicensesForVendorOnboardingQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -122,6 +123,9 @@ export default function VendorFormPage() {
       id: companyId,
     },
   });
+
+  const { data: licensesData } =
+    useGetCompanyLicensesForVendorOnboardingQuery();
 
   if (error) {
     console.log({ error });
@@ -238,6 +242,7 @@ export default function VendorFormPage() {
           companyName={companyName}
           vendorInput={vendorInput}
           setVendorInput={setVendorInput}
+          selectableLicenseNumbers={licensesData?.company_licenses}
           isUpdate={false}
         />
         <Box className={classes.actionButtonWrapper} mt={4}>

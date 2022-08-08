@@ -7122,8 +7122,6 @@ export type CustomerSurveillanceResultsBoolExp = {
 /** unique or primary key constraints on table "customer_surveillance_results" */
 export enum CustomerSurveillanceResultsConstraint {
   /** unique or primary key constraint */
-  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
-  /** unique or primary key constraint */
   CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
 }
 
@@ -27441,10 +27439,10 @@ export type VendorChangeRequests = {
   id: Scalars["uuid"];
   is_deleted?: Maybe<Scalars["Boolean"]>;
   request_info: Scalars["json"];
-  request_status: Scalars["String"];
   requested_vendor_id: Scalars["uuid"];
   requesting_user_id: Scalars["uuid"];
   reviewed_by_user_id?: Maybe<Scalars["uuid"]>;
+  status: Scalars["String"];
   updated_at: Scalars["timestamptz"];
 };
 
@@ -27485,10 +27483,10 @@ export type VendorChangeRequestsBoolExp = {
   id?: Maybe<UuidComparisonExp>;
   is_deleted?: Maybe<BooleanComparisonExp>;
   request_info?: Maybe<JsonComparisonExp>;
-  request_status?: Maybe<StringComparisonExp>;
   requested_vendor_id?: Maybe<UuidComparisonExp>;
   requesting_user_id?: Maybe<UuidComparisonExp>;
   reviewed_by_user_id?: Maybe<UuidComparisonExp>;
+  status?: Maybe<StringComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
 };
 
@@ -27508,10 +27506,10 @@ export type VendorChangeRequestsInsertInput = {
   id?: Maybe<Scalars["uuid"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   request_info?: Maybe<Scalars["json"]>;
-  request_status?: Maybe<Scalars["String"]>;
   requested_vendor_id?: Maybe<Scalars["uuid"]>;
   requesting_user_id?: Maybe<Scalars["uuid"]>;
   reviewed_by_user_id?: Maybe<Scalars["uuid"]>;
+  status?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
@@ -27523,10 +27521,10 @@ export type VendorChangeRequestsMaxFields = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   deleted_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
-  request_status?: Maybe<Scalars["String"]>;
   requested_vendor_id?: Maybe<Scalars["uuid"]>;
   requesting_user_id?: Maybe<Scalars["uuid"]>;
   reviewed_by_user_id?: Maybe<Scalars["uuid"]>;
+  status?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
@@ -27538,10 +27536,10 @@ export type VendorChangeRequestsMinFields = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   deleted_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
-  request_status?: Maybe<Scalars["String"]>;
   requested_vendor_id?: Maybe<Scalars["uuid"]>;
   requesting_user_id?: Maybe<Scalars["uuid"]>;
   reviewed_by_user_id?: Maybe<Scalars["uuid"]>;
+  status?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
@@ -27570,10 +27568,10 @@ export type VendorChangeRequestsOrderBy = {
   id?: Maybe<OrderBy>;
   is_deleted?: Maybe<OrderBy>;
   request_info?: Maybe<OrderBy>;
-  request_status?: Maybe<OrderBy>;
   requested_vendor_id?: Maybe<OrderBy>;
   requesting_user_id?: Maybe<OrderBy>;
   reviewed_by_user_id?: Maybe<OrderBy>;
+  status?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
 };
 
@@ -27601,13 +27599,13 @@ export enum VendorChangeRequestsSelectColumn {
   /** column name */
   RequestInfo = "request_info",
   /** column name */
-  RequestStatus = "request_status",
-  /** column name */
   RequestedVendorId = "requested_vendor_id",
   /** column name */
   RequestingUserId = "requesting_user_id",
   /** column name */
   ReviewedByUserId = "reviewed_by_user_id",
+  /** column name */
+  Status = "status",
   /** column name */
   UpdatedAt = "updated_at",
 }
@@ -27622,10 +27620,10 @@ export type VendorChangeRequestsSetInput = {
   id?: Maybe<Scalars["uuid"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   request_info?: Maybe<Scalars["json"]>;
-  request_status?: Maybe<Scalars["String"]>;
   requested_vendor_id?: Maybe<Scalars["uuid"]>;
   requesting_user_id?: Maybe<Scalars["uuid"]>;
   reviewed_by_user_id?: Maybe<Scalars["uuid"]>;
+  status?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
@@ -27648,13 +27646,13 @@ export enum VendorChangeRequestsUpdateColumn {
   /** column name */
   RequestInfo = "request_info",
   /** column name */
-  RequestStatus = "request_status",
-  /** column name */
   RequestedVendorId = "requested_vendor_id",
   /** column name */
   RequestingUserId = "requesting_user_id",
   /** column name */
   ReviewedByUserId = "reviewed_by_user_id",
+  /** column name */
+  Status = "status",
   /** column name */
   UpdatedAt = "updated_at",
 }
@@ -28264,6 +28262,14 @@ export type GetAllCompanyLicensesQueryVariables = Exact<{
 }>;
 
 export type GetAllCompanyLicensesQuery = {
+  company_licenses: Array<CompanyLicenseFragment>;
+};
+
+export type GetCompanyLicensesForVendorOnboardingQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetCompanyLicensesForVendorOnboardingQuery = {
   company_licenses: Array<CompanyLicenseFragment>;
 };
 
@@ -33388,6 +33394,69 @@ export type GetAllCompanyLicensesQueryResult = Apollo.QueryResult<
   GetAllCompanyLicensesQuery,
   GetAllCompanyLicensesQueryVariables
 >;
+export const GetCompanyLicensesForVendorOnboardingDocument = gql`
+  query GetCompanyLicensesForVendorOnboarding {
+    company_licenses(
+      where: {
+        _or: [
+          { is_deleted: { _is_null: true } }
+          { is_deleted: { _eq: false } }
+        ]
+      }
+    ) {
+      ...CompanyLicense
+    }
+  }
+  ${CompanyLicenseFragmentDoc}
+`;
+
+/**
+ * __useGetCompanyLicensesForVendorOnboardingQuery__
+ *
+ * To run a query within a React component, call `useGetCompanyLicensesForVendorOnboardingQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCompanyLicensesForVendorOnboardingQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCompanyLicensesForVendorOnboardingQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetCompanyLicensesForVendorOnboardingQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetCompanyLicensesForVendorOnboardingQuery,
+    GetCompanyLicensesForVendorOnboardingQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetCompanyLicensesForVendorOnboardingQuery,
+    GetCompanyLicensesForVendorOnboardingQueryVariables
+  >(GetCompanyLicensesForVendorOnboardingDocument, baseOptions);
+}
+export function useGetCompanyLicensesForVendorOnboardingLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetCompanyLicensesForVendorOnboardingQuery,
+    GetCompanyLicensesForVendorOnboardingQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetCompanyLicensesForVendorOnboardingQuery,
+    GetCompanyLicensesForVendorOnboardingQueryVariables
+  >(GetCompanyLicensesForVendorOnboardingDocument, baseOptions);
+}
+export type GetCompanyLicensesForVendorOnboardingQueryHookResult = ReturnType<
+  typeof useGetCompanyLicensesForVendorOnboardingQuery
+>;
+export type GetCompanyLicensesForVendorOnboardingLazyQueryHookResult =
+  ReturnType<typeof useGetCompanyLicensesForVendorOnboardingLazyQuery>;
+export type GetCompanyLicensesForVendorOnboardingQueryResult =
+  Apollo.QueryResult<
+    GetCompanyLicensesForVendorOnboardingQuery,
+    GetCompanyLicensesForVendorOnboardingQueryVariables
+  >;
 export const GetCustomerFinancialSummaryByDateDocument = gql`
   subscription GetCustomerFinancialSummaryByDate(
     $company_id: uuid!
