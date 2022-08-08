@@ -346,6 +346,9 @@ def create_month_end_payments_for_customers(
 		return None, errors.Error('No companies provided to book minimum due fees')
 
 	requested_date = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
+	# use dates specified on LOC email reports (5th business day of each month).
+	# If 5th business day of month falls on weekend or holiday, it should be reverse drafted on the first succeeding business day.
+	adjusted_requested_date = date_util.get_automated_debit_date(requested_date)
 
 	for customer_id, val_info in minimum_due_resp['company_due_to_financial_info'].items():
 		fee_dict = val_info['fee_info']
@@ -373,7 +376,7 @@ def create_month_end_payments_for_customers(
 				requested_amount=val_info['fee_amount'],
 				amount=None,
 				method=db_constants.PaymentMethodEnum.REVERSE_DRAFT_ACH,
-				requested_payment_date=date_util.date_to_str(requested_date),
+				requested_payment_date=date_util.date_to_str(adjusted_requested_date),
 				payment_date=None,
 				settlement_date=None,
 				recipient_bank_account_id=None,

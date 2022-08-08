@@ -15,6 +15,7 @@ import {
   PaymentLimitedFragment,
   Payments,
 } from "generated/graphql";
+import { parseDateStringServer } from "lib/date";
 import {
   PaymentTypeEnum,
   RepaymentMethodEnum,
@@ -38,6 +39,12 @@ function getRows(
   if (isLineOfCredit) {
     return payments.map((payment) => {
       return formatRowModel({
+        adjusted_maturity_date: !!payment.transactions?.[0]?.loan
+          ?.adjusted_maturity_date
+          ? parseDateStringServer(
+              payment.transactions[0].loan.adjusted_maturity_date
+            )
+          : null,
         company_id: payment.company_id,
         company_identifier: payment.company.identifier,
         company_name: payment.company.name,
@@ -71,6 +78,12 @@ function getRows(
             ]
           : payment.transactions.map((transaction) =>
               formatRowModel({
+                adjusted_maturity_date: !!transaction.loan
+                  ?.adjusted_maturity_date
+                  ? parseDateStringServer(
+                      transaction.loan.adjusted_maturity_date
+                    )
+                  : null,
                 company_id: payment.company_id,
                 company_identifier: payment.company.identifier,
                 company_name: payment.company.name,
@@ -193,6 +206,12 @@ export default function CustomerRepaymentTransactionsDataGrid({
         }: {
           payment: PaymentLimitedFragment;
         }) => RepaymentMethodToLabel[payment.method as RepaymentMethodEnum],
+      },
+      {
+        dataField: "adjusted_maturity_date",
+        caption: "Maturity Date",
+        width: ColumnWidths.Date,
+        alignment: "right",
       },
       {
         dataField: "payment.deposit_date",
