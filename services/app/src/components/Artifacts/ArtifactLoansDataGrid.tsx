@@ -256,6 +256,7 @@ export default function ArtifactLoansDataGrid({
       isMiniTable,
       isOriginationDateVisible,
       isRequestedDateVisible,
+      isVendorVisible,
       isViewNotesEnabled,
       isDaysPastDueVisible,
       artifactCaption,
