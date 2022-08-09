@@ -24,6 +24,24 @@
   headers:
     - name: x-api-key
       value_from_env: ASYNC_SERVER_API_KEY
+- name: dummy
+  webhook: '{{ASYNC_SERVER_BASE_URL}}/async_jobs/enqueue-job'
+  schedule: 1 0 * * *
+  include_in_metadata: true
+  payload:
+    job_name: dummy
+    submitted_by_user_id: null
+    job_payload:
+      value: hello world
+    is_high_priority: true
+  retry_conf:
+    num_retries: 0
+    timeout_seconds: 3600
+    tolerance_seconds: 21600
+    retry_interval_seconds: 10
+  headers:
+    - value: ASYNC_SERVER_API_KEY
+      name: x-api-key
 - name: expire_old_borrowing_base_certifications
   webhook: '{{ASYNC_SERVER_BASE_URL}}/triggers/expire-active-ebba-applications'
   schedule: 15 0 * * *
