@@ -218,6 +218,24 @@ export enum NewPurchaseOrderStatus {
   RejectedByBespoke = "rejected_by_bespoke",
 }
 
+export const NewPurchaseOrderStatusToLabel = {
+  [NewPurchaseOrderStatus.Draft]: "Draft",
+  [NewPurchaseOrderStatus.PendingApprovalByVendor]:
+    "Pending approval by vendor",
+  [NewPurchaseOrderStatus.ChangesRequestedByVendor]:
+    "Changes requested by vendor",
+  [NewPurchaseOrderStatus.ChangesRequestedByBespoke]: "Changes requested by BF",
+  [NewPurchaseOrderStatus.ReadyToRequestFinancing]:
+    "Ready to request financing",
+  [NewPurchaseOrderStatus.PendingApprovalByBespoke]: "Pending approval by BF",
+  [NewPurchaseOrderStatus.FinancingRequestApproved]:
+    "Financing request approved",
+  [NewPurchaseOrderStatus.FullyFinanced]: "Fully financed",
+  [NewPurchaseOrderStatus.Archived]: "Archived",
+  [NewPurchaseOrderStatus.RejectedByVendor]: "Rejected by vendor",
+  [NewPurchaseOrderStatus.RejectedByBespoke]: "Rejected by BF",
+};
+
 export enum SurveillanceStatusEnum {
   GoodStanding = "good_standing",
   OnProbation = "on_probation",
