@@ -206,7 +206,7 @@ class AddCompanyView(MethodView):
 		latest_loan_identifier = get_field_or_default(form, 'latest_loan_identifier', 0)
 		latest_repayment_identifier = get_field_or_default(form, 'latest_repayment_identifier', 0)
 		name = get_field_or_default(form, 'name', 'Cypress Customer')
-		parent_company_id = get_field_or_default(form, 'parent_company_id', 'None')
+		parent_company_id = get_field_or_default(form, 'parent_company_id', None)
 		phone_number = get_field_or_default(form, 'phone_number', '3011234567')
 		qualify_for = get_field_or_default(form, 'qualify_for', ProductType.INVENTORY_FINANCING)
 		state = get_field_or_default(form, 'state', 'MD')
@@ -214,9 +214,9 @@ class AddCompanyView(MethodView):
 		surveillance_status_note = get_field_or_default(form, 'surveillance_status_note', None)
 		zip_code = get_field_or_default(form, 'zip_code', '21037')
 
-		company_id = ''
-		company_settings_id = ''
-		parent_company_id = ''
+		export_company_id = ''
+		export_company_settings_id = ''
+		export_parent_company_id = ''
 		with session_scope(session_maker) as session:
 			logging.info('Adding company for cypress test...')
 
@@ -253,9 +253,9 @@ class AddCompanyView(MethodView):
 			if err:
 				raise err
 
-			company_id = str(company.id)
-			company_settings_id = str(company_settings.id)
-			parent_company_id = str(parent_company.id)
+			export_company_id = str(company.id)
+			export_company_settings_id = str(company_settings.id)
+			export_parent_company_id = str(parent_company.id)
 			
 			logging.info('Finished adding company for cypress test...')
 
@@ -263,9 +263,9 @@ class AddCompanyView(MethodView):
 			'status': 'OK',
 			'msg': 'Success',
 			'data': {
-				'company_id': company_id,
-				'company_settings_id': company_settings_id,
-				'parent_company_id': parent_company_id,
+				'company_id': export_company_id,
+				'company_settings_id': export_company_settings_id,
+				'parent_company_id': export_parent_company_id,
 			},
 		}))
 

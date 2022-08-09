@@ -145,17 +145,22 @@ def create_company(
     surveillance_status_note: str,
     zip_code: str,
 ) -> Tuple[models.Company, models.CompanySettings, models.ParentCompany, errors.Error]:
-    company_id = str(uuid.uuid4())
-    company_settings_id = str(uuid.uuid4())
-    parent_company_id = str(uuid.uuid4())
+    company_id = str(uuid.uuid4()) if id is None else id
+    company_settings_id = str(uuid.uuid4()) if company_settings_id is None else company_settings_id
+    parent_company_id = str(uuid.uuid4()) if parent_company_id is None else parent_company_id
 
-
-    parent_company = models.ParentCompany(
-        id = parent_company_id,
-        name = 'Cypress Parent Company',
+    parent_company, _ = queries.get_parent_company_by_id(
+        session,
+        parent_company_id,
     )
-    session.add(parent_company)
-    session.flush()
+
+    if parent_company is None:
+        parent_company = models.ParentCompany(
+            id = parent_company_id,
+            name = 'Cypress Parent Company',
+        )
+        session.add(parent_company)
+        session.flush()
 
     company = models.Company(
         id = company_id,

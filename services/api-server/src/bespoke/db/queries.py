@@ -230,6 +230,27 @@ def get_open_mature_loans_for_target_customers(
     return loans, None
 
 # ###############################
+# Parent Company
+# ###############################
+
+def get_parent_company_by_id(
+    session: Session,
+    parent_company_id: str,
+) -> Tuple[ models.ParentCompany, errors.Error ]:
+    # fmt: off
+    parent_company = cast(
+        models.ParentCompany,
+        session.query(models.ParentCompany).filter(
+            models.ParentCompany.id == parent_company_id
+        ).first())
+    # fmt: on
+
+    if not parent_company:
+        return None, errors.Error("No parent company with the specified id exists in the system")
+
+    return parent_company, None
+
+# ###############################
 # Payments
 # ###############################
 
