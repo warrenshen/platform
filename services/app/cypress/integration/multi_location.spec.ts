@@ -39,15 +39,21 @@ describe("Sign in: multilocation customer user", () => {
     });
   });
 
-  it("can sign in with valid email/password", () => {
-    cy.url().should("include", "overview");
+  it(
+    "can sign in with valid email/password",
+    {
+      retries: 5,
+    },
+    () => {
+      cy.url().should("include", "overview");
 
-    // Verify that the switch location button is present
-    cy.dataCy("switch-location-button").should("be.visible");
+      // Verify that the switch location button is present
+      cy.dataCy("switch-location-button").should("be.visible");
 
-    cy.dataCy("switch-location-button").click();
+      cy.dataCy("switch-location-button").click();
 
-    // Open the second location
-    cy.dataCy("select-location-button-1").click();
-  });
+      // Open the second location
+      cy.dataCy("select-location-button-1").click();
+    }
+  );
 });

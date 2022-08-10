@@ -3,6 +3,7 @@
   "projectId": "nt8kaf",
   "baseUrl": "http://localhost:3006",
   "chromeWebSecurity": false,
+  "includeShadowDom": true,
   "env": {
     "isDocker": false,
     "apiServerUrl": "http://localhost:7002"

@@ -55,11 +55,23 @@ describe("Create purchase order", () => {
     });
   });
 
-  it("Dispensary financing customer user can create non-Metrc purchase order", () => {
-    customerCreatesPurchaseOrderFlow("C-0001");
-  });
+  it(
+    "Dispensary financing customer user can create non-Metrc purchase order",
+    {
+      retries: 5,
+    },
+    () => {
+      customerCreatesPurchaseOrderFlow("C-0001");
+    }
+  );
 
-  it("Vendor can approve a purchase order", () => {
-    approvePurchaseOrderAsVendor("vendor@bespokefinancial.com");
-  });
+  it(
+    "Vendor can approve a purchase order",
+    {
+      retries: 5,
+    },
+    () => {
+      approvePurchaseOrderAsVendor("vendor@bespokefinancial.com");
+    }
+  );
 });

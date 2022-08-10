@@ -24,17 +24,23 @@ describe("Accepting a company partnership request", () => {
     });
   });
 
-  it("should be successful", () => {
-    cy.loginBankAdmin();
+  it(
+    "should be successful",
+    {
+      retries: 5,
+    },
+    () => {
+      cy.loginBankAdmin();
 
-    cy.dataCy("sidebar-item-partnerships").click();
-    cy.persistentClick(
-      "[data-cy='partnership-data-grid-container'] tr[aria-rowindex='1'] td[aria-colindex='1'] .dx-select-checkbox"
-    );
+      cy.dataCy("sidebar-item-partnerships").click();
+      cy.persistentClick(
+        "[data-cy='partnership-data-grid-container'] tr[aria-rowindex='1'] td[aria-colindex='1'] .dx-select-checkbox"
+      );
 
-    cy.dataCy("triage-request-button").click();
-    cy.get("button").last().click();
+      cy.dataCy("triage-request-button").click();
+      cy.get("button").last().click();
 
-    cy.get(".MuiAlert-standardSuccess").should("exist");
-  });
+      cy.get(".MuiAlert-standardSuccess").should("exist");
+    }
+  );
 });

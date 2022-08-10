@@ -32,29 +32,35 @@ describe("On Metrc: Create Licenses", () => {
     });
   });
 
-  it("Creates licenses", () => {
-    const firstLicenseNumber = "18903821903812093821";
-    const secondLicenseNumber = "89164893768493278402";
+  it(
+    "Creates licenses",
+    {
+      retries: 5,
+    },
+    () => {
+      const firstLicenseNumber = "18903821903812093821";
+      const secondLicenseNumber = "89164893768493278402";
 
-    cy.loginBankAdmin();
+      cy.loginBankAdmin();
 
-    cy.dataCy("sidebar-item-customers").click();
-    cy.url().should("include", "customers");
+      cy.dataCy("sidebar-item-customers").click();
+      cy.url().should("include", "customers");
 
-    cy.dataCy("customers-data-grid-view-customer-button-CC")
-      .first()
-      .click({ force: true });
-    cy.dataCy("company-sidebar-item-general-metrc").click();
+      cy.dataCy("customers-data-grid-view-customer-button-CC")
+        .first()
+        .click({ force: true });
+      cy.dataCy("company-sidebar-item-general-metrc").click();
 
-    createCannabisLicense(firstLicenseNumber, true);
-    createCannabisLicense(secondLicenseNumber);
+      createCannabisLicense(firstLicenseNumber, true);
+      createCannabisLicense(secondLicenseNumber);
 
-    // Checks that the licenses appear in the license data grid
-    cy.dataCy("company-license-table-container").within(() =>
-      cy.contains(firstLicenseNumber).should("exist")
-    );
-    cy.dataCy("company-license-table-container").within(() =>
-      cy.contains(secondLicenseNumber).should("exist")
-    );
-  });
+      // Checks that the licenses appear in the license data grid
+      cy.dataCy("company-license-table-container").within(() =>
+        cy.contains(firstLicenseNumber).should("exist")
+      );
+      cy.dataCy("company-license-table-container").within(() =>
+        cy.contains(secondLicenseNumber).should("exist")
+      );
+    }
+  );
 });

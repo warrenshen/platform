@@ -21,7 +21,13 @@ describe("On Metrc: Deleting a license should", () => {
     });
   });
 
-  it("work when setting isUnderwritting to false", () => {
-    deleteLicenseOnMetrcPage(".MuiAlert-standardSuccess");
-  });
+  it(
+    "work when setting isUnderwritting to false",
+    {
+      retries: 5,
+    },
+    () => {
+      deleteLicenseOnMetrcPage(".MuiAlert-standardSuccess");
+    }
+  );
 });

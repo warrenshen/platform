@@ -48,7 +48,13 @@ describe("Create purchase order", () => {
     });
   });
 
-  it("Bank user can create non-Metrc purchase order on behalf of purchase money financing customer", () => {
-    bankAdminCreatePurchaseOrderFlow("C-0001");
-  });
+  it(
+    "Bank user can create non-Metrc purchase order on behalf of purchase money financing customer",
+    {
+      retries: 5,
+    },
+    () => {
+      bankAdminCreatePurchaseOrderFlow("C-0001");
+    }
+  );
 });

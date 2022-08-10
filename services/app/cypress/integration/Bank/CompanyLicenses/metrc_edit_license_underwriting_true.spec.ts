@@ -21,7 +21,13 @@ describe("On Metrc: Edit Licenses", () => {
     });
   });
 
-  it("works when updating isUnderwritting from true to false", () => {
-    editLicenseOnMetrcPage();
-  });
+  it(
+    "works when updating isUnderwritting from true to false",
+    {
+      retries: 5,
+    },
+    () => {
+      editLicenseOnMetrcPage();
+    }
+  );
 });

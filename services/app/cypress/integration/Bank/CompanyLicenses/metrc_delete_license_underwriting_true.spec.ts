@@ -21,9 +21,15 @@ describe("On Metrc: Deleting a license should", () => {
     });
   });
 
-  it("not work when setting isUnderwritting to true", () => {
-    deleteLicenseOnMetrcPage(".MuiAlert-standardError");
-  });
+  it(
+    "not work when setting isUnderwritting to true",
+    {
+      retries: 5,
+    },
+    () => {
+      deleteLicenseOnMetrcPage(".MuiAlert-standardError");
+    }
+  );
 
   /*
      TODO: Test for facility_row_id null and non null
